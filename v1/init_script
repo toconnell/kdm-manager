@@ -1,0 +1,80 @@
+#!/usr/bin/env python
+
+### BEGIN INIT INFO
+# Provides:	  kdm-manager
+# Required-Start:    $local_fs $remote_fs $network $syslog $named
+# Required-Stop:     $local_fs $remote_fs $network $syslog $named
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: starts the CGI application server 
+# Description:       starts the CGI application server
+### END INIT INFO
+
+import ConfigParser
+import os
+import shutil
+import subprocess
+import sys
+import time
+
+
+#   get settings before we do anything else
+try:
+    config_file_path = "/home/toconnell/kdm-manager/v1/settings.cfg"
+    settings = ConfigParser.ConfigParser()
+    settings.readfp(open(config_file_path))
+except:
+    raise Exception("Settings could not be loaded!")
+
+
+#   helpers and functions
+
+def dir_check():
+    """ Iterates over 'required_directories' list within the function and
+    creates any directory in that list that does not exist. """
+
+    required_directories = [
+        settings.get("application","log_dir"),
+        os.path.dirname(settings.get("server","pid_file")),
+    ]
+
+    for d in required_directories:
+        if not os.path.isdir(d):
+            shutil.os.mkdir(d)
+            sys.stderr.write(" Created '%s' directory!\n" % d)
+        os.chown(d, int(settings.get("server", "uid")), -1)
+
+
+def toggle_server():
+    """ Executes the "server.py" command in the server's cwd (as defined by the
+    settings file above). The result is that the server starts if stopped, and
+    stops if started.
+
+    i.e. execute this function twice in a row for a restart. """
+
+    sys.stderr.write(" Starting kdm-manager application server...\n")
+    server_cwd = settings.get("server", "cwd")
+    os.setuid(int(settings.get("server", "uid")))
+
+    cmd = "./server.py"
+    p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    stdout_value, stderr_value = p.communicate()
+    print stdout_value
+    print stderr_value
+
+
+if __name__ == "__main__":
+
+    if not len(sys.argv) >= 2:
+        print("\n %s {start|stop|restart}\n" % sys.argv[0])
+        sys.exit(1)
+
+    command = sys.argv[1]
+    dir_check()
+
+    if command in ["start", "stop"]:
+        toggle_server()
+    elif command == "restart":
+        toggle_server()
+        time.sleep(1)
+        toggle_server()

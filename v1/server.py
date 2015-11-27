@@ -16,8 +16,7 @@ import subprocess
 import sys
 
 #   custom imports
-from utils import get_logger
-import settings
+from utils import get_logger, load_settings
 
 class StreamToLogger(object):
    """ Fake file-like stream object that redirects writes to a logger instance.
@@ -55,8 +54,8 @@ def start_server():
     logger.info("Starting Server...")
     handler = customRequestHandler  # see above
     handler.cgi_directories.extend(["/"])
-    server = ThreadingSimpleServer(('', settings.server_port), handler)
-    os.chdir(settings.server_cwd)
+    server = ThreadingSimpleServer(('', int(settings.get("server","port"))), handler)
+#    os.chdir(settings.server_cwd)
 
     try:
         server.serve_forever()
@@ -77,12 +76,12 @@ def start_daemon():
 
     context = daemon.DaemonContext(
         detach_process = True,
-        umask=0o002, pidfile=PIDLockFile(settings.server_pidfile),
+        umask=0o002, pidfile=PIDLockFile(settings.get("server", "pid_file")),
         files_preserve = [logger.handlers[0].stream],
         )
 
     with context:
-        logger.info("PID file location is '%s'" % settings.server_pidfile)
+        logger.info("PID file location is '%s'" % settings.get("server", "pid_file"))
         start_server()
 
 
@@ -99,7 +98,7 @@ def stop_daemon():
 def get_pid():
     """ Gets the current PID associated with the daemon. """
     try:
-        return int(file(settings.server_pidfile, "rb").read().strip())
+        return int(file(settings.get("server","pid_file"), "rb").read().strip())
     except:
         return False
 
@@ -108,9 +107,9 @@ def check_pid_dir():
     """ Checks to see if the PID dir in the settings file exists and
     raises a generic Exception if it doesn't. """
 
-    pid_dir = os.path.dirname(settings.server_pidfile)
+    pid_dir = os.path.dirname(settings.get("server","pid_file"))
     if not os.path.isdir(pid_dir):
-        err = "PID dir '%s' does not exist! Cannot create PID file..." % pid_dir
+        err = "PID dir '%s' does not exist!" % pid_dir
         logger.critical(err)
         raise Exception(err)
     else:
@@ -123,13 +122,15 @@ def check_pid_dir():
 
 
 if __name__ == "__main__":
+    print "here"
     logger = get_logger()
+    settings = load_settings()
 
     if len(sys.argv) >= 2:
         logger.info("Starting server in interactive mode!")
         start_server()
 
-    if not os.path.isfile(settings.server_pidfile):
+    if not os.path.isfile(settings.get("server","pid_file")):
         start_daemon()
     else:
         logger.info("PID found. Attempting to stop server...")
