@@ -54,8 +54,8 @@ def start_server():
     logger.info("Starting Server...")
     handler = customRequestHandler  # see above
     handler.cgi_directories.extend(["/"])
-    server = ThreadingSimpleServer(('', int(settings.get("server","port"))), handler)
-#    os.chdir(settings.server_cwd)
+    server = ThreadingSimpleServer(('', settings.getint("server","port")), handler)
+    os.chdir(settings.get("server", "cwd"))
 
     try:
         server.serve_forever()

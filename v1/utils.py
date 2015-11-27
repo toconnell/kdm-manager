@@ -1,28 +1,51 @@
 #!/usr/bin/env python
 
 #   standard
-import ConfigParser
+from ConfigParser import SafeConfigParser
 import logging
 import os
+from pymongo import MongoClient
 import sys
+from user_agents import parse as ua_parse
 
-#
-#   General purpose helpers and references
-#
 
-ymd = "%Y-%m-%d"
-
-#   helper functions
+# function to get settings. This has to be up top.
 
 def load_settings():
     """ Creates a settings object from settings.cfg in the application root dir.
     This func has to be at the top of this module, since everything below here
     (basically) uses it. """
 
-    config = ConfigParser.ConfigParser()
+    config = SafeConfigParser()
     config.readfp(open("settings.cfg"))
     config.file_path = os.path.abspath("settings.cfg")
     return config
+
+
+#
+#   General purpose helpers and references
+#
+
+settings = load_settings()
+ymd = "%Y-%m-%d"
+mdb = MongoClient()[settings.get("application","mdb")]
+
+
+#
+#  application helper functions
+#
+
+
+#  sysadmin helper functions
+
+def get_user_agent():
+    """ Returns a user-agents object if we can get a user agent. Otherwise,
+    returns None. """
+
+    if "HTTP_USER_AGENT" not in os.environ:
+        return None
+    else:
+        return ua_parse(os.environ["HTTP_USER_AGENT"])
 
 
 def get_logger(log_level="INFO", log_name=False):
@@ -54,6 +77,8 @@ def get_logger(log_level="INFO", log_name=False):
     logger.addHandler(logger_fh)
 
     return logger
+
+
 
 
 if __name__ == "__main__":

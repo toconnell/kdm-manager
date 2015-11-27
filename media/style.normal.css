@@ -1,0 +1,16 @@
+input, button, div {font-size: 50px; }
+input {height: 100px; }
+input, h2, #user_error_msg {padding-left: 10px; }
+button {text-align: center; cursor: pointer; padding-top: 20px; padding-bottom: 20px; }
+
+.success {color: #4F8A10; background-color: #DFF2BF; }
+.info  { color: #00529B; background-color: #BDE5F8; }
+.error { color: #D8000C; background-color: #FFBABA; }
+.warn  { color: #9F6000; background-color: #FEEFB3; }
+.full_width {clear: both; display: block; }
+button, #user_error_msg, .full_width {width: 90%; margin: 5%; }
+
+h2 {border: 5px solid #999; }
+
+/* The big, meta-div */
+#container {}

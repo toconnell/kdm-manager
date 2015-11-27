@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+
+#   standard
+import cgi, cgitb
+import os
+
+#   custom
+import admin
+import html
+from session import initialize
+from utils import load_settings, mdb
+
+
+if __name__ == "__main__":
+    settings = load_settings()
+
+    if settings.getboolean("application","DEBUG"):
+        cgitb.enable()
+
+    output = html.login.form
+
+    params = cgi.FieldStorage()
+
+    S = initialize(params)
+    if S.session is None:
+        output = html.authenticate_by_form(params)
+    else:
+        S.process_params()
+        output = S.current_view_html()
+
+    html.render(output)
+
+
+
