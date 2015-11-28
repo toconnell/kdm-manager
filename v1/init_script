@@ -53,14 +53,16 @@ def toggle_server():
     i.e. execute this function twice in a row for a restart. """
 
     sys.stderr.write(" Starting kdm-manager application server...\n")
-    server_cwd = settings.get("server", "cwd")
+
     os.setuid(int(settings.get("server", "uid")))
 
-    cmd = "./server.py"
-    p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    server_cwd = settings.get("server", "cwd")
+    os.chdir(server_cwd)
+    sys.stderr.write(" CWD is %s\n" % os.getcwd())
+
+    p = subprocess.Popen("./server.py", shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     stdout_value, stderr_value = p.communicate()
-    print stdout_value
-    print stderr_value
+    sys.stderr.write(" STDOUT: %s\n STDERR: %s\n" % (stdout_value, stderr_value))
 
 
 if __name__ == "__main__":
