@@ -7,7 +7,7 @@ import os
 #   custom
 import admin
 import html
-from session import initialize
+from session import Session
 from utils import load_settings, mdb
 
 
@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
     params = cgi.FieldStorage()
 
-    S = initialize(params)
+    S = Session(params)
     if S.session is None:
         output = html.authenticate_by_form(params)
     else:

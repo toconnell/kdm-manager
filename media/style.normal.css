@@ -3,14 +3,16 @@ hr {clear: both;   }
 input, button, div {font-size: 50px; }
 input {height: 100px; }
 input, h2, h3 #user_error_msg {padding-left: 10px; }
-button {text-align: center; padding-top: 20px; padding-bottom: 20px; }
+button {padding-top: 20px; padding-bottom: 20px; }
+
+h3, div#shield_box, #block_group h2, input#topline_name, .big_number_square, .shield, button {text-align: center; }
 
 input, button, label {cursor: pointer; }
 
 .hidden {display: none; }
 .strikethrough {text-decoration: line-through; }
 
-.big_number_square { border: 3px solid #666; width: 190px; height: 200px; font-size: 100px; margin-left: 5%; text-align: center; display: inline; float: left; margin-right: 20px; }
+.big_number_square { border: 3px solid #666; width: 190px; height: 200px; margin-left: 5%; display: inline; margin-right: 20px; }
 .big_number_caption { font-size: 75px; padding-top: 30px; color: #777;}
 
 .success {color: #4F8A10; background-color: #DFF2BF; }
@@ -20,7 +22,7 @@ input, button, label {cursor: pointer; }
 
 input[type=radio], input[type=checkbox] {display: none; }
 .radio_principle:checked + .radio_principle_label {  font-weight: bold; color: #C60000; }
-label {margin: 20px; font-size: 65px; color: #666; }
+label {margin: 20px; font-size: 65px; color: #CCC; }
 label, .full_width {clear: both; display: block; }
 button, #user_error_msg, .full_width {width: 90%; margin: 5%; }
 
@@ -28,16 +30,29 @@ select {width: auto; margin-left: 20px; font-size: 60px; }
 
 h2 {border: 5px solid #999; }
 
-input#settlement_name {text-align: center; border: 0 none; font-size: 100px; height: auto; width: 90%; }
+input#topline_name {border: 0 none; font-size: 100px; height: auto; width: 90%; }
 
-#block_group {border: 3px solid #666; width: 90%; margin: auto; clear: both; margin-top: 20px;  }
-#block_group h2, h3 {border: 0 none; text-align: center; }
+#block_group { border: 3px solid #666; }
+#block_group, div#survivor_hit_box { width: 90%; margin: auto; clear: both; margin-top: 20px;  }
+#block_group h2, h3 {border: 0 none; }
+
+.shield, div#survivor_hit_box {border: 3px solid #000; }
+
+div#survivor_hit_box {display: block; overflow: auto; }
+div#info_box, div#shield_box, button#remove_item, .big_number_square {float: left; }
+div#info_box {padding-top: 0px; padding-left: 10px; clear: none; width: 70%; border-left: 3px solid #000; }
+div#info_box h2 {text-align: left; margin-top: 0px; border: 0 none; font-weight: normal; width: 40%;  }
+
+#damage_box, div#shield_box {padding: 20px;}
+.shield {border-radius: 0px 0px 100px 100px; width: 150px; height: 175px; clear: both; display: block; margin: auto; }
+.big_number_square, .shield {font-size: 100px; }
 
 .icon {width: 50px; }
 
+#damage_box {float: right; clear: none;  }
+
 button#remove_item, button#increment_nemesis {border: 0 none; display: inline-block; width: auto; margin: 10px; }
-button#remove_item {float: left; border-radius: 20px; padding-right: 10px; padding-left: 10px; background-color: #ddd}
-button#increment_nemesis {float: right; }
+button#remove_item {border-radius: 20px; padding-right: 10px; padding-left: 10px; background-color: #ddd}
 
 .disabled, .strikethrough {color: #999; cursor: not-allowed; }
 

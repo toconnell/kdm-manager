@@ -8,12 +8,194 @@ import sys
 
 #   custom
 import admin
-from session import initialize
+from session import Session
 from utils import load_settings, mdb
 
 settings = load_settings()
 
 user_error_msg = Template('<div id="user_error_msg" class="$err_class">$err_msg</div>')
+
+class survivor:
+    form = Template("""\n\
+    <form method="POST">
+    <input type="hidden" name="modify" value="survivor" />
+    <input type="hidden" name="asset_id" value="$survivor_id" />
+
+    <hr />
+    <input id="topline_name" onchange="this.form.submit()" class="full_width" type="text" name="name" value="$name" placeholder="Survivor Name"/>
+    <hr />
+    <p>
+     Survivor sex: <b>$sex</b>
+     <input onchange="this.form.submit()" type="checkbox" id="dead" class="radio_principle" name="dead" value="dead" $dead_checked /> 
+     <label class="radio_principle_label" for="dead" style="float: right; clear: none; "> Dead </label>
+     <input onchange="this.form.submit()" type="checkbox" id="retired" class="radio_principle" name="retired" value="retired" $retired_checked /> 
+     <label class="radio_principle_label" for="retired" style="float: right; clear: none;"> Retired </label>
+    </p>
+    <hr/>
+    <input onchange="this.form.submit()" class="big_number_square" type="number" name="survival" value="$survival" max="$survival_limit"/>
+    <div class="big_number_caption">Survival (max: $survival_limit)</div>
+    <br />
+    <p>
+     <input onchange="this.form.submit()" type="checkbox" id="cannot_spend_survival" class="radio_principle" name="cannot_spend_survival" value="cannot_spend_survival" $cannot_spend_survival_checked /> 
+     <label class="radio_principle_label" for="cannot_spend_survival"> Cannot spend survival </label>
+
+     $survival_actions
+    </p>
+    <hr />
+
+    <h3>On Departure</h3>
+    $departure_buffs
+
+
+    <hr/>
+    <input onchange="this.form.submit()" class="big_number_square" type="number" name="Movement" value="$movement"/>
+    <div class="big_number_caption">Movement</div>
+    <br /><hr/>
+    <input onchange="this.form.submit()" class="big_number_square" type="number" name="Accuracy" value="$accuracy"/>
+    <div class="big_number_caption">Accuracy</div>
+    <br /><hr/>
+    <input onchange="this.form.submit()" class="big_number_square" type="number" name="Strength" value="$strength"/>
+    <div class="big_number_caption">Strength</div>
+    <br /><hr/>
+    <input onchange="this.form.submit()" class="big_number_square" type="number" name="Evasion" value="$evasion"/>
+    <div class="big_number_caption">Evasion</div>
+    <br /><hr/>
+    <input onchange="this.form.submit()" class="big_number_square" type="number" name="Luck" value="$luck"/>
+    <div class="big_number_caption">Luck</div>
+    <br /><hr/>
+    <input onchange="this.form.submit()" class="big_number_square" type="number" name="Speed" value="$speed"/>
+    <div class="big_number_caption">Speed</div>
+    <br /><hr/>
+
+    <h3>Bonuses</h3>
+    $settlement_buffs
+
+    <hr/>   <!-- LOGICAL break -->
+
+                        <!-- HIT BOXES -->
+
+    <div id="survivor_hit_box">
+        <div id="shield_box">
+            <input onchange="this.form.submit()" type="number" class="shield" name="Insanity" value="$insanity" style="color: $insanity_number_style; "/>
+            Insanity
+        </div>
+        <div id="info_box">
+     <input onchange="this.form.submit()" type="checkbox" id="brain_damage_light" class="radio_principle" name="brain_damage_light" $brain_damage_light_checked /> 
+     <label id="damage_box" class="radio_principle_label" for="brain_damage_light"> L </label>
+        <h2>Brain</h2>
+        If your insanity is 3+, you are <b>Insane</b>.
+        </div>
+    </div>
+
+        <!-- HEAD -->
+    <div id="survivor_hit_box">
+        <div id="shield_box">
+            <input onchange="this.form.submit()" type="number" class="shield" name="Head" value="$head"/>
+        </div>
+        <div id="info_box">
+     <input onchange="this.form.submit()" type="checkbox" id="head_damage_heavy" class="radio_principle" name="head_damage_heavy" $head_damage_heavy_checked /> 
+     <label id="damage_box" class="radio_principle_label" for="head_damage_heavy"> H </label>
+        <h2>Head</h2>
+        <font color="#C60000">H</font>eavy Injury: Knocked Down
+        </div>
+    </div>
+
+        <!-- ARMS -->
+    <div id="survivor_hit_box">
+        <div id="shield_box">
+            <input onchange="this.form.submit()" type="number" class="shield" name="Arms" value="$arms"/>
+        </div>
+        <div id="info_box">
+     <input onchange="this.form.submit()" type="checkbox" id="arms_damage_heavy" class="radio_principle" name="arms_damage_heavy" $arms_damage_heavy_checked /> 
+     <label id="damage_box" class="radio_principle_label" for="arms_damage_heavy"> H </label>
+     <input onchange="this.form.submit()" type="checkbox" id="arms_damage_light" class="radio_principle" name="arms_damage_light" $arms_damage_light_checked /> 
+     <label id="damage_box" class="radio_principle_label" for="arms_damage_light"> L </label>
+        <h2>Arms</h2>
+        <font color="#C60000">H</font>eavy Injury: Knocked Down
+        </div>
+    </div>
+
+        <!-- BODY -->
+    <div id="survivor_hit_box">
+        <div id="shield_box">
+            <input onchange="this.form.submit()" type="number" class="shield" name="Body" value="$body"/>
+        </div>
+        <div id="info_box">
+     <input onchange="this.form.submit()" type="checkbox" id="body_damage_heavy" class="radio_principle" name="body_damage_heavy" $body_damage_heavy_checked /> 
+     <label id="damage_box" class="radio_principle_label" for="body_damage_heavy"> H </label>
+     <input onchange="this.form.submit()" type="checkbox" id="body_damage_light" class="radio_principle" name="body_damage_light" $body_damage_light_checked /> 
+     <label id="damage_box" class="radio_principle_label" for="body_damage_light"> L </label>
+        <h2>Body</h2>
+        <font color="#C60000">H</font>eavy Injury: Knocked Down
+        </div>
+    </div>
+
+        <!-- WAIST -->
+    <div id="survivor_hit_box">
+        <div id="shield_box">
+            <input onchange="this.form.submit()" type="number" class="shield" name="Waist" value="$waist"/>
+        </div>
+        <div id="info_box">
+     <input onchange="this.form.submit()" type="checkbox" id="waist_damage_heavy" class="radio_principle" name="waist_damage_heavy" $waist_damage_heavy_checked /> 
+     <label id="damage_box" class="radio_principle_label" for="waist_damage_heavy"> H </label>
+     <input onchange="this.form.submit()" type="checkbox" id="waist_damage_light" class="radio_principle" name="waist_damage_light" $waist_damage_light_checked /> 
+     <label id="damage_box" class="radio_principle_label" for="waist_damage_light"> L </label>
+        <h2>Waist</h2>
+        <font color="#C60000">H</font>eavy Injury: Knocked Down
+        </div>
+    </div>
+
+        <!-- LEGS -->
+    <div id="survivor_hit_box">
+        <div id="shield_box">
+            <input onchange="this.form.submit()" type="number" class="shield" name="Legs" value="$legs"/>
+        </div>
+        <div id="info_box">
+     <input onchange="this.form.submit()" type="checkbox" id="legs_damage_heavy" class="radio_principle" name="legs_damage_heavy" $legs_damage_heavy_checked /> 
+     <label id="damage_box" class="radio_principle_label" for="legs_damage_heavy"> H </label>
+     <input onchange="this.form.submit()" type="checkbox" id="legs_damage_light" class="radio_principle" name="legs_damage_light" $legs_damage_light_checked /> 
+     <label id="damage_box" class="radio_principle_label" for="legs_damage_light"> L </label>
+        <h2>Legs</h2>
+        <font color="#C60000">H</font>eavy Injury: Knocked Down
+        </div>
+    </div>
+
+    <hr />
+
+                        <!-- HUNT XP and AGE -->
+
+    <input onchange="this.form.submit()" class="big_number_square" type="number" name="hunt_xp" value="$hunt_xp" />
+    <div class="big_number_caption">Hunt XP</div>
+    <br />
+    <p>
+        <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Age</b> occurs at 2, 6, 10 and 15. The Survivor retires at 16.
+    </p>
+    <hr/>
+                        <!-- WEAPON PROFICIENCY -->
+    <h3>Weapon Proficiency</h3>
+    <input onchange="this.form.submit()" class="big_number_square" type="number" name="Weapon Proficiency" value="$weapon_proficiency" />
+    <div class="big_number_caption">
+        <input onchange="this.form.submit()" type="text" class="full_width" placeholder="Type: Select before hunt" value="$weapon_proficiency_type" name="weapon_proficiency_type" style="width: 50%; clear: none; "/>
+    </div>
+    <p>       <b>Specialist</b> at 3; <b>Master</b> at 8.   </p>
+
+
+
+                        <!-- FIGHTING ARTS -->
+
+
+    </form>
+
+                        <!-- SETTLEMENT LINK -->
+    <hr/>
+    $settlement_link
+
+    <br/><hr/>
+    <form method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this survivor forever, which is NOT THE SAME THING as marking it dead: permanently deleting the survivor prevents anyone from viewing and/or editing it ever again!');"><input type="hidden" name="remove_survivor" value="$survivor_id"/><button class="error">Permanently Delete Survivor</button></form>
+    <hr/>
+    <br />
+
+    \n""")
 
 class settlement:
     form = Template("""\n\
@@ -21,11 +203,21 @@ class settlement:
     <input type="hidden" name="modify" value="settlement" />
     <input type="hidden" name="asset_id" value="$settlement_id" />
     <hr />
-    <input id="settlement_name" onchange="this.form.submit()" class="full_width" type="text" name="name" value="$name" placeholder="Settlement Name"/>
+    <input id="topline_name" onchange="this.form.submit()" class="full_width" type="text" name="name" value="$name" placeholder="Settlement Name"/>
     <hr />
     <input onchange="this.form.submit()" class="big_number_square" type="number" name="survival_limit" value="$survival_limit" min="$min_survival_limit"/>
     <div class="big_number_caption">Survival Limit (min: $min_survival_limit)</div>
     <br /><hr />
+
+        <h3>On Departure</h3>
+        $departure_bonuses
+
+    <hr/>
+
+        <h3>During Settlement Phase</h3>
+        $settlement_bonuses
+
+    <hr />
 
     <input onchange="this.form.submit()" class="big_number_square" type="number" name="population" value="$population"/>
     <div class="big_number_caption">Population</div>
@@ -34,10 +226,6 @@ class settlement:
     <div class="big_number_caption">Death Count</div>
     <br /><hr />
 
-        <h3>On Departure</h3>
-        $departure_bonuses
-        <h3>During Settlement Phase</h3>
-        $settlement_bonuses
 
 
     <hr /> <!-- Logical section Break -->
@@ -222,6 +410,15 @@ class settlement:
 
     </form>
 
+    <h3>Survivors</h3>
+    $survivors
+
+    <form method="POST">
+    <input type="hidden" name="change_view" value="new_survivor"/>
+    <button class="success">+ Create New Survivor</button>
+    </form>
+
+
     <br />
     <br /><hr/>
     <form method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this settlement forever.');"><input type="hidden" name="remove_settlement" value="$settlement_id"/><button class="error">Permanently Delete Settlement</button></form>
@@ -231,15 +428,37 @@ class settlement:
 
 class dashboard:
     home_button = '<form method="POST"><input type="hidden" name="change_view" value="dashboard"/><button> &lt- Return to Dashboard</button></form>\n'
-    headline = Template('<h2 class="full_width">$title</h2>\n')
+    headline = Template('<h2 class="full_width">$title</h2><p>$desc</p>\n')
     new_settlement_button = '<form method="POST"><input type="hidden" name="change_view" value="new_settlement" /><button class="success">+ New Settlement</button></form>\n'
     new_settlement_form = """\n\
+    <h3>Create a New Settlement</h3>
     <form method="POST">
     <input type="hidden" name="new" value="settlement" />
     <input type="text" name="settlement_name" placeholder="Settlement Name"/ class="full_width">
     <button class="success">SAVE</button>
     </form>
     \n"""
+    new_survivor_form = Template("""\n\
+    <h3>Create a New Survivor</h3>
+    <form method="POST">
+    <input type="hidden" name="new" value="survivor" />
+    <input type="hidden" name="created_by" value="$created_by" />
+    <input type="text" name="name" placeholder="Survivor Name"/ class="full_width">
+    <input type="text" name="email" placeholder="Survivor Email"/ class="full_width" value="$user_email">
+     <select name="settlement_id">
+      <option selected disabled hidden value=''>Home Settlement</option>
+      <option>$settlement_options</option>
+     </select>
+    <div id="block_group">
+    <h2>Survivor Sex</h2>
+    <input type="radio" id="male_button" class="radio_principle" name="sex" value="Male"/> 
+      <label class="radio_principle_label" for="male_button"> Male </label>
+    <input type="radio" id="female_button" class="radio_principle" name="sex" value="Female"/> 
+      <label class="radio_principle_label" for="female_button"> Female </label>
+    </div>
+    <button class="success">SAVE</button>
+    </form>
+    \n""")
     view_asset_button = Template("""\n\
     <form method="POST">
     <input type="hidden" name="view_$asset_type" value="$asset_id" />
@@ -311,9 +530,9 @@ def authenticate_by_form(params):
         elif auth is None:
             output = login.new_user.safe_substitute(login=params["login"].value)
         elif auth == True:
-            S = initialize()
-            session_id = S.create_new(params["login"].value)
-            render(S.current_view_html(), head=[set_cookie_js(session_id)])
+            s = Session()
+            session_id = s.new(params["login"].value)
+            render(s.current_view_html(), head=[set_cookie_js(session_id)])
     else:
         output = login.form
     return output
