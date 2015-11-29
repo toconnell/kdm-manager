@@ -122,7 +122,7 @@ def check_pid_dir():
 
 
 if __name__ == "__main__":
-    print "here"
+
     logger = get_logger()
     settings = load_settings()
 

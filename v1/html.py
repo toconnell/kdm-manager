@@ -17,8 +17,216 @@ user_error_msg = Template('<div id="user_error_msg" class="$err_class">$err_msg<
 
 class settlement:
     form = Template("""\n\
-    $name
+    <form method="POST">
+    <input type="hidden" name="modify" value="settlement" />
+    <input type="hidden" name="asset_id" value="$settlement_id" />
+    <hr />
+    <input id="settlement_name" onchange="this.form.submit()" class="full_width" type="text" name="name" value="$name" placeholder="Settlement Name"/>
+    <hr />
+    <input onchange="this.form.submit()" class="big_number_square" type="number" name="survival_limit" value="$survival_limit" min="$min_survival_limit"/>
+    <div class="big_number_caption">Survival Limit (min: $min_survival_limit)</div>
+    <br /><hr />
 
+    <input onchange="this.form.submit()" class="big_number_square" type="number" name="population" value="$population"/>
+    <div class="big_number_caption">Population</div>
+    <br /><hr />
+    <input onchange="this.form.submit()" class="big_number_square" type="number" name="death_count" value="$death_count"/>
+    <div class="big_number_caption">Death Count</div>
+    <br /><hr />
+
+        <h3>On Departure</h3>
+        $departure_bonuses
+        <h3>During Settlement Phase</h3>
+        $settlement_bonuses
+
+
+    <hr /> <!-- Logical section Break -->
+
+
+                    <!-- STORAGE -->
+
+    <div id="block_group">
+    <h2>Storage</h2>
+    <p>Gear and Resources may be stored without limit.</p>
+    <hr />
+        $storage
+    <hr />
+        $items_options<br /><br />
+        $items_remove
+     <input onchange="this.form.submit()" type="text" class="full_width" name="add_item" placeholder="Item or Resource"/>
+    </div>
+
+                    <!-- LOCATIONS -->
+
+    <div id="block_group">
+     <h2>Settlement Locations</h2>
+     <p>Locations in your settlement.</p>
+        <hr />
+     <p>$locations</p>
+     <select name="add_location" onchange="this.form.submit()">
+      <option selected disabled hidden value=''>Add Location</option>
+      <option>$locations_options</option>
+     </select>
+     <input onchange="this.form.submit()" type="text" class="full_width" name="add_location" placeholder="add custom location"/>
+    </div>
+
+
+
+
+    <hr />  <!-- Logical Section Break -->
+
+
+                    <!-- PRINCIPLES -->
+
+    <div id="block_group">
+     <h2>Principles</h2>
+     <p>The settlement's established principles.</p>
+
+        <div class="$new_life_principle_hidden">
+        <h3>New Life Principle</h3>
+          <input onchange="this.form.submit()" type="radio" id="protect_button" class="radio_principle" name="new_life_principle" value="Protect the Young" $protect_the_young_checked /> 
+            <label class="radio_principle_label" for="protect_button"> Protect the Young </label>
+          <input onchange="this.form.submit()" type="radio" id="survival_button" class="radio_principle" name="new_life_principle" value="Survival of the Fittest" $survival_of_the_fittest_checked /> 
+            <label class="radio_principle_label" for="survival_button"> Survival of the fittest </label>
+        </div>
+
+        <div class="$death_principle_hidden">
+         <h3>Death Principle</h3>
+          <input onchange="this.form.submit()" type="radio" id="cannibalize_button" class="radio_principle" name="death_principle" value="Cannibalize" $cannibalize_checked /> 
+            <label class="radio_principle_label" for="cannibalize_button"> Cannibalize </label>
+          <input onchange="this.form.submit()" type="radio" id="graves_button" class="radio_principle" name="death_principle" value="Graves" $graves_checked /> 
+            <label class="radio_principle_label" for="graves_button"> Graves </label>
+        </div>
+
+        <div class="$society_principle_hidden">
+         <h3>Society Principle</h3>
+          <input onchange="this.form.submit()" type="radio" id="collective_toil_button" class="radio_principle" name="society_principle" value="Collective Toil" $collective_toil_checked /> 
+            <label class="radio_principle_label" for="collective_toil_button"> Collective Toil </label>
+          <input onchange="this.form.submit()" type="radio" id="accept_darkness_button" class="radio_principle" name="society_principle" value="Accept Darkness" $accept_darkness_checked /> 
+            <label class="radio_principle_label" for="accept_darkness_button"> Accept Darkness </label>
+        </div>
+
+        <div class="$conviction_principle_hidden">
+         <h3>Conviction Principle</h3>
+          <input onchange="this.form.submit()" type="radio" id="barbaric_button" class="radio_principle" name="conviction_principle" value="Barbaric" $barbaric_checked /> 
+            <label class="radio_principle_label" for="barbaric_button"> Barbaric </label>
+          <input onchange="this.form.submit()" type="radio" id="romantic_button" class="radio_principle" name="conviction_principle" value="Romantic" $romantic_checked /> 
+            <label class="radio_principle_label" for="romantic_button"> Romantic </label>
+        </div>
+    </div> <!-- principle block group -->
+
+
+                    <!-- INNOVATIONS -->
+
+    <div id="block_group">
+     <h2>Innovations</h2>
+     <p>The settlement's innovations (including weapon masteries).</p>
+        <hr />
+     <p>$innovations</p>
+     <select name="add_innovation" onchange="this.form.submit()">
+      <option selected disabled hidden value=''>Add Innovation</option>
+      <option>$innovation_options</option>
+     </select>
+     <input onchange="this.form.submit()" type="text" class="full_width" name="add_innovation" placeholder="add custom innovation"/>
+    </div>
+
+
+
+    <hr />  <!-- Logical Section Break -->
+
+
+                    <!-- TIMELINE -->
+
+    <div id="block_group">
+    <h2>Timeline</h2>
+    <input onchange="this.form.submit()" class="big_number_square" type="number" name="lantern_year" value="$lantern_year"/>
+    <div class="big_number_caption">Lantern Year</div>
+    <br /><hr />
+    $timeline
+    </div>
+
+                    <!-- MILESTONES -->
+
+    <div id="block_group">
+     <h2>Milestone Story Events</h2>
+     <p>Trigger these story events when milestone condition is met.</p>
+
+        <hr />
+        <input onchange="this.form.submit()" id="first_child" type="checkbox" name="First child is born" class="radio_principle" $first_child_checked></input>
+        <label for="first_child" class="radio_principle_label">First child is born</label>
+        <p> &ensp; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Principle: New Life</b></p>
+        <hr />
+        <input onchange="this.form.submit()" id="first_death" type="checkbox" name="First time death count is updated" class="radio_principle" $first_death_checked></input>
+        <label for="first_death" class="radio_principle_label">First time death count is updated</label>
+        <p> &ensp; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Principle: Death</b></p>
+        <hr />
+        <input onchange="this.form.submit()" id="pop_15" type="checkbox" name="Population reaches 15" class="radio_principle" $pop_15_checked></input>
+        <label for="pop_15" class="radio_principle_label">Population reaches 15</label>
+        <p> &ensp; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Principle: Society</b></p>
+        <hr />
+        <input onchange="this.form.submit()" id="5_innovations" type="checkbox" name="Settlement has 5 innovations" class="radio_principle" $five_innovations_checked></input>
+        <label for="5_innovations" class="radio_principle_label">Settlement has 5 innovations</label>
+        <p> &ensp; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Hooded Knight</b></p>
+        <hr />
+        <input onchange="this.form.submit()" id="game_over" type="checkbox" name="Population reaches 0" class="radio_principle" $game_over_checked></input>
+        <label for="game_over" class="radio_principle_label">Population reaches 0</label>
+        <p> &ensp; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Game Over</b></p>
+
+    </div>
+
+
+
+    <hr /> <!-- Logical Section Break Here -->
+
+
+                    <!-- QUARRIES -->
+
+    <div id="block_group">
+     <h2>Quarries</h2>
+     <p>The monsters your settlement can select to hunt.</p>
+    <hr />
+     <p>$quarries</p>
+     <select name="add_quarry" onchange="this.form.submit()">
+      <option selected disabled hidden value=''>Add Quarry</option>
+      <option>$quarry_options</option>
+     </select>
+     <input onchange="this.form.submit()" type="text" class="full_width" name="add_quarry" placeholder="add custom quarry"/>
+    </div>
+
+                    <!-- NEMESIS MONSTERS -->
+
+    <div id="block_group">
+    <h2>Nemesis Monsters</h2>
+    <p>The available nemesis encounter monsters.</p>
+    <hr>
+    $nemesis_monsters
+     <input onchange="this.form.submit()" type="text" class="full_width" name="add_nemesis" placeholder="add nemesis"/>
+    </div>
+
+                    <!-- DEFEATED MONSTERS -->
+
+    <div id="block_group">
+     <h2>Defeated Monsters</h2>
+     <p>A list of defeated monsters and their level.</p>
+     <hr />
+     <p>$defeated_monsters</p>
+     <input onchange="this.form.submit()" type="text" class="full_width" name="add_defeated_monster" placeholder="add defeated monster"/>
+    </div>
+
+
+                    <!-- LOST SETTLEMENTS -->
+    <br />
+    <input onchange="this.form.submit()" class="big_number_square" type="number" name="lost_settlements" value="$lost_settlements"/>
+    <div class="big_number_caption">Lost Settlements</div>
+    <br /><hr />
+
+    </form>
+
+    <br />
+    <br /><hr/>
+    <form method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this settlement forever.');"><input type="hidden" name="remove_settlement" value="$settlement_id"/><button class="error">Permanently Delete Settlement</button></form>
+    <hr/>
+    <br />
     \n""")
 
 class dashboard:

@@ -1,16 +1,45 @@
+p {padding: 10px; margin-left: 20px;  }
+hr {clear: both;   }
 input, button, div {font-size: 50px; }
 input {height: 100px; }
-input, h2, #user_error_msg {padding-left: 10px; }
-button {text-align: center; cursor: pointer; padding-top: 20px; padding-bottom: 20px; }
+input, h2, h3 #user_error_msg {padding-left: 10px; }
+button {text-align: center; padding-top: 20px; padding-bottom: 20px; }
+
+input, button, label {cursor: pointer; }
+
+.hidden {display: none; }
+.strikethrough {text-decoration: line-through; }
+
+.big_number_square { border: 3px solid #666; width: 190px; height: 200px; font-size: 100px; margin-left: 5%; text-align: center; display: inline; float: left; margin-right: 20px; }
+.big_number_caption { font-size: 75px; padding-top: 30px; color: #777;}
 
 .success {color: #4F8A10; background-color: #DFF2BF; }
 .info  { color: #00529B; background-color: #BDE5F8; }
 .error { color: #D8000C; background-color: #FFBABA; }
 .warn  { color: #9F6000; background-color: #FEEFB3; }
-.full_width {clear: both; display: block; }
+
+input[type=radio], input[type=checkbox] {display: none; }
+.radio_principle:checked + .radio_principle_label {  font-weight: bold; color: #C60000; }
+label {margin: 20px; font-size: 65px; color: #666; }
+label, .full_width {clear: both; display: block; }
 button, #user_error_msg, .full_width {width: 90%; margin: 5%; }
 
+select {width: auto; margin-left: 20px; font-size: 60px; }
+
 h2 {border: 5px solid #999; }
+
+input#settlement_name {text-align: center; border: 0 none; font-size: 100px; height: auto; width: 90%; }
+
+#block_group {border: 3px solid #666; width: 90%; margin: auto; clear: both; margin-top: 20px;  }
+#block_group h2, h3 {border: 0 none; text-align: center; }
+
+.icon {width: 50px; }
+
+button#remove_item, button#increment_nemesis {border: 0 none; display: inline-block; width: auto; margin: 10px; }
+button#remove_item {float: left; border-radius: 20px; padding-right: 10px; padding-left: 10px; background-color: #ddd}
+button#increment_nemesis {float: right; }
+
+.disabled, .strikethrough {color: #999; cursor: not-allowed; }
 
 /* The big, meta-div */
 #container {}
