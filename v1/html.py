@@ -17,12 +17,13 @@ user_error_msg = Template('<div id="user_error_msg" class="$err_class">$err_msg<
 
 class survivor:
     form = Template("""\n\
-    <form method="POST">
+    <form method="POST" id="autoForm" action="/">
+    <button type="submit" class="hidden">submit</button>
     <input type="hidden" name="modify" value="survivor" />
     <input type="hidden" name="asset_id" value="$survivor_id" />
 
     <hr />
-    <input id="topline_name" onchange="this.form.submit()" class="full_width" type="text" name="name" value="$name" placeholder="Survivor Name"/>
+    <input onchange="this.form.submit()" id="topline_name" class="full_width" type="text" name="name" value="$name" placeholder="Survivor Name"/>
     $epithets
     $add_epithets
     <input onchange="this.form.submit()" class="full_width" type="text" name="add_epithet" placeholder="add a custom epithet"/>
@@ -35,7 +36,7 @@ class survivor:
      <label class="radio_principle_label" for="retired" style="float: right; clear: none;"> Retired </label>
     </p>
     <hr/>
-    <input onchange="this.form.submit()" class="big_number_square" type="number" name="survival" value="$survival" max="$survival_limit"/>
+    <input class="big_number_square" type="number" name="survival" value="$survival" max="$survival_limit"/>
     <div class="big_number_caption">Survival (max: $survival_limit)</div>
     <br />
     <p>
@@ -51,22 +52,22 @@ class survivor:
 
 
     <hr/>
-    <input onchange="this.form.submit()" class="big_number_square" type="number" name="Movement" value="$movement"/>
+    <input class="big_number_square" type="number" name="Movement" value="$movement"/>
     <div class="big_number_caption">Movement</div>
     <br /><hr/>
-    <input onchange="this.form.submit()" class="big_number_square" type="number" name="Accuracy" value="$accuracy"/>
+    <input class="big_number_square" type="number" name="Accuracy" value="$accuracy"/>
     <div class="big_number_caption">Accuracy</div>
     <br /><hr/>
-    <input onchange="this.form.submit()" class="big_number_square" type="number" name="Strength" value="$strength"/>
+    <input class="big_number_square" type="number" name="Strength" value="$strength"/>
     <div class="big_number_caption">Strength</div>
     <br /><hr/>
-    <input onchange="this.form.submit()" class="big_number_square" type="number" name="Evasion" value="$evasion"/>
+    <input class="big_number_square" type="number" name="Evasion" value="$evasion"/>
     <div class="big_number_caption">Evasion</div>
     <br /><hr/>
-    <input onchange="this.form.submit()" class="big_number_square" type="number" name="Luck" value="$luck"/>
+    <input class="big_number_square" type="number" name="Luck" value="$luck"/>
     <div class="big_number_caption">Luck</div>
     <br /><hr/>
-    <input onchange="this.form.submit()" class="big_number_square" type="number" name="Speed" value="$speed"/>
+    <input class="big_number_square" type="number" name="Speed" value="$speed"/>
     <div class="big_number_caption">Speed</div>
     <br /><hr/>
 
@@ -79,11 +80,11 @@ class survivor:
 
     <div id="survivor_hit_box">
         <div id="shield_box">
-            <input onchange="this.form.submit()" type="number" class="shield" name="Insanity" value="$insanity" style="color: $insanity_number_style; "/>
+            <input type="number" class="shield" name="Insanity" value="$insanity" style="color: $insanity_number_style; "/>
             Insanity
         </div>
         <div id="info_box">
-     <input onchange="this.form.submit()" type="checkbox" id="brain_damage_light" class="radio_principle" name="brain_damage_light" $brain_damage_light_checked /> 
+     <input type="checkbox" id="brain_damage_light" class="radio_principle" name="brain_damage_light" $brain_damage_light_checked /> 
      <label id="damage_box" class="radio_principle_label" for="brain_damage_light"> L </label>
         <h2>Brain</h2>
         If your insanity is 3+, you are <b>Insane</b>.
@@ -93,10 +94,10 @@ class survivor:
         <!-- HEAD -->
     <div id="survivor_hit_box">
         <div id="shield_box">
-            <input onchange="this.form.submit()" type="number" class="shield" name="Head" value="$head"/>
+            <input type="number" class="shield" name="Head" value="$head"/>
         </div>
         <div id="info_box">
-     <input onchange="this.form.submit()" type="checkbox" id="head_damage_heavy" class="radio_principle" name="head_damage_heavy" $head_damage_heavy_checked /> 
+     <input type="checkbox" id="head_damage_heavy" class="radio_principle" name="head_damage_heavy" $head_damage_heavy_checked /> 
      <label id="damage_box" class="radio_principle_label" for="head_damage_heavy"> H </label>
         <h2>Head</h2>
         <font color="#C60000">H</font>eavy Injury: Knocked Down
@@ -106,12 +107,12 @@ class survivor:
         <!-- ARMS -->
     <div id="survivor_hit_box">
         <div id="shield_box">
-            <input onchange="this.form.submit()" type="number" class="shield" name="Arms" value="$arms"/>
+            <input type="number" class="shield" name="Arms" value="$arms"/>
         </div>
         <div id="info_box">
-     <input onchange="this.form.submit()" type="checkbox" id="arms_damage_heavy" class="radio_principle" name="arms_damage_heavy" $arms_damage_heavy_checked /> 
+     <input type="checkbox" id="arms_damage_heavy" class="radio_principle" name="arms_damage_heavy" $arms_damage_heavy_checked /> 
      <label id="damage_box" class="radio_principle_label" for="arms_damage_heavy"> H </label>
-     <input onchange="this.form.submit()" type="checkbox" id="arms_damage_light" class="radio_principle" name="arms_damage_light" $arms_damage_light_checked /> 
+     <input type="checkbox" id="arms_damage_light" class="radio_principle" name="arms_damage_light" $arms_damage_light_checked /> 
      <label id="damage_box" class="radio_principle_label" for="arms_damage_light"> L </label>
         <h2>Arms</h2>
         <font color="#C60000">H</font>eavy Injury: Knocked Down
@@ -121,12 +122,12 @@ class survivor:
         <!-- BODY -->
     <div id="survivor_hit_box">
         <div id="shield_box">
-            <input onchange="this.form.submit()" type="number" class="shield" name="Body" value="$body"/>
+            <input type="number" class="shield" name="Body" value="$body"/>
         </div>
         <div id="info_box">
-     <input onchange="this.form.submit()" type="checkbox" id="body_damage_heavy" class="radio_principle" name="body_damage_heavy" $body_damage_heavy_checked /> 
+     <input type="checkbox" id="body_damage_heavy" class="radio_principle" name="body_damage_heavy" $body_damage_heavy_checked /> 
      <label id="damage_box" class="radio_principle_label" for="body_damage_heavy"> H </label>
-     <input onchange="this.form.submit()" type="checkbox" id="body_damage_light" class="radio_principle" name="body_damage_light" $body_damage_light_checked /> 
+     <input type="checkbox" id="body_damage_light" class="radio_principle" name="body_damage_light" $body_damage_light_checked /> 
      <label id="damage_box" class="radio_principle_label" for="body_damage_light"> L </label>
         <h2>Body</h2>
         <font color="#C60000">H</font>eavy Injury: Knocked Down
@@ -136,12 +137,12 @@ class survivor:
         <!-- WAIST -->
     <div id="survivor_hit_box">
         <div id="shield_box">
-            <input onchange="this.form.submit()" type="number" class="shield" name="Waist" value="$waist"/>
+            <input type="number" class="shield" name="Waist" value="$waist"/>
         </div>
         <div id="info_box">
-     <input onchange="this.form.submit()" type="checkbox" id="waist_damage_heavy" class="radio_principle" name="waist_damage_heavy" $waist_damage_heavy_checked /> 
+     <input type="checkbox" id="waist_damage_heavy" class="radio_principle" name="waist_damage_heavy" $waist_damage_heavy_checked /> 
      <label id="damage_box" class="radio_principle_label" for="waist_damage_heavy"> H </label>
-     <input onchange="this.form.submit()" type="checkbox" id="waist_damage_light" class="radio_principle" name="waist_damage_light" $waist_damage_light_checked /> 
+     <input type="checkbox" id="waist_damage_light" class="radio_principle" name="waist_damage_light" $waist_damage_light_checked /> 
      <label id="damage_box" class="radio_principle_label" for="waist_damage_light"> L </label>
         <h2>Waist</h2>
         <font color="#C60000">H</font>eavy Injury: Knocked Down
@@ -151,12 +152,12 @@ class survivor:
         <!-- LEGS -->
     <div id="survivor_hit_box">
         <div id="shield_box">
-            <input onchange="this.form.submit()" type="number" class="shield" name="Legs" value="$legs"/>
+            <input type="number" class="shield" name="Legs" value="$legs"/>
         </div>
         <div id="info_box">
-     <input onchange="this.form.submit()" type="checkbox" id="legs_damage_heavy" class="radio_principle" name="legs_damage_heavy" $legs_damage_heavy_checked /> 
+     <input type="checkbox" id="legs_damage_heavy" class="radio_principle" name="legs_damage_heavy" $legs_damage_heavy_checked /> 
      <label id="damage_box" class="radio_principle_label" for="legs_damage_heavy"> H </label>
-     <input onchange="this.form.submit()" type="checkbox" id="legs_damage_light" class="radio_principle" name="legs_damage_light" $legs_damage_light_checked /> 
+     <input type="checkbox" id="legs_damage_light" class="radio_principle" name="legs_damage_light" $legs_damage_light_checked /> 
      <label id="damage_box" class="radio_principle_label" for="legs_damage_light"> L </label>
         <h2>Legs</h2>
         <font color="#C60000">H</font>eavy Injury: Knocked Down
@@ -172,7 +173,7 @@ class survivor:
 
                         <!-- HUNT XP and AGE -->
 
-    <input onchange="this.form.submit()" class="big_number_square" type="number" name="hunt_xp" value="$hunt_xp" />
+    <input class="big_number_square" type="number" name="hunt_xp" value="$hunt_xp" />
     <div class="big_number_caption">Hunt XP</div>
     <br />
     <p>
@@ -181,9 +182,9 @@ class survivor:
     <hr/>
                         <!-- WEAPON PROFICIENCY -->
     <h3>Weapon Proficiency</h3>
-    <input onchange="this.form.submit()" class="big_number_square" type="number" name="Weapon Proficiency" value="$weapon_proficiency" />
+    <input class="big_number_square" type="number" name="Weapon Proficiency" value="$weapon_proficiency" />
     <div class="big_number_caption">
-        <input onchange="this.form.submit()" type="text" class="full_width" placeholder="Type: Select before hunt" value="$weapon_proficiency_type" name="weapon_proficiency_type" style="width: 50%; clear: none; "/>
+        <input type="text" class="full_width" placeholder="Type: Select before hunt" value="$weapon_proficiency_type" name="weapon_proficiency_type" style="width: 50%; clear: none; "/>
     </div>
     <p>       <b>Specialist</b> at 3; <b>Master</b> at 8.   </p>
 
@@ -192,31 +193,31 @@ class survivor:
 
     <div id="block_group">
     <br />
-    <input onchange="this.form.submit()" class="big_number_square" type="number" name="Courage" value="$courage" />
+    <input class="big_number_square" type="number" name="Courage" value="$courage" />
     <div class="big_number_caption">Courage</div>
     <br />
     <p>
     <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Bold</b> occurs at 3, <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>See the Truth</b> occurs at 9.
 
-      <input onchange="this.form.submit()" type="radio" id="stalwart_button" class="radio_principle" name="courage_attribute" value="Stalwart" $stalwart_checked />
+      <input type="radio" id="stalwart_button" class="radio_principle" name="courage_attribute" value="Stalwart" $stalwart_checked />
       <label class="radio_principle_label" for="stalwart_button"> <b>Stalwart:</b> can't be knocked down by brain trauma or intimidate. </label>
-      <input onchange="this.form.submit()" type="radio" id="prepared_button" class="radio_principle" name="courage_attribute" value="Prepared" $prepared_checked />
+      <input type="radio" id="prepared_button" class="radio_principle" name="courage_attribute" value="Prepared" $prepared_checked />
       <label class="radio_principle_label" for="prepared_button"> <b>Prepared:</b> Add hunt XP to your roll when determining a straggler. </label>
-      <input onchange="this.form.submit()" type="radio" id="matchmaker_button" class="radio_principle" name="courage_attribute" value="Matchmaker" $matchmaker_checked />
+      <input type="radio" id="matchmaker_button" class="radio_principle" name="courage_attribute" value="Matchmaker" $matchmaker_checked />
       <label class="radio_principle_label" for="matchmaker_button"> <b>Matchmaker:</b> Spend 1 endeavor to trigger intimacy story event. </label>
     </div>
     <div id="block_group">
     <br />
-    <input onchange="this.form.submit()" class="big_number_square" type="number" name="Understanding" value="$understanding" />
+    <input class="big_number_square" type="number" name="Understanding" value="$understanding" />
     <div class="big_number_caption">Understanding</div>
     <br />
     <p>
     <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Insight</b> occurs at 3, <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>White Secret</b> occurs at 9.
-      <input onchange="this.form.submit()" type="radio" id="analyze_button" class="radio_principle" name="understanding_attribute" value="Analyze" $analyze_checked />
+      <input type="radio" id="analyze_button" class="radio_principle" name="understanding_attribute" value="Analyze" $analyze_checked />
       <label class="radio_principle_label" for="analyze_button"> <b>Analyze:</b> Look at top AI card and return it to the top of the deck.</label>
-      <input onchange="this.form.submit()" type="radio" id="explore_button" class="radio_principle" name="understanding_attribute" value="Explore" $explore_checked />
+      <input type="radio" id="explore_button" class="radio_principle" name="understanding_attribute" value="Explore" $explore_checked />
       <label class="radio_principle_label" for="explore_button"> <b>Explore:</b>  Add +2 to your investigate roll results.</label>
-      <input onchange="this.form.submit()" type="radio" id="tinker_button" class="radio_principle" name="understanding_attribute" value="Tinker" $tinker_checked />
+      <input type="radio" id="tinker_button" class="radio_principle" name="understanding_attribute" value="Tinker" $tinker_checked />
       <label class="radio_principle_label" for="tinker_button"> <b>Tinker:</b> +1 endeavor when a returning survivor. </label>
 
     </div>
@@ -561,7 +562,7 @@ class meta:
     stylesheet = Template('<link rel="stylesheet" type="text/css" href="$url">\n')
     close_head = '</head>\n<body>\n <div id="container">\n'
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
-    log_out_button = Template('\n\t<form method="POST"><input type="hidden" name="remove_session" value="$session_id"/><button class="error">LOG OUT</button>\n\t</form>')
+    log_out_button = Template('\n\t<form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><button class="error">LOG OUT</button>\n\t</form>')
 
 #
 #   application helper functions for HTML interfacing
@@ -621,8 +622,24 @@ def render(html, head=[], http_headers=False):
         output = "Content-type: text/html\n\n"
 
     output += meta.start_head
-    output += '<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>'
     output += meta.stylesheet.safe_substitute(url=settings.get("application", "stylesheet"))
+#    output += '<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>\n'
+
+    output += """\n\
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+    <script src="http://malsup.github.com/jquery.form.js"></script>
+
+    <script>
+        // wait for the DOM to be loaded
+        $(document).ready(function() {
+            // bind 'myForm' and provide a simple callback function
+            $('#autoForm').ajaxForm(function() {
+//                alert("Thank you for your comment!");
+            });
+        });
+    </script>
+    \n"""
+
 
     for element in head:
         output += element

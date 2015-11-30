@@ -89,7 +89,7 @@ def dump_document(collection, doc_id):
     key_length = 31
     document = mdb[collection].find_one({"_id": ObjectId(doc_id)})
     print("")
-    for a in document:
+    for a in sorted(document.keys()):
         print(" %s%s%s" % (a, " " * (key_length - len(a)), document[a]))
     print("")
 

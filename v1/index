@@ -29,6 +29,3 @@ if __name__ == "__main__":
         output = S.current_view_html()
 
     html.render(output)
-
-
-

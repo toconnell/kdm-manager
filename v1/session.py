@@ -21,6 +21,8 @@ class Session:
         #   do it here, while we're initializing a new session object.
         if "remove_session" in self.params:
             mdb.sessions.remove({"_id": ObjectId(self.params["remove_session"].value)})
+            self.logger.info(params)
+            self.logger.info('Removed session %s' % self.params["remove_session"].value)
 
         self.session = None
         self.user = None
@@ -159,7 +161,7 @@ class Session:
                 survivor_settlement = mdb.settlements.find_one({"_id": s["settlement"]})
                 survivor_name = "%s (%s)" % (s["name"], survivor_settlement["name"])
                 output += html.dashboard.view_asset_button.safe_substitute(asset_type="survivor", asset_id=s["_id"], asset_name=survivor_name)
-            output += html.dashboard.headline.safe_substitute(title="Notes", desc="")
+            output += html.dashboard.headline.safe_substitute(title="Notes", desc="KD:M Manager! Version %s" % settings.get("application","version"))
         elif self.session["current_view"] == "new_settlement":
             output += html.dashboard.new_settlement_form
         elif self.session["current_view"] == "new_survivor":
