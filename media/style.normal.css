@@ -56,5 +56,10 @@ button#remove_item {border-radius: 20px; padding-right: 10px; padding-left: 10px
 
 .disabled, .strikethrough {color: #999; cursor: not-allowed; }
 
+/* epithet style silliness */
+#Lucernae {color: blue; }
+#Caratosis {color: red; }
+#Dormenatus {color: green; }
+
 /* The big, meta-div */
 #container {}

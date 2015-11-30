@@ -80,6 +80,9 @@ class Session:
             self.session["current_asset"] = ObjectId(asset_id)
         mdb.sessions.save(self.session)
 
+    def set_current_settlement(self, settlement_id):
+        self.session["current_settlement"] = settlement_id
+        mdb.sessions.save(self.session)
 
     def process_params(self):
         """ All cgi.FieldStorage() params passed to this object on init
@@ -95,7 +98,13 @@ class Session:
 
         if "remove_settlement" in self.params:
             self.change_current_view("dashboard")
-            mdb.settlements.remove({"_id": ObjectId(self.params["remove_settlement"].value)})
+            settlement_id = ObjectId(self.params["remove_settlement"].value)
+            survivors = mdb.survivors.find({"settlement": settlement_id})
+            for survivor in survivors:
+                mdb.survivors.remove({"_id": survivor["_id"]})
+                self.logger.info("User '%s' removed survivor '%s'" % (self.user.user["login"], survivor["name"]))
+            mdb.settlements.remove({"_id": settlement_id})
+            self.logger.info("User '%s' removed settlement '%s'" % (self.user.user["login"], settlement_id))
 
         if "remove_survivor" in self.params:
             self.change_current_view("dashboard")
@@ -107,8 +116,8 @@ class Session:
                 assets.Settlement(name=settlement_name, created_by=ObjectId(self.user.user["_id"]))
                 self.change_current_view("dashboard")
             if self.params["new"].value == "survivor":
-                assets.Survivor(params=self.params)
-                self.change_current_view("view_settlement", asset_id=self.params["settlement_id"].value)
+                s = assets.Survivor(params=self.params)
+                self.change_current_view("view_survivor", asset_id=s.survivor["_id"])
 
         if "modify" in self.params:
             if self.params["modify"].value == "settlement":
@@ -154,14 +163,14 @@ class Session:
         elif self.session["current_view"] == "new_settlement":
             output += html.dashboard.new_settlement_form
         elif self.session["current_view"] == "new_survivor":
-            self.user.logger.info(self.user.user["_id"])
             options = self.user.get_settlements(return_as="html_option")
-            output += html.dashboard.new_survivor_form.safe_substitute(settlement_options=options, user_email=self.user.user["login"], created_by=self.user.user["_id"])
+            output += html.dashboard.new_survivor_form.safe_substitute(home_settlement=self.session["current_settlement"], user_email=self.user.user["login"], created_by=self.user.user["_id"])
         elif self.session["current_view"] == "view_settlement":
             #
             #   logic for read-only settlement views will go here
             #
             settlement = mdb.settlements.find_one({"_id": self.session["current_asset"]})
+            self.set_current_settlement(ObjectId(settlement["_id"]))
             S = assets.Settlement(settlement_id = settlement["_id"])
             output += S.render_html_form()
         elif self.session["current_view"] == "view_survivor":

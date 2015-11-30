@@ -23,6 +23,9 @@ class survivor:
 
     <hr />
     <input id="topline_name" onchange="this.form.submit()" class="full_width" type="text" name="name" value="$name" placeholder="Survivor Name"/>
+    $epithets
+    $add_epithets
+    <input onchange="this.form.submit()" class="full_width" type="text" name="add_epithet" placeholder="add a custom epithet"/>
     <hr />
     <p>
      Survivor sex: <b>$sex</b>
@@ -160,6 +163,11 @@ class survivor:
         </div>
     </div>
 
+     <select name="heal_survivor" onchange="this.form.submit()">
+      <option selected disabled hidden value="">Heal Survivor</option>
+      <option>Heal Injuries Only</option>
+      <option>Heal Injuries and Armor</option>
+     </select>
     <hr />
 
                         <!-- HUNT XP and AGE -->
@@ -250,6 +258,7 @@ class survivor:
     </form>
 
     <hr/>
+    <h3>Settlement</h3>
     $settlement_link
 
     <br/><hr/>
@@ -301,9 +310,9 @@ class settlement:
     <hr />
         $storage
     <hr />
-        $items_options<br /><br />
-        $items_remove
-     <input onchange="this.form.submit()" type="text" class="full_width" name="add_item" placeholder="Item or Resource"/>
+        $items_options<br />
+        $items_remove<br />
+     <input onchange="this.form.submit()" type="text" class="full_width" name="add_item" placeholder="add gear or resource"/>
     </div>
 
                     <!-- LOCATIONS -->
@@ -385,15 +394,6 @@ class settlement:
     <hr />  <!-- Logical Section Break -->
 
 
-                    <!-- TIMELINE -->
-
-    <div id="block_group">
-    <h2>Timeline</h2>
-    <input onchange="this.form.submit()" class="big_number_square" type="number" name="lantern_year" value="$lantern_year"/>
-    <div class="big_number_caption">Lantern Year</div>
-    <br /><hr />
-    $timeline
-    </div>
 
                     <!-- MILESTONES -->
 
@@ -463,9 +463,20 @@ class settlement:
      <input onchange="this.form.submit()" type="text" class="full_width" name="add_defeated_monster" placeholder="add defeated monster"/>
     </div>
 
+                    <!-- TIMELINE -->
+
+    <div id="block_group">
+    <h2>Timeline</h2>
+    <input onchange="this.form.submit()" class="big_number_square" type="number" name="lantern_year" value="$lantern_year"/>
+    <div class="big_number_caption">Lantern Year</div>
+    <br /><hr />
+    $timeline
+    </div>
+
 
                     <!-- LOST SETTLEMENTS -->
     <br />
+    <hr />
     <input onchange="this.form.submit()" class="big_number_square" type="number" name="lost_settlements" value="$lost_settlements"/>
     <div class="big_number_caption">Lost Settlements</div>
     <br /><hr />
@@ -483,7 +494,7 @@ class settlement:
 
     <br />
     <br /><hr/>
-    <form method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this settlement forever.');"><input type="hidden" name="remove_settlement" value="$settlement_id"/><button class="error">Permanently Delete Settlement</button></form>
+    <form method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever.');"><input type="hidden" name="remove_settlement" value="$settlement_id"/><button class="error">Permanently Delete Settlement</button></form>
     <hr/>
     <br />
     \n""")
@@ -505,12 +516,9 @@ class dashboard:
     <form method="POST">
     <input type="hidden" name="new" value="survivor" />
     <input type="hidden" name="created_by" value="$created_by" />
+    <input type="hidden" name="settlement_id" value="$home_settlement">
     <input type="text" name="name" placeholder="Survivor Name"/ class="full_width">
     <input type="text" name="email" placeholder="Survivor Email"/ class="full_width" value="$user_email">
-     <select name="settlement_id">
-      <option selected disabled hidden value=''>Home Settlement</option>
-      <option>$settlement_options</option>
-     </select>
     <div id="block_group">
     <h2>Survivor Sex</h2>
     <input type="radio" id="male_button" class="radio_principle" name="sex" value="Male"/> 

@@ -2,9 +2,18 @@
 
 from utils import get_logger
 
+resource_decks = {
+    "White Lion": [ "White Fur", "White Fur", "White Fur", "White Fur", "Lion Claw", "Lion Claw", "Lion Claw", "Eye of Cat", "Great Cat Bones", "Great Cat Bones", "Great Cat Bones", "Great Cat Bones", "Shimmering Mane", "Lion Tail", "Curious Hand", "Golden Whiskers", "Sinew", "Sinew", "Lion Testes" ],
+    "Screaming Antelope": ["Pelt", "Pelt", "Pelt", "Pelt", "Shank Bone", "Shank Bone", "Shank Bone", "Shank Bone", "Large Flat Tooth", "Large Flat Tooth", "Beast Steak", "Beast Steak", "Muscly Gums", "Spiral Horn", "Bladder", "Screaming Brain"],
+    "Phoenix": ["Tall Feathers", "Tall Feathers", "Tall Feathers", "Phoenix Eye", "Phoenix Whisker", "Pustules", "Pustules", "Small Feathers", "Small Feathers", "Small Feathers", "Muculent Droppings", "Muculent Droppings", "Muculent Droppings", "Wishbone", "Shimmering Halo", "Bird Beak", "Black Skull", "Small Hand Parasites", "Phoenix Finger", "Phoenix Finger", "Hollow Wing Bones", "Hollow Wing Bones", "Hollow Wing Bones", "Rainbow Droppings"],
+    "Basic Resources": ["???", "???", "Skull", "Broken Lantern", "Broken Lantern", "Monster Bone", "Monster Bone", "Monster Bone", "Monster Bone", "Love Juice", "Love Juice", "Monster Organ", "Monster Organ", "Monster Organ", "Monster Hide", "Monster Hide", "Monster Hide", "Monster Hide", "Monster Hide", "Monster Hide", "Monster Hide"]
+}
+
+
 quarries = {
-    "White Lion": {},
-    "Screaming Antelope": {},
+    "White Lion": {    },
+    "Screaming Antelope": {    },
+    "Phoenix": {    },
 }
 
 innovations = {
@@ -46,7 +55,7 @@ innovations = {
     "Protect the Young": {
         "type": "new life principle",
         "consequences": [],
-        "note": "When rolling on the Intimacy story event, roll twice and pick one result.",
+        "survivor_buff": "When rolling on the Intimacy story event, roll twice and pick one result.",
     },
     "Survival of the Fittest": {
         "type": "new life principle",
@@ -336,6 +345,72 @@ items = {
     "Lion Testes": {
         "location": "White Lion Resources",
     },
+    "Pelt": {
+        "location": "Screaming Antelope Resources",
+    },
+    "Shank Bone": {
+        "location": "Screaming Antelope Resources",
+    },
+    "Large Flat Tooth": {
+        "location": "Screaming Antelope Resources",
+    },
+    "Beast Steak": {
+        "location": "Screaming Antelope Resources",
+    },
+    "Muscly Gums": {
+        "location": "Screaming Antelope Resources",
+    },
+    "Spiral Horn": {
+        "location": "Screaming Antelope Resources",
+    },
+    "Bladder": {
+        "location": "Screaming Antelope Resources",
+    },
+    "Screaming Brain": {
+        "location": "Screaming Antelope Resources",
+    },
+    "Tall Feathers": {
+        "location": "Phoenix Resources",
+    },
+    "Phoenix Eye": {
+        "location": "Phoenix Resources",
+    },
+    "Phoenix Whisker": {
+        "location": "Phoenix Resources",
+    },
+    "Pustules": {
+        "location": "Phoenix Resources",
+    },
+    "Small Feathers": {
+        "location": "Phoenix Resources",
+    },
+    "Muculent Droppings": {
+        "location": "Phoenix Resources",
+    },
+    "Wishbone": {
+        "location": "Phoenix Resources",
+    },
+    "Shimmering Halo": {
+        "location": "Phoenix Resources",
+    },
+    "Bird Beak": {
+        "location": "Phoenix Resources",
+    },
+    "Black Skull": {
+        "location": "Phoenix Resources",
+    },
+    "Small Hand Parasites": {
+        "location": "Phoenix Resources",
+    },
+    "Phoenix Finger": {
+        "location": "Phoenix Resources",
+    },
+    "Hollow Wing Bones": {
+        "location": "Phoenix Resources",
+    },
+    "Rainbow Droppings": {
+        "location": "Phoenix Resources",
+    },
     "Claw Head Arrow": {
         "attack": (1,6,6),
         "location": "Catarium",
@@ -538,6 +613,58 @@ fighting_arts = {
     },
 }
 
+epithets = {
+    "Masticated": {},
+    "Death Taster": {},
+    "Pure Warrior": {},
+    "Cursed": {},
+    "Twilight Knight": {},
+    "Swamp Explorer": {},
+    "Lantern Experimenter": {},
+    "Speaker of the First Words": {},
+    "Voice of Reason": {},
+    "Bone Witch": {},
+    "Murderer": {},
+    "Lucernae": {},
+    "Caratosis": {},
+    "Dormenatus": {},
+}
+
+abilities_and_impairments = {
+    "Intracranial hemmorhage": {
+        "type": "impairment",
+        "desc": "You can no longer use or gain any survival. This injury is permanent and can be recorded once.",
+        "max": 1,
+    },
+    "Deaf": {
+        "type": "impairment",
+        "desc": "Suffer -1 permanent evasion. This injury is permanent and can be recorded once.",
+        "max": 1,
+    },
+    "Shattered Jaw": {
+        "type": "impairment",
+        "desc": "You can no longer consume or be affected by events requiring you to consume. You can no longer incourage. This injury is permanent and can be recorded once.",
+        "max": 1,
+    },
+    "Dismembered Arm": {
+        "type": "impairment",
+        "desc": "You can no longer activate two-handed weapons. This injury is permanent, and can be recorded twice. A survivor with two dismembered arm severe injuries cannot activate any weapons.",
+        "max": 2,
+    },
+    "Ruptured Muscle": {
+        "type": "impairment",
+        "desc": "You can no longer activate fighting arts. This injury is permanent and can be recorded once.",
+        "max": 1,
+    },
+    "Blind": {
+        "type": "impairment",
+        "desc": "TK",
+    },
+    "Warped Pelvis": {
+        "type": "impairment",
+        "desc": "Suffer -1 permanent luck. This injury is permanent and can be recorded multiple times.",
+    },
+}
 
 disorders = {
     "Fear of the Dark": {
@@ -603,7 +730,7 @@ disorders = {
         "survivor_effect": "Whenever you suffer a severe injury, also suffer the frenzy brain trauma.",
     },
     "Indecision": {
-        "If you are the event revealer of hunt events that call on you to make a roll, roll twice and use the lower result.",
+        "survivor_effect": "If you are the event revealer of hunt events that call on you to make a roll, roll twice and use the lower result.",
     },
     "Anxiety": {
         "survivor_effect": "At the start of each showdown, gain the priority target token unless you have stinky gear in your gear grid.",
@@ -630,6 +757,22 @@ def render_fighting_arts_dict(return_as=False, exclude=[]):
         return html
 
     return fa_keys
+
+def render_epithet_dict(return_as=False, exclude=[]):
+    epithet_keys = sorted(epithets.keys())
+    for epithet_key in exclude:
+        try:
+            epithet_keys.remove(epithet_key)
+        except:
+            pass
+    if return_as == "html_select_add":
+        html = '<select name="add_epithet" onchange="this.form.submit()">'
+        html += '<option selected disabled hidden value="">Add Epithet</option>'
+        for epithet in epithet_keys:
+            html += '<option>%s</option>' % epithet
+        html += '</select>'
+        return html
+    return epithet_keys
 
 def render_disorder_dict(return_as=False, exclude=[]):
     """ Represents models.disorders. """

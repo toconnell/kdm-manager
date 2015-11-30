@@ -55,12 +55,7 @@ class Survivor:
         to initalize with survivor data from mongo. """
 
         self.logger = get_logger()
-        self.flags = [
-            "cannot_spend_survival",
-            "cannot_use_fighting_arts",
-            "skip_next_hunt",
-            "dead",
-            "retired",
+        self.damage_locations = [
             "brain_damage_light",
             "head_damage_heavy",
             "arms_damage_light",
@@ -72,6 +67,14 @@ class Survivor:
             "legs_damage_light",
             "legs_damage_heavy",
         ]
+        self.flag_attribs = [
+            "cannot_spend_survival",
+            "cannot_use_fighting_arts",
+            "skip_next_hunt",
+            "dead",
+            "retired",
+        ]
+        self.flags = self.damage_locations + self.flag_attribs
 
         if not survivor_id:
             survivor_id = self.new(params)
@@ -90,6 +93,7 @@ class Survivor:
         survivor_sex = params["sex"].value[0].upper()
 
         survivor_dict = {
+            "epithets": [],
             "created_on": datetime.now(),
             "created_by": created_by,
             "settlement": settlement_id,
@@ -152,6 +156,14 @@ class Survivor:
     def get_abilities_and_impairments(self, return_as=False):
         all_list = self.survivor["abilities_and_impairments"]
 
+        final_list = []
+        for i in all_list:
+            if i in models.abilities_and_impairments.keys():
+                desc = models.abilities_and_impairments[i]["desc"]
+                final_list.append("<b>%s:</b> %s" % (i, desc))
+            else:
+                final_list.append(i)
+
         if return_as == "html_select_remove":
             html = '<select name="remove_ability" onchange="this.form.submit()">'
             html += '<option selected disabled hidden value="">Remove Ability</option>'
@@ -160,7 +172,7 @@ class Survivor:
             html += '</select>'
             return html
 
-        return "<br/>\n".join(all_list)
+        return "<br/>\n".join(final_list)
 
     def get_fighting_arts(self, return_as=False):
         fighting_arts = self.survivor["fighting_arts"]
@@ -202,6 +214,36 @@ class Survivor:
 
         return disorders
 
+    def get_epithets(self, return_as=False):
+        epithets = self.survivor["epithets"]
+
+        if return_as == "comma-delimited":
+            return "<p>%s</p>" % ", ".join(epithets)
+        elif return_as == "formatted_html":
+            if epithets == []:
+                return ""
+            else:
+                styled_epithets = []
+                for epithet in epithets:
+                    if epithet in ["Lucernae", "Caratosis", "Dormenatus"]:
+                        styled_epithets.append('<font id="%s">&#x02588;</font> %s' % (epithet, epithet))
+                    else:
+                        styled_epithets.append(epithet)
+                return "<p>%s</p>" % ", ".join(styled_epithets)
+        return epithets
+
+    def heal(self, heal_armor=False):
+        for damage_loc in self.damage_locations:
+            try:
+                del self.survivor[damage_loc]
+            except:
+                pass
+        if heal_armor:
+            for armor_loc in ["Head","Arms","Body","Waist","Legs"]:
+                self.survivor[armor_loc] = 0
+
+        mdb.survivors.save(self.survivor)
+
     def modify(self, params):
         """ Reads through a cgi.FieldStorage() (i.e. 'params') and modifies the
         survivor. """
@@ -209,6 +251,14 @@ class Survivor:
         for p in params:
             if p == "asset_id":
                 pass
+            elif p == "heal_survivor":
+                if params[p].value == "Heal Injuries Only":
+                    self.heal()
+                elif params[p].value == "Heal Injuries and Armor":
+                    self.heal(heal_armor=True)
+            elif p == "add_epithet":
+                self.survivor["epithets"].append(params[p].value.strip())
+                self.survivor["epithets"] = sorted(list(set(self.survivor["epithets"])))
             elif p == "add_ability":
                 self.survivor["abilities_and_impairments"].append(params[p].value.strip())
             elif p == "remove_ability":
@@ -224,8 +274,14 @@ class Survivor:
             else:
                 self.survivor[p] = params[p].value.strip()
 
-        for flag in self.flags:
+
+        for flag in self.flag_attribs:
             if flag in params:
+                self.survivor[flag] = "checked"
+            elif flag not in params and flag in self.survivor.keys():
+                del self.survivor[flag]
+        for flag in self.damage_locations:
+            if flag in params and not "heal_survivor" in params:
                 self.survivor[flag] = "checked"
             elif flag not in params and flag in self.survivor.keys():
                 del self.survivor[flag]
@@ -239,7 +295,7 @@ class Survivor:
 
         survivor_survival_points = int(self.survivor["survival"])
         if survivor_survival_points > int(self.settlement.settlement["survival_limit"]):
-            survivor_survival_points = self.settlement.settlement["survival_limit"]
+            survivor_survival_points = int(self.settlement.settlement["survival_limit"])
 
         flags = {}
         for flag in self.flags:
@@ -276,14 +332,17 @@ class Survivor:
             elif self.survivor["understanding_attribute"] == "Tinker":
                 tinker = "checked"
 
+        self.logger.info(self.settlement.settlement["survival_limit"])
         output = html.survivor.form.safe_substitute(
             MEDIA_URL = settings.get("application", "STATIC_URL"),
 
             survivor_id = self.survivor["_id"],
             name = self.survivor["name"],
+            add_epithets = models.render_epithet_dict(return_as="html_select_add", exclude=self.survivor["epithets"]),
+            epithets = self.get_epithets(return_as="formatted_html"),
             sex = self.survivor["sex"],
             survival = survivor_survival_points,
-            survival_limit = self.settlement.settlement["survival_limit"],
+            survival_limit = int(self.settlement.settlement["survival_limit"]),
             cannot_spend_survival_checked = flags["cannot_spend_survival"],
             hunt_xp = self.survivor["hunt_xp"],
             dead_checked = flags["dead"],
@@ -352,12 +411,11 @@ class Settlement:
     def __init__(self, settlement_id=False, name=False, created_by=False):
         """ Initialize with a settlement from mdb. """
         self.logger = get_logger()
-
         if not settlement_id:
             settlement_id = self.new(name, created_by)
-
         self.settlement = mdb.settlements.find_one({"_id": settlement_id})
-        self.logger.info("Initialized settlement '%s' successfully!" % settlement_id)
+        self.survivors = mdb.survivors.find({"settlement": settlement_id})
+        self.update_death_count()
 
     def new(self, name=None, created_by=None):
         """ Creates a new settlement. 'name' is any string and 'created_by' has to
@@ -367,7 +425,7 @@ class Settlement:
             "created_on": datetime.now(),
             "created_by": created_by,
             "name": name,
-            "survival_limit": 0,
+            "survival_limit": 2,
             "lantern_year": 0,
             "death_count": 0,
             "milestone_story_events": [],
@@ -425,6 +483,21 @@ class Settlement:
         settlement_id = mdb.settlements.insert(new_settlement_dict)
         self.logger.info("New settlement '%s' ('%s') created!" % (name, created_by))
         return settlement_id
+
+    def update_death_count(self):
+        """ This runs whenever we initialize the settlement. It makes sure that
+        our dead survivors are reflected in the death count. """
+
+        min_death_count = 0
+        for survivor in self.survivors:
+            if "dead" in survivor.keys():
+                min_death_count += 1
+
+        if int(self.settlement["death_count"]) < min_death_count:
+            self.settlement["death_count"] = min_death_count
+
+        mdb.settlements.save(self.settlement)
+
 
     def get_min_survival_limit(self):
         """ Returns the settlement's minimum survival limit as an int."""
@@ -802,9 +875,7 @@ def update_settlement(params):
             settlement["nemesis_monsters"][params[p].value] = []
         elif p == "add_item":
             settlement["storage"].append(params[p].value)
-        #    break   # don't process any params after this
         elif p == "remove_item":
-            logger.info("remove request received")
             logger.info(params)
             settlement["storage"].remove(params[p].value)
         elif p == "add_innovation":
