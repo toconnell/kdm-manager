@@ -114,6 +114,9 @@ class Survivor:
             "Understanding": 0,
             "Weapon Proficiency": 0,
             "weapon_proficiency_type": "",
+            "disorders": [],
+            "abilities_and_impairments": [],
+            "fighting_arts": [],
         }
 
         user = mdb.users.find_one({"_id": created_by})
@@ -123,23 +126,6 @@ class Survivor:
         self.logger.info("User '%s' created new survivor '%s [%s]' successfully." % (login, survivor_name, survivor_sex))
         return survivor_id
 
-    def modify(self, params):
-        """ Reads through a cgi.FieldStorage() (i.e. 'params') and modifies the
-        survivor. """
-
-        for p in params:
-            if p == "asset_id":
-                pass
-            else:
-                self.survivor[p] = params[p].value.strip()
-
-        for flag in self.flags:
-            if flag in params:
-                self.survivor[flag] = "checked"
-            elif flag not in params and flag in self.survivor.keys():
-                del self.survivor[flag]
-
-        mdb.survivors.save(self.survivor)
 
     def get_survival_actions(self, return_as=False):
         possible_actions = ["Dodge", "Encourage", "Surge", "Dash"]
@@ -163,6 +149,88 @@ class Survivor:
 
         return available_actions
 
+    def get_abilities_and_impairments(self, return_as=False):
+        all_list = self.survivor["abilities_and_impairments"]
+
+        if return_as == "html_select_remove":
+            html = '<select name="remove_ability" onchange="this.form.submit()">'
+            html += '<option selected disabled hidden value="">Remove Ability</option>'
+            for ability in all_list:
+                html += '<option>%s</option>' % ability
+            html += '</select>'
+            return html
+
+        return "<br/>\n".join(all_list)
+
+    def get_fighting_arts(self, return_as=False):
+        fighting_arts = self.survivor["fighting_arts"]
+
+        if return_as == "formatted_html":
+            html = ""
+            for fa_key in fighting_arts:
+                html += '<b>%s:</b> %s<br />' % (fa_key, models.fighting_arts[fa_key]["desc"])
+            return html
+
+        if return_as == "html_select_remove":
+            html = ""
+            html = '<select name="remove_fighting_art" onchange="this.form.submit()">'
+            html += '<option selected disabled hidden value="">Remove Fighting Art</option>'
+            for fa in fighting_arts:
+                html += '<option>%s</option>' % fa
+            html += '</select>'
+            return html
+
+        return disorders
+
+    def get_disorders(self, return_as=False):
+        disorders = self.survivor["disorders"]
+
+        if return_as == "formatted_html":
+            html = ""
+            for disorder_key in disorders:
+                html += '<b>%s:</b> %s<br />' % (disorder_key, models.disorders[disorder_key]["survivor_effect"])
+            return html
+
+        if return_as == "html_select_remove":
+            html = ""
+            html = '<select name="remove_disorder" onchange="this.form.submit()">'
+            html += '<option selected disabled hidden value="">Remove Disorder</option>'
+            for disorder in disorders:
+                html += '<option>%s</option>' % disorder
+            html += '</select>'
+            return html
+
+        return disorders
+
+    def modify(self, params):
+        """ Reads through a cgi.FieldStorage() (i.e. 'params') and modifies the
+        survivor. """
+
+        for p in params:
+            if p == "asset_id":
+                pass
+            elif p == "add_ability":
+                self.survivor["abilities_and_impairments"].append(params[p].value.strip())
+            elif p == "remove_ability":
+                self.survivor["abilities_and_impairments"].remove(params[p].value)
+            elif p == "add_disorder" and len(self.survivor["disorders"]) < 3:
+                self.survivor["disorders"].append(params[p].value.strip())
+            elif p == "remove_disorder":
+                self.survivor["disorders"].remove(params[p].value)
+            elif p == "add_fighting_art" and len(self.survivor["fighting_arts"]) < 3:
+                self.survivor["fighting_arts"].append(params[p].value.strip())
+            elif p == "remove_fighting_art":
+                self.survivor["fighting_arts"].remove(params[p].value)
+            else:
+                self.survivor[p] = params[p].value.strip()
+
+        for flag in self.flags:
+            if flag in params:
+                self.survivor[flag] = "checked"
+            elif flag not in params and flag in self.survivor.keys():
+                del self.survivor[flag]
+
+        mdb.survivors.save(self.survivor)
 
     def render_html_form(self):
         """ This is just like the render_html_form() method of the settlement
@@ -185,6 +253,28 @@ class Survivor:
 
         if int(self.survivor["hunt_xp"]) >= 16:
             flags["retired"] = "checked"
+
+        stalwart = ""
+        prepared = ""
+        matchmaker = ""
+        if "courage_attribute" in self.survivor.keys():
+            if self.survivor["courage_attribute"] == "Stalwart":
+                stalwart = "checked"
+            elif self.survivor["courage_attribute"] == "Prepared":
+                prepared = "checked"
+            elif self.survivor["courage_attribute"] == "Matchmaker":
+                matchmaker = "checked"
+
+        analyze = ""
+        explore = ""
+        tinker = ""
+        if "understanding_attribute" in self.survivor.keys():
+            if self.survivor["understanding_attribute"] == "Analyze":
+                analyze = "checked"
+            elif self.survivor["understanding_attribute"] == "Explore":
+                explore = "checked"
+            elif self.survivor["understanding_attribute"] == "Tinker":
+                tinker = "checked"
 
         output = html.survivor.form.safe_substitute(
             MEDIA_URL = settings.get("application", "STATIC_URL"),
@@ -229,6 +319,27 @@ class Survivor:
 
             weapon_proficiency = self.survivor["Weapon Proficiency"],
             weapon_proficiency_type = self.survivor["weapon_proficiency_type"],
+
+            courage = self.survivor["Courage"],
+            stalwart_checked = stalwart,
+            prepared_checked = prepared,
+            matchmaker_checked = matchmaker,
+            understanding = self.survivor["Understanding"],
+            analyze_checked = analyze,
+            explore_checked = explore,
+            tinker_checked = tinker,
+
+            fighting_arts = self.get_fighting_arts(return_as="formatted_html"),
+            add_fighting_arts = models.render_fighting_arts_dict(return_as="html_select_add", exclude=self.survivor["fighting_arts"]),
+            rm_fighting_arts = self.get_fighting_arts(return_as="html_select_remove"),
+
+            disorders = self.get_disorders(return_as="formatted_html"),
+            add_disorders = models.render_disorder_dict(return_as="html_select_add", exclude=self.survivor["disorders"]),
+            rm_disorders = self.get_disorders(return_as="html_select_remove"),
+
+            skip_next_hunt_checked = flags["skip_next_hunt"],
+            abilities_and_impairments = self.get_abilities_and_impairments(),
+            remove_abilities_and_impairments = self.get_abilities_and_impairments(return_as="html_select_remove"),
 
             settlement_link = self.settlement.asset_link(),
         )

@@ -179,14 +179,76 @@ class survivor:
     </div>
     <p>       <b>Specialist</b> at 3; <b>Master</b> at 8.   </p>
 
+    <hr/>
+                        <!-- COURAGE AND UNDERSTANDING -->
 
+    <div id="block_group">
+    <br />
+    <input onchange="this.form.submit()" class="big_number_square" type="number" name="Courage" value="$courage" />
+    <div class="big_number_caption">Courage</div>
+    <br />
+    <p>
+    <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Bold</b> occurs at 3, <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>See the Truth</b> occurs at 9.
 
+      <input onchange="this.form.submit()" type="radio" id="stalwart_button" class="radio_principle" name="courage_attribute" value="Stalwart" $stalwart_checked />
+      <label class="radio_principle_label" for="stalwart_button"> <b>Stalwart:</b> can't be knocked down by brain trauma or intimidate. </label>
+      <input onchange="this.form.submit()" type="radio" id="prepared_button" class="radio_principle" name="courage_attribute" value="Prepared" $prepared_checked />
+      <label class="radio_principle_label" for="prepared_button"> <b>Prepared:</b> Add hunt XP to your roll when determining a straggler. </label>
+      <input onchange="this.form.submit()" type="radio" id="matchmaker_button" class="radio_principle" name="courage_attribute" value="Matchmaker" $matchmaker_checked />
+      <label class="radio_principle_label" for="matchmaker_button"> <b>Matchmaker:</b> Spend 1 endeavor to trigger intimacy story event. </label>
+    </div>
+    <div id="block_group">
+    <br />
+    <input onchange="this.form.submit()" class="big_number_square" type="number" name="Understanding" value="$understanding" />
+    <div class="big_number_caption">Understanding</div>
+    <br />
+    <p>
+    <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Insight</b> occurs at 3, <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>White Secret</b> occurs at 9.
+      <input onchange="this.form.submit()" type="radio" id="analyze_button" class="radio_principle" name="understanding_attribute" value="Analyze" $analyze_checked />
+      <label class="radio_principle_label" for="analyze_button"> <b>Analyze:</b> Look at top AI card and return it to the top of the deck.</label>
+      <input onchange="this.form.submit()" type="radio" id="explore_button" class="radio_principle" name="understanding_attribute" value="Explore" $explore_checked />
+      <label class="radio_principle_label" for="explore_button"> <b>Explore:</b>  Add +2 to your investigate roll results.</label>
+      <input onchange="this.form.submit()" type="radio" id="tinker_button" class="radio_principle" name="understanding_attribute" value="Tinker" $tinker_checked />
+      <label class="radio_principle_label" for="tinker_button"> <b>Tinker:</b> +1 endeavor when a returning survivor. </label>
+
+    </div>
+    <hr/>
                         <!-- FIGHTING ARTS -->
+    <h3>Fighting Arts</h3>
+    <p>Maximum 3.</p>
+
+        $fighting_arts
+        $add_fighting_arts<br/>
+        $rm_fighting_arts
+
+    <hr/>
+                        <!-- DISORDERS -->
+    <h3>Disorders</h3>
+    <p>Maximum 3.</p>
+
+        $disorders
+        $add_disorders<br />
+        $rm_disorders
+
+    <hr/>
+
+                        <!-- ABILITIES AND IMPAIRMENTS -->
+
+    <h3>Abilities & Impairments</h3>
+    <p>
+     <input onchange="this.form.submit()" type="checkbox" id="skip_next_hunt" class="radio_principle" name="skip_next_hunt" value="checked" $skip_next_hunt_checked />
+     <label class="radio_principle_label" for="skip_next_hunt" style="float: right; clear: none; "> Skip Next Hunt </label>
+        $abilities_and_impairments
+    <input onchange="this.form.submit()" class="full_width" type="text" name="add_ability" placeholder="add ability or impairment"/>
+        $remove_abilities_and_impairments
+
+    </p>
 
 
-    </form>
 
                         <!-- SETTLEMENT LINK -->
+    </form>
+
     <hr/>
     $settlement_link
 
@@ -472,7 +534,7 @@ class login:
     <form method="POST">
     <input class="full_width" type="text" name="login" placeholder="email"/>
     <input class="full_width" type="password" name="password" placeholder="password"/>
-    <button>Go</button>
+    <button>Log In</button>
     </form>
     \n"""
     new_user = Template("""\n\
