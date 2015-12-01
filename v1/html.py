@@ -584,9 +584,10 @@ def set_cookie_js(session_id):
 
 def authenticate_by_form(params):
     """ Pass this a cgi.FieldStorage() to try to manually authenticate a user"""
+
     if "password_again" in params:
         if "login" in params and "password" in params:
-            create_new = admin.create_new_user(params["login"].value, params["password"].value, params["password_again"].value)
+            create_new = admin.create_new_user(params["login"].value.strip(), params["password"].value.strip(), params["password_again"].value.strip())
             if create_new == False:
                 output = user_error_msg.safe_substitute(err_class="warn", err_msg="Passwords did not match! Please re-enter.")
             elif create_new is None:
@@ -594,15 +595,15 @@ def authenticate_by_form(params):
             else:
                 pass
     if "login" in params and "password" in params:
-        auth = admin.authenticate(params["login"].value, params["password"].value)
+        auth = admin.authenticate(params["login"].value.strip(), params["password"].value.strip())
         if auth == False:
             output = user_error_msg.safe_substitute(err_class="error", err_msg="Invalid password! Please re-enter.")
             output += login.form
         elif auth is None:
-            output = login.new_user.safe_substitute(login=params["login"].value)
+            output = login.new_user.safe_substitute(login=params["login"].value.strip())
         elif auth == True:
             s = Session()
-            session_id = s.new(params["login"].value)
+            session_id = s.new(params["login"].value.strip())
             render(s.current_view_html(), head=[set_cookie_js(session_id)])
     else:
         output = login.form
