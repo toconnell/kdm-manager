@@ -295,13 +295,14 @@ class settlement:
     form = Template("""\n\
     $game_link
 
-    <form method="POST">
+    <form method="POST" id="autoForm">
+    <button type="submit" class="hidden">submit</button>
     <input type="hidden" name="modify" value="settlement" />
     <input type="hidden" name="asset_id" value="$settlement_id" />
     <hr />
     <input id="topline_name" onchange="this.form.submit()" class="full_width" type="text" name="name" value="$name" placeholder="Settlement Name"/>
     <hr />
-    <input onchange="this.form.submit()" class="big_number_square" type="number" name="survival_limit" value="$survival_limit" min="$min_survival_limit"/>
+    <input class="big_number_square" type="number" name="survival_limit" value="$survival_limit" min="$min_survival_limit"/>
     <div class="big_number_caption">Survival Limit (min: $min_survival_limit)</div>
     <br /><hr />
 
@@ -655,11 +656,9 @@ def render(html, head=[], http_headers=False):
     <script src="http://malsup.github.com/jquery.form.js"></script>
 
     <script>
-        // wait for the DOM to be loaded
         $(document).ready(function() {
-            // bind 'myForm' and provide a simple callback function
             $('#autoForm').ajaxForm(function() {
-//                alert("Thank you for your comment!");
+//                alert("Form submitted!");
             });
         });
     </script>
