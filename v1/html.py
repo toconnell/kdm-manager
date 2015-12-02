@@ -15,8 +15,11 @@ settings = load_settings()
 
 user_error_msg = Template('<div id="user_error_msg" class="$err_class">$err_msg</div>')
 
+
 class survivor:
     form = Template("""\n\
+    $game_link
+
     <form method="POST" id="autoForm" action="/">
     <button type="submit" class="hidden">submit</button>
     <input type="hidden" name="modify" value="survivor" />
@@ -252,15 +255,13 @@ class survivor:
         $remove_abilities_and_impairments
 
     </p>
+    <hr/>
 
+    <input class="full_width" type="text" name="email" placeholder="email" value="$email"/>
+    <hr />
 
-
-                        <!-- SETTLEMENT LINK -->
     </form>
 
-    <hr/>
-    <h3>Settlement</h3>
-    $settlement_link
 
     <br/><hr/>
     <form method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this survivor forever, which is NOT THE SAME THING as marking it dead: permanently deleting the survivor prevents anyone from viewing and/or editing it ever again!');"><input type="hidden" name="remove_survivor" value="$survivor_id"/><button class="error">Permanently Delete Survivor</button></form>
@@ -270,7 +271,30 @@ class survivor:
     \n""")
 
 class settlement:
+    summary = Template("""\n\
+        <h1>$settlement_name</h1>
+        <p>Population: $population ($death_count deaths)</p><hr/>
+        <p>Survival Limit: $survival_limit</p><hr/>
+        <h3>Survivors</h3>
+        $survivors
+        <form method="POST">
+        <input type="hidden" name="change_view" value="new_survivor"/>
+        <button class="success">+ Create New Survivor</button>
+        </form>
+        <hr/>
+        <h3>Innovations</h3>
+        $innovations
+        <hr/>
+        <h3>Bonuses</h3>
+        <h4>Departing</h4>
+        $departure_bonuses
+        <h4>During Settlement</h4>
+        $settlement_bonuses
+        $survivor_bonuses
+    \n""")
     form = Template("""\n\
+    $game_link
+
     <form method="POST">
     <input type="hidden" name="modify" value="settlement" />
     <input type="hidden" name="asset_id" value="$settlement_id" />
@@ -501,7 +525,7 @@ class settlement:
     \n""")
 
 class dashboard:
-    home_button = '<form method="POST"><input type="hidden" name="change_view" value="dashboard"/><button> &lt- Return to Dashboard</button></form>\n'
+    home_button = '<hr/><form method="POST"><input type="hidden" name="change_view" value="dashboard"/><button> Return to Dashboard</button></form>\n'
     headline = Template('<h2 class="full_width">$title</h2><p>$desc</p>\n')
     new_settlement_button = '<form method="POST"><input type="hidden" name="change_view" value="new_settlement" /><button class="success">+ New Settlement</button></form>\n'
     new_settlement_form = """\n\
@@ -533,7 +557,7 @@ class dashboard:
     view_asset_button = Template("""\n\
     <form method="POST">
     <input type="hidden" name="view_$asset_type" value="$asset_id" />
-    <button class="info">$asset_name</button>
+    <button class="$button_class">$asset_name</button>
     </form>
     \n""")
 
@@ -562,7 +586,7 @@ class meta:
     stylesheet = Template('<link rel="stylesheet" type="text/css" href="$url">\n')
     close_head = '</head>\n<body>\n <div id="container">\n'
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
-    log_out_button = Template('\n\t<form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><button class="error">LOG OUT</button>\n\t</form>')
+    log_out_button = Template('\n\t<hr/><form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><button class="warn">LOG OUT</button>\n\t</form>')
 
 #
 #   application helper functions for HTML interfacing
@@ -587,7 +611,7 @@ def authenticate_by_form(params):
 
     if "password_again" in params:
         if "login" in params and "password" in params:
-            create_new = admin.create_new_user(params["login"].value.strip(), params["password"].value.strip(), params["password_again"].value.strip())
+            create_new = admin.create_new_user(params["login"].value.strip().lower(), params["password"].value.strip(), params["password_again"].value.strip())
             if create_new == False:
                 output = user_error_msg.safe_substitute(err_class="warn", err_msg="Passwords did not match! Please re-enter.")
             elif create_new is None:
@@ -595,15 +619,15 @@ def authenticate_by_form(params):
             else:
                 pass
     if "login" in params and "password" in params:
-        auth = admin.authenticate(params["login"].value.strip(), params["password"].value.strip())
+        auth = admin.authenticate(params["login"].value.strip().lower(), params["password"].value.strip())
         if auth == False:
             output = user_error_msg.safe_substitute(err_class="error", err_msg="Invalid password! Please re-enter.")
             output += login.form
         elif auth is None:
-            output = login.new_user.safe_substitute(login=params["login"].value.strip())
+            output = login.new_user.safe_substitute(login=params["login"].value.strip().lower())
         elif auth == True:
             s = Session()
-            session_id = s.new(params["login"].value.strip())
+            session_id = s.new(params["login"].value.strip().lower())
             render(s.current_view_html(), head=[set_cookie_js(session_id)])
     else:
         output = login.form

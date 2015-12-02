@@ -5,6 +5,7 @@ from datetime import datetime
 import os
 from string import Template
 
+import assets
 import html
 import models
 from utils import mdb, get_logger, load_settings
@@ -21,22 +22,32 @@ class User:
 
         user_id = ObjectId(user_id)
         self.user = mdb.users.find_one({"_id": user_id})
-        self.settlements = mdb.settlements.find({"created_by": self.user["_id"]}).sort("name")
-        self.survivors = mdb.survivors.find({"$or": [
+        self.settlements = list(mdb.settlements.find({"created_by": self.user["_id"]}).sort("name"))
+        self.survivors = list(mdb.survivors.find({"$or": [
             {"email": self.user["login"]},
             {"created_by": self.user["_id"]},
             ]}
-        ).sort("name")
+        ).sort("name"))
 
     def get_settlements(self, return_as=False):
         """ Returns the user's settlements in a number of ways. Leave
         'return_as' unspecified if you want a mongo cursor back. """
 
+        if self.settlements is None:
+            return "NONE!"
+
         if return_as == "html_option":
-            html = ""
+            output = ""
             for settlement in self.settlements:
-                html += '<option value="%s">%s</option>' % (settlement["_id"], settlement["name"])
-            return html
+                output += '<option value="%s">%s</option>' % (settlement["_id"], settlement["name"])
+            return output
+
+        if return_as == "asset_links":
+            output = ""
+            for settlement in self.settlements:
+                S = assets.Settlement(settlement_id=settlement["_id"])
+                output += S.asset_link()
+            return output
 
         return self.settlements
 
@@ -45,7 +56,22 @@ class User:
         the 'return_as' kwarg unspecified/False if you want a mongo cursor
         back (instead of fruity HTML crap). """
 
+        # user version
+
         return self.survivors
+
+    def get_games(self):
+        game_list = set()
+        for s in self.settlements:
+            game_list.add(s["_id"])
+        for s in self.survivors:
+            game_list.add(s["settlement"])
+
+        output = ""
+        for settlement_id in game_list:
+            S = assets.Settlement(settlement_id=settlement_id)
+            output += S.asset_link(view="game")
+        return output
 
 class Survivor:
 
@@ -89,7 +115,7 @@ class Survivor:
         created_by = ObjectId(params["created_by"].value)
         settlement_id = ObjectId(params["settlement_id"].value)
         survivor_name = params["name"].value
-        survivor_email = params["email"].value
+        survivor_email = params["email"].value.lower()
         survivor_sex = params["sex"].value[0].upper()
 
         survivor_dict = {
@@ -261,6 +287,7 @@ class Survivor:
                 self.survivor["epithets"] = sorted(list(set(self.survivor["epithets"])))
             elif p == "add_ability":
                 self.survivor["abilities_and_impairments"].append(params[p].value.strip())
+                self.survivor["abilities_and_impairments"] = sorted(list(set(self.survivor["abilities_and_impairments"])))
             elif p == "remove_ability":
                 self.survivor["abilities_and_impairments"].remove(params[p].value)
             elif p == "add_disorder" and len(self.survivor["disorders"]) < 3:
@@ -287,6 +314,38 @@ class Survivor:
                 del self.survivor[flag]
 
         mdb.survivors.save(self.survivor)
+
+
+    def asset_link(self, view="survivor", button_class="info", link_text=False, include=[]):
+        """ Returns an asset link (i.e. html form with button) for the
+        survivor. """
+
+        if not link_text:
+            link_text = self.survivor["name"]
+
+        if include != []:
+            attribs = []
+            if "dead" in include:
+                if "dead" in self.survivor.keys():
+                    attribs.append("Dead")
+            if "settlement_name" in include:
+                attribs.append(self.settlement.settlement["name"])
+            if attribs != []:
+                suffix = " ("
+                suffix += ", ".join(attribs)
+                suffix += ")"
+                link_text += suffix
+
+        output = html.dashboard.view_asset_button.safe_substitute(
+            button_class = button_class,
+            asset_type = view,
+            asset_id = self.survivor["_id"],
+            asset_name = link_text,
+        )
+
+        return output
+
+
 
     def render_html_form(self):
         """ This is just like the render_html_form() method of the settlement
@@ -400,7 +459,8 @@ class Survivor:
             abilities_and_impairments = self.get_abilities_and_impairments(),
             remove_abilities_and_impairments = self.get_abilities_and_impairments(return_as="html_select_remove"),
 
-            settlement_link = self.settlement.asset_link(),
+            email = self.survivor["email"],
+            game_link = self.settlement.asset_link(view="game"),
         )
         return output
 
@@ -694,11 +754,14 @@ class Settlement:
 
         return quarries
 
-    def get_survivors(self, return_as=False):
+    def get_survivors(self, return_as=False, user_id=False):
         """ Returns the settlement's survivors. Leave 'return_as' unspecified
         if you want a mongo cursor object back. """
 
         survivors = mdb.survivors.find({"settlement": self.settlement["_id"]})
+
+        if user_id:
+            user = mdb.users.find_one({"_id": user_id})
 
         if return_as == "html_buttons":
             output = ""
@@ -710,7 +773,66 @@ class Settlement:
                 )
             return output
 
+        if return_as == "game_view":
+            output = ""
+            for survivor in survivors:
+                S = assets.Survivor(survivor_id=survivor["_id"])
+                user_owns_survivor = False
+                if survivor["email"] == user["login"]:
+                    user_owns_survivor = True
+                elif survivor["created_by"] == user["_id"]:
+                    user_owns_survivor = True
+                if user_owns_survivor:
+                    output += S.asset_link(include=["dead"])
+                else:
+                    output += "<p>"
+                    if "dead" in S.survivor.keys():
+                        output += "[DEAD] "
+                    if "retired" in S.survivor.keys():
+                        output += "[RETIRED] "
+                    output += "%s (%s) <%s> - XP: %s" % (S.survivor["name"], S.survivor["email"], S.survivor["sex"], S.survivor["hunt_xp"])
+                    output += "</p>"
+            return output
+
         return survivors
+
+
+    def get_min(self, value="population"):
+        """ Returns the settlement's minimum population as an int. """
+        results = False
+        settlement_id = ObjectId(self.settlement["_id"])
+        if value == "population":
+            results = mdb.survivors.find({"settlement": settlement_id, "dead": {"$exists": False}}).count()
+        if value == "deaths":
+            results = mdb.survivors.find({"settlement": settlement_id, "dead": {"$exists": True}}).count()
+        return results
+
+    def render_html_summary(self, user_id=False):
+        """ This is the summary view we print at the top of the game view. It's
+        not a form. """
+        output = html.settlement.summary.safe_substitute(
+            settlement_name=self.settlement["name"],
+            population=self.settlement["population"],
+            death_count = self.settlement["death_count"],
+            survivors = self.get_survivors(return_as="game_view", user_id=user_id),
+            survival_limit = self.settlement["survival_limit"],
+            innovations = self.get_innovations(return_as="comma-delimited", include_principles=True),
+            departure_bonuses = self.get_bonuses('departure_buff'),
+            settlement_bonuses = self.get_bonuses('settlement_buff'),
+            survivor_bonuses = self.get_bonuses('survivor_buff'),
+        )
+        return output
+
+    def get_players(self, count_only=False):
+        player_set = set()
+        survivors = mdb.survivors.find({"settlement": self.settlement["_id"]})
+        for s in survivors:
+            player_set.add(s["email"])
+
+        if count_only:
+            return len(player_set)
+
+        return player_set
 
     def render_html_form(self, read_only=False):
         """ This is the all-singing, all-dancing form creating function. Pretty
@@ -781,15 +903,24 @@ class Settlement:
         if survival_limit < self.get_min_survival_limit():
             survival_limit = self.get_min_survival_limit()
 
+        deaths = int(self.settlement["death_count"])
+        if deaths < self.get_min(value="deaths"):
+            deaths = self.get_min(value="deaths")
+
+        population = int(self.settlement["population"])
+        if population < self.get_min(value="population"):
+            population = self.get_min(value="population")
+
         output = html.settlement.form.safe_substitute(
             MEDIA_URL = settings.get("application","STATIC_URL"),
             settlement_id = self.settlement["_id"],
+            game_link = self.asset_link(view="game", link_text="View game summary"),
 
-            population = self.settlement["population"],
+            population = population,
             name = self.settlement["name"],
             survival_limit = survival_limit,
             min_survival_limit = self.get_min_survival_limit(),
-            death_count = self.settlement["death_count"],
+            death_count = deaths,
             lost_settlements = self.settlement["lost_settlements"],
 
             survivors = self.get_survivors(return_as="html_buttons"),
@@ -839,16 +970,33 @@ class Settlement:
 
         return output
 
-    def asset_link(self):
+
+    def asset_link(self, view=False, button_class="info", link_text=False):
         """ Returns an asset link (i.e. html form with button) for the
         settlement. """
 
+        suffix = ""
+
+        if not view:
+            view = "settlement"
+
+        if not link_text:
+            link_text = self.settlement["name"]
+
+        if view == "game":
+            button_class = "purple"
+            suffix = " (pop. %s, players. %s)" % (self.settlement["population"], self.get_players(count_only=True))
+            link_text += suffix
+
+
         output = html.dashboard.view_asset_button.safe_substitute(
-            asset_type="settlement",
-            asset_id=self.settlement["_id"],
-            asset_name=self.settlement["name"],
+            button_class = button_class,
+            asset_type = view,
+            asset_id = self.settlement["_id"],
+            asset_name = link_text,
         )
         return output
+
 
 
 def update_settlement(params):

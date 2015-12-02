@@ -30,7 +30,7 @@ def create_new_user(login, password, password_again):
         logger.info("Creating user '%s' from %s" % (login, get_user_agent()))
         user_dict = {
             "created_on": datetime.now(),
-            "login": login,
+            "login": login.lower(),
             "password": md5(password).hexdigest(),
         }
         mdb.users.insert(user_dict)
@@ -55,7 +55,10 @@ def authenticate(login, password):
         logger.info("User '%s' FAILED to authenticate successfully." % login)
         return False
 
-
+def remove_session(session_id):
+    s = ObjectId(session_id)
+    mdb.sessions.remove({"_id": s})
+    logger.info("Removed session '%s' successfully." % session_id)
 
 #
 #   Interactive CLI admin stuff; not to be used in user-land
@@ -68,10 +71,11 @@ def ls_documents(collection):
         output = " "
         output += str(d["_id"])
         output += " - "
-        if collection == "users":
+        if collection == "users" or collection == "sessions":
             output += d["login"]
         else:
             output += d["name"]
+            output += " <%s> " % mdb.users.find_one({"_id": d["created_by"]})["login"]
         output += " (%s)" % d["created_on"]
         print output
 
@@ -110,6 +114,11 @@ def remove_document(collection, doc_id):
     logger.info("[ADMIN] Removed '%s' from mdb.%s" % (doc_id, collection))
 
 
+def initialize():
+    """ Completely initializes the application. Scorched earth. """
+    for collection in ["users", "sessions", "survivors", "settlements"]:
+        mdb[collection].remove()
+
 
 if __name__ == "__main__":
     parser = OptionParser()
@@ -119,8 +128,13 @@ if __name__ == "__main__":
     parser.add_option("-v", dest="view_document", help="View/dump a document to stdout (requires -c)", metavar="565a1829421aa96b33d1c8bb", default=False)
     parser.add_option("-r", dest="remove_document", help="Remove a single document (requires -c)", metavar="29433d1c8b56581ab21aa96b", default=False)
     parser.add_option("-R", dest="drop_collection", help="Drop all docs in a collection.", metavar="users", default=False)
+
+    parser.add_option("--initialize", dest="initialize", help="Burn it down.", action="store_true", default=False)
     (options, args) = parser.parse_args()
 
+
+    if options.initialize:
+        initialize()
 
     if options.list_documents:
         ls_documents(options.list_documents)
