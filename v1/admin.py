@@ -7,11 +7,11 @@ from optparse import OptionParser
 import os
 from validate_email import validate_email
 
-from utils import mdb, get_logger, get_user_agent
+from utils import mdb, get_logger, get_user_agent, load_settings
 
 
 logger = get_logger()
-
+settings = load_settings()
 #
 #   administrative helper functions for user-land
 #
@@ -21,28 +21,44 @@ def create_new_user(login, password, password_again):
     returns None if the email address is bogus. Returns True and logs a user in
     if we create a new user successfully. """
 
+    login = login.lower()   # normalize email address on creation
+
     if password != password_again:
-        logger.info("creation fail! %s %s %s" % (login, password, password_again))
+        logger.error("New user creation failed! %s %s %s" % (login, password, password_again))
         return False
     else:
-        if not validate_email(login, verify=True):
-            return None
-        logger.info("Creating user '%s' from %s" % (login, get_user_agent()))
+        logger.debug("Creating user '%s' from %s" % (login, get_user_agent()))
+
+        # email validation
+        if settings.getboolean("users", "validate_email"):
+            validated = validate_email(login, verify=True)
+            if validated is None:
+                logger.critical("Unable to validate email address '%s'." % login)
+                logger.error(validated)
+                return None
+        else:
+            logger.debug("Skipping email validation...")
+
+        # create the user and update mdb
         user_dict = {
             "created_on": datetime.now(),
-            "login": login.lower(),
+            "login": login,
             "password": md5(password).hexdigest(),
         }
         mdb.users.insert(user_dict)
         mdb.users.create_index("login", unique=True)
-        return "user created"
+        logger.info("New user '%s' created successfully!" % login)
+        return True
 
 
 def authenticate(login, password):
     """ Tries to authenticate a user and log him in. Returns None if the user's
     login cannot be found. Returns False if he enters a bad password.
 
-    Logs him in and creates a session, otherwise. """
+    Logs him in and creates a session, otherwise.
+
+    email addresses are always normalized using .lower()
+    """
 
     user = mdb.users.find_one({"login": login})
 
@@ -50,15 +66,16 @@ def authenticate(login, password):
         return None
 
     if md5(password).hexdigest() == user["password"]:
+        logger.debug("User '%s' authenticated successfully." % login)
         return True
     else:
-        logger.info("User '%s' FAILED to authenticate successfully." % login)
+        logger.debug("User '%s' FAILED to authenticate successfully." % login)
         return False
 
 def remove_session(session_id):
     s = ObjectId(session_id)
     mdb.sessions.remove({"_id": s})
-    logger.info("Removed session '%s' successfully." % session_id)
+    logger.debug("Removed session '%s' successfully." % session_id)
 
 #
 #   Interactive CLI admin stuff; not to be used in user-land

@@ -616,8 +616,11 @@ def authenticate_by_form(params):
                 output = user_error_msg.safe_substitute(err_class="warn", err_msg="Passwords did not match! Please re-enter.")
             elif create_new is None:
                 output = user_error_msg.safe_substitute(err_class="warn", err_msg="Email address could not be verified! Please re-enter.")
-            else:
+            elif create_new == True:
                 pass
+            else:
+                logger.exception("admin.create_new_user returned unexpected results!")
+                logger.error(create_new)
     if "login" in params and "password" in params:
         auth = admin.authenticate(params["login"].value.strip().lower(), params["password"].value.strip())
         if auth == False:
