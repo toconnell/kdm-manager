@@ -40,8 +40,9 @@ class Session:
 
         # try to retrieve a session and other session attributes from mdb using
         #   the browser cookie
-        self.cookie = Cookie.SimpleCookie(os.environ["HTTP_COOKIE"])
-        if "session" in self.cookie.keys():
+        self.cookie = Cookie.SimpleCookie(os.environ.get("HTTP_COOKIE"))
+
+        if self.cookie is not None and "session" in self.cookie.keys():
             session_id = ObjectId(self.cookie["session"].value)
             self.session = mdb.sessions.find_one({"_id": session_id})
             if self.session is not None:
@@ -51,7 +52,12 @@ class Session:
 
 
     def set_current_settlement(self, settlement_id=False):
-        """ Tries to set the current settlement. """
+        """ Tries (hard) to set the current settlement.
+
+        The best way is to use the 'settlement_id' kwarg and feed an ObjectId
+        object. If you haven't got one of those, this func will back off to the
+        current session's mdb object and try to set it from there.
+        """
         if settlement_id:
             self.session["current_settlement"] = settlement_id
 
@@ -68,7 +74,7 @@ class Session:
                     self.Settlement = assets.Settlement(settlement_id=s_id)
 
         if self.Settlement is None:
-            self.logger.info("Unable to set 'current_settlement'.")
+            self.logger.debug("Unable to set 'current_settlement' for session '%s'." % self.session["_id"])
         mdb.sessions.save(self.session)
 
 
@@ -180,8 +186,7 @@ class Session:
         point, and use this function as a function that simply initalizes a
         class and uses that class's methods to get html.
         """
-        output = ""
-
+        output = html.meta.saved_dialog
 
         if self.session["current_view"] == "dashboard":
             output += html.dashboard.headline.safe_substitute(title="Games", desc="Games you are currently playing. New games are created automatically when settlements are created.")
@@ -207,9 +212,6 @@ class Session:
             options = self.User.get_settlements(return_as="html_option")
             output += html.dashboard.new_survivor_form.safe_substitute(home_settlement=self.session["current_settlement"], user_email=self.User.user["login"], created_by=self.User.user["_id"])
         elif self.session["current_view"] == "view_settlement":
-            #
-            #   logic for read-only settlement views will go here
-            #
             settlement = mdb.settlements.find_one({"_id": self.session["current_asset"]})
             self.set_current_settlement(ObjectId(settlement["_id"]))
             S = assets.Settlement(settlement_id = settlement["_id"])

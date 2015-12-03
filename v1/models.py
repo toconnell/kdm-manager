@@ -252,8 +252,13 @@ locations = {
     "Bone Smith": {
         "color": "777744",
     },
+    "Rare Gear": {
+        "color": "FFD700",
+    },
     "Blacksmith": {},
-    "Stone Circle": {},
+    "Stone Circle": {
+        "color": "999"
+    },
     "Leather Worker": {},
     "Weapon Crafter": {},
     "Barber Surgeon": {},
@@ -523,6 +528,88 @@ items = {
     "Dried Acanthus": {
         "location": "Organ Grinder",
     },
+    "Regal Gauntlet": {
+        "location": "Rare Gear",
+    },
+    "Regal Plackart": {
+        "location": "Rare Gear",
+    },
+    "Regal Greaves": {
+        "location": "Rare Gear",
+    },
+    "Regal Helm": {
+        "location": "Rare Gear",
+    },
+    "Regal Faulds": {
+        "location": "Rare Gear",
+    },
+    "Forsaker Mask": {
+        "location": "Rare Gear",
+    },
+    "Adventure Sword": {
+        "location": "Rare Gear",
+    },
+    "Steel Shield": {
+        "location": "Rare Gear",
+    },
+    "Steel Sword": {
+        "location": "Rare Gear",
+    },
+    "Twilight Sword": {
+        "location": "Rare Gear",
+    },
+    "Butcher Cleaver": {
+        "location": "Rare Gear",
+    },
+    "Lantern Halberd": {
+        "location": "Rare Gear",
+    },
+    "Muramasa": {
+        "location": "Rare Gear",
+    },
+    "Thunder Maul": {
+        "location": "Rare Gear",
+    },
+    "Screaming Bracers": {
+        "location": "Stone Circle",
+    },
+    "Screaming Horns": {
+        "location": "Stone Circle",
+    },
+    "Screaming Leg Warmers": {
+        "location": "Stone Circle",
+    },
+    "Screaming Skirt": {
+        "location": "Stone Circle",
+    },
+    "Screaming Coat": {
+        "location": "Stone Circle",
+    },
+    "Beast Knuckle": {
+        "location": "Stone Circle",
+    },
+    "Lance of Longinus": {
+        "location": "Stone Circle",
+    },
+    "Boss Mehndi": {
+        "location": "Stone Circle",
+    },
+    "Green Charm": {
+        "location": "Stone Circle",
+    },
+    "Red Charm": {
+        "location": "Stone Circle",
+    },
+    "Blue Charm": {
+        "location": "Stone Circle",
+    },
+    "Blood Paint": {
+        "location": "Stone Circle",
+    },
+    "Bone Earrings": {
+        "location": "Stone Circle",
+    },
+
 }
 
 
@@ -614,6 +701,7 @@ fighting_arts = {
 }
 
 epithets = {
+    "Dimmed by the Lantern": {},
     "Masticated": {},
     "Death Taster": {},
     "Pure Warrior": {},

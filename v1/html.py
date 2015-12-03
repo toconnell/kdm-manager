@@ -9,9 +9,10 @@ import sys
 #   custom
 import admin
 from session import Session
-from utils import load_settings, mdb
+from utils import load_settings, mdb, get_logger
 
 settings = load_settings()
+logger = get_logger()
 
 user_error_msg = Template('<div id="user_error_msg" class="$err_class">$err_msg</div>')
 
@@ -20,15 +21,16 @@ class survivor:
     form = Template("""\n\
     $game_link
 
-    <form method="POST" id="autoForm" action="/">
-    <button type="submit" class="hidden">submit</button>
+    <form method="POST" id="autoForm">
+    <button type="submit" id="save_button" class="success">Save</button>
     <input type="hidden" name="modify" value="survivor" />
     <input type="hidden" name="asset_id" value="$survivor_id" />
 
     <hr />
     <input onchange="this.form.submit()" id="topline_name" class="full_width" type="text" name="name" value="$name" placeholder="Survivor Name"/>
     $epithets
-    $add_epithets
+    $add_epithets<br />
+    $rm_epithets
     <input onchange="this.form.submit()" class="full_width" type="text" name="add_epithet" placeholder="add a custom epithet"/>
     <hr />
     <p>
@@ -295,13 +297,14 @@ class settlement:
     form = Template("""\n\
     $game_link
 
-    <form method="POST">
+    <form method="POST" id="autoForm">
+    <button type="submit" id="save_button" class="success">Save</button>
     <input type="hidden" name="modify" value="settlement" />
     <input type="hidden" name="asset_id" value="$settlement_id" />
     <hr />
     <input id="topline_name" onchange="this.form.submit()" class="full_width" type="text" name="name" value="$name" placeholder="Settlement Name"/>
     <hr />
-    <input onchange="this.form.submit()" class="big_number_square" type="number" name="survival_limit" value="$survival_limit" min="$min_survival_limit"/>
+    <input class="big_number_square" type="number" name="survival_limit" value="$survival_limit" min="$min_survival_limit"/>
     <div class="big_number_caption">Survival Limit (min: $min_survival_limit)</div>
     <br /><hr />
 
@@ -315,10 +318,10 @@ class settlement:
 
     <hr />
 
-    <input onchange="this.form.submit()" class="big_number_square" type="number" name="population" value="$population"/>
+    <input class="big_number_square" type="number" name="population" value="$population"/>
     <div class="big_number_caption">Population</div>
     <br /><hr />
-    <input onchange="this.form.submit()" class="big_number_square" type="number" name="death_count" value="$death_count"/>
+    <input class="big_number_square" type="number" name="death_count" value="$death_count"/>
     <div class="big_number_caption">Death Count</div>
     <br /><hr />
 
@@ -562,7 +565,7 @@ class dashboard:
     \n""")
 
 class login:
-    """ """
+    """ The HTML for form-based authentication goes here."""
     form = """\n\
     <form method="POST">
     <input class="full_width" type="text" name="login" placeholder="email"/>
@@ -586,6 +589,7 @@ class meta:
     stylesheet = Template('<link rel="stylesheet" type="text/css" href="$url">\n')
     close_head = '</head>\n<body>\n <div id="container">\n'
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
+    saved_dialog = '<div id="saved_dialog" class="success">Saved!</div>'
     log_out_button = Template('\n\t<hr/><form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><button class="warn">LOG OUT</button>\n\t</form>')
 
 #
@@ -648,26 +652,26 @@ def render(html, head=[], http_headers=False):
     output = http_headers
     if not http_headers:
         output = "Content-type: text/html\n\n"
-
     output += meta.start_head
     output += meta.stylesheet.safe_substitute(url=settings.get("application", "stylesheet"))
-#    output += '<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>\n'
 
     output += """\n\
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
     <script src="http://malsup.github.com/jquery.form.js"></script>
 
     <script>
-        // wait for the DOM to be loaded
         $(document).ready(function() {
-            // bind 'myForm' and provide a simple callback function
+
+            $('#saved_dialog').hide();
+
             $('#autoForm').ajaxForm(function() {
-//                alert("Thank you for your comment!");
+                 $('#saved_dialog').show();
+                 $('#saved_dialog').fadeOut(1500)
             });
+
         });
     </script>
     \n"""
-
 
     for element in head:
         output += element
