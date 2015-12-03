@@ -470,8 +470,13 @@ class settlement:
      </select>
      <input onchange="this.form.submit()" type="text" class="full_width" name="add_quarry" placeholder="add custom quarry"/>
     </div>
+    
+    </form>
 
                     <!-- NEMESIS MONSTERS -->
+    <form id="autoForm" method="POST">
+    <input type="hidden" name="modify" value="settlement" />
+    <input type="hidden" name="asset_id" value="$settlement_id" />
 
     <div id="block_group">
     <h2>Nemesis Monsters</h2>
@@ -480,8 +485,13 @@ class settlement:
     $nemesis_monsters
      <input onchange="this.form.submit()" type="text" class="full_width" name="add_nemesis" placeholder="add nemesis"/>
     </div>
+    </form>
 
                     <!-- DEFEATED MONSTERS -->
+
+    <form id="autoForm" method="POST">
+    <input type="hidden" name="modify" value="settlement" />
+    <input type="hidden" name="asset_id" value="$settlement_id" />
 
     <div id="block_group">
      <h2>Defeated Monsters</h2>

@@ -673,7 +673,7 @@ class Settlement:
             html = ""
             for k in nemesis_monster_keys:
                 html += '<p><b>%s</b> ' % k
-                for level in ["Lvl 3", "Lvl 2", "Lvl 1"]:
+                for level in ["Lvl 1", "Lvl 2", "Lvl 3"]:
                     if level not in self.settlement["nemesis_monsters"][k]:
                         html += ' <button id="increment_nemesis" name="increment_nemesis" value="%s">%s</button> ' % (k,level)
                     else:
