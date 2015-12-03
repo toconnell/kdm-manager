@@ -256,6 +256,14 @@ class Survivor:
                     else:
                         styled_epithets.append(epithet)
                 return "<p>%s</p>" % ", ".join(styled_epithets)
+        elif return_as == "html_remove":
+            output = '<select name="remove_epithet" onchange="this.form.submit()">'
+            output += '<option selected disabled hidden value="">Remove Item</option>'
+            for epithet in self.survivor["epithets"]:
+                output += '<option value="%s">%s</option>' % (epithet, epithet)
+            output += '</select>'
+            return output
+
         return epithets
 
     def heal(self, heal_armor=False):
@@ -267,6 +275,7 @@ class Survivor:
         if heal_armor:
             for armor_loc in ["Head","Arms","Body","Waist","Legs"]:
                 self.survivor[armor_loc] = 0
+
 
         mdb.survivors.save(self.survivor)
 
@@ -285,6 +294,8 @@ class Survivor:
             elif p == "add_epithet":
                 self.survivor["epithets"].append(params[p].value.strip())
                 self.survivor["epithets"] = sorted(list(set(self.survivor["epithets"])))
+            elif p == "remove_epithet":
+                self.survivor["epithets"].remove(params[p].value)
             elif p == "add_ability":
                 self.survivor["abilities_and_impairments"].append(params[p].value.strip())
                 self.survivor["abilities_and_impairments"] = sorted(list(set(self.survivor["abilities_and_impairments"])))
@@ -312,6 +323,12 @@ class Survivor:
                 self.survivor[flag] = "checked"
             elif flag not in params and flag in self.survivor.keys():
                 del self.survivor[flag]
+
+        # idiot-proof the hit boxes
+        for hit_tuplet in [("arms_damage_light","arms_damage_heavy"), ("body_damage_light", "body_damage_heavy"), ("legs_damage_light", "legs_damage_heavy"), ("waist_damage_light", "waist_damage_heavy")]:
+            light, heavy = hit_tuplet
+            if heavy in self.survivor.keys() and not light in self.survivor.keys():
+                self.survivor[light] = "checked"
 
         mdb.survivors.save(self.survivor)
 
@@ -391,13 +408,13 @@ class Survivor:
             elif self.survivor["understanding_attribute"] == "Tinker":
                 tinker = "checked"
 
-        self.logger.info(self.settlement.settlement["survival_limit"])
         output = html.survivor.form.safe_substitute(
             MEDIA_URL = settings.get("application", "STATIC_URL"),
 
             survivor_id = self.survivor["_id"],
             name = self.survivor["name"],
             add_epithets = models.render_epithet_dict(return_as="html_select_add", exclude=self.survivor["epithets"]),
+            rm_epithets =self.get_epithets(return_as="html_remove"),
             epithets = self.get_epithets(return_as="formatted_html"),
             sex = self.survivor["sex"],
             survival = survivor_survival_points,
@@ -1024,7 +1041,6 @@ def update_settlement(params):
         elif p == "add_item":
             settlement["storage"].append(params[p].value)
         elif p == "remove_item":
-            logger.info(params)
             settlement["storage"].remove(params[p].value)
         elif p == "add_innovation":
             settlement["innovations"].append(params[p].value)
