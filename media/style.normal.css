@@ -1,4 +1,3 @@
-
 p {padding: 10px; margin-left: 20px;  }
 hr {clear: both;   }
 input, button, div {font-size: 50px; }
@@ -6,7 +5,7 @@ input {height: 100px; }
 input, h2, h3 #user_error_msg {padding-left: 10px; }
 button {padding-top: 20px; padding-bottom: 20px; }
 
-h1, h3, div#shield_box, #block_group h2, input#topline_name, .big_number_square, .shield, button {text-align: center; }
+button, h1, h3, div#shield_box, #block_group h2, input#topline_name, .big_number_square, .shield, #saved_dialog {text-align: center; }
 
 input, button, label {cursor: pointer; }
 
@@ -66,3 +65,7 @@ button#remove_item {border-radius: 20px; padding-right: 10px; padding-left: 10px
 
 /* The big, meta-div */
 #container {width: 100%; overflow: hidden;}
+
+/* meta specifc styles */
+#saved_dialog {position: fixed; margin-top: 10%; margin-left: 40%; height: auto; width: 20%; padding: 20px; border: 3px solid; outline: none; display: none; }
+#save_button {position: fixed; margin-left: 80%; height: auto; width: auto; padding: 30px; border: 2px sold;}
