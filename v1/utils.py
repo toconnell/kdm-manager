@@ -52,6 +52,8 @@ def get_logger(log_level="INFO", log_name=False):
     """ Creates a generic logger at the specified log level."""
 
     settings = load_settings()
+    if settings.getboolean("application","DEBUG"):
+        log_level="DEBUG"
 
     #   initialize a generic logger
     logger = logging.getLogger(__name__)

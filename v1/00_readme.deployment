@@ -1,0 +1,14 @@
+# Python dependencies:
+
+easy_install lockfile
+easy_install psutil
+easy_install pymongo
+easy_install validate-email
+easy_install user-agents
+easy_install pydns
+easy_install pip
+pip install python-daemon
+
+# local file system
+mkdir /var/log/kdm-manager ; chown toconnell: /var/log/kdm-manager
+mkdir /var/run/kdm-manager ; chown toconnell: /var/run/kdm-manager
