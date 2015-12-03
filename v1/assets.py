@@ -391,7 +391,6 @@ class Survivor:
             elif self.survivor["understanding_attribute"] == "Tinker":
                 tinker = "checked"
 
-        self.logger.info(self.settlement.settlement["survival_limit"])
         output = html.survivor.form.safe_substitute(
             MEDIA_URL = settings.get("application", "STATIC_URL"),
 
