@@ -320,6 +320,9 @@ items = {
     "Legendary Horns": {
         "location": "Strange Resources",
     },
+    "Fresh Acanthus": {
+        "location": "Strange Resources",
+    },
     "White Fur": {
         "location": "White Lion Resources",
     },
@@ -701,6 +704,12 @@ fighting_arts = {
 }
 
 epithets = {
+    "Insane": {},
+    "Huntress": {},
+    "Hunter": {},
+    "The Destroyer": {},
+    "Patriarch": {},
+    "Matriarch": {},
     "Dimmed by the Lantern": {},
     "Masticated": {},
     "Death Taster": {},
@@ -712,6 +721,7 @@ epithets = {
     "Speaker of the First Words": {},
     "Voice of Reason": {},
     "Bone Witch": {},
+    "Murdered": {},
     "Murderer": {},
     "Lucernae": {},
     "Caratosis": {},
