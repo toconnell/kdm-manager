@@ -23,11 +23,7 @@ class User:
         user_id = ObjectId(user_id)
         self.user = mdb.users.find_one({"_id": user_id})
         self.get_settlements()
-        self.survivors = list(mdb.survivors.find({"$or": [
-            {"email": self.user["login"]},
-            {"created_by": self.user["_id"]},
-            ]}
-        ).sort("name"))
+        self.get_survivors()
 
     def get_settlements(self, return_as=False):
         """ Returns the user's settlements in a number of ways. Leave
@@ -58,6 +54,12 @@ class User:
         the 'return_as' kwarg unspecified/False if you want a mongo cursor
         back (instead of fruity HTML crap). """
 
+        self.survivors = list(mdb.survivors.find({"$or": [
+            {"email": self.user["login"]},
+            {"created_by": self.user["_id"]},
+            ]}
+        ).sort("name"))
+
         # user version
 
         return self.survivors
@@ -68,7 +70,8 @@ class User:
 
         if self.settlements is not None:
             for s in self.settlements:
-                game_list.add(s["_id"])
+                if s is not None:
+                    game_list.add(s["_id"])
 
         for s in self.survivors:
             game_list.add(s["settlement"])
@@ -78,6 +81,11 @@ class User:
             S = assets.Settlement(settlement_id=settlement_id)
             output += S.asset_link(view="game")
         return output
+
+
+#
+#   SURVIVOR CLASS
+#
 
 class Survivor:
 
@@ -110,10 +118,12 @@ class Survivor:
 
         if not survivor_id:
             survivor_id = self.new(params)
+
         self.survivor = mdb.survivors.find_one({"_id": ObjectId(survivor_id)})
         if not self.survivor:
             raise Exception("Invalid survivor ID: '%s'" % survivor_id)
         self.settlement = Settlement(settlement_id=self.survivor["settlement"])
+
 
     def new(self, params):
         """ Create a new survivor from cgi.FieldStorage() params. """
@@ -185,6 +195,7 @@ class Survivor:
 
         return available_actions
 
+
     def get_abilities_and_impairments(self, return_as=False):
         all_list = self.survivor["abilities_and_impairments"]
 
@@ -206,6 +217,7 @@ class Survivor:
 
         return "<br/>\n".join(final_list)
 
+
     def get_fighting_arts(self, return_as=False):
         fighting_arts = self.survivor["fighting_arts"]
 
@@ -226,6 +238,7 @@ class Survivor:
 
         return disorders
 
+
     def get_disorders(self, return_as=False):
         disorders = self.survivor["disorders"]
 
@@ -245,6 +258,7 @@ class Survivor:
             return html
 
         return disorders
+
 
     def get_epithets(self, return_type=False):
         epithets = self.survivor["epithets"]
@@ -274,6 +288,7 @@ class Survivor:
 
         return epithets
 
+
     def heal(self, heal_armor=False, increment_hunt_xp=False):
         """ This removes the keys defined in self.damage_locations from the
         survivor's MDB object. It can also do some game logic, e.g. remove armor
@@ -301,6 +316,7 @@ class Survivor:
 
         self.logger.debug("Survivor '%s' healed!" % self.survivor["name"])
         mdb.survivors.save(self.survivor)
+
 
     def modify(self, params):
         """ Reads through a cgi.FieldStorage() (i.e. 'params') and modifies the
@@ -409,7 +425,6 @@ class Survivor:
         )
 
         return output
-
 
 
     def render_html_form(self):
@@ -531,6 +546,10 @@ class Survivor:
 
 
 
+#
+#   SETTLEMENT CLASS
+#
+
 class Settlement:
 
     def __init__(self, settlement_id=False, name=False, created_by=False):
@@ -538,7 +557,7 @@ class Settlement:
         self.logger = get_logger()
         if not settlement_id:
             settlement_id = self.new(name, created_by)
-        self.settlement = mdb.settlements.find_one({"_id": settlement_id})
+        self.settlement = mdb.settlements.find_one({"_id": ObjectId(settlement_id)})
         self.survivors = mdb.survivors.find({"settlement": settlement_id})
         if self.settlement is not None:
             self.update_death_count()
@@ -551,13 +570,13 @@ class Settlement:
             "created_on": datetime.now(),
             "created_by": created_by,
             "name": name,
-            "survival_limit": 2,
+            "survival_limit": 1,
             "lantern_year": 1,
             "death_count": 0,
             "milestone_story_events": [],
-            "innovations": ["Language"],
+            "innovations": [],
             "principles": [],
-            "locations": ["Lantern Hoard"],
+            "locations": [],
             "quarries": ["White Lion"],
             "storage": ["Cloth", "Cloth", "Cloth", "Cloth", "Founding Stone", "Founding Stone", "Founding Stone", "Founding Stone"],
             "defeated_monsters": [],
@@ -646,7 +665,7 @@ class Settlement:
         """ Returns the settlement's Innovation Deck as a list of strings. """
 
         innovations = self.settlement["innovations"]
-        innovation_deck = set()
+        innovation_deck = set(["Language"])
         for i in innovations:
             for c in models.innovations[i]["consequences"]:
                 innovation_deck.add(c)
@@ -699,7 +718,7 @@ class Settlement:
                     item_color = models.locations[item_location]["color"]
                 else:
                     item_color = "FFF"
-                html += '<button id="remove_item" style="background-color: #%s; color: #000;" disabled> %s</button>\n' % (item_color, item_key)
+                html += '<button id="remove_item" name="remove_item" value="%s" style="background-color: #%s; color: #000;"> %s</button>\n' % (item_key, item_color, item_key)
             return html
 
         if return_as == "drop_list":
@@ -872,11 +891,8 @@ class Settlement:
         if return_as == "html_buttons":
             output = ""
             for survivor in survivors:
-                output += html.dashboard.view_asset_button.safe_substitute(
-                    asset_type = "survivor",
-                    asset_id = survivor["_id"],
-                    asset_name = survivor["name"],
-                )
+                S = assets.Survivor(survivor_id=survivor["_id"])
+                output += S.asset_link()
             return output
 
         if return_as == "game_view":
@@ -920,6 +936,93 @@ class Settlement:
             return len(player_set)
 
         return player_set
+
+    def update_principles(self, add_new_principle=False):
+        principles = set(self.settlement["principles"])
+        if add_new_principle:
+            principles.add(add_new_principle)
+
+        mutually_exclusive_principles = [
+            ("Graves", "Cannibalize"),
+            ("Romantic", "Barbaric"),
+            ("Protect the Young", "Survival of the Fittest"),
+            ("Collective Toil", "Accept Darkness"),
+            ]
+        for tup in mutually_exclusive_principles:
+            if tup[0] == add_new_principle:
+                if tup[1] in principles:
+                    principles.remove(tup[1])
+            elif tup[1] == add_new_principle:
+                if tup[0] in principles:
+                    principles.remove(tup[0])
+
+        self.settlement["principles"] = sorted(list(principles))
+
+    def modify(self, params):
+        """ Pulls a settlement from the mdb, updates it and saves it using a
+        cgi.FieldStorage() object.
+
+        All of the business logic lives here.
+        """
+
+        for p in params:
+            if p in ["asset_id", "modify"]:
+                pass
+            elif p == "add_defeated_monster":
+                self.settlement["defeated_monsters"].append(params[p].value)
+            elif p == "add_quarry":
+                self.settlement["quarries"].append(params[p].value)
+            elif p == "add_nemesis":
+                self.settlement["nemesis_monsters"][params[p].value] = []
+            elif p == "add_item":
+                self.settlement["storage"].append(params[p].value)
+            elif p == "remove_item":
+                self.logger.debug("here")
+                self.settlement["storage"].remove(params[p].value)
+            elif p == "add_innovation":
+                self.settlement["innovations"].append(params[p].value)
+            elif p == "add_location":
+                self.settlement["locations"].append(params[p].value)
+            elif p in ["new_life_principle", "death_principle", "society_principle", "conviction_principle"]:
+                new_principle = params[p].value
+                self.update_principles(new_principle)
+            elif p in [
+                "First child is born",
+                "First time death count is updated",
+                "Population reaches 15",
+                "Settlement has 5 innovations",
+                "Population reaches 0",
+            ]:
+                self.settlement["milestone_story_events"].append(p)
+            elif p == "increment_lantern_year":
+                self.settlement["lantern_year"] = int(self.settlement["lantern_year"]) + 1
+            elif p.split("_")[:3] == ['update', 'timeline', 'year']:
+                for year_dict in self.settlement["timeline"]:
+                    if int(year_dict["year"]) == int(p.split("_")[-1]):
+                        year_index = self.settlement["timeline"].index(year_dict)
+                        self.settlement["timeline"].remove(year_dict)
+                        year_dict["custom"].append(params[p].value)
+                        self.settlement["timeline"].insert(year_index, year_dict)
+                        break
+            elif p == "increment_nemesis":
+                nemesis_key = params[p].value
+                completed_levels = self.settlement["nemesis_monsters"][nemesis_key]
+                if completed_levels == []:
+                    self.settlement["nemesis_monsters"][nemesis_key].append("Lvl 1")
+                elif "Lvl 1" in completed_levels:
+                    self.settlement["nemesis_monsters"][nemesis_key].append("Lvl 2")
+                elif "Lvl 2" in completed_levels:
+                    self.settlement["nemesis_monsters"][nemesis_key].append("Lvl 3")
+            else:
+                self.settlement[p] = params[p].value.strip()
+
+
+        #   Turn lists into sets to prevent dupes; turn sets into lists to prevent
+        #   mongo from FTFO if it sees a set(). File this under user-proofing
+        for attrib in ["quarries", "innovations", "principles", "locations"]:
+            self.settlement[attrib] = list(set(self.settlement[attrib]))
+
+        mdb.settlements.save(self.settlement)
 
 
     def render_html_summary(self, user_id=False):
@@ -1116,74 +1219,5 @@ class Settlement:
 
 
 
-def update_settlement(params):
-    """ Pulls a settlement from the mdb, updates it and saves it.
-
-    Needs to be moved up into the Settlement class. Leaving it here for now.
-    """
-
-    logger = get_logger()
-
-    settlement = mdb.settlements.find_one({"_id": ObjectId(params["asset_id"].value)})
-
-    settlement["principles"] = []
-    settlement["milestone_story_events"] = []
-
-    for p in params:
-        if p == "asset_id":
-            pass
-        elif p == "add_defeated_monster":
-            settlement["defeated_monsters"].append(params[p].value)
-        elif p == "add_quarry":
-            settlement["quarries"].append(params[p].value)
-        elif p == "add_nemesis":
-            settlement["nemesis_monsters"][params[p].value] = []
-        elif p == "add_item":
-            settlement["storage"].append(params[p].value)
-        elif p == "remove_item":
-            settlement["storage"].remove(params[p].value)
-        elif p == "add_innovation":
-            settlement["innovations"].append(params[p].value)
-        elif p == "add_location":
-            settlement["locations"].append(params[p].value)
-        elif p in ["new_life_principle", "death_principle", "society_principle", "conviction_principle"]:
-            settlement["principles"].append(params[p].value)
-        elif p in [
-            "First child is born",
-            "First time death count is updated",
-            "Population reaches 15",
-            "Settlement has 5 innovations",
-            "Population reaches 0",
-        ]:
-            settlement["milestone_story_events"].append(p)
-        elif p == "increment_lantern_year":
-            settlement["lantern_year"] = int(settlement["lantern_year"]) + 1
-            break
-        elif p.split("_")[:3] == ['update', 'timeline', 'year']:
-            for year_dict in settlement["timeline"]:
-                if int(year_dict["year"]) == int(p.split("_")[-1]):
-                    year_index = settlement["timeline"].index(year_dict)
-                    settlement["timeline"].remove(year_dict)
-                    year_dict["custom"].append(params[p].value)
-                    settlement["timeline"].insert(year_index, year_dict)
-                    break
-        elif p == "increment_nemesis":
-            nemesis_key = params[p].value
-            completed_levels = settlement["nemesis_monsters"][nemesis_key]
-            if completed_levels == []:
-                settlement["nemesis_monsters"][nemesis_key].append("Lvl 1")
-            elif "Lvl 1" in completed_levels:
-                settlement["nemesis_monsters"][nemesis_key].append("Lvl 2")
-            elif "Lvl 2" in completed_levels:
-                settlement["nemesis_monsters"][nemesis_key].append("Lvl 3")
-        else:
-            settlement[p] = params[p].value.strip()
-
-    #   Turn lists into sets to prevent dupes; turn sets into lists to prevent
-    #   mongo from FTFO if it sees a set()
-    for attrib in ["quarries", "innovations", "principles"]:
-        settlement[attrib] = list(set(settlement[attrib]))
-
-    mdb.settlements.save(settlement)
 
 

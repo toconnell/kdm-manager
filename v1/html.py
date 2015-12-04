@@ -276,7 +276,7 @@ class survivor:
 
 class settlement:
     summary = Template("""\n\
-        <h1>$settlement_name</h1>
+        <h1>&#x02261; $settlement_name</h1>
         <p class="subhead_p_block">$principles</p>
         <p>Population: $population ($death_count deaths)</p><hr/>
         <p>Survival Limit: $survival_limit</p><hr/>
@@ -336,25 +336,34 @@ class settlement:
     <div class="big_number_caption">Death Count</div>
     <br />
 
-
+    </form> <!-- ending the first form -->
 
     <hr /> <!-- Logical section Break -->
 
 
-                    <!-- STORAGE -->
+                    <!-- STORAGE - THIS IS ITS OWN FORM-->
 
-    <div id="block_group">
-    <h2>Storage</h2>
-    <p>Gear and Resources may be stored without limit.</p>
-    <hr />
-        $storage
-    <hr />
-        $items_options<br />
-        $items_remove<br />
-     <input onchange="this.form.submit()" type="text" class="full_width" name="add_item" placeholder="add gear or resource"/>
-    </div>
+    <form id="autoForm" method="POST">
+        <input type="hidden" name="modify" value="settlement" />
+        <input type="hidden" name="asset_id" value="$settlement_id" />
 
-                    <!-- LOCATIONS -->
+        <div id="block_group">
+        <h2>Storage</h2>
+        <p>Gear and Resources may be stored without limit. Tap items to remove them.</p>
+        <hr />
+            $storage
+        <hr />
+            $items_options<br />
+         <input onchange="this.form.submit()" type="text" class="full_width" name="add_item" placeholder="add gear or resource"/>
+        </div>
+    </form>
+
+
+                    <!-- LOCATIONS - a NEW FORM STARTS HERE -->
+
+    <form id="autoForm" method="POST">
+    <input type="hidden" name="modify" value="settlement" />
+    <input type="hidden" name="asset_id" value="$settlement_id" />
 
     <div id="block_group">
      <h2>Settlement Locations</h2>
@@ -372,6 +381,22 @@ class settlement:
 
 
     <hr />  <!-- Logical Section Break -->
+
+                    <!-- INNOVATIONS -->
+
+    <div id="block_group">
+     <h2>Innovations</h2>
+     <p>The settlement's innovations (including weapon masteries).</p>
+        <hr />
+     <p>$innovations</p>
+     <select name="add_innovation" onchange="this.form.submit()">
+      <option selected disabled hidden value=''>Add Innovation</option>
+      <option>$innovation_options</option>
+     </select>
+     <input onchange="this.form.submit()" type="text" class="full_width" name="add_innovation" placeholder="add custom innovation"/>
+    </div>
+
+
 
 
                     <!-- PRINCIPLES -->
@@ -414,22 +439,6 @@ class settlement:
     </div> <!-- principle block group -->
 
 
-                    <!-- INNOVATIONS -->
-
-    <div id="block_group">
-     <h2>Innovations</h2>
-     <p>The settlement's innovations (including weapon masteries).</p>
-        <hr />
-     <p>$innovations</p>
-     <select name="add_innovation" onchange="this.form.submit()">
-      <option selected disabled hidden value=''>Add Innovation</option>
-      <option>$innovation_options</option>
-     </select>
-     <input onchange="this.form.submit()" type="text" class="full_width" name="add_innovation" placeholder="add custom innovation"/>
-    </div>
-
-
-
     <hr />  <!-- Logical Section Break -->
 
 
@@ -464,14 +473,6 @@ class settlement:
     </div>
 
 
-
-    <hr /> <!-- Logical Section Break Here -->
-
-
-                    <!-- LOST SETTLEMENTS -->
-    <input onchange="this.form.submit()" class="big_number_square" type="number" name="lost_settlements" value="$lost_settlements"/>
-    <div class="big_number_caption">Lost Settlements</div>
-    <br />
 
     <hr /> <!-- Logical Section Break Here -->
 
@@ -533,6 +534,13 @@ class settlement:
     <br /><hr />
     $timeline
     </div>
+
+    <hr /> <!-- Logical Section Break Here -->
+
+                    <!-- LOST SETTLEMENTS -->
+    <input onchange="this.form.submit()" class="big_number_square" type="number" name="lost_settlements" value="$lost_settlements"/>
+    <div class="big_number_caption">Lost Settlements</div>
+    <br/><hr/>
 
 
     </form>
