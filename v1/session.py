@@ -115,6 +115,9 @@ class Session:
         'asset_id' isn't mandatory.
         """
         self.session["current_view"] = target_view
+        if target_view == "dashboard":
+            self.session["current_settlement"] = None
+            self.session["current_settlement"] = None
         if asset_id:
             asset = ObjectId(asset_id)
             self.session["current_asset"] = asset
@@ -146,6 +149,7 @@ class Session:
             for survivor in survivors:
                 mdb.survivors.remove({"_id": survivor["_id"]})
                 self.logger.info("User '%s' removed survivor '%s'" % (self.User.user["login"], survivor["name"]))
+            self.User.get_settlements()
             mdb.settlements.remove({"_id": settlement_id})
             self.logger.info("User '%s' removed settlement '%s'" % (self.User.user["login"], settlement_id))
 

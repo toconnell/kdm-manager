@@ -22,7 +22,7 @@ class User:
 
         user_id = ObjectId(user_id)
         self.user = mdb.users.find_one({"_id": user_id})
-        self.settlements = list(mdb.settlements.find({"created_by": self.user["_id"]}).sort("name"))
+        self.get_settlements()
         self.survivors = list(mdb.survivors.find({"$or": [
             {"email": self.user["login"]},
             {"created_by": self.user["_id"]},
@@ -32,6 +32,8 @@ class User:
     def get_settlements(self, return_as=False):
         """ Returns the user's settlements in a number of ways. Leave
         'return_as' unspecified if you want a mongo cursor back. """
+
+        self.settlements = list(mdb.settlements.find({"created_by": self.user["_id"]}).sort("name"))
 
         if self.settlements is None:
             return "NONE!"
@@ -61,9 +63,13 @@ class User:
         return self.survivors
 
     def get_games(self):
+        self.get_settlements()
         game_list = set()
-        for s in self.settlements:
-            game_list.add(s["_id"])
+
+        if self.settlements is not None:
+            for s in self.settlements:
+                game_list.add(s["_id"])
+
         for s in self.survivors:
             game_list.add(s["settlement"])
 
@@ -492,7 +498,8 @@ class Settlement:
             settlement_id = self.new(name, created_by)
         self.settlement = mdb.settlements.find_one({"_id": settlement_id})
         self.survivors = mdb.survivors.find({"settlement": settlement_id})
-        self.update_death_count()
+        if self.settlement is not None:
+            self.update_death_count()
 
     def new(self, name=None, created_by=None):
         """ Creates a new settlement. 'name' is any string and 'created_by' has to
