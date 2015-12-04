@@ -246,12 +246,13 @@ class Survivor:
 
         return disorders
 
-    def get_epithets(self, return_as=False):
+    def get_epithets(self, return_type=False):
         epithets = self.survivor["epithets"]
 
-        if return_as == "comma-delimited":
-            return "<p>%s</p>" % ", ".join(epithets)
-        elif return_as == "formatted_html":
+        if return_type == "comma-delimited":
+            return ", ".join(epithets)
+
+        if return_type == "html_formatted":
             if epithets == []:
                 return ""
             else:
@@ -261,8 +262,9 @@ class Survivor:
                         styled_epithets.append('<font id="%s">&#x02588;</font> %s' % (epithet, epithet))
                     else:
                         styled_epithets.append(epithet)
-                return "<p>%s</p>" % ", ".join(styled_epithets)
-        elif return_as == "html_remove":
+                return '<p class="subhead_p_block">%s</p>' % ", ".join(styled_epithets)
+
+        if return_type == "html_remove":
             output = '<select name="remove_epithet" onchange="this.form.submit()">'
             output += '<option selected disabled hidden value="">Remove Item</option>'
             for epithet in self.survivor["epithets"]:
@@ -272,17 +274,32 @@ class Survivor:
 
         return epithets
 
-    def heal(self, heal_armor=False):
+    def heal(self, heal_armor=False, increment_hunt_xp=False):
+        """ This removes the keys defined in self.damage_locations from the
+        survivor's MDB object. It can also do some game logic, e.g. remove armor
+        points and increment hunt XP.
+
+            'heal_armor'        -> bool; use to zero out armor in addition to
+                removing self.damage_location keys
+            'increment_hunt_xp' -> int; increment hunt XP by whatever
+
+        """
+
         for damage_loc in self.damage_locations:
             try:
                 del self.survivor[damage_loc]
             except:
                 pass
+
         if heal_armor:
             for armor_loc in ["Head","Arms","Body","Waist","Legs"]:
                 self.survivor[armor_loc] = 0
 
+        if increment_hunt_xp:
+            current_xp = int(self.survivor["hunt_xp"])
+            self.survivor["hunt_xp"] = current_xp + increment_hunt_xp
 
+        self.logger.debug("Survivor '%s' healed!" % self.survivor["name"])
         mdb.survivors.save(self.survivor)
 
     def modify(self, params):
@@ -295,8 +312,10 @@ class Survivor:
             elif p == "heal_survivor":
                 if params[p].value == "Heal Injuries Only":
                     self.heal()
-                elif params[p].value == "Heal Injuries and Armor":
+                elif params[p].value == "Heal Injuries and Remove Armor":
                     self.heal(heal_armor=True)
+                elif params[p].value == "Return from Hunt":
+                    self.heal(heal_armor=True, increment_hunt_xp=1)
             elif p == "add_epithet":
                 self.survivor["epithets"].append(params[p].value.strip())
                 self.survivor["epithets"] = sorted(list(set(self.survivor["epithets"])))
@@ -339,31 +358,54 @@ class Survivor:
         mdb.survivors.save(self.survivor)
 
 
-    def asset_link(self, view="survivor", button_class="info", link_text=False, include=[]):
+    def asset_link(self, view="survivor", button_class="info", link_text=False, include=["hunt_xp", "insanity", "sex", "dead", "retired"], disabled=False):
         """ Returns an asset link (i.e. html form with button) for the
         survivor. """
 
         if not link_text:
             link_text = self.survivor["name"]
+            if "sex" in include:
+                link_text += " [%s]" % self.survivor["sex"]
+        if disabled:
+            link_text += "<br />%s" % self.survivor["email"]
 
         if include != []:
             attribs = []
             if "dead" in include:
                 if "dead" in self.survivor.keys():
+                    button_class = "warn"
                     attribs.append("Dead")
+
+            if "retired" in include:
+                if "retired" in self.survivor.keys():
+                    button_class = "warn"
+                    attribs.append("Retired")
+
             if "settlement_name" in include:
                 attribs.append(self.settlement.settlement["name"])
+
+            if "hunt_xp" in include:
+                attribs.append("XP: %s" % self.survivor["hunt_xp"])
+
+            if "insanity" in include:
+                attribs.append("Insanity: %s" % self.survivor["Insanity"])
+
             if attribs != []:
-                suffix = " ("
+                suffix = "<br /> ("
                 suffix += ", ".join(attribs)
                 suffix += ")"
                 link_text += suffix
+
+        if disabled:
+            disabled = "disabled"
+            button_class= "unclickable"
 
         output = html.dashboard.view_asset_button.safe_substitute(
             button_class = button_class,
             asset_type = view,
             asset_id = self.survivor["_id"],
             asset_name = link_text,
+            disabled = disabled,
         )
 
         return output
@@ -420,8 +462,8 @@ class Survivor:
             survivor_id = self.survivor["_id"],
             name = self.survivor["name"],
             add_epithets = models.render_epithet_dict(return_as="html_select_add", exclude=self.survivor["epithets"]),
-            rm_epithets =self.get_epithets(return_as="html_remove"),
-            epithets = self.get_epithets(return_as="formatted_html"),
+            rm_epithets =self.get_epithets("html_remove"),
+            epithets = self.get_epithets("html_formatted"),
             sex = self.survivor["sex"],
             survival = survivor_survival_points,
             survival_limit = int(self.settlement.settlement["survival_limit"]),
@@ -483,7 +525,7 @@ class Survivor:
             remove_abilities_and_impairments = self.get_abilities_and_impairments(return_as="html_select_remove"),
 
             email = self.survivor["email"],
-            game_link = self.settlement.asset_link(view="game"),
+            game_link = self.settlement.asset_link(view="game", fixed=True),
         )
         return output
 
@@ -510,7 +552,7 @@ class Settlement:
             "created_by": created_by,
             "name": name,
             "survival_limit": 2,
-            "lantern_year": 0,
+            "lantern_year": 1,
             "death_count": 0,
             "milestone_story_events": [],
             "innovations": ["Language"],
@@ -567,6 +609,7 @@ class Settlement:
         settlement_id = mdb.settlements.insert(new_settlement_dict)
         self.logger.info("New settlement '%s' ('%s') created!" % (name, created_by))
         return settlement_id
+
 
     def update_death_count(self):
         """ This runs whenever we initialize the settlement. It makes sure that
@@ -673,10 +716,16 @@ class Settlement:
         return storage
 
 
-    def get_nemesis_monsters(self, return_as=False):
+    def get_nemesis_monsters(self, return_type=None):
+        """ Use the 'return_type' arg to specify a special return type, or leave
+        unspecified to get sorted list of nemesis monsters back. """
+
         nemesis_monster_keys = sorted(self.settlement["nemesis_monsters"].keys())
 
-        if return_as == "html_select":
+        if return_type == "comma-delimited":
+            return ", ".join(nemesis_monster_keys)
+
+        if return_type == "html_select":
             html = ""
             for k in nemesis_monster_keys:
                 html += '<p><b>%s</b> ' % k
@@ -706,7 +755,7 @@ class Settlement:
             for year in range(1,41):
                 strikethrough = ""
                 disabled = ""
-                if year <= current_lantern_year:
+                if year <= current_lantern_year - 1:
                     disabled = "disabled"
                     strikethrough = "strikethrough"
                 html += '<p class="%s">' % strikethrough
@@ -726,6 +775,21 @@ class Settlement:
             return html
 
         return "oops! not implemented yet"
+
+    def get_principles(self, return_type=None):
+        """ Returns the settlement's principles. Use the 'return_type' arg to
+        specify one of the following, or leave it unspecified to get a sorted
+        list back. """
+
+        principles = sorted(self.settlement["principles"])
+
+        if return_type == "comma-delimited":
+            if principles == []:
+                return "No principles"
+            else:
+                return ", ".join(principles)
+
+        return principles
 
     def get_innovations(self, include_principles=False, return_as=False):
         """ Get the settlement's innovations as a list. Use 'include_principles'
@@ -769,11 +833,23 @@ class Settlement:
             html += '<p><b>%s:</b> %s</p>\n' % (k, buffs[k])
         return html
 
-    def get_quarries(self, return_as=False):
-        """ Returns a list of the settlement's quarries. """
-        quarries = self.settlement["quarries"]
+    def get_defeated_monsters(self, return_type=None):
+        monsters = sorted(self.settlement["defeated_monsters"])
 
-        if return_as == "comma-delimited":
+        if return_type == "comma-delimited":
+            if monsters == []:
+                return None
+            else:
+                return ", ".join(monsters)
+
+        return monsters
+
+    def get_quarries(self, return_type=None):
+        """ Returns a list of the settlement's quarries. Leave the 'return_type'
+        arg unspecified to get a sorted list. """
+        quarries = sorted(self.settlement["quarries"])
+
+        if return_type == "comma-delimited":
             return ", ".join(quarries)
 
         return quarries
@@ -784,8 +860,14 @@ class Settlement:
 
         survivors = mdb.survivors.find({"settlement": self.settlement["_id"]})
 
+        user = None
         if user_id:
             user = mdb.users.find_one({"_id": user_id})
+            user_login = user["login"]
+
+        current_user_is_settlement_creator = False
+        if user is not None and user["_id"] == self.settlement["created_by"]:
+            current_user_is_settlement_creator = True
 
         if return_as == "html_buttons":
             output = ""
@@ -802,20 +884,16 @@ class Settlement:
             for survivor in survivors:
                 S = assets.Survivor(survivor_id=survivor["_id"])
                 user_owns_survivor = False
-                if survivor["email"] == user["login"]:
+
+                if survivor["email"] == user_login:
                     user_owns_survivor = True
-                elif survivor["created_by"] == user["_id"]:
+                if current_user_is_settlement_creator:
                     user_owns_survivor = True
+
                 if user_owns_survivor:
-                    output += S.asset_link(include=["dead"])
+                    output += S.asset_link()
                 else:
-                    output += "<p>"
-                    if "dead" in S.survivor.keys():
-                        output += "[DEAD] "
-                    if "retired" in S.survivor.keys():
-                        output += "[RETIRED] "
-                    output += "%s (%s) <%s> - XP: %s" % (S.survivor["name"], S.survivor["email"], S.survivor["sex"], S.survivor["hunt_xp"])
-                    output += "</p>"
+                    output += S.asset_link(disabled=True)
             return output
 
         return survivors
@@ -831,21 +909,6 @@ class Settlement:
             results = mdb.survivors.find({"settlement": settlement_id, "dead": {"$exists": True}}).count()
         return results
 
-    def render_html_summary(self, user_id=False):
-        """ This is the summary view we print at the top of the game view. It's
-        not a form. """
-        output = html.settlement.summary.safe_substitute(
-            settlement_name=self.settlement["name"],
-            population=self.settlement["population"],
-            death_count = self.settlement["death_count"],
-            survivors = self.get_survivors(return_as="game_view", user_id=user_id),
-            survival_limit = self.settlement["survival_limit"],
-            innovations = self.get_innovations(return_as="comma-delimited", include_principles=True),
-            departure_bonuses = self.get_bonuses('departure_buff'),
-            settlement_bonuses = self.get_bonuses('settlement_buff'),
-            survivor_bonuses = self.get_bonuses('survivor_buff'),
-        )
-        return output
 
     def get_players(self, count_only=False):
         player_set = set()
@@ -857,6 +920,28 @@ class Settlement:
             return len(player_set)
 
         return player_set
+
+
+    def render_html_summary(self, user_id=False):
+        """ This is the summary view we print at the top of the game view. It's
+        not a form. """
+        output = html.settlement.summary.safe_substitute(
+            settlement_name=self.settlement["name"],
+            principles = self.get_principles("comma-delimited"),
+            population=self.settlement["population"],
+            death_count = self.settlement["death_count"],
+            survivors = self.get_survivors(return_as="game_view", user_id=user_id),
+            survival_limit = self.settlement["survival_limit"],
+            innovations = self.get_innovations(return_as="comma-delimited", include_principles=True),
+            departure_bonuses = self.get_bonuses('departure_buff'),
+            settlement_bonuses = self.get_bonuses('settlement_buff'),
+            survivor_bonuses = self.get_bonuses('survivor_buff'),
+            defeated_monsters = self.get_defeated_monsters("comma-delimited"),
+            quarries = self.get_quarries("comma-delimited"),
+            nemesis_monsters = self.get_nemesis_monsters("comma-delimited"),
+        )
+        return output
+
 
     def render_html_form(self, read_only=False):
         """ This is the all-singing, all-dancing form creating function. Pretty
@@ -938,7 +1023,7 @@ class Settlement:
         output = html.settlement.form.safe_substitute(
             MEDIA_URL = settings.get("application","STATIC_URL"),
             settlement_id = self.settlement["_id"],
-            game_link = self.asset_link(view="game", link_text="View game summary"),
+            game_link = self.asset_link(view="game", fixed=True),
 
             population = population,
             name = self.settlement["name"],
@@ -979,41 +1064,49 @@ class Settlement:
             five_innovations_checked = five_innovations,
             game_over_checked = game_over,
 
-            nemesis_monsters = self.get_nemesis_monsters(return_as="html_select"),
+            nemesis_monsters = self.get_nemesis_monsters("html_select"),
 
-            quarries = self.get_quarries(return_as="comma-delimited"),
+            quarries = self.get_quarries("comma-delimited"),
             quarry_options = "</option><option>".join(sorted(models.quarries.keys())),
             innovations = self.get_innovations(return_as="comma-delimited"),
             innovation_options = self.get_innovation_deck(return_as="html_option"),
             locations = self.get_locations(return_as="comma-delimited"),
             locations_options = self.get_locations_deck(return_as="html_option"),
 
-            defeated_monsters = ", ".join(sorted(self.settlement["defeated_monsters"])),
+            defeated_monsters = self.get_defeated_monsters("comma-delimited"),
 
         )
 
         return output
 
 
-    def asset_link(self, view=False, button_class="info", link_text=False):
+    def asset_link(self, view="settlement", button_class="info", link_text=False, fixed=False):
         """ Returns an asset link (i.e. html form with button) for the
         settlement. """
 
+        prefix = ""
         suffix = ""
 
-        if not view:
-            view = "settlement"
+        if view == "game":
+            button_class = "purple"
+            if not link_text and not fixed:
+                prefix = html.dashboard.settlement_flash
+                link_text = prefix + self.settlement["name"]
+#                suffix = " (%s players, pop. %s)" % (self.get_players(count_only=True), self.settlement["population"])
+                suffix = " (LY %s, pop. %s)" % (self.settlement["lantern_year"], self.settlement["population"])
+                link_text += suffix
+
+        button_id = None
+        if fixed:
+            button_id = "floating_asset_button"
+            if not link_text:
+                link_text = html.dashboard.settlement_flash
 
         if not link_text:
             link_text = self.settlement["name"]
 
-        if view == "game":
-            button_class = "purple"
-            suffix = " (pop. %s, players. %s)" % (self.settlement["population"], self.get_players(count_only=True))
-            link_text += suffix
-
-
         output = html.dashboard.view_asset_button.safe_substitute(
+            button_id = button_id,
             button_class = button_class,
             asset_type = view,
             asset_id = self.settlement["_id"],

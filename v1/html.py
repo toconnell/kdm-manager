@@ -26,9 +26,10 @@ class survivor:
     <input type="hidden" name="modify" value="survivor" />
     <input type="hidden" name="asset_id" value="$survivor_id" />
 
-    <hr />
-    <input onchange="this.form.submit()" id="topline_name" class="full_width" type="text" name="name" value="$name" placeholder="Survivor Name"/>
-    $epithets
+    <input onchange="this.form.submit()" id="topline_name_fixed" class="full_width" type="text" name="name" value="$name" placeholder="Survivor Name"/>
+    <br /><br /><br />
+    $epithets <!-- THESE HAVE THEIR OWN STYLE FROM survivor.get_epithets() -->
+    <br />
     $add_epithets<br />
     $rm_epithets
     <input onchange="this.form.submit()" class="full_width" type="text" name="add_epithet" placeholder="add a custom epithet"/>
@@ -172,7 +173,8 @@ class survivor:
      <select name="heal_survivor" onchange="this.form.submit()">
       <option selected disabled hidden value="">Heal Survivor</option>
       <option>Heal Injuries Only</option>
-      <option>Heal Injuries and Armor</option>
+      <option>Heal Injuries and Remove Armor</option>
+      <option>Return from Hunt</option>
      </select>
     <hr />
 
@@ -275,6 +277,7 @@ class survivor:
 class settlement:
     summary = Template("""\n\
         <h1>$settlement_name</h1>
+        <p class="subhead_p_block">$principles</p>
         <p>Population: $population ($death_count deaths)</p><hr/>
         <p>Survival Limit: $survival_limit</p><hr/>
         <h3>Survivors</h3>
@@ -285,14 +288,22 @@ class settlement:
         </form>
         <hr/>
         <h3>Innovations</h3>
-        $innovations
+        <p>$innovations</p>
         <hr/>
         <h3>Bonuses</h3>
         <h4>Departing</h4>
         $departure_bonuses
         <h4>During Settlement</h4>
-        $settlement_bonuses
-        $survivor_bonuses
+        <p>$settlement_bonuses</p>
+        <p>$survivor_bonuses</p>
+        <hr />
+        <h3>Monsters</h3>
+        <h4>Defeated</h4>
+        <p>$defeated_monsters</p>
+        <h4>Quarries</h4>
+        <p>$quarries</p>
+        <h4>Nemeses</h4>
+        <p>$nemesis_monsters</p>
     \n""")
     form = Template("""\n\
     $game_link
@@ -301,11 +312,11 @@ class settlement:
     <button type="submit" id="save_button" class="success">Save</button>
     <input type="hidden" name="modify" value="settlement" />
     <input type="hidden" name="asset_id" value="$settlement_id" />
-    <hr />
+
     <input id="topline_name" onchange="this.form.submit()" class="full_width" type="text" name="name" value="$name" placeholder="Settlement Name"/>
     <hr />
     <input class="big_number_square" type="number" name="survival_limit" value="$survival_limit" min="$min_survival_limit"/>
-    <div class="big_number_caption">Survival Limit (min: $min_survival_limit)</div>
+    <div class="big_number_caption">Survival Limit<br />(min: $min_survival_limit)</div>
     <br /><hr />
 
         <h3>On Departure</h3>
@@ -323,7 +334,7 @@ class settlement:
     <br /><hr />
     <input class="big_number_square" type="number" name="death_count" value="$death_count"/>
     <div class="big_number_caption">Death Count</div>
-    <br /><hr />
+    <br />
 
 
 
@@ -457,6 +468,14 @@ class settlement:
     <hr /> <!-- Logical Section Break Here -->
 
 
+                    <!-- LOST SETTLEMENTS -->
+    <input onchange="this.form.submit()" class="big_number_square" type="number" name="lost_settlements" value="$lost_settlements"/>
+    <div class="big_number_caption">Lost Settlements</div>
+    <br />
+
+    <hr /> <!-- Logical Section Break Here -->
+
+
                     <!-- QUARRIES -->
 
     <div id="block_group">
@@ -487,7 +506,7 @@ class settlement:
     </div>
     </form>
 
-                    <!-- DEFEATED MONSTERS -->
+                    <!-- DEFEATED MONSTERS: HAS ITS OWN FORM -->
 
     <form id="autoForm" method="POST">
     <input type="hidden" name="modify" value="settlement" />
@@ -496,12 +515,16 @@ class settlement:
     <div id="block_group">
      <h2>Defeated Monsters</h2>
      <p>A list of defeated monsters and their level.</p>
-     <hr />
      <p>$defeated_monsters</p>
      <input onchange="this.form.submit()" type="text" class="full_width" name="add_defeated_monster" placeholder="add defeated monster"/>
     </div>
+    </form>
 
-                    <!-- TIMELINE -->
+                    <!-- TIMELINE: HAS ITS OWN FORM  -->
+
+    <form id="autoForm" method="POST">
+    <input type="hidden" name="modify" value="settlement" />
+    <input type="hidden" name="asset_id" value="$settlement_id" />
 
     <div id="block_group">
     <h2>Timeline</h2>
@@ -511,13 +534,6 @@ class settlement:
     $timeline
     </div>
 
-
-                    <!-- LOST SETTLEMENTS -->
-    <br />
-    <hr />
-    <input onchange="this.form.submit()" class="big_number_square" type="number" name="lost_settlements" value="$lost_settlements"/>
-    <div class="big_number_caption">Lost Settlements</div>
-    <br /><hr />
 
     </form>
 
@@ -539,7 +555,8 @@ class settlement:
 
 class dashboard:
     home_button = '<hr/><form method="POST"><input type="hidden" name="change_view" value="dashboard"/><button> Return to Dashboard</button></form>\n'
-    headline = Template('<h2 class="full_width">$title</h2><p>$desc</p>\n')
+    headline = Template('<h2 class="$h_class">$title</h2><p>$desc</p>\n')
+    settlement_flash = '<font size="50px">&#x02261;</font> '
     new_settlement_button = '<form method="POST"><input type="hidden" name="change_view" value="new_settlement" /><button class="success">+ New Settlement</button></form>\n'
     new_settlement_form = """\n\
     <h3>Create a New Settlement</h3>
@@ -570,9 +587,10 @@ class dashboard:
     view_asset_button = Template("""\n\
     <form method="POST">
     <input type="hidden" name="view_$asset_type" value="$asset_id" />
-    <button class="$button_class">$asset_name</button>
+    <button id="$button_id" class="$button_class" $disabled>$asset_name</button>
     </form>
     \n""")
+
 
 class login:
     """ The HTML for form-based authentication goes here."""

@@ -193,7 +193,7 @@ class Session:
         output = html.meta.saved_dialog
 
         if self.session["current_view"] == "dashboard":
-            output += html.dashboard.headline.safe_substitute(title="Games", desc="Games you are currently playing. New games are created automatically when settlements are created.")
+            output += html.dashboard.headline.safe_substitute(title="&#x02261; Campaigns", desc="Games you are currently playing.", h_class="purple")
             output += self.User.get_games()
             output += html.dashboard.headline.safe_substitute(title="Settlements", desc="Manage settlements created by you. You may not manage a settlement you did not create.")
             output += self.User.get_settlements(return_as="asset_links")
@@ -202,14 +202,13 @@ class Session:
             survivors = self.User.get_survivors()
             for s in survivors:
                 S = assets.Survivor(survivor_id=s["_id"])
-                output += S.asset_link(include=["dead", "settlement_name"])
+                output += S.asset_link(include=["dead", "retired", "hunt_xp", "settlement_name"])
             output += html.dashboard.headline.safe_substitute(title="System", desc="KD:M Manager! Version %s.<hr/><p>login: %s</p>" % (settings.get("application","version"), self.User.user["login"]))
         elif self.session["current_view"] == "view_game":
+            if self.Settlement.settlement["created_by"] == self.User.user["_id"]:
+                output += self.Settlement.asset_link(fixed=True, link_text="Edit")
             output += self.Settlement.render_html_summary(user_id=self.User.user["_id"])
             # if session user owns the settlement, let him edit it
-            if self.Settlement.settlement["created_by"] == self.User.user["_id"]:
-                output += html.dashboard.headline.safe_substitute(title="Edit Settlement", desc="")
-                output += self.Settlement.asset_link()
         elif self.session["current_view"] == "new_settlement":
             output += html.dashboard.new_settlement_form
         elif self.session["current_view"] == "new_survivor":

@@ -704,7 +704,19 @@ fighting_arts = {
 }
 
 epithets = {
-    "Insane": {},
+    "Shape Shifter": {},
+    "The Wanderer": {},
+    "One-eyed": {},
+    "Berserker": {},
+    "The Wolf": {},
+    "Brawler": {},
+    "Thunderer": {},
+    "Swift-footed": {},
+    "Iron-hearted": {},
+    "Man-slaying": {},
+    "Fast Runner": {},
+    "The Insane": {},
+    "The Mad": {},
     "Huntress": {},
     "Hunter": {},
     "The Destroyer": {},
@@ -837,6 +849,15 @@ disorders = {
         "survivor_effect": "If you are insane when you depart, gain +1 survival and +1 strength token.",
     },
 }
+
+
+#
+#   Notes about render methods:
+#       - they should never create a new form
+#       - they should all work the same
+#       - there should be a way to initialize a model class and render it as a
+#           method of that class
+#
 
 def render_fighting_arts_dict(return_as=False, exclude=[]):
     """ Represents models.disorders. """
