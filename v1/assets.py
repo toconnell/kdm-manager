@@ -8,6 +8,7 @@ from string import Template
 import assets
 import html
 import models
+from models import Epithets, Locations, Items, Innovations, Quarries
 from utils import mdb, get_logger, load_settings
 
 settings = load_settings()
@@ -476,7 +477,7 @@ class Survivor:
 
             survivor_id = self.survivor["_id"],
             name = self.survivor["name"],
-            add_epithets = models.render_epithet_dict(return_as="html_select_add", exclude=self.survivor["epithets"]),
+            add_epithets = Epithets.render_as_html_dropdown(exclude=self.survivor["epithets"]),
             rm_epithets =self.get_epithets("html_remove"),
             epithets = self.get_epithets("html_formatted"),
             sex = self.survivor["sex"],
@@ -626,7 +627,8 @@ class Settlement:
             ],
         }
         settlement_id = mdb.settlements.insert(new_settlement_dict)
-        self.logger.info("New settlement '%s' ('%s') created!" % (name, created_by))
+        creator = mdb.users.find_one({"_id": created_by})
+        self.logger.info("New settlement '%s' ('%s') created!" % (name, settlement_id, creator["login"]))
         return settlement_id
 
 
@@ -655,9 +657,9 @@ class Settlement:
         innovations = self.settlement["innovations"]
         innovations.extend(self.settlement["principles"])
         innovations = list(set(innovations))
-        for i in innovations:
-            if "survival_limit" in models.innovations[i].keys():
-                min_survival += models.innovations[i]["survival_limit"]
+        for innovation_key in innovations:
+            if "survival_limit" in Innovations.get_asset(innovation_key).keys():
+                min_survival += Innovations.get_asset(innovation_key)["survival_limit"]
 
         return min_survival
 
@@ -665,13 +667,16 @@ class Settlement:
         """ Returns the settlement's Innovation Deck as a list of strings. """
 
         innovations = self.settlement["innovations"]
-        innovation_deck = set(["Language"])
-        for i in innovations:
-            for c in models.innovations[i]["consequences"]:
+
+        innovation_deck = Innovations.get_always_available_innovations()
+
+        for innovation_key in innovations:
+            for c in Innovations.get_asset(innovation_key)["consequences"]:
                 innovation_deck.add(c)
-        for i in innovations:
-            if i in innovation_deck:
-                innovation_deck.discard(i)
+
+        for innovation_key in innovations:
+            if innovation_key in innovation_deck:
+                innovation_deck.discard(innovation_key)
 
         final_list = sorted(list(set(innovation_deck)))
 
@@ -693,10 +698,13 @@ class Settlement:
 
     def get_locations_deck(self, return_as=False):
         """ Returns a sorted list of available locations. """
-        eligible_locations = models.locations.keys()
+
+        eligible_locations = Locations.get_keys()
+
         for location_key in eligible_locations:
-            if "is_resource" in models.locations[location_key].keys():
+            if "is_resource" in Locations.get_asset(location_key).keys():
                 eligible_locations.remove(location_key)
+
         for l in self.settlement["locations"]:
             if l in eligible_locations:
                 eligible_locations.remove(l)
@@ -705,23 +713,23 @@ class Settlement:
             return "</option><option>".join(final_list)
         return final_list
 
-    def get_storage(self, return_as=False):
+    def get_storage(self, return_type=False):
         """ Returns the settlement's storage in a number of ways. """
 
         storage = sorted(self.settlement["storage"])
 
-        if return_as == "html_buttons":
+        if return_type == "html_buttons":
             html = ""
             for item_key in storage:
-                if item_key in models.items.keys():
-                    item_location = models.items[item_key]["location"]
-                    item_color = models.locations[item_location]["color"]
+                if item_key in Items.get_keys():
+                    item_location = Items.get_asset(item_key)["location"]
+                    item_color = Locations.get_asset(item_location)["color"]
                 else:
                     item_color = "FFF"
                 html += '<button id="remove_item" name="remove_item" value="%s" style="background-color: #%s; color: #000;"> %s</button>\n' % (item_key, item_color, item_key)
             return html
 
-        if return_as == "drop_list":
+        if return_type == "drop_list":
             html = '<select name="remove_item" onchange="this.form.submit()">'
             html += '<option selected disabled hidden value="">Remove Item</option>'
             for item in storage:
@@ -729,7 +737,7 @@ class Settlement:
             html += '</select>'
             return html
 
-        if return_as == "comma-delimited":
+        if return_type == "comma-delimited":
             return ", ".join(storage)
 
         return storage
@@ -830,8 +838,8 @@ class Settlement:
         innovations = self.get_innovations()
         survival_actions = ["Dodge"]
         for innovation in innovations:
-            if "survival_action" in models.innovations[innovation].keys():
-                survival_actions.append(models.innovations[innovation]["survival_action"])
+            if "survival_action" in Innovations.get_asset(innovation).keys():
+                survival_actions.append(Innovations.get_asset(innovation)["survival_action"])
         return list(set(survival_actions))
 
     def get_bonuses(self, bonus_type, return_as=False):
@@ -844,8 +852,8 @@ class Settlement:
         buffs = {}
 
         for innovation_key in innovations:
-            if bonus_type in models.innovations[innovation_key].keys():
-                buffs[innovation_key] = models.innovations[innovation_key][bonus_type]
+            if bonus_type in Innovations.get_asset(innovation_key).keys():
+                buffs[innovation_key] = Innovations.get_asset(innovation_key)[bonus_type]
 
         html = ""
         for k in buffs.keys():
@@ -1139,9 +1147,9 @@ class Settlement:
             departure_bonuses = self.get_bonuses('departure_buff'),
             settlement_bonuses = self.get_bonuses('settlement_buff'),
 
-            items_options = models.render_item_dict(return_as="html_select_box"),
-            items_remove = self.get_storage(return_as="drop_list"),
-            storage = self.get_storage(return_as="html_buttons"),
+            items_options = Items.render_as_html_dropdown_with_divisions(),
+            items_remove = self.get_storage("drop_list"),
+            storage = self.get_storage("html_buttons"),
 
             new_life_principle_hidden = hide_new_life_principle,
             society_principle_hidden = hide_society_principle,
@@ -1169,7 +1177,7 @@ class Settlement:
             nemesis_monsters = self.get_nemesis_monsters("html_select"),
 
             quarries = self.get_quarries("comma-delimited"),
-            quarry_options = "</option><option>".join(sorted(models.quarries.keys())),
+            quarry_options = Quarries.render_as_html_dropdown(),
             innovations = self.get_innovations(return_as="comma-delimited"),
             innovation_options = self.get_innovation_deck(return_as="html_option"),
             locations = self.get_locations(return_as="comma-delimited"),

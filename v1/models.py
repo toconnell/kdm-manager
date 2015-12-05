@@ -1,619 +1,124 @@
 #!/usr/bin/env python
 
+import game_assets
 from utils import get_logger
 
-resource_decks = {
-    "White Lion": [ "White Fur", "White Fur", "White Fur", "White Fur", "Lion Claw", "Lion Claw", "Lion Claw", "Eye of Cat", "Great Cat Bones", "Great Cat Bones", "Great Cat Bones", "Great Cat Bones", "Shimmering Mane", "Lion Tail", "Curious Hand", "Golden Whiskers", "Sinew", "Sinew", "Lion Testes" ],
-    "Screaming Antelope": ["Pelt", "Pelt", "Pelt", "Pelt", "Shank Bone", "Shank Bone", "Shank Bone", "Shank Bone", "Large Flat Tooth", "Large Flat Tooth", "Beast Steak", "Beast Steak", "Muscly Gums", "Spiral Horn", "Bladder", "Screaming Brain"],
-    "Phoenix": ["Tall Feathers", "Tall Feathers", "Tall Feathers", "Phoenix Eye", "Phoenix Whisker", "Pustules", "Pustules", "Small Feathers", "Small Feathers", "Small Feathers", "Muculent Droppings", "Muculent Droppings", "Muculent Droppings", "Wishbone", "Shimmering Halo", "Bird Beak", "Black Skull", "Small Hand Parasites", "Phoenix Finger", "Phoenix Finger", "Hollow Wing Bones", "Hollow Wing Bones", "Hollow Wing Bones", "Rainbow Droppings"],
-    "Basic Resources": ["???", "???", "Skull", "Broken Lantern", "Broken Lantern", "Monster Bone", "Monster Bone", "Monster Bone", "Monster Bone", "Love Juice", "Love Juice", "Monster Organ", "Monster Organ", "Monster Organ", "Monster Hide", "Monster Hide", "Monster Hide", "Monster Hide", "Monster Hide", "Monster Hide", "Monster Hide"]
-}
+class Model:
+    """ This is the base class for all model classes. It provides the basic
+    methods that all model objects (e.g. Innovations, Resources, etc.) have to
+    support."""
+
+    def __init__(self):
+        self.logger = get_logger()
+
+    def get_asset(self, game_asset_key):
+        return self.game_assets[game_asset_key]
+
+    def get_keys(self):
+        return self.game_assets.keys()
+
+    def render_as_html_dropdown(self, submit_on_change=True, exclude=[]):
+        """ Renders the model as an HTML dropdown and returns a string. Use the
+        'submit_on_change' kwarg to control whether it submits on change.
+
+        Use the 'exclude' kwarg to prevent certain keys from showing up in the
+        resuting render.
+        """
+
+        options = self.get_keys()
+
+        for excluded_key in exclude:
+            if excluded_key in options:
+                options.remove(excluded_key)
+
+        if submit_on_change:
+            submit_on_change = "this.form.submit()"
+
+        output = '\n\t<select name="add_%s" onchange="%s">' % (self.name, submit_on_change)
+        output += '\t<option selected disabled hidden value=''>Add %s</option>' % self.name.capitalize()
+        for o in sorted(options):
+            output += '\t\t<option>%s</option>\n' % o
+        output += '</select>\n'
+
+        return output
+
+#
+#   Define and initialize all models below here ONLY!
+#   All of these have to have a self.game_assets dictionary that includes all of
+#       of the game assets associated with the model class.
+#
+
+class epithetsModel(Model):
+    def __init__(self):
+        Model.__init__(self)
+        self.game_assets = game_assets.epithets
+        self.name = "epithet"
+
+class locationsModel(Model):
+    def __init__(self):
+        Model.__init__(self)
+        self.game_assets = game_assets.locations
+        self.name = "location"
+
+class itemsModel(Model):
+    def __init__(self):
+        Model.__init__(self)
+        self.game_assets = game_assets.items
+        self.name = "item"
+
+    def render_as_html_dropdown_with_divisions(self):
+
+        locations = set()
+        for item_key in self.get_keys():
+            locations.add(self.get_asset(item_key)["location"])
+
+        location_dict = {}
+        for location in locations:
+            location_dict[location] = set()
+
+        for item_key in self.get_keys():
+            item = self.get_asset(item_key)
+            location_dict[item["location"]].add(item_key)
+
+        locations = sorted(list(locations))
+        output = '\n<select name="add_item" onchange="this.form.submit()">\n'
+        output += '<option selected disabled hidden value=''>Add Item</option>\n'
+        for location_key in locations:
+            output += ' <option disabled> &ensp; &ensp; --- %s ---  </option>\n' % location_key
+            for item in sorted(location_dict[location_key]):
+                output += '  <option value="%s">%s</option>\n' % (item, item)
+        output += '</select>\n'
+
+        return output
+
+class innovationsModel(Model):
+    def __init__(self):
+        Model.__init__(self)
+        self.game_assets = game_assets.innovations
+        self.name = "innovation"
+
+    def get_always_available_innovations(self):
+        return set(["Language","Lantern Oven"])
+
+class quarriesModel(Model):
+    def __init__(self):
+        Model.__init__(self)
+        self.game_assets = game_assets.quarries
+        self.name = "quarry"
+
+class resourceDecksModel(Model):
+    def __init__(self):
+        self.game_assets = game_assets.resource_decks
+
+Locations       = locationsModel()
+Items           = itemsModel()
+Innovations     = innovationsModel()
+Quarries        = quarriesModel()
+ResourceDecks   = resourceDecksModel()
+Epithets        = epithetsModel()
 
 
-quarries = {
-    "White Lion": {    },
-    "Screaming Antelope": {    },
-    "Phoenix": {    },
-}
 
-innovations = {
-    "Graves": {
-        "type": "death principle",
-        "consequences": [],
-        "settlement_buff": "All new survivors gain +1 understanding. When a survivor dies during the hunt or showdown phase, gain +2 Endeavors. When a survivor dies during the settlement phase, gain +1 Endeavor.",
-        "survivor_buff": "All new survivors gain +1 understanding.",
-    },
-    "Cannibalize": {
-        "type": "death principle",
-        "consequences": [],
-        "survival_limit": 1,
-        "settlement_buff": "Whenever a survivor dies, draw one basic resource and add it to the settlement storage.",
-    },
-    "Barbaric": {
-        "type": "conviction principle",
-        "consequences": [],
-        "survival_limit": 1,
-        "survivor_buff": "All current and newborn survivors gain +1 peromanent strength.",
-    },
-    "Romantic": {
-        "type": "conviction principle",
-        "consequences": [],
-        "survival_limit": 1,
-        "settlement_buff": "You may innovate one additional time during the settlement phase. In addition, all current and newborn survivors gain +1 understanding.",
-        "survivor_buff": "All current and newborn survivors gain +1 understanding.",
-    },
-    "Collective Toil": {
-        "type": "society principle",
-        "consequences": [],
-        "settlement_buff": "At the start of the settlement phase, gain +1 Endeavor for every 10 population.",
-    },
-    "Accept Darkness": {
-        "type": "society principle",
-        "consequences": [],
-        "survivor_buff": "Add +2 to all Brain Trauma Rolls.",
-    },
-    "Protect the Young": {
-        "type": "new life principle",
-        "consequences": [],
-        "survivor_buff": "When rolling on the Intimacy story event, roll twice and pick one result.",
-    },
-    "Survival of the Fittest": {
-        "type": "new life principle",
-        "consequences": [],
-        "survival_limit": 1,
-        "settlement_buff": "When rolling on the Intimacy story event, roll twice and pick the lowest result. All newborn survivors gain +1 strength.",
-        "survivor_buff": "All newborn survivors gain +1 strength.",
-    },
-    "Clan of Death": {
-        "type": "home",
-        "consequences": [],
-        "survivor_buff": "All newborn survivors gain +1 accuracy, +1 strength and +1 evasion.",
-    },
-    "Sacrifice": {
-        "type": "faith",
-        "consequences": [],
-    },
-    "Scarification": {
-        "type": "faith",
-        "consequences": [],
-    },
-    "Records": {
-        "type": "education",
-        "consequences": [],
-    },
-    "Shrine": {
-        "type": "faith",
-        "consequences": ["Sacrifice"],
-    },
-    "Scrap Smelting": {
-        "type": "science",
-        "consequences": [],
-    },
-    "Cooking": {
-        "type": "science",
-        "consequences": [],
-        "survival_limit": 1,
-    },
-    "Paint": {
-        "type": "art",
-        "consequences": ["Pictograph", "Sculpture", "Face Painting"],
-        "survival_action": "Dash",
-    },
-    "Drums": {
-        "type": "music",
-        "consequences": ["Song of the Brave", "Forbidden Dance"],
-    },
-    "Inner Lantern": {
-        "type": "faith",
-        "consequences": ["Shrine", "Scarification"],
-        "survival_action": "Surge",
-    },
-    "Symposium": {
-        "type": "education",
-        "consequences": ["Nightmare Training", "Storytelling", ],
-        "survival_limit": 1,
-        "departure_buff": "Departing survivors gain +1 survival.",
-        "settlement_buff": "When a survivor innovates, draw an additional 2 Innovation Cards to choose from.",
-    },
-    "Hovel": {
-        "type": "home",
-        "consequences": ["Partnership", "Family", "Bed"],
-        "survival_limit": 1,
-    },
-    "Storytelling": {
-        "type": "education",
-        "consequences": ["Records"],
-        "survival_limit": 1,
-    },
-    "Nightmare Training": {
-        "type": "education",
-        "consequences": [],
-    },
-    "Language": {
-        "type": "starting",
-        "consequences": ["Ammonia", "Hovel", "Inner Lantern", "Drums", "Paint", "Symposium"],
-        "survival_limit": 1,
-        "survival_action": "Encourage",
-    },
-    "Ammonia": {
-        "type": "science",
-        "consequences": ["Bloodletting", "Lantern Oven"],
-        "departure_buff": "Departing survivors gain +1 survival.",
-    },
-    "Lantern Oven": {
-        "type": "science",
-        "consequences": ["Cooking", "Scrap Smelting"],
-        "departure_buff": "Departing Survivors gain +1 survival.",
-    },
-    "Memento Mori": {
-        "type": "art",
-    },
-    "Face Painting": {
-        "type": "art",
-        "consequences": [],
-    },
-    "Sculpture": {
-        "type": "art",
-        "consequences": ["Pottery"],
-        "survival_limit": 1,
-        "departure_buff": "Departing survivors gain +2 survival when they depart for a Nemesis Encounter.",
-    },
-    "Pictograph": {
-        "type": "art",
-        "consequences": ["Memento Mori", ],
-        "survivor_buff": "Anytime during the hunt or showdown phase, a survivor may Run Away (story event).",
-    },
-    "Pottery": {
-        "type": "art",
-        "consequences": [],
-        "survival_limit": 1,
-        "settlement_buff": "If the settlement loses all its resources, you may select up to two resources and keep them.",
-    },
-    "Heart Flute": {
-        "type": "music",
-        "consequences": [],
-    },
-    "Saga": {
-        "type": "music",
-        "consequences": [],
-        "survivor_buff": "All newborn survivors gain +2 hunt experience and +2 survival from knowing the epic.",
-    },
-    "Forbidden Dance": {
-        "type": "music",
-        "consequences": [],
-    },
-    "Bed": {
-        "type": "home",
-        "consequences": [],
-        "survival_limit": 1,
-    },
-    "Family": {
-        "type": "home",
-        "consequences": ["Clan of Death", ],
-        "departure_buff": "Departing survivors gain +1 survival.",
-        "settlement_buff": "Survivors nominated for intimacy may give themselves a surname if they do not have one. A newbord survivor inherits the surname of one parent, their weapon type and half (rounded down) of their weapon proficiency levels.",
-    },
-    "Song of the Brave": {
-        "type": "music",
-        "consequences": ["Saga",],
-        "survivor_buff": "All non-deaf survivors add +1 to their roll results on the Overwhelming Darkness story event.",
-    },
-    "Partnership": {
-        "type": "home",
-        "consequences": [],
-    },
-    "Bloodletting": {
-        "type": "science",
-        "consequences": [],
-    },
-    "Final Fighting Art": {
-        "type": "education",
-        "consequences": [],
-        "survival_limit": 1,
-    },
-    "Ultimate Weapon": {
-        "type": "science",
-        "consequences": [],
-        "survival_limit": 1,
-    },
-    "Guidepost": {
-        "type": "other",
-        "consequences": [],
-        "departure_buff": "Departing survivors gain +1 survival.",
-    },
-}
-
-
-locations = {
-    "White Lion Resources": {
-        "is_resource": True,
-        "color": "FFCC66",
-    },
-    "Screaming Antelope Resources": {
-        "is_resource": True,
-        "color": "FFCC66",
-    },
-    "Phoenix Resources": {
-        "is_resource": True,
-        "color": "FFCC66",
-    },
-    "Basic Resources": {
-        "is_resource": True,
-        "color": "51C327",
-    },
-    "Strange Resources": {
-        "is_resource": True,
-        "color": "CCFFCC",
-    },
-    "Starting Gear": {
-        "is_resource": True,
-        "color": "CCC",
-    },
-    "Bone Smith": {
-        "color": "777744",
-    },
-    "Rare Gear": {
-        "color": "FFD700",
-    },
-    "Blacksmith": {},
-    "Stone Circle": {
-        "color": "999"
-    },
-    "Leather Worker": {},
-    "Weapon Crafter": {},
-    "Barber Surgeon": {},
-    "Plumery": {},
-    "Mask Maker": {},
-    "Exhausted Lantern Hoard": {},
-    "Catarium": {
-        "color": "eee",
-    },
-    "Lantern Hoard": {},
-    "Skinnery": {
-        "color": "777744",
-    },
-    "Organ Grinder": {
-        "color": "777744",
-    },
-}
-
-items = {
-    "Love Juice": {
-        "location": "Basic Resources",
-    },
-    "Skull": {
-        "location": "Basic Resources",
-    },
-    "???": {
-        "location": "Basic Resources",
-    },
-    "Monster Bone": {
-        "location": "Basic Resources",
-    },
-    "Monster Organ": {
-        "location": "Basic Resources",
-    },
-    "Monster Hide": {
-        "location": "Basic Resources",
-    },
-    "Broken Lantern": {
-        "location": "Basic Resources",
-    },
-    "Iron": {
-        "location": "Strange Resources",
-    },
-    "Leather": {
-        "location": "Strange Resources",
-    },
-    "Elder Cat Teeth": {
-        "location": "Strange Resources",
-    },
-    "Phoenix Crest": {
-        "location": "Strange Resources",
-    },
-    "Second Heart": {
-        "location": "Strange Resources",
-    },
-    "Perfect Crucible": {
-        "location": "Strange Resources",
-    },
-    "Legendary Horns": {
-        "location": "Strange Resources",
-    },
-    "Fresh Acanthus": {
-        "location": "Strange Resources",
-    },
-    "White Fur": {
-        "location": "White Lion Resources",
-    },
-    "Lion Claw": {
-        "location": "White Lion Resources",
-    },
-    "Eye of Cat": {
-        "location": "White Lion Resources",
-    },
-    "Great Cat Bones": {
-        "location": "White Lion Resources",
-    },
-    "Shimmering Mane": {
-        "location": "White Lion Resources",
-    },
-    "Lion Tail": {
-        "location": "White Lion Resources",
-    },
-    "Curious Hand": {
-        "location": "White Lion Resources",
-    },
-    "Golden Whiskers": {
-        "location": "White Lion Resources",
-    },
-    "Sinew": {
-        "location": "White Lion Resources",
-    },
-    "Lion Testes": {
-        "location": "White Lion Resources",
-    },
-    "Pelt": {
-        "location": "Screaming Antelope Resources",
-    },
-    "Shank Bone": {
-        "location": "Screaming Antelope Resources",
-    },
-    "Large Flat Tooth": {
-        "location": "Screaming Antelope Resources",
-    },
-    "Beast Steak": {
-        "location": "Screaming Antelope Resources",
-    },
-    "Muscly Gums": {
-        "location": "Screaming Antelope Resources",
-    },
-    "Spiral Horn": {
-        "location": "Screaming Antelope Resources",
-    },
-    "Bladder": {
-        "location": "Screaming Antelope Resources",
-    },
-    "Screaming Brain": {
-        "location": "Screaming Antelope Resources",
-    },
-    "Tall Feathers": {
-        "location": "Phoenix Resources",
-    },
-    "Phoenix Eye": {
-        "location": "Phoenix Resources",
-    },
-    "Phoenix Whisker": {
-        "location": "Phoenix Resources",
-    },
-    "Pustules": {
-        "location": "Phoenix Resources",
-    },
-    "Small Feathers": {
-        "location": "Phoenix Resources",
-    },
-    "Muculent Droppings": {
-        "location": "Phoenix Resources",
-    },
-    "Wishbone": {
-        "location": "Phoenix Resources",
-    },
-    "Shimmering Halo": {
-        "location": "Phoenix Resources",
-    },
-    "Bird Beak": {
-        "location": "Phoenix Resources",
-    },
-    "Black Skull": {
-        "location": "Phoenix Resources",
-    },
-    "Small Hand Parasites": {
-        "location": "Phoenix Resources",
-    },
-    "Phoenix Finger": {
-        "location": "Phoenix Resources",
-    },
-    "Hollow Wing Bones": {
-        "location": "Phoenix Resources",
-    },
-    "Rainbow Droppings": {
-        "location": "Phoenix Resources",
-    },
-    "Claw Head Arrow": {
-        "attack": (1,6,6),
-        "location": "Catarium",
-    },
-    "Cat Eye Circlet": {
-        "location": "Catarium",
-    },
-    "Lion Skin Cloak": {
-        "location": "Catarium",
-    },
-    "Whisker Harp": {
-        "location": "Catarium",
-    },
-    "White Lion Boots": {
-        "location": "Catarium",
-    },
-    "White Lion Gauntlet": {
-        "location": "Catarium",
-    },
-    "King Spear": {
-        "location": "Catarium",
-    },
-    "White Lion Helm": {
-        "location": "Catarium",
-    },
-    "White Lion Skirt": {
-        "location": "Catarium",
-    },
-    "Lion Beast Katar": {
-        "location": "Catarium",
-    },
-    "Cat Fang Knife": {
-        "location": "Catarium",
-    },
-    "Frenzy Drink": {
-        "location": "Catarium",
-    },
-    "Lion Headdress": {
-        "location": "Catarium",
-    },
-    "Cat Gut Bow": {
-        "location": "Catarium",
-    },
-    "White Lion Coat": {
-        "location": "Catarium",
-    },
-   "Founding Stone": {
-        "location": "Starting Gear",
-    },
-    "Cloth": {
-        "location": "Starting Gear",
-    },
-    "Rawhide Headband": {
-        "location": "Skinnery",
-    },
-    "Rawhide Boots": {
-        "location": "Skinnery",
-    },
-    "Rawhide Gloves": {
-        "location": "Skinnery",
-    },
-    "Bandages": {
-        "location": "Skinnery",
-    },
-    "Rawhide Pants": {
-        "location": "Skinnery",
-    },
-    "Rawhide Vest": {
-        "location": "Skinnery",
-    },
-    "Rawhide Whip": {
-        "location": "Skinnery",
-    },
-    "Rawhide Drum": {
-        "location": "Skinnery",
-    },
-    "Bone Axe": {
-        "location": "Bone Smith",
-    },
-    "Bone Blade": {
-        "location": "Bone Smith",
-    },
-    "Bone Darts": {
-        "location": "Bone Smith",
-    },
-    "Skull Helm": {
-        "location": "Bone Smith",
-    },
-    "Bone Dagger": {
-        "location": "Bone Smith",
-    },
-    "Bone Pickaxe": {
-        "location": "Bone Smith",
-    },
-    "Bone Sickle": {
-        "location": "Bone Smith",
-    },
-    "Lucky Charm": {
-        "location": "Organ Grinder",
-    },
-    "Fecal Salve": {
-        "location": "Organ Grinder",
-    },
-    "Monster Grease": {
-        "location": "Organ Grinder",
-    },
-    "Monster Tooth Necklace": {
-        "location": "Organ Grinder",
-    },
-    "Dried Acanthus": {
-        "location": "Organ Grinder",
-    },
-    "Regal Gauntlet": {
-        "location": "Rare Gear",
-    },
-    "Regal Plackart": {
-        "location": "Rare Gear",
-    },
-    "Regal Greaves": {
-        "location": "Rare Gear",
-    },
-    "Regal Helm": {
-        "location": "Rare Gear",
-    },
-    "Regal Faulds": {
-        "location": "Rare Gear",
-    },
-    "Forsaker Mask": {
-        "location": "Rare Gear",
-    },
-    "Adventure Sword": {
-        "location": "Rare Gear",
-    },
-    "Steel Shield": {
-        "location": "Rare Gear",
-    },
-    "Steel Sword": {
-        "location": "Rare Gear",
-    },
-    "Twilight Sword": {
-        "location": "Rare Gear",
-    },
-    "Butcher Cleaver": {
-        "location": "Rare Gear",
-    },
-    "Lantern Halberd": {
-        "location": "Rare Gear",
-    },
-    "Muramasa": {
-        "location": "Rare Gear",
-    },
-    "Thunder Maul": {
-        "location": "Rare Gear",
-    },
-    "Screaming Bracers": {
-        "location": "Stone Circle",
-    },
-    "Screaming Horns": {
-        "location": "Stone Circle",
-    },
-    "Screaming Leg Warmers": {
-        "location": "Stone Circle",
-    },
-    "Screaming Skirt": {
-        "location": "Stone Circle",
-    },
-    "Screaming Coat": {
-        "location": "Stone Circle",
-    },
-    "Beast Knuckle": {
-        "location": "Stone Circle",
-    },
-    "Lance of Longinus": {
-        "location": "Stone Circle",
-    },
-    "Boss Mehndi": {
-        "location": "Stone Circle",
-    },
-    "Green Charm": {
-        "location": "Stone Circle",
-    },
-    "Red Charm": {
-        "location": "Stone Circle",
-    },
-    "Blue Charm": {
-        "location": "Stone Circle",
-    },
-    "Blood Paint": {
-        "location": "Stone Circle",
-    },
-    "Bone Earrings": {
-        "location": "Stone Circle",
-    },
-
-}
 
 
 fighting_arts = {
@@ -696,50 +201,13 @@ fighting_arts = {
         "desc": "Your Fist & Tooth attacks gain +1 accuracy, +1 strength and savage (after the first critical wound in an attack, savage weapons cause 1 additional wound. This rule does not trigger on Impervious hit locations).",
     },
     "Tumble": {
-        "desc": "When something would collide with you, roll 1d10. On a result of 6+, you successfully tumble out of harm's way. Instead, please your survivor standingo n the closest free space outside of the collision path.",
+        "desc": "When something would collide with you, roll 1d10. On a result of 6+, you successfully tumble out of harm's way. Instead, please your survivor standing on the closest free space outside of the collision path.",
     },
     "Extra Sense": {
         "desc": "You may dodge 1 additional time per round.",
     },
 }
 
-epithets = {
-    "Warborn": {},
-    "Shape Shifter": {},
-    "The Wanderer": {},
-    "One-eyed": {},
-    "Berserker": {},
-    "The Wolf": {},
-    "Brawler": {},
-    "Thunderer": {},
-    "Swift-footed": {},
-    "Iron-hearted": {},
-    "Man-slaying": {},
-    "Fast Runner": {},
-    "The Insane": {},
-    "The Mad": {},
-    "Huntress": {},
-    "Hunter": {},
-    "The Destroyer": {},
-    "Patriarch": {},
-    "Matriarch": {},
-    "Dimmed by the Lantern": {},
-    "Masticated": {},
-    "Death Taster": {},
-    "Pure Warrior": {},
-    "Cursed": {},
-    "Twilight Knight": {},
-    "Swamp Explorer": {},
-    "Lantern Experimenter": {},
-    "Speaker of the First Words": {},
-    "Voice of Reason": {},
-    "Bone Witch": {},
-    "Murdered": {},
-    "Murderer": {},
-    "Lucernae": {},
-    "Caratosis": {},
-    "Dormenatus": {},
-}
 
 abilities_and_impairments = {
     "Intracranial hemmorhage": {
@@ -825,7 +293,7 @@ disorders = {
         "survivor_effect": "During the showdown, whenever a survivor (including you) gains a bleeding token, you are knocked down.",
     },
     "Vestiphobia": {
-        "survivor_effect": "You cannot wear armor at the body location. If you are wearing armor at the body locationw hen you gain this disorder, archive it as you tear it off your person!",
+        "survivor_effect": "You cannot wear armor at the body location. If you are wearing armor at the body location when you gain this disorder, archive it as you tear it off your person!",
     },
     "Traumatized": {
         "survivor_effect": "Whenever you end your act adjacent to a monster, you are knocked down.",
@@ -878,7 +346,7 @@ def render_fighting_arts_dict(return_as=False, exclude=[]):
 
     return fa_keys
 
-def render_epithet_dict(return_as=False, exclude=[]):
+def render_epithet_DEPRECATED(return_as=False, exclude=[]):
     epithet_keys = sorted(epithets.keys())
     for epithet_key in exclude:
         try:
@@ -911,39 +379,6 @@ def render_disorder_dict(return_as=False, exclude=[]):
         return html
 
     return disorder_keys
-
-def render_item_dict(return_as=False):
-    """ Represents the models.items dictionary in a number of different ways.
-    Leave 'return_as' unspecified to get a dictionary where the locations are
-    the keys. """
-
-    logger = get_logger()
-
-    locations = set()
-    for item_key in items.keys():
-        locations.add(items[item_key]["location"])
-
-    location_dict = {}
-    for location in locations:
-        location_dict[location] = set()
-
-    for item_key in items.keys():
-        item = items[item_key]
-        location_dict[item["location"]].add(item_key)
-
-    if return_as == "html_select_box":
-        locations = sorted(list(locations))
-        html = '<select name="add_item" onchange="this.form.submit()">\n'
-        html += '<option selected disabled hidden value=''>Add Item</option>\n'
-        for location_key in locations:
-            html += ' <option disabled> &ensp; &ensp; --- %s ---  </option>\n' % location_key
-            for item in sorted(location_dict[location_key]):
-                html += '  <option value="%s">%s</option>\n' % (item, item)
-        html += '</select>\n'
-        return html
-
-
-    return location_dict
 
 
 

@@ -151,7 +151,9 @@ if __name__ == "__main__":
 
 
     if options.initialize:
-        initialize()
+        manual_approve = raw_input('Initialize the project and remove all data? Type "YES" to proceed: ')
+        if manual_approve == "YES":
+            initialize()
 
     if options.list_documents:
         ls_documents(options.list_documents)

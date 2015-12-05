@@ -484,10 +484,7 @@ class settlement:
      <p>The monsters your settlement can select to hunt.</p>
     <hr />
      <p>$quarries</p>
-     <select name="add_quarry" onchange="this.form.submit()">
-      <option selected disabled hidden value=''>Add Quarry</option>
-      <option>$quarry_options</option>
-     </select>
+        $quarry_options
      <input onchange="this.form.submit()" type="text" class="full_width" name="add_quarry" placeholder="add custom quarry"/>
     </div>
     

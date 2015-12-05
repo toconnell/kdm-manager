@@ -168,12 +168,14 @@ class Session:
                 self.change_current_view("view_survivor", asset_id=s.survivor["_id"])
 
         if "modify" in self.params:
+            s_id = self.params["asset_id"].value
             if self.params["modify"].value == "settlement":
-                S = assets.Settlement(settlement_id=self.params["asset_id"].value)
+                S = assets.Settlement(settlement_id=s_id)
                 S.modify(self.params)
             if self.params["modify"].value == "survivor":
-                S = assets.Survivor(survivor_id=self.params["asset_id"].value)
+                S = assets.Survivor(survivor_id=s_id)
                 S.modify(self.params)
+            self.logger.debug("User '%s' modified asset '%s' successfully!" % (self.User.user["login"], s_id))
 
 
     def current_view_html(self):
