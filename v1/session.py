@@ -47,7 +47,6 @@ class Session:
             self.session = mdb.sessions.find_one({"_id": session_id})
             if self.session is not None:
                 user_object = mdb.users.find_one({"current_session": session_id})
-                self.logger.debug(dir(assets))
                 self.User = assets.User(user_object["_id"])
                 self.set_current_settlement()
 

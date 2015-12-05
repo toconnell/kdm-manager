@@ -1,18 +1,30 @@
+
+/* text-align: center styles */
+button, h1, h3, div#shield_box, #block_group h2, input#topline_name, input#topline_name_fixed, .subhead_p_block, .big_number_square, .shield, #saved_dialog {text-align: center; }
+
+/* p styles */
 p {padding: 10px; margin-left: 20px;  }
-hr {clear: both;   }
+.subhead_p_block {font-size: 30px; margin-top: -60px; margin-bottom: -30px; }
+
+/* input styles */
+input#topline_name, input#topline_name_fixed {border: 0 none; font-size: 100px; height: auto; width: 90%; }
+input#topline_name_fixed {position: fixed; z-index: 1; opacity: 0.9; margin-top: 0px;  }
+
+.big_number_square { border: 3px solid #666; width: 190px; height: 200px; margin-left: 5%; display: inline; margin-right: 20px; }
+
 input, button, div {font-size: 50px; }
 input {height: 100px; }
 input, h2, h3 #user_error_msg {padding-left: 10px; }
-button {padding-top: 20px; padding-bottom: 20px; }
-
-button, h1, h3, div#shield_box, #block_group h2, input#topline_name, .big_number_square, .shield, #saved_dialog {text-align: center; }
-
 input, button, label {cursor: pointer; }
 
+
+hr {clear: both;   }
+button {padding-top: 20px; padding-bottom: 20px; }
+
+/* generic, multi-purpose stlyes */
 .hidden {display: none; }
 .strikethrough {text-decoration: line-through; }
 
-.big_number_square { border: 3px solid #666; width: 190px; height: 200px; margin-left: 5%; display: inline; margin-right: 20px; }
 .big_number_caption { font-size: 75px; padding-top: 30px; color: #777;}
 
 /* button classes */
@@ -30,9 +42,7 @@ button, #user_error_msg, .full_width {width: 90%; margin: 5%; }
 
 select {width: auto; margin-left: 20px; font-size: 60px; }
 
-h2 {border: 5px solid #999; }
-
-input#topline_name {border: 0 none; font-size: 100px; height: auto; width: 90%; }
+h2 {border: 5px solid; }
 
 #block_group { border: 3px solid #666; }
 #block_group, div#survivor_hit_box { width: 90%; margin: auto; clear: both; margin-top: 20px;  }
@@ -57,6 +67,14 @@ button#remove_item, button#increment_nemesis {border: 0 none; display: inline-bl
 button#remove_item {border-radius: 20px; padding-right: 10px; padding-left: 10px; background-color: #ddd}
 
 .disabled, .strikethrough {color: #999; cursor: not-allowed; }
+.unclickable {background-color: none; }
+
+#floating_asset_button, #save_button {position: fixed; height: auto; width: 170px; padding: 30px; border: 2px solid; margin-left: 80%; opacity: 0.9; z-index: 100; }
+
+#floating_asset_button {margin-top: 45%; }
+#save_button {margin-top: 25%; }
+
+
 
 /* epithet style silliness */
 #Lucernae {color: blue; }
@@ -67,5 +85,4 @@ button#remove_item {border-radius: 20px; padding-right: 10px; padding-left: 10px
 #container {width: 100%; overflow: hidden;}
 
 /* meta specifc styles */
-#saved_dialog {position: fixed; margin-top: 10%; margin-left: 40%; height: auto; width: 20%; padding: 20px; border: 3px solid; outline: none; display: none; }
-#save_button {position: fixed; margin-left: 80%; height: auto; width: auto; padding: 30px; border: 2px sold;}
+#saved_dialog {position: fixed; margin-top: 25%; margin-left: 40%; height: auto; width: 20%; padding: 20px; border: 3px solid; outline: none; display: none; }

@@ -704,6 +704,7 @@ fighting_arts = {
 }
 
 epithets = {
+    "Warborn": {},
     "Shape Shifter": {},
     "The Wanderer": {},
     "One-eyed": {},

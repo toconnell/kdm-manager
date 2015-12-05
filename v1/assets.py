@@ -280,7 +280,7 @@ class Survivor:
 
         if return_type == "html_remove":
             output = '<select name="remove_epithet" onchange="this.form.submit()">'
-            output += '<option selected disabled hidden value="">Remove Item</option>'
+            output += '<option selected disabled hidden value="">Remove Epithet</option>'
             for epithet in self.survivor["epithets"]:
                 output += '<option value="%s">%s</option>' % (epithet, epithet)
             output += '</select>'
@@ -977,7 +977,6 @@ class Settlement:
             elif p == "add_item":
                 self.settlement["storage"].append(params[p].value)
             elif p == "remove_item":
-                self.logger.debug("here")
                 self.settlement["storage"].remove(params[p].value)
             elif p == "add_innovation":
                 self.settlement["innovations"].append(params[p].value)

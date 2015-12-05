@@ -287,7 +287,7 @@ class settlement:
         <button class="success">+ Create New Survivor</button>
         </form>
         <hr/>
-        <h3>Innovations</h3>
+        <h3>Innovations and Principles</h3>
         <p>$innovations</p>
         <hr/>
         <h3>Bonuses</h3>
