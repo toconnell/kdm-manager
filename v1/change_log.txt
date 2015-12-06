@@ -1,0 +1,43 @@
+    Sunday, 2015-12-06
+
+----
+Corrections and Fixes
+----
+ - Fixed the bug that caused a traceback if you permanently deleted a Settlement that had only one Survivor
+ - Fixed the bug that caused resources to show up in the location picker. -Leky
+ - Corrected "Memento Mori" to "Momento Mori" and fixed the consequences bug associated with that Innovation. -Leky
+ - Innovations are now sorted alphabetically. -Leky
+ - Always available innovations now include Lantern Oven, Language, Final Fighting Art, Ultimate Weapon, Guidepost and Ammonia. -Leky,ForgedIron
+ - Toggling "Dead" or "Retired" no longer reloads the Survivor edit form.
+ - Toggling "Skip Next Hunt" also no longer reloads the form.
+ - Survivor buttons in the Settlement view are now color-coded (e.g. the dead and the retired are now yellow). -ForgedIron
+
+
+----
+Improvements
+----
+ - Added the change log
+ - Reloading the Settlement form takes you back to where you were (or as close as possible). Similar functionality for the Survivor form is coming soon.
+ - Rewrote the logic that determines which innovations are considered "always available". Making corrections should be faster going forward.
+ - Styled the "Skip Next Hunt" button so that it wraps nicer and looks less cluttered when a survivor has abilities and impairments.
+ - Added a new game asset class for Abilities and Impairments (i.e. to be order to use it for business logic in the future).
+ - Keyed in the permanent injury impairments from the severe injuries table and added a dropdown selector for them. -Leky
+ - Added settlement locations to the Campaign summary view
+ - A number of dropdowns, including the location picker and the quarry picker, are now dynamic (i.e. only show you what you can add) and will disappear from the Settlement form when available options are exhausted. -Leky
+ - Settlement Storage now auto-sorts into "gear", "resources" and "other" groups ("other" is where your custom gear/resources go for now). This should help you deal cards out a little bit faster.
+ - Improved exception handling while creating sessions and rendering views. In all but the most extreme cases, exceptions will automatically end the user's session, allowing him to authenticate again and try to start from the dashboard.
+
+
+----
+Coming soon
+----
+ - Fixes for the "Heal Survivor" bugs
+ - Better reloading on the Survivor form (i.e. reloading the form won't take you back to the top).
+ - Better Survivor sorting in all views
+ - Abilities added to the "Abilities and Impairments" dropdown/picker
+ - Collapsible/hideable sections on the Settlement and Survivor forms
+ - Weapon specialties and masteries added to Innovations
+ - Nemesis monster dropdown/picker
+ - Dynamic "Defeated Monsters" dropdown/picker based on available quarries
+ - Dynamic "Locations" dropdown/picker based on current locations/innovations
+ 

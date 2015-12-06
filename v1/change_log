@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+
+#   standard
+import cgi, cgitb
+import os
+
+#   custom
+import html
+from session import Session
+from utils import load_settings
+
+
+if __name__ == "__main__":
+    settings = load_settings()
+
+    if settings.getboolean("application","DEBUG"):
+        cgitb.enable()
+
+    S = Session(cgi.FieldStorage())
+    if S.session is not None:
+        S.logger.debug("User '%s' viewed the change log." % S.User.user["login"])
+
+    output = html.changeLog.body
+
+    html.render(output)
