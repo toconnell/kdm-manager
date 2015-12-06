@@ -31,6 +31,12 @@ class Model:
             if excluded_key in options:
                 options.remove(excluded_key)
 
+        if options == []:
+            # stop here if we've got no options to return
+            return "<!-- no available options for '%s' -->\n" % self.name
+        else:
+            options = sorted(options)
+
         if submit_on_change:
             submit_on_change = "this.form.submit()"
 
@@ -40,13 +46,21 @@ class Model:
             output += '\t\t<option>%s</option>\n' % o
         output += '</select>\n'
 
+
         return output
+
 
 #
 #   Define and initialize all models below here ONLY!
 #   All of these have to have a self.game_assets dictionary that includes all of
 #       of the game assets associated with the model class.
 #
+
+class abilitiesModel(Model):
+    def __init__(self):
+        Model.__init__(self)
+        self.game_assets = game_assets.abilities_and_impairments
+        self.name = "ability"
 
 class epithetsModel(Model):
     def __init__(self):
@@ -98,7 +112,11 @@ class innovationsModel(Model):
         self.name = "innovation"
 
     def get_always_available_innovations(self):
-        return set(["Language","Lantern Oven"])
+        always_available = set()
+        for innovation in self.get_keys():
+            if "always_available" in self.get_asset(innovation).keys():
+                always_available.add(innovation)
+        return always_available
 
 class quarriesModel(Model):
     def __init__(self):
@@ -106,18 +124,26 @@ class quarriesModel(Model):
         self.game_assets = game_assets.quarries
         self.name = "quarry"
 
+class resourcesModel(Model):
+    def __init__(self):
+        Model.__init__(self)
+        self.game_assets = game_assets.resources
+
 class resourceDecksModel(Model):
     def __init__(self):
+        Model.__init__(self)
         self.game_assets = game_assets.resource_decks
 
+
+# initialize all of our classes above when this module is imported
+Abilities       = abilitiesModel()
+Epithets        = epithetsModel()
 Locations       = locationsModel()
 Items           = itemsModel()
 Innovations     = innovationsModel()
 Quarries        = quarriesModel()
+Resources       = resourcesModel()
 ResourceDecks   = resourceDecksModel()
-Epithets        = epithetsModel()
-
-
 
 
 
@@ -209,41 +235,6 @@ fighting_arts = {
 }
 
 
-abilities_and_impairments = {
-    "Intracranial hemmorhage": {
-        "type": "impairment",
-        "desc": "You can no longer use or gain any survival. This injury is permanent and can be recorded once.",
-        "max": 1,
-    },
-    "Deaf": {
-        "type": "impairment",
-        "desc": "Suffer -1 permanent evasion. This injury is permanent and can be recorded once.",
-        "max": 1,
-    },
-    "Shattered Jaw": {
-        "type": "impairment",
-        "desc": "You can no longer consume or be affected by events requiring you to consume. You can no longer incourage. This injury is permanent and can be recorded once.",
-        "max": 1,
-    },
-    "Dismembered Arm": {
-        "type": "impairment",
-        "desc": "You can no longer activate two-handed weapons. This injury is permanent, and can be recorded twice. A survivor with two dismembered arm severe injuries cannot activate any weapons.",
-        "max": 2,
-    },
-    "Ruptured Muscle": {
-        "type": "impairment",
-        "desc": "You can no longer activate fighting arts. This injury is permanent and can be recorded once.",
-        "max": 1,
-    },
-    "Blind": {
-        "type": "impairment",
-        "desc": "TK",
-    },
-    "Warped Pelvis": {
-        "type": "impairment",
-        "desc": "Suffer -1 permanent luck. This injury is permanent and can be recorded multiple times.",
-    },
-}
 
 disorders = {
     "Fear of the Dark": {

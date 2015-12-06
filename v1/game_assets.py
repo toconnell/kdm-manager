@@ -5,6 +5,106 @@
 #       other helpers here. Those all belong in models.py
 #
 
+abilities_and_impairments = {
+    "Intracranial hemmorhage": {
+        "type": "impairment",
+        "desc": "You can no longer use or gain any survival. This injury is permanent and can be recorded once.",
+        "cannot_use_survival": True,
+        "max": 1,
+    },
+    "Deaf": {
+        "type": "impairment",
+        "desc": "Suffer -1 permanent evasion. This injury is permanent and can be recorded once.",
+        "Evasion": -1,
+        "max": 1,
+    },
+    "Blind": {
+        "type": "impairment",
+        "desc": "Suffer -1 permanent accuracy. This injury is permanent and can be recorded twice.",
+        "Accuracy": -1,
+        "max": 2,
+    },
+    "Shattered jaw": {
+        "type": "impairment",
+        "desc": "You can no longer consume or be affected by events requiring you to consume. You can no longer encourage. This injury is permanent and can be recorded once.",
+        "max": 1,
+    },
+    "Dismembered Arm": {
+        "type": "impairment",
+        "desc": "You can no longer activate two-handed weapons. This injury is permanent, and can be recorded twice. A survivor with two dismembered arm severe injuries cannot activate any weapons.",
+        "max": 2,
+    },
+    "Ruptured muscle": {
+        "type": "impairment",
+        "desc": "You can no longer activate fighting arts. This injury is permanent and can be recorded once.",
+        "cannot_use_fighting_arts": True,
+        "max": 1,
+    },
+    "Contracture": {
+        "type": "impairment",
+        "desc": "Suffer -1 permanent accuracy. This injury is permanent and can be recorded multiple times.",
+        "Accuracy": -1,
+    },
+    "Broken arm": {
+        "type": "impairment",
+        "desc": "Suffer -1 permanent accuracy and -1 permanent strength. This injury is permanent and can be recorded twice.",
+        "Accuracy": -1,
+        "Strength": -1,
+        "max": 2,
+    },
+    "Gaping chest wound": {
+        "type": "impairment",
+        "desc": "Suffer -1 permanent strength. This injury is permanent and can be recorded multiple times.",
+        "Strength": -1,
+    },
+    "Destroyed back": {
+        "type": "impairment",
+        "desc": "Suffer -2 permanent movement. You can no longer activate any gear that has 2+ strength. This injury is permanent and can be recorded once.",
+        "Movement": -2,
+        "max": 1,
+    },
+    "Broken rib": {
+        "type": "impairment",
+        "desc": "Suffer -1 permanent speed. This injury is permanent, and can be recorded multiple times.",
+        "Speed": -1,
+    },
+    "Intestinal prolapse": {
+        "type": "impairment",
+        "desc": "You can no longer equip any gear on your waist, as it is too painful to wear. This injury is permanent, and can be recorded once.",
+    },
+    "Warped Pelvis": {
+        "type": "impairment",
+        "desc": "Suffer -1 permanent luck. This injury is permanent and can be recorded multiple times.",
+        "Luck": -1,
+    },
+    "Destroyed genitals": {
+        "type": "impairment",
+        "desc": "You cannot be nominated for the Intimacy story event. This injury is permanent and can be recorded once.",
+    },
+    "Broken hip": {
+        "type": "impairment",
+        "desc": "You can no longer dodge. Suffer -1 permanent movement. This injury is permanent and can be recorded once.",
+        "Movement": -1,
+    },
+    "Dismembered leg": {
+        "type": "impairment",
+        "desc": "You suffer -2 permanent movement, and can no longer dash. This injury is permanent and can be recorded twice.",
+        "Movement": -2,
+        "max": 2,
+    },
+    "Hamstrung": {
+        "type": "impairment",
+        "desc": "You can no longer use any fighting arts or abilities. This injury is permanent and can be recorded once.",
+        "max": 1,
+    },
+    "Broken leg": {
+        "type": "impairment",
+        "desc": "Suffer -1 permanent movement. This injury is permanent, and can be recorded twice.",
+        "Movement": -1,
+        "max": 2,
+    },
+}
+
 
 epithets = {
     "Monster Teeth": {},
@@ -67,10 +167,6 @@ locations = {
         "color": "777744",
         "consequences": ["Stone Circle"],
     },
-    "Rare Gear": {
-        "is_resource": True,
-        "color": "FFD700",
-    },
     "Blacksmith": {},
     "Stone Circle": {
         "color": "999"
@@ -84,100 +180,56 @@ locations = {
     "Catarium": {
         "color": "eee",
     },
-    "Unique Items": {
-        "is_resource": True,
-        "color": "7E6FF3",
-    },
-    "White Lion Resources": {
-        "is_resource": True,
-        "color": "FFCC66",
-    },
-    "Screaming Antelope Resources": {
-        "is_resource": True,
-        "color": "FFCC66",
-    },
-    "Phoenix Resources": {
-        "is_resource": True,
-        "color": "FFCC66",
-    },
-    "Basic Resources": {
-        "is_resource": True,
-        "color": "51C327",
-    },
-    "Strange Resources": {
-        "is_resource": True,
-        "color": "CCFFCC",
-    },
-    "Starting Gear": {
-        "is_resource": True,
-        "color": "CCC",
-    },
 }
 
 
 items = {
     "Portcullis Key": {
-        "type": "Resource",
         "location": "Unique Items",
     },
     "Love Juice": {
-        "type": "Resource",
         "location": "Basic Resources",
     },
     "Skull": {
-        "type": "Resource",
         "location": "Basic Resources",
     },
     "???": {
-        "type": "Resource",
         "location": "Basic Resources",
     },
     "Monster Bone": {
-        "type": "Resource",
         "location": "Basic Resources",
     },
     "Monster Organ": {
-        "type": "Resource",
         "location": "Basic Resources",
     },
     "Monster Hide": {
-        "type": "Resource",
         "location": "Basic Resources",
     },
     "Broken Lantern": {
-        "type": "Resource",
         "location": "Basic Resources",
     },
     "Iron": {
-        "type": "Resource",
         "location": "Strange Resources",
     },
     "Leather": {
-        "type": "Resource",
         "location": "Strange Resources",
     },
     "Elder Cat Teeth": {
-        "type": "Resource",
         "location": "Strange Resources",
     },
     "Phoenix Crest": {
-        "type": "Resource",
         "location": "Strange Resources",
     },
     "Second Heart": {
-        "type": "Resource",
         "location": "Strange Resources",
     },
     "Perfect Crucible": {
-        "type": "Resource",
         "location": "Strange Resources",
     },
     "Legendary Horns": {
-        "type": "Resource",
         "location": "Strange Resources",
     },
     "Fresh Acanthus": {
-        "type": "Resource",
         "location": "Strange Resources",
     },
     "White Fur": {
@@ -323,9 +375,11 @@ items = {
         "location": "Catarium",
     },
    "Founding Stone": {
+        "type": "gear",
         "location": "Starting Gear",
     },
     "Cloth": {
+        "type": "gear",
         "location": "Starting Gear",
     },
     "Rawhide Headband": {
@@ -586,23 +640,7 @@ innovations = {
         "type": "education",
         "consequences": [],
     },
-    "Language": {
-        "type": "starting",
-        "consequences": ["Ammonia", "Hovel", "Inner Lantern", "Drums", "Paint", "Symposium"],
-        "survival_limit": 1,
-        "survival_action": "Encourage",
-    },
-    "Ammonia": {
-        "type": "science",
-        "consequences": ["Bloodletting", "Lantern Oven"],
-        "departure_buff": "Departing survivors gain +1 survival.",
-    },
-    "Lantern Oven": {
-        "type": "science",
-        "consequences": ["Cooking", "Scrap Smelting"],
-        "departure_buff": "Departing Survivors gain +1 survival.",
-    },
-    "Memento Mori": {
+    "Momento Mori": {
         "consequences": [],
         "type": "art",
     },
@@ -664,20 +702,42 @@ innovations = {
         "type": "science",
         "consequences": [],
     },
+    "Language": {
+        "type": "starting",
+        "consequences": ["Ammonia", "Hovel", "Inner Lantern", "Drums", "Paint", "Symposium"],
+        "survival_limit": 1,
+        "survival_action": "Encourage",
+        "always_available": True,
+    },
+    "Ammonia": {
+        "type": "science",
+        "consequences": ["Bloodletting", "Lantern Oven"],
+        "departure_buff": "Departing survivors gain +1 survival.",
+        "always_available": True,
+    },
+    "Lantern Oven": {
+        "type": "science",
+        "consequences": ["Cooking", "Scrap Smelting"],
+        "departure_buff": "Departing Survivors gain +1 survival.",
+        "always_available": True,
+    },
     "Final Fighting Art": {
         "type": "education",
         "consequences": [],
         "survival_limit": 1,
+        "always_available": True,
     },
     "Ultimate Weapon": {
         "type": "science",
         "consequences": [],
         "survival_limit": 1,
+        "always_available": True,
     },
     "Guidepost": {
         "type": "other",
         "consequences": [],
         "departure_buff": "Departing survivors gain +1 survival.",
+        "always_available": True,
     },
 }
 
@@ -689,6 +749,32 @@ quarries = {
     "Phoenix": {    },
 }
 
+resources = {
+    "Rare Gear": {
+        "color": "FFD700",
+    },
+    "Unique Items": {
+        "color": "7E6FF3",
+    },
+    "White Lion Resources": {
+        "color": "FFCC66",
+    },
+    "Screaming Antelope Resources": {
+        "color": "FFCC66",
+    },
+    "Phoenix Resources": {
+        "color": "FFCC66",
+    },
+    "Basic Resources": {
+        "color": "51C327",
+    },
+    "Strange Resources": {
+        "color": "CCFFCC",
+    },
+    "Starting Gear": {
+        "color": "CCC",
+    },
+}
 
 resource_decks = {
     "White Lion": [ "White Fur", "White Fur", "White Fur", "White Fur", "Lion Claw", "Lion Claw", "Lion Claw", "Eye of Cat", "Great Cat Bones", "Great Cat Bones", "Great Cat Bones", "Great Cat Bones", "Shimmering Mane", "Lion Tail", "Curious Hand", "Golden Whiskers", "Sinew", "Sinew", "Lion Testes" ],

@@ -178,9 +178,20 @@ class Session:
             self.logger.debug("User '%s' modified asset '%s' successfully!" % (self.User.user["login"], s_id))
 
 
+    def log_out(self):
+        """ For when the session needs to kill itself. """
+        self.logger.debug("Ending session for '%s' via admin.remove_session()." % self.User.user["login"])
+        admin.remove_session(self.session["_id"])
+
+
     def current_view_html(self):
         """ This func uses session's 'current_view' attribute to render the html
         for that view.
+
+        The whole thing is wrapped in a gigantic try/except so that if we cannot
+        create the HTML for whatever reason, we log it, end the user's session
+        and return False. From there, html.render() will receive the False and
+        print a generic message for the user.
 
         In a best case, we want this function to initialize a class (e.g. a
         Settlement or a Survivor or a User, etc.) and then use one of the render
@@ -193,44 +204,51 @@ class Session:
         point, and use this function as a function that simply initalizes a
         class and uses that class's methods to get html.
         """
-        output = html.meta.saved_dialog
+        try:
+            output = html.meta.saved_dialog
 
-        if self.session["current_view"] == "dashboard":
-            output += html.dashboard.headline.safe_substitute(title="&#x02261; Campaigns", desc="Games you are currently playing.", h_class="purple")
-            output += self.User.get_games()
-            output += html.dashboard.headline.safe_substitute(title="Settlements", desc="Manage settlements created by you. You may not manage a settlement you did not create.")
-            output += self.User.get_settlements(return_as="asset_links")
-            output += html.dashboard.new_settlement_button
-            output += html.dashboard.headline.safe_substitute(title="Survivors", desc='Manage survivors created by you or shared with you. New survivors are created from the "Game" and "Settlement" views.')
-            survivors = self.User.get_survivors()
-            for s in survivors:
-                S = assets.Survivor(survivor_id=s["_id"])
-                output += S.asset_link(include=["dead", "retired", "hunt_xp", "settlement_name"])
-            output += html.dashboard.headline.safe_substitute(title="System", desc="KD:M Manager! Version %s.<hr/><p>login: %s</p>" % (settings.get("application","version"), self.User.user["login"]))
-        elif self.session["current_view"] == "view_game":
-            if self.Settlement.settlement["created_by"] == self.User.user["_id"]:
-                output += self.Settlement.asset_link(fixed=True, link_text="Edit")
-            output += self.Settlement.render_html_summary(user_id=self.User.user["_id"])
-            # if session user owns the settlement, let him edit it
-        elif self.session["current_view"] == "new_settlement":
-            output += html.dashboard.new_settlement_form
-        elif self.session["current_view"] == "new_survivor":
-            options = self.User.get_settlements(return_as="html_option")
-            output += html.dashboard.new_survivor_form.safe_substitute(home_settlement=self.session["current_settlement"], user_email=self.User.user["login"], created_by=self.User.user["_id"])
-        elif self.session["current_view"] == "view_settlement":
-            settlement = mdb.settlements.find_one({"_id": self.session["current_asset"]})
-            self.set_current_settlement(ObjectId(settlement["_id"]))
-            S = assets.Settlement(settlement_id = settlement["_id"])
-            output += S.render_html_form()
-        elif self.session["current_view"] == "view_survivor":
-            survivor = mdb.survivors.find_one({"_id": self.session["current_asset"]})
-            S = assets.Survivor(survivor_id = survivor["_id"])
-            output += S.render_html_form()
-        else:
-            output += "UNKNOWN VIEW!!!"
+            if self.session["current_view"] == "dashboard":
+                output += html.dashboard.headline.safe_substitute(title="&#x02261; Campaigns", desc="Games you are currently playing.", h_class="purple")
+                output += self.User.get_games()
+                output += html.dashboard.headline.safe_substitute(title="Settlements", desc="Manage settlements created by you. You may not manage a settlement you did not create.")
+                output += self.User.get_settlements(return_as="asset_links")
+                output += html.dashboard.new_settlement_button
+                output += html.dashboard.headline.safe_substitute(title="Survivors", desc='Manage survivors created by you or shared with you. New survivors are created from the "Game" and "Settlement" views.')
+                survivors = self.User.get_survivors()
+                for s in survivors:
+                    S = assets.Survivor(survivor_id=s["_id"])
+                    output += S.asset_link(include=["dead", "retired", "hunt_xp", "settlement_name"])
+                output += html.dashboard.headline.safe_substitute(title="System", desc='KD:M Manager! Version %s.<p><a href="/change_log">Change Log</a></p><hr/><p>login: %s</p>' % (settings.get("application","version"), self.User.user["login"]))
+            elif self.session["current_view"] == "view_game":
+                if self.Settlement.settlement["created_by"] == self.User.user["_id"]:
+                    output += self.Settlement.asset_link(fixed=True, link_text="Edit")
+                output += self.Settlement.render_html_summary(user_id=self.User.user["_id"])
+                # if session user owns the settlement, let him edit it
+            elif self.session["current_view"] == "new_settlement":
+                output += html.dashboard.new_settlement_form
+            elif self.session["current_view"] == "new_survivor":
+                options = self.User.get_settlements(return_as="html_option")
+                output += html.dashboard.new_survivor_form.safe_substitute(home_settlement=self.session["current_settlement"], user_email=self.User.user["login"], created_by=self.User.user["_id"])
+            elif self.session["current_view"] == "view_settlement":
+                settlement = mdb.settlements.find_one({"_id": self.session["current_asset"]})
+                self.set_current_settlement(ObjectId(settlement["_id"]))
+                S = assets.Settlement(settlement_id = settlement["_id"])
+                output += S.render_html_form()
+            elif self.session["current_view"] == "view_survivor":
+                survivor = mdb.survivors.find_one({"_id": self.session["current_asset"]})
+                S = assets.Survivor(survivor_id = survivor["_id"])
+                output += S.render_html_form()
+            else:
+                output += "UNKNOWN VIEW!!!"
 
-        if self.session["current_view"] != "dashboard":
-            output += html.dashboard.home_button
+            if self.session["current_view"] != "dashboard":
+                output += html.dashboard.home_button
 
-        output += html.meta.log_out_button.safe_substitute(session_id=self.session["_id"])
-        return output
+            output += html.meta.log_out_button.safe_substitute(session_id=self.session["_id"])
+            return output
+
+        except Exception as e:
+            self.logger.critical("Caught exception while rendering current view!")
+            self.logger.exception(e)
+            self.log_out()
+            return False

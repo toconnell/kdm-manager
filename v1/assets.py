@@ -8,7 +8,7 @@ from string import Template
 import assets
 import html
 import models
-from models import Epithets, Locations, Items, Innovations, Quarries
+from models import Abilities, Epithets, Locations, Items, Innovations, Resources, Quarries
 from utils import mdb, get_logger, load_settings
 
 settings = load_settings()
@@ -80,7 +80,8 @@ class User:
         output = ""
         for settlement_id in game_list:
             S = assets.Settlement(settlement_id=settlement_id)
-            output += S.asset_link(view="game")
+            if S.settlement is not None:
+                output += S.asset_link(view="game")
         return output
 
 
@@ -197,26 +198,31 @@ class Survivor:
         return available_actions
 
 
-    def get_abilities_and_impairments(self, return_as=False):
-        all_list = self.survivor["abilities_and_impairments"]
+    def get_abilities_and_impairments(self, return_type=False):
+        all_list = sorted(self.survivor["abilities_and_impairments"])
 
-        final_list = []
-        for i in all_list:
-            if i in models.abilities_and_impairments.keys():
-                desc = models.abilities_and_impairments[i]["desc"]
-                final_list.append("<b>%s:</b> %s" % (i, desc))
-            else:
-                final_list.append(i)
+        if return_type == "comma-delimited":
+            return ", ".join(all_list)
 
-        if return_as == "html_select_remove":
-            html = '<select name="remove_ability" onchange="this.form.submit()">'
-            html += '<option selected disabled hidden value="">Remove Ability</option>'
+        if return_type == "html_select_remove":
+            output = '<select name="remove_ability" onchange="this.form.submit()">'
+            output += '<option selected disabled hidden value="">Remove Ability</option>'
             for ability in all_list:
-                html += '<option>%s</option>' % ability
-            html += '</select>'
-            return html
+                output += '<option>%s</option>' % ability
+            output += '</select>'
+            return output
 
-        return "<br/>\n".join(final_list)
+        if return_type == "html_formatted":
+            pretty_list = []
+            for ability in all_list:
+                if ability in Abilities.get_keys():
+                    desc = Abilities.get_asset(ability)["desc"]
+                    pretty_list.append("<b>%s:</b> %s" % (ability, desc))
+                else:
+                    pretty_list.append(ability)
+            return "<br/>\n".join(pretty_list)
+
+        return all_list
 
 
     def get_fighting_arts(self, return_as=False):
@@ -537,8 +543,9 @@ class Survivor:
             rm_disorders = self.get_disorders(return_as="html_select_remove"),
 
             skip_next_hunt_checked = flags["skip_next_hunt"],
-            abilities_and_impairments = self.get_abilities_and_impairments(),
-            remove_abilities_and_impairments = self.get_abilities_and_impairments(return_as="html_select_remove"),
+            abilities_and_impairments = self.get_abilities_and_impairments("html_formatted"),
+            add_abilities_and_impairments = Abilities.render_as_html_dropdown(exclude=self.get_abilities_and_impairments()),
+            remove_abilities_and_impairments = self.get_abilities_and_impairments("html_select_remove"),
 
             email = self.survivor["email"],
             game_link = self.settlement.asset_link(view="game", fixed=True),
@@ -686,48 +693,64 @@ class Settlement:
         return final_list
 
 
-        return final_list
-
     def get_locations(self, return_as=False):
         """ Returns a sorted list of locations. """
         final_list = sorted(self.settlement["locations"])
 
         if return_as == "comma-delimited":
             return ", ".join(final_list)
+
         return final_list
 
-    def get_locations_deck(self, return_as=False):
-        """ Returns a sorted list of available locations. """
-
-        eligible_locations = Locations.get_keys()
-
-        for location_key in eligible_locations:
-            if "is_resource" in Locations.get_asset(location_key).keys():
-                eligible_locations.remove(location_key)
-
-        for l in self.settlement["locations"]:
-            if l in eligible_locations:
-                eligible_locations.remove(l)
-        final_list = sorted(eligible_locations)
-        if return_as == "html_option":
-            return "</option><option>".join(final_list)
-        return final_list
 
     def get_storage(self, return_type=False):
         """ Returns the settlement's storage in a number of ways. """
 
         storage = sorted(self.settlement["storage"])
 
+
         if return_type == "html_buttons":
-            html = ""
+            resources = []
+            gear = []
+            other = []
+
             for item_key in storage:
+                item_color = "D3AAAA"
+                item_type = "other"
+
                 if item_key in Items.get_keys():
-                    item_location = Items.get_asset(item_key)["location"]
-                    item_color = Locations.get_asset(item_location)["color"]
+                    item_asset_dict = Items.get_asset(item_key)
+                    item_type = None
+                    item_location = item_asset_dict["location"]
+                    if item_location in Locations.get_keys():
+                        item_type = "gear"
+                        item_color = Locations.get_asset(item_location)["color"]
+                    elif item_location in Resources.get_keys():
+                        item_type = "resource"
+                        item_color = Resources.get_asset(item_location)["color"]
+                    else:
+                        self.logger.warn("Item '%s' does not belong to a location or resource group!" % item_key)
+
+                    # overwrite this default stuff if the item dict says so
+                    if "type" in item_asset_dict:
+                        item_type = item_asset_dict["type"]
+
+                item_button_html = '\t<button id="remove_item" name="remove_item" value="%s" style="background-color: #%s; color: #000;"> %s</button>\n' % (item_key, item_color, item_key)
+                if item_type == "gear":
+                    gear.append(item_button_html)
+                elif item_type == "resource":
+                    resources.append(item_button_html)
                 else:
-                    item_color = "FFF"
-                html += '<button id="remove_item" name="remove_item" value="%s" style="background-color: #%s; color: #000;"> %s</button>\n' % (item_key, item_color, item_key)
-            return html
+                    other.append(item_button_html)
+
+            output = ""
+            for l in [gear, resources, other]:
+                if l != []:
+                    for item_html in l:
+                        output += item_html
+                    output += "\n<hr/>\n"
+
+            return output
 
         if return_type == "drop_list":
             html = '<select name="remove_item" onchange="this.form.submit()">'
@@ -827,7 +850,7 @@ class Settlement:
         if include_principles:
             innovations.extend(self.settlement["principles"])
 
-        innovations = list(set(innovations))
+        innovations = sorted(list(set(innovations)))
 
         if return_as == "comma-delimited":
             return ", ".join(innovations)
@@ -1043,6 +1066,7 @@ class Settlement:
             survivors = self.get_survivors(return_as="game_view", user_id=user_id),
             survival_limit = self.settlement["survival_limit"],
             innovations = self.get_innovations(return_as="comma-delimited", include_principles=True),
+            locations = self.get_innovations(return_as="comma-delimited"),
             departure_bonuses = self.get_bonuses('departure_buff'),
             settlement_bonuses = self.get_bonuses('settlement_buff'),
             survivor_bonuses = self.get_bonuses('survivor_buff'),
@@ -1177,11 +1201,11 @@ class Settlement:
             nemesis_monsters = self.get_nemesis_monsters("html_select"),
 
             quarries = self.get_quarries("comma-delimited"),
-            quarry_options = Quarries.render_as_html_dropdown(),
+            quarry_options = Quarries.render_as_html_dropdown(exclude=self.get_quarries()),
             innovations = self.get_innovations(return_as="comma-delimited"),
             innovation_options = self.get_innovation_deck(return_as="html_option"),
             locations = self.get_locations(return_as="comma-delimited"),
-            locations_options = self.get_locations_deck(return_as="html_option"),
+            locations_options = Locations.render_as_html_dropdown(exclude=self.get_locations()),
 
             defeated_monsters = self.get_defeated_monsters("comma-delimited"),
 

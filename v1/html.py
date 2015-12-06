@@ -36,9 +36,9 @@ class survivor:
     <hr />
     <p>
      Survivor sex: <b>$sex</b>
-     <input onchange="this.form.submit()" type="checkbox" id="dead" class="radio_principle" name="dead" value="dead" $dead_checked /> 
+     <input type="checkbox" id="dead" class="radio_principle" name="dead" value="dead" $dead_checked /> 
      <label class="radio_principle_label" for="dead" style="float: right; clear: none; "> Dead </label>
-     <input onchange="this.form.submit()" type="checkbox" id="retired" class="radio_principle" name="retired" value="retired" $retired_checked /> 
+     <input type="checkbox" id="retired" class="radio_principle" name="retired" value="retired" $retired_checked /> 
      <label class="radio_principle_label" for="retired" style="float: right; clear: none;"> Retired </label>
     </p>
     <hr/>
@@ -252,9 +252,10 @@ class survivor:
 
     <h3>Abilities & Impairments</h3>
     <p>
-     <input onchange="this.form.submit()" type="checkbox" id="skip_next_hunt" class="radio_principle" name="skip_next_hunt" value="checked" $skip_next_hunt_checked />
-     <label class="radio_principle_label" for="skip_next_hunt" style="float: right; clear: none; "> Skip Next Hunt </label>
-        $abilities_and_impairments
+     <input type="checkbox" id="skip_next_hunt" class="radio_principle" name="skip_next_hunt" value="checked" $skip_next_hunt_checked />
+     <label class="radio_principle_label" for="skip_next_hunt" id="skip_next_hunt"> Skip Next<br/>Hunt </label>
+        $abilities_and_impairments<br/>
+        $add_abilities_and_impairments
     <input onchange="this.form.submit()" class="full_width" type="text" name="add_ability" placeholder="add ability or impairment"/>
         $remove_abilities_and_impairments
 
@@ -296,7 +297,10 @@ class settlement:
         <h4>During Settlement</h4>
         <p>$settlement_bonuses</p>
         <p>$survivor_bonuses</p>
-        <hr />
+        <hr/>
+        <h3>Locations</h3>
+        <p>$locations</p>
+        <hr/>
         <h3>Monsters</h3>
         <h4>Defeated</h4>
         <p>$defeated_monsters</p>
@@ -342,8 +346,8 @@ class settlement:
 
 
                     <!-- STORAGE - THIS IS ITS OWN FORM-->
-
-    <form id="autoForm" method="POST">
+    <a id="edit_storage" />
+    <form id="autoForm" method="POST" action="#edit_storage">
         <input type="hidden" name="modify" value="settlement" />
         <input type="hidden" name="asset_id" value="$settlement_id" />
 
@@ -351,17 +355,17 @@ class settlement:
         <h2>Storage</h2>
         <p>Gear and Resources may be stored without limit. Tap items to remove them.</p>
         <hr />
-            $storage
-        <hr />
-            $items_options<br />
+        $storage
+        $items_options<br />
          <input onchange="this.form.submit()" type="text" class="full_width" name="add_item" placeholder="add gear or resource"/>
         </div>
     </form>
 
 
-                    <!-- LOCATIONS - a NEW FORM STARTS HERE -->
+                    <!-- LOCATIONS - THIS HAS ITS OWN FORM  -->
 
-    <form id="autoForm" method="POST">
+    <a id="edit_locations"/>
+    <form id="autoForm" method="POST" action="#edit_locations">
     <input type="hidden" name="modify" value="settlement" />
     <input type="hidden" name="asset_id" value="$settlement_id" />
 
@@ -370,20 +374,21 @@ class settlement:
      <p>Locations in your settlement.</p>
         <hr />
      <p>$locations</p>
-     <select name="add_location" onchange="this.form.submit()">
-      <option selected disabled hidden value=''>Add Location</option>
-      <option>$locations_options</option>
-     </select>
+     $locations_options
      <input onchange="this.form.submit()" type="text" class="full_width" name="add_location" placeholder="add custom location"/>
     </div>
-
+    </form>
 
 
 
     <hr />  <!-- Logical Section Break -->
 
-                    <!-- INNOVATIONS -->
+                    <!-- INNOVATIONS - HAS ITS OWN FORM-->
 
+    <a id="edit_innovations"/>
+    <form id="autoForm" method="POST" action="#edit_innovations">
+    <input type="hidden" name="modify" value="settlement" />
+    <input type="hidden" name="asset_id" value="$settlement_id" />
     <div id="block_group">
      <h2>Innovations</h2>
      <p>The settlement's innovations (including weapon masteries).</p>
@@ -395,12 +400,16 @@ class settlement:
      </select>
      <input onchange="this.form.submit()" type="text" class="full_width" name="add_innovation" placeholder="add custom innovation"/>
     </div>
+    </form>
 
 
 
+                    <!-- PRINCIPLES - HAS ITS OWN FORM-->
 
-                    <!-- PRINCIPLES -->
-
+    <a id="edit_principles"/>
+    <form id="autoForm" method="POST" action="#edit_principles">
+    <input type="hidden" name="modify" value="settlement" />
+    <input type="hidden" name="asset_id" value="$settlement_id" />
     <div id="block_group">
      <h2>Principles</h2>
      <p>The settlement's established principles.</p>
@@ -437,14 +446,18 @@ class settlement:
             <label class="radio_principle_label" for="romantic_button"> Romantic </label>
         </div>
     </div> <!-- principle block group -->
-
+    </form>
 
     <hr />  <!-- Logical Section Break -->
 
 
 
-                    <!-- MILESTONES -->
+                    <!-- MILESTONES - HAS ITS OWN FORM-->
 
+    <a id="edit_milestones"/>
+    <form id="autoForm" method="POST" action="#edit_milestones">
+    <input type="hidden" name="modify" value="settlement" />
+    <input type="hidden" name="asset_id" value="$settlement_id" />
     <div id="block_group">
      <h2>Milestone Story Events</h2>
      <p>Trigger these story events when milestone condition is met.</p>
@@ -471,13 +484,18 @@ class settlement:
         <p> &ensp; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Game Over</b></p>
 
     </div>
-
+    </form>
 
 
     <hr /> <!-- Logical Section Break Here -->
 
 
-                    <!-- QUARRIES -->
+                    <!-- QUARRIES - HAS ITS OWN FORM-->
+
+    <a id="edit_quarries"/>
+    <form id="autoForm" method="POST" action="#edit_quarries">
+    <input type="hidden" name="modify" value="settlement" />
+    <input type="hidden" name="asset_id" value="$settlement_id" />
 
     <div id="block_group">
      <h2>Quarries</h2>
@@ -491,7 +509,8 @@ class settlement:
     </form>
 
                     <!-- NEMESIS MONSTERS -->
-    <form id="autoForm" method="POST">
+    <a id="edit_nemeses"/>
+    <form id="autoForm" method="POST" action="#edit_nemeses">
     <input type="hidden" name="modify" value="settlement" />
     <input type="hidden" name="asset_id" value="$settlement_id" />
 
@@ -506,7 +525,8 @@ class settlement:
 
                     <!-- DEFEATED MONSTERS: HAS ITS OWN FORM -->
 
-    <form id="autoForm" method="POST">
+    <a id="edit_defeated_monsters"/>
+    <form id="autoForm" method="POST" action="#edit_defeated_monsters">
     <input type="hidden" name="modify" value="settlement" />
     <input type="hidden" name="asset_id" value="$settlement_id" />
 
@@ -520,7 +540,8 @@ class settlement:
 
                     <!-- TIMELINE: HAS ITS OWN FORM  -->
 
-    <form id="autoForm" method="POST">
+    <a id="edit_timeline"/>
+    <form id="autoForm" method="POST" action="#edit_timeline">
     <input type="hidden" name="modify" value="settlement" />
     <input type="hidden" name="asset_id" value="$settlement_id" />
 
@@ -531,16 +552,20 @@ class settlement:
     <br /><hr />
     $timeline
     </div>
+    </form>
+
 
     <hr /> <!-- Logical Section Break Here -->
 
-                    <!-- LOST SETTLEMENTS -->
+                    <!-- LOST SETTLEMENTS HAS ITS OWN FORM-->
+    <a id="edit_lost_settlements"/>
+    <form id="autoForm" method="POST" action="#edit_lost_settlements">
+    <input type="hidden" name="modify" value="settlement" />
+    <input type="hidden" name="asset_id" value="$settlement_id" />
     <input onchange="this.form.submit()" class="big_number_square" type="number" name="lost_settlements" value="$lost_settlements"/>
     <div class="big_number_caption">Lost Settlements</div>
-    <br/><hr/>
-
-
     </form>
+    <br/><hr/>
 
     <h3>Survivors</h3>
     $survivors
@@ -615,15 +640,30 @@ class login:
     </form>
     \n""")
 
+
+class changeLog:
+    log_text = file("change_log.txt", "rb").read()
+    body = """\n\
+<h1>KD:M Manager!</h1><h2 class="no_border">Change Log and Updates</h2>
+<p><a href="/">Return to KD:M Manager</a></p>
+<hr/><pre>%s</pre><hr/>
+<p><a href="/">Return to KD:M Manager</a></p>
+    \n""" % log_text
+
+
 class meta:
     """ This is for HTML that doesn't really fit anywhere else, in terms of
     views, etc. Use this for helpers/containers/administrivia/etc. """
     start_head = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<title>%s</title>\n' % settings.get("application","title")
     stylesheet = Template('<link rel="stylesheet" type="text/css" href="$url">\n')
     close_head = '</head>\n<body>\n <div id="container">\n'
+    false_body = 'Caught exception while rendering the current view!<hr/>The current session will be ended. Please try again.'
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
     saved_dialog = '<div id="saved_dialog" class="success">Saved!</div>'
     log_out_button = Template('\n\t<hr/><form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><button class="warn">LOG OUT</button>\n\t</form>')
+
+
+
 
 #
 #   application helper functions for HTML interfacing
@@ -679,7 +719,7 @@ def authenticate_by_form(params):
 #   render() func is the only thing that goes below here.
 #
 
-def render(html, head=[], http_headers=False):
+def render(view_html, head=[], http_headers=False):
     """ This is our basic render: feed it HTML to change what gets rendered. """
 
     output = http_headers
@@ -710,7 +750,10 @@ def render(html, head=[], http_headers=False):
         output += element
 
     output += meta.close_head
-    output += html
+    if view_html:
+        output += view_html
+    else:
+        output += meta.false_body
     output += meta.close_body
 
     print(output)

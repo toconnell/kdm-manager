@@ -8,12 +8,12 @@ import os
 import admin
 import html
 from session import Session
-from utils import load_settings, mdb
+from utils import load_settings, mdb, get_logger
 
 
 if __name__ == "__main__":
     settings = load_settings()
-
+    logger = get_logger()
     if settings.getboolean("application","DEBUG"):
         cgitb.enable()
 
@@ -21,7 +21,13 @@ if __name__ == "__main__":
 
     params = cgi.FieldStorage()
 
-    S = Session(params)
+    try:
+        S = Session(params)
+    except Exception as e:
+        logger.critical("Caught exception while creating session!")
+        logger.exception(e)
+        raise
+
     if S.session is None:
         output = html.authenticate_by_form(params)
     else:
