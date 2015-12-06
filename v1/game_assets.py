@@ -68,6 +68,7 @@ locations = {
         "consequences": ["Stone Circle"],
     },
     "Rare Gear": {
+        "is_resource": True,
         "color": "FFD700",
     },
     "Blacksmith": {},
@@ -573,6 +574,7 @@ innovations = {
     "Hovel": {
         "type": "home",
         "consequences": ["Partnership", "Family", "Bed"],
+        "departure_buff": "Departing survivors gain +1 survival.",
         "survival_limit": 1,
     },
     "Storytelling": {
@@ -601,6 +603,7 @@ innovations = {
         "departure_buff": "Departing Survivors gain +1 survival.",
     },
     "Memento Mori": {
+        "consequences": [],
         "type": "art",
     },
     "Face Painting": {

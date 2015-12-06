@@ -628,7 +628,7 @@ class Settlement:
         }
         settlement_id = mdb.settlements.insert(new_settlement_dict)
         creator = mdb.users.find_one({"_id": created_by})
-        self.logger.info("New settlement '%s' ('%s') created!" % (name, settlement_id, creator["login"]))
+        self.logger.info("New settlement '%s' ('%s') created by %s!" % (name, settlement_id, creator["login"]))
         return settlement_id
 
 
