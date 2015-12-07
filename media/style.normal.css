@@ -17,11 +17,13 @@ input {height: 100px; }
 input, h2, h3 #user_error_msg {padding-left: 10px; }
 input, button, label {cursor: pointer; }
 
+pre { white-space: pre-wrap; }
 
 hr {clear: both;   }
 button {padding-top: 20px; padding-bottom: 20px; }
 
 /* generic, multi-purpose stlyes */
+.no_border {border: 0 none; }
 .hidden {display: none; }
 .strikethrough {text-decoration: line-through; }
 
@@ -36,8 +38,12 @@ button {padding-top: 20px; padding-bottom: 20px; }
 
 input[type=radio], input[type=checkbox] {display: none; }
 .radio_principle:checked + .radio_principle_label {  font-weight: bold; color: #C60000; }
+
+/* label styles */
 label {margin: 20px; font-size: 65px; color: #CCC; }
 label, .full_width {clear: both; display: block; }
+label#skip_next_hunt {float: right; clear: none; text-align:center; border: 1px solid #999; padding: 10px;  }
+
 button, #user_error_msg, .full_width {width: 90%; margin: 5%; }
 
 select {width: auto; margin-left: 20px; font-size: 60px; }
