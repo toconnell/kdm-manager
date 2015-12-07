@@ -7,8 +7,7 @@ from string import Template
 
 import assets
 import html
-import models
-from models import Abilities, Epithets, Locations, Items, Innovations, Resources, Quarries
+from models import Abilities, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Resources, Quarries
 from utils import mdb, get_logger, load_settings, get_user_agent
 
 settings = load_settings()
@@ -217,6 +216,9 @@ class Survivor:
             return ", ".join(all_list)
 
         if return_type == "html_select_remove":
+            if all_list == []:
+                return ""
+
             output = '<select name="remove_ability" onchange="this.form.submit()">'
             output += '<option selected disabled hidden value="">Remove Ability</option>'
             for ability in all_list:
@@ -243,7 +245,7 @@ class Survivor:
         if return_as == "formatted_html":
             html = ""
             for fa_key in fighting_arts:
-                html += '<b>%s:</b> %s<br />' % (fa_key, models.fighting_arts[fa_key]["desc"])
+                html += '<b>%s:</b> %s<br />' % (fa_key, FightingArts.get_asset(fa_key)["desc"])
             return html
 
         if return_as == "html_select_remove":
@@ -264,7 +266,7 @@ class Survivor:
         if return_as == "formatted_html":
             html = ""
             for disorder_key in disorders:
-                html += '<b>%s:</b> %s<br />' % (disorder_key, models.disorders[disorder_key]["survivor_effect"])
+                html += '<b>%s:</b> %s<br />' % (disorder_key, Disorders.get_asset(disorder_key)["survivor_effect"])
             return html
 
         if return_as == "html_select_remove":
@@ -308,7 +310,7 @@ class Survivor:
         return epithets
 
 
-    def heal(self, heal_armor=False, increment_hunt_xp=False):
+    def heal(self, cmd, heal_armor=False, increment_hunt_xp=False):
         """ This removes the keys defined in self.damage_locations from the
         survivor's MDB object. It can also do some game logic, e.g. remove armor
         points and increment hunt XP.
@@ -319,7 +321,14 @@ class Survivor:
 
         """
 
+        if cmd == "Heal Injuries and Remove Armor":
+            heal_armor=True
+        elif cmd == "Return from Hunt":
+            heal_armor=True
+            increment_hunt_xp=1
+
         for damage_loc in self.damage_locations:
+            self.logger.debug("healing %s" % damage_loc)
             try:
                 del self.survivor[damage_loc]
             except:
@@ -333,7 +342,58 @@ class Survivor:
             current_xp = int(self.survivor["hunt_xp"])
             self.survivor["hunt_xp"] = current_xp + increment_hunt_xp
 
-        self.logger.debug("Survivor '%s' healed!" % self.survivor["name"])
+        mdb.survivors.save(self.survivor)
+
+    def add_game_asset(self, asset_type, asset_key):
+        """ Our generic function for adding a game_asset to a survivor. Some biz
+        logic/game rules happen here.
+
+        The kwarg 'asset_type' should always be the self.name value of the
+        game_asset model (see models.py for more details).
+
+        Finally, if, for whatever reason, we can't add the asset, we return
+        False.
+        """
+
+        asset_key = asset_key.strip()
+
+        if asset_type == "disorder":
+            if len(self.survivor["disorders"]) >= 3:
+                return False
+
+            if asset_key not in Disorders.get_keys():
+                self.survivor["disorders"].append(asset_key)
+                return True
+            elif asset_key in Disorders.get_keys():
+                asset_dict = Disorders.get_asset(asset_key)
+                self.logger.debug("Adding: %s" % asset_dict)
+                self.survivor["disorders"].append(asset_key)
+                if "skip_next_hunt" in asset_dict.keys():
+                    self.survivor["skip_next_hunt"] = "checked"
+                mdb.survivors.save(self.survivor)
+                return True
+            else:
+                return False
+
+
+    def toggle(self, toggle_key, toggle_value):
+        """ Toggles an attribute on or off. The 'toggle_value' arg is either
+        going to be a MiniFieldStorage list (from cgi.FieldStorage) or its going
+        to be a single value, e.g. a string.
+
+        If it's a list, assume we're toggling something on; if it's a single
+        value, assume we're toggling it off.
+
+        Review the hidden form inputs to see more about how this works.
+        """
+        if type(toggle_value) != list:
+            try:
+                del self.survivor[toggle_key]
+            except:
+                pass
+        else:
+            self.survivor[toggle_key] = "checked"
+
         mdb.survivors.save(self.survivor)
 
 
@@ -341,16 +401,10 @@ class Survivor:
         """ Reads through a cgi.FieldStorage() (i.e. 'params') and modifies the
         survivor. """
 
+
         for p in params:
-            if p == "asset_id":
+            if p in ["asset_id", "heal_survivor"]:
                 pass
-            elif p == "heal_survivor":
-                if params[p].value == "Heal Injuries Only":
-                    self.heal()
-                elif params[p].value == "Heal Injuries and Remove Armor":
-                    self.heal(heal_armor=True)
-                elif params[p].value == "Return from Hunt":
-                    self.heal(heal_armor=True, increment_hunt_xp=1)
             elif p == "add_epithet":
                 self.survivor["epithets"].append(params[p].value.strip())
                 self.survivor["epithets"] = sorted(list(set(self.survivor["epithets"])))
@@ -358,37 +412,33 @@ class Survivor:
                 self.survivor["epithets"].remove(params[p].value)
             elif p == "add_ability":
                 self.survivor["abilities_and_impairments"].append(params[p].value.strip())
-                self.survivor["abilities_and_impairments"] = sorted(list(set(self.survivor["abilities_and_impairments"])))
             elif p == "remove_ability":
                 self.survivor["abilities_and_impairments"].remove(params[p].value)
-            elif p == "add_disorder" and len(self.survivor["disorders"]) < 3:
-                self.survivor["disorders"].append(params[p].value.strip())
+            elif p == "add_disorder":
+                game_asset_key = params[p].value                                # this is how they
+                self.add_game_asset("disorder", game_asset_key)                 # all should be
             elif p == "remove_disorder":
                 self.survivor["disorders"].remove(params[p].value)
             elif p == "add_fighting_art" and len(self.survivor["fighting_arts"]) < 3:
                 self.survivor["fighting_arts"].append(params[p].value.strip())
             elif p == "remove_fighting_art":
                 self.survivor["fighting_arts"].remove(params[p].value)
+            elif p.split("_")[0] == "toggle":
+                toggle_attrib = "_".join(p.split("_")[1:])
+                self.toggle(toggle_attrib, params[p])
             else:
                 self.survivor[p] = params[p].value.strip()
-
-
-        for flag in self.flag_attribs:
-            if flag in params:
-                self.survivor[flag] = "checked"
-            elif flag not in params and flag in self.survivor.keys():
-                del self.survivor[flag]
-        for flag in self.damage_locations:
-            if flag in params and not "heal_survivor" in params:
-                self.survivor[flag] = "checked"
-            elif flag not in params and flag in self.survivor.keys():
-                del self.survivor[flag]
 
         # idiot-proof the hit boxes
         for hit_tuplet in [("arms_damage_light","arms_damage_heavy"), ("body_damage_light", "body_damage_heavy"), ("legs_damage_light", "legs_damage_heavy"), ("waist_damage_light", "waist_damage_heavy")]:
             light, heavy = hit_tuplet
             if heavy in self.survivor.keys() and not light in self.survivor.keys():
+                self.logger.debug("flipping %s back on" % light)
                 self.survivor[light] = "checked"
+
+        # do healing absolutely last
+        if "heal_survivor" in params:
+            self.heal(params["heal_survivor"].value)
 
         mdb.survivors.save(self.survivor)
 
@@ -490,6 +540,21 @@ class Survivor:
             elif self.survivor["understanding_attribute"] == "Tinker":
                 tinker = "checked"
 
+        # fighting arts widgets
+        fighting_arts_picker = FightingArts.render_as_html_dropdown(exclude=self.survivor["fighting_arts"])
+        if len(self.survivor["fighting_arts"]) >= 3:
+            fighting_arts_picker = ""
+        fighting_arts_remover = self.get_fighting_arts(return_as="html_select_remove")
+        if self.survivor["fighting_arts"] == []:
+            fighting_arts_remover = ""
+        # disorders widgets
+        disorders_picker = Disorders.render_as_html_dropdown(exclude=self.survivor["disorders"])
+        if len(self.survivor["disorders"]) >= 3:
+            disorders_picker = ""
+        disorders_remover = self.get_disorders(return_as="html_select_remove")
+        if self.survivor["disorders"] == []:
+            disorders_remover = ""
+
         output = html.survivor.form.safe_substitute(
             MEDIA_URL = settings.get("application", "STATIC_URL"),
 
@@ -547,16 +612,16 @@ class Survivor:
             tinker_checked = tinker,
 
             fighting_arts = self.get_fighting_arts(return_as="formatted_html"),
-            add_fighting_arts = models.render_fighting_arts_dict(return_as="html_select_add", exclude=self.survivor["fighting_arts"]),
-            rm_fighting_arts = self.get_fighting_arts(return_as="html_select_remove"),
+            add_fighting_arts = fighting_arts_picker,
+            rm_fighting_arts = fighting_arts_remover,
 
             disorders = self.get_disorders(return_as="formatted_html"),
-            add_disorders = models.render_disorder_dict(return_as="html_select_add", exclude=self.survivor["disorders"]),
-            rm_disorders = self.get_disorders(return_as="html_select_remove"),
+            add_disorders = disorders_picker,
+            rm_disorders = disorders_remover,
 
             skip_next_hunt_checked = flags["skip_next_hunt"],
             abilities_and_impairments = self.get_abilities_and_impairments("html_formatted"),
-            add_abilities_and_impairments = Abilities.render_as_html_dropdown(exclude=self.get_abilities_and_impairments()),
+            add_abilities_and_impairments = Abilities.render_as_html_dropdown(),
             remove_abilities_and_impairments = self.get_abilities_and_impairments("html_select_remove"),
 
             email = self.survivor["email"],
@@ -1070,11 +1135,20 @@ class Settlement:
     def render_html_summary(self, user_id=False):
         """ This is the summary view we print at the top of the game view. It's
         not a form. """
+
+        display_population = int(self.settlement["population"])
+        if display_population < self.get_min(value="population"):
+            display_population = self.get_min(value="population")
+
+        display_death_count = int(self.settlement["death_count"])
+        if display_death_count < self.get_min(value="death_count"):
+            display_death_count = self.get_min(value="death_count")
+
         output = html.settlement.summary.safe_substitute(
             settlement_name=self.settlement["name"],
             principles = self.get_principles("comma-delimited"),
-            population=self.settlement["population"],
-            death_count = self.settlement["death_count"],
+            population = display_population,
+            death_count = display_death_count,
             survivors = self.get_survivors(return_as="game_view", user_id=user_id),
             survival_limit = self.settlement["survival_limit"],
             innovations = self.get_innovations(return_as="comma-delimited", include_principles=True),

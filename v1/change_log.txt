@@ -1,3 +1,40 @@
+    Monday, 2015-12-07: 1.12.64
+
+----
+Corrections and Fixes
+----
+ - Fixed typos re: White Lion set, Rawhide set, a couple of severe injuries and some other misc. things
+ - Keyed in items for Weapon Crafter and Leather Worker (have fun storming the castle!) 
+ - Fixed the new survivor creation form so it's impossible to submit it without survivor sex and trigger a traceback. -mew1997
+ - The campaign view no longer lists Innovations under the "Locations" heading. -mew1997
+ - Fixed the bug on the Settlement and Survivor forms where the "Save" button wouldn't save certain fields.
+ - Fixed the bugs/weirdness when auto-healing survivors: all hit locations are now turned off in all three "heal" options. -Leky
+ - Abilities and Impairments can be added multiple times -mew1997
+
+
+----
+Improvements
+----
+ - Survivor form now tries to put you back to where you were after a refresh. -Leky, UncleSquamous, et al.
+ - Created game asset classes for Fighting Arts and Disorders as part of general refactoring; implementing biz logic re: FAs will be easier/faster.
+ - Fully deprecated the one-off rendering functions for game assets. (This has no visible frontend effect, but makes things way easier on the backend.)
+ - The dropdown to remove fighting arts and Disorders from survivors who have none is hidden; the dropdown that adds FAs and Disorders to survivors goes away after they have three; remove existing FAs/disorders to add more. -Leky, mew1997
+ - Adding disorders such as "Secretive" that require the survivor to skip the next hunt will toggle "Skip Next Hunt" on for the survivor. 
+ - Population and Death Count in the Campaign view now reflect the settlement's min pop/min death count, based on survivors created.
+
+----
+Coming soon
+----
+ - Better Survivor sorting in all views
+ - Abilities added to the "Abilities and Impairments" dropdown/picker; limits on how many times certain impairments can be added (e.g. "Blind", etc.)
+ - Collapsible/hideable sections on the Settlement and Survivor forms
+ - Weapon specialties and masteries added to Innovations
+ - Nemesis monster dropdown/picker
+ - Dynamic "Defeated Monsters" dropdown/picker based on available quarries
+ - Dynamic "Locations" dropdown/picker based on current locations/innovations
+
+
+
     Sunday, 2015-12-06: 1.11.49
 
 ----

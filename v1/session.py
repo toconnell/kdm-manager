@@ -243,7 +243,7 @@ class Session:
                 output += html.dashboard.new_settlement_form
             elif self.session["current_view"] == "new_survivor":
                 options = self.User.get_settlements(return_as="html_option")
-                output += html.dashboard.new_survivor_form.safe_substitute(home_settlement=self.session["current_settlement"], user_email=self.User.user["login"], created_by=self.User.user["_id"])
+                output += html.survivor.new.safe_substitute(home_settlement=self.session["current_settlement"], user_email=self.User.user["login"], created_by=self.User.user["_id"])
             elif self.session["current_view"] == "view_settlement":
                 settlement = mdb.settlements.find_one({"_id": self.session["current_asset"]})
                 self.set_current_settlement(ObjectId(settlement["_id"]))

@@ -21,259 +21,360 @@ class survivor:
     form = Template("""\n\
     $game_link
 
-    <form method="POST" id="autoForm">
-    <button type="submit" id="save_button" class="success">Save</button>
-    <input type="hidden" name="modify" value="survivor" />
-    <input type="hidden" name="asset_id" value="$survivor_id" />
+    <form method="POST" id="autoForm" action="#">
+        <input type="hidden" name="form_id" value="survivor_top" />
+        <button id="save_button" class="success">Save</button>
+        <input type="hidden" name="modify" value="survivor" />
+        <input type="hidden" name="asset_id" value="$survivor_id" />
 
-    <input onchange="this.form.submit()" id="topline_name_fixed" class="full_width" type="text" name="name" value="$name" placeholder="Survivor Name"/>
-    <br /><br /><br />
-    $epithets <!-- THESE HAVE THEIR OWN STYLE FROM survivor.get_epithets() -->
-    <br />
-    $add_epithets<br />
-    $rm_epithets
-    <input onchange="this.form.submit()" class="full_width" type="text" name="add_epithet" placeholder="add a custom epithet"/>
-    <hr />
-    <p>
-     Survivor sex: <b>$sex</b>
-     <input type="checkbox" id="dead" class="radio_principle" name="dead" value="dead" $dead_checked /> 
-     <label class="radio_principle_label" for="dead" style="float: right; clear: none; "> Dead </label>
-     <input type="checkbox" id="retired" class="radio_principle" name="retired" value="retired" $retired_checked /> 
-     <label class="radio_principle_label" for="retired" style="float: right; clear: none;"> Retired </label>
-    </p>
-    <hr/>
-    <input class="big_number_square" type="number" name="survival" value="$survival" max="$survival_limit"/>
-    <div class="big_number_caption">Survival (max: $survival_limit)</div>
-    <br />
-    <p>
-     <input onchange="this.form.submit()" type="checkbox" id="cannot_spend_survival" class="radio_principle" name="cannot_spend_survival" value="cannot_spend_survival" $cannot_spend_survival_checked /> 
-     <label class="radio_principle_label" for="cannot_spend_survival"> Cannot spend survival </label>
+        <input id="topline_name_fixed" class="full_width" type="text" name="name" value="$name" placeholder="Survivor Name"/>
+        <br /><br /><br />
+        $epithets
+        <br />
+        $add_epithets<br />
+        $rm_epithets
+        <input onchange="this.form.submit()" class="full_width" type="text" name="add_epithet" placeholder="add a custom epithet"/>
+        <hr />
 
-     $survival_actions
-    </p>
-    <hr />
+        <!-- SEX, SURVIVAL and MISC. SURVIVOR ATTRIBUTES -->
 
-    <h3>On Departure</h3>
-    $departure_buffs
+        <p>
+         Survivor sex: <b>$sex</b>
+            <!-- dead -->
+         <input type='hidden' value='unchecked' name='toggle_dead'/>
+         <input type="checkbox" id="dead" class="radio_principle" name="toggle_dead" value="checked" $dead_checked /> 
+         <label class="radio_principle_label" for="dead" style="float: right; clear: none; "> Dead </label>
+
+            <!-- retired -->
+         <input type='hidden' value='unchecked' name='toggle_retired'/>
+         <input type="checkbox" id="retired" class="radio_principle" name="toggle_retired" value="checked" $retired_checked/> 
+         <label class="radio_principle_label" for="retired" style="float: right; clear: none;"> Retired </label>
+        </p>
+
+         <hr/>
+
+        <input class="big_number_square" type="number" name="survival" value="$survival" max="$survival_limit"/>
+        <div class="big_number_caption">Survival (max: $survival_limit)</div>
+        <br />
+        <p>
+         <input type='hidden' value='unchecked' name='toggle_cannot_spend_survival'/>
+         <input onchange="this.form.submit()" type="checkbox" id="cannot_spend_survival" class="radio_principle" name="toggle_cannot_spend_survival" value="checked" $cannot_spend_survival_checked /> 
+         <label class="radio_principle_label" for="cannot_spend_survival"> Cannot spend survival </label>
 
 
-    <hr/>
-    <input class="big_number_square" type="number" name="Movement" value="$movement"/>
-    <div class="big_number_caption">Movement</div>
-    <br /><hr/>
-    <input class="big_number_square" type="number" name="Accuracy" value="$accuracy"/>
-    <div class="big_number_caption">Accuracy</div>
-    <br /><hr/>
-    <input class="big_number_square" type="number" name="Strength" value="$strength"/>
-    <div class="big_number_caption">Strength</div>
-    <br /><hr/>
-    <input class="big_number_square" type="number" name="Evasion" value="$evasion"/>
-    <div class="big_number_caption">Evasion</div>
-    <br /><hr/>
-    <input class="big_number_square" type="number" name="Luck" value="$luck"/>
-    <div class="big_number_caption">Luck</div>
-    <br /><hr/>
-    <input class="big_number_square" type="number" name="Speed" value="$speed"/>
-    <div class="big_number_caption">Speed</div>
-    <br /><hr/>
+         $survival_actions
+        </p>
+        <hr />
 
-    <h3>Bonuses</h3>
-    $settlement_buffs
+        <h3>On Departure</h3>
+        $departure_buffs
 
-    <hr/>   <!-- LOGICAL break -->
+        <a id="edit_attribs" />
 
-                        <!-- HIT BOXES -->
+        <hr/> <!-- logical break; same form -->
 
-    <div id="survivor_hit_box">
-        <div id="shield_box">
-            <input type="number" class="shield" name="Insanity" value="$insanity" style="color: $insanity_number_style; "/>
-            Insanity
-        </div>
-        <div id="info_box">
-     <input type="checkbox" id="brain_damage_light" class="radio_principle" name="brain_damage_light" $brain_damage_light_checked /> 
-     <label id="damage_box" class="radio_principle_label" for="brain_damage_light"> L </label>
-        <h2>Brain</h2>
-        If your insanity is 3+, you are <b>Insane</b>.
-        </div>
-    </div>
+        <input class="big_number_square" type="number" name="Movement" value="$movement"/>
+        <div class="big_number_caption">Movement</div>
+        <br /><hr/>
+        <input class="big_number_square" type="number" name="Accuracy" value="$accuracy"/>
+        <div class="big_number_caption">Accuracy</div>
+        <br /><hr/>
+        <input class="big_number_square" type="number" name="Strength" value="$strength"/>
+        <div class="big_number_caption">Strength</div>
+        <br /><hr/>
+        <input class="big_number_square" type="number" name="Evasion" value="$evasion"/>
+        <div class="big_number_caption">Evasion</div>
+        <br /><hr/>
+        <input class="big_number_square" type="number" name="Luck" value="$luck"/>
+        <div class="big_number_caption">Luck</div>
+        <br /><hr/>
+        <input class="big_number_square" type="number" name="Speed" value="$speed"/>
+        <div class="big_number_caption">Speed</div>
+        <br /><hr/>
 
-        <!-- HEAD -->
-    <div id="survivor_hit_box">
-        <div id="shield_box">
-            <input type="number" class="shield" name="Head" value="$head"/>
-        </div>
-        <div id="info_box">
-     <input type="checkbox" id="head_damage_heavy" class="radio_principle" name="head_damage_heavy" $head_damage_heavy_checked /> 
-     <label id="damage_box" class="radio_principle_label" for="head_damage_heavy"> H </label>
-        <h2>Head</h2>
-        <font color="#C60000">H</font>eavy Injury: Knocked Down
-        </div>
-    </div>
 
-        <!-- ARMS -->
-    <div id="survivor_hit_box">
-        <div id="shield_box">
-            <input type="number" class="shield" name="Arms" value="$arms"/>
-        </div>
-        <div id="info_box">
-     <input type="checkbox" id="arms_damage_heavy" class="radio_principle" name="arms_damage_heavy" $arms_damage_heavy_checked /> 
-     <label id="damage_box" class="radio_principle_label" for="arms_damage_heavy"> H </label>
-     <input type="checkbox" id="arms_damage_light" class="radio_principle" name="arms_damage_light" $arms_damage_light_checked /> 
-     <label id="damage_box" class="radio_principle_label" for="arms_damage_light"> L </label>
-        <h2>Arms</h2>
-        <font color="#C60000">H</font>eavy Injury: Knocked Down
-        </div>
-    </div>
+        <h3>Bonuses</h3>
+        $settlement_buffs
 
-        <!-- BODY -->
-    <div id="survivor_hit_box">
-        <div id="shield_box">
-            <input type="number" class="shield" name="Body" value="$body"/>
-        </div>
-        <div id="info_box">
-     <input type="checkbox" id="body_damage_heavy" class="radio_principle" name="body_damage_heavy" $body_damage_heavy_checked /> 
-     <label id="damage_box" class="radio_principle_label" for="body_damage_heavy"> H </label>
-     <input type="checkbox" id="body_damage_light" class="radio_principle" name="body_damage_light" $body_damage_light_checked /> 
-     <label id="damage_box" class="radio_principle_label" for="body_damage_light"> L </label>
-        <h2>Body</h2>
-        <font color="#C60000">H</font>eavy Injury: Knocked Down
-        </div>
-    </div>
 
-        <!-- WAIST -->
-    <div id="survivor_hit_box">
-        <div id="shield_box">
-            <input type="number" class="shield" name="Waist" value="$waist"/>
-        </div>
-        <div id="info_box">
-     <input type="checkbox" id="waist_damage_heavy" class="radio_principle" name="waist_damage_heavy" $waist_damage_heavy_checked /> 
-     <label id="damage_box" class="radio_principle_label" for="waist_damage_heavy"> H </label>
-     <input type="checkbox" id="waist_damage_light" class="radio_principle" name="waist_damage_light" $waist_damage_light_checked /> 
-     <label id="damage_box" class="radio_principle_label" for="waist_damage_light"> L </label>
-        <h2>Waist</h2>
-        <font color="#C60000">H</font>eavy Injury: Knocked Down
-        </div>
-    </div>
+        <a id="edit_hit_boxes" />
+
+        <hr/>   <!-- LOGICAL break -->
+
+                        <!-- HIT BOXES ; still the same form -->
+
+
+        <div id="survivor_hit_box">
+            <div id="shield_box">
+                <input type="number" class="shield" name="Insanity" value="$insanity" style="color: $insanity_number_style; "/>
+                <font id="hit_box_insanity">Insanity</font>
+            </div>
+
+            <div id="info_box">
+             <input type='hidden' value='unchecked' name='toggle_brain_damage_light'/>
+             <input type="checkbox" id="brain_damage_light" class="radio_principle" name="toggle_brain_damage_light" $brain_damage_light_checked /> 
+             <label id="damage_box" class="radio_principle_label" for="brain_damage_light"> L </label>
+                <h2>Brain</h2>
+                If your insanity is 3+, you are <b>Insane</b>.
+            </div>
+        </div> <!-- survivor_hit_box -->
+
+                <!-- HEAD -->
+        <div id="survivor_hit_box">
+            <div id="shield_box">
+                <input type="number" class="shield" name="Head" value="$head"/>
+            </div>
+            <div id="info_box">
+             <input type='hidden' value='unchecked' name='toggle_head_damage_heavy'/>
+             <input type="checkbox" id="head_damage_heavy" class="radio_principle" name="toggle_head_damage_heavy" $head_damage_heavy_checked /> 
+             <label id="damage_box" class="radio_principle_label" for="head_damage_heavy"> H </label>
+                <h2>Head</h2>
+                <font color="#C60000">H</font>eavy Injury: Knocked Down
+            </div>
+        </div> <!-- survivor_hit_box -->
+
+                <!-- ARMS -->
+        <div id="survivor_hit_box">
+            <div id="shield_box">
+                <input type="number" class="shield" name="Arms" value="$arms"/>
+            </div>
+            <div id="info_box">
+             <input type='hidden' value='unchecked' name='toggle_arms_damage_heavy'/>
+             <input type="checkbox" id="arms_damage_heavy" class="radio_principle" name="toggle_arms_damage_heavy" $arms_damage_heavy_checked /> 
+             <label id="damage_box" class="radio_principle_label" for="arms_damage_heavy"> H </label>
+             <input type='hidden' value='unchecked' name='toggle_arms_damage_light'/>
+             <input type="checkbox" id="arms_damage_light" class="radio_principle" name="toggle_arms_damage_light" $arms_damage_light_checked /> 
+             <label id="damage_box" class="radio_principle_label" for="arms_damage_light"> L </label>
+                <h2>Arms</h2>
+                <font color="#C60000">H</font>eavy Injury: Knocked Down
+            </div>
+        </div> <!-- survivor_hit_box -->
+
+                <!-- BODY -->
+        <div id="survivor_hit_box">
+            <div id="shield_box">
+                <input type="number" class="shield" name="Body" value="$body"/>
+            </div>
+            <div id="info_box">
+             <input type='hidden' value='unchecked' name='toggle_body_damage_heavy'/>
+             <input type="checkbox" id="body_damage_heavy" class="radio_principle" name="toggle_body_damage_heavy" $body_damage_heavy_checked /> 
+             <label id="damage_box" class="radio_principle_label" for="body_damage_heavy"> H </label>
+             <input type='hidden' value='unchecked' name='toggle_body_damage_light'/>
+             <input type="checkbox" id="body_damage_light" class="radio_principle" name="toggle_body_damage_light" $body_damage_light_checked /> 
+             <label id="damage_box" class="radio_principle_label" for="body_damage_light"> L </label>
+                <h2>Body</h2>
+                <font color="#C60000">H</font>eavy Injury: Knocked Down
+            </div>
+        </div> <!-- survivor_hit_box -->
+
+                <!-- WAIST -->
+        <div id="survivor_hit_box">
+            <div id="shield_box">
+                <input type="number" class="shield" name="Waist" value="$waist"/>
+            </div>
+            <div id="info_box">
+             <input type='hidden' value='unchecked' name='toggle_waist_damage_heavy'/>
+             <input type="checkbox" id="waist_damage_heavy" class="radio_principle" name="toggle_waist_damage_heavy" $waist_damage_heavy_checked /> 
+             <label id="damage_box" class="radio_principle_label" for="waist_damage_heavy"> H </label>
+             <input type='hidden' value='unchecked' name='toggle_waist_damage_light'/>
+             <input type="checkbox" id="waist_damage_light" class="radio_principle" name="toggle_waist_damage_light" $waist_damage_light_checked /> 
+             <label id="damage_box" class="radio_principle_label" for="waist_damage_light"> L </label>
+                <h2>Waist</h2>
+                <font color="#C60000">H</font>eavy Injury: Knocked Down
+            </div>
+        </div> <!-- survivor_hit_box -->
 
         <!-- LEGS -->
-    <div id="survivor_hit_box">
-        <div id="shield_box">
-            <input type="number" class="shield" name="Legs" value="$legs"/>
-        </div>
-        <div id="info_box">
-     <input type="checkbox" id="legs_damage_heavy" class="radio_principle" name="legs_damage_heavy" $legs_damage_heavy_checked /> 
-     <label id="damage_box" class="radio_principle_label" for="legs_damage_heavy"> H </label>
-     <input type="checkbox" id="legs_damage_light" class="radio_principle" name="legs_damage_light" $legs_damage_light_checked /> 
-     <label id="damage_box" class="radio_principle_label" for="legs_damage_light"> L </label>
-        <h2>Legs</h2>
-        <font color="#C60000">H</font>eavy Injury: Knocked Down
-        </div>
-    </div>
+        <div id="survivor_hit_box">
+            <div id="shield_box">
+                <input type="number" class="shield" name="Legs" value="$legs"/>
+            </div>
+            <div id="info_box">
+             <input type='hidden' value='unchecked' name='toggle_legs_damage_heavy'/>
+             <input type="checkbox" id="legs_damage_heavy" class="radio_principle" name="toggle_legs_damage_heavy" $legs_damage_heavy_checked /> 
+             <label id="damage_box" class="radio_principle_label" for="legs_damage_heavy"> H </label>
+             <input type='hidden' value='unchecked' name='toggle_legs_damage_light'/>
+             <input type="checkbox" id="legs_damage_light" class="radio_principle" name="toggle_legs_damage_light" $legs_damage_light_checked /> 
+             <label id="damage_box" class="radio_principle_label" for="legs_damage_light"> L </label>
+                <h2>Legs</h2>
+                <font color="#C60000">H</font>eavy Injury: Knocked Down
+            </div>
+        </div> <!-- survivor_hit_box -->
 
-     <select name="heal_survivor" onchange="this.form.submit()">
-      <option selected disabled hidden value="">Heal Survivor</option>
-      <option>Heal Injuries Only</option>
-      <option>Heal Injuries and Remove Armor</option>
-      <option>Return from Hunt</option>
-     </select>
-    <hr />
+
+                <!-- HIT BOXES END HERE -->
+
+
+                <!-- HEAL SURVIVOR CONTROLS HERE! -->
+
+         <select name="heal_survivor" onchange="this.form.submit()">
+          <option selected disabled hidden value="">Heal Survivor</option>
+          <option>Heal Injuries Only</option>
+          <option>Heal Injuries and Remove Armor</option>
+          <option>Return from Hunt</option>
+         </select>
+
+
+        <hr />  <!-- logical break -->
+
 
                         <!-- HUNT XP and AGE -->
 
-    <input class="big_number_square" type="number" name="hunt_xp" value="$hunt_xp" />
-    <div class="big_number_caption">Hunt XP</div>
-    <br />
-    <p>
-        <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Age</b> occurs at 2, 6, 10 and 15. The Survivor retires at 16.
-    </p>
-    <hr/>
-                        <!-- WEAPON PROFICIENCY -->
-    <h3>Weapon Proficiency</h3>
-    <input class="big_number_square" type="number" name="Weapon Proficiency" value="$weapon_proficiency" />
-    <div class="big_number_caption">
-        <input type="text" class="full_width" placeholder="Type: Select before hunt" value="$weapon_proficiency_type" name="weapon_proficiency_type" style="width: 50%; clear: none; "/>
-    </div>
-    <p>       <b>Specialist</b> at 3; <b>Master</b> at 8.   </p>
+        <input class="big_number_square" type="number" name="hunt_xp" value="$hunt_xp" />
+        <div class="big_number_caption">Hunt XP</div>
+        <br />
+        <p>
+            <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Age</b> occurs at 2, 6, 10 and 15. The Survivor retires at 16.
+        </p>
 
-    <hr/>
+        <hr/>
+
+                        <!-- WEAPON PROFICIENCY -->
+        <h3>Weapon Proficiency</h3>
+        <input class="big_number_square" type="number" name="Weapon Proficiency" value="$weapon_proficiency" />
+        <div class="big_number_caption">
+            <input type="text" class="full_width" placeholder="Type: Select before hunt" value="$weapon_proficiency_type" name="weapon_proficiency_type" style="width: 50%; clear: none; "/>
+        </div>
+        <p>       <b>Specialist</b> at 3; <b>Master</b> at 8.   </p>
+
+        <hr/>
+
                         <!-- COURAGE AND UNDERSTANDING -->
 
-    <div id="block_group">
-    <br />
-    <input class="big_number_square" type="number" name="Courage" value="$courage" />
-    <div class="big_number_caption">Courage</div>
-    <br />
-    <p>
-    <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Bold</b> occurs at 3, <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>See the Truth</b> occurs at 9.
+        <div id="block_group">
+        <br />
+        <input class="big_number_square" type="number" name="Courage" value="$courage" />
+        <div class="big_number_caption">Courage</div>
+        <br />
+        <p>
+        <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Bold</b> occurs at 3, <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>See the Truth</b> occurs at 9.
 
-      <input type="radio" id="stalwart_button" class="radio_principle" name="courage_attribute" value="Stalwart" $stalwart_checked />
-      <label class="radio_principle_label" for="stalwart_button"> <b>Stalwart:</b> can't be knocked down by brain trauma or intimidate. </label>
-      <input type="radio" id="prepared_button" class="radio_principle" name="courage_attribute" value="Prepared" $prepared_checked />
-      <label class="radio_principle_label" for="prepared_button"> <b>Prepared:</b> Add hunt XP to your roll when determining a straggler. </label>
-      <input type="radio" id="matchmaker_button" class="radio_principle" name="courage_attribute" value="Matchmaker" $matchmaker_checked />
-      <label class="radio_principle_label" for="matchmaker_button"> <b>Matchmaker:</b> Spend 1 endeavor to trigger intimacy story event. </label>
-    </div>
-    <div id="block_group">
-    <br />
-    <input class="big_number_square" type="number" name="Understanding" value="$understanding" />
-    <div class="big_number_caption">Understanding</div>
-    <br />
-    <p>
-    <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Insight</b> occurs at 3, <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>White Secret</b> occurs at 9.
-      <input type="radio" id="analyze_button" class="radio_principle" name="understanding_attribute" value="Analyze" $analyze_checked />
-      <label class="radio_principle_label" for="analyze_button"> <b>Analyze:</b> Look at top AI card and return it to the top of the deck.</label>
-      <input type="radio" id="explore_button" class="radio_principle" name="understanding_attribute" value="Explore" $explore_checked />
-      <label class="radio_principle_label" for="explore_button"> <b>Explore:</b>  Add +2 to your investigate roll results.</label>
-      <input type="radio" id="tinker_button" class="radio_principle" name="understanding_attribute" value="Tinker" $tinker_checked />
-      <label class="radio_principle_label" for="tinker_button"> <b>Tinker:</b> +1 endeavor when a returning survivor. </label>
+          <input type="radio" id="stalwart_button" class="radio_principle" name="courage_attribute" value="Stalwart" $stalwart_checked />
+          <label class="radio_principle_label" for="stalwart_button"> <b>Stalwart:</b> can't be knocked down by brain trauma or intimidate. </label>
+          <input type="radio" id="prepared_button" class="radio_principle" name="courage_attribute" value="Prepared" $prepared_checked />
+          <label class="radio_principle_label" for="prepared_button"> <b>Prepared:</b> Add hunt XP to your roll when determining a straggler. </label>
+          <input type="radio" id="matchmaker_button" class="radio_principle" name="courage_attribute" value="Matchmaker" $matchmaker_checked />
+          <label class="radio_principle_label" for="matchmaker_button"> <b>Matchmaker:</b> Spend 1 endeavor to trigger intimacy story event. </label>
+        </div>
+        <div id="block_group">
+        <br />
+        <input class="big_number_square" type="number" name="Understanding" value="$understanding" />
+        <div class="big_number_caption">Understanding</div>
+        <br />
+        <p>
+        <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Insight</b> occurs at 3, <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>White Secret</b> occurs at 9.
+          <input type="radio" id="analyze_button" class="radio_principle" name="understanding_attribute" value="Analyze" $analyze_checked />
+          <label class="radio_principle_label" for="analyze_button"> <b>Analyze:</b> Look at top AI card and return it to the top of the deck.</label>
+          <input type="radio" id="explore_button" class="radio_principle" name="understanding_attribute" value="Explore" $explore_checked />
+          <label class="radio_principle_label" for="explore_button"> <b>Explore:</b>  Add +2 to your investigate roll results.</label>
+          <input type="radio" id="tinker_button" class="radio_principle" name="understanding_attribute" value="Tinker" $tinker_checked />
+          <label class="radio_principle_label" for="tinker_button"> <b>Tinker:</b> +1 endeavor when a returning survivor. </label>
 
-    </div>
-    <hr/>
+        </div>
+    </form>
+
+
+    <a id="edit_fighting_arts" />
+
+
+    <hr/> <!-- logical division; new form starts here too -->
+
+
+
                         <!-- FIGHTING ARTS -->
-    <h3>Fighting Arts</h3>
-    <p>Maximum 3.</p>
 
-        $fighting_arts
-        $add_fighting_arts<br/>
-        $rm_fighting_arts
 
-    <hr/>
-                        <!-- DISORDERS -->
-    <h3>Disorders</h3>
-    <p>Maximum 3.</p>
+    <form method="POST" id="autoForm" action="#edit_fighting_Arts">
+        <input type="hidden" name="form_id" value="survivor_edit_fighting_arts" />
+        <button class="hidden"></button>
+        <input type="hidden" name="modify" value="survivor" />
+        <input type="hidden" name="asset_id" value="$survivor_id" />
+
+        <h3>Fighting Arts</h3>
+        <p>Maximum 3.</p>
+
+            $fighting_arts
+            $add_fighting_arts<br/>
+            $rm_fighting_arts
+
+    <a id="edit_disorders"/>
+
+        <hr/>
+    </form>
+
+                        <!-- DISORDERS - HAS ITS OWN FORM-->
+
+    <form method="POST" id="autoForm" action="#edit_disorders">
+        <input type="hidden" name="form_id" value="survivor_edit_disorders" />
+        <input type="hidden" name="modify" value="survivor" />
+        <input type="hidden" name="asset_id" value="$survivor_id" />
+        <h3>Disorders</h3>
+        <p>Maximum 3.</p>
 
         $disorders
         $add_disorders<br />
         $rm_disorders
 
+        <a id="edit_abilities"/>
+
+    </form>
+
+
     <hr/>
 
                         <!-- ABILITIES AND IMPAIRMENTS -->
 
-    <h3>Abilities & Impairments</h3>
-    <p>
-     <input type="checkbox" id="skip_next_hunt" class="radio_principle" name="skip_next_hunt" value="checked" $skip_next_hunt_checked />
-     <label class="radio_principle_label" for="skip_next_hunt" id="skip_next_hunt"> Skip Next<br/>Hunt </label>
-        $abilities_and_impairments<br/>
-        $add_abilities_and_impairments
-    <input onchange="this.form.submit()" class="full_width" type="text" name="add_ability" placeholder="add ability or impairment"/>
-        $remove_abilities_and_impairments
+    <form method="POST" id="autoForm" action="#edit_abilities">
+        <input type="hidden" name="form_id" value="survivor_edit_abilities" />
+        <input type="hidden" name="modify" value="survivor" />
+        <input type="hidden" name="asset_id" value="$survivor_id" />
 
-    </p>
-    <hr/>
+        <h3>Abilities & Impairments</h3>
+        <p>
+         <input type='hidden' value='unchecked' name='toggle_skip_next_hunt'/>
+         <input onchange="this.form.submit()" type="checkbox" id="skip_next_hunt" class="radio_principle" name="toggle_skip_next_hunt" value="checked" $skip_next_hunt_checked />
+         <label class="radio_principle_label" for="skip_next_hunt" id="skip_next_hunt"> Skip Next<br/>Hunt </label>
+            $abilities_and_impairments<br/>
+            $add_abilities_and_impairments
+        <input onchange="this.form.submit()" class="full_width" type="text" name="add_ability" placeholder="add ability or impairment"/>
+            $remove_abilities_and_impairments
 
-    <input class="full_width" type="text" name="email" placeholder="email" value="$email"/>
-    <hr />
+        </p>
+        <hr/>
+
+        <input class="full_width" type="text" name="email" placeholder="email" value="$email"/>
+        <hr />
 
     </form>
 
 
     <br/><hr/>
+
+
     <form method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this survivor forever, which is NOT THE SAME THING as marking it dead: permanently deleting the survivor prevents anyone from viewing and/or editing it ever again!');"><input type="hidden" name="remove_survivor" value="$survivor_id"/><button class="error">Permanently Delete Survivor</button></form>
     <hr/>
     <br />
 
     \n""")
+    new = Template("""\n\
+    <h3>Create a New Survivor</h3>
+    <form method="POST">
+    <input type="hidden" name="new" value="survivor" />
+    <input type="hidden" name="created_by" value="$created_by" />
+    <input type="hidden" name="settlement_id" value="$home_settlement">
+    <input type="text" name="name" placeholder="Survivor Name"/ class="full_width">
+    <input type="text" name="email" placeholder="Survivor Email"/ class="full_width" value="$user_email">
+    <div id="block_group">
+    <h2>Survivor Sex</h2>
+    <input type="radio" id="male_button" class="radio_principle" name="sex" value="Male" checked/> 
+      <label class="radio_principle_label" for="male_button"> Male </label>
+    <input type="radio" id="female_button" class="radio_principle" name="sex" value="Female"/> 
+      <label class="radio_principle_label" for="female_button"> Female </label>
+    </div>
+    <button class="success">SAVE</button>
+    </form>
+    \n""")
+
 
 class settlement:
     summary = Template("""\n\
@@ -312,33 +413,33 @@ class settlement:
     form = Template("""\n\
     $game_link
 
-    <form method="POST" id="autoForm">
-    <button type="submit" id="save_button" class="success">Save</button>
-    <input type="hidden" name="modify" value="settlement" />
-    <input type="hidden" name="asset_id" value="$settlement_id" />
+    <form method="POST" id="autoForm" action="#">
+        <button id="save_button" class="success">Save</button>
+        <input type="hidden" name="modify" value="settlement" />
+        <input type="hidden" name="asset_id" value="$settlement_id" />
 
-    <input id="topline_name" onchange="this.form.submit()" class="full_width" type="text" name="name" value="$name" placeholder="Settlement Name"/>
-    <hr />
-    <input class="big_number_square" type="number" name="survival_limit" value="$survival_limit" min="$min_survival_limit"/>
-    <div class="big_number_caption">Survival Limit<br />(min: $min_survival_limit)</div>
-    <br /><hr />
+        <input id="topline_name" onchange="this.form.submit()" class="full_width" type="text" name="name" value="$name" placeholder="Settlement Name"/>
+        <hr />
+        <input class="big_number_square" type="number" name="survival_limit" value="$survival_limit" min="$min_survival_limit"/>
+        <div class="big_number_caption">Survival Limit<br />(min: $min_survival_limit)</div>
+        <br /><hr />
 
-        <h3>On Departure</h3>
-        $departure_bonuses
+            <h3>On Departure</h3>
+            $departure_bonuses
 
-    <hr/>
+        <hr/>
 
-        <h3>During Settlement Phase</h3>
-        $settlement_bonuses
+            <h3>During Settlement Phase</h3>
+            $settlement_bonuses
 
-    <hr />
+        <hr />
 
-    <input class="big_number_square" type="number" name="population" value="$population"/>
-    <div class="big_number_caption">Population</div>
-    <br /><hr />
-    <input class="big_number_square" type="number" name="death_count" value="$death_count"/>
-    <div class="big_number_caption">Death Count</div>
-    <br />
+        <input class="big_number_square" type="number" name="population" value="$population"/>
+        <div class="big_number_caption">Population</div>
+        <br /><hr />
+        <input class="big_number_square" type="number" name="death_count" value="$death_count"/>
+        <div class="big_number_caption">Death Count</div>
+        <br />
 
     </form> <!-- ending the first form -->
 
@@ -596,24 +697,6 @@ class dashboard:
     <button class="success">SAVE</button>
     </form>
     \n"""
-    new_survivor_form = Template("""\n\
-    <h3>Create a New Survivor</h3>
-    <form method="POST">
-    <input type="hidden" name="new" value="survivor" />
-    <input type="hidden" name="created_by" value="$created_by" />
-    <input type="hidden" name="settlement_id" value="$home_settlement">
-    <input type="text" name="name" placeholder="Survivor Name"/ class="full_width">
-    <input type="text" name="email" placeholder="Survivor Email"/ class="full_width" value="$user_email">
-    <div id="block_group">
-    <h2>Survivor Sex</h2>
-    <input type="radio" id="male_button" class="radio_principle" name="sex" value="Male"/> 
-      <label class="radio_principle_label" for="male_button"> Male </label>
-    <input type="radio" id="female_button" class="radio_principle" name="sex" value="Female"/> 
-      <label class="radio_principle_label" for="female_button"> Female </label>
-    </div>
-    <button class="success">SAVE</button>
-    </form>
-    \n""")
     view_asset_button = Template("""\n\
     <form method="POST">
     <input type="hidden" name="view_$asset_type" value="$asset_id" />
@@ -628,7 +711,7 @@ class login:
     <form method="POST">
     <input class="full_width" type="text" name="login" placeholder="email"/>
     <input class="full_width" type="password" name="password" placeholder="password"/>
-    <button>Log In</button>
+    <button>Sign In (or Register)</button>
     </form>
     \n"""
     new_user = Template("""\n\
@@ -636,7 +719,7 @@ class login:
     <input class="full_width" type="text" name="login" value="$login"/>
     <input class="full_width" type="password" name="password" placeholder="password"/>
     <input class="full_width" type="password" name="password_again" placeholder="password (again)"/>
-    <button>Create New User</button>
+    <button>Register New Email</button>
     </form>
     \n""")
 
@@ -659,7 +742,7 @@ class meta:
     close_head = '</head>\n<body>\n <div id="container">\n'
     false_body = 'Caught exception while rendering the current view!<hr/>The current session will be ended. Please try again.'
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
-    saved_dialog = '<div id="saved_dialog" class="success">Saved!</div>'
+    saved_dialog = '\n    <div id="saved_dialog" class="success">Saved!</div>'
     log_out_button = Template('\n\t<hr/><form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><button class="warn">LOG OUT</button>\n\t</form>')
 
 
@@ -733,11 +816,17 @@ def render(view_html, head=[], http_headers=False):
     <script src="http://malsup.github.com/jquery.form.js"></script>
 
     <script>
+
         $(document).ready(function() {
 
             $('#saved_dialog').hide();
 
             $('#autoForm').ajaxForm(function() {
+                $('#saved_dialog').show();
+                $('#saved_dialog').fadeOut(1500)
+            });
+
+            $('.autoFormChild').ajaxForm(function() {
                  $('#saved_dialog').show();
                  $('#saved_dialog').fadeOut(1500)
             });
@@ -745,6 +834,7 @@ def render(view_html, head=[], http_headers=False):
         });
     </script>
     \n"""
+
 
     output += """\n\
     <script>
