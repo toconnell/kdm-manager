@@ -1078,7 +1078,7 @@ class Settlement:
             survivors = self.get_survivors(return_as="game_view", user_id=user_id),
             survival_limit = self.settlement["survival_limit"],
             innovations = self.get_innovations(return_as="comma-delimited", include_principles=True),
-            locations = self.get_innovations(return_as="comma-delimited"),
+            locations = self.get_locations(return_as="comma-delimited"),
             departure_bonuses = self.get_bonuses('departure_buff'),
             settlement_bonuses = self.get_bonuses('settlement_buff'),
             survivor_bonuses = self.get_bonuses('survivor_buff'),

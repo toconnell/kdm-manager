@@ -344,7 +344,7 @@ items = {
     "White Lion Boots": {
         "location": "Catarium",
     },
-    "White Lion Gauntlet": {
+    "White Lion Gauntlets": {
         "location": "Catarium",
     },
     "King Spear": {
