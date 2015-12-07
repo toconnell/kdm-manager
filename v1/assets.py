@@ -9,7 +9,7 @@ import assets
 import html
 import models
 from models import Abilities, Epithets, Locations, Items, Innovations, Resources, Quarries
-from utils import mdb, get_logger, load_settings
+from utils import mdb, get_logger, load_settings, get_user_agent
 
 settings = load_settings()
 
@@ -25,6 +25,18 @@ class User:
         self.user = mdb.users.find_one({"_id": user_id})
         self.get_settlements()
         self.get_survivors()
+
+    def mark_auth(self, auth_dt=None):
+        self.user["latest_succesful_authentication"] = auth_dt
+        mdb.users.save(self.user)
+
+    def mark_usage(self, action=None):
+        """ Updates the user's mdb object with some data. """
+
+        self.user["latest_action"] = action
+        self.user["latest_activity"] = datetime.now()
+        self.user["latest_user_agent"] = str(get_user_agent())
+        mdb.users.save(self.user)
 
     def get_settlements(self, return_as=False):
         """ Returns the user's settlements in a number of ways. Leave

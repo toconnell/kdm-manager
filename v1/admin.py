@@ -7,11 +7,13 @@ from optparse import OptionParser
 import os
 from validate_email import validate_email
 
+import assets
 from utils import mdb, get_logger, get_user_agent, load_settings
 
 
 logger = get_logger()
 settings = load_settings()
+
 #
 #   administrative helper functions for user-land
 #
@@ -66,16 +68,20 @@ def authenticate(login, password):
         return None
 
     if md5(password).hexdigest() == user["password"]:
+        user["latest_sign_in"] = datetime.now()
+        mdb.users.save(user)
         logger.debug("User '%s' authenticated successfully." % login)
         return True
     else:
         logger.debug("User '%s' FAILED to authenticate successfully." % login)
         return False
 
+
 def remove_session(session_id):
     s = ObjectId(session_id)
     mdb.sessions.remove({"_id": s})
     logger.debug("Removed session '%s' successfully." % session_id)
+
 
 #
 #   Interactive CLI admin stuff; not to be used in user-land
@@ -130,11 +136,50 @@ def remove_document(collection, doc_id):
     mdb[collection].remove({"_id": doc_id})
     logger.info("[ADMIN] Removed '%s' from mdb.%s" % (doc_id, collection))
 
+def pretty_view_user(u_id):
+    """ Prints a pretty summary of the user and his assets to STDOUT. """
+
+    User = assets.User(u_id)
+
+    if User.user is None:
+        print("Could not retrieve user info from mdb.")
+        return None
+
+    print("\n\tUser Summary!\n\n _id: %s\n login: %s\n created: %s\n" % (User.user["_id"], User.user["login"], User.user["created_on"]))
+    for u_key in sorted(User.user.keys()):
+        if u_key not in ["_id", "login", "created_on"]:
+            print(" %s: %s" % (u_key, User.user[u_key]))
+    print("")
+
+    def asset_repr(a, type=False):
+        if type == "settlement":
+            return " %s - %s - LY: %s (%s/%s)" % (a["_id"], a["name"], a["lantern_year"], a["population"], a["death_count"])
+        if type == "survivor":
+            return " %s - %s [%s] %s" % (a["_id"], a["name"], a["sex"], a["email"])
+
+    if User.settlements == []:
+        print(" No settlements.\n")
+    else:
+        print("\t%s settlements:\n" % len(User.settlements))
+        for settlement in User.settlements:
+            print asset_repr(settlement, "settlement")
+            for survivor in mdb.survivors.find({"settlement": settlement["_id"]}):
+                print "  %s" % asset_repr(survivor, "survivor")
+            print("")
+
+    if User.survivors == []:
+        print(" No survivors.\n")
+    else:
+        print("\t%s survivors:\n" % len(User.survivors))
+        for survivor in User.survivors:
+            print asset_repr(survivor, "survivor")
+    print("")
 
 def initialize():
     """ Completely initializes the application. Scorched earth. """
     for collection in ["users", "sessions", "survivors", "settlements"]:
         mdb[collection].remove()
+
 
 
 if __name__ == "__main__":
@@ -146,6 +191,7 @@ if __name__ == "__main__":
     parser.add_option("-r", dest="remove_document", help="Remove a single document (requires -c)", metavar="29433d1c8b56581ab21aa96b", default=False)
     parser.add_option("-R", dest="drop_collection", help="Drop all docs in a collection.", metavar="users", default=False)
 
+    parser.add_option("--user", dest="pretty_view_user", help="Print a pretty summary of a user", metavar="5665026954922d076285bdec", default=False)
     parser.add_option("--initialize", dest="initialize", help="Burn it down.", action="store_true", default=False)
     (options, args) = parser.parse_args()
 
@@ -166,3 +212,6 @@ if __name__ == "__main__":
             dump_document(options.collection, options.view_document)
         if options.remove_document:
             remove_document(options.collection, options.remove_document)
+
+    if options.pretty_view_user:
+        pretty_view_user(options.pretty_view_user)

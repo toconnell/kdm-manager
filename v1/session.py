@@ -48,6 +48,7 @@ class Session:
             if self.session is not None:
                 user_object = mdb.users.find_one({"current_session": session_id})
                 self.User = assets.User(user_object["_id"])
+                self.logger.debug("recording auth")
                 self.set_current_settlement()
 
 
@@ -132,15 +133,22 @@ class Session:
         """ All cgi.FieldStorage() params passed to this object on init
         need to be processed. This does ALL OF THEM at once. """
 
+        user_action = None  # we're going to log this below
+
         if "change_view" in self.params:
-            self.change_current_view(self.params["change_view"].value)
+            target_view = self.params["change_view"].value
+            self.change_current_view(target_view)
+            user_action = "changed view to %s" % target_view
 
         if "view_game" in self.params:
             self.change_current_view("view_game", asset_id=self.params["view_game"].value)
+            user_action = "viewed campaign summary"
         if "view_settlement" in self.params:
             self.change_current_view("view_settlement", asset_id=self.params["view_settlement"].value)
+            user_action = "viewed settlement form"
         if "view_survivor" in self.params:
             self.change_current_view("view_survivor", asset_id=self.params["view_survivor"].value)
+            user_action = "viewed survivor form"
 
         if "remove_settlement" in self.params:
             self.change_current_view("dashboard")
@@ -152,10 +160,13 @@ class Session:
             self.User.get_settlements()
             mdb.settlements.remove({"_id": settlement_id})
             self.logger.info("User '%s' removed settlement '%s'" % (self.User.user["login"], settlement_id))
+            user_action = "removed settlement %s" % settlement_id
 
         if "remove_survivor" in self.params:
             self.change_current_view("dashboard")
-            mdb.survivors.remove({"_id": ObjectId(self.params["remove_survivor"].value)})
+            survivor_id = ObjectId(self.params["remove_survivor"].value)
+            mdb.survivors.remove({"_id": survivor_id})
+            user_action = "removed survivor %s" % survivor_id
 
         if "new" in self.params:
             if self.params["new"].value == "settlement":
@@ -163,19 +174,24 @@ class Session:
                 s = assets.Settlement(name=settlement_name, created_by=ObjectId(self.User.user["_id"]))
                 self.set_current_settlement(s.settlement["_id"])
                 self.change_current_view("view_game", asset_id=s.settlement["_id"])
+                user_action = "created settlement %s" % s.settlement["_id"]
             if self.params["new"].value == "survivor":
                 s = assets.Survivor(params=self.params)
                 self.change_current_view("view_survivor", asset_id=s.survivor["_id"])
+                user_action = "created survivor %s" % s.survivor["_id"]
 
         if "modify" in self.params:
             s_id = self.params["asset_id"].value
             if self.params["modify"].value == "settlement":
                 S = assets.Settlement(settlement_id=s_id)
                 S.modify(self.params)
+                user_action = "modified settlement %s" % s_id
             if self.params["modify"].value == "survivor":
                 S = assets.Survivor(survivor_id=s_id)
                 S.modify(self.params)
-            self.logger.debug("User '%s' modified asset '%s' successfully!" % (self.User.user["login"], s_id))
+                user_action = "modified survivor %s" % s_id
+
+        self.User.mark_usage(user_action)
 
 
     def log_out(self):
