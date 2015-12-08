@@ -8,6 +8,8 @@ from pymongo import MongoClient
 import sys
 from user_agents import parse as ua_parse
 
+hms = "%H:%M:%S"
+ymdhms = "%Y-%m-%d %H:%M:%S"
 
 # function to get settings. This has to be up top.
 

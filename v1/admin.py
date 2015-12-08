@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
 from bson.objectid import ObjectId
-from datetime import datetime
+from datetime import datetime, timedelta
 from hashlib import md5
 from optparse import OptionParser
 import os
 from validate_email import validate_email
 
 import assets
-from utils import mdb, get_logger, get_user_agent, load_settings
+from utils import mdb, get_logger, get_user_agent, load_settings, ymdhms, hms
 
 
 logger = get_logger()
@@ -187,6 +187,18 @@ def initialize():
         mdb[collection].remove()
 
 
+def play_summary():
+    """ Summarizes play sessions. """
+
+    print("\n\t\tRecent Play Summaries:\n")
+    users = mdb.users.find({"latest_activity": {"$exists": True}}).sort("latest_activity")
+    for u in users:
+        output = " "
+        output += "%s - %s (%s):\n " % (u["login"], u["_id"], u["latest_user_agent"])
+        duration = u["latest_activity"] - u["latest_sign_in"]
+        output += "    %s - %s (%s)\n" % (u["latest_sign_in"].strftime(ymdhms), u["latest_activity"].strftime(ymdhms), duration)
+        output += "     Latest Action: '%s'\n" % u["latest_action"]
+        print(output)
 
 if __name__ == "__main__":
     parser = OptionParser()
@@ -197,7 +209,10 @@ if __name__ == "__main__":
     parser.add_option("-r", dest="remove_document", help="Remove a single document (requires -c)", metavar="29433d1c8b56581ab21aa96b", default=False)
     parser.add_option("-R", dest="drop_collection", help="Drop all docs in a collection.", metavar="users", default=False)
 
+    parser.add_option("--play_summary", dest="play_summary", help="Summarize play sessions for users.", action="store_true", default=False)
+
     parser.add_option("--user", dest="pretty_view_user", help="Print a pretty summary of a user", metavar="5665026954922d076285bdec", default=False)
+
     parser.add_option("--initialize", dest="initialize", help="Burn it down.", action="store_true", default=False)
     (options, args) = parser.parse_args()
 
@@ -221,3 +236,6 @@ if __name__ == "__main__":
 
     if options.pretty_view_user:
         pretty_view_user(options.pretty_view_user)
+
+    if options.play_summary:
+        play_summary()
