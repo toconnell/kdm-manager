@@ -8,7 +8,7 @@ import os
 from validate_email import validate_email
 
 import assets
-from utils import mdb, get_logger, get_user_agent, load_settings, ymdhms, hms
+from utils import mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes
 
 
 logger = get_logger()
@@ -191,12 +191,13 @@ def play_summary():
     """ Summarizes play sessions. """
 
     print("\n\t\tRecent Play Summaries:\n")
-    users = mdb.users.find({"latest_activity": {"$exists": True}}).sort("latest_activity")
+    users = mdb.users.find({"latest_sign_in": {"$exists": True}, "latest_activity": {"$exists": True}}).sort("latest_activity")
     for u in users:
         output = " "
         output += "%s - %s (%s):\n " % (u["login"], u["_id"], u["latest_user_agent"])
         duration = u["latest_activity"] - u["latest_sign_in"]
-        output += "    %s - %s (%s)\n" % (u["latest_sign_in"].strftime(ymdhms), u["latest_activity"].strftime(ymdhms), duration)
+        dur_repr = "%s:%s:%s" % days_hours_minutes(duration)
+        output += "    %s - %s (%s)\n" % (u["latest_sign_in"].strftime(ymdhms), u["latest_activity"].strftime(ymdhms), dur_repr)
         output += "     Latest Action: '%s'\n" % u["latest_action"]
         print(output)
 

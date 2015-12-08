@@ -8,8 +8,6 @@ from pymongo import MongoClient
 import sys
 from user_agents import parse as ua_parse
 
-hms = "%H:%M:%S"
-ymdhms = "%Y-%m-%d %H:%M:%S"
 
 # function to get settings. This has to be up top.
 
@@ -30,12 +28,17 @@ def load_settings():
 
 settings = load_settings()
 ymd = "%Y-%m-%d"
+hms = "%H:%M:%S"
+ymdhms = "%Y-%m-%d %H:%M:%S"
 mdb = MongoClient()[settings.get("application","mdb")]
 
 
 #
 #  application helper functions
 #
+
+def days_hours_minutes(td):
+    return abs(td.days), td.seconds//3600, (td.seconds//60)%60
 
 
 #  sysadmin helper functions
