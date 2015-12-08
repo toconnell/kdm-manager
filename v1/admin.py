@@ -87,11 +87,17 @@ def remove_session(session_id):
 #   Interactive CLI admin stuff; not to be used in user-land
 #
 
-def ls_documents(collection):
+def ls_documents(collection, sort_on="created_on"):
     """ Dumps a list- or ls-style rendering of a collection's contents. """
 
-    for d in mdb[collection].find().sort("created_on"):
+    if collection == "users":
+        sort_on = "latest_activity"
+
+    for d in mdb[collection].find().sort(sort_on):
         output = " "
+        if sort_on in d.keys():
+            output += d[sort_on].strftime("%Y-%m-%d %H:%M:%S")
+            output += " "
         output += str(d["_id"])
         output += " - "
         if collection == "users" or collection == "sessions":

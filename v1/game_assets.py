@@ -331,16 +331,30 @@ locations = {
         "color": "777744",
         "consequences": ["Stone Circle"],
     },
-    "Blacksmith": {},
-    "Stone Circle": {
-        "color": "999"
+    "Blacksmith": {
+        "color": "ddd",
     },
-    "Leather Worker": {},
-    "Weapon Crafter": {},
-    "Barber Surgeon": {},
-    "Plumery": {},
-    "Mask Maker": {},
-    "Exhausted Lantern Hoard": {},
+    "Stone Circle": {
+        "color": "999",
+    },
+    "Leather Worker": {
+        "color": "D2B48C",
+    },
+    "Weapon Crafter": {
+        "color": "4682B4",
+    },
+    "Barber Surgeon": {
+        "color": "ddd",
+    },
+    "Plumery": {
+        "color": "ddd",
+    },
+    "Mask Maker": {
+        "color": "ddd",
+    },
+    "Exhausted Lantern Hoard": {
+        "color": "ddd",
+    },
     "Catarium": {
         "color": "eee",
     },

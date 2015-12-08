@@ -80,7 +80,8 @@ button#remove_item {border-radius: 20px; padding-right: 10px; padding-left: 10px
 #floating_asset_button {margin-top: 45%; }
 #save_button {margin-top: 25%; }
 
-
+/* font styles - let's try not to do too many of these, ok? */
+font#hit_box_insanity {font-size: 20px;}
 
 /* epithet style silliness */
 #Lucernae {color: blue; }

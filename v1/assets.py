@@ -328,7 +328,6 @@ class Survivor:
             increment_hunt_xp=1
 
         for damage_loc in self.damage_locations:
-            self.logger.debug("healing %s" % damage_loc)
             try:
                 del self.survivor[damage_loc]
             except:
@@ -366,7 +365,6 @@ class Survivor:
                 return True
             elif asset_key in Disorders.get_keys():
                 asset_dict = Disorders.get_asset(asset_key)
-                self.logger.debug("Adding: %s" % asset_dict)
                 self.survivor["disorders"].append(asset_key)
                 if "skip_next_hunt" in asset_dict.keys():
                     self.survivor["skip_next_hunt"] = "checked"
@@ -433,7 +431,6 @@ class Survivor:
         for hit_tuplet in [("arms_damage_light","arms_damage_heavy"), ("body_damage_light", "body_damage_heavy"), ("legs_damage_light", "legs_damage_heavy"), ("waist_damage_light", "waist_damage_heavy")]:
             light, heavy = hit_tuplet
             if heavy in self.survivor.keys() and not light in self.survivor.keys():
-                self.logger.debug("flipping %s back on" % light)
                 self.survivor[light] = "checked"
 
         # do healing absolutely last

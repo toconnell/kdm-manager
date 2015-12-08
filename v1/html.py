@@ -284,7 +284,7 @@ class survivor:
                         <!-- FIGHTING ARTS -->
 
 
-    <form method="POST" id="autoForm" action="#edit_fighting_Arts">
+    <form method="POST" id="autoForm" action="#edit_fighting_arts">
         <input type="hidden" name="form_id" value="survivor_edit_fighting_arts" />
         <button class="hidden"></button>
         <input type="hidden" name="modify" value="survivor" />
@@ -342,7 +342,7 @@ class survivor:
         </p>
         <hr/>
 
-        <input class="full_width" type="text" name="email" placeholder="email" value="$email"/>
+        <input onchange="this.form.submit()" class="full_width" type="text" name="email" placeholder="email" value="$email"/>
         <hr />
 
     </form>
@@ -698,7 +698,7 @@ class dashboard:
     </form>
     \n"""
     view_asset_button = Template("""\n\
-    <form method="POST">
+    <form method="POST" action="#">
     <input type="hidden" name="view_$asset_type" value="$asset_id" />
     <button id="$button_id" class="$button_class" $disabled>$asset_name</button>
     </form>
