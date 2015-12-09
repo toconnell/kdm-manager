@@ -17,12 +17,15 @@ class Model:
     def get_keys(self):
         return self.game_assets.keys()
 
-    def render_as_html_dropdown(self, submit_on_change=True, exclude=[]):
+    def render_as_html_dropdown(self, submit_on_change=True, exclude=[], disable=[]):
         """ Renders the model as an HTML dropdown and returns a string. Use the
         'submit_on_change' kwarg to control whether it submits on change.
 
         Use the 'exclude' kwarg to prevent certain keys from showing up in the
         resuting render.
+
+        Use 'disabled' to provide a list of options that, if present, will be
+        greyed out/disabled in the resulting pick-list.
         """
 
         options = self.get_keys()
@@ -43,7 +46,10 @@ class Model:
         output = '\n\t<select name="add_%s" onchange="%s">' % (self.name, submit_on_change)
         output += '\t<option selected disabled hidden value=''>Add %s</option>' % self.name.capitalize()
         for o in sorted(options):
-            output += '\t\t<option>%s</option>\n' % o
+            disabled = ""
+            if o in disable:
+                disabled = "disabled"
+            output += '\t\t<option %s>%s</option>\n' % (disabled, o)
         output += '</select>\n'
 
 
@@ -65,6 +71,19 @@ class abilitiesModel(Model):
         Model.__init__(self)
         self.game_assets = game_assets.abilities_and_impairments
         self.name = "ability"
+
+    def get_maxed_out_abilities(self, survivor_abilities):
+        """ Pass this a survivor["abilities_and_impairments"] list and it will
+        return a list of ability/impairment keys for which the survivor is
+        ineligible. """
+        maxed_out = set()
+        for ability_key in self.game_assets.keys():
+            ability_dict = self.get_asset(ability_key)
+            if "max" in ability_dict and ability_key in survivor_abilities:
+                survivor_total = survivor_abilities.count(ability_key)
+                if survivor_total == ability_dict["max"]:
+                    maxed_out.add(ability_key)
+        return sorted(list(maxed_out))
 
 class disordersModel(Model):
     def __init__(self):

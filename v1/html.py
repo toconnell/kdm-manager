@@ -18,6 +18,28 @@ user_error_msg = Template('<div id="user_error_msg" class="$err_class">$err_msg<
 
 
 class survivor:
+    campaign_asset = Template("""\n\
+      <div class="survivor_campaign_asset_container">
+
+        <form method="POST" action="#edit_hunting_party">
+         <input type="hidden" name="modify" value="survivor" />
+         <input type="hidden" name="asset_id" value="$survivor_id" />
+         <input type="hidden" name="view_game" value="$settlement_id" />
+         <input type="hidden" name="in_hunting_party" value="$hunting_party_checked"/>
+         <button id="add_survivor_to_party" class="$able_to_hunt" $able_to_hunt>::</button>
+        </form>
+
+        <form method="POST" action="#">
+         <input type="hidden" name="view_survivor" value="$survivor_id" />
+         <button id="survivor_campaign_asset" class="$b_class" $disabled>
+            <center><b>$name</b> [$sex] </center>
+            &ensp; XP: $hunt_xp &ensp; Insanity: $insanity<br />
+            &ensp; Courage: $courage <br /> &ensp; Understanding: $understanding
+         </button>
+        </form>
+      </div>
+      <hr class="invisible"/>
+    \n""")
     form = Template("""\n\
     $game_link
 
@@ -382,8 +404,10 @@ class settlement:
         <p class="subhead_p_block">$principles</p>
         <p>Population: $population ($death_count deaths)</p><hr/>
         <p>Survival Limit: $survival_limit</p><hr/>
+        <a id="edit_hunting_party"/>
         <h3>Survivors</h3>
         $survivors
+        <hr/>
         <form method="POST">
         <input type="hidden" name="change_view" value="new_survivor"/>
         <button class="success">+ Create New Survivor</button>
@@ -475,7 +499,8 @@ class settlement:
      <p>Locations in your settlement.</p>
         <hr />
      <p>$locations</p>
-     $locations_options
+     $locations_options<br />
+     $rm_locations
      <input onchange="this.form.submit()" type="text" class="full_width" name="add_location" placeholder="add custom location"/>
     </div>
     </form>
@@ -671,6 +696,9 @@ class settlement:
     <h3>Survivors</h3>
     $survivors
 
+    <br />
+    <hr />
+
     <form method="POST">
     <input type="hidden" name="change_view" value="new_survivor"/>
     <button class="success">+ Create New Survivor</button>
@@ -685,7 +713,7 @@ class settlement:
     \n""")
 
 class dashboard:
-    home_button = '<hr/><form method="POST"><input type="hidden" name="change_view" value="dashboard"/><button> Return to Dashboard</button></form>\n'
+    home_button = '<hr/><form method="POST" action="#"><input type="hidden" name="change_view" value="dashboard"/><button> Return to Dashboard</button></form>\n'
     headline = Template('<h2 class="$h_class">$title</h2><p>$desc</p>\n')
     settlement_flash = '<font size="50px">&#x02261;</font> '
     new_settlement_button = '<form method="POST"><input type="hidden" name="change_view" value="new_settlement" /><button class="success">+ New Settlement</button></form>\n'

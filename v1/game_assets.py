@@ -9,18 +9,18 @@ abilities_and_impairments = {
     "Intracranial hemmorhage": {
         "type": "impairment",
         "desc": "You can no longer use or gain any survival. This injury is permanent and can be recorded once.",
-        "cannot_use_survival": True,
+        "cannot_spend_survival": True,
         "max": 1,
     },
     "Deaf": {
         "type": "impairment",
-        "desc": "Suffer -1 permanent evasion. This injury is permanent and can be recorded once.",
+        "desc": "Suffer -1 permanent Evasion. This injury is permanent and can be recorded once.",
         "Evasion": -1,
         "max": 1,
     },
     "Blind": {
         "type": "impairment",
-        "desc": "Suffer -1 permanent accuracy. This injury is permanent and can be recorded twice.",
+        "desc": "Suffer -1 permanent Accuracy. This injury is permanent and can be recorded twice.",
         "Accuracy": -1,
         "max": 2,
     },
@@ -42,24 +42,24 @@ abilities_and_impairments = {
     },
     "Contracture": {
         "type": "impairment",
-        "desc": "Suffer -1 permanent accuracy. This injury is permanent and can be recorded multiple times.",
+        "desc": "Suffer -1 permanent Accuracy. This injury is permanent and can be recorded multiple times.",
         "Accuracy": -1,
     },
     "Broken arm": {
         "type": "impairment",
-        "desc": "Suffer -1 permanent accuracy and -1 permanent strength. This injury is permanent and can be recorded twice.",
+        "desc": "Suffer -1 permanent Accuracy and -1 permanent Strength. This injury is permanent and can be recorded twice.",
         "Accuracy": -1,
         "Strength": -1,
         "max": 2,
     },
     "Gaping chest wound": {
         "type": "impairment",
-        "desc": "Suffer -1 permanent strength. This injury is permanent and can be recorded multiple times.",
+        "desc": "Suffer -1 permanent Strength. This injury is permanent and can be recorded multiple times.",
         "Strength": -1,
     },
     "Destroyed back": {
         "type": "impairment",
-        "desc": "Suffer -2 permanent movement. You can no longer activate any gear that has 2+ strength. This injury is permanent and can be recorded once.",
+        "desc": "Suffer -2 permanent movement. You can no longer activate any gear that has 2+ Strength. This injury is permanent and can be recorded once.",
         "Movement": -2,
         "max": 1,
     },
@@ -176,7 +176,7 @@ disorders = {
         "survivor_effect": "At the start of each showdown, gain the priority target token unless you have stinky gear in your gear grid.",
     },
     "Quixotic": {
-        "survivor_effect": "If you are insane when you depart, gain +1 survival and +1 strength token.",
+        "survivor_effect": "If you are insane when you depart, gain +1 survival and +1 Strength token.",
     },
 }
 
@@ -230,11 +230,11 @@ epithets = {
 fighting_arts = {
     "Red Fist": {
         "secret": True,
-        "desc": "At the start of each showdown, each survivor gains +1 strength token. Survivors may spend +1 strength tokens in place of survival.",
+        "desc": "At the start of each showdown, each survivor gains +1 Strength token. Survivors may spend +1 Strength tokens in place of survival.",
     },
     "King of a Thousand Battles": {
         "secret": True,
-        "desc": "Gain +2 accuracy, +2 strength, +2 evasion. You may dodge any number of times in a rount. Only 1 survivor may have this Secret Fighting Art.",
+        "desc": "Gain +2 Accuracy, +2 Strength, +2 Evasion. You may dodge any number of times in a rount. Only 1 survivor may have this Secret Fighting Art.",
     },
     "King's Step": {
         "secret": True,
@@ -246,7 +246,7 @@ fighting_arts = {
     },
     "Zero Presence": {
         "secret": True,
-        "desc": "Gain +1 strength when attacking a monster from its blind spot. Whenever you attack a monster, you are always considered to be in its blind spot.",
+        "desc": "Gain +1 Strength when attacking a monster from its blind spot. Whenever you attack a monster, you are always considered to be in its blind spot.",
     },
     "Swordsman's Promise": {
         "secret": True,
@@ -268,7 +268,7 @@ fighting_arts = {
         "desc": "Your attack roll is a perfect hit on a result of a 9 or 10. You cannot use Timeless Eye if you have the blind severe head injury.",
     },
     "Mighty Strike": {
-        "desc": "On a Perfect hit, gain +2 strength until the end of the attack.",
+        "desc": "On a Perfect hit, gain +2 Strength until the end of the attack.",
     },
     "Berserker": {
         "desc": "Once per showdown, you may spend Activation to suffer bash and the frenzy brain trauma.",
@@ -280,7 +280,7 @@ fighting_arts = {
         "desc": "When rolling on a severe injury table, unless you roll a 1, add +1 to the result. (This does not include brain trauma. The result total cannot exceed 10.)",
     },
     "Rhythm Chaser": {
-        "desc": "Gain +1 evasion token the first time you criticall wound during a showdown. Rhythm Chaser cannot be used if there are any shields or heavy gear in your grid.",
+        "desc": "Gain +1 Evasion token the first time you criticall wound during a showdown. Rhythm Chaser cannot be used if there are any shields or heavy gear in your grid.",
     },
     "Last Man Standing": {
         "desc": "While you are the only survivor on the showdown board, you may not gain bleeding tokens or be knocked down.",
@@ -289,7 +289,7 @@ fighting_arts = {
         "desc": "Whenever you are hit, after hit locations are rolled, you may change 1 result to the arms hit location.",
     },
     "Clutch Fighter": {
-        "desc": "Whil you have 3 or more blood tokens, gain +1 strength and +1 accuracy.",
+        "desc": "Whil you have 3 or more blood tokens, gain +1 Strength and +1 Accuracy.",
     },
     "Crazed": {
         "desc": "On a Perfect hit, gain +1 insanity.",
@@ -304,7 +304,7 @@ fighting_arts = {
         "desc": "During the showdown setup, after placing terrain, you may add a Giant Stone Face or a Toppled Pillar terrain card to the showdown board.",
     },
     "Monster Claw Style": {
-        "desc": "Your Fist & Tooth attacks gain +1 accuracy, +1 strength and savage (after the first critical wound in an attack, savage weapons cause 1 additional wound. This rule does not trigger on Impervious hit locations).",
+        "desc": "Your Fist & Tooth attacks gain +1 Accuracy, +1 Strength and Savage (after the first critical wound in an attack, savage weapons cause 1 additional wound. This rule does not trigger on Impervious hit locations).",
     },
     "Tumble": {
         "desc": "When something would collide with you, roll 1d10. On a result of 6+, you successfully tumble out of harm's way. Instead, please your survivor standing on the closest free space outside of the collision path.",
@@ -769,7 +769,7 @@ innovations = {
         "type": "conviction principle",
         "consequences": [],
         "survival_limit": 1,
-        "survivor_buff": "All current and newborn survivors gain +1 peromanent strength.",
+        "survivor_buff": "All current and newborn survivors gain +1 peromanent Strength.",
     },
     "Romantic": {
         "type": "conviction principle",
@@ -797,13 +797,13 @@ innovations = {
         "type": "new life principle",
         "consequences": [],
         "survival_limit": 1,
-        "settlement_buff": "When rolling on the Intimacy story event, roll twice and pick the lowest result. All newborn survivors gain +1 strength.",
-        "survivor_buff": "All newborn survivors gain +1 strength.",
+        "settlement_buff": "When rolling on the Intimacy story event, roll twice and pick the lowest result. All newborn survivors gain +1 Strength.",
+        "survivor_buff": "All newborn survivors gain +1 Strength.",
     },
     "Clan of Death": {
         "type": "home",
         "consequences": [],
-        "survivor_buff": "All newborn survivors gain +1 accuracy, +1 strength and +1 evasion.",
+        "survivor_buff": "All newborn survivors gain +1 Accuracy, +1 Strength and +1 Evasion.",
     },
     "Sacrifice": {
         "type": "faith",
@@ -1009,4 +1009,4 @@ resource_decks = {
     "Basic Resources": ["???", "???", "Skull", "Broken Lantern", "Broken Lantern", "Monster Bone", "Monster Bone", "Monster Bone", "Monster Bone", "Love Juice", "Love Juice", "Monster Organ", "Monster Organ", "Monster Organ", "Monster Hide", "Monster Hide", "Monster Hide", "Monster Hide", "Monster Hide", "Monster Hide", "Monster Hide"]
 }
 
-
+survivor_attributes = ["Movement", "Accuracy", "Strength", "Evasion", "Luck", "Speed"]

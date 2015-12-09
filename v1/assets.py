@@ -6,6 +6,7 @@ import os
 from string import Template
 
 import assets
+import game_assets
 import html
 from models import Abilities, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Resources, Quarries
 from utils import mdb, get_logger, load_settings, get_user_agent
@@ -25,16 +26,16 @@ class User:
         self.get_settlements()
         self.get_survivors()
 
-    def mark_auth(self, auth_dt=None):
-        self.user["latest_succesful_authentication"] = auth_dt
-        mdb.users.save(self.user)
-
     def mark_usage(self, action=None):
         """ Updates the user's mdb object with some data. """
-
         self.user["latest_action"] = action
         self.user["latest_activity"] = datetime.now()
         self.user["latest_user_agent"] = str(get_user_agent())
+        mdb.users.save(self.user)
+
+    def mark_auth(self, auth_dt=None):
+        self.mark_usage("successful sign-in")
+        self.user["latest_succesful_authentication"] = auth_dt
         mdb.users.save(self.user)
 
     def get_settlements(self, return_as=False):
@@ -135,7 +136,7 @@ class Survivor:
         self.survivor = mdb.survivors.find_one({"_id": ObjectId(survivor_id)})
         if not self.survivor:
             raise Exception("Invalid survivor ID: '%s'" % survivor_id)
-        self.settlement = Settlement(settlement_id=self.survivor["settlement"])
+        self.Settlement = Settlement(settlement_id=self.survivor["settlement"])
 
 
     def new(self, params):
@@ -190,7 +191,7 @@ class Survivor:
         possible_actions = ["Dodge", "Encourage", "Surge", "Dash"]
         available_actions = []
         for a in possible_actions:
-            if a in self.settlement.get_survival_actions():
+            if a in self.Settlement.get_survival_actions():
                 available_actions.append(a)
 
         if "cannot_spend_survival" in self.survivor.keys():
@@ -343,7 +344,7 @@ class Survivor:
 
         mdb.survivors.save(self.survivor)
 
-    def add_game_asset(self, asset_type, asset_key):
+    def add_game_asset(self, asset_type, asset_key, asset_desc=None):
         """ Our generic function for adding a game_asset to a survivor. Some biz
         logic/game rules happen here.
 
@@ -372,7 +373,56 @@ class Survivor:
                 return True
             else:
                 return False
+        elif asset_type == "abilities_and_impairments":
+            if asset_key not in Abilities.get_keys():
+                if asset_desc is None:
+                    asset_desc = "No description."
+                self.survivor["abilities_and_impairments"].append("<b>%s:</b> %s" % (asset_key, asset_desc))
+                return True
+            elif asset_key in Abilities.get_keys():
+                asset_dict = Abilities.get_asset(asset_key)
+                below_max = True
+                if "max" in asset_dict.keys() and asset_key in self.survivor["abilities_and_impairments"]:
+                    asset_count = self.survivor["abilities_and_impairments"].count(asset_key)
+                    if asset_dict["max"] == asset_count:
+                        self.logger.warn("Survivor '%s' has '%s' x%s. Max is %s." % (self.survivor["name"], asset_key, asset_count, asset_dict["max"]))
+                        below_max = False
+                if below_max:
+                    self.survivor["abilities_and_impairments"].append(asset_key)
+                    if "cannot_spend_survival" in asset_dict.keys():
+                        self.survivor["cannot_spend_survival"] = "checked"
+                    for attrib in game_assets.survivor_attributes:
+                        if attrib in asset_dict and attrib in self.survivor.keys():
+                            old_value = int(self.survivor[attrib])
+                            new_value = old_value + asset_dict[attrib]
+                            self.survivor[attrib] = new_value
+                            self.logger.debug(self.survivor[attrib])
+                mdb.survivors.save(self.survivor)
+                return True
+            else:
+                return False
+        else:
+            self.logger.critical("Attempted to add unknown game_asset type '%s'. Doing nothing!" % asset_type)
 
+    def rm_game_asset(self, asset_type, asset_key):
+        """ This is the reverse of the above function: give it a type and a key
+        to remove that key from that type of asset on the survivor. """
+
+        asset_key = asset_key.strip()
+
+        if asset_type == "abilities_and_impairments":
+            if asset_key not in Abilities.get_keys():
+                self.survivor["abilities_and_impairments"].remove(asset_key)
+                return True
+            elif asset_key in Abilities.get_keys():
+                asset_dict = Abilities.get_asset(asset_key)
+                self.survivor["abilities_and_impairments"].remove(asset_key)
+                if "cannot_spend_survival" in asset_dict.keys() and "cannot_spend_survival" in self.survivor.keys():
+                    del self.survivor["cannot_spend_survival"]
+                mdb.survivors.save(self.survivor)
+                return True
+            else:
+                return False
 
     def toggle(self, toggle_key, toggle_value):
         """ Toggles an attribute on or off. The 'toggle_value' arg is either
@@ -384,6 +434,7 @@ class Survivor:
 
         Review the hidden form inputs to see more about how this works.
         """
+
         if type(toggle_value) != list:
             try:
                 del self.survivor[toggle_key]
@@ -391,6 +442,10 @@ class Survivor:
                 pass
         else:
             self.survivor[toggle_key] = "checked"
+            if toggle_key == "dead":
+                self.survivor["died_in"] = self.Settlement.settlement["lantern_year"]
+            if toggle_key == "retired":
+                self.survivor["retired_in"] = self.Settlement.settlement["lantern_year"]
 
         mdb.survivors.save(self.survivor)
 
@@ -401,6 +456,10 @@ class Survivor:
 
 
         for p in params:
+
+            if type(params[p]) != list:
+                game_asset_key = params[p].value
+
             if p in ["asset_id", "heal_survivor"]:
                 pass
             elif p == "add_epithet":
@@ -409,12 +468,11 @@ class Survivor:
             elif p == "remove_epithet":
                 self.survivor["epithets"].remove(params[p].value)
             elif p == "add_ability":
-                self.survivor["abilities_and_impairments"].append(params[p].value.strip())
+                self.add_game_asset("abilities_and_impairments", game_asset_key)
             elif p == "remove_ability":
-                self.survivor["abilities_and_impairments"].remove(params[p].value)
+                self.rm_game_asset("abilities_and_impairments", game_asset_key)
             elif p == "add_disorder":
-                game_asset_key = params[p].value                                # this is how they
-                self.add_game_asset("disorder", game_asset_key)                 # all should be
+                self.add_game_asset("disorder", game_asset_key)
             elif p == "remove_disorder":
                 self.survivor["disorders"].remove(params[p].value)
             elif p == "add_fighting_art" and len(self.survivor["fighting_arts"]) < 3:
@@ -424,14 +482,20 @@ class Survivor:
             elif p.split("_")[0] == "toggle":
                 toggle_attrib = "_".join(p.split("_")[1:])
                 self.toggle(toggle_attrib, params[p])
+            elif game_asset_key == "None":
+                del self.survivor[p]
             else:
-                self.survivor[p] = params[p].value.strip()
+                self.survivor[p] = game_asset_key
 
         # idiot-proof the hit boxes
         for hit_tuplet in [("arms_damage_light","arms_damage_heavy"), ("body_damage_light", "body_damage_heavy"), ("legs_damage_light", "legs_damage_heavy"), ("waist_damage_light", "waist_damage_heavy")]:
             light, heavy = hit_tuplet
             if heavy in self.survivor.keys() and not light in self.survivor.keys():
                 self.survivor[light] = "checked"
+
+        # prevent movement from going below 1
+        if int(self.survivor["Movement"]) < 1:
+            self.survivor["Movement"] = 1
 
         # do healing absolutely last
         if "heal_survivor" in params:
@@ -464,7 +528,7 @@ class Survivor:
                     attribs.append("Retired")
 
             if "settlement_name" in include:
-                attribs.append(self.settlement.settlement["name"])
+                attribs.append(self.Settlement.settlement["name"])
 
             if "hunt_xp" in include:
                 attribs.append("XP: %s" % self.survivor["hunt_xp"])
@@ -499,8 +563,8 @@ class Survivor:
         modifying a user. """
 
         survivor_survival_points = int(self.survivor["survival"])
-        if survivor_survival_points > int(self.settlement.settlement["survival_limit"]):
-            survivor_survival_points = int(self.settlement.settlement["survival_limit"])
+        if survivor_survival_points > int(self.Settlement.settlement["survival_limit"]):
+            survivor_survival_points = int(self.Settlement.settlement["survival_limit"])
 
         flags = {}
         for flag in self.flags:
@@ -562,7 +626,7 @@ class Survivor:
             epithets = self.get_epithets("html_formatted"),
             sex = self.survivor["sex"],
             survival = survivor_survival_points,
-            survival_limit = int(self.settlement.settlement["survival_limit"]),
+            survival_limit = int(self.Settlement.settlement["survival_limit"]),
             cannot_spend_survival_checked = flags["cannot_spend_survival"],
             hunt_xp = self.survivor["hunt_xp"],
             dead_checked = flags["dead"],
@@ -574,8 +638,8 @@ class Survivor:
             evasion = self.survivor["Evasion"],
             luck = self.survivor["Luck"],
             speed = self.survivor["Speed"],
-            departure_buffs = self.settlement.get_bonuses(bonus_type="departure_buff"),
-            settlement_buffs = self.settlement.get_bonuses(bonus_type="survivor_buff"),
+            departure_buffs = self.Settlement.get_bonuses(bonus_type="departure_buff"),
+            settlement_buffs = self.Settlement.get_bonuses(bonus_type="survivor_buff"),
 
             insanity = self.survivor["Insanity"],
             insanity_number_style = insane,
@@ -618,11 +682,13 @@ class Survivor:
 
             skip_next_hunt_checked = flags["skip_next_hunt"],
             abilities_and_impairments = self.get_abilities_and_impairments("html_formatted"),
-            add_abilities_and_impairments = Abilities.render_as_html_dropdown(),
+            add_abilities_and_impairments = Abilities.render_as_html_dropdown(
+                disable=Abilities.get_maxed_out_abilities(self.survivor["abilities_and_impairments"]),
+                ),
             remove_abilities_and_impairments = self.get_abilities_and_impairments("html_select_remove"),
 
             email = self.survivor["email"],
-            game_link = self.settlement.asset_link(view="game", fixed=True),
+            game_link = self.Settlement.asset_link(view="game", fixed=True),
         )
         return output
 
@@ -767,12 +833,23 @@ class Settlement:
         return final_list
 
 
-    def get_locations(self, return_as=False):
+    def get_locations(self, return_type=False):
         """ Returns a sorted list of locations. """
         final_list = sorted(self.settlement["locations"])
 
-        if return_as == "comma-delimited":
+        if return_type == "comma-delimited":
             return ", ".join(final_list)
+
+        if return_type == "html_select_remove":
+            if final_list == []:
+                return ""
+
+            output = '<select name="remove_location" onchange="this.form.submit()">'
+            output += '<option selected disabled hidden value="">Remove Location</option>'
+            for location in final_list:
+                output += '<option>%s</option>' % location
+            output += '</select>'
+            return output
 
         return final_list
 
@@ -978,13 +1055,14 @@ class Settlement:
 
         return quarries
 
-    def get_survivors(self, return_as=False, user_id=False):
-        """ Returns the settlement's survivors. Leave 'return_as' unspecified
+    def get_survivors(self, return_type=False, user_id=False):
+        """ Returns the settlement's survivors. Leave 'return_typ' unspecified
         if you want a mongo cursor object back. """
 
-        survivors = mdb.survivors.find({"settlement": self.settlement["_id"]})
+        survivors = mdb.survivors.find({"settlement": self.settlement["_id"]}).sort("hunt_xp", -1)
 
         user = None
+        user_login = None
         if user_id:
             user = mdb.users.find_one({"_id": user_id})
             user_login = user["login"]
@@ -993,28 +1071,88 @@ class Settlement:
         if user is not None and user["_id"] == self.settlement["created_by"]:
             current_user_is_settlement_creator = True
 
-        if return_as == "html_buttons":
+        if return_type == "html_buttons":
             output = ""
             for survivor in survivors:
                 S = assets.Survivor(survivor_id=survivor["_id"])
                 output += S.asset_link()
             return output
 
-        if return_as == "game_view":
-            output = ""
+        if return_type == "html_campaign_summary":
+
+            groups = {
+                1: {"name": "Hunting Party", "survivors": [], },
+                2: {"name": "Available", "survivors": [], },
+                3: {"name": "Skipping Next Hunt", "survivors": [], },
+                4: {"name": "Retired", "survivors": [], },
+                5: {"name": "The Dead", "survivors": [], },
+            }
+
             for survivor in survivors:
                 S = assets.Survivor(survivor_id=survivor["_id"])
-                user_owns_survivor = False
+                user_owns_survivor = True
+                disabled = "disabled"
 
-                if survivor["email"] == user_login:
-                    user_owns_survivor = True
-                if current_user_is_settlement_creator:
+                if survivor["email"] == user_login or current_user_is_settlement_creator:
+                    disabled = ""
                     user_owns_survivor = True
 
+                button_class = ""
                 if user_owns_survivor:
-                    output += S.asset_link()
+                    button_class = "tan"
+                if "dead" in S.survivor.keys():
+                    button_class = "error"
+
+                s_id = S.survivor["_id"]
+                if not user_owns_survivor:
+                    s_id = None
+
+
+                can_hunt = ""
+                if "dead" in S.survivor.keys() or "retired" in S.survivor.keys() or "skip_next_hunt" in S.survivor.keys():
+                    can_hunt = "disabled"
+
+                in_hunting_party = "checked"
+                if "in_hunting_party" in S.survivor.keys():
+                    in_hunting_party = None
+                    can_hunt = ""
+
+                survivor_html = html.survivor.campaign_asset.safe_substitute(
+                    survivor_id = s_id,
+                    settlement_id = self.settlement["_id"],
+                    hunting_party_checked = in_hunting_party,
+                    settlement_name = self.settlement["name"],
+                    b_class = button_class,
+                    able_to_hunt = can_hunt,
+                    disabled = disabled,
+                    name = S.survivor["name"],
+                    sex = S.survivor["sex"],
+                    hunt_xp = S.survivor["hunt_xp"],
+                    insanity = S.survivor["Insanity"],
+                    courage = S.survivor["Courage"],
+                    understanding = S.survivor["Understanding"],
+                )
+
+                # finally, file our newly minted survivor in a group:
+                if "in_hunting_party" in S.survivor.keys():
+                    groups[1]["survivors"].append(survivor_html)
+                elif "skip_next_hunt" in S.survivor.keys():
+                    groups[3]["survivors"].append(survivor_html)
+                elif "retired" in S.survivor.keys():
+                    groups[4]["survivors"].append(survivor_html)
+                elif "dead" in S.survivor.keys():
+                    groups[5]["survivors"].append(survivor_html)
                 else:
-                    output += S.asset_link(disabled=True)
+                    groups[2]["survivors"].append(survivor_html)
+
+            output = ""
+            for g in sorted(groups.keys()):
+                group = groups[g]
+                output += "<h4>%s</h4>\n" % group["name"]
+                for s in group["survivors"]:
+                    output += "  %s\n" % s
+                if group["name"] == "Hunting Party" and group["survivors"] == []:
+                    output += "<p>Use [::] to add survivors to the hunting party.</p>"
             return output
 
         return survivors
@@ -1087,6 +1225,8 @@ class Settlement:
                 self.settlement["innovations"].append(params[p].value)
             elif p == "add_location":
                 self.settlement["locations"].append(params[p].value)
+            elif p == "remove_location":
+                self.settlement["locations"].remove(params[p].value)
             elif p in ["new_life_principle", "death_principle", "society_principle", "conviction_principle"]:
                 new_principle = params[p].value
                 self.update_principles(new_principle)
@@ -1141,15 +1281,19 @@ class Settlement:
         if display_death_count < self.get_min(value="death_count"):
             display_death_count = self.get_min(value="death_count")
 
+        survivor_controls = self.get_survivors(return_type="html_campaign_summary", user_id=user_id)
+        if self.get_survivors().count() == 0:
+            survivor_controls = ""
+
         output = html.settlement.summary.safe_substitute(
             settlement_name=self.settlement["name"],
             principles = self.get_principles("comma-delimited"),
             population = display_population,
             death_count = display_death_count,
-            survivors = self.get_survivors(return_as="game_view", user_id=user_id),
+            survivors = survivor_controls,
             survival_limit = self.settlement["survival_limit"],
             innovations = self.get_innovations(return_as="comma-delimited", include_principles=True),
-            locations = self.get_locations(return_as="comma-delimited"),
+            locations = self.get_locations(return_type="comma-delimited"),
             departure_bonuses = self.get_bonuses('departure_buff'),
             settlement_bonuses = self.get_bonuses('settlement_buff'),
             survivor_bonuses = self.get_bonuses('survivor_buff'),
@@ -1237,6 +1381,10 @@ class Settlement:
         if population < self.get_min(value="population"):
             population = self.get_min(value="population")
 
+        locations_remover = self.get_locations(return_type="html_select_remove")
+        if self.settlement["locations"] == []:
+            locations_remover = ""
+
         output = html.settlement.form.safe_substitute(
             MEDIA_URL = settings.get("application","STATIC_URL"),
             settlement_id = self.settlement["_id"],
@@ -1249,7 +1397,7 @@ class Settlement:
             death_count = deaths,
             lost_settlements = self.settlement["lost_settlements"],
 
-            survivors = self.get_survivors(return_as="html_buttons"),
+            survivors = self.get_survivors(return_type="html_campaign_summary"),
 
             departure_bonuses = self.get_bonuses('departure_buff'),
             settlement_bonuses = self.get_bonuses('settlement_buff'),
@@ -1287,8 +1435,10 @@ class Settlement:
             quarry_options = Quarries.render_as_html_dropdown(exclude=self.get_quarries()),
             innovations = self.get_innovations(return_as="comma-delimited"),
             innovation_options = self.get_innovation_deck(return_as="html_option"),
-            locations = self.get_locations(return_as="comma-delimited"),
+
+            locations = self.get_locations(return_type="comma-delimited"),
             locations_options = Locations.render_as_html_dropdown(exclude=self.get_locations()),
+            rm_locations = locations_remover,
 
             defeated_monsters = self.get_defeated_monsters("comma-delimited"),
 

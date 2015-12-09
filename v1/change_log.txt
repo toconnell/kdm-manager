@@ -1,3 +1,37 @@
+    Tuesday, 2015-12-08: 1.13.78
+
+----
+Corrections and Fixes
+----
+ - Resolved an issue where adding certain items to Settlement Storage caused tracebacks on page refresh.
+ - Corrected an issue with form anchors staying set after you were done managing an asset.
+ - Survivor Movement can no longer be zero or a negative number.
+
+----
+Improvements
+----
+ - Added "Hunting Party" feature. -ForgedIron/Thardin/Leky
+ - Enhanced Survivor sorting has replaced random dumping of survivors in Campaign and Settlement views. -Thardin/Leky
+ - Adding Abilities and Impairments that prevent the Survivor from spending survival now automatically checks the "Cannot Spend Survival" box (removing such abilities will uncheck it).
+ - Certain Abilities and Impairments (as defined in the manual) can only be added a certain number of times. -mew1997,
+ - Relatedly, Abilities and Impairments a survivor is maxed on are now disabled (greyed out).
+ - Mis-clicked locations can now be removed. - mew1997
+ - Now tracking LY of survivor deaths (for use in future features).
+ - Spent some time instrumenting user sessions for better analysis, error-tracking, etc.
+ 
+----
+Coming soon
+----
+ - Automatic "Return from Hunt" heal/XP increment for the "Hunting Party"
+ - Weapon specialties and masteries added to Innovations
+ - Nemesis monster dropdown/picker
+ - Dynamic "Defeated Monsters" dropdown/picker based on available quarries
+ - Dynamic "Locations" dropdown/picker based on current locations/innovations
+ - Collapsible/hideable sections on the Settlement and Survivor forms
+ - Ability to add survivor ancestors
+ - Desktop/non-mobile skin
+
+
     Monday, 2015-12-07: 1.12.64
 
 ----
