@@ -239,7 +239,7 @@ class Session:
                 for s in survivors:
                     S = assets.Survivor(survivor_id=s["_id"])
                     output += S.asset_link(include=["dead", "retired", "hunt_xp", "settlement_name"])
-                output += html.dashboard.headline.safe_substitute(title="System", desc='KD:M Manager! Version %s.<p>This application is a work in progress! Review the <a href="/change_log">Change Log</a> and report issues to <a mailto:"toconnell@tyrannybelle.com">toconnell@tyrannybelle.com</a>.</p><hr/><p>Current login: %s</p>' % (settings.get("application","version"), self.User.user["login"]))
+                output += self.User.html_motd()
             elif self.session["current_view"] == "view_game":
                 if self.Settlement.settlement["created_by"] == self.User.user["_id"]:
                     output += self.Settlement.asset_link(fixed=True, link_text="Edit")

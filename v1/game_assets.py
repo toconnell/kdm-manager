@@ -948,7 +948,7 @@ innovations = {
     },
     "Language": {
         "type": "starting",
-        "consequences": ["Ammonia", "Hovel", "Inner Lantern", "Drums", "Paint", "Symposium"],
+        "consequences": ["Ammonia", "Hovel", "Inner Lantern", "Drums", "Paint", "Symposium", "Guidepost", "Final Fighting Art", "Ultimate Weapon"],
         "survival_limit": 1,
         "survival_action": "Encourage",
         "always_available": True,
@@ -969,19 +969,16 @@ innovations = {
         "type": "education",
         "consequences": [],
         "survival_limit": 1,
-        "always_available": True,
     },
     "Ultimate Weapon": {
         "type": "science",
         "consequences": [],
         "survival_limit": 1,
-        "always_available": True,
     },
     "Guidepost": {
         "type": "other",
         "consequences": [],
         "departure_buff": "Departing survivors gain +1 survival.",
-        "always_available": True,
     },
 }
 

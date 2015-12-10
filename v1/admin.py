@@ -158,6 +158,7 @@ def pretty_view_user(u_id):
             print(" %s: %s" % (u_key, User.user[u_key]))
     print("")
 
+
     def asset_repr(a, type=False):
         if type == "settlement":
             return " %s - %s - LY: %s (%s/%s)" % (a["_id"], a["name"], a["lantern_year"], a["population"], a["death_count"])
@@ -182,6 +183,7 @@ def pretty_view_user(u_id):
             print asset_repr(survivor, "survivor")
     print("")
 
+
 def initialize():
     """ Completely initializes the application. Scorched earth. """
     for collection in ["users", "sessions", "survivors", "settlements"]:
@@ -202,10 +204,11 @@ def play_summary():
         output += "     Latest Action: '%s'\n" % u["latest_action"]
         print(output)
 
+
 def prune_sessions():
     """ Removes sessions older than 24 hours. """
     yesterday = datetime.now() - timedelta(days=1)
-    logger.debug("Searching for sessions older than %s..." % yesterday)
+    logger.debug("Searching for sessions older than %s to prune..." % yesterday)
     old_sessions = mdb.sessions.find({"created_on": {"$lt": yesterday}}).sort("created_on")
     logger.debug("%s sessions found." % old_sessions.count())
 
@@ -220,14 +223,32 @@ def prune_sessions():
         logger.info("Pruned %s old sessions." % pruned_sessions)
 
 
+def get_latest_casualty(return_type=False):
+    """ Returns a string of the most recently killed survivor."""
+
+    dead_men = mdb.survivors.find({"dead": {"$exists": True}}).sort("died_on", -1)
+    if dead_men.count() == 0:
+        return None
+    else:
+        d = dead_men[0]
+
+    settlement = mdb.settlements.find_one({"_id": d["settlement"]})
+    d["settlement_name"] = settlement["name"]
+    if return_type == "string":
+        return "%s [%s] - XP: %s / Courage: %s / Understanding: %s" % (d["name"], d["sex"], d["hunt_xp"], d["Courage"], d["Understanding"])
+    else:
+        return d
+
+
 def motd():
-    """ Creates a MoTD. """
+    """ Creates a CLI MoTD. """
     users = mdb.users.find()
     sessions = mdb.sessions.find()
     settlements = mdb.settlements.find()
     survivors = mdb.survivors.find()
 
     print("\n %s users (%s sessions)\n %s settlements\n %s survivors" % (users.count(), sessions.count(), settlements.count(), survivors.count()))
+    print("\n Latest casualty:\n   %s" % get_latest_casualty("string"))
 
     recent_user_agents = {}
     for u in users:
@@ -239,9 +260,9 @@ def motd():
             recent_user_agents[ua] = 1
         else:
             recent_user_agents[ua] += 1
-    print("\n Recent user agent round-up:")
+    print("\n Recent user agent round-up (top 5):")
     sorted_ua_dict = sorted(recent_user_agents.items(), key=operator.itemgetter(1), reverse=True)
-    for ua in sorted_ua_dict:
+    for ua in sorted_ua_dict[:5]:
         print("   %s --> %s" % (ua[0], ua[1]))
 
     print("")
@@ -265,13 +286,11 @@ if __name__ == "__main__":
     parser.add_option("--initialize", dest="initialize", help="Burn it down.", action="store_true", default=False)
     (options, args) = parser.parse_args()
 
-    #motd()
-
     if options.initialize:
         manual_approve = raw_input('Initialize the project and remove all data? Type "YES" to proceed: ')
         if manual_approve == "YES":
             initialize()
-        print("Project initialized! ALL DATA REMOVED!!")
+        print("\nProject initialized! ALL DATA REMOVED!!\nExiting...\n")
 
     if options.list_documents:
         ls_documents(options.list_documents)
@@ -289,3 +308,6 @@ if __name__ == "__main__":
 
     if options.play_summary:
         play_summary()
+
+    if args == []:
+        motd()

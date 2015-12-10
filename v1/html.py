@@ -805,6 +805,20 @@ class dashboard:
     headline = Template('<h2 class="$h_class">$title</h2><p>$desc</p>\n')
     settlement_flash = '<font size="50px">&#x02261;</font> '
     new_settlement_button = '<form method="POST"><input type="hidden" name="change_view" value="new_settlement" /><button class="success">+ New Settlement</button></form>\n'
+    motd = Template("""\n
+    <h2>System</h2>
+    <p>'KD:M Manager! Version $version.</p><hr/>
+    <p>$users users are currently managing $survivors survivors in $settlements settlements (in $sessions active sessions).</p>
+    <p>
+    Latest Fatality:<br />
+    &ensp; <b>$casualty_name</b> [$casualty_sex] of <b>$casualty_settlement</b><br />
+    &ensp; XP: $casualty_xp / Courage: $casualty_courage / Understanding: $casualty_understanding
+    </p>
+    <hr/>
+    <p>This application is a work in progress! Review the <a href="/change_log">Change Log</a> and report issues to <a mailto:"toconnell@tyrannybelle.com">toconnell@tyrannybelle.com</a>.</p><hr/>
+    <p>Currently signed in as: <i>$login</i></p>
+
+    """)
     new_settlement_form = """\n\
     <h3>Create a New Settlement</h3>
     <form method="POST">
@@ -859,7 +873,7 @@ class meta:
     false_body = 'Caught exception while rendering the current view!<hr/>The current session will be ended. Please try again.'
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
     saved_dialog = '\n    <div id="saved_dialog" class="success">Saved!</div>'
-    log_out_button = Template('\n\t<hr/><form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><button class="warn">LOG OUT</button>\n\t</form>')
+    log_out_button = Template('\n\t<hr/><form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><button class="warn">SIGN OUT</button>\n\t</form>')
 
 
 

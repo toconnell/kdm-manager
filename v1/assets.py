@@ -6,6 +6,7 @@ from datetime import datetime
 import os
 from string import Template
 
+import admin
 import assets
 import game_assets
 import html
@@ -95,6 +96,31 @@ class User:
             S = assets.Settlement(settlement_id=settlement_id)
             if S.settlement is not None:
                 output += S.asset_link(view="game")
+        return output
+
+    def html_motd(self):
+        """ Creates an HTML MoTD for the user. """
+
+        admin.prune_sessions()  # prune old sessions when users login.
+
+        d = admin.get_latest_casualty()
+        if d is None:
+            d = {"name": None, "settlement_name": None, "sex": None, "hunt_xp": None, "Courage": None, "Understanding": None}
+
+        output = html.dashboard.motd.safe_substitute(
+            login = self.user["login"],
+            version = settings.get("application", "version"),
+            users = mdb.users.find().count(),
+            survivors = mdb.survivors.find().count(),
+            sessions = mdb.sessions.find().count(),
+            settlements = mdb.settlements.find().count(),
+            casualty_name = d["name"],
+            casualty_sex = d["sex"],
+            casualty_settlement = d["settlement_name"],
+            casualty_xp = d["hunt_xp"],
+            casualty_courage = d["Courage"],
+            casualty_understanding = d["Understanding"],
+        )
         return output
 
 
@@ -446,6 +472,7 @@ class Survivor:
         else:
             self.survivor[toggle_key] = "checked"
             if toggle_key == "dead":
+                self.survivor["died_on"] = datetime.now()
                 self.survivor["died_in"] = self.Settlement.settlement["lantern_year"]
             if toggle_key == "retired":
                 self.survivor["retired_in"] = self.Settlement.settlement["lantern_year"]
