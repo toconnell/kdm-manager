@@ -253,7 +253,7 @@ class Session:
             elif self.session["current_view"] == "view_settlement":
                 settlement = mdb.settlements.find_one({"_id": self.session["current_asset"]})
                 self.set_current_settlement(ObjectId(settlement["_id"]))
-                S = assets.Settlement(settlement_id = settlement["_id"])
+                S = assets.Settlement(settlement_id = settlement["_id"], user_object=self.User)
                 output += S.render_html_form()
             elif self.session["current_view"] == "view_survivor":
                 survivor = mdb.survivors.find_one({"_id": self.session["current_asset"]})

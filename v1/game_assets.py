@@ -6,6 +6,51 @@
 #
 
 abilities_and_impairments = {
+    "Sweet Battle": {
+        "type": "ability",
+        "desc": "You may surge without spending survival. If you do, the Activation must be used to activate a weapon.",
+        "max": 1,
+    },
+    "Bitter Frenzy": {
+        "type": "ability",
+        "desc": "You may spend survival and use fighting arts, weapon specialization, and weapon mastery while Frenzied.",
+        "max": 1,
+    },
+    "Sour Death": {
+        "type": "ability",
+        "desc": "When you ar eknocked down, you may encourage yourself. If you do, gain +1 strength token.",
+        "max": 1,
+    },
+    "Ageless": {
+        "type": "ability",
+        "desc": "You may hunt if you are retired. When you gain Hunt XP, you may decide not to gain it.",
+        "max": 1,
+    },
+    "Peerless": {
+        "type": "ability",
+        "desc": "When you gain insanity, you may gain an equal amount of survival.",
+        "max": 1,
+    },
+    "Leyline Walker": {
+        "type": "ability",
+        "desc": "While there is no armor or accessory gear in your grid, gain +3 evasion.",
+        "max": 1,
+    },
+    "Story of the Goblin": {
+        "type": "ability",
+        "desc": "Once per showdown you may...roll 1d10. On a 3+, gain the priority target token and the monster gains +1 damage token.",
+        "max": 1,
+    },
+    "Story of the Forsaker": {
+        "type": "ability",
+        "desc": "You cannot be knocked down during a showdown with a nemesis monster.",
+        "max": 1,
+    },
+    "Story of the Young Hero": {
+        "type": "ability",
+        "desc": "At the start of your act, you may...[g]ain 2 bleeding tokens and +1 survival.",
+        "max": 1,
+    },
     "Intracranial hemmorhage": {
         "type": "impairment",
         "desc": "You can no longer use or gain any survival. This injury is permanent and can be recorded once.",
@@ -182,6 +227,10 @@ disorders = {
 
 
 epithets = {
+    "Silence Breaker": {},
+    "The Silent": {},
+    "Forsaker": {},
+    "Forbidden Dancer": {},
     "Endless Arguer": {},
     "Monster Teeth": {},
     "Metal Jaw": {},
@@ -199,12 +248,16 @@ epithets = {
     "Brawler": {},
     "Thunderer": {},
     "Swift-footed": {},
+    "The Chef": {},
     "Iron-hearted": {},
     "Man-slaying": {},
     "Fast Runner": {},
+    "The Doomed": {},
+    "The Brave": {},
     "The Insane": {},
     "The Mad": {},
     "Huntress": {"sex": "F", },
+    "Branded by the Lantern": {},
     "Hunter": {},
     "Straggler": {},
     "Dreamer": {},
@@ -324,48 +377,150 @@ locations = {
         "consequences": ["Bone Smith", "Skinnery", "Organ Grinder"],
     },
     "Bone Smith": {
-        "color": "777744",
+        "color": "F5EDE3",
         "consequences": ["Weapon Crafter"],
     },
     "Skinnery": {
-        "color": "777744",
+        "color": "A89166",
         "consequences": ["Leather Worker"],
     },
     "Organ Grinder": {
-        "color": "777744",
+        "color": "B58AA5",
         "consequences": ["Stone Circle"],
     },
     "Blacksmith": {
-        "color": "ddd",
+        "color": "9DAFBC",
     },
     "Stone Circle": {
-        "color": "999",
+        "color": "84596B",
     },
     "Leather Worker": {
-        "color": "D2B48C",
+        "color": "927B51",
     },
     "Weapon Crafter": {
-        "color": "4682B4",
+        "color": "E1D4C0",
     },
     "Barber Surgeon": {
-        "color": "ddd",
+        "color": "F5F1DE",
     },
     "Plumery": {
-        "color": "ddd",
+        "color": "FF5EAA",
     },
     "Mask Maker": {
-        "color": "ddd",
+        "color": "FFD700",
     },
     "Exhausted Lantern Hoard": {
         "color": "ddd",
     },
     "Catarium": {
-        "color": "eee",
+        "color": "EFEFEF",
     },
 }
 
 
 items = {
+    "God Mask" : {
+        "location": "Mask Maker",
+    },
+    "Phoenix Mask" : {
+        "location": "Mask Maker",
+    },
+    "Man Mask" : {
+        "location": "Mask Maker",
+    },
+    "White Lion Mask" : {
+        "location": "Mask Maker",
+    },
+    "Antelope Mask" : {
+        "location": "Mask Maker",
+    },
+    "Death Mask" : {
+        "location": "Mask Maker",
+    },
+    "Arc Bow": {
+        "location": "Plumery",
+    },
+    "Hollowpoint Arrow": {
+        "location": "Plumery",
+    },
+    "Hollow Sword": {
+        "location": "Plumery",
+    },
+    "Feather Shield": {
+        "location": "Plumery",
+    },
+    "Phoenix Faulds": {
+        "location": "Plumery",
+    },
+    "Sonic Tomahawk": {
+        "location": "Plumery",
+    },
+    "Crest Crown": {
+        "location": "Plumery",
+    },
+    "Phoenix Helm": {
+        "location": "Plumery",
+    },
+    "Phoenix Greaves": {
+        "location": "Plumery",
+    },
+    "Hours Ring": {
+        "location": "Plumery",
+    },
+    "Bird Bread": {
+        "location": "Plumery",
+    },
+    "Phoenix Plackart": {
+        "location": "Plumery",
+    },
+    "Bloom Sphere": {
+        "location": "Plumery",
+    },
+    "Phoenix Gauntlet": {
+        "location": "Plumery",
+    },
+    "Feather Mantle": {
+        "location": "Plumery",
+    },
+    "Scrap Shield" : {
+        "location": "Blacksmith",
+    },
+    "Dragon Slayer" : {
+        "location": "Blacksmith",
+    },
+    "Lantern Cuirass" : {
+        "location": "Blacksmith",
+    },
+    "Lantern Gauntlets" : {
+        "location": "Blacksmith",
+    },
+    "Perfect Slayer" : {
+        "location": "Blacksmith",
+    },
+    "Lantern Greaves" : {
+        "location": "Blacksmith",
+    },
+    "Lantern Helm" : {
+        "location": "Blacksmith",
+    },
+    "Beacon Shield" : {
+        "location": "Blacksmith",
+    },
+    "Lantern Mail" : {
+        "location": "Blacksmith",
+    },
+    "Ring Whip" : {
+        "location": "Blacksmith",
+    },
+    "Lantern Sword" : {
+        "location": "Blacksmith",
+    },
+    "Lantern Glaive" : {
+        "location": "Blacksmith",
+    },
+    "Lantern Dagger" : {
+        "location": "Blacksmith",
+    },
     "Leather Bracers": {
         "location": "Leather Worker",
     },
@@ -1010,7 +1165,7 @@ resources = {
         "color": "51C327",
     },
     "Strange Resources": {
-        "color": "CCFFCC",
+        "color": "B9FAC4",
     },
     "Starting Gear": {
         "color": "CCC",

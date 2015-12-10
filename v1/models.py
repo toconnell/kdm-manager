@@ -28,6 +28,8 @@ class Model:
         greyed out/disabled in the resulting pick-list.
         """
 
+        self.pretty_name = self.name.replace("_", " ").title()
+
         options = self.get_keys()
 
         for excluded_key in exclude:
@@ -44,7 +46,7 @@ class Model:
             submit_on_change = "this.form.submit()"
 
         output = '\n\t<select name="add_%s" onchange="%s">' % (self.name, submit_on_change)
-        output += '\t<option selected disabled hidden value=''>Add %s</option>' % self.name.capitalize()
+        output += '\t<option selected disabled hidden value=''>Add %s</option>' % self.pretty_name
         for o in sorted(options):
             disabled = ""
             if o in disable:

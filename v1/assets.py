@@ -259,10 +259,10 @@ class Survivor:
             for ability in all_list:
                 if ability in Abilities.get_keys():
                     desc = Abilities.get_asset(ability)["desc"]
-                    pretty_list.append("<b>%s:</b> %s" % (ability, desc))
+                    pretty_list.append("<p><b>%s:</b> %s</p>" % (ability, desc))
                 else:
                     pretty_list.append(ability)
-            return "<br/>\n".join(pretty_list)
+            return "\n".join(pretty_list)
 
         return all_list
 
@@ -273,7 +273,7 @@ class Survivor:
         if return_as == "formatted_html":
             html = ""
             for fa_key in fighting_arts:
-                html += '<b>%s:</b> %s<br />' % (fa_key, FightingArts.get_asset(fa_key)["desc"])
+                html += '<p><b>%s:</b> %s</p>' % (fa_key, FightingArts.get_asset(fa_key)["desc"])
             return html
 
         if return_as == "html_select_remove":
@@ -388,6 +388,7 @@ class Survivor:
         asset_key = asset_key.strip()
 
         if asset_type == "disorder":
+            self.survivor["disorders"] = list(set([d for d in self.survivor["disorders"]])) # uniquify
             if len(self.survivor["disorders"]) >= 3:
                 return False
 
@@ -732,7 +733,7 @@ class Survivor:
 
 class Settlement:
 
-    def __init__(self, settlement_id=False, name=False, created_by=False):
+    def __init__(self, settlement_id=False, name=False, created_by=False, user_object=None):
         """ Initialize with a settlement from mdb. """
         self.logger = get_logger()
         if not settlement_id:
@@ -741,6 +742,8 @@ class Settlement:
         self.survivors = mdb.survivors.find({"settlement": settlement_id})
         if self.settlement is not None:
             self.update_death_count()
+
+        self.User = user_object
 
     def new(self, name=None, created_by=None):
         """ Creates a new settlement. 'name' is any string and 'created_by' has to
@@ -1087,20 +1090,23 @@ class Settlement:
 
         return quarries
 
-    def get_survivors(self, return_type=False, user_id=False):
+    def get_survivors(self, return_type=False, user_id=None):
         """ Returns the settlement's survivors. Leave 'return_typ' unspecified
         if you want a mongo cursor object back. """
 
         survivors = mdb.survivors.find({"settlement": self.settlement["_id"]}).sort("hunt_xp", -1)
 
-        user = None
-        user_login = None
-        if user_id:
-            user = mdb.users.find_one({"_id": user_id})
-            user_login = user["login"]
+        if self.User is not None:
+            user_login = self.User.user["login"]
+        elif self.User is None and user_id is not None:
+            self.User = assets.User(user_id=user_id)
+            user_login = self.User.user["login"]
+        else:
+            self.User = None
+            user_login = None
 
         current_user_is_settlement_creator = False
-        if user is not None and user["_id"] == self.settlement["created_by"]:
+        if self.User is not None and self.User.user["_id"] == self.settlement["created_by"]:
             current_user_is_settlement_creator = True
 
         if return_type == "hunting_party":
@@ -1129,7 +1135,7 @@ class Settlement:
 
             for survivor in survivors:
                 S = assets.Survivor(survivor_id=survivor["_id"])
-                user_owns_survivor = True
+                user_owns_survivor = False
                 disabled = "disabled"
 
                 if survivor["email"] == user_login or current_user_is_settlement_creator:
@@ -1167,6 +1173,7 @@ class Settlement:
                     name = S.survivor["name"],
                     sex = S.survivor["sex"],
                     hunt_xp = S.survivor["hunt_xp"],
+                    survival = S.survivor["survival"],
                     insanity = S.survivor["Insanity"],
                     courage = S.survivor["Courage"],
                     understanding = S.survivor["Understanding"],
@@ -1192,7 +1199,7 @@ class Settlement:
                     output += "  %s\n" % s
                 if group["name"] == "Hunting Party" and group["survivors"] == []:
                     output += "<p>Use [::] to add survivors to the hunting party.</p>"
-                elif group["name"] == "Hunting Party" and group["survivors"] != []:
+                elif group["name"] == "Hunting Party" and group["survivors"] != [] and current_user_is_settlement_creator:
                     output += html.settlement.return_hunting_party.safe_substitute(settlement_id=self.settlement["_id"])
             return output
 

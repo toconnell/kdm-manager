@@ -1,3 +1,45 @@
+    Thursday, 2015-12-10: 1.
+----
+Corrections and Fixes
+----
+ - Fixed typos in "Whistling Mace" and "Clutch Fighter".
+ - Fixed an email normalization bug affecting sharing of Survivors. -Dennis Acc
+ - Fixed a session-pruning bug that was causing tracebacks when a session was more than 24 hours old and had not already been pruned. This caused a 10-15 minute total outage this morning affecting three active sessions: sorry guys. -mncor
+ - "Final Fighting Art", "Ultimate Weapon" and "Guidepost" are no longer always available.
+ - Fixed a bug that allowed disorders to be added multiple times.
+ - Adjusted the anchor tag placement on the Settlement Storage div; page refreshes during Storage load-in should be less disruptive.
+ - "Add Fighting_art" on the Survivor view is now "Add Fighting Art".
+ - Fixed the bug on the Settlement screen where Survivors looked clickable, but were not.
+ - Users can no longer move Survivors that do not belong to them in and out of the Hunting Party.
+ - Relatedly, non-admin users may no longer return the hunting party: only the Settlement creator/admin may return the entire hunting party (i.e. by using the button on the Campaign View).
+
+----
+Improvements
+----
+ - Added an MoTD to the dashboard.
+ - Successful authentication now prunes old (24+ hours) sessions and keeps active session count accurate.
+ - Added "See the Truth", "White Secret" and "White Speaker" abilities. -mew1997, Leky 
+ - Added a bunch of new epithets (thanks to everyone who sent ideas).
+ - Fighting Arts, Abilities/Impairments and Disorders now appear alongside Innovation and Settlement bonuses at the top of the Survivor sheet. -Leky
+ - Keyed in Blacksmith, Mask Maker and Plumery gear.
+ - Adjusted gear/resource tile colors (in Settlement Storage) for better visual differentiation.
+ - Settlement objects now have access to User objects on initialization. This improves the acces/admin feature set and opens the path for some of the "coming soon" features.
+ - Added Survival to the Survivor buttons in the Campaign and Settlement views.
+
+----
+Coming soon
+----
+ - Survivor ancestors
+ - Sex-specific epithets
+ - Page number references for Story Events
+ - Nemesis monster dropdown/picker
+ - Weapon specialties and masteries added to Innovations
+ - Dynamic "Defeated Monsters" dropdown/picker based on available quarries
+ - Dynamic "Locations" dropdown/picker based on current locations/innovations
+ - Collapsible/hideable sections on the Settlement and Survivor forms
+ - Desktop/non-mobile skin (CSS media queries coming this weekend)
+
+
     Wednesday, 2015-12-09: 1.15.83
 
 ----

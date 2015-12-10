@@ -26,15 +26,17 @@ class survivor:
          <input type="hidden" name="asset_id" value="$survivor_id" />
          <input type="hidden" name="view_game" value="$settlement_id" />
          <input type="hidden" name="in_hunting_party" value="$hunting_party_checked"/>
-         <button id="add_survivor_to_party" class="$able_to_hunt" $able_to_hunt>::</button>
+         <button id="add_survivor_to_party" class="$able_to_hunt" $able_to_hunt $disabled>::</button>
         </form>
 
         <form method="POST" action="#">
          <input type="hidden" name="view_survivor" value="$survivor_id" />
          <button id="survivor_campaign_asset" class="$b_class" $disabled>
             <center><b>$name</b> [$sex] </center>
-            &ensp; XP: $hunt_xp &ensp; Insanity: $insanity<br />
-            &ensp; Courage: $courage <br /> &ensp; Understanding: $understanding
+            &ensp; XP: $hunt_xp &ensp; Survival: $survival<br/>
+            &ensp; Insanity: $insanity <br/>
+            &ensp; Courage: $courage<br/>
+            &ensp; Understanding: $understanding
          </button>
         </form>
       </div>
@@ -91,9 +93,10 @@ class survivor:
          $survival_actions
         </p>
         <hr />
-        $disorders
-        <h3>On Departure</h3>
+        $fighting_arts
         $departure_buffs
+        $abilities_and_impairments
+        $disorders
 
         <a id="edit_attribs" />
 
@@ -555,7 +558,6 @@ class settlement:
 
 
                     <!-- STORAGE - THIS IS ITS OWN FORM-->
-    <a id="edit_storage" />
     <form id="autoForm" method="POST" action="#edit_storage">
         <input type="hidden" name="modify" value="settlement" />
         <input type="hidden" name="asset_id" value="$settlement_id" />
@@ -564,6 +566,9 @@ class settlement:
         <h2>Storage</h2>
         <p>Gear and Resources may be stored without limit. Tap items to remove them.</p>
         <hr />
+
+    <a id="edit_storage" />
+
         $storage
         $items_options<br />
          <input onchange="this.form.submit()" type="text" class="full_width" name="add_item" placeholder="add gear or resource"/>
