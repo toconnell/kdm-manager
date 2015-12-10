@@ -3,6 +3,7 @@
 from bson.objectid import ObjectId
 from datetime import datetime, timedelta
 from hashlib import md5
+import operator
 from optparse import OptionParser
 import os
 from validate_email import validate_email
@@ -205,8 +206,18 @@ def prune_sessions():
     """ Removes sessions older than 24 hours. """
     yesterday = datetime.now() - timedelta(days=1)
     logger.debug("Searching for sessions older than %s..." % yesterday)
-    old_sessions = mdb.sessions.find({"created_on": {"$lt": yesterday}})
+    old_sessions = mdb.sessions.find({"created_on": {"$lt": yesterday}}).sort("created_on")
     logger.debug("%s sessions found." % old_sessions.count())
+
+    pruned_sessions = 0
+    for s in old_sessions:
+        s_id = s["_id"]
+        logger.debug("Pruning old session '%s' (%s)" % (s_id, s["login"]))
+        remove_session(s_id)
+        pruned_sessions += 1
+
+    if pruned_sessions > 0:
+        logger.info("Pruned %s old sessions." % pruned_sessions)
 
 
 def motd():
@@ -218,10 +229,25 @@ def motd():
 
     print("\n %s users (%s sessions)\n %s settlements\n %s survivors" % (users.count(), sessions.count(), settlements.count(), survivors.count()))
 
+    recent_user_agents = {}
+    for u in users:
+        if "latest_user_agent" in u.keys():
+            ua = u["latest_user_agent"]
+        else:
+            ua = "UNKNOWN"
+        if ua not in recent_user_agents.keys():
+            recent_user_agents[ua] = 1
+        else:
+            recent_user_agents[ua] += 1
+    print("\n Recent user agent round-up:")
+    sorted_ua_dict = sorted(recent_user_agents.items(), key=operator.itemgetter(1), reverse=True)
+    for ua in sorted_ua_dict:
+        print("   %s --> %s" % (ua[0], ua[1]))
 
     print("")
 
-    prune_sessions()
+    #prune_sessions()
+
 
 if __name__ == "__main__":
     parser = OptionParser()
@@ -239,7 +265,7 @@ if __name__ == "__main__":
     parser.add_option("--initialize", dest="initialize", help="Burn it down.", action="store_true", default=False)
     (options, args) = parser.parse_args()
 
-    motd()
+    #motd()
 
     if options.initialize:
         manual_approve = raw_input('Initialize the project and remove all data? Type "YES" to proceed: ')
