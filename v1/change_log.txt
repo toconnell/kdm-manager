@@ -1,3 +1,33 @@
+    Wednesday, 2015-12-09: 1.15.83
+
+----
+Corrections and Fixes
+----
+ - Clicking "Return from Hunt" on the Survivor edit form now removes them from the hunting party (if they are in it).
+ - Added min values to fields such as Population and Death Count that cannot be negative numbers.
+ - Rare Gear now sorts as gear, rather than as resources, on the Settlement view.
+
+----
+Improvements
+----
+ - Numeric fields on Survivor and Settlement sheets now have increment/decrement buttons. -Thardin,drbold220
+ - Automatic "Return from Hunt" heal/XP increment for the "Hunting Party" from the Campaign view. -Thardin
+ - Disorder effects are now shown beneath Survival Actions on the Survivor form. -Leky
+ - Recently added items appear at the top of the add Storage picker for faster load-ins.
+
+----
+Coming soon
+----
+ - Survivor ancestors
+ - Nemesis monster dropdown/picker
+ - White Speaker abilities and descriptions
+ - Weapon specialties and masteries added to Innovations
+ - Dynamic "Defeated Monsters" dropdown/picker based on available quarries
+ - Dynamic "Locations" dropdown/picker based on current locations/innovations
+ - Collapsible/hideable sections on the Settlement and Survivor forms
+ - Desktop/non-mobile skin (CSS media queries coming this weekend)
+
+
     Tuesday, 2015-12-08: 1.13.78
 
 ----
@@ -11,9 +41,9 @@ Corrections and Fixes
 Improvements
 ----
  - Added "Hunting Party" feature. -ForgedIron/Thardin/Leky
- - Enhanced Survivor sorting has replaced random dumping of survivors in Campaign and Settlement views. -Thardin/Leky
+ - Enhanced Survivor sorting has replaced random dumping of survivors in Campaign and Settlement views. -Thardin, Leky
  - Adding Abilities and Impairments that prevent the Survivor from spending survival now automatically checks the "Cannot Spend Survival" box (removing such abilities will uncheck it).
- - Certain Abilities and Impairments (as defined in the manual) can only be added a certain number of times. -mew1997,
+ - Certain Abilities and Impairments (as defined in the manual) can only be added a certain number of times. -mew1997, Leky
  - Relatedly, Abilities and Impairments a survivor is maxed on are now disabled (greyed out).
  - Mis-clicked locations can now be removed. - mew1997
  - Now tracking LY of survivor deaths (for use in future features).

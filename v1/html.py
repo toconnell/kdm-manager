@@ -65,7 +65,7 @@ class survivor:
             <!-- dead -->
          <input type='hidden' value='unchecked' name='toggle_dead'/>
          <input type="checkbox" id="dead" class="radio_principle" name="toggle_dead" value="checked" $dead_checked /> 
-         <label class="radio_principle_label" for="dead" style="float: right; clear: none; "> Dead </label>
+         <label class="radio_principle_label floating_label" for="dead"> Dead </label>
 
             <!-- retired -->
          <input type='hidden' value='unchecked' name='toggle_retired'/>
@@ -75,9 +75,13 @@ class survivor:
 
          <hr/>
 
-        <input class="big_number_square" type="number" name="survival" value="$survival" max="$survival_limit"/>
-        <div class="big_number_caption">Survival (max: $survival_limit)</div>
-        <br />
+        <div class="big_number_container left_margin">
+            <button class="incrementer" onclick="increment('survivalBox');">+</button>
+            <input type="number" id="survivalBox" class="big_number_square" name="survival" value="$survival" max="$survival_limit" min="0"/>
+            <button class="decrementer" onclick="decrement('survivalBox');">-</button>
+        </div>
+        <div class="big_number_caption">Survival <p>(max: $survival_limit)</p></div>
+        <hr />
         <p>
          <input type='hidden' value='unchecked' name='toggle_cannot_spend_survival'/>
          <input onchange="this.form.submit()" type="checkbox" id="cannot_spend_survival" class="radio_principle" name="toggle_cannot_spend_survival" value="checked" $cannot_spend_survival_checked /> 
@@ -87,7 +91,7 @@ class survivor:
          $survival_actions
         </p>
         <hr />
-
+        $disorders
         <h3>On Departure</h3>
         $departure_buffs
 
@@ -95,23 +99,53 @@ class survivor:
 
         <hr/> <!-- logical break; same form -->
 
-        <input class="big_number_square" type="number" name="Movement" value="$movement"/>
-        <div class="big_number_caption">Movement</div>
+        <input id="movementBox" class="big_number_square" type="number" name="Movement" value="$movement"/>
+        <div class="big_number_caption">Movement<br />
+            <div>
+            <button class="incrementer" onclick="increment('movementBox');">+</button>
+            <button class="decrementer" onclick="decrement('movementBox');">-</button>
+            </div>
+        </div>
         <br /><hr/>
-        <input class="big_number_square" type="number" name="Accuracy" value="$accuracy"/>
-        <div class="big_number_caption">Accuracy</div>
+        <input id="accuracyBox" class="big_number_square" type="number" name="Accuracy" value="$accuracy"/>
+        <div class="big_number_caption">Accuracy<br/>
+            <div>
+            <button class="incrementer" onclick="increment('accuracyBox');">+</button>
+            <button class="decrementer" onclick="decrement('accuracyBox');">-</button>
+            </div>
+        </div>
         <br /><hr/>
-        <input class="big_number_square" type="number" name="Strength" value="$strength"/>
-        <div class="big_number_caption">Strength</div>
+        <input id="strengthBox" class="big_number_square" type="number" name="Strength" value="$strength"/>
+        <div class="big_number_caption">Strength<br/>
+            <div>
+            <button class="incrementer" onclick="increment('strengthBox');">+</button>
+            <button class="decrementer" onclick="decrement('strengthBox');">-</button>
+            </div>
+        </div>
         <br /><hr/>
-        <input class="big_number_square" type="number" name="Evasion" value="$evasion"/>
-        <div class="big_number_caption">Evasion</div>
+        <input id="evasionBox" class="big_number_square" type="number" name="Evasion" value="$evasion"/>
+        <div class="big_number_caption">Evasion<br/>
+            <div>
+            <button class="incrementer" onclick="increment('evasionBox');">+</button>
+            <button class="decrementer" onclick="decrement('evasionBox');">-</button>
+            </div>
+        </div>
         <br /><hr/>
-        <input class="big_number_square" type="number" name="Luck" value="$luck"/>
-        <div class="big_number_caption">Luck</div>
+        <input id="luckBox" class="big_number_square" type="number" name="Luck" value="$luck"/>
+        <div class="big_number_caption">Luck<br/>
+            <div>
+            <button class="incrementer" onclick="increment('luckBox');">+</button>
+            <button class="decrementer" onclick="decrement('luckBox');">-</button>
+            </div>
+        </div>
         <br /><hr/>
-        <input class="big_number_square" type="number" name="Speed" value="$speed"/>
-        <div class="big_number_caption">Speed</div>
+        <input id="speedBox" class="big_number_square" type="number" name="Speed" value="$speed"/>
+        <div class="big_number_caption">Speed<br/>
+            <div>
+            <button class="incrementer" onclick="increment('speedBox');">+</button>
+            <button class="decrementer" onclick="decrement('speedBox');">-</button>
+            </div>
+        </div>
         <br /><hr/>
 
 
@@ -127,12 +161,14 @@ class survivor:
 
 
         <div id="survivor_hit_box">
-            <div id="shield_box">
-                <input type="number" class="shield" name="Insanity" value="$insanity" style="color: $insanity_number_style; "/>
-                <font id="hit_box_insanity">Insanity</font>
+            <div class="big_number_container right_border">
+                <button class="incrementer" onclick="increment('insanityBox');">+</button>
+                    <input id="insanityBox" type="number" class="shield" name="Insanity" value="$insanity" style="color: $insanity_number_style; "/>
+                    <font id="hit_box_insanity">Insanity</font>
+                <button class="decrementer" onclick="decrement('insanityBox');">-</button>
             </div>
 
-            <div id="info_box">
+            <div class="hit_box_detail">
              <input type='hidden' value='unchecked' name='toggle_brain_damage_light'/>
              <input type="checkbox" id="brain_damage_light" class="radio_principle" name="toggle_brain_damage_light" $brain_damage_light_checked /> 
              <label id="damage_box" class="radio_principle_label" for="brain_damage_light"> L </label>
@@ -143,10 +179,12 @@ class survivor:
 
                 <!-- HEAD -->
         <div id="survivor_hit_box">
-            <div id="shield_box">
-                <input type="number" class="shield" name="Head" value="$head"/>
+            <div class="big_number_container right_border">
+                <button class="incrementer" onclick="increment('headBox');">+</button>
+                    <input id="headBox" type="number" class="shield" name="Head" value="$head"/>
+                <button class="decrementer" onclick="decrement('headBox');">-</button>
             </div>
-            <div id="info_box">
+            <div class="hit_box_detail">
              <input type='hidden' value='unchecked' name='toggle_head_damage_heavy'/>
              <input type="checkbox" id="head_damage_heavy" class="radio_principle" name="toggle_head_damage_heavy" $head_damage_heavy_checked /> 
              <label id="damage_box" class="radio_principle_label" for="head_damage_heavy"> H </label>
@@ -157,10 +195,12 @@ class survivor:
 
                 <!-- ARMS -->
         <div id="survivor_hit_box">
-            <div id="shield_box">
-                <input type="number" class="shield" name="Arms" value="$arms"/>
+            <div class="big_number_container right_border">
+                <button class="incrementer" onclick="increment('armsBox');">+</button>
+                    <input id="armsBox" type="number" class="shield" name="Arms" value="$arms"/>
+                <button class="decrementer" onclick="decrement('armsBox');">-</button>
             </div>
-            <div id="info_box">
+            <div class="hit_box_detail">
              <input type='hidden' value='unchecked' name='toggle_arms_damage_heavy'/>
              <input type="checkbox" id="arms_damage_heavy" class="radio_principle" name="toggle_arms_damage_heavy" $arms_damage_heavy_checked /> 
              <label id="damage_box" class="radio_principle_label" for="arms_damage_heavy"> H </label>
@@ -174,10 +214,12 @@ class survivor:
 
                 <!-- BODY -->
         <div id="survivor_hit_box">
-            <div id="shield_box">
-                <input type="number" class="shield" name="Body" value="$body"/>
+            <div class="big_number_container right_border">
+                <button class="incrementer" onclick="increment('bodyBox');">+</button>
+                    <input id="bodyBox" type="number" class="shield" name="Body" value="$body"/>
+                <button class="decrementer" onclick="decrement('bodyBox');">-</button>
             </div>
-            <div id="info_box">
+            <div class="hit_box_detail">
              <input type='hidden' value='unchecked' name='toggle_body_damage_heavy'/>
              <input type="checkbox" id="body_damage_heavy" class="radio_principle" name="toggle_body_damage_heavy" $body_damage_heavy_checked /> 
              <label id="damage_box" class="radio_principle_label" for="body_damage_heavy"> H </label>
@@ -191,10 +233,12 @@ class survivor:
 
                 <!-- WAIST -->
         <div id="survivor_hit_box">
-            <div id="shield_box">
-                <input type="number" class="shield" name="Waist" value="$waist"/>
+            <div class="big_number_container right_border">
+                <button class="incrementer" onclick="increment('waistBox');">+</button>
+                    <input id="waistBox" type="number" class="shield" name="Waist" value="$waist"/>
+                <button class="decrementer" onclick="decrement('waistBox');">-</button>
             </div>
-            <div id="info_box">
+            <div class="hit_box_detail">
              <input type='hidden' value='unchecked' name='toggle_waist_damage_heavy'/>
              <input type="checkbox" id="waist_damage_heavy" class="radio_principle" name="toggle_waist_damage_heavy" $waist_damage_heavy_checked /> 
              <label id="damage_box" class="radio_principle_label" for="waist_damage_heavy"> H </label>
@@ -208,10 +252,12 @@ class survivor:
 
         <!-- LEGS -->
         <div id="survivor_hit_box">
-            <div id="shield_box">
-                <input type="number" class="shield" name="Legs" value="$legs"/>
+            <div class="big_number_container right_border">
+                <button class="incrementer" onclick="increment('legsBox');">+</button>
+                    <input id="legsBox" type="number" class="shield" name="Legs" value="$legs"/>
+                <button class="decrementer" onclick="decrement('legsBox');">-</button>
             </div>
-            <div id="info_box">
+            <div class="hit_box_detail">
              <input type='hidden' value='unchecked' name='toggle_legs_damage_heavy'/>
              <input type="checkbox" id="legs_damage_heavy" class="radio_principle" name="toggle_legs_damage_heavy" $legs_damage_heavy_checked /> 
              <label id="damage_box" class="radio_principle_label" for="legs_damage_heavy"> H </label>
@@ -242,7 +288,11 @@ class survivor:
 
                         <!-- HUNT XP and AGE -->
 
-        <input class="big_number_square" type="number" name="hunt_xp" value="$hunt_xp" />
+        <div class="big_number_container left_margin">
+            <button class="incrementer" onclick="increment('huntXpBox');">+</button>
+            <input id="huntXpBox" class="big_number_square" type="number" name="hunt_xp" value="$hunt_xp" min="0"/>
+            <button class="decrementer" onclick="decrement('huntXpBox');">-</button>
+        </div>
         <div class="big_number_caption">Hunt XP</div>
         <br />
         <p>
@@ -253,23 +303,32 @@ class survivor:
 
                         <!-- WEAPON PROFICIENCY -->
         <h3>Weapon Proficiency</h3>
-        <input class="big_number_square" type="number" name="Weapon Proficiency" value="$weapon_proficiency" />
+        <div class="big_number_container left_margin">
+            <button class="incrementer" onclick="increment('proficiencyBox');">+</button>
+            <input id="proficiencyBox" class="big_number_square" type="number" name="Weapon Proficiency" value="$weapon_proficiency" min="0"/>
+            <button class="decrementer" onclick="decrement('proficiencyBox');">-</button>
+        </div>
         <div class="big_number_caption">
             <input type="text" class="full_width" placeholder="Type: Select before hunt" value="$weapon_proficiency_type" name="weapon_proficiency_type" style="width: 50%; clear: none; "/>
         </div>
-        <p>       <b>Specialist</b> at 3; <b>Master</b> at 8.   </p>
+        <p>       <b>Specialist</b> at 3<br/><b>Master</b> at 8   </p>
 
+        <br/>
         <hr/>
 
                         <!-- COURAGE AND UNDERSTANDING -->
 
         <div id="block_group">
         <br />
-        <input class="big_number_square" type="number" name="Courage" value="$courage" />
+        <div class="big_number_container left_margin">
+            <button class="incrementer" onclick="increment('courageBox');">+</button>
+            <input id="courageBox" class="big_number_square" type="number" name="Courage" value="$courage" min="0"/>
+            <button class="decrementer" onclick="decrement('courageBox');">-</button>
+        </div>
         <div class="big_number_caption">Courage</div>
         <br />
         <p>
-        <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Bold</b> occurs at 3, <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>See the Truth</b> occurs at 9.
+        <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Bold</b> occurs at 3<br/><img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>See the Truth</b> occurs at 9.
 
           <input type="radio" id="stalwart_button" class="radio_principle" name="courage_attribute" value="Stalwart" $stalwart_checked />
           <label class="radio_principle_label" for="stalwart_button"> <b>Stalwart:</b> can't be knocked down by brain trauma or intimidate. </label>
@@ -280,11 +339,15 @@ class survivor:
         </div>
         <div id="block_group">
         <br />
-        <input class="big_number_square" type="number" name="Understanding" value="$understanding" />
+        <div class="big_number_container left_margin">
+            <button class="incrementer" onclick="increment('understandingBox');">+</button>
+            <input id="understandingBox" class="big_number_square" type="number" name="Understanding" value="$understanding" min="0"/>
+            <button class="decrementer" onclick="decrement('understandingBox');">-</button>
+        </div>
         <div class="big_number_caption">Understanding</div>
         <br />
         <p>
-        <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Insight</b> occurs at 3, <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>White Secret</b> occurs at 9.
+        <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Insight</b> occurs at 3<br/><img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>White Secret</b> occurs at 9.
           <input type="radio" id="analyze_button" class="radio_principle" name="understanding_attribute" value="Analyze" $analyze_checked />
           <label class="radio_principle_label" for="analyze_button"> <b>Analyze:</b> Look at top AI card and return it to the top of the deck.</label>
           <input type="radio" id="explore_button" class="radio_principle" name="understanding_attribute" value="Explore" $explore_checked />
@@ -399,6 +462,12 @@ class survivor:
 
 
 class settlement:
+    return_hunting_party = Template("""\n\
+        <form method="POST">
+            <input type="hidden" name="return_hunting_party" value="$settlement_id"/>
+            <button>Return Hunting Party</button>
+        </form>
+    \n""")
     summary = Template("""\n\
         <h1>&#x02261; $settlement_name</h1>
         <p class="subhead_p_block">$principles</p>
@@ -444,7 +513,11 @@ class settlement:
 
         <input id="topline_name" onchange="this.form.submit()" class="full_width" type="text" name="name" value="$name" placeholder="Settlement Name"/>
         <hr />
-        <input class="big_number_square" type="number" name="survival_limit" value="$survival_limit" min="$min_survival_limit"/>
+        <div class="big_number_container left_margin">
+            <button class="incrementer" onclick="increment('survivalLimitBox');">+</button>
+            <input id="survivalLimitBox" class="big_number_square" type="number" name="survival_limit" value="$survival_limit" min="$min_survival_limit"/>
+            <button class="decrementer" onclick="decrement('survivalLimitBox');">-</button>
+        </div>
         <div class="big_number_caption">Survival Limit<br />(min: $min_survival_limit)</div>
         <br /><hr />
 
@@ -458,11 +531,22 @@ class settlement:
 
         <hr />
 
-        <input class="big_number_square" type="number" name="population" value="$population"/>
+        <div class="big_number_container left_margin">
+            <button class="incrementer" onclick="increment('populationBox');">+</button>
+            <input id="populationBox" class="big_number_square" type="number" name="population" value="$population" min="0"/>
+            <button class="decrementer" onclick="decrement('populationBox');">-</button>
+        </div>
         <div class="big_number_caption">Population</div>
+
         <br /><hr />
-        <input class="big_number_square" type="number" name="death_count" value="$death_count"/>
+
+        <div class="big_number_container left_margin">
+            <button class="incrementer" onclick="increment('deathCountBox');">+</button>
+            <input id="deathCountBox" class="big_number_square" type="number" name="death_count" value="$death_count" min="0"/>
+            <button class="decrementer" onclick="decrement('deathCountBox');">-</button>
+        </div>
         <div class="big_number_caption">Death Count</div>
+
         <br />
 
     </form> <!-- ending the first form -->
@@ -673,7 +757,11 @@ class settlement:
 
     <div id="block_group">
     <h2>Timeline</h2>
-    <input onchange="this.form.submit()" class="big_number_square" type="number" name="lantern_year" value="$lantern_year"/>
+        <div class="big_number_container left_margin">
+            <button class="incrementer" onclick="increment('lanternYearBox');">+</button>
+            <input id="lanternYearBox" onchange="this.form.submit()" class="big_number_square" type="number" name="lantern_year" value="$lantern_year" min="1"/>
+            <button class="decrementer" onclick="decrement('lanternYearBox');">-</button>
+        </div>
     <div class="big_number_caption">Lantern Year</div>
     <br /><hr />
     $timeline
@@ -860,9 +948,20 @@ def render(view_html, head=[], http_headers=False):
             });
 
         });
+
     </script>
     \n"""
 
+    output += """\n\
+        <script>
+        function increment(elem_id) {
+            document.getElementById(elem_id).stepUp();
+        }
+        function decrement(elem_id) {
+            document.getElementById(elem_id).stepDown();
+        }
+        </script>
+    \n"""
 
     output += """\n\
     <script>
@@ -875,7 +974,7 @@ def render(view_html, head=[], http_headers=False):
       ga('send', 'pageview');
 
     </script>
-    """
+    \n"""
 
     for element in head:
         output += element

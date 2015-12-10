@@ -190,6 +190,12 @@ class Session:
                 S.modify(self.params)
                 user_action = "modified survivor %s" % s_id
 
+        if "return_hunting_party" in self.params:
+            s_id = self.params["return_hunting_party"].value
+            S = assets.Settlement(settlement_id=s_id)
+            S.return_hunting_party()
+            user_action = "returned hunting party to settlement %s" % s_id
+
         self.User.mark_usage(user_action)
 
 

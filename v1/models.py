@@ -115,7 +115,7 @@ class itemsModel(Model):
         self.game_assets = game_assets.items
         self.name = "item"
 
-    def render_as_html_dropdown_with_divisions(self):
+    def render_as_html_dropdown_with_divisions(self, recently_added=[]):
 
         locations = set()
         for item_key in self.get_keys():
@@ -132,6 +132,10 @@ class itemsModel(Model):
         locations = sorted(list(locations))
         output = '\n<select name="add_item" onchange="this.form.submit()">\n'
         output += '<option selected disabled hidden value=''>Add Item</option>\n'
+        if recently_added != []:
+            output += ' <option disabled> &ensp; &ensp; --- Recently Added ---  </option>\n'
+            for item in recently_added:
+                output += '  <option value="%s">%s</option>\n' % (item, item)
         for location_key in locations:
             output += ' <option disabled> &ensp; &ensp; --- %s ---  </option>\n' % location_key
             for item in sorted(location_dict[location_key]):

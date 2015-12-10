@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from bson.objectid import ObjectId
+from copy import copy
 from datetime import datetime
 import os
 from string import Template
@@ -267,7 +268,7 @@ class Survivor:
         if return_as == "formatted_html":
             html = ""
             for disorder_key in disorders:
-                html += '<b>%s:</b> %s<br />' % (disorder_key, Disorders.get_asset(disorder_key)["survivor_effect"])
+                html += '<p><b>%s:</b> %s</p>' % (disorder_key, Disorders.get_asset(disorder_key)["survivor_effect"])
             return html
 
         if return_as == "html_select_remove":
@@ -327,6 +328,8 @@ class Survivor:
         elif cmd == "Return from Hunt":
             heal_armor=True
             increment_hunt_xp=1
+            if "in_hunting_party" in self.survivor.keys():
+                del self.survivor["in_hunting_party"]
 
         for damage_loc in self.damage_locations:
             try:
@@ -343,6 +346,7 @@ class Survivor:
             self.survivor["hunt_xp"] = current_xp + increment_hunt_xp
 
         mdb.survivors.save(self.survivor)
+
 
     def add_game_asset(self, asset_type, asset_key, asset_desc=None):
         """ Our generic function for adding a game_asset to a survivor. Some biz
@@ -1071,6 +1075,13 @@ class Settlement:
         if user is not None and user["_id"] == self.settlement["created_by"]:
             current_user_is_settlement_creator = True
 
+        if return_type == "hunting_party":
+            hunting_party = []
+            for survivor in survivors:
+                if "in_hunting_party" in survivor.keys():
+                    hunting_party.append(survivor)
+            return hunting_party
+
         if return_type == "html_buttons":
             output = ""
             for survivor in survivors:
@@ -1153,9 +1164,33 @@ class Settlement:
                     output += "  %s\n" % s
                 if group["name"] == "Hunting Party" and group["survivors"] == []:
                     output += "<p>Use [::] to add survivors to the hunting party.</p>"
+                elif group["name"] == "Hunting Party" and group["survivors"] != []:
+                    output += html.settlement.return_hunting_party.safe_substitute(settlement_id=self.settlement["_id"])
             return output
 
         return survivors
+
+
+    def return_hunting_party(self):
+        """ Gets the hunting party, runs heal("Return from Hunt") on them."""
+        healed_survivors = 0
+        for survivor in self.get_survivors("hunting_party"):
+            S = assets.Survivor(survivor_id=survivor["_id"])
+            S.heal("Return from Hunt")
+            healed_survivors += 1
+        self.logger.debug("Healed %s survivors!" % healed_survivors)
+
+
+    def get_recently_added_items(self):
+        """ Returns the three items most recently appended to storage. """
+        max_items = 3
+        all_items = copy(self.settlement["storage"])
+        return_list = set()
+        while len(return_list) < max_items:
+            if all_items == []:
+                break
+            return_list.add(all_items.pop())
+        return sorted(list(return_list))
 
 
     def get_min(self, value="population"):
@@ -1402,7 +1437,7 @@ class Settlement:
             departure_bonuses = self.get_bonuses('departure_buff'),
             settlement_bonuses = self.get_bonuses('settlement_buff'),
 
-            items_options = Items.render_as_html_dropdown_with_divisions(),
+            items_options = Items.render_as_html_dropdown_with_divisions(recently_added=self.get_recently_added_items()),
             items_remove = self.get_storage("drop_list"),
             storage = self.get_storage("html_buttons"),
 

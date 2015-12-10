@@ -643,45 +643,59 @@ items = {
     },
     "Regal Gauntlet": {
         "location": "Rare Gear",
+        "type": "gear",
     },
     "Regal Plackart": {
         "location": "Rare Gear",
+        "type": "gear",
     },
     "Regal Greaves": {
         "location": "Rare Gear",
+        "type": "gear",
     },
     "Regal Helm": {
         "location": "Rare Gear",
+        "type": "gear",
     },
     "Regal Faulds": {
         "location": "Rare Gear",
+        "type": "gear",
     },
     "Forsaker Mask": {
         "location": "Rare Gear",
+        "type": "gear",
     },
     "Adventure Sword": {
         "location": "Rare Gear",
+        "type": "gear",
     },
     "Steel Shield": {
         "location": "Rare Gear",
+        "type": "gear",
     },
     "Steel Sword": {
         "location": "Rare Gear",
+        "type": "gear",
     },
     "Twilight Sword": {
         "location": "Rare Gear",
+        "type": "gear",
     },
     "Butcher Cleaver": {
         "location": "Rare Gear",
+        "type": "gear",
     },
     "Lantern Halberd": {
         "location": "Rare Gear",
+        "type": "gear",
     },
     "Muramasa": {
         "location": "Rare Gear",
+        "type": "gear",
     },
     "Thunder Maul": {
         "location": "Rare Gear",
+        "type": "gear",
     },
     "Screaming Bracers": {
         "location": "Stone Circle",
@@ -977,7 +991,7 @@ quarries = {
 
 resources = {
     "Rare Gear": {
-        "color": "FFD700",
+        "color": "43C6DB",
     },
     "Unique Items": {
         "color": "7E6FF3",
