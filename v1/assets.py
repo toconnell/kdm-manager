@@ -461,7 +461,7 @@ class Survivor:
         for p in params:
 
             if type(params[p]) != list:
-                game_asset_key = params[p].value
+                game_asset_key = params[p].value.strip()
 
             if p in ["asset_id", "heal_survivor"]:
                 pass
@@ -485,6 +485,8 @@ class Survivor:
             elif p.split("_")[0] == "toggle":
                 toggle_attrib = "_".join(p.split("_")[1:])
                 self.toggle(toggle_attrib, params[p])
+            elif p == "email":
+                self.survivor["email"] = game_asset_key.lower()
             elif game_asset_key == "None":
                 del self.survivor[p]
             else:
