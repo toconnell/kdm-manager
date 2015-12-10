@@ -182,6 +182,7 @@ disorders = {
 
 
 epithets = {
+    "Endless Arguer": {},
     "Monster Teeth": {},
     "Metal Jaw": {},
     "Haunted": {},
@@ -289,7 +290,7 @@ fighting_arts = {
         "desc": "Whenever you are hit, after hit locations are rolled, you may change 1 result to the arms hit location.",
     },
     "Clutch Fighter": {
-        "desc": "Whil you have 3 or more blood tokens, gain +1 Strength and +1 Accuracy.",
+        "desc": "While you have 3 or more blood tokens, gain +1 Strength and +1 Accuracy.",
     },
     "Crazed": {
         "desc": "On a Perfect hit, gain +1 insanity.",
@@ -751,7 +752,7 @@ items = {
     "Skullcap Hammer": {
         "location": "Weapon Crafter",
     },
-    "Whistling MAce": {
+    "Whistling Mace": {
         "location": "Weapon Crafter",
     },
     "Finger of God": {
