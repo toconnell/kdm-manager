@@ -808,11 +808,11 @@ class dashboard:
     motd = Template("""\n
     <h2>System</h2>
     <p>'KD:M Manager! Version $version.</p><hr/>
-    <p>$users users are currently managing $survivors survivors in $settlements settlements (in $sessions active sessions).</p>
+    <p>$users users are managing $survivors survivors in $settlements settlements (in $sessions active sessions).</p>
     <p>
     Latest Fatality:<br />
     &ensp; <b>$casualty_name</b> [$casualty_sex] of <b>$casualty_settlement</b><br />
-    &ensp; XP: $casualty_xp / Courage: $casualty_courage / Understanding: $casualty_understanding
+    &ensp; XP: $casualty_xp - Courage: $casualty_courage <br /> &ensp; Understanding: $casualty_understanding
     </p>
     <hr/>
     <p>This application is a work in progress! Review the <a href="/change_log">Change Log</a> and report issues to <a mailto:"toconnell@tyrannybelle.com">toconnell@tyrannybelle.com</a>.</p><hr/>
