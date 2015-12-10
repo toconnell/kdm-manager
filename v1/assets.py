@@ -400,7 +400,6 @@ class Survivor:
                             old_value = int(self.survivor[attrib])
                             new_value = old_value + asset_dict[attrib]
                             self.survivor[attrib] = new_value
-                            self.logger.debug(self.survivor[attrib])
                 mdb.survivors.save(self.survivor)
                 return True
             else:
