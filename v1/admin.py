@@ -201,6 +201,28 @@ def play_summary():
         output += "     Latest Action: '%s'\n" % u["latest_action"]
         print(output)
 
+def prune_sessions():
+    """ Removes sessions older than 24 hours. """
+    yesterday = datetime.now() - timedelta(days=1)
+    logger.debug("Searching for sessions older than %s..." % yesterday)
+    old_sessions = mdb.sessions.find({"created_on": {"$lt": yesterday}})
+    logger.debug("%s sessions found." % old_sessions.count())
+
+
+def motd():
+    """ Creates a MoTD. """
+    users = mdb.users.find()
+    sessions = mdb.sessions.find()
+    settlements = mdb.settlements.find()
+    survivors = mdb.survivors.find()
+
+    print("\n %s users (%s sessions)\n %s settlements\n %s survivors" % (users.count(), sessions.count(), settlements.count(), survivors.count()))
+
+
+    print("")
+
+    prune_sessions()
+
 if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("-c", dest="collection", help="Specify a collection to work with", metavar="settlements", default=False)
@@ -217,6 +239,7 @@ if __name__ == "__main__":
     parser.add_option("--initialize", dest="initialize", help="Burn it down.", action="store_true", default=False)
     (options, args) = parser.parse_args()
 
+    motd()
 
     if options.initialize:
         manual_approve = raw_input('Initialize the project and remove all data? Type "YES" to proceed: ')
