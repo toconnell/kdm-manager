@@ -1,3 +1,26 @@
+    Friday, 2015-12-11: 1.18.93
+Corrections and Fixes
+Fixed a handful of UI typos.
+Fixed a "Return from Hunt" bug that broke survivor sorting.
+
+Improvements
+Created blog.kdm-manager.com.
+Deprecated the in-app "Change Log".
+Redesigned dashboard with show/hide buttons: added icons for Settlement and Campaign throughout all forms.
+
+Coming soon
+Survivor ancestors
+Survivor "Cause of Death" tracking
+Sex-specific epithets
+Page number references for Story Events
+Nemesis monster dropdown/picker
+Weapon specialties and masteries added to Innovations
+Dynamic "Defeated Monsters" dropdown/picker based on available quarries
+Dynamic "Locations" dropdown/picker based on current locations/innovations
+Collapsible/hideable sections on the Settlement and Survivor forms
+Desktop/non-mobile skin (CSS media queries coming this weekend)
+
+
     Thursday, 2015-12-10: 1.17.91
 ----
 Corrections and Fixes

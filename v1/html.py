@@ -17,6 +17,69 @@ logger = get_logger()
 user_error_msg = Template('<div id="user_error_msg" class="$err_class">$err_msg</div>')
 
 
+class dashboard:
+    home_button = '<hr/><form method="POST" action="#"><input type="hidden" name="change_view" value="dashboard"/><button> Return to Dashboard</button></form>\n'
+    headline = Template('<h2 class="$h_class">$title</h2><p>$desc</p>\n')
+    # settlement stuff
+    settlement_flash = '<img class="dashboard_icon" src="%s/icons/settlement.png"/> ' % settings.get("application", "STATIC_URL")
+    new_settlement_button = '<form method="POST"><input type="hidden" name="change_view" value="new_settlement" /><button class="success">+ New Settlement</button></form>\n'
+    settlement_summary = Template("""\n\
+    <h2 class="clickable" onclick="showHide('settlement_div')"> <img class="dashboard_icon" src="%s/icons/settlement.png"/> Settlements</h2>
+    <div id="settlement_div">
+    Manage your settlements. You may not manage a settlement you did not create.
+    $settlements
+    %s
+    </div>
+    \n""" % (settings.get("application", "STATIC_URL"), new_settlement_button))
+
+    # campaign stuff
+    campaign_flash = '<img class="dashboard_icon" src="%s/icons/campaign.png"/> ' % settings.get("application", "STATIC_URL")
+    campaign_summary = Template("""\n\
+    <h2 class="clickable" onclick="showHide('campaign_div')"> <img class="dashboard_icon" src="%s/icons/campaign.png"/> Campaigns</h2>
+    <div id="campaign_div" style="display: $display">
+    Games you are currently playing.
+    $campaigns
+    </div>
+    \n""" % settings.get("application", "STATIC_URL"))
+    survivor_summary = Template("""\n\
+    <h2 class="clickable" onclick="showHide('survivors_div')">Survivors</h2>
+    <div id="survivors_div" style="display: none;">
+    Manage survivors created by you or shared with you. New survivors are created from the "Campaign" and "Settlement" views.
+    $survivors
+    </div>
+    \n""")
+    motd = Template("""\n
+    <h2 class="clickable" onclick="showHide('system_div')">System Info</h2>
+    <div id="system_div" style="display: none;">
+    <p>KD:M Manager! Version $version.</p><hr/>
+    <p>$users users are managing $survivors survivors and $settlements settlements (in $sessions active sessions).</p>
+    <p>
+    Latest Fatality:<br />
+    &ensp; <b>$casualty_name</b> [$casualty_sex] of <b>$casualty_settlement</b><br />
+    &ensp; XP: $casualty_xp - Courage: $casualty_courage <br /> &ensp; Understanding: $casualty_understanding
+    </p>
+    <hr/>
+    <p>This application is a work in progress! Use <a href="http://blog.kdm-manager.com"/>blog.kdm-manager.com</a> to report issues/bugs or to ask questions, share ideas for features, make comments, etc.</p><hr/>
+    <p>Currently signed in as: <i>$login</i></p>
+    </div>
+
+    """)
+    new_settlement_form = """\n\
+    <h3>Create a New Settlement</h3>
+    <form method="POST">
+    <input type="hidden" name="new" value="settlement" />
+    <input type="text" name="settlement_name" placeholder="Settlement Name"/ class="full_width">
+    <button class="success">SAVE</button>
+    </form>
+    \n"""
+    view_asset_button = Template("""\n\
+    <form method="POST" action="#">
+    <input type="hidden" name="view_$asset_type" value="$asset_id" />
+    <button id="$button_id" class="$button_class" $disabled>$asset_name</button>
+    </form>
+    \n""")
+
+
 class survivor:
     campaign_asset = Template("""\n\
       <div class="survivor_campaign_asset_container">
@@ -472,7 +535,7 @@ class settlement:
         </form>
     \n""")
     summary = Template("""\n\
-        <h1>&#x02261; $settlement_name</h1>
+        <h1> %s $settlement_name</h1>
         <p class="subhead_p_block">$principles</p>
         <p>Population: $population ($death_count deaths)</p><hr/>
         <p>Survival Limit: $survival_limit</p><hr/>
@@ -505,7 +568,7 @@ class settlement:
         <p>$quarries</p>
         <h4>Nemeses</h4>
         <p>$nemesis_monsters</p>
-    \n""")
+    \n""" % dashboard.campaign_flash)
     form = Template("""\n\
     $game_link
 
@@ -805,39 +868,6 @@ class settlement:
     <br />
     \n""")
 
-class dashboard:
-    home_button = '<hr/><form method="POST" action="#"><input type="hidden" name="change_view" value="dashboard"/><button> Return to Dashboard</button></form>\n'
-    headline = Template('<h2 class="$h_class">$title</h2><p>$desc</p>\n')
-    settlement_flash = '<font size="50px">&#x02261;</font> '
-    new_settlement_button = '<form method="POST"><input type="hidden" name="change_view" value="new_settlement" /><button class="success">+ New Settlement</button></form>\n'
-    motd = Template("""\n
-    <h2>System</h2>
-    <p>'KD:M Manager! Version $version.</p><hr/>
-    <p>$users users are managing $survivors survivors in $settlements settlements (in $sessions active sessions).</p>
-    <p>
-    Latest Fatality:<br />
-    &ensp; <b>$casualty_name</b> [$casualty_sex] of <b>$casualty_settlement</b><br />
-    &ensp; XP: $casualty_xp - Courage: $casualty_courage <br /> &ensp; Understanding: $casualty_understanding
-    </p>
-    <hr/>
-    <p>This application is a work in progress! Review the <a href="/change_log">Change Log</a> and report issues to <a mailto:"toconnell@tyrannybelle.com">toconnell@tyrannybelle.com</a>.</p><hr/>
-    <p>Currently signed in as: <i>$login</i></p>
-
-    """)
-    new_settlement_form = """\n\
-    <h3>Create a New Settlement</h3>
-    <form method="POST">
-    <input type="hidden" name="new" value="settlement" />
-    <input type="text" name="settlement_name" placeholder="Settlement Name"/ class="full_width">
-    <button class="success">SAVE</button>
-    </form>
-    \n"""
-    view_asset_button = Template("""\n\
-    <form method="POST" action="#">
-    <input type="hidden" name="view_$asset_type" value="$asset_id" />
-    <button id="$button_id" class="$button_class" $disabled>$asset_name</button>
-    </form>
-    \n""")
 
 
 class login:
@@ -978,6 +1008,13 @@ def render(view_html, head=[], http_headers=False):
         }
         function decrement(elem_id) {
             document.getElementById(elem_id).stepDown();
+        }
+        </script>
+        <script>
+        function showHide(id) {
+            var e = document.getElementById(id);
+            if (e.style.display != 'none') e.style.display = 'none';
+            else e.style.display = 'block';
         }
         </script>
     \n"""

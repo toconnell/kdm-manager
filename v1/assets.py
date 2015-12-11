@@ -64,7 +64,7 @@ class User:
 
         return self.settlements
 
-    def get_survivors(self, return_as=False):
+    def get_survivors(self, return_type=False):
         """ Returns all of the survivors that a user can access. Leave
         the 'return_as' kwarg unspecified/False if you want a mongo cursor
         back (instead of fruity HTML crap). """
@@ -76,6 +76,13 @@ class User:
         ).sort("name"))
 
         # user version
+
+        if return_type == "asset_links":
+            output = ""
+            for s in self.survivors:
+                S = Survivor(survivor_id=s["_id"])
+                output += S.asset_link()
+            return output
 
         return self.survivors
 
@@ -1517,9 +1524,17 @@ class Settlement:
         return output
 
 
-    def asset_link(self, view="settlement", button_class="info", link_text=False, fixed=False):
+    def asset_link(self, view="settlement", button_class="info", link_text=False, fixed=False, use_flash=False):
         """ Returns an asset link (i.e. html form with button) for the
         settlement. """
+
+        if use_flash:
+            if use_flash == "settlement":
+                link_text = html.dashboard.settlement_flash
+            elif use_flash == "campaign":
+                link_text = html.dashboard.campaign_flash
+            else:
+                link_text = None
 
         prefix = ""
         suffix = ""
@@ -1527,17 +1542,20 @@ class Settlement:
         if view == "game":
             button_class = "purple"
             if not link_text and not fixed:
-                prefix = html.dashboard.settlement_flash
+                prefix = html.dashboard.campaign_flash
                 link_text = prefix + self.settlement["name"]
 #                suffix = " (%s players, pop. %s)" % (self.get_players(count_only=True), self.settlement["population"])
                 suffix = " (LY %s, pop. %s)" % (self.settlement["lantern_year"], self.settlement["population"])
                 link_text += suffix
+        elif not fixed:
+            prefix = html.dashboard.settlement_flash
+            link_text = prefix + self.settlement["name"]
 
         button_id = None
         if fixed:
             button_id = "floating_asset_button"
             if not link_text:
-                link_text = html.dashboard.settlement_flash
+                link_text = html.dashboard.campaign_flash
 
         if not link_text:
             link_text = self.settlement["name"]

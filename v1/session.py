@@ -229,20 +229,18 @@ class Session:
             output = html.meta.saved_dialog
 
             if self.session["current_view"] == "dashboard":
-                output += html.dashboard.headline.safe_substitute(title="&#x02261; Campaigns", desc="Games you are currently playing.", h_class="purple")
-                output += self.User.get_games()
-                output += html.dashboard.headline.safe_substitute(title="Settlements", desc="Manage settlements created by you. You may not manage a settlement you did not create.")
-                output += self.User.get_settlements(return_as="asset_links")
-                output += html.dashboard.new_settlement_button
-                output += html.dashboard.headline.safe_substitute(title="Survivors", desc='Manage survivors created by you or shared with you. New survivors are created from the "Game" and "Settlement" views.')
-                survivors = self.User.get_survivors()
-                for s in survivors:
-                    S = assets.Survivor(survivor_id=s["_id"])
-                    output += S.asset_link(include=["dead", "retired", "hunt_xp", "settlement_name"])
                 output += self.User.html_motd()
+
+                display_campaigns = True
+                if self.User.get_games() == "":
+                    display_campaigns = "none"
+                output += html.dashboard.campaign_summary.safe_substitute(campaigns=self.User.get_games(), display=display_campaigns)
+
+                output += html.dashboard.settlement_summary.safe_substitute(settlements=self.User.get_settlements(return_as="asset_links"))
+                output += html.dashboard.survivor_summary.safe_substitute(survivors=self.User.get_survivors("asset_links"))
             elif self.session["current_view"] == "view_game":
                 if self.Settlement.settlement["created_by"] == self.User.user["_id"]:
-                    output += self.Settlement.asset_link(fixed=True, link_text="Edit")
+                    output += self.Settlement.asset_link(fixed=True, use_flash="settlement")
                 output += self.Settlement.render_html_summary(user_id=self.User.user["_id"])
                 # if session user owns the settlement, let him edit it
             elif self.session["current_view"] == "new_settlement":
