@@ -1,16 +1,40 @@
+.dashboard_icon {height: 50px; width: 50px;}
+.clickable {cursor: pointer; background: linear-gradient(-90deg, #fff, #ccc); border-left: 1px solid #666; border-top: 1px solid #666; border-bottom: 2px solid #333; border-right: 2px solid #333; padding: 5px; padding-left: 20px; border-radius: 5px; width: 95%; margin: auto; margin-bottom: 30px; margin-top: 10px; }
+
+#motd {margin: 10px; position: absolute; bottom: 0;  }
+
+.incrementer, .decrementer {float: left; width: 50px; display: inline-block; padding: 0 none; width: 207px; }
+
+.hit_box_detail {padding-right: 20px; }
+.hit_box_detail h2 {margin-top: 0px; border: 0 none; font-weight: normal; height: 250px; }
+
+.big_number_container { width: 230px; padding: 0 none; display: inline-block; float: left; margin-right: 20px; text-align: center; min-height: 460px;  }
+.big_number_square { border: 3px solid #666; width: 190px; height: 200px; margin-left: 5%; display: inline-block; margin-right: 20px; }
+.big_number_caption { font-size: 75px; padding-top: 30px; color: #777;  }
+
+/* clear: none styles*/
+#damage_box, .floating_label, form, label#skip_next_hunt, div#info_box {clear: none;}
+
+/* float: right styles */
+#damage_box, label#skip_next_hunt, .floating_label {float: right; }
 
 /* text-align: center styles */
 button, h1, h3, div#shield_box, #block_group h2, input#topline_name, input#topline_name_fixed, .subhead_p_block, .big_number_square, .shield, #saved_dialog {text-align: center; }
 
+/* text-align: left styles */
+div#info_box h2, button#survivor_campaign_asset {text-align: left; }
+
+/* margin-left: 20px; */
+p, .left_margin {margin-left: 20px; }
+
 /* p styles */
-p {padding: 10px; margin-left: 20px;  }
+p {padding: 10px;}
 .subhead_p_block {font-size: 30px; margin-top: -60px; margin-bottom: -30px; }
 
 /* input styles */
 input#topline_name, input#topline_name_fixed {border: 0 none; font-size: 100px; height: auto; width: 90%; }
 input#topline_name_fixed {position: fixed; z-index: 1; opacity: 0.9; margin-top: 0px;  }
 
-.big_number_square { border: 3px solid #666; width: 190px; height: 200px; margin-left: 5%; display: inline; margin-right: 20px; }
 
 input, button, div {font-size: 50px; }
 input {height: 100px; }
@@ -20,6 +44,7 @@ input, button, label {cursor: pointer; }
 pre { white-space: pre-wrap; }
 
 hr {clear: both;   }
+hr.invisible {border: 0 none; }
 button {padding-top: 20px; padding-bottom: 20px; }
 
 /* generic, multi-purpose stlyes */
@@ -27,9 +52,13 @@ button {padding-top: 20px; padding-bottom: 20px; }
 .hidden {display: none; }
 .strikethrough {text-decoration: line-through; }
 
-.big_number_caption { font-size: 75px; padding-top: 30px; color: #777;}
+
+
+
+/* button styles */
 
 /* button classes */
+.tan    { border-color: #A97D5D; background-color: #F7DCB4; }
 .purple {color: #8A2BE2 ; background-color: #D8BFD8; }
 .success {color: #4F8A10; background-color: #DFF2BF; }
 .info  { color: #00529B; background-color: #BDE5F8; }
@@ -42,7 +71,7 @@ input[type=radio], input[type=checkbox] {display: none; }
 /* label styles */
 label {margin: 20px; font-size: 65px; color: #CCC; }
 label, .full_width {clear: both; display: block; }
-label#skip_next_hunt {float: right; clear: none; text-align:center; border: 1px solid #999; padding: 10px;  }
+label#skip_next_hunt {text-align:center; border: 1px solid #999; padding: 10px;  }
 
 button, #user_error_msg, .full_width {width: 90%; margin: 5%; }
 
@@ -50,24 +79,32 @@ select {width: auto; margin-left: 20px; font-size: 60px; }
 
 h2 {border: 5px solid; }
 
+/* margin: auto */
+#block_group, div#survivor_hit_box, .shield {margin: auto; }
+
 #block_group { border: 3px solid #666; }
-#block_group, div#survivor_hit_box { width: 90%; margin: auto; clear: both; margin-top: 20px;  }
+#block_group, div#survivor_hit_box { width: 90%; clear: both; margin-top: 20px;  }
 #block_group h2, h3 {border: 0 none; }
 
 .shield, div#survivor_hit_box {border: 3px solid #000; }
 
 div#survivor_hit_box {display: block; overflow: auto; }
-div#info_box, div#shield_box, button#remove_item, .big_number_square {float: left; }
-div#info_box {padding-top: 0px; padding-left: 10px; clear: none; width: 70%; border-left: 3px solid #000; }
-div#info_box h2 {text-align: left; margin-top: 0px; border: 0 none; font-weight: normal; width: 40%;  }
+div#info_box, div#shield_box, button#remove_item, .big_number_square, button#survivor_campaign_asset, button#add_survivor_to_party {float: left; }
+div#info_box {padding-top: 0px; padding-left: 10px; width: 70%; border-left: 3px solid #000; }
+div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40%;  }
 
 #damage_box, div#shield_box {padding: 20px;}
-.shield {border-radius: 0px 0px 100px 100px; width: 150px; height: 175px; clear: both; display: block; margin: auto; }
+.shield {border-radius: 0px 0px 100px 100px; width: 150px; height: 175px; clear: both; display: block; }
 .big_number_square, .shield {font-size: 100px; }
-
+.right_border {border-right: 2px solid #000; }
+.left_border {background-color: #f60000; border-left: 2px solid #000; }
 .icon {width: 50px; }
 
-#damage_box {float: right; clear: none;  }
+
+
+button#add_survivor_to_party { clear: left; background-color: #ddd; font-size: 70px; padding: 60px; width: auto; }
+button#add_survivor_to_party, button#survivor_campaign_asset {display: inline-block; width: auto; margin: 10px;  }
+button#survivor_campaign_asset {width: 75%; margin-right: 0 none; color: #000;}
 
 button#remove_item, button#increment_nemesis {border: 0 none; display: inline-block; width: auto; margin: 10px; }
 button#remove_item {border-radius: 20px; padding-right: 10px; padding-left: 10px; background-color: #ddd}
@@ -81,7 +118,7 @@ button#remove_item {border-radius: 20px; padding-right: 10px; padding-left: 10px
 #save_button {margin-top: 25%; }
 
 /* font styles - let's try not to do too many of these, ok? */
-font#hit_box_insanity {font-size: 20px;}
+font#hit_box_insanity {font-size: 35px;}
 
 /* epithet style silliness */
 #Lucernae {color: blue; }
