@@ -63,7 +63,7 @@ class dashboard:
     <h2 class="clickable" onclick="showHide('system_div')">System Info</h2>
     <div id="system_div" style="display: none;">
     <p>KD:M Manager! Version $version.</p><hr/>
-    <p>$users users are managing $live_survivors survivors and $settlements settlements (in $sessions active sessions).</p>
+    <p>$users users are managing $settlements settlements and $live_survivors survivors (in $sessions sessions).</p>
     <p>The total death count across all settlements is $dead_survivors.</p>
     <p>
     Latest Fatality:<br />
@@ -902,14 +902,6 @@ class login:
     \n""")
 
 
-class changeLog:
-    log_text = file("change_log.txt", "rb").read()
-    body = """\n\
-<h1>KD:M Manager!</h1><h2 class="no_border">Change Log and Updates</h2>
-<p><a href="/">Return to KD:M Manager</a></p>
-<hr/><pre>%s</pre><hr/>
-<p><a href="/">Return to KD:M Manager</a></p>
-    \n""" % log_text
 
 
 class meta:
