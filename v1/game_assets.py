@@ -374,7 +374,8 @@ fighting_arts = {
 
 locations = {
     "Lantern Hoard": {
-        "consequences": ["Bone Smith", "Skinnery", "Organ Grinder"],
+        "always_available": True,
+        "consequences": ["Bone Smith", "Skinnery", "Organ Grinder", "Catarium", "Plumery", "Exhausted Lantern Hoard", "Mask Maker"],
     },
     "Bone Smith": {
         "color": "F5EDE3",
@@ -389,31 +390,42 @@ locations = {
         "consequences": ["Stone Circle"],
     },
     "Blacksmith": {
+        "requires": ("innovations", "Scrap Smelting"),
         "color": "9DAFBC",
+        "consequences": [],
     },
     "Stone Circle": {
         "color": "84596B",
+        "consequences": [],
     },
     "Leather Worker": {
         "color": "927B51",
+        "consequences": [],
     },
     "Weapon Crafter": {
         "color": "E1D4C0",
+        "consequences": [],
     },
     "Barber Surgeon": {
+        "requires": ("innovations", "Pottery"),
         "color": "F5F1DE",
+        "consequences": [],
     },
     "Plumery": {
         "color": "FF5EAA",
+        "consequences": [],
     },
     "Mask Maker": {
         "color": "FFD700",
+        "consequences": [],
     },
     "Exhausted Lantern Hoard": {
         "color": "ddd",
+        "consequences": [],
     },
     "Catarium": {
         "color": "EFEFEF",
+        "consequences": [],
     },
 }
 
@@ -1103,7 +1115,7 @@ innovations = {
     },
     "Language": {
         "type": "starting",
-        "consequences": ["Ammonia", "Hovel", "Inner Lantern", "Drums", "Paint", "Symposium", "Guidepost", "Final Fighting Art", "Ultimate Weapon"],
+        "consequences": ["Ammonia", "Hovel", "Inner Lantern", "Drums", "Paint", "Symposium", "Guidepost", "Final Fighting Art", "Ultimate Weapon","Partnership"],
         "survival_limit": 1,
         "survival_action": "Encourage",
         "always_available": True,

@@ -16,6 +16,17 @@ logger = get_logger()
 
 user_error_msg = Template('<div id="user_error_msg" class="$err_class">$err_msg</div>')
 
+class ui:
+    game_asset_select_top = Template("""\n\
+    <select name="$operation$name" onchange="this.form.submit()">
+    <option selected disabled hidden value="">$operation_pretty $name_pretty</option>
+    """)
+    game_asset_select_row = Template('\t  <option value="$asset">$asset</option>\n')
+    game_asset_select_bot = '    </select>\n'
+    game_asset_add_custom = Template("""\n\
+<input onchange="this.form.submit()" type="text" class="full_width" name="add_$asset_name" placeholder="add custom $asset_name"/>
+    \n""")
+
 
 class dashboard:
     home_button = '<hr/><form method="POST" action="#"><input type="hidden" name="change_view" value="dashboard"/><button> Return to Dashboard</button></form>\n'
@@ -52,10 +63,12 @@ class dashboard:
     <h2 class="clickable" onclick="showHide('system_div')">System Info</h2>
     <div id="system_div" style="display: none;">
     <p>KD:M Manager! Version $version.</p><hr/>
-    <p>$users users are managing $survivors survivors and $settlements settlements (in $sessions active sessions).</p>
+    <p>$users users are managing $live_survivors survivors and $settlements settlements (in $sessions active sessions).</p>
+    <p>The total death count across all settlements is $dead_survivors.</p>
     <p>
     Latest Fatality:<br />
-    &ensp; <b>$casualty_name</b> [$casualty_sex] of <b>$casualty_settlement</b><br />
+    &ensp; <b>$casualty_name</b> [$casualty_sex] of <b>$casualty_settlement</b><br/>
+    &ensp; $cause_of_death <br/>
     &ensp; XP: $casualty_xp - Courage: $casualty_courage <br /> &ensp; Understanding: $casualty_understanding
     </p>
     <hr/>
@@ -129,16 +142,21 @@ class survivor:
          Survivor sex: <b>$sex</b>
             <!-- dead -->
          <input type='hidden' value='unchecked' name='toggle_dead'/>
-         <input type="checkbox" id="dead" class="radio_principle" name="toggle_dead" value="checked" $dead_checked /> 
+         <input type="checkbox" id="dead" class="radio_principle" name="toggle_dead" value="checked" onclick="showHide('COD')" $dead_checked /> 
          <label class="radio_principle_label floating_label" for="dead"> Dead </label>
 
             <!-- retired -->
          <input type='hidden' value='unchecked' name='toggle_retired'/>
-         <input type="checkbox" id="retired" class="radio_principle" name="toggle_retired" value="checked" $retired_checked/> 
+         <input type="checkbox" id="retired" class="radio_principle" name="toggle_retired" value="checked" $retired_checked> 
          <label class="radio_principle_label" for="retired" style="float: right; clear: none;"> Retired </label>
         </p>
 
-         <hr/>
+        <div id="COD" style="display: $show_COD">
+            <hr/>
+            <input onchange="this.form.submit()" class="full_width" type="text" name="cause_of_death" placeholder="Cause of Death" value="$cause_of_death"/>
+        </div>
+
+        <hr/>
 
         <div class="big_number_container left_margin">
             <button class="incrementer" onclick="increment('survivalBox');">+</button>
@@ -549,7 +567,7 @@ class settlement:
         </form>
         <hr/>
         <h3>Innovations and Principles</h3>
-        <p>$innovations</p>
+        $innovations
         <hr/>
         <h3>Bonuses</h3>
         <h4>Departing</h4>
@@ -649,11 +667,9 @@ class settlement:
     <div id="block_group">
      <h2>Settlement Locations</h2>
      <p>Locations in your settlement.</p>
-        <hr />
-     <p>$locations</p>
-     $locations_options<br />
-     $rm_locations
-     <input onchange="this.form.submit()" type="text" class="full_width" name="add_location" placeholder="add custom location"/>
+     $locations
+     $locations_add
+     $locations_rm
     </div>
     </form>
 
@@ -670,13 +686,9 @@ class settlement:
     <div id="block_group">
      <h2>Innovations</h2>
      <p>The settlement's innovations (including weapon masteries).</p>
-        <hr />
-     <p>$innovations</p>
-     <select name="add_innovation" onchange="this.form.submit()">
-      <option selected disabled hidden value=''>Add Innovation</option>
-      <option>$innovation_options</option>
-     </select>
-     <input onchange="this.form.submit()" type="text" class="full_width" name="add_innovation" placeholder="add custom innovation"/>
+     $innovations
+     $innovations_add
+     $innovations_rm
     </div>
     </form>
 
@@ -823,19 +835,20 @@ class settlement:
     <input type="hidden" name="modify" value="settlement" />
     <input type="hidden" name="asset_id" value="$settlement_id" />
 
-    <div id="block_group">
-    <h2>Timeline</h2>
-        <div class="big_number_container left_margin">
-            <button class="incrementer" onclick="increment('lanternYearBox');">+</button>
-            <input id="lanternYearBox" onchange="this.form.submit()" class="big_number_square" type="number" name="lantern_year" value="$lantern_year" min="1"/>
-            <button class="decrementer" onclick="decrement('lanternYearBox');">-</button>
-        </div>
-    <div class="big_number_caption">Lantern Year</div>
-    <br /><hr />
-    $timeline
-    </div>
+    <br/>
+    <h2 class="clickable" onclick="showHide('timelineBlock')">Timeline</h2>
+    <div id="timelineBlock" class="block_group" style="display: none;">
+     <div class="big_number_container left_margin">
+         <button class="incrementer" onclick="increment('lanternYearBox');">+</button>
+         <input id="lanternYearBox" onchange="this.form.submit()" class="big_number_square" type="number" name="lantern_year" value="$lantern_year" min="1"/>
+         <button class="decrementer" onclick="decrement('lanternYearBox');">-</button>
+     </div>
+     <div class="big_number_caption">Lantern Year</div>
+     <br /><hr />
+     $timeline
+    </div> <!-- timelineBlock -->
     </form>
-
+    <br/>
 
     <hr /> <!-- Logical Section Break Here -->
 

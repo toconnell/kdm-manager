@@ -16,6 +16,27 @@ logger = get_logger()
 settings = load_settings()
 
 #
+#   Maintenance and administrative functions
+#
+
+def prune_sessions():
+    """ Removes sessions older than 24 hours. """
+    yesterday = datetime.now() - timedelta(days=1)
+    logger.debug("Searching for sessions older than %s to prune..." % yesterday)
+    old_sessions = mdb.sessions.find({"created_on": {"$lt": yesterday}}).sort("created_on")
+    logger.debug("%s sessions found." % old_sessions.count())
+
+    pruned_sessions = 0
+    for s in old_sessions:
+        s_id = s["_id"]
+        logger.debug("Pruning old session '%s' (%s)" % (s_id, s["login"]))
+        remove_session(s_id)
+        pruned_sessions += 1
+
+    if pruned_sessions > 0:
+        logger.info("Pruned %s old sessions." % pruned_sessions)
+
+#
 #   administrative helper functions for user-land
 #
 
@@ -72,6 +93,7 @@ def authenticate(login, password):
         user["latest_sign_in"] = datetime.now()
         mdb.users.save(user)
         logger.debug("User '%s' authenticated successfully." % login)
+        prune_sessions()
         return True
     else:
         logger.debug("User '%s' FAILED to authenticate successfully." % login)
@@ -205,22 +227,6 @@ def play_summary():
         print(output)
 
 
-def prune_sessions():
-    """ Removes sessions older than 24 hours. """
-    yesterday = datetime.now() - timedelta(days=1)
-    logger.debug("Searching for sessions older than %s to prune..." % yesterday)
-    old_sessions = mdb.sessions.find({"created_on": {"$lt": yesterday}}).sort("created_on")
-    logger.debug("%s sessions found." % old_sessions.count())
-
-    pruned_sessions = 0
-    for s in old_sessions:
-        s_id = s["_id"]
-        logger.debug("Pruning old session '%s' (%s)" % (s_id, s["login"]))
-        remove_session(s_id)
-        pruned_sessions += 1
-
-    if pruned_sessions > 0:
-        logger.info("Pruned %s old sessions." % pruned_sessions)
 
 
 def get_latest_casualty(return_type=False):

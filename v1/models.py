@@ -17,6 +17,15 @@ class Model:
     def get_keys(self):
         return self.game_assets.keys()
 
+    def get_always_available(self):
+        """ Checks all assets for whether they have the 'always_available' key
+        and returns a list of the ones that do. """
+        always_available = set()
+        for game_asset in self.get_keys():
+            if "always_available" in self.get_asset(game_asset).keys():
+                always_available.add(game_asset)
+        return always_available
+
     def render_as_html_dropdown(self, submit_on_change=True, exclude=[], disable=[]):
         """ Renders the model as an HTML dropdown and returns a string. Use the
         'submit_on_change' kwarg to control whether it submits on change.
@@ -109,6 +118,8 @@ class locationsModel(Model):
     def __init__(self):
         Model.__init__(self)
         self.game_assets = game_assets.locations
+        self.sort_alpha = True
+        self.uniquify = True
         self.name = "location"
 
 class itemsModel(Model):
@@ -150,14 +161,10 @@ class innovationsModel(Model):
     def __init__(self):
         Model.__init__(self)
         self.game_assets = game_assets.innovations
+        self.sort_alpha = True
+        self.uniquify = True
         self.name = "innovation"
 
-    def get_always_available_innovations(self):
-        always_available = set()
-        for innovation in self.get_keys():
-            if "always_available" in self.get_asset(innovation).keys():
-                always_available.add(innovation)
-        return always_available
 
 class quarriesModel(Model):
     def __init__(self):

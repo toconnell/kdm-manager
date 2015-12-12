@@ -108,17 +108,20 @@ class User:
     def html_motd(self):
         """ Creates an HTML MoTD for the user. """
 
-        admin.prune_sessions()  # prune old sessions when users login.
-
         d = admin.get_latest_casualty()
         if d is None:
             d = {"name": None, "settlement_name": None, "sex": None, "hunt_xp": None, "Courage": None, "Understanding": None}
+
+        COD = "Unspecified cause of death."
+        if "cause_of_death" in d.keys():
+            COD = d["cause_of_death"]
 
         output = html.dashboard.motd.safe_substitute(
             login = self.user["login"],
             version = settings.get("application", "version"),
             users = mdb.users.find().count(),
-            survivors = mdb.survivors.find().count(),
+            dead_survivors = mdb.survivors.find({"dead": {"$exists": True}}).count(),
+            live_survivors = mdb.survivors.find().count() - mdb.survivors.find({"dead": {"$exists": True}}).count(),
             sessions = mdb.sessions.find().count(),
             settlements = mdb.settlements.find().count(),
             casualty_name = d["name"],
@@ -127,6 +130,7 @@ class User:
             casualty_xp = d["hunt_xp"],
             casualty_courage = d["Courage"],
             casualty_understanding = d["Understanding"],
+            cause_of_death = COD,
         )
         return output
 
@@ -219,6 +223,17 @@ class Survivor:
         survivor_id = mdb.survivors.insert(survivor_dict)
         self.logger.info("User '%s' created new survivor '%s [%s]' successfully." % (login, survivor_name, survivor_sex))
         return survivor_id
+
+
+    def get_ancestors(self, return_type=None):
+        """ This is a stub for now. Don't use it. """
+
+        if not "ancestors" in self.survivor.keys():
+            ancestors = []
+        else:
+            ancestors = self.survivor["ancestors"]
+
+        return ancestors
 
 
     def get_survival_actions(self, return_as=False):
@@ -641,6 +656,13 @@ class Survivor:
             elif self.survivor["understanding_attribute"] == "Tinker":
                 tinker = "checked"
 
+        COD_div_display_style = "none"
+        if "cause_of_death" in self.survivor.keys() and "dead" in self.survivor.keys():
+            COD_div_display_style = "block"
+        COD = ""
+        if "cause_of_death" in self.survivor.keys():
+            COD = self.survivor["cause_of_death"]
+
         # fighting arts widgets
         fighting_arts_picker = FightingArts.render_as_html_dropdown(exclude=self.survivor["fighting_arts"])
         if len(self.survivor["fighting_arts"]) >= 3:
@@ -726,6 +748,9 @@ class Survivor:
                 disable=Abilities.get_maxed_out_abilities(self.survivor["abilities_and_impairments"]),
                 ),
             remove_abilities_and_impairments = self.get_abilities_and_impairments("html_select_remove"),
+
+            cause_of_death = COD,
+            show_COD = COD_div_display_style,
 
             email = self.survivor["email"],
             game_link = self.Settlement.asset_link(view="game", fixed=True),
@@ -852,27 +877,6 @@ class Settlement:
 
         return min_survival
 
-    def get_innovation_deck(self, return_as=False):
-        """ Returns the settlement's Innovation Deck as a list of strings. """
-
-        innovations = self.settlement["innovations"]
-
-        innovation_deck = Innovations.get_always_available_innovations()
-
-        for innovation_key in innovations:
-            for c in Innovations.get_asset(innovation_key)["consequences"]:
-                innovation_deck.add(c)
-
-        for innovation_key in innovations:
-            if innovation_key in innovation_deck:
-                innovation_deck.discard(innovation_key)
-
-        final_list = sorted(list(set(innovation_deck)))
-
-        if return_as == "html_option":
-            return "</option><option>".join(final_list)
-
-        return final_list
 
 
     def get_locations(self, return_type=False):
@@ -1268,15 +1272,157 @@ class Settlement:
             ("Protect the Young", "Survival of the Fittest"),
             ("Collective Toil", "Accept Darkness"),
             ]
+
+        self.logger.debug(principles)
+
         for tup in mutually_exclusive_principles:
             if tup[0] == add_new_principle:
                 if tup[1] in principles:
                     principles.remove(tup[1])
+                    self.logger.debug("Removed %s" % tup[1])
             elif tup[1] == add_new_principle:
                 if tup[0] in principles:
                     principles.remove(tup[0])
+                    self.logger.debug("Removed %s" % tup[0])
+
+        self.logger.debug(principles)
 
         self.settlement["principles"] = sorted(list(principles))
+        mdb.settlements.save(self.settlement)
+
+
+    def get_game_asset_deck(self, asset_type):
+        """ The 'asset_type' kwarg should be 'locations', 'innovations', etc.
+        and the class should be one of our classes from models, e.g.
+        'Locations', 'Innovations', etc.
+
+        What you get back is going to be a list of available options, i.e. which
+        game assets you may add to the settlement based on what they've already
+        got.
+
+        Any model in game_assets.py that has "consequences" as a key should be
+        compatible with this func.
+        """
+        exec "Asset = %s" % asset_type.capitalize()
+
+        current_assets = self.settlement[asset_type]
+        asset_deck = Asset.get_always_available()
+
+        for asset_key in current_assets:
+            for c in Asset.get_asset(asset_key)["consequences"]:
+                asset_deck.add(c)
+
+        for asset_key in Asset.get_keys():
+            asset_dict = Asset.get_asset(asset_key)
+            if "requires" in asset_dict.keys():
+                requirement_type, requirement_key = asset_dict["requires"]
+                if requirement_key in self.settlement[requirement_type]:
+                    asset_deck.add(asset_key)
+
+        for asset_key in current_assets:
+            if asset_key in asset_deck:
+                asset_deck.discard(asset_key)
+
+        return sorted(list(set(asset_deck)))
+
+
+    def get_game_asset(self, asset_type=None, return_type=False, exclude=[]):
+        """ This is the generic method for getting a list of the settlement's
+        game assets, e.g. innovations, locations, principles, etc.
+
+        The 'exclude' kwarg lets you put in a list of keys that will not show
+        up in ANY OF THE RESULTING OUTPUT. Use it with careful strategery.
+
+        The 'return_type' kwarg is optional. If you leave it unspecified, you
+        get back whatever is saved in the mdb, e.g. a list, etc.
+
+        As their names imply, the 'html_add' and 'html_remove' options for
+        'return_type' return HTML. If there are game assets to remove from the
+        settlement, you'll get an HTML <select> back.
+
+        Both of these return types return an empty string (i.e. "") if the game
+        asset is a blank list (i.e. []): this is useful when writing the form,
+        because if we've got no options, we display no select element.
+        """
+        exec "Asset = %s" % asset_type.capitalize() # if asset_type is 'innovations', initialize 'Innovations'
+        asset_name = asset_type[:-1]                # if asset_type is 'locations', asset_name is 'location'
+        asset_keys = self.settlement[asset_type]
+
+        for asset_key in exclude:                   # process the exclude list
+            while asset_key in asset_keys:
+                asset_keys.remove(asset_key)
+
+        if return_type == "comma-delimited":
+            if hasattr(Asset, "uniquify"):
+                asset_keys = list(set(asset_keys))
+            if hasattr(Asset, "sort_alpha"):
+                asset_keys = sorted(asset_keys)
+            output = ", ".join(asset_keys)
+            return "<p>%s</p>" % output
+
+        if return_type == "html_add":
+            op = "add"
+            output = html.ui.game_asset_select_top.safe_substitute(
+                operation="%s_" % op, operation_pretty=op.capitalize(),
+                name=asset_name,
+                name_pretty=asset_name.capitalize(),
+            )
+
+            for asset_key in self.get_game_asset_deck(asset_type):
+                output += html.ui.game_asset_select_row.safe_substitute(asset=asset_key)
+            output += html.ui.game_asset_select_bot
+            output += html.ui.game_asset_add_custom.safe_substitute(asset_name=asset_name)
+            return output
+
+        if return_type == "html_remove":
+            if asset_keys == []:
+                return ""
+
+
+            op = "remove"
+            output = html.ui.game_asset_select_top.safe_substitute(
+                operation="%s_" % op, operation_pretty=op.capitalize(),
+                name=asset_name,
+                name_pretty=asset_name.capitalize(),
+            )
+            options = self.settlement[asset_type]
+
+            if hasattr(Asset, "sort_alpha"):
+                options = sorted(options)
+
+            for asset_key in options:
+                output += html.ui.game_asset_select_row.safe_substitute(asset=asset_key)
+            output += html.ui.game_asset_select_bot
+            return output
+
+        return asset_keys
+
+    def add_game_asset(self, asset_class, game_asset_key=None):
+        """ Generic function for adding game assets to a settlement.
+
+        The 'asset_class' kwarg needs to be one of the game asset classes from
+        models.py, e.g. Innovations, Locations, etc.
+
+        This updates mdb and saves the update. Don't look for any semaphore on
+        its returns (because there isn't any).
+        """
+
+        exec "Asset = %s" % asset_class.capitalize()
+
+        if hasattr(Asset, "uniquify"):
+            current_assets = set(self.settlement[asset_class])
+            current_assets.add(game_asset_key)
+            current_assets = list(current_assets)
+        else:
+            current_assets = self.settlement[asset_class]
+            current_assets.append(game_asset_key)
+
+        if hasattr(Asset, "sort_alpha"):
+            current_assets = sorted(current_assets)
+
+        self.settlement[asset_class] = current_assets
+        mdb.settlements.save(self.settlement)
+
 
     def modify(self, params):
         """ Pulls a settlement from the mdb, updates it and saves it using a
@@ -1286,6 +1432,11 @@ class Settlement:
         """
 
         for p in params:
+
+            game_asset_key = None
+            if type(params[p]) != list:
+                game_asset_key = params[p].value
+
             if p in ["asset_id", "modify"]:
                 pass
             elif p == "add_defeated_monster":
@@ -1299,11 +1450,13 @@ class Settlement:
             elif p == "remove_item":
                 self.settlement["storage"].remove(params[p].value)
             elif p == "add_innovation":
-                self.settlement["innovations"].append(params[p].value)
+                self.add_game_asset("innovations", game_asset_key)
+            elif p == "remove_innovation":
+                self.settlement["innovations"].remove(game_asset_key)
             elif p == "add_location":
-                self.settlement["locations"].append(params[p].value)
+                self.add_game_asset("locations", game_asset_key)
             elif p == "remove_location":
-                self.settlement["locations"].remove(params[p].value)
+                self.settlement["locations"].remove(game_asset_key)
             elif p in ["new_life_principle", "death_principle", "society_principle", "conviction_principle"]:
                 new_principle = params[p].value
                 self.update_principles(new_principle)
@@ -1458,9 +1611,6 @@ class Settlement:
         if population < self.get_min(value="population"):
             population = self.get_min(value="population")
 
-        locations_remover = self.get_locations(return_type="html_select_remove")
-        if self.settlement["locations"] == []:
-            locations_remover = ""
 
         output = html.settlement.form.safe_substitute(
             MEDIA_URL = settings.get("application","STATIC_URL"),
@@ -1510,12 +1660,14 @@ class Settlement:
 
             quarries = self.get_quarries("comma-delimited"),
             quarry_options = Quarries.render_as_html_dropdown(exclude=self.get_quarries()),
-            innovations = self.get_innovations(return_as="comma-delimited"),
-            innovation_options = self.get_innovation_deck(return_as="html_option"),
 
-            locations = self.get_locations(return_type="comma-delimited"),
-            locations_options = Locations.render_as_html_dropdown(exclude=self.get_locations()),
-            rm_locations = locations_remover,
+            innovations = self.get_game_asset("innovations", return_type="comma-delimited"),
+            innovations_add = self.get_game_asset("innovations", return_type="html_add"),
+            innovations_rm = self.get_game_asset("innovations", return_type="html_remove", exclude=self.settlement["principles"]),
+
+            locations = self.get_game_asset("locations", return_type="comma-delimited"),
+            locations_add = self.get_game_asset("locations", return_type="html_add"),
+            locations_rm = self.get_game_asset("locations", return_type="html_remove"),
 
             defeated_monsters = self.get_defeated_monsters("comma-delimited"),
 
