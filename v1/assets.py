@@ -1309,8 +1309,9 @@ class Settlement:
         asset_deck = Asset.get_always_available()
 
         for asset_key in current_assets:
-            for c in Asset.get_asset(asset_key)["consequences"]:
-                asset_deck.add(c)
+            if asset_key in Asset.get_keys():
+                for c in Asset.get_asset(asset_key)["consequences"]:
+                    asset_deck.add(c)
 
         for asset_key in Asset.get_keys():
             asset_dict = Asset.get_asset(asset_key)
