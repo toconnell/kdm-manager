@@ -1273,7 +1273,6 @@ class Settlement:
             ("Collective Toil", "Accept Darkness"),
             ]
 
-        self.logger.debug(principles)
 
         for tup in mutually_exclusive_principles:
             if tup[0] == add_new_principle:
