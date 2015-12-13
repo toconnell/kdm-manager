@@ -80,10 +80,10 @@ select {width: auto; margin-left: 20px; font-size: 60px; }
 h2 {border: 5px solid; }
 
 /* margin: auto */
-#block_group, div#survivor_hit_box, .shield {margin: auto; }
+#block_group, .block_group, div#survivor_hit_box, .shield {margin: auto; }
 
-#block_group { border: 3px solid #666; }
-#block_group, div#survivor_hit_box { width: 90%; clear: both; margin-top: 20px;  }
+#block_group, .block_group { border: 3px solid #666; }
+#block_group, .block_group, div#survivor_hit_box { width: 90%; clear: both; margin-top: 20px;  }
 #block_group h2, h3 {border: 0 none; }
 
 .shield, div#survivor_hit_box {border: 3px solid #000; }

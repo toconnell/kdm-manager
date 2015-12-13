@@ -872,7 +872,7 @@ class Settlement:
         innovations.extend(self.settlement["principles"])
         innovations = list(set(innovations))
         for innovation_key in innovations:
-            if "survival_limit" in Innovations.get_asset(innovation_key).keys():
+            if innovation_key in Innovations.get_keys() and "survival_limit" in Innovations.get_asset(innovation_key).keys():
                 min_survival += Innovations.get_asset(innovation_key)["survival_limit"]
 
         return min_survival
@@ -1072,7 +1072,7 @@ class Settlement:
         buffs = {}
 
         for innovation_key in innovations:
-            if bonus_type in Innovations.get_asset(innovation_key).keys():
+            if innovation_key in Innovations.get_keys() and bonus_type in Innovations.get_asset(innovation_key).keys():
                 buffs[innovation_key] = Innovations.get_asset(innovation_key)[bonus_type]
 
         html = ""
