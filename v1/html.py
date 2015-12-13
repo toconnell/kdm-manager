@@ -35,7 +35,7 @@ class dashboard:
     settlement_flash = '<img class="dashboard_icon" src="%s/icons/settlement.png"/> ' % settings.get("application", "STATIC_URL")
     new_settlement_button = '<form method="POST"><input type="hidden" name="change_view" value="new_settlement" /><button class="success">+ New Settlement</button></form>\n'
     settlement_summary = Template("""\n\
-    <h2 class="clickable" onclick="showHide('settlement_div')"> <img class="dashboard_icon" src="%s/icons/settlement.png"/> Settlements</h2>
+    <h2 class="clickable gradient_silver" onclick="showHide('settlement_div')"> <img class="dashboard_icon" src="%s/icons/settlement.png"/> Settlements</h2>
     <div id="settlement_div">
     Manage your settlements. You may not manage a settlement you did not create.
     $settlements
@@ -46,21 +46,21 @@ class dashboard:
     # campaign stuff
     campaign_flash = '<img class="dashboard_icon" src="%s/icons/campaign.png"/> ' % settings.get("application", "STATIC_URL")
     campaign_summary = Template("""\n\
-    <h2 class="clickable" onclick="showHide('campaign_div')"> <img class="dashboard_icon" src="%s/icons/campaign.png"/> Campaigns</h2>
+    <h2 class="clickable gradient_silver" onclick="showHide('campaign_div')"> <img class="dashboard_icon" src="%s/icons/campaign.png"/> Campaigns</h2>
     <div id="campaign_div" style="display: $display">
     Games you are currently playing.
     $campaigns
     </div>
     \n""" % settings.get("application", "STATIC_URL"))
     survivor_summary = Template("""\n\
-    <h2 class="clickable" onclick="showHide('survivors_div')">Survivors</h2>
+    <h2 class="clickable gradient_silver" onclick="showHide('survivors_div')">Survivors</h2>
     <div id="survivors_div" style="display: none;">
     Manage survivors created by you or shared with you. New survivors are created from the "Campaign" and "Settlement" views.
     $survivors
     </div>
     \n""")
     motd = Template("""\n
-    <h2 class="clickable" onclick="showHide('system_div')">System Info</h2>
+    <h2 class="clickable gradient_silver" onclick="showHide('system_div')">System Info</h2>
     <div id="system_div" style="display: none;">
     <p>KD:M Manager! Version $version.</p><hr/>
     <p>$users users are managing $settlements settlements and $live_survivors survivors (in $sessions sessions).</p>
