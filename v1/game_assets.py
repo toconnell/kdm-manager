@@ -1191,4 +1191,5 @@ resource_decks = {
     "Basic Resources": ["???", "???", "Skull", "Broken Lantern", "Broken Lantern", "Monster Bone", "Monster Bone", "Monster Bone", "Monster Bone", "Love Juice", "Love Juice", "Monster Organ", "Monster Organ", "Monster Organ", "Monster Hide", "Monster Hide", "Monster Hide", "Monster Hide", "Monster Hide", "Monster Hide", "Monster Hide"]
 }
 
+survival_actions = ["Dodge", "Encourage", "Surge", "Dash"]
 survivor_attributes = ["Movement", "Accuracy", "Strength", "Evasion", "Luck", "Speed"]

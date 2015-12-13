@@ -150,6 +150,7 @@ def dump_document(collection, doc_id):
     print("")
 
 
+
 def remove_document(collection, doc_id):
     """ Removes a single document (by _id) from the specified collection."""
 
@@ -176,7 +177,7 @@ def pretty_view_user(u_id):
 
     print("\n\tUser Summary!\n\n _id: %s\n login: %s\n created: %s\n" % (User.user["_id"], User.user["login"], User.user["created_on"]))
     for u_key in sorted(User.user.keys()):
-        if u_key not in ["_id", "login", "created_on"]:
+        if u_key not in ["_id", "login", "created_on", "activity_log"]:
             print(" %s: %s" % (u_key, User.user[u_key]))
     print("")
 
@@ -205,6 +206,13 @@ def pretty_view_user(u_id):
             print asset_repr(survivor, "survivor")
     print("")
 
+    if "activity_log" in User.user.keys():
+        print(" Last 10 Actions:")
+        for entry in User.user["activity_log"]:
+            dt, action = entry
+            print("   %s | %s" % (dt.strftime(ymdhms), action))
+    print("")
+
 
 def initialize():
     """ Completely initializes the application. Scorched earth. """
@@ -215,15 +223,15 @@ def initialize():
 def play_summary():
     """ Summarizes play sessions. """
 
-    print("\n\t\tRecent Play Summaries:\n")
-    users = mdb.users.find({"latest_sign_in": {"$exists": True}, "latest_activity": {"$exists": True}}).sort("latest_activity")
-    for u in users:
+    print("\n\t\tRecent Activity:\n")
+    users = mdb.users.find({"latest_sign_in": {"$exists": True}, "latest_activity": {"$exists": True}}).sort("latest_activity", -1)
+    for u in users[:5]:
         output = " "
         output += "%s - %s (%s):\n " % (u["login"], u["_id"], u["latest_user_agent"])
         duration = u["latest_activity"] - u["latest_sign_in"]
-        dur_repr = "%s:%s:%s" % days_hours_minutes(duration)
-        output += "    %s - %s (%s)\n" % (u["latest_sign_in"].strftime(ymdhms), u["latest_activity"].strftime(ymdhms), dur_repr)
-        output += "     Latest Action: '%s'\n" % u["latest_action"]
+        dur_minutes = duration // 60
+        output += "    %s - %s (%s)\n" % (u["latest_sign_in"].strftime(ymdhms), u["latest_activity"].strftime(ymdhms), dur_minutes)
+        output += "     Latest Action: '%s' (%s minutes ago)\n" % (u["latest_action"], (datetime.now() - u["latest_activity"]).seconds // 60)
         print(output)
 
 
@@ -254,7 +262,6 @@ def motd():
     survivors = mdb.survivors.find()
 
     print("\n %s users (%s sessions)\n %s settlements\n %s survivors" % (users.count(), sessions.count(), settlements.count(), survivors.count()))
-    print("\n Latest casualty:\n   %s" % get_latest_casualty("string"))
 
     recent_user_agents = {}
     for u in users:
@@ -269,11 +276,11 @@ def motd():
     print("\n Recent user agent round-up (top 5):")
     sorted_ua_dict = sorted(recent_user_agents.items(), key=operator.itemgetter(1), reverse=True)
     for ua in sorted_ua_dict[:5]:
-        print("   %s --> %s" % (ua[0], ua[1]))
-
+        ua_string, ua_count = ua
+        if ua_string != "UNKNOWN":
+            print("   %s --> %s" % (ua_string, ua_count))
     print("")
 
-    #prune_sessions()
 
 
 if __name__ == "__main__":
@@ -291,6 +298,9 @@ if __name__ == "__main__":
 
     parser.add_option("--initialize", dest="initialize", help="Burn it down.", action="store_true", default=False)
     (options, args) = parser.parse_args()
+
+#    if args == []:
+#        motd()
 
     if options.initialize:
         manual_approve = raw_input('Initialize the project and remove all data? Type "YES" to proceed: ')
@@ -313,7 +323,5 @@ if __name__ == "__main__":
         pretty_view_user(options.pretty_view_user)
 
     if options.play_summary:
-        play_summary()
-
-    if args == []:
         motd()
+        play_summary()

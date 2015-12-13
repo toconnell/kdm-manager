@@ -30,6 +30,12 @@ class User:
 
     def mark_usage(self, action=None):
         """ Updates the user's mdb object with some data. """
+        if not "activity_log" in self.user.keys():
+            self.user["activity_log"] = []
+
+        self.user["activity_log"].append((datetime.now(), action))
+        self.user["activity_log"] = self.user["activity_log"][-10:] # only save the last 10
+
         self.user["latest_action"] = action
         self.user["latest_activity"] = datetime.now()
         self.user["latest_user_agent"] = str(get_user_agent())
@@ -237,7 +243,8 @@ class Survivor:
 
 
     def get_survival_actions(self, return_as=False):
-        possible_actions = ["Dodge", "Encourage", "Surge", "Dash"]
+        possible_actions = game_assets.survival_actions
+
         available_actions = []
         for a in possible_actions:
             if a in self.Settlement.get_survival_actions():
@@ -559,12 +566,12 @@ class Survivor:
         mdb.survivors.save(self.survivor)
 
 
-    def asset_link(self, view="survivor", button_class="info", link_text=False, include=["hunt_xp", "insanity", "sex", "dead", "retired"], disabled=False):
+    def asset_link(self, view="survivor", button_class="green", link_text=False, include=["hunt_xp", "insanity", "sex", "dead", "retired"], disabled=False):
         """ Returns an asset link (i.e. html form with button) for the
         survivor. """
 
         if not link_text:
-            link_text = self.survivor["name"]
+            link_text = "<b>%s</b>" % self.survivor["name"]
             if "sex" in include:
                 link_text += " [%s]" % self.survivor["sex"]
         if disabled:
@@ -574,7 +581,7 @@ class Survivor:
             attribs = []
             if "dead" in include:
                 if "dead" in self.survivor.keys():
-                    button_class = "warn"
+                    button_class = "dark_green"
                     attribs.append("Dead")
 
             if "retired" in include:
@@ -592,9 +599,9 @@ class Survivor:
                 attribs.append("Insanity: %s" % self.survivor["Insanity"])
 
             if attribs != []:
-                suffix = "<br /> ("
+                suffix = "<br /> "
                 suffix += ", ".join(attribs)
-                suffix += ")"
+                suffix += ""
                 link_text += suffix
 
         if disabled:
@@ -615,7 +622,7 @@ class Survivor:
     def render_html_form(self):
         """ This is just like the render_html_form() method of the settlement
         class: a giant tangle-fuck of UI/UX logic that creates the form for
-        modifying a user. """
+        modifying a surviro. """
 
         survivor_survival_points = int(self.survivor["survival"])
         if survivor_survival_points > int(self.Settlement.settlement["survival_limit"]):
@@ -753,7 +760,7 @@ class Survivor:
             show_COD = COD_div_display_style,
 
             email = self.survivor["email"],
-            game_link = self.Settlement.asset_link(view="game", fixed=True),
+            campaign_link = self.Settlement.asset_link(view="game", fixed=True),
         )
         return output
 
@@ -1026,48 +1033,45 @@ class Settlement:
     def get_principles(self, return_type=None):
         """ Returns the settlement's principles. Use the 'return_type' arg to
         specify one of the following, or leave it unspecified to get a sorted
-        list back. """
+        list back:
+
+            'comma-delimited': a comma-delimited list wrapped in <p> tags.
+
+        """
 
         principles = sorted(self.settlement["principles"])
 
         if return_type == "comma-delimited":
             if principles == []:
-                return "No principles"
+                return "<p>No principles</p>"
             else:
-                return ", ".join(principles)
+                return "<p>%s</p>" % ", ".join(principles)
 
         return principles
 
-    def get_innovations(self, include_principles=False, return_as=False):
-        """ Get the settlement's innovations as a list. Use 'include_principles'
-        if you want the list to include principles as well as plain Jane
-        innovations. """
-
-        innovations = self.settlement["innovations"]
-        if include_principles:
-            innovations.extend(self.settlement["principles"])
-
-        innovations = sorted(list(set(innovations)))
-
-        if return_as == "comma-delimited":
-            return ", ".join(innovations)
-
-        return innovations
 
     def get_survival_actions(self, return_as=False):
-        innovations = self.get_innovations()
+        """ Available survival actions depend on innovations. This func checks
+        the settlement's innovations and returns a list of available survival
+        actions for survivors to use during Showdowns. """
+
+        innovations = self.get_game_asset("innovations")
+
         survival_actions = ["Dodge"]
         for innovation in innovations:
-            if "survival_action" in Innovations.get_asset(innovation).keys():
+            if innovation in Innovations.get_keys() and "survival_action" in Innovations.get_asset(innovation).keys():
                 survival_actions.append(Innovations.get_asset(innovation)["survival_action"])
+
         return list(set(survival_actions))
+
 
     def get_bonuses(self, bonus_type, return_as=False):
         """ Returns the buffs/bonuses that settlement gets. 'bonus_type' is
         required and can be 'departure_buff', 'settlement_buff' or
         'survivor_buff'.  """
 
-        innovations = self.get_innovations(include_principles=True)
+        innovations = self.get_game_asset("innovations")
+        innovations.append(self.settlement["principles"])
 
         buffs = {}
 
@@ -1085,7 +1089,7 @@ class Settlement:
 
         if return_type == "comma-delimited":
             if monsters == []:
-                return None
+                return ""
             else:
                 return ", ".join(monsters)
 
@@ -1146,6 +1150,7 @@ class Settlement:
 
             for survivor in survivors:
                 S = assets.Survivor(survivor_id=survivor["_id"])
+                annotation = ""
                 user_owns_survivor = False
                 disabled = "disabled"
 
@@ -1155,9 +1160,13 @@ class Settlement:
 
                 button_class = ""
                 if user_owns_survivor:
-                    button_class = "tan"
+                    button_class = "green"
                 if "dead" in S.survivor.keys():
-                    button_class = "error"
+                    if "died_in" in S.survivor.keys():
+                        annotation = "&ensp; <i>Died in LY %s</i><br/>" % S.survivor["died_in"]
+                    else:
+                        annotation = "&ensp; <i>Dead</i><br/>"
+                    button_class = "tan"
 
                 s_id = S.survivor["_id"]
                 if not user_owns_survivor:
@@ -1180,6 +1189,7 @@ class Settlement:
                     settlement_name = self.settlement["name"],
                     b_class = button_class,
                     able_to_hunt = can_hunt,
+                    special_annotation = annotation,
                     disabled = disabled,
                     name = S.survivor["name"],
                     sex = S.survivor["sex"],
@@ -1224,7 +1234,6 @@ class Settlement:
             S = assets.Survivor(survivor_id=survivor["_id"])
             S.heal("Return from Hunt")
             healed_survivors += 1
-        self.logger.debug("Healed %s survivors!" % healed_survivors)
 
 
     def get_recently_added_items(self):
@@ -1278,13 +1287,10 @@ class Settlement:
             if tup[0] == add_new_principle:
                 if tup[1] in principles:
                     principles.remove(tup[1])
-                    self.logger.debug("Removed %s" % tup[1])
             elif tup[1] == add_new_principle:
                 if tup[0] in principles:
                     principles.remove(tup[0])
-                    self.logger.debug("Removed %s" % tup[0])
 
-        self.logger.debug(principles)
 
         self.settlement["principles"] = sorted(list(principles))
         mdb.settlements.save(self.settlement)
@@ -1352,6 +1358,11 @@ class Settlement:
             while asset_key in asset_keys:
                 asset_keys.remove(asset_key)
 
+        for asset in asset_keys:
+            if type(asset) != unicode:
+                asset_keys.remove(asset)
+
+        #   now do return types
         if return_type == "comma-delimited":
             if hasattr(Asset, "uniquify"):
                 asset_keys = list(set(asset_keys))
@@ -1359,8 +1370,7 @@ class Settlement:
                 asset_keys = sorted(asset_keys)
             output = ", ".join(asset_keys)
             return "<p>%s</p>" % output
-
-        if return_type == "html_add":
+        elif return_type == "html_add":
             op = "add"
             output = html.ui.game_asset_select_top.safe_substitute(
                 operation="%s_" % op, operation_pretty=op.capitalize(),
@@ -1373,12 +1383,9 @@ class Settlement:
             output += html.ui.game_asset_select_bot
             output += html.ui.game_asset_add_custom.safe_substitute(asset_name=asset_name)
             return output
-
-        if return_type == "html_remove":
+        elif return_type == "html_remove":
             if asset_keys == []:
                 return ""
-
-
             op = "remove"
             output = html.ui.game_asset_select_top.safe_substitute(
                 operation="%s_" % op, operation_pretty=op.capitalize(),
@@ -1394,8 +1401,10 @@ class Settlement:
                 output += html.ui.game_asset_select_row.safe_substitute(asset=asset_key)
             output += html.ui.game_asset_select_bot
             return output
+        elif not return_type:
+            return asset_keys
 
-        return asset_keys
+        self.logger.error("An error occurred while retrieving settlement game assets ('%s')!" % asset_type)
 
     def add_game_asset(self, asset_class, game_asset_key=None):
         """ Generic function for adding game assets to a settlement.
@@ -1522,7 +1531,7 @@ class Settlement:
             death_count = display_death_count,
             survivors = survivor_controls,
             survival_limit = self.settlement["survival_limit"],
-            innovations = self.get_innovations(return_as="comma-delimited", include_principles=True),
+            innovations = self.get_game_asset("innovations", return_type="comma-delimited"),
             locations = self.get_locations(return_type="comma-delimited"),
             departure_bonuses = self.get_bonuses('departure_buff'),
             settlement_bonuses = self.get_bonuses('settlement_buff'),
@@ -1676,13 +1685,14 @@ class Settlement:
         return output
 
 
-    def asset_link(self, view="settlement", button_class="info", link_text=False, fixed=False, use_flash=False):
+    def asset_link(self, view="settlement", button_class="orange", link_text=False, fixed=False, use_flash=False):
         """ Returns an asset link (i.e. html form with button) for the
         settlement. """
 
         if use_flash:
             if use_flash == "settlement":
                 link_text = html.dashboard.settlement_flash
+                button_class = "orange"
             elif use_flash == "campaign":
                 link_text = html.dashboard.campaign_flash
             else:
