@@ -29,39 +29,27 @@ class ui:
 
 
 class dashboard:
-    home_button = '<hr/><form method="POST" action="#"><input type="hidden" name="change_view" value="dashboard"/><button> Return to Dashboard</button></form>\n'
-    headline = Template('<h2 class="$h_class">$title</h2><p>$desc</p>\n')
-    # settlement stuff
-    settlement_flash = '<img class="dashboard_icon" src="%s/icons/settlement.png"/> ' % settings.get("application", "STATIC_URL")
+    # settlement administrivia; needs to be above the dashboard accordions
     new_settlement_button = '<form method="POST"><input type="hidden" name="change_view" value="new_settlement" /><button class="success">+ New Settlement</button></form>\n'
-    settlement_summary = Template("""\n\
-    <h2 class="clickable" onclick="showHide('settlement_div')"> <img class="dashboard_icon" src="%s/icons/settlement.png"/> Settlements</h2>
-    <div id="settlement_div">
-    Manage your settlements. You may not manage a settlement you did not create.
-    $settlements
-    %s
-    </div>
-    \n""" % (settings.get("application", "STATIC_URL"), new_settlement_button))
+    new_settlement_form = """\n\
+    <h3>Create a New Settlement</h3>
+    <form method="POST">
+    <input type="hidden" name="new" value="settlement" />
+    <input type="text" name="settlement_name" placeholder="Settlement Name"/ class="full_width">
+    <button class="success">SAVE</button>
+    </form>
+    \n"""
 
-    # campaign stuff
+    # flash
+    down_arrow_flash = '<img class="dashboard_down_arrow" src="%s/icons/down_arrow.png"/> ' % settings.get("application", "STATIC_URL")
     campaign_flash = '<img class="dashboard_icon" src="%s/icons/campaign.png"/> ' % settings.get("application", "STATIC_URL")
-    campaign_summary = Template("""\n\
-    <h2 class="clickable" onclick="showHide('campaign_div')"> <img class="dashboard_icon" src="%s/icons/campaign.png"/> Campaigns</h2>
-    <div id="campaign_div" style="display: $display">
-    Games you are currently playing.
-    $campaigns
-    </div>
-    \n""" % settings.get("application", "STATIC_URL"))
-    survivor_summary = Template("""\n\
-    <h2 class="clickable" onclick="showHide('survivors_div')">Survivors</h2>
-    <div id="survivors_div" style="display: none;">
-    Manage survivors created by you or shared with you. New survivors are created from the "Campaign" and "Settlement" views.
-    $survivors
-    </div>
-    \n""")
+    settlement_flash = '<img class="dashboard_icon" src="%s/icons/settlement.png"/> ' % settings.get("application", "STATIC_URL")
+    system_flash = '<img class="dashboard_icon" src="%s/icons/system.png"/> ' % settings.get("application", "STATIC_URL")
+
+    # dashboard accordions
     motd = Template("""\n
-    <h2 class="clickable" onclick="showHide('system_div')">System Info</h2>
-    <div id="system_div" style="display: none;">
+    <h2 class="clickable gradient_silver" onclick="showHide('system_div')"> <img class="dashboard_icon" src="%s/icons/system.png"/> System Info %s</h2>
+    <div id="system_div" style="display: none;" class="dashboard_accordion gradient_silver">
     <p>KD:M Manager! Version $version.</p><hr/>
     <p>$users users are managing $settlements settlements and $live_survivors survivors (in $sessions sessions).</p>
     <p>The total death count across all settlements is $dead_survivors.</p>
@@ -75,22 +63,41 @@ class dashboard:
     <p>This application is a work in progress! Use <a href="http://blog.kdm-manager.com"/>blog.kdm-manager.com</a> to report issues/bugs or to ask questions, share ideas for features, make comments, etc.</p><hr/>
     <p>Currently signed in as: <i>$login</i></p>
     </div>
+    """ % (settings.get("application", "STATIC_URL"), down_arrow_flash))
+    campaign_summary = Template("""\n\
+    <h2 class="clickable gradient_purple" onclick="showHide('campaign_div')"> <img class="dashboard_icon" src="%s/icons/campaign.png"/> Campaigns %s </h2>
+    <div id="campaign_div" style="display: $display" class="dashboard_accordion gradient_purple">
+    <p>Games you are currently playing.</p>
+    $campaigns
+    </div>
+    \n""" % (settings.get("application", "STATIC_URL"), down_arrow_flash))
+    settlement_summary = Template("""\n\
+    <h2 class="clickable gradient_orange" onclick="showHide('settlement_div')"> <img class="dashboard_icon" src="%s/icons/settlement.png"/> Settlements %s </h2>
+    <div id="settlement_div" style="display: $display" class="dashboard_accordion gradient_orange">
+    <p>Manage your settlements. You may not manage a settlement you did not create.</p>
+    $settlements
+    %s
+    </div>
+    \n""" % (settings.get("application", "STATIC_URL"), down_arrow_flash, new_settlement_button))
+    survivor_summary = Template("""\n\
+    <h2 class="clickable gradient_green" onclick="showHide('survivors_div')"> <img class="dashboard_icon" src="%s/icons/survivor.png"/> Survivors %s</h2>
+    <div id="survivors_div" style="display: none;" class="dashboard_accordion gradient_green">
+    <p>Manage survivors created by you or shared with you. New survivors are created from the "Campaign" and "Settlement" views.</p>
+    $survivors
+    </div>
+    \n""" % (settings.get("application", "STATIC_URL"), down_arrow_flash))
 
-    """)
-    new_settlement_form = """\n\
-    <h3>Create a New Settlement</h3>
-    <form method="POST">
-    <input type="hidden" name="new" value="settlement" />
-    <input type="text" name="settlement_name" placeholder="Settlement Name"/ class="full_width">
-    <button class="success">SAVE</button>
-    </form>
-    \n"""
+    # misc html assets
+    home_button = '<form method="POST" action="#"><input type="hidden" name="change_view" value="dashboard"/><button id="floating_dashboard_button"> %s </button></form>\n' % system_flash
     view_asset_button = Template("""\n\
     <form method="POST" action="#">
     <input type="hidden" name="view_$asset_type" value="$asset_id" />
     <button id="$button_id" class="$button_class" $disabled>$asset_name</button>
     </form>
     \n""")
+
+
+
 
 
 class survivor:
@@ -109,6 +116,7 @@ class survivor:
          <input type="hidden" name="view_survivor" value="$survivor_id" />
          <button id="survivor_campaign_asset" class="$b_class" $disabled>
             <center><b>$name</b> [$sex] </center>
+            $special_annotation
             &ensp; XP: $hunt_xp &ensp; Survival: $survival<br/>
             &ensp; Insanity: $insanity <br/>
             &ensp; Courage: $courage<br/>
@@ -119,11 +127,11 @@ class survivor:
       <hr class="invisible"/>
     \n""")
     form = Template("""\n\
-    $game_link
+    $campaign_link
 
     <form method="POST" id="autoForm" action="#">
-        <input type="hidden" name="form_id" value="survivor_top" />
         <button id="save_button" class="success">Save</button>
+        <input type="hidden" name="form_id" value="survivor_top" />
         <input type="hidden" name="modify" value="survivor" />
         <input type="hidden" name="asset_id" value="$survivor_id" />
 
@@ -554,7 +562,6 @@ class settlement:
     \n""")
     summary = Template("""\n\
         <h1> %s $settlement_name</h1>
-        <p class="subhead_p_block">$principles</p>
         <p>Population: $population ($death_count deaths)</p><hr/>
         <p>Survival Limit: $survival_limit</p><hr/>
         <a id="edit_hunting_party"/>
@@ -566,15 +573,17 @@ class settlement:
         <button class="success">+ Create New Survivor</button>
         </form>
         <hr/>
-        <h3>Innovations and Principles</h3>
+        <h3>Principles</h3>
+        $principles
+        <h3>Innovations</h3>
         $innovations
         <hr/>
         <h3>Bonuses</h3>
         <h4>Departing</h4>
         $departure_bonuses
         <h4>During Settlement</h4>
-        <p>$settlement_bonuses</p>
-        <p>$survivor_bonuses</p>
+        $settlement_bonuses
+        $survivor_bonuses
         <hr/>
         <h3>Locations</h3>
         <p>$locations</p>
@@ -836,7 +845,7 @@ class settlement:
     <input type="hidden" name="asset_id" value="$settlement_id" />
 
     <br/>
-    <h2 class="clickable" onclick="showHide('timelineBlock')">Timeline</h2>
+    <h2 class="clickable" onclick="showHide('timelineBlock')">Timeline <img class="dashboard_down_arrow" src="http://media.kdm-manager.com/icons/down_arrow.png"/> </h2>
     <div id="timelineBlock" class="block_group" style="display: none;">
      <div class="big_number_container left_margin">
          <button class="incrementer" onclick="increment('lanternYearBox');">+</button>
@@ -873,12 +882,9 @@ class settlement:
     <button class="success">+ Create New Survivor</button>
     </form>
 
-
-    <br />
-    <br /><hr/>
-    <form method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever.');"><input type="hidden" name="remove_settlement" value="$settlement_id"/><button class="error">Permanently Delete Settlement</button></form>
     <hr/>
-    <br />
+
+    <form method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever.');"><input type="hidden" name="remove_settlement" value="$settlement_id"/><button class="error">Permanently Delete Settlement</button></form>
     \n""")
 
 

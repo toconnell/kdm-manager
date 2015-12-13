@@ -228,15 +228,19 @@ class Session:
         try:
             output = html.meta.saved_dialog
 
+            if self.session["current_view"] != "dashboard":
+                output += html.dashboard.home_button
+
             if self.session["current_view"] == "dashboard":
                 output += self.User.html_motd()
 
-                display_campaigns = True
+                display_settlements = "none"
+                display_campaigns = ""
                 if self.User.get_games() == "":
+                    display_settlements = ""
                     display_campaigns = "none"
                 output += html.dashboard.campaign_summary.safe_substitute(campaigns=self.User.get_games(), display=display_campaigns)
-
-                output += html.dashboard.settlement_summary.safe_substitute(settlements=self.User.get_settlements(return_as="asset_links"))
+                output += html.dashboard.settlement_summary.safe_substitute(settlements=self.User.get_settlements(return_as="asset_links"), display=display_settlements)
                 output += html.dashboard.survivor_summary.safe_substitute(survivors=self.User.get_survivors("asset_links"))
             elif self.session["current_view"] == "view_game":
                 if self.Settlement.settlement["created_by"] == self.User.user["_id"]:
@@ -260,8 +264,6 @@ class Session:
             else:
                 output += "UNKNOWN VIEW!!!"
 
-            if self.session["current_view"] != "dashboard":
-                output += html.dashboard.home_button
 
             output += html.meta.log_out_button.safe_substitute(session_id=self.session["_id"])
             return output
