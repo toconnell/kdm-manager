@@ -1204,7 +1204,6 @@ class Settlement:
                 group = groups[g]
                 output += "<h4>%s</h4>\n" % group["name"]
                 for s in group["survivors"]:
-                    self.logger.debug(s)
                     output += "  %s\n" % s
                 if group["name"] == "Hunting Party" and group["survivors"] == []:
                     output += "<p>Use [::] to add survivors to the hunting party.</p>"

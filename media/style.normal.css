@@ -52,10 +52,10 @@ h2.clickable {
 .big_number_caption { font-size: 75px; padding-top: 30px; color: #777;  }
 
 /* clear: none styles*/
-#damage_box, .floating_label, form, label#skip_next_hunt, div#info_box {clear: none;}
+#damage_box, .floating_label, form, label#skip_next_hunt, div#info_box, label#float_right_toggle {clear: none;}
 
 /* float: right styles */
-#damage_box, label#skip_next_hunt, .floating_label {float: right; }
+#damage_box, label#skip_next_hunt, .floating_label, label#float_right_toggle {float: right; }
 
 
 /* text-align: left styles */
@@ -121,7 +121,7 @@ input[type=radio], input[type=checkbox] {display: none; }
 /* label styles */
 label {margin: 20px; font-size: 65px; color: #CCC; }
 label, .full_width {clear: both; display: block; }
-label#skip_next_hunt {text-align:center; border: 1px solid #999; padding: 10px;  }
+label#skip_next_hunt, label#float_right_toggle {text-align:center; border: 1px solid #999; padding: 10px;  }
 
 button, #user_error_msg, .full_width {width: 90%; margin: 5%; }
 
