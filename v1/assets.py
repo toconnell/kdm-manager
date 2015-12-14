@@ -437,9 +437,7 @@ class Survivor:
                 return False
         elif asset_type == "abilities_and_impairments":
             if asset_key not in Abilities.get_keys():
-                if asset_desc is None:
-                    asset_desc = "No description."
-                self.survivor["abilities_and_impairments"].append("<b>%s:</b> %s" % (asset_key, asset_desc))
+                self.survivor["abilities_and_impairments"].append("%s" % asset_key)
                 return True
             elif asset_key in Abilities.get_keys():
                 asset_dict = Abilities.get_asset(asset_key)

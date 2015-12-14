@@ -110,6 +110,8 @@ def remove_session(session_id):
 #   Interactive CLI admin stuff; not to be used in user-land
 #
 
+
+
 def ls_documents(collection, sort_on="created_on"):
     """ Dumps a list- or ls-style rendering of a collection's contents. """
 
@@ -150,6 +152,32 @@ def dump_document(collection, doc_id):
     print("")
 
 
+def update_survivor(operation, s_id=None, attrib=False, attrib_value=False):
+    """ """
+    print("Searching for survivor _id '%s'..." % s_id)
+    survivor = mdb.survivors.find_one({"_id": ObjectId(s_id)})
+    if survivor is None:
+        print("Could not retrieve survivor! Exiting...\n")
+        return None
+
+    print("\n\tSurvivor found!\n")
+    dump_document("survivors", survivor["_id"])
+
+    if operation == "remove":
+        print(" Target attrib is '%s'" % attrib)
+        print(" survivor['%s'] -> %s" % (attrib, survivor[attrib]))
+        print(" Tarvet value is '%s'" % attrib_value)
+        if attrib_value not in survivor[attrib]:
+            print(" Target value '%s' not in attribute! Exiting...\n" % attrib_value)
+            return None
+        else:
+            manual_approve = raw_input("\n    Remove '%s' from %s?\n\tType YES to proceed: " % (attrib_value, survivor[attrib]))
+            if manual_approve == "YES":
+                survivor[attrib].remove(attrib_value)
+                mdb.survivors.save(survivor)
+                print("\n  Survivor updated!\n")
+            else:
+                print("    Aborting...\n")
 
 def remove_document(collection, doc_id):
     """ Removes a single document (by _id) from the specified collection."""
@@ -287,6 +315,10 @@ if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("-c", dest="collection", help="Specify a collection to work with", metavar="settlements", default=False)
 
+    parser.add_option("-s", dest="survivor", help="Specify a survivor to work with.", metavar="566e228654922d30c47b8704", default=False)
+    parser.add_option("--survivor_attrib", dest="survivor_attrib", help="Specify a survivor attrib to modify.", metavar="attributes_and_impairments", default=False)
+    parser.add_option("--remove_attrib", dest="remove_attrib", help="Remove attrib from survivor", metavar="<b>Cancer:</b> No description.", default=False)
+
     parser.add_option("-l", dest="list_documents", help="List documents in a collection", metavar="survivors", default=False)
     parser.add_option("-v", dest="view_document", help="View/dump a document to stdout (requires -c)", metavar="565a1829421aa96b33d1c8bb", default=False)
     parser.add_option("-r", dest="remove_document", help="Remove a single document (requires -c)", metavar="29433d1c8b56581ab21aa96b", default=False)
@@ -321,6 +353,11 @@ if __name__ == "__main__":
 
     if options.pretty_view_user:
         pretty_view_user(options.pretty_view_user)
+
+    if options.survivor:
+        if options.survivor_attrib:
+            if options.remove_attrib:
+                update_survivor("remove", s_id=options.survivor, attrib=options.survivor_attrib, attrib_value=options.remove_attrib)
 
     if options.play_summary:
         motd()
