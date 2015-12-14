@@ -882,10 +882,12 @@ class settlement:
 class login:
     """ The HTML for form-based authentication goes here."""
     form = """\n\
+    <h2 class="seo">KD:M Manager!</h2>
+    <h1 class="seo">A mobile campaign manager for <i>Monster</i>, by <a href="http://kingdomdeath.com/" target="top">Kingdom Death.</a></h1>
     <form method="POST">
     <input class="full_width" type="text" name="login" placeholder="email"/>
     <input class="full_width" type="password" name="password" placeholder="password"/>
-    <button>Sign In (or Register)</button>
+    <button class="green"><b>Sign In</b> (or Register)</button>
     </form>
     \n"""
     new_user = Template("""\n\
@@ -905,7 +907,6 @@ class meta:
     views, etc. Use this for helpers/containers/administrivia/etc. """
     start_head = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<title>%s</title>\n' % settings.get("application","title")
     stylesheet = Template('<link rel="stylesheet" type="text/css" href="$url">\n')
-    close_head = '</head>\n<body>\n <div id="container">\n'
     false_body = 'Caught exception while rendering the current view!<hr/>The current session will be ended. Please try again.'
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
     saved_dialog = '\n    <div id="saved_dialog" class="success">Saved!</div>'
@@ -968,7 +969,7 @@ def authenticate_by_form(params):
 #   render() func is the only thing that goes below here.
 #
 
-def render(view_html, head=[], http_headers=False):
+def render(view_html, head=[], http_headers=False, body_class=None):
     """ This is our basic render: feed it HTML to change what gets rendered. """
 
     output = http_headers
@@ -1036,7 +1037,7 @@ def render(view_html, head=[], http_headers=False):
     for element in head:
         output += element
 
-    output += meta.close_head
+    output += '</head>\n<body class="%s">\n <div id="container">\n' % body_class
     if view_html:
         output += view_html
     else:

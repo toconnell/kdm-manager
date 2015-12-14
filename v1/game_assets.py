@@ -6,6 +6,16 @@
 #
 
 abilities_and_impairments = {
+    "Thundercaller": {
+        "type": "ability",
+        "desc": 'Once a lifetime, on a hunt board space after Overwhelming Darkness, in place of rolling a random hunt event, use "53" as your result.',
+        "max": 1,
+    },
+    "Legendcaller": {
+        "type": "ability",
+        "desc": 'Once a lifetime, on a hunt board space after Overwhelming Darkness, in place of rolling a random hunt event, use "100" as your result.',
+        "max": 1,
+    },
     "Analyze": {
         "type": "ability",
         "desc": "At the start of the Survivors' turn, if you are adjacent to the monster, reveal the top AI card, then place back on top of the deck.",
@@ -312,6 +322,7 @@ disorders = {
 
 
 epithets = {
+    "Ate the Fruit": {},
     "Silence Breaker": {},
     "The Silent": {},
     "Forsaker": {},
