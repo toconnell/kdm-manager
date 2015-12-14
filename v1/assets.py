@@ -296,13 +296,15 @@ class Survivor:
         return all_list
 
 
-    def get_fighting_arts(self, return_as=False):
+    def get_fighting_arts(self, return_as=False, strikethrough=False):
         fighting_arts = self.survivor["fighting_arts"]
 
         if return_as == "formatted_html":
             html = ""
             for fa_key in fighting_arts:
-                html += '<p><b>%s:</b> %s</p>' % (fa_key, FightingArts.get_asset(fa_key)["desc"])
+                html += '<p><b>%s:</b> %s</p>\n' % (fa_key, FightingArts.get_asset(fa_key)["desc"])
+                if strikethrough:
+                    html = "<del>%s</del>\n" % html
             return html
 
         if return_as == "html_select_remove":
@@ -685,6 +687,7 @@ class Survivor:
         if self.survivor["disorders"] == []:
             disorders_remover = ""
 
+
         output = html.survivor.form.safe_substitute(
             MEDIA_URL = settings.get("application", "STATIC_URL"),
 
@@ -695,7 +698,7 @@ class Survivor:
             epithets = self.get_epithets("html_formatted"),
             sex = self.survivor["sex"],
             survival = survivor_survival_points,
-            survival_limit = int(self.Settlement.settlement["survival_limit"]),
+            survival_limit = self.Settlement.get_attribute("survival_limit"),
             cannot_spend_survival_checked = flags["cannot_spend_survival"],
             hunt_xp = self.survivor["hunt_xp"],
             dead_checked = flags["dead"],
@@ -741,7 +744,8 @@ class Survivor:
             explore_checked = explore,
             tinker_checked = tinker,
 
-            fighting_arts = self.get_fighting_arts(return_as="formatted_html"),
+            cannot_use_fighting_arts_checked = flags["cannot_use_fighting_arts"],
+            fighting_arts = self.get_fighting_arts(return_as="formatted_html", strikethrough=flags["cannot_use_fighting_arts"]),
             add_fighting_arts = fighting_arts_picker,
             rm_fighting_arts = fighting_arts_remover,
 
@@ -750,6 +754,7 @@ class Survivor:
             rm_disorders = disorders_remover,
 
             skip_next_hunt_checked = flags["skip_next_hunt"],
+
             abilities_and_impairments = self.get_abilities_and_impairments("html_formatted"),
             add_abilities_and_impairments = Abilities.render_as_html_dropdown(
                 disable=Abilities.get_maxed_out_abilities(self.survivor["abilities_and_impairments"]),
@@ -866,24 +871,6 @@ class Settlement:
             self.settlement["death_count"] = min_death_count
 
         mdb.settlements.save(self.settlement)
-
-
-    def get_min_survival_limit(self):
-        """ Returns the settlement's minimum survival limit as an int."""
-
-        min_survival = 0
-        if self.settlement["name"] != "":
-            min_survival +=1
-
-        innovations = self.settlement["innovations"]
-        innovations.extend(self.settlement["principles"])
-        innovations = list(set(innovations))
-        for innovation_key in innovations:
-            if innovation_key in Innovations.get_keys() and "survival_limit" in Innovations.get_asset(innovation_key).keys():
-                min_survival += Innovations.get_asset(innovation_key)["survival_limit"]
-
-        return min_survival
-
 
 
     def get_locations(self, return_type=False):
@@ -1109,7 +1096,7 @@ class Settlement:
         """ Returns the settlement's survivors. Leave 'return_typ' unspecified
         if you want a mongo cursor object back. """
 
-        survivors = mdb.survivors.find({"settlement": self.settlement["_id"]}).sort("hunt_xp", -1)
+        survivors = mdb.survivors.find({"settlement": self.settlement["_id"]}).sort("name")
 
         if self.User is not None:
             user_login = self.User.user["login"]
@@ -1217,6 +1204,7 @@ class Settlement:
                 group = groups[g]
                 output += "<h4>%s</h4>\n" % group["name"]
                 for s in group["survivors"]:
+                    self.logger.debug(s)
                     output += "  %s\n" % s
                 if group["name"] == "Hunting Party" and group["survivors"] == []:
                     output += "<p>Use [::] to add survivors to the hunting party.</p>"
@@ -1248,15 +1236,51 @@ class Settlement:
         return sorted(list(return_list))
 
 
-    def get_min(self, value="population"):
-        """ Returns the settlement's minimum population as an int. """
+    def get_attribute(self, attrib=None):
+        """ Returns the settlement attribute associated with 'attrib'. Using this
+        is preferable to going straight to self.settlement[attrib] because we do
+        business logic on these returns. """
+
+        if attrib == "survival_limit":
+            srv_lmt_min = self.get_min("survival_limit")
+            if self.settlement["survival_limit"] < srv_lmt_min:
+                return srv_lmt_min
+
+        return self.settlement[attrib]
+
+
+    def get_min(self, value=None):
+        """ Returns the settlement's minimum necessary values for the following:
+
+            'population': the minimum number of survivors based on which have
+                'dead' in their Survivor.survivor.keys().
+            'deaths': the minimum number of dead survivors.
+            'survival_limit': the minimum survival limit, based on innovations.
+
+        Returns an int. ALWAYS.
+        """
         results = False
         settlement_id = ObjectId(self.settlement["_id"])
+
         if value == "population":
             results = mdb.survivors.find({"settlement": settlement_id, "dead": {"$exists": False}}).count()
-        if value == "deaths":
+        elif value == "deaths":
             results = mdb.survivors.find({"settlement": settlement_id, "dead": {"$exists": True}}).count()
-        return results
+        elif value == "survival_limit":
+            min_survival = 0
+
+            if self.settlement["name"] != "":
+                min_survival +=1
+
+            innovations = self.settlement["innovations"]
+            innovations.extend(self.settlement["principles"])
+            innovations = list(set(innovations))
+            for innovation_key in innovations:
+                if innovation_key in Innovations.get_keys() and "survival_limit" in Innovations.get_asset(innovation_key).keys():
+                    min_survival += Innovations.get_asset(innovation_key)["survival_limit"]
+            results = min_survival
+
+        return int(results)
 
 
     def get_players(self, count_only=False):
@@ -1296,7 +1320,7 @@ class Settlement:
         mdb.settlements.save(self.settlement)
 
 
-    def get_game_asset_deck(self, asset_type):
+    def get_game_asset_deck(self, asset_type, return_type=False, exclude_always_available=False):
         """ The 'asset_type' kwarg should be 'locations', 'innovations', etc.
         and the class should be one of our classes from models, e.g.
         'Locations', 'Innovations', etc.
@@ -1311,7 +1335,11 @@ class Settlement:
         exec "Asset = %s" % asset_type.capitalize()
 
         current_assets = self.settlement[asset_type]
-        asset_deck = Asset.get_always_available()
+
+        if exclude_always_available:
+            asset_deck = set()
+        else:
+            asset_deck = Asset.get_always_available()
 
         for asset_key in current_assets:
             if asset_key in Asset.get_keys():
@@ -1329,8 +1357,16 @@ class Settlement:
             if asset_key in asset_deck:
                 asset_deck.discard(asset_key)
 
-        return sorted(list(set(asset_deck)))
+        final_list = sorted(list(set(asset_deck)))
 
+        if return_type == "comma-delimited":
+            if final_list == []:
+                return ""
+            else:
+                headline = "%s Deck" % Asset.get_pretty_name()
+            return "<h3>%s</h3>\n<p>%s</p>" % (headline, ", ".join(final_list))
+
+        return final_list
 
     def get_game_asset(self, asset_type=None, return_type=False, exclude=[]):
         """ This is the generic method for getting a list of the settlement's
@@ -1361,6 +1397,10 @@ class Settlement:
         for asset in asset_keys:
             if type(asset) != unicode:
                 asset_keys.remove(asset)
+
+        for asset_key in exclude:
+            if asset_key in asset_keys:
+                raise
 
         #   now do return types
         if return_type == "comma-delimited":
@@ -1405,6 +1445,7 @@ class Settlement:
             return asset_keys
 
         self.logger.error("An error occurred while retrieving settlement game assets ('%s')!" % asset_type)
+
 
     def add_game_asset(self, asset_class, game_asset_key=None):
         """ Generic function for adding game assets to a settlement.
@@ -1543,7 +1584,7 @@ class Settlement:
         return output
 
 
-    def render_html_form(self, read_only=False):
+    def render_html_form(self):
         """ This is the all-singing, all-dancing form creating function. Pretty
         much all of the UI/UX happens here. """
 
@@ -1609,17 +1650,16 @@ class Settlement:
             game_over = "checked"
 
         survival_limit = int(self.settlement["survival_limit"])
-        if survival_limit < self.get_min_survival_limit():
-            survival_limit = self.get_min_survival_limit()
+        if survival_limit < self.get_min("survival_limit"):
+            survival_limit = self.get_min("survival_limit")
 
         deaths = int(self.settlement["death_count"])
-        if deaths < self.get_min(value="deaths"):
-            deaths = self.get_min(value="deaths")
+        if deaths < self.get_min("deaths"):
+            deaths = self.get_min("deaths")
 
         population = int(self.settlement["population"])
-        if population < self.get_min(value="population"):
-            population = self.get_min(value="population")
-
+        if population < self.get_min("population"):
+            population = self.get_min("population")
 
         output = html.settlement.form.safe_substitute(
             MEDIA_URL = settings.get("application","STATIC_URL"),
@@ -1629,7 +1669,7 @@ class Settlement:
             population = population,
             name = self.settlement["name"],
             survival_limit = survival_limit,
-            min_survival_limit = self.get_min_survival_limit(),
+            min_survival_limit = self.get_min("survival_limit"),
             death_count = deaths,
             lost_settlements = self.settlement["lost_settlements"],
 
@@ -1670,9 +1710,10 @@ class Settlement:
             quarries = self.get_quarries("comma-delimited"),
             quarry_options = Quarries.render_as_html_dropdown(exclude=self.get_quarries()),
 
-            innovations = self.get_game_asset("innovations", return_type="comma-delimited"),
+            innovations = self.get_game_asset("innovations", return_type="comma-delimited", exclude=self.settlement["principles"]),
             innovations_add = self.get_game_asset("innovations", return_type="html_add"),
             innovations_rm = self.get_game_asset("innovations", return_type="html_remove", exclude=self.settlement["principles"]),
+            innovation_deck = self.get_game_asset_deck("innovations", return_type="comma-delimited", exclude_always_available=True),
 
             locations = self.get_game_asset("locations", return_type="comma-delimited"),
             locations_add = self.get_game_asset("locations", return_type="html_add"),
@@ -1701,13 +1742,16 @@ class Settlement:
         prefix = ""
         suffix = ""
 
+        functional_pop = self.settlement["population"]
+        if functional_pop < self.get_min("population"):
+            functional_pop =  self.get_min("population")
+
         if view == "game":
             button_class = "purple"
             if not link_text and not fixed:
                 prefix = html.dashboard.campaign_flash
                 link_text = prefix + self.settlement["name"]
-#                suffix = " (%s players, pop. %s)" % (self.get_players(count_only=True), self.settlement["population"])
-                suffix = " (LY %s, pop. %s)" % (self.settlement["lantern_year"], self.settlement["population"])
+                suffix = " (LY %s, pop. %s)" % (self.settlement["lantern_year"], functional_pop)
                 link_text += suffix
         elif not fixed:
             prefix = html.dashboard.settlement_flash

@@ -6,6 +6,56 @@
 #
 
 abilities_and_impairments = {
+    "Dream of the Beast" : {
+        "type": "ability",
+        "desc": "1 permanent red affinity.",
+        "max": 1,
+    },
+    "Dream of the Crown" : {
+        "type": "ability",
+        "desc": "1 permanent green affinity.",
+        "max": 1,
+    },
+    "Dream of the Lantern" : {
+        "type": "ability",
+        "desc": "1 permanent blue affinity.",
+        "max": 1,
+    },
+    "Caratosis" : {
+        "type": "ability",
+        "desc": "For each red affinity you have, 1 of your attack rolls hits automatically each attack.",
+        "max": 1,
+    },
+    "Red Life Exchange" : {
+        "type": "ability",
+        "desc": "In the Aftermath, game 3 additional Hunt XP. You may not place 'other' (type) gear in your grid. Gain +1 permanent strength with each Age milestone. When you retire, you cease to exist.",
+        "max": 1,
+    },
+    "Dormenatus" : {
+        "type": "ability",
+        "desc": "When you depart, gain +1 to every hit location for each green affinity you have.",
+        "max": 1,
+    },
+    "Green Life Exchange" : {
+        "type": "ability",
+        "desc": "In the Aftermath, gain 3 additional Hunt XP. You may not place 'other' (type) gear in your grid. Gain +1 permanent evasion with each Age milestone. When you retire, you cease to exist.",
+        "max": 1,
+    },
+    "Lucernae" : {
+        "type": "ability",
+        "desc": "For every blue affinity you have, your ranged weapons gain this amount of range and your melee weapons gain this amount of reach.",
+        "max": 1,
+    },
+    "Blue Life Exchange" : {
+        "type": "ability",
+        "desc": "In the Aftermath, gain 3 additional Hunt XP. You may not place 'other' (type) gear in your grid. Gain +1 permanent luck with each Age milestone. When you retire, you cease to exist.",
+        "max": 1,
+    },
+    "Marrow Hunger": {
+        "type": "impairment",
+        "desc": "When the Murder or Skull Eater settlement events are drawn, this survivor is nominated.",
+        "max": 1,
+    },
     "Sweet Battle": {
         "type": "ability",
         "desc": "You may surge without spending survival. If you do, the Activation must be used to activate a weapon.",
@@ -1067,7 +1117,7 @@ innovations = {
     },
     "Pictograph": {
         "type": "art",
-        "consequences": ["Memento Mori", ],
+        "consequences": ["Momento Mori"],
         "survivor_buff": "Anytime during the hunt or showdown phase, a survivor may Run Away (story event).",
     },
     "Pottery": {
@@ -1096,7 +1146,7 @@ innovations = {
     },
     "Family": {
         "type": "home",
-        "consequences": ["Clan of Death", ],
+        "consequences": ["Clan of Death"],
         "departure_buff": "Departing survivors gain +1 survival.",
         "settlement_buff": "Survivors nominated for intimacy may give themselves a surname if they do not have one. A newbord survivor inherits the surname of one parent, their weapon type and half (rounded down) of their weapon proficiency levels.",
     },
@@ -1115,7 +1165,7 @@ innovations = {
     },
     "Language": {
         "type": "starting",
-        "consequences": ["Ammonia", "Hovel", "Inner Lantern", "Drums", "Paint", "Symposium", "Guidepost", "Final Fighting Art", "Ultimate Weapon","Partnership"],
+        "consequences": ["Hovel", "Inner Lantern", "Drums", "Paint", "Symposium", "Ammonia"],
         "survival_limit": 1,
         "survival_action": "Encourage",
         "always_available": True,
@@ -1124,7 +1174,6 @@ innovations = {
         "type": "science",
         "consequences": ["Bloodletting", "Lantern Oven"],
         "departure_buff": "Departing survivors gain +1 survival.",
-        "always_available": True,
     },
     "Lantern Oven": {
         "type": "science",
@@ -1136,16 +1185,19 @@ innovations = {
         "type": "education",
         "consequences": [],
         "survival_limit": 1,
+        "always_available": True,
     },
     "Ultimate Weapon": {
         "type": "science",
         "consequences": [],
         "survival_limit": 1,
+        "always_available": True,
     },
     "Guidepost": {
         "type": "other",
         "consequences": [],
         "departure_buff": "Departing survivors gain +1 survival.",
+        "always_available": True,
     },
 }
 

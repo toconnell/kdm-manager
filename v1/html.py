@@ -468,6 +468,9 @@ class survivor:
         <input type="hidden" name="asset_id" value="$survivor_id" />
 
         <h3>Fighting Arts</h3>
+         <input type='hidden' value='unchecked' name='toggle_cannot_use_fighting_arts'/>
+         <input onchange="this.form.submit()" type="checkbox" id="cannot_use_fighting_arts" class="radio_principle" name="toggle_cannot_use_fighting_arts" value="checked" $cannot_use_fighting_arts_checked />
+         <label class="radio_principle_label" for="cannot_use_fighting_arts" id="float_right_toggle"> Cannot use<br/>Fighting Arts </label>
         <p>Maximum 3.</p>
 
             $fighting_arts
@@ -510,7 +513,7 @@ class survivor:
         <p>
          <input type='hidden' value='unchecked' name='toggle_skip_next_hunt'/>
          <input onchange="this.form.submit()" type="checkbox" id="skip_next_hunt" class="radio_principle" name="toggle_skip_next_hunt" value="checked" $skip_next_hunt_checked />
-         <label class="radio_principle_label" for="skip_next_hunt" id="skip_next_hunt"> Skip Next<br/>Hunt </label>
+         <label class="radio_principle_label" for="skip_next_hunt" id="float_right_toggle"> Skip Next<br/>Hunt </label>
             $abilities_and_impairments<br/>
             $add_abilities_and_impairments
         <input onchange="this.form.submit()" class="full_width" type="text" name="add_ability" placeholder="add ability or impairment"/>
@@ -535,7 +538,7 @@ class survivor:
     \n""")
     new = Template("""\n\
     <h3>Create a New Survivor</h3>
-    <form method="POST">
+    <form method="POST" action="#">
     <input type="hidden" name="new" value="survivor" />
     <input type="hidden" name="created_by" value="$created_by" />
     <input type="hidden" name="settlement_id" value="$home_settlement">
@@ -698,6 +701,7 @@ class settlement:
      $innovations
      $innovations_add
      $innovations_rm
+     $innovation_deck
     </div>
     </form>
 

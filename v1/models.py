@@ -17,6 +17,10 @@ class Model:
     def get_keys(self):
         return self.game_assets.keys()
 
+    def get_pretty_name(self):
+        self.pretty_name = self.name.replace("_", " ").title()
+        return self.pretty_name
+
     def get_always_available(self):
         """ Checks all assets for whether they have the 'always_available' key
         and returns a list of the ones that do. """
@@ -37,8 +41,7 @@ class Model:
         greyed out/disabled in the resulting pick-list.
         """
 
-        self.pretty_name = self.name.replace("_", " ").title()
-
+        self.get_pretty_name()
         options = self.get_keys()
 
         for excluded_key in exclude:
