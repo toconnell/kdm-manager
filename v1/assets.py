@@ -267,7 +267,13 @@ class Survivor:
 
 
     def get_abilities_and_impairments(self, return_type=False):
+        """ This...really needs to be deprecated soon. """
+
         all_list = sorted(self.survivor["abilities_and_impairments"])
+
+        for old_attrib in ["courage_attribute", "understanding_attribute"]:
+            if old_attrib in self.survivor.keys():
+                all_list.append(self.survivor[old_attrib])
 
         if return_type == "comma-delimited":
             return ", ".join(all_list)
@@ -641,28 +647,6 @@ class Survivor:
         if int(self.survivor["hunt_xp"]) >= 16:
             flags["retired"] = "checked"
 
-        stalwart = ""
-        prepared = ""
-        matchmaker = ""
-        if "courage_attribute" in self.survivor.keys():
-            if self.survivor["courage_attribute"] == "Stalwart":
-                stalwart = "checked"
-            elif self.survivor["courage_attribute"] == "Prepared":
-                prepared = "checked"
-            elif self.survivor["courage_attribute"] == "Matchmaker":
-                matchmaker = "checked"
-
-        analyze = ""
-        explore = ""
-        tinker = ""
-        if "understanding_attribute" in self.survivor.keys():
-            if self.survivor["understanding_attribute"] == "Analyze":
-                analyze = "checked"
-            elif self.survivor["understanding_attribute"] == "Explore":
-                explore = "checked"
-            elif self.survivor["understanding_attribute"] == "Tinker":
-                tinker = "checked"
-
         COD_div_display_style = "none"
         if "cause_of_death" in self.survivor.keys() and "dead" in self.survivor.keys():
             COD_div_display_style = "block"
@@ -734,13 +718,7 @@ class Survivor:
             weapon_proficiency_type = self.survivor["weapon_proficiency_type"],
 
             courage = self.survivor["Courage"],
-            stalwart_checked = stalwart,
-            prepared_checked = prepared,
-            matchmaker_checked = matchmaker,
             understanding = self.survivor["Understanding"],
-            analyze_checked = analyze,
-            explore_checked = explore,
-            tinker_checked = tinker,
 
             cannot_use_fighting_arts_checked = flags["cannot_use_fighting_arts"],
             fighting_arts = self.get_fighting_arts(return_as="formatted_html", strikethrough=flags["cannot_use_fighting_arts"]),

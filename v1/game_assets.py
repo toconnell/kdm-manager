@@ -6,6 +6,41 @@
 #
 
 abilities_and_impairments = {
+    "Analyze": {
+        "type": "ability",
+        "desc": "At the start of the Survivors' turn, if you are adjacent to the monster, reveal the top AI card, then place back on top of the deck.",
+        "max": 1,
+    },
+    "Explore": {
+        "type": "ability",
+        "desc": "When you roll on an investigate table, add +2 to your roll result.",
+        "max": 1,
+    },
+    "Tinker": {
+        "type": "ability",
+        "desc": "When you are a returning survivor, gain +1 Endeavor to use this settlement phase.",
+        "max": 1,
+    },
+    "Stalwart": {
+        "type": "ability",
+        "desc": "Ignore being knocked down by brain trauma and intimidation actions.",
+        "max": 1,
+    },
+    "Prepared": {
+        "type": "ability",
+        "desc": "When rolling to determine a straggler, add your hunt experience to your roll result.",
+        "max": 1,
+    },
+    "Matchmaker": {
+        "type": "ability",
+        "desc": "When you are a returning survivor, once per year you may spend 1 Endeavor to trigger Intimacy (story event).",
+        "max": 1,
+    },
+    "Cancerous Illness": {
+        "type": "impairment",
+        "desc": "You cannot gain survival.",
+        "max": 1,
+    },
     "Dream of the Beast" : {
         "type": "ability",
         "desc": "1 permanent red affinity.",
@@ -984,6 +1019,24 @@ items = {
     "Blood Sheath": {
         "location": "Weapon Crafter",
     },
+    "Nightmare Tick" : {
+        "location": "Vermin",
+    },
+    "Lonely Ant" : {
+        "location": "Vermin",
+    },
+    "Crab Spider" : {
+        "location": "Vermin",
+    },
+    "Hissing Cockroach" : {
+        "location": "Vermin",
+    },
+    "Sword Beetle" : {
+        "location": "Vermin",
+    },
+    "Cyclops Fly" : {
+        "location": "Vermin",
+    },
 }
 
 
@@ -1227,6 +1280,9 @@ resources = {
     },
     "Basic Resources": {
         "color": "51C327",
+    },
+    "Vermin": {
+        "color": "99CC66",
     },
     "Strange Resources": {
         "color": "B9FAC4",

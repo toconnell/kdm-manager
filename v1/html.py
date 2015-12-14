@@ -412,42 +412,28 @@ class survivor:
 
         <div id="block_group">
         <br />
-        <div class="big_number_container left_margin">
-            <button class="incrementer" onclick="increment('courageBox');">+</button>
-            <input id="courageBox" class="big_number_square" type="number" name="Courage" value="$courage" min="0"/>
-            <button class="decrementer" onclick="decrement('courageBox');">-</button>
+            <div class="big_number_container left_margin">
+                <button class="incrementer" onclick="increment('courageBox');">+</button>
+                <input id="courageBox" class="big_number_square" type="number" name="Courage" value="$courage" min="0"/>
+                <button class="decrementer" onclick="decrement('courageBox');">-</button>
+            </div>
+            <div class="big_number_caption">Courage</div>
+            <br />
+            <p>
+            <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Bold</b> occurs at 3<br/><img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>See the Truth</b> occurs at 9.
         </div>
-        <div class="big_number_caption">Courage</div>
-        <br />
-        <p>
-        <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Bold</b> occurs at 3<br/><img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>See the Truth</b> occurs at 9.
 
-          <input type="radio" id="stalwart_button" class="radio_principle" name="courage_attribute" value="Stalwart" $stalwart_checked />
-          <label class="radio_principle_label" for="stalwart_button"> <b>Stalwart:</b> can't be knocked down by brain trauma or intimidate. </label>
-          <input type="radio" id="prepared_button" class="radio_principle" name="courage_attribute" value="Prepared" $prepared_checked />
-          <label class="radio_principle_label" for="prepared_button"> <b>Prepared:</b> Add hunt XP to your roll when determining a straggler. </label>
-          <input type="radio" id="matchmaker_button" class="radio_principle" name="courage_attribute" value="Matchmaker" $matchmaker_checked />
-          <label class="radio_principle_label" for="matchmaker_button"> <b>Matchmaker:</b> Spend 1 endeavor to trigger intimacy story event. </label>
-        </div>
         <div id="block_group">
-        <br />
-        <div class="big_number_container left_margin">
-            <button class="incrementer" onclick="increment('understandingBox');">+</button>
-            <input id="understandingBox" class="big_number_square" type="number" name="Understanding" value="$understanding" min="0"/>
-            <button class="decrementer" onclick="decrement('understandingBox');">-</button>
-        </div>
-        <div class="big_number_caption">Understanding</div>
-        <br />
-        <p>
-        <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Insight</b> occurs at 3<br/><img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>White Secret</b> occurs at 9.
-          <input type="radio" id="analyze_button" class="radio_principle" name="understanding_attribute" value="Analyze" $analyze_checked />
-          <label class="radio_principle_label" for="analyze_button"> <b>Analyze:</b> Look at top AI card and return it to the top of the deck.</label>
-          <input type="radio" id="explore_button" class="radio_principle" name="understanding_attribute" value="Explore" $explore_checked />
-          <label class="radio_principle_label" for="explore_button"> <b>Explore:</b>  Add +2 to your investigate roll results.</label>
-          <input type="radio" id="tinker_button" class="radio_principle" name="understanding_attribute" value="Tinker" $tinker_checked />
-          <label class="radio_principle_label" for="tinker_button"> <b>Tinker:</b> +1 endeavor when a returning survivor. </label>
-
-        </div>
+            <br />
+            <div class="big_number_container left_margin">
+                <button class="incrementer" onclick="increment('understandingBox');">+</button>
+                <input id="understandingBox" class="big_number_square" type="number" name="Understanding" value="$understanding" min="0"/>
+                <button class="decrementer" onclick="decrement('understandingBox');">-</button>
+            </div>
+            <div class="big_number_caption">Understanding</div>
+            <br />
+            <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Insight</b> occurs at 3<br/><img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>White Secret</b> occurs at 9.<br/><br/>
+            </div>
     </form>
 
 
