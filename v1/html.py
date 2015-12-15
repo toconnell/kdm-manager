@@ -123,7 +123,7 @@ class survivor:
     add_ancestor_top = '    <div id="block_group">\n    <h2>Survivor Parents</h2>'
     add_ancestor_select_top = Template('\t<select name="$parent_role">\n\t<option selected disabled hidden value="">$pretty_role</option>')
     add_ancestor_select_row = Template('\t<option value="$parent_id">$parent_name</option>\n')
-    add_ancestor_select_bot = '\t</select><br/>'
+    add_ancestor_select_bot = '\t</select><br/><br/>'
     add_ancestor_bot = '    </div>\n'
     campaign_asset = Template("""\n\
       <div class="survivor_campaign_asset_container">
@@ -555,6 +555,10 @@ class settlement:
             <button>Return Hunting Party</button>
         </form>
     \n""")
+    storage_remove_button = Template("""\n\
+    \t<button id="remove_item" name="remove_item" value="$item_key" style="background-color: #$item_color; color: #000;"> $item_key_and_count </button>
+    \n""")
+    storage_tag = Template('<h3 class="inventory_tag" style="color: #$color">$name</h3><hr/>')
     summary = Template("""\n\
         <h1> %s $settlement_name</h1>
         <p>Population: $population ($death_count deaths)</p><hr/>
@@ -649,7 +653,7 @@ class settlement:
 
         <div id="block_group">
         <h2>Storage</h2>
-        <p>Gear and Resources may be stored without limit. Tap items to remove them.</p>
+        <p>Gear and Resources may be stored without limit. Tap an item to remove it once.</p>
         <hr />
 
     <a id="edit_storage" />
@@ -891,7 +895,7 @@ class login:
     <h2 class="seo">KD:M Manager!</h2>
     <h1 class="seo">A mobile campaign manager for <i>Monster</i>, by <a href="http://kingdomdeath.com/" target="top">Kingdom Death.</a></h1>
     <form method="POST">
-    <input class="full_width" type="text" name="login" placeholder="email"/>
+    <input class="full_width" type="text" name="login" placeholder="email"/ autofocus>
     <input class="full_width" type="password" name="password" placeholder="password"/>
     <button class="green"><b>Sign In</b> (or Register)</button>
     </form>

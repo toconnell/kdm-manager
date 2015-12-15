@@ -896,7 +896,11 @@ class Settlement:
 
     def update_mins(self):
         """ check 'population' and 'death_count' minimums and update the
-        settlement's attribs if necessary. """
+        settlement's attribs if necessary.
+
+        There's also some misc. house-keeping that happens here, e.g. changing
+        lists to sets (since MDB doesn't support sets), etc.
+        """
 
         for min_key in ["population", "death_count"]:
             min_val = self.get_min(min_key)
@@ -908,6 +912,8 @@ class Settlement:
             # just a little idiot- and user-proofing against negative values
             if self.settlement[min_key] < 0:
                 self.settlement[min_key] = 0
+
+        self.settlement["milestone_story_events"] = list(set(self.settlement["milestone_story_events"]))
 
         mdb.settlements.save(self.settlement)
 
@@ -971,58 +977,70 @@ class Settlement:
 
 
         if return_type == "html_buttons":
-            resources = []
-            gear = []
-            other = []
+            custom_items = {}
+            gear = {}
+            resources = {}
+
+            def add_to_gear_dict(item_key):
+                item_dict = Items.get_asset(item_key)
+                item_location = item_dict["location"]
+                if item_location in Locations.get_keys():
+                    target_item_dict = gear
+                    item_color = Locations.get_asset(item_location)["color"]
+                elif item_location in Resources.get_keys():
+                    item_color = Resources.get_asset(item_location)["color"]
+                    target_item_dict = resources
+                if "type" in item_dict.keys():
+                    if item_dict["type"] == "gear":
+                        target_item_dict = gear
+                    else:
+                        target_item_dict = resources
+                if not item_dict["location"] in target_item_dict.keys():
+                    target_item_dict[item_location] = {}
+                if not item_key in target_item_dict[item_location].keys():
+                    target_item_dict[item_location][item_key] = {"count": 1, "color": item_color}
+                else:
+                    target_item_dict[item_location][item_key]["count"] += 1
 
             for item_key in storage:
-                item_color = "D3AAAA"
-                item_type = "other"
-
                 if item_key in Items.get_keys():
-                    item_asset_dict = Items.get_asset(item_key)
-                    item_type = None
-                    item_location = item_asset_dict["location"]
-                    if item_location in Locations.get_keys():
-                        item_type = "gear"
-                        item_color = Locations.get_asset(item_location)["color"]
-                    elif item_location in Resources.get_keys():
-                        item_type = "resource"
-                        item_color = Resources.get_asset(item_location)["color"]
-                    else:
-                        self.logger.warn("Item '%s' does not belong to a location or resource group!" % item_key)
-
-                    # overwrite this default stuff if the item dict says so
-                    if "type" in item_asset_dict:
-                        item_type = item_asset_dict["type"]
-
-                item_button_html = '\t<button id="remove_item" name="remove_item" value="%s" style="background-color: #%s; color: #000;"> %s</button>\n' % (item_key, item_color, item_key)
-                if item_type == "gear":
-                    gear.append(item_button_html)
-                elif item_type == "resource":
-                    resources.append(item_button_html)
+                    add_to_gear_dict(item_key)
                 else:
-                    other.append(item_button_html)
+                    if not item_key in custom_items.keys():
+                        custom_items[item_key] = 1
+                    else:
+                        custom_items[item_key] += 1
 
             output = ""
-            for l in [gear, resources, other]:
-                if l != []:
-                    for item_html in l:
-                        output += item_html
-                    output += "\n<hr/>\n"
-
+            for item_dict in [gear, resources]:
+                for location in sorted(item_dict.keys()):
+                    for item_key in item_dict[location].keys():
+                        quantity = item_dict[location][item_key]["count"]
+                        color = item_dict[location][item_key]["color"]
+                        if quantity > 1:
+                            pretty_text = "%s x %s" % (item_key, quantity)
+                        else:
+                            pretty_text = item_key
+                        output += html.settlement.storage_remove_button.safe_substitute(
+                            item_key = item_key,
+                            item_color = color,
+                            item_key_and_count = pretty_text
+                        )
+                    output += html.settlement.storage_tag.safe_substitute(name=location, color=color)
+            if custom_items != {}:
+                for item_key in custom_items:
+                    color = "FFAF0A"
+                    if quantity > 1:
+                        pretty_text = "%s x %s" % (item_key, quantity)
+                    else:
+                        pretty_text = item_key
+                    output += html.settlement.storage_remove_button.safe_substitute( item_key = item_key, item_color = color, item_key_and_count = pretty_text)
+                output += html.settlement.storage_tag.safe_substitute(name="Custom Items", color=color)
             return output
 
-        if return_type == "drop_list":
-            html = '<select name="remove_item" onchange="this.form.submit()">'
-            html += '<option selected disabled hidden value="">Remove Item</option>'
-            for item in storage:
-                html += '<option value="%s">%s</option>' % (item, item)
-            html += '</select>'
-            return html
 
         if return_type == "comma-delimited":
-            return ", ".join(storage)
+            return "<p>%s</p>" % ", ".join(storage)
 
         return storage
 
@@ -1749,7 +1767,6 @@ class Settlement:
             settlement_bonuses = self.get_bonuses('settlement_buff'),
 
             items_options = Items.render_as_html_dropdown_with_divisions(recently_added=self.get_recently_added_items()),
-            items_remove = self.get_storage("drop_list"),
             storage = self.get_storage("html_buttons"),
 
             new_life_principle_hidden = hide_new_life_principle,
