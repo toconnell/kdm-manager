@@ -51,7 +51,7 @@ class dashboard:
     <h2 class="clickable gradient_silver" onclick="showHide('system_div')"> <img class="dashboard_icon" src="%s/icons/system.png"/> System Info %s</h2>
     <div id="system_div" style="display: none;" class="dashboard_accordion gradient_silver">
     <p>KD:M Manager! Version $version.</p><hr/>
-    <p>$users users are managing $settlements settlements and $live_survivors survivors (in $sessions sessions).</p>
+    <p>$users users are managing $settlements settlements and $live_survivors live survivors (in $sessions sessions).</p>
     <p>The total death count across all settlements is $dead_survivors.</p>
     <p>
     Latest Fatality:<br />
@@ -101,6 +101,30 @@ class dashboard:
 
 
 class survivor:
+    new = Template("""\n\
+    <h3>Create a New Survivor</h3>
+    <form method="POST" action="#">
+    <input type="hidden" name="new" value="survivor" />
+    <input type="hidden" name="created_by" value="$created_by" />
+    <input type="hidden" name="settlement_id" value="$home_settlement">
+    <input type="text" name="name" placeholder="Survivor Name"/ class="full_width">
+    <input type="text" name="email" placeholder="Survivor Email"/ class="full_width" value="$user_email">
+    <div id="block_group">
+    <h2>Survivor Sex</h2>
+    <input type="radio" id="male_button" class="radio_principle" name="sex" value="Male" checked/> 
+      <label class="radio_principle_label" for="male_button"> Male </label>
+    <input type="radio" id="female_button" class="radio_principle" name="sex" value="Female"/> 
+      <label class="radio_principle_label" for="female_button"> Female </label>
+    </div>
+    $add_ancestors
+    <button class="success">SAVE</button>
+    </form>
+    \n""")
+    add_ancestor_top = '    <div id="block_group">\n    <h2>Survivor Parents</h2>'
+    add_ancestor_select_top = Template('\t<select name="$parent_role">\n\t<option selected disabled hidden value="">$pretty_role</option>')
+    add_ancestor_select_row = Template('\t<option value="$parent_id">$parent_name</option>\n')
+    add_ancestor_select_bot = '\t</select><br/>'
+    add_ancestor_bot = '    </div>\n'
     campaign_asset = Template("""\n\
       <div class="survivor_campaign_asset_container">
 
@@ -160,8 +184,8 @@ class survivor:
         </p>
 
         <div id="COD" style="display: $show_COD">
-            <hr/>
-            <input onchange="this.form.submit()" class="full_width" type="text" name="cause_of_death" placeholder="Cause of Death" value="$cause_of_death"/>
+            <hr/> <img class="COD_down_arrow" src="http://media.kdm-manager.com/icons/down_arrow.png"/>
+            <input onchange="this.form.submit()" class="full_width maroon" type="text" name="cause_of_death" placeholder="Cause of Death" value="$cause_of_death"/>
         </div>
 
         <hr/>
@@ -522,24 +546,6 @@ class survivor:
     <br />
 
     \n""")
-    new = Template("""\n\
-    <h3>Create a New Survivor</h3>
-    <form method="POST" action="#">
-    <input type="hidden" name="new" value="survivor" />
-    <input type="hidden" name="created_by" value="$created_by" />
-    <input type="hidden" name="settlement_id" value="$home_settlement">
-    <input type="text" name="name" placeholder="Survivor Name"/ class="full_width">
-    <input type="text" name="email" placeholder="Survivor Email"/ class="full_width" value="$user_email">
-    <div id="block_group">
-    <h2>Survivor Sex</h2>
-    <input type="radio" id="male_button" class="radio_principle" name="sex" value="Male" checked/> 
-      <label class="radio_principle_label" for="male_button"> Male </label>
-    <input type="radio" id="female_button" class="radio_principle" name="sex" value="Female"/> 
-      <label class="radio_principle_label" for="female_button"> Female </label>
-    </div>
-    <button class="success">SAVE</button>
-    </form>
-    \n""")
 
 
 class settlement:
@@ -895,7 +901,7 @@ class login:
     <input class="full_width" type="text" name="login" value="$login"/>
     <input class="full_width" type="password" name="password" placeholder="password"/>
     <input class="full_width" type="password" name="password_again" placeholder="password (again)"/>
-    <button>Register New Email</button>
+    <button>Register New User</button>
     </form>
     \n""")
 

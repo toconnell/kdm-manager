@@ -236,6 +236,7 @@ abilities_and_impairments = {
         "type": "impairment",
         "desc": "You can no longer use any fighting arts or abilities. This injury is permanent and can be recorded once.",
         "max": 1,
+        "cannot_use_fighting_arts": True,
     },
     "Broken leg": {
         "type": "impairment",

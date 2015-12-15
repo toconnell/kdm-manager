@@ -223,11 +223,23 @@ class Survivor:
             "fighting_arts": [],
         }
 
+        # initialize self.Settlement
+        self.Settlement = Settlement(settlement_id=settlement_id)
+
+        # add parents if they're specified
+        for parent in ["father", "mother"]:
+            if parent in params:
+                survivor_dict["born_in"] = self.Settlement.settlement["lantern_year"]
+                survivor_dict[parent] = params[parent].value
+
         user = mdb.users.find_one({"_id": created_by})
         login = user["login"]
 
         survivor_id = mdb.survivors.insert(survivor_dict)
         self.logger.info("User '%s' created new survivor '%s [%s]' successfully." % (login, survivor_name, survivor_sex))
+
+        self.Settlement.update_mins()
+
         return survivor_id
 
 
@@ -457,6 +469,8 @@ class Survivor:
                     self.survivor["abilities_and_impairments"].append(asset_key)
                     if "cannot_spend_survival" in asset_dict.keys():
                         self.survivor["cannot_spend_survival"] = "checked"
+                    if "cannot_use_fighting_arts" in asset_dict.keys():
+                        self.survivor["cannot_use_fighting_arts"] = "checked"
                     for attrib in game_assets.survivor_attributes:
                         if attrib in asset_dict and attrib in self.survivor.keys():
                             old_value = int(self.survivor[attrib])
@@ -503,17 +517,63 @@ class Survivor:
         if type(toggle_value) != list:
             try:
                 del self.survivor[toggle_key]
-            except:
+                if toggle_key == "dead":
+                    self.logger.debug("Survivor '%s' is coming back from the dead..." % self.survivor["name"])
+                    if not self.death(undo_death=True):
+                        self.logger.debug("Survivor '%s' (%s) has returned from death!" % (self.survivor["name"], self.survivor["_id"]))
+            except Exception as e:
                 pass
         else:
             self.survivor[toggle_key] = "checked"
             if toggle_key == "dead":
-                self.survivor["died_on"] = datetime.now()
-                self.survivor["died_in"] = self.Settlement.settlement["lantern_year"]
+                self.logger.debug("Survivor '%s' (%s) has died." % (self.survivor["name"], self.survivor["_id"]))
+                if self.death():
+                    self.logger.debug("Processed death for survivor '%s' (%s)." % (self.survivor["name"], self.survivor["_id"]))
+                else:
+                    self.logger.error("Could not process death for survivor '%s' (%s)." % (self.survivor["name"], self.survivor["_id"]))
             if toggle_key == "retired":
                 self.survivor["retired_in"] = self.Settlement.settlement["lantern_year"]
 
         mdb.survivors.save(self.survivor)
+
+
+
+
+    def death(self, undo_death=False):
+        """ Call this method when a survivor dies. Call it with the 'undo_death'
+        kwarg to undo the death. """
+
+        self.Settlement.update_mins()
+
+        population = int(self.Settlement.settlement["population"])
+        death_count = int(self.Settlement.settlement["death_count"])
+
+        if undo_death:
+            for death_key in ["died_on","died_in","cause_of_death"]:
+                try:
+                    del self.survivor[death_key]
+                except Exception as e:
+                    self.logger.debug("Could not unset '%s'" % death_key)
+                    pass
+            population += 1
+            death_count -= 1
+            self.logger.debug("Processed death for '%s' (%s)." % (self.survivor["name"], self.survivor["_id"]))
+        else:
+            self.survivor["died_on"] = datetime.now()
+            self.survivor["died_in"] = self.Settlement.settlement["lantern_year"]
+            population -= 1
+            death_count += 1
+
+        self.Settlement.settlement["population"] = population
+        self.Settlement.settlement["death_count"] = death_count
+
+        mdb.settlements.save(self.Settlement.settlement)
+        mdb.survivors.save(self.survivor)
+
+        if "dead" in self.survivor.keys():
+            return True
+        else:
+            return False
 
 
     def modify(self, params):
@@ -648,7 +708,7 @@ class Survivor:
             flags["retired"] = "checked"
 
         COD_div_display_style = "none"
-        if "cause_of_death" in self.survivor.keys() and "dead" in self.survivor.keys():
+        if "dead" in self.survivor.keys():
             COD_div_display_style = "block"
         COD = ""
         if "cause_of_death" in self.survivor.keys():
@@ -761,7 +821,7 @@ class Settlement:
         self.settlement = mdb.settlements.find_one({"_id": ObjectId(settlement_id)})
         self.survivors = mdb.survivors.find({"settlement": settlement_id})
         if self.settlement is not None:
-            self.update_death_count()
+            self.update_mins()
 
         self.User = user_object
 
@@ -834,19 +894,53 @@ class Settlement:
         return settlement_id
 
 
-    def update_death_count(self):
-        """ This runs whenever we initialize the settlement. It makes sure that
-        our dead survivors are reflected in the death count. """
+    def update_mins(self):
+        """ check 'population' and 'death_count' minimums and update the
+        settlement's attribs if necessary. """
 
-        min_death_count = 0
-        for survivor in self.survivors:
-            if "dead" in survivor.keys():
-                min_death_count += 1
+        for min_key in ["population", "death_count"]:
+            min_val = self.get_min(min_key)
+            orig_val = int(self.settlement[min_key])
+            if orig_val < min_val:
+                self.settlement[min_key] = min_val
+                self.logger.debug("Automatically updated settlement %s %s from %s to %s" % (self.settlement["_id"], min_key, orig_val, min_val))
 
-        if int(self.settlement["death_count"]) < min_death_count:
-            self.settlement["death_count"] = min_death_count
+            # just a little idiot- and user-proofing against negative values
+            if self.settlement[min_key] < 0:
+                self.settlement[min_key] = 0
 
         mdb.settlements.save(self.settlement)
+
+
+    def get_ancestors(self, return_type=None, survivor_id=False):
+        """ This is the settlement's version of this method and it is way
+        different from the survivor """
+
+        if survivor_id:
+            return "NOT IMPLEMENTED YET"
+
+        if return_type == "html_parent_select":
+            male_parent = False
+            female_parent = False
+            for s in self.get_survivors():
+                if s["sex"] == "M" and "dead" not in s.keys():
+                    male_parent = True
+                elif s["sex"] == "F" and "dead" not in s.keys():
+                    female_parent = True
+
+        if not (male_parent and female_parent):
+            return ""
+        else:
+            output = html.survivor.add_ancestor_top
+            for role in [("father", "M"), ("mother", "F")]:
+                output += html.survivor.add_ancestor_select_top.safe_substitute(parent_role=role[0], pretty_role=role[0].capitalize())
+                for s in self.get_survivors():
+                    if s["sex"] == role[1] and "dead" not in s.keys():
+                        output += html.survivor.add_ancestor_select_row.safe_substitute(parent_id=s["_id"], parent_name=s["name"])
+                output += html.survivor.add_ancestor_select_bot
+            output += html.survivor.add_ancestor_bot
+            return output
+
 
 
     def get_locations(self, return_type=False):
@@ -1230,6 +1324,7 @@ class Settlement:
             'population': the minimum number of survivors based on which have
                 'dead' in their Survivor.survivor.keys().
             'deaths': the minimum number of dead survivors.
+                -> 'death_count' also does this.
             'survival_limit': the minimum survival limit, based on innovations.
 
         Returns an int. ALWAYS.
@@ -1239,7 +1334,7 @@ class Settlement:
 
         if value == "population":
             results = mdb.survivors.find({"settlement": settlement_id, "dead": {"$exists": False}}).count()
-        elif value == "deaths":
+        elif value == "deaths" or value == "death_count":
             results = mdb.survivors.find({"settlement": settlement_id, "dead": {"$exists": True}}).count()
         elif value == "survival_limit":
             min_survival = 0
@@ -1717,7 +1812,7 @@ class Settlement:
         prefix = ""
         suffix = ""
 
-        functional_pop = self.settlement["population"]
+        functional_pop = int(self.settlement["population"])
         if functional_pop < self.get_min("population"):
             functional_pop =  self.get_min("population")
 
