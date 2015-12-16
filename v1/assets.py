@@ -1028,10 +1028,10 @@ class Settlement:
                         )
                     output += html.settlement.storage_tag.safe_substitute(name=location, color=color)
             if custom_items != {}:
-                for item_key in custom_items:
+                for item_key in custom_items.keys():
                     color = "FFAF0A"
-                    if quantity > 1:
-                        pretty_text = "%s x %s" % (item_key, quantity)
+                    if custom_items[item_key] > 1:
+                        pretty_text = "%s x %s" % (item_key, custom_items[item_key])
                     else:
                         pretty_text = item_key
                     output += html.settlement.storage_remove_button.safe_substitute( item_key = item_key, item_color = color, item_key_and_count = pretty_text)
@@ -1583,10 +1583,12 @@ class Settlement:
                 self.settlement["quarries"].append(params[p].value)
             elif p == "add_nemesis":
                 self.settlement["nemesis_monsters"][params[p].value] = []
-            elif p == "add_item":
+            elif p == "add_item" and not "remove_item" in params:
                 self.settlement["storage"].append(params[p].value)
-            elif p == "remove_item":
-                self.settlement["storage"].remove(params[p].value)
+                self.logger.debug("Adding %s to settlement %s storage" % (game_asset_key, self.settlement["_id"]))
+            elif p == "remove_item" and not "add_item" in params:
+                self.settlement["storage"].remove(game_asset_key)
+                self.logger.debug("Removing %s from settlement %s storage" % (game_asset_key, self.settlement["_id"]))
             elif p == "add_innovation":
                 self.add_game_asset("innovations", game_asset_key)
             elif p == "remove_innovation":

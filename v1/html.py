@@ -650,7 +650,7 @@ class settlement:
     <form id="autoForm" method="POST" action="#edit_storage">
         <input type="hidden" name="modify" value="settlement" />
         <input type="hidden" name="asset_id" value="$settlement_id" />
-
+        <button id="remove_item" class="hidden" name="remove_item" value=""> None </button>
         <div id="block_group">
         <h2>Storage</h2>
         <p>Gear and Resources may be stored without limit. Tap an item to remove it once.</p>
