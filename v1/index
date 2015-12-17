@@ -33,7 +33,11 @@ if __name__ == "__main__":
         output = html.authenticate_by_form(params)
     else:
         S.process_params()
-        output = S.current_view_html()
-        body = None
+        try:
+            output, body = S.current_view_html()
+        except Exception as e:
+            logger.critical("Caught exception while rendering index!")
+            logger.exception(e)
+            raise
 
     html.render(output, body_class=body)

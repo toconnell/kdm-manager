@@ -233,12 +233,14 @@ class Session:
         class and uses that class's methods to get html.
         """
         try:
+            body = None
             output = html.meta.saved_dialog
 
             if self.session["current_view"] != "dashboard":
                 output += html.dashboard.home_button
 
             if self.session["current_view"] == "dashboard":
+                body = "dashboard"
                 output += self.User.html_motd()
 
                 display_settlements = "none"
@@ -249,6 +251,10 @@ class Session:
                 output += html.dashboard.campaign_summary.safe_substitute(campaigns=self.User.get_games(), display=display_campaigns)
                 output += html.dashboard.settlement_summary.safe_substitute(settlements=self.User.get_settlements(return_as="asset_links"), display=display_settlements)
                 output += html.dashboard.survivor_summary.safe_substitute(survivors=self.User.get_survivors("asset_links"))
+
+                if mdb.the_dead.find({"complete": {"$exists": True}}).count() > 0:
+                    output += self.User.html_world()
+
                 if self.User.is_admin():
                     output += html.dashboard.panel_button
             elif self.session["current_view"] == "view_game":
@@ -280,7 +286,8 @@ class Session:
                 output += "UNKNOWN VIEW!!!"
 
             output += html.meta.log_out_button.safe_substitute(session_id=self.session["_id"], login=self.User.user["login"])
-            return output
+
+            return output, body
 
         except Exception as e:
             self.logger.critical("Caught exception while rendering current view!")

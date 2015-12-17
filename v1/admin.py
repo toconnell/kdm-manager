@@ -255,7 +255,7 @@ def pretty_view_user(u_id):
 
 def initialize():
     """ Completely initializes the application. Scorched earth. """
-    for collection in ["users", "sessions", "survivors", "settlements"]:
+    for collection in ["users", "sessions", "survivors", "settlements", "the_dead", "user_admin"]:
         mdb[collection].remove()
 
 
@@ -387,6 +387,24 @@ class Panel:
 
         return output
 
+def valkyrie():
+    """ Checks all extant survivors and adds them to mdb.the_dead if they've got
+    the 'dead' attrib. Tries to get their 'cause_of_death'. """
+
+    for dead in mdb.the_dead.find({"complete": {"$exists": False}}):
+        survivor_dict = mdb.survivors.find_one({"_id": dead["survivor_id"]})
+        if survivor_dict is not None:
+            dead["settlement_name"] = mdb.settlements.find_one({"_id": dead["settlement_id"]})["name"]
+            for mandatory_attrib in ["Courage", "Understanding", "Insanity", "epithets", "hunt_xp"]:
+                dead[mandatory_attrib] = survivor_dict[mandatory_attrib]
+            if "cause_of_death" in survivor_dict.keys():
+                dead["cause_of_death"] = survivor_dict["cause_of_death"]
+                dead["complete"] = datetime.now()
+            else:
+                logger.debug("Unable to set cause of death for dead survivor '%s'!" % dead["name"])
+            mdb.the_dead.save(dead)
+    logger.debug("Valkyrie run complete: %s/%s complete death records." % (mdb.the_dead.find({"complete": {"$exists": True}}).count(), mdb.the_dead.find().count()))
+
 
 
 
@@ -416,6 +434,7 @@ if __name__ == "__main__":
 
 #    if args == []:
 #        motd()
+
 
     if options.user_id and options.user_pass:
         update_user_password(options.user_id, options.user_pass)

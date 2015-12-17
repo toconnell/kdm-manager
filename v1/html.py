@@ -54,7 +54,7 @@ class ui:
 
 class dashboard:
     # settlement administrivia; needs to be above the dashboard accordions
-    panel_button = '<hr/><form method="POST"><input type="hidden" name="change_view" value="panel"/><button class="maroon">Admin Panel!</button></form>\n'
+    panel_button = '<hr class="mobile_only"/><form method="POST"><input type="hidden" name="change_view" value="panel"/><button class="maroon change_view">Admin Panel!</button></form>\n'
     new_settlement_button = '<form method="POST"><input type="hidden" name="change_view" value="new_settlement" /><button class="success">+ New Settlement</button></form>\n'
     new_settlement_form = """\n\
     <h3>Create a New Settlement</h3>
@@ -73,54 +73,76 @@ class dashboard:
 
     # dashboard accordions
     motd = Template("""\n
-    <h2 class="clickable gradient_silver" onclick="showHide('system_div')"> <img class="dashboard_icon" src="%s/icons/system.png"/> System Info %s</h2>
-    <div id="system_div" style="display: none;" class="dashboard_accordion gradient_silver">
-    <p>KD:M Manager! Version $version.</p><hr/>
-    <p>$users users are managing $settlements settlements and $live_survivors live survivors (in $sessions sessions).</p>
-    <p>The total death count across all settlements is $dead_survivors.</p>
-    <p>
-    Latest Fatality:<br />
-    &ensp; <b>$casualty_name</b> [$casualty_sex] of <b>$casualty_settlement</b><br/>
-    &ensp; $cause_of_death <br/>
-    &ensp; XP: $casualty_xp - Courage: $casualty_courage <br /> &ensp; Understanding: $casualty_understanding
-    </p>
-    <hr/>
-    <p>This application is a work in progress! Use <a href="http://blog.kdm-manager.com"/>blog.kdm-manager.com</a> to report issues/bugs or to ask questions, share ideas for features, make comments, etc.</p><hr/>
-    <p>Currently signed in as: <i>$login</i></p>
-    $last_log_msg
-    <form method="POST">
-    <input type="hidden" name="change_password" value="True"/>
-    <input type="password" name="password" class="full_width" placeholder="password">
-    <input type="password" name="password_again" class="full_width" placeholder="password (again)"/>
-    <button class="warn"> Change Password</button>
-    </form>
+    <div class="dashboard_menu">
+        <h2 class="clickable gradient_silver" onclick="showHide('system_div')"> <img class="dashboard_icon" src="%s/icons/system.png"/> System %s</h2>
+        <div id="system_div" style="display: none;" class="dashboard_accordion gradient_silver">
+        <p>KD:M Manager! Version $version.</p><hr/>
+        <p><b>Please Note:</b> support for non-mobile devices and resolutions is being added gradually, but is not yet available for all views!</p><p>Use <a href="http://blog.kdm-manager.com"/>blog.kdm-manager.com</a> to report issues/bugs or to ask questions, share ideas for features, make comments, etc.</p><hr/>
+        <p>Currently signed in as: <i>$login</i></p>
+        $last_log_msg
+        <div class="dashboard_preferences">
+            <form method="POST">
+            <input type="hidden" name="change_password" value="True"/>
+            <input type="password" name="password" class="full_width" placeholder="password">
+            <input type="password" name="password_again" class="full_width" placeholder="password (again)"/>
+            <button class="warn"> Change Password</button>
+            </form>
+        </div>
+        </div>
     </div>
     """ % (settings.get("application", "STATIC_URL"), down_arrow_flash))
     campaign_summary = Template("""\n\
-    <h2 class="clickable gradient_purple" onclick="showHide('campaign_div')"> <img class="dashboard_icon" src="%s/icons/campaign.png"/> Campaigns %s </h2>
-    <div id="campaign_div" style="display: $display" class="dashboard_accordion gradient_purple">
-    <p>Games you are currently playing.</p>
-    $campaigns
+    <div class="dashboard_menu">
+        <h2 class="clickable gradient_purple" onclick="showHide('campaign_div')"> <img class="dashboard_icon" src="%s/icons/campaign.png"/> Campaigns %s </h2>
+        <div id="campaign_div" style="display: $display" class="dashboard_accordion gradient_purple">
+        <p>Games you are currently playing.</p>
+            <div class="dashboard_button_list">
+            $campaigns
+            </div>
+        </div>
     </div>
     \n""" % (settings.get("application", "STATIC_URL"), down_arrow_flash))
     settlement_summary = Template("""\n\
-    <h2 class="clickable gradient_orange" onclick="showHide('settlement_div')"> <img class="dashboard_icon" src="%s/icons/settlement.png"/> Settlements %s </h2>
-    <div id="settlement_div" style="display: $display" class="dashboard_accordion gradient_orange">
-    <p>Manage your settlements. You may not manage a settlement you did not create.</p>
-    $settlements
-    %s
+    <div class="dashboard_menu">
+        <h2 class="clickable gradient_orange" onclick="showHide('settlement_div')"> <img class="dashboard_icon" src="%s/icons/settlement.png"/> Settlements %s </h2>
+        <div id="settlement_div" style="display: $display" class="dashboard_accordion gradient_orange">
+        <p>Manage your settlements. You may not manage a settlement you did not create.</p>
+        <div class="dashboard_button_list">
+            $settlements
+            %s
+        </div>
+        </div>
     </div>
     \n""" % (settings.get("application", "STATIC_URL"), down_arrow_flash, new_settlement_button))
     survivor_summary = Template("""\n\
-    <h2 class="clickable gradient_green" onclick="showHide('survivors_div')"> <img class="dashboard_icon" src="%s/icons/survivor.png"/> Survivors %s</h2>
-    <div id="survivors_div" style="display: none;" class="dashboard_accordion gradient_green">
-    <p>Manage survivors created by you or shared with you. New survivors are created from the "Campaign" and "Settlement" views.</p>
-    $survivors
+    <div class="dashboard_menu">
+        <h2 class="clickable gradient_green" onclick="showHide('survivors_div')"> <img class="dashboard_icon" src="%s/icons/survivor.png"/> Survivors %s</h2>
+        <div id="survivors_div" style="display: none;" class="dashboard_accordion gradient_green">
+        <p>Manage survivors created by you or shared with you. New survivors are created from the "Campaign" and "Settlement" views.</p>
+        <div class="dashboard_button_list">
+            $survivors
+        </div>
+        </div>
     </div>
     \n""" % (settings.get("application", "STATIC_URL"), down_arrow_flash))
+    world = Template("""\n
+    <div class="dashboard_menu">
+        <h2 class="clickable gradient_blue" onclick="showHide('world_div')"> <img class="dashboard_icon" src="%s/icons/world.png"/> World %s</h2>
+        <div id="world_div" style="display: none;" class="dashboard_accordion gradient_blue">
+        <p>$total_users users are managing $total_settlements settlements in $total_sessions sessions.</p><hr/>
+        <p>$live_survivors survivors are alive and fighting; $dead_survivors have perished.</p><hr/>
+        <p>Latest fatality:<br/>
+        &ensp; <b>$dead_name</b> of <b>$dead_settlement</b><br/>
+        &ensp; <i>$cause_of_death</i><br/>
+        &ensp; Died in LY $dead_ly, XP: $dead_xp<br/>
+        &ensp; Courage: $dead_courage, Understanding: $dead_understanding
+        </p>
+        </div>
+    </div>
+    """ % (settings.get("application", "STATIC_URL"), down_arrow_flash))
 
     # misc html assets
-    home_button = '<form method="POST" action="#"><input type="hidden" name="change_view" value="dashboard"/><button id="floating_dashboard_button"> %s </button></form>\n' % system_flash
+    home_button = '<form method="POST" action="#"><input type="hidden" name="change_view" value="dashboard"/><button id="floating_dashboard_button" class="gradient_silver"> %s </button></form>\n' % system_flash
     view_asset_button = Template("""\n\
     <form method="POST" action="#">
     <input type="hidden" name="view_$asset_type" value="$asset_id" />
@@ -932,7 +954,7 @@ class login:
             <form method="POST">
             <input class="sign_in" type="text" name="login" placeholder="email"/ autofocus>
             <input class="sign_in" type="password" name="password" placeholder="password"/>
-            <button class="sign_in green">Sign In or Register</button>
+            <button class="sign_in gradient_green">Sign In or Register</button>
             </form>
         </div>
     </div> <!-- sign_in_container -->
@@ -946,7 +968,7 @@ class login:
             <input class="sign_in" type="text" name="login" value="$login"/>
             <input class="sign_in" type="password" name="password" placeholder="password"/>
             <input class="sign_in" type="password" name="password_again" placeholder="password (again)"/>
-            <button class="sign_in green">Register New User</button>
+            <button class="sign_in gradient_green">Register New User</button>
             </form>
         </div>
     </div> <!-- sign_in_container -->
@@ -963,7 +985,7 @@ class meta:
     false_body = 'Caught exception while rendering the current view!<hr/>The current session will be ended. Please try again.'
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
     saved_dialog = '\n    <div id="saved_dialog" class="success">Saved!</div>'
-    log_out_button = Template('\n\t<hr/><form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><input type="hidden" name="login" value="$login"/><button class="warn">SIGN OUT</button>\n\t</form>')
+    log_out_button = Template('\n\t<hr class="mobile_only"/><form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><input type="hidden" name="login" value="$login"/><button class="warn change_view">SIGN OUT</button>\n\t</form>')
 
 
 
@@ -1011,7 +1033,8 @@ def authenticate_by_form(params):
         elif auth == True:
             s = Session()
             session_id = s.new(params["login"].value.strip().lower())
-            render(s.current_view_html(), head=[set_cookie_js(session_id)])
+            html, body = s.current_view_html()
+            render(html, body_class=body, head=[set_cookie_js(session_id)])
     else:
         output = login.form
     return output

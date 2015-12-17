@@ -154,14 +154,6 @@ class User:
     def html_motd(self):
         """ Creates an HTML MoTD for the user. """
 
-        d = admin.get_latest_casualty()
-        if d is None:
-            d = {"name": None, "settlement_name": None, "sex": None, "hunt_xp": None, "Courage": None, "Understanding": None}
-
-        COD = "Unspecified cause of death."
-        if "cause_of_death" in d.keys():
-            COD = d["cause_of_death"]
-
         formatted_log_msg = ""
         last_log_msg = self.get_last_n_user_admin_logs(1)
         if last_log_msg is not None:
@@ -170,21 +162,33 @@ class User:
         output = html.dashboard.motd.safe_substitute(
             login = self.user["login"],
             version = settings.get("application", "version"),
-            users = mdb.users.find().count(),
-            dead_survivors = mdb.survivors.find({"dead": {"$exists": True}}).count(),
-            live_survivors = mdb.survivors.find().count() - mdb.survivors.find({"dead": {"$exists": True}}).count(),
-            sessions = mdb.sessions.find().count(),
-            settlements = mdb.settlements.find().count(),
-            casualty_name = d["name"],
-            casualty_sex = d["sex"],
-            casualty_settlement = d["settlement_name"],
-            casualty_xp = d["hunt_xp"],
-            casualty_courage = d["Courage"],
-            casualty_understanding = d["Understanding"],
-            cause_of_death = COD,
             last_log_msg = formatted_log_msg,
         )
         return output
+
+    def html_world(self):
+        """ Creates the HTML world panel for the user. This is a method of the
+        User object because it will do stuff with the user's friends. """
+
+        latest_fatality = mdb.the_dead.find_one({"complete": {"$exists": True}}, sort=[("created_on", -1)])
+
+        output = html.dashboard.world.safe_substitute(
+            total_users = mdb.users.find().count(),
+            total_settlements = mdb.settlements.find().count(),
+            total_sessions = mdb.sessions.find().count(),
+            live_survivors = mdb.survivors.find({"dead": {"$exists": False}}).count(),
+            dead_survivors = mdb.the_dead.find().count(),
+            dead_name = latest_fatality["name"],
+            dead_settlement = latest_fatality["settlement_name"],
+            cause_of_death = latest_fatality["cause_of_death"],
+            dead_ly = latest_fatality["lantern_year"],
+            dead_xp = latest_fatality["hunt_xp"],
+            dead_courage = latest_fatality["Courage"],
+            dead_understanding = latest_fatality["Understanding"],
+        )
+
+        return output
+
 
 
 #
@@ -462,7 +466,7 @@ class Survivor:
             for armor_loc in ["Head","Arms","Body","Waist","Legs"]:
                 self.survivor[armor_loc] = 0
 
-        if increment_hunt_xp:
+        if increment_hunt_xp and not "dead" in self.survivor.keys():
             current_xp = int(self.survivor["hunt_xp"])
             self.survivor["hunt_xp"] = current_xp + increment_hunt_xp
 
@@ -620,13 +624,16 @@ class Survivor:
                 "epithets": self.survivor["epithets"],
                 "survivor_id": self.survivor["_id"],
                 "created_by": self.survivor["created_by"],
-                "created_on": self.survivor["created_on"],
+                "created_on": datetime.now(),
                 "settlement_id": self.Settlement.settlement["_id"],
                 "time_of_death": datetime.now(),
                 "lantern_year": self.Settlement.settlement["lantern_year"],
             }
-            mdb.the_dead.insert(death_dict)
-            self.logger.debug("Survivor '%s' added to the The Dead." % self.survivor["name"])
+            if mdb.the_dead.find_one({"survivor_id": self.survivor["_id"]}) is None:
+                mdb.the_dead.insert(death_dict)
+                self.logger.debug("Survivor '%s' added to the The Dead." % self.survivor["name"])
+            else:
+                self.logger.debug("Survivor '%s' is already among The Dead." % self.survivor["name"])
 
             self.survivor["died_on"] = datetime.now()
             self.survivor["died_in"] = self.Settlement.settlement["lantern_year"]
@@ -680,6 +687,10 @@ class Survivor:
                 self.toggle(toggle_attrib, params[p])
             elif p == "email":
                 self.survivor["email"] = game_asset_key.lower()
+            elif p == "cause_of_death":
+                self.survivor[p] = game_asset_key
+                mdb.survivors.save(self.survivor)
+                admin.valkyrie()
             elif game_asset_key == "None":
                 del self.survivor[p]
             else:
@@ -1955,14 +1966,14 @@ class Settlement:
         return output
 
 
-    def asset_link(self, view="settlement", button_class="orange", link_text=False, fixed=False, use_flash=False):
+    def asset_link(self, view="settlement", button_id=None, button_class="gradient_yellow", link_text=False, fixed=False, use_flash=False):
         """ Returns an asset link (i.e. html form with button) for the
         settlement. """
 
         if use_flash:
             if use_flash == "settlement":
                 link_text = html.dashboard.settlement_flash
-                button_class = "orange"
+                button_class = "gradient_yellow"
             elif use_flash == "campaign":
                 link_text = html.dashboard.campaign_flash
             else:
@@ -1976,7 +1987,7 @@ class Settlement:
             functional_pop =  self.get_min("population")
 
         if view == "game":
-            button_class = "purple"
+            button_class = "gradient_violet"
             if not link_text and not fixed:
                 prefix = html.dashboard.campaign_flash
                 link_text = prefix + self.settlement["name"]
@@ -1986,7 +1997,6 @@ class Settlement:
             prefix = html.dashboard.settlement_flash
             link_text = prefix + self.settlement["name"]
 
-        button_id = None
         if fixed:
             button_id = "floating_asset_button"
             if not link_text:
