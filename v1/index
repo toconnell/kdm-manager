@@ -18,6 +18,7 @@ if __name__ == "__main__":
         cgitb.enable()
 
     output = html.login.form
+    body = "sign_in"
 
     params = cgi.FieldStorage()
 
@@ -33,5 +34,6 @@ if __name__ == "__main__":
     else:
         S.process_params()
         output = S.current_view_html()
+        body = None
 
-    html.render(output)
+    html.render(output, body_class=body)

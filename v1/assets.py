@@ -3,6 +3,7 @@
 from bson.objectid import ObjectId
 from copy import copy
 from datetime import datetime
+from hashlib import md5
 import os
 from string import Template
 
@@ -11,7 +12,7 @@ import assets
 import game_assets
 import html
 from models import Abilities, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Resources, Quarries
-from utils import mdb, get_logger, load_settings, get_user_agent
+from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms
 
 settings = load_settings()
 
@@ -27,6 +28,45 @@ class User:
         self.user = mdb.users.find_one({"_id": user_id})
         self.get_settlements()
         self.get_survivors()
+
+    def is_admin(self):
+        """ Returns True if the user is an admin, False if they are not. """
+
+        if "admin" in self.user.keys() and type(self.user["admin"]) == datetime:
+            return True
+        else:
+            return False
+
+    def update_password(self, password, password_again=False):
+        """ Leave the 'password_again' kwarg blank if you're not checking two
+        passwords to see if they match, e.g. if you're doing this from the CLI.
+        """
+
+        user_admin_log_dict = {
+            "created_on": datetime.now(),
+            "u_id": self.user["_id"],
+        }
+
+        if password_again:
+            if password != password_again:
+                err_msg = "Could not change password for '%s' (passwords did not match)!" % self.user["login"]
+                self.logger.error(err_msg)
+                user_admin_log_dict["msg"] = err_msg
+                mdb.user_admin.insert(user_admin_log_dict)
+                return False
+        self.user["password"] = md5(password).hexdigest()
+        self.logger.info("Password update for '%s' was successful!" % self.user["login"])
+        mdb.users.save(self.user)
+        user_admin_log_dict["msg"] = "Password Updated!"
+        mdb.user_admin.insert(user_admin_log_dict)
+
+
+    def get_last_n_user_admin_logs(self, logs):
+        if logs == 1:
+            return mdb.user_admin.find_one({"u_id": self.user["_id"]}, sort=[("created_on", -1)])
+        else:
+            return mdb.user_admin.find({"u_id": self.user["_id"]}).sort("created_on").limit(logs)
+
 
     def mark_usage(self, action=None):
         """ Updates the user's mdb object with some data. """
@@ -122,6 +162,11 @@ class User:
         if "cause_of_death" in d.keys():
             COD = d["cause_of_death"]
 
+        formatted_log_msg = ""
+        last_log_msg = self.get_last_n_user_admin_logs(1)
+        if last_log_msg is not None:
+            formatted_log_msg = "<p>Latest admin log:</p><p><b>%s</b>:</b> %s</p>" % (last_log_msg["created_on"].strftime(ymdhms), last_log_msg["msg"])
+
         output = html.dashboard.motd.safe_substitute(
             login = self.user["login"],
             version = settings.get("application", "version"),
@@ -137,6 +182,7 @@ class User:
             casualty_courage = d["Courage"],
             casualty_understanding = d["Understanding"],
             cause_of_death = COD,
+            last_log_msg = formatted_log_msg,
         )
         return output
 
@@ -518,18 +564,14 @@ class Survivor:
             try:
                 del self.survivor[toggle_key]
                 if toggle_key == "dead":
-                    self.logger.debug("Survivor '%s' is coming back from the dead..." % self.survivor["name"])
-                    if not self.death(undo_death=True):
-                        self.logger.debug("Survivor '%s' (%s) has returned from death!" % (self.survivor["name"], self.survivor["_id"]))
+                    if self.death(undo_death=True):
+                        self.logger.debug("Survivor '%s' (%s) has not returned from death!" % (self.survivor["name"], self.survivor["_id"]))
             except Exception as e:
                 pass
         else:
             self.survivor[toggle_key] = "checked"
             if toggle_key == "dead":
-                self.logger.debug("Survivor '%s' (%s) has died." % (self.survivor["name"], self.survivor["_id"]))
-                if self.death():
-                    self.logger.debug("Processed death for survivor '%s' (%s)." % (self.survivor["name"], self.survivor["_id"]))
-                else:
+                if not self.death():
                     self.logger.error("Could not process death for survivor '%s' (%s)." % (self.survivor["name"], self.survivor["_id"]))
             if toggle_key == "retired":
                 self.survivor["retired_in"] = self.Settlement.settlement["lantern_year"]
@@ -541,7 +583,14 @@ class Survivor:
 
     def death(self, undo_death=False):
         """ Call this method when a survivor dies. Call it with the 'undo_death'
-        kwarg to undo the death. """
+        kwarg to undo the death.
+
+        This returns a True or False that reflects the life/death status of the
+        survivor (which is a little strange, but bear with me).
+
+        We return True if the survivor is marked with the 'dead' attrib and we
+        return False if the survivor is NOT marked with the 'dead' attrib.
+        """
 
         self.Settlement.update_mins()
 
@@ -549,18 +598,39 @@ class Survivor:
         death_count = int(self.Settlement.settlement["death_count"])
 
         if undo_death:
+            self.logger.debug("Survivor '%s' is coming back from the dead..." % self.survivor["name"])
             for death_key in ["died_on","died_in","cause_of_death"]:
                 try:
                     del self.survivor[death_key]
                 except Exception as e:
                     self.logger.debug("Could not unset '%s'" % death_key)
                     pass
+
+            mdb.the_dead.remove({"survivor_id": self.survivor["_id"]})
+            self.logger.debug("Survivor '%s' removed from The Dead." % self.survivor["name"])
+
             population += 1
             death_count -= 1
-            self.logger.debug("Processed death for '%s' (%s)." % (self.survivor["name"], self.survivor["_id"]))
+
+            self.logger.debug("Un-did death for '%s' (%s)." % (self.survivor["name"], self.survivor["_id"]))
         else:
+            self.logger.debug("Survivor '%s' (%s) has died!" % (self.survivor["name"], self.survivor["_id"]))
+            death_dict = {
+                "name": self.survivor["name"],
+                "epithets": self.survivor["epithets"],
+                "survivor_id": self.survivor["_id"],
+                "created_by": self.survivor["created_by"],
+                "created_on": self.survivor["created_on"],
+                "settlement_id": self.Settlement.settlement["_id"],
+                "time_of_death": datetime.now(),
+                "lantern_year": self.Settlement.settlement["lantern_year"],
+            }
+            mdb.the_dead.insert(death_dict)
+            self.logger.debug("Survivor '%s' added to the The Dead." % self.survivor["name"])
+
             self.survivor["died_on"] = datetime.now()
             self.survivor["died_in"] = self.Settlement.settlement["lantern_year"]
+
             population -= 1
             death_count += 1
 
@@ -822,7 +892,6 @@ class Settlement:
         self.survivors = mdb.survivors.find({"settlement": settlement_id})
         if self.settlement is not None:
             self.update_mins()
-
         self.User = user_object
 
     def new(self, name=None, created_by=None):
@@ -913,7 +982,8 @@ class Settlement:
             if self.settlement[min_key] < 0:
                 self.settlement[min_key] = 0
 
-        self.settlement["milestone_story_events"] = list(set(self.settlement["milestone_story_events"]))
+        for force_set in ["milestone_story_events", "innovations", "locations", "principles", "quarries"]:
+            self.settlement[force_set] = list(set([i for i in self.settlement[force_set] if type(i) == unicode]))
 
         mdb.settlements.save(self.settlement)
 
@@ -973,8 +1043,10 @@ class Settlement:
     def get_storage(self, return_type=False):
         """ Returns the settlement's storage in a number of ways. """
 
-        storage = sorted(self.settlement["storage"])
-
+        # first, normalize storage to try to fix case-sensitivity PEBKAC
+        storage = [i.title() for i in sorted(self.settlement["storage"])]
+        self.settlement["storage"] = storage
+        mdb.settlements.save(self.settlement)
 
         if return_type == "html_buttons":
             custom_items = {}
@@ -1166,7 +1238,7 @@ class Settlement:
             if monsters == []:
                 return ""
             else:
-                return ", ".join(monsters)
+                return "<p>%s</p>" % ", ".join(monsters)
 
         return monsters
 
@@ -1320,7 +1392,7 @@ class Settlement:
             if all_items == []:
                 break
             return_list.add(all_items.pop())
-        return sorted(list(return_list))
+        return sorted(list([i.title() for i in return_list]))
 
 
     def get_attribute(self, attrib=None):
@@ -1362,6 +1434,10 @@ class Settlement:
 
             innovations = self.settlement["innovations"]
             innovations.extend(self.settlement["principles"])
+            for innovation_key in innovations:
+                if type(innovation_key) != unicode:
+                    innovations.remove(innovation_key)
+                    self.logger.debug("Removed '%s' from settlement %s innovations." % (innovation_key, self.settlement["_id"]))
             innovations = list(set(innovations))
             for innovation_key in innovations:
                 if innovation_key in Innovations.get_keys() and "survival_limit" in Innovations.get_asset(innovation_key).keys():
@@ -1535,6 +1611,46 @@ class Settlement:
         self.logger.error("An error occurred while retrieving settlement game assets ('%s')!" % asset_type)
 
 
+    def get_defeated_monsters_deck(self, return_type=False):
+        """ Returns a list of the settlement's possible kills, based on the
+        'quarries' and the keys of 'nemesis_monsters'. """
+
+        possible_quarries = self.settlement["quarries"]
+
+        deck = ["White Lion (First Story)"]
+        for m in possible_quarries:
+            for lv in range(1,4):
+                deck.append("%s Lvl %s" % (m, lv))
+        for n in self.settlement["nemesis_monsters"].keys():
+            try:
+                deck.append("%s %s" % (n, self.settlement["nemesis_monsters"][n][-1]))
+            except IndexError:
+                deck.append("%s Lvl 1" % n)
+
+        if return_type == "html_add":
+            output = html.ui.game_asset_select_top.safe_substitute(operation="add_", name="defeated_monster", operation_pretty="Add", name_pretty="Monster")
+            for m in deck:
+                output += html.ui.game_asset_select_row.safe_substitute(asset=m)
+            output += html.ui.game_asset_select_bot
+            return output
+
+        return deck
+
+
+    def add_kill(self, monster_desc):
+        """ Adds a kill to the settlement: appends it to the 'defeated_monsters'
+        monsters and also to the settlement's kill_board. """
+
+        if not "kill_board" in self.settlement.keys():
+            self.settlement["kill_board"] = {}
+        current_ly = "ly_%s" % self.settlement["lantern_year"]
+        if not current_ly in self.settlement["kill_board"].keys():
+            self.settlement["kill_board"][current_ly] = []
+        self.settlement["kill_board"][current_ly].append(monster_desc)
+        self.settlement["defeated_monsters"].append(monster_desc)
+        mdb.settlements.save(self.settlement)
+
+
     def add_game_asset(self, asset_class, game_asset_key=None):
         """ Generic function for adding game assets to a settlement.
 
@@ -1547,8 +1663,13 @@ class Settlement:
 
         exec "Asset = %s" % asset_class.capitalize()
 
+        if type(game_asset_key) != str:
+            self.logger.warn("Could not add asset ('%s') to settlement %s!" % (game_asset_key, self.settlement["_id"]))
+            return None
+
+        self.logger.debug("Adding asset '%s' (%s) to settlement %s..." % (game_asset_key, type(game_asset_key), self.settlement["_id"]))
         if hasattr(Asset, "uniquify"):
-            current_assets = set(self.settlement[asset_class])
+            current_assets = set([a for a in self.settlement[asset_class] if type(a) in [str, unicode]])
             current_assets.add(game_asset_key)
             current_assets = list(current_assets)
         else:
@@ -1559,6 +1680,19 @@ class Settlement:
             current_assets = sorted(current_assets)
 
         self.settlement[asset_class] = current_assets
+        if game_asset_key in self.settlement[asset_class]:
+            self.logger.debug("Added '%s' successfully!" % game_asset_key)
+        mdb.settlements.save(self.settlement)
+
+
+    def rm_game_asset(self, asset_class, game_asset_key=None):
+        """ Generic function for removing game assets from a settlement.
+        """
+
+        exec "Asset = %s" % asset_class.capitalize()
+
+        self.settlement[asset_class].remove(game_asset_key)
+        self.logger.debug("Removed asset '%s' from settlement %s successfully!" % (game_asset_key, self.settlement["_id"]))
         mdb.settlements.save(self.settlement)
 
 
@@ -1578,7 +1712,7 @@ class Settlement:
             if p in ["asset_id", "modify"]:
                 pass
             elif p == "add_defeated_monster":
-                self.settlement["defeated_monsters"].append(params[p].value)
+                self.add_kill(game_asset_key)
             elif p == "add_quarry":
                 self.settlement["quarries"].append(params[p].value)
             elif p == "add_nemesis":
@@ -1592,7 +1726,7 @@ class Settlement:
             elif p == "add_innovation":
                 self.add_game_asset("innovations", game_asset_key)
             elif p == "remove_innovation":
-                self.settlement["innovations"].remove(game_asset_key)
+                self.rm_game_asset("innovations", game_asset_key)
             elif p == "add_location":
                 self.add_game_asset("locations", game_asset_key)
             elif p == "remove_location":
@@ -1631,10 +1765,14 @@ class Settlement:
                 self.settlement[p] = params[p].value.strip()
 
 
-        #   Turn lists into sets to prevent dupes; turn sets into lists to prevent
         #   mongo from FTFO if it sees a set(). File this under user-proofing
         for attrib in ["quarries", "innovations", "principles", "locations"]:
-            self.settlement[attrib] = list(set(self.settlement[attrib]))
+            attrib_set = set(self.settlement[attrib])
+            for i in attrib_set:
+                if type(i) not in [str, unicode]:
+                    attrib_set.remove(i)
+                    self.logger.debug("Removing forbidden object '%s' (%s) from '%s' list for settlement %s." % (i, type(i), attrib, self.settlement["_id"]))
+            self.settlement[attrib] = sorted(list(attrib_set))
 
         mdb.settlements.save(self.settlement)
 
@@ -1809,8 +1947,10 @@ class Settlement:
             locations_rm = self.get_game_asset("locations", return_type="html_remove"),
 
             defeated_monsters = self.get_defeated_monsters("comma-delimited"),
+            defeated_monsters_add = self.get_defeated_monsters_deck(return_type="html_add"),
 
         )
+        self.update_mins()
 
         return output
 

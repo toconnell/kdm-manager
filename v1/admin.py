@@ -9,6 +9,7 @@ import os
 from validate_email import validate_email
 
 import assets
+import html
 from utils import mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes
 
 
@@ -30,7 +31,7 @@ def prune_sessions():
     for s in old_sessions:
         s_id = s["_id"]
         logger.debug("Pruning old session '%s' (%s)" % (s_id, s["login"]))
-        remove_session(s_id)
+        remove_session(s_id, "admin")
         pruned_sessions += 1
 
     if pruned_sessions > 0:
@@ -69,10 +70,16 @@ def create_new_user(login, password, password_again):
             "login": login,
             "password": md5(password).hexdigest(),
         }
-        mdb.users.insert(user_dict)
+        try:
+            mdb.users.insert(user_dict)
+        except Exception as e:
+            logger.error("An error occurred while registering a new user!")
+            logger.exception(e)
+            return False
         mdb.users.create_index("login", unique=True)
         logger.info("New user '%s' created successfully!" % login)
         return True
+
 
 
 def authenticate(login, password):
@@ -92,7 +99,7 @@ def authenticate(login, password):
     if md5(password).hexdigest() == user["password"]:
         user["latest_sign_in"] = datetime.now()
         mdb.users.save(user)
-        logger.debug("User '%s' authenticated successfully." % login)
+        logger.debug("User '%s' authenticated successfully (%s)." % (login, get_user_agent()))
         prune_sessions()
         return True
     else:
@@ -100,10 +107,14 @@ def authenticate(login, password):
         return False
 
 
-def remove_session(session_id):
+def remove_session(session_id, login):
+    """ If you have a session_id (as a string or an ObjectId) and a login, you
+    can remove a session from anywhere. """
+
     s = ObjectId(session_id)
     mdb.sessions.remove({"_id": s})
-    logger.debug("Removed session '%s' successfully." % session_id)
+    logger.debug("User '%s' removed session '%s' successfully." % (login, session_id))
+
 
 
 #
@@ -303,11 +314,79 @@ def motd():
             recent_user_agents[ua] += 1
     print("\n Recent user agent round-up (top 5):")
     sorted_ua_dict = sorted(recent_user_agents.items(), key=operator.itemgetter(1), reverse=True)
-    for ua in sorted_ua_dict[:5]:
+    for ua in sorted_ua_dict[:6]:
         ua_string, ua_count = ua
         if ua_string != "UNKNOWN":
             print("   %s --> %s" % (ua_string, ua_count))
     print("")
+
+
+def toggle_admin_status(user_id):
+    """ Makes a user an admin or, if they're already an admin, strips them of
+    the attribute. """
+    u_id = ObjectId(user_id)
+    user = mdb.users.find_one({"_id": u_id})
+    login = user["login"]
+    if "admin" in user.keys():
+        del user["admin"]
+        print("Admin permission removed from '%s'." % login)
+    else:
+        user["admin"] = datetime.now()
+        print("Admin permission added for '%s'." % login)
+    mdb.users.save(user)
+
+
+def update_user_password(user_id, password):
+    u_id = ObjectId(user_id)
+    User = assets.User(user_id=u_id)
+    User.update_password(password)
+
+
+    #
+    #   Admin Panel!
+    #
+
+class Panel:
+    def __init__(self):
+        self.logger = get_logger()
+
+    def get_recent_users(self):
+        """ Gets users from mdb who have done stuff within our time horizon for
+        'recent' sessions and returns them. """
+        hours_ago = settings.getint("application", "session_horizon")
+        recent_cut_off = datetime.now() - timedelta(hours=hours_ago)
+        return mdb.users.find({"latest_activity": {"$gte": recent_cut_off}}).sort("latest_activity", -1)
+
+    def get_last_n_log_lines(self, lines):
+        log_path = os.path.join(settings.get("application", "log_dir"), "index.log")
+        index_log = file(log_path, "r")
+        return index_log.readlines()[-lines:]
+
+    def render_html(self):
+        recent_users = self.get_recent_users()
+
+        output = html.panel.headline.safe_substitute(
+            recent_users_count = recent_users.count(),
+        )
+
+
+        for user in recent_users:
+            User = assets.User(user_id=user["_id"])
+            output += html.panel.user_status_summary.safe_substitute(
+                user_name = User.user["login"],
+                ua = User.user["latest_user_agent"],
+                latest_activity = User.user["latest_activity"].strftime(ymdhms),
+                latest_action = User.user["latest_action"],
+            )
+
+        output += "<hr/><h1>index.log</h1>"
+
+        log_lines = self.get_last_n_log_lines(15)
+        for l in reversed(log_lines):
+            output += html.panel.log_line.safe_substitute(line=l)
+
+        return output
+
 
 
 
@@ -326,13 +405,23 @@ if __name__ == "__main__":
 
     parser.add_option("--play_summary", dest="play_summary", help="Summarize play sessions for users.", action="store_true", default=False)
 
+    parser.add_option("-u", dest="user_id", help="Specify a user to work with.", default=False)
+    parser.add_option("-p", dest="user_pass", help="Update a user's password (requires -u).", default=False)
+
     parser.add_option("--user", dest="pretty_view_user", help="Print a pretty summary of a user", metavar="5665026954922d076285bdec", default=False)
+    parser.add_option("--admin", dest="toggle_admin", help="toggle admin status for a user _id", default=False)
 
     parser.add_option("--initialize", dest="initialize", help="Burn it down.", action="store_true", default=False)
     (options, args) = parser.parse_args()
 
 #    if args == []:
 #        motd()
+
+    if options.user_id and options.user_pass:
+        update_user_password(options.user_id, options.user_pass)
+
+    if options.toggle_admin:
+        toggle_admin_status(options.toggle_admin)
 
     if options.initialize:
         manual_approve = raw_input('Initialize the project and remove all data? Type "YES" to proceed: ')

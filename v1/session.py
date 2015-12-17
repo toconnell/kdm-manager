@@ -36,7 +36,7 @@ class Session:
         # we're not processing params yet, but if we have a log out request, we
         #   do it here, while we're initializing a new session object.
         if "remove_session" in self.params:
-            admin.remove_session(self.params["remove_session"].value)
+            admin.remove_session(self.params["remove_session"].value, self.params["login"].value)
 
         # try to retrieve a session and other session attributes from mdb using
         #   the browser cookie
@@ -73,8 +73,8 @@ class Session:
                     s_id = ObjectId(self.session["current_asset"])
                     self.Settlement = assets.Settlement(settlement_id=s_id)
 
-        if self.Settlement is None:
-            self.logger.debug("Unable to set 'current_settlement' for session '%s'." % self.session["_id"])
+#        if self.Settlement is None:
+#            self.logger.debug("Unable to set 'current_settlement' for session '%s'." % self.session["_id"])
         mdb.sessions.save(self.session)
 
 
@@ -133,6 +133,13 @@ class Session:
         need to be processed. This does ALL OF THEM at once. """
 
         user_action = None  # we're going to log this below
+
+        if "change_password" in self.params:
+            if "password" in self.params and "password_again" in self.params:
+                self.User.update_password(self.params["password"].value, self.params["password_again"].value)
+                user_action = "updated password"
+            else:
+                user_action = "failed to update password"
 
         if "change_view" in self.params:
             target_view = self.params["change_view"].value
@@ -202,7 +209,7 @@ class Session:
     def log_out(self):
         """ For when the session needs to kill itself. """
         self.logger.debug("Ending session for '%s' via admin.remove_session()." % self.User.user["login"])
-        admin.remove_session(self.session["_id"])
+        admin.remove_session(self.session["_id"], "admin")
 
 
     def current_view_html(self):
@@ -242,6 +249,8 @@ class Session:
                 output += html.dashboard.campaign_summary.safe_substitute(campaigns=self.User.get_games(), display=display_campaigns)
                 output += html.dashboard.settlement_summary.safe_substitute(settlements=self.User.get_settlements(return_as="asset_links"), display=display_settlements)
                 output += html.dashboard.survivor_summary.safe_substitute(survivors=self.User.get_survivors("asset_links"))
+                if self.User.is_admin():
+                    output += html.dashboard.panel_button
             elif self.session["current_view"] == "view_game":
                 if self.Settlement.settlement["created_by"] == self.User.user["_id"]:
                     output += self.Settlement.asset_link(fixed=True, use_flash="settlement")
@@ -261,11 +270,16 @@ class Session:
                 survivor = mdb.survivors.find_one({"_id": self.session["current_asset"]})
                 S = assets.Survivor(survivor_id = survivor["_id"])
                 output += S.render_html_form()
+            elif self.session["current_view"] == "panel":
+                if self.User.is_admin():
+                    P = admin.Panel()
+                    output += P.render_html()
+                else:
+                    output += "Nope"
             else:
                 output += "UNKNOWN VIEW!!!"
 
-
-            output += html.meta.log_out_button.safe_substitute(session_id=self.session["_id"])
+            output += html.meta.log_out_button.safe_substitute(session_id=self.session["_id"], login=self.User.user["login"])
             return output
 
         except Exception as e:

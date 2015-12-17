@@ -16,6 +16,30 @@ logger = get_logger()
 
 user_error_msg = Template('<div id="user_error_msg" class="$err_class">$err_msg</div>')
 
+
+class panel:
+    headline = Template("""\n\
+    <meta http-equiv="refresh" content="10">
+    <h1>$recent_users_count Recent Users</h1>
+    \n""")
+    log_line = Template("""\n\
+    <p>$line</p> 
+    \n""")
+    user_status_summary = Template("""\n\
+    <div id="block_group">
+        <table class="panel">
+            <tr class="gradient_green"><th><h3>$user_name</h3></th></tr>
+            <tr class="bold green"><td>Latest Activity</td></tr>
+            <tr class="panel_value"><td><p>$latest_activity</p></td></tr>
+            <tr class="bold green"><td>Latest Action</td></tr>
+            <tr class="panel_value"><td><p>$latest_action</p></td></tr>
+            <tr class="bold green"><td>User Agent</td></tr>
+            <tr class="panel_value"><td><p>$ua</p></td></tr>
+        </table>
+    </div><br/>
+    \n""")
+
+
 class ui:
     game_asset_select_top = Template("""\n\
     <select name="$operation$name" onchange="this.form.submit()">
@@ -30,6 +54,7 @@ class ui:
 
 class dashboard:
     # settlement administrivia; needs to be above the dashboard accordions
+    panel_button = '<hr/><form method="POST"><input type="hidden" name="change_view" value="panel"/><button class="maroon">Admin Panel!</button></form>\n'
     new_settlement_button = '<form method="POST"><input type="hidden" name="change_view" value="new_settlement" /><button class="success">+ New Settlement</button></form>\n'
     new_settlement_form = """\n\
     <h3>Create a New Settlement</h3>
@@ -62,6 +87,13 @@ class dashboard:
     <hr/>
     <p>This application is a work in progress! Use <a href="http://blog.kdm-manager.com"/>blog.kdm-manager.com</a> to report issues/bugs or to ask questions, share ideas for features, make comments, etc.</p><hr/>
     <p>Currently signed in as: <i>$login</i></p>
+    $last_log_msg
+    <form method="POST">
+    <input type="hidden" name="change_password" value="True"/>
+    <input type="password" name="password" class="full_width" placeholder="password">
+    <input type="password" name="password_again" class="full_width" placeholder="password (again)"/>
+    <button class="warn"> Change Password</button>
+    </form>
     </div>
     """ % (settings.get("application", "STATIC_URL"), down_arrow_flash))
     campaign_summary = Template("""\n\
@@ -832,7 +864,8 @@ class settlement:
     <div id="block_group">
      <h2>Defeated Monsters</h2>
      <p>A list of defeated monsters and their level.</p>
-     <p>$defeated_monsters</p>
+     $defeated_monsters
+     $defeated_monsters_add
      <input onchange="this.form.submit()" type="text" class="full_width" name="add_defeated_monster" placeholder="add defeated monster"/>
     </div>
     </form>
@@ -892,21 +925,31 @@ class settlement:
 class login:
     """ The HTML for form-based authentication goes here."""
     form = """\n\
-    <h2 class="seo">KD:M Manager!</h2>
-    <h1 class="seo">A mobile campaign manager for <i>Monster</i>, by <a href="http://kingdomdeath.com/" target="top">Kingdom Death.</a></h1>
-    <form method="POST">
-    <input class="full_width" type="text" name="login" placeholder="email"/ autofocus>
-    <input class="full_width" type="password" name="password" placeholder="password"/>
-    <button class="green"><b>Sign In</b> (or Register)</button>
-    </form>
+    <div id="sign_in_container">
+        <h2 class="seo">KD:M Manager!</h2>
+        <h1 class="seo">A mobile campaign manager for <i>Monster</i>, by <a href="http://kingdomdeath.com/" target="top">Kingdom Death.</a></h1>
+        <div id="sign_in_controls">
+            <form method="POST">
+            <input class="sign_in" type="text" name="login" placeholder="email"/ autofocus>
+            <input class="sign_in" type="password" name="password" placeholder="password"/>
+            <button class="sign_in green">Sign In or Register</button>
+            </form>
+        </div>
+    </div> <!-- sign_in_container -->
     \n"""
     new_user = Template("""\n\
-    <form method="POST">
-    <input class="full_width" type="text" name="login" value="$login"/>
-    <input class="full_width" type="password" name="password" placeholder="password"/>
-    <input class="full_width" type="password" name="password_again" placeholder="password (again)"/>
-    <button>Register New User</button>
-    </form>
+    <div id="sign_in_container">
+        <h2 class="seo">Create a New User!</h2>
+        <h1 class="seo">Use an email address to share campaigns with friends.</h1>
+        <div id="sign_in_controls">
+            <form method="POST">
+            <input class="sign_in" type="text" name="login" value="$login"/>
+            <input class="sign_in" type="password" name="password" placeholder="password"/>
+            <input class="sign_in" type="password" name="password_again" placeholder="password (again)"/>
+            <button class="sign_in green">Register New User</button>
+            </form>
+        </div>
+    </div> <!-- sign_in_container -->
     \n""")
 
 
@@ -920,7 +963,7 @@ class meta:
     false_body = 'Caught exception while rendering the current view!<hr/>The current session will be ended. Please try again.'
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
     saved_dialog = '\n    <div id="saved_dialog" class="success">Saved!</div>'
-    log_out_button = Template('\n\t<hr/><form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><button class="warn">SIGN OUT</button>\n\t</form>')
+    log_out_button = Template('\n\t<hr/><form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><input type="hidden" name="login" value="$login"/><button class="warn">SIGN OUT</button>\n\t</form>')
 
 
 
@@ -976,8 +1019,9 @@ def authenticate_by_form(params):
 
 
 #
-#   render() func is the only thing that goes below here.
+#   render() funcs are the only thing that goes below here.
 #
+
 
 def render(view_html, head=[], http_headers=False, body_class=None):
     """ This is our basic render: feed it HTML to change what gets rendered. """
