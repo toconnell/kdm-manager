@@ -1,0 +1,221 @@
+        /*                                  */ 
+        /*          style.v1.css            */
+        /*                                  */
+
+
+/* body styles and the the big, meta-div 'container' */
+html {min-height: 100%;  }
+body {font-family: Helvetica, sans-serif; height: 100%; }
+#container {width: 100%; height: 100%; overflow: hidden;}
+.hidden_in_mobile_width {display: none;}
+
+/*  sign-in styles */
+body.sign_in {background: linear-gradient(#bbb, #333);}
+h1.seo {color: #fff; font-size: 20pt; text-align: center; margin-top: 0 none; font-weight: normal; }
+h2.seo {color: #fff; font-size: 60pt; border: 0 none;  text-align: center; margin-bottom: -10px; font-weight: normal; }
+div#sign_in_container {background: 0 none; width: 80%; height: 80%; margin: 0 auto; margin-top: 15%;}
+div#sign_in_controls {width:90%; height: 50%; margin: 0 auto; margin-top: 60%; padding: 0 none; text-align: center; }
+input.sign_in {background-color:rgba(99, 99, 99, 0.5); color: #FFF; margin: 0 auto;  width: 90%; border: 0 none; margin-bottom: 40px;  padding: 0 none; padding-left: 5%; border-bottom: 2px solid #555; border-right: 2px solid #555;}
+button.sign_in {width: 95%; margin: 0 auto; padding: 0 none; font-weight: normal; }
+
+#user_error_msg {position: absolute; top: 30%; }
+
+/* font styles - let's try not to do too many of these, ok? */
+font#hit_box_insanity {font-size: 35px;}
+h3.inventory_tag {float: right; z-index: -1; clear: none; position: absolute;  margin-top: -40px; right: 56px; opacity: 0.3; padding: 10px; }
+
+/* text-align: center styles */
+button, h1, h3, div#shield_box, #block_group h2, input#topline_name, input#topline_name_fixed, .subhead_p_block, .big_number_square, .shield, #saved_dialog {text-align: center; }
+
+/* login and front page styles*/
+
+/* dashboard styles */
+h2.clickable, .dashboard_accordion {margin: auto; padding: 5px; border-left: 1px solid; border-bottom: 2px solid; border-right: 2px solid; margin-bottom: 30px; }
+.dashboard_accordion {border-top: 0 none; margin-top: -35px; z-index: 10; width: 96.3%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; }
+h2.clickable { 
+    width: 95%; z-index: 5; 
+    cursor: pointer; border-top: 1px solid #666; 
+    padding-left: 20px; border-radius: 5px;
+    margin-top: 10px; 
+    }
+
+#motd {margin: 10px; position: absolute; bottom: 0;  }
+
+/* color styles */
+.gradient_green {background: linear-gradient(-90deg, #FEFCD7, #51C327); }
+.maroon {background-color: #800000; color: #fff; border-top: 2px solid #DDD700; border-left: 2px solid #DDD700; border-right: 2px solid #777300; border-bottom: 2px solid #777300; }
+.dark_green {background-color: #92CD00; }
+.green {background-color: #C2FD60; }
+.gradient_orange {background: linear-gradient(-90deg, #FFFF66, #FFCC00); }
+.orange {background-color: #FFCC00; }
+.gradient_silver { border-color: #666; background: linear-gradient(-90deg, #fff, #ccc); }
+.gradient_purple { color: #000 ; background: linear-gradient(-90deg, #F1F0FF, #AC68BF); }
+.tan    { border-color: #A97D5D; background-color: #F7DCB4; }
+.purple {color: #000; background-color: #AC88BF; }
+.info  { color: #00529B; background-color: #BDE5F8; }
+.success {color: #4F8A10; background-color: #DFF2BF; border: 3px solid #00A300; border-left: 3px solid #00FF00; border-top: 3px solid #00FF00;}
+.error { color: #D8000C; background-color: #FFBABA; border: 3px solid #A30000; border-left: 3px solid #FF0000; border-top: 3px solid #FF0000; }
+.warn  { color: #9F6000; background-color: #FEEFB3; }
+
+
+/* le bold styles */
+.bold, .success, .error, .warn { font-weight: bold; }
+
+
+.hit_box_detail {padding-right: 20px; }
+.hit_box_detail h2 {margin-top: 0px; border: 0 none; font-weight: normal; height: 250px; }
+
+.big_number_container { width: 230px; padding: 0 none; display: inline-block; float: left; margin-right: 20px; text-align: center; min-height: 460px;  }
+.big_number_square { border: 3px solid #666; width: 190px; height: 200px; margin-left: 5%; display: inline-block; margin-right: 20px; }
+.big_number_caption { font-size: 75px; padding-top: 30px; color: #777;  }
+
+/* clear: none styles*/
+#damage_box, .floating_label, form, label#skip_next_hunt, div#info_box, label#float_right_toggle {clear: none;}
+
+/* float: right styles */
+#damage_box, label#skip_next_hunt, .floating_label, label#float_right_toggle {float: right; }
+
+
+/* text-align: left styles */
+div#info_box h2, button#survivor_campaign_asset {text-align: left; }
+
+/* margin-left: 20px; */
+p, .left_margin {margin-left: 20px; }
+
+/* p styles */
+p {padding: 10px;}
+.subhead_p_block {font-size: 30px; margin-top: -60px; margin-bottom: -30px; }
+
+/* input styles */
+
+input[type=text], textarea, input[type=password], input[type=button], button { outline: none;}
+input[type=text]:focus, textarea:focus, input[type=password]:focus, button:focus {  box-shadow: 0 0 6px rgba(1, 3, 12, 1); }
+
+
+input#topline_name, input#topline_name_fixed {border: 0 none; font-size: 100px; height: auto; width: 90%; }
+input#topline_name_fixed {position: fixed; z-index: 1; opacity: 0.9; margin-top: 0px;  }
+
+
+input, button, div {font-size: 50px; }
+input {height: 100px; }
+input, h2, h3 #user_error_msg {padding-left: 10px; }
+input, button, label {cursor: pointer; }
+
+pre { white-space: pre-wrap; }
+
+hr {clear: both;   }
+hr.invisible {border: 0 none; }
+
+/* generic UI/UX facilitation styles */
+.no_border {border: 0 none; }
+.hidden {display: none; }
+.strikethrough {text-decoration: line-through; }
+
+
+
+
+/* button styles */
+button {padding-top: 20px; padding-bottom: 20px; }
+
+.incrementer, .decrementer {float: left; width: 50px; display: inline-block; padding: 0 none; width: 207px; }
+
+button#add_survivor_to_party { clear: left; background-color: #ddd; font-size: 70px; padding: 60px; width: auto; }
+button#add_survivor_to_party, button#survivor_campaign_asset {display: inline-block; width: auto; margin: 10px;  }
+button#survivor_campaign_asset {width: 75%; margin-right: 0 none; color: #000;}
+
+button#remove_item, button#increment_nemesis {border: 0 none; display: inline-block; width: auto; margin: 10px; z-index: 10; }
+button#remove_item {border-radius: 20px; padding-right: 10px; padding-left: 10px; background-color: #ddd}
+
+.disabled, .strikethrough {color: #999; cursor: not-allowed; }
+.unclickable {background-color: none; }
+
+#floating_dashboard_button, #floating_asset_button, #save_button {position: fixed; height: auto; width: 170px; padding: 30px; border: 2px solid; margin-left: 80%; opacity: 0.9; z-index: 100; }
+
+#save_button {top: 2.5%; }
+#floating_asset_button {top: 14%; }
+#floating_dashboard_button {background-color: #CCC; top: 26%;  }
+
+
+/* input styles */
+
+input[type=radio], input[type=checkbox] {display: none; }
+.radio_principle:checked + .radio_principle_label {  font-weight: bold; color: #C60000; }
+
+/* label styles */
+label {margin: 20px; font-size: 65px; color: #CCC; }
+label, .full_width {clear: both; display: block; }
+label#skip_next_hunt, label#float_right_toggle {text-align:center; border: 1px solid #999; padding: 10px;  }
+
+button, #user_error_msg, .full_width {width: 90%; margin: 5%; }
+
+select {width: auto; margin-left: 20px; font-size: 60px; }
+
+h2 {border: 5px solid; }
+
+/* margin: auto */
+#block_group, .block_group, div#survivor_hit_box, .shield {margin: auto; }
+
+#block_group, .block_group { border: 3px solid #666; }
+#block_group, .block_group, div#survivor_hit_box { width: 90%; clear: both; margin-top: 20px;  }
+#block_group h2, h3 {border: 0 none; }
+
+.shield, div#survivor_hit_box {border: 3px solid #000; }
+
+div#survivor_hit_box {display: block; overflow: auto; }
+div#info_box, div#shield_box, button#remove_item, .big_number_square, button#survivor_campaign_asset, button#add_survivor_to_party {float: left; }
+div#info_box {padding-top: 0px; padding-left: 10px; width: 70%; border-left: 3px solid #000; }
+div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40%;  }
+
+#damage_box, div#shield_box {padding: 20px;}
+.shield {border-radius: 0px 0px 100px 100px; width: 150px; height: 175px; clear: both; display: block; }
+.big_number_square, .shield {font-size: 100px; }
+.right_border {border-right: 2px solid #000; }
+.left_border {background-color: #f60000; border-left: 2px solid #000; }
+.icon {width: 50px; }
+
+
+
+
+
+/* image styles */
+.COD_down_arrow, .dashboard_down_arrow, .dashboard_icon {height: 50px; width: 50px;}
+.dashboard_down_arrow, .COD_down_Arrow {float: right; z-index: 20;}
+.dashboard_down_arrow {margin-right: 20px; margin-top: 20px; }
+.COD_down_arrow {float: right; z-index: 20; margin-right: 80px; margin-top: -50px; }
+
+/* epithet style silliness */
+#Lucernae {color: blue; }
+#Caratosis {color: red; }
+#Dormenatus {color: green; }
+
+
+/* meta specifc styles */
+#saved_dialog {position: fixed; margin-top: 25%; margin-left: 40%; height: auto; width: 20%; padding: 20px; border: 3px solid; outline: none; display: none; }
+
+
+
+
+/*      Media Queries for non-mobile resolutions below here    */
+
+
+/* Desktop Resolution Starts here! */
+
+@media screen and (min-width: 1000px) {
+    input {font-size: 13pt; width: auto; height: auto; }
+    button {font-size: 12pt; padding: 1%; }
+    body {background: 0 none; }
+    .hidden_in_mobile_width {display: block;}
+
+    /* sign-in styles */
+    body.sign_in {background: none; background-color: #aaa; }
+    div#sign_in_container {background: linear-gradient(#aaa, #222); width: 30%; height: 60%; margin: 0 auto; margin-top: 10%; padding: 1%;}
+    h1.seo {color: #fff; font-size: 15pt; text-align: center; margin-top: 0 none; font-weight: normal; }
+    h2.seo {color: #fff; font-size: 18pt; border: 0 none;  text-align: center; margin-bottom: -10px; font-weight: normal; }
+    div#sign_in_controls {width:90%; height: 50%; margin: 0 auto; margin-top: 60%; padding: 0 none; text-align: center; }
+    input.sign_in {background-color:rgba(22, 22, 22, 0.3); color: #FFF; margin: 0 auto;  width: 90%; border: 0 none; margin-bottom: 1%;  padding: 0 none; padding-left: 5%; border-bottom: 2px solid #666; border-right: 2px solid #666;}
+    button.sign_in {width: 95%; margin: 0 auto; padding: 0 none; font-weight: normal; }
+
+    #user_error_msg {width: 25%; font-size: 12pt; right: 32%;}
+
+}
+
