@@ -624,9 +624,8 @@ class Survivor:
                 "epithets": self.survivor["epithets"],
                 "survivor_id": self.survivor["_id"],
                 "created_by": self.survivor["created_by"],
-                "created_on": datetime.now(),
                 "settlement_id": self.Settlement.settlement["_id"],
-                "time_of_death": datetime.now(),
+                "created_on": datetime.now(),
                 "lantern_year": self.Settlement.settlement["lantern_year"],
             }
             if mdb.the_dead.find_one({"survivor_id": self.survivor["_id"]}) is None:

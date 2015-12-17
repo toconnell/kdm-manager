@@ -141,7 +141,11 @@ def ls_documents(collection, sort_on="created_on"):
         else:
             output += d["name"]
             output += " <%s> " % mdb.users.find_one({"_id": d["created_by"]})["login"]
-        output += " (%s)" % d["created_on"]
+        try:
+            output += " (%s)" % d["created_on"]
+        except Exception as e:
+            print d
+            raise
         print output
 
 
@@ -391,6 +395,26 @@ def valkyrie():
     """ Checks all extant survivors and adds them to mdb.the_dead if they've got
     the 'dead' attrib. Tries to get their 'cause_of_death'. """
 
+    dead_survivors = mdb.survivors.find({"dead": {"$exists": True}})
+    legacy_deaths = 0
+    for survivor in dead_survivors:
+        if mdb.the_dead.find_one({"survivor_id": survivor["_id"]}) is None:
+            death_dict = {
+                "name": survivor["name"],
+                "epithets": survivor["epithets"],
+                "survivor_id": survivor["_id"],
+                "created_by": survivor["created_by"],
+                "created_on": datetime(2015,12,14),
+                "settlement_id": survivor["settlement"],
+                "lantern_year": 0,
+            }
+            mdb.the_dead.insert(death_dict)
+            legacy_deaths += 1
+            logger.debug("Added survivor '%s' to mdb.the_dead." % survivor["name"])
+
+    if legacy_deaths > 0:
+        logger.warn("Valkyrie added %s legacy deaths to mdb.the_dead!" % legacy_deaths)
+
     for dead in mdb.the_dead.find({"complete": {"$exists": False}}):
         survivor_dict = mdb.survivors.find_one({"_id": dead["survivor_id"]})
         if survivor_dict is not None:
@@ -400,8 +424,8 @@ def valkyrie():
             if "cause_of_death" in survivor_dict.keys():
                 dead["cause_of_death"] = survivor_dict["cause_of_death"]
                 dead["complete"] = datetime.now()
-            else:
-                logger.debug("Unable to set cause of death for dead survivor '%s'!" % dead["name"])
+#            else:
+#                logger.debug("Unable to set cause of death for dead survivor '%s'!" % dead["name"])
             mdb.the_dead.save(dead)
     logger.debug("Valkyrie run complete: %s/%s complete death records." % (mdb.the_dead.find({"complete": {"$exists": True}}).count(), mdb.the_dead.find().count()))
 
