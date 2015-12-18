@@ -1,5 +1,5 @@
         /*                                  */ 
-        /*          style.v2.css            */
+        /*          style.v3.css            */
         /*                                  */
 
 
@@ -7,13 +7,14 @@
 html {min-height: 100%;  }
 body {font-family: Helvetica, sans-serif; height: 100%; }
 #container {width: 100%; height: 100%; overflow: hidden;}
-.hidden_in_mobile_width {display: none;}
+.desktop_only {display: none;}
+fieldset.radio {border: 0; text-align: left; }
 
 /*  sign-in styles */
 body.sign_in {background: linear-gradient(#bbb, #333);}
 h1.seo {color: #fff; font-size: 20pt; text-align: center; margin-top: 0 none; font-weight: normal; }
 h2.seo {color: #fff; font-size: 60pt; border: 0 none;  text-align: center; margin-bottom: -10px; font-weight: normal;} 
-div#sign_in_container {background: 0 none; width: 80%; height: 80%; margin: 0 auto; margin-top: 15%;}
+div#sign_in_container {background: 0 none; width: 80%; margin: 0 auto; margin-top: 15%;}
 div#sign_in_controls {width:90%; height: 50%; margin: 0 auto; margin-top: 60%; padding: 0 none; text-align: center; }
 input.sign_in {background-color:rgba(99, 99, 99, 0.5); color: #FFF; margin: 0 auto;  width: 90%; border: 0 none; margin-bottom: 40px;  padding: 0 none; padding-left: 5%; border-bottom: 2px solid #555; border-right: 2px solid #555;}
 button.sign_in {width: 95%; margin: 0 auto; padding: 0 none; font-weight: normal; }
@@ -21,7 +22,8 @@ button.sign_in {width: 95%; margin: 0 auto; padding: 0 none; font-weight: normal
 #user_error_msg {position: absolute; top: 30%; }
 
 /*  dashboard styles */
-body.dashboard {background: linear-gradient(#232526, #414345); }
+body.dashboard {background: linear-gradient(130deg, #E6DADA, #274046); }
+.dashboard_alert {position: fixed; width: 90%; left: 5%; bottom: 0; padding: 5px; font-size: 25pt; }
 h2.clickable, .dashboard_accordion {margin: auto; padding: 5px; border-left: 1px solid; border-bottom: 2px solid; border-right: 2px solid; margin-bottom: 30px; }
 .dashboard_accordion {border-top: 0 none; margin-top: -35px; z-index: 10; width: 96.3%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; }
 h2.clickable { 
@@ -35,8 +37,12 @@ h2.clickable {
 .dashboard_down_arrow, .COD_down_Arrow {float: right; z-index: 20;}
 .dashboard_down_arrow {margin-right: 20px; margin-top: 20px; }
 .COD_down_arrow {float: right; z-index: 20; margin-right: 80px; margin-top: -50px; }
+ 
 
-
+/* panel styles */
+div#panel_block {width: 100%; padding: 0px;}
+div#panel_block h3 {font-size: 35pt; padding: 0; }
+div#panel_block p {margin: 0 auto; margin-left: 10px; }
 
 /* font styles - let's try not to do too many of these, ok? */
 font#hit_box_insanity {font-size: 35px;}
@@ -145,10 +151,10 @@ button#remove_item {border-radius: 20px; padding-right: 10px; padding-left: 10px
 .disabled, .strikethrough {color: #999; cursor: not-allowed; }
 .unclickable {background-color: none; }
 
-#floating_dashboard_button, #floating_asset_button, #save_button {position: fixed; height: auto; width: 170px; padding: 30px; border: 2px solid; margin-left: 80%; opacity: 0.9; z-index: 100; }
+#floating_dashboard_button, .floating_asset_button, #save_button {position: fixed; height: auto; width: 170px; padding: 30px; border: 2px solid; margin-left: 80%; opacity: 0.9; z-index: 100; }
 
 #save_button {top: 2.5%; }
-#floating_asset_button {top: 14%; }
+.floating_asset_button {top: 14%; }
 #floating_dashboard_button {background-color: #CCC; top: 26%;  }
 
 
@@ -214,23 +220,31 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
 
 @media screen and (min-width: 1000px) {
     /* CSS 'reset' */
-    input {font-size: 13pt; width: auto; height: auto; }
+    input, input[type=text] {font-size: 13pt; width: auto; height: auto; }
     button {font-size: 12pt; padding: 1%; }
     body {background: 0 none; }
-    .hidden_in_mobile_width {display: block;}
+    .desktop_only {display: inline-block;}
     .mobile_only {display: none;}
+    h1 {font-size: 18pt; }
     h2 {font-size: 15pt; }
-    p {font-size: 11pt; margin: 0 auto; text-align: left;}
-    button {font-size: 11pt; margin: 0 auto; width: auto; padding: 0 none; }
+    h3 {font-size: 13pt; }
+    h4, label {font-size: 12pt; }
+    p {font-size: 11pt; margin: 0 auto; text-align: left; padding: 3px; }
+    button {font-size: 11pt; margin: 0 auto; width: auto; padding: 3px; }
     hr {border: 1px solid #000; margin: 0 auto; opacity: 0.2; height: 0; width: 102%; padding: 0 none; margin-left: -1%; }
-    form {margin: 0 auto;}
+    form {margin: 0 auto; padding: 0;}
+    select {width: 95%; margin: 10px;}
+    label {clear: right; margin: 0 auto; float: left; }
 
     /* general style */
     button.change_view {margin-left: 3%; width: 20%; }
+    #floating_dashboard_button, .floating_asset_button {position: fixed; top: 1%; margin: 0 auto; height: auto; width: auto; padding: 5px; border: 2px solid; opacity: 1; z-index: 101; }
+    #floating_dashboard_button {right: 1%; }
+    .floating_asset_button {left: 1%; }
 
     /* sign-in styles */
     body.sign_in {background: none; background-color: #aaa; }
-    div#sign_in_container {background: linear-gradient(#aaa, #222); width: 30%;  margin: 0 auto; margin-top: 10%; padding: 1%;}
+    div#sign_in_container {background: linear-gradient(#aaa, #222); width: 30%; margin: 0 auto; margin-top: 10%; padding: 1%; height: 600px; }
     h1.seo {color: #fff; font-size: 15pt; text-align: center; margin-top: 0 none; font-weight: normal; }
     h2.seo {color: #fff; font-size: 18pt; border: 0 none;  text-align: center; margin-bottom: -10px; font-weight: normal; }
     div#sign_in_controls {width:90%; height: 50%; margin: 0 auto; margin-top: 60%; padding: 0 none; text-align: center; }
@@ -240,16 +254,16 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
     #user_error_msg {width: 25%; font-size: 12pt; right: 32%;}
 
     /*  dashboard styles */
-    body.dashboard {background: linear-gradient(#232526, #414345); }
+    .dashboard_alert {font-size: 14pt; }
     div.dashboard_preferences {width: 60%; text-align: center; margin-left: 7%; }
     div.dashboard_preferences input, div.dashboard_preferences button {margin: 0 auto; margin-bottom: 3%; }
     div.dashboard_preferences button {width: 100%; }
     div.dashboard_preferences input {width: 96%;}
     div.dashboard_button_list {margin-top: -3%; padding-left: 5%; width: 60%;}
     div.dashboard_button_list button {width: 100%; text-align: left; padding-left: 3%; }
-    div.dashboard_menu {width: 50%; float:left; display: block; margin: 0 auto; clear: left;}
+    div.dashboard_menu {width: 600px; float:left; display: block; margin: 0 auto; clear: left;}
     h2.clickable, .dashboard_accordion {margin: auto; padding: 1%; border-left: 1px solid; border-bottom: 2px solid; border-right: 2px solid; margin-bottom: 1%;}
-    .dashboard_accordion {border-top: 0 none; margin-top: -1.7%; z-index: 10; width: 97.5%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; padding-bottom: 3%;}
+    .dashboard_accordion {border-top: 0 none; margin-top: -1.7%; z-index: 10; width: 584px; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; padding-bottom: 3%;}
     h2.clickable { 
         width: 95%; z-index: 5; 
         cursor: pointer; border-top: 1px solid #666; 
@@ -260,6 +274,26 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
     .dashboard_down_arrow, .dashboard_icon {height: 15px; width: 15px;}
     .dashboard_down_arrow, .COD_down_Arrow {float: right; z-index: 20;}
     .dashboard_down_arrow {margin: 0 none; margin-top: 5px; margin-right: 5px;}
+
+    /* settlement styles */
+    h1.settlement_name { text-align: left; margin-left: 20px; width: auto; display: inline-block;  margin-top: 55px; font-size: 22pt; margin-bottom: 40px; }
+    span.vertical_spacer {width: 100%; height: 1px; margin: 0 auto; display: block; }
+    span.nav_bar {position: fixed; top: 0; left: 0; width: 100%; min-height: 50px;  opacity: 1; border-bottom: 3px solid #666; z-index: 100; }
+    div#campaign_summary_pop { display: inline-block; padding: 0px;  }
+    div#campaign_summary_survivors {width: 380px; border-right: 2px solid #000; padding: 10px; padding-top: 0px; min-height: 800px; margin-top: -20px;  float: left; margin-right: 20px; display: block; }
+    div#campaign_summary_facts_box { display: inline-block; width: 445px; float: left; margin-top: -45px; text-align: center;}
+    div.campaign_summary_small_box {width: 430px; border: 2px solid #000; padding: 5px; padding-top: 0px; float: left; margin-bottom: 10px; }
+    button#add_survivor_to_party {font-size: 15pt; padding: 10px; height: auto; width: auto; }
+    button#survivor_campaign_asset {width: 300px; }
+    button#campaign_summary_new_survivor {margin: 0 auto; width: 300px; margin-bottom: 20px; padding: 10px;  }
+
+    /* asset creation styles */
+    div#create_new_asset_form_container {width: 400px; border: 1px solid #222; margin: 0 auto; padding: 10px; text-align: center;}
+    div#create_new_asset_form_container input[type=text] {border: 0px; display: block; width: 350px; } 
+    div#create_new_asset_form_container input[type=radio] {float: left; display: block; width: auto; }
+    div#create_new_asset_form_container button {width: 60%; margin: 0 auto; } 
+    div.create_new_asset_block {width: 100%; margin: 0 auto; }
+
 
 }
 
