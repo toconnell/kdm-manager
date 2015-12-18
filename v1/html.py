@@ -19,21 +19,23 @@ user_error_msg = Template('<div id="user_error_msg" class="$err_class">$err_msg<
 
 class panel:
     headline = Template("""\n\
-    <meta http-equiv="refresh" content="10">
+    <meta http-equiv="refresh" content="30">
     <h1>$recent_users_count Recent Users</h1>
     \n""")
     log_line = Template("""\n\
     <p>$line</p> 
     \n""")
     user_status_summary = Template("""\n\
-    <div id="block_group">
+    <div id="panel_block">
         <table class="panel">
-            <tr class="gradient_green"><th><h3>$user_name</h3></th></tr>
-            <tr class="bold green"><td>Latest Activity</td></tr>
+            <tr class="gradient_blue"><th><h3>$user_name</h3></th></tr>
+            <tr class="bold info"><td>Latest Sign-in</td></tr>
+            <tr class="panel_value"><td><p>$latest_sign_in</p></td></tr>
+            <tr class="bold info"><td>Latest Activity</td></tr>
             <tr class="panel_value"><td><p>$latest_activity</p></td></tr>
-            <tr class="bold green"><td>Latest Action</td></tr>
+            <tr class="bold info"><td>Latest Action</td></tr>
             <tr class="panel_value"><td><p>$latest_action</p></td></tr>
-            <tr class="bold green"><td>User Agent</td></tr>
+            <tr class="bold info"><td>User Agent</td></tr>
             <tr class="panel_value"><td><p>$ua</p></td></tr>
         </table>
     </div><br/>
@@ -56,14 +58,6 @@ class dashboard:
     # settlement administrivia; needs to be above the dashboard accordions
     panel_button = '<hr class="mobile_only"/><form method="POST"><input type="hidden" name="change_view" value="panel"/><button class="maroon change_view">Admin Panel!</button></form>\n'
     new_settlement_button = '<form method="POST"><input type="hidden" name="change_view" value="new_settlement" /><button class="success">+ New Settlement</button></form>\n'
-    new_settlement_form = """\n\
-    <h3>Create a New Settlement</h3>
-    <form method="POST">
-    <input type="hidden" name="new" value="settlement" />
-    <input type="text" name="settlement_name" placeholder="Settlement Name"/ class="full_width">
-    <button class="success">SAVE</button>
-    </form>
-    \n"""
 
     # flash
     down_arrow_flash = '<img class="dashboard_down_arrow" src="%s/icons/down_arrow.png"/> ' % settings.get("application", "STATIC_URL")
@@ -77,8 +71,8 @@ class dashboard:
         <h2 class="clickable gradient_silver" onclick="showHide('system_div')"> <img class="dashboard_icon" src="%s/icons/system.png"/> System %s</h2>
         <div id="system_div" style="display: none;" class="dashboard_accordion gradient_silver">
         <p>KD:M Manager! Version $version.</p><hr/>
-        <p><b>Please Note:</b> support for non-mobile devices and resolutions is being added gradually, but is not yet available for all views!</p><p>Use <a href="http://blog.kdm-manager.com"/>blog.kdm-manager.com</a> to report issues/bugs or to ask questions, share ideas for features, make comments, etc.</p><hr/>
-        <p>Currently signed in as: <i>$login</i></p>
+        <p><b>Please Note:</b> support for desktop devices and wider, non-mobile resolutions is being added gradually, but is not yet available for all views!</p><p>Use <a href="http://blog.kdm-manager.com"/>blog.kdm-manager.com</a> to report issues/bugs or to ask questions, share ideas for features, make comments, etc.</p><hr/>
+        <p>Currently signed in as: <i>$login</i> (last sign in: $last_sign_in)</p>
         $last_log_msg
         <div class="dashboard_preferences">
             <form method="POST">
@@ -88,6 +82,8 @@ class dashboard:
             <button class="warn"> Change Password</button>
             </form>
         </div>
+        <hr class="desktop_only">
+        <form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><input type="hidden" name="login" value="$login"/><button class="warn change_view desktop_only">SIGN OUT</button>\n\t</form>
         </div>
     </div>
     """ % (settings.get("application", "STATIC_URL"), down_arrow_flash))
@@ -142,11 +138,11 @@ class dashboard:
     """ % (settings.get("application", "STATIC_URL"), down_arrow_flash))
 
     # misc html assets
-    home_button = '<form method="POST" action="#"><input type="hidden" name="change_view" value="dashboard"/><button id="floating_dashboard_button" class="gradient_silver"> %s </button></form>\n' % system_flash
+    home_button = '<form method="POST" action="#"><input type="hidden" name="change_view" value="dashboard"/><button id="floating_dashboard_button" class="gradient_silver"> %s <span class="desktop_only">Return to Dashboard</span></button></form>\n' % system_flash
     view_asset_button = Template("""\n\
     <form method="POST" action="#">
     <input type="hidden" name="view_$asset_type" value="$asset_id" />
-    <button id="$button_id" class="$button_class" $disabled>$asset_name</button>
+    <button id="$button_id" class="$button_class" $disabled>$asset_name <span class="desktop_only">$desktop_text</span></button>
     </form>
     \n""")
 
@@ -155,29 +151,38 @@ class dashboard:
 
 
 class survivor:
+    no_survivors_error = '<!-- No Survivors Found! -->'
     new = Template("""\n\
-    <h3>Create a New Survivor</h3>
-    <form method="POST" action="#">
-    <input type="hidden" name="new" value="survivor" />
-    <input type="hidden" name="created_by" value="$created_by" />
-    <input type="hidden" name="settlement_id" value="$home_settlement">
-    <input type="text" name="name" placeholder="Survivor Name"/ class="full_width">
-    <input type="text" name="email" placeholder="Survivor Email"/ class="full_width" value="$user_email">
-    <div id="block_group">
-    <h2>Survivor Sex</h2>
-    <input type="radio" id="male_button" class="radio_principle" name="sex" value="Male" checked/> 
-      <label class="radio_principle_label" for="male_button"> Male </label>
-    <input type="radio" id="female_button" class="radio_principle" name="sex" value="Female"/> 
-      <label class="radio_principle_label" for="female_button"> Female </label>
+    <span class="desktop_only nav_bar gradient_green"></span>
+    <br class="desktop_only"/>
+    <div id="create_new_asset_form_container">
+        <h3>Create a New Survivor!</h3>
+        <form method="POST" action="#">
+        <input type="hidden" name="new" value="survivor" />
+        <input type="hidden" name="created_by" value="$created_by" />
+        <input type="hidden" name="settlement_id" value="$home_settlement">
+        <input type="text" name="name" placeholder="Survivor Name"/ class="full_width" autofocus>
+        <input type="text" name="email" placeholder="Survivor Email"/ class="full_width" value="$user_email">
+        <div id="block_group">
+        <h2>Survivor Sex</h2>
+            <fieldset class="radio">
+          <input type="radio" id="male_button" class="radio_principle" name="sex" value="Male" checked/> 
+          <label class="radio_principle_label" for="male_button"> Male </label><br/>
+          <input type="radio" id="female_button" class="radio_principle" name="sex" value="Female"/> 
+          <label class="radio_principle_label" for="female_button"> Female </label>
+            </fieldset>
+        </div>
+        <div class="create_new_asset_block">
+            $add_ancestors
+            <button class="success">SAVE</button>
+            </form>
+        </div>
     </div>
-    $add_ancestors
-    <button class="success">SAVE</button>
-    </form>
     \n""")
-    add_ancestor_top = '    <div id="block_group">\n    <h2>Survivor Parents</h2>'
+    add_ancestor_top = '    <div id="block_group">\n    <h2>Survivor Parents</h2>\n'
     add_ancestor_select_top = Template('\t<select name="$parent_role">\n\t<option selected disabled hidden value="">$pretty_role</option>')
     add_ancestor_select_row = Template('\t<option value="$parent_id">$parent_name</option>\n')
-    add_ancestor_select_bot = '\t</select><br/><br/>'
+    add_ancestor_select_bot = '\t</select><br class="mobile_only"/><br class="mobile_only"/>'
     add_ancestor_bot = '    </div>\n'
     campaign_asset = Template("""\n\
       <div class="survivor_campaign_asset_container">
@@ -603,51 +608,81 @@ class survivor:
 
 
 class settlement:
+    new = """\n\
+    <span class="desktop_only nav_bar gradient_green"></span>
+    <br class="desktop_only"/>
+    <div id="create_new_asset_form_container">
+        <h3>Create a New Settlement!</h3>
+        <form method="POST">
+        <input type="hidden" name="new" value="settlement" />
+        <input type="text" name="settlement_name" placeholder="Settlement Name"/ class="full_width" autofocus>
+        <button class="success">SAVE</button>
+        </form>
+    </div>
+    \n"""
     return_hunting_party = Template("""\n\
         <form method="POST">
             <input type="hidden" name="return_hunting_party" value="$settlement_id"/>
-            <button>Return Hunting Party</button>
+            <button id="return_hunting_party" class="bold gradient_orange" >&#8629; Return Hunting Party</button>
         </form>
     \n""")
     storage_remove_button = Template("""\n\
     \t<button id="remove_item" name="remove_item" value="$item_key" style="background-color: #$item_color; color: #000;"> $item_key_and_count </button>
     \n""")
     storage_tag = Template('<h3 class="inventory_tag" style="color: #$color">$name</h3><hr/>')
+
+    #   campaign view campaign summary
+    campaign_summary_survivors_top = '<div id="campaign_summary_survivors">\n<h3 class="mobile_only">Survivors</h3>'
+    campaign_summary_survivors_bot = '</div><hr class="mobile_only"/>'
     summary = Template("""\n\
-        <h1> %s $settlement_name</h1>
-        <p>Population: $population ($death_count deaths)</p><hr/>
-        <p>Survival Limit: $survival_limit</p><hr/>
+        <span class="desktop_only nav_bar gradient_purple"></span>
+        <h1 class="settlement_name"> %s $settlement_name</h1>
+        <div id="campaign_summary_pop">
+            <p>Population: $population ($death_count deaths)</p><hr class="mobile_only"/>
+            <p>Survival Limit: $survival_limit</p><hr class="mobile_only"/>
+        </div>
         <a id="edit_hunting_party"/>
-        <h3>Survivors</h3>
-        $survivors
-        <hr/>
-        <form method="POST">
-        <input type="hidden" name="change_view" value="new_survivor"/>
-        <button class="success">+ Create New Survivor</button>
-        </form>
-        <hr/>
-        <h3>Principles</h3>
-        $principles
-        <h3>Innovations</h3>
-        $innovations
-        <hr/>
-        <h3>Bonuses</h3>
-        <h4>Departing</h4>
-        $departure_bonuses
-        <h4>During Settlement</h4>
-        $settlement_bonuses
-        $survivor_bonuses
-        <hr/>
-        <h3>Locations</h3>
-        <p>$locations</p>
-        <hr/>
-        <h3>Monsters</h3>
-        <h4>Defeated</h4>
-        <p>$defeated_monsters</p>
-        <h4>Quarries</h4>
-        <p>$quarries</p>
-        <h4>Nemeses</h4>
-        <p>$nemesis_monsters</p>
+        <span class="vertical_spacer desktop_only"></span>
+            $survivors
+        <div id="campaign_summary_facts_box">
+            <form method="POST">
+            <input type="hidden" name="change_view" value="new_survivor"/>
+            <button class="success" id="campaign_summary_new_survivor">+ Create New Survivor</button>
+            </form>
+            <hr class="mobile_only"/>
+            <div class="campaign_summary_small_box">
+                <h3>Principles</h3>
+                $principles
+            </div>
+            <div class="campaign_summary_small_box">
+                <h3>Innovations</h3>
+                $innovations
+            </div>
+            <hr class="mobile_only"/>
+            <div class="campaign_summary_small_box">
+                <h3>Bonuses</h3>
+                <h4>Departing</h4>
+                $departure_bonuses
+                <h4>During Settlement</h4>
+                $settlement_bonuses
+                $survivor_bonuses
+            </div>
+            <hr class="mobile_only"/>
+            <div class="campaign_summary_small_box">
+                <h3>Locations</h3>
+                <p>$locations</p>
+            </div>
+            <hr class="mobile_only"/>
+            <div class="campaign_summary_small_box">
+                <h3>Monsters</h3>
+                <h4>Defeated</h4>
+                <p>$defeated_monsters</p>
+                <h4>Quarries</h4>
+                <p>$quarries</p>
+                <h4>Nemeses</h4>
+                <p>$nemesis_monsters</p>
+            </div>
+        </div>
     \n""" % dashboard.campaign_flash)
     form = Template("""\n\
     $game_link
@@ -949,7 +984,7 @@ class login:
     form = """\n\
     <div id="sign_in_container">
         <h2 class="seo">KD:M Manager!</h2>
-        <h1 class="seo">A mobile campaign manager for <i>Monster</i>, by <a href="http://kingdomdeath.com/" target="top">Kingdom Death.</a></h1>
+        <h1 class="seo">A mobile campaign manager for <a href="http://kingdomdeath.com/" target="top">Kingdom Death</a> Monster.</h1>
         <div id="sign_in_controls">
             <form method="POST">
             <input class="sign_in" type="text" name="login" placeholder="email"/ autofocus>
@@ -985,7 +1020,14 @@ class meta:
     false_body = 'Caught exception while rendering the current view!<hr/>The current session will be ended. Please try again.'
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
     saved_dialog = '\n    <div id="saved_dialog" class="success">Saved!</div>'
-    log_out_button = Template('\n\t<hr class="mobile_only"/><form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><input type="hidden" name="login" value="$login"/><button class="warn change_view">SIGN OUT</button>\n\t</form>')
+    log_out_button = Template('\n\t<hr class="mobile_only"/><form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><input type="hidden" name="login" value="$login"/><button class="warn change_view mobile_only">SIGN OUT</button>\n\t</form>')
+    mobile_hr = '<hr class="mobile_only"/>'
+    dashboard_alert = Template("""\n\
+    <br/><br/>
+    <div class="dashboard_alert maroon">
+    $msg
+    </div>
+    \n""")
 
 
 

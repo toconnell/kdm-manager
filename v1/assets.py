@@ -18,8 +18,8 @@ settings = load_settings()
 
 class User:
 
-    def __init__(self, user_id):
-        """ Initialize with a user's _id to create an object with his compelte
+    def __init__(self, user_id, session_object=None):
+        """ Initialize with a user's _id to create an object with his complete
         user object and all settlements. """
 
         self.logger = get_logger()
@@ -28,6 +28,8 @@ class User:
         self.user = mdb.users.find_one({"_id": user_id})
         self.get_settlements()
         self.get_survivors()
+        if session_object is not None:
+            self.Session = session_object
 
     def is_admin(self):
         """ Returns True if the user is an admin, False if they are not. """
@@ -148,7 +150,7 @@ class User:
         for settlement_id in game_list:
             S = assets.Settlement(settlement_id=settlement_id)
             if S.settlement is not None:
-                output += S.asset_link(view="game")
+                output += S.asset_link(context="dashboard_campaign_list")
         return output
 
     def html_motd(self):
@@ -160,7 +162,9 @@ class User:
             formatted_log_msg = "<p>Latest admin log:</p><p><b>%s</b>:</b> %s</p>" % (last_log_msg["created_on"].strftime(ymdhms), last_log_msg["msg"])
 
         output = html.dashboard.motd.safe_substitute(
+            session_id = self.Session.session["_id"],
             login = self.user["login"],
+            last_sign_in = self.user["latest_sign_in"].strftime(ymdhms),
             version = settings.get("application", "version"),
             last_log_msg = formatted_log_msg,
         )
@@ -881,7 +885,7 @@ class Survivor:
             show_COD = COD_div_display_style,
 
             email = self.survivor["email"],
-            campaign_link = self.Settlement.asset_link(view="game", fixed=True),
+            campaign_link = self.Settlement.asset_link(context="asset_management"),
         )
         return output
 
@@ -1297,6 +1301,9 @@ class Settlement:
 
         if return_type == "html_campaign_summary":
 
+            if survivors.count() == 0:
+                return html.survivor.no_survivors_error
+
             groups = {
                 1: {"name": "Hunting Party", "survivors": [], },
                 2: {"name": "Available", "survivors": [], },
@@ -1369,7 +1376,11 @@ class Settlement:
                 else:
                     groups[2]["survivors"].append(survivor_html)
 
-            output = ""
+            #
+            #   Start assembling HTML here
+            #
+            output = html.settlement.campaign_summary_survivors_top
+
             for g in sorted(groups.keys()):
                 group = groups[g]
                 output += "<h4>%s</h4>\n" % group["name"]
@@ -1379,7 +1390,7 @@ class Settlement:
                     output += "<p>Use [::] to add survivors to the hunting party.</p>"
                 elif group["name"] == "Hunting Party" and group["survivors"] != [] and current_user_is_settlement_creator:
                     output += html.settlement.return_hunting_party.safe_substitute(settlement_id=self.settlement["_id"])
-            return output
+            return output + html.settlement.campaign_summary_survivors_bot
 
         return survivors
 
@@ -1799,16 +1810,12 @@ class Settlement:
         if display_death_count < self.get_min(value="death_count"):
             display_death_count = self.get_min(value="death_count")
 
-        survivor_controls = self.get_survivors(return_type="html_campaign_summary", user_id=user_id)
-        if self.get_survivors().count() == 0:
-            survivor_controls = ""
-
         output = html.settlement.summary.safe_substitute(
             settlement_name=self.settlement["name"],
             principles = self.get_principles("comma-delimited"),
             population = display_population,
             death_count = display_death_count,
-            survivors = survivor_controls,
+            survivors = self.get_survivors(return_type="html_campaign_summary", user_id=user_id),
             survival_limit = self.settlement["survival_limit"],
             innovations = self.get_game_asset("innovations", return_type="comma-delimited"),
             locations = self.get_locations(return_type="comma-delimited"),
@@ -1902,7 +1909,7 @@ class Settlement:
         output = html.settlement.form.safe_substitute(
             MEDIA_URL = settings.get("application","STATIC_URL"),
             settlement_id = self.settlement["_id"],
-            game_link = self.asset_link(view="game", fixed=True),
+            game_link = self.asset_link(context="asset_management"),
 
             population = population,
             name = self.settlement["name"],
@@ -1965,53 +1972,55 @@ class Settlement:
         return output
 
 
-    def asset_link(self, view="settlement", button_id=None, button_class="gradient_yellow", link_text=False, fixed=False, use_flash=False):
+    def asset_link(self, context=None):
         """ Returns an asset link (i.e. html form with button) for the
-        settlement. """
+        settlement.
 
-        if use_flash:
-            if use_flash == "settlement":
-                link_text = html.dashboard.settlement_flash
-                button_class = "gradient_yellow"
-            elif use_flash == "campaign":
-                link_text = html.dashboard.campaign_flash
-            else:
-                link_text = None
+        Specify one of the following contexts, or leave the 'context' kwarg set
+        to None if you want a generic link to the settlement back:
 
-        prefix = ""
-        suffix = ""
+            'campaign_summary':         the "Edit Settlement" link that floats
+                                        over the campaign summary view
+            'asset_management':         the "Campaign Summary" link that floats
+                                        over the create new asset forms,
+                                        survior and settlement sheets, etc.
+            'dashboard_campaign_list':  gradient_violet links with a summary of
+                                        campaign facts.
 
-        functional_pop = int(self.settlement["population"])
-        if functional_pop < self.get_min("population"):
-            functional_pop =  self.get_min("population")
+        Anything else will get you the default, gradient_yellow link with the
+        settlement flash and the name.
+        """
 
-        if view == "game":
+        self.update_mins()  # update settlement mins before we create any text
+
+        if context == "campaign_summary":
+            button_class = "gradient_yellow floating_asset_button"
+            link_text = html.dashboard.settlement_flash
+            desktop_text = "Edit Settlement"
+            asset_type = "settlement"
+        elif context == "asset_management":
+            button_class = "gradient_purple floating_asset_button"
+            link_text = html.dashboard.campaign_flash
+            desktop_text = "Campaign Summary"
+            asset_type = "campaign"
+        elif context == "dashboard_campaign_list":
             button_class = "gradient_violet"
-            if not link_text and not fixed:
-                prefix = html.dashboard.campaign_flash
-                link_text = prefix + self.settlement["name"]
-                suffix = " (LY %s, pop. %s)" % (self.settlement["lantern_year"], functional_pop)
-                link_text += suffix
-        elif not fixed:
-            prefix = html.dashboard.settlement_flash
-            link_text = prefix + self.settlement["name"]
+            link_text = html.dashboard.campaign_flash + "%s<br/>LY %s. Survivors: %s Players: %s" % (self.settlement["name"], self.settlement["lantern_year"], self.settlement["population"], len(self.get_players()))
+            desktop_text = ""
+            asset_type = "campaign"
+        else:
+            button_class = "gradient_yellow"
+            link_text = html.dashboard.settlement_flash + self.settlement["name"]
+            desktop_text = ""
+            asset_type = "settlement"
 
-        if fixed:
-            button_id = "floating_asset_button"
-            if not link_text:
-                link_text = html.dashboard.campaign_flash
-
-        if not link_text:
-            link_text = self.settlement["name"]
-
-        output = html.dashboard.view_asset_button.safe_substitute(
-            button_id = button_id,
+        return html.dashboard.view_asset_button.safe_substitute(
             button_class = button_class,
-            asset_type = view,
+            asset_type = asset_type,
             asset_id = self.settlement["_id"],
             asset_name = link_text,
+            desktop_text = desktop_text,
         )
-        return output
 
 
 

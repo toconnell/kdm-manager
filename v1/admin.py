@@ -351,7 +351,8 @@ def update_user_password(user_id, password):
     #
 
 class Panel:
-    def __init__(self):
+    def __init__(self, admin_login):
+        self.admin_login = admin_login
         self.logger = get_logger()
 
     def get_recent_users(self):
@@ -359,7 +360,7 @@ class Panel:
         'recent' sessions and returns them. """
         hours_ago = settings.getint("application", "session_horizon")
         recent_cut_off = datetime.now() - timedelta(hours=hours_ago)
-        return mdb.users.find({"latest_activity": {"$gte": recent_cut_off}}).sort("latest_activity", -1)
+        return mdb.users.find({"latest_activity": {"$gte": recent_cut_off}, "login": {"$ne": self.admin_login}}).sort("latest_activity", -1)
 
     def get_last_n_log_lines(self, lines):
         log_path = os.path.join(settings.get("application", "log_dir"), "index.log")
@@ -379,6 +380,7 @@ class Panel:
             output += html.panel.user_status_summary.safe_substitute(
                 user_name = User.user["login"],
                 ua = User.user["latest_user_agent"],
+                latest_sign_in = User.user["latest_sign_in"].strftime(ymdhms),
                 latest_activity = User.user["latest_activity"].strftime(ymdhms),
                 latest_action = User.user["latest_action"],
             )
@@ -429,6 +431,16 @@ def valkyrie():
             mdb.the_dead.save(dead)
     logger.debug("Valkyrie run complete: %s/%s complete death records." % (mdb.the_dead.find({"complete": {"$exists": True}}).count(), mdb.the_dead.find().count()))
 
+
+
+def dashboard_alert():
+    """ Renders a fixed element on the dashboard if we're alerting the users
+    about something. """
+
+    if settings.get("application", "dashboard_alert") == "None":
+        return ""
+    else:
+        return html.meta.dashboard_alert.safe_substitute(msg=settings.get("application", "dashboard_alert"))
 
 
 

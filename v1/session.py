@@ -47,7 +47,7 @@ class Session:
             self.session = mdb.sessions.find_one({"_id": session_id})
             if self.session is not None:
                 user_object = mdb.users.find_one({"current_session": session_id})
-                self.User = assets.User(user_object["_id"])
+                self.User = assets.User(user_object["_id"], session_object=self)
                 self.set_current_settlement()
 
 
@@ -100,7 +100,7 @@ class Session:
         user["current_session"] = session_id
         mdb.users.save(user)
 
-        self.User = assets.User(user["_id"])
+        self.User = assets.User(user["_id"], session_object=self)
 
         return session_id   # passes this back to the html.create_cookie_js()
 
@@ -121,7 +121,7 @@ class Session:
         if asset_id:
             asset = ObjectId(asset_id)
             self.session["current_asset"] = asset
-            if target_view == "view_game":
+            if target_view == "view_campaign":
                 self.session["current_settlement"] = asset
                 self.set_current_settlement(settlement_id = asset)
         mdb.sessions.save(self.session)
@@ -146,8 +146,8 @@ class Session:
             self.change_current_view(target_view)
             user_action = "changed view to %s" % target_view
 
-        if "view_game" in self.params:
-            self.change_current_view("view_game", asset_id=self.params["view_game"].value)
+        if "view_campaign" in self.params:
+            self.change_current_view("view_campaign", asset_id=self.params["view_campaign"].value)
             user_action = "viewed campaign summary"
         if "view_settlement" in self.params:
             self.change_current_view("view_settlement", asset_id=self.params["view_settlement"].value)
@@ -169,7 +169,7 @@ class Session:
             user_action = "removed settlement %s" % settlement_id
 
         if "remove_survivor" in self.params:
-            self.change_current_view("dashboard")
+            self.change_current_view("view_campaign")
             survivor_id = ObjectId(self.params["remove_survivor"].value)
             mdb.survivors.remove({"_id": survivor_id})
             user_action = "removed survivor %s" % survivor_id
@@ -179,7 +179,7 @@ class Session:
                 settlement_name = self.params["settlement_name"].value
                 s = assets.Settlement(name=settlement_name, created_by=ObjectId(self.User.user["_id"]))
                 self.set_current_settlement(s.settlement["_id"])
-                self.change_current_view("view_game", asset_id=s.settlement["_id"])
+                self.change_current_view("view_campaign", asset_id=s.settlement["_id"])
                 user_action = "created settlement %s" % s.settlement["_id"]
             if self.params["new"].value == "survivor":
                 s = assets.Survivor(params=self.params)
@@ -257,14 +257,14 @@ class Session:
 
                 if self.User.is_admin():
                     output += html.dashboard.panel_button
-            elif self.session["current_view"] == "view_game":
+            elif self.session["current_view"] == "view_campaign":
                 if self.Settlement.settlement["created_by"] == self.User.user["_id"]:
-                    output += self.Settlement.asset_link(fixed=True, use_flash="settlement")
+                    output += self.Settlement.asset_link(context="campaign_summary")
                 output += self.Settlement.render_html_summary(user_id=self.User.user["_id"])
-                # if session user owns the settlement, let him edit it
             elif self.session["current_view"] == "new_settlement":
-                output += html.dashboard.new_settlement_form
+                output += html.settlement.new
             elif self.session["current_view"] == "new_survivor":
+                output += self.Settlement.asset_link(context="asset_management")
                 options = self.User.get_settlements(return_as="html_option")
                 output += html.survivor.new.safe_substitute(home_settlement=self.session["current_settlement"], user_email=self.User.user["login"], created_by=self.User.user["_id"], add_ancestors=self.Settlement.get_ancestors("html_parent_select"))
             elif self.session["current_view"] == "view_settlement":
@@ -278,7 +278,7 @@ class Session:
                 output += S.render_html_form()
             elif self.session["current_view"] == "panel":
                 if self.User.is_admin():
-                    P = admin.Panel()
+                    P = admin.Panel(self.User.user["login"])
                     output += P.render_html()
                 else:
                     output += "Nope"
@@ -286,6 +286,9 @@ class Session:
                 output += "UNKNOWN VIEW!!!"
 
             output += html.meta.log_out_button.safe_substitute(session_id=self.session["_id"], login=self.User.user["login"])
+
+            if self.session["current_view"] == "dashboard":
+                output += admin.dashboard_alert()
 
             return output, body
 

@@ -475,7 +475,7 @@ locations = {
         "consequences": ["Bone Smith", "Skinnery", "Organ Grinder", "Catarium", "Plumery", "Exhausted Lantern Hoard", "Mask Maker"],
     },
     "Bone Smith": {
-        "color": "F5EDE3",
+        "color": "E5DDD3",
         "consequences": ["Weapon Crafter"],
     },
     "Skinnery": {
@@ -521,7 +521,7 @@ locations = {
         "consequences": [],
     },
     "Catarium": {
-        "color": "EFEFEF",
+        "color": "BA8B02",
         "consequences": [],
     },
 }
@@ -654,6 +654,9 @@ items = {
     "Portcullis Key": {
         "location": "Unique Items",
     },
+    "Hours Ring": {
+        "location": "Unique Items",
+    },
     "Love Juice": {
         "location": "Basic Resources",
     },
@@ -705,7 +708,7 @@ items = {
     "Lion Claw": {
         "location": "White Lion Resources",
     },
-    "Eye of Cat": {
+    "Eye Of Cat": {
         "location": "White Lion Resources",
     },
     "Great Cat Bones": {
