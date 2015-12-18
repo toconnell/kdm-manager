@@ -12,7 +12,7 @@ body {font-family: Helvetica, sans-serif; height: 100%; }
 /*  sign-in styles */
 body.sign_in {background: linear-gradient(#bbb, #333);}
 h1.seo {color: #fff; font-size: 20pt; text-align: center; margin-top: 0 none; font-weight: normal; }
-h2.seo {color: #fff; font-size: 60pt; border: 0 none;  text-align: center; margin-bottom: -10px; font-weight: normal; text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; }
+h2.seo {color: #fff; font-size: 60pt; border: 0 none;  text-align: center; margin-bottom: -10px; font-weight: normal;} 
 div#sign_in_container {background: 0 none; width: 80%; height: 80%; margin: 0 auto; margin-top: 15%;}
 div#sign_in_controls {width:90%; height: 50%; margin: 0 auto; margin-top: 60%; padding: 0 none; text-align: center; }
 input.sign_in {background-color:rgba(99, 99, 99, 0.5); color: #FFF; margin: 0 auto;  width: 90%; border: 0 none; margin-bottom: 40px;  padding: 0 none; padding-left: 5%; border-bottom: 2px solid #555; border-right: 2px solid #555;}
@@ -230,7 +230,7 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
 
     /* sign-in styles */
     body.sign_in {background: none; background-color: #aaa; }
-    div#sign_in_container {background: linear-gradient(#aaa, #222); width: 30%; height: 60%; margin: 0 auto; margin-top: 10%; padding: 1%;}
+    div#sign_in_container {background: linear-gradient(#aaa, #222); width: 30%;  margin: 0 auto; margin-top: 10%; padding: 1%;}
     h1.seo {color: #fff; font-size: 15pt; text-align: center; margin-top: 0 none; font-weight: normal; }
     h2.seo {color: #fff; font-size: 18pt; border: 0 none;  text-align: center; margin-bottom: -10px; font-weight: normal; }
     div#sign_in_controls {width:90%; height: 50%; margin: 0 auto; margin-top: 60%; padding: 0 none; text-align: center; }
@@ -249,7 +249,7 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
     div.dashboard_button_list button {width: 100%; text-align: left; padding-left: 3%; }
     div.dashboard_menu {width: 50%; float:left; display: block; margin: 0 auto; clear: left;}
     h2.clickable, .dashboard_accordion {margin: auto; padding: 1%; border-left: 1px solid; border-bottom: 2px solid; border-right: 2px solid; margin-bottom: 1%;}
-    .dashboard_accordion {border-top: 0 none; margin-top: -1.6%; z-index: 10; width: 97.5%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; padding-bottom: 3%;}
+    .dashboard_accordion {border-top: 0 none; margin-top: -1.7%; z-index: 10; width: 97.5%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; padding-bottom: 3%;}
     h2.clickable { 
         width: 95%; z-index: 5; 
         cursor: pointer; border-top: 1px solid #666; 

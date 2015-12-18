@@ -1,5 +1,5 @@
         /*                                  */ 
-        /*          style.v1.css            */
+        /*          style.v2.css            */
         /*                                  */
 
 
@@ -12,13 +12,31 @@ body {font-family: Helvetica, sans-serif; height: 100%; }
 /*  sign-in styles */
 body.sign_in {background: linear-gradient(#bbb, #333);}
 h1.seo {color: #fff; font-size: 20pt; text-align: center; margin-top: 0 none; font-weight: normal; }
-h2.seo {color: #fff; font-size: 60pt; border: 0 none;  text-align: center; margin-bottom: -10px; font-weight: normal; }
+h2.seo {color: #fff; font-size: 60pt; border: 0 none;  text-align: center; margin-bottom: -10px; font-weight: normal;} 
 div#sign_in_container {background: 0 none; width: 80%; height: 80%; margin: 0 auto; margin-top: 15%;}
 div#sign_in_controls {width:90%; height: 50%; margin: 0 auto; margin-top: 60%; padding: 0 none; text-align: center; }
 input.sign_in {background-color:rgba(99, 99, 99, 0.5); color: #FFF; margin: 0 auto;  width: 90%; border: 0 none; margin-bottom: 40px;  padding: 0 none; padding-left: 5%; border-bottom: 2px solid #555; border-right: 2px solid #555;}
 button.sign_in {width: 95%; margin: 0 auto; padding: 0 none; font-weight: normal; }
 
 #user_error_msg {position: absolute; top: 30%; }
+
+/*  dashboard styles */
+body.dashboard {background: linear-gradient(#232526, #414345); }
+h2.clickable, .dashboard_accordion {margin: auto; padding: 5px; border-left: 1px solid; border-bottom: 2px solid; border-right: 2px solid; margin-bottom: 30px; }
+.dashboard_accordion {border-top: 0 none; margin-top: -35px; z-index: 10; width: 96.3%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; }
+h2.clickable { 
+    width: 95%; z-index: 5; 
+    cursor: pointer; border-top: 1px solid #666; 
+    padding-left: 20px; border-radius: 5px;
+    margin-top: 10px; 
+    }
+#motd {margin: 10px; position: absolute; bottom: 0;  }
+.COD_down_arrow, .dashboard_down_arrow, .dashboard_icon {height: 50px; width: 50px;}
+.dashboard_down_arrow, .COD_down_Arrow {float: right; z-index: 20;}
+.dashboard_down_arrow {margin-right: 20px; margin-top: 20px; }
+.COD_down_arrow {float: right; z-index: 20; margin-right: 80px; margin-top: -50px; }
+
+
 
 /* font styles - let's try not to do too many of these, ok? */
 font#hit_box_insanity {font-size: 35px;}
@@ -29,33 +47,31 @@ button, h1, h3, div#shield_box, #block_group h2, input#topline_name, input#topli
 
 /* login and front page styles*/
 
-/* dashboard styles */
-h2.clickable, .dashboard_accordion {margin: auto; padding: 5px; border-left: 1px solid; border-bottom: 2px solid; border-right: 2px solid; margin-bottom: 30px; }
-.dashboard_accordion {border-top: 0 none; margin-top: -35px; z-index: 10; width: 96.3%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; }
-h2.clickable { 
-    width: 95%; z-index: 5; 
-    cursor: pointer; border-top: 1px solid #666; 
-    padding-left: 20px; border-radius: 5px;
-    margin-top: 10px; 
-    }
-
-#motd {margin: 10px; position: absolute; bottom: 0;  }
-
 /* color styles */
-.gradient_green {background: linear-gradient(-90deg, #FEFCD7, #51C327); }
-.maroon {background-color: #800000; color: #fff; border-top: 2px solid #DDD700; border-left: 2px solid #DDD700; border-right: 2px solid #777300; border-bottom: 2px solid #777300; }
-.dark_green {background-color: #92CD00; }
+.maroon {
+    background: linear-gradient(#a73737, #7a2828); color: #fff; 
+    border-top: 2px solid #870000; border-left: 2px solid #870000; 
+    border-right: 2px solid #190A05; border-bottom: 2px solid #190A05; 
+}
+.dark_green {background-color: #82bD00; }
+
 .green {background-color: #C2FD60; }
-.gradient_orange {background: linear-gradient(-90deg, #FFFF66, #FFCC00); }
+.gradient_green {background: linear-gradient(-90deg, #1D976C, #93F9B9); }
 .orange {background-color: #FFCC00; }
-.gradient_silver { border-color: #666; background: linear-gradient(-90deg, #fff, #ccc); }
-.gradient_purple { color: #000 ; background: linear-gradient(-90deg, #F1F0FF, #AC68BF); }
-.tan    { border-color: #A97D5D; background-color: #F7DCB4; }
+.gradient_orange {background: linear-gradient(-90deg, #F09819, #EDDE5D); }
+.gradient_yellow {background: linear-gradient(-90deg, #F0B839, #FDEE7D); }
 .purple {color: #000; background-color: #AC88BF; }
+.gradient_purple { color: #000 ; background: linear-gradient(-90deg, #A743FE, #DA22FF); }
+.gradient_violet { color: #000 ; background: linear-gradient(-90deg, #D773FE, #FA52FF); }
+
+.gradient_silver { border-color: #666; background: linear-gradient(-90deg, #858FAA, #D7DDE8); }
+.gradient_blue { background: linear-gradient(-90deg, #3a7bd5, #00d2ff);  }
+
+.tan    { border-color: #A97D5D; background-color: #F7DCB4; }
 .info  { color: #00529B; background-color: #BDE5F8; }
-.success {color: #4F8A10; background-color: #DFF2BF; border: 3px solid #00A300; border-left: 3px solid #00FF00; border-top: 3px solid #00FF00;}
+.success {color: #333; background: linear-gradient(-90deg, #24FE41, #FDFC47);  border: 3px solid #00A300; border-left: 3px solid #00FF00; border-top: 3px solid #00FF00;}
 .error { color: #D8000C; background-color: #FFBABA; border: 3px solid #A30000; border-left: 3px solid #FF0000; border-top: 3px solid #FF0000; }
-.warn  { color: #9F6000; background-color: #FEEFB3; }
+.warn  { color: #D07808; background: linear-gradient(-90deg, #ffF387, #ffFc73);}
 
 
 /* le bold styles */
@@ -178,10 +194,6 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
 
 
 /* image styles */
-.COD_down_arrow, .dashboard_down_arrow, .dashboard_icon {height: 50px; width: 50px;}
-.dashboard_down_arrow, .COD_down_Arrow {float: right; z-index: 20;}
-.dashboard_down_arrow {margin-right: 20px; margin-top: 20px; }
-.COD_down_arrow {float: right; z-index: 20; margin-right: 80px; margin-top: -50px; }
 
 /* epithet style silliness */
 #Lucernae {color: blue; }
@@ -201,14 +213,24 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
 /* Desktop Resolution Starts here! */
 
 @media screen and (min-width: 1000px) {
+    /* CSS 'reset' */
     input {font-size: 13pt; width: auto; height: auto; }
     button {font-size: 12pt; padding: 1%; }
     body {background: 0 none; }
     .hidden_in_mobile_width {display: block;}
+    .mobile_only {display: none;}
+    h2 {font-size: 15pt; }
+    p {font-size: 11pt; margin: 0 auto; text-align: left;}
+    button {font-size: 11pt; margin: 0 auto; width: auto; padding: 0 none; }
+    hr {border: 1px solid #000; margin: 0 auto; opacity: 0.2; height: 0; width: 102%; padding: 0 none; margin-left: -1%; }
+    form {margin: 0 auto;}
+
+    /* general style */
+    button.change_view {margin-left: 3%; width: 20%; }
 
     /* sign-in styles */
     body.sign_in {background: none; background-color: #aaa; }
-    div#sign_in_container {background: linear-gradient(#aaa, #222); width: 30%; height: 60%; margin: 0 auto; margin-top: 10%; padding: 1%;}
+    div#sign_in_container {background: linear-gradient(#aaa, #222); width: 30%;  margin: 0 auto; margin-top: 10%; padding: 1%;}
     h1.seo {color: #fff; font-size: 15pt; text-align: center; margin-top: 0 none; font-weight: normal; }
     h2.seo {color: #fff; font-size: 18pt; border: 0 none;  text-align: center; margin-bottom: -10px; font-weight: normal; }
     div#sign_in_controls {width:90%; height: 50%; margin: 0 auto; margin-top: 60%; padding: 0 none; text-align: center; }
@@ -216,6 +238,28 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
     button.sign_in {width: 95%; margin: 0 auto; padding: 0 none; font-weight: normal; }
 
     #user_error_msg {width: 25%; font-size: 12pt; right: 32%;}
+
+    /*  dashboard styles */
+    body.dashboard {background: linear-gradient(#232526, #414345); }
+    div.dashboard_preferences {width: 60%; text-align: center; margin-left: 7%; }
+    div.dashboard_preferences input, div.dashboard_preferences button {margin: 0 auto; margin-bottom: 3%; }
+    div.dashboard_preferences button {width: 100%; }
+    div.dashboard_preferences input {width: 96%;}
+    div.dashboard_button_list {margin-top: -3%; padding-left: 5%; width: 60%;}
+    div.dashboard_button_list button {width: 100%; text-align: left; padding-left: 3%; }
+    div.dashboard_menu {width: 50%; float:left; display: block; margin: 0 auto; clear: left;}
+    h2.clickable, .dashboard_accordion {margin: auto; padding: 1%; border-left: 1px solid; border-bottom: 2px solid; border-right: 2px solid; margin-bottom: 1%;}
+    .dashboard_accordion {border-top: 0 none; margin-top: -1.7%; z-index: 10; width: 97.5%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; padding-bottom: 3%;}
+    h2.clickable { 
+        width: 95%; z-index: 5; 
+        cursor: pointer; border-top: 1px solid #666; 
+        padding-left: 20px; border-radius: 5px;
+        margin-top: 10px; 
+        }
+    #motd {margin: 10px; position: absolute; bottom: 0;  }
+    .dashboard_down_arrow, .dashboard_icon {height: 15px; width: 15px;}
+    .dashboard_down_arrow, .COD_down_Arrow {float: right; z-index: 20;}
+    .dashboard_down_arrow {margin: 0 none; margin-top: 5px; margin-right: 5px;}
 
 }
 
