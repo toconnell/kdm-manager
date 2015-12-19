@@ -262,7 +262,9 @@ disorders = {
     },
     "Secretive": {
         "survivor_effect": "When you are a returning survivor, you quickly become preoccuiped with your own affairs. You must skip the next hunt to deal with them.",
-        "skip_next_hunt": True,
+        "on_return": {
+            "skip_next_hunt": "checked",
+        },
     },
     "Seizures": {
         "survivor_effect": "During the showdown, whenever you suffer damage to your head location, you are knocked down.",
@@ -323,6 +325,7 @@ disorders = {
 
 
 epithets = {
+    "Corpsegrinder": {},
     "Ate the Fruit": {},
     "Silence Breaker": {},
     "The Silent": {},
@@ -1216,7 +1219,7 @@ innovations = {
         "type": "home",
         "consequences": ["Clan of Death"],
         "departure_buff": "Departing survivors gain +1 survival.",
-        "settlement_buff": "Survivors nominated for intimacy may give themselves a surname if they do not have one. A newbord survivor inherits the surname of one parent, their weapon type and half (rounded down) of their weapon proficiency levels.",
+        "settlement_buff": "Survivors nominated for intimacy may give themselves a surname if they do not have one. A newborn survivor inherits the surname of one parent, their weapon type and half (rounded down) of their weapon proficiency levels.",
     },
     "Song of the Brave": {
         "type": "music",

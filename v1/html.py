@@ -71,7 +71,7 @@ class dashboard:
         <h2 class="clickable gradient_silver" onclick="showHide('system_div')"> <img class="dashboard_icon" src="%s/icons/system.png"/> System %s</h2>
         <div id="system_div" style="display: none;" class="dashboard_accordion gradient_silver">
         <p>KD:M Manager! Version $version.</p><hr/>
-        <p><b>Please Note:</b> support for desktop devices and wider, non-mobile resolutions is being added gradually, but is not yet available for all views!</p><p>Use <a href="http://blog.kdm-manager.com"/>blog.kdm-manager.com</a> to report issues/bugs or to ask questions, share ideas for features, make comments, etc.</p><hr/>
+        <p>This application is a work in progress and is currently running in debug mode! Please use <a href="http://blog.kdm-manager.com"/>blog.kdm-manager.com</a> to report issues/bugs or to ask questions, share ideas for features, make comments, etc.</p><hr/>
         <p>Currently signed in as: <i>$login</i> (last sign in: $last_sign_in)</p>
         $last_log_msg
         <div class="dashboard_preferences">
@@ -210,6 +210,8 @@ class survivor:
       <hr class="invisible"/>
     \n""")
     form = Template("""\n\
+    <span class="desktop_only nav_bar gradient_green"></span>
+    <br class="desktop_only"/>
     $campaign_link
 
     <form method="POST" id="autoForm" action="#">
@@ -218,231 +220,249 @@ class survivor:
         <input type="hidden" name="modify" value="survivor" />
         <input type="hidden" name="asset_id" value="$survivor_id" />
 
-        <input id="topline_name_fixed" class="full_width" type="text" name="name" value="$name" placeholder="Survivor Name"/>
-        <br /><br /><br />
-        $epithets
-        <br />
-        $add_epithets<br />
-        $rm_epithets
-        <input onchange="this.form.submit()" class="full_width" type="text" name="add_epithet" placeholder="add a custom epithet"/>
-        <hr />
+        <div id="asset_management_left_pane">
+            <input id="topline_name_fixed" class="full_width" type="text" name="name" value="$name" placeholder="Survivor Name"/>
+            <br class="mobile_only"/><br class="mobile_only"/><br class="mobile_only"/>
+            $epithets
+            <br class="mobile_only"/>
+            $add_epithets<br class="mobile_only"/>
+            $rm_epithets
+            <input onchange="this.form.submit()" class="full_width" type="text" name="add_epithet" placeholder="add a custom epithet"/>
+            <hr class="mobile_only"/>
 
-        <!-- SEX, SURVIVAL and MISC. SURVIVOR ATTRIBUTES -->
+            <!-- SEX, SURVIVAL and MISC. SURVIVOR ATTRIBUTES -->
 
-        <p>
-         Survivor sex: <b>$sex</b>
-            <!-- dead -->
-         <input type='hidden' value='unchecked' name='toggle_dead'/>
-         <input type="checkbox" id="dead" class="radio_principle" name="toggle_dead" value="checked" onclick="showHide('COD')" $dead_checked /> 
-         <label class="radio_principle_label floating_label" for="dead"> Dead </label>
+            <p>
+             Survivor sex: <b>$sex</b>
+            <div id="survivor_dead_retired_container">
 
-            <!-- retired -->
-         <input type='hidden' value='unchecked' name='toggle_retired'/>
-         <input type="checkbox" id="retired" class="radio_principle" name="toggle_retired" value="checked" $retired_checked> 
-         <label class="radio_principle_label" for="retired" style="float: right; clear: none;"> Retired </label>
-        </p>
+                    <!-- dead -->
+                 <input type='hidden' value='unchecked' name='toggle_dead'/>
+                 <input type="checkbox" id="dead" class="radio_principle" name="toggle_dead" value="checked" onclick="showHide('COD')" $dead_checked /> 
+                 <label class="radio_principle_label floating_label" for="dead"> Dead </label>
 
-        <div id="COD" style="display: $show_COD">
-            <hr/> <img class="COD_down_arrow" src="http://media.kdm-manager.com/icons/down_arrow.png"/>
-            <input onchange="this.form.submit()" class="full_width maroon" type="text" name="cause_of_death" placeholder="Cause of Death" value="$cause_of_death"/>
-        </div>
-
-        <hr/>
-
-        <div class="big_number_container left_margin">
-            <button class="incrementer" onclick="increment('survivalBox');">+</button>
-            <input type="number" id="survivalBox" class="big_number_square" name="survival" value="$survival" max="$survival_limit" min="0"/>
-            <button class="decrementer" onclick="decrement('survivalBox');">-</button>
-        </div>
-        <div class="big_number_caption">Survival <p>(max: $survival_limit)</p></div>
-        <hr />
-        <p>
-         <input type='hidden' value='unchecked' name='toggle_cannot_spend_survival'/>
-         <input onchange="this.form.submit()" type="checkbox" id="cannot_spend_survival" class="radio_principle" name="toggle_cannot_spend_survival" value="checked" $cannot_spend_survival_checked /> 
-         <label class="radio_principle_label" for="cannot_spend_survival"> Cannot spend survival </label>
+                    <!-- retired -->
+                 <input type='hidden' value='unchecked' name='toggle_retired'/>
+                 <input type="checkbox" id="retired" class="radio_principle" name="toggle_retired" value="checked" $retired_checked> 
+                 <label class="radio_principle_label" for="retired" style="float: right; clear: none;"> Retired &nbsp; </label>
+                </p>
 
 
-         $survival_actions
-        </p>
-        <hr />
-        $fighting_arts
-        $departure_buffs
-        $abilities_and_impairments
-        $disorders
+                <div id="COD" style="display: $show_COD" >
+                    <hr class="mobile_only"/> <img class="COD_down_arrow mobile_only" src="http://media.kdm-manager.com/icons/down_arrow.png"/>
+                    <input onchange="this.form.submit()" class="full_width maroon" type="text" name="cause_of_death" placeholder="Cause of Death" value="$cause_of_death"/>
+                </div>
+            </div> <!-- survivor_dead_retired_container -->
 
-        <a id="edit_attribs" />
+            <hr class="mobile_only"/>
 
-        <hr/> <!-- logical break; same form -->
+            <div id="survivor_survival_box_container">
+                <div class="big_number_container left_margin">
+                    <button class="incrementer mobile_only" onclick="increment('survivalBox');">+</button>
+                    <input type="number" id="survivalBox" class="big_number_square" name="survival" value="$survival" max="$survival_limit" min="0"/>
+                    <button class="decrementer mobile_only" onclick="decrement('survivalBox');">-</button>
+                </div>
+                <div class="big_number_caption">Survival <p>(max: $survival_limit)</p></div>
+            </div> <!-- survivor_survival_box_container -->
 
-        <input id="movementBox" class="big_number_square" type="number" name="Movement" value="$movement"/>
-        <div class="big_number_caption">Movement<br />
-            <div>
-            <button class="incrementer" onclick="increment('movementBox');">+</button>
-            <button class="decrementer" onclick="decrement('movementBox');">-</button>
+            <hr class="mobile_only"/>
+
+            <div id="survivor_survival_actions_container">
+                <p>
+                 <input type='hidden' value='unchecked' name='toggle_cannot_spend_survival'/>
+                 <input onchange="this.form.submit()" type="checkbox" id="cannot_spend_survival" class="radio_principle" name="toggle_cannot_spend_survival" value="checked" $cannot_spend_survival_checked /> 
+                 <label class="radio_principle_label" for="cannot_spend_survival"> Cannot spend survival </label>
+                 $survival_actions
+                </p>
             </div>
-        </div>
-        <br /><hr/>
-        <input id="accuracyBox" class="big_number_square" type="number" name="Accuracy" value="$accuracy"/>
-        <div class="big_number_caption">Accuracy<br/>
-            <div>
-            <button class="incrementer" onclick="increment('accuracyBox');">+</button>
-            <button class="decrementer" onclick="decrement('accuracyBox');">-</button>
+
+            <hr class="mobile_only"/>
+            <div class="mobile_only">
+                $fighting_arts
+                $departure_buffs
+                $abilities_and_impairments
+                $disorders
             </div>
-        </div>
-        <br /><hr/>
-        <input id="strengthBox" class="big_number_square" type="number" name="Strength" value="$strength"/>
-        <div class="big_number_caption">Strength<br/>
-            <div>
-            <button class="incrementer" onclick="increment('strengthBox');">+</button>
-            <button class="decrementer" onclick="decrement('strengthBox');">-</button>
-            </div>
-        </div>
-        <br /><hr/>
-        <input id="evasionBox" class="big_number_square" type="number" name="Evasion" value="$evasion"/>
-        <div class="big_number_caption">Evasion<br/>
-            <div>
-            <button class="incrementer" onclick="increment('evasionBox');">+</button>
-            <button class="decrementer" onclick="decrement('evasionBox');">-</button>
-            </div>
-        </div>
-        <br /><hr/>
-        <input id="luckBox" class="big_number_square" type="number" name="Luck" value="$luck"/>
-        <div class="big_number_caption">Luck<br/>
-            <div>
-            <button class="incrementer" onclick="increment('luckBox');">+</button>
-            <button class="decrementer" onclick="decrement('luckBox');">-</button>
-            </div>
-        </div>
-        <br /><hr/>
-        <input id="speedBox" class="big_number_square" type="number" name="Speed" value="$speed"/>
-        <div class="big_number_caption">Speed<br/>
-            <div>
-            <button class="incrementer" onclick="increment('speedBox');">+</button>
-            <button class="decrementer" onclick="decrement('speedBox');">-</button>
-            </div>
-        </div>
-        <br /><hr/>
+
+            <a id="edit_attribs" />
+
+            <hr class="mobile_only"/> <!-- logical break; same form -->
+
+            <div id="survivor_stats">
+                <input id="movementBox" class="big_number_square" type="number" name="Movement" value="$movement"/>
+                <div class="big_number_caption">Movement<br />
+                    <div>
+                    <button class="incrementer" onclick="increment('movementBox');">+</button>
+                    <button class="decrementer" onclick="decrement('movementBox');">-</button>
+                    </div>
+                </div>
+                <br class="mobile_only"/><hr/>
+                <input id="accuracyBox" class="big_number_square" type="number" name="Accuracy" value="$accuracy"/>
+                <div class="big_number_caption">Accuracy<br/>
+                    <div>
+                    <button class="incrementer" onclick="increment('accuracyBox');">+</button>
+                    <button class="decrementer" onclick="decrement('accuracyBox');">-</button>
+                    </div>
+                </div>
+                <br class="mobile_only"/><hr/>
+                <input id="strengthBox" class="big_number_square" type="number" name="Strength" value="$strength"/>
+                <div class="big_number_caption">Strength<br/>
+                    <div>
+                    <button class="incrementer" onclick="increment('strengthBox');">+</button>
+                    <button class="decrementer" onclick="decrement('strengthBox');">-</button>
+                    </div>
+                </div>
+                <br class="mobile_only"/><hr/>
+                <input id="evasionBox" class="big_number_square" type="number" name="Evasion" value="$evasion"/>
+                <div class="big_number_caption">Evasion<br/>
+                    <div>
+                    <button class="incrementer" onclick="increment('evasionBox');">+</button>
+                    <button class="decrementer" onclick="decrement('evasionBox');">-</button>
+                    </div>
+                </div>
+                <br class="mobile_only"/><hr/>
+                <input id="luckBox" class="big_number_square" type="number" name="Luck" value="$luck"/>
+                <div class="big_number_caption">Luck<br/>
+                    <div>
+                    <button class="incrementer" onclick="increment('luckBox');">+</button>
+                    <button class="decrementer" onclick="decrement('luckBox');">-</button>
+                    </div>
+                </div>
+                <br class="mobile_only"/><hr/>
+                <input id="speedBox" class="big_number_square" type="number" name="Speed" value="$speed"/>
+                <div class="big_number_caption">Speed<br/>
+                    <div>
+                    <button class="incrementer" onclick="increment('speedBox');">+</button>
+                    <button class="decrementer" onclick="decrement('speedBox');">-</button>
+                    </div>
+                </div>
+            </div> <!-- survivor_stats -->
+
+            <br class="mobile_only"/>
+            <hr/>
 
 
-        <h3>Bonuses</h3>
-        $settlement_buffs
+            <h3>Bonuses</h3>
+            $settlement_buffs
 
 
-        <a id="edit_hit_boxes" />
+            <a id="edit_hit_boxes" />
 
-        <hr/>   <!-- LOGICAL break -->
+        </div> <!-- asset_management_left_pane -->
 
+        <hr class="mobile_only"/>   <!-- LOGICAL/ORGANIZATIONAL break -->
+
+        <div id="asset_management_middle_pane">
                         <!-- HIT BOXES ; still the same form -->
+            <a> <!-- hacks!!! for inc/dec buttons-->
+            <div id="survivor_hit_box">
+                <div class="big_number_container right_border">
+                    <button class="incrementer" onclick="increment('insanityBox');">+</button>
+                        <input id="insanityBox" type="number" class="shield" name="Insanity" value="$insanity" style="color: $insanity_number_style; "/>
+                        <font id="hit_box_insanity">Insanity</font>
+                    <button class="decrementer" onclick="decrement('insanityBox');">-</button>
+                </div>
 
-
-        <div id="survivor_hit_box">
-            <div class="big_number_container right_border">
-                <button class="incrementer" onclick="increment('insanityBox');">+</button>
-                    <input id="insanityBox" type="number" class="shield" name="Insanity" value="$insanity" style="color: $insanity_number_style; "/>
-                    <font id="hit_box_insanity">Insanity</font>
-                <button class="decrementer" onclick="decrement('insanityBox');">-</button>
-            </div>
-
-            <div class="hit_box_detail">
-             <input type='hidden' value='unchecked' name='toggle_brain_damage_light'/>
-             <input type="checkbox" id="brain_damage_light" class="radio_principle" name="toggle_brain_damage_light" $brain_damage_light_checked /> 
-             <label id="damage_box" class="radio_principle_label" for="brain_damage_light"> L </label>
-                <h2>Brain</h2>
-                If your insanity is 3+, you are <b>Insane</b>.
-            </div>
-        </div> <!-- survivor_hit_box -->
+                <div class="hit_box_detail">
+                 <input type='hidden' value='unchecked' name='toggle_brain_damage_light'/>
+                 <input type="checkbox" id="brain_damage_light" class="radio_principle" name="toggle_brain_damage_light" $brain_damage_light_checked /> 
+                 <label id="damage_box" class="radio_principle_label" for="brain_damage_light"> L </label>
+                    <h2>Brain</h2>
+                    If your insanity is 3+, you are <b>Insane</b>.
+                </div>
+            </div> <!-- survivor_hit_box -->
 
                 <!-- HEAD -->
-        <div id="survivor_hit_box">
-            <div class="big_number_container right_border">
-                <button class="incrementer" onclick="increment('headBox');">+</button>
-                    <input id="headBox" type="number" class="shield" name="Head" value="$head"/>
-                <button class="decrementer" onclick="decrement('headBox');">-</button>
-            </div>
-            <div class="hit_box_detail">
-             <input type='hidden' value='unchecked' name='toggle_head_damage_heavy'/>
-             <input type="checkbox" id="head_damage_heavy" class="radio_principle" name="toggle_head_damage_heavy" $head_damage_heavy_checked /> 
-             <label id="damage_box" class="radio_principle_label" for="head_damage_heavy"> H </label>
-                <h2>Head</h2>
-                <font color="#C60000">H</font>eavy Injury: Knocked Down
-            </div>
-        </div> <!-- survivor_hit_box -->
+            <div id="survivor_hit_box">
+                <div class="big_number_container right_border">
+                    <button class="incrementer" onclick="increment('headBox');">+</button>
+                        <input id="headBox" type="number" class="shield" name="Head" value="$head"/>
+                    <button class="decrementer" onclick="decrement('headBox');">-</button>
+                </div>
+                <div class="hit_box_detail">
+                 <input type='hidden' value='unchecked' name='toggle_head_damage_heavy'/>
+                 <input type="checkbox" id="head_damage_heavy" class="radio_principle" name="toggle_head_damage_heavy" $head_damage_heavy_checked /> 
+                 <label id="damage_box" class="radio_principle_label" for="head_damage_heavy"> H </label>
+                    <h2>Head</h2>
+                    <font color="#C60000">H</font>eavy Injury: Knocked Down
+                </div>
+            </div> <!-- survivor_hit_box -->
 
                 <!-- ARMS -->
-        <div id="survivor_hit_box">
-            <div class="big_number_container right_border">
-                <button class="incrementer" onclick="increment('armsBox');">+</button>
-                    <input id="armsBox" type="number" class="shield" name="Arms" value="$arms"/>
-                <button class="decrementer" onclick="decrement('armsBox');">-</button>
-            </div>
-            <div class="hit_box_detail">
-             <input type='hidden' value='unchecked' name='toggle_arms_damage_heavy'/>
-             <input type="checkbox" id="arms_damage_heavy" class="radio_principle" name="toggle_arms_damage_heavy" $arms_damage_heavy_checked /> 
-             <label id="damage_box" class="radio_principle_label" for="arms_damage_heavy"> H </label>
-             <input type='hidden' value='unchecked' name='toggle_arms_damage_light'/>
-             <input type="checkbox" id="arms_damage_light" class="radio_principle" name="toggle_arms_damage_light" $arms_damage_light_checked /> 
-             <label id="damage_box" class="radio_principle_label" for="arms_damage_light"> L </label>
-                <h2>Arms</h2>
-                <font color="#C60000">H</font>eavy Injury: Knocked Down
-            </div>
-        </div> <!-- survivor_hit_box -->
+            <div id="survivor_hit_box">
+                <div class="big_number_container right_border">
+                    <button class="incrementer" onclick="increment('armsBox');">+</button>
+                        <input id="armsBox" type="number" class="shield" name="Arms" value="$arms"/>
+                    <button class="decrementer" onclick="decrement('armsBox');">-</button>
+                </div>
+                <div class="hit_box_detail">
+                 <input type='hidden' value='unchecked' name='toggle_arms_damage_heavy'/>
+                 <input type="checkbox" id="arms_damage_heavy" class="radio_principle" name="toggle_arms_damage_heavy" $arms_damage_heavy_checked /> 
+                 <label id="damage_box" class="radio_principle_label" for="arms_damage_heavy"> H </label>
+                 <input type='hidden' value='unchecked' name='toggle_arms_damage_light'/>
+                 <input type="checkbox" id="arms_damage_light" class="radio_principle" name="toggle_arms_damage_light" $arms_damage_light_checked /> 
+                 <label id="damage_box" class="radio_principle_label" for="arms_damage_light"> L </label>
+                    <h2>Arms</h2>
+                    <font color="#C60000">H</font>eavy Injury: Knocked Down
+                </div>
+            </div> <!-- survivor_hit_box -->
 
                 <!-- BODY -->
-        <div id="survivor_hit_box">
-            <div class="big_number_container right_border">
-                <button class="incrementer" onclick="increment('bodyBox');">+</button>
-                    <input id="bodyBox" type="number" class="shield" name="Body" value="$body"/>
-                <button class="decrementer" onclick="decrement('bodyBox');">-</button>
-            </div>
-            <div class="hit_box_detail">
-             <input type='hidden' value='unchecked' name='toggle_body_damage_heavy'/>
-             <input type="checkbox" id="body_damage_heavy" class="radio_principle" name="toggle_body_damage_heavy" $body_damage_heavy_checked /> 
-             <label id="damage_box" class="radio_principle_label" for="body_damage_heavy"> H </label>
-             <input type='hidden' value='unchecked' name='toggle_body_damage_light'/>
-             <input type="checkbox" id="body_damage_light" class="radio_principle" name="toggle_body_damage_light" $body_damage_light_checked /> 
-             <label id="damage_box" class="radio_principle_label" for="body_damage_light"> L </label>
-                <h2>Body</h2>
-                <font color="#C60000">H</font>eavy Injury: Knocked Down
-            </div>
-        </div> <!-- survivor_hit_box -->
+            <div id="survivor_hit_box">
+                <div class="big_number_container right_border">
+                    <button class="incrementer" onclick="increment('bodyBox');">+</button>
+                        <input id="bodyBox" type="number" class="shield" name="Body" value="$body"/>
+                    <button class="decrementer" onclick="decrement('bodyBox');">-</button>
+                </div>
+                <div class="hit_box_detail">
+                 <input type='hidden' value='unchecked' name='toggle_body_damage_heavy'/>
+                 <input type="checkbox" id="body_damage_heavy" class="radio_principle" name="toggle_body_damage_heavy" $body_damage_heavy_checked /> 
+                 <label id="damage_box" class="radio_principle_label" for="body_damage_heavy"> H </label>
+                 <input type='hidden' value='unchecked' name='toggle_body_damage_light'/>
+                 <input type="checkbox" id="body_damage_light" class="radio_principle" name="toggle_body_damage_light" $body_damage_light_checked /> 
+                 <label id="damage_box" class="radio_principle_label" for="body_damage_light"> L </label>
+                    <h2>Body</h2>
+                    <font color="#C60000">H</font>eavy Injury: Knocked Down
+                </div>
+            </div> <!-- survivor_hit_box -->
 
                 <!-- WAIST -->
-        <div id="survivor_hit_box">
-            <div class="big_number_container right_border">
-                <button class="incrementer" onclick="increment('waistBox');">+</button>
-                    <input id="waistBox" type="number" class="shield" name="Waist" value="$waist"/>
-                <button class="decrementer" onclick="decrement('waistBox');">-</button>
-            </div>
-            <div class="hit_box_detail">
-             <input type='hidden' value='unchecked' name='toggle_waist_damage_heavy'/>
-             <input type="checkbox" id="waist_damage_heavy" class="radio_principle" name="toggle_waist_damage_heavy" $waist_damage_heavy_checked /> 
-             <label id="damage_box" class="radio_principle_label" for="waist_damage_heavy"> H </label>
-             <input type='hidden' value='unchecked' name='toggle_waist_damage_light'/>
-             <input type="checkbox" id="waist_damage_light" class="radio_principle" name="toggle_waist_damage_light" $waist_damage_light_checked /> 
-             <label id="damage_box" class="radio_principle_label" for="waist_damage_light"> L </label>
-                <h2>Waist</h2>
-                <font color="#C60000">H</font>eavy Injury: Knocked Down
-            </div>
-        </div> <!-- survivor_hit_box -->
+            <div id="survivor_hit_box">
+                <div class="big_number_container right_border">
+                    <button class="incrementer" onclick="increment('waistBox');">+</button>
+                        <input id="waistBox" type="number" class="shield" name="Waist" value="$waist"/>
+                    <button class="decrementer" onclick="decrement('waistBox');">-</button>
+                </div>
+                <div class="hit_box_detail">
+                 <input type='hidden' value='unchecked' name='toggle_waist_damage_heavy'/>
+                 <input type="checkbox" id="waist_damage_heavy" class="radio_principle" name="toggle_waist_damage_heavy" $waist_damage_heavy_checked /> 
+                 <label id="damage_box" class="radio_principle_label" for="waist_damage_heavy"> H </label>
+                 <input type='hidden' value='unchecked' name='toggle_waist_damage_light'/>
+                 <input type="checkbox" id="waist_damage_light" class="radio_principle" name="toggle_waist_damage_light" $waist_damage_light_checked /> 
+                 <label id="damage_box" class="radio_principle_label" for="waist_damage_light"> L </label>
+                    <h2>Waist</h2>
+                    <font color="#C60000">H</font>eavy Injury: Knocked Down
+                </div>
+            </div> <!-- survivor_hit_box -->
 
         <!-- LEGS -->
-        <div id="survivor_hit_box">
-            <div class="big_number_container right_border">
-                <button class="incrementer" onclick="increment('legsBox');">+</button>
-                    <input id="legsBox" type="number" class="shield" name="Legs" value="$legs"/>
-                <button class="decrementer" onclick="decrement('legsBox');">-</button>
-            </div>
-            <div class="hit_box_detail">
-             <input type='hidden' value='unchecked' name='toggle_legs_damage_heavy'/>
-             <input type="checkbox" id="legs_damage_heavy" class="radio_principle" name="toggle_legs_damage_heavy" $legs_damage_heavy_checked /> 
-             <label id="damage_box" class="radio_principle_label" for="legs_damage_heavy"> H </label>
-             <input type='hidden' value='unchecked' name='toggle_legs_damage_light'/>
-             <input type="checkbox" id="legs_damage_light" class="radio_principle" name="toggle_legs_damage_light" $legs_damage_light_checked /> 
-             <label id="damage_box" class="radio_principle_label" for="legs_damage_light"> L </label>
-                <h2>Legs</h2>
-                <font color="#C60000">H</font>eavy Injury: Knocked Down
-            </div>
-        </div> <!-- survivor_hit_box -->
+            <div id="survivor_hit_box">
+                <div class="big_number_container right_border">
+                    <button class="incrementer" onclick="increment('legsBox');">+</button>
+                        <input id="legsBox" type="number" class="shield" name="Legs" value="$legs"/>
+                    <button class="decrementer" onclick="decrement('legsBox');">-</button>
+                </div>
+                <div class="hit_box_detail">
+                 <input type='hidden' value='unchecked' name='toggle_legs_damage_heavy'/>
+                 <input type="checkbox" id="legs_damage_heavy" class="radio_principle" name="toggle_legs_damage_heavy" $legs_damage_heavy_checked /> 
+                 <label id="damage_box" class="radio_principle_label" for="legs_damage_heavy"> H </label>
+                 <input type='hidden' value='unchecked' name='toggle_legs_damage_light'/>
+                 <input type="checkbox" id="legs_damage_light" class="radio_principle" name="toggle_legs_damage_light" $legs_damage_light_checked /> 
+                 <label id="damage_box" class="radio_principle_label" for="legs_damage_light"> L </label>
+                    <h2>Legs</h2>
+                    <font color="#C60000">H</font>eavy Injury: Knocked Down
+                </div>
+            </div> <!-- survivor_hit_box -->
 
 
                 <!-- HIT BOXES END HERE -->
@@ -450,160 +470,159 @@ class survivor:
 
                 <!-- HEAL SURVIVOR CONTROLS HERE! -->
 
-         <select name="heal_survivor" onchange="this.form.submit()">
-          <option selected disabled hidden value="">Heal Survivor</option>
-          <option>Heal Injuries Only</option>
-          <option>Heal Injuries and Remove Armor</option>
-          <option>Return from Hunt</option>
-         </select>
+             <select name="heal_survivor" onchange="this.form.submit()">
+              <option selected disabled hidden value="">Heal Survivor</option>
+              <option>Heal Injuries Only</option>
+              <option>Heal Injuries and Remove Armor</option>
+              <option>Return from Hunt</option>
+             </select>
 
 
-        <hr />  <!-- logical break -->
+            <hr/>  <!-- logical break -->
 
 
                         <!-- HUNT XP and AGE -->
+            <div class="big_number_container left_margin">
+                <button class="incrementer" onclick="increment('huntXpBox');">+</button>
+                <input id="huntXpBox" class="big_number_square" type="number" name="hunt_xp" value="$hunt_xp" min="0"/>
+                <button class="decrementer" onclick="decrement('huntXpBox');">-</button>
+            </div>
+            <div class="big_number_caption">Hunt XP</div>
+            <br class="mobile_only"/>
+            <p><img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Age</b> occurs at 2, 6, 10 and 15. The Survivor retires at 16.</p>
 
-        <div class="big_number_container left_margin">
-            <button class="incrementer" onclick="increment('huntXpBox');">+</button>
-            <input id="huntXpBox" class="big_number_square" type="number" name="hunt_xp" value="$hunt_xp" min="0"/>
-            <button class="decrementer" onclick="decrement('huntXpBox');">-</button>
-        </div>
-        <div class="big_number_caption">Hunt XP</div>
-        <br />
-        <p>
-            <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Age</b> occurs at 2, 6, 10 and 15. The Survivor retires at 16.
-        </p>
-
-        <hr/>
+            <hr/>
 
                         <!-- WEAPON PROFICIENCY -->
-        <h3>Weapon Proficiency</h3>
-        <div class="big_number_container left_margin">
-            <button class="incrementer" onclick="increment('proficiencyBox');">+</button>
-            <input id="proficiencyBox" class="big_number_square" type="number" name="Weapon Proficiency" value="$weapon_proficiency" min="0"/>
-            <button class="decrementer" onclick="decrement('proficiencyBox');">-</button>
-        </div>
-        <div class="big_number_caption">
-            <input type="text" class="full_width" placeholder="Type: Select before hunt" value="$weapon_proficiency_type" name="weapon_proficiency_type" style="width: 50%; clear: none; "/>
-        </div>
-        <p>       <b>Specialist</b> at 3<br/><b>Master</b> at 8   </p>
+            <div class="big_number_container left_margin">
+                <button class="incrementer" onclick="increment('proficiencyBox');">+</button>
+                <input id="proficiencyBox" class="big_number_square" type="number" name="Weapon Proficiency" value="$weapon_proficiency" min="0"/>
+                <button class="decrementer" onclick="decrement('proficiencyBox');">-</button>
+            </div>
+            <div class="big_number_caption">Weapon Proficiency
+                <input type="text" class="full_width" placeholder="Type: Select before hunt" value="$weapon_proficiency_type" name="weapon_proficiency_type" style="width: 50%; clear: none; "/>
+            </div>
+            <div class="desktop_indent">
+                <p><b>Specialist</b> at 3<br/><b>Master</b> at 8</p>
+            </div>
 
-        <br/>
-        <hr/>
+            <hr/>
 
                         <!-- COURAGE AND UNDERSTANDING -->
 
-        <div id="block_group">
-        <br />
             <div class="big_number_container left_margin">
                 <button class="incrementer" onclick="increment('courageBox');">+</button>
                 <input id="courageBox" class="big_number_square" type="number" name="Courage" value="$courage" min="0"/>
                 <button class="decrementer" onclick="decrement('courageBox');">-</button>
             </div>
             <div class="big_number_caption">Courage</div>
-            <br />
+            <br class="mobile_only"/>
             <p>
-            <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Bold</b> occurs at 3<br/><img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>See the Truth</b> occurs at 9.
-        </div>
+              <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Bold</b> (p. 107) occurs at 3<br/><img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>See the Truth</b> (p.155) occurs at 9.
+            </p>
 
-        <div id="block_group">
-            <br />
+            <hr/>
+
             <div class="big_number_container left_margin">
                 <button class="incrementer" onclick="increment('understandingBox');">+</button>
                 <input id="understandingBox" class="big_number_square" type="number" name="Understanding" value="$understanding" min="0"/>
                 <button class="decrementer" onclick="decrement('understandingBox');">-</button>
             </div>
             <div class="big_number_caption">Understanding</div>
-            <br />
-            <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Insight</b> occurs at 3<br/><img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>White Secret</b> occurs at 9.<br/><br/>
-            </div>
-    </form>
+            <br class="mobile_only"/>
+            <p>
+               <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Insight</b> (p.123) occurs at 3<br/><img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>White Secret</b> (p.169) occurs at 9.
+            </p>
+
+            </form>
 
 
-    <a id="edit_fighting_arts" />
+            <a id="edit_fighting_arts" class="mobile_only"> </a>
 
 
-    <hr/> <!-- logical division; new form starts here too -->
+            <hr class="mobile_only"/> <!-- logical division; new form starts here too -->
+        </div> <!-- asset_management_middle_pane -->
+
 
 
 
                         <!-- FIGHTING ARTS -->
+        <div id="asset_management_right_pane"> <!-- asset_management_right_pane -->
 
+            <form method="POST" id="autoForm" action="#edit_fighting_arts">
+                <input type="hidden" name="form_id" value="survivor_edit_fighting_arts" />
+                <button class="hidden"></button>
+                <input type="hidden" name="modify" value="survivor" />
+                <input type="hidden" name="asset_id" value="$survivor_id" />
 
-    <form method="POST" id="autoForm" action="#edit_fighting_arts">
-        <input type="hidden" name="form_id" value="survivor_edit_fighting_arts" />
-        <button class="hidden"></button>
-        <input type="hidden" name="modify" value="survivor" />
-        <input type="hidden" name="asset_id" value="$survivor_id" />
+                <h3>Fighting Arts</h3>
+                 <input type='hidden' value='unchecked' name='toggle_cannot_use_fighting_arts'/>
+                 <input onchange="this.form.submit()" type="checkbox" id="cannot_use_fighting_arts" class="radio_principle" name="toggle_cannot_use_fighting_arts" value="checked" $cannot_use_fighting_arts_checked />
+                 <label class="radio_principle_label" for="cannot_use_fighting_arts" id="float_right_toggle"> Cannot use<br/>Fighting Arts </label>
+                <p>Maximum 3.</p>
 
-        <h3>Fighting Arts</h3>
-         <input type='hidden' value='unchecked' name='toggle_cannot_use_fighting_arts'/>
-         <input onchange="this.form.submit()" type="checkbox" id="cannot_use_fighting_arts" class="radio_principle" name="toggle_cannot_use_fighting_arts" value="checked" $cannot_use_fighting_arts_checked />
-         <label class="radio_principle_label" for="cannot_use_fighting_arts" id="float_right_toggle"> Cannot use<br/>Fighting Arts </label>
-        <p>Maximum 3.</p>
+                    $fighting_arts
+                    $add_fighting_arts<br class="mobile_only"/>
+                    $rm_fighting_arts
 
-            $fighting_arts
-            $add_fighting_arts<br/>
-            $rm_fighting_arts
+            <a id="edit_disorders" class="mobile_only"></a>
+            <hr class="mobile_only"/>
 
-    <a id="edit_disorders"/>
-
-        <hr/>
-    </form>
+            </form>
 
                         <!-- DISORDERS - HAS ITS OWN FORM-->
 
-    <form method="POST" id="autoForm" action="#edit_disorders">
-        <input type="hidden" name="form_id" value="survivor_edit_disorders" />
-        <input type="hidden" name="modify" value="survivor" />
-        <input type="hidden" name="asset_id" value="$survivor_id" />
-        <h3>Disorders</h3>
-        <p>Maximum 3.</p>
+            <form method="POST" id="autoForm" action="#edit_disorders">
+                <input type="hidden" name="form_id" value="survivor_edit_disorders" />
+                <input type="hidden" name="modify" value="survivor" />
+                <input type="hidden" name="asset_id" value="$survivor_id" />
+                <h3>Disorders</h3>
+                <p>Maximum 3.</p>
 
-        $disorders
-        $add_disorders<br />
-        $rm_disorders
+                $disorders
+                $add_disorders<br class="mobile_only"/>
+                $rm_disorders
 
-        <a id="edit_abilities"/>
+                <a id="edit_abilities" class="mobile_only"></a>
 
-    </form>
+            </form>
 
 
-    <hr/>
+            <hr class="mobile_only"/>
 
                         <!-- ABILITIES AND IMPAIRMENTS -->
 
-    <form method="POST" id="autoForm" action="#edit_abilities">
-        <input type="hidden" name="form_id" value="survivor_edit_abilities" />
-        <input type="hidden" name="modify" value="survivor" />
-        <input type="hidden" name="asset_id" value="$survivor_id" />
+            <form method="POST" id="autoForm" action="#edit_abilities">
+                <input type="hidden" name="form_id" value="survivor_edit_abilities" />
+                <input type="hidden" name="modify" value="survivor" />
+                <input type="hidden" name="asset_id" value="$survivor_id" />
 
-        <h3>Abilities & Impairments</h3>
-        <p>
-         <input type='hidden' value='unchecked' name='toggle_skip_next_hunt'/>
-         <input onchange="this.form.submit()" type="checkbox" id="skip_next_hunt" class="radio_principle" name="toggle_skip_next_hunt" value="checked" $skip_next_hunt_checked />
-         <label class="radio_principle_label" for="skip_next_hunt" id="float_right_toggle"> Skip Next<br/>Hunt </label>
-            $abilities_and_impairments<br/>
-            $add_abilities_and_impairments
-        <input onchange="this.form.submit()" class="full_width" type="text" name="add_ability" placeholder="add ability or impairment"/>
-            $remove_abilities_and_impairments
+                <h3>Abilities & Impairments</h3>
+                <p>
+                 <input type='hidden' value='unchecked' name='toggle_skip_next_hunt'/>
+                 <input onchange="this.form.submit()" type="checkbox" id="skip_next_hunt" class="radio_principle" name="toggle_skip_next_hunt" value="checked" $skip_next_hunt_checked />
+                 <label class="radio_principle_label" for="skip_next_hunt" id="float_right_toggle"> Skip Next<br/>Hunt </label>
+                    $abilities_and_impairments<br class="mobile_only"/>
+                    $add_abilities_and_impairments
+                <input onchange="this.form.submit()" class="full_width" type="text" name="add_ability" placeholder="add ability or impairment"/>
+                    $remove_abilities_and_impairments
 
-        </p>
-        <hr/>
+                </p>
+                <hr />
 
-        <input onchange="this.form.submit()" class="full_width" type="text" name="email" placeholder="email" value="$email"/>
-        <hr />
+                <input onchange="this.form.submit()" class="full_width" type="text" name="email" placeholder="email" value="$email"/>
+                <hr />
 
-    </form>
-
-
-    <br/><hr/>
+            </form>
 
 
-    <form method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this survivor forever, which is NOT THE SAME THING as marking it dead: permanently deleting the survivor prevents anyone from viewing and/or editing it ever again!');"><input type="hidden" name="remove_survivor" value="$survivor_id"/><button class="error">Permanently Delete Survivor</button></form>
-    <hr/>
-    <br />
+            <br class="mobile_only"/><hr class="mobile_only"/>
 
+
+            <form method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this survivor forever, which is NOT THE SAME THING as marking it dead: permanently deleting the survivor prevents anyone from viewing and/or editing it ever again!');"><input type="hidden" name="remove_survivor" value="$survivor_id"/><button class="error">Permanently Delete Survivor</button></form>
+            <hr class="mobile_only"/>
+            <br class="mobile_only"/>
+        </div> <!-- asset_management_right_pane -->
     \n""")
 
 
@@ -641,7 +660,7 @@ class settlement:
             <p>Population: $population ($death_count deaths)</p><hr class="mobile_only"/>
             <p>Survival Limit: $survival_limit</p><hr class="mobile_only"/>
         </div>
-        <a id="edit_hunting_party"/>
+        <a id="edit_hunting_party" class="mobile_only"></a>
         <span class="vertical_spacer desktop_only"></span>
             $survivors
         <div id="campaign_summary_facts_box">
@@ -687,294 +706,322 @@ class settlement:
     form = Template("""\n\
     $game_link
 
-    <form method="POST" id="autoForm" action="#">
-        <button id="save_button" class="success">Save</button>
-        <input type="hidden" name="modify" value="settlement" />
-        <input type="hidden" name="asset_id" value="$settlement_id" />
+    <span class="desktop_only nav_bar gradient_orange"></span>
+    <br class="desktop_only"/>
 
-        <input id="topline_name" onchange="this.form.submit()" class="full_width" type="text" name="name" value="$name" placeholder="Settlement Name"/>
-        <hr />
-        <div class="big_number_container left_margin">
-            <button class="incrementer" onclick="increment('survivalLimitBox');">+</button>
-            <input id="survivalLimitBox" class="big_number_square" type="number" name="survival_limit" value="$survival_limit" min="$min_survival_limit"/>
-            <button class="decrementer" onclick="decrement('survivalLimitBox');">-</button>
-        </div>
-        <div class="big_number_caption">Survival Limit<br />(min: $min_survival_limit)</div>
-        <br /><hr />
+    <div id="asset_management_left_pane">
+        <form method="POST" id="autoForm" action="#">
+            <button id="save_button" class="success">Save</button>
+            <input type="hidden" name="modify" value="settlement" />
+            <input type="hidden" name="asset_id" value="$settlement_id" />
 
-            <h3>On Departure</h3>
+            <input id="topline_name" onchange="this.form.submit()" class="full_width" type="text" name="name" value="$name" placeholder="Settlement Name"/>
+            <hr class="mobile_only"/>
+            <div class="settlement_form_wide_box">
+                <div class="big_number_container left_margin">
+                    <button class="incrementer" onclick="increment('survivalLimitBox');">+</button>
+                    <input id="survivalLimitBox" class="big_number_square" type="number" name="survival_limit" value="$survival_limit" min="$min_survival_limit"/>
+                    <button class="decrementer" onclick="decrement('survivalLimitBox');">-</button>
+                </div>
+                <div class="big_number_caption ">Survival Limit<br />(min: $min_survival_limit)</div>
+            </div>
+            <br class="mobile_only"/>
+            <hr class="mobile_only"/>
+
+            <div class="settlement_form_wide_box">
+                <div class="big_number_container left_margin">
+                    <button class="incrementer" onclick="increment('populationBox');">+</button>
+                    <input id="populationBox" class="big_number_square" type="number" name="population" value="$population" min="0"/>
+                    <button class="decrementer" onclick="decrement('populationBox');">-</button>
+                </div>
+                <div class="big_number_caption">Population</div>
+            </div> <!-- settlement_form_wide_box -->
+
+            <br class="mobile_only"/><hr class="mobile_only"/>
+
+            <div class="settlement_form_wide_box">
+                <div class="big_number_container left_margin">
+                    <button class="incrementer" onclick="increment('deathCountBox');">+</button>
+                    <input id="deathCountBox" class="big_number_square" type="number" name="death_count" value="$death_count" min="0"/>
+                    <button class="decrementer" onclick="decrement('deathCountBox');">-</button>
+                </div>
+                <div class="big_number_caption">Death Count</div>
+            </div> <!-- settlement_form_wide_box -->
+
+            <hr />
+
+            <h3 class="mobile_only">On Departure</h3>
             $departure_bonuses
 
-        <hr/>
+            <hr class="mobile_only"/>
 
-            <h3>During Settlement Phase</h3>
+            <h3 class="mobile_only">During Settlement Phase</h3>
             $settlement_bonuses
 
-        <hr />
+            <hr/>
 
-        <div class="big_number_container left_margin">
-            <button class="incrementer" onclick="increment('populationBox');">+</button>
-            <input id="populationBox" class="big_number_square" type="number" name="population" value="$population" min="0"/>
-            <button class="decrementer" onclick="decrement('populationBox');">-</button>
-        </div>
-        <div class="big_number_caption">Population</div>
+            <br class="mobile_only"/>
 
-        <br /><hr />
+        </form> <!-- ending the first form -->
 
-        <div class="big_number_container left_margin">
-            <button class="incrementer" onclick="increment('deathCountBox');">+</button>
-            <input id="deathCountBox" class="big_number_square" type="number" name="death_count" value="$death_count" min="0"/>
-            <button class="decrementer" onclick="decrement('deathCountBox');">-</button>
-        </div>
-        <div class="big_number_caption">Death Count</div>
-
-        <br />
-
-    </form> <!-- ending the first form -->
-
-    <hr /> <!-- Logical section Break -->
 
 
                     <!-- STORAGE - THIS IS ITS OWN FORM-->
-    <form id="autoForm" method="POST" action="#edit_storage">
-        <input type="hidden" name="modify" value="settlement" />
-        <input type="hidden" name="asset_id" value="$settlement_id" />
-        <button id="remove_item" class="hidden" style="display: none" name="remove_item" value="" /> </button>
-        <div id="block_group">
-        <h2>Storage</h2>
-        <p>Gear and Resources may be stored without limit. Tap an item to remove it once.</p>
-        <hr />
+        <form id="autoForm" method="POST" action="#edit_storage">
+            <input type="hidden" name="modify" value="settlement" />
+            <input type="hidden" name="asset_id" value="$settlement_id" />
+            <button id="remove_item" class="hidden" style="display: none" name="remove_item" value="" /> </button>
+            <div id="block_group">
+            <h2>Storage</h2>
+            <p>Gear and Resources may be stored without limit. Tap an item to remove it once.</p>
+            <hr />
 
-    <a id="edit_storage" />
+        <a id="edit_storage" class="mobile_only"/></a>
 
-        $storage
-        $items_options<br />
-         <input onchange="this.form.submit()" type="text" class="full_width" name="add_item" placeholder="add gear or resource"/>
-        </div>
-    </form>
+            $storage
+            $items_options<br />
+             <input onchange="this.form.submit()" type="text" class="full_width" name="add_item" placeholder="add gear or resource"/>
+            </div>
+        </form>
 
+    </div>
+    <div id="asset_management_middle_pane">
 
                     <!-- LOCATIONS - THIS HAS ITS OWN FORM  -->
 
-    <a id="edit_locations"/>
-    <form id="autoForm" method="POST" action="#edit_locations">
-    <input type="hidden" name="modify" value="settlement" />
-    <input type="hidden" name="asset_id" value="$settlement_id" />
+        <a id="edit_locations" class="mobile_only"><a/>
+        <form id="autoForm" method="POST" action="#edit_locations">
+        <input type="hidden" name="modify" value="settlement" />
+        <input type="hidden" name="asset_id" value="$settlement_id" />
 
-    <div id="block_group">
-     <h2>Settlement Locations</h2>
-     <p>Locations in your settlement.</p>
-     $locations
-     $locations_add
-     $locations_rm
-    </div>
-    </form>
+        <div id="block_group">
+         <h2>Settlement Locations</h2>
+         <p>Locations in your settlement.</p>
+         $locations
+         $locations_add
+         $locations_rm
+        </div>
+        </form>
 
-
-
-    <hr />  <!-- Logical Section Break -->
+        <hr class="mobile_only"/>  <!-- Logical Section Break -->
 
                     <!-- INNOVATIONS - HAS ITS OWN FORM-->
 
-    <a id="edit_innovations"/>
-    <form id="autoForm" method="POST" action="#edit_innovations">
-    <input type="hidden" name="modify" value="settlement" />
-    <input type="hidden" name="asset_id" value="$settlement_id" />
-    <div id="block_group">
-     <h2>Innovations</h2>
-     <p>The settlement's innovations (including weapon masteries).</p>
-     $innovations
-     $innovations_add
-     $innovations_rm
-     $innovation_deck
-    </div>
-    </form>
-
-
+        <a id="edit_innovations" class="mobile_only"/></a>
+        <form id="autoForm" method="POST" action="#edit_innovations">
+        <input type="hidden" name="modify" value="settlement" />
+        <input type="hidden" name="asset_id" value="$settlement_id" />
+        <div id="block_group">
+         <h2>Innovations</h2>
+         <p>The settlement's innovations (including weapon masteries).</p>
+         $innovations
+         $innovations_add
+         $innovations_rm
+         $innovation_deck
+        </div>
+        </form>
 
                     <!-- PRINCIPLES - HAS ITS OWN FORM-->
 
-    <a id="edit_principles"/>
-    <form id="autoForm" method="POST" action="#edit_principles">
-    <input type="hidden" name="modify" value="settlement" />
-    <input type="hidden" name="asset_id" value="$settlement_id" />
-    <div id="block_group">
-     <h2>Principles</h2>
-     <p>The settlement's established principles.</p>
+        <a id="edit_principles" class="mobile_only"></a>
+        <form id="autoForm" method="POST" action="#edit_principles">
+        <input type="hidden" name="modify" value="settlement" />
+        <input type="hidden" name="asset_id" value="$settlement_id" />
+        <div id="block_group">
+         <h2>Principles</h2>
+         <p>The settlement's established principles.</p>
 
-        <div class="$new_life_principle_hidden">
-        <h3>New Life Principle</h3>
-          <input onchange="this.form.submit()" type="radio" id="protect_button" class="radio_principle" name="new_life_principle" value="Protect the Young" $protect_the_young_checked /> 
-            <label class="radio_principle_label" for="protect_button"> Protect the Young </label>
-          <input onchange="this.form.submit()" type="radio" id="survival_button" class="radio_principle" name="new_life_principle" value="Survival of the Fittest" $survival_of_the_fittest_checked /> 
-            <label class="radio_principle_label" for="survival_button"> Survival of the fittest </label>
+            <div class="$new_life_principle_hidden">
+            <h3>New Life Principle</h3>
+             <fieldset class="settlement_principle">
+              <input onchange="this.form.submit()" type="radio" id="protect_button" class="radio_principle" name="new_life_principle" value="Protect the Young" $protect_the_young_checked /> 
+                <label class="radio_principle_label" for="protect_button"> Protect the Young </label>
+              <input onchange="this.form.submit()" type="radio" id="survival_button" class="radio_principle" name="new_life_principle" value="Survival of the Fittest" $survival_of_the_fittest_checked /> 
+                <label class="radio_principle_label" for="survival_button"> Survival of the fittest </label>
+            </fieldset>
+            </div>
+
+            <div class="$death_principle_hidden">
+             <h3>Death Principle</h3>
+             <fieldset class="settlement_principle">
+              <input onchange="this.form.submit()" type="radio" id="cannibalize_button" class="radio_principle" name="death_principle" value="Cannibalize" $cannibalize_checked /> 
+                <label class="radio_principle_label" for="cannibalize_button"> Cannibalize </label>
+              <input onchange="this.form.submit()" type="radio" id="graves_button" class="radio_principle" name="death_principle" value="Graves" $graves_checked /> 
+                <label class="radio_principle_label" for="graves_button"> Graves </label>
+             </fieldset>
+            </div>
+
+            <div class="$society_principle_hidden">
+             <h3>Society Principle</h3>
+             <fieldset class="settlement_principle">
+              <input onchange="this.form.submit()" type="radio" id="collective_toil_button" class="radio_principle" name="society_principle" value="Collective Toil" $collective_toil_checked /> 
+                <label class="radio_principle_label" for="collective_toil_button"> Collective Toil </label>
+              <input onchange="this.form.submit()" type="radio" id="accept_darkness_button" class="radio_principle" name="society_principle" value="Accept Darkness" $accept_darkness_checked /> 
+                <label class="radio_principle_label" for="accept_darkness_button"> Accept Darkness </label>
+             </fieldset>
+            </div>
+
+            <div class="$conviction_principle_hidden">
+             <h3>Conviction Principle</h3>
+             <fieldset class="settlement_principle">
+              <input onchange="this.form.submit()" type="radio" id="barbaric_button" class="radio_principle" name="conviction_principle" value="Barbaric" $barbaric_checked /> 
+                <label class="radio_principle_label" for="barbaric_button"> Barbaric </label>
+              <input onchange="this.form.submit()" type="radio" id="romantic_button" class="radio_principle" name="conviction_principle" value="Romantic" $romantic_checked /> 
+                <label class="radio_principle_label" for="romantic_button"> Romantic </label>
+             </fieldset>
+            </div>
+
+
+        </div> <!-- principle block group -->
+        </form>
+
+        <hr class="mobile_only"/>  <!-- Logical Section Break -->
+
+
+
+                       <!-- MILESTONES - HAS ITS OWN FORM-->
+
+        <a id="edit_milestones"/>
+        <form id="autoForm" method="POST" action="#edit_milestones">
+        <input type="hidden" name="modify" value="settlement" />
+        <input type="hidden" name="asset_id" value="$settlement_id" />
+        <div id="block_group">
+         <h2>Milestone Story Events</h2>
+         <p>Trigger these story events when milestone condition is met.</p>
+    
+            <hr />
+            <input onchange="this.form.submit()" id="first_child" type="checkbox" name="First child is born" class="radio_principle" $first_child_checked></input>
+            <label for="first_child" class="radio_principle_label">First child is born</label>
+            <p> &ensp; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Principle: New Life</b> (p.145) </p>
+            <hr />
+            <input onchange="this.form.submit()" id="first_death" type="checkbox" name="First time death count is updated" class="radio_principle" $first_death_checked></input>
+            <label for="first_death" class="radio_principle_label">First time death count is updated</label>
+            <p> &ensp; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Principle: Death</b> (p.143) </p>
+            <hr />
+            <input onchange="this.form.submit()" id="pop_15" type="checkbox" name="Population reaches 15" class="radio_principle" $pop_15_checked></input>
+            <label for="pop_15" class="radio_principle_label">Population reaches 15</label>
+            <p> &ensp; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Principle: Society</b> (p.147) </p>
+            <hr />
+            <input onchange="this.form.submit()" id="5_innovations" type="checkbox" name="Settlement has 5 innovations" class="radio_principle" $five_innovations_checked></input>
+            <label for="5_innovations" class="radio_principle_label">Settlement has 5 innovations</label>
+            <p> &ensp; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Hooded Knight</b> (p.121) </p>
+            <hr />
+            <input onchange="this.form.submit()" id="game_over" type="checkbox" name="Population reaches 0" class="radio_principle" $game_over_checked></input>
+            <label for="game_over" class="radio_principle_label">Population reaches 0</label>
+            <p> &ensp; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Game Over</b> (p.179) </p>
+
         </div>
-
-        <div class="$death_principle_hidden">
-         <h3>Death Principle</h3>
-          <input onchange="this.form.submit()" type="radio" id="cannibalize_button" class="radio_principle" name="death_principle" value="Cannibalize" $cannibalize_checked /> 
-            <label class="radio_principle_label" for="cannibalize_button"> Cannibalize </label>
-          <input onchange="this.form.submit()" type="radio" id="graves_button" class="radio_principle" name="death_principle" value="Graves" $graves_checked /> 
-            <label class="radio_principle_label" for="graves_button"> Graves </label>
-        </div>
-
-        <div class="$society_principle_hidden">
-         <h3>Society Principle</h3>
-          <input onchange="this.form.submit()" type="radio" id="collective_toil_button" class="radio_principle" name="society_principle" value="Collective Toil" $collective_toil_checked /> 
-            <label class="radio_principle_label" for="collective_toil_button"> Collective Toil </label>
-          <input onchange="this.form.submit()" type="radio" id="accept_darkness_button" class="radio_principle" name="society_principle" value="Accept Darkness" $accept_darkness_checked /> 
-            <label class="radio_principle_label" for="accept_darkness_button"> Accept Darkness </label>
-        </div>
-
-        <div class="$conviction_principle_hidden">
-         <h3>Conviction Principle</h3>
-          <input onchange="this.form.submit()" type="radio" id="barbaric_button" class="radio_principle" name="conviction_principle" value="Barbaric" $barbaric_checked /> 
-            <label class="radio_principle_label" for="barbaric_button"> Barbaric </label>
-          <input onchange="this.form.submit()" type="radio" id="romantic_button" class="radio_principle" name="conviction_principle" value="Romantic" $romantic_checked /> 
-            <label class="radio_principle_label" for="romantic_button"> Romantic </label>
-        </div>
-    </div> <!-- principle block group -->
-    </form>
-
-    <hr />  <!-- Logical Section Break -->
+        </form>
 
 
-
-                    <!-- MILESTONES - HAS ITS OWN FORM-->
-
-    <a id="edit_milestones"/>
-    <form id="autoForm" method="POST" action="#edit_milestones">
-    <input type="hidden" name="modify" value="settlement" />
-    <input type="hidden" name="asset_id" value="$settlement_id" />
-    <div id="block_group">
-     <h2>Milestone Story Events</h2>
-     <p>Trigger these story events when milestone condition is met.</p>
-
-        <hr />
-        <input onchange="this.form.submit()" id="first_child" type="checkbox" name="First child is born" class="radio_principle" $first_child_checked></input>
-        <label for="first_child" class="radio_principle_label">First child is born</label>
-        <p> &ensp; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Principle: New Life</b></p>
-        <hr />
-        <input onchange="this.form.submit()" id="first_death" type="checkbox" name="First time death count is updated" class="radio_principle" $first_death_checked></input>
-        <label for="first_death" class="radio_principle_label">First time death count is updated</label>
-        <p> &ensp; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Principle: Death</b></p>
-        <hr />
-        <input onchange="this.form.submit()" id="pop_15" type="checkbox" name="Population reaches 15" class="radio_principle" $pop_15_checked></input>
-        <label for="pop_15" class="radio_principle_label">Population reaches 15</label>
-        <p> &ensp; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Principle: Society</b></p>
-        <hr />
-        <input onchange="this.form.submit()" id="5_innovations" type="checkbox" name="Settlement has 5 innovations" class="radio_principle" $five_innovations_checked></input>
-        <label for="5_innovations" class="radio_principle_label">Settlement has 5 innovations</label>
-        <p> &ensp; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Hooded Knight</b></p>
-        <hr />
-        <input onchange="this.form.submit()" id="game_over" type="checkbox" name="Population reaches 0" class="radio_principle" $game_over_checked></input>
-        <label for="game_over" class="radio_principle_label">Population reaches 0</label>
-        <p> &ensp; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Game Over</b></p>
-
-    </div>
-    </form>
-
-
-    <hr /> <!-- Logical Section Break Here -->
+        <hr class="mobile_only"/> <!-- Logical Section Break Here -->
 
 
                     <!-- QUARRIES - HAS ITS OWN FORM-->
 
-    <a id="edit_quarries"/>
-    <form id="autoForm" method="POST" action="#edit_quarries">
-    <input type="hidden" name="modify" value="settlement" />
-    <input type="hidden" name="asset_id" value="$settlement_id" />
+        <a id="edit_quarries"/>
+        <form id="autoForm" method="POST" action="#edit_quarries">
+        <input type="hidden" name="modify" value="settlement" />
+        <input type="hidden" name="asset_id" value="$settlement_id" />
 
-    <div id="block_group">
-     <h2>Quarries</h2>
-     <p>The monsters your settlement can select to hunt.</p>
-    <hr />
-     <p>$quarries</p>
-        $quarry_options
-     <input onchange="this.form.submit()" type="text" class="full_width" name="add_quarry" placeholder="add custom quarry"/>
-    </div>
-    
-    </form>
+        <div id="block_group">
+         <h2>Quarries</h2>
+         <p>The monsters your settlement can select to hunt.</p>
+        <hr />
+         <p>$quarries</p>
+            $quarry_options
+         <input onchange="this.form.submit()" type="text" class="full_width" name="add_quarry" placeholder="add custom quarry"/>
+        </div>
+
+        </form>
 
                     <!-- NEMESIS MONSTERS -->
-    <a id="edit_nemeses"/>
-    <form id="autoForm" method="POST" action="#edit_nemeses">
-    <input type="hidden" name="modify" value="settlement" />
-    <input type="hidden" name="asset_id" value="$settlement_id" />
+        <a id="edit_nemeses"/>
+        <form id="autoForm" method="POST" action="#edit_nemeses">
+        <input type="hidden" name="modify" value="settlement" />
+        <input type="hidden" name="asset_id" value="$settlement_id" />
 
-    <div id="block_group">
-    <h2>Nemesis Monsters</h2>
-    <p>The available nemesis encounter monsters.</p>
-    <hr>
-    $nemesis_monsters
-     <input onchange="this.form.submit()" type="text" class="full_width" name="add_nemesis" placeholder="add nemesis"/>
-    </div>
-    </form>
+        <div id="block_group">
+        <h2>Nemesis Monsters</h2>
+        <p>The available nemesis encounter monsters.</p>
+        <hr>
+        $nemesis_monsters
+         <input onchange="this.form.submit()" type="text" class="full_width" name="add_nemesis" placeholder="add nemesis"/>
+        </div>
+        </form>
 
                     <!-- DEFEATED MONSTERS: HAS ITS OWN FORM -->
 
-    <a id="edit_defeated_monsters"/>
-    <form id="autoForm" method="POST" action="#edit_defeated_monsters">
-    <input type="hidden" name="modify" value="settlement" />
-    <input type="hidden" name="asset_id" value="$settlement_id" />
+        <a id="edit_defeated_monsters"/>
+        <form id="autoForm" method="POST" action="#edit_defeated_monsters">
+        <input type="hidden" name="modify" value="settlement" />
+        <input type="hidden" name="asset_id" value="$settlement_id" />
 
-    <div id="block_group">
-     <h2>Defeated Monsters</h2>
-     <p>A list of defeated monsters and their level.</p>
-     $defeated_monsters
-     $defeated_monsters_add
-     <input onchange="this.form.submit()" type="text" class="full_width" name="add_defeated_monster" placeholder="add defeated monster"/>
+        <div id="block_group">
+         <h2>Defeated Monsters</h2>
+         <p>A list of defeated monsters and their level.</p>
+         $defeated_monsters
+         $defeated_monsters_add
+         <input onchange="this.form.submit()" type="text" class="full_width" name="add_defeated_monster" placeholder="add defeated monster"/>
+        </div>
+        </form>
     </div>
-    </form>
+
+
+    <div id="asset_management_right_pane">
 
                     <!-- TIMELINE: HAS ITS OWN FORM  -->
 
-    <a id="edit_timeline"/>
-    <form id="autoForm" method="POST" action="#edit_timeline">
-    <input type="hidden" name="modify" value="settlement" />
-    <input type="hidden" name="asset_id" value="$settlement_id" />
+        <a id="edit_timeline"/>
+        <form id="autoForm" method="POST" action="#edit_timeline">
+        <input type="hidden" name="modify" value="settlement" />
+        <input type="hidden" name="asset_id" value="$settlement_id" />
 
-    <br/>
-    <h2 class="clickable" onclick="showHide('timelineBlock')">Timeline <img class="dashboard_down_arrow" src="http://media.kdm-manager.com/icons/down_arrow.png"/> </h2>
-    <div id="timelineBlock" class="block_group" style="display: none;">
-     <div class="big_number_container left_margin">
-         <button class="incrementer" onclick="increment('lanternYearBox');">+</button>
-         <input id="lanternYearBox" onchange="this.form.submit()" class="big_number_square" type="number" name="lantern_year" value="$lantern_year" min="1"/>
-         <button class="decrementer" onclick="decrement('lanternYearBox');">-</button>
-     </div>
-     <div class="big_number_caption">Lantern Year</div>
-     <br /><hr />
-     $timeline
-    </div> <!-- timelineBlock -->
-    </form>
-    <br/>
+        <br class="mobile_only"/>
+        <h2 class="clickable" onclick="showHide('timelineBlock')">Timeline <img class="dashboard_down_arrow" src="http://media.kdm-manager.com/icons/down_arrow.png"/> </h2>
+        <div id="timelineBlock" class="block_group" style="display: none;">
+         <div class="big_number_container left_margin">
+             <button class="incrementer" onclick="increment('lanternYearBox');">+</button>
+             <input id="lanternYearBox" onchange="this.form.submit()" class="big_number_square" type="number" name="lantern_year" value="$lantern_year" min="1"/>
+             <button class="decrementer" onclick="decrement('lanternYearBox');">-</button>
+         </div>
+         <div class="big_number_caption">Lantern Year</div>
+         <br class="mobile_only"/><hr class="mobile_only"/>
+         $timeline
+        </div> <!-- timelineBlock -->
+        </form>
 
-    <hr /> <!-- Logical Section Break Here -->
+
+        <br class="mobile_only"/>
 
                     <!-- LOST SETTLEMENTS HAS ITS OWN FORM-->
-    <a id="edit_lost_settlements"/>
-    <form id="autoForm" method="POST" action="#edit_lost_settlements">
-    <input type="hidden" name="modify" value="settlement" />
-    <input type="hidden" name="asset_id" value="$settlement_id" />
-    <input onchange="this.form.submit()" class="big_number_square" type="number" name="lost_settlements" value="$lost_settlements"/>
-    <div class="big_number_caption">Lost Settlements</div>
-    </form>
-    <br/><hr/>
+        <div class="block_group">
+            <a id="edit_lost_settlements"/>
+            <form id="autoForm" method="POST" action="#edit_lost_settlements">
+            <input type="hidden" name="modify" value="settlement" />
+            <input type="hidden" name="asset_id" value="$settlement_id" />
 
-    <h3>Survivors</h3>
-    $survivors
+            <input onchange="this.form.submit()" class="big_number_square" type="number" name="lost_settlements" value="$lost_settlements"/>
+            <h3>Lost Settlements</h3>
+            <p>Refer to <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Game Over</b> on p.179;  <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Left Overs</b> occurs at 4;  <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Those Before Us</b> occurs at 8; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Ocular Parasites</b> occurs at 12; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Rainy Season</b> occurs at 16.</p>
+            </form>
+        </div>
+        <br />
 
-    <br />
-    <hr />
+        $survivors
 
-    <form method="POST">
-    <input type="hidden" name="change_view" value="new_survivor"/>
-    <button class="success">+ Create New Survivor</button>
-    </form>
+        <br class="mobile_only"/>
+        <hr class="mobile_only"/>
 
-    <hr/>
+        <form method="POST">
+        <input type="hidden" name="change_view" value="new_survivor"/>
+        <button class="success">+ Create New Survivor</button>
+        </form>
+
+        <hr/>
 
     <form method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever.');"><input type="hidden" name="remove_settlement" value="$settlement_id"/><button class="error">Permanently Delete Settlement</button></form>
+    </div>
     \n""")
 
 
@@ -984,7 +1031,7 @@ class login:
     form = """\n\
     <div id="sign_in_container">
         <h2 class="seo">KD:M Manager!</h2>
-        <h1 class="seo">A mobile campaign manager for <a href="http://kingdomdeath.com/" target="top">Kingdom Death</a> Monster.</h1>
+        <h1 class="seo">A campaign manager for <a href="http://kingdomdeath.com/" target="top">Kingdom Death</a> Monster.</h1>
         <div id="sign_in_controls">
             <form method="POST">
             <input class="sign_in" type="text" name="login" placeholder="email"/ autofocus>

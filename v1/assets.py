@@ -4,7 +4,9 @@ from bson.objectid import ObjectId
 from copy import copy
 from datetime import datetime
 from hashlib import md5
+import operator
 import os
+import random
 from string import Template
 
 import admin
@@ -88,6 +90,7 @@ class User:
         self.user["latest_succesful_authentication"] = auth_dt
         mdb.users.save(self.user)
 
+
     def get_settlements(self, return_as=False):
         """ Returns the user's settlements in a number of ways. Leave
         'return_as' unspecified if you want a mongo cursor back. """
@@ -111,6 +114,7 @@ class User:
             return output
 
         return self.settlements
+
 
     def get_survivors(self, return_type=False):
         """ Returns all of the survivors that a user can access. Leave
@@ -147,7 +151,15 @@ class User:
             game_list.add(s["settlement"])
 
         output = ""
+
+        game_dict = {}
         for settlement_id in game_list:
+            S = assets.Settlement(settlement_id=settlement_id)
+            game_dict[settlement_id] = S.settlement["name"]
+        sorted_game_tuples = sorted(game_dict.items(), key=operator.itemgetter(1))
+
+        for settlement_tuple in sorted_game_tuples:
+            settlement_id = settlement_tuple[0]
             S = assets.Settlement(settlement_id=settlement_id)
             if S.settlement is not None:
                 output += S.asset_link(context="dashboard_campaign_list")
@@ -495,7 +507,13 @@ class Survivor:
             if len(self.survivor["disorders"]) >= 3:
                 return False
 
-            if asset_key not in Disorders.get_keys():
+            if asset_key == "RANDOM_DISORDER":
+                disorder_deck = Disorders.get_keys()
+                for disorder in self.survivor["disorders"]:
+                    if disorder in disorder_deck:
+                        disorder_deck.remove(disorder)
+                self.survivor["disorders"].append(random.choice(disorder_deck))
+            elif asset_key not in Disorders.get_keys():
                 self.survivor["disorders"].append(asset_key)
                 return True
             elif asset_key in Disorders.get_keys():
@@ -507,6 +525,19 @@ class Survivor:
                 return True
             else:
                 return False
+
+        elif asset_type == "fighting_art":
+            if asset_key == "RANDOM_FIGHTING_ART":
+                fa_deck = FightingArts.get_keys()
+                for fa in self.survivor["fighting_arts"]:
+                    if fa in fa_deck:
+                        fa_deck.remove(fa)
+                self.survivor["fighting_arts"].append(random.choice(fa_deck))
+            elif asset_key in FightingArts.get_keys():
+                self.survivor["fighting_arts"].append(asset_key)
+            else:
+                return False
+
         elif asset_type == "abilities_and_impairments":
             if asset_key not in Abilities.get_keys():
                 self.survivor["abilities_and_impairments"].append("%s" % asset_key)
@@ -682,7 +713,7 @@ class Survivor:
             elif p == "remove_disorder":
                 self.survivor["disorders"].remove(params[p].value)
             elif p == "add_fighting_art" and len(self.survivor["fighting_arts"]) < 3:
-                self.survivor["fighting_arts"].append(params[p].value.strip())
+                self.add_game_asset("fighting_art", game_asset_key)
             elif p == "remove_fighting_art":
                 self.survivor["fighting_arts"].remove(params[p].value)
             elif p.split("_")[0] == "toggle":
@@ -764,6 +795,7 @@ class Survivor:
             asset_id = self.survivor["_id"],
             asset_name = link_text,
             disabled = disabled,
+            desktop_text = "",
         )
 
         return output
@@ -940,7 +972,7 @@ class Settlement:
                 {"year": 9, "custom": [], "nemesis_encounter": "Nemesis Encounter: King's Man", },
                 {"year": 10, "custom": [], },
                 {"year": 11, "custom": [], "story_event": "Regal Visit", },
-                {"year": 12, "custom": [], "story_event": "Principle: Conviction", },
+                {"year": 12, "custom": [], "story_event": "Principle: Conviction (p. 141)", },
                 {"year": 13, "custom": [], },
                 {"year": 14, "custom": [], },
                 {"year": 15, "custom": [], },
@@ -1112,6 +1144,8 @@ class Settlement:
                             item_color = color,
                             item_key_and_count = pretty_text
                         )
+                    output += "<div class='item_rack'>"
+                    output += '</div><!-- item_rack -->'
                     output += html.settlement.storage_tag.safe_substitute(name=location, color=color)
             if custom_items != {}:
                 for item_key in custom_items.keys():
@@ -1266,11 +1300,16 @@ class Settlement:
 
         return quarries
 
-    def get_survivors(self, return_type=False, user_id=None):
-        """ Returns the settlement's survivors. Leave 'return_typ' unspecified
+    def get_survivors(self, return_type=False, user_id=None, exclude=[], exclude_dead=False):
+        """ Returns the settlement's survivors. Leave 'return_type' unspecified
         if you want a mongo cursor object back. """
 
-        survivors = mdb.survivors.find({"settlement": self.settlement["_id"]}).sort("name")
+        query = {"settlement": self.settlement["_id"], "_id": {"$nin": exclude}}
+
+        if exclude_dead:
+            query["dead"] = {"$exists": False}
+
+        survivors = mdb.survivors.find(query).sort("name")
 
         if self.User is not None:
             user_login = self.User.user["login"]
@@ -1398,11 +1437,25 @@ class Settlement:
     def return_hunting_party(self):
         """ Gets the hunting party, runs heal("Return from Hunt") on them."""
         healed_survivors = 0
+        returning_survivor_id_list = []
         for survivor in self.get_survivors("hunting_party"):
             S = assets.Survivor(survivor_id=survivor["_id"])
+            returning_survivor_id_list.append(S.survivor["_id"])
             S.heal("Return from Hunt")
             healed_survivors += 1
 
+            # Check for disorders with an "on_return" effect
+            for d in S.survivor["disorders"]:
+                if d in Disorders.get_keys() and "on_return" in Disorders.get_asset(d):
+                    for k, v in Disorders.get_asset(d)["on_return"].iteritems():
+                        S.survivor[k] = v
+                    mdb.survivors.save(S.survivor)
+
+        # remove "skip_next_hunt" from anyone who has it but didn't return
+        for survivor in self.get_survivors(exclude=returning_survivor_id_list, exclude_dead=False):
+            if "skip_next_hunt" in survivor.keys():
+                del survivor["skip_next_hunt"]
+                mdb.survivors.save(survivor)
 
     def get_recently_added_items(self):
         """ Returns the three items most recently appended to storage. """
@@ -1996,21 +2049,21 @@ class Settlement:
         if context == "campaign_summary":
             button_class = "gradient_yellow floating_asset_button"
             link_text = html.dashboard.settlement_flash
-            desktop_text = "Edit Settlement"
+            desktop_text = "Edit %s" % self.settlement["name"]
             asset_type = "settlement"
         elif context == "asset_management":
             button_class = "gradient_purple floating_asset_button"
             link_text = html.dashboard.campaign_flash
-            desktop_text = "Campaign Summary"
+            desktop_text = "%s Campaign Summary" % self.settlement["name"]
             asset_type = "campaign"
         elif context == "dashboard_campaign_list":
             button_class = "gradient_violet"
-            link_text = html.dashboard.campaign_flash + "%s<br/>LY %s. Survivors: %s Players: %s" % (self.settlement["name"], self.settlement["lantern_year"], self.settlement["population"], len(self.get_players()))
+            link_text = html.dashboard.campaign_flash + "<b>%s</b><br/>LY %s. Survivors: %s Players: %s" % (self.settlement["name"], self.settlement["lantern_year"], self.settlement["population"], len(self.get_players()))
             desktop_text = ""
             asset_type = "campaign"
         else:
             button_class = "gradient_yellow"
-            link_text = html.dashboard.settlement_flash + self.settlement["name"]
+            link_text = html.dashboard.settlement_flash + "<b>%s</b>" % self.settlement["name"]
             desktop_text = ""
             asset_type = "settlement"
 

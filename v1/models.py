@@ -59,6 +59,9 @@ class Model:
 
         output = '\n\t<select name="add_%s" onchange="%s">' % (self.name, submit_on_change)
         output += '\t<option selected disabled hidden value=''>Add %s</option>' % self.pretty_name
+        if self.name in ["disorder","fighting_art"]:
+            output += '\t\t<option value="RANDOM_%s">* Random %s</option>' % (self.name.upper(), self.name.capitalize())
+            output += ' <option disabled> &ensp; &ensp; ---  </option>'
         for o in sorted(options):
             disabled = ""
             if o in disable:
