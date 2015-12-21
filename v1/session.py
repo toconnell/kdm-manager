@@ -64,7 +64,7 @@ class Session:
         if self.session is not None:
             if "current_settlement" in self.session.keys():
                 s_id = ObjectId(self.session["current_settlement"])
-                self.Settlement = assets.Settlement(settlement_id=s_id)
+                self.Settlement = assets.Settlement(settlement_id=s_id, session_object=self)
 
             # back off to current_asset if we haven't got current_settlement
             if self.Settlement is None:
@@ -177,29 +177,29 @@ class Session:
         if "new" in self.params:
             if self.params["new"].value == "settlement":
                 settlement_name = self.params["settlement_name"].value
-                s = assets.Settlement(name=settlement_name, created_by=ObjectId(self.User.user["_id"]))
-                self.set_current_settlement(s.settlement["_id"])
-                self.change_current_view("view_campaign", asset_id=s.settlement["_id"])
-                user_action = "created settlement %s" % s.settlement["_id"]
+                S = assets.Settlement(name=settlement_name, session_object=self)
+                self.set_current_settlement(S.settlement["_id"])
+                self.change_current_view("view_campaign", asset_id=S.settlement["_id"])
+                user_action = "created settlement %s" % S.settlement["_id"]
             if self.params["new"].value == "survivor":
-                s = assets.Survivor(params=self.params)
-                self.change_current_view("view_survivor", asset_id=s.survivor["_id"])
-                user_action = "created survivor %s" % s.survivor["_id"]
+                S = assets.Survivor(params=self.params, session_object=self)
+                self.change_current_view("view_survivor", asset_id=S.survivor["_id"])
+                user_action = "created survivor %s" % S.survivor["_id"]
 
         if "modify" in self.params:
             s_id = self.params["asset_id"].value
             if self.params["modify"].value == "settlement":
-                S = assets.Settlement(settlement_id=s_id)
+                S = assets.Settlement(settlement_id=s_id, session_object=self)
                 S.modify(self.params)
                 user_action = "modified settlement %s" % s_id
             if self.params["modify"].value == "survivor":
-                S = assets.Survivor(survivor_id=s_id)
+                S = assets.Survivor(survivor_id=s_id, session_object=self)
                 S.modify(self.params)
                 user_action = "modified survivor %s" % s_id
 
         if "return_hunting_party" in self.params:
             s_id = self.params["return_hunting_party"].value
-            S = assets.Settlement(settlement_id=s_id)
+            S = assets.Settlement(settlement_id=s_id, session_object=self)
             S.return_hunting_party()
             user_action = "returned hunting party to settlement %s" % s_id
 
@@ -245,10 +245,10 @@ class Session:
 
                 display_settlements = "none"
                 display_campaigns = ""
-                if self.User.get_games() == "":
+                if self.User.get_campaigns() == "":
                     display_settlements = ""
                     display_campaigns = "none"
-                output += html.dashboard.campaign_summary.safe_substitute(campaigns=self.User.get_games(), display=display_campaigns)
+                output += html.dashboard.campaign_summary.safe_substitute(campaigns=self.User.get_campaigns(), display=display_campaigns)
                 output += html.dashboard.settlement_summary.safe_substitute(settlements=self.User.get_settlements(return_as="asset_links"), display=display_settlements)
                 output += html.dashboard.survivor_summary.safe_substitute(survivors=self.User.get_survivors("asset_links"))
 
@@ -270,11 +270,11 @@ class Session:
             elif self.session["current_view"] == "view_settlement":
                 settlement = mdb.settlements.find_one({"_id": self.session["current_asset"]})
                 self.set_current_settlement(ObjectId(settlement["_id"]))
-                S = assets.Settlement(settlement_id = settlement["_id"], user_object=self.User)
+                S = assets.Settlement(settlement_id = settlement["_id"], session_object=self)
                 output += S.render_html_form()
             elif self.session["current_view"] == "view_survivor":
                 survivor = mdb.survivors.find_one({"_id": self.session["current_asset"]})
-                S = assets.Survivor(survivor_id = survivor["_id"])
+                S = assets.Survivor(survivor_id = survivor["_id"], session_object=self)
                 output += S.render_html_form()
             elif self.session["current_view"] == "panel":
                 if self.User.is_admin():

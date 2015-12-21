@@ -5,6 +5,7 @@ from ConfigParser import SafeConfigParser
 import logging
 import os
 from pymongo import MongoClient
+import smtplib
 import sys
 from user_agents import parse as ua_parse
 
@@ -42,6 +43,17 @@ def days_hours_minutes(td):
 
 
 #  sysadmin helper functions
+
+
+def email(recipients=[], msg=None, sender="admin@kdm-manager.com"):
+    """ Generic Emailer. Accepts a list of 'recipients', a 'msg' string and a
+    sender name (leave undefinied to use admin@kdm-manager.com). """
+
+    server = smtplib.SMTP('kdm-manager.com')
+    server.set_debuglevel(1)
+    server.sendmail(fromaddr, recipients, msg)
+    server.quit()
+
 
 def get_user_agent():
     """ Returns a user-agents object if we can get a user agent. Otherwise,

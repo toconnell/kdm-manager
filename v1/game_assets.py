@@ -1154,7 +1154,6 @@ innovations = {
         "type": "education",
         "consequences": ["Nightmare Training", "Storytelling", ],
         "survival_limit": 1,
-        "departure_buff": "Departing survivors gain +1 survival.",
         "settlement_buff": "When a survivor innovates, draw an additional 2 Innovation Cards to choose from.",
     },
     "Hovel": {
@@ -1229,6 +1228,7 @@ innovations = {
     "Partnership": {
         "type": "home",
         "consequences": [],
+        "always_available": True,
     },
     "Bloodletting": {
         "type": "science",

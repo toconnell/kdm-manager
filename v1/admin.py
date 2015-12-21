@@ -10,7 +10,7 @@ from validate_email import validate_email
 
 import assets
 import html
-from utils import mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes
+from utils import email, mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes
 
 
 logger = get_logger()
@@ -212,7 +212,7 @@ def remove_document(collection, doc_id):
 def pretty_view_user(u_id):
     """ Prints a pretty summary of the user and his assets to STDOUT. """
 
-    User = assets.User(u_id)
+    User = assets.User(u_id, session_object={"_id": "0", "login": "ADMINISTRATOR"})
 
     if User.user is None:
         print("Could not retrieve user info from mdb.")
@@ -241,11 +241,11 @@ def pretty_view_user(u_id):
                 print "  %s" % asset_repr(survivor, "survivor")
             print("")
 
-    if User.survivors == []:
+    if User.get_survivors() is None:
         print(" No survivors.\n")
     else:
-        print("\t%s survivors:\n" % len(User.survivors))
-        for survivor in User.survivors:
+        print("\t%s survivors:\n" % len(User.get_survivors()))
+        for survivor in User.get_survivors():
             print asset_repr(survivor, "survivor")
     print("")
 
@@ -261,68 +261,6 @@ def initialize():
     """ Completely initializes the application. Scorched earth. """
     for collection in ["users", "sessions", "survivors", "settlements", "the_dead", "user_admin"]:
         mdb[collection].remove()
-
-
-def play_summary():
-    """ Summarizes play sessions. """
-
-    print("\n\t\tRecent Activity:\n")
-    users = mdb.users.find({"latest_sign_in": {"$exists": True}, "latest_activity": {"$exists": True}}).sort("latest_activity", -1)
-    for u in users[:5]:
-        output = " "
-        output += "%s - %s (%s):\n " % (u["login"], u["_id"], u["latest_user_agent"])
-        duration = u["latest_activity"] - u["latest_sign_in"]
-        dur_minutes = duration // 60
-        output += "    %s - %s (%s)\n" % (u["latest_sign_in"].strftime(ymdhms), u["latest_activity"].strftime(ymdhms), dur_minutes)
-        output += "     Latest Action: '%s' (%s minutes ago)\n" % (u["latest_action"], (datetime.now() - u["latest_activity"]).seconds // 60)
-        print(output)
-
-
-
-
-def get_latest_casualty(return_type=False):
-    """ Returns a string of the most recently killed survivor."""
-
-    dead_men = mdb.survivors.find({"dead": {"$exists": True}}).sort("died_on", -1)
-    if dead_men.count() == 0:
-        return None
-    else:
-        d = dead_men[0]
-
-    settlement = mdb.settlements.find_one({"_id": d["settlement"]})
-    d["settlement_name"] = settlement["name"]
-    if return_type == "string":
-        return "%s [%s] - XP: %s / Courage: %s / Understanding: %s" % (d["name"], d["sex"], d["hunt_xp"], d["Courage"], d["Understanding"])
-    else:
-        return d
-
-
-def motd():
-    """ Creates a CLI MoTD. """
-    users = mdb.users.find()
-    sessions = mdb.sessions.find()
-    settlements = mdb.settlements.find()
-    survivors = mdb.survivors.find()
-
-    print("\n %s users (%s sessions)\n %s settlements\n %s survivors" % (users.count(), sessions.count(), settlements.count(), survivors.count()))
-
-    recent_user_agents = {}
-    for u in users:
-        if "latest_user_agent" in u.keys():
-            ua = u["latest_user_agent"]
-        else:
-            ua = "UNKNOWN"
-        if ua not in recent_user_agents.keys():
-            recent_user_agents[ua] = 1
-        else:
-            recent_user_agents[ua] += 1
-    print("\n Recent user agent round-up (top 5):")
-    sorted_ua_dict = sorted(recent_user_agents.items(), key=operator.itemgetter(1), reverse=True)
-    for ua in sorted_ua_dict[:6]:
-        ua_string, ua_count = ua
-        if ua_string != "UNKNOWN":
-            print("   %s --> %s" % (ua_string, ua_count))
-    print("")
 
 
 def toggle_admin_status(user_id):
@@ -344,6 +282,53 @@ def update_user_password(user_id, password):
     u_id = ObjectId(user_id)
     User = assets.User(user_id=u_id)
     User.update_password(password)
+
+
+def motd():
+    """ Creates a CLI MoTD. """
+    users = mdb.users.find()
+    sessions = mdb.sessions.find()
+    settlements = mdb.settlements.find()
+    survivors = mdb.survivors.find()
+
+    print("\n %s users (%s sessions)\n %s settlements\n %s survivors" % (users.count(), sessions.count(), settlements.count(), survivors.count()))
+
+    recent_user_agents = {}
+    for u in users:
+        if "latest_user_agent" in u.keys():
+            ua = u["latest_user_agent"].split("/")[1]
+        else:
+            ua = "UNKNOWN"
+        if ua not in recent_user_agents.keys():
+            recent_user_agents[ua] = 1
+        else:
+            recent_user_agents[ua] += 1
+    print("\n Recent user OS round-up (top 5):")
+    sorted_ua_dict = sorted(recent_user_agents.items(), key=operator.itemgetter(1), reverse=True)
+    for ua in sorted_ua_dict[:6]:
+        ua_string, ua_count = ua
+        if ua_string != "UNKNOWN":
+            print("   %s --> %s" % (ua_string, ua_count))
+    print("")
+
+
+def play_summary():
+    """ Summarizes play sessions. """
+
+    print("\n\t\tRecent Activity:\n")
+    users = mdb.users.find({"latest_sign_in": {"$exists": True}, "latest_activity": {"$exists": True}}).sort("latest_activity", -1)
+    for u in users[:5]:
+        output = " "
+        output += "%s - %s (%s):\n " % (u["login"], u["_id"], u["latest_user_agent"])
+        duration = u["latest_activity"] - u["latest_sign_in"]
+        dur_minutes = duration // 60
+        output += "    %s - %s (%s)\n" % (u["latest_sign_in"].strftime(ymdhms), u["latest_activity"].strftime(ymdhms), dur_minutes)
+        output += "     Latest Action: '%s' (%s minutes ago)\n" % (u["latest_action"], (datetime.now() - u["latest_activity"]).seconds // 60)
+        print(output)
+
+
+
+
 
 
     #
@@ -372,16 +357,22 @@ class Panel:
 
         output = html.panel.headline.safe_substitute(
             recent_users_count = recent_users.count(),
+            users = mdb.users.find().count(),
+            sessions = mdb.sessions.find().count(),
+            settlements = mdb.settlements.find().count(),
+            survivors = mdb.survivors.find().count(),
         )
 
-
         for user in recent_users:
-            User = assets.User(user_id=user["_id"])
+            User = assets.User(user_id=user["_id"], session_object={"_id": 0, "login": "ADMINISTRATOR"})
             output += html.panel.user_status_summary.safe_substitute(
                 user_name = User.user["login"],
                 ua = User.user["latest_user_agent"],
                 latest_sign_in = User.user["latest_sign_in"].strftime(ymdhms),
+                latest_sign_in_mins = (datetime.now() - User.user["latest_sign_in"]).seconds // 60,
+                session_length = (User.user["latest_activity"] - User.user["latest_sign_in"]).seconds // 60,
                 latest_activity = User.user["latest_activity"].strftime(ymdhms),
+                latest_activity_mins = (datetime.now() - User.user["latest_activity"]).seconds // 60,
                 latest_action = User.user["latest_action"],
             )
 
@@ -464,6 +455,7 @@ if __name__ == "__main__":
 
     parser.add_option("--user", dest="pretty_view_user", help="Print a pretty summary of a user", metavar="5665026954922d076285bdec", default=False)
     parser.add_option("--admin", dest="toggle_admin", help="toggle admin status for a user _id", default=False)
+    parser.add_option("-e", dest="email", help="Send a test email to an address", metavar="toconnell@tyrannybelle.com", default=False)
 
     parser.add_option("--initialize", dest="initialize", help="Burn it down.", action="store_true", default=False)
     (options, args) = parser.parse_args()
@@ -502,6 +494,10 @@ if __name__ == "__main__":
         if options.survivor_attrib:
             if options.remove_attrib:
                 update_survivor("remove", s_id=options.survivor, attrib=options.survivor_attrib, attrib_value=options.remove_attrib)
+
+    if options.email:
+        email(recipients=options.email.split(), msg="This is a test message!\nGood!")
+        print("Test email sent!")
 
     if options.play_summary:
         motd()

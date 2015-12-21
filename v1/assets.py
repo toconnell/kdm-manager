@@ -14,6 +14,7 @@ import assets
 import game_assets
 import html
 from models import Abilities, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Resources, Quarries
+from session import Session
 from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms
 
 settings = load_settings()
@@ -22,16 +23,20 @@ class User:
 
     def __init__(self, user_id, session_object=None):
         """ Initialize with a user's _id to create an object with his complete
-        user object and all settlements. """
+        user object and all settlements. Like all asset classes, you cannot
+        initialize this one without a valid session object. """
 
         self.logger = get_logger()
-
         user_id = ObjectId(user_id)
         self.user = mdb.users.find_one({"_id": user_id})
+
+        self.Session = session_object
+        if self.Session is None:
+            raise Exception("User Objects may not be initialized without a session object!")
+
         self.get_settlements()
         self.get_survivors()
-        if session_object is not None:
-            self.Session = session_object
+
 
     def is_admin(self):
         """ Returns True if the user is an admin, False if they are not. """
@@ -65,6 +70,82 @@ class User:
         mdb.user_admin.insert(user_admin_log_dict)
 
 
+    def get_settlements(self, return_as=False):
+        """ Returns the user's settlements in a number of ways. Leave
+        'return_as' unspecified if you want a mongo cursor back. """
+
+        self.settlements = list(mdb.settlements.find({"created_by": self.user["_id"]}).sort("name"))
+
+        if self.settlements is None:
+            return "NONE!"
+
+        if return_as == "html_option":
+            output = ""
+            for settlement in self.settlements:
+                output += '<option value="%s">%s</option>' % (settlement["_id"], settlement["name"])
+            return output
+
+        if return_as == "asset_links":
+            output = ""
+            for settlement in self.settlements:
+                S = assets.Settlement(settlement_id=settlement["_id"], session_object=self.Session)
+                output += S.asset_link()
+            return output
+
+        return self.settlements
+
+
+    def get_survivors(self, return_type=False):
+        """ Returns all of the survivors that a user can access. Leave
+        the 'return_as' kwarg unspecified/False if you want a mongo cursor
+        back (instead of fruity HTML crap). """
+
+        survivors = list(mdb.survivors.find({"$or": [
+            {"email": self.user["login"]},
+            {"created_by": self.user["_id"]},
+            ]}
+        ).sort("name"))
+
+        # user version
+
+        if return_type == "asset_links":
+            output = ""
+            for s in survivors:
+                S = Survivor(survivor_id=s["_id"], session_object=self.Session)
+                output += S.asset_link()
+            return output
+
+        return survivors
+
+
+    def get_campaigns(self):
+        self.get_settlements()
+        game_list = set()
+
+        if self.settlements is not None:
+            for s in self.settlements:
+                if s is not None:
+                    game_list.add(s["_id"])
+
+        for s in self.get_survivors():
+            game_list.add(s["settlement"])
+
+        output = ""
+
+        game_dict = {}
+        for settlement_id in game_list:
+            S = assets.Settlement(settlement_id=settlement_id, session_object=self.Session)
+            game_dict[settlement_id] = S.settlement["name"]
+        sorted_game_tuples = sorted(game_dict.items(), key=operator.itemgetter(1))
+
+        for settlement_tuple in sorted_game_tuples:
+            settlement_id = settlement_tuple[0]
+            S = assets.Settlement(settlement_id=settlement_id, session_object=self.Session)
+            if S.settlement is not None:
+                output += S.asset_link(context="dashboard_campaign_list")
+        return output
+
+
     def get_last_n_user_admin_logs(self, logs):
         if logs == 1:
             return mdb.user_admin.find_one({"u_id": self.user["_id"]}, sort=[("created_on", -1)])
@@ -91,79 +172,6 @@ class User:
         mdb.users.save(self.user)
 
 
-    def get_settlements(self, return_as=False):
-        """ Returns the user's settlements in a number of ways. Leave
-        'return_as' unspecified if you want a mongo cursor back. """
-
-        self.settlements = list(mdb.settlements.find({"created_by": self.user["_id"]}).sort("name"))
-
-        if self.settlements is None:
-            return "NONE!"
-
-        if return_as == "html_option":
-            output = ""
-            for settlement in self.settlements:
-                output += '<option value="%s">%s</option>' % (settlement["_id"], settlement["name"])
-            return output
-
-        if return_as == "asset_links":
-            output = ""
-            for settlement in self.settlements:
-                S = assets.Settlement(settlement_id=settlement["_id"])
-                output += S.asset_link()
-            return output
-
-        return self.settlements
-
-
-    def get_survivors(self, return_type=False):
-        """ Returns all of the survivors that a user can access. Leave
-        the 'return_as' kwarg unspecified/False if you want a mongo cursor
-        back (instead of fruity HTML crap). """
-
-        self.survivors = list(mdb.survivors.find({"$or": [
-            {"email": self.user["login"]},
-            {"created_by": self.user["_id"]},
-            ]}
-        ).sort("name"))
-
-        # user version
-
-        if return_type == "asset_links":
-            output = ""
-            for s in self.survivors:
-                S = Survivor(survivor_id=s["_id"])
-                output += S.asset_link()
-            return output
-
-        return self.survivors
-
-    def get_games(self):
-        self.get_settlements()
-        game_list = set()
-
-        if self.settlements is not None:
-            for s in self.settlements:
-                if s is not None:
-                    game_list.add(s["_id"])
-
-        for s in self.survivors:
-            game_list.add(s["settlement"])
-
-        output = ""
-
-        game_dict = {}
-        for settlement_id in game_list:
-            S = assets.Settlement(settlement_id=settlement_id)
-            game_dict[settlement_id] = S.settlement["name"]
-        sorted_game_tuples = sorted(game_dict.items(), key=operator.itemgetter(1))
-
-        for settlement_tuple in sorted_game_tuples:
-            settlement_id = settlement_tuple[0]
-            S = assets.Settlement(settlement_id=settlement_id)
-            if S.settlement is not None:
-                output += S.asset_link(context="dashboard_campaign_list")
-        return output
 
     def html_motd(self):
         """ Creates an HTML MoTD for the user. """
@@ -213,10 +221,16 @@ class User:
 
 class Survivor:
 
-    def __init__(self, survivor_id=False, params=False):
+    def __init__(self, survivor_id=False, params=False, session_object=None):
         """ Initialize this with a cgi.FieldStorage() as the 'params' kwarg
         to create a new survivor. Otherwise, use a mdb survivor _id value
         to initalize with survivor data from mongo. """
+
+        self.Session = session_object
+        if self.Session is None or not self.Session:
+            raise Exception("Survivor objects may not be initialized without a Session object!")
+        self.Settlement = self.Session.Settlement
+        self.User = self.Session.User
 
         self.logger = get_logger()
         self.damage_locations = [
@@ -246,13 +260,13 @@ class Survivor:
         self.survivor = mdb.survivors.find_one({"_id": ObjectId(survivor_id)})
         if not self.survivor:
             raise Exception("Invalid survivor ID: '%s'" % survivor_id)
-        self.Settlement = Settlement(settlement_id=self.survivor["settlement"])
+
 
 
     def new(self, params):
         """ Create a new survivor from cgi.FieldStorage() params. """
 
-        created_by = ObjectId(params["created_by"].value)
+        created_by = self.User.user["_id"]
         settlement_id = ObjectId(params["settlement_id"].value)
         survivor_name = params["name"].value
         survivor_email = params["email"].value.lower()
@@ -287,10 +301,8 @@ class Survivor:
             "disorders": [],
             "abilities_and_impairments": [],
             "fighting_arts": [],
+            "born_in_ly": self.Settlement.settlement["lantern_year"],
         }
-
-        # initialize self.Settlement
-        self.Settlement = Settlement(settlement_id=settlement_id)
 
         # add parents if they're specified
         for parent in ["father", "mother"]:
@@ -298,11 +310,8 @@ class Survivor:
                 survivor_dict["born_in"] = self.Settlement.settlement["lantern_year"]
                 survivor_dict[parent] = params[parent].value
 
-        user = mdb.users.find_one({"_id": created_by})
-        login = user["login"]
-
         survivor_id = mdb.survivors.insert(survivor_dict)
-        self.logger.info("User '%s' created new survivor '%s [%s]' successfully." % (login, survivor_name, survivor_sex))
+        self.logger.info("User '%s' created new survivor '%s [%s]' successfully." % (self.User.user["login"], survivor_name, survivor_sex))
 
         self.Settlement.update_mins()
 
@@ -804,7 +813,7 @@ class Survivor:
     def render_html_form(self):
         """ This is just like the render_html_form() method of the settlement
         class: a giant tangle-fuck of UI/UX logic that creates the form for
-        modifying a surviro. """
+        modifying a survivor. """
 
         survivor_survival_points = int(self.survivor["survival"])
         if survivor_survival_points > int(self.Settlement.settlement["survival_limit"]):
@@ -929,24 +938,34 @@ class Survivor:
 
 class Settlement:
 
-    def __init__(self, settlement_id=False, name=False, created_by=False, user_object=None):
+    def __init__(self, settlement_id=False, name=False, session_object=None):
         """ Initialize with a settlement from mdb. """
         self.logger = get_logger()
+
+        # initialize session and user objects
+        self.Session = session_object
+        if self.Session is None or not self.Session:
+            raise Exception("Settlements may not be initialized without a Session object!")
+        self.User = self.Session.User
+
+        # if we initialize a settlement without an ID, make a new one
         if not settlement_id:
-            settlement_id = self.new(name, created_by)
+            settlement_id = self.new(name)
+
         self.settlement = mdb.settlements.find_one({"_id": ObjectId(settlement_id)})
-        self.survivors = mdb.survivors.find({"settlement": settlement_id})
         if self.settlement is not None:
             self.update_mins()
-        self.User = user_object
 
-    def new(self, name=None, created_by=None):
-        """ Creates a new settlement. 'name' is any string and 'created_by' has to
-        be an ObjectId of a user. """
+
+    def new(self, name=None):
+        """ Creates a new settlement. """
+
+        self.logger.debug("User %s (%s) is creating a new settlement..." % (self.User.user["login"], self.User.user["_id"]))
+
         new_settlement_dict = {
             "nemesis_monsters": {"Butcher": [], },
             "created_on": datetime.now(),
-            "created_by": created_by,
+            "created_by": self.User.user["_id"],
             "name": name,
             "survival_limit": 1,
             "lantern_year": 1,
@@ -1004,8 +1023,7 @@ class Settlement:
             ],
         }
         settlement_id = mdb.settlements.insert(new_settlement_dict)
-        creator = mdb.users.find_one({"_id": created_by})
-        self.logger.info("New settlement '%s' ('%s') created by %s!" % (name, settlement_id, creator["login"]))
+        self.logger.info("New settlement '%s' ('%s') created by %s!" % (name, settlement_id, self.User.user["login"]))
         return settlement_id
 
 
@@ -1017,7 +1035,7 @@ class Settlement:
         lists to sets (since MDB doesn't support sets), etc.
         """
 
-        for min_key in ["population", "death_count"]:
+        for min_key in ["population", "death_count", "survival_limit"]:
             min_val = self.get_min(min_key)
             orig_val = int(self.settlement[min_key])
             if orig_val < min_val:
@@ -1352,7 +1370,7 @@ class Settlement:
             }
 
             for survivor in survivors:
-                S = assets.Survivor(survivor_id=survivor["_id"])
+                S = assets.Survivor(survivor_id=survivor["_id"], session_object=self.Session)
                 annotation = ""
                 user_owns_survivor = False
                 disabled = "disabled"
@@ -1429,6 +1447,7 @@ class Settlement:
                     output += "<p>Use [::] to add survivors to the hunting party.</p>"
                 elif group["name"] == "Hunting Party" and group["survivors"] != [] and current_user_is_settlement_creator:
                     output += html.settlement.return_hunting_party.safe_substitute(settlement_id=self.settlement["_id"])
+                    output += html.settlement.hunting_party_macros.safe_substitute(settlement_id=self.settlement["_id"])
             return output + html.settlement.campaign_summary_survivors_bot
 
         return survivors
@@ -1439,7 +1458,7 @@ class Settlement:
         healed_survivors = 0
         returning_survivor_id_list = []
         for survivor in self.get_survivors("hunting_party"):
-            S = assets.Survivor(survivor_id=survivor["_id"])
+            S = assets.Survivor(survivor_id=survivor["_id"], session_object=self.Session)
             returning_survivor_id_list.append(S.survivor["_id"])
             S.heal("Return from Hunt")
             healed_survivors += 1
@@ -1456,6 +1475,33 @@ class Settlement:
             if "skip_next_hunt" in survivor.keys():
                 del survivor["skip_next_hunt"]
                 mdb.survivors.save(survivor)
+
+
+    def modify_hunting_party(self, params):
+        """ Modifies all hunters in the settlement's hunting party according to
+        cgi.FieldStorage() params. """
+
+        target_attrib = params["hunting_party_operation"].value
+        target_action = params["operation"].value
+        self.logger.debug("Hunting party operation by %s: %s %s..." % (self.User.user["login"], target_action, target_attrib))
+
+        for s in self.get_survivors("hunting_party"):
+            if target_action == "increment":
+                s[target_attrib] = int(s[target_attrib]) + 1
+            elif target_action == "decrement":
+                s[target_attrib] = int(s[target_attrib]) - 1
+            self.logger.debug("%s %sed Survivor '%s' %s by 1" % (self.User.user["login"], target_action, s["name"], target_attrib))
+
+            # enforce settlement survival limit/min
+            if target_attrib == "survival":
+                if s[target_attrib] > int(self.settlement["survival_limit"]):
+                    s[target_attrib] = self.settlement["survival_limit"]
+
+            # enforce a minimum of zero for all attribs
+            if s[target_attrib] < 0:
+                s[target_attrib] = 0
+
+            mdb.survivors.save(s)
 
     def get_recently_added_items(self):
         """ Returns the three items most recently appended to storage. """
@@ -1835,6 +1881,9 @@ class Settlement:
                     self.settlement["nemesis_monsters"][nemesis_key].append("Lvl 2")
                 elif "Lvl 2" in completed_levels:
                     self.settlement["nemesis_monsters"][nemesis_key].append("Lvl 3")
+            elif p == "hunting_party_operation":
+                self.modify_hunting_party(params)
+                break
             else:
                 self.settlement[p] = params[p].value.strip()
 

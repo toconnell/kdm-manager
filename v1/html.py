@@ -20,23 +20,27 @@ user_error_msg = Template('<div id="user_error_msg" class="$err_class">$err_msg<
 class panel:
     headline = Template("""\n\
     <meta http-equiv="refresh" content="30">
-    <h1>$recent_users_count Recent Users</h1>
+    <table id="panel_meta_stats">
+        <tr><th colspan="2">Global Stats</th></tr>
+        <tr><td>Users:</td><td>$users</td></tr>
+        <tr class="grey"><td>Sessions:</td><td>$sessions</td></tr>
+        <tr><td>Settlements:</td><td>$settlements</td></tr>
+        <tr class="grey"><td>Survivors:</td><td>$survivors</td></tr>
+        <tr><td>Recent Users:</td><td>$recent_users_count</td></tr>
+    </table>
     \n""")
     log_line = Template("""\n\
-    <p>$line</p> 
+    <p>$line</p>
     \n""")
     user_status_summary = Template("""\n\
-    <div id="panel_block">
-        <table class="panel">
-            <tr class="gradient_blue"><th><h3>$user_name</h3></th></tr>
-            <tr class="bold info"><td>Latest Sign-in</td></tr>
-            <tr class="panel_value"><td><p>$latest_sign_in</p></td></tr>
-            <tr class="bold info"><td>Latest Activity</td></tr>
-            <tr class="panel_value"><td><p>$latest_activity</p></td></tr>
-            <tr class="bold info"><td>Latest Action</td></tr>
-            <tr class="panel_value"><td><p>$latest_action</p></td></tr>
-            <tr class="bold info"><td>User Agent</td></tr>
-            <tr class="panel_value"><td><p>$ua</p></td></tr>
+    <div class="panel_block">
+        <table class="panel_recent_user">
+            <tr class="gradient_blue bold"><th colspan="3">$user_name</th></tr>
+            <tr><td>Latest Sign-in:</td><td>$latest_sign_in</td><td>$latest_sign_in_mins m. ago</td></tr>
+            <tr><td>Latest Activity:</td><td>$latest_activity</td><td>$latest_activity_mins m. ago</td></tr>
+            <tr><td>Session Length:</td><td colspan="2">$session_length minutes</td></tr>
+            <tr><td>Latest Action:</td><td colspan="2">$latest_action</td></tr>
+            <tr><td>User Agent:</td><td colspan="2">$ua</td></tr>
         </table>
     </div><br/>
     \n""")
@@ -159,7 +163,6 @@ class survivor:
         <h3>Create a New Survivor!</h3>
         <form method="POST" action="#">
         <input type="hidden" name="new" value="survivor" />
-        <input type="hidden" name="created_by" value="$created_by" />
         <input type="hidden" name="settlement_id" value="$home_settlement">
         <input type="text" name="name" placeholder="Survivor Name"/ class="full_width" autofocus>
         <input type="text" name="email" placeholder="Survivor Email"/ class="full_width" value="$user_email">
@@ -645,6 +648,53 @@ class settlement:
             <button id="return_hunting_party" class="bold gradient_orange" >&#8629; Return Hunting Party</button>
         </form>
     \n""")
+    hunting_party_macros = Template("""\n\
+    <h3>Update Hunting Party Stats:</h3>
+    <div id="hunting_party_macro_container">
+    <div class="hunting_party_macro" style="border-left: 0 none;">
+        <form method="POST">
+            <input type="hidden" name="modify" value="settlement"/>
+            <input type="hidden" name="asset_id" value="$settlement_id"/>
+            <input type="hidden" name="hunting_party_operation" value="survival"/>
+            Survival
+            <button name="operation" value="increment">+1</button>
+            <button name="operation" value="decrement">-1</button>
+        </form>
+    </div>
+    <div class="hunting_party_macro">
+        <form method="POST">
+            <input type="hidden" name="modify" value="settlement"/>
+            <input type="hidden" name="asset_id" value="$settlement_id"/>
+            <input type="hidden" name="hunting_party_operation" value="Insanity"/>
+            Insanity
+            <button name="operation" value="increment">+1</button>
+            <button name="operation" value="decrement">-1</button>
+        </form>
+    </div>
+    <div class="hunting_party_macro">
+        <form method="POST">
+            <input type="hidden" name="modify" value="settlement"/>
+            <input type="hidden" name="asset_id" value="$settlement_id"/>
+            <input type="hidden" name="hunting_party_operation" value="Courage"/>
+            Courage
+            <button name="operation" value="increment">+1</button>
+            <button name="operation" value="decrement">-1</button>
+        </form>
+    </div>
+    <div class="hunting_party_macro">
+        <form method="POST">
+            <input type="hidden" name="modify" value="settlement"/>
+            <input type="hidden" name="asset_id" value="$settlement_id"/>
+            <input type="hidden" name="hunting_party_operation" value="Understanding"/>
+            Understanding
+            <button name="operation" value="increment">+1</button>
+            <button name="operation" value="decrement">-1</button>
+        </form>
+    </div>
+    </div><!-- hunting party macro container -->
+
+    <hr/>
+    \n""")
     storage_remove_button = Template("""\n\
     \t<button id="remove_item" name="remove_item" value="$item_key" style="background-color: #$item_color; color: #000;"> $item_key_and_count </button>
     \n""")
@@ -972,13 +1022,13 @@ class settlement:
 
                     <!-- TIMELINE: HAS ITS OWN FORM  -->
 
-        <a id="edit_timeline"/>
+        <a id="edit_timeline" class="mobile_only"></a>
         <form id="autoForm" method="POST" action="#edit_timeline">
         <input type="hidden" name="modify" value="settlement" />
         <input type="hidden" name="asset_id" value="$settlement_id" />
 
         <br class="mobile_only"/>
-        <h2 class="clickable" onclick="showHide('timelineBlock')">Timeline <img class="dashboard_down_arrow" src="http://media.kdm-manager.com/icons/down_arrow.png"/> </h2>
+        <h2 class="clickable gradient_orange" onclick="showHide('timelineBlock')">LY $lantern_year - View Timeline <img class="dashboard_down_arrow" src="http://media.kdm-manager.com/icons/down_arrow.png"/> </h2>
         <div id="timelineBlock" class="block_group" style="display: none;">
          <div class="big_number_container left_margin">
              <button class="incrementer" onclick="increment('lanternYearBox');">+</button>
@@ -996,7 +1046,7 @@ class settlement:
 
                     <!-- LOST SETTLEMENTS HAS ITS OWN FORM-->
         <div class="block_group">
-            <a id="edit_lost_settlements"/>
+            <a id="edit_lost_settlements" class="mobile_only"></a>
             <form id="autoForm" method="POST" action="#edit_lost_settlements">
             <input type="hidden" name="modify" value="settlement" />
             <input type="hidden" name="asset_id" value="$settlement_id" />
