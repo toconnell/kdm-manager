@@ -1,5 +1,5 @@
         /*                                  */ 
-        /*          style.v3.css            */
+        /*          style.v4.css            */
         /*                                  */
 
 
@@ -8,7 +8,8 @@ html {min-height: 100%;  }
 body {font-family: Helvetica, sans-serif; height: 100%; }
 #container {width: 100%; height: 100%; overflow: hidden;}
 .desktop_only {display: none;}
-fieldset.radio {border: 0; text-align: left; }
+.margin_auto {margin: 0 auto;}
+fieldset {border: 0; text-align: left; }
 
 /*  sign-in styles */
 body.sign_in {background: linear-gradient(#bbb, #333);}
@@ -225,22 +226,28 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
     body {background: 0 none; }
     .desktop_only {display: inline-block;}
     .mobile_only {display: none;}
+    .left_margin, .right_margin {height: auto;}
+    .left_border, .right_border {height: auto;}
+    input[type=text].full_width {width: 88%}
     h1 {font-size: 18pt; }
     h2 {font-size: 15pt; }
     h3 {font-size: 13pt; }
     h4, label {font-size: 12pt; }
     p {font-size: 11pt; margin: 0 auto; text-align: left; padding: 3px; }
     button {font-size: 11pt; margin: 0 auto; width: auto; padding: 3px; }
-    hr {border: 1px solid #000; margin: 0 auto; opacity: 0.2; height: 0; width: 102%; padding: 0 none; margin-left: -1%; }
+    hr {border: 1px solid #000; margin: 0 auto; opacity: 0.2; height: 0; width: 101%; padding: 0 none; margin-left: -1%; }
     form {margin: 0 auto; padding: 0;}
-    select {width: 95%; margin: 10px;}
-    label {clear: right; margin: 0 auto; float: left; }
+    select {width: 95%; margin: 10px; margin-bottom: -40px; }
+    label {clear: both; margin: 0 auto; float: left;  }
+    input[type=radio] {float: left; display: block; width: auto; }
+    input[type=checkbox] {float: left; width: auto; clear: both; }
 
     /* general style */
     button.change_view {margin-left: 3%; width: 20%; }
-    #floating_dashboard_button, .floating_asset_button {position: fixed; top: 1%; margin: 0 auto; height: auto; width: auto; padding: 5px; border: 2px solid; opacity: 1; z-index: 101; }
+    #save_button, #floating_dashboard_button, .floating_asset_button {position: fixed; top: 1%; margin: 0 auto; height: auto; width: auto; padding: 5px; border: 2px solid; opacity: 1; z-index: 101; }
     #floating_dashboard_button {right: 1%; }
     .floating_asset_button {left: 1%; }
+    #save_button {left: 40%; width: 300px; }
 
     /* sign-in styles */
     body.sign_in {background: none; background-color: #aaa; }
@@ -255,7 +262,7 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
 
     /*  dashboard styles */
     .dashboard_alert {font-size: 14pt; }
-    div.dashboard_preferences {width: 60%; text-align: center; margin-left: 7%; }
+    div.dashboard_preferences {width: 60%; text-align: center; margin-left: 20px; margin-top: 10px; }
     div.dashboard_preferences input, div.dashboard_preferences button {margin: 0 auto; margin-bottom: 3%; }
     div.dashboard_preferences button {width: 100%; }
     div.dashboard_preferences input {width: 96%;}
@@ -290,10 +297,42 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
     /* asset creation styles */
     div#create_new_asset_form_container {width: 400px; border: 1px solid #222; margin: 0 auto; padding: 10px; text-align: center;}
     div#create_new_asset_form_container input[type=text] {border: 0px; display: block; width: 350px; } 
-    div#create_new_asset_form_container input[type=radio] {float: left; display: block; width: auto; }
     div#create_new_asset_form_container button {width: 60%; margin: 0 auto; } 
     div.create_new_asset_block {width: 100%; margin: 0 auto; }
 
-
+    /* asset management styles */
+    div#asset_management_left_pane, div#asset_management_middle_pane, div#asset_management_right_pane { margin: 0 auto; float: left; margin-top: -20px; padding: 5px; padding-top: 10px;}
+    div#asset_management_left_pane {width: 360px; padding-left: 10px;}
+    div#asset_management_middle_pane {width: 300px;  border-left: 3px solid #DDD; border-right: 3px solid #DDD;}
+    div#asset_management_right_pane {width: 340px; }
+    input#topline_name, input#topline_name_fixed {width: 374px; position: relative; font-size: 20pt; margin: 0 auto; margin-left: -20px; font-weight: bold; }
+    input#topline_name {margin-bottom: 20px; }
+    .shield, .big_number_square {font-size: 17pt; height: 55px; width: 45px; padding: 0; padding-left: 15px; border: 1px solid #666; margin: 5px; ; }
+    .big_number_container, .big_number_caption {font-size: 13pt; height: auto; width: auto; padding: 0; }
+    .big_number_container {min-height: 80px; }
+    .incrementer, .decrementer {display: none; }
+    div#survivor_hit_box {height: 75px; margin: 0 auto; border: 1px solid #666; margin-bottom: 10px; overflow: hidden; }
+    .hit_box_detail {font-size: 9pt; padding: 0; }
+    .hit_box_detail label {margin-top: -15px; margin-right: -5px;}
+    .hit_box_detail h2 {height: 30px;  }
+    font#hit_box_insanity {font-size: 10px;}        /* smh at this silly shit */
+    .subhead_p_block {font-size: 11pt; margin: 0 auto; margin-bottom: -17px; margin-top: 0px; color: #999; }
+    div#shield_box, div#damage_box {padding: 0; }
+    div#survivor_dead_retired_container, div#survivor_survival_actions_container, div#survivor_survival_box_container {display: inline-block; margin: 0 auto; padding: 10px; padding-left: 0; }
+    div#COD { position: relative; margin-top: 10px; }
+    div#COD input { width: 260px; margin-left: -131px;  }
+    div#survivor_survival_box_container {height: 40px; width: 190px; float: left; }
+    div#survivor_dead_retired_container {float: left; width: 130px; height: 40px;  float: right; }
+    div#survivor_survival_actions_container {width: 170px; height: 90px; margin: 0 auto; float: left; margin-top: 20px; }
+    div#survivor_stats { width: 160px; float: right;}
+    img.icon {width: 14px; }
+    .desktop_indent {margin-left: 110px; }
+    div.item_rack {position: fixed; height: auto; width: 300px; background-color #121212;}
+    button#remove_item {z-index: 10;  }
+    h3.inventory_tag {position: relative;  margin: 0 auto; opacity: 0.6; padding: 0; width: auto; height: 50px; z-index: -100;  margin-right: -50px;  }
+    div.settlement_form_wide_box { float: left; width: 300px; height: 70px; margin: 0 auto; padding-top: 5px;}
+    fieldset.settlement_principle {margin: 0 auto; padding: 0px; padding-left: 20px;  margin-bottom: 10px; }
+    fieldset.settlement_principle input[type=radio] {display: none; }    
 }
+
 
