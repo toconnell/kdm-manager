@@ -229,7 +229,6 @@ class Survivor:
         self.Session = session_object
         if self.Session is None or not self.Session:
             raise Exception("Survivor objects may not be initialized without a Session object!")
-        self.Settlement = self.Session.Settlement
         self.User = self.Session.User
 
         self.logger = get_logger()
@@ -261,6 +260,8 @@ class Survivor:
         if not self.survivor:
             raise Exception("Invalid survivor ID: '%s'" % survivor_id)
 
+        settlement_id = self.survivor["settlement"]
+        self.Settlement = Settlement(settlement_id=settlement_id, session_object=self.Session)
         if self.Settlement is not None:
             self.normalize()
 
