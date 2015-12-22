@@ -22,15 +22,17 @@ class panel:
     <meta http-equiv="refresh" content="30">
     <table id="panel_meta_stats">
         <tr><th colspan="2">Global Stats</th></tr>
-        <tr><td>Users:</td><td>$users</td></tr>
-        <tr class="grey"><td>Sessions:</td><td>$sessions</td></tr>
-        <tr><td>Settlements:</td><td>$settlements</td></tr>
-        <tr class="grey"><td>Survivors:</td><td>$survivors</td></tr>
-        <tr><td>Recent Users:</td><td>$recent_users_count</td></tr>
+        <tr><td>Total Users:</td><td>$users</td></tr>
+        <tr class="grey"><td>Recent Users:</td><td>$recent_users_count</td></tr>
+        <tr><td>Sessions:</td><td>$sessions</td></tr>
+        <tr class="grey"><td>Settlements:</td><td>$settlements</td></tr>
+        <tr><td>Survivors:</td><td>$live_survivors/$dead_survivors ($total_survivors total)</td></tr>
+        <tr class="grey"><td>Valkyrie:</td><td>$complete_death_records complete death recs</td></tr>
+        <tr><td>Latest Fatality:</td><td>$latest_fatality</td></tr>
     </table>
     \n""")
     log_line = Template("""\n\
-    <p>$line</p>
+    <p class="$zebra">$line</p>
     \n""")
     user_status_summary = Template("""\n\
     <div class="panel_block">
@@ -41,6 +43,8 @@ class panel:
             <tr><td>Session Length:</td><td colspan="2">$session_length minutes</td></tr>
             <tr><td>Latest Action:</td><td colspan="2">$latest_action</td></tr>
             <tr><td>User Agent:</td><td colspan="2">$ua</td></tr>
+            <tr><td>Survivors:</td><td colspan="2">$survivor_count</td></tr>
+            <tr><td>Settlements:</td><td colspan="2">$settlements</td></tr>
         </table>
     </div><br/>
     \n""")
@@ -68,6 +72,7 @@ class dashboard:
     campaign_flash = '<img class="dashboard_icon" src="%s/icons/campaign.png"/> ' % settings.get("application", "STATIC_URL")
     settlement_flash = '<img class="dashboard_icon" src="%s/icons/settlement.png"/> ' % settings.get("application", "STATIC_URL")
     system_flash = '<img class="dashboard_icon" src="%s/icons/system.png"/> ' % settings.get("application", "STATIC_URL")
+    refresh_flash = '<img class="dashboard_icon" src="%s/icons/refresh.png"/> ' % settings.get("application", "STATIC_URL")
 
     # dashboard accordions
     motd = Template("""\n
@@ -143,6 +148,7 @@ class dashboard:
 
     # misc html assets
     home_button = '<form method="POST" action="#"><input type="hidden" name="change_view" value="dashboard"/><button id="floating_dashboard_button" class="gradient_silver"> %s <span class="desktop_only">Return to Dashboard</span></button></form>\n' % system_flash
+    refresh_button = '<form method="POST" action="#"><button id="floating_refresh_button" class=""> %s </button></form>\n' % refresh_flash
     view_asset_button = Template("""\n\
     <form method="POST" action="#">
     <input type="hidden" name="view_$asset_type" value="$asset_id" />
@@ -499,7 +505,7 @@ class survivor:
                         <!-- WEAPON PROFICIENCY -->
             <div class="big_number_container left_margin">
                 <button class="incrementer" onclick="increment('proficiencyBox');">+</button>
-                <input id="proficiencyBox" class="big_number_square" type="number" name="Weapon Proficiency" value="$weapon_proficiency" min="0"/>
+                <input onchange="this.form.submit()" id="proficiencyBox" class="big_number_square" type="number" name="Weapon Proficiency" value="$weapon_proficiency" min="0"/>
                 <button class="decrementer" onclick="decrement('proficiencyBox');">-</button>
             </div>
             <div class="big_number_caption">Weapon Proficiency

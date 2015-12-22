@@ -273,6 +273,7 @@ class Session:
                 S = assets.Settlement(settlement_id = settlement["_id"], session_object=self)
                 output += S.render_html_form()
             elif self.session["current_view"] == "view_survivor":
+                output += html.dashboard.refresh_button
                 survivor = mdb.survivors.find_one({"_id": self.session["current_asset"]})
                 S = assets.Survivor(survivor_id = survivor["_id"], session_object=self)
                 output += S.render_html_form()

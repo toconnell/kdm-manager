@@ -188,6 +188,20 @@ class resourceDecksModel(Model):
         Model.__init__(self)
         self.game_assets = game_assets.resource_decks
 
+class weaponProficienciesModel(Model):
+    def __init__(self):
+        Model.__init__(self)
+        self.game_assets = {}
+        for weapon in game_assets.weapon_proficiencies:
+            self.game_assets["Mastery - %s" % weapon] = {
+                "type": "weapon proficiency",
+                "all_survivors": "Specialization - %s" % weapon,
+                "settlement_buff": "All survivors gain <i>Specialization - %s</i>." % weapon,
+            }
+        self.name = "weapon_proficiency_type"
+
+
+
 
 # initialize all of our classes above when this module is imported
 Abilities       = abilitiesModel()
@@ -200,7 +214,7 @@ Innovations     = innovationsModel()
 Quarries        = quarriesModel()
 Resources       = resourcesModel()
 ResourceDecks   = resourceDecksModel()
-
+WeaponProficiencies = weaponProficienciesModel()
 
 
 

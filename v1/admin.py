@@ -355,16 +355,28 @@ class Panel:
     def render_html(self):
         recent_users = self.get_recent_users()
 
+        f = mdb.the_dead.find_one(sort=[("created_on",-1)])
+        f_owner = mdb.users.find_one({"_id": f["created_by"]})["login"]
+        latest_fatality_string = "%s <br/> <b>%s</b> <br/> %s <br/> %s" % (f_owner, f["name"], f["settlement_name"], f["cause_of_death"])
+
+        total_survivors = mdb.survivors.find().count()
+        dead_survivors = mdb.the_dead.find().count()
         output = html.panel.headline.safe_substitute(
             recent_users_count = recent_users.count(),
             users = mdb.users.find().count(),
             sessions = mdb.sessions.find().count(),
             settlements = mdb.settlements.find().count(),
-            survivors = mdb.survivors.find().count(),
+            total_survivors = total_survivors,
+            live_survivors = total_survivors - dead_survivors,
+            dead_survivors = dead_survivors,
+            complete_death_records = mdb.the_dead.find({"complete": {"$exists": True}}).count(),
+            latest_fatality = latest_fatality_string,
         )
+
 
         for user in recent_users:
             User = assets.User(user_id=user["_id"], session_object={"_id": 0, "login": "ADMINISTRATOR"})
+            settlement_strings = ["&ensp; <b>%s</b> (LY:%s) - %s/%s" % (s["name"], s["lantern_year"], s["population"], s["death_count"]) for s in mdb.settlements.find({"created_by": User.user["_id"]}).sort("name")]
             output += html.panel.user_status_summary.safe_substitute(
                 user_name = User.user["login"],
                 ua = User.user["latest_user_agent"],
@@ -374,13 +386,21 @@ class Panel:
                 latest_activity = User.user["latest_activity"].strftime(ymdhms),
                 latest_activity_mins = (datetime.now() - User.user["latest_activity"]).seconds // 60,
                 latest_action = User.user["latest_action"],
+                settlements = "<br/>".join(settlement_strings),
+                survivor_count = mdb.survivors.find({"created_by": User.user["_id"]}).count(),
             )
 
         output += "<hr/><h1>index.log</h1>"
 
-        log_lines = self.get_last_n_log_lines(15)
+        log_lines = self.get_last_n_log_lines(25)
+        zebra = False
         for l in reversed(log_lines):
-            output += html.panel.log_line.safe_substitute(line=l)
+            if zebra:
+                output += html.panel.log_line.safe_substitute(line=l, zebra=zebra)
+                zebra = False
+            else:
+                output += html.panel.log_line.safe_substitute(line=l)
+                zebra = "grey"
 
         return output
 

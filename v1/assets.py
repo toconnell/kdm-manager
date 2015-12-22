@@ -13,7 +13,7 @@ import admin
 import assets
 import game_assets
 import html
-from models import Abilities, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Resources, Quarries
+from models import Abilities, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Resources, Quarries, WeaponProficiencies
 from session import Session
 from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms
 
@@ -261,7 +261,46 @@ class Survivor:
         if not self.survivor:
             raise Exception("Invalid survivor ID: '%s'" % survivor_id)
 
+        if self.Settlement is not None:
+            self.normalize()
 
+
+    def normalize(self):
+        """ Run this when a Survivor object is initialized: it will enforce
+        the data model and apply settlements defaults to the survivor. """
+
+        # auto-apply epithets for Birth of a Savior
+        for ability in ["Dormenatus", "Caratosis", "Lucernae"]:
+            if ability in self.survivor["abilities_and_impairments"] and ability not in self.survivor["epithets"]:
+                self.survivor["epithets"].append(ability)
+
+        # normalize weapong proficiency type
+        if "weapon_proficiency_type" in self.survivor.keys() and type(self.survivor["weapon_proficiency_type"]) in [unicode, str]:
+            sanitized = self.survivor["weapon_proficiency_type"].strip().title()
+            sanitized = " ".join(sanitized.split())
+            self.survivor["weapon_proficiency_type"] = sanitized
+            if self.survivor["weapon_proficiency_type"] == "Fist And Tooth":
+                self.survivor["weapon_proficiency_type"] = "Fist & Tooth"
+        else:
+            self.survivor["weapon_proficiency_type"] = ""
+
+        # check the settlements innovations and auto-add Weapon Specializations
+        #   if there are any masteries in the settlement innovations 
+        for innovation_key in self.Settlement.settlement["innovations"]:
+            if innovation_key in WeaponProficiencies.get_keys():
+                prof_dict = WeaponProficiencies.get_asset(innovation_key)
+                if prof_dict["all_survivors"] not in self.survivor["abilities_and_impairments"]:
+                    self.survivor["abilities_and_impairments"].append(prof_dict["all_survivors"])
+                    self.logger.debug("Auto-applied settlement default '%s' to survivor '%s'." % (prof_dict["all_survivors"], self.survivor["name"]))
+            elif innovation_key.split("-")[0].strip() == "Mastery":
+                custom_weapon = " ".join(innovation_key.split("-")[1:]).title().strip()
+                spec_str = "Specialization - %s" % custom_weapon
+                if spec_str not in self.survivor["abilities_and_impairments"]:
+                    self.survivor["abilities_and_impairments"].append(spec_str)
+                    self.logger.debug("Auto-applied settlement default '%s' to survivor '%s'." % (spec_str, self.survivor["name"]))
+
+
+        mdb.survivors.save(self.survivor)
 
     def new(self, params):
         """ Create a new survivor from cgi.FieldStorage() params. """
@@ -383,7 +422,7 @@ class Survivor:
                     desc = Abilities.get_asset(ability)["desc"]
                     pretty_list.append("<p><b>%s:</b> %s</p>" % (ability, desc))
                 else:
-                    pretty_list.append(ability)
+                    pretty_list.append("<p><b>%s:</b> custom attribute.</p>" % ability)
             return "\n".join(pretty_list)
 
         return all_list
@@ -655,12 +694,7 @@ class Survivor:
                     pass
 
             mdb.the_dead.remove({"survivor_id": self.survivor["_id"]})
-            self.logger.debug("Survivor '%s' removed from The Dead." % self.survivor["name"])
-
-            population += 1
-            death_count -= 1
-
-            self.logger.debug("Un-did death for '%s' (%s)." % (self.survivor["name"], self.survivor["_id"]))
+            self.logger.debug("Survivor '%s' removed from the_dead." % self.survivor["name"])
         else:
             self.logger.debug("Survivor '%s' (%s) has died!" % (self.survivor["name"], self.survivor["_id"]))
             death_dict = {
@@ -681,12 +715,8 @@ class Survivor:
             self.survivor["died_on"] = datetime.now()
             self.survivor["died_in"] = self.Settlement.settlement["lantern_year"]
 
-            population -= 1
-            death_count += 1
 
-        self.Settlement.settlement["population"] = population
-        self.Settlement.settlement["death_count"] = death_count
-
+        self.Settlement.update_mins()
         mdb.settlements.save(self.Settlement.settlement)
         mdb.survivors.save(self.survivor)
 
@@ -696,10 +726,39 @@ class Survivor:
             return False
 
 
+    def modify_weapon_proficiency(self, target_lvl):
+        """ Wherein we update the survivor's 'Weapon Proficiency' attrib. There
+        is some biz logic here re: specializations and masteries. """
+
+        # if we do nothing else, at least update the level
+        self.survivor["Weapon Proficiency"] = target_lvl
+
+        # bail if the user hasn't selected a weapon type
+        if self.survivor["weapon_proficiency_type"] == "":
+            return True
+
+        # otherwise, do the logic for setting/unsetting specialize and master
+        weapon = self.survivor["weapon_proficiency_type"].title().strip()
+        specialization_string = "Specialization - %s" % weapon
+        mastery_string = "Mastery - %s" % weapon
+
+        for proficiency_tuple in [(3, specialization_string), (8, mastery_string)]:
+            lvl, p_str = proficiency_tuple
+            if target_lvl < lvl and p_str in self.survivor["abilities_and_impairments"]:
+                self.survivor["abilities_and_impairments"].remove(p_str)
+            if target_lvl >= lvl and p_str not in self.survivor["abilities_and_impairments"]:
+                self.survivor["abilities_and_impairments"].append(p_str)
+
+        if mastery_string in self.survivor["abilities_and_impairments"]:
+            self.Settlement.settlement["innovations"].append(mastery_string)
+            mdb.settlements.save(self.Settlement.settlement)
+            self.logger.debug("Survivor '%s' added '%s' to settlement %s's Innovations!" % (self.survivor["name"], mastery_string, self.Settlement.settlement["name"]))
+
     def modify(self, params):
         """ Reads through a cgi.FieldStorage() (i.e. 'params') and modifies the
         survivor. """
 
+        self.Settlement.update_mins()
 
         for p in params:
 
@@ -736,6 +795,8 @@ class Survivor:
                 admin.valkyrie()
             elif game_asset_key == "None":
                 del self.survivor[p]
+            elif p == "Weapon Proficiency":
+                self.modify_weapon_proficiency(int(game_asset_key))
             else:
                 self.survivor[p] = game_asset_key
 
@@ -1033,22 +1094,28 @@ class Settlement:
 
         There's also some misc. house-keeping that happens here, e.g. changing
         lists to sets (since MDB doesn't support sets), etc.
+
+        This one should be called FREQUENTLY, as it enforces the data model and
+        sanitizes the settlement object's settlement dict.
         """
+
+        set_attribs = ["milestone_story_events", "innovations", "locations", "principles", "quarries"]
+
+        for a in set_attribs:
+            self.settlement[a] = list(set([i for i in self.settlement[a] if type(i) in (str, unicode)]))
 
         for min_key in ["population", "death_count", "survival_limit"]:
             min_val = self.get_min(min_key)
             orig_val = int(self.settlement[min_key])
             if orig_val < min_val:
                 self.settlement[min_key] = min_val
-                self.logger.debug("Automatically updated settlement %s %s from %s to %s" % (self.settlement["_id"], min_key, orig_val, min_val))
+                self.logger.debug("Automatically updated settlement %s (%s) %s from %s to %s" % (self.settlement["name"], self.settlement["_id"], min_key, orig_val, min_val))
 
             # just a little idiot- and user-proofing against negative values
             if self.settlement[min_key] < 0:
                 self.settlement[min_key] = 0
 
-        for force_set in ["milestone_story_events", "innovations", "locations", "principles", "quarries"]:
-            self.settlement[force_set] = list(set([i for i in self.settlement[force_set] if type(i) == unicode]))
-
+#        self.logger.debug("Updated minimum values for settlement %s (%s)" % (self.settlement["name"], self.settlement["_id"]))
         mdb.settlements.save(self.settlement)
 
 
@@ -1424,12 +1491,12 @@ class Settlement:
                 # finally, file our newly minted survivor in a group:
                 if "in_hunting_party" in S.survivor.keys():
                     groups[1]["survivors"].append(survivor_html)
+                elif "dead" in S.survivor.keys():
+                    groups[5]["survivors"].append(survivor_html)
                 elif "skip_next_hunt" in S.survivor.keys():
                     groups[3]["survivors"].append(survivor_html)
                 elif "retired" in S.survivor.keys():
                     groups[4]["survivors"].append(survivor_html)
-                elif "dead" in S.survivor.keys():
-                    groups[5]["survivors"].append(survivor_html)
                 else:
                     groups[2]["survivors"].append(survivor_html)
 
@@ -1440,7 +1507,7 @@ class Settlement:
 
             for g in sorted(groups.keys()):
                 group = groups[g]
-                output += "<h4>%s</h4>\n" % group["name"]
+                output += "<h4>%s (%s)</h4>\n" % (group["name"], len(group["survivors"]))
                 for s in group["survivors"]:
                     output += "  %s\n" % s
                 if group["name"] == "Hunting Party" and group["survivors"] == []:
@@ -1554,10 +1621,6 @@ class Settlement:
 
             innovations = self.settlement["innovations"]
             innovations.extend(self.settlement["principles"])
-            for innovation_key in innovations:
-                if type(innovation_key) != unicode:
-                    innovations.remove(innovation_key)
-                    self.logger.debug("Removed '%s' from settlement %s innovations." % (innovation_key, self.settlement["_id"]))
             innovations = list(set(innovations))
             for innovation_key in innovations:
                 if innovation_key in Innovations.get_keys() and "survival_limit" in Innovations.get_asset(innovation_key).keys():
@@ -1626,7 +1689,7 @@ class Settlement:
             asset_deck = Asset.get_always_available()
 
         for asset_key in current_assets:
-            if asset_key in Asset.get_keys():
+            if asset_key in Asset.get_keys() and "consequences" in Asset.get_asset(asset_key).keys():
                 for c in Asset.get_asset(asset_key)["consequences"]:
                     asset_deck.add(c)
 
@@ -1670,6 +1733,8 @@ class Settlement:
         asset is a blank list (i.e. []): this is useful when writing the form,
         because if we've got no options, we display no select element.
         """
+        self.update_mins()
+
         exec "Asset = %s" % asset_type.capitalize() # if asset_type is 'innovations', initialize 'Innovations'
         asset_name = asset_type[:-1]                # if asset_type is 'locations', asset_name is 'location'
         asset_keys = self.settlement[asset_type]
@@ -1678,13 +1743,11 @@ class Settlement:
             while asset_key in asset_keys:
                 asset_keys.remove(asset_key)
 
-        for asset in asset_keys:
-            if type(asset) != unicode:
-                asset_keys.remove(asset)
-
-        for asset_key in exclude:
+        for asset_key in exclude:                   # this is a double-check
             if asset_key in asset_keys:
-                raise
+                msg = "Asset key '%s' could not be excluded from '%s'!" % (asset_key, asset_type)
+                self.logger.error(msg)
+                raise Exception(msg)
 
         #   now do return types
         if return_type == "comma-delimited":
@@ -1935,6 +1998,8 @@ class Settlement:
         """ This is the all-singing, all-dancing form creating function. Pretty
         much all of the UI/UX happens here. """
 
+        self.update_mins()
+
         hide_new_life_principle = "hidden"
         first_child = ""
         if "First child is born" in self.settlement["milestone_story_events"]:
@@ -2008,7 +2073,7 @@ class Settlement:
         if population < self.get_min("population"):
             population = self.get_min("population")
 
-        output = html.settlement.form.safe_substitute(
+        return html.settlement.form.safe_substitute(
             MEDIA_URL = settings.get("application","STATIC_URL"),
             settlement_id = self.settlement["_id"],
             game_link = self.asset_link(context="asset_management"),
@@ -2069,9 +2134,6 @@ class Settlement:
             defeated_monsters_add = self.get_defeated_monsters_deck(return_type="html_add"),
 
         )
-        self.update_mins()
-
-        return output
 
 
     def asset_link(self, context=None):

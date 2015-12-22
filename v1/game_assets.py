@@ -6,6 +6,126 @@
 #
 
 abilities_and_impairments = {
+    "Specialization - Katar": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "When attacking with a Katar, cancel reactions on the first selected hit location.",
+    },
+    "Mastery - Katar": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "If you are a Katar Master, gain a <i>+1 evasion</i> token on a <b>perfect hit</b> with a katar. When you are knocked down, remove all +1 evasion tokens.",
+    },
+    "Specialization - Bow": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "When attacking with a bow, you may reroll any misses once. Limit, once per attack",
+    },
+    "Mastery - Bow": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "If you are a Bow Master, all Bows in your gear grid gain <b>Deadly 2</b>. In addition, ignore <b>cumbersome</b> on all Bows.",
+    },
+    "Specialization - Twilight Sword": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "This sentient sword improves as it's used. Gain the effect as proficiency rank increases. Rank 2: Ignore <b>Cumbersome</b> on Twilight Sword. Rank 4: When attacking with the Twilight Sword, ignore <b>slow</b> and gain +2 speed. Rank 6: Twilight Sword gains <b>Deadly</b>.",
+    },
+    "Mastery - Twilight Sword": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "Any Survivor who attains Twilight Sword Mastery leaves the settlement forever in pursuit of a higher purpose. Remove them from the settlement's population. You may place the master's Twilight Sword in another survivor's gear grid or archive it.",
+    },
+    "Specialization - Axe": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "When attacking with an axe, if your wound attempt fails, you may ignore it and attempt to wound the selected hit location again. Limit, once per attack.",
+    },
+    "Mastery - Axe": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "When an Axe Master wounds a monster with an axe at a location with a persistent injury, that wound becomes a critical wound.",
+    },
+    "Specialization - Spear": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "When attacking with a spear, if you draw a <b>trap</b>, roll 1d10. On a 7+, cancel the <b>trap</b>. Discard it, then reshuffle the hit location discard into the hit location deck and draw a new card. Limit, once per round.",
+    },
+    "Mastery - Spear": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "Whenever a Spear Master hits a monster with a Separ, they may spend 1 survival to gain the Priority Target token. If they made the hit from directly behind another survivor, that survivor gains the Priority Target token instead.",
+    },
+    "Specialization - Club": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "All clubs in your gear grid gain <b>paired</b>. Cannot use this with two-handed clubs.",
+    },
+    "Mastery - Club": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "If you are a Club Master, all Clubs in your gear grid gain <b>Savage</b>. On a <b>Perfect hit</b> with a Club, gain <i>+3 strength</i> until the end of the attack.",
+    },
+    "Specialization - Fist & Tooth": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "You may stand (if knocked down) at the start of the monster's turn or the survivor's turn. Limit once per round.",
+    },
+    "Mastery - Fist & Tooth": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "While a survivor is a Fist & Tooth MAster, they gain <i>+2 permanent accuracy</i> and <i>+2 permanent strength</i> (they receive this bonus even when not attacking with Fist and Tooth).",
+    },
+    "Specialization - Grand Weapon": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "When attacking with a grand weapon, gain <i>+1 accuracy</i>.",
+    },
+    "Mastery - Grand Weapon": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "When a Grand Weapon Master perfectly hits with a grand weapon, cancel all reactions for that attack.",
+    },
+    "Specialization - Whip": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "When you wound with a whip, instead of moving the top card of the AI deck into the wound stack, you may move the top card of the AI discard pile. Limit once per attack.",
+    },
+    "Mastery - Whip": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "Whip Masters gain <i>+5 strength</i> when attacking with a Whip.",
+    },
+    "Mastery - Shield": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "When a Shield Master is adjacent to a survivor that is targeted by a monster, they may swap spaces on the baord with the survivor and become the target instead. The master must have a shield to perform this.",
+    },
+    "Specialization - Shield": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "While a shield is in your gear grid, you are no longer knocked down after <b>collision</b> with a monster. Whil a shield is in your gear grid, add <b>1</b> to all hit locations.",
+    },
+    "Specialization - Dagger": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "When attacking with a Dagger, if a wound attempt fails, after performing any reactions, you may discard another drawn hit location card to attempt to wound that hit location again. Limit, once per attack.",
+    },
+    "Mastery - Dagger": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "After a wounded hit location is discarded, a Dagger Master who is adjacent to the attacker and the wounded monster may spend 1 survival to re-draw the wounded hit location and attempt to wound with a dagger. Treat monster reactions on the re-drawn hit location card normally.",
+    },
+    "Specialization - Sword": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "When attacking with a sword, after drawing hit locations, make a wound attempt and then select a hit location to resolve with that result. Limit, once per attack.",
+    },
+    "Mastery - Sword": {
+        "type": "weapon proficiency",
+        "max": 1,
+        "desc": "A Sword master gains +1 accuracy, +1 strength, and +1 speed when attacking with a Sword."
+    },
     "Thundercaller": {
         "type": "ability",
         "desc": 'Once a lifetime, on a hunt board space after Overwhelming Darkness, in place of rolling a random hunt event, use "53" as your result.',
@@ -325,6 +445,11 @@ disorders = {
 
 
 epithets = {
+    "The Fertile": {},
+    "Defiled": {},
+    "Occult": {},
+    "Living Sacrifice": {},
+    "Sacrificed": {},
     "Corpsegrinder": {},
     "Ate the Fruit": {},
     "Silence Breaker": {},
@@ -365,6 +490,7 @@ epithets = {
     "The Destroyer": {},
     "Patriarch": {"sex": "M", },
     "Matriarch": {"sex": "F", },
+    "Experimented with Lanterns": {},
     "Dimmed by the Lantern": {},
     "Masticated": {},
     "Death Taster": {},
@@ -1061,76 +1187,55 @@ items = {
 innovations = {
     "Graves": {
         "type": "death principle",
-        "consequences": [],
         "settlement_buff": "All new survivors gain +1 understanding. When a survivor dies during the hunt or showdown phase, gain +2 Endeavors. When a survivor dies during the settlement phase, gain +1 Endeavor.",
         "survivor_buff": "All new survivors gain +1 understanding.",
     },
     "Cannibalize": {
         "type": "death principle",
-        "consequences": [],
         "survival_limit": 1,
         "settlement_buff": "Whenever a survivor dies, draw one basic resource and add it to the settlement storage.",
     },
     "Barbaric": {
         "type": "conviction principle",
-        "consequences": [],
         "survival_limit": 1,
         "survivor_buff": "All current and newborn survivors gain +1 peromanent Strength.",
     },
     "Romantic": {
         "type": "conviction principle",
-        "consequences": [],
         "survival_limit": 1,
         "settlement_buff": "You may innovate one additional time during the settlement phase. In addition, all current and newborn survivors gain +1 understanding.",
         "survivor_buff": "All current and newborn survivors gain +1 understanding.",
     },
     "Collective Toil": {
         "type": "society principle",
-        "consequences": [],
         "settlement_buff": "At the start of the settlement phase, gain +1 Endeavor for every 10 population.",
     },
     "Accept Darkness": {
         "type": "society principle",
-        "consequences": [],
         "survivor_buff": "Add +2 to all Brain Trauma Rolls.",
     },
     "Protect the Young": {
         "type": "new life principle",
-        "consequences": [],
         "survivor_buff": "When rolling on the Intimacy story event, roll twice and pick one result.",
     },
     "Survival of the Fittest": {
         "type": "new life principle",
-        "consequences": [],
         "survival_limit": 1,
         "settlement_buff": "When rolling on the Intimacy story event, roll twice and pick the lowest result. All newborn survivors gain +1 Strength.",
         "survivor_buff": "All newborn survivors gain +1 Strength.",
     },
     "Clan of Death": {
         "type": "home",
-        "consequences": [],
         "survivor_buff": "All newborn survivors gain +1 Accuracy, +1 Strength and +1 Evasion.",
     },
-    "Sacrifice": {
-        "type": "faith",
-        "consequences": [],
-    },
-    "Scarification": {
-        "type": "faith",
-        "consequences": [],
-    },
-    "Records": {
-        "type": "education",
-        "consequences": [],
-    },
+    "Sacrifice": { "type": "faith", },
+    "Scarification": { "type": "faith", },
+    "Records": { "type": "education", },
     "Shrine": {
         "type": "faith",
         "consequences": ["Sacrifice"],
     },
-    "Scrap Smelting": {
-        "type": "science",
-        "consequences": [],
-    },
+    "Scrap Smelting": {"type": "science"},
     "Cooking": {
         "type": "science",
         "consequences": [],
@@ -1167,18 +1272,9 @@ innovations = {
         "consequences": ["Records"],
         "survival_limit": 1,
     },
-    "Nightmare Training": {
-        "type": "education",
-        "consequences": [],
-    },
-    "Momento Mori": {
-        "consequences": [],
-        "type": "art",
-    },
-    "Face Painting": {
-        "type": "art",
-        "consequences": [],
-    },
+    "Nightmare Training": {"type": "education"},
+    "Momento Mori": {"type": "art"},
+    "Face Painting": {"type": "art"},
     "Sculpture": {
         "type": "art",
         "consequences": ["Pottery"],
@@ -1192,26 +1288,17 @@ innovations = {
     },
     "Pottery": {
         "type": "art",
-        "consequences": [],
         "survival_limit": 1,
         "settlement_buff": "If the settlement loses all its resources, you may select up to two resources and keep them.",
     },
-    "Heart Flute": {
-        "type": "music",
-        "consequences": [],
-    },
+    "Heart Flute": {"type": "music"},
     "Saga": {
         "type": "music",
-        "consequences": [],
         "survivor_buff": "All newborn survivors gain +2 hunt experience and +2 survival from knowing the epic.",
     },
-    "Forbidden Dance": {
-        "type": "music",
-        "consequences": [],
-    },
+    "Forbidden Dance": {"type": "music"},
     "Bed": {
         "type": "home",
-        "consequences": [],
         "survival_limit": 1,
     },
     "Family": {
@@ -1227,13 +1314,9 @@ innovations = {
     },
     "Partnership": {
         "type": "home",
-        "consequences": [],
         "always_available": True,
     },
-    "Bloodletting": {
-        "type": "science",
-        "consequences": [],
-    },
+    "Bloodletting": {"type": "science"},
     "Language": {
         "type": "starting",
         "consequences": ["Hovel", "Inner Lantern", "Drums", "Paint", "Symposium", "Ammonia"],
@@ -1254,19 +1337,16 @@ innovations = {
     },
     "Final Fighting Art": {
         "type": "education",
-        "consequences": [],
         "survival_limit": 1,
         "always_available": True,
     },
     "Ultimate Weapon": {
         "type": "science",
-        "consequences": [],
         "survival_limit": 1,
         "always_available": True,
     },
     "Guidepost": {
         "type": "other",
-        "consequences": [],
         "departure_buff": "Departing survivors gain +1 survival.",
         "always_available": True,
     },
@@ -1319,3 +1399,19 @@ resource_decks = {
 
 survival_actions = ["Dodge", "Encourage", "Surge", "Dash"]
 survivor_attributes = ["Movement", "Accuracy", "Strength", "Evasion", "Luck", "Speed"]
+
+
+weapon_proficiencies = {
+    "Bow": {},
+    "Katar": {},
+    "Sword": { },
+    "Dagger": { },
+    "Shield": { },
+    "Whip": {},
+    "Grand Weapon": { },
+    "Fist & Tooth": { },
+    "Club": {},
+    "Spear": {},
+    "Axe": {},
+    "Twilight Sword": {},
+}
