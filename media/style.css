@@ -1,5 +1,5 @@
         /*                                  */ 
-        /*          style.v4.css            */
+        /*          style.css            */
         /*                                  */
 
 
@@ -38,7 +38,12 @@ h2.clickable {
 .dashboard_down_arrow, .COD_down_Arrow {float: right; z-index: 20;}
 .dashboard_down_arrow {margin-right: 20px; margin-top: 20px; }
 .COD_down_arrow {float: right; z-index: 20; margin-right: 80px; margin-top: -50px; }
- 
+
+
+/* settlement styles */
+.hunting_party_macro {float: left; padding: 3px; text-align: center; width: 310px;}
+.hunting_party_macro button {width: 90%;; }
+#hunting_party_macro_container {width: 100%; padding: 0; margin: 0 auto; text-align: center; }
 
 /* panel styles */
 div#panel_block {width: 100%; padding: 0px;}
@@ -73,6 +78,7 @@ button, h1, h3, div#shield_box, #block_group h2, input#topline_name, input#topli
 
 .gradient_silver { border-color: #666; background: linear-gradient(-90deg, #858FAA, #D7DDE8); }
 .gradient_blue { background: linear-gradient(-90deg, #3a7bd5, #00d2ff);  }
+.grey {background-color: #CCC;}
 
 .tan    { border-color: #A97D5D; background-color: #F7DCB4; }
 .info  { color: #00529B; background-color: #BDE5F8; }
@@ -293,6 +299,10 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
     button#add_survivor_to_party {font-size: 15pt; padding: 10px; height: auto; width: auto; }
     button#survivor_campaign_asset {width: 300px; }
     button#campaign_summary_new_survivor {margin: 0 auto; width: 300px; margin-bottom: 20px; padding: 10px;  }
+    .hunting_party_macro {float: left; padding: 3px; text-align: center; width: 84px; font-size: 11pt; border-left: 1px solid #ddd;}
+    .hunting_party_macro button {width: 90%; margin: 3px; }
+    #hunting_party_macro_container {width: 100%; padding: 0; margin: 0 auto; text-align: center; }
+
 
     /* asset creation styles */
     div#create_new_asset_form_container {width: 400px; border: 1px solid #222; margin: 0 auto; padding: 10px; text-align: center;}
@@ -333,6 +343,11 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
     div.settlement_form_wide_box { float: left; width: 300px; height: 70px; margin: 0 auto; padding-top: 5px;}
     fieldset.settlement_principle {margin: 0 auto; padding: 0px; padding-left: 20px;  margin-bottom: 10px; }
     fieldset.settlement_principle input[type=radio] {display: none; }    
+
+    /* panel styles */
+    #panel_meta_stats, .panel_recent_user {font-size: 12pt; border-collapse: collapse; border-bottom: 1px solid #aaa;}
+    #panel_meta_stats {width: 500px; margin-bottom: 20px; }
+    .panel_recent_user {float: left; margin: 10px; width: 600px; }
 }
 
 
