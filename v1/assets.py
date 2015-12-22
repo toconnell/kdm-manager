@@ -292,7 +292,7 @@ class Survivor:
                 prof_dict = WeaponProficiencies.get_asset(innovation_key)
                 if prof_dict["all_survivors"] not in self.survivor["abilities_and_impairments"]:
                     self.survivor["abilities_and_impairments"].append(prof_dict["all_survivors"])
-                    self.logger.debug("Auto-applied settlement default '%s' to survivor '%s'." % (prof_dict["all_survivors"], self.survivor["name"]))
+                    self.logger.debug("Auto-applied settlement default '%s' to survivor '%s' of '%s'." % (prof_dict["all_survivors"], self.survivor["name"], self.Settlement.settlement["name"]))
             elif innovation_key.split("-")[0].strip() == "Mastery":
                 custom_weapon = " ".join(innovation_key.split("-")[1:]).title().strip()
                 spec_str = "Specialization - %s" % custom_weapon
