@@ -230,6 +230,7 @@ class Survivor:
         if self.Session is None or not self.Session:
             raise Exception("Survivor objects may not be initialized without a Session object!")
         self.User = self.Session.User
+        self.Settlement = self.Session.Settlement
 
         self.logger = get_logger()
         self.damage_locations = [
