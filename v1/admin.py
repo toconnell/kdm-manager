@@ -355,7 +355,7 @@ class Panel:
     def render_html(self):
         recent_users = self.get_recent_users()
 
-        f = mdb.the_dead.find_one(sort=[("created_on",-1)])
+        f = mdb.the_dead.find_one({"complete": {"$exists": True}}, sort=[("created_on",-1)])
         f_owner = mdb.users.find_one({"_id": f["created_by"]})["login"]
         latest_fatality_string = "%s <br/> <b>%s</b> <br/> %s <br/> %s" % (f_owner, f["name"], f["settlement_name"], f["cause_of_death"])
 
