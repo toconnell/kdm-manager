@@ -38,8 +38,8 @@ class panel:
     <div class="panel_block">
         <table class="panel_recent_user">
             <tr class="gradient_blue bold"><th colspan="3">$user_name</th></tr>
-            <tr><td>Latest Sign-in:</td><td>$latest_sign_in</td><td>$latest_sign_in_mins m. ago</td></tr>
             <tr><td>Latest Activity:</td><td>$latest_activity</td><td>$latest_activity_mins m. ago</td></tr>
+            <tr><td>Latest Sign-in:</td><td>$latest_sign_in</td><td>$latest_sign_in_mins m. ago</td></tr>
             <tr><td>Session Length:</td><td colspan="2">$session_length minutes</td></tr>
             <tr><td>Latest Action:</td><td colspan="2">$latest_action</td></tr>
             <tr><td>User Agent:</td><td colspan="2">$ua</td></tr>
@@ -60,6 +60,7 @@ class ui:
     game_asset_add_custom = Template("""\n\
 <input onchange="this.form.submit()" type="text" class="full_width" name="add_$asset_name" placeholder="add custom $asset_name"/>
     \n""")
+    text_input = Template('\t  <input onchange="this.form.submit()" type="text" class="full_width" name="$name" placeholder="$placeholder_text"/>')
 
 
 class dashboard:
@@ -613,7 +614,7 @@ class survivor:
                  <label class="radio_principle_label" for="skip_next_hunt" id="float_right_toggle"> Skip Next<br/>Hunt </label>
                     $abilities_and_impairments<br class="mobile_only"/>
                     $add_abilities_and_impairments
-                <input onchange="this.form.submit()" class="full_width" type="text" name="add_ability" placeholder="add ability or impairment"/>
+                <input onchange="this.form.submit()" class="full_width" type="text" name="add_ability" placeholder="add custom ability or impairment"/>
                     $remove_abilities_and_impairments
 
                 </p>
@@ -705,6 +706,10 @@ class settlement:
     \t<button id="remove_item" name="remove_item" value="$item_key" style="background-color: #$item_color; color: #000;"> $item_key_and_count </button>
     \n""")
     storage_tag = Template('<h3 class="inventory_tag" style="color: #$color">$name</h3><hr/>')
+    storage_resource_pool = Template("""\n\
+    <p>Hide: $hide, Bone: $bone, Scrap: $scrap, Organ: $organ</p>
+    <hr/>
+    \n""")
 
     #   campaign view campaign summary
     campaign_summary_survivors_top = '<div id="campaign_summary_survivors">\n<h3 class="mobile_only">Survivors</h3>'

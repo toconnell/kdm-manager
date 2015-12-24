@@ -307,9 +307,13 @@ class Survivor:
     def new(self, params):
         """ Create a new survivor from cgi.FieldStorage() params. """
 
+        if "name" in params:
+            survivor_name = params["name"].value
+        else:
+            survivor_name = "Anonymous"
+
         created_by = self.User.user["_id"]
         settlement_id = ObjectId(params["settlement_id"].value)
-        survivor_name = params["name"].value
         survivor_email = params["email"].value.lower()
         survivor_sex = params["sex"].value[0].upper()
 
@@ -393,6 +397,20 @@ class Survivor:
 
         return available_actions
 
+    def add_ability_customization(self, attrib_key, attrib_customization):
+        """ This basically creates a custom dict on the Survivor that is used
+        when rendering attributes. Not super elegant, but it'll do for version
+        one. """
+
+        if not "ability_customizations" in self.survivor.keys():
+            self.survivor["ability_customizations"] = {}
+
+        if not attrib_key in self.survivor["ability_customizations"]:
+            self.survivor["ability_customizations"][attrib_key] = []
+
+        self.survivor["ability_customizations"][attrib_key].append(attrib_customization)
+        self.logger.debug("Custom ability description '%s' -> '%s' added to survivor '%s' by %s" % (attrib_key, attrib_customization, self.survivor["name"], self.Session.User.user["login"]))
+
 
     def get_abilities_and_impairments(self, return_type=False):
         """ This...really needs to be deprecated soon. """
@@ -410,8 +428,19 @@ class Survivor:
             if all_list == []:
                 return ""
 
-            output = '<select name="remove_ability" onchange="this.form.submit()">'
-            output += '<option selected disabled hidden value="">Remove Ability</option>'
+            output = '<select name="customize_ability">'
+            output += '<option selected disabled hidden value="">Customize Ability</option>'
+            for ability in all_list:
+                output += html.ui.game_asset_select_row.safe_substitute(asset=ability)
+            output += html.ui.game_asset_select_bot
+            output += html.ui.text_input.safe_substitute(name="custom_ability_description", placeholder_text="customize ability") 
+
+            output += html.ui.game_asset_select_top.safe_substitute(
+                operation = "remove_",
+                operation_pretty = "Remove",
+                name = "ability",
+                name_pretty = "Ability",
+            )
             for ability in all_list:
                 output += '<option>%s</option>' % ability
             output += '</select>'
@@ -420,11 +449,16 @@ class Survivor:
         if return_type == "html_formatted":
             pretty_list = []
             for ability in all_list:
+                suffix = ""
+                if "ability_customizations" in self.survivor.keys() and ability in self.survivor["ability_customizations"]:
+                    suffix = " ".join(self.survivor["ability_customizations"][ability])
                 if ability in Abilities.get_keys():
                     desc = Abilities.get_asset(ability)["desc"]
-                    pretty_list.append("<p><b>%s:</b> %s</p>" % (ability, desc))
+                    pretty_list.append("<p><b>%s:</b> %s %s</p>" % (ability, desc, suffix))
+                elif ability not in Abilities.get_keys() and suffix != "":
+                    pretty_list.append("<p><b>%s:</b> %s" % (ability, suffix))
                 else:
-                    pretty_list.append("<p><b>%s:</b> custom attribute.</p>" % ability)
+                    pretty_list.append("<p><b>%s:</b> custom ability or impairment (use fields below to add a description).</p>" % ability)
             return "\n".join(pretty_list)
 
         return all_list
@@ -799,6 +833,10 @@ class Survivor:
                 del self.survivor[p]
             elif p == "Weapon Proficiency":
                 self.modify_weapon_proficiency(int(game_asset_key))
+            elif p == "customize_ability" and "custom_ability_description" in params:
+                self.add_ability_customization(params[p].value, params["custom_ability_description"].value)
+            elif p == "custom_ability_description":
+                pass
             else:
                 self.survivor[p] = game_asset_key
 
@@ -1222,10 +1260,13 @@ class Settlement:
                     for item_key in item_dict[location].keys():
                         quantity = item_dict[location][item_key]["count"]
                         color = item_dict[location][item_key]["color"]
+                        suffix = ""
+                        if item_key in Items.get_keys() and "resource_family" in Items.get_asset(item_key):
+                            suffix = " <sup>%s</sup>" % "/".join([c[0].upper() for c in sorted(Items.get_asset(item_key)["resource_family"])])
                         if quantity > 1:
-                            pretty_text = "%s x %s" % (item_key, quantity)
+                            pretty_text = "%s %s x %s" % (item_key, suffix, quantity)
                         else:
-                            pretty_text = item_key
+                            pretty_text = item_key + suffix
                         output += html.settlement.storage_remove_button.safe_substitute(
                             item_key = item_key,
                             item_color = color,
@@ -1243,6 +1284,23 @@ class Settlement:
                         pretty_text = item_key
                     output += html.settlement.storage_remove_button.safe_substitute( item_key = item_key, item_color = color, item_key_and_count = pretty_text)
                 output += html.settlement.storage_tag.safe_substitute(name="Custom Items", color=color)
+
+            resource_pool = {"hide": 0, "scrap": 0, "bone": 0, "organ": 0}
+            pool_is_empty = True
+            for item_key in storage:
+                if item_key in Items.get_keys() and "resource_family" in Items.get_asset(item_key).keys():
+                    item_dict = Items.get_asset(item_key)
+                    for resource_key in item_dict["resource_family"]:
+                        resource_pool[resource_key] += 1
+                        pool_is_empty = False
+            if not pool_is_empty:
+                output += html.settlement.storage_resource_pool.safe_substitute(
+                    hide = resource_pool["hide"],
+                    bone = resource_pool["bone"],
+                    scrap = resource_pool["scrap"],
+                    organ =resource_pool["organ"],
+                )
+
             return output
 
 

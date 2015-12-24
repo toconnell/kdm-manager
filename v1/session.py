@@ -71,7 +71,7 @@ class Session:
                 if "current_asset" in self.session.keys():
                     self.logger.info("set settlement from current_asset %s" % self.session["current_asset"])
                     s_id = ObjectId(self.session["current_asset"])
-                    self.Settlement = assets.Settlement(settlement_id=s_id)
+                    self.Settlement = assets.Settlement(settlement_id=s_id, session_object=self)
 
 #        if self.Settlement is None:
 #            self.logger.debug("Unable to set 'current_settlement' for session '%s'." % self.session["_id"])
@@ -176,7 +176,10 @@ class Session:
 
         if "new" in self.params:
             if self.params["new"].value == "settlement":
-                settlement_name = self.params["settlement_name"].value
+                if "settlement_name" in self.params:
+                    settlement_name = self.params["settlement_name"].value
+                else:
+                    settlement_name = "Settlement Name"
                 S = assets.Settlement(name=settlement_name, session_object=self)
                 self.set_current_settlement(S.settlement["_id"])
                 self.change_current_view("view_campaign", asset_id=S.settlement["_id"])

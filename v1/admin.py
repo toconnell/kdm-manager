@@ -392,7 +392,7 @@ class Panel:
 
         output += "<hr/><h1>index.log</h1>"
 
-        log_lines = self.get_last_n_log_lines(25)
+        log_lines = self.get_last_n_log_lines(50)
         zebra = False
         for l in reversed(log_lines):
             if zebra:

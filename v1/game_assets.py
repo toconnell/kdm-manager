@@ -6,6 +6,10 @@
 #
 
 abilities_and_impairments = {
+    "Partner": {
+        "type": "ability",
+        "desc": 'When you both <b>depart</b>, gain +2 survival. While adjacent to your partner, gain +1 strength. Partners may only nominate each other for <img class="icon" src="http://media.kdm-manager.com/icons/trigger_story_event.png" /> <b>Intimacy</b>. When a partner dies, the remaining partner gains a random disorder and loses this ability.',
+    },
     "Specialization - Katar": {
         "type": "weapon proficiency",
         "max": 1,
@@ -164,6 +168,11 @@ abilities_and_impairments = {
     "Matchmaker": {
         "type": "ability",
         "desc": "When you are a returning survivor, once per year you may spend 1 Endeavor to trigger Intimacy (story event).",
+        "max": 1,
+    },
+    "Leprosy": {
+        "type": "impairment",
+        "desc": "Reduce all damage suffered by 1 to a minimum of 1. When rolling on the severe injury table, -2 to any result.",
         "max": 1,
     },
     "Cancerous Illness": {
@@ -788,144 +797,199 @@ items = {
     },
     "Love Juice": {
         "location": "Basic Resources",
+        "resource_family": ["organ"],
+        "consumable": True,
     },
     "Skull": {
         "location": "Basic Resources",
+        "resource_family": ["bone"],
     },
     "???": {
         "location": "Basic Resources",
+        "resource_family": ["organ","hide","bone"],
+        "consumable": True,
     },
     "Monster Bone": {
         "location": "Basic Resources",
+        "resource_family": ["bone"],
     },
     "Monster Organ": {
         "location": "Basic Resources",
+        "resource_family": ["organ"],
+        "consumable": True,
     },
     "Monster Hide": {
         "location": "Basic Resources",
+        "resource_family": ["hide"],
     },
     "Broken Lantern": {
         "location": "Basic Resources",
+        "resource_family": ["scrap"],
     },
     "Iron": {
         "location": "Strange Resources",
+        "resource_family": ["scrap"],
     },
     "Leather": {
         "location": "Strange Resources",
+        "resource_family": ["hide"],
     },
     "Elder Cat Teeth": {
         "location": "Strange Resources",
+        "resource_family": ["bone"],
     },
     "Phoenix Crest": {
         "location": "Strange Resources",
+        "resource_family": ["organ"],
     },
     "Second Heart": {
         "location": "Strange Resources",
+        "resource_family": ["organ","bone"],
     },
     "Perfect Crucible": {
         "location": "Strange Resources",
     },
     "Legendary Horns": {
         "location": "Strange Resources",
+        "resource_family": ["bone","scrap"],
     },
     "Fresh Acanthus": {
         "location": "Strange Resources",
     },
     "White Fur": {
         "location": "White Lion Resources",
+        "resource_family": ["hide"],
     },
     "Lion Claw": {
         "location": "White Lion Resources",
+        "resource_family": ["bone"],
     },
     "Eye Of Cat": {
         "location": "White Lion Resources",
+        "resource_family": ["organ"],
+        "consumable": True,
     },
     "Great Cat Bones": {
         "location": "White Lion Resources",
+        "resource_family": ["bone"],
     },
     "Shimmering Mane": {
         "location": "White Lion Resources",
+        "resource_family": ["hide"],
     },
     "Lion Tail": {
         "location": "White Lion Resources",
+        "resource_family": ["hide"],
     },
     "Curious Hand": {
         "location": "White Lion Resources",
+        "resource_family": ["hide"],
     },
     "Golden Whiskers": {
         "location": "White Lion Resources",
+        "resource_family": ["organ"],
     },
     "Sinew": {
         "location": "White Lion Resources",
+        "resource_family": ["organ"],
     },
     "Lion Testes": {
         "location": "White Lion Resources",
+        "resource_family": ["organ"],
     },
     "Pelt": {
         "location": "Screaming Antelope Resources",
+        "resource_family": ["hide"],
     },
     "Shank Bone": {
         "location": "Screaming Antelope Resources",
+        "resource_family": ["bone"],
     },
     "Large Flat Tooth": {
         "location": "Screaming Antelope Resources",
+        "resource_family": ["bone"],
     },
     "Beast Steak": {
         "location": "Screaming Antelope Resources",
+        "resource_family": ["organ"],
+        "consumable": True,
     },
     "Muscly Gums": {
         "location": "Screaming Antelope Resources",
+        "resource_family": ["organ"],
+        "consumable": True,
     },
     "Spiral Horn": {
         "location": "Screaming Antelope Resources",
+        "resource_family": ["bone"],
     },
     "Bladder": {
         "location": "Screaming Antelope Resources",
+        "resource_family": ["organ"],
+        "consumable": True,
     },
     "Screaming Brain": {
         "location": "Screaming Antelope Resources",
+        "resource_family": ["organ"],
+        "consumable": True,
     },
     "Tall Feathers": {
         "location": "Phoenix Resources",
+        "resource_family": ["hide"],
     },
     "Phoenix Eye": {
         "location": "Phoenix Resources",
+        "resource_family": ["organ", "scrap"],
     },
     "Phoenix Whisker": {
         "location": "Phoenix Resources",
+        "resource_family": ["hide"],
     },
     "Pustules": {
         "location": "Phoenix Resources",
+        "resource_family": ["organ"],
+        "consumable": True,
     },
     "Small Feathers": {
         "location": "Phoenix Resources",
+        "resource_family": ["hide"],
     },
     "Muculent Droppings": {
         "location": "Phoenix Resources",
+        "resource_family": ["organ"],
     },
     "Wishbone": {
         "location": "Phoenix Resources",
+        "resource_family": ["bone"],
     },
     "Shimmering Halo": {
         "location": "Phoenix Resources",
+        "resource_family": ["organ"],
     },
     "Bird Beak": {
         "location": "Phoenix Resources",
+        "resource_family": ["bone"],
     },
     "Black Skull": {
         "location": "Phoenix Resources",
+        "resource_family": ["scrap","bone"],
     },
     "Small Hand Parasites": {
         "location": "Phoenix Resources",
+        "resource_family": ["organ"],
     },
     "Phoenix Finger": {
         "location": "Phoenix Resources",
+        "resource_family": ["bone"],
     },
     "Hollow Wing Bones": {
         "location": "Phoenix Resources",
+        "resource_family": ["bone"],
     },
     "Rainbow Droppings": {
         "location": "Phoenix Resources",
+        "resource_family": ["organ"],
+        "consumable": True,
     },
     "Claw Head Arrow": {
         "attack": (1,6,6),
