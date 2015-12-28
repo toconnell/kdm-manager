@@ -86,7 +86,7 @@ def authenticate(login, password):
     """ Tries to authenticate a user and log him in. Returns None if the user's
     login cannot be found. Returns False if he enters a bad password.
 
-    Logs him in and creates a session, otherwise.
+    Logs him in and returns True, otherwise. The session gets created later.
 
     email addresses are always normalized using .lower()
     """
@@ -329,8 +329,6 @@ def play_summary():
 
 
 
-
-
     #
     #   Admin Panel!
     #
@@ -474,6 +472,7 @@ if __name__ == "__main__":
     parser.add_option("-p", dest="user_pass", help="Update a user's password (requires -u).", default=False)
 
     parser.add_option("--user", dest="pretty_view_user", help="Print a pretty summary of a user", metavar="5665026954922d076285bdec", default=False)
+    parser.add_option("--user_repr", dest="user_repr", help="Dump a user's repr", metavar="5665026954922d076285bdec", default=False)
     parser.add_option("--admin", dest="toggle_admin", help="toggle admin status for a user _id", default=False)
     parser.add_option("-e", dest="email", help="Send a test email to an address", metavar="toconnell@tyrannybelle.com", default=False)
 
@@ -483,6 +482,9 @@ if __name__ == "__main__":
 #    if args == []:
 #        motd()
 
+    if options.user_repr:
+        User = assets.User(user_id=options.user_repr, session_object={"_id": 0, "login": "ADMINISTRATOR"})
+        print User.dump_assets()
 
     if options.user_id and options.user_pass:
         update_user_password(options.user_id, options.user_pass)

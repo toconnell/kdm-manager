@@ -38,10 +38,9 @@ class panel:
     <div class="panel_block">
         <table class="panel_recent_user">
             <tr class="gradient_blue bold"><th colspan="3">$user_name</th></tr>
-            <tr><td>Latest Activity:</td><td>$latest_activity</td><td>$latest_activity_mins m. ago</td></tr>
+            <tr><td>Latest Activity:</td><td>$latest_activity</td><td>$latest_activity_mins m. ago: $latest_action</td></tr>
             <tr><td>Latest Sign-in:</td><td>$latest_sign_in</td><td>$latest_sign_in_mins m. ago</td></tr>
             <tr><td>Session Length:</td><td colspan="2">$session_length minutes</td></tr>
-            <tr><td>Latest Action:</td><td colspan="2">$latest_action</td></tr>
             <tr><td>User Agent:</td><td colspan="2">$ua</td></tr>
             <tr><td>Survivors:</td><td colspan="2">$survivor_count</td></tr>
             <tr><td>Settlements:</td><td colspan="2">$settlements</td></tr>
@@ -81,7 +80,43 @@ class dashboard:
         <h2 class="clickable gradient_silver" onclick="showHide('system_div')"> <img class="dashboard_icon" src="%s/icons/system.png"/> System %s</h2>
         <div id="system_div" style="display: none;" class="dashboard_accordion gradient_silver">
         <p>KD:M Manager! Version $version.</p><hr/>
-        <p>This application is a work in progress and is currently running in debug mode! Please use <a href="http://blog.kdm-manager.com"/>blog.kdm-manager.com</a> to report issues/bugs or to ask questions, share ideas for features, make comments, etc.</p><hr/>
+        <p>This application is a work in progress and is currently running in debug mode! Please use <a href="http://blog.kdm-manager.com"/>blog.kdm-manager.com</a> to report issues/bugs or to ask questions, share ideas for features, make comments, etc.</p>
+        <hr/>
+
+
+        <div class="dashboard_preferences">
+            <h3>Preferences</h3>
+            <form method="POST" action="#">
+            <input type="hidden" name="update_user_preferences" value="True"/>
+            <p>Confirm before removing items from storage?</p>
+            <p>
+                <input style="display: none" id="pref_confirm_on_remove" class="radio_principle" type="radio" name="confirm_on_remove_from_storage" value="confirm" checked/> <label for="pref_confirm_on_remove" class="radio_principle_label">Confirm</label><br>
+                <input style="display: none" id="pref_do_not_confirm_on_remove" class="radio_principle" type="radio" name="confirm_on_remove_from_storage" value="do_not_confirm" $preferences_confirm_on_remove /> <label for="pref_do_not_confirm_on_remove" class="radio_principle_label">Do Not Confirm</label> 
+            </p>
+            <button class="warn"> Update Preferences</button>
+            </form>
+        </div>
+
+        <hr/>
+
+        <div class="dashboard_preferences">
+            <h3>Export User Data</h3>
+            <form method="POST" action="#">
+                <input type="hidden" name="export_user_data" value="json">
+                <button class="silver">JSON</button>
+            </form>
+            <form method="POST" action="#">
+                <input type="hidden" name="export_user_data" value="dict">
+                <button class="silver">Python Dictionary</button>
+            </form>
+            <form method="POST" action="#">
+                <input type="hidden" name="export_user_data" value="pickle">
+                <button class="silver">Python Pickle</button>
+            </form>
+        </div>
+
+        <hr>
+
         <p>Currently signed in as: <i>$login</i> (last sign in: $last_sign_in)</p>
         $last_log_msg
         <div class="dashboard_preferences">
@@ -702,8 +737,9 @@ class settlement:
 
     <hr/>
     \n""")
+    storage_warning = Template(""" onclick="return confirm('Remove $item_name from Settlement Storage?');" """)
     storage_remove_button = Template("""\n\
-    \t<button id="remove_item" name="remove_item" value="$item_key" style="background-color: #$item_color; color: #000;"> $item_key_and_count </button>
+    \t<button $confirmation id="remove_item" name="remove_item" value="$item_key" style="background-color: #$item_color; color: #000;"> $item_key_and_count </button>
     \n""")
     storage_tag = Template('<h3 class="inventory_tag" style="color: #$color">$name</h3><hr/>')
     storage_resource_pool = Template("""\n\
@@ -1183,6 +1219,7 @@ def authenticate_by_form(params):
         elif auth == True:
             s = Session()
             session_id = s.new(params["login"].value.strip().lower())
+            s.User.mark_usage("authenticated successfully")
             html, body = s.current_view_html()
             render(html, body_class=body, head=[set_cookie_js(session_id)])
     else:
@@ -1196,12 +1233,18 @@ def authenticate_by_form(params):
 #
 
 
-def render(view_html, head=[], http_headers=False, body_class=None):
+def render(view_html, head=[], http_headers=None, body_class=None):
     """ This is our basic render: feed it HTML to change what gets rendered. """
 
     output = http_headers
-    if not http_headers:
+    if http_headers is None:
         output = "Content-type: text/html\n\n"
+    else:
+        output = http_headers
+        output += view_html
+        print output
+        sys.exit()
+
     output += meta.start_head
     output += meta.stylesheet.safe_substitute(url=settings.get("application", "stylesheet"))
 

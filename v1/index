@@ -32,7 +32,7 @@ if __name__ == "__main__":
     if S.session is None:
         output = html.authenticate_by_form(params)
     else:
-        S.process_params()
+        S.process_params(user_action="viewing %s" % S.session["current_view"])
         try:
             output, body = S.current_view_html()
         except TypeError:

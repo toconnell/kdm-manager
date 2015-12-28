@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 
 from bson.objectid import ObjectId
+from bson import json_util
 from copy import copy
 from datetime import datetime
 from hashlib import md5
+import json
 import operator
 import os
+import pickle
 import random
 from string import Template
 
@@ -68,6 +71,56 @@ class User:
         mdb.users.save(self.user)
         user_admin_log_dict["msg"] = "Password Updated!"
         mdb.user_admin.insert(user_admin_log_dict)
+
+
+    def update_preferences(self, params):
+        """ Processes a cgi.FieldStorage() containing user preferences. Updates
+        the mdb object for the user. """
+
+        if not "preferences" in self.user.keys():
+            self.user["preferences"] = {}
+
+        user_admin_log_dict = {
+            "created_on": datetime.now(),
+            "u_id": self.user["_id"],
+            "msg" : "Updated Preferences. "
+        }
+
+
+        if "confirm_on_remove_from_storage" in params:
+            confirmation_preference = params["confirm_on_remove_from_storage"].value
+            if confirmation_preference == "confirm":
+                self.user["preferences"]["confirm_on_remove_from_storage"] = True
+                self.logger.debug("'%s' added 'confirm_on_remove_from_storage' from user preferences!" % self.user["login"])
+                user_admin_log_dict["msg"] += "Confirm on remove from storage set!"
+            elif confirmation_preference == "do_not_confirm":
+                try:
+                    del self.user["preferences"]["confirm_on_remove_from_storage"]
+                    self.logger.debug("'%s' removed 'confirm_on_remove_from_storage' from user preferences!" % self.user["login"])
+                    user_admin_log_dict["msg"] += "Confirm on remove from storage unset!"
+                except:
+                    pass
+            else:
+                self.logger.warn("Illegal value '%s' rejected from user preferences!" % confirmation_preference)
+
+        user_admin_log_dict["msg"] = user_admin_log_dict["msg"].strip()
+        mdb.user_admin.insert(user_admin_log_dict)
+
+    def dump_assets(self, dump_type=None):
+        """ Returns a dictionary representation of a user's complete assets. """
+
+        assets_dict = {
+            "user": self.user,
+            "survivors": [s for s in mdb.survivors.find({"created_by": self.user["_id"]})],
+            "settlements": [s for s in mdb.settlements.find({"created_by": self.user["_id"]})],
+        }
+
+        if dump_type == "pickle":
+            return pickle.dumps(assets_dict)
+        elif dump_type == "json":
+            return json.dumps(assets_dict, default=json_util.default)
+
+        return assets_dict
 
 
     def get_settlements(self, return_as=False):
@@ -181,7 +234,13 @@ class User:
         if last_log_msg is not None:
             formatted_log_msg = "<p>Latest admin log:</p><p><b>%s</b>:</b> %s</p>" % (last_log_msg["created_on"].strftime(ymdhms), last_log_msg["msg"])
 
+        pref_conf_rem = ""
+        if "preferences" in self.user.keys():
+            if "confirm_on_remove_from_storage" not in self.user["preferences"].keys():
+                pref_conf_rem = "checked"
+
         output = html.dashboard.motd.safe_substitute(
+            preferences_confirm_on_remove = pref_conf_rem,
             session_id = self.Session.session["_id"],
             login = self.user["login"],
             last_sign_in = self.user["latest_sign_in"].strftime(ymdhms),
@@ -189,6 +248,7 @@ class User:
             last_log_msg = formatted_log_msg,
         )
         return output
+
 
     def html_world(self):
         """ Creates the HTML world panel for the user. This is a method of the
@@ -1257,7 +1317,7 @@ class Settlement:
             output = ""
             for item_dict in [gear, resources]:
                 for location in sorted(item_dict.keys()):
-                    for item_key in item_dict[location].keys():
+                    for item_key in sorted(item_dict[location].keys()):
                         quantity = item_dict[location][item_key]["count"]
                         color = item_dict[location][item_key]["color"]
                         suffix = ""
@@ -1267,7 +1327,14 @@ class Settlement:
                             pretty_text = "%s %s x %s" % (item_key, suffix, quantity)
                         else:
                             pretty_text = item_key + suffix
+
+                        # check preferences and include a pop-up
+                        confirmation_pop_up = ""
+                        if "preferences" in self.User.user.keys() and "confirm_on_remove_from_storage" in self.User.user["preferences"].keys():
+                            confirmation_pop_up = html.settlement.storage_warning.safe_substitute(item_name=item_key)
+
                         output += html.settlement.storage_remove_button.safe_substitute(
+                            confirmation = confirmation_pop_up,
                             item_key = item_key,
                             item_color = color,
                             item_key_and_count = pretty_text
@@ -1904,13 +1971,22 @@ class Settlement:
         its returns (because there isn't any).
         """
 
-        exec "Asset = %s" % asset_class.capitalize()
-
+        # if we don't get a string for some reason, we need to bail gracefully
         if type(game_asset_key) != str:
-            self.logger.warn("Could not add asset ('%s') to settlement %s!" % (game_asset_key, self.settlement["_id"]))
+            self.logger.warn("Could not add asset '%s' (%s) to settlement %s!" % (game_asset_key, type(game_asset_key), self.settlement["_id"]))
             return None
 
-        self.logger.debug("Adding asset '%s' (%s) to settlement %s..." % (game_asset_key, type(game_asset_key), self.settlement["_id"]))
+        # otherwise, if we've got a str, let's get busy
+        if asset_class == "storage":
+            game_asset_key = game_asset_key.title()
+            self.settlement[asset_class].append(game_asset_key)
+            self.logger.info("'%s' appended '%s' to settlement '%s' (%s) storage." % (self.User.user["login"], game_asset_key, self.settlement["name"], self.settlement["_id"]))
+            return True
+
+        exec "Asset = %s" % asset_class.capitalize()
+
+        self.logger.debug("'%s' is adding '%s' asset '%s' (%s) to settlement '%s' (%s)..." % (self.User.user["login"], asset_class, game_asset_key, type(game_asset_key), self.settlement["name"], self.settlement["_id"]))
+
         if hasattr(Asset, "uniquify"):
             current_assets = set([a for a in self.settlement[asset_class] if type(a) in [str, unicode]])
             current_assets.add(game_asset_key)
@@ -1924,7 +2000,7 @@ class Settlement:
 
         self.settlement[asset_class] = current_assets
         if game_asset_key in self.settlement[asset_class]:
-            self.logger.debug("Added '%s' successfully!" % game_asset_key)
+            self.logger.info("'%s' added '%s' to '%s' ['%s'] successfully!" % (self.User.user["login"], game_asset_key, self.settlement["name"], asset_class))
         mdb.settlements.save(self.settlement)
 
 
@@ -1961,8 +2037,7 @@ class Settlement:
             elif p == "add_nemesis":
                 self.settlement["nemesis_monsters"][params[p].value] = []
             elif p == "add_item" and not "remove_item" in params:
-                self.settlement["storage"].append(params[p].value)
-                self.logger.debug("Adding %s to settlement %s storage" % (game_asset_key, self.settlement["_id"]))
+                self.add_game_asset("storage", game_asset_key)
             elif p == "remove_item" and not "add_item" in params:
                 self.settlement["storage"].remove(game_asset_key)
                 self.logger.debug("Removing %s from settlement %s storage" % (game_asset_key, self.settlement["_id"]))

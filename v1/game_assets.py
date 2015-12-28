@@ -202,7 +202,7 @@ abilities_and_impairments = {
     },
     "Red Life Exchange" : {
         "type": "ability",
-        "desc": "In the Aftermath, game 3 additional Hunt XP. You may not place 'other' (type) gear in your grid. Gain +1 permanent strength with each Age milestone. When you retire, you cease to exist.",
+        "desc": "In the Aftermath, gain 3 additional Hunt XP. You may not place 'other' (type) gear in your grid. Gain +1 permanent strength with each Age milestone. When you retire, you cease to exist.",
         "max": 1,
     },
     "Dormenatus" : {
