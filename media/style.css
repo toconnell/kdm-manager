@@ -158,12 +158,12 @@ button#remove_item {border-radius: 20px; padding-right: 10px; padding-left: 10px
 .disabled, .strikethrough {color: #999; cursor: not-allowed; }
 .unclickable {background-color: none; }
 
-#floating_dashboard_button, .floating_asset_button, #save_button {position: fixed; height: auto; width: 170px; padding: 30px; border: 2px solid; margin-left: 80%; opacity: 0.9; z-index: 100; }
+#floating_refresh_button, #floating_dashboard_button, .floating_asset_button, #save_button {position: fixed; height: auto; width: 170px; padding: 30px; border: 2px solid; margin-left: 80%; opacity: 0.9; z-index: 100; }
 
 #save_button {top: 2.5%; }
 .floating_asset_button {top: 14%; }
 #floating_dashboard_button {background-color: #CCC; top: 26%;  }
-
+#floating_refresh_button {bottom: 2.5%; }
 
 /* input styles */
 
@@ -250,10 +250,11 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
 
     /* general style */
     button.change_view {margin-left: 3%; width: 20%; }
-    #save_button, #floating_dashboard_button, .floating_asset_button {position: fixed; top: 1%; margin: 0 auto; height: auto; width: auto; padding: 5px; border: 2px solid; opacity: 1; z-index: 101; }
+    #floating_refresh_button, #save_button, #floating_dashboard_button, .floating_asset_button {position: fixed; top: 1%; margin: 0 auto; height: auto; width: auto; padding: 5px; border: 2px solid; opacity: 1; z-index: 101; }
     #floating_dashboard_button {right: 1%; }
     .floating_asset_button {left: 1%; }
     #save_button {left: 40%; width: 300px; }
+    #floating_refresh_button {width: 50px; left: 70%; height: 31px;}
 
     /* sign-in styles */
     body.sign_in {background: none; background-color: #aaa; }
