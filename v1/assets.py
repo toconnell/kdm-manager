@@ -238,6 +238,8 @@ class User:
         if "preferences" in self.user.keys():
             if "confirm_on_remove_from_storage" not in self.user["preferences"].keys():
                 pref_conf_rem = "checked"
+        else:
+            pref_conf_rem = "checked"
 
         output = html.dashboard.motd.safe_substitute(
             preferences_confirm_on_remove = pref_conf_rem,
