@@ -403,7 +403,7 @@ class survivor:
             <div id="survivor_hit_box">
                 <div class="big_number_container right_border">
                     <button class="incrementer" onclick="increment('insanityBox');">+</button>
-                        <input id="insanityBox" type="number" class="shield" name="Insanity" value="$insanity" style="color: $insanity_number_style; "/>
+                        <input id="insanityBox" type="number" class="shield" name="Insanity" value="$insanity" style="color: $insanity_number_style;" min="0"/>
                         <font id="hit_box_insanity">Insanity</font>
                     <button class="decrementer" onclick="decrement('insanityBox');">-</button>
                 </div>
@@ -421,7 +421,7 @@ class survivor:
             <div id="survivor_hit_box">
                 <div class="big_number_container right_border">
                     <button class="incrementer" onclick="increment('headBox');">+</button>
-                        <input id="headBox" type="number" class="shield" name="Head" value="$head"/>
+                        <input id="headBox" type="number" class="shield" name="Head" value="$head" min="0"/>
                     <button class="decrementer" onclick="decrement('headBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
@@ -437,7 +437,7 @@ class survivor:
             <div id="survivor_hit_box">
                 <div class="big_number_container right_border">
                     <button class="incrementer" onclick="increment('armsBox');">+</button>
-                        <input id="armsBox" type="number" class="shield" name="Arms" value="$arms"/>
+                        <input id="armsBox" type="number" class="shield" name="Arms" value="$arms" min="0"/>
                     <button class="decrementer" onclick="decrement('armsBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
@@ -456,7 +456,7 @@ class survivor:
             <div id="survivor_hit_box">
                 <div class="big_number_container right_border">
                     <button class="incrementer" onclick="increment('bodyBox');">+</button>
-                        <input id="bodyBox" type="number" class="shield" name="Body" value="$body"/>
+                        <input id="bodyBox" type="number" class="shield" name="Body" value="$body" min="0"/>
                     <button class="decrementer" onclick="decrement('bodyBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
@@ -475,7 +475,7 @@ class survivor:
             <div id="survivor_hit_box">
                 <div class="big_number_container right_border">
                     <button class="incrementer" onclick="increment('waistBox');">+</button>
-                        <input id="waistBox" type="number" class="shield" name="Waist" value="$waist"/>
+                        <input id="waistBox" type="number" class="shield" name="Waist" value="$waist" min="0"/>
                     <button class="decrementer" onclick="decrement('waistBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
@@ -494,7 +494,7 @@ class survivor:
             <div id="survivor_hit_box">
                 <div class="big_number_container right_border">
                     <button class="incrementer" onclick="increment('legsBox');">+</button>
-                        <input id="legsBox" type="number" class="shield" name="Legs" value="$legs"/>
+                        <input id="legsBox" type="number" class="shield" name="Legs" value="$legs" min="0"/>
                     <button class="decrementer" onclick="decrement('legsBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
@@ -968,6 +968,7 @@ class settlement:
              </fieldset>
             </div>
 
+        $principles_rm
 
         </div> <!-- principle block group -->
         </form>
@@ -1043,7 +1044,6 @@ class settlement:
         <p>The available nemesis encounter monsters.</p>
         <hr>
         $nemesis_monsters
-         <input onchange="this.form.submit()" type="text" class="full_width" name="add_nemesis" placeholder="add nemesis"/>
         </div>
         </form>
 

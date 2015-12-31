@@ -184,46 +184,55 @@ abilities_and_impairments = {
         "type": "ability",
         "desc": "1 permanent red affinity.",
         "max": 1,
+        "related": ["Caratosis", "Red Life Exchange"],
+    },
+    "Caratosis" : {
+        "type": "ability",
+        "desc": 'For each <font color="red">red</font> affinity you have, 1 of your attack rolls hits automatically each attack.',
+        "max": 1,
+        "related": ["Dream of the Beast", "Red Life Exchange"],
+    },
+    "Red Life Exchange" : {
+        "type": "ability",
+        "desc": "In the <b>Aftermath</b>, gain 3 additional Hunt XP. You may not place <b>other</b> gear in your grid. Gain +1 permanent strength with each <b>Age</b> milestone. When you retire, you cease to exist.",
+        "max": 1,
+        "related": ["Caratosis", "Dream of the Beast"],
     },
     "Dream of the Crown" : {
         "type": "ability",
         "desc": "1 permanent green affinity.",
         "max": 1,
+        "related": ["Dormenatus", "Green Life Exchange"],
+    },
+    "Dormenatus" : {
+        "type": "ability",
+        "desc": 'When you <b>depart</b>, gain +1 to every hit location for each <font color="green">green</font> affinity you have.',
+        "max": 1,
+        "related": ["Dream of the Crown", "Green Life Exchange"],
+    },
+    "Green Life Exchange" : {
+        "type": "ability",
+        "desc": "In the <b>Aftermath</b>, gain 3 additional Hunt XP. You may not place <b>other</b> gear in your grid. Gain +1 permanent evasion with each <b>Age</b> milestone. When you retire, you cease to exist.",
+        "max": 1,
+        "related": ["Dream of the Crown", "Dormenatus"],
     },
     "Dream of the Lantern" : {
         "type": "ability",
         "desc": "1 permanent blue affinity.",
         "max": 1,
-    },
-    "Caratosis" : {
-        "type": "ability",
-        "desc": "For each red affinity you have, 1 of your attack rolls hits automatically each attack.",
-        "max": 1,
-    },
-    "Red Life Exchange" : {
-        "type": "ability",
-        "desc": "In the Aftermath, gain 3 additional Hunt XP. You may not place 'other' (type) gear in your grid. Gain +1 permanent strength with each Age milestone. When you retire, you cease to exist.",
-        "max": 1,
-    },
-    "Dormenatus" : {
-        "type": "ability",
-        "desc": "When you depart, gain +1 to every hit location for each green affinity you have.",
-        "max": 1,
-    },
-    "Green Life Exchange" : {
-        "type": "ability",
-        "desc": "In the Aftermath, gain 3 additional Hunt XP. You may not place 'other' (type) gear in your grid. Gain +1 permanent evasion with each Age milestone. When you retire, you cease to exist.",
-        "max": 1,
+        "related": ["Lucernae", "Blue Life Exchange"],
     },
     "Lucernae" : {
         "type": "ability",
-        "desc": "For every blue affinity you have, your ranged weapons gain this amount of range and your melee weapons gain this amount of reach.",
+        "desc": 'For every <font color="blue">blue</font> affinity you have, your ranged weapons gain this amount of <b>range</b> and your melee weapons gain this amount of <b>reach</b>.',
         "max": 1,
+        "related": ["Dream of the Lantern", "Blue Life Exchange"],
     },
     "Blue Life Exchange" : {
         "type": "ability",
-        "desc": "In the Aftermath, gain 3 additional Hunt XP. You may not place 'other' (type) gear in your grid. Gain +1 permanent luck with each Age milestone. When you retire, you cease to exist.",
+        "desc": "In the <b>Aftermath</b>, gain 3 additional Hunt XP. You may not place <b>other</b> gear in your grid. Gain +1 permanent luck with each <b>Age</b> milestone. When you retire, you cease to exist.",
         "max": 1,
+        "related": ["Dream of the Lantern", "Lucernae"],
     },
     "Marrow Hunger": {
         "type": "impairment",
@@ -384,10 +393,10 @@ disorders = {
         "survivor_effect": "Whenever you are a returning survivor, archive 1 resource gained from the last showdown and gain +1 courage.",
     },
     "Binge Eating Disorder": {
-        "survivor_effect": "You cannot depart unless you have consumable gear in your gear grid. You must consume if a choice to consume arises.",
+        "survivor_effect": "You cannot <b>depart</b> unless you have <b>consumable</b> gear in your gear grid. You must <b>consume</b> if a choice to <b>consume</b> arises.",
     },
     "Squeamish": {
-        "survivor_effect": "You cannot depart with any stinky gear in your gear grid. If a status or effect would cause you to become stinky, lose all your survival.",
+        "survivor_effect": "You cannot <b>depart</b> with any stinky gear in your gear grid. If a status or effect would cause you to become stinky, lose all your survival.",
     },
     "Secretive": {
         "survivor_effect": "When you are a returning survivor, you quickly become preoccuiped with your own affairs. You must skip the next hunt to deal with them.",
@@ -454,6 +463,8 @@ disorders = {
 
 
 epithets = {
+    "Triathlete":{},
+    "Undisputed boss of the settlement": {},
     "The Fertile": {},
     "Defiled": {},
     "Occult": {},
@@ -572,7 +583,7 @@ fighting_arts = {
         "desc": "When rolling on a severe injury table, unless you roll a 1, add +1 to the result. (This does not include brain trauma. The result total cannot exceed 10.)",
     },
     "Rhythm Chaser": {
-        "desc": "Gain +1 Evasion token the first time you criticall wound during a showdown. Rhythm Chaser cannot be used if there are any shields or heavy gear in your grid.",
+        "desc": "Gain +1 Evasion token the first time you critically wound during a showdown. Rhythm Chaser cannot be used if there are any shields or <i>heavy</i> gear in your grid.",
     },
     "Last Man Standing": {
         "desc": "While you are the only survivor on the showdown board, you may not gain bleeding tokens or be knocked down.",
@@ -1250,40 +1261,44 @@ items = {
 
 innovations = {
     "Graves": {
-        "type": "death principle",
+        "type": "principle",
+        "milestone": "First time death count is updated",
         "settlement_buff": "All new survivors gain +1 understanding. When a survivor dies during the hunt or showdown phase, gain +2 Endeavors. When a survivor dies during the settlement phase, gain +1 Endeavor.",
         "survivor_buff": "All new survivors gain +1 understanding.",
     },
     "Cannibalize": {
-        "type": "death principle",
+        "type": "principle",
+        "milestone": "First time death count is updated",
         "survival_limit": 1,
         "settlement_buff": "Whenever a survivor dies, draw one basic resource and add it to the settlement storage.",
     },
     "Barbaric": {
-        "type": "conviction principle",
         "survival_limit": 1,
         "survivor_buff": "All current and newborn survivors gain +1 peromanent Strength.",
     },
     "Romantic": {
-        "type": "conviction principle",
         "survival_limit": 1,
         "settlement_buff": "You may innovate one additional time during the settlement phase. In addition, all current and newborn survivors gain +1 understanding.",
         "survivor_buff": "All current and newborn survivors gain +1 understanding.",
     },
     "Collective Toil": {
-        "type": "society principle",
+        "type": "principle",
+        "milestone": "Population reaches 15",
         "settlement_buff": "At the start of the settlement phase, gain +1 Endeavor for every 10 population.",
     },
     "Accept Darkness": {
-        "type": "society principle",
+        "type": "principle",
+        "milestone": "Population reaches 15",
         "survivor_buff": "Add +2 to all Brain Trauma Rolls.",
     },
     "Protect the Young": {
-        "type": "new life principle",
+        "type": "principle",
+        "milestone": "First child is born",
         "survivor_buff": "When rolling on the Intimacy story event, roll twice and pick one result.",
     },
     "Survival of the Fittest": {
-        "type": "new life principle",
+        "type": "principle",
+        "milestone": "First child is born",
         "survival_limit": 1,
         "settlement_buff": "When rolling on the Intimacy story event, roll twice and pick the lowest result. All newborn survivors gain +1 Strength.",
         "survivor_buff": "All newborn survivors gain +1 Strength.",
@@ -1422,6 +1437,12 @@ quarries = {
     "White Lion": {    },
     "Screaming Antelope": {    },
     "Phoenix": {    },
+}
+
+nemeses = {
+    "Butcher": {},
+    "King's Man": {},
+    "The Hand": {},
 }
 
 resources = {

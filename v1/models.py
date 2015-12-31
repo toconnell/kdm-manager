@@ -14,8 +14,12 @@ class Model:
     def get_asset(self, game_asset_key):
         return self.game_assets[game_asset_key]
 
-    def get_keys(self):
-        return self.game_assets.keys()
+    def get_keys(self, exclude_if_attrib_exists=None):
+        keys = []
+        for asset_key in self.game_assets.keys():
+            if not exclude_if_attrib_exists in self.game_assets[asset_key]:
+                keys.append(asset_key)
+        return keys
 
     def get_pretty_name(self):
         self.pretty_name = self.name.replace("_", " ").title()
@@ -30,12 +34,16 @@ class Model:
                 always_available.add(game_asset)
         return always_available
 
+
     def render_as_html_dropdown(self, submit_on_change=True, exclude=[], disable=[]):
         """ Renders the model as an HTML dropdown and returns a string. Use the
         'submit_on_change' kwarg to control whether it submits on change.
 
         Use the 'exclude' kwarg to prevent certain keys from showing up in the
         resuting render.
+
+        Use the 'include' kwarg to force the option list to only show certain
+        options in the render.
 
         Use 'disabled' to provide a list of options that, if present, will be
         greyed out/disabled in the resulting pick-list.
@@ -60,7 +68,7 @@ class Model:
         output = '\n\t<select name="add_%s" onchange="%s">' % (self.name, submit_on_change)
         output += '\t<option selected disabled hidden value=''>Add %s</option>' % self.pretty_name
         if self.name in ["disorder","fighting_art"]:
-            output += '\t\t<option value="RANDOM_%s">* Random %s</option>' % (self.name.upper(), self.name.capitalize())
+            output += '\t\t<option value="RANDOM_%s">* Random %s</option>' % (self.name.upper(), self.pretty_name)
             output += ' <option disabled> &ensp; &ensp; ---  </option>'
         for o in sorted(options):
             disabled = ""
@@ -172,11 +180,19 @@ class innovationsModel(Model):
         self.name = "innovation"
 
 
+class nemesesModel(Model):
+    def __init__(self):
+        Model.__init__(self)
+        self.game_assets = game_assets.nemeses
+        self.name = "nemesis"
+
+
 class quarriesModel(Model):
     def __init__(self):
         Model.__init__(self)
         self.game_assets = game_assets.quarries
         self.name = "quarry"
+
 
 class resourcesModel(Model):
     def __init__(self):
@@ -211,6 +227,7 @@ FightingArts    = fightingArtsModel()
 Locations       = locationsModel()
 Items           = itemsModel()
 Innovations     = innovationsModel()
+Nemeses         = nemesesModel()
 Quarries        = quarriesModel()
 Resources       = resourcesModel()
 ResourceDecks   = resourceDecksModel()
