@@ -1273,10 +1273,12 @@ innovations = {
         "settlement_buff": "Whenever a survivor dies, draw one basic resource and add it to the settlement storage.",
     },
     "Barbaric": {
+        "type": "principle",
         "survival_limit": 1,
         "survivor_buff": "All current and newborn survivors gain +1 peromanent Strength.",
     },
     "Romantic": {
+        "type": "principle",
         "survival_limit": 1,
         "settlement_buff": "You may innovate one additional time during the settlement phase. In addition, all current and newborn survivors gain +1 understanding.",
         "survivor_buff": "All current and newborn survivors gain +1 understanding.",

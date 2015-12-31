@@ -1243,6 +1243,7 @@ class Settlement:
                 self.settlement[min_key] = 0
 
 #        self.logger.debug("Updated minimum values for settlement %s (%s)" % (self.settlement["name"], self.settlement["_id"]))
+        self.enforce_data_model()
         mdb.settlements.save(self.settlement)
 
 
@@ -1254,6 +1255,13 @@ class Settlement:
         set_attribs = ["milestone_story_events", "innovations", "locations", "principles", "quarries"]
         for a in set_attribs:
             self.settlement[a] = list(set([i for i in self.settlement[a] if type(i) in (str, unicode)]))
+
+        for innovation_key in self.settlement["innovations"]:
+            if innovation_key in Innovations.get_keys():
+                innovation_dict = Innovations.get_asset(innovation_key)
+                if "type" in innovation_dict.keys() and innovation_dict["type"] == "principle":
+                    self.settlement["innovations"].remove(innovation_key)
+                    self.logger.debug("Automatically removed principle '%s' from settlement '%s' (%s) innovations." % (innovation_key, self.settlement["name"], self.settlement["_id"]))
 
 
     def get_ancestors(self, return_type=None, survivor_id=False):
@@ -1842,13 +1850,14 @@ class Settlement:
             if self.settlement["name"] != "":
                 min_survival +=1
 
-            innovations = self.settlement["innovations"]
+            innovations = copy(self.settlement["innovations"])
             innovations.extend(self.settlement["principles"])
             innovations = list(set(innovations))
             for innovation_key in innovations:
                 if innovation_key in Innovations.get_keys() and "survival_limit" in Innovations.get_asset(innovation_key).keys():
                     min_survival += Innovations.get_asset(innovation_key)["survival_limit"]
             results = min_survival
+
 
         return int(results)
 
@@ -1871,6 +1880,7 @@ class Settlement:
         principles = set(self.settlement["principles"])
         if add_new_principle:
             principles.add(add_new_principle)
+            self.logger.debug("%s added principle '%s' to settlement '%s' (%s)." % (self.User.user["login"], add_new_principle, self.settlement["name"], self.settlement["_id"]))
 
         mutually_exclusive_principles = [
             ("Graves", "Cannibalize"),
@@ -1890,7 +1900,7 @@ class Settlement:
 
 
         self.settlement["principles"] = sorted(list(principles))
-        mdb.settlements.save(self.settlement)
+        self.update_mins()  # this is a save
 
 
     def get_game_asset_deck(self, asset_type, return_type=False, exclude_always_available=False):
@@ -2100,6 +2110,7 @@ class Settlement:
         self.settlement[asset_class] = current_assets
         if game_asset_key in self.settlement[asset_class]:
             self.logger.info("'%s' added '%s' to '%s' ['%s'] successfully!" % (self.User.user["login"], game_asset_key, self.settlement["name"], asset_class))
+
         mdb.settlements.save(self.settlement)
 
 
@@ -2125,7 +2136,7 @@ class Settlement:
 
             game_asset_key = None
             if type(params[p]) != list:
-                game_asset_key = params[p].value
+                game_asset_key = params[p].value.strip()
 
             if p in ["asset_id", "modify"]:
                 pass
@@ -2151,8 +2162,9 @@ class Settlement:
             elif p == "remove_location":
                 self.settlement["locations"].remove(game_asset_key)
             elif p in ["new_life_principle", "death_principle", "society_principle", "conviction_principle"]:
-                new_principle = params[p].value
-                self.update_principles(new_principle)
+                if "remove_principle" not in params:
+                    new_principle = params[p].value
+                    self.update_principles(new_principle)
             elif p == "remove_principle":
                 self.rm_game_asset("principles", game_asset_key)
             elif p in [
@@ -2177,7 +2189,8 @@ class Settlement:
                 self.modify_hunting_party(params)
                 break
             else:
-                self.settlement[p] = params[p].value.strip()
+                self.settlement[p] = game_asset_key
+                self.logger.debug("%s set '%s' = '%s' for settlement '%s' (%s)." % (self.User.user["login"], p, game_asset_key, self.settlement["name"], self.settlement["_id"]))
 
         #
         #   settlement post-processing starts here!
@@ -2186,12 +2199,12 @@ class Settlement:
         #   add milestones for principles:
         for principle in self.settlement["principles"]:
             principle_dict = Innovations.get_asset(principle)
-            if "type" in principle_dict.keys() and principle_dict["type"] == "principle":
+            if "type" in principle_dict.keys() and principle_dict["type"] == "principle" and "milestone" in principle_dict.keys():
                 self.settlement["milestone_story_events"].append(principle_dict["milestone"])
 
-        # enforce the data model and save
-        self.enforce_data_model()
-        self.update_mins()  # this does a save, so this is our big save
+
+        # update mins will call self.enforce_data_model() and save
+        self.update_mins()
 
 
     def render_html_summary(self, user_id=False):
@@ -2213,7 +2226,7 @@ class Settlement:
             death_count = display_death_count,
             survivors = self.get_survivors(return_type="html_campaign_summary", user_id=user_id),
             survival_limit = self.settlement["survival_limit"],
-            innovations = self.get_game_asset("innovations", return_type="comma-delimited"),
+            innovations = self.get_game_asset("innovations", return_type="comma-delimited", exclude=self.settlement["principles"]),
             locations = self.get_locations(return_type="comma-delimited"),
             departure_bonuses = self.get_bonuses('departure_buff'),
             settlement_bonuses = self.get_bonuses('settlement_buff'),
