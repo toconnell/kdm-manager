@@ -78,7 +78,7 @@ abilities_and_impairments = {
     "Mastery - Fist & Tooth": {
         "type": "weapon proficiency",
         "max": 1,
-        "desc": "While a survivor is a Fist & Tooth MAster, they gain <i>+2 permanent accuracy</i> and <i>+2 permanent strength</i> (they receive this bonus even when not attacking with Fist and Tooth).",
+        "desc": "While a survivor is a Fist & Tooth Master, they gain <i>+2 permanent accuracy</i> and <i>+2 permanent strength</i> (they receive this bonus even when not attacking with Fist and Tooth).",
     },
     "Specialization - Grand Weapon": {
         "type": "weapon proficiency",
@@ -251,7 +251,7 @@ abilities_and_impairments = {
     },
     "Sour Death": {
         "type": "ability",
-        "desc": "When you ar eknocked down, you may encourage yourself. If you do, gain +1 strength token.",
+        "desc": "When you are knocked down, you may encourage yourself. If you do, gain +1 strength token.",
         "max": 1,
     },
     "Ageless": {
@@ -382,6 +382,24 @@ abilities_and_impairments = {
         "Movement": -1,
         "max": 2,
     },
+    "Bone Witch - Scarred Eyes": {
+        "type": "impairment",
+        "desc": "Suffer -4 permanent Accuracy and gain +4 permanent strength (p.109).",
+        "Accuracy": -4,
+        "Strength": 4,
+        "max": 1,
+    },
+    "Bone Witch - Wounds": {
+        "type": "impairment",
+        "desc": "Suffer -1 permanent strength, -1 permanent accuracy and skip the next hunt (p.109).",
+        "skip_next_hunt": True,
+        "Accuracy": -1,
+        "Strength": -1,
+    },
+    "Homing Instinct": {
+        "type": "ability",
+        "desc": "Add +5 to your rolls on the Run Away story event."
+    }
 }
 
 
@@ -1265,6 +1283,7 @@ innovations = {
         "milestone": "First time death count is updated",
         "settlement_buff": "All new survivors gain +1 understanding. When a survivor dies during the hunt or showdown phase, gain +2 Endeavors. When a survivor dies during the settlement phase, gain +1 Endeavor.",
         "survivor_buff": "All new survivors gain +1 understanding.",
+        "new_survivor": {"Understanding": 1},
     },
     "Cannibalize": {
         "type": "principle",
@@ -1275,13 +1294,15 @@ innovations = {
     "Barbaric": {
         "type": "principle",
         "survival_limit": 1,
-        "survivor_buff": "All current and newborn survivors gain +1 peromanent Strength.",
+        "survivor_buff": "All current and newborn survivors gain +1 permanent Strength.",
+        "new_survivor": {"Strength": 1},
     },
     "Romantic": {
         "type": "principle",
         "survival_limit": 1,
         "settlement_buff": "You may innovate one additional time during the settlement phase. In addition, all current and newborn survivors gain +1 understanding.",
         "survivor_buff": "All current and newborn survivors gain +1 understanding.",
+        "new_survivor": {"Understanding": 1},
     },
     "Collective Toil": {
         "type": "principle",
@@ -1304,10 +1325,12 @@ innovations = {
         "survival_limit": 1,
         "settlement_buff": "When rolling on the Intimacy story event, roll twice and pick the lowest result. All newborn survivors gain +1 Strength.",
         "survivor_buff": "All newborn survivors gain +1 Strength.",
+        "new_survivor": {"Strength": 1},
     },
     "Clan of Death": {
         "type": "home",
-        "survivor_buff": "All newborn survivors gain +1 Accuracy, +1 Strength and +1 Evasion.",
+        "survivor_buff": "All newborn survivors gain <b>+1 Accuracy</b>, <b>+1 Strength</b> and <b>+1 Evasion</b>.",
+        "new_survivor": {"Strength": 1, "Accuracy": 1, "Evasion": 1},
     },
     "Sacrifice": { "type": "faith", },
     "Scarification": { "type": "faith", },
@@ -1376,6 +1399,7 @@ innovations = {
     "Saga": {
         "type": "music",
         "survivor_buff": "All newborn survivors gain +2 hunt experience and +2 survival from knowing the epic.",
+        "new_survivor": {"hunt_xp": 2, "survival": 2},
     },
     "Forbidden Dance": {"type": "music"},
     "Bed": {

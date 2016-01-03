@@ -229,6 +229,12 @@ class survivor:
     add_ancestor_select_row = Template('\t<option value="$parent_id">$parent_name</option>\n')
     add_ancestor_select_bot = '\t</select><br class="mobile_only"/><br class="mobile_only"/>'
     add_ancestor_bot = '    </div>\n'
+    campaign_summary_hide_show = Template("""\n\
+    <h3 class="clickable $color align_left" onclick="showHide('$group_id')">$heading ($death_count) <img class="dashboard_down_arrow" src="%s/icons/down_arrow.png"/> </h3>
+    <div id="$group_id" style="display: none;">
+        $dead_survivors
+    </div> <!-- deadSurvivorsBlock -->
+    \n""" % (settings.get("application","STATIC_URL")))
     campaign_asset = Template("""\n\
       <div class="survivor_campaign_asset_container">
 
@@ -243,7 +249,7 @@ class survivor:
         <form method="POST" action="#">
          <input type="hidden" name="view_survivor" value="$survivor_id" />
          <button id="survivor_campaign_asset" class="$b_class" $disabled>
-            <center><b>$name</b> [$sex] </center>
+            <center> <font class="$favorite"/>&#9733;</font> <b>$name</b> [$sex] </center>
             $special_annotation
             &ensp; XP: $hunt_xp &ensp; Survival: $survival<br/>
             &ensp; Insanity: $insanity <br/>
@@ -280,6 +286,11 @@ class survivor:
             <p>
              Survivor sex: <b>$sex</b>
             <div id="survivor_dead_retired_container">
+
+                    <!-- favorite -->
+                 <input type='hidden' value='unchecked' name='toggle_favorite'/>
+                 <input type="checkbox" id="favorite" class="radio_principle" name="toggle_favorite" value="checked" $favorite_checked /> 
+                 <label class="radio_principle_label toggle_favorite" for="favorite"> &#9733; Favorite </label>
 
                     <!-- dead -->
                  <input type='hidden' value='unchecked' name='toggle_dead'/>
@@ -545,7 +556,7 @@ class survivor:
                 <button class="decrementer" onclick="decrement('proficiencyBox');">-</button>
             </div>
             <div class="big_number_caption">Weapon Proficiency
-                <input type="text" class="full_width" placeholder="Type: Select before hunt" value="$weapon_proficiency_type" name="weapon_proficiency_type" style="width: 50%; clear: none; "/>
+                <input onchange="this.form.submit()" type="text" class="full_width" placeholder="Type: Select before hunt" value="$weapon_proficiency_type" name="weapon_proficiency_type" style="width: 50%; clear: none; "/>
             </div>
             <div class="desktop_indent">
                 <p><b>Specialist</b> at 3<br/><b>Master</b> at 8</p>
@@ -637,34 +648,43 @@ class survivor:
 
                         <!-- ABILITIES AND IMPAIRMENTS -->
 
-            <form method="POST" id="autoForm" action="#edit_abilities">
-                <input type="hidden" name="form_id" value="survivor_edit_abilities" />
-                <input type="hidden" name="modify" value="survivor" />
-                <input type="hidden" name="asset_id" value="$survivor_id" />
 
-                <h3>Abilities & Impairments</h3>
-                <p>
-                 <input type='hidden' value='unchecked' name='toggle_skip_next_hunt'/>
-                 <input onchange="this.form.submit()" type="checkbox" id="skip_next_hunt" class="radio_principle" name="toggle_skip_next_hunt" value="checked" $skip_next_hunt_checked />
-                 <label class="radio_principle_label" for="skip_next_hunt" id="float_right_toggle"> Skip Next<br/>Hunt </label>
+            <h3>Abilities & Impairments</h3>
+                <form method="POST" id="autoForm" action="#edit_abilities">
+                  <input type="hidden" name="form_id" value="survivor_edit_abilities" />
+                  <input type="hidden" name="modify" value="survivor" />
+                  <input type="hidden" name="asset_id" value="$survivor_id" />
+                  <input type='hidden' value='unchecked' name='toggle_skip_next_hunt'/>
+                  <input onchange="this.form.submit()" type="checkbox" id="skip_next_hunt" class="radio_principle" name="toggle_skip_next_hunt" value="checked" $skip_next_hunt_checked />
+                  <label class="radio_principle_label" for="skip_next_hunt" id="float_right_toggle"> Skip Next<br/>Hunt </label>
+                </form>
+            <p>
+                <form method="POST" id="autoForm" action="#edit_abilities">
+                  <input type="hidden" name="form_id" value="survivor_edit_abilities" />
+                  <input type="hidden" name="modify" value="survivor" />
+                  <input type="hidden" name="asset_id" value="$survivor_id" />
                     $abilities_and_impairments<br class="mobile_only"/>
                     $add_abilities_and_impairments
                 <input onchange="this.form.submit()" class="full_width" type="text" name="add_ability" placeholder="add custom ability or impairment"/>
                     $remove_abilities_and_impairments
+                </form>
+            </p>
 
-                </p>
-                <hr />
+            <hr />
 
-                <input onchange="this.form.submit()" class="full_width" type="text" name="email" placeholder="email" value="$email"/>
-                <hr />
-
+            <form method="POST" id="autoForm" action="#edit_abilities">
+              <input type="hidden" name="form_id" value="survivor_edit_abilities"/>
+              <input type="hidden" name="modify" value="survivor" />
+              <input type="hidden" name="asset_id" value="$survivor_id" />
+              <input onchange="this.form.submit()" class="full_width" type="text" name="email" placeholder="email" value="$email"/>
+              <hr />
             </form>
 
 
             <br class="mobile_only"/><hr class="mobile_only"/>
 
 
-            <form method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this survivor forever, which is NOT THE SAME THING as marking it dead: permanently deleting the survivor prevents anyone from viewing and/or editing it ever again!');"><input type="hidden" name="remove_survivor" value="$survivor_id"/><button class="error">Permanently Delete Survivor</button></form>
+            <form method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this survivor forever, which is NOT THE SAME THING as marking it dead: permanently deleting the survivor prevents anyone from viewing and/or editing it ever again! If you are trying to delete all survivors in a settlement, you may delete the settlement from the settlement editing view.');"><input type="hidden" name="remove_survivor" value="$survivor_id"/><button class="error">Permanently Delete Survivor</button></form>
             <hr class="mobile_only"/>
             <br class="mobile_only"/>
         </div> <!-- asset_management_right_pane -->
@@ -754,18 +774,24 @@ class settlement:
         <span class="desktop_only nav_bar gradient_purple"></span>
         <h1 class="settlement_name"> %s $settlement_name</h1>
         <div id="campaign_summary_pop">
-            <p>Population: $population ($death_count deaths)</p><hr class="mobile_only"/>
-            <p>Survival Limit: $survival_limit</p><hr class="mobile_only"/>
+            <p>Population: $population ($sex_count); $death_count deaths</p>
+            <hr class="mobile_only"/>
+            <p>Survival Limit: $survival_limit</p>
+            <hr class="mobile_only"/>
         </div>
+        <form method="POST" class="mobile_only">
+          <input type="hidden" name="change_view" value="new_survivor"/>
+          <button class="success" id="campaign_summary_new_survivor">+ Create New Survivor</button>
+          <hr/>
+        </form>
         <a id="edit_hunting_party" class="mobile_only"></a>
         <span class="vertical_spacer desktop_only"></span>
             $survivors
         <div id="campaign_summary_facts_box">
             <form method="POST">
             <input type="hidden" name="change_view" value="new_survivor"/>
-            <button class="success" id="campaign_summary_new_survivor">+ Create New Survivor</button>
+            <button class="success desktop_only" id="campaign_summary_new_survivor">+ Create New Survivor</button>
             </form>
-            <hr class="mobile_only"/>
             <div class="campaign_summary_small_box">
                 <h3>Principles</h3>
                 $principles

@@ -179,6 +179,10 @@ class Session:
         if "remove_survivor" in self.params:
             survivor_id = ObjectId(self.params["remove_survivor"].value)
             S = assets.Survivor(survivor_id=survivor_id, session_object=self)
+            if not "cause_of_death" in S.survivor.keys():
+                S.survivor["cause_of_death"] = "Forsaken."
+            S.death()
+            admin.valkyrie()
             self.change_current_view("view_campaign", asset_id=S.survivor["settlement"])
             mdb.survivors.remove({"_id": survivor_id})
             self.logger.info("User '%s' removed survivor '%s' from mdb!" % (self.User.user["login"], survivor_id))
