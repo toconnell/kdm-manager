@@ -170,6 +170,7 @@ button#remove_item {border-radius: 20px; padding-right: 10px; padding-left: 10px
 input[type=radio], input[type=checkbox] {display: none; }
 .radio_principle:checked + .radio_principle_label {  font-weight: bold; color: #C60000; }
 
+
 /* label styles */
 label {margin: 20px; font-size: 65px; color: #CCC; }
 label, .full_width {clear: both; display: block; }
@@ -303,6 +304,7 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
     .hunting_party_macro {float: left; padding: 3px; text-align: center; width: 84px; font-size: 11pt; border-left: 1px solid #ddd;}
     .hunting_party_macro button {width: 90%; margin: 3px; }
     #hunting_party_macro_container {width: 100%; padding: 0; margin: 0 auto; text-align: center; }
+    button#increment_nemesis {margin: 3px; }
 
 
     /* asset creation styles */
@@ -348,7 +350,7 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
     /* panel styles */
     #panel_meta_stats, .panel_recent_user {font-size: 12pt; border-collapse: collapse; border-bottom: 1px solid #aaa;}
     #panel_meta_stats {width: 500px; margin-bottom: 20px; }
-    .panel_recent_user {float: left; margin: 10px; width: 600px; }
+    .panel_recent_user {float: left; margin: 10px; width: 900px; }
 }
 
 
