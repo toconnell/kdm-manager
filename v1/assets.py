@@ -1760,12 +1760,12 @@ class Settlement:
                 # finally, file our newly minted survivor in a group:
                 if "in_hunting_party" in S.survivor.keys():
                     groups[1]["survivors"].append(survivor_html)
-                elif "skip_next_hunt" in S.survivor.keys():
-                    groups[4]["survivors"].append(survivor_html)
                 elif "dead" in S.survivor.keys():
                     groups[6]["survivors"].append(survivor_html)
                 elif "retired" in S.survivor.keys():
                     groups[5]["survivors"].append(survivor_html)
+                elif "skip_next_hunt" in S.survivor.keys():
+                    groups[4]["survivors"].append(survivor_html)
                 elif "favorite" in S.survivor.keys():
                     groups[2]["survivors"].append(survivor_html)
                 else:
