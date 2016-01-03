@@ -930,7 +930,7 @@ class Survivor:
                 pass
             else:
                 self.survivor[p] = game_asset_key
-                self.logger.debug("%s set '%s' -> '%s' for survivor '%s' (%s)." % (self.User.user["login"], p, game_asset_key, self.survivor["name"], self.survivor["_id"]))
+#                self.logger.debug("%s set '%s' -> '%s' for survivor '%s' (%s)." % (self.User.user["login"], p, game_asset_key, self.survivor["name"], self.survivor["_id"]))
 
 
         # enforce ability and impairment maxes
@@ -2242,7 +2242,7 @@ class Settlement:
                 break
             else:
                 self.settlement[p] = game_asset_key
-#                self.logger.debug("%s set '%s' = '%s' for settlement '%s' (%s)." % (self.User.user["login"], p, game_asset_key, self.settlement["name"], self.settlement["_id"]))  # this is crazy noisy; only uncomment for serious CLI debugging
+                self.logger.debug("%s set '%s' = '%s' for settlement '%s' (%s)." % (self.User.user["login"], p, game_asset_key, self.settlement["name"], self.settlement["_id"]))  # this is crazy noisy; only uncomment for serious CLI debugging
 
         #
         #   settlement post-processing starts here!
