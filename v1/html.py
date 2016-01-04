@@ -211,9 +211,9 @@ class survivor:
         <div id="block_group">
         <h2>Survivor Sex</h2>
             <fieldset class="radio">
-          <input type="radio" id="male_button" class="radio_principle" name="sex" value="Male" checked/> 
+          <input type="radio" id="male_button" class="radio_principle" name="sex" value="M" checked/> 
           <label class="radio_principle_label" for="male_button"> Male </label><br/>
-          <input type="radio" id="female_button" class="radio_principle" name="sex" value="Female"/> 
+          <input type="radio" id="female_button" class="radio_principle" name="sex" value="F"/> 
           <label class="radio_principle_label" for="female_button"> Female </label>
             </fieldset>
         </div>
@@ -700,6 +700,10 @@ class settlement:
         <form method="POST">
         <input type="hidden" name="new" value="settlement" />
         <input type="text" name="settlement_name" placeholder="Settlement Name"/ class="full_width" autofocus>
+        <fieldset class="settlement_principle">
+         <input type="checkbox" id="create_survivors" class="radio_principle" name="create_survivors" value="True" />
+          <label class="radio_principle_label" for="create_survivors"> Create Four New Survivors </label>
+        </fieldset>
         <button class="success">SAVE</button>
         </form>
     </div>
@@ -1109,7 +1113,8 @@ class settlement:
              <button class="decrementer" onclick="decrement('lanternYearBox');">-</button>
          </div>
          <div class="big_number_caption">Lantern Year</div>
-         <br class="mobile_only"/><hr class="mobile_only"/>
+         <br class="mobile_only"/>
+        <hr>
          $timeline
         </div> <!-- timelineBlock -->
         </form>

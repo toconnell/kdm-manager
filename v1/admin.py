@@ -6,11 +6,13 @@ from hashlib import md5
 import operator
 from optparse import OptionParser
 import os
+import cPickle as pickle
+import socket
 from validate_email import validate_email
 
 import assets
 import html
-from utils import email, mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes
+from utils import email, mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes, ymd
 
 
 logger = get_logger()
@@ -178,10 +180,15 @@ def update_survivor(operation, s_id=None, attrib=False, attrib_value=False):
     print("\n\tSurvivor found!\n")
     dump_document("survivors", survivor["_id"])
 
+    print(" Target attrib is '%s'" % attrib)
+    print(" survivor['%s'] -> %s" % (attrib, survivor[attrib]))
+    print(" Tarvet value is '%s'" % attrib_value)
+
+    if operation == "add":
+        survivor[attrib] = attrib_value
+        print(" survivor['%s'] = %s" % (attrib, attrib_value))
+
     if operation == "remove":
-        print(" Target attrib is '%s'" % attrib)
-        print(" survivor['%s'] -> %s" % (attrib, survivor[attrib]))
-        print(" Tarvet value is '%s'" % attrib_value)
         if attrib_value not in survivor[attrib]:
             print(" Target value '%s' not in attribute! Exiting...\n" % attrib_value)
             return None
@@ -190,9 +197,12 @@ def update_survivor(operation, s_id=None, attrib=False, attrib_value=False):
             if manual_approve == "YES":
                 survivor[attrib].remove(attrib_value)
                 mdb.survivors.save(survivor)
-                print("\n  Survivor updated!\n")
             else:
                 print("    Aborting...\n")
+                return False
+
+    print("\n  Survivor updated successfully!\n")
+
 
 def remove_document(collection, doc_id):
     """ Removes a single document (by _id) from the specified collection."""
@@ -237,8 +247,12 @@ def pretty_view_user(u_id):
         print("\t%s settlements:\n" % len(User.settlements))
         for settlement in User.settlements:
             print asset_repr(settlement, "settlement")
-            for survivor in mdb.survivors.find({"settlement": settlement["_id"]}):
-                print "  %s" % asset_repr(survivor, "survivor")
+            settlement_survivors = mdb.survivors.find({"settlement": settlement["_id"]})
+            if settlement_survivors.count() > 0:
+                for survivor in settlement_survivors:
+                    print("  %s" % asset_repr(survivor, "survivor"))
+            else:
+                print("  -> No survivors in mdb.")
             print("")
 
     if User.get_survivors() is None:
@@ -354,8 +368,11 @@ class Panel:
         recent_users = self.get_recent_users()
 
         f = mdb.the_dead.find_one({"complete": {"$exists": True}}, sort=[("created_on",-1)])
-        f_owner = mdb.users.find_one({"_id": f["created_by"]})["login"]
-        latest_fatality_string = "%s <br/> <b>%s</b> <br/> %s <br/> %s" % (f_owner, f["name"], f["settlement_name"], f["cause_of_death"])
+        if f is not None:
+            f_owner = mdb.users.find_one({"_id": f["created_by"]})["login"]
+            latest_fatality_string = "%s <br/> <b>%s</b> <br/> %s <br/> %s" % (f_owner, f["name"], f["settlement_name"], f["cause_of_death"])
+        else:
+            latest_fatality_string = "No deaths recorded yet!"
 
         total_survivors = mdb.survivors.find().count()
         dead_survivors = mdb.the_dead.find().count()
@@ -406,39 +423,35 @@ def valkyrie():
     """ Checks all extant survivors and adds them to mdb.the_dead if they've got
     the 'dead' attrib. Tries to get their 'cause_of_death'. """
 
-    dead_survivors = mdb.survivors.find({"dead": {"$exists": True}})
-    legacy_deaths = 0
-    for survivor in dead_survivors:
-        if mdb.the_dead.find_one({"survivor_id": survivor["_id"]}) is None:
-            death_dict = {
-                "name": survivor["name"],
-                "epithets": survivor["epithets"],
-                "survivor_id": survivor["_id"],
-                "created_by": survivor["created_by"],
-                "created_on": datetime(2015,12,14),
-                "settlement_id": survivor["settlement"],
-                "lantern_year": 0,
-            }
-            mdb.the_dead.insert(death_dict)
-            legacy_deaths += 1
-            logger.debug("Added survivor '%s' to mdb.the_dead." % survivor["name"])
-
-    if legacy_deaths > 0:
-        logger.warn("Valkyrie added %s legacy deaths to mdb.the_dead!" % legacy_deaths)
+    attribs_of_death = ["Courage", "Understanding", "Insanity", "epithets", "hunt_xp"]
 
     for dead in mdb.the_dead.find({"complete": {"$exists": False}}):
+        # set the settlement_name attrib
+        dead["settlement_name"] = mdb.settlements.find_one({"_id": dead["settlement_id"]})["name"]
+
+        # if the survivor is still in the mdb, try to update his death record
         survivor_dict = mdb.survivors.find_one({"_id": dead["survivor_id"]})
         if survivor_dict is not None:
-            dead["settlement_name"] = mdb.settlements.find_one({"_id": dead["settlement_id"]})["name"]
-            for mandatory_attrib in ["Courage", "Understanding", "Insanity", "epithets", "hunt_xp"]:
+            for mandatory_attrib in attribs_of_death:
                 dead[mandatory_attrib] = survivor_dict[mandatory_attrib]
             if "cause_of_death" in survivor_dict.keys():
                 dead["cause_of_death"] = survivor_dict["cause_of_death"]
-                dead["complete"] = datetime.now()
-#            else:
-#                logger.debug("Unable to set cause of death for dead survivor '%s'!" % dead["name"])
-            mdb.the_dead.save(dead)
-    logger.debug("Valkyrie run complete: %s/%s complete death records." % (mdb.the_dead.find({"complete": {"$exists": True}}).count(), mdb.the_dead.find().count()))
+
+        # determine if the death record is complete
+        complete_rec = True
+        if "cause_of_death" in dead.keys():
+            for a in attribs_of_death:
+                if a not in dead.keys():
+                    complete_rec = False
+        else:
+            complete_rec = False
+        if complete_rec:
+            dead["complete"] = datetime.now()
+
+        # finally, save the death record
+        mdb.the_dead.save(dead)
+
+    logger.info("Valkyrie run complete: %s/%s complete death records." % (mdb.the_dead.find({"complete": {"$exists": True}}).count(), mdb.the_dead.find().count()))
 
 
 
@@ -452,6 +465,58 @@ def dashboard_alert():
         return html.meta.dashboard_alert.safe_substitute(msg=settings.get("application", "dashboard_alert"))
 
 
+def export_data(u_id):
+    """ Writes a pickle of the user and his assets. """
+    U = assets.User(user_id=u_id, session_object={"_id": 0, "login": "ADMINISTRATOR"})
+    filename = "%s.%s.admin_export.pickle" % (datetime.now().strftime(ymd), U.user["login"])
+    fh = file(filename, "w")
+    fh.write(U.dump_assets("pickle"))
+    fh.close()
+    print("Export successful!\n -> %s" % filename)
+
+
+def import_data(data_pickle_path):
+    """ Takes a pickle of User and asset data and imports it into the local MDB.
+    This will absolutely overwrite/clobber any documents whose _id values match
+    those in the pickled data. YHBW. """
+
+    if not os.path.isfile(data_pickle_path):
+        raise Exception("Path '%s' looks bogus!" % data_pickle_path)
+    data = pickle.load(file(data_pickle_path, "rb"))
+
+    print("\n Importing user %s (%s)" % (data["user"]["login"], data["user"]["_id"]))
+    if "current_session" in data["user"].keys():
+        del data["user"]["current_session"]
+    mdb.users.save(data["user"])
+
+    imported_settlements = 0
+    for settlement in data["settlements"]:
+        print(" Importing settlement '%s' (%s)" % (settlement["name"], settlement["_id"]))
+        imported_settlements += 1
+        mdb.settlements.save(settlement)
+    print(" %s settlements imported." % imported_settlements)
+
+    imported_survivors = 0
+    for survivor in data["survivors"]:
+        print(" Importing survivor '%s' (%s)" % (survivor["name"], settlement["_id"]))
+        imported_survivors += 1
+        mdb.survivors.save(survivor)
+    print(" %s survivors imported." % imported_survivors)
+
+    mdb.sessions.remove({"login": data["user"]["login"]})
+    print(" Removed session(s) belonging to incoming user.")
+
+    manual_approve = raw_input(' Reset password for %s? Type "YES" to reset: ' % data["user"]["login"])
+    if manual_approve == "YES":
+        U = assets.User(user_id=data["user"]["_id"], session_object={"_id": 0, "login": "ADMINISTRATOR"})
+        U.update_password("password")
+        print(" Updated password to 'password'. ")
+    else:
+        print(" Password has NOT been reset.")
+
+    print(" Import complete!")
+    logger.critical("Imported user '%s' (%s): %s assets loaded!" % (data["user"]["login"], data["user"]["_id"], imported_settlements+imported_survivors))
+
 
 if __name__ == "__main__":
     parser = OptionParser()
@@ -459,6 +524,7 @@ if __name__ == "__main__":
 
     parser.add_option("-s", dest="survivor", help="Specify a survivor to work with.", metavar="566e228654922d30c47b8704", default=False)
     parser.add_option("--survivor_attrib", dest="survivor_attrib", help="Specify a survivor attrib to modify.", metavar="attributes_and_impairments", default=False)
+    parser.add_option("--add_attrib", dest="add_attrib", help="Add attrib to survivor", metavar="user-specified string", default=False)
     parser.add_option("--remove_attrib", dest="remove_attrib", help="Remove attrib from survivor", metavar="<b>Cancer:</b> No description.", default=False)
 
     parser.add_option("-l", dest="list_documents", help="List documents in a collection", metavar="survivors", default=False)
@@ -467,20 +533,33 @@ if __name__ == "__main__":
     parser.add_option("-R", dest="drop_collection", help="Drop all docs in a collection.", metavar="users", default=False)
 
     parser.add_option("--play_summary", dest="play_summary", help="Summarize play sessions for users.", action="store_true", default=False)
+    parser.add_option("--valkyrie", dest="valkyrie", help="Run the valkyrie.", action="store_true", default=False)
 
     parser.add_option("-u", dest="user_id", help="Specify a user to work with.", default=False)
     parser.add_option("-p", dest="user_pass", help="Update a user's password (requires -u).", default=False)
 
+    parser.add_option("-e", dest="export_data", help="export data to a pickle. needs a user _id", metavar="5681f9e7421aa93924b6d013", default=False)
+    parser.add_option("-i", dest="import_data", help="import data from a pickle", metavar="/home/toconnell/data.pickle", default=False)
     parser.add_option("--user", dest="pretty_view_user", help="Print a pretty summary of a user", metavar="5665026954922d076285bdec", default=False)
     parser.add_option("--user_repr", dest="user_repr", help="Dump a user's repr", metavar="5665026954922d076285bdec", default=False)
     parser.add_option("--admin", dest="toggle_admin", help="toggle admin status for a user _id", default=False)
-    parser.add_option("-e", dest="email", help="Send a test email to an address", metavar="toconnell@tyrannybelle.com", default=False)
+    parser.add_option("--email", dest="email", help="Send a test email to an address", metavar="toconnell@tyrannybelle.com", default=False)
 
     parser.add_option("--initialize", dest="initialize", help="Burn it down.", action="store_true", default=False)
     (options, args) = parser.parse_args()
 
 #    if args == []:
 #        motd()
+
+
+    if options.export_data:
+        export_data(options.export_data)
+
+    if options.import_data:
+        import_data(options.import_data)
+
+    if options.valkyrie:
+        valkyrie()
 
     if options.user_repr:
         User = assets.User(user_id=options.user_repr, session_object={"_id": 0, "login": "ADMINISTRATOR"})
@@ -493,6 +572,7 @@ if __name__ == "__main__":
         toggle_admin_status(options.toggle_admin)
 
     if options.initialize:
+        print(" hostname: %s" % socket.gethostname())
         manual_approve = raw_input('Initialize the project and remove all data? Type "YES" to proceed: ')
         if manual_approve == "YES":
             initialize()
@@ -514,6 +594,8 @@ if __name__ == "__main__":
 
     if options.survivor:
         if options.survivor_attrib:
+            if options.add_attrib:
+                update_survivor("add", s_id=options.survivor, attrib=options.survivor_attrib, attrib_value=options.add_attrib)
             if options.remove_attrib:
                 update_survivor("remove", s_id=options.survivor, attrib=options.survivor_attrib, attrib_value=options.remove_attrib)
 

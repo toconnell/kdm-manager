@@ -49,6 +49,7 @@ class User:
         else:
             return False
 
+
     def update_password(self, password, password_again=False):
         """ Leave the 'password_again' kwarg blank if you're not checking two
         passwords to see if they match, e.g. if you're doing this from the CLI.
@@ -105,6 +106,7 @@ class User:
 
         user_admin_log_dict["msg"] = user_admin_log_dict["msg"].strip()
         mdb.user_admin.insert(user_admin_log_dict)
+
 
     def dump_assets(self, dump_type=None):
         """ Returns a dictionary representation of a user's complete assets. """
@@ -283,7 +285,7 @@ class User:
 
 class Survivor:
 
-    def __init__(self, survivor_id=False, params=False, session_object=None):
+    def __init__(self, survivor_id=False, params=None, session_object=None):
         """ Initialize this with a cgi.FieldStorage() as the 'params' kwarg
         to create a new survivor. Otherwise, use a mdb survivor _id value
         to initalize with survivor data from mongo. """
@@ -367,31 +369,42 @@ class Survivor:
                     self.survivor["abilities_and_impairments"].append(spec_str)
                     self.logger.debug("Auto-applied settlement default '%s' to survivor '%s'." % (spec_str, self.survivor["name"]))
 
-
         mdb.survivors.save(self.survivor)
 
-    def new(self, params):
-        """ Create a new survivor from cgi.FieldStorage() params. """
 
-        if "name" in params:
-            survivor_name = params["name"].value
-        else:
-            survivor_name = "Anonymous"
+    def new(self, params, name="Anonymous", sex="M"):
+        """ All that is required to make a new survivor is a name, a sex and an
+        email address for its owner/operator. If you have those in a
+        cgi.FieldStorage(), you may pass that in as the first arg and leave it
+        at that.
 
-        created_by = self.User.user["_id"]
-        settlement_id = ObjectId(params["settlement_id"].value)
-        survivor_email = params["email"].value.lower()
-        survivor_sex = params["sex"].value[0].upper()
+        If the cgi.FieldStorage() contains "father" and "mother" params, those
+        will be applied during initialization.
+
+        Otherwise, pass a None in place of a cgi.FieldStorage to use default
+        values or use the appropriate kwargs to provide that information in the
+        function call."""
+
+        email = self.User.user["login"]
+
+        # if we have a cgi.FieldStorage() as our first arg
+        if params is not None:
+            if "name" in params:
+                name = params["name"].value
+            if "sex" in params:
+                sex = params["sex"].value
+            if "email" in params:
+                email = params["email"].value
 
         survivor_dict = {
-            "epithets": [],
+            "name": name,
+            "email": email,
+            "sex": sex,
+            "born_in_ly": self.Settlement.settlement["lantern_year"],
             "created_on": datetime.now(),
-            "created_by": created_by,
-            "settlement": settlement_id,
+            "created_by": self.User.user["_id"],
+            "settlement": self.Settlement.settlement["_id"],
             "survival": 1,
-            "name": survivor_name,
-            "email": survivor_email,
-            "sex": survivor_sex,
             "hunt_xp": 0,
             "Movement": 5,
             "Accuracy": 0,
@@ -412,24 +425,25 @@ class Survivor:
             "disorders": [],
             "abilities_and_impairments": [],
             "fighting_arts": [],
-            "born_in_ly": self.Settlement.settlement["lantern_year"],
+            "epithets": [],
         }
 
         # add parents if they're specified
         parents = []
         for parent in ["father", "mother"]:
-            if parent in params:
+            if params is not None and parent in params:
                 p_id = ObjectId(params[parent].value)
                 parents.append(mdb.survivors.find_one({"_id": p_id})["name"])
                 survivor_dict[parent] = ObjectId(p_id)
         if parents != []:
-            if survivor_sex == "M":
+            if sex == "M":
                 genitive_appellation = "Son"
-            elif survivor_sex == "F":
+            elif sex == "F":
                 genitive_appellation = "Daughter"
             survivor_dict["epithets"].append("%s of %s" % (genitive_appellation, " and ".join(parents)))
 
-        self.logger.debug("Automatically applying 'new_survivor' buffs to new survivor '%s' before inserting..." % survivor_name)
+        # apply settlement buffs to the new guy
+        self.logger.debug("Automatically applying 'new_survivor' buffs to new survivor '%s' before inserting..." % name)
         new_survivor_buffs = self.Settlement.get_bonuses("new_survivor")
         for b in new_survivor_buffs.keys():
             buffs = new_survivor_buffs[b]
@@ -438,11 +452,32 @@ class Survivor:
             self.logger.debug("Applied buffs for '%s' successfully: %s" % (b, buffs))
 
         survivor_id = mdb.survivors.insert(survivor_dict)
-        self.logger.info("User '%s' created new survivor '%s [%s]' successfully." % (self.User.user["login"], survivor_name, survivor_sex))
+        self.logger.info("User '%s' created new survivor '%s [%s]' successfully." % (self.User.user["login"], name, sex))
 
         self.Settlement.update_mins()
 
         return survivor_id
+
+
+    def delete(self, run_valkyrie=True):
+        """ Retires the Survivor (in the Blade Runner sense) and then removes it
+        from the mdb. """
+
+        self.logger.debug("%s is removing survivor %s..." % (self.User.user["login"], self.get_name_and_id()))
+        if not "cause_of_death" in self.survivor.keys():
+            self.survivor["cause_of_death"] = "Forsaken."
+        self.death()
+        if run_valkyrie:
+            admin.valkyrie()
+        mdb.survivors.remove({"_id": self.survivor["_id"]})
+        self.logger.warn("%s removed survivor %s from mdb!" % (self.User.user["login"], self.get_name_and_id()))
+
+
+    def get_name_and_id(self):
+        """ Laziness function to return a string of the Survivor's name and _id
+        value (i.e. so we can write DRYer log entries, etc.). """
+
+        return "'%s' (%s)" % (self.survivor["name"], self.survivor["_id"])
 
 
     def get_ancestors(self, return_type=None):
@@ -829,12 +864,22 @@ class Survivor:
                 "settlement_id": self.Settlement.settlement["_id"],
                 "created_on": datetime.now(),
                 "lantern_year": self.Settlement.settlement["lantern_year"],
+                "Courage": self.survivor["Courage"],
+                "Understanding": self.survivor["Understanding"],
+                "Insanity": self.survivor["Insanity"],
+                "epithets": self.survivor["epithets"],
+                "hunt_xp": self.survivor["hunt_xp"],
             }
+
+            if "cause_of_death" in self.survivor.keys():
+                death_dict["cause_of_death"] = self.survivor["cause_of_death"]
+
             if mdb.the_dead.find_one({"survivor_id": self.survivor["_id"]}) is None:
                 mdb.the_dead.insert(death_dict)
                 self.logger.debug("Survivor '%s' added to the The Dead." % self.survivor["name"])
                 self.Settlement.settlement["population"] = int(self.Settlement.settlement["population"]) - 1
-                self.logger.debug("Settlement '%s' population automatically decreased by 1." % self.Settlement.settlement["name"])
+                self.Settlement.settlement["death_count"] = int(self.Settlement.settlement["death_count"]) + 1
+                self.logger.debug("Settlement '%s' population and death count automatically adjusted!" % self.Settlement.settlement["name"])
             else:
                 self.logger.debug("Survivor '%s' is already among The Dead." % self.survivor["name"])
 
@@ -880,6 +925,17 @@ class Survivor:
             self.Settlement.settlement["innovations"].append(mastery_string)
             mdb.settlements.save(self.Settlement.settlement)
             self.logger.debug("Survivor '%s' added '%s' to settlement %s's Innovations!" % (self.survivor["name"], mastery_string, self.Settlement.settlement["name"]))
+
+    def set_attrs(self, attrs_dict):
+        """ Accepts a dictionary and updates self.survivor with its keys and
+        values. There's no user-friendliness or checking here--this is an admin
+        type method--so make sure you know what you're doing with this. """
+
+        for k in attrs_dict.keys():
+            self.survivor[k] = attrs_dict[k]
+            self.logger.debug("%s set '%s' = '%s' for %s" % (self.User.user["login"], k, attrs_dict[k], self.get_name_and_id()))
+        mdb.survivors.save(self.survivor)
+
 
     def modify(self, params):
         """ Reads through a cgi.FieldStorage() (i.e. 'params') and modifies the
@@ -1237,6 +1293,19 @@ class Settlement:
         return settlement_id
 
 
+    def delete(self):
+        """ Retires and removes all survivors; runs the Valkyrie and removes the
+        settlement from the mdb. """
+
+        self.logger.debug("%s is removing settlement %s..." % (self.User.user["login"], self.get_name_and_id()))
+        for survivor in self.get_survivors():
+            S = Survivor(survivor_id=survivor["_id"], session_object=self.Session)
+            S.delete(run_valkyrie=False)
+        admin.valkyrie()
+        mdb.settlements.remove({"_id": self.settlement["_id"]})
+        self.logger.warn("%s removed settlement %s from mdb!" % (self.User.user["login"], self.get_name_and_id()))
+
+
     def update_mins(self):
         """ check 'population' and 'death_count' minimums and update the
         settlement's attribs if necessary.
@@ -1281,6 +1350,11 @@ class Settlement:
                 if "type" in innovation_dict.keys() and innovation_dict["type"] == "principle":
                     self.settlement["innovations"].remove(innovation_key)
                     self.logger.debug("Automatically removed principle '%s' from settlement '%s' (%s) innovations." % (innovation_key, self.settlement["name"], self.settlement["_id"]))
+
+
+    def get_name_and_id(self):
+        """ Laziness function for DRYer log construction. """
+        return "'%s' (%s)" % (self.settlement["name"], self.settlement["_id"])
 
 
     def get_ancestors(self, return_type=None, survivor_id=False):
@@ -2294,6 +2368,9 @@ class Settlement:
         if "First child is born" in self.settlement["milestone_story_events"]:
             hide_new_life_principle = ""
             first_child = "checked"
+        for s in self.get_survivors():
+            if "father" in s.keys() or "mother" in s.keys():
+                hide_new_life_principle = ""
 
         hide_death_principle = "hidden"
         first_death = ""

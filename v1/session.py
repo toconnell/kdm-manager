@@ -164,39 +164,38 @@ class Session:
             self.change_current_view("view_survivor", asset_id=self.params["view_survivor"].value)
             user_action = "viewed survivor form"
 
+        # these are our two asset removal methods: this is as DRY as I think we
+        #   can get with this stuff, since both require unique handling
         if "remove_settlement" in self.params:
             self.change_current_view("dashboard")
-            settlement_id = ObjectId(self.params["remove_settlement"].value)
-            survivors = mdb.survivors.find({"settlement": settlement_id})
-            for survivor in survivors:
-                mdb.survivors.remove({"_id": survivor["_id"]})
-                self.logger.info("User '%s' removed survivor '%s'" % (self.User.user["login"], survivor["name"]))
-            self.User.get_settlements()
-            mdb.settlements.remove({"_id": settlement_id})
-            self.logger.info("User '%s' removed settlement '%s' from mdb!" % (self.User.user["login"], settlement_id))
-            user_action = "removed settlement %s" % settlement_id
-
+            s_id = ObjectId(self.params["remove_settlement"].value)
+            S = assets.Settlement(settlement_id=s_id, session_object=self)
+            S.delete()
+            user_action = "removed settlement %s" % s_id
         if "remove_survivor" in self.params:
             survivor_id = ObjectId(self.params["remove_survivor"].value)
             S = assets.Survivor(survivor_id=survivor_id, session_object=self)
-            if not "cause_of_death" in S.survivor.keys():
-                S.survivor["cause_of_death"] = "Forsaken."
-            S.death()
-            admin.valkyrie()
+            S.delete()
             self.change_current_view("view_campaign", asset_id=S.survivor["settlement"])
-            mdb.survivors.remove({"_id": survivor_id})
-            self.logger.info("User '%s' removed survivor '%s' from mdb!" % (self.User.user["login"], survivor_id))
             user_action = "removed survivor %s" % survivor_id
 
+        # this is where we handle requests to create new assets
         if "new" in self.params:
             if self.params["new"].value == "settlement":
                 if "settlement_name" in self.params:
                     settlement_name = self.params["settlement_name"].value
                 else:
-                    settlement_name = "Settlement Name"
+                    settlement_name = "Unknown"
                 S = assets.Settlement(name=settlement_name, session_object=self)
                 self.set_current_settlement(S.settlement["_id"])
                 self.change_current_view("view_campaign", asset_id=S.settlement["_id"])
+                if "create_survivors" in self.params:   # this could use a refactor, but it's functional so FIWE
+                    m = assets.Survivor(params=None, session_object=self)
+                    m = assets.Survivor(params=None, session_object=self)
+                    f = assets.Survivor(params=None, session_object=self)
+                    f.set_attrs({"sex": "F"})
+                    f = assets.Survivor(params=None, session_object=self)
+                    f.set_attrs({"sex": "F"})
                 user_action = "created settlement %s" % S.settlement["_id"]
             if self.params["new"].value == "survivor":
                 S = assets.Survivor(params=self.params, session_object=self)
