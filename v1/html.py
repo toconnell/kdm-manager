@@ -774,6 +774,13 @@ class settlement:
     #   campaign view campaign summary
     campaign_summary_survivors_top = '<div id="campaign_summary_survivors">\n<h3 class="mobile_only">Survivors</h3>'
     campaign_summary_survivors_bot = '</div><hr class="mobile_only"/>'
+    export_button = Template("""\n\
+    <form method="POST">
+     <input type="hidden" name="export_campaign" value="$export_type"/>
+     <input type="hidden" name="asset_id" value="$asset_id"/>
+     <button class="gradient_orange"> $export_pretty_name </button>
+    </form>
+    \n""")
     summary = Template("""\n\
         <span class="desktop_only nav_bar gradient_purple"></span>
         <h1 class="settlement_name"> %s $settlement_name</h1>
@@ -828,6 +835,10 @@ class settlement:
                 <h4>Nemeses</h4>
                 <p>$nemesis_monsters</p>
             </div>
+        </div>
+        <div id="export_controls">
+            <hr class="mobile_only"/>
+            $export_xls
         </div>
     \n""" % dashboard.campaign_flash)
     form = Template("""\n\
@@ -1271,9 +1282,11 @@ def render(view_html, head=[], http_headers=None, body_class=None):
     if http_headers is None:
         output = "Content-type: text/html\n\n"
     else:
-        output = http_headers
-        output += view_html
-        print output
+        print http_headers
+        try:
+            print view_html.read()  # in case we're returning StringIO
+        except AttributeError:
+            print view_html
         sys.exit()
 
     output += meta.start_head

@@ -672,7 +672,7 @@ locations = {
     },
     "Barber Surgeon": {
         "requires": ("innovations", "Pottery"),
-        "color": "F5F1DE",
+        "color": "b93333",
         "consequences": [],
     },
     "Plumery": {
@@ -695,6 +695,30 @@ locations = {
 
 
 items = {
+    "First Aid Kit" : {
+        "location": "Barber Surgeon",
+    },
+    "Brain Mint" : {
+        "location": "Barber Surgeon",
+    },
+    "Elder Earrings" : {
+        "location": "Barber Surgeon",
+    },
+    "Musk Bomb" : {
+        "location": "Barber Surgeon",
+    },
+    "Scavenger Kit" : {
+        "location": "Barber Surgeon",
+    },
+    "Bug Trap" : {
+        "location": "Barber Surgeon",
+    },
+    "Speed Powder" : {
+        "location": "Barber Surgeon",
+    },
+    "Almanac" : {
+        "location": "Barber Surgeon",
+    },
     "God Mask" : {
         "location": "Mask Maker",
     },

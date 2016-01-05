@@ -219,11 +219,19 @@ class Session:
             S.return_hunting_party()
             user_action = "returned hunting party to settlement %s" % s_id
 
+        # user and campaign exports
         if "export_user_data" in self.params:
             export_type = self.params["export_user_data"].value
             payload = self.User.dump_assets(dump_type=export_type)
-            user_action = "exported user data as %s" % export_type
             html.render(str(payload), http_headers="Content-Disposition: attachment; filename=%s_%s.kdm-manager_export.%s\n\n" % (datetime.now().strftime(ymd), self.User.user["login"], export_type))
+            user_action = "exported user data as %s" % export_type
+        if "export_campaign" in self.params:
+            export_type = self.params["export_campaign"].value
+            C = assets.Settlement(settlement_id=ObjectId(self.params["asset_id"].value), session_object=self)
+            payload, length = C.export(export_type)
+            filename = "%s_-_%s.%s" % (datetime.now().strftime(ymd), C.settlement["name"], export_type.lower())
+            html.render(payload, http_headers="Content-type: application/octet-stream;\r\nContent-Disposition: attachment; filename=%s\r\nContent-Title: %s\r\nContent-Length: %i\r\n" % (filename, filename, length))
+            user_action = "exported campaign data as %s" % export_type
 
         self.User.mark_usage(user_action)
 

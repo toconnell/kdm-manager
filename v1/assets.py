@@ -3,6 +3,7 @@
 from bson.objectid import ObjectId
 from bson import json_util
 from copy import copy
+from cStringIO import StringIO
 from datetime import datetime
 from hashlib import md5
 import json
@@ -13,6 +14,7 @@ import random
 from string import Template
 
 import admin
+import export_to_file
 import assets
 import game_assets
 import html
@@ -1357,6 +1359,21 @@ class Settlement:
         return "'%s' (%s)" % (self.settlement["name"], self.settlement["_id"])
 
 
+    def export(self, export_type):
+        """ Dumps the settlement to a file, e.g. XLS or PDF. """
+
+        self.logger.debug("%s is exporting campaign %s as '%s'..." % (self.User.user["login"], self.get_name_and_id(), export_type))
+
+        if export_type == "XLS":
+            book = export_to_file.xls(self.settlement, self.get_survivors(), self.Session)
+            s = StringIO()
+            book.save(s)
+            length = s.tell()
+            s.seek(0)
+            return s, length
+
+        return "Invalid export type.", 0
+
     def get_ancestors(self, return_type=None, survivor_id=False):
         """ This is the settlement's version of this method and it is way
         different from the survivor """
@@ -2338,6 +2355,7 @@ class Settlement:
         not a form. """
 
         output = html.settlement.summary.safe_substitute(
+            export_xls = html.settlement.export_button.safe_substitute(export_type="XLS", export_pretty_name="Export to XLS", asset_id=self.settlement["_id"]),
             settlement_name=self.settlement["name"],
             principles = self.get_principles("comma-delimited"),
             population = self.settlement["population"],
