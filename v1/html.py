@@ -1358,7 +1358,7 @@ def render(view_html, head=[], http_headers=None, body_class=None):
         output += meta.false_body
     output += meta.close_body
 
-    print(output)
+    print(output.encode('utf8'))
     sys.exit(0)     # this seems redundant, but it's necessary in case we want
                     #   to call a render() in the middle of a load, e.g. to just
                     #   finish whatever we're doing and show a page.
