@@ -14,6 +14,10 @@ import assets
 import html
 from utils import email, mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes, ymd
 
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
 
 logger = get_logger()
 settings = load_settings()
