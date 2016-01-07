@@ -30,6 +30,10 @@ class panel:
         <tr class="grey"><td>Valkyrie:</td><td>$complete_death_records complete death recs</td></tr>
         <tr><td>Latest Fatality:</td><td>$latest_fatality</td></tr>
     </table>
+    <table id="panel_kill_board">
+        <tr><th colspan="2">Kill Board</th></tr>
+        $defeated_monsters
+    </table>
     \n""")
     log_line = Template("""\n\
     <p class="$zebra">$line</p>
@@ -37,13 +41,24 @@ class panel:
     user_status_summary = Template("""\n\
     <div class="panel_block">
         <table class="panel_recent_user">
-            <tr class="gradient_blue bold"><th colspan="3">$user_name</th></tr>
+            <tr class="gradient_blue bold"><th colspan="3">$user_name ($u_id)</th></tr>
             <tr><td>Latest Activity:</td><td>$latest_activity</td><td>$latest_activity_mins m. ago: $latest_action</td></tr>
             <tr><td>Latest Sign-in:</td><td>$latest_sign_in</td><td>$latest_sign_in_mins m. ago</td></tr>
             <tr><td>Session Length:</td><td colspan="2">$session_length minutes</td></tr>
             <tr><td>User Agent:</td><td colspan="2">$ua</td></tr>
             <tr><td>Survivors:</td><td colspan="2">$survivor_count</td></tr>
             <tr><td>Settlements:</td><td colspan="2">$settlements</td></tr>
+            <tr><td>User Since:</td><td colspan="2">$user_created_on ($user_created_on_days days ago)</td></tr>
+            <tr><td colspan="2"> </td>
+             <td>
+                <form>
+                 <input type="hidden" value="pickle" name="export_user_data"/>
+                 <input type="hidden" value="$u_id" name="asset_id"/>
+                 <button class="gradient_blue">Download User Data Pickle</button>
+                 <br /><br/>
+                </form>
+             </td>
+            </tr>
         </table>
     </div><br/>
     \n""")
@@ -166,17 +181,25 @@ class dashboard:
         </div>
     </div>
     \n""" % (settings.get("application", "STATIC_URL"), down_arrow_flash))
+    kill_board_row = Template("""\n\
+    <tr><td>$monster</td><td>$kills</td></tr>
+    """)
     world = Template("""\n
     <div class="dashboard_menu">
         <h2 class="clickable gradient_blue" onclick="showHide('world_div')"> <img class="dashboard_icon" src="%s/icons/world.png"/> World %s</h2>
         <div id="world_div" style="display: none;" class="dashboard_accordion gradient_blue">
         <p>$total_users users are managing $total_settlements settlements in $total_sessions sessions.</p><hr/>
         <p>$live_survivors survivors are alive and fighting; $dead_survivors have perished.</p><hr/>
-        <p>Latest fatality:<br/>
+        <p>Latest fatality:<br/><br/>
         &ensp; <b>$dead_name</b> of <b>$dead_settlement</b><br/>
         &ensp; <i>$cause_of_death</i><br/>
         &ensp; Died in LY $dead_ly, XP: $dead_xp<br/>
         &ensp; Courage: $dead_courage, Understanding: $dead_understanding
+        </p><hr/>
+        <p>Defeated Monsters:
+            <table class="dashboard_world_defeated_monsters">
+            $defeated_monsters
+            </table>
         </p>
         </div>
     </div>
@@ -200,6 +223,8 @@ class survivor:
     no_survivors_error = '<!-- No Survivors Found! -->'
     new = Template("""\n\
     <span class="desktop_only nav_bar gradient_green"></span>
+    <span class="mobile_only nav_bar_mobile gradient_green"></span>
+    <span class="top_nav_spacer mobile_only">hidden</span>
     <br class="desktop_only"/>
     <div id="create_new_asset_form_container">
         <h3>Create a New Survivor!</h3>
@@ -262,6 +287,8 @@ class survivor:
     \n""")
     form = Template("""\n\
     <span class="desktop_only nav_bar gradient_green"></span>
+    <span class="mobile_only nav_bar_mobile gradient_green"></span>
+    <span class="top_nav_spacer mobile_only">hidden</span>
     <br class="desktop_only"/>
     $campaign_link
 
@@ -783,6 +810,8 @@ class settlement:
     \n""")
     summary = Template("""\n\
         <span class="desktop_only nav_bar gradient_purple"></span>
+        <span class="gradient_purple nav_bar_mobile mobile_only"></span>
+        <span class="top_nav_spacer mobile_only"> hidden </span>
         <h1 class="settlement_name"> %s $settlement_name</h1>
         <div id="campaign_summary_pop">
             <p>Population: $population ($sex_count); $death_count deaths</p>
@@ -845,6 +874,8 @@ class settlement:
     $game_link
 
     <span class="desktop_only nav_bar gradient_orange"></span>
+    <span class="gradient_orange nav_bar_mobile mobile_only"></span>
+    <span class="top_nav_spacer mobile_only"> hidden </span>
     <br class="desktop_only"/>
 
     <div id="asset_management_left_pane">
@@ -917,8 +948,17 @@ class settlement:
         <a id="edit_storage" class="mobile_only"/></a>
 
             $storage
+            <p>Add Item to Storage:</p>
+             <div class="big_number_container left_margin negative_30px_bottom_margin">
+                 <button type="button" class="incrementer" onclick="increment('addStorageBox');">+</button>
+                 <input id="addStorageBox" class="big_number_square" type="number" name="add_item_quantity" value="1" min="1"/>
+                 <button type="button" class="decrementer" onclick="decrement('addStorageBox');">-</button>
+             </div>
+             <div class="big_number_caption">Quantity</div>
+
             $items_options<br />
-             <input onchange="this.form.submit()" type="text" class="full_width" name="add_item" placeholder="add gear or resource"/>
+             <input onchange="this.form.submit()" type="text" class="full_width" name="add_item" placeholder="custom gear or resource"/>
+
             </div>
         </form>
 

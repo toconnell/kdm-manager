@@ -284,6 +284,14 @@ abilities_and_impairments = {
         "desc": "At the start of your act, you may...[g]ain 2 bleeding tokens and +1 survival.",
         "max": 1,
     },
+    "Possessed": {
+        "type": "ability",
+        "desc": "Cannot use weapon specialization, weapon mastery, or fighting arts.",
+        "cannot_use_fighting_arts": True,
+        "Strength": 2,
+        "Accuracy": 1,
+        "max": 1,
+    },
     "Intracranial hemmorhage": {
         "type": "impairment",
         "desc": "You can no longer use or gain any survival. This injury is permanent and can be recorded once.",
@@ -1482,18 +1490,21 @@ innovations = {
 }
 
 
+# Monster assets
 
 quarries = {
-    "White Lion": {    },
-    "Screaming Antelope": {    },
-    "Phoenix": {    },
+    "White Lion": {"token": "LION", "sort_order": 1},
+    "Screaming Antelope": {"token": "ANTELOPE", "sort_order": 2},
+    "Phoenix": {"token": "PHOENIX", "sort_order": 3},
 }
 
 nemeses = {
-    "Butcher": {},
-    "King's Man": {},
-    "The Hand": {},
+    "Butcher": {"token": "BUTCHER", "sort_order": 10},
+    "King's Man": {"token": "MAN", "sort_order": 11},
+    "The Hand": {"token": "HAND", "sort_order": 12},
+    "The Watcher": {"token": "WATCHER", "sort_order": 20},
 }
+
 
 resources = {
     "Rare Gear": {

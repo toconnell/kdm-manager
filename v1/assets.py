@@ -21,6 +21,7 @@ import html
 from models import Abilities, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponProficiencies
 from session import Session
 from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms
+import world
 
 settings = load_settings()
 
@@ -263,6 +264,7 @@ class User:
         latest_fatality = mdb.the_dead.find_one({"complete": {"$exists": True}}, sort=[("created_on", -1)])
 
         output = html.dashboard.world.safe_substitute(
+            defeated_monsters = world.kill_board("html_table_rows"),
             total_users = mdb.users.find().count(),
             total_settlements = mdb.settlements.find().count(),
             total_sessions = mdb.sessions.find().count(),
@@ -2213,7 +2215,7 @@ class Settlement:
         mdb.settlements.save(self.settlement)
 
 
-    def add_game_asset(self, asset_class, game_asset_key=None):
+    def add_game_asset(self, asset_class, game_asset_key=None, game_asset_quantity=1):
         """ Generic function for adding game assets to a settlement.
 
         The 'asset_class' kwarg needs to be one of the game asset classes from
@@ -2231,8 +2233,9 @@ class Settlement:
         # otherwise, if we've got a str, let's get busy
         if asset_class == "storage":
             game_asset_key = game_asset_key.title()
-            self.settlement[asset_class].append(game_asset_key)
-            self.logger.info("'%s' appended '%s' to settlement '%s' (%s) storage." % (self.User.user["login"], game_asset_key, self.settlement["name"], self.settlement["_id"]))
+            for i in range(int(game_asset_quantity)):
+                self.settlement[asset_class].append(game_asset_key)
+            self.logger.info("'%s' appended '%s' x%s to settlement '%s' (%s) storage." % (self.User.user["login"], game_asset_key, game_asset_quantity, self.settlement["name"], self.settlement["_id"]))
             return True
 
         exec "Asset = %s" % asset_class.capitalize()
@@ -2281,7 +2284,7 @@ class Settlement:
             if type(params[p]) != list:
                 game_asset_key = params[p].value.strip()
 
-            if p in ["asset_id", "modify"]:
+            if p in ["asset_id", "modify", "add_item_quantity"]:
                 pass
             elif p == "add_defeated_monster":
                 self.add_kill(game_asset_key)
@@ -2292,7 +2295,7 @@ class Settlement:
             elif p == "increment_nemesis":
                 self.increment_nemesis(game_asset_key)
             elif p == "add_item" and not "remove_item" in params:
-                self.add_game_asset("storage", game_asset_key)
+                self.add_game_asset("storage", game_asset_key, params["add_item_quantity"].value)
             elif p == "remove_item" and not "add_item" in params:
                 self.settlement["storage"].remove(game_asset_key)
                 self.logger.debug("Removing %s from settlement %s storage" % (game_asset_key, self.settlement["_id"]))

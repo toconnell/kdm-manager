@@ -222,7 +222,11 @@ class Session:
         # user and campaign exports
         if "export_user_data" in self.params:
             export_type = self.params["export_user_data"].value
-            payload = self.User.dump_assets(dump_type=export_type)
+            if "asset_id" in self.params and self.User.is_admin():
+                user_object = assets.User(user_id=self.params["asset_id"].value, session_object=self)
+                payload = user_object.dump_assets(dump_type=export_type)
+            else:
+                payload = self.User.dump_assets(dump_type=export_type)
             html.render(str(payload), http_headers="Content-Disposition: attachment; filename=%s_%s.kdm-manager_export.%s\n\n" % (datetime.now().strftime(ymd), self.User.user["login"], export_type))
             user_action = "exported user data as %s" % export_type
         if "export_campaign" in self.params:
@@ -288,6 +292,7 @@ class Session:
                 if self.User.is_admin():
                     output += html.dashboard.panel_button
             elif self.session["current_view"] == "view_campaign":
+                output += html.dashboard.refresh_button
                 if self.Settlement.settlement is not None and self.Settlement.settlement["created_by"] == self.User.user["_id"]:
                     output += self.Settlement.asset_link(context="campaign_summary")
                 output += self.Settlement.render_html_summary(user_id=self.User.user["_id"])
@@ -298,6 +303,7 @@ class Session:
                 options = self.User.get_settlements(return_as="html_option")
                 output += html.survivor.new.safe_substitute(home_settlement=self.session["current_settlement"], user_email=self.User.user["login"], created_by=self.User.user["_id"], add_ancestors=self.Settlement.get_ancestors("html_parent_select"))
             elif self.session["current_view"] == "view_settlement":
+                output += html.dashboard.refresh_button
                 settlement = mdb.settlements.find_one({"_id": self.session["current_asset"]})
                 self.set_current_settlement(ObjectId(settlement["_id"]))
                 S = assets.Settlement(settlement_id = settlement["_id"], session_object=self)

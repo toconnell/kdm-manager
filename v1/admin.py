@@ -13,6 +13,7 @@ from validate_email import validate_email
 import assets
 import html
 from utils import email, mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes, ymd
+import world
 
 import sys
 reload(sys)
@@ -381,6 +382,7 @@ class Panel:
         total_survivors = mdb.survivors.find().count()
         dead_survivors = mdb.the_dead.find().count()
         output = html.panel.headline.safe_substitute(
+            defeated_monsters = world.kill_board("html_table_rows"),
             recent_users_count = recent_users.count(),
             users = mdb.users.find().count(),
             sessions = mdb.sessions.find().count(),
@@ -398,6 +400,7 @@ class Panel:
             settlement_strings = ["&ensp; <b>%s</b> (LY:%s) - %s/%s" % (s["name"], s["lantern_year"], s["population"], s["death_count"]) for s in mdb.settlements.find({"created_by": User.user["_id"]}).sort("name")]
             output += html.panel.user_status_summary.safe_substitute(
                 user_name = User.user["login"],
+                u_id = User.user["_id"],
                 ua = User.user["latest_user_agent"],
                 latest_sign_in = User.user["latest_sign_in"].strftime(ymdhms),
                 latest_sign_in_mins = (datetime.now() - User.user["latest_sign_in"]).seconds // 60,
@@ -407,6 +410,8 @@ class Panel:
                 latest_action = User.user["latest_action"],
                 settlements = "<br/>".join(settlement_strings),
                 survivor_count = mdb.survivors.find({"created_by": User.user["_id"]}).count(),
+                user_created_on = User.user["created_on"].strftime(ymd),
+                user_created_on_days = (datetime.now() - User.user["created_on"]).days
             )
 
         output += "<hr/><h1>index.log</h1>"
