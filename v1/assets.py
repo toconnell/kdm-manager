@@ -5,13 +5,16 @@ from bson import json_util
 from copy import copy
 from cStringIO import StringIO
 from datetime import datetime
+from gridfs import GridFS
 from hashlib import md5
+from PIL import Image
 import json
 import operator
 import os
 import pickle
 import random
 from string import Template
+import types
 
 import admin
 import export_to_file
@@ -393,7 +396,7 @@ class Survivor:
 
         # if we have a cgi.FieldStorage() as our first arg
         if params is not None:
-            if "name" in params:
+            if "name" in params and params["name"].value != "":
                 name = params["name"].value
             if "sex" in params:
                 sex = params["sex"].value
@@ -432,6 +435,7 @@ class Survivor:
             "epithets": [],
         }
 
+
         # add parents if they're specified
         parents = []
         for parent in ["father", "mother"]:
@@ -456,6 +460,12 @@ class Survivor:
             self.logger.debug("Applied buffs for '%s' successfully: %s" % (b, buffs))
 
         survivor_id = mdb.survivors.insert(survivor_dict)
+        self.survivor = mdb.survivors.find_one({"_id": survivor_id})
+
+        # if we've got an avatar, do that AFTER we insert the survivor record
+        if params is not None and "survivor_avatar" in params and params["survivor_avatar"].filename != "":
+            self.update_avatar(params["survivor_avatar"])
+
         self.logger.info("User '%s' created new survivor '%s [%s]' successfully." % (self.User.user["login"], name, sex))
 
         self.Settlement.update_mins()
@@ -473,6 +483,9 @@ class Survivor:
         self.death()
         if run_valkyrie:
             admin.valkyrie()
+        if "avatar" in self.survivor.keys():
+            GridFS(mdb).delete(self.survivor["avatar"])
+            self.logger.debug("%s removed an avatar image (%s) from GridFS." % (self.User.user["login"], self.survivor["avatar"]))
         mdb.survivors.remove({"_id": self.survivor["_id"]})
         self.logger.warn("%s removed survivor %s from mdb!" % (self.User.user["login"], self.get_name_and_id()))
 
@@ -829,6 +842,50 @@ class Survivor:
         mdb.survivors.save(self.survivor)
 
 
+    def get_avatar(self, return_type=False):
+        """ Returns the avatar's GridFS id AS A STRING if you don't specify a
+        'return_type'. Use 'html' to get an img element back. """
+
+        if not "avatar" in self.survivor.keys():
+            if return_type == "html":
+                return ""
+            else:
+                return None
+
+        if return_type == "html":
+            img_element = '<img class="survivor_avatar_image" src="/get_image?id=%s" alt="%s"/>' % (self.survivor["avatar"], self.survivor["name"])
+            return '<a href="/get_image?id=%s">%s</a>' % (self.survivor["avatar"], img_element)
+        if return_type == "html_campaign_summary":
+            img_element = '<img class="survivor_avatar_image_campaign_summary" src="/get_image?id=%s"/>' % (self.survivor["avatar"])
+            return img_element
+
+        return self.survivor["avatar"]
+
+
+    def update_avatar(self, file_instance):
+        """ Changes the survivor's avatar. """
+
+        if not type(file_instance) == types.InstanceType:
+            self.logger.error("Avatar update failed! 'survivor_avatar' must be %s instead of %s." % (types.InstanceType, type(file_instance)))
+            return None
+
+        fs = GridFS(mdb)
+
+        if "avatar" in self.survivor.keys():
+            fs.delete(self.survivor["avatar"])
+            self.logger.debug("%s removed an avatar image (%s) from GridFS." % (self.User.user["login"], self.survivor["avatar"]))
+
+        processed_image = StringIO()
+        im = Image.open(file_instance.file)
+        resize_tuple = tuple([int(n) for n in settings.get("application","avatar_size").split(",")])
+        im.thumbnail(resize_tuple, Image.ANTIALIAS)
+        im.save(processed_image, format="PNG")
+
+        avatar_id = fs.put(processed_image.getvalue(), content_type=file_instance.type, created_by=self.User.user["_id"], created_on=datetime.now())
+        self.survivor["avatar"] = ObjectId(avatar_id)
+
+        mdb.survivors.save(self.survivor)
+        self.logger.debug("%s updated the avatar for survivor %s." % (self.User.user["login"], self.get_name_and_id()))
 
 
     def death(self, undo_death=False):
@@ -954,6 +1011,8 @@ class Survivor:
 
             if p in ["asset_id", "heal_survivor", "form_id", "modify"]:
                 pass
+            elif p == "survivor_avatar":
+                self.update_avatar(params[p])
             elif p == "add_epithet":
                 self.survivor["epithets"].append(params[p].value.strip())
                 self.survivor["epithets"] = sorted(list(set(self.survivor["epithets"])))
@@ -1126,7 +1185,7 @@ class Survivor:
 
         output = html.survivor.form.safe_substitute(
             MEDIA_URL = settings.get("application", "STATIC_URL"),
-
+            avatar_img = self.get_avatar("html"),
             survivor_id = self.survivor["_id"],
             name = self.survivor["name"],
             add_epithets = Epithets.render_as_html_dropdown(exclude=self.survivor["epithets"]),
@@ -1831,7 +1890,12 @@ class Settlement:
                 if "favorite" in S.survivor.keys():
                     is_favorite = "favorite"
 
+                avatar_img = ""
+                if "avatar" in S.survivor.keys():
+                    avatar_img = S.get_avatar("html_campaign_summary")
+
                 survivor_html = html.survivor.campaign_asset.safe_substitute(
+                    avatar = avatar_img,
                     survivor_id = s_id,
                     settlement_id = self.settlement["_id"],
                     hunting_party_checked = in_hunting_party,

@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+
+from bson.objectid import ObjectId
+import cgi, cgitb
+import gridfs
+import sys
+
+from utils import mdb, load_settings, get_logger
+
+
+class imageOnDemand():
+    """ Initialize this with a string of an mdb Object ID, and use
+    the render_response() method to create an http response of the
+    image. Fuck a file system: props to the immortal rschulz. """
+
+    def __init__(self, img_id):
+        self.logger = get_logger()
+        try:
+            self.img = gridfs.GridFS(mdb).get(ObjectId(img_id))
+        except gridfs.errors.NoFile:
+            print("Content-type: text/html\n\nFile Not Found!")
+            sys.exit(255)
+
+    def http_header(self):
+        """ Returns an http header string for the image. """
+        return "Content-Type: %s\nContent-Length: %s\n" % (self.img.content_type, self.img.length)
+
+    def render_response(self):
+        """ Renders an http response. """
+        print self.http_header()
+        print self.img.read()
+#        self.logger.debug("File (%s) rendered successfully (%sb)!" % (self.img.content_type, self.img.length))
+
+
+if __name__ == "__main__":
+    settings = load_settings()
+    logger = get_logger()
+    if settings.getboolean("application","DEBUG"):
+        cgitb.enable()
+
+    params = cgi.FieldStorage()
+    if not params:
+        sys.exit(255)
+
+    img = imageOnDemand(params["id"].value)
+    img.render_response()

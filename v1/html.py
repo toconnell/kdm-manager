@@ -228,11 +228,14 @@ class survivor:
     <br class="desktop_only"/>
     <div id="create_new_asset_form_container">
         <h3>Create a New Survivor!</h3>
-        <form method="POST" action="#">
+        <form method="POST" action="#" enctype="multipart/form-data">
         <input type="hidden" name="new" value="survivor" />
         <input type="hidden" name="settlement_id" value="$home_settlement">
         <input type="text" name="name" placeholder="Survivor Name"/ class="full_width" autofocus>
         <input type="text" name="email" placeholder="Survivor Email"/ class="full_width" value="$user_email">
+
+        <p>Survivor Image (optional):<br/><br/>
+        <input type="file" name="survivor_avatar" accept="image/*"></p>
         <div id="block_group">
         <h2>Survivor Sex</h2>
             <fieldset class="radio">
@@ -274,6 +277,7 @@ class survivor:
         <form method="POST" action="#">
          <input type="hidden" name="view_survivor" value="$survivor_id" />
          <button id="survivor_campaign_asset" class="$b_class" $disabled>
+            $avatar
             <center> <font class="$favorite"/>&#9733;</font> <b>$name</b> [$sex] </center>
             $special_annotation
             &ensp; XP: $hunt_xp &ensp; Survival: $survival<br/>
@@ -312,11 +316,12 @@ class survivor:
 
             <p>
              Survivor sex: <b>$sex</b>
+            $avatar_img<br/>
             <div id="survivor_dead_retired_container">
 
                     <!-- favorite -->
                  <input type='hidden' value='unchecked' name='toggle_favorite'/>
-                 <input type="checkbox" id="favorite" class="radio_principle" name="toggle_favorite" value="checked" $favorite_checked /> 
+                 <input onchange="this.form.submit()" type="checkbox" id="favorite" class="radio_principle" name="toggle_favorite" value="checked" $favorite_checked /> 
                  <label class="radio_principle_label toggle_favorite" for="favorite"> &#9733; Favorite </label>
 
                     <!-- dead -->
@@ -326,7 +331,7 @@ class survivor:
 
                     <!-- retired -->
                  <input type='hidden' value='unchecked' name='toggle_retired'/>
-                 <input type="checkbox" id="retired" class="radio_principle" name="toggle_retired" value="checked" $retired_checked> 
+                 <input onchange="this.form.submit()" type="checkbox" id="retired" class="radio_principle" name="toggle_retired" value="checked" $retired_checked> 
                  <label class="radio_principle_label" for="retired" style="float: right; clear: none;"> Retired &nbsp; </label>
                 </p>
 
@@ -704,12 +709,20 @@ class survivor:
               <input type="hidden" name="modify" value="survivor" />
               <input type="hidden" name="asset_id" value="$survivor_id" />
               <input onchange="this.form.submit()" class="full_width" type="text" name="email" placeholder="email" value="$email"/>
-              <hr />
+            </form>
+            <hr />
+
+            <form method="POST" enctype="multipart/form-data" action="#">
+              <input type="hidden" />
+              <input type="hidden" name="modify" value="survivor" />
+              <input type="hidden" name="asset_id" value="$survivor_id" />
+
+                <p>Survivor Image:<br/><br/>
+                <input onchange="this.form.submit()" type="file" name="survivor_avatar" accept="image/*">
+                </p>
             </form>
 
-
-            <br class="mobile_only"/><hr class="mobile_only"/>
-
+            <hr class="mobile_only"/>
 
             <form method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this survivor forever, which is NOT THE SAME THING as marking it dead: permanently deleting the survivor prevents anyone from viewing and/or editing it ever again! If you are trying to delete all survivors in a settlement, you may delete the settlement from the settlement editing view.');"><input type="hidden" name="remove_survivor" value="$survivor_id"/><button class="error">Permanently Delete Survivor</button></form>
             <hr class="mobile_only"/>

@@ -6,6 +6,11 @@
 #
 
 abilities_and_impairments = {
+    "Metal Maw": {
+        "type": "ability",
+        "desc": "Your Fist & Tooth gains <b>Sharp</b>. (Add 1d10 strength to each wound attempt using this gear. This d10 is not a wound roll, and cannot cause critical wounds.)",
+        "max": 1,
+    },
     "Partner": {
         "type": "ability",
         "desc": 'When you both <b>depart</b>, gain +2 survival. While adjacent to your partner, gain +1 strength. Partners may only nominate each other for <img class="icon" src="http://media.kdm-manager.com/icons/trigger_story_event.png" /> <b>Intimacy</b>. When a partner dies, the remaining partner gains a random disorder and loses this ability.',

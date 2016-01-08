@@ -147,7 +147,10 @@ def ls_documents(collection, sort_on="created_on"):
             output += d["login"]
         else:
             output += d["name"]
-            output += " <%s> " % mdb.users.find_one({"_id": d["created_by"]})["login"]
+            try:
+                output += " <%s> " % mdb.users.find_one({"_id": d["created_by"]})["login"]
+            except TypeError:
+                output += " <USER NOT FOUND> "
         try:
             output += " (%s)" % d["created_on"]
         except Exception as e:
