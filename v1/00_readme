@@ -1,13 +1,3 @@
-# Before pushing a new production version
-
- - initialize the project on the dev server
- - create a new login
- - create a new settlement
- - add a survivor
- - modify both randomly
- - delete the survivor
- - delete the settlement
-
 # A Note on naming conventions
 All support modules, i.e. anything that will be imported by something else,
 should have a file extension. Examples are anything named with a .py or a 
@@ -18,6 +8,7 @@ any extension.
 
 # Python dependencies:
 
+aptitude install python-gridfs (on Ubuntu; gridfs comes with pymongo elsewhere)
 easy_install lockfile
 easy_install psutil
 easy_install pymongo

@@ -137,12 +137,12 @@ abilities_and_impairments = {
     },
     "Thundercaller": {
         "type": "ability",
-        "desc": 'Once a lifetime, on a hunt board space after Overwhelming Darkness, in place of rolling a random hunt event, use "53" as your result.',
+        "desc": 'Once a lifetime, on a hunt board space after <b>Overwhelming Darkness</b>, in place of rolling a random hunt event, use "100" as your result.',
         "max": 1,
     },
     "Legendcaller": {
         "type": "ability",
-        "desc": 'Once a lifetime, on a hunt board space after Overwhelming Darkness, in place of rolling a random hunt event, use "100" as your result.',
+        "desc": 'Once a lifetime, on a hunt board space after <b>Overwhelming Darkness</b>, in place of rolling a random hunt event, use "53" as your result.',
         "max": 1,
     },
     "Analyze": {
@@ -315,14 +315,18 @@ abilities_and_impairments = {
         "Accuracy": -1,
         "max": 2,
     },
+    "Concussion": {
+        "type": "impairment",
+        "desc": "Your brain is scrambled like an egg. Gain a random disorder.",
+    },
     "Shattered jaw": {
         "type": "impairment",
-        "desc": "You can no longer consume or be affected by events requiring you to consume. You can no longer encourage. This injury is permanent and can be recorded once.",
+        "desc": "You can no longer <b>consume</b> or be affected by events requiring you to <b>consume</b>. You can no longer <b>encourage</b>. This injury is permanent and can be recorded once.",
         "max": 1,
     },
     "Dismembered Arm": {
         "type": "impairment",
-        "desc": "You can no longer activate two-handed weapons. This injury is permanent, and can be recorded twice. A survivor with two dismembered arm severe injuries cannot activate any weapons.",
+        "desc": "You can no longer activate two-handed weapons. This injury is permanent, and can be recorded twice. A survivor with two <b>dismembered arm</b> severe injuries cannot activate any weapons.",
         "max": 2,
     },
     "Ruptured muscle": {
@@ -343,10 +347,29 @@ abilities_and_impairments = {
         "Strength": -1,
         "max": 2,
     },
+    "Spiral fracture": {
+        "type": "impairment",
+        "desc": "Gain -2 strength tokens. Skip the next hunt.",
+        "skip_next_hunt": True,
+    },
+    "Dislocated shoulder": {
+        "type": "impairment",
+        "desc": "You cannot activate two-handed or <b>paired</b> weapons or use <b>block</b> until showdown ends.",
+    },
     "Gaping chest wound": {
         "type": "impairment",
         "desc": "Suffer -1 permanent Strength. This injury is permanent and can be recorded multiple times.",
         "Strength": -1,
+    },
+    "Disemboweled": {
+        "type": "impairment",
+        "desc": "Skip the next hunt. If you suffer <b>disemboweled</b> during a showdown, at least one other survivor must live to the end of the showdown to carry you back to the settlement. Otherwise, at the end of the showdown, you are lost. Dead.",
+        "skip_next_hunt": True,
+    },
+    "Ruptured spleen": {
+        "type": "impairment",
+        "desc": "Skip the next hunt.",
+        "skip_next_hunt": True,
     },
     "Destroyed back": {
         "type": "impairment",
@@ -372,16 +395,34 @@ abilities_and_impairments = {
         "type": "impairment",
         "desc": "You cannot be nominated for the Intimacy story event. This injury is permanent and can be recorded once.",
     },
+    "Slashed back": {
+        "type": "impairment",
+        "desc": "You cannot <b>surge</b> until showdown ends.",
+    },
     "Broken hip": {
         "type": "impairment",
         "desc": "You can no longer dodge. Suffer -1 permanent movement. This injury is permanent and can be recorded once.",
         "Movement": -1,
     },
+    "Bruised tailbone": {
+        "type": "impairment",
+        "desc": "You cannot <b>dash</b> until showdown ends.",
+    },
     "Dismembered leg": {
         "type": "impairment",
-        "desc": "You suffer -2 permanent movement, and can no longer dash. This injury is permanent and can be recorded twice.",
+        "desc": "You suffer -2 permanent movement, and can no longer <b>dash</b>. This injury is permanent and can be recorded twice. A survivor with two <b>dismembered leg</b> severe injuries has lost both of their legs and must retire at the end of the next showdown or settlement phase.",
         "Movement": -2,
         "max": 2,
+    },
+    "Torn Achilles Tendon": {
+        "type": "impairment",
+        "desc": "Until the end of the showdown, whenever you suffer light, heavy, or severe injury, you are also knocked down. Skip the next hunt.",
+        "skip_next_hunt": True,
+    },
+    "Torn muscle": {
+        "type": "impairment",
+        "desc": "You cannot <b>dash</b> until he showdown ends. Skip the next hunt.",
+        "skip_next_hunt": True,
     },
     "Hamstrung": {
         "type": "impairment",

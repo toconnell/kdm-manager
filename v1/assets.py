@@ -397,11 +397,11 @@ class Survivor:
         # if we have a cgi.FieldStorage() as our first arg
         if params is not None:
             if "name" in params and params["name"].value != "":
-                name = params["name"].value
+                name = params["name"].value.strip()
             if "sex" in params:
                 sex = params["sex"].value
             if "email" in params:
-                email = params["email"].value
+                email = params["email"].value.strip()
 
         survivor_dict = {
             "name": name,
@@ -540,9 +540,9 @@ class Survivor:
             self.survivor["ability_customizations"] = {}
 
         if not attrib_key in self.survivor["ability_customizations"]:
-            self.survivor["ability_customizations"][attrib_key] = []
+            self.survivor["ability_customizations"][attrib_key] = ""
 
-        self.survivor["ability_customizations"][attrib_key].append(attrib_customization)
+        self.survivor["ability_customizations"][attrib_key] = attrib_customization
         self.logger.debug("Custom ability description '%s' -> '%s' added to survivor '%s' by %s" % (attrib_key, attrib_customization, self.survivor["name"], self.Session.User.user["login"]))
 
 
@@ -585,7 +585,7 @@ class Survivor:
             for ability in all_list:
                 suffix = ""
                 if "ability_customizations" in self.survivor.keys() and ability in self.survivor["ability_customizations"]:
-                    suffix = " ".join(self.survivor["ability_customizations"][ability])
+                    suffix = self.survivor["ability_customizations"][ability]
                 if ability in Abilities.get_keys():
                     desc = Abilities.get_asset(ability)["desc"]
                     pretty_list.append("<p><b>%s:</b> %s %s</p>" % (ability, desc, suffix))
@@ -811,7 +811,7 @@ class Survivor:
             else:
                 return False
 
-    def toggle(self, toggle_key, toggle_value):
+    def toggle(self, toggle_key, toggle_value, toggle_type="implicit"):
         """ Toggles an attribute on or off. The 'toggle_value' arg is either
         going to be a MiniFieldStorage list (from cgi.FieldStorage) or its going
         to be a single value, e.g. a string.
@@ -822,10 +822,19 @@ class Survivor:
         Review the hidden form inputs to see more about how this works.
         """
 
+        # handle explicit toggles (i.e. input[type=submit] here)
+        if "damage" in toggle_key.split("_"):
+            toggle_type="explicit"
+        if toggle_type == "explicit":
+            if toggle_key not in self.survivor.keys():
+                self.survivor[toggle_key] = "checked"
+                self.logger.debug("%s toggled '%s' ON for survivor %s." % (self.User.user["login"], toggle_key, self.get_name_and_id()))
+                return True
+
         if type(toggle_value) != list:
             try:
                 del self.survivor[toggle_key]
-                self.logger.debug("%s toggled off '%s' for survivor '%s' (%s)." % (self.User.user["login"], toggle_key, self.survivor["name"], self.survivor["_id"]))
+                self.logger.debug("%s toggled '%s' OFF for survivor %s." % (self.User.user["login"], toggle_key, self.get_name_and_id()))
                 if toggle_key == "dead":
                     if self.death(undo_death=True):
                         self.logger.debug("Survivor '%s' (%s) has not returned from death!" % (self.survivor["name"], self.survivor["_id"]))
@@ -838,6 +847,7 @@ class Survivor:
                     self.logger.error("Could not process death for survivor '%s' (%s)." % (self.survivor["name"], self.survivor["_id"]))
             if toggle_key == "retired":
                 self.survivor["retired_in"] = self.Settlement.settlement["lantern_year"]
+
 
         mdb.survivors.save(self.survivor)
 

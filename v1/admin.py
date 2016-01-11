@@ -227,6 +227,7 @@ def remove_document(collection, doc_id):
     mdb[collection].remove({"_id": doc_id})
     logger.info("[ADMIN] Removed '%s' from mdb.%s" % (doc_id, collection))
 
+
 def pretty_view_user(u_id):
     """ Prints a pretty summary of the user and his assets to STDOUT. """
 
@@ -431,6 +432,7 @@ class Panel:
 
         return output
 
+
 def valkyrie():
     """ Checks all extant survivors and adds them to mdb.the_dead if they've got
     the 'dead' attrib. Tries to get their 'cause_of_death'. """
@@ -528,6 +530,7 @@ def import_data(data_pickle_path):
 
     print(" Import complete!")
     logger.critical("Imported user '%s' (%s): %s assets loaded!" % (data["user"]["login"], data["user"]["_id"], imported_settlements+imported_survivors))
+
 
 
 if __name__ == "__main__":

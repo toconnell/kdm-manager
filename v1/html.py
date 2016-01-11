@@ -452,9 +452,7 @@ class survivor:
                 </div>
 
                 <div class="hit_box_detail">
-                 <input type='hidden' value='unchecked' name='toggle_brain_damage_light'/>
-                 <input type="checkbox" id="brain_damage_light" class="radio_principle" name="toggle_brain_damage_light" $brain_damage_light_checked /> 
-                 <label id="damage_box" class="radio_principle_label" for="brain_damage_light"> L </label>
+                 <input id="damage_brain_light" onclick="toggleDamage('damage_brain_light');" type="submit" class="damage_box_$brain_damage_light_checked damage_box" name="toggle_brain_damage_light" value=" "/>
                     <h2>Brain</h2>
                     If your insanity is 3+, you are <b>Insane</b>.
                 </div>
@@ -468,11 +466,9 @@ class survivor:
                     <button class="decrementer" onclick="decrement('headBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
-                 <input type='hidden' value='unchecked' name='toggle_head_damage_heavy'/>
-                 <input type="checkbox" id="head_damage_heavy" class="radio_principle" name="toggle_head_damage_heavy" $head_damage_heavy_checked /> 
-                 <label id="damage_box" class="radio_principle_label" for="head_damage_heavy"> H </label>
+                 <input id="damage_head_heavy" onclick="toggleDamage('damage_head_heavy');" type="submit" class="damage_box_$head_damage_heavy_checked heavy_damage damage_box" name="toggle_head_damage_heavy" value=" "/>
                     <h2>Head</h2>
-                    <font color="#C60000">H</font>eavy Injury: Knocked Down
+                    <b>H</b>eavy Injury: Knocked Down
                 </div>
             </div> <!-- survivor_hit_box -->
 
@@ -484,14 +480,10 @@ class survivor:
                     <button class="decrementer" onclick="decrement('armsBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
-                 <input type='hidden' value='unchecked' name='toggle_arms_damage_heavy'/>
-                 <input type="checkbox" id="arms_damage_heavy" class="radio_principle" name="toggle_arms_damage_heavy" $arms_damage_heavy_checked /> 
-                 <label id="damage_box" class="radio_principle_label" for="arms_damage_heavy"> H </label>
-                 <input type='hidden' value='unchecked' name='toggle_arms_damage_light'/>
-                 <input type="checkbox" id="arms_damage_light" class="radio_principle" name="toggle_arms_damage_light" $arms_damage_light_checked /> 
-                 <label id="damage_box" class="radio_principle_label" for="arms_damage_light"> L </label>
+                 <input id="damage_arms_heavy" onclick="toggleDamage('damage_arms_heavy');" type="submit" class="damage_box_$arms_damage_heavy_checked heavy_damage damage_box" name="toggle_arms_damage_heavy" value=" "/>
+                 <input id="damage_arms_light" onclick="toggleDamage('damage_arms_light');" type="submit" class="damage_box_$arms_damage_light_checked damage_box" name="toggle_arms_damage_light" value=" "/>
                     <h2>Arms</h2>
-                    <font color="#C60000">H</font>eavy Injury: Knocked Down
+                    <b>H</b>eavy Injury: Knocked Down
                 </div>
             </div> <!-- survivor_hit_box -->
 
@@ -503,14 +495,10 @@ class survivor:
                     <button class="decrementer" onclick="decrement('bodyBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
-                 <input type='hidden' value='unchecked' name='toggle_body_damage_heavy'/>
-                 <input type="checkbox" id="body_damage_heavy" class="radio_principle" name="toggle_body_damage_heavy" $body_damage_heavy_checked /> 
-                 <label id="damage_box" class="radio_principle_label" for="body_damage_heavy"> H </label>
-                 <input type='hidden' value='unchecked' name='toggle_body_damage_light'/>
-                 <input type="checkbox" id="body_damage_light" class="radio_principle" name="toggle_body_damage_light" $body_damage_light_checked /> 
-                 <label id="damage_box" class="radio_principle_label" for="body_damage_light"> L </label>
+                 <input id="damage_body_heavy" onclick="toggleDamage('damage_body_heavy');" type="submit" class="damage_box_$body_damage_heavy_checked heavy_damage damage_box" name="toggle_body_damage_heavy" value=" "/>
+                 <input id="damage_body_light" onclick="toggleDamage('damage_body_light');" type="submit" class="damage_box_$body_damage_light_checked damage_box" name="toggle_body_damage_light" value=" "/>
                     <h2>Body</h2>
-                    <font color="#C60000">H</font>eavy Injury: Knocked Down
+                    <b>H</b>eavy Injury: Knocked Down
                 </div>
             </div> <!-- survivor_hit_box -->
 
@@ -522,14 +510,10 @@ class survivor:
                     <button class="decrementer" onclick="decrement('waistBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
-                 <input type='hidden' value='unchecked' name='toggle_waist_damage_heavy'/>
-                 <input type="checkbox" id="waist_damage_heavy" class="radio_principle" name="toggle_waist_damage_heavy" $waist_damage_heavy_checked /> 
-                 <label id="damage_box" class="radio_principle_label" for="waist_damage_heavy"> H </label>
-                 <input type='hidden' value='unchecked' name='toggle_waist_damage_light'/>
-                 <input type="checkbox" id="waist_damage_light" class="radio_principle" name="toggle_waist_damage_light" $waist_damage_light_checked /> 
-                 <label id="damage_box" class="radio_principle_label" for="waist_damage_light"> L </label>
+                 <input id="damage_waist_heavy" onclick="toggleDamage('damage_waist_heavy');" type="submit" class="damage_box_$waist_damage_heavy_checked heavy_damage damage_box" name="toggle_waist_damage_heavy" value=" "/>
+                 <input id="damage_waist_light" onclick="toggleDamage('damage_waist_light');" type="submit" class="damage_box_$waist_damage_light_checked damage_box" name="toggle_waist_damage_light" value=" "/>
                     <h2>Waist</h2>
-                    <font color="#C60000">H</font>eavy Injury: Knocked Down
+                    <b>H</b>eavy Injury: Knocked Down
                 </div>
             </div> <!-- survivor_hit_box -->
 
@@ -541,14 +525,10 @@ class survivor:
                     <button class="decrementer" onclick="decrement('legsBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
-                 <input type='hidden' value='unchecked' name='toggle_legs_damage_heavy'/>
-                 <input type="checkbox" id="legs_damage_heavy" class="radio_principle" name="toggle_legs_damage_heavy" $legs_damage_heavy_checked /> 
-                 <label id="damage_box" class="radio_principle_label" for="legs_damage_heavy"> H </label>
-                 <input type='hidden' value='unchecked' name='toggle_legs_damage_light'/>
-                 <input type="checkbox" id="legs_damage_light" class="radio_principle" name="toggle_legs_damage_light" $legs_damage_light_checked /> 
-                 <label id="damage_box" class="radio_principle_label" for="legs_damage_light"> L </label>
+                 <input id="damage_legs_heavy" onclick="toggleDamage('damage_legs_heavy');" type="submit" class="damage_box_$legs_damage_heavy_checked heavy_damage damage_box" name="toggle_legs_damage_heavy" value=" "/>
+                 <input id="damage_legs_light" onclick="toggleDamage('damage_legs_light');" type="submit" class="damage_box_$legs_damage_light_checked damage_box" name="toggle_legs_damage_light" value=" "/>
                     <h2>Legs</h2>
-                    <font color="#C60000">H</font>eavy Injury: Knocked Down
+                    <b>H</b>eavy Injury: Knocked Down
                 </div>
             </div> <!-- survivor_hit_box -->
 
@@ -1292,13 +1272,15 @@ def set_cookie_js(session_id):
 def authenticate_by_form(params):
     """ Pass this a cgi.FieldStorage() to try to manually authenticate a user"""
 
+    err_msg = ""
+
     if "password_again" in params:
         if "login" in params and "password" in params:
             create_new = admin.create_new_user(params["login"].value.strip().lower(), params["password"].value.strip(), params["password_again"].value.strip())
             if create_new == False:
-                output = user_error_msg.safe_substitute(err_class="warn", err_msg="Passwords did not match! Please re-enter.")
+                err_msg = user_error_msg.safe_substitute(err_class="warn", err_msg="Passwords did not match! Please re-enter.")
             elif create_new is None:
-                output = user_error_msg.safe_substitute(err_class="warn", err_msg="Email address could not be verified! Please re-enter.")
+                err_msg = user_error_msg.safe_substitute(err_class="warn", err_msg="Email address could not be verified! Please re-enter.")
             elif create_new == True:
                 pass
             else:
@@ -1311,6 +1293,7 @@ def authenticate_by_form(params):
             output += login.form
         elif auth is None:
             output = login.new_user.safe_substitute(login=params["login"].value.strip().lower())
+            output += err_msg
         elif auth == True:
             s = Session()
             session_id = s.new(params["login"].value.strip().lower())
@@ -1371,6 +1354,9 @@ def render(view_html, head=[], http_headers=None, body_class=None):
     \n"""
 
     output += """\n\
+        <script>
+        function toggleDamage(elem_id) {document.getElementById(elem_id).classList.toggle("damage_box_checked");}
+        </script>
         <script>
         function increment(elem_id) {
             document.getElementById(elem_id).stepUp();
