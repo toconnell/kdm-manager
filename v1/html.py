@@ -713,7 +713,9 @@ class survivor:
 
 class settlement:
     new = """\n\
-    <span class="desktop_only nav_bar gradient_green"></span>
+    <span  class="desktop_only nav_bar gradient_orange"></span>
+    <span class="gradient_orange nav_bar_mobile mobile_only"></span>
+    <span class="top_nav_spacer mobile_only"> hidden </span>
     <br class="desktop_only"/>
     <div id="create_new_asset_form_container">
         <h3>Create a New Settlement!</h3>
