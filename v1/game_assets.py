@@ -349,7 +349,7 @@ abilities_and_impairments = {
     },
     "Spiral fracture": {
         "type": "impairment",
-        "desc": "Gain -2 strength tokens. Skip the next hunt.",
+        "desc": "Skip the next hunt.",
         "skip_next_hunt": True,
     },
     "Dislocated shoulder": {
