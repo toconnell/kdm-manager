@@ -386,7 +386,7 @@ class Panel:
         total_survivors = mdb.survivors.find().count()
         dead_survivors = mdb.the_dead.find().count()
         output = html.panel.headline.safe_substitute(
-            defeated_monsters = world.kill_board("html_table_rows"),
+            defeated_monsters = world.kill_board("html_table_rows", admin=True),
             recent_users_count = recent_users.count(),
             users = mdb.users.find().count(),
             sessions = mdb.sessions.find().count(),

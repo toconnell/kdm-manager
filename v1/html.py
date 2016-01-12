@@ -181,9 +181,8 @@ class dashboard:
         </div>
     </div>
     \n""" % (settings.get("application", "STATIC_URL"), down_arrow_flash))
-    kill_board_row = Template("""\n\
-    <tr><td>$monster</td><td>$kills</td></tr>
-    """)
+    kill_board_row = Template('<tr><td>$monster</td><td>$kills</td></tr>')
+    kill_board_foot = Template('<tr><td colspan="2">&ensp; $other_list</td></tr>')
     world = Template("""\n
     <div class="dashboard_menu">
         <h2 class="clickable gradient_blue" onclick="showHide('world_div')"> <img class="dashboard_icon" src="%s/icons/world.png"/> World %s</h2>
@@ -211,7 +210,7 @@ class dashboard:
     view_asset_button = Template("""\n\
     <form method="POST" action="#">
     <input type="hidden" name="view_$asset_type" value="$asset_id" />
-    <button id="$button_id" class="$button_class" $disabled>$asset_name <span class="desktop_only">$desktop_text</span></button>
+    <button id="$button_id" class="$button_class $disabled" $disabled>$asset_name <span class="desktop_only">$desktop_text</span></button>
     </form>
     \n""")
 
@@ -227,29 +226,40 @@ class survivor:
     <span class="top_nav_spacer mobile_only">hidden</span>
     <br class="desktop_only"/>
     <div id="create_new_asset_form_container">
-        <h3>Create a New Survivor!</h3>
         <form method="POST" action="#" enctype="multipart/form-data">
         <input type="hidden" name="new" value="survivor" />
         <input type="hidden" name="settlement_id" value="$home_settlement">
-        <input type="text" name="name" placeholder="Survivor Name"/ class="full_width" autofocus>
-        <input type="text" name="email" placeholder="Survivor Email"/ class="full_width" value="$user_email">
+        <input type="text" name="name" placeholder="New Survivor Name" class="full_width" autofocus>
 
-        <p>Survivor Image (optional):<br/><br/>
+        <hr>
+        <p style="margin-top:10px;">Survivor Image (optional):<br/><br/>
         <input type="file" name="survivor_avatar" accept="image/*"></p>
+        <hr>
         <div id="block_group">
         <h2>Survivor Sex</h2>
             <fieldset class="radio">
           <input type="radio" id="male_button" class="radio_principle" name="sex" value="M" checked/> 
-          <label class="radio_principle_label" for="male_button"> Male </label><br/>
+          <label class="sex_button radio_principle_label" for="male_button"> Male </label>
           <input type="radio" id="female_button" class="radio_principle" name="sex" value="F"/> 
-          <label class="radio_principle_label" for="female_button"> Female </label>
+          <label id="female_sex_button" class="sex_button radio_principle_label" for="female_button"> Female </label>
             </fieldset>
         </div>
         <div class="create_new_asset_block">
             $add_ancestors
+            <div id="block_group">
+            <h2>Permissions</h2>
+            <p>Survivor Owner:</p>
+            <input id="survivor_owner" type="text" name="email" placeholder="Survivor Email" value="$user_email">
+            <p>
+            <input type="checkbox" id="public" class="radio_principle" name="toggle_public" checked> 
+            <label class="radio_principle_label" for="public"> Anyone May Manage this Survivor </label>
+            <br/><br/>
+            </p>
+            </div>
+
             <button class="success">SAVE</button>
             </form>
-        </div>
+        </div><!-- create_new_asset_block -->
     </div>
     \n""")
     add_ancestor_top = '    <div id="block_group">\n    <h2>Survivor Parents</h2>\n'
@@ -271,12 +281,12 @@ class survivor:
          <input type="hidden" name="asset_id" value="$survivor_id" />
          <input type="hidden" name="view_game" value="$settlement_id" />
          <input type="hidden" name="in_hunting_party" value="$hunting_party_checked"/>
-         <button id="add_survivor_to_party" class="$able_to_hunt" $able_to_hunt $disabled>::</button>
+         <button id="add_survivor_to_party" class="$able_to_hunt $disabled" $able_to_hunt $disabled>::</button>
         </form>
 
         <form method="POST" action="#">
          <input type="hidden" name="view_survivor" value="$survivor_id" />
-         <button id="survivor_campaign_asset" class="$b_class" $disabled>
+         <button id="survivor_campaign_asset" class="$b_class $disabled" $disabled>
             $avatar
             <center> <font class="$favorite"/>&#9733;</font> <b>$name</b> [$sex] </center>
             $special_annotation
@@ -683,12 +693,18 @@ class survivor:
             </p>
 
             <hr />
-
+            <h3>Permissions</h3>
             <form method="POST" id="autoForm" action="#edit_abilities">
               <input type="hidden" name="form_id" value="survivor_edit_abilities"/>
               <input type="hidden" name="modify" value="survivor" />
               <input type="hidden" name="asset_id" value="$survivor_id" />
+              <p>Survivor Owner:</p>
               <input onchange="this.form.submit()" class="full_width" type="text" name="email" placeholder="email" value="$email"/>
+
+              <input type='hidden' value='unchecked' name='toggle_public'/>
+              <input onchange="this.form.submit()" type="checkbox" id="public" class="radio_principle" name="toggle_public" value="checked" $public_checked> 
+              <label class="radio_principle_label" for="public"> Anyone May Manage this Survivor &nbsp; </label>
+              <br/>
             </form>
             <hr />
 
@@ -1236,9 +1252,11 @@ class login:
 class meta:
     """ This is for HTML that doesn't really fit anywhere else, in terms of
     views, etc. Use this for helpers/containers/administrivia/etc. """
+
+    basic_http_header = "Content-type: text/html\n\n"
+    error_500 = Template('%s<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>%s</title></head><body><h1>500 - Internal Server Error</h1><hr/><p>$msg</p><p>Please use the information below to report the error:</p><hr/><p>%s</p>$exception' % (basic_http_header, settings.get("application","title"), datetime.now()))
     start_head = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<title>%s</title>\n' % settings.get("application","title")
     stylesheet = Template('<link rel="stylesheet" type="text/css" href="$url">\n')
-    false_body = 'Caught exception while rendering the current view!<hr/>The current session will be ended. Please try again.'
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
     saved_dialog = '\n    <div id="saved_dialog" class="success">Saved!</div>'
     log_out_button = Template('\n\t<hr class="mobile_only"/><form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><input type="hidden" name="login" value="$login"/><button class="warn change_view mobile_only">SIGN OUT</button>\n\t</form>')
@@ -1318,7 +1336,7 @@ def render(view_html, head=[], http_headers=None, body_class=None):
 
     output = http_headers
     if http_headers is None:
-        output = "Content-type: text/html\n\n"
+        output = meta.basic_http_header
     else:
         print http_headers
         try:
@@ -1393,10 +1411,7 @@ def render(view_html, head=[], http_headers=None, body_class=None):
         output += element
 
     output += '</head>\n<body class="%s">\n <div id="container">\n' % body_class
-    if view_html:
-        output += view_html
-    else:
-        output += meta.false_body
+    output += view_html
     output += meta.close_body
 
     print(output.encode('utf8'))

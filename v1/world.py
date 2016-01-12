@@ -7,7 +7,7 @@ import html
 from utils import mdb
 from models import Quarries, Nemeses
 
-def kill_board(return_type=None):
+def kill_board(return_type=None, admin=False):
     """ Creates a dictionary showing kills by monster type. """
     kill_list = []
     all_settlements = mdb.settlements.find()
@@ -16,6 +16,7 @@ def kill_board(return_type=None):
             kill_list.append(m)
 
     monsters = {"Other": {"sort_order": 99, "token": "OTHER", }}
+    others = []
     for model in [Quarries, Nemeses]:
         monsters.update(model.game_assets)
     for m in monsters:
@@ -30,6 +31,7 @@ def kill_board(return_type=None):
                 categorized = True
                 monsters[monster]["kills"] += 1
         if not categorized:
+            others.append(kill)
             monsters["Other"]["kills"] += 1
 
     sorted_monsters = {}
@@ -42,6 +44,8 @@ def kill_board(return_type=None):
             monst_dict = sorted_monsters[numerical_key]
             monst_html = html.dashboard.kill_board_row.safe_substitute(monster = monst_dict["name"], kills = monst_dict["kills"])
             output += monst_html
+        if admin:
+            output += html.dashboard.kill_board_foot.safe_substitute(other_list = ",".join(sorted(others)))
         return output
 
     return sorted_monsters

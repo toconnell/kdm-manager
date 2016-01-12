@@ -56,6 +56,11 @@ class User:
             return False
 
 
+    def get_name_and_id(self):
+        """ Returns a string of the user login and _id value. """
+        return "%s (%s)" % (self.user["login"], self.user["_id"])
+
+
     def update_password(self, password, password_again=False):
         """ Leave the 'password_again' kwarg blank if you're not checking two
         passwords to see if they match, e.g. if you're doing this from the CLI.
@@ -180,6 +185,8 @@ class User:
 
 
     def get_campaigns(self):
+        """ This function gets all campaigns in which the user is involved. """
+
         self.get_settlements()
         game_list = set()
 
@@ -323,6 +330,7 @@ class Survivor:
             "dead",
             "retired",
             "favorite",
+            "public",
         ]
         self.flags = self.damage_locations + self.flag_attribs
 
@@ -435,6 +443,9 @@ class Survivor:
             "epithets": [],
         }
 
+        # set the public bit if it's supplied:
+        if params is not None and "toggle_public" in params:
+            survivor_dict["public"] = "checked"
 
         # add parents if they're specified
         parents = []
@@ -825,6 +836,7 @@ class Survivor:
         # handle explicit toggles (i.e. input[type=submit] here)
         if "damage" in toggle_key.split("_"):
             toggle_type="explicit"
+
         if toggle_type == "explicit":
             if toggle_key not in self.survivor.keys():
                 self.survivor[toggle_key] = "checked"
@@ -1209,6 +1221,7 @@ class Survivor:
             dead_checked = flags["dead"],
             favorite_checked = flags["favorite"],
             retired_checked = flags["retired"],
+            public_checked = flags["public"],
             survival_actions = self.get_survival_actions(return_as="html_checkboxes"),
             movement = self.survivor["Movement"],
             accuracy = self.survivor["Accuracy"],
@@ -1294,6 +1307,8 @@ class Settlement:
         self.settlement = mdb.settlements.find_one({"_id": ObjectId(settlement_id)})
         if self.settlement is not None:
             self.update_mins()
+        else:
+            self.logger.error("Settlement '%s' could not be initialized!" % settlement_id)
 
 
     def new(self, name=None):
@@ -1415,7 +1430,11 @@ class Settlement:
 
         set_attribs = ["milestone_story_events", "innovations", "locations", "principles", "quarries"]
         for a in set_attribs:
-            self.settlement[a] = list(set([i for i in self.settlement[a] if type(i) in (str, unicode)]))
+            self.settlement[a] = list(set([i.strip() for i in self.settlement[a] if type(i) in (str, unicode)]))
+
+        uniq_attribs = ["innovations","locations","quarries"]
+        for a in uniq_attribs:
+            self.settlement[a] = [i.title().strip() for i in self.settlement[a]]
 
         for innovation_key in self.settlement["innovations"]:
             if innovation_key in Innovations.get_keys():
@@ -1860,7 +1879,7 @@ class Settlement:
                 user_owns_survivor = False
                 disabled = "disabled"
 
-                if survivor["email"] == user_login or current_user_is_settlement_creator:
+                if survivor["email"] == user_login or current_user_is_settlement_creator or "public" in survivor.keys():
                     disabled = ""
                     user_owns_survivor = True
 

@@ -4,12 +4,14 @@ from bson.objectid import ObjectId
 import Cookie
 from datetime import datetime
 import os
+import sys
+import traceback
 
 import admin
 import assets
 import html
 import models
-from utils import mdb, get_logger, get_user_agent, load_settings, ymd
+from utils import mdb, get_logger, get_user_agent, load_settings, ymd, ymdhms
 
 settings = load_settings()
 
@@ -224,11 +226,13 @@ class Session:
             export_type = self.params["export_user_data"].value
             if "asset_id" in self.params and self.User.is_admin():
                 user_object = assets.User(user_id=self.params["asset_id"].value, session_object=self)
+                filename = "%s_%s.kdm-manager_export.%s" % (datetime.now().strftime(ymd), user_object.user["login"], export_type.lower())
                 payload = user_object.dump_assets(dump_type=export_type)
             else:
                 payload = self.User.dump_assets(dump_type=export_type)
-            html.render(str(payload), http_headers="Content-Disposition: attachment; filename=%s_%s.kdm-manager_export.%s\n\n" % (datetime.now().strftime(ymd), self.User.user["login"], export_type))
-            user_action = "exported user data as %s" % export_type
+                filename = "%s_%s.kdm-manager_export.%s" % (datetime.now().strftime(ymd), self.User.user["login"], export_type.lower())
+            html.render(str(payload), http_headers="Content-Disposition: attachment; filename=%s\n" % (filename))
+            user_action = "exported user data (%s)" % export_type
         if "export_campaign" in self.params:
             export_type = self.params["export_campaign"].value
             C = assets.Settlement(settlement_id=ObjectId(self.params["asset_id"].value), session_object=self)
@@ -330,7 +334,10 @@ class Session:
             return output, body
 
         except Exception as e:
-            self.logger.critical("Caught exception while rendering current view!")
+            err_msg = "Caught exception while rendering current view for %s!" % self.User.get_name_and_id()
+            self.logger.error(err_msg)
             self.logger.exception(e)
             self.log_out()
-            return False
+            tb = traceback.format_exc().replace("    ","&ensp;").replace("\n","<br/>")
+            print html.meta.error_500.safe_substitute(msg=err_msg, exception=tb)
+            sys.exit(255)
