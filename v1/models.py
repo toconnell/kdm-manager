@@ -194,6 +194,36 @@ class quarriesModel(Model):
         self.name = "quarry"
 
 
+class defeatedMonstersModel(Model):
+    """ This is a pseudo model, which basically means that it is created with no
+    references to game_assets.py because it depends totally on the actual
+    settlement. Its methods are mostly private/unique to it. """
+    def __init__(self):
+        Model.__init__(self)
+        self.game_assets = game_assets.defeated_monsters
+        self.name = "defeated_monster"
+        self.stack = True
+
+
+    def build_asset_deck(self, settlement):
+        """ Call this method with the settlement mdb object/dict to build an
+        asset deck for this model. """
+
+        possible_quarries = settlement["quarries"]
+
+        deck = ["White Lion (First Story)"]
+        for m in possible_quarries:
+            for lv in range(1,4):
+                deck.append("%s Lvl %s" % (m, lv))
+        for n in settlement["nemesis_monsters"].keys():
+            try:
+                deck.append("%s %s" % (n, settlement["nemesis_monsters"][n][-1]))
+            except IndexError:
+                deck.append("%s Lvl 1" % n)
+
+        return deck
+
+
 class resourcesModel(Model):
     def __init__(self):
         Model.__init__(self)
@@ -232,6 +262,6 @@ Quarries        = quarriesModel()
 Resources       = resourcesModel()
 ResourceDecks   = resourceDecksModel()
 WeaponProficiencies = weaponProficienciesModel()
-
+DefeatedMonsters = defeatedMonstersModel()      # this is like...a pseudo model
 
 

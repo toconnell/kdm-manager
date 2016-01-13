@@ -21,9 +21,9 @@ import export_to_file
 import assets
 import game_assets
 import html
-from models import Abilities, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponProficiencies
+from models import Abilities, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponProficiencies
 from session import Session
-from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms
+from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list
 import world
 
 settings = load_settings()
@@ -273,12 +273,18 @@ class User:
 
         latest_fatality = mdb.the_dead.find_one({"complete": {"$exists": True}}, sort=[("created_on", -1)])
 
+        html_epithets = ""
+        if "epithets" in latest_fatality.keys() and latest_fatality["epithets"] != []:
+            epithets = ", ".join(latest_fatality["epithets"])
+            html_epithets = "&ensp; <i>%s</i><br/>" % epithets
+
         output = html.dashboard.world.safe_substitute(
             defeated_monsters = world.kill_board("html_table_rows"),
             total_users = mdb.users.find().count(),
             total_settlements = mdb.settlements.find().count(),
             total_sessions = mdb.sessions.find().count(),
             live_survivors = mdb.survivors.find({"dead": {"$exists": False}}).count(),
+            dead_epithets = html_epithets,
             dead_survivors = mdb.the_dead.find().count(),
             dead_name = latest_fatality["name"],
             dead_settlement = latest_fatality["settlement_name"],
@@ -1307,8 +1313,8 @@ class Settlement:
         self.settlement = mdb.settlements.find_one({"_id": ObjectId(settlement_id)})
         if self.settlement is not None:
             self.update_mins()
-        else:
-            self.logger.error("Settlement '%s' could not be initialized!" % settlement_id)
+#        else:
+#            self.logger.error("Settlement '%s' could not be initialized!" % settlement_id)
 
 
     def new(self, name=None):
@@ -1771,34 +1777,6 @@ class Settlement:
 
         return buffs
 
-    def get_defeated_monsters(self, return_type=None):
-        """ Returns a sorted self.settlement["defeated_monsters"], unless the
-        'return_type' kwarg is comma-delimited, in which case you get a pretty,
-        sorted, stacked comma-delimited string. """
-
-        monsters = sorted(self.settlement["defeated_monsters"])
-
-        if return_type == "comma-delimited":
-            if monsters == []:
-                return ""
-
-            monster_count_dict = {}
-            for monster in monsters:
-                if not monster in monster_count_dict.keys():
-                     monster_count_dict[monster] = 1
-                else:
-                     monster_count_dict[monster] += 1
-
-            stacked_list = []
-            for m in sorted(monster_count_dict.keys()):
-                if monster_count_dict[m] == 1:
-                    stacked_list.append(m)
-                else:
-                    stacked_list.append("%s (x%s)" % (m, monster_count_dict[m]))
-            return "<p>%s</p>" % ", ".join(stacked_list)
-
-        return monsters
-
 
     def get_quarries(self, return_type=None):
         """ Returns a list of the settlement's quarries. Leave the 'return_type'
@@ -2153,7 +2131,11 @@ class Settlement:
         Any model in game_assets.py that has "consequences" as a key should be
         compatible with this func.
         """
-        exec "Asset = %s" % asset_type.capitalize()
+
+        if asset_type == "defeated_monsters":
+            Asset = DefeatedMonsters
+        else:
+            exec "Asset = %s" % asset_type.capitalize()
 
         current_assets = self.settlement[asset_type]
 
@@ -2177,6 +2159,11 @@ class Settlement:
         for asset_key in current_assets:
             if asset_key in asset_deck:
                 asset_deck.discard(asset_key)
+
+        # if the Asset model has its own deck-building method, call that and
+        #   overwrite whatever we've got so far.
+        if hasattr(Asset, "build_asset_deck"):
+            asset_deck = Asset.build_asset_deck(self.settlement)
 
         final_list = sorted(list(set(asset_deck)))
 
@@ -2209,7 +2196,11 @@ class Settlement:
         """
         self.update_mins()
 
-        exec "Asset = %s" % asset_type.capitalize() # if asset_type is 'innovations', initialize 'Innovations'
+        if asset_type == "defeated_monsters":   # our pseudo model
+            Asset = DefeatedMonsters
+        else:
+            exec "Asset = %s" % asset_type.capitalize() # if asset_type is 'innovations', initialize 'Innovations'
+
         asset_name = asset_type[:-1]                # if asset_type is 'locations', asset_name is 'location'
         asset_keys = copy(self.settlement[asset_type])
 
@@ -2224,11 +2215,14 @@ class Settlement:
                 raise Exception(msg)
 
         #   now do return types
+        pretty_asset_name = asset_name.replace("_"," ").title()
         if return_type == "comma-delimited":
             if hasattr(Asset, "uniquify"):
                 asset_keys = list(set(asset_keys))
             if hasattr(Asset, "sort_alpha"):
                 asset_keys = sorted(asset_keys)
+            if hasattr(Asset, "stack"):
+                asset_keys = stack_list(asset_keys)
             output = ", ".join(asset_keys)
             return "<p>%s</p>" % output
         elif return_type == "html_add":
@@ -2236,13 +2230,13 @@ class Settlement:
             output = html.ui.game_asset_select_top.safe_substitute(
                 operation="%s_" % op, operation_pretty=op.capitalize(),
                 name=asset_name,
-                name_pretty=asset_name.capitalize(),
+                name_pretty=pretty_asset_name,
             )
 
             for asset_key in self.get_game_asset_deck(asset_type):
                 output += html.ui.game_asset_select_row.safe_substitute(asset=asset_key)
             output += html.ui.game_asset_select_bot
-            output += html.ui.game_asset_add_custom.safe_substitute(asset_name=asset_name)
+            output += html.ui.game_asset_add_custom.safe_substitute(asset_name=asset_name, asset_name_pretty=pretty_asset_name)
             return output
         elif return_type == "html_remove":
             if asset_keys == []:
@@ -2251,7 +2245,7 @@ class Settlement:
             output = html.ui.game_asset_select_top.safe_substitute(
                 operation="%s_" % op, operation_pretty=op.capitalize(),
                 name=asset_name,
-                name_pretty=asset_name.capitalize(),
+                name_pretty=pretty_asset_name,
             )
             options = self.settlement[asset_type]
 
@@ -2266,32 +2260,6 @@ class Settlement:
             return asset_keys
 
         self.logger.error("An error occurred while retrieving settlement game assets ('%s')!" % asset_type)
-
-
-    def get_defeated_monsters_deck(self, return_type=False):
-        """ Returns a list of the settlement's possible kills, based on the
-        'quarries' and the keys of 'nemesis_monsters'. """
-
-        possible_quarries = self.settlement["quarries"]
-
-        deck = ["White Lion (First Story)"]
-        for m in possible_quarries:
-            for lv in range(1,4):
-                deck.append("%s Lvl %s" % (m, lv))
-        for n in self.settlement["nemesis_monsters"].keys():
-            try:
-                deck.append("%s %s" % (n, self.settlement["nemesis_monsters"][n][-1]))
-            except IndexError:
-                deck.append("%s Lvl 1" % n)
-
-        if return_type == "html_add":
-            output = html.ui.game_asset_select_top.safe_substitute(operation="add_", name="defeated_monster", operation_pretty="Add", name_pretty="Monster")
-            for m in deck:
-                output += html.ui.game_asset_select_row.safe_substitute(asset=m)
-            output += html.ui.game_asset_select_bot
-            return output
-
-        return deck
 
 
     def add_kill(self, monster_desc):
@@ -2381,6 +2349,8 @@ class Settlement:
                 pass
             elif p == "add_defeated_monster":
                 self.add_kill(game_asset_key)
+            elif p == "remove_defeated_monster":
+                self.rm_game_asset("defeated_monsters", game_asset_key)
             elif p == "add_quarry":
                 self.settlement["quarries"].append(params[p].value)
             elif p == "add_nemesis":
@@ -2464,7 +2434,7 @@ class Settlement:
             departure_bonuses = self.get_bonuses('departure_buff', return_type="html"),
             settlement_bonuses = self.get_bonuses('settlement_buff', return_type="html"),
             survivor_bonuses = self.get_bonuses('survivor_buff', return_type="html"),
-            defeated_monsters = self.get_defeated_monsters("comma-delimited"),
+            defeated_monsters = self.get_game_asset("defeated_monsters", return_type="comma-delimited"),
             quarries = self.get_quarries("comma-delimited"),
             nemesis_monsters = self.get_nemeses("comma-delimited"),
         )
@@ -2611,9 +2581,9 @@ class Settlement:
             locations_add = self.get_game_asset("locations", return_type="html_add"),
             locations_rm = self.get_game_asset("locations", return_type="html_remove"),
 
-            defeated_monsters = self.get_defeated_monsters("comma-delimited"),
-            defeated_monsters_add = self.get_defeated_monsters_deck(return_type="html_add"),
-
+            defeated_monsters = self.get_game_asset("defeated_monsters", return_type="comma-delimited"),
+            defeated_monsters_add = self.get_game_asset("defeated_monsters", return_type="html_add"),
+            defeated_monsters_rm = self.get_game_asset("defeated_monsters", return_type="html_remove"),
         )
 
 

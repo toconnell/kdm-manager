@@ -33,13 +33,33 @@ hms = "%H:%M:%S"
 ymdhms = "%Y-%m-%d %H:%M:%S"
 mdb = MongoClient()[settings.get("application","mdb")]
 
-
 #
 #  application helper functions
 #
 
 def days_hours_minutes(td):
     return abs(td.days), td.seconds//3600, (td.seconds//60)%60
+
+
+def stack_list(raw_list):
+    """ Takes a list and 'stacks' duplicative members of that list, returning a
+    list of strings with counts. """
+
+    count_dict = {}
+    for i in raw_list:
+        if not i in count_dict.keys():
+             count_dict[i] = 1
+        else:
+             count_dict[i] += 1
+
+    stacked_list = []
+    for i in sorted(count_dict.keys()):
+        if count_dict[i] == 1:
+            stacked_list.append(i)
+        else:
+            stacked_list.append("%s (x%s)" % (i, count_dict[i]))
+
+    return stacked_list
 
 
 #  sysadmin helper functions

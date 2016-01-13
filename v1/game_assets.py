@@ -6,6 +6,10 @@
 #
 
 abilities_and_impairments = {
+    "Fated Battle": {
+        "type": "ability",
+        "desc": "At the start of a showdown with the picked monster, gain +1 speed token."
+    },
     "Metal Maw": {
         "type": "ability",
         "desc": "Your Fist & Tooth gains <b>Sharp</b>. (Add 1d10 strength to each wound attempt using this gear. This d10 is not a wound roll, and cannot cause critical wounds.)",
@@ -689,6 +693,11 @@ fighting_arts = {
     },
 }
 
+defeated_monsters = {
+    "White Lion (First Story)": {
+        "always_vailable": True,
+    }
+}
 
 locations = {
     "Lantern Hoard": {
@@ -1539,16 +1548,16 @@ innovations = {
 # Monster assets
 
 quarries = {
-    "White Lion": {"token": "LION", "sort_order": 1},
-    "Screaming Antelope": {"token": "ANTELOPE", "sort_order": 2},
-    "Phoenix": {"token": "PHOENIX", "sort_order": 3},
+    "White Lion": {"tokens": ["LION","WHITE"], "sort_order": 1},
+    "Screaming Antelope": {"tokens": ["ANTELOPE","SCREAMING"], "sort_order": 2},
+    "Phoenix": {"tokens": ["PHOENIX"], "sort_order": 3},
 }
 
 nemeses = {
-    "Butcher": {"token": "BUTCHER", "sort_order": 10},
-    "King's Man": {"token": "MAN", "sort_order": 11},
-    "The Hand": {"token": "HAND", "sort_order": 12},
-    "The Watcher": {"token": "WATCHER", "sort_order": 20},
+    "Butcher": {"tokens": ["BUTCHER","BUTCHEE"], "sort_order": 10},
+    "King's Man": {"tokens": ["MAN","KINGSMAN"], "sort_order": 11},
+    "The Hand": {"tokens": ["HAND"], "sort_order": 12},
+    "The Watcher": {"tokens": ["WATCHER"], "sort_order": 20},
 }
 
 

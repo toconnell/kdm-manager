@@ -72,7 +72,7 @@ class ui:
     game_asset_select_row = Template('\t  <option value="$asset">$asset</option>\n')
     game_asset_select_bot = '    </select>\n'
     game_asset_add_custom = Template("""\n\
-<input onchange="this.form.submit()" type="text" class="full_width" name="add_$asset_name" placeholder="add custom $asset_name"/>
+<input onchange="this.form.submit()" type="text" class="full_width" name="add_$asset_name" placeholder="add custom $asset_name_pretty"/>
     \n""")
     text_input = Template('\t  <input onchange="this.form.submit()" type="text" class="full_width" name="$name" placeholder="$placeholder_text"/>')
 
@@ -191,7 +191,8 @@ class dashboard:
         <p>$live_survivors survivors are alive and fighting; $dead_survivors have perished.</p><hr/>
         <p>Latest fatality:<br/><br/>
         &ensp; <b>$dead_name</b> of <b>$dead_settlement</b><br/>
-        &ensp; <i>$cause_of_death</i><br/>
+        $dead_epithets
+        &ensp; &nbsp; $cause_of_death<br/>
         &ensp; Died in LY $dead_ly, XP: $dead_xp<br/>
         &ensp; Courage: $dead_courage, Understanding: $dead_understanding
         </p><hr/>
@@ -986,6 +987,7 @@ class settlement:
         <div id="block_group">
          <h2>Settlement Locations</h2>
          <p>Locations in your settlement.</p>
+         <hr/>
          $locations
          $locations_add
          $locations_rm
@@ -1003,6 +1005,7 @@ class settlement:
         <div id="block_group">
          <h2>Innovations</h2>
          <p>The settlement's innovations (including weapon masteries).</p>
+        <hr/>
          $innovations
          $innovations_add
          $innovations_rm
@@ -1019,7 +1022,7 @@ class settlement:
         <div id="block_group">
          <h2>Principles</h2>
          <p>The settlement's established principles.</p>
-
+        <hr/>
             <div class="$new_life_principle_hidden">
             <h3>New Life Principle</h3>
              <fieldset class="settlement_principle">
@@ -1149,9 +1152,10 @@ class settlement:
         <div id="block_group">
          <h2>Defeated Monsters</h2>
          <p>A list of defeated monsters and their level.</p>
+        <hr/>
          $defeated_monsters
          $defeated_monsters_add
-         <input onchange="this.form.submit()" type="text" class="full_width" name="add_defeated_monster" placeholder="add defeated monster"/>
+         $defeated_monsters_rm
         </div>
         </form>
     </div>
