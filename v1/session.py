@@ -128,7 +128,7 @@ class Session:
                     msg = html.user_error_msg.safe_substitute(err_class="success", err_msg="Password reset successful!")
                     return html.login.form + msg
             else:
-                return html.login.reset_pw.safe_substitute(login=login)
+                return html.login.reset_pw.safe_substitute(login=login, recovery_code=recovery_code)
 
         self.logger.debug("New password recovery request initiated by %s" % login)
         if not "@" in list(login):
