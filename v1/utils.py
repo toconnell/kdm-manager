@@ -2,11 +2,16 @@
 
 #   standard
 from ConfigParser import SafeConfigParser
+import email
+from email.header import Header as email_Header
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import logging
 import os
 from pymongo import MongoClient
 import smtplib
 import sys
+import time
 from user_agents import parse as ua_parse
 
 
@@ -65,15 +70,6 @@ def stack_list(raw_list):
 #  sysadmin helper functions
 
 
-def email(recipients=[], msg=None, sender="admin@kdm-manager.com"):
-    """ Generic Emailer. Accepts a list of 'recipients', a 'msg' string and a
-    sender name (leave undefinied to use admin@kdm-manager.com). """
-
-    server = smtplib.SMTP('kdm-manager.com')
-    server.set_debuglevel(1)
-    server.sendmail(fromaddr, recipients, msg)
-    server.quit()
-
 
 def get_user_agent():
     """ Returns a user-agents object if we can get a user agent. Otherwise,
@@ -118,6 +114,44 @@ def get_logger(log_level="INFO", log_name=False):
         logger.addHandler(logger_fh)
 
     return logger
+
+
+class mailSession:
+    """ Initialize one of these to authenticate via SMTP and send emails. """
+
+    def __init__(self):
+        self.logger = get_logger()
+        self.smtp_host = settings.get("smtp","host")
+        self.smtp_user = settings.get("smtp","name")
+        self.smtp_pass = settings.get("smtp","pass")
+        self.sender_name = settings.get("smtp","name_pretty")
+        self.no_reply = settings.get("smtp","no-reply")
+        self.connect()
+
+
+    def connect(self):
+        self.server = smtplib.SMTP(self.smtp_host, 587)
+        self.server.set_debuglevel(1)
+        self.server.starttls()
+        self.server.login(self.smtp_user, self.smtp_pass)
+        self.logger.debug("SMTP Authentication successful for %s (%s)." % (self.smtp_user, self.smtp_host))
+        time.sleep(0.75)
+
+
+    def send(self, recipients=["toconnell@tyrannybelle.com"], html_msg='This is a <b>test</b> message!', subject="KDM-Manager!"):
+        """ Generic Emailer. Accepts a list of 'recipients', a 'msg' string and a
+        sender name (leave undefinied to use admin@kdm-manager.com). """
+
+        author = email.utils.formataddr((str(email_Header(self.sender_name, 'utf-8')), self.no_reply))
+        msg = MIMEMultipart('alternative')
+        msg['From'] = author
+        msg['Subject'] = subject
+        msg['To'] = recipients[0]
+        msg.attach(MIMEText(html_msg,'html'))
+
+        self.server.sendmail(self.no_reply, recipients, msg.as_string())
+        self.server.quit()
+        self.logger.debug("Email sent successfully!")
 
 
 
