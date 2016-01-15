@@ -4,6 +4,8 @@ from bson.objectid import ObjectId
 import Cookie
 from datetime import datetime
 import os
+import random
+import string
 import sys
 import traceback
 
@@ -11,7 +13,7 @@ import admin
 import assets
 import html
 import models
-from utils import mdb, get_logger, get_user_agent, load_settings, ymd, ymdhms
+from utils import mdb, get_logger, get_user_agent, load_settings, ymd, ymdhms, mailSession
 
 settings = load_settings()
 
@@ -82,6 +84,67 @@ class Session:
         self.User = assets.User(user["_id"], session_object=self)
 
         return session_id   # passes this back to the html.create_cookie_js()
+
+
+    def recover_password(self):
+        """ Call this method to process params related to password recovery and
+        return text that will be rendered by the index. """
+
+        self.logger.debug(self.params)
+
+        if "login" not in self.params and "recovery_code" not in self.params:
+            return html.login.recover_password
+
+        if "recovery_code" not in self.params:
+            user = mdb.users.find_one({"login": self.params["login"].value})
+        elif "recovery_code" in self.params:
+            user = mdb.users.find_one({"recovery_code": self.params["recovery_code"].value})
+
+        if user is None:
+            if "recovery_code" in self.params:
+                err = "Your recovery code appears to have expired! Please check your email and try again."
+            else:
+                err = "The login '%s' does not exist! Notification email NOT sent." % self.params["login"].value
+            msg = html.user_error_msg.safe_substitute(err_class="error", err_msg=err)
+            return html.login.form + msg
+
+        self.User = assets.User(user_id=user["_id"], session_object=self)
+        login = self.User.user["login"]
+
+        if "recovery_code" in self.params:
+            msg = ""
+            recovery_code = self.params["recovery_code"].value
+            self.logger.debug("%s is activating password recovery code '%s'" % (login, recovery_code))
+            if "password" in self.params and "password_again" in self.params:
+                reset_successful = self.User.update_password(self.params["password"].value, self.params["password_again"].value)
+                if not reset_successful:
+                    self.logger.debug("%s failed to reset password" % login)
+                    msg = html.user_error_msg.safe_substitute(err_class="error", err_msg="Passwords did not match! Please try again.")
+                    return html.login.reset_pw.safe_substitute(login=login) + msg
+                else:
+                    del self.User.user["recovery_code"]
+                    mdb.users.save(self.User.user)
+                    self.logger.debug("Removed recovery code from user %s" % login)
+                    msg = html.user_error_msg.safe_substitute(err_class="success", err_msg="Password reset successful!")
+                    return html.login.form + msg
+            else:
+                return html.login.reset_pw.safe_substitute(login=login)
+
+        self.logger.debug("New password recovery request initiated by %s" % login)
+        if not "@" in list(login):
+            err = "Unable to validate email address '%s'. Notification email NOT sent." % login
+            msg = html.user_error_msg.safe_substitute(err_class="error", err_msg=err)
+            self.logger.critical(err)
+        else:
+            recovery_code = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(30))
+            self.logger.debug("Recovery code for %s is '%s'" % (login, recovery_code))
+            self.User.user["recovery_code"] = recovery_code
+            mdb.users.save(self.User.user)
+            email_msg = html.login.pw_recovery_email.safe_substitute(login=login, recovery_code=recovery_code)
+            M = mailSession()
+            M.send(recipients=[login], html_msg=email_msg, subject="KDM-Manager Password Recovery!")
+            msg = html.user_error_msg.safe_substitute(err_class="success", err_msg="Password recovery instructions sent to %s" % login)
+        return html.login.form + msg
 
 
     def set_current_settlement(self, settlement_id=False):

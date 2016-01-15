@@ -29,8 +29,10 @@ if __name__ == "__main__":
         logger.exception(e)
         raise
 
-    if S.session is None:
+    if S.session is None and "recover_password" not in params:
         output = html.authenticate_by_form(params)
+    elif S.session is None and "recover_password" in params:
+        output = S.recover_password()
     else:
         S.process_params(user_action="viewing %s" % S.session["current_view"])
         try:

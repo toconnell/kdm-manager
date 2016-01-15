@@ -1227,14 +1227,20 @@ class login:
         <h2 class="seo">KD:M Manager!</h2>
         <h1 class="seo">A campaign manager for <a href="http://kingdomdeath.com/" target="top">Kingdom Death</a> Monster.</h1>
         <div id="sign_in_controls">
+        <img src="%s/logo_small.png" class="desktop_only sign_in"/>
             <form method="POST">
             <input class="sign_in" type="text" name="login" placeholder="email"/ autofocus>
             <input class="sign_in" type="password" name="password" placeholder="password"/>
             <button class="sign_in gradient_green">Sign In or Register</button>
             </form>
+            <br/>
+            <form method="POST">
+            <input type="hidden" name="recover_password" value="True"/>
+            <button class="gradient_silver tiny_button min-width">Forgot Password?</button>
+            </form>
         </div>
     </div> <!-- sign_in_container -->
-    \n"""
+    \n""" % settings.get("application", "STATIC_URL")
     new_user = Template("""\n\
     <div id="sign_in_container">
         <h2 class="seo">Create a New User!</h2>
@@ -1249,7 +1255,46 @@ class login:
         </div>
     </div> <!-- sign_in_container -->
     \n""")
-
+    reset_pw = Template("""\n\
+    <div id="sign_in_container">
+        <h2 class="seo">Reset Password!</h2>
+        <h1 class="seo">Reset the password for $login.</h1>
+        <div id="sign_in_controls">
+            <form method="POST" action="/">
+            <input type="hidden" name="login" value="$login"/>
+            <input type="hidden" name="recover_password" value="True"/>
+            <input class="sign_in" type="password" name="password" placeholder="password" autofocus/>
+            <input class="sign_in" type="password" name="password_again" placeholder="password (again)"/>
+            <input type="submit" class="sign_in gradient_green" value="Reset Password"/>
+            </form>
+        </div>
+    </div> <!-- sign_in_container -->
+    \n""")
+    recover_password = """\n\
+    <div id="sign_in_container">
+        <h2 class="seo">Password Recovery!</h2>
+        <h1 class="seo">Enter your email address below to receive an email with recovery instructions.</h1>
+        <div id="sign_in_controls">
+            <form method="POST">
+            <input type="hidden" name="recover_password" value="True"/>
+            <input class="sign_in" type="text" name="login" placeholder="email" autofocus/>
+            <button class="sign_in gradient_green">Recover Password</button>
+            </form>
+        </div>
+    </div> <!-- sign_in_container -->
+    \n"""
+    recovery_successful = """\n\
+    <div id="sign_in_container">
+        <h2 class="seo">Password Reset!</h2>
+        <h1 class="seo">Use the link below to log in with your new password.</h1>
+        <div id="sign_in_controls">
+            <a href="">http://kdm-manager.com</a>
+        </div>
+    </div> <!-- sign_in_container -->
+    \n"""
+    pw_recovery_email = Template("""\n\
+    Hello $login!<br/><br/>&ensp;You are receiving this message because a password recovery request was made at <a href="http://kdm-manager.com">http://kdm-manager.com</a> for your user, $login.<br/><br/>If you made this request and would like to reset your password, please use the following URL:<br/><br/>&ensp;<a href="http://kdm-manager.com?recover_password=True&recovery_code=$recovery_code">http://kdm-manager.com?recover_password=True&recovery_code=$recovery_code</a><br/><br/>If you did not create this request, you may ignore this email and continue to use your existing/current credentials.<br/><br/>Thanks again for using the manager!<br/><br/>Your friend,<br/>Timothy O'Connell<br/><br/>
+    \n""")
 
 
 

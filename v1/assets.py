@@ -83,6 +83,7 @@ class User:
         mdb.users.save(self.user)
         user_admin_log_dict["msg"] = "Password Updated!"
         mdb.user_admin.insert(user_admin_log_dict)
+        return True
 
 
     def update_preferences(self, params):
