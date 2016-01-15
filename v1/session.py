@@ -120,7 +120,7 @@ class Session:
                 if not reset_successful:
                     self.logger.debug("%s failed to reset password" % login)
                     msg = html.user_error_msg.safe_substitute(err_class="error", err_msg="Passwords did not match! Please try again.")
-                    return html.login.reset_pw.safe_substitute(login=login) + msg
+                    return html.login.reset_pw.safe_substitute(login=login, recovery_code=recovery_code) + msg
                 else:
                     del self.User.user["recovery_code"]
                     mdb.users.save(self.User.user)

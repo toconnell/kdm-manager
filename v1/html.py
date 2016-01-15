@@ -1263,6 +1263,7 @@ class login:
             <form method="POST" action="/">
             <input type="hidden" name="login" value="$login"/>
             <input type="hidden" name="recover_password" value="True"/>
+            <input type="hidden" name="recovery_code" value="$recovery_code"/>
             <input class="sign_in" type="password" name="password" placeholder="password" autofocus/>
             <input class="sign_in" type="password" name="password_again" placeholder="password (again)"/>
             <input type="submit" class="sign_in gradient_green" value="Reset Password"/>
