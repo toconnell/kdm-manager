@@ -8,6 +8,7 @@ from optparse import OptionParser
 import os
 import cPickle as pickle
 import socket
+import time
 from validate_email import validate_email
 
 import assets
@@ -145,6 +146,9 @@ def ls_documents(collection, sort_on="created_on"):
         output += " - "
         if collection == "users" or collection == "sessions":
             output += d["login"]
+        elif collection == "settlement_events":
+            creator = assets.User(user_id=d["created_by"], session_object={"_id": 0})
+            output += creator.user["login"]
         else:
             output += d["name"]
             try:
@@ -350,7 +354,24 @@ def play_summary():
         print(output)
 
 
+def tail(settlement_id, interval=5, last=20):
+    settlement = mdb.settlements.find_one({"_id": ObjectId(settlement_id)})
+    if settlement is None:
+        print("\n\tSettlement '%s' does not exist. Exiting...\n" % settlement_id)
+        sys.exit(255)
 
+    try:
+        while True:
+            print(chr(27) + "[2J")
+            log_lines = mdb.settlement_events.find({"settlement_id": settlement["_id"]}).sort("created_on",-1).limit(last)
+            for l in reversed(list(log_lines)):
+                creator = mdb.users.find_one({"_id": l["created_by"]})
+                print "  [%s] %s (LY:%s) - %s" % (l["created_on"].strftime(ymdhms), creator["login"], l["ly"], l["event"])
+            print("\nTailing settlement '%s' (%s)..." % (settlement["name"], settlement["_id"]))
+            time.sleep(interval)
+    except KeyboardInterrupt:
+        print("")
+        sys.exit(1)
 
     #
     #   Admin Panel!
@@ -556,6 +577,7 @@ if __name__ == "__main__":
     parser.add_option("-e", dest="export_data", help="export data to a pickle. needs a user _id", metavar="5681f9e7421aa93924b6d013", default=False)
     parser.add_option("-i", dest="import_data", help="import data from a pickle", metavar="/home/toconnell/data.pickle", default=False)
     parser.add_option("--user", dest="pretty_view_user", help="Print a pretty summary of a user", metavar="5665026954922d076285bdec", default=False)
+    parser.add_option("--tail", dest="tail_settlement", help="tail -f a settlement's log", metavar="5665123bfhas90213bdhs85b123", default=False)
     parser.add_option("--user_repr", dest="user_repr", help="Dump a user's repr", metavar="5665026954922d076285bdec", default=False)
     parser.add_option("--admin", dest="toggle_admin", help="toggle admin status for a user _id", default=False)
     parser.add_option("--email", dest="email", help="Send a test email to an address", metavar="toconnell@tyrannybelle.com", default=False)
@@ -566,6 +588,8 @@ if __name__ == "__main__":
 #    if args == []:
 #        motd()
 
+    if options.tail_settlement:
+        tail(options.tail_settlement)
 
     if options.export_data:
         export_data(options.export_data)

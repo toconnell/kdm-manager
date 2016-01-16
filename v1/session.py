@@ -90,8 +90,6 @@ class Session:
         """ Call this method to process params related to password recovery and
         return text that will be rendered by the index. """
 
-        self.logger.debug(self.params)
-
         if "login" not in self.params and "recovery_code" not in self.params:
             return html.login.recover_password
 
@@ -358,8 +356,17 @@ class Session:
 
                 if self.User.is_admin():
                     output += html.dashboard.panel_button
+            elif self.session["current_view"] == "event_log":
+                settlement = mdb.settlements.find_one({"_id": self.session["current_asset"]})
+                self.set_current_settlement(ObjectId(settlement["_id"]))
+                output += html.dashboard.refresh_button
+                output += self.Settlement.asset_link(context="asset_management")
+                S = assets.Settlement(settlement_id = settlement["_id"], session_object=self)
+                output += S.render_html_event_log()
             elif self.session["current_view"] == "view_campaign":
                 output += html.dashboard.refresh_button
+                if mdb.settlement_events.find({"settlement_id": self.Settlement.settlement["_id"]}).count() != 0:
+                    output += html.dashboard.event_log_button.safe_substitute(name=self.Settlement.settlement["name"])
                 if self.Settlement.settlement is not None and self.Settlement.settlement["created_by"] == self.User.user["_id"]:
                     output += self.Settlement.asset_link(context="campaign_summary")
                 output += self.Settlement.render_html_summary(user_id=self.User.user["_id"])

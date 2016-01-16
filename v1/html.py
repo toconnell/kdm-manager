@@ -88,6 +88,7 @@ class dashboard:
     settlement_flash = '<img class="dashboard_icon" src="%s/icons/settlement.png"/> ' % settings.get("application", "STATIC_URL")
     system_flash = '<img class="dashboard_icon" src="%s/icons/system.png"/> ' % settings.get("application", "STATIC_URL")
     refresh_flash = '<img class="dashboard_icon" src="%s/icons/refresh.png"/> ' % settings.get("application", "STATIC_URL")
+    event_log_flash = '<img class="dashboard_icon" src="%s/icons/settlement_event.png"/> ' % settings.get("application", "STATIC_URL")
 
     # dashboard accordions
     motd = Template("""\n
@@ -103,10 +104,16 @@ class dashboard:
             <h3>Preferences</h3>
             <form method="POST" action="#">
             <input type="hidden" name="update_user_preferences" value="True"/>
+            <p>Automatically apply settlement bonuses to new survivors?</p>
+            <p>
+                <input style="display: none" id="pref_apply_new_survivor_buffs" class="radio_principle" type="radio" name="apply_new_survivor_buffs" value="True" $preferences_apply_new_survivor_buffs/> <label for="pref_apply_new_survivor_buffs" class="radio_principle_label">Apply</label><br>
+                <input style="display: none" id="pref_do_not_apply_new_survivor_buffs" class="radio_principle" type="radio" name="apply_new_survivor_buffs" value="False" $preferences_do_not_apply_new_survivor_buffs /> <label for="pref_do_not_apply_new_survivor_buffs" class="radio_principle_label">Do Not Apply</label> 
+            </p>
+            <hr/>
             <p>Confirm before removing items from storage?</p>
             <p>
-                <input style="display: none" id="pref_confirm_on_remove" class="radio_principle" type="radio" name="confirm_on_remove_from_storage" value="confirm" checked/> <label for="pref_confirm_on_remove" class="radio_principle_label">Confirm</label><br>
-                <input style="display: none" id="pref_do_not_confirm_on_remove" class="radio_principle" type="radio" name="confirm_on_remove_from_storage" value="do_not_confirm" $preferences_confirm_on_remove /> <label for="pref_do_not_confirm_on_remove" class="radio_principle_label">Do Not Confirm</label> 
+                <input style="display: none" id="pref_confirm_on_remove" class="radio_principle" type="radio" name="confirm_on_remove_from_storage" value="True" $preferences_confirm_on_remove/> <label for="pref_confirm_on_remove" class="radio_principle_label">Confirm</label><br>
+                <input style="display: none" id="pref_do_not_confirm_on_remove" class="radio_principle" type="radio" name="confirm_on_remove_from_storage" value="False" $preferences_do_not_confirm_on_remove /> <label for="pref_do_not_confirm_on_remove" class="radio_principle_label">Do Not Confirm</label> 
             </p>
             <button class="warn"> Update Preferences</button>
             </form>
@@ -208,6 +215,7 @@ class dashboard:
     # misc html assets
     home_button = '<form method="POST" action="#"><input type="hidden" name="change_view" value="dashboard"/><button id="floating_dashboard_button" class="gradient_silver"> %s <span class="desktop_only">Return to Dashboard</span></button></form>\n' % system_flash
     refresh_button = '<form method="POST" action="#"><button id="floating_refresh_button" class=""> %s </button></form>\n' % refresh_flash
+    event_log_button = Template('<form method="POST" action="#"><input type="hidden" name="change_view" value="event_log"/><button id="floating_event_log_button" class="gradient_orange"> %s <span class="desktop_only">$name Event Log</span></button></form>\n' % event_log_flash)
     view_asset_button = Template("""\n\
     <form method="POST" action="#">
     <input type="hidden" name="view_$asset_type" value="$asset_id" />
@@ -314,7 +322,7 @@ class survivor:
         <input type="hidden" name="asset_id" value="$survivor_id" />
 
         <div id="asset_management_left_pane">
-            <input id="topline_name_fixed" class="full_width" type="text" name="name" value="$name" placeholder="Survivor Name"/>
+            <input onchange="this.form.submit()" id="topline_name_fixed" class="full_width" type="text" name="name" value="$name" placeholder="Survivor Name"/>
             <br class="mobile_only"/><br class="mobile_only"/><br class="mobile_only"/>
             $epithets
             <br class="mobile_only"/>
@@ -820,6 +828,16 @@ class settlement:
      <button class="gradient_orange"> $export_pretty_name </button>
     </form>
     \n""")
+    event_log = Template("""\n\
+        <span class="desktop_only nav_bar gradient_orange"></span>
+        <span class="gradient_orange nav_bar_mobile mobile_only"></span>
+        <span class="top_nav_spacer mobile_only"> hidden </span>
+        <h1 class="settlement_name"> $settlement_name Event Log</h1>
+        $log_lines
+        \n""")
+    event_table_top = '<table class="settlement_event_log"><tr><th>LY</th><th>Event</th></tr>\n'
+    event_table_row = Template('<tr class="zebra_$zebra"><td>$ly</td><td>$event</td></tr>\n')
+    event_table_bot = '</table>\n\n'
     summary = Template("""\n\
         <span class="desktop_only nav_bar gradient_purple"></span>
         <span class="gradient_purple nav_bar_mobile mobile_only"></span>
@@ -1236,7 +1254,7 @@ class login:
             <br/>
             <form method="POST">
             <input type="hidden" name="recover_password" value="True"/>
-            <button class="gradient_silver tiny_button min-width">Forgot Password?</button>
+            <button class="gradient_black tiny_button">Forgot Password?</button>
             </form>
         </div>
     </div> <!-- sign_in_container -->
@@ -1248,7 +1266,7 @@ class login:
         <div id="sign_in_controls">
             <form method="POST">
             <input class="sign_in" type="text" name="login" value="$login"/>
-            <input class="sign_in" type="password" name="password" placeholder="password"/>
+            <input class="sign_in" type="password" name="password" placeholder="password" autofocus/>
             <input class="sign_in" type="password" name="password_again" placeholder="password (again)"/>
             <button class="sign_in gradient_green">Register New User</button>
             </form>

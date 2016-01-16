@@ -56,6 +56,23 @@ class User:
             return False
 
 
+    def get_preference(self, p_key):
+        """ The 'p_key' kwarg should be a preference key. This funciton returns
+        a bool for a preference, e.g. if the user has it set to True or False.
+        If the user has no preferences set, or no preference for the key, this
+        function returns the preference's default value. """
+
+        default_value = settings.getboolean("users", p_key)
+
+        if "preferences" not in self.user.keys():
+            return default_value
+
+        if p_key not in self.user["preferences"].keys():
+            return default_value
+
+        return self.user["preferences"][p_key] 
+
+
     def get_name_and_id(self):
         """ Returns a string of the user login and _id value. """
         return "%s (%s)" % (self.user["login"], self.user["_id"])
@@ -99,22 +116,15 @@ class User:
             "msg" : "Updated Preferences. "
         }
 
-
-        if "confirm_on_remove_from_storage" in params:
-            confirmation_preference = params["confirm_on_remove_from_storage"].value
-            if confirmation_preference == "confirm":
-                self.user["preferences"]["confirm_on_remove_from_storage"] = True
-                self.logger.debug("'%s' added 'confirm_on_remove_from_storage' from user preferences!" % self.user["login"])
-                user_admin_log_dict["msg"] += "Confirm on remove from storage set!"
-            elif confirmation_preference == "do_not_confirm":
-                try:
-                    del self.user["preferences"]["confirm_on_remove_from_storage"]
-                    self.logger.debug("'%s' removed 'confirm_on_remove_from_storage' from user preferences!" % self.user["login"])
-                    user_admin_log_dict["msg"] += "Confirm on remove from storage unset!"
-                except:
-                    pass
-            else:
-                self.logger.warn("Illegal value '%s' rejected from user preferences!" % confirmation_preference)
+        for p in ["confirm_on_remove_from_storage", "apply_new_survivor_buffs"]:
+            if p in params:
+                p_value = params[p].value
+                if p_value == "True":
+                    self.user["preferences"][p] = True
+                elif p_value == "False":
+                    self.user["preferences"][p] = False
+                self.logger.debug("'%s' added '%s'->'%s' to preferences!" % (self.user["login"], p, p_value))
+                user_admin_log_dict["msg"] += "'%s' -> %s" % (p, p_value)
 
         user_admin_log_dict["msg"] = user_admin_log_dict["msg"].strip()
         mdb.user_admin.insert(user_admin_log_dict)
@@ -250,15 +260,21 @@ class User:
         if last_log_msg is not None:
             formatted_log_msg = "<p>Latest admin log:</p><p><b>%s</b>:</b> %s</p>" % (last_log_msg["created_on"].strftime(ymdhms), last_log_msg["msg"])
 
-        pref_conf_rem = ""
-        if "preferences" in self.user.keys():
-            if "confirm_on_remove_from_storage" not in self.user["preferences"].keys():
-                pref_conf_rem = "checked"
-        else:
-            pref_conf_rem = "checked"
+
+        p_dict = {}
+        for p_key in ["confirm_on_remove_from_storage", "apply_new_survivor_buffs"]:
+            if self.get_preference(p_key):
+                p_tuple = ("checked","")
+            else:
+                p_tuple = ("","checked")
+            p_dict[p_key] = p_tuple
+
 
         output = html.dashboard.motd.safe_substitute(
-            preferences_confirm_on_remove = pref_conf_rem,
+            preferences_confirm_on_remove = p_dict["confirm_on_remove_from_storage"][0],
+            preferences_do_not_confirm_on_remove = p_dict["confirm_on_remove_from_storage"][1],
+            preferences_apply_new_survivor_buffs = p_dict["apply_new_survivor_buffs"][0],
+            preferences_do_not_apply_new_survivor_buffs = p_dict["apply_new_survivor_buffs"][1],
             session_id = self.Session.session["_id"],
             login = self.user["login"],
             last_sign_in = self.user["latest_sign_in"].strftime(ymdhms),
@@ -468,25 +484,42 @@ class Survivor:
                 genitive_appellation = "Daughter"
             survivor_dict["epithets"].append("%s of %s" % (genitive_appellation, " and ".join(parents)))
 
-        # apply settlement buffs to the new guy
-        self.logger.debug("Automatically applying 'new_survivor' buffs to new survivor '%s' before inserting..." % name)
-        new_survivor_buffs = self.Settlement.get_bonuses("new_survivor")
-        for b in new_survivor_buffs.keys():
-            buffs = new_survivor_buffs[b]
-            for attrib in buffs.keys():
-                survivor_dict[attrib] = survivor_dict[attrib] + buffs[attrib]
-            self.logger.debug("Applied buffs for '%s' successfully: %s" % (b, buffs))
-
+        # insert the new survivor into mdb and use its newly minted id to set
+        #   self.survivor with the info we just inserted
         survivor_id = mdb.survivors.insert(survivor_dict)
         self.survivor = mdb.survivors.find_one({"_id": survivor_id})
+
+        # log the addition or birth of the new survivor
+        name_pretty = self.get_name_and_id(include_sex=True, include_id=False)
+        current_ly = self.Settlement.settlement["lantern_year"]
+        if parents != []:
+            self.Settlement.log_event("%s born to %s!" % (name_pretty, " and ".join(parents)))
+        else:
+            self.Settlement.log_event("%s joined the settlement!" % (name_pretty))
+
+        # apply settlement buffs to the new guy depending on preference
+        if self.User.get_preference("apply_new_survivor_buffs"):
+            new_survivor_buffs = self.Settlement.get_bonuses("new_survivor")
+            self.logger.debug("Automatically applying %s 'new_survivor' buffs to new survivor '%s'" % (len(new_survivor_buffs), self.get_name_and_id()))
+            for b in new_survivor_buffs.keys():
+                buffs = new_survivor_buffs[b]
+                for attrib in buffs.keys():
+                    self.survivor[attrib] = self.survivor[attrib] + buffs[attrib]
+                self.logger.debug("Applied buffs for '%s' successfully: %s" % (b, buffs))
+                self.Settlement.log_event("Applied '%s' bonus to %s." % (b, name))
+        else:
+            self.Settlement.log_event("Settlement bonuses were not applied to %s." % (name))
+            self.logger.debug("Skipping auto-application of new survivor buffs for %s." % self.get_name_and_id())
 
         # if we've got an avatar, do that AFTER we insert the survivor record
         if params is not None and "survivor_avatar" in params and params["survivor_avatar"].filename != "":
             self.update_avatar(params["survivor_avatar"])
 
-        self.logger.info("User '%s' created new survivor '%s [%s]' successfully." % (self.User.user["login"], name, sex))
-
+        # save the survivor (in case it got changed above), update settlement
+        #   mins and log our successful creation
+        mdb.survivors.save(self.survivor)
         self.Settlement.update_mins()
+        self.logger.info("User '%s' created new survivor %s successfully." % (self.User.user["login"], self.get_name_and_id(include_sex=True)))
 
         return survivor_id
 
@@ -505,14 +538,20 @@ class Survivor:
             GridFS(mdb).delete(self.survivor["avatar"])
             self.logger.debug("%s removed an avatar image (%s) from GridFS." % (self.User.user["login"], self.survivor["avatar"]))
         mdb.survivors.remove({"_id": self.survivor["_id"]})
+        self.Settlement.log_event("%s has been Forsaken (and permanently deleted) by %s" % (self.get_name_and_id(include_id=False, include_sex=True), self.User.user["login"] ))
         self.logger.warn("%s removed survivor %s from mdb!" % (self.User.user["login"], self.get_name_and_id()))
 
 
-    def get_name_and_id(self):
-        """ Laziness function to return a string of the Survivor's name and _id
-        value (i.e. so we can write DRYer log entries, etc.). """
+    def get_name_and_id(self, include_id=True, include_sex=False):
+        """ Laziness function to return a string of the Survivor's name, _id and
+        sex values (i.e. so we can write DRYer log entries, etc.). """
 
-        return "'%s' (%s)" % (self.survivor["name"], self.survivor["_id"])
+        output = [self.survivor["name"]]
+        if include_sex:
+            output.append("[%s]" % self.survivor["sex"])
+        if include_id:
+            output.append("(%s)" % self.survivor["_id"])
+        return " ".join(output)
 
 
     def get_ancestors(self, return_type=None):
@@ -970,6 +1009,7 @@ class Survivor:
                 self.Settlement.settlement["population"] = int(self.Settlement.settlement["population"]) - 1
                 self.Settlement.settlement["death_count"] = int(self.Settlement.settlement["death_count"]) + 1
                 self.logger.debug("Settlement '%s' population and death count automatically adjusted!" % self.Settlement.settlement["name"])
+                self.Settlement.log_event("%s died." % self.get_name_and_id(include_id=False, include_sex=True))
             else:
                 self.logger.debug("Survivor '%s' is already among The Dead." % self.survivor["name"])
 
@@ -1062,20 +1102,29 @@ class Survivor:
             elif p.split("_")[0] == "toggle":
                 toggle_attrib = "_".join(p.split("_")[1:])
                 self.toggle(toggle_attrib, params[p])
+            elif p == "name":
+                if game_asset_key != self.survivor[p]:
+                    self.survivor["name"] = game_asset_key
+                    self.Settlement.log_event("%s was renamed to %s" % (self.get_name_and_id(include_sex=True, include_id=False), game_asset_key))
             elif p == "email":
-                self.survivor["email"] = game_asset_key.lower()
+                self.survivor["email"] = game_asset_key.lower().strip()
             elif p == "cause_of_death":
                 self.survivor[p] = game_asset_key
                 mdb.survivors.save(self.survivor)
                 admin.valkyrie()
             elif game_asset_key == "None":
                 del self.survivor[p]
+                if p == "in_hunting_party":
+                    self.Settlement.log_event("%s left the hunting party." % self.survivor["name"])
             elif p == "Weapon Proficiency":
                 self.modify_weapon_proficiency(int(game_asset_key))
             elif p == "customize_ability" and "custom_ability_description" in params:
                 self.add_ability_customization(params[p].value, params["custom_ability_description"].value)
             elif p == "custom_ability_description":
                 pass
+            elif p == "in_hunting_party":
+                self.survivor[p] = game_asset_key
+                self.Settlement.log_event("%s has joined the hunting party." % self.survivor["name"])
             else:
                 self.survivor[p] = game_asset_key
 #                self.logger.debug("%s set '%s' -> '%s' for survivor '%s' (%s)." % (self.User.user["login"], p, game_asset_key, self.survivor["name"], self.survivor["_id"]))
@@ -1318,6 +1367,19 @@ class Settlement:
 #            self.logger.error("Settlement '%s' could not be initialized!" % settlement_id)
 
 
+    def log_event(self, msg):
+        """ Logs a settlement event to mdb.settlement_events. """
+        d = {
+            "created_on": datetime.now(),
+            "created_by": self.User.user["_id"],
+            "settlement_id": self.settlement["_id"],
+            "ly": self.settlement["lantern_year"],
+            "event": msg,
+        }
+        mdb.settlement_events.insert(d)
+        self.logger.debug("Settlement event logged for %s" % self.get_name_and_id())
+
+
     def new(self, name=None):
         """ Creates a new settlement. """
 
@@ -1384,7 +1446,9 @@ class Settlement:
             ],
         }
         settlement_id = mdb.settlements.insert(new_settlement_dict)
+        self.settlement = mdb.settlements.find_one({"_id": settlement_id})
         self.logger.info("New settlement '%s' ('%s') created by %s!" % (name, settlement_id, self.User.user["login"]))
+        self.log_event("Settlement founded!")
         return settlement_id
 
 
@@ -1439,10 +1503,27 @@ class Settlement:
         for a in set_attribs:
             self.settlement[a] = list(set([i.strip() for i in self.settlement[a] if type(i) in (str, unicode)]))
 
-        uniq_attribs = ["innovations","locations","quarries"]
+        uniq_attribs = ["locations","quarries"]
         for a in uniq_attribs:
             self.settlement[a] = [i.title().strip() for i in self.settlement[a]]
 
+        # fix broken/incorrectly normalized innovations
+        def normalize(settlement_attrib, incorrect, correct):
+            if incorrect in self.settlement[settlement_attrib]:
+                self.settlement[settlement_attrib].remove(incorrect)
+                self.settlement[settlement_attrib].append(correct)
+                self.logger.debug("Normalized '%s' (%s) to '%s' for %s." % (incorrect,settlement_attrib,correct,self.get_name_and_id()))
+
+        mixed_case_tuples = [
+            ("innovations", "Song Of The Brave", "Song of the Brave"),
+            ("innovations", "Clan Of Death", "Clan of Death"),
+            ("principles", "Survival Of The Fittest", "Survival of the Fittest"),
+            ("principles", "Protect The Young", "Protect the Young"),
+        ]
+        for t in mixed_case_tuples:
+            normalize(t[0],t[1],t[2])
+
+        # keep innovations and principles separated
         for innovation_key in self.settlement["innovations"]:
             if innovation_key in Innovations.get_keys():
                 innovation_dict = Innovations.get_asset(innovation_key)
@@ -1580,9 +1661,10 @@ class Settlement:
                         else:
                             pretty_text = item_key + suffix
 
-                        # check preferences and include a pop-up
+                        # check preferences and include a pop-up if the user
+                        #   prefers to be warned
                         confirmation_pop_up = ""
-                        if "preferences" in self.User.user.keys() and "confirm_on_remove_from_storage" in self.User.user["preferences"].keys():
+                        if self.User.get_preference("confirm_on_remove_from_storage"):
                             confirmation_pop_up = html.settlement.storage_warning.safe_substitute(item_name=item_key)
 
                         output += html.settlement.storage_remove_button.safe_substitute(
@@ -1769,6 +1851,8 @@ class Settlement:
         for innovation_key in innovations:
             if innovation_key in Innovations.get_keys() and bonus_type in Innovations.get_asset(innovation_key).keys():
                 buffs[innovation_key] = Innovations.get_asset(innovation_key)[bonus_type]
+
+#        self.logger.debug("Settlement %s has '%s' bonuses for %s." % (self.get_name_and_id(), bonus_type, ", ".join(buffs.keys())))
 
         if return_type == "html":
             output = ""
@@ -1972,9 +2056,12 @@ class Settlement:
         """ Gets the hunting party, runs heal("Return from Hunt") on them."""
         healed_survivors = 0
         returning_survivor_id_list = []
+        returning_survivor_name_list = []
         for survivor in self.get_survivors("hunting_party"):
             S = assets.Survivor(survivor_id=survivor["_id"], session_object=self.Session)
             returning_survivor_id_list.append(S.survivor["_id"])
+            if "dead" not in S.survivor.keys():
+                returning_survivor_name_list.append(S.survivor["name"])
             S.heal("Return from Hunt")
             healed_survivors += 1
 
@@ -1990,6 +2077,7 @@ class Settlement:
             if "skip_next_hunt" in survivor.keys():
                 del survivor["skip_next_hunt"]
                 mdb.survivors.save(survivor)
+        self.log_event("The hunting party (%s) returned." % ", ".join(returning_survivor_name_list))
 
 
     def modify_hunting_party(self, params):
@@ -2095,9 +2183,10 @@ class Settlement:
         logic for toggling one on and toggling off its opposite is here. """
 
         principles = set(self.settlement["principles"])
-        if add_new_principle:
+        if add_new_principle and not add_new_principle in self.settlement["principles"]:
             principles.add(add_new_principle)
             self.logger.debug("%s added principle '%s' to settlement '%s' (%s)." % (self.User.user["login"], add_new_principle, self.settlement["name"], self.settlement["_id"]))
+            self.log_event("%s added to settlement Principles." % add_new_principle)
 
         mutually_exclusive_principles = [
             ("Graves", "Cannibalize"),
@@ -2274,6 +2363,7 @@ class Settlement:
             self.settlement["kill_board"][current_ly] = []
         self.settlement["kill_board"][current_ly].append(monster_desc)
         self.settlement["defeated_monsters"].append(monster_desc)
+        self.log_event("%s defeated!" % monster_desc)
         mdb.settlements.save(self.settlement)
 
 
@@ -2318,6 +2408,8 @@ class Settlement:
         self.settlement[asset_class] = current_assets
         if game_asset_key in self.settlement[asset_class]:
             self.logger.info("'%s' added '%s' to '%s' ['%s'] successfully!" % (self.User.user["login"], game_asset_key, self.settlement["name"], asset_class))
+
+        self.log_event("%s added to settlement %s!" % (game_asset_key, asset_class.title()))
 
         mdb.settlements.save(self.settlement)
 
@@ -2386,7 +2478,9 @@ class Settlement:
             ]:
                 self.settlement["milestone_story_events"].append(p)
             elif p == "increment_lantern_year":
-                self.settlement["lantern_year"] = int(self.settlement["lantern_year"]) + 1
+                current_ly = int(self.settlement["lantern_year"])
+                self.log_event("Lantern year %s has ended." % current_ly)
+                self.settlement["lantern_year"] = current_ly + 1
             elif p.split("_")[:3] == ['update', 'timeline', 'year']:
                 for year_dict in self.settlement["timeline"]:
                     if int(year_dict["year"]) == int(p.split("_")[-1]):
@@ -2415,6 +2509,28 @@ class Settlement:
 
         # update mins will call self.enforce_data_model() and save
         self.update_mins()
+
+
+    def render_html_event_log(self):
+
+        event_log_entries = list(mdb.settlement_events.find({"settlement_id": self.settlement["_id"]}).sort("created_by",-1))
+        if event_log_entries == []:
+            event_log_entries.append({"ly":"-","event":"Nothing here yet!"})
+        event_log = html.settlement.event_table_top
+        zebra=False
+        for e in reversed(event_log_entries):
+            event_log += html.settlement.event_table_row.safe_substitute(ly=e["ly"], event=e["event"], zebra=zebra)
+            if not zebra:
+                zebra = True
+            else:
+                zebra = False
+        event_log += html.settlement.event_table_bot
+
+        output = html.settlement.event_log.safe_substitute(
+            log_lines = event_log,
+            settlement_name = self.settlement["name"],
+        )
+        return output
 
 
     def render_html_summary(self, user_id=False):
