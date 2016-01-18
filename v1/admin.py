@@ -462,7 +462,11 @@ def valkyrie():
 
     for dead in mdb.the_dead.find({"complete": {"$exists": False}}):
         # set the settlement_name attrib
-        dead["settlement_name"] = mdb.settlements.find_one({"_id": dead["settlement_id"]})["name"]
+        dead_settlement = mdb.settlements.find_one({"_id": dead["settlement_id"]})
+        if dead_settlement is not None:
+            dead["settlement_name"] = dead_settlement["name"]
+        else:
+            dead["settlement_name"] = "Abandoned Settlement"
 
         # if the survivor is still in the mdb, try to update his death record
         survivor_dict = mdb.survivors.find_one({"_id": dead["survivor_id"]})
