@@ -1148,8 +1148,8 @@ class Survivor:
                 self.toggle(toggle_attrib, params[p])
             elif p == "name":
                 if game_asset_key != self.survivor[p]:
+                    self.Settlement.log_event("%s was renamed to '%s'" % (self.get_name_and_id(include_sex=True, include_id=False), game_asset_key))
                     self.survivor["name"] = game_asset_key
-                    self.Settlement.log_event("%s was renamed to %s" % (self.get_name_and_id(include_sex=True, include_id=False), game_asset_key))
             elif p == "email":
                 self.survivor["email"] = game_asset_key.lower().strip()
             elif p == "cause_of_death":
