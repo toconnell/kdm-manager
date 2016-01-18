@@ -70,7 +70,7 @@ class User:
         if p_key not in self.user["preferences"].keys():
             return default_value
 
-        return self.user["preferences"][p_key] 
+        return self.user["preferences"][p_key]
 
 
     def get_name_and_id(self):
@@ -116,7 +116,7 @@ class User:
             "msg" : "Updated Preferences. "
         }
 
-        for p in ["confirm_on_remove_from_storage", "apply_new_survivor_buffs"]:
+        for p in ["confirm_on_remove_from_storage", "apply_new_survivor_buffs", "apply_weapon_specialization"]:
             if p in params:
                 p_value = params[p].value
                 if p_value == "True":
@@ -124,7 +124,7 @@ class User:
                 elif p_value == "False":
                     self.user["preferences"][p] = False
                 self.logger.debug("'%s' added '%s'->'%s' to preferences!" % (self.user["login"], p, p_value))
-                user_admin_log_dict["msg"] += "'%s' -> %s" % (p, p_value)
+                user_admin_log_dict["msg"] += "'%s' -> %s; " % (p, p_value)
 
         user_admin_log_dict["msg"] = user_admin_log_dict["msg"].strip()
         mdb.user_admin.insert(user_admin_log_dict)
@@ -262,7 +262,7 @@ class User:
 
 
         p_dict = {}
-        for p_key in ["confirm_on_remove_from_storage", "apply_new_survivor_buffs"]:
+        for p_key in ["confirm_on_remove_from_storage", "apply_new_survivor_buffs", "apply_weapon_specialization"]:
             if self.get_preference(p_key):
                 p_tuple = ("checked","")
             else:
@@ -275,6 +275,8 @@ class User:
             preferences_do_not_confirm_on_remove = p_dict["confirm_on_remove_from_storage"][1],
             preferences_apply_new_survivor_buffs = p_dict["apply_new_survivor_buffs"][0],
             preferences_do_not_apply_new_survivor_buffs = p_dict["apply_new_survivor_buffs"][1],
+            preferences_apply_weapon_specialization = p_dict["apply_weapon_specialization"][0],
+            preferences_do_not_apply_weapon_specialization = p_dict["apply_weapon_specialization"][1],
             session_id = self.Session.session["_id"],
             login = self.user["login"],
             last_sign_in = self.user["latest_sign_in"].strftime(ymdhms),
@@ -398,8 +400,10 @@ class Survivor:
             if innovation_key in WeaponProficiencies.get_keys():
                 prof_dict = WeaponProficiencies.get_asset(innovation_key)
                 if prof_dict["all_survivors"] not in self.survivor["abilities_and_impairments"]:
-                    self.survivor["abilities_and_impairments"].append(prof_dict["all_survivors"])
-                    self.logger.debug("Auto-applied settlement default '%s' to survivor '%s' of '%s'." % (prof_dict["all_survivors"], self.survivor["name"], self.Settlement.settlement["name"]))
+                    if self.User.get_preference("apply_weapon_specialization"):
+                        self.survivor["abilities_and_impairments"].append(prof_dict["all_survivors"])
+                        self.logger.debug("Auto-applied settlement default '%s' to survivor '%s' of '%s'." % (prof_dict["all_survivors"], self.survivor["name"], self.Settlement.settlement["name"]))
+                        self.Settlement.log_event("Automatically added '%s' to %s's abilities!" % (prof_dict["all_survivors"], self.survivor["name"]))
             elif innovation_key.split("-")[0].strip() == "Mastery":
                 custom_weapon = " ".join(innovation_key.split("-")[1:]).title().strip()
                 spec_str = "Specialization - %s" % custom_weapon
@@ -548,30 +552,29 @@ class Survivor:
 
         output = [self.survivor["name"]]
         if include_sex:
-            output.append("[%s]" % self.survivor["sex"])
+            output.append("[%s]" % self.get_sex())
         if include_id:
             output.append("(%s)" % self.survivor["_id"])
         return " ".join(output)
 
 
-    def get_ancestors(self, return_type=None):
-        """ This is a stub for now. Don't use it. """
-
-        if not "ancestors" in self.survivor.keys():
-            ancestors = []
-        else:
-            ancestors = self.survivor["ancestors"]
-
-        return ancestors
-
-
     def get_survival_actions(self, return_as=False):
+        """ Creates a list of survival actions that the survivor can do. """
         possible_actions = game_assets.survival_actions
 
         available_actions = []
         for a in possible_actions:
             if a in self.Settlement.get_survival_actions():
                 available_actions.append(a)
+
+        for i in self.get_impairments():
+            if i in Abilities.get_keys():
+                if "survival_actions_disabled" in Abilities.get_asset(i).keys():
+                    for action in Abilities.get_asset(i)["survival_actions_disabled"]:
+                        try:
+                            available_actions.remove(action)
+                        except:
+                            pass
 
         if "cannot_spend_survival" in self.survivor.keys():
             available_actions = []
@@ -587,6 +590,7 @@ class Survivor:
             return html
 
         return available_actions
+
 
     def add_ability_customization(self, attrib_key, attrib_customization):
         """ This basically creates a custom dict on the Survivor that is used
@@ -956,6 +960,43 @@ class Survivor:
         self.logger.debug("%s updated the avatar for survivor %s." % (self.User.user["login"], self.get_name_and_id()))
 
 
+    def get_impairments(self):
+        """ Returns a list of survivor impairments (i.e. returns the survivor's
+        'abilities_and_impairments' attribute without the abilities). """
+
+        impairment_set = set()
+        for a in self.survivor["abilities_and_impairments"]:
+            if a in Abilities.get_keys():
+                if Abilities.get_asset(a)["type"] == "impairment":
+                    impairment_set.add(a)
+        return list(impairment_set)
+
+    def get_sex(self, return_type="None"):
+        """ Gets the survivor's sex. Takes abilities_and_impairments into
+        account: anything with the 'reverse_sex' attribute will reverse this."""
+
+        functional_sex = self.survivor["sex"]
+
+        reverse_sex = False
+        impairment_keys = self.get_impairments()
+        for i in impairment_keys:
+            if i in Abilities.get_keys():
+                if "reverse_sex" in Abilities.get_asset(i).keys():
+                    reverse_sex = True
+
+        if reverse_sex:
+            if functional_sex == "M":
+                functional_sex = "F"
+            elif functional_sex == "F":
+                functional_sex = "M"
+
+        if return_type=="html":
+            functional_sex = '<b>%s</b>' % functional_sex
+            if reverse_sex:
+                functional_sex = '<font class="alert">%s</font>' % functional_sex
+
+        return functional_sex
+
     def death(self, undo_death=False):
         """ Call this method when a survivor dies. Call it with the 'undo_death'
         kwarg to undo the death.
@@ -1010,6 +1051,7 @@ class Survivor:
                 self.Settlement.settlement["death_count"] = int(self.Settlement.settlement["death_count"]) + 1
                 self.logger.debug("Settlement '%s' population and death count automatically adjusted!" % self.Settlement.settlement["name"])
                 self.Settlement.log_event("%s died." % self.get_name_and_id(include_id=False, include_sex=True))
+                self.Settlement.log_event("Population decreased to %s; death count increased to %s." % (self.Settlement.settlement["population"], self.Settlement.settlement["death_count"]))
             else:
                 self.logger.debug("Survivor '%s' is already among The Dead." % self.survivor["name"])
 
@@ -1051,8 +1093,10 @@ class Survivor:
             if target_lvl >= lvl and p_str not in self.survivor["abilities_and_impairments"]:
                 self.survivor["abilities_and_impairments"].append(p_str)
 
-        if mastery_string in self.survivor["abilities_and_impairments"]:
+        if mastery_string in self.survivor["abilities_and_impairments"] and mastery_string not in self.Settlement.settlement["innovations"]:
             self.Settlement.settlement["innovations"].append(mastery_string)
+            self.Settlement.log_event("%s has mastered %s!" % (self.get_name_and_id(include_sex=True, include_id=False), weapon))
+            self.Settlement.log_event("'%s' added to settlement Innovations!" % mastery_string)
             mdb.settlements.save(self.Settlement.settlement)
             self.logger.debug("Survivor '%s' added '%s' to settlement %s's Innovations!" % (self.survivor["name"], mastery_string, self.Settlement.settlement["name"]))
 
@@ -1169,7 +1213,7 @@ class Survivor:
         if not link_text:
             link_text = "<b>%s</b>" % self.survivor["name"]
             if "sex" in include:
-                link_text += " [%s]" % self.survivor["sex"]
+                link_text += " [%s]" % self.get_sex("html")
         if disabled:
             link_text += "<br />%s" % self.survivor["email"]
 
@@ -1269,7 +1313,7 @@ class Survivor:
             add_epithets = Epithets.render_as_html_dropdown(exclude=self.survivor["epithets"]),
             rm_epithets =self.get_epithets("html_remove"),
             epithets = self.get_epithets("html_formatted"),
-            sex = self.survivor["sex"],
+            sex = self.get_sex("html"),
             survival = survivor_survival_points,
             survival_limit = self.Settlement.get_attribute("survival_limit"),
             cannot_spend_survival_checked = flags["cannot_spend_survival"],
@@ -1484,6 +1528,7 @@ class Settlement:
             if orig_val < min_val:
                 self.settlement[min_key] = min_val
                 self.logger.debug("Automatically updated settlement %s (%s) %s from %s to %s" % (self.settlement["name"], self.settlement["_id"], min_key, orig_val, min_val))
+                self.log_event("Automatically changed %s from %s to %s" % (min_key, orig_val, min_val))
 
             # just a little idiot- and user-proofing against negative values
             if self.settlement[min_key] < 0:
@@ -1997,7 +2042,7 @@ class Settlement:
                     special_annotation = annotation,
                     disabled = disabled,
                     name = S.survivor["name"],
-                    sex = S.survivor["sex"],
+                    sex = S.get_sex("html"),
                     favorite = is_favorite,
                     hunt_xp = S.survivor["hunt_xp"],
                     survival = S.survivor["survival"],
@@ -2178,6 +2223,23 @@ class Settlement:
 
         return player_set
 
+
+    def update_lantern_year(self, new_value=None, increment=False):
+        """ Do all LY updates for the settlement here. """
+
+        current_ly = int(self.settlement["lantern_year"])
+
+        if increment:
+            self.log_event("Lantern year %s has ended." % current_ly)
+            current_ly = current_ly + 1
+            self.settlement["lantern_year"] = current_ly
+
+        if new_value is not None and int(new_value) != current_ly:
+            new_value = int(new_value)
+            self.settlement["lantern_year"] = new_value
+            self.log_event("It is now Lantern Year %s." % new_value)
+
+
     def update_principles(self, add_new_principle=False):
         """ Since certain principles are mutually exclusive, all of the biz
         logic for toggling one on and toggling off its opposite is here. """
@@ -2186,7 +2248,7 @@ class Settlement:
         if add_new_principle and not add_new_principle in self.settlement["principles"]:
             principles.add(add_new_principle)
             self.logger.debug("%s added principle '%s' to settlement '%s' (%s)." % (self.User.user["login"], add_new_principle, self.settlement["name"], self.settlement["_id"]))
-            self.log_event("%s added to settlement Principles." % add_new_principle)
+            self.log_event("'%s' added to settlement Principles." % add_new_principle)
 
         mutually_exclusive_principles = [
             ("Graves", "Cannibalize"),
@@ -2478,9 +2540,9 @@ class Settlement:
             ]:
                 self.settlement["milestone_story_events"].append(p)
             elif p == "increment_lantern_year":
-                current_ly = int(self.settlement["lantern_year"])
-                self.log_event("Lantern year %s has ended." % current_ly)
-                self.settlement["lantern_year"] = current_ly + 1
+                self.update_lantern_year(increment=True)
+            elif p == "lantern_year":
+                self.update_lantern_year(game_asset_key)
             elif p.split("_")[:3] == ['update', 'timeline', 'year']:
                 for year_dict in self.settlement["timeline"]:
                     if int(year_dict["year"]) == int(p.split("_")[-1]):

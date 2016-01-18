@@ -110,6 +110,12 @@ class dashboard:
                 <input style="display: none" id="pref_do_not_apply_new_survivor_buffs" class="radio_principle" type="radio" name="apply_new_survivor_buffs" value="False" $preferences_do_not_apply_new_survivor_buffs /> <label for="pref_do_not_apply_new_survivor_buffs" class="radio_principle_label">Do Not Apply</label> 
             </p>
             <hr/>
+            <p>Automatically add weapon specializations if Innovations include the mastery?</p>
+            <p>
+                <input style="display: none" id="pref_apply_weapon_specialization" class="radio_principle" type="radio" name="apply_weapon_specialization" value="True" $preferences_apply_weapon_specialization/> <label for="pref_apply_weapon_specialization" class="radio_principle_label">Add</label><br>
+                <input style="display: none" id="pref_do_not_apply_weapon_specialization" class="radio_principle" type="radio" name="apply_weapon_specialization" value="False" $preferences_do_not_apply_weapon_specialization /> <label for="pref_do_not_apply_weapon_specialization" class="radio_principle_label">Do Not Add</label> 
+            </p>
+            <hr/>
             <p>Confirm before removing items from storage?</p>
             <p>
                 <input style="display: none" id="pref_confirm_on_remove" class="radio_principle" type="radio" name="confirm_on_remove_from_storage" value="True" $preferences_confirm_on_remove/> <label for="pref_confirm_on_remove" class="radio_principle_label">Confirm</label><br>
@@ -334,7 +340,7 @@ class survivor:
             <!-- SEX, SURVIVAL and MISC. SURVIVOR ATTRIBUTES -->
 
             <p>
-             Survivor sex: <b>$sex</b>
+             Survivor Sex: $sex
             $avatar_img<br/>
             <div id="survivor_dead_retired_container">
 

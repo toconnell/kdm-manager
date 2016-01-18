@@ -6,6 +6,17 @@
 #
 
 abilities_and_impairments = {
+    "Gender Swap": {
+        "type": "impairment",
+        "desc": "You own the <b>Belt of Gender Swap</b>, it will always take one space in your gear grid and while it is there, your gender is reversed.",
+        "reverse_sex": True,
+    },
+    "Endless Babble": {
+        "type": "impairment",
+        "desc": "When you <b>depart</b>, <b>departing survivors</b> gain +1 insanity. You may not encourage.",
+        "max": 1,
+        "survival_actions_disabled": ["Encourage"],
+    },
     "Fated Battle": {
         "type": "ability",
         "desc": "At the start of a showdown with the picked monster, gain +1 speed token."
@@ -326,6 +337,7 @@ abilities_and_impairments = {
     "Shattered jaw": {
         "type": "impairment",
         "desc": "You can no longer <b>consume</b> or be affected by events requiring you to <b>consume</b>. You can no longer <b>encourage</b>. This injury is permanent and can be recorded once.",
+        "survival_actions_disabled": ["Encourage"],
         "max": 1,
     },
     "Dismembered Arm": {
@@ -415,6 +427,7 @@ abilities_and_impairments = {
     "Dismembered leg": {
         "type": "impairment",
         "desc": "You suffer -2 permanent movement, and can no longer <b>dash</b>. This injury is permanent and can be recorded twice. A survivor with two <b>dismembered leg</b> severe injuries has lost both of their legs and must retire at the end of the next showdown or settlement phase.",
+        "survival_actions_disabled": ["Dash"],
         "Movement": -2,
         "max": 2,
     },

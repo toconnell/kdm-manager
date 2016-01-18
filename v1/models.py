@@ -23,6 +23,8 @@ class Model:
 
     def get_pretty_name(self):
         self.pretty_name = self.name.replace("_", " ").title()
+        if self.name == "ability":
+            self.pretty_name = "Ability or Impairment"
         return self.pretty_name
 
     def get_always_available(self):
