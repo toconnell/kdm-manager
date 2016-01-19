@@ -200,7 +200,8 @@ class dashboard:
     <div class="dashboard_menu">
         <h2 class="clickable gradient_blue" onclick="showHide('world_div')"> <img class="dashboard_icon" src="%s/icons/world.png"/> World %s</h2>
         <div id="world_div" style="display: none;" class="dashboard_accordion gradient_blue">
-        <p>$total_users users are managing $total_settlements settlements in $total_sessions sessions.</p><hr/>
+        <p>$total_users users are registered; there are currently $total_sessions active game sessions.</p><hr/>
+        <p>$active_settlements settlements are holding fast; $abandoned_settlements settlements have been abandoned.</p><hr/>
         <p>$live_survivors survivors are alive and fighting; $dead_survivors have perished.</p><hr/>
         <p>Latest fatality:<br/><br/>
         &ensp; <b>$dead_name</b> of <b>$dead_settlement</b><br/>
@@ -708,6 +709,9 @@ class survivor:
             </p>
 
             <hr />
+            <h3>Children</h3>
+            $children
+            <hr />
             <h3>Permissions</h3>
             <form method="POST" id="autoForm" action="#edit_abilities">
               <input type="hidden" name="form_id" value="survivor_edit_abilities"/>
@@ -852,12 +856,12 @@ class settlement:
         <div id="campaign_summary_pop">
             <p>Population: $population ($sex_count); $death_count deaths</p>
             <hr class="mobile_only"/>
-            <p>Survival Limit: $survival_limit</p>
+            <p>LY: $lantern_year, Survival Limit: $survival_limit</p>
             <hr class="mobile_only"/>
         </div>
         <form method="POST" class="mobile_only">
           <input type="hidden" name="change_view" value="new_survivor"/>
-          <button class="success" id="campaign_summary_new_survivor">+ Create New Survivor</button>
+          <button class="success full_width" id="campaign_summary_new_survivor">+ Create New Survivor</button>
           <hr/>
         </form>
         <a id="edit_hunting_party" class="mobile_only"></a>
@@ -921,6 +925,7 @@ class settlement:
             <input type="hidden" name="asset_id" value="$settlement_id" />
 
             <input id="topline_name" onchange="this.form.submit()" class="full_width" type="text" name="name" value="$name" placeholder="Settlement Name"/>
+            $abandoned
             <hr class="mobile_only"/>
             <div class="settlement_form_wide_box">
                 <div class="big_number_container left_margin">
@@ -1224,21 +1229,30 @@ class settlement:
             <p>Refer to <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Game Over</b> on p.179;  <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Left Overs</b> occurs at 4;  <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Those Before Us</b> occurs at 8; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Ocular Parasites</b> occurs at 12; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Rainy Season</b> occurs at 16.</p>
             </form>
         </div>
-        <br />
-
-        $survivors
-
         <br class="mobile_only"/>
+
+        <!--
+        $survivors_DISABLED
+        -->
+
+        <br>
         <hr class="mobile_only"/>
 
         <form method="POST">
-        <input type="hidden" name="change_view" value="new_survivor"/>
-        <button class="success">+ Create New Survivor</button>
+            <input type="hidden" name="change_view" value="new_survivor"/>
+            <button class="success full_width">+ Create New Survivor</button>
         </form>
-
         <hr/>
 
-    <form method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever.');"><input type="hidden" name="remove_settlement" value="$settlement_id"/><button class="error">Permanently Delete Settlement</button></form>
+        <form method="POST" onsubmit="return confirm('This will prevent this settlement from appearing on any user Dashboard, including yours. Press OK to Abandon this settlement forever.');">
+            <input type="hidden" name="modify" value="settlement" />
+            <input type="hidden" name="asset_id" value="$settlement_id" />
+            <input type="hidden" name="abandon_settlement" value="toggle" />
+            <button class="full_width warn"> Abandon Settlement </button>
+        </form>
+        <hr/>
+
+    <form method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever.');"><input type="hidden" name="remove_settlement" value="$settlement_id"/><button class="full_width error">Permanently Delete Settlement</button></form>
     </div>
     \n""")
 

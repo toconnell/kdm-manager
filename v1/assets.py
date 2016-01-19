@@ -214,7 +214,8 @@ class User:
         game_dict = {}
         for settlement_id in game_list:
             S = assets.Settlement(settlement_id=settlement_id, session_object=self.Session)
-            game_dict[settlement_id] = S.settlement["name"]
+            if not "abandoned" in S.settlement.keys():
+                game_dict[settlement_id] = S.settlement["name"]
         sorted_game_tuples = sorted(game_dict.items(), key=operator.itemgetter(1))
 
         for settlement_tuple in sorted_game_tuples:
@@ -300,7 +301,8 @@ class User:
         output = html.dashboard.world.safe_substitute(
             defeated_monsters = world.kill_board("html_table_rows"),
             total_users = mdb.users.find().count(),
-            total_settlements = mdb.settlements.find().count(),
+            active_settlements = mdb.settlements.find().count() - mdb.settlements.find({"abandoned": {"$exists": True}}).count(),
+            abandoned_settlements = mdb.settlements.find({"abandoned": {"$exists": True}}).count(),
             total_sessions = mdb.sessions.find().count(),
             live_survivors = mdb.survivors.find({"dead": {"$exists": False}}).count(),
             dead_epithets = html_epithets,
@@ -380,6 +382,8 @@ class Survivor:
         for ability in ["Dormenatus", "Caratosis", "Lucernae"]:
             if ability in self.survivor["abilities_and_impairments"] and ability not in self.survivor["epithets"]:
                 self.survivor["epithets"].append(ability)
+        if "Twilight Sword" in self.survivor["abilities_and_impairments"] and "Twilight Sword" not in self.survivor["epithets"]:
+            self.survivor["epithets"].append("Twilight Sword")
 
         # normalize weapon proficiency type
         if "weapon_proficiency_type" in self.survivor.keys() and self.survivor["weapon_proficiency_type"] != "":
@@ -820,6 +824,9 @@ class Survivor:
                 return False
 
         elif asset_type == "abilities_and_impairments":
+            if asset_key == "Twilight Sword":
+                self.Settlement.log_event("%s got the Twilight Sword!" % self.get_name_and_id(include_id=False, include_sex=True))
+
             if asset_key not in Abilities.get_keys():
                 self.survivor["abilities_and_impairments"].append("%s" % asset_key)
                 return True
@@ -971,7 +978,37 @@ class Survivor:
                     impairment_set.add(a)
         return list(impairment_set)
 
-    def get_sex(self, return_type="None"):
+
+    def get_children(self, return_type=None):
+        """ Returns a dictionary of the survivor's children. """
+        children = set()
+        survivors = self.Settlement.get_survivors()
+        for s in survivors:
+            survivor_parents = []
+            for p in ["father","mother"]:
+                if p in s.keys():
+                    survivor_parents.append(s[p])
+            for p in ["father","mother"]:
+                if p in s.keys() and s[p] == self.survivor["_id"]:
+                    other_parent = None
+                    survivor_parents.remove(s[p])
+                    if survivor_parents != []:
+                        other_parent = survivor_parents[0]
+                    if other_parent is not None:
+                        O = assets.Survivor(survivor_id=other_parent, session_object=self.Session)
+                        children.add("%s (with %s)" % (s["name"], O.survivor["name"]))
+                    else:
+                        children.add(s["name"])
+
+        if return_type == "html":
+            if children == set():
+                return ""
+            else:
+                return "<p>%s<p>" % (", ".join(list(children)))
+
+        return list(children)
+
+    def get_sex(self, return_type=None):
         """ Gets the survivor's sex. Takes abilities_and_impairments into
         account: anything with the 'reverse_sex' attribute will reverse this."""
 
@@ -1374,6 +1411,7 @@ class Survivor:
                 ),
             remove_abilities_and_impairments = self.get_abilities_and_impairments("html_select_remove"),
 
+            children = self.get_children(return_type="html"),
             cause_of_death = COD,
             show_COD = COD_div_display_style,
 
@@ -1608,9 +1646,10 @@ class Settlement:
             male_parent = False
             female_parent = False
             for s in self.get_survivors():
-                if s["sex"] == "M" and "dead" not in s.keys():
+                S = assets.Survivor(survivor_id=s["_id"], session_object=self.Session)
+                if S.get_sex() == "M" and "dead" not in S.survivor.keys():
                     male_parent = True
-                elif s["sex"] == "F" and "dead" not in s.keys():
+                elif S.get_sex() == "F" and "dead" not in S.survivor.keys():
                     female_parent = True
 
         if not (male_parent and female_parent):
@@ -1620,8 +1659,9 @@ class Settlement:
             for role in [("father", "M"), ("mother", "F")]:
                 output += html.survivor.add_ancestor_select_top.safe_substitute(parent_role=role[0], pretty_role=role[0].capitalize())
                 for s in self.get_survivors():
-                    if s["sex"] == role[1] and "dead" not in s.keys():
-                        output += html.survivor.add_ancestor_select_row.safe_substitute(parent_id=s["_id"], parent_name=s["name"])
+                    S = assets.Survivor(survivor_id=s["_id"], session_object=self.Session)
+                    if S.get_sex() == role[1] and "dead" not in S.survivor.keys():
+                        output += html.survivor.add_ancestor_select_row.safe_substitute(parent_id=S.survivor["_id"], parent_name=S.survivor["name"])
                 output += html.survivor.add_ancestor_select_bot
             output += html.survivor.add_ancestor_bot
             return output
@@ -2543,6 +2583,9 @@ class Settlement:
                 self.update_lantern_year(increment=True)
             elif p == "lantern_year":
                 self.update_lantern_year(game_asset_key)
+            elif p == "abandon_settlement":
+                self.log_event("Settlement abandoned!")
+                self.settlement["abandoned"] = datetime.now()
             elif p.split("_")[:3] == ['update', 'timeline', 'year']:
                 for year_dict in self.settlement["timeline"]:
                     if int(year_dict["year"]) == int(p.split("_")[-1]):
@@ -2607,6 +2650,7 @@ class Settlement:
             death_count = self.settlement["death_count"],
             sex_count = self.get_survivors(return_type="sex_count", exclude_dead=True),
             survivors = self.get_survivors(return_type="html_campaign_summary", user_id=user_id),
+            lantern_year = self.settlement["lantern_year"],
             survival_limit = self.settlement["survival_limit"],
             innovations = self.get_game_asset("innovations", return_type="comma-delimited", exclude=self.settlement["principles"]),
             locations = self.get_locations(return_type="comma-delimited"),
@@ -2702,7 +2746,12 @@ class Settlement:
         if population < self.get_min("population"):
             population = self.get_min("population")
 
+        abandoned = ""
+        if "abandoned" in self.settlement.keys():
+            abandoned = '<h1 class="alert">ABANDONED</h1>'
+
         return html.settlement.form.safe_substitute(
+            abandoned = abandoned,
             MEDIA_URL = settings.get("application","STATIC_URL"),
             settlement_id = self.settlement["_id"],
             game_link = self.asset_link(context="asset_management"),
@@ -2805,6 +2854,8 @@ class Settlement:
         else:
             button_class = "gradient_yellow"
             link_text = html.dashboard.settlement_flash + "<b>%s</b>" % self.settlement["name"]
+            if "abandoned" in self.settlement.keys():
+                link_text += ' [ABANDONED]'
             desktop_text = ""
             asset_type = "settlement"
 

@@ -6,6 +6,11 @@
 #
 
 abilities_and_impairments = {
+    "Twilight Sword": {
+        "type": "impairment",
+        "desc": "You may select <b>Twilight Sword</b> as a weapon proficiency type. This weapon may not be removed from your great grid for any reason. When you die, archive your <b>Twilight Sword</b> card.",
+        "max": 1,
+    },
     "Gender Swap": {
         "type": "impairment",
         "desc": "You own the <b>Belt of Gender Swap</b>, it will always take one space in your gear grid and while it is there, your gender is reversed.",
@@ -552,6 +557,8 @@ disorders = {
 
 
 epithets = {
+    "Eunuch": {},
+    "Broke the Silence": {},
     "Triathlete":{},
     "Undisputed boss of the settlement": {},
     "The Fertile": {},
