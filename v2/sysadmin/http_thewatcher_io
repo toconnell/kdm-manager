@@ -1,0 +1,64 @@
+server {
+    ### no-www redirect
+    listen 80;
+    server_name www.thewatcher.io;
+    rewrite  ^  http://thewatcher.io$request_uri? permanent;
+}
+
+server {
+    listen  80;
+    server_name  thewatcher.io;
+
+    ### Logging
+    access_log  /var/log/nginx/thewatcher_io.access.log;
+    error_log   /var/log/nginx/thewatcher_io.error.log;
+
+    ### rewrites and redirects
+    rewrite ^/favicon.ico  http://media.thewatcher.io/favicon.ico permanent;
+
+    index   index.html;
+    root    /home/thewatcher/kdm-manager/v2/;
+
+    ### Locations
+    location / {
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   Host      $http_host;
+        proxy_pass         http://127.0.0.1:4200;
+    }
+}
+
+server {
+    listen  80;
+    server_name dev.thewatcher.io;
+
+    ### Logging
+    access_log  /var/log/nginx/dev_thewatcher_io.access.log;
+    error_log   /var/log/nginx/dev_thewatcher_io.error.log;
+
+    ### rewrites and redirects
+    rewrite ^/favicon.ico  http://media.thewatcher.io/favicon.ico permanent;
+
+    root    /home/bnielsen/kdm-manager/v2/;
+
+    ### Locations
+    location / {
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   Host      $http_host;
+        proxy_pass         http://127.0.0.1:4201;
+    }
+}
+
+server {
+    listen   80;
+    server_name  media.thewatcher.io;
+
+    access_log  /var/log/nginx/thewatcher.io.access.log;
+    error_log   /var/log/nginx/thewatcher.io.error.log;
+
+    location / {
+        root   /home/thewatcher/kdm-manager/v2/media;
+        autoindex   on;
+    }
+}
+
+
