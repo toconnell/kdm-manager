@@ -49,6 +49,27 @@ server {
 }
 
 server {
+    listen  80;
+    server_name api.thewatcher.io;
+
+    ### Logging
+    access_log  /var/log/nginx/api_thewatcher_io.access.log;
+    error_log   /var/log/nginx/api_thewatcher_io.error.log;
+
+    ### rewrites and redirects
+    rewrite ^/favicon.ico  http://media.thewatcher.io/favicon.ico permanent;
+
+    ### Locations
+    location / {
+        rewrite ^/$ /index  last;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   Host      $http_host;
+        proxy_pass         http://127.0.0.1:4300;
+    }
+}
+
+
+server {
     listen   80;
     server_name  media.thewatcher.io;
 
