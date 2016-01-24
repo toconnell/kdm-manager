@@ -1889,9 +1889,10 @@ class Settlement:
                         return ""
                     for child in children_list:
                         grand_children = [Survivor(survivor_id=c["_id"], session_object=self.Session) for c in child.get_children()]
-                        gc_html = generation_html(grand_children, recursion=recursion)
                         if not recursion:
                             gc_html = ""
+                        else:
+                            gc_html = generation_html(grand_children, recursion=recursion)
 #                        output += '\n\t<li><a>LY %s: %s</a> %s</li>' % (child.survivor["born_in_ly"], child.get_name_and_id(include_sex=True, include_id=False), gc_html)
                         output += '\n\t<a><li>%s</li></a>\n' % survivor_to_span(child)
                     output += '</ul>\n'
