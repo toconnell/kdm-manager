@@ -10,6 +10,15 @@ body {font-family: Helvetica, sans-serif; height: 100%; }
 .desktop_only {display: none;}
 .margin_auto {margin: 0 auto;}
 fieldset {border: 0; text-align: left; }
+ul {margin-left: 30px; }
+
+textarea#settlement_notes {width: 100%; height: 250px; border: 0; margin-left: 10px;  }
+
+/* event_log */
+table.settlement_event_log {border-collapse: collapse; }
+table.settlement_event_log td {vertical-align: top; padding: 5px; }
+.zebra_True {background-color: #ddd;}
+span.genealogy_survivor {padding: 5px; }
 
 /*  sign-in styles */
 body.sign_in {background: linear-gradient(#bbb, #333);}
@@ -17,10 +26,9 @@ h1.seo {color: #fff; font-size: 20pt; text-align: center; margin-top: 0 none; fo
 h2.seo {color: #fff; font-size: 60pt; border: 0 none;  text-align: center; margin-bottom: -10px; font-weight: normal;} 
 div#sign_in_container {background: 0 none; width: 80%; margin: 0 auto; margin-top: 15%;}
 div#sign_in_controls {width:90%; height: 50%; margin: 0 auto; margin-top: 60%; padding: 0 none; text-align: center; }
-input.sign_in {background-color:rgba(99, 99, 99, 0.5); color: #FFF; margin: 0 auto;  width: 90%; border: 0 none; margin-bottom: 40px;  padding: 0 none; padding-left: 5%; border-bottom: 2px solid #555; border-right: 2px solid #555;}
+input.sign_in {background-color:rgba(99, 99, 99, 0.5); color: #FFF; margin: 0 auto;  width: 90%; border: 0 none; margin-bottom: 40px;  padding: 0 none; padding-left: 5%; }
 button.sign_in {width: 95%; margin: 0 auto; padding: 0 none; font-weight: normal; }
-
-#user_error_msg {position: absolute; top: 30%; }
+#user_error_msg {position: absolute; top: 30%; border: 0; padding: 10px; }
 
 /*  dashboard styles */
 body.dashboard {background: linear-gradient(130deg, #E6DADA, #274046); }
@@ -71,11 +79,13 @@ div#info_box h2, button#survivor_campaign_asset {text-align: left; }
     border-right: 2px solid #190A05; border-bottom: 2px solid #190A05; 
 }
 .dark_green {background-color: #82bD00; }
-
+.alert {color: #C60000; font-weight: bold; }
+.gradient_white {background: linear-gradient(-90deg, #eee, #fff);}
+.gradient_black {background: linear-gradient(-90deg, #232526, #010305); color: #ccc;}
 .green {background-color: #C2FD60; }
-.gradient_green {background: linear-gradient(-90deg, #1D976C, #93F9B9); }
+.gradient_green {background: linear-gradient(-90deg, #39b54a, #8Dc63F); }
 .orange {background-color: #FFCC00; }
-.gradient_orange {background: linear-gradient(-90deg, #F09819, #EDDE5D); }
+.gradient_orange {background: linear-gradient(-90deg, #Fbb040, #fff200); }
 .gradient_yellow {background: linear-gradient(-90deg, #F0B839, #FDEE7D); }
 .purple {color: #000; background-color: #AC88BF; }
 .gradient_purple { color: #000 ; background: linear-gradient(-90deg, #A743FE, #DA22FF); }
@@ -87,9 +97,10 @@ div#info_box h2, button#survivor_campaign_asset {text-align: left; }
 
 .tan    { border-color: #A97D5D; background-color: #F7DCB4; }
 .info  { color: #00529B; background-color: #BDE5F8; }
-.success {color: #333; background: linear-gradient(-90deg, #24FE41, #FDFC47);  border: 3px solid #00A300; border-left: 3px solid #00FF00; border-top: 3px solid #00FF00;}
-.error { color: #D8000C; background-color: #FFBABA; border: 3px solid #A30000; border-left: 3px solid #FF0000; border-top: 3px solid #FF0000; }
-.warn  { color: #D07808; background: linear-gradient(-90deg, #ffF387, #ffFc73);}
+.error, .warn, .success {border-right: 1px solid #666; border-bottom: 1px solid #666; font-weight: bold;}
+.error { color: #fff; background: linear-gradient(#EB3349, #F45C43);}
+.warn  { color: #000; background: linear-gradient(#ffd3a7, #ffed33);}
+.success  { color: #000; background: linear-gradient(#FDFC47, #24FE41);}
 
 
 /* le bold styles */
@@ -110,8 +121,11 @@ div#info_box h2, button#survivor_campaign_asset {text-align: left; }
 /* clear: none styles*/
 #damage_box, .floating_label, form, label#skip_next_hunt, div#info_box, label#float_right_toggle {clear: none;}
 
+/* clear: right styles*/
+.clear_right {clear: right;}
+
 /* float: right styles */
-#damage_box, label#skip_next_hunt, .floating_label, label#float_right_toggle {float: right; }
+.float_right, #damage_box, label#skip_next_hunt, .floating_label, label#float_right_toggle {float: right; }
 
 
 
@@ -124,6 +138,7 @@ p {padding: 10px;}
 
 /* input styles */
 
+input[type=text], input[type=password] {border: 0; border-right: 1px solid #666; border-bottom: 1px solid #666; z-index: 100;}
 input[type=text], textarea, input[type=password], input[type=button], button { outline: none;}
 input[type=text]:focus, textarea:focus, input[type=password]:focus, button:focus {  box-shadow: 0 0 6px rgba(1, 3, 12, 1); }
 
@@ -134,8 +149,9 @@ input#topline_name_fixed {position: fixed; z-index: 1; opacity: 0.9; margin-top:
 
 input, button, div {font-size: 50px; }
 input {height: 100px; }
-input, h2, h3 #user_error_msg {padding-left: 10px; }
+input, h2, h3 {padding-left: 10px; }
 input, button, label {cursor: pointer; }
+button {border: 0; border-right: 1px solid #666; border-bottom: 1px solid #666;}
 
 pre { white-space: pre-wrap; }
 
@@ -155,6 +171,7 @@ input[type=submit].damage_box, input[type=submit].damage_box_checked { width: 13
 input[type=submit].damage_box_checked {background-color: #000; }
 input[type=submit].heavy_damage {border: 10px solid #000;}
 
+button.tiny_button {padding: 5px; font-size: 70%; margin: auto; margin-top: 30px;}
 button {padding-top: 20px; padding-bottom: 20px; }
 
 .incrementer, .decrementer {float: left; width: 50px; display: inline-block; padding: 0 none; width: 207px; }
@@ -171,12 +188,13 @@ button#remove_item {border-radius: 20px; padding-right: 10px; padding-left: 10px
 
 
  /* nav bar styles */
-#floating_refresh_button, #floating_dashboard_button, .floating_asset_button, #save_button {position: fixed; top: 3px; height: 125px; width: 170px; padding: 30px; border: 2px solid; z-index: 100; margin: 0; }
+#floating_event_log_button, #floating_refresh_button, #floating_dashboard_button, .floating_asset_button, #save_button {position: fixed; top: 3px; height: 125px; width: 170px; padding: 30px; border: 2px solid; z-index: 100; margin: 0; }
 
-#save_button {left: 540px; }
+#save_button {right: 225px; }
 .floating_asset_button {left: 360px; top: 3px; }
 #floating_dashboard_button { left: 3px;  }
 #floating_refresh_button {right: 3px; }
+#floating_event_log_button {right: 225px; }
 
 .nav_bar_mobile {width: 100%; height: 135px; position: fixed; margin-top: -8px; margin-left: -8px; z-index: 1; border-bottom: 3px solid #666;}
 .top_nav_spacer {display: block; height: 110px; }
@@ -194,7 +212,7 @@ label, .full_width {clear: both; display: block; }
 label#skip_next_hunt, label#float_right_toggle {text-align:center; border: 1px solid #999; padding: 10px;  }
 
 button, #user_error_msg, .full_width {width: 90%; margin: 5%; }
-.min_width {width: auto; padding: 5px; }
+.min_width {min-width: 5%; padding: 5px; }
 
 select {width: auto; margin-left: 20px; font-size: 60px; }
 
@@ -236,6 +254,106 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
 /* meta specifc styles */
 #saved_dialog {position: fixed; margin-top: 30%; margin-left: 40%; height: auto; width: 20%; padding: 20px; border: 3px solid; outline: none; display: none; }
 
+/*  genealogy styles */
+div.tree {float: left; margin: 0; margin-bottom: 30px; }
+
+.tree ul {
+    padding-top: 20px; position: relative;
+    
+    transition: all 0.5s;
+    -webkit-transition: all 0.5s;
+    -moz-transition: all 0.5s;
+}
+
+.tree li {
+    float: left; text-align: center;
+    list-style-type: none;
+    position: relative;
+    padding: 20px 5px 0 5px;
+    
+    transition: all 0.5s;
+    -webkit-transition: all 0.5s;
+    -moz-transition: all 0.5s;
+}
+
+/*We will use ::before and ::after to draw the connectors*/
+
+.tree li::before, .tree li::after{
+    content: '';
+    position: absolute; top: 0; right: 50%;
+    border-top: 1px solid #ccc;
+    width: 50%; height: 20px;
+}
+.tree li::after{
+    right: auto; left: 50%;
+    border-left: 1px solid #ccc;
+}
+
+/*We need to remove left-right connectors from elements without 
+any siblings*/
+.tree li:only-child::after, .tree li:only-child::before {
+    display: none;
+}
+
+/*Remove space from the top of single children*/
+.tree li:only-child{ padding-top: 0;}
+
+/*Remove left connector from first child and 
+right connector from last child*/
+.tree li:first-child::before, .tree li:last-child::after{
+    border: 0 none;
+}
+/*Adding back the vertical connector to the last nodes*/
+.tree li:last-child::before{
+    border-right: 1px solid #ccc;
+    border-radius: 0 5px 0 0;
+    -webkit-border-radius: 0 5px 0 0;
+    -moz-border-radius: 0 5px 0 0;
+}
+.tree li:first-child::after{
+    border-radius: 5px 0 0 0;
+    -webkit-border-radius: 5px 0 0 0;
+    -moz-border-radius: 5px 0 0 0;
+}
+
+/*Time to add downward connectors from parents*/
+.tree ul ul::before{
+    content: '';
+    position: absolute; top: 0; left: 50%;
+    border-left: 1px solid #ccc;
+    width: 0; height: 20px;
+}
+
+.tree li a{
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    text-decoration: none;
+    color: #666;
+    font-family: arial, verdana, tahoma;
+    font-size: 11px;
+    display: inline-block;
+    
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    
+    transition: all 0.5s;
+    -webkit-transition: all 0.5s;
+    -moz-transition: all 0.5s;
+}
+
+/*Time for some hover effects*/
+/*We will apply the hover effect the the lineage of the element also*/
+.tree li a:hover, .tree li a:hover+ul li a {
+    background: #c8e4f8; color: #000; border: 1px solid #94a0b4;
+}
+/*Connector styles on hover*/
+.tree li a:hover+ul li::after, 
+.tree li a:hover+ul li::before, 
+.tree li a:hover+ul::before, 
+.tree li a:hover+ul ul::before{
+    border-color:  #94a0b4;
+}
 
 
 
@@ -248,12 +366,14 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
     /* CSS 'reset' */
     input, input[type=text] {font-size: 13pt; width: auto; height: auto; }
     button {font-size: 12pt; padding: 1%; }
+    button.tiny_button {font-size: 9pt; }
     body {background: 0 none; }
     .desktop_only {display: inline-block;}
     .mobile_only {display: none;}
     .left_margin, .right_margin {height: auto;}
     .left_border, .right_border {height: auto;}
     input[type=text].full_width {width: 88%}
+    ul {font-size: 12pt;}
     h1 {font-size: 18pt; }
     h2 {font-size: 15pt; }
     h3 {font-size: 13pt; }
@@ -272,22 +392,24 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
 
     /* general style */
     button.change_view {margin-left: 3%; width: 20%; }
-    #floating_refresh_button, #save_button, #floating_dashboard_button, .floating_asset_button {position: fixed; top: 1%; margin: 0 auto; height: auto; width: auto; padding: 5px; border: 2px solid; opacity: 1; z-index: 101; }
+    #floating_event_log_button, #floating_refresh_button, #save_button, #floating_dashboard_button, .floating_asset_button {position: fixed; top: 1%; margin: 0 auto; height: auto; width: auto; padding: 5px; border: 2px solid; opacity: 1; z-index: 101; }
     #floating_dashboard_button {left: 83%;}
     .floating_asset_button {left: 1%; }
     #save_button {left: 40%; width: 300px; }
     #floating_refresh_button {width: 50px; left: 60%; height: 31px;}
+    #floating_event_log_button {width: auto; left: 25%;}
 
     /* sign-in styles */
-    body.sign_in {background: none; background-color: #aaa; }
-    div#sign_in_container {background: linear-gradient(#aaa, #222); width: 30%; margin: 0 auto; margin-top: 10%; padding: 1%; height: 600px; }
+    body.sign_in {background: none; background-color: #999; }
+    div#sign_in_container {background: linear-gradient(#999, #111); width: 400px; margin: 0 auto; margin-top: 10%; padding: 1%; height: 650px; }
     h1.seo {color: #fff; font-size: 15pt; text-align: center; margin-top: 0 none; font-weight: normal; }
     h2.seo {color: #fff; font-size: 18pt; border: 0 none;  text-align: center; margin-bottom: -10px; font-weight: normal; }
     div#sign_in_controls {width:90%; height: 50%; margin: 0 auto; margin-top: 60%; padding: 0 none; text-align: center; }
-    input.sign_in {background-color:rgba(22, 22, 22, 0.3); color: #FFF; margin: 0 auto;  width: 90%; border: 0 none; margin-bottom: 1%;  padding: 0 none; padding-left: 5%; border-bottom: 2px solid #666; border-right: 2px solid #666;}
-    button.sign_in {width: 95%; margin: 0 auto; padding: 0 none; font-weight: normal; }
+    input.sign_in {background-color:rgba(22, 22, 22, 0.3); color: #FFF; margin: 0 auto;  width: 90%; margin-bottom: 1%;  padding: 0 none; padding-left: 5%;}
+    button.sign_in {width: 95%; margin: 0 auto; padding: 0 none; font-weight: normal; border: 0; font-weight: bold; border-bottom: 1px solid #666; border-right: 1px solid #666; }
+    img.sign_in {margin: 0 auto; z-index: -0; position: absolute; margin-top: -253px; margin-left: -130px;}
 
-    #user_error_msg {width: 25%; font-size: 12pt; right: 32%;}
+    #user_error_msg {width: 25%; font-size: 12pt; right: 32%; top: -10px; z-index: 0;}
 
     /*  dashboard styles */
     .dashboard_world_defeated_monsters {width: 50%; }
@@ -313,6 +435,8 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
     .dashboard_down_arrow {margin: 0 none; margin-top: 5px; margin-right: 5px;}
 
     /* settlement styles */
+    table.settlement_event_log {margin: 0; width: 90; margin-left: 30px; border-collapse: collapse;}
+    table.settlement_event_log td {padding: 3px;} 
     h1.settlement_name { text-align: left; margin-left: 20px; width: auto; display: inline-block;  margin-top: 55px; font-size: 22pt; margin-bottom: 40px; }
     span.vertical_spacer {width: 100%; height: 1px; margin: 0 auto; display: block; }
     span.nav_bar {position: fixed; top: 0; left: 0; width: 100%; min-height: 50px;  opacity: 1; border-bottom: 3px solid #666; z-index: 100; }
@@ -377,6 +501,8 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
     div.settlement_form_wide_box { float: left; width: 300px; height: 70px; margin: 0 auto; padding-top: 5px;}
     fieldset.settlement_principle {margin: 0 auto; padding: 0px; padding-left: 20px;  margin-bottom: 10px; }
     fieldset.settlement_principle input[type=radio] {display: none; }    
+    span.genealogy_survivor {font-size: 11pt; }
+    .tree {font-size: 11pt;}
 
     /* panel styles */
     #panel_meta_stats, .panel_recent_user {font-size: 12pt; border-collapse: collapse; float: left; }
