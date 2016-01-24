@@ -3,6 +3,7 @@
 from bson.objectid import ObjectId
 from bson import json_util
 from copy import copy
+from collections import defaultdict
 from cStringIO import StringIO
 from datetime import datetime
 from gridfs import GridFS
@@ -135,9 +136,24 @@ class User:
 
         assets_dict = {
             "user": self.user,
-            "survivors": [s for s in mdb.survivors.find({"created_by": self.user["_id"]})],
-            "settlements": [s for s in mdb.settlements.find({"created_by": self.user["_id"]})],
+            "settlements": list(mdb.settlements.find({"created_by": self.user["_id"]})),
+            "settlement_events": list(mdb.settlement_events.find({"created_by": self.user["_id"]})),
         }
+
+        # get all survivors (including those created by other users) for the
+        #   user's settlements; then get all survivors created by the user.
+        assets_dict["survivors"] = []
+        for s in assets_dict["settlements"]:
+            assets_dict["settlement_events"].extend(mdb.settlement_events.find({"settlement_id": s["_id"]}))
+            survivors = mdb.survivors.find({"settlement": s["_id"]})
+            assets_dict["survivors"].extend(survivors)
+        other_survivors = mdb.survivors.find({"created_by": self.user["_id"]})
+        for s in other_survivors:
+            if s not in assets_dict["survivors"]:
+                assets_dict["survivors"].append(s)
+        self.logger.debug("Dumping %s survivors for %s" % (len(assets_dict["survivors"]), self.get_name_and_id()))
+
+
 
         if dump_type == "pickle":
             return pickle.dumps(assets_dict)
@@ -414,6 +430,32 @@ class Survivor:
                 if spec_str not in self.survivor["abilities_and_impairments"]:
                     self.survivor["abilities_and_impairments"].append(spec_str)
                     self.logger.debug("Auto-applied settlement default '%s' to survivor '%s'." % (spec_str, self.survivor["name"]))
+
+        # if the survivor is legacy data model, he doesn't have a born_in_ly
+        #   attrib, so we have to get him one:
+        if not "born_in_ly" in self.survivor.keys():
+            self.logger.warn("%s has no 'born_in_ly' value!" % self.get_name_and_id())
+            if "father" not in self.survivor.keys() and "mother" not in self.survivor.keys():
+                self.logger.warn("Defaulting birth year to 1 for %s" % self.get_name_and_id())
+                self.survivor["born_in_ly"] = 1
+            parent_birth_years = [1]
+            for p in ["father","mother"]:
+                if p in self.survivor.keys():
+                    P = assets.Survivor(survivor_id=self.survivor[p], session_object=self.Session)
+                    if not "born_in_ly" in P.survivor.keys():
+                        self.logger.warn("%s has no 'born_in_ly' value!" % P.get_name_and_id())
+                    else:
+                        self.logger.debug("%s %s was born in LY %s" % (p.capitalize(), P.get_name_and_id(), P.survivor["born_in_ly"]))
+                        parent_birth_years.append(P.survivor["born_in_ly"])
+            self.logger.debug("Highest parent birth year is %s for %s" % (max(parent_birth_years), self.get_name_and_id()))
+            self.survivor["born_in_ly"] = max(parent_birth_years) + 1
+            self.logger.warn("Defaulting borth year to %s for %s" % (self.survivor["born_in_ly"], self.get_name_and_id()))
+
+        # if "father" or "mother" keys aren't Object ID's, we need to normalize them:
+        for p in ["father","mother"]:
+            if p in self.survivor.keys() and type(self.survivor[p]) == unicode:
+                self.logger.warn("Normalizing unicode '%s' value to bson ObjectID for %s" % (p, self.get_name_and_id()))
+                self.survivor[p] = ObjectId(self.survivor[p])
 
         mdb.survivors.save(self.survivor)
 
@@ -979,9 +1021,35 @@ class Survivor:
         return list(impairment_set)
 
 
+    def get_parents(self, return_type=None):
+        """ Uses assets.Settlement.get_ancestors() sort of like the new Survivor
+        creation screen to allow parent changes. """
+
+        parents = []
+        for p in ["father","mother"]:
+            if p in self.survivor.keys():
+                parents.append(self.survivor[p])
+
+        if return_type == "html_select":
+            output = ""
+            for role in [("father", "M"), ("mother", "F")]:
+                output += html.survivor.change_ancestor_select_top.safe_substitute(parent_role=role[0], pretty_role=role[0].capitalize())
+                for s in self.Settlement.get_survivors():
+                    S = assets.Survivor(survivor_id=s["_id"], session_object=self.Session)
+                    if S.get_sex() == role[1]:
+                        selected = ""
+                        if S.survivor["_id"] in parents:
+                            selected = "selected"
+                        output += html.survivor.change_ancestor_select_row.safe_substitute(parent_id=S.survivor["_id"], parent_name=S.survivor["name"], selected=selected)
+                output += html.survivor.add_ancestor_select_bot
+            return output
+
+        return parents
+
     def get_children(self, return_type=None):
         """ Returns a dictionary of the survivor's children. """
         children = set()
+        children_raw = []
         survivors = self.Settlement.get_survivors()
         for s in survivors:
             survivor_parents = []
@@ -997,8 +1065,10 @@ class Survivor:
                     if other_parent is not None:
                         O = assets.Survivor(survivor_id=other_parent, session_object=self.Session)
                         children.add("%s (with %s)" % (s["name"], O.survivor["name"]))
+                        children_raw.append(s)
                     else:
                         children.add(s["name"])
+                        children_raw.append(s)
 
         if return_type == "html":
             if children == set():
@@ -1006,7 +1076,7 @@ class Survivor:
             else:
                 return "<p>%s<p>" % (", ".join(list(children)))
 
-        return list(children)
+        return list(children_raw)
 
     def get_sex(self, return_type=None):
         """ Gets the survivor's sex. Takes abilities_and_impairments into
@@ -1411,6 +1481,7 @@ class Survivor:
                 ),
             remove_abilities_and_impairments = self.get_abilities_and_impairments("html_select_remove"),
 
+            parents = self.get_parents(return_type="html_select"),
             children = self.get_children(return_type="html"),
             cause_of_death = COD,
             show_COD = COD_div_display_style,
@@ -1651,6 +1722,8 @@ class Settlement:
                     male_parent = True
                 elif S.get_sex() == "F" and "dead" not in S.survivor.keys():
                     female_parent = True
+        else:
+            return False
 
         if not (male_parent and female_parent):
             return ""
@@ -1666,6 +1739,190 @@ class Settlement:
             output += html.survivor.add_ancestor_bot
             return output
 
+    def get_genealogy(self, return_type=False):
+        """ Creates a dictionary of the settlement's various clans. """
+
+        # helper func to render survivors as html spans
+        def survivor_to_span(S, display="inline"):
+            """ Turns a survivor into an HTML span for genealogy use. """
+            span = ""
+            class_color = ""
+            born = ""
+            if "born_in_ly" in S.survivor.keys():
+                born = "- born in LY %s" % S.survivor["born_in_ly"]
+            dead = ""
+            if "dead" in S.survivor.keys():
+                class_color = ""
+                dead = "- died"
+                if "died_in" in S.survivor.keys():
+                    dead = "- died in LY %s" % S.survivor["died_in"]
+
+            span += html.settlement.genealogy_survivor_span.safe_substitute(
+                name=S.get_name_and_id(include_sex=True, include_id=False),
+                dead = dead,
+                born = born,
+                class_color=class_color,
+                display=display,
+            )
+            return span
+
+        # now, start the insanity:
+        genealogy = {"has_no_parents": set(), "is_a_parent": set(), "has_no_children": set(), "no_family": set(), "founders": set(), "parent_pairs": set(), "tree": [], "has_parents": set(),}
+
+        survivors = list(self.get_survivors())
+
+        # determine who has no parents
+        for s in survivors:
+            if not "father" in s.keys() and not "mother" in s.keys():
+                genealogy["has_no_parents"].add(s["_id"])
+            else:
+                genealogy["has_parents"].add(s["_id"])
+
+        # determine who IS a parent
+        for s in survivors:
+            for parent in ["father","mother"]:
+                if parent in s.keys():
+                    genealogy["is_a_parent"].add(s[parent])
+
+        # ...and use that to figure out who is NOT a parent
+        for s in survivors:
+            if s["_id"] not in genealogy["is_a_parent"]:
+                genealogy["has_no_children"].add(s["_id"])
+
+        # ...and then create our list of no family survivors
+        for s in survivors:
+            if s["_id"] in genealogy["has_no_parents"] and s["_id"] in genealogy["has_no_children"]:
+                genealogy["no_family"].add(s["_id"])
+
+        # ...and finally determine who the settlement founders are
+        for s in survivors:
+            if s["_id"] in genealogy["has_no_parents"] and s["born_in_ly"] == 1:
+                genealogy["founders"].add(s["_id"])
+
+        # create a set of parent "pairs"; also include single parents, in case
+        #   anyone's been a clever dick (looking at you, Kendal)
+        for s in survivors:
+            if "father" in s.keys() and "mother" in s.keys():
+                genealogy["parent_pairs"].add((s["father"], s["mother"]))
+            if "father" in s.keys() and "mother" not in s.keys():
+                genealogy["parent_pairs"].add((s["father"]))
+            if "mother" in s.keys() and "father" not in s.keys():
+                genealogy["parent_pairs"].add((s["mother"]))
+
+        generation = 0
+        generations = {}
+        for s in genealogy["founders"]:
+#            self.logger.debug("%s is a founder." % s)
+            generations[s] = 0
+
+        everyone = list(self.get_survivors("chronological_order").sort("created_on",-1))
+        loops = 0
+        while everyone != []:
+            for s in everyone:
+                if s["_id"] in generations.keys():
+                    everyone.remove(s)
+                elif s["_id"] in genealogy["no_family"]:
+                    everyone.remove(s)
+                elif "father" in s.keys() and s["father"] in generations.keys():
+                    generations[s["_id"]] = generations[s["father"]] + 1
+                elif "mother" in s.keys() and s["mother"] in generations.keys():
+                    generations[s["_id"]] = generations[s["mother"]] + 1
+                # and now we start the wild and wolly batshit insanity for
+                # handling incomplete records and single parents
+                elif s["_id"] in genealogy["is_a_parent"]:
+                    for parent_pair in genealogy["parent_pairs"]:
+                        if type(parent_pair) == tuple and s["_id"] in parent_pair:
+#                            self.logger.debug("%s belongs to parent pair %s" % (s["name"], parent_pair))
+                            for partner in parent_pair:
+                                if partner in generations.keys():
+                                    generations[s["_id"]] = generations[partner]
+                    S = Survivor(survivor_id=s["_id"], session_object=self.Session)
+                    for child in S.get_children():
+                        if child["_id"] in generations.keys():
+                            generations[s["_id"]] = generations[child["_id"]] + 1
+                else:
+                    if loops >= 5:
+                        self.logger.debug("Unable to determine generation for %s after %s loops." % (s["name"], loops))
+            loops += 1
+            if loops == 10:
+                self.logger.error("Settlement %s hit %s loops while calculating generations!" % (self.get_name_and_id(), loops))
+                self.logger.debug(generations)
+#                for survivor in everyone:
+#                    self.logger.error("Could not determine generation for '%s' -> %s" % (survivor["name"], survivor["_id"]))
+                return "<p>Recursion limit met while calculating generations! This typically occurs when Survivor records do not contain complete mother/father information or are unavailable (i.e. permanently deleted). Please update your Survivor Sheets with survivor parent information and try again.</p>"
+
+        # now, finally, start creating representations of the genealogy
+        genealogy["tree"] = ""
+        genealogy["summary"] = ""
+        for generation in sorted(list(set(generations.values())))[:-1]:
+            genealogy["summary"] += '<h4>Generation %s</h4>' % generation
+            generators = set()
+            for s, s_gen in generations.iteritems():
+                if s_gen == generation:
+                    for parent_pair in genealogy["parent_pairs"]:
+                        if type(parent_pair) == tuple and s in parent_pair:
+                            generators.add(parent_pair)
+            for parent_pair in generators:
+                try:
+                    parent_pair_list = [Survivor(survivor_id=p, session_object=self.Session).get_name_and_id(include_id=False, include_sex=True) for p in parent_pair]
+                except TypeError:
+                    parent_pair_list = [Survivor(survivor_id=p, session_object=self.Session).get_name_and_id(include_id=False, include_sex=True)]
+                parent_pair_string = " and ".join(parent_pair_list)
+                children = []
+                for s in genealogy["has_parents"]:
+                    if generations[s] == generation + 1:
+                        S = Survivor(survivor_id=s, session_object=self.Session)
+                        parent_tuple = None
+                        if "father" in S.survivor.keys() and "mother" in S.survivor.keys():
+                            parent_tuple = (S.survivor["father"], S.survivor["mother"])
+                        if "father" in S.survivor.keys() and "mother" not in S.survivor.keys():
+                            parent_tuple = (S.survivor["father"])
+                        if "father" not in S.survivor.keys() and "mother" in S.survivor.keys():
+                            parent_tuple = (S.survivor["mother"])
+                        if parent_tuple == parent_pair:
+                            children.append(S)
+
+                def generation_html(children_list, recursion=False):
+                    """ Helper that makes ul's of survivors. """
+                    output = '<ul>\n'
+                    if children_list == []:
+                        return ""
+                    for child in children_list:
+                        grand_children = [Survivor(survivor_id=c["_id"], session_object=self.Session) for c in child.get_children()]
+                        gc_html = generation_html(grand_children, recursion=recursion)
+                        if not recursion:
+                            gc_html = ""
+#                        output += '\n\t<li><a>LY %s: %s</a> %s</li>' % (child.survivor["born_in_ly"], child.get_name_and_id(include_sex=True, include_id=False), gc_html)
+                        output += '\n\t<a><li>%s</li></a>\n' % survivor_to_span(child)
+                    output += '</ul>\n'
+                    return output
+
+                if children != []:
+                    genealogy["tree"] += '\t<div class="tree desktop_only">\n<ul><li><a>%s</a>\n\t\t' % parent_pair_string
+                    genealogy["tree"] += generation_html(children)
+                    genealogy["tree"] += '\n\t</li>\n</ul></div><!-- tree -->\n'
+                    genealogy["summary"] += '<p>&ensp; %s gave birth to:</p>' % parent_pair_string
+                    genealogy["summary"] += "<p>%s</p>" % generation_html(children, recursion=False)
+
+            genealogy["summary"] += "<hr/>"
+            genealogy["tree"] += '<hr class="desktop_only"/>'
+
+
+
+
+        if return_type == "html_no_family":
+            output = html.settlement.genealogy_headline.safe_substitute(value="No Family Affiliation")
+            sorted_survivor_list = mdb.survivors.find({"_id": {"$in": list(genealogy["no_family"])}}).sort("created_on")
+            for s in sorted_survivor_list:
+                S = assets.Survivor(survivor_id=s["_id"], session_object=self.Session)
+                output += survivor_to_span(S, display="block")
+            return output
+        if return_type == "html_tree":
+            return genealogy["tree"]
+        if return_type == "html_generations":
+            return genealogy["summary"]
+
+        return genealogy
 
 
     def get_locations(self, return_type=False):
@@ -1959,6 +2216,15 @@ class Settlement:
         return quarries
 
 
+    def get_settlement_notes(self):
+        """ Returns the settlement's notes. Assumes an HTML target. """
+
+        if not "settlement_notes" in self.settlement:
+            return ""
+        else:
+            return self.settlement["settlement_notes"]
+
+
     def get_survivors(self, return_type=False, user_id=None, exclude=[], exclude_dead=False):
         """ Returns the settlement's survivors. Leave 'return_type' unspecified
         if you want a mongo cursor object back. """
@@ -2133,6 +2399,9 @@ class Settlement:
                     output += html.settlement.return_hunting_party.safe_substitute(settlement_id=self.settlement["_id"])
                     output += html.settlement.hunting_party_macros.safe_substitute(settlement_id=self.settlement["_id"])
             return output + html.settlement.campaign_summary_survivors_bot
+
+        if return_type == "chronological_order":
+            return mdb.survivors.find(query).sort("created_on")
 
         return survivors
 
@@ -2547,7 +2816,8 @@ class Settlement:
             elif p == "remove_defeated_monster":
                 self.rm_game_asset("defeated_monsters", game_asset_key)
             elif p == "add_quarry":
-                self.settlement["quarries"].append(params[p].value)
+                self.settlement["quarries"].append(game_asset_key)
+                self.log_event("%s added to settlement Quarry List" % game_asset_key)
             elif p == "add_nemesis":
                 self.settlement["nemesis_monsters"][params[p].value] = []
             elif p == "increment_nemesis":
@@ -2556,7 +2826,7 @@ class Settlement:
                 self.add_game_asset("storage", game_asset_key, params["add_item_quantity"].value)
             elif p == "remove_item" and not "add_item" in params:
                 self.settlement["storage"].remove(game_asset_key)
-                self.logger.debug("Removing %s from settlement %s storage" % (game_asset_key, self.settlement["_id"]))
+                self.logger.debug("%s removed %s from settlement %s storage" % (self.User.get_name_and_id(), game_asset_key, self.get_name_and_id()))
             elif p == "add_innovation":
                 self.add_game_asset("innovations", game_asset_key)
             elif p == "remove_innovation":
@@ -2599,7 +2869,7 @@ class Settlement:
                 break
             else:
                 self.settlement[p] = game_asset_key
-                self.logger.debug("%s set '%s' = '%s' for settlement '%s' (%s)." % (self.User.user["login"], p, game_asset_key, self.settlement["name"], self.settlement["_id"]))  # this is crazy noisy; only uncomment for serious CLI debugging
+                self.logger.debug("%s set '%s' = '%s' for settlement '%s' (%s)." % (self.User.user["login"], p, game_asset_key, self.settlement["name"], self.settlement["_id"]))
 
         #
         #   settlement post-processing starts here!
@@ -2632,6 +2902,9 @@ class Settlement:
         event_log += html.settlement.event_table_bot
 
         output = html.settlement.event_log.safe_substitute(
+            generations = self.get_genealogy("html_generations"),
+            family_tree = self.get_genealogy("html_tree"),
+            no_family = self.get_genealogy("html_no_family"),
             log_lines = event_log,
             settlement_name = self.settlement["name"],
         )
@@ -2644,6 +2917,7 @@ class Settlement:
 
         output = html.settlement.summary.safe_substitute(
             export_xls = html.settlement.export_button.safe_substitute(export_type="XLS", export_pretty_name="Export to XLS", asset_id=self.settlement["_id"]),
+            settlement_notes = self.get_settlement_notes(),
             settlement_name=self.settlement["name"],
             principles = self.get_principles("comma-delimited"),
             population = self.settlement["population"],
@@ -2762,6 +3036,7 @@ class Settlement:
             min_survival_limit = self.get_min("survival_limit"),
             death_count = deaths,
             lost_settlements = self.settlement["lost_settlements"],
+            settlement_notes = self.get_settlement_notes(),
 
             survivors = self.get_survivors(return_type="html_campaign_summary"),
 

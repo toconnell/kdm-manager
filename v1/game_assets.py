@@ -1570,7 +1570,7 @@ innovations = {
 quarries = {
     "White Lion": {"tokens": ["LION","WHITE"], "sort_order": 1},
     "Screaming Antelope": {"tokens": ["ANTELOPE","SCREAMING"], "sort_order": 2},
-    "Phoenix": {"tokens": ["PHOENIX"], "sort_order": 3},
+    "Phoenix": {"tokens": ["PHOENIX","PHONIEX"], "sort_order": 3},
 }
 
 nemeses = {

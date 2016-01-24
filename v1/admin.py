@@ -542,6 +542,13 @@ def import_data(data_pickle_path):
         mdb.survivors.save(survivor)
     print(" %s survivors imported." % imported_survivors)
 
+    imported_settlement_events = 0
+    print(" Importing settlement events...")
+    for settlement_event in data["settlement_events"]:
+        imported_settlement_events += 1
+        mdb.settlement_events.save(settlement_event)
+    print(" %s settlement event log entries imported." % imported_settlement_events)
+
     mdb.sessions.remove({"login": data["user"]["login"]})
     print(" Removed session(s) belonging to incoming user.")
 

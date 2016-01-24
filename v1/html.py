@@ -200,7 +200,7 @@ class dashboard:
     <div class="dashboard_menu">
         <h2 class="clickable gradient_blue" onclick="showHide('world_div')"> <img class="dashboard_icon" src="%s/icons/world.png"/> World %s</h2>
         <div id="world_div" style="display: none;" class="dashboard_accordion gradient_blue">
-        <p>$total_users users are registered; there are currently $total_sessions active game sessions.</p><hr/>
+        <p>$total_users users are registered; $total_sessions users have managed campaigns in the last 12 hours.</p><hr/>
         <p>$active_settlements settlements are holding fast; $abandoned_settlements settlements have been abandoned.</p><hr/>
         <p>$live_survivors survivors are alive and fighting; $dead_survivors have perished.</p><hr/>
         <p>Latest fatality:<br/><br/>
@@ -280,7 +280,9 @@ class survivor:
     \n""")
     add_ancestor_top = '    <div id="block_group">\n    <h2>Survivor Parents</h2>\n'
     add_ancestor_select_top = Template('\t<select name="$parent_role">\n\t<option selected disabled hidden value="">$pretty_role</option>')
+    change_ancestor_select_top = Template('\t<select onchange="this.form.submit()" name="$parent_role">\n\t<option selected disabled hidden value="">$pretty_role</option>')
     add_ancestor_select_row = Template('\t<option value="$parent_id">$parent_name</option>\n')
+    change_ancestor_select_row = Template('\t<option value="$parent_id" $selected>$parent_name</option>\n')
     add_ancestor_select_bot = '\t</select><br class="mobile_only"/><br class="mobile_only"/>'
     add_ancestor_bot = '    </div>\n'
     campaign_summary_hide_show = Template("""\n\
@@ -709,11 +711,21 @@ class survivor:
             </p>
 
             <hr />
-            <h3>Children</h3>
+
+            <a id="edit_lineage" class="mobile_only"></a>
+
+            <h3>Lineage</h3>
+            <h4>Parents</h4>
+            <form method="POST" action="#edit_lineage">
+              <input type="hidden" name="modify" value="survivor" />
+              <input type="hidden" name="asset_id" value="$survivor_id" />
+              $parents
+            </form>
+            <h4>Children</h4>
             $children
             <hr />
             <h3>Permissions</h3>
-            <form method="POST" id="autoForm" action="#edit_abilities">
+            <form method="POST" id="autoForm" action="#edit_lineage">
               <input type="hidden" name="form_id" value="survivor_edit_abilities"/>
               <input type="hidden" name="modify" value="survivor" />
               <input type="hidden" name="asset_id" value="$survivor_id" />
@@ -844,10 +856,19 @@ class settlement:
         <span class="top_nav_spacer mobile_only"> hidden </span>
         <h1 class="settlement_name"> $settlement_name Event Log</h1>
         $log_lines
+        <hr class="mobile_only"/>
+        <h1 class="settlement_name"> $settlement_name Lineage and Intimacy Records</h1>
+        <p>Survivor ancestry is represented below by organizing survivors into "generations". <b>Intimacy</b> partners are organized into generations according to the Lantern Year in which they are born: in each generation, all children of those partners are shown. Generations are separated by a horizontal rule. The "family tree" style view of survivor generations is only available at wide/desktop resolution.</p>
+        <hr class="mobile_only"/>
+        $family_tree
+        $generations
+        $no_family
         \n""")
     event_table_top = '<table class="settlement_event_log"><tr><th>LY</th><th>Event</th></tr>\n'
     event_table_row = Template('<tr class="zebra_$zebra"><td>$ly</td><td>$event</td></tr>\n')
     event_table_bot = '</table>\n\n'
+    genealogy_headline = Template('\n<h3 class="$h_class">$value</h3>\n')
+    genealogy_survivor_span = Template('\t<span class="genealogy_survivor $class_color" style="display:$display"><b>$name</b> $born $dead</span>\n')
     summary = Template("""\n\
         <span class="desktop_only nav_bar gradient_purple"></span>
         <span class="gradient_purple nav_bar_mobile mobile_only"></span>
@@ -1231,10 +1252,15 @@ class settlement:
         </div>
         <br class="mobile_only"/>
 
-        <!--
-        $survivors_DISABLED
-        -->
-
+        <hr style="margin-top: 20px; "/>
+        <h3>Settlement Notes</h3>
+        <form id="autoForm" method="POST" action="#edit_lost_settlements">
+        <input type="hidden" name="modify" value="settlement" />
+        <input type="hidden" name="asset_id" value="$settlement_id" />
+        <textarea onchange="this.form.submit()"id="settlement_notes" name="settlement_notes" placeholder="Additional settlement notes">$settlement_notes</textarea>
+        <button class="hidden">Update Notes</button>
+        </form>
+        <hr/>
         <br>
         <hr class="mobile_only"/>
 
