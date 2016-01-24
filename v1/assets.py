@@ -1749,13 +1749,13 @@ class Settlement:
         def survivor_to_span(S, display="inline"):
             """ Turns a survivor into an HTML span for genealogy use. """
             span = ""
-            class_color = ""
+            class_color = "green_text"
             born = ""
             if "born_in_ly" in S.survivor.keys():
                 born = "- born in LY %s" % S.survivor["born_in_ly"]
             dead = ""
             if "dead" in S.survivor.keys():
-                class_color = ""
+                class_color = "maroon_text"
                 dead = "- died"
                 if "died_in" in S.survivor.keys():
                     dead = "- died in LY %s" % S.survivor["died_in"]
