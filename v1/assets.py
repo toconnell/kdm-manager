@@ -1063,9 +1063,12 @@ class Survivor:
                     if survivor_parents != []:
                         other_parent = survivor_parents[0]
                     if other_parent is not None:
-                        O = assets.Survivor(survivor_id=other_parent, session_object=self.Session)
-                        children.add("%s (with %s)" % (s["name"], O.survivor["name"]))
-                        children_raw.append(s)
+                        try:
+                            O = assets.Survivor(survivor_id=other_parent, session_object=self.Session)
+                            children.add("%s (with %s)" % (s["name"], O.survivor["name"]))
+                            children_raw.append(s)
+                        except:
+                            pass
                     else:
                         children.add(s["name"])
                         children_raw.append(s)
