@@ -6,7 +6,7 @@ from copy import copy
 from collections import defaultdict
 from cStringIO import StringIO
 from datetime import datetime
-from gridfs import GridFS
+import gridfs
 from hashlib import md5
 from PIL import Image
 import json
@@ -132,17 +132,22 @@ class User:
 
 
     def dump_assets(self, dump_type=None):
-        """ Returns a dictionary representation of a user's complete assets. """
+        """ Returns a dictionary representation of a user's complete assets. Due
+        to the...kind of arbitrary design of things, this is a multi-stage sort
+        of export: first we get the user info and the user's settlements and
+        settlement events, then we get his survivors in a separate bit of logic.
+        The last thing we do is get his GridFS stuff, e.g. avatars."""
 
         assets_dict = {
             "user": self.user,
             "settlements": list(mdb.settlements.find({"created_by": self.user["_id"]})),
             "settlement_events": list(mdb.settlement_events.find({"created_by": self.user["_id"]})),
+            "survivors": [],
+            "avatars": [],
         }
 
         # get all survivors (including those created by other users) for the
         #   user's settlements; then get all survivors created by the user.
-        assets_dict["survivors"] = []
         for s in assets_dict["settlements"]:
             assets_dict["settlement_events"].extend(mdb.settlement_events.find({"settlement_id": s["_id"]}))
             survivors = mdb.survivors.find({"settlement": s["_id"]})
@@ -153,8 +158,27 @@ class User:
                 assets_dict["survivors"].append(s)
         self.logger.debug("Dumping %s survivors for %s" % (len(assets_dict["survivors"]), self.get_name_and_id()))
 
+        # now we have to go to GridFS to get avatars
+        for s in assets_dict["survivors"]:
+            if "avatar" in s.keys():
+                try:
+                    img = gridfs.GridFS(mdb).get(ObjectId(s["avatar"]))
+                    img_dict = {
+                        "blob": img.read(),
+                        "_id": ObjectId(s["avatar"]),
+                        "content_type": img.content_type,
+                        "created_by": img.created_by,
+                        "created_on": img.created_on,
+                    }
+                    assets_dict["avatars"].append(img_dict)
+                except gridfs.errors.NoFile:
+                    self.logger.error("Could not retrieve avatar for survivor %s during asset dump!" % s["_id"])
 
+        # some quick debug tallies
+        for a in ["settlements","survivors","avatars"]:
+            self.logger.debug("Added %s %s to asset dump for %s." % (len(assets_dict[a]), a, self.get_name_and_id()))
 
+        # now we (finally) do returns:
         if dump_type == "pickle":
             return pickle.dumps(assets_dict)
         elif dump_type == "json":
@@ -230,8 +254,11 @@ class User:
         game_dict = {}
         for settlement_id in game_list:
             S = assets.Settlement(settlement_id=settlement_id, session_object=self.Session)
-            if not "abandoned" in S.settlement.keys():
-                game_dict[settlement_id] = S.settlement["name"]
+            if S.settlement is not None:
+                if not "abandoned" in S.settlement.keys():
+                    game_dict[settlement_id] = S.settlement["name"]
+            else:
+                self.logger.error("Could not find settlement %s while loading campaigns for %s" % (settlement_id, self.get_name_and_id()))
         sorted_game_tuples = sorted(game_dict.items(), key=operator.itemgetter(1))
 
         for settlement_tuple in sorted_game_tuples:
@@ -313,6 +340,9 @@ class User:
         if "epithets" in latest_fatality.keys() and latest_fatality["epithets"] != []:
             epithets = ", ".join(latest_fatality["epithets"])
             html_epithets = "&ensp; <i>%s</i><br/>" % epithets
+        avatar_img = ""
+        if "avatar" in latest_fatality.keys():
+            avatar_img = '<img class="latest_fatality" src="/get_image?id=%s" alt="%s"/>' % (latest_fatality["avatar"], latest_fatality["name"])
 
         output = html.dashboard.world.safe_substitute(
             defeated_monsters = world.kill_board("html_table_rows"),
@@ -330,6 +360,7 @@ class User:
             dead_xp = latest_fatality["hunt_xp"],
             dead_courage = latest_fatality["Courage"],
             dead_understanding = latest_fatality["Understanding"],
+            avatar = avatar_img,
         )
 
         return output
@@ -456,6 +487,12 @@ class Survivor:
             if p in self.survivor.keys() and type(self.survivor[p]) == unicode:
                 self.logger.warn("Normalizing unicode '%s' value to bson ObjectID for %s" % (p, self.get_name_and_id()))
                 self.survivor[p] = ObjectId(self.survivor[p])
+
+        # delete bogus attribs
+        for a in ["view_game"]:
+            if a in self.survivor.keys():
+                del self.survivor[a]
+                self.logger.debug("Automatically removed bogus key '%s' from %s." % (a, self.get_name_and_id()))
 
         mdb.survivors.save(self.survivor)
 
@@ -585,7 +622,7 @@ class Survivor:
         if run_valkyrie:
             admin.valkyrie()
         if "avatar" in self.survivor.keys():
-            GridFS(mdb).delete(self.survivor["avatar"])
+            gridfs.GridFS(mdb).delete(self.survivor["avatar"])
             self.logger.debug("%s removed an avatar image (%s) from GridFS." % (self.User.user["login"], self.survivor["avatar"]))
         mdb.survivors.remove({"_id": self.survivor["_id"]})
         self.Settlement.log_event("%s has been Forsaken (and permanently deleted) by %s" % (self.get_name_and_id(include_id=False, include_sex=True), self.User.user["login"] ))
@@ -990,7 +1027,7 @@ class Survivor:
             self.logger.error("Avatar update failed! 'survivor_avatar' must be %s instead of %s." % (types.InstanceType, type(file_instance)))
             return None
 
-        fs = GridFS(mdb)
+        fs = gridfs.GridFS(mdb)
 
         if "avatar" in self.survivor.keys():
             fs.delete(self.survivor["avatar"])
@@ -1151,8 +1188,9 @@ class Survivor:
                 "hunt_xp": self.survivor["hunt_xp"],
             }
 
-            if "cause_of_death" in self.survivor.keys():
-                death_dict["cause_of_death"] = self.survivor["cause_of_death"]
+            for optional_attrib in ["avatar","cause_of_death"]:
+                if optional_attrib in self.survivor.keys():
+                    death_dict[optional_attrib] = self.survivor[optional_attrib]
 
             if mdb.the_dead.find_one({"survivor_id": self.survivor["_id"]}) is None:
                 mdb.the_dead.insert(death_dict)

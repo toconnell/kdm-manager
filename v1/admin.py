@@ -2,11 +2,13 @@
 
 from bson.objectid import ObjectId
 from datetime import datetime, timedelta
+import gridfs
 from hashlib import md5
 import operator
 from optparse import OptionParser
 import os
 import cPickle as pickle
+import pymongo
 import socket
 import time
 from validate_email import validate_email
@@ -177,7 +179,8 @@ def dump_document(collection, doc_id):
     document = mdb[collection].find_one({"_id": ObjectId(doc_id)})
     print("")
     for a in sorted(document.keys()):
-        print(" %s%s%s" % (a, " " * (key_length - len(a)), document[a]))
+#        print(" %s%s%s%s %s" % (a, " " * (key_length - len(a)), document[a], " " * (key_length - len(str(document[a]))), type(document[a])))
+        print(" %s%s%s%s%s" % (a, " "*(key_length - len(a)), type(document[a]), " "*(key_length+7 - len(str(type(document[a])))), document[a]))
     print("")
 
 
@@ -286,6 +289,12 @@ def pretty_view_user(u_id):
 
 def initialize():
     """ Completely initializes the application. Scorched earth. """
+    avatars = 0
+    for survivor in mdb.survivors.find():
+        if "avatar" in survivor.keys():
+            gridfs.GridFS(mdb).delete(survivor["avatar"])
+            avatars += 1
+    print("\nRemoved %s avatars from GridFS!" % avatars)
     for collection in ["users", "sessions", "survivors", "settlements", "the_dead", "user_admin"]:
         mdb[collection].remove()
 
@@ -373,6 +382,7 @@ def tail(settlement_id, interval=5, last=20):
         print("")
         sys.exit(1)
 
+
     #
     #   Admin Panel!
     #
@@ -459,6 +469,7 @@ def valkyrie():
     the 'dead' attrib. Tries to get their 'cause_of_death'. """
 
     attribs_of_death = ["Courage", "Understanding", "Insanity", "epithets", "hunt_xp"]
+    options_of_death = ["avatar","cause_of_death"]
 
     for dead in mdb.the_dead.find({"complete": {"$exists": False}}):
         # set the settlement_name attrib
@@ -473,8 +484,9 @@ def valkyrie():
         if survivor_dict is not None:
             for mandatory_attrib in attribs_of_death:
                 dead[mandatory_attrib] = survivor_dict[mandatory_attrib]
-            if "cause_of_death" in survivor_dict.keys():
-                dead["cause_of_death"] = survivor_dict["cause_of_death"]
+            for optional_attrib in options_of_death:
+                if optional_attrib in survivor_dict.keys():
+                    dead[optional_attrib] = survivor_dict[optional_attrib]
 
         # determine if the death record is complete
         complete_rec = True
@@ -526,28 +538,42 @@ def import_data(data_pickle_path):
     print("\n Importing user %s (%s)" % (data["user"]["login"], data["user"]["_id"]))
     if "current_session" in data["user"].keys():
         del data["user"]["current_session"]
-    mdb.users.save(data["user"])
+    try:
+        mdb.users.save(data["user"])
+    except pymongo.errors.DuplicateKeyError:
+        print(" User login '%s' exists under a different user ID!\n Cannot import user data in %s.\n Exiting...\n" % (data["user"]["login"], data_pickle_path))
+        sys.exit(255)
 
-    imported_settlements = 0
-    for settlement in data["settlements"]:
-        print(" Importing settlement '%s' (%s)" % (settlement["name"], settlement["_id"]))
-        imported_settlements += 1
-        mdb.settlements.save(settlement)
-    print(" %s settlements imported." % imported_settlements)
+    def import_assets(asset_name):
+        """ Helper function to import assets generically.
 
-    imported_survivors = 0
-    for survivor in data["survivors"]:
-        print(" Importing survivor '%s' (%s)" % (survivor["name"], settlement["_id"]))
-        imported_survivors += 1
-        mdb.survivors.save(survivor)
-    print(" %s survivors imported." % imported_survivors)
+        The 'asset_name' arg should be something like "settlement_events" or
+        "survivors" or "settlements", i.e. one of the keys in the incoming
+        'assets_dict' dictionary (called 'data' here). """
 
-    imported_settlement_events = 0
-    print(" Importing settlement events...")
-    for settlement_event in data["settlement_events"]:
-        imported_settlement_events += 1
-        mdb.settlement_events.save(settlement_event)
-    print(" %s settlement event log entries imported." % imported_settlement_events)
+        imported_assets = 0
+        print(" Importing %s assets..." % asset_name)
+        for asset in data[asset_name]:
+            imported_assets += 1
+            mdb[asset_name].save(asset)
+        print(" %s %s assets imported." % (imported_assets, asset_name))
+
+    import_assets("settlements")
+    import_assets("settlement_events")
+    import_assets("survivors")
+
+    # sanity check survivor imports here
+    for s in mdb.survivors.find():
+        if mdb.settlements.find_one({"_id": s["settlement"]}) is None:
+            print(" Survivor %s belongs to a non-existent settlement (%s).\n  Removing survivor %s from mdb..." % (s["_id"], s["settlement"], s["_id"]))
+            mdb.survivors.remove({"_id": s["_id"]})
+
+    # import avatars here
+    imported_avatars = 0
+    for avatar in data["avatars"]:
+        gridfs.GridFS(mdb).put(avatar["blob"], _id=avatar["_id"], content_type=avatar["content_type"], created_by=avatar["created_by"], created_on=avatar["created_on"])
+        imported_avatars += 1
+    print(" Imported %s avatars!" % imported_avatars)
 
     mdb.sessions.remove({"login": data["user"]["login"]})
     print(" Removed session(s) belonging to incoming user.")
@@ -561,7 +587,6 @@ def import_data(data_pickle_path):
         print(" Password has NOT been reset.")
 
     print(" Import complete!")
-    logger.critical("Imported user '%s' (%s): %s assets loaded!" % (data["user"]["login"], data["user"]["_id"], imported_settlements+imported_survivors))
 
 
 
@@ -623,10 +648,13 @@ if __name__ == "__main__":
 
     if options.initialize:
         print(" hostname: %s" % socket.gethostname())
+        if socket.gethostname() != "paula.local":
+            print("This isn't the dev machine!")
+            sys.exit(1)
         manual_approve = raw_input('Initialize the project and remove all data? Type "YES" to proceed: ')
         if manual_approve == "YES":
             initialize()
-        print("\nProject initialized! ALL DATA REMOVED!!\nExiting...\n")
+        print("Project initialized! ALL DATA REMOVED!!\nExiting...\n")
 
     if options.list_documents:
         ls_documents(options.list_documents)

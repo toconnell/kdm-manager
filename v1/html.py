@@ -203,8 +203,8 @@ class dashboard:
         <p>$total_users users are registered; $total_sessions users have managed campaigns in the last 12 hours.</p><hr/>
         <p>$active_settlements settlements are holding fast; $abandoned_settlements settlements have been abandoned.</p><hr/>
         <p>$live_survivors survivors are alive and fighting; $dead_survivors have perished.</p><hr/>
-        <p>Latest fatality:<br/><br/>
-        &ensp; <b>$dead_name</b> of <b>$dead_settlement</b><br/>
+        <p>Latest fatality: $avatar<br/><br/>
+        &ensp; <b>$dead_name</b> of <b>$dead_settlement</b> <br/>
         $dead_epithets
         &ensp; &nbsp; $cause_of_death<br/>
         &ensp; Died in LY $dead_ly, XP: $dead_xp<br/>
