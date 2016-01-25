@@ -66,8 +66,8 @@ class panel:
 
 class ui:
     game_asset_select_top = Template("""\n\
-    <select name="$operation$name" onchange="this.form.submit()">
-    <option selected disabled hidden value="">$operation_pretty $name_pretty</option>
+    <select class="$select_class" name="$operation$name" onchange="this.form.submit()">
+      <option selected disabled hidden value="">$operation_pretty $name_pretty</option>
     """)
     game_asset_select_row = Template('\t  <option value="$asset">$asset</option>\n')
     game_asset_select_bot = '    </select>\n'
@@ -869,6 +869,21 @@ class settlement:
     event_table_bot = '</table>\n\n'
     genealogy_headline = Template('\n<h3 class="$h_class">$value</h3>\n')
     genealogy_survivor_span = Template('\t<span class="genealogy_survivor $class_color" style="display:$display"><b>$name</b> $born $dead</span>\n')
+    timeline_button = Template("""\n
+        <form id="autoForm" method="POST" action="#edit_timeline">
+        <input type="hidden" name="modify" value="settlement" />
+        <input type="hidden" name="asset_id" value="$settlement_id" />
+            <button id="remove_item" name="increment_lantern_year" class="$button_class" value="1" $disabled> &nbsp; $LY &nbsp; </button>
+        </form>
+    \n""")
+    timeline_add_event = Template('<input type="text" class="$input_class" onchange="this.form.submit()" event_type="text" name="add_$event_type$LY" placeholder="add $pretty_event_type"/>\n')
+    timeline_year_break = '<input type="submit" class="hidden" value="None"/> <hr/></p>\n</form>\n\n'
+    timeline_form_top = Template("""\n
+            <!-- LY $year form -->
+            <form id="autoForm" method="POST" action="#edit_timeline">
+            <input type="hidden" name="modify" value="settlement" />
+            <input type="hidden" name="asset_id" value="$settlement_id" />
+    """)
     summary = Template("""\n\
         <span class="desktop_only nav_bar gradient_purple"></span>
         <span class="gradient_purple nav_bar_mobile mobile_only"></span>
@@ -1199,41 +1214,43 @@ class settlement:
         <input type="hidden" name="modify" value="settlement" />
         <input type="hidden" name="asset_id" value="$settlement_id" />
 
-        <div id="block_group">
-         <h2>Defeated Monsters</h2>
-         <p>A list of defeated monsters and their level.</p>
-        <hr/>
-         $defeated_monsters
-         $defeated_monsters_add
-         $defeated_monsters_rm
-        </div>
+            <div id="block_group">
+             <h2>Defeated Monsters</h2>
+             <p>A list of defeated monsters and their level.</p>
+            <hr/>
+             $defeated_monsters
+             $defeated_monsters_add
+             $defeated_monsters_rm
+            </div>
         </form>
-    </div>
+        </div>
 
 
-    <div id="asset_management_right_pane">
+        <div id="asset_management_right_pane">
 
                     <!-- TIMELINE: HAS ITS OWN FORM  -->
-
-        <a id="edit_timeline" class="mobile_only"></a>
-        <form id="autoForm" method="POST" action="#edit_timeline">
-        <input type="hidden" name="modify" value="settlement" />
-        <input type="hidden" name="asset_id" value="$settlement_id" />
-
+        <a id="edit_timeline" class="mobile_only"><br/><br/></a>
         <br class="mobile_only"/>
         <h2 class="clickable gradient_orange" onclick="showHide('timelineBlock')">LY $lantern_year - View Timeline <img class="dashboard_down_arrow" src="http://media.kdm-manager.com/icons/down_arrow.png"/> </h2>
         <div id="timelineBlock" class="block_group" style="display: none;">
          <div class="big_number_container left_margin">
              <button class="incrementer" onclick="increment('lanternYearBox');">+</button>
-             <input id="lanternYearBox" onchange="this.form.submit()" class="big_number_square" type="number" name="lantern_year" value="$lantern_year" min="1"/>
+
+            <form id="autoForm" method="POST" action="#edit_timeline">
+            <input type="hidden" name="modify" value="settlement" />
+            <input type="hidden" name="asset_id" value="$settlement_id" />
+            <input id="lanternYearBox" onchange="this.form.submit()" class="big_number_square" type="number" name="lantern_year" value="$lantern_year" min="1"/>
+            </form>
              <button class="decrementer" onclick="decrement('lanternYearBox');">-</button>
          </div>
          <div class="big_number_caption">Lantern Year</div>
+
+
          <br class="mobile_only"/>
+        <p>Tap or click a Lantern Year number to mark it complete (and end it).</p>
         <hr>
          $timeline
         </div> <!-- timelineBlock -->
-        </form>
 
 
         <br class="mobile_only"/>

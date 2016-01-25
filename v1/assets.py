@@ -480,7 +480,7 @@ class Survivor:
                         parent_birth_years.append(P.survivor["born_in_ly"])
             self.logger.debug("Highest parent birth year is %s for %s" % (max(parent_birth_years), self.get_name_and_id()))
             self.survivor["born_in_ly"] = max(parent_birth_years) + 1
-            self.logger.warn("Defaulting borth year to %s for %s" % (self.survivor["born_in_ly"], self.get_name_and_id()))
+            self.logger.warn("Defaulting birth year to %s for %s" % (self.survivor["born_in_ly"], self.get_name_and_id()))
 
         # if "father" or "mother" keys aren't Object ID's, we need to normalize them:
         for p in ["father","mother"]:
@@ -2140,41 +2140,82 @@ class Settlement:
         self.logger.debug("%s checked off nemesis '%s' %s for settlement '%s' (%s)." % (self.User.user["login"], nemesis_key, self.settlement["nemesis_monsters"][nemesis_key][-1], self.settlement["name"], self.settlement["_id"]))
 
 
-    def get_timeline(self, return_as=False):
+    def get_timeline(self, return_type=False):
         """ Returns the settlement's timeline. """
 
-        book_icon_url = os.path.join(settings.get("application","STATIC_URL"), "icons/trigger_story_event.png")
-        book_icon = '<img class="icon" src="%s"/>' % book_icon_url
-        nemesis_icon_url = os.path.join(settings.get("application", "STATIC_URL"), "icons/nemesis_encounter_event.jpg")
-        nemesis_icon = '<img class="icon" src="%s"/>' % nemesis_icon_url
+        story_event_icon_url = os.path.join(settings.get("application","STATIC_URL"), "icons/trigger_story_event.png")
+        story_event_icon = '<img class="icon" src="%s"/>' % story_event_icon_url
+        nemesis_encounter_icon_url = os.path.join(settings.get("application", "STATIC_URL"), "icons/nemesis_encounter_event.jpg")
+        nemesis_encounter_icon = '<img class="icon" src="%s"/>' % nemesis_encounter_icon_url
+        settlement_event_icon_url = os.path.join(settings.get("application", "STATIC_URL"), "icons/settlement.png")
+        settlement_event_icon = '<img class="icon" src="%s"/>' % settlement_event_icon_url
+        quarry_event_icon_url = os.path.join(settings.get("application", "STATIC_URL"), "icons/quarry.png")
+        quarry_event_icon = '<img class="icon" src="%s"/>' % quarry_event_icon_url
 
         current_lantern_year = int(self.settlement["lantern_year"])
 
-        if return_as == "html":
-            html = ""
+        if return_type == "html":
+            output = ""
             for year in range(1,41):
                 strikethrough = ""
                 disabled = ""
+                hidden = "full_width"
                 if year <= current_lantern_year - 1:
                     disabled = "disabled"
                     strikethrough = "strikethrough"
-                html += '<p class="%s">' % strikethrough
-                html += '<button id="remove_item" name="increment_lantern_year" class="%s" value="1" %s> &nbsp; %s &nbsp; </button>' % (strikethrough, disabled, year)
+                    hidden = "hidden"
+                output += '<p class="%s">' % strikethrough
+                output += html.settlement.timeline_button.safe_substitute(LY=year, button_class=strikethrough, disabled=disabled, settlement_id=self.settlement["_id"],)
+
                 target_year = {"year": year}
                 for year_dict in self.settlement["timeline"]:
                     if year == year_dict["year"]:
                         target_year = year_dict
-                if "story_event" in target_year:
-                    html += ' %s %s' % (book_icon, target_year["story_event"])
-                if "nemesis_encounter" in target_year:
-                    html += ' %s %s' % (nemesis_icon, target_year["nemesis_encounter"])
-                if "custom" in target_year and target_year["custom"] != []:
-                    for custom_event in target_year["custom"]:
-                        html += ' %s %s ' % (book_icon, custom_event)
-                html += ' <input onchange="this.form.submit()" type="text" name="update_timeline_year_%s" placeholder="add event"/> </p><hr/>\n' % year
-            return html
+
+                event_type_tuples = [
+                    ("nemesis_encounter", nemesis_encounter_icon),
+                    ("story_event", story_event_icon),
+                    ("settlement_event", settlement_event_icon),
+                    ("quarry_event", quarry_event_icon),
+                    ("custom", settlement_event_icon),
+                ]
+
+                for event_type_tuple in event_type_tuples:
+                    event_type, event_icon = event_type_tuple
+                    if event_type in target_year.keys():
+                        if target_year[event_type] != []:
+                            if type(target_year[event_type]) in [str,unicode]:
+                                event_text = target_year[event_type]
+                            elif type(target_year[event_type]) == list:
+                                event_text = ", ".join(target_year[event_type])
+                            else:
+                                raise Exception("LY %s contains an event with an unsupported type! %s" % type(target_year[event_type]))
+                            output += '\t<p class="%s">%s %s</p>\n' % (strikethrough, event_icon, event_text)
+
+                # start the form for updating this year
+                output+= html.settlement.timeline_form_top.safe_substitute(settlement_id=self.settlement["_id"], year=year)
+
+                # add blanks for adding events
+                output += html.settlement.timeline_add_event.safe_substitute(input_class=hidden, event_type="story_event", pretty_event_type="Story Event", LY="_%s" % year)
+                output += html.settlement.timeline_add_event.safe_substitute(input_class=hidden, event_type="settlement_event", pretty_event_type="Settlement Event", LY="_%s" % year)
+                
+                # add nemesis picker
+                output += html.ui.game_asset_select_top.safe_substitute(operation="add_", name="nemesis_event_%s" % year, operation_pretty="Add", name_pretty="Nemesis Encounter", select_class=hidden)
+                for nemesis in self.settlement["nemesis_monsters"]:
+                    output += html.ui.game_asset_select_row.safe_substitute(asset=nemesis)
+                output += html.ui.game_asset_select_bot
+
+                # add quarry picker
+                output += html.ui.game_asset_select_top.safe_substitute(operation="add_", name="quarry_event_%s" % year, operation_pretty="Add", name_pretty="Quarry", select_class=hidden)
+                for q in self.settlement["quarries"]:
+                    output += html.ui.game_asset_select_row.safe_substitute(asset=q)
+                output += html.ui.game_asset_select_bot
+
+                output += html.settlement.timeline_year_break
+            return output
 
         return "oops! not implemented yet"
+
 
     def get_principles(self, return_type=None):
         """ Returns the settlement's principles. Use the 'return_type' arg to
@@ -2574,21 +2615,55 @@ class Settlement:
 
         return player_set
 
+    def update_timeline(self, new_lantern_year=None, increment=False, add_event=(), rm_event=()):
+        """ This is where we manage the timeline, incrementing Lantern Year,
+        adding/removing settlement events, etc.
 
-    def update_lantern_year(self, new_value=None, increment=False):
-        """ Do all LY updates for the settlement here. """
+        The 'add_event' and 'rm_event' kwargs should be two part tuples where
+        the first part is the LY (as an int) and the second part is a str of the
+        thing we're removing.
+        """
 
         current_ly = int(self.settlement["lantern_year"])
 
+        # increment LY if we're doing that
         if increment:
             self.log_event("Lantern year %s has ended." % current_ly)
             current_ly = current_ly + 1
             self.settlement["lantern_year"] = current_ly
 
-        if new_value is not None and int(new_value) != current_ly:
-            new_value = int(new_value)
-            self.settlement["lantern_year"] = new_value
-            self.log_event("It is now Lantern Year %s." % new_value)
+        # handle arbitrary updates/changes to LY
+        if new_lantern_year is not None and int(new_lantern_year) != current_ly:
+            new_lantern_year= int(new_lantern_year)
+            self.settlement["lantern_year"] = new_lantern_year
+            self.log_event("It is now Lantern Year %s." % new_lantern_year)
+
+        # add an event to the timeline if we're doing that
+        #             elif p.split("_")[:3] == ['update', 'timeline', 'year']:
+        #                 self.update_timeline("modify", p)
+        if add_event != ():
+            target_ly, event_type, new_event = add_event
+
+            if event_type == "nemesis_event":
+                event_type = "nemesis_encounter"
+                new_event = "Nemesis Encounter: %s" % new_event
+
+            self.logger.debug("Adding %s event '%s' to LY '%s' for %s" % (event_type, new_event, target_ly, self.get_name_and_id()))
+            for year_dict in self.settlement["timeline"]:   # timeline is a list of dicts
+                if year_dict["year"] == target_ly:
+                    year_index = self.settlement["timeline"].index(year_dict)
+                    self.settlement["timeline"].remove(year_dict)
+                    if event_type not in year_dict:
+                        year_dict[event_type] = []
+                    if type(year_dict[event_type]) in [str,unicode]:
+                        year_dict[event_type] = [year_dict[event_type]] # change strings into lists
+                    year_dict[event_type].append(new_event)
+                    year_dict[event_type] = sorted(list(set(year_dict[event_type])))    # uniquify and sort
+                    self.settlement["timeline"].insert(year_index, year_dict)
+                    self.log_event("'%s' added to LY %s" % (new_event, target_ly))
+
+
+
 
 
     def update_principles(self, add_new_principle=False):
@@ -2891,21 +2966,18 @@ class Settlement:
                 "Population reaches 0",
             ]:
                 self.settlement["milestone_story_events"].append(p)
-            elif p == "increment_lantern_year":
-                self.update_lantern_year(increment=True)
-            elif p == "lantern_year":
-                self.update_lantern_year(game_asset_key)
             elif p == "abandon_settlement":
                 self.log_event("Settlement abandoned!")
                 self.settlement["abandoned"] = datetime.now()
-            elif p.split("_")[:3] == ['update', 'timeline', 'year']:
-                for year_dict in self.settlement["timeline"]:
-                    if int(year_dict["year"]) == int(p.split("_")[-1]):
-                        year_index = self.settlement["timeline"].index(year_dict)
-                        self.settlement["timeline"].remove(year_dict)
-                        year_dict["custom"].append(params[p].value)
-                        self.settlement["timeline"].insert(year_index, year_dict)
-                        break
+            # timeline operations
+            elif p == "increment_lantern_year":
+                self.update_timeline(increment=True)
+            elif p == "lantern_year":
+                self.update_timeline(game_asset_key)
+            elif p.split("_")[0] == 'add' and p.split("_")[2] == 'event':
+                target_year = int(p.split("_")[-1])
+                event_type = "_".join(p.split("_")[1:3])
+                self.update_timeline(add_event=(target_year, event_type, game_asset_key))
             elif p == "hunting_party_operation":
                 self.modify_hunting_party(params)
                 break
@@ -3104,7 +3176,7 @@ class Settlement:
             principles_rm = self.get_principles("html_select_remove"),
 
             lantern_year = self.settlement["lantern_year"],
-            timeline = self.get_timeline(return_as="html"),
+            timeline = self.get_timeline("html"),
 
             first_child_checked = first_child,
             first_death_checked = first_death,

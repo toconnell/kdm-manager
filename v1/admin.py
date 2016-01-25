@@ -571,6 +571,9 @@ def import_data(data_pickle_path):
     # import avatars here
     imported_avatars = 0
     for avatar in data["avatars"]:
+        if gridfs.GridFS(mdb).exists(avatar["_id"]):
+            gridfs.GridFS(mdb).delete(avatar["_id"])
+            print("  Removed object %s from local GridFS." % avatar["_id"])
         gridfs.GridFS(mdb).put(avatar["blob"], _id=avatar["_id"], content_type=avatar["content_type"], created_by=avatar["created_by"], created_on=avatar["created_on"])
         imported_avatars += 1
     print(" Imported %s avatars!" % imported_avatars)
