@@ -1248,6 +1248,14 @@ class Survivor:
             mdb.settlements.save(self.Settlement.settlement)
             self.logger.debug("Survivor '%s' added '%s' to settlement %s's Innovations!" % (self.survivor["name"], mastery_string, self.Settlement.settlement["name"]))
 
+
+    def join_hunting_party(self):
+        """ Adds a survivor to his settlement's hunting party and saves. """
+        self.survivor["in_hunting_party"] = "checked"
+        mdb.survivors.save(self.survivor)
+        self.Settlement.log_event("%s has joined the hunting party." % self.get_name_and_id(include_sex=True, include_id=False))
+
+
     def set_attrs(self, attrs_dict):
         """ Accepts a dictionary and updates self.survivor with its keys and
         values. There's no user-friendliness or checking here--this is an admin
@@ -1255,6 +1263,7 @@ class Survivor:
 
         for k in attrs_dict.keys():
             self.survivor[k] = attrs_dict[k]
+            self.Settlement.log_event("Set %s to '%s' for %s" % (k,attrs_dict[k],self.get_name_and_id(include_id=False,include_sex=True)))
             self.logger.debug("%s set '%s' = '%s' for %s" % (self.User.user["login"], k, attrs_dict[k], self.get_name_and_id()))
         mdb.survivors.save(self.survivor)
 
@@ -1315,8 +1324,7 @@ class Survivor:
             elif p == "custom_ability_description":
                 pass
             elif p == "in_hunting_party":
-                self.survivor[p] = game_asset_key
-                self.Settlement.log_event("%s has joined the hunting party." % self.survivor["name"])
+                self.join_hunting_party()
             else:
                 self.survivor[p] = game_asset_key
 #                self.logger.debug("%s set '%s' -> '%s' for survivor '%s' (%s)." % (self.User.user["login"], p, game_asset_key, self.survivor["name"], self.survivor["_id"]))
@@ -1592,7 +1600,7 @@ class Settlement:
             "principles": [],
             "locations": [],
             "quarries": ["White Lion"],
-            "storage": ["Cloth", "Cloth", "Cloth", "Cloth", "Founding Stone", "Founding Stone", "Founding Stone", "Founding Stone"],
+            "storage": [],
             "defeated_monsters": [],
             "population": 0,
             "lost_settlements": 0,

@@ -254,12 +254,24 @@ class Session:
                 self.change_current_view("view_campaign", asset_id=S.settlement["_id"])
                 if "create_survivors" in self.params:   # this could use a refactor, but it's functional so FIWE
                     m = assets.Survivor(params=None, session_object=self)
+                    m.set_attrs({"Waist": 1})
+                    m.join_hunting_party()
                     m = assets.Survivor(params=None, session_object=self)
+                    m.set_attrs({"Waist": 1})
+                    m.join_hunting_party()
                     f = assets.Survivor(params=None, session_object=self)
-                    f.set_attrs({"sex": "F"})
+                    f.set_attrs({"sex": "F", "Waist": 1})
+                    f.join_hunting_party()
                     f = assets.Survivor(params=None, session_object=self)
-                    f.set_attrs({"sex": "F"})
-                user_action = "created settlement %s" % S.settlement["_id"]
+                    f.set_attrs({"sex": "F", "Waist": 1})
+                    f.join_hunting_party()
+                    self.Settlement.log_event("Starting survivors have joined the hunting party.")
+                    self.Settlement.add_game_asset("storage", "Founding Stone", 4)
+                    self.Settlement.add_game_asset("storage", "Cloth", 4)
+                    self.Settlement.log_event("Added four new survivors and Starting Gear to settlement storage")
+                    user_action = "created settlement %s with First Story survivors" % S.get_name_and_id()
+                else:
+                    user_action = "created vanilla settlement %s" % S.get_name_and_id()
             if self.params["new"].value == "survivor":
                 S = assets.Survivor(params=self.params, session_object=self)
                 self.change_current_view("view_survivor", asset_id=S.survivor["_id"])

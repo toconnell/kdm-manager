@@ -771,7 +771,7 @@ class settlement:
         <input type="text" name="settlement_name" placeholder="Settlement Name"/ class="full_width" autofocus>
         <fieldset class="settlement_principle">
          <input type="checkbox" id="create_survivors" class="radio_principle" name="create_survivors" value="True" />
-          <label class="radio_principle_label" for="create_survivors"> Create Four New Survivors </label>
+          <label class="radio_principle_label" for="create_survivors"> Create Four New Survivors for the First Story</label>
         </fieldset>
         <button class="success">SAVE</button>
         </form>
