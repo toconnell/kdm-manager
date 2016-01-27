@@ -12,7 +12,7 @@ body {font-family: Helvetica, sans-serif; height: 100%; }
 fieldset {border: 0; text-align: left; }
 ul {margin-left: 30px; }
 
-textarea#settlement_notes {width: 100%; height: 250px; border: 0; margin-left: 10px;  }
+textarea#settlement_notes {width: 100%; height: 250px; border: 0; margin-left: 10px;  font-size: 30pt; }
 
 /* event_log */
 table.settlement_event_log {border-collapse: collapse; }
@@ -47,6 +47,7 @@ h2.clickable {
 .dashboard_down_arrow, .COD_down_Arrow {float: right; z-index: 20;}
 .dashboard_down_arrow {margin-right: 20px; margin-top: 20px; }
 .COD_down_arrow {float: right; z-index: 20; margin-right: 80px; margin-top: -50px; }
+img.latest_fatality {width: 300px; float: right; margin: 10px; }
 
 
 /* settlement styles */
@@ -78,6 +79,8 @@ div#info_box h2, button#survivor_campaign_asset {text-align: left; }
     border-top: 2px solid #870000; border-left: 2px solid #870000; 
     border-right: 2px solid #190A05; border-bottom: 2px solid #190A05; 
 }
+.maroon_text {color: #a73737;}
+.green_text {color: #37a737;}
 .dark_green {background-color: #82bD00; }
 .alert {color: #C60000; font-weight: bold; }
 .gradient_white {background: linear-gradient(-90deg, #eee, #fff);}
@@ -412,6 +415,7 @@ right connector from last child*/
     #user_error_msg {width: 25%; font-size: 12pt; right: 32%; top: -10px; z-index: 0;}
 
     /*  dashboard styles */
+    img.latest_fatality {width: 100px;}
     .dashboard_world_defeated_monsters {width: 50%; }
     .dashboard_alert {font-size: 14pt; }
     div.dashboard_preferences {width: 60%; text-align: center; margin-left: 20px; margin-top: 10px; }
@@ -435,6 +439,7 @@ right connector from last child*/
     .dashboard_down_arrow {margin: 0 none; margin-top: 5px; margin-right: 5px;}
 
     /* settlement styles */
+    div#timelineBlock {font-size: 11pt; }
     table.settlement_event_log {margin: 0; width: 90; margin-left: 30px; border-collapse: collapse;}
     table.settlement_event_log td {padding: 3px;} 
     h1.settlement_name { text-align: left; margin-left: 20px; width: auto; display: inline-block;  margin-top: 55px; font-size: 22pt; margin-bottom: 40px; }
@@ -452,6 +457,7 @@ right connector from last child*/
     #hunting_party_macro_container {width: 100%; padding: 0; margin: 0 auto; text-align: center; }
     button#increment_nemesis {margin: 3px; }
     #export_controls {float: left; padding: 12px; margin: 10px; margin-left: 15px; margin-top: -20px;  border-left: 2px solid #000; }
+    textarea#settlement_notes {font-size: 12pt;}
 
 
     /* asset creation styles */
@@ -470,7 +476,7 @@ right connector from last child*/
     div#asset_management_left_pane {width: 360px; padding-left: 10px;}
     div#asset_management_middle_pane {width: 300px;  border-left: 3px solid #DDD; border-right: 3px solid #DDD;}
     div#asset_management_right_pane {width: 340px; }
-    input#topline_name, input#topline_name_fixed {width: 374px; position: relative; font-size: 20pt; margin: 0 auto; margin-left: -20px; font-weight: bold; }
+    input#topline_name, input#topline_name_fixed {width: 374px; position: relative; font-size: 20pt; margin: 0 auto; margin-left: -20px; font-weight: bold; z-index:5;}
     input#topline_name {margin-bottom: 20px; }
     .shield, .big_number_square {font-size: 17pt; height: 55px; width: 45px; padding: 0; padding-left: 15px; border: 1px solid #666; margin: 5px; ; }
     .big_number_container, .big_number_caption {font-size: 13pt; height: auto; width: auto; padding: 0; }
