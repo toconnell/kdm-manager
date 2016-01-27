@@ -91,6 +91,16 @@ class dashboard:
     event_log_flash = '<img class="dashboard_icon" src="%s/icons/settlement_event.png"/> ' % settings.get("application", "STATIC_URL")
 
     # dashboard accordions
+    preference_block = Template("""\n
+    <p>$desc</p>
+    <p>
+     <input style="display: none" id="pref_true_$pref_key" class="radio_principle" type="radio" name="$pref_key" value="True" $pref_true_checked/>
+     <label for="pref_true_$pref_key" class="radio_principle_label"> $affirmative </label><br>
+     <input style="display: none" id="pref_false_$pref_key" class="radio_principle" type="radio" name="$pref_key" value="False" $pref_false_checked /> 
+     <label for="pref_false_$pref_key" class="radio_principle_label"> $negative </label> 
+    </p>
+    <hr/>
+    \n""")
     motd = Template("""\n
     <div class="dashboard_menu">
         <h2 class="clickable gradient_silver" onclick="showHide('system_div')"> <img class="dashboard_icon" src="%s/icons/system.png"/> System %s</h2>
@@ -99,28 +109,11 @@ class dashboard:
         <p>This application is a work in progress and is currently running in debug mode! Please use <a href="http://blog.kdm-manager.com"/>blog.kdm-manager.com</a> to report issues/bugs or to ask questions, share ideas for features, make comments, etc.</p>
         <hr/>
 
-
         <div class="dashboard_preferences">
             <h3>Preferences</h3>
             <form method="POST" action="#">
             <input type="hidden" name="update_user_preferences" value="True"/>
-            <p>Automatically apply settlement bonuses to new survivors?</p>
-            <p>
-                <input style="display: none" id="pref_apply_new_survivor_buffs" class="radio_principle" type="radio" name="apply_new_survivor_buffs" value="True" $preferences_apply_new_survivor_buffs/> <label for="pref_apply_new_survivor_buffs" class="radio_principle_label">Apply</label><br>
-                <input style="display: none" id="pref_do_not_apply_new_survivor_buffs" class="radio_principle" type="radio" name="apply_new_survivor_buffs" value="False" $preferences_do_not_apply_new_survivor_buffs /> <label for="pref_do_not_apply_new_survivor_buffs" class="radio_principle_label">Do Not Apply</label> 
-            </p>
-            <hr/>
-            <p>Automatically add weapon specializations if Innovations include the mastery?</p>
-            <p>
-                <input style="display: none" id="pref_apply_weapon_specialization" class="radio_principle" type="radio" name="apply_weapon_specialization" value="True" $preferences_apply_weapon_specialization/> <label for="pref_apply_weapon_specialization" class="radio_principle_label">Add</label><br>
-                <input style="display: none" id="pref_do_not_apply_weapon_specialization" class="radio_principle" type="radio" name="apply_weapon_specialization" value="False" $preferences_do_not_apply_weapon_specialization /> <label for="pref_do_not_apply_weapon_specialization" class="radio_principle_label">Do Not Add</label> 
-            </p>
-            <hr/>
-            <p>Confirm before removing items from storage?</p>
-            <p>
-                <input style="display: none" id="pref_confirm_on_remove" class="radio_principle" type="radio" name="confirm_on_remove_from_storage" value="True" $preferences_confirm_on_remove/> <label for="pref_confirm_on_remove" class="radio_principle_label">Confirm</label><br>
-                <input style="display: none" id="pref_do_not_confirm_on_remove" class="radio_principle" type="radio" name="confirm_on_remove_from_storage" value="False" $preferences_do_not_confirm_on_remove /> <label for="pref_do_not_confirm_on_remove" class="radio_principle_label">Do Not Confirm</label> 
-            </p>
+                $user_preferences
             <button class="warn"> Update Preferences</button>
             </form>
         </div>
@@ -200,7 +193,7 @@ class dashboard:
     <div class="dashboard_menu">
         <h2 class="clickable gradient_blue" onclick="showHide('world_div')"> <img class="dashboard_icon" src="%s/icons/world.png"/> World %s</h2>
         <div id="world_div" style="display: none;" class="dashboard_accordion gradient_blue">
-        <p>$total_users users are registered; $total_sessions users have managed campaigns in the last 12 hours.</p><hr/>
+        <p>$total_users users are registered; $total_sessions users have updated their campaigns in the last 12 hours.</p><hr/>
         <p>$active_settlements settlements are holding fast; $abandoned_settlements settlements have been abandoned.</p><hr/>
         <p>$live_survivors survivors are alive and fighting; $dead_survivors have perished.</p><hr/>
         <p>Latest fatality: $avatar<br/><br/>
@@ -1088,6 +1081,7 @@ class settlement:
          <h2>Principles</h2>
          <p>The settlement's established principles.</p>
         <hr/>
+            $all_hidden_warning
             <div class="$new_life_principle_hidden">
             <h3>New Life Principle</h3>
              <fieldset class="settlement_principle">

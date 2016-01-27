@@ -1424,7 +1424,7 @@ innovations = {
     "Protect the Young": {
         "type": "principle",
         "milestone": "First child is born",
-        "survivor_buff": "When rolling on the Intimacy story event, roll twice and pick one result.",
+        "settlement_buff": "When rolling on the Intimacy story event, roll twice and pick one result.",
     },
     "Survival of the Fittest": {
         "type": "principle",

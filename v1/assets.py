@@ -22,7 +22,7 @@ import export_to_file
 import assets
 import game_assets
 import html
-from models import Abilities, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponProficiencies
+from models import Abilities, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponProficiencies, userPreferences
 from session import Session
 from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list
 import world
@@ -46,6 +46,8 @@ class User:
 
         self.get_settlements()
         self.get_survivors()
+
+        self.preference_keys = [t[0] for t in settings.items("users")]
 
 
     def is_admin(self):
@@ -117,7 +119,7 @@ class User:
             "msg" : "Updated Preferences. "
         }
 
-        for p in ["confirm_on_remove_from_storage", "apply_new_survivor_buffs", "apply_weapon_specialization"]:
+        for p in self.preference_keys:  # this is created when we __init__()
             if p in params:
                 p_value = params[p].value
                 if p_value == "True":
@@ -302,25 +304,16 @@ class User:
         formatted_log_msg = ""
         last_log_msg = self.get_last_n_user_admin_logs(1)
         if last_log_msg is not None:
-            formatted_log_msg = "<p>Latest admin log:</p><p><b>%s</b>:</b> %s</p>" % (last_log_msg["created_on"].strftime(ymdhms), last_log_msg["msg"])
+            formatted_log_msg = "<p>&nbsp;Latest user admin activity:</p><p>&nbsp;<b>%s</b>:</b> %s</p>" % (last_log_msg["created_on"].strftime(ymdhms), last_log_msg["msg"])
 
-
-        p_dict = {}
-        for p_key in ["confirm_on_remove_from_storage", "apply_new_survivor_buffs", "apply_weapon_specialization"]:
-            if self.get_preference(p_key):
-                p_tuple = ("checked","")
-            else:
-                p_tuple = ("","checked")
-            p_dict[p_key] = p_tuple
-
+        pref_html = ""
+        pref_models = userPreferences()
+        for p in pref_models.get_keys():
+            d = pref_models.pref(self, p)
+            pref_html += html.dashboard.preference_block.safe_substitute(desc=d["desc"], pref_key=p, pref_true_checked=d["affirmative_selected"], pref_false_checked=d["negative_selected"], affirmative=d["affirmative"], negative=d["negative"])
 
         output = html.dashboard.motd.safe_substitute(
-            preferences_confirm_on_remove = p_dict["confirm_on_remove_from_storage"][0],
-            preferences_do_not_confirm_on_remove = p_dict["confirm_on_remove_from_storage"][1],
-            preferences_apply_new_survivor_buffs = p_dict["apply_new_survivor_buffs"][0],
-            preferences_do_not_apply_new_survivor_buffs = p_dict["apply_new_survivor_buffs"][1],
-            preferences_apply_weapon_specialization = p_dict["apply_weapon_specialization"][0],
-            preferences_do_not_apply_weapon_specialization = p_dict["apply_weapon_specialization"][1],
+            user_preferences = pref_html,
             session_id = self.Session.session["_id"],
             login = self.user["login"],
             last_sign_in = self.user["latest_sign_in"].strftime(ymdhms),
@@ -1605,7 +1598,7 @@ class Settlement:
             "population": 0,
             "lost_settlements": 0,
             "timeline": [
-                {"year": 1, "story_event": "Returning Survivors", "custom": [], },
+                {"year": 1, "story_event": "Returning Survivors", "settlement_event": ["First Day"], "quarry_event": ["White Lion (First Story)"]},
                 {"year": 2, "story_event": "Endless Screams", "custom": [], },
                 {"year": 3, "custom": [], },
                 {"year": 4, "nemesis_encounter": "Nemesis Encounter: Butcher", "custom": [], },
@@ -1738,6 +1731,33 @@ class Settlement:
     def get_name_and_id(self):
         """ Laziness function for DRYer log construction. """
         return "'%s' (%s)" % (self.settlement["name"], self.settlement["_id"])
+
+
+    def get_attribute(self, attrib=None):
+        """ Returns the settlement attribute associated with 'attrib'. Using this
+        is preferable to going straight to self.settlement[attrib] because we do
+        business logic on these returns.
+
+        Also, this will duck type settlement attributes to integers if it can,
+        so using this method contributes to DRYness by removing the need for
+        this type of thing:
+
+            value = int(self.settlement["my thing I want"])
+
+        Anyway, when in doubt, use this method.
+        """
+
+        if attrib in ["population","death_count","survival_limit"]:
+            min_val = self.get_min(attrib)
+            if int(self.settlement[attrib]) < min_val:
+                return min_val  # this is an int because get_min always returns an int
+
+        raw_value = self.settlement[attrib]
+
+        try:
+            return int(raw_value)
+        except ValueError:
+            return raw_value
 
 
     def export(self, export_type):
@@ -2215,7 +2235,7 @@ class Settlement:
 
                 # add quarry picker
                 output += html.ui.game_asset_select_top.safe_substitute(operation="add_", name="quarry_event_%s" % year, operation_pretty="Add", name_pretty="Quarry", select_class=hidden)
-                for q in self.settlement["quarries"]:
+                for q in self.get_quarries("list_of_options"):
                     output += html.ui.game_asset_select_row.safe_substitute(asset=q)
                 output += html.ui.game_asset_select_bot
 
@@ -2225,12 +2245,14 @@ class Settlement:
         return "oops! not implemented yet"
 
 
-    def get_principles(self, return_type=None):
+    def get_principles(self, return_type=None, query=None):
         """ Returns the settlement's principles. Use the 'return_type' arg to
         specify one of the following, or leave it unspecified to get a sorted
         list back:
 
             'comma-delimited': a comma-delimited list wrapped in <p> tags.
+            'checked': use this with kwarg 'query' to return an empty string if
+                if the principle is not present or the string 'checked' if it is
 
         """
 
@@ -2253,7 +2275,30 @@ class Settlement:
             output += html.ui.game_asset_select_bot
             return output
 
+        if return_type == "checked" and query is not None:
+            if query in self.settlement["principles"]:
+                return "checked"
+            else:
+                return ""
+
         return principles
+
+
+    def get_milestones(self, return_type=False, query=None):
+        """ Returns the settlement's milestones as a list. If the 'return_type'
+        kwarg is "checked" and the 'query' kwarg is a string, this returns an
+        empty string if the 'query' is NOT in the settlement's milestones and
+        the string 'checked' if it is present."""
+
+        milestones = self.settlement["milestone_story_events"]
+
+        if return_type == "checked" and query is not None:
+            if query in milestones:
+                return "checked"
+            else:
+                return ""
+
+        return milestones
 
 
     def get_survival_actions(self, return_as=False):
@@ -2303,6 +2348,13 @@ class Settlement:
 
         if return_type == "comma-delimited":
             return ", ".join(quarries)
+
+        if return_type == "list_of_options":
+            output_list = []
+            for quarry in quarries:
+                for i in range(1,4):
+                    output_list.append("%s Lvl %s" % (quarry,i))
+            return output_list
 
         return quarries
 
@@ -2563,26 +2615,13 @@ class Settlement:
         return sorted(list([i.title() for i in return_list]))
 
 
-    def get_attribute(self, attrib=None):
-        """ Returns the settlement attribute associated with 'attrib'. Using this
-        is preferable to going straight to self.settlement[attrib] because we do
-        business logic on these returns. """
-
-        if attrib == "survival_limit":
-            srv_lmt_min = self.get_min("survival_limit")
-            if self.settlement["survival_limit"] < srv_lmt_min:
-                return srv_lmt_min
-
-        return self.settlement[attrib]
-
 
     def get_min(self, value=None):
         """ Returns the settlement's minimum necessary values for the following:
 
             'population': the minimum number of survivors based on which have
                 'dead' in their Survivor.survivor.keys().
-            'deaths': the minimum number of dead survivors.
-                -> 'death_count' also does this.
+            'deaths' or 'death_count': the minimum number of dead survivors.
             'survival_limit': the minimum survival limit, based on innovations.
 
         Returns an int. ALWAYS.
@@ -2608,7 +2647,6 @@ class Settlement:
                     min_survival += Innovations.get_asset(innovation_key)["survival_limit"]
             results = min_survival
 
-
         return int(results)
 
 
@@ -2622,6 +2660,7 @@ class Settlement:
             return len(player_set)
 
         return player_set
+
 
     def update_timeline(self, new_lantern_year=None, increment=False, add_event=(), rm_event=()):
         """ This is where we manage the timeline, incrementing Lantern Year,
@@ -2669,8 +2708,6 @@ class Settlement:
                     year_dict[event_type] = sorted(list(set(year_dict[event_type])))    # uniquify and sort
                     self.settlement["timeline"].insert(year_index, year_dict)
                     self.log_event("'%s' added to LY %s" % (new_event, target_ly))
-
-
 
 
 
@@ -2761,6 +2798,7 @@ class Settlement:
             return "<h3>%s</h3>\n<p>%s</p>" % (headline, ", ".join(final_list))
 
         return final_list
+
 
     def get_game_asset(self, asset_type=None, return_type=False, exclude=[]):
         """ This is the generic method for getting a list of the settlement's
@@ -3009,6 +3047,7 @@ class Settlement:
 
 
     def render_html_event_log(self):
+        """ Renders the settlement's event log as HTMl. """
 
         event_log_entries = list(mdb.settlement_events.find({"settlement_id": self.settlement["_id"]}).sort("created_by",-1))
         if event_log_entries == []:
@@ -3061,102 +3100,69 @@ class Settlement:
 
 
     def render_html_form(self):
-        """ This is the all-singing, all-dancing form creating function. Pretty
-        much all of the UI/UX happens here. """
+        """ This is where we create the Settlement Sheet, so there's a lot of
+        presentation and business logic here. """
 
         self.update_mins()
 
-        hide_new_life_principle = "hidden"
-        first_child = ""
-        if "First child is born" in self.settlement["milestone_story_events"]:
-            hide_new_life_principle = ""
-            first_child = "checked"
+        # dynamically create the 'p_controls' dict based on user preference re:
+        #   hiding preference controls; use p_controls below to show/hide pref
+        #   toggles dynamically
+        p_keys = ["new_life", "death", "society", "conviction"]
+        if self.User.get_preference("hide_principle_controls"):
+            p_controls = {k:"hidden" for k in p_keys}
+        else:
+            p_controls = {k:"" for k in p_keys}
+
+        mp_tuples = [
+            ("First child is born","new_life"),
+            ("First time death count is updated","death"),
+            ("Population reaches 15","society"),
+        ]
+        for mp_tuple in mp_tuples:
+            milestone_event, principle = mp_tuple
+            if milestone_event in self.settlement["milestone_story_events"]:
+                p_controls[principle] = ""
+
+        # use thresholds to determine whether certain controls are visible
+        threshold_tuples = [
+            ("death_count", "death", 1),
+            ("population", "society", 15),
+            ("lantern_year", "conviction", 12),
+        ]
+        for t in threshold_tuples:
+            attrib, p_control_key, min_val = t
+            if self.get_attribute(attrib) >= min_val:
+                p_controls[p_control_key] = ""
+
+        # additional/custom logic for hide/show principle controls
         for s in self.get_survivors():
             if "father" in s.keys() or "mother" in s.keys():
-                hide_new_life_principle = ""
+                p_controls["new_life"] = ""
 
-        hide_death_principle = "hidden"
-        first_death = ""
-        if "First time death count is updated" in self.settlement["milestone_story_events"]:
-            hide_death_principle = ""
-            first_death = "checked"
-        if int(self.settlement["death_count"]) > 0:
-            hide_death_principle = ""
 
-        hide_society_principle = "hidden"
-        pop_15 = ""
-        if "Population reaches 15" in self.settlement["milestone_story_events"]:
-            hide_society_principle = ""
-            pop_15 = "checked"
-        if int(self.settlement["population"]) > 14:
-            hide_society_principle = ""
-
-        hide_conviction_principle = "hidden"
-        if int(self.settlement["lantern_year"]) >= 12:
-            hide_conviction_principle = ""
-
-        cannibalize = ""
-        if "Cannibalize" in self.settlement["principles"]:
-            cannibalize = "checked"
-        graves = ""
-        if "Graves" in self.settlement["principles"]:
-            graves = "checked"
-
-        protect_the_young = ""
-        if "Protect the Young" in self.settlement["principles"]:
-            protect_the_young = "checked"
-        survival_of_the_fittest = ""
-        if "Survival of the Fittest" in self.settlement["principles"]:
-            survival_of_the_fittest = "checked"
-
-        collective_toil = ""
-        if "Collective Toil" in self.settlement["principles"]:
-            collective_toil = "checked"
-        accept_darkness = ""
-        if "Accept Darkness" in self.settlement["principles"]:
-            accept_darkness = "checked"
-
-        barbaric = ""
-        if "Barbaric" in self.settlement["principles"]:
-            barbaric = "checked"
-        romantic = ""
-        if "Romantic" in self.settlement["principles"]:
-            romantic = "checked"
-
-        five_innovations = ""
-        if "Settlement has 5 innovations" in self.settlement["milestone_story_events"]:
-            five_innovations = "checked"
-        game_over = ""
-        if "Population reaches 0" in self.settlement["milestone_story_events"]:
-            game_over = "checked"
-
-        survival_limit = int(self.settlement["survival_limit"])
-        if survival_limit < self.get_min("survival_limit"):
-            survival_limit = self.get_min("survival_limit")
-
-        deaths = int(self.settlement["death_count"])
-        if deaths < self.get_min("deaths"):
-            deaths = self.get_min("deaths")
-
-        population = int(self.settlement["population"])
-        if population < self.get_min("population"):
-            population = self.get_min("population")
-
+        # this is stupid: I need to refactor this out at some point
         abandoned = ""
         if "abandoned" in self.settlement.keys():
             abandoned = '<h1 class="alert">ABANDONED</h1>'
+        all_hidden_warning = "<p>(Update settlement Milestones to show controls for adding Settlement Principles.)</p>"
+        for k in p_controls.keys():
+            if p_controls[k] != "hidden":
+                all_hidden_warning = ""
 
         return html.settlement.form.safe_substitute(
-            abandoned = abandoned,
             MEDIA_URL = settings.get("application","STATIC_URL"),
             settlement_id = self.settlement["_id"],
             game_link = self.asset_link(context="asset_management"),
 
-            population = population,
             name = self.settlement["name"],
-            survival_limit = survival_limit,
+            abandoned = abandoned,
+
+            population = self.get_attribute("population"),
+            death_count = self.get_attribute("death_count"),
+
+            survival_limit = self.get_attribute("survival_limit"),
             min_survival_limit = self.get_min("survival_limit"),
-            death_count = deaths,
             lost_settlements = self.settlement["lost_settlements"],
             settlement_notes = self.get_settlement_notes(),
 
@@ -3168,29 +3174,30 @@ class Settlement:
             items_options = Items.render_as_html_dropdown_with_divisions(recently_added=self.get_recently_added_items()),
             storage = self.get_storage("html_buttons"),
 
-            new_life_principle_hidden = hide_new_life_principle,
-            society_principle_hidden = hide_society_principle,
-            death_principle_hidden = hide_death_principle,
-            conviction_principle_hidden = hide_conviction_principle,
+            new_life_principle_hidden = p_controls["new_life"],
+            society_principle_hidden = p_controls["society"],
+            death_principle_hidden = p_controls["death"],
+            conviction_principle_hidden = p_controls["conviction"],
+            all_hidden_warning = all_hidden_warning,
 
-            cannibalize_checked = cannibalize,
-            graves_checked = graves,
-            protect_the_young_checked = protect_the_young,
-            survival_of_the_fittest_checked = survival_of_the_fittest,
-            collective_toil_checked = collective_toil,
-            accept_darkness_checked = accept_darkness,
-            barbaric_checked = barbaric,
-            romantic_checked = romantic,
+            cannibalize_checked = self.get_principles("checked", query="Cannibalize"),
+            graves_checked = self.get_principles("checked", query="Graves"),
+            protect_the_young_checked = self.get_principles("checked", query="Protect the Young"),
+            survival_of_the_fittest_checked = self.get_principles("checked", query="Survival of the Fittest"),
+            collective_toil_checked = self.get_principles("checked", query="Collective Toil"),
+            accept_darkness_checked = self.get_principles("checked", query="Accept Darkness"),
+            barbaric_checked = self.get_principles("checked", query="Barbaric"),
+            romantic_checked = self.get_principles("checked", query="Romantic"),
             principles_rm = self.get_principles("html_select_remove"),
 
             lantern_year = self.settlement["lantern_year"],
             timeline = self.get_timeline("html"),
 
-            first_child_checked = first_child,
-            first_death_checked = first_death,
-            pop_15_checked = pop_15,
-            five_innovations_checked = five_innovations,
-            game_over_checked = game_over,
+            first_child_checked = self.get_milestones("checked", query="First child is born"),
+            first_death_checked = self.get_milestones("checked", query="First time death count is updated"),
+            pop_15_checked = self.get_milestones("checked", query="Population reaches 15"),
+            five_innovations_checked = self.get_milestones("checked", query="Settlement has 5 innovations"),
+            game_over_checked = self.get_milestones("checked", query="Population reaches 0"),
 
             nemesis_monsters = self.get_nemeses("html_buttons"),
 

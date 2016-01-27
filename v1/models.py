@@ -267,3 +267,48 @@ WeaponProficiencies = weaponProficienciesModel()
 DefeatedMonsters = defeatedMonstersModel()      # this is like...a pseudo model
 
 
+
+
+#
+#   The User Preferences Model
+#
+
+preferences_dict = {
+    "hide_principle_controls": {
+        "desc": "Use settlement milestones to hide unavailable principles?",
+        "affirmative": "Dynamically hide Principle controls",
+        "negative": "Always show all Principle controls",
+    },
+    "confirm_on_remove_from_storage": {
+        "desc": "Confirm before removing items from Settlement Storage?",
+        "affirmative": "Confirm with Pop-up",
+        "negative": "Do not confirm",
+    },
+    "apply_new_survivor_buffs": {
+        "desc": "Automatically apply settlement bonuses to new survivors?",
+        "affirmative": "Automatically apply",
+        "negative": "Do not apply",
+    },
+    "apply_weapon_specialization": {
+        "desc": "Automatically add weapon specializations if Innovations include the mastery?",
+        "affirmative": "Add",
+        "negative": "Do Not Add",
+    },
+}
+
+class userPreferences():
+    def __init__(self):
+        self.preferences_dict = preferences_dict
+    def get_keys(self):
+        return self.preferences_dict.keys()
+    def pref(self, user_object, pref_key):
+        pref_dict = self.preferences_dict[pref_key]
+        if user_object.get_preference(pref_key):
+            pref_dict["affirmative_selected"] = "checked"
+            pref_dict["negative_selected"] = ""
+        else:
+            pref_dict["affirmative_selected"] = ""
+            pref_dict["negative_selected"] = "checked"
+        return pref_dict
+
+Preferences = userPreferences()

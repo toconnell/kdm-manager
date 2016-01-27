@@ -65,7 +65,7 @@ def create_new_user(login, password, password_again):
         logger.debug("Creating user '%s' from %s" % (login, get_user_agent()))
 
         # email validation
-        if settings.getboolean("users", "validate_email"):
+        if settings.getboolean("application", "validate_email"):
             validated = validate_email(login, verify=True)
             if validated is None:
                 logger.critical("Unable to validate email address '%s'." % login)
