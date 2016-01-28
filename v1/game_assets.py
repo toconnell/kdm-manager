@@ -422,8 +422,10 @@ abilities_and_impairments = {
     },
     "Broken hip": {
         "type": "impairment",
-        "desc": "You can no longer dodge. Suffer -1 permanent movement. This injury is permanent and can be recorded once.",
+        "desc": "You can no longer <b>dodge</b>. Suffer -1 permanent movement. This injury is permanent and can be recorded once.",
         "Movement": -1,
+        "max": 1,
+        "survival_actions_disabled": ["Dodge"],
     },
     "Bruised tailbone": {
         "type": "impairment",
