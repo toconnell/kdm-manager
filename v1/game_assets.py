@@ -958,6 +958,10 @@ items = {
         "location": "Basic Resources",
         "resource_family": ["hide"],
     },
+    "Scrap": {
+        "location": "Basic Resources",
+        "resource_family": ["scrap"],
+    },
     "Broken Lantern": {
         "location": "Basic Resources",
         "resource_family": ["scrap"],
@@ -1439,18 +1443,32 @@ innovations = {
         "survivor_buff": "All newborn survivors gain <b>+1 Accuracy</b>, <b>+1 Strength</b> and <b>+1 Evasion</b>.",
         "new_survivor": {"Strength": 1, "Accuracy": 1, "Evasion": 1},
     },
-    "Sacrifice": { "type": "faith", },
-    "Scarification": { "type": "faith", },
-    "Records": { "type": "education", },
+    "Sacrifice": {
+        "type": "faith",
+        "endeavors": {"Death Ritual": 1},
+    },
+    "Scarification": {
+        "type": "faith",
+        "endeavors": {"Initiation": 1},
+    },
+    "Records": {
+        "type": "education",
+        "endeavors": {"Knowledge": 2},
+    },
     "Shrine": {
         "type": "faith",
         "consequences": ["Sacrifice"],
+        "endeavors": {"Armor Ritual": 1},
     },
-    "Scrap Smelting": {"type": "science"},
+    "Scrap Smelting": {
+        "type": "science",
+        "endeavors": {"Purification": 1},
+    },
     "Cooking": {
         "type": "science",
         "consequences": [],
         "survival_limit": 1,
+        "endeavors": {"Culinary Inspiration": 1},
     },
     "Paint": {
         "type": "art",
@@ -1460,6 +1478,7 @@ innovations = {
     "Drums": {
         "type": "music",
         "consequences": ["Song of the Brave", "Forbidden Dance"],
+        "endeavors": {"Bone Beats": 1},
     },
     "Inner Lantern": {
         "type": "faith",
@@ -1482,10 +1501,20 @@ innovations = {
         "type": "education",
         "consequences": ["Records"],
         "survival_limit": 1,
+        "endeavors": {"Tale as Old as Time": 2},
     },
-    "Nightmare Training": {"type": "education"},
-    "Momento Mori": {"type": "art"},
-    "Face Painting": {"type": "art"},
+    "Nightmare Training": {
+        "type": "education",
+        "endeavors": {"Train": 1},
+    },
+    "Momento Mori": {
+        "type": "art",
+        "endeavors": {"Momento Mori": 1},
+    },
+    "Face Painting": {
+        "type": "art",
+        "endeavors": {"Battle Paint": 1, "Founder's Eye": 1},
+    },
     "Sculpture": {
         "type": "art",
         "consequences": ["Pottery"],
@@ -1502,16 +1531,23 @@ innovations = {
         "survival_limit": 1,
         "settlement_buff": "If the settlement loses all its resources, you may select up to two resources and keep them.",
     },
-    "Heart Flute": {"type": "music"},
+    "Heart Flute": {
+        "type": "music",
+        "endeavors": {"Devil's Melody": 1},
+    },
     "Saga": {
         "type": "music",
         "survivor_buff": "All newborn survivors gain +2 hunt experience and +2 survival from knowing the epic.",
         "new_survivor": {"hunt_xp": 2, "survival": 2},
     },
-    "Forbidden Dance": {"type": "music"},
+    "Forbidden Dance": {
+        "type": "music",
+        "endeavors": {"Fever Dance": 1},
+    },
     "Bed": {
         "type": "home",
         "survival_limit": 1,
+        "endeavors": {"Rest": 1},
     },
     "Family": {
         "type": "home",
@@ -1527,8 +1563,12 @@ innovations = {
     "Partnership": {
         "type": "home",
         "always_available": True,
+        "endeavors": {"Partner": 2},
     },
-    "Bloodletting": {"type": "science"},
+    "Bloodletting": {
+        "type": "science",
+        "endeavors": {"Breathing a Vein": 1},
+    },
     "Language": {
         "type": "starting",
         "consequences": ["Hovel", "Inner Lantern", "Drums", "Paint", "Symposium", "Ammonia"],

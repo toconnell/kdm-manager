@@ -193,7 +193,7 @@ class dashboard:
     <div class="dashboard_menu">
         <h2 class="clickable gradient_blue" onclick="showHide('world_div')"> <img class="dashboard_icon" src="%s/icons/world.png"/> World %s</h2>
         <div id="world_div" style="display: none;" class="dashboard_accordion gradient_blue">
-        <p>$total_users users are registered; $total_sessions users have updated their campaigns in the last 12 hours.</p><hr/>
+        <p>$total_users users are registered; $total_sessions users have managed their campaigns in the last 12 hours.</p><hr/>
         <p>$active_settlements settlements are holding fast; $abandoned_settlements settlements have been abandoned.</p><hr/>
         <p>$live_survivors survivors are alive and fighting; $dead_survivors have perished.</p><hr/>
         <p>Latest fatality: $avatar<br/><br/>
@@ -260,7 +260,7 @@ class survivor:
             <p>Survivor Owner:</p>
             <input id="survivor_owner" type="text" name="email" placeholder="Survivor Email" value="$user_email">
             <p>
-            <input type="checkbox" id="public" class="radio_principle" name="toggle_public" checked> 
+            <input type="checkbox" id="public" class="radio_principle" name="toggle_public" > 
             <label class="radio_principle_label" for="public"> Anyone May Manage this Survivor </label>
             <br/><br/>
             </p>
@@ -911,10 +911,11 @@ class settlement:
             </div>
             <hr class="mobile_only"/>
             <div class="campaign_summary_small_box">
-                <h3>Bonuses</h3>
+                <h4>Endeavors</h4>
+                $endeavors
                 <h4>Departing</h4>
                 $departure_bonuses
-                <h4>During Settlement</h4>
+                <h4>Settlement Bonuses</h4>
                 $settlement_bonuses
                 $survivor_bonuses
             </div>
@@ -986,23 +987,40 @@ class settlement:
                 </div>
                 <div class="big_number_caption">Death Count</div>
             </div> <!-- settlement_form_wide_box -->
+        </form> <!-- ending the first form -->
 
             <hr />
 
-            <h3 class="mobile_only">On Departure</h3>
-            $departure_bonuses
+        <h3>Bulk Add New Survivors</h3>
+        <form method="POST">
+          <input type="hidden" name="bulk_add_survivors" value="settlement" />
+          <input type="hidden" name="asset_id" value="$settlement_id" />
+            <div id="bulk_add_survivors">
+                <div class="bulk_add_control">
+                    Male
+                    <button type="button" class="incrementer" onclick="increment('maleCountBox');">+</button>
+                    <input id="maleCountBox" class="big_number_square" type="number" name="male_survivors" value="0" min="0"/>
+                    <button type="button" class="decrementer" onclick="decrement('maleCountBox');">-</button>
+                </div>
+                <div class="bulk_add_control">
+                    Female
+                    <button type="button" class="incrementer" onclick="increment('femaleCountBox');">+</button>
+                    <input id="femaleCountBox" class="big_number_square" type="number" name="female_survivors" value="0" min="0"/>
+                    <button type="button" class="decrementer" onclick="decrement('femaleCountBox');">-</button>
+                </div>
+            <input type="submit" class="success full_width" value="Create New Survivors" />
+            </div> <!-- bulk_add_survivors -->
+        </form>
+        <hr/>
 
-            <hr class="mobile_only"/>
-
-            <h3 class="mobile_only">During Settlement Phase</h3>
-            $settlement_bonuses
-
-            <hr/>
-
-            <br class="mobile_only"/>
-
-        </form> <!-- ending the first form -->
-
+        <h3>Settlement Notes</h3>
+        <form id="autoForm" method="POST" action="#edit_lost_settlements">
+        <input type="hidden" name="modify" value="settlement" />
+        <input type="hidden" name="asset_id" value="$settlement_id" />
+        <textarea onchange="this.form.submit()"id="settlement_notes" name="settlement_notes" placeholder="Additional settlement notes">$settlement_notes</textarea>
+        <button class="hidden">Update Notes</button>
+        </form>
+        <hr/>
 
 
                     <!-- STORAGE - THIS IS ITS OWN FORM-->
@@ -1052,7 +1070,6 @@ class settlement:
         </div>
         </form>
 
-        <hr class="mobile_only"/>  <!-- Logical Section Break -->
 
                     <!-- INNOVATIONS - HAS ITS OWN FORM-->
 
@@ -1127,7 +1144,6 @@ class settlement:
         </div> <!-- principle block group -->
         </form>
 
-        <hr class="mobile_only"/>  <!-- Logical Section Break -->
 
 
 
@@ -1165,8 +1181,6 @@ class settlement:
         </div>
         </form>
 
-
-        <hr class="mobile_only"/> <!-- Logical Section Break Here -->
 
 
                     <!-- QUARRIES - HAS ITS OWN FORM-->
@@ -1223,10 +1237,9 @@ class settlement:
         <div id="asset_management_right_pane">
 
                     <!-- TIMELINE: HAS ITS OWN FORM  -->
-        <a id="edit_timeline" class="mobile_only"><br/><br/></a>
-        <br class="mobile_only"/>
+        <a id="edit_timeline" class="mobile_only"><br/><br/><br/></a>
         <h2 class="clickable gradient_orange" onclick="showHide('timelineBlock')">LY $lantern_year - View Timeline <img class="dashboard_down_arrow" src="http://media.kdm-manager.com/icons/down_arrow.png"/> </h2>
-        <div id="timelineBlock" class="block_group" style="display: none;">
+        <div id="timelineBlock" class="block_group" style="display: $display_timeline;">
          <div class="big_number_container left_margin">
              <button class="incrementer" onclick="increment('lanternYearBox');">+</button>
 
@@ -1261,24 +1274,8 @@ class settlement:
             <p>Refer to <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Game Over</b> on p.179;  <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Left Overs</b> occurs at 4;  <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Those Before Us</b> occurs at 8; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Ocular Parasites</b> occurs at 12; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Rainy Season</b> occurs at 16.</p>
             </form>
         </div>
-        <br class="mobile_only"/>
 
-        <hr style="margin-top: 20px; "/>
-        <h3>Settlement Notes</h3>
-        <form id="autoForm" method="POST" action="#edit_lost_settlements">
-        <input type="hidden" name="modify" value="settlement" />
-        <input type="hidden" name="asset_id" value="$settlement_id" />
-        <textarea onchange="this.form.submit()"id="settlement_notes" name="settlement_notes" placeholder="Additional settlement notes">$settlement_notes</textarea>
-        <button class="hidden">Update Notes</button>
-        </form>
-        <hr/>
         <br>
-        <hr class="mobile_only"/>
-
-        <form method="POST">
-            <input type="hidden" name="change_view" value="new_survivor"/>
-            <button class="success full_width">+ Create New Survivor</button>
-        </form>
         <hr/>
 
         <form method="POST" onsubmit="return confirm('This will prevent this settlement from appearing on any user Dashboard, including yours. Press OK to Abandon this settlement forever.');">
@@ -1322,7 +1319,7 @@ class login:
         <h1 class="seo">Use an email address to share campaigns with friends.</h1>
         <div id="sign_in_controls">
             <form method="POST">
-            <input class="sign_in" type="text" name="login" value="$login"/>
+            <input class="sign_in" type="email" name="login" value="$login"/>
             <input class="sign_in" type="password" name="password" placeholder="password" autofocus/>
             <input class="sign_in" type="password" name="password_again" placeholder="password (again)"/>
             <button class="sign_in gradient_green">Register New User</button>

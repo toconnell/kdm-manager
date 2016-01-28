@@ -243,6 +243,17 @@ class Session:
             user_action = "removed survivor %s" % survivor_id
 
         # this is where we handle requests to create new assets
+        if "bulk_add_survivors" in self.params:
+            S = assets.Settlement(settlement_id=self.params["asset_id"].value, session_object=self)
+            male = int(self.params["male_survivors"].value)
+            female = int(self.params["female_survivors"].value)
+            for s in range(male):
+                m = assets.Survivor(params=None, session_object=self, suppress_event_logging=True)
+                m.set_attrs({"public": "checked"})
+            for s in range(female):
+                f = assets.Survivor(params=None, session_object=self, suppress_event_logging=True)
+                f.set_attrs({"public": "checked", "sex": "F"})
+            S.log_event("%s male and %s female survivors joined the settlement!" % (male, female))
         if "new" in self.params:
             if self.params["new"].value == "settlement":
                 if "settlement_name" in self.params:
@@ -253,22 +264,17 @@ class Session:
                 self.set_current_settlement(S.settlement["_id"])
                 self.change_current_view("view_campaign", asset_id=S.settlement["_id"])
                 if "create_survivors" in self.params:   # this could use a refactor, but it's functional so FIWE
-                    m = assets.Survivor(params=None, session_object=self)
-                    m.set_attrs({"Waist": 1})
-                    m.join_hunting_party()
-                    m = assets.Survivor(params=None, session_object=self)
-                    m.set_attrs({"Waist": 1})
-                    m.join_hunting_party()
-                    f = assets.Survivor(params=None, session_object=self)
-                    f.set_attrs({"sex": "F", "Waist": 1})
-                    f.join_hunting_party()
-                    f = assets.Survivor(params=None, session_object=self)
-                    f.set_attrs({"sex": "F", "Waist": 1})
-                    f.join_hunting_party()
-                    self.Settlement.log_event("Starting survivors have joined the hunting party.")
+                    self.Settlement.log_event("Added four new survivors and Starting Gear to settlement storage")
                     self.Settlement.add_game_asset("storage", "Founding Stone", 4)
                     self.Settlement.add_game_asset("storage", "Cloth", 4)
-                    self.Settlement.log_event("Added four new survivors and Starting Gear to settlement storage")
+                    for i in range(2):
+                        m = assets.Survivor(params=None, session_object=self, suppress_event_logging=True)
+                        m.set_attrs({"Waist": 1})
+                        m.join_hunting_party()
+                    for i in range(2):
+                        f = assets.Survivor(params=None, session_object=self, suppress_event_logging=True)
+                        f.set_attrs({"sex": "F", "Waist": 1})
+                        f.join_hunting_party()
                     user_action = "created settlement %s with First Story survivors" % S.get_name_and_id()
                 else:
                     user_action = "created vanilla settlement %s" % S.get_name_and_id()

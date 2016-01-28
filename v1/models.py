@@ -294,6 +294,11 @@ preferences_dict = {
         "affirmative": "Add",
         "negative": "Do Not Add",
     },
+    "hide_timeline": {
+        "desc": "Automatically hide the Settlement Sheet Timeline controls?",
+        "affirmative": "Hide",
+        "negative": "Always Show",
+    },
 }
 
 class userPreferences():

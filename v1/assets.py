@@ -366,11 +366,12 @@ class User:
 
 class Survivor:
 
-    def __init__(self, survivor_id=False, params=None, session_object=None):
+    def __init__(self, survivor_id=False, params=None, session_object=None, suppress_event_logging=False):
         """ Initialize this with a cgi.FieldStorage() as the 'params' kwarg
         to create a new survivor. Otherwise, use a mdb survivor _id value
         to initalize with survivor data from mongo. """
 
+        self.suppress_event_logging = suppress_event_logging
         self.Session = session_object
         if self.Session is None or not self.Session:
             raise Exception("Survivor objects may not be initialized without a Session object!")
@@ -572,10 +573,11 @@ class Survivor:
         # log the addition or birth of the new survivor
         name_pretty = self.get_name_and_id(include_sex=True, include_id=False)
         current_ly = self.Settlement.settlement["lantern_year"]
-        if parents != []:
-            self.Settlement.log_event("%s born to %s!" % (name_pretty, " and ".join(parents)))
-        else:
-            self.Settlement.log_event("%s joined the settlement!" % (name_pretty))
+        if not self.suppress_event_logging:
+            if parents != []:
+                self.Settlement.log_event("%s born to %s!" % (name_pretty, " and ".join(parents)))
+            else:
+                self.Settlement.log_event("%s joined the settlement!" % (name_pretty))
 
         # apply settlement buffs to the new guy depending on preference
         if self.User.get_preference("apply_new_survivor_buffs"):
@@ -1256,8 +1258,9 @@ class Survivor:
 
         for k in attrs_dict.keys():
             self.survivor[k] = attrs_dict[k]
-            self.Settlement.log_event("Set %s to '%s' for %s" % (k,attrs_dict[k],self.get_name_and_id(include_id=False,include_sex=True)))
             self.logger.debug("%s set '%s' = '%s' for %s" % (self.User.user["login"], k, attrs_dict[k], self.get_name_and_id()))
+            if not self.suppress_event_logging:
+                self.Settlement.log_event("Set %s to '%s' for %s" % (k,attrs_dict[k],self.get_name_and_id(include_id=False,include_sex=True)))
         mdb.survivors.save(self.survivor)
 
 
@@ -2334,8 +2337,15 @@ class Settlement:
 
         if return_type == "html":
             output = ""
-            for k in buffs.keys():
-                output += '<p><b>%s:</b> %s</p>\n' % (k, buffs[k])
+            if bonus_type == "endeavors":
+                icon_url = os.path.join(settings.get("application","STATIC_URL"), "icons/endeavor.png")
+                icon = '<img class="icon" src="%s"/> ' % icon_url
+                for k in buffs.keys():
+                    for endeavor,cost in buffs[k].iteritems():
+                        output += '<p>%s <b>%s</b> (%s, %s)</p>' % (cost*icon, endeavor, k, Innovations.get_asset(k)["type"])
+            else:
+                for k in buffs.keys():
+                    output += '<p><b>%s:</b> %s</p>\n' % (k, buffs[k])
             return output
 
         return buffs
@@ -2686,8 +2696,6 @@ class Settlement:
             self.log_event("It is now Lantern Year %s." % new_lantern_year)
 
         # add an event to the timeline if we're doing that
-        #             elif p.split("_")[:3] == ['update', 'timeline', 'year']:
-        #                 self.update_timeline("modify", p)
         if add_event != ():
             target_ly, event_type, new_event = add_event
 
@@ -3089,6 +3097,7 @@ class Settlement:
             survival_limit = self.settlement["survival_limit"],
             innovations = self.get_game_asset("innovations", return_type="comma-delimited", exclude=self.settlement["principles"]),
             locations = self.get_locations(return_type="comma-delimited"),
+            endeavors = self.get_bonuses('endeavors', return_type="html"),
             departure_bonuses = self.get_bonuses('departure_buff', return_type="html"),
             settlement_bonuses = self.get_bonuses('settlement_buff', return_type="html"),
             survivor_bonuses = self.get_bonuses('survivor_buff', return_type="html"),
@@ -3141,6 +3150,12 @@ class Settlement:
                 p_controls["new_life"] = ""
 
 
+        # user preferences determine if the timeline controls are visible
+        if self.User.get_preference("hide_timeline"):
+            timeline_controls = "none"
+        else:
+            timeline_controls = ""
+
         # this is stupid: I need to refactor this out at some point
         abandoned = ""
         if "abandoned" in self.settlement.keys():
@@ -3168,6 +3183,7 @@ class Settlement:
 
             survivors = self.get_survivors(return_type="html_campaign_summary"),
 
+            endeavors = self.get_bonuses('endeavors', return_type="html"),
             departure_bonuses = self.get_bonuses('departure_buff', return_type="html"),
             settlement_bonuses = self.get_bonuses('settlement_buff', return_type="html"),
 
@@ -3192,6 +3208,7 @@ class Settlement:
 
             lantern_year = self.settlement["lantern_year"],
             timeline = self.get_timeline("html"),
+            display_timeline = timeline_controls,
 
             first_child_checked = self.get_milestones("checked", query="First child is born"),
             first_death_checked = self.get_milestones("checked", query="First time death count is updated"),
