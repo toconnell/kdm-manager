@@ -42,6 +42,12 @@ mdb = MongoClient()[settings.get("application","mdb")]
 #  application helper functions
 #
 
+def get_percentage(part, whole):
+    if whole == 0:
+        return 0
+    else:
+        return 100 * round(float(part)/float(whole), 2)
+
 def days_hours_minutes(td):
     return abs(td.days), td.seconds//3600, (td.seconds//60)%60
 

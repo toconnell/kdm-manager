@@ -572,6 +572,7 @@ epithets = {
     "Ate the Fruit": {},
     "Silence Breaker": {},
     "The Silent": {},
+    "Father of Words": {},
     "Forsaker": {},
     "Forbidden Dancer": {},
     "Endless Arguer": {},
@@ -928,9 +929,6 @@ items = {
         "location": "Leather Worker",
     },
     "Portcullis Key": {
-        "location": "Unique Items",
-    },
-    "Hours Ring": {
         "location": "Unique Items",
     },
     "Love Juice": {

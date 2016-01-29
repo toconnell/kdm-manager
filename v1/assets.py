@@ -22,7 +22,7 @@ import export_to_file
 import assets
 import game_assets
 import html
-from models import Abilities, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponProficiencies, userPreferences
+from models import Abilities, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponProficiencies, userPreferences, mutually_exclusive_principles
 from session import Session
 from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list
 import world
@@ -325,38 +325,23 @@ class User:
 
     def html_world(self):
         """ Creates the HTML world panel for the user. This is a method of the
-        User object because it will do stuff with the user's friends. """
+        User object because it will do stuff with the user's friends.
 
-        latest_fatality = mdb.the_dead.find_one({"complete": {"$exists": True}}, sort=[("created_on", -1)])
+        ...at some point, e.g. when I get around to it. """
 
-        html_epithets = ""
-        if "epithets" in latest_fatality.keys() and latest_fatality["epithets"] != []:
-            epithets = ", ".join(latest_fatality["epithets"])
-            html_epithets = "&ensp; <i>%s</i><br/>" % epithets
-        avatar_img = ""
-        if "avatar" in latest_fatality.keys():
-            avatar_img = '<img class="latest_fatality" src="/get_image?id=%s" alt="%s"/>' % (latest_fatality["avatar"], latest_fatality["name"])
-
-        output = html.dashboard.world.safe_substitute(
+        return html.dashboard.world.safe_substitute(
+            dead_survivors = mdb.the_dead.find().count(),
             defeated_monsters = world.kill_board("html_table_rows"),
             total_users = mdb.users.find().count(),
             active_settlements = mdb.settlements.find().count() - mdb.settlements.find({"abandoned": {"$exists": True}}).count(),
             abandoned_settlements = mdb.settlements.find({"abandoned": {"$exists": True}}).count(),
             total_sessions = mdb.sessions.find().count(),
             live_survivors = mdb.survivors.find({"dead": {"$exists": False}}).count(),
-            dead_epithets = html_epithets,
-            dead_survivors = mdb.the_dead.find().count(),
-            dead_name = latest_fatality["name"],
-            dead_settlement = latest_fatality["settlement_name"],
-            cause_of_death = latest_fatality["cause_of_death"],
-            dead_ly = latest_fatality["lantern_year"],
-            dead_xp = latest_fatality["hunt_xp"],
-            dead_courage = latest_fatality["Courage"],
-            dead_understanding = latest_fatality["Understanding"],
-            avatar = avatar_img,
+            latest_fatality = world.latest_fatality("html"),
+            top_principles = world.top_principles("html_ul"),
+            avg_pop = world.get_average("population"),
+            avg_death = world.get_average("death_count"),
         )
-
-        return output
 
 
 
@@ -1053,6 +1038,37 @@ class Survivor:
         return list(impairment_set)
 
 
+    def get_siblings(self, return_type=None):
+        """ Gets a survivors siblings and returns it as a dictionary (by
+        default). Our pretty/HTML return comes back as a list. """
+
+        siblings = {}
+
+        for s in self.Settlement.get_survivors():
+            S = Survivor(survivor_id=s["_id"], session_object=self.Session)
+            for p in self.get_parents():
+                if p in S.get_parents():
+                    siblings[S.survivor["_id"]] = "half"
+            if S.get_parents() == self.get_parents():
+                siblings[S.survivor["_id"]] = "full"
+
+        del siblings[self.survivor["_id"]]   # remove yourself
+
+        if return_type == "html":
+            if siblings == {}:
+                return ""
+            sib_list = []
+            for s in siblings.keys():
+                S = Survivor(survivor_id=s, session_object=self.Session)
+                if siblings[s] == "half":
+                    sib_list.append("%s (half)" % S.get_name_and_id(include_sex=True, include_id=False))
+                else:
+                    sib_list.append("%s" % S.get_name_and_id(include_sex=True, include_id=False))
+            return "<p>%s</p>" % ", ".join(sib_list)
+
+        return siblings
+
+
     def get_parents(self, return_type=None):
         """ Uses assets.Settlement.get_ancestors() sort of like the new Survivor
         creation screen to allow parent changes. """
@@ -1528,6 +1544,7 @@ class Survivor:
 
             parents = self.get_parents(return_type="html_select"),
             children = self.get_children(return_type="html"),
+            siblings = self.get_siblings(return_type="html"),
             cause_of_death = COD,
             show_COD = COD_div_display_style,
 
@@ -1602,45 +1619,29 @@ class Settlement:
             "lost_settlements": 0,
             "timeline": [
                 {"year": 1, "story_event": "Returning Survivors", "settlement_event": ["First Day"], "quarry_event": ["White Lion (First Story)"]},
-                {"year": 2, "story_event": "Endless Screams", "custom": [], },
-                {"year": 3, "custom": [], },
-                {"year": 4, "nemesis_encounter": "Nemesis Encounter: Butcher", "custom": [], },
-                {"year": 5, "custom": [], "story_event": "Hands of Heat", },
-                {"year": 6, "custom": [], "story_event": "Armored Strangers", },
-                {"year": 7, "custom": [], "story_event": "Phoenix Feather", },
-                {"year": 8, "custom": [], },
-                {"year": 9, "custom": [], "nemesis_encounter": "Nemesis Encounter: King's Man", },
-                {"year": 10, "custom": [], },
-                {"year": 11, "custom": [], "story_event": "Regal Visit", },
-                {"year": 12, "custom": [], "story_event": "Principle: Conviction (p. 141)", },
-                {"year": 13, "custom": [], },
-                {"year": 14, "custom": [], },
-                {"year": 15, "custom": [], },
-                {"year": 16, "custom": [], "nemesis_encounter": "Nemesis Encounter", },
-                {"year": 17, "custom": [], },
-                {"year": 18, "custom": [], },
-                {"year": 19, "custom": [], "nemesis_encounter": "Nemesis Encounter"},
-                {"year": 20, "custom": [], "story_event": "Watched", },
-                {"year": 21, "custom": [], },
-                {"year": 22, "custom": [], },
-                {"year": 23, "custom": [], "nemesis_encounter": "Nemesis Encounter: Level 3"},
-                {"year": 24, "custom": [], },
-                {"year": 25, "custom": [], },
-                {"year": 26, "custom": [], "nemesis_encounter": "Nemesis Encounter: Watcher"},
-                {"year": 27, "custom": [], },
-                {"year": 28, "custom": [], },
-                {"year": 29, "custom": [], },
-                {"year": 30, "custom": [], },
-                {"year": 31, "custom": [], },
-                {"year": 32, "custom": [], },
-                {"year": 33, "custom": [], },
-                {"year": 34, "custom": [], },
-                {"year": 35, "custom": [], },
-                {"year": 36, "custom": [], },
-                {"year": 37, "custom": [], },
-                {"year": 38, "custom": [], },
-                {"year": 39, "custom": [], },
-                {"year": 40, "custom": [], },
+                {"year": 2, "story_event": "Endless Screams", },
+                {"year": 3, },
+                {"year": 4, "nemesis_encounter": "Nemesis Encounter: Butcher", },
+                {"year": 5, "story_event": "Hands of Heat", },
+                {"year": 6, "story_event": "Armored Strangers", },
+                {"year": 7, "story_event": "Phoenix Feather", },
+                {"year": 8, },
+                {"year": 9, "nemesis_encounter": "Nemesis Encounter: King's Man", },
+                {"year": 10, },
+                {"year": 11, "story_event": "Regal Visit", },
+                {"year": 12, "story_event": "Principle: Conviction (p. 141)", },
+                {"year": 13, }, {"year": 14, }, {"year": 15, },
+                {"year": 16, "nemesis_encounter": "Nemesis Encounter", },
+                {"year": 17, }, {"year": 18, },
+                {"year": 19, "nemesis_encounter": "Nemesis Encounter"},
+                {"year": 20, "story_event": "Watched", },
+                {"year": 21, }, {"year": 22, },
+                {"year": 23, "nemesis_encounter": "Nemesis Encounter: Level 3"},
+                {"year": 24, }, {"year": 25, },
+                {"year": 26, "nemesis_encounter": "Nemesis Encounter: Watcher"},
+                {"year": 27, }, {"year": 28, }, {"year": 29, }, {"year": 30, }, {"year": 31, },
+                {"year": 32, }, {"year": 33, }, {"year": 34, }, {"year": 35, }, {"year": 36, },
+                {"year": 37, }, {"year": 38, }, {"year": 39, }, {"year": 40, },
             ],
         }
         settlement_id = mdb.settlements.insert(new_settlement_dict)
@@ -1914,14 +1915,15 @@ class Settlement:
                             generations[s["_id"]] = generations[child["_id"]] + 1
                 else:
                     if loops >= 5:
-                        self.logger.debug("Unable to determine generation for %s after %s loops." % (s["name"], loops))
+                         pass
+#                        self.logger.debug("Unable to determine generation for %s after %s loops." % (s["name"], loops))
             loops += 1
             if loops == 10:
                 self.logger.error("Settlement %s hit %s loops while calculating generations!" % (self.get_name_and_id(), loops))
                 self.logger.debug(generations)
-#                for survivor in everyone:
-#                    self.logger.error("Could not determine generation for '%s' -> %s" % (survivor["name"], survivor["_id"]))
-                return "<p>Recursion limit met while calculating generations! This typically occurs when Survivor records do not contain complete mother/father information or are unavailable (i.e. permanently deleted). Please update your Survivor Sheets with survivor parent information and try again.</p>"
+                for survivor in everyone:
+                    self.logger.error("Could not determine generation for '%s' -> %s" % (survivor["name"], survivor["_id"]))
+                    genealogy["no_family"].add(survivor["_id"])
 
         # now, finally, start creating representations of the genealogy
         genealogy["tree"] = ""
@@ -1965,7 +1967,6 @@ class Settlement:
                             gc_html = ""
                         else:
                             gc_html = generation_html(grand_children, recursion=recursion)
-#                        output += '\n\t<li><a>LY %s: %s</a> %s</li>' % (child.survivor["born_in_ly"], child.get_name_and_id(include_sex=True, include_id=False), gc_html)
                         output += '\n\t<a><li>%s</li></a>\n' % survivor_to_span(child)
                     output += '</ul>\n'
                     return output
@@ -1984,7 +1985,7 @@ class Settlement:
 
 
         if return_type == "html_no_family":
-            output = html.settlement.genealogy_headline.safe_substitute(value="No Family Affiliation")
+            output = html.settlement.genealogy_headline.safe_substitute(value="Undetermined Lineage")
             sorted_survivor_list = mdb.survivors.find({"_id": {"$in": list(genealogy["no_family"])}}).sort("created_on")
             for s in sorted_survivor_list:
                 S = assets.Survivor(survivor_id=s["_id"], session_object=self.Session)
@@ -2713,9 +2714,12 @@ class Settlement:
                     if type(year_dict[event_type]) in [str,unicode]:
                         year_dict[event_type] = [year_dict[event_type]] # change strings into lists
                     year_dict[event_type].append(new_event)
-                    year_dict[event_type] = sorted(list(set(year_dict[event_type])))    # uniquify and sort
+                    if event_type == "quarry_event":
+                        year_dict[event_type] = sorted(list(year_dict[event_type]))    # uniquify and sort
+                    else:
+                        year_dict[event_type] = sorted(list(set(year_dict[event_type])))    # uniquify and sort
                     self.settlement["timeline"].insert(year_index, year_dict)
-                    self.log_event("'%s' added to LY %s" % (new_event, target_ly))
+                    self.log_event("'%s' %s added to LY %s" % (new_event, event_type.replace("_"," "), target_ly))
 
 
 
@@ -2729,15 +2733,8 @@ class Settlement:
             self.logger.debug("%s added principle '%s' to settlement '%s' (%s)." % (self.User.user["login"], add_new_principle, self.settlement["name"], self.settlement["_id"]))
             self.log_event("'%s' added to settlement Principles." % add_new_principle)
 
-        mutually_exclusive_principles = [
-            ("Graves", "Cannibalize"),
-            ("Romantic", "Barbaric"),
-            ("Protect the Young", "Survival of the Fittest"),
-            ("Collective Toil", "Accept Darkness"),
-            ]
-
-
-        for tup in mutually_exclusive_principles:
+        for k in mutually_exclusive_principles.keys():
+            tup = mutually_exclusive_principles[k]
             if tup[0] == add_new_principle:
                 if tup[1] in principles:
                     principles.remove(tup[1])

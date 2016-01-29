@@ -268,6 +268,18 @@ DefeatedMonsters = defeatedMonstersModel()      # this is like...a pseudo model
 
 
 
+#
+#   mutually exclusive principles
+#
+
+mutually_exclusive_principles = {
+    "Death": ("Graves", "Cannibalize"),
+    "New Life": ("Protect the Young", "Survival of the Fittest"),
+    "Society": ("Collective Toil", "Accept Darkness"),
+    "Conviction": ("Romantic", "Barbaric"),
+    }
+
+
 
 #
 #   The User Preferences Model

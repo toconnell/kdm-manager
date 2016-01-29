@@ -193,21 +193,23 @@ class dashboard:
     <div class="dashboard_menu">
         <h2 class="clickable gradient_blue" onclick="showHide('world_div')"> <img class="dashboard_icon" src="%s/icons/world.png"/> World %s</h2>
         <div id="world_div" style="display: none;" class="dashboard_accordion gradient_blue">
-        <p>$total_users users are registered; $total_sessions users have managed their campaigns in the last 12 hours.</p><hr/>
-        <p>$active_settlements settlements are holding fast; $abandoned_settlements settlements have been abandoned.</p><hr/>
-        <p>$live_survivors survivors are alive and fighting; $dead_survivors have perished.</p><hr/>
-        <p>Latest fatality: $avatar<br/><br/>
-        &ensp; <b>$dead_name</b> of <b>$dead_settlement</b> <br/>
-        $dead_epithets
-        &ensp; &nbsp; $cause_of_death<br/>
-        &ensp; Died in LY $dead_ly, XP: $dead_xp<br/>
-        &ensp; Courage: $dead_courage, Understanding: $dead_understanding
-        </p><hr/>
-        <p>Defeated Monsters:
+        <p>$total_users users are registered; $total_sessions users have managed campaigns in the last 12 hours.</p><hr/>
+        <p>$active_settlements settlements are holding fast; $abandoned_settlements settlements have been abandoned.</p>
+        <ul>
+            <li>Average population: $avg_pop</li>
+            <li>Average death count: $avg_death</li>
+        </ul>
+        <hr/>
+        <p>$live_survivors survivors are alive and fighting; $dead_survivors have perished.</p>
+        $latest_fatality<hr/>
+        <h3>General Statistics for All Settlements:</h3>
+        <p>Defeated Monster Totals:
             <table class="dashboard_world_defeated_monsters">
             $defeated_monsters
             </table>
         </p>
+        <p>Principle Selection:</p>
+        $top_principles
         </div>
     </div>
     """ % (settings.get("application", "STATIC_URL"), down_arrow_flash))
@@ -714,6 +716,8 @@ class survivor:
               <input type="hidden" name="asset_id" value="$survivor_id" />
               $parents
             </form>
+            <h4>Siblings</h4>
+                $siblings
             <h4>Children</h4>
             $children
             <hr />
@@ -846,9 +850,10 @@ class settlement:
     event_log = Template("""\n\
         <span class="desktop_only nav_bar gradient_orange"></span>
         <span class="gradient_orange nav_bar_mobile mobile_only"></span>
-        <span class="top_nav_spacer mobile_only"> hidden </span>
+        <a id="event_log"><span class="top_nav_spacer mobile_only"> hidden </span></a>
         <h1 class="settlement_name"> $settlement_name Event Log</h1>
         $log_lines
+        <a id="genealogy"><br/></a>
         <hr class="mobile_only"/>
         <h1 class="settlement_name"> $settlement_name Lineage and Intimacy Records</h1>
         <p>Survivor ancestry is represented below by organizing survivors into "generations". <b>Intimacy</b> partners are organized into generations according to the Lantern Year in which they are born: in each generation, all children of those partners are shown. Generations are separated by a horizontal rule. The "family tree" style view of survivor generations is only available at wide/desktop resolution.</p>
@@ -856,7 +861,9 @@ class settlement:
         $family_tree
         $generations
         $no_family
-        \n""")
+        <div id="floating_event_log_anchor" class="gradient_orange" ><a href="#event_log"><img src="%s/icons/settlement_event.png"/></a></div>
+        <div id="floating_genealogy_anchor" class="gradient_orange" ><a href="#genealogy"><img src="%s/icons/genealogy.png"/></a></div>
+        \n""" % (settings.get("application", "STATIC_URL"), settings.get("application", "STATIC_URL")))
     event_table_top = '<table class="settlement_event_log"><tr><th>LY</th><th>Event</th></tr>\n'
     event_table_row = Template('<tr class="zebra_$zebra"><td>$ly</td><td>$event</td></tr>\n')
     event_table_bot = '</table>\n\n'

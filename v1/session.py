@@ -370,7 +370,10 @@ class Session:
                 output += html.dashboard.survivor_summary.safe_substitute(survivors=self.User.get_survivors("asset_links"))
 
                 if mdb.the_dead.find({"complete": {"$exists": True}}).count() > 0:
-                    output += self.User.html_world()
+                    try:
+                        output += self.User.html_world()
+                    except:
+                        output += '<!-- ERROR! World Menu could not be created! -->'
 
                 if self.User.is_admin():
                     output += html.dashboard.panel_button
