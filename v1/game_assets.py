@@ -1524,7 +1524,7 @@ innovations = {
     "Pictograph": {
         "type": "art",
         "consequences": ["Momento Mori"],
-        "survivor_buff": "Anytime during the hunt or showdown phase, a survivor may Run Away (story event).",
+        "survivor_buff": "Anytime during the hunt or showdown phase, a survivor may <b>Run Away</b>.",
     },
     "Pottery": {
         "type": "art",

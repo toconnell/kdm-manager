@@ -89,7 +89,7 @@ def top_principles(return_type=None):
             total = mdb.settlements.find({"principles": {"$in": [option]}}).count()
             popularity_contest[principle][option] = {
                 "total": total,
-                "percentage": get_percentage(total, sample_set)
+                "percentage": int(get_percentage(total, sample_set)),
             }
 
     if return_type == "html_ul":

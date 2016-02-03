@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#<!/usr/bin/env python
 
 #   standard
 import Cookie
@@ -877,7 +877,7 @@ class settlement:
         </form>
     \n""")
     timeline_add_event = Template('<input type="text" class="$input_class" onchange="this.form.submit()" event_type="text" name="add_$event_type$LY" placeholder="add $pretty_event_type"/>\n')
-    timeline_year_break = '<input type="submit" class="hidden" value="None"/> <hr/></p>\n</form>\n\n'
+    timeline_year_break = '<button class="full_width gradient_orange">Update Timeline</button> <input type="submit" class="hidden" value="None"/> <hr/></p>\n</form>\n\n'
     timeline_form_top = Template("""\n
             <!-- LY $year form -->
             <form id="autoForm" method="POST" action="#edit_timeline">
@@ -1015,17 +1015,18 @@ class settlement:
                     <input id="femaleCountBox" class="big_number_square" type="number" name="female_survivors" value="0" min="0"/>
                     <button type="button" class="decrementer" onclick="decrement('femaleCountBox');">-</button>
                 </div>
-            <input type="submit" class="success full_width" value="Create New Survivors" />
+    <a id="settlement_notes"></a>
+            <input type="submit" class="gradient_green full_width" value="Create New Survivors" />
             </div> <!-- bulk_add_survivors -->
         </form>
         <hr/>
 
         <h3>Settlement Notes</h3>
-        <form id="autoForm" method="POST" action="#edit_lost_settlements">
+        <form id="autoForm" method="POST" action="#settlement_notes">
         <input type="hidden" name="modify" value="settlement" />
         <input type="hidden" name="asset_id" value="$settlement_id" />
         <textarea onchange="this.form.submit()"id="settlement_notes" name="settlement_notes" placeholder="Additional settlement notes">$settlement_notes</textarea>
-        <button class="hidden">Update Notes</button>
+        <button class="full_width gradient_orange">Update Notes</button>
         </form>
         <hr/>
 
@@ -1308,7 +1309,7 @@ class login:
         <div id="sign_in_controls">
         <img src="%s/logo_small.png" class="desktop_only sign_in"/>
             <form method="POST">
-            <input class="sign_in" type="text" name="login" placeholder="email"/ autofocus>
+            <input class="sign_in" type="email" name="login" placeholder="email"/ autofocus>
             <input class="sign_in" type="password" name="password" placeholder="password"/>
             <button class="sign_in gradient_green">Sign In or Register</button>
             </form>
@@ -1391,7 +1392,7 @@ class meta:
     log_out_button = Template('\n\t<hr class="mobile_only"/><form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><input type="hidden" name="login" value="$login"/><button class="warn change_view mobile_only">SIGN OUT</button>\n\t</form>')
     mobile_hr = '<hr class="mobile_only"/>'
     dashboard_alert = Template("""\n\
-    <br/><br/>
+    <br/><br/><br/>
     <div class="dashboard_alert maroon">
     $msg
     </div>

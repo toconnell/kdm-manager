@@ -886,6 +886,11 @@ class Survivor:
             if asset_key == "Twilight Sword":
                 self.Settlement.log_event("%s got the Twilight Sword!" % self.get_name_and_id(include_id=False, include_sex=True))
 
+            # birth of a savior stuff
+            savior_abilities = ["Dream of the Beast", "Dream of the Crown", "Dream of the Lantern"]
+            if asset_key in savior_abilities:
+                self.Settlement.log_event("A savior was born! %s had the '%s'." % (self.get_name_and_id(include_id=False, include_sex=True), asset_key))
+
             if asset_key not in Abilities.get_keys():
                 self.survivor["abilities_and_impairments"].append("%s" % asset_key)
                 return True
@@ -910,6 +915,8 @@ class Survivor:
                     for related_ability in asset_dict["related"]:
                         self.survivor["abilities_and_impairments"].append(related_ability)
                         self.logger.debug("%s is adding '%s' to '%s': automatically adding related '%s' ability." % (self.User.user["login"], asset_key, self.survivor["name"], related_ability))
+                        if related_ability in savior_abilities:
+                            self.Settlement.log_event("A savior was born! %s had the '%s'." % (self.get_name_and_id(include_id=False, include_sex=True), related_ability))
                 return True
             else:
                 return False
@@ -2212,14 +2219,17 @@ class Settlement:
                     ("custom", settlement_event_icon),
                 ]
 
+                this_year_events = []
                 for event_type_tuple in event_type_tuples:
                     event_type, event_icon = event_type_tuple
                     if event_type in target_year.keys():
                         if target_year[event_type] != []:
                             if type(target_year[event_type]) in [str,unicode]:
                                 event_text = target_year[event_type]
+                                this_year_events.append(event_text)
                             elif type(target_year[event_type]) == list:
                                 event_text = ", ".join(target_year[event_type])
+                                this_year_events.extend(target_year[event_type])
                             else:
                                 raise Exception("LY %s contains an event with an unsupported type! %s" % type(target_year[event_type]))
                             output += '\t<p class="%s">%s %s</p>\n' % (strikethrough, event_icon, event_text)
@@ -2230,7 +2240,7 @@ class Settlement:
                 # add blanks for adding events
                 output += html.settlement.timeline_add_event.safe_substitute(input_class=hidden, event_type="story_event", pretty_event_type="Story Event", LY="_%s" % year)
                 output += html.settlement.timeline_add_event.safe_substitute(input_class=hidden, event_type="settlement_event", pretty_event_type="Settlement Event", LY="_%s" % year)
-                
+
                 # add nemesis picker
                 output += html.ui.game_asset_select_top.safe_substitute(operation="add_", name="nemesis_event_%s" % year, operation_pretty="Add", name_pretty="Nemesis Encounter", select_class=hidden)
                 for nemesis in self.settlement["nemesis_monsters"]:
@@ -2243,8 +2253,15 @@ class Settlement:
                     output += html.ui.game_asset_select_row.safe_substitute(asset=q)
                 output += html.ui.game_asset_select_bot
 
+                if this_year_events != []:
+                    output += html.ui.game_asset_select_top.safe_substitute(operation="remove_", name="timeline_event_%s" % year, operation_pretty="Remove", name_pretty="Timeline Event", select_class=hidden)
+                    for event in this_year_events:
+                        output += html.ui.game_asset_select_row.safe_substitute(asset=event)
+                    output += html.ui.game_asset_select_bot
+
                 output += html.settlement.timeline_year_break
             return output
+
 
         return "oops! not implemented yet"
 
@@ -2721,6 +2738,19 @@ class Settlement:
                     self.settlement["timeline"].insert(year_index, year_dict)
                     self.log_event("'%s' %s added to LY %s" % (new_event, event_type.replace("_"," "), target_ly))
 
+        if rm_event != ():
+            target_ly, target_event_string = rm_event
+            for year_dict in self.settlement["timeline"]:
+                if year_dict["year"] == target_ly:
+                    for event_type in year_dict.keys():
+                        if event_type != "year" and target_event_string in year_dict[event_type]:
+                            if type(year_dict[event_type]) in [str, unicode]:
+                                del year_dict[event_type]
+                            else:
+                                year_dict[event_type].remove(target_event_string) 
+                            #year_dict[event_type].remove(target_event_string)
+                            self.log_event("Removed %s '%s' from LY %s." % (event_type.replace("_"," "), target_event_string, target_ly))
+                            self.logger.debug("%s removed %s '%s' from LY %s for %s" % (self.User.user["login"], event_type.replace("_"," "), target_event_string, target_ly, self.get_name_and_id()))
 
 
     def update_principles(self, add_new_principle=False):
@@ -3029,6 +3059,9 @@ class Settlement:
                 target_year = int(p.split("_")[-1])
                 event_type = "_".join(p.split("_")[1:3])
                 self.update_timeline(add_event=(target_year, event_type, game_asset_key))
+            elif p.split("_")[0:3] == ["remove","timeline","event"]:
+                target_year = int(p.split("_")[-1])
+                self.update_timeline(rm_event=(target_year, game_asset_key))
             elif p == "hunting_party_operation":
                 self.modify_hunting_party(params)
                 break
