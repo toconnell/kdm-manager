@@ -2259,6 +2259,11 @@ class Settlement:
                         output += html.ui.game_asset_select_row.safe_substitute(asset=event)
                     output += html.ui.game_asset_select_bot
 
+                button_class = "full_width gradient_orange"
+                if hidden == "hidden":
+                    button_class = hidden
+                output += '<button class="%s">Update Timeline</button>' % button_class
+
                 output += html.settlement.timeline_year_break
             return output
 

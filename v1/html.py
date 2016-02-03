@@ -877,7 +877,7 @@ class settlement:
         </form>
     \n""")
     timeline_add_event = Template('<input type="text" class="$input_class" onchange="this.form.submit()" event_type="text" name="add_$event_type$LY" placeholder="add $pretty_event_type"/>\n')
-    timeline_year_break = '<button class="full_width gradient_orange">Update Timeline</button> <input type="submit" class="hidden" value="None"/> <hr/></p>\n</form>\n\n'
+    timeline_year_break = '<input type="submit" class="hidden" value="None"/> <hr/></p>\n</form>\n\n'
     timeline_form_top = Template("""\n
             <!-- LY $year form -->
             <form id="autoForm" method="POST" action="#edit_timeline">
@@ -1015,7 +1015,7 @@ class settlement:
                     <input id="femaleCountBox" class="big_number_square" type="number" name="female_survivors" value="0" min="0"/>
                     <button type="button" class="decrementer" onclick="decrement('femaleCountBox');">-</button>
                 </div>
-    <a id="settlement_notes"></a>
+    <a id="settlement_notes" class="mobile_only"></a>
             <input type="submit" class="gradient_green full_width" value="Create New Survivors" />
             </div> <!-- bulk_add_survivors -->
         </form>
