@@ -6,6 +6,10 @@
 #
 
 abilities_and_impairments = {
+    "Crystal Skin": {
+        "type": "ability",
+        "desc": "You cannot place armor in your gear grid. When you <b>depart</b>, gain <b>2</b> to all hit locations. Suffer -1 to the result of all severe injury rolls.",
+    },
     "Twilight Sword": {
         "type": "impairment",
         "desc": "You may select <b>Twilight Sword</b> as a weapon proficiency type. This weapon may not be removed from your great grid for any reason. When you die, archive your <b>Twilight Sword</b> card.",
@@ -823,6 +827,9 @@ items = {
     "Death Mask" : {
         "location": "Mask Maker",
     },
+    "Phoenix Armor Set": {
+        "location": "Plumery",
+    },
     "Arc Bow": {
         "location": "Plumery",
     },
@@ -874,6 +881,9 @@ items = {
     "Dragon Slayer" : {
         "location": "Blacksmith",
     },
+    "Lantern Armor Set": {
+        "location": "Blacksmith",
+    },
     "Lantern Cuirass" : {
         "location": "Blacksmith",
     },
@@ -906,6 +916,9 @@ items = {
     },
     "Lantern Dagger" : {
         "location": "Blacksmith",
+    },
+    "Leather Armor Set": {
+        "location": "Leather Worker",
     },
     "Leather Bracers": {
         "location": "Leather Worker",
@@ -1131,6 +1144,9 @@ items = {
         "resource_family": ["organ"],
         "consumable": True,
     },
+    "White Lion Armor": {
+        "location": "Catarium",
+    },
     "Claw Head Arrow": {
         "attack": (1,6,6),
         "location": "Catarium",
@@ -1184,6 +1200,9 @@ items = {
     "Cloth": {
         "type": "gear",
         "location": "Starting Gear",
+    },
+    "Rawhide Armor Set": {
+        "location": "Skinnery",
     },
     "Rawhide Headband": {
         "location": "Skinnery",
@@ -1300,6 +1319,9 @@ items = {
     "Thunder Maul": {
         "location": "Rare Gear",
         "type": "gear",
+    },
+    "Screaming Armor Set": {
+        "location": "Stone Circle",
     },
     "Screaming Bracers": {
         "location": "Stone Circle",
@@ -1611,13 +1633,17 @@ quarries = {
     "White Lion": {"tokens": ["LION","WHITE"], "sort_order": 1},
     "Screaming Antelope": {"tokens": ["ANTELOPE","SCREAMING"], "sort_order": 2},
     "Phoenix": {"tokens": ["PHOENIX","PHONIEX"], "sort_order": 3},
+    "Beast Of Sorrow": {"no_levels": True, "tokens": ["SORROW","BEAST"], "sort_order": 4},
+    "Great Golden Cat": {"no_levels": True, "tokens": ["GOLDEN","CAT"], "sort_order": 5},
+    "Mad Steed": {"no_levels": True, "tokens": ["MAD","STEED"], "sort_order": 6},
+    "Golden Eyed King": {"no_levels": True, "tokens": ["GOLDEN","EYED","KING"], "sort_order": 7},
 }
 
 nemeses = {
     "Butcher": {"tokens": ["BUTCHER","BUTCHEE"], "sort_order": 10},
     "King's Man": {"tokens": ["MAN","KINGSMAN"], "sort_order": 11},
     "The Hand": {"tokens": ["HAND"], "sort_order": 12},
-    "The Watcher": {"tokens": ["WATCHER"], "sort_order": 20},
+    "The Watcher": {"no_levels": True, "tokens": ["WATCHER"], "sort_order": 20},
 }
 
 

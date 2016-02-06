@@ -207,21 +207,20 @@ class defeatedMonstersModel(Model):
         self.stack = True
 
 
-    def build_asset_deck(self, settlement):
+    def build_asset_deck(self, settlement, base_options):
         """ Call this method with the settlement mdb object/dict to build an
         asset deck for this model. """
 
-        possible_quarries = settlement["quarries"]
-
-        deck = ["White Lion (First Story)"]
-        for m in possible_quarries:
-            for lv in range(1,4):
-                deck.append("%s Lvl %s" % (m, lv))
+        deck = base_options
+        deck.append("White Lion (First Story)")
         for n in settlement["nemesis_monsters"].keys():
-            try:
-                deck.append("%s %s" % (n, settlement["nemesis_monsters"][n][-1]))
-            except IndexError:
-                deck.append("%s Lvl 1" % n)
+            if n in Nemeses.get_keys() and "no_levels" in Nemeses.get_asset(n).keys():
+                deck.append(n)
+            else:
+                try:
+                    deck.append("%s %s" % (n, settlement["nemesis_monsters"][n][-1]))
+                except IndexError:
+                    deck.append("%s Lvl 1" % n)
 
         return deck
 

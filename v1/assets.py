@@ -2147,7 +2147,11 @@ class Settlement:
             output = '<input class="hidden" type="submit" name="increment_nemesis" value="None"/>\n'
             for k in nemesis_monster_keys:
                 output += '<p><b>%s</b> ' % k
-                for level in ["Lvl 1", "Lvl 2", "Lvl 3"]:
+                if k in Nemeses.get_keys() and "no_levels" in Nemeses.get_asset(k).keys():
+                    levels = ["Lvl 1"]
+                else:
+                    levels = ["Lvl 1", "Lvl 2", "lvl 3"]
+                for level in levels:
                     if level not in self.settlement["nemesis_monsters"][k]:
                         output += ' <button id="increment_nemesis" name="increment_nemesis" value="%s">%s</button> ' % (k,level)
                     else:
@@ -2385,8 +2389,11 @@ class Settlement:
         if return_type == "list_of_options":
             output_list = []
             for quarry in quarries:
-                for i in range(1,4):
-                    output_list.append("%s Lvl %s" % (quarry,i))
+                if quarry in Quarries.get_keys() and "no_levels" in Quarries.get_asset(quarry).keys():
+                    output_list.append(quarry)
+                else:
+                    for i in range(1,4):
+                        output_list.append("%s Lvl %s" % (quarry,i))
             return output_list
 
         return quarries
@@ -2826,7 +2833,7 @@ class Settlement:
         # if the Asset model has its own deck-building method, call that and
         #   overwrite whatever we've got so far.
         if hasattr(Asset, "build_asset_deck"):
-            asset_deck = Asset.build_asset_deck(self.settlement)
+            asset_deck = Asset.build_asset_deck(self.settlement, self.get_quarries("list_of_options"))   # self here is the settlement object
 
         final_list = sorted(list(set(asset_deck)))
 

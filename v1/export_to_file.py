@@ -13,6 +13,7 @@ small_caption_style = xlwt.easyxf("font: height 170; align: horiz centre, vert c
 bold_caption_style = xlwt.easyxf("font: bold on; align: horiz centre, vert centre")
 bold_title_style = xlwt.easyxf("font: bold on, height 300; align: horiz centre, vert centre")
 settlement_name_style = xlwt.easyxf("font: bold on, height 420; align: horiz centre, vert centre")
+border_bottom_style = xlwt.easyxf("borders: bottom thin")
 
 def add_generic_settlement_summary(sh, settlement):
     """ Updates a sheet (use the 'sh' arg) to include settlement info. """
@@ -330,6 +331,41 @@ def add_generic_survivor(sh, survivor_object):
             sh.write(row,9,"X", bold_caption_style)
         row+=1
 
+
+def add_timeline(sh, timeline):
+    """ Creates a timeline worksheet. """
+
+    sh.col(0).width = 256 * 5
+    sh.col(1).width = 256 * 30
+    sh.col(2).width = 256 * 30
+    sh.col(3).width = 256 * 30
+    sh.col(4).width = 256 * 30
+    sh.col(5).width = 256 * 30
+
+    # write the headline
+    sh.write(0, 0, "LY", bold_title_style)
+    sh.write(0, 1, "Quarries", bold_title_style)
+    sh.write(0, 2, "Story Events", bold_title_style)
+    sh.write(0, 3, "Settlement Events", bold_title_style)
+    sh.write(0, 4, "Nemesis Encounter", bold_title_style)
+    sh.write(0, 5, "Custom Events", bold_title_style)
+
+    row = 1
+    for year in timeline:
+        sh.write(row, 0, year["year"])
+        col = 1
+        for event_type in ["quarry_event", "story_event", "settlement_event", "nemesis_encounter", "custom"]:
+            if event_type not in year.keys():
+                event_string = ""
+            elif type(year[event_type]) == list:
+                event_string = ", ".join(year[event_type])
+            else:
+                event_string = year[event_type]
+            sh.write(row, col, event_string)
+            col += 1
+        row += 1
+
+
 def xls(settlement, survivors=[], session_object=None):
     """ The export function for creating Excel spreadsheets. """
 
@@ -338,6 +374,8 @@ def xls(settlement, survivors=[], session_object=None):
     add_generic_settlement_summary(settlement_ws, settlement)
     storage_ws = book.add_sheet("Storage")
     add_fixed_position_storage(storage_ws, settlement["storage"])
+    timeline_ws = book.add_sheet("Timeline")
+    add_timeline(timeline_ws, settlement["timeline"])
     tab_titles = {}
     for survivor in survivors:
         tab_title = "%s %s %s" % (survivor["sex"], survivor["name"], survivor["hunt_xp"])
