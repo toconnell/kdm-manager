@@ -1479,6 +1479,8 @@ def render(view_html, head=[], http_headers=None, body_class=None):
     output += meta.stylesheet.safe_substitute(url=settings.get("application", "stylesheet"))
 
     output += """\n\
+    <link rel="manifest" href="/manifest.json">
+
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
     <script src="http://malsup.github.com/jquery.form.js"></script>
 
