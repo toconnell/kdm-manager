@@ -14,7 +14,7 @@ import operator
 import os
 import pickle
 import random
-from string import Template
+from string import Template, capwords
 import types
 
 import admin
@@ -1298,7 +1298,7 @@ class Survivor:
             if type(params[p]) != list:
                 game_asset_key = params[p].value.strip()
 
-            if p in ["asset_id", "heal_survivor", "form_id", "modify"]:
+            if p in ["asset_id", "heal_survivor", "form_id", "modify","view_game"]:
                 pass
             elif p == "survivor_avatar":
                 self.update_avatar(params[p])
@@ -1344,6 +1344,10 @@ class Survivor:
                 pass
             elif p == "in_hunting_party":
                 self.join_hunting_party()
+            elif p == "sex":
+                new_sex = game_asset_key.strip()[0].upper()
+                if new_sex in ["M","F"]:
+                    self.survivor["sex"] = new_sex
             else:
                 self.survivor[p] = game_asset_key
 #                self.logger.debug("%s set '%s' -> '%s' for survivor '%s' (%s)." % (self.User.user["login"], p, game_asset_key, self.survivor["name"], self.survivor["_id"]))
@@ -1488,7 +1492,7 @@ class Survivor:
             add_epithets = Epithets.render_as_html_dropdown(exclude=self.survivor["epithets"]),
             rm_epithets =self.get_epithets("html_remove"),
             epithets = self.get_epithets("html_formatted"),
-            sex = self.get_sex("html"),
+            sex = self.get_sex(),
             survival = survivor_survival_points,
             survival_limit = self.Settlement.get_attribute("survival_limit"),
             cannot_spend_survival_checked = flags["cannot_spend_survival"],
@@ -1557,6 +1561,7 @@ class Survivor:
 
             email = self.survivor["email"],
             campaign_link = self.Settlement.asset_link(context="asset_management"),
+
         )
         return output
 
@@ -2031,7 +2036,7 @@ class Settlement:
         """ Returns the settlement's storage in a number of ways. """
 
         # first, normalize storage to try to fix case-sensitivity PEBKAC
-        storage = [i.title() for i in sorted(self.settlement["storage"])]
+        storage = [capwords(i) for i in self.settlement["storage"]]
         self.settlement["storage"] = storage
         mdb.settlements.save(self.settlement)
 
@@ -2431,6 +2436,8 @@ class Settlement:
         current_user_is_settlement_creator = False
         if self.User is not None and self.User.user["_id"] == self.settlement["created_by"]:
             current_user_is_settlement_creator = True
+        elif self.User is not None and "admins" in self.settlement.keys() and self.User.user["login"] in self.settlement["admins"]:
+            current_user_is_settlement_creator = True
 
         if return_type == "hunting_party":
             hunting_party = []
@@ -2470,6 +2477,8 @@ class Settlement:
                 6: {"name": "The Dead", "survivors": [], },
             }
 
+            anonymous = []
+            available = []
             for survivor in survivors:
                 S = assets.Survivor(survivor_id=survivor["_id"], session_object=self.Session)
                 annotation = ""
@@ -2552,7 +2561,14 @@ class Settlement:
                 elif "favorite" in S.survivor.keys():
                     groups[2]["survivors"].append(survivor_html)
                 else:
-                    groups[3]["survivors"].append(survivor_html)
+                    if S.survivor["name"] == "Anonymous":
+                        anonymous.append(survivor_html)
+                    else:
+                        available.append(survivor_html)
+
+            # build the "available" group
+            groups[3]["survivors"].extend(available)
+            groups[3]["survivors"].extend(anonymous)
 
             #
             #   Start assembling HTML here
@@ -2574,6 +2590,7 @@ class Settlement:
                     output += "<h4>%s (%s)</h4>\n" % (group["name"], len(group["survivors"]))
                     for s in group["survivors"]:
                         output += "  %s\n" % s
+
                 if group["name"] == "Hunting Party" and group["survivors"] == []:
                     output += "<p>Use [::] to add survivors to the hunting party.</p>"
                 elif group["name"] == "Hunting Party" and group["survivors"] != [] and current_user_is_settlement_creator:
@@ -2581,6 +2598,7 @@ class Settlement:
                     #   survivors and the current user is the admin
                     output += html.settlement.return_hunting_party.safe_substitute(settlement_id=self.settlement["_id"])
                     output += html.settlement.hunting_party_macros.safe_substitute(settlement_id=self.settlement["_id"])
+
             return output + html.settlement.campaign_summary_survivors_bot
 
         if return_type == "chronological_order":
@@ -2652,7 +2670,7 @@ class Settlement:
             if all_items == []:
                 break
             return_list.add(all_items.pop())
-        return sorted(list([i.title() for i in return_list]))
+        return sorted(list([capwords(i) for i in return_list]))
 
 
 
@@ -2690,7 +2708,10 @@ class Settlement:
         return int(results)
 
 
-    def get_players(self, count_only=False):
+    def get_players(self, return_type=None, count_only=False):
+        """ The Settlement's generic method for getting players. Comes back as a
+        set of email addresses (i.e. user["login"] values). """
+
         player_set = set()
         survivors = mdb.survivors.find({"settlement": self.settlement["_id"]})
         for s in survivors:
@@ -2698,6 +2719,24 @@ class Settlement:
 
         if count_only:
             return len(player_set)
+
+        if return_type == "html":
+            if len(player_set) == 1 and self.User.user["login"] in player_set:
+                return html.settlement.player_controls_none.safe_substitute(name=self.settlement["name"])
+
+            output = html.settlement.player_controls_table_top
+            for player in sorted(list(player_set)):
+                player_id = mdb.users.find_one({"login": player})["_id"]
+                if player_id == self.settlement["created_by"]:
+                    output += html.settlement.player_controls_table_row.safe_substitute(email=player, role="<i>Founder</i>")
+                else:
+                    if "admins" in self.settlement.keys() and player in self.settlement["admins"]:
+                        controls = '<select name="player_role_%s"><option>Player</option><option selected>Admin</option></select>' % player
+                    else:
+                        controls = '<select name="player_role_%s"><option selected>Player</option><option>Admin</option></select>' % player
+                    output += html.settlement.player_controls_table_row.safe_substitute(email=player, role=controls)
+            output += html.settlement.player_controls_table_bot
+            return output
 
         return player_set
 
@@ -2763,6 +2802,19 @@ class Settlement:
                             #year_dict[event_type].remove(target_event_string)
                             self.log_event("Removed %s '%s' from LY %s." % (event_type.replace("_"," "), target_event_string, target_ly))
                             self.logger.debug("%s removed %s '%s' from LY %s for %s" % (self.User.user["login"], event_type.replace("_"," "), target_event_string, target_ly, self.get_name_and_id()))
+
+    def update_admins(self, player_login, player_role):
+        """ Adds or removes player emails from the admins list. """
+        if not "admins" in self.settlement.keys():
+            self.settlement["admins"] = []
+
+        if player_role != "Admin" and player_login in self.settlement["admins"]:
+            self.settlement["admins"].remove(player_login)
+            self.logger.debug("%s is no longer an admin of %s" % (player_login, self.get_name_and_id()))
+
+        if player_role == "Admin" and player_login not in self.settlement["admins"]:
+            self.settlement["admins"].append(player_login)
+            self.logger.debug("%s is now an admin of %s" % (player_login, self.get_name_and_id()))
 
 
     def update_principles(self, add_new_principle=False):
@@ -2965,7 +3017,7 @@ class Settlement:
 
         # otherwise, if we've got a str, let's get busy
         if asset_class == "storage":
-            game_asset_key = game_asset_key.title()
+            game_asset_key = capwords(game_asset_key)
             for i in range(int(game_asset_quantity)):
                 self.settlement[asset_class].append(game_asset_key)
             self.logger.info("'%s' appended '%s' x%s to settlement '%s' (%s) storage." % (self.User.user["login"], game_asset_key, game_asset_quantity, self.settlement["name"], self.settlement["_id"]))
@@ -3077,6 +3129,9 @@ class Settlement:
             elif p == "hunting_party_operation":
                 self.modify_hunting_party(params)
                 break
+            elif p.split("_")[0] == "player" and p.split("_")[1] == "role":
+                player_login = "_".join(p.split("_")[2:])
+                self.update_admins(player_login, game_asset_key)
             else:
                 self.settlement[p] = game_asset_key
                 self.logger.debug("%s set '%s' = '%s' for settlement '%s' (%s)." % (self.User.user["login"], p, game_asset_key, self.settlement["name"], self.settlement["_id"]))
@@ -3275,6 +3330,8 @@ class Settlement:
             defeated_monsters = self.get_game_asset("defeated_monsters", return_type="comma-delimited"),
             defeated_monsters_add = self.get_game_asset("defeated_monsters", return_type="html_add"),
             defeated_monsters_rm = self.get_game_asset("defeated_monsters", return_type="html_remove"),
+
+            player_controls = self.get_players("html"),
         )
 
 
@@ -3311,7 +3368,7 @@ class Settlement:
             asset_type = "campaign"
         elif context == "dashboard_campaign_list":
             button_class = "gradient_violet"
-            link_text = html.dashboard.campaign_flash + "<b>%s</b><br/>LY %s. Survivors: %s Players: %s" % (self.settlement["name"], self.settlement["lantern_year"], self.settlement["population"], len(self.get_players()))
+            link_text = html.dashboard.campaign_flash + "<b>%s</b><br/>LY %s. Survivors: %s Players: %s" % (self.settlement["name"], self.settlement["lantern_year"], self.settlement["population"], self.get_players(count_only=True))
             desktop_text = ""
             asset_type = "campaign"
         else:

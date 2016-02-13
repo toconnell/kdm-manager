@@ -168,7 +168,7 @@ class dashboard:
     <div class="dashboard_menu">
         <h2 class="clickable gradient_orange" onclick="showHide('settlement_div')"> <img class="dashboard_icon" src="%s/icons/settlement.png"/> Settlements %s </h2>
         <div id="settlement_div" style="display: $display" class="dashboard_accordion gradient_orange">
-        <p>Manage your settlements. You may not manage a settlement you did not create.</p>
+        <p>Manage Settlements you have created.</p>
         <div class="dashboard_button_list">
             $settlements
             %s
@@ -338,7 +338,7 @@ class survivor:
             <!-- SEX, SURVIVAL and MISC. SURVIVOR ATTRIBUTES -->
 
             <p>
-             Survivor Sex: $sex
+             Survivor Sex: <input onchange="this.form.submit()" class="survivor_sex_text" name="sex" value="$sex" />
             $avatar_img<br/>
             <div id="survivor_dead_retired_container">
 
@@ -837,6 +837,11 @@ class settlement:
     <hr/>
     \n""")
 
+    player_controls_none = Template('<p>Add other players to the "$name" campaign by making them the Owner of a Survivor in this Settlement!<br/><br/></p>')
+    player_controls_table_top = '<table class="player_management_controls"><tr><th>Email Address</th><th>Role</th></tr>\n'
+    player_controls_table_row = Template("""<tr><td>$email</td><td>$role</td></tr>\n""")
+    player_controls_table_bot = '<tr class="controller"><td colspan="2"><button class="full_width gradient_orange">Update Player Roles</button></2></tr></table>'
+
     #   campaign view campaign summary
     campaign_summary_survivors_top = '<div id="campaign_summary_survivors">\n<h3 class="mobile_only">Survivors</h3>'
     campaign_summary_survivors_bot = '</div><hr class="mobile_only"/>'
@@ -1284,6 +1289,14 @@ class settlement:
         </div>
 
         <br>
+        <hr/>
+        <h3>Players</h3>
+        <form id="autoForm" method="POST" action="#edit_lost_settlements">
+            <input type="hidden" name="modify" value="settlement" />
+            <input type="hidden" name="asset_id" value="$settlement_id" />
+            $player_controls
+        </form>
+
         <hr/>
 
         <form method="POST" onsubmit="return confirm('This will prevent this settlement from appearing on any user Dashboard, including yours. Press OK to Abandon this settlement forever.');">

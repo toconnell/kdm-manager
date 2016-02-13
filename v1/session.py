@@ -390,6 +390,8 @@ class Session:
                     output += html.dashboard.event_log_button.safe_substitute(name=self.Settlement.settlement["name"])
                 if self.Settlement.settlement is not None and self.Settlement.settlement["created_by"] == self.User.user["_id"]:
                     output += self.Settlement.asset_link(context="campaign_summary")
+                elif "admins" in self.Settlement.settlement.keys() and self.User.user["login"] in self.Settlement.settlement["admins"]:
+                    output += self.Settlement.asset_link(context="campaign_summary")
                 output += self.Settlement.render_html_summary(user_id=self.User.user["_id"])
             elif self.session["current_view"] == "new_settlement":
                 output += html.settlement.new

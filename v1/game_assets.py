@@ -1264,61 +1264,87 @@ items = {
     "Dried Acanthus": {
         "location": "Organ Grinder",
     },
+    "Fairy Bottle": {
+        "attribs": ["item","fragile","other"],
+        "location": "Rare Gear",
+    },
+    "Scout's Tunic": {
+        "attribs": ["armor","set","leather"],
+        "location": "Rare Gear",
+    },
+    "Aya's Sword": {
+        "attribs": ["weapon","melee","sword"],
+        "location": "Rare Gear",
+    },
+    "Aya's Spear": {
+        "attribs": ["weapon","melee","spear"],
+        "location": "Rare Gear",
+    },
+    "Arm Of The First Tree": {
+        "attribs": ["weapon","melee","club"],
+        "location": "Rare Gear",
+    },
+    "Stone Arm": {
+        "attribs": ["item","stone","heavy"],
+        "location": "Rare Gear",
+    },
+    "Giant Stone Face": {
+        "attribs": ["weapon","melee","grand","heavy","two-handed","stone"],
+        "location": "Rare Gear",
+    },
+    "Petal Lantern": {
+        "attribs": ["item","lantern","other"],
+        "location": "Rare Gear",
+    },
+    "Piranha Helm": {
+        "attribs": ["armor","set","rawhide"],
+        "location": "Rare Gear",
+    },
+    "Cola Bottle Lantern": {
+        "attribs": ["item","fragile","other"],
+        "location": "Rare Gear",
+    },
     "Regal Gauntlet": {
         "location": "Rare Gear",
-        "type": "gear",
     },
     "Regal Plackart": {
         "location": "Rare Gear",
-        "type": "gear",
     },
     "Regal Greaves": {
         "location": "Rare Gear",
-        "type": "gear",
     },
     "Regal Helm": {
         "location": "Rare Gear",
-        "type": "gear",
     },
     "Regal Faulds": {
         "location": "Rare Gear",
-        "type": "gear",
     },
     "Forsaker Mask": {
         "location": "Rare Gear",
-        "type": "gear",
     },
     "Adventure Sword": {
         "location": "Rare Gear",
-        "type": "gear",
     },
     "Steel Shield": {
         "location": "Rare Gear",
-        "type": "gear",
     },
     "Steel Sword": {
         "location": "Rare Gear",
-        "type": "gear",
     },
     "Twilight Sword": {
         "location": "Rare Gear",
-        "type": "gear",
     },
     "Butcher Cleaver": {
         "location": "Rare Gear",
-        "type": "gear",
     },
     "Lantern Halberd": {
         "location": "Rare Gear",
-        "type": "gear",
     },
     "Muramasa": {
         "location": "Rare Gear",
-        "type": "gear",
     },
     "Thunder Maul": {
         "location": "Rare Gear",
-        "type": "gear",
     },
     "Screaming Armor Set": {
         "location": "Stone Circle",
@@ -1341,7 +1367,7 @@ items = {
     "Beast Knuckle": {
         "location": "Stone Circle",
     },
-    "Lance of Longinus": {
+    "Lance Of Longinus": {
         "location": "Stone Circle",
     },
     "Boss Mehndi": {
