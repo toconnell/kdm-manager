@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 
-import cgi
 from flup.server.fcgi import WSGIServer
-import os
-import sys
-import time
 
 def app(environ, start_response):
     start_response('200 OK', [('Content-Type', 'text/html')])
