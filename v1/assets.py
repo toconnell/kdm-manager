@@ -1660,7 +1660,7 @@ class Settlement:
             "population": 0,
             "lost_settlements": 0,
             "timeline": [
-                {"year": 0, "settlement_event": ["First Day"], "quarry_event": ["White Lion (First Story)"]},
+                {"year": 0, "settlement_event": ["First Day"]},
                 {"year": 1, "story_event": "Returning Survivors"},
                 {"year": 2, "story_event": "Endless Screams", },
                 {"year": 3, },
