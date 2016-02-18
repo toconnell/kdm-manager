@@ -64,6 +64,11 @@ h3.clickable {padding: 1%; }
 #hunting_party_macro_container {width: 100%; padding: 0; margin: 0 auto; text-align: center; }
 div#bulk_add_survivors {margin:0; margin-left: 30px; text-align: center; }
 div.bulk_add_control {float: left; width: 245px; text-align: center; margin: 0; margin-bottom: 30px; margin-left: 140px; }
+table.player_management_controls {width: 94%; border-collapse: collapse; margin-left: 20px; margin-bottom: 30px; }
+table.player_management_controls select {margin-top: 0px; }
+table.player_management_controls tr {border-bottom: 1px solid #666; }
+table.player_management_controls tr.controller {border-bottom: 0; }
+table.player_management_controls td {padding: 3px; }
 
 /* panel styles */
 div#panel_block {width: 100%; padding: 0px;}
@@ -117,6 +122,7 @@ div#info_box h2, button#survivor_campaign_asset {text-align: left; }
 .bold, .success, .error, .warn { font-weight: bold; }
 
 /* survivor styles */
+.survivor_sex_text {width: 50px; font-weight: bold; border: 0; }
 #survivor_owner {width: 95%; margin-left: 13px; }
 .survivor_avatar_image {float: right; width: 450px; height: 560px; border: 1px solid #000;}
 .survivor_avatar_image_campaign_summary {width: 180px; height: 240px; float: right; margin-top: 20px; }
