@@ -1054,7 +1054,10 @@ class Survivor:
             if self.survivor["_id"] in S.get_parents():
                 partners.extend(S.get_parents())
         partners = set(partners)
-        partners.remove(self.survivor["_id"])
+        try:
+            partners.remove(self.survivor["_id"])
+        except:
+            pass
 
         if return_type == "html":
             list_of_names = []
@@ -1062,7 +1065,10 @@ class Survivor:
                 S = Survivor(survivor_id=s_id, session_object=self.Session)
                 list_of_names.append(S.survivor["name"])
             output = ", ".join(sorted(list_of_names))
-            return "<p>%s</p>" % output
+            if list_of_names != []:
+                return "<p>%s</p>" % output
+            else:
+                return ""
 
         return partners
 
