@@ -22,7 +22,7 @@ import export_to_file
 import assets
 import game_assets
 import html
-from models import Abilities, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponProficiencies, userPreferences, mutually_exclusive_principles
+from models import Abilities, NemesisMonsters, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponProficiencies, userPreferences, mutually_exclusive_principles
 from session import Session
 from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list
 import world
@@ -126,11 +126,11 @@ class User:
                     self.user["preferences"][p] = True
                 elif p_value == "False":
                     self.user["preferences"][p] = False
-                self.logger.debug("'%s' added '%s'->'%s' to preferences!" % (self.user["login"], p, p_value))
                 user_admin_log_dict["msg"] += "'%s' -> %s; " % (p, p_value)
 
         user_admin_log_dict["msg"] = user_admin_log_dict["msg"].strip()
         mdb.user_admin.insert(user_admin_log_dict)
+        self.logger.debug("%s updated preferences." % self.user["login"])
 
 
     def dump_assets(self, dump_type=None):
@@ -1045,6 +1045,28 @@ class Survivor:
         return list(impairment_set)
 
 
+    def get_intimacy_partners(self, return_type=None):
+        """ Gets a list of survivors with whom the survivor has done the mommy-
+        daddy dance. """
+        partners = []
+        for s in self.Settlement.get_survivors():
+            S = Survivor(survivor_id=s["_id"], session_object=self.Session)
+            if self.survivor["_id"] in S.get_parents():
+                partners.extend(S.get_parents())
+        partners = set(partners)
+        partners.remove(self.survivor["_id"])
+
+        if return_type == "html":
+            list_of_names = []
+            for s_id in partners:
+                S = Survivor(survivor_id=s_id, session_object=self.Session)
+                list_of_names.append(S.survivor["name"])
+            output = ", ".join(sorted(list_of_names))
+            return "<p>%s</p>" % output
+
+        return partners
+
+
     def get_siblings(self, return_type=None):
         """ Gets a survivors siblings and returns it as a dictionary (by
         default). Our pretty/HTML return comes back as a list. """
@@ -1556,6 +1578,7 @@ class Survivor:
             parents = self.get_parents(return_type="html_select"),
             children = self.get_children(return_type="html"),
             siblings = self.get_siblings(return_type="html"),
+            partners = self.get_intimacy_partners("html"),
             cause_of_death = COD,
             show_COD = COD_div_display_style,
 
@@ -1590,8 +1613,9 @@ class Settlement:
         self.settlement = mdb.settlements.find_one({"_id": ObjectId(settlement_id)})
         if self.settlement is not None:
             self.update_mins()
-#        else:
-#            self.logger.error("Settlement '%s' could not be initialized!" % settlement_id)
+
+    def __repr__(self):
+        return self.get_name_and_id()
 
 
     def log_event(self, msg):
@@ -1618,7 +1642,7 @@ class Settlement:
             "created_by": self.User.user["_id"],
             "name": name,
             "survival_limit": 1,
-            "lantern_year": 1,
+            "lantern_year": 0,
             "death_count": 0,
             "milestone_story_events": [],
             "innovations": [],
@@ -1630,7 +1654,8 @@ class Settlement:
             "population": 0,
             "lost_settlements": 0,
             "timeline": [
-                {"year": 1, "story_event": "Returning Survivors", "settlement_event": ["First Day"], "quarry_event": ["White Lion (First Story)"]},
+                {"year": 0, "settlement_event": ["First Day"], "quarry_event": ["White Lion (First Story)"]},
+                {"year": 1, "story_event": "Returning Survivors"},
                 {"year": 2, "story_event": "Endless Screams", },
                 {"year": 3, },
                 {"year": 4, "nemesis_encounter": "Nemesis Encounter: Butcher", },
@@ -1663,6 +1688,34 @@ class Settlement:
         return settlement_id
 
 
+    def update_current_quarry(self, quarry_string):
+        """ Updates the 'current_quarry' attrib. Logs about it."""
+        if quarry_string == "None":
+            quarry_string = None
+
+        self.settlement["current_quarry"] = quarry_string
+        if quarry_string is not None:
+            self.log_event("Current quarry is %s" % quarry_string)
+        self.logger.debug("%s set current_quarry = '%s' for %s." % (self.User.user["login"], quarry_string, self))
+
+
+    def first_story(self):
+        """ Adds "First Story" survivors, items and Hunting Party setup to the
+        settlement. """
+        self.log_event("Added four new survivors and Starting Gear to settlement storage")
+        self.add_game_asset("storage", "Founding Stone", 4)
+        self.add_game_asset("storage", "Cloth", 4)
+        for i in range(2):
+            m = assets.Survivor(params=None, session_object=self.Session, suppress_event_logging=True)
+            m.set_attrs({"Waist": 1})
+            m.join_hunting_party()
+        for i in range(2):
+            f = assets.Survivor(params=None, session_object=self.Session, suppress_event_logging=True)
+            f.set_attrs({"sex": "F", "Waist": 1})
+            f.join_hunting_party()
+        self.update_current_quarry("White Lion (First Story)")
+
+
     def delete(self):
         """ Retires and removes all survivors; runs the Valkyrie and removes the
         settlement from the mdb. """
@@ -1687,8 +1740,6 @@ class Settlement:
         sanitizes the settlement object's settlement dict.
         """
 
-        self.enforce_data_model()
-
         for min_key in ["population", "death_count", "survival_limit"]:
             min_val = self.get_min(min_key)
             orig_val = int(self.settlement[min_key])
@@ -1704,6 +1755,7 @@ class Settlement:
 #        self.logger.debug("Updated minimum values for settlement %s (%s)" % (self.settlement["name"], self.settlement["_id"]))
         self.enforce_data_model()
         mdb.settlements.save(self.settlement)
+
 
 
     def enforce_data_model(self):
@@ -1743,9 +1795,30 @@ class Settlement:
                     self.settlement["innovations"].remove(innovation_key)
                     self.logger.debug("Automatically removed principle '%s' from settlement '%s' (%s) innovations." % (innovation_key, self.settlement["name"], self.settlement["_id"]))
 
+        # fix timelines without a zero year for prologue
+        years = []
+        for ly in self.settlement["timeline"]:
+            years.append(ly["year"])
+            if ly["year"] == 1:
+                if "quarry_event" in ly:
+                    try:
+                        ly["quarry_event"].remove(u'White Lion (First Story)')
+                        self.logger.debug("Removed 'White Lion (First Story) from LY 1 for %s" % self.get_name_and_id())
+                    except:
+                        pass
+                    try:
+                        ly["settlement_event"].remove(u'First Day')
+                        self.logger.debug("Removed 'First Day' event from LY1 for %s" % self.get_name_and_id())
+                    except:
+                        pass
+        if not 0 in years:
+            year_zero = {"year": 0, "settlement_event": [u"First Day"], "quarry_event": [u'White Lion (First Story)']}
+            self.settlement["timeline"].append(year_zero)
+            self.logger.debug("Added errata LY 0 to %s" % self.get_name_and_id())
+
 
     def get_name_and_id(self):
-        """ Laziness function for DRYer log construction. """
+        """ Laziness function for DRYer log construction. Called by self.__repr__() """
         return "'%s' (%s)" % (self.settlement["name"], self.settlement["_id"])
 
 
@@ -2011,26 +2084,6 @@ class Settlement:
         return genealogy
 
 
-    def get_locations(self, return_type=False):
-        """ Returns a sorted list of locations. """
-        final_list = sorted(self.settlement["locations"])
-
-        if return_type == "comma-delimited":
-            return ", ".join(final_list)
-
-        if return_type == "html_select_remove":
-            if final_list == []:
-                return ""
-
-            output = '<select name="remove_location" onchange="this.form.submit()">'
-            output += '<option selected disabled hidden value="">Remove Location</option>'
-            for location in final_list:
-                output += '<option>%s</option>' % location
-            output += '</select>'
-            return output
-
-        return final_list
-
 
     def get_storage(self, return_type=False):
         """ Returns the settlement's storage in a number of ways. """
@@ -2204,7 +2257,7 @@ class Settlement:
 
         if return_type == "html":
             output = ""
-            for year in range(1,41):
+            for year in range(0,41):
                 strikethrough = ""
                 disabled = ""
                 hidden = "full_width"
@@ -2596,7 +2649,17 @@ class Settlement:
                 elif group["name"] == "Hunting Party" and group["survivors"] != [] and current_user_is_settlement_creator:
                     # settlement admin_controls; only show these if we've got
                     #   survivors and the current user is the admin
-                    output += html.settlement.return_hunting_party.safe_substitute(settlement_id=self.settlement["_id"])
+                    if self.User.get_preference("confirm_on_return"):
+                        output += html.settlement.return_hunting_party_with_confirmation.safe_substitute(settlement_id=self.settlement["_id"])
+                    else:
+                        output += html.settlement.return_hunting_party.safe_substitute(settlement_id=self.settlement["_id"])
+                    quarry_options = []
+                    for q in self.get_game_asset("defeated_monsters", return_type="options"):
+                        if "current_quarry" in self.settlement.keys() and self.settlement["current_quarry"] == q:
+                            quarry_options.append("<option selected>%s</option>" % q)
+                        else:
+                            quarry_options.append("<option>%s</option>" % q)
+                    output += html.settlement.current_quarry_select.safe_substitute(options=quarry_options, settlement_id=self.settlement["_id"])
                     output += html.settlement.hunting_party_macros.safe_substitute(settlement_id=self.settlement["_id"])
 
             return output + html.settlement.campaign_summary_survivors_bot
@@ -2612,6 +2675,12 @@ class Settlement:
         healed_survivors = 0
         returning_survivor_id_list = []
         returning_survivor_name_list = []
+
+        # add the defeated monster first
+        if "current_quarry" in self.settlement.keys() and self.settlement["current_quarry"] is not None:
+            self.add_kill(self.settlement["current_quarry"])
+            self.settlement["current_quarry"] = None
+
         for survivor in self.get_survivors("hunting_party"):
             S = assets.Survivor(survivor_id=survivor["_id"], session_object=self.Session)
             returning_survivor_id_list.append(S.survivor["_id"])
@@ -2632,6 +2701,7 @@ class Settlement:
             if "skip_next_hunt" in survivor.keys():
                 del survivor["skip_next_hunt"]
                 mdb.survivors.save(survivor)
+
         self.log_event("The hunting party (%s) returned." % ", ".join(returning_survivor_name_list))
 
 
@@ -2803,6 +2873,7 @@ class Settlement:
                             self.log_event("Removed %s '%s' from LY %s." % (event_type.replace("_"," "), target_event_string, target_ly))
                             self.logger.debug("%s removed %s '%s' from LY %s for %s" % (self.User.user["login"], event_type.replace("_"," "), target_event_string, target_ly, self.get_name_and_id()))
 
+
     def update_admins(self, player_login, player_role):
         """ Adds or removes player emails from the admins list. """
         if not "admins" in self.settlement.keys():
@@ -2838,10 +2909,11 @@ class Settlement:
 
 
         self.settlement["principles"] = sorted(list(principles))
+        self.logger.debug("%s updated Principles for %s. Updating mins..." % (self.User.user["login"], self))
         self.update_mins()  # this is a save
 
 
-    def get_game_asset_deck(self, asset_type, return_type=False, exclude_always_available=False):
+    def get_game_asset_deck(self, asset_type, return_type=None, exclude_always_available=False):
         """ The 'asset_type' kwarg should be 'locations', 'innovations', etc.
         and the class should be one of our classes from models, e.g.
         'Locations', 'Innovations', etc.
@@ -2889,12 +2961,24 @@ class Settlement:
 
         final_list = sorted(list(set(asset_deck)))
 
-        if return_type == "comma-delimited":
+
+        # handle user-defined return_type
+        if return_type == "user_defined":
+            if self.User.get_preference("comma_delimited_lists"):
+                return_type = "comma-delimited"
+            else:
+                return_type = "list"
+
+        if return_type in ["list","comma-delimited"]:
             if final_list == []:
                 return ""
             else:
-                headline = "%s Deck" % Asset.get_pretty_name()
-            return "<h3>%s</h3>\n<p>%s</p>" % (headline, ", ".join(final_list))
+                output = "<h3>%s Deck</h3>" % Asset.get_pretty_name()
+                if return_type == "comma-delimited":
+                    output += "\n<p>%s</p>" % (", ".join(final_list))
+                elif return_type == "list":
+                    output += "\n<ul>%s</ul>" % "\n".join(["<li>%s</li>" % i for i in final_list])
+                return output
 
         return final_list
 
@@ -2917,10 +3001,13 @@ class Settlement:
         asset is a blank list (i.e. []): this is useful when writing the form,
         because if we've got no options, we display no select element.
         """
+
         self.update_mins()
 
         if asset_type == "defeated_monsters":   # our pseudo model
             Asset = DefeatedMonsters
+        elif asset_type == "nemesis_monsters":
+            Asset = NemesisMonsters             # another pseudo model
         else:
             exec "Asset = %s" % asset_type.capitalize() # if asset_type is 'innovations', initialize 'Innovations'
 
@@ -2938,27 +3025,39 @@ class Settlement:
                 raise Exception(msg)
 
         #   now do return types
+        if return_type is "user_defined":
+            if self.User.get_preference("comma_delimited_lists"):
+                return_type = "comma-delimited"
+            else:
+                return_type = "list"
+
         pretty_asset_name = asset_name.replace("_"," ").title()
-        if return_type == "comma-delimited":
+
+        if return_type in ["comma-delimited", "list"]:
             if hasattr(Asset, "uniquify"):
                 asset_keys = list(set(asset_keys))
             if hasattr(Asset, "sort_alpha"):
                 asset_keys = sorted(asset_keys)
             if hasattr(Asset, "stack"):
                 asset_keys = stack_list(asset_keys)
-            output = ", ".join(asset_keys)
-            return "<p>%s</p>" % output
+            if return_type == "list":
+                return "<ul>%s</ul>" % "\n".join(["<li>%s</li>" % i for i in asset_keys])
+            elif return_type == "comma-delimited":
+                return "<p>%s</p>" % ", ".join(asset_keys)
         elif return_type == "html_add":
-            op = "add"
-            output = html.ui.game_asset_select_top.safe_substitute(
-                operation="%s_" % op, operation_pretty=op.capitalize(),
-                name=asset_name,
-                name_pretty=pretty_asset_name,
-            )
 
-            for asset_key in self.get_game_asset_deck(asset_type):
-                output += html.ui.game_asset_select_row.safe_substitute(asset=asset_key)
-            output += html.ui.game_asset_select_bot
+            if self.User.get_preference("dynamic_innovation_deck"):
+                op = "add"
+                output = html.ui.game_asset_select_top.safe_substitute(
+                    operation="%s_" % op, operation_pretty=op.capitalize(),
+                    name=asset_name,
+                    name_pretty=pretty_asset_name,
+                )
+                for asset_key in self.get_game_asset_deck(asset_type):
+                    output += html.ui.game_asset_select_row.safe_substitute(asset=asset_key)
+                output += html.ui.game_asset_select_bot
+            else:
+                output = Innovations.render_as_html_dropdown(exclude=self.settlement["innovations"], excluded_type="principle")
             output += html.ui.game_asset_add_custom.safe_substitute(asset_name=asset_name, asset_name_pretty=pretty_asset_name)
             return output
         elif return_type == "html_remove":
@@ -2979,10 +3078,12 @@ class Settlement:
                 output += html.ui.game_asset_select_row.safe_substitute(asset=asset_key)
             output += html.ui.game_asset_select_bot
             return output
+        elif return_type == "options":
+            return self.get_game_asset_deck(asset_type)
         elif not return_type:
             return asset_keys
-
-        self.logger.error("An error occurred while retrieving settlement game assets ('%s')!" % asset_type)
+        else:
+            self.logger.error("An error occurred while retrieving settlement game assets ('%s')!" % asset_type)
 
 
     def add_kill(self, monster_desc):
@@ -2996,8 +3097,8 @@ class Settlement:
             self.settlement["kill_board"][current_ly] = []
         self.settlement["kill_board"][current_ly].append(monster_desc)
         self.settlement["defeated_monsters"].append(monster_desc)
+        self.logger.debug("%s defeated by %s" % (monster_desc, self))
         self.log_event("%s defeated!" % monster_desc)
-        mdb.settlements.save(self.settlement)
 
 
     def add_game_asset(self, asset_class, game_asset_key=None, game_asset_quantity=1):
@@ -3132,9 +3233,11 @@ class Settlement:
             elif p.split("_")[0] == "player" and p.split("_")[1] == "role":
                 player_login = "_".join(p.split("_")[2:])
                 self.update_admins(player_login, game_asset_key)
+            elif p == "current_quarry":
+                self.update_current_quarry(game_asset_key)
             else:
                 self.settlement[p] = game_asset_key
-                self.logger.debug("%s set '%s' = '%s' for settlement '%s' (%s)." % (self.User.user["login"], p, game_asset_key, self.settlement["name"], self.settlement["_id"]))
+                self.logger.debug("%s set '%s' = '%s' for %s" % (self.User.user["login"], p, game_asset_key, self.get_name_and_id()))
 
         #
         #   settlement post-processing starts here!
@@ -3180,8 +3283,7 @@ class Settlement:
     def render_html_summary(self, user_id=False):
         """ This is the summary view we print at the top of the game view. It's
         not a form. """
-
-        output = html.settlement.summary.safe_substitute(
+        return html.settlement.summary.safe_substitute(
             export_xls = html.settlement.export_button.safe_substitute(export_type="XLS", export_pretty_name="Export to XLS", asset_id=self.settlement["_id"]),
             settlement_notes = self.get_settlement_notes(),
             settlement_name=self.settlement["name"],
@@ -3189,20 +3291,19 @@ class Settlement:
             population = self.settlement["population"],
             death_count = self.settlement["death_count"],
             sex_count = self.get_survivors(return_type="sex_count", exclude_dead=True),
-            survivors = self.get_survivors(return_type="html_campaign_summary", user_id=user_id),
             lantern_year = self.settlement["lantern_year"],
             survival_limit = self.settlement["survival_limit"],
-            innovations = self.get_game_asset("innovations", return_type="comma-delimited", exclude=self.settlement["principles"]),
-            locations = self.get_locations(return_type="comma-delimited"),
+            innovations = self.get_game_asset("innovations", return_type="user_defined", exclude=self.settlement["principles"]),
+            locations = self.get_game_asset("locations", return_type="user_defined"),
             endeavors = self.get_bonuses('endeavors', return_type="html"),
             departure_bonuses = self.get_bonuses('departure_buff', return_type="html"),
             settlement_bonuses = self.get_bonuses('settlement_buff', return_type="html"),
             survivor_bonuses = self.get_bonuses('survivor_buff', return_type="html"),
-            defeated_monsters = self.get_game_asset("defeated_monsters", return_type="comma-delimited"),
-            quarries = self.get_quarries("comma-delimited"),
-            nemesis_monsters = self.get_nemeses("comma-delimited"),
+            defeated_monsters = self.get_game_asset("defeated_monsters", return_type="user_defined"),
+            quarries = self.get_game_asset("quarries", return_type="user_defined"),
+            nemesis_monsters = self.get_game_asset("nemesis_monsters", return_type="user_defined"),
+            survivors = self.get_survivors(return_type="html_campaign_summary", user_id=user_id),
         )
-        return output
 
 
     def render_html_form(self):
@@ -3315,19 +3416,19 @@ class Settlement:
 
             nemesis_monsters = self.get_nemeses("html_buttons"),
 
-            quarries = self.get_quarries("comma-delimited"),
-            quarry_options = Quarries.render_as_html_dropdown(exclude=self.get_quarries()),
+            quarries = self.get_game_asset("quarries", return_type="user_defined"),
+            quarry_options = Quarries.render_as_html_dropdown(exclude=self.settlement["quarries"]),
 
-            innovations = self.get_game_asset("innovations", return_type="comma-delimited", exclude=self.settlement["principles"]),
+            innovations = self.get_game_asset("innovations", return_type="user_defined", exclude=self.settlement["principles"]),
             innovations_add = self.get_game_asset("innovations", return_type="html_add"),
             innovations_rm = self.get_game_asset("innovations", return_type="html_remove", exclude=self.settlement["principles"]),
-            innovation_deck = self.get_game_asset_deck("innovations", return_type="comma-delimited", exclude_always_available=True),
+            innovation_deck = self.get_game_asset_deck("innovations", return_type="user_defined", exclude_always_available=True),
 
-            locations = self.get_game_asset("locations", return_type="comma-delimited"),
+            locations = self.get_game_asset("locations", return_type="user_defined"),
             locations_add = self.get_game_asset("locations", return_type="html_add"),
             locations_rm = self.get_game_asset("locations", return_type="html_remove"),
 
-            defeated_monsters = self.get_game_asset("defeated_monsters", return_type="comma-delimited"),
+            defeated_monsters = self.get_game_asset("defeated_monsters", return_type="user_defined"),
             defeated_monsters_add = self.get_game_asset("defeated_monsters", return_type="html_add"),
             defeated_monsters_rm = self.get_game_asset("defeated_monsters", return_type="html_remove"),
 
@@ -3335,7 +3436,7 @@ class Settlement:
         )
 
 
-    def asset_link(self, context=None):
+    def asset_link(self, context=None, update_mins=True):
         """ Returns an asset link (i.e. html form with button) for the
         settlement.
 
@@ -3354,7 +3455,8 @@ class Settlement:
         settlement flash and the name.
         """
 
-        self.update_mins()  # update settlement mins before we create any text
+        if update_mins:
+            self.update_mins()  # update settlement mins before we create any text
 
         if context == "campaign_summary":
             button_class = "gradient_yellow floating_asset_button"

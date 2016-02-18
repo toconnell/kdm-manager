@@ -167,6 +167,7 @@ class Session:
                     s_id = ObjectId(self.session["current_asset"])
                     self.Settlement = assets.Settlement(settlement_id=s_id, session_object=self)
 
+
 #        if self.Settlement is None:
 #            self.logger.debug("Unable to set 'current_settlement' for session '%s'." % self.session["_id"])
         mdb.sessions.save(self.session)
@@ -260,24 +261,15 @@ class Session:
                     settlement_name = self.params["settlement_name"].value
                 else:
                     settlement_name = "Unknown"
-                S = assets.Settlement(name=settlement_name, session_object=self)
-                self.set_current_settlement(S.settlement["_id"])
-                self.change_current_view("view_campaign", asset_id=S.settlement["_id"])
-                if "create_survivors" in self.params:   # this could use a refactor, but it's functional so FIWE
-                    self.Settlement.log_event("Added four new survivors and Starting Gear to settlement storage")
-                    self.Settlement.add_game_asset("storage", "Founding Stone", 4)
-                    self.Settlement.add_game_asset("storage", "Cloth", 4)
-                    for i in range(2):
-                        m = assets.Survivor(params=None, session_object=self, suppress_event_logging=True)
-                        m.set_attrs({"Waist": 1})
-                        m.join_hunting_party()
-                    for i in range(2):
-                        f = assets.Survivor(params=None, session_object=self, suppress_event_logging=True)
-                        f.set_attrs({"sex": "F", "Waist": 1})
-                        f.join_hunting_party()
-                    user_action = "created settlement %s with First Story survivors" % S.get_name_and_id()
+                self.Settlement = assets.Settlement(name=settlement_name, session_object=self)
+#                self.set_current_settlement(S.settlement["_id"])
+                self.change_current_view("view_campaign", asset_id=self.Settlement.settlement["_id"])
+                if "create_survivors" in self.params:
+                    self.Settlement.first_story()
+                    mdb.settlements.save(self.Settlement.settlement)    # gotta save here
+                    user_action = "created settlement %s with First Story survivors" % self.Settlement
                 else:
-                    user_action = "created vanilla settlement %s" % S.get_name_and_id()
+                    user_action = "created vanilla settlement %s" % self.Settlement
             if self.params["new"].value == "survivor":
                 S = assets.Survivor(params=self.params, session_object=self)
                 self.change_current_view("view_survivor", asset_id=S.survivor["_id"])
@@ -286,8 +278,11 @@ class Session:
         if "modify" in self.params:
             s_id = self.params["asset_id"].value
             if self.params["modify"].value == "settlement":
-                S = assets.Settlement(settlement_id=s_id, session_object=self)
-                S.modify(self.params)
+                if not str(self.Settlement.settlement["_id"]) == (s_id):
+                    S = assets.Settlement(settlement_id=s_id, session_object=self)
+                    S.modify(self.params)
+                else:
+                    self.Settlement.modify(self.params)
                 user_action = "modified settlement %s" % s_id
             if self.params["modify"].value == "survivor":
                 S = assets.Survivor(survivor_id=s_id, session_object=self)
@@ -296,8 +291,11 @@ class Session:
 
         if "return_hunting_party" in self.params:
             s_id = self.params["return_hunting_party"].value
-            S = assets.Settlement(settlement_id=s_id, session_object=self)
-            S.return_hunting_party()
+            if not str(self.Settlement.settlement["_id"]) == (s_id):
+                S = assets.Settlement(settlement_id=s_id, session_object=self)
+                S.return_hunting_party()
+            else:
+                self.Settlement.return_hunting_party()
             user_action = "returned hunting party to settlement %s" % s_id
 
         # user and campaign exports
@@ -389,9 +387,9 @@ class Session:
                 if mdb.settlement_events.find({"settlement_id": self.Settlement.settlement["_id"]}).count() != 0:
                     output += html.dashboard.event_log_button.safe_substitute(name=self.Settlement.settlement["name"])
                 if self.Settlement.settlement is not None and self.Settlement.settlement["created_by"] == self.User.user["_id"]:
-                    output += self.Settlement.asset_link(context="campaign_summary")
+                    output += self.Settlement.asset_link(context="campaign_summary", update_mins=False)
                 elif "admins" in self.Settlement.settlement.keys() and self.User.user["login"] in self.Settlement.settlement["admins"]:
-                    output += self.Settlement.asset_link(context="campaign_summary")
+                    output += self.Settlement.asset_link(context="campaign_summary", update_mins=False)
                 output += self.Settlement.render_html_summary(user_id=self.User.user["_id"])
             elif self.session["current_view"] == "new_settlement":
                 output += html.settlement.new

@@ -563,6 +563,10 @@ disorders = {
 
 
 epithets = {
+    "White-haired":{},
+    "White Wolf":{},
+    "The White":{},
+    "The Black":{},
     "Eunuch": {},
     "Broke the Silence": {},
     "Triathlete":{},

@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+
+import sys
+
+#
+#   This script renders a CSS file on demand, based on /media/style.css
+#
+
+if __name__ == "__main__":
+    print("Content-type: text/css\n\n")
+    raw_file = file("media/style.css", "rb").read()
+    print raw_file
+    sys.exit()

@@ -716,6 +716,8 @@ class survivor:
               <input type="hidden" name="asset_id" value="$survivor_id" />
               $parents
             </form>
+            <h4>Intimacy Partners</h4>
+                $partners
             <h4>Siblings</h4>
                 $siblings
             <h4>Children</h4>
@@ -774,11 +776,28 @@ class settlement:
         </form>
     </div>
     \n"""
+    return_hunting_party_with_confirmation = Template("""\n\
+        <form method="POST" onsubmit="return confirm('Press OK to return the survivors, increment Hunt XP +1 and add the current quarry to the Defeated Monsters list.');">
+            <input type="hidden" name="return_hunting_party" value="$settlement_id"/>
+            <button id="return_hunting_party" class="bold gradient_orange" >&#8629; Return Hunting Party</button>
+        </form>
+    \n""")
     return_hunting_party = Template("""\n\
         <form method="POST">
             <input type="hidden" name="return_hunting_party" value="$settlement_id"/>
             <button id="return_hunting_party" class="bold gradient_orange" >&#8629; Return Hunting Party</button>
         </form>
+    \n""")
+    current_quarry_select = Template("""\n\
+    <h3>Current Quarry:</h3>
+    <form method="POST">
+        <input type="hidden" name="modify" value="settlement"/>
+        <input type="hidden" name="asset_id" value="$settlement_id"/>
+        <select name="current_quarry" onchange="this.form.submit()">
+          <option>None</option>
+            $options
+        </select>
+    </form>
     \n""")
     hunting_party_macros = Template("""\n\
     <h3>Update Hunting Party Stats:</h3>
@@ -1259,7 +1278,7 @@ class settlement:
             <form id="autoForm" method="POST" action="#edit_timeline">
             <input type="hidden" name="modify" value="settlement" />
             <input type="hidden" name="asset_id" value="$settlement_id" />
-            <input id="lanternYearBox" onchange="this.form.submit()" class="big_number_square" type="number" name="lantern_year" value="$lantern_year" min="1"/>
+            <input id="lanternYearBox" onchange="this.form.submit()" class="big_number_square" type="number" name="lantern_year" value="$lantern_year" min="0"/>
             </form>
              <button class="decrementer" onclick="decrement('lanternYearBox');">-</button>
          </div>
@@ -1398,8 +1417,7 @@ class meta:
 
     basic_http_header = "Content-type: text/html\n\n"
     error_500 = Template('%s<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>%s</title></head><body><h1>500 - Internal Server Error</h1><hr/><p>$msg</p><p>Please use the information below to report the error:</p><hr/><p>%s</p>$exception' % (basic_http_header, settings.get("application","title"), datetime.now()))
-    start_head = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<title>%s</title>\n' % settings.get("application","title")
-    stylesheet = Template('<link rel="stylesheet" type="text/css" href="$url">\n')
+    start_head = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<title>%s</title>\n<link rel="stylesheet" type="text/css" href="/style.css">\n' % settings.get("application","title")
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
     saved_dialog = '\n    <div id="saved_dialog" class="success">Saved!</div>'
     log_out_button = Template('\n\t<hr class="mobile_only"/><form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><input type="hidden" name="login" value="$login"/><button class="warn change_view mobile_only">SIGN OUT</button>\n\t</form>')
@@ -1489,7 +1507,6 @@ def render(view_html, head=[], http_headers=None, body_class=None):
         sys.exit()
 
     output += meta.start_head
-    output += meta.stylesheet.safe_substitute(url=settings.get("application", "stylesheet"))
 
     output += """\n\
     <link rel="manifest" href="/manifest.json">

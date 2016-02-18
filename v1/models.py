@@ -37,7 +37,7 @@ class Model:
         return always_available
 
 
-    def render_as_html_dropdown(self, submit_on_change=True, exclude=[], disable=[]):
+    def render_as_html_dropdown(self, submit_on_change=True, exclude=[], disable=[], excluded_type=None):
         """ Renders the model as an HTML dropdown and returns a string. Use the
         'submit_on_change' kwarg to control whether it submits on change.
 
@@ -49,6 +49,9 @@ class Model:
 
         Use 'disabled' to provide a list of options that, if present, will be
         greyed out/disabled in the resulting pick-list.
+
+        The 'include_principles' kwarg is a hack that forces innovation lists to
+        be returned without principle-type innovations.
         """
 
         self.get_pretty_name()
@@ -56,6 +59,14 @@ class Model:
 
         for excluded_key in exclude:
             if excluded_key in options:
+                options.remove(excluded_key)
+
+        if excluded_type is not None:
+            excluded_assets = []
+            for asset in self.get_keys():
+                if "type" in self.get_asset(asset).keys() and self.get_asset(asset)["type"] == excluded_type:
+                    excluded_assets.append(asset)
+            for excluded_key in excluded_assets:
                 options.remove(excluded_key)
 
         if options == []:
@@ -192,8 +203,18 @@ class nemesesModel(Model):
 class quarriesModel(Model):
     def __init__(self):
         Model.__init__(self)
+        self.sort_alpha = True
         self.game_assets = game_assets.quarries
         self.name = "quarry"
+
+
+class nemesisMonstersModel(Model):
+    """ This is a pseudo model. """
+    def __init__(self):
+        Model.__init__(self)
+        self.game_assets = {}
+        self.sort_alpha = True
+        self.name = "nemesis_monster"
 
 
 class defeatedMonstersModel(Model):
@@ -204,6 +225,7 @@ class defeatedMonstersModel(Model):
         Model.__init__(self)
         self.game_assets = game_assets.defeated_monsters
         self.name = "defeated_monster"
+        self.sort_alpha = True
         self.stack = True
 
 
@@ -264,7 +286,7 @@ Resources       = resourcesModel()
 ResourceDecks   = resourceDecksModel()
 WeaponProficiencies = weaponProficienciesModel()
 DefeatedMonsters = defeatedMonstersModel()      # this is like...a pseudo model
-
+NemesisMonsters = nemesisMonstersModel()        # another pseudo model
 
 
 #
@@ -310,6 +332,21 @@ preferences_dict = {
         "affirmative": "Hide",
         "negative": "Always Show",
     },
+    "comma_delimited_lists": {
+        "desc": "How should Location, Innovation, Innovation Deck, etc. lists be displayed?",
+        "affirmative": "Comma-delimited lists",
+        "negative": "Line item, bulleted lists",
+    },
+    "confirm_on_return": {
+        "desc": "Confirm Hunting Party return?",
+        "affirmative": "Confirm",
+        "negative": "Do not confirm",
+    },
+    "dynamic_innovation_deck": {
+        "desc": "What Innovations should be selectable?",
+        "affirmative": "Innovation Deck only",
+        "negative": "All Innovations",
+    }
 }
 
 class userPreferences():

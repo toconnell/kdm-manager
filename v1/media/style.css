@@ -37,7 +37,7 @@ button.sign_in {width: 95%; margin: 0 auto; padding: 0 none; font-weight: normal
 
 /*  dashboard styles */
 .dashboard_menu ul {list-style-type: none;}
-body.dashboard {background: linear-gradient(130deg, #E6DADA, #274046); }
+body.dashboard {background: linear-gradient(130deg, #E6EAEA, #97A096); }
 .dashboard_alert {position: fixed; width: 90%; left: 5%; bottom: 0; padding: 5px; font-size: 25pt; }
 h2.clickable, .dashboard_accordion {margin: auto; padding: 5px; border-left: 1px solid; border-bottom: 2px solid; border-right: 2px solid; margin-bottom: 30px; }
 .dashboard_accordion {border-top: 0 none; margin-top: -35px; z-index: 10; width: 96.3%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; }
@@ -93,20 +93,20 @@ div#info_box h2, button#survivor_campaign_asset {text-align: left; }
 }
 .maroon_text {color: #a73737;}
 .green_text {color: #37a737;}
-.dark_green {background-color: #82bD00; }
+.dark_green {background-color: #52AD00; }
 .alert {color: #C60000; font-weight: bold; }
 .gradient_white {background: linear-gradient(-90deg, #eee, #fff);}
 .gradient_black {background: linear-gradient(-90deg, #232526, #010305); color: #ccc;}
-.green {background-color: #C2FD60; }
-.gradient_green {background: linear-gradient(-90deg, #39b54a, #8Dc63F); }
+.green {background: linear-gradient(#B2ED50, #7a9460); }
+.gradient_green {background: linear-gradient(-90deg, #7a9460, #5BD76C); }
 .orange {background-color: #FFCC00; }
-.gradient_orange {background: linear-gradient(-90deg, #Fbb040, #fff200); }
-.gradient_yellow {background: linear-gradient(-90deg, #F0B839, #FDEE7D); }
-.purple {color: #000; background-color: #AC88BF; }
-.gradient_purple { color: #000 ; background: linear-gradient(-90deg, #A743FE, #DA22FF); }
-.gradient_violet { color: #000 ; background: linear-gradient(-90deg, #D773FE, #FA52FF); }
+.gradient_orange {background: linear-gradient(-90deg, #dd9977, #FBB040); }
+.gradient_yellow {background: linear-gradient(-90deg, #f2e090, #CDBE7D); }
+.purple {color: #000; background-color: #9C78AF; }
+.gradient_purple { color: #000 ; background: linear-gradient(-90deg, #665566, #CAA2EF); }
+.gradient_violet { color: #000 ; background: linear-gradient(-90deg, #D7D3FE, #FAA2FF); }
 
-.gradient_silver { border-color: #666; background: linear-gradient(-90deg, #858FAA, #D7DDE8); }
+.gradient_silver { border-color: #666; background: linear-gradient(-90deg, #A5AFAA, #F7FDF8); }
 .gradient_blue { background: linear-gradient(-90deg, #3a7bd5, #00d2ff);  }
 .grey {background-color: #CCC;}
 
@@ -115,7 +115,7 @@ div#info_box h2, button#survivor_campaign_asset {text-align: left; }
 .error, .warn, .success {border-right: 1px solid #666; border-bottom: 1px solid #666; font-weight: bold;}
 .error { color: #fff; background: linear-gradient(#EB3349, #F45C43);}
 .warn  { color: #000; background: linear-gradient(#ffd3a7, #ffed33);}
-.success  { color: #000; background: linear-gradient(#FDFC47, #24FE41);}
+.success  { color: #000; background: linear-gradient(#DDDC27, #14DE21);}
 
 
 /* le bold styles */
@@ -223,7 +223,7 @@ input[type=radio], input[type=checkbox] {display: none; }
 
 
 /* label styles */
-label {margin: 20px; font-size: 65px; color: #CCC; }
+label {margin: 20px; font-size: 65px; color: #999; }
 label, .full_width {clear: both; display: block; }
 label#skip_next_hunt, label#float_right_toggle {text-align:center; border: 1px solid #999; padding: 10px;  }
 
@@ -390,6 +390,7 @@ right connector from last child*/
     .left_border, .right_border {height: auto;}
     input[type=text].full_width {width: 88%}
     ul {font-size: 12pt;}
+    li {text-align: left; }
     h1 {font-size: 18pt; }
     h2 {font-size: 15pt; }
     h3 {font-size: 13pt; }
