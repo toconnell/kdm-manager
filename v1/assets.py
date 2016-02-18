@@ -2678,8 +2678,10 @@ class Settlement:
 
         # add the defeated monster first
         if "current_quarry" in self.settlement.keys() and self.settlement["current_quarry"] is not None:
-            self.add_kill(self.settlement["current_quarry"])
+            quarry_key = self.settlement["current_quarry"]
+            self.add_kill(quarry_key)
             self.settlement["current_quarry"] = None
+            self.update_timeline(add_event=(self.settlement["lantern_year"], "quarry_event", quarry_key))
 
         for survivor in self.get_survivors("hunting_party"):
             S = assets.Survivor(survivor_id=survivor["_id"], session_object=self.Session)

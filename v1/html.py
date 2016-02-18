@@ -777,7 +777,7 @@ class settlement:
     </div>
     \n"""
     return_hunting_party_with_confirmation = Template("""\n\
-        <form method="POST" onsubmit="return confirm('Press OK to return the survivors, increment Hunt XP +1 and add the current quarry to the Defeated Monsters list.');">
+        <form method="POST" onsubmit="return confirm('Press OK to return the survivors, increment Hunt XP +1 and add the current quarry to the Defeated Monsters list as well as the settlement timeline for this year.');">
             <input type="hidden" name="return_hunting_party" value="$settlement_id"/>
             <button id="return_hunting_party" class="bold gradient_orange" >&#8629; Return Hunting Party</button>
         </form>
