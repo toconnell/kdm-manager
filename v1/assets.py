@@ -2804,15 +2804,18 @@ class Settlement:
 
             output = html.settlement.player_controls_table_top
             for player in sorted(list(player_set)):
-                player_id = mdb.users.find_one({"login": player})["_id"]
-                if player_id == self.settlement["created_by"]:
-                    output += html.settlement.player_controls_table_row.safe_substitute(email=player, role="<i>Founder</i>")
-                else:
-                    if "admins" in self.settlement.keys() and player in self.settlement["admins"]:
-                        controls = '<select name="player_role_%s"><option>Player</option><option selected>Admin</option></select>' % player
+                try:
+                    player_id = mdb.users.find_one({"login": player})["_id"]
+                    if player_id == self.settlement["created_by"]:
+                        output += html.settlement.player_controls_table_row.safe_substitute(email=player, role="<i>Founder</i>")
                     else:
-                        controls = '<select name="player_role_%s"><option selected>Player</option><option>Admin</option></select>' % player
-                    output += html.settlement.player_controls_table_row.safe_substitute(email=player, role=controls)
+                        if "admins" in self.settlement.keys() and player in self.settlement["admins"]:
+                            controls = '<select name="player_role_%s"><option>Player</option><option selected>Admin</option></select>' % player
+                        else:
+                            controls = '<select name="player_role_%s"><option selected>Player</option><option>Admin</option></select>' % player
+                        output += html.settlement.player_controls_table_row.safe_substitute(email=player, role=controls)
+                except:
+                        output += html.settlement.player_controls_table_row.safe_substitute(email=player, role="None")
             output += html.settlement.player_controls_table_bot
             return output
 
