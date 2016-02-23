@@ -9,6 +9,7 @@ from datetime import datetime
 import gridfs
 from hashlib import md5
 from PIL import Image
+import inspect
 import json
 import operator
 import os
@@ -351,12 +352,14 @@ class User:
 
 class Survivor:
 
-    def __init__(self, survivor_id=False, params=None, session_object=None, suppress_event_logging=False):
+    def __init__(self, survivor_id=False, params=None, session_object=None, suppress_event_logging=False, update_mins=True):
         """ Initialize this with a cgi.FieldStorage() as the 'params' kwarg
         to create a new survivor. Otherwise, use a mdb survivor _id value
         to initalize with survivor data from mongo. """
 
         self.suppress_event_logging = suppress_event_logging
+        self.update_mins = update_mins
+
         self.Session = session_object
         if self.Session is None or not self.Session:
             raise Exception("Survivor objects may not be initialized without a Session object!")
@@ -395,7 +398,7 @@ class Survivor:
             raise Exception("Invalid survivor ID: '%s'" % survivor_id)
 
         settlement_id = self.survivor["settlement"]
-        self.Settlement = Settlement(settlement_id=settlement_id, session_object=self.Session)
+        self.Settlement = Settlement(settlement_id=settlement_id, session_object=self.Session, update_mins=self.update_mins)
         if self.Settlement is not None:
             self.normalize()
 
@@ -566,7 +569,7 @@ class Survivor:
 
         # apply settlement buffs to the new guy depending on preference
         if self.User.get_preference("apply_new_survivor_buffs"):
-            new_survivor_buffs = self.Settlement.get_bonuses("new_survivor")
+            new_survivor_buffs = self.Settlement.get_bonuses("new_survivor", update_mins=self.update_mins)
             self.logger.debug("Automatically applying %s 'new_survivor' buffs to new survivor '%s'" % (len(new_survivor_buffs), self.get_name_and_id()))
             for b in new_survivor_buffs.keys():
                 buffs = new_survivor_buffs[b]
@@ -585,7 +588,8 @@ class Survivor:
         # save the survivor (in case it got changed above), update settlement
         #   mins and log our successful creation
         mdb.survivors.save(self.survivor)
-        self.Settlement.update_mins()
+        if self.update_mins:
+            self.Settlement.update_mins()
         self.logger.info("User '%s' created new survivor %s successfully." % (self.User.user["login"], self.get_name_and_id(include_sex=True)))
 
         return survivor_id
@@ -1084,10 +1088,13 @@ class Survivor:
             for p in self.get_parents():
                 if p in S.get_parents():
                     siblings[S.survivor["_id"]] = "half"
-            if S.get_parents() == self.get_parents():
+            if self.get_parents() != [] and S.get_parents() == self.get_parents():
                 siblings[S.survivor["_id"]] = "full"
 
-        del siblings[self.survivor["_id"]]   # remove yourself
+        try:
+            del siblings[self.survivor["_id"]]   # remove yourself
+        except:
+            pass
 
         if return_type == "html":
             if siblings == {}:
@@ -1602,7 +1609,7 @@ class Survivor:
 
 class Settlement:
 
-    def __init__(self, settlement_id=False, name=False, session_object=None):
+    def __init__(self, settlement_id=False, name=False, session_object=None, update_mins=True):
         """ Initialize with a settlement from mdb. """
         self.logger = get_logger()
 
@@ -1617,7 +1624,7 @@ class Settlement:
             settlement_id = self.new(name)
 
         self.settlement = mdb.settlements.find_one({"_id": ObjectId(settlement_id)})
-        if self.settlement is not None:
+        if self.settlement is not None and update_mins:
             self.update_mins()
 
     def __repr__(self):
@@ -1745,6 +1752,11 @@ class Settlement:
         This one should be called FREQUENTLY, as it enforces the data model and
         sanitizes the settlement object's settlement dict.
         """
+
+        # uncomment these to log which methods are calling update_mins()
+#        curframe = inspect.currentframe()
+#        calframe = inspect.getouterframes(curframe, 2)
+#        self.logger.debug("update_mins() called by %s" % calframe[1][3])
 
         for min_key in ["population", "death_count", "survival_limit"]:
             min_val = self.get_min(min_key)
@@ -2410,12 +2422,12 @@ class Settlement:
         return list(set(survival_actions))
 
 
-    def get_bonuses(self, bonus_type, return_type=False):
+    def get_bonuses(self, bonus_type, return_type=False, update_mins=True):
         """ Returns the buffs/bonuses that settlement gets. 'bonus_type' is
         required and can be 'departure_buff', 'settlement_buff' or
         'survivor_buff'.  """
 
-        innovations = self.get_game_asset("innovations")
+        innovations = self.get_game_asset("innovations", update_mins=update_mins)
         innovations.extend(self.settlement["principles"])
 
         buffs = {}
@@ -2423,8 +2435,6 @@ class Settlement:
         for innovation_key in innovations:
             if innovation_key in Innovations.get_keys() and bonus_type in Innovations.get_asset(innovation_key).keys():
                 buffs[innovation_key] = Innovations.get_asset(innovation_key)[bonus_type]
-
-#        self.logger.debug("Settlement %s has '%s' bonuses for %s." % (self.get_name_and_id(), bonus_type, ", ".join(buffs.keys())))
 
         if return_type == "html":
             output = ""
@@ -2994,7 +3004,7 @@ class Settlement:
         return final_list
 
 
-    def get_game_asset(self, asset_type=None, return_type=False, exclude=[]):
+    def get_game_asset(self, asset_type=None, return_type=False, exclude=[], update_mins=True):
         """ This is the generic method for getting a list of the settlement's
         game assets, e.g. innovations, locations, principles, etc.
 
@@ -3013,7 +3023,8 @@ class Settlement:
         because if we've got no options, we display no select element.
         """
 
-        self.update_mins()
+        if update_mins:
+            self.update_mins()
 
         if asset_type == "defeated_monsters":   # our pseudo model
             Asset = DefeatedMonsters
@@ -3056,8 +3067,9 @@ class Settlement:
             elif return_type == "comma-delimited":
                 return "<p>%s</p>" % ", ".join(asset_keys)
         elif return_type == "html_add":
-
-            if self.User.get_preference("dynamic_innovation_deck"):
+            if not self.User.get_preference("dynamic_innovation_deck") and asset_type == "innovations":
+                output = Innovations.render_as_html_dropdown(exclude=self.settlement["innovations"], excluded_type="principle")
+            else:
                 op = "add"
                 output = html.ui.game_asset_select_top.safe_substitute(
                     operation="%s_" % op, operation_pretty=op.capitalize(),
@@ -3067,8 +3079,6 @@ class Settlement:
                 for asset_key in self.get_game_asset_deck(asset_type):
                     output += html.ui.game_asset_select_row.safe_substitute(asset=asset_key)
                 output += html.ui.game_asset_select_bot
-            else:
-                output = Innovations.render_as_html_dropdown(exclude=self.settlement["innovations"], excluded_type="principle")
             output += html.ui.game_asset_add_custom.safe_substitute(asset_name=asset_name, asset_name_pretty=pretty_asset_name)
             return output
         elif return_type == "html_remove":

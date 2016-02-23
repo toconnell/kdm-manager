@@ -717,7 +717,7 @@ fighting_arts = {
         "desc": "Your Fist & Tooth attacks gain +1 Accuracy, +1 Strength and Savage (after the first critical wound in an attack, savage weapons cause 1 additional wound. This rule does not trigger on Impervious hit locations).",
     },
     "Tumble": {
-        "desc": "When something would collide with you, roll 1d10. On a result of 6+, you successfully tumble out of harm's way. Instead, please your survivor standing on the closest free space outside of the collision path.",
+        "desc": "When something would collide with you, roll 1d10. On a result of 6+, you successfully tumble out of harm's way. Instead, place your survivor standing on the closest free space outside of the collision path.",
     },
     "Extra Sense": {
         "desc": "You may dodge 1 additional time per round.",
@@ -1090,7 +1090,7 @@ items = {
         "resource_family": ["organ"],
         "consumable": True,
     },
-    "Tall Feathers": {
+    "Tail Feathers": {
         "location": "Phoenix Resources",
         "resource_family": ["hide"],
     },

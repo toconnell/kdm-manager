@@ -94,7 +94,7 @@ class Session:
             return html.login.recover_password
 
         if "recovery_code" not in self.params:
-            user = mdb.users.find_one({"login": self.params["login"].value})
+            user = mdb.users.find_one({"login": self.params["login"].value.lower().strip()})
         elif "recovery_code" in self.params:
             user = mdb.users.find_one({"recovery_code": self.params["recovery_code"].value})
 
@@ -249,10 +249,10 @@ class Session:
             male = int(self.params["male_survivors"].value)
             female = int(self.params["female_survivors"].value)
             for s in range(male):
-                m = assets.Survivor(params=None, session_object=self, suppress_event_logging=True)
+                m = assets.Survivor(params=None, session_object=self, suppress_event_logging=True, update_mins=False)
                 m.set_attrs({"public": "checked"})
             for s in range(female):
-                f = assets.Survivor(params=None, session_object=self, suppress_event_logging=True)
+                f = assets.Survivor(params=None, session_object=self, suppress_event_logging=True, update_mins=False)
                 f.set_attrs({"public": "checked", "sex": "F"})
             S.log_event("%s male and %s female survivors joined the settlement!" % (male, female))
         if "new" in self.params:
