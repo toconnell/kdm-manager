@@ -29,9 +29,7 @@ def start_server():
 
     check_pid_dir()
 
-    fcgi_socket = settings.get("api","fcgi_socket")
-    logger.info("Starting API Server on %s..." % fcgi_socket)
-
+    logger.info("Starting API Server...")
     new_pid = os.fork()
     if new_pid == 0:
         context = daemon.DaemonContext(
@@ -41,11 +39,16 @@ def start_server():
             )
         with context:
             logger.info("PID file location is '%s'" % settings.get("api", "pid_file"))
-            server.start(fcgi_socket)
+            try:
+                os.chdir(settings.get("api","cwd"))
+                sys.path.append(settings.get("api","cwd"))
+                server.run()
+            except Exception as e:
+                logger.error("Could not start server!")
+                logger.exception(e)
 
     time.sleep(3)
-    logger.debug("Server process forked. Setting socket permissions...")
-    os.chmod(fcgi_socket,0777)
+    logger.debug("Server process forked.")
 
 
 

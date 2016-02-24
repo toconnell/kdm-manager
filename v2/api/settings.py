@@ -9,7 +9,7 @@ from pymongo import MongoClient
 import models
 
 API_VERSION = '0.2.0'
-SERVER_NAME = "localhost:6969"
+SERVER_NAME = "api.thewatcher.io"
 LOG_LEVEL   = "DEBUG"
 LOG_FILE    = "api.log"
 

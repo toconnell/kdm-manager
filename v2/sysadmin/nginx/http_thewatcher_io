@@ -61,17 +61,23 @@ server {
 
     ### Locations
     location / {
-#        rewrite ^/$ /index  last;
-#        proxy_set_header   X-Real-IP $remote_addr;
-#        proxy_set_header   Host      $http_host;
-#        proxy_pass         http://127.0.0.1:4300;
-        fastcgi_param PATH_INFO $fastcgi_script_name;
-        fastcgi_param SCRIPT_NAME "api.fcgi";
-        fastcgi_pass        unix:/tmp/thewatcher_api.sock;
-        include             /etc/nginx/fastcgi_params;
+        rewrite ^/$ /index  last;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   Host      $http_host;
+        proxy_pass         http://127.0.0.1:5000;
+#        fastcgi_param PATH_INFO $fastcgi_script_name;
+#        fastcgi_param SCRIPT_NAME "api.fcgi";
+#        fastcgi_pass        unix:/tmp/thewatcher_api.sock;
+#        include             /etc/nginx/fastcgi_params;
     }
 }
 
+server {
+    ### blog redirect
+    listen 80;
+    server_name blog.thewatcher.io;
+    return  301 http://kdm-manager.blogspot.com;
+}
 
 server {
     listen   80;
