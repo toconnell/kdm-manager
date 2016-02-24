@@ -9,9 +9,8 @@ import socket
 from string import Template
 import sys
 
-from api_config import settings
-from user import User
-
+from users import User
+import settings # eve settings
 
 #
 #   Misc. helper and convenience functions
@@ -25,15 +24,15 @@ def input_password(username):
 def version():
     """ Returns a json object of API config and meta info. """
     d = {
-        "version":      settings.get("meta","version"),
+        "version":      settings.API_VERSION,
         "mdb":          {
-            "name":     settings.mdb.name,
+            "name":     settings.MONGO_DBNAME,
         },
         "users":        {
-            "total":    settings.mdb.users.find().count(),
+            "total":    settings.MDB.users.find().count(),
         },
         "sessions":     {
-            "total":    settings.mdb.sessions.find().count(),
+            "total":    settings.MDB.sessions.find().count(),
         },
     }
     return json.dumps(d, indent=2, sort_keys=True, default=json_util.default)
@@ -47,7 +46,7 @@ def version():
 
 def add_user(login, password):
     """ Creates a new user. Returns True if it succeeds, False if it fails and
-    None if the user's login already exists. """
+    None if the user'MDBogin already exists. """
 
     try:
         U = User()
@@ -70,7 +69,7 @@ def auth_test(login, password):
 def initialize():
     """ Completely initializes the application. Scorched earth. """
     for collection in ["users"]:
-        settings.mdb[collection].remove()
+        settings.MDB[collection].remove()
     settings.default_logger.critical("Project initialized by %s" % os.environ["USER"])
 
 
@@ -84,9 +83,9 @@ def view_document(collection, _id, return_type=None):
 
     try:
         _id = ObjectId(_id)
-        document = settings.mdb[collection].find_one({"_id": _id})
+        document = settings.MDB[collection].find_one({"_id": _id})
     except:
-        document = settings.mdb[collection].find_one({"login": _id})
+        document = settings.MDB[collection].find_one({"login": _id})
 
     if document is None:
         return None
