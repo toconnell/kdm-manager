@@ -2549,10 +2549,22 @@ class Settlement:
             anonymous = []
             available = []
             for survivor in survivors:
+
                 S = assets.Survivor(survivor_id=survivor["_id"], session_object=self.Session)
                 annotation = ""
                 user_owns_survivor = False
                 disabled = "disabled"
+
+                # stylize the survivor name
+                savior_dict = {
+                    "Lucernae": "Dream of the Lantern",
+                    "Caratosis": "Dream of the Beast",
+                    "Dormenatus": "Dream of the Crown",
+                }
+                savior_square = ""
+                for epithet in S.get_epithets():
+                    if epithet in ["Lucernae", "Caratosis", "Dormenatus"]:
+                        savior_square = '&ensp; <font id="%s">&#x02588; <i>%s</i></font> <br/>' % (epithet, savior_dict[epithet])
 
                 if survivor["email"] == user_login or current_user_is_settlement_creator or "public" in survivor.keys():
                     disabled = ""
@@ -2616,6 +2628,7 @@ class Settlement:
                     insanity = S.survivor["Insanity"],
                     courage = S.survivor["Courage"],
                     understanding = S.survivor["Understanding"],
+                    savior = savior_square,
                 )
 
                 # finally, file our newly minted survivor in a group:

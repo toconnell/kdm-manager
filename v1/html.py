@@ -302,6 +302,7 @@ class survivor:
          <button id="survivor_campaign_asset" class="$b_class $disabled" $disabled>
             $avatar
             <center> <font class="$favorite"/>&#9733;</font> <b>$name</b> [$sex] </center>
+            $savior
             $special_annotation
             &ensp; XP: $hunt_xp &ensp; Survival: $survival<br/>
             &ensp; Insanity: $insanity <br/>

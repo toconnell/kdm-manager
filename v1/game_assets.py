@@ -1410,7 +1410,7 @@ items = {
     "Whistling Mace": {
         "location": "Weapon Crafter",
     },
-    "Finger of God": {
+    "Finger Of God": {
         "location": "Weapon Crafter",
     },
     "Rainbow Katana": {
