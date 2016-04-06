@@ -5,12 +5,9 @@
 /* custom fonts */
 @font-face {
     font-family: 'kdm-font-10';
-    src: url('http://media.kdm-manager.com/kdm-font-10-webfont.eot');
-    src: url('http://media.kdm-manager.com/kdm-font-10-webfont.eot?#iefix') format('embedded-opentype'),
-    url('http://media.kdm-manager.com/kdm-font-10-webfont.svg') format('svg'),
+    src: url('http://media.kdm-manager.com/kdm-font-10.ttf') format('truetype'),
     url('http://media.kdm-manager.com/kdm-font-10-webfont.woff') format('woff'),
-    url('http://media.kdm-manager.com/kdm-font-10-webfont.woff2') format('woff2'),
-    url('http://media.kdm-manager.com/kdm-font-10.ttf') format('truetype');
+    url('http://media.kdm-manager.com/kdm-font-10-webfont.woff2') format('woff2');
 }
 .kdm_font {font-family: 'kdm-font-10'; }
 
