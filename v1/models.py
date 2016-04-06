@@ -346,6 +346,11 @@ preferences_dict = {
         "desc": "What Innovations should be selectable?",
         "affirmative": "Innovation Deck only",
         "negative": "All Innovations",
+    },
+    "preserve_sessions": {
+        "desc": "Preserve Sessions?",
+        "affirmative": "Keep me logged in",
+        "negative": "Remove sessions after 24 hours",
     }
 }
 

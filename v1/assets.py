@@ -5,7 +5,7 @@ from bson import json_util
 from copy import copy
 from collections import defaultdict
 from cStringIO import StringIO
-from datetime import datetime
+from datetime import datetime, timedelta
 import gridfs
 from hashlib import md5
 from PIL import Image
@@ -330,18 +330,25 @@ class User:
 
         ...at some point, e.g. when I get around to it. """
 
+        recent_session_cutoff = datetime.now() - timedelta(hours=12) 
+
         return html.dashboard.world.safe_substitute(
             dead_survivors = mdb.the_dead.find().count(),
             defeated_monsters = world.kill_board("html_table_rows"),
             total_users = mdb.users.find().count(),
             active_settlements = mdb.settlements.find().count() - mdb.settlements.find({"abandoned": {"$exists": True}}).count(),
             abandoned_settlements = mdb.settlements.find({"abandoned": {"$exists": True}}).count(),
-            total_sessions = mdb.sessions.find().count(),
+            recent_sessions = mdb.users.find({"latest_activity": {"$gte": recent_session_cutoff}}).count(),
             live_survivors = mdb.survivors.find({"dead": {"$exists": False}}).count(),
             latest_fatality = world.latest_fatality("html"),
             top_principles = world.top_principles("html_ul"),
             avg_pop = world.get_average("population"),
             avg_death = world.get_average("death_count"),
+            avg_survival_limit = world.get_average("survival_limit"),
+            avg_hunt_xp = world.get_survivor_average(),
+            avg_insanity = world.get_survivor_average("Insanity"),
+            avg_courage = world.get_survivor_average("Courage"),
+            avg_understanding = world.get_survivor_average("Understanding"),
         )
 
 
@@ -860,6 +867,11 @@ class Survivor:
                 for disorder in self.survivor["disorders"]:
                     if disorder in disorder_deck:
                         disorder_deck.remove(disorder)
+                for disorder in disorder_deck:
+                    if "expansion" in Disorders.get_asset(disorder):
+                        if "expansions" in self.Settlement.settlement.keys():
+                            if Disorders.get_asset(disorder)["expansion"] not in self.Settlement.settlement["expansions"]:
+                                disorder_deck.remove(disorder)
                 self.survivor["disorders"].append(random.choice(disorder_deck))
             elif asset_key not in Disorders.get_keys():
                 self.survivor["disorders"].append(asset_key)
@@ -880,6 +892,11 @@ class Survivor:
                 for fa in self.survivor["fighting_arts"]:
                     if fa in fa_deck:
                         fa_deck.remove(fa)
+                for fa in fa_deck:
+                    if "expansion" in FightingArts.get_asset(fa):
+                        if "expansions" in self.Settlement.settlement.keys():
+                            if FightingArts.get_asset(fa)["expansion"] not in self.Settlement.settlement["expansions"]:
+                                fa_deck.remove(fa)
                 self.survivor["fighting_arts"].append(random.choice(fa_deck))
             elif asset_key in FightingArts.get_keys():
                 self.survivor["fighting_arts"].append(asset_key)
@@ -1247,7 +1264,7 @@ class Survivor:
 
             if mdb.the_dead.find_one({"survivor_id": self.survivor["_id"]}) is None:
                 mdb.the_dead.insert(death_dict)
-                self.logger.debug("Survivor '%s' added to the The Dead." % self.survivor["name"])
+                self.logger.debug("Survivor '%s' has joined The Dead." % self.survivor["name"])
                 self.Settlement.settlement["population"] = int(self.Settlement.settlement["population"]) - 1
                 self.Settlement.settlement["death_count"] = int(self.Settlement.settlement["death_count"]) + 1
                 self.logger.debug("Settlement '%s' population and death count automatically adjusted!" % self.Settlement.settlement["name"])
@@ -1668,8 +1685,8 @@ class Settlement:
             "lost_settlements": 0,
             "timeline": [
                 {"year": 0, "settlement_event": ["First Day"]},
-                {"year": 1, "story_event": "Returning Survivors"},
-                {"year": 2, "story_event": "Endless Screams", },
+                {"year": 1, "story_event": ["Returning Survivors"]},
+                {"year": 2, "story_event": ["Endless Screams"], },
                 {"year": 3, },
                 {"year": 4, "nemesis_encounter": "Nemesis Encounter: Butcher", },
                 {"year": 5, "story_event": "Hands of Heat", },
@@ -1699,6 +1716,39 @@ class Settlement:
         self.logger.info("New settlement '%s' ('%s') created by %s!" % (name, settlement_id, self.User.user["login"]))
         self.log_event("Settlement founded!")
         return settlement_id
+
+    def toggle_expansion(self, e_key):
+        """ Toggles an expansion on or off. """
+
+        if not "expansions" in self.settlement.keys():
+            self.settlement["expansions"] = []
+
+        if e_key in self.settlement["expansions"]:
+            self.settlement["expansions"].remove(e_key)
+            self.log_event("Disabled '%s' expansion!" % (e_key.replace("_"," ")))
+            self.logger.debug("Removed '%s' expansion from %s" % (e_key, self))
+        else:
+            self.add_expansion(e_key, new_settlement=False)
+
+    def add_expansion(self, e_key, new_settlement=True):
+        """ Adds an expansion key ('e_key' kwarg) to a settlement's mdb info. If
+        the mdb object doesn't have the 'expansions' key, this adds it.
+
+        Use the 'new_settlement' kwarg to determine whether or not to apply
+        unique expansion content effects.
+        """
+
+        if not "expansions" in self.settlement.keys():
+            self.settlement["expansions"] = []
+
+        self.settlement["expansions"].append(e_key)
+
+        if e_key == "Gorm" and new_settlement:
+            self.update_timeline(add_event = (1, "story_event", "The Approaching Storm"))
+            self.update_timeline(add_event = (2, "settlement_event", "Gorm Weather"))
+
+        self.logger.debug("Added '%s' expansion to %s" % (e_key, self))
+        self.log_event("'%s' expansion is now active!" % e_key)
 
 
     def update_current_quarry(self, quarry_string):
@@ -2119,12 +2169,14 @@ class Settlement:
             def add_to_gear_dict(item_key):
                 item_dict = Items.get_asset(item_key)
                 item_location = item_dict["location"]
-                if item_location in Locations.get_keys():
-                    target_item_dict = gear
-                    item_color = Locations.get_asset(item_location)["color"]
-                elif item_location in Resources.get_keys():
+
+                if item_location in Resources.get_keys():
                     item_color = Resources.get_asset(item_location)["color"]
                     target_item_dict = resources
+                elif item_location in Locations.get_keys():
+                    target_item_dict = gear
+                    item_color = Locations.get_asset(item_location)["color"]
+
                 if "type" in item_dict.keys():
                     if item_dict["type"] == "gear":
                         target_item_dict = gear
@@ -2275,16 +2327,24 @@ class Settlement:
 
         if return_type == "html":
             output = ""
+
+
             for year in range(0,41):
                 strikethrough = ""
                 disabled = ""
                 hidden = "full_width"
+
                 if year <= current_lantern_year - 1:
                     disabled = "disabled"
                     strikethrough = "strikethrough"
                     hidden = "hidden"
+
+                button_color = "grey"
+                if year == current_lantern_year:
+                    button_color = "green"
+
                 output += '<p class="%s">' % strikethrough
-                output += html.settlement.timeline_button.safe_substitute(LY=year, button_class=strikethrough, disabled=disabled, settlement_id=self.settlement["_id"],)
+                output += html.settlement.timeline_button.safe_substitute(LY=year, button_class=strikethrough, disabled=disabled, settlement_id=self.settlement["_id"], button_color=button_color)
 
                 target_year = {"year": year}
                 for year_dict in self.settlement["timeline"]:
@@ -2439,11 +2499,9 @@ class Settlement:
         if return_type == "html":
             output = ""
             if bonus_type == "endeavors":
-                icon_url = os.path.join(settings.get("application","STATIC_URL"), "icons/endeavor.png")
-                icon = '<img class="icon" src="%s"/> ' % icon_url
                 for k in buffs.keys():
                     for endeavor,cost in buffs[k].iteritems():
-                        output += '<p>%s <b>%s</b> (%s, %s)</p>' % (cost*icon, endeavor, k, Innovations.get_asset(k)["type"])
+                        output += '<p><font class="kdm_font">%s</font>%s</b> (%s, %s)</p>' % (cost*"d ", endeavor, k, Innovations.get_asset(k)["type"])
             else:
                 for k in buffs.keys():
                     output += '<p><b>%s:</b> %s</p>\n' % (k, buffs[k])
@@ -2871,6 +2929,7 @@ class Settlement:
         # add an event to the timeline if we're doing that
         if add_event != ():
             target_ly, event_type, new_event = add_event
+            target_ly = int(target_ly)
 
             if event_type == "nemesis_event":
                 event_type = "nemesis_encounter"
@@ -2887,10 +2946,11 @@ class Settlement:
                         year_dict[event_type] = [year_dict[event_type]] # change strings into lists
                     year_dict[event_type].append(new_event)
                     if event_type == "quarry_event":
-                        year_dict[event_type] = sorted(list(year_dict[event_type]))    # uniquify and sort
+                        year_dict[event_type] = sorted(list(year_dict[event_type]))    # sort without uniquify
                     else:
                         year_dict[event_type] = sorted(list(set(year_dict[event_type])))    # uniquify and sort
                     self.settlement["timeline"].insert(year_index, year_dict)
+                    self.logger.debug(year_dict)
                     self.log_event("'%s' %s added to LY %s" % (new_event, event_type.replace("_"," "), target_ly))
 
         if rm_event != ():
@@ -2993,7 +3053,18 @@ class Settlement:
         if hasattr(Asset, "build_asset_deck"):
             asset_deck = Asset.build_asset_deck(self.settlement, self.get_quarries("list_of_options"))   # self here is the settlement object
 
+
+        # set the final_list object
         final_list = sorted(list(set(asset_deck)))
+
+        # filter expansion content
+        for asset_key in asset_deck:
+            if asset_key in Asset.get_keys() and "expansion" in Asset.get_asset(asset_key).keys():
+                if "expansions" in self.settlement.keys():
+                    if Asset.get_asset(asset_key)["expansion"] not in self.settlement["expansions"]:
+                        final_list.remove(asset_key)
+                else:   # if we've got no expansions, don't show any expansion stuff
+                    final_list.remove(asset_key)
 
 
         # handle user-defined return_type
@@ -3269,10 +3340,12 @@ class Settlement:
                 self.update_admins(player_login, game_asset_key)
             elif p == "current_quarry":
                 self.update_current_quarry(game_asset_key)
+            elif p.split("_")[0] == "expansion":
+                exp_key = "_".join(p.split("_")[1:])
+                self.toggle_expansion(exp_key)
             else:
                 self.settlement[p] = game_asset_key
                 self.logger.debug("%s set '%s' = '%s' for %s" % (self.User.user["login"], p, game_asset_key, self.get_name_and_id()))
-
         #
         #   settlement post-processing starts here!
         #
@@ -3397,6 +3470,12 @@ class Settlement:
             if p_controls[k] != "hidden":
                 all_hidden_warning = ""
 
+        # refactor this
+        exp_Gorm = ""
+        if "expansions" in self.settlement.keys():
+            if "Gorm" in self.settlement["expansions"]:
+                exp_Gorm = "checked"
+
         return html.settlement.form.safe_substitute(
             MEDIA_URL = settings.get("application","STATIC_URL"),
             settlement_id = self.settlement["_id"],
@@ -3467,6 +3546,7 @@ class Settlement:
             defeated_monsters_rm = self.get_game_asset("defeated_monsters", return_type="html_remove"),
 
             player_controls = self.get_players("html"),
+            checked_Gorm = exp_Gorm,
         )
 
 

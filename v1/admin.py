@@ -39,10 +39,17 @@ def prune_sessions():
 
     pruned_sessions = 0
     for s in old_sessions:
-        s_id = s["_id"]
-        logger.debug("Pruning old session '%s' (%s)" % (s_id, s["login"]))
-        remove_session(s_id, "admin")
-        pruned_sessions += 1
+        user = mdb.users.find_one({"login": s["login"]})
+        U = assets.User(user["_id"], session_object={"_id": 0, "login": "ADMINISTRATOR"})
+        if U.is_admin():
+            logger.debug("Preserving session for admin user '%s'" % user["login"])
+        elif U.get_preference("preserve_sessions"):
+            logger.debug("Preserving session for user '%s' because of user preference." % user["login"])
+        else:
+            s_id = s["_id"]
+            logger.debug("Pruning old session '%s' (%s)" % (s_id, s["login"]))
+            remove_session(s_id, "admin")
+            pruned_sessions += 1
 
     if pruned_sessions > 0:
         logger.info("Pruned %s old sessions." % pruned_sessions)

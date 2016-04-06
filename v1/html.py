@@ -107,6 +107,7 @@ class dashboard:
         <div id="system_div" style="display: none;" class="dashboard_accordion gradient_silver">
         <p>KD:M Manager! Version $version.</p><hr/>
         <p>This application is a work in progress and is currently running in debug mode! Please use <a href="http://blog.kdm-manager.com"/>blog.kdm-manager.com</a> to report issues/bugs or to ask questions, share ideas for features, make comments, etc.</p>
+        <p>Icon font ('kdm-font-10') by <a href="http://steamcommunity.com/id/GeorgianBalloon" target="top">Miracle Worker</a>.</p>
         <hr/>
 
         <div class="dashboard_preferences">
@@ -193,11 +194,20 @@ class dashboard:
     <div class="dashboard_menu">
         <h2 class="clickable gradient_blue" onclick="showHide('world_div')"> <img class="dashboard_icon" src="%s/icons/world.png"/> World %s</h2>
         <div id="world_div" style="display: none;" class="dashboard_accordion gradient_blue">
-        <p>$total_users users are registered; $total_sessions users have managed campaigns in the last 12 hours.</p><hr/>
+        <p>$total_users users are registered; $recent_sessions users have managed campaigns in the last 12 hours.</p><hr/>
         <p>$active_settlements settlements are holding fast; $abandoned_settlements settlements have been abandoned.</p>
+        <p>Averages across all settlements:</p>
         <ul>
-            <li>Average population: $avg_pop</li>
-            <li>Average death count: $avg_death</li>
+            <li>Population: $avg_pop</li>
+            <li>Death count: $avg_death</li>
+            <li>Survival Limit: $avg_survival_limit</li>
+        </ul>
+        <p>Averages for all living survivors:</p>
+        <ul>
+            <li>Hunt XP: $avg_hunt_xp</li>
+            <li>Insanity: $avg_insanity</li>
+            <li>Courage: $avg_courage</li>
+            <li>Understanding: $avg_understanding</li>
         </ul>
         <hr/>
         <p>$live_survivors survivors are alive and fighting; $dead_survivors have perished.</p>
@@ -215,9 +225,9 @@ class dashboard:
     """ % (settings.get("application", "STATIC_URL"), down_arrow_flash))
 
     # misc html assets
-    home_button = '<form method="POST" action="#"><input type="hidden" name="change_view" value="dashboard"/><button id="floating_dashboard_button" class="gradient_silver"> %s <span class="desktop_only">Return to Dashboard</span></button></form>\n' % system_flash
-    refresh_button = '<form method="POST" action="#"><button id="floating_refresh_button" class=""> %s </button></form>\n' % refresh_flash
-    event_log_button = Template('<form method="POST" action="#"><input type="hidden" name="change_view" value="event_log"/><button id="floating_event_log_button" class="gradient_orange"> %s <span class="desktop_only">$name Event Log</span></button></form>\n' % event_log_flash)
+    home_button = '\t<form method="POST" action="#"><input type="hidden" name="change_view" value="dashboard"/><button id="floating_dashboard_button" class="gradient_silver"> %s <span class="desktop_only">Return to Dashboard</span></button></form>\n' % system_flash
+    refresh_button = '\t<form method="POST" action="#"><button id="floating_refresh_button" class=""> %s </button></form>\n' % refresh_flash
+    event_log_button = Template('\t<form method="POST" action="#">\n\t\t<input type="hidden" name="change_view" value="event_log"/>\n\t\t<button id="floating_event_log_button" class="gradient_orange"> %s <span class="desktop_only">$name Event Log</span></button>\n\t</form>\n' % event_log_flash)
     view_asset_button = Template("""\n\
     <form method="POST" action="#">
     <input type="hidden" name="view_$asset_type" value="$asset_id" />
@@ -581,8 +591,9 @@ class survivor:
             </div>
             <div class="big_number_caption">Hunt XP</div>
             <br class="mobile_only"/>
-            <p><img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Age</b> occurs at 2, 6, 10 and 15. The Survivor retires at 16.</p>
-
+            <p>
+                <font class="kdm_font">g</font> <b>Age</b> occurs at 2, 6, 10 and 15. The Survivor retires at 16.
+            </p>
             <hr/>
 
                         <!-- WEAPON PROFICIENCY -->
@@ -610,7 +621,8 @@ class survivor:
             <div class="big_number_caption">Courage</div>
             <br class="mobile_only"/>
             <p>
-              <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Bold</b> (p. 107) occurs at 3<br/><img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>See the Truth</b> (p.155) occurs at 9.
+              <font class="kdm_font">g</font> <b>Bold</b> (p. 107) occurs at 3<br/>
+              <font class="kdm_font">g</font> <b>See the Truth</b> (p.155) occurs at 9.
             </p>
 
             <hr/>
@@ -623,7 +635,8 @@ class survivor:
             <div class="big_number_caption">Understanding</div>
             <br class="mobile_only"/>
             <p>
-               <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Insight</b> (p.123) occurs at 3<br/><img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>White Secret</b> (p.169) occurs at 9.
+               <font class="kdm_font">g</font> <b>Insight</b> (p.123) occurs at 3<br/>
+                <font class="kdm_font">g</font> <b>White Secret</b> (p.169) occurs at 9.
             </p>
 
             </form>
@@ -773,7 +786,18 @@ class settlement:
          <input type="checkbox" id="create_survivors" class="radio_principle" name="create_survivors" value="True" />
           <label class="radio_principle_label" for="create_survivors"> Create Four New Survivors for the First Story</label>
         </fieldset>
-        <button class="success">SAVE</button>
+        <h3>Expansions:</h3>
+        <p>
+        Toggle expansions on using controls below. This functionality is new/beta. Please report any issues.<br/><br/>
+        <input type="hidden" name="expansions" value="None"/>
+        <input type="hidden" name="expansions" value="None"/>
+        <input id="gorm" class="radio_principle" type="checkbox" name="expansions" value="Gorm" />
+         <label for="gorm" class="radio_principle_label">Gorm</label>
+<!--        <input id="dbk" class="radio_principle" type="checkbox" name="expansions" value="Dung Beetle Knight" />
+         <label for="dbk" class="radio_principle_label">Dung Bettle Knight</label> -->
+        </p>
+        <br/><hr/>
+        <button class="success">Create!</button>
         </form>
     </div>
     \n"""
@@ -898,7 +922,7 @@ class settlement:
         <form id="autoForm" method="POST" action="#edit_timeline">
         <input type="hidden" name="modify" value="settlement" />
         <input type="hidden" name="asset_id" value="$settlement_id" />
-            <button id="remove_item" name="increment_lantern_year" class="$button_class" value="1" $disabled> &nbsp; $LY &nbsp; </button>
+            <button id="remove_item" name="increment_lantern_year" class="$button_class $button_color" value="1" $disabled> &nbsp; $LY &nbsp; </button>
         </form>
     \n""")
     timeline_add_event = Template('<input type="text" class="$input_class" onchange="this.form.submit()" event_type="text" name="add_$event_type$LY" placeholder="add $pretty_event_type"/>\n')
@@ -1193,23 +1217,23 @@ class settlement:
             <hr />
             <input onchange="this.form.submit()" id="first_child" type="checkbox" name="First child is born" class="radio_principle" $first_child_checked></input>
             <label for="first_child" class="radio_principle_label">First child is born</label>
-            <p> &ensp; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Principle: New Life</b> (p.145) </p>
+            <p> &ensp; <font class="kdm_font">g</font> <b>Principle: New Life</b> (p.145) </p>
             <hr />
             <input onchange="this.form.submit()" id="first_death" type="checkbox" name="First time death count is updated" class="radio_principle" $first_death_checked></input>
             <label for="first_death" class="radio_principle_label">First time death count is updated</label>
-            <p> &ensp; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Principle: Death</b> (p.143) </p>
+            <p> &ensp; <font class="kdm_font">g</font> <b>Principle: Death</b> (p.143) </p>
             <hr />
             <input onchange="this.form.submit()" id="pop_15" type="checkbox" name="Population reaches 15" class="radio_principle" $pop_15_checked></input>
             <label for="pop_15" class="radio_principle_label">Population reaches 15</label>
-            <p> &ensp; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Principle: Society</b> (p.147) </p>
+            <p> &ensp; <font class="kdm_font">g</font> <b>Principle: Society</b> (p.147) </p>
             <hr />
             <input onchange="this.form.submit()" id="5_innovations" type="checkbox" name="Settlement has 5 innovations" class="radio_principle" $five_innovations_checked></input>
             <label for="5_innovations" class="radio_principle_label">Settlement has 5 innovations</label>
-            <p> &ensp; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Hooded Knight</b> (p.121) </p>
+            <p> &ensp; <font class="kdm_font">g</font> <b>Hooded Knight</b> (p.121) </p>
             <hr />
             <input onchange="this.form.submit()" id="game_over" type="checkbox" name="Population reaches 0" class="radio_principle" $game_over_checked></input>
             <label for="game_over" class="radio_principle_label">Population reaches 0</label>
-            <p> &ensp; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Game Over</b> (p.179) </p>
+            <p> &ensp; <font class="kdm_font">g</font> <b>Game Over</b> (p.179) </p>
 
         </div>
         </form>
@@ -1304,14 +1328,27 @@ class settlement:
 
             <input onchange="this.form.submit()" class="big_number_square" type="number" name="lost_settlements" value="$lost_settlements"/>
             <h3>Lost Settlements</h3>
-            <p>Refer to <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Game Over</b> on p.179;  <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Left Overs</b> occurs at 4;  <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Those Before Us</b> occurs at 8; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Ocular Parasites</b> occurs at 12; <img class="icon" src="$MEDIA_URL/icons/trigger_story_event.png" /> <b>Rainy Season</b> occurs at 16.</p>
+            <p>Refer to <font class="kdm_font">g</font> <b>Game Over</b> on p.179: <b>Left Overs</b> occurs at 4; <b>Those Before Us</b> occurs at 8; <b>Ocular Parasites</b> occurs at 12; <b>Rainy Season</b> occurs at 16.</p>
             </form>
         </div>
 
         <br>
         <hr/>
-        <h3>Players</h3>
+        <h3>Expansions</h3>
+        <a id="edit_expansions" class="mobile_only"></a>
         <form id="autoForm" method="POST" action="#edit_lost_settlements">
+            <input type="hidden" name="modify" value="settlement" />
+            <input type="hidden" name="asset_id" value="$settlement_id" />
+            <p>
+                <input type="hidden" name="expansion_Gorm" value="unchecked"/>
+                <input name="expansion_Gorm" onchange="this.form.submit()" id="gorm" class="radio_principle" type="checkbox" $checked_Gorm />
+                <label for="gorm" class="radio_principle_label">Gorm</label>
+            </p>
+        </form>
+        <hr/>
+
+        <h3>Players</h3>
+        <form id="autoForm" method="POST" action="#edit_expansions">
             <input type="hidden" name="modify" value="settlement" />
             <input type="hidden" name="asset_id" value="$settlement_id" />
             $player_controls
@@ -1444,7 +1481,7 @@ def set_cookie_js(session_id):
 
     Note that the cookie will not appear to have the correct session ID until
     the NEXT page load after the one where the cookie is set.    """
-    expiration = datetime.now() + timedelta(days=1)
+    expiration = datetime.now() + timedelta(days=30)
     cookie = Cookie.SimpleCookie()
     cookie["session"] = session_id
     cookie["session"]["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")

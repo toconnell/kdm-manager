@@ -486,6 +486,14 @@ abilities_and_impairments = {
 
 
 disorders = {
+    "Megalophobia": {
+        "expansion": "Gorm",
+        "survivor_effect": "You may not <b>depart</b> for hunts or showdowns with monsters that occupy more than 4 spaces on the showdown board.",
+    },
+    "Absent Seizures": {
+        "expansion": "Gorm",
+        "survivor_effect": "The first time you would suffer a brain trauma each showdown, you are instead knocked down and forget a fighting art (erase it).",
+    },
     "Fear of the Dark": {
         "survivor_effect": "You retire.",
     },
@@ -563,6 +571,9 @@ disorders = {
 
 
 epithets = {
+    "Gorm Bait": {},
+    "Digested": {},
+    "Braved the Storm": {},
     "White-haired":{},
     "White Wolf":{},
     "The White":{},
@@ -638,6 +649,19 @@ epithets = {
 
 
 fighting_arts = {
+    "Mammoth Hunting": {
+        "expansion": "Gorm",
+        "desc": "Gain +1 strength when attacking from adjacent spaces outside the monster's facing and blind spot.",
+    },
+    "Lure Epilepsy": {
+        "expansion": "Gorm",
+        "desc": 'Once per showdown, you may spend <font class="kdm_font">a</font> to give yourself a seizure. You suffer a random brain trauma and are knocked down.',
+    },
+    "Immovable Object": {
+        "secret": True,
+        "expansion": "Gorm",
+        "desc": "If you are on an unoccupied space, you stand firm in the face of any force. You cannot be knocked down and may ignore <b>knockback</b>. (If you occupy the same space as a monster, impassable terrain tile, or another survivor, you are knocked down and suffer <b>knockback</b>.)",
+    },
     "Red Fist": {
         "secret": True,
         "desc": "At the start of each showdown, each survivor gains +1 Strength token. Survivors may spend +1 Strength tokens in place of survival.",
@@ -733,7 +757,7 @@ defeated_monsters = {
 locations = {
     "Lantern Hoard": {
         "always_available": True,
-        "consequences": ["Bone Smith", "Skinnery", "Organ Grinder", "Catarium", "Plumery", "Exhausted Lantern Hoard", "Mask Maker"],
+        "consequences": ["Bone Smith", "Skinnery", "Organ Grinder", "Catarium", "Plumery", "Exhausted Lantern Hoard", "Mask Maker","Gormery","Gormchymist"],
     },
     "Bone Smith": {
         "color": "E5DDD3",
@@ -785,10 +809,83 @@ locations = {
         "color": "BA8B02",
         "consequences": [],
     },
+    "Gormchymist": {
+        "color": "008080",
+        "consequences": [],
+        "expansion": "Gorm",
+    },
+    "Gormery": {
+        "color": "9AAD32",
+        "consequences": [],
+        "expansion": "Gorm",
+    },
 }
 
 
 items = {
+    "Riot Mace": {
+        "location": "Gormery",
+    },
+    "Rib Blade": {
+        "location": "Gormery",
+    },
+    "Regeneration Suit": {
+        "location": "Gormery",
+    },
+    "Pulse Lantern": {
+        "location": "Gormery",
+    },
+    "Knuckle Shield": {
+        "location": "Gormery",
+    },
+    "Greater Gaxe": {
+        "location": "Gormery",
+    },
+    "Gorn": {
+        "location": "Gormery",
+    },
+    "Gaxe": {
+        "location": "Gormery",
+    },
+    "Black Sword": {
+        "location": "Gormery",
+    },
+    "Gorment Mask": {
+        "location": "Gormery",
+    },
+    "Gorment Suit": {
+        "location": "Gormery",
+    },
+    "Gorment Sleeves": {
+        "location": "Gormery",
+    },
+    "Gorment Boots": {
+        "location": "Gormery",
+    },
+    "Armor Spikes": {
+        "location": "Gormery",
+    },
+    "Acid Tooth Dagger": {
+        "location": "Gormery",
+    },
+    "Gorment Armor Set": {
+        "location": "Gormery",
+    },
+    "Healing Potion": {
+        "location": "Gormchymist",
+    },
+    "Wisdom Potion": {
+        "location": "Gormchymist",
+    },
+    "Steadfast Potion": {
+        "location": "Gormchymist",
+    },
+    "Power Potion": {
+        "location": "Gormchymist",
+    },
+    "Life Elixir": {
+        "location": "Gormchymist",
+    },
     "First Aid Kit" : {
         "location": "Barber Surgeon",
     },
@@ -948,6 +1045,9 @@ items = {
     "Portcullis Key": {
         "location": "Unique Items",
     },
+    "Belt Of Gender Swap": {
+        "location": "Unique Items",
+    },
     "Love Juice": {
         "location": "Basic Resources",
         "resource_family": ["organ"],
@@ -1009,6 +1109,26 @@ items = {
     "Legendary Horns": {
         "location": "Strange Resources",
         "resource_family": ["bone","scrap"],
+    },
+    "Gormite": {
+        "location": "Strange Resources",
+        "resource_family": ["scrap"],
+        "expansion": "Gorm",
+    },
+    "Pure Bulb": {
+        "location": "Strange Resources",
+        "resource_family": ["organ"],
+        "expansion": "Gorm",
+    },
+    "Stomach Lining": {
+        "location": "Strange Resources",
+        "resource_family": ["organ"],
+        "expansion": "Gorm",
+    },
+    "Active Thyroid": {
+        "location": "Strange Resources",
+        "resource_family": ["organ"],
+        "expansion": "Gorm",
     },
     "Fresh Acanthus": {
         "location": "Strange Resources",
@@ -1148,7 +1268,7 @@ items = {
         "resource_family": ["organ"],
         "consumable": True,
     },
-    "White Lion Armor": {
+    "White Lion Armor Set": {
         "location": "Catarium",
     },
     "Claw Head Arrow": {
@@ -1437,10 +1557,85 @@ items = {
     "Cyclops Fly" : {
         "location": "Vermin",
     },
+    "Mammoth Hand": {
+        "location": "Gorm Resources",
+        "resource_family": ["bone","hide","organ"],
+    },
+    "Jiggling Lard": {
+        "location": "Gorm Resources",
+        "resource_family": ["hide","organ"],
+    },
+    "Stout Kidney": {
+        "location": "Gorm Resources",
+        "resource_family": ["organ"],
+        "consumable": True,
+    },
+    "Stout Heart": {
+        "location": "Gorm Resources",
+        "resource_family": ["organ"],
+    },
+    "Stout Hide": {
+        "location": "Gorm Resources",
+        "resource_family": ["hide"],
+    },
+    "Stout Vertebrae": {
+        "location": "Gorm Resources",
+        "resource_family": ["bone"],
+    },
+    "Handed Skull": {
+        "location": "Gorm Resources",
+        "resource_family": ["bone"],
+    },
+    "Dense Bone": {
+        "location": "Gorm Resources",
+        "resource_family": ["bone"],
+    },
+    "Milky Eye": {
+        "location": "Gorm Resources",
+        "resource_family": ["organ"],
+    },
+    "Gorm Brain": {
+        "location": "Gorm Resources",
+        "resource_family": ["organ"],
+    },
+    "Acid Gland": {
+        "location": "Gorm Resources",
+        "resource_family": ["organ"],
+    },
+    "Meaty Rib": {
+        "location": "Gorm Resources",
+        "resource_family": ["bone","organ"],
+    },
 }
 
 
 innovations = {
+    "Nigredo": {
+        "expansion": "Gorm",
+        "type": "science",
+        "survival_limit": 1,
+        "consequences": ["Albedo"],
+        "endeavors": {"Nigredo": 1},
+        "always_available": True,
+    },
+    "Albedo": {
+        "expansion": "Gorm",
+        "type": "science",
+        "consequences": ["Citrinitas"],
+        "endeavors": {"Albedo": 2},
+    },
+    "Citrinitas": {
+        "expansion": "Gorm",
+        "type": "science",
+        "survival_limit": 1,
+        "consequences": ["Citrinitas"],
+        "endeavors": {"Citrinitas": 3},
+    },
+    "Rubedo": {
+        "expansion": "Gorm",
+        "type": "science",
+        "endeavors": {"Rubedo": 4},
+    },
     "Graves": {
         "type": "principle",
         "milestone": "First time death count is updated",
@@ -1661,8 +1856,9 @@ innovations = {
 
 quarries = {
     "White Lion": {"tokens": ["LION","WHITE"], "sort_order": 1},
-    "Screaming Antelope": {"tokens": ["ANTELOPE","SCREAMING"], "sort_order": 2},
-    "Phoenix": {"tokens": ["PHOENIX","PHONIEX"], "sort_order": 3},
+    "Gorm": {"tokens": ["GORM"], "sort_order": 2},
+    "Screaming Antelope": {"tokens": ["ANTELOPE","SCREAMING"], "sort_order": 3},
+    "Phoenix": {"tokens": ["PHOENIX","PHONIEX"], "sort_order": 4},
     "Beast Of Sorrow": {"no_levels": True, "tokens": ["SORROW","BEAST"], "sort_order": 4},
     "Great Golden Cat": {"no_levels": True, "tokens": ["GOLDEN","CAT"], "sort_order": 5},
     "Mad Steed": {"no_levels": True, "tokens": ["MAD","STEED"], "sort_order": 6},
@@ -1691,6 +1887,9 @@ resources = {
         "color": "FFCC66",
     },
     "Phoenix Resources": {
+        "color": "FFCC66",
+    },
+    "Gorm Resources": {
         "color": "FFCC66",
     },
     "Basic Resources": {

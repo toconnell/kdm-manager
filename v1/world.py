@@ -10,7 +10,7 @@ from models import Quarries, Nemeses, mutually_exclusive_principles
 
 def latest_fatality(return_type=False):
     """ Returns the latest fatality from mdb.the_dead. """
-    latest_fatality = mdb.the_dead.find_one({"complete": {"$exists": True}, "name": {"$ne": "Anonymous"}}, sort=[("created_on", -1)])
+    latest_fatality = mdb.the_dead.find_one({"complete": {"$exists": True}, "name": {"$ne": ["Anonymous","Test"]}}, sort=[("created_on", -1)])
 
     if return_type == "html":
 
@@ -107,9 +107,16 @@ def top_principles(return_type=None):
 
 def get_average(attrib="population"):
     data_points = []
-    sample_set = mdb.settlements.find({"population": {"$gt": 1}, "death_count": {"$gt": 1}})
+    sample_set = mdb.settlements.find({"population": {"$gt": 4}, "death_count": {"$gt": 1}})
     for sample in sample_set:
         data_points.append(int(sample[attrib]))
+    return reduce(lambda x, y: x + y, data_points) / len(data_points)
+
+def get_survivor_average(attrib="hunt_xp"):
+    data_points = []
+    survivors = mdb.survivors.find({"dead": {"$exists": False}})
+    for s in survivors:
+        data_points.append(int(s[attrib]))
     return reduce(lambda x, y: x + y, data_points) / len(data_points)
 
 if __name__ == "__main__":

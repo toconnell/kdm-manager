@@ -220,7 +220,7 @@ class Session:
 
         if "view_campaign" in self.params:
             self.change_current_view("view_campaign", asset_id=self.params["view_campaign"].value)
-            user_action = "viewed campaign summary"
+            user_action = "viewed campaign summary (%s)" % self.params["view_campaign"].value
         if "view_settlement" in self.params:
             self.change_current_view("view_settlement", asset_id=self.params["view_settlement"].value)
             user_action = "viewed settlement form"
@@ -257,12 +257,19 @@ class Session:
             S.log_event("%s male and %s female survivors joined the settlement!" % (male, female))
         if "new" in self.params:
             if self.params["new"].value == "settlement":
+
+                # determine whether we're going to add any expansions
+                expansions = []
+                for e in self.params["expansions"]:
+                    if e.value != "None":
+                        expansions.append(e.value)
+
+                # now do everything else
                 if "settlement_name" in self.params:
                     settlement_name = self.params["settlement_name"].value
                 else:
                     settlement_name = "Unknown"
                 self.Settlement = assets.Settlement(name=settlement_name, session_object=self)
-#                self.set_current_settlement(S.settlement["_id"])
                 self.change_current_view("view_campaign", asset_id=self.Settlement.settlement["_id"])
                 if "create_survivors" in self.params:
                     self.Settlement.first_story()
@@ -270,6 +277,12 @@ class Session:
                     user_action = "created settlement %s with First Story survivors" % self.Settlement
                 else:
                     user_action = "created vanilla settlement %s" % self.Settlement
+
+                # initialize expansion stuff
+                for e_key in expansions:
+                    self.Settlement.add_expansion(e_key)
+                mdb.settlements.save(self.Settlement.settlement)
+
             if self.params["new"].value == "survivor":
                 S = assets.Survivor(params=self.params, session_object=self)
                 self.change_current_view("view_survivor", asset_id=S.survivor["_id"])
