@@ -105,9 +105,16 @@ def top_principles(return_type=None):
     return popularity_contest
 
 
+def get_minmax(attrib="population"):
+    data_points = []
+    sample_set = mdb.settlements.find({"population": {"$gt": 4}, "death_count": {"$gt": 0}})
+    for sample in sample_set:
+        data_points.append(int(sample[attrib]))
+    return min(data_points), max(data_points)
+
 def get_average(attrib="population"):
     data_points = []
-    sample_set = mdb.settlements.find({"population": {"$gt": 4}, "death_count": {"$gt": 1}})
+    sample_set = mdb.settlements.find({"population": {"$gt": 4}, "death_count": {"$gt": 0}})
     for sample in sample_set:
         data_points.append(int(sample[attrib]))
     return reduce(lambda x, y: x + y, data_points) / len(data_points)
@@ -122,6 +129,7 @@ def get_survivor_average(attrib="hunt_xp"):
 if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("-a", dest="average", help="Returns an average for the specified value", metavar="population", default=False)
+    parser.add_option("-m", dest="minmax", help="Returns min/max numbers the specified value", metavar="death_count", default=False)
     parser.add_option("-k", dest="kill_board", help="Run the kill_board func and print its contents.", default=False, action="store_true")
     parser.add_option("-p", dest="top_principles", help="Run the top_principles func and print its contents.", default=False, action="store_true")
     (options, args) = parser.parse_args()
@@ -132,3 +140,5 @@ if __name__ == "__main__":
         print top_principles()
     if options.average:
         print get_average(options.average)
+    if options.minmax:
+        print get_minmax(options.minmax)
