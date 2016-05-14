@@ -349,6 +349,10 @@ class User:
             avg_insanity = world.get_survivor_average("Insanity"),
             avg_courage = world.get_survivor_average("Courage"),
             avg_understanding = world.get_survivor_average("Understanding"),
+            max_pop = world.get_minmax("population")[1],
+            max_death = world.get_minmax("death_count")[1],
+            max_survival = world.get_minmax("survival_limit")[1],
+            current_hunt = world.current_hunt(),
         )
 
 
@@ -410,9 +414,17 @@ class Survivor:
             self.normalize()
 
 
+    def __repr__(self):
+        return self.get_name_and_id(include_id=False, include_sex=True)
+
+
     def normalize(self):
         """ Run this when a Survivor object is initialized: it will enforce
         the data model and apply settlements defaults to the survivor. """
+
+        # see if we need to retire this guy, based on recent updates
+        if int(self.survivor["hunt_xp"]) >= 16 and not "retired" in self.survivor.keys():
+            self.retire()
 
         # auto-apply epithets for Birth of a Savior
         for ability in ["Dormenatus", "Caratosis", "Lucernae"]:
@@ -762,7 +774,10 @@ class Survivor:
         if return_as == "formatted_html":
             html = ""
             for disorder_key in disorders:
-                html += '<p><b>%s:</b> %s</p>' % (disorder_key, Disorders.get_asset(disorder_key)["survivor_effect"])
+                flavor = ""
+                if "flavor_text" in Disorders.get_asset(disorder_key).keys():
+                    flavor = "<i>%s</i><br/>" % Disorders.get_asset(disorder_key)["flavor_text"]
+                html += '<p><b>%s:</b> %s %s</p>' % (disorder_key, flavor, Disorders.get_asset(disorder_key)["survivor_effect"])
             return html
 
         if return_as == "html_select_remove":
@@ -869,7 +884,10 @@ class Survivor:
                         disorder_deck.remove(disorder)
                 for disorder in disorder_deck:
                     if "expansion" in Disorders.get_asset(disorder):
-                        if "expansions" in self.Settlement.settlement.keys():
+                        if "expansions" not in self.Settlement.settlement.keys():
+                            disorder_deck.remove(disorder)
+                        elif "expansions" in self.Settlement.settlement.keys():
+                            self.logger.debug(Disorders.get_asset(disorder)["expansion"])
                             if Disorders.get_asset(disorder)["expansion"] not in self.Settlement.settlement["expansions"]:
                                 disorder_deck.remove(disorder)
                 self.survivor["disorders"].append(random.choice(disorder_deck))
@@ -881,6 +899,8 @@ class Survivor:
                 self.survivor["disorders"].append(asset_key)
                 if "skip_next_hunt" in asset_dict.keys():
                     self.survivor["skip_next_hunt"] = "checked"
+                if "retire" in asset_dict.keys():
+                    self.retire()
                 mdb.survivors.save(self.survivor)
                 return True
             else:
@@ -894,7 +914,9 @@ class Survivor:
                         fa_deck.remove(fa)
                 for fa in fa_deck:
                     if "expansion" in FightingArts.get_asset(fa):
-                        if "expansions" in self.Settlement.settlement.keys():
+                        if "expansions" not in self.Settlement.settlement.keys():
+                            fa_deck.remove(fa)
+                        elif "expansions" in self.Settlement.settlement.keys():
                             if FightingArts.get_asset(fa)["expansion"] not in self.Settlement.settlement["expansions"]:
                                 fa_deck.remove(fa)
                 self.survivor["fighting_arts"].append(random.choice(fa_deck))
@@ -1002,7 +1024,7 @@ class Survivor:
                 if not self.death():
                     self.logger.error("Could not process death for survivor '%s' (%s)." % (self.survivor["name"], self.survivor["_id"]))
             if toggle_key == "retired":
-                self.survivor["retired_in"] = self.Settlement.settlement["lantern_year"]
+                self.retire()
 
 
         mdb.survivors.save(self.survivor)
@@ -1214,6 +1236,18 @@ class Survivor:
 
         return functional_sex
 
+
+    def retire(self):
+        """ Retires the survivor. Saves them afterwards, since this can be done
+        pretty much anywhere.  This is the only way a survivor should ever be
+        retired: if you're doing it somewhere else, fucking stop it."""
+
+        self.survivor["retired"] = "checked"
+        self.survivor["retired_in"] = self.Settlement.settlement["lantern_year"]
+        self.Settlement.log_event("%s has retired." % self)
+        mdb.survivors.save(self.survivor)
+
+
     def death(self, undo_death=False):
         """ Call this method when a survivor dies. Call it with the 'undo_death'
         kwarg to undo the death.
@@ -1376,7 +1410,7 @@ class Survivor:
                 self.toggle(toggle_attrib, params[p])
             elif p == "name":
                 if game_asset_key != self.survivor[p]:
-                    self.Settlement.log_event("%s was renamed to '%s'" % (self.get_name_and_id(include_sex=True, include_id=False), game_asset_key))
+                    self.Settlement.log_event("%s was renamed to '%s'" % (self, game_asset_key))
                     self.survivor["name"] = game_asset_key
             elif p == "email":
                 self.survivor["email"] = game_asset_key.lower().strip()
@@ -1387,7 +1421,7 @@ class Survivor:
             elif game_asset_key == "None":
                 del self.survivor[p]
                 if p == "in_hunting_party":
-                    self.Settlement.log_event("%s left the hunting party." % self.survivor["name"])
+                    self.Settlement.log_event("%s left the hunting party." % self)
             elif p == "Weapon Proficiency":
                 self.modify_weapon_proficiency(int(game_asset_key))
             elif p == "customize_ability" and "custom_ability_description" in params:
@@ -1402,7 +1436,6 @@ class Survivor:
                     self.survivor["sex"] = new_sex
             else:
                 self.survivor[p] = game_asset_key
-#                self.logger.debug("%s set '%s' -> '%s' for survivor '%s' (%s)." % (self.User.user["login"], p, game_asset_key, self.survivor["name"], self.survivor["_id"]))
 
 
         # enforce ability and impairment maxes
@@ -1414,9 +1447,9 @@ class Survivor:
                 if "max" in asset_dict.keys():
                     asset_count = self.survivor["abilities_and_impairments"].count(asset_key)
                     while asset_count > asset_dict["max"]:
-                        self.logger.warn("Survivor '%s' has '%s' x%s (max is %s)." % (self.survivor["name"], asset_key, asset_count, asset_dict["max"]))
+                        self.logger.warn("Survivor '%s' has '%s' x%s (max is %s)." % (self, asset_key, asset_count, asset_dict["max"]))
                         self.survivor["abilities_and_impairments"].remove(asset_key)
-                        self.logger.info("Removed '%s' from survivor '%s'." % (asset_key, self.survivor["name"]))
+                        self.logger.info("Removed '%s' from survivor '%s'." % (asset_key, self))
                         asset_count = self.survivor["abilities_and_impairments"].count(asset_key)
 
         # idiot-proof the hit boxes
@@ -1496,6 +1529,7 @@ class Survivor:
         class: a giant tangle-fuck of UI/UX logic that creates the form for
         modifying a survivor. """
 
+
         survivor_survival_points = int(self.survivor["survival"])
         if survivor_survival_points > int(self.Settlement.settlement["survival_limit"]):
             survivor_survival_points = int(self.Settlement.settlement["survival_limit"])
@@ -1510,9 +1544,6 @@ class Survivor:
         if int(self.survivor["Insanity"]) >= 3:
             insane = "#C60000"
 
-        if int(self.survivor["hunt_xp"]) >= 16:
-            flags["retired"] = "checked"
-
         COD_div_display_style = "none"
         if "dead" in self.survivor.keys():
             COD_div_display_style = "block"
@@ -1520,15 +1551,19 @@ class Survivor:
         if "cause_of_death" in self.survivor.keys():
             COD = self.survivor["cause_of_death"]
 
+        exp = []
+        if "expansions" in self.Settlement.settlement.keys():
+            exp = self.Settlement.settlement["expansions"]
+
         # fighting arts widgets
-        fighting_arts_picker = FightingArts.render_as_html_dropdown(exclude=self.survivor["fighting_arts"])
+        fighting_arts_picker = FightingArts.render_as_html_dropdown(exclude=self.survivor["fighting_arts"], expansions=exp)
         if len(self.survivor["fighting_arts"]) >= 3:
             fighting_arts_picker = ""
         fighting_arts_remover = self.get_fighting_arts("html_select_remove")
         if self.survivor["fighting_arts"] == []:
             fighting_arts_remover = ""
         # disorders widgets
-        disorders_picker = Disorders.render_as_html_dropdown(exclude=self.survivor["disorders"])
+        disorders_picker = Disorders.render_as_html_dropdown(exclude=self.survivor["disorders"], expansions=exp)
         if len(self.survivor["disorders"]) >= 3:
             disorders_picker = ""
         disorders_remover = self.get_disorders(return_as="html_select_remove")
@@ -1602,6 +1637,7 @@ class Survivor:
             abilities_and_impairments = self.get_abilities_and_impairments("html_formatted"),
             add_abilities_and_impairments = Abilities.render_as_html_dropdown(
                 disable=Abilities.get_maxed_out_abilities(self.survivor["abilities_and_impairments"]),
+                expansions=exp,
                 ),
             remove_abilities_and_impairments = self.get_abilities_and_impairments("html_select_remove"),
 
@@ -1717,6 +1753,7 @@ class Settlement:
         self.log_event("Settlement founded!")
         return settlement_id
 
+
     def toggle_expansion(self, e_key):
         """ Toggles an expansion on or off. """
 
@@ -1729,6 +1766,7 @@ class Settlement:
             self.logger.debug("Removed '%s' expansion from %s" % (e_key, self))
         else:
             self.add_expansion(e_key, new_settlement=False)
+
 
     def add_expansion(self, e_key, new_settlement=True):
         """ Adds an expansion key ('e_key' kwarg) to a settlement's mdb info. If
@@ -1746,6 +1784,8 @@ class Settlement:
         if e_key == "Gorm" and new_settlement:
             self.update_timeline(add_event = (1, "story_event", "The Approaching Storm"))
             self.update_timeline(add_event = (2, "settlement_event", "Gorm Weather"))
+        elif e_key == "Dung Beetle Knight" and new_settlement:
+            self.update_timeline(add_event = (8, "story_event", "Rumbling in the Dark"))
 
         self.logger.debug("Added '%s' expansion to %s" % (e_key, self))
         self.log_event("'%s' expansion is now active!" % e_key)
@@ -2022,7 +2062,7 @@ class Settlement:
 
         # ...and finally determine who the settlement founders are
         for s in survivors:
-            if s["_id"] in genealogy["has_no_parents"] and s["born_in_ly"] == 1:
+            if s["_id"] in genealogy["has_no_parents"] and s["born_in_ly"] in [0,1]:
                 genealogy["founders"].add(s["_id"])
 
         # create a set of parent "pairs"; also include single parents, in case
@@ -2047,6 +2087,8 @@ class Settlement:
             for s in everyone:
                 if s["_id"] in generations.keys():
                     everyone.remove(s)
+                elif s["_id"] in genealogy["founders"]:
+                    everyone.remove(s)
                 elif s["_id"] in genealogy["no_family"]:
                     everyone.remove(s)
                 elif "father" in s.keys() and s["father"] in generations.keys():
@@ -2068,8 +2110,8 @@ class Settlement:
                             generations[s["_id"]] = generations[child["_id"]] + 1
                 else:
                     if loops >= 5:
-                         pass
-#                        self.logger.debug("Unable to determine generation for %s after %s loops." % (s["name"], loops))
+                        pass
+                        self.logger.debug("Unable to determine generation for %s after %s loops." % (s["name"], loops))
             loops += 1
             if loops == 10:
                 self.logger.error("Settlement %s hit %s loops while calculating generations!" % (self.get_name_and_id(), loops))
@@ -2138,11 +2180,13 @@ class Settlement:
 
 
         if return_type == "html_no_family":
-            output = html.settlement.genealogy_headline.safe_substitute(value="Undetermined Lineage")
-            sorted_survivor_list = mdb.survivors.find({"_id": {"$in": list(genealogy["no_family"])}}).sort("created_on")
+            output = html.settlement.genealogy_headline.safe_substitute(value="Founders")
+            sorted_survivor_list = mdb.survivors.find({"_id": {"$in": list(genealogy["founders"])}}).sort("created_on")
             for s in sorted_survivor_list:
                 S = assets.Survivor(survivor_id=s["_id"], session_object=self.Session)
                 output += survivor_to_span(S, display="block")
+            output += html.settlement.genealogy_headline.safe_substitute(value="Undetermined Lineage")
+            sorted_survivor_list = mdb.survivors.find({"_id": {"$in": list(genealogy["no_family"])}}).sort("created_on")
             return output
         if return_type == "html_tree":
             return genealogy["tree"]
@@ -2170,12 +2214,17 @@ class Settlement:
                 item_dict = Items.get_asset(item_key)
                 item_location = item_dict["location"]
 
+                font_color = "000"
                 if item_location in Resources.get_keys():
                     item_color = Resources.get_asset(item_location)["color"]
+                    if "font_color" in Resources.get_asset(item_location):
+                        font_color = Resources.get_asset(item_location)["font_color"]
                     target_item_dict = resources
                 elif item_location in Locations.get_keys():
                     target_item_dict = gear
                     item_color = Locations.get_asset(item_location)["color"]
+                    if "font_color" in Locations.get_asset(item_location):
+                        font_color = Locations.get_asset(item_location)["font_color"]
 
                 if "type" in item_dict.keys():
                     if item_dict["type"] == "gear":
@@ -2185,7 +2234,7 @@ class Settlement:
                 if not item_dict["location"] in target_item_dict.keys():
                     target_item_dict[item_location] = {}
                 if not item_key in target_item_dict[item_location].keys():
-                    target_item_dict[item_location][item_key] = {"count": 1, "color": item_color}
+                    target_item_dict[item_location][item_key] = {"count": 1, "color": item_color, "font_color": font_color}
                 else:
                     target_item_dict[item_location][item_key]["count"] += 1
 
@@ -2204,6 +2253,7 @@ class Settlement:
                     for item_key in sorted(item_dict[location].keys()):
                         quantity = item_dict[location][item_key]["count"]
                         color = item_dict[location][item_key]["color"]
+                        font_color = item_dict[location][item_key]["font_color"]
                         suffix = ""
                         if item_key in Items.get_keys() and "resource_family" in Items.get_asset(item_key):
                             suffix = " <sup>%s</sup>" % "/".join([c[0].upper() for c in sorted(Items.get_asset(item_key)["resource_family"])])
@@ -2221,6 +2271,7 @@ class Settlement:
                         output += html.settlement.storage_remove_button.safe_substitute(
                             confirmation = confirmation_pop_up,
                             item_key = item_key,
+                            item_font_color = font_color,
                             item_color = color,
                             item_key_and_count = pretty_text
                         )
@@ -2341,7 +2392,7 @@ class Settlement:
 
                 button_color = "grey"
                 if year == current_lantern_year:
-                    button_color = "green"
+                    button_color = "yellow"
 
                 output += '<p class="%s">' % strikethrough
                 output += html.settlement.timeline_button.safe_substitute(LY=year, button_class=strikethrough, disabled=disabled, settlement_id=self.settlement["_id"], button_color=button_color)
@@ -2375,7 +2426,7 @@ class Settlement:
                             output += '\t<p class="%s">%s %s</p>\n' % (strikethrough, event_icon, event_text)
 
                 # start the form for updating this year
-                output+= html.settlement.timeline_form_top.safe_substitute(settlement_id=self.settlement["_id"], year=year)
+                output += html.settlement.timeline_form_top.safe_substitute(settlement_id=self.settlement["_id"], year=year)
 
                 # add blanks for adding events
                 output += html.settlement.timeline_add_event.safe_substitute(input_class=hidden, event_type="story_event", pretty_event_type="Story Event", LY="_%s" % year)
@@ -2385,6 +2436,8 @@ class Settlement:
                 output += html.ui.game_asset_select_top.safe_substitute(operation="add_", name="nemesis_event_%s" % year, operation_pretty="Add", name_pretty="Nemesis Encounter", select_class=hidden)
                 for nemesis in self.settlement["nemesis_monsters"]:
                     output += html.ui.game_asset_select_row.safe_substitute(asset=nemesis)
+                    if year >= 20:
+                        output += html.ui.game_asset_select_row.safe_substitute(asset="Watcher")
                 output += html.ui.game_asset_select_bot
 
                 # add quarry picker
@@ -2399,7 +2452,7 @@ class Settlement:
                         output += html.ui.game_asset_select_row.safe_substitute(asset=event)
                     output += html.ui.game_asset_select_bot
 
-                button_class = "full_width gradient_orange"
+                button_class = "full_width yellow"
                 if hidden == "hidden":
                     button_class = hidden
                 output += '<button class="%s">Update Timeline</button>' % button_class
@@ -2499,9 +2552,9 @@ class Settlement:
         if return_type == "html":
             output = ""
             if bonus_type == "endeavors":
-                for k in buffs.keys():
+                for k in sorted(buffs.keys()):
                     for endeavor,cost in buffs[k].iteritems():
-                        output += '<p><font class="kdm_font">%s</font>%s</b> (%s, %s)</p>' % (cost*"d ", endeavor, k, Innovations.get_asset(k)["type"])
+                        output += '<p><i>%s:</i> <font class="kdm_font">%s</font> %s (%s)</p>' % (k, cost*"d ", endeavor, Innovations.get_asset(k)["type"])
             else:
                 for k in buffs.keys():
                     output += '<p><b>%s:</b> %s</p>\n' % (k, buffs[k])
@@ -3067,6 +3120,7 @@ class Settlement:
                     final_list.remove(asset_key)
 
 
+
         # handle user-defined return_type
         if return_type == "user_defined":
             if self.User.get_preference("comma_delimited_lists"):
@@ -3361,6 +3415,35 @@ class Settlement:
         self.update_mins()
 
 
+    def render_expansions_block(self):
+        """ Creates HTML toggles for adding/removing expansion content from the
+        Settlement Sheet. """
+
+        exp_block = ""
+        if "expansions" in self.settlement.keys():
+            for exp_key in sorted(game_assets.expansions.keys()):
+                on_off = ""
+                if exp_key in self.settlement["expansions"]:
+                    on_off = "checked"
+                exp_attribs = game_assets.expansions[exp_key]
+                exp_block += html.settlement.expansions_block_slug.safe_substitute(
+                    settlement_id = self.settlement["_id"],
+                    key = exp_key,
+                    checked = on_off,
+                    nickname = exp_attribs["nickname"],
+                )
+        else:
+            for exp_key in sorted(game_assets.expansions.keys()):
+                exp_attribs = game_assets.expansions[exp_key]
+                exp_block += html.settlement.expansions_block_slug.safe_substitute(
+                    settlement_id = self.settlement["_id"],
+                    key = exp_key,
+                    checked = "",
+                    nickname = exp_attribs["nickname"],
+                )
+        return exp_block
+
+
     def render_html_event_log(self):
         """ Renders the settlement's event log as HTMl. """
 
@@ -3470,11 +3553,10 @@ class Settlement:
             if p_controls[k] != "hidden":
                 all_hidden_warning = ""
 
-        # refactor this
-        exp_Gorm = ""
+        # expansions
+        exp = []
         if "expansions" in self.settlement.keys():
-            if "Gorm" in self.settlement["expansions"]:
-                exp_Gorm = "checked"
+            exp = self.settlement["expansions"]
 
         return html.settlement.form.safe_substitute(
             MEDIA_URL = settings.get("application","STATIC_URL"),
@@ -3530,7 +3612,7 @@ class Settlement:
             nemesis_monsters = self.get_nemeses("html_buttons"),
 
             quarries = self.get_game_asset("quarries", return_type="user_defined"),
-            quarry_options = Quarries.render_as_html_dropdown(exclude=self.settlement["quarries"]),
+            quarry_options = Quarries.render_as_html_dropdown(exclude=self.settlement["quarries"], expansions=exp),
 
             innovations = self.get_game_asset("innovations", return_type="user_defined", exclude=self.settlement["principles"]),
             innovations_add = self.get_game_asset("innovations", return_type="html_add"),
@@ -3546,7 +3628,7 @@ class Settlement:
             defeated_monsters_rm = self.get_game_asset("defeated_monsters", return_type="html_remove"),
 
             player_controls = self.get_players("html"),
-            checked_Gorm = exp_Gorm,
+            expansions_block = self.render_expansions_block(),
         )
 
 
@@ -3573,7 +3655,7 @@ class Settlement:
             self.update_mins()  # update settlement mins before we create any text
 
         if context == "campaign_summary":
-            button_class = "gradient_yellow floating_asset_button"
+            button_class = "yellow floating_asset_button"
             link_text = html.dashboard.settlement_flash
             desktop_text = "Edit %s" % self.settlement["name"]
             asset_type = "settlement"

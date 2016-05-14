@@ -8,6 +8,7 @@ import sys
 
 #   custom
 import admin
+import game_assets
 from session import Session
 from utils import load_settings, mdb, get_logger
 
@@ -191,16 +192,26 @@ class dashboard:
     kill_board_row = Template('<tr><td>$monster</td><td>$kills</td></tr>')
     kill_board_foot = Template('<tr><td colspan="2">&ensp; $other_list</td></tr>')
     world = Template("""\n
-    <div class="dashboard_menu">
+    <div class="dashboard_menu world_panel">
         <h2 class="clickable gradient_blue" onclick="showHide('world_div')"> <img class="dashboard_icon" src="%s/icons/world.png"/> World %s</h2>
         <div id="world_div" style="display: none;" class="dashboard_accordion gradient_blue">
         <p>$total_users users are registered; $recent_sessions users have managed campaigns in the last 12 hours.</p><hr/>
         <p>$active_settlements settlements are holding fast; $abandoned_settlements settlements have been abandoned.</p>
-        <p>Averages across all settlements:</p>
+        <p>$live_survivors survivors are alive and fighting; $dead_survivors have perished.</p>
+        <hr/>
+        $latest_fatality
+        <hr/>
+        <p>Latest hunt activity:</p>
         <ul>
-            <li>Population: $avg_pop</li>
-            <li>Death count: $avg_death</li>
-            <li>Survival Limit: $avg_survival_limit</li>
+            <li>$current_hunt</li>
+        </ul>
+        <hr/>
+        <p>Population stats for all settlements:</p>
+        <ul>
+            <li>Average Population: $avg_pop</li>
+            <li>Max Population: $max_pop</li>
+            <li>Average Death count: $avg_death</li>
+            <li>Max Death Count: $max_death</li>
         </ul>
         <p>Averages for all living survivors:</p>
         <ul>
@@ -210,9 +221,12 @@ class dashboard:
             <li>Understanding: $avg_understanding</li>
         </ul>
         <hr/>
-        <p>$live_survivors survivors are alive and fighting; $dead_survivors have perished.</p>
-        $latest_fatality<hr/>
         <h3>General Statistics for All Settlements:</h3>
+        <p>Survival Limit:</p>
+        <ul>
+            <li>Average Survival Limit: $avg_survival_limit</li>
+            <li>Max Survival Limit: $max_survival</li>
+        </ul>
         <p>Defeated Monster Totals:
             <table class="dashboard_world_defeated_monsters">
             $defeated_monsters
@@ -226,7 +240,7 @@ class dashboard:
 
     # misc html assets
     home_button = '\t<form method="POST" action="#"><input type="hidden" name="change_view" value="dashboard"/><button id="floating_dashboard_button" class="gradient_silver"> %s <span class="desktop_only">Return to Dashboard</span></button></form>\n' % system_flash
-    refresh_button = '\t<form method="POST" action="#"><button id="floating_refresh_button" class=""> %s </button></form>\n' % refresh_flash
+    refresh_button = '\t<form method="POST" action="#"><button id="floating_refresh_button" class="yellow"> %s </button></form>\n' % refresh_flash
     event_log_button = Template('\t<form method="POST" action="#">\n\t\t<input type="hidden" name="change_view" value="event_log"/>\n\t\t<button id="floating_event_log_button" class="gradient_orange"> %s <span class="desktop_only">$name Event Log</span></button>\n\t</form>\n' % event_log_flash)
     view_asset_button = Template("""\n\
     <form method="POST" action="#">
@@ -772,6 +786,21 @@ class survivor:
 
 
 class settlement:
+
+    def render_expansion_toggles():
+        """ Prints the toggles for the expansions. """
+
+        slug = Template("""\n\
+        <input id="$nickname" class="radio_principle" type="checkbox" name="expansions" value="$exp_key" />
+        <label for="$nickname" class="radio_principle_label">$exp_key</label> 
+        \n""")
+
+        output = ""
+        for e_key in sorted(game_assets.expansions.keys()):
+            exp_attribs = game_assets.expansions[e_key]
+            output += slug.safe_substitute(nickname=exp_attribs["nickname"], exp_key=e_key)
+        return output
+
     new = """\n\
     <span  class="desktop_only nav_bar gradient_orange"></span>
     <span class="gradient_orange nav_bar_mobile mobile_only"></span>
@@ -791,20 +820,18 @@ class settlement:
         Toggle expansions on using controls below. This functionality is new/beta. Please report any issues.<br/><br/>
         <input type="hidden" name="expansions" value="None"/>
         <input type="hidden" name="expansions" value="None"/>
-        <input id="gorm" class="radio_principle" type="checkbox" name="expansions" value="Gorm" />
-         <label for="gorm" class="radio_principle_label">Gorm</label>
-<!--        <input id="dbk" class="radio_principle" type="checkbox" name="expansions" value="Dung Beetle Knight" />
-         <label for="dbk" class="radio_principle_label">Dung Bettle Knight</label> -->
+            %s
         </p>
         <br/><hr/>
         <button class="success">Create!</button>
         </form>
     </div>
-    \n"""
+    \n""" % render_expansion_toggles()
+
     return_hunting_party_with_confirmation = Template("""\n\
         <form method="POST" onsubmit="return confirm('Press OK to return the survivors, increment Hunt XP +1 and add the current quarry to the Defeated Monsters list as well as the settlement timeline for this year.');">
             <input type="hidden" name="return_hunting_party" value="$settlement_id"/>
-            <button id="return_hunting_party" class="bold gradient_orange" >&#8629; Return Hunting Party</button>
+            <button id="return_hunting_party" class="bold yellow" >&#8629; Return Hunting Party</button>
         </form>
     \n""")
     return_hunting_party = Template("""\n\
@@ -873,7 +900,7 @@ class settlement:
     \n""")
     storage_warning = Template(""" onclick="return confirm('Remove $item_name from Settlement Storage?');" """)
     storage_remove_button = Template("""\n\
-    \t<button $confirmation id="remove_item" name="remove_item" value="$item_key" style="background-color: #$item_color; color: #000;"> $item_key_and_count </button>
+    \t<button $confirmation id="remove_item" name="remove_item" value="$item_key" style="background-color: #$item_color; color: #$item_font_color;"> $item_key_and_count </button>
     \n""")
     storage_tag = Template('<h3 class="inventory_tag" style="color: #$color">$name</h3><hr/>')
     storage_resource_pool = Template("""\n\
@@ -893,7 +920,7 @@ class settlement:
     <form method="POST">
      <input type="hidden" name="export_campaign" value="$export_type"/>
      <input type="hidden" name="asset_id" value="$asset_id"/>
-     <button class="gradient_orange"> $export_pretty_name </button>
+     <button class="yellow"> $export_pretty_name </button>
     </form>
     \n""")
     event_log = Template("""\n\
@@ -946,7 +973,7 @@ class settlement:
         </div>
         <form method="POST" class="mobile_only">
           <input type="hidden" name="change_view" value="new_survivor"/>
-          <button class="success full_width" id="campaign_summary_new_survivor">+ Create New Survivor</button>
+          <button class="full_width green bold" id="campaign_summary_new_survivor">+ Create New Survivor</button>
           <hr/>
         </form>
         <a id="edit_hunting_party" class="mobile_only"></a>
@@ -955,7 +982,7 @@ class settlement:
         <div id="campaign_summary_facts_box">
             <form method="POST">
             <input type="hidden" name="change_view" value="new_survivor"/>
-            <button class="success desktop_only" id="campaign_summary_new_survivor">+ Create New Survivor</button>
+            <button class="bold green desktop_only" id="campaign_summary_new_survivor">+ Create New Survivor</button>
             </form>
             <div class="campaign_summary_small_box">
                 <h3>Principles</h3>
@@ -967,9 +994,9 @@ class settlement:
             </div>
             <hr class="mobile_only"/>
             <div class="campaign_summary_small_box">
-                <h4>Endeavors</h4>
+                <h4>Available Endeavors</h4>
                 $endeavors
-                <h4>Departing</h4>
+                <h4>Departing Survivor Effects</h4>
                 $departure_bonuses
                 <h4>Settlement Bonuses</h4>
                 $settlement_bonuses
@@ -1065,7 +1092,7 @@ class settlement:
                     <button type="button" class="decrementer" onclick="decrement('femaleCountBox');">-</button>
                 </div>
     <a id="settlement_notes" class="mobile_only"></a>
-            <input type="submit" class="gradient_green full_width" value="Create New Survivors" />
+            <input type="submit" class="yellow full_width" value="Create New Survivors" />
             </div> <!-- bulk_add_survivors -->
         </form>
         <hr/>
@@ -1075,7 +1102,7 @@ class settlement:
         <input type="hidden" name="modify" value="settlement" />
         <input type="hidden" name="asset_id" value="$settlement_id" />
         <textarea onchange="this.form.submit()"id="settlement_notes" name="settlement_notes" placeholder="Additional settlement notes">$settlement_notes</textarea>
-        <button class="full_width gradient_orange">Update Notes</button>
+        <button class="full_width yellow">Update Notes</button>
         </form>
         <hr/>
 
@@ -1336,15 +1363,8 @@ class settlement:
         <hr/>
         <h3>Expansions</h3>
         <a id="edit_expansions" class="mobile_only"></a>
-        <form id="autoForm" method="POST" action="#edit_lost_settlements">
-            <input type="hidden" name="modify" value="settlement" />
-            <input type="hidden" name="asset_id" value="$settlement_id" />
-            <p>
-                <input type="hidden" name="expansion_Gorm" value="unchecked"/>
-                <input name="expansion_Gorm" onchange="this.form.submit()" id="gorm" class="radio_principle" type="checkbox" $checked_Gorm />
-                <label for="gorm" class="radio_principle_label">Gorm</label>
-            </p>
-        </form>
+        $expansions_block
+        <br />
         <hr/>
 
         <h3>Players</h3>
@@ -1367,6 +1387,17 @@ class settlement:
     <form method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever.');"><input type="hidden" name="remove_settlement" value="$settlement_id"/><button class="full_width error">Permanently Delete Settlement</button></form>
     </div>
     \n""")
+    expansions_block_slug = Template("""\n\
+    <form id="autoForm" method="POST" action="#edit_lost_settlements">
+        <input type="hidden" name="modify" value="settlement" />
+        <input type="hidden" name="asset_id" value="$settlement_id" />
+        <p>
+            <input type="hidden" name="expansion_$key" value="unchecked"/>
+            <input name="expansion_$key" onchange="this.form.submit()" id="$nickname" class="radio_principle" type="checkbox" $checked />
+            <label for="$nickname" class="radio_principle_label">$key</label>
+        </p>
+    </form>
+    \n""")
 
 
 
@@ -1375,7 +1406,7 @@ class login:
     form = """\n\
     <div id="sign_in_container">
         <h2 class="seo">KD:M Manager!</h2>
-        <h1 class="seo">A campaign manager for <a href="http://kingdomdeath.com/" target="top">Kingdom Death</a> Monster.</h1>
+        <h1 class="seo">A campaign manager for <a href="http://kingdomdeath.com/" target="top">Kingdom Death: <i>Monster</i></a>.</h1>
         <div id="sign_in_controls">
         <img src="%s/logo_small.png" class="desktop_only sign_in"/>
             <form method="POST">

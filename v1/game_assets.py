@@ -486,94 +486,131 @@ abilities_and_impairments = {
 
 
 disorders = {
+    "Vermin Obsession": {
+        "expansion": "Dung Beetle Knight",
+        "flavor_text": "You love insects.",
+        "survivor_effect": "While there is a <b>Bug Spot</b> terrain tile on the showdown board, you are so overwhelmed that you are <b>doomed</b>.",
+    },
+    "Motion Sickness": {
+        "expansion": "Dung Beetle Knight",
+        "flavor_text": "Moving quickly makes you vomit.",
+        "survivor_effect": "Whenever you suffer <b>knockback</b>, gain 1 bleeding token.",
+    },
     "Megalophobia": {
         "expansion": "Gorm",
+        "flavor_text": "Even large, looming shadows make you jumpy.",
         "survivor_effect": "You may not <b>depart</b> for hunts or showdowns with monsters that occupy more than 4 spaces on the showdown board.",
     },
     "Absent Seizures": {
         "expansion": "Gorm",
+        "flavor_text": "No one knows where your mind goes when you're gone, not even you.",
         "survivor_effect": "The first time you would suffer a brain trauma each showdown, you are instead knocked down and forget a fighting art (erase it).",
     },
     "Fear of the Dark": {
-        "survivor_effect": "You retire.",
+        "flavor_text": "You cannot bear the oppressive darkness any longer.",
+        "survivor_effect": "You retire.<br/>If you gain this disorder during a hunt or showdown, you put on a brave face until you return to the settlement, vowing never to leave the Lantern Hoard again.",
+        "retire": True,
     },
     "Hoarder": {
-        "survivor_effect": "Whenever you are a returning survivor, archive 1 resource gained from the last showdown and gain +1 courage.",
+        "flavor_text": "You compulsively collect adn stash anything you can get your hands on. Every little bit you add to your secret hoard makes your existence feel more real.",
+        "survivor_effect": "Whenever you are a <b>returning</b> survivor, archive 1 resource gained from the last showdown and gain +1 courage.",
     },
     "Binge Eating Disorder": {
+        "flavor_text": "Eating is the only thing that helps you escape your miserable life.",
         "survivor_effect": "You cannot <b>depart</b> unless you have <b>consumable</b> gear in your gear grid. You must <b>consume</b> if a choice to <b>consume</b> arises.",
     },
     "Squeamish": {
-        "survivor_effect": "You cannot <b>depart</b> with any stinky gear in your gear grid. If a status or effect would cause you to become stinky, lose all your survival.",
+        "flavor_text": "You can't handle bad smells.",
+        "survivor_effect": "You cannot <b>depart</b> with any <b>stinky</b> gear in your gear grid. If a status or effect would cause you to become stinky, lose all your survival.",
     },
     "Secretive": {
-        "survivor_effect": "When you are a returning survivor, you quickly become preoccuiped with your own affairs. You must skip the next hunt to deal with them.",
+        "flavor_text": "You love secrets. So much, in fact, that you pretend to have many.",
+        "survivor_effect": "When you are a <b>returning survivor</b>, you quickly become preoccuiped with your own affairs. You must skip the next hunt to deal with them.",
         "on_return": {
             "skip_next_hunt": "checked",
         },
     },
     "Seizures": {
+        "flavor_text": "Lingering damage from your head injuries has caused you to experience period of of uncontrollable shaking and absence of thought.",
         "survivor_effect": "During the showdown, whenever you suffer damage to your head location, you are knocked down.",
     },
     "Immortal": {
-        "survivor_effect": "While you are insane, convert all damage dealt to your hit locations to brain damage. You are so busy reveling in your own glory that you cannot spend survival while insane.",
+        "flavor_text": "You are immortal! You will live forever and cannot be killed.",
+        "survivor_effect": "While you are insane, convert all damage dealt to your hit locations to brain damage.<br/>You are so busy reveling in your own glory that you cannot spend survival while insane.",
     },
-    "Corprolalia": {
-        "survivor_effect": "All your gear is noisy. You are always a threat unless you are knocked down, even if an effect says otherwise.",
+    "Coprolalia": {
+        "flavor_text": "You have compulsive tics in the form of sporadic muttering, cursing, whimpering, and screaming.",
+        "survivor_effect": "All your gear is <b>noisy</b>. You are always a threat unless you are knocked down, even if an effect says otherwise.",
     },
     "Prey": {
+        "flavor_text": "You are prey. All there is for you is death.",
         "survivor_effect": "You may not spend survival unless you are insane.",
     },
     "Honorable": {
+        "flavor_text": "You believe in honor and fairness when conducting yourself on the battlefield. It is these strong principles that have kept you alive, and you will not abandon them under any circumstances.",
         "survivor_effect": "You cannot attack a monster from its blind spot or if it is knocked down.",
     },
     "Apathetic": {
+        "flavor_text": "You've given up. Nothing seems to matter. You have no concern for your own wellbeing.",
         "survivor_effect": "You cannot use or gain survival. You cannot gain courage. Cure this disorder if you have 8+ understanding.",
     },
     "Weak Spot": {
-        "survivor_effect": "When you gain this disorder, roll a random hit location and record it. You cannot depart unless you have armor at this hit location.",
+        "flavor_text": "You have an imaginary infirmity.",
+        "survivor_effect": "When you gain this disorder, roll a random hit location and record it. You cannot <b>depart</b> unless you have armor at this hit location.",
     },
     "Hyperactive": {
+        "flavor_text": "Whether you are running, fiddling with your gear, or pacing, you are always moving.",
         "survivor_effect": "During the showdown, you must move at least 1 space every round.",
     },
     "Aichmophobia": {
-        "survivor_effect": "You cannot activate or depart with axes, swords, spears, daggers, scythes, or katars in your gear grid.",
+        "flavor_text": "Sharp things make you uncomfortable. It's just a matter of time before someone cuts themselves.",
+        "survivor_effect": "You cannot activate or <b>depart</b> with axes, swords, spears, daggers, scythes, or katars in your gear grid.",
     },
     "Hemophobia": {
+        "flavor_text": "The mere sight of blood makes you lightheaded, and serious gore can knock you out!",
         "survivor_effect": "During the showdown, whenever a survivor (including you) gains a bleeding token, you are knocked down.",
     },
     "Vestiphobia": {
+        "flavor_text": "Even the lightest armor rubs harshly against your skin and constricts your ability to move.",
         "survivor_effect": "You cannot wear armor at the body location. If you are wearing armor at the body location when you gain this disorder, archive it as you tear it off your person!",
     },
     "Traumatized": {
+        "flavor_text": "Your experiences have left you shaken and paralyzed by fear.",
         "survivor_effect": "Whenever you end your act adjacent to a monster, you are knocked down.",
     },
     "Monster Panic": {
-        "survivor_effect": "Whenever you suffer brain damage from an Intimidate action, suffer 1 additional brain damage.",
+        "flavor_text": "Monsters make you feel bad. Really, really bad.",
+        "survivor_effect": "Whenever you suffer brain damage from an <b>Intimidate</b> action, suffer 1 additional brain damage.",
     },
     "Post-Traumatic Stress": {
+        "flavor_text": "The last hunt was harrowing. All you can do is cower and relive the trauma. Only time can heal your wounds.",
         "survivor_effect": "Next settlement phase, you do not contribute or participate in any endeavors. Skip the next hunt to recover.",
         "skip_next_hunt": True,
     },
     "Rageholic": {
-        "survivor_effect": "Whenever you suffer a severe injury, also suffer the frenzy brain trauma.",
+        "flavor_text": "Your rage boils out of control, causing you to see red at the slightest provocation.",
+        "survivor_effect": "Whenever you suffer a severe injury, also suffer the <b>frenzy</b> brain trauma.",
     },
     "Indecision": {
+        "flavor_text": "Past decisions haunt you ceaselessly. You are crippled by indecision, and even the most trivial choices grip you with terror.",
         "survivor_effect": "If you are the event revealer of hunt events that call on you to make a roll, roll twice and use the lower result.",
     },
     "Anxiety": {
-        "survivor_effect": "At the start of each showdown, gain the priority target token unless you have stinky gear in your gear grid.",
+        "flavor_text": "You are afraid of being afraid. You're a nervous wreck, and monsters can smell this in your scent.",
+        "survivor_effect": "At the start of each showdown, gain the <b>priority target</b> token unless you have <b>stinky</b> gear in your gear grid.",
     },
     "Quixotic": {
-        "survivor_effect": "If you are insane when you depart, gain +1 survival and +1 Strength token.",
+        "flavor_text": "You carry the weight of your settlement on your shoudlers. Everyone is counting on you to save them, and you will rise to the challenge.",
+        "survivor_effect": "If you are insane when you <b>depart</b>, gain +1 survival and +1 Strength token.",
     },
 }
 
 
 epithets = {
-    "Gorm Bait": {},
-    "Digested": {},
-    "Braved the Storm": {},
+    "Witness": {"expansion": "Gorm"},
+    "Gorm Bait": {"expansion": "Gorm"},
+    "Digested": {"expansion": "Gorm"},
+    "Braved the Storm": {"expansion": "Gorm"},
     "White-haired":{},
     "White Wolf":{},
     "The White":{},
@@ -649,6 +686,19 @@ epithets = {
 
 
 fighting_arts = {
+    "Beetle Strength": {
+        "secret": True,
+        "expansion": "Dung Beetle Knight",
+        "desc": 'Once per showdown, you may spend <font class="kdm_font">a</font> to shove an adjacent obstacle terrain. If you do, move the train directly away from you in a straight line until it encounters a board edge or another obstacle terrain. Any monsters the train passes over suffer a wound, and any survivors it <b>collides</b> with suffer <b>knockback 7</b>.<br/>The display of strength is so exhausting it ages you. You are knocked down and gain +1 Hunt XP.',
+    },
+    "Propulsion Drive": {
+        "expansion": "Dung Beetle Knight",
+        "desc": "At the start of as howdowm, gain the <b>Momentum</b> survivor status card.<br/> When you attack, if you have 5+ momentum tokens, remove them all and roll 1d10. Gain that amount of luck and strength when attempting to wound the first selected hit location for this attack.",
+    },
+    "Carapace of Will": {
+        "expansion": "Dung Beetle Knight",
+        "desc": "At the start of the showdown, gain the <b>Steadfast</b> survivor status card.<br/> When you are attacked, if you have 2+ steadfast tokens, ignore a hit and remove all your steadfast tokens.",
+    },
     "Mammoth Hunting": {
         "expansion": "Gorm",
         "desc": "Gain +1 strength when attacking from adjacent spaces outside the monster's facing and blind spot.",
@@ -687,25 +737,25 @@ fighting_arts = {
         "desc": "At the start of each showdown, gain survival up to your settlement's survival limit if you have a sword in your gear grid.",
     },
     "Orator of Death": {
-        "desc": "Once per showdown, you may spend Activation to have all non-deaf survivors gain +2 insanity. When you die, you encourage all survivors with your last words.",
+        "desc": 'Once per showdown, you may spend <font class="kdm_font">a</font> to have all non-deaf survivors gain +2 insanity.<br/>When you die, you <b>encourage</b> all survivors with your last words.',
     },
     "Leader": {
-        "desc": "Whenever you encourage a survivor they gain +1 speed token until the end of the round.",
+        "desc": "Whenever you <b>encourage</b> a survivor they gain +1 speed token until the end of the round.",
     },
     "Combo Master": {
-        "desc": "On a perfect hit, make 1 additional attack roll.",
+        "desc": "On a <b>perfect hit</b>, make 1 additional attack roll.",
     },
     "Double Dash": {
-        "desc": "During your act, once per round, you may spend Activation to gain Movement.",
+        "desc": 'During your act, once per round, you may spend <font class="kdm_font">a</font> to gain <font class="kdm_font">c</font>.',
     },
     "Timeless Eye": {
-        "desc": "Your attack roll is a perfect hit on a result of a 9 or 10. You cannot use Timeless Eye if you have the blind severe head injury.",
+        "desc": "Your attack roll is a <b>perfect hit</b> on a result of a 9 or 10.<br/>You cannot use Timeless Eye if you have the <b>blind</b> severe head injury.",
     },
     "Mighty Strike": {
-        "desc": "On a Perfect hit, gain +2 Strength until the end of the attack.",
+        "desc": "On a <b>Perfect hit</b>, gain +2 Strength until the end of the attack.",
     },
     "Berserker": {
-        "desc": "Once per showdown, you may spend Activation to suffer bash and the frenzy brain trauma.",
+        "desc": 'Once per showdown, you may spend <font class="kdm_font">a</font> to suffer <b>bash</b> and the <b>frenzy</b> brain trauma.',
     },
     "Thrill Seeker": {
         "desc": "Whenever you gain survival during the showdown phase, gain 1 additional survival.",
@@ -714,7 +764,7 @@ fighting_arts = {
         "desc": "When rolling on a severe injury table, unless you roll a 1, add +1 to the result. (This does not include brain trauma. The result total cannot exceed 10.)",
     },
     "Rhythm Chaser": {
-        "desc": "Gain +1 Evasion token the first time you critically wound during a showdown. Rhythm Chaser cannot be used if there are any shields or <i>heavy</i> gear in your grid.",
+        "desc": "Gain +1 Evasion token the first time you critically wound during a showdown.<br/>Rhythm Chaser cannot be used if there are any shields or <i>heavy</i> gear in your grid.",
     },
     "Last Man Standing": {
         "desc": "While you are the only survivor on the showdown board, you may not gain bleeding tokens or be knocked down.",
@@ -726,25 +776,25 @@ fighting_arts = {
         "desc": "While you have 3 or more blood tokens, gain +1 Strength and +1 Accuracy.",
     },
     "Crazed": {
-        "desc": "On a Perfect hit, gain +1 insanity.",
+        "desc": "On a <b>Perfect hit</b>, gain +1 insanity.",
     },
     "Unconscious Fighter": {
         "desc": "It takes 7 bleeding tokens to kill you.",
     },
     "Ambidexterous": {
-        "desc": "All melee weapons in your gear grid gain paired (add the speed of the second weapon when attacking with the first). Ambidexterous cannot be used if there are any shields, two-handed or heavy gear in your gear grid.",
+        "desc": "All melee weapons in your gear grid gain <b>paired</b> (add the speed of the second weapon when attacking with the first).<br/>Ambidexterous cannot be used if there are any shields, two-handed or heavy gear in your gear grid.",
     },
     "Strategist": {
-        "desc": "During the showdown setup, after placing terrain, you may add a Giant Stone Face or a Toppled Pillar terrain card to the showdown board.",
+        "desc": "During the showdown setup, after placing terrain, you may add a <b>Giant Stone Face</b> or a <b>Toppled Pillar</b> terrain card to the showdown board.",
     },
     "Monster Claw Style": {
-        "desc": "Your Fist & Tooth attacks gain +1 Accuracy, +1 Strength and Savage (after the first critical wound in an attack, savage weapons cause 1 additional wound. This rule does not trigger on Impervious hit locations).",
+        "desc": "Your <b>Fist & Tooth</b> attacks gain +1 Accuracy, +1 Strength and <b>Savage</b> (after the first critical wound in an attack, savage weapons cause 1 additional wound. This rule does not trigger on Impervious hit locations).",
     },
     "Tumble": {
-        "desc": "When something would collide with you, roll 1d10. On a result of 6+, you successfully tumble out of harm's way. Instead, place your survivor standing on the closest free space outside of the collision path.",
+        "desc": "When something would <b>collide</b> with you, roll 1d10. On a result of 6+, you successfully tumble out of harm's way. Instead, place your survivor standing on the closest free space outside of the collision path.",
     },
     "Extra Sense": {
-        "desc": "You may dodge 1 additional time per round.",
+        "desc": "You may <b>dodge</b> 1 additional time per round.",
     },
 }
 
@@ -755,16 +805,27 @@ defeated_monsters = {
 }
 
 locations = {
+    "Rare Gear": {
+        "color": "9DC209",
+    },
+    "Unique Items": {
+        "font_color": "FFF",
+        "color": "FF00FF",
+    },
+    "Black Harvest": {
+        "color": "333",
+        "font_color": "FFF",
+    },
     "Lantern Hoard": {
         "always_available": True,
         "consequences": ["Bone Smith", "Skinnery", "Organ Grinder", "Catarium", "Plumery", "Exhausted Lantern Hoard", "Mask Maker","Gormery","Gormchymist"],
     },
     "Bone Smith": {
-        "color": "E5DDD3",
+        "color": "e3dac9",
         "consequences": ["Weapon Crafter"],
     },
     "Skinnery": {
-        "color": "A89166",
+        "color": "FFCBA4",
         "consequences": ["Leather Worker"],
     },
     "Organ Grinder": {
@@ -773,15 +834,17 @@ locations = {
     },
     "Blacksmith": {
         "requires": ("innovations", "Scrap Smelting"),
-        "color": "9DAFBC",
+        "color": "625D5D",
+        "font_color": "FFF",
         "consequences": [],
     },
     "Stone Circle": {
-        "color": "84596B",
-        "consequences": [],
+        "color": "835C3B",
+        "font_color": "FFF",
     },
     "Leather Worker": {
-        "color": "927B51",
+        "color": "7F462C",
+        "font_color": "FFF",
         "consequences": [],
     },
     "Weapon Crafter": {
@@ -790,8 +853,8 @@ locations = {
     },
     "Barber Surgeon": {
         "requires": ("innovations", "Pottery"),
-        "color": "b93333",
-        "consequences": [],
+        "color": "E55451",
+        "font_color": "FFF",
     },
     "Plumery": {
         "color": "FF5EAA",
@@ -810,14 +873,21 @@ locations = {
         "consequences": [],
     },
     "Gormchymist": {
-        "color": "008080",
+        "color": "8C001A",
+        "font_color": "FFF",
         "consequences": [],
         "expansion": "Gorm",
     },
     "Gormery": {
-        "color": "9AAD32",
+        "color": "600313",
+        "font_color": "FFF",
         "consequences": [],
         "expansion": "Gorm",
+    },
+    "Wet Resin Crafter": {
+        "expansion": "Dung Beetle Knight",
+        "always_available": True,
+        "color": "C9CE62",
     },
 }
 
@@ -869,6 +939,7 @@ items = {
         "location": "Gormery",
     },
     "Gorment Armor Set": {
+        "expansion": "Gorm",
         "location": "Gormery",
     },
     "Healing Potion": {
@@ -1558,58 +1629,212 @@ items = {
         "location": "Vermin",
     },
     "Mammoth Hand": {
+        "expansion": "Gorm",
         "location": "Gorm Resources",
         "resource_family": ["bone","hide","organ"],
     },
     "Jiggling Lard": {
+        "expansion": "Gorm",
         "location": "Gorm Resources",
         "resource_family": ["hide","organ"],
     },
     "Stout Kidney": {
+        "expansion": "Gorm",
         "location": "Gorm Resources",
         "resource_family": ["organ"],
         "consumable": True,
     },
     "Stout Heart": {
+        "expansion": "Gorm",
         "location": "Gorm Resources",
         "resource_family": ["organ"],
     },
     "Stout Hide": {
+        "expansion": "Gorm",
         "location": "Gorm Resources",
         "resource_family": ["hide"],
     },
     "Stout Vertebrae": {
+        "expansion": "Gorm",
         "location": "Gorm Resources",
         "resource_family": ["bone"],
     },
     "Handed Skull": {
+        "expansion": "Gorm",
         "location": "Gorm Resources",
         "resource_family": ["bone"],
     },
     "Dense Bone": {
+        "expansion": "Gorm",
         "location": "Gorm Resources",
         "resource_family": ["bone"],
     },
     "Milky Eye": {
+        "expansion": "Gorm",
         "location": "Gorm Resources",
         "resource_family": ["organ"],
     },
     "Gorm Brain": {
+        "expansion": "Gorm",
         "location": "Gorm Resources",
         "resource_family": ["organ"],
     },
     "Acid Gland": {
+        "expansion": "Gorm",
         "location": "Gorm Resources",
         "resource_family": ["organ"],
     },
     "Meaty Rib": {
+        "expansion": "Gorm",
         "location": "Gorm Resources",
         "resource_family": ["bone","organ"],
     },
+    "Preserved Caustic Dung": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Strange Resources",
+        "resource_family": ["organ"],
+    },
+    "Scell": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Strange Resources",
+        "resource_family": ["organ"],
+    },
+    "Beetle Horn": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Dung Beetle Knight Resources",
+        "resource_family": ["bone"],
+    },
+    "Century Fingernails": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Dung Beetle Knight Resources",
+        "resource_family": ["bone"],
+    },
+    "Century Shell": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Dung Beetle Knight Resources",
+        "resource_family": ["hide","scrap"],
+    },
+    "Compound Eye": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Dung Beetle Knight Resources",
+        "resource_family": ["organ"],
+    },
+    "Elytra": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Dung Beetle Knight Resources",
+        "resource_family": ["bone","hide","organ"],
+    },
+    "Scarab Shell": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Dung Beetle Knight Resources",
+        "resource_family": ["hide"],
+    },
+    "Scarab Wing": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Dung Beetle Knight Resources",
+        "resource_family": ["organ"],
+    },
+    "Underplate Fungus": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Dung Beetle Knight Resources",
+        "resource_family": ["hide"],
+    },
+    "Rolling Armor Set": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Wet Resin Crafter",
+    },
+    "DBK Errant Badge": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Wet Resin Crafter",
+    },
+    "Rainbow Wing Belt": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Wet Resin Crafter",
+    },
+    "Rubber Bone Harness": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Wet Resin Crafter",
+    },
+    "Scarab Circlet": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Wet Resin Crafter",
+    },
+    "Seasoned Monster Meat": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Wet Resin Crafter",
+    },
+    "The Beetle Bomb": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Wet Resin Crafter",
+    },
+    "Seasoned Monster Meat": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Wet Resin Crafter",
+    },
+    "Century Greaves": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Wet Resin Crafter",
+    },
+    "Century Shoulder Pads": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Wet Resin Crafter",
+    },
+    "Digging Claw": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Wet Resin Crafter",
+    },
+    "Calcified Zanbato": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Black Harvest",
+    },
+    "Calcified Digging Claw": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Black Harvest",
+    },
+    "Calcified Shoulder Pads": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Black Harvest",
+    },
+    "Calcified Greaves": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Black Harvest",
+    },
+    "Hidden Crimson Jewel": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Rare Gear",
+    },
+    "Trash Crown": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Rare Gear",
+    },
+    "Regenerating Blade": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Rare Gear",
+    },
+    "Calcified Juggernaut Blade": {
+        "expansion": "Dung Beetle Knight",
+        "location": "Rare Gear",
+    },
+
 }
 
 
 innovations = {
+    "Subterranean Agriculture": {
+        "expansion": "Dung Beetle Knight",
+        "type": "science",
+        "endeavors": {
+            'If <b>Black Harvest</b> is not on the timeline, <font class="kdm_font">g</font> <b>Underground Sow</b>.': 1,
+            'If <b>Black Harvest</b> is on the timeline, you may spend 1 Preserved Caustic Dung to increase its rank by 1 to a maximum rank of 3. Limit, once per settlement phase.': 1,
+        },
+        "always_available": True,
+    },
+    "Round Stone Training": {
+        "expansion": "Dung Beetle Knight",
+        "type": "education",
+        "endeavors": {"Train": 1},
+        "always_available": True,
+    },
     "Nigredo": {
         "expansion": "Gorm",
         "type": "science",
@@ -1753,6 +1978,7 @@ innovations = {
     "Nightmare Training": {
         "type": "education",
         "endeavors": {"Train": 1},
+        "consequences": ["Round Stone Training"],
     },
     "Momento Mori": {
         "type": "art",
@@ -1855,31 +2081,27 @@ innovations = {
 # Monster assets
 
 quarries = {
-    "White Lion": {"tokens": ["LION","WHITE"], "sort_order": 1},
-    "Gorm": {"tokens": ["GORM"], "sort_order": 2},
-    "Screaming Antelope": {"tokens": ["ANTELOPE","SCREAMING"], "sort_order": 3},
-    "Phoenix": {"tokens": ["PHOENIX","PHONIEX"], "sort_order": 4},
-    "Beast Of Sorrow": {"no_levels": True, "tokens": ["SORROW","BEAST"], "sort_order": 4},
-    "Great Golden Cat": {"no_levels": True, "tokens": ["GOLDEN","CAT"], "sort_order": 5},
-    "Mad Steed": {"no_levels": True, "tokens": ["MAD","STEED"], "sort_order": 6},
-    "Golden Eyed King": {"no_levels": True, "tokens": ["GOLDEN","EYED","KING"], "sort_order": 7},
+    "White Lion":           {"sort_order": 1, "tokens": ["LION","WHITE"]},
+    "Gorm":                 {"sort_order": 2, "tokens": ["GORM"], "expansion": "Gorm"},
+    "Screaming Antelope":   {"sort_order": 3, "tokens": ["ANTELOPE","SCREAMING"]},
+    "Dung Beetle Knight":   {"sort_order": 4, "tokens": ["DUNG","BEETLE","DBK"], "expansion": "Dung Beetle Knight"},
+    "Old Master":           {"sort_order": 5, "tokens": ["MASTER"], "expansion": "Dung Beetle Knight"},
+    "Phoenix":              {"sort_order": 6, "tokens": ["PHOENIX","PHONIEX"]},
+    "Beast Of Sorrow":      {"sort_order": 7, "no_levels": True, "tokens": ["SORROW","BEAST"]},
+    "Great Golden Cat":     {"sort_order": 8, "no_levels": True, "tokens": ["GOLDEN","CAT"]},
+    "Mad Steed":            {"sort_order": 9, "no_levels": True, "tokens": ["MAD","STEED"]},
+    "Golden Eyed King":     {"sort_order": 10, "no_levels": True, "tokens": ["GOLDEN","EYED","KING"]},
 }
 
 nemeses = {
-    "Butcher": {"tokens": ["BUTCHER","BUTCHEE"], "sort_order": 10},
-    "King's Man": {"tokens": ["MAN","KINGSMAN"], "sort_order": 11},
-    "The Hand": {"tokens": ["HAND"], "sort_order": 12},
-    "The Watcher": {"no_levels": True, "tokens": ["WATCHER"], "sort_order": 20},
+    "Butcher":      {"sort_order": 15, "tokens": ["BUTCHER","BUTCHEE"]},
+    "King's Man":   {"sort_order": 16, "tokens": ["MAN","KINGSMAN"]},
+    "The Hand":     {"sort_order": 17, "tokens": ["HAND"]},
+    "Watcher":      {"sort_order": 30, "no_levels": True, "tokens": ["WATCHER"]},
 }
 
 
 resources = {
-    "Rare Gear": {
-        "color": "43C6DB",
-    },
-    "Unique Items": {
-        "color": "7E6FF3",
-    },
     "White Lion Resources": {
         "color": "FFCC66",
     },
@@ -1890,28 +2112,27 @@ resources = {
         "color": "FFCC66",
     },
     "Gorm Resources": {
+        "expansion": "Gorm",
+        "color": "FFCC66",
+    },
+    "Dung Beetle Knight Resources": {
+        "expansion": "Dung Beetle Knight",
         "color": "FFCC66",
     },
     "Basic Resources": {
-        "color": "51C327",
+        "color": "B1FB17",
     },
     "Vermin": {
         "color": "99CC66",
     },
     "Strange Resources": {
-        "color": "B9FAC4",
+        "color": "9DC209",
     },
     "Starting Gear": {
         "color": "CCC",
     },
 }
 
-resource_decks = {
-    "White Lion": [ "White Fur", "White Fur", "White Fur", "White Fur", "Lion Claw", "Lion Claw", "Lion Claw", "Eye of Cat", "Great Cat Bones", "Great Cat Bones", "Great Cat Bones", "Great Cat Bones", "Shimmering Mane", "Lion Tail", "Curious Hand", "Golden Whiskers", "Sinew", "Sinew", "Lion Testes" ],
-    "Screaming Antelope": ["Pelt", "Pelt", "Pelt", "Pelt", "Shank Bone", "Shank Bone", "Shank Bone", "Shank Bone", "Large Flat Tooth", "Large Flat Tooth", "Beast Steak", "Beast Steak", "Muscly Gums", "Spiral Horn", "Bladder", "Screaming Brain"],
-    "Phoenix": ["Tall Feathers", "Tall Feathers", "Tall Feathers", "Phoenix Eye", "Phoenix Whisker", "Pustules", "Pustules", "Small Feathers", "Small Feathers", "Small Feathers", "Muculent Droppings", "Muculent Droppings", "Muculent Droppings", "Wishbone", "Shimmering Halo", "Bird Beak", "Black Skull", "Small Hand Parasites", "Phoenix Finger", "Phoenix Finger", "Hollow Wing Bones", "Hollow Wing Bones", "Hollow Wing Bones", "Rainbow Droppings"],
-    "Basic Resources": ["???", "???", "Skull", "Broken Lantern", "Broken Lantern", "Monster Bone", "Monster Bone", "Monster Bone", "Monster Bone", "Love Juice", "Love Juice", "Monster Organ", "Monster Organ", "Monster Organ", "Monster Hide", "Monster Hide", "Monster Hide", "Monster Hide", "Monster Hide", "Monster Hide", "Monster Hide"]
-}
 
 survival_actions = ["Dodge", "Encourage", "Surge", "Dash"]
 survivor_attributes = ["Movement", "Accuracy", "Strength", "Evasion", "Luck", "Speed"]
@@ -1930,4 +2151,9 @@ weapon_proficiencies = {
     "Spear": {},
     "Axe": {},
     "Twilight Sword": {},
+}
+
+expansions = {
+    "Gorm": {"nickname": "gorm"},
+    "Dung Beetle Knight": {"nickname": "dbk"},
 }

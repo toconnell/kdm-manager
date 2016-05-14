@@ -104,6 +104,27 @@ def top_principles(return_type=None):
 
     return popularity_contest
 
+def current_hunt():
+    settlement = mdb.settlements.find_one({"current_quarry": {"$exists": True}})
+    if settlement is None:
+        return "No settlements are currently hunting monsters."
+
+    hunters = mdb.survivors.find({"settlement": settlement["_id"], "in_hunting_party": {"$exists": True}}).sort("name")
+    if hunters.count() == 0:
+        return "No settlements are currently hunting monsters."
+    elif hunters.count() == 1:
+        hunter = mdb.survivors.find_one({"settlement": settlement["_id"], "in_hunting_party": {"$exists": True}})
+        return "%s of <b>%s</b> is currently out hunting! Quarry: %s" % (hunter["name"], settlement["name"], settlement["current_quarry"])
+    elif hunters.count() >= 2:
+        hunter_names = []
+        for h in hunters:
+            hunter_names.append(h["name"])
+        hunter_string = ", ".join(hunter_names[:-1])
+        hunter_string += " and %s of <b>%s</b>" % (hunter_names[-1], settlement["name"])
+        hunter_string += " are currently out hunting! Quarry: %s" % (settlement["current_quarry"])
+        return hunter_string
+    else:
+        return "An error occurred while gathering information about the latest monster hunt."
 
 def get_minmax(attrib="population"):
     data_points = []

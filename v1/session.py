@@ -383,7 +383,8 @@ class Session:
                 if mdb.the_dead.find({"complete": {"$exists": True}}).count() > 0:
                     try:
                         output += self.User.html_world()
-                    except:
+                    except Exception as e:
+                        self.logger.exception(e)
                         output += '<!-- ERROR! World Menu could not be created! -->'
 
                 if self.User.is_admin():

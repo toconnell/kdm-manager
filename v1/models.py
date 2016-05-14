@@ -37,7 +37,7 @@ class Model:
         return always_available
 
 
-    def render_as_html_dropdown(self, submit_on_change=True, exclude=[], disable=[], excluded_type=None):
+    def render_as_html_dropdown(self, submit_on_change=True, exclude=[], disable=[], excluded_type=None, expansions=[]):
         """ Renders the model as an HTML dropdown and returns a string. Use the
         'submit_on_change' kwarg to control whether it submits on change.
 
@@ -68,6 +68,13 @@ class Model:
                     excluded_assets.append(asset)
             for excluded_key in excluded_assets:
                 options.remove(excluded_key)
+
+        excluded_assets = []
+        for asset in options:
+            if "expansion" in self.get_asset(asset).keys() and self.get_asset(asset)["expansion"] not in expansions:
+                excluded_assets.append(asset)
+        for excluded_key in excluded_assets:
+            options.remove(excluded_key)
 
         if options == []:
             # stop here if we've got no options to return
@@ -252,10 +259,6 @@ class resourcesModel(Model):
         Model.__init__(self)
         self.game_assets = game_assets.resources
 
-class resourceDecksModel(Model):
-    def __init__(self):
-        Model.__init__(self)
-        self.game_assets = game_assets.resource_decks
 
 class weaponProficienciesModel(Model):
     def __init__(self):
@@ -283,7 +286,6 @@ Innovations     = innovationsModel()
 Nemeses         = nemesesModel()
 Quarries        = quarriesModel()
 Resources       = resourcesModel()
-ResourceDecks   = resourceDecksModel()
 WeaponProficiencies = weaponProficienciesModel()
 DefeatedMonsters = defeatedMonstersModel()      # this is like...a pseudo model
 NemesisMonsters = nemesisMonstersModel()        # another pseudo model
@@ -345,7 +347,7 @@ preferences_dict = {
     "dynamic_innovation_deck": {
         "desc": "What Innovations should be selectable?",
         "affirmative": "Innovation Deck only",
-        "negative": "All Innovations",
+        "negative": "All Innovations (not recommended)",
     },
     "preserve_sessions": {
         "desc": "Preserve Sessions?",
