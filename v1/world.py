@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from bson.objectid import ObjectId
+from datetime import datetime, timedelta
 from optparse import OptionParser
 
 import html
@@ -105,10 +106,9 @@ def top_principles(return_type=None):
     return popularity_contest
 
 def current_hunt():
-    settlement = mdb.settlements.find_one({"current_quarry": {"$exists": True}})
+    settlement = mdb.settlements.find_one({"current_quarry": {"$exists": True}, "hunt_started": {"$gte": datetime.now() - timedelta(minutes=120)}})
     if settlement is None:
         return "No settlements are currently hunting monsters."
-
     hunters = mdb.survivors.find({"settlement": settlement["_id"], "in_hunting_party": {"$exists": True}}).sort("name")
     if hunters.count() == 0:
         return "No settlements are currently hunting monsters."

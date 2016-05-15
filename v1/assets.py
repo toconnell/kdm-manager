@@ -1783,7 +1783,7 @@ class Settlement:
 
         if e_key == "Gorm" and new_settlement:
             self.update_timeline(add_event = (1, "story_event", "The Approaching Storm"))
-            self.update_timeline(add_event = (2, "settlement_event", "Gorm Weather"))
+            self.update_timeline(add_event = (2, "settlement_event", "Gorm Climate"))
         elif e_key == "Dung Beetle Knight" and new_settlement:
             self.update_timeline(add_event = (8, "story_event", "Rumbling in the Dark"))
 
@@ -1796,6 +1796,7 @@ class Settlement:
         if quarry_string == "None":
             quarry_string = None
 
+        self.settlement["hunt_started"] = datetime.now()
         self.settlement["current_quarry"] = quarry_string
         if quarry_string is not None:
             self.log_event("Current quarry is %s" % quarry_string)
@@ -2817,6 +2818,9 @@ class Settlement:
         returning_survivor_name_list = []
 
         # add the defeated monster first
+        if "hunt_started" in self.settlement.keys():
+            del self.settlement["hunt_started"]
+
         if "current_quarry" in self.settlement.keys() and self.settlement["current_quarry"] is not None:
             quarry_key = self.settlement["current_quarry"]
             self.add_kill(quarry_key)
