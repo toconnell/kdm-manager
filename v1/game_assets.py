@@ -607,10 +607,10 @@ disorders = {
 
 
 epithets = {
-    "Witness": {"expansion": "Gorm"},
-    "Gorm Bait": {"expansion": "Gorm"},
-    "Digested": {"expansion": "Gorm"},
-    "Braved the Storm": {"expansion": "Gorm"},
+    "Witness": {},
+    "Gorm Bait": {},
+    "Digested": {},
+    "Braved the Storm": {},
     "White-haired":{},
     "White Wolf":{},
     "The White":{},
