@@ -1256,7 +1256,7 @@ items = {
         "location": "White Lion Resources",
         "resource_family": ["bone"],
     },
-    "Eye Of Cat": {
+    "Eye of Cat": {
         "location": "White Lion Resources",
         "resource_family": ["organ"],
         "consumable": True,
