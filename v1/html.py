@@ -30,6 +30,7 @@ class panel:
         <tr><td>Survivors:</td><td>$live_survivors/$dead_survivors ($total_survivors total)</td></tr>
         <tr class="grey"><td>Valkyrie:</td><td>$complete_death_records complete death recs</td></tr>
         <tr><td>Latest Fatality:</td><td>$latest_fatality</td></tr>
+        <tr class="grey"><td>Current Hunt:</td><td>$current_hunt</td></tr>
     </table>
     <table id="panel_kill_board">
         <tr><th colspan="2">Kill Board</th></tr>
@@ -196,15 +197,15 @@ class dashboard:
         <h2 class="clickable gradient_blue" onclick="showHide('world_div')"> <img class="dashboard_icon" src="%s/icons/world.png"/> World %s</h2>
         <div id="world_div" style="display: none;" class="dashboard_accordion gradient_blue">
         <p>$total_users users are registered; $recent_sessions users have managed campaigns in the last 12 hours.</p><hr/>
-        <p>$active_settlements settlements are holding fast; $abandoned_settlements settlements have been abandoned.</p>
-        <p>$live_survivors survivors are alive and fighting; $dead_survivors have perished.</p>
-        <hr/>
-        $latest_fatality
-        <hr/>
         <p>Latest hunt activity:</p>
         <ul>
             <li>$current_hunt</li>
         </ul>
+        <hr/>
+        <p>$active_settlements settlements are holding fast; $abandoned_settlements settlements have been abandoned.</p>
+        <p>$live_survivors survivors are alive and fighting; $dead_survivors have perished.</p>
+        <hr/>
+        $latest_fatality
         <hr/>
         <p>Population stats for all settlements:</p>
         <ul>
@@ -811,15 +812,18 @@ class settlement:
         <form method="POST">
         <input type="hidden" name="new" value="settlement" />
         <input type="text" name="settlement_name" placeholder="Settlement Name"/ class="full_width" autofocus>
-        <fieldset class="settlement_principle">
-         <input type="checkbox" id="create_survivors" class="radio_principle" name="create_survivors" value="True" />
-          <label class="radio_principle_label" for="create_survivors"> Create Four New Survivors for the First Story</label>
-        </fieldset>
-        <h3>Expansions:</h3>
-        <p>
-        Toggle expansions on using controls below. This functionality is new/beta. Please report any issues.<br/><br/>
-        <input type="hidden" name="expansions" value="None"/>
-        <input type="hidden" name="expansions" value="None"/>
+        <h3 class="new_settlement">Quick Start:</h3>
+        <p class="new_settlement">
+        By default, new settlements start with no survivors and use the core game's standard timeline. Toggle options below to change starting parameters. <br/><br/>
+            <input type="checkbox" id="create_survivors" class="radio_principle" name="create_survivors" value="True" />
+            <label class="radio_principle_label" for="create_survivors"> Create Four "First Story" Survivors</label>
+        </p>
+        <br />
+        <h3 class="new_settlement">Expansions:</h3>
+        <p class="new_settlement">
+        Enable Expansion content by selecting the items below. This functionality is new and <i>under active development</i>. Please report any issues.<br/><br/>
+        <input type="hidden" name="expansions" value="None"/> <!-- Both of these are necessary -->
+        <input type="hidden" name="expansions" value="None"/> <!-- Hack City! -->
             %s
         </p>
         <br/><hr/>

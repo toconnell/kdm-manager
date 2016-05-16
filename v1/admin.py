@@ -434,6 +434,7 @@ class Panel:
             dead_survivors = dead_survivors,
             complete_death_records = mdb.the_dead.find({"complete": {"$exists": True}}).count(),
             latest_fatality = latest_fatality_string,
+            current_hunt = world.current_hunt(),
         )
 
 

@@ -45,7 +45,7 @@ button.sign_in {width: 95%; margin: 0 auto; padding: 0 none; font-weight: normal
 
 /*  dashboard styles */
 .dashboard_menu ul {list-style-type: none;}
-body.dashboard {background: linear-gradient(130deg, #E6EAEA, #97A096); }
+body.dashboard {background: linear-gradient(90deg, #97A096, #C6CACA); }
 .dashboard_alert {position: fixed; width: 90%; left: 5%; bottom: 0; padding: 5px; font-size: 25pt; }
 h2.clickable, .dashboard_accordion {margin: auto; padding: 5px; border-left: 1px solid; border-bottom: 2px solid; border-right: 2px solid; margin-bottom: 30px; }
 .dashboard_accordion {border-top: 0 none; margin-top: -35px; z-index: 10; width: 96.3%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; }
@@ -65,6 +65,8 @@ img.latest_fatality {width: 300px; float: right; margin: 10px; }
 
 
 /* settlement styles */
+p.new_settlement {margin-bottom: 10px; clear: right; }
+h3.new_settlement {clear: left; text-align: center; display: block; }
 h3.inventory_tag {float: right; z-index: -1; clear: none; position: absolute;  margin-top: -40px; right: 56px; opacity: 0.3; padding: 10px; }
 h3.clickable {padding: 1%; }
 .hunting_party_macro {float: left; padding: 3px; text-align: center; width: 310px;}

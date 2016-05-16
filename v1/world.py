@@ -27,7 +27,7 @@ def latest_fatality(return_type=False):
         output = '<p>Latest fatality: %s<br/><br/>' % avatar_img
         output += '&ensp; <b>%s</b> of <b>%s</b> <br/>' % (latest_fatality["name"], latest_fatality["settlement_name"])
         output += html_epithets
-        output += '&ensp; &nbsp; %s<br/>&ensp; Died in LY %s, XP: %s<br/>' % (latest_fatality["cause_of_death"], latest_fatality["lantern_year"], latest_fatality["hunt_xp"]) 
+        output += '&ensp; Cause of death: %s<br/>&ensp; Died in LY %s, XP: %s<br/>' % (latest_fatality["cause_of_death"], latest_fatality["lantern_year"], latest_fatality["hunt_xp"]) 
         output += '&ensp; Courage: %s, Understanding: %s</p>' % (latest_fatality["Courage"], latest_fatality["Insanity"])
         return output
 
@@ -107,7 +107,7 @@ def top_principles(return_type=None):
 
 def current_hunt():
     try:
-        settlement = mdb.settlements.find({"current_quarry": {"$exists": True}, "hunt_started": {"$gte": datetime.now() - timedelta(minutes=120)}}).sort("hunt_started", -1)[0]
+        settlement = mdb.settlements.find({"current_quarry": {"$exists": True}, "hunt_started": {"$gte": datetime.now() - timedelta(minutes=180)}}).sort("hunt_started", -1)[0]
     except:
         return "No settlements are currently hunting monsters."
     if settlement is None:

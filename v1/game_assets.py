@@ -6,6 +6,26 @@
 #
 
 abilities_and_impairments = {
+    "King's Curse - Regal Helm":{
+        "type": "impairment",
+        "desc": "Gain a random disorder and the <b>Regal Helm</b> rare gear and place iti nyour gear grid now.",
+    },
+    "King's Curse - Regal Faulds":{
+        "type": "impairment",
+        "desc": "Suffer the destroyed genitals severe waist injury. Gain the <b>Regal Faulds</b> rare gear and place it in your grid now.",
+    },
+    "King's Curse - Regal Greaves":{
+        "type": "impairment",
+        "desc": "Gain the <b>Regal Boots</b> rare gear and place it in your gear grid now.",
+    },
+    "King's Curse - Regal Gauntlets":{
+        "type": "impairment",
+        "desc": "Gain the <b>Regal Gauntlets</b> rare gear and place it in your gear grid now.",
+    },
+    "King's Curse - Regal Plackart":{
+        "type": "impairment",
+        "desc": "Gain the <b>Regal Plackart</b> rare gear and place it in your gear grid now. The other returning survivors suffer 3 brain event damage.<br/>Your body seems to move on its own. Gain the <b>King's Step</b> secret fighting art.",
+    },
     "Crystal Skin": {
         "type": "ability",
         "desc": "You cannot place armor in your gear grid. When you <b>depart</b>, gain <b>2</b> to all hit locations. Suffer -1 to the result of all severe injury rolls.",
@@ -137,7 +157,7 @@ abilities_and_impairments = {
     "Specialization - Shield": {
         "type": "weapon proficiency",
         "max": 1,
-        "desc": "While a shield is in your gear grid, you are no longer knocked down after <b>collision</b> with a monster. Whil a shield is in your gear grid, add <b>1</b> to all hit locations.",
+        "desc": "While a shield is in your gear grid, you are no longer knocked down after <b>collision</b> with a monster. While a shield is in your gear grid, add <b>1</b> to all hit locations.",
     },
     "Specialization - Dagger": {
         "type": "weapon proficiency",
@@ -512,7 +532,7 @@ disorders = {
         "retire": True,
     },
     "Hoarder": {
-        "flavor_text": "You compulsively collect adn stash anything you can get your hands on. Every little bit you add to your secret hoard makes your existence feel more real.",
+        "flavor_text": "You compulsively collect and stash anything you can get your hands on. Every little bit you add to your secret hoard makes your existence feel more real.",
         "survivor_effect": "Whenever you are a <b>returning</b> survivor, archive 1 resource gained from the last showdown and gain +1 courage.",
     },
     "Binge Eating Disorder": {
@@ -607,6 +627,22 @@ disorders = {
 
 
 epithets = {
+    "Twin": {},
+    "Spelunker of Death": {},
+    "Farmer": {},
+    "Maw Runner": {},
+    "Bug Man": {},
+    "Met the Bug Man": {},
+    "Vomit-soaked": {},
+    "Coward": {},
+    "Foolish": {},
+    "Shining": {},
+    "Hero": {},
+    "Entomophile": {},
+    "Beetle-kin": {},
+    "Bettle-brain": {},
+    "Round Stone Trainer": {},
+    "Bewitched": {},
     "Witness": {},
     "Gorm Bait": {},
     "Digested": {},
@@ -693,7 +729,7 @@ fighting_arts = {
     },
     "Propulsion Drive": {
         "expansion": "Dung Beetle Knight",
-        "desc": "At the start of as howdowm, gain the <b>Momentum</b> survivor status card.<br/> When you attack, if you have 5+ momentum tokens, remove them all and roll 1d10. Gain that amount of luck and strength when attempting to wound the first selected hit location for this attack.",
+        "desc": "At the start of a showdown, gain the <b>Momentum</b> survivor status card.<br/> When you attack, if you have 5+ momentum tokens, remove them all and roll 1d10. Gain that amount of luck and strength when attempting to wound the first selected hit location for this attack.",
     },
     "Carapace of Will": {
         "expansion": "Dung Beetle Knight",
@@ -891,6 +927,14 @@ locations = {
     },
 }
 
+# boy, this is a really good example of why you don't try to make dictionary
+# keys out of your raw asset values. Fuck you, Poots: next time I'm using bson
+# object keys or some shit
+item_normalization_exceptions = {
+    ("Dbk Errant Badge", "DBK Errant Badge"),
+    ("Finger Of God", "Finger of God"),
+    ("Eye Of Cat", "Eye of Cat"),
+}
 
 items = {
     "Riot Mace": {
@@ -1601,7 +1645,7 @@ items = {
     "Whistling Mace": {
         "location": "Weapon Crafter",
     },
-    "Finger Of God": {
+    "Finger of God": {
         "location": "Weapon Crafter",
     },
     "Rainbow Katana": {
@@ -1853,7 +1897,7 @@ innovations = {
         "expansion": "Gorm",
         "type": "science",
         "survival_limit": 1,
-        "consequences": ["Citrinitas"],
+        "consequences": ["Rubedo"],
         "endeavors": {"Citrinitas": 3},
     },
     "Rubedo": {

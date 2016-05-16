@@ -837,6 +837,11 @@ class Survivor:
         elif cmd == "Return from Hunt":
             heal_armor=True
             increment_hunt_xp=1
+            # bump up the increment number for saviors
+            for sav_attr in ["Caratosis","Lucernae", "Dormenatus"]:
+                if sav_attr in self.survivor["abilities_and_impairments"]:
+                    increment_hunt_xp=4
+
             if "in_hunting_party" in self.survivor.keys():
                 del self.survivor["in_hunting_party"]
 
@@ -2202,9 +2207,26 @@ class Settlement:
         """ Returns the settlement's storage in a number of ways. """
 
         # first, normalize storage to try to fix case-sensitivity PEBKAC
-        storage = [capwords(i) for i in self.settlement["storage"]]
+        normalization_exceptions = [key_tuple[1] for key_tuple in game_assets.item_normalization_exceptions]
+        storage = []
+        for i in self.settlement["storage"]:
+            if i in normalization_exceptions:
+                storage.append(i)
+            else:
+                storage.append(capwords(i))
         self.settlement["storage"] = storage
         mdb.settlements.save(self.settlement)
+
+        # Now handle our normalization exceptions, so they don't get mix-cased
+        # incorrectly/automatically
+        for normalization_exception in game_assets.item_normalization_exceptions:
+            broken, fixed = normalization_exception
+            if broken in storage:
+                broken_items = storage.count(broken)
+                for i in range(broken_items):
+                    storage.remove(broken)
+                    storage.append(fixed)
+                self.logger.debug("[%s] Re-normalized '%s' to '%s' (%s times)" % (self, broken, fixed, broken_items))
 
         if return_type == "html_buttons":
             custom_items = {}
@@ -2886,7 +2908,7 @@ class Settlement:
             if all_items == []:
                 break
             return_list.add(all_items.pop())
-        return sorted(list([capwords(i) for i in return_list]))
+        return sorted(list([i for i in return_list]))
 
 
 
@@ -3084,10 +3106,15 @@ class Settlement:
 
         current_assets = self.settlement[asset_type]
 
+
         if exclude_always_available:
             asset_deck = set()
         else:
             asset_deck = Asset.get_always_available()
+
+        # add language to the deck if it's absent
+        if asset_type == "innovations" and "Language" not in self.settlement[asset_type]:
+            asset_deck.add("Language")
 
         for asset_key in current_assets:
             if asset_key in Asset.get_keys() and "consequences" in Asset.get_asset(asset_key).keys():
@@ -3253,12 +3280,18 @@ class Settlement:
         """ Adds a kill to the settlement: appends it to the 'defeated_monsters'
         monsters and also to the settlement's kill_board. """
 
-        if not "kill_board" in self.settlement.keys():
-            self.settlement["kill_board"] = {}
         current_ly = "ly_%s" % self.settlement["lantern_year"]
-        if not current_ly in self.settlement["kill_board"].keys():
-            self.settlement["kill_board"][current_ly] = []
-        self.settlement["kill_board"][current_ly].append(monster_desc)
+        kill_board_dict = {
+            "settlement_id": self.settlement["_id"],
+            "settlement_name": self.settlement["name"],
+            "kill_ly": current_ly,
+            "name": monster_desc,
+            "created_by": self.User.user["_id"],
+            "created_on": datetime.now(),
+        }
+        mdb.killboard.insert(kill_board_dict)
+        self.logger.debug("[%s] Updated application killboard: %s (LY %s)" % (self, monster_desc, current_ly))
+
         self.settlement["defeated_monsters"].append(monster_desc)
         self.logger.debug("%s defeated by %s" % (monster_desc, self))
         self.log_event("%s defeated!" % monster_desc)
@@ -3282,6 +3315,13 @@ class Settlement:
         # otherwise, if we've got a str, let's get busy
         if asset_class == "storage":
             game_asset_key = capwords(game_asset_key)
+
+            # un-normalize from capwords for our orthography exceptions
+            for normalization_exception in game_assets.item_normalization_exceptions:
+                broken, fixed = normalization_exception
+                if game_asset_key == broken:
+                    game_asset_key = fixed
+
             for i in range(int(game_asset_quantity)):
                 self.settlement[asset_class].append(game_asset_key)
             self.logger.info("'%s' appended '%s' x%s to settlement '%s' (%s) storage." % (self.User.user["login"], game_asset_key, game_asset_quantity, self.settlement["name"], self.settlement["_id"]))
