@@ -774,10 +774,13 @@ class Survivor:
         if return_as == "formatted_html":
             html = ""
             for disorder_key in disorders:
-                flavor = ""
-                if "flavor_text" in Disorders.get_asset(disorder_key).keys():
-                    flavor = "<i>%s</i><br/>" % Disorders.get_asset(disorder_key)["flavor_text"]
-                html += '<p><b>%s:</b> %s %s</p>' % (disorder_key, flavor, Disorders.get_asset(disorder_key)["survivor_effect"])
+                if disorder_key not in Disorders.get_keys():
+                    html += '<p><b>%s:</b> custom disorder.</p>' % disorder_key
+                else:
+                    flavor = ""
+                    if "flavor_text" in Disorders.get_asset(disorder_key).keys():
+                        flavor = "<i>%s</i><br/>" % Disorders.get_asset(disorder_key)["flavor_text"]
+                    html += '<p><b>%s:</b> %s %s</p>' % (disorder_key, flavor, Disorders.get_asset(disorder_key)["survivor_effect"])
             return html
 
         if return_as == "html_select_remove":
