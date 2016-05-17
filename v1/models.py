@@ -206,7 +206,7 @@ class itemsModel(Model):
             lists. This should be refactored to be buttons one day. """
 
             output += '\n<select name="add_item" onchange="this.form.submit()">\n'
-            output += ' <option disabled selected> &ensp; &ensp; --- %s ---  </option>\n' % pretty_location_name
+            output += ' <option disabled selected> %s </option>\n' % pretty_location_name
             for item in item_list:
                 output += '  <option value="%s">%s</option>\n' % (item, item)
             output += '\n</select><br>'
