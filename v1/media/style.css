@@ -198,6 +198,7 @@ input[type="submit"].damage_box, input[type="submit"].damage_box_checked { width
 input[type="submit"].damage_box_checked {background-color: #000; }
 input[type="submit"].heavy_damage {border: 10px solid #000;}
 
+button#modalStorageButton {width: 90%; margin-left:30px; ; padding: 10px; text-align: center; }
 button.tiny_button {padding: 5px; font-size: 70%; margin: auto; margin-top: 30px;}
 button {padding-top: 20px; padding-bottom: 20px; }
 
@@ -215,7 +216,7 @@ button#remove_item {border-radius: 20px; padding-right: 10px; padding-left: 10px
 
 
  /* nav bar styles */
-#floating_event_log_button, #floating_refresh_button, #floating_dashboard_button, .floating_asset_button, #save_button {position: fixed; top: 3px; height: 125px; padding: 3px; border: 2px solid; z-index: 100; margin: 0; width: 180px; }
+#floating_event_log_button, #floating_refresh_button, #floating_dashboard_button, .floating_asset_button, #save_button {position: fixed; top: 3px; height: 125px; padding: 3px; border: 2px solid; z-index: 110; margin: 0; width: 180px; }
 
 #save_button {right: 225px; }
 .floating_asset_button {left: 360px; top: 3px; }
@@ -223,7 +224,7 @@ button#remove_item {border-radius: 20px; padding-right: 10px; padding-left: 10px
 #floating_refresh_button {right: 3px; }
 #floating_event_log_button {right: 225px; }
 
-.nav_bar_mobile {width: 100%; height: 135px; position: fixed; margin-top: -8px; margin-left: -8px; z-index: 1; border-bottom: 3px solid #666;}
+.nav_bar_mobile {width: 100%; height: 135px; position: fixed; margin-top: -8px; margin-left: -8px; z-index: 100; border-bottom: 3px solid #666;}
 .top_nav_spacer {display: block; height: 110px; }
 
 
@@ -383,6 +384,48 @@ right connector from last child*/
 }
 
 
+/* modal styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 99; /* Sit on top */
+    padding-top: 170px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    padding-bottom: 20px;
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
+
+/* The Close Button */
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 55px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+
 
 /*      Media Queries for non-mobile resolutions below here    */
 
@@ -419,7 +462,14 @@ right connector from last child*/
     label#female_sex_button {margin-bottom: -15px;}
     input[type=checkbox] {float: left; width: auto; clear: both; }
 
+    /* modal resets */
+    .modal {
+        padding-top: 60px;
+    }
+    button#modalStorageButton {margin-left: 17px; }
+
     /* general style */
+    select.min_width {padding: 0; width:  150px;}
     button.change_view {margin-left: 3%; }
     #floating_event_log_button, #floating_refresh_button, #save_button, #floating_dashboard_button, .floating_asset_button {position: fixed; top: 1%; margin: 0 auto; height: auto; width: auto; padding: 5px; border: 2px solid; opacity: 1; z-index: 101; }
     #floating_dashboard_button {left: 82%;}
@@ -503,7 +553,7 @@ right connector from last child*/
     div.create_new_asset_block {width: 100%; margin: 0 auto; }
 
     /* asset management styles */
-    .survivor_avatar_image {position: absolute; top: 490px; left: 20px; width: 175px; height: 225px;}
+    .survivor_avatar_image {position: absolute; top: 540px; left: 20px; width: 175px; height: 225px;}
     .survivor_avatar_image_campaign_summary {width: 65px; height: 85px; float: right; margin-top: 0px; margin-left: 4px; }
     .negative_30px_bottom_margin {margin-bottom: -30px;}
     .toggle_favorite {position: absolute; margin-top: -33px; margin-left: 35px; min-width: 50px; }
@@ -513,10 +563,13 @@ right connector from last child*/
     div#asset_management_right_pane {width: 340px; }
     input#topline_name, input#topline_name_fixed {width: 374px; position: relative; font-size: 20pt; margin: 0 auto; margin-left: -20px; font-weight: bold; z-index:5;}
     input#topline_name {margin-bottom: 20px; }
-    .shield, .big_number_square {font-size: 17pt; height: 55px; width: 45px; padding: 0; padding-left: 15px; border: 1px solid #666; margin: 5px; }
+    .shield, .big_number_square {font-size: 17pt; height: 55px; width: 45px; padding: 0; padding-left: 15px; border: 1px solid #666; margin: 5px; clear: both; }
+    .survivor_attrib_paddles {float: right; padding: 5px; }
+    .survivor_attrib_paddles button {margin-bottom: 5px; }
     .big_number_container, .big_number_caption {font-size: 13pt; height: auto; width: auto; padding: 0; }
-    .big_number_container {min-height: 80px; }
-    .incrementer, .decrementer {display: none; }
+    .big_number_container {min-height: 120px; display: block; margin-bottom: 10px; }
+    .incrementer {margin-top: 5px; }
+    .incrementer, .decrementer {width: 70px; display: block; clear: both; }
     input[type=submit].damage_box, input[type=submit].damage_box_checked { width: 30px; height: 30px; margin-top:3px; margin-left: 5px; border: 1px solid #000;}
     input[type=submit].heavy_damage {border: 3px solid #000;}
     input[type=file] {margin-bottom:10px;}
@@ -532,7 +585,7 @@ right connector from last child*/
     div#COD input { width: 260px; margin-left: -131px;  }
     div#survivor_survival_box_container {height: 40px; width: 190px; float: left; }
     div#survivor_dead_retired_container {float: left; width: 130px; height: 40px;  float: right; }
-    div#survivor_survival_actions_container {width: 170px; height: 90px; margin: 0 auto; float: left; margin-top: 20px; }
+    div#survivor_survival_actions_container {width: 170px; height: 90px; margin: 0 auto; float: left; margin-top: 70px; }
     div#survivor_stats { width: 160px; float: right;}
     img.icon {width: 14px; }
     .desktop_indent {margin-left: 110px; }

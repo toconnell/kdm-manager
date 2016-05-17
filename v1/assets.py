@@ -23,7 +23,7 @@ import export_to_file
 import assets
 import game_assets
 import html
-from models import Abilities, NemesisMonsters, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponProficiencies, userPreferences, mutually_exclusive_principles
+from models import Abilities, NemesisMonsters, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles
 from session import Session
 from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list
 import world
@@ -449,8 +449,8 @@ class Survivor:
         # check the settlements innovations and auto-add Weapon Specializations
         #   if there are any masteries in the settlement innovations 
         for innovation_key in self.Settlement.settlement["innovations"]:
-            if innovation_key in WeaponProficiencies.get_keys():
-                prof_dict = WeaponProficiencies.get_asset(innovation_key)
+            if innovation_key in WeaponMasteries.get_keys():
+                prof_dict = WeaponMasteries.get_asset(innovation_key)
                 if prof_dict["all_survivors"] not in self.survivor["abilities_and_impairments"]:
                     if self.User.get_preference("apply_weapon_specialization"):
                         self.survivor["abilities_and_impairments"].append(prof_dict["all_survivors"])
@@ -1387,6 +1387,7 @@ class Survivor:
 
         self.Settlement.update_mins()
 
+
         for p in params:
 
             if type(params[p]) != list:
@@ -1432,6 +1433,8 @@ class Survivor:
                     self.Settlement.log_event("%s left the hunting party." % self)
             elif p == "Weapon Proficiency":
                 self.modify_weapon_proficiency(int(game_asset_key))
+            elif p == "add_weapon_proficiency_type":
+                self.survivor["weapon_proficiency_type"] = game_asset_key
             elif p == "customize_ability" and "custom_ability_description" in params:
                 self.add_ability_customization(params[p].value, params["custom_ability_description"].value)
             elif p == "custom_ability_description":
@@ -1440,7 +1443,7 @@ class Survivor:
                 self.join_hunting_party()
             elif p == "sex":
                 new_sex = game_asset_key.strip()[0].upper()
-                if new_sex in ["M","F"]:
+                if new_sex in ["M","F"] and not "Gender Swap" in self.survivor["abilities_and_impairments"]:
                     self.survivor["sex"] = new_sex
             else:
                 self.survivor[p] = game_asset_key
@@ -1592,6 +1595,9 @@ class Survivor:
             survival_limit = self.Settlement.get_attribute("survival_limit"),
             cannot_spend_survival_checked = flags["cannot_spend_survival"],
             hunt_xp = self.survivor["hunt_xp"],
+
+            weapon_proficiency = self.survivor["Weapon Proficiency"],   # this is the score
+            weapon_proficiency_options = WeaponProficiencies.render_as_html_toggle_dropdown(selected=self.survivor["weapon_proficiency_type"], expansions=exp),
             dead_checked = flags["dead"],
             favorite_checked = flags["favorite"],
             retired_checked = flags["retired"],
@@ -1625,8 +1631,6 @@ class Survivor:
             waist = self.survivor["Waist"],
             legs = self.survivor["Legs"],
 
-            weapon_proficiency = self.survivor["Weapon Proficiency"],
-            weapon_proficiency_type = self.survivor["weapon_proficiency_type"],
 
             courage = self.survivor["Courage"],
             understanding = self.survivor["Understanding"],
@@ -2904,7 +2908,7 @@ class Settlement:
 
     def get_recently_added_items(self):
         """ Returns the three items most recently appended to storage. """
-        max_items = 3
+        max_items = 10
         all_items = copy(self.settlement["storage"])
         return_list = set()
         while len(return_list) < max_items:
@@ -3627,8 +3631,10 @@ class Settlement:
             departure_bonuses = self.get_bonuses('departure_buff', return_type="html"),
             settlement_bonuses = self.get_bonuses('settlement_buff', return_type="html"),
 
-            items_options = Items.render_as_html_dropdown_with_divisions(recently_added=self.get_recently_added_items()),
+#           deprecated old UI
+#            items_options = Items.render_as_html_dropdown_with_divisions(recently_added=self.get_recently_added_items()),
             storage = self.get_storage("html_buttons"),
+            add_to_storage_controls = Items.render_as_html_multiple_dropdowns(recently_added=self.get_recently_added_items(), expansions=exp),
 
             new_life_principle_hidden = p_controls["new_life"],
             society_principle_hidden = p_controls["society"],

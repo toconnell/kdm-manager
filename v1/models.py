@@ -37,6 +37,40 @@ class Model:
         return always_available
 
 
+    def render_as_html_toggle_dropdown(self, selected=None, submit_on_change=True, expansions=[]):
+        """ Creates a single dropdown for the model where 'None' is selected by
+        by default, but the user can toggle to something else from the list of
+        asset keys. """
+
+        self.get_pretty_name()
+        options = self.get_keys()
+
+        for o in options:
+            if "expansion" in self.get_asset(o) and self.get_asset(o)["expansion"] not in expansions:
+                options.remove(o)
+
+
+        soc = ""
+        if submit_on_change:
+            soc = "this.form.submit()"
+
+        if selected is None:
+            selected = "-"
+        elif selected == "":
+            selected = "-"
+
+        output = '\n\t<select name="add_%s" onchange="%s" class="min_width">' % (self.name, soc)
+        options.append("-")
+        for o in sorted(options):
+            s = ""
+            if o == selected:
+                s = "selected"
+            output += '\t\t<option %s>%s</option>\n' % (s, o)
+        output += '</select>\n'
+
+        return output
+
+
     def render_as_html_dropdown(self, submit_on_change=True, exclude=[], disable=[], excluded_type=None, expansions=[]):
         """ Renders the model as an HTML dropdown and returns a string. Use the
         'submit_on_change' kwarg to control whether it submits on change.
@@ -162,7 +196,64 @@ class itemsModel(Model):
         self.game_assets = game_assets.items
         self.name = "item"
 
+    def render_as_html_multiple_dropdowns(self, recently_added=[], expansions=[]):
+        """ New storage UI. """
+
+        output = ""
+
+        def render_location(output, pretty_location_name=None, item_list=[]):
+            """ Helper function for programmatically generating item drop-down
+            lists. This should be refactored to be buttons one day. """
+
+            output += '\n<select name="add_item" onchange="this.form.submit()">\n'
+            output += ' <option disabled selected> &ensp; &ensp; --- %s ---  </option>\n' % pretty_location_name
+            for item in item_list:
+                output += '  <option value="%s">%s</option>\n' % (item, item)
+            output += '\n</select><br>'
+            return output
+
+        # start creating output
+        if recently_added != []:
+            output = render_location(output, pretty_location_name="Recently Added", item_list=recently_added)
+
+        # get locations based on location attributes of items
+        locations = set()
+        for item_key in self.get_keys():
+            item_asset = self.get_asset(item_key)
+            if "expansion" in item_asset.keys() and item_asset["expansion"] not in expansions:
+                pass
+            else:
+                locations.add(item_asset["location"])
+
+        location_dict = {}
+        for location in locations:
+            location_dict[location] = set()
+
+        for item_key in self.get_keys():
+            item = self.get_asset(item_key)
+            if "expansion" in item.keys() and item["expansion"] not in expansions:
+                pass
+            else:
+                location_dict[item["location"]].add(item_key)
+
+        # finally, use the location list to start creating html
+        locations = sorted(list(locations))
+        for location_key in locations:
+            if location_key in Locations.get_keys():
+                loc_asset = Locations.get_asset(location_key)
+                if "expansion" in loc_asset and loc_asset["expansion"] not in expansions:
+                    pass
+                else:
+                    output = render_location(output, pretty_location_name=location_key, item_list=sorted(location_dict[location_key]))
+            else:
+                output = render_location(output, pretty_location_name=location_key, item_list=sorted(location_dict[location_key]))
+
+        return output
+
+
+
     def render_as_html_dropdown_with_divisions(self, recently_added=[]):
+        """ Old storage UI. Deprecated. """
 
         locations = set()
         for item_key in self.get_keys():
@@ -263,6 +354,13 @@ class resourcesModel(Model):
 class weaponProficienciesModel(Model):
     def __init__(self):
         Model.__init__(self)
+        self.game_assets = game_assets.weapon_proficiencies
+        self.name = "weapon_proficiency_type"
+
+
+class weaponMasteriesModel(Model):
+    def __init__(self):
+        Model.__init__(self)
         self.game_assets = {}
         for weapon in game_assets.weapon_proficiencies:
             self.game_assets["Mastery - %s" % weapon] = {
@@ -270,7 +368,7 @@ class weaponProficienciesModel(Model):
                 "all_survivors": "Specialization - %s" % weapon,
                 "settlement_buff": "All survivors gain <i>Specialization - %s</i>." % weapon,
             }
-        self.name = "weapon_proficiency_type"
+        self.name = "weapon_mastery_type"
 
 
 
@@ -286,6 +384,7 @@ Innovations     = innovationsModel()
 Nemeses         = nemesesModel()
 Quarries        = quarriesModel()
 Resources       = resourcesModel()
+WeaponMasteries = weaponMasteriesModel()
 WeaponProficiencies = weaponProficienciesModel()
 DefeatedMonsters = defeatedMonstersModel()      # this is like...a pseudo model
 NemesisMonsters = nemesisMonstersModel()        # another pseudo model

@@ -1,3 +1,4 @@
+# coding=utf-8
 #<!/usr/bin/env python
 
 #   standard
@@ -395,9 +396,9 @@ class survivor:
 
             <div id="survivor_survival_box_container">
                 <div class="big_number_container left_margin">
-                    <button class="incrementer mobile_only" onclick="increment('survivalBox');">+</button>
+                    <button class="incrementer" onclick="increment('survivalBox');">+</button>
                     <input type="number" id="survivalBox" class="big_number_square" name="survival" value="$survival" max="$survival_limit" min="0"/>
-                    <button class="decrementer mobile_only" onclick="decrement('survivalBox');">-</button>
+                    <button class="decrementer" onclick="decrement('survivalBox');">-</button>
                 </div>
                 <div class="big_number_caption">Survival <p>(max: $survival_limit)</p></div>
             </div> <!-- survivor_survival_box_container -->
@@ -428,7 +429,7 @@ class survivor:
             <div id="survivor_stats">
                 <input id="movementBox" class="big_number_square" type="number" name="Movement" value="$movement"/>
                 <div class="big_number_caption">Movement<br />
-                    <div>
+                    <div class="survivor_attrib_paddles">
                     <button class="incrementer" onclick="increment('movementBox');">+</button>
                     <button class="decrementer" onclick="decrement('movementBox');">-</button>
                     </div>
@@ -436,7 +437,7 @@ class survivor:
                 <br class="mobile_only"/><hr/>
                 <input id="accuracyBox" class="big_number_square" type="number" name="Accuracy" value="$accuracy"/>
                 <div class="big_number_caption">Accuracy<br/>
-                    <div>
+                    <div class="survivor_attrib_paddles">
                     <button class="incrementer" onclick="increment('accuracyBox');">+</button>
                     <button class="decrementer" onclick="decrement('accuracyBox');">-</button>
                     </div>
@@ -444,7 +445,7 @@ class survivor:
                 <br class="mobile_only"/><hr/>
                 <input id="strengthBox" class="big_number_square" type="number" name="Strength" value="$strength"/>
                 <div class="big_number_caption">Strength<br/>
-                    <div>
+                    <div class="survivor_attrib_paddles">
                     <button class="incrementer" onclick="increment('strengthBox');">+</button>
                     <button class="decrementer" onclick="decrement('strengthBox');">-</button>
                     </div>
@@ -452,7 +453,7 @@ class survivor:
                 <br class="mobile_only"/><hr/>
                 <input id="evasionBox" class="big_number_square" type="number" name="Evasion" value="$evasion"/>
                 <div class="big_number_caption">Evasion<br/>
-                    <div>
+                    <div class="survivor_attrib_paddles">
                     <button class="incrementer" onclick="increment('evasionBox');">+</button>
                     <button class="decrementer" onclick="decrement('evasionBox');">-</button>
                     </div>
@@ -460,7 +461,7 @@ class survivor:
                 <br class="mobile_only"/><hr/>
                 <input id="luckBox" class="big_number_square" type="number" name="Luck" value="$luck"/>
                 <div class="big_number_caption">Luck<br/>
-                    <div>
+                    <div class="survivor_attrib_paddles">
                     <button class="incrementer" onclick="increment('luckBox');">+</button>
                     <button class="decrementer" onclick="decrement('luckBox');">-</button>
                     </div>
@@ -468,7 +469,7 @@ class survivor:
                 <br class="mobile_only"/><hr/>
                 <input id="speedBox" class="big_number_square" type="number" name="Speed" value="$speed"/>
                 <div class="big_number_caption">Speed<br/>
-                    <div>
+                    <div class="survivor_attrib_paddles">
                     <button class="incrementer" onclick="increment('speedBox');">+</button>
                     <button class="decrementer" onclick="decrement('speedBox');">-</button>
                     </div>
@@ -494,10 +495,10 @@ class survivor:
             <a> <!-- hacks!!! for inc/dec buttons-->
             <div id="survivor_hit_box">
                 <div class="big_number_container right_border">
-                    <button class="incrementer" onclick="increment('insanityBox');">+</button>
+                    <button class="incrementer mobile_only" onclick="increment('insanityBox');">+</button>
                         <input id="insanityBox" type="number" class="shield" name="Insanity" value="$insanity" style="color: $insanity_number_style;" min="0"/>
                         <font id="hit_box_insanity">Insanity</font>
-                    <button class="decrementer" onclick="decrement('insanityBox');">-</button>
+                    <button class="decrementer mobile_only" onclick="decrement('insanityBox');">-</button>
                 </div>
 
                 <div class="hit_box_detail">
@@ -510,9 +511,9 @@ class survivor:
                 <!-- HEAD -->
             <div id="survivor_hit_box">
                 <div class="big_number_container right_border">
-                    <button class="incrementer" onclick="increment('headBox');">+</button>
+                    <button class="incrementer mobile_only" onclick="increment('headBox');">+</button>
                         <input id="headBox" type="number" class="shield" name="Head" value="$head" min="0"/>
-                    <button class="decrementer" onclick="decrement('headBox');">-</button>
+                    <button class="decrementer mobile_only" onclick="decrement('headBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
                  <input id="damage_head_heavy" onclick="toggleDamage('damage_head_heavy');" type="submit" class="damage_box_$head_damage_heavy_checked heavy_damage damage_box" name="toggle_head_damage_heavy" value=" "/>
@@ -524,9 +525,9 @@ class survivor:
                 <!-- ARMS -->
             <div id="survivor_hit_box">
                 <div class="big_number_container right_border">
-                    <button class="incrementer" onclick="increment('armsBox');">+</button>
+                    <button class="incrementer mobile_only" onclick="increment('armsBox');">+</button>
                         <input id="armsBox" type="number" class="shield" name="Arms" value="$arms" min="0"/>
-                    <button class="decrementer" onclick="decrement('armsBox');">-</button>
+                    <button class="decrementer mobile_only" onclick="decrement('armsBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
                  <input id="damage_arms_heavy" onclick="toggleDamage('damage_arms_heavy');" type="submit" class="damage_box_$arms_damage_heavy_checked heavy_damage damage_box" name="toggle_arms_damage_heavy" value=" "/>
@@ -539,9 +540,9 @@ class survivor:
                 <!-- BODY -->
             <div id="survivor_hit_box">
                 <div class="big_number_container right_border">
-                    <button class="incrementer" onclick="increment('bodyBox');">+</button>
+                    <button class="incrementer mobile_only" onclick="increment('bodyBox');">+</button>
                         <input id="bodyBox" type="number" class="shield" name="Body" value="$body" min="0"/>
-                    <button class="decrementer" onclick="decrement('bodyBox');">-</button>
+                    <button class="decrementer mobile_only" onclick="decrement('bodyBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
                  <input id="damage_body_heavy" onclick="toggleDamage('damage_body_heavy');" type="submit" class="damage_box_$body_damage_heavy_checked heavy_damage damage_box" name="toggle_body_damage_heavy" value=" "/>
@@ -554,9 +555,9 @@ class survivor:
                 <!-- WAIST -->
             <div id="survivor_hit_box">
                 <div class="big_number_container right_border">
-                    <button class="incrementer" onclick="increment('waistBox');">+</button>
+                    <button class="incrementer mobile_only" onclick="increment('waistBox');">+</button>
                         <input id="waistBox" type="number" class="shield" name="Waist" value="$waist" min="0"/>
-                    <button class="decrementer" onclick="decrement('waistBox');">-</button>
+                    <button class="decrementer mobile_only" onclick="decrement('waistBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
                  <input id="damage_waist_heavy" onclick="toggleDamage('damage_waist_heavy');" type="submit" class="damage_box_$waist_damage_heavy_checked heavy_damage damage_box" name="toggle_waist_damage_heavy" value=" "/>
@@ -569,9 +570,9 @@ class survivor:
         <!-- LEGS -->
             <div id="survivor_hit_box">
                 <div class="big_number_container right_border">
-                    <button class="incrementer" onclick="increment('legsBox');">+</button>
+                    <button class="incrementer mobile_only" onclick="increment('legsBox');">+</button>
                         <input id="legsBox" type="number" class="shield" name="Legs" value="$legs" min="0"/>
-                    <button class="decrementer" onclick="decrement('legsBox');">-</button>
+                    <button class="decrementer mobile_only" onclick="decrement('legsBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
                  <input id="damage_legs_heavy" onclick="toggleDamage('damage_legs_heavy');" type="submit" class="damage_box_$legs_damage_heavy_checked heavy_damage damage_box" name="toggle_legs_damage_heavy" value=" "/>
@@ -617,12 +618,14 @@ class survivor:
                 <input onchange="this.form.submit()" id="proficiencyBox" class="big_number_square" type="number" name="Weapon Proficiency" value="$weapon_proficiency" min="0"/>
                 <button class="decrementer" onclick="decrement('proficiencyBox');">-</button>
             </div>
-            <div class="big_number_caption">Weapon Proficiency
-                <input onchange="this.form.submit()" type="text" class="full_width" placeholder="Type: Select before hunt" value="$weapon_proficiency_type" name="weapon_proficiency_type" style="width: 50%; clear: none; "/>
-            </div>
+            <div class="big_number_caption">Weapon Proficiency</div>
+
+            $weapon_proficiency_options
+
             <div class="desktop_indent">
                 <p><b>Specialist</b> at 3<br/><b>Master</b> at 8</p>
             </div>
+
 
             <hr/>
 
@@ -909,7 +912,6 @@ class settlement:
     storage_tag = Template('<h3 class="inventory_tag" style="color: #$color">$name</h3><hr/>')
     storage_resource_pool = Template("""\n\
     <p>Hide: $hide, Bone: $bone, Scrap: $scrap, Organ: $organ</p>
-    <hr/>
     \n""")
 
     player_controls_none = Template('<p>Add other players to the "$name" campaign by making them the Owner of a Survivor in this Settlement!<br/><br/></p>')
@@ -1046,20 +1048,20 @@ class settlement:
             <hr class="mobile_only"/>
             <div class="settlement_form_wide_box">
                 <div class="big_number_container left_margin">
-                    <button class="incrementer" onclick="increment('survivalLimitBox');">+</button>
+                    <button class="incrementer mobile_only" onclick="increment('survivalLimitBox');">+</button>
                     <input id="survivalLimitBox" class="big_number_square" type="number" name="survival_limit" value="$survival_limit" min="$min_survival_limit"/>
-                    <button class="decrementer" onclick="decrement('survivalLimitBox');">-</button>
+                    <button class="decrementer mobile_only" onclick="decrement('survivalLimitBox');">-</button>
                 </div>
-                <div class="big_number_caption ">Survival Limit<br />(min: $min_survival_limit)</div>
+                <div class="big_number_caption">Survival Limit<br />(min: $min_survival_limit)</div>
             </div>
             <br class="mobile_only"/>
             <hr class="mobile_only"/>
 
             <div class="settlement_form_wide_box">
                 <div class="big_number_container left_margin">
-                    <button class="incrementer" onclick="increment('populationBox');">+</button>
+                    <button class="incrementer mobile_only" onclick="increment('populationBox');">+</button>
                     <input id="populationBox" class="big_number_square" type="number" name="population" value="$population" min="0"/>
-                    <button class="decrementer" onclick="decrement('populationBox');">-</button>
+                    <button class="decrementer mobile_only" onclick="decrement('populationBox');">-</button>
                 </div>
                 <div class="big_number_caption">Population</div>
             </div> <!-- settlement_form_wide_box -->
@@ -1068,9 +1070,9 @@ class settlement:
 
             <div class="settlement_form_wide_box">
                 <div class="big_number_container left_margin">
-                    <button class="incrementer" onclick="increment('deathCountBox');">+</button>
+                    <button class="incrementer mobile_only" onclick="increment('deathCountBox');">+</button>
                     <input id="deathCountBox" class="big_number_square" type="number" name="death_count" value="$death_count" min="0"/>
-                    <button class="decrementer" onclick="decrement('deathCountBox');">-</button>
+                    <button class="decrementer mobile_only" onclick="decrement('deathCountBox');">-</button>
                 </div>
                 <div class="big_number_caption">Death Count</div>
             </div> <!-- settlement_form_wide_box -->
@@ -1111,34 +1113,65 @@ class settlement:
         <hr/>
 
 
-                    <!-- STORAGE - THIS IS ITS OWN FORM-->
-        <form id="autoForm" method="POST" action="#edit_storage">
+
+                    <!-- REMOVE FROM STORAGE - THIS IS ITS OWN FORM-->
+        <form method="POST" action="#edit_storage">
             <input type="hidden" name="modify" value="settlement" />
             <input type="hidden" name="asset_id" value="$settlement_id" />
             <button id="remove_item" class="hidden" style="display: none" name="remove_item" value="" /> </button>
             <div id="block_group">
             <h2>Storage</h2>
-            <p>Gear and Resources may be stored without limit. Tap an item to remove it once.</p>
+            <p>Gear and Resources may be stored without limit.<br/><br/>
+                <button id="modalStorageButton" class="yellow bold">+ Add Item to Storage</button><br><br class="desktop_only">
+            <hr>
+            <p>
+            Tap or click an item to remove it once:
+            </p>
             <hr />
-
-        <a id="edit_storage" class="mobile_only"/></a>
-
-            $storage
-            <p>Add Item to Storage:</p>
-             <div class="big_number_container left_margin negative_30px_bottom_margin">
-                 <button type="button" class="incrementer" onclick="increment('addStorageBox');">+</button>
-                 <input id="addStorageBox" class="big_number_square" type="number" name="add_item_quantity" value="1" min="1"/>
-                 <button type="button" class="decrementer" onclick="decrement('addStorageBox');">-</button>
-             </div>
-             <div class="big_number_caption">Quantity</div>
-
-            $items_options<br />
-             <input onchange="this.form.submit()" type="text" class="full_width" name="add_item" placeholder="custom gear or resource"/>
-
-            </div>
+            <a id="edit_storage" class="mobile_only"/></a>
+                $storage
         </form>
 
-    </div>
+        <script>
+        window.onload = function(){
+            var modal = document.getElementById('modalStorage');
+            var btn = document.getElementById("modalStorageButton");
+            var span = document.getElementsByClassName("close")[0];
+            btn.onclick = function(b) {b.preventDefault(); modal.style.display = "block";}
+            span.onclick = function() {modal.style.display = "none";}
+            window.onclick = function(event) {if (event.target == modal) {modal.style.display = "none";}}
+        };
+        </script>
+
+
+
+        <div id="modalStorage" class="modal">
+
+          <!-- Modal content -->
+            <div class="modal-content">
+                <span class="close">×</span>
+
+                    <!-- ADD TO STORAGE - THIS IS ITS OWN FORM-->
+                <form id="autoForm" method="POST" action="#edit_storage">
+                    <input type="hidden" name="modify" value="settlement" />
+                    <input type="hidden" name="asset_id" value="$settlement_id" />
+
+                     <div class="big_number_container left_margin negative_30px_bottom_margin">
+                         <button type="button" class="incrementer" onclick="increment('addStorageBox');">+</button>
+                         <input id="addStorageBox" class="big_number_square" type="number" name="add_item_quantity" value="1" min="1"/>
+                         <button type="button" class="decrementer" onclick="decrement('addStorageBox');">-</button>
+                     </div> <!-- big_number_container -->
+                     <div class="big_number_caption">Quantity</div>
+                    <hr>
+
+                    $add_to_storage_controls
+                    <input onchange="this.form.submit()" type="text" class="full_width" name="add_item" placeholder="Add custom item to storage"/>
+                    <center><button class="yellow">Submit</button></center>
+                    <br><br><br>
+                </form>
+            </div> <!-- modal-content -->
+        </div> <!-- modalStorage -->
+     </div></div> <!-- asset_management_left_pane -->
     <div id="asset_management_middle_pane">
 
                     <!-- LOCATIONS - THIS HAS ITS OWN FORM  -->
@@ -1629,17 +1662,16 @@ def render(view_html, head=[], http_headers=None, body_class=None):
         </script>
     \n"""
 
+
     output += """\n\
-    <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-      ga('create', 'UA-71038485-1', 'auto');
-      ga('send', 'pageview');
-
-    </script>
+        <script>
+          (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+          ga('create', 'UA-71038485-1', 'auto');
+          ga('send', 'pageview');
+        </script>
     \n"""
 
     for element in head:

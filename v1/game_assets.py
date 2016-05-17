@@ -6,25 +6,9 @@
 #
 
 abilities_and_impairments = {
-    "King's Curse - Regal Helm":{
+    "King's Curse": {
         "type": "impairment",
-        "desc": "Gain a random disorder and the <b>Regal Helm</b> rare gear and place iti nyour gear grid now.",
-    },
-    "King's Curse - Regal Faulds":{
-        "type": "impairment",
-        "desc": "Suffer the destroyed genitals severe waist injury. Gain the <b>Regal Faulds</b> rare gear and place it in your grid now.",
-    },
-    "King's Curse - Regal Greaves":{
-        "type": "impairment",
-        "desc": "Gain the <b>Regal Boots</b> rare gear and place it in your gear grid now.",
-    },
-    "King's Curse - Regal Gauntlets":{
-        "type": "impairment",
-        "desc": "Gain the <b>Regal Gauntlets</b> rare gear and place it in your gear grid now.",
-    },
-    "King's Curse - Regal Plackart":{
-        "type": "impairment",
-        "desc": "Gain the <b>Regal Plackart</b> rare gear and place it in your gear grid now. The other returning survivors suffer 3 brain event damage.<br/>Your body seems to move on its own. Gain the <b>King's Step</b> secret fighting art.",
+        "desc": """At the Aftermath, <font class="kdm_font">g</font> <b>King's Curse</b>.""",
     },
     "Crystal Skin": {
         "type": "ability",
@@ -640,7 +624,7 @@ epithets = {
     "Hero": {},
     "Entomophile": {},
     "Beetle-kin": {},
-    "Bettle-brain": {},
+    "Beetle-brain": {},
     "Round Stone Trainer": {},
     "Bewitched": {},
     "Witness": {},
@@ -848,10 +832,6 @@ locations = {
         "font_color": "FFF",
         "color": "FF00FF",
     },
-    "Black Harvest": {
-        "color": "333",
-        "font_color": "FFF",
-    },
     "Lantern Hoard": {
         "always_available": True,
         "consequences": ["Bone Smith", "Skinnery", "Organ Grinder", "Catarium", "Plumery", "Exhausted Lantern Hoard", "Mask Maker","Gormery","Gormchymist"],
@@ -919,6 +899,11 @@ locations = {
         "font_color": "FFF",
         "consequences": [],
         "expansion": "Gorm",
+    },
+    "Black Harvest": {
+        "color": "333",
+        "font_color": "FFF",
+        "expansion": "Dung Beetle Knight",
     },
     "Wet Resin Crafter": {
         "expansion": "Dung Beetle Knight",
@@ -2185,9 +2170,9 @@ survivor_attributes = ["Movement", "Accuracy", "Strength", "Evasion", "Luck", "S
 weapon_proficiencies = {
     "Bow": {},
     "Katar": {},
-    "Sword": { },
-    "Dagger": { },
-    "Shield": { },
+    "Sword": {},
+    "Dagger": {},
+    "Shield": {},
     "Whip": {},
     "Grand Weapon": { },
     "Fist & Tooth": { },
