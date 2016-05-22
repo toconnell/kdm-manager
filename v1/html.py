@@ -224,7 +224,7 @@ class dashboard:
         </ul>
         <hr/>
         <h3>General Statistics for All Settlements:</h3>
-        <p>Settlement Expansion Activation Counts:</p>
+        <p>Settlements using expansion content:</p>
         <ul>
             $expansion_popularity_bullets
         </ul>
