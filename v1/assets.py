@@ -25,7 +25,7 @@ import game_assets
 import html
 from models import Abilities, NemesisMonsters, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles
 from session import Session
-from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list
+from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, get_latest_change_log
 import world
 
 settings = load_settings()
@@ -313,7 +313,17 @@ class User:
             d = pref_models.pref(self, p)
             pref_html += html.dashboard.preference_block.safe_substitute(desc=d["desc"], pref_key=p, pref_true_checked=d["affirmative_selected"], pref_false_checked=d["negative_selected"], affirmative=d["affirmative"], negative=d["negative"])
 
+        lcl = ""
+        lcd = "ERROR"
+        try:
+            lcl = get_latest_change_log()["url"]
+            lcd = get_latest_change_log()["published"]
+        except:
+            self.logger.exception("An error occurred while trying to retrieve blog info!")
+
         output = html.dashboard.motd.safe_substitute(
+            latest_change_link = lcl,
+            latest_change_date = lcd,
             user_preferences = pref_html,
             session_id = self.Session.session["_id"],
             login = self.user["login"],
@@ -353,6 +363,7 @@ class User:
             max_death = world.get_minmax("death_count")[1],
             max_survival = world.get_minmax("survival_limit")[1],
             current_hunt = world.current_hunt(),
+            expansion_popularity_bullets = world.expansion_popularity_contest(),
         )
 
 
@@ -1878,6 +1889,29 @@ class Settlement:
         mdb.settlements.save(self.settlement)
 
 
+    def hooded_knight_check(self):
+        """ This is a dumping ground for any business logic/automation that we
+        want to do when we're updating/saving/normalizing a settlement. """
+
+        hk_variants = ["Hooded Knight (p.121)", "Hooded Knight"]
+
+        all_story_events = []
+        for ly in self.settlement["timeline"]:
+            if "story_event" in ly.keys():
+                if type(ly["story_event"]) == list:
+                    all_story_events.extend(ly["story_event"])
+                else:
+                    all_story_events.append(ly["story_event"])
+        if len(self.settlement["innovations"]) >= 5:
+            hk_present = False
+            for variant in hk_variants:
+                if variant in all_story_events:
+                    hk_present = True
+            if not hk_present:
+                self.logger.debug("[%s] Automatically adding %s story event to LY %s" % (self, hk_variants[1], self.settlement["lantern_year"]))
+                self.log_event('Automatically added <font class="kdm_font">g</font> <b>%s</b> to LY %s.' % (hk_variants[1], self.settlement["lantern_year"]))
+                self.update_timeline(add_event = (self.settlement["lantern_year"], "story_event", hk_variants[0]))
+
 
     def enforce_data_model(self):
         """ mongo will FTFO if it sees a set(): uniquify our unique lists before
@@ -1907,6 +1941,7 @@ class Settlement:
         ]
         for t in mixed_case_tuples:
             normalize(t[0],t[1],t[2])
+
 
         # keep innovations and principles separated
         for innovation_key in self.settlement["innovations"]:
@@ -2570,7 +2605,7 @@ class Settlement:
         required and can be 'departure_buff', 'settlement_buff' or
         'survivor_buff'.  """
 
-        innovations = self.get_game_asset("innovations", update_mins=update_mins)
+        innovations = copy(self.get_game_asset("innovations", update_mins=update_mins))
         innovations.extend(self.settlement["principles"])
 
         buffs = {}
@@ -2581,17 +2616,72 @@ class Settlement:
 
         if return_type == "html":
             output = ""
-            if bonus_type == "endeavors":
-                for k in sorted(buffs.keys()):
-                    for endeavor,cost in buffs[k].iteritems():
-                        output += '<p><i>%s:</i> <font class="kdm_font">%s</font> %s (%s)</p>' % (k, cost*"d ", endeavor, Innovations.get_asset(k)["type"])
-            else:
-                for k in buffs.keys():
-                    output += '<p><b>%s:</b> %s</p>\n' % (k, buffs[k])
+            for k in buffs.keys():
+                output += '<p><b>%s:</b> %s</p>\n' % (k, buffs[k])
             return output
 
         return buffs
 
+
+    def get_endeavors(self, return_type=False):
+        """ Returns available endeavors. This used to be in 'get_bonuses()', but
+        it's such an insane coke-fest of business logic, it got promoted into
+        it's own method. """
+
+        # this is a list of locations and innovations together that will be used
+        #  later to determine if the settlement meets the requirements for an
+        #  endeavor
+        prereq_assets = copy(self.settlement["innovations"])
+        prereq_assets.extend(self.settlement["locations"])
+
+        # now create our list of all possible sources: any game asset with an
+        #  an endeavor should be in this
+        sources = copy(self.get_game_asset("innovations"))
+        sources.extend(self.settlement["principles"])
+        sources.extend(self.settlement["locations"])
+
+        buffs = {}
+        for source_key in sources:
+            if source_key in Innovations.get_keys() and "endeavors" in Innovations.get_asset(source_key).keys():
+                buffs[source_key] = Innovations.get_asset(source_key)["endeavors"]
+            elif source_key in Locations.get_keys() and "endeavors" in Locations.get_asset(source_key).keys():
+                buffs[source_key] = Locations.get_asset(source_key)["endeavors"]
+
+        if return_type == "html":
+            output = ""
+            for k in sorted(buffs.keys()):          # e.g. [u'Lantern Hoard', u'Cooking', u'Drums', u'Bloodletting']
+                endeavor_string = ""
+                for endeavor_key in sorted(buffs[k].keys()):
+                    requirements_met = True             # endeavor_key is 'Bone Beats'
+                    e = buffs[k][endeavor_key]         # e is {'cost': 1, 'type': 'music'}
+                    if "requires" in e.keys():
+                        for req in e["requires"]:
+                            if req not in prereq_assets:
+                                requirements_met = False
+
+                    if "remove_after" in e.keys() and e["remove_after"] in prereq_assets:
+                        requirements_met = False
+
+                    if requirements_met:
+                        e_type = ""
+                        e_desc = ""
+                        e_name = "<i>%s:</i>" % endeavor_key
+                        if "desc" in e.keys():
+                            e_desc = e["desc"]
+                        if "type" in e.keys():
+                            e_type = "(%s)" % e["type"]
+                        if "hide_name" in e.keys():
+                            e_name = ""
+                        endeavor_string += '<p> &nbsp; <font class="kdm_font">%s</font> %s %s %s</p>' % (e["cost"]*"d ", e_name, e_desc, e_type)
+
+                if endeavor_string == "":
+                    pass
+                else:
+                    output += "<p><b>%s:</b></p>" % k
+                    output += endeavor_string
+            return output
+
+        return buffs
 
     def get_quarries(self, return_type=None):
         """ Returns a list of the settlement's quarries. Leave the 'return_type'
@@ -3036,7 +3126,6 @@ class Settlement:
                     else:
                         year_dict[event_type] = sorted(list(set(year_dict[event_type])))    # uniquify and sort
                     self.settlement["timeline"].insert(year_index, year_dict)
-                    self.logger.debug(year_dict)
                     self.log_event("'%s' %s added to LY %s" % (new_event, event_type.replace("_"," "), target_ly))
 
         if rm_event != ():
@@ -3128,6 +3217,7 @@ class Settlement:
                 for c in Asset.get_asset(asset_key)["consequences"]:
                     asset_deck.add(c)
 
+        # check for requirements and remove stuff if we don't have them
         for asset_key in Asset.get_keys():
             asset_dict = Asset.get_asset(asset_key)
             if "requires" in asset_dict.keys():
@@ -3252,7 +3342,17 @@ class Settlement:
                     name=asset_name,
                     name_pretty=pretty_asset_name,
                 )
-                for asset_key in self.get_game_asset_deck(asset_type):
+                deck = self.get_game_asset_deck(asset_type)
+
+                # Special Innovate bullshit here
+                if asset_type == "innovations":
+                    for late_key in Innovations.get_keys():
+                        if "special_innovate" in Innovations.get_asset(late_key):
+                            special_innovate = Innovations.get_asset(late_key)["special_innovate"]
+                            if special_innovate[1] in self.settlement[special_innovate[0]]:
+                                deck.append(late_key)
+
+                for asset_key in sorted(deck):
                     output += html.ui.game_asset_select_row.safe_substitute(asset=asset_key)
                 output += html.ui.game_asset_select_bot
             output += html.ui.game_asset_add_custom.safe_substitute(asset_name=asset_name, asset_name_pretty=pretty_asset_name)
@@ -3319,7 +3419,8 @@ class Settlement:
             self.logger.warn("Could not add asset '%s' (%s) to settlement %s!" % (game_asset_key, type(game_asset_key), self.settlement["_id"]))
             return None
 
-        # otherwise, if we've got a str, let's get busy
+        # otherwise, if we've got a str, let's get busy; handle storage first
+        # since its such a big baby, then move on to the other stuff
         if asset_class == "storage":
             game_asset_key = capwords(game_asset_key)
 
@@ -3334,6 +3435,7 @@ class Settlement:
             self.logger.info("'%s' appended '%s' x%s to settlement '%s' (%s) storage." % (self.User.user["login"], game_asset_key, game_asset_quantity, self.settlement["name"], self.settlement["_id"]))
             return True
 
+        # done with storage. processing other asset types
         exec "Asset = %s" % asset_class.capitalize()
 
         self.logger.debug("'%s' is adding '%s' asset '%s' (%s) to settlement '%s' (%s)..." % (self.User.user["login"], asset_class, game_asset_key, type(game_asset_key), self.settlement["name"], self.settlement["_id"]))
@@ -3354,6 +3456,10 @@ class Settlement:
             self.logger.info("'%s' added '%s' to '%s' ['%s'] successfully!" % (self.User.user["login"], game_asset_key, self.settlement["name"], asset_class))
 
         self.log_event("%s added to settlement %s!" % (game_asset_key, asset_class.title()))
+
+        # hooded knight automation
+        if asset_class == "innovations":
+            self.hooded_knight_check()
 
         mdb.settlements.save(self.settlement)
 
@@ -3536,7 +3642,7 @@ class Settlement:
             survival_limit = self.settlement["survival_limit"],
             innovations = self.get_game_asset("innovations", return_type="user_defined", exclude=self.settlement["principles"]),
             locations = self.get_game_asset("locations", return_type="user_defined"),
-            endeavors = self.get_bonuses('endeavors', return_type="html"),
+            endeavors = self.get_endeavors("html"),
             departure_bonuses = self.get_bonuses('departure_buff', return_type="html"),
             settlement_bonuses = self.get_bonuses('settlement_buff', return_type="html"),
             survivor_bonuses = self.get_bonuses('survivor_buff', return_type="html"),

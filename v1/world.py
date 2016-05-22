@@ -4,6 +4,7 @@ from bson.objectid import ObjectId
 from datetime import datetime, timedelta
 from optparse import OptionParser
 
+import game_assets
 import html
 from utils import mdb, get_percentage
 from models import Quarries, Nemeses, mutually_exclusive_principles
@@ -11,7 +12,14 @@ from models import Quarries, Nemeses, mutually_exclusive_principles
 
 def latest_fatality(return_type=False):
     """ Returns the latest fatality from mdb.the_dead. """
-    latest_fatality = mdb.the_dead.find_one({"complete": {"$exists": True}, "name": {"$ne": ["Anonymous","Test"]}}, sort=[("created_on", -1)])
+    latest_fatality = mdb.the_dead.find_one(
+        {
+            "complete": {"$exists": True},
+            "name": {"$ne": "Anonymous"},
+            "cause_of_death": {"$ne": "Forsaken"},
+        },
+        sort=[("created_on", -1)],
+        )
 
     if return_type == "html":
 
@@ -104,6 +112,16 @@ def top_principles(return_type=None):
         return output
 
     return popularity_contest
+
+def expansion_popularity_contest():
+    """ Creates a dict of expansion use across all settlements. """
+    exp_dict = {}
+    for expansion in game_assets.expansions.keys():
+        exp_dict[expansion] = mdb.settlements.find({"expansions": {"$in": [expansion]}}).count()
+    output = ""
+    for k, v in exp_dict.iteritems():
+        output += "<li>%s: %s</li>" % (k, v)
+    return output
 
 def current_hunt():
     try:

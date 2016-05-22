@@ -9,10 +9,12 @@ abilities_and_impairments = {
     "King's Curse": {
         "type": "impairment",
         "desc": """At the Aftermath, <font class="kdm_font">g</font> <b>King's Curse</b>.""",
+        "max": 1,
     },
     "Crystal Skin": {
         "type": "ability",
         "desc": "You cannot place armor in your gear grid. When you <b>depart</b>, gain <b>2</b> to all hit locations. Suffer -1 to the result of all severe injury rolls.",
+        "max": 1,
     },
     "Twilight Sword": {
         "type": "impairment",
@@ -23,6 +25,7 @@ abilities_and_impairments = {
         "type": "impairment",
         "desc": "You own the <b>Belt of Gender Swap</b>, it will always take one space in your gear grid and while it is there, your gender is reversed.",
         "reverse_sex": True,
+        "max": 1,
     },
     "Endless Babble": {
         "type": "impairment",
@@ -325,149 +328,6 @@ abilities_and_impairments = {
         "Accuracy": 1,
         "max": 1,
     },
-    "Intracranial hemmorhage": {
-        "type": "impairment",
-        "desc": "You can no longer use or gain any survival. This injury is permanent and can be recorded once.",
-        "cannot_spend_survival": True,
-        "max": 1,
-    },
-    "Deaf": {
-        "type": "impairment",
-        "desc": "Suffer -1 permanent Evasion. This injury is permanent and can be recorded once.",
-        "Evasion": -1,
-        "max": 1,
-    },
-    "Blind": {
-        "type": "impairment",
-        "desc": "Suffer -1 permanent Accuracy. This injury is permanent and can be recorded twice.",
-        "Accuracy": -1,
-        "max": 2,
-    },
-    "Concussion": {
-        "type": "impairment",
-        "desc": "Your brain is scrambled like an egg. Gain a random disorder.",
-    },
-    "Shattered jaw": {
-        "type": "impairment",
-        "desc": "You can no longer <b>consume</b> or be affected by events requiring you to <b>consume</b>. You can no longer <b>encourage</b>. This injury is permanent and can be recorded once.",
-        "survival_actions_disabled": ["Encourage"],
-        "max": 1,
-    },
-    "Dismembered Arm": {
-        "type": "impairment",
-        "desc": "You can no longer activate two-handed weapons. This injury is permanent, and can be recorded twice. A survivor with two <b>dismembered arm</b> severe injuries cannot activate any weapons.",
-        "max": 2,
-    },
-    "Ruptured muscle": {
-        "type": "impairment",
-        "desc": "You can no longer activate fighting arts. This injury is permanent and can be recorded once.",
-        "cannot_use_fighting_arts": True,
-        "max": 1,
-    },
-    "Contracture": {
-        "type": "impairment",
-        "desc": "Suffer -1 permanent Accuracy. This injury is permanent and can be recorded multiple times.",
-        "Accuracy": -1,
-    },
-    "Broken arm": {
-        "type": "impairment",
-        "desc": "Suffer -1 permanent Accuracy and -1 permanent Strength. This injury is permanent and can be recorded twice.",
-        "Accuracy": -1,
-        "Strength": -1,
-        "max": 2,
-    },
-    "Spiral fracture": {
-        "type": "impairment",
-        "desc": "Skip the next hunt.",
-        "skip_next_hunt": True,
-    },
-    "Dislocated shoulder": {
-        "type": "impairment",
-        "desc": "You cannot activate two-handed or <b>paired</b> weapons or use <b>block</b> until showdown ends.",
-    },
-    "Gaping chest wound": {
-        "type": "impairment",
-        "desc": "Suffer -1 permanent Strength. This injury is permanent and can be recorded multiple times.",
-        "Strength": -1,
-    },
-    "Disemboweled": {
-        "type": "impairment",
-        "desc": "Skip the next hunt. If you suffer <b>disemboweled</b> during a showdown, at least one other survivor must live to the end of the showdown to carry you back to the settlement. Otherwise, at the end of the showdown, you are lost. Dead.",
-        "skip_next_hunt": True,
-    },
-    "Ruptured spleen": {
-        "type": "impairment",
-        "desc": "Skip the next hunt.",
-        "skip_next_hunt": True,
-    },
-    "Destroyed back": {
-        "type": "impairment",
-        "desc": "Suffer -2 permanent movement. You can no longer activate any gear that has 2+ Strength. This injury is permanent and can be recorded once.",
-        "Movement": -2,
-        "max": 1,
-    },
-    "Broken rib": {
-        "type": "impairment",
-        "desc": "Suffer -1 permanent speed. This injury is permanent, and can be recorded multiple times.",
-        "Speed": -1,
-    },
-    "Intestinal prolapse": {
-        "type": "impairment",
-        "desc": "You can no longer equip any gear on your waist, as it is too painful to wear. This injury is permanent, and can be recorded once.",
-    },
-    "Warped Pelvis": {
-        "type": "impairment",
-        "desc": "Suffer -1 permanent luck. This injury is permanent and can be recorded multiple times.",
-        "Luck": -1,
-    },
-    "Destroyed genitals": {
-        "type": "impairment",
-        "desc": "You cannot be nominated for the Intimacy story event. This injury is permanent and can be recorded once.",
-    },
-    "Slashed back": {
-        "type": "impairment",
-        "desc": "You cannot <b>surge</b> until showdown ends.",
-    },
-    "Broken hip": {
-        "type": "impairment",
-        "desc": "You can no longer <b>dodge</b>. Suffer -1 permanent movement. This injury is permanent and can be recorded once.",
-        "Movement": -1,
-        "max": 1,
-        "survival_actions_disabled": ["Dodge"],
-    },
-    "Bruised tailbone": {
-        "type": "impairment",
-        "desc": "You cannot <b>dash</b> until showdown ends.",
-    },
-    "Dismembered leg": {
-        "type": "impairment",
-        "desc": "You suffer -2 permanent movement, and can no longer <b>dash</b>. This injury is permanent and can be recorded twice. A survivor with two <b>dismembered leg</b> severe injuries has lost both of their legs and must retire at the end of the next showdown or settlement phase.",
-        "survival_actions_disabled": ["Dash"],
-        "Movement": -2,
-        "max": 2,
-    },
-    "Torn Achilles Tendon": {
-        "type": "impairment",
-        "desc": "Until the end of the showdown, whenever you suffer light, heavy, or severe injury, you are also knocked down. Skip the next hunt.",
-        "skip_next_hunt": True,
-    },
-    "Torn muscle": {
-        "type": "impairment",
-        "desc": "You cannot <b>dash</b> until he showdown ends. Skip the next hunt.",
-        "skip_next_hunt": True,
-    },
-    "Hamstrung": {
-        "type": "impairment",
-        "desc": "You can no longer use any fighting arts or abilities. This injury is permanent and can be recorded once.",
-        "max": 1,
-        "cannot_use_fighting_arts": True,
-    },
-    "Broken leg": {
-        "type": "impairment",
-        "desc": "Suffer -1 permanent movement. This injury is permanent, and can be recorded twice.",
-        "Movement": -1,
-        "max": 2,
-    },
     "Bone Witch - Scarred Eyes": {
         "type": "impairment",
         "desc": "Suffer -4 permanent Accuracy and gain +4 permanent strength (p.109).",
@@ -485,7 +345,162 @@ abilities_and_impairments = {
     "Homing Instinct": {
         "type": "ability",
         "desc": "Add +5 to your rolls on the Run Away story event."
-    }
+    },
+    # Severe Injuries start here! severe injuries
+    "Intracranial hemmorhage": {
+        "type": "severe_injury",
+        "desc": "You can no longer use or gain any survival. This injury is permanent and can be recorded once. Gain 1 bleeding token.",
+        "cannot_gain_survival": True,
+        "cannot_spend_survival": True,
+        "max": 1,
+    },
+    "Deaf": {
+        "type": "severe_injury",
+        "desc": "Suffer -1 permanent Evasion. This injury is permanent and can be recorded once.",
+        "Evasion": -1,
+        "max": 1,
+    },
+    "Blind": {
+        "type": "severe_injury",
+        "desc": "Lose an eye. Suffer -1 permanent Accuracy. This injury is permanent and can be recorded twice. A survivor with two <b>blind</b> severe injuries suffers -4 permanent accuracy and retires at the end of the next showdown or settlement phase, having lost all sight. Gain 1 bleeding token.",
+        "Accuracy": -1,
+        "max": 2,
+    },
+    "Concussion": {
+        "type": "severe_injury",
+        "desc": "Your brain is scrambled like an egg. Gain a random disorder. Gain 1 bleeding token.",
+    },
+    "Shattered jaw": {
+        "type": "severe_injury",
+        "desc": "You drink your meat through a straw. You can no longer <b>consume</b> or be affected by events requiring you to <b>consume</b>. You can no longer <b>encourage</b>. This injury is permanent and can be recorded once. Gain 1 bleeding token.",
+        "survival_actions_disabled": ["Encourage"],
+        "max": 1,
+    },
+    "Destroyed tooth": {
+        "type": "severe_injury",
+        "desc": "If you have 3+ courage, you boldly spit the tooth out and gain +2 insanity! Otherwise. the blow sends you sprawling and you are knocked down.",
+    },
+    "Dismembered Arm": {
+        "type": "severe_injury",
+        "desc": "Lose an arm. You can no longer activate two-handed weapons. This injury is permanent, and can be recorded twice. A survivor with two <b>dismembered arm</b> severe injuries cannot activate any weapons. Gain 1 bleeding token.",
+        "max": 2,
+    },
+    "Ruptured muscle": {
+        "type": "severe_injury",
+        "desc": "A painful rip. The arm hangs limp. You can no longer activate fighting arts. This injury is permanent and can be recorded once. Gain 1 bleeding token.",
+        "cannot_use_fighting_arts": True,
+        "max": 1,
+    },
+    "Contracture": {
+        "type": "severe_injury",
+        "desc": "The arm will never be the same. Suffer -1 permanent Accuracy. This injury is permanent and can be recorded multiple times. Gain 1 bleeding token.",
+        "Accuracy": -1,
+    },
+    "Broken arm": {
+        "type": "severe_injury",
+        "desc": "An ear-shattering crunch. Suffer -1 permanent Accuracy and -1 permanent Strength. This injury is permanent and can be recorded twice. Gain 1 bleeding token.",
+        "Accuracy": -1,
+        "Strength": -1,
+        "max": 2,
+    },
+    "Spiral fracture": {
+        "type": "severe_injury",
+        "desc": "Your arm twists unnaturally. Gain -2 strength tokens. Skip the next hunt. Gain 1 bleeding token.",
+        "skip_next_hunt": True,
+    },
+    "Dislocated shoulder": {
+        "type": "severe_injury",
+        "desc": "Pop! You cannot activate two-handed or <b>paired</b> weapons or use <b>block</b> until showdown ends. Gain 1 bleeding token.",
+    },
+    "Gaping chest wound": {
+        "type": "severe_injury",
+        "desc": "Suffer -1 permanent Strength. This injury is permanent and can be recorded multiple times. Gain 1 bleeding token.",
+        "Strength": -1,
+    },
+    "Destroyed back": {
+        "type": "severe_injury",
+        "desc": "A sharp cracking noise. Suffer -2 permanent movement. You can no longer activate any gear that has 2+ Strength. This injury is permanent and can be recorded once. Gain 1 bleeding token.",
+        "Movement": -2,
+        "max": 1,
+    },
+    "Disemboweled": {
+        "type": "severe_injury",
+        "desc": "Your movement is reduced to 1 until the showdown ends. Gain 1 bleeding token. Skip the next hunt. If you suffer <b>disemboweled</b> during a showdown, at least one other survivor must live to the end of the showdown to carry you back to the settlement. Otherwise, at the end of the showdown, you are lost. Dead.",
+        "skip_next_hunt": True,
+    },
+    "Ruptured spleen": {
+        "type": "severe_injury",
+        "desc": "A vicious body blow. Skip the next hunt. Gain 2 bleeding tokens.",
+        "skip_next_hunt": True,
+    },
+    "Broken rib": {
+        "type": "severe_injury",
+        "desc": "It even hurts to breathe. Suffer -1 permanent speed. This injury is permanent, and can be recorded multiple times. Gain 1 bleeding token.",
+        "Speed": -1,
+    },
+    "Collapsed Lung": {
+        "type": "severe_injury",
+        "desc": "You can't catch a breath. Gain -1 movement token. Gain 1 bleeding token.",
+    },
+    "Intestinal prolapse": {
+        "type": "severe_injury",
+        "desc": "Your guy is gravely injured. You can no longer equip any gear on your waist, as it is too painful to wear. This injury is permanent, and can be recorded once. Gain 1 bleeding token.",
+        "max": 1,
+    },
+    "Warped Pelvis": {
+        "type": "severe_injury",
+        "desc": "Your pelvis is disfigured. Suffer -1 permanent luck. This injury is permanent and can be recorded multiple times. Gain 1 bleeding token.",
+        "Luck": -1,
+    },
+    "Destroyed genitals": {
+        "type": "severe_injury",
+        "desc": "You cannot be nominated for the Intimacy story event. This injury is permanent and can be recorded once. Gain a random disorder. You are knocked down. Gazing upwards, you wonder at the futility of your struggle. Gain +3 insanity. Gain 1 bleeding token.",
+        "max": 1,
+    },
+    "Broken hip": {
+        "type": "severe_injury",
+        "desc": "Your hip is dislocated. You can no longer <b>dodge</b>. Suffer -1 permanent movement. This injury is permanent and can be recorded once. Gain 1 bleeding token.",
+        "Movement": -1,
+        "max": 1,
+        "survival_actions_disabled": ["Dodge"],
+    },
+    "Slashed back": {
+        "type": "severe_injury",
+        "desc": "Making sudden movement is excruciatingly painful. You cannot <b>surge</b> until showdown ends. Gain 1 bleeding token.",
+    },
+    "Bruised tailbone": {
+        "type": "severe_injury",
+        "desc": "The base of your spine is in agony. You cannot <b>dash</b> until showdown ends. You are knocked down. Gain 1 bleeding token.",
+    },
+    "Dismembered leg": {
+        "type": "severe_injury",
+        "desc": "Lose a leg. You suffer -2 permanent movement, and can no longer <b>dash</b>. This injury is permanent and can be recorded twice. A survivor with two <b>dismembered leg</b> severe injuries has lost both of their legs and must retire at the end of the next showdown or settlement phase. Gain 1 bleeding token.",
+        "survival_actions_disabled": ["Dash"],
+        "Movement": -2,
+        "max": 2,
+    },
+    "Hamstrung": {
+        "type": "severe_injury",
+        "desc": "A painful rip. The leg is unusable. You can no longer use any fighting arts or abilities. This injury is permanent and can be recorded once. Gain 1 bleeding token.",
+        "max": 1,
+        "cannot_use_fighting_arts": True,
+    },
+    "Torn Achilles Tendon": {
+        "type": "severe_injury",
+        "desc": "Your leg cannot bear your weight. Until the end of the showdown, whenever you suffer light, heavy, or severe injury, you are also knocked down. Skip the next hunt. Gain 1 bleeding token.",
+        "skip_next_hunt": True,
+    },
+    "Torn muscle": {
+        "type": "severe_injury",
+        "desc": "Your quadriceps is ripped to shreds. You cannot <b>dash</b> until he showdown ends. Skip the next hunt. Gain 1 bleeding token.",
+        "skip_next_hunt": True,
+    },
+    "Broken leg": {
+        "type": "severe_injury",
+        "desc": "An ear-shattering crunch! Adjacent survivors suffer 1 brain damage. Suffer -1 permanent movement. This injury is permanent, and can be recorded twice. Gain 1 bleeding token.",
+        "Movement": -1,
+        "max": 2,
+    },
 }
 
 
@@ -834,38 +849,67 @@ locations = {
     },
     "Lantern Hoard": {
         "always_available": True,
-        "consequences": ["Bone Smith", "Skinnery", "Organ Grinder", "Catarium", "Plumery", "Exhausted Lantern Hoard", "Mask Maker","Gormery","Gormchymist"],
+        "consequences": ["Bone Smith", "Skinnery", "Organ Grinder", "Catarium", "Plumery", "Exhausted Lantern Hoard", "Mask Maker","Gormery","Gormchymist","Wet Resin Crafter"],
+        "endeavors": {
+            "Shared Experience": {
+                "cost": 1,
+                "requires": ["Symposium"],
+                "desc": "Nominate a survivor that has 2 or more Hunt XP than yourself. They describe illuminating details of their desired death. If you are not deaf, gain +1 Hunt XP from their story.  If the nominated survivor has a broken jaw, instead gain +1 insanity.",
+            },
+            "Build": {"cost":1, "desc": "Bone Smith", "remove_after": "Bone Smith"},
+            " Build": {"cost":1, "desc": "Skinnery", "remove_after": "Skinnery"},     # hacks!
+            "  Build": {"cost":1, "desc": "Organ Grinder", "remove_after": "Organ Grinder"},    # craaaazzzzzyyy hacks!
+        },
     },
     "Bone Smith": {
         "color": "e3dac9",
         "consequences": ["Weapon Crafter"],
+        "endeavors": {
+            "Build": {"cost": 1, "desc": "Weapon Crafter (3 x bone, 1 x hide)", "remove_after": "Weapon Crafter"},
+        },
     },
     "Skinnery": {
         "color": "FFCBA4",
         "consequences": ["Leather Worker"],
+        "endeavors": {
+            "Build": {"cost": 1, "desc": "Leather Worker (3 x hide, 1 x organ)", "remove_after": "Leather Worker"},
+        },
     },
     "Organ Grinder": {
         "color": "B58AA5",
         "consequences": ["Stone Circle"],
+        "endeavors": {
+            "Build": {"cost": 1, "desc": "Stone Circle (3 x organ, 1 x hide)", "remove_after": "Stone Circle"},
+        },
     },
     "Blacksmith": {
         "requires": ("innovations", "Scrap Smelting"),
         "color": "625D5D",
         "font_color": "FFF",
-        "consequences": [],
     },
     "Stone Circle": {
         "color": "835C3B",
         "font_color": "FFF",
+        "endeavors": {
+            "Harvest Ritual": {"cost": 1, "desc": "Spend any number of monster resources to draw an equal number of basic resources."},
+        },
     },
     "Leather Worker": {
         "color": "7F462C",
         "font_color": "FFF",
-        "consequences": [],
+        "endeavors": {
+            "Leather-Making": {
+                "cost": 1,
+                "desc": "Spend any number of hide to add an equal number of leather strange resources to the settlement storage.",
+                "requires": ["Ammonia"],
+                },
+        },
     },
     "Weapon Crafter": {
         "color": "E1D4C0",
-        "consequences": [],
+        "endeavors": {
+            "Special Innovate": {"cost": 1, "desc": "Scrap Smelting (2 x scrap, 5 x bone, 5 x organ)", "remove_after": "Scrap Smelting"}
+        },
     },
     "Barber Surgeon": {
         "requires": ("innovations", "Pottery"),
@@ -878,7 +922,11 @@ locations = {
     },
     "Mask Maker": {
         "color": "FFD700",
-        "consequences": [],
+        "endeavors": {
+            "White Lion Mask": {"cost": 1, "desc": "You may hunt the Great Golden Cat."},
+            "Antelope Mask": {"cost": 1, "desc": "You may hunt the Mad Steed."},
+            "Phoenix Mask": {"cost": 1, "desc": "You may hunt the Golden Eyed King."},
+        },
     },
     "Exhausted Lantern Hoard": {
         "color": "ddd",
@@ -893,6 +941,9 @@ locations = {
         "font_color": "FFF",
         "consequences": [],
         "expansion": "Gorm",
+        "endeavors": {
+            "Special Innovate": {"cost": 1, "desc": "Gain the next Gormchymy innovation (1 x strange resource, 1 x gorm brain)"},
+        },
     },
     "Gormery": {
         "color": "600313",
@@ -907,7 +958,6 @@ locations = {
     },
     "Wet Resin Crafter": {
         "expansion": "Dung Beetle Knight",
-        "always_available": True,
         "color": "C9CE62",
     },
 }
@@ -919,6 +969,17 @@ item_normalization_exceptions = {
     ("Dbk Errant Badge", "DBK Errant Badge"),
     ("Finger Of God", "Finger of God"),
     ("Eye Of Cat", "Eye of Cat"),
+}
+
+cursed_items = {
+    "Belt of Gender Swap": {"ability": "Gender Swap"},
+    "Real Helm": {"ability": "King's Curse",},
+    "Real Faulds": {"ability": "King's Curse",},
+    "Real Gauntlets": {"ability": "King's Curse",},
+    "Real Greaves": {"ability": "King's Curse",},
+    "Real Plackart": {"ability": "King's Curse",},
+    "Thunder Maul": {},
+    "Twilight Sword": {"ability": "Twilight Sword"},
 }
 
 items = {
@@ -1852,43 +1913,63 @@ innovations = {
     "Subterranean Agriculture": {
         "expansion": "Dung Beetle Knight",
         "type": "science",
-        "endeavors": {
-            'If <b>Black Harvest</b> is not on the timeline, <font class="kdm_font">g</font> <b>Underground Sow</b>.': 1,
-            'If <b>Black Harvest</b> is on the timeline, you may spend 1 Preserved Caustic Dung to increase its rank by 1 to a maximum rank of 3. Limit, once per settlement phase.': 1,
-        },
         "always_available": True,
+        "endeavors": {
+            "Build": {"cost": 1, "desc": "Wet Resin Crafter (2 x organ, 2 x bone)", "remove_after": "Wet Resin Crafter"},
+            "Underground Sow": {
+                "hide_name": True,
+                "type": "science",
+                "desc": 'If <b>Black Harvest</b> is not on the timeline, <font class="kdm_font">g</font> <b>Underground Sow</b>.',
+                "cost": 1
+            },
+           "Underground Fertilize": {
+                "hide_name": True,
+                "type": "science",
+                "desc": 'If <b>Black Harvest</b> is on the timeline, you may spend 1 Preserved Caustic Dung to increase its rank by 1 to a maximum rank of 3. Limit, once per settlement phase.',
+                "cost": 1,
+            },
+        },
     },
     "Round Stone Training": {
         "expansion": "Dung Beetle Knight",
         "type": "education",
-        "endeavors": {"Train": 1},
-        "always_available": True,
+        "endeavors": {
+            "Train": {"cost": 1, "type": "education"},
+        },
     },
     "Nigredo": {
+        "always_available": True,
         "expansion": "Gorm",
         "type": "science",
         "survival_limit": 1,
         "consequences": ["Albedo"],
-        "endeavors": {"Nigredo": 1},
-        "always_available": True,
+        "endeavors": {
+            "Nigredo": {"cost": 1, "type": "science"},
+        },
     },
     "Albedo": {
         "expansion": "Gorm",
         "type": "science",
         "consequences": ["Citrinitas"],
-        "endeavors": {"Albedo": 2},
+        "endeavors": {
+            "Albedo": {"cost": 2, "type": "science"},
+        },
     },
     "Citrinitas": {
         "expansion": "Gorm",
         "type": "science",
         "survival_limit": 1,
         "consequences": ["Rubedo"],
-        "endeavors": {"Citrinitas": 3},
+        "endeavors": {
+            "Citrinitas": {"cost": 3, "type": "science"},
+        },
     },
     "Rubedo": {
         "expansion": "Gorm",
         "type": "science",
-        "endeavors": {"Rubedo": 4},
+        "endeavors": {
+            "Rubedo": {"cost": 4, "type": "science"},
+        },
     },
     "Graves": {
         "type": "principle",
@@ -1946,40 +2027,50 @@ innovations = {
     },
     "Sacrifice": {
         "type": "faith",
-        "endeavors": {"Death Ritual": 1},
+        "endeavors": {
+            "Death Ritual": {"type": "faith", "cost": 1,},
+        },
     },
     "Scarification": {
         "type": "faith",
-        "endeavors": {"Initiation": 1},
+        "endeavors": {
+            "Initiation": {"cost": 1, "type": "faith"},
+        },
     },
     "Records": {
         "type": "education",
-        "endeavors": {"Knowledge": 2},
+        "endeavors": {
+            "Knowledge": {"cost": 2, "type": "education"},
+        },
     },
     "Shrine": {
         "type": "faith",
         "consequences": ["Sacrifice"],
-        "endeavors": {"Armor Ritual": 1},
+        "endeavors": {
+            "Armor Ritual": {"cost": 1, "type": "faith"},
+        },
     },
     "Scrap Smelting": {
         "type": "science",
-        "endeavors": {"Purification": 1},
+        "special_innovate": ("locations","Weapon Crafter"),
+        "endeavors": {
+            "Purification": {"cost": 1, "type": "science"},
+            "Build": {"cost": 1, "desc": "Blacksmith (6 x bone, 3 x scrap)", "remove_after": "Blacksmith"},
+        },
     },
     "Cooking": {
         "type": "science",
-        "consequences": [],
         "survival_limit": 1,
-        "endeavors": {"Culinary Inspiration": 1},
-    },
-    "Paint": {
-        "type": "art",
-        "consequences": ["Pictograph", "Sculpture", "Face Painting"],
-        "survival_action": "Dash",
+        "endeavors": {
+            "Culinary Inspiration": {"cost": 1, "type": "science"},
+        },
     },
     "Drums": {
         "type": "music",
         "consequences": ["Song of the Brave", "Forbidden Dance"],
-        "endeavors": {"Bone Beats": 1},
+        "endeavors": {
+            "Bone Beats": {"cost": 1, "type": "music"},
+        },
     },
     "Inner Lantern": {
         "type": "faith",
@@ -2002,20 +2093,37 @@ innovations = {
         "type": "education",
         "consequences": ["Records"],
         "survival_limit": 1,
-        "endeavors": {"Tale as Old as Time": 2},
+        "endeavors": {
+            "Tale as Old as Time": {"cost": 2, "type": "education"},
+        },
     },
     "Nightmare Training": {
         "type": "education",
-        "endeavors": {"Train": 1},
         "consequences": ["Round Stone Training"],
+        "endeavors": {
+            "Train": {"cost": 1, "type": "education"},
+        },
     },
     "Momento Mori": {
         "type": "art",
-        "endeavors": {"Momento Mori": 1},
+        "endeavors": {
+            "Momento Mori": {"cost": 1, "type": "art"},
+        },
     },
     "Face Painting": {
         "type": "art",
-        "endeavors": {"Battle Paint": 1, "Founder's Eye": 1},
+        "endeavors": {
+            "Battle Paint": {"cost": 1, "type": "art"},
+            "Founder's Eye": {"cost": 1, "type": "art"},
+        },
+    },
+    "Pottery": {
+        "type": "art",
+        "survival_limit": 1,
+        "settlement_buff": "If the settlement loses all its resources, you may select up to two resources and keep them.",
+        "endeavors": {
+            "Build": {"cost": 1, "desc": "Barber Surgeon (3 x organ, 1 x scrap)"},
+        },
     },
     "Sculpture": {
         "type": "art",
@@ -2023,33 +2131,52 @@ innovations = {
         "survival_limit": 1,
         "departure_buff": "Departing survivors gain +2 survival when they depart for a Nemesis Encounter.",
     },
+    "Paint": {
+        "type": "art",
+        "consequences": ["Pictograph", "Sculpture", "Face Painting"],
+        "survival_action": "Dash",
+    },
     "Pictograph": {
         "type": "art",
         "consequences": ["Momento Mori"],
-        "survivor_buff": "Anytime during the hunt or showdown phase, a survivor may <b>Run Away</b>.",
-    },
-    "Pottery": {
-        "type": "art",
-        "survival_limit": 1,
-        "settlement_buff": "If the settlement loses all its resources, you may select up to two resources and keep them.",
+        "survivor_buff": 'Anytime during the hunt or showdown phase, a survivor may <font class="kdm_font">g</font> <b>Run Away</b>.',
     },
     "Heart Flute": {
         "type": "music",
-        "endeavors": {"Devil's Melody": 1},
+        "endeavors": {
+            "Devil's Melody": {"cost": 1, "type": "music"},
+        },
+    },
+    "Forbidden Dance": {
+        "type": "music",
+        "endeavors": {
+            "Fever Dance": {"cost": 1, "type": "music"},
+        },
+    },
+    "Bed": {
+        "type": "home",
+        "survival_limit": 1,
+        "endeavors": {
+            "Rest": {"cost": 1, "type": "home"},
+        },
+    },
+    "Partnership": {
+        "type": "home",
+        "always_available": True,
+        "endeavors": {
+            "Partner": {"cost": 2, "type": "home"},
+        },
+    },
+    "Bloodletting": {
+        "type": "science",
+        "endeavors": {
+            "Breathing a Vein": {"cost": 1, "type": "science"},
+        },
     },
     "Saga": {
         "type": "music",
         "survivor_buff": "All newborn survivors gain +2 hunt experience and +2 survival from knowing the epic.",
         "new_survivor": {"hunt_xp": 2, "survival": 2},
-    },
-    "Forbidden Dance": {
-        "type": "music",
-        "endeavors": {"Fever Dance": 1},
-    },
-    "Bed": {
-        "type": "home",
-        "survival_limit": 1,
-        "endeavors": {"Rest": 1},
     },
     "Family": {
         "type": "home",
@@ -2061,15 +2188,6 @@ innovations = {
         "type": "music",
         "consequences": ["Saga",],
         "survivor_buff": "All non-deaf survivors add +1 to their roll results on the Overwhelming Darkness story event.",
-    },
-    "Partnership": {
-        "type": "home",
-        "always_available": True,
-        "endeavors": {"Partner": 2},
-    },
-    "Bloodletting": {
-        "type": "science",
-        "endeavors": {"Breathing a Vein": 1},
     },
     "Language": {
         "type": "starting",

@@ -6,12 +6,14 @@ import email
 from email.header import Header as email_Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import json
 import logging
 import os
 from pymongo import MongoClient
 import smtplib
 import sys
 import time
+from urllib import urlopen
 from user_agents import parse as ua_parse
 
 
@@ -160,6 +162,31 @@ class mailSession:
         self.logger.debug("Email sent successfully!")
 
 
+
+def get_latest_change_log():
+    """ Gets the latest post to the blog. """
+    response = urlopen('https://www.googleapis.com/blogger/v3/blogs/3322385743551419703/posts?key=AIzaSyBAms6po9Dc82iTeRzDXMYI-bw81ufIu-0').read()
+    posts = json.loads(response)
+    if "items" in posts.keys():
+        for post in posts["items"]:
+            if "Change Logs" in post["labels"]:
+                return post
+    else:
+        return {
+            'content': None,
+            'kind': None,
+            'labels': None,
+            'title': None,
+            'url': None,
+            'author': None,
+            'updated': None,
+            'replies': None,
+            'blog': None,
+            'etag': None,
+            'published': None,
+            'id': None,
+            'selfLink': None,
+        }
 
 
 if __name__ == "__main__":

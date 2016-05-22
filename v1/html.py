@@ -109,9 +109,9 @@ class dashboard:
         <h2 class="clickable gradient_silver" onclick="showHide('system_div')"> <img class="dashboard_icon" src="%s/icons/system.png"/> System %s</h2>
         <div id="system_div" style="display: none;" class="dashboard_accordion gradient_silver">
         <p>KD:M Manager! Version $version.</p><hr/>
-        <p>This application is a work in progress and is currently running in debug mode! Please use <a href="http://blog.kdm-manager.com"/>blog.kdm-manager.com</a> to report issues/bugs or to ask questions, share ideas for features, make comments, etc.</p>
-        <p>Icon font ('kdm-font-10') by <a href="http://steamcommunity.com/id/GeorgianBalloon" target="top">Miracle Worker</a>.</p>
-        <hr/>
+        <p>v$version went live on $latest_change_date. <a target="top" href="$latest_change_link">View change log</a>.</p><hr/>
+        <p>Icon font ('kdm-font-10') by <a href="http://steamcommunity.com/id/GeorgianBalloon" target="top">Miracle Worker</a>.</p><hr/>
+        <p>This application is a work in progress and is currently running in debug mode! Please use <a href="http://blog.kdm-manager.com"/>blog.kdm-manager.com</a> to report issues/bugs or to ask questions, share ideas for features, make comments, etc.</p><hr/>
 
         <div class="dashboard_preferences">
             <h3>Preferences</h3>
@@ -224,6 +224,10 @@ class dashboard:
         </ul>
         <hr/>
         <h3>General Statistics for All Settlements:</h3>
+        <p>Settlement Expansion Activation Counts:</p>
+        <ul>
+            $expansion_popularity_bullets
+        </ul>
         <p>Survival Limit:</p>
         <ul>
             <li>Average Survival Limit: $avg_survival_limit</li>
@@ -991,15 +995,6 @@ class settlement:
             <button class="bold green desktop_only" id="campaign_summary_new_survivor">+ Create New Survivor</button>
             </form>
             <div class="campaign_summary_small_box">
-                <h3>Principles</h3>
-                $principles
-            </div>
-            <div class="campaign_summary_small_box">
-                <h3>Innovations</h3>
-                $innovations
-            </div>
-            <hr class="mobile_only"/>
-            <div class="campaign_summary_small_box">
                 <h4>Available Endeavors</h4>
                 $endeavors
                 <h4>Departing Survivor Effects</h4>
@@ -1007,6 +1002,15 @@ class settlement:
                 <h4>Settlement Bonuses</h4>
                 $settlement_bonuses
                 $survivor_bonuses
+            </div>
+            <hr class="mobile_only"/>
+            <div class="campaign_summary_small_box">
+                <h3>Principles</h3>
+                $principles
+            </div>
+            <div class="campaign_summary_small_box">
+                <h3>Innovations</h3>
+                $innovations
             </div>
             <hr class="mobile_only"/>
             <div class="campaign_summary_small_box">
@@ -1443,7 +1447,7 @@ class login:
     form = """\n\
     <div id="sign_in_container">
         <h2 class="seo">KD:M Manager!</h2>
-        <h1 class="seo">A campaign manager for <a href="http://kingdomdeath.com/" target="top">Kingdom Death: <i>Monster</i></a>.</h1>
+        <h1 class="seo">An interactive campaign manager for <a href="http://kingdomdeath.com/" target="top">Kingdom Death: <i>Monster</i></a>.</h1>
         <div id="sign_in_controls">
         <img src="%s/logo_small.png" class="desktop_only sign_in"/>
             <form method="POST">

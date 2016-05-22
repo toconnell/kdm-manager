@@ -32,6 +32,7 @@ settings = load_settings()
 
 def prune_sessions():
     """ Removes sessions older than 24 hours. """
+    thirty_days_ago = datetime.now() - timedelta(days=30)
     yesterday = datetime.now() - timedelta(days=1)
     logger.debug("Searching for sessions older than %s to prune..." % yesterday)
     old_sessions = mdb.sessions.find({"created_on": {"$lt": yesterday}}).sort("created_on")
@@ -43,7 +44,7 @@ def prune_sessions():
         U = assets.User(user["_id"], session_object={"_id": 0, "login": "ADMINISTRATOR"})
         if U.is_admin():
             logger.debug("Preserving session for admin user '%s'" % user["login"])
-        elif U.get_preference("preserve_sessions"):
+        elif U.get_preference("preserve_sessions") and s["created_on"] > thirty_days_ago:   # if it's older than 30 days, ignore the preference
             logger.debug("Preserving session for user '%s' because of user preference." % user["login"])
         else:
             s_id = s["_id"]
