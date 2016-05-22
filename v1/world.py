@@ -16,7 +16,7 @@ def latest_fatality(return_type=False):
         {
             "complete": {"$exists": True},
             "name": {"$ne": "Anonymous"},
-            "cause_of_death": {"$ne": "Forsaken"},
+            "cause_of_death": {"$ne": "Forsaken."},
         },
         sort=[("created_on", -1)],
         )
