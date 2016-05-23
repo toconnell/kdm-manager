@@ -1809,6 +1809,11 @@ class Settlement:
             self.update_timeline(add_event = (2, "settlement_event", "Gorm Climate"))
         elif e_key == "Dung Beetle Knight" and new_settlement:
             self.update_timeline(add_event = (8, "story_event", "Rumbling in the Dark"))
+        elif e_key == "Lion Knight" and new_settlement:
+            self.update_timeline(add_event = (6, "story_event", "An Uninvited Guest"))
+            self.update_timeline(add_event = (8, "story_event", "Places, Everyone!"))
+            self.update_timeline(add_event = (12, "story_event", "Places, Everyone!"))
+            self.update_timeline(add_event = (16, "story_event", "Places, Everyone!"))
 
         self.logger.debug("Added '%s' expansion to %s" % (e_key, self))
         self.log_event("'%s' expansion is now active!" % e_key)
@@ -2401,7 +2406,13 @@ class Settlement:
                     else:
                         output += ' <button id="increment_nemesis" class="disabled" disabled>%s</button> ' % level
                 output += '</p>\n'
-            output += Nemeses.render_as_html_dropdown(exclude=self.settlement["nemesis_monsters"].keys()) 
+
+            # support for expansion nemeses
+            exp = []
+            if "expansions" in self.settlement.keys():
+                exp = self.settlement["expansions"]
+            output += Nemeses.render_as_html_dropdown(exclude=self.settlement["nemesis_monsters"].keys(), expansions=exp) 
+
             output += '\t<input onchange="this.form.submit()" type="text" class="full_width" name="add_nemesis" placeholder="add custom nemesis"/>'
             return output
 
@@ -2665,14 +2676,17 @@ class Settlement:
                     if requirements_met:
                         e_type = ""
                         e_desc = ""
-                        e_name = "<i>%s:</i>" % endeavor_key
+                        e_name = "<i>%s</i>" % endeavor_key
                         if "desc" in e.keys():
-                            e_desc = e["desc"]
+                            e_desc = "%s" % e["desc"]
                         if "type" in e.keys():
                             e_type = "(%s)" % e["type"]
                         if "hide_name" in e.keys():
                             e_name = ""
-                        endeavor_string += '<p> &nbsp; <font class="kdm_font">%s</font> %s %s %s</p>' % (e["cost"]*"d ", e_name, e_desc, e_type)
+                        punc = ""
+                        if e_desc != "" and not "hide_name" in e.keys():
+                            punc = ": "
+                        endeavor_string += '<p> &nbsp; <font class="kdm_font">%s</font> %s%s %s %s</p>' % (e["cost"]*"d ", e_name, punc, e_desc, e_type)
 
                 if endeavor_string == "":
                     pass

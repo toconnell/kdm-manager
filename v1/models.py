@@ -2,6 +2,7 @@
 
 import game_assets
 from utils import get_logger
+from string import capwords
 
 class Model:
     """ This is the base class for all model classes. It provides the basic
@@ -128,7 +129,12 @@ class Model:
             disabled = ""
             if o in disable:
                 disabled = "disabled"
-            output += '\t\t<option %s>%s</option>\n' % (disabled, o)
+            pretty_o = o
+            if self.name == "ability":
+                option_classes = {}
+                a = Abilities.get_asset(o)
+                pretty_o = "%s (%s)" % (o, capwords(a["type"].replace("_"," ")))
+            output += '\t\t<option value="%s" %s>%s</option>\n' % (o, disabled, pretty_o)
         output += '</select>\n'
 
 

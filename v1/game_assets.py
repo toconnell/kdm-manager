@@ -6,25 +6,30 @@
 #
 
 abilities_and_impairments = {
+    "Hideous Disguise": {
+        "type": "curse",
+        "desc": "At the start of the showdown, if you are fighting the Lion Knight, choose your Role card.",
+        "max": 1,
+    },
     "King's Curse": {
-        "type": "impairment",
+        "type": "curse",
         "desc": """At the Aftermath, <font class="kdm_font">g</font> <b>King's Curse</b>.""",
+        "max": 1,
+    },
+    "Twilight Sword": {
+        "type": "curse",
+        "desc": "You may select <b>Twilight Sword</b> as a weapon proficiency type. This weapon may not be removed from your great grid for any reason. When you die, archive your <b>Twilight Sword</b> card.",
+        "max": 1,
+    },
+    "Gender Swap": {
+        "type": "curse",
+        "desc": "You own the <b>Belt of Gender Swap</b>, it will always take one space in your gear grid and while it is there, your gender is reversed.",
+        "reverse_sex": True,
         "max": 1,
     },
     "Crystal Skin": {
         "type": "ability",
         "desc": "You cannot place armor in your gear grid. When you <b>depart</b>, gain <b>2</b> to all hit locations. Suffer -1 to the result of all severe injury rolls.",
-        "max": 1,
-    },
-    "Twilight Sword": {
-        "type": "impairment",
-        "desc": "You may select <b>Twilight Sword</b> as a weapon proficiency type. This weapon may not be removed from your great grid for any reason. When you die, archive your <b>Twilight Sword</b> card.",
-        "max": 1,
-    },
-    "Gender Swap": {
-        "type": "impairment",
-        "desc": "You own the <b>Belt of Gender Swap</b>, it will always take one space in your gear grid and while it is there, your gender is reversed.",
-        "reverse_sex": True,
         "max": 1,
     },
     "Endless Babble": {
@@ -47,122 +52,122 @@ abilities_and_impairments = {
         "desc": 'When you both <b>depart</b>, gain +2 survival. While adjacent to your partner, gain +1 strength. Partners may only nominate each other for <img class="icon" src="http://media.kdm-manager.com/icons/trigger_story_event.png" /> <b>Intimacy</b>. When a partner dies, the remaining partner gains a random disorder and loses this ability.',
     },
     "Specialization - Katar": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "When attacking with a Katar, cancel reactions on the first selected hit location.",
     },
     "Mastery - Katar": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "If you are a Katar Master, gain a <i>+1 evasion</i> token on a <b>perfect hit</b> with a katar. When you are knocked down, remove all +1 evasion tokens.",
     },
     "Specialization - Bow": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "When attacking with a bow, you may reroll any misses once. Limit, once per attack",
     },
     "Mastery - Bow": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "If you are a Bow Master, all Bows in your gear grid gain <b>Deadly 2</b>. In addition, ignore <b>cumbersome</b> on all Bows.",
     },
     "Specialization - Twilight Sword": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "This sentient sword improves as it's used. Gain the effect as proficiency rank increases. Rank 2: Ignore <b>Cumbersome</b> on Twilight Sword. Rank 4: When attacking with the Twilight Sword, ignore <b>slow</b> and gain +2 speed. Rank 6: Twilight Sword gains <b>Deadly</b>.",
     },
     "Mastery - Twilight Sword": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "Any Survivor who attains Twilight Sword Mastery leaves the settlement forever in pursuit of a higher purpose. Remove them from the settlement's population. You may place the master's Twilight Sword in another survivor's gear grid or archive it.",
     },
     "Specialization - Axe": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "When attacking with an axe, if your wound attempt fails, you may ignore it and attempt to wound the selected hit location again. Limit, once per attack.",
     },
     "Mastery - Axe": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "When an Axe Master wounds a monster with an axe at a location with a persistent injury, that wound becomes a critical wound.",
     },
     "Specialization - Spear": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "When attacking with a spear, if you draw a <b>trap</b>, roll 1d10. On a 7+, cancel the <b>trap</b>. Discard it, then reshuffle the hit location discard into the hit location deck and draw a new card. Limit, once per round.",
     },
     "Mastery - Spear": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "Whenever a Spear Master hits a monster with a Separ, they may spend 1 survival to gain the Priority Target token. If they made the hit from directly behind another survivor, that survivor gains the Priority Target token instead.",
     },
     "Specialization - Club": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "All clubs in your gear grid gain <b>paired</b>. Cannot use this with two-handed clubs.",
     },
     "Mastery - Club": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "If you are a Club Master, all Clubs in your gear grid gain <b>Savage</b>. On a <b>Perfect hit</b> with a Club, gain <i>+3 strength</i> until the end of the attack.",
     },
     "Specialization - Fist & Tooth": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "You may stand (if knocked down) at the start of the monster's turn or the survivor's turn. Limit once per round.",
     },
     "Mastery - Fist & Tooth": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "While a survivor is a Fist & Tooth Master, they gain <i>+2 permanent accuracy</i> and <i>+2 permanent strength</i> (they receive this bonus even when not attacking with Fist and Tooth).",
     },
     "Specialization - Grand Weapon": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "When attacking with a grand weapon, gain <i>+1 accuracy</i>.",
     },
     "Mastery - Grand Weapon": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "When a Grand Weapon Master perfectly hits with a grand weapon, cancel all reactions for that attack.",
     },
     "Specialization - Whip": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "When you wound with a whip, instead of moving the top card of the AI deck into the wound stack, you may move the top card of the AI discard pile. Limit once per attack.",
     },
     "Mastery - Whip": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "Whip Masters gain <i>+5 strength</i> when attacking with a Whip.",
     },
     "Mastery - Shield": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "When a Shield Master is adjacent to a survivor that is targeted by a monster, they may swap spaces on the baord with the survivor and become the target instead. The master must have a shield to perform this.",
     },
     "Specialization - Shield": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "While a shield is in your gear grid, you are no longer knocked down after <b>collision</b> with a monster. While a shield is in your gear grid, add <b>1</b> to all hit locations.",
     },
     "Specialization - Dagger": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "When attacking with a Dagger, if a wound attempt fails, after performing any reactions, you may discard another drawn hit location card to attempt to wound that hit location again. Limit, once per attack.",
     },
     "Mastery - Dagger": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "After a wounded hit location is discarded, a Dagger Master who is adjacent to the attacker and the wounded monster may spend 1 survival to re-draw the wounded hit location and attempt to wound with a dagger. Treat monster reactions on the re-drawn hit location card normally.",
     },
     "Specialization - Sword": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "When attacking with a sword, after drawing hit locations, make a wound attempt and then select a hit location to resolve with that result. Limit, once per attack.",
     },
     "Mastery - Sword": {
-        "type": "weapon proficiency",
+        "type": "weapon_proficiency",
         "max": 1,
         "desc": "A Sword master gains +1 accuracy, +1 strength, and +1 speed when attacking with a Sword."
     },
@@ -505,6 +510,26 @@ abilities_and_impairments = {
 
 
 disorders = {
+    "Stage Fright": {
+        "expansion": "Lion Knight",
+        "flavor_text": "You hate being the center of attention.",
+        "survivor_effect": "Whenever you become <b>doomed</b> or gain the <b>priority target</b> token, lose 1 survival.",
+    },
+    "Shallow Lungs": {
+        "expansion": "Lion Knight",
+        "flavor_text": "Yelling makes you feel light-headed.",
+        "survivor_effect": "When you <b>encourage</b>, you are knocked down.",
+    },
+    "Primma Donna": {
+        "expansion": "Lion Knight",
+        "flavor_text": "The double-edged sword of fame is the only weapon you require.",
+        "survivor_effect": "Each survivor turn, you must take your act first (roll off each turn if multiple survivors have this disorder).",
+    },
+    "Unlucky": {
+        "expansion": "Lion Knight",
+        "flavor_text": "Your mother always said you were born under a bad sign.",
+        "survivor_effect": "You cannot critically wound.",
+    },
     "Vermin Obsession": {
         "expansion": "Dung Beetle Knight",
         "flavor_text": "You love insects.",
@@ -626,6 +651,11 @@ disorders = {
 
 
 epithets = {
+    "Lord of War": {},
+    "Warlord": {},
+    "Dancer": {},
+    "Brawler": {},
+    "Monster Worshipper": {},
     "Twin": {},
     "Spelunker of Death": {},
     "Farmer": {},
@@ -680,7 +710,6 @@ epithets = {
     "The Dead": {},
     "Berserker": {},
     "The Wolf": {},
-    "Brawler": {},
     "Thunderer": {},
     "Swift-footed": {},
     "The Chef": {},
@@ -721,6 +750,28 @@ epithets = {
 
 
 fighting_arts = {
+    "Wardrobe Expert": {
+        "expansion": "Lion Knight",
+        "desc": "When you suffer a severe injury at a hit location, you may archive a gear worn at that location to ignore it and gain +1 survival.",
+    },
+    "Tenacious": {
+        "expansion": "Lion Knight",
+        "desc": "When your wound attempt on a hit location is a failure, you may put that hit location back on top of the deck instead of in the discard pile.<br/>Limit, once per round.",
+    },
+    "Headliner": {
+        "expansion": "Lion Knight",
+        "desc": "When you become <b>doomed</b> or gain the <b>priority target</b> token, you may choose to gain +1 survival or +1 strength token.",
+    },
+    "Courtly Screenwriter": {
+        "secret": True,
+        "expansion": "Lion Knight",
+        "desc": "At the start of the showdown, secretly write down on a scrap of paper which survivors will live and who will deal the killing blow. During the aftermath, if your predictions were correct, raise the settlement's Survival Limit by 1.",
+    },
+    "Ageless Apprentice": {
+        "secret": True,
+        "expansion": "Lion Knight",
+        "desc": "When yu gain Hunt XP, you may decide not to gain it.<br/>When you <b>depart</b>, you may rotate up to 3 gear cards in your gear grid. This changes the location of their affinities and arrows. Otherwise, the gear functions normally.",
+    },
     "Beetle Strength": {
         "secret": True,
         "expansion": "Dung Beetle Knight",
@@ -980,6 +1031,7 @@ cursed_items = {
     "Real Plackart": {"ability": "King's Curse",},
     "Thunder Maul": {},
     "Twilight Sword": {"ability": "Twilight Sword"},
+    "Hideous Disguise": {"ability": "Hideous Disguise"},
 }
 
 items = {
@@ -1905,11 +1957,54 @@ items = {
         "expansion": "Dung Beetle Knight",
         "location": "Rare Gear",
     },
+    "Hideous Disguise": {
+        "expansion": "Lion Knight",
+        "location": "Rare Gear",
+    },
+    "Lion Knight Badge": {
+        "expansion": "Lion Knight",
+        "location": "Rare Gear",
+    },
+    "Lion Knight's Left Claw": {
+        "expansion": "Lion Knight",
+        "location": "Rare Gear",
+    },
+    "Lion Knight's Right claw": {
+        "expansion": "Lion Knight",
+        "location": "Rare Gear",
+    },
 
 }
 
 
 innovations = {
+    "Stoic Statue" : {
+        "consequences": ["Black Mask", "White Mask"],
+        "always_available": True,
+        "expansion": "Lion Knight",
+        "type": "other",
+        "endeavors": {
+            "Worship the monster": {"cost": 1, "type": "other"}
+        },
+    },
+    "Black Mask" : {
+        "consequences": ["White Mask"],
+        "expansion": "Lion Knight",
+        "type": "other",
+        "endeavors": {
+            "Visit the retinue": {"cost": 1, "type": "other"},
+            "Face the monster": {"cost": 2, "type": "other"},
+        },
+    },
+    "White Mask" : {
+        "consequences": ["Black Mask"],
+        "expansion": "Lion Knight",
+        "type": "other",
+        "endeavors": {
+            "Visit the retinue": {"cost": 1, "type": "other"},
+            "Leave the monster an offering": {"cost": 1, "type": "other"},
+        },
+    },
     "Subterranean Agriculture": {
         "expansion": "Dung Beetle Knight",
         "type": "science",
@@ -2228,7 +2323,7 @@ innovations = {
 # Monster assets
 
 quarries = {
-    "White Lion":           {"sort_order": 1, "tokens": ["LION","WHITE"]},
+    "White Lion":           {"sort_order": 1, "tokens": ["LION","WHITE","WHITE LION"]},
     "Gorm":                 {"sort_order": 2, "tokens": ["GORM"], "expansion": "Gorm"},
     "Screaming Antelope":   {"sort_order": 3, "tokens": ["ANTELOPE","SCREAMING"]},
     "Dung Beetle Knight":   {"sort_order": 4, "tokens": ["DUNG","BEETLE","DBK"], "expansion": "Dung Beetle Knight"},
@@ -2243,7 +2338,8 @@ quarries = {
 nemeses = {
     "Butcher":      {"sort_order": 15, "tokens": ["BUTCHER","BUTCHEE"]},
     "King's Man":   {"sort_order": 16, "tokens": ["MAN","KINGSMAN"]},
-    "The Hand":     {"sort_order": 17, "tokens": ["HAND"]},
+    "Lion Knight":  {"sort_order": 17, "tokens": ["LION KNIGHT"], "expansion": "Lion Knight"},
+    "The Hand":     {"sort_order": 18, "tokens": ["HAND"]},
     "Watcher":      {"sort_order": 30, "no_levels": True, "tokens": ["WATCHER"]},
 }
 
@@ -2303,4 +2399,5 @@ weapon_proficiencies = {
 expansions = {
     "Gorm": {"nickname": "gorm"},
     "Dung Beetle Knight": {"nickname": "dbk"},
+    "Lion Knight": {"nickname": "lk"},
 }

@@ -61,10 +61,14 @@ def kill_board(return_type=None, admin=False):
         categorized = False
         k_tokenized = kill.upper().split()
         for monster in monsters.keys():
-            for k_token in k_tokenized:
-                if k_token in monsters[monster]["tokens"]:
-                    categorized = True
-                    monsters[monster]["kills"] += 1
+            if kill.upper() in monsters[monster]["tokens"]:
+                categorized = True
+                monsters[monster]["kills"] += 1
+            if not categorized:
+                for k_token in k_tokenized:
+                    if k_token in monsters[monster]["tokens"]:
+                        categorized = True
+                        monsters[monster]["kills"] += 1
         if not categorized:
             others.append(kill)
             monsters["Other"]["kills"] += 1
