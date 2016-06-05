@@ -1,27 +1,26 @@
-# A Note on naming conventions
-All support modules, i.e. anything that will be imported by something else,
-should have a file extension. Examples are anything named with a .py or a 
-.txt.
+#			 A Note on naming conventions
+#	All support modules, i.e. anything that will be imported by something else,
+#	should have a file extension. Examples are anything named with a .py or a 
+#	 .txt.
 
-Anything that runs, e.g. a CGI or the 'init_script' script should NOT have
-any extension. 
+#	Anything that runs, e.g. a CGI or the 'init_script' script should NOT have
+#	any extension. 
 
-# Python dependencies (assumes bare metal):
 
-apt-get install python2.7
-apt-get install git
+# Start from bare metal on deb/ubuntu (do this in order):
+apt-get install python2.7 python-dev python-setuptools gcc python-imaging python-gridfs
+apt-get install git mongodb-server
+git clone ssh://toconnell@toconnell.info:222/~/git/kdm-manager
 apt-get install nginx
-apt-get install python-setuptools
-easy_install lockfile
-easy_install psutil
-easy_install pymongo
-apt-get install python-gridfs (on Ubuntu; gridfs comes with pymongo elsewhere)
-easy_install validate-email
-easy_install user-agents
-easy_install pydns
-easy_install pip
-pip install python-daemon
 
-# local file system
-mkdir /var/log/kdm-manager ; chown toconnell: /var/log/kdm-manager
-mkdir /var/run/kdm-manager ; chown toconnell: /var/run/kdm-manager
+# python dependencies
+easy_install python-daemon psutil lockfile pymongo pydns validate-email user-agents xlwt
+
+# finally
+ln -s /home/toconnell/kdm-manager/v1/init_script /etc/init.d/kdm-manager
+ln -s /home/toconnell/kdm-manager/v1/nginx/default kdm-manager_dev			# this makes kdm-manager the default webserver response
+/etc/init.d/kdm-manager start
+
+
+# running the init script for the first time should create the log and lockfile
+# directories. it should also start the server on the port in settings.cfg
