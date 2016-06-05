@@ -2337,7 +2337,7 @@ quarries = {
 
 nemeses = {
     "Butcher":      {"sort_order": 15, "tokens": ["BUTCHER","BUTCHEE"]},
-    "King's Man":   {"sort_order": 16, "tokens": ["KINGSMAN","KINGS"]},
+    "King's Man":   {"sort_order": 16, "tokens": ["KINGSMAN","KINGS", "KING'S"]},
     "Lion Knight":  {"sort_order": 17, "tokens": ["LK"], "expansion": "Lion Knight"},
     "The Hand":     {"sort_order": 18, "tokens": ["HAND"]},
     "Watcher":      {"sort_order": 30, "no_levels": True, "tokens": ["WATCHER"]},
