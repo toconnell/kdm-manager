@@ -2330,7 +2330,7 @@ quarries = {
     "Old Master":           {"sort_order": 5, "tokens": ["MASTER"], "expansion": "Dung Beetle Knight"},
     "Phoenix":              {"sort_order": 6, "tokens": ["PHOENIX","PHONIEX"]},
     "Beast Of Sorrow":      {"sort_order": 7, "no_levels": True, "tokens": ["SORROW","BEAST"]},
-    "Great Golden Cat":     {"sort_order": 8, "no_levels": True, "tokens": ["GOLDEN","CAT"]},
+    "Great Golden Cat":     {"sort_order": 8, "no_levels": True, "tokens": ["CAT"]},
     "Mad Steed":            {"sort_order": 9, "no_levels": True, "tokens": ["MAD","STEED"]},
     "Golden Eyed King":     {"sort_order": 10, "no_levels": True, "tokens": ["GOLDEN","EYED","KING"]},
 }
@@ -2338,7 +2338,7 @@ quarries = {
 nemeses = {
     "Butcher":      {"sort_order": 15, "tokens": ["BUTCHER","BUTCHEE"]},
     "King's Man":   {"sort_order": 16, "tokens": ["MAN","KINGSMAN"]},
-    "Lion Knight":  {"sort_order": 17, "tokens": ["LION KNIGHT"], "expansion": "Lion Knight"},
+    "Lion Knight":  {"sort_order": 17, "tokens": ["LK"], "expansion": "Lion Knight"},
     "The Hand":     {"sort_order": 18, "tokens": ["HAND"]},
     "Watcher":      {"sort_order": 30, "no_levels": True, "tokens": ["WATCHER"]},
 }

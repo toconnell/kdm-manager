@@ -6,12 +6,16 @@ should have a file extension. Examples are anything named with a .py or a
 Anything that runs, e.g. a CGI or the 'init_script' script should NOT have
 any extension. 
 
-# Python dependencies:
+# Python dependencies (assumes bare metal):
 
-aptitude install python-gridfs (on Ubuntu; gridfs comes with pymongo elsewhere)
+apt-get install python2.7
+apt-get install git
+apt-get install nginx
+apt-get install python-setuptools
 easy_install lockfile
 easy_install psutil
 easy_install pymongo
+apt-get install python-gridfs (on Ubuntu; gridfs comes with pymongo elsewhere)
 easy_install validate-email
 easy_install user-agents
 easy_install pydns
