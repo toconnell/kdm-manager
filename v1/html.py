@@ -1526,6 +1526,7 @@ class meta:
     views, etc. Use this for helpers/containers/administrivia/etc. """
 
     basic_http_header = "Content-type: text/html\n\n"
+    basic_file_header = "Content-Disposition: attachment; filename=%s\n"
     error_500 = Template('%s<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>%s</title></head><body><h1>500 - Internal Server Error</h1><hr/><p>$msg</p><p>Please use the information below to report the error:</p><hr/><p>%s</p>$exception' % (basic_http_header, settings.get("application","title"), datetime.now()))
     start_head = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<title>%s</title>\n<link rel="stylesheet" type="text/css" href="/style.css">\n' % settings.get("application","title")
     close_body = '\n </div><!-- container -->\n</body>\n</html>'

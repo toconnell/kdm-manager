@@ -660,7 +660,7 @@ if __name__ == "__main__":
 
     if options.initialize:
         print(" hostname: %s" % socket.gethostname())
-        if socket.gethostname() != "paula.local":
+        if socket.gethostname() not in ["paula.local", "mona"]:
             print("This isn't the dev machine!")
             sys.exit(1)
         manual_approve = raw_input('Initialize the project and remove all data? Type "YES" to proceed: ')

@@ -2323,7 +2323,7 @@ innovations = {
 # Monster assets
 
 quarries = {
-    "White Lion":           {"sort_order": 1, "tokens": ["LION","WHITE","WHITE LION"]},
+    "White Lion":           {"sort_order": 1, "tokens": ["LION","WHITE"]},
     "Gorm":                 {"sort_order": 2, "tokens": ["GORM"], "expansion": "Gorm"},
     "Screaming Antelope":   {"sort_order": 3, "tokens": ["ANTELOPE","SCREAMING"]},
     "Dung Beetle Knight":   {"sort_order": 4, "tokens": ["DUNG","BEETLE","DBK"], "expansion": "Dung Beetle Knight"},
@@ -2337,7 +2337,7 @@ quarries = {
 
 nemeses = {
     "Butcher":      {"sort_order": 15, "tokens": ["BUTCHER","BUTCHEE"]},
-    "King's Man":   {"sort_order": 16, "tokens": ["MAN","KINGSMAN"]},
+    "King's Man":   {"sort_order": 16, "tokens": ["KINGSMAN","KINGS", "KING'S"]},
     "Lion Knight":  {"sort_order": 17, "tokens": ["LK"], "expansion": "Lion Knight"},
     "The Hand":     {"sort_order": 18, "tokens": ["HAND"]},
     "Watcher":      {"sort_order": 30, "no_levels": True, "tokens": ["WATCHER"]},
