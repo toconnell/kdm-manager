@@ -120,7 +120,7 @@ def top_principles(return_type=None):
 def expansion_popularity_contest():
     """ Creates a dict of expansion use across all settlements. """
     exp_dict = {}
-    for expansion in game_assets.expansions.keys():
+    for expansion in sorted(game_assets.expansions.keys()):
         exp_dict[expansion] = mdb.settlements.find({"expansions": {"$in": [expansion]}}).count()
     output = ""
     for k, v in exp_dict.iteritems():
