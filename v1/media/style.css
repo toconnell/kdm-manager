@@ -141,7 +141,7 @@ div#info_box h2, button#survivor_campaign_asset {text-align: left; }
 
 .gradient_white {border-color: #aaa; background: linear-gradient(to left, #fff, #eee);}
 .gradient_silver { border-color: #666; background: linear-gradient(-90deg, #B5BFBA, #FaFDFa); }
-.gradient_blue { background: linear-gradient(-90deg, #BDEDFF, #CCFFFF);  }
+.gradient_blue { background: linear-gradient(-90deg, #D9E3FF, #F3F6FF);  }
 .grey {background-color: #CCC;}
 
 .tan    { border-color: #A97D5D; background-color: #F7DCB4; }
