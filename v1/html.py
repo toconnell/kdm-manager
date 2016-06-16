@@ -45,13 +45,13 @@ class panel:
     <div class="panel_block">
         <table class="panel_recent_user">
             <tr class="gradient_blue bold"><th colspan="3">$user_name ($u_id)</th></tr>
+            <tr><td>User Since:</td><td colspan="2">$user_created_on ($user_created_on_days days ago)</td></tr>
             <tr><td>Latest Activity:</td><td>$latest_activity</td><td>$latest_activity_mins m. ago: $latest_action</td></tr>
             <tr><td>Latest Sign-in:</td><td>$latest_sign_in</td><td>$latest_sign_in_mins m. ago</td></tr>
             <tr><td>Session Length:</td><td colspan="2">$session_length minutes</td></tr>
             <tr><td>User Agent:</td><td colspan="2">$ua</td></tr>
             <tr><td>Survivors:</td><td colspan="2">$survivor_count</td></tr>
             <tr><td>Settlements:</td><td colspan="2">$settlements</td></tr>
-            <tr><td>User Since:</td><td colspan="2">$user_created_on ($user_created_on_days days ago)</td></tr>
             <tr><td colspan="2"> </td>
              <td>
                 <form>
@@ -105,6 +105,7 @@ class dashboard:
     <hr/>
     \n""")
     motd = Template("""\n
+	<img class="desktop_only dashboard_bg" src="%s/tree_logo_shadow.png">
     <div class="dashboard_menu">
         <h2 class="clickable gradient_silver" onclick="showHide('system_div')"> <img class="dashboard_icon" src="%s/icons/system.png"/> System %s</h2>
         <div id="system_div" style="display: none;" class="dashboard_accordion gradient_silver">
@@ -118,7 +119,7 @@ class dashboard:
             <form method="POST" action="#">
             <input type="hidden" name="update_user_preferences" value="True"/>
                 $user_preferences
-            <button class="warn"> Update Preferences</button>
+            <button class="error"> Save/Update Preferences</button>
             </form>
         </div>
 
@@ -153,10 +154,10 @@ class dashboard:
             </form>
         </div>
         <hr class="desktop_only">
-        <form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><input type="hidden" name="login" value="$login"/><button class="warn change_view desktop_only">SIGN OUT</button>\n\t</form>
+        <form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><input type="hidden" name="login" value="$login"/><button class="gradient_white change_view desktop_only">SIGN OUT</button>\n\t</form>
         </div>
     </div>
-    """ % (settings.get("application", "STATIC_URL"), down_arrow_flash))
+    """ % (settings.get("application","STATIC_URL"), settings.get("application", "STATIC_URL"), down_arrow_flash))
     campaign_summary = Template("""\n\
     <div class="dashboard_menu">
         <h2 class="clickable gradient_purple" onclick="showHide('campaign_div')"> <img class="dashboard_icon" src="%s/icons/campaign.png"/> Campaigns %s </h2>
@@ -833,7 +834,7 @@ class settlement:
         <input type="hidden" name="expansions" value="None"/> <!-- Hack City! -->
             %s
         </p>
-        <br/><hr/>
+        <br/><br/><hr/>
         <button class="success">Create!</button>
         </form>
     </div>
@@ -844,14 +845,17 @@ class settlement:
             <input type="hidden" name="return_hunting_party" value="$settlement_id"/>
             <button id="return_hunting_party" class="bold yellow" >&#8629; Return Hunting Party</button>
         </form>
+        <hr />
     \n""")
     return_hunting_party = Template("""\n\
         <form method="POST">
             <input type="hidden" name="return_hunting_party" value="$settlement_id"/>
             <button id="return_hunting_party" class="bold gradient_orange" >&#8629; Return Hunting Party</button>
         </form>
+        <hr/>
     \n""")
     current_quarry_select = Template("""\n\
+    <br class="clear_both"/>
     <h3>Current Quarry:</h3>
     <form method="POST">
         <input type="hidden" name="modify" value="settlement"/>
@@ -861,9 +865,10 @@ class settlement:
             $options
         </select>
     </form>
+    <br class="clear_both mobile_only" />
     \n""")
     hunting_party_macros = Template("""\n\
-    <h3>Update Hunting Party Stats:</h3>
+    <h3>Manage Hunting Party:</h3>
     <div id="hunting_party_macro_container">
     <div class="hunting_party_macro" style="border-left: 0 none;">
         <form method="POST">
@@ -873,6 +878,15 @@ class settlement:
             Survival
             <button name="operation" value="increment">+1</button>
             <button name="operation" value="decrement">-1</button>
+        </form>
+    </div>
+    <div class="hunting_party_macro">
+        <form method="POST">
+            <input type="hidden" name="modify" value="settlement"/>
+            <input type="hidden" name="asset_id" value="$settlement_id"/>
+            <input type="hidden" name="hunting_party_operation" value="Brain Event Damage"/>
+            Brain Event Damage
+            <button name="operation" value="increment">+1</button>
         </form>
     </div>
     <div class="hunting_party_macro">
@@ -907,7 +921,6 @@ class settlement:
     </div>
     </div><!-- hunting party macro container -->
 
-    <hr/>
     \n""")
     storage_warning = Template(""" onclick="return confirm('Remove $item_name from Settlement Storage?');" """)
     storage_remove_button = Template("""\n\
@@ -925,7 +938,7 @@ class settlement:
 
     #   campaign view campaign summary
     campaign_summary_survivors_top = '<div id="campaign_summary_survivors">\n<h3 class="mobile_only">Survivors</h3>'
-    campaign_summary_survivors_bot = '</div><hr class="mobile_only"/>'
+    campaign_summary_survivors_bot = '<hr class="mobile_only"/></div> <!-- campaign_summary_survivors -->'
     export_button = Template("""\n\
     <form method="POST">
      <input type="hidden" name="export_campaign" value="$export_type"/>
@@ -1446,16 +1459,24 @@ class login:
     """ The HTML for form-based authentication goes here."""
     form = """\n\
     <div id="sign_in_container">
+        <img src="%s/tree_logo_shadow.png" class="sign_in"/>
         <h2 class="seo">KD:M Manager!</h2>
         <h1 class="seo">An interactive campaign manager for <a href="http://kingdomdeath.com/" target="top">Kingdom Death: <i>Monster</i></a>.</h1>
         <div id="sign_in_controls">
-        <img src="%s/logo_small.png" class="desktop_only sign_in"/>
             <form method="POST">
-            <input class="sign_in" type="email" name="login" placeholder="email"/ autofocus>
-            <input class="sign_in" type="password" name="password" placeholder="password"/>
-            <button class="sign_in gradient_green">Sign In or Register</button>
+            <input class="sign_in" type="email" name="login" placeholder="Email"/ autofocus>
+            <input class="sign_in" type="password" name="password" placeholder="Password"/>
+			<div id="sign_in_remember_me">
+			  <label class="sign_in" for="keep_me_signed_in">Stay Logged in:</label>
+			</div>
+			<div id="sign_in_checkbox">
+			  <input type="checkbox" class="sign_in" name="keep_me_signed_in" id="keep_me_signed_in">
+			</div>
+			<div id="sign_in_button">
+			  <button class="sign_in green">Sign In or Register</button>
+			</div>
             </form>
-            <br/>
+            <br class="mobile_only"/>
             <form method="POST">
             <input type="hidden" name="recover_password" value="True"/>
             <button class="gradient_black tiny_button">Forgot Password?</button>
@@ -1472,7 +1493,13 @@ class login:
             <input class="sign_in" type="email" name="login" value="$login"/>
             <input class="sign_in" type="password" name="password" placeholder="password" autofocus/>
             <input class="sign_in" type="password" name="password_again" placeholder="password (again)"/>
-            <button class="sign_in gradient_green">Register New User</button>
+			<div id="sign_in_remember_me">
+			  <label class="sign_in" for="keep_me_signed_in">Stay Logged in:</label>
+			</div>
+			<div id="sign_in_checkbox">
+			  <input type="checkbox" class="sign_in" name="keep_me_signed_in" id="keep_me_signed_in">
+			</div>
+            <button class="sign_in green">Register New User</button>
             </form>
         </div>
     </div> <!-- sign_in_container -->
@@ -1531,7 +1558,7 @@ class meta:
     start_head = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<title>%s</title>\n<link rel="stylesheet" type="text/css" href="/style.css">\n' % settings.get("application","title")
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
     saved_dialog = '\n    <div id="saved_dialog" class="success">Saved!</div>'
-    log_out_button = Template('\n\t<hr class="mobile_only"/><form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><input type="hidden" name="login" value="$login"/><button class="warn change_view mobile_only">SIGN OUT</button>\n\t</form>')
+    log_out_button = Template('\n\t<hr class="mobile_only"/><form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><input type="hidden" name="login" value="$login"/><button class="gradient_white change_view mobile_only">SIGN OUT</button>\n\t</form>')
     mobile_hr = '<hr class="mobile_only"/>'
     dashboard_alert = Template("""\n\
     <br/><br/><br/>
@@ -1568,7 +1595,7 @@ def authenticate_by_form(params):
 
     if "password_again" in params:
         if "login" in params and "password" in params:
-            create_new = admin.create_new_user(params["login"].value.strip().lower(), params["password"].value.strip(), params["password_again"].value.strip())
+            create_new = admin.create_new_user(params["login"].value.strip().lower(), params["password"].value.strip(), params["password_again"].value.strip(), params)
             if create_new == False:
                 err_msg = user_error_msg.safe_substitute(err_class="warn", err_msg="Passwords did not match! Please re-enter.")
             elif create_new is None:
@@ -1587,9 +1614,18 @@ def authenticate_by_form(params):
             output = login.new_user.safe_substitute(login=params["login"].value.strip().lower())
             output += err_msg
         elif auth == True:
+
             s = Session()
             session_id = s.new(params["login"].value.strip().lower())
             s.User.mark_usage("authenticated successfully")
+
+			# handle preserve sessions checkbox on the sign in view
+            if "keep_me_signed_in" in params:
+                if "preferences" not in s.User.user:
+                    s.User.user["preferences"] = {}
+                s.User.user["preferences"]["preserve_sessions"] = True
+                mdb.users.save(s.User.user)
+
             html, body = s.current_view_html()
             render(html, body_class=body, head=[set_cookie_js(session_id)])
     else:

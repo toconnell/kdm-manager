@@ -15,6 +15,7 @@ from validate_email import validate_email
 
 import assets
 import html
+import session
 from utils import email, mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes, ymd
 import world
 
@@ -59,7 +60,7 @@ def prune_sessions():
 #   administrative helper functions for user-land
 #
 
-def create_new_user(login, password, password_again):
+def create_new_user(login, password, password_again, params):
     """ Creates a new user. Returns False if the passwords don't match;
     returns None if the email address is bogus. Returns True and logs a user in
     if we create a new user successfully. """
@@ -82,11 +83,17 @@ def create_new_user(login, password, password_again):
         else:
             logger.debug("Skipping email validation...")
 
+        prefs = {}
+        logger.info(params)
+        if "keep_me_logged_in" in params:
+            prefs = {"preserve_sessions": True}
+
         # create the user and update mdb
         user_dict = {
             "created_on": datetime.now(),
             "login": login,
             "password": md5(password).hexdigest(),
+            "preferences": prefs,
         }
         try:
             mdb.users.insert(user_dict)
@@ -398,6 +405,7 @@ def tail(settlement_id, interval=5, last=20):
 class Panel:
     def __init__(self, admin_login):
         self.admin_login = admin_login
+        self.Session = session.Session()
         self.logger = get_logger()
 
     def get_recent_users(self):
@@ -440,8 +448,24 @@ class Panel:
 
 
         for user in recent_users:
-            User = assets.User(user_id=user["_id"], session_object={"_id": 0, "login": "ADMINISTRATOR"})
-            settlement_strings = ["&ensp; <b>%s</b> (LY:%s) - %s/%s" % (s["name"], s["lantern_year"], s["population"], s["death_count"]) for s in mdb.settlements.find({"created_by": User.user["_id"]}).sort("name")]
+            User = assets.User(user_id=user["_id"], session_object=self.Session)
+
+            # create settlement summaries
+            settlements = mdb.settlements.find({"created_by": User.user["_id"]}).sort("name")
+            settlement_strings = []
+            for s in settlements:
+                S = assets.Settlement(settlement_id=s["_id"], session_object=self.Session)
+                settlement_string = "\n\n<b>%s</b> LY:%s (%s) - %s/%s.<br/>\n&ensp;Players: %s<br/>\n&ensp;Expansions: %s" % (
+                    S.settlement["name"],
+                    S.settlement["lantern_year"],
+                    S.settlement["created_on"].strftime(ymd),
+                    S.settlement["population"],
+                    S.settlement["death_count"],
+                    ", ".join(S.get_players()),
+                    ", ".join(S.get_expansions()),
+                )
+                settlement_strings.append(settlement_string)
+
             output += html.panel.user_status_summary.safe_substitute(
                 user_name = User.user["login"],
                 u_id = User.user["_id"],

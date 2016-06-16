@@ -6,7 +6,14 @@
 #
 
 abilities_and_impairments = {
+	"Death Mehndi": {
+		"expansion": "Lion God",
+		"type": "curse",
+		"desc": "On a <b>Perfect hit</b>, gain 1d10 insanity. -4 to all brain trauma rolls.",
+		"max": 1,
+	},
     "Hideous Disguise": {
+		"expansion": "Lion Knight",
         "type": "curse",
         "desc": "At the start of the showdown, if you are fighting the Lion Knight, choose your Role card.",
         "max": 1,
@@ -510,6 +517,26 @@ abilities_and_impairments = {
 
 
 disorders = {
+	"Delicious": {
+		"expansion": "Lion God",
+		"flavor_text": "Predators of all shapes and sizes find your scent irresistible.",
+		"survivor_effect": "You are still considered a threat when you are knocked down (unless you use an effect that says otherwise).",
+	},
+	"Enfeebled": {
+		"expansion": "Lion God",
+		"flavor_text": "You are delicate flower, wilting in the darkness.",
+		"survivor_effect": "It takes one less bleeding token to kill you.",
+	},
+	"Stark Raving": {
+		"expansion": "Lion God",
+		"flavor_text": "Freedom awaits those pushed this far beyond the breaking point.",
+		"survivor_effect": "You are always <b>insane</b>, regardless of your insanity.",
+	},
+	"Tunnel Vision": {
+		"expansion": "Lion God",
+		"flavor_text": "If you're not killing something, you're wasting your time.",
+		"survivor_effect": 'When you spend <font class="kdm_font">a</font>, you may only activate weapons.',
+	},
     "Stage Fright": {
         "expansion": "Lion Knight",
         "flavor_text": "You hate being the center of attention.",
@@ -750,6 +777,27 @@ epithets = {
 
 
 fighting_arts = {
+	"Necromancer": {
+		"secret": True,
+		"expansion": "Lion God",
+		"desc": "When you <b>depart</b>, gain <b>+1</b> to all hit locations for each gear card in your grid with the symbol keyword.<br/>If you would roll on the severe injury table, roll on the <b>Worm Trauma</b> table on the other side of this card instead.<br/>When you die or forget this, the settlement gains the <b>Knowledge Worm</b> innovation.",
+	},
+	"Unrelenting": {
+		"expansion": "Lion God",
+		"desc": "If all of your attack rolls in an attack miss, you may spend 1 survival to re-roll all attack rolls.",
+	},
+	"Ruthless": {
+		"expansion": "Lion God",
+		"desc": "Whenever a survivor dies during the showdown, roll 1d10. On a 7+, gain a <b>Skull</b> basic resource.",
+	},
+	"Heroic": {
+		"expansion": "Lion God",
+		"desc": "Once per showdown, if you are standing adjacent to the monster and have 3+ survival, you may spend all of your survival for one automatic hit that inflicts a critical wound.",
+	},
+	"Burning Focus": {
+		"expansion": "Lion God",
+		"desc": "If you have 0 survival at the start of your act, gain 1 survival.",
+	},
     "Wardrobe Expert": {
         "expansion": "Lion Knight",
         "desc": "When you suffer a severe injury at a hit location, you may archive a gear worn at that location to ignore it and gain +1 survival.",
@@ -1017,6 +1065,7 @@ locations = {
 # keys out of your raw asset values. Fuck you, Poots: next time I'm using bson
 # object keys or some shit
 item_normalization_exceptions = {
+	("Arm Of The First Tree", "Arm of the First Tree"),
     ("Dbk Errant Badge", "DBK Errant Badge"),
     ("Finger Of God", "Finger of God"),
     ("Eye Of Cat", "Eye of Cat"),
@@ -1031,7 +1080,8 @@ cursed_items = {
     "Real Plackart": {"ability": "King's Curse",},
     "Thunder Maul": {},
     "Twilight Sword": {"ability": "Twilight Sword"},
-    "Hideous Disguise": {"ability": "Hideous Disguise"},
+    "Hideous Disguise": {"expansion": "Lion Knight", "ability": "Hideous Disguise"},
+	"Death Mehndi": {"expansion": "Lion God", "ability": "Death Mehndi"}
 }
 
 items = {
@@ -1601,46 +1651,6 @@ items = {
     "Dried Acanthus": {
         "location": "Organ Grinder",
     },
-    "Fairy Bottle": {
-        "attribs": ["item","fragile","other"],
-        "location": "Rare Gear",
-    },
-    "Scout's Tunic": {
-        "attribs": ["armor","set","leather"],
-        "location": "Rare Gear",
-    },
-    "Aya's Sword": {
-        "attribs": ["weapon","melee","sword"],
-        "location": "Rare Gear",
-    },
-    "Aya's Spear": {
-        "attribs": ["weapon","melee","spear"],
-        "location": "Rare Gear",
-    },
-    "Arm Of The First Tree": {
-        "attribs": ["weapon","melee","club"],
-        "location": "Rare Gear",
-    },
-    "Stone Arm": {
-        "attribs": ["item","stone","heavy"],
-        "location": "Rare Gear",
-    },
-    "Giant Stone Face": {
-        "attribs": ["weapon","melee","grand","heavy","two-handed","stone"],
-        "location": "Rare Gear",
-    },
-    "Petal Lantern": {
-        "attribs": ["item","lantern","other"],
-        "location": "Rare Gear",
-    },
-    "Piranha Helm": {
-        "attribs": ["armor","set","rawhide"],
-        "location": "Rare Gear",
-    },
-    "Cola Bottle Lantern": {
-        "attribs": ["item","fragile","other"],
-        "location": "Rare Gear",
-    },
     "Regal Gauntlet": {
         "location": "Rare Gear",
     },
@@ -1769,6 +1779,56 @@ items = {
     },
     "Cyclops Fly" : {
         "location": "Vermin",
+    },
+    "Fairy Bottle": {
+        "attribs": ["item","fragile","other"],
+        "location": "Rare Gear",
+		"expansion": "Beta Challenge Scenarios",
+    },
+    "Scout's Tunic": {
+        "attribs": ["armor","set","leather"],
+        "location": "Rare Gear",
+		"expansion": "Beta Challenge Scenarios",
+    },
+    "Aya's Sword": {
+        "attribs": ["weapon","melee","sword"],
+        "location": "Rare Gear",
+		"expansion": "Beta Challenge Scenarios",
+    },
+    "Aya's Spear": {
+        "attribs": ["weapon","melee","spear"],
+        "location": "Rare Gear",
+		"expansion": "Beta Challenge Scenarios",
+    },
+    "Arm of the First Tree": {
+        "attribs": ["weapon","melee","club"],
+        "location": "Rare Gear",
+		"expansion": "Beta Challenge Scenarios",
+    },
+    "Stone Arm": {
+        "attribs": ["item","stone","heavy"],
+        "location": "Rare Gear",
+		"expansion": "Beta Challenge Scenarios",
+    },
+    "Giant Stone Face": {
+        "attribs": ["weapon","melee","grand","heavy","two-handed","stone"],
+        "location": "Rare Gear",
+		"expansion": "Beta Challenge Scenarios",
+    },
+    "Petal Lantern": {
+        "attribs": ["item","lantern","other"],
+        "location": "Rare Gear",
+		"expansion": "Beta Challenge Scenarios",
+    },
+    "Piranha Helm": {
+        "attribs": ["armor","set","rawhide"],
+        "location": "Rare Gear",
+		"expansion": "Beta Challenge Scenarios",
+    },
+    "Cola Bottle Lantern": {
+        "attribs": ["item","fragile","other"],
+        "location": "Rare Gear",
+		"expansion": "Beta Challenge Scenarios",
     },
     "Mammoth Hand": {
         "expansion": "Gorm",
@@ -1973,11 +2033,77 @@ items = {
         "expansion": "Lion Knight",
         "location": "Rare Gear",
     },
-
+	"Ancient Lion Claws": {
+		"expansion": "Lion God",
+		"location": "Rare Gear",
+	},
+	"Golden Plate": {
+		"expansion": "Lion God",
+		"location": "Rare Gear",
+	},
+	"Lion God Statue": {
+		"expansion": "Lion God",
+		"location": "Rare Gear",
+	},
+	"Bone Witch Mehndi": {
+		"expansion": "Lion God",
+		"location": "Rare Gear",
+	},
+	"Butcher's Blood": {
+		"expansion": "Lion God",
+		"location": "Rare Gear",
+	},
+	"Glyph of Solitude": {
+		"expansion": "Lion God",
+		"location": "Rare Gear",
+	},
+	"Lantern Mehndi": {
+		"expansion": "Lion God",
+		"location": "Rare Gear",
+	},
+	"Death Mehndi": {
+		"expansion": "Lion God",
+		"location": "Rare Gear",
+	},
+	"Necromancer's Eye": {
+		"expansion": "Lion God",
+		"location": "Rare Gear",
+	},
+    "Canopic Jar": {
+        "expansion": "Lion God",
+        "location": "Strange Resources",
+        "resource_family": ["organ","scrap"],
+    },
+    "Old Blue Box": {
+        "expansion": "Lion God",
+        "location": "Strange Resources",
+        "resource_family": ["scrap"],
+    },
+    "Sarcophagus": {
+        "expansion": "Lion God",
+        "location": "Strange Resources",
+        "resource_family": ["scrap"],
+    },
+    "Silver urn": {
+        "expansion": "Lion God",
+        "location": "Strange Resources",
+        "resource_family": ["bone","scrap"],
+    },
+    "Triptych": {
+        "expansion": "Lion God",
+        "location": "Strange Resources",
+        "resource_family": ["hide","scrap"],
+    },
 }
 
 
 innovations = {
+	"The Knowledge Worm" :{
+		"type": "other",
+		"always_available": True,
+		"expansion": "Lion God",
+		"settlement_buff": 'At the start of each settlement phase, add 1 scrap to settlement storage.<br/><b>Departing Survivors</b> gain +3 survival and +3 insanity. If any of those survivors have 10+ insanity, <font class="kdm_font">g</font> <b>A Gracious Host</b>.',
+	},
     "Stoic Statue" : {
         "consequences": ["Black Mask", "White Mask"],
         "always_available": True,
@@ -2329,10 +2455,11 @@ quarries = {
     "Dung Beetle Knight":   {"sort_order": 4, "tokens": ["DUNG","BEETLE","DBK"], "expansion": "Dung Beetle Knight"},
     "Old Master":           {"sort_order": 5, "tokens": ["MASTER"], "expansion": "Dung Beetle Knight"},
     "Phoenix":              {"sort_order": 6, "tokens": ["PHOENIX","PHONIEX"]},
-    "Beast Of Sorrow":      {"sort_order": 7, "no_levels": True, "tokens": ["SORROW","BEAST"]},
-    "Great Golden Cat":     {"sort_order": 8, "no_levels": True, "tokens": ["CAT"]},
-    "Mad Steed":            {"sort_order": 9, "no_levels": True, "tokens": ["MAD","STEED"]},
-    "Golden Eyed King":     {"sort_order": 10, "no_levels": True, "tokens": ["GOLDEN","EYED","KING"]},
+	"Lion God":				{"sort_order": 7, "tokens": ["LIONGOD","GOD"], "expansion": "Lion God"},
+    "Beast Of Sorrow":      {"sort_order": 8, "no_levels": True, "tokens": ["SORROW","BEAST"]},
+    "Great Golden Cat":     {"sort_order": 9, "no_levels": True, "tokens": ["CAT"]},
+    "Mad Steed":            {"sort_order": 10, "no_levels": True, "tokens": ["MAD","STEED"]},
+    "Golden Eyed King":     {"sort_order": 11, "no_levels": True, "tokens": ["GOLDEN","EYED","KING"]},
 }
 
 nemeses = {
@@ -2397,7 +2524,33 @@ weapon_proficiencies = {
 }
 
 expansions = {
-    "Gorm": {"nickname": "gorm"},
-    "Dung Beetle Knight": {"nickname": "dbk"},
-    "Lion Knight": {"nickname": "lk"},
+	"Beta Challenge Scenarios": {"nickname": "beta_challenge_scenarios"},
+    "Gorm": {
+		"nickname": "gorm",
+		"timeline_add": [
+			{"ly": 1, "type": "story_event", "name": "The Approaching Storm"},
+			{"ly": 2, "type": "settlement_event", "name": "Gorm Climate"},
+		],
+	},
+    "Dung Beetle Knight": {
+		"nickname": "dbk",
+		"timeline_add": [
+			{"ly": 8, "type": "story_event", "name": "Rumbling in the Dark"},
+		],
+	},
+    "Lion Knight": {
+		"nickname": "lk",
+		"timeline_add": [
+			{"ly": 6, "type": "story_event", "name": "An Uninvited Guest"},
+			{"ly": 8, "type": "story_event", "name": "Places, Everyone!"},
+			{"ly": 12, "type": "story_event", "name": "Places, Everyone!"},
+			{"ly": 16, "type": "story_event", "name": "Places, Everyone!"},
+		],
+	},
+	"Lion God": {
+        "nickname": "lg",
+        "timeline_add": [
+            {"ly": 13, "type": "story_event", "name": "The Silver City"},
+        ],
+    },
 }

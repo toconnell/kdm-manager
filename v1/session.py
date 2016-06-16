@@ -425,6 +425,7 @@ class Session:
             elif self.session["current_view"] == "panel":
                 if self.User.is_admin():
                     P = admin.Panel(self.User.user["login"])
+                    body = "helvetica"
                     output += P.render_html()
                 else:
                     output += "Nope"

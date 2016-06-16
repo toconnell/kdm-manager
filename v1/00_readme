@@ -1,11 +1,6 @@
-#			 A Note on naming conventions
-#	All support modules, i.e. anything that will be imported by something else,
-#	should have a file extension. Examples are anything named with a .py or a 
-#	 .txt.
-
-#	Anything that runs, e.g. a CGI or the 'init_script' script should NOT have
-#	any extension. 
-
+            #                                   #
+            #   INSTALLATION and INITIAL SETUP  #
+            #                                   #
 
 # Start from bare metal on deb/ubuntu (do this in order):
 apt-get install python2.7 python-dev python-setuptools gcc python-imaging python-gridfs
@@ -16,11 +11,15 @@ apt-get install nginx
 # python dependencies
 easy_install python-daemon psutil lockfile pymongo pydns validate-email user-agents xlwt
 
-# finally
+# finally, as root:
 ln -s /home/toconnell/kdm-manager/v1/init_script /etc/init.d/kdm-manager
+update-rc.d -f kdm-manager defaults
 ln -s /home/toconnell/kdm-manager/v1/nginx/default kdm-manager_dev			# this makes kdm-manager the default webserver response
 /etc/init.d/kdm-manager start
 
-
 # running the init script for the first time should create the log and lockfile
 # directories. it should also start the server on the port in settings.cfg
+#
+# following that, the manager should start on reboot
+
+

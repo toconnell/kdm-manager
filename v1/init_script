@@ -18,6 +18,7 @@ import sys
 import time
 
 
+
 #   get settings before we do anything else
 try:
     config_file_path = "/home/toconnell/kdm-manager/v1/settings.cfg"
@@ -52,9 +53,20 @@ def toggle_server():
 
     i.e. execute this function twice in a row for a restart. """
 
-    sys.stderr.write(" Starting kdm-manager application server...\n")
+    pid_file_path = settings.get("server","pid_file")
+    if os.path.isfile(pid_file_path):
+        sys.stderr.write(" Stopping kdm-manager...\n")
+    else:
+        sys.stderr.write(" Starting kdm-manager...\n")
 
-    os.setuid(int(settings.get("server", "uid")))
+    os.setuid(settings.getint("server", "uid"))
+
+    #   works around egg cache issues with funky easy_install setups
+    egg_cache = settings.get("server","egg_cache")
+    if not os.path.isdir(egg_cache):
+        os.mkdir(egg_cache)
+        sys.stdout.write("Created egg cache dir '%s'\n" % egg_cache)
+    os.environ['PYTHON_EGG_CACHE'] = egg_cache
 
     server_cwd = settings.get("server", "cwd")
     os.chdir(server_cwd)

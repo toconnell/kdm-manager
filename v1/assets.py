@@ -208,7 +208,7 @@ class User:
         if return_as == "asset_links":
             output = ""
             for settlement in self.settlements:
-                S = assets.Settlement(settlement_id=settlement["_id"], session_object=self.Session)
+                S = Settlement(settlement_id=settlement["_id"], session_object=self.Session)
                 output += S.asset_link()
             return output
 
@@ -256,7 +256,7 @@ class User:
 
         game_dict = {}
         for settlement_id in game_list:
-            S = assets.Settlement(settlement_id=settlement_id, session_object=self.Session)
+            S = Settlement(settlement_id=settlement_id, session_object=self.Session)
             if S.settlement is not None:
                 if not "abandoned" in S.settlement.keys():
                     game_dict[settlement_id] = S.settlement["name"]
@@ -266,7 +266,7 @@ class User:
 
         for settlement_tuple in sorted_game_tuples:
             settlement_id = settlement_tuple[0]
-            S = assets.Settlement(settlement_id=settlement_id, session_object=self.Session)
+            S = Settlement(settlement_id=settlement_id, session_object=self.Session)
             if S.settlement is not None:
                 output += S.asset_link(context="dashboard_campaign_list")
         return output
@@ -484,7 +484,7 @@ class Survivor:
             parent_birth_years = [1]
             for p in ["father","mother"]:
                 if p in self.survivor.keys():
-                    P = assets.Survivor(survivor_id=self.survivor[p], session_object=self.Session)
+                    P = Survivor(survivor_id=self.survivor[p], session_object=self.Session)
                     if not "born_in_ly" in P.survivor.keys():
                         self.logger.warn("%s has no 'born_in_ly' value!" % P.get_name_and_id())
                     else:
@@ -876,6 +876,24 @@ class Survivor:
         mdb.survivors.save(self.survivor)
 
 
+    def brain_damage(self, dmg=1):
+        """ Damages the survivor's brain, removing insanity or toggling the
+        brain box "on" as appropriate. """
+
+        ins = int(self.survivor["Insanity"])
+
+        if ins > 0:
+            self.survivor["Insanity"] = int(self.survivor["Insanity"]) - dmg
+        elif ins <= 0 and "brain_damage_light" in self.survivor.keys():
+            self.logger.debug("%s would suffer Brain Trauma." % self)
+        elif ins <= 0 and not "brain_damage_light" in self.survivor.keys():
+            self.survivor["brain_damage_light"] = "checked"
+        else:
+            self.logger.exception("Something bad happened!")
+
+        self.logger.debug("Inflicted brain damage on %s successfully!" % self)
+
+
     def add_game_asset(self, asset_type, asset_key, asset_desc=None):
         """ Our generic function for adding a game_asset to a survivor. Some biz
         logic/game rules happen here.
@@ -1170,7 +1188,7 @@ class Survivor:
 
 
     def get_parents(self, return_type=None):
-        """ Uses assets.Settlement.get_ancestors() sort of like the new Survivor
+        """ Uses Settlement.get_ancestors() sort of like the new Survivor
         creation screen to allow parent changes. """
 
         parents = []
@@ -1183,7 +1201,7 @@ class Survivor:
             for role in [("father", "M"), ("mother", "F")]:
                 output += html.survivor.change_ancestor_select_top.safe_substitute(parent_role=role[0], pretty_role=role[0].capitalize())
                 for s in self.Settlement.get_survivors():
-                    S = assets.Survivor(survivor_id=s["_id"], session_object=self.Session)
+                    S = Survivor(survivor_id=s["_id"], session_object=self.Session)
                     if S.get_sex() == role[1]:
                         selected = ""
                         if S.survivor["_id"] in parents:
@@ -1212,7 +1230,7 @@ class Survivor:
                         other_parent = survivor_parents[0]
                     if other_parent is not None:
                         try:
-                            O = assets.Survivor(survivor_id=other_parent, session_object=self.Session)
+                            O = Survivor(survivor_id=other_parent, session_object=self.Session)
                             children.add("%s (with %s)" % (s["name"], O.survivor["name"]))
                             children_raw.append(s)
                         except:
@@ -1507,7 +1525,7 @@ class Survivor:
             attribs = []
             if "dead" in include:
                 if "dead" in self.survivor.keys():
-                    button_class = "dark_green"
+                    button_class = "grey"
                     attribs.append("Dead")
 
             if "retired" in include:
@@ -1784,19 +1802,23 @@ class Settlement:
             self.settlement["expansions"] = []
 
         if e_key in self.settlement["expansions"]:
+            # first purge expansion events from the timeline
+            expansion_dict = game_assets.expansions[e_key]
+            if "timeline_add" in expansion_dict.keys():
+                for e in expansion_dict["timeline_add"]:
+                    if e["ly"] >= self.settlement["lantern_year"]:
+                        self.update_timeline(rm_event = (e["ly"], e["name"]))
+
             self.settlement["expansions"].remove(e_key)
-            self.log_event("Disabled '%s' expansion!" % (e_key.replace("_"," ")))
+            self.log_event("'%s' expansion is now disabled!" % (e_key.replace("_"," ")))
             self.logger.debug("Removed '%s' expansion from %s" % (e_key, self))
         else:
-            self.add_expansion(e_key, new_settlement=False)
+            self.add_expansion(e_key)
 
 
-    def add_expansion(self, e_key, new_settlement=True):
+    def add_expansion(self, e_key):
         """ Adds an expansion key ('e_key' kwarg) to a settlement's mdb info. If
         the mdb object doesn't have the 'expansions' key, this adds it.
-
-        Use the 'new_settlement' kwarg to determine whether or not to apply
-        unique expansion content effects.
         """
 
         if not "expansions" in self.settlement.keys():
@@ -1804,19 +1826,23 @@ class Settlement:
 
         self.settlement["expansions"].append(e_key)
 
-        if e_key == "Gorm" and new_settlement:
-            self.update_timeline(add_event = (1, "story_event", "The Approaching Storm"))
-            self.update_timeline(add_event = (2, "settlement_event", "Gorm Climate"))
-        elif e_key == "Dung Beetle Knight" and new_settlement:
-            self.update_timeline(add_event = (8, "story_event", "Rumbling in the Dark"))
-        elif e_key == "Lion Knight" and new_settlement:
-            self.update_timeline(add_event = (6, "story_event", "An Uninvited Guest"))
-            self.update_timeline(add_event = (8, "story_event", "Places, Everyone!"))
-            self.update_timeline(add_event = (12, "story_event", "Places, Everyone!"))
-            self.update_timeline(add_event = (16, "story_event", "Places, Everyone!"))
+        expansion_dict = game_assets.expansions[e_key]
+
+        if "timeline_add" in expansion_dict.keys():
+            for e in expansion_dict["timeline_add"]:
+                self.update_timeline(add_event = (e["ly"], e["type"], e["name"]))
 
         self.logger.debug("Added '%s' expansion to %s" % (e_key, self))
-        self.log_event("'%s' expansion is now active!" % e_key)
+        self.log_event("'%s' expansion is now enabled!" % e_key)
+
+
+    def get_expansions(self):
+        """ Returns expansions as a list. """
+
+        if "expansions" in self.settlement.keys():
+            return self.settlement["expansions"]
+        else:
+            return []
 
 
     def update_current_quarry(self, quarry_string):
@@ -1838,11 +1864,11 @@ class Settlement:
         self.add_game_asset("storage", "Founding Stone", 4)
         self.add_game_asset("storage", "Cloth", 4)
         for i in range(2):
-            m = assets.Survivor(params=None, session_object=self.Session, suppress_event_logging=True)
+            m = Survivor(params=None, session_object=self.Session, suppress_event_logging=True)
             m.set_attrs({"Waist": 1})
             m.join_hunting_party()
         for i in range(2):
-            f = assets.Survivor(params=None, session_object=self.Session, suppress_event_logging=True)
+            f = Survivor(params=None, session_object=self.Session, suppress_event_logging=True)
             f.set_attrs({"sex": "F", "Waist": 1})
             f.join_hunting_party()
         self.update_current_quarry("White Lion (First Story)")
@@ -2036,7 +2062,7 @@ class Settlement:
             male_parent = False
             female_parent = False
             for s in self.get_survivors():
-                S = assets.Survivor(survivor_id=s["_id"], session_object=self.Session)
+                S = Survivor(survivor_id=s["_id"], session_object=self.Session)
                 if S.get_sex() == "M" and "dead" not in S.survivor.keys():
                     male_parent = True
                 elif S.get_sex() == "F" and "dead" not in S.survivor.keys():
@@ -2051,7 +2077,7 @@ class Settlement:
             for role in [("father", "M"), ("mother", "F")]:
                 output += html.survivor.add_ancestor_select_top.safe_substitute(parent_role=role[0], pretty_role=role[0].capitalize())
                 for s in self.get_survivors():
-                    S = assets.Survivor(survivor_id=s["_id"], session_object=self.Session)
+                    S = Survivor(survivor_id=s["_id"], session_object=self.Session)
                     if S.get_sex() == role[1] and "dead" not in S.survivor.keys():
                         output += html.survivor.add_ancestor_select_row.safe_substitute(parent_id=S.survivor["_id"], parent_name=S.survivor["name"])
                 output += html.survivor.add_ancestor_select_bot
@@ -2236,7 +2262,7 @@ class Settlement:
             output = html.settlement.genealogy_headline.safe_substitute(value="Founders")
             sorted_survivor_list = mdb.survivors.find({"_id": {"$in": list(genealogy["founders"])}}).sort("created_on")
             for s in sorted_survivor_list:
-                S = assets.Survivor(survivor_id=s["_id"], session_object=self.Session)
+                S = Survivor(survivor_id=s["_id"], session_object=self.Session)
                 output += survivor_to_span(S, display="block")
             output += html.settlement.genealogy_headline.safe_substitute(value="Undetermined Lineage")
             sorted_survivor_list = mdb.survivors.find({"_id": {"$in": list(genealogy["no_family"])}}).sort("created_on")
@@ -2628,7 +2654,7 @@ class Settlement:
         if return_type == "html":
             output = ""
             for k in buffs.keys():
-                output += '<p><b>%s:</b> %s</p>\n' % (k, buffs[k])
+                output += '<p><i>%s:</i> %s</p>\n' % (k, buffs[k])
             return output
 
         return buffs
@@ -2741,7 +2767,7 @@ class Settlement:
         if self.User is not None:
             user_login = self.User.user["login"]
         elif self.User is None and user_id is not None:
-            self.User = assets.User(user_id=user_id)
+            self.User = User(user_id=user_id)
             user_login = self.User.user["login"]
         else:
             self.User = None
@@ -2763,7 +2789,7 @@ class Settlement:
         if return_type == "html_buttons":
             output = ""
             for survivor in survivors:
-                S = assets.Survivor(survivor_id=survivor["_id"])
+                S = Survivor(survivor_id=survivor["_id"])
                 output += S.asset_link()
             return output
 
@@ -2795,7 +2821,7 @@ class Settlement:
             available = []
             for survivor in survivors:
 
-                S = assets.Survivor(survivor_id=survivor["_id"], session_object=self.Session)
+                S = Survivor(survivor_id=survivor["_id"], session_object=self.Session)
                 annotation = ""
                 user_owns_survivor = False
                 disabled = "disabled"
@@ -2923,10 +2949,10 @@ class Settlement:
                 elif group["name"] == "Hunting Party" and group["survivors"] != [] and current_user_is_settlement_creator:
                     # settlement admin_controls; only show these if we've got
                     #   survivors and the current user is the admin
-                    if self.User.get_preference("confirm_on_return"):
-                        output += html.settlement.return_hunting_party_with_confirmation.safe_substitute(settlement_id=self.settlement["_id"])
-                    else:
-                        output += html.settlement.return_hunting_party.safe_substitute(settlement_id=self.settlement["_id"])
+
+                    output += html.settlement.hunting_party_macros.safe_substitute(settlement_id=self.settlement["_id"])
+
+                    # current quarry controls
                     quarry_options = []
                     for q in self.get_game_asset("defeated_monsters", return_type="options"):
                         if "current_quarry" in self.settlement.keys() and self.settlement["current_quarry"] == q:
@@ -2934,7 +2960,12 @@ class Settlement:
                         else:
                             quarry_options.append("<option>%s</option>" % q)
                     output += html.settlement.current_quarry_select.safe_substitute(options=quarry_options, settlement_id=self.settlement["_id"])
-                    output += html.settlement.hunting_party_macros.safe_substitute(settlement_id=self.settlement["_id"])
+
+                    # finally, controls to return the hunting party
+                    if self.User.get_preference("confirm_on_return"):
+                        output += html.settlement.return_hunting_party_with_confirmation.safe_substitute(settlement_id=self.settlement["_id"])
+                    else:
+                        output += html.settlement.return_hunting_party.safe_substitute(settlement_id=self.settlement["_id"])
 
             return output + html.settlement.campaign_summary_survivors_bot
 
@@ -2961,7 +2992,7 @@ class Settlement:
             self.update_timeline(add_event=(self.settlement["lantern_year"], "quarry_event", quarry_key))
 
         for survivor in self.get_survivors("hunting_party"):
-            S = assets.Survivor(survivor_id=survivor["_id"], session_object=self.Session)
+            S = Survivor(survivor_id=survivor["_id"], session_object=self.Session)
             returning_survivor_id_list.append(S.survivor["_id"])
             if "dead" not in S.survivor.keys():
                 returning_survivor_name_list.append(S.survivor["name"])
@@ -2993,22 +3024,25 @@ class Settlement:
         self.logger.debug("Hunting party operation by %s: %s %s..." % (self.User.user["login"], target_action, target_attrib))
 
         for s in self.get_survivors("hunting_party"):
-            if target_action == "increment":
-                s[target_attrib] = int(s[target_attrib]) + 1
+            S = Survivor(survivor_id=s["_id"], session_object=self.Session)
+            if target_action == "increment" and target_attrib == "Brain Event Damage":
+                S.brain_damage()
+            elif target_action == "increment":
+                S.survivor[target_attrib] = int(s[target_attrib]) + 1
             elif target_action == "decrement":
-                s[target_attrib] = int(s[target_attrib]) - 1
-            self.logger.debug("%s %sed Survivor '%s' %s by 1" % (self.User.user["login"], target_action, s["name"], target_attrib))
+                S.survivor[target_attrib] = int(s[target_attrib]) - 1
+            self.logger.debug("%s %sed %s %s by 1" % (self.User.user["login"], target_action, S, target_attrib))
 
             # enforce settlement survival limit/min
             if target_attrib == "survival":
-                if s[target_attrib] > int(self.settlement["survival_limit"]):
-                    s[target_attrib] = self.settlement["survival_limit"]
+                if S.survivor[target_attrib] > int(self.settlement["survival_limit"]):
+                    S.survivor[target_attrib] = self.settlement["survival_limit"]
 
             # enforce a minimum of zero for all attribs
-            if s[target_attrib] < 0:
-                s[target_attrib] = 0
+            if target_attrib != "Brain Event Damage" and S.survivor[target_attrib] < 0:
+                S.survivor[target_attrib] = 0
 
-            mdb.survivors.save(s)
+            mdb.survivors.save(S.survivor)
 
     def get_recently_added_items(self):
         """ Returns the three items most recently appended to storage. """
