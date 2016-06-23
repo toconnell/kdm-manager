@@ -2,6 +2,7 @@
 
 #   standard
 from ConfigParser import SafeConfigParser
+from dateutil.parser import parse as dateutil_parse
 import email
 from email.header import Header as email_Header
 from email.mime.multipart import MIMEMultipart
@@ -162,11 +163,13 @@ class mailSession:
         self.logger.debug("Email sent successfully!")
 
 
+def get_latest_posts():
+    response = urlopen('https://www.googleapis.com/blogger/v3/blogs/3322385743551419703/posts?key=AIzaSyBAms6po9Dc82iTeRzDXMYI-bw81ufIu-0').read()
+    return json.loads(response)
 
 def get_latest_change_log():
     """ Gets the latest post to the blog. """
-    response = urlopen('https://www.googleapis.com/blogger/v3/blogs/3322385743551419703/posts?key=AIzaSyBAms6po9Dc82iTeRzDXMYI-bw81ufIu-0').read()
-    posts = json.loads(response)
+    posts = get_latest_posts()
     if "items" in posts.keys():
         for post in posts["items"]:
             if "Change Logs" in post["labels"]:
@@ -187,6 +190,20 @@ def get_latest_change_log():
             'id': None,
             'selfLink': None,
         }
+
+def get_latest_update_string():
+    """ Returns a summary string about the latest update. """
+    posts = get_latest_posts()
+    if "items" in posts.keys():
+        try:
+            for post in posts["items"]:
+                if "Change Logs" in post["labels"]:
+                    d = dateutil_parse(post["published"])
+                    return "Version %s released on %s, %s." % (settings.get("application","version"), d.strftime("%A"), d.strftime(ymd))
+        except Exception as e:
+            return e
+    else:
+        return None
 
 
 if __name__ == "__main__":

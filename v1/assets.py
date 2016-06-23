@@ -51,6 +51,10 @@ class User:
         self.preference_keys = [t[0] for t in settings.items("users")]
 
 
+    def __repr__(self):
+        return self.get_name_and_id()
+
+
     def is_admin(self):
         """ Returns True if the user is an admin, False if they are not. """
 
@@ -140,6 +144,8 @@ class User:
         of export: first we get the user info and the user's settlements and
         settlement events, then we get his survivors in a separate bit of logic.
         The last thing we do is get his GridFS stuff, e.g. avatars."""
+
+        self.logger.debug("Beginning '%s' dump for %s" % (dump_type, self))
 
         assets_dict = {
             "user": self.user,
@@ -351,7 +357,10 @@ class User:
             recent_sessions = mdb.users.find({"latest_activity": {"$gte": recent_session_cutoff}}).count(),
             live_survivors = mdb.survivors.find({"dead": {"$exists": False}}).count(),
             latest_fatality = world.latest_fatality("html"),
+            latest_kill = world.latest_kill("html"),
             top_principles = world.top_principles("html_ul"),
+            avg_ly = world.get_average("lantern_year"),
+            avg_lost_settlements = world.get_average("lost_settlements"),
             avg_pop = world.get_average("population"),
             avg_death = world.get_average("death_count"),
             avg_survival_limit = world.get_average("survival_limit"),
@@ -825,6 +834,9 @@ class Survivor:
                 return '<p class="subhead_p_block">%s</p>' % ", ".join(styled_epithets)
 
         if return_type == "html_remove":
+            output = ""
+            if self.survivor["epithets"] == []:
+                return output
             output = '<select name="remove_epithet" onchange="this.form.submit()">'
             output += '<option selected disabled hidden value="">Remove Epithet</option>'
             for epithet in self.survivor["epithets"]:
@@ -924,7 +936,6 @@ class Survivor:
                         if "expansions" not in self.Settlement.settlement.keys():
                             disorder_deck.remove(disorder)
                         elif "expansions" in self.Settlement.settlement.keys():
-                            self.logger.debug(Disorders.get_asset(disorder)["expansion"])
                             if Disorders.get_asset(disorder)["expansion"] not in self.Settlement.settlement["expansions"]:
                                 disorder_deck.remove(disorder)
                 self.survivor["disorders"].append(random.choice(disorder_deck))
@@ -1617,7 +1628,7 @@ class Survivor:
             survivor_id = self.survivor["_id"],
             name = self.survivor["name"],
             add_epithets = Epithets.render_as_html_dropdown(exclude=self.survivor["epithets"]),
-            rm_epithets =self.get_epithets("html_remove"),
+            rm_epithets = self.get_epithets("html_remove"),
             epithets = self.get_epithets("html_formatted"),
             sex = self.get_sex(),
             survival = survivor_survival_points,
@@ -2290,6 +2301,9 @@ class Settlement:
         self.settlement["storage"] = storage
         mdb.settlements.save(self.settlement)
 
+        if self.settlement["storage"] == []:
+            return ""
+
         # Now handle our normalization exceptions, so they don't get mix-cased
         # incorrectly/automatically
         for normalization_exception in game_assets.item_normalization_exceptions:
@@ -2343,7 +2357,7 @@ class Settlement:
                     else:
                         custom_items[item_key] += 1
 
-            output = ""
+            output = "<hr />\n\t<p>\nTap an item to remove it once:\n\t</p>\n<hr />"
             for item_dict in [gear, resources]:
                 for location in sorted(item_dict.keys()):
                     for item_key in sorted(item_dict[location].keys()):

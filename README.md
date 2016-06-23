@@ -9,7 +9,7 @@ git clone ssh://toconnell@toconnell.info:222/~/git/kdm-manager
 apt-get install nginx
 
 # python dependencies
-easy_install python-daemon psutil lockfile pymongo pydns validate-email user-agents xlwt
+easy_install python-dateutil python-daemon psutil lockfile pymongo pydns validate-email user-agents xlwt
 
 # finally, as root:
 ln -s /home/toconnell/kdm-manager/v1/init_script /etc/init.d/kdm-manager

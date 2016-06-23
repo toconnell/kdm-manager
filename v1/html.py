@@ -11,7 +11,7 @@ import sys
 import admin
 import game_assets
 from session import Session
-from utils import load_settings, mdb, get_logger
+from utils import load_settings, mdb, get_logger, get_latest_update_string
 
 settings = load_settings()
 logger = get_logger()
@@ -127,10 +127,10 @@ class dashboard:
 
         <div class="dashboard_preferences">
             <h3>Export User Data</h3>
-            <form method="POST" action="#">
+<!--            <form method="POST" action="#">
                 <input type="hidden" name="export_user_data" value="json">
                 <button class="silver">JSON</button>
-            </form>
+            </form> -->
             <form method="POST" action="#">
                 <input type="hidden" name="export_user_data" value="dict">
                 <button class="silver">Python Dictionary</button>
@@ -199,13 +199,17 @@ class dashboard:
         <h2 class="clickable gradient_blue" onclick="showHide('world_div')"> <img class="dashboard_icon" src="%s/icons/world.png"/> World %s</h2>
         <div id="world_div" style="display: none;" class="dashboard_accordion gradient_blue">
         <p>$total_users users are registered; $recent_sessions users have managed campaigns in the last 12 hours.</p><hr/>
+        <p>$active_settlements settlements are holding fast; $abandoned_settlements settlements have been abandoned.</p>
+        <p>$live_survivors survivors are alive and fighting; $dead_survivors have perished.</p>
+        <hr/>
         <p>Latest hunt activity:</p>
         <ul>
             <li>$current_hunt</li>
         </ul>
-        <hr/>
-        <p>$active_settlements settlements are holding fast; $abandoned_settlements settlements have been abandoned.</p>
-        <p>$live_survivors survivors are alive and fighting; $dead_survivors have perished.</p>
+        <p>Latest kill:</p>
+        <ul>
+            $latest_kill
+        </ul>
         <hr/>
         $latest_fatality
         <hr/>
@@ -225,6 +229,10 @@ class dashboard:
         </ul>
         <hr/>
         <h3>General Statistics for All Settlements:</h3>
+        <ul>
+            <li>Average Lantern Year: $avg_ly</li>
+            <li>Average Lost Settlements: $avg_lost_settlements</li>
+        </ul>
         <p>Settlements using expansion content:</p>
         <ul>
             $expansion_popularity_bullets
@@ -498,7 +506,7 @@ class survivor:
         <div id="asset_management_middle_pane">
                         <!-- HIT BOXES ; still the same form -->
             <a> <!-- hacks!!! for inc/dec buttons-->
-            <div id="survivor_hit_box">
+            <div class="survivor_hit_box insanity_box">
                 <div class="big_number_container right_border">
                     <button class="incrementer mobile_only" onclick="increment('insanityBox');">+</button>
                         <input id="insanityBox" type="number" class="shield" name="Insanity" value="$insanity" style="color: $insanity_number_style;" min="0"/>
@@ -514,7 +522,7 @@ class survivor:
             </div> <!-- survivor_hit_box -->
 
                 <!-- HEAD -->
-            <div id="survivor_hit_box">
+            <div class="survivor_hit_box">
                 <div class="big_number_container right_border">
                     <button class="incrementer mobile_only" onclick="increment('headBox');">+</button>
                         <input id="headBox" type="number" class="shield" name="Head" value="$head" min="0"/>
@@ -528,7 +536,7 @@ class survivor:
             </div> <!-- survivor_hit_box -->
 
                 <!-- ARMS -->
-            <div id="survivor_hit_box">
+            <div class="survivor_hit_box">
                 <div class="big_number_container right_border">
                     <button class="incrementer mobile_only" onclick="increment('armsBox');">+</button>
                         <input id="armsBox" type="number" class="shield" name="Arms" value="$arms" min="0"/>
@@ -543,7 +551,7 @@ class survivor:
             </div> <!-- survivor_hit_box -->
 
                 <!-- BODY -->
-            <div id="survivor_hit_box">
+            <div class="survivor_hit_box">
                 <div class="big_number_container right_border">
                     <button class="incrementer mobile_only" onclick="increment('bodyBox');">+</button>
                         <input id="bodyBox" type="number" class="shield" name="Body" value="$body" min="0"/>
@@ -558,7 +566,7 @@ class survivor:
             </div> <!-- survivor_hit_box -->
 
                 <!-- WAIST -->
-            <div id="survivor_hit_box">
+            <div class="survivor_hit_box">
                 <div class="big_number_container right_border">
                     <button class="incrementer mobile_only" onclick="increment('waistBox');">+</button>
                         <input id="waistBox" type="number" class="shield" name="Waist" value="$waist" min="0"/>
@@ -573,7 +581,7 @@ class survivor:
             </div> <!-- survivor_hit_box -->
 
         <!-- LEGS -->
-            <div id="survivor_hit_box">
+            <div class="survivor_hit_box">
                 <div class="big_number_container right_border">
                     <button class="incrementer mobile_only" onclick="increment('legsBox');">+</button>
                         <input id="legsBox" type="number" class="shield" name="Legs" value="$legs" min="0"/>
@@ -1140,11 +1148,6 @@ class settlement:
             <h2>Storage</h2>
             <p>Gear and Resources may be stored without limit.<br/><br/>
                 <button id="modalStorageButton" class="yellow bold">+ Add Item to Storage</button><br><br class="desktop_only">
-            <hr>
-            <p>
-            Tap or click an item to remove it once:
-            </p>
-            <hr />
             <a id="edit_storage" class="mobile_only"/></a>
                 $storage
         </form>
@@ -1462,6 +1465,7 @@ class login:
         <img src="%s/tree_logo_shadow.png" class="sign_in"/>
         <h2 class="seo">KD:M Manager!</h2>
         <h1 class="seo">An interactive campaign manager for <a href="http://kingdomdeath.com/" target="top">Kingdom Death: <i>Monster</i></a>.</h1>
+        <div id="sign_in_last_updated">%s</div>
         <div id="sign_in_controls">
             <form method="POST">
             <input class="sign_in" type="email" name="login" placeholder="Email"/ autofocus>
@@ -1483,7 +1487,7 @@ class login:
             </form>
         </div>
     </div> <!-- sign_in_container -->
-    \n""" % settings.get("application", "STATIC_URL")
+    \n""" % (settings.get("application", "STATIC_URL"), get_latest_update_string())
     new_user = Template("""\n\
     <div id="sign_in_container">
         <h2 class="seo">Create a New User!</h2>

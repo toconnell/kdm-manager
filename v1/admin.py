@@ -84,7 +84,6 @@ def create_new_user(login, password, password_again, params):
             logger.debug("Skipping email validation...")
 
         prefs = {}
-        logger.info(params)
         if "keep_me_logged_in" in params:
             prefs = {"preserve_sessions": True}
 

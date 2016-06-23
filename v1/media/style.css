@@ -47,6 +47,7 @@ h1.seo, h2.seo {color: #000; text-align: center; font-weight: normal; }
 h1.seo {font-size: 40px; margin-top: 0 none; }
 h2.seo {font-size: 100px; border: 0 none;  margin-bottom: -10px; } 
 
+div#sign_in_last_updated {width: 70%; padding-left: 60px; font-size: 20px; margin-bottom: 20px; }
 div#sign_in_container {background: 0 none; width: 80%; margin: 0 auto; margin-top: 5%; }
 img.sign_in {z-index: -10; margin: 0 auto; position: absolute; bottom: 3px; right: 3px; }
 div#sign_in_controls {width:90%; height: 50%; margin: 0 auto; padding: 0 none; text-align: center; }
@@ -457,6 +458,11 @@ right connector from last child*/
 /* Desktop Resolution Starts here! */
 
 @media screen and (min-width: 1000px) {
+    /* hide number tumblers */
+    input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button {
+        opacity: 0;
+    }
+
     /* CSS 'reset' */
     html {font-size: 12pt; }
     input, input[type=text] {font-size: 13pt; width: auto; height: auto; }
@@ -510,6 +516,7 @@ right connector from last child*/
     h1.seo {font-size: 20px; margin-top: 0 none; }
     h2.seo {font-size: 43px; border: 0 none; font-weight: bold; }
 
+    div#sign_in_last_updated {width: 70%; padding-left: 30px; font-size: 10px; margin-top: 20px; margin-bottom: -10px; }
     div#sign_in_controls {width:90%; height: 50%; margin: 0 auto; margin-top: 10px; padding: 0 none; text-align: center; }
 	input.sign_in, button.sign_in {margin-bottom: 0px; margin: 0 auto;}
 	button.sign_in {font-weight: bold; font-size: 20px;}
@@ -604,7 +611,8 @@ right connector from last child*/
     input[type=submit].damage_box, input[type=submit].damage_box_checked { width: 30px; height: 30px; margin-top:3px; margin-left: 5px; border: 1px solid #000;}
     input[type=submit].heavy_damage {border: 3px solid #000;}
     input[type=file] {margin-bottom:10px;}
-    div#survivor_hit_box {height: 75px; margin: 0 auto; border: 1px solid #666; margin-bottom: 10px; overflow: hidden; }
+    .survivor_hit_box {height: 75px; margin: 0 auto; border: 1px solid #666; margin-bottom: 10px; overflow: hidden; }
+    .insanity_box {height: 90px; margin-top: 10px; }
     .hit_box_detail {font-size: 9pt; padding: 0; }
     .hit_box_detail label {margin-top: -15px; margin-right: -5px;}
     .hit_box_detail h2 {height: 30px;  }
@@ -634,6 +642,6 @@ right connector from last child*/
     #panel_meta_stats {width: 500px; margin-bottom: 20px; margin-left: 30px; }
     .panel_recent_user {margin: 10px; width: 900px; clear: left;  }
     #panel_kill_board {width: 200px; float: left; border-left: 2px solid #333; margin-left: 20px; }
-}
 
+}
 

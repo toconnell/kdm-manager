@@ -6,9 +6,17 @@ from optparse import OptionParser
 
 import game_assets
 import html
-from utils import mdb, get_percentage
+from utils import mdb, get_percentage, ymd
 from models import Quarries, Nemeses, mutually_exclusive_principles
 
+def latest_kill(return_type=False):
+    """ Returns the latest defeated monster from mdb.killboard. """
+    l = mdb.killboard.find_one(sort=[("created_on", -1)])
+    if l is None:
+        return None
+    output = "<li><b>%s</b></li>" % l["name"]
+    output += "<li>Defeated by the survivors of <b>%s</b> on %s at %s (CT).</li>" % (l["settlement_name"], l["created_on"].strftime(ymd), l["created_on"].strftime("%H:%M:%S"))
+    return output
 
 def latest_fatality(return_type=False):
     """ Returns the latest fatality from mdb.the_dead. """
@@ -32,7 +40,7 @@ def latest_fatality(return_type=False):
             epithets = ", ".join(latest_fatality["epithets"])
             html_epithets = "&ensp; <i>%s</i><br/>" % epithets
 
-        output = '<p>Latest fatality: %s<br/><br/>' % avatar_img
+        output = '<p>Latest survivor fatality: %s<br/><br/>' % avatar_img
         output += '&ensp; <b>%s</b> of <b>%s</b> <br/>' % (latest_fatality["name"], latest_fatality["settlement_name"])
         output += html_epithets
         output += '&ensp; Cause of death: %s<br/>&ensp; Died in LY %s, XP: %s<br/>' % (latest_fatality["cause_of_death"], latest_fatality["lantern_year"], latest_fatality["hunt_xp"]) 
@@ -161,7 +169,7 @@ def get_minmax(attrib="population"):
 
 def get_average(attrib="population"):
     data_points = []
-    sample_set = mdb.settlements.find({"population": {"$gt": 4}, "death_count": {"$gt": 0}})
+    sample_set = mdb.settlements.find({"population": {"$gt": 4}, "death_count": {"$gt": 0}, "lantern_year": {"$gte": 1},})
     for sample in sample_set:
         data_points.append(int(sample[attrib]))
     return reduce(lambda x, y: x + y, data_points) / len(data_points)
@@ -172,6 +180,8 @@ def get_survivor_average(attrib="hunt_xp"):
     for s in survivors:
         data_points.append(int(s[attrib]))
     return reduce(lambda x, y: x + y, data_points) / len(data_points)
+
+
 
 if __name__ == "__main__":
     parser = OptionParser()
