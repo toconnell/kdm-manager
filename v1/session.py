@@ -13,6 +13,7 @@ import admin
 import assets
 import html
 import models
+import game_assets
 from utils import mdb, get_logger, get_user_agent, load_settings, ymd, ymdhms, mailSession
 
 settings = load_settings()
@@ -269,14 +270,23 @@ class Session:
                     settlement_name = self.params["settlement_name"].value
                 else:
                     settlement_name = "Unknown"
-                self.Settlement = assets.Settlement(name=settlement_name, session_object=self)
+                settlement_campaign = self.params["campaign"].value
+                self.Settlement = assets.Settlement(name=settlement_name, campaign=settlement_campaign, session_object=self)
                 self.change_current_view("view_campaign", asset_id=self.Settlement.settlement["_id"])
-                if "create_survivors" in self.params:
+                if "create_prologue_survivors" in self.params:
                     self.Settlement.first_story()
                     mdb.settlements.save(self.Settlement.settlement)    # gotta save here
                     user_action = "created settlement %s with First Story survivors" % self.Settlement
                 else:
                     user_action = "created vanilla settlement %s" % self.Settlement
+
+                # prefab survivors go here
+                for s in self.params["survivors"]:
+                    if s.value != "None":
+                        s_dict = game_assets.survivors[s.value]
+                        n = assets.Survivor(params=None, session_object=self, suppress_event_logging=True)
+                        n.set_attrs({"name": s.value})
+                        n.set_attrs(s_dict["attribs"])
 
                 # initialize expansion stuff
                 for e_key in expansions:
@@ -296,7 +306,7 @@ class Session:
                     S.modify(self.params)
                 else:
                     self.Settlement.modify(self.params)
-                user_action = "modified settlement %s" % s_id
+                user_action = "modified settlement %s" % self.Settlement
             if self.params["modify"].value == "survivor":
                 S = assets.Survivor(survivor_id=s_id, session_object=self)
                 S.modify(self.params)
@@ -309,7 +319,7 @@ class Session:
                 S.return_hunting_party()
             else:
                 self.Settlement.return_hunting_party()
-            user_action = "returned hunting party to settlement %s" % s_id
+            user_action = "returned hunting party to settlement %s" % self.Settlement
 
         # user and campaign exports
         if "export_user_data" in self.params:
@@ -393,7 +403,7 @@ class Session:
                 settlement = mdb.settlements.find_one({"_id": self.session["current_asset"]})
                 self.set_current_settlement(ObjectId(settlement["_id"]))
                 output += html.dashboard.refresh_button
-                output += self.Settlement.asset_link(context="asset_management")
+                output += self.Settlement.asset_link(context="asset_management", update_mins=True)
                 S = assets.Settlement(settlement_id = settlement["_id"], session_object=self)
                 output += S.render_html_event_log()
             elif self.session["current_view"] == "view_campaign":
@@ -401,9 +411,9 @@ class Session:
                 if mdb.settlement_events.find({"settlement_id": self.Settlement.settlement["_id"]}).count() != 0:
                     output += html.dashboard.event_log_button.safe_substitute(name=self.Settlement.settlement["name"])
                 if self.Settlement.settlement is not None and self.Settlement.settlement["created_by"] == self.User.user["_id"]:
-                    output += self.Settlement.asset_link(context="campaign_summary", update_mins=False)
+                    output += self.Settlement.asset_link(context="campaign_summary")
                 elif "admins" in self.Settlement.settlement.keys() and self.User.user["login"] in self.Settlement.settlement["admins"]:
-                    output += self.Settlement.asset_link(context="campaign_summary", update_mins=False)
+                    output += self.Settlement.asset_link(context="campaign_summary")
                 output += self.Settlement.render_html_summary(user_id=self.User.user["_id"])
             elif self.session["current_view"] == "new_settlement":
                 output += html.settlement.new

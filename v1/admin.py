@@ -442,6 +442,7 @@ class Panel:
             dead_survivors = dead_survivors,
             complete_death_records = mdb.the_dead.find({"complete": {"$exists": True}}).count(),
             latest_fatality = latest_fatality_string,
+            latest_kill = world.latest_kill("admin_panel"),
             current_hunt = world.current_hunt(),
         )
 
@@ -454,12 +455,13 @@ class Panel:
             settlement_strings = []
             for s in settlements:
                 S = assets.Settlement(settlement_id=s["_id"], session_object=self.Session)
-                settlement_string = "\n\n<b>%s</b> LY:%s (%s) - %s/%s.<br/>\n&ensp;Players: %s<br/>\n&ensp;Expansions: %s" % (
+                settlement_string = "\n\n<b>%s</b> LY:%s (%s) - %s/%s<br/>\n&ensp;<i>%s</i><br/>\n&ensp;Players: %s<br/>\n&ensp;Expansions: %s" % (
                     S.settlement["name"],
                     S.settlement["lantern_year"],
                     S.settlement["created_on"].strftime(ymd),
                     S.settlement["population"],
                     S.settlement["death_count"],
+                    S.get_campaign(),
                     ", ".join(S.get_players()),
                     ", ".join(S.get_expansions()),
                 )

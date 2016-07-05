@@ -32,6 +32,7 @@ class panel:
         <tr class="grey"><td>Valkyrie:</td><td>$complete_death_records complete death recs</td></tr>
         <tr><td>Latest Fatality:</td><td>$latest_fatality</td></tr>
         <tr class="grey"><td>Current Hunt:</td><td>$current_hunt</td></tr>
+        <tr><td>Latest Kill:</td><td>$latest_kill</td></tr>
     </table>
     <table id="panel_kill_board">
         <tr><th colspan="2">Kill Board</th></tr>
@@ -320,10 +321,13 @@ class survivor:
     add_ancestor_select_bot = '\t</select><br class="mobile_only"/><br class="mobile_only"/>'
     add_ancestor_bot = '    </div>\n'
     campaign_summary_hide_show = Template("""\n\
+    <hr class="invisible">
+    <span class="tiny_break">
     <h3 class="clickable $color align_left" onclick="showHide('$group_id')">$heading ($death_count) <img class="dashboard_down_arrow" src="%s/icons/down_arrow.png"/> </h3>
     <div id="$group_id" style="display: none;">
         $dead_survivors
     </div> <!-- deadSurvivorsBlock -->
+    <hr class="invisible">
     \n""" % (settings.get("application","STATIC_URL")))
     campaign_asset = Template("""\n\
       <div class="survivor_campaign_asset_container">
@@ -349,8 +353,9 @@ class survivor:
             &ensp; Understanding: $understanding
          </button>
         </form>
-      </div>
-      <hr class="invisible"/>
+
+      </div> <!-- survivor_campaign_asset_container-->
+     <hr class="invisible"/>
     \n""")
     form = Template("""\n\
     <span class="desktop_only nav_bar gradient_green"></span>
@@ -410,7 +415,7 @@ class survivor:
             <div id="survivor_survival_box_container">
                 <div class="big_number_container left_margin">
                     <button class="incrementer" onclick="increment('survivalBox');">+</button>
-                    <input type="number" id="survivalBox" class="big_number_square" name="survival" value="$survival" max="$survival_limit" min="0"/>
+                    <input type="number" id="survivalBox" class="big_number_square" name="survival" value="$survival" min="0"/>
                     <button class="decrementer" onclick="decrement('survivalBox');">-</button>
                 </div>
                 <div class="big_number_caption">Survival <p>(max: $survival_limit)</p></div>
@@ -492,7 +497,6 @@ class survivor:
             <br class="mobile_only"/>
             <hr/>
 
-
             <h3>Bonuses</h3>
             $settlement_buffs
 
@@ -507,18 +511,18 @@ class survivor:
                         <!-- HIT BOXES ; still the same form -->
             <a> <!-- hacks!!! for inc/dec buttons-->
             <div class="survivor_hit_box insanity_box">
-                <div class="big_number_container right_border">
-                    <button class="incrementer mobile_only" onclick="increment('insanityBox');">+</button>
-                        <input id="insanityBox" type="number" class="shield" name="Insanity" value="$insanity" style="color: $insanity_number_style;" min="0"/>
-                        <font id="hit_box_insanity">Insanity</font>
-                    <button class="decrementer mobile_only" onclick="decrement('insanityBox');">-</button>
-                </div>
+             <div class="big_number_container right_border">
+              <button class="incrementer mobile_only" onclick="increment('insanityBox');">+</button>
+               <input id="insanityBox" type="number" class="shield" name="Insanity" value="$insanity" style="color: $insanity_number_style;" min="0"/>
+               <font id="hit_box_insanity">Insanity</font>
+              <button class="decrementer mobile_only" onclick="decrement('insanityBox');">-</button>
+             </div>
 
-                <div class="hit_box_detail">
-                 <input id="damage_brain_light" onclick="toggleDamage('damage_brain_light');" type="submit" class="damage_box_$brain_damage_light_checked damage_box" name="toggle_brain_damage_light" value=" "/>
-                    <h2>Brain</h2>
-                    If your insanity is 3+, you are <b>Insane</b>.
-                </div>
+             <div class="hit_box_detail">
+              <input id="damage_brain_light" onclick="toggleDamage('damage_brain_light');" type="submit" class="damage_box_$brain_damage_light_checked damage_box" name="toggle_brain_damage_light" value=" "/>
+                <h2>Brain</h2><br/>
+                If your insanity is 3+, you are <b>Insane</b>.
+             </div>
             </div> <!-- survivor_hit_box -->
 
                 <!-- HEAD -->
@@ -673,7 +677,6 @@ class survivor:
             </form>
 
 
-            <a id="edit_fighting_arts" class="mobile_only"> </a>
 
 
             <hr class="mobile_only"/> <!-- logical division; new form starts here too -->
@@ -681,10 +684,28 @@ class survivor:
 
 
 
-
-                        <!-- FIGHTING ARTS -->
         <div id="asset_management_right_pane"> <!-- asset_management_right_pane -->
 
+
+
+                            <!-- 1.4 Misc. Attribs -->
+            <a id="edit_misc_attribs" class="mobile_only"> </a>
+            <form method="POST" id="autoForm" action="#edit_misc_attribs">
+                <input type="hidden" name="modify" value="survivor" />
+                <input type="hidden" name="asset_id" value="$survivor_id" />
+                $expansion_attrib_controls
+            </form>
+
+            <form method="POST" id="autoForm" action="#edit_misc_attribs">
+                <button class="hidden"></button>
+                <input type="hidden" name="modify" value="survivor" />
+                <input type="hidden" name="asset_id" value="$survivor_id" />
+                $partner_controls
+            </form>
+
+
+                        <!-- FIGHTING ARTS -->
+            <a id="edit_fighting_arts" class="mobile_only"> </a>
             <form method="POST" id="autoForm" action="#edit_fighting_arts">
                 <input type="hidden" name="form_id" value="survivor_edit_fighting_arts" />
                 <button class="hidden"></button>
@@ -700,11 +721,11 @@ class survivor:
                     $fighting_arts
                     $add_fighting_arts<br class="mobile_only"/>
                     $rm_fighting_arts
+            </form>
+
 
             <a id="edit_disorders" class="mobile_only"></a>
-            <hr class="mobile_only"/>
-
-            </form>
+            <hr />
 
                         <!-- DISORDERS - HAS ITS OWN FORM-->
 
@@ -719,12 +740,11 @@ class survivor:
                 $add_disorders<br class="mobile_only"/>
                 $rm_disorders
 
-                <a id="edit_abilities" class="mobile_only"></a>
 
             </form>
 
-
-            <hr class="mobile_only"/>
+            <a id="edit_abilities" class="mobile_only"></a>
+            <hr />
 
                         <!-- ABILITIES AND IMPAIRMENTS -->
 
@@ -800,22 +820,78 @@ class survivor:
             <br class="mobile_only"/>
         </div> <!-- asset_management_right_pane -->
     \n""")
+    partner_controls_top = '\n<p><span class="tiny_break">&nbsp;</span>Partner<select name="partner_id" onchange="this.form.submit()">\n'
+    partner_controls_none = '<option selected disabled>Select a Survivor</option>'
+    partner_controls_opt = Template('<option value="$value" $selected>$name</option>')
+    partner_controls_bot = '</select><span class="tiny_break"/>&nbsp;</span></p><hr/>\n\n'
+    expansion_attrib_controls = Template("""\n
+    <span class="tiny_break"/>&nbsp;</span>
+    <input type="hidden" name="expansion_attribs" value="None"/> <!-- Hacks -->
+    <input type="hidden" name="expansion_attribs" value="None"/> <!-- Hacks -->
+    $control_items
+    <br class="clear_both"/>
+    <span class="tiny_break"/>&nbsp;</span>
+    <hr/>
+    \n""")
+    expansion_attrib_item = Template("""\n
+    <div class="expansion_attrib_toggle">
+     <input onchange="this.form.submit()" type="checkbox" id="$item_id" class="expansion_attrib_toggle" name="expansion_attribs" value="$key" $checked/>
+     <label class="expansion_attrib_toggle" for="$item_id">$key</label>
+    </div> <!-- expansion_attrib_toggle -->
+    \n""")
 
 
 class settlement:
 
-    def render_expansion_toggles():
-        """ Prints the toggles for the expansions. """
+
+    def render_campaign_toggles():
+        """ Prints the toggles for the campaigns. """
 
         slug = Template("""\n\
-        <input id="$nickname" class="radio_principle" type="checkbox" name="expansions" value="$exp_key" />
-        <label for="$nickname" class="radio_principle_label">$exp_key</label> 
+        <input type="radio" id="$c_id" class="radio_principle" name="campaign" value="$name" $checked/>
+        <label class="radio_principle_label" for="$c_id">$name</label>
         \n""")
 
         output = ""
-        for e_key in sorted(game_assets.expansions.keys()):
-            exp_attribs = game_assets.expansions[e_key]
-            output += slug.safe_substitute(nickname=exp_attribs["nickname"], exp_key=e_key)
+        for c_name in game_assets.campaigns.keys():
+            c_name_flat = c_name.lower().replace(" ","_")
+            c_dict = game_assets.campaigns[c_name]
+            checked = ""
+            if "default" in c_dict.keys():
+                checked = "checked"
+            output += slug.safe_substitute(name=c_name, checked=checked, c_id = c_name_flat)
+        return output
+
+
+
+    def render_checkboxes(asset_dict_name=None):
+        """ Prints checkboxes for the specified asset dictionary"""
+
+        slug = Template("""\n\
+        <input id="$a_id" class="radio_principle" type="checkbox" name="%s" value="$var_value" />
+        <label for="$a_id" class="radio_principle_label">$var_value</label> 
+        \n""" % asset_dict_name)
+
+
+        output = ""
+
+        if asset_dict_name == "expansions":
+            for e_key in sorted(game_assets.expansions.keys()):
+                exp_attribs = game_assets.expansions[e_key]
+                if not "existing_campaign_only" in exp_attribs:
+                    output += slug.safe_substitute(a_id=e_key.lower().replace(" ","_"), var_value=e_key)
+        elif asset_dict_name == "survivors":
+            # special custom box for prologue survivors (calls
+            #   assets.Settlement.first_story() after creation
+            output = """
+                <input type="checkbox" id="create_prologue_survivors" class="radio_principle" name="create_prologue_survivors" value="True" />
+                <label class="radio_principle_label" for="create_prologue_survivors"> Create Four "First Story" Survivors</label><br/><br/>
+            """
+            for s_name in sorted(game_assets.survivors.keys()):
+                s_key = s_name.lower().replace(" ","_")
+                s_dict = game_assets.survivors[s_name]
+                output += slug.safe_substitute(a_id=s_key, var_value=s_name)
+
         return output
 
     new = """\n\
@@ -824,29 +900,33 @@ class settlement:
     <span class="top_nav_spacer mobile_only"> hidden </span>
     <br class="desktop_only"/>
     <div id="create_new_asset_form_container">
-        <h3>Create a New Settlement!</h3>
         <form method="POST">
         <input type="hidden" name="new" value="settlement" />
-        <input type="text" name="settlement_name" placeholder="Settlement Name"/ class="full_width" autofocus>
-        <h3 class="new_settlement">Quick Start:</h3>
+        <input type="text" name="settlement_name" placeholder="New Settlement Name"/ class="full_width" autofocus>
+        <h3 class="new_settlement">Campaign:</h3>
         <p class="new_settlement">
-        By default, new settlements start with no survivors and use the core game's standard timeline. Toggle options below to change starting parameters. <br/><br/>
-            <input type="checkbox" id="create_survivors" class="radio_principle" name="create_survivors" value="True" />
-            <label class="radio_principle_label" for="create_survivors"> Create Four "First Story" Survivors</label>
+        Choosing an expansion campaign automatically enables expansion content for that campaign and modifies the settlement timeline, milestones and principles. Campaign type may <b>not</b> be changed after settlement creation!<br/><br/>
+            %s
         </p>
-        <br />
         <h3 class="new_settlement">Expansions:</h3>
         <p class="new_settlement">
-        Enable Expansion content by selecting the items below. This functionality is new and <i>under active development</i>. Please report any issues.<br/><br/>
+        Enable expansion content by toggling items below. Expansions may also be enabled (or disabled) later from the Settlement Sheet.<br/><br/>
         <input type="hidden" name="expansions" value="None"/> <!-- Both of these are necessary -->
         <input type="hidden" name="expansions" value="None"/> <!-- Hack City! -->
             %s
         </p>
-        <br/><br/><hr/>
+        <h3 class="new_settlement">Survivors:</h3>
+        <p class="new_settlement">
+        By default, new settlements start with no survivors. Toggle options below to add survivors. <br/><br/>
+            <input type="hidden" name="survivors" value="None"/> <!-- Both of these are necessary -->
+            <input type="hidden" name="survivors" value="None"/> <!-- Hack City! -->
+            %s
+        </p>
+        <hr class="new_settlement" />
         <button class="success">Create!</button>
         </form>
     </div>
-    \n""" % render_expansion_toggles()
+    \n""" % (render_campaign_toggles(), render_checkboxes("expansions"), render_checkboxes("survivors"))
 
     return_hunting_party_with_confirmation = Template("""\n\
         <form method="POST" onsubmit="return confirm('Press OK to return the survivors, increment Hunt XP +1 and add the current quarry to the Defeated Monsters list as well as the settlement timeline for this year.');">
@@ -876,6 +956,7 @@ class settlement:
     <br class="clear_both mobile_only" />
     \n""")
     hunting_party_macros = Template("""\n\
+    <hr>
     <h3>Manage Hunting Party:</h3>
     <div id="hunting_party_macro_container">
     <div class="hunting_party_macro" style="border-left: 0 none;">
@@ -911,7 +992,7 @@ class settlement:
         <form method="POST">
             <input type="hidden" name="modify" value="settlement"/>
             <input type="hidden" name="asset_id" value="$settlement_id"/>
-            <input type="hidden" name="hunting_party_operation" value="Courage"/>
+            <input type="hidden" class="clear_both" name="hunting_party_operation" value="Courage"/>
             Courage
             <button name="operation" value="increment">+1</button>
             <button name="operation" value="decrement">-1</button>
@@ -1004,22 +1085,34 @@ class settlement:
         </div>
         <form method="POST" class="mobile_only">
           <input type="hidden" name="change_view" value="new_survivor"/>
-          <button class="full_width green bold" id="campaign_summary_new_survivor">+ Create New Survivor</button>
+          <button class="full_width survivor bold" id="campaign_summary_new_survivor">+ Create New Survivor</button>
           <hr/>
         </form>
+
+
         <a id="edit_hunting_party" class="mobile_only"></a>
         <span class="vertical_spacer desktop_only"></span>
-            $survivors
+
+        $survivors
+
+        <hr class="mobile_only invisible">
+        <br class="mobile_only">
+
         <div id="campaign_summary_facts_box">
             <form method="POST">
             <input type="hidden" name="change_view" value="new_survivor"/>
-            <button class="bold green desktop_only" id="campaign_summary_new_survivor">+ Create New Survivor</button>
+            <button class="bold survivor desktop_only" id="campaign_summary_new_survivor">+ Create New Survivor</button>
             </form>
-            <div class="campaign_summary_small_box">
+
+            $special_rules
+
+            <hr class="mobile_only">
+
+            <div class="campaign_summary_small_box endeavor_box">
                 <h4>Available Endeavors</h4>
                 $endeavors
-                <h4>Departing Survivor Effects</h4>
-                $departure_bonuses
+            </div>
+            <div class="campaign_summary_small_box">
                 <h4>Settlement Bonuses</h4>
                 $settlement_bonuses
                 $survivor_bonuses
@@ -1068,6 +1161,7 @@ class settlement:
             <input type="hidden" name="modify" value="settlement" />
             <input type="hidden" name="asset_id" value="$settlement_id" />
 
+            <p class="center" title="Campaign type may not be changed after a settlement is created!">$campaign</p>
             <input id="topline_name" onchange="this.form.submit()" class="full_width" type="text" name="name" value="$name" placeholder="Settlement Name"/>
             $abandoned
             <hr class="mobile_only"/>
@@ -1185,6 +1279,7 @@ class settlement:
                     <hr>
 
                     $add_to_storage_controls
+
                     <input onchange="this.form.submit()" type="text" class="full_width" name="add_item" placeholder="Add custom item to storage"/>
                     <center><button class="yellow">Submit</button></center>
                     <br><br><br>
@@ -1197,15 +1292,16 @@ class settlement:
                     <!-- LOCATIONS - THIS HAS ITS OWN FORM  -->
 
         <a id="edit_locations" class="mobile_only"><a/>
-        <form id="autoForm" method="POST" action="#edit_locations">
-        <input type="hidden" name="modify" value="settlement" />
-        <input type="hidden" name="asset_id" value="$settlement_id" />
 
         <div id="block_group">
          <h2>Settlement Locations</h2>
          <p>Locations in your settlement.</p>
          <hr/>
          $locations
+
+        <form id="autoForm" method="POST" action="#edit_locations">
+        <input type="hidden" name="modify" value="settlement" />
+        <input type="hidden" name="asset_id" value="$settlement_id" />
          $locations_add
          $locations_rm
         </div>
@@ -1239,47 +1335,8 @@ class settlement:
          <h2>Principles</h2>
          <p>The settlement's established principles.</p>
         <hr/>
-            $all_hidden_warning
-            <div class="$new_life_principle_hidden">
-            <h3>New Life Principle</h3>
-             <fieldset class="settlement_principle">
-              <input onchange="this.form.submit()" type="radio" id="protect_button" class="radio_principle" name="new_life_principle" value="Protect the Young" $protect_the_young_checked /> 
-                <label class="radio_principle_label" for="protect_button"> Protect the Young </label>
-              <input onchange="this.form.submit()" type="radio" id="survival_button" class="radio_principle" name="new_life_principle" value="Survival of the Fittest" $survival_of_the_fittest_checked /> 
-                <label class="radio_principle_label" for="survival_button"> Survival of the fittest </label>
-            </fieldset>
-            </div>
 
-            <div class="$death_principle_hidden">
-             <h3>Death Principle</h3>
-             <fieldset class="settlement_principle">
-              <input onchange="this.form.submit()" type="radio" id="cannibalize_button" class="radio_principle" name="death_principle" value="Cannibalize" $cannibalize_checked /> 
-                <label class="radio_principle_label" for="cannibalize_button"> Cannibalize </label>
-              <input onchange="this.form.submit()" type="radio" id="graves_button" class="radio_principle" name="death_principle" value="Graves" $graves_checked /> 
-                <label class="radio_principle_label" for="graves_button"> Graves </label>
-             </fieldset>
-            </div>
-
-            <div class="$society_principle_hidden">
-             <h3>Society Principle</h3>
-             <fieldset class="settlement_principle">
-              <input onchange="this.form.submit()" type="radio" id="collective_toil_button" class="radio_principle" name="society_principle" value="Collective Toil" $collective_toil_checked /> 
-                <label class="radio_principle_label" for="collective_toil_button"> Collective Toil </label>
-              <input onchange="this.form.submit()" type="radio" id="accept_darkness_button" class="radio_principle" name="society_principle" value="Accept Darkness" $accept_darkness_checked /> 
-                <label class="radio_principle_label" for="accept_darkness_button"> Accept Darkness </label>
-             </fieldset>
-            </div>
-
-            <div class="$conviction_principle_hidden">
-             <h3>Conviction Principle</h3>
-             <fieldset class="settlement_principle">
-              <input onchange="this.form.submit()" type="radio" id="barbaric_button" class="radio_principle" name="conviction_principle" value="Barbaric" $barbaric_checked /> 
-                <label class="radio_principle_label" for="barbaric_button"> Barbaric </label>
-              <input onchange="this.form.submit()" type="radio" id="romantic_button" class="radio_principle" name="conviction_principle" value="Romantic" $romantic_checked /> 
-                <label class="radio_principle_label" for="romantic_button"> Romantic </label>
-             </fieldset>
-            </div>
-
+        $principles_controls
         $principles_rm
 
         </div> <!-- principle block group -->
@@ -1290,34 +1347,16 @@ class settlement:
 
                        <!-- MILESTONES - HAS ITS OWN FORM-->
 
-        <a id="edit_milestones"/>
+        <a id="edit_milestones" class="mobile_only"/></a>
         <form id="autoForm" method="POST" action="#edit_milestones">
         <input type="hidden" name="modify" value="settlement" />
         <input type="hidden" name="asset_id" value="$settlement_id" />
         <div id="block_group">
          <h2>Milestone Story Events</h2>
          <p>Trigger these story events when milestone condition is met.</p>
-    
-            <hr />
-            <input onchange="this.form.submit()" id="first_child" type="checkbox" name="First child is born" class="radio_principle" $first_child_checked></input>
-            <label for="first_child" class="radio_principle_label">First child is born</label>
-            <p> &ensp; <font class="kdm_font">g</font> <b>Principle: New Life</b> (p.145) </p>
-            <hr />
-            <input onchange="this.form.submit()" id="first_death" type="checkbox" name="First time death count is updated" class="radio_principle" $first_death_checked></input>
-            <label for="first_death" class="radio_principle_label">First time death count is updated</label>
-            <p> &ensp; <font class="kdm_font">g</font> <b>Principle: Death</b> (p.143) </p>
-            <hr />
-            <input onchange="this.form.submit()" id="pop_15" type="checkbox" name="Population reaches 15" class="radio_principle" $pop_15_checked></input>
-            <label for="pop_15" class="radio_principle_label">Population reaches 15</label>
-            <p> &ensp; <font class="kdm_font">g</font> <b>Principle: Society</b> (p.147) </p>
-            <hr />
-            <input onchange="this.form.submit()" id="5_innovations" type="checkbox" name="Settlement has 5 innovations" class="radio_principle" $five_innovations_checked></input>
-            <label for="5_innovations" class="radio_principle_label">Settlement has 5 innovations</label>
-            <p> &ensp; <font class="kdm_font">g</font> <b>Hooded Knight</b> (p.121) </p>
-            <hr />
-            <input onchange="this.form.submit()" id="game_over" type="checkbox" name="Population reaches 0" class="radio_principle" $game_over_checked></input>
-            <label for="game_over" class="radio_principle_label">Population reaches 0</label>
-            <p> &ensp; <font class="kdm_font">g</font> <b>Game Over</b> (p.179) </p>
+         <input type="hidden" name="milestone" value="none"/> <!-- hacks! -->
+         <input type="hidden" name="milestone" value="none"/> <!-- need both of these -->
+            $milestone_controls
 
         </div>
         </form>
@@ -1456,6 +1495,46 @@ class settlement:
     </form>
     \n""")
 
+    location_level_controls = Template("""\n\
+    $location_name - Lvl 
+    <form id="autoForm" method="POST" action="#edit_locations" class="location_level">
+        <input type="hidden" name="modify" value="settlement" />
+        <input type="hidden" name="asset_id" value="$settlement_id" />
+        <select class="location_level" name="location_level_$location_name" onchange="this.form.submit()">
+            $select_items
+        </select>
+    </form>
+    \n""")
+    milestone_control = Template("""\n
+    <hr />
+    <input onchange="this.form.submit()" id="$handle" type="checkbox" name="milestone" value="$key" class="radio_principle" $checked></input>
+    <label for="$handle" class="radio_principle_label">$key</label>
+    <p> &ensp; <font class="kdm_font">g</font> <b>$story_event</b> (p.$story_page) </p>
+    \n""")
+    principles_all_hidden_warning = '<p>(Update settlement Milestones to show controls for adding Settlement Principles.)</p>'
+    principle_radio = Template("""\n
+        <input onchange="this.form.submit()" type="radio" id="$handle" class="radio_principle" name="principle_$principle_key" value="$option" $checked /> 
+        <label class="radio_principle_label" for="$handle"> $option </label>
+    \n""")
+    principle_control = Template("""\n
+    <div>
+    <h3>$name Principle</h3>
+    <fieldset class="settlement_principle">
+        $radio_buttons
+    </fieldset>
+    </div>
+    \n""")
+    special_rule = Template("""\n
+    <div class="campaign_summary_special_rule" style="background-color: #$bg_color; color: #$font_color">
+    <h3>$name</h3>
+    $desc
+    </div>
+    """)
+    endeavor = Template("""\n
+    <p style="background-color: #$bg_color; color: #$font_color">
+    &nbsp; $cost $name$punc $desc $type
+    </p>
+    """)
 
 
 class login:

@@ -15,11 +15,16 @@ class Model:
     def get_asset(self, game_asset_key):
         return self.game_assets[game_asset_key]
 
-    def get_keys(self, exclude_if_attrib_exists=None):
+    def get_keys(self, exclude_if_attrib_exists=None, Settlement=None):
         keys = []
         for asset_key in self.game_assets.keys():
             if not exclude_if_attrib_exists in self.game_assets[asset_key]:
                 keys.append(asset_key)
+        if Settlement is not None:
+            for asset_key in keys:
+                asset_dict = self.get_asset(asset_key)
+                if "expansion" in asset_dict.keys() and asset_dict["expansion"] not in Settlement.get_expansions():
+                    keys.remove(asset_key)
         return keys
 
     def get_pretty_name(self):
@@ -28,13 +33,50 @@ class Model:
             self.pretty_name = "Ability or Impairment"
         return self.pretty_name
 
-    def get_always_available(self):
-        """ Checks all assets for whether they have the 'always_available' key
-        and returns a list of the ones that do. """
+
+    def get_forbidden(self, settlement_object=None):
+        """ Checks all assets for whether they are forbidden by settlement
+        attributes, i.e. whether they're on a 'forbidden' list. """
+
+        campaign = settlement_object.get_campaign()
+
+        forbidden = set()
+        for game_asset in self.get_keys():
+            c_dict = game_assets.campaigns[campaign]
+            if "forbidden" in c_dict.keys() and game_asset in c_dict["forbidden"]:
+                forbidden.add(game_asset)
+
+        return forbidden
+
+
+    def get_always_available(self, settlement_object=None):
+        """ Checks all assets in the model against the settlement attributes and
+        their own attributes to see if they're on an 'always_available' list
+        or whether they have the 'always_available' attrib. Returns a list of
+        ones that do. """
+
+        campaign = settlement_object.get_campaign()
+        expansions = settlement_object.get_expansions()
+
         always_available = set()
         for game_asset in self.get_keys():
-            if "always_available" in self.get_asset(game_asset).keys():
+
+            # first check the campaign
+            c_dict = game_assets.campaigns[campaign]
+            if "always_available" in c_dict and game_asset in c_dict["always_available"]:
                 always_available.add(game_asset)
+
+            # then check the expansions
+            for e in expansions:
+                e_dict = game_assets.expansions[e]
+                if "always_available" in e_dict.keys() and game_asset in e_dict["always_available"]:
+                    always_available.add(game_asset)
+
+            # finally, check the asset itself
+            asset_dict = self.get_asset(game_asset)
+            if "always_available" in asset_dict.keys():
+                always_available.add(game_asset) 
+
         return always_available
 
 
@@ -72,7 +114,7 @@ class Model:
         return output
 
 
-    def render_as_html_dropdown(self, submit_on_change=True, exclude=[], disable=[], excluded_type=None, expansions=[]):
+    def render_as_html_dropdown(self, submit_on_change=True, exclude=[], disable=[], excluded_type=None, Settlement=None):
         """ Renders the model as an HTML dropdown and returns a string. Use the
         'submit_on_change' kwarg to control whether it submits on change.
 
@@ -96,6 +138,7 @@ class Model:
             if excluded_key in options:
                 options.remove(excluded_key)
 
+        # exclude by type
         if excluded_type is not None:
             excluded_assets = []
             for asset in self.get_keys():
@@ -104,10 +147,14 @@ class Model:
             for excluded_key in excluded_assets:
                 options.remove(excluded_key)
 
+        # exclude by expansion and campaign rules if we've got a Settlement obj
         excluded_assets = []
-        for asset in options:
-            if "expansion" in self.get_asset(asset).keys() and self.get_asset(asset)["expansion"] not in expansions:
-                excluded_assets.append(asset)
+        if Settlement is not None:
+            for asset in options:
+                if "expansion" in self.get_asset(asset).keys() and self.get_asset(asset)["expansion"] not in Settlement.get_expansions():
+                    excluded_assets.append(asset)
+                if asset in Settlement.get_campaign("dict")["forbidden"]:
+                    excluded_assets.append(asset)
         for excluded_key in excluded_assets:
             options.remove(excluded_key)
 
@@ -188,6 +235,37 @@ class fightingArtsModel(Model):
         self.game_assets = game_assets.fighting_arts
         self.name = "fighting_art"
 
+    def build_survivor_deck(self, Survivor=None, Settlement=None):
+        """ Builds a survivor's personal fighting arts deck. """
+
+        fa_deck = self.get_keys(exclude_if_attrib_exists="secret")
+
+		# remove survivor's current arts from the deck
+        for fa in Survivor.survivor["fighting_arts"]:
+            if fa in fa_deck:
+                fa_deck.remove(fa)
+
+		# remove non-enabled expansion content from the deck
+        for fa in sorted(fa_deck):
+            if "expansion" in self.get_asset(fa):
+                if "expansions" not in Settlement.settlement.keys():
+                    fa_deck.remove(fa)
+                elif "expansions" in Settlement.settlement.keys():
+                    if self.get_asset(fa)["expansion"] not in Settlement.settlement["expansions"]:
+                        fa_deck.remove(fa)
+
+		# add always_available/remove forbidden items to the deck
+        fa_deck.extend(self.get_always_available(Settlement))
+        for forbidden_asset in self.get_forbidden(Settlement):
+            fa_deck.remove(forbidden_asset)
+
+        # uniquify and sort
+        fa_deck = sorted(list(set(fa_deck)))
+
+        # return
+#        self.logger.debug("[%s] fighting arts deck: %s" % (Survivor, fa_deck))
+        return fa_deck
+
 class locationsModel(Model):
     def __init__(self):
         Model.__init__(self)
@@ -215,7 +293,7 @@ class itemsModel(Model):
             output += ' <option disabled selected> %s </option>\n' % pretty_location_name
             for item in item_list:
                 output += '  <option value="%s">%s</option>\n' % (item, item)
-            output += '\n</select><br>'
+            output += '\n</select><br><hr class="invisible">'
             return output
 
         # start creating output
@@ -356,6 +434,10 @@ class resourcesModel(Model):
         Model.__init__(self)
         self.game_assets = game_assets.resources
 
+class survivalActionsModel(Model):
+    def __init__(self):
+        Model.__init__(self)
+        self.game_assets = game_assets.survival_actions
 
 class weaponProficienciesModel(Model):
     def __init__(self):
@@ -394,7 +476,7 @@ WeaponMasteries = weaponMasteriesModel()
 WeaponProficiencies = weaponProficienciesModel()
 DefeatedMonsters = defeatedMonstersModel()      # this is like...a pseudo model
 NemesisMonsters = nemesisMonstersModel()        # another pseudo model
-
+SurvivalActions = survivalActionsModel()
 
 #
 #   mutually exclusive principles
@@ -458,7 +540,12 @@ preferences_dict = {
         "desc": "Preserve Sessions?",
         "affirmative": "Keep me logged in",
         "negative": "Remove sessions after 24 hours",
-    }
+    },
+    "update_timeline": {
+        "desc": "Automatically Update Timeline with Milestone Story Events?",
+        "affirmative": "Update settlement timelines when milestone conditions are met",
+        "negative": "Do not automatically update settlement timelines",
+    },
 }
 
 class userPreferences():

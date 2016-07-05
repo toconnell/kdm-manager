@@ -45,6 +45,9 @@ mdb = MongoClient()[settings.get("application","mdb")]
 #  application helper functions
 #
 
+def to_handle(s):
+    return s.lower().replace(" ","_")
+
 def get_percentage(part, whole):
     if whole == 0:
         return 0

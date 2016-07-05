@@ -6,6 +6,41 @@
 #
 
 abilities_and_impairments = {
+    "Permanent Red Affinity": {
+        "expansion": "Sunstalker",
+        "type": "ability",
+        "desc": '<font id="Caratosis">&#x02588;</font>',
+    },
+    "Red Glow": {
+        "expansion": "Beta Challenge Scenarios",
+        "type": "ability",
+        "max": 1,
+        "desc": '<font class="kdm_font">a</font> Make a melee attack with speed 3, accuracy 7+, and strength 5.',
+    },
+    "Blue Glow": {
+        "expansion": "Beta Challenge Scenarios",
+        "type": "ability",
+        "max": 1,
+        "desc": """<font class="kdm_font">a</font> Move a Portal terrain tile on the showdown board to Snow's space. If there are less than 2 Portals on the board, add one to Snow's space instead.""",
+    },
+    "Green Glow": {
+        "expansion": "Beta Challenge Scenarios",
+        "type": "ability",
+        "max": 1,
+        "desc": '<font class="kdm_font">a</font> Add <font class="inline_shield">1</font> to all hit locations.',
+    },
+    "Solid": {
+        "expansion": "Beta Challenge Scenarios",
+        "type": "ability",
+        "max": 1,
+        "desc": "If you would be knocked down, roll 1d10. On a 4+, you are not knocked down.",
+    },
+    "Twilight Succession": {
+        "expansion": "Beta Challenge Scenarios",
+        "type": "ability",
+        "desc": "If you die during the showdown and have a Twilight Sword, nominate another survivor on the showdown board to gain the Twilight Sword and this ability.",
+        "max": 1,
+    },
 	"Death Mehndi": {
 		"expansion": "Lion God",
 		"type": "curse",
@@ -36,7 +71,7 @@ abilities_and_impairments = {
     },
     "Crystal Skin": {
         "type": "ability",
-        "desc": "You cannot place armor in your gear grid. When you <b>depart</b>, gain <b>2</b> to all hit locations. Suffer -1 to the result of all severe injury rolls.",
+        "desc": 'You cannot place armor in your gear grid. When you <b>depart</b>, gain <font class="inline_shield">2</font> to all hit locations. Suffer -1 to the result of all severe injury rolls.',
         "max": 1,
     },
     "Endless Babble": {
@@ -57,6 +92,18 @@ abilities_and_impairments = {
     "Partner": {
         "type": "ability",
         "desc": 'When you both <b>depart</b>, gain +2 survival. While adjacent to your partner, gain +1 strength. Partners may only nominate each other for <img class="icon" src="http://media.kdm-manager.com/icons/trigger_story_event.png" /> <b>Intimacy</b>. When a partner dies, the remaining partner gains a random disorder and loses this ability.',
+    },
+    "Specialization - Katana": {
+        "type": "weapon_proficiency",
+        "expansion": "Sunstalker",
+        "max": 1,
+        "desc": "You may not select this as your weapon type.<br/>If you are <b>blind</b> and have 4+ levels of Katana proficiency, gain the following:<br/>On your first <b>Perfect Hit</b> each attack with a Katana, do not draw a hit location. The monster suffers 1 wound.",
+    },
+    "Mastery - Katana": {
+        "type": "weapon_proficiency",
+        "expansion": "Sunstalker",
+        "max": 1,
+        "desc": "When a survivor reaches Katana Mastery, they leave the settlement forever, heeding the call of the storm to hone their art.<br/>Before the master leaves, you may nominate a survivor. Set that survivor's weapon type to Katana and their weapon proficiency level to 1.",
     },
     "Specialization - Katar": {
         "type": "weapon_proficiency",
@@ -156,7 +203,7 @@ abilities_and_impairments = {
     "Specialization - Shield": {
         "type": "weapon_proficiency",
         "max": 1,
-        "desc": "While a shield is in your gear grid, you are no longer knocked down after <b>collision</b> with a monster. While a shield is in your gear grid, add <b>1</b> to all hit locations.",
+        "desc": 'While a shield is in your gear grid, you are no longer knocked down after <b>collision</b> with a monster. While a shield is in your gear grid, add <font class="inline_shield">1</font> to all hit locations.',
     },
     "Specialization - Dagger": {
         "type": "weapon_proficiency",
@@ -517,6 +564,25 @@ abilities_and_impairments = {
 
 
 disorders = {
+    "Overprotective" :{
+        "expansion": "Sunstalker",
+        "flavor_text": "You love the feeling of being needed.",
+        "survivor_effect": "When an adjacent survivor is knocked down, you are also knocked down as you rush to their aid.",
+    },
+    "Sun-Drunk" :{
+        "expansion": "Sunstalker",
+        "flavor_text": "When your emotions rise, you can only think of violence.",
+        "survivor_effect": 'When you have any +1 strength tokens, you cannot <b>dash</b>, <b>dodge</b> or <font class="kdm_font">g</font> <b>Run Away</b>.',
+    },
+    "Emotionless" :{
+        "expansion": "Sunstalker",
+        "flavor_text": "You don't have any emotions. You've hidden this from everyone by mimicking their social interactions.",
+        "survivor_effect": "You cannot gain +1 strength tokens.",
+    },
+    "Sworn Enemy": {
+        "expansion": "Beta Challenge Scenarios",
+        "survivor_effect": "When you gain this, choose a monster. You may only depart to face the chosen monster. Your attacks against the chosen monster gain +1 speed and +1 strength.",
+    },
 	"Delicious": {
 		"expansion": "Lion God",
 		"flavor_text": "Predators of all shapes and sizes find your scent irresistible.",
@@ -678,6 +744,9 @@ disorders = {
 
 
 epithets = {
+    "Sun Eater": {},
+    "Child of the Sun": {},
+    "Purified": {},
     "Lord of War": {},
     "Warlord": {},
     "Dancer": {},
@@ -777,10 +846,45 @@ epithets = {
 
 
 fighting_arts = {
+    "Sneak Attack": {
+        "expansion": "Sunstalker",
+        "desc": "When you attack a monster from its blind spot, gain +4 strength for that attack.",
+    },
+    "Purpose": {
+        "expansion": "Sunstalker",
+        "desc": "Your comrades make you strong enoguh to exceed the limits of death itself.<br/>During the showdown, if you would gain a lethal number of bleeding tokens while there are any other standing survivors, roll 1d10. On a 6+, you live but are knocked down. You will not bleed to death until you gain another bleeding token.",
+    },
+    "Burning Ambition": {
+        "expansion": "Sunstalker",
+        "desc": 'When you are instructed to <b>Skip the Next Hunt</b>, ignore it. The "Skip Next Hunt" box on your survivor record sheet cannot be filled in.',
+    },
+    "Trick Attack": {
+        "expansion": "Sunstalker",
+        "desc": "Once per showdown, when you wound a monster from its blind spot, a survivor adjacent to you may gain the <b>priority target</b> token.",
+    },
+    "Defender": {
+        "expansion": "Sunstalker",
+        "desc": "When a survivor adjacent to you is knocked down, you may spend 1 survival. If you do, they stand and gain +1 survival from your words of encouragement.<br/>You cannot use this if you have a <b>broken jaw</b>.",
+    },
+    "Hellfire": {
+        "secret": True,
+        "expansion": "Sunstalker",
+        "desc": 'You cannot lose or remove this fighting art.<br/>Gain +1 strength for each <font id="Caratosis">&#x02588;</font> you have. You cannot be nominated for <b>Intimacy</b>. You ignore <b>Extreme Heat</b>.<br/>At the start of your act, lose 1 survival. At the end of your act, if your survival is 0 or you have any +1 strength tokens, your organs cook themselves and you die.',
+    },
+    "Sun Eater": {
+        "secret": True,
+        "expansion": "Sunstalker",
+        "desc": "Your body mysteriously absorbs light. At the start of the showdown, gain survival up to the settlement's Survival Limit.<br/>If you have any +1 strength tokens, you may spend them all to perform the <b>Surge</b> survival action (following all of its normal rules and restrictions).",
+    },
+    "Suppressed Shadow": {
+        "secret": True,
+        "expansion": "Sunstalker",
+        "desc": "You no longer cast a shadow and you never hesitate. Ignore First Strike.<br/>On a <b>Perfect Hit</b>, your first wound attempt of the attack automatically succeeds and inflicts a critical wound.<br/>If you die during the showdown, place a Shade minion in the space you occupied.",
+    },
 	"Necromancer": {
 		"secret": True,
 		"expansion": "Lion God",
-		"desc": "When you <b>depart</b>, gain <b>+1</b> to all hit locations for each gear card in your grid with the symbol keyword.<br/>If you would roll on the severe injury table, roll on the <b>Worm Trauma</b> table on the other side of this card instead.<br/>When you die or forget this, the settlement gains the <b>Knowledge Worm</b> innovation.",
+		"desc": 'When you <b>depart</b>, gain <font class="inline_shield">1</font> to all hit locations for each gear card in your grid with the <i>symbol</i> keyword.<br/>If you would roll on the severe injury table, roll on the <b>Worm Trauma</b> table on the other side of this card instead.<br/>When you die or forget this, the settlement gains the <b>Knowledge Worm</b> innovation.',
 	},
 	"Unrelenting": {
 		"expansion": "Lion God",
@@ -947,9 +1051,9 @@ locations = {
         "color": "FF00FF",
     },
     "Lantern Hoard": {
-        "always_available": True,
-        "consequences": ["Bone Smith", "Skinnery", "Organ Grinder", "Catarium", "Plumery", "Exhausted Lantern Hoard", "Mask Maker","Gormery","Gormchymist","Wet Resin Crafter"],
+        "consequences": ["Bone Smith", "Skinnery", "Organ Grinder", "Catarium", "Plumery", "Exhausted Lantern Hoard", "Mask Maker"],
         "endeavors": {
+            "Innovate": {"cost": 1, "desc": "Once per settlement phase, you may spend the listed resources (1 Bone, 1 Organ, 1 Hide) to draw 2 innovation cards. Keep 1 and return the other to the deck."},
             "Shared Experience": {
                 "cost": 1,
                 "requires": ["Symposium"],
@@ -1059,12 +1163,43 @@ locations = {
         "expansion": "Dung Beetle Knight",
         "color": "C9CE62",
     },
+    "The Sun": {
+        "expansion": "Sunstalker",
+        "consequences": ["Bone Smith", "Skinnery", "Organ Grinder", "Catarium", "Plumery", "Mask Maker", "Skyreef Sanctuary", "Sacred Pool"],
+        "endeavors": {
+            "Innovate": {"cost": 1, "desc": "Once per settlement phase, you may spend the listed resources (1 Bone, 1 Organ, 1 Hide) to draw 2 innovation cards. Keep 1 and return the other to the deck."},
+            "Build": {"cost":1, "desc": "Bone Smith", "remove_after": "Bone Smith"},
+            " Build": {"cost":1, "desc": "Skinnery", "remove_after": "Skinnery"},     # hacks!
+            "  Build": {"cost":1, "desc": "Organ Grinder", "remove_after": "Organ Grinder"},    # craaaazzzzzyyy hacks!
+        },
+        "special_rules": [
+            {"name": "Extreme Heat", "desc": "Survivors cannot wear heavy gear.", "bg_color": "DD3300", "font_color": "FFF"},
+            {"name": "Supernova", "desc": 'If you suffer defeat against a nemesis monster, the sun cleanses the settlement, instantly killing everyone. <font class="kdm_font">g</font> <b>Game Over</b>', "bg_color": "990000", "font_color": "FFF"},
+        ],
+    },
+    "Sacred Pool": {
+        "expansion": "Sunstalker",
+        "levels": 3,
+        "endeavors": {
+            "Sacred Water": {"cost": 1, "desc": 'Once per settlement phase, the settlement drinks the oil that builds up on the surface of the pool. <font class="kdm_font">g</font> <b>Intimacy</b>.'},
+            "Purification Ceremony": {"cost": 2, "desc": "You may endeavor here once per lifetime. Your body is infused with sacred water and <b>Purified</b> (record this). You cannot <b>depart</b> this year. Gain the <b>Protective</b> disorder and roll 1d10. On 8+, gain +1 permanent attribute of your choice. Otherwise, gain +1 permanent strength or accuracy."},
+            "Sun Sealing": {"requires": ["Sauna Shrine"], "cost": 1, "desc": "You sit for a year, in the boiling darkness of the Shrine. Gain the <b>Hellfire</b> secret fighting art. You cannot <b>depart</b> this year."},
+        },
+        "color": "eee541",
+    },
+    "Skyreef Sanctuary": {
+        "expansion": "Sunstalker",
+        "color": "FFF541",
+        "consequences": [],
+    },
 }
 
 # boy, this is a really good example of why you don't try to make dictionary
 # keys out of your raw asset values. Fuck you, Poots: next time I'm using bson
 # object keys or some shit
 item_normalization_exceptions = {
+    ("Quiver And Sunstring", "Quiver and Sunstring"),
+    ("Sun Lure And Hook", "Sun Lure and Hook"),
 	("Arm Of The First Tree", "Arm of the First Tree"),
     ("Dbk Errant Badge", "DBK Errant Badge"),
     ("Finger Of God", "Finger of God"),
@@ -1085,49 +1220,160 @@ cursed_items = {
 }
 
 items = {
+    "Cycloid Scale Hood": {
+        "expansion": "Sunstalker",
+        "location": "Skyreef Sanctuary",
+    },
+    "Cycloid Scale Sleeves": {
+        "expansion": "Sunstalker",
+        "location": "Skyreef Sanctuary",
+    },
+    "Cycloid Scale Jacket": {
+        "expansion": "Sunstalker",
+        "location": "Skyreef Sanctuary",
+    },
+    "Cycloid Scale Skirt": {
+        "expansion": "Sunstalker",
+        "location": "Skyreef Sanctuary",
+    },
+    "Cycloid Scale Shoes": {
+        "expansion": "Sunstalker",
+        "location": "Skyreef Sanctuary",
+    },
+    "Cycloid Scale Armor": {
+        "expansion": "Sunstalker",
+        "location": "Skyreef Sanctuary",
+    },
+    "Sunspot Dart": {
+        "expansion": "Sunstalker",
+        "location": "Skyreef Sanctuary",
+    },
+    "Sunshark Bow": {
+        "expansion": "Sunstalker",
+        "location": "Skyreef Sanctuary",
+    },
+    "Sunshark Arrows": {
+        "expansion": "Sunstalker",
+        "location": "Skyreef Sanctuary",
+    },
+    "Denticle Axe": {
+        "expansion": "Sunstalker",
+        "location": "Skyreef Sanctuary",
+    },
+    "Skleaver": {
+        "expansion": "Sunstalker",
+        "location": "Skyreef Sanctuary",
+    },
+    "Ink Sword": {
+        "expansion": "Sunstalker",
+        "location": "Skyreef Sanctuary",
+    },
+    "Sunspot Lantern": {
+        "expansion": "Sunstalker",
+        "location": "Skyreef Sanctuary",
+    },
+    "Quiver and Sunstring": {
+        "expansion": "Sunstalker",
+        "location": "Skyreef Sanctuary",
+    },
+    "Shadow Saliva Shawl": {
+        "expansion": "Sunstalker",
+        "location": "Skyreef Sanctuary",
+    },
+    "Sun Lure and Hook": {
+        "expansion": "Sunstalker",
+        "location": "Skyreef Sanctuary",
+    },
+    "Sky Harpoon": {
+        "expansion": "Sunstalker",
+        "location": "Skyreef Sanctuary",
+    },
+    "Ink Blood Bow": {
+        "expansion": "Sunstalker",
+        "location": "Skyreef Sanctuary",
+    },
+    "Sun Vestments": {
+        "expansion": "Sunstalker",
+        "location": "Sacred Pool",
+    },
+    "Sunring Bow": {
+        "expansion": "Sunstalker",
+        "location": "Sacred Pool",
+    },
+    "Apostle Crown": {
+        "expansion": "Sunstalker",
+        "location": "Sacred Pool",
+    },
+    "Prism Mace": {
+        "expansion": "Sunstalker",
+        "location": "Sacred Pool",
+    },
+    "God's String": {
+        "expansion": "Sunstalker",
+        "location": "Rare Gear",
+    },
+    "Eye Patch": {
+        "expansion": "Sunstalker",
+        "location": "Rare Gear",
+    },
     "Riot Mace": {
+        "expansion": "Gorm",
         "location": "Gormery",
     },
     "Rib Blade": {
+        "expansion": "Gorm",
         "location": "Gormery",
     },
     "Regeneration Suit": {
+        "expansion": "Gorm",
         "location": "Gormery",
     },
     "Pulse Lantern": {
+        "expansion": "Gorm",
         "location": "Gormery",
     },
     "Knuckle Shield": {
+        "expansion": "Gorm",
         "location": "Gormery",
     },
     "Greater Gaxe": {
+        "expansion": "Gorm",
         "location": "Gormery",
     },
     "Gorn": {
+        "expansion": "Gorm",
         "location": "Gormery",
     },
     "Gaxe": {
+        "expansion": "Gorm",
         "location": "Gormery",
     },
     "Black Sword": {
+        "expansion": "Gorm",
         "location": "Gormery",
     },
     "Gorment Mask": {
+        "expansion": "Gorm",
         "location": "Gormery",
     },
     "Gorment Suit": {
+        "expansion": "Gorm",
         "location": "Gormery",
     },
     "Gorment Sleeves": {
+        "expansion": "Gorm",
         "location": "Gormery",
     },
     "Gorment Boots": {
+        "expansion": "Gorm",
         "location": "Gormery",
     },
     "Armor Spikes": {
+        "expansion": "Gorm",
         "location": "Gormery",
     },
     "Acid Tooth Dagger": {
+        "expansion": "Gorm",
         "location": "Gormery",
     },
     "Gorment Armor Set": {
@@ -1690,6 +1936,12 @@ items = {
     "Muramasa": {
         "location": "Rare Gear",
     },
+    "Vibrant Lantern": {
+        "location": "Rare Gear",
+    },
+    "Dying Lantern": {
+        "location": "Rare Gear",
+    },
     "Thunder Maul": {
         "location": "Rare Gear",
     },
@@ -2094,19 +2346,105 @@ items = {
         "location": "Strange Resources",
         "resource_family": ["hide","scrap"],
     },
+    "Jowls": {
+        "expansion": "Sunstalker",
+        "location": "Strange Resources",
+        "resource_family": ["iron"],
+    },
+    "Hagfish": {
+        "expansion": "Sunstalker",
+        "location": "Strange Resources",
+        "resource_family": ["bone","hide"],
+    },
+    "Bugfish": {
+        "expansion": "Sunstalker",
+        "location": "Strange Resources",
+        "resource_family": ["organ"],
+    },
+    "Salt": {
+        "expansion": "Sunstalker",
+        "location": "Strange Resources",
+    },
+    "Sun Stones": {
+        "expansion": "Sunstalker",
+        "location": "Strange Resources",
+        "resource_family": ["bone"],
+    },
+    "1,000 Year Sunspot": {
+        "expansion": "Sunstalker",
+        "location": "Strange Resources",
+        "resource_family": ["bone","organ"],
+    },
+    "3,000 Year Sunspot": {
+        "expansion": "Sunstalker",
+        "location": "Strange Resources",
+        "resource_family": ["bone","organ","scrap"],
+    },
 }
 
 
 innovations = {
+    "Sun Language": {
+        "expansion": "Sunstalker",
+        "type": "starting innovation",
+        "survival_limit": 1,
+        "survival_action": "Embolden",
+        "consequences": ["Ammonia", "Drums", "Hovel", "Paint", "Symposium", "Hands of the Sun"],
+    },
+    "Hands of the Sun" : {
+        "expansion": "Sunstalker",
+        "type": "faith",
+        "survival_action": "Overcharge",
+        "consequences": ["Aquarobics", "Sauna Shrine"],
+    },
+    "Aquarobics" : {
+        "expansion": "Sunstalker",
+        "type": "faith",
+        "survival_limit": 1,
+        "endeavors": {
+            "Underwater Train": {"cost": 1, "type": "faith"},
+        },
+    },
+    "Sauna Shrine" : {
+        "expansion": "Sunstalker",
+        "type": "faith",
+        "endeavors": {
+            "Tribute": {"cost": 1, "type": "faith"},
+        },
+        "departure_buff": "When survivors <b>depart</b> for a Nemesis Encounter or Special Showdown, they gain +10 survival.",
+    },
+    "Umbilical Bank" : {
+        "expansion": "Sunstalker",
+        "consequences": ["Pottery"],
+        "type": "science",
+        "settlement_buff": "When a survivor is born, you may add 1 <b>Life String</b> strange resource to storage.",
+        "endeavors": {
+            '<font class="kdm_font">g</font> Umbilical Symbiosis': {"cost": 1, "type": "science"},
+            "Special Innovate": {"cost": 1, "desc": "Pottery (3 x organ)", "remove_after": "Pottery"},
+        },
+    },
+    "Filleting Table" : {
+        "expansion": "Sunstalker",
+        "type": "science",
+        "settlement_buff": "Once per settlement phase, if the <b>returning survivors</b> are victorious, gain 1 random basic resource.",
+        "endeavors": {
+            "Advanced Cutting": {"cost": 1, "type": "science"},
+        },
+    },
+    "Shadow Dancing" : {
+        "expansion": "Sunstalker",
+        "type": "home",
+        "endeavors": {
+            "Final Dance": {"cost": 1, "type": "home"},
+        },
+    },
 	"The Knowledge Worm" :{
 		"type": "other",
-		"always_available": True,
 		"expansion": "Lion God",
 		"settlement_buff": 'At the start of each settlement phase, add 1 scrap to settlement storage.<br/><b>Departing Survivors</b> gain +3 survival and +3 insanity. If any of those survivors have 10+ insanity, <font class="kdm_font">g</font> <b>A Gracious Host</b>.',
 	},
     "Stoic Statue" : {
         "consequences": ["Black Mask", "White Mask"],
-        "always_available": True,
         "expansion": "Lion Knight",
         "type": "other",
         "endeavors": {
@@ -2134,7 +2472,6 @@ innovations = {
     "Subterranean Agriculture": {
         "expansion": "Dung Beetle Knight",
         "type": "science",
-        "always_available": True,
         "endeavors": {
             "Build": {"cost": 1, "desc": "Wet Resin Crafter (2 x organ, 2 x bone)", "remove_after": "Wet Resin Crafter"},
             "Underground Sow": {
@@ -2159,7 +2496,6 @@ innovations = {
         },
     },
     "Nigredo": {
-        "always_available": True,
         "expansion": "Gorm",
         "type": "science",
         "survival_limit": 1,
@@ -2306,7 +2642,7 @@ innovations = {
     },
     "Hovel": {
         "type": "home",
-        "consequences": ["Partnership", "Family", "Bed"],
+        "consequences": ["Partnership", "Family", "Bed", "Shadow Dancing"],
         "departure_buff": "Departing survivors gain +1 survival.",
         "survival_limit": 1,
     },
@@ -2343,7 +2679,7 @@ innovations = {
         "survival_limit": 1,
         "settlement_buff": "If the settlement loses all its resources, you may select up to two resources and keep them.",
         "endeavors": {
-            "Build": {"cost": 1, "desc": "Barber Surgeon (3 x organ, 1 x scrap)"},
+            "Build": {"cost": 1, "desc": "Barber Surgeon (3 x organ, 1 x scrap)", "remove_after": "Barber Surgeon"},
         },
     },
     "Sculpture": {
@@ -2381,13 +2717,6 @@ innovations = {
             "Rest": {"cost": 1, "type": "home"},
         },
     },
-    "Partnership": {
-        "type": "home",
-        "always_available": True,
-        "endeavors": {
-            "Partner": {"cost": 2, "type": "home"},
-        },
-    },
     "Bloodletting": {
         "type": "science",
         "endeavors": {
@@ -2411,11 +2740,10 @@ innovations = {
         "survivor_buff": "All non-deaf survivors add +1 to their roll results on the Overwhelming Darkness story event.",
     },
     "Language": {
-        "type": "starting",
+        "type": "starting innovation",
         "consequences": ["Hovel", "Inner Lantern", "Drums", "Paint", "Symposium", "Ammonia"],
         "survival_limit": 1,
         "survival_action": "Encourage",
-        "always_available": True,
     },
     "Ammonia": {
         "type": "science",
@@ -2443,31 +2771,104 @@ innovations = {
         "departure_buff": "Departing survivors gain +1 survival.",
         "always_available": True,
     },
+    "Partnership": {
+        "always_available": True,
+        "type": "home",
+        "endeavors": {
+            "Partner": {"cost": 2, "type": "home"},
+        },
+    },
+}
+
+# pre-fab survivors
+survivors = {
+    "Adam": {
+        "attribs": {
+            "survival": 4,
+            "Insanity": 4,
+            "Courage": 6,
+            "Understanding": 3,
+            "Weapon Proficiency": 3,
+            "Strength": 1,
+            "weapon_proficiency_type": "Sword",
+            "fighting_arts": ["Timeless Eye"],
+            "abilities_and_impairments": ["Partner", "Specialization - Sword"],
+            "ability_customizations": {"Partner": "Partner: Anna"},
+        },
+    },
+    "Anna": {
+        "attribs": {
+            "sex": "F",
+            "survival": 4,
+            "Insanity": 4,
+            "Courage": 3,
+            "Understanding": 6,
+            "Weapon Proficiency": 3,
+            "Evasion": 1,
+            "weapon_proficiency_type": "Spear",
+            "fighting_arts": ["Leader"],
+            "abilities_and_impairments": ["Partner", "Specialization - Spear"],
+            "ability_customizations": {"Partner": "Partner: Adam"},
+        },
+    },
+    "Paul the Survivor": {
+        "attribs": {
+            "name": "Paul",
+            "survival": 5,
+            "Insanity": 9,
+            "Courage": 3,
+            "Understanding": 3,
+            "fighting_arts": ["Thrill Seeker","Clutch Fighter","Extra Sense"],
+            "disorders": ["Rageholic","Sworn Enemy"],
+            "abilities_and_impairments": ["Sworn Enemy"],
+            "ability_customizations": {"Sworn Enemy": "Halberdless Man"},
+        },
+    },
+    "Candy & Cola": {
+        "attribs": {"Movement": 1, "disorders": ["Hyperactive"], "sex": "F"},
+    },
+    "Kara Black": {
+        "attribs": {"survival": 3, "Strength": 1, "fighting_arts": ["Leader","Tough"], "sex": "F"},
+    },
+    "Messenger of the First Story": {
+        "attribs": {"sex": "F", "survival": 6, "Insanity": 6, "Courage": 6, "Strength": 1, "Evasion": 1, "Speed": 1, "fighting_arts": ["Last Man Standing"], },
+    },
+    "Messenger of Courage": {
+        "attribs": {"sex": "F", "survival": 6, "Insanity": 9, "Courage":  9, "Understanding": 5, "Strength": 1, "Evasion": 2, "Speed": 2, "hunt_xp": 2, "Weapon Proficiency": 5, "weapon_proficiency_type": "Twilight Sword", "fighting_arts": ["Last Man Standing"], "abilities_and_impairments": ["Specialization - Twilight Sword"]},
+    },
+    "Messenger of Humanity": {
+        "attribs": {"survival": 10, "abilities_and_impairments": ["Bitter Frenzy", "Solid", "Specialization - Grand Weapon"], "fighting_arts": ["Berserker", "Crossarm Block", "Unconscious Fighter"], "disorders": ["Rageholic"]},
+    },
+    "Snow the Savior": {
+        "attribs": {"name": "Snow", "sex": "F", "survival": 6, "Insanity": 8, "Courage": 5, "Understanding": 5, "fighting_arts": ["Unconscious Fighter"], "abilities_and_impairments": ["Red Glow", "Blue Glow", "Green Glow"]},
+    },
 }
 
 
 # Monster assets
 
 quarries = {
-    "White Lion":           {"sort_order": 1, "tokens": ["LION","WHITE"]},
-    "Gorm":                 {"sort_order": 2, "tokens": ["GORM"], "expansion": "Gorm"},
-    "Screaming Antelope":   {"sort_order": 3, "tokens": ["ANTELOPE","SCREAMING"]},
-    "Dung Beetle Knight":   {"sort_order": 4, "tokens": ["DUNG","BEETLE","DBK"], "expansion": "Dung Beetle Knight"},
-    "Old Master":           {"sort_order": 5, "tokens": ["MASTER"], "expansion": "Dung Beetle Knight"},
-    "Phoenix":              {"sort_order": 6, "tokens": ["PHOENIX","PHONIEX"]},
-	"Lion God":				{"sort_order": 7, "tokens": ["LIONGOD","GOD"], "expansion": "Lion God"},
-    "Beast Of Sorrow":      {"sort_order": 8, "no_levels": True, "tokens": ["SORROW","BEAST"]},
-    "Great Golden Cat":     {"sort_order": 9, "no_levels": True, "tokens": ["CAT"]},
-    "Mad Steed":            {"sort_order": 10, "no_levels": True, "tokens": ["MAD","STEED"]},
-    "Golden Eyed King":     {"sort_order": 11, "no_levels": True, "tokens": ["GOLDEN","EYED","KING"]},
+    "White Lion":               {"sort_order": 1, "tokens": ["LION","WHITE"]},
+    "Gorm":                     {"sort_order": 2, "tokens": ["GORM"], "expansion": "Gorm"},
+    "Screaming Antelope":       {"sort_order": 3, "tokens": ["ANTELOPE","SCREAMING"]},
+    "Phoenix":                  {"sort_order": 4, "tokens": ["PHOENIX","PHONIEX"]},
+    "Sunstalker":               {"sort_order": 5, "tokens": ["STALKER","SUNSTALKER"], "expansion": "Sunstalker"},
+    "Dung Beetle Knight":       {"sort_order": 6, "tokens": ["DUNG","BEETLE","DBK"], "expansion": "Dung Beetle Knight"},
+	"Lion God":                 {"sort_order": 7, "tokens": ["LIONGOD","GOD"], "expansion": "Lion God"},
+    "Beast Of Sorrow":          {"sort_order": 10, "no_levels": True, "tokens": ["SORROW","BEAST"]},
+    "Great Golden Cat":         {"sort_order": 11, "no_levels": True, "tokens": ["CAT"]},
+    "Mad Steed":                {"sort_order": 12, "no_levels": True, "tokens": ["MAD","STEED"]},
+    "Golden Eyed King":         {"sort_order": 13, "no_levels": True, "tokens": ["GOLDEN","EYED"]},
+    "Old Master":               {"sort_order": 14, "no_levels": True, "tokens": ["MASTER"], "expansion": "Dung Beetle Knight"},
 }
 
 nemeses = {
-    "Butcher":      {"sort_order": 15, "tokens": ["BUTCHER","BUTCHEE"]},
-    "King's Man":   {"sort_order": 16, "tokens": ["KINGSMAN","KINGS", "KING'S"]},
-    "Lion Knight":  {"sort_order": 17, "tokens": ["LK"], "expansion": "Lion Knight"},
-    "The Hand":     {"sort_order": 18, "tokens": ["HAND"]},
-    "Watcher":      {"sort_order": 30, "no_levels": True, "tokens": ["WATCHER"]},
+    "Butcher":              {"sort_order": 20, "tokens": ["BUTCHER","BUTCHEE"]},
+    "King's Man":           {"sort_order": 21, "tokens": ["KINGSMAN","KINGS", "KING'S"]},
+    "Lion Knight":          {"sort_order": 22, "tokens": ["LK"], "expansion": "Lion Knight"},
+    "The Hand":             {"sort_order": 23, "tokens": ["HAND"]},
+    "Ancient Sunstalker":   {"sort_order": 30, "no_levels": True, "tokens": ["ANCIENT"], "expansion": "Sunstalker", "add_to_timeline_controls_at": 25, "campaign": "People of the Sun"},
+    "Watcher":              {"sort_order": 31, "no_levels": True, "tokens": ["WATCHER"], "add_to_timeline_controls_at": 20, "campaign": "People of the Lantern"},
 }
 
 
@@ -2504,11 +2905,20 @@ resources = {
 }
 
 
-survival_actions = ["Dodge", "Encourage", "Surge", "Dash"]
+survival_actions = {
+    "Dodge": {"sort_order": 0},
+    "Encourage": {"sort_order": 1},
+    "Embolden": {"sort_order": 2, "expansion": "Sunstalker"},
+    "Dash": {"sort_order": 3},
+    "Surge": {"sort_order": 4},
+    "Overcharge": {"sort_order": 5, "expansion": "Sunstalker"},
+    }
+
 survivor_attributes = ["Movement", "Accuracy", "Strength", "Evasion", "Luck", "Speed"]
 
 
 weapon_proficiencies = {
+    "Katana": {"expansion": "Sunstalker"},
     "Bow": {},
     "Katar": {},
     "Sword": {},
@@ -2524,33 +2934,213 @@ weapon_proficiencies = {
 }
 
 expansions = {
-	"Beta Challenge Scenarios": {"nickname": "beta_challenge_scenarios"},
+    "Beta Challenge Scenarios": {
+        "special_rules": [
+        {"name": "Survival Limit Warning!", "desc": "Survival Limit is not automatically enforced by the Manager when Beta Challenge Scenarios content is enabled.", "bg_color": "F87217", "font_color": "FFF"},
+        ],
+    },
     "Gorm": {
-		"nickname": "gorm",
-		"timeline_add": [
-			{"ly": 1, "type": "story_event", "name": "The Approaching Storm"},
-			{"ly": 2, "type": "settlement_event", "name": "Gorm Climate"},
-		],
-	},
+        "always_available": ["Gormery", "Gormchymist", "Nigredo"],
+        "timeline_add": [
+            {"ly": 1, "type": "story_event", "name": "The Approaching Storm"},
+            {"ly": 2, "type": "settlement_event", "name": "Gorm Climate"},
+        ],
+    },
     "Dung Beetle Knight": {
-		"nickname": "dbk",
-		"timeline_add": [
-			{"ly": 8, "type": "story_event", "name": "Rumbling in the Dark"},
-		],
-	},
+        "always_available": ["Wet Resin Crafter","Subterranean Agriculture"],
+        "timeline_add": [
+            {"ly": 8, "type": "story_event", "name": "Rumbling in the Dark"},
+        ],
+    },
     "Lion Knight": {
-		"nickname": "lk",
-		"timeline_add": [
-			{"ly": 6, "type": "story_event", "name": "An Uninvited Guest"},
-			{"ly": 8, "type": "story_event", "name": "Places, Everyone!"},
-			{"ly": 12, "type": "story_event", "name": "Places, Everyone!"},
-			{"ly": 16, "type": "story_event", "name": "Places, Everyone!"},
-		],
-	},
-	"Lion God": {
-        "nickname": "lg",
+        "always_available": ["Stoic Statue"],
+        "nickname": "lk",
+        "timeline_add": [
+            {"ly": 6, "type": "story_event", "name": "An Uninvited Guest"},
+            {"ly": 8, "type": "story_event", "name": "Places, Everyone!"},
+            {"ly": 12, "type": "story_event", "name": "Places, Everyone!"},
+            {"ly": 16, "type": "story_event", "name": "Places, Everyone!"},
+        ],
+    },
+    "Lion God": {
+        "always_available": ["The Knowledge Worm"],
         "timeline_add": [
             {"ly": 13, "type": "story_event", "name": "The Silver City"},
         ],
     },
+    "Sunstalker": {
+        "always_available": ["The Sun", "Sun Language", "Umbilical Bank"],
+        "existing_campaign_only": True,
+        "timeline_add": [
+            {"ly": 8, "type": "story_event", "name": "Promise Under the Sun"},
+        ],
+        "survivor_attribs": ["Purified","Sun Eater","Child of the Sun"],
+    },
 }
+
+campaigns = {
+    "People of the Lantern": {
+        "default": True,
+        "expansions": [],
+        "always_available": ["Lantern Hoard", "Language"],
+        "principles": {
+            "New Life":     {"sort_order": 0, "show_controls": ['"First child is born" in self.settlement["milestone_story_events"]'], "milestone": "First child is born", "options": ["Protect the Young","Survival of the Fittest"]},
+            "Death":        {"sort_order": 1, "show_controls": ['int(self.settlement["death_count"]) >= 1'], "milestone": "First time death count is updated", "options": ["Cannibalize","Graves"]},
+            "Society":      {
+                "sort_order": 2,
+                "milestone": "Population reaches 15",
+                "options": ["Collective Toil","Accept Darkness"],
+                "show_controls": ['int(self.settlement["population"]) >= 15'],
+            },
+            "Conviction":   {"sort_order": 3, "options": ["Barbaric","Romantic"], "show_controls": ['int(self.settlement["lantern_year"]) >= 12'],},
+        },
+        "milestones": {
+            "First child is born": {
+                "sort_order": 0,
+                "story_event": "Principle: New Life",
+            },
+            "First time death count is updated": {
+                "sort_order": 1,
+                "story_event": "Principle: Death",
+                "add_to_timeline": 'int(self.settlement["death_count"]) >= 1',
+            },
+            "Population reaches 15": {
+                "sort_order": 2,
+                "story_event": "Principle: Society",
+                "add_to_timeline": 'int(self.settlement["population"]) >= 15',
+            },
+            "Settlement has 5 innovations": {
+                "sort_order": 3,
+                "story_event": "Hooded Knight",
+                "add_to_timeline": 'len(self.settlement["innovations"]) >= 5',
+            },
+            "Population reaches 0": {
+                "sort_order": 4,
+                "story_event": "Game Over",
+                "add_to_timeline": 'int(self.settlement["population"]) == 0 and int(self.settlement["lantern_year"]) >= 1',
+            },
+        },
+        "timeline": [
+            {"year": 0, "settlement_event": ["First Day"]},
+            {"year": 1, "story_event": ["Returning Survivors"]},
+            {"year": 2, "story_event": ["Endless Screams"]},
+            {"year": 3, },
+            {"year": 4, "nemesis_encounter": ["Nemesis Encounter: Butcher"]},
+            {"year": 5, "story_event": ["Hands of Heat"]},
+            {"year": 6, "story_event": ["Armored Strangers"]},
+            {"year": 7, "story_event": ["Phoenix Feather"]},
+            {"year": 8, },
+            {"year": 9, "nemesis_encounter": ["Nemesis Encounter: King's Man"]},
+            {"year": 10, },
+            {"year": 11, "story_event": ["Regal Visit"]},
+            {"year": 12, "story_event": ["Principle: Conviction"]},
+            {"year": 13, }, {"year": 14, }, {"year": 15, },
+            {"year": 16, "nemesis_encounter": ["Nemesis Encounter"]},
+            {"year": 17, }, {"year": 18, },
+            {"year": 19, "nemesis_encounter": ["Nemesis Encounter"]},
+            {"year": 20, "story_event": ["Watched"], },
+            {"year": 21, }, {"year": 22, },
+            {"year": 23, "nemesis_encounter": ["Nemesis Encounter: Level 3"]},
+            {"year": 24, }, {"year": 25, },
+            {"year": 26, "nemesis_encounter": ["Nemesis Encounter: Watcher"]},
+            {"year": 27, }, {"year": 28, }, {"year": 29, }, {"year": 30, }, {"year": 31, },
+            {"year": 32, }, {"year": 33, }, {"year": 34, }, {"year": 35, }, {"year": 36, },
+            {"year": 37, }, {"year": 38, }, {"year": 39, }, {"year": 40, },
+        ],
+        "nemesis_monsters": {"Butcher": [], },
+    },
+    "People of the Sun": {
+        "expansions": ["Sunstalker"],
+        "forbidden": ["Leader"],
+        "principles": {
+            "New Life":     {"sort_order": 0, "show_controls": ["True"], "options": ["Survival of the Fittest"]},
+            "Death":        {"sort_order": 1, "show_controls": ['int(self.settlement["death_count"]) >= 1'], "milestone": "First time death count is updated", "options": ["Cannibalize","Graves"]},
+            "Society":      {
+                "sort_order": 2,
+                "milestone": "Population reaches 15",
+                "options": ["Collective Toil","Accept Darkness"],
+                "show_controls": ['int(self.settlement["population"]) >= 15'],
+            },
+            "Conviction":   {"sort_order": 3, "options": ["Barbaric","Romantic"], "show_controls": ['int(self.settlement["lantern_year"]) >= 11'],},
+        },
+        "milestones": {
+            "First time death count is updated": {
+                "sort_order": 0,
+                "story_event": "Principle: Death",
+                "add_to_timeline": 'int(self.settlement["death_count"]) >= 1',
+                "principle": {
+                    "desc": "Death Principle",
+                    "options": ["Cannibalize","Graves"],
+                },
+            },
+            "Population reaches 15": {
+                "sort_order": 1,
+                "story_event": "Principle: Society",
+                "add_to_timeline": 'int(self.settlement["population"]) >= 15',
+                "principle": {
+                    "desc": "Society Principle",
+                    "options": "",
+                },
+            },
+            "Settlement has 8 innovations": {
+                "sort_order": 2,
+                "story_event": "Edged Tonometry",
+                "add_to_timeline": 'len(self.settlement["innovations"]) >= 8',
+            },
+            "Population reaches 0": {
+                "sort_order": 3,
+                "story_event": "Game Over",
+                "add_to_timeline": 'int(self.settlement["population"]) == 0 and int(self.settlement["lantern_year"]) >= 1',
+            },
+            "Not Victorious against Nemesis": {"sort_order": 4, "story_event": "Game Over"},
+        },
+        "timeline": [
+            {"year": 0, "settlement_event": ["First Day"]},
+            {"year": 1, "story_event": ["The Pool and the Sun"]},
+            {"year": 2, "story_event": ["Endless Screams"]},
+            {"year": 3, },
+            {"year": 4, "story_event": ["Sun Dipping"]},
+            {"year": 5, "story_event": ["The Great Sky Gift"]},
+            {"year": 6, },
+            {"year": 7, "story_event": ["Phoenix Feather"]},
+            {"year": 8, "story_event": ["Promise Under the Sun"]},
+            {"year": 9, },
+            {"year": 10, "story_event": ["Birth of Color"]},
+            {"year": 11, "story_event": ["Principle: Conviction"]},
+            {"year": 12, "story_event": ["Sun Dipping"]},
+            {"year": 13, "story_event": ["The Great Sky Gift"]},
+            {"year": 14, }, {"year": 15, }, {"year": 16, }, {"year": 17, }, {"year": 18, },
+            {"year": 19, "story_event": ["Sun Dipping"]},
+            {"year": 20, "story_event": ["Final Gift"]},
+            {"year": 21, "nemesis_encounter": ["Nemesis Encounter: Kings Man Level 2"]},
+            {"year": 22, "nemesis_encounter": ["Nemesis Encounter: Butcher Level 3"]},
+            {"year": 23, "nemesis_encounter": ["Nemesis Encounter: Kings Man Level 3"]},
+            {"year": 24, "nemesis_encounter": ["Nemesis Encounter: The Hand Level 3"]},
+            {"year": 25, "story_event": ["The Great Devourer"]},
+            {"year": 26, }, {"year": 27, }, {"year": 28, }, {"year": 29, }, {"year": 30, }, {"year": 31, },
+            {"year": 32, }, {"year": 33, }, {"year": 34, }, {"year": 35, }, {"year": 36, },
+            {"year": 37, }, {"year": 38, }, {"year": 39, }, {"year": 40, },
+        ],
+        "nemesis_monsters": {"Butcher": [u'Lvl 1'], },
+    },
+}
+
+story_events = {
+    "The Pool and the Sun": {"page": 15, "book": "Sunstalker"},
+    "Endless Screams": {"page": 115, "book": "core"},
+    "Sun Dipping": {"page": 19, "book": "Sunstalker"},
+    "The Great Sky Gift": {"page": 21, "book": "Sunstalker"},
+    "Phoenix Feather": {"page": 139, "book": "core"},
+    "Promise Under the sun": {"page": 4, "book": "Sunstalker"},
+    "Birth of Color": {"page": 23, "book": "Sunstalker"},
+    "Principle: Conviction": {"page": 141, "book": "core"},
+    "Principle: Death": {"page": 143, "book": "core"},
+    "Principle: New Life": {"page": 145, "book": "core"},
+    "Principle: Society": {"page": 147, "book": "core"},
+    "Final Gift": {"page": 25, "book": "Sunstalker"},
+    "The Great Devourer": {"page": 33, "book": "Sunstalker"},
+    "Game Over": {"page": 179, "book": "core"},
+    "Edged Tonometry": {"page": 29, "book": "Sunstalker"},
+    "Hooded Knight": {"page": 121, "book": "core"},
+}
+

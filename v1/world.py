@@ -14,8 +14,13 @@ def latest_kill(return_type=False):
     l = mdb.killboard.find_one(sort=[("created_on", -1)])
     if l is None:
         return None
-    output = "<li><b>%s</b></li>" % l["name"]
-    output += "<li>Defeated by the survivors of <b>%s</b> on %s at %s (CT).</li>" % (l["settlement_name"], l["created_on"].strftime(ymd), l["created_on"].strftime("%H:%M:%S"))
+
+    if return_type == "admin_panel":
+        output = "%s: %s (%s)" % (l["created_on"].strftime(ymd), l["name"], l["settlement_name"])
+    else:   # all other return_type values
+        output = "<li><b>%s</b></li>" % l["name"]
+        output += "<li>Defeated by the survivors of <b>%s</b> on %s at %s (CT).</li>" % (l["settlement_name"], l["created_on"].strftime(ymd), l["created_on"].strftime("%H:%M:%S"))
+
     return output
 
 def latest_fatality(return_type=False):
@@ -38,13 +43,14 @@ def latest_fatality(return_type=False):
         html_epithets = ""
         if "epithets" in latest_fatality.keys() and latest_fatality["epithets"] != []:
             epithets = ", ".join(latest_fatality["epithets"])
-            html_epithets = "&ensp; <i>%s</i><br/>" % epithets
+            html_epithets = "<li><i>%s</i></li>" % epithets
 
-        output = '<p>Latest survivor fatality: %s<br/><br/>' % avatar_img
-        output += '&ensp; <b>%s</b> of <b>%s</b> <br/>' % (latest_fatality["name"], latest_fatality["settlement_name"])
+        output = '<p>Latest survivor fatality: %s<br/><ul>' % avatar_img
+        output += '<li><b>%s</b> of <b>%s</b></li>' % (latest_fatality["name"], latest_fatality["settlement_name"])
         output += html_epithets
-        output += '&ensp; Cause of death: %s<br/>&ensp; Died in LY %s, XP: %s<br/>' % (latest_fatality["cause_of_death"], latest_fatality["lantern_year"], latest_fatality["hunt_xp"]) 
-        output += '&ensp; Courage: %s, Understanding: %s</p>' % (latest_fatality["Courage"], latest_fatality["Insanity"])
+        output += '<li>Cause of death: %s<br/>&ensp; Died in LY %s, XP: %s</li>' % (latest_fatality["cause_of_death"], latest_fatality["lantern_year"], latest_fatality["hunt_xp"]) 
+        output += '<li>Courage: %s, Understanding: %s</li>' % (latest_fatality["Courage"], latest_fatality["Insanity"])
+        output += '</ul></p>'
         return output
 
     return latest_fatality
