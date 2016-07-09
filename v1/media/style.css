@@ -611,7 +611,7 @@ right connector from last child*/
     div.create_new_asset_block {width: 100%; margin: 0 auto; }
 
     /* asset management styles */
-    .survivor_avatar_image {position: absolute; top: 540px; left: 20px; width: 175px; height: 225px;}
+    .survivor_avatar_image {position: absolute; top: 570px; left: 20px; width: 175px; height: 225px;}
     .survivor_avatar_image_campaign_summary {width: 65px; height: 85px; float: right; margin-top: 0px; margin-left: 4px; }
     .negative_30px_bottom_margin {margin-bottom: -30px;}
     .toggle_favorite {position: absolute; margin-top: -33px; margin-left: 35px; min-width: 50px; }
