@@ -744,6 +744,7 @@ disorders = {
 
 
 epithets = {
+    "Scarred": {},
     "Plague-bearer": {},
     "Infected": {},
     "Sun Eater": {},
@@ -1113,7 +1114,8 @@ locations = {
     "Weapon Crafter": {
         "color": "E1D4C0",
         "endeavors": {
-            "Special Innovate": {"cost": 1, "desc": "Scrap Smelting (2 x scrap, 5 x bone, 5 x organ)", "remove_after": "Scrap Smelting"}
+            "Scrap Scavenge": {"cost": 1, },
+            "Special Innovate": {"cost": 1, "desc": "Scrap Smelting (2 x scrap, 5 x bone, 5 x organ)", "remove_after": "Scrap Smelting"},
         },
     },
     "Barber Surgeon": {
