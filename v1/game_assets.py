@@ -1085,6 +1085,7 @@ locations = {
         "color": "B58AA5",
         "consequences": ["Stone Circle"],
         "endeavors": {
+            "Augury": {"cost": 1},
             "Build": {"cost": 1, "desc": "Stone Circle (3 x organ, 1 x hide)", "remove_after": "Stone Circle"},
         },
     },
