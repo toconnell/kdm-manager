@@ -6,6 +6,18 @@
 #
 
 abilities_and_impairments = {
+    "Reflection": {
+        "expansion": "Sunstalker",
+        "type": "ability",
+        "desc": "<ul><li>Your complete affinities and incomplete affinity halves count as all colors.</li><li>You may dodge at any time and as many times as you like each round.</li><li>When you attack from a blind spot, add +1d10 to all wound attempts for that attack.</li></ul>",
+        "max": 1,
+    },
+    "Refraction": {
+        "expansion": "Sunstalker",
+        "type": "ability",
+        "desc": "<ul><li>Your complete affinities and incomplete affinity halves count as all colors.</li><li>During the Showdown, after you perform a survival action, gain +1 survival.</li></ul>",
+        "max": 1,
+    },
     "Permanent Red Affinity": {
         "expansion": "Sunstalker",
         "type": "ability",
@@ -744,6 +756,7 @@ disorders = {
 
 
 epithets = {
+    "Eye Patch Badass": {},
     "Scarred": {},
     "Plague-bearer": {},
     "Infected": {},
@@ -2536,7 +2549,7 @@ innovations = {
     "Graves": {
         "type": "principle",
         "milestone": "First time death count is updated",
-        "settlement_buff": 'All new survivors gain +1 understanding.<br/>When a survivor dies during the hunt or showdown phase, gain +2<font class="kdm_font">d</font>.<br/>When a survivor dies during the settlement phase, gain +1<font class="kdm_font">d</font>.',
+        "settlement_buff": 'All new survivors gain +1 understanding.<br/>When a survivor dies during the hunt or showdown phase, gain +2 <font class="kdm_font">d</font>.<br/>When a survivor dies during the settlement phase, gain +1 <font class="kdm_font">d</font>.',
         "survivor_buff": "All new survivors gain +1 understanding.",
         "new_survivor": {"Understanding": 1},
     },
