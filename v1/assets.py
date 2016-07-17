@@ -2700,6 +2700,8 @@ class Settlement:
                 target_year = year_dict
 
         if event_type is not None:
+            if event_type not in target_year.keys():
+                target_year[event_type] = []
             return target_year[event_type]
         else:
             return target_year
