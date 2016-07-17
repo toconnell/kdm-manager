@@ -185,16 +185,19 @@ class Session:
         Otherwise, if you're just changing the view to 'dashbaord' or whatever,
         'asset_id' isn't mandatory.
         """
+
         self.session["current_view"] = target_view
+
         if target_view == "dashboard":
             self.session["current_settlement"] = None
-            self.session["current_settlement"] = None
+
         if asset_id:
             asset = ObjectId(asset_id)
             self.session["current_asset"] = asset
             if target_view == "view_campaign":
                 self.session["current_settlement"] = asset
                 self.set_current_settlement(settlement_id = asset)
+
         mdb.sessions.save(self.session)
         self.session = mdb.sessions.find_one(self.session["_id"])
 
@@ -214,20 +217,18 @@ class Session:
             else:
                 user_action = "failed to update password"
 
+        # change to a generic view without an asset
         if "change_view" in self.params:
             target_view = self.params["change_view"].value
             self.change_current_view(target_view)
-            user_action = "changed view to %s" % target_view
+            user_action = "changed view to '%s'" % target_view
 
-        if "view_campaign" in self.params:
-            self.change_current_view("view_campaign", asset_id=self.params["view_campaign"].value)
-            user_action = "viewed campaign summary (%s)" % self.params["view_campaign"].value
-        if "view_settlement" in self.params:
-            self.change_current_view("view_settlement", asset_id=self.params["view_settlement"].value)
-            user_action = "viewed settlement form"
-        if "view_survivor" in self.params:
-            self.change_current_view("view_survivor", asset_id=self.params["view_survivor"].value)
-            user_action = "viewed survivor form"
+        # change to a view of an asset
+        for p in ["view_campaign", "view_settlement", "view_survivor"]:
+            if p in self.params:
+                a = self.params[p].value
+                self.change_current_view(p, asset_id=a)
+                user_action = "changed view to '%s' [%s]" % (p, a)
 
         # these are our two asset removal methods: this is as DRY as I think we
         #   can get with this stuff, since both require unique handling
@@ -235,14 +236,14 @@ class Session:
             self.change_current_view("dashboard")
             s_id = ObjectId(self.params["remove_settlement"].value)
             S = assets.Settlement(settlement_id=s_id, session_object=self)
+            user_action = "removed settlement %s" % S
             S.delete()
-            user_action = "removed settlement %s" % s_id
         if "remove_survivor" in self.params:
             survivor_id = ObjectId(self.params["remove_survivor"].value)
             S = assets.Survivor(survivor_id=survivor_id, session_object=self)
+            user_action = "removed survivor %s from %s" % (S, S.Settlement)
             S.delete()
             self.change_current_view("view_campaign", asset_id=S.survivor["settlement"])
-            user_action = "removed survivor %s" % survivor_id
 
         # this is where we handle requests to create new assets
         if "bulk_add_survivors" in self.params:
@@ -256,6 +257,7 @@ class Session:
                 f = assets.Survivor(params=None, session_object=self, suppress_event_logging=True, update_mins=False)
                 f.set_attrs({"public": "checked", "sex": "F"})
             S.log_event("%s male and %s female survivors joined the settlement!" % (male, female))
+
         if "new" in self.params:
             if self.params["new"].value == "settlement":
 
@@ -296,7 +298,7 @@ class Session:
             if self.params["new"].value == "survivor":
                 S = assets.Survivor(params=self.params, session_object=self)
                 self.change_current_view("view_survivor", asset_id=S.survivor["_id"])
-                user_action = "created survivor %s" % S.survivor["_id"]
+                user_action = "created survivor %s in %s" % (S, S.Settlement)
 
         if "modify" in self.params:
             s_id = self.params["asset_id"].value
@@ -309,8 +311,8 @@ class Session:
                 user_action = "modified settlement %s" % self.Settlement
             if self.params["modify"].value == "survivor":
                 S = assets.Survivor(survivor_id=s_id, session_object=self)
+                user_action = "modified survivor %s of %s" % (S, S.Settlement)
                 S.modify(self.params)
-                user_action = "modified survivor %s" % s_id
 
         if "return_hunting_party" in self.params:
             s_id = self.params["return_hunting_party"].value

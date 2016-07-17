@@ -854,6 +854,23 @@ class Survivor:
         return epithets
 
 
+    def get_returning_survivor_status(self, return_type=None):
+        """ Returns a bool of whether the survivor is currently a Returning
+        Survivor. Use different return_type values for prettiness. """
+
+        returning = False
+        if self.Settlement.get_ly() in self.get_returning_survivor_years():
+            returning = True
+
+        if return_type == "html_badge":
+            if returning:
+                return html.survivor.returning_survivor_badge
+            else:
+                return ""
+
+        return returning
+
+
     def heal(self, cmd, heal_armor=False, increment_hunt_xp=False):
         """ This removes the keys defined in self.damage_locations from the
         survivor's MDB object. It can also do some game logic, e.g. remove armor
@@ -870,6 +887,10 @@ class Survivor:
         elif cmd == "Return from Hunt":
             heal_armor=True
             increment_hunt_xp=1
+
+            # record this as a year that we're a returning survivor
+            self.update_returning_survivor_years(self.Settlement.settlement["lantern_year"])
+
             # bump up the increment number for saviors
             for sav_attr in ["Caratosis","Lucernae", "Dormenatus"]:
                 if sav_attr in self.survivor["abilities_and_impairments"]:
@@ -877,6 +898,7 @@ class Survivor:
 
             if "in_hunting_party" in self.survivor.keys():
                 del self.survivor["in_hunting_party"]
+
 
         for damage_loc in self.damage_locations:
             try:
@@ -893,6 +915,22 @@ class Survivor:
             self.survivor["hunt_xp"] = current_xp + increment_hunt_xp
 
         mdb.survivors.save(self.survivor)
+
+
+    def update_returning_survivor_years(self, add_year=None):
+        """ Update/modify the self.survivor["returning_survivor"] list (which
+        is a list of lantern years normalized to be a set of integers). """
+
+        r = "returning_survivor"
+
+        if not r in self.survivor.keys():
+            self.survivor[r] = []
+
+        if add_year is not None and not "dead" in self.survivor.keys():
+            add_year = int(add_year)
+            self.survivor[r].append(add_year)
+
+        self.survivor[r] = list(set(self.survivor[r]))
 
 
     def brain_damage(self, dmg=1):
@@ -1006,6 +1044,10 @@ class Survivor:
                         self.logger.debug("%s is adding '%s' to '%s': automatically adding related '%s' ability." % (self.User.user["login"], asset_key, self.survivor["name"], related_ability))
                         if related_ability in savior_abilities:
                             self.Settlement.log_event("A savior was born! %s had the '%s'." % (self.get_name_and_id(include_id=False, include_sex=True), related_ability))
+
+                if "epithet" in asset_dict.keys():
+                    self.update_epithets(epithet=asset_dict["epithet"])
+
                 return True
             else:
                 return False
@@ -1027,12 +1069,15 @@ class Survivor:
             elif asset_key in Abilities.get_keys():
                 asset_dict = Abilities.get_asset(asset_key)
                 self.survivor["abilities_and_impairments"].remove(asset_key)
+                if "epithet" in asset_dict.keys():
+                    self.update_epithets(action="rm", epithet=asset_dict["epithet"])
                 if "cannot_spend_survival" in asset_dict.keys() and "cannot_spend_survival" in self.survivor.keys():
                     del self.survivor["cannot_spend_survival"]
                 mdb.survivors.save(self.survivor)
                 return True
             else:
                 return False
+
 
     def toggle(self, toggle_key, toggle_value, toggle_type="implicit"):
         """ Toggles an attribute on or off. The 'toggle_value' arg is either
@@ -1094,6 +1139,22 @@ class Survivor:
             return img_element
 
         return self.survivor["avatar"]
+
+
+    def update_epithets(self, action="add", epithet=None):
+        """ Adds and removes epithets from self.survivor["epithets"]. """
+
+        if epithet is None:
+            return
+
+        if action == "add":
+            self.survivor["epithets"].append(epithet)
+        elif action == "rm":
+            if epithet in self.survivor["epithets"]:
+                self.survivor["epithets"].remove(epithet)
+
+        # uniquify and sort on exit
+        self.survivor["epithets"] = sorted(list(set(self.survivor["epithets"])))
 
 
     def update_partner(self, p_id):
@@ -1234,6 +1295,7 @@ class Survivor:
 
         return parents
 
+
     def get_children(self, return_type=None):
         """ Returns a dictionary of the survivor's children. """
         children = set()
@@ -1277,7 +1339,14 @@ class Survivor:
         if not "partner_id" in self.survivor.keys():
             partner = None
         else:
-            partner = Survivor(survivor_id=self.survivor["partner_id"], session_object=self.Session)
+            try:
+                partner = Survivor(survivor_id=self.survivor["partner_id"], session_object=self.Session)
+            except Exception as e:
+                self.logger.exception(e.message)
+                self.logger.error("[%s] Survivor %s partner ID not found in MDB! (%s)" % (self.Settlement, self, self.survivor["partner_id"]))
+                del self.survivor["partner_id"]
+                self.logger.info("[%s] Removed 'partner_id' attrib from %s" % (self.Settlement, self))
+                partner = None
 
         if return_type == "html_controls":
 
@@ -1351,10 +1420,12 @@ class Survivor:
         for attrib in active:
             if not attrib in self.get_expansion_attribs().keys():
                 self.survivor["expansion_attribs"][attrib] = "checked"
+                self.update_epithets(epithet=attrib)
                 self.logger.debug("[%s] toggled ON expansion attribute '%s' for %s" % (self.User, attrib, self))
         for attrib in self.get_expansion_attribs().keys():
             if not attrib in active:
                 del self.survivor["expansion_attribs"][attrib]
+                self.update_epithets(action="rm", epithet=attrib)
                 self.logger.debug("[%s] toggled OFF expansion attribute '%s' for %s" % (self.User, attrib, self))
 
 
@@ -1383,6 +1454,16 @@ class Survivor:
                 functional_sex = '<font class="alert">%s</font>' % functional_sex
 
         return functional_sex
+
+
+    def get_returning_survivor_years(self):
+        """ Returns a list of integers representing the lantern years during
+        which a survivor is considered to be a Returning Survivor. """
+
+        if not "returning_survivor" in self.survivor.keys():
+            return []
+        else:
+            return self.survivor["returning_survivor"]
 
 
     def retire(self):
@@ -1538,10 +1619,9 @@ class Survivor:
             elif p == "survivor_avatar":
                 self.update_avatar(params[p])
             elif p == "add_epithet":
-                self.survivor["epithets"].append(params[p].value.strip())
-                self.survivor["epithets"] = sorted(list(set(self.survivor["epithets"])))
+                self.update_epithets(epithet=game_asset_key)
             elif p == "remove_epithet":
-                self.survivor["epithets"].remove(params[p].value)
+                self.update_epithets(action="rm", epithet=game_asset_key)
             elif p == "add_ability":
                 self.add_game_asset("abilities_and_impairments", game_asset_key)
             elif p == "remove_ability":
@@ -1625,7 +1705,7 @@ class Survivor:
         mdb.survivors.save(self.survivor)
 
 
-    def asset_link(self, view="survivor", button_class="survivor", link_text=False, include=["hunt_xp", "insanity", "sex", "dead", "retired"], disabled=False):
+    def asset_link(self, view="survivor", button_class="survivor", link_text=False, include=["hunt_xp", "insanity", "sex", "dead", "retired", "returning"], disabled=False):
         """ Returns an asset link (i.e. html form with button) for the
         survivor. """
 
@@ -1633,6 +1713,7 @@ class Survivor:
             link_text = "<b>%s</b>" % self.survivor["name"]
             if "sex" in include:
                 link_text += " [%s]" % self.get_sex("html")
+
         if disabled:
             link_text += "<br />%s" % self.survivor["email"]
 
@@ -1647,6 +1728,10 @@ class Survivor:
                 if "retired" in self.survivor.keys():
                     button_class = "warn"
                     attribs.append("Retired")
+
+            if "returning" in include:
+                if self.Settlement.get_ly() in self.get_returning_survivor_years():
+                    attribs.append("Returning Survivor")
 
             if "settlement_name" in include:
                 attribs.append(self.Settlement.settlement["name"])
@@ -1943,9 +2028,16 @@ class Settlement:
         """ Returns expansions as a list. """
 
         if "expansions" in self.settlement.keys():
-            return self.settlement["expansions"]
+            expansions = list(set(self.settlement["expansions"]))
+            self.settlement["expansions"] = expansions
+            return expansions
         else:
             return []
+
+
+    def get_ly(self):
+        """ Returns self.settlement["lantern_year"] as an int. """
+        return int(self.settlement["lantern_year"])
 
 
     def update_current_quarry(self, quarry_string):
@@ -1968,10 +2060,12 @@ class Settlement:
         self.add_game_asset("storage", "Cloth", 4)
         for i in range(2):
             m = Survivor(params=None, session_object=self.Session, suppress_event_logging=True)
+            m.update_epithets(epithet="Founder")
             m.set_attrs({"Waist": 1})
             m.join_hunting_party()
         for i in range(2):
             f = Survivor(params=None, session_object=self.Session, suppress_event_logging=True)
+            f.update_epithets(epithet="Founder")
             f.set_attrs({"sex": "F", "Waist": 1})
             f.join_hunting_party()
         self.update_current_quarry("White Lion (First Story)")
@@ -2593,6 +2687,24 @@ class Settlement:
         self.logger.debug("%s checked off nemesis '%s' %s for settlement '%s' (%s)." % (self.User.user["login"], nemesis_key, self.settlement["nemesis_monsters"][nemesis_key][-1], self.settlement["name"], self.settlement["_id"]))
 
 
+    def get_timeline_events(self, ly=None, event_type=None):
+        """ Returns the timeline events for the specified year. Defaults to the
+        current LY if the 'ly' kwarg is None. """
+
+        if ly is None:
+            ly = self.get_ly()
+
+        target_year = {}
+        for year_dict in self.settlement["timeline"]:
+            if year_dict["year"] == ly:
+                target_year = year_dict
+
+        if event_type is not None:
+            return target_year[event_type]
+        else:
+            return target_year
+
+
     def get_timeline(self, return_type=False):
         """ Returns the settlement's timeline. """
 
@@ -3134,6 +3246,7 @@ class Settlement:
                     settlement_name = self.settlement["name"],
                     b_class = button_class,
                     able_to_hunt = can_hunt,
+                    returning = S.get_returning_survivor_status("html_badge"),
                     special_annotation = annotation,
                     disabled = disabled,
                     name = S.survivor["name"],
@@ -3248,7 +3361,10 @@ class Settlement:
             quarry_key = self.settlement["current_quarry"]
             self.add_kill(quarry_key)
             self.settlement["current_quarry"] = None
-            self.update_timeline(add_event=(self.settlement["lantern_year"], "quarry_event", quarry_key))
+            if quarry_key not in self.get_timeline_events(event_type="quarry_event"):
+                self.update_timeline(add_event=(self.settlement["lantern_year"], "quarry_event", quarry_key))
+            else:
+                self.logger.debug("[%s] Quarry '%s' already in timeline for this year: %s. Skipping timeline update..." % (self, quarry_key, self.get_timeline_events(event_type="quarry_event")))
 
         for survivor in self.get_survivors("hunting_party"):
             S = Survivor(survivor_id=survivor["_id"], session_object=self.Session)

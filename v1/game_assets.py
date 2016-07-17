@@ -278,6 +278,7 @@ abilities_and_impairments = {
         "max": 1,
     },
     "Leprosy": {
+        "epithet": "Leper",
         "type": "impairment",
         "desc": "Reduce all damage suffered by 1 to a minimum of 1. When rolling on the severe injury table, -2 to any result.",
         "max": 1,
@@ -345,6 +346,7 @@ abilities_and_impairments = {
         "type": "impairment",
         "desc": "When the Murder or Skull Eater settlement events are drawn, this survivor is nominated.",
         "max": 1,
+        "epithet": "Skull Eater",
     },
     "Sweet Battle": {
         "type": "ability",
@@ -756,7 +758,8 @@ disorders = {
 
 
 epithets = {
-    "Eye Patch Badass": {},
+    "Slayer": {},
+    "Eye Patch Badass": {"expansion": "Sunstalker", },
     "Scarred": {},
     "Plague-bearer": {},
     "Infected": {},
@@ -785,7 +788,7 @@ epithets = {
     "Round Stone Trainer": {},
     "Bewitched": {},
     "Witness": {},
-    "Gorm Bait": {},
+    "Gorm Bait": {"expansion": "Gorm",},
     "Digested": {},
     "Braved the Storm": {},
     "White-haired":{},
@@ -832,7 +835,6 @@ epithets = {
     "The Brave": {},
     "The Insane": {},
     "The Mad": {},
-    "Huntress": {"sex": "F", },
     "Branded by the Lantern": {},
     "Hunter": {},
     "Straggler": {},
@@ -853,7 +855,6 @@ epithets = {
     "Speaker of the First Words": {},
     "Voice of Reason": {},
     "Bone Witch": {},
-    "Murdered": {"sex": "F", },
     "Murderer": {},
     "Lucernae": {},
     "Caratosis": {},
@@ -2988,7 +2989,7 @@ expansions = {
     },
     "Sunstalker": {
         "always_available": ["The Sun", "Sun Language", "Umbilical Bank"],
-        "existing_campaign_only": True,
+#        "existing_campaign_only": True,
         "timeline_add": [
             {"ly": 8, "type": "story_event", "name": "Promise Under the Sun"},
         ],
@@ -3121,8 +3122,8 @@ campaigns = {
             {"year": 5, "story_event": ["The Great Sky Gift"]},
             {"year": 6, },
             {"year": 7, "story_event": ["Phoenix Feather"]},
-            {"year": 8, "story_event": ["Promise Under the Sun"]},
-            {"year": 9, },
+#            {"year": 8, "story_event": ["Promise Under the Sun"]},
+            {"year": 8, }, {"year": 9, },
             {"year": 10, "story_event": ["Birth of Color"]},
             {"year": 11, "story_event": ["Principle: Conviction"]},
             {"year": 12, "story_event": ["Sun Dipping"]},

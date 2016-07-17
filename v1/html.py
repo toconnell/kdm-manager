@@ -45,20 +45,26 @@ class panel:
     user_status_summary = Template("""\n\
     <div class="panel_block">
         <table class="panel_recent_user">
-            <tr class="gradient_blue bold"><th colspan="3">$user_name ($u_id)</th></tr>
-            <tr><td>User Since:</td><td colspan="2">$user_created_on ($user_created_on_days days ago)</td></tr>
-            <tr><td>Latest Activity:</td><td>$latest_activity</td><td>$latest_activity_mins m. ago: $latest_action</td></tr>
-            <tr><td>Latest Sign-in:</td><td>$latest_sign_in</td><td>$latest_sign_in_mins m. ago</td></tr>
-            <tr><td>Session Length:</td><td colspan="2">$session_length minutes</td></tr>
-            <tr><td>User Agent:</td><td colspan="2">$ua</td></tr>
-            <tr><td>Survivors:</td><td colspan="2">$survivor_count</td></tr>
-            <tr><td>Settlements:</td><td colspan="2">$settlements</td></tr>
-            <tr><td colspan="2"> </td>
-             <td>
+            <tr class="gradient_blue bold"><th colspan="3">$user_name [$u_id]</th></tr>
+            <tr><td class="key">User Created:</td><td>$user_created_on_days days ago</td><td class="m_ago">$user_created_on</td></tr>
+            <tr><td class="key">Latest Sign-in:</td><td>$latest_sign_in_mins m. ago</td><td class="m_ago">$latest_sign_in</td></tr>
+<!--            <tr><td class="key">Latest Activity:</td><td>$latest_activity_mins m. ago</td><td class="m_ago">$latest_activity</td></tr> -->
+            <tr><td class="key" colspan="3"></td></tr>
+            <tr><td class="key">Latest Activity:</td><td colspan="2" class="latest_action">$latest_activity_mins m. ago</td></tr>
+            <tr><td class="latest_action" colspan="3"> $latest_action</td></tr>
+            <tr><td class="key" colspan="3"></td></tr>
+            <tr><td class="key">Session Length:</td><td colspan="2">$session_length minutes</td></tr>
+            <tr><td class="key">User Agent:</td><td colspan="2">$ua</td></tr>
+            <tr><td class="key" colspan="3"></td></tr>
+            <tr><td class="key">Survivors:</td><td colspan="2">$survivor_count</td></tr>
+            <tr><td class="key">Settlements:</td><td colspan="2">$settlements</td></tr>
+            <tr>
+             <td class="key" colspan="3">
                 <form>
                  <input type="hidden" value="pickle" name="export_user_data"/>
                  <input type="hidden" value="$u_id" name="asset_id"/>
-                 <button class="gradient_blue">Download User Data Pickle</button>
+                 <br/>
+                &ensp; &ensp; &ensp; <button class="gradient_blue">Download User Data Pickle</button>
                  <br /><br/>
                 </form>
              </td>
@@ -343,6 +349,7 @@ class survivor:
         <form method="POST" action="#">
          <input type="hidden" name="view_survivor" value="$survivor_id" />
          <button id="survivor_campaign_asset" class="$b_class $disabled" $disabled>
+            $returning
             $avatar
             <center> <font class="$favorite"/>&#9733;</font> <b>$name</b> [$sex] </center>
             $savior
@@ -839,6 +846,9 @@ class survivor:
      <label class="expansion_attrib_toggle" for="$item_id">$key</label>
     </div> <!-- expansion_attrib_toggle -->
     \n""")
+    returning_survivor_badge = """\n\
+    <div class="returning_survivor_badge" title="Returning Survivor">R</div>
+    \n"""
 
 
 class settlement:
@@ -1460,7 +1470,7 @@ class settlement:
         <h3>Expansions</h3>
         <a id="edit_expansions" class="mobile_only"></a>
         $expansions_block
-        <br />
+        <br /><br/>
         <hr/>
 
         <h3>Players</h3>

@@ -19,7 +19,8 @@ def latest_kill(return_type=False):
         output = "%s: %s (%s)" % (l["created_on"].strftime(ymd), l["name"], l["settlement_name"])
     else:   # all other return_type values
         output = "<li><b>%s</b></li>" % l["name"]
-        output += "<li>Defeated by the survivors of <b>%s</b> on %s at %s (CT).</li>" % (l["settlement_name"], l["created_on"].strftime(ymd), l["created_on"].strftime("%H:%M:%S"))
+        ly = l["kill_ly"].split("_")[1]
+        output += "<li>Defeated by the survivors of <b>%s</b> in LY %s on %s at %s (CT).</li>" % (l["settlement_name"], ly, l["created_on"].strftime(ymd), l["created_on"].strftime("%H:%M:%S"))
 
     return output
 
