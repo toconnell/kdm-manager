@@ -173,7 +173,7 @@ div#info_box h2, button#survivor_campaign_asset {text-align: left; }
 .bold, .success, .error, .warn { font-weight: bold; }
 
 /* survivor styles */
-div.returning_survivor_badge {font-size: 1em; position: absolute; background-color: #cc0000; margin: -3px; border-bottom-right-radius: 25px; width: 1.5%; height: 2%; color: #fff; padding: 0px; padding-left: 2px; }
+div.returning_survivor_badge {font-size: 1em; position: absolute; background-color: #cc0000; margin: -3px; margin-top: -20px; border-bottom-right-radius: 25px; width: 5%; height: 4%; color: #fff; padding: 0px; padding-left: 2px; }
 .survivor_sex_text {width: 50px; font-weight: bold; border: 0; }
 #survivor_owner {width: 95%; margin-left: 13px; }
 .survivor_avatar_image {float: right; width: 450px; height: 560px; border: 1px solid #000;}
@@ -669,6 +669,10 @@ right connector from last child*/
     table.panel_recent_user td.m_ago {border-left: 1px solid #EFEFEF; padding-left: 7px; }
     table.panel_recent_user td.latest_action {background-color: #FFFFEE; padding-left: 7px; font-style: italic; }
     #panel_kill_board {width: 200px; float: left; border-left: 2px solid #333; margin-left: 20px; }
+
+    /* survivor styles */
+    div.returning_survivor_badge {margin: -3px; border-bottom-right-radius: 25px; width: 1.5%; height: 2%; color: #fff; padding: 0px; padding-left: 2px; }
+
 
 }
 
