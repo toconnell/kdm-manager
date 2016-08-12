@@ -17,9 +17,9 @@ update-rc.d -f kdm-manager defaults
 ln -s /home/toconnell/kdm-manager/v1/nginx/default kdm-manager_dev			# this makes kdm-manager the default webserver response
 /etc/init.d/kdm-manager start
 
-# running the init script for the first time should create the log and lockfile
-# directories. it should also start the server on the port in settings.cfg
-#
-# following that, the manager should start on reboot
+    # running the init script for the first time should create the log and lockfile
+    # directories. it should also start the server on the port in settings.cfg
+    #
+    # following that, the manager should start on reboot
 
 
