@@ -40,13 +40,16 @@ def prune_sessions():
     logger.debug("%s sessions found." % old_sessions.count())
 
     pruned_sessions = 0
+    preserved_sessions = 0
     for s in old_sessions:
         user = mdb.users.find_one({"login": s["login"]})
         U = assets.User(user["_id"], session_object={"_id": 0, "login": "ADMINISTRATOR"})
         if U.is_admin():
-            logger.debug("Preserving session for admin user '%s'" % user["login"])
+#            logger.debug("Preserving session for admin user '%s'" % user["login"])
+            preserved_sessions += 1
         elif U.get_preference("preserve_sessions") and s["created_on"] > thirty_days_ago:   # if it's older than 30 days, ignore the preference
-            logger.debug("Preserving session for user '%s' because of user preference." % user["login"])
+#            logger.debug("Preserving session for user '%s' because of user preference." % user["login"])
+            preserved_sessions += 1
         else:
             s_id = s["_id"]
             logger.debug("Pruning old session '%s' (%s)" % (s_id, s["login"]))
@@ -55,6 +58,8 @@ def prune_sessions():
 
     if pruned_sessions > 0:
         logger.info("Pruned %s old sessions." % pruned_sessions)
+    if preserved_sessions > 0:
+        logger.info("Preserved %s sessions due to user preference." % preserved_sessions)
 
 #
 #   administrative helper functions for user-land
