@@ -6,6 +6,7 @@ import BaseHTTPServer
 import daemon
 import logging
 from lockfile.pidlockfile import PIDLockFile
+from optparse import OptionParser
 import os
 from pwd import getpwuid
 import shutil
@@ -47,16 +48,25 @@ class customRequestHandler(CGIHTTPServer.CGIHTTPRequestHandler):
         logger.log(logger.level, "%s" % (format%args))
 
 
-def start_server():
+def start_server(port=None):
     """ Starts a server. If you do this outside of a forked/daemonized process,
     you can watch it and manually Ctrl-C it. """
 
-    logger.info("Starting Server...")
+    logger.info("Starting server...")
+
+    server_port = settings.getint("server","port")
+    if port is not None:
+        server_port = int(port)
+
+    logger.info("Server will listen on port %s..." % server_port)
+
     handler = customRequestHandler  # see above
     handler.cgi_directories.extend(["/"])
-    server = ThreadingSimpleServer(('', settings.getint("server","port")), handler)
+    server = ThreadingSimpleServer(('', server_port), handler)
     app_cwd = os.path.join(os.environ["HOME"], settings.get("server", "cwd"))
     os.chdir(app_cwd)
+
+    logger.info("Server CWD is '%s'..." % app_cwd)
 
     try:
         server.serve_forever()
@@ -127,9 +137,14 @@ if __name__ == "__main__":
     logger = get_logger()
     settings = load_settings()
 
-    if len(sys.argv) >= 2:
+    parser = OptionParser()
+    parser.add_option("-i", dest="interactive", help="Run the server in 'interactive' mode (print output to STDOUT)", default=False, action="store_true")
+    parser.add_option("-p", dest="port", help="Force the server to run on the specified port", default=None, metavar="9999")
+    (options, args) = parser.parse_args()
+
+    if options.interactive:
         logger.info("Starting server in interactive mode!")
-        start_server()
+        start_server(options.port)
 
     if not os.path.isfile(settings.get("server","pid_file")):
         start_daemon()
