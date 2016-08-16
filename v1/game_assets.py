@@ -6,6 +6,30 @@
 #
 
 abilities_and_impairments = {
+    "Nightmare Blood": {
+        "expansion": "Lonely Tree",
+        "type": "ability",
+        "desc": 'Whenever you gain a bleeding token, add <font class="inline_shield">1</font> to all hit locations.',
+        "max": 1,
+    },
+    "Nightmare Membrane": {
+        "expansion": "Lonely Tree",
+        "type": "ability",
+        "desc": 'You may spend <font class="kdm_font">a c</font> to exchange any 1 of your tokens for a +1 strength token.',
+        "max": 1,
+    },
+    "Nightmare Spurs": {
+        "expansion": "Lonely Tree",
+        "type": "ability",
+        "desc": "Once per showdown, you may spend all your survival (at least 1) to lose all your +1 strength tokens and gain that many +1 luck tokens.",
+        "max": 1,
+    },
+    "Super Hair": {
+        "expansion": "Lonely Tree",
+        "type": "ability",
+        "desc": 'You may spend <font class="kdm_font">a</font> to freely exchange any tokens with adjacent survivors who have <b>Super Hair</b>.',
+        "max": 1,
+    },
     "Reflection": {
         "expansion": "Sunstalker",
         "type": "ability",
@@ -2399,6 +2423,24 @@ items = {
         "location": "Strange Resources",
         "resource_family": ["bone","organ","scrap"],
     },
+    "Lonely Fruit": {
+        "expansion": "Lonely Tree",
+        "location": "Strange Resources",
+    },
+    "Drifting Dream Fruit": {
+        "expansion": "Lonely Tree",
+        "location": "Strange Resources",
+    },
+    "Jagged Marrow Fruit": {
+        "expansion": "Lonely Tree",
+        "location": "Strange Resources",
+        "resource_family": ["bone","scrap"],
+    },
+    "Blistering Plasma Fruit": {
+        "expansion": "Lonely Tree",
+        "location": "Strange Resources",
+        "resource_family": ["organ"],
+    },
 }
 
 
@@ -2882,10 +2924,11 @@ quarries = {
 }
 
 nemeses = {
-    "Butcher":              {"sort_order": 20, "tokens": ["BUTCHER","BUTCHEE"]},
-    "King's Man":           {"sort_order": 21, "tokens": ["KINGSMAN","KINGS", "KING'S"]},
-    "Lion Knight":          {"sort_order": 22, "tokens": ["LK"], "expansion": "Lion Knight"},
-    "The Hand":             {"sort_order": 23, "tokens": ["HAND"]},
+    "Lonely Tree":          {"sort_order": 20, "tokens": ["LONELY","TREE"], "exclude_from_picker": True,},
+    "Butcher":              {"sort_order": 21, "tokens": ["BUTCHER","BUTCHEE"]},
+    "King's Man":           {"sort_order": 22, "tokens": ["KINGSMAN","KINGS", "KING'S"]},
+    "Lion Knight":          {"sort_order": 23, "tokens": ["LK"], "expansion": "Lion Knight"},
+    "The Hand":             {"sort_order": 24, "tokens": ["HAND"]},
     "Ancient Sunstalker":   {"sort_order": 30, "no_levels": True, "tokens": ["ANCIENT"], "expansion": "Sunstalker", "add_to_timeline_controls_at": 25, "campaign": "People of the Sun"},
     "Watcher":              {"sort_order": 31, "no_levels": True, "tokens": ["WATCHER"], "add_to_timeline_controls_at": 20, "campaign": "People of the Lantern"},
 }
@@ -2973,7 +3016,6 @@ expansions = {
     },
     "Lion Knight": {
         "always_available": ["Stoic Statue"],
-        "nickname": "lk",
         "timeline_add": [
             {"ly": 6, "type": "story_event", "name": "An Uninvited Guest"},
             {"ly": 8, "type": "story_event", "name": "Places, Everyone!"},
@@ -2994,6 +3036,9 @@ expansions = {
             {"ly": 8, "type": "story_event", "name": "Promise Under the Sun"},
         ],
         "survivor_attribs": ["Purified","Sun Eater","Child of the Sun"],
+    },
+    "Lonely Tree": {
+        "always_available_nemesis": True,
     },
 }
 
@@ -3161,5 +3206,6 @@ story_events = {
     "Game Over": {"page": 179, "book": "core"},
     "Edged Tonometry": {"page": 29, "book": "Sunstalker"},
     "Hooded Knight": {"page": 121, "book": "core"},
+    "The Lonely Lady": {"page": 2, "book": "Lonely Tree"},
 }
 

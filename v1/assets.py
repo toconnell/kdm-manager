@@ -2024,15 +2024,22 @@ class Settlement:
         self.log_event("'%s' expansion is now enabled!" % e_key)
 
 
-    def get_expansions(self):
+    def get_expansions(self, return_type=None):
         """ Returns expansions as a list. """
 
         if "expansions" in self.settlement.keys():
             expansions = list(set(self.settlement["expansions"]))
             self.settlement["expansions"] = expansions
-            return expansions
         else:
-            return []
+            expansions = []
+
+        if return_type == "dict":
+            exp_dict = {}
+            for exp_key in expansions:
+                exp_dict[exp_key] = game_assets.expansions[exp_key]
+            return exp_dict
+
+        return expansions
 
 
     def get_ly(self):
@@ -2635,39 +2642,6 @@ class Settlement:
         return storage
 
 
-    def get_nemeses(self, return_type=None):
-        """ Use the 'return_type' arg to specify a special return type, or leave
-        unspecified to get sorted list of nemesis monsters back. """
-
-        nemesis_monster_keys = sorted(self.settlement["nemesis_monsters"].keys())
-
-        if return_type == "comma-delimited":
-            return ", ".join(nemesis_monster_keys)
-
-        if return_type == "html_buttons":
-            output = '<input class="hidden" type="submit" name="increment_nemesis" value="None"/>\n'
-            for k in nemesis_monster_keys:
-                output += '<p><b>%s</b> ' % k
-                if k in Nemeses.get_keys() and "no_levels" in Nemeses.get_asset(k).keys():
-                    levels = ["Lvl 1"]
-                else:
-                    levels = ["Lvl 1", "Lvl 2", "lvl 3"]
-                for level in levels:
-                    if level not in self.settlement["nemesis_monsters"][k]:
-                        output += ' <button id="increment_nemesis" name="increment_nemesis" value="%s">%s</button> ' % (k,level)
-                    else:
-                        output += ' <button id="increment_nemesis" class="disabled" disabled>%s</button> ' % level
-                output += '</p>\n'
-
-            # support for expansion nemeses
-            output += Nemeses.render_as_html_dropdown(exclude=self.settlement["nemesis_monsters"].keys(), Settlement=self) 
-
-            output += '\t<input onchange="this.form.submit()" type="text" class="full_width" name="add_nemesis" placeholder="add custom nemesis"/>'
-            return output
-
-        return self.settlement["nemesis_monsters"].keys()
-
-
     def increment_nemesis(self, nemesis_key):
         """ Increments a nemesis once if 'nemesis_key' is in the settlement's
         list of known nemesis monsters. """
@@ -2710,14 +2684,12 @@ class Settlement:
     def get_timeline(self, return_type=False):
         """ Returns the settlement's timeline. """
 
-        story_event_icon_url = os.path.join(settings.get("application","STATIC_URL"), "icons/trigger_story_event.png")
         story_event_icon = '<font class="kdm_font">g</font>'
+        quarry_event_icon = '<font class="kdm_font">f</font>'
         nemesis_encounter_icon_url = os.path.join(settings.get("application", "STATIC_URL"), "icons/nemesis_encounter_event.jpg")
         nemesis_encounter_icon = '<img class="icon" src="%s"/>' % nemesis_encounter_icon_url
         settlement_event_icon_url = os.path.join(settings.get("application", "STATIC_URL"), "icons/settlement.png")
         settlement_event_icon = '<img class="icon" src="%s"/>' % settlement_event_icon_url
-        quarry_event_icon_url = os.path.join(settings.get("application", "STATIC_URL"), "icons/quarry.png")
-        quarry_event_icon = '<font class="kdm_font">f</font>'
 
         current_lantern_year = int(self.settlement["lantern_year"])
 
@@ -2790,23 +2762,28 @@ class Settlement:
                 output += html.settlement.timeline_add_event.safe_substitute(input_class=hidden, event_type="story_event", pretty_event_type="Story Event", LY="_%s" % year)
                 output += html.settlement.timeline_add_event.safe_substitute(input_class=hidden, event_type="settlement_event", pretty_event_type="Settlement Event", LY="_%s" % year)
 
-                # add nemesis picker
+                # build the nemesis picker
                 output += html.ui.game_asset_select_top.safe_substitute(operation="add_", name="nemesis_event_%s" % year, operation_pretty="Add", name_pretty="Nemesis Encounter", select_class=hidden)
                 n_options = set()
+
+                #  custom code for nemesis encounters dictated by campaign rules
                 for n in sorted(game_assets.nemeses.keys()):
                     n_dict = game_assets.nemeses[n]
                     if n not in self.settlement["nemesis_monsters"] and "add_to_timeline_controls_at" in n_dict.keys():
                         if year >= n_dict["add_to_timeline_controls_at"] and self.get_campaign() == n_dict["campaign"]:
                             n_options.add(n)
-                for nemesis in self.settlement["nemesis_monsters"]:
+
+                for nemesis in self.get_nemeses("list_of_options"):
                     n_options.add(nemesis)
                 for n in sorted(list(n_options)):
                     output += html.ui.game_asset_select_row.safe_substitute(asset=n)
                 output += html.ui.game_asset_select_bot
 
-                # add quarry picker
+
+                # build the quarry picker
                 output += html.ui.game_asset_select_top.safe_substitute(operation="add_", name="quarry_event_%s" % year, operation_pretty="Add", name_pretty="Quarry", select_class=hidden)
                 quarry_options = []
+                # custom code for prologue
                 if year == 0:
                     quarry_options.append("White Lion (First Story)")
                 quarry_options.extend(self.get_quarries("list_of_options"))
@@ -3082,9 +3059,72 @@ class Settlement:
 
         return buffs
 
+
+    def get_nemeses(self, return_type=None):
+        """ Use the 'return_type' arg to specify a special return type, or leave
+        unspecified to get sorted list of nemesis monsters back. """
+
+        nemesis_monster_keys = sorted(self.settlement["nemesis_monsters"].keys())
+
+        if return_type == "comma-delimited":
+            return ", ".join(nemesis_monster_keys)
+
+        if return_type == "list_of_options":
+            n_options = []
+
+            # check expansion content and add always available nems
+            for exp_key in self.get_expansions():
+                if "always_available_nemesis" in self.get_expansions("dict")[exp_key].keys():
+                    for i in range(1,4):
+                        if exp_key in self.settlement["nemesis_monsters"] and "Lvl %s" % i in self.settlement["nemesis_monsters"][exp_key]:
+                            pass
+                        else:
+                            n_options.append("%s Lvl %s" % (exp_key,i))
+
+            # now process settlement nem keys
+            for k in nemesis_monster_keys:
+                if k in Nemeses.get_keys() and "no_levels" in Nemeses.get_asset(k).keys():
+                    n_options.append(k)
+                else:
+                    for i in range(1,4):
+                        if "Lvl %s" % i not in self.settlement["nemesis_monsters"][k]:
+                            n_options.append("%s Lvl %s" % (k,i))
+
+            # finally, check defeated monsters and remove those options
+            for d_mon in self.settlement["defeated_monsters"]:
+                if d_mon in n_options:
+                    n_options.remove(d_mon)
+
+            return n_options
+
+        if return_type == "html_buttons":
+            output = '<input class="hidden" type="submit" name="increment_nemesis" value="None"/>\n'
+            for k in nemesis_monster_keys:
+                output += '<p><b>%s</b> ' % k
+                if k in Nemeses.get_keys() and "no_levels" in Nemeses.get_asset(k).keys():
+                    levels = ["Lvl 1"]
+                else:
+                    levels = ["Lvl 1", "Lvl 2", "lvl 3"]
+                for level in levels:
+                    if level not in self.settlement["nemesis_monsters"][k]:
+                        output += ' <button id="increment_nemesis" name="increment_nemesis" value="%s">%s</button> ' % (k,level)
+                    else:
+                        output += ' <button id="increment_nemesis" class="disabled" disabled>%s</button> ' % level
+                output += '</p>\n'
+
+            # support for expansion nemeses
+            output += Nemeses.render_as_html_dropdown(exclude=self.settlement["nemesis_monsters"].keys(), Settlement=self) 
+
+            output += '\t<input onchange="this.form.submit()" type="text" class="full_width" name="add_nemesis" placeholder="add custom nemesis"/>'
+            return output
+
+        return self.settlement["nemesis_monsters"].keys()
+
+
     def get_quarries(self, return_type=None):
         """ Returns a list of the settlement's quarries. Leave the 'return_type'
         arg unspecified to get a sorted list. """
+
         quarries = sorted(self.settlement["quarries"])
 
         if return_type == "comma-delimited":
@@ -3092,6 +3132,12 @@ class Settlement:
 
         if return_type == "list_of_options":
             output_list = []
+
+            for exp_key in self.get_expansions():
+                if "always_available_quarry" in self.get_expansions("dict")[exp_key].keys():
+                    for i in range(1,4):
+                        output_list.append("%s Lvl %s" % (exp_key,i))
+
             for quarry in quarries:
                 if quarry in Quarries.get_keys() and "no_levels" in Quarries.get_asset(quarry).keys():
                     output_list.append(quarry)
@@ -3736,8 +3782,7 @@ class Settlement:
         # if the Asset model has its own deck-building method, call that and
         #   overwrite whatever we've got so far.
         if hasattr(Asset, "build_asset_deck"):
-            asset_deck = Asset.build_asset_deck(self.settlement, self.get_quarries("list_of_options"))   # self here is the settlement object
-
+            asset_deck = Asset.build_asset_deck(self)   # pass the whole settlement obj
 
         # set the final_list object
         final_list = sorted(list(set(asset_deck)))
@@ -3815,6 +3860,7 @@ class Settlement:
                 msg = "Asset key '%s' could not be excluded from '%s'!" % (asset_key, asset_type)
                 self.logger.error(msg)
                 raise Exception(msg)
+
 
         #   now do return types
         if return_type is "user_defined":

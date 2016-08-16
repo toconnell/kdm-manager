@@ -1,5 +1,0 @@
-
-API
-
-# easy_install-2.7 flup
-# pip2.7 install flup==1.0.3.dev-20110405 (if _dummy_thread import errors)

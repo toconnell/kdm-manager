@@ -20,14 +20,20 @@ from user_agents import parse as ua_parse
 
 # function to get settings. This has to be up top.
 
-def load_settings():
+def load_settings(settings_type=None):
     """ Creates a settings object from settings.cfg in the application root dir.
     This func has to be at the top of this module, since everything below here
     (basically) uses it. """
 
     config = SafeConfigParser()
-    config.readfp(open("settings.cfg"))
-    config.file_path = os.path.abspath("settings.cfg")
+
+    if settings_type == "private":
+        filename = "settings_private.cfg"
+    else:
+        filename = "settings.cfg"
+
+    config.readfp(open(filename))
+    config.file_path = os.path.abspath(filename)
     return config
 
 
@@ -133,6 +139,7 @@ class mailSession:
 
     def __init__(self):
         self.logger = get_logger()
+        settings = load_settings("private")
         self.smtp_host = settings.get("smtp","host")
         self.smtp_user = settings.get("smtp","name")
         self.smtp_pass = settings.get("smtp","pass")

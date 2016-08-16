@@ -138,6 +138,11 @@ class Model:
             if excluded_key in options:
                 options.remove(excluded_key)
 
+        # exclude if the asset wants to be excluded
+        for self_ex_asset in self.get_keys():
+            if "exclude_from_picker" in self.get_asset(self_ex_asset):
+                options.remove(self_ex_asset)
+
         # exclude by type
         if excluded_type is not None:
             excluded_assets = []
@@ -403,6 +408,7 @@ class defeatedMonstersModel(Model):
     """ This is a pseudo model, which basically means that it is created with no
     references to game_assets.py because it depends totally on the actual
     settlement. Its methods are mostly private/unique to it. """
+
     def __init__(self):
         Model.__init__(self)
         self.game_assets = game_assets.defeated_monsters
@@ -411,20 +417,14 @@ class defeatedMonstersModel(Model):
         self.stack = True
 
 
-    def build_asset_deck(self, settlement, base_options):
+    def build_asset_deck(self, settlement, base_options=[]):
         """ Call this method with the settlement mdb object/dict to build an
         asset deck for this model. """
 
         deck = base_options
         deck.append("White Lion (First Story)")
-        for n in settlement["nemesis_monsters"].keys():
-            if n in Nemeses.get_keys() and "no_levels" in Nemeses.get_asset(n).keys():
-                deck.append(n)
-            else:
-                try:
-                    deck.append("%s %s" % (n, settlement["nemesis_monsters"][n][-1]))
-                except IndexError:
-                    deck.append("%s Lvl 1" % n)
+        deck.extend(settlement.get_quarries("list_of_options"))
+        deck.extend(settlement.get_nemeses("list_of_options"))
 
         return deck
 

@@ -117,9 +117,13 @@ class dashboard:
         <h2 class="clickable gradient_silver" onclick="showHide('system_div')"> <img class="dashboard_icon" src="%s/icons/system.png"/> System %s</h2>
         <div id="system_div" style="display: none;" class="dashboard_accordion gradient_silver">
         <p>KD:M Manager! Version $version.</p><hr/>
-        <p>v$version went live on $latest_change_date. <a target="top" href="$latest_change_link">View change log</a>.</p><hr/>
-        <p>Icon font ('kdm-font-10') by <a href="http://steamcommunity.com/id/GeorgianBalloon" target="top">Miracle Worker</a>.</p><hr/>
-        <p>This application is a work in progress and is currently running in debug mode! Please use <a href="http://blog.kdm-manager.com"/>blog.kdm-manager.com</a> to report issues/bugs or to ask questions, share ideas for features, make comments, etc.</p><hr/>
+        <p>v$version went live on $latest_change_date. <a target="top" href="$latest_change_link">View change log</a>.</p>
+        <p>The Manager is currently under active development and is running in debug mode! Application source code is <a href="https://github.com/toconnell/kdm-manager" target="top">available on GitHub</a>: please <a href="https://github.com/toconnell/kdm-manager/issues" target="top">report issues here</a>.</p><hr/>
+        <p>For more information or to make comments/ask questions about the project, check out the development blog at <a href="http://blog.kdm-manager.com" target="top"/>blog.kdm-manager.com</a>. </p><hr/>
+        <p>About:<ul>
+            <li>Developed and maintained by <a href="http://toconnell.info">Timothy O'Connell</a>.</li>
+            <li>Icon font ('kdm-font-10') by <a href="http://steamcommunity.com/id/GeorgianBalloon" target="top">Miracle Worker</a>.</li>
+        </ul></p><hr/>
 
         <div class="dashboard_preferences">
             <h3>Preferences</h3>
@@ -1647,7 +1651,7 @@ class meta:
 
     basic_http_header = "Content-type: text/html\n\n"
     basic_file_header = "Content-Disposition: attachment; filename=%s\n"
-    error_500 = Template('%s<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>%s</title></head><body><h1>500 - Internal Server Error</h1><hr/><p>$msg</p><p>Please use the information below to report the error:</p><hr/><p>%s</p>$exception' % (basic_http_header, settings.get("application","title"), datetime.now()))
+    error_500 = Template('%s<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>%s</title></head><body><h1>500 - Internal Server Error</h1><hr/><p>$msg</p><hr/><p>Please report all issues at <a href="https://github.com/toconnell/kdm-manager/issues">https://github.com/toconnell/kdm-manager/issues</a><br/><br/>Use the information below to report the error:</p><hr/><p>%s</p>$exception' % (basic_http_header, settings.get("application","title"), datetime.now()))
     start_head = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<title>%s</title>\n<link rel="stylesheet" type="text/css" href="/style.css">\n' % settings.get("application","title")
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
     saved_dialog = '\n    <div id="saved_dialog" class="success">Saved!</div>'
