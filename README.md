@@ -6,7 +6,7 @@ Start from bare metal on deb/ubuntu (do this in order):
 
     # apt-get install python2.7 python-dev python-setuptools gcc python-imaging python-gridfs  
     # apt-get install git mongodb-server  
-    # git clone ssh://toconnell@toconnell.info:222/~/git/kdm-manager  
+    # git clone https://github.com/toconnell/kdm-manager.git 
     # apt-get install nginx  
 
 
@@ -14,7 +14,8 @@ python dependencies
 
     easy_install python-dateutil python-daemon psutil lockfile pymongo pydns validate-email user-agents xlwt
 
-finally, as root, do this:
+Finally, assuming that the user who wants to run the application is toconnell,
+do the following as root:
 
     # ln -s /home/toconnell/kdm-manager/v1/init_script /etc/init.d/kdm-manager  
     # update-rc.d -f kdm-manager defaults  
