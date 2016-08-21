@@ -887,6 +887,11 @@ epithets = {
 
 
 fighting_arts = {
+    "Black Guard Style": {
+        "expansion": "White Box",
+        "secret": True,
+        "desc": 'Swords in your gear grid gain <b>Block 1</b>.<br/>When you block a hit with a sword, your next attack that round with a sword gains +2 accuracy, +2 strength, +2 speed. Limit, once per round.<br/> During the settlement phase you may spend <font class="kdm_font">d</font> to train a survivor. They gain the <b>Black Guard Style</b> secret fighting art. You lose it and suffer the <b>broken arm</b> severe injury.',
+    },
     "Sneak Attack": {
         "expansion": "Sunstalker",
         "desc": "When you attack a monster from its blind spot, gain +4 strength for that attack.",
@@ -1086,6 +1091,16 @@ defeated_monsters = {
 locations = {
     "Rare Gear": {
         "color": "9DC209",
+    },
+    "Promo": {
+        "color": "3BB9FF",
+    },
+    "Gear Recipe": {
+        "color": "333",
+        "font_color": "FFF",
+    },
+    "Ivory Carver": {
+        "color": "FFFFF0",
     },
     "Unique Items": {
         "font_color": "FFF",
@@ -1979,12 +1994,6 @@ items = {
     "Muramasa": {
         "location": "Rare Gear",
     },
-    "Vibrant Lantern": {
-        "location": "Rare Gear",
-    },
-    "Dying Lantern": {
-        "location": "Rare Gear",
-    },
     "Thunder Maul": {
         "location": "Rare Gear",
     },
@@ -2441,6 +2450,71 @@ items = {
         "location": "Strange Resources",
         "resource_family": ["organ"],
     },
+    "Blue Lantern": {
+        "expansion": "White Box",
+        "location": "Rare Gear",
+    },
+    "Dormant Twilight Cloak": {
+        "expansion": "White Box",
+        "location": "Rare Gear",
+    },
+    "Sword of Silence": {
+        "expansion": "White Box",
+        "location": "Rare Gear",
+    },
+    "Blood Plasma Gun": {
+        "expansion": "White Box",
+        "location": "Promo",
+    },
+    "Blood Plasma Katana": {
+        "expansion": "White Box",
+        "location": "Promo",
+    },
+    "Twilight Thong": {
+        "expansion": "White Box",
+        "location": "Promo",
+    },
+    "Bloodskin": {
+        "expansion": "White Box",
+        "location": "Rare Gear",
+    },
+    "Speaker Cult Knife": {
+        "expansion": "White Box",
+        "location": "Rare Gear",
+    },
+    "Vibrant Lantern": {
+        "expansion": "White Box",
+        "location": "Promo",
+    },
+    "Dying Lantern": {
+        "expansion": "White Box",
+        "location": "Promo",
+    },
+    "Prismatic Lantern": {
+        "expansion": "White Box",
+        "location": "Promo",
+    },
+    "Cloth Leggings": {
+        "expansion": "White Box",
+        "location": "Gear Recipe",
+    },
+    "Hard Breastplate": {
+        "expansion": "White Box",
+        "location": "Gear Recipe",
+    },
+    "Vagabond Armor Set": {
+        "expansion": "White Box",
+        "location": "Gear Recipe",
+    },
+    "Tabard": {
+        "expansion": "White Box",
+        "location": "Gear Recipe",
+    },
+    "White Dragon Gauntlets": {
+        "expansion": "White Box",
+        "location": "Ivory Carver",
+    },
+
 }
 
 
@@ -3039,6 +3113,9 @@ expansions = {
     },
     "Lonely Tree": {
         "always_available_nemesis": True,
+    },
+    "White Box": {
+
     },
 }
 
