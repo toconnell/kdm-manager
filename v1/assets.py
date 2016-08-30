@@ -851,6 +851,16 @@ class Survivor:
             output += '</select>'
             return output
 
+        if return_type == "survivor_sheet_controls":
+            if not self.User.get_preference("show_epithet_controls"):
+                return ""
+            else:
+                return html.survivor.epithet_controls.safe_substitute(
+                    epithets = self.get_epithets("html_formatted"),
+                    add_epithets = Epithets.render_as_html_dropdown(exclude=self.survivor["epithets"]),
+                    rm_epithets = self.get_epithets("html_remove"),
+                )
+
         return epithets
 
 
@@ -1824,9 +1834,7 @@ class Survivor:
             avatar_img = self.get_avatar("html"),
             survivor_id = self.survivor["_id"],
             name = self.survivor["name"],
-            add_epithets = Epithets.render_as_html_dropdown(exclude=self.survivor["epithets"]),
-            rm_epithets = self.get_epithets("html_remove"),
-            epithets = self.get_epithets("html_formatted"),
+            epithet_controls = self.get_epithets("survivor_sheet_controls"),
             sex = self.get_sex(),
             survival = survivor_survival_points,
             survival_limit = self.Settlement.get_attribute("survival_limit"),

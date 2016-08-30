@@ -384,12 +384,8 @@ class survivor:
         <div id="asset_management_left_pane">
             <input onchange="this.form.submit()" id="topline_name_fixed" class="full_width" type="text" name="name" value="$name" placeholder="Survivor Name"/>
             <br class="mobile_only"/><br class="mobile_only"/><br class="mobile_only"/>
-            $epithets
-            <br class="mobile_only"/>
-            $add_epithets<br class="mobile_only"/>
-            $rm_epithets
-            <input onchange="this.form.submit()" class="full_width" type="text" name="add_epithet" placeholder="add a custom epithet"/>
-            <hr class="mobile_only"/>
+
+            $epithet_controls
 
             <!-- SEX, SURVIVAL and MISC. SURVIVOR ATTRIBUTES -->
 
@@ -853,6 +849,16 @@ class survivor:
     returning_survivor_badge = """\n\
     <div class="returning_survivor_badge" title="Returning Survivor">R</div>
     \n"""
+    epithet_controls = Template("""\n\
+     $epithets
+     <br class="mobile_only"/>
+     $add_epithets
+     <br class="mobile_only"/>
+     $rm_epithets
+     <input onchange="this.form.submit()" class="full_width" type="text" name="add_epithet" placeholder="add a custom epithet"/>
+     <hr class="mobile_only"/>
+    \n""")
+
 
 
 class settlement:

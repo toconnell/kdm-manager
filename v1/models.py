@@ -546,6 +546,11 @@ preferences_dict = {
         "affirmative": "Update settlement timelines when milestone conditions are met",
         "negative": "Do not automatically update settlement timelines",
     },
+    "show_epithet_controls": {
+        "desc": "Use survivor epithets?",
+        "affirmative": "Show controls on Survivor Sheets",
+        "negative": "Hide controls and survivor epithets on Survivor Sheets",
+    },
 }
 
 class userPreferences():
