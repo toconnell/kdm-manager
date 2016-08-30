@@ -1500,7 +1500,7 @@ class settlement:
         </form>
         <hr/>
 
-    <form method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever.');"><input type="hidden" name="remove_settlement" value="$settlement_id"/><button class="full_width error">Permanently Delete Settlement</button></form>
+    <form method="POST" onsubmit="return confirm('Press OK to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever. Please note that this CANNOT BE UNDONE and is not the same as marking a settlement Abandoned. Consider abandoning old settlements rather than removing them, as this allows data about the settlement to be used in general kdm-manager stats.');"><input type="hidden" name="remove_settlement" value="$settlement_id"/><button class="full_width error">Permanently Delete Settlement</button></form>
     </div>
     \n""")
     expansions_block_slug = Template("""\n\

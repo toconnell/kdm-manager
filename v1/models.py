@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from copy import copy
 import game_assets
 from utils import get_logger
 from string import capwords
@@ -227,6 +228,19 @@ class disordersModel(Model):
         Model.__init__(self)
         self.game_assets = game_assets.disorders
         self.name = "disorder"
+
+    def build_asset_deck(self, Settlement):
+        expansions = Settlement.get_expansions()
+        deck = []
+        for disorder in game_assets.disorders.keys():
+            d_dict = self.get_asset(disorder)
+            if not "expansion" in d_dict.keys():
+                deck.append(disorder)
+            elif "expansion" in d_dict.keys():
+                if d_dict["expansion"] in expansions:
+                    deck.append(disorder)
+        return sorted(deck)
+
 
 class epithetsModel(Model):
     def __init__(self):

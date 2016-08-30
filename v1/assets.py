@@ -982,17 +982,10 @@ class Survivor:
                 return False
 
             if asset_key == "RANDOM_DISORDER":
-                disorder_deck = Disorders.get_keys()
+                disorder_deck = Disorders.build_asset_deck(self.Settlement)
                 for disorder in self.survivor["disorders"]:
                     if disorder in disorder_deck:
                         disorder_deck.remove(disorder)
-                for disorder in disorder_deck:
-                    if "expansion" in Disorders.get_asset(disorder):
-                        if "expansions" not in self.Settlement.settlement.keys():
-                            disorder_deck.remove(disorder)
-                        elif "expansions" in self.Settlement.settlement.keys():
-                            if Disorders.get_asset(disorder)["expansion"] not in self.Settlement.settlement["expansions"]:
-                                disorder_deck.remove(disorder)
                 self.survivor["disorders"].append(random.choice(disorder_deck))
             elif asset_key not in Disorders.get_keys():
                 self.survivor["disorders"].append(asset_key)
