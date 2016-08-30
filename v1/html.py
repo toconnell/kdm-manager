@@ -30,7 +30,7 @@ class panel:
         <tr class="grey"><td>Settlements:</td><td>$settlements</td></tr>
         <tr><td>Survivors:</td><td>$live_survivors/$dead_survivors ($total_survivors total)</td></tr>
         <tr class="grey"><td>Valkyrie:</td><td>$complete_death_records complete death recs</td></tr>
-        <tr><td>Latest Fatality:</td><td>$latest_fatality</td></tr>
+        <tr><td colspan="2">$latest_fatality</td></tr>
         <tr class="grey"><td>Current Hunt:</td><td>$current_hunt</td></tr>
         <tr><td>Latest Kill:</td><td>$latest_kill</td></tr>
     </table>
@@ -391,7 +391,9 @@ class survivor:
 
             <p>
              Survivor Sex: <input onchange="this.form.submit()" class="survivor_sex_text" name="sex" value="$sex" />
-            $avatar_img<br/>
+            $mobile_avatar_img
+            <br/>
+
             <div id="survivor_dead_retired_container">
 
                     <!-- favorite -->
@@ -437,6 +439,9 @@ class survivor:
                  <label class="radio_principle_label" for="cannot_spend_survival"> Cannot spend survival </label>
                  $survival_actions
                 </p>
+
+            $desktop_avatar_img
+
             </div>
 
             <hr class="mobile_only"/>

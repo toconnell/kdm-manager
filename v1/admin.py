@@ -427,10 +427,11 @@ class Panel:
     def render_html(self):
         recent_users = self.get_recent_users()
 
-        f = mdb.the_dead.find_one({"complete": {"$exists": True}}, sort=[("created_on",-1)])
+#        f = mdb.the_dead.find_one({"complete": {"$exists": True}}, sort=[("created_on",-1)])
+        f = world.latest_fatality()
         if f is not None:
-            f_owner = mdb.users.find_one({"_id": f["created_by"]})["login"]
-            latest_fatality_string = "%s <br/> <b>%s</b> <br/> %s <br/> %s" % (f_owner, f["name"], f["settlement_name"], f["cause_of_death"])
+            f_owner = mdb.users.find_one({"_id": f["created_by"]})
+            latest_fatality_string = "%s %s (%s)" % (world.latest_fatality("html"),f_owner["login"],f_owner["_id"])
         else:
             latest_fatality_string = "No deaths recorded yet!"
 

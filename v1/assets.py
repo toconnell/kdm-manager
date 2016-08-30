@@ -1134,8 +1134,12 @@ class Survivor:
             else:
                 return None
 
-        if return_type == "html":
-            img_element = '<img class="survivor_avatar_image" src="/get_image?id=%s" alt="%s"/>' % (self.survivor["avatar"], self.survivor["name"])
+        if return_type in ["html_desktop", "html_mobile"]:
+            if return_type == "html_desktop":
+                hide_class = "desktop_only"
+            elif return_type == "html_mobile":
+                hide_class = "mobile_only"
+            img_element = '<img class="survivor_avatar_image %s" src="/get_image?id=%s" alt="%s"/>' % (hide_class, self.survivor["avatar"], self.survivor["name"])
             return '<a href="/get_image?id=%s">%s</a>' % (self.survivor["avatar"], img_element)
         if return_type == "html_campaign_summary":
             img_element = '<img class="survivor_avatar_image_campaign_summary" src="/get_image?id=%s"/>' % (self.survivor["avatar"])
@@ -1824,7 +1828,8 @@ class Survivor:
 
         output = html.survivor.form.safe_substitute(
             MEDIA_URL = settings.get("application", "STATIC_URL"),
-            avatar_img = self.get_avatar("html"),
+            desktop_avatar_img = self.get_avatar("html_desktop"),
+            mobile_avatar_img = self.get_avatar("html_mobile"),
             survivor_id = self.survivor["_id"],
             name = self.survivor["name"],
             epithet_controls = self.get_epithets("survivor_sheet_controls"),
