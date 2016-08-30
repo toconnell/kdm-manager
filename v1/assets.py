@@ -1999,7 +1999,7 @@ class Settlement:
 
             self.settlement["expansions"].remove(e_key)
             self.log_event("'%s' expansion is now disabled!" % (e_key.replace("_"," ")))
-            self.logger.debug("Removed '%s' expansion from %s" % (e_key, self))
+            self.logger.debug("[%s] Removed '%s' expansion from %s" % (self.User, e_key, self))
         else:
             self.add_expansion(e_key)
 
@@ -2024,7 +2024,7 @@ class Settlement:
                     if e["ly"] >= int(self.settlement["lantern_year"]):
                         self.update_timeline(add_event = (e["ly"], e["type"], e["name"]))
 
-        self.logger.debug("Added '%s' expansion to %s" % (e_key, self))
+        self.logger.debug("[%s] Added '%s' expansion to %s" % (self.User, e_key, self))
         self.log_event("'%s' expansion is now enabled!" % e_key)
 
 
