@@ -3105,9 +3105,8 @@ expansions = {
     },
     "Sunstalker": {
         "always_available": ["The Sun", "Sun Language", "Umbilical Bank"],
-#        "existing_campaign_only": True,
         "timeline_add": [
-            {"ly": 8, "type": "story_event", "name": "Promise Under the Sun"},
+            {"ly": 8, "type": "story_event", "name": "Promise Under the Sun", "excluded_campaign": "People of the Sun"},
         ],
         "survivor_attribs": ["Purified","Sun Eater","Child of the Sun"],
     },

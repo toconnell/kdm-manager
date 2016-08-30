@@ -2025,8 +2025,11 @@ class Settlement:
 
         if "timeline_add" in expansion_dict.keys():
             for e in expansion_dict["timeline_add"]:
-                if e["ly"] >= int(self.settlement["lantern_year"]):
-                    self.update_timeline(add_event = (e["ly"], e["type"], e["name"]))
+                if "excluded_campaign" in e.keys() and e["excluded_campaign"] == self.get_campaign():
+                    pass
+                else:
+                    if e["ly"] >= int(self.settlement["lantern_year"]):
+                        self.update_timeline(add_event = (e["ly"], e["type"], e["name"]))
 
         self.logger.debug("Added '%s' expansion to %s" % (e_key, self))
         self.log_event("'%s' expansion is now enabled!" % e_key)
