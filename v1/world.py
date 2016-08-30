@@ -11,7 +11,7 @@ from models import Quarries, Nemeses, mutually_exclusive_principles
 
 def latest_kill(return_type=False):
     """ Returns the latest defeated monster from mdb.killboard. """
-    l = mdb.killboard.find_one(sort=[("created_on", -1)])
+    l = mdb.killboard.find_one({"settlement_name": {"$nin": ["Test", "Unknown"]}}, sort=[("created_on", -1)])
     if l is None:
         return None
 
@@ -145,7 +145,7 @@ def expansion_popularity_contest():
 
 def current_hunt():
     try:
-        settlement = mdb.settlements.find({"current_quarry": {"$exists": True}, "hunt_started": {"$gte": datetime.now() - timedelta(minutes=180)}}).sort("hunt_started", -1)[0]
+        settlement = mdb.settlements.find({"name": {"$nin": ["Test", "Unknown"]}, "current_quarry": {"$exists": True}, "hunt_started": {"$gte": datetime.now() - timedelta(minutes=180)}}).sort("hunt_started", -1)[0]
     except:
         return "No settlements are currently hunting monsters."
     if settlement is None:
