@@ -174,8 +174,11 @@ class mailSession:
 
 
 def get_latest_posts():
-    response = urlopen('https://www.googleapis.com/blogger/v3/blogs/3322385743551419703/posts?key=AIzaSyBAms6po9Dc82iTeRzDXMYI-bw81ufIu-0').read()
-    return json.loads(response)
+    try:
+        response = urlopen('https://www.googleapis.com/blogger/v3/blogs/3322385743551419703/posts?key=AIzaSyBAms6po9Dc82iTeRzDXMYI-bw81ufIu-0').read()
+        return json.loads(response)
+    except Exception as e:
+        return {"exception": e}
 
 def get_latest_change_log():
     """ Gets the latest post to the blog. """

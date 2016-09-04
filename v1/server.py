@@ -60,13 +60,18 @@ def start_server(port=None):
 
     logger.info("Server will listen on port %s..." % server_port)
 
-    handler = customRequestHandler  # see above
-    handler.cgi_directories.extend(["/"])
-    server = ThreadingSimpleServer(('', server_port), handler)
-    app_cwd = os.path.join(os.environ["HOME"], settings.get("server", "cwd"))
-    os.chdir(app_cwd)
-
-    logger.info("Server CWD is '%s'..." % app_cwd)
+    try:
+        handler = customRequestHandler  # see above
+        handler.cgi_directories.extend(["/"])
+        server = ThreadingSimpleServer(('', server_port), handler)
+        u_name = getpwuid(os.getuid())[0]
+        effective_home_dir = "/home/%s/" % u_name
+        app_cwd = os.path.join(effective_home_dir, "kdm-manager/v1")
+        logger.info("Setting server CWD to %s" % app_cwd)
+        os.chdir(app_cwd)
+    except Exception as e:
+        logger.error("Could not set application CWD!")
+        logger.exception(e)
 
     try:
         server.serve_forever()

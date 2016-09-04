@@ -12,6 +12,7 @@
 
 import ConfigParser
 import os
+import pwd
 import shutil
 import subprocess
 import sys
@@ -47,9 +48,9 @@ def dir_check():
 
 
 def toggle_server():
-    """ Executes the "server.py" command in the server's cwd (as defined by the
-    settings file above). The result is that the server starts if stopped, and
-    stops if started.
+    """ Executes the "server.py" command in the server's cwd (as determined by
+    the effective user's ID and name). The result is that the server starts if
+    stopped, and stops if started.
 
     i.e. execute this function twice in a row for a restart. """
 
@@ -59,16 +60,30 @@ def toggle_server():
     else:
         sys.stderr.write(" Starting kdm-manager...\n")
 
-    os.setuid(settings.getint("server", "uid"))
+    # set our key environment/path vars from the UID/GID in the cfg
+    e_uid = settings.getint("server", "uid")
+    e_gid = settings.getint("server", "gid")
+    u_name = pwd.getpwuid(e_uid)[0]
+    egg_cache_path = "/home/%s/.python-eggs" % u_name
+    server_cwd = "/home/%s/kdm-manager/v1" % u_name
 
-    #   works around egg cache issues with funky easy_install setups
-    egg_cache = settings.get("server","egg_cache")
-    if not os.path.isdir(egg_cache):
-        os.mkdir(egg_cache)
-        sys.stdout.write("Created egg cache dir '%s'\n" % egg_cache)
-    os.environ['PYTHON_EGG_CACHE'] = egg_cache
+    # now change gid and uid (in that order: only root can change gid)
+    sys.stderr.write(" Setting uid/gid to %s/%s...\n" % (e_uid, e_gid))
+    os.setgid(e_gid)
+    os.setuid(e_uid)
 
-    server_cwd = settings.get("server", "cwd")
+    #   work around egg cache issues with funky easy_install setups
+    if not os.path.isdir(egg_cache_path):
+        sys.stderr.write(" User '%s' (uid = %s) does not have a '~./python-eggs' directory!\n" % (u_name, settings.getint("server", "uid")))
+        sys.stderr.write(" Attempting to create ~/.python-eggs as uid = %s / gid = %s...\n" % (os.getuid(), os.getgid()) )
+        try:
+            os.mkdir(egg_cache_path)
+        except Exception as e:
+            raise
+            sys.exit()
+        sys.stdout.write(" Created egg cache dir '%s'\n" % egg_cache_path)
+    os.environ['PYTHON_EGG_CACHE'] = egg_cache_path
+
     os.chdir(server_cwd)
     sys.stderr.write(" CWD is %s\n" % os.getcwd())
 
