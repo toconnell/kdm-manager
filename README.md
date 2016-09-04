@@ -27,13 +27,17 @@ you're ONLY using this server for kdm-manager, do this as root:
     # ln -s /home/toconnell/kdm-manager/v1/nginx/default /etc/nginx/sites-enabled/kdm-manager_dev
 
 The file /v1/nginx/production that ships with the repo contains all of the 
-media server and redirect configs that facilitate the production deployment of
-the Manager. If you're just doing some dev/support work, you don't need all of
-that and you should stick with /v1/nginx/default as your webserver config.
+media (static content) server and redirect configs that facilitate the 
+production deployment of the Manager. 
 
-Finally, running the init script for the first time should create the log and lockfile
-directories. it should also start the server on the port in settings.cfg:
+If you're just doing some dev/support work, you don't need all of that and you
+should stick with /v1/nginx/default as your webserver config.
 
+Finally, restarting nginx and running the Manager's init script for the first 
+time should create the log and lockfile directories. it should also start the
+server on the port in settings.cfg:
+
+    # /etc/init.d/nginx start
     # /etc/init.d/kdm-manager start  
 
 
