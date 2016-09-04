@@ -1132,7 +1132,7 @@ class Survivor:
             if return_type == "html":
                 return ""
             else:
-                return None
+                return ""
 
         if return_type in ["html_desktop", "html_mobile"]:
             if return_type == "html_desktop":

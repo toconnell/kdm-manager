@@ -1612,9 +1612,6 @@ items = {
     "Portcullis Key": {
         "location": "Unique Items",
     },
-    "Belt Of Gender Swap": {
-        "location": "Unique Items",
-    },
     "Love Juice": {
         "location": "Basic Resources",
         "resource_family": ["organ"],
@@ -2461,6 +2458,9 @@ items = {
     "Sword of Silence": {
         "expansion": "White Box",
         "location": "Rare Gear",
+    },
+    "Belt Of Gender Swap": {
+        "location": "Promo",
     },
     "Blood Plasma Gun": {
         "expansion": "White Box",
