@@ -7,10 +7,6 @@ server {
     access_log  /var/log/nginx/kdm-manager_com.access.log;
     error_log   /var/log/nginx/kdm-manager_com.error.log;
 
-    ### rewrites and redirects
-    rewrite ^/favicon.ico  http://media.kdm-manager.com/favicon.ico permanent;
-    rewrite ^/change_log   http://blog.kdm-manager.com permanent;
-
     ### Locations
     location / {
         rewrite ^/$ /index   last;

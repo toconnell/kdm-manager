@@ -4,28 +4,42 @@ Debian system. Production runs on Ubuntu LTS.
 
 Start from bare metal on deb/ubuntu (do this in order):
 
-    # apt-get install python2.7 python-dev python-setuptools gcc python-imaging python-gridfs  
-    # apt-get install git mongodb-server  
-    # git clone https://github.com/toconnell/kdm-manager.git 
-    # apt-get install nginx  
+    # apt-get install git mongodb-server nginx python2.7 python-dev python-setuptools gcc python-imaging python-gridfs  
 
 
 python dependencies
 
-    easy_install python-dateutil python-daemon psutil lockfile pymongo pydns validate-email user-agents xlwt
+    # easy_install python-dateutil python-daemon psutil lockfile pymongo pydns validate-email user-agents xlwt
 
-Finally, assuming that the user who wants to run the application is toconnell,
-do the following as root:
+Now, as the non-root user who is going to run the Manager's processes, do this:
+
+    # exit
+    $ cd
+    $ git clone https://github.com/toconnell/kdm-manager.git 
+
+Assuming that the user who wants to run the application is toconnell, and that 
+you're ONLY using this server for kdm-manager, do this as root:
 
     # ln -s /home/toconnell/kdm-manager/v1/init_script /etc/init.d/kdm-manager  
     # update-rc.d -f kdm-manager defaults  
-    # ln -s /home/toconnell/kdm-manager/v1/nginx/default kdm-manager_dev			# this makes kdm-manager the default webserver response  
+    # /etc/init.d/nginx stop
+    # rm /etc/nginx/sites-enabled/default
+    # ln -s /home/toconnell/kdm-manager/v1/nginx/default /etc/nginx/sites-enabled/kdm-manager_dev
+
+The file /v1/nginx/production that ships with the repo contains all of the 
+media server and redirect configs that facilitate the production deployment of
+the Manager. If you're just doing some dev/support work, you don't need all of
+that and you should stick with /v1/nginx/default as your webserver config.
+
+Finally, running the init script for the first time should create the log and lockfile
+directories. it should also start the server on the port in settings.cfg:
+
     # /etc/init.d/kdm-manager start  
 
-Running the init script for the first time should create the log and lockfile
-directories. it should also start the server on the port in settings.cfg.  
 
-Following that, the manager should start on system reboot.
+Following that, the Manager will be running and it should start automatically on
+reboot.
+
 
 #   Production deployment notes    #
 If you plan to run the Manager in any kind of production context, e.g. where
