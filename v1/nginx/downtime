@@ -1,0 +1,43 @@
+server {
+    ### no-www redirect
+    listen 80;
+    server_name www.kdm-manager.com;
+    rewrite  ^  http://kdm-manager.com$request_uri? permanent;
+}
+
+server {
+    ### blog redirect
+    listen 80;
+    server_name blog.kdm-manager.com;
+    return  301 http://kdm-manager.blogspot.com;
+}
+
+server {
+    listen  80;
+    server_name  kdm-manager.com;
+
+    ### Logging
+    access_log  /var/log/nginx/kdm-manager_com.access.log;
+    error_log   /var/log/nginx/kdm-manager_com.error.log;
+
+    ### Locations
+    location / {
+        root   /home/toconnell/kdm-manager/v1/downtime;
+        index  index.html index.htm;
+    }
+
+}
+
+server {
+    listen   80;
+    server_name  media.kdm-manager.com;
+
+    access_log  /var/log/nginx/kdm-manager_com.access.log;
+    error_log   /var/log/nginx/kdm-manager_com.error.log;
+
+    location / {
+        root   /home/toconnell/kdm-manager/v1/media/;
+        autoindex   on;
+        add_header Access-Control-Allow-Origin *;
+    }
+}

@@ -29,7 +29,23 @@ except:
     raise Exception("Settings could not be loaded!")
 
 
-#   helpers and functions
+# helper and admin functions
+
+def set_env_vars():
+    """ Sets the necessary python variables for doing server operations. """
+    global e_uid
+    global e_gid
+    global u_name
+    global egg_cache_path
+    global server_cwd
+    global pid_file_path
+    e_uid = settings.getint("server", "uid")
+    e_gid = settings.getint("server", "gid")
+    u_name = pwd.getpwuid(e_uid)[0]
+    egg_cache_path = "/home/%s/.python-eggs" % u_name
+    server_cwd = "/home/%s/kdm-manager/v1" % u_name
+    pid_file_path = settings.get("server","pid_file")
+
 
 def dir_check():
     """ Iterates over 'required_directories' list within the function and
@@ -47,6 +63,22 @@ def dir_check():
         os.chown(d, int(settings.get("server", "uid")), -1)
 
 
+# actual server functionality
+
+def server():
+    """ Runs the server command. Assumes that the CWD is correct, etc. Don't
+    call this function until you've at LEAST called set_env_vars(). """
+
+    # first, change the working directory to the home of the server script
+    os.chdir(server_cwd)
+    sys.stderr.write(" CWD is %s\n" % os.getcwd())
+
+    # now, call the server script as a subprocess
+    p = subprocess.Popen("./server.py", shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    stdout_value, stderr_value = p.communicate()
+    sys.stderr.write(" STDOUT: %s\n STDERR: %s\n" % (stdout_value, stderr_value))
+
+
 def toggle_server():
     """ Executes the "server.py" command in the server's cwd (as determined by
     the effective user's ID and name). The result is that the server starts if
@@ -54,18 +86,15 @@ def toggle_server():
 
     i.e. execute this function twice in a row for a restart. """
 
-    pid_file_path = settings.get("server","pid_file")
+    # first, set the globals
+    set_env_vars()
+
+    # now print a custom message to STDOUT so that the admin knows what's
+    #   about to pop off up in this piece
     if os.path.isfile(pid_file_path):
         sys.stderr.write(" Stopping kdm-manager...\n")
     else:
         sys.stderr.write(" Starting kdm-manager...\n")
-
-    # set our key environment/path vars from the UID/GID in the cfg
-    e_uid = settings.getint("server", "uid")
-    e_gid = settings.getint("server", "gid")
-    u_name = pwd.getpwuid(e_uid)[0]
-    egg_cache_path = "/home/%s/.python-eggs" % u_name
-    server_cwd = "/home/%s/kdm-manager/v1" % u_name
 
     # now change gid and uid (in that order: only root can change gid)
     sys.stderr.write(" Setting uid/gid to %s/%s...\n" % (e_uid, e_gid))
@@ -84,18 +113,60 @@ def toggle_server():
         sys.stdout.write(" Created egg cache dir '%s'\n" % egg_cache_path)
     os.environ['PYTHON_EGG_CACHE'] = egg_cache_path
 
-    os.chdir(server_cwd)
-    sys.stderr.write(" CWD is %s\n" % os.getcwd())
+    # finally, run the server script (which toggles by default)
+    server()
 
-    p = subprocess.Popen("./server.py", shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+def change_run_mode(run_mode="production"):
+    """ Toggles in and out of downtime. This includes an nginx restart and
+    modifies the symlinks in /etc/nginx/sites-enabled so it's not a fucking
+    toy. YHBW. """
+    set_env_vars()
+
+    if os.getuid() != 0:
+        sys.stdout.write("This may only be done as root. Exiting...\n")
+        sys.exit(255)
+    elif run_mode not in ["production","downtime","default"]:
+        sys.stdout.write("The run mode '%s' is not a valid run mode. Exiting...\n" % run_mode)
+        sys.exit(255)
+
+    if os.path.isfile(pid_file_path):
+        sys.stdout.write(" Stopping kdm-manager...\n")
+        server()
+
+    # stop nginx
+    sys.stdout.write(" Stopping nginx...\n")
+    p = subprocess.Popen("/etc/init.d/nginx stop", shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     stdout_value, stderr_value = p.communicate()
     sys.stderr.write(" STDOUT: %s\n STDERR: %s\n" % (stdout_value, stderr_value))
 
+    # now switch run modes
+    config_file_path = settings.get("server", "nginx_config")
+    if os.path.islink(config_file_path):
+        sys.stdout.write(" Removing synlink: '%s'\n" % config_file_path)
+        shutil.os.remove(config_file_path)
+    elif os.path.isfile(config_file_path):
+        sys.stderr.write(" The file '%s' is not a symlink! Exiting...\n" % config_file_path)
+        sys.exit(255)
+
+    # now, write the appropriate symlink, based on the mode we're switching to
+    sys.stdout.write(" Changing to '%s' run mode...\n" % run_mode)
+    run_mode_file = os.path.join(server_cwd, "nginx", run_mode)
+    os.symlink(run_mode_file, config_file_path)
+
+    # start nginx
+    sys.stdout.write(" Starting nginx...\n")
+    p = subprocess.Popen("/etc/init.d/nginx start", shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    stdout_value, stderr_value = p.communicate()
+    sys.stderr.write(" STDOUT: %s\n STDERR: %s\n" % (stdout_value, stderr_value))
+
+    if run_mode == "production":
+        sys.stdout.write(" Run mode changed! Restart kdm-manager if it is not currently running!\n\n")
 
 if __name__ == "__main__":
 
     if not len(sys.argv) >= 2:
-        print("\n %s {start|stop|restart}\n" % sys.argv[0])
+        print("\n %s {start|stop|restart|downtime|production}\n" % sys.argv[0])
         sys.exit(1)
 
     command = sys.argv[1]
@@ -103,6 +174,10 @@ if __name__ == "__main__":
 
     if command in ["start", "stop"]:
         toggle_server()
+    elif command == "downtime":
+        change_run_mode("downtime")
+    elif command == "production":
+        change_run_mode()
     elif command == "restart":
         toggle_server()
         time.sleep(1)

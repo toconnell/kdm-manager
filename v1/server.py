@@ -52,6 +52,11 @@ def start_server(port=None):
     """ Starts a server. If you do this outside of a forked/daemonized process,
     you can watch it and manually Ctrl-C it. """
 
+    if os.getuid() == 0:
+        logger.error("The server cannot be started as root.")
+        logger.info("Aborting operation!")
+        sys.exit()
+
     logger.info("Starting server...")
 
     server_port = settings.getint("server","port")
