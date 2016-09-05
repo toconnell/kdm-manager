@@ -2,6 +2,7 @@
 
 #   standard
 from ConfigParser import SafeConfigParser
+from datetime import datetime, timedelta
 from dateutil.parser import parse as dateutil_parse
 import email
 from email.header import Header as email_Header
@@ -45,7 +46,9 @@ settings = load_settings()
 ymd = "%Y-%m-%d"
 hms = "%H:%M:%S"
 ymdhms = "%Y-%m-%d %H:%M:%S"
+thirty_days_ago = datetime.now() - timedelta(days=30)
 mdb = MongoClient()[settings.get("application","mdb")]
+admin_session = {"_id": 0, "login": "ADMINISTRATOR", "User": {"_id": 0}}
 
 #
 #  application helper functions

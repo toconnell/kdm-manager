@@ -16,7 +16,7 @@ from validate_email import validate_email
 import assets
 import html
 import session
-from utils import email, mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes, ymd
+from utils import email, mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes, ymd, admin_session, thirty_days_ago
 import world
 
 import sys
@@ -31,9 +31,9 @@ settings = load_settings()
 #   Maintenance and administrative functions
 #
 
+
 def prune_sessions():
     """ Removes sessions older than 24 hours. """
-    thirty_days_ago = datetime.now() - timedelta(days=30)
     yesterday = datetime.now() - timedelta(days=1)
     logger.debug("Searching for sessions older than %s to prune..." % yesterday)
     old_sessions = mdb.sessions.find({"created_on": {"$lt": yesterday}}).sort("created_on")
@@ -43,7 +43,7 @@ def prune_sessions():
     preserved_sessions = 0
     for s in old_sessions:
         user = mdb.users.find_one({"login": s["login"]})
-        U = assets.User(user["_id"], session_object={"_id": 0, "login": "ADMINISTRATOR"})
+        U = assets.User(user["_id"], session_object=admin_session)
         if U.is_admin():
 #            logger.debug("Preserving session for admin user '%s'" % user["login"])
             preserved_sessions += 1
@@ -257,7 +257,7 @@ def remove_document(collection, doc_id):
 def pretty_view_user(u_id):
     """ Prints a pretty summary of the user and his assets to STDOUT. """
 
-    User = assets.User(u_id, session_object={"_id": "0", "login": "ADMINISTRATOR"})
+    User = assets.User(u_id, session_object=admin_session)
 
     if User.user is None:
         print("Could not retrieve user info from mdb.")
@@ -558,7 +558,7 @@ def dashboard_alert():
 
 def export_data(u_id):
     """ Writes a pickle of the user and his assets. """
-    U = assets.User(user_id=u_id, session_object={"_id": 0, "login": "ADMINISTRATOR"})
+    U = assets.User(user_id=u_id, session_object=admin_session)
     filename = "%s.%s.admin_export.pickle" % (datetime.now().strftime(ymd), U.user["login"])
     fh = file(filename, "w")
     fh.write(U.dump_assets("pickle"))
@@ -623,7 +623,7 @@ def import_data(data_pickle_path):
 
     manual_approve = raw_input(' Reset password for %s? Type "YES" to reset: ' % data["user"]["login"])
     if manual_approve == "YES":
-        U = assets.User(user_id=data["user"]["_id"], session_object={"_id": 0, "login": "ADMINISTRATOR"})
+        U = assets.User(user_id=data["user"]["_id"], session_object=admin_session)
         U.update_password("password")
         print(" Updated password to 'password'. ")
     else:
@@ -680,7 +680,7 @@ if __name__ == "__main__":
         valkyrie()
 
     if options.user_repr:
-        User = assets.User(user_id=options.user_repr, session_object={"_id": 0, "login": "ADMINISTRATOR"})
+        User = assets.User(user_id=options.user_repr, session_object=admin_session)
         print User.dump_assets()
 
     if options.user_id and options.user_pass:

@@ -25,7 +25,7 @@ import game_assets
 import html
 from models import Abilities, NemesisMonsters, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles, SurvivalActions
 from session import Session
-from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, get_latest_change_log, to_handle
+from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, get_latest_change_log, to_handle, thirty_days_ago
 import world
 
 settings = load_settings()
@@ -349,30 +349,45 @@ class User:
         recent_session_cutoff = datetime.now() - timedelta(hours=12) 
 
         return html.dashboard.world.safe_substitute(
+            # organic queries
             dead_survivors = mdb.the_dead.find().count(),
-            defeated_monsters = world.kill_board("html_table_rows"),
-            total_users = mdb.users.find().count(),
-            active_settlements = mdb.settlements.find().count() - mdb.settlements.find({"abandoned": {"$exists": True}}).count(),
-            abandoned_settlements = mdb.settlements.find({"abandoned": {"$exists": True}}).count(),
-            recent_sessions = mdb.users.find({"latest_activity": {"$gte": recent_session_cutoff}}).count(),
             live_survivors = mdb.survivors.find({"dead": {"$exists": False}}).count(),
-            latest_fatality = world.latest_fatality("html"),
+            abandoned_settlements = mdb.settlements.find({"abandoned": {"$exists": True}}).count(),
+            active_settlements = mdb.settlements.find().count() - mdb.settlements.find({"abandoned": {"$exists": True}}).count(),
+            total_users = mdb.users.find().count(),
+            total_users_last_30 = mdb.users.find({"latest_sign_in": {"$gte": thirty_days_ago}}).count(),
+            # canned queries
+            defeated_monsters = world.kill_board("html_table_rows"),
+            recent_sessions = mdb.users.find({"latest_activity": {"$gte": recent_session_cutoff}}).count(),
             latest_kill = world.latest_kill("html"),
             top_principles = world.top_principles("html_ul"),
-            avg_ly = world.get_average("lantern_year"),
-            avg_lost_settlements = world.get_average("lost_settlements"),
-            avg_pop = world.get_average("population"),
-            avg_death = world.get_average("death_count"),
-            avg_survival_limit = world.get_average("survival_limit"),
-            avg_hunt_xp = world.get_survivor_average(),
-            avg_insanity = world.get_survivor_average("Insanity"),
-            avg_courage = world.get_survivor_average("Courage"),
-            avg_understanding = world.get_survivor_average("Understanding"),
+            current_hunt = world.current_hunt(),
+            expansion_popularity_bullets = world.expansion_popularity_contest(),
+            latest_fatality = world.latest_fatality(),
+            latest_survivor = world.latest_survivor(),
+            latest_settlement = world.latest_settlement(),
+            # min/max queries
             max_pop = world.get_minmax("population")[1],
             max_death = world.get_minmax("death_count")[1],
             max_survival = world.get_minmax("survival_limit")[1],
-            current_hunt = world.current_hunt(),
-            expansion_popularity_bullets = world.expansion_popularity_contest(),
+            # settlement averages
+            avg_ly = world.get_average(attrib="lantern_year", return_type=float),
+            avg_lost_settlements = world.get_average(attrib="lost_settlements"),
+            avg_pop = world.get_average(attrib="population"),
+            avg_death = world.get_average(attrib="death_count"),
+            avg_survival_limit = world.get_average(attrib="survival_limit", return_type=float),
+            avg_milestones = world.get_average(attrib="milestone_story_events"),
+            avg_storage = world.get_average(attrib="storage", return_type=float),
+            avg_defeated = world.get_average(attrib="defeated_monsters", return_type=float),
+            avg_expansions = world.get_average(attrib="expansions"),
+            avg_innovations = world.get_average(attrib="innovations"),
+            # survivor averages
+            avg_disorders = world.get_average(collection="survivors", attrib="disorders", return_type=float),
+            avg_abilities = world.get_average(collection="survivors", attrib="abilities_and_impairments", return_type=float),
+            avg_hunt_xp = world.get_average(collection="survivors", attrib="hunt_xp", return_type=float),
+            avg_insanity = world.get_average(collection="survivors", attrib="Insanity", return_type=float),
+            avg_courage = world.get_average(collection="survivors", attrib="Courage", return_type=float),
+            avg_understanding = world.get_average(collection="survivors", attrib="Understanding", return_type=float),
         )
 
 
@@ -1928,7 +1943,10 @@ class Settlement:
         self.Session = session_object
         if self.Session is None or not self.Session:
             raise Exception("Settlements may not be initialized without a Session object!")
-        self.User = self.Session.User
+        try:
+            self.User = self.Session.User
+        except:
+            self.logger.warn("Settlement %s initialized without a User object!" % settlement_id)
 
         # if we initialize a settlement without an ID, make a new one
         if not settlement_id:
@@ -2047,6 +2065,11 @@ class Settlement:
             for exp_key in expansions:
                 exp_dict[exp_key] = game_assets.expansions[exp_key]
             return exp_dict
+        elif return_type == "comma-delimited":
+            if expansions == []:
+                return None
+            else:
+                return ", ".join(expansions)
 
         return expansions
 
@@ -3697,6 +3720,17 @@ class Settlement:
                 self.logger.debug("'%s' milestone removed from %s milestones." % (m, self))
 
 
+    def update_settlement_name(self, new_name):
+        """ Updates the settlement's name. Logs an event if it does. """
+        if new_name != self.settlement["name"]:
+            old_name = self.settlement["name"]
+            self.settlement["name"] = new_name
+            
+            self.logger.debug("%s updated settlement name: '%s' is now '%s'." % (self.User, old_name, new_name))
+            self.log_event("Changed settlement name from '%s' to '%s'." % (old_name, new_name))
+        else:
+            pass
+
 
     def update_location_level(self, location_name, lvl):
         """ Changes 'location_name' level to 'lvl'. """
@@ -4131,6 +4165,8 @@ class Settlement:
                 self.toggle_expansion(exp_key)
             elif p.split("_")[0] == "location" and p.split("_")[1] == "level":
                 self.update_location_level(p.split("_")[2:][0], game_asset_key)
+            elif p == "name":
+                self.update_settlement_name(game_asset_key)
             else:
                 self.settlement[p] = game_asset_key
                 self.logger.debug("%s set '%s' = '%s' for %s" % (self.User.user["login"], p, game_asset_key, self.get_name_and_id()))

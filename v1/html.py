@@ -205,14 +205,67 @@ class dashboard:
     \n""" % (settings.get("application", "STATIC_URL"), down_arrow_flash))
     kill_board_row = Template('<tr><td>$monster</td><td>$kills</td></tr>')
     kill_board_foot = Template('<tr><td colspan="2">&ensp; $other_list</td></tr>')
+    avatar_image = Template("""\n
+    <img class="latest_fatality" src="/get_image?id=$avatar_id" alt="$name"/>
+    \n""")
     world = Template("""\n
     <div class="dashboard_menu world_panel">
         <h2 class="clickable gradient_blue" onclick="showHide('world_div')"> <img class="dashboard_icon" src="%s/icons/world.png"/> World %s</h2>
         <div id="world_div" style="display: none;" class="dashboard_accordion gradient_blue">
-        <p>$total_users users are registered; $recent_sessions users have managed campaigns in the last 12 hours.</p><hr/>
+
+
         <p>$active_settlements settlements are holding fast; $abandoned_settlements settlements have been abandoned.</p>
         <p>$live_survivors survivors are alive and fighting; $dead_survivors have perished.</p>
         <hr/>
+
+        <h3>Settlements:</h3>
+        <p>Averages across all settlements:</p>
+        <ul>
+            <li>Lantern Year: $avg_ly</li>
+            <li>Innovation Count: $avg_innovations</li>
+            <li>Expansions: $avg_expansions</li>
+            <li>Defeated Monsters: $avg_defeated</li>
+            <li>Items in Storage: $avg_storage</li>
+            <li>Milestone Story Events: $avg_milestones</li>
+            <li>Lost Settlements: $avg_lost_settlements</li>
+        </ul>
+        <p>Population and death stats:</p>
+        <ul>
+            <li>Average Population: $avg_pop</li>
+            <li>Max Population: $max_pop</li>
+            <li>Average Death count: $avg_death</li>
+            <li>Max Death Count: $max_death</li>
+        </ul>
+        <p>Survival Limit stats:</p>
+        <ul>
+            <li>Average Survival Limit: $avg_survival_limit</li>
+            <li>Max Survival Limit: $max_survival</li>
+        </ul>
+        <p>Principle selection rates:</p>
+        $top_principles
+        <p>Settlements using expansion content:</p>
+        <ul>
+            $expansion_popularity_bullets
+        </ul>
+        $latest_settlement
+        <hr/>
+
+        <h3>Survivors:</h3>
+        <p>Averages for all living survivors:</p>
+        <ul>
+            <li>Hunt XP: $avg_hunt_xp</li>
+            <li>Insanity: $avg_insanity</li>
+            <li>Courage: $avg_courage</li>
+            <li>Understanding: $avg_understanding</li>
+            <li>Disorders: $avg_disorders</li>
+            <li>Abilities/Impairments: $avg_abilities</li>
+        </ul>
+        $latest_fatality
+        <br class="clear_both">
+        $latest_survivor
+        <hr/>
+
+        <h3>Monsters:</h3>
         <p>Latest hunt activity:</p>
         <ul>
             <li>$current_hunt</li>
@@ -221,45 +274,16 @@ class dashboard:
         <ul>
             $latest_kill
         </ul>
-        <hr/>
-        $latest_fatality
-        <hr/>
-        <p>Population stats for all settlements:</p>
-        <ul>
-            <li>Average Population: $avg_pop</li>
-            <li>Max Population: $max_pop</li>
-            <li>Average Death count: $avg_death</li>
-            <li>Max Death Count: $max_death</li>
-        </ul>
-        <p>Averages for all living survivors:</p>
-        <ul>
-            <li>Hunt XP: $avg_hunt_xp</li>
-            <li>Insanity: $avg_insanity</li>
-            <li>Courage: $avg_courage</li>
-            <li>Understanding: $avg_understanding</li>
-        </ul>
-        <hr/>
-        <h3>General Statistics for All Settlements:</h3>
-        <ul>
-            <li>Average Lantern Year: $avg_ly</li>
-            <li>Average Lost Settlements: $avg_lost_settlements</li>
-        </ul>
-        <p>Settlements using expansion content:</p>
-        <ul>
-            $expansion_popularity_bullets
-        </ul>
-        <p>Survival Limit:</p>
-        <ul>
-            <li>Average Survival Limit: $avg_survival_limit</li>
-            <li>Max Survival Limit: $max_survival</li>
-        </ul>
         <p>Defeated Monster Totals:
             <table class="dashboard_world_defeated_monsters">
             $defeated_monsters
             </table>
         </p>
-        <p>Principle Selection:</p>
-        $top_principles
+        <hr/>
+
+        <h3>Users:</h3>
+        <p>$total_users users are registered; $recent_sessions users have managed campaigns in the last 12 hours.</p>
+        <p>$total_users_last_30 users have managed campaigns in the last 30 days.</p>
         </div>
     </div>
     """ % (settings.get("application", "STATIC_URL"), down_arrow_flash))
