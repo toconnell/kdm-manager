@@ -12,6 +12,13 @@
 #
 
 abilities_and_impairments = {
+    "Sleeping Virus Flower": {
+        "expansion": "Flower Knight",
+        "type": "curse",
+        "desc": 'When you die, a flower blooms from your corpse. Add <font class="kdm_font">g</font> <b>A Warm Virus</b> to the timeline next year. You are the guest.',
+        "max": 1,
+        "Luck": 1,
+    },
     "Nightmare Blood": {
         "expansion": "Lonely Tree",
         "type": "ability",
@@ -3117,6 +3124,10 @@ cursed_items = {
 }
 
 epithets = {
+    "Host": {"expansion": "Flower Knight"},
+    "Guest": {"expansion": "Flower Knight"},
+    "The First Host": {"expansion": "Flower Knight"},
+    "The First Guest": {"expansion": "Flower Knight"},
     "Flower Addict": {"expansion": "Flower Knight"},
     "Sun Eater": {"expansion": "Sunstalker"},
     "Eye Patch Badass": {"expansion": "Sunstalker"},
