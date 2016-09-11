@@ -294,7 +294,7 @@ def user_average(return_type=False):
         survivor_count = mdb.survivors.find({"created_by": user["_id"]}).count()
 #       gridfs queries need version 2.7+ of the gridfs pymongo driver
 #        avatar_count = gridfs.GridFS(mdb).find({"created_by": user["_id"]}).count()
-        avatar_count = mdb.survivors.find({"avatar": {"$exists": True}}).count()
+        avatar_count = mdb.survivors.find({"created_by": user["_id"], "avatar": {"$exists": True}}).count()
         user_counts[user["_id"]] = {"settlements": settlement_count, "survivors": survivor_count, "avatars": avatar_count}
 
     averages = {"settlements": 0, "survivors": 0, "avatars": 0}
