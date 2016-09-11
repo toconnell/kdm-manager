@@ -5,6 +5,12 @@
 #       other helpers here. Those all belong in models.py
 #
 
+
+
+#
+#   Abilities and Impairments
+#
+
 abilities_and_impairments = {
     "Nightmare Blood": {
         "expansion": "Lonely Tree",
@@ -41,11 +47,6 @@ abilities_and_impairments = {
         "type": "ability",
         "desc": "<ul><li>Your complete affinities and incomplete affinity halves count as all colors.</li><li>During the Showdown, after you perform a survival action, gain +1 survival.</li></ul>",
         "max": 1,
-    },
-    "Permanent Red Affinity": {
-        "expansion": "Sunstalker",
-        "type": "ability",
-        "desc": '<font id="Caratosis">&#x02588;</font>',
     },
     "Red Glow": {
         "expansion": "Beta Challenge Scenarios",
@@ -315,8 +316,10 @@ abilities_and_impairments = {
     "Dream of the Beast" : {
         "type": "ability",
         "desc": "1 permanent red affinity.",
+        "affinities": {"red": 1},
         "max": 1,
         "related": ["Caratosis", "Red Life Exchange"],
+        "epithet": "Red Savior"
     },
     "Caratosis" : {
         "type": "ability",
@@ -333,8 +336,10 @@ abilities_and_impairments = {
     "Dream of the Crown" : {
         "type": "ability",
         "desc": "1 permanent green affinity.",
+        "affinities": {"green": 1},
         "max": 1,
         "related": ["Dormenatus", "Green Life Exchange"],
+        "epithet": "Green Savior"
     },
     "Dormenatus" : {
         "type": "ability",
@@ -351,8 +356,10 @@ abilities_and_impairments = {
     "Dream of the Lantern" : {
         "type": "ability",
         "desc": "1 permanent blue affinity.",
+        "affinities": {"blue": 1},
         "max": 1,
         "related": ["Lucernae", "Blue Life Exchange"],
+        "epithet": "Blue Savior"
     },
     "Lucernae" : {
         "type": "ability",
@@ -601,7 +608,27 @@ abilities_and_impairments = {
 }
 
 
+
+#
+#   Disorders
+#
+
 disorders = {
+    "Flower Addiction": {
+        "expansion": "Flower Knight",
+        "flavor_text": "An insatiable hunger has bloomed in you, delicate and sickeningly sweet.",
+        "survivor_effect": "You may only <b>depart</b> to hunt the Flower Knight.<br/>After you <b>depart</b>, cure this disorder.",
+    },
+    "Ghostly Beauty": {
+        "expansion": "Flower Knight",
+        "flavor_text": "You cannot experience fear if you do not exist.",
+        "survivor_effect": "Double all insanity you gain.<br/>Double all survival you spend.",
+    },
+    "Narcissistic": {
+        "expansion": "Flower Knight",
+        "flavor_text": "There is nothing in the world more beautiful than yourself.",
+        "survivor_effect": "You may not wear armor at the head location. If you are wearing armor at the head location when you gain this disorder, archive it.",
+    },
     "Overprotective" :{
         "expansion": "Sunstalker",
         "flavor_text": "You love the feeling of being needed.",
@@ -781,112 +808,28 @@ disorders = {
 }
 
 
-epithets = {
-    "Slayer": {},
-    "Eye Patch Badass": {"expansion": "Sunstalker", },
-    "Scarred": {},
-    "Plague-bearer": {},
-    "Infected": {},
-    "Sun Eater": {},
-    "Child of the Sun": {},
-    "Purified": {},
-    "Lord of War": {},
-    "Warlord": {},
-    "Dancer": {},
-    "Brawler": {},
-    "Monster Worshipper": {},
-    "Twin": {},
-    "Spelunker of Death": {},
-    "Farmer": {},
-    "Maw Runner": {},
-    "Bug Man": {},
-    "Met the Bug Man": {},
-    "Vomit-soaked": {},
-    "Coward": {},
-    "Foolish": {},
-    "Shining": {},
-    "Hero": {},
-    "Entomophile": {},
-    "Beetle-kin": {},
-    "Beetle-brain": {},
-    "Round Stone Trainer": {},
-    "Bewitched": {},
-    "Witness": {},
-    "Gorm Bait": {"expansion": "Gorm",},
-    "Digested": {},
-    "Braved the Storm": {},
-    "White-haired":{},
-    "White Wolf":{},
-    "The White":{},
-    "The Black":{},
-    "Eunuch": {},
-    "Broke the Silence": {},
-    "Triathlete":{},
-    "Undisputed boss of the settlement": {},
-    "The Fertile": {},
-    "Defiled": {},
-    "Occult": {},
-    "Living Sacrifice": {},
-    "Sacrificed": {},
-    "Corpsegrinder": {},
-    "Ate the Fruit": {},
-    "Silence Breaker": {},
-    "The Silent": {},
-    "Father of Words": {},
-    "Forsaker": {},
-    "Forbidden Dancer": {},
-    "Endless Arguer": {},
-    "Monster Teeth": {},
-    "Metal Jaw": {},
-    "Haunted": {},
-    "Skull Eater": {},
-    "Rival": {},
-    "Warborn": {},
-    "Shape Shifter": {},
-    "The Wanderer": {},
-    "One-eyed": {},
-    "The Blind": {},
-    "The Dead": {},
-    "Berserker": {},
-    "The Wolf": {},
-    "Thunderer": {},
-    "Swift-footed": {},
-    "The Chef": {},
-    "Iron-hearted": {},
-    "Man-slaying": {},
-    "Fast Runner": {},
-    "The Doomed": {},
-    "The Brave": {},
-    "The Insane": {},
-    "The Mad": {},
-    "Branded by the Lantern": {},
-    "Hunter": {},
-    "Straggler": {},
-    "Dreamer": {},
-    "Monster": {},
-    "The Destroyer": {},
-    "Patriarch": {"sex": "M", },
-    "Matriarch": {"sex": "F", },
-    "Experimented with Lanterns": {},
-    "Dimmed by the Lantern": {},
-    "Masticated": {},
-    "Death Taster": {},
-    "Pure Warrior": {},
-    "Cursed": {},
-    "Twilight Knight": {},
-    "Swamp Explorer": {},
-    "Lantern Experimenter": {},
-    "Speaker of the First Words": {},
-    "Voice of Reason": {},
-    "Bone Witch": {},
-    "Murderer": {},
-    "Lucernae": {},
-    "Caratosis": {},
-    "Dormenatus": {},
-}
 
 
 fighting_arts = {
+    "Fencing": {
+        "expansion": "Flower Knight",
+        "secret": True,
+        "desc": "Ignore <b>Parry</b> when attempting to wound hit locations. (Attempt to wound these locations normally.)<br/>When a monster attacks you, roll 1d10. On a 6+, ignore 1 hit. Limit, once per round.",
+    },
+    "True Blade": {
+        "expansion": "Flower Knight",
+        "secret": True,
+        "desc": "All swords in your gear grid gain <b>deadly</b>.<br/>Gain +3 luck when attacking with a sword if you have the <b>Ghostly Beauty</b> and <b>Narcissistic</b> disorders.",
+    },
+    "Acanthus Doctor": {
+        "expansion": "Flower Knight",
+        "secret": True,
+        "desc": 'You may wear up to 3 <b>Satchel</b> gear cards.<br/>When you <b>depart</b>, if you are not wearing any armor, for each <font id="Dormenatus">&#x02588;</font> you have, gain +1 strength token and add <font class="inline_shield">1</font> to all hit locations.<br/>Spend <font class="kdm_font">a</font> and a Flower or <b>Fresh Acanthus</b> resource to heal a permanent injury you or an adjacent survivor suffered this showdown.',
+    },
+    "Otherworldly Luck": {
+        "expansion": "Flower Knight",
+        "desc": "During the Hunt and Settlement phase, whenever you roll on a table, you may add +1 to the roll result. This may not exceed the highest possible result of that table.<br/>(This includes Hunt Events, Story Events, Endeavors, Settlement Events, etc.)",
+    },
     "Black Guard Style": {
         "expansion": "White Box",
         "secret": True,
@@ -1089,6 +1032,10 @@ defeated_monsters = {
 }
 
 locations = {
+    "Sense Memory": {
+        "color": "145314",
+        "font_color": "FFF",
+    },
     "Rare Gear": {
         "color": "9DC209",
     },
@@ -1252,10 +1199,12 @@ locations = {
     },
 }
 
+
 # boy, this is a really good example of why you don't try to make dictionary
 # keys out of your raw asset values. Fuck you, Poots: next time I'm using bson
 # object keys or some shit
 item_normalization_exceptions = {
+    ("Belt Of Gender Swap", "Belt of Gender Swap"),
     ("Quiver And Sunstring", "Quiver and Sunstring"),
     ("Sun Lure And Hook", "Sun Lure and Hook"),
 	("Arm Of The First Tree", "Arm of the First Tree"),
@@ -1264,20 +1213,45 @@ item_normalization_exceptions = {
     ("Eye Of Cat", "Eye of Cat"),
 }
 
-cursed_items = {
-    "Belt of Gender Swap": {"ability": "Gender Swap"},
-    "Real Helm": {"ability": "King's Curse",},
-    "Real Faulds": {"ability": "King's Curse",},
-    "Real Gauntlets": {"ability": "King's Curse",},
-    "Real Greaves": {"ability": "King's Curse",},
-    "Real Plackart": {"ability": "King's Curse",},
-    "Thunder Maul": {},
-    "Twilight Sword": {"ability": "Twilight Sword"},
-    "Hideous Disguise": {"expansion": "Lion Knight", "ability": "Hideous Disguise"},
-	"Death Mehndi": {"expansion": "Lion God", "ability": "Death Mehndi"}
-}
+
 
 items = {
+    "Vespertine Foil": {
+        "expansion": "Flower Knight",
+        "location": "Sense Memory",
+    },
+    "Vespertine Bow": {
+        "expansion": "Flower Knight",
+        "location": "Sense Memory",
+    },
+    "Vespertine Cello": {
+        "expansion": "Flower Knight",
+        "location": "Sense Memory",
+    },
+    "Satchel": {
+        "expansion": "Flower Knight",
+        "location": "Sense Memory",
+    },
+    "Vespertine Arrow": {
+        "expansion": "Flower Knight",
+        "location": "Sense Memory",
+    },
+    "Flower Knight Badge": {
+        "expansion": "Flower Knight",
+        "location": "Sense Memory",
+    },
+    "Flower Knight Helm": {
+        "expansion": "Flower Knight",
+        "location": "Rare Gear",
+    },
+    "Replica Flower Sword": {
+        "expansion": "Flower Knight",
+        "location": "Rare Gear",
+    },
+    "Sleeping Virus Flower": {
+        "expansion": "Flower Knight",
+        "location": "Rare Gear",
+    },
     "Cycloid Scale Hood": {
         "expansion": "Sunstalker",
         "location": "Skyreef Sanctuary",
@@ -2459,7 +2433,8 @@ items = {
         "expansion": "White Box",
         "location": "Rare Gear",
     },
-    "Belt Of Gender Swap": {
+    "Belt of Gender Swap": {
+        "expansion": "White Box",
         "location": "Promo",
     },
     "Blood Plasma Gun": {
@@ -2518,7 +2493,19 @@ items = {
 }
 
 
+
+#
+#   Innovations
+#
+
 innovations = {
+    "Petal Spiral": {
+        "type": "music",
+        "expansion": "Flower Knight",
+        "endeavors": {
+            "Trace Petals": {"cost": 1, "type": "music"},
+        },
+    },
     "Sun Language": {
         "expansion": "Sunstalker",
         "type": "starting innovation",
@@ -2680,14 +2667,14 @@ innovations = {
         "type": "principle",
         "survival_limit": 1,
         "survivor_buff": "All current and newborn survivors gain +1 permanent Strength.",
-        "new_survivor": {"Strength": 1},
+        "newborn_survivor": {"Strength": 1},
     },
     "Romantic": {
         "type": "principle",
         "survival_limit": 1,
         "settlement_buff": "You may innovate one additional time during the settlement phase. In addition, all current and newborn survivors gain +1 understanding.",
         "survivor_buff": "All current and newborn survivors gain +1 understanding.",
-        "new_survivor": {"Understanding": 1},
+        "newborn_survivor": {"Understanding": 1},
     },
     "Collective Toil": {
         "type": "principle",
@@ -2710,12 +2697,12 @@ innovations = {
         "survival_limit": 1,
         "settlement_buff": "When rolling on the Intimacy story event, roll twice and pick the lowest result. All newborn survivors gain +1 Strength.",
         "survivor_buff": "All newborn survivors gain +1 Strength.",
-        "new_survivor": {"Strength": 1},
+        "newborn_survivor": {"Strength": 1},
     },
     "Clan of Death": {
         "type": "home",
         "survivor_buff": "All newborn survivors gain <b>+1 Accuracy</b>, <b>+1 Strength</b> and <b>+1 Evasion</b>.",
-        "new_survivor": {"Strength": 1, "Accuracy": 1, "Evasion": 1},
+        "newborn_survivor": {"Strength": 1, "Accuracy": 1, "Evasion": 1},
     },
     "Sacrifice": {
         "type": "faith",
@@ -2841,6 +2828,7 @@ innovations = {
     },
     "Forbidden Dance": {
         "type": "music",
+        "consequences": ["Petal Spiral"],
         "endeavors": {
             "Fever Dance": {"cost": 1, "type": "music"},
         },
@@ -2861,7 +2849,7 @@ innovations = {
     "Saga": {
         "type": "music",
         "survivor_buff": "All newborn survivors gain +2 hunt experience and +2 survival from knowing the epic.",
-        "new_survivor": {"hunt_xp": 2, "survival": 2},
+        "newborn_survivor": {"hunt_xp": 2, "survival": 2},
     },
     "Family": {
         "type": "home",
@@ -2915,7 +2903,11 @@ innovations = {
     },
 }
 
-# pre-fab survivors
+
+#
+#   Pre-fab Survivors (available on new campaign view)
+#
+
 survivors = {
     "Adam": {
         "attribs": {
@@ -2980,16 +2972,20 @@ survivors = {
 }
 
 
-# Monster assets
+
+#
+#   Monster assets
+#
 
 quarries = {
     "White Lion":               {"sort_order": 1, "tokens": ["LION","WHITE"]},
     "Gorm":                     {"sort_order": 2, "tokens": ["GORM"], "expansion": "Gorm"},
     "Screaming Antelope":       {"sort_order": 3, "tokens": ["ANTELOPE","SCREAMING"]},
-    "Phoenix":                  {"sort_order": 4, "tokens": ["PHOENIX","PHONIEX"]},
-    "Sunstalker":               {"sort_order": 5, "tokens": ["STALKER","SUNSTALKER"], "expansion": "Sunstalker"},
-    "Dung Beetle Knight":       {"sort_order": 6, "tokens": ["DUNG","BEETLE","DBK"], "expansion": "Dung Beetle Knight"},
-	"Lion God":                 {"sort_order": 7, "tokens": ["LIONGOD","GOD"], "expansion": "Lion God"},
+    "Flower Knight":            {"sort_order": 4, "tokens": ["FLOWER","FLOWERKNIGHT"]},
+    "Phoenix":                  {"sort_order": 5, "tokens": ["PHOENIX","PHONIEX"]},
+    "Sunstalker":               {"sort_order": 6, "tokens": ["STALKER","SUNSTALKER"], "expansion": "Sunstalker"},
+    "Dung Beetle Knight":       {"sort_order": 7, "tokens": ["DUNG","BEETLE","DBK"], "expansion": "Dung Beetle Knight"},
+	"Lion God":                 {"sort_order": 8, "tokens": ["LIONGOD","GOD"], "expansion": "Lion God"},
     "Beast Of Sorrow":          {"sort_order": 10, "no_levels": True, "tokens": ["SORROW","BEAST"]},
     "Great Golden Cat":         {"sort_order": 11, "no_levels": True, "tokens": ["CAT"]},
     "Mad Steed":                {"sort_order": 12, "no_levels": True, "tokens": ["MAD","STEED"]},
@@ -3007,6 +3003,38 @@ nemeses = {
     "Watcher":              {"sort_order": 31, "no_levels": True, "tokens": ["WATCHER"], "add_to_timeline_controls_at": 20, "campaign": "People of the Lantern"},
 }
 
+
+
+
+#
+#   Settlement Sheet assets
+#
+
+story_events = {
+    "The Pool and the Sun": {"page": 15, "book": "Sunstalker"},
+    "Endless Screams": {"page": 115, "book": "core"},
+    "Sun Dipping": {"page": 19, "book": "Sunstalker"},
+    "The Great Sky Gift": {"page": 21, "book": "Sunstalker"},
+    "Phoenix Feather": {"page": 139, "book": "core"},
+    "Promise Under the sun": {"page": 4, "book": "Sunstalker"},
+    "Birth of Color": {"page": 23, "book": "Sunstalker"},
+    "Principle: Conviction": {"page": 141, "book": "core"},
+    "Principle: Death": {"page": 143, "book": "core"},
+    "Principle: New Life": {"page": 145, "book": "core"},
+    "Principle: Society": {"page": 147, "book": "core"},
+    "Final Gift": {"page": 25, "book": "Sunstalker"},
+    "The Great Devourer": {"page": 33, "book": "Sunstalker"},
+    "Game Over": {"page": 179, "book": "core"},
+    "Edged Tonometry": {"page": 29, "book": "Sunstalker"},
+    "Hooded Knight": {"page": 121, "book": "core"},
+    "The Lonely Lady": {"page": 2, "book": "Lonely Tree"},
+    "A Crone's Tale": {"page": 4, "book": "Flower Knight"},
+    "The Forest WAnts What It Wants": {"page": 12, "book": "Flower Knight"},
+    "Breakthrough": {"page": 14, "book": "Flower Knight"},
+    "Sense Memory": {"page": 16, "book": "Flower Knight"},
+    "A Warm Virus": {"page": 18, "book": "Flower Knight"},
+    "Necrotoxic Mistletoe": {"page": 20, "book": "Flower Knight"},
+}
 
 resources = {
     "White Lion Resources": {
@@ -3041,6 +3069,12 @@ resources = {
 }
 
 
+
+
+#
+#   Survivor Sheet assets
+#
+
 survival_actions = {
     "Dodge": {"sort_order": 0},
     "Encourage": {"sort_order": 1},
@@ -3051,7 +3085,6 @@ survival_actions = {
     }
 
 survivor_attributes = ["Movement", "Accuracy", "Strength", "Evasion", "Luck", "Speed"]
-
 
 weapon_proficiencies = {
     "Katana": {"expansion": "Sunstalker"},
@@ -3068,6 +3101,117 @@ weapon_proficiencies = {
     "Axe": {},
     "Twilight Sword": {},
 }
+
+cursed_items = {
+    "Sleeping Virus Flower": {"expansion": "Flower Knight"},
+    "Belt of Gender Swap": {"ability": "Gender Swap"},
+    "Regal Helm": {"ability": "King's Curse",},
+    "Regal Faulds": {"ability": "King's Curse",},
+    "Regal Gauntlets": {"ability": "King's Curse",},
+    "Regal Greaves": {"ability": "King's Curse",},
+    "Regal Plackart": {"ability": "King's Curse",},
+    "Thunder Maul": {},
+    "Twilight Sword": {"ability": "Twilight Sword"},
+    "Hideous Disguise": {"expansion": "Lion Knight", "ability": "Hideous Disguise"},
+	"Death Mehndi": {"expansion": "Lion God", "ability": "Death Mehndi"}
+}
+
+epithets = {
+    "Flower Addict": {"expansion": "Flower Knight"},
+    "Sun Eater": {"expansion": "Sunstalker"},
+    "Eye Patch Badass": {"expansion": "Sunstalker"},
+    "Child of the Sun": {"expansion": "Sunstalker"},
+    "Purified": {"expansion": "Sunstalker"},
+    "Warlord": {"expansion": "Lion Knight"},
+    "Dancer": {"expansion": "Lion Knight"},
+    "Brawler": {"expansion": "Lion Knight"},
+    "Monster Worshipper": {"expansion": "Lion Knight"},
+    "Spelunker of Death": {"expansion": "Dung Beetle Knight"},
+    "Farmer": {"expansion": "Dung Beetle Knight"},
+    "Bug Man": {"expansion": "Dung Beetle Knight"},
+    "Met the Bug Man": {"expansion": "Dung Beetle Knight"},
+    "Entomophile": {"expansion": "Dung Beetle Knight"},
+    "Beetle-kin": {"expansion": "Dung Beetle Knight"},
+    "Beetle-brain": {"expansion": "Dung Beetle Knight"},
+    "Round Stone Trainer": {"expansion": "Dung Beetle Knight"},
+    "Vomit-soaked": {"expansion": "Gorm"},
+    "Gorm Bait": {"expansion": "Gorm",},
+    "Digested": {"expansion": "Gorm"},
+    "Braved the Storm": {"expansion": "Gorm"},
+    "Living Sacrifice": {"expansion": "Gorm"},
+    "Twin": {},
+    "Maw Runner": {},
+    "Slayer": {},
+    "Scarred": {},
+    "Plague-bearer": {},
+    "Infected": {},
+    "Coward": {},
+    "Foolish": {},
+    "Shining": {},
+    "Hero": {},
+    "Bewitched": {},
+    "Witness": {},
+    "White-haired":{},
+    "Destroyed Genitals": {},
+    "Broke the Silence": {},
+    "Triathlete":{},
+    "Undisputed boss of the settlement": {},
+    "The Fertile": {},
+    "Sacrificed": {},
+    "Ate the Fruit": {},
+    "Silence Breaker": {},
+    "The Silent": {},
+    "Father of Words": {},
+    "Forsaker": {},
+    "Forbidden Dancer": {},
+    "Endless Arguer": {},
+    "Monster Teeth": {},
+    "Metal Jaw": {},
+    "Haunted": {},
+    "Skull Eater": {},
+    "Rival": {},
+    "The Wanderer": {},
+    "One-eyed": {},
+    "The Blind": {},
+    "The Dead": {},
+    "Berserker": {},
+    "Thunderer": {},
+    "Swift-footed": {},
+    "The Chef": {},
+    "Fast Runner": {},
+    "The Doomed": {},
+    "The Brave": {},
+    "The Insane": {},
+    "The Mad": {},
+    "Branded by the Lantern": {},
+    "Hunter": {},
+    "Straggler": {},
+    "Dreamer": {},
+    "Monster": {},
+    "Experimented with Lanterns": {},
+    "Dimmed by the Lantern": {},
+    "Masticated": {},
+    "Death Taster": {},
+    "Pure Warrior": {},
+    "Cursed": {},
+    "Twilight Knight": {},
+    "Swamp Explorer": {},
+    "Lantern Experimenter": {},
+    "Speaker of the First Words": {},
+    "Voice of Reason": {},
+    "Bone Witch": {},
+    "Murderer": {},
+    "Lucernae": {},
+    "Caratosis": {},
+    "Dormenatus": {},
+}
+
+
+
+
+#
+#   Expansion assets and definitions
+#
 
 expansions = {
     "Beta Challenge Scenarios": {
@@ -3113,127 +3257,179 @@ expansions = {
     "Lonely Tree": {
         "always_available_nemesis": True,
     },
-    "White Box": {
-
+    "White Box": {},
+    "Flower Knight": {
+        "timeline_add": [{"ly": 5, "type": "story_event", "name": "A Crone's Tale", "excluded_campaign": "The Bloom People"}],
     },
 }
 
+
+
+
+#
+#   Campaign assets and definitions
+#
+
+default_timeline = [
+    {"year": 0, "settlement_event": ["First Day"]},
+    {"year": 1, "story_event": ["Returning Survivors"]},
+    {"year": 2, "story_event": ["Endless Screams"]},
+    {"year": 3, },
+    {"year": 4, "nemesis_encounter": ["Nemesis Encounter: Butcher"]},
+    {"year": 5, "story_event": ["Hands of Heat"]},
+    {"year": 6, "story_event": ["Armored Strangers"]},
+    {"year": 7, "story_event": ["Phoenix Feather"]},
+    {"year": 8, },
+    {"year": 9, "nemesis_encounter": ["Nemesis Encounter: King's Man"]},
+    {"year": 10, },
+    {"year": 11, "story_event": ["Regal Visit"]},
+    {"year": 12, "story_event": ["Principle: Conviction"]},
+    {"year": 13, }, {"year": 14, }, {"year": 15, },
+    {"year": 16, "nemesis_encounter": ["Nemesis Encounter"]},
+    {"year": 17, }, {"year": 18, },
+    {"year": 19, "nemesis_encounter": ["Nemesis Encounter"]},
+    {"year": 20, "story_event": ["Watched"], },
+    {"year": 21, }, {"year": 22, },
+    {"year": 23, "nemesis_encounter": ["Nemesis Encounter: Level 3"]},
+    {"year": 24, }, {"year": 25, },
+    {"year": 26, "nemesis_encounter": ["Nemesis Encounter: Watcher"]},
+    {"year": 27, }, {"year": 28, }, {"year": 29, }, {"year": 30, }, {"year": 31, },
+    {"year": 32, }, {"year": 33, }, {"year": 34, }, {"year": 35, }, {"year": 36, },
+    {"year": 37, }, {"year": 38, }, {"year": 39, }, {"year": 40, },
+]
+
+# this is a collection of milestones that might or might not be used in a given
+#   campaign. Campaign assets don't default for this stuff, so you've got to
+#   reference all required milestones when defining the asset below
+milestones = {
+    "first_child": {
+        "sort_order": 0,
+        "story_event": "Principle: New Life",
+    },
+    "first_death": {
+        "sort_order": 1,
+        "story_event": "Principle: Death",
+        "add_to_timeline": 'int(self.settlement["death_count"]) >= 1',
+    },
+    "pop_15": {
+        "sort_order": 2,
+        "story_event": "Principle: Society",
+        "add_to_timeline": 'int(self.settlement["population"]) >= 15',
+    },
+    "innovations_5": {
+        "sort_order": 3,
+        "story_event": "Hooded Knight",
+        "add_to_timeline": 'len(self.settlement["innovations"]) >= 5',
+    },
+    "innovations_8": {
+        "sort_order": 2,
+        "story_event": "Edged Tonometry",
+        "add_to_timeline": 'len(self.settlement["innovations"]) >= 8',
+    },
+    "game_over": {
+        "sort_order": 4,
+        "story_event": "Game Over",
+        "add_to_timeline": 'int(self.settlement["population"]) == 0 and int(self.settlement["lantern_year"]) >= 1',
+    },
+}
+
+# create generic principle definitions here, just like milestones above
+principles = {
+    "new_life": {
+        "sort_order": 0,
+        "milestone": "First child is born",
+        "show_controls": ['"First child is born" in self.settlement["milestone_story_events"]'], 
+        "options": ["Protect the Young","Survival of the Fittest"],
+    },
+    "death": {
+        "sort_order": 1,
+        "milestone": "First time death count is updated",
+        "show_controls": ['int(self.settlement["death_count"]) >= 1'],
+        "options": ["Cannibalize","Graves"]
+    },
+    "society": {
+        "sort_order": 2,
+        "milestone": "Population reaches 15",
+        "options": ["Collective Toil","Accept Darkness"],
+        "show_controls": ['int(self.settlement["population"]) >= 15'],
+    },
+    "conviction": {
+        "sort_order": 3,
+        "options": ["Barbaric","Romantic"],
+        "show_controls": ['int(self.settlement["lantern_year"]) >= 12'],
+    },
+}
+
+# define all campaign assets here
 campaigns = {
     "People of the Lantern": {
         "default": True,
-        "expansions": [],
         "always_available": ["Lantern Hoard", "Language"],
         "principles": {
-            "New Life":     {"sort_order": 0, "show_controls": ['"First child is born" in self.settlement["milestone_story_events"]'], "milestone": "First child is born", "options": ["Protect the Young","Survival of the Fittest"]},
-            "Death":        {"sort_order": 1, "show_controls": ['int(self.settlement["death_count"]) >= 1'], "milestone": "First time death count is updated", "options": ["Cannibalize","Graves"]},
-            "Society":      {
-                "sort_order": 2,
-                "milestone": "Population reaches 15",
-                "options": ["Collective Toil","Accept Darkness"],
-                "show_controls": ['int(self.settlement["population"]) >= 15'],
-            },
-            "Conviction":   {"sort_order": 3, "options": ["Barbaric","Romantic"], "show_controls": ['int(self.settlement["lantern_year"]) >= 12'],},
+            "New Life": principles["new_life"],
+            "Death": principles["death"],
+            "Society": principles["society"],
+            "Conviction": principles["conviction"],
         },
         "milestones": {
-            "First child is born": {
-                "sort_order": 0,
-                "story_event": "Principle: New Life",
-            },
-            "First time death count is updated": {
-                "sort_order": 1,
-                "story_event": "Principle: Death",
-                "add_to_timeline": 'int(self.settlement["death_count"]) >= 1',
-            },
-            "Population reaches 15": {
-                "sort_order": 2,
-                "story_event": "Principle: Society",
-                "add_to_timeline": 'int(self.settlement["population"]) >= 15',
-            },
-            "Settlement has 5 innovations": {
-                "sort_order": 3,
-                "story_event": "Hooded Knight",
-                "add_to_timeline": 'len(self.settlement["innovations"]) >= 5',
-            },
-            "Population reaches 0": {
-                "sort_order": 4,
-                "story_event": "Game Over",
-                "add_to_timeline": 'int(self.settlement["population"]) == 0 and int(self.settlement["lantern_year"]) >= 1',
-            },
+            "First child is born": milestones["first_child"],
+            "First time death count is updated": milestones["first_death"],
+            "Population reaches 15": milestones["pop_15"],
+            "Settlement has 5 innovations": milestones["innovations_5"],
+            "Population reaches 0": milestones["game_over"],
         },
-        "timeline": [
-            {"year": 0, "settlement_event": ["First Day"]},
-            {"year": 1, "story_event": ["Returning Survivors"]},
-            {"year": 2, "story_event": ["Endless Screams"]},
-            {"year": 3, },
-            {"year": 4, "nemesis_encounter": ["Nemesis Encounter: Butcher"]},
-            {"year": 5, "story_event": ["Hands of Heat"]},
-            {"year": 6, "story_event": ["Armored Strangers"]},
-            {"year": 7, "story_event": ["Phoenix Feather"]},
-            {"year": 8, },
-            {"year": 9, "nemesis_encounter": ["Nemesis Encounter: King's Man"]},
-            {"year": 10, },
-            {"year": 11, "story_event": ["Regal Visit"]},
-            {"year": 12, "story_event": ["Principle: Conviction"]},
-            {"year": 13, }, {"year": 14, }, {"year": 15, },
-            {"year": 16, "nemesis_encounter": ["Nemesis Encounter"]},
-            {"year": 17, }, {"year": 18, },
-            {"year": 19, "nemesis_encounter": ["Nemesis Encounter"]},
-            {"year": 20, "story_event": ["Watched"], },
-            {"year": 21, }, {"year": 22, },
-            {"year": 23, "nemesis_encounter": ["Nemesis Encounter: Level 3"]},
-            {"year": 24, }, {"year": 25, },
-            {"year": 26, "nemesis_encounter": ["Nemesis Encounter: Watcher"]},
-            {"year": 27, }, {"year": 28, }, {"year": 29, }, {"year": 30, }, {"year": 31, },
-            {"year": 32, }, {"year": 33, }, {"year": 34, }, {"year": 35, }, {"year": 36, },
-            {"year": 37, }, {"year": 38, }, {"year": 39, }, {"year": 40, },
-        ],
-        "nemesis_monsters": {"Butcher": [], },
     },
+
+    "The Bloom People": {
+        "always_available": ["Lantern Hoard", "Language"],
+        "expansions": ["Flower Knight"],
+        "storage": ["Sleeping Virus Flower"],
+        "forbidden": ["Flower Addiction", "Flower Knight"],
+        "milestones": {
+            "First child is born": milestones["first_child"],
+            "First time death count is updated": milestones["first_death"],
+            "Population reaches 15": milestones["pop_15"],
+            "Settlement has 5 innovations": milestones["innovations_5"],
+            "Population reaches 0": milestones["game_over"],
+        },
+        "principles": {
+            "New Life": principles["new_life"],
+            "Death": principles["death"],
+            "Society": principles["society"],
+            "Conviction": principles["conviction"],
+        },
+        "endeavors": {
+            "Forest Run": {"cost": 1, "desc": "You may exchange any number of monster resources for that number of random Flower resources."},
+        },
+        "settlement_buff": "All survivors are born with +1 permanent luck, +1 permanent green affinity and -2 permanent red affinities.",
+        "newborn_survivor": {
+            "affinities": {"red": -2, "green": 1,},
+            "Luck": 1,
+        },
+    },
+
     "People of the Sun": {
         "expansions": ["Sunstalker"],
         "forbidden": ["Leader"],
         "principles": {
-            "New Life":     {"sort_order": 0, "show_controls": ["True"], "options": ["Survival of the Fittest"]},
-            "Death":        {"sort_order": 1, "show_controls": ['int(self.settlement["death_count"]) >= 1'], "milestone": "First time death count is updated", "options": ["Cannibalize","Graves"]},
-            "Society":      {
-                "sort_order": 2,
-                "milestone": "Population reaches 15",
-                "options": ["Collective Toil","Accept Darkness"],
-                "show_controls": ['int(self.settlement["population"]) >= 15'],
+            # custom new life principle
+            "New Life": {
+                "sort_order": 0,
+                "show_controls": ["True"],
+                "options": ["Survival of the Fittest"]
             },
-            "Conviction":   {"sort_order": 3, "options": ["Barbaric","Romantic"], "show_controls": ['int(self.settlement["lantern_year"]) >= 11'],},
+            "Death": principles["death"],
+            "Society": principles["society"],
+            "Conviction": principles["conviction"],
         },
         "milestones": {
-            "First time death count is updated": {
-                "sort_order": 0,
-                "story_event": "Principle: Death",
-                "add_to_timeline": 'int(self.settlement["death_count"]) >= 1',
-                "principle": {
-                    "desc": "Death Principle",
-                    "options": ["Cannibalize","Graves"],
-                },
-            },
-            "Population reaches 15": {
-                "sort_order": 1,
-                "story_event": "Principle: Society",
-                "add_to_timeline": 'int(self.settlement["population"]) >= 15',
-                "principle": {
-                    "desc": "Society Principle",
-                    "options": "",
-                },
-            },
-            "Settlement has 8 innovations": {
-                "sort_order": 2,
-                "story_event": "Edged Tonometry",
-                "add_to_timeline": 'len(self.settlement["innovations"]) >= 8',
-            },
-            "Population reaches 0": {
-                "sort_order": 3,
-                "story_event": "Game Over",
-                "add_to_timeline": 'int(self.settlement["population"]) == 0 and int(self.settlement["lantern_year"]) >= 1',
-            },
+            "First time death count is updated": milestones["first_death"],
+            "Population reaches 15": milestones["pop_15"],
+            "Settlement has 8 innovations": milestones["innovations_8"],
+            "Population reaches 0": milestones["game_over"],
             "Not Victorious against Nemesis": {"sort_order": 4, "story_event": "Game Over"},
         },
+        "nemesis_monsters": {"Butcher": [u'Lvl 1'], },
         "timeline": [
             {"year": 0, "settlement_event": ["First Day"]},
             {"year": 1, "story_event": ["The Pool and the Sun"]},
@@ -3243,7 +3439,6 @@ campaigns = {
             {"year": 5, "story_event": ["The Great Sky Gift"]},
             {"year": 6, },
             {"year": 7, "story_event": ["Phoenix Feather"]},
-#            {"year": 8, "story_event": ["Promise Under the Sun"]},
             {"year": 8, }, {"year": 9, },
             {"year": 10, "story_event": ["Birth of Color"]},
             {"year": 11, "story_event": ["Principle: Conviction"]},
@@ -3261,27 +3456,6 @@ campaigns = {
             {"year": 32, }, {"year": 33, }, {"year": 34, }, {"year": 35, }, {"year": 36, },
             {"year": 37, }, {"year": 38, }, {"year": 39, }, {"year": 40, },
         ],
-        "nemesis_monsters": {"Butcher": [u'Lvl 1'], },
     },
-}
-
-story_events = {
-    "The Pool and the Sun": {"page": 15, "book": "Sunstalker"},
-    "Endless Screams": {"page": 115, "book": "core"},
-    "Sun Dipping": {"page": 19, "book": "Sunstalker"},
-    "The Great Sky Gift": {"page": 21, "book": "Sunstalker"},
-    "Phoenix Feather": {"page": 139, "book": "core"},
-    "Promise Under the sun": {"page": 4, "book": "Sunstalker"},
-    "Birth of Color": {"page": 23, "book": "Sunstalker"},
-    "Principle: Conviction": {"page": 141, "book": "core"},
-    "Principle: Death": {"page": 143, "book": "core"},
-    "Principle: New Life": {"page": 145, "book": "core"},
-    "Principle: Society": {"page": 147, "book": "core"},
-    "Final Gift": {"page": 25, "book": "Sunstalker"},
-    "The Great Devourer": {"page": 33, "book": "Sunstalker"},
-    "Game Over": {"page": 179, "book": "core"},
-    "Edged Tonometry": {"page": 29, "book": "Sunstalker"},
-    "Hooded Knight": {"page": 121, "book": "core"},
-    "The Lonely Lady": {"page": 2, "book": "Lonely Tree"},
 }
 

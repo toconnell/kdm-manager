@@ -2,6 +2,7 @@
 
 from bson.objectid import ObjectId
 from datetime import datetime, timedelta
+import gridfs
 from optparse import OptionParser
 
 import assets
@@ -16,6 +17,31 @@ from models import Quarries, Nemeses, mutually_exclusive_principles
 #
 #   Canned Queries with normal results
 #
+
+def multiplayer_settlements(return_type=False, threshold=1):
+    """ Returns settlements with players greater than 'threshold'. """
+
+    totals = {}
+    all_survivors = mdb.survivors.find()
+    for s in all_survivors:
+        if s["settlement"] not in totals.keys():
+            totals[s["settlement"]] = set([s["created_by"]])
+        else:
+            totals[s["settlement"]].add(s["created_by"])
+
+    multiplayer = {}
+    for s in totals.keys():
+        players = len(totals[s])
+        if players > threshold:
+            multiplayer[s] = players
+
+    if return_type == "total_settlements":
+        return len(multiplayer.keys())
+    elif return_type == "raw":
+        return totals
+
+    return multiplayer
+
 
 def current_hunt(return_type=False):
     """ Uses settlements with a 'current_quarry' attribute to determine who is
@@ -259,6 +285,30 @@ def get_minmax(attrib="population"):
         data_points.append(int(sample[attrib]))
     return min(data_points), max(data_points)
 
+
+def user_average(return_type=False):
+    """ Returns averages re: users. """
+
+    user_counts = {}
+    for user in mdb.users.find():
+        settlement_count = mdb.settlements.find({"created_by": user["_id"]}).count()
+        survivor_count = mdb.survivors.find({"created_by": user["_id"]}).count()
+        avatar_count = gridfs.GridFS(mdb).find({"created_by": user["_id"]}).count()
+        user_counts[user["_id"]] = {"settlements": settlement_count, "survivors": survivor_count, "avatars": avatar_count}
+
+    averages = {"settlements": 0, "survivors": 0, "avatars": 0}
+    for asset in averages.keys():
+        data_points = []
+        for user in user_counts.keys():
+            data_points.append(user_counts[user][asset])
+        averages[asset] = reduce(lambda x, y: x + y, data_points) / len(data_points)
+
+    if return_type:
+        return averages[return_type]
+
+    return averages
+
+
 def get_average(collection="settlements", attrib="population", precision=2, return_type=int):
     """ Gets averages for either settlements or survivors. Re-state my
         assumptions:
@@ -303,12 +353,20 @@ def get_average(collection="settlements", attrib="population", precision=2, retu
 
 if __name__ == "__main__":
     parser = OptionParser()
+    parser.add_option("-u", dest="user_avg", help="Returns averages re: users. Try: 'survivors', 'settlements', 'avatars'", metavar="survivors", default=False)
     parser.add_option("-a", dest="average", help="Returns an average for the specified value", metavar="population", default=False)
     parser.add_option("-m", dest="minmax", help="Returns min/max numbers the specified value", metavar="death_count", default=False)
+    parser.add_option("-M", dest="multiplayer", help="Dump the multiplayer settlement count.", default=False, action="store_true")
     parser.add_option("-k", dest="kill_board", help="Run the kill_board func and print its contents.", default=False, action="store_true")
     parser.add_option("-p", dest="top_principles", help="Run the top_principles func and print its contents.", default=False, action="store_true")
     (options, args) = parser.parse_args()
 
+    start = datetime.now()
+
+    if options.user_avg:
+        print user_average(options.user_avg)
+    if options.multiplayer:
+        print multiplayer_settlements()
     if options.kill_board:
         print kill_board()
     if options.top_principles:
@@ -317,3 +375,7 @@ if __name__ == "__main__":
         print get_average(options.average)
     if options.minmax:
         print get_minmax(options.minmax)
+
+    stop = datetime.now()
+    duration = stop - start
+    print("Requested operations completed:\n Seconds: %s\n Microseconds: %s\n" % (duration.seconds, duration.microseconds))

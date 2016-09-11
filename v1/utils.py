@@ -213,7 +213,7 @@ def get_latest_update_string():
     if "items" in posts.keys():
         try:
             for post in posts["items"]:
-                if "Change Logs" in post["labels"]:
+                if "labels" in post.keys() and "Change Logs" in post["labels"]:
                     d = dateutil_parse(post["published"])
                     return "Version %s released on %s, %s." % (settings.get("application","version"), d.strftime("%A"), d.strftime(ymd))
         except Exception as e:

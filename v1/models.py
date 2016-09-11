@@ -565,6 +565,11 @@ preferences_dict = {
         "affirmative": "Show controls on Survivor Sheets",
         "negative": "Hide controls and survivor epithets on Survivor Sheets",
     },
+    "show_remove_button": {
+        "desc": "Show controls for removing Settlements?",
+        "affirmative": "Show controls on Settlement Sheet",
+        "negative": "Hide controls on Settlement Sheet",
+    },
 }
 
 class userPreferences():

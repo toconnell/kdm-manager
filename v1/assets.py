@@ -347,6 +347,7 @@ class User:
         ...at some point, e.g. when I get around to it. """
 
         recent_session_cutoff = datetime.now() - timedelta(hours=12) 
+        user_averages = world.user_average()
 
         return html.dashboard.world.safe_substitute(
             # organic queries
@@ -356,7 +357,9 @@ class User:
             active_settlements = mdb.settlements.find().count() - mdb.settlements.find({"abandoned": {"$exists": True}}).count(),
             total_users = mdb.users.find().count(),
             total_users_last_30 = mdb.users.find({"latest_sign_in": {"$gte": thirty_days_ago}}).count(),
+            new_settlements_last_30 = mdb.settlements.find({"created_on": {"$gte": thirty_days_ago}}).count(),
             # canned queries
+            total_multiplayer = world.multiplayer_settlements("total_settlements"),
             defeated_monsters = world.kill_board("html_table_rows"),
             recent_sessions = mdb.users.find({"latest_activity": {"$gte": recent_session_cutoff}}).count(),
             latest_kill = world.latest_kill("html"),
@@ -388,6 +391,10 @@ class User:
             avg_insanity = world.get_average(collection="survivors", attrib="Insanity", return_type=float),
             avg_courage = world.get_average(collection="survivors", attrib="Courage", return_type=float),
             avg_understanding = world.get_average(collection="survivors", attrib="Understanding", return_type=float),
+            # user averages
+            avg_user_settlements = user_averages["settlements"],
+            avg_user_survivors = user_averages["survivors"],
+            avg_user_avatars = user_averages["avatars"],
         )
 
 
@@ -483,20 +490,21 @@ class Survivor:
 
         # check the settlements innovations and auto-add Weapon Specializations
         #   if there are any masteries in the settlement innovations 
-        for innovation_key in self.Settlement.settlement["innovations"]:
-            if innovation_key in WeaponMasteries.get_keys():
-                prof_dict = WeaponMasteries.get_asset(innovation_key)
-                if prof_dict["all_survivors"] not in self.survivor["abilities_and_impairments"]:
-                    if self.User.get_preference("apply_weapon_specialization"):
-                        self.survivor["abilities_and_impairments"].append(prof_dict["all_survivors"])
-                        self.logger.debug("Auto-applied settlement default '%s' to survivor '%s' of '%s'." % (prof_dict["all_survivors"], self.survivor["name"], self.Settlement.settlement["name"]))
-                        self.Settlement.log_event("Automatically added '%s' to %s's abilities!" % (prof_dict["all_survivors"], self.survivor["name"]))
-            elif innovation_key.split("-")[0].strip() == "Mastery":
-                custom_weapon = " ".join(innovation_key.split("-")[1:]).title().strip()
-                spec_str = "Specialization - %s" % custom_weapon
-                if spec_str not in self.survivor["abilities_and_impairments"]:
-                    self.survivor["abilities_and_impairments"].append(spec_str)
-                    self.logger.debug("Auto-applied settlement default '%s' to survivor '%s'." % (spec_str, self.survivor["name"]))
+        if not "dead" in self.survivor.keys():
+            for innovation_key in self.Settlement.settlement["innovations"]:
+                if innovation_key in WeaponMasteries.get_keys():
+                    prof_dict = WeaponMasteries.get_asset(innovation_key)
+                    if prof_dict["all_survivors"] not in self.survivor["abilities_and_impairments"]:
+                        if self.User.get_preference("apply_weapon_specialization"):
+                            self.survivor["abilities_and_impairments"].append(prof_dict["all_survivors"])
+                            self.logger.debug("Auto-applied settlement default '%s' to survivor '%s' of '%s'." % (prof_dict["all_survivors"], self.survivor["name"], self.Settlement.settlement["name"]))
+                            self.Settlement.log_event("Automatically added '%s' to %s's abilities!" % (prof_dict["all_survivors"], self.survivor["name"]))
+                elif innovation_key.split("-")[0].strip() == "Mastery":
+                    custom_weapon = " ".join(innovation_key.split("-")[1:]).title().strip()
+                    spec_str = "Specialization - %s" % custom_weapon
+                    if spec_str not in self.survivor["abilities_and_impairments"]:
+                        self.survivor["abilities_and_impairments"].append(spec_str)
+                        self.logger.debug("Auto-applied settlement default '%s' to survivor '%s'." % (spec_str, self.survivor["name"]))
 
         # if the survivor is legacy data model, he doesn't have a born_in_ly
         #   attrib, so we have to get him one:
@@ -600,7 +608,11 @@ class Survivor:
                 p_id = ObjectId(params[parent].value)
                 parents.append(mdb.survivors.find_one({"_id": p_id})["name"])
                 survivor_dict[parent] = ObjectId(p_id)
+
+        newborn = False
         if parents != []:
+            newborn = True
+            self.logger.debug("New survivor %s is a newborn." % name)
             if sex == "M":
                 genitive_appellation = "Son"
             elif sex == "F":
@@ -616,7 +628,7 @@ class Survivor:
         name_pretty = self.get_name_and_id(include_sex=True, include_id=False)
         current_ly = self.Settlement.settlement["lantern_year"]
         if not self.suppress_event_logging:
-            if parents != []:
+            if newborn:
                 self.Settlement.log_event("%s born to %s!" % (name_pretty, " and ".join(parents)))
             else:
                 self.Settlement.log_event("%s joined the settlement!" % (name_pretty))
@@ -624,13 +636,26 @@ class Survivor:
         # apply settlement buffs to the new guy depending on preference
         if self.User.get_preference("apply_new_survivor_buffs"):
             new_survivor_buffs = self.Settlement.get_bonuses("new_survivor", update_mins=self.update_mins)
-            self.logger.debug("Automatically applying %s 'new_survivor' buffs to new survivor '%s'" % (len(new_survivor_buffs), self.get_name_and_id()))
-            for b in new_survivor_buffs.keys():
-                buffs = new_survivor_buffs[b]
-                for attrib in buffs.keys():
-                    self.survivor[attrib] = self.survivor[attrib] + buffs[attrib]
-                self.logger.debug("Applied buffs for '%s' successfully: %s" % (b, buffs))
-                self.Settlement.log_event("Applied '%s' bonus to %s." % (b, name))
+            newborn_survivor_buffs = self.Settlement.get_bonuses("newborn_survivor", update_mins=self.update_mins)
+
+            def apply_buffs(buff_dict, buff_desc):
+                for b in buff_dict.keys():
+                    buffs = buff_dict[b]
+                    for attrib in buffs.keys():
+                        if attrib != "affinities":
+                            self.survivor[attrib] = self.survivor[attrib] + buffs[attrib]
+                        elif attrib == "affinities":
+                            self.update_affinities(buffs[attrib])
+                    self.logger.debug("Applied %s survivor buffs for '%s' successfully: %s" % (buff_desc, b, buffs))
+                    self.Settlement.log_event("Applied '%s' bonus to %s." % (b, self))
+
+            # now do it !
+            self.logger.debug("Applying %s new survivor buffs to %s." % (len(new_survivor_buffs.keys()), self))
+            apply_buffs(new_survivor_buffs, "new")
+            if newborn:
+                self.logger.debug("Applying %s newborn survivor buffs to %s." % (len(newborn_survivor_buffs.keys()), self))
+                apply_buffs(newborn_survivor_buffs, "newborn")
+
         else:
             self.Settlement.log_event("Settlement bonuses were not applied to %s." % (name))
             self.logger.debug("Skipping auto-application of new survivor buffs for %s." % self.get_name_and_id())
@@ -847,13 +872,7 @@ class Survivor:
             if epithets == []:
                 return ""
             else:
-                styled_epithets = []
-                for epithet in epithets:
-                    if epithet in ["Lucernae", "Caratosis", "Dormenatus"]:
-                        styled_epithets.append('<font id="%s">&#x02588;</font> %s' % (epithet, epithet))
-                    else:
-                        styled_epithets.append(epithet)
-                return '<p class="subhead_p_block">%s</p>' % ", ".join(styled_epithets)
+                return '<p class="subhead_p_block">%s</p>' % ", ".join(epithets)
 
         if return_type == "html_remove":
             output = ""
@@ -872,11 +891,47 @@ class Survivor:
             else:
                 return html.survivor.epithet_controls.safe_substitute(
                     epithets = self.get_epithets("html_formatted"),
-                    add_epithets = Epithets.render_as_html_dropdown(exclude=self.survivor["epithets"]),
+                    add_epithets = Epithets.render_as_html_dropdown(exclude=self.survivor["epithets"], Settlement=self.Settlement),
                     rm_epithets = self.get_epithets("html_remove"),
                 )
 
         return epithets
+
+
+    def get_affinities(self, return_type=False):
+        no_affinities = {"red": 0, "green": 0, "blue": 0}
+
+        s_affinities = no_affinities
+        if "affinities" in self.survivor.keys():
+            s_affinities = self.survivor["affinities"]
+
+        for color in ["red","green","blue"]:
+            if color not in s_affinities.keys():
+                s_affinities[color] = 0
+
+
+        if return_type == "survivor_sheet_controls":
+            if s_affinities == no_affinities:
+                return html.survivor.affinity_controls.safe_substitute(
+                    button_class = "no_affinities",
+                    text="&#9633; &#9633; &#9633;",
+                )
+            else:
+                button_text = ""
+                for affinity_key in ["red","blue","green"]:
+                    a_value = s_affinities[affinity_key]
+                    span_class = affinity_key
+                    if a_value != 0:
+                        button_text += html.survivor.affinity_span.safe_substitute(
+                            value = a_value,
+                            span_class = span_class
+                        )
+                return html.survivor.affinity_controls.safe_substitute(
+                    button_class = "affinities",
+                    text = button_text
+                )
+
+        return s_affinities
 
 
     def get_returning_survivor_status(self, return_type=None):
@@ -1028,17 +1083,25 @@ class Survivor:
                 return False
 
         elif asset_type == "abilities_and_impairments":
+            # log twilight sword reciept
             if asset_key == "Twilight Sword":
                 self.Settlement.log_event("%s got the Twilight Sword!" % self.get_name_and_id(include_id=False, include_sex=True))
+
+            # handle weapon masteries
+            if asset_key.split("-")[0] == "Mastery ":
+                self.Settlement.add_weapon_mastery(self, asset_key)
 
             # birth of a savior stuff
             savior_abilities = ["Dream of the Beast", "Dream of the Crown", "Dream of the Lantern"]
             if asset_key in savior_abilities:
                 self.Settlement.log_event("A savior was born! %s had the '%s'." % (self.get_name_and_id(include_id=False, include_sex=True), asset_key))
 
+            # add custom abilities and impairments
             if asset_key not in Abilities.get_keys():
                 self.survivor["abilities_and_impairments"].append("%s" % asset_key)
                 return True
+
+            # now, add standard/supported abilities defined in game_assets.py
             elif asset_key in Abilities.get_keys():
                 asset_dict = Abilities.get_asset(asset_key)
                 self.survivor["abilities_and_impairments"].append(asset_key)
@@ -1056,15 +1119,27 @@ class Survivor:
                         new_value = old_value + asset_dict[attrib]
                         self.survivor[attrib] = new_value
 
-                if "related" in asset_dict.keys():
-                    for related_ability in asset_dict["related"]:
-                        self.survivor["abilities_and_impairments"].append(related_ability)
-                        self.logger.debug("%s is adding '%s' to '%s': automatically adding related '%s' ability." % (self.User.user["login"], asset_key, self.survivor["name"], related_ability))
-                        if related_ability in savior_abilities:
-                            self.Settlement.log_event("A savior was born! %s had the '%s'." % (self.get_name_and_id(include_id=False, include_sex=True), related_ability))
+                # update affinities, if the ability indicates an update:
+                if "affinities" in asset_dict.keys():
+                    if not "affinities" in self.survivor:
+                        self.survivor["affinities"] = {"red":0,"blue":0,"green":0}
+                    for affinity_key in asset_dict["affinities"].keys():
+                        a_adjustment = asset_dict["affinities"][affinity_key]
+                        self.survivor["affinities"][affinity_key] += a_adjustment
+                        self.logger.debug("Automatically updated '%s' affinity for %s. + %s due to '%s'" % (affinity_key, self, a_adjustment, asset_key))
 
+                # auto-add any mandatory epithets
                 if "epithet" in asset_dict.keys():
                     self.update_epithets(epithet=asset_dict["epithet"])
+
+
+                # now that we're basically done, handle related abilities:
+                if "related" in asset_dict.keys():
+                    for related_ability in asset_dict["related"]:
+                        if related_ability not in self.survivor["abilities_and_impairments"]:
+                            self.logger.debug("%s is adding '%s' to '%s': automatically adding related '%s' ability." % (self.User.user["login"], asset_key, self.survivor["name"], related_ability))
+                            self.add_game_asset("abilities_and_impairments", related_ability)
+
 
                 return True
             else:
@@ -1451,6 +1526,55 @@ class Survivor:
                 self.logger.debug("[%s] toggled OFF expansion attribute '%s' for %s" % (self.User, attrib, self))
 
 
+    def update_affinities(self, params):
+        """ Updates the survivor's "affinities" attrib. The 'params' arg can be
+        either a dict or a cgi.FieldStorage(). The function will handle either
+        automatically."""
+
+        if type(params) == dict:
+            new_affinities = params
+        else:
+            new_affinities = {
+                "red": int(params["red_affinities"].value),
+                "blue": int(params["blue_affinities"].value),
+                "green": int(params["green_affinities"].value),
+            }
+        self.survivor["affinities"] = new_affinities
+        self.logger.debug("[%s] updated affinities for %s. New affinities: %s" % (self.User, self, new_affinities))
+
+
+    def update_cod(self, cod):
+        """ Updates the COD. If the survivor is already among the dead, try to
+        update it there as well. """
+
+        if "cause_of_death" in self.survivor and cod == self.survivor["cause_of_death"]:
+            return
+
+        self.survivor["cause_of_death"] = cod
+        self.logger.debug("[%s] Set cause of death to '%s' for %s." % (self.User, cod, self))
+        admin.valkyrie()
+
+        death_rec = mdb.the_dead.find_one({"survivor_id": self.survivor["_id"]})
+        if death_rec is not None:
+            self.logger.debug("[%s] Updating death record for %s" % (self.User, self))
+            death_rec["cause_of_death"] = cod
+            mdb.the_dead.save(death_rec)
+
+
+    def update_email(self, email):
+        """ Changes the survivor's email. Does some normalization and checks."""
+        email = email.lower()
+
+        if email == "":
+            return
+        elif email == self.survivor["email"]:
+            return
+        else:
+            self.survivor["email"] = email
+            self.Settlement.log_event("%s is now managed by %s." % (self, email))
+            self.logger.debug("[%s] changed survivor %s email to %s." % (self.User, self, email))
+
+
     def get_sex(self, return_type=None):
         """ Gets the survivor's sex. Takes abilities_and_impairments into
         account: anything with the 'reverse_sex' attribute will reverse this."""
@@ -1561,6 +1685,9 @@ class Survivor:
             self.survivor["died_on"] = datetime.now()
             self.survivor["died_in"] = self.Settlement.settlement["lantern_year"]
 
+
+        admin.valkyrie()
+
         # save the survivor then update settlement mins: you have to do it in
         # this order, or else update_mins() doesn't know about the stiff and the
         # population decrement above won't work.
@@ -1597,11 +1724,7 @@ class Survivor:
                 self.survivor["abilities_and_impairments"].append(p_str)
 
         if mastery_string in self.survivor["abilities_and_impairments"] and mastery_string not in self.Settlement.settlement["innovations"]:
-            self.Settlement.settlement["innovations"].append(mastery_string)
-            self.Settlement.log_event("%s has mastered %s!" % (self.get_name_and_id(include_sex=True, include_id=False), weapon))
-            self.Settlement.log_event("'%s' added to settlement Innovations!" % mastery_string)
-            mdb.settlements.save(self.Settlement.settlement)
-            self.logger.debug("Survivor '%s' added '%s' to settlement %s's Innovations!" % (self.survivor["name"], mastery_string, self.Settlement.settlement["name"]))
+            self.Settlement.add_weapon_mastery(self, mastery_string)
 
 
     def join_hunting_party(self):
@@ -1622,6 +1745,8 @@ class Survivor:
             if not self.suppress_event_logging:
                 self.Settlement.log_event("Set %s to '%s' for %s" % (k,attrs_dict[k],self.get_name_and_id(include_id=False,include_sex=True)))
         mdb.survivors.save(self.survivor)
+
+
 
 
     def modify(self, params):
@@ -1657,6 +1782,8 @@ class Survivor:
             elif p == "remove_fighting_art":
                 self.survivor["fighting_arts"].remove(params[p].value)
             elif p.split("_")[0] == "toggle":
+                if "cause_of_death" in params:
+                    self.update_cod(params["cause_of_death"].value.strip())
                 toggle_attrib = "_".join(p.split("_")[1:])
                 self.toggle(toggle_attrib, params[p])
             elif p == "name":
@@ -1664,11 +1791,9 @@ class Survivor:
                     self.Settlement.log_event("%s was renamed to '%s'" % (self, game_asset_key))
                     self.survivor["name"] = game_asset_key
             elif p == "email":
-                self.survivor["email"] = game_asset_key.lower().strip()
+                self.update_email(game_asset_key)
             elif p == "cause_of_death":
-                self.survivor[p] = game_asset_key
-                mdb.survivors.save(self.survivor)
-                admin.valkyrie()
+                self.update_cod(game_asset_key)
             elif game_asset_key == "None":
                 del self.survivor[p]
                 if p == "in_hunting_party":
@@ -1691,6 +1816,9 @@ class Survivor:
                 self.update_partner(game_asset_key)
             elif p == "expansion_attribs":
                 self.update_expansion_attribs(params[p])
+            elif p == "modal_update":
+                if game_asset_key == "affinities":
+                    self.update_affinities(params)
             else:
                 self.survivor[p] = game_asset_key
 
@@ -1848,6 +1976,7 @@ class Survivor:
             survivor_id = self.survivor["_id"],
             name = self.survivor["name"],
             epithet_controls = self.get_epithets("survivor_sheet_controls"),
+            affinity_controls = self.get_affinities("survivor_sheet_controls"),
             sex = self.get_sex(),
             survival = survivor_survival_points,
             survival_limit = self.Settlement.get_attribute("survival_limit"),
@@ -1889,6 +2018,10 @@ class Survivor:
             waist = self.survivor["Waist"],
             legs = self.survivor["Legs"],
 
+
+            red_affinities = self.get_affinities()["red"],
+            blue_affinities = self.get_affinities()["blue"],
+            green_affinities = self.get_affinities()["green"],
 
             courage = self.survivor["Courage"],
             understanding = self.survivor["Understanding"],
@@ -1979,9 +2112,10 @@ class Settlement:
         self.logger.debug("User %s (%s) is creating a new settlement..." % (self.User.user["login"], self.User.user["_id"]))
 
         new_settlement_dict = {
+            "name": name,
+            "campaign": campaign,
             "created_on": datetime.now(),
             "created_by": self.User.user["_id"],
-            "name": name,
             "survival_limit": 1,
             "lantern_year": 0,
             "death_count": 0,
@@ -1989,19 +2123,27 @@ class Settlement:
             "innovations": [],
             "locations": [],
             "quarries": ["White Lion"],
-            "storage": [],
+            "nemesis_monsters": {"Butcher": [], },
             "defeated_monsters": [],
             "population": 0,
             "lost_settlements": 0,
-            "campaign": campaign,
             "principles": [],
-            "expansions": game_assets.campaigns[campaign]["expansions"],
-            "nemesis_monsters": game_assets.campaigns[campaign]["nemesis_monsters"],
-            "timeline": game_assets.campaigns[campaign]["timeline"],
+            "expansions": [],
+            "storage": [],
+            "timeline": game_assets.default_timeline,
         }
+
+        # sometimes campaign assets have additional attribs
+        for optional_attrib in ["storage","expansions","timeline"]:
+            if optional_attrib in game_assets.campaigns[campaign].keys():
+                new_settlement_dict[optional_attrib] = game_assets.campaigns[campaign][optional_attrib]
+
+        # create the settlement and update the Settlement obj
         settlement_id = mdb.settlements.insert(new_settlement_dict)
         self.settlement = mdb.settlements.find_one({"_id": settlement_id})
-        self.logger.info("New settlement '%s' ('%s') created by %s!" % (name, settlement_id, self.User.user["login"]))
+
+        # log the creation
+        self.logger.info("[%s] New '%s' campaign settlement '%s' ('%s') created!" % (self.User, campaign, name, settlement_id))
         self.log_event("Settlement founded!")
         return settlement_id
 
@@ -2313,6 +2455,21 @@ class Settlement:
 
         return "Invalid export type.", 0
 
+
+    def add_weapon_mastery(self, master, mastery_string):
+        """ Adds a weapon mastery to settlement innovations. Make sure that the
+        'master' arg is a Survivor object. The 'mastery_string' can be whatever,
+        so long as it follows the general naming conventions for masteries. """
+
+        weapon = mastery_string.split("-")[1].strip()
+
+        self.settlement["innovations"].append(mastery_string)
+        self.log_event("%s has mastered %s!" % (master, weapon))
+        self.log_event("'%s' added to settlement Innovations!" % mastery_string)
+        self.logger.debug("[%s] added '%s' to %s Innovations! (Survivor: %s)" % (self.User, mastery_string, self, master))
+        mdb.settlements.save(self.settlement)
+
+
     def get_ancestors(self, return_type=None, survivor_id=False):
         """ This is the settlement's version of this method and it is way
         different from the survivor """
@@ -2345,6 +2502,7 @@ class Settlement:
                 output += html.survivor.add_ancestor_select_bot
             output += html.survivor.add_ancestor_bot
             return output
+
 
     def get_genealogy(self, return_type=False):
         """ Creates a dictionary of the settlement's various clans. """
@@ -3001,6 +3159,11 @@ class Settlement:
             if innovation_key in Innovations.get_keys() and bonus_type in Innovations.get_asset(innovation_key).keys():
                 buffs[innovation_key] = Innovations.get_asset(innovation_key)[bonus_type]
 
+        # support for campaign settlement_buff
+        campaign_dict = self.get_campaign("dict")
+        if bonus_type in campaign_dict.keys():
+            buffs[self.get_campaign()] = campaign_dict[bonus_type]
+
         if return_type == "html":
             output = ""
             for k in buffs.keys():
@@ -3033,6 +3196,9 @@ class Settlement:
                 buffs[source_key] = Innovations.get_asset(source_key)["endeavors"]
             elif source_key in Locations.get_keys() and "endeavors" in Locations.get_asset(source_key).keys():
                 buffs[source_key] = Locations.get_asset(source_key)["endeavors"]
+
+        if "endeavors" in self.get_campaign("dict"):
+            buffs[self.get_campaign()] = self.get_campaign("dict")["endeavors"]
 
         if return_type == "html":
             output = ""
@@ -3269,6 +3435,7 @@ class Settlement:
                     "Caratosis": "Dream of the Beast",
                     "Dormenatus": "Dream of the Crown",
                 }
+
                 savior_square = ""
                 for epithet in S.get_epithets():
                     if epithet in ["Lucernae", "Caratosis", "Dormenatus"]:
@@ -4289,6 +4456,10 @@ class Settlement:
         if "expansions" in self.settlement.keys():
             exp = self.settlement["expansions"]
 
+        rm_button = ""
+        if self.User.get_preference("show_remove_button"):
+            rm_button = html.settlement.remove_settlement_button.safe_substitute(settlement_id=self.settlement["_id"])
+
         return html.settlement.form.safe_substitute(
             MEDIA_URL = settings.get("application","STATIC_URL"),
             settlement_id = self.settlement["_id"],
@@ -4346,6 +4517,8 @@ class Settlement:
 
             player_controls = self.get_players("html"),
             expansions_block = self.render_expansions_block(),
+
+            remove_settlement_button = rm_button,
         )
 
 

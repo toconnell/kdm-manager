@@ -186,6 +186,16 @@ div.returning_survivor_badge {font-size: 1em; position: absolute; background-col
 .big_number_square { border: 3px solid #666; width: 190px; height: 200px; margin-left: 5%; display: inline-block; margin-right: 20px; }
 .big_number_caption { font-size: 75px; padding-top: 30px; color: #777;  }
 
+button#modalAffinityButton {border: 0; padding: 0; height: 150px; background-color: #fff; }
+button#modalAffinityButton.no_affinities {margin-top: -20px; font-size: 250px; line-height: 0px; margin-bottom: -500px;}
+button#modalAffinityButton.affinities {margin-top: -50px; margin-bottom: -100px; }
+div#affinity_block {width: 250px; height: 250px; float: right; margin-right: 50px; }
+div.red, span.red {background-color: red;}
+div.blue, span.blue {background-color: blue;}
+div.green, span.green {background-color: green;}
+div.white, span.white {background-color: white;}
+span#affinity_span {display: inline-block; width: 150px; height: 150px; color: #fff; padding: 0; font-size: 110px;}
+
 /* clear: none styles*/
 #damage_box, .floating_label, form, label#skip_next_hunt, div#info_box, label#float_right_toggle {clear: none;}
 
@@ -672,6 +682,12 @@ right connector from last child*/
 
     /* survivor styles */
     div.returning_survivor_badge {margin: -3px; border-bottom-right-radius: 25px; width: 1.5%; height: 2%; color: #fff; padding: 0px; padding-left: 2px; }
+
+    button#modalAffinityButton {height: 50px; background-color: #FFF; width: 97%; margin: auto; }
+    button#modalAffinityButton.no_affinities {margin-top: -20px; font-size: 60px; line-height: 0px;}
+    button#modalAffinityButton.affinities {margin: 0; margin-top: -20px; margin-bottom: 3px; }
+    div#affinity_block {width: 50px; height: 50px; float: left; margin-top: 60px; }
+    span#affinity_span {display: inline-block; width: 30px; height: 30px; color: #fff; padding: 0; font-size: 25px;}
 
 
 }

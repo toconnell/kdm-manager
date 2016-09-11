@@ -219,6 +219,10 @@ class dashboard:
         <hr/>
 
         <h3>Settlements:</h3>
+        <ul>
+            <li>Multiplayer settlements: $total_multiplayer</li>
+            <li>Settlements created in the last 30 days: $new_settlements_last_30</li>
+        </ul>
         <p>Averages across all settlements:</p>
         <ul>
             <li>Lantern Year: $avg_ly</li>
@@ -284,6 +288,12 @@ class dashboard:
         <h3>Users:</h3>
         <p>$total_users users are registered; $recent_sessions users have managed campaigns in the last 12 hours.</p>
         <p>$total_users_last_30 users have managed campaigns in the last 30 days.</p>
+        <p>Per user averages:</p>
+        <ul>
+            <li>Survivors: $avg_user_survivors</li>
+            <li>Settlements: $avg_user_settlements</li>
+            <li>Avatars: $avg_user_avatars</li>
+        </ul>
         </div>
     </div>
     """ % (settings.get("application", "STATIC_URL"), down_arrow_flash))
@@ -334,7 +344,7 @@ class survivor:
             <div id="block_group">
             <h2>Permissions</h2>
             <p>Survivor Owner:</p>
-            <input id="survivor_owner" type="text" name="email" placeholder="Survivor Email" value="$user_email">
+            <input id="survivor_owner" type="email" name="email" placeholder="Survivor Email" value="$user_email">
             <p>
             <input type="checkbox" id="public" class="radio_principle" name="toggle_public" > 
             <label class="radio_principle_label" for="public"> Anyone May Manage this Survivor </label>
@@ -347,7 +357,7 @@ class survivor:
         </div><!-- create_new_asset_block -->
     </div>
     \n""")
-    add_ancestor_top = '    <div id="block_group">\n    <h2>Survivor Parents</h2>\n'
+    add_ancestor_top = '    <div id="block_group" title="Add survivor parents.">\n    <h2>Survivor Parents</h2>\n<p>Survivors without parents are not eligible for the auto-application of Innovation bonuses granted only to newborn survivors!</p>'
     add_ancestor_select_top = Template('\t<select name="$parent_role">\n\t<option selected disabled hidden value="">$pretty_role</option>')
     change_ancestor_select_top = Template('\t<select onchange="this.form.submit()" name="$parent_role">\n\t<option selected disabled hidden value="">$pretty_role</option>')
     add_ancestor_select_row = Template('\t<option value="$parent_id">$parent_name</option>\n')
@@ -413,8 +423,10 @@ class survivor:
 
             <!-- SEX, SURVIVAL and MISC. SURVIVOR ATTRIBUTES -->
 
+            $affinity_controls
+
             <p>
-             Survivor Sex: <input onchange="this.form.submit()" class="survivor_sex_text" name="sex" value="$sex" />
+            Survivor Sex: <input onchange="this.form.submit()" class="survivor_sex_text" name="sex" value="$sex" />
             $mobile_avatar_img
             <br/>
 
@@ -830,7 +842,7 @@ class survivor:
               <input type="hidden" name="modify" value="survivor" />
               <input type="hidden" name="asset_id" value="$survivor_id" />
               <p>Survivor Owner:</p>
-              <input onchange="this.form.submit()" class="full_width" type="text" name="email" placeholder="email" value="$email"/>
+              <input onchange="this.form.submit()" class="full_width" type="email" name="email" placeholder="email" value="$email"/>
 
               <input type='hidden' value='unchecked' name='toggle_public'/>
               <input onchange="this.form.submit()" type="checkbox" id="public" class="radio_principle" name="toggle_public" value="checked" $public_checked> 
@@ -855,6 +867,54 @@ class survivor:
             <hr class="mobile_only"/>
             <br class="mobile_only"/>
         </div> <!-- asset_management_right_pane -->
+
+
+    <!-- ONLY MODAL CONTENT PAST THIS POINT!!!! -->
+
+        <div id="modalAffinity" class="modal">
+
+          <!-- Modal content -->
+            <div class="modal-content">
+                <span class="close">×</span>
+
+                <h3>Update Permanent Survivor Affinities</h3>
+
+                <form id="autoForm" method="POST">
+                    <input type="hidden" name="modify" value="survivor" />
+                    <input type="hidden" name="asset_id" value="$survivor_id" />
+                    <input type="hidden" name="modal_update" value="affinities"/>
+
+                    <div class="bulk_add_control" title="Red affinity controls">
+                    <button type="button" class="incrementer" onclick="increment('redCountBox');">+</button>
+                    <input id="redCountBox" class="big_number_square" type="number" name="red_affinities" value="$red_affinities"/>
+                    <button type="button" class="decrementer" onclick="decrement('redCountBox');">-</button>
+                    </div>
+                    <div id="affinity_block" class="red">&nbsp;</div>
+                    <hr/>
+
+                    <div class="bulk_add_control" title="Blue affinity controls">
+                    <button type="button" class="incrementer" onclick="increment('blueCountBox');">+</button>
+                    <input id="blueCountBox" class="big_number_square" type="number" name="blue_affinities" value="$blue_affinities"/>
+                    <button type="button" class="decrementer" onclick="decrement('blueCountBox');">-</button>
+                    </div>
+                    <div id="affinity_block" class="blue">&nbsp;</div>
+                    <hr/>
+
+                    <div class="bulk_add_control" title="Green affinity controls">
+                    <button type="button" class="incrementer" onclick="increment('greenCountBox');">+</button>
+                    <input id="greenCountBox" class="big_number_square" type="number" name="green_affinities" value="$green_affinities"/>
+                    <button type="button" class="decrementer" onclick="decrement('greenCountBox');">-</button>
+                    </div>
+                    <div id="affinity_block" class="green">&nbsp;</div>
+                    <hr/>
+
+
+                    <center><button class="green">Save!</button></center>
+                    <br><br>
+                </form>
+            </div> <!-- modal-content -->
+        </div> <!-- modalAffinity -->
+
     \n""")
     partner_controls_top = '\n<p><span class="tiny_break">&nbsp;</span>Partner<select name="partner_id" onchange="this.form.submit()">\n'
     partner_controls_none = '<option selected disabled>Select a Survivor</option>'
@@ -887,7 +947,25 @@ class survivor:
      <input onchange="this.form.submit()" class="full_width" type="text" name="add_epithet" placeholder="add a custom epithet"/>
      <hr class="mobile_only"/>
     \n""")
+    affinity_controls = Template("""\n\
+    <p>
+    <button id="modalAffinityButton" class="$button_class" title="Permanent Affinity controls"> $text </button>
+    </p>
 
+    <script>
+    window.onload = function(){
+        var modal = document.getElementById('modalAffinity');
+        var btn = document.getElementById("modalAffinityButton");
+        var span = document.getElementsByClassName("close")[0];
+        btn.onclick = function(b) {b.preventDefault(); modal.style.display = "block";}
+        span.onclick = function() {modal.style.display = "none";}
+        window.onclick = function(event) {if (event.target == modal) {modal.style.display = "none";}}
+    };
+    </script>
+    \n""")
+    affinity_span = Template("""\n
+    <span id="affinity_span" class="$span_class">$value</span>
+    \n""")
 
 
 class settlement:
@@ -1329,7 +1407,7 @@ class settlement:
 
                     $add_to_storage_controls
 
-                    <input onchange="this.form.submit()" type="text" class="full_width" name="add_item" placeholder="Add custom item to storage"/>
+                    <input type="text" class="full_width" name="add_item" placeholder="Add custom item to storage"/>
                     <center><button class="yellow">Submit</button></center>
                     <br><br><br>
                 </form>
@@ -1525,13 +1603,21 @@ class settlement:
             <input type="hidden" name="modify" value="settlement" />
             <input type="hidden" name="asset_id" value="$settlement_id" />
             <input type="hidden" name="abandon_settlement" value="toggle" />
-            <button class="full_width warn"> Abandon Settlement </button>
-        </form>
-        <hr/>
 
-    <form method="POST" onsubmit="return confirm('Press OK to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever. Please note that this CANNOT BE UNDONE and is not the same as marking a settlement Abandoned. Consider abandoning old settlements rather than removing them, as this allows data about the settlement to be used in general kdm-manager stats.');"><input type="hidden" name="remove_settlement" value="$settlement_id"/><button class="full_width error">Permanently Delete Settlement</button></form>
+            <h3>Abandon Settlement</h3>
+            <p>Mark a settlement as "Abandoned" to prevent it from showing up in your active campaigns without removing it from the system. Use the button below to remove "test" and other undesired settlements.</p>
+            <button class="full_width warn"> Abandon Settlement! </button>
+        </form>
+
+    $remove_settlement_button
+
     </div>
     \n""")
+    remove_settlement_button = Template("""\
+    <hr/>
+    <h3>Permanently Remove Settlement</h3>
+    <form method="POST" onsubmit="return confirm('Press OK to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever. Please note that this CANNOT BE UNDONE and is not the same as marking a settlement Abandoned. Consider abandoning old settlements rather than removing them, as this allows data about the settlement to be used in general kdm-manager stats.');"><input type="hidden" name="remove_settlement" value="$settlement_id"/><button class="full_width error">Permanently Delete Settlement</button></form>
+    """)
     expansions_block_slug = Template("""\n\
     <form id="autoForm" method="POST" action="#edit_lost_settlements">
         <input type="hidden" name="modify" value="settlement" />
