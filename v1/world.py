@@ -293,7 +293,8 @@ def user_average(return_type=False):
     for user in mdb.users.find():
         settlement_count = mdb.settlements.find({"created_by": user["_id"]}).count()
         survivor_count = mdb.survivors.find({"created_by": user["_id"]}).count()
-        avatar_count = gridfs.GridFS(mdb).find({"created_by": user["_id"]}).count()
+#        avatar_count = gridfs.GridFS(mdb).find({"created_by": user["_id"]}).count()
+        avatar_count = 0
         user_counts[user["_id"]] = {"settlements": settlement_count, "survivors": survivor_count, "avatars": avatar_count}
 
     averages = {"settlements": 0, "survivors": 0, "avatars": 0}

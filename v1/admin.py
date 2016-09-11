@@ -428,7 +428,7 @@ class Panel:
         recent_users = self.get_recent_users()
 
 #        f = mdb.the_dead.find_one({"complete": {"$exists": True}}, sort=[("created_on",-1)])
-        f = world.latest_fatality()
+        f = world.latest_fatality("False")
         if f is not None:
             f_owner = mdb.users.find_one({"_id": f["created_by"]})
             latest_fatality_string = "%s %s (%s)" % (world.latest_fatality("html"),f_owner["login"],f_owner["_id"])
