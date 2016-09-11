@@ -1605,7 +1605,7 @@ class settlement:
             <input type="hidden" name="abandon_settlement" value="toggle" />
 
             <h3>Abandon Settlement</h3>
-            <p>Mark a settlement as "Abandoned" to prevent it from showing up in your active campaigns without removing it from the system. Use the button below to remove "test" and other undesired settlements.</p>
+            <p>Mark a settlement as "Abandoned" to prevent it from showing up in your active campaigns without removing it from the system.</p>
             <button class="full_width warn"> Abandon Settlement! </button>
         </form>
 

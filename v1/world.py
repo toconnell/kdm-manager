@@ -2,7 +2,6 @@
 
 from bson.objectid import ObjectId
 from datetime import datetime, timedelta
-import gridfs
 from optparse import OptionParser
 
 import assets
@@ -293,8 +292,9 @@ def user_average(return_type=False):
     for user in mdb.users.find():
         settlement_count = mdb.settlements.find({"created_by": user["_id"]}).count()
         survivor_count = mdb.survivors.find({"created_by": user["_id"]}).count()
+#       gridfs queries need version 2.7+ of the gridfs pymongo driver
 #        avatar_count = gridfs.GridFS(mdb).find({"created_by": user["_id"]}).count()
-        avatar_count = 0
+        avatar_count = mdb.survivors.find({"avatar": {"$exists": True}}).count()
         user_counts[user["_id"]] = {"settlements": settlement_count, "survivors": survivor_count, "avatars": avatar_count}
 
     averages = {"settlements": 0, "survivors": 0, "avatars": 0}
@@ -302,7 +302,8 @@ def user_average(return_type=False):
         data_points = []
         for user in user_counts.keys():
             data_points.append(user_counts[user][asset])
-        averages[asset] = reduce(lambda x, y: x + y, data_points) / len(data_points)
+        result = reduce(lambda x, y: x + y, data_points) / float(len(data_points))
+        averages[asset] = round(result,2)
 
     if return_type:
         return averages[return_type]
