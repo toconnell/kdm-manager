@@ -30,7 +30,7 @@ body {font-family: Quattrocento, sans-serif; height: 100%; overflow: scroll;}
 font.inline_shield {background-color: #000; color: #fff; padding-left: 0.3em; padding-right: 0.3em; border-bottom-right-radius: 25px; border-bottom-left-radius: 25px; }
 fieldset {border: 0; text-align: left; }
 ul {margin-left: 30px; }
-.location_level {width: 40px; display: inline; margin: 0 auto; clear: none; }
+.location_level {width: 80px; display: inline; margin: 0 auto; clear: none; }
 
 textarea#settlement_notes {width: 100%; height: 250px; border: 0; margin-left: 10px;  font-size: 30pt; }
 
@@ -555,7 +555,7 @@ right connector from last child*/
 
     /*  dashboard styles */
 	img.dashboard_bg {z-index: -10; position: fixed; right: 50px; top: 50px;}
-    img.latest_fatality {width: 100px;}
+    img.latest_fatality {width: 100px; clear: right; margin-left: 100px; }
     .dashboard_world_defeated_monsters {width: 50%; }
     .dashboard_alert {font-size: 14pt; }
     div.dashboard_preferences {width: 60%; text-align: center; margin-left: 20px; margin-top: 10px; }
@@ -622,7 +622,7 @@ right connector from last child*/
     div.create_new_asset_block {width: 100%; margin: 0 auto; }
 
     /* asset management styles */
-    .survivor_avatar_image {position: relative; margin-top: 20px; margin-left: 20px; width: 175px; height: 225px;}
+    .survivor_avatar_image {position: relative; margin-top: 20px; margin-left: 20px; width: 175px; height: auto;}
     .survivor_avatar_image_campaign_summary {width: 65px; height: 85px; float: right; margin-top: 0px; margin-left: 4px; }
     .negative_30px_bottom_margin {margin-bottom: -30px;}
     .toggle_favorite {position: absolute; margin-top: -33px; margin-left: 35px; min-width: 50px; }
@@ -668,6 +668,7 @@ right connector from last child*/
     fieldset.settlement_principle input[type=radio] {display: none; }    
     span.genealogy_survivor {font-size: 11pt; }
     .tree {font-size: 11pt;}
+    .location_level {width: 40px;}
 
     /* panel styles */
     #panel_meta_stats, .panel_recent_user {font-size: 12pt; border-collapse: collapse; float: left; }

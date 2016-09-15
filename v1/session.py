@@ -237,12 +237,12 @@ class Session:
             s_id = ObjectId(self.params["remove_settlement"].value)
             S = assets.Settlement(settlement_id=s_id, session_object=self)
             user_action = "removed settlement %s" % S
-            S.delete()
+            S.remove()
         if "remove_survivor" in self.params:
             survivor_id = ObjectId(self.params["remove_survivor"].value)
             S = assets.Survivor(survivor_id=survivor_id, session_object=self)
             user_action = "removed survivor %s from %s" % (S, S.Settlement)
-            S.delete()
+            S.remove()
             self.change_current_view("view_campaign", asset_id=S.survivor["settlement"])
 
         # this is where we handle requests to create new assets

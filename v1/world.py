@@ -46,7 +46,7 @@ def current_hunt(return_type=False):
     """ Uses settlements with a 'current_quarry' attribute to determine who is
     currently hunting monsters. """
     try:
-        settlement = mdb.settlements.find({"name": {"$nin": ["Test", "Unknown"]}, "current_quarry": {"$exists": True}, "hunt_started": {"$gte": datetime.now() - timedelta(minutes=180)}}).sort("hunt_started", -1)[0]
+        settlement = mdb.settlements.find({"removed": {"$exists": False}, "name": {"$nin": ["Test", "Unknown"]}, "current_quarry": {"$exists": True}, "hunt_started": {"$gte": datetime.now() - timedelta(minutes=180)}}).sort("hunt_started", -1)[0]
     except:
         return "No settlements are currently hunting monsters."
 
@@ -109,6 +109,7 @@ def latest_settlement(return_type="html"):
     survivors."""
     latest_settlement = mdb.settlements.find_one(
         {
+            "removed": {"$exists": False},
             "population": {"$gt": 0},
             "name": {"$nin": ["Unknown", "Test", "test"]},
         },
@@ -138,6 +139,7 @@ def latest_survivor(return_type="html"):
     """ Returns the most recently created survivor with a real name. """
     latest_survivor = mdb.survivors.find_one(
         {
+            "removed": {"$exists": False},
             "dead": {"$exists": False},
             "name": {"$nin": ["Test", "Anonymous", "test"]},
         },

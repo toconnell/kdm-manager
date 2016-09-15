@@ -200,7 +200,10 @@ class User:
         """ Returns the user's settlements in a number of ways. Leave
         'return_as' unspecified if you want a mongo cursor back. """
 
-        self.settlements = list(mdb.settlements.find({"created_by": self.user["_id"]}).sort("name"))
+        self.settlements = list(mdb.settlements.find({
+            "created_by": self.user["_id"],
+            "removed": {"$exists": False},
+            }).sort("name"))
 
         if self.settlements is None:
             return "NONE!"
@@ -229,7 +232,7 @@ class User:
         survivors = list(mdb.survivors.find({"$or": [
             {"email": self.user["login"]},
             {"created_by": self.user["_id"]},
-            ]}
+            ], "removed": {"$exists": False}}
         ).sort("name"))
 
         # user version
@@ -353,8 +356,8 @@ class User:
             # organic queries
             dead_survivors = mdb.the_dead.find().count(),
             live_survivors = mdb.survivors.find({"dead": {"$exists": False}}).count(),
-            abandoned_settlements = mdb.settlements.find({"abandoned": {"$exists": True}}).count(),
-            active_settlements = mdb.settlements.find().count() - mdb.settlements.find({"abandoned": {"$exists": True}}).count(),
+            abandoned_settlements = mdb.settlements.find({"$or": [{"removed": {"$exists": True}}, {"abandoned": {"$exists": True}}]}).count(),
+            active_settlements = mdb.settlements.find().count() - mdb.settlements.find({"$or": [{"abandoned": {"$exists": True}}, {"removed": {"$exists": True}}]}).count(),
             total_users = mdb.users.find().count(),
             total_users_last_30 = mdb.users.find({"latest_sign_in": {"$gte": thirty_days_ago}}).count(),
             new_settlements_last_30 = mdb.settlements.find({"created_on": {"$gte": thirty_days_ago}}).count(),
@@ -391,6 +394,7 @@ class User:
             avg_insanity = world.get_average(collection="survivors", attrib="Insanity", return_type=float),
             avg_courage = world.get_average(collection="survivors", attrib="Courage", return_type=float),
             avg_understanding = world.get_average(collection="survivors", attrib="Understanding", return_type=float),
+            avg_fighting_arts = world.get_average(collection="survivors", attrib="fighting_arts", return_type=float),
             # user averages
             avg_user_settlements = user_averages["settlements"],
             avg_user_survivors = user_averages["survivors"],
@@ -494,11 +498,14 @@ class Survivor:
             for innovation_key in self.Settlement.settlement["innovations"]:
                 if innovation_key in WeaponMasteries.get_keys():
                     prof_dict = WeaponMasteries.get_asset(innovation_key)
-                    if prof_dict["all_survivors"] not in self.survivor["abilities_and_impairments"]:
-                        if self.User.get_preference("apply_weapon_specialization"):
-                            self.survivor["abilities_and_impairments"].append(prof_dict["all_survivors"])
-                            self.logger.debug("Auto-applied settlement default '%s' to survivor '%s' of '%s'." % (prof_dict["all_survivors"], self.survivor["name"], self.Settlement.settlement["name"]))
-                            self.Settlement.log_event("Automatically added '%s' to %s's abilities!" % (prof_dict["all_survivors"], self.survivor["name"]))
+                    if "auto-apply_specialization" in prof_dict.keys() and not prof_dict["auto-apply_specialization"]:
+                        pass
+                    else:
+                        if prof_dict["all_survivors"] not in self.survivor["abilities_and_impairments"]:
+                            if self.User.get_preference("apply_weapon_specialization"):
+                                self.survivor["abilities_and_impairments"].append(prof_dict["all_survivors"])
+                                self.logger.debug("Auto-applied settlement default '%s' to survivor '%s' of '%s'." % (prof_dict["all_survivors"], self.survivor["name"], self.Settlement.settlement["name"]))
+                                self.Settlement.log_event("Automatically added '%s' to %s's abilities!" % (prof_dict["all_survivors"], self.survivor["name"]))
                 elif innovation_key.split("-")[0].strip() == "Mastery":
                     custom_weapon = " ".join(innovation_key.split("-")[1:]).title().strip()
                     spec_str = "Specialization - %s" % custom_weapon
@@ -678,7 +685,7 @@ class Survivor:
         """ Retires the Survivor (in the Blade Runner sense) and then removes it
         from the mdb. """
 
-        self.logger.debug("%s is removing survivor %s..." % (self.User.user["login"], self.get_name_and_id()))
+        self.logger.warn("[%s] Deleting survivor %s..." % (self.User, self))
         if not "cause_of_death" in self.survivor.keys():
             self.survivor["cause_of_death"] = "Forsaken."
         self.death()
@@ -688,8 +695,17 @@ class Survivor:
             gridfs.GridFS(mdb).delete(self.survivor["avatar"])
             self.logger.debug("%s removed an avatar image (%s) from GridFS." % (self.User.user["login"], self.survivor["avatar"]))
         mdb.survivors.remove({"_id": self.survivor["_id"]})
-        self.Settlement.log_event("%s has been Forsaken (and permanently deleted) by %s" % (self.get_name_and_id(include_id=False, include_sex=True), self.User.user["login"] ))
+        self.Settlement.log_event("%s has been Forsaken (and permanently deleted) by %s" % (self, self.User.user["login"] ))
         self.logger.warn("%s removed survivor %s from mdb!" % (self.User.user["login"], self.get_name_and_id()))
+
+
+    def remove(self):
+        """ Markes the survivor 'removed' with a datetime.now(). """
+        self.logger.info("[%s] Removing survivor %s" % (self.User, self))
+        self.survivor["removed"] = datetime.now()
+        mdb.survivors.save(self.survivor)
+        self.Settlement.log_event("%s has been ")
+        self.logger.warn("[%s] marked %s as removed!" % (self.User, self))
 
 
     def get_name_and_id(self, include_id=True, include_sex=False):
@@ -1300,7 +1316,7 @@ class Survivor:
         impairment_set = set()
         for a in self.survivor["abilities_and_impairments"]:
             if a in Abilities.get_keys():
-                if Abilities.get_asset(a)["type"] == "impairment":
+                if Abilities.get_asset(a)["type"] in ["impairment","severe_injury"]:
                     impairment_set.add(a)
         return list(impairment_set)
 
@@ -2252,17 +2268,33 @@ class Settlement:
         self.update_current_quarry("White Lion (First Story)")
 
 
-    def delete(self):
-        """ Retires and removes all survivors; runs the Valkyrie and removes the
-        settlement from the mdb. """
+    def remove(self):
+        """ Marks the settlement and the survivors as "removed", which prevents
+        them from showing up on the dashboard. """
 
-        self.logger.debug("%s is removing settlement %s..." % (self.User.user["login"], self.get_name_and_id()))
+
+        self.logger.warn("[%s] Marking %s as 'removed'..." % (self.User, self))
+        for survivor in self.get_survivors():
+            S = Survivor(survivor_id=survivor["_id"], session_object=self.Session)
+            S.remove()
+        self.settlement["removed"] = datetime.now()
+        mdb.settlements.save(self.settlement)
+        self.log_event("Removed settlement!")
+        self.logger.warn("[%s] Finished marking %s as 'removed'." % (self.User, self))
+
+
+    def delete(self):
+        """ Deletes all survivors, runs the Valkyrie and removes the settlement
+        from the mdb. We don't want users to do this, because it ruins world
+        stats. Rather, they use the remove() method. """
+
+        self.logger.warn("[%s] Deleting %s from mdb..." % (self.User, self))
         for survivor in self.get_survivors():
             S = Survivor(survivor_id=survivor["_id"], session_object=self.Session)
             S.delete(run_valkyrie=False)
         admin.valkyrie()
         mdb.settlements.remove({"_id": self.settlement["_id"]})
-        self.logger.warn("%s removed settlement %s from mdb!" % (self.User.user["login"], self.get_name_and_id()))
+        self.logger.warn("[%s] Deleted %s from mdb!" % (self.User, self))
 
 
     def update_mins(self):
@@ -2462,6 +2494,11 @@ class Settlement:
         so long as it follows the general naming conventions for masteries. """
 
         weapon = mastery_string.split("-")[1].strip()
+
+        if weapon in WeaponProficiencies.get_keys():
+            w = WeaponProficiencies.get_asset(weapon)
+            if "auto-apply_specialization" in w.keys() and not w["auto-apply_specialization"]:
+                return True
 
         self.settlement["innovations"].append(mastery_string)
         self.log_event("%s has mastered %s!" % (master, weapon))
@@ -3360,7 +3397,7 @@ class Settlement:
         """ Returns the settlement's survivors. Leave 'return_type' unspecified
         if you want a mongo cursor object back. """
 
-        query = {"settlement": self.settlement["_id"], "_id": {"$nin": exclude}}
+        query = {"removed": {"$exists": False}, "settlement": self.settlement["_id"], "_id": {"$nin": exclude}}
 
         if exclude_dead:
             query["dead"] = {"$exists": False}
@@ -4071,6 +4108,12 @@ class Settlement:
                 self.logger.error(msg)
                 raise Exception(msg)
 
+        # ban any asset keys forbidden by the campaign
+        campaign_dict = self.get_campaign("dict")
+        if "forbidden" in campaign_dict.keys():
+            for asset_key in asset_keys:
+                if asset_key in campaign_dict["forbidden"]:
+                    asset_keys.remove(asset_key)
 
         #   now do return types
         if return_type is "user_defined":

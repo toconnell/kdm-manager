@@ -12,6 +12,10 @@
 #
 
 abilities_and_impairments = {
+    "Lovelorn Rock": {
+        "type": "impairment",
+        "desc": "Forever in love, the straggler loses one gear slot permanently to the rock. This survivor must always leave one gear space empty to hold their rock. The rock can be lost like normal gear.",
+    },
     "Sleeping Virus Flower": {
         "expansion": "Flower Knight",
         "type": "curse",
@@ -3094,7 +3098,7 @@ survival_actions = {
 survivor_attributes = ["Movement", "Accuracy", "Strength", "Evasion", "Luck", "Speed"]
 
 weapon_proficiencies = {
-    "Katana": {"expansion": "Sunstalker"},
+    "Katana": {"expansion": "Sunstalker", "auto-apply_specialization": False},
     "Bow": {},
     "Katar": {},
     "Sword": {},
@@ -3150,6 +3154,7 @@ epithets = {
     "Digested": {"expansion": "Gorm"},
     "Braved the Storm": {"expansion": "Gorm"},
     "Living Sacrifice": {"expansion": "Gorm"},
+    "Vomit-soaked": {},
     "Twin": {},
     "Maw Runner": {},
     "Slayer": {},
@@ -3421,7 +3426,7 @@ campaigns = {
 
     "People of the Sun": {
         "expansions": ["Sunstalker"],
-        "forbidden": ["Leader"],
+        "forbidden": ["Leader", "Lantern Hoard"],
         "principles": {
             # custom new life principle
             "New Life": {

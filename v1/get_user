@@ -31,7 +31,7 @@ if __name__ == "__main__":
             html.render(output)
 
     # check for the correct key; bail if we don't have it
-    if params["admin_key"].value != p_settings.get("application","admin_key"):
+    if params["admin_key"].value != p_settings.get("admin","admin_key"):
         output = "Invalid administrator credential."
         html.render(output)
 

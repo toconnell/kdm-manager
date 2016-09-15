@@ -260,12 +260,12 @@ class dashboard:
             <li>Hunt XP: $avg_hunt_xp</li>
             <li>Insanity: $avg_insanity</li>
             <li>Courage: $avg_courage</li>
+            <li>Fighting Arts: $avg_fighting_arts</li>
             <li>Understanding: $avg_understanding</li>
             <li>Disorders: $avg_disorders</li>
             <li>Abilities/Impairments: $avg_abilities</li>
         </ul>
         $latest_fatality
-        <br class="clear_both">
         $latest_survivor
         <hr/>
 
@@ -1576,7 +1576,7 @@ class settlement:
             <input type="hidden" name="modify" value="settlement" />
             <input type="hidden" name="asset_id" value="$settlement_id" />
 
-            <input onchange="this.form.submit()" class="big_number_square" type="number" name="lost_settlements" value="$lost_settlements"/>
+            <input onchange="this.form.submit()" class="big_number_square" type="number" name="lost_settlements" value="$lost_settlements" min="0"/>
             <h3>Lost Settlements</h3>
             <p>Refer to <font class="kdm_font">g</font> <b>Game Over</b> on p.179: <b>Left Overs</b> occurs at 4; <b>Those Before Us</b> occurs at 8; <b>Ocular Parasites</b> occurs at 12; <b>Rainy Season</b> occurs at 16.</p>
             </form>
