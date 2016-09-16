@@ -43,11 +43,12 @@ def load_settings(settings_type=None):
 #
 
 settings = load_settings()
+mdb = MongoClient()[settings.get("application","mdb")]
 ymd = "%Y-%m-%d"
 hms = "%H:%M:%S"
 ymdhms = "%Y-%m-%d %H:%M:%S"
 thirty_days_ago = datetime.now() - timedelta(days=30)
-mdb = MongoClient()[settings.get("application","mdb")]
+recent_session_cutoff = datetime.now() - timedelta(hours=12)
 admin_session = {"_id": 0, "login": "ADMINISTRATOR", "User": {"_id": 0}}
 
 #

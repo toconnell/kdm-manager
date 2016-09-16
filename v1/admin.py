@@ -411,6 +411,7 @@ class Panel:
         self.admin_login = admin_login
         self.Session = session.Session()
         self.logger = get_logger()
+        self.warehouse = world.WarehouseObject()
 
     def get_recent_users(self):
         """ Gets users from mdb who have done stuff within our time horizon for

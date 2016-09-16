@@ -5,10 +5,12 @@ from datetime import datetime, timedelta
 from optparse import OptionParser
 
 import assets
+import cPickle as pickle
 import game_assets
 import html
+import os
 import session
-from utils import mdb, get_percentage, ymd, admin_session
+from utils import mdb, get_percentage, ymd, admin_session, load_settings, get_logger, thirty_days_ago, recent_session_cutoff
 from models import Quarries, Nemeses, mutually_exclusive_principles
 
 
@@ -261,15 +263,20 @@ def top_principles(return_type=None):
     return popularity_contest
 
 
-def expansion_popularity_contest(return_type=None):
+def popularity_contest(list_item="expansions", return_type=None):
     """ Creates a dict of expansion use across all settlements. """
-    exp_dict = {}
-    for expansion in game_assets.expansions.keys():
-        exp_dict[expansion] = mdb.settlements.find({"expansions": {"$in": [expansion]}}).count()
-    output = ""
-    for k in sorted(exp_dict.keys()):
-        v = exp_dict[k]
-        output += "<li>%s: %s</li>" % (k, v)
+
+
+    if list_item == "expansions":
+        exp_dict = {}
+        for expansion in game_assets.expansions.keys():
+            exp_dict[expansion] = mdb.settlements.find({"expansions": {"$in": [expansion]}}).count()
+        output = ""
+        for k in sorted(exp_dict.keys()):
+            v = exp_dict[k]
+            output += "<li>%s: %s</li>" % (k, v)
+
+
     return output
 
 
@@ -353,6 +360,152 @@ def get_average(collection="settlements", attrib="population", precision=2, retu
 
 
 
+class WarehouseObject:
+    """ Initialize one of these to get the latest World data object. This is
+    your one-stop-shop for all Dashboard -> World type data and all requests
+    for this info should go through this guy: running the other methods in this
+    module as one-offs is officially deprecated. """
+
+    def __init__(self):
+        self.logger = get_logger()
+        self.settings = load_settings()
+        self.meta = {}
+        self.meta["pickle_age_threshold"] = self.settings.getint("application","warehouse_age")
+        self.meta["pickle_path"] = os.path.abspath(self.settings.get("application","warehouse_file"))
+
+        if not os.path.isfile(self.meta["pickle_path"]):
+            self.refresh()
+            self.write_pickle()
+        else:
+            self.read_pickle()
+            pickle_age = (datetime.now() - self.meta["pickle_created_on"]).seconds % 3600 // 60
+            if pickle_age > self.meta["pickle_age_threshold"]:
+                self.logger.debug("Pickle is %s minutes old (threshold is %s minutes)." % (pickle_age, self.meta["pickle_age_threshold"]))
+                self.refresh()
+                self.write_pickle()
+
+
+    def dump(self):
+        """ Returns our meta and data dictionaries. No fancy crap. Mostly
+        intended for CLI debugging/dev. """
+        return self.meta, self.data, self.html_data
+
+
+    def get(self, attrib):
+        """ Uses the 'attrib' arg to try to return a value (from a key). It
+        tries self.data first, and then backs off to self.html.
+
+        If it can't find the key in either dict, it returns "UNAVAILABLE". """
+
+        if attrib in self.data.keys():
+            return self.data[attrib]
+        elif attrib in self.html_data.keys():
+            return self.html_data[attrib]
+        else:
+            return "UNAVAILABLE"
+
+
+    def refresh(self):
+        """ Basically wraps the get_data() method in a try/except. """
+        try:
+            self.get_data()
+        except Exception as e:
+            self.logger.exception(e)
+            self.logger.error("Unable to refresh data warehouse!")
+
+
+    def get_data(self):
+        """ Calls the various methods that update the warehoused data. Creates
+        new self.data and self.html_data dictionaries. """
+
+        start = datetime.now()
+        self.logger.info("Refreshing data warehouse...")
+        self.data = {}
+        self.html_data = {}
+
+        # do organic/one-off/manual queries first
+        self.data["dead_survivors"] = mdb.the_dead.find().count()
+        self.data["live_survivors"] = mdb.survivors.find({"dead": {"$exists": False}}).count()
+        self.data["abandoned_settlements"] = mdb.settlements.find({"$or": [{"removed": {"$exists": True}}, {"abandoned": {"$exists": True}}]}).count()
+        self.data["active_settlements"] = mdb.settlements.find().count() - self.data["abandoned_settlements"]
+        self.data["total_users"] = mdb.users.find().count()
+        self.data["total_users_last_30"] = mdb.users.find({"latest_sign_in": {"$gte": thirty_days_ago}}).count()
+        self.data["new_settlements_last_30"] = mdb.settlements.find({"created_on": {"$gte": thirty_days_ago}}).count()
+        self.data["recent_sessions"] = mdb.users.find({"latest_activity": {"$gte": recent_session_cutoff}}).count()
+
+        # canned and special world modules next
+        self.html_data["total_multiplayer"] = multiplayer_settlements("total_settlements")
+        self.html_data["defeated_monsters"] = kill_board("html_table_rows")
+        self.html_data["latest_kill"] = latest_kill("html")
+        self.html_data["top_principles"] = top_principles("html_ul")
+        self.html_data["expansion_popularity_bullets"] = popularity_contest("expansions")
+        self.html_data["latest_fatality"] = latest_fatality()
+        self.html_data["current_hunt"] = current_hunt()
+        self.html_data["latest_survivor"] = latest_survivor()
+        self.html_data["latest_settlement"] = latest_settlement()
+
+        # min/max queries
+        self.data["max_pop"] = get_minmax("population")[1]
+        self.data["max_death"] = get_minmax("death_count")[1]
+        self.data["max_survival"] = get_minmax("survival_limit")[1]
+
+        # settlement averages
+        self.data["avg_ly"] = get_average(attrib="lantern_year", return_type=float)
+        self.data["avg_lost_settlements"] = get_average(attrib="lost_settlements")
+        self.data["avg_pop"] = get_average(attrib="population")
+        self.data["avg_death"] = get_average(attrib="death_count")
+        self.data["avg_survival_limit"] = get_average(attrib="survival_limit", return_type=float)
+        self.data["avg_milestones"] = get_average(attrib="milestone_story_events")
+        self.data["avg_storage"] = get_average(attrib="storage", return_type=float)
+        self.data["avg_defeated"] = get_average(attrib="defeated_monsters", return_type=float)
+        self.data["avg_expansions"] = get_average(attrib="expansions")
+        self.data["avg_innovations"] = get_average(attrib="innovations")
+
+        # survivor averages
+        self.data["avg_disorders"] = get_average(collection="survivors", attrib="disorders", return_type=float)
+        self.data["avg_abilities"] = get_average(collection="survivors", attrib="abilities_and_impairments", return_type=float)
+        self.data["avg_hunt_xp"] = get_average(collection="survivors", attrib="hunt_xp", return_type=float)
+        self.data["avg_insanity"] = get_average(collection="survivors", attrib="Insanity", return_type=float)
+        self.data["avg_courage"] = get_average(collection="survivors", attrib="Courage", return_type=float)
+        self.data["avg_understanding"] = get_average(collection="survivors", attrib="Understanding", return_type=float)
+        self.data["avg_fighting_arts"] = get_average(collection="survivors", attrib="fighting_arts", return_type=float)
+
+        # user averages
+        ua = user_average()
+        self.data["avg_user_settlements"] = ua["settlements"]
+        self.data["avg_user_survivors"] = ua["survivors"]
+        self.data["avg_user_avatars"] = ua["avatars"]
+
+        stop = datetime.now()
+        self.logger.debug("Warehouse refreshed in %s seconds. %s data keys; %s HTML keys." % (((stop-start).total_seconds()), len(self.data.keys()), len(self.html_data.keys())))
+
+
+    def write_pickle(self):
+        """ Writes a brand new pickle warehouse. """
+        out_file_handle = file(self.meta["pickle_path"], "wb")
+        out_file_handle.write(pickle.dumps({"created_on": datetime.now(), "html_data": self.html_data, "data": self.data}))
+        out_file_handle.close()
+        if os.path.isfile(self.meta["pickle_path"]):
+            self.logger.info("Warehouse pickle written to '%s'." % self.meta["pickle_path"])
+        else:
+            raise Exception("Could not write warehouse pickle!")
+
+
+    def read_pickle(self):
+        """ Reads the pickle from the file system: resurrects data and
+        html_data into the object. """
+
+        in_file_handle = file(self.meta["pickle_path"], "rb")
+        p = pickle.loads(in_file_handle.read())
+        in_file_handle.close()
+        self.meta["pickle_created_on"] = p["created_on"]
+        self.data = p["data"]
+        self.html_data = p["html_data"]
+#        self.logger.debug("Pickle loaded successfully. Warehouse object refreshed.")
+
+
+
+
 
 
 if __name__ == "__main__":
@@ -363,6 +516,7 @@ if __name__ == "__main__":
     parser.add_option("-M", dest="multiplayer", help="Dump the multiplayer settlement count.", default=False, action="store_true")
     parser.add_option("-k", dest="kill_board", help="Run the kill_board func and print its contents.", default=False, action="store_true")
     parser.add_option("-p", dest="top_principles", help="Run the top_principles func and print its contents.", default=False, action="store_true")
+    parser.add_option("-W", dest="warehouse", help="Dump the warehouse repr.", default=False, action="store_true")
     (options, args) = parser.parse_args()
 
     start = datetime.now()
@@ -379,7 +533,11 @@ if __name__ == "__main__":
         print get_average(options.average)
     if options.minmax:
         print get_minmax(options.minmax)
+    if options.warehouse:
+        W = WarehouseObject()
+        for d in W.dump():
+            print d
 
     stop = datetime.now()
     duration = stop - start
-    print("Requested operations completed:\n Seconds: %s\n Microseconds: %s\n" % (duration.seconds, duration.microseconds))
+    print("\nRequested operations completed:\n Seconds: %s\n Microseconds: %s\n" % (duration.seconds, duration.microseconds))
