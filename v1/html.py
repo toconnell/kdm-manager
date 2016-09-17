@@ -34,11 +34,16 @@ class panel:
         <tr class="grey"><td>Current Hunt:</td><td>$current_hunt</td></tr>
         <tr><td>Latest Kill:</td><td>$latest_kill</td></tr>
     </table>
-    <table id="panel_kill_board">
+    <table id="panel_aux_table">
         <tr><th colspan="2">Kill Board</th></tr>
         $defeated_monsters
     </table>
+    $warehouse_table
     \n""")
+    panel_table_top = '<table id="panel_aux_table">\n'
+    panel_table_header = Template('\t<tr><th colspan="2">$title</th></tr>\n')
+    panel_table_row = Template('\t<tr class="$zebra"><td class="key">$key</td><td>$value</td></tr>\n')
+    panel_table_bot = '</table>\n'
     log_line = Template("""\n\
     <p class="$zebra">$line</p>
     \n""")
@@ -101,7 +106,36 @@ class dashboard:
     event_log_flash = '<img class="dashboard_icon" src="%s/icons/settlement_event.png"/> ' % settings.get("application", "STATIC_URL")
 
     # dashboard accordions
+    about = Template("""\n
+    <div class="dashboard_menu">
+    <h2 class="clickable gradient_silver" onclick="showHide('about_div')"> <font class="kdm_font" size="2.5em">g</font> About %s</h2>
+        <div id="about_div" style="display: none;" class="dashboard_accordion gradient_silver">
+        <p>KD:M Manager! Version $version.</p><hr/>
+        <p>v$version went live on $latest_change_date. <a target="top" href="$latest_change_link">View change log</a>
+.</p>
+        <p>The Manager is currently under active development and is running in debug mode!</p>
+        <hr/>
+        <p>More Information:</p>
+        <ul>
+        <li>Application source code is <a href="https://github.com/toconnell/kdm-manager" target="top">available on GitHub</a></li>
+        <li>Check <a href="https://github.com/toconnell/kdm-manager/wiki" target="top">the development wiki</a> for complete information about the project.</li>
+        <li>Please <a href="https://github.com/toconnell/kdm-manager/issues" target="top">report issues here</a>.</li>
+        </ul>
+
+        <p>Credits:</p>
+        <ul>
+            <li>Developed and maintained by <a href="http://toconnell.info">Timothy O'Connell</a>.</li>
+            <li>Icon font ('kdm-font-10') by <a href="http://steamcommunity.com/id/GeorgianBalloon" target="top">Miracle Worker</a>.</li>
+        </ul>
+        <hr/>
+        <p>For more information, including complete release notes and updates, or to make comments/ask questions about the project, check out the development blog at <a href="http://blog.kdm-manager.com" target="top"/>blog.kdm-manager.com</a>.</p>
+
+        </div> <!-- about_div -->
+    \n""" % (down_arrow_flash))
+    preference_header = Template("<p>&ensp; <b>$title:</b></p>")
+    preference_footer = "<br/><br/>"
     preference_block = Template("""\n
+    <hr/>
     <p>$desc</p>
     <p>
      <input style="display: none" id="pref_true_$pref_key" class="radio_principle" type="radio" name="$pref_key" value="True" $pref_true_checked/>
@@ -109,24 +143,14 @@ class dashboard:
      <input style="display: none" id="pref_false_$pref_key" class="radio_principle" type="radio" name="$pref_key" value="False" $pref_false_checked /> 
      <label for="pref_false_$pref_key" class="radio_principle_label"> $negative </label> 
     </p>
-    <hr/>
     \n""")
     motd = Template("""\n
 	<img class="desktop_only dashboard_bg" src="%s/tree_logo_shadow.png">
     <div class="dashboard_menu">
-        <h2 class="clickable gradient_silver" onclick="showHide('system_div')"> <img class="dashboard_icon" src="%s/icons/system.png"/> System %s</h2>
-        <div id="system_div" style="display: none;" class="dashboard_accordion gradient_silver">
-        <p>KD:M Manager! Version $version.</p><hr/>
-        <p>v$version went live on $latest_change_date. <a target="top" href="$latest_change_link">View change log</a>.</p>
-        <p>The Manager is currently under active development and is running in debug mode! Application source code is <a href="https://github.com/toconnell/kdm-manager" target="top">available on GitHub</a>: please <a href="https://github.com/toconnell/kdm-manager/issues" target="top">report issues here</a>.</p><hr/>
-        <p>For more information or to make comments/ask questions about the project, check out the development blog at <a href="http://blog.kdm-manager.com" target="top"/>blog.kdm-manager.com</a>. </p><hr/>
-        <p>About:<ul>
-            <li>Developed and maintained by <a href="http://toconnell.info">Timothy O'Connell</a>.</li>
-            <li>Icon font ('kdm-font-10') by <a href="http://steamcommunity.com/id/GeorgianBalloon" target="top">Miracle Worker</a>.</li>
-        </ul></p><hr/>
+        <h2 class="clickable gradient_white" onclick="showHide('system_div')"> <img class="dashboard_icon" src="%s/icons/system.png"/> System %s</h2>
+        <div id="system_div" style="display: none;" class="dashboard_accordion gradient_white">
 
         <div class="dashboard_preferences">
-            <h3>Preferences</h3>
             <form method="POST" action="#">
             <input type="hidden" name="update_user_preferences" value="True"/>
                 $user_preferences
@@ -154,6 +178,7 @@ class dashboard:
 
         <hr>
 
+        <h3>User Management</h3>
         <p>Currently signed in as: <i>$login</i> (last sign in: $last_sign_in)</p>
         $last_log_msg
         <div class="dashboard_preferences">
@@ -250,6 +275,10 @@ class dashboard:
         <p>Settlements using expansion content:</p>
         <ul>
             $expansion_popularity_bullets
+        </ul>
+        <p>Campaign counts:</p>
+        <ul>
+            $campaign_popularity_bullets
         </ul>
         $latest_settlement
         <hr/>

@@ -565,7 +565,7 @@ right connector from last child*/
     div.dashboard_button_list {margin-top: -3%; padding-left: 5%; width: 60%;}
     div.dashboard_button_list button {width: 100%; text-align: left; padding-left: 3%; }
     div.dashboard_menu {width: 600px; float:left; display: block; margin: 0 auto; clear: left; }
-    div.world_panel {margin-bottom: 50px;}
+    div.about_panel {margin-bottom: 50px; clear: none;}
     h2.clickable, .dashboard_accordion {margin: auto; padding: 1%; border-left: 1px solid; border-bottom: 2px solid; border-right: 2px solid; margin-bottom: 1%;}
     .dashboard_accordion {border-top: 0 none; margin-top: -1.7%; z-index: 10; width: 584px; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; padding-bottom: 3%;}
     h2.clickable { 
@@ -672,14 +672,15 @@ right connector from last child*/
 
     /* panel styles */
     #panel_meta_stats, .panel_recent_user {font-size: 12pt; border-collapse: collapse; float: left; }
-    #panel_meta_stats {width: 500px; margin-bottom: 20px; margin-left: 30px; }
+    #panel_meta_stats {width: 450px; margin-bottom: 20px; margin-left: 30px; }
     table.panel_recent_user {margin: 10px; width: 900px; clear: left;  }
     table.panel_recent_user td {padding: 3px; }
     table.panel_recent_user th {padding: 5px; }
     table.panel_recent_user td.key {width: 125px; color: #666; vertical-align: top; background-color: #EFEFEF; }
     table.panel_recent_user td.m_ago {border-left: 1px solid #EFEFEF; padding-left: 7px; }
     table.panel_recent_user td.latest_action {background-color: #FFFFEE; padding-left: 7px; font-style: italic; }
-    #panel_kill_board {width: 200px; float: left; border-left: 2px solid #333; margin-left: 20px; }
+    #panel_aux_table {width: 200px; float: left; border-left: 2px solid #333; margin-left: 20px; border-collapse: collapse; }
+    #panel_aux_table td {padding-right:5px; }
 
     /* survivor styles */
     div.returning_survivor_badge {margin: -3px; border-bottom-right-radius: 25px; width: 1.5%; height: 2%; color: #fff; padding: 0px; padding-left: 2px; }

@@ -25,7 +25,7 @@ import game_assets
 import html
 from models import Abilities, NemesisMonsters, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles, SurvivalActions
 from session import Session
-from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, get_latest_change_log, to_handle, thirty_days_ago, recent_session_cutoff
+from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd
 import world
 
 settings = load_settings()
@@ -309,7 +309,12 @@ class User:
 
 
     def html_motd(self):
-        """ Creates an HTML MoTD for the user. """
+        """ Creates an HTML MoTD for the user. This needs a refactor that
+        breaks it up into a few more intelligently named methods.
+
+        This function is basically the "System" panel and nothing else.
+
+        """
 
         formatted_log_msg = ""
         last_log_msg = self.get_last_n_user_admin_logs(1)
@@ -318,21 +323,17 @@ class User:
 
         pref_html = ""
         pref_models = userPreferences()
-        for p in pref_models.get_keys():
-            d = pref_models.pref(self, p)
-            pref_html += html.dashboard.preference_block.safe_substitute(desc=d["desc"], pref_key=p, pref_true_checked=d["affirmative_selected"], pref_false_checked=d["negative_selected"], affirmative=d["affirmative"], negative=d["negative"])
 
-        lcl = ""
-        lcd = "ERROR"
-        try:
-            lcl = get_latest_change_log()["url"]
-            lcd = get_latest_change_log()["published"]
-        except:
-            self.logger.exception("An error occurred while trying to retrieve blog info!")
+        organized_prefs = pref_models.get_category_dict()
+        for category in sorted(organized_prefs.keys()):
+            pref_html += html.dashboard.preference_header.safe_substitute(title=category)
+            for k in organized_prefs[category]: #list of keys
+                d = pref_models.pref(self, k)
+                pref_html += html.dashboard.preference_block.safe_substitute(desc=d["desc"], pref_key=k, pref_true_checked=d["affirmative_selected"], pref_false_checked=d["negative_selected"], affirmative=d["affirmative"], negative=d["negative"])
+            pref_html += html.dashboard.preference_footer
+
 
         output = html.dashboard.motd.safe_substitute(
-            latest_change_link = lcl,
-            latest_change_date = lcd,
             user_preferences = pref_html,
             session_id = self.Session.session["_id"],
             login = self.user["login"],
@@ -4564,6 +4565,39 @@ class Settlement:
 
             remove_settlement_button = rm_button,
         )
+
+
+
+    def render_admin_panel_html(self):
+        """ Renders a settlement as admin panel style HTML. This honestly
+        probably belongs under a master render method for this class but...
+        dang, you know? These render methods are monsters. I really gotta
+        abstract further in one of these major refactor revisions..."""
+
+        # write the top line
+        output = "\n\n<b>%s</b> LY:%s (%s) - %s/%s<br/>\n" % (
+            self.settlement["name"],
+            self.settlement["lantern_year"],
+            self.settlement["created_on"].strftime(ymd),
+            self.settlement["population"],
+            self.settlement["death_count"],
+            )
+
+        # write the removal info, if any exists
+        removal_string = ""
+        for removal_key in ["abandoned", "removed"]:
+            if removal_key in self.settlement.keys():
+                removal_string += '<font class="alert">%s</font> ' % removal_key.upper()
+        if removal_string != "":
+            removal_string = "&ensp; %s <br/>\n" % removal_string
+        output += removal_string
+
+        # now do the rest
+        output += "&ensp;<i>%s</i><br/>\n" % self.get_campaign()
+        output += "&ensp;Players: %s<br/>\n" % ", ".join(self.get_players())
+        output += "&ensp;Expansions: %s\n" % ", ".join(self.get_expansions())
+
+        return output
 
 
     def asset_link(self, context=None, update_mins=False):

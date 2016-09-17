@@ -16,7 +16,7 @@ from validate_email import validate_email
 import assets
 import html
 import session
-from utils import email, mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes, ymd, admin_session, thirty_days_ago
+from utils import email, mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes, ymd, admin_session, thirty_days_ago, get_latest_change_log
 import world
 
 import sys
@@ -402,6 +402,24 @@ def tail(settlement_id, interval=5, last=20):
         sys.exit(1)
 
 
+def render_about_panel():
+    """ Random method to render the HTML for the Dashboard "about" panel. """
+    lcl = ""
+    lcd = "ERROR"
+    try:
+        log = get_latest_change_log()
+        lcl = log["url"]
+        lcd = log["published"]
+    except:
+        self.logger.exception("An error occurred while trying to retrieve blog info!")
+
+    output = html.dashboard.about.safe_substitute(
+        version = settings.get("application","version"),
+        latest_change_date = lcd,
+        latest_change_link = lcl,
+    )
+    return output
+
     #
     #   Admin Panel!
     #
@@ -412,6 +430,7 @@ class Panel:
         self.Session = session.Session()
         self.logger = get_logger()
         self.warehouse = world.WarehouseObject()
+        self.recent_users = self.get_recent_users()
 
     def get_recent_users(self):
         """ Gets users from mdb who have done stuff within our time horizon for
@@ -426,35 +445,26 @@ class Panel:
         return index_log.readlines()[-lines:]
 
     def render_html(self):
-        recent_users = self.get_recent_users()
+        """ Renders the whole panel. """
 
-#        f = mdb.the_dead.find_one({"complete": {"$exists": True}}, sort=[("created_on",-1)])
-        f = world.latest_fatality("False")
-        if f is not None:
-            f_owner = mdb.users.find_one({"_id": f["created_by"]})
-            latest_fatality_string = "%s %s (%s)" % (world.latest_fatality("html"),f_owner["login"],f_owner["_id"])
-        else:
-            latest_fatality_string = "No deaths recorded yet!"
-
-        total_survivors = mdb.survivors.find().count()
-        dead_survivors = mdb.the_dead.find().count()
         output = html.panel.headline.safe_substitute(
             defeated_monsters = world.kill_board("html_table_rows", admin=True),
-            recent_users_count = recent_users.count(),
-            users = mdb.users.find().count(),
+            warehouse_table = self.warehouse.render("html_table"),
+            recent_users_count = self.recent_users.count(),
+            users = self.warehouse.get("total_users"),
             sessions = mdb.sessions.find().count(),
             settlements = mdb.settlements.find().count(),
-            total_survivors = total_survivors,
-            live_survivors = total_survivors - dead_survivors,
-            dead_survivors = dead_survivors,
+            total_survivors = self.warehouse.get("total_survivors"),
+            live_survivors = self.warehouse.get("live_survivors"),
+            dead_survivors = self.warehouse.get("dead_survivors"),
             complete_death_records = mdb.the_dead.find({"complete": {"$exists": True}}).count(),
-            latest_fatality = latest_fatality_string,
-            latest_kill = world.latest_kill("admin_panel"),
-            current_hunt = world.current_hunt(),
+            latest_fatality = self.warehouse.get("latest_fatality"),
+            latest_kill = self.warehouse.get("latest_kill"),
+            current_hunt = self.warehouse.get("current_hunt"),
         )
 
 
-        for user in recent_users:
+        for user in self.recent_users:
             User = assets.User(user_id=user["_id"], session_object=self.Session)
 
             # create settlement summaries
@@ -462,17 +472,7 @@ class Panel:
             settlement_strings = []
             for s in settlements:
                 S = assets.Settlement(settlement_id=s["_id"], session_object=self.Session)
-                settlement_string = "\n\n<b>%s</b> LY:%s (%s) - %s/%s<br/>\n&ensp;<i>%s</i><br/>\n&ensp;Players: %s<br/>\n&ensp;Expansions: %s" % (
-                    S.settlement["name"],
-                    S.settlement["lantern_year"],
-                    S.settlement["created_on"].strftime(ymd),
-                    S.settlement["population"],
-                    S.settlement["death_count"],
-                    S.get_campaign(),
-                    ", ".join(S.get_players()),
-                    ", ".join(S.get_expansions()),
-                )
-                settlement_strings.append(settlement_string)
+                settlement_strings.append(S.render_admin_panel_html())
 
             output += html.panel.user_status_summary.safe_substitute(
                 user_name = User.user["login"],

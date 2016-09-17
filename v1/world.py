@@ -268,13 +268,23 @@ def popularity_contest(list_item="expansions", return_type=None):
 
 
     if list_item == "expansions":
-        exp_dict = {}
+        out_dict = {}
         for expansion in game_assets.expansions.keys():
-            exp_dict[expansion] = mdb.settlements.find({"expansions": {"$in": [expansion]}}).count()
-        output = ""
-        for k in sorted(exp_dict.keys()):
-            v = exp_dict[k]
-            output += "<li>%s: %s</li>" % (k, v)
+            out_dict[expansion] = mdb.settlements.find({"expansions": {"$in": [expansion]}}).count()
+    elif list_item == "campaigns":
+        out_dict = {"People of the Lantern": mdb.settlements.find({"campaign": {"$exists": False}}).count()}
+        campaigns = mdb.settlements.find({"campaign": {"$exists": True}}).distinct("campaign")
+        for c in campaigns:
+            total = mdb.settlements.find({"campaign": c}).count()
+            if c in out_dict.keys():
+                out_dict[c] += total
+            else:
+                out_dict[c] = total
+
+    output = ""
+    for k in sorted(out_dict.keys()):
+        v = out_dict[k]
+        output += "<li>%s: %s</li>" % (k, v)
 
 
     return output
@@ -366,12 +376,16 @@ class WarehouseObject:
     for this info should go through this guy: running the other methods in this
     module as one-offs is officially deprecated. """
 
-    def __init__(self):
+    def __init__(self, refresh=False):
         self.logger = get_logger()
         self.settings = load_settings()
         self.meta = {}
         self.meta["pickle_age_threshold"] = self.settings.getint("application","warehouse_age")
         self.meta["pickle_path"] = os.path.abspath(self.settings.get("application","warehouse_file"))
+
+        if refresh:
+            self.refresh()
+            self.write_pickle()
 
         if not os.path.isfile(self.meta["pickle_path"]):
             self.refresh()
@@ -426,6 +440,7 @@ class WarehouseObject:
         # do organic/one-off/manual queries first
         self.data["dead_survivors"] = mdb.the_dead.find().count()
         self.data["live_survivors"] = mdb.survivors.find({"dead": {"$exists": False}}).count()
+        self.data["total_survivors"] = mdb.survivors.find().count()
         self.data["abandoned_settlements"] = mdb.settlements.find({"$or": [{"removed": {"$exists": True}}, {"abandoned": {"$exists": True}}]}).count()
         self.data["active_settlements"] = mdb.settlements.find().count() - self.data["abandoned_settlements"]
         self.data["total_users"] = mdb.users.find().count()
@@ -439,6 +454,7 @@ class WarehouseObject:
         self.html_data["latest_kill"] = latest_kill("html")
         self.html_data["top_principles"] = top_principles("html_ul")
         self.html_data["expansion_popularity_bullets"] = popularity_contest("expansions")
+        self.html_data["campaign_popularity_bullets"] = popularity_contest("campaigns")
         self.html_data["latest_fatality"] = latest_fatality()
         self.html_data["current_hunt"] = current_hunt()
         self.html_data["latest_survivor"] = latest_survivor()
@@ -504,6 +520,29 @@ class WarehouseObject:
 #        self.logger.debug("Pickle loaded successfully. Warehouse object refreshed.")
 
 
+    def render(self, return_type=False):
+        """ This method renders the warehouse data in custom ways. """
+
+        output = ""
+
+        if return_type=="html_table":
+
+            output = html.panel.panel_table_top
+
+            for data_dict in [("Warehouse Data",self.data), ("Warehouse Meta", self.meta)]:
+                zebra = ""
+                output += html.panel.panel_table_header.safe_substitute(title=data_dict[0])
+                for d in sorted(data_dict[1].keys()):
+                    output += html.panel.panel_table_row.safe_substitute(zebra=zebra, key=d, value=data_dict[1][d])
+                    if zebra == "":
+                        zebra = "zebra_True"
+                    else:
+                        zebra = ""
+
+            output += html.panel.panel_table_bot
+
+        return output
+
 
 
 
@@ -517,6 +556,7 @@ if __name__ == "__main__":
     parser.add_option("-k", dest="kill_board", help="Run the kill_board func and print its contents.", default=False, action="store_true")
     parser.add_option("-p", dest="top_principles", help="Run the top_principles func and print its contents.", default=False, action="store_true")
     parser.add_option("-W", dest="warehouse", help="Dump the warehouse repr.", default=False, action="store_true")
+    parser.add_option("-R", dest="warehouse_refresh", help="Force the warehouse to refresh", default=False, action="store_true")
     (options, args) = parser.parse_args()
 
     start = datetime.now()
@@ -534,7 +574,7 @@ if __name__ == "__main__":
     if options.minmax:
         print get_minmax(options.minmax)
     if options.warehouse:
-        W = WarehouseObject()
+        W = WarehouseObject(refresh=options.warehouse_refresh)
         for d in W.dump():
             print d
 

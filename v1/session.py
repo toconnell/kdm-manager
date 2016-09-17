@@ -392,15 +392,20 @@ class Session:
                 output += html.dashboard.settlement_summary.safe_substitute(settlements=self.User.get_settlements(return_as="asset_links"), display=display_settlements)
                 output += html.dashboard.survivor_summary.safe_substitute(survivors=self.User.get_survivors("asset_links"))
 
-                if mdb.the_dead.find({"complete": {"$exists": True}}).count() > 0:
-                    try:
-                        output += self.User.html_world()
-                    except Exception as e:
-                        self.logger.exception(e)
-                        output += '<!-- ERROR! World Menu could not be created! -->'
+                # due to volatility, the html_world() call is wrapped for silent
+                #   failure. No plans to change this at present.
+                try:
+                    output += self.User.html_world()
+                except Exception as e:
+                    self.logger.exception(e)
+                    output += '<!-- ERROR! World Menu could not be created! -->'
+
+                output += admin.render_about_panel()
+
 
                 if self.User.is_admin():
                     output += html.dashboard.panel_button
+
             elif self.session["current_view"] == "event_log":
                 settlement = mdb.settlements.find_one({"_id": self.session["current_asset"]})
                 self.set_current_settlement(ObjectId(settlement["_id"]))

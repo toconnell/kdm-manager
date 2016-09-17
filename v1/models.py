@@ -511,26 +511,31 @@ mutually_exclusive_principles = {
 
 preferences_dict = {
     "hide_principle_controls": {
+        "type": "Settlement Sheet",
         "desc": "Use settlement milestones to hide unavailable principles?",
         "affirmative": "Dynamically hide Principle controls",
         "negative": "Always show all Principle controls",
     },
     "confirm_on_remove_from_storage": {
+        "type": "Settlement Sheet",
         "desc": "Confirm before removing items from Settlement Storage?",
         "affirmative": "Confirm with Pop-up",
         "negative": "Do not confirm",
     },
     "apply_new_survivor_buffs": {
+        "type": "Automation",
         "desc": "Automatically apply settlement bonuses to new survivors?",
         "affirmative": "Automatically apply",
         "negative": "Do not apply",
     },
     "apply_weapon_specialization": {
+        "type": "Automation",
         "desc": "Automatically add weapon specializations if Innovations include the mastery?",
         "affirmative": "Add",
         "negative": "Do Not Add",
     },
     "hide_timeline": {
+        "type": "Settlement Sheet",
         "desc": "Automatically hide the Settlement Sheet Timeline controls?",
         "affirmative": "Hide",
         "negative": "Always Show",
@@ -541,11 +546,13 @@ preferences_dict = {
         "negative": "Line item, bulleted lists",
     },
     "confirm_on_return": {
+        "type": "Campaign Summary",
         "desc": "Confirm Hunting Party return?",
         "affirmative": "Confirm",
         "negative": "Do not confirm",
     },
     "dynamic_innovation_deck": {
+        "type": "Settlement Sheet",
         "desc": "What Innovations should be selectable?",
         "affirmative": "Innovation Deck only",
         "negative": "All Innovations (not recommended)",
@@ -556,25 +563,30 @@ preferences_dict = {
         "negative": "Remove sessions after 24 hours",
     },
     "update_timeline": {
+        "type": "Automation",
         "desc": "Automatically Update Timeline with Milestone Story Events?",
         "affirmative": "Update settlement timelines when milestone conditions are met",
         "negative": "Do not automatically update settlement timelines",
     },
     "show_epithet_controls": {
+        "type": "Survivor Sheet",
         "desc": "Use survivor epithets?",
         "affirmative": "Show controls on Survivor Sheets",
         "negative": "Hide controls and survivor epithets on Survivor Sheets",
     },
     "show_remove_button": {
+        "type": "Settlement Sheet",
         "desc": "Show controls for removing Settlements?",
         "affirmative": "Show controls on Settlement Sheet",
         "negative": "Hide controls on Settlement Sheet",
     },
 }
 
-class userPreferences():
+class userPreferences(Model):
     def __init__(self):
+        Model.__init__(self)
         self.preferences_dict = preferences_dict
+        self.game_assets = preferences_dict
     def get_keys(self):
         return self.preferences_dict.keys()
     def pref(self, user_object, pref_key):
@@ -586,5 +598,29 @@ class userPreferences():
             pref_dict["affirmative_selected"] = ""
             pref_dict["negative_selected"] = "checked"
         return pref_dict
+    def get_categories(self):
+        """ Creates a list of available/extant headings for category. """
+        categories = set(["General"])
+        for k in self.get_keys():
+            asset_dict = self.get_asset(k)
+            if "type" in asset_dict.keys():
+                categories.add(asset_dict["type"])
+        return sorted(list(categories))
+    def get_category_dict(self):
+        """ Uses self.get_categories() to create a dict where each key is a
+        category and the value is a list of preference keys. """
+        d = {}
+        categories = self.get_categories()
+        for c in categories:
+            d[c] = []
+        for a in self.get_keys():
+            asset_dict = self.get_asset(a)
+            if "type" in asset_dict:
+                d[asset_dict["type"]].append(a)
+            else:
+                d["General"].append(a)
+
+        return d
+
 
 Preferences = userPreferences()
