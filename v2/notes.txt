@@ -1,0 +1,10 @@
+Responsive webapp with a few breakpoints
+Some kind of js framework for client-side fanciness
+Respond to requests with flask or eve
+
+
+
+# Dependencies
+
+apt install python-pip
+pip install Flask
