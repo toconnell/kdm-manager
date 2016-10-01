@@ -1,10 +1,21 @@
 'use strict';   // See note about 'use strict'; below
 
-var myApp = angular.module('myApp', [
- 'ngRoute',
-]);
+var myApp = angular.module('theWatcher', ['ngRoute',]);
 
-myApp.config(['$routeProvider',
+myApp.controller('globalController', function($scope, $http) {
+    "use strict";
+    $scope.getSettings = function() {
+    $http.get('settings.json').then(
+        function(result){
+            $scope.settings = result.data;
+            }
+        );
+    };
+    $scope.getSettings();
+});
+
+myApp.config(
+    ['$routeProvider',
      function($routeProvider) {
          $routeProvider.
              when('/', {
@@ -16,4 +27,6 @@ myApp.config(['$routeProvider',
              otherwise({
                  redirectTo: '/'
              });
-    }]);
+        }
+    ]
+);

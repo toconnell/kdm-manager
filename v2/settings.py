@@ -1,6 +1,8 @@
 #!/usr/bin/python2.7
 
+import cStringIO
 from ConfigParser import SafeConfigParser
+import json
 import os
 
 
@@ -19,6 +21,7 @@ class Settings:
         self.config.settings_type = settings_type
         self.config.file_path = os.path.abspath(filename)
 
+
     def get(self, section, key):
         """ Gets a value. Tries to do some duck-typing. """
 
@@ -32,3 +35,28 @@ class Settings:
                 pass
 
         return raw_value
+
+
+    def jsonify(self):
+        """ Renders the config object as JSON. """
+
+        d = {}
+        for section in self.config.sections():
+            d[section] = {}
+            for option in self.config.options(section):
+                d[section][option] = self.get(section,option)   # use the custom get() method
+        self.config.json = json.dumps(d)
+
+
+    def json_file(self):
+        """ Returns a cStringIO object that looks like a file object. """
+
+        self.jsonify()
+        s_file = cStringIO.StringIO()
+        s_file.write(self.config.json)
+        s_file.seek(0)
+        return s_file
+
+
+if __name__ == "__main__":
+    S = Settings()
