@@ -17,7 +17,7 @@ def settings_json():
     return send_file(S.json_file(), attachment_filename="settings.json", as_attachment=True)
 
 # API routing starts here
-@app.route("/user")
+@app.route("/auth")
 def user():
     output = ""
     for k in request.headers.keys():
