@@ -239,6 +239,10 @@ class disordersModel(Model):
             elif "expansion" in d_dict.keys():
                 if d_dict["expansion"] in expansions:
                     deck.append(disorder)
+        for d_key in deck:
+            campaign_dict = Settlement.get_campaign("dict")
+            if d_key in campaign_dict["forbidden"]:
+                deck.remove(d_key)
         return sorted(deck)
 
 
@@ -510,17 +514,15 @@ mutually_exclusive_principles = {
 #
 
 preferences_dict = {
-    "hide_principle_controls": {
-        "type": "Settlement Sheet",
-        "desc": "Use settlement milestones to hide unavailable principles?",
-        "affirmative": "Dynamically hide Principle controls",
-        "negative": "Always show all Principle controls",
+    "preserve_sessions": {
+        "desc": "Preserve Sessions?",
+        "affirmative": "Keep me logged in",
+        "negative": "Remove sessions after 24 hours",
     },
-    "confirm_on_remove_from_storage": {
-        "type": "Settlement Sheet",
-        "desc": "Confirm before removing items from Settlement Storage?",
-        "affirmative": "Confirm with Pop-up",
-        "negative": "Do not confirm",
+    "comma_delimited_lists": {
+        "desc": "How should Location, Innovation, Innovation Deck, etc. lists be displayed?",
+        "affirmative": "Comma-delimited lists",
+        "negative": "Line item, bulleted lists",
     },
     "apply_new_survivor_buffs": {
         "type": "Automation",
@@ -535,32 +537,22 @@ preferences_dict = {
         "negative": "Do Not Add",
     },
     "hide_timeline": {
-        "type": "Settlement Sheet",
+        "type": "Timeline",
         "desc": "Automatically hide the Settlement Sheet Timeline controls?",
         "affirmative": "Hide",
         "negative": "Always Show",
     },
-    "comma_delimited_lists": {
-        "desc": "How should Location, Innovation, Innovation Deck, etc. lists be displayed?",
-        "affirmative": "Comma-delimited lists",
-        "negative": "Line item, bulleted lists",
+    "show_future_timeline": {
+        "type": "Timeline",
+        "desc": "How many Lantern Years should be visible when viewing the Timeline?",
+        "affirmative": "Show the next four Lantern Years",
+        "negative": "Only show the current Lantern Year",
     },
     "confirm_on_return": {
         "type": "Campaign Summary",
-        "desc": "Confirm Hunting Party return?",
+        "desc": "Confirm Departing Survivors return?",
         "affirmative": "Confirm",
         "negative": "Do not confirm",
-    },
-    "dynamic_innovation_deck": {
-        "type": "Settlement Sheet",
-        "desc": "What Innovations should be selectable?",
-        "affirmative": "Innovation Deck only",
-        "negative": "All Innovations (not recommended)",
-    },
-    "preserve_sessions": {
-        "desc": "Preserve Sessions?",
-        "affirmative": "Keep me logged in",
-        "negative": "Remove sessions after 24 hours",
     },
     "update_timeline": {
         "type": "Automation",
@@ -579,6 +571,24 @@ preferences_dict = {
         "desc": "Show controls for removing Settlements?",
         "affirmative": "Show controls on Settlement Sheet",
         "negative": "Hide controls on Settlement Sheet",
+    },
+    "dynamic_innovation_deck": {
+        "type": "Settlement Sheet",
+        "desc": "What Innovations should be selectable?",
+        "affirmative": "Innovation Deck only",
+        "negative": "All Innovations (not recommended)",
+    },
+    "hide_principle_controls": {
+        "type": "Settlement Sheet",
+        "desc": "Use settlement milestones to hide unavailable principles?",
+        "affirmative": "Dynamically hide Principle controls",
+        "negative": "Always show all Principle controls",
+    },
+    "confirm_on_remove_from_storage": {
+        "type": "Settlement Sheet",
+        "desc": "Confirm before removing items from Settlement Storage?",
+        "affirmative": "Confirm with Pop-up",
+        "negative": "Do not confirm",
     },
 }
 

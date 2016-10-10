@@ -3396,6 +3396,40 @@ campaigns = {
         },
     },
 
+    "People of the Skull": {
+        "always_available": ["Lantern Hoard", "Language"],
+        "special_rules": [
+            {"name": "People of the Skull",
+             "desc": "Survivors can only place weapons and armor with the <b>bone</b> keyword in their gear grid. The people of the skull ignore the <b>Frail</b> rule.",
+             "bg_color": "E3DAC9",
+             "font_color": "333"},
+            {"name": "People of the Skull",
+             "desc": "When you name a survivor, if they have the word bone or skull in their name, in addition to +1 survival, players choose to gain +1 permanent accuracy, evasion, strength, luck or speed.",
+             "bg_color": "E3DAC9",
+             "font_color": "333"},
+            {"name": "Black Skull",
+             "desc": "If a weapon or armor is made with the Black Skull resource, a survivor may place it in their gear grid despite being iron.",
+             "bg_color": "333",
+             "font_color": "efefef"},
+        ],
+        "endeavors": {
+            "Skull Ritual": {"cost": 1, "desc": "Costs one Skull resource. Nominate up to four survivors to consume the skull. They gain a permanent +1 to all their attributes."},
+        },
+        "principles": {
+            "New Life": principles["new_life"],
+            "Death": principles["death"],
+            "Society": principles["society"],
+            "Conviction": principles["conviction"],
+        },
+        "milestones": {
+            "First child is born": milestones["first_child"],
+            "First time death count is updated": milestones["first_death"],
+            "Population reaches 15": milestones["pop_15"],
+            "Settlement has 5 innovations": milestones["innovations_5"],
+            "Population reaches 0": milestones["game_over"],
+        },
+    },
+
     "The Bloom People": {
         "always_available": ["Lantern Hoard", "Language"],
         "expansions": ["Flower Knight"],

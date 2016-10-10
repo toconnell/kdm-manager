@@ -65,7 +65,7 @@ class panel:
             <tr><td class="key">Settlements:</td><td colspan="2">$settlements</td></tr>
             <tr>
              <td class="key" colspan="3">
-                <form>
+                <form action="#">
                  <input type="hidden" value="pickle" name="export_user_data"/>
                  <input type="hidden" value="$u_id" name="asset_id"/>
                  <br/>
@@ -94,8 +94,8 @@ class ui:
 
 class dashboard:
     # settlement administrivia; needs to be above the dashboard accordions
-    panel_button = '<hr class="mobile_only"/><form method="POST"><input type="hidden" name="change_view" value="panel"/><button class="maroon change_view">Admin Panel!</button></form>\n'
-    new_settlement_button = '<form method="POST"><input type="hidden" name="change_view" value="new_settlement" /><button class="success">+ New Settlement</button></form>\n'
+    panel_button = '<hr class="mobile_only"/><form action="#" method="POST"><input type="hidden" name="change_view" value="panel"/><button class="maroon change_view clear_left">Admin Panel!</button></form>\n'
+    new_settlement_button = '<form method="POST" action="#"><input type="hidden" name="change_view" value="new_settlement" /><button class="success">+ New Settlement</button></form>\n'
 
     # flash
     down_arrow_flash = '<img class="dashboard_down_arrow" src="%s/icons/down_arrow.png"/> ' % settings.get("application", "STATIC_URL")
@@ -108,16 +108,16 @@ class dashboard:
     # dashboard accordions
     about = Template("""\n
     <div class="dashboard_menu">
-    <h2 class="clickable gradient_silver" onclick="showHide('about_div')"> <font class="kdm_font" size="2.5em">g</font> About %s</h2>
+    <h2 class="clickable gradient_silver" onclick="showHide('about_div')"> <font class="kdm_font dashboard_kdm_font">g</font> About %s</h2>
         <div id="about_div" style="display: none;" class="dashboard_accordion gradient_silver">
-        <p>KD:M Manager! Version $version.</p><hr/>
-        <p>v$version went live on $latest_change_date. <a target="top" href="$latest_change_link">View change log</a>
-.</p>
-        <p>The Manager is currently under active development and is running in debug mode!</p>
+        <p><b>KD:M Manager! Version $version.</b></p><hr/>
+        <p>v$version went live on $latest_change_date. <a target="top" href="$latest_change_link">View change log</a>.</p>
+        <p>v1.7.0, the first production release of the Manager, went live on 2015-11-29.</p>
+        <p>This application is currently under <i>active development and is running in debug mode!</i></p>
         <hr/>
         <p>More Information:</p>
         <ul>
-        <li>Application source code is <a href="https://github.com/toconnell/kdm-manager" target="top">available on GitHub</a></li>
+        <li>Application source code is <a href="https://github.com/toconnell/kdm-manager" target="top">available on GitHub</a>.</li>
         <li>Check <a href="https://github.com/toconnell/kdm-manager/wiki" target="top">the development wiki</a> for complete information about the project.</li>
         <li>Please <a href="https://github.com/toconnell/kdm-manager/issues" target="top">report issues here</a>.</li>
         </ul>
@@ -131,6 +131,7 @@ class dashboard:
         <p>For more information, including complete release notes and updates, or to make comments/ask questions about the project, check out the development blog at <a href="http://blog.kdm-manager.com" target="top"/>blog.kdm-manager.com</a>.</p>
 
         </div> <!-- about_div -->
+    </div>
     \n""" % (down_arrow_flash))
     preference_header = Template("<p>&ensp; <b>$title:</b></p>")
     preference_footer = "<br/><br/>"
@@ -145,7 +146,7 @@ class dashboard:
     </p>
     \n""")
     motd = Template("""\n
-	<img class="desktop_only dashboard_bg" src="%s/tree_logo_shadow.png">
+	<img class="dashboard_bg" src="%s/tree_logo_shadow.png">
     <div class="dashboard_menu">
         <h2 class="clickable gradient_white" onclick="showHide('system_div')"> <img class="dashboard_icon" src="%s/icons/system.png"/> System %s</h2>
         <div id="system_div" style="display: none;" class="dashboard_accordion gradient_white">
@@ -182,7 +183,7 @@ class dashboard:
         <p>Currently signed in as: <i>$login</i> (last sign in: $last_sign_in)</p>
         $last_log_msg
         <div class="dashboard_preferences">
-            <form method="POST">
+            <form action="#" method="POST">
             <input type="hidden" name="change_password" value="True"/>
             <input type="password" name="password" class="full_width" placeholder="password">
             <input type="password" name="password_again" class="full_width" placeholder="password (again)"/>
@@ -190,7 +191,7 @@ class dashboard:
             </form>
         </div>
         <hr class="desktop_only">
-        <form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><input type="hidden" name="login" value="$login"/><button class="gradient_white change_view desktop_only">SIGN OUT</button>\n\t</form>
+        <form action="#" id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><input type="hidden" name="login" value="$login"/><button class="gradient_white change_view tablet_and_desktop">SIGN OUT</button>\n\t</form>
         </div>
     </div>
     """ % (settings.get("application","STATIC_URL"), settings.get("application", "STATIC_URL"), down_arrow_flash))
@@ -248,6 +249,8 @@ class dashboard:
             <li>Multiplayer settlements: $total_multiplayer</li>
             <li>Settlements created in the last 30 days: $new_settlements_last_30</li>
         </ul>
+        <p>Top five settlement names:</p>
+        $top_settlement_names
         <p>Averages across all settlements:</p>
         <ul>
             <li>Lantern Year: $avg_ly</li>
@@ -284,6 +287,8 @@ class dashboard:
         <hr/>
 
         <h3>Survivors:</h3>
+        <p>Top five survivor names:</p>
+        $top_survivor_names
         <p>Averages for all living survivors:</p>
         <ul>
             <li>Hunt XP: $avg_hunt_xp</li>
@@ -328,13 +333,13 @@ class dashboard:
     """ % (settings.get("application", "STATIC_URL"), down_arrow_flash))
 
     # misc html assets
-    home_button = '\t<form method="POST" action="#"><input type="hidden" name="change_view" value="dashboard"/><button id="floating_dashboard_button" class="gradient_silver"> %s <span class="desktop_only">Return to Dashboard</span></button></form>\n' % system_flash
+    home_button = '\t<form method="POST" action="#"><input type="hidden" name="change_view" value="dashboard"/><button id="floating_dashboard_button" class="gradient_silver"> %s <span class="tablet_only">Dashboard</span> <span class="desktop_only">Return to Dashboard</span></button></form>\n' % system_flash
     refresh_button = '\t<form method="POST" action="#"><button id="floating_refresh_button" class="yellow"> %s </button></form>\n' % refresh_flash
-    event_log_button = Template('\t<form method="POST" action="#">\n\t\t<input type="hidden" name="change_view" value="event_log"/>\n\t\t<button id="floating_event_log_button" class="gradient_orange"> %s <span class="desktop_only">$name Event Log</span></button>\n\t</form>\n' % event_log_flash)
+    event_log_button = Template('\t<form method="POST" action="#">\n\t\t<input type="hidden" name="change_view" value="event_log"/>\n\t\t<button id="floating_event_log_button" class="gradient_orange"> %s <span class="tablet_only">Event Log</span> <span class="desktop_only">$name Event Log</span></button>\n\t</form>\n' % event_log_flash)
     view_asset_button = Template("""\n\
     <form method="POST" action="#">
     <input type="hidden" name="view_$asset_type" value="$asset_id" />
-    <button id="$button_id" class="$button_class $disabled" $disabled>$asset_name <span class="desktop_only">$desktop_text</span></button>
+    <button id="$button_id" class="$button_class $disabled" $disabled>$asset_name <span class="tablet_and_desktop">$desktop_text</span></button>
     </form>
     \n""")
 
@@ -345,22 +350,27 @@ class dashboard:
 class survivor:
     no_survivors_error = '<!-- No Survivors Found! -->'
     new = Template("""\n\
-    <span class="desktop_only nav_bar gradient_green"></span>
+    <span class="tablet_and_desktop nav_bar gradient_green"></span>
     <span class="mobile_only nav_bar_mobile gradient_green"></span>
     <span class="top_nav_spacer mobile_only">hidden</span>
-    <br class="desktop_only"/>
+
+    <br/>
+
     <div id="create_new_asset_form_container">
         <form method="POST" action="#" enctype="multipart/form-data">
         <input type="hidden" name="new" value="survivor" />
         <input type="hidden" name="settlement_id" value="$home_settlement">
-        <input type="text" name="name" placeholder="New Survivor Name" class="full_width" autofocus>
+        <input type="text" id="new_asset_name" name="name" placeholder="New Survivor Name" class="full_width" autofocus>
 
-        <hr>
-        <p style="margin-top:10px;">Survivor Image (optional):<br/><br/>
-        <input type="file" name="survivor_avatar" accept="image/*"></p>
-        <hr>
         <div id="block_group">
-        <h2>Survivor Sex</h2>
+            <hr class="invisible">
+            <p style="margin-top:10px;">Survivor Image (optional):<br/><br/>
+                <input type="file" name="survivor_avatar" accept="image/*">
+            </p>
+        </div>
+
+        <div id="block_group">
+        <h2 class="new_asset">Survivor Sex</h2>
             <fieldset class="radio">
           <input type="radio" id="male_button" class="radio_principle" name="sex" value="M" checked/> 
           <label class="sex_button radio_principle_label" for="male_button"> Male </label>
@@ -371,15 +381,19 @@ class survivor:
         <div class="create_new_asset_block">
             $add_ancestors
             <div id="block_group">
-            <h2>Permissions</h2>
-            <p>Survivor Owner:</p>
+            <h2 class="new_asset">Permissions</h2>
+            <p class="new_asset">Survivor Owner:</p>
             <input id="survivor_owner" type="email" name="email" placeholder="Survivor Email" value="$user_email">
-            <p>
-            <input type="checkbox" id="public" class="radio_principle" name="toggle_public" > 
-            <label class="radio_principle_label" for="public"> Anyone May Manage this Survivor </label>
-            <br/><br/>
+
+            <p class="new_asset">
+            Toggle the options below to control access to this survivor:<br/><br/>
+                <input type="checkbox" id="public" class="radio_principle" name="toggle_public" > 
+                <label class="radio_principle_label" for="public"> Public: anyone may manage this Survivor </label>
             </p>
+            <br/><br/>
             </div>
+
+            <br />
 
             <button class="success">SAVE</button>
             </form>
@@ -432,19 +446,22 @@ class survivor:
      <hr class="invisible"/>
     \n""")
     form = Template("""\n\
-    <span class="desktop_only nav_bar gradient_green"></span>
+    <span class="tablet_and_desktop nav_bar gradient_green"></span>
     <span class="mobile_only nav_bar_mobile gradient_green"></span>
     <span class="top_nav_spacer mobile_only">hidden</span>
-    <br class="desktop_only"/>
+
+    <br class="tablet_and_desktop"/>
+
     $campaign_link
 
-    <form method="POST" id="autoForm" action="#">
-        <button id="save_button" class="success">Save</button>
-        <input type="hidden" name="form_id" value="survivor_top" />
-        <input type="hidden" name="modify" value="survivor" />
-        <input type="hidden" name="asset_id" value="$survivor_id" />
+    <div id="asset_management_left_pane">
 
-        <div id="asset_management_left_pane">
+        <form method="POST" id="autoForm" action="#">
+            <button id="save_button" class="success">Save</button>
+            <input type="hidden" name="form_id" value="survivor_top" />
+            <input type="hidden" name="modify" value="survivor" />
+            <input type="hidden" name="asset_id" value="$survivor_id" />
+
             <input onchange="this.form.submit()" id="topline_name_fixed" class="full_width" type="text" name="name" value="$name" placeholder="Survivor Name"/>
             <br class="mobile_only"/><br class="mobile_only"/><br class="mobile_only"/>
 
@@ -484,7 +501,7 @@ class survivor:
                 </div>
             </div> <!-- survivor_dead_retired_container -->
 
-            <hr class="mobile_only"/>
+            <hr />
 
             <div id="survivor_survival_box_container">
                 <div class="big_number_container left_margin">
@@ -495,13 +512,14 @@ class survivor:
                 <div class="big_number_caption">Survival <p>(max: $survival_limit)</p></div>
             </div> <!-- survivor_survival_box_container -->
 
-            <hr class="mobile_only"/>
+            <hr />
 
             <div id="survivor_survival_actions_container">
                 <p>
                  <input type='hidden' value='unchecked' name='toggle_cannot_spend_survival'/>
                  <input onchange="this.form.submit()" type="checkbox" id="cannot_spend_survival" class="radio_principle" name="toggle_cannot_spend_survival" value="checked" $cannot_spend_survival_checked /> 
-                 <label class="radio_principle_label" for="cannot_spend_survival"> Cannot spend survival </label>
+                 <label id="cannot_spend_survival" class="radio_principle_label" for="cannot_spend_survival"> Cannot spend survival </label>
+                    <hr class="invisible"/>
                  $survival_actions
                 </p>
 
@@ -511,6 +529,7 @@ class survivor:
 
             <hr class="mobile_only"/>
             <div class="mobile_only">
+                <p>Notes:</p>
                 $fighting_arts
                 $departure_buffs
                 $abilities_and_impairments
@@ -519,7 +538,7 @@ class survivor:
 
             <a id="edit_attribs" />
 
-            <hr class="mobile_only"/> <!-- logical break; same form -->
+            <hr> <!-- logical break; same form -->
 
             <div id="survivor_stats">
                 <input id="movementBox" class="big_number_square" type="number" name="Movement" value="$movement"/>
@@ -576,7 +595,7 @@ class survivor:
 
             <h3>Bonuses</h3>
             $settlement_buffs
-
+            <hr/>
 
             <a id="edit_hit_boxes" />
 
@@ -587,27 +606,27 @@ class survivor:
         <div id="asset_management_middle_pane">
                         <!-- HIT BOXES ; still the same form -->
             <a> <!-- hacks!!! for inc/dec buttons-->
-            <div class="survivor_hit_box insanity_box">
+            <div class="survivor_hit_box insanity_box" ng-init="currentInsanity='$insanity'">
              <div class="big_number_container right_border">
-              <button class="incrementer mobile_only" onclick="increment('insanityBox');">+</button>
-               <input id="insanityBox" type="number" class="shield" name="Insanity" value="$insanity" style="color: $insanity_number_style;" min="0"/>
+              <button class="incrementer" onclick="increment('insanityBox');">+</button>
+               <input id="insanityBox" type="number" class="shield" name="Insanity" min="0" ng-model="insanity" ng-class="{insanity_font: insanity>=3, bogus_class: insanity<3}" value="{{ currentInsanity }}"/>
                <font id="hit_box_insanity">Insanity</font>
-              <button class="decrementer mobile_only" onclick="decrement('insanityBox');">-</button>
+              <button class="decrementer" onclick="decrement('insanityBox');">-</button>
              </div>
 
              <div class="hit_box_detail">
               <input id="damage_brain_light" onclick="toggleDamage('damage_brain_light');" type="submit" class="damage_box_$brain_damage_light_checked damage_box" name="toggle_brain_damage_light" value=" "/>
                 <h2>Brain</h2><br/>
-                If your insanity is 3+, you are <b>Insane</b>.
+                If your insanity is 3+, <font ng-class="{insanity_font: insanity>=3}">you are <b>Insane</b></font>.
              </div>
             </div> <!-- survivor_hit_box -->
 
                 <!-- HEAD -->
             <div class="survivor_hit_box">
                 <div class="big_number_container right_border">
-                    <button class="incrementer mobile_only" onclick="increment('headBox');">+</button>
+                    <button class="incrementer" onclick="increment('headBox');">+</button>
                         <input id="headBox" type="number" class="shield" name="Head" value="$head" min="0"/>
-                    <button class="decrementer mobile_only" onclick="decrement('headBox');">-</button>
+                    <button class="decrementer" onclick="decrement('headBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
                  <input id="damage_head_heavy" onclick="toggleDamage('damage_head_heavy');" type="submit" class="damage_box_$head_damage_heavy_checked heavy_damage damage_box" name="toggle_head_damage_heavy" value=" "/>
@@ -619,9 +638,9 @@ class survivor:
                 <!-- ARMS -->
             <div class="survivor_hit_box">
                 <div class="big_number_container right_border">
-                    <button class="incrementer mobile_only" onclick="increment('armsBox');">+</button>
+                    <button class="incrementer" onclick="increment('armsBox');">+</button>
                         <input id="armsBox" type="number" class="shield" name="Arms" value="$arms" min="0"/>
-                    <button class="decrementer mobile_only" onclick="decrement('armsBox');">-</button>
+                    <button class="decrementer" onclick="decrement('armsBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
                  <input id="damage_arms_heavy" onclick="toggleDamage('damage_arms_heavy');" type="submit" class="damage_box_$arms_damage_heavy_checked heavy_damage damage_box" name="toggle_arms_damage_heavy" value=" "/>
@@ -634,9 +653,9 @@ class survivor:
                 <!-- BODY -->
             <div class="survivor_hit_box">
                 <div class="big_number_container right_border">
-                    <button class="incrementer mobile_only" onclick="increment('bodyBox');">+</button>
+                    <button class="incrementer" onclick="increment('bodyBox');">+</button>
                         <input id="bodyBox" type="number" class="shield" name="Body" value="$body" min="0"/>
-                    <button class="decrementer mobile_only" onclick="decrement('bodyBox');">-</button>
+                    <button class="decrementer" onclick="decrement('bodyBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
                  <input id="damage_body_heavy" onclick="toggleDamage('damage_body_heavy');" type="submit" class="damage_box_$body_damage_heavy_checked heavy_damage damage_box" name="toggle_body_damage_heavy" value=" "/>
@@ -649,9 +668,9 @@ class survivor:
                 <!-- WAIST -->
             <div class="survivor_hit_box">
                 <div class="big_number_container right_border">
-                    <button class="incrementer mobile_only" onclick="increment('waistBox');">+</button>
+                    <button class="incrementer" onclick="increment('waistBox');">+</button>
                         <input id="waistBox" type="number" class="shield" name="Waist" value="$waist" min="0"/>
-                    <button class="decrementer mobile_only" onclick="decrement('waistBox');">-</button>
+                    <button class="decrementer" onclick="decrement('waistBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
                  <input id="damage_waist_heavy" onclick="toggleDamage('damage_waist_heavy');" type="submit" class="damage_box_$waist_damage_heavy_checked heavy_damage damage_box" name="toggle_waist_damage_heavy" value=" "/>
@@ -664,9 +683,9 @@ class survivor:
         <!-- LEGS -->
             <div class="survivor_hit_box">
                 <div class="big_number_container right_border">
-                    <button class="incrementer mobile_only" onclick="increment('legsBox');">+</button>
+                    <button class="incrementer" onclick="increment('legsBox');">+</button>
                         <input id="legsBox" type="number" class="shield" name="Legs" value="$legs" min="0"/>
-                    <button class="decrementer mobile_only" onclick="decrement('legsBox');">-</button>
+                    <button class="decrementer" onclick="decrement('legsBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
                  <input id="damage_legs_heavy" onclick="toggleDamage('damage_legs_heavy');" type="submit" class="damage_box_$legs_damage_heavy_checked heavy_damage damage_box" name="toggle_legs_damage_heavy" value=" "/>
@@ -686,7 +705,7 @@ class survivor:
               <option selected disabled hidden value="">Heal Survivor</option>
               <option>Heal Injuries Only</option>
               <option>Heal Injuries and Remove Armor</option>
-              <option>Return from Hunt</option>
+              <option>Return </option>
              </select>
 
 
@@ -701,8 +720,8 @@ class survivor:
             </div>
             <div class="big_number_caption">Hunt XP</div>
             <br class="mobile_only"/>
-            <p>
-                <font class="kdm_font">g</font> <b>Age</b> occurs at 2, 6, 10 and 15. The Survivor retires at 16.
+            <p class="fixed_width">
+                <font class="kdm_font">g</font> <b>Age</b> occurs at 2, 6, 10 and 15.<br/>$name retires at 16.
             </p>
             <hr/>
 
@@ -717,7 +736,7 @@ class survivor:
             $weapon_proficiency_options
 
             <div class="desktop_indent">
-                <p><b>Specialist</b> at 3<br/><b>Master</b> at 8</p>
+                <p class="fixed_width"><b>Specialist</b> at 3<br/><b>Master</b> at 8</p>
             </div>
 
 
@@ -732,7 +751,7 @@ class survivor:
             </div>
             <div class="big_number_caption">Courage</div>
             <br class="mobile_only"/>
-            <p>
+            <p class="fixed_width">
               <font class="kdm_font">g</font> <b>Bold</b> (p. 107) occurs at 3<br/>
               <font class="kdm_font">g</font> <b>See the Truth</b> (p.155) occurs at 9.
             </p>
@@ -746,7 +765,7 @@ class survivor:
             </div>
             <div class="big_number_caption">Understanding</div>
             <br class="mobile_only"/>
-            <p>
+            <p class="fixed_width">
                <font class="kdm_font">g</font> <b>Insight</b> (p.123) occurs at 3<br/>
                 <font class="kdm_font">g</font> <b>White Secret</b> (p.169) occurs at 9.
             </p>
@@ -792,7 +811,7 @@ class survivor:
                 <h3>Fighting Arts</h3>
                  <input type='hidden' value='unchecked' name='toggle_cannot_use_fighting_arts'/>
                  <input onchange="this.form.submit()" type="checkbox" id="cannot_use_fighting_arts" class="radio_principle" name="toggle_cannot_use_fighting_arts" value="checked" $cannot_use_fighting_arts_checked />
-                 <label class="radio_principle_label" for="cannot_use_fighting_arts" id="float_right_toggle"> Cannot use<br/>Fighting Arts </label>
+                 <label class="radio_principle_label float_right_toggle" for="cannot_use_fighting_arts" id="cannot_use_fighting_arts_toggle"> Cannot use<br/>Fighting Arts </label>
                 <p>Maximum 3.</p>
 
                     $fighting_arts
@@ -833,7 +852,7 @@ class survivor:
                   <input type="hidden" name="asset_id" value="$survivor_id" />
                   <input type='hidden' value='unchecked' name='toggle_skip_next_hunt'/>
                   <input onchange="this.form.submit()" type="checkbox" id="skip_next_hunt" class="radio_principle" name="toggle_skip_next_hunt" value="checked" $skip_next_hunt_checked />
-                  <label class="radio_principle_label" for="skip_next_hunt" id="float_right_toggle"> Skip Next<br/>Hunt </label>
+                  <label class="radio_principle_label float_right_toggle" for="skip_next_hunt" id="skip_next_hunt_toggle"> Skip Next<br/>Hunt </label>
                 </form>
             <p>
                 <form method="POST" id="autoForm" action="#edit_abilities">
@@ -892,7 +911,7 @@ class survivor:
 
             <hr class="mobile_only"/>
 
-            <form method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this survivor forever, which is NOT THE SAME THING as marking it dead: permanently deleting the survivor prevents anyone from viewing and/or editing it ever again! If you are trying to delete all survivors in a settlement, you may delete the settlement from the settlement editing view.');"><input type="hidden" name="remove_survivor" value="$survivor_id"/><button class="error">Permanently Delete Survivor</button></form>
+            <form action="#" method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this survivor forever, which is NOT THE SAME THING as marking it dead: permanently deleting the survivor prevents anyone from viewing and/or editing it ever again! If you are trying to delete all survivors in a settlement, you may delete the settlement from the settlement editing view.');"><input type="hidden" name="remove_survivor" value="$survivor_id"/><button class="error">Permanently Delete Survivor</button></form>
             <hr class="mobile_only"/>
             <br class="mobile_only"/>
         </div> <!-- asset_management_right_pane -->
@@ -908,7 +927,7 @@ class survivor:
 
                 <h3>Update Permanent Survivor Affinities</h3>
 
-                <form id="autoForm" method="POST">
+                <form id="autoForm" method="POST" action="#">
                     <input type="hidden" name="modify" value="survivor" />
                     <input type="hidden" name="asset_id" value="$survivor_id" />
                     <input type="hidden" name="modal_update" value="affinities"/>
@@ -937,8 +956,7 @@ class survivor:
                     <div id="affinity_block" class="green">&nbsp;</div>
                     <hr/>
 
-
-                    <center><button class="green">Save!</button></center>
+                    <center><button class="green" type="submit">Save!</button></center>
                     <br><br>
                 </form>
             </div> <!-- modal-content -->
@@ -1051,72 +1069,90 @@ class settlement:
         return output
 
     new = """\n\
-    <span  class="desktop_only nav_bar gradient_orange"></span>
+    <span  class="tablet_and_desktop nav_bar gradient_orange"></span>
     <span class="gradient_orange nav_bar_mobile mobile_only"></span>
     <span class="top_nav_spacer mobile_only"> hidden </span>
-    <br class="desktop_only"/>
+
+    <br />
+
     <div id="create_new_asset_form_container">
-        <form method="POST">
+        <form action="#" method="POST">
         <input type="hidden" name="new" value="settlement" />
-        <input type="text" name="settlement_name" placeholder="New Settlement Name"/ class="full_width" autofocus>
-        <h3 class="new_settlement">Campaign:</h3>
-        <p class="new_settlement">
-        Choosing an expansion campaign automatically enables expansion content for that campaign and modifies the settlement timeline, milestones and principles. Campaign type may <b>not</b> be changed after settlement creation!<br/><br/>
+        <input type="text" id="new_asset_name" name="settlement_name" placeholder="New Settlement Name"/ class="full_width" autofocus>
+        <h3 class="new_asset">Campaign:</h3>
+        <p class="new_asset">
+        Choosing an expansion campaign automatically enables expansion content required by that campaign and modifies the settlement timeline, milestones, principles, rules and Survivor Sheets. A settlement's campaign may <b>not</b> be changed after settlement creation!<br/><br/>
             %s
         </p>
-        <h3 class="new_settlement">Expansions:</h3>
-        <p class="new_settlement">
-        Enable expansion content by toggling items below. Expansions may also be enabled (or disabled) later from the Settlement Sheet.<br/><br/>
+        <h3 class="new_asset">Expansions:</h3>
+        <p class="new_asset">
+        Enable expansion content by toggling items below. Expansion content may also be enabled (or disabled) later using the controls on the Settlement Sheet.<br/><br/>
         <input type="hidden" name="expansions" value="None"/> <!-- Both of these are necessary -->
         <input type="hidden" name="expansions" value="None"/> <!-- Hack City! -->
             %s
         </p>
-        <h3 class="new_settlement">Survivors:</h3>
-        <p class="new_settlement">
-        By default, new settlements start with no survivors. Toggle options below to add survivors. <br/><br/>
+        <h3 class="new_asset">Survivors:</h3>
+        <p class="new_asset">
+        By default, new settlements are created with no survivors. Toggle options below to create the settlement with pre-made survivors. <br/><br/>
             <input type="hidden" name="survivors" value="None"/> <!-- Both of these are necessary -->
             <input type="hidden" name="survivors" value="None"/> <!-- Hack City! -->
             %s
         </p>
-        <hr class="new_settlement" />
+        <hr class="new_asset" />
         <button class="success">Create!</button>
         </form>
-    </div>
+    </div> <!-- create_new_asset_form_container -->
     \n""" % (render_campaign_toggles(), render_checkboxes("expansions"), render_checkboxes("survivors"))
 
     return_hunting_party_with_confirmation = Template("""\n\
-        <form method="POST" onsubmit="return confirm('Press OK to return the survivors, increment Hunt XP +1 and add the current quarry to the Defeated Monsters list as well as the settlement timeline for this year.');">
+        <form action="#" method="POST" onsubmit="return confirm('Press OK to return the survivors, increment Hunt XP +1 and add the current quarry to the Defeated Monsters list as well as the settlement timeline for this year.');">
             <input type="hidden" name="return_hunting_party" value="$settlement_id"/>
-            <button id="return_hunting_party" class="bold yellow" >&#8629; Return Hunting Party</button>
+            <button id="return_hunting_party" class="bold yellow" >&#8629; Return Departing Survivors</button>
         </form>
-        <hr />
     \n""")
     return_hunting_party = Template("""\n\
-        <form method="POST">
+        <form action="#" method="POST">
             <input type="hidden" name="return_hunting_party" value="$settlement_id"/>
-            <button id="return_hunting_party" class="bold gradient_orange" >&#8629; Return Hunting Party</button>
+            <button id="return_hunting_party" class="bold gradient_orange" >&#8629; Return Departing Survivors</button>
         </form>
-        <hr/>
     \n""")
     current_quarry_select = Template("""\n\
     <br class="clear_both"/>
     <h3>Current Quarry:</h3>
-    <form method="POST">
+    <form action="#" method="POST">
         <input type="hidden" name="modify" value="settlement"/>
         <input type="hidden" name="asset_id" value="$settlement_id"/>
-        <select name="current_quarry" onchange="this.form.submit()">
+        <select class="hunting_party_current_quarry" name="current_quarry" onchange="this.form.submit()">
           <option>None</option>
             $options
         </select>
     </form>
     <br class="clear_both mobile_only" />
+    <hr/>
     \n""")
     hunting_party_macros = Template("""\n\
-    <hr>
-    <h3>Manage Hunting Party:</h3>
-    <div id="hunting_party_macro_container">
-    <div class="hunting_party_macro" style="border-left: 0 none;">
-        <form method="POST">
+    <br class="mobile_only">
+    <hr class="mobile_only">
+    <button class="orange bold" id="departingSurvivorsModal">Manage Departing Survivors</button>
+    <hr class="mobile_only">
+
+    <script>
+    window.onload = function(){
+        var modal = document.getElementById('departingSurvivorsModalContent');
+        var btn = document.getElementById("departingSurvivorsModal");
+        var span = document.getElementsByClassName("close")[0];
+        btn.onclick = function(b) {b.preventDefault(); modal.style.display = "block";}
+        span.onclick = function() {modal.style.display = "none";}
+        window.onclick = function(event) {if (event.target == modal) {modal.style.display = "none";}}
+    };
+    </script>
+
+    <div id="departingSurvivorsModalContent" class="modal">
+     <div class="modal-content">
+     <span class="close">x</span>
+
+      <div class="hunting_party_macro" style="border-left: 0 none;">
+        <form action="#" method="POST">
             <input type="hidden" name="modify" value="settlement"/>
             <input type="hidden" name="asset_id" value="$settlement_id"/>
             <input type="hidden" name="hunting_party_operation" value="survival"/>
@@ -1124,18 +1160,19 @@ class settlement:
             <button name="operation" value="increment">+1</button>
             <button name="operation" value="decrement">-1</button>
         </form>
-    </div>
-    <div class="hunting_party_macro">
-        <form method="POST">
+      </div>
+      <div class="hunting_party_macro">
+        <form action="#" method="POST">
             <input type="hidden" name="modify" value="settlement"/>
             <input type="hidden" name="asset_id" value="$settlement_id"/>
             <input type="hidden" name="hunting_party_operation" value="Brain Event Damage"/>
             Brain Event Damage
             <button name="operation" value="increment">+1</button>
         </form>
-    </div>
-    <div class="hunting_party_macro">
-        <form method="POST">
+      </div>
+        <hr class="invisible mobile_only"/>
+      <div class="hunting_party_macro">
+        <form action="#" method="POST">
             <input type="hidden" name="modify" value="settlement"/>
             <input type="hidden" name="asset_id" value="$settlement_id"/>
             <input type="hidden" name="hunting_party_operation" value="Insanity"/>
@@ -1143,9 +1180,9 @@ class settlement:
             <button name="operation" value="increment">+1</button>
             <button name="operation" value="decrement">-1</button>
         </form>
-    </div>
-    <div class="hunting_party_macro">
-        <form method="POST">
+      </div>
+      <div class="hunting_party_macro">
+        <form action="#" method="POST">
             <input type="hidden" name="modify" value="settlement"/>
             <input type="hidden" name="asset_id" value="$settlement_id"/>
             <input type="hidden" class="clear_both" name="hunting_party_operation" value="Courage"/>
@@ -1153,9 +1190,10 @@ class settlement:
             <button name="operation" value="increment">+1</button>
             <button name="operation" value="decrement">-1</button>
         </form>
-    </div>
-    <div class="hunting_party_macro">
-        <form method="POST">
+      </div>
+        <hr class="invisible mobile_only"/>
+      <div class="hunting_party_macro">
+        <form action="#" method="POST">
             <input type="hidden" name="modify" value="settlement"/>
             <input type="hidden" name="asset_id" value="$settlement_id"/>
             <input type="hidden" name="hunting_party_operation" value="Understanding"/>
@@ -1163,10 +1201,11 @@ class settlement:
             <button name="operation" value="increment">+1</button>
             <button name="operation" value="decrement">-1</button>
         </form>
-    </div>
-    </div><!-- hunting party macro container -->
+      </div>
+    <!-- departingSurvivorsModalContent continues... -->
 
     \n""")
+    hunting_party_macros_footer = "\t</div><!-- modal-content -->\n  </div> <!-- departingSurvivorsModalContent -->\n"
     storage_warning = Template(""" onclick="return confirm('Remove $item_name from Settlement Storage?');" """)
     storage_remove_button = Template("""\n\
     \t<button $confirmation id="remove_item" name="remove_item" value="$item_key" style="background-color: #$item_color; color: #$item_font_color;"> $item_key_and_count </button>
@@ -1185,14 +1224,14 @@ class settlement:
     campaign_summary_survivors_top = '<div id="campaign_summary_survivors">\n<h3 class="mobile_only">Survivors</h3>'
     campaign_summary_survivors_bot = '<hr class="mobile_only"/></div> <!-- campaign_summary_survivors -->'
     export_button = Template("""\n\
-    <form method="POST">
+    <form action="#" method="POST">
      <input type="hidden" name="export_campaign" value="$export_type"/>
      <input type="hidden" name="asset_id" value="$asset_id"/>
      <button class="yellow"> $export_pretty_name </button>
     </form>
     \n""")
     event_log = Template("""\n\
-        <span class="desktop_only nav_bar gradient_orange"></span>
+        <span class="tablet_and_desktop nav_bar gradient_orange"></span>
         <span class="gradient_orange nav_bar_mobile mobile_only"></span>
         <a id="event_log"><span class="top_nav_spacer mobile_only"> hidden </span></a>
         <h1 class="settlement_name"> $settlement_name Event Log</h1>
@@ -1229,17 +1268,20 @@ class settlement:
             <input type="hidden" name="asset_id" value="$settlement_id" />
     """)
     summary = Template("""\n\
-        <span class="desktop_only nav_bar gradient_purple"></span>
+        <span class="tablet_and_desktop nav_bar gradient_purple"></span>
         <span class="gradient_purple nav_bar_mobile mobile_only"></span>
         <span class="top_nav_spacer mobile_only"> hidden </span>
+
         <h1 class="settlement_name"> %s $settlement_name</h1>
+
         <div id="campaign_summary_pop">
             <p>Population: $population ($sex_count); $death_count deaths</p>
             <hr class="mobile_only"/>
             <p>LY: $lantern_year, Survival Limit: $survival_limit</p>
             <hr class="mobile_only"/>
         </div>
-        <form method="POST" class="mobile_only">
+
+        <form action="#" method="POST" class="mobile_only">
           <input type="hidden" name="change_view" value="new_survivor"/>
           <button class="full_width survivor bold" id="campaign_summary_new_survivor">+ Create New Survivor</button>
           <hr/>
@@ -1255,9 +1297,9 @@ class settlement:
         <br class="mobile_only">
 
         <div id="campaign_summary_facts_box">
-            <form method="POST">
-            <input type="hidden" name="change_view" value="new_survivor"/>
-            <button class="bold survivor desktop_only" id="campaign_summary_new_survivor">+ Create New Survivor</button>
+            <form action="#" method="POST">
+             <input type="hidden" name="change_view" value="new_survivor"/>
+             <button class="bold survivor tablet_and_desktop" id="campaign_summary_new_survivor">+ Create New Survivor</button>
             </form>
 
             $special_rules
@@ -1298,7 +1340,7 @@ class settlement:
                 <p>$nemesis_monsters</p>
             </div>
         </div>
-        <div id="export_controls">
+        <div id="export_controls" class="desktop_only">
             <hr class="mobile_only"/>
             $export_xls
         </div>
@@ -1306,26 +1348,31 @@ class settlement:
     form = Template("""\n\
     $game_link
 
-    <span class="desktop_only nav_bar gradient_orange"></span>
+    <span class="tablet_and_desktop nav_bar gradient_orange"></span>
     <span class="gradient_orange nav_bar_mobile mobile_only"></span>
     <span class="top_nav_spacer mobile_only"> hidden </span>
-    <br class="desktop_only"/>
+
+    <br class="tablet_and_desktop"/>
 
     <div id="asset_management_left_pane">
+
         <form method="POST" id="autoForm" action="#">
             <button id="save_button" class="success">Save</button>
             <input type="hidden" name="modify" value="settlement" />
             <input type="hidden" name="asset_id" value="$settlement_id" />
 
-            <p class="center" title="Campaign type may not be changed after a settlement is created!">$campaign</p>
+            <p id="campaign_type" class="center" title="Campaign type may not be changed after a settlement is created!">$campaign</p>
+
             <input id="topline_name" onchange="this.form.submit()" class="full_width" type="text" name="name" value="$name" placeholder="Settlement Name"/>
             $abandoned
             <hr class="mobile_only"/>
+            <br class="tablet_and_desktop">
+
             <div class="settlement_form_wide_box">
                 <div class="big_number_container left_margin">
-                    <button class="incrementer mobile_only" onclick="increment('survivalLimitBox');">+</button>
+                    <button class="incrementer mobile_and_tablet" onclick="increment('survivalLimitBox');">+</button>
                     <input id="survivalLimitBox" class="big_number_square" type="number" name="survival_limit" value="$survival_limit" min="$min_survival_limit"/>
-                    <button class="decrementer mobile_only" onclick="decrement('survivalLimitBox');">-</button>
+                    <button class="decrementer mobile_and_tablet" onclick="decrement('survivalLimitBox');">-</button>
                 </div>
                 <div class="big_number_caption">Survival Limit<br />(min: $min_survival_limit)</div>
             </div>
@@ -1334,9 +1381,9 @@ class settlement:
 
             <div class="settlement_form_wide_box">
                 <div class="big_number_container left_margin">
-                    <button class="incrementer mobile_only" onclick="increment('populationBox');">+</button>
+                    <button class="incrementer mobile_and_tablet" onclick="increment('populationBox');">+</button>
                     <input id="populationBox" class="big_number_square" type="number" name="population" value="$population" min="0"/>
-                    <button class="decrementer mobile_only" onclick="decrement('populationBox');">-</button>
+                    <button class="decrementer mobile_and_tablet" onclick="decrement('populationBox');">-</button>
                 </div>
                 <div class="big_number_caption">Population</div>
             </div> <!-- settlement_form_wide_box -->
@@ -1345,9 +1392,9 @@ class settlement:
 
             <div class="settlement_form_wide_box">
                 <div class="big_number_container left_margin">
-                    <button class="incrementer mobile_only" onclick="increment('deathCountBox');">+</button>
+                    <button class="incrementer mobile_and_tablet" onclick="increment('deathCountBox');">+</button>
                     <input id="deathCountBox" class="big_number_square" type="number" name="death_count" value="$death_count" min="0"/>
-                    <button class="decrementer mobile_only" onclick="decrement('deathCountBox');">-</button>
+                    <button class="decrementer mobile_and_tablet" onclick="decrement('deathCountBox');">-</button>
                 </div>
                 <div class="big_number_caption">Death Count</div>
             </div> <!-- settlement_form_wide_box -->
@@ -1356,7 +1403,7 @@ class settlement:
             <hr />
 
         <h3>Bulk Add New Survivors</h3>
-        <form method="POST">
+        <form action="#" method="POST">
           <input type="hidden" name="bulk_add_survivors" value="settlement" />
           <input type="hidden" name="asset_id" value="$settlement_id" />
             <div id="bulk_add_survivors">
@@ -1569,14 +1616,16 @@ class settlement:
         </form>
         </div>
 
+        <hr class="tablet_only timeline_insulator" >
 
         <div id="asset_management_right_pane">
 
                     <!-- TIMELINE: HAS ITS OWN FORM  -->
         <a id="edit_timeline" class="mobile_only"><br/><br/><br/></a>
-        <h2 class="clickable gradient_orange" onclick="showHide('timelineBlock')">LY $lantern_year - View Timeline <img class="dashboard_down_arrow" src="http://media.kdm-manager.com/icons/down_arrow.png"/> </h2>
-        <div id="timelineBlock" class="block_group" style="display: $display_timeline;">
+        <h2 class="clickable timeline_show_hide" onclick="showHide('timelineBlock')">LY $lantern_year - View Timeline <img class="dashboard_down_arrow" src="http://media.kdm-manager.com/icons/down_arrow_white.png"/> </h2>
+        <div id="timelineBlock" class="block_group timeline_block_group collapsing_block_group" style="display: $display_timeline;">
          <div class="big_number_container left_margin">
+            <br>
              <button class="incrementer" onclick="increment('lanternYearBox');">+</button>
 
             <form id="autoForm" method="POST" action="#edit_timeline">
@@ -1586,11 +1635,8 @@ class settlement:
             </form>
              <button class="decrementer" onclick="decrement('lanternYearBox');">-</button>
          </div>
-         <div class="big_number_caption">Lantern Year</div>
-
-
-         <br class="mobile_only"/>
-        <p>Tap or click a Lantern Year number to mark it complete (and end it).</p>
+         <div class="big_number_caption""><br>Lantern Year</div>
+        <p id="timeline_tooltip">Tap or click a Lantern Year number below to mark it complete (and end it).</p>
         <hr>
          $timeline
         </div> <!-- timelineBlock -->
@@ -1615,6 +1661,9 @@ class settlement:
         <hr/>
         <h3>Expansions</h3>
         <a id="edit_expansions" class="mobile_only"></a>
+        <p>Toggle expansion content on/off using these controls. Adding
+        or removing content will automatically update drop-down menus, timeline
+        and survivor controls. </p>
         $expansions_block
         <br /><br/>
         <hr/>
@@ -1628,7 +1677,7 @@ class settlement:
 
         <hr/>
 
-        <form method="POST" onsubmit="return confirm('This will prevent this settlement from appearing on any user Dashboard, including yours. Press OK to Abandon this settlement forever.');">
+        <form action="#" method="POST" onsubmit="return confirm('This will prevent this settlement from appearing on any user Dashboard, including yours. Press OK to Abandon this settlement forever.');">
             <input type="hidden" name="modify" value="settlement" />
             <input type="hidden" name="asset_id" value="$settlement_id" />
             <input type="hidden" name="abandon_settlement" value="toggle" />
@@ -1645,7 +1694,7 @@ class settlement:
     remove_settlement_button = Template("""\
     <hr/>
     <h3>Permanently Remove Settlement</h3>
-    <form method="POST" onsubmit="return confirm('Press OK to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever. Please note that this CANNOT BE UNDONE and is not the same as marking a settlement Abandoned. Consider abandoning old settlements rather than removing them, as this allows data about the settlement to be used in general kdm-manager stats.');"><input type="hidden" name="remove_settlement" value="$settlement_id"/><button class="full_width error">Permanently Delete Settlement</button></form>
+    <form action="#" method="POST" onsubmit="return confirm('Press OK to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever. Please note that this CANNOT BE UNDONE and is not the same as marking a settlement Abandoned. Consider abandoning old settlements rather than removing them, as this allows data about the settlement to be used in general kdm-manager stats.');"><input type="hidden" name="remove_settlement" value="$settlement_id"/><button class="full_width error">Permanently Delete Settlement</button></form>
     """)
     expansions_block_slug = Template("""\n\
     <form id="autoForm" method="POST" action="#edit_lost_settlements">
@@ -1705,12 +1754,12 @@ class login:
     """ The HTML for form-based authentication goes here."""
     form = """\n\
     <div id="sign_in_container">
-        <img src="%s/tree_logo_shadow.png" class="sign_in"/>
+        <img src="%s/tree_logo_shadow.png" class="sign_in tablet_and_desktop"/>
         <h2 class="seo">KD:M Manager!</h2>
         <h1 class="seo">An interactive campaign manager for <a href="http://kingdomdeath.com/" target="top">Kingdom Death: <i>Monster</i></a>.</h1>
         <div id="sign_in_last_updated">%s</div>
         <div id="sign_in_controls">
-            <form method="POST">
+            <form action="#" method="POST">
             <input class="sign_in" type="email" name="login" placeholder="Email"/ autofocus>
             <input class="sign_in" type="password" name="password" placeholder="Password"/>
 			<div id="sign_in_remember_me">
@@ -1724,7 +1773,7 @@ class login:
 			</div>
             </form>
             <br class="mobile_only"/>
-            <form method="POST">
+            <form action="#" method="POST">
             <input type="hidden" name="recover_password" value="True"/>
             <button class="gradient_black tiny_button">Forgot Password?</button>
             </form>
@@ -1736,7 +1785,7 @@ class login:
         <h2 class="seo">Create a New User!</h2>
         <h1 class="seo">Use an email address to share campaigns with friends.</h1>
         <div id="sign_in_controls">
-            <form method="POST">
+            <form action="#" method="POST">
             <input class="sign_in" type="email" name="login" value="$login"/>
             <input class="sign_in" type="password" name="password" placeholder="password" autofocus/>
             <input class="sign_in" type="password" name="password_again" placeholder="password (again)"/>
@@ -1772,7 +1821,7 @@ class login:
         <h2 class="seo">Password Recovery!</h2>
         <h1 class="seo">Enter your email address below to receive an email with recovery instructions.</h1>
         <div id="sign_in_controls">
-            <form method="POST">
+            <form method="POST" action="#" >
             <input type="hidden" name="recover_password" value="True"/>
             <input class="sign_in" type="text" name="login" placeholder="email" autofocus/>
             <button class="sign_in gradient_green">Recover Password</button>
@@ -1802,13 +1851,13 @@ class meta:
     basic_http_header = "Content-type: text/html\n\n"
     basic_file_header = "Content-Disposition: attachment; filename=%s\n"
     error_500 = Template('%s<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>%s</title></head><body><h1>500 - Internal Server Error</h1><hr/><p>$msg</p><hr/><p>Please report all issues at <a href="https://github.com/toconnell/kdm-manager/issues">https://github.com/toconnell/kdm-manager/issues</a><br/><br/>Use the information below to report the error:</p><hr/><p>%s</p>$exception' % (basic_http_header, settings.get("application","title"), datetime.now()))
-    start_head = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<title>%s</title>\n<link rel="stylesheet" type="text/css" href="/style.css">\n' % settings.get("application","title")
+    start_head = '<!DOCTYPE html>\n<html ng-app="kdmManager" ng-controller="globalController">\n<head>\n<meta charset="UTF-8">\n<meta name="theme-color" content="#000000">\n<title>%s</title>\n<link rel="stylesheet" type="text/css" href="/style.css">\n' % settings.get("application","title")
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
     saved_dialog = '\n    <div id="saved_dialog" class="success">Saved!</div>'
-    log_out_button = Template('\n\t<hr class="mobile_only"/><form id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><input type="hidden" name="login" value="$login"/><button class="gradient_white change_view mobile_only">SIGN OUT</button>\n\t</form>')
+    log_out_button = Template('\n\t<hr class="mobile_only"/><form id="logout" method="POST" action="#"><input type="hidden" name="remove_session" value="$session_id"/><input type="hidden" name="login" value="$login"/><button class="gradient_white change_view mobile_only">SIGN OUT</button>\n\t</form>')
     mobile_hr = '<hr class="mobile_only"/>'
     dashboard_alert = Template("""\n\
-    <br/><br/><br/>
+    <div id="dashboard_alert_spacer"></div>
     <div class="dashboard_alert maroon">
     $msg
     </div>
@@ -1905,6 +1954,12 @@ def render(view_html, head=[], http_headers=None, body_class=None):
     output += """\n\
     <link rel="manifest" href="/manifest.json">
 
+    <!-- angular app -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>
+    <script src="http://code.angularjs.org/1.5.3/angular-route.min.js"></script>
+    <script src="/kdm-manager.js"></script>
+
+    <!-- auto-save stuff -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
     <script src="http://malsup.github.com/jquery.form.js"></script>
 

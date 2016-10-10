@@ -334,6 +334,7 @@ class Session:
                 payload = self.User.dump_assets(dump_type=export_type)
                 filename = "%s_%s.kdm-manager_export.%s" % (datetime.now().strftime(ymd), self.User.user["login"], export_type.lower())
             self.User.mark_usage("exported user data (%s)" % export_type)
+            self.logger.debug("[%s] '%s' export complete. Rendering export via HTTP..." % (self.User, export_type))
             html.render(str(payload), http_headers="Content-Disposition: attachment; filename=%s\n" % (filename))
         if "export_campaign" in self.params:
             export_type = self.params["export_campaign"].value
@@ -341,6 +342,7 @@ class Session:
             payload, length = C.export(export_type)
             filename = "%s_-_%s.%s" % (datetime.now().strftime(ymd), C.settlement["name"], export_type.lower())
             self.User.mark_usage("exported campaign data as %s" % export_type)
+            self.logger.debug("[%s] '%s' export complete. Rendering export via HTTP..." % (self.User, export_type))
             html.render(payload, http_headers="Content-type: application/octet-stream;\r\nContent-Disposition: attachment; filename=%s\r\nContent-Title: %s\r\nContent-Length: %i\r\n" % (filename, filename, length))
 
         self.User.mark_usage(user_action)

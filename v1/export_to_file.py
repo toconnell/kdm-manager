@@ -379,6 +379,7 @@ def xls(settlement, survivors=[], session_object=None):
     tab_titles = {}
     for survivor in survivors:
         tab_title = "%s %s %s" % (survivor["sex"], survivor["name"], survivor["hunt_xp"])
+        tab_title = tab_title[:31]
         if tab_title in tab_titles.keys():
             tab_titles[tab_title] += 1
             tab_title = "%s (%s)" % (tab_title, tab_titles[tab_title]-1)

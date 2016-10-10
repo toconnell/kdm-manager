@@ -374,6 +374,8 @@ class User:
             latest_fatality = W.get("latest_fatality"),
             latest_survivor = W.get("latest_survivor"),
             latest_settlement = W.get("latest_settlement"),
+            top_settlement_names = W.get("top_settlement_names"),
+            top_survivor_names = W.get("top_survivor_names"),
             # min/max queries
             max_pop = W.get("max_pop"),
             max_death = W.get("max_death"),
@@ -518,22 +520,22 @@ class Survivor:
         # if the survivor is legacy data model, he doesn't have a born_in_ly
         #   attrib, so we have to get him one:
         if not "born_in_ly" in self.survivor.keys():
-            self.logger.warn("%s has no 'born_in_ly' value!" % self.get_name_and_id())
+            self.logger.warn("%s has no 'born_in_ly' value!" % self)
             if "father" not in self.survivor.keys() and "mother" not in self.survivor.keys():
-                self.logger.warn("Defaulting birth year to 1 for %s" % self.get_name_and_id())
+                self.logger.warn("Defaulting birth year to 1 for %s" % self)
                 self.survivor["born_in_ly"] = 1
-            parent_birth_years = [1]
+            parent_birth_years = [self.Settlement.get_ly() - 1]
             for p in ["father","mother"]:
                 if p in self.survivor.keys():
                     P = Survivor(survivor_id=self.survivor[p], session_object=self.Session)
                     if not "born_in_ly" in P.survivor.keys():
                         self.logger.warn("%s has no 'born_in_ly' value!" % P.get_name_and_id())
                     else:
-                        self.logger.debug("%s %s was born in LY %s" % (p.capitalize(), P.get_name_and_id(), P.survivor["born_in_ly"]))
+                        self.logger.debug("%s %s was born in LY %s" % (p.capitalize(), P, P.survivor["born_in_ly"]))
                         parent_birth_years.append(P.survivor["born_in_ly"])
-            self.logger.debug("Highest parent birth year is %s for %s" % (max(parent_birth_years), self.get_name_and_id()))
+            self.logger.debug("Highest parent birth year is %s for %s: (%s parents)" % (max(parent_birth_years), self, (len(parent_birth_years) - 1)))
             self.survivor["born_in_ly"] = max(parent_birth_years) + 1
-            self.logger.warn("Defaulting birth year to %s for %s" % (self.survivor["born_in_ly"], self.get_name_and_id()))
+            self.logger.warn("Defaulting birth year to %s for %s" % (self.survivor["born_in_ly"], self))
 
         # if "father" or "mother" keys aren't Object ID's, we need to normalize them:
         for p in ["father","mother"]:
@@ -706,7 +708,10 @@ class Survivor:
         self.logger.info("[%s] Removing survivor %s" % (self.User, self))
         self.survivor["removed"] = datetime.now()
         mdb.survivors.save(self.survivor)
-        self.Settlement.log_event("%s has been ")
+
+        self.Settlement.increment_population(-1)
+
+        self.Settlement.log_event("%s has been permanently deleted from the settlement!" % self)
         self.logger.warn("[%s] marked %s as removed!" % (self.User, self))
 
 
@@ -1246,7 +1251,7 @@ class Survivor:
             if return_type == "html_desktop":
                 hide_class = "desktop_only"
             elif return_type == "html_mobile":
-                hide_class = "mobile_only"
+                hide_class = "mobile_and_tablet"
             img_element = '<img class="survivor_avatar_image %s" src="/get_image?id=%s" alt="%s"/>' % (hide_class, self.survivor["avatar"], self.survivor["name"])
             return '<a href="/get_image?id=%s">%s</a>' % (self.survivor["avatar"], img_element)
         if return_type == "html_campaign_summary":
@@ -1955,9 +1960,6 @@ class Survivor:
             if flag in self.survivor.keys():
                 flags[flag] = self.survivor[flag]
 
-        insane = ""
-        if int(self.survivor["Insanity"]) >= 3:
-            insane = "#C60000"
 
         COD_div_display_style = "none"
         if "dead" in self.survivor.keys():
@@ -2018,7 +2020,6 @@ class Survivor:
             settlement_buffs = self.Settlement.get_bonuses("survivor_buff", return_type="html"),
 
             insanity = self.survivor["Insanity"],
-            insanity_number_style = insane,
             brain_damage_light_checked = flags["brain_damage_light"],
             head_damage_heavy_checked = flags["head_damage_heavy"],
             arms_damage_light_checked = flags["arms_damage_light"],
@@ -2237,6 +2238,16 @@ class Settlement:
     def get_ly(self):
         """ Returns self.settlement["lantern_year"] as an int. """
         return int(self.settlement["lantern_year"])
+
+
+    def increment_population(self, amount):
+        """ Modifies settlement population. Saves the settlement to MDB. """
+        current_pop = int(self.settlement["population"])
+        new_pop = current_pop + amount
+        self.log_event("Settlement population automatically adjusted by %s" % amount)
+        self.settlement["population"] = current_pop
+        mdb.settlements.save(self.settlement)
+        self.logger.debug("[%s] auto-incremented settlement %s population by %s" % (self.User, self, amount))
 
 
     def update_current_quarry(self, quarry_string):
@@ -2477,7 +2488,7 @@ class Settlement:
     def export(self, export_type):
         """ Dumps the settlement to a file, e.g. XLS or PDF. """
 
-        self.logger.debug("%s is exporting campaign %s as '%s'..." % (self.User.user["login"], self.get_name_and_id(), export_type))
+        self.logger.debug("[%s] Exporting campaign %s as '%s'..." % (self.User, self, export_type))
 
         if export_type == "XLS":
             book = export_to_file.xls(self.settlement, self.get_survivors(), self.Session)
@@ -2485,6 +2496,7 @@ class Settlement:
             book.save(s)
             length = s.tell()
             s.seek(0)
+            self.logger.debug("[%s] Export successful. Returning XLS payload." % self.User)
             return s, length
 
         return "Invalid export type.", 0
@@ -2927,7 +2939,7 @@ class Settlement:
 
             if current_lantern_year >= 1:
                 output += """\n
-        <h3 class="clickable grey" onclick="showHide('completed_lys')">Show/Hide Previous Years<img class="dashboard_down_arrow" src="http://media.kdm-manager.com/icons/down_arrow.png"/> </h2> <hr/>
+        <h3 class="clickable timeline_completed_lys" onclick="showHide('completed_lys')">Show/Hide Previous Years<img class="dashboard_down_arrow" src="http://media.kdm-manager.com/icons/down_arrow_white.png"/> </h2> <hr/>
                 """
             output += '\n<div id="completed_lys" style="display: none;">\n'
 
@@ -2936,6 +2948,8 @@ class Settlement:
                 disabled = ""
                 hidden = "full_width"
 
+                button_color = "grey"
+
                 if year <= current_lantern_year - 1:
                     disabled = "disabled"
                     strikethrough = "strikethrough"
@@ -2943,15 +2957,20 @@ class Settlement:
 
                 if year == current_lantern_year:
                     output += "\n</div> <!-- completed lys -->\n\n"
-                    button_color = "yellow"
+                    button_color = "timeline_current_ly"
 
-                if year == current_lantern_year + 5:
+
+                if self.User.get_preference("show_future_timeline"):
+                    ly_horizon = 5
+                else:
+                    ly_horizon = 1
+
+                if year == current_lantern_year + ly_horizon:
                     output += """\n
-                        <h3 class="clickable grey" onclick="showHide('subsequent_lys')">Show/Hide Remaining Years<img class="dashboard_down_arrow" src="http://media.kdm-manager.com/icons/down_arrow.png"/> </h2>
+                        <h3 class="clickable timeline_show_hide" onclick="showHide('subsequent_lys')">Show/Hide Remaining Years<img class="dashboard_down_arrow" src="http://media.kdm-manager.com/icons/down_arrow.png"/> </h2>
                 """
                     output += '\n<div id="subsequent_lys" style="display: none;"><hr/>\n'
 
-                button_color = "grey"
 
                 output += '<p class="%s">' % strikethrough
                 output += html.settlement.timeline_button.safe_substitute(LY=year, button_class=strikethrough, disabled=disabled, settlement_id=self.settlement["_id"], button_color=button_color)
@@ -3026,7 +3045,7 @@ class Settlement:
                         output += html.ui.game_asset_select_row.safe_substitute(asset=event)
                     output += html.ui.game_asset_select_bot
 
-                button_class = "full_width yellow"
+                button_class = "full_width timeline_action"
                 if hidden == "hidden":
                     button_class = hidden
                 output += '<button class="%s">Update Timeline</button>' % button_class
@@ -3163,6 +3182,7 @@ class Settlement:
                     story_event = m_dict["story_event"],
                     story_page = game_assets.story_events[m_story_event]["page"],
                 )
+            output += '<hr class="invisible">'
             return output
 
         return milestones
@@ -3451,7 +3471,7 @@ class Settlement:
                 return html.survivor.no_survivors_error
 
             groups = {
-                1: {"name": "Hunting Party", "survivors": [], },
+                1: {"name": "Departing", "survivors": [], },
                 2: {"name": "Favorite", "survivors": [], },
                 3: {"name": "Available", "survivors": [], },
                 4: {"name": "Skipping Next Hunt", "survivors": [], },
@@ -3592,7 +3612,7 @@ class Settlement:
                     for s in group["survivors"]:
                         output += "  %s\n" % s
 
-                    if group["name"] == "Hunting Party" and group["survivors"] != []:
+                    if group["name"] == "Departing" and group["survivors"] != []:
                         bonuses = self.get_bonuses("departure_buff")
                         if bonuses != {}:
                             output += '<hr class="invisible"><span class="tiny_break"></span>'
@@ -3602,9 +3622,9 @@ class Settlement:
                             output += '<span class="tiny_break"/></span>'
 
 
-                if group["name"] == "Hunting Party" and group["survivors"] == []:
-                    output += "<p>Use [::] to add survivors to the hunting party.</p>"
-                elif group["name"] == "Hunting Party" and group["survivors"] != [] and current_user_is_settlement_creator:
+                if group["name"] == "Departing" and group["survivors"] == []:
+                    output += "<p>Use [::] to add survivors to the Departing group.</p>"
+                elif group["name"] == "Departing" and group["survivors"] != [] and current_user_is_settlement_creator:
                     # settlement admin_controls; only show these if we've got
                     #   survivors and the current user is the admin
 
@@ -3624,6 +3644,8 @@ class Settlement:
                         output += html.settlement.return_hunting_party_with_confirmation.safe_substitute(settlement_id=self.settlement["_id"])
                     else:
                         output += html.settlement.return_hunting_party.safe_substitute(settlement_id=self.settlement["_id"])
+
+                    output += html.settlement.hunting_party_macros_footer
 
             return output + html.settlement.campaign_summary_survivors_bot
 
@@ -3956,13 +3978,20 @@ class Settlement:
         fancy HTML banners. """
 
         special_rules = []
+
+        # check locations, expansions and the campaign, as each might have a
+        # a list of special rules dict items
         for location in self.settlement["locations"]:
             if location in Locations.get_keys() and "special_rules" in Locations.get_asset(location).keys():
                 special_rules.extend(Locations.get_asset(location)["special_rules"])
         for expansion in self.get_expansions():
             if "special_rules" in game_assets.expansions[expansion]:
                 special_rules.extend(game_assets.expansions[expansion]["special_rules"])
+        campaign_dict = self.get_campaign("dict")
+        if "special_rules" in campaign_dict.keys():
+            special_rules.extend(campaign_dict["special_rules"])
 
+        # now do returns
         if return_type == "html_campaign_summary":
             # bail if we've got nothing and return a blank string
             if special_rules == []:

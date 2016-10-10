@@ -370,6 +370,25 @@ def get_average(collection="settlements", attrib="population", precision=2, retu
 
 
 
+def top_names(return_type=False, collection="survivors"):
+    """ Uses a little group querying and lambda sauce to turn out a top five
+    list of names for a collection. Don't use this against a collection that
+    doesn't have a 'name' attrib, lest ye get useless results. """
+
+    results = mdb[collection].group(["name"], {"name": {"$nin": ["Anonymous","Test","Unknown"]}}, {"count":0},"function(o, p){p.count++}")
+    sorted_list = sorted(results, key=lambda k: k["count"], reverse=True)
+    top_names = sorted_list[:5]
+
+    if return_type == "html":
+        output = "<ol>"
+        for d in top_names:
+            output += "<li>%s (%s)</li>" % (d["name"], int(d["count"]))
+        output += "</ol>"
+        return output
+
+    return top_names
+
+
 class WarehouseObject:
     """ Initialize one of these to get the latest World data object. This is
     your one-stop-shop for all Dashboard -> World type data and all requests
@@ -459,6 +478,8 @@ class WarehouseObject:
         self.html_data["current_hunt"] = current_hunt()
         self.html_data["latest_survivor"] = latest_survivor()
         self.html_data["latest_settlement"] = latest_settlement()
+        self.html_data["top_survivor_names"] = top_names("html")
+        self.html_data["top_settlement_names"] = top_names("html", collection="settlements")
 
         # min/max queries
         self.data["max_pop"] = get_minmax("population")[1]
@@ -551,6 +572,7 @@ if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("-u", dest="user_avg", help="Returns averages re: users. Try: 'survivors', 'settlements', 'avatars'", metavar="survivors", default=False)
     parser.add_option("-a", dest="average", help="Returns an average for the specified value", metavar="population", default=False)
+    parser.add_option("-t", dest="top", help="Returns top five names for survivors/settlements.", metavar="survivors", default=False)
     parser.add_option("-m", dest="minmax", help="Returns min/max numbers the specified value", metavar="death_count", default=False)
     parser.add_option("-M", dest="multiplayer", help="Dump the multiplayer settlement count.", default=False, action="store_true")
     parser.add_option("-k", dest="kill_board", help="Run the kill_board func and print its contents.", default=False, action="store_true")
@@ -561,6 +583,8 @@ if __name__ == "__main__":
 
     start = datetime.now()
 
+    if options.top:
+        print top_names(options.top)
     if options.user_avg:
         print user_average(options.user_avg)
     if options.multiplayer:
@@ -577,6 +601,8 @@ if __name__ == "__main__":
         W = WarehouseObject(refresh=options.warehouse_refresh)
         for d in W.dump():
             print d
+    if not options.warehouse and options.warehouse_refresh:
+        W = WarehouseObject(refresh=True)
 
     stop = datetime.now()
     duration = stop - start

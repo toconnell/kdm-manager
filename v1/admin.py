@@ -203,7 +203,7 @@ def dump_document(collection, doc_id):
     print("")
 
 
-def update_survivor(operation, s_id=None, attrib=False, attrib_value=False):
+def update_survivor(operation, s_id=None, attrib=False, attrib_value=False, survivor_key=False):
     """ """
     print("Searching for survivor _id '%s'..." % s_id)
     survivor = mdb.survivors.find_one({"_id": ObjectId(s_id)})
@@ -214,9 +214,12 @@ def update_survivor(operation, s_id=None, attrib=False, attrib_value=False):
     print("\n\tSurvivor found!\n")
     dump_document("survivors", survivor["_id"])
 
-    print(" Target attrib is '%s'" % attrib)
-    print(" survivor['%s'] -> %s" % (attrib, survivor[attrib]))
-    print(" Tarvet value is '%s'" % attrib_value)
+    # attribute updates
+
+    if operation in ["add","remove"]:
+        print(" Target attrib is '%s'" % attrib)
+        print(" survivor['%s'] -> %s" % (attrib, survivor[attrib]))
+        print(" Tarvet value is '%s'" % attrib_value)
 
     if operation == "add":
         survivor[attrib] = attrib_value
@@ -234,6 +237,19 @@ def update_survivor(operation, s_id=None, attrib=False, attrib_value=False):
             else:
                 print("    Aborting...\n")
                 return False
+
+
+    # key updates
+
+    if operation == "del":
+        if survivor_key not in survivor.keys():
+            print("Key '%s' not found!\n" % survivor_key)
+            return None
+        else:
+            del(survivor[survivor_key])
+            print("Key '%s' deleted!\n" % survivor_key)
+            mdb.survivors.save(survivor)
+
 
     print("\n  Survivor updated successfully!\n")
 
@@ -636,14 +652,15 @@ def import_data(data_pickle_path):
 
 if __name__ == "__main__":
     parser = OptionParser()
-    parser.add_option("-c", dest="collection", help="Specify a collection to work with", metavar="settlements", default=False)
 
     parser.add_option("-s", dest="survivor", help="Specify a survivor to work with.", metavar="566e228654922d30c47b8704", default=False)
     parser.add_option("--survivor_attrib", dest="survivor_attrib", help="Specify a survivor attrib to modify.", metavar="attributes_and_impairments", default=False)
     parser.add_option("--add_attrib", dest="add_attrib", help="Add attrib to survivor", metavar="user-specified string", default=False)
     parser.add_option("--remove_attrib", dest="remove_attrib", help="Remove attrib from survivor", metavar="<b>Cancer:</b> No description.", default=False)
+    parser.add_option("--remove_key", dest="remove_key", help="Remove key from survivor record", metavar="born_in_ly", default=False)
 
     parser.add_option("-l", dest="list_documents", help="List documents in a collection", metavar="survivors", default=False)
+    parser.add_option("-c", dest="collection", help="Specify a collection to work with", metavar="settlements", default=False)
     parser.add_option("-v", dest="view_document", help="View/dump a document to stdout (requires -c)", metavar="565a1829421aa96b33d1c8bb", default=False)
     parser.add_option("-r", dest="remove_document", help="Remove a single document (requires -c)", metavar="29433d1c8b56581ab21aa96b", default=False)
     parser.add_option("-R", dest="drop_collection", help="Drop all docs in a collection.", metavar="users", default=False)
@@ -720,6 +737,8 @@ if __name__ == "__main__":
                 update_survivor("add", s_id=options.survivor, attrib=options.survivor_attrib, attrib_value=options.add_attrib)
             if options.remove_attrib:
                 update_survivor("remove", s_id=options.survivor, attrib=options.survivor_attrib, attrib_value=options.remove_attrib)
+        if options.remove_key:
+            update_survivor("del", s_id=options.survivor, survivor_key=options.remove_key)
 
     if options.email:
         email(recipients=options.email.split(), msg="This is a test message!\nGood!")
