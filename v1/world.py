@@ -10,7 +10,7 @@ import game_assets
 import html
 import os
 import session
-from utils import mdb, get_percentage, ymd, admin_session, load_settings, get_logger, thirty_days_ago, recent_session_cutoff
+from utils import mdb, get_percentage, ymd, admin_session, load_settings, get_logger, thirty_days_ago, recent_session_cutoff, forbidden_names
 from models import Quarries, Nemeses, mutually_exclusive_principles
 
 
@@ -48,7 +48,7 @@ def current_hunt(return_type=False):
     """ Uses settlements with a 'current_quarry' attribute to determine who is
     currently hunting monsters. """
     try:
-        settlement = mdb.settlements.find({"removed": {"$exists": False}, "name": {"$nin": ["Test", "Unknown"]}, "current_quarry": {"$exists": True}, "hunt_started": {"$gte": datetime.now() - timedelta(minutes=180)}}).sort("hunt_started", -1)[0]
+        settlement = mdb.settlements.find({"removed": {"$exists": False}, "name": {"$nin": forbidden_names}, "current_quarry": {"$exists": True}, "hunt_started": {"$gte": datetime.now() - timedelta(minutes=180)}}).sort("hunt_started", -1)[0]
     except:
         return "No settlements are currently hunting monsters."
 
@@ -77,7 +77,7 @@ def current_hunt(return_type=False):
 
 def latest_kill(return_type=False):
     """ Returns the latest defeated monster from mdb.killboard. """
-    l = mdb.killboard.find_one({"settlement_name": {"$nin": ["Test", "Unknown"]}}, sort=[("created_on", -1)])
+    l = mdb.killboard.find_one({"settlement_name": {"$nin": forbidden_names}}, sort=[("created_on", -1)])
     if l is None:
         return None
 
@@ -113,7 +113,7 @@ def latest_settlement(return_type="html"):
         {
             "removed": {"$exists": False},
             "population": {"$gt": 0},
-            "name": {"$nin": ["Unknown", "Test", "test"]},
+            "name": {"$nin": forbidden_names},
         },
         sort=[("created_on", -1)],
     )
@@ -375,7 +375,7 @@ def top_names(return_type=False, collection="survivors"):
     list of names for a collection. Don't use this against a collection that
     doesn't have a 'name' attrib, lest ye get useless results. """
 
-    results = mdb[collection].group(["name"], {"name": {"$nin": ["Anonymous","Test","Unknown"]}}, {"count":0},"function(o, p){p.count++}")
+    results = mdb[collection].group(["name"], {"name": {"$nin": forbidden_names}}, {"count":0},"function(o, p){p.count++}")
     sorted_list = sorted(results, key=lambda k: k["count"], reverse=True)
     top_names = sorted_list[:5]
 
