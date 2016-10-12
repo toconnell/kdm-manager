@@ -152,6 +152,7 @@ class dashboard:
         <div id="system_div" style="display: none;" class="dashboard_accordion gradient_white">
 
         <div class="dashboard_preferences">
+            <p>Use the controls below to update application-wide preferences. Remember to click the "Save/Update Preferences" button below when you are finished!</p><br/>
             <form method="POST" action="#">
             <input type="hidden" name="update_user_preferences" value="True"/>
                 $user_preferences
@@ -400,7 +401,7 @@ class survivor:
         </div><!-- create_new_asset_block -->
     </div>
     \n""")
-    add_ancestor_top = '    <div id="block_group" title="Add survivor parents.">\n    <h2>Survivor Parents</h2>\n<p>Survivors without parents are not eligible for the auto-application of Innovation bonuses granted only to newborn survivors!</p>'
+    add_ancestor_top = '    <div id="block_group" title="Add survivor parents.">\n    <h2>Survivor Parents</h2>\n<p class="new_asset">Survivors without parents are not eligible for the auto-application of Innovation bonuses granted only to newborn survivors!</p>'
     add_ancestor_select_top = Template('\t<select name="$parent_role">\n\t<option selected disabled hidden value="">$pretty_role</option>')
     change_ancestor_select_top = Template('\t<select onchange="this.form.submit()" name="$parent_role">\n\t<option selected disabled hidden value="">$pretty_role</option>')
     add_ancestor_select_row = Template('\t<option value="$parent_id">$parent_name</option>\n')
