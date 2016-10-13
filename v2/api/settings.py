@@ -3,6 +3,7 @@
 import cStringIO
 from ConfigParser import SafeConfigParser
 import json
+import logging
 import os
 
 
@@ -27,7 +28,10 @@ class Settings:
 
         raw_value = self.config.get(section,key)
         if raw_value in ["True","False"]:
-            return self.config.getbool(section,key)
+            return self.config.getboolean(section,key)
+        elif key in ["log_level"]:
+            exec "log_level_obj = logging.%s" % raw_value
+            return log_level_obj
         else:
             try:
                 return self.config.getint(section,key)

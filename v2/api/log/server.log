@@ -1,0 +1,521 @@
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+INFO:werkzeug: * Detected change in '/home/toconnell/kdm-manager/v2/api/app.py', reloading
+INFO:werkzeug: * Restarting with stat
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+INFO:werkzeug: * Detected change in '/home/toconnell/kdm-manager/v2/api/settings.py', reloading
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+INFO:werkzeug: * Detected change in '/home/toconnell/kdm-manager/v2/api/app.py', reloading
+INFO:werkzeug: * Restarting with stat
+DEBUG:root:test
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+DEBUG:root:test
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+INFO:werkzeug: * Detected change in '/home/toconnell/kdm-manager/v2/api/app.py', reloading
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:25:16] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:26:18] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:26:21] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:26:21] "GET /static/css/style.css HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:26:21] "GET /static/js/app.js HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:26:21] "GET /settings.json HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:26:21] "GET /static/partials/index.html HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:26:25] "GET /settings.jcon HTTP/1.1" 404 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:27:56] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:27:56] "GET /static/js/app.js HTTP/1.1" 304 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:27:56] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:27:56] "GET /settings.json HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:27:56] "GET /static/partials/index.html HTTP/1.1" 304 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:28:32] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:28:35] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:28:35] "GET /static/js/app.js HTTP/1.1" 304 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:28:35] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:28:35] "GET /settings.json HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:28:35] "GET /static/partials/index.html HTTP/1.1" 304 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:29:08] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:29:11] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:29:11] "GET /static/js/app.js HTTP/1.1" 304 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:29:11] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:29:11] "GET /settings.json HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:29:11] "GET /static/partials/index.html HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:29:43] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:29:46] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:29:46] "GET /static/js/app.js HTTP/1.1" 304 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:29:46] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:29:46] "GET /settings.json HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.112 - - [13/Oct/2016 09:29:46] "GET /static/partials/index.html HTTP/1.1" 200 -
+INFO:werkzeug: * Detected change in '/home/toconnell/kdm-manager/v2/api/app.py', reloading
+INFO:werkzeug: * Restarting with stat
+DEBUG:root:32070
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+DEBUG:root:32073
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+INFO:werkzeug: * Detected change in '/home/toconnell/kdm-manager/v2/api/app.py', reloading
+INFO:werkzeug: * Restarting with stat
+DEBUG:root:32080
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+DEBUG:root:32088
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+DEBUG:root:32091
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+DEBUG:root:32097
+DEBUG:root:32102
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+DEBUG:root:32105
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+DEBUG:root:32112
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+DEBUG:root:32115
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+DEBUG:root:32123
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+DEBUG:root:32126
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+INFO:werkzeug: * Detected change in '/home/toconnell/kdm-manager/v2/api/app.py', reloading
+INFO:werkzeug: * Restarting with stat
+DEBUG:root:Server parent process PID is: 32139 
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+INFO:werkzeug: * Detected change in '/home/toconnell/kdm-manager/v2/api/app.py', reloading
+INFO:werkzeug: * Restarting with stat
+DEBUG:root:Server parent process PID: 32143 
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+INFO:werkzeug: * Detected change in '/home/toconnell/kdm-manager/v2/api/app.py', reloading
+INFO:werkzeug: * Restarting with stat
+DEBUG:root: * Server parent process PID: 32147 
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+INFO:werkzeug: * Detected change in '/home/toconnell/kdm-manager/v2/api/app.py', reloading
+INFO:werkzeug: * Restarting with stat
+DEBUG:root:no server pid found
+DEBUG:root:toggling
+DEBUG:root:Server PID is None.
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+ERROR:root: * Unable to change API CWD!
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+ERROR:root:global name 'app_cwd' is not defined
+Traceback (most recent call last):
+  File "./app.py", line 71, in start
+    os.chdir(app_cwd)
+NameError: global name 'app_cwd' is not defined
+ERROR:root: * Unable to change API CWD!
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root:herE
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root:['BASIC_FORMAT', 'BufferingFormatter', 'CRITICAL', 'DEBUG', 'ERROR', 'FATAL', 'FileHandler', 'Filter', 'Filterer', 'Formatter', 'Handler', 'INFO', 'LogRecord', 'Logger', 'LoggerAdapter', 'Manager', 'NOTSET', 'NullHandler', 'PlaceHolder', 'RootLogger', 'StreamHandler', 'WARN', 'WARNING', '__all__', '__author__', '__builtins__', '__date__', '__doc__', '__file__', '__name__', '__package__', '__path__', '__status__', '__version__', '_acquireLock', '_addHandlerRef', '_checkLevel', '_defaultFormatter', '_handlerList', '_handlers', '_levelNames', '_lock', '_loggerClass', '_releaseLock', '_removeHandlerRef', '_showwarning', '_srcfile', '_startTime', '_unicode', '_warnings_showwarning', 'addLevelName', 'atexit', 'basicConfig', 'cStringIO', 'captureWarnings', 'codecs', 'collections', 'critical', 'currentframe', 'debug', 'disable', 'error', 'exception', 'fatal', 'getLevelName', 'getLogger', 'getLoggerClass', 'info', 'log', 'logMultiprocessing', 'logProcesses', 'logThreads', 'makeLogRecord', 'os', 'raiseExceptions', 'root', 'setLoggerClass', 'shutdown', 'sys', 'thread', 'threading', 'time', 'traceback', 'warn', 'warning', 'warnings', 'weakref']
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root:['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', 'acquire', 'addFilter', 'close', 'createLock', 'emit', 'filter', 'flush', 'format', 'get_name', 'handle', 'handleError', 'name', 'release', 'removeFilter', 'setFormatter', 'setLevel', 'set_name']
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root:['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', 'acquire', 'addFilter', 'close', 'createLock', 'emit', 'filter', 'flush', 'format', 'get_name', 'handle', 'handleError', 'name', 'release', 'removeFilter', 'setFormatter', 'setLevel', 'set_name']
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root:['__call__', '__class__', '__cmp__', '__delattr__', '__doc__', '__format__', '__func__', '__get__', '__getattribute__', '__hash__', '__init__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__self__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', 'im_class', 'im_func', 'im_self']
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root:['BASIC_FORMAT', 'BufferingFormatter', 'CRITICAL', 'DEBUG', 'ERROR', 'FATAL', 'FileHandler', 'Filter', 'Filterer', 'Formatter', 'Handler', 'INFO', 'LogRecord', 'Logger', 'LoggerAdapter', 'Manager', 'NOTSET', 'NullHandler', 'PlaceHolder', 'RootLogger', 'StreamHandler', 'WARN', 'WARNING', '__all__', '__author__', '__builtins__', '__date__', '__doc__', '__file__', '__name__', '__package__', '__path__', '__status__', '__version__', '_acquireLock', '_addHandlerRef', '_checkLevel', '_defaultFormatter', '_handlerList', '_handlers', '_levelNames', '_lock', '_loggerClass', '_releaseLock', '_removeHandlerRef', '_showwarning', '_srcfile', '_startTime', '_unicode', '_warnings_showwarning', 'addLevelName', 'atexit', 'basicConfig', 'cStringIO', 'captureWarnings', 'codecs', 'collections', 'critical', 'currentframe', 'debug', 'disable', 'error', 'exception', 'fatal', 'getLevelName', 'getLogger', 'getLoggerClass', 'info', 'log', 'logMultiprocessing', 'logProcesses', 'logThreads', 'makeLogRecord', 'os', 'raiseExceptions', 'root', 'setLoggerClass', 'shutdown', 'sys', 'thread', 'threading', 'time', 'traceback', 'warn', 'warning', 'warnings', 'weakref']
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root:['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_log', 'addFilter', 'addHandler', 'callHandlers', 'critical', 'debug', 'disabled', 'error', 'exception', 'fatal', 'filter', 'filters', 'findCaller', 'getChild', 'getEffectiveLevel', 'handle', 'handlers', 'info', 'isEnabledFor', 'level', 'log', 'makeRecord', 'manager', 'name', 'parent', 'propagate', 'removeFilter', 'removeHandler', 'root', 'setLevel', 'warn', 'warning']
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root:['__add__', '__class__', '__contains__', '__delattr__', '__delitem__', '__delslice__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__getslice__', '__gt__', '__hash__', '__iadd__', '__imul__', '__init__', '__iter__', '__le__', '__len__', '__lt__', '__mul__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__reversed__', '__rmul__', '__setattr__', '__setitem__', '__setslice__', '__sizeof__', '__str__', '__subclasshook__', 'append', 'count', 'extend', 'index', 'insert', 'pop', 'remove', 'reverse', 'sort']
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root:[<logging.FileHandler object at 0x7f64d4d9f7d0>]
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root:<open file '/home/toconnell/kdm-manager/v2/api/log/server.log', mode 'a' at 0x7f44cb4e4030>
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root:before
+DEBUG:root:after
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server wokring dir is /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+INFO:werkzeug: * Detected change in '/home/toconnell/kdm-manager/v2/api/app.py', reloading
+INFO:werkzeug: * Restarting with stat
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+INFO:root:what
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+INFO:root:what
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+INFO:root:what
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+INFO:root:what
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+INFO:root:what
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+INFO:root: * API Server context initialized. Starting app...
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server context initialized. Starting app...
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server context initialized. Starting app...
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * API Server context initialized. Starting app...
+DEBUG:root:done
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+DEBUG:root: * Server PID is None
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+INFO:werkzeug: * Running on http://0.0.0.0:8013/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat
+DEBUG:root: * Initializing API server...
+DEBUG:root: * Setting API Server working dir to /home/toconnell/kdm-manager/v2/api
+DEBUG:root: * PID dir '/var/run/kdm-manager' exists.
+DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
+DEBUG:root: * API Server will listen on port 8013
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger pin code: 230-070-424

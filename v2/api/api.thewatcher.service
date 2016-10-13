@@ -1,0 +1,17 @@
+[Unit]
+Description=theWatcher.io API Service daemon
+Requires=api.thewatcher.socket
+After=network.target
+
+[Service]
+PIDFile=/var/run/kdm-manager/api.thewatcher.pid
+User=toconnell
+Group=www-data
+WorkingDirectory=/home/toconnell/kdm-manager/v2/api
+ExecStart=/usr/bin/gunicorn --workers 3 --bind unix:thewatcher.api.sock -m 007 wsgi
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
