@@ -3,12 +3,18 @@ Some kind of js framework for client-side fanciness
 Respond to requests with flask or eve
 
 
-# Routes
+### Routes
  - update user
  - update survivor
  - update settlement
 
-# Dependencies
 
-apt install python-pip
+### Dependencies
+
+apt install python-pip, gunicorn
 pip install Flask
+
+
+### install
+
+# systemd_remove_and_reload.sh

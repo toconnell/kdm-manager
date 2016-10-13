@@ -1,3 +1,4 @@
 *.pyc
+*.log
 settings_private.cfg
 .warehouse
