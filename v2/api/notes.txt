@@ -15,6 +15,8 @@ apt install python-pip, gunicorn
 pip install Flask
 
 
-### install
+### first-time install
 
+# ln -s /home/toconnell/kdm-manager/v2/api/nginx/production /etc/nginx/sites-enabled/api.thewatcher.io
 # systemd_remove_and_reload.sh
+
