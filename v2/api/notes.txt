@@ -1,6 +1,11 @@
 Responsive webapp with a few breakpoints
 Some kind of js framework for client-side fanciness
-Respond to requests with flask or eve
+
+
+### API Stack
+ - systemd (service and socket)
+ - gunicorn (using a dummy wsgi entry point)
+ - flask (for routes)
 
 
 ### Routes
@@ -11,12 +16,13 @@ Respond to requests with flask or eve
 
 ### Dependencies
 
-apt install python-pip, gunicorn
+apt install python-pip gunicorn ubuntu-standard systemd-sysv 
 pip install Flask
 
 
 ### first-time install
 
 # ln -s /home/toconnell/kdm-manager/v2/api/nginx/production /etc/nginx/sites-enabled/api.thewatcher.io
-# systemd_remove_and_reload.sh
+# /etc/init.d/nginx restart
+# systemd_install.sh
 
