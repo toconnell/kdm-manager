@@ -115,7 +115,7 @@ class World:
         if output_type == "CLI":
             output = ""
             for asset in utils.mdb.world.find():
-                output += asset
+                output += str(asset)
             return output
         elif output_type == "JSON":
             d = {"world": {}}
@@ -314,7 +314,7 @@ class worldDaemon:
 if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("-r", dest="refresh", action="store_true", default=False, help="Force a warehouse refresh")
-    parser.add_option("-l", dest="list", default="CLI", help="List warehoused data")
+    parser.add_option("-l", dest="list", default=False, help="List warehoused data")
     parser.add_option("-R", dest="remove_one", default=None, help="Remove an object _id from the warehouse")
     parser.add_option("-d", dest="daemon_cmd", help="Daemon controls: status|start|stop|restart", default=None)
     (options, args) = parser.parse_args()
