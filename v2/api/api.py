@@ -2,7 +2,7 @@
 
 
 # general imports
-from flask import Flask, send_file, request
+from flask import Flask, send_file, request, Response
 import logging
 from logging.handlers import RotatingFileHandler
 import os
@@ -10,18 +10,16 @@ import os
 # application-specific imports
 import settings
 import utils
+import world
 
-# initialize settings and utils
-S = settings.Settings()
-U = utils.Utilities()
 
 # create the flask app with settings/utils info
 application = Flask(__name__)
 application.config.update(
-    DEBUG = S.get("server","DEBUG"),
-    TESTING = S.get("server","DEBUG"),
+    DEBUG = settings.get("server","DEBUG"),
+    TESTING = settings.get("server","DEBUG"),
 )
-application.logger.addHandler(U.get_logger(log_name="server"))
+application.logger.addHandler(utils.get_logger(log_name="server"))
 
 
 
@@ -32,9 +30,13 @@ application.logger.addHandler(U.get_logger(log_name="server"))
 # default route - landing page, vanity URL stuff
 @application.route("/")
 def index():
-    application.logger.debug("index view")
     return send_file("templates/index.html")
 
+@application.route("/world")
+def world_json():
+    W = world.World()
+    response = Response(response=W.list("JSON"), status=200, mimetype="application/json")
+    return response
 
 # file-spoofing example
 @application.route("/settings.json")

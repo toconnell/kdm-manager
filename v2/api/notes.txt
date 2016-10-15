@@ -24,5 +24,6 @@ pip install Flask
 
 # ln -s /home/toconnell/kdm-manager/v2/api/nginx/production /etc/nginx/sites-enabled/api.thewatcher.io
 # /etc/init.d/nginx restart
-# systemd_install.sh
+# ./server.sh enable
+# ./server.sh start
 

@@ -36,3 +36,6 @@ case "$1" in
 		echo "Usage: $NAME {enable|disable|start|stop|restart|status}" >&2
 		exit 3
 esac
+
+
+echo "\n\tsystemctl output is logged to /var/log/syslog\n"

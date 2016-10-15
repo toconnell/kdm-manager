@@ -62,5 +62,14 @@ class Settings:
         return s_file
 
 
-if __name__ == "__main__":
+
+def get(section=None, query=None):
+    """ Laziness/convenience function to get a setting without initializing a
+    Settings object. """
+
+    if section is None or query is None:
+        raise TypeError("settings.get() does not accept None type arguments.")
     S = Settings()
+    return S.get(section,query)
+
+
