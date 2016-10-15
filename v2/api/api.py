@@ -9,20 +9,19 @@ import os
 
 # application-specific imports
 import settings
+import utils
 
-
-# initialize settings and pass critical params to the flask app
+# initialize settings and utils
 S = settings.Settings()
-log_file_path = os.path.join(S.get("api","log_dir"), "server.log")
+U = utils.Utilities()
 
-handler = RotatingFileHandler(log_file_path, maxBytes=10000, backupCount=1)
-handler.setLevel(S.get("server","log_level"))
+# create the flask app with settings/utils info
 application = Flask(__name__)
 application.config.update(
     DEBUG = S.get("server","DEBUG"),
     TESTING = S.get("server","DEBUG"),
 )
-application.logger.addHandler(handler)
+application.logger.addHandler(U.get_logger(log_name="server"))
 
 
 
@@ -33,7 +32,7 @@ application.logger.addHandler(handler)
 # default route - landing page, vanity URL stuff
 @application.route("/")
 def index():
-    application.logger.debug("success")
+    application.logger.debug("index view")
     return send_file("templates/index.html")
 
 
