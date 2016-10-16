@@ -36,6 +36,12 @@ def cli_dump(key, spacer, value):
 
     print(output)
 
+def seconds_to_hms(seconds):
+    """ Converts seconds (expressed as int) to a h:m:s string. """
+    m, s = divmod(seconds, 60)
+    h, m = divmod(m, 60)
+    return "%d:%02d:%02d" % (h, m, s)
+
 
 # general usage methods
 

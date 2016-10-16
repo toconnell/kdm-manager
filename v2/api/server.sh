@@ -4,7 +4,7 @@ CMD=`which systemctl`
 PROJECT_ABS_PATH=/home/toconnell/kdm-manager/v2/api/
 SERVICE=api.thewatcher.service
 SOCKET=api.thewatcher.socket
-
+SYSLOG=/var/log/syslog
 
 case "$1" in
     enable)
