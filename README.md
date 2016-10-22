@@ -9,7 +9,7 @@ Start from bare metal on deb/ubuntu (do this in order):
 
 python dependencies
 
-    # easy_install python-dateutil python-daemon psutil lockfile pymongo pydns validate-email user-agents xlwt
+    # easy_install python-dateutil python-daemon psutil lockfile pymongo pydns validate-email user-agents xlwt requests
 
 Now, as the non-root user who is going to run the Manager's processes, do this:
 
