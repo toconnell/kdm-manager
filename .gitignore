@@ -1,5 +1,6 @@
 *.pyc
 *.log
 *.pid
+*.swp
 settings_private.cfg
 .warehouse

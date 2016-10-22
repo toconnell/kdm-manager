@@ -17,7 +17,7 @@ Some kind of js framework for client-side fanciness
 ### Dependencies
 
 apt install python-pip gunicorn ubuntu-standard systemd-sysv 
-pip install Flask
+pip install Flask requests
 
 
 ### first-time install

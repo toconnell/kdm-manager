@@ -53,7 +53,7 @@ class Monster:
 
         for k, v in d.iteritems():
             if type(v) == str:
-                exec "self.%s = '%s'" % (k,v)
+                exec """self.%s = "%s" """ % (k,v)
             else:
                 exec "self.%s = %s" % (k,v)
 
@@ -99,11 +99,9 @@ class Monster:
                 for m in asset_dict["misspellings"]:
                     m_dict[m] = asset_handle
 
-        print m_dict
 
         for i in range(len((name_list))+1):
             parsed_name = " ".join(name_list[:i]).upper()
-            print parsed_name
             if parsed_name in m_dict.keys():
                 asset_key = m_dict[parsed_name]
                 self.initialize_asset(self.class_assets[asset_key])

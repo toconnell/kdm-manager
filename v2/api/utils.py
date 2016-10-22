@@ -119,7 +119,7 @@ class AssetDict(dict):
 
         for k, v in self.meta_attribs.iteritems():
             if type(v) == str:
-                exec "self.%s = '%s'" % (k,v)
+                exec """self.%s = "%s" """ % (k,v)
             else:
                 exec "self.%s = %s" % (k,v)
 
