@@ -84,8 +84,16 @@ def latest_kill(return_type=False):
     if return_type == "admin_panel":
         output = "%s: %s (%s)" % (l["created_on"].strftime(ymd), l["name"], l["settlement_name"])
     else:   # all other return_type values
-        output = "<li><b>%s</b></li>" % l["name"]
-        ly = l["kill_ly"].split("_")[1]
+        comment = ""
+        if "comment" in l.keys():
+            comment = l["comment"]
+        output = "<li><b>%s</b> %s</li>" % (l["name"], comment)
+        if "level" in l.keys():
+            output += "<li>Level: %s</li>" % l["level"]
+        try:
+            ly = int(l["kill_ly"])
+        except:
+            ly = l["kill_ly"].split("_")[1]
         output += "<li>Defeated by the survivors of <b>%s</b> in LY %s on %s at %s (CT).</li>" % (l["settlement_name"], ly, l["created_on"].strftime(ymd), l["created_on"].strftime("%H:%M:%S"))
 
     return output

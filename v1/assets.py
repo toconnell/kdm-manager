@@ -15,6 +15,7 @@ import operator
 import os
 import pickle
 import random
+import requests
 from string import Template, capwords
 import types
 
@@ -4249,20 +4250,48 @@ class Settlement:
         """ Adds a kill to the settlement: appends it to the 'defeated_monsters'
         monsters and also to the settlement's kill_board. """
 
-        current_ly = "ly_%s" % self.settlement["lantern_year"]
         kill_board_dict = {
             "settlement_id": self.settlement["_id"],
             "settlement_name": self.settlement["name"],
-            "kill_ly": current_ly,
+            "kill_ly": self.get_ly(),
             "name": monster_desc,
             "created_by": self.User.user["_id"],
             "created_on": datetime.now(),
         }
-        mdb.killboard.insert(kill_board_dict)
-        self.logger.debug("[%s] Updated application killboard: %s (LY %s)" % (self, monster_desc, current_ly))
 
+
+
+        #
+        #   V2 API call to try to get more monster info
+        #
+
+        try:
+            self.logger.debug("[%s] Attempting API call to /monster route..." % self)
+            r_url = "http://api.thewatcher.io/monster"
+            r = requests.get(r_url, params={"name": monster_desc})
+            if r.status_code == 200:
+                self.logger.debug("[%s] API call successful: monster asset retrieved." % self)
+                api_asset = dict(r.json())
+                kill_board_dict["name"] = api_asset["name"]
+                kill_board_dict["raw_name"] = monster_desc
+                kill_board_dict["handle"] = api_asset["handle"]
+                kill_board_dict["type"] = api_asset["__type__"]
+                for aux_attrib in ["level", "comment"]:
+                    if aux_attrib in api_asset.keys():
+                        kill_board_dict[aux_attrib] = api_asset[aux_attrib]
+                self.logger.debug("[%s] Killboard dict updated with API data!" % self)
+            else:
+                self.logger.warn("[%s] API call failed. Response status code: %s" % (self, r.status_code))
+        except Exception as e:
+            self.logger.error("API call failed!")
+            self.logger.exception(e)
+
+
+        mdb.killboard.insert(kill_board_dict)
+        self.logger.debug("[%s] Updated application killboard: %s" % (self, monster_desc))
+
+        # update the settlement sheet and do a settlement event log
         self.settlement["defeated_monsters"].append(monster_desc)
-        self.logger.debug("%s defeated by %s" % (monster_desc, self))
         self.log_event("%s defeated!" % monster_desc)
 
 
