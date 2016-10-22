@@ -88,7 +88,8 @@ class Monster:
             search_result = utils.search_dict(self.class_assets, parsed_name)
             if search_result is not None:
                 self.initialize_asset(search_result)
-                setattr(self, "comment", (" ".join(name_list[i:])))
+                if len(name_list) > i and name_list[i].upper() not in ["LEVEL","LVL","L"]:
+                    setattr(self, "comment", (" ".join(name_list[i:])))
                 return True
 
         # finally, create a list of misspellings and try to get an asset from that
@@ -106,7 +107,8 @@ class Monster:
             if parsed_name in m_dict.keys():
                 asset_key = m_dict[parsed_name]
                 self.initialize_asset(self.class_assets[asset_key])
-                setattr(self, "comment", (" ".join(name_list[i:])))
+                if len(name_list) > i and name_list[i].upper() not in ["LEVEL","LVL","L"]:
+                    setattr(self, "comment", (" ".join(name_list[i:])))
                 return True
 
 
