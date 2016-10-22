@@ -62,7 +62,7 @@ def monster_json():
         return four_oh_four
 
     r = utils.asset_object_to_json(M)
-    return Response(response=r, status=2, mimetype="application/json")
+    return Response(response=r, status=200, mimetype="application/json")
 
 # file-spoofing example
 @application.route("/settings.json")
