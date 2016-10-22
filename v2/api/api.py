@@ -10,6 +10,7 @@ from logging.handlers import RotatingFileHandler
 import os
 
 # application-specific imports
+from models import monster
 import settings
 import utils
 import world
@@ -44,9 +45,29 @@ def world_json():
     response = Response(response=j, status=200, mimetype="application/json")
     return response
 
+@application.route("/monster")
+def monster_json():
+    m_handle = request.args.get("handle", None)
+    m_name = request.args.get("name", None)
+
+    four_oh_four = Response(response=None, status=404, mimetype="application/json")
+    try:
+        if m_handle is not None:
+            M = monster.Monster(handle=m_handle)
+        elif m_name is not None:
+            M = monster.Monster(name=m_name)
+        else:
+            return four_oh_four
+    except:
+        return four_oh_four
+
+    r = utils.asset_object_to_json(M)
+    return Response(response=r, status=2, mimetype="application/json")
+
 # file-spoofing example
 @application.route("/settings.json")
 def settings_json():
+    S = settings.Settings()
     return send_file(S.json_file(), attachment_filename="settings.json", as_attachment=True)
 
 

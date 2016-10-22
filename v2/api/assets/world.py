@@ -147,18 +147,23 @@ models = {
     },
     "avg_user_settlements": {
         "max_age": 30,
-        "name": "Average Settlements",
+        "name": "Average Settlements per user",
         "comment": "average number of settlements created per user across all users",
     },
     "avg_user_survivors": {
         "max_age": 30,
-        "name": "Average Survivors",
+        "name": "Average Survivors per user",
         "comment": "average number of survivors created per user across all users",
     },
     "avg_user_avatars": {
         "max_age": 30,
-        "name": "Average avatars",
+        "name": "Average avatars per user",
         "comment": "average number of avatars uploaded per user across all users",
+    },
+    "total_multiplayer_settlements": {
+        "max_age": 60,
+        "name": "Total multiplayer settlements",
+        "comment": "total number of settlements with more than one player",
     },
 
 }

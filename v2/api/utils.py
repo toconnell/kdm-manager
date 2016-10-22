@@ -2,7 +2,9 @@
 
 
 # general imports
+from bson import json_util
 from datetime import datetime, timedelta
+import json
 import logging
 import os
 import sys
@@ -41,6 +43,27 @@ def seconds_to_hms(seconds):
     m, s = divmod(seconds, 60)
     h, m = divmod(m, 60)
     return "%d:%02d:%02d" % (h, m, s)
+
+def search_dict(d, search_string, search_key="name"):
+    """ Performs a case-insensitive search of all values for 'search_key'
+    and returns d[search_key] if a match to search_string is found.
+
+    Returns None otherwise. """
+
+    search_string = search_string.upper()
+    s = {}
+
+    for asset_handle in d.keys():
+        asset_dict = d[asset_handle]
+        if search_key in asset_dict.keys():
+            search_value = asset_dict[search_key].upper()
+            s[search_value] = asset_dict
+
+
+    if search_string in s.keys():
+        return s[search_string]
+    else:
+        return None
 
 
 # general usage methods
@@ -83,4 +106,57 @@ def get_logger(log_level=None, log_name=None):
 
     return logger
 
+
+class AssetDict(dict):
+    """ Creates a dictionary with additional attributes. """
+
+    def __init__(self, d={}, attribs={}):
+        """ Initialize with any dictionary and then use the 'attribs' kwarg as a
+        dictionary of arbitry key/value pairs that will become attribs of the
+        dictionary. """
+
+        self.meta_attribs = attribs
+
+        for k, v in self.meta_attribs.iteritems():
+            if type(v) == str:
+                exec "self.%s = '%s'" % (k,v)
+            else:
+                exec "self.%s = %s" % (k,v)
+
+        self.update(d)
+        self.add_vars_to_dict()
+
+    def add_vars_to_dict(self):
+        """ Adds the arbitrary attribs of the dictionary to each asset in the dict
+        as an __whatever__ value. """
+
+        for d in self.keys():
+            self[d]["handle"] = d
+            for k, v in self.meta_attribs.iteritems():
+                key = "__%s__" % k
+                self[d][key] = v
+
+
+def asset_object_to_json(asset):
+    """ Takes one of our asset objects and coerces it to json, stripping it of
+    internal-use attributes, logger objects, etc. that is not serializeable or
+    relevant to an object retrieval. """
+
+
+    for banned_attrib in ["logger", "class_assets"]:
+        if hasattr(asset, banned_attrib):
+            delattr(asset, banned_attrib)
+
+    return json.dumps(asset.__dict__, default=json_util.default)
+
+
+# private exception classes
+
+class AssetError(Exception):
+    """ Handler for asset-based errors. """
+
+    def __init__(self, message="Incorrect asset usage!"):
+        self.logger = get_logger()
+        self.logger.exception(message)
+        Exception.__init__(self, message)
 

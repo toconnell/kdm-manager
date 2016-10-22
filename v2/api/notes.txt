@@ -27,3 +27,10 @@ pip install Flask
 # ./server.sh enable
 # ./server.sh start
 
+
+### deploy an update:
+$ cd kdm-manager/v2/api
+$ git pull
+$ world.py -d restart
+# ./server.sh restart
+

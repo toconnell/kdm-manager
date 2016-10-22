@@ -25,10 +25,6 @@ import utils
 
 
 
-
-
-
-
 #
 # World object below
 #
@@ -327,6 +323,27 @@ class World:
     def avg_innovations(self):
         return self.get_average("settlements", "innovations")
 
+    def total_multiplayer_settlements(self):
+        """ Iterates through all survivors, adding their settlement _id to a
+        dict as its key; the value of that key is a list of
+        survivor["created_by"] values. Any key whose list is longer than one
+        is a multiplayer settlement. """
+
+        all_settlements = {}
+        all_survivors = utils.mdb.survivors.find()    # incldues removed/test/etc.
+        for s in all_survivors:
+            if s["settlement"] not in all_settlements.keys():
+                all_settlements[s["settlement"]] = set([s["created_by"]])
+            else:
+                all_settlements[s["settlement"]].add(s["created_by"])
+
+        multiplayer_count = 0
+        for s in all_settlements.keys():
+            if len(all_settlements[s]) > 1:
+                multiplayer_count += 1
+
+        return multiplayer_count
+
     # survivor averages
     def avg_disorders(self):
         return self.get_average("survivors", "disorders")
@@ -372,7 +389,7 @@ class World:
             data_points.append(utils.mdb.survivors.find({"created_by": user["_id"], "avatar": {"$exists": True}}).count())
         return self.get_list_average(data_points)
 
-
+    #
 
 
 #
