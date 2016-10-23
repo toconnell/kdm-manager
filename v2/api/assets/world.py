@@ -5,7 +5,7 @@
 # local imports
 import utils
 
-models = {
+general = {
     "dead_survivors": {
         "name": "Dead survivors",
         "max_age": 5,
@@ -164,6 +164,55 @@ models = {
         "max_age": 60,
         "name": "Total multiplayer settlements",
         "comment": "total number of settlements with more than one player",
+    },
+    "killboard": {
+        "name": "Kill Board",
+        "comment": "monster kills logged by all settlements",
+    },
+    "latest_kill": {
+        "max_age": 3,
+        "name": "Latest kill",
+        "comment": "latest monster kill logged by any settlement",
+    },
+    "latest_survivor": {
+        "max_age": 3,
+        "name": "Latest Survivor",
+        "comment": "most recently created survivor across all settlements",
+    },
+    "latest_fatality": {
+        "max_age": 3,
+        "name": "Latest fatality",
+        "comment": "most recently killed survivor across all settlements",
+    },
+    "latest_settlement": {
+        "max_age": 3,
+        "name": "Latest Settlement",
+        "comment": "most recently created settlement",
+    },
+    "top_survivor_names": {
+        "max_age": 60,
+        "name": "Top Survivor names",
+        "comment": "most popular survivor names across all settlements",
+    },
+    "top_settlement_names": {
+        "max_age": 60,
+        "name": "Top Settlement names",
+        "comment": "most popular survivor names across all settlements",
+    },
+    "principle_selection_rates": {
+        "max_age": 60,
+        "name": "Principle selection rates",
+        "comment": "principle selection rates across all settlements",
+    },
+    "settlement_popularity_contest_expansions": {
+        "max_age": 60,
+        "name": "Popularity contest: expansions",
+        "comment": "number of settlements where each available expansion module is enabled",
+    },
+    "settlement_popularity_contest_campaigns": {
+        "max_age": 60,
+        "name": "Popularity contest: campaigns",
+        "comment": "number of settlements where each different campaign is enabled",
     },
 
 }

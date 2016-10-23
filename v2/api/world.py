@@ -19,6 +19,8 @@ import time
 
 # local imports
 from assets import world as world_assets
+from models import innovations as innovations_models
+from models import monster as monster_models
 import settings
 import utils
 
@@ -33,7 +35,15 @@ class World:
 
     def __init__(self):
         self.logger = utils.get_logger()
-        self.assets = world_assets.models
+        self.assets = world_assets.general
+
+        # common list of banned names (across all collections)
+        # maybe this should come from a config file?
+        self.ineligible_names = [
+            "test","Test","TEST",
+            "unknown", "Unknown","UNKNOWN",
+            "Anonymous","anonymous",
+        ]
 
 
     def refresh_all_assets(self, force=False):
@@ -149,28 +159,43 @@ class World:
         print("\n")
 
 
+    def do_query(self, query):
+        """ Executes a query and returns its results. Meant for CLI debugging
+        and admin reference. """
+        exec "results = self.%s()" % query
+        return results
 
     #
     # refresh method helpers and shortcuts
     #
 
 
-    def get_eligible_documents(self, collection=None, attrib=None):
+    def get_eligible_documents(self, collection=None, required_attribs=None, limit=None, exclude_dead_survivors=True):
         """ Returns a dict representing the baseline mdb query for a given
-        collection. """
+        collection.
 
-        # common list of banned names (across all collections)
-        ineligible_names = [
-            "test","Test","TEST",
-            "unknown", "Unknown","UNKNOWN",
-            "Anonymous","anonymous",
-        ]
+        This should be used pretty much any time we need to go to the mdb for
+        data. Writing direct queries is OK for one-offs, but this saves a lot of
+        time and helps keep things DRY.
+        """
+
 
         # base query dict; excludes ineligible names and docs w/o 'attrib'
-        query = {
-            "name": {"$nin": ineligible_names},
-            attrib: {"$exists": True},
-        }
+        query = {"name": {"$nin": self.ineligible_names}}
+
+        # add eligibility attrib if required
+        if required_attribs is not None:
+            if type(required_attribs) == list:
+                for a in required_attribs:
+                    query.update({a: {"$exists": True}})
+            else:
+                query.update({required_attribs: {"$exists": True}})
+
+        # exclude dead survivors switch
+        if collection == "survivors" and exclude_dead_survivors:
+            query.update({
+                "dead": {"$exists": False},
+            })
 
         # customize based on collection name
         if collection == "settlements":
@@ -180,18 +205,33 @@ class World:
                 "death_count": {"$gt": 0},
             })
         elif collection == "survivors":
-            query.update({
-                "dead": {"$exists": False},
-            })
+            pass
+#            query.update({ })
         elif collection == "users":
             query.update({
                 "removed": {"$exists": False},
             })
+        elif collection == "killboard":
+            query.update({
+                "settlement_name": {"$nin": self.ineligible_names},
+            })
         else:
             self.logger.error("The collections '%s' is not within the scope of world.py")
 
+        # get results
+        results = utils.mdb[collection].find(query, sort=[("created_on", -1)])
 
-        return utils.mdb[collection].find(query)
+        # throw an exception if results is None
+        if results is None:
+            raise utils.WorldQueryError(query)
+        elif results.count() == 0:
+            raise utils.WorldQueryError(query)
+
+        # hack around the dumbass implementation of .limit() in mongo
+        if limit is not None:
+            return results[limit - 1]
+        else:
+            return results
 
 
     def get_minmax(self, collection=None, attrib=None):
@@ -241,6 +281,19 @@ class World:
         result = reduce(lambda x, y: x + y, data_points) / list_length
         return round(result,2)
 
+
+    def get_top_names(self, collection=None, limit=5):
+        """ Assuming that 'collection' documents have a "name" attribute, this
+        will return the top five most popular names along with their counts. """
+
+        results = utils.mdb[collection].group(
+            ["name"],
+            {"name": {"$nin": self.ineligible_names}},
+            {"count": 0},
+            "function(o, p){p.count++}"
+        )
+        sorted_list = sorted(results, key=lambda k: k["count"], reverse=True)
+        return sorted_list[:limit]
 
 
     #
@@ -389,8 +442,71 @@ class World:
             data_points.append(utils.mdb.survivors.find({"created_by": user["_id"], "avatar": {"$exists": True}}).count())
         return self.get_list_average(data_points)
 
-    #
+    # latest event queries
+    def latest_kill(self):
+        return self.get_eligible_documents(collection="killboard", required_attribs=["handle"], limit=1)
 
+    def latest_survivor(self):
+        return self.get_eligible_documents(collection="survivors", limit=1)
+
+    def latest_fatality(self):
+        return self.get_eligible_documents(
+            collection="survivors",
+            required_attribs=["dead","cause_of_death"],
+            limit=1,
+            exclude_dead_survivors=False
+        )
+
+    def latest_settlement(self):
+        return self.get_eligible_documents(collection="settlements", limit=1)
+
+
+    # compound returns below. Unlike the above functions, these return dict
+    # and list type objects
+
+    def killboard(self):
+        known_types = utils.mdb.killboard.find().distinct("type")
+        killboard = {}
+        for t in known_types:
+            killboard[t] = {}
+        monster_assets = monster_models.Assets()
+        for m_handle in monster_assets.get_handles():
+            m_asset = monster_assets.get_asset(m_handle)
+            killboard[m_asset["__type__"]][m_handle] = {"name": m_asset["name"], "count": 0}
+        results = utils.mdb.killboard.find({"handle": {"$exists": True}, "type": {"$exists": True}})
+        for d in results:
+            killboard[d["type"]][d["handle"]]["count"] += 1
+        return killboard
+
+    def top_survivor_names(self):
+        return self.get_top_names("survivors")
+
+    def top_settlement_names(self):
+        return self.get_top_names("settlements")
+
+    def principle_selection_rates(self):
+        """ This is pretty much a direct port from V1. It's still a hot mess.
+        This should probably get a refactor prior to launch. """
+
+        innovations_assets = innovations_models.Assets()
+        mep_dict = innovations_assets.get_mutually_exclusive_principles()
+
+        popularity_contest = {}
+        for principle in mep_dict.keys():
+            tup = mep_dict[principle]
+            sample_set = utils.mdb.settlements.find({"principles": {"$in": tup} }).count()
+            popularity_contest[principle] = {"sample_size": sample_set, "options": tup}
+            for option in tup:
+                total = utils.mdb.settlements.find({"principles": {"$in": [option]}}).count()
+                popularity_contest[principle][option] = {
+                    "total": total,
+                    "percentage": int(utils.get_percentage(total, sample_set)),
+                }
+        return popularity_contest
+
+#    def settlement_popularity_contest_expansions(self):
+#    def settlement_popularity_contest_campaigns(self):
+#    def current_hunt(self):
 
 #
 #   daemon code here
@@ -563,6 +679,7 @@ class WorldDaemon:
 
 if __name__ == "__main__":
     parser = OptionParser()
+    parser.add_option("-q", dest="query", default=False, help="Run a query and print its results")
     parser.add_option("-r", dest="refresh", action="store_true", default=False, help="Force a warehouse refresh")
     parser.add_option("-a", dest="asset", default=False, help="Print a single asset to STDOUT")
     parser.add_option("-l", dest="list", default=False, help="List warehoused data")
@@ -581,6 +698,8 @@ if __name__ == "__main__":
         print(W.dump(options.asset))
     if options.list:
         print(W.list(options.list))
+    if options.query:
+        print(W.do_query(options.query))
 
     # now process daemon commands
     if options.daemon_cmd is not None:

@@ -44,26 +44,12 @@ def seconds_to_hms(seconds):
     h, m = divmod(m, 60)
     return "%d:%02d:%02d" % (h, m, s)
 
-def search_dict(d, search_string, search_key="name"):
-    """ Performs a case-insensitive search of all values for 'search_key'
-    and returns d[search_key] if a match to search_string is found.
-
-    Returns None otherwise. """
-
-    search_string = search_string.upper()
-    s = {}
-
-    for asset_handle in d.keys():
-        asset_dict = d[asset_handle]
-        if search_key in asset_dict.keys():
-            search_value = asset_dict[search_key].upper()
-            s[search_value] = asset_dict
-
-
-    if search_string in s.keys():
-        return s[search_string]
+def get_percentage(part, whole):
+    """ Input a part, then the whole. Returns percent as a float. """
+    if whole == 0:
+        return 0
     else:
-        return None
+        return 100 * round(float(part)/float(whole), 2)
 
 
 # general usage methods
@@ -143,7 +129,7 @@ def asset_object_to_json(asset):
     relevant to an object retrieval. """
 
 
-    for banned_attrib in ["logger", "class_assets"]:
+    for banned_attrib in ["logger", "assets"]:
         if hasattr(asset, banned_attrib):
             delattr(asset, banned_attrib)
 
@@ -152,11 +138,12 @@ def asset_object_to_json(asset):
 
 # private exception classes
 
-class AssetError(Exception):
+class WorldQueryError(Exception):
     """ Handler for asset-based errors. """
 
-    def __init__(self, message="Incorrect asset usage!"):
+    def __init__(self, query=None, message="World query produced zero results!"):
         self.logger = get_logger()
         self.logger.exception(message)
+        self.logger.error(query)
         Exception.__init__(self, message)
 
