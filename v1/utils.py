@@ -190,7 +190,7 @@ def get_latest_change_log():
     posts = get_latest_posts()
     if "items" in posts.keys():
         for post in posts["items"]:
-            if "labels" in post.keys() and "Change Logs" in post["labels"]:
+            if "labels" in post.keys() and "Change Logs" in post["labels"] and "V1" in post["labels"]:
                 return post
     else:
         return {

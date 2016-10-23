@@ -479,15 +479,15 @@ class WarehouseObject:
         self.html_data["total_multiplayer"] = multiplayer_settlements("total_settlements")
         self.html_data["defeated_monsters"] = kill_board("html_table_rows")
         self.html_data["latest_kill"] = latest_kill("html")
-        self.html_data["top_principles"] = top_principles("html_ul")
-        self.html_data["expansion_popularity_bullets"] = popularity_contest("expansions")
-        self.html_data["campaign_popularity_bullets"] = popularity_contest("campaigns")
         self.html_data["latest_fatality"] = latest_fatality()
-        self.html_data["current_hunt"] = current_hunt()
         self.html_data["latest_survivor"] = latest_survivor()
         self.html_data["latest_settlement"] = latest_settlement()
         self.html_data["top_survivor_names"] = top_names("html")
         self.html_data["top_settlement_names"] = top_names("html", collection="settlements")
+        self.html_data["top_principles"] = top_principles("html_ul")
+        self.html_data["expansion_popularity_bullets"] = popularity_contest("expansions")
+        self.html_data["campaign_popularity_bullets"] = popularity_contest("campaigns")
+        self.html_data["current_hunt"] = current_hunt()
 
         # min/max queries
         self.data["max_pop"] = get_minmax("population")[1]
