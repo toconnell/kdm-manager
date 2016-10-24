@@ -20,6 +20,10 @@ general = {
         "name": "Total survivors",
         "comment": "worldwide count of all survivors, living and dead",
     },
+    "total_settlements": {
+        "name": "Total settlements",
+        "comment": "worldwide count of all settlements, regardless of status",
+    },
     "abandoned_settlements": {
         "name": "Abandoned settlements",
         "comment": "worldwide count of all abandoned and removed settlements",
