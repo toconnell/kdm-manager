@@ -24,13 +24,21 @@ general = {
         "name": "Total settlements",
         "comment": "worldwide count of all settlements, regardless of status",
     },
-    "abandoned_settlements": {
-        "name": "Abandoned settlements",
-        "comment": "worldwide count of all abandoned and removed settlements",
-    },
     "active_settlements": {
         "name": "Active settlements",
         "comment": "worldwide count of all settlements that have not been abandoned or removed"
+    },
+    "abandoned_settlements": {
+        "name": "Abandoned settlements",
+        "comment": "worldwide count of all abandoned settlements",
+    },
+    "removed_settlements": {
+        "name": "Removed settlements",
+        "comment": "worldwide count of all removed settlements",
+    },
+    "abandoned_and_removed_settlements": {
+        "name": "Abandoned and removed settlements",
+        "comment": "worldwide count of all abandoned and removed settlements",
     },
     "total_users": {
         "max_age": 30,
@@ -217,6 +225,10 @@ general = {
         "max_age": 60,
         "name": "Popularity contest: campaigns",
         "comment": "number of settlements where each different campaign is enabled",
+    },
+    "current_hunt": {
+        "name": "Current hunt",
+        "comment": "info on the most recent hunting departure.",
     },
 
 }

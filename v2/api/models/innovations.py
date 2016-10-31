@@ -23,6 +23,7 @@ class Assets(Models.AssetCollection):
         """ Spits out the principles dict from assets/principles.py. """
         return innovations.principles
 
+
     def get_mutually_exclusive_principles(self):
         """ Returns a dictionary object listing game asset names for the
         mutually exclusive principle pairs. """

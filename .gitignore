@@ -1,5 +1,5 @@
-*.pyc
 *.log
+*.pyc
 *.pid
 *.swp
 settings_private.cfg
