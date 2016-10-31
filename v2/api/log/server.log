@@ -519,3 +519,80 @@ DEBUG:root: * PID dir '/var/run/kdm-manager' is owned by 'toconnell'.
 DEBUG:root: * API Server will listen on port 8013
 WARNING:werkzeug: * Debugger is active!
 INFO:werkzeug: * Debugger pin code: 230-070-424
+[2016-10-22 21:11:32] ERROR:	Asset name 'White+Lion+Lvl+1' could not be translated to an asset handle!
+Traceback (most recent call last):
+  File "/home/toconnell/kdm-manager/v2/api/models/monster.py", line 81, in initialize_from_name
+    setattr(self, "level", int(i))
+ValueError: invalid literal for int() with base 10: 'White+Lion+Lvl+1'
+[2016-10-22 21:11:44] ERROR:	Asset name 'White+Lion+Lvl+1' could not be translated to an asset handle!
+Traceback (most recent call last):
+  File "/home/toconnell/kdm-manager/v2/api/models/monster.py", line 81, in initialize_from_name
+    setattr(self, "level", int(i))
+ValueError: invalid literal for int() with base 10: 'White+Lion+Lvl+1'
+[2016-10-22 21:11:56] ERROR:	Asset name 'White+Lion+Lvl+1' could not be translated to an asset handle!
+Traceback (most recent call last):
+  File "/home/toconnell/kdm-manager/v2/api/models/monster.py", line 81, in initialize_from_name
+    setattr(self, "level", int(i))
+ValueError: invalid literal for int() with base 10: 'White+Lion+Lvl+1'
+[2016-10-22 21:12:33] ERROR:	Asset name 'White+Lion+Lvl+1' could not be translated to an asset handle!
+Traceback (most recent call last):
+  File "/home/toconnell/kdm-manager/v2/api/models/monster.py", line 81, in initialize_from_name
+    setattr(self, "level", int(i))
+ValueError: invalid literal for int() with base 10: 'White+Lion+Lvl+1'
+[2016-10-22 21:12:55] ERROR:	Asset name 'White+Lion+Lvl+1' could not be translated to an asset handle!
+Traceback (most recent call last):
+  File "/home/toconnell/kdm-manager/v2/api/models/monster.py", line 81, in initialize_from_name
+    setattr(self, "level", int(i))
+ValueError: invalid literal for int() with base 10: 'White+Lion+Lvl+1'
+[2016-10-22 21:15:56] ERROR:	Asset name 'White+Lion+Lvl+1' could not be translated to an asset handle!
+Traceback (most recent call last):
+  File "/home/toconnell/kdm-manager/v2/api/models/monster.py", line 81, in initialize_from_name
+    setattr(self, "level", int(i))
+ValueError: invalid literal for int() with base 10: 'White+Lion+Lvl+1'
+[2016-10-22 21:17:11] ERROR:	Asset name 'White+Lion+Lvl+1' could not be translated to an asset handle!
+Traceback (most recent call last):
+  File "/home/toconnell/kdm-manager/v2/api/models/monster.py", line 81, in initialize_from_name
+    setattr(self, "level", int(i))
+ValueError: invalid literal for int() with base 10: 'White+Lion+Lvl+1'
+[2016-10-22 21:26:05] ERROR:	Asset name 'the hanged man' could not be translated to an asset handle!
+Traceback (most recent call last):
+  File "/home/toconnell/kdm-manager/v2/api/models/monster.py", line 81, in initialize_from_name
+    setattr(self, "level", int(i))
+ValueError: invalid literal for int() with base 10: 'man'
+[2016-10-22 21:28:13] ERROR:	Asset name 'unknown' could not be translated to an asset handle!
+Traceback (most recent call last):
+  File "/home/toconnell/kdm-manager/v2/api/models/monster.py", line 81, in initialize_from_name
+    setattr(self, "level", int(i))
+ValueError: invalid literal for int() with base 10: 'unknown'
+[2016-10-22 21:28:33] ERROR:	Asset name 'unknown monster' could not be translated to an asset handle!
+Traceback (most recent call last):
+  File "/home/toconnell/kdm-manager/v2/api/models/monster.py", line 81, in initialize_from_name
+    setattr(self, "level", int(i))
+ValueError: invalid literal for int() with base 10: 'monster'
+[2016-10-22 21:32:29] ERROR:	Asset name 'old dirty bastard' could not be translated to an asset handle!
+Traceback (most recent call last):
+  File "/home/toconnell/kdm-manager/v2/api/models/monster.py", line 81, in initialize_from_name
+    setattr(self, "level", int(i))
+ValueError: invalid literal for int() with base 10: 'bastard'
+[2016-10-22 21:33:00] ERROR:	Asset name 'old dirty bastard' could not be translated to an asset handle!
+Traceback (most recent call last):
+  File "/home/toconnell/kdm-manager/v2/api/models/monster.py", line 81, in initialize_from_name
+    setattr(self, "level", int(i))
+ValueError: invalid literal for int() with base 10: 'bastard'
+[2016-10-22 21:34:02] ERROR:	Asset name 'old dirty bastard' could not be translated to an asset handle!
+Traceback (most recent call last):
+  File "/home/toconnell/kdm-manager/v2/api/models/monster.py", line 81, in initialize_from_name
+    setattr(self, "level", int(i))
+ValueError: invalid literal for int() with base 10: 'bastard'
+[2016-10-22 21:34:17] ERROR:	Asset name 'old dirty bastard' could not be translated to an asset handle!
+Traceback (most recent call last):
+  File "/home/toconnell/kdm-manager/v2/api/models/monster.py", line 81, in initialize_from_name
+    setattr(self, "level", int(i))
+ValueError: invalid literal for int() with base 10: 'bastard'
+[2016-10-22 21:34:31] ERROR:	Asset name 'old dirty bastard' could not be translated to an asset handle!
+Traceback (most recent call last):
+  File "/home/toconnell/kdm-manager/v2/api/models/monster.py", line 81, in initialize_from_name
+    setattr(self, "level", int(i))
+ValueError: invalid literal for int() with base 10: 'bastard'
+[2016-10-24 17:24:56] ERROR:	Asset name 'Manhunter Lvl 1' could not be translated to an asset handle!
+None
