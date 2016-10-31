@@ -2,6 +2,7 @@
 
 
 # general imports
+from bson.son import SON
 from bson import json_util
 from bson.objectid import ObjectId
 import daemon
@@ -21,6 +22,7 @@ import time
 from assets import world as world_assets
 from models import innovations as innovations_models
 from models import monster as monster_models
+from models import expansions as expansions_models
 import settings
 import utils
 
@@ -34,7 +36,13 @@ import utils
 class World:
 
     def __init__(self):
-        self.logger = utils.get_logger()
+        """ Initializing a World object doesn't get you much beyond the ability
+        to call the methods below. Typically you shouldn't initialize one of
+        these unless you're trying to update warehoused data or maybe get info
+        on a specific piece of warehosued data (which can more easily be gotten
+        from the /world route JSON.) """
+
+        self.logger = utils.get_logger(settings.get("world","log_level"))
         self.assets = world_assets.general
 
         # common list of banned names (across all collections)
@@ -51,8 +59,12 @@ class World:
         'asset_max_age'. A wrapper for self.refresh_asset(). """
 
         self.logger.info("Refreshing all warehouse assets...")
+
+        self.total_refreshed_assets = 0
         for asset_key in self.assets.keys():
             self.refresh_asset(asset_key, force=force)
+
+        self.logger.info("Refreshed %s/%s assets." % (self.total_refreshed_assets, len(self.assets.keys())))
 
 
     def refresh_asset(self, asset_key=None, force=False):
@@ -90,13 +102,14 @@ class World:
 
         # now do the refresh, if necessary
         if do_refresh:
-#            self.logger.debug("Refreshing '%s' asset..." % asset_key)
+            self.logger.debug("Refreshing '%s' asset..." % asset_key)
             try:
                 exec "value = self.%s()" % asset_key
                 asset_dict.update({"handle": asset_key})
                 asset_dict.update({"created_on": datetime.now()})
                 asset_dict.update({"value": value})
                 self.update_mdb(asset_dict)
+                self.total_refreshed_assets += 1
                 self.logger.debug("Updated '%s' asset in mdb." % asset_key)
             except AttributeError:
                 self.logger.error("Could not refresh '%s' asset: no method available." % asset_key)
@@ -300,17 +313,37 @@ class World:
     # actual refresh methods from here down (nothing after)
     #
 
-    def dead_survivors(self):
-        return utils.mdb.the_dead.find().count()
+    # survivors
+    def total_survivors(self):
+        return utils.mdb.survivors.find().count()
 
     def live_survivors(self):
         return utils.mdb.survivors.find({"dead": {"$exists": False}}).count()
 
-    def total_survivors(self):
-        return utils.mdb.survivors.find().count()
+    def dead_survivors(self):
+        return utils.mdb.survivors.find({"dead": {"$exists": True}}).count()
 
+    # settlements
     def total_settlements(self):
         return utils.mdb.settlements.find().count()
+
+    def active_settlements(self):
+        return self.total_settlements() - self.abandoned_settlements()
+
+    def removed_settlements(self):
+        return utils.mdb.settlements.find({"removed": {"$exists": True}}).count()
+
+    def abandoned_settlements(self):
+        return utils.mdb.settlements.find({"abandoned": {"$exists": True}}).count()
+
+    def abandoned_and_removed_settlements(self):
+        return utils.mdb.settlements.find({"$or": [
+            {"removed": {"$exists": True}},
+            {"abandoned": {"$exists": True}},
+        ]}).count()
+
+    def new_settlements_last_30(self):
+        return utils.mdb.settlements.find({"created_on": {"$gte": utils.thirty_days_ago}}).count()
 
     def total_users(self):
         return utils.mdb.users.find().count()
@@ -318,19 +351,6 @@ class World:
     def total_users_last_30(self):
         return utils.mdb.users.find({"latest_sign_in": {"$gte": utils.thirty_days_ago}}).count()
 
-    def abandoned_settlements(self):
-        return utils.mdb.settlements.find(
-            {"$or": [
-                {"removed": {"$exists": True}},
-                {"abandoned": {"$exists": True}}
-            ]
-        }).count()
-
-    def active_settlements(self):
-        return self.total_settlements() - self.abandoned_settlements()
-
-    def new_settlements_last_30(self):
-        return utils.mdb.settlements.find({"created_on": {"$gte": utils.thirty_days_ago}}).count()
 
     def recent_sessions(self):
         return utils.mdb.users.find({"latest_activity": {"$gte": utils.recent_session_cutoff}}).count()
@@ -504,9 +524,72 @@ class World:
                 }
         return popularity_contest
 
-#    def settlement_popularity_contest_expansions(self):
-#    def settlement_popularity_contest_campaigns(self):
-#    def current_hunt(self):
+    def settlement_popularity_contest_expansions(self):
+        """ Uses the assets in assets/expansions.py to return a popularity
+        contest dict re: expansions stored on settlement objects. """
+
+        popularity_contest = {}
+
+        expansions_assets = expansions_models.Assets()
+        for e in expansions_assets.get_handles():
+            e_dict = expansions_assets.get_asset(e)
+            e_count = utils.mdb.settlements.find({"expansions": {"$in": [e_dict["name"]]}}).count()
+            popularity_contest[e_dict["name"]] = e_count
+
+        return popularity_contest
+
+    def settlement_popularity_contest_campaigns(self):
+        """ Uses the assets in assets/campaigns.py to return a popularity
+        contest dict re: campaigns. """
+
+
+        popularity_contest = {
+            "People of the Lantern": utils.mdb.settlements.find({"campaign": {"$exists": False}}).count(),
+        }
+
+        campaigns = utils.mdb.settlements.find({"campaign": {"$exists": True}}).distinct("campaign")
+
+        for c in campaigns:
+            total = utils.mdb.settlements.find({"campaign": c}).count()
+            if c in popularity_contest.keys():
+                popularity_contest[c] += total
+            else:
+                popularity_contest[c] = total
+
+        return popularity_contest
+
+
+    def current_hunt(self):
+        """ Uses settlements with a 'current_quarry' attribute to determine who
+        is currently hunting monsters.
+
+        The mdb query is totally custom, so it's written out here, rather than
+        stashed in a method of the World object, etc. """
+
+        try:
+            settlement = utils.mdb.settlements.find_one(
+            {
+                "removed": {"$exists": False},
+                "abandoned": {"$exists": False},
+                "name": {"$nin": self.ineligible_names},
+                "current_quarry": {"$exists": True},
+                "hunt_started": {"$gte": datetime.now() - timedelta(minutes=180)},
+            }, sort=[("hunt_started", -1)],
+            )
+        except Exception as e:
+            self.logger.exception(e)
+            return None
+
+        hunters = utils.mdb.survivors.find({
+            "settlement": settlement["_id"],
+            "in_hunting_party": {"$exists": True},
+        }).sort("name")
+
+        if hunters.count() == 0:
+            return None
+
+        return {"settlement": settlement, "survivors": [h for h in hunters]}
+
 
 #
 #   daemon code here
@@ -527,7 +610,7 @@ class WorldDaemon:
 
     def __init__(self):
 
-        self.logger = utils.get_logger(log_name="world_daemon")
+        self.logger = utils.get_logger(log_name="world_daemon", log_level=settings.get("world","log_level"))
 
         self.pid_file_path = os.path.abspath(settings.get("world","daemon_pid_file"))
         self.pid_dir = os.path.dirname(self.pid_file_path)
