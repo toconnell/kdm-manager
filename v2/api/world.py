@@ -566,8 +566,7 @@ class World:
         The mdb query is totally custom, so it's written out here, rather than
         stashed in a method of the World object, etc. """
 
-        try:
-            settlement = utils.mdb.settlements.find_one(
+        settlement = utils.mdb.settlements.find_one(
             {
                 "removed": {"$exists": False},
                 "abandoned": {"$exists": False},
@@ -575,9 +574,9 @@ class World:
                 "current_quarry": {"$exists": True},
                 "hunt_started": {"$gte": datetime.now() - timedelta(minutes=180)},
             }, sort=[("hunt_started", -1)],
-            )
-        except Exception as e:
-            self.logger.exception(e)
+        )
+
+        if settlement is None:
             return None
 
         hunters = utils.mdb.survivors.find({

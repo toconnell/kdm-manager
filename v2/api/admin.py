@@ -83,8 +83,7 @@ class KillboardMaintenance:
                     except Exception as e:
                         self.logger.exception(e)
                         self.performance["failure"] += 1
-                        print("\tUnable to update _id=%s" % doc["_id"])
-                        print("Moving on...")
+                        print("Update failed! Moving on...")
             else:
                 print("\tExiting...\n")
                 sys.exit(0)

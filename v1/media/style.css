@@ -598,7 +598,7 @@ right connector from last child*/
     div#create_new_asset_form_container button {width: 100%;}
     
 
-    /* generic asset management styles: survivor&settlement */
+    /* generic asset management styles: survivor&settlement - tablet */
     div#block_group {padding-bottom: 30px; }
     .collapsing_block_group {margin-left: 5px; z-index: -10; border-top: 0px; width: 98%; }
     span.nav_bar {position: fixed; top: 0; left: 0; width: 100%; height: 75px;  opacity: 1; border-bottom: 3px solid #666; z-index: 100; }
@@ -611,13 +611,13 @@ right connector from last child*/
     input#topline_name, input#topline_name_fixed {font-size: 40pt; margin: 0 auto; margin-left: -20px; margin-bottom: 20px; font-weight: bold; z-index:5;}
     input#topline_name_fixed {position: fixed; top: 100px; left: 4%; text-align: left; padding-left: 30px; } 
 
-    div#asset_management_left_pane input#topline_name {width: 500px; margin-left: 20px; }
-    div#asset_management_left_pane input#topline_name_fixed {width: 600px; }
+    div#asset_management_left_pane input#topline_name {width: 650px; margin-left: 5px; }
+    div#asset_management_left_pane input#topline_name_fixed {width: 590px; }
     div#asset_management_left_pane {margin-top: 145px; float: left; width: 350px; }
     div#asset_management_left_pane select { font-size: 17pt; }
     div#asset_management_left_pane p.subhead_p_block {font-size: 16pt; color: #333; margin-bottom: 10px; }
     div#asset_management_left_pane input {height: auto; width: auto; }
-    div#asset_management_middle_pane {float: right; width: 580px; clear: right; margin-top: 100px; }
+    div#asset_management_middle_pane {float: right; width: 580px; clear: right; margin-top: 115px; }
 
     .shield, .big_number_square {width: 65px; height: 80px; text-align: center; font-size: 25pt; }
     .shield { }
@@ -671,13 +671,13 @@ right connector from last child*/
     input[type=checkbox].expansion_attrib_toggle {display: none; }
     
 
-    /* Campaign Summary Styles */
+    /* Campaign Summary Styles - tablet */
     h1.settlement_name { text-align: left; margin-left: 20px; width: auto; display: inline-block;  margin-top: 80px; font-size: 40pt; margin-bottom: 40px; }
     div#campaign_summary_pop { padding: 0px;  margin: 0 auto; margin-top: -40px; }
     button#add_survivor_to_party { font-size: 25pt; height: 50px; width: 50px; padding: 0px; }
 
-    button#campaign_summary_new_survivor, button#departingSurvivorsModal {position: absolute; top: 75px; right: 20px; padding: 20px; width: 360px; }
-    button#departingSurvivorsModal {top: 170px;}
+    button#campaign_summary_new_survivor, button#departingSurvivorsModal {position: absolute; top: 115px; right: 20px; padding: 20px; width: 360px; }
+    button#departingSurvivorsModal {top: 195px;}
     .hunting_party_macro {float: left; padding: 3px; text-align: center; width: 200px; font-size: 27px; margin-left: 10px; margin-bottom: 10px; border: 0px; }
     .hunting_party_macro button {width: 90%; margin: 3px; }
     #hunting_party_macro_container {width: 100%; padding: 0; margin: 0 auto; text-align: center; }
