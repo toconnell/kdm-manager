@@ -115,7 +115,7 @@ principles = {
 
 
 campaign_definitions = {
-    "people_of_the_lantern":
+    "people_of_the_lantern": {
         "default": True,
         "name": "People of the Lantern",
         "always_available": ["Lantern Hoard", "Language"],
@@ -134,7 +134,7 @@ campaign_definitions = {
         },
     },
 
-    "people_of_the_skull":
+    "people_of_the_skull": {
         "name": "People of the Skull",
         "always_available": ["Lantern Hoard", "Language"],
         "special_rules": [
@@ -169,7 +169,7 @@ campaign_definitions = {
         },
     },
 
-    "the_bloom_people":
+    "the_bloom_people": {
         "name": "The Bloom People",
         "always_available": ["Lantern Hoard", "Language"],
         "expansions": ["Flower Knight"],
@@ -198,7 +198,7 @@ campaign_definitions = {
         },
     },
 
-    "people_of_the_sun":
+    "people_of_the_sun": {
     "name": "People of the Sun",
         "expansions": ["Sunstalker"],
         "forbidden": ["Leader", "Lantern Hoard"],

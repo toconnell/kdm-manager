@@ -35,8 +35,8 @@
     border-top: 2px solid #870000; border-left: 2px solid #870000; 
     border-right: 2px solid #190A05; border-bottom: 2px solid #190A05; 
 }
-.maroon_text {color: #a73737;}
-.green_text {color: #37a737;}
+.maroon_text {color: #B71C1C;}
+.green_text {color: #2E7D32;}
 .dark_green {background-color: #52AD00; }
 .alert {color: #C60000; font-weight: bold; }
 .gradient_white {background: linear-gradient(-90deg, #eee, #fff);}
@@ -64,7 +64,11 @@
 .warn  { color: #000; background: linear-gradient(#ffd3a7, #ffed33);}
 .success  { color: #000; background: linear-gradient(#DDDC27, #14DE21);}
 
-
+.world_primary {background-color: #C5CAE9; color: #000; }
+.world_secondary {background-color: #FDFEFF; color: #000; }
+.world_secondary h3 {padding-top: 3%; padding-bottom: 3%; clear: both; text-align: left; padding-left: 10%; border-bottom: 1px solid #ddd; }
+.about_primary {background-color: #BDBDBD; color: #000; }
+.about_secondary {background-color: #FAFAFA;}
 
 /* body styles and the the big, meta-div 'container' used at all breakpoints */
 html {min-height: 100%;  }
@@ -134,6 +138,11 @@ button.tiny_button {padding: 5px; font-size: 70%; margin: auto; margin-top: 40px
 
 
 /*  dashboard styles */
+table.dashboard_table {width: 90%; margin-left: 55px;}
+table.dashboard_table th {font-weight: normal; font-style: italic; padding-left: 5%; }
+table.dashboard_table td {padding: 5px; }
+table.dashboard_table td.value {width: 100px; text-align: right;}
+
 div.dashboard_button_list {margin-top: -3%; padding-left: 5%; width: 80%;}
 div.dashboard_button_list button {width: 100%; text-align: left; padding-left: 3%; }
 div.dashboard_button_list img {width: 40px; height: 40px; }
@@ -572,7 +581,9 @@ right connector from last child*/
 	div#sign_in_checkbox {padding-right: 20px; padding-top: 10px; width: auto; height: auto; margin-bottom: 0px;  }
 	div#sign_in_button {clear: both;}
 
-    /* Dashboard Styles */
+    /* Dashboard Styles - tablet*/
+
+    table.dashboard_table {width: 80%; margin-left: 20px;}
 	img.dashboard_bg {z-index: -10; position: fixed; right: -50px; top: 200px; display: block; }
     div.dashboard_menu {width: 600px; float:left; display: block; margin: 0 auto; clear: left; }
     div.dashboard_menu h2 {font-size: 40px; }
@@ -794,6 +805,7 @@ right connector from last child*/
     #user_error_msg {width: 28%; font-size: 12pt; right: 30%; top: -50px; bottom: auto; z-index: 0;}
 
     /*  wide dashboard styles */
+    table.dashboard_table {width: 60%; margin-left: 0px; margin-top: -16px; }
 	img.dashboard_bg {z-index: -10; position: fixed; right: 50px; top: 50px; display: block; }
     div.dashboard_menu {width: 600px; float:left; display: block; margin: 0 auto; clear: left; }
     div.dashboard_menu h2 {font-size: 20pt; }
@@ -991,13 +1003,15 @@ right connector from last child*/
     table.panel_recent_user td.key {width: 125px; color: #666; vertical-align: top; background-color: #EFEFEF; }
     table.panel_recent_user td.m_ago {border-left: 1px solid #EFEFEF; padding-left: 7px; }
     table.panel_recent_user td.latest_action {background-color: #FFFFEE; padding-left: 7px; font-style: italic; }
-    #panel_aux_table {width: 200px; float: left; border-left: 2px solid #333; margin-left: 20px; border-collapse: collapse; }
-    #panel_aux_table td {padding-right:5px; }
 
+    div#admin_panel_right { float: left; min-width: 600px; margin-left: 20px; border-left: 3px solid #333; }
+    div#admin_panel_right table.killboard {width: 250px; }
+    div#admin_panel_right table.killboard td {padding: 0px; }
 
     /* wide event log styles */
     .tree {font-size: 11pt;}
     span.genealogy_survivor {font-size: 11pt; }
+
 
 
 }

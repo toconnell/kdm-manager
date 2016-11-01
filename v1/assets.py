@@ -352,58 +352,57 @@ class User:
         ...at some point, e.g. when I get around to it. """
 
 
-        W = world.WarehouseObject()
+#        W = world.WarehouseObject()
+        W = world.api_world()["world"]
 
         return html.dashboard.world.safe_substitute(
-            # organic queries
-            dead_survivors = W.get("dead_survivors"),
-            live_survivors = W.get("live_survivors"),
-            abandoned_settlements = W.get("abandoned_settlements"),
-            active_settlements = W.get("active_settlements"),
-            total_users = W.get("total_users"),
-            total_users_last_30 = W.get("total_users_last_30"),
-            new_settlements_last_30 = W.get("new_settlements_last_30"),
-            # canned queries
-            total_multiplayer = W.get("total_multiplayer"),
-            defeated_monsters = W.get("defeated_monsters"),
-            recent_sessions = W.get("recent_sessions"),
-            latest_kill = W.get("latest_kill"),
-            top_principles = W.get("top_principles"),
-            current_hunt = W.get("current_hunt"),
-            expansion_popularity_bullets = W.get("expansion_popularity_bullets"),
-            campaign_popularity_bullets = W.get("campaign_popularity_bullets"),
-            latest_fatality = W.get("latest_fatality"),
-            latest_survivor = W.get("latest_survivor"),
-            latest_settlement = W.get("latest_settlement"),
-            top_settlement_names = W.get("top_settlement_names"),
-            top_survivor_names = W.get("top_survivor_names"),
-            # min/max queries
-            max_pop = W.get("max_pop"),
-            max_death = W.get("max_death"),
-            max_survival = W.get("max_survival"),
-            # settlement averages
-            avg_ly = W.get("avg_ly"),
-            avg_lost_settlements = W.get("avg_lost_settlements"),
-            avg_pop = W.get("avg_pop"),
-            avg_death = W.get("avg_death"),
-            avg_survival_limit = W.get("avg_survival_limit"),
-            avg_milestones = W.get("avg_milestones"),
-            avg_storage = W.get("avg_storage"),
-            avg_defeated = W.get("avg_defeated"),
-            avg_expansions = W.get("avg_expansions"),
-            avg_innovations = W.get("avg_innovations"),
-            # survivor averages
-            avg_disorders = W.get("avg_disorders"),
-            avg_abilities = W.get("avg_abilities"),
-            avg_hunt_xp = W.get("avg_hunt_xp"),
-            avg_insanity = W.get("avg_insanity"),
-            avg_courage = W.get("avg_courage"),
-            avg_understanding = W.get("avg_understanding"),
-            avg_fighting_arts = W.get("avg_fighting_arts"),
-            # user averages
-            avg_user_settlements = W.get("avg_user_settlements"),
-            avg_user_survivors = W.get("avg_user_survivors"),
-            avg_user_avatars = W.get("avg_user_avatars"),
+            # results with custom HTML in v1
+            latest_kill = world.api_monster_to_html(W["latest_kill"]),
+            top_principles = world.api_top_principles(W["principle_selection_rates"]),
+            current_hunt = world.api_current_hunt(W["current_hunt"]),
+            expansion_popularity_bullets = world.api_pop_con_to_html(W["settlement_popularity_contest_expansions"]),
+            campaign_popularity_bullets = world.api_pop_con_to_html(W["settlement_popularity_contest_campaigns"]),
+            latest_fatality =  world.api_survivor_to_html(W["latest_fatality"]),
+            latest_survivor = world.api_survivor_to_html(W["latest_survivor"], supplemental_info=["birth"]),
+            latest_settlement = world.api_settlement_to_html(W["latest_settlement"]),
+            top_settlement_names = world.api_top_five_list(W["top_settlement_names"]),
+            top_survivor_names = world.api_top_five_list(W["top_survivor_names"]),
+            defeated_monsters = world.api_killboard_to_html(W["killboard"]),
+            # settlement numerics
+            max_pop = W["max_pop"]["value"],
+            max_death = W["max_death_count"]["value"],
+            max_survival = W["max_survival_limit"]["value"],
+            active_settlements = W["active_settlements"]["value"],
+            abandoned_settlements = W["abandoned_and_removed_settlements"]["value"],
+            avg_ly = W["avg_ly"]["value"],
+            avg_lost_settlements = W["avg_lost_settlements"]["value"],
+            avg_pop = W["avg_pop"]["value"],
+            avg_death = W["avg_death_count"]["value"],
+            avg_survival_limit = W["avg_survival_limit"]["value"],
+            avg_milestones = W["avg_milestones"]["value"],
+            avg_storage = W["avg_storage"]["value"],
+            avg_defeated = W["avg_defeated_monsters"]["value"],
+            avg_expansions = W["avg_expansions"]["value"],
+            avg_innovations = W["avg_innovations"]["value"],
+            # survivor numerics
+            dead_survivors = W["dead_survivors"]["value"],
+            live_survivors = W["live_survivors"]["value"],
+            avg_disorders = W["avg_disorders"]["value"],
+            avg_abilities = W["avg_abilities"]["value"],
+            avg_hunt_xp = W["avg_hunt_xp"]["value"],
+            avg_insanity = W["avg_insanity"]["value"],
+            avg_courage = W["avg_courage"]["value"],
+            avg_understanding = W["avg_understanding"]["value"],
+            avg_fighting_arts = W["avg_fighting_arts"]["value"],
+            # user numerics
+            avg_user_settlements = W["avg_user_settlements"]["value"],
+            avg_user_survivors = W["avg_user_survivors"]["value"],
+            avg_user_avatars = W["avg_user_avatars"]["value"],
+            total_users = W["total_users"]["value"],
+            total_users_last_30 = W["total_users_last_30"]["value"],
+            total_multiplayer = W["total_multiplayer_settlements"]["value"],
+            recent_sessions = W["recent_sessions"]["value"],
+            new_settlements_last_30 = W["new_settlements_last_30"]["value"],
         )
 
 

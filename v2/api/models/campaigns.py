@@ -16,7 +16,7 @@ class Assets(Models.AssetCollection):
         self.assets = campaigns.campaign_definitions
 
 
-class Expansion(Models.GameAsset):
+class Campaign(Models.GameAsset):
     """ This is the base class for all expansions. Private methods exist for
     enabling and disabling expansions (within a campaign/settlement). """
 

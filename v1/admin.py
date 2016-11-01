@@ -463,20 +463,29 @@ class Panel:
     def render_html(self):
         """ Renders the whole panel. """
 
+        World = world.api_world()
+        W = World["world"]
+
+        daemon_block = "<table>"
+        daemon_block += '<tr><th colspan="2">World Daemon</th></tr>'
+        for k, v in World["world_daemon"].iteritems():
+            daemon_block += '<tr><td>%s</td><td>%s</td></tr>' % (k,v)
+        daemon_block += "</table>"
+
         output = html.panel.headline.safe_substitute(
-            defeated_monsters = world.kill_board("html_table_rows", admin=True),
-            warehouse_table = self.warehouse.render("html_table"),
+            world_daemon = daemon_block,
+            killboard = world.api_killboard_to_html(W["killboard"]),
             recent_users_count = self.recent_users.count(),
             users = self.warehouse.get("total_users"),
             sessions = mdb.sessions.find().count(),
             settlements = mdb.settlements.find().count(),
-            total_survivors = self.warehouse.get("total_survivors"),
-            live_survivors = self.warehouse.get("live_survivors"),
-            dead_survivors = self.warehouse.get("dead_survivors"),
+            total_survivors = W["total_survivors"]["value"],
+            live_survivors = W["live_survivors"]["value"],
+            dead_survivors = W["dead_survivors"]["value"],
             complete_death_records = mdb.the_dead.find({"complete": {"$exists": True}}).count(),
-            latest_fatality = self.warehouse.get("latest_fatality"),
-            latest_kill = self.warehouse.get("latest_kill"),
-            current_hunt = self.warehouse.get("current_hunt"),
+            latest_fatality = world.api_survivor_to_html(W["latest_fatality"]),
+            latest_kill = world.api_monster_to_html(W["latest_kill"]),
+            current_hunt = world.api_current_hunt(W["current_hunt"]),
         )
 
 

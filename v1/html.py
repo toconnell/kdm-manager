@@ -34,11 +34,10 @@ class panel:
         <tr class="grey"><td>Current Hunt:</td><td>$current_hunt</td></tr>
         <tr><td>Latest Kill:</td><td>$latest_kill</td></tr>
     </table>
-    <table id="panel_aux_table">
-        <tr><th colspan="2">Kill Board</th></tr>
-        $defeated_monsters
-    </table>
-    $warehouse_table
+    <div id="admin_panel_right">
+        $killboard
+        $world_daemon
+    </div>
     \n""")
     panel_table_top = '<table id="panel_aux_table">\n'
     panel_table_header = Template('\t<tr><th colspan="2">$title</th></tr>\n')
@@ -108,8 +107,8 @@ class dashboard:
     # dashboard accordions
     about = Template("""\n
     <div class="dashboard_menu">
-    <h2 class="clickable gradient_silver" onclick="showHide('about_div')"> <font class="kdm_font dashboard_kdm_font">g</font> About %s</h2>
-        <div id="about_div" style="display: none;" class="dashboard_accordion gradient_silver">
+    <h2 class="clickable about_primary" onclick="showHide('about_div')"> <font class="kdm_font dashboard_kdm_font">g</font> About %s</h2>
+        <div id="about_div" style="display: none;" class="dashboard_accordion about_secondary">
         <p><b>KD:M Manager! Version $version.</b></p><hr/>
         <p>v$version went live on $latest_change_date. <a target="top" href="$latest_change_link">View change log</a>.</p>
         <p>v1.7.0, the first production release of the Manager, went live on 2015-11-29.</p>
@@ -237,15 +236,14 @@ class dashboard:
     \n""")
     world = Template("""\n
     <div class="dashboard_menu world_panel">
-        <h2 class="clickable gradient_blue" onclick="showHide('world_div')"> <img class="dashboard_icon" src="%s/icons/world.png"/> World %s</h2>
-        <div id="world_div" style="display: none;" class="dashboard_accordion gradient_blue">
+        <h2 class="clickable world_primary" onclick="showHide('world_div')"> <img class="dashboard_icon" src="%s/icons/world.png"/> World %s</h2>
+        <div id="world_div" style="display: none;" class="dashboard_accordion world_secondary">
 
 
-        <p>$active_settlements settlements are holding fast; $abandoned_settlements settlements have been abandoned.</p>
-        <p>$live_survivors survivors are alive and fighting; $dead_survivors have perished.</p>
-        <hr/>
+        <p><font class="green_text"><b>$active_settlements</b></font> settlements are holding fast; <font class="maroon_text"><b>$abandoned_settlements</b></font> settlements have been abandoned.</p>
+        <p><font class="green_text"><b>$live_survivors</b></font> survivors are alive and fighting; <font class="maroon_text"><b>$dead_survivors</b></font> have perished.</p>
 
-        <h3>Settlements:</h3>
+        <h3>Settlement Statistics</h3>
         <ul>
             <li>Multiplayer settlements: $total_multiplayer</li>
             <li>Settlements created in the last 30 days: $new_settlements_last_30</li>
@@ -284,10 +282,11 @@ class dashboard:
         <ul>
             $campaign_popularity_bullets
         </ul>
+        <p>Latest settlement:</p>
         $latest_settlement
-        <hr/>
 
-        <h3>Survivors:</h3>
+
+        <h3>Survivor Statistics</h3>
         <p>Top five survivor names:</p>
         $top_survivor_names
         <p>Averages for all living survivors:</p>
@@ -300,11 +299,13 @@ class dashboard:
             <li>Disorders: $avg_disorders</li>
             <li>Abilities/Impairments: $avg_abilities</li>
         </ul>
+        <p>Latest Fatality:</p>
         $latest_fatality
+        <p>Newest Survivor:</p>
         $latest_survivor
-        <hr/>
 
-        <h3>Monsters:</h3>
+
+        <h3>Monster Statistics</h3>
         <p>Latest hunt activity:</p>
         <ul>
             <li>$current_hunt</li>
@@ -318,9 +319,9 @@ class dashboard:
             $defeated_monsters
             </table>
         </p>
-        <hr/>
 
-        <h3>Users:</h3>
+
+        <h3>User Statistics</h3>
         <p>$total_users users are registered; $recent_sessions users have managed campaigns in the last 12 hours.</p>
         <p>$total_users_last_30 users have managed campaigns in the last 30 days.</p>
         <p>Per user averages:</p>

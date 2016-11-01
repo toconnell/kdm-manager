@@ -1,5 +1,7 @@
 #!/usr/bin/python2.7
 
+from bson.objectid import ObjectId
+
 import utils
 
 #
@@ -12,6 +14,14 @@ class AssetInitError(Exception):
     """ Handler for asset-based errors. """
 
     def __init__(self, message="An error occurred while initializing this asset!"):
+        self.logger = utils.get_logger()
+        self.logger.exception(message)
+        Exception.__init__(self, message)
+
+class AssetLoadError(Exception):
+    """ Handler for asset-based errors. """
+
+    def __init__(self, message="Asset could not be retrieved from mdb!"):
         self.logger = utils.get_logger()
         self.logger.exception(message)
         Exception.__init__(self, message)
@@ -124,7 +134,7 @@ class GameAsset():
         self.initialize_asset(asset_dict)
 
         if self.name is None:
-            raise utils.AssetError("Asset handle '%s' could not be retrieved!" % self.handle)
+            raise AssetInitError("Asset handle '%s' could not be retrieved!" % self.handle)
 
 
     def initialize_from_name(self):
@@ -133,11 +143,20 @@ class GameAsset():
         value matches our self.name. """
 
         # sanity warning
-        if "_" in self.handle:
+        if "_" in self.name:
             self.logger.warn("Asset name '%s' contains underscores. Names should use whitespaces." % self.name)
 
+        lookup_dict = {}
+        for asset_handle in self.assets.get_handles():
+            asset_dict = self.assets.get_asset(asset_handle)
+            lookup_dict[asset_dict["name"]] = asset_handle
+
+        if self.name in lookup_dict.keys():
+            self.handle = lookup_dict[self.name]
+            self.initialize_from_handle()
+
         if self.handle is None:
-            raise utils.AssetError("Asset handle '%s' could not be retrieved!" % self.handle)
+            raise AssetInitError("Asset handle '%s' could not be retrieved!" % self.handle)
 
 
     #
@@ -152,3 +171,47 @@ class GameAsset():
             return getattr(self, attrib)
         except:
             return None
+
+
+class UserAsset():
+    """ The base class for initializing individual user assets, such as
+    survivors, sessions, settlements, etc. """
+
+    def __init__(self, collection=None, _id=None):
+
+        # initialize basic vars
+        self.logger = utils.get_logger()
+
+        if collection is not None:
+            self.collection = collection
+        elif hasattr(self,"collection"):
+            pass
+        else:
+            err_msg = "User assets may not be initialized without specifying a collection!"
+            self.logger.error(err_msg)
+            raise AssetInitError(err_msg)
+
+        if _id is None:
+            self.new()
+        else:
+            self._id = ObjectId(_id)
+            self.load()
+
+    def __repr__(self):
+        return "%s object. _id: %s" % (self.collection, self._id)
+
+
+    def load(self):
+        """ Retrieves an mdb doc using self.collection and makes the document an
+        attribute of the object. """
+
+        mdb_doc = utils.mdb[self.collection].find_one({"_id": self._id})
+        if mdb_doc is None:
+            raise AssetLoadError()
+
+        if self.collection == "settlements":
+            self.settlement = mdb_doc
+        else:
+            raise AssetLoadError("Invalid MDB collection for this asset!")
+
+

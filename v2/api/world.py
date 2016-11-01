@@ -23,6 +23,7 @@ from assets import world as world_assets
 from models import innovations as innovations_models
 from models import monster as monster_models
 from models import expansions as expansions_models
+from models import settlements as settlements_models
 import settings
 import utils
 
@@ -40,7 +41,10 @@ class World:
         to call the methods below. Typically you shouldn't initialize one of
         these unless you're trying to update warehoused data or maybe get info
         on a specific piece of warehosued data (which can more easily be gotten
-        from the /world route JSON.) """
+        from the /world route JSON.)
+
+        NB: if you're trying to fiddle/filter or otherwise futz with final
+        output, check the self.list() method. """
 
         self.logger = utils.get_logger(settings.get("world","log_level"))
         self.assets = world_assets.general
@@ -146,8 +150,26 @@ class World:
         for asset in utils.mdb.world.find():
             d["world"][asset["handle"]] = asset
             d["world"][asset["handle"]]["age_in_seconds"] = (datetime.now() - asset["created_on"]).seconds
-            if "max_age" in asset.keys():
-                del d["world"][asset["handle"]]["max_age"]
+
+
+        #
+        # This is where we filter data key/value pairs from being returned
+        #   by calls to the /world route
+        #
+
+        def recursive_key_del(chk_d, f_key):
+            if f_key in chk_d.keys():
+                del chk_d[f_key]
+
+            for k in chk_d.keys():
+                if type(chk_d[k]) == dict:
+                    recursive_key_del(chk_d[k], f_key)
+
+        for banned_key in ["max_age", "email","admins"]:
+            recursive_key_del(d["world"], banned_key)
+
+
+        # output options from here down:
 
         if output_type == "CLI":
             print("\n\tWarehouse data:\n")
@@ -155,6 +177,8 @@ class World:
             for k, v in d["world"].iteritems():
                 utils.cli_dump(k, spacer, v)
                 print("")
+        elif output_type == "keys":
+            return d["world"].keys()
         elif output_type == "dict":
             return d
         elif output_type == "JSON":
@@ -183,7 +207,7 @@ class World:
     #
 
 
-    def get_eligible_documents(self, collection=None, required_attribs=None, limit=None, exclude_dead_survivors=True):
+    def get_eligible_documents(self, collection=None, required_attribs=None, limit=None, exclude_dead_survivors=True, include_settlement=False):
         """ Returns a dict representing the baseline mdb query for a given
         collection.
 
@@ -239,6 +263,15 @@ class World:
             raise utils.WorldQueryError(query)
         elif results.count() == 0:
             raise utils.WorldQueryError(query)
+
+        # change results from a query object to a list
+        results = [x for x in results]
+
+        # include the settlement if we're doing a survivor and using the flag
+        if include_settlement and collection == "survivors":
+            for item in results:
+                settlement = utils.mdb.settlements.find_one({"_id": item["settlement"]})
+                item["settlement"] = settlement
 
         # hack around the dumbass implementation of .limit() in mongo
         if limit is not None:
@@ -467,19 +500,34 @@ class World:
         return self.get_eligible_documents(collection="killboard", required_attribs=["handle"], limit=1)
 
     def latest_survivor(self):
-        return self.get_eligible_documents(collection="survivors", limit=1)
+        return self.get_eligible_documents(collection="survivors", limit=1, include_settlement=True)
 
     def latest_fatality(self):
         return self.get_eligible_documents(
             collection="survivors",
             required_attribs=["dead","cause_of_death"],
             limit=1,
-            exclude_dead_survivors=False
+            exclude_dead_survivors=False,
+            include_settlement=True,
         )
 
     def latest_settlement(self):
-        return self.get_eligible_documents(collection="settlements", limit=1)
+        """ Get the latest settlement and punch it up with some additional info,
+        since JSON consumers don't have MDB access and can't get it otherwise.
+        """
 
+        s = self.get_eligible_documents(collection="settlements", limit=1)
+
+        if s is None:
+            return None
+
+        S = settlements_models.Settlement(_id=s["_id"])
+
+        s["campaign"] = S.get_campaign()
+        s["expansions"] = S.get_expansions("comma-delimited")
+        s["player_count"] = S.get_players("count")
+
+        return s
 
     # compound returns below. Unlike the above functions, these return dict
     # and list type objects
@@ -492,10 +540,27 @@ class World:
         monster_assets = monster_models.Assets()
         for m_handle in monster_assets.get_handles():
             m_asset = monster_assets.get_asset(m_handle)
-            killboard[m_asset["__type__"]][m_handle] = {"name": m_asset["name"], "count": 0}
+            killboard[m_asset["__type__"]][m_handle] = {"name": m_asset["name"], "count": 0, "sort_order": m_asset["sort_order"]}
         results = utils.mdb.killboard.find({"handle": {"$exists": True}, "type": {"$exists": True}})
         for d in results:
             killboard[d["type"]][d["handle"]]["count"] += 1
+
+        for type in killboard.keys():
+            sort_order_dict = {}
+            for m in killboard[type].keys():
+                m_dict = killboard[type][m]
+                m_dict.update({"handle": m})
+                sort_order_dict[int(m_dict["sort_order"])] = m_dict
+
+            killboard[type] = []
+            previous = -1
+            for k in sorted(sort_order_dict.keys()):
+                m_dict = sort_order_dict[k]
+                if m_dict["sort_order"] <= previous:
+                    self.logger.error("Sorting error! %s sort order (%s) is not greater than previous (%s)!" % (m_dict["name"], m_dict["sort_order"], previous))
+                killboard[type].append(m_dict)
+                previous = m_dict["sort_order"]
+
         return killboard
 
     def top_survivor_names(self):
@@ -761,12 +826,12 @@ class WorldDaemon:
 
 if __name__ == "__main__":
     parser = OptionParser()
-    parser.add_option("-q", dest="query", default=False, help="Run a query and print its results")
+    parser.add_option("-l", dest="list", action="store_true", default=False, help="List warehoused asset handles")
     parser.add_option("-r", dest="refresh", action="store_true", default=False, help="Force a warehouse refresh")
-    parser.add_option("-a", dest="asset", default=False, help="Print a single asset to STDOUT")
-    parser.add_option("-l", dest="list", default=False, help="List warehoused data")
-    parser.add_option("-R", dest="remove_one", default=None, help="Remove an object _id from the warehouse")
-    parser.add_option("-d", dest="daemon_cmd", help="Daemon controls: status|start|stop|restart", default=None)
+    parser.add_option("-a", dest="asset", default=False, help="Retrieve an mdb world asset (print a summary)", metavar="latest_survivor")
+    parser.add_option("-q", dest="query", default=False, help="Execute a query method (print results)", metavar="avg_pop")
+    parser.add_option("-R", dest="remove_one", default=None, help="Remove an object _id from the warehouse", metavar="57f010ec4...")
+    parser.add_option("-d", dest="daemon_cmd", help="Daemon controls: status|start|stop|restart", default=None, metavar="restart")
     (options, args) = parser.parse_args()
 
     # process specific/manual world operations first
@@ -778,10 +843,10 @@ if __name__ == "__main__":
         W.refresh_all_assets(force=True)
     if options.asset:
         print(W.dump(options.asset))
-    if options.list:
-        print(W.list(options.list))
     if options.query:
         print(W.do_query(options.query))
+    if options.list:
+        print(W.list("keys"))
 
     # now process daemon commands
     if options.daemon_cmd is not None:
