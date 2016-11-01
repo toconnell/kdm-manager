@@ -679,7 +679,11 @@ def api_survivor_to_html(s, supplemental_info=["birth","death"]):
     if "avatar" in survivor.keys():
         output = html.dashboard.avatar_image.safe_substitute(name=survivor["name"], avatar_id=survivor["avatar"]["$oid"])
 
-    output += "<p><ul><li><b>%s</b> of <b>%s</b></li>" % (survivor["name"], survivor["settlement"]["name"])
+    try:
+        output += "<p><ul><li><b>%s</b> of <b>%s</b></li>" % (survivor["name"], survivor["settlement"]["name"])
+    except Exception as e:
+        raise Exception("survivor missing name")
+
     output += survivor_html(survivor, item="epithets")
 
     if "death" in supplemental_info:
@@ -697,6 +701,7 @@ def api_survivor_to_html(s, supplemental_info=["birth","death"]):
     output += '<li>Courage: %s, Understanding: %s</li>' % (survivor["Courage"], survivor["Understanding"])
 
     output += "</ul></p>"
+
     return output
 
 

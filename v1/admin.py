@@ -445,7 +445,7 @@ class Panel:
         self.admin_login = admin_login
         self.Session = session.Session()
         self.logger = get_logger()
-        self.warehouse = world.WarehouseObject()
+#        self.warehouse = world.WarehouseObject()
         self.recent_users = self.get_recent_users()
 
     def get_recent_users(self):
@@ -476,7 +476,7 @@ class Panel:
             world_daemon = daemon_block,
             killboard = world.api_killboard_to_html(W["killboard"]),
             recent_users_count = self.recent_users.count(),
-            users = self.warehouse.get("total_users"),
+            users = W["total_users"]["value"],
             sessions = mdb.sessions.find().count(),
             settlements = mdb.settlements.find().count(),
             total_survivors = W["total_survivors"]["value"],
