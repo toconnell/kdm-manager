@@ -2071,7 +2071,6 @@ class Survivor:
             show_COD = COD_div_display_style,
 
             email = self.survivor["email"],
-            campaign_link = self.Settlement.asset_link(context="asset_management"),
 
             partner_controls = self.get_partner("html_controls"),
             expansion_attrib_controls = self.get_expansion_attribs("html_controls"),
@@ -3890,6 +3889,20 @@ class Settlement:
                             self.logger.debug("%s removed %s '%s' from LY %s for %s" % (self.User.user["login"], event_type.replace("_"," "), target_event_string, target_ly, self.get_name_and_id()))
 
 
+    def get_admins(self):
+        """ Creates an admins list if one doesn't exist; adds the settlement
+        creator to it if it's new; returns the list. """
+
+        if not "admins" in self.settlement.keys():
+            self.settlement["admins"] = []
+
+        creator = mdb.users.find_one({"_id": self.settlement["created_by"]})
+        if creator is not None and self.settlement["admins"] == []:
+            self.settlement["admins"].append(creator["login"])
+
+        return self.settlement["admins"]
+
+
     def update_admins(self, player_login, player_role):
         """ Adds or removes player emails from the admins list. """
         if not "admins" in self.settlement.keys():
@@ -4565,7 +4578,6 @@ class Settlement:
         return html.settlement.form.safe_substitute(
             MEDIA_URL = settings.get("application","STATIC_URL"),
             settlement_id = self.settlement["_id"],
-            game_link = self.asset_link(context="asset_management"),
 
             name = self.settlement["name"],
             campaign = self.get_campaign(),

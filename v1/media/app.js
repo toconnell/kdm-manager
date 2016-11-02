@@ -1,9 +1,10 @@
 'use strict';   // See note about 'use strict'; below
 
-var myApp = angular.module('kdmManager', ['ngRoute',]);
+var app = angular.module('kdmManager', ['ngRoute',]);
+
+app.controller('globalController', function($scope, $http) {});
 
 
-myApp.controller('globalController', function($scope, $http) {});
 
 //myApp.config(
 //    ['$routeProvider',

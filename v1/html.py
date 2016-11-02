@@ -190,8 +190,6 @@ class dashboard:
             <button class="warn"> Change Password</button>
             </form>
         </div>
-        <hr class="desktop_only">
-        <form action="#" id="logout" method="POST"><input type="hidden" name="remove_session" value="$session_id"/><input type="hidden" name="login" value="$login"/><button class="gradient_white change_view tablet_and_desktop">SIGN OUT</button>\n\t</form>
         </div>
     </div>
     """ % (settings.get("application","STATIC_URL"), settings.get("application", "STATIC_URL"), down_arrow_flash))
@@ -235,7 +233,7 @@ class dashboard:
     <img class="latest_fatality" src="/get_image?id=$avatar_id" alt="$name"/>
     \n""")
     world = Template("""\n
-    <div class="dashboard_menu world_panel">
+    <div class="dashboard_menu world_panel" # burger/sidenav>
         <h2 class="clickable world_primary" onclick="showHide('world_div')"> <img class="dashboard_icon" src="%s/icons/world.png"/> World %s</h2>
         <div id="world_div" style="display: none;" class="dashboard_accordion world_secondary">
 
@@ -335,9 +333,8 @@ class dashboard:
     """ % (settings.get("application", "STATIC_URL"), down_arrow_flash))
 
     # misc html assets
-    home_button = '\t<form method="POST" action="#"><input type="hidden" name="change_view" value="dashboard"/><button id="floating_dashboard_button" class="gradient_silver"> %s <span class="tablet_only">Dashboard</span> <span class="desktop_only">Return to Dashboard</span></button></form>\n' % system_flash
+
     refresh_button = '\t<form method="POST" action="#"><button id="floating_refresh_button" class="yellow"> %s </button></form>\n' % refresh_flash
-    event_log_button = Template('\t<form method="POST" action="#">\n\t\t<input type="hidden" name="change_view" value="event_log"/>\n\t\t<button id="floating_event_log_button" class="gradient_orange"> %s <span class="tablet_only">Event Log</span> <span class="desktop_only">$name Event Log</span></button>\n\t</form>\n' % event_log_flash)
     view_asset_button = Template("""\n\
     <form method="POST" action="#">
     <input type="hidden" name="view_$asset_type" value="$asset_id" />
@@ -453,8 +450,6 @@ class survivor:
     <span class="top_nav_spacer mobile_only">hidden</span>
 
     <br class="tablet_and_desktop"/>
-
-    $campaign_link
 
     <div id="asset_management_left_pane">
 
@@ -1283,12 +1278,6 @@ class settlement:
             <hr class="mobile_only"/>
         </div>
 
-        <form action="#" method="POST" class="mobile_only">
-          <input type="hidden" name="change_view" value="new_survivor"/>
-          <button class="full_width survivor bold" id="campaign_summary_new_survivor">+ Create New Survivor</button>
-          <hr/>
-        </form>
-
 
         <a id="edit_hunting_party" class="mobile_only"></a>
         <span class="vertical_spacer desktop_only"></span>
@@ -1299,15 +1288,12 @@ class settlement:
         <br class="mobile_only">
 
         <div id="campaign_summary_facts_box">
-            <form action="#" method="POST">
-             <input type="hidden" name="change_view" value="new_survivor"/>
-             <button class="bold survivor tablet_and_desktop" id="campaign_summary_new_survivor">+ Create New Survivor</button>
-            </form>
 
             $special_rules
 
-            <hr class="mobile_only">
-
+            <a id="endeavors">
+                <hr class="mobile_only">
+            </a>
             <div class="campaign_summary_small_box endeavor_box">
                 <h4>Available Endeavors</h4>
                 $endeavors
@@ -1348,8 +1334,6 @@ class settlement:
         </div>
     \n""" % dashboard.campaign_flash)
     form = Template("""\n\
-    $game_link
-
     <span class="tablet_and_desktop nav_bar gradient_orange"></span>
     <span class="gradient_orange nav_bar_mobile mobile_only"></span>
     <span class="top_nav_spacer mobile_only"> hidden </span>
@@ -1856,7 +1840,6 @@ class meta:
     start_head = '<!DOCTYPE html>\n<html ng-app="kdmManager" ng-controller="globalController">\n<head>\n<meta charset="UTF-8">\n<meta name="theme-color" content="#000000">\n<title>%s</title>\n<link rel="stylesheet" type="text/css" href="/style.css">\n' % settings.get("application","title")
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
     saved_dialog = '\n    <div id="saved_dialog" class="success">Saved!</div>'
-    log_out_button = Template('\n\t<hr class="mobile_only"/><form id="logout" method="POST" action="#"><input type="hidden" name="remove_session" value="$session_id"/><input type="hidden" name="login" value="$login"/><button class="gradient_white change_view mobile_only">SIGN OUT</button>\n\t</form>')
     mobile_hr = '<hr class="mobile_only"/>'
     dashboard_alert = Template("""\n\
     <div id="dashboard_alert_spacer"></div>
@@ -1865,6 +1848,31 @@ class meta:
     </div>
     \n""")
 
+    burger_dashboard_button = """\n
+    <form method="POST" action=""><input type="hidden" name="change_view" value="dashboard"/>
+    <button> Return to Dashboard </button>
+    </form>
+    \n"""
+    burger_signout_button = Template("""\n
+    <form id="logout" method="POST" action="">
+    <input type="hidden" name="remove_session" value="$session_id"/>
+    <input type="hidden" name="login" value="$login"/>
+    <button>SIGN OUT</button>
+    </form>
+    \n""")
+    burger_change_view_button = Template("""\n
+    <form method="POST" action="">
+    <input type="hidden" name="$target_view" value="$settlement_id" />
+    <button class="sidenav_button">$link_text</button>
+    </form>
+    \n""")
+
+    burger_anchors_campaign_summary = """\n
+    <a href="#edit_hunting_party" onclick="closeNav()">Survivors</a>
+    <a href="#endeavors" onclick="closeNav()">Endeavors</a>
+    <a href="#principles" onclick="closeNav()">Principles</a>
+    <a href="#innovations" onclick="closeNav()">Innovations</a>
+    \n"""
 
 
 
@@ -1936,8 +1944,126 @@ def authenticate_by_form(params):
 #   render() funcs are the only thing that goes below here.
 #
 
+def render_burger(session_object=None):
+    """ This renders hamburger ('side nav') menu and controls based on the
+    'view' kwarg value.
 
-def render(view_html, head=[], http_headers=None, body_class=None):
+    Returns "" (i.e. an empty string) if the view is not dashboard
+    """
+
+    # first, handle all situations in which we don't return a burger button or
+    #   even write the menu
+    no_burger_string = "\n<!-- no burger in this view! -->\n\n"
+    if session_object is None:
+        return no_burger_string
+    elif session_object.session is None:
+        return no_burger_string
+    elif session_object.Settlement is None:
+        return no_burger_string
+    elif not hasattr(session_object.Settlement, "settlement"):
+        return no_burger_string
+    elif session_object.Settlement.settlement is None:
+        return no_burger_string
+
+    view = session_object.session["current_view"]
+    if view not in ["event_log","view_campaign","view_settlement","view_survivor","new_survivor","new_settlement"]:
+        return "\n<!-- no burger in '%s' view -->\n\n" % view
+
+    # now, create a burger.
+    # first, set defaults:
+
+    signout_button = meta.burger_signout_button.safe_substitute(
+        session_id=session_object.session["_id"],
+        login=session_object.User.user["login"],
+    )
+
+    # this isn't working. gotta troubleshoot later.
+    anchors = ""
+#    if view == "view_campaign":
+#        anchors = meta.burger_anchors_campaign_summary
+
+    # create a list of action buttons based on view/session info
+    actions = ""
+    if view != "new_survivor":
+        actions += meta.burger_change_view_button.safe_substitute(
+            link_text = "+ Create New Survivor",
+            target_view = "change_view",
+            settlement_id = "new_survivor"
+        )
+    if view in ["view_campaign","event_log","view_survivor","new_survivor"]:
+        if session_object.User.user["login"] in session_object.Settlement.get_admins():
+            actions += meta.burger_change_view_button.safe_substitute(
+                link_text = "Settlement Sheet",
+                target_view = "view_settlement",
+                settlement_id = session_object.session["current_settlement"],
+            )
+    if view in ["view_settlement","event_log","view_survivor","new_survivor"]:
+        actions += meta.burger_change_view_button.safe_substitute(
+            link_text = "Campaign Summary",
+            target_view = "view_campaign",
+            settlement_id = session_object.session["current_settlement"]
+        )
+    actions += meta.burger_change_view_button.safe_substitute(
+        link_text = "Settlement Event Log",
+        target_view = "change_view",
+        settlement_id = "event_log"
+    )
+
+    # now add quick links to departing survivors for admins
+    departing = ""
+    if session_object.User.user["login"] in session_object.Settlement.get_admins():
+        hunting_party = session_object.Settlement.get_survivors(return_type="hunting_party")
+        if hunting_party != []:
+            departing = "<h3>Departing Survivors:</h3>"
+            for h in hunting_party:
+                departing += meta.burger_change_view_button.safe_substitute(
+                    link_text = "%s (%s)" % (h["name"],h["sex"]),
+                    target_view = "view_survivor",
+                    settlement_id = h["_id"],
+                )
+
+    burger_panel = Template("""\n
+        <!-- $current_view burger -->
+
+        <div id="mySidenav" class="sidenav">
+          $dash
+            <hr/>
+            <h3>$settlement_name:</h3>
+              $action_map
+              $departing_links
+<!--            <H3>Navigation:</h3> -->
+              $anchor_map
+            <hr/>
+              $new_settlement_button
+            <hr/>
+          $signout
+        </div>
+
+        <button id="floating_dashboard_button" class="gradient_silver" onclick="openNav()">
+            &#9776;
+        </button>
+
+        <!-- end $current_view burger -->
+    """)
+
+    output = burger_panel.safe_substitute(
+        settlement_name=session_object.Settlement.settlement["name"],
+        current_view=view,
+        dash=meta.burger_dashboard_button,
+        signout=signout_button,
+        anchor_map=anchors,
+        action_map=actions,
+        departing_links=departing,
+        new_settlement_button=meta.burger_change_view_button.safe_substitute(
+            link_text = "+ New Settlement",
+            target_view = "change_view",
+            settlement_id = "new_settlement"
+        ),
+    )
+
+    return output
+
+def render(view_html, head=[], http_headers=None, body_class=None, session_object=None):
     """ This is our basic render: feed it HTML to change what gets rendered. """
 
     output = http_headers
@@ -1957,8 +2083,8 @@ def render(view_html, head=[], http_headers=None, body_class=None):
     <link rel="manifest" href="/manifest.json">
 
     <!-- angular app -->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>
-    <script src="http://code.angularjs.org/1.5.3/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular.min.js"></script>
+    <script src="http://code.angularjs.org/1.5.3/angular-route.min.js"></script> 
     <script src="/kdm-manager.js"></script>
 
     <!-- auto-save stuff -->
@@ -1986,6 +2112,7 @@ def render(view_html, head=[], http_headers=None, body_class=None):
     </script>
     \n"""
 
+
     output += """\n\
         <script>
         function toggleDamage(elem_id) {document.getElementById(elem_id).classList.toggle("damage_box_checked");}
@@ -2007,6 +2134,20 @@ def render(view_html, head=[], http_headers=None, body_class=None):
         </script>
     \n"""
 
+    # burger/sidenav
+    output += """\n\
+    <script>
+
+        function openNav() {
+            document.getElementById("mySidenav").style.width = '65%';
+        }
+
+        function closeNav() {
+            document.getElementById("mySidenav").style.width = "0";
+        }
+
+    </script>
+    \n"""
 
     output += """\n\
         <script>
@@ -2022,7 +2163,13 @@ def render(view_html, head=[], http_headers=None, body_class=None):
     for element in head:
         output += element
 
-    output += '</head>\n<body class="%s">\n <div id="container">\n' % body_class
+    output += '</head>\n<body class="%s">\n' % body_class
+
+    output += render_burger(session_object)
+
+    output += '<div id="container" onclick="closeNav()">\n'
+
+
     output += view_html
     output += meta.close_body
 

@@ -93,13 +93,65 @@ label#cannot_spend_survival {background-color: #fefedd;}
 .zebra_True {background-color: #ddd;}
 font.inline_shield {background-color: #000; color: #fff; padding-left: 0.3em; padding-right: 0.3em; border-bottom-right-radius: 25px; border-bottom-left-radius: 25px; }
 
-
 /* general mobile styles - CSS reset */
 .desktop_only {display: none; }
 .tablet_only {display: none; }
 .tablet_and_desktop {display: none; }
 ul {margin-left: 30px; }
 
+
+/* christian sidenav - mobile */
+
+div#mySidenav button {
+    background-color: #000;
+    color: #fff;
+    border: 0px; 
+}
+
+.sidenav {
+    height: 100%; /* 100% Full-height */
+    color: #fff;
+    width: 0; /* 0 width - change this with JavaScript */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Stay on top */
+    top: 0;
+    left: 0;
+    background-color: #000; /* Black*/
+    overflow-x: hidden; /* Disable horizontal scroll */
+    transition: 0.3s; /* 0.5 second transition effect to slide in the sidenav */
+}
+.sidenav h3 {text-align: left; margin: 0 auto; padding: 0px; padding-left: 10%; padding-top: 2%; }
+.sidenav button.sidenav_button {text-align: left; padding: 0px; padding-left: 1%; }
+
+/* The navigation menu links */
+.sidenav a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 50px;
+    color: #fff;
+    display: block;
+    transition: 0.1s
+}
+
+/* When you mouse over the navigation links, change their color */
+.sidenav a:hover, .offcanvas a:focus{
+    color: #f1f1f1;
+}
+
+/* Position and style the close button (top right corner) */
+.sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 100px;
+    margin-left: 50px;
+}
+
+/* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
+@media screen and (max-height: 450px) {
+    .sidenav {padding-top: 15px;}
+    .sidenav a {font-size: 18px;}
+}
 
 /* event_log styles */
 table.settlement_event_log {border-collapse: collapse; }
@@ -614,11 +666,11 @@ right connector from last child*/
     .collapsing_block_group {margin-left: 5px; z-index: -10; border-top: 0px; width: 98%; }
     span.nav_bar {position: fixed; top: 0; left: 0; width: 100%; height: 75px;  opacity: 1; border-bottom: 3px solid #666; z-index: 100; }
     #floating_event_log_button, #floating_refresh_button, #save_button, #floating_dashboard_button, .floating_asset_button {position: fixed; top: 1%; margin: 0 auto; height: auto; width: auto; padding: 5px; border: 2px solid; opacity: 1; z-index: 101; }
-    #floating_refresh_button {left: 695px; padding-left: 20px; padding-right: 20px; }
-    #floating_dashboard_button { right: 3px; left: auto; }
+    #floating_refresh_button {right: 10px; padding:8px; padding-left: 30px; padding-right: 30px; }
+    #floating_dashboard_button { left: 10px; padding: 10px; padding-left: 30px; padding-right: 30px; }
     #floating_event_log_button {left: 500px; }
     .floating_asset_button {left: 3px; right: 0 auto; }
-    button#save_button {left: 560px; padding-left: 20px; padding-right: 20px; }
+    button#save_button {left: 360px; padding: 13px; padding-left: 70px; padding-right: 70px; }
     input#topline_name, input#topline_name_fixed {font-size: 40pt; margin: 0 auto; margin-left: -20px; margin-bottom: 20px; font-weight: bold; z-index:5;}
     input#topline_name_fixed {position: fixed; top: 100px; left: 4%; text-align: left; padding-left: 30px; } 
 
@@ -687,14 +739,13 @@ right connector from last child*/
     div#campaign_summary_pop { padding: 0px;  margin: 0 auto; margin-top: -40px; }
     button#add_survivor_to_party { font-size: 25pt; height: 50px; width: 50px; padding: 0px; }
 
-    button#campaign_summary_new_survivor, button#departingSurvivorsModal {position: absolute; top: 115px; right: 20px; padding: 20px; width: 360px; }
-    button#departingSurvivorsModal {top: 195px;}
+    button#departingSurvivorsModal {position: absolute; top: 110px; right: 7px; padding: 20px; width: 360px; }
     .hunting_party_macro {float: left; padding: 3px; text-align: center; width: 200px; font-size: 27px; margin-left: 10px; margin-bottom: 10px; border: 0px; }
     .hunting_party_macro button {width: 90%; margin: 3px; }
     #hunting_party_macro_container {width: 100%; padding: 0; margin: 0 auto; text-align: center; }
 
     div#campaign_summary_survivors {width: 525px;  padding: 0px; padding-top: 0px; min-height: 800px; margin-top: -20px;  float: left; margin-right: 20px; display: block; }
-    div#campaign_summary_facts_box {width: 400px; float: left; margin: 0 auto; margin-top: 70px; }
+    div#campaign_summary_facts_box {width: 400px; float: left; margin: 0 auto; }
     button#survivor_campaign_asset {width: 400px; }
     img.survivor_avatar_image_campaign_summary {width: 120px; height: auto; float: right; margin: 0; margin-top: -10px; margin-left: 4px; }
     div.campaign_summary_special_rule {font-size: 16pt;}
@@ -784,11 +835,11 @@ right connector from last child*/
     select.min_width {padding: 0; width:  150px;}
     button.change_view {margin-left: 3%; }
     #floating_event_log_button, #floating_refresh_button, #save_button, #floating_dashboard_button, .floating_asset_button {padding: 5px;}
-    #floating_dashboard_button {left: 82%;}
+    #floating_dashboard_button {left: 1%; width: 75px; }
     .floating_asset_button {left: 1%; }
     #floating_event_log_button {left: 16%; width: 320px;}
-    button#save_button {left: 560px; padding-left: 40px; padding-right: 40px; }
-    #floating_refresh_button {width: 50px; left: 56%; height: 31px;}
+    button#save_button {left: 200px; width: 200px; height: 35px; padding: 0px; }
+    #floating_refresh_button {width: 75px; right: 1%; height: 31px;}
     img.latest_fatality {width: 100px; clear: right; margin-left: 100px; }
 
     /* wide sign-in styles */
@@ -1012,7 +1063,12 @@ right connector from last child*/
     .tree {font-size: 11pt;}
     span.genealogy_survivor {font-size: 11pt; }
 
-
+    /* wide side nav burger */
+    div#mySidenav {max-width: 40%;}
+    .sidenav h3 {text-align: left; margin: 0 auto; padding: 0px; padding-left: 10%; padding-top: 2%; }
+    .sidenav hr {border: 1px solid #fff;}
+    .sidenav button {text-align: left; padding: 0; padding-left: 10%; margin-bottom: 20px; }
+    .sidenav button.sidenav_button {text-align: left; padding: 0px; padding-left: 15%; }
 
 }
 

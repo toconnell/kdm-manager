@@ -374,12 +374,11 @@ class Session:
         point, and use this function as a function that simply initalizes a
         class and uses that class's methods to get html.
         """
+
+        output = html.meta.saved_dialog
+
         try:
             body = None
-            output = html.meta.saved_dialog
-
-            if self.session["current_view"] != "dashboard":
-                output += html.dashboard.home_button
 
             if self.session["current_view"] == "dashboard":
                 body = "dashboard"
@@ -412,22 +411,14 @@ class Session:
                 settlement = mdb.settlements.find_one({"_id": self.session["current_asset"]})
                 self.set_current_settlement(ObjectId(settlement["_id"]))
                 output += html.dashboard.refresh_button
-                output += self.Settlement.asset_link(context="asset_management", update_mins=True)
                 S = assets.Settlement(settlement_id = settlement["_id"], session_object=self)
                 output += S.render_html_event_log()
             elif self.session["current_view"] == "view_campaign":
                 output += html.dashboard.refresh_button
-                if mdb.settlement_events.find({"settlement_id": self.Settlement.settlement["_id"]}).count() != 0:
-                    output += html.dashboard.event_log_button.safe_substitute(name=self.Settlement.settlement["name"])
-                if self.Settlement.settlement is not None and self.Settlement.settlement["created_by"] == self.User.user["_id"]:
-                    output += self.Settlement.asset_link(context="campaign_summary")
-                elif "admins" in self.Settlement.settlement.keys() and self.User.user["login"] in self.Settlement.settlement["admins"]:
-                    output += self.Settlement.asset_link(context="campaign_summary")
                 output += self.Settlement.render_html_summary(user_id=self.User.user["_id"])
             elif self.session["current_view"] == "new_settlement":
                 output += html.settlement.new
             elif self.session["current_view"] == "new_survivor":
-                output += self.Settlement.asset_link(context="asset_management")
                 options = self.User.get_settlements(return_as="html_option")
                 output += html.survivor.new.safe_substitute(home_settlement=self.session["current_settlement"], user_email=self.User.user["login"], created_by=self.User.user["_id"], add_ancestors=self.Settlement.get_ancestors("html_parent_select"))
             elif self.session["current_view"] == "view_settlement":
@@ -440,6 +431,8 @@ class Session:
                 output += html.dashboard.refresh_button
                 survivor = mdb.survivors.find_one({"_id": self.session["current_asset"]})
                 S = assets.Survivor(survivor_id = survivor["_id"], session_object=self)
+                if self.Settlement.settlement is None:
+                    self.set_current_settlement(S.survivor["settlement"])
                 output += S.render_html_form()
             elif self.session["current_view"] == "panel":
                 if self.User.is_admin():
@@ -451,7 +444,6 @@ class Session:
             else:
                 output += "UNKNOWN VIEW!!!"
 
-            output += html.meta.log_out_button.safe_substitute(session_id=self.session["_id"], login=self.User.user["login"])
 
             if self.session["current_view"] == "dashboard":
                 output += admin.dashboard_alert()

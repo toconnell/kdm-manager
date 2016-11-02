@@ -17,10 +17,12 @@ general = {
         "comment": "worldwide count of all living survivors",
     },
     "total_survivors": {
+        "max_age": 3,
         "name": "Total survivors",
         "comment": "worldwide count of all survivors, living and dead",
     },
     "total_settlements": {
+        "max_age": 3,
         "name": "Total settlements",
         "comment": "worldwide count of all settlements, regardless of status",
     },
@@ -103,7 +105,7 @@ general = {
         "comment": "average number of milestone story events across all settlements",
     },
     "avg_storage": {
-        "max_age": 30,
+        "max_age": 60,
         "name": "Average items in Settlement Storage",
         "comment": "average number of items in settlement storage across all settlements",
     },
@@ -227,6 +229,7 @@ general = {
         "comment": "number of settlements where each different campaign is enabled",
     },
     "current_hunt": {
+        "max_age": 3,
         "name": "Current hunt",
         "comment": "info on the most recent hunting departure.",
     },

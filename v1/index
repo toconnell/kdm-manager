@@ -42,4 +42,4 @@ if __name__ == "__main__":
             logger.critical(msg)
             output = "Could not create '%s' view for '%s' (session: %s)" % (S.session["current_view"], S.User.user["login"], S.session["_id"])
 
-    html.render(output, body_class=body)
+    html.render(output, body_class=body, session_object=S)

@@ -339,6 +339,8 @@ class World:
             "function(o, p){p.count++}"
         )
         sorted_list = sorted(results, key=lambda k: k["count"], reverse=True)
+        for i in sorted_list:
+            i["count"] = int(i["count"])
         return sorted_list[:limit]
 
 

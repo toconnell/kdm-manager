@@ -3343,7 +3343,7 @@ milestones = {
         "add_to_timeline": 'len(self.settlement["innovations"]) >= 8',
     },
     "game_over": {
-        "sort_order": 4,
+        "sort_order": 10,
         "story_event": "Game Over",
         "add_to_timeline": 'int(self.settlement["population"]) == 0 and int(self.settlement["lantern_year"]) >= 1',
     },
