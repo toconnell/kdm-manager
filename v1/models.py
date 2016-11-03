@@ -115,7 +115,7 @@ class Model:
         return output
 
 
-    def render_as_html_dropdown(self, submit_on_change=True, exclude=[], disable=[], excluded_type=None, Settlement=None):
+    def render_as_html_dropdown(self, submit_on_change=True, exclude=[], disable=[], excluded_type=None, Settlement=None, survivor_id=None):
         """ Renders the model as an HTML dropdown and returns a string. Use the
         'submit_on_change' kwarg to control whether it submits on change.
 
@@ -173,7 +173,7 @@ class Model:
         if submit_on_change:
             submit_on_change = "this.form.submit()"
 
-        output = '\n\t<select name="add_%s" onchange="%s">' % (self.name, submit_on_change)
+        output = """\n\t<select name="add_%s" onchange="%s" ng-model="addMe" ng-change="addItem('%s')">""" % (self.name, submit_on_change, survivor_id)
         output += '\t<option selected disabled hidden value=''>Add %s</option>' % self.pretty_name
         if self.name in ["disorder","fighting_art"]:
             output += '\t\t<option value="RANDOM_%s">* Random %s</option>' % (self.name.upper(), self.pretty_name)

@@ -75,7 +75,7 @@ html {min-height: 100%;  }
 body {font-family: Quattrocento, sans-serif; height: 100%; overflow: scroll;}
 fieldset {border: 0; text-align: left; }
 
-#container {width: 100%; height: 100%; overflow: hidden;}
+#container {width: 100%; height: 100%; overflow: hidden; z-index: 0; }
 
 .tiny_break {display: block; height: 10px; }
 .center {text-align: center}
@@ -92,6 +92,13 @@ label:hover {font-weight: bold; }
 label#cannot_spend_survival {background-color: #fefedd;}
 .zebra_True {background-color: #ddd;}
 font.inline_shield {background-color: #000; color: #fff; padding-left: 0.3em; padding-right: 0.3em; border-bottom-right-radius: 25px; border-bottom-left-radius: 25px; }
+
+div#epithet_angular {margin: 0 auto; padding-left: 0px; margin-top: -5%; }
+div#epithet_angular select, div#epithet_angular button {width: auto; display: inline-block;  }
+div#epithet_angular select {margin-top: 4%; margin-bottom: 3%; }
+ul#epithet_angular_ul {margin: 0px; padding: 0px; margin-top: 5%}
+ul#epithet_angular_ul li {clear: none; float: left; display: inline-block; margin: 1%; cursor: pointer; background-color: #ffffef; border: 1px solid #ccc; padding-left: 5px; padding-right: 5px; }
+
 
 /* general mobile styles - CSS reset */
 .desktop_only {display: none; }
@@ -291,7 +298,7 @@ div.returning_survivor_badge {font-size: 1em; position: absolute; background-col
 .big_number_square { border: 3px solid #666; width: 190px; height: 200px; margin-left: 5%; display: inline-block; margin-right: 20px; }
 .big_number_caption { font-size: 75px; padding-top: 30px; color: #777;  }
 
-button#modalAffinityButton {border: 0; padding: 0; height: 150px; background-color: #fff; }
+button#modalAffinityButton {border: 0; padding: 0; height: 150px; background-color: #fff; overflow: hidden; }
 button#modalAffinityButton.no_affinities {margin-top: -20px; font-size: 250px; line-height: 0px; margin-bottom: -500px;}
 button#modalAffinityButton.affinities {margin-top: -50px; margin-bottom: -100px; }
 div#affinity_block {width: 250px; height: 250px; float: right; margin-right: 50px; }
@@ -664,7 +671,7 @@ right connector from last child*/
     /* generic asset management styles: survivor&settlement - tablet */
     div#block_group {padding-bottom: 30px; }
     .collapsing_block_group {margin-left: 5px; z-index: -10; border-top: 0px; width: 98%; }
-    span.nav_bar {position: fixed; top: 0; left: 0; width: 100%; height: 75px;  opacity: 1; border-bottom: 3px solid #666; z-index: 100; }
+    .nav_bar {position: fixed; top: 0; left: 0; width: 100%; height: 75px;  opacity: 1; border-bottom: 3px solid #666; z-index: 100; }
     #floating_event_log_button, #floating_refresh_button, #save_button, #floating_dashboard_button, .floating_asset_button {position: fixed; top: 1%; margin: 0 auto; height: auto; width: auto; padding: 5px; border: 2px solid; opacity: 1; z-index: 101; }
     #floating_refresh_button {right: 10px; padding:8px; padding-left: 30px; padding-right: 30px; }
     #floating_dashboard_button { left: 10px; padding: 10px; padding-left: 30px; padding-right: 30px; }
@@ -690,6 +697,8 @@ right connector from last child*/
 
 
     /* Survivor Sheet styles - tablet */
+
+    ul#epithet_angular_ul {margin-top: -30px;  }
     div.survivor_hit_box {height: 235px; padding: 3px;  overflow: hidden; }
     div.survivor_hit_box div.big_number_container button {width: 90%; }
     div.insanity_box {height: 300px; }
@@ -830,12 +839,11 @@ right connector from last child*/
     button#modalStorageButton {margin-left: 17px; }
 
     /* general wide style */
-    span.nav_bar {height: 50px; }
+    .nav_bar {height: 50px; }
     select {font-size: 14pt; }
     select.min_width {padding: 0; width:  150px;}
     button.change_view {margin-left: 3%; }
     #floating_event_log_button, #floating_refresh_button, #save_button, #floating_dashboard_button, .floating_asset_button {padding: 5px;}
-    #floating_dashboard_button {left: 1%; width: 75px; }
     .floating_asset_button {left: 1%; }
     #floating_event_log_button {left: 16%; width: 320px;}
     button#save_button {left: 200px; width: 200px; height: 35px; padding: 0px; }
@@ -843,8 +851,13 @@ right connector from last child*/
     img.latest_fatality {width: 100px; clear: right; margin-left: 100px; }
 
     /* wide sign-in styles */
+    img.sign_in {height: 400px; margin: 0 auto; display: block; position: relative;  }
+    button.tiny_button {font-size: 10pt; }
+    div#sign_in_remember_me {width: 85%;  padding: 0px; padding-right: 20px; margin-bottom: 0px; }
+    div#sign_in_remember_me label.sign_in {font-size: 16pt; padding: 0px; float: right; }
     div#sign_in_container {width: 400px; margin: 0 auto; text-align: center; }
-    img.sign_in {height: 400px; margin: 0 auto; }
+    div#sign_in_checkbox {height: auto; width: auto; padding: 0px;  margin-bottom: 0px; }
+    div#sign_in_button {clear: left;  }
 	h1.seo, h2.seo {margin-bottom: -10px; }
     h1.seo {font-size: 20px; margin-top: 0 none; }
     h2.seo {font-size: 43px; border: 0 none; font-weight: bold; }
@@ -977,6 +990,7 @@ right connector from last child*/
     div#asset_management_left_pane {width: 360px; padding-left: 10px; font-size: 15pt;}
     div#asset_management_left_pane p.subhead_p_block {font-size: 11pt; margin: 0 auto; }
     div#asset_management_left_pane input.big_number_square {width: 50px; height: 60px; }
+    div#asset_management_left_pane label.radio_principle_label {font-size: 18px}
 
             /* total css reset of the title elements for settlement/survivor sheet */
     div#asset_management_left_pane input#topline_name, div#asset_management_left_pane input#topline_name_fixed {
@@ -1009,8 +1023,17 @@ right connector from last child*/
     div#asset_management_right_pane ul {margin-left: 2px; font-size: 14px;}
 
     /* wide survivor sheet styles */
-    div.modal-content div.bulk_add_control button {width: 67px; }
+    div#asset_management_left_pane button#modalAffinityButton {height: 70px; width: 90%; margin: 0 auto; position: relative; font-size: 100px; padding-bottom: 10px; padding-left: 20px; text-align: center; }
+    div#asset_management_left_pane span#affinity_span {margin: 0; display:block; position: relative; float: left; margin-left: 40px; }
     div#affinity_block {width: 60px; height: 60px; }
+
+    div#epithet_angular {margin: 0 auto; padding-left: 0px; margin-top: 5%; }
+    div#epithet_angular select, div#epithet_angular button {width: auto; display: inline-block;  }
+    div#epithet_angular select {margin-top: 4%; margin-bottom: 3%; clear: left; width: 90%; }
+    ul#epithet_angular_ul {margin-top: 3%; }
+    ul#epithet_angular_ul li {margin: 1%; padding-left: 5px; padding-right: 5px; }
+
+    div.modal-content div.bulk_add_control button {width: 67px; }
     .shield, .big_number_square {font-size: 17pt; height: 55px; width: 45px; padding: 0; padding-left: 15px; border: 1px solid #666; margin: 5px; clear: both; }
     div#survivor_dead_retired_container {position: relative; width: 350px; height: 40px; padding: 0px; margin: 0 auto;}
     div#survivor_dead_retired_container label {font-size: 14pt; margin-bottom: 10px; }
@@ -1018,7 +1041,7 @@ right connector from last child*/
     div#survivor_survival_box_container button {height: 30px; width: 60px; margin: 3px; }
     div#survivor_survival_box_container input#survivalBox {min-width: auto; width: 60px; padding: 0px; margin: 0 auto; margin-left: 2px; text-align: right; }
     div#survivor_survival_box_container div.big_number_caption {font-size: 18pt;}
-    div#survivor_survival_actions_container {width: 100%; height: auto; margin: 0 auto; }
+    div#survivor_survival_actions_container {width: 100%; height: auto; margin: 0 auto; margin-bottom: 15px; }
 
     img.survivor_avatar_image {position: relative; float: right; clear: none; margin-right: 3px; }
 
@@ -1038,7 +1061,6 @@ right connector from last child*/
     font#hit_box_insanity {font-size: 10px;  }
     div#COD { position: relative; }
     div#COD input { width: 290px;}
-    button#modalAffinityButton {height: 90px; width: 90%; clear: both; display: inline-block; }
     div.expansion_attrib_toggle {width: 150px; margin: 3px; height: auto; }
     div.expansion_attrib_toggle label {font-size: 13pt; }
     input[type=checkbox].expansion_attrib_toggle {display: inline-block; transform: scale(1.0); margin: 0 auto; }
@@ -1064,6 +1086,7 @@ right connector from last child*/
     span.genealogy_survivor {font-size: 11pt; }
 
     /* wide side nav burger */
+    #floating_dashboard_button {left: 1%; width: 75px; height: 35px; }
     div#mySidenav {max-width: 40%;}
     .sidenav h3 {text-align: left; margin: 0 auto; padding: 0px; padding-left: 10%; padding-top: 2%; }
     .sidenav hr {border: 1px solid #fff;}

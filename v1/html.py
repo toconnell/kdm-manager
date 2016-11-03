@@ -1010,6 +1010,23 @@ class survivor:
     affinity_span = Template("""\n
     <span id="affinity_span" class="$span_class">$value</span>
     \n""")
+    epithet_angular_controls = Template("""\n
+    <div id="epithet_angular" ng-app="kdmManager" ng-controller="epithetController" ng-init="epithets=[$current_epithets]" title="Survivor epithets. Use controls below to add. Click or tap to remove!">
+
+        <ul id="epithet_angular_ul">
+            <li ng-repeat="x in epithets" ng-click="removeItem($index,'$survivor_id')">
+                {{x}}
+            </li>
+        </ul>
+
+    $epithet_options
+<!--    <button ng-click="addItem()">Add</button> -->
+
+    <!-- suppress error text if not debugging -->
+    <!-- <p>{{errortext}}</p> -->
+    </div>
+    \n""")
+
 
 
 class settlement:

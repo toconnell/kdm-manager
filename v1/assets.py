@@ -886,10 +886,25 @@ class Survivor:
 
 
     def get_epithets(self, return_type=False):
+        """ Returns survivor epithets in a number of different formats. """
+
         epithets = self.survivor["epithets"]
 
         if return_type == "comma-delimited":
             return ", ".join(epithets)
+
+        if return_type == "html_angular":
+            js_epithets = ["'%s'" % e for e in epithets]
+            return html.survivor.epithet_angular_controls.safe_substitute(
+                survivor_id = self.survivor["_id"],
+                current_epithets = ",".join(js_epithets),
+                epithet_options = Epithets.render_as_html_dropdown(
+                    survivor_id = self.survivor["_id"],
+#                    exclude=self.survivor["epithets"], # the .js app prevents dupes
+                    Settlement=self.Settlement,
+                    submit_on_change=False,
+                ),
+            )
 
         if return_type == "html_formatted":
             if epithets == []:
@@ -1269,9 +1284,12 @@ class Survivor:
 
         if action == "add":
             self.survivor["epithets"].append(epithet)
+            self.logger.debug("[%s] added epithet '%s' to %s." % (self.User, epithet, self))
         elif action == "rm":
             if epithet in self.survivor["epithets"]:
                 self.survivor["epithets"].remove(epithet)
+            else:
+                self.logger.warn("[%s] attempted to remove epithet '%s' from %s. Epithet does not exist!" % (self.User, epithet, self))
 
         # uniquify and sort on exit
         self.survivor["epithets"] = sorted(list(set(self.survivor["epithets"])))
@@ -1778,11 +1796,11 @@ class Survivor:
 
         self.Settlement.update_mins()
 
-
         for p in params:
 
             if type(params[p]) != list:
                 game_asset_key = params[p].value.strip()
+#                self.logger.debug("%s -> %s" % (p, game_asset_key))
 
             if p in ["asset_id", "heal_survivor", "form_id", "modify","view_game"]:
                 pass
@@ -1995,7 +2013,7 @@ class Survivor:
             mobile_avatar_img = self.get_avatar("html_mobile"),
             survivor_id = self.survivor["_id"],
             name = self.survivor["name"],
-            epithet_controls = self.get_epithets("survivor_sheet_controls"),
+            epithet_controls = self.get_epithets("html_angular"),
             affinity_controls = self.get_affinities("survivor_sheet_controls"),
             sex = self.get_sex(),
             survival = survivor_survival_points,
@@ -4368,7 +4386,6 @@ class Settlement:
         """
 
 #        exec "Asset = %s" % asset_class.capitalize()   # this isn't necessary yet
-
         self.settlement[asset_class].remove(game_asset_key)
         self.logger.debug("%s removed asset '%s' from settlement '%s' (%s) successfully!" % (self.User.user["login"], game_asset_key, self.settlement["name"], self.settlement["_id"]))
         mdb.settlements.save(self.settlement)
