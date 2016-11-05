@@ -1,12 +1,27 @@
 API routes:
 <ul>
- <li>settings: <a href="/settings.json">/settings.json</a></li>
+ <li>survivor:
+    <ul>
+    <li>GET:
+      <ul>
+        <li>/survivor/get/5817c7998740d92cf55a7f91</li>
+      </ul>
+    </li>
+    <li>POST:
+      <ul>
+        <li>/survivor/update/5817c7998740d92cf55a7f91</li>
+        <li>Accepts JSON: use the "meta" element to transmit your "api_key" and the "survivor" element to update survivor attribs.
+      </ul>
+    </li>
+    </ul>
+ </li>
  <li>monster:
     <ul>
         <li><a href="/monster?handle=white_lion">/monster?handle=white_lion<a/></li>
         <li><a href="/monster?name=dung+beetle+knight+LVL+2">/monster?name=dung+beetle+knight+LVL+2</a></li>
     </ul>
  </li>
+ <li>settings: <a href="/settings.json">/settings.json</a></li>
  <li>world: <a href="/world">/world</a></li>
 </ul>
 <!--

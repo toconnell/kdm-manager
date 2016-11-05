@@ -180,7 +180,7 @@ class UserAsset():
     def __init__(self, collection=None, _id=None):
 
         # initialize basic vars
-        self.logger = utils.get_logger()
+        self.logger = utils.get_logger(log_name="server")
 
         if collection is not None:
             self.collection = collection
@@ -211,6 +211,8 @@ class UserAsset():
 
         if self.collection == "settlements":
             self.settlement = mdb_doc
+        elif self.collection == "survivors":
+            self.survivor = mdb_doc
         else:
             raise AssetLoadError("Invalid MDB collection for this asset!")
 

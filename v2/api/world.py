@@ -62,7 +62,7 @@ class World:
         """ Updates all assets. Set 'force' to True to ignore 'max_age' and
         'asset_max_age'. A wrapper for self.refresh_asset(). """
 
-        self.logger.info("Refreshing all warehouse assets...")
+        self.logger.info("Refreshing stale warehouse assets...")
 
         self.total_refreshed_assets = 0
         for asset_key in self.assets.keys():
@@ -787,7 +787,7 @@ class WorldDaemon:
             self.logger.debug("Daemon is not running. Ignoring stop command...")
 
 
-    def get_uptime(self):
+    def get_uptime(self, return_type=None):
         """ Uses the pid file to determine how long the daemon has been active.
         Returns None if the daemon isn't active. Otherwise, this returns a raw
         timedelta. """
@@ -795,9 +795,14 @@ class WorldDaemon:
         if os.path.isfile(self.pid_file_path):
             pid_file_age = time.time() - os.stat(self.pid_file_path)[stat.ST_MTIME]
             seconds = timedelta(seconds=pid_file_age).seconds
-            return utils.seconds_to_hms(seconds)
+            uptime = utils.seconds_to_hms(seconds)
         else:
             return None
+
+        if return_type == "date":
+            return datetime.fromtimestamp(os.stat(self.pid_file_path)[stat.ST_MTIME])
+
+        return uptime
 
 
     def dump_status(self, output_type="CLI"):
@@ -807,9 +812,15 @@ class WorldDaemon:
         if self.pid is not None:
             active = True
 
+        owner_uid = os.stat(self.pid_file_path).st_uid
+        owner_name = getpwuid(owner_uid).pw_name
+
         d = {}
         d["active"] = active
+        d["up_since"] = self.get_uptime("date")
         d["uptime_hms"] = self.get_uptime()
+        d["owner_uid"] = owner_uid
+        d["owner_name"] = owner_name
         d["pid"] = self.pid
         d["pid_file"] = self.pid_file_path
         d["assets"] = utils.mdb.world.find().count()
@@ -819,7 +830,7 @@ class WorldDaemon:
         elif output_type == "CLI":
             spacer = 15
             print("\n\tWorld Daemon stats:\n")
-            for k, v in d.iteritems():
+            for k, v in sorted(d.iteritems()):
                 utils.cli_dump(k, spacer, v)
             print("\n")
 

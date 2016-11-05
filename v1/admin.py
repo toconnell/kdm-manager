@@ -445,7 +445,6 @@ class Panel:
         self.admin_login = admin_login
         self.Session = session.Session()
         self.logger = get_logger()
-#        self.warehouse = world.WarehouseObject()
         self.recent_users = self.get_recent_users()
 
     def get_recent_users(self):
@@ -466,13 +465,20 @@ class Panel:
         World = world.api_world()
         W = World["world"]
 
-        daemon_block = "<table>"
+        daemon_block = '<table id="admin_panel_world_daemon_table">'
         daemon_block += '<tr><th colspan="2">World Daemon</th></tr>'
         for k, v in World["world_daemon"].iteritems():
-            daemon_block += '<tr><td>%s</td><td>%s</td></tr>' % (k,v)
+            if type(v) == dict:
+                raw = v["$date"]
+                dt = datetime.fromtimestamp(raw/1000)
+                daemon_block += '<tr><td>%s</td><td>%s</td></tr>' %  (k,dt)
+            else:
+                daemon_block += '<tr><td>%s</td><td>%s</td></tr>' % (k,v)
         daemon_block += "</table>"
 
         output = html.panel.headline.safe_substitute(
+            api_url = settings.get("application","api_url"),
+            hostname = socket.getfqdn(),
             world_daemon = daemon_block,
             killboard = world.api_killboard_to_html(W["killboard"]),
             recent_users_count = self.recent_users.count(),

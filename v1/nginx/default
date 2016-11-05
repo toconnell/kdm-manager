@@ -3,6 +3,8 @@ server {
     listen [::]:80 default_server;
 	server_name _;
 
+    client_max_body_size 5M;    # big avatar uploads
+
     ### Logging
     access_log  /var/log/nginx/kdm-manager_com.access.log;
     error_log   /var/log/nginx/kdm-manager_com.error.log;

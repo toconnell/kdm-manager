@@ -352,7 +352,6 @@ class User:
         ...at some point, e.g. when I get around to it. """
 
 
-#        W = world.WarehouseObject()
         W = world.api_world()["world"]
 
         return html.dashboard.world.safe_substitute(
@@ -1829,6 +1828,7 @@ class Survivor:
                 self.toggle(toggle_attrib, params[p])
             elif p == "name":
                 if game_asset_key != self.survivor[p]:
+                    self.logger.debug("[%s] renamed %s to '%s'." % (self.User, self, game_asset_key) )
                     self.Settlement.log_event("%s was renamed to '%s'" % (self, game_asset_key))
                     self.survivor["name"] = game_asset_key
             elif p == "email":
@@ -3811,7 +3811,8 @@ class Settlement:
         """ The Settlement's generic method for getting players. Comes back as a
         set of email addresses (i.e. user["login"] values). """
 
-        player_set = set()
+        creator = mdb.users.find_one({"_id": self.settlement["created_by"]})
+        player_set = set([creator["login"]])
         survivors = mdb.survivors.find({"settlement": self.settlement["_id"]})
         for s in survivors:
             player_set.add(s["email"])
@@ -4543,7 +4544,6 @@ class Settlement:
         """ Prints the Campaign Summary view. Remember that this isn't really a
         form: the survivor asset tag buttons are a method of assets.Survivor."""
         return html.settlement.summary.safe_substitute(
-            export_xls = html.settlement.export_button.safe_substitute(export_type="XLS", export_pretty_name="Export to XLS", asset_id=self.settlement["_id"]),
             settlement_notes = self.get_settlement_notes(),
             settlement_name=self.settlement["name"],
             principles = self.get_principles("user_defined"),

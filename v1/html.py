@@ -22,6 +22,15 @@ user_error_msg = Template('<div id="user_error_msg" class="$err_class">$err_msg<
 class panel:
     headline = Template("""\n\
     <meta http-equiv="refresh" content="30">
+
+    <form method="POST" action="">
+        <input type="hidden" name="change_view" value="dashboard"/>
+        <button id="admin_panel_floating_dashboard">Dashboard</button>
+    </form>
+
+    <div id="admin_panel_hostname">host: <code><font class="maroon_text">$hostname</font></code></div>
+    <div id="admin_panel_api_url">api: <code><font class="maroon_text">$api_url</font></code></div>
+
     <table id="panel_meta_stats">
         <tr><th colspan="2">Global Stats</th></tr>
         <tr><td>Total Users:</td><td>$users</td></tr>
@@ -29,12 +38,15 @@ class panel:
         <tr><td>Sessions:</td><td>$sessions</td></tr>
         <tr class="grey"><td>Settlements:</td><td>$settlements</td></tr>
         <tr><td>Survivors:</td><td>$live_survivors/$dead_survivors ($total_survivors total)</td></tr>
-        <tr class="grey"><td>Valkyrie:</td><td>$complete_death_records complete death recs</td></tr>
+        <tr class="grey"><td colspan="2">Latest fatality:</td></tr>
         <tr><td colspan="2">$latest_fatality</td></tr>
-        <tr class="grey"><td>Current Hunt:</td><td>$current_hunt</td></tr>
-        <tr><td>Latest Kill:</td><td>$latest_kill</td></tr>
+        <tr class="grey"><td colspan="2">Current Hunt:</td></tr>
+        <tr><td colspan="2">$current_hunt</td></tr>
+        <tr class="grey"><td colspan="2">Latest kill:</td></tr>
+        <tr><td colspan="2">$latest_kill</td></tr>
     </table>
     <div id="admin_panel_right">
+        <h3 class="admin_panel_label">Killboard</h3>
         $killboard
         $world_daemon
     </div>
@@ -459,7 +471,7 @@ class survivor:
             <input type="hidden" name="modify" value="survivor" />
             <input type="hidden" name="asset_id" value="$survivor_id" />
 
-            <input onchange="this.form.submit()" id="topline_name_fixed" class="full_width" type="text" name="name" value="$name" placeholder="Survivor Name"/>
+            <input id="survivor_sheet_survivor_name" class="full_width" type="text" name="name" value="$name" placeholder="Survivor Name" onchange="updateSurvivorName('$survivor_id')"/>
             <br class="mobile_only"/><br class="mobile_only"/><br class="mobile_only"/>
 
             $epithet_controls
@@ -1345,10 +1357,6 @@ class settlement:
                 <p>$nemesis_monsters</p>
             </div>
         </div>
-        <div id="export_controls" class="desktop_only">
-            <hr class="mobile_only"/>
-            $export_xls
-        </div>
     \n""" % dashboard.campaign_flash)
     form = Template("""\n\
     <span class="tablet_and_desktop nav_bar gradient_orange"></span>
@@ -1865,11 +1873,11 @@ class meta:
     </div>
     \n""")
 
-    burger_dashboard_button = """\n
-    <form method="POST" action=""><input type="hidden" name="change_view" value="dashboard"/>
-    <button> Return to Dashboard </button>
+    burger_top_level_button = Template("""\n
+    <form method="POST" action=""><input type="hidden" name="change_view" value="$view"/>
+    <button class="sidenav_top_level"> $link_text </button>
     </form>
-    \n"""
+    \n""")
     burger_signout_button = Template("""\n
     <form id="logout" method="POST" action="">
     <input type="hidden" name="remove_session" value="$session_id"/>
@@ -1881,6 +1889,13 @@ class meta:
     <form method="POST" action="">
     <input type="hidden" name="$target_view" value="$settlement_id" />
     <button class="sidenav_button">$link_text</button>
+    </form>
+    \n""")
+    burger_export_button = Template("""\n
+    <form method="POST" action="">
+     <input type="hidden" name="export_campaign" value="XLS"/>
+     <input type="hidden" name="asset_id" value="$settlement_id"/>
+     <button class="sidenav_button"> $link_text </button>
     </form>
     \n""")
 
@@ -1994,6 +2009,13 @@ def render_burger(session_object=None):
         login=session_object.User.user["login"],
     )
 
+    new_settlement = meta.burger_top_level_button.safe_substitute(
+        link_text = "+ New Settlement",
+        view = "new_settlement",
+    )
+    if view == "new_settlement":
+        new_settlement = ""
+
     # this isn't working. gotta troubleshoot later.
     anchors = ""
 #    if view == "view_campaign":
@@ -2007,14 +2029,14 @@ def render_burger(session_object=None):
             target_view = "change_view",
             settlement_id = "new_survivor"
         )
-    if view in ["view_campaign","event_log","view_survivor","new_survivor"]:
+    if view in ["view_campaign","event_log","view_survivor","new_survivor","new_settlement"]:
         if session_object.User.user["login"] in session_object.Settlement.get_admins():
             actions += meta.burger_change_view_button.safe_substitute(
                 link_text = "Settlement Sheet",
                 target_view = "view_settlement",
                 settlement_id = session_object.session["current_settlement"],
             )
-    if view in ["view_settlement","event_log","view_survivor","new_survivor"]:
+    if view in ["view_settlement","event_log","view_survivor","new_survivor","new_settlement"]:
         actions += meta.burger_change_view_button.safe_substitute(
             link_text = "Campaign Summary",
             target_view = "view_campaign",
@@ -2025,6 +2047,10 @@ def render_burger(session_object=None):
         target_view = "change_view",
         settlement_id = "event_log"
     )
+    actions += meta.burger_export_button.safe_substitute(
+        link_text = "Export to XLS",
+        settlement_id = session_object.session["current_settlement"],
+    )
 
     # now add quick links to departing survivors for admins
     departing = ""
@@ -2033,10 +2059,13 @@ def render_burger(session_object=None):
         if hunting_party != []:
             departing = "<h3>Departing Survivors:</h3>"
             for h in hunting_party:
-                departing += meta.burger_change_view_button.safe_substitute(
-                    link_text = "%s (%s)" % (h["name"],h["sex"]),
-                    target_view = "view_survivor",
-                    settlement_id = h["_id"],
+                if h["_id"] == session_object.session["current_asset"]:
+                    pass
+                else:
+                    departing += meta.burger_change_view_button.safe_substitute(
+                        link_text = "%s (%s)" % (h["name"],h["sex"]),
+                        target_view = "view_survivor",
+                        settlement_id = h["_id"],
                 )
 
     burger_panel = Template("""\n
@@ -2044,14 +2073,13 @@ def render_burger(session_object=None):
 
         <div id="mySidenav" class="sidenav">
           $dash
+          $new_settlement_button
             <hr/>
             <h3>$settlement_name:</h3>
               $action_map
               $departing_links
 <!--            <H3>Navigation:</h3> -->
               $anchor_map
-            <hr/>
-              $new_settlement_button
             <hr/>
           $signout
         </div>
@@ -2066,16 +2094,15 @@ def render_burger(session_object=None):
     output = burger_panel.safe_substitute(
         settlement_name=session_object.Settlement.settlement["name"],
         current_view=view,
-        dash=meta.burger_dashboard_button,
+        dash=meta.burger_top_level_button.safe_substitute(
+            link_text = "Return to Dashboard",
+            view = "dashboard",
+        ),
+        new_settlement_button = new_settlement,
         signout=signout_button,
         anchor_map=anchors,
         action_map=actions,
         departing_links=departing,
-        new_settlement_button=meta.burger_change_view_button.safe_substitute(
-            link_text = "+ New Settlement",
-            target_view = "change_view",
-            settlement_id = "new_settlement"
-        ),
     )
 
     return output
@@ -2131,9 +2158,11 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
 
 
     output += """\n\
+
         <script>
         function toggleDamage(elem_id) {document.getElementById(elem_id).classList.toggle("damage_box_checked");}
         </script>
+
         <script>
         function increment(elem_id) {
             document.getElementById(elem_id).stepUp();

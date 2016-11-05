@@ -11,7 +11,7 @@ def set_env():
 
     import utils
 
-    return utils.get_logger(log_name="unit_tests")
+    return utils.get_logger()
 
 
 if __name__ == "__main__":

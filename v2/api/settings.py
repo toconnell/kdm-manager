@@ -22,6 +22,27 @@ class Settings:
         self.config.settings_type = settings_type
         self.config.file_path = os.path.abspath(filename)
 
+        self.load_api_keys()
+
+
+    def load_api_keys(self):
+        """ Looks for an API keys file and tries to read it. If it doesn't
+        find one, it sets self.secret_keys to be an empty dict. """
+
+        self.api_keys = {}
+
+        try:
+            fh = file(self.get("api","api_keys_file"), "rb")
+        except:
+            return False
+
+        lines = fh.readlines()
+        for line in lines:
+            line = line.strip()
+            key,ident = line.split("|~|")
+            self.api_keys[key] = ident
+
+
 
     def get(self, section, key):
         """ Gets a value. Tries to do some duck-typing. """
@@ -61,6 +82,16 @@ class Settings:
         s_file.seek(0)
         return s_file
 
+
+def check_key(k=None):
+    """ Laziness/convenience function to check a key without initializing a
+    settings object. """
+
+    S = Settings()
+    if k in S.api_keys.keys():
+        return S.api_keys[k]   # i.e. return the user name
+    else:
+        return False
 
 
 def get(section=None, query=None):

@@ -16,6 +16,8 @@ server {
     listen  80;
     server_name  kdm-manager.com;
 
+    client_max_body_size 5M;    # big-ass avatar image support
+
     ### Logging
     access_log  /var/log/nginx/kdm-manager_com.access.log;
     error_log   /var/log/nginx/kdm-manager_com.error.log;

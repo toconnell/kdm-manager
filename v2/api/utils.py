@@ -4,6 +4,7 @@
 # general imports
 from bson import json_util
 from datetime import datetime, timedelta
+from flask import Response
 import json
 import logging
 import os
@@ -22,6 +23,11 @@ hms = "%H:%M:%S"
 ymdhms = "%Y-%m-%d %H:%M:%S"
 thirty_days_ago = datetime.now() - timedelta(days=30)
 recent_session_cutoff = datetime.now() - timedelta(hours=12)
+
+# generic http responses
+http_404 = Response(response=None, status=404)
+http_500 = Response(response=None, status=500)
+
 
 
 # laziness and DRYness methods
@@ -57,6 +63,9 @@ def get_percentage(part, whole):
 def get_logger(log_level=None, log_name=None):
     """ Initialize a logger, specifying a new file if necessary. """
     logger = logging.getLogger(__name__)
+
+    if len(logger.handlers):    # if we're initializing a log, kill whatever other
+        logger.handlers = []    # handlers are open, so that the latest init wins
 
     if not len(logger.handlers):    # if it's not already open, open it
 
@@ -134,6 +143,26 @@ def asset_object_to_json(asset):
             delattr(asset, banned_attrib)
 
     return json.dumps(asset.__dict__, default=json_util.default)
+
+
+
+# the error.log decorator
+def error_log(func):
+    """ This is a decorator that should decorate all functions where we're
+    attempting to update or modify a user asset on behalf of an API user.
+    This will wrap any function in a try/except, log and return exceptions
+    or simply return True if everything works out OK. """
+
+    logger = get_logger(log_name="error")
+    def wrapper(*args, **kwargs):
+        try:
+            func(*args, **kwargs)
+            return True
+        except Exception as e:
+            logger.exception(e)
+            return e
+    return wrapper
+
 
 
 # private exception classes
