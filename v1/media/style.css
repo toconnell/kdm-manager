@@ -1080,7 +1080,7 @@ right connector from last child*/
     /* wide panel styles */
     button#admin_panel_floating_dashboard {position: absolute; right: 50px; top: 10px; width: 210px; height: 40px;}
     div#admin_panel_hostname, div#admin_panel_api_url {position: absolute; right: 50px; top: 60px; width: 210px; height: 40px; font-size: 9pt;}
-    div#admin_panel_api_url {top: 80px; }
+    div#admin_panel_api_url {top: 100px; }
     table#admin_panel_world_daemon_table {border-top: 2px solid #333; margin: 0 auto; }
     #panel_meta_stats, .panel_recent_user {font-size: 12pt; border-collapse: collapse; float: left; }
     #panel_meta_stats {width: 450px; margin-bottom: 20px; margin-left: 30px; }

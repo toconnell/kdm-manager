@@ -462,8 +462,11 @@ class Panel:
     def render_html(self):
         """ Renders the whole panel. """
 
-        World = world.api_world()
-        W = World["world"]
+        try:
+            World = world.api_world()
+            W = World["world"]
+        except Exception as e:
+            return "World could not be loaded! %s" % e
 
         daemon_block = '<table id="admin_panel_world_daemon_table">'
         daemon_block += '<tr><th colspan="2">World Daemon</th></tr>'

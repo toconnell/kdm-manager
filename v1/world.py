@@ -44,7 +44,8 @@ def api_world():
     if r.status_code == 200:
        return dict(r.json())
     else:
-        logger.warn("[%s] API call failed. Response status code: %s" % (self, r.status_code))
+        logger = get_logger()
+        logger.warn("API call failed. Response status code: %s" % (r.status_code))
         return None
 
 def api_top_principles(p):
