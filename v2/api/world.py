@@ -732,10 +732,17 @@ class WorldDaemon:
             self.stop()
         elif command == "restart":
             self.stop()
-            time.sleep(1)
+            time.sleep(3)
             self.start()
         elif command == "status":
-            self.dump_status()
+            pass
+        else:
+            self.logger.error("Unknown daemon command ('%s')!" % command)
+
+        # sleep a second and dump a status, regardless of command
+        time.sleep(1)
+        self.dump_status()
+
 
     def start(self):
         """ Starts the daemon. """
