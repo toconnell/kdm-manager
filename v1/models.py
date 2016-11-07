@@ -456,6 +456,16 @@ class defeatedMonstersModel(Model):
 
         return deck
 
+class causeOfDeathModel(Model):
+    def __init__(self):
+        Model.__init__(self)
+        self.game_assets = game_assets.cause_of_death
+        self.name = "cause_of_death"
+
+class resourcesModel(Model):
+    def __init__(self):
+        Model.__init__(self)
+        self.game_assets = game_assets.resources
 
 class resourcesModel(Model):
     def __init__(self):
@@ -505,6 +515,7 @@ WeaponProficiencies = weaponProficienciesModel()
 DefeatedMonsters = defeatedMonstersModel()      # this is like...a pseudo model
 NemesisMonsters = nemesisMonstersModel()        # another pseudo model
 SurvivalActions = survivalActionsModel()
+CauseOfDeath    = causeOfDeathModel()
 
 #
 #   mutually exclusive principles

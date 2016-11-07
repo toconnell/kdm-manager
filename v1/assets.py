@@ -24,7 +24,7 @@ import export_to_file
 import assets
 import game_assets
 import html
-from models import Abilities, NemesisMonsters, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles, SurvivalActions
+from models import Abilities, NemesisMonsters, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles, SurvivalActions, CauseOfDeath
 from session import Session
 from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd
 import world
@@ -1908,7 +1908,8 @@ class Survivor:
         mdb.survivors.save(self.survivor)
 
 
-    def death(self, undo_death=False):
+
+    def death(self, undo_death=False, cause_of_death=None):
         """ Call this method when a survivor dies. Call it with the 'undo_death'
         kwarg to undo the death.
 
@@ -1924,11 +1925,15 @@ class Survivor:
         population = int(self.Settlement.settlement["population"])
         death_count = int(self.Settlement.settlement["death_count"])
 
+        if cause_of_death is not None:
+            self.survivor["cause_of_death"] = cause_of_death
+
         if undo_death:
             self.logger.debug("Survivor '%s' is coming back from the dead..." % self.survivor["name"])
-            for death_key in ["died_on","died_in","cause_of_death"]:
+            for death_key in ["died_on","died_in","cause_of_death","dead"]:
                 try:
                     del self.survivor[death_key]
+                    self.logger.debug("[%s] removed '%s' attrib from survivor %s" % (self.User, death_key, self))
                 except Exception as e:
                     self.logger.debug("Could not unset '%s'" % death_key)
                     pass
@@ -1937,6 +1942,7 @@ class Survivor:
             self.logger.debug("Survivor '%s' removed from the_dead." % self.survivor["name"])
         else:
             self.logger.debug("Survivor '%s' (%s) has died!" % (self.survivor["name"], self.survivor["_id"]))
+            self.survivor["dead"] = True
             death_dict = {
                 "name": self.survivor["name"],
                 "epithets": self.survivor["epithets"],
@@ -1978,8 +1984,12 @@ class Survivor:
         # population decrement above won't work.
         mdb.survivors.save(self.survivor)
         self.Settlement.update_mins()
+        self.logger.debug(self.survivor.keys())
 
-        if "dead" in self.survivor.keys():
+        if undo_death and "dead" in self.survivor.keys():
+            self.logger.error("[%s] undo survivor death failed for %s!" % (self.User, self))
+            return False
+        elif not undo_death and "dead" in self.survivor.keys():
             return True
         else:
             return False
@@ -2045,7 +2055,7 @@ class Survivor:
 
             if type(params[p]) != list:
                 game_asset_key = params[p].value.strip()
-#                self.logger.debug("%s -> '%s' (type=%s)" % (p, game_asset_key, type(params[p])))
+                self.logger.debug("%s -> '%s' (type=%s)" % (p, game_asset_key, type(params[p])))
 
             if p in ["asset_id", "heal_survivor", "form_id", "modify","view_game"]:
                 pass
@@ -2069,11 +2079,15 @@ class Survivor:
                 self.add_game_asset("fighting_art", game_asset_key)
             elif p == "remove_fighting_art":
                 self.survivor["fighting_arts"].remove(params[p].value)
-            elif p.split("_")[0] == "toggle":
-                if "cause_of_death" in params:
-                    self.update_cod(params["cause_of_death"].value.strip())
-                toggle_attrib = "_".join(p.split("_")[1:])
-                self.toggle(toggle_attrib, params[p])
+            elif p == "resurrect_survivor":
+                self.death(undo_death=True)
+            elif p == "add_cause_of_death":
+                self.death(cause_of_death=game_asset_key)
+            elif p == "custom_cause_of_death":
+                self.death(cause_of_death=game_asset_key)
+            elif p == "unspecified_death":
+                if "add_cause_of_death" not in params and "custom_cause_of_death" not in params:
+                    self.death()
             elif p == "name":
                 if game_asset_key != self.survivor[p]:
                     self.logger.debug("[%s] renamed %s to '%s'." % (self.User, self, game_asset_key) )
@@ -2081,8 +2095,6 @@ class Survivor:
                     self.survivor["name"] = game_asset_key
             elif p == "email":
                 self.update_email(game_asset_key)
-            elif p == "cause_of_death":
-                self.update_cod(game_asset_key)
             elif game_asset_key == "None":
                 del self.survivor[p]
                 if p == "in_hunting_party":
@@ -2226,14 +2238,6 @@ class Survivor:
             if flag in self.survivor.keys():
                 flags[flag] = self.survivor[flag]
 
-
-        COD_div_display_style = "none"
-        if "dead" in self.survivor.keys():
-            COD_div_display_style = "block"
-        COD = ""
-        if "cause_of_death" in self.survivor.keys():
-            COD = self.survivor["cause_of_death"]
-
         exp = []
         if "expansions" in self.Settlement.settlement.keys():
             exp = self.Settlement.settlement["expansions"]
@@ -2259,7 +2263,18 @@ class Survivor:
         if self.Settlement.get_campaign() == "People of the Stars":
             show_constellation_button = ""
 
+        death_button_class = "unpressed_button"
+        if "dead" in self.survivor.keys():
+            death_button_class = "error"
+
+        COD = ""
+        custom_COD = ""
+        if "cause_of_death" in self.survivor.keys():
+            COD = self.survivor["cause_of_death"]
+            custom_COD = self.survivor["cause_of_death"]
+
         output = html.survivor.form.safe_substitute(
+            death_button_class = death_button_class,
             MEDIA_URL = settings.get("application", "STATIC_URL"),
             desktop_avatar_img = self.get_avatar("html_desktop"),
             mobile_avatar_img = self.get_avatar("html_mobile"),
@@ -2337,8 +2352,6 @@ class Survivor:
             children = self.get_children(return_type="html"),
             siblings = self.get_siblings(return_type="html"),
             partners = self.get_intimacy_partners("html"),
-            cause_of_death = COD,
-            show_COD = COD_div_display_style,
 
             email = self.survivor["email"],
 
@@ -2349,6 +2362,9 @@ class Survivor:
 
             hunt_xp_3_event = self.Settlement.get_story_event("Bold"),
             courage_3_event = self.Settlement.get_story_event("Insight"),
+
+            cod_options = CauseOfDeath.render_as_html_toggle_dropdown(selected=COD, expansions=exp),
+            custom_cause_of_death = custom_COD,
         )
         return output
 

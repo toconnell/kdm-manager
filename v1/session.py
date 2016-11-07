@@ -217,6 +217,20 @@ class Session:
             else:
                 user_action = "failed to update password"
 
+        # do error reporting
+        if "error_report" in self.params and "body" in self.params:
+            self.logger.debug("[%s] is entering an error report!" % self.User)
+            admins = settings.get("application","admin_email").split(",")
+
+            M = mailSession()
+            email_msg = html.meta.error_report_email.safe_substitute(
+                user_email=self.User.user["login"],
+                user_id=self.User.user["_id"],
+                body=self.params["body"].value.replace("\n","<br/>")
+            )
+            M.send(recipients=admins, html_msg=email_msg, subject="KDM-Manager Error Report from %s" % self.User.user["login"])
+            self.logger.warn("[%s] Error report email sent!" % self.User)
+
         # change to a generic view without an asset
         if "change_view" in self.params:
             target_view = self.params["change_view"].value
@@ -433,7 +447,7 @@ class Session:
                 output += html.dashboard.refresh_button
                 survivor = mdb.survivors.find_one({"_id": self.session["current_asset"]})
                 S = assets.Survivor(survivor_id = survivor["_id"], session_object=self)
-                if self.Settlement.settlement is None:
+                if self.Settlement is not None and self.Settlement.settlement is None:
                     self.set_current_settlement(S.survivor["settlement"])
                 output += S.render_html_form()
             elif self.session["current_view"] == "panel":

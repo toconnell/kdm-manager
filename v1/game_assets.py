@@ -3500,10 +3500,30 @@ cursed_items = {
 }
 
 cause_of_death = {
+    # expansion-specific
     "Died by the Throne": {"type": "endeavor", "expansion": "Dragon King"},
     "Buried Alive": {"type": "endeavor", "expansion": "Sunstalker"},
+
+    # monster-specific
+#    "Coup de grace" {"type": "monster"},
+    "Decapitated": {"type": "monster"},
+
+    # severe-injury
     "Bone fragment to the heart": {"type": "severe_injury"},
+    "Bled out": {"type": "severe_injury"},
+    "Arms ripped off": {"type": "severe_injury"},
+    "Head Explosion": {"type": "severe_injury"},
+
+    # brain trauma
     "Mortal Terror": {"type": "brain_trauma"},
+
+    # settlement events
+    "Armored Strangers": {"type": "settlement_event"},
+    "Murdered": {"type": "settlement_event"},
+    "Hooded Knight": {"type": "settlement_event"},
+    "Butchered": {"type": "settlement_event"},
+    "Plague": {"type": "settlement_event"},
+    "Intimacy": {"type": "settlement_event"},
 }
 
 epithets = {

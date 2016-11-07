@@ -477,7 +477,7 @@ class survivor:
             <input type="hidden" name="modify" value="survivor" />
             <input type="hidden" name="asset_id" value="$survivor_id" />
 
-            <input id="survivor_sheet_survivor_name" class="full_width" type="text" name="name" value="$name" placeholder="Survivor Name" onchange="updateSurvivorName('$survivor_id')" onClick="this.select()"/>
+            <input id="survivor_sheet_survivor_name" type="text" name="name" value="$name" placeholder="Survivor Name" onchange="updateSurvivorName('$survivor_id')" onClick="this.select()"/>
             <br class="mobile_only"/><br class="mobile_only"/><br class="mobile_only"/>
 
             $epithet_controls
@@ -499,9 +499,7 @@ class survivor:
                  <label class="radio_principle_label toggle_favorite" for="favorite"> &#9733; Favorite </label>
 
                     <!-- dead -->
-                 <input type='hidden' value='unchecked' name='toggle_dead'/>
-                 <input type="checkbox" id="dead" class="radio_principle" name="toggle_dead" value="checked" onclick="showHide('COD')" $dead_checked /> 
-                 <label class="radio_principle_label floating_label" for="dead"> Dead </label>
+                    <button id="modalDeathButton" class="$death_button_class" title="Mark this survivor as dead">Dead</button>
 
                     <!-- retired -->
                  <input type='hidden' value='unchecked' name='toggle_retired'/>
@@ -510,10 +508,6 @@ class survivor:
                 </p>
 
 
-                <div id="COD" style="display: $show_COD" >
-                    <hr class="mobile_only"/> <img class="COD_down_arrow mobile_only" src="http://media.kdm-manager.com/icons/down_arrow.png"/>
-                    <input onchange="this.form.submit()" class="full_width maroon" type="text" name="cause_of_death" placeholder="Cause of Death" value="$cause_of_death"/>
-                </div>
             </div> <!-- survivor_dead_retired_container -->
 
             <hr />
@@ -540,9 +534,14 @@ class survivor:
 
             $desktop_avatar_img
 
-            <button class="orange bold $constellation_button_class" id="constellationModalOpener">Constellation</button>
+
+                <button class="orange bold $constellation_button_class" id="constellationModalOpener">
+                        Constellation
+                </button>
 
             </div>
+
+
 
             <hr class="mobile_only"/>
             <div class="mobile_only">
@@ -932,30 +931,53 @@ class survivor:
 
     <!-- ONLY MODAL CONTENT PAST THIS POINT!!!! -->
 
-        <script>
-        window.onload = function(){
-            var modal = document.getElementById('modalConstellation');
-            var btn = document.getElementById("constellationModalOpener");
-            var span = document.getElementsByClassName("close")[0];
-            btn.onclick = function(b) {b.preventDefault(); modal.style.display = "block";}
-            span.onclick = function() {modal.style.display = "none";}
-            window.onclick = function(event) {if (event.target == modal) {modal.style.display = "none";}}
-        };
-        </script>
-
-        <div id="modalConstellation" class="modal">
+        <div
+            id="modalDeath" class="modal"
+            ng-init="registerModalDiv('modalDeathButton','modalDeath')"
+        >
             <div class="modal-content">
-                <span class="close">×</span>
+                <span class="closeModal" onclick="closeModal('modalDeath')">×</span>
+                <h3>Controls of Death!</h3>
+                <form method="POST" action="">
+                <input type="hidden" name="modify" value="survivor"/>
+                <input type="hidden" name="asset_id" value="$survivor_id"/>
+                <input type="hidden" name="unspecified_death" value="True"/>
+                <p><b>Choose cause of death:</b></p>
+                <p>$cod_options</p>
+                <hr/>
+                <p>Or enter a custom cause of death:</p>
+                <p><input type="text" class="full_width" placeholder="Cause of death" name="custom_cause_of_death" value="$custom_cause_of_death"/></p>
+                <button class="error">Die</button>
+                </form>
+                <hr/>
+                <form method="POST" action="">
+                <input type="hidden" name="modify" value="survivor"/>
+                <input type="hidden" name="asset_id" value="$survivor_id"/>
+                <input type="hidden" name="resurrect_survivor" value="True"/>
+                <button class="success">Resurrect $name</button>
+                </form>
+                
+
+            </div> <!-- modal-content -->
+        </div> <!-- modalConstellation -->
+
+        <div
+            id="modalConstellation" class="modal"
+            ng-init="registerModalDiv('constellationModalOpener','modalConstellation')"
+        >
+            <div class="modal-content">
+                <span class="closeModal" onclick="closeModal('modalConstellation')">×</span>
                 <h3>The Constellations</h3>
                 $constellation_table
             </div> <!-- modal-content -->
         </div> <!-- modalConstellation -->
 
-        <div id="modalAffinity" class="modal">
-
-          <!-- Modal content -->
+        <div
+            id="modalAffinity" class="modal"
+            ng-init="registerModalDiv('modalAffinityButton','modalAffinity')"
+        >
             <div class="modal-content">
-                <span class="close">×</span>
+                <span class="closeModal" onclick="closeModal('modalAffinity')">×</span>
 
                 <h3>Update Permanent Survivor Affinities</h3>
 
@@ -1033,17 +1055,6 @@ class survivor:
     <p>
     <button id="modalAffinityButton" class="$button_class" title="Permanent Affinity controls"> $text </button>
     </p>
-
-    <script>
-    window.onload = function(){
-        var modal = document.getElementById('modalAffinity');
-        var btn = document.getElementById("modalAffinityButton");
-        var span = document.getElementsByClassName("close")[0];
-        btn.onclick = function(b) {b.preventDefault(); modal.style.display = "block";}
-        span.onclick = function() {modal.style.display = "none";}
-        window.onclick = function(event) {if (event.target == modal) {modal.style.display = "none";}}
-    };
-    </script>
     \n""")
     affinity_span = Template("""\n
     <span id="affinity_span" class="$span_class">$value</span>
@@ -1251,20 +1262,12 @@ class settlement:
     <button class="orange bold" id="departingSurvivorsModal">Manage Departing Survivors</button>
     <hr class="mobile_only">
 
-    <script>
-    window.onload = function(){
-        var modal = document.getElementById('departingSurvivorsModalContent');
-        var btn = document.getElementById("departingSurvivorsModal");
-        var span = document.getElementsByClassName("close")[0];
-        btn.onclick = function(b) {b.preventDefault(); modal.style.display = "block";}
-        span.onclick = function() {modal.style.display = "none";}
-        window.onclick = function(event) {if (event.target == modal) {modal.style.display = "none";}}
-    };
-    </script>
-
-    <div id="departingSurvivorsModalContent" class="modal">
+    <div
+        id="departingSurvivorsModalContent" class="modal"
+        ng-init="registerModalDiv('departingSurvivorsModal','departingSurvivorsModalContent')"
+    >
      <div class="modal-content">
-     <span class="close">x</span>
+     <span class="closeModal" onclick="closeModal('departingSurvivorsModalContent')">x</span>
 
       <div class="hunting_party_macro" style="border-left: 0 none;">
         <form action="#" method="POST">
@@ -1550,46 +1553,6 @@ class settlement:
                 $storage
         </form>
 
-        <script>
-        window.onload = function(){
-            var modal = document.getElementById('modalStorage');
-            var btn = document.getElementById("modalStorageButton");
-            var span = document.getElementsByClassName("close")[0];
-            btn.onclick = function(b) {b.preventDefault(); modal.style.display = "block";}
-            span.onclick = function() {modal.style.display = "none";}
-            window.onclick = function(event) {if (event.target == modal) {modal.style.display = "none";}}
-        };
-        </script>
-
-
-
-        <div id="modalStorage" class="modal">
-
-          <!-- Modal content -->
-            <div class="modal-content">
-                <span class="close">×</span>
-
-                    <!-- ADD TO STORAGE - THIS IS ITS OWN FORM-->
-                <form id="autoForm" method="POST" action="#edit_storage">
-                    <input type="hidden" name="modify" value="settlement" />
-                    <input type="hidden" name="asset_id" value="$settlement_id" />
-
-                     <div class="big_number_container">
-                         <button type="button" class="incrementer" onclick="increment('addStorageBox');">+</button>
-                         <input id="addStorageBox" class="big_number_square" type="number" name="add_item_quantity" value="1" min="1"/>
-                         <button type="button" class="decrementer" onclick="decrement('addStorageBox');">-</button>
-                     </div> <!-- big_number_container -->
-                     <div class="big_number_caption">Quantity</div>
-                    <hr>
-
-                    $add_to_storage_controls
-
-                    <input type="text" class="full_width" name="add_item" placeholder="Add custom item to storage"/>
-                    <center><button class="yellow">Submit</button></center>
-                    <br><br><br>
-                </form>
-            </div> <!-- modal-content -->
-        </div> <!-- modalStorage -->
      </div></div> <!-- asset_management_left_pane -->
     <div id="asset_management_middle_pane">
 
@@ -1790,7 +1753,43 @@ class settlement:
 
     $remove_settlement_button
 
-    </div>
+    </div> <!-- right pane -->
+
+
+    <!-- MODAL CONTENT ONLY BELOW THIS POINT -->
+
+    <div
+        id="modalStorage" class="modal"
+        ng-init="registerModalDiv('modalStorageButton','modalStorage')"
+    >
+
+      <!-- Modal content -->
+        <div class="modal-content">
+            <span class="closeModal" onclick="closeModal('modalStorage')">×</span>
+
+                <!-- ADD TO STORAGE - THIS IS ITS OWN FORM-->
+            <form id="autoForm" method="POST" action="#edit_storage">
+                <input type="hidden" name="modify" value="settlement" />
+                <input type="hidden" name="asset_id" value="$settlement_id" />
+
+                 <div class="big_number_container">
+                     <button type="button" class="incrementer" onclick="increment('addStorageBox');">+</button>
+                     <input id="addStorageBox" class="big_number_square" type="number" name="add_item_quantity" value="1" min="1"/>
+                     <button type="button" class="decrementer" onclick="decrement('addStorageBox');">-</button>
+                 </div> <!-- big_number_container -->
+                 <div class="big_number_caption">Quantity</div>
+                <hr>
+
+                $add_to_storage_controls
+
+                <input type="text" class="full_width" name="add_item" placeholder="Add custom item to storage"/>
+                <center><button class="yellow">Submit</button></center>
+                <br><br><br>
+            </form>
+        </div> <!-- modal-content -->
+    </div> <!-- modalStorage -->
+
+
     \n""")
     remove_settlement_button = Template("""\
     <hr/>
@@ -1995,7 +1994,38 @@ class meta:
     <a href="#principles" onclick="closeNav()">Principles</a>
     <a href="#innovations" onclick="closeNav()">Innovations</a>
     \n"""
+    report_error_button = """<button id="reportErrorButton" onclick="closeNav()">Report an Issue or Error</button>"""
+    report_error_div = """\n
+    <div
+        id="modalReportError" class="modal"
+        ng-init="registerModalDiv('reportErrorButton','modalReportError')"
+    >
+        <div class="modal-content">
+            <span class="closeModal" onclick="closeModal('modalReportError')">×</span>
+            <div id="report_error_container">
+                <h3>Report an Issue or Error</h3>
+                <p>http://kdm-manager.com is a work in progress and is under active development!</p>
+                <p>If you identify an issue, error or problem with the application, whether a simple typo, a presentation problem or otherwise, there are a number of ways to report it.</p>
+                <p>To rapidly submit an issue via email, use the form below:
+                <div id="error_form">
+                    <form method="POST" action="/">
+                     <input type="hidden" name="error_report" value="from_web">
+                     <textarea id="report_error" name="body" placeholder="Describe your issue here"></textarea>
+                     <input type="submit" class="error" value ="submit"/>
+                    </form>
+                </div>
+                </p>
+                <p><b>General Comments/Questions:</b> use <a href="http://kdm-manager.blogspot.com//" target="top">the Development blog at blog.kdm-manager.com</a> to review change logs, make comments and ask questions about the manager.</p>
+                <p><b>Source code and development questions:</b> if you're interested, you can clone/download and review the <a href="https://github.com/toconnell/kdm-manager" target="top">source code for the manager</a> from GitHub. <a href="https://github.com/toconnell/kdm-manager/wiki" target="top">The development wiki</a> also has some good stuff.<p>
+                <p><b>Issues and Errors:</b> feel free to mention any issues/errors on the blog comments or, if you use GitHub, you may also submit issues to <a href="https://github.com/toconnell/kdm-manager/issues" target="top">the project's issues tracker</a>.</p>
+            </div>
+        </div><!-- modal-content -->
+    </div> <!-- modalReportError -->
 
+    \n"""
+    error_report_email = Template("""\n\
+    Greetings!<br/><br/>&ensp;User $user_email [$user_id] has submitted an error report!<br/><br/>The report goes as follows:<hr/>$body<hr/>&ensp;...and that's it. Good luck!<br/><br/>Your friend,<br/>&ensp; meta.error_report_email
+    \n""")
 
 
 #
@@ -2171,6 +2201,7 @@ def render_burger(session_object=None):
 <!--            <H3>Navigation:</h3> -->
               $anchor_map
             <hr/>
+          $report_error
           $signout
         </div>
 
@@ -2189,13 +2220,18 @@ def render_burger(session_object=None):
             view = "dashboard",
         ),
         new_settlement_button = new_settlement,
+        report_error=meta.report_error_button,
         signout=signout_button,
         anchor_map=anchors,
         action_map=actions,
         departing_links=departing,
     )
 
+    output += meta.report_error_div
+
     return output
+
+
 
 def render(view_html, head=[], http_headers=None, body_class=None, session_object=None):
     """ This is our basic render: feed it HTML to change what gets rendered. """
@@ -2248,7 +2284,6 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
 
 
     output += """\n\
-
         <script>
         function toggleDamage(elem_id) {document.getElementById(elem_id).classList.toggle("damage_box_checked");}
         </script>
@@ -2270,20 +2305,6 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
         </script>
     \n"""
 
-    # burger/sidenav
-    output += """\n\
-    <script>
-
-        function openNav() {
-            document.getElementById("mySidenav").style.width = '65%';
-        }
-
-        function closeNav() {
-            document.getElementById("mySidenav").style.width = "0";
-        }
-
-    </script>
-    \n"""
 
     output += """\n\
         <script>
@@ -2299,17 +2320,24 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
     for element in head:
         output += element
 
+
+    #
+    # now close the head elements and start writing the body, preparing to print
+    #   it to stdout (i.e. render it as a response
+    #
+
     output += '</head>\n<body class="%s">\n' % body_class
 
-    output += render_burger(session_object)
+    output += render_burger(session_object) # burger goes before container
 
-    output += '<div id="container" onclick="closeNav()">\n'
-
+    output += '<div id="container" onclick="closeNav()" ng-controller="containerController" ng-init="init()">\n'
 
     output += view_html
+
     output += meta.close_body
 
     print(output.encode('utf8'))
+
     sys.exit(0)     # this seems redundant, but it's necessary in case we want
                     #   to call a render() in the middle of a load, e.g. to just
                     #   finish whatever we're doing and show a page.

@@ -4,7 +4,18 @@ var app = angular.module('kdmManager', ['ngRoute',]);
 
 
 
-app.controller('globalController', function($scope, $http) {});
+app.controller('globalController', function($scope, $http) {
+    $scope.registerModalDiv = function (modal_button_id, modal_div_id) {
+        var btn = document.getElementById(modal_button_id);
+        var modal = document.getElementById(modal_div_id);
+
+        btn.onclick = function(b) {b.preventDefault(); modal.style.display = "block";}
+        window.onclick = function(event) {if (event.target == modal) {modal.style.display = "none";}}
+    };
+});
+
+app.controller("containerController", function($scope) {
+});
 
 app.controller("epithetController", function($scope) {
     $scope.epithets = [];
@@ -57,3 +68,18 @@ function updateSurvivorName(asset_id) {
     $('#saved_dialog').fadeOut(1500)
 
 };
+
+// burger sidenav
+function openNav() {
+    document.getElementById("mySidenav").style.width = '65%';
+}
+function closeNav() {
+    document.getElementById("mySidenav").style.width = "0";
+}
+
+
+// close modal windows from a span
+function closeModal(modal_div_id) {
+    var modal = document.getElementById(modal_div_id);
+    modal.style.display = "none";
+}

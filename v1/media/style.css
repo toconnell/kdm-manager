@@ -57,6 +57,7 @@
 .gradient_blue { background: linear-gradient(-90deg, #D9E3FF, #F3F6FF);  }
 .grey {background-color: #CCC;}
 
+.unpressed_button {background-color: #fefedd; color: #aaa; }
 .tan    { border-color: #A97D5D; background-color: #F7DCB4; }
 .info  { color: #00529B; background-color: #BDE5F8; }
 .error, .warn, .success {border-right: 1px solid #666; border-bottom: 1px solid #666; font-weight: bold;}
@@ -99,6 +100,8 @@ div#epithet_angular select {margin-top: 4%; margin-bottom: 3%; }
 ul#epithet_angular_ul {margin: 0px; padding: 0px; margin-top: 5%}
 ul#epithet_angular_ul li {clear: none; float: left; display: inline-block; margin: 1%; cursor: pointer; background-color: #ffffef; border: 1px solid #ccc; padding-left: 5px; padding-right: 5px; }
 label#survivor_sheet_avatar {display: block; position: relative; float: right; }
+
+button#modalDeathButton {width: auto; border: 0px; padding: 2%; float: right; margin: 3%;  margin-top: 0px; font-size: 45pt; font-weight: bold; }
 
 /* general mobile styles - CSS reset */
 .desktop_only {display: none; }
@@ -169,6 +172,14 @@ span.genealogy_survivor {padding: 5px; }
 div#floating_event_log_anchor {padding: 5px; position: fixed; right: 250px; bottom: 15px; width: 100px; height: 100px; border: 1px solid #333; border-radius: 3px; }
 div#floating_genealogy_anchor {padding: 5px; position: fixed; right: 75px; bottom: 15px; width: 100px; height: 100px; border: 1px solid #333; border-radius: 3px; }
 div#floating_event_log_anchor img, div#floating_genealogy_anchor img {margin: 0 auto; margin: 25px; }
+
+/* error reporting styles */
+div#report_error_container {width: 90%; margin: 0 auto;  }
+div#report_error_container p {font-size: 18pt; }
+div#error_form {width: 95%; margin: 0 auto; text-align: center; padding: 0px; padding-bottom: 50px; padding-top: 10px; }
+textarea#report_error {width: 90%; margin: 0 auto; height: 200px;  font-size: 23pt; }
+div#error_form input[type=submit] {width: auto; padding-left: 2%; padding-right: 2%; float: right; height: auto; margin-right: 20%; font-size: 25pt; }
+
 
 
 /*  sign-in styles */
@@ -294,7 +305,7 @@ table#survivor_constellation_table th {font-weight: bold; vertical-align: middle
 table#survivor_constellation_table td {padding: 5px; background-color: #FDFFFF; text-align: center; vertical-align: center; }
 table#survivor_constellation_table td.active {background-color: #FFF9C4; font-weight: bold;}
 
-input#survivor_sheet_survivor_name {border: 0 none; font-size: 100px; height: auto; width: 90%; font-family: 'Quattrocento'; font-weight: bold; position: fixed; z-index: 1; opacity: 0.9; margin-top: 40px; text-align: center; }
+input#survivor_sheet_survivor_name {border: 0 none; font-size: 100px; height: auto; width: 97%; font-family: 'Quattrocento'; font-weight: bold; position: fixed; z-index: 1; opacity: 0.9; text-align: center; margin: 0 auto; margin-top: 40px; }
 
 div.returning_survivor_badge {font-size: 1em; position: absolute; background-color: #cc0000; margin: -3px; margin-top: -20px; border-bottom-right-radius: 25px; width: 5%; height: 4%; color: #fff; padding: 0px; padding-left: 2px; }
 div.survivor_constellation_badge {font-size: 23pt; position: absolute; right: 8%; background-color: #4A148C; margin: 0px; margin-left: 30px; margin-top: -20px; border-bottom-right-radius: 25px; border-bottom-left-radius: 25px; width: auto; height: auto; color: #fff; padding: 0px; padding-left: 2%; padding-right: 2%; padding-bottom: 3px; z-index: 100; }
@@ -450,7 +461,6 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
 
 
 
-
 /* image styles */
 
 /* epithet style silliness */
@@ -568,7 +578,7 @@ right connector from last child*/
 .modal {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
-    z-index: 99; /* Sit on top */
+    z-index: 1001; /* Sit on top, even higher than the navbar! */
     padding-top: 170px; /* Location of the box */
     left: 0;
     top: 0;
@@ -592,15 +602,15 @@ right connector from last child*/
 }
 
 /* The Close Button */
-.close {
+.closeModal {
     color: #aaaaaa;
     float: right;
-    font-size: 55px;
+    font-size: 60px;
     font-weight: bold;
 }
 
-.close:hover,
-.close:focus {
+.closeModal:hover,
+.closeModal:focus {
     color: #000;
     text-decoration: none;
     cursor: pointer;
@@ -696,7 +706,7 @@ right connector from last child*/
     input#topline_name, input#topline_name_fixed {font-size: 40pt; margin: 0 auto; margin-left: -20px; margin-bottom: 20px; font-weight: bold; z-index:5;}
     input#topline_name_fixed {position: fixed; top: 100px; left: 4%; text-align: left; padding-left: 30px; } 
 
-    input#survivor_sheet_survivor_name {font-size: 40pt; top: 60px; left: 4%; text-align: left; padding-left: 30px;}
+    input#survivor_sheet_survivor_name {font-size: 40pt; top: 60px; right: auto; left: 1%; text-align: left; padding-left: 30px; min-width: 0; }
 
     div#asset_management_left_pane input#topline_name {width: 650px; margin-left: 5px; }
     div#asset_management_left_pane input#topline_name_fixed {width: 590px; }
@@ -714,6 +724,8 @@ right connector from last child*/
 
 
     /* Survivor Sheet styles - tablet */
+    button#modalDeathButton {font-size: 24px; }
+
     button#constellationModalOpener {width: auto; padding-right: 20px; padding-left:20px; margin-top: -250%; float: left; }
     div#asset_management_left_pane input.survivor_sex_text {width: 30px; }
     ul#epithet_angular_ul {margin-top: -30px;  }
@@ -813,6 +825,10 @@ right connector from last child*/
         /* tablet width: burger queen */
     div#mySidenav {max-width: 50%;}
 
+        /* tablet width: report error */
+    div#error_form {width: 95%; margin: 0 auto; text-align: center; padding: 0px; padding-bottom: 50px; padding-top: 10px;  }
+    textarea#report_error {width: 90%; margin: 0 auto; height: 150px;  font-size: 18pt; }
+    div#error_form input[type=submit] {width: auto; padding-left: 2%; padding-right: 2%; float: right; height: auto; margin-right: 20%;}
 }
 
 
@@ -1146,6 +1162,10 @@ right connector from last child*/
     .sidenav button {text-align: left; padding: 0; padding-left: 10%; margin-bottom: 20px; }
     .sidenav button.sidenav_button {text-align: left; padding: 0px; padding-left: 15%; }
 
+    /* error reporting styles */
+    div#report_error_container p {width: 50%; margin: 0 auto; font-size: 12pt; }
+    div#error_form {width: 45%; margin: 0 auto; text-align: center; padding: 0px; padding-bottom: 50px; padding-top: 10px;  }
+    textarea#report_error {width: 90%; margin: 0 auto; height: 150px;  font-size: 13pt; }
+    div#error_form input[type=submit] {width: auto; padding-left: 2%; padding-right: 2%; float: right; margin-right: 5%; font-size: 13pt; }
 }
-
 
