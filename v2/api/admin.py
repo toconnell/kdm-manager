@@ -43,7 +43,7 @@ def dump_doc_to_cli(m, tab_spaces=2, gap_spaces=20, buffer_lines=0):
     for k in sorted(m.keys()):
         first_spacer = " " * (gap_spaces - len(k))
         second_spacer = " " * ((gap_spaces * 2) - len(str(m[k])))
-        print("%s%s%s%s%s%s" % (tab, k, first_spacer, m[k], second_spacer, type(m[k])))
+        print("%s%s%s%s%s%s" % (tab, k.decode('utf8'), first_spacer, m[k.decode('utf8')], second_spacer, type(m[k])))
 
 
     print(buffer)
@@ -112,7 +112,11 @@ class KillboardMaintenance:
 
         # first, show the record
         print("\n\tFound one document!\n\tCurrent data:")
-        dump_doc_to_cli(doc)
+        try:
+            dump_doc_to_cli(doc)
+        except Exception as e:
+            print doc
+            return Exception
 
         # next, try to make a monster object out of it, for suggested changes
         try:
