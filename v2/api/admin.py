@@ -58,7 +58,7 @@ class KillboardMaintenance:
     """ Initialize one of these and then use its methods to work on the
     mdb.killboard collection. """
 
-    def __init__(self, search_criteria={"handle": {"$exists": False}}, force=False):
+    def __init__(self, search_criteria={"$or": [{"handle": {"$exists": False}}, {"handle": "other"}]}, force=False):
         self.logger = utils.get_logger()
         self.search_criteria = search_criteria
         self.force = force
@@ -66,6 +66,21 @@ class KillboardMaintenance:
         print("\tInitializing maintenance object.")
         print("\tForce == %s" % self.force)
         print("\tSearch criteria: %s" % self.search_criteria)
+
+
+    def dump_others(self):
+        """ Dump all killboard records whose handle is "other". """
+        documents = utils.mdb.killboard.find({"handle": "other"})
+        print("\n\tFound %s 'other' documents!\n" % documents.count())
+        for d in documents:
+            dump_doc_to_cli({
+                "_id": d["_id"],
+                "handle": d["handle"],
+                "name": d["name"],
+                "created_by": d["created_by"],
+                "created_on": d["created_on"],
+            })
+
 
     def check_all_docs(self):
         """ Counts how many docs match to self.search_criteria and then calls
@@ -188,10 +203,14 @@ class KillboardMaintenance:
 if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("-f", dest="force", action="store_true", default=False, help="Skips interactive pauses.")
+    parser.add_option("-o", dest="others", action="store_true", default=False, help="Dump killboard entries whose handle is 'other'. Requires -K flag.")
     parser.add_option("-K", dest="killboard", action="store_true", default=False, help="Clean up the Killboard.")
     (options, args) = parser.parse_args()
 
     if options.killboard:
         K = KillboardMaintenance(force=options.force)
         K.logger.warn("%s is performing mdb.killboard maintenance!" % os.environ["USER"])
-        K.check_all_docs()
+        if options.others:
+            K.dump_others()
+        else:
+            K.check_all_docs()

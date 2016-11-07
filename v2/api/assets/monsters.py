@@ -14,6 +14,7 @@ quarries = {
     "screaming_antelope": {
         "name": "Screaming Antelope",
         "sort_order": 2,
+        "misspellings": ["XCREAMING ANTELOPE","SCREAMING ANTALOPE"],
     },
     "flower_knight": {
         "name": "Flower Knight",

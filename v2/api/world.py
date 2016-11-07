@@ -519,7 +519,8 @@ class World:
         since JSON consumers don't have MDB access and can't get it otherwise.
         """
 
-        s = self.get_eligible_documents(collection="settlements", limit=1)
+#        s = self.get_eligible_documents(collection="settlements", limit=1)
+        s = utils.mdb.settlements.find({"name": {"$nin": self.ineligible_names}}, sort=[("created_on",-1)])[0]
 
         if s is None:
             return None
