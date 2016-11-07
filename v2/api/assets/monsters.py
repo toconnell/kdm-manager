@@ -30,15 +30,20 @@ quarries = {
         "expansion": "sunstalker",
         "sort_order": 5,
     },
+    "dragon_king": {
+        "name": "Dragon King",
+        "expansion": "dragon_king",
+        "sort_order": 6,
+    },
     "dung_beetle_knight": {
         "name": "Dung Beetle Knight",
         "expansion": "dung_beetle_knight",
-        "sort_order": 6,
+        "sort_order": 7,
     },
     "lion_god": {
         "name": "Lion God",
         "expansion": "lion_god",
-        "sort_order": 7
+        "sort_order": 8
     },
 }
 
@@ -70,22 +75,28 @@ nemeses = {
     "lonely_tree": {
         "name": "Lonely Tree",
         "sort_order": 100,
-        "exclude_from_picker": True,
+        "selectable": False,
     },
     "butcher": {
         "name": "Butcher",
         "sort_order": 101,
         "misspellings": ["THE BUTCHER", "BUTCHEE"],
     },
+    "the_tyrant": {
+        "name": "The Tyrant",
+        "sort_order": 102,
+        "selectable": False,
+        "misspellings": ["DRAGON KING HUMAN","TYRANT"],
+    },
     "kings_man": {
         "name": "King's Man",
-        "sort_order": 102,
+        "sort_order": 103,
         "misspellings": ["KINGSMAN", "KINGMAN", "THE KING'S MAN", "THE KINGSMAN"],
     },
     "lion_knight": {
         "name": "Lion Knight",
         "expansion": "lion_knight",
-        "sort_order": 103,
+        "sort_order": 104,
         "misspellings": ["LIONKNIGHT", "THE LION KNIGHT", "THE LIONKNIGHT"],
     },
     "the_hand": {

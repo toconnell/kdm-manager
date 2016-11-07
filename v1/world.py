@@ -114,7 +114,7 @@ def api_top_five_list(l):
 
     output = "<ol>"
     for i in items:
-        output += "<li>%s (%s)</li>" % (i["name"], i["count"])
+        output += "<li>%s (%s)</li>" % (i["value"],i["count"])
     output += "</ol>"
 
     return output

@@ -204,7 +204,7 @@ class User:
         self.settlements = list(mdb.settlements.find({
             "created_by": self.user["_id"],
             "removed": {"$exists": False},
-            }).sort("name"))
+            }).sort("created_on"))
 
         if self.settlements is None:
             return "NONE!"
@@ -351,8 +351,10 @@ class User:
 
         ...at some point, e.g. when I get around to it. """
 
-
-        W = world.api_world()["world"]
+        try:
+            W = world.api_world()["world"]
+        except:
+            return "<p>World info could not be retrieved!</p>"
 
         return html.dashboard.world.safe_substitute(
             # results with custom HTML in v1
@@ -366,6 +368,7 @@ class User:
             latest_settlement = world.api_settlement_to_html(W["latest_settlement"]),
             top_settlement_names = world.api_top_five_list(W["top_settlement_names"]),
             top_survivor_names = world.api_top_five_list(W["top_survivor_names"]),
+            top_COD = world.api_top_five_list(W["top_causes_of_death"]),
             defeated_monsters = world.api_killboard_to_html(W["killboard"]),
             # settlement numerics
             max_pop = W["max_pop"]["value"],
@@ -548,6 +551,7 @@ class Survivor:
                 del self.survivor[a]
                 self.logger.debug("Automatically removed bogus key '%s' from %s." % (a, self.get_name_and_id()))
 
+
         mdb.survivors.save(self.survivor)
 
 
@@ -607,6 +611,12 @@ class Survivor:
             "epithets": [],
         }
 
+        # check the campaign for additional attribs
+        c_dict = self.Settlement.get_campaign("dict")
+        if "new_survivor_additional_attribs" in c_dict.keys():
+            for k,v in c_dict["new_survivor_additional_attribs"].iteritems():
+                survivor_dict[k] = v
+
         # set the public bit if it's supplied:
         if params is not None and "toggle_public" in params:
             survivor_dict["public"] = "checked"
@@ -652,10 +662,12 @@ class Survivor:
                 for b in buff_dict.keys():
                     buffs = buff_dict[b]
                     for attrib in buffs.keys():
-                        if attrib != "affinities":
-                            self.survivor[attrib] = self.survivor[attrib] + buffs[attrib]
-                        elif attrib == "affinities":
+                        if attrib == "affinities":
                             self.update_affinities(buffs[attrib])
+                        elif attrib == "abilities_and_impairments":
+                            self.survivor["abilities_and_impairments"].append(buffs[attrib])
+                        else:
+                            self.survivor[attrib] = self.survivor[attrib] + buffs[attrib]
                     self.logger.debug("Applied %s survivor buffs for '%s' successfully: %s" % (buff_desc, b, buffs))
                     self.Settlement.log_event("Applied '%s' bonus to %s." % (b, self))
 
@@ -724,6 +736,24 @@ class Survivor:
         if include_id:
             output.append("(%s)" % self.survivor["_id"])
         return " ".join(output)
+
+
+    def is_founder(self):
+        """ Returns True or False, erring on the side of False. We only want to
+        return True when we're sure the survivor was a founder. """
+
+        if not "born_in_ly" in self.survivor.keys():
+            return False
+
+        if "father" in self.survivor.keys() or "mother" in self.survivor.keys():
+            return False
+
+        if self.survivor["born_in_ly"] == 0:
+            return True
+        elif "Founder" in self.survivor["epithets"]:
+            return True
+        else:
+            return False
 
 
     def get_survival_actions(self, return_as=False):
@@ -824,6 +854,8 @@ class Survivor:
                     suffix = self.survivor["ability_customizations"][ability]
                 if ability in Abilities.get_keys():
                     desc = Abilities.get_asset(ability)["desc"]
+                    if "constellation" in Abilities.get_asset(ability).keys():
+                        ability = '<font class="maroon_text">%s</font>' % ability
                     pretty_list.append("<p><b>%s:</b> %s %s</p>" % (ability, desc, suffix))
                 elif ability not in Abilities.get_keys() and suffix != "":
                     pretty_list.append("<p><b>%s:</b> %s" % (ability, suffix))
@@ -840,7 +872,10 @@ class Survivor:
         if return_type == "formatted_html":
             html = ""
             for fa_key in fighting_arts:
-                html += '<p><b>%s:</b> %s</p>\n' % (fa_key, FightingArts.get_asset(fa_key)["desc"])
+                fa_name = fa_key
+                if "constellation" in FightingArts.get_asset(fa_key).keys():
+                    fa_name = '<font class="maroon_text">%s</font>' % fa_key
+                html += '<p><b>%s:</b> %s</p>\n' % (fa_name, FightingArts.get_asset(fa_key)["desc"])
                 if strikethrough:
                     html = "<del>%s</del>\n" % html
             return html
@@ -867,9 +902,12 @@ class Survivor:
                     html += '<p><b>%s:</b> custom disorder.</p>' % disorder_key
                 else:
                     flavor = ""
+                    disorder_name = disorder_key
+                    if "constellation" in Disorders.get_asset(disorder_key).keys():
+                        disorder_name = '<font class="maroon_text">%s</font>' % disorder_key
                     if "flavor_text" in Disorders.get_asset(disorder_key).keys():
                         flavor = "<i>%s</i><br/>" % Disorders.get_asset(disorder_key)["flavor_text"]
-                    html += '<p><b>%s:</b> %s %s</p>' % (disorder_key, flavor, Disorders.get_asset(disorder_key)["survivor_effect"])
+                    html += '<p><b>%s:</b> %s %s</p>' % (disorder_name, flavor, Disorders.get_asset(disorder_key)["survivor_effect"])
             return html
 
         if return_as == "html_select_remove":
@@ -1255,24 +1293,203 @@ class Survivor:
         """ Returns the avatar's GridFS id AS A STRING if you don't specify a
         'return_type'. Use 'html' to get an img element back. """
 
-        if not "avatar" in self.survivor.keys():
-            if return_type == "html":
-                return ""
-            else:
-                return ""
-
         if return_type in ["html_desktop", "html_mobile"]:
             if return_type == "html_desktop":
                 hide_class = "desktop_only"
             elif return_type == "html_mobile":
                 hide_class = "mobile_and_tablet"
-            img_element = '<img class="survivor_avatar_image %s" src="/get_image?id=%s" alt="%s"/>' % (hide_class, self.survivor["avatar"], self.survivor["name"])
-            return '<a href="/get_image?id=%s">%s</a>' % (self.survivor["avatar"], img_element)
+
+            avatar_url = "/media/default_avatar_male.png"
+            if self.get_sex() == "F":
+                avatar_url = "/media/default_avatar_female.png"
+            if "avatar" in self.survivor.keys():
+                avatar_url = "/get_image?id=%s" % self.survivor["avatar"]
+
+            return html.survivor.clickable_avatar_upload.safe_substitute(
+                survivor_id=self.survivor["_id"],
+                alt_text="Click to change the avatar image for %s" % self,
+                img_src=avatar_url,
+                img_class=hide_class,
+            )
+
         if return_type == "html_campaign_summary":
             img_element = '<img class="survivor_avatar_image_campaign_summary" src="/get_image?id=%s"/>' % (self.survivor["avatar"])
             return img_element
 
         return self.survivor["avatar"]
+
+
+    def update_constellation(self, new_value):
+        """ Sets (or unsets) the survivor's constellation. """
+
+        if new_value == "UNSET":
+            self.survivor["constellation"] = None
+        else:
+            self.survivor["constellation"] = new_value
+            self.Settlement.log_event("%s has been reborn as one of the <b>People of the Stars</b>!" % self)
+
+        self.logger.debug("[%s] set survivor %s constellation ('%s')." % (self.User, self, new_value))
+
+
+    def get_constellation(self, return_type=None):
+        """ Returns the survivor's constellation. Non if they haven't got one.
+        Use the 'html_badge' return type for asset links. """
+
+        const = None
+        if "constellation" in self.survivor.keys():
+            const = self.survivor["constellation"]
+
+        if return_type == "html_badge":
+            if const:
+                return html.survivor.survivor_constellation_badge.safe_substitute(value=const)
+            else:
+                return ""
+
+        return const
+
+
+    def get_constellation_table(self, return_type=None):
+        """ Returns the survivor's constellation table, either as a dict of
+        component info or as an HTML table. """
+
+        if self.Settlement.get_campaign() != "People of the Stars":
+            return None
+
+        self.set_constellation_traits()
+
+
+        table_map = game_assets.potstars_constellation["map"]
+
+        rows = {}
+        for k,v in table_map.iteritems():
+            col = v[0]
+            row = int(v[1])
+            if not row in rows.keys():
+                rows[row] = {col: k}
+            else:
+                rows[row][col] = k
+
+        active_td = []
+        for t in self.survivor["constellation_traits"]:
+            if t in table_map.keys():
+                active_td.append(table_map[t])
+
+        table_formulae = game_assets.potstars_constellation["formulae"]
+        active_th = []
+        for const in table_formulae.keys():
+            jackpot = set(table_formulae[const])
+            if jackpot.issubset(set(active_td)):
+                active_th.append(const)
+
+        constellation_table = (active_th, active_td)
+
+        if return_type == "html":
+            output = html.survivor.constellation_table_top
+            output += html.survivor.constellation_table_row_top.safe_substitute(
+            )
+
+            for t in [(1,"Gambler"),(2,"Absolute"),(3,"Sculptor"),(4,"Goblin")]:
+                row, const = t
+                row_cells = ""
+                for col in sorted(rows[row]):
+                    cell_id = "%s%s" % (col,row)
+                    td_class = ""
+                    if cell_id in active_td:
+                        td_class="active"
+                    row_cells += html.survivor.constellation_table_cell.safe_substitute(
+                        value=rows[row][col],
+                        td_class=td_class
+                    )
+                output += html.survivor.constellation_table_row.safe_substitute(
+                    th = const,
+                    cells = row_cells,
+                )
+
+            output += html.survivor.constellation_table_bot
+
+            const_options = ""
+            for const in sorted(table_formulae.keys()):
+                selected = ""
+#                if const in active_th:
+#                    selected = "selected"
+                if self.survivor["constellation"] is not None:
+                    if const == self.survivor["constellation"]:
+                        selected = "selected"
+                const_options += html.survivor.constellation_table_select_option.safe_substitute(
+                    selected=selected,
+                    value=const
+                )
+
+            output += html.survivor.constellation_table_select_top.safe_substitute(
+                survivor_id = self.survivor["_id"],
+                options=const_options,
+            )
+            output += html.survivor.constellation_table_select_bot.safe_substitute(
+                survivor_id = self.survivor["_id"],
+            )
+            return output
+
+        return constellation_table
+
+
+    def set_constellation_traits(self):
+        """ Checks the survivor for the presence of the 16 constellation traits.
+        Sets self.survivor["constellation_traits"] dict. """
+
+        traits = []
+
+        # check Understanding for 9+
+        if int(self.survivor["Understanding"]) >= 9:
+            traits.append("9 Understanding (max)")
+
+        # check self.survivor["expansion_attribs"] for "Reincarnated surname","Scar","Noble surname"
+        if "expansion_attribs" in self.survivor.keys():
+            for attrib in ["Reincarnated surname", "Scar", "Noble surname"]:
+                if attrib in self.survivor["expansion_attribs"].keys():
+                    traits.append(attrib)
+
+        split_name = self.survivor["name"].split(" ")
+        for surname in ["Noble","Reincarnated"]:
+            if surname in split_name:
+                traits.append(surname)
+
+        # check abilities_and_impairments for Oracle's Eye, Iridescent Hide, any weapon mastery, Pristine,
+        for a in ["Oracle's Eye","Iridescent Hide","Pristine"]:
+            if a in self.survivor["abilities_and_impairments"]:
+                traits.append("%s ability" % a)
+
+        for a in self.survivor["abilities_and_impairments"]:
+            if a.split(" ")[0] == "Mastery":
+                traits.append("Weapon Mastery")
+
+        # check disorders for "Destined"
+        if "Destined" in self.survivor["disorders"]:
+            traits.append("Destined disorder")
+
+        # check fighting arts for "Fated Blow", "Frozen Star", "Unbreakable", "Champion's Rite"
+        for fa in ["Fated Blow","Frozen Star","Unbreakable","Champion's Rite"]:
+            if fa in self.survivor["fighting_arts"]:
+                if fa == "Frozen Star":
+                    fa = "Frozen Star secret"
+                traits.append("%s fighting art" % fa)
+
+        # check for 3+ strength
+        if int(self.survivor["Strength"]) >= 3:
+            traits.append("3+ Strength attribute")
+
+        # check for 1+ Accuracy
+        if int(self.survivor["Accuracy"]) >= 1:
+            traits.append("1+ Accuracy attribute")
+
+        # check Courage for 9+
+        if int(self.survivor["Courage"]) >= 9:
+            traits.append("9 Courage (max)")
+
+
+        # done.
+        self.survivor["constellation_traits"] = list(set(traits))
+
+
 
 
     def update_epithets(self, action="add", epithet=None):
@@ -1310,7 +1527,17 @@ class Survivor:
     def update_avatar(self, file_instance):
         """ Changes the survivor's avatar. """
 
+        # if we get a list instead of an instance, throw away items in the list
+        # that don't have a file name (because if they don't have a filename,
+        # they probably won't have a file either, know what I mean?
+        if type(file_instance) == list:
+            for i in file_instance:
+                if i.filename == "":
+                    file_instance.remove(i)
+            file_instance = file_instance[0]
+
         if not type(file_instance) == types.InstanceType:
+
             self.logger.error("Avatar update failed! 'survivor_avatar' must be %s instead of %s." % (types.InstanceType, type(file_instance)))
             return None
 
@@ -1321,7 +1548,13 @@ class Survivor:
             self.logger.debug("%s removed an avatar image (%s) from GridFS." % (self.User.user["login"], self.survivor["avatar"]))
 
         processed_image = StringIO()
-        im = Image.open(file_instance.file)
+        try:
+            im = Image.open(file_instance.file)
+        except Exception as e:
+            self.logger.error("[%s] Image file could not be opened! Traceback!" % self.User)
+            self.logger.exception(e)
+            raise
+
         resize_tuple = tuple([int(n) for n in settings.get("application","avatar_size").split(",")])
         im.thumbnail(resize_tuple, Image.ANTIALIAS)
         im.save(processed_image, format="PNG")
@@ -1418,6 +1651,10 @@ class Survivor:
 
         if return_type == "html_select":
             output = ""
+
+            if self.is_founder():
+                return "<p>None. %s is a founding member of %s.</p>" % (self.survivor["name"], self.Settlement.settlement["name"])   # founders don't have parents
+
             for role in [("father", "M"), ("mother", "F")]:
                 output += html.survivor.change_ancestor_select_top.safe_substitute(parent_role=role[0], pretty_role=role[0].capitalize())
                 for s in self.Settlement.get_survivors():
@@ -1521,6 +1758,14 @@ class Survivor:
             # first, figure out if we're using expansion content with these
             # attributes, so we can decide whether to go forward
             expansion_attrib_keys = set()
+
+            # 1.) check the campaign for survivor_attribs
+            if "survivor_attribs" in self.Settlement.get_campaign("dict"):
+                expansion_attrib_keys.update(
+                    game_assets.campaigns[self.Settlement.get_campaign()]["survivor_attribs"]
+                )
+
+            # 2.) check the expansions for survivor_attribs
             for exp_key in self.Settlement.get_expansions():
                 if "survivor_attribs" in game_assets.expansions[exp_key].keys():
                     expansion_attrib_keys.update(game_assets.expansions[exp_key]["survivor_attribs"])
@@ -1795,14 +2040,17 @@ class Survivor:
 
         self.Settlement.update_mins()
 
+
         for p in params:
 
             if type(params[p]) != list:
                 game_asset_key = params[p].value.strip()
-#                self.logger.debug("%s -> %s" % (p, game_asset_key))
+#                self.logger.debug("%s -> '%s' (type=%s)" % (p, game_asset_key, type(params[p])))
 
             if p in ["asset_id", "heal_survivor", "form_id", "modify","view_game"]:
                 pass
+            elif p == "set_constellation":
+                self.update_constellation(game_asset_key)
             elif p == "survivor_avatar":
                 self.update_avatar(params[p])
             elif p == "add_epithet":
@@ -1960,8 +2208,8 @@ class Survivor:
         class: a giant tangle-fuck of UI/UX logic that creates the form for
         modifying a survivor.
 
-        It's been six months and this is still a total debacle. This needs to be
-        refactored in the next big clean-up push.
+        It's going on one year and this is still a total debacle. This needs to
+        be refactored in the next big clean-up push.
         """
 
 
@@ -2006,6 +2254,10 @@ class Survivor:
         if self.survivor["disorders"] == []:
             disorders_remover = ""
 
+
+        show_constellation_button = "hidden"
+        if self.Settlement.get_campaign() == "People of the Stars":
+            show_constellation_button = ""
 
         output = html.survivor.form.safe_substitute(
             MEDIA_URL = settings.get("application", "STATIC_URL"),
@@ -2092,7 +2344,11 @@ class Survivor:
 
             partner_controls = self.get_partner("html_controls"),
             expansion_attrib_controls = self.get_expansion_attribs("html_controls"),
+            constellation_button_class = show_constellation_button,
+            constellation_table = self.get_constellation_table("html"),
 
+            hunt_xp_3_event = self.Settlement.get_story_event("Bold"),
+            courage_3_event = self.Settlement.get_story_event("Insight"),
         )
         return output
 
@@ -2170,7 +2426,7 @@ class Settlement:
         }
 
         # sometimes campaign assets have additional attribs
-        for optional_attrib in ["storage","expansions","timeline"]:
+        for optional_attrib in ["storage","expansions","timeline","nemesis_monsters"]:
             if optional_attrib in game_assets.campaigns[campaign].keys():
                 new_settlement_dict[optional_attrib] = game_assets.campaigns[campaign][optional_attrib]
 
@@ -2229,6 +2485,33 @@ class Settlement:
         self.log_event("'%s' expansion is now enabled!" % e_key)
 
 
+    def get_story_event(self, event=None):
+        """ Accepts certain 'event' values and spits out a string of HTML
+        created with assets from game_assets.story_events. """
+
+        c_dict = self.get_campaign("dict")
+        if "replaced_story_events" in c_dict.keys():
+            if event in c_dict["replaced_story_events"]:
+                event = c_dict["replaced_story_events"][event]
+
+        if event == "Bold":
+            v = 3
+        elif event == "Insight":
+            v = 3
+        elif event == "Awake":
+            v = 3
+        else:
+            return None
+
+        p = game_assets.story_events[event]["page"]
+        output = html.survivor.stat_story_event_stub.safe_substitute(
+            event=event,
+            page=p,
+            attrib_value=v,
+        )
+
+        return output
+
     def get_expansions(self, return_type=None):
         """ Returns expansions as a list. """
 
@@ -2285,14 +2568,19 @@ class Settlement:
         self.log_event("Added four new survivors and Starting Gear to settlement storage")
         self.add_game_asset("storage", "Founding Stone", 4)
         self.add_game_asset("storage", "Cloth", 4)
+
+        founder_epithet = "Founder"
+        if "founder_epithet" in self.get_campaign("dict"):
+            founder_epithet = self.get_campaign("dict")["founder_epithet"]
+
         for i in range(2):
             m = Survivor(params=None, session_object=self.Session, suppress_event_logging=True)
-            m.update_epithets(epithet="Founder")
+            m.update_epithets(epithet=founder_epithet)
             m.set_attrs({"Waist": 1})
             m.join_hunting_party()
         for i in range(2):
             f = Survivor(params=None, session_object=self.Session, suppress_event_logging=True)
-            f.update_epithets(epithet="Founder")
+            f.update_epithets(epithet=founder_epithet)
             f.set_attrs({"sex": "F", "Waist": 1})
             f.join_hunting_party()
         self.update_current_quarry("White Lion (First Story)")
@@ -3346,14 +3634,26 @@ class Settlement:
         if return_type == "list_of_options":
             n_options = []
 
+
+            def add_nemesis_to_options(nem):
+                """ Stupid DRYness func to update the option drop-down/list. """
+                for i in range(1,4):
+                    if exp_key in self.settlement["nemesis_monsters"] and "Lvl %s" % i in self.settlement["nemesis_monsters"][nem]:
+                        pass
+                    else:
+                        n_options.append("%s Lvl %s" % (nem,i))
+
+
             # check expansion content and add always available nems
             for exp_key in self.get_expansions():
-                if "always_available_nemesis" in self.get_expansions("dict")[exp_key].keys():
-                    for i in range(1,4):
-                        if exp_key in self.settlement["nemesis_monsters"] and "Lvl %s" % i in self.settlement["nemesis_monsters"][exp_key]:
-                            pass
-                        else:
-                            n_options.append("%s Lvl %s" % (exp_key,i))
+                exp_dict = self.get_expansions("dict")[exp_key]
+                if "always_available_nemesis" in exp_dict.keys():
+                    add_nemesis_to_options(exp_dict["always_available_nemesis"])
+
+            # do the same check for the campaign
+            c_dict = self.get_campaign("dict")
+            if "always_available_nemesis" in c_dict.keys():
+                add_nemesis_to_options(c_dict["always_available_nemesis"])
 
             # now process settlement nem keys
             for k in nemesis_monster_keys:
@@ -3570,6 +3870,7 @@ class Settlement:
                     b_class = button_class,
                     able_to_hunt = can_hunt,
                     returning = S.get_returning_survivor_status("html_badge"),
+                    constellation = S.get_constellation("html_badge"),
                     special_annotation = annotation,
                     disabled = disabled,
                     name = S.survivor["name"],
@@ -4068,10 +4369,6 @@ class Settlement:
         else:
             asset_deck = Asset.get_always_available(self)
 
-        # add language to the deck if it's absent
-#        if asset_type == "innovations" and "Language" not in self.settlement[asset_type]:
-#            asset_deck.add("Language")
-
         for asset_key in current_assets:
             if asset_key in Asset.get_keys() and "consequences" in Asset.get_asset(asset_key).keys():
                 for c in Asset.get_asset(asset_key)["consequences"]:
@@ -4097,7 +4394,7 @@ class Settlement:
         # set the final_list object
         final_list = sorted(list(set(asset_deck)))
 
-        # filter expansion content
+        # filter expansion content that's not enabled
         for asset_key in asset_deck:
             if asset_key in Asset.get_keys() and "expansion" in Asset.get_asset(asset_key).keys():
                 if "expansions" in self.settlement.keys():
@@ -4106,6 +4403,12 @@ class Settlement:
                 else:   # if we've got no expansions, don't show any expansion stuff
                     final_list.remove(asset_key)
 
+        # filter campaign-forbidden items
+        c_dict = self.get_campaign("dict")
+        if "forbidden" in c_dict.keys():
+            for f in c_dict["forbidden"]:
+                if f in final_list:
+                    final_list.remove(f)
 
 
         # handle user-defined return_type
@@ -4177,6 +4480,9 @@ class Settlement:
             for asset_key in asset_keys:
                 if asset_key in campaign_dict["forbidden"]:
                     asset_keys.remove(asset_key)
+            for f in campaign_dict["forbidden"]:
+                if f in asset_keys:
+                    self.error.log("Forbidden asset '%s' is present in %s after filtering!" % (f, asset_name))
 
         #   now do return types
         if return_type is "user_defined":
@@ -4544,6 +4850,7 @@ class Settlement:
         """ Prints the Campaign Summary view. Remember that this isn't really a
         form: the survivor asset tag buttons are a method of assets.Survivor."""
         return html.settlement.summary.safe_substitute(
+            campaign = self.get_campaign(),
             settlement_notes = self.get_settlement_notes(),
             settlement_name=self.settlement["name"],
             principles = self.get_principles("user_defined"),
@@ -4720,7 +5027,7 @@ class Settlement:
             asset_type = "campaign"
         elif context == "dashboard_campaign_list":
             button_class = "gradient_violet"
-            link_text = html.dashboard.campaign_flash + "<b>%s</b><br/>LY %s. Survivors: %s Players: %s" % (self.settlement["name"], self.settlement["lantern_year"], self.settlement["population"], self.get_players(count_only=True))
+            link_text = html.dashboard.campaign_flash + "<b>%s</b><br/><i>%s</i><br/>LY %s. Survivors: %s Players: %s" % (self.settlement["name"], self.get_campaign(), self.settlement["lantern_year"], self.settlement["population"], self.get_players(count_only=True))
             desktop_text = ""
             asset_type = "campaign"
         else:

@@ -480,6 +480,7 @@ class Panel:
         daemon_block += "</table>"
 
         output = html.panel.headline.safe_substitute(
+            version = settings.get("application","version"),
             api_url = settings.get("application","api_url"),
             hostname = socket.getfqdn(),
             world_daemon = daemon_block,
@@ -493,6 +494,7 @@ class Panel:
             dead_survivors = W["dead_survivors"]["value"],
             complete_death_records = mdb.the_dead.find({"complete": {"$exists": True}}).count(),
             latest_fatality = world.api_survivor_to_html(W["latest_fatality"]),
+            latest_settlement = world.api_settlement_to_html(W["latest_settlement"]),
             latest_kill = world.api_monster_to_html(W["latest_kill"]),
             current_hunt = world.api_current_hunt(W["current_hunt"]),
         )

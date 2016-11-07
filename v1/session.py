@@ -409,6 +409,8 @@ class Session:
 
             elif self.session["current_view"] == "event_log":
                 settlement = mdb.settlements.find_one({"_id": self.session["current_asset"]})
+                if settlement is None:
+                    settlement = mdb.settlements.find_one({"_id": self.session["current_settlement"]})
                 self.set_current_settlement(ObjectId(settlement["_id"]))
                 output += html.dashboard.refresh_button
                 S = assets.Settlement(settlement_id = settlement["_id"], session_object=self)

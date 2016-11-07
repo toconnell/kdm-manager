@@ -28,8 +28,9 @@ class panel:
         <button id="admin_panel_floating_dashboard">Dashboard</button>
     </form>
 
-    <div id="admin_panel_hostname">host: <code><font class="maroon_text">$hostname</font></code></div>
-    <div id="admin_panel_api_url">api: <code><font class="maroon_text">$api_url</font></code></div>
+    <div class="admin_panel_floater" id="admin_panel_hostname">host: <code><font class="maroon_text">$hostname</font></code></div>
+    <div class="admin_panel_floater" id="admin_panel_api_url">api: <code><font class="maroon_text">$api_url</font></code></div>
+    <div class="admin_panel_floater" id="admin_panel_version">version: <code><font class="maroon_text">$version</font></code></div>
 
     <table id="panel_meta_stats">
         <tr><th colspan="2">Global Stats</th></tr>
@@ -38,12 +39,14 @@ class panel:
         <tr><td>Sessions:</td><td>$sessions</td></tr>
         <tr class="grey"><td>Settlements:</td><td>$settlements</td></tr>
         <tr><td>Survivors:</td><td>$live_survivors/$dead_survivors ($total_survivors total)</td></tr>
-        <tr class="grey"><td colspan="2">Latest fatality:</td></tr>
-        <tr><td colspan="2">$latest_fatality</td></tr>
-        <tr class="grey"><td colspan="2">Current Hunt:</td></tr>
-        <tr><td colspan="2">$current_hunt</td></tr>
-        <tr class="grey"><td colspan="2">Latest kill:</td></tr>
-        <tr><td colspan="2">$latest_kill</td></tr>
+        <tr class="world_primary"><th colspan="2">Latest settlement</th></tr>
+        <tr class="world_secondary"><td colspan="2">$latest_settlement</td></tr>
+        <tr class="world_primary"><th colspan="2">Latest fatality</th></tr>
+        <tr class="world_secondary"><td colspan="2">$latest_fatality</td></tr>
+        <tr class="world_primary"><th colspan="2">Latest kill</th></tr>
+        <tr class="world_secondary"><td colspan="2">$latest_kill</td></tr>
+        <tr class="world_primary"><th colspan="2">Current Hunt</th></tr>
+        <tr class="world_secondary"><td colspan="2">$current_hunt</td></tr>
     </table>
     <div id="admin_panel_right">
         <h3 class="admin_panel_label">Killboard</h3>
@@ -222,8 +225,8 @@ class dashboard:
         <div id="settlement_div" style="display: $display" class="dashboard_accordion gradient_orange">
         <p>Manage Settlements you have created.</p>
         <div class="dashboard_button_list">
-            $settlements
             %s
+            $settlements
         </div>
         </div>
     </div>
@@ -299,6 +302,8 @@ class dashboard:
         <h3>Survivor Statistics</h3>
         <p>Top five survivor names:</p>
         $top_survivor_names
+        <p>Top 10 causes of death:</p>
+        $top_COD
         <p>Averages for all living survivors:</p>
         <ul>
             <li>Hunt XP: $avg_hunt_xp</li>
@@ -442,6 +447,7 @@ class survivor:
          <input type="hidden" name="view_survivor" value="$survivor_id" />
          <button id="survivor_campaign_asset" class="$b_class $disabled" $disabled>
             $returning
+            $constellation
             $avatar
             <center> <font class="$favorite"/>&#9733;</font> <b>$name</b> [$sex] </center>
             $savior
@@ -471,7 +477,7 @@ class survivor:
             <input type="hidden" name="modify" value="survivor" />
             <input type="hidden" name="asset_id" value="$survivor_id" />
 
-            <input id="survivor_sheet_survivor_name" class="full_width" type="text" name="name" value="$name" placeholder="Survivor Name" onchange="updateSurvivorName('$survivor_id')"/>
+            <input id="survivor_sheet_survivor_name" class="full_width" type="text" name="name" value="$name" placeholder="Survivor Name" onchange="updateSurvivorName('$survivor_id')" onClick="this.select()"/>
             <br class="mobile_only"/><br class="mobile_only"/><br class="mobile_only"/>
 
             $epithet_controls
@@ -533,6 +539,8 @@ class survivor:
                 </p>
 
             $desktop_avatar_img
+
+            <button class="orange bold $constellation_button_class" id="constellationModalOpener">Constellation</button>
 
             </div>
 
@@ -761,7 +769,7 @@ class survivor:
             <div class="big_number_caption">Courage</div>
             <br class="mobile_only"/>
             <p class="fixed_width">
-              <font class="kdm_font">g</font> <b>Bold</b> (p. 107) occurs at 3<br/>
+                $hunt_xp_3_event
               <font class="kdm_font">g</font> <b>See the Truth</b> (p.155) occurs at 9.
             </p>
 
@@ -775,7 +783,7 @@ class survivor:
             <div class="big_number_caption">Understanding</div>
             <br class="mobile_only"/>
             <p class="fixed_width">
-               <font class="kdm_font">g</font> <b>Insight</b> (p.123) occurs at 3<br/>
+                $courage_3_event
                 <font class="kdm_font">g</font> <b>White Secret</b> (p.169) occurs at 9.
             </p>
 
@@ -908,25 +916,40 @@ class survivor:
             </form>
             <hr />
 
-            <form method="POST" enctype="multipart/form-data" action="#">
-              <input type="hidden" />
-              <input type="hidden" name="modify" value="survivor" />
-              <input type="hidden" name="asset_id" value="$survivor_id" />
-
-                <p>Survivor Image:<br/><br/>
-                <input onchange="this.form.submit()" type="file" name="survivor_avatar" accept="image/*">
-                </p>
-            </form>
-
-            <hr class="mobile_only"/>
 
             <form action="#" method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this survivor forever, which is NOT THE SAME THING as marking it dead: permanently deleting the survivor prevents anyone from viewing and/or editing it ever again! If you are trying to delete all survivors in a settlement, you may delete the settlement from the settlement editing view.');"><input type="hidden" name="remove_survivor" value="$survivor_id"/><button class="error">Permanently Delete Survivor</button></form>
             <hr class="mobile_only"/>
             <br class="mobile_only"/>
+
+    <!-- gotta put this here, outside of the other forms -->
+    <form id="avatar_change_form" method="POST" enctype="multipart/form-data" action="#">
+    <input type="hidden" name="modify" value="survivor" />
+    <input type="hidden" name="asset_id" value="$survivor_id" />
+    </form>
+
         </div> <!-- asset_management_right_pane -->
 
 
     <!-- ONLY MODAL CONTENT PAST THIS POINT!!!! -->
+
+        <script>
+        window.onload = function(){
+            var modal = document.getElementById('modalConstellation');
+            var btn = document.getElementById("constellationModalOpener");
+            var span = document.getElementsByClassName("close")[0];
+            btn.onclick = function(b) {b.preventDefault(); modal.style.display = "block";}
+            span.onclick = function() {modal.style.display = "none";}
+            window.onclick = function(event) {if (event.target == modal) {modal.style.display = "none";}}
+        };
+        </script>
+
+        <div id="modalConstellation" class="modal">
+            <div class="modal-content">
+                <span class="close">×</span>
+                <h3>The Constellations</h3>
+                $constellation_table
+            </div> <!-- modal-content -->
+        </div> <!-- modalConstellation -->
 
         <div id="modalAffinity" class="modal">
 
@@ -994,6 +1017,9 @@ class survivor:
     returning_survivor_badge = """\n\
     <div class="returning_survivor_badge" title="Returning Survivor">R</div>
     \n"""
+    survivor_constellation_badge = Template("""\n\
+    <div class="survivor_constellation_badge" title="Survivor Constellation">$value</div>
+    \n""")
     epithet_controls = Template("""\n\
      $epithets
      <br class="mobile_only"/>
@@ -1022,6 +1048,9 @@ class survivor:
     affinity_span = Template("""\n
     <span id="affinity_span" class="$span_class">$value</span>
     \n""")
+    stat_story_event_stub = Template("""\n
+               <font class="kdm_font">g</font> <b>$event</b> (p.$page) occurs at $attrib_value<br/>
+    """)
     epithet_angular_controls = Template("""\n
     <div id="epithet_angular" ng-app="kdmManager" ng-controller="epithetController" ng-init="epithets=[$current_epithets]" title="Survivor epithets. Use controls below to add. Click or tap to remove!">
 
@@ -1038,7 +1067,61 @@ class survivor:
     <!-- <p>{{errortext}}</p> -->
     </div>
     \n""")
+    clickable_avatar_upload = Template("""\n
 
+    <label id="survivor_sheet_avatar" for="avatar_file_input">
+        <img class="survivor_avatar_image $img_class" src="$img_src" alt="$alt_text"/>
+    </label>
+
+    <input onchange='document.getElementById("avatar_change_form").submit()' id="avatar_file_input" class="hidden" type="file" name="survivor_avatar" accept="image/*" form="avatar_change_form">
+    \n""")
+    constellation_table_top = '<table id="survivor_constellation_table">'
+    constellation_table_row_top = Template("""
+        <tr><th colspan="6">&nbsp</th></tr>
+        <tr>
+         <th>&nbsp</th>
+         <th class="$witch_class">Witch</th>
+         <th class="$rust_class">Rust</th>
+         <th class="$storm_class">Storm</th>
+         <th class="$reaper_class">Reaper</th>
+         <th>&nbsp</th>
+        </tr>
+    \n""")
+    constellation_table_row = Template("""
+        <tr>
+         <th>$th</th>
+          $cells
+         <th>&nbsp</th>
+        </tr>
+    \n""")
+    constellation_table_cell = Template("""
+        <td class="$td_class">$value</td>
+    \n""")
+    constellation_table_bot = '<tr><th colspan="6">&nbsp</th></tr></table>\n\n'
+    constellation_table_select_top = Template("""\n
+    <br/>
+    <div id="survivor_constellation_control_container">
+    <form method="POST" action="/" >
+        <input type="hidden" name="modify" value="survivor">
+        <input type="hidden" name="asset_id" value="$survivor_id">
+        <select name="set_constellation" onchange="this.form.submit()">
+            <option selected disabled hidden>Set Constellation</option>
+            $options
+    """)
+    constellation_table_select_option = Template('<option $selected>$value</option>')
+    constellation_table_select_bot = Template("""\n
+        </select>
+<!--        <button class="orange bold">Set constellation!</button> -->
+    </form>
+
+    <form method="POST" action="/">
+        <input type="hidden" name="modify" value="survivor">
+        <input type="hidden" name="asset_id" value="$survivor_id">
+        <input type="hidden" name="set_constellation" value="UNSET">
+        <button onclick="this.form.submit()">Unset constellation</button>
+    </form>
+    </div> <!-- survivor_constellation_control_container" -->
+    \n""")
 
 
 class settlement:
@@ -1068,8 +1151,11 @@ class settlement:
         """ Prints checkboxes for the specified asset dictionary"""
 
         slug = Template("""\n\
-        <input id="$a_id" class="radio_principle" type="checkbox" name="%s" value="$var_value" />
-        <label for="$a_id" class="radio_principle_label">$var_value</label> 
+        <div class="new_settlement_asset">
+            <input id="$a_id" class="radio_principle" type="checkbox" name="%s" value="$var_value" />
+            <label for="$a_id" class="radio_principle_label">$var_value </label>
+            $subtitle
+        </div>
         \n""" % asset_dict_name)
 
 
@@ -1077,20 +1163,22 @@ class settlement:
 
         if asset_dict_name == "expansions":
             for e_key in sorted(game_assets.expansions.keys()):
-                exp_attribs = game_assets.expansions[e_key]
-                if not "existing_campaign_only" in exp_attribs:
-                    output += slug.safe_substitute(a_id=e_key.lower().replace(" ","_"), var_value=e_key)
+                exp_dict = game_assets.expansions[e_key]
+                sub = ""
+                if "subtitle" in exp_dict.keys():
+                    sub= '<p class="new_settlement_asset">%s</p>' % exp_dict["subtitle"]
+                output += slug.safe_substitute(a_id=e_key.lower().replace(" ","_"), var_value=e_key, subtitle=sub)
         elif asset_dict_name == "survivors":
             # special custom box for prologue survivors (calls
             #   assets.Settlement.first_story() after creation
             output = """
                 <input type="checkbox" id="create_prologue_survivors" class="radio_principle" name="create_prologue_survivors" value="True" />
-                <label class="radio_principle_label" for="create_prologue_survivors"> Create Four "First Story" Survivors</label><br/><br/>
+                <label class="radio_principle_label" for="create_prologue_survivors"> Create Four "First Story" Survivors</label><br/>
             """
             for s_name in sorted(game_assets.survivors.keys()):
                 s_key = s_name.lower().replace(" ","_")
                 s_dict = game_assets.survivors[s_name]
-                output += slug.safe_substitute(a_id=s_key, var_value=s_name)
+                output += slug.safe_substitute(a_id=s_key, var_value=s_name, subtitle="")
 
         return output
 
@@ -1112,7 +1200,7 @@ class settlement:
         </p>
         <h3 class="new_asset">Expansions:</h3>
         <p class="new_asset">
-        Enable expansion content by toggling items below. Expansion content may also be enabled (or disabled) later using the controls on the Settlement Sheet.<br/><br/>
+        Enable expansion content by toggling items below. Expansion content may also be enabled (or disabled) later using the controls on the Settlement Sheet.<br/>
         <input type="hidden" name="expansions" value="None"/> <!-- Both of these are necessary -->
         <input type="hidden" name="expansions" value="None"/> <!-- Hack City! -->
             %s
@@ -1122,10 +1210,11 @@ class settlement:
         By default, new settlements are created with no survivors. Toggle options below to create the settlement with pre-made survivors. <br/><br/>
             <input type="hidden" name="survivors" value="None"/> <!-- Both of these are necessary -->
             <input type="hidden" name="survivors" value="None"/> <!-- Hack City! -->
-            %s
+            %s<br/>
         </p>
         <hr class="new_asset" />
         <button class="success">Create!</button>
+        <br/><br/><br/>
         </form>
     </div> <!-- create_new_asset_form_container -->
     \n""" % (render_campaign_toggles(), render_checkboxes("expansions"), render_checkboxes("survivors"))
@@ -1299,6 +1388,7 @@ class settlement:
         <span class="top_nav_spacer mobile_only"> hidden </span>
 
         <h1 class="settlement_name"> %s $settlement_name</h1>
+        <div id="campaign_summary_campaign_type">$campaign</div>
 
         <div id="campaign_summary_pop">
             <p>Population: $population ($sex_count); $death_count deaths</p>
@@ -1484,7 +1574,7 @@ class settlement:
                     <input type="hidden" name="modify" value="settlement" />
                     <input type="hidden" name="asset_id" value="$settlement_id" />
 
-                     <div class="big_number_container left_margin negative_30px_bottom_margin">
+                     <div class="big_number_container">
                          <button type="button" class="incrementer" onclick="increment('addStorageBox');">+</button>
                          <input id="addStorageBox" class="big_number_square" type="number" name="add_item_quantity" value="1" min="1"/>
                          <button type="button" class="decrementer" onclick="decrement('addStorageBox');">-</button>

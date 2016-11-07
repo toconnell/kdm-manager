@@ -328,18 +328,19 @@ class World:
         return round(result,2)
 
 
-    def get_top_names(self, collection=None, limit=5):
-        """ Assuming that 'collection' documents have a "name" attribute, this
+    def get_top(self, collection=None, doc_attrib=None, limit=5):
+        """ Assuming that 'collection' documents have a 'doc_attrib' attribute, this
         will return the top five most popular names along with their counts. """
 
         results = utils.mdb[collection].group(
-            ["name"],
-            {"name": {"$nin": self.ineligible_names}},
+            [doc_attrib],
+            {doc_attrib: {"$nin": self.ineligible_names, "$exists": True}},
             {"count": 0},
             "function(o, p){p.count++}"
         )
         sorted_list = sorted(results, key=lambda k: k["count"], reverse=True)
         for i in sorted_list:
+            i["value"] = i[doc_attrib]
             i["count"] = int(i["count"])
         return sorted_list[:limit]
 
@@ -566,10 +567,13 @@ class World:
         return killboard
 
     def top_survivor_names(self):
-        return self.get_top_names("survivors")
+        return self.get_top("survivors","name")
 
     def top_settlement_names(self):
-        return self.get_top_names("settlements")
+        return self.get_top("settlements","name")
+
+    def top_causes_of_death(self):
+        return self.get_top("survivors","cause_of_death",limit=10)
 
     def principle_selection_rates(self):
         """ This is pretty much a direct port from V1. It's still a hot mess.
@@ -809,21 +813,23 @@ class WorldDaemon:
         """ Prints daemon status to stdout. """
 
         active = False
+        d = {"active": active}
         if self.pid is not None:
             active = True
 
-        owner_uid = os.stat(self.pid_file_path).st_uid
-        owner_name = getpwuid(owner_uid).pw_name
+        if active:
+            owner_uid = os.stat(self.pid_file_path).st_uid
+            owner_name = getpwuid(owner_uid).pw_name
 
-        d = {}
-        d["active"] = active
-        d["up_since"] = self.get_uptime("date")
-        d["uptime_hms"] = self.get_uptime()
-        d["owner_uid"] = owner_uid
-        d["owner_name"] = owner_name
-        d["pid"] = self.pid
-        d["pid_file"] = self.pid_file_path
-        d["assets"] = utils.mdb.world.find().count()
+            d = {}
+            d["active"] = active
+            d["up_since"] = self.get_uptime("date")
+            d["uptime_hms"] = self.get_uptime()
+            d["owner_uid"] = owner_uid
+            d["owner_name"] = owner_name
+            d["pid"] = self.pid
+            d["pid_file"] = self.pid_file_path
+            d["assets"] = utils.mdb.world.find().count()
 
         if output_type == "dict":
             return d

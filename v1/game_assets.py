@@ -12,6 +12,84 @@
 #
 
 abilities_and_impairments = {
+    "Acid Palms": {
+        "type": "ability",
+        "expansion": "Dragon King",
+        "max": 1,
+        "desc": "Add 1d10 strength to your wound attempts when attacking with Fist & Tooth.",
+    },
+    "Heart of the Sword": {
+        "type": "ability",
+        "expansion": "Dragon King",
+        "max": 1,
+        "desc": "If you gain weapon proficiency during the Aftermath, gain +3 additional ranks. You cough up a hunk of your own solidified blood and gain +1 <b>Iron</b> strange resource.",
+    },
+    "Oracle's Eye": {
+        "type": "ability",
+        "expansion": "Dragon King",
+        "max": 1,
+        "desc": "At the start of the showdown, look through the AI deck then shuffle.",
+        "constellation": {
+            "horizontal": "Goblin",
+            "vertical": "Witch",
+        },
+    },
+    "Iridescent Hide": {
+        "type": "ability",
+        "expansion": "Dragon King",
+        "max": 1,
+        "desc": 'Gain +<font class="inline_shield">1</font> to all hit locations for each different-colored affinity in your gear grid.',
+        "constellation": {
+            "horizontal": "Absolute",
+            "vertical": "Storm",
+        },
+    },
+    "Limb-maker": {
+        "type": "ability",
+        "expansion": "Dragon King",
+        "max": 1,
+        "desc": """Once per settlement phase, spend 2 <font class="kdm_font">d</font> to carve a prosthetic limb. Remove a survivor's <b>dismembered</b> injury and add 1 bone to the settlement's storage.""",
+    },
+    "Presage": {
+        "type": "ability",
+        "expansion": "Dragon King",
+        "max": 1,
+        "desc": "Each time you attack, before drawing hit locations, loudly say a name. You lightly bite the eye in your cheek to see what it sees. If you draw any hit locations with that name, gain +3 insanity and +10 strength when attempting to wound them.",
+    },
+    "Pristine": {
+        "type": "ability",
+        "expansion": "Dragon King",
+        "desc": "When you suffer a <b>dismembered</b> severe injury, ignore it and gain 1 bleeding token instead.",
+        "max": 1,
+        "constellation": {
+            "horizontal": "Gambler",
+            "vertical": "Reaper",
+        },
+    },
+    "Psychovore": {
+        "type": "ability",
+        "expansion": "Dragon King",
+        "max": 1,
+        "desc": "Once per showdown, you may eat an adjacent survivor's disorder. If you do, remove the disorder. They gain 1 bleeding token and you gain +1 permanent strength. At the end of the showdown, if you haven't eaten a disorder, you die.",
+    },
+    "Rooted to All": {
+        "type": "ability",
+        "expansion": "Dragon King",
+        "max": 1,
+        "desc": "If you are standing at the start of your act, reveal the top 2 cards of the AI deck and put them back in any order.",
+    },
+    "Twelve Fingers": {
+        "type": "ability",
+        "expansion": "Dragon King",
+        "max": 1,
+        "desc": "You cannot carry two-handed gear. On a Perfect hit, your right hand pulses. Gain +5 insanity and +1 luck for the attack. However, for each natural 1 rolled when attempting to hit, your left hand shakes. Suffer 5 brain damage and -1 luck for the attack.",
+    },
+    "Way of the Rust": {
+        "type": "ability",
+        "expansion": "Dragon King",
+        "max": 1,
+        "desc": "Your bleeding tokens are also +1 evasion tokens.",
+    },
     "Lovelorn Rock": {
         "type": "impairment",
         "desc": "Forever in love, the straggler loses one gear slot permanently to the rock. This survivor must always leave one gear space empty to hold their rock. The rock can be lost like normal gear.",
@@ -110,6 +188,7 @@ abilities_and_impairments = {
         "type": "curse",
         "desc": "You may select <b>Twilight Sword</b> as a weapon proficiency type. This weapon may not be removed from your great grid for any reason. When you die, archive your <b>Twilight Sword</b> card.",
         "max": 1,
+        "epithet": "Twilight Sword",
     },
     "Gender Swap": {
         "type": "curse",
@@ -140,6 +219,18 @@ abilities_and_impairments = {
     "Partner": {
         "type": "ability",
         "desc": 'When you both <b>depart</b>, gain +2 survival. While adjacent to your partner, gain +1 strength. Partners may only nominate each other for <img class="icon" src="http://media.kdm-manager.com/icons/trigger_story_event.png" /> <b>Intimacy</b>. When a partner dies, the remaining partner gains a random disorder and loses this ability.',
+    },
+    "Specialization - Scythe": {
+        "type": "weapon_proficiency",
+        "expansion": "Dragon King",
+        "max": 1,
+        "desc": "When you critically wound with a scythe, roll 1d10. On a 6+, shuffle the hit location deck (do not shuffle unresolved hit locations).<br/>Limit, once per round.",
+    },
+    "Mastery - Scythe": {
+        "type": "weapon_proficiency",
+        "expansion": "Dragon King",
+        "max": 1,
+        "desc": """At the start of a Scythe Master's act, if they are insane, they gain +1 <font class="kdm_font">a</font>, which they may only spend to activate scythes.""",
     },
     "Specialization - Katana": {
         "type": "weapon_proficiency",
@@ -277,11 +368,13 @@ abilities_and_impairments = {
         "type": "ability",
         "desc": 'Once a lifetime, on a hunt board space after <b>Overwhelming Darkness</b>, in place of rolling a random hunt event, use "100" as your result.',
         "max": 1,
+        "epithet": "Thundercaller",
     },
     "Legendcaller": {
         "type": "ability",
         "desc": 'Once a lifetime, on a hunt board space after <b>Overwhelming Darkness</b>, in place of rolling a random hunt event, use "53" as your result.',
         "max": 1,
+        "epithet": "Legendcaller",
     },
     "Analyze": {
         "type": "ability",
@@ -314,10 +407,10 @@ abilities_and_impairments = {
         "max": 1,
     },
     "Leprosy": {
-        "epithet": "Leper",
         "type": "impairment",
         "desc": "Reduce all damage suffered by 1 to a minimum of 1. When rolling on the severe injury table, -2 to any result.",
         "max": 1,
+        "epithet": "Leper",
     },
     "Cancerous Illness": {
         "type": "impairment",
@@ -419,6 +512,7 @@ abilities_and_impairments = {
         "type": "ability",
         "desc": "While there is no armor or accessory gear in your grid, gain +3 evasion.",
         "max": 1,
+        "epithetp": "Leyline Walker",
     },
     "Story of the Goblin": {
         "type": "ability",
@@ -480,6 +574,7 @@ abilities_and_impairments = {
         "desc": "Lose an eye. Suffer -1 permanent Accuracy. This injury is permanent and can be recorded twice. A survivor with two <b>blind</b> severe injuries suffers -4 permanent accuracy and retires at the end of the next showdown or settlement phase, having lost all sight. Gain 1 bleeding token.",
         "Accuracy": -1,
         "max": 2,
+        "epithet": "The Blind",
     },
     "Concussion": {
         "type": "severe_injury",
@@ -625,6 +720,30 @@ abilities_and_impairments = {
 #
 
 disorders = {
+    "Superstitious": {
+        "expansion": "Dragon King",
+        "flavor_text": "Evil magic will be your undoing. You do not believe in abusing the other.",
+        "survivor_effect": "You cannot activate or <b>depart</b> with other gear in your gear grid.",
+    },
+    "Arithmophilia": {
+        "expansion": "Dragon King",
+        "flavor_text": "You love numbers. Your life must exist in perfect arithmetical harmony.",
+        "survivor_effect": "When you gain this disorder, roll 1d5. Your movement is that number.<br/>Ignore all other movement modifiers.",
+    },
+    "Performance Anxiety": {
+        "expansion": "Dragon King",
+        "flavor_text": "You're not ready to love.",
+        "survivor_effect": "You cannot be nominated for <b>Intimacy</b>.<br/>Cure this disorder if you have 8+ courage.",
+    },
+    "Destined": {
+        "expansion": "Dragon King",
+        "flavor_text": "You have a grand destiny that you must fulfill.",
+        "survivor_effect": "If you do not <b>depart</b>, lose all survival and insanity.",
+        "constellation": {
+            "vertical": "Rust",
+            "horizontal": "Gambler",
+        },
+    },
     "Flower Addiction": {
         "expansion": "Flower Knight",
         "flavor_text": "An insatiable hunger has bloomed in you, delicate and sickeningly sweet.",
@@ -822,6 +941,48 @@ disorders = {
 
 
 fighting_arts = {
+    "Champion's Rite": {
+        "expansion": "Dragon King",
+        "desc": "Before making an attack, you may add your understanding to your accuracy attribute for that attack.<br/>Limit, once per showdown.",
+        "constellation": {
+            "horizontal": "Absolute",
+            "vertical": "Reaper",
+        },
+    },
+    "Unbreakable": {
+        "expansion": "Dragon King",
+        "desc": "Once per lantern year, you may ignore one of your severe injury roll results. If you do, gain a random disorder.",
+        "constellation": {
+            "horizontal": "Goblin",
+            "vertical": "Rust",
+        },
+    },
+    "Fated Blow": {
+        "expansion": "Dragon King",
+        "desc": "Once per showdown, you may give your next wound attempt +2 strength and <b>Devastating 1</b>.",
+        "constellation": {
+            "horizontal": "Gambler",
+            "vertical": "Storm",
+        },
+    },
+    "Acrobatics": {
+        "expansion": "Dragon King",
+        "desc": 'When you are adjacent to the monster, you may spend <font class="kdm_font">c</font> to place your survivor on any other space adjacent to the monster.',
+    },
+    "Frozen Star": {
+        "expansion": "Dragon King",
+        "secret": True,
+        "desc": "Once per round, you may spend 1 survival to freeze a monster's brain. They gain -2 accuracy until the end of the round.<br/>Once per round, you may spend 1 survival to freeze a survivor's brain, killing them instantly. They die.",
+        "constellation": {
+            "horizontal": "Absolute",
+            "vertical": "Rust",
+        },
+    },
+    "Altered Destiny": {
+        "expansion": "Dragon King",
+        "secret": True,
+        "desc": "If you would gain a negative attribute token, gain a positive attribute token of that type instead."
+    },
     "Fencing": {
         "expansion": "Flower Knight",
         "secret": True,
@@ -1043,6 +1204,10 @@ defeated_monsters = {
 }
 
 locations = {
+    "Dragon Armory":{
+        "color": "6A1B9A",
+        "font_color": "FFF",
+    },
     "Sense Memory": {
         "color": "145314",
         "font_color": "FFF",
@@ -1064,10 +1229,20 @@ locations = {
         "font_color": "FFF",
         "color": "FF00FF",
     },
+    "Throne": {
+        "consequences": ["Bone Smith", "Skinnery", "Organ Grinder", "Catarium", "Plumery", "Mask Maker"],
+        "endeavors": {
+            "Innovate": {"cost": 1, "desc": "Once per settlement phase, you may spend the listed resources (1 Endeavor, 1 Bone, 1 Organ, 1 Hide) to draw 2 innovation cards. Keep 1 and return the other to the deck."},
+            "Fear and Trembling": {"cost": 1, "desc": 'Once per settlement phase, a survivor may spend <font class="kdm_font">d</font> to approach the throne and roll 1d10.'},
+            "Build": {"cost":1, "desc": "Bone Smith", "remove_after": "Bone Smith"},
+            " Build": {"cost":1, "desc": "Skinnery", "remove_after": "Skinnery"},
+            "  Build": {"cost":1, "desc": "Organ Grinder", "remove_after": "Organ Grinder"},
+        },
+    },
     "Lantern Hoard": {
         "consequences": ["Bone Smith", "Skinnery", "Organ Grinder", "Catarium", "Plumery", "Exhausted Lantern Hoard", "Mask Maker"],
         "endeavors": {
-            "Innovate": {"cost": 1, "desc": "Once per settlement phase, you may spend the listed resources (1 Bone, 1 Organ, 1 Hide) to draw 2 innovation cards. Keep 1 and return the other to the deck."},
+            "Innovate": {"cost": 1, "desc": "Once per settlement phase, you may spend the listed resources (1 Endeavor, 1 Bone, 1 Organ, 1 Hide) to draw 2 innovation cards. Keep 1 and return the other to the deck."},
             "Shared Experience": {
                 "cost": 1,
                 "requires": ["Symposium"],
@@ -1227,6 +1402,135 @@ item_normalization_exceptions = {
 
 
 items = {
+    "Dragon Vestments": {
+        "expansion": "Dragon King",
+        "location": "Rare Gear",
+    },
+    "Celestial Spear": {
+        "expansion": "Dragon King",
+        "location": "Rare Gear",
+    },
+    "Hazmat Shield": {
+        "expansion": "Dragon King",
+        "location": "Rare Gear",
+    },
+    "Husk of Destiny": {
+        "expansion": "Dragon King",
+        "location": "Rare Gear",
+    },
+    "Red Power Core": {
+        "expansion": "Dragon King",
+        "location": "Dragon Armory",
+    },
+    "Blue Power Core": {
+        "expansion": "Dragon King",
+        "location": "Dragon Armory",
+    },
+    "Nuclear Knife": {
+        "expansion": "Dragon King",
+        "location": "Dragon Armory",
+    },
+    "Nuclear Scythe": {
+        "expansion": "Dragon King",
+        "location": "Dragon Armory",
+    },
+    "Blast Shield": {
+        "expansion": "Dragon King",
+        "location": "Dragon Armory",
+    },
+    "Shielded Quiver": {
+        "expansion": "Dragon King",
+        "location": "Dragon Armory",
+    },
+    "Dragon Bite Bolt": {
+        "expansion": "Dragon King",
+        "location": "Dragon Armory",
+    },
+    "Dragon Belt": {
+        "expansion": "Dragon King",
+        "location": "Dragon Armory",
+    },
+    "Dragon Chakram": {
+        "expansion": "Dragon King",
+        "location": "Dragon Armory",
+    },
+    "Regal Edge": {
+        "expansion": "Dragon King",
+        "location": "Dragon Armory",
+    },
+    "Dragon Boots": {
+        "expansion": "Dragon King",
+        "location": "Dragon Armory",
+    },
+    "Dragonskull Helm": {
+        "expansion": "Dragon King",
+        "location": "Dragon Armory",
+    },
+    "Talon Knife": {
+        "expansion": "Dragon King",
+        "location": "Dragon Armory",
+    },
+    "Dragon Gloves": {
+        "expansion": "Dragon King",
+        "location": "Dragon Armory",
+    },
+    "Dragon Mantle": {
+        "expansion": "Dragon King",
+        "location": "Dragon Armory",
+    },
+    "Dragon Armor Set": {
+        "expansion": "Dragon King",
+        "location": "Dragon Armory",
+    },
+    "Blast Sword": {
+        "expansion": "Dragon King",
+        "location": "Dragon Armory",
+    },
+    "Horn Fragment": {
+        "expansion": "Dragon King",
+        "location": "Dragon King Resources",
+        "resource_family": ["bone"],
+    },
+    "King's Claws": {
+        "expansion": "Dragon King",
+        "location": "Dragon King Resources",
+        "resource_family": ["bone"],
+    },
+    "Husk": {
+        "expansion": "Dragon King",
+        "location": "Dragon King Resources",
+        "resource_family": ["hide"],
+    },
+    "Veined Wing": {
+        "expansion": "Dragon King",
+        "location": "Dragon King Resources",
+        "resource_family": ["hide"],
+    },
+    "Dragon Iron": {
+        "expansion": "Dragon King",
+        "location": "Dragon King Resources",
+        "resource_family": ["scrap","iron"],
+    },
+    "King's Tongue": {
+        "expansion": "Dragon King",
+        "location": "Dragon King Resources",
+        "resource_family": ["hide"],
+    },
+    "Hardened Ribs": {
+        "expansion": "Dragon King",
+        "location": "Dragon King Resources",
+        "resource_family": ["bone"],
+    },
+    "Cabled Vein": {
+        "expansion": "Dragon King",
+        "location": "Dragon King Resources",
+        "resource_family": ["organ"],
+    },
+    "Radioactive Dung": {
+        "expansion": "Dragon King",
+        "location": "Dragon King Resources",
+        "resource_family": ["organ","scrap"],
+    },
     "Vespertine Foil": {
         "expansion": "Flower Knight",
         "location": "Sense Memory",
@@ -2383,7 +2687,7 @@ items = {
     "Jowls": {
         "expansion": "Sunstalker",
         "location": "Strange Resources",
-        "resource_family": ["iron"],
+        "resource_family": ["iron","scrap"],
     },
     "Hagfish": {
         "expansion": "Sunstalker",
@@ -2500,6 +2804,21 @@ items = {
         "expansion": "White Box",
         "location": "Ivory Carver",
     },
+    "Radiant Heart": {
+        "expansion": "Dragon King",
+        "location": "Strange Resources",
+        "resource_family": ["organ"],
+    },
+    "Pituitary Gland": {
+        "expansion": "Dragon King",
+        "location": "Strange Resources",
+        "resource_family": ["organ"],
+    },
+    "Shining Liver": {
+        "expansion": "Dragon King",
+        "location": "Strange Resources",
+        "resource_family": ["organ"],
+    },
 
 }
 
@@ -2510,6 +2829,39 @@ items = {
 #
 
 innovations = {
+    "Dragon Speech": {
+        "type": "starting innovation",
+        "expansion": "Dragon King",
+        "survival_limit": 1,
+        "survival_action": "Encourage",
+        "consequences": ["Hovel", "Inner Lantern", "Drums", "Paint", "Symposium", "Ammonia"],
+    },
+    "Arena": {
+        "type": "education",
+        "expansion": "Dragon King",
+        "endeavors": {
+            "Spar": {"cost": 1, "type": "education"},
+        },
+    },
+    "Empire": {
+        "type": "home",
+        "expansion": "Dragon King",
+        "survivor_buff": 'Newborn survivors are born with +1 permanent strength and the <font class="maroon_text">Pristine</font> ability.',
+        "newborn_survivor": {"Strength": 1, "abilities_and_impairments": "Pristine"},
+    },
+    "Bloodline": {
+        "type": "home",
+        "expansion": "Dragon King",
+        "consequences": ["Empire",],
+        "survivor_buff": """Newborn survivors inherit the following from their parents:<ul><li>The <font class="maroon_text">Oracle's Eye</font>, <font class="maroon_text">Iridescent Hide</font>, or <font class="maroon_text">Pristine</font> ability (choose 1)</li><li>1 <b>Surname</b></li><li>Half of one parent's weapon proficiency levels (rounded up)</li></ul>""",
+    },
+    "Radiating Orb": {
+        "type": "science",
+        "expansion": "Dragon King",
+        "settlement_buff": "<b>Departing Survivors</b> and newborn survivors gain +1 survival.<br/><b>Departing survivors</b> with a constellation gain +1 survival.",
+        "consequences": ["Cooking", "Scrap Smelting"],
+        "newborn_survivor": {"survival": 1},
+    },
     "Petal Spiral": {
         "type": "music",
         "expansion": "Flower Knight",
@@ -2769,13 +3121,13 @@ innovations = {
     },
     "Symposium": {
         "type": "education",
-        "consequences": ["Nightmare Training", "Storytelling", ],
+        "consequences": ["Nightmare Training", "Storytelling", "Arena" ],
         "survival_limit": 1,
         "settlement_buff": "When a survivor innovates, draw an additional 2 Innovation Cards to choose from.",
     },
     "Hovel": {
         "type": "home",
-        "consequences": ["Partnership", "Family", "Bed", "Shadow Dancing"],
+        "consequences": ["Partnership", "Family", "Bed", "Shadow Dancing","Bloodline"],
         "departure_buff": "Departing survivors gain +1 survival.",
         "survival_limit": 1,
     },
@@ -2995,6 +3347,7 @@ quarries = {
     "Flower Knight":            {"sort_order": 4, "tokens": ["FLOWER","FLOWERKNIGHT"]},
     "Phoenix":                  {"sort_order": 5, "tokens": ["PHOENIX","PHONIEX"]},
     "Sunstalker":               {"sort_order": 6, "tokens": ["STALKER","SUNSTALKER"], "expansion": "Sunstalker"},
+    "Dragon King":              {"sort_order": 7, "tokens": ["DRAGON"], "expansion": "Dragon King"},
     "Dung Beetle Knight":       {"sort_order": 7, "tokens": ["DUNG","BEETLE","DBK"], "expansion": "Dung Beetle Knight"},
 	"Lion God":                 {"sort_order": 8, "tokens": ["LIONGOD","GOD"], "expansion": "Lion God"},
     "Beast Of Sorrow":          {"sort_order": 10, "no_levels": True, "tokens": ["SORROW","BEAST"]},
@@ -3007,9 +3360,10 @@ quarries = {
 nemeses = {
     "Lonely Tree":          {"sort_order": 20, "tokens": ["LONELY","TREE"], "exclude_from_picker": True,},
     "Butcher":              {"sort_order": 21, "tokens": ["BUTCHER","BUTCHEE"]},
-    "King's Man":           {"sort_order": 22, "tokens": ["KINGSMAN","KINGS", "KING'S"]},
-    "Lion Knight":          {"sort_order": 23, "tokens": ["LK"], "expansion": "Lion Knight"},
-    "The Hand":             {"sort_order": 24, "tokens": ["HAND"]},
+    "The Tyrant":           {"sort_order": 22, "tokens": ["TYRANT"], "exclude_from_picker": True,},
+    "King's Man":           {"sort_order": 23, "tokens": ["KINGSMAN","KINGS", "KING'S"]},
+    "Lion Knight":          {"sort_order": 24, "tokens": ["LK"], "expansion": "Lion Knight"},
+    "The Hand":             {"sort_order": 25, "tokens": ["HAND"]},
     "Ancient Sunstalker":   {"sort_order": 30, "no_levels": True, "tokens": ["ANCIENT"], "expansion": "Sunstalker", "add_to_timeline_controls_at": 25, "campaign": "People of the Sun"},
     "Watcher":              {"sort_order": 31, "no_levels": True, "tokens": ["WATCHER"], "add_to_timeline_controls_at": 20, "campaign": "People of the Lantern"},
 }
@@ -3022,6 +3376,8 @@ nemeses = {
 #
 
 story_events = {
+    "Bold": {"page": 106, "book": "core"},
+    "Insight": {"page": 122, "book": "core"},
     "The Pool and the Sun": {"page": 15, "book": "Sunstalker"},
     "Endless Screams": {"page": 115, "book": "core"},
     "Sun Dipping": {"page": 19, "book": "Sunstalker"},
@@ -3040,11 +3396,21 @@ story_events = {
     "Hooded Knight": {"page": 121, "book": "core"},
     "The Lonely Lady": {"page": 2, "book": "Lonely Tree"},
     "A Crone's Tale": {"page": 4, "book": "Flower Knight"},
-    "The Forest WAnts What It Wants": {"page": 12, "book": "Flower Knight"},
+    "The Forest Wants What It Wants": {"page": 12, "book": "Flower Knight"},
     "Breakthrough": {"page": 14, "book": "Flower Knight"},
     "Sense Memory": {"page": 16, "book": "Flower Knight"},
     "A Warm Virus": {"page": 18, "book": "Flower Knight"},
     "Necrotoxic Mistletoe": {"page": 20, "book": "Flower Knight"},
+    "Glowing Crater": {"page": 4, "book": "Dragon King"},
+    "Meltdown": {"page": 8, "book": "Dragon King"},
+    "Foundlings": {"page": 10, "book": "Dragon King"},
+    "Intimacy (People of the Stars)": {"page": 12, "book": "Dragon King"},
+    "Midnight's Children": {"page": 14, "book": "Dragon King"},
+    "Awake": {"page": 16, "book": "Dragon King"},
+    "Unveil the Sky": {"page": 18, "book": "Dragon King"},
+    "Faces in the Sky": {"page": 20, "book": "Dragon King"},
+    "The Tomb": {"page": 22, "book": "Dragon King"},
+    "Death of the Dragon King": {"page": 27, "book": "Dragon King"},
 }
 
 resources = {
@@ -3063,6 +3429,10 @@ resources = {
     },
     "Dung Beetle Knight Resources": {
         "expansion": "Dung Beetle Knight",
+        "color": "FFCC66",
+    },
+    "Dragon King Resources": {
+        "expansion": "Dragon King",
         "color": "FFCC66",
     },
     "Basic Resources": {
@@ -3098,6 +3468,7 @@ survival_actions = {
 survivor_attributes = ["Movement", "Accuracy", "Strength", "Evasion", "Luck", "Speed"]
 
 weapon_proficiencies = {
+    "Scythe": {"expansion": "Dragon King"},
     "Katana": {"expansion": "Sunstalker", "auto-apply_specialization": False},
     "Bow": {},
     "Katar": {},
@@ -3114,6 +3485,7 @@ weapon_proficiencies = {
 }
 
 cursed_items = {
+    "Husk of Destiny": {"expansion": "Dragon King"},
     "Sleeping Virus Flower": {"expansion": "Flower Knight"},
     "Belt of Gender Swap": {"ability": "Gender Swap"},
     "Regal Helm": {"ability": "King's Curse",},
@@ -3127,13 +3499,42 @@ cursed_items = {
 	"Death Mehndi": {"expansion": "Lion God", "ability": "Death Mehndi"}
 }
 
+cause_of_death = {
+    "Died by the Throne": {"type": "endeavor", "expansion": "Dragon King"},
+    "Buried Alive": {"type": "endeavor", "expansion": "Sunstalker"},
+    "Bone fragment to the heart": {"type": "severe_injury"},
+    "Mortal Terror": {"type": "brain_trauma"},
+}
+
 epithets = {
+    "Foundling": {"expansion": "Dragon King"},
+    "Successor": {"expansion": "Dragon King"},
+    "Husk": {"expansion": "Dragon King"},
+    "Tyrant": {"expansion": "Dragon King"},
+    "Molded by the Tyrant": {"expansion": "Dragon King"},
+    "Died by the Throne": {"expansion": "Dragon King"},
+    "Sweetmeat Eater": {"expansion": "Dragon King"},
+    "Held the Radiant Heart": {"expansion": "Dragon King"},
+    "Numerologist": {"expansion": "Dragon King"},
+    "Gladiator": {"expansion": "Dragon King"},
+    "Nuclear Warrior": {"expansion": "Dragon King"},
+    "Atomic Heart": {"expansion": "Dragon King"},
+    "Star Gazer": {"expansion": "Dragon King"},
+    "Starbound": {"expansion": "Dragon King"},
+    "Dragonkin": {"expansion": "Dragon King"},
+    "Consumer of Sins": {"expansion": "Dragon King"},
+    "Consumer of Lies": {"expansion": "Dragon King"},
+    "Peered into Destiny": {"expansion": "Dragon King"},
+    "Noble": {"expansion": "Dragon King"},
+    "Reincarnated": {"expansion": "Dragon King"},
+    "Vespertine": {"expansion": "Flower Knight"},
     "Host": {"expansion": "Flower Knight"},
     "Guest": {"expansion": "Flower Knight"},
     "The First Host": {"expansion": "Flower Knight"},
     "The First Guest": {"expansion": "Flower Knight"},
     "Flower Addict": {"expansion": "Flower Knight"},
     "Sun Eater": {"expansion": "Sunstalker"},
+    "Triplet": {"expansion": "Sunstalker"},
     "Eye Patch Badass": {"expansion": "Sunstalker"},
     "Child of the Sun": {"expansion": "Sunstalker"},
     "Purified": {"expansion": "Sunstalker"},
@@ -3154,10 +3555,12 @@ epithets = {
     "Digested": {"expansion": "Gorm"},
     "Braved the Storm": {"expansion": "Gorm"},
     "Living Sacrifice": {"expansion": "Gorm"},
+    "Founder": {},
     "Vomit-soaked": {},
     "Twin": {},
     "Maw Runner": {},
     "Slayer": {},
+    "Sniper": {},
     "Scarred": {},
     "Plague-bearer": {},
     "Infected": {},
@@ -3223,6 +3626,41 @@ epithets = {
 }
 
 
+#
+#   constellation map (People of the Stars)
+#
+
+potstars_constellation = {
+    "map": {
+        "9 Understanding (max)": "A1",
+        "Destined disorder": "B1",
+        "Fated Blow fighting art": "C1",
+        "Pristine ability": "D1",
+        "Reincarnated surname": "A2",
+        "Frozen Star secret fighting art": "B2",
+        "Iridescent Hide ability": "C2",
+        "Champion's Rite fighting art": "D2",
+        "Scar": "A3",
+        "Noble surname": "B3",
+        "Weapon Mastery": "C3",
+        "+1 Accuracy attribute": "D3",
+        "Oracle's Eye ability": "A4",
+        "Unbreakable fighting art": "B4",
+        "3+ Strength attribute": "C4",
+        "9 Courage (max)": "D4",
+    },
+    "formulae": {
+        "Witch": ["A1","A2","A3","A4"],
+        "Rust": ["B1","B2","B3","B4"],
+        "Storm": ["C1","C2","C3","C4"],
+        "Reaper": ["D1","D2","D3","D4"],
+        "Gambler": ["A1","B1","C1","D1"],
+        "Absolute": ["A2","B2","C2","D2"],
+        "Sculptor": ["A3","B3","C3","D3"],
+        "Goblin": ["A4","B4","C4","D4"],
+    },
+}
+
 
 
 #
@@ -3231,8 +3669,15 @@ epithets = {
 
 expansions = {
     "Beta Challenge Scenarios": {
+        "subtitle": "Enables abilities & impairments, disorders, items etc. included in the Beta Challenge Scenarios.",
         "special_rules": [
         {"name": "Survival Limit Warning!", "desc": "Survival Limit is not automatically enforced by the Manager when Beta Challenge Scenarios content is enabled.", "bg_color": "F87217", "font_color": "FFF"},
+        ],
+    },
+    "Dragon King": {
+        "always_available": ["Dragon Armory"],
+        "timeline_add": [
+            {"ly": 8, "type": "story_event", "name": "Glowing Crater", "excluded_campaign": "People of the Stars"},
         ],
     },
     "Gorm": {
@@ -3268,12 +3713,13 @@ expansions = {
         "timeline_add": [
             {"ly": 8, "type": "story_event", "name": "Promise Under the Sun", "excluded_campaign": "People of the Sun"},
         ],
-        "survivor_attribs": ["Purified","Sun Eater","Child of the Sun"],
     },
     "Lonely Tree": {
-        "always_available_nemesis": True,
+        "always_available_nemesis": "Lonely Tree",
     },
-    "White Box": {},
+    "White Box": {
+        "subtitle": "Enables promo and early-release items and abilities & impairments included in the so-called 'White Box' collection of survivor minis (released at Gen Con 2016).",
+    },
     "Flower Knight": {
         "timeline_add": [{"ly": 5, "type": "story_event", "name": "A Crone's Tale", "excluded_campaign": "The Bloom People"}],
     },
@@ -3460,6 +3906,8 @@ campaigns = {
 
     "People of the Sun": {
         "expansions": ["Sunstalker"],
+        "survivor_attribs": ["Purified","Sun Eater","Child of the Sun"],
+        "always_available": ["Sun Language","The Sun"],
         "forbidden": ["Leader", "Lantern Hoard"],
         "principles": {
             # custom new life principle
@@ -3502,6 +3950,69 @@ campaigns = {
             {"year": 23, "nemesis_encounter": ["Nemesis Encounter: Kings Man Level 3"]},
             {"year": 24, "nemesis_encounter": ["Nemesis Encounter: The Hand Level 3"]},
             {"year": 25, "story_event": ["The Great Devourer"]},
+            {"year": 26, }, {"year": 27, }, {"year": 28, }, {"year": 29, }, {"year": 30, }, {"year": 31, },
+            {"year": 32, }, {"year": 33, }, {"year": 34, }, {"year": 35, }, {"year": 36, },
+            {"year": 37, }, {"year": 38, }, {"year": 39, }, {"year": 40, },
+        ],
+    },
+
+    "People of the Stars": {
+        "expansions": ["Dragon King"],
+        "always_available": ["Throne","Dragon Speech","Radiating Orb"],
+        "forbidden": ["Lantern Hoard", "Language","Lantern Oven","Clan of Death","Family"],
+        "always_available_nemesis": "The Tyrant",
+        "founder_epithet": "Foundling",
+        "replaced_story_events": {
+            "Bold": "Awake",
+            "Insight": "Awake",
+        },
+        "new_survivor_additional_attribs": {
+            "constellation": None,
+            "constellation_traits": [],
+        },
+        "survivor_attribs": ["Scar","Noble surname","Reincarnated surname"],
+        "special_rules": [
+            {"name": "Removed Story Events", "desc": "If an event or card would cause you to add/trigger <b>Hands of Heat</b>, <b>Regal Visit</b>, <b>Armored Strangers</b>, <b>Watched</b>, or <b>Nemesis Encounter - Watcher</b>, do nothing instead.", "bg_color": "673AB7", "font_color": "FFF"},
+#            {"name": "Removed Innovations", "desc": "Remove the following innovations from the pool of possible innovations: <b>Language</b>, <b>Lantern Oven</b>, <b>Family</b>, and <b>Clan of Death</b>.", "bg_color": "4527A0", "font_color": "FFF"},
+        ],
+        "principles": {
+            # custom new life principle
+            "New Life": principles["new_life"],
+            "Death": principles["death"],
+            "Society": principles["society"],
+            "Conviction": principles["conviction"],
+        },
+        "milestones": {
+            "First child is born": milestones["first_child"],
+            "First time death count is updated": milestones["first_death"],
+            "Population reaches 15": milestones["pop_15"],
+            "Population reaches 0": milestones["game_over"],
+        },
+        "nemesis_monsters": {"Butcher": [u'Lvl 1'], "King's Man": [u'Lvl 1'], "The Hand": [u'Lvl 1'],},
+        "timeline": [
+            {"year": 0, "settlement_event": ["First Day"]},
+            {"year": 1, "story_event": ["The Foundlings"]},
+            {"year": 2, "story_event": ["Endless Screams"]},
+            {"year": 3, },
+            {"year": 4, "nemesis_encounter": ["Nemesis Encounter - Dragon King Human Lvl 1"]},
+            {"year": 5, "story_event": ["Midnight's Children"]},
+            {"year": 6, },
+            {"year": 7, "story_event": ["Phoenix Feather"]},
+            {"year": 8, },
+            {"year": 9, "nemesis_encounter": ["Nemesis Encounter - Dragon King Human Lvl 2"]},
+            {"year": 10, "story_event": ["Unveil the Sky"]},
+            {"year": 11, },
+            {"year": 12, "story_event": ["Principle: Conviction"]},
+            {"year": 13, "nemesis_encounter": ["Nemesis Encounter - Butcher Lvl 2"]},
+            {"year": 14, }, {"year": 15, },
+            {"year": 16, "nemesis_encounter": ["Nemesis Encounter - Lvl 2"]},
+            {"year": 17, }, {"year": 18, },
+            {"year": 19, "nemesis_encounter": ["Nemesis Encounter - Dragon King Human Lvl 3"]},
+            {"year": 20, "story_event": ["The Dragon's tomb"]},
+            {"year": 21, }, {"year": 22, },
+            {"year": 23, "nemesis_encounter": ["Nemesis Encounter - Lvl 3"]},
+            {"year": 24, },
+            {"year": 25, "nemesis_encounter": ["Nemesis Encounter - Death of the Dragon King"]},
             {"year": 26, }, {"year": 27, }, {"year": 28, }, {"year": 29, }, {"year": 30, }, {"year": 31, },
             {"year": 32, }, {"year": 33, }, {"year": 34, }, {"year": 35, }, {"year": 36, },
             {"year": 37, }, {"year": 38, }, {"year": 39, }, {"year": 40, },

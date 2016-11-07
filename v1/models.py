@@ -76,7 +76,17 @@ class Model:
             # finally, check the asset itself
             asset_dict = self.get_asset(game_asset)
             if "always_available" in asset_dict.keys():
-                always_available.add(game_asset) 
+                always_available.add(game_asset)
+
+        # normatively speaking, forbidden trumps always_available (someone's got
+        #   to have precedence, you know?)
+        if "forbidden" in settlement_object.get_campaign("dict"):
+            forbidden = settlement_object.get_campaign("dict")["forbidden"]
+            always_available = list(always_available)
+            for game_asset in always_available:
+                if game_asset in forbidden:
+                    always_available.remove(game_asset)
+            always_available = set(always_available)
 
         return always_available
 

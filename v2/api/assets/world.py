@@ -213,6 +213,11 @@ general = {
         "name": "Top Settlement names",
         "comment": "most popular survivor names across all settlements",
     },
+    "top_causes_of_death": {
+        "max_age": 60,
+        "name": "Top causes of death",
+        "comment": "most popular causes of survivor death across all settlements",
+    },
     "principle_selection_rates": {
         "max_age": 60,
         "name": "Principle selection rates",
