@@ -2055,7 +2055,7 @@ class Survivor:
 
             if type(params[p]) != list:
                 game_asset_key = params[p].value.strip()
-                self.logger.debug("%s -> '%s' (type=%s)" % (p, game_asset_key, type(params[p])))
+#                self.logger.debug("%s -> '%s' (type=%s)" % (p, game_asset_key, type(params[p])))
 
             if p in ["asset_id", "heal_survivor", "form_id", "modify","view_game"]:
                 pass
