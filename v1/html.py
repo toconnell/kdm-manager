@@ -524,7 +524,7 @@ class survivor:
             <div id="survivor_survival_actions_container">
                 <p>
                  <input type='hidden' value='unchecked' name='toggle_cannot_spend_survival'/>
-                 <input onchange="this.form.submit()" type="checkbox" id="cannot_spend_survival" class="radio_principle" name="toggle_cannot_spend_survival" value="checked" $cannot_spend_survival_checked /> 
+                 <input onchange="updateAssetAttrib(this,'survivor','$survivor_id')" type="checkbox" id="cannot_spend_survival" class="radio_principle" name="toggle_cannot_spend_survival" value="checked" $cannot_spend_survival_checked /> 
                  <label id="cannot_spend_survival" class="radio_principle_label" for="cannot_spend_survival"> Cannot spend survival </label>
                     <hr class="invisible"/>
                  $survival_actions
@@ -824,7 +824,7 @@ class survivor:
 
                 <h3>Fighting Arts</h3>
                  <input type='hidden' value='unchecked' name='toggle_cannot_use_fighting_arts'/>
-                 <input onchange="this.form.submit()" type="checkbox" id="cannot_use_fighting_arts" class="radio_principle" name="toggle_cannot_use_fighting_arts" value="checked" $cannot_use_fighting_arts_checked />
+                 <input onchange="updateAssetAttrib(this,'survivor','$survivor_id')" type="checkbox" id="cannot_use_fighting_arts" class="radio_principle" name="toggle_cannot_use_fighting_arts" value="checked" $cannot_use_fighting_arts_checked />
                  <label class="radio_principle_label float_right_toggle" for="cannot_use_fighting_arts" id="cannot_use_fighting_arts_toggle"> Cannot use<br/>Fighting Arts </label>
                 <p>Maximum 3.</p>
 
