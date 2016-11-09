@@ -673,7 +673,7 @@ class survivor:
                 </div>
                 <div class="hit_box_detail">
                  <input id="damage_body_heavy" onclick="toggleDamage('damage_body_heavy','$survivor_id');" type="submit" class="damage_box_$body_damage_heavy_checked heavy_damage damage_box" name="toggle_body_damage_heavy" value=" "/>
-                 <input id="damage_body_light" onclick="toggleDamage('damage_body_light',,'$survivor_id');" type="submit" class="damage_box_$body_damage_light_checked damage_box" name="toggle_body_damage_light" value=" "/>
+                 <input id="damage_body_light" onclick="toggleDamage('damage_body_light','$survivor_id');" type="submit" class="damage_box_$body_damage_light_checked damage_box" name="toggle_body_damage_light" value=" "/>
                     <h2>Body</h2>
                     <b>H</b>eavy Injury: Knocked Down
                 </div>
