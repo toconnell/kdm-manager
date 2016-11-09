@@ -3506,13 +3506,25 @@ cause_of_death = {
 
     # monster-specific
 #    "Coup de grace" {"type": "monster"},
-    "Decapitated": {"type": "monster"},
+    "Never existed": {"type": "monster"},
+
+    # hunt event
+    "Devoured by a stone face": {"type": "hunt_event"},
+    "Devoured by a Harvester": {"type": "hunt_event"},
+    "Eaten by a titanic beast": {"type": "hunt_event"},
+    "Death Wager": {"type": "hunt_event"},
+    "Consuming grass": {"type": "hunt_event"},
 
     # severe-injury
-    "Bone fragment to the heart": {"type": "severe_injury"},
     "Bled out": {"type": "severe_injury"},
-    "Arms ripped off": {"type": "severe_injury"},
     "Head Explosion": {"type": "severe_injury"},
+    "Decapitated": {"type": "severe_injury"},
+    "Arms ripped off": {"type": "severe_injury"},
+    "Died of Shock": {"type": "severe_injury"},
+    "Bone fragment to the heart": {"type": "severe_injury"},
+    "Instant death": {"type": "severe_injury"},
+    "Final breath": {"type": "severe_injury"},
+    "Blood Geyser": {"type": "severe_injury"},
 
     # brain trauma
     "Mortal Terror": {"type": "brain_trauma"},

@@ -1262,10 +1262,17 @@ class Survivor:
         if "damage" in toggle_key.split("_"):
             toggle_type="explicit"
 
+
         if toggle_type == "explicit":
             if toggle_key not in self.survivor.keys():
                 self.survivor[toggle_key] = "checked"
                 self.logger.debug("%s toggled '%s' ON for survivor %s." % (self.User.user["login"], toggle_key, self.get_name_and_id()))
+                if toggle_key == "retired":
+                    self.retire()
+                return True
+            elif toggle_key in self.survivor.keys():
+                del self.survivor[toggle_key]
+                self.logger.debug("[%s] toggled '%s' OFF for survivor %s." % (self.User, toggle_key, self))
                 return True
 
         if type(toggle_value) != list:
@@ -1811,6 +1818,23 @@ class Survivor:
                 self.logger.debug("[%s] toggled OFF expansion attribute '%s' for %s" % (self.User, attrib, self))
 
 
+    def update_sex(self, new_sex):
+        """ Method for updating a survivor's sex. """
+
+        # return false if we get a bogus value
+        if new_sex not in ["M","F"]:
+            return False
+
+        # check for Gender Swap A&I
+        if "Gender Swap" in self.survivor["abilities_and_impairments"]:
+            return False
+
+
+        self.logger.debug("[%s] changed survivor %s sex to %s" % (self.User, self, new_sex))
+        self.Settlement.log_event("%s sex changed to %s!" % (self, new_sex))
+        self.survivor["sex"] = new_sex
+
+
     def update_affinities(self, params):
         """ Updates the survivor's "affinities" attrib. The 'params' arg can be
         either a dict or a cgi.FieldStorage(). The function will handle either
@@ -1904,6 +1928,7 @@ class Survivor:
 
         self.survivor["retired"] = "checked"
         self.survivor["retired_in"] = self.Settlement.settlement["lantern_year"]
+        self.logger.debug("[%s] just retired %s" % (self.User, self))
         self.Settlement.log_event("%s has retired." % self)
         mdb.survivors.save(self.survivor)
 
@@ -2111,8 +2136,7 @@ class Survivor:
                 self.join_hunting_party()
             elif p == "sex":
                 new_sex = game_asset_key.strip()[0].upper()
-                if new_sex in ["M","F"] and not "Gender Swap" in self.survivor["abilities_and_impairments"]:
-                    self.survivor["sex"] = new_sex
+                self.update_sex(new_sex)
             elif p == "partner_id":
                 self.update_partner(game_asset_key)
             elif p == "expansion_attribs":
@@ -2120,6 +2144,9 @@ class Survivor:
             elif p == "modal_update":
                 if game_asset_key == "affinities":
                     self.update_affinities(params)
+            elif p.split("_")[0] == "toggle":
+                toggle_key = "_".join(p.split("_")[1:])
+                self.toggle(toggle_key, game_asset_key, toggle_type="explicit")
             else:
                 self.survivor[p] = game_asset_key
 

@@ -1080,6 +1080,7 @@ right connector from last child*/
     div#asset_management_right_pane ul {margin-left: 2px; font-size: 14px;}
 
     /* wide survivor sheet styles */
+    button#modalDeathButton {font-size: 17px; }
     button#constellationModalOpener {width: 40%; margin-top: 40%; margin-bottom: 10px;  float: left; }
     div#modalConstellation table#survivor_constellation_table {font-size: 13pt; width: 70%;}
     div#modalConstellation table#survivor_constellation_table td {font-size: 12pt; height: 75px; }
@@ -1120,6 +1121,7 @@ right connector from last child*/
     .insanity_box {height: 90px; margin-top: 10px; }
     .hit_box_detail label {margin-top: -15px; margin-right: -5px;}
     .hit_box_detail h2 {height: auto;  font-size: 13pt; }
+    div.insanity_box div.big_number_container {width: 72px; }
     font#hit_box_insanity {font-size: 10px;  }
     div#COD { position: relative; }
     div#COD input { width: 290px;}

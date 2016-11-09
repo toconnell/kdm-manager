@@ -54,14 +54,22 @@ app.controller("epithetController", function($scope) {
     }
 });
 
-// name change func. Going here instead of head
-function updateSurvivorName(asset_id) {
-    var new_name = document.getElementById("survivor_sheet_survivor_name").value;
+// generic survivor attrib update sans page refresh
+function updateAssetAttrib(source_input, collection, asset_id) {
+//    window.alert(source_input + "id=" + source_input.id);
+
+    // a little idiot-proofing for Yours Truly
+    if (source_input.hasAttribute('id') != true) {window.alert("Trigger element has no id!")};
+
+    var attrib_key = document.getElementById(source_input.id).name;
+    var new_value = document.getElementById(source_input.id).value;
+
+//    window.alert(attrib_key + " - " + new_value);
 
     var http = new XMLHttpRequest();
     http.open("POST", "/", true);
     http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-    var params = "name=" + new_name + "&modify=survivor&asset_id=" + asset_id
+    var params = attrib_key + "=" + new_value + "&modify=" + collection +"&asset_id=" + asset_id;
     http.send(params);
 
     $('#saved_dialog').show();

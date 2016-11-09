@@ -477,7 +477,7 @@ class survivor:
             <input type="hidden" name="modify" value="survivor" />
             <input type="hidden" name="asset_id" value="$survivor_id" />
 
-            <input id="survivor_sheet_survivor_name" type="text" name="name" value="$name" placeholder="Survivor Name" onchange="updateSurvivorName('$survivor_id')" onClick="this.select()"/>
+            <input id="survivor_sheet_survivor_name" type="text" name="name" value="$name" placeholder="Survivor Name" onchange="updateAssetAttrib(this, 'survivor', '$survivor_id')" onClick="this.select()"/>
             <br class="mobile_only"/><br class="mobile_only"/><br class="mobile_only"/>
 
             $epithet_controls
@@ -487,7 +487,7 @@ class survivor:
             $affinity_controls
 
             <p>
-            Survivor Sex: <input onchange="this.form.submit()" class="survivor_sex_text" name="sex" value="$sex" />
+            Survivor Sex: <input onchange="updateAssetAttrib(this, 'survivor', '$survivor_id')" class="survivor_sex_text" name="sex" value="$sex" id="survivor_sheet_survivor_sex"/>
             $mobile_avatar_img
             <br/>
 
@@ -495,7 +495,7 @@ class survivor:
 
                     <!-- favorite -->
                  <input type='hidden' value='unchecked' name='toggle_favorite'/>
-                 <input onchange="this.form.submit()" type="checkbox" id="favorite" class="radio_principle" name="toggle_favorite" value="checked" $favorite_checked /> 
+                 <input onchange="updateAssetAttrib(this,'survivor','$survivor_id')" type="checkbox" id="favorite" class="radio_principle" name="toggle_favorite" value="checked" $favorite_checked /> 
                  <label class="radio_principle_label toggle_favorite" for="favorite"> &#9733; Favorite </label>
 
                     <!-- dead -->
@@ -503,7 +503,7 @@ class survivor:
 
                     <!-- retired -->
                  <input type='hidden' value='unchecked' name='toggle_retired'/>
-                 <input onchange="this.form.submit()" type="checkbox" id="retired" class="radio_principle" name="toggle_retired" value="checked" $retired_checked> 
+                 <input onchange="updateAssetAttrib(this,'survivor','$survivor_id')" type="checkbox" id="retired" class="radio_principle" name="toggle_retired" value="checked" $retired_checked> 
                  <label class="radio_principle_label" for="retired" style="float: right; clear: none;"> Retired &nbsp; </label>
                 </p>
 
@@ -867,7 +867,7 @@ class survivor:
                   <input type="hidden" name="modify" value="survivor" />
                   <input type="hidden" name="asset_id" value="$survivor_id" />
                   <input type='hidden' value='unchecked' name='toggle_skip_next_hunt'/>
-                  <input onchange="this.form.submit()" type="checkbox" id="skip_next_hunt" class="radio_principle" name="toggle_skip_next_hunt" value="checked" $skip_next_hunt_checked />
+                  <input onchange="updateAssetAttrib(this,'survivor','$survivor_id')" type="checkbox" id="skip_next_hunt" class="radio_principle" name="toggle_skip_next_hunt" value="checked" $skip_next_hunt_checked />
                   <label class="radio_principle_label float_right_toggle" for="skip_next_hunt" id="skip_next_hunt_toggle"> Skip Next<br/>Hunt </label>
                 </form>
             <p>
