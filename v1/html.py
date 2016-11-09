@@ -643,7 +643,7 @@ class survivor:
                     <button class="decrementer" onclick="decrement('headBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
-                 <input id="damage_head_heavy" onclick="toggleDamage('damage_head_heavy');" type="submit" class="damage_box_$head_damage_heavy_checked heavy_damage damage_box" name="toggle_head_damage_heavy" value=" "/>
+                 <input id="damage_head_heavy" onclick="toggleDamage('damage_head_heavy','$survivor_id');" type="submit" class="damage_box_$head_damage_heavy_checked heavy_damage damage_box" name="toggle_head_damage_heavy" value=" "/>
                     <h2>Head</h2>
                     <b>H</b>eavy Injury: Knocked Down
                 </div>
