@@ -2082,7 +2082,7 @@ class Survivor:
 
             if type(params[p]) != list:
                 game_asset_key = params[p].value.strip()
-                self.logger.debug("%s -> '%s' (type=%s)" % (p, game_asset_key, type(params[p])))
+#                self.logger.debug("%s -> '%s' (type=%s)" % (p, game_asset_key, type(params[p])))
 
             if p in ["asset_id", "heal_survivor", "form_id", "modify","view_game"]:
                 pass
@@ -2147,11 +2147,9 @@ class Survivor:
                 if game_asset_key == "affinities":
                     self.update_affinities(params)
             elif p.split("_")[0] == "toggle" and "norefresh" in params:
-                self.logger.debug(params)
                 toggle_key = "_".join(p.split("_")[1:])
                 self.toggle(toggle_key, game_asset_key, toggle_type="explicit")
             elif p.split("_")[0] == "toggle" and "damage" in p.split("_"):
-                self.logger.debug(params)
                 toggle_key = "_".join(p.split("_")[1:])
                 self.toggle(toggle_key, game_asset_key, toggle_type="explicit")
             else:
