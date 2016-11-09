@@ -258,8 +258,8 @@ class World:
         # get results
         sort_params = [("created_on",-1)]
         if sort_on is not None:
-            sort_params = [("%s" % sort_on, -1)]
-        results = utils.mdb[collection].find(query, sort=[("created_on", -1)])
+            sort_params = [(sort_on, -1)]
+        results = utils.mdb[collection].find(query, sort=sort_params)
 
         # throw an exception if results is None
         if results is None:
