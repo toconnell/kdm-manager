@@ -207,7 +207,7 @@ class World:
     #
 
 
-    def get_eligible_documents(self, collection=None, required_attribs=None, limit=None, exclude_dead_survivors=True, include_settlement=False):
+    def get_eligible_documents(self, collection=None, required_attribs=None, limit=None, exclude_dead_survivors=True, include_settlement=False, sort_on=None):
         """ Returns a dict representing the baseline mdb query for a given
         collection.
 
@@ -256,6 +256,9 @@ class World:
             self.logger.error("The collections '%s' is not within the scope of world.py")
 
         # get results
+        sort_params = [("created_on",-1)]
+        if sort_on is not None:
+            sort_params = [("%s" % sort_on, -1)]
         results = utils.mdb[collection].find(query, sort=[("created_on", -1)])
 
         # throw an exception if results is None
@@ -512,6 +515,7 @@ class World:
             limit=1,
             exclude_dead_survivors=False,
             include_settlement=True,
+            sort_on="died_on",
         )
 
     def latest_settlement(self):
