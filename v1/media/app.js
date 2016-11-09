@@ -69,7 +69,7 @@ function updateAssetAttrib(source_input, collection, asset_id) {
     var http = new XMLHttpRequest();
     http.open("POST", "/", true);
     http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-    var params = attrib_key + "=" + new_value + "&modify=" + collection +"&asset_id=" + asset_id;
+    var params = attrib_key + "=" + new_value + "&modify=" + collection +"&asset_id=" + asset_id + "&norefresh=True";
     http.send(params);
 
     $('#saved_dialog').show();

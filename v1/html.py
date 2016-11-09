@@ -494,7 +494,6 @@ class survivor:
             <div id="survivor_dead_retired_container">
 
                     <!-- favorite -->
-                 <input type='hidden' value='unchecked' name='toggle_favorite'/>
                  <input onchange="updateAssetAttrib(this,'survivor','$survivor_id')" type="checkbox" id="favorite" class="radio_principle" name="toggle_favorite" value="checked" $favorite_checked /> 
                  <label class="radio_principle_label toggle_favorite" for="favorite"> &#9733; Favorite </label>
 
@@ -502,7 +501,6 @@ class survivor:
                     <button id="modalDeathButton" class="$death_button_class" title="Mark this survivor as dead">Dead</button>
 
                     <!-- retired -->
-                 <input type='hidden' value='unchecked' name='toggle_retired'/>
                  <input onchange="updateAssetAttrib(this,'survivor','$survivor_id')" type="checkbox" id="retired" class="radio_principle" name="toggle_retired" value="checked" $retired_checked> 
                  <label class="radio_principle_label" for="retired" style="float: right; clear: none;"> Retired &nbsp; </label>
                 </p>
@@ -631,7 +629,7 @@ class survivor:
              </div>
 
              <div class="hit_box_detail">
-              <input id="damage_brain_light" onclick="toggleDamage('damage_brain_light');" type="submit" class="damage_box_$brain_damage_light_checked damage_box" name="toggle_brain_damage_light" value=" "/>
+              <input id="damage_brain_light" onclick="toggleDamage('damage_brain_light','$survivor_id');" type="submit" class="damage_box_$brain_damage_light_checked damage_box" name="toggle_brain_damage_light" value=" "/>
                 <h2>Brain</h2><br/>
                 If your insanity is 3+, <font ng-class="{insanity_font: insanity>=3}">you are <b>Insane</b></font>.
              </div>
@@ -659,8 +657,8 @@ class survivor:
                     <button class="decrementer" onclick="decrement('armsBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
-                 <input id="damage_arms_heavy" onclick="toggleDamage('damage_arms_heavy');" type="submit" class="damage_box_$arms_damage_heavy_checked heavy_damage damage_box" name="toggle_arms_damage_heavy" value=" "/>
-                 <input id="damage_arms_light" onclick="toggleDamage('damage_arms_light');" type="submit" class="damage_box_$arms_damage_light_checked damage_box" name="toggle_arms_damage_light" value=" "/>
+                 <input id="damage_arms_heavy" onclick="toggleDamage('damage_arms_heavy','$survivor_id');" type="submit" class="damage_box_$arms_damage_heavy_checked heavy_damage damage_box" name="toggle_arms_damage_heavy" value=" "/>
+                 <input id="damage_arms_light" onclick="toggleDamage('damage_arms_light','$survivor_id');" type="submit" class="damage_box_$arms_damage_light_checked damage_box" name="toggle_arms_damage_light" value=" "/>
                     <h2>Arms</h2>
                     <b>H</b>eavy Injury: Knocked Down
                 </div>
@@ -674,8 +672,8 @@ class survivor:
                     <button class="decrementer" onclick="decrement('bodyBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
-                 <input id="damage_body_heavy" onclick="toggleDamage('damage_body_heavy');" type="submit" class="damage_box_$body_damage_heavy_checked heavy_damage damage_box" name="toggle_body_damage_heavy" value=" "/>
-                 <input id="damage_body_light" onclick="toggleDamage('damage_body_light');" type="submit" class="damage_box_$body_damage_light_checked damage_box" name="toggle_body_damage_light" value=" "/>
+                 <input id="damage_body_heavy" onclick="toggleDamage('damage_body_heavy','$survivor_id');" type="submit" class="damage_box_$body_damage_heavy_checked heavy_damage damage_box" name="toggle_body_damage_heavy" value=" "/>
+                 <input id="damage_body_light" onclick="toggleDamage('damage_body_light',,'$survivor_id');" type="submit" class="damage_box_$body_damage_light_checked damage_box" name="toggle_body_damage_light" value=" "/>
                     <h2>Body</h2>
                     <b>H</b>eavy Injury: Knocked Down
                 </div>
@@ -689,8 +687,8 @@ class survivor:
                     <button class="decrementer" onclick="decrement('waistBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
-                 <input id="damage_waist_heavy" onclick="toggleDamage('damage_waist_heavy');" type="submit" class="damage_box_$waist_damage_heavy_checked heavy_damage damage_box" name="toggle_waist_damage_heavy" value=" "/>
-                 <input id="damage_waist_light" onclick="toggleDamage('damage_waist_light');" type="submit" class="damage_box_$waist_damage_light_checked damage_box" name="toggle_waist_damage_light" value=" "/>
+                 <input id="damage_waist_heavy" onclick="toggleDamage('damage_waist_heavy','$survivor_id');" type="submit" class="damage_box_$waist_damage_heavy_checked heavy_damage damage_box" name="toggle_waist_damage_heavy" value=" "/>
+                 <input id="damage_waist_light" onclick="toggleDamage('damage_waist_light','$survivor_id');" type="submit" class="damage_box_$waist_damage_light_checked damage_box" name="toggle_waist_damage_light" value=" "/>
                     <h2>Waist</h2>
                     <b>H</b>eavy Injury: Knocked Down
                 </div>
@@ -704,8 +702,8 @@ class survivor:
                     <button class="decrementer" onclick="decrement('legsBox');">-</button>
                 </div>
                 <div class="hit_box_detail">
-                 <input id="damage_legs_heavy" onclick="toggleDamage('damage_legs_heavy');" type="submit" class="damage_box_$legs_damage_heavy_checked heavy_damage damage_box" name="toggle_legs_damage_heavy" value=" "/>
-                 <input id="damage_legs_light" onclick="toggleDamage('damage_legs_light');" type="submit" class="damage_box_$legs_damage_light_checked damage_box" name="toggle_legs_damage_light" value=" "/>
+                 <input id="damage_legs_heavy" onclick="toggleDamage('damage_legs_heavy','$survivor_id');" type="submit" class="damage_box_$legs_damage_heavy_checked heavy_damage damage_box" name="toggle_legs_damage_heavy" value=" "/>
+                 <input id="damage_legs_light" onclick="toggleDamage('damage_legs_light','$survivor_id');" type="submit" class="damage_box_$legs_damage_light_checked damage_box" name="toggle_legs_damage_light" value=" "/>
                     <h2>Legs</h2>
                     <b>H</b>eavy Injury: Knocked Down
                 </div>
@@ -866,7 +864,6 @@ class survivor:
                   <input type="hidden" name="form_id" value="survivor_edit_abilities" />
                   <input type="hidden" name="modify" value="survivor" />
                   <input type="hidden" name="asset_id" value="$survivor_id" />
-                  <input type='hidden' value='unchecked' name='toggle_skip_next_hunt'/>
                   <input onchange="updateAssetAttrib(this,'survivor','$survivor_id')" type="checkbox" id="skip_next_hunt" class="radio_principle" name="toggle_skip_next_hunt" value="checked" $skip_next_hunt_checked />
                   <label class="radio_principle_label float_right_toggle" for="skip_next_hunt" id="skip_next_hunt_toggle"> Skip Next<br/>Hunt </label>
                 </form>
@@ -2285,7 +2282,21 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
 
     output += """\n\
         <script>
-        function toggleDamage(elem_id) {document.getElementById(elem_id).classList.toggle("damage_box_checked");}
+        function toggleDamage(elem_id, asset_id) {
+            document.getElementById(elem_id).classList.toggle("damage_box_checked");
+
+            var toggle_key = document.getElementById(elem_id);
+
+        var http = new XMLHttpRequest();
+        http.open("POST", "/", true);
+        http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+        var params =  toggle_key.name + "=checked" + "&modify=survivor" +"&asset_id=" + asset_id + "&norefresh=True";
+        http.send(params);
+
+        $('#saved_dialog').show();
+        $('#saved_dialog').fadeOut(1500)
+
+        }
         </script>
 
         <script>

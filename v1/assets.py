@@ -1275,22 +1275,22 @@ class Survivor:
                 self.logger.debug("[%s] toggled '%s' OFF for survivor %s." % (self.User, toggle_key, self))
                 return True
 
-        if type(toggle_value) != list:
-            try:
-                del self.survivor[toggle_key]
-                self.logger.debug("%s toggled '%s' OFF for survivor %s." % (self.User.user["login"], toggle_key, self.get_name_and_id()))
-                if toggle_key == "dead":
-                    if self.death(undo_death=True):
-                        self.logger.debug("Survivor '%s' (%s) has not returned from death!" % (self.survivor["name"], self.survivor["_id"]))
-            except Exception as e:
-                pass
-        else:
-            self.survivor[toggle_key] = "checked"
-            if toggle_key == "dead":
-                if not self.death():
-                    self.logger.error("Could not process death for survivor '%s' (%s)." % (self.survivor["name"], self.survivor["_id"]))
-            if toggle_key == "retired":
-                self.retire()
+#        if type(toggle_value) != list:
+#            try:
+#                del self.survivor[toggle_key]
+#                self.logger.debug("%s toggled '%s' OFF for survivor %s." % (self.User.user["login"], toggle_key, self.get_name_and_id()))
+#                if toggle_key == "dead":
+#                    if self.death(undo_death=True):
+#                        self.logger.debug("Survivor '%s' (%s) has not returned from death!" % (self.survivor["name"], self.survivor["_id"]))
+#            except Exception as e:
+#                pass
+#        else:
+#            self.survivor[toggle_key] = "checked"
+#            if toggle_key == "dead":
+#                if not self.death():
+#                    self.logger.error("Could not process death for survivor '%s' (%s)." % (self.survivor["name"], self.survivor["_id"]))
+#            if toggle_key == "retired":
+#                self.retire()
 
 
         mdb.survivors.save(self.survivor)
@@ -1829,6 +1829,8 @@ class Survivor:
         if "Gender Swap" in self.survivor["abilities_and_impairments"]:
             return False
 
+        if new_sex == self.survivor["sex"]:
+            return False
 
         self.logger.debug("[%s] changed survivor %s sex to %s" % (self.User, self, new_sex))
         self.Settlement.log_event("%s sex changed to %s!" % (self, new_sex))
@@ -2080,7 +2082,7 @@ class Survivor:
 
             if type(params[p]) != list:
                 game_asset_key = params[p].value.strip()
-#                self.logger.debug("%s -> '%s' (type=%s)" % (p, game_asset_key, type(params[p])))
+                self.logger.debug("%s -> '%s' (type=%s)" % (p, game_asset_key, type(params[p])))
 
             if p in ["asset_id", "heal_survivor", "form_id", "modify","view_game"]:
                 pass
@@ -2144,7 +2146,12 @@ class Survivor:
             elif p == "modal_update":
                 if game_asset_key == "affinities":
                     self.update_affinities(params)
-            elif p.split("_")[0] == "toggle":
+            elif p.split("_")[0] == "toggle" and "norefresh" in params:
+                self.logger.debug(params)
+                toggle_key = "_".join(p.split("_")[1:])
+                self.toggle(toggle_key, game_asset_key, toggle_type="explicit")
+            elif p.split("_")[0] == "toggle" and "damage" in p.split("_"):
+                self.logger.debug(params)
                 toggle_key = "_".join(p.split("_")[1:])
                 self.toggle(toggle_key, game_asset_key, toggle_type="explicit")
             else:
