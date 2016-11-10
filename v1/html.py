@@ -108,7 +108,7 @@ class ui:
 
 class dashboard:
     # settlement administrivia; needs to be above the dashboard accordions
-    panel_button = '<hr class="mobile_only"/><form action="#" method="POST"><input type="hidden" name="change_view" value="panel"/><button class="maroon change_view clear_left">Admin Panel!</button></form>\n'
+    panel_button = '<hr class="mobile_only"/><form action="#" method="POST"><input type="hidden" name="change_view" value="panel"/><button id="dashboard_admin_panel_launch_button" class="maroon change_view clear_left">Admin Panel!</button></form>\n'
     new_settlement_button = '<form method="POST" action="#"><input type="hidden" name="change_view" value="new_settlement" /><button class="success">+ New Settlement</button></form>\n'
 
     # flash
@@ -522,13 +522,28 @@ class survivor:
             <hr />
 
             <div id="survivor_survival_actions_container">
+                <h3>Survival Actions</h3>
                 <p>
-                 <input type='hidden' value='unchecked' name='toggle_cannot_spend_survival'/>
-                 <input onchange="updateAssetAttrib(this,'survivor','$survivor_id')" type="checkbox" id="cannot_spend_survival" class="radio_principle" name="toggle_cannot_spend_survival" value="checked" $cannot_spend_survival_checked /> 
-                 <label id="cannot_spend_survival" class="radio_principle_label" for="cannot_spend_survival"> Cannot spend survival </label>
-                    <hr class="invisible"/>
-                 $survival_actions
+                 <input
+                    id="cannot_spend_survival"
+                    class="radio_principle"
+                    name="toggle_cannot_spend_survival"
+                    onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+                    type="checkbox"
+                    value="checked" $cannot_spend_survival_checked
+                 />
+
+                 <label
+                    id="cannot_spend_survival"
+                    class="radio_principle_label float_right_toggle"
+                    for="cannot_spend_survival">
+                        Cannot<br/>spend<br/>survival
+                 </label>
+
+        $survival_actions
+
                 </p>
+
 
             $desktop_avatar_img
 
@@ -815,7 +830,7 @@ class survivor:
 
 
                         <!-- FIGHTING ARTS -->
-            <a id="edit_fighting_arts" class="mobile_only"> </a>
+            <a id="edit_fighting_arts" class="mobile_and_tablet">  </a>
             <form method="POST" id="autoForm" action="#edit_fighting_arts">
                 <input type="hidden" name="form_id" value="survivor_edit_fighting_arts" />
                 <button class="hidden"></button>
@@ -823,9 +838,24 @@ class survivor:
                 <input type="hidden" name="asset_id" value="$survivor_id" />
 
                 <h3>Fighting Arts</h3>
-                 <input type='hidden' value='unchecked' name='toggle_cannot_use_fighting_arts'/>
-                 <input onchange="updateAssetAttrib(this,'survivor','$survivor_id')" type="checkbox" id="cannot_use_fighting_arts" class="radio_principle" name="toggle_cannot_use_fighting_arts" value="checked" $cannot_use_fighting_arts_checked />
-                 <label class="radio_principle_label float_right_toggle" for="cannot_use_fighting_arts" id="cannot_use_fighting_arts_toggle"> Cannot use<br/>Fighting Arts </label>
+
+                 <input
+                    id="survivor_sheet_cannot_use_fighting_arts"
+                    class="radio_principle"
+                    name="toggle_cannot_use_fighting_arts"
+                    onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+                    type="checkbox"
+                    value="checked" $cannot_use_fighting_arts_checked
+                 />
+
+                 <label
+                    id="survivor_sheet_cannot_use_fighting_arts_label"
+                    class="radio_principle_label float_right_toggle"
+                    for="survivor_sheet_cannot_use_fighting_arts"
+                 >
+                    Cannot use<br/>Fighting Arts
+                </label>
+
                 <p>Maximum 3.</p>
 
                     $fighting_arts
@@ -865,7 +895,7 @@ class survivor:
                   <input type="hidden" name="modify" value="survivor" />
                   <input type="hidden" name="asset_id" value="$survivor_id" />
                   <input onchange="updateAssetAttrib(this,'survivor','$survivor_id')" type="checkbox" id="skip_next_hunt" class="radio_principle" name="toggle_skip_next_hunt" value="checked" $skip_next_hunt_checked />
-                  <label class="radio_principle_label float_right_toggle" for="skip_next_hunt" id="skip_next_hunt_toggle"> Skip Next<br/>Hunt </label>
+                  <label class="radio_principle_label float_right_toggle" for="skip_next_hunt" id="skip_next_hunt_label"> Skip Next<br/>Hunt </label>
                 </form>
             <p>
                 <form method="POST" id="autoForm" action="#edit_abilities">
@@ -1130,6 +1160,9 @@ class survivor:
     </form>
     </div> <!-- survivor_constellation_control_container" -->
     \n""")
+    survival_action_item = Template('\
+        <font class="survivor_sheet_survival_action_item $f_class">$action</font><br/>\
+    \n')
 
 
 class settlement:
@@ -2023,6 +2056,16 @@ class meta:
     error_report_email = Template("""\n\
     Greetings!<br/><br/>&ensp;User $user_email [$user_id] has submitted an error report!<br/><br/>The report goes as follows:<hr/>$body<hr/>&ensp;...and that's it. Good luck!<br/><br/>Your friend,<br/>&ensp; meta.error_report_email
     \n""")
+    safari_warning = Template("""\n\
+    <div id="safari_warning">
+    It looks like you're using Safari $vers. Unfortunately, the current version
+    of this application uses some JavaScript elements that are not fully
+    supported by your browser.
+    If you experience disruptive presentation and functionality issues while
+    using the manager, <a href="https://www.google.com/chrome/browser" target="top">Chrome</a> is fully supported on Windows and OSX.
+    </div>
+    \n""")
+
 
 
 #
@@ -2171,6 +2214,7 @@ def render_burger(session_object=None):
 
     # now add quick links to departing survivors for admins
     departing = ""
+    hunting_party = []
     if session_object.User.user["login"] in session_object.Settlement.get_admins():
         hunting_party = session_object.Settlement.get_survivors(return_type="hunting_party")
         if hunting_party != []:
@@ -2183,7 +2227,27 @@ def render_burger(session_object=None):
                         link_text = "%s (%s)" % (h["name"],h["sex"]),
                         target_view = "view_survivor",
                         settlement_id = h["_id"],
+                    )
+
+    # now add favorites
+    favorites = ""
+    favorite_survivors = session_object.User.get_favorites(scope="current_settlement")
+    if favorite_survivors != []:
+        favorites = "<h3>Favorites:</h3>"
+        for f in favorite_survivors:
+            if f["_id"] == session_object.session["current_asset"]:
+                pass
+            elif f in hunting_party:
+                pass
+            else:
+                favorites += meta.burger_change_view_button.safe_substitute(
+                    link_text = "%s (%s)" % (f["name"],f["sex"]),
+                    target_view = "view_survivor",
+                    settlement_id = f["_id"],
                 )
+    if favorites == "<h3>Favorites:</h3>":
+        favorites = ""
+
 
     burger_panel = Template("""\n
         <!-- $current_view burger -->
@@ -2195,6 +2259,7 @@ def render_burger(session_object=None):
             <h3>$settlement_name:</h3>
               $action_map
               $departing_links
+              $favorite_links
 <!--            <H3>Navigation:</h3> -->
               $anchor_map
             <hr/>
@@ -2222,6 +2287,7 @@ def render_burger(session_object=None):
         anchor_map=anchors,
         action_map=actions,
         departing_links=departing,
+        favorite_links=favorites,
     )
 
     output += meta.report_error_div

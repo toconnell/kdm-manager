@@ -179,6 +179,11 @@ class World:
                 print("")
         elif output_type == "keys":
             return d["world"].keys()
+        elif output_type == "keys_cli":
+            output = ""
+            for k in sorted(d["world"].keys()):
+                output += "  %s\n" % k
+            return output
         elif output_type == "dict":
             return d
         elif output_type == "JSON":
@@ -877,7 +882,7 @@ if __name__ == "__main__":
     if options.query:
         print(W.do_query(options.query))
     if options.list:
-        print(W.list("keys"))
+        print(W.list("keys_cli"))
 
     # now process daemon commands
     if options.daemon_cmd is not None:

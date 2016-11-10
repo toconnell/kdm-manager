@@ -248,6 +248,32 @@ class User:
         return survivors
 
 
+    def get_favorites(self, scope=None):
+        """ Returns a list of the user's favorite survivors. For the purposes of
+        this method, a survivor "belongs" to a user if it has their 'login' attr
+        as its 'email' attr. Only returns live survivors."""
+
+        all_favorites = mdb.survivors.find({
+            "$or":
+            [
+                {"email": self.user["login"],},
+                {"created_by": self.user["_id"],}
+            ],
+            "favorite": {"$exists": True},
+            "dead": {"$exists": False},
+        })
+
+
+        if scope == "current_settlement":
+            out_list = []
+            for f in all_favorites:
+                if f["settlement"] == self.Session.Settlement.settlement["_id"]:
+                    out_list.append(f)
+            return out_list
+
+        return all_favorites
+
+
     def get_campaigns(self):
         """ This function gets all campaigns in which the user is involved. """
 
@@ -774,8 +800,9 @@ class Survivor:
                         except:
                             pass
 
+        emphasized_actions = copy(available_actions)
         if "cannot_spend_survival" in self.survivor.keys():
-            available_actions = []
+            emphasized_actions = []
 
         if return_as == "html_checkboxes":
             sorted_actions = {}
@@ -785,14 +812,20 @@ class Survivor:
             for k in sorted(sorted_actions.keys()):
                 possible_actions.append(sorted_actions[k])
 
-            html = ""
+            output = ""
             for a in possible_actions:
+                p_class = ""
+                font_class = ""
                 if a in available_actions:
-                    checked = "checked"
-                else:
-                    checked = ""
-                html += Template('<input disabled type="checkbox" id="$action" class="radio_principle" $checked/><label class="radio_principle_label" for="$action"> $action </label>').safe_substitute(checked=checked, action=a)
-            return html
+                    font_class += "survival_action_available"
+                if a in emphasized_actions:
+                    font_class += " survival_action_emphasize"
+                output += html.survivor.survival_action_item.safe_substitute(
+                    action = a,
+                    f_class=font_class,
+                )
+
+            return output
 
         return available_actions
 
@@ -875,7 +908,8 @@ class Survivor:
                 fa_name = fa_key
                 if "constellation" in FightingArts.get_asset(fa_key).keys():
                     fa_name = '<font class="maroon_text">%s</font>' % fa_key
-                html += '<p><b>%s:</b> %s</p>\n' % (fa_name, FightingArts.get_asset(fa_key)["desc"])
+                html += '<p class="survivor_sheet_fighting_art"><b>%s:</b> %s</p>\n' % (fa_name, FightingArts.get_asset(fa_key)["desc"])
+
                 if strikethrough:
                     html = "<del>%s</del>\n" % html
             return html
@@ -1809,7 +1843,7 @@ class Survivor:
         for attrib in active:
             if not attrib in self.get_expansion_attribs().keys():
                 self.survivor["expansion_attribs"][attrib] = "checked"
-                self.update_epithets(epithet=attrib)
+                self.update_epithets(epithet=attrib)    # issue #81
                 self.logger.debug("[%s] toggled ON expansion attribute '%s' for %s" % (self.User, attrib, self))
         for attrib in self.get_expansion_attribs().keys():
             if not attrib in active:
@@ -1835,6 +1869,30 @@ class Survivor:
         self.logger.debug("[%s] changed survivor %s sex to %s" % (self.User, self, new_sex))
         self.Settlement.log_event("%s sex changed to %s!" % (self, new_sex))
         self.survivor["sex"] = new_sex
+
+
+    def update_fighting_arts(self, fighting_art=None, action=None):
+        """ Adds/removes a fighting art from a survivor. Logs it. """
+
+        if action == "add":
+            if fighting_art in self.survivor["fighting_arts"]:
+                return False
+
+            if len(self.survivor["fighting_arts"]) >= 3:
+                self.logger.warn("[%s] attempting to add a fourth fighting art to %s" % (self.User, self))
+                return False
+            else:
+                self.survivor["fighting_arts"].append(fighting_art)
+                self.logger.debug("[%s] added the '%s' fighting art to %s" % (self.User, fighting_art, self))
+                self.Settlement.log_event("%s acquired the '%s' fighting art!" % (self, fighting_art))
+
+        if action == "rm":
+            if fighting_art not in self.survivor["fighting_arts"]:
+                return False
+            else:
+                self.survivor["fighting_arts"].remove(fighting_art)
+                self.logger.debug("[%s] removed the '%s' fighting art from %s" % (self.User, fighting_art, self))
+                self.Settlement.log_event("%s lost the '%s' fighting art!" % (self, fighting_art))
 
 
     def update_affinities(self, params):
@@ -2011,7 +2069,6 @@ class Survivor:
         # population decrement above won't work.
         mdb.survivors.save(self.survivor)
         self.Settlement.update_mins()
-        self.logger.debug(self.survivor.keys())
 
         if undo_death and "dead" in self.survivor.keys():
             self.logger.error("[%s] undo survivor death failed for %s!" % (self.User, self))
@@ -2103,9 +2160,9 @@ class Survivor:
             elif p == "remove_disorder":
                 self.survivor["disorders"].remove(params[p].value)
             elif p == "add_fighting_art" and len(self.survivor["fighting_arts"]) < 3:
-                self.add_game_asset("fighting_art", game_asset_key)
+                self.update_fighting_arts(game_asset_key, action="add")
             elif p == "remove_fighting_art":
-                self.survivor["fighting_arts"].remove(params[p].value)
+                self.update_fighting_arts(game_asset_key, action="rm")
             elif p == "resurrect_survivor":
                 self.death(undo_death=True)
             elif p == "add_cause_of_death":

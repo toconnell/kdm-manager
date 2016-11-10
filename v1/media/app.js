@@ -66,6 +66,46 @@ function updateAssetAttrib(source_input, collection, asset_id) {
 
 //    window.alert(attrib_key + " - " + new_value);
 
+    // strikethrough for p.survivor_sheet_fighting_art_elements
+    if (source_input.id == 'survivor_sheet_cannot_use_fighting_arts' ) {
+        if (source_input.checked == true) {
+            var x = document.getElementsByClassName("survivor_sheet_fighting_art");
+            var i;
+            for (i = 0; i < x.length; i++) {
+                var struck = x[i];
+                x[i].style.setProperty("text-decoration", "line-through");
+                };
+            } else {
+            var x = document.getElementsByClassName("survivor_sheet_fighting_art");
+            var i;
+            for (i = 0; i < x.length; i++) {
+                var struck = x[i];
+                x[i].style.removeProperty("text-decoration", "line-through");
+                };
+        };
+    };
+
+    // emphasis effect for font.survival_action_emphasize
+    if (source_input.id == 'cannot_spend_survival' ) {
+        if (source_input.checked == true) {
+            var x = document.getElementsByClassName("survival_action_available");
+            var i;
+            for (i = 0; i < x.length; i++) {
+                x[i].style.removeProperty('font-weight', 'bold');
+                x[i].style.removeProperty('color', '#000');
+                x[i].classList.remove('survival_action_emphasize');
+            };
+            } else {
+            var x = document.getElementsByClassName("survival_action_available");
+            var i;
+            for (i = 0; i < x.length; i++) {
+                x[i].style.setProperty('font-weight', 'bold');
+                x[i].style.setProperty('color', '#000');
+            };
+        };
+    };
+
+
     var http = new XMLHttpRequest();
     http.open("POST", "/", true);
     http.setRequestHeader("Content-type","application/x-www-form-urlencoded");

@@ -62,6 +62,13 @@ mar_2016_expansions = {
             {"ly": 8, "type": "story_event", "name": "Promise Under the Sun", "excluded_campaign": "People of the Sun"},
         ],
     },
+    "dragon_king": {
+        "name": "Dragon King",
+        "always_available": ["Dragon Armory"],
+        "timeline_add": [
+            {"ly": 8, "type": "story_event", "name": "Glowing Crater", "excluded_campaign": "People of the Stars"},
+        ],
+    },
     "lonely_tree": {
         "name": "Lonely Tree",
         "always_available_nemesis": True,

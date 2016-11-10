@@ -241,8 +241,16 @@ class Session:
         for p in ["view_campaign", "view_settlement", "view_survivor"]:
             if p in self.params:
                 a = self.params[p].value
+                if p == "view_survivor":
+                    asset = mdb.survivors.find_one({"_id": ObjectId(a)})
+                    asset_sum = "%s [%s]" % (asset["name"], asset["sex"])
+                elif p in ["view_campaign", "view_settlement"]:
+                    asset = mdb.settlements.find_one({"_id": ObjectId(a)})
+                    asset_sum = "%s" % (asset["name"])
+                else:
+                    asset_handle = "UNKNOWN - AN ERROR OCCURRED"
                 self.change_current_view(p, asset_id=a)
-                user_action = "changed view to '%s' [%s]" % (p, a)
+                user_action = "changed view to '%s' | %s | %s" % (p, a, asset_sum)
 
         # these are our two asset removal methods: this is as DRY as I think we
         #   can get with this stuff, since both require unique handling
@@ -463,6 +471,8 @@ class Session:
 
             if self.session["current_view"] == "dashboard":
                 output += admin.dashboard_alert()
+                if get_user_agent().browser.family == "Safari":
+                    output += html.meta.safari_warning.safe_substitute(vers=get_user_agent().browser.version_string)
 
             return output, body
 
