@@ -757,7 +757,7 @@ right connector from last child*/
     span#affinity_span {display: inline-block; width: 50px; height: 50px; color: #fff; padding: 0; font-size: 44px;}
     div#survivor_dead_retired_container {width: 370px; padding-top: 10px; padding-bottom: 30px; margin-bottom: 20px; clear:both; }
     div#survivor_dead_retired_container label {font-size: 20pt; background-color: #fefedd; padding: 5px; }
-    .survivor_avatar_image {width: 175px; height: auto; margin-top: -70px; }
+    .survivor_avatar_image {width: 175px; height: auto; margin: 0; }
     label#survivor_sheet_avatar {margin: 0 auto; margin-bottom: 30px; margin-right: -45px; position: relative; }
     div#survivor_survival_box_container {margin: 0px; height: 240px; width: auto; float: left; clear: right; }
     div#survivor_survival_box_container input#survivalBox {width: 60px; height: 60px; margin: 0 auto; margin-left: 27px; }
@@ -1046,7 +1046,7 @@ right connector from last child*/
     .incrementer, .decrementer {width: 70px; display: block; clear: both; }
 
         /* wide left pane */
-    div#asset_management_left_pane img.survivor_avatar_image {width: 175px; height: auto; }
+    div#asset_management_left_pane img.survivor_avatar_image {width: 175px; height: auto; margin-top: -70px; }
     div#asset_management_left_pane {width: 360px; padding-left: 10px; font-size: 15pt;}
     div#asset_management_left_pane p.subhead_p_block {font-size: 11pt; margin: 0 auto; }
     div#asset_management_left_pane input.big_number_square {width: 50px; height: 60px; }
