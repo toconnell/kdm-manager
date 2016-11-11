@@ -1188,7 +1188,6 @@ class Survivor:
         elif asset_type == "fighting_art":
             if asset_key == "RANDOM_FIGHTING_ART":
                 fa_deck = FightingArts.build_survivor_deck(self, self.Settlement)
-                self.logger.debug("HERE - deck built")
                 self.update_fighting_arts(random.choice(fa_deck), action="add")
             elif asset_key in FightingArts.get_keys():
                 self.survivor["fighting_arts"].append(asset_key)

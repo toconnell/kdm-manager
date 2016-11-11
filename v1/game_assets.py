@@ -1406,7 +1406,7 @@ items = {
         "expansion": "White Box",
         "location": "Gear Recipe",
     },
-    "Nightmare Breast Pump:": {
+    "Nightmare Breast Pump": {
         "expansion": "White Box",
         "location": "Promo",
     },
