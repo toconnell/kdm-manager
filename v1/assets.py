@@ -500,6 +500,10 @@ class Survivor:
         """ Run this when a Survivor object is initialized: it will enforce
         the data model and apply settlements defaults to the survivor. """
 
+        # 2016-11 RANDOM_FIGHTING_ART bug
+        if "RANDOM_FIGHTING_ART" in self.survivor["fighting_arts"]:
+            self.survivor["fighting_arts"].remove("RANDOM_FIGHTING_ART")
+
         # see if we need to retire this guy, based on recent updates
         if int(self.survivor["hunt_xp"]) >= 16 and not "retired" in self.survivor.keys():
             self.retire()
@@ -1184,7 +1188,8 @@ class Survivor:
         elif asset_type == "fighting_art":
             if asset_key == "RANDOM_FIGHTING_ART":
                 fa_deck = FightingArts.build_survivor_deck(self, self.Settlement)
-                self.survivor["fighting_arts"].append(random.choice(fa_deck))
+                self.logger.debug("HERE - deck built")
+                self.update_fighting_arts(random.choice(fa_deck), action="add")
             elif asset_key in FightingArts.get_keys():
                 self.survivor["fighting_arts"].append(asset_key)
             else:
@@ -2159,8 +2164,8 @@ class Survivor:
                 self.add_game_asset("disorder", game_asset_key)
             elif p == "remove_disorder":
                 self.survivor["disorders"].remove(params[p].value)
-            elif p == "add_fighting_art" and len(self.survivor["fighting_arts"]) < 3:
-                self.update_fighting_arts(game_asset_key, action="add")
+            elif p == "add_fighting_art":
+                self.add_game_asset("fighting_art", game_asset_key)
             elif p == "remove_fighting_art":
                 self.update_fighting_arts(game_asset_key, action="rm")
             elif p == "resurrect_survivor":

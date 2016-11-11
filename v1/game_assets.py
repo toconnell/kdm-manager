@@ -1402,6 +1402,14 @@ item_normalization_exceptions = {
 
 
 items = {
+    "Jack O' Lantern": {
+        "expansion": "White Box",
+        "location": "Gear Recipe",
+    },
+    "Nightmare Breast Pump:": {
+        "expansion": "White Box",
+        "location": "Promo",
+    },
     "Dragon Vestments": {
         "expansion": "Dragon King",
         "location": "Rare Gear",

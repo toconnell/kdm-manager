@@ -1046,7 +1046,7 @@ right connector from last child*/
     .incrementer, .decrementer {width: 70px; display: block; clear: both; }
 
         /* wide left pane */
-    div#asset_management_left_pane img.survivor_avatar_image {width: 175px; height: auto; margin-top: -70px; }
+    div#asset_management_left_pane img.survivor_avatar_image {width: 175px; height: auto; margin-top: -40px; }
     div#asset_management_left_pane {width: 360px; padding-left: 10px; font-size: 15pt;}
     div#asset_management_left_pane p.subhead_p_block {font-size: 11pt; margin: 0 auto; }
     div#asset_management_left_pane input.big_number_square {width: 50px; height: 60px; }
