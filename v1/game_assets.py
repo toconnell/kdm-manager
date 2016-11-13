@@ -1464,7 +1464,7 @@ items = {
     },
     "Regal Edge": {
         "expansion": "Dragon King",
-        "location": "Dragon Armory",
+        "location": "Rare Gear",
     },
     "Dragon Boots": {
         "expansion": "Dragon King",
@@ -3510,6 +3510,7 @@ cursed_items = {
 cause_of_death = {
     # expansion-specific
     "Died by the Throne": {"type": "endeavor", "expansion": "Dragon King"},
+    "Culled by the Tyrant": {"type": "endeavor", "expansion": "Dragon King"},
     "Buried Alive": {"type": "endeavor", "expansion": "Sunstalker"},
 
     # monster-specific
