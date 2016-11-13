@@ -3690,7 +3690,7 @@ potstars_constellation = {
         "Scar": "A3",
         "Noble surname": "B3",
         "Weapon Mastery": "C3",
-        "+1 Accuracy attribute": "D3",
+        "1+ Accuracy attribute": "D3",
         "Oracle's Eye ability": "A4",
         "Unbreakable fighting art": "B4",
         "3+ Strength attribute": "C4",
