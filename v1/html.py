@@ -1063,9 +1063,9 @@ class survivor:
      <label class="expansion_attrib_toggle" for="$item_id">$key</label>
     </div> <!-- expansion_attrib_toggle -->
     \n""")
-    returning_survivor_badge = """\n\
-    <div class="returning_survivor_badge" title="Returning Survivor">R</div>
-    \n"""
+    returning_survivor_badge = Template("""\n\
+    <div class="returning_survivor_badge $color_class" title="$div_title">$flag_letter</div>
+    \n""")
     survivor_constellation_badge = Template("""\n\
     <div class="survivor_constellation_badge" title="Survivor Constellation">$value</div>
     \n""")
@@ -1874,7 +1874,7 @@ class settlement:
     </div>
     """)
     endeavor = Template("""\n
-    <p style="background-color: #$bg_color; color: #$font_color">
+    <p class="$p_class">
     &nbsp; $cost $name$punc $desc $type
     </p>
     """)

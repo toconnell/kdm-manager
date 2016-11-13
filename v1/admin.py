@@ -190,6 +190,11 @@ def rm_collection(collection):
     mdb[collection].remove()
 
 
+def random_doc(collection):
+    return dir(mdb[collection])
+#    return mdb[collection].random_one()
+
+
 def dump_document(collection, doc_id):
     """ Prints an object to stdout in a semi-pretty way, e.g. for review or
     analysis, etc. """
@@ -682,6 +687,7 @@ if __name__ == "__main__":
     parser.add_option("-l", dest="list_documents", help="List documents in a collection", metavar="survivors", default=False)
     parser.add_option("-c", dest="collection", help="Specify a collection to work with", metavar="settlements", default=False)
     parser.add_option("-v", dest="view_document", help="View/dump a document to stdout (requires -c)", metavar="565a1829421aa96b33d1c8bb", default=False)
+    parser.add_option("--RANDOM", dest="random_doc", help="Choose a random record from 'collection'", metavar="settlements", default=False, action="store_true")
     parser.add_option("-r", dest="remove_document", help="Remove a single document (requires -c)", metavar="29433d1c8b56581ab21aa96b", default=False)
     parser.add_option("-R", dest="drop_collection", help="Drop all docs in a collection.", metavar="users", default=False)
 
@@ -747,6 +753,8 @@ if __name__ == "__main__":
             dump_document(options.collection, options.view_document)
         if options.remove_document:
             remove_document(options.collection, options.remove_document)
+        if options.random_doc:
+            print random_doc(options.collection)
 
     if options.pretty_view_user:
         pretty_view_user(options.pretty_view_user)

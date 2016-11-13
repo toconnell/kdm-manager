@@ -3129,7 +3129,7 @@ innovations = {
     },
     "Symposium": {
         "type": "education",
-        "consequences": ["Nightmare Training", "Storytelling", "Arena" ],
+        "consequences": ["Nightmare Training", "Storytelling",],
         "survival_limit": 1,
         "settlement_buff": "When a survivor innovates, draw an additional 2 Innovation Cards to choose from.",
     },
@@ -3547,6 +3547,13 @@ cause_of_death = {
 }
 
 epithets = {
+    "Leader of the Settlement": {},
+    "Iron Fist": {},
+    "First Father": {},
+    "First Mother": {},
+    "Imago Tyrannis": {"expansion": "Dragon King"},
+    "Molded by the Tyrant": {"expansion": "Dragon King"},
+    "Approached the Throne": {"expansion": "Dragon King"},
     "Foundling": {"expansion": "Dragon King"},
     "Successor": {"expansion": "Dragon King"},
     "Husk": {"expansion": "Dragon King"},
@@ -3999,7 +4006,7 @@ campaigns = {
     "People of the Stars": {
         "expansions": ["Dragon King"],
         "always_available": ["Throne","Dragon Speech","Radiating Orb"],
-        "forbidden": ["Lantern Hoard", "Language","Lantern Oven","Clan of Death","Family"],
+        "forbidden": ["Lantern Hoard", "Language","Lantern Oven","Clan of Death","Family", "Dragon Armory"],
         "always_available_nemesis": "The Tyrant",
         "founder_epithet": "Foundling",
         "replaced_story_events": {

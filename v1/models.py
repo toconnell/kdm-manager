@@ -545,6 +545,11 @@ preferences_dict = {
         "affirmative": "Comma-delimited lists",
         "negative": "Line item, bulleted lists",
     },
+    "random_names_for_unnamed_assets": {
+        "desc": "Choose random names for Settlements/Survivors without names?",
+        "affirmative": "Choose randomly",
+        "negative": "Use 'Unknown' and 'Anonymous'",
+    },
     "apply_new_survivor_buffs": {
         "type": "Automation",
         "desc": "Automatically apply settlement bonuses to new survivors?",

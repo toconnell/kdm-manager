@@ -1051,15 +1051,31 @@ class Survivor:
         """ Returns a bool of whether the survivor is currently a Returning
         Survivor. Use different return_type values for prettiness. """
 
+        cur_ly = self.Settlement.get_ly()
+
+        departing = False
+        if cur_ly in self.get_returning_survivor_years():
+            departing = True
+
         returning = False
-        if self.Settlement.get_ly() in self.get_returning_survivor_years():
+        if cur_ly - 1 in self.get_returning_survivor_years():
             returning = True
 
         if return_type == "html_badge":
-            if returning:
-                return html.survivor.returning_survivor_badge
-            else:
+            if not returning and not departing:
                 return ""
+
+            if returning:
+                r_tup = ("R%s" % (cur_ly-1), "returning_survivor_badge_color", "Returning survivor in LY %s" % (cur_ly - 1))
+            if departing:
+                r_tup = ("R%s" % (cur_ly), "departing_survivor_badge_color", "Returning survivor in LY %s" % cur_ly)
+
+            letter, color, title = r_tup
+            return html.survivor.returning_survivor_badge.safe_substitute(
+                flag_letter = letter,
+                color_class = color,
+                div_title = title,
+            )
 
         return returning
 
@@ -3704,16 +3720,16 @@ class Settlement:
 
                         bg = ""
                         fg = ""
+
+                        p_class = ""
+
                         if endeavor_key.strip() == "Build":
-                            bg = "33bb00"
-                            fg = "FFF"
-                        if endeavor_key.strip() == "Special Innovate":
-                            bg = "3399ff"
-                            fg = "FFF"
+                            p_class = "available_endeavors_build"
+                        elif endeavor_key.strip() == "Special Innovate":
+                            p_class = "available_endeavors_special_innovate"
 
                         endeavor_string += html.settlement.endeavor.safe_substitute(
-                            bg_color = bg,
-                            font_color = fg,
+                            p_class = p_class,
                             cost = '<font class="kdm_font">%s</font>' % (e["cost"]*"d "),
                             name = e_name,
                             punc = punc,
