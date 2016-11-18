@@ -3038,6 +3038,7 @@ innovations = {
         "type": "principle",
         "survival_limit": 1,
         "survivor_buff": "All current and newborn survivors gain +1 permanent Strength.",
+        "current_survivor": {"Strength": 1},
         "newborn_survivor": {"Strength": 1},
     },
     "Romantic": {
@@ -3045,6 +3046,7 @@ innovations = {
         "survival_limit": 1,
         "settlement_buff": "You may innovate one additional time during the settlement phase. In addition, all current and newborn survivors gain +1 understanding.",
         "survivor_buff": "All current and newborn survivors gain +1 understanding.",
+        "current_survivor": {"Understanding": 1},
         "newborn_survivor": {"Understanding": 1},
     },
     "Collective Toil": {
@@ -3066,9 +3068,10 @@ innovations = {
         "type": "principle",
         "milestone": "First child is born",
         "survival_limit": 1,
-        "settlement_buff": "When rolling on the Intimacy story event, roll twice and pick the lowest result. All newborn survivors gain +1 Strength.",
-        "survivor_buff": "All newborn survivors gain +1 Strength.",
-        "newborn_survivor": {"Strength": 1},
+        "settlement_buff": "When rolling on the Intimacy story event, roll twice and pick the lowest result. All current and newborn survivors gain +1 strength and evasion.<br/>Once per lifetime, a survivor may reroll a single roll result. They must keep this new result.",
+        "survivor_buff": "All current and newborn survivors gain +1 strength and evasion.",
+        "current_survivor": {"Strength": 1, "Evasion": 1},
+        "newborn_survivor": {"Strength": 1, "Evasion": 1},
     },
     "Clan of Death": {
         "type": "home",
@@ -3349,31 +3352,31 @@ survivors = {
 #
 
 quarries = {
-    "White Lion":               {"sort_order": 1, "tokens": ["LION","WHITE"]},
-    "Gorm":                     {"sort_order": 2, "tokens": ["GORM"], "expansion": "Gorm"},
-    "Screaming Antelope":       {"sort_order": 3, "tokens": ["ANTELOPE","SCREAMING"]},
-    "Flower Knight":            {"sort_order": 4, "tokens": ["FLOWER","FLOWERKNIGHT"]},
-    "Phoenix":                  {"sort_order": 5, "tokens": ["PHOENIX","PHONIEX"]},
-    "Sunstalker":               {"sort_order": 6, "tokens": ["STALKER","SUNSTALKER"], "expansion": "Sunstalker"},
-    "Dragon King":              {"sort_order": 7, "tokens": ["DRAGON"], "expansion": "Dragon King"},
-    "Dung Beetle Knight":       {"sort_order": 7, "tokens": ["DUNG","BEETLE","DBK"], "expansion": "Dung Beetle Knight"},
-	"Lion God":                 {"sort_order": 8, "tokens": ["LIONGOD","GOD"], "expansion": "Lion God"},
-    "Beast Of Sorrow":          {"sort_order": 10, "no_levels": True, "tokens": ["SORROW","BEAST"]},
-    "Great Golden Cat":         {"sort_order": 11, "no_levels": True, "tokens": ["CAT"]},
-    "Mad Steed":                {"sort_order": 12, "no_levels": True, "tokens": ["MAD","STEED"]},
-    "Golden Eyed King":         {"sort_order": 13, "no_levels": True, "tokens": ["GOLDEN","EYED"]},
-    "Old Master":               {"sort_order": 14, "no_levels": True, "tokens": ["MASTER"], "expansion": "Dung Beetle Knight"},
+    "White Lion":               {"sort_order": 1, },
+    "Gorm":                     {"sort_order": 2, "expansion": "Gorm"},
+    "Screaming Antelope":       {"sort_order": 3, },
+    "Flower Knight":            {"sort_order": 4, "expansion": "Flower Knight"},
+    "Phoenix":                  {"sort_order": 5, },
+    "Sunstalker":               {"sort_order": 6, "expansion": "Sunstalker"},
+    "Dragon King":              {"sort_order": 7, "expansion": "Dragon King"},
+    "Dung Beetle Knight":       {"sort_order": 7, "expansion": "Dung Beetle Knight"},
+	"Lion God":                 {"sort_order": 8, "expansion": "Lion God"},
+    "Beast Of Sorrow":          {"sort_order": 10, "no_levels": True, },
+    "Great Golden Cat":         {"sort_order": 11, "no_levels": True, },
+    "Mad Steed":                {"sort_order": 12, "no_levels": True, },
+    "Golden Eyed King":         {"sort_order": 13, "no_levels": True, },
+    "Old Master":               {"sort_order": 14, "no_levels": True, "expansion": "Dung Beetle Knight"},
 }
 
 nemeses = {
-    "Lonely Tree":          {"sort_order": 20, "tokens": ["LONELY","TREE"], "exclude_from_picker": True,},
-    "Butcher":              {"sort_order": 21, "tokens": ["BUTCHER","BUTCHEE"]},
-    "The Tyrant":           {"sort_order": 22, "tokens": ["TYRANT"], "exclude_from_picker": True,},
-    "King's Man":           {"sort_order": 23, "tokens": ["KINGSMAN","KINGS", "KING'S"]},
-    "Lion Knight":          {"sort_order": 24, "tokens": ["LK"], "expansion": "Lion Knight"},
-    "The Hand":             {"sort_order": 25, "tokens": ["HAND"]},
-    "Ancient Sunstalker":   {"sort_order": 30, "no_levels": True, "tokens": ["ANCIENT"], "expansion": "Sunstalker", "add_to_timeline_controls_at": 25, "campaign": "People of the Sun"},
-    "Watcher":              {"sort_order": 31, "no_levels": True, "tokens": ["WATCHER"], "add_to_timeline_controls_at": 20, "campaign": "People of the Lantern"},
+    "Lonely Tree":          {"sort_order": 20, "exclude_from_picker": True,},
+    "Butcher":              {"sort_order": 21, },
+    "The Tyrant":           {"sort_order": 22, "exclude_from_picker": True,},
+    "King's Man":           {"sort_order": 23, },
+    "Lion Knight":          {"sort_order": 24, "expansion": "Lion Knight"},
+    "The Hand":             {"sort_order": 25, },
+    "Ancient Sunstalker":   {"sort_order": 30, "no_levels": True, "expansion": "Sunstalker", "add_to_timeline_controls_at": 25, "campaign": "People of the Sun"},
+    "Watcher":              {"sort_order": 31, "no_levels": True, "add_to_timeline_controls_at": 20, "campaign": "People of the Lantern"},
 }
 
 
@@ -3548,19 +3551,15 @@ cause_of_death = {
 }
 
 epithets = {
-    "Leader of the Settlement": {},
-    "Iron Fist": {},
-    "First Father": {},
-    "First Mother": {},
+    # Dragon King
     "Imago Tyrannis": {"expansion": "Dragon King"},
     "Molded by the Tyrant": {"expansion": "Dragon King"},
     "Approached the Throne": {"expansion": "Dragon King"},
-    "Foundling": {"expansion": "Dragon King"},
+    "Foundling": {"expansion": "Dragon King", "bgcolor": "FFC107"},
     "Successor": {"expansion": "Dragon King"},
     "Husk": {"expansion": "Dragon King"},
     "Tyrant": {"expansion": "Dragon King"},
     "Molded by the Tyrant": {"expansion": "Dragon King"},
-    "Died by the Throne": {"expansion": "Dragon King"},
     "Sweetmeat Eater": {"expansion": "Dragon King"},
     "Held the Radiant Heart": {"expansion": "Dragon King"},
     "Numerologist": {"expansion": "Dragon King"},
@@ -3575,21 +3574,29 @@ epithets = {
     "Peered into Destiny": {"expansion": "Dragon King"},
     "Noble": {"expansion": "Dragon King"},
     "Reincarnated": {"expansion": "Dragon King"},
+
+    # flower knight
     "Vespertine": {"expansion": "Flower Knight"},
     "Host": {"expansion": "Flower Knight"},
     "Guest": {"expansion": "Flower Knight"},
     "The First Host": {"expansion": "Flower Knight"},
     "The First Guest": {"expansion": "Flower Knight"},
     "Flower Addict": {"expansion": "Flower Knight"},
-    "Sun Eater": {"expansion": "Sunstalker"},
+
+    # Sunstalker
+    "Child of the Sun": {"expansion": "Sunstalker", "bgcolor": "FFEB3B"},
+    "Purified": {"expansion": "Sunstalker"},
+    "Sun Eater": {"expansion": "Sunstalker", "bgcolor": "FFEB3B"},
     "Triplet": {"expansion": "Sunstalker"},
     "Eye Patch Badass": {"expansion": "Sunstalker"},
-    "Child of the Sun": {"expansion": "Sunstalker"},
-    "Purified": {"expansion": "Sunstalker"},
+
+    # Lion Knight
     "Warlord": {"expansion": "Lion Knight"},
     "Dancer": {"expansion": "Lion Knight"},
     "Brawler": {"expansion": "Lion Knight"},
     "Monster Worshipper": {"expansion": "Lion Knight"},
+
+    # DBK
     "Spelunker of Death": {"expansion": "Dung Beetle Knight"},
     "Farmer": {"expansion": "Dung Beetle Knight"},
     "Bug Man": {"expansion": "Dung Beetle Knight"},
@@ -3598,79 +3605,113 @@ epithets = {
     "Beetle-kin": {"expansion": "Dung Beetle Knight"},
     "Beetle-brain": {"expansion": "Dung Beetle Knight"},
     "Round Stone Trainer": {"expansion": "Dung Beetle Knight"},
+
+    # gorm
     "Vomit-soaked": {"expansion": "Gorm"},
     "Gorm Bait": {"expansion": "Gorm",},
     "Digested": {"expansion": "Gorm"},
     "Braved the Storm": {"expansion": "Gorm"},
     "Living Sacrifice": {"expansion": "Gorm"},
-    "Founder": {},
+
+    #
+    #   Generic/core epithets
+    #
+
+    # showdown
     "Vomit-soaked": {},
-    "Twin": {},
-    "Maw Runner": {},
-    "Slayer": {},
-    "Sniper": {},
-    "Scarred": {},
-    "Plague-bearer": {},
-    "Infected": {},
-    "Coward": {},
-    "Foolish": {},
-    "Shining": {},
-    "Hero": {},
-    "Bewitched": {},
-    "Witness": {},
-    "White-haired":{},
-    "Destroyed Genitals": {},
-    "Broke the Silence": {},
-    "Triathlete":{},
-    "Undisputed boss of the settlement": {},
-    "The Fertile": {},
+    "Masticated": {},
+
+    # endeavor
     "Sacrificed": {},
-    "Ate the Fruit": {},
-    "Silence Breaker": {},
-    "The Silent": {},
-    "Father of Words": {},
-    "Forsaker": {},
     "Forbidden Dancer": {},
-    "Endless Arguer": {},
-    "Monster Teeth": {},
-    "Metal Jaw": {},
-    "Haunted": {},
-    "Skull Eater": {},
-    "Rival": {},
-    "The Wanderer": {},
+
+    # severe injury
+    "Scarred": {},
+    "Destroyed Genitals": {},
     "One-eyed": {},
     "The Blind": {},
     "The Dead": {},
-    "Berserker": {},
-    "Thunderer": {},
-    "Swift-footed": {},
-    "The Chef": {},
+
+    # hunt phase
+    "Hunter": {},
+    "Straggler": {},
+    "Ate the Fruit": {},
+    "Wanderer": {},
+
+    # fun/general
+    "Twilight Knight": {"color": "fff", "bgcolor": "546E7A"},
+    "Dreamer": {},
+    "Cursed": {},
+    "Monster": {},
     "Fast Runner": {},
     "The Doomed": {},
     "The Brave": {},
     "The Insane": {},
     "The Mad": {},
+    "The Silent": {},
+
+    # combat / prowess
+    "Slayer": {},
+    "Sniper": {},
+    "Forsaker": {},
+    "Berserker": {},
+    "Iron Fist": {},
+    "Thunderer": {},
+    "Swift-footed": {},
+
+    # settlement event
+    "Bewitched": {},
+    "Witness": {},
+    "Plague-bearer": {},
+    "Infected": {},
+    "White-haired":{},
+    "Monster Teeth": {},
+    "Rival": {},
     "Branded by the Lantern": {},
-    "Hunter": {},
-    "Straggler": {},
-    "Dreamer": {},
-    "Monster": {},
-    "Experimented with Lanterns": {},
+    "Maw Runner": {},
+    "Triathlete":{},
+    "Undisputed boss of the settlement": {},
+    "Coward": {},
+    "Foolish": {},
+    "Shining": {},
+    "Hero": {},
+    "Metal Jaw": {},
+    "Haunted": {},
+    "Skull Eater": {},
     "Dimmed by the Lantern": {},
-    "Masticated": {},
+    "Murderer": {},
+    "Endless Arguer": {},
+
+    # story event
+    "Speaker of the First Words": {},
+    "Father of Words": {},
+    "Silence Breaker": {},
+    "Broke the Silence": {},
+    "The Chef": {},
     "Death Taster": {},
     "Pure Warrior": {},
-    "Cursed": {},
-    "Twilight Knight": {},
     "Swamp Explorer": {},
     "Lantern Experimenter": {},
-    "Speaker of the First Words": {},
+    "Experimented with Lanterns": {},
     "Voice of Reason": {},
-    "Bone Witch": {},
-    "Murderer": {},
-    "Lucernae": {},
-    "Caratosis": {},
-    "Dormenatus": {},
+    "Bone Witch": {"color": "FFF", "bgcolor": "212121"},
+    "Leader of the Settlement": {},
+
+    # lineage/ancestry/etc.
+    "Breeder": {},
+    "The Fertile": {},
+    "Founder": {"bgcolor": "FFC107"},
+    "First Father": {},
+    "First Mother": {},
+    "Twin": {},
+
+    # saviors
+    "Lucernae": {"color": "FFF", "bgcolor": "3F51B5"},
+    "Caratosis": {"color": "FFF", "bgcolor": "F44336"},
+    "Dormenatus": {"color": "FFF", "bgcolor": "4CAF50"},
+    "Blue Savior": {"color": "FFF", "bgcolor": "3F51B5"},
+    "Red Savior": {"color": "FFF", "bgcolor": "F44336"},
+    "Green Savior": {"color": "FFF", "bgcolor": "4CAF50"},
 }
 
 

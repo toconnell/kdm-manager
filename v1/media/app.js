@@ -17,6 +17,45 @@ app.controller('globalController', function($scope, $http) {
 app.controller("containerController", function($scope) {
 });
 
+app.controller("survivorNotesController", function($scope) {
+    $scope.notes = [];
+    $scope.formData = {};
+    $scope.addNote = function (asset_id) {
+        $scope.errortext = "";
+        if (!$scope.note) {return;}
+        if ($scope.notes.indexOf($scope.note) == -1) {
+            $scope.notes.splice(0, 0, $scope.note);
+//            $scope.notes.push($scope.note);
+        } else {
+            $scope.errortext = "The epithet has already been added!";
+        };
+        var http = new XMLHttpRequest();
+        http.open("POST", "/", true);
+        http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+        var params = "add_survivor_note=" + $scope.note + "&modify=survivor&asset_id=" + asset_id
+        http.send(params);
+        $('#saved_dialog').fadeIn(200)
+        $('#saved_dialog').show();
+        $('#saved_dialog').fadeOut(1500)
+    };
+
+    $scope.removeNote = function (x, asset_id) {
+        $scope.errortext = "";
+        var rmNote = $scope.notes[x];
+        $scope.notes.splice(x, 1);
+
+        var http = new XMLHttpRequest();
+        http.open("POST", "/", true);
+        http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+        var params = "rm_survivor_note=" + rmNote + "&modify=survivor&asset_id=" + asset_id
+        http.send(params);
+        $('#saved_dialog').fadeIn(200)
+        $('#saved_dialog').show();
+        $('#saved_dialog').fadeOut(1500)
+
+    };
+});
+
 app.controller("epithetController", function($scope) {
     $scope.epithets = [];
     $scope.formData = {};
@@ -29,10 +68,13 @@ app.controller("epithetController", function($scope) {
             $scope.errortext = "The epithet has already been added!";
         };
 
+
         var http = new XMLHttpRequest();
         http.open("POST", "/", true);
         http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-        var params = "add_epithet=" + $scope.addMe + "&modify=survivor&asset_id=" + asset_id
+        var add_name = $scope.addMe.name;
+        if (add_name == undefined) {var add_name = $scope.addMe};
+        var params = "add_epithet=" + add_name + "&modify=survivor&asset_id=" + asset_id
         http.send(params);
 
         $('#saved_dialog').show();
@@ -45,7 +87,9 @@ app.controller("epithetController", function($scope) {
         var http = new XMLHttpRequest();
         http.open("POST", "/", true);
         http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-        var params = "remove_epithet=" + removedEpithet + "&modify=survivor&asset_id=" + asset_id;
+        var rm_name = removedEpithet.name;
+        if (rm_name == undefined) {var rm_name = removedEpithet};
+        var params = "remove_epithet=" + rm_name + "&modify=survivor&asset_id=" + asset_id;
         http.send(params);
 
         $('#saved_dialog').show();

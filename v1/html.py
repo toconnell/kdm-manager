@@ -162,8 +162,8 @@ class dashboard:
     motd = Template("""\n
 	<img class="dashboard_bg" src="%s/tree_logo_shadow.png">
     <div class="dashboard_menu">
-        <h2 class="clickable gradient_white" onclick="showHide('system_div')"> <img class="dashboard_icon" src="%s/icons/system.png"/> System %s</h2>
-        <div id="system_div" style="display: none;" class="dashboard_accordion gradient_white">
+        <h2 class="clickable system_primary" onclick="showHide('system_div')"> <img class="dashboard_icon" src="%s/icons/system.png"/> System %s</h2>
+        <div id="system_div" style="display: none;" class="dashboard_accordion system_secondary">
 
         <div class="dashboard_preferences">
             <p>Use the controls below to update application-wide preferences. Remember to click the "Save/Update Preferences" button below when you are finished!</p><br/>
@@ -210,8 +210,8 @@ class dashboard:
     """ % (settings.get("application","STATIC_URL"), settings.get("application", "STATIC_URL"), down_arrow_flash))
     campaign_summary = Template("""\n\
     <div class="dashboard_menu">
-        <h2 class="clickable gradient_purple" onclick="showHide('campaign_div')"> <img class="dashboard_icon" src="%s/icons/campaign.png"/> Campaigns %s </h2>
-        <div id="campaign_div" style="display: $display" class="dashboard_accordion gradient_purple">
+        <h2 class="clickable campaign_summary_gradient" onclick="showHide('campaign_div')"> <img class="dashboard_icon" src="%s/icons/campaign.png"/> Campaigns %s </h2>
+        <div id="campaign_div" style="display: $display" class="dashboard_accordion campaign_summary_gradient">
         <p>Games you are currently playing.</p>
             <div class="dashboard_button_list">
             $campaigns
@@ -221,8 +221,8 @@ class dashboard:
     \n""" % (settings.get("application", "STATIC_URL"), down_arrow_flash))
     settlement_summary = Template("""\n\
     <div class="dashboard_menu">
-        <h2 class="clickable gradient_orange" onclick="showHide('settlement_div')"> <img class="dashboard_icon" src="%s/icons/settlement.png"/> Settlements %s </h2>
-        <div id="settlement_div" style="display: $display" class="dashboard_accordion gradient_orange">
+        <h2 class="clickable settlement_sheet_gradient" onclick="showHide('settlement_div')"> <img class="dashboard_icon" src="%s/icons/settlement.png"/> Settlements %s </h2>
+        <div id="settlement_div" style="display: $display" class="dashboard_accordion settlement_sheet_gradient">
         <p>Manage Settlements you have created.</p>
         <div class="dashboard_button_list">
             %s
@@ -233,8 +233,8 @@ class dashboard:
     \n""" % (settings.get("application", "STATIC_URL"), down_arrow_flash, new_settlement_button))
     survivor_summary = Template("""\n\
     <div class="dashboard_menu">
-        <h2 class="clickable gradient_green" onclick="showHide('survivors_div')"> <img class="dashboard_icon" src="%s/icons/survivor.png"/> Survivors %s</h2>
-        <div id="survivors_div" style="display: none;" class="dashboard_accordion gradient_green">
+        <h2 class="clickable survivor_sheet_gradient" onclick="showHide('survivors_div')"> <img class="dashboard_icon" src="%s/icons/survivor.png"/> Survivors %s</h2>
+        <div id="survivors_div" style="display: none;" class="dashboard_accordion survivor_sheet_gradient">
         <p>Manage survivors created by you or shared with you. New survivors are created from the "Campaign" and "Settlement" views.</p>
         <div class="dashboard_button_list">
             $survivors
@@ -364,10 +364,10 @@ class dashboard:
 
 
 class survivor:
-    no_survivors_error = '<!-- No Survivors Found! -->'
+    no_survivors_error = '<!-- No Survivors Found! --> <div class="no_survivors_error"><p>Use the navigation menu controls in the upper left to add new survivors!</p></div>'
     new = Template("""\n\
-    <span class="tablet_and_desktop nav_bar gradient_green"></span>
-    <span class="mobile_only nav_bar_mobile gradient_green"></span>
+    <span class="tablet_and_desktop nav_bar survivor_sheet_gradient"></span>
+    <span class="mobile_only nav_bar_mobile survivor_sheet_gradient"></span>
     <span class="top_nav_spacer mobile_only">hidden</span>
 
     <br/>
@@ -463,8 +463,8 @@ class survivor:
      <hr class="invisible"/>
     \n""")
     form = Template("""\n\
-    <span class="tablet_and_desktop nav_bar gradient_green"></span>
-    <span class="mobile_only nav_bar_mobile gradient_green"></span>
+    <span class="tablet_and_desktop nav_bar survivor_sheet_gradient"></span>
+    <span class="mobile_only nav_bar_mobile survivor_sheet_gradient"></span>
     <span class="top_nav_spacer mobile_only">hidden</span>
 
     <br class="tablet_and_desktop"/>
@@ -549,21 +549,21 @@ class survivor:
 
 
                 <button class="orange bold $constellation_button_class" id="constellationModalOpener">
-                        Constellation
+                        Dragon Traits ($number_of_dragon_traits)
                 </button>
 
             </div>
 
 
 
-            <hr class="mobile_only"/>
+<!--            <hr class="mobile_only"/>
             <div class="mobile_only">
                 <p>Notes:</p>
                 $fighting_arts
                 $departure_buffs
                 $abilities_and_impairments
                 $disorders
-            </div>
+            </div> -->
 
             <a id="edit_attribs" />
 
@@ -625,6 +625,8 @@ class survivor:
             <h3>Bonuses</h3>
             $settlement_buffs
             <hr/>
+            <h3>Survivor Notes</h3>
+            $survivor_notes
 
             <a id="edit_hit_boxes" />
 
@@ -1069,15 +1071,6 @@ class survivor:
     survivor_constellation_badge = Template("""\n\
     <div class="survivor_constellation_badge" title="Survivor Constellation">$value</div>
     \n""")
-    epithet_controls = Template("""\n\
-     $epithets
-     <br class="mobile_only"/>
-     $add_epithets
-     <br class="mobile_only"/>
-     $rm_epithets
-     <input onchange="this.form.submit()" class="full_width" type="text" name="add_epithet" placeholder="add a custom epithet"/>
-     <hr class="mobile_only"/>
-    \n""")
     affinity_controls = Template("""\n\
     <p>
     <button id="modalAffinityButton" class="$button_class" title="Permanent Affinity controls"> $text </button>
@@ -1089,22 +1082,6 @@ class survivor:
     stat_story_event_stub = Template("""\n
                <font class="kdm_font">g</font> <b>$event</b> (p.$page) occurs at $attrib_value<br/>
     """)
-    epithet_angular_controls = Template("""\n
-    <div id="epithet_angular" ng-app="kdmManager" ng-controller="epithetController" ng-init="epithets=[$current_epithets]" title="Survivor epithets. Use controls below to add. Click or tap to remove!">
-
-        <ul id="epithet_angular_ul">
-            <li ng-repeat="x in epithets" ng-click="removeItem($index,'$survivor_id')">
-                {{x}}
-            </li>
-        </ul>
-
-    $epithet_options
-<!--    <button ng-click="addItem()">Add</button> -->
-
-    <!-- suppress error text if not debugging -->
-    <!-- <p>{{errortext}}</p> -->
-    </div>
-    \n""")
     clickable_avatar_upload = Template("""\n
 
     <label id="survivor_sheet_avatar" for="avatar_file_input">
@@ -1163,6 +1140,40 @@ class survivor:
     survival_action_item = Template('\
         <font class="survivor_sheet_survival_action_item $f_class">$action</font><br/>\
     \n')
+    epithet_angular_controls = Template("""\n
+    <div id="epithet_angular" ng-app="kdmManager" ng-controller="epithetController" ng-init="epithets=[$current_epithets]" title="Survivor epithets. Use controls below to add. Click or tap to remove!">
+
+        <ul id="epithet_angular_ul">
+            <li class="touch_me" ng-repeat="x in epithets" ng-click="removeItem($index,'$survivor_id')" style="background-color: #{{x.bgcolor}}; color: #{{x.color}}; border-color: #{{x.bgcolor}}">
+                <span ng-if='x.name == undefined'>{{x}}</span>
+                <span ng-if='x.name'>{{x.name}}</span>
+            </li>
+        </ul>
+
+    $epithet_options
+<!--    <button ng-click="addItem()">Add</button> -->
+
+    <!-- suppress error text if not debugging -->
+    <!-- <p>{{errortext}}</p> -->
+    </div>
+    \n""")
+    survivor_notes = Template("""\n
+    <div id="survivor_notes_angular" ng-app="kdmManager" ng-controller="survivorNotesController" ng-init="notes=$note_strings_list" title="Survivor notes. Use controls below to add. Click or tap to remove!">
+
+        <ul class="survivor_sheet_survivor_note">
+            <li class="survivor_sheet_survivor_note touch_me" ng-repeat="x in notes" ng-click="removeNote($index,'$survivor_id')">
+                {{x}}
+            </li>
+        </ul>
+
+    <input class="survivor_sheet_add_survivor_note" ng-model="note" placeholder="Add a Survivor Note" onClick="this.select()"/>
+    <button class="survival_limit_style survivor_sheet_add_survivor_note" ng-click="addNote('$survivor_id')">Add Note</button>
+
+    <!-- suppress error text if not debugging -->
+    <!-- <p>{{errortext}}</p> -->
+    </div>
+    \n""")
+
 
 
 class settlement:
@@ -1224,8 +1235,8 @@ class settlement:
         return output
 
     new = """\n\
-    <span  class="tablet_and_desktop nav_bar gradient_orange"></span>
-    <span class="gradient_orange nav_bar_mobile mobile_only"></span>
+    <span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
+    <span class="nav_bar_mobile mobile_only settlement_sheet_gradient"></span>
     <span class="top_nav_spacer mobile_only"> hidden </span>
 
     <br />
@@ -1379,8 +1390,8 @@ class settlement:
     </form>
     \n""")
     event_log = Template("""\n\
-        <span class="tablet_and_desktop nav_bar gradient_orange"></span>
-        <span class="gradient_orange nav_bar_mobile mobile_only"></span>
+        <span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
+        <span class="nav_bar_mobile mobile_only" settlement_sheet_gradient></span>
         <a id="event_log"><span class="top_nav_spacer mobile_only"> hidden </span></a>
         <h1 class="settlement_name"> $settlement_name Event Log</h1>
         $log_lines
@@ -1392,8 +1403,8 @@ class settlement:
         $family_tree
         $generations
         $no_family
-        <div id="floating_event_log_anchor" class="gradient_orange" ><a href="#event_log"><img src="%s/icons/settlement_event.png"/></a></div>
-        <div id="floating_genealogy_anchor" class="gradient_orange" ><a href="#genealogy"><img src="%s/icons/genealogy.png"/></a></div>
+        <div id="floating_event_log_anchor" class="settlement_sheet_gradient" ><a href="#event_log"><img src="%s/icons/settlement_event.png"/></a></div>
+        <div id="floating_genealogy_anchor" class="settlement_sheet_gradient" ><a href="#genealogy"><img src="%s/icons/genealogy.png"/></a></div>
         \n""" % (settings.get("application", "STATIC_URL"), settings.get("application", "STATIC_URL")))
     event_table_top = '<table class="settlement_event_log"><tr><th>LY</th><th>Event</th></tr>\n'
     event_table_row = Template('<tr class="zebra_$zebra"><td>$ly</td><td>$event</td></tr>\n')
@@ -1416,8 +1427,8 @@ class settlement:
             <input type="hidden" name="asset_id" value="$settlement_id" />
     """)
     summary = Template("""\n\
-        <span class="tablet_and_desktop nav_bar gradient_purple"></span>
-        <span class="gradient_purple nav_bar_mobile mobile_only"></span>
+        <span class="tablet_and_desktop nav_bar campaign_summary_gradient"></span>
+        <span class="nav_bar_mobile mobile_only campaign_summary_gradient"></span>
         <span class="top_nav_spacer mobile_only"> hidden </span>
 
         <h1 class="settlement_name"> %s $settlement_name</h1>
@@ -1482,8 +1493,8 @@ class settlement:
         </div>
     \n""" % dashboard.campaign_flash)
     form = Template("""\n\
-    <span class="tablet_and_desktop nav_bar gradient_orange"></span>
-    <span class="gradient_orange nav_bar_mobile mobile_only"></span>
+    <span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
+    <span class="nav_bar_mobile mobile_only settlement_sheet_gradient"></span>
     <span class="top_nav_spacer mobile_only"> hidden </span>
 
     <br class="tablet_and_desktop"/>
@@ -1553,8 +1564,10 @@ class settlement:
                     <input id="femaleCountBox" class="big_number_square" type="number" name="female_survivors" value="0" min="0"/>
                     <button type="button" class="decrementer" onclick="decrement('femaleCountBox');">-</button>
                 </div>
-    <a id="settlement_notes" class="mobile_only"></a>
-            <input type="submit" class="yellow full_width" value="Create New Survivors" />
+
+            <a id="settlement_notes" class="mobile_only"></a>
+
+            <input type="submit" id="settlement_sheet_create_new_survivors" class="survival_limit_style" value="Create New Survivors" />
             </div> <!-- bulk_add_survivors -->
         </form>
         <hr/>

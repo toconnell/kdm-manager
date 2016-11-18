@@ -276,8 +276,8 @@ class Session:
                 m = assets.Survivor(params=None, session_object=self, suppress_event_logging=True, update_mins=False)
                 m.set_attrs({"public": "checked"})
             for s in range(female):
-                f = assets.Survivor(params=None, session_object=self, suppress_event_logging=True, update_mins=False)
-                f.set_attrs({"public": "checked", "sex": "F"})
+                f = assets.Survivor(params={"sex": "F"}, session_object=self, suppress_event_logging=True, update_mins=False)
+                f.set_attrs({"public": "checked"})
             S.log_event("%s male and %s female survivors joined the settlement!" % (male, female))
 
         if "new" in self.params:

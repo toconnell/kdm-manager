@@ -3,7 +3,16 @@
 from copy import copy
 import game_assets
 from utils import get_logger
-from string import capwords
+from string import capwords, Template
+import json
+
+def game_asset_to_json(asset_key, asset_model):
+    d = {'name': asset_key}
+    a_dict = asset_model.get_asset(asset_key)
+    for k,v in a_dict.iteritems():
+        d[k] = v
+    return d
+
 
 class Model:
     """ This is the base class for all model classes. It provides the basic
@@ -125,7 +134,7 @@ class Model:
         return output
 
 
-    def render_as_html_dropdown(self, submit_on_change=True, exclude=[], disable=[], excluded_type=None, Settlement=None, survivor_id=None):
+    def render_as_html_dropdown(self, submit_on_change=True, exclude=[], disable=[], excluded_type=None, Settlement=None, survivor_id=None, select_type="string"):
         """ Renders the model as an HTML dropdown and returns a string. Use the
         'submit_on_change' kwarg to control whether it submits on change.
 
@@ -180,25 +189,50 @@ class Model:
         else:
             options = sorted(options)
 
-        if submit_on_change:
-            submit_on_change = "this.form.submit()"
 
-        output = """\n\t<select name="add_%s" onchange="%s" ng-model="addMe" ng-change="addItem('%s')">""" % (self.name, submit_on_change, survivor_id)
-        output += '\t<option selected disabled hidden value=''>Add %s</option>' % self.pretty_name
-        if self.name in ["disorder","fighting_art"]:
-            output += '\t\t<option value="RANDOM_%s">* Random %s</option>' % (self.name.upper(), self.pretty_name)
-            output += ' <option disabled> &ensp; &ensp; ---  </option>'
-        for o in sorted(options):
-            disabled = ""
-            if o in disable:
-                disabled = "disabled"
-            pretty_o = o
-            if self.name == "ability":
-                option_classes = {}
-                a = Abilities.get_asset(o)
-                pretty_o = "%s (%s)" % (o, capwords(a["type"].replace("_"," ")))
-            output += '\t\t<option value="%s" %s>%s</option>\n' % (o, disabled, pretty_o)
-        output += '</select>\n'
+        if select_type=="angularjs":
+            options_list = []
+            for o in options:
+                options_list.append(game_asset_to_json(o, self))
+            html_stub = Template("""\n
+            <select
+                name = "add_$asset_name"
+                ng-init="what"
+                ng-change="addItem('$survivor_id')"
+                ng-options="option as option.name for option in $options_json"
+                ng-model="addMe"
+            >
+            <option value="" disabled hidden selected ng-if="!selectedObject">Add $pretty_name</option>
+            </select>
+            \n""")
+            output = html_stub.safe_substitute(
+                pretty_name = self.pretty_name,
+                asset_name = self.name,
+                options_json=options_list,
+                survivor_id=survivor_id,
+            )
+            output +="\n\n"
+        else:
+            if submit_on_change:
+                submit_on_change = "this.form.submit()"
+
+            output = """\n\t<select name="add_%s" onchange="%s" ng-model="addMe" ng-change="addItem('%s')">""" % (self.name, submit_on_change, survivor_id)
+            output += '\t<option selected disabled hidden value=''>Add %s</option>' % self.pretty_name
+            if self.name in ["disorder","fighting_art"]:
+                output += '\t\t<option value="RANDOM_%s">* Random %s</option>' % (self.name.upper(), self.pretty_name)
+                output += ' <option disabled> &ensp; &ensp; ---  </option>'
+            for o in sorted(options):
+                disabled = ""
+                if o in disable:
+                    disabled = "disabled"
+                pretty_o = o
+                if self.name == "ability":
+                    option_classes = {}
+                    a = Abilities.get_asset(o)
+                    pretty_o = "%s (%s)" % (o, capwords(a["type"].replace("_"," ")))
+
+                output += '\t\t<option value="%s" %s>%s</option>\n' % (o, disabled, pretty_o)
+            output += '</select>\n'
 
 
         return output
@@ -552,7 +586,7 @@ preferences_dict = {
     },
     "apply_new_survivor_buffs": {
         "type": "Automation",
-        "desc": "Automatically apply settlement bonuses to new survivors?",
+        "desc": "Automatically apply settlement bonuses to new, newborn and current survivors where appropriate?",
         "affirmative": "Automatically apply",
         "negative": "Do not apply",
     },

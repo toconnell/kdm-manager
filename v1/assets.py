@@ -16,12 +16,12 @@ import os
 import pickle
 import random
 import requests
-from string import Template, capwords
+from string import Template, capwords, punctuation
 import types
 
 import admin
 import export_to_file
-import assets
+from modular_assets import survivor_names, settlement_names
 import game_assets
 import html
 from models import Abilities, NemesisMonsters, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles, SurvivalActions, CauseOfDeath
@@ -504,6 +504,11 @@ class Survivor:
         if "RANDOM_FIGHTING_ART" in self.survivor["fighting_arts"]:
             self.survivor["fighting_arts"].remove("RANDOM_FIGHTING_ART")
 
+        # 2016-11 epithet bug
+        for e in self.survivor["epithets"]:
+            if '"' in e:
+                self.update_epithets(action="remove", epithet=e)
+
         # see if we need to retire this guy, based on recent updates
         if int(self.survivor["hunt_xp"]) >= 16 and not "retired" in self.survivor.keys():
             self.retire()
@@ -605,9 +610,24 @@ class Survivor:
             if "name" in params and params["name"].value != "":
                 name = params["name"].value.strip()
             if "sex" in params:
-                sex = params["sex"].value
+                try:
+                    sex = params["sex"].value
+                except AttributeError:
+                    sex = params["sex"].strip()
             if "email" in params:
                 email = params["email"].value.strip()
+
+        # if we're doing random names for survivors, do it here before we save
+        if name == "Anonymous" and self.User.get_preference("random_names_for_unnamed_assets"):
+            self.Settlement.log_event("Choosing a random name for new survivor due to user preference!")
+            name_list = survivor_names.other
+            if sex == "M":
+                name_list = survivor_names.male
+            elif sex == "F":
+                name_list = survivor_names.female
+            else:
+                self.logger.error("[%s] unknown survivor sex! '%s' is not allowed!" % (self.User, sex))
+            name = random.choice(name_list)
 
         survivor_dict = {
             "name": name,
@@ -673,6 +693,16 @@ class Survivor:
         #   self.survivor with the info we just inserted
         survivor_id = mdb.survivors.insert(survivor_dict)
         self.survivor = mdb.survivors.find_one({"_id": survivor_id})
+
+        # Add our campaign's founder epithet if the survivor is a founder
+        founder_epithet = "Founder"
+        if "founder_epithet" in self.Settlement.get_campaign("dict"):
+            founder_epithet = self.Settlement.get_campaign("dict")["founder_epithet"]
+        if self.is_founder():
+            self.logger.debug("%s is a founder. Adding founder epithet!" % self)
+            self.update_epithets(epithet=founder_epithet)
+        else:
+            self.logger.debug("%s is not a founder. Skipping founder epithet." % self)
 
         # log the addition or birth of the new survivor
         name_pretty = self.get_name_and_id(include_sex=True, include_id=False)
@@ -969,11 +999,23 @@ class Survivor:
             return ", ".join(epithets)
 
         if return_type == "html_angular":
-            js_epithets = ["'%s'" % e for e in epithets]
+            js_epithets = []
+            for e in epithets:
+                e_bgcolor = None
+                e_color = None
+                if e in game_assets.epithets:
+                    e_dict = game_assets.epithets[e]
+                    if "bgcolor" in e_dict:
+                        e_bgcolor = e_dict["bgcolor"]
+                    if "color" in e_dict:
+                        e_color = e_dict["color"]
+                js_epithets.append("{'name':'%s', 'bgcolor':'%s', 'color':'%s'}" % (e, e_bgcolor, e_color))
+
             return html.survivor.epithet_angular_controls.safe_substitute(
                 survivor_id = self.survivor["_id"],
                 current_epithets = ",".join(js_epithets),
                 epithet_options = Epithets.render_as_html_dropdown(
+                    select_type="angularjs",
                     survivor_id = self.survivor["_id"],
 #                    exclude=self.survivor["epithets"], # the .js app prevents dupes
                     Settlement=self.Settlement,
@@ -986,27 +1028,6 @@ class Survivor:
                 return ""
             else:
                 return '<p class="subhead_p_block">%s</p>' % ", ".join(epithets)
-
-        if return_type == "html_remove":
-            output = ""
-            if self.survivor["epithets"] == []:
-                return output
-            output = '<select name="remove_epithet" onchange="this.form.submit()">'
-            output += '<option selected disabled hidden value="">Remove Epithet</option>'
-            for epithet in self.survivor["epithets"]:
-                output += '<option value="%s">%s</option>' % (epithet, epithet)
-            output += '</select>'
-            return output
-
-        if return_type == "survivor_sheet_controls":
-            if not self.User.get_preference("show_epithet_controls"):
-                return ""
-            else:
-                return html.survivor.epithet_controls.safe_substitute(
-                    epithets = self.get_epithets("html_formatted"),
-                    add_epithets = Epithets.render_as_html_dropdown(exclude=self.survivor["epithets"], Settlement=self.Settlement),
-                    rm_epithets = self.get_epithets("html_remove"),
-                )
 
         return epithets
 
@@ -1444,6 +1465,10 @@ class Survivor:
 
         constellation_table = (active_th, active_td)
 
+
+        if return_type == "number_of_traits":
+            return len(self.survivor["constellation_traits"])
+
         if return_type == "html":
             output = html.survivor.constellation_table_top
             output += html.survivor.constellation_table_row_top.safe_substitute(
@@ -1557,14 +1582,19 @@ class Survivor:
         """ Adds and removes epithets from self.survivor["epithets"]. """
 
         if epithet is None:
+            self.logger.warn("[%s] update_epithets() -> epithet is None!" % self.User)
             return
 
         if action == "add":
-            self.survivor["epithets"].append(epithet)
-            self.logger.debug("[%s] added epithet '%s' to %s." % (self.User, epithet, self))
+            if epithet not in self.survivor["epithets"]:
+                self.survivor["epithets"].append(epithet)
+                self.logger.debug("[%s] added epithet '%s' to %s." % (self.User, epithet, self))
+            else:
+                self.logger.warn("[%s] epithet '%s' has already been added to %s!" % (self.User, epithet, self))
         elif action == "rm":
             if epithet in self.survivor["epithets"]:
                 self.survivor["epithets"].remove(epithet)
+                self.logger.debug("[%s] removed epithet '%s' from %s." % (self.User, epithet, self))
             else:
                 self.logger.warn("[%s] attempted to remove epithet '%s' from %s. Epithet does not exist!" % (self.User, epithet, self))
 
@@ -1991,6 +2021,65 @@ class Survivor:
         return functional_sex
 
 
+    def update_survivor_notes(self, action="add", note=None):
+        """ Use this to add or remove notes. Works on strings, rather than IDs,
+        for the sake of making the REST/form side of things simple. """
+
+        if note is None:
+            self.logger.warn("[%s] note is None!" % self.User)
+
+        if action=="add":
+            note_handle = "%s_%s" % (datetime.now().strftime("%Y%m%d%H%M%S"), self.survivor["_id"])
+            note_dict = {
+                "created_by": self.User.user["_id"],
+                "created_on": datetime.now(),
+                "survivor_id": self.survivor["_id"],
+                "settlement_id": self.Settlement.settlement["_id"],
+                "note": note,
+                "note_zero_punctuation": note.translate(None, punctuation).replace(" ","").strip(),
+                "name": "%s note" % self,
+            }
+
+            mdb.survivor_notes.insert(note_dict)
+            self.logger.debug("[%s] added note '%s' to %s." % (self.User, note, self))
+        elif action=="rm":
+            note_zp = unicode(note.translate(None, punctuation).replace(" ","").strip())
+            target_note = mdb.survivor_notes.find_one({"note_zero_punctuation":note_zp, "survivor_id": self.survivor["_id"]})
+            if target_note is None:
+                self.logger.error("[%s] attempted to remove a note from survivor %s (%s) that could not be found!" % (self.User, self, self.survivor["_id"]))
+                self.logger.error(note_zp)
+            else:
+                mdb.survivor_notes.remove(target_note)
+                self.logger.debug("[%s] removed note '%s' from %s." % (self.User, note, self))
+
+
+    def get_survivor_notes(self, return_type=None):
+        """ Tries to retrieve documents from mdb.survivor_notes registered to
+        the survivor's _id. Sorts them for return on the Survivor Sheet, etc.
+        Only searches notes created LATER than the survivor's 'created_on'
+        attribute, i.e. to speed up return. """
+
+        notes = mdb.survivor_notes.find({
+            "survivor_id": self.survivor["_id"],
+            "created_on": {"$gte": self.survivor["created_on"]}
+        }, sort=[("created_on",-1)])
+
+        if return_type == "angularjs":
+            sorted_note_strings = []
+            for note in notes:
+                sorted_note_strings.append(str(note["note"]).replace("'","&#8217;").replace('"','&quot;'))
+
+            output = html.survivor.survivor_notes.safe_substitute(
+                survivor_id = self.survivor["_id"],
+                note_strings_list = sorted_note_strings,
+            )
+            return output
+
+        return notes
+
+
+
+
     def get_returning_survivor_years(self):
         """ Returns a list of integers representing the lantern years during
         which a survivor is considered to be a Returning Survivor. """
@@ -2185,9 +2274,9 @@ class Survivor:
                 self.update_fighting_arts(game_asset_key, action="rm")
             elif p == "resurrect_survivor":
                 self.death(undo_death=True)
-            elif p == "add_cause_of_death":
-                self.death(cause_of_death=game_asset_key)
             elif p == "custom_cause_of_death":
+                self.death(cause_of_death=game_asset_key)
+            elif p == "add_cause_of_death":
                 self.death(cause_of_death=game_asset_key)
             elif p == "unspecified_death":
                 if "add_cause_of_death" not in params and "custom_cause_of_death" not in params:
@@ -2229,6 +2318,13 @@ class Survivor:
             elif p.split("_")[0] == "toggle" and "damage" in p.split("_"):
                 toggle_key = "_".join(p.split("_")[1:])
                 self.toggle(toggle_key, game_asset_key, toggle_type="explicit")
+            elif p == "add_survivor_note":
+                try:
+                    self.update_survivor_notes("add", game_asset_key)
+                except Exception as e:
+                    self.logger.exception(e)
+            elif p == "rm_survivor_note":
+                self.update_survivor_notes("rm", game_asset_key)
             else:
                 self.survivor[p] = game_asset_key
 
@@ -2468,12 +2564,15 @@ class Survivor:
             expansion_attrib_controls = self.get_expansion_attribs("html_controls"),
             constellation_button_class = show_constellation_button,
             constellation_table = self.get_constellation_table("html"),
+            number_of_dragon_traits=self.get_constellation_table("number_of_traits"),
 
             hunt_xp_3_event = self.Settlement.get_story_event("Bold"),
             courage_3_event = self.Settlement.get_story_event("Insight"),
 
             cod_options = CauseOfDeath.render_as_html_toggle_dropdown(selected=COD, expansions=exp),
             custom_cause_of_death = custom_COD,
+
+            survivor_notes = self.get_survivor_notes("angularjs"),
         )
         return output
 
@@ -2528,6 +2627,11 @@ class Settlement:
 
         self.logger.debug("User %s (%s) is creating a new settlement..." % (self.User.user["login"], self.User.user["_id"]))
 
+        # if we're doing random name generation
+        if name == "Unknown" and self.User.get_preference("random_names_for_unnamed_assets"):
+            name_list = settlement_names.core
+            name = random.choice(name_list)
+
         new_settlement_dict = {
             "name": name,
             "campaign": campaign,
@@ -2558,6 +2662,7 @@ class Settlement:
         # create the settlement and update the Settlement obj
         settlement_id = mdb.settlements.insert(new_settlement_dict)
         self.settlement = mdb.settlements.find_one({"_id": settlement_id})
+
 
         # log the creation
         self.logger.info("[%s] New '%s' campaign settlement '%s' ('%s') created!" % (self.User, campaign, name, settlement_id))
@@ -2694,19 +2799,14 @@ class Settlement:
         self.add_game_asset("storage", "Founding Stone", 4)
         self.add_game_asset("storage", "Cloth", 4)
 
-        founder_epithet = "Founder"
-        if "founder_epithet" in self.get_campaign("dict"):
-            founder_epithet = self.get_campaign("dict")["founder_epithet"]
 
         for i in range(2):
             m = Survivor(params=None, session_object=self.Session, suppress_event_logging=True)
-            m.update_epithets(epithet=founder_epithet)
             m.set_attrs({"Waist": 1})
             m.join_hunting_party()
         for i in range(2):
-            f = Survivor(params=None, session_object=self.Session, suppress_event_logging=True)
-            f.update_epithets(epithet=founder_epithet)
-            f.set_attrs({"sex": "F", "Waist": 1})
+            f = Survivor(params={"sex":"F"}, session_object=self.Session, suppress_event_logging=True)
+            f.set_attrs({"Waist": 1})
             f.join_hunting_party()
         self.update_current_quarry("White Lion (First Story)")
 
@@ -3574,7 +3674,8 @@ class Settlement:
                     output += html.settlement.principle_control.safe_substitute(name=p_key, radio_buttons="\n".join(p_option_html))
 
             if output == "":
-                output = html.settlement.principles_all_hidden_warning 
+                output = html.settlement.principles_all_hidden_warning
+
             return output
 
         return sorted(self.settlement["principles"])
@@ -3948,7 +4049,7 @@ class Settlement:
 
                 button_class = ""
                 if user_owns_survivor:
-                    button_class = "survivor"
+                    button_class = "survivor_sheet_gradient touch_me"
 
                 if "skip_next_hunt" in S.survivor.keys():
                     annotation = "&ensp; <i>Skipping next hunt</i><br/>"
@@ -4362,25 +4463,69 @@ class Settlement:
             self.logger.debug("%s is now an admin of %s" % (player_login, self.get_name_and_id()))
 
 
+    def update_current_survivors(self, buff_dict, reason, rm_buff=False):
+        """ Updates all current survivors with the keys in 'buff_dict'. Uses
+        'reason' to log a settlement event. """
+
+        operation = "add"
+
+        successful_updates = 0
+        for s in self.get_survivors(exclude_dead=True):
+            for k,v in buff_dict.iteritems():
+                if rm_buff:
+                    v = -v
+                    operation = 'remove'
+                s[k] = int(s[k]) + v
+                self.log_event("%s [%s] -> '%s' + %s (%s %s bonus) " % (s["name"], s["sex"], k, v, operation, reason))
+            mdb.survivors.save(s)
+            successful_updates += 1
+        self.logger.debug("[%s] Automatically updated %s survivors!" % (self.User, successful_updates))
+
+
     def update_principles(self, add_new_principle=False):
         """ Since certain principles are mutually exclusive, all of the biz
         logic for toggling one on and toggling off its opposite is here. """
 
         principles = set(self.settlement["principles"])
 
-        if add_new_principle and not add_new_principle in self.settlement["principles"]:
-            principles.add(add_new_principle)
-            self.logger.debug("%s added principle '%s' to settlement '%s' (%s)." % (self.User.user["login"], add_new_principle, self.settlement["name"], self.settlement["_id"]))
-            self.log_event("'%s' added to settlement Principles." % add_new_principle)
+        # first, see if we've got to remove a principle to make way for the new,
+        #   incoming principle (check the mutual exclusion rules)
+
+        def rm_principle(p):
+            """ Removes a principle and undoes its auto-updates. """
+            principles.remove(p)
+            principle_dict = Innovations.get_asset(p)
+            if "current_survivor" in principle_dict.keys():
+                buff = principle_dict["current_survivor"]
+                self.logger.debug("[%s] Removing '%s' current_survivor buffs:  %s" % (self.User, add_new_principle, buff))
+                self.update_current_survivors(buff, p, rm_buff=True)
+                self.log_event("Automatically removed '%s' bonus from current survivors: %s" % (p, buff))
+            self.log_event("Removed '%s' principle." % p)
+
 
         for k in mutually_exclusive_principles.keys():
             tup = mutually_exclusive_principles[k]
             if tup[0] == add_new_principle:
                 if tup[1] in principles:
-                    principles.remove(tup[1])
+                    rm_principle(tup[1])
             elif tup[1] == add_new_principle:
                 if tup[0] in principles:
-                    principles.remove(tup[0])
+                    rm_principle(tup[0])
+
+        # now, add the new, incoming principle
+        if add_new_principle and not add_new_principle in self.settlement["principles"]:
+            principles.add(add_new_principle)
+            self.logger.debug("%s added principle '%s' to settlement '%s' (%s)." % (self.User.user["login"], add_new_principle, self.settlement["name"], self.settlement["_id"]))
+            self.log_event("'%s' added to settlement Principles." % add_new_principle)
+
+            if self.User.get_preference("apply_new_survivor_buffs"):
+                principle_dict = Innovations.get_asset(add_new_principle)
+                if "current_survivor" in principle_dict.keys():
+                    buff = principle_dict["current_survivor"]
+                    self.logger.debug("[%s] Automatically updating current survivors with '%s' current_survivor buffs:  %s" % (self.User, add_new_principle, buff))
+                    self.update_current_survivors(buff, add_new_principle)
+                    self.log_event("Current survivors automatically updated: %s" % buff)
+
 
 
         self.settlement["principles"] = sorted(list(principles))
@@ -4719,6 +4864,7 @@ class Settlement:
             "name": monster_desc,
             "created_by": self.User.user["_id"],
             "created_on": datetime.now(),
+            "handle": "other",
         }
 
 
@@ -4836,6 +4982,8 @@ class Settlement:
             game_asset_key = None
             if type(params[p]) != list:
                 game_asset_key = params[p].value.strip()
+#            self.logger.debug("%s -> %s (%s)" % (p, params[p], type(params[p])))
+
 
             if p in ["asset_id", "modify", "add_item_quantity"]:
                 pass
@@ -5151,7 +5299,7 @@ class Settlement:
             desktop_text = "%s Campaign Summary" % self.settlement["name"]
             asset_type = "campaign"
         elif context == "dashboard_campaign_list":
-            button_class = "gradient_violet"
+            button_class = "settlement_sheet_gradient"
             link_text = html.dashboard.campaign_flash + "<b>%s</b><br/><i>%s</i><br/>LY %s. Survivors: %s Players: %s" % (self.settlement["name"], self.get_campaign(), self.settlement["lantern_year"], self.settlement["population"], self.get_players(count_only=True))
             desktop_text = ""
             asset_type = "campaign"
