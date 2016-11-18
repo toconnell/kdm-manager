@@ -1536,7 +1536,7 @@ class Survivor:
 
         split_name = self.survivor["name"].split(" ")
         for surname in ["Noble","Reincarnated"]:
-            if surname in split_name:
+            if surname in split_name and "%s surname" % surname not in traits:
                 traits.append(surname)
 
         # check abilities_and_impairments for Oracle's Eye, Iridescent Hide, any weapon mastery, Pristine,
