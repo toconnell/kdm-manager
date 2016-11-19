@@ -508,6 +508,9 @@ class Survivor:
         for e in self.survivor["epithets"]:
             if '"' in e:
                 self.update_epithets(action="remove", epithet=e)
+            if e.split(":")[0].strip() == "object":
+                self.logger.debug("[%s] bogus epithet '%s' detected on survivor %s" % (self.User, e, self))
+                self.update_epithets(action="remove", epithet=e)
 
         # see if we need to retire this guy, based on recent updates
         if int(self.survivor["hunt_xp"]) >= 16 and not "retired" in self.survivor.keys():
@@ -1586,12 +1589,14 @@ class Survivor:
             return
 
         if action == "add":
-            if epithet not in self.survivor["epithets"]:
+            if epithet.split(":")[0].strip() == "object":
+                self.logger.warn("[%s] ignoring bogus epithet '%s'." % (self.User, epithet))
+            elif epithet not in self.survivor["epithets"]:
                 self.survivor["epithets"].append(epithet)
                 self.logger.debug("[%s] added epithet '%s' to %s." % (self.User, epithet, self))
             else:
                 self.logger.warn("[%s] epithet '%s' has already been added to %s!" % (self.User, epithet, self))
-        elif action == "rm":
+        elif action in ["rm","remove"]:
             if epithet in self.survivor["epithets"]:
                 self.survivor["epithets"].remove(epithet)
                 self.logger.debug("[%s] removed epithet '%s' from %s." % (self.User, epithet, self))
@@ -1936,7 +1941,7 @@ class Survivor:
                 self.logger.debug("[%s] added the '%s' fighting art to %s" % (self.User, fighting_art, self))
                 self.Settlement.log_event("%s acquired the '%s' fighting art!" % (self, fighting_art))
 
-        if action == "rm":
+        if action in ["rm","remove"]:
             if fighting_art not in self.survivor["fighting_arts"]:
                 return False
             else:
