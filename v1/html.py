@@ -471,156 +471,157 @@ class survivor:
 
     <div id="asset_management_left_pane">
 
-        <form method="POST" id="autoForm" action="#">
-            <button id="save_button" class="success">Save</button>
-            <input type="hidden" name="form_id" value="survivor_top" />
-            <input type="hidden" name="modify" value="survivor" />
-            <input type="hidden" name="asset_id" value="$survivor_id" />
+       <input
+            id="survivor_sheet_survivor_name"
+            type="text" name="name" value="$name"
+            placeholder="Survivor Name"
+            onchange="updateAssetAttrib(this, 'survivor', '$survivor_id')"
+            onClick="this.select()"
+        />
 
-            <input id="survivor_sheet_survivor_name" type="text" name="name" value="$name" placeholder="Survivor Name" onchange="updateAssetAttrib(this, 'survivor', '$survivor_id')" onClick="this.select()"/>
-            <br class="mobile_only"/><br class="mobile_only"/><br class="mobile_only"/>
+        <div class="survivor_sheet_survivor_name_from_top_spacer mobile_only"/>&nbsp</div>
 
-            $epithet_controls
+        $epithet_controls
 
-            <!-- SEX, SURVIVAL and MISC. SURVIVOR ATTRIBUTES -->
+        $affinity_controls
 
-            $affinity_controls
+        <p>
+            Survivor Sex:
+            <input
+                id="survivor_sheet_survivor_sex"
+                class="survivor_sex_text"
+                name="sex" value="$sex"
+                onchange="updateAssetAttrib(this, 'survivor', '$survivor_id')"
+            />
 
-            <p>
-            Survivor Sex: <input onchange="updateAssetAttrib(this, 'survivor', '$survivor_id')" class="survivor_sex_text" name="sex" value="$sex" id="survivor_sheet_survivor_sex"/>
             $mobile_avatar_img
-            <br/>
+        </p>
 
-            <div id="survivor_dead_retired_container">
+        <br/>
 
-                    <!-- favorite -->
-                 <input onchange="updateAssetAttrib(this,'survivor','$survivor_id')" type="checkbox" id="favorite" class="radio_principle" name="toggle_favorite" value="checked" $favorite_checked /> 
-                 <label class="radio_principle_label toggle_favorite" for="favorite"> &#9733; Favorite </label>
+        <div id="survivor_dead_retired_container">
 
-                    <!-- dead -->
-                    <button id="modalDeathButton" class="$death_button_class" title="Mark this survivor as dead">Dead</button>
+            <input
+                id="favorite"
+                class="radio_principle"
+                type="checkbox"
+                name="toggle_favorite"
+                value="checked"
+                $favorite_checked
+                onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+            />
+            <label
+                class="radio_principle_label toggle_favorite"
+                for="favorite"
+            >
+                &#9733; Favorite
+            </label>
 
-                    <!-- retired -->
-                 <input onchange="updateAssetAttrib(this,'survivor','$survivor_id')" type="checkbox" id="retired" class="radio_principle" name="toggle_retired" value="checked" $retired_checked> 
-                 <label class="radio_principle_label" for="retired" style="float: right; clear: none;"> Retired &nbsp; </label>
-                </p>
+            <button
+                id="modalDeathButton"
+                class="$death_button_class"
+                title="Mark this survivor as dead"
+            >
+                Dead
+            </button>
+
+            <input
+                id="retired"
+                class="radio_principle"
+                type="checkbox"
+                name="toggle_retired"
+                value="checked"
+                $retired_checked
+                onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+            >
+            <label
+                class="radio_principle_label"
+                for="retired"
+                style="float: right; clear: none;"
+            >
+                Retired &nbsp;
+            </label>
 
 
             </div> <!-- survivor_dead_retired_container -->
 
+
             <hr />
+
 
             <div id="survivor_survival_box_container">
+
                 <div class="big_number_container left_margin">
-                    <button class="incrementer" onclick="increment('survivalBox');">+</button>
-                    <input type="number" id="survivalBox" class="big_number_square" name="survival" value="$survival" min="0"/>
-                    <button class="decrementer" onclick="decrement('survivalBox');">-</button>
+                    <button
+                        class="incrementer"
+                        onclick="increment('survivalBox'); updateAssetAttrib('survivalBox','survivor','$survivor_id');"
+                    >
+                        +
+                    </button>
+                    <input
+                        id="survivalBox"
+                        class="big_number_square"
+                        type="number"
+                        name="survival" value="$survival"
+                        min="0"
+                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+                    />
+                    <button
+                        class="decrementer"
+                        onclick="decrement('survivalBox'); updateAssetAttrib('survivalBox','survivor','$survivor_id');"
+                    >
+                        -
+                    </button>
+                </div> <!-- big_number_container -->
+
+                <div class="big_number_caption">
+                    Survival <p>(max: $survival_limit)</p>
                 </div>
-                <div class="big_number_caption">Survival <p>(max: $survival_limit)</p></div>
+
             </div> <!-- survivor_survival_box_container -->
+
 
             <hr />
 
+
             <div id="survivor_survival_actions_container">
+
                 <h3>Survival Actions</h3>
+
                 <p>
-                 <input
-                    id="cannot_spend_survival"
-                    class="radio_principle"
-                    name="toggle_cannot_spend_survival"
-                    onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
-                    type="checkbox"
-                    value="checked" $cannot_spend_survival_checked
-                 />
+                     <input
+                        id="cannot_spend_survival"
+                        class="radio_principle"
+                        name="toggle_cannot_spend_survival"
+                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+                        type="checkbox"
+                        value="checked" $cannot_spend_survival_checked
+                     />
 
-                 <label
-                    id="cannot_spend_survival"
-                    class="radio_principle_label float_right_toggle"
-                    for="cannot_spend_survival">
-                        Cannot<br/>spend<br/>survival
-                 </label>
+                     <label
+                        id="cannot_spend_survival"
+                        class="radio_principle_label float_right_toggle"
+                        for="cannot_spend_survival">
+                            Cannot<br/>spend<br/>survival
+                     </label>
 
-        $survival_actions
+                    $survival_actions
 
                 </p>
 
 
-            $desktop_avatar_img
-
+                $desktop_avatar_img
 
                 <button class="orange bold $constellation_button_class" id="constellationModalOpener">
-                        Dragon Traits ($number_of_dragon_traits)
+                    Dragon Traits ($number_of_dragon_traits)
                 </button>
 
-            </div>
+            </div> <!-- survivor_survival_actions_container -->
 
 
-
-<!--            <hr class="mobile_only"/>
-            <div class="mobile_only">
-                <p>Notes:</p>
-                $fighting_arts
-                $departure_buffs
-                $abilities_and_impairments
-                $disorders
-            </div> -->
-
-            <a id="edit_attribs" />
-
-            <hr> <!-- logical break; same form -->
-
-            <div id="survivor_stats">
-                <input id="movementBox" class="big_number_square" type="number" name="Movement" value="$movement"/>
-                <div class="big_number_caption">Movement<br />
-                    <div class="survivor_attrib_paddles">
-                    <button class="incrementer" onclick="increment('movementBox');">+</button>
-                    <button class="decrementer" onclick="decrement('movementBox');">-</button>
-                    </div>
-                </div>
-                <br class="mobile_only"/><hr/>
-                <input id="accuracyBox" class="big_number_square" type="number" name="Accuracy" value="$accuracy"/>
-                <div class="big_number_caption">Accuracy<br/>
-                    <div class="survivor_attrib_paddles">
-                    <button class="incrementer" onclick="increment('accuracyBox');">+</button>
-                    <button class="decrementer" onclick="decrement('accuracyBox');">-</button>
-                    </div>
-                </div>
-                <br class="mobile_only"/><hr/>
-                <input id="strengthBox" class="big_number_square" type="number" name="Strength" value="$strength"/>
-                <div class="big_number_caption">Strength<br/>
-                    <div class="survivor_attrib_paddles">
-                    <button class="incrementer" onclick="increment('strengthBox');">+</button>
-                    <button class="decrementer" onclick="decrement('strengthBox');">-</button>
-                    </div>
-                </div>
-                <br class="mobile_only"/><hr/>
-                <input id="evasionBox" class="big_number_square" type="number" name="Evasion" value="$evasion"/>
-                <div class="big_number_caption">Evasion<br/>
-                    <div class="survivor_attrib_paddles">
-                    <button class="incrementer" onclick="increment('evasionBox');">+</button>
-                    <button class="decrementer" onclick="decrement('evasionBox');">-</button>
-                    </div>
-                </div>
-                <br class="mobile_only"/><hr/>
-                <input id="luckBox" class="big_number_square" type="number" name="Luck" value="$luck"/>
-                <div class="big_number_caption">Luck<br/>
-                    <div class="survivor_attrib_paddles">
-                    <button class="incrementer" onclick="increment('luckBox');">+</button>
-                    <button class="decrementer" onclick="decrement('luckBox');">-</button>
-                    </div>
-                </div>
-                <br class="mobile_only"/><hr/>
-                <input id="speedBox" class="big_number_square" type="number" name="Speed" value="$speed"/>
-                <div class="big_number_caption">Speed<br/>
-                    <div class="survivor_attrib_paddles">
-                    <button class="incrementer" onclick="increment('speedBox');">+</button>
-                    <button class="decrementer" onclick="decrement('speedBox');">-</button>
-                    </div>
-                </div>
-            </div> <!-- survivor_stats -->
-
-            <br class="mobile_only"/>
-            <hr/>
+            <a id="edit_attribs">
+                <hr>
+            </a>
 
             <h3>Bonuses</h3>
             $settlement_buffs
@@ -628,267 +629,335 @@ class survivor:
             <h3>Survivor Notes</h3>
             $survivor_notes
 
-            <a id="edit_hit_boxes" />
 
         </div> <!-- asset_management_left_pane -->
 
-        <hr class="mobile_only"/>   <!-- LOGICAL/ORGANIZATIONAL break -->
+
+
+                <!-- MIDDLE ASSET MANAGEMENT PANE STARTS HERE -->
+
+
+
+        <a id="edit_hit_boxes">
+            <hr class="mobile_only"/>
+        </a>
 
         <div id="asset_management_middle_pane">
-                        <!-- HIT BOXES ; still the same form -->
-            <a> <!-- hacks!!! for inc/dec buttons-->
-            <div class="survivor_hit_box insanity_box" ng-init="currentInsanity='$insanity'">
-             <div class="big_number_container right_border">
-              <button class="incrementer" onclick="increment('insanityBox');">+</button>
-               <input id="insanityBox" type="number" class="shield" name="Insanity" min="0" ng-model="insanity" ng-class="{insanity_font: insanity>=3, bogus_class: insanity<3}" value="{{ currentInsanity }}"/>
-               <font id="hit_box_insanity">Insanity</font>
-              <button class="decrementer" onclick="decrement('insanityBox');">-</button>
-             </div>
 
-             <div class="hit_box_detail">
-              <input id="damage_brain_light" onclick="toggleDamage('damage_brain_light','$survivor_id');" type="submit" class="damage_box_$brain_damage_light_checked damage_box" name="toggle_brain_damage_light" value=" "/>
-                <h2>Brain</h2><br/>
-                If your insanity is 3+, <font ng-class="{insanity_font: insanity>=3}">you are <b>Insane</b></font>.
-             </div>
+
+            <!-- BRAIN -->
+
+            <div class="survivor_hit_box insanity_box">
+
+                <div class="big_number_container right_border">
+
+                    <button
+                        class="incrementer"
+                        onclick="stepAndSave('up','insanityBox','survivor','$survivor_id');"
+                    >
+                        +
+                    </button>
+
+                    <input
+                        id="insanityBox"
+                        type="number"
+                        class="shield"
+                        name="Insanity" min="0"
+                        value="$insanity"
+                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+                    />
+
+                    <font id="hit_box_insanity">Insanity</font>
+
+                    <button
+                        class="decrementer"
+                        onclick="stepAndSave('down','insanityBox','survivor','$survivor_id');"
+                    >
+                        -
+                    </button>
+
+                 </div> <!-- big_number_container -->
+
+                 <div class="hit_box_detail">
+                     <input
+                        id="damage_brain_light"
+                        name="toggle_brain_damage_light"
+                        class="damage_box_$brain_damage_light_checked damage_box"
+                        type="submit"
+                        value=" "
+                        onclick="toggleDamage('damage_brain_light','$survivor_id');"
+                    />
+
+                    <h2>Brain</h2>
+
+                </div> <!-- hit_box_detail -->
+
+                <p>If your insanity is 3+, you are <b>Insane</b>.</p>
+
             </div> <!-- survivor_hit_box -->
 
-                <!-- HEAD -->
+
+
+            <!-- HEAD -->
+
             <div class="survivor_hit_box">
                 <div class="big_number_container right_border">
-                    <button class="incrementer" onclick="increment('headBox');">+</button>
-                        <input id="headBox" type="number" class="shield" name="Head" value="$head" min="0"/>
-                    <button class="decrementer" onclick="decrement('headBox');">-</button>
+                    <button
+                        class="incrementer"
+                        onclick="stepAndSave('up','headBox','survivor','$survivor_id');"
+                    >
+                        +
+                    </button>
+                    <input
+                        id="headBox"
+                        type="number"
+                        class="shield"
+                        name="Head"
+                        value="$head"
+                        min="0"
+                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+                    />
+                    <button
+                        class="decrementer"
+                        onclick="stepAndSave('down','headBox','survivor','$survivor_id');"
+                    >
+                        -
+                    </button>
                 </div>
                 <div class="hit_box_detail">
-                 <input id="damage_head_heavy" onclick="toggleDamage('damage_head_heavy','$survivor_id');" type="submit" class="damage_box_$head_damage_heavy_checked heavy_damage damage_box" name="toggle_head_damage_heavy" value=" "/>
-                    <h2>Head</h2>
-                    <b>H</b>eavy Injury: Knocked Down
-                </div>
+                 <input
+                    id="damage_head_heavy"
+                    onclick="toggleDamage('damage_head_heavy','$survivor_id');"
+                    type="submit"
+                    class="damage_box_$head_damage_heavy_checked heavy_damage damage_box"
+                    name="toggle_head_damage_heavy"
+                    value=" "
+                 />
+                 <h2>Head</h2>
+                </div> <!-- hit_box_detail -->
+                <p><b>H</b>eavy Injury: Knocked Down</p>
             </div> <!-- survivor_hit_box -->
 
-                <!-- ARMS -->
-            <div class="survivor_hit_box">
-                <div class="big_number_container right_border">
-                    <button class="incrementer" onclick="increment('armsBox');">+</button>
-                        <input id="armsBox" type="number" class="shield" name="Arms" value="$arms" min="0"/>
-                    <button class="decrementer" onclick="decrement('armsBox');">-</button>
-                </div>
-                <div class="hit_box_detail">
-                 <input id="damage_arms_heavy" onclick="toggleDamage('damage_arms_heavy','$survivor_id');" type="submit" class="damage_box_$arms_damage_heavy_checked heavy_damage damage_box" name="toggle_arms_damage_heavy" value=" "/>
-                 <input id="damage_arms_light" onclick="toggleDamage('damage_arms_light','$survivor_id');" type="submit" class="damage_box_$arms_damage_light_checked damage_box" name="toggle_arms_damage_light" value=" "/>
-                    <h2>Arms</h2>
-                    <b>H</b>eavy Injury: Knocked Down
-                </div>
-            </div> <!-- survivor_hit_box -->
+            $arms_hit_box
+            $body_hit_box
+            $waist_hit_box
+            $legs_hit_box
 
-                <!-- BODY -->
-            <div class="survivor_hit_box">
-                <div class="big_number_container right_border">
-                    <button class="incrementer" onclick="increment('bodyBox');">+</button>
-                        <input id="bodyBox" type="number" class="shield" name="Body" value="$body" min="0"/>
-                    <button class="decrementer" onclick="decrement('bodyBox');">-</button>
-                </div>
-                <div class="hit_box_detail">
-                 <input id="damage_body_heavy" onclick="toggleDamage('damage_body_heavy','$survivor_id');" type="submit" class="damage_box_$body_damage_heavy_checked heavy_damage damage_box" name="toggle_body_damage_heavy" value=" "/>
-                 <input id="damage_body_light" onclick="toggleDamage('damage_body_light','$survivor_id');" type="submit" class="damage_box_$body_damage_light_checked damage_box" name="toggle_body_damage_light" value=" "/>
-                    <h2>Body</h2>
-                    <b>H</b>eavy Injury: Knocked Down
-                </div>
-            </div> <!-- survivor_hit_box -->
-
-                <!-- WAIST -->
-            <div class="survivor_hit_box">
-                <div class="big_number_container right_border">
-                    <button class="incrementer" onclick="increment('waistBox');">+</button>
-                        <input id="waistBox" type="number" class="shield" name="Waist" value="$waist" min="0"/>
-                    <button class="decrementer" onclick="decrement('waistBox');">-</button>
-                </div>
-                <div class="hit_box_detail">
-                 <input id="damage_waist_heavy" onclick="toggleDamage('damage_waist_heavy','$survivor_id');" type="submit" class="damage_box_$waist_damage_heavy_checked heavy_damage damage_box" name="toggle_waist_damage_heavy" value=" "/>
-                 <input id="damage_waist_light" onclick="toggleDamage('damage_waist_light','$survivor_id');" type="submit" class="damage_box_$waist_damage_light_checked damage_box" name="toggle_waist_damage_light" value=" "/>
-                    <h2>Waist</h2>
-                    <b>H</b>eavy Injury: Knocked Down
-                </div>
-            </div> <!-- survivor_hit_box -->
-
-        <!-- LEGS -->
-            <div class="survivor_hit_box">
-                <div class="big_number_container right_border">
-                    <button class="incrementer" onclick="increment('legsBox');">+</button>
-                        <input id="legsBox" type="number" class="shield" name="Legs" value="$legs" min="0"/>
-                    <button class="decrementer" onclick="decrement('legsBox');">-</button>
-                </div>
-                <div class="hit_box_detail">
-                 <input id="damage_legs_heavy" onclick="toggleDamage('damage_legs_heavy','$survivor_id');" type="submit" class="damage_box_$legs_damage_heavy_checked heavy_damage damage_box" name="toggle_legs_damage_heavy" value=" "/>
-                 <input id="damage_legs_light" onclick="toggleDamage('damage_legs_light','$survivor_id');" type="submit" class="damage_box_$legs_damage_light_checked damage_box" name="toggle_legs_damage_light" value=" "/>
-                    <h2>Legs</h2>
-                    <b>H</b>eavy Injury: Knocked Down
-                </div>
-            </div> <!-- survivor_hit_box -->
-
-
-                <!-- HIT BOXES END HERE -->
-
-
-                <!-- HEAL SURVIVOR CONTROLS HERE! -->
-
-             <select name="heal_survivor" onchange="this.form.submit()">
-              <option selected disabled hidden value="">Heal Survivor</option>
-              <option>Heal Injuries Only</option>
-              <option>Heal Injuries and Remove Armor</option>
-              <option>Return </option>
-             </select>
-
-
-            <hr/>  <!-- logical break -->
-
-
-                        <!-- HUNT XP and AGE -->
-            <div class="big_number_container left_margin">
-                <button class="incrementer" onclick="increment('huntXpBox');">+</button>
-                <input id="huntXpBox" class="big_number_square" type="number" name="hunt_xp" value="$hunt_xp" min="0"/>
-                <button class="decrementer" onclick="decrement('huntXpBox');">-</button>
-            </div>
-            <div class="big_number_caption">Hunt XP</div>
-            <br class="mobile_only"/>
-            <p class="fixed_width">
-                <font class="kdm_font">g</font> <b>Age</b> occurs at 2, 6, 10 and 15.<br/>$name retires at 16.
-            </p>
+            <a id="edit_wpn_prof" class="mobile_and_tablet"></a>
             <hr/>
 
-                        <!-- WEAPON PROFICIENCY -->
-            <div class="big_number_container left_margin">
-                <button class="incrementer" onclick="increment('proficiencyBox');">+</button>
-                <input onchange="this.form.submit()" id="proficiencyBox" class="big_number_square" type="number" name="Weapon Proficiency" value="$weapon_proficiency" min="0"/>
-                <button class="decrementer" onclick="decrement('proficiencyBox');">-</button>
-            </div>
-            <div class="big_number_caption">Weapon Proficiency</div>
+            <!-- WEAPON PROFICIENCY -->
+            <div class="survivor_sheet_secondary_attrib_container">
+                <div class="big_number_container">
+                    <button
+                        class="incrementer"
+                        onclick="stepAndSave('up','proficiencyBox','survivor','$survivor_id');"
+                    >
+                        +
+                    </button>
+                    <input
+                        id="proficiencyBox"
+                        name="Weapon Proficiency"
+                        class="big_number_square"
+                        type="number"
+                        value="$weapon_proficiency"
+                        min="0"
+                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+                    />
+                    <button
+                        class="decrementer"
+                        onclick="stepAndSave('down','proficiencyBox','survivor','$survivor_id');"
+                    >
+                        -
+                    </button>
+                </div> <!-- big_number_container -->
 
-            $weapon_proficiency_options
+                <div class="big_number_caption">Weapon Proficiency</div>
 
-            <div class="desktop_indent">
-                <p class="fixed_width"><b>Specialist</b> at 3<br/><b>Master</b> at 8</p>
-            </div>
+                <form method="POST" action="#edit_wpn_prof">
+                    <input type="hidden" name="modify" value="survivor" />
+                    <input type="hidden" name="asset_id" value="$survivor_id" />
+                    $weapon_proficiency_options
+                </form>
 
+                <p class="secondary_attrib_tip"><b>Specialist</b> at 3<br/><b>Master</b> at 8.</p>
 
-            <hr/>
-
-                        <!-- COURAGE AND UNDERSTANDING -->
-
-            <div class="big_number_container left_margin">
-                <button class="incrementer" onclick="increment('courageBox');">+</button>
-                <input id="courageBox" class="big_number_square" type="number" name="Courage" value="$courage" min="0"/>
-                <button class="decrementer" onclick="decrement('courageBox');">-</button>
-            </div>
-            <div class="big_number_caption">Courage</div>
-            <br class="mobile_only"/>
-            <p class="fixed_width">
-                $hunt_xp_3_event
-              <font class="kdm_font">g</font> <b>See the Truth</b> (p.155) occurs at 9.
-            </p>
+            </div> <!-- survivor_sheet_secondary_attrib_container -->
 
             <hr/>
 
-            <div class="big_number_container left_margin">
-                <button class="incrementer" onclick="increment('understandingBox');">+</button>
-                <input id="understandingBox" class="big_number_square" type="number" name="Understanding" value="$understanding" min="0"/>
-                <button class="decrementer" onclick="decrement('understandingBox');">-</button>
-            </div>
-            <div class="big_number_caption">Understanding</div>
-            <br class="mobile_only"/>
-            <p class="fixed_width">
-                $courage_3_event
-                <font class="kdm_font">g</font> <b>White Secret</b> (p.169) occurs at 9.
-            </p>
 
-            </form>
+            <!-- COURAGE AND UNDERSTANDING -->
+
+            <div class="survivor_sheet_secondary_attrib_container">
+                <div class="big_number_container">
+                    <button
+                        class="incrementer"
+                        onclick="stepAndSave('up','courageBox','survivor','$survivor_id');"
+                    >
+                        +
+                    </button>
+                    <input
+                        id="courageBox"
+                        name="Courage"
+                        class="big_number_square"
+                        type="number"
+                        min="0"
+                        value="$courage"
+                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+                    />
+                    <button
+                        class="decrementer"
+                        onclick="stepAndSave('down','courageBox','survivor','$survivor_id');"
+                    >
+                        -
+                    </button>
+                </div>
+                <div class="big_number_caption">Courage</div>
+                <br class="mobile_only"/>
+
+                 <p class="secondary_attrib_tip">
+                    $hunt_xp_3_event
+                    <font class="kdm_font">g</font> <b>See the Truth</b> (p.155) occurs at 9.
+                </p>
+
+            </div> <!-- survivor_sheet_secondary_attrib_container -->
 
 
+            <hr/>
 
 
-            <hr class="mobile_only"/> <!-- logical division; new form starts here too -->
+            <!-- UNDERSTANDING -->
+
+            <div class="survivor_sheet_secondary_attrib_container">
+                <div class="big_number_container">
+                    <button
+                        class="incrementer"
+                        onclick="stepAndSave('up','understandingBox','survivor','$survivor_id');"
+                    >
+                        +
+                    </button>
+                    <input
+                        id="understandingBox"
+                        name="Understanding"
+                        class="big_number_square"
+                        type="number"
+                        min="0"
+                        value="$understanding"
+                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+                    />
+                    <button
+                        class="decrementer"
+                        onclick="stepAndSave('down','understandingBox','survivor','$survivor_id');"
+                    >
+                        -
+                    </button>
+                </div>
+                <div class="big_number_caption">Understanding</div>
+
+                <br class="mobile_only"/>
+
+                <p class="secondary_attrib_tip">
+                    $courage_3_event
+                    <font class="kdm_font">g</font> <b>White Secret</b> (p.169) occurs at 9.
+                </p>
+
+            </div> <!-- survivor_sheet_secondary_attrib_container -->
+
         </div> <!-- asset_management_middle_pane -->
 
 
 
-        <div id="asset_management_right_pane"> <!-- asset_management_right_pane -->
+
+                <!-- RIGHT ASSET MANAGEMENT PANE STARTS HERE -->
 
 
+        <div id="asset_management_right_pane">
 
-                            <!-- 1.4 Misc. Attribs -->
-            <a id="edit_misc_attribs" class="mobile_only"> </a>
-            <form method="POST" id="autoForm" action="#edit_misc_attribs">
-                <input type="hidden" name="modify" value="survivor" />
-                <input type="hidden" name="asset_id" value="$survivor_id" />
-                $expansion_attrib_controls
-            </form>
+        <!-- EXPANSION ATTRIBUTES ; PARTNER CONTROLS -->
 
-            <form method="POST" id="autoForm" action="#edit_misc_attribs">
-                <button class="hidden"></button>
-                <input type="hidden" name="modify" value="survivor" />
-                <input type="hidden" name="asset_id" value="$survivor_id" />
-                $partner_controls
-            </form>
+        <a id="edit_misc_attribs" class="mobile_and_tablet"> </a>
 
+        <form method="POST" action="#edit_misc_attribs">
+            <input type="hidden" name="modify" value="survivor" />
+            <input type="hidden" name="asset_id" value="$survivor_id" />
+            $expansion_attrib_controls
+        </form>
 
-                        <!-- FIGHTING ARTS -->
-            <a id="edit_fighting_arts" class="mobile_and_tablet">  </a>
-            <form method="POST" id="autoForm" action="#edit_fighting_arts">
-                <input type="hidden" name="form_id" value="survivor_edit_fighting_arts" />
-                <button class="hidden"></button>
-                <input type="hidden" name="modify" value="survivor" />
-                <input type="hidden" name="asset_id" value="$survivor_id" />
-
-                <h3>Fighting Arts</h3>
-
-                 <input
-                    id="survivor_sheet_cannot_use_fighting_arts"
-                    class="radio_principle"
-                    name="toggle_cannot_use_fighting_arts"
-                    onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
-                    type="checkbox"
-                    value="checked" $cannot_use_fighting_arts_checked
-                 />
-
-                 <label
-                    id="survivor_sheet_cannot_use_fighting_arts_label"
-                    class="radio_principle_label float_right_toggle"
-                    for="survivor_sheet_cannot_use_fighting_arts"
-                 >
-                    Cannot use<br/>Fighting Arts
-                </label>
-
-                <p>Maximum 3.</p>
-
-                    $fighting_arts
-                    $add_fighting_arts<br class="mobile_only"/>
-                    $rm_fighting_arts
-            </form>
+        <form method="POST" id="autoForm" action="#edit_misc_attribs">
+            <button class="hidden"></button>
+            <input type="hidden" name="modify" value="survivor" />
+            <input type="hidden" name="asset_id" value="$survivor_id" />
+            $partner_controls
+        </form>
 
 
-            <a id="edit_disorders" class="mobile_only"></a>
-            <hr />
+        <!-- FIGHTING ARTS -->
 
-                        <!-- DISORDERS - HAS ITS OWN FORM-->
+        <a id="edit_fighting_arts" class="mobile_and_tablet"></a>
+        <hr/>
 
-            <form method="POST" id="autoForm" action="#edit_disorders">
-                <input type="hidden" name="form_id" value="survivor_edit_disorders" />
-                <input type="hidden" name="modify" value="survivor" />
-                <input type="hidden" name="asset_id" value="$survivor_id" />
-                <h3>Disorders</h3>
-                <p>Maximum 3.</p>
+        <input
+            id="survivor_sheet_cannot_use_fighting_arts"
+            class="radio_principle"
+            name="toggle_cannot_use_fighting_arts"
+            onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+            type="checkbox"
+            value="checked" $cannot_use_fighting_arts_checked
+        />
+        <label
+            id="survivor_sheet_cannot_use_fighting_arts_label"
+            class="radio_principle_label float_right_toggle"
+            for="survivor_sheet_cannot_use_fighting_arts"
+         >
+            Cannot use<br/>Fighting Arts
+        </label>
 
-                $disorders
-                $add_disorders<br class="mobile_only"/>
-                $rm_disorders
+        <form method="POST" action=".#edit_fighting_arts">
+            <input type="hidden" name="form_id" value="survivor_edit_fighting_arts" />
+            <input type="hidden" name="modify" value="survivor" />
+            <input type="hidden" name="asset_id" value="$survivor_id" />
+
+            <button class="hidden"></button> <!-- hacks! -->
+
+            <h3>Fighting Arts</h3>
+
+            <p>Maximum 3.</p>
+
+            $fighting_arts
+            $add_fighting_arts
+            <br class="mobile_only"/>
+            $rm_fighting_arts
+
+        </form>
 
 
-            </form>
+        <a id="edit_disorders" class="mobile_and_tablet"></a>
+        <hr />
 
-            <a id="edit_abilities" class="mobile_only"></a>
-            <hr />
 
-                        <!-- ABILITIES AND IMPAIRMENTS -->
+        <!-- DISORDERS - HAS ITS OWN FORM-->
+
+        <form method="POST" action="#edit_disorders">
+            <input type="hidden" name="form_id" value="survivor_edit_disorders" />
+            <input type="hidden" name="modify" value="survivor" />
+            <input type="hidden" name="asset_id" value="$survivor_id" />
+
+            <h3>Disorders</h3>
+            <p class="survivor_sheet_game_asset_tip">Maximum 3.</p>
+
+            $disorders
+            $add_disorders<br class="mobile_only"/>
+            $rm_disorders
+
+        </form>
+
+
+        <a id="edit_abilities" class="mobile_only"></a>
+        <hr />
+
+
+        <!-- ABILITIES AND IMPAIRMENTS -->
 
 
             <h3>Abilities & Impairments</h3>
@@ -911,9 +980,9 @@ class survivor:
                 </form>
             </p>
 
-            <hr />
 
-            <a id="edit_lineage" class="mobile_only"></a>
+        <a id="edit_lineage" class="mobile_and_tablet"></a>
+        <hr />
 
             <h3>Lineage</h3>
             <h4>Parents</h4>
@@ -946,8 +1015,7 @@ class survivor:
 
 
             <form action="#" method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this survivor forever, which is NOT THE SAME THING as marking it dead: permanently deleting the survivor prevents anyone from viewing and/or editing it ever again! If you are trying to delete all survivors in a settlement, you may delete the settlement from the settlement editing view.');"><input type="hidden" name="remove_survivor" value="$survivor_id"/><button class="error">Permanently Delete Survivor</button></form>
-            <hr class="mobile_only"/>
-            <br class="mobile_only"/>
+            <div class="survivor_sheet_bottom_attrib_spacer">&nbsp;</div>
 
     <!-- gotta put this here, outside of the other forms -->
     <form id="avatar_change_form" method="POST" enctype="multipart/form-data" action="#">
@@ -957,6 +1025,9 @@ class survivor:
 
         </div> <!-- asset_management_right_pane -->
 
+    <!-- SURVIVOR ATTRIBUTE CONTROLS -->
+
+    $survivor_attrib_controls
 
     <!-- ONLY MODAL CONTENT PAST THIS POINT!!!! -->
 
@@ -985,7 +1056,6 @@ class survivor:
                 <input type="hidden" name="resurrect_survivor" value="True"/>
                 <button class="success">Resurrect $name</button>
                 </form>
-                
 
             </div> <!-- modal-content -->
         </div> <!-- modalConstellation -->
@@ -1020,7 +1090,7 @@ class survivor:
                     <input id="redCountBox" class="big_number_square" type="number" name="red_affinities" value="$red_affinities"/>
                     <button type="button" class="decrementer" onclick="decrement('redCountBox');">-</button>
                     </div>
-                    <div id="affinity_block" class="red">&nbsp;</div>
+                    <div id="affinity_block" class="affinity_red">&nbsp;</div>
                     <hr/>
 
                     <div class="bulk_add_control" title="Blue affinity controls">
@@ -1028,7 +1098,7 @@ class survivor:
                     <input id="blueCountBox" class="big_number_square" type="number" name="blue_affinities" value="$blue_affinities"/>
                     <button type="button" class="decrementer" onclick="decrement('blueCountBox');">-</button>
                     </div>
-                    <div id="affinity_block" class="blue">&nbsp;</div>
+                    <div id="affinity_block" class="affinity_blue">&nbsp;</div>
                     <hr/>
 
                     <div class="bulk_add_control" title="Green affinity controls">
@@ -1036,7 +1106,7 @@ class survivor:
                     <input id="greenCountBox" class="big_number_square" type="number" name="green_affinities" value="$green_affinities"/>
                     <button type="button" class="decrementer" onclick="decrement('greenCountBox');">-</button>
                     </div>
-                    <div id="affinity_block" class="green">&nbsp;</div>
+                    <div id="affinity_block" class="affinity_green">&nbsp;</div>
                     <hr/>
 
                     <center><button class="green" type="submit">Save!</button></center>
@@ -1046,18 +1116,210 @@ class survivor:
         </div> <!-- modalAffinity -->
 
     \n""")
-    partner_controls_top = '\n<p><span class="tiny_break">&nbsp;</span>Partner<select name="partner_id" onchange="this.form.submit()">\n'
+    survivor_sheet_hit_box_controls = Template("""\n
+
+            <!-- $hit_location [ render_hit_box_controls() ] -->
+
+            <div class="survivor_hit_box">
+                <div class="big_number_container right_border">
+                    <button
+                        class="incrementer"
+                        onclick="stepAndSave('up','$number_input_id','survivor','$survivor_id');"
+                    >
+                        +
+                    </button>
+                    <input
+                        id="$number_input_id"
+                        type="number"
+                        class="shield"
+                        name="$hit_location"
+                        value="$hit_location_value"
+                        min="0"
+                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+                    />
+                    <button
+                        class="decrementer"
+                        onclick="stepAndSave('down','$number_input_id','survivor','$survivor_id');"
+                    >
+                        -
+                    </button>
+                </div>
+                <div class="hit_box_detail">
+                    <input
+                        id="$damage_location_heavy"
+                        name="$toggle_location_damage_heavy"
+                        value=" "
+                        class="$dmg_heavy_checked damage_heavy_checked heavy_damage damage_box"
+                        onclick="toggleDamage('$damage_location_heavy','$survivor_id');"
+                        type="submit"
+                    />
+                    <input
+                        id="$damage_location_light"
+                        name="$toggle_location_damage_light"
+                        onclick="toggleDamage('$damage_location_light','$survivor_id');"
+                        type="submit"
+                        class="$dmg_light_checked damage_light_checked damage_box"
+                        value=" "
+                    />
+                    <h2>$hit_location</h2>
+                </div> <!-- hit_box_detail -->
+                <p><b>H</b>eavy Injury: Knocked Down</p>
+            </div> <!-- survivor_hit_box -->
+
+    \n""")
+    survivor_sheet_attrib_controls_top = '\t<div class="survivor_sheet_attrib_controls">'
+    survivor_sheet_attrib_controls_token = Template("""\n
+
+    <!-- $long_name attribute controls start here! -->
+
+    <div id="$long_name_controls_container"
+        ng-app="kdmManager"
+        ng-controller="attributeController"
+        ng-init="base_value=$base_value;gear_value=$gear_value;tokens_value=$tokens_value;survivor_id='$survivor_id'"
+    >
+
+
+        <!-- $long_name modal window controls first; token buttons next -->
+
+        <div id="$controls_id" class="survivor_sheet_attrib_controls_modal survivor_sheet_gradient" style="display: none;">
+            <span
+                class="close_attrib_controls_modal"
+                onClick="showHide('$controls_id')"
+            >
+                X
+            </span>
+
+            <h3 class="$token_class">$long_name</h3>
+            <div class="synthetic_attrib_total synthetic_attrib_total_$long_name">{{ getTotal() }}</div>
+            <hr/>
+
+            <div class="survivor_sheet_attrib_controls_number_container_container">
+
+
+              <!-- $long_name BASE container starts -->
+
+              <div class="survivor_sheet_attrib_controls_number_container">
+
+                <button
+                    class="incrementer"
+                    onClick="increment('base_value_$controls_id')"
+                    ng-click="refresh('$long_name', 'base')"
+                >
+                    +
+                </button>
+
+                <input
+                    id="base_value_$controls_id"
+                    type="number"
+                    class="survivor_sheet_attrib_controls_number"
+                    ng-model="base_value"
+                    value="{{raw_base}}"
+                    onClick="this.select()"
+                    ng-change="refresh('$long_name', 'base')"
+                    />
+
+                <button
+                    class="decrementer"
+                    onClick="decrement('base_value_$controls_id')"
+                    ng-click="refresh('$long_name', 'base')"
+                >
+                    -
+                </button>
+
+                <p><b>Base</b></p>
+
+              </div> <!-- survivor_sheet_attrib_controls_number_container -->
+
+        <!-- end of BASE; start of GEAR -->
+
+
+              <div class="survivor_sheet_attrib_controls_number_container">
+              <button
+                  class="incrementer"
+                  onClick="increment('gear_value_$controls_id')"
+                  ng-click="refresh('$long_name', 'gear')"
+              >
+                  +
+              </button>
+                 <input
+                    id="gear_value_$controls_id"
+                    type="number"
+                    class="survivor_sheet_attrib_controls_number"
+                    ng-model="gear_value"
+                    value="{{raw_gear}}"
+                    onClick="this.select()"
+                    ng-change="refresh('$long_name', 'gear')"
+                    />
+              <button
+                  class="decrementer"
+                  onClick="decrement('gear_value_$controls_id')"
+                  ng-click="refresh('$long_name', 'gear')"
+              >
+                  -
+              </button>
+              <p>Gear</p>
+              </div> <!-- survivor_sheet_attrib_controls_number_container -->
+
+
+        <!-- end $long_name GEAR; begin TOKENS -->
+
+              <div class="survivor_sheet_attrib_controls_number_container">
+                <button
+                    class="incrementer"
+                    onClick="increment('tokens_value_$controls_id')"
+                    ng-click="refresh('$long_name', 'tokens')"
+                >
+                    +
+                </button>
+                  <input
+                      id="tokens_value_$controls_id"
+                      class="survivor_sheet_attrib_controls_number"
+                      type="number"
+                      value="{{raw_tokens}}"
+                      onClick="this.select()"
+                      ng-model="tokens_value"
+                      ng-change="refresh('$long_name', 'tokens')"
+                  />
+                <button
+                    class="decrementer"
+                    onClick="decrement('tokens_value_$controls_id')"
+                    ng-click="refresh('$long_name', 'tokens')"
+                >
+                    -
+                </button>
+                <p>Tokens</p>
+              </div> <!-- survivor_sheet_attrib_controls_number_container -->
+
+            </div><!-- survivor_sheet_attrib_controls_number_container_container -->
+
+        </div> <!-- survivor_sheet_attrib_controls_modal -->
+
+
+        <!-- $long_name token button -->
+        <button
+            class="survivor_sheet_attrib_controls_token $token_class"
+            onClick="showHide('$controls_id')"
+        >
+        <p class="short_name">$short_name</p>
+        <p class="attrib_value synthetic_attrib_total_$long_name">{{ getTotal() }}</p>
+        </button>
+
+    </div> <!-- $long_name_controls_container -->
+    """)
+    survivor_sheet_attrib_controls_bot = '\t</div> <!-- survivor_sheet_attrib_controls -->'
+
+    partner_controls_top = '\n<hr/>\n\t<p><span class="tiny_break">&nbsp;</span>Partner<select name="partner_id" onchange="this.form.submit()">\n'
     partner_controls_none = '<option selected disabled>Select a Survivor</option>'
     partner_controls_opt = Template('<option value="$value" $selected>$name</option>')
-    partner_controls_bot = '</select><span class="tiny_break"/>&nbsp;</span></p><hr/>\n\n'
+    partner_controls_bot = '</select><span class="tiny_break"/>&nbsp;</span></p>\n\n'
     expansion_attrib_controls = Template("""\n
+    <hr/>
     <span class="tiny_break"/>&nbsp;</span>
     <input type="hidden" name="expansion_attribs" value="None"/> <!-- Hacks -->
     <input type="hidden" name="expansion_attribs" value="None"/> <!-- Hacks -->
     $control_items
     <br class="clear_both"/>
     <span class="tiny_break"/>&nbsp;</span>
-    <hr/>
     \n""")
     expansion_attrib_item = Template("""\n
     <div class="expansion_attrib_toggle">
@@ -1077,7 +1339,7 @@ class survivor:
     </p>
     \n""")
     affinity_span = Template("""\n
-    <span id="affinity_span" class="$span_class">$value</span>
+    <span id="affinity_span" class="affinity_$span_class">$value</span>
     \n""")
     stat_story_event_stub = Template("""\n
                <font class="kdm_font">g</font> <b>$event</b> (p.$page) occurs at $attrib_value<br/>
@@ -1168,6 +1430,7 @@ class survivor:
 
     <input class="survivor_sheet_add_survivor_note" ng-model="note" placeholder="Add a Survivor Note" onClick="this.select()"/>
     <button class="survival_limit_style survivor_sheet_add_survivor_note" ng-click="addNote('$survivor_id')">Add Note</button>
+    <br/>
 
     <!-- suppress error text if not debugging -->
     <!-- <p>{{errortext}}</p> -->
@@ -1272,7 +1535,7 @@ class settlement:
     \n""" % (render_campaign_toggles(), render_checkboxes("expansions"), render_checkboxes("survivors"))
 
     return_hunting_party_with_confirmation = Template("""\n\
-        <form action="#" method="POST" onsubmit="return confirm('Press OK to return the survivors, increment Hunt XP +1 and add the current quarry to the Defeated Monsters list as well as the settlement timeline for this year.');">
+        <form action="#" method="POST" onsubmit="return confirm('Press OK to return all Departing Survivors, heal all wounds, remove all armor points, attribute tokens and gear modifiers, increment Hunt XP +1 and add the current quarry to the Defeated Monsters list as well as the settlement timeline for this year.');">
             <input type="hidden" name="return_hunting_party" value="$settlement_id"/>
             <button id="return_hunting_party" class="bold yellow" >&#8629; Return Departing Survivors</button>
         </form>
@@ -2006,25 +2269,25 @@ class meta:
     \n""")
 
     burger_top_level_button = Template("""\n
-    <form method="POST" action=""><input type="hidden" name="change_view" value="$view"/>
+    <form method="POST" action="/"><input type="hidden" name="change_view" value="$view"/>
     <button class="sidenav_top_level"> $link_text </button>
     </form>
     \n""")
     burger_signout_button = Template("""\n
-    <form id="logout" method="POST" action="">
+    <form id="logout" method="POST" action="/">
     <input type="hidden" name="remove_session" value="$session_id"/>
     <input type="hidden" name="login" value="$login"/>
     <button>SIGN OUT</button>
     </form>
     \n""")
     burger_change_view_button = Template("""\n
-    <form method="POST" action="">
+    <form method="POST" action="/">
     <input type="hidden" name="$target_view" value="$settlement_id" />
     <button class="sidenav_button">$link_text</button>
     </form>
     \n""")
     burger_export_button = Template("""\n
-    <form method="POST" action="">
+    <form method="POST" action="/">
      <input type="hidden" name="export_campaign" value="XLS"/>
      <input type="hidden" name="asset_id" value="$settlement_id"/>
      <button class="sidenav_button"> $link_text </button>
@@ -2378,21 +2641,6 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
         }
         </script>
 
-        <script>
-        function increment(elem_id) {
-            document.getElementById(elem_id).stepUp();
-        }
-        function decrement(elem_id) {
-            document.getElementById(elem_id).stepDown();
-        }
-        </script>
-        <script>
-        function showHide(id) {
-            var e = document.getElementById(id);
-            if (e.style.display != 'none') e.style.display = 'none';
-            else e.style.display = 'block';
-        }
-        </script>
     \n"""
 
 

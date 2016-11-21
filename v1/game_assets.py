@@ -3706,12 +3706,12 @@ epithets = {
     "Twin": {},
 
     # saviors
-    "Lucernae": {"color": "FFF", "bgcolor": "3F51B5"},
-    "Caratosis": {"color": "FFF", "bgcolor": "F44336"},
-    "Dormenatus": {"color": "FFF", "bgcolor": "4CAF50"},
-    "Blue Savior": {"color": "FFF", "bgcolor": "3F51B5"},
-    "Red Savior": {"color": "FFF", "bgcolor": "F44336"},
-    "Green Savior": {"color": "FFF", "bgcolor": "4CAF50"},
+    "Caratosis": {"color": "FFF", "bgcolor": "CD2027"},
+    "Lucernae": {"color": "FFF", "bgcolor": "1C99CD"},
+    "Dormenatus": {"color": "FFF", "bgcolor": "4CB848"},
+    "Red Savior": {"color": "FFF", "bgcolor": "CD2027"},
+    "Blue Savior": {"color": "FFF", "bgcolor": "1C99CD"},
+    "Green Savior": {"color": "FFF", "bgcolor": "4CB848"},
 }
 
 

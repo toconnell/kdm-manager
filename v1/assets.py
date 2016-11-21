@@ -21,7 +21,7 @@ import types
 
 import admin
 import export_to_file
-from modular_assets import survivor_names, settlement_names
+from modular_assets import survivor_names, settlement_names, survivor_attrib_controls
 import game_assets
 import html
 from models import Abilities, NemesisMonsters, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles, SurvivalActions, CauseOfDeath
@@ -547,9 +547,10 @@ class Survivor:
                     else:
                         if prof_dict["all_survivors"] not in self.survivor["abilities_and_impairments"]:
                             if self.User.get_preference("apply_weapon_specialization"):
-                                self.survivor["abilities_and_impairments"].append(prof_dict["all_survivors"])
-                                self.logger.debug("Auto-applied settlement default '%s' to survivor '%s' of '%s'." % (prof_dict["all_survivors"], self.survivor["name"], self.Settlement.settlement["name"]))
-                                self.Settlement.log_event("Automatically added '%s' to %s's abilities!" % (prof_dict["all_survivors"], self.survivor["name"]))
+                                if prof_dict["all_survivors"] not in self.survivor["abilities_and_impairments"]:
+                                    self.survivor["abilities_and_impairments"].append(prof_dict["all_survivors"])
+                                    self.logger.debug("Auto-applied settlement default '%s' to survivor '%s' of '%s'." % (prof_dict["all_survivors"], self.survivor["name"], self.Settlement.settlement["name"]))
+                                    self.Settlement.log_event("Automatically added '%s' to %s's abilities!" % (prof_dict["all_survivors"], self.survivor["name"]))
                 elif innovation_key.split("-")[0].strip() == "Mastery":
                     custom_weapon = " ".join(innovation_key.split("-")[1:]).title().strip()
                     spec_str = "Specialization - %s" % custom_weapon
@@ -1115,9 +1116,14 @@ class Survivor:
 
         """
 
+        remove_attribute_detail=False
+        heal_armor=False
+        incremenet_hunt_xp=False
+
         if cmd == "Heal Injuries and Remove Armor":
             heal_armor=True
         elif cmd == "Return from Hunt":
+            remove_attribute_detail=True
             heal_armor=True
             increment_hunt_xp=1
 
@@ -1146,6 +1152,10 @@ class Survivor:
         if increment_hunt_xp and not "dead" in self.survivor.keys():
             current_xp = int(self.survivor["hunt_xp"])
             self.survivor["hunt_xp"] = current_xp + increment_hunt_xp
+
+        if remove_attribute_detail:
+            if "attribute_detail" in self.survivor.keys():
+                del self.survivor["attribute_detail"]
 
         mdb.survivors.save(self.survivor)
 
@@ -1985,6 +1995,20 @@ class Survivor:
             mdb.the_dead.save(death_rec)
 
 
+    def update_survival(self, new_value):
+        """ Updates the survivor's 'survival' attrib. Tries to force 'new_value'
+        to an int and fails gracefully if it can't (to protect us from rogue
+        orm input, PEBKAC, etc. """
+
+        try:
+            survival = int(new_value)
+        except:
+            return False
+
+        self.survivor["survival"] = survival
+        self.logger.debug("[%s] set %s survival to %s" % (self.User, self, survival))
+
+
     def update_email(self, email):
         """ Changes the survivor's email. Does some normalization and checks."""
         email = email.lower()
@@ -2026,6 +2050,49 @@ class Survivor:
         return functional_sex
 
 
+    def get_survivor_attribute(self, attrib=None, attrib_detail=None):
+        """ Returns a survivor attribute (MOV, ACC, EVA, etc.) as an integer.
+        Use the 'attrib_detail' kwarg to retrieve attribute details, if they
+        exist (if they don't you'll get a zero back). """
+
+        if attrib is None:
+            self.logger.error("get_survivor_attribute() requires a non-None attribute!")
+
+        if attrib_detail is None and attrib in self.survivor.keys():
+            return int(self.survivor[attrib])
+
+        if attrib_detail in ["gear","tokens"] and "attribute_detail" in self.survivor.keys():
+            return int(self.survivor["attribute_detail"][attrib][attrib_detail])
+
+        return 0
+
+
+    def update_survivor_attribute(self, attrib, attrib_type, attrib_type_value):
+        """ Processes input from the angularjs attributeController app. Updates
+        a survivor's base, gear and token attribute stats. Logs. """
+
+        if not "attribute_detail" in self.survivor.keys():
+            self.survivor["attribute_detail"] = {
+                "Movement": {"gear": 0, "tokens": 0},
+                "Accuracy": {"gear": 0, "tokens": 0},
+                "Strength": {"gear": 0, "tokens": 0},
+                "Evasion": {"gear": 0, "tokens": 0},
+                "Luck": {"gear": 0, "tokens": 0},
+                "Speed": {"gear": 0, "tokens": 0},
+            }
+
+        if attrib_type == "base":
+            self.survivor[attrib] = attrib_type_value
+            self.logger.debug("[%s] set %s '%s' to %s!" % (self.User, self, attrib, attrib_type_value))
+        elif attrib_type in ["gear","tokens"]:
+            self.survivor["attribute_detail"][attrib][attrib_type] = int(attrib_type_value)
+            self.logger.debug("[%s] set %s '%s' ('%s' detail) to %s!" % (
+                self.User, self, attrib, attrib_type, attrib_type_value
+            ))
+        else:
+            self.logger.error("[%s] unknown attribute type '%s' cannot be processed!" % (self.User, attrib_type))
+
+
     def update_survivor_notes(self, action="add", note=None):
         """ Use this to add or remove notes. Works on strings, rather than IDs,
         for the sake of making the REST/form side of things simple. """
@@ -2041,14 +2108,20 @@ class Survivor:
                 "survivor_id": self.survivor["_id"],
                 "settlement_id": self.Settlement.settlement["_id"],
                 "note": note,
-                "note_zero_punctuation": note.translate(None, punctuation).replace(" ","").strip(),
+                "note_zero_punctuation": unicode(note.translate(None, punctuation).replace(" ","").strip()),
                 "name": "%s note" % self,
             }
+
 
             mdb.survivor_notes.insert(note_dict)
             self.logger.debug("[%s] added note '%s' to %s." % (self.User, note, self))
         elif action=="rm":
-            note_zp = unicode(note.translate(None, punctuation).replace(" ","").strip())
+            try:
+                note = str(note.decode('ascii', 'ignore'))
+                note_zp = unicode(note.translate(None, punctuation).replace(" ","").strip())
+            except Exception as e:
+                self.logger.exception(e)
+                raise
             target_note = mdb.survivor_notes.find_one({"note_zero_punctuation":note_zp, "survivor_id": self.survivor["_id"]})
             if target_note is None:
                 self.logger.error("[%s] attempted to remove a note from survivor %s (%s) that could not be found!" % (self.User, self, self.survivor["_id"]))
@@ -2193,12 +2266,19 @@ class Survivor:
             return False
 
 
-    def modify_weapon_proficiency(self, target_lvl):
+    def modify_weapon_proficiency(self, target_lvl=None, new_type=None):
         """ Wherein we update the survivor's 'Weapon Proficiency' attrib. There
         is some biz logic here re: specializations and masteries. """
 
+        if target_lvl is None and new_type is not None:
+            self.survivor["weapon_proficiency_type"] = new_type
+            self.Settlement.log_event("%s set '%s' as their weapon proficiency." % (self, new_type))
+            self.logger.debug("[%s] set weapon proficiency type to '%s' for %s." %(self.User, new_type, self))
+            return True
+
         # if we do nothing else, at least update the level
         self.survivor["Weapon Proficiency"] = target_lvl
+        self.logger.debug("[%s] set Weapon Proficiency to %s for %s" % (self.User, target_lvl, self))
 
         # bail if the user hasn't selected a weapon type
         if self.survivor["weapon_proficiency_type"] == "":
@@ -2248,14 +2328,23 @@ class Survivor:
 
         self.Settlement.update_mins()
 
+        ignore_keys = [
+            # legacy keys (soon to be deprecated)
+            "heal_survivor","form_id",
+            # misc controls that we're already done with by now
+            "norefresh", "modify", "view_game", "asset_id",
+            # app.js -> attributeController elements
+            "gear","tokens","base","angularjs_attrib_type","angularjs_attrib_value",
+        ]
 
         for p in params:
 
-            if type(params[p]) != list:
+            game_asset_key = params[p]
+            if type(params[p]) != list and p not in ignore_keys:
                 game_asset_key = params[p].value.strip()
 #                self.logger.debug("%s -> '%s' (type=%s)" % (p, game_asset_key, type(params[p])))
 
-            if p in ["asset_id", "heal_survivor", "form_id", "modify","view_game"]:
+            if p in ignore_keys:
                 pass
             elif p == "set_constellation":
                 self.update_constellation(game_asset_key)
@@ -2300,7 +2389,7 @@ class Survivor:
             elif p == "Weapon Proficiency":
                 self.modify_weapon_proficiency(int(game_asset_key))
             elif p == "add_weapon_proficiency_type":
-                self.survivor["weapon_proficiency_type"] = game_asset_key
+                self.modify_weapon_proficiency(target_lvl=None, new_type=game_asset_key)
             elif p == "customize_ability" and "custom_ability_description" in params:
                 self.add_ability_customization(params[p].value, params["custom_ability_description"].value)
             elif p == "custom_ability_description":
@@ -2330,7 +2419,17 @@ class Survivor:
                     self.logger.exception(e)
             elif p == "rm_survivor_note":
                 self.update_survivor_notes("rm", game_asset_key)
+            elif p == "angularjs_attrib_update":
+                attribute = params["angularjs_attrib_update"].value
+                attribute_type = params["angularjs_attrib_type"].value
+                attribute_type_value = params["angularjs_attrib_value"].value
+                self.update_survivor_attribute(attribute, attribute_type, attribute_type_value)
+            elif p == "survival":
+                self.update_survival(game_asset_key)
+            elif p in ["Insanity","Head","Arms","Body","Waist","Legs"]:
+                self.update_survivor_attribute(p, "base", game_asset_key)
             else:
+                self.logger.debug("[%s] direct Survivor Sheet update: %s -> %s (%s)" % (self.User, p, game_asset_key, self))
                 self.survivor[p] = game_asset_key
 
 
@@ -2425,8 +2524,67 @@ class Survivor:
         return output
 
 
+    def render_hit_box_controls(self, hit_location=None):
+        """ Fills in the html template for hit box controls and spits out HTML
+        for the controller. Kind of kludgey, but slims down the rendering
+        process/outout ."""
+
+        if hit_location is None:
+            self.logger.error("The 'hit_location' may not be None!")
+            return None
+        elif hit_location not in self.survivor.keys():
+            self.logger.error("The '%s' hit location does not exist!" % hit_location)
+
+        dmg_l = "damage_box_"
+        if "%s_damage_light" % hit_location.lower() in self.survivor.keys():
+            dmg_l += self.survivor["%s_damage_light" % hit_location.lower()]
+        dmg_h = "damage_box_"
+        if "%s_damage_heavy" % hit_location.lower() in self.survivor.keys():
+            dmg_h += self.survivor["%s_damage_heavy" % hit_location.lower()]
+
+        return html.survivor.survivor_sheet_hit_box_controls.safe_substitute(
+            dmg_light_checked = dmg_l,
+            dmg_heavy_checked = dmg_h,
+            damage_location_light = "damage_%s_light" % hit_location.lower(),
+            damage_location_heavy = "damage_%s_heavy" % hit_location.lower(),
+            toggle_location_damage_light = "toggle_%s_damage_light" % hit_location.lower(),
+            toggle_location_damage_heavy = "toggle_%s_damage_heavy" % hit_location.lower(),
+            hit_location = hit_location,
+            survivor_id = self.survivor["_id"],
+            location_lower = hit_location.lower(),
+            number_input_id = "%sHitBoxInput" % hit_location.lower(),
+            hit_location_value = self.survivor[hit_location],
+        )
+
+
+    def render_attribute_controls(self, return_type="survivor_sheet"):
+        """ Renders the controls for modifying/managing/investigating the
+        survivor's attributes, e.g. MOV, ACC, STR, etc. """
+
+        if return_type == "survivor_sheet":
+            output = html.survivor.survivor_sheet_attrib_controls_top
+            for token in survivor_attrib_controls.tokens:
+                output += html.survivor.survivor_sheet_attrib_controls_token.safe_substitute(
+                    survivor_id=self.survivor["_id"],
+                    controls_id=token["long_name"] + "_controller",
+                    base_value=self.survivor[token["long_name"]],
+                    gear_value=self.get_survivor_attribute(token["long_name"],"gear"),
+                    tokens_value=self.get_survivor_attribute(token["long_name"],"tokens"),
+                    token_class=token["token_button_class"],
+                    short_name=token["short_name"],
+                    long_name=token["long_name"],
+                )
+            output += html.survivor.survivor_sheet_attrib_controls_bot
+            return output
+        else:
+            self.logger.error("Unsupported 'return_type' kwarg value: %s" % return_type)
+            return ""
+
+
     def render_html_form(self):
-        """ This is just like the render_html_form() method of the settlement
+        """ Render a Survivor Sheet for the survivor.
+
+        This is just like the render_html_form() method of the settlement
         class: a giant tangle-fuck of UI/UX logic that creates the form for
         modifying a survivor.
 
@@ -2505,34 +2663,22 @@ class Survivor:
             retired_checked = flags["retired"],
             public_checked = flags["public"],
             survival_actions = self.get_survival_actions(return_as="html_checkboxes"),
-            movement = self.survivor["Movement"],
-            accuracy = self.survivor["Accuracy"],
-            strength = self.survivor["Strength"],
-            evasion = self.survivor["Evasion"],
-            luck = self.survivor["Luck"],
-            speed = self.survivor["Speed"],
             departure_buffs = self.Settlement.get_bonuses("departure_buff", return_type="html"),
             settlement_buffs = self.Settlement.get_bonuses("survivor_buff", return_type="html"),
 
+            # manually generated hit boxes
             insanity = self.survivor["Insanity"],
             brain_damage_light_checked = flags["brain_damage_light"],
             head_damage_heavy_checked = flags["head_damage_heavy"],
-            arms_damage_light_checked = flags["arms_damage_light"],
-            arms_damage_heavy_checked = flags["arms_damage_heavy"],
-            body_damage_light_checked = flags["body_damage_light"],
-            body_damage_heavy_checked = flags["body_damage_heavy"],
-            waist_damage_light_checked = flags["waist_damage_light"],
-            waist_damage_heavy_checked = flags["waist_damage_heavy"],
-            legs_damage_light_checked = flags["legs_damage_light"],
-            legs_damage_heavy_checked = flags["legs_damage_heavy"],
-
             head = self.survivor["Head"],
-            arms = self.survivor["Arms"],
-            body = self.survivor["Body"],
-            waist = self.survivor["Waist"],
-            legs = self.survivor["Legs"],
 
+            # procedurally generated hit boxes
+            arms_hit_box = self.render_hit_box_controls("Arms"),
+            body_hit_box = self.render_hit_box_controls("Body"),
+            waist_hit_box = self.render_hit_box_controls("Waist"),
+            legs_hit_box = self.render_hit_box_controls("Legs"),
 
+            # affinities
             red_affinities = self.get_affinities()["red"],
             blue_affinities = self.get_affinities()["blue"],
             green_affinities = self.get_affinities()["green"],
@@ -2577,7 +2723,9 @@ class Survivor:
             cod_options = CauseOfDeath.render_as_html_toggle_dropdown(selected=COD, expansions=exp),
             custom_cause_of_death = custom_COD,
 
+            # angularjs application controls
             survivor_notes = self.get_survivor_notes("angularjs"),
+            survivor_attrib_controls = self.render_attribute_controls(),
         )
         return output
 
