@@ -1007,7 +1007,7 @@ class survivor:
               <input onchange="this.form.submit()" class="full_width" type="email" name="email" placeholder="email" value="$email"/>
 
               <input type='hidden' value='unchecked' name='toggle_public'/>
-              <input onchange="this.form.submit()" type="checkbox" id="public" class="radio_principle" name="toggle_public" value="checked" $public_checked> 
+              <input onchange="updateAssetAttrib(this,'survivor','$survivor_id')" type="checkbox" id="public" class="radio_principle" name="toggle_public" value="checked" $public_checked> 
               <label class="radio_principle_label" for="public"> Anyone May Manage this Survivor &nbsp; </label>
               <br/>
             </form>
