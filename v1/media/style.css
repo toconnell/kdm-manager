@@ -366,7 +366,7 @@ li.survivor_sheet_survivor_note {display: inline-block; margin: 1%;  padding: 2%
 input.survivor_sheet_add_survivor_note {width: 90% !important; margin: 0 auto; display: block; margin-top: 3%;  }
 button.survivor_sheet_add_survivor_note {width: 90%; margin: 0 auto; display: block; margin-top: 3%;  }
 
-button#constellationModalOpener {width: 40%; margin-top: -150%; float: left; }
+button#constellationModalOpener {width: 40%; margin-top: -1250px; float: left; }
 table#survivor_constellation_table {width: 95%; border-radius: 25px; background-color: #E1F5FE; margin: 0 auto; font-size: 18pt; }
 table#survivor_constellation_table th {font-weight: bold; vertical-align: middle; text-align: center; padding: 5px; }
 table#survivor_constellation_table td {padding: 5px; background-color: #FDFFFF; text-align: center; vertical-align: center; }
@@ -839,7 +839,7 @@ right connector from last child*/
     font.survivor_sheet_survival_action_item {padding-left: 3px; font-size: 19pt;}
     button#modalDeathButton {font-size: 24px; }
 
-    button#constellationModalOpener {width: auto; padding-right: 20px; padding-left:20px; margin-top: -250%; float: left; }
+    button#constellationModalOpener {width: auto; padding-right: 20px; padding-left:20px; margin-top: -686px; float: left; font-size: 17px;}
     div#asset_management_left_pane input.survivor_sex_text {width: 30px; }
     ul#epithet_angular_ul {margin-top: -30px;  }
 
@@ -1195,7 +1195,7 @@ right connector from last child*/
     label#cannot_spend_survival {margin-top: -200px; }
     font.survivor_sheet_survival_action_item {margin: 5px; font-size: 13pt;}
     button#modalDeathButton {font-size: 17px; }
-    button#constellationModalOpener {width: 40%; margin-top: 40%; margin-bottom: 10px;  float: left; }
+    button#constellationModalOpener {width: 40%; margin-top: 25%; margin-bottom: 10px;  float: left; }
     div#modalConstellation table#survivor_constellation_table {font-size: 13pt; width: 70%;}
     div#modalConstellation table#survivor_constellation_table td {font-size: 12pt; height: 75px; }
     div#modalConstellation div#survivor_constellation_control_container {margin: 0 auto; width: 30%; text-align: center;}
