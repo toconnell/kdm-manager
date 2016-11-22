@@ -626,9 +626,9 @@ class Survivor:
             self.Settlement.log_event("Choosing a random name for new survivor due to user preference!")
             name_list = survivor_names.other
             if sex == "M":
-                name_list = survivor_names.male
+                name_list = name_list + survivor_names.male
             elif sex == "F":
-                name_list = survivor_names.female
+                name_list = name_list + survivor_names.female
             else:
                 self.logger.error("[%s] unknown survivor sex! '%s' is not allowed!" % (self.User, sex))
             name = random.choice(name_list)
@@ -4711,7 +4711,7 @@ class Settlement:
             self.settlement["name"] = new_name
             
             self.logger.debug("%s updated settlement name: '%s' is now '%s'." % (self.User, old_name, new_name))
-            self.log_event("Changed settlement name from '%s' to '%s'." % (old_name, new_name))
+            self.log_event("'%s' is now known as '%s'." % (old_name, new_name))
         else:
             pass
 
@@ -5129,6 +5129,7 @@ class Settlement:
         All of the business logic lives here.
         """
 
+        ignore_keys = ["norefresh", "asset_id", "modify", "add_item_quantity"]
 
         for p in params:
 
@@ -5138,8 +5139,10 @@ class Settlement:
 #            self.logger.debug("%s -> %s (%s)" % (p, params[p], type(params[p])))
 
 
-            if p in ["asset_id", "modify", "add_item_quantity"]:
+            if p in ignore_keys:
                 pass
+            elif p == "name":
+                self.update_settlement_name(game_asset_key)
             elif p == "add_defeated_monster":
                 self.add_kill(game_asset_key)
             elif p == "remove_defeated_monster":
@@ -5197,8 +5200,6 @@ class Settlement:
                 self.toggle_expansion(exp_key)
             elif p.split("_")[0] == "location" and p.split("_")[1] == "level":
                 self.update_location_level(p.split("_")[2:][0], game_asset_key)
-            elif p == "name":
-                self.update_settlement_name(game_asset_key)
             else:
                 self.settlement[p] = game_asset_key
                 self.logger.debug("%s set '%s' = '%s' for %s" % (self.User.user["login"], p, game_asset_key, self.get_name_and_id()))

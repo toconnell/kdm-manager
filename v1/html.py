@@ -440,7 +440,7 @@ class survivor:
          <input type="hidden" name="asset_id" value="$survivor_id" />
          <input type="hidden" name="view_game" value="$settlement_id" />
          <input type="hidden" name="in_hunting_party" value="$hunting_party_checked"/>
-         <button id="add_survivor_to_party" class="$able_to_hunt $disabled" $able_to_hunt $disabled>::</button>
+         <button class="add_survivor_to_party orange $able_to_hunt $disabled" $able_to_hunt $disabled>::</button>
         </form>
 
         <form method="POST" action="#">
@@ -744,6 +744,42 @@ class survivor:
             $legs_hit_box
 
             <a id="edit_wpn_prof" class="mobile_and_tablet"></a>
+            <hr/>
+
+            <!-- HUNT XP -->
+            <div class="survivor_sheet_secondary_attrib_container">
+                <div class="big_number_container">
+                    <button
+                        class="incrementer"
+                        onclick="stepAndSave('up','huntXPBox','survivor','$survivor_id');"
+                    >
+                        +
+                    </button>
+                    <input
+                        id="huntXPBox"
+                        name="hunt_xp"
+                        class="big_number_square"
+                        type="number"
+                        value="$hunt_xp"
+                        min="0"
+                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+                    />
+                    <button
+                        class="decrementer"
+                        onclick="stepAndSave('down','huntXPBox','survivor','$survivor_id');"
+                    >
+                        -
+                    </button>
+                </div> <!-- big_number_container -->
+
+                <div class="big_number_caption">Hunt XP</div>
+
+                <p class="secondary_attrib_tip">
+                    <font class="kdm_font">g</font> <b>Age</b> occurs at 2, 6, 10 and 15. $name retires at 16.
+                </p>
+
+            </div> <!-- survivor_sheet_secondary_attrib_container -->
+
             <hr/>
 
             <!-- WEAPON PROFICIENCY -->
@@ -1643,7 +1679,7 @@ class settlement:
     player_controls_table_bot = '<tr class="controller"><td colspan="2"><button class="full_width gradient_orange">Update Player Roles</button></2></tr></table>'
 
     #   campaign view campaign summary
-    campaign_summary_survivors_top = '<div id="campaign_summary_survivors">\n<h3 class="mobile_only">Survivors</h3>'
+    campaign_summary_survivors_top = '<div class="campaign_summary_survivors">\n<h3 class="mobile_only">Survivors</h3>'
     campaign_summary_survivors_bot = '<hr class="mobile_only"/></div> <!-- campaign_summary_survivors -->'
     export_button = Template("""\n\
     <form action="#" method="POST">
@@ -1694,26 +1730,27 @@ class settlement:
         <span class="nav_bar_mobile mobile_only campaign_summary_gradient"></span>
         <span class="top_nav_spacer mobile_only"> hidden </span>
 
-        <h1 class="settlement_name"> %s $settlement_name</h1>
-        <div id="campaign_summary_campaign_type">$campaign</div>
-
-        <div id="campaign_summary_pop">
+        <div class="campaign_summary_headline_container">
+            <h1 class="settlement_name"> %s $settlement_name</h1>
+            <p class="campaign_summary_campaign_type">$campaign</p>
             <p>Population: $population ($sex_count); $death_count deaths</p>
             <hr class="mobile_only"/>
             <p>LY: $lantern_year, Survival Limit: $survival_limit</p>
             <hr class="mobile_only"/>
-        </div>
-
+            </div>
+        </div> <!-- campaign_summary_headline_container -->
 
         <a id="edit_hunting_party" class="mobile_only"></a>
         <span class="vertical_spacer desktop_only"></span>
 
-        $survivors
+        <div class="campaign_summary_panels_container">
 
-        <hr class="mobile_only invisible">
-        <br class="mobile_only">
+            $survivors
 
-        <div id="campaign_summary_facts_box">
+            <hr class="mobile_only invisible">
+            <br class="mobile_only">
+
+            <div class="campaign_summary_facts_box">
 
             $special_rules
 
@@ -1731,29 +1768,34 @@ class settlement:
             </div>
             <hr class="mobile_only"/>
             <div class="campaign_summary_small_box">
-                <h3>Principles</h3>
+                <h4>Principles</h4>
                 $principles
             </div>
             <div class="campaign_summary_small_box">
-                <h3>Innovations</h3>
+                <h4>Innovations</h4>
                 $innovations
             </div>
+
             <hr class="mobile_only"/>
+
             <div class="campaign_summary_small_box">
-                <h3>Locations</h3>
-                <p>$locations</p>
+                <h4>Locations</h4>
+                $locations
             </div>
+
             <hr class="mobile_only"/>
+
             <div class="campaign_summary_small_box">
                 <h3>Monsters</h3>
                 <h4>Defeated</h4>
-                <p>$defeated_monsters</p>
+                $defeated_monsters
                 <h4>Quarries</h4>
-                <p>$quarries</p>
+                $quarries
                 <h4>Nemeses</h4>
-                <p>$nemesis_monsters</p>
+                $nemesis_monsters
             </div>
-        </div>
+        </div> <!-- campaign_summary_facts_box -->
+    </div> <!-- campaign_summary_panels_container -->
     \n""" % dashboard.campaign_flash)
     form = Template("""\n\
     <span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
@@ -1764,17 +1806,33 @@ class settlement:
 
     <div id="asset_management_left_pane">
 
+        <p
+            id="campaign_type"
+            class="center"
+            title="Campaign type may not be changed after a settlement is created!"
+        >
+            $campaign
+        </p>
+
+        <input
+            id="topline_name"
+            name="name"
+            class="full_width"
+            type="text"
+            value="$name"
+            placeholder="Settlement Name"
+            onclick="this.select()"
+            onchange="updateAssetAttrib(this, 'settlement', '$settlement_id')"
+        />
+
+        $abandoned
+        <hr class="mobile_only"/>
+        <br class="tablet_and_desktop">
+
         <form method="POST" id="autoForm" action="#">
             <button id="save_button" class="success">Save</button>
             <input type="hidden" name="modify" value="settlement" />
             <input type="hidden" name="asset_id" value="$settlement_id" />
-
-            <p id="campaign_type" class="center" title="Campaign type may not be changed after a settlement is created!">$campaign</p>
-
-            <input id="topline_name" onchange="this.form.submit()" class="full_width" type="text" name="name" value="$name" placeholder="Settlement Name"/>
-            $abandoned
-            <hr class="mobile_only"/>
-            <br class="tablet_and_desktop">
 
             <div class="settlement_form_wide_box">
                 <div class="big_number_container left_margin">
@@ -2259,7 +2317,7 @@ class meta:
     error_500 = Template('%s<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>%s</title></head><body><h1>500 - Internal Server Error</h1><hr/><p>$msg</p><hr/><p>Please report all issues at <a href="https://github.com/toconnell/kdm-manager/issues">https://github.com/toconnell/kdm-manager/issues</a><br/><br/>Use the information below to report the error:</p><hr/><p>%s</p>$exception' % (basic_http_header, settings.get("application","title"), datetime.now()))
     start_head = '<!DOCTYPE html>\n<html ng-app="kdmManager" ng-controller="globalController">\n<head>\n<meta charset="UTF-8">\n<meta name="theme-color" content="#000000">\n<title>%s</title>\n<link rel="stylesheet" type="text/css" href="/style.css">\n' % settings.get("application","title")
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
-    saved_dialog = '\n    <div id="saved_dialog" class="success">Saved!</div>'
+    saved_dialog = '\n    <div id="saved_dialog" class="success hidden">Saved!</div>'
     mobile_hr = '<hr class="mobile_only"/>'
     dashboard_alert = Template("""\n\
     <div id="dashboard_alert_spacer"></div>
@@ -2333,12 +2391,13 @@ class meta:
     Greetings!<br/><br/>&ensp;User $user_email [$user_id] has submitted an error report!<br/><br/>The report goes as follows:<hr/>$body<hr/>&ensp;...and that's it. Good luck!<br/><br/>Your friend,<br/>&ensp; meta.error_report_email
     \n""")
     safari_warning = Template("""\n\
-    <div id="safari_warning">
-    It looks like you're using Safari $vers. Unfortunately, the current version
-    of this application uses some JavaScript elements that are not fully
-    supported by your browser.
-    If you experience disruptive presentation and functionality issues while
-    using the manager, <a href="https://www.google.com/chrome/browser" target="top">Chrome</a> is fully supported on Windows and OSX.
+    <div class="safari_warning">
+    <p>It looks like you're using Safari $vers. Unfortunately, the current version
+    of this application uses some presentation elements that are not fully
+    supported by your browser.</p>
+    <p>If you experience disruptive presentation and/or functionality issues while
+    using the manager, <a href="https://www.google.com/chrome/browser"
+    target="top">Chrome</a> is fully supported on Windows and OSX.</p>
     </div>
     \n""")
 

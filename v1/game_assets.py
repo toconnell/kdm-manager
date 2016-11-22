@@ -3915,7 +3915,8 @@ principles = {
 campaigns = {
     "People of the Lantern": {
         "default": True,
-        "always_available": ["Lantern Hoard", "Language"],
+        "always_available": ["Lantern Hoard", "Language", "Exhausted Lantern Hoard"],
+        "forbidden": ["The Sun","Throne","Dragon Speech","Sun Language"],
         "principles": {
             "New Life": principles["new_life"],
             "Death": principles["death"],
@@ -3933,6 +3934,7 @@ campaigns = {
 
     "People of the Skull": {
         "always_available": ["Lantern Hoard", "Language"],
+        "forbidden": ["The Sun","Throne","Dragon Speech","Sun Language"],
         "special_rules": [
             {"name": "People of the Skull",
              "desc": "Survivors can only place weapons and armor with the <b>bone</b> keyword in their gear grid. The people of the skull ignore the <b>Frail</b> rule.",
@@ -3969,7 +3971,7 @@ campaigns = {
         "always_available": ["Lantern Hoard", "Language"],
         "expansions": ["Flower Knight"],
         "storage": ["Sleeping Virus Flower"],
-        "forbidden": ["Flower Addiction", "Flower Knight"],
+        "forbidden": ["The Sun", "Throne" "Flower Addiction", "Flower Knight"],
         "milestones": {
             "First child is born": milestones["first_child"],
             "First time death count is updated": milestones["first_death"],
@@ -3997,7 +3999,7 @@ campaigns = {
         "expansions": ["Sunstalker"],
         "survivor_attribs": ["Purified","Sun Eater","Child of the Sun"],
         "always_available": ["Sun Language","The Sun"],
-        "forbidden": ["Leader", "Lantern Hoard"],
+        "forbidden": ["Leader", "Lantern Hoard", "Exhausted Lantern Hoard"],
         "principles": {
             # custom new life principle
             "New Life": {

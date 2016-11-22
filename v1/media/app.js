@@ -18,8 +18,8 @@ function modifyAsset(collection, asset_id, param_string) {
     var params = "modify=" + collection + "&asset_id=" + asset_id + "&" + param_string + "&norefresh=True";
 //    window.alert(params);
     http.send(params);
-     $('#saved_dialog').fadeIn(500)
-     $('#saved_dialog').fadeOut(1800)
+    $('#saved_dialog').fadeIn(500);
+    $('#saved_dialog').fadeOut(1800);
 }
 
 // angularjs controllers start here.
