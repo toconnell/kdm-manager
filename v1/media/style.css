@@ -828,7 +828,7 @@ right connector from last child*/
 
         /* attribs under hit boxes */
     div.survivor_sheet_secondary_attrib_container {margin: 0 auto; margin-left: 30px; position: relative; }
-    .secondary_attrib_tip {margin: 0 auto; }
+    .secondary_attrib_tip {margin: 0 auto; width: 340px; }
     div.survivor_sheet_secondary_attrib_container .big_number_container {width: 100px; text-align: center; margin-bottom: 5%;}
     div.survivor_sheet_secondary_attrib_container .big_number_container button { width: 95%; height: 40px;}
     div.survivor_sheet_secondary_attrib_container .big_number_container input { width: 80%; }
