@@ -12,6 +12,7 @@ from lockfile.pidlockfile import PIDLockFile
 from optparse import OptionParser
 import os
 from pwd import getpwuid
+from retry import retry
 import shutil
 import subprocess
 import stat
@@ -752,7 +753,7 @@ class WorldDaemon:
         time.sleep(1)
         self.dump_status()
 
-
+    @retry(tries=3,delay=2,jitter=1,logger=utils.get_logger(settings.get("world","log_level")))
     def start(self):
         """ Starts the daemon. """
         self.logger.info("Starting World Daemon...")
@@ -815,8 +816,8 @@ class WorldDaemon:
 
         if os.path.isfile(self.pid_file_path):
             pid_file_age = time.time() - os.stat(self.pid_file_path)[stat.ST_MTIME]
-            seconds = timedelta(seconds=pid_file_age).seconds
-            uptime = utils.seconds_to_hms(seconds)
+            ut = timedelta(seconds=pid_file_age)
+            uptime = "%sd %sh %sm" % (ut.days, ut.seconds//3600, (ut.seconds//60)%60)
         else:
             return None
 
@@ -831,12 +832,19 @@ class WorldDaemon:
 
         active = False
         d = {"active": active}
-        if self.pid is not None:
+        if self.pid is not None and os.path.isfile(self.pid_file_path):
             active = True
 
         if active:
             owner_uid = os.stat(self.pid_file_path).st_uid
             owner_name = getpwuid(owner_uid).pw_name
+
+            try:
+                utils.mdb.world.find()
+            except Exception as e:
+                self.logger.error("Daemon is active, but MDB cannot be reached!")
+                self.logger.exception(e)
+                raise
 
             d = {}
             d["active"] = active
