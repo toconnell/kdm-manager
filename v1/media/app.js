@@ -252,17 +252,33 @@ function showHide(id) {
 function stepAndSave(step_dir, target_element_id, collection, asset_id) {
     var input = document.getElementById(target_element_id);
     if (step_dir == "up") {input.stepUp()} else {input.stepDown()};
-    input.click();
     var param_string = input.name + "=" + Number(input.value);
     modifyAsset(collection, asset_id, param_string)
 }
 function increment(elem_id) {
     var e = document.getElementById(elem_id);
     e.stepUp();
-    e.click();
 }
 function decrement(elem_id) {
     var e = document.getElementById(elem_id);
     e.stepDown();
-    e.click();
+}
+
+
+// place dynamic buttons in the appropriate holder, depending on what's visible
+function placeDynamicButton (button) {
+    // picks the appropriate parent div for a dynamic button on the
+    // Survivor Sheet. This kind of violates responsive design, because if the
+    // user changes the viewport from mobile to wide, they'll lose the button
+    // ...obviously a corner-case, but still makes me feel bad...
+
+    var mobile_holder = document.getElementById("mobileButtonHolder");
+    var wide_holder = document.getElementById("wideButtonHolder");
+
+    var mq = window.matchMedia( "(min-width: 1050px) and (orientation: landscape)" );
+    if (mq.matches) {
+        wide_holder.appendChild(button);
+    } else {
+        mobile_holder.appendChild(button);
+    };
 }

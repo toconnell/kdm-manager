@@ -516,13 +516,6 @@ class Survivor:
         if int(self.survivor["hunt_xp"]) >= 16 and not "retired" in self.survivor.keys():
             self.retire()
 
-        # auto-apply epithets for Birth of a Savior
-        for ability in ["Dormenatus", "Caratosis", "Lucernae"]:
-            if ability in self.survivor["abilities_and_impairments"] and ability not in self.survivor["epithets"]:
-                self.survivor["epithets"].append(ability)
-        if "Twilight Sword" in self.survivor["abilities_and_impairments"] and "Twilight Sword" not in self.survivor["epithets"]:
-            self.survivor["epithets"].append("Twilight Sword")
-
         # normalize weapon proficiency type
         if "weapon_proficiency_type" in self.survivor.keys() and self.survivor["weapon_proficiency_type"] != "":
             raw_value = str(self.survivor["weapon_proficiency_type"])
@@ -802,6 +795,19 @@ class Survivor:
         return " ".join(output)
 
 
+    def set_attrs(self, attrs_dict):
+        """ Accepts a dictionary and updates self.survivor with its keys and
+        values. There's no user-friendliness or checking here--this is an admin
+        type method--so make sure you know what you're doing with this. """
+
+        for k in attrs_dict.keys():
+            self.survivor[k] = attrs_dict[k]
+            self.logger.debug("%s set '%s' = '%s' for %s" % (self.User.user["login"], k, attrs_dict[k], self.get_name_and_id()))
+            if not self.suppress_event_logging:
+                self.Settlement.log_event("Set %s to '%s' for %s" % (k,attrs_dict[k],self.get_name_and_id(include_id=False,include_sex=True)))
+        mdb.survivors.save(self.survivor)
+
+
     def is_founder(self):
         """ Returns True or False, erring on the side of False. We only want to
         return True when we're sure the survivor was a founder. """
@@ -818,6 +824,105 @@ class Survivor:
             return True
         else:
             return False
+
+
+    def retire(self):
+        """ Retires the survivor. Saves them afterwards, since this can be done
+        pretty much anywhere.  This is the only way a survivor should ever be
+        retired: if you're doing it somewhere else, fucking stop it."""
+
+        self.survivor["retired"] = "checked"
+        self.survivor["retired_in"] = self.Settlement.settlement["lantern_year"]
+        self.logger.debug("[%s] just retired %s" % (self.User, self))
+        self.Settlement.log_event("%s has retired." % self)
+        mdb.survivors.save(self.survivor)
+
+
+
+    def death(self, undo_death=False, cause_of_death=None):
+        """ Call this method when a survivor dies. Call it with the 'undo_death'
+        kwarg to undo the death.
+
+        This returns a True or False that reflects the life/death status of the
+        survivor (which is a little strange, but bear with me).
+
+        We return True if the survivor is marked with the 'dead' attrib and we
+        return False if the survivor is NOT marked with the 'dead' attrib.
+        """
+
+        self.Settlement.update_mins()
+
+        population = int(self.Settlement.settlement["population"])
+        death_count = int(self.Settlement.settlement["death_count"])
+
+        if cause_of_death is not None:
+            self.survivor["cause_of_death"] = cause_of_death
+
+        if undo_death:
+            self.logger.debug("Survivor '%s' is coming back from the dead..." % self.survivor["name"])
+            for death_key in ["died_on","died_in","cause_of_death","dead"]:
+                try:
+                    del self.survivor[death_key]
+                    self.logger.debug("[%s] removed '%s' attrib from survivor %s" % (self.User, death_key, self))
+                except Exception as e:
+                    self.logger.debug("Could not unset '%s'" % death_key)
+                    pass
+
+            mdb.the_dead.remove({"survivor_id": self.survivor["_id"]})
+            self.logger.debug("Survivor '%s' removed from the_dead." % self.survivor["name"])
+        else:
+            self.logger.debug("Survivor '%s' (%s) has died!" % (self.survivor["name"], self.survivor["_id"]))
+            self.survivor["dead"] = True
+            death_dict = {
+                "name": self.survivor["name"],
+                "epithets": self.survivor["epithets"],
+                "survivor_id": self.survivor["_id"],
+                "created_by": self.survivor["created_by"],
+                "settlement_id": self.Settlement.settlement["_id"],
+                "created_on": datetime.now(),
+                "lantern_year": self.Settlement.settlement["lantern_year"],
+                "Courage": self.survivor["Courage"],
+                "Understanding": self.survivor["Understanding"],
+                "Insanity": self.survivor["Insanity"],
+                "epithets": self.survivor["epithets"],
+                "hunt_xp": self.survivor["hunt_xp"],
+            }
+
+            for optional_attrib in ["avatar","cause_of_death"]:
+                if optional_attrib in self.survivor.keys():
+                    death_dict[optional_attrib] = self.survivor[optional_attrib]
+
+            if mdb.the_dead.find_one({"survivor_id": self.survivor["_id"]}) is None:
+                mdb.the_dead.insert(death_dict)
+                self.logger.debug("Survivor '%s' has joined The Dead." % self.survivor["name"])
+                self.Settlement.settlement["population"] = int(self.Settlement.settlement["population"]) - 1
+                self.Settlement.settlement["death_count"] = int(self.Settlement.settlement["death_count"]) + 1
+                self.logger.debug("Settlement '%s' population and death count automatically adjusted!" % self.Settlement.settlement["name"])
+                self.Settlement.log_event("%s died." % self.get_name_and_id(include_id=False, include_sex=True))
+                self.Settlement.log_event("Population decreased to %s; death count increased to %s." % (self.Settlement.settlement["population"], self.Settlement.settlement["death_count"]))
+            else:
+                self.logger.debug("Survivor '%s' is already among The Dead." % self.survivor["name"])
+
+            self.survivor["died_on"] = datetime.now()
+            self.survivor["died_in"] = self.Settlement.settlement["lantern_year"]
+
+
+        admin.valkyrie()
+
+        # save the survivor then update settlement mins: you have to do it in
+        # this order, or else update_mins() doesn't know about the stiff and the
+        # population decrement above won't work.
+        mdb.survivors.save(self.survivor)
+        self.Settlement.update_mins()
+
+        if undo_death and "dead" in self.survivor.keys():
+            self.logger.error("[%s] undo survivor death failed for %s!" % (self.User, self))
+            return False
+        elif not undo_death and "dead" in self.survivor.keys():
+            return True
+        else:
+            return False
+
 
 
     def get_survival_actions(self, return_as=False):
@@ -868,20 +973,6 @@ class Survivor:
         return available_actions
 
 
-    def add_ability_customization(self, attrib_key, attrib_customization):
-        """ This basically creates a custom dict on the Survivor that is used
-        when rendering attributes. Not super elegant, but it'll do for version
-        one. """
-
-        if not "ability_customizations" in self.survivor.keys():
-            self.survivor["ability_customizations"] = {}
-
-        if not attrib_key in self.survivor["ability_customizations"]:
-            self.survivor["ability_customizations"][attrib_key] = ""
-
-        self.survivor["ability_customizations"][attrib_key] = attrib_customization
-        self.logger.debug("Custom ability description '%s' -> '%s' added to survivor '%s' by %s" % (attrib_key, attrib_customization, self.survivor["name"], self.Session.User.user["login"]))
-
 
     def get_abilities_and_impairments(self, return_type=False):
         """ This...really needs to be deprecated soon. """
@@ -899,18 +990,11 @@ class Survivor:
             if all_list == []:
                 return ""
 
-            output = '<select name="customize_ability">'
-            output += '<option selected disabled hidden value="">Customize Ability</option>'
-            for ability in all_list:
-                output += html.ui.game_asset_select_row.safe_substitute(asset=ability)
-            output += html.ui.game_asset_select_bot
-            output += html.ui.text_input.safe_substitute(name="custom_ability_description", placeholder_text="customize ability") 
-
-            output += html.ui.game_asset_select_top.safe_substitute(
+            output = html.ui.game_asset_select_top.safe_substitute(
                 operation = "remove_",
                 operation_pretty = "Remove",
                 name = "ability",
-                name_pretty = "Ability",
+                name_pretty = "Ability or Impairment",
             )
             for ability in all_list:
                 output += '<option>%s</option>' % ability
@@ -953,6 +1037,8 @@ class Survivor:
             return html
 
         if return_type == "html_select_remove":
+            if fighting_arts == []:
+                return ""
             html = ""
             html = '<select name="remove_fighting_art" onchange="this.form.submit()">'
             html += '<option selected disabled hidden value="">Remove Fighting Art</option>'
@@ -983,6 +1069,8 @@ class Survivor:
             return html
 
         if return_as == "html_select_remove":
+            if disorders == []:
+                return ""
             html = ""
             html = '<select name="remove_disorder" onchange="this.form.submit()">'
             html += '<option selected disabled hidden value="">Remove Disorder</option>'
@@ -1194,6 +1282,30 @@ class Survivor:
         self.logger.debug("Inflicted brain damage on %s successfully!" % self)
 
 
+    def add_custom_AI(self, params=None):
+        """ Processes cgi.FieldStorage() params and creates a custom A&I entry
+        for the survivor. """
+
+        if params is None:
+            self.logger.error("Must supply a valid cgi.FieldStorage() object!")
+            return False
+
+        ai_name = params["custom_AI_name"].value
+        ai_desc = params["custom_AI_desc"].value
+        ai_type = params["custom_AI_type"].value
+
+        # add the asset key
+        self.add_game_asset("abilities_and_impairments", ai_name)
+
+        # see if we've got an ability_customizations dict on the survivor yet
+        if not "ability_customizations" in self.survivor.keys():
+            self.survivor["ability_customizations"] = {}
+
+        self.survivor["ability_customizations"][ai_name] = ai_desc
+        self.logger.debug("[%s] added custom A&I '%s: %s' (%s) to %s" % (self.User, ai_name, ai_desc, ai_type, self))
+
+
+
     def add_game_asset(self, asset_type, asset_key, asset_desc=None):
         """ Our generic function for adding a game_asset to a survivor. Some biz
         logic/game rules happen here.
@@ -1254,11 +1366,6 @@ class Survivor:
             if asset_key.split("-")[0] == "Mastery ":
                 self.Settlement.add_weapon_mastery(self, asset_key)
 
-            # birth of a savior stuff
-            savior_abilities = ["Dream of the Beast", "Dream of the Crown", "Dream of the Lantern"]
-            if asset_key in savior_abilities:
-                self.Settlement.log_event("A savior was born! %s had the '%s'." % (self.get_name_and_id(include_id=False, include_sex=True), asset_key))
-
             # add custom abilities and impairments
             if asset_key not in Abilities.get_keys():
                 self.survivor["abilities_and_impairments"].append("%s" % asset_key)
@@ -1318,6 +1425,10 @@ class Survivor:
 
         asset_key = asset_key.strip()
 
+        if asset_key not in self.survivor[asset_type]:
+            self.logger.debug("[%s] tried to remove '%s' from %s ('%s'), but the asset does not exist!" % (self.User, asset_key, self, asset_type))
+            return False
+
         if asset_type == "abilities_and_impairments":
             if asset_key not in Abilities.get_keys():
                 self.survivor["abilities_and_impairments"].remove(asset_key)
@@ -1329,6 +1440,13 @@ class Survivor:
                     self.update_epithets(action="rm", epithet=asset_dict["epithet"])
                 if "cannot_spend_survival" in asset_dict.keys() and "cannot_spend_survival" in self.survivor.keys():
                     del self.survivor["cannot_spend_survival"]
+
+                if "affinities" in asset_dict.keys():
+                    for k in asset_dict["affinities"].keys():
+                        if "affinities" in self.survivor.keys() and self.survivor["affinities"][k] >= asset_dict["affinities"][k]:
+                            self.logger.debug("[%s] automatically decrementing %s affinity by %s for %s" % (self.User, k,asset_dict["affinities"][k], self))
+                            self.survivor["affinities"][k] -= 1
+
                 mdb.survivors.save(self.survivor)
                 return True
             else:
@@ -1414,14 +1532,28 @@ class Survivor:
         return self.survivor["avatar"]
 
 
+
+
     def update_constellation(self, new_value):
         """ Sets (or unsets) the survivor's constellation. """
 
-        if new_value == "UNSET":
+        def rm():
+            self.update_epithets("rm","The %s" % self.survivor["constellation"])
             self.survivor["constellation"] = None
-        else:
+
+        def add():
             self.survivor["constellation"] = new_value
-            self.Settlement.log_event("%s has been reborn as one of the <b>People of the Stars</b>!" % self)
+            self.update_epithets("add", "The %s" % new_value)
+            self.Settlement.log_event("%s has been reborn under the sign of The %s as one of the <b>People of the Stars</b>!" % (self, new_value))
+
+        if new_value == "UNSET" and "constellation" in self.survivor.keys():
+            rm()
+        elif "constellation" in self.survivor.keys() and self.survivor["constellation"] is not None:
+            rm()
+            add()
+        else:
+            add()
+
 
         self.logger.debug("[%s] set survivor %s constellation ('%s')." % (self.User, self, new_value))
 
@@ -1441,94 +1573,6 @@ class Survivor:
                 return ""
 
         return const
-
-
-    def get_constellation_table(self, return_type=None):
-        """ Returns the survivor's constellation table, either as a dict of
-        component info or as an HTML table. """
-
-        if self.Settlement.get_campaign() != "People of the Stars":
-            return None
-
-        self.set_constellation_traits()
-
-
-        table_map = game_assets.potstars_constellation["map"]
-
-        rows = {}
-        for k,v in table_map.iteritems():
-            col = v[0]
-            row = int(v[1])
-            if not row in rows.keys():
-                rows[row] = {col: k}
-            else:
-                rows[row][col] = k
-
-        active_td = []
-        for t in self.survivor["constellation_traits"]:
-            if t in table_map.keys():
-                active_td.append(table_map[t])
-
-        table_formulae = game_assets.potstars_constellation["formulae"]
-        active_th = []
-        for const in table_formulae.keys():
-            jackpot = set(table_formulae[const])
-            if jackpot.issubset(set(active_td)):
-                active_th.append(const)
-
-        constellation_table = (active_th, active_td)
-
-
-        if return_type == "number_of_traits":
-            return len(self.survivor["constellation_traits"])
-
-        if return_type == "html":
-            output = html.survivor.constellation_table_top
-            output += html.survivor.constellation_table_row_top.safe_substitute(
-            )
-
-            for t in [(1,"Gambler"),(2,"Absolute"),(3,"Sculptor"),(4,"Goblin")]:
-                row, const = t
-                row_cells = ""
-                for col in sorted(rows[row]):
-                    cell_id = "%s%s" % (col,row)
-                    td_class = ""
-                    if cell_id in active_td:
-                        td_class="active"
-                    row_cells += html.survivor.constellation_table_cell.safe_substitute(
-                        value=rows[row][col],
-                        td_class=td_class
-                    )
-                output += html.survivor.constellation_table_row.safe_substitute(
-                    th = const,
-                    cells = row_cells,
-                )
-
-            output += html.survivor.constellation_table_bot
-
-            const_options = ""
-            for const in sorted(table_formulae.keys()):
-                selected = ""
-#                if const in active_th:
-#                    selected = "selected"
-                if self.survivor["constellation"] is not None:
-                    if const == self.survivor["constellation"]:
-                        selected = "selected"
-                const_options += html.survivor.constellation_table_select_option.safe_substitute(
-                    selected=selected,
-                    value=const
-                )
-
-            output += html.survivor.constellation_table_select_top.safe_substitute(
-                survivor_id = self.survivor["_id"],
-                options=const_options,
-            )
-            output += html.survivor.constellation_table_select_bot.safe_substitute(
-                survivor_id = self.survivor["_id"],
-            )
-            return output
-
-        return constellation_table
 
 
     def set_constellation_traits(self):
@@ -2168,103 +2212,6 @@ class Survivor:
             return self.survivor["returning_survivor"]
 
 
-    def retire(self):
-        """ Retires the survivor. Saves them afterwards, since this can be done
-        pretty much anywhere.  This is the only way a survivor should ever be
-        retired: if you're doing it somewhere else, fucking stop it."""
-
-        self.survivor["retired"] = "checked"
-        self.survivor["retired_in"] = self.Settlement.settlement["lantern_year"]
-        self.logger.debug("[%s] just retired %s" % (self.User, self))
-        self.Settlement.log_event("%s has retired." % self)
-        mdb.survivors.save(self.survivor)
-
-
-
-    def death(self, undo_death=False, cause_of_death=None):
-        """ Call this method when a survivor dies. Call it with the 'undo_death'
-        kwarg to undo the death.
-
-        This returns a True or False that reflects the life/death status of the
-        survivor (which is a little strange, but bear with me).
-
-        We return True if the survivor is marked with the 'dead' attrib and we
-        return False if the survivor is NOT marked with the 'dead' attrib.
-        """
-
-        self.Settlement.update_mins()
-
-        population = int(self.Settlement.settlement["population"])
-        death_count = int(self.Settlement.settlement["death_count"])
-
-        if cause_of_death is not None:
-            self.survivor["cause_of_death"] = cause_of_death
-
-        if undo_death:
-            self.logger.debug("Survivor '%s' is coming back from the dead..." % self.survivor["name"])
-            for death_key in ["died_on","died_in","cause_of_death","dead"]:
-                try:
-                    del self.survivor[death_key]
-                    self.logger.debug("[%s] removed '%s' attrib from survivor %s" % (self.User, death_key, self))
-                except Exception as e:
-                    self.logger.debug("Could not unset '%s'" % death_key)
-                    pass
-
-            mdb.the_dead.remove({"survivor_id": self.survivor["_id"]})
-            self.logger.debug("Survivor '%s' removed from the_dead." % self.survivor["name"])
-        else:
-            self.logger.debug("Survivor '%s' (%s) has died!" % (self.survivor["name"], self.survivor["_id"]))
-            self.survivor["dead"] = True
-            death_dict = {
-                "name": self.survivor["name"],
-                "epithets": self.survivor["epithets"],
-                "survivor_id": self.survivor["_id"],
-                "created_by": self.survivor["created_by"],
-                "settlement_id": self.Settlement.settlement["_id"],
-                "created_on": datetime.now(),
-                "lantern_year": self.Settlement.settlement["lantern_year"],
-                "Courage": self.survivor["Courage"],
-                "Understanding": self.survivor["Understanding"],
-                "Insanity": self.survivor["Insanity"],
-                "epithets": self.survivor["epithets"],
-                "hunt_xp": self.survivor["hunt_xp"],
-            }
-
-            for optional_attrib in ["avatar","cause_of_death"]:
-                if optional_attrib in self.survivor.keys():
-                    death_dict[optional_attrib] = self.survivor[optional_attrib]
-
-            if mdb.the_dead.find_one({"survivor_id": self.survivor["_id"]}) is None:
-                mdb.the_dead.insert(death_dict)
-                self.logger.debug("Survivor '%s' has joined The Dead." % self.survivor["name"])
-                self.Settlement.settlement["population"] = int(self.Settlement.settlement["population"]) - 1
-                self.Settlement.settlement["death_count"] = int(self.Settlement.settlement["death_count"]) + 1
-                self.logger.debug("Settlement '%s' population and death count automatically adjusted!" % self.Settlement.settlement["name"])
-                self.Settlement.log_event("%s died." % self.get_name_and_id(include_id=False, include_sex=True))
-                self.Settlement.log_event("Population decreased to %s; death count increased to %s." % (self.Settlement.settlement["population"], self.Settlement.settlement["death_count"]))
-            else:
-                self.logger.debug("Survivor '%s' is already among The Dead." % self.survivor["name"])
-
-            self.survivor["died_on"] = datetime.now()
-            self.survivor["died_in"] = self.Settlement.settlement["lantern_year"]
-
-
-        admin.valkyrie()
-
-        # save the survivor then update settlement mins: you have to do it in
-        # this order, or else update_mins() doesn't know about the stiff and the
-        # population decrement above won't work.
-        mdb.survivors.save(self.survivor)
-        self.Settlement.update_mins()
-
-        if undo_death and "dead" in self.survivor.keys():
-            self.logger.error("[%s] undo survivor death failed for %s!" % (self.User, self))
-            return False
-        elif not undo_death and "dead" in self.survivor.keys():
-            return True
-        else:
-            return False
-
 
     def modify_weapon_proficiency(self, target_lvl=None, new_type=None):
         """ Wherein we update the survivor's 'Weapon Proficiency' attrib. There
@@ -2307,19 +2254,68 @@ class Survivor:
         self.Settlement.log_event("%s has joined the hunting party." % self.get_name_and_id(include_sex=True, include_id=False))
 
 
-    def set_attrs(self, attrs_dict):
-        """ Accepts a dictionary and updates self.survivor with its keys and
-        values. There's no user-friendliness or checking here--this is an admin
-        type method--so make sure you know what you're doing with this. """
 
-        for k in attrs_dict.keys():
-            self.survivor[k] = attrs_dict[k]
-            self.logger.debug("%s set '%s' = '%s' for %s" % (self.User.user["login"], k, attrs_dict[k], self.get_name_and_id()))
-            if not self.suppress_event_logging:
-                self.Settlement.log_event("Set %s to '%s' for %s" % (k,attrs_dict[k],self.get_name_and_id(include_id=False,include_sex=True)))
-        mdb.survivors.save(self.survivor)
+    def is_savior(self):
+        """ Returns False if the survivor is NOT a savior. Returns their color
+        otherwise. """
+
+        for red_ai in ["Dream of the Beast", "Red Life Exchange", "Caratosis"]:
+            if red_ai in self.survivor["abilities_and_impairments"]:
+                return "red"
+        for red_ai in ["Dream of the Crown", "Green Life Exchange", "Dormenatus"]:
+            if red_ai in self.survivor["abilities_and_impairments"]:
+                return "green"
+        for red_ai in ["Dream of the Lantern", "Blue Life Exchange", "Lucernae"]:
+            if red_ai in self.survivor["abilities_and_impairments"]:
+                return "blue"
+
+        return False
 
 
+    def update_savior_status(self, savior_type=None):
+        """ Method for working with a Survivor's savior status. """
+
+        def rm(rm_tuple):
+            for ai in rm_tuple:
+                if ai in self.survivor["abilities_and_impairments"]:
+                    self.rm_game_asset("abilities_and_impairments", ai)
+                    self.update_epithets("rm",ai)
+            self.logger.debug("[%s] removed savior status from %s." % (self.User, self))
+            self.Settlement.log_event("%s is no longer a %s savior." % (self, savior_type))
+
+        def add(add_tuple):
+            for ai in add_tuple:
+                self.add_game_asset("abilities_and_impairments", ai)
+            self.update_epithets("add",add_tuple[2])
+            self.logger.debug("[%s] added savior status to %s." % (self.User, self))
+            self.Settlement.log_event("A savior was born! %s is a %s savior!" % (self, savior_type))
+
+        ai_tuples = {
+            "red": ("Dream of the Beast", "Red Life Exchange", "Caratosis"),
+            "green": ("Dream of the Crown", "Green Life Exchange", "Dormenatus"),
+            "blue":  ("Dream of the Lantern", "Blue Life Exchange", "Lucernae"),
+        }
+
+
+        if savior_type is None:
+            return None
+        elif savior_type == "UNSET":
+            if self.is_savior():
+                rm(ai_tuples[self.is_savior()])
+            return True
+        elif self.is_savior() == savior_type:
+            self.logger.debug("[%s] survivor %s is already a %s savior. No change." % (self.User, self, savior_type))
+            return None
+        elif self.is_savior() and self.is_savior() != savior_type:   # the toggle!
+            rm(ai_tuples[self.is_savior()])
+            add(ai_tuples[savior_type])
+            return True
+        elif not self.is_savior():
+            add(ai_tuples[savior_type])
+            return True
+        else:
+            self.logger.error("Unknown condition encountered during assets.Survivor.update_savior_status()!")
+            return False
 
 
     def modify(self, params):
@@ -2335,6 +2331,8 @@ class Survivor:
             "norefresh", "modify", "view_game", "asset_id",
             # app.js -> attributeController elements
             "gear","tokens","base","angularjs_attrib_type","angularjs_attrib_value",
+            # custom_AI form
+            "custom_AI_name", "custom_AI_desc", "custom_AI_type", "custom_AI_color",
         ]
 
         for p in params:
@@ -2348,8 +2346,12 @@ class Survivor:
                 pass
             elif p == "set_constellation":
                 self.update_constellation(game_asset_key)
+            elif p == "set_savior_type":
+                self.update_savior_status(game_asset_key)
             elif p == "survivor_avatar":
                 self.update_avatar(params[p])
+            elif p == "add_custom_AI":
+                self.add_custom_AI(params)
             elif p == "add_epithet":
                 self.update_epithets(epithet=game_asset_key)
             elif p == "remove_epithet":
@@ -2390,10 +2392,6 @@ class Survivor:
                 self.modify_weapon_proficiency(int(game_asset_key))
             elif p == "add_weapon_proficiency_type":
                 self.modify_weapon_proficiency(target_lvl=None, new_type=game_asset_key)
-            elif p == "customize_ability" and "custom_ability_description" in params:
-                self.add_ability_customization(params[p].value, params["custom_ability_description"].value)
-            elif p == "custom_ability_description":
-                pass
             elif p == "in_hunting_party":
                 self.join_hunting_party()
             elif p == "sex":
@@ -2479,6 +2477,8 @@ class Survivor:
 
         if include != []:
             attribs = []
+
+
             if "dead" in include:
                 if "dead" in self.survivor.keys():
                     button_class = "grey"
@@ -2557,6 +2557,113 @@ class Survivor:
         )
 
 
+    def render_savior_controls(self):
+        """ Renders the button and the modal controller for the Survivor Sheet.
+        Using a modal for this is fine, since we're going to have to do a page
+        refresh to update a whole grip of survivor attributes on save. """
+
+        c_dict = self.Settlement.get_campaign("dict")
+        if "saviors" not in c_dict.keys():
+            return ""
+        if self.is_founder():
+            return ""
+
+        output = html.survivor.savior_modal_controls.safe_substitute(
+            survivor_id = self.survivor["_id"],
+            savior_type = self.is_savior(),
+        )
+
+        return output
+
+
+    def render_dragon_controls(self, return_type=None):
+        """ Returns the survivor's constellation table, either as a dict of
+        component info or as an HTML table. """
+
+        if self.Settlement.get_campaign() != "People of the Stars":
+            return ""
+
+        self.set_constellation_traits()
+
+        table_map = game_assets.potstars_constellation["map"]
+
+        rows = {}
+        for k,v in table_map.iteritems():
+            col = v[0]
+            row = int(v[1])
+            if not row in rows.keys():
+                rows[row] = {col: k}
+            else:
+                rows[row][col] = k
+
+        active_td = []
+        for t in self.survivor["constellation_traits"]:
+            if t in table_map.keys():
+                active_td.append(table_map[t])
+
+        table_formulae = game_assets.potstars_constellation["formulae"]
+        active_th = []
+        for const in table_formulae.keys():
+            jackpot = set(table_formulae[const])
+            if jackpot.issubset(set(active_td)):
+                active_th.append(const)
+
+        constellation_table = (active_th, active_td)
+
+
+        html_table = html.survivor.constellation_table_top
+        html_table += html.survivor.constellation_table_row_top.safe_substitute(
+        )
+
+        for t in [(1,"Gambler"),(2,"Absolute"),(3,"Sculptor"),(4,"Goblin")]:
+            row, const = t
+            row_cells = ""
+            for col in sorted(rows[row]):
+                cell_id = "%s%s" % (col,row)
+                td_class = ""
+                if cell_id in active_td:
+                    td_class="active"
+                row_cells += html.survivor.constellation_table_cell.safe_substitute(
+                    value=rows[row][col],
+                    td_class=td_class
+                )
+            html_table += html.survivor.constellation_table_row.safe_substitute(
+                th = const,
+                cells = row_cells,
+            )
+
+        html_table += html.survivor.constellation_table_bot
+
+        const_options = ""
+        for const in sorted(table_formulae.keys()):
+            selected = ""
+            if const in active_th:
+                 selected = "selected"
+            if self.survivor["constellation"] is not None:
+                if const == self.survivor["constellation"]:
+                    selected = "selected"
+            const_options += html.survivor.constellation_table_select_option.safe_substitute(
+                selected=selected,
+                value=const
+            )
+
+        html_table += html.survivor.constellation_table_select_top.safe_substitute(
+            survivor_id = self.survivor["_id"],
+            options=const_options,
+        )
+        html_table += html.survivor.constellation_table_select_bot.safe_substitute(
+            survivor_id = self.survivor["_id"],
+        )
+
+        output = html.survivor.dragon_traits_controls.safe_substitute(
+            trait_count=len(self.survivor["constellation_traits"]),
+            constellation_table = html_table,
+        )
+        return output
+
+
+
+
     def render_attribute_controls(self, return_type="survivor_sheet"):
         """ Renders the controls for modifying/managing/investigating the
         survivor's attributes, e.g. MOV, ACC, STR, etc. """
@@ -2614,22 +2721,12 @@ class Survivor:
         fighting_arts_picker = FightingArts.render_as_html_dropdown(exclude=self.survivor["fighting_arts"], Settlement=self.Settlement)
         if len(self.survivor["fighting_arts"]) >= 3:
             fighting_arts_picker = ""
-        fighting_arts_remover = self.get_fighting_arts("html_select_remove")
-        if self.survivor["fighting_arts"] == []:
-            fighting_arts_remover = ""
 
         # disorders widgets
         disorders_picker = Disorders.render_as_html_dropdown(exclude=self.survivor["disorders"], Settlement=self.Settlement)
         if len(self.survivor["disorders"]) >= 3:
             disorders_picker = ""
-        disorders_remover = self.get_disorders(return_as="html_select_remove")
-        if self.survivor["disorders"] == []:
-            disorders_remover = ""
 
-
-        show_constellation_button = "hidden"
-        if self.Settlement.get_campaign() == "People of the Stars":
-            show_constellation_button = ""
 
         death_button_class = "unpressed_button"
         if "dead" in self.survivor.keys():
@@ -2642,29 +2739,38 @@ class Survivor:
             custom_COD = self.survivor["cause_of_death"]
 
         output = html.survivor.form.safe_substitute(
-            death_button_class = death_button_class,
             MEDIA_URL = settings.get("application", "STATIC_URL"),
             desktop_avatar_img = self.get_avatar("html_desktop"),
             mobile_avatar_img = self.get_avatar("html_mobile"),
             survivor_id = self.survivor["_id"],
             name = self.survivor["name"],
-            epithet_controls = self.get_epithets("html_angular"),
-            affinity_controls = self.get_affinities("survivor_sheet_controls"),
+            email = self.survivor["email"],
+            courage = self.survivor["Courage"],
+            understanding = self.survivor["Understanding"],
             sex = self.get_sex(),
             survival = survivor_survival_points,
             survival_limit = self.Settlement.get_attribute("survival_limit"),
-            cannot_spend_survival_checked = flags["cannot_spend_survival"],
             hunt_xp = self.survivor["hunt_xp"],
+            survival_actions = self.get_survival_actions(return_as="html_checkboxes"),
+            departure_buffs = self.Settlement.get_bonuses("departure_buff", return_type="html"),
+            settlement_buffs = self.Settlement.get_bonuses("survivor_buff", return_type="html"),
+            hunt_xp_3_event = self.Settlement.get_story_event("Bold"),
+            courage_3_event = self.Settlement.get_story_event("Insight"),
+
 
             weapon_proficiency = self.survivor["Weapon Proficiency"],   # this is the score
             weapon_proficiency_options = WeaponProficiencies.render_as_html_toggle_dropdown(selected=self.survivor["weapon_proficiency_type"], expansions=exp),
+
+            # controls
+            epithet_controls = self.get_epithets("html_angular"),
+
+            # checkbox status
             dead_checked = flags["dead"],
             favorite_checked = flags["favorite"],
             retired_checked = flags["retired"],
             public_checked = flags["public"],
-            survival_actions = self.get_survival_actions(return_as="html_checkboxes"),
-            departure_buffs = self.Settlement.get_bonuses("departure_buff", return_type="html"),
-            settlement_buffs = self.Settlement.get_bonuses("survivor_buff", return_type="html"),
+            skip_next_hunt_checked = flags["skip_next_hunt"],
+            cannot_spend_survival_checked = flags["cannot_spend_survival"],
 
             # manually generated hit boxes
             insanity = self.survivor["Insanity"],
@@ -2679,49 +2785,44 @@ class Survivor:
             legs_hit_box = self.render_hit_box_controls("Legs"),
 
             # affinities
+            affinity_controls = self.get_affinities("survivor_sheet_controls"),
             red_affinities = self.get_affinities()["red"],
             blue_affinities = self.get_affinities()["blue"],
             green_affinities = self.get_affinities()["green"],
 
-            courage = self.survivor["Courage"],
-            understanding = self.survivor["Understanding"],
 
             cannot_use_fighting_arts_checked = flags["cannot_use_fighting_arts"],
             fighting_arts = self.get_fighting_arts("formatted_html", strikethrough=flags["cannot_use_fighting_arts"]),
             add_fighting_arts = fighting_arts_picker,
-            rm_fighting_arts = fighting_arts_remover,
+            rm_fighting_arts = self.get_fighting_arts("html_select_remove"),
 
             disorders = self.get_disorders(return_as="formatted_html"),
             add_disorders = disorders_picker,
-            rm_disorders = disorders_remover,
-
-            skip_next_hunt_checked = flags["skip_next_hunt"],
+            rm_disorders = self.get_disorders(return_as="html_select_remove"),
 
             abilities_and_impairments = self.get_abilities_and_impairments("html_formatted"),
             add_abilities_and_impairments = Abilities.render_as_html_dropdown(
                 disable=Abilities.get_maxed_out_abilities(self.survivor["abilities_and_impairments"]),
                 Settlement=self.Settlement,
                 ),
-            remove_abilities_and_impairments = self.get_abilities_and_impairments("html_select_remove"),
+            rm_abilities_and_impairments = self.get_abilities_and_impairments("html_select_remove"),
 
+            # lineage
             parents = self.get_parents(return_type="html_select"),
             children = self.get_children(return_type="html"),
             siblings = self.get_siblings(return_type="html"),
             partners = self.get_intimacy_partners("html"),
 
-            email = self.survivor["email"],
-
-            partner_controls = self.get_partner("html_controls"),
-            expansion_attrib_controls = self.get_expansion_attribs("html_controls"),
-            constellation_button_class = show_constellation_button,
-            constellation_table = self.get_constellation_table("html"),
-            number_of_dragon_traits=self.get_constellation_table("number_of_traits"),
-
-            hunt_xp_3_event = self.Settlement.get_story_event("Bold"),
-            courage_3_event = self.Settlement.get_story_event("Insight"),
-
+            # controls of death
+            death_button_class = death_button_class,
             cod_options = CauseOfDeath.render_as_html_toggle_dropdown(selected=COD, expansions=exp),
             custom_cause_of_death = custom_COD,
+
+            # optional and/or campaign-specific controls and modals
+            partner_controls = self.get_partner("html_controls"),
+            expansion_attrib_controls = self.get_expansion_attribs("html_controls"),
+            dragon_controls = self.render_dragon_controls(),
+            savior_controls = self.render_savior_controls(),
 
             # angularjs application controls
             survivor_notes = self.get_survivor_notes("angularjs"),
@@ -4181,20 +4282,10 @@ class Settlement:
 
                 S = Survivor(survivor_id=survivor["_id"], session_object=self.Session)
                 annotation = ""
+                if S.is_savior():
+                    annotation += '&ensp; <span class="survivor_annotation affinity_%s">%s Savior</span><br/>' % (S.is_savior(), S.is_savior().capitalize())
                 user_owns_survivor = False
                 disabled = "disabled"
-
-                # stylize the survivor name
-                savior_dict = {
-                    "Lucernae": "Dream of the Lantern",
-                    "Caratosis": "Dream of the Beast",
-                    "Dormenatus": "Dream of the Crown",
-                }
-
-                savior_square = ""
-                for epithet in S.get_epithets():
-                    if epithet in ["Lucernae", "Caratosis", "Dormenatus"]:
-                        savior_square = '&ensp; <font id="%s">&#x02588; <i>%s</i></font> <br/>' % (epithet, savior_dict[epithet])
 
                 if survivor["email"] == user_login or current_user_is_settlement_creator or "public" in survivor.keys():
                     disabled = ""
@@ -4205,16 +4296,16 @@ class Settlement:
                     button_class = "survivor_sheet_gradient touch_me"
 
                 if "skip_next_hunt" in S.survivor.keys():
-                    annotation = "&ensp; <i>Skipping next hunt</i><br/>"
+                    annotation += "&ensp; <i>Skipping next hunt</i><br/>"
                     button_class = "tan"
 
                 for t in [("retired", "retired_in", "tan"),("dead", "died_in", "silver")]:
                     attrib, event, color = t
                     if attrib in S.survivor.keys():
                         if event in S.survivor.keys():
-                            annotation = "&ensp; <i>%s LY %s</i><br/>" % (event.replace("_"," ").capitalize(), S.survivor[event])
+                            annotation += "&ensp; <i>%s LY %s</i><br/>" % (event.replace("_"," ").capitalize(), S.survivor[event])
                         else:
-                            annotation = "&ensp; <i>%s</i><br/>" % attrib.title()
+                            annotation += "&ensp; <i>%s</i><br/>" % attrib.title()
                         button_class = color
 
 
@@ -4260,7 +4351,6 @@ class Settlement:
                     insanity = S.survivor["Insanity"],
                     courage = S.survivor["Courage"],
                     understanding = S.survivor["Understanding"],
-                    savior = savior_square,
                 )
 
                 # finally, file our newly minted survivor in a group:

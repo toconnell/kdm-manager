@@ -161,6 +161,12 @@ abilities_and_impairments = {
         "max": 1,
         "desc": "If you would be knocked down, roll 1d10. On a 4+, you are not knocked down.",
     },
+    "Twilight Sword": {
+        "type": "curse",
+        "desc": "You may select <b>Twilight Sword</b> as a weapon proficiency type. This weapon may not be removed from your great grid for any reason. When you die, archive your <b>Twilight Sword</b> card.",
+        "max": 1,
+        "epithet": "Twilight Sword",
+    },
     "Twilight Succession": {
         "expansion": "Beta Challenge Scenarios",
         "type": "ability",
@@ -183,12 +189,6 @@ abilities_and_impairments = {
         "type": "curse",
         "desc": """At the Aftermath, <font class="kdm_font">g</font> <b>King's Curse</b>.""",
         "max": 1,
-    },
-    "Twilight Sword": {
-        "type": "curse",
-        "desc": "You may select <b>Twilight Sword</b> as a weapon proficiency type. This weapon may not be removed from your great grid for any reason. When you die, archive your <b>Twilight Sword</b> card.",
-        "max": 1,
-        "epithet": "Twilight Sword",
     },
     "Gender Swap": {
         "type": "curse",
@@ -416,66 +416,6 @@ abilities_and_impairments = {
         "type": "impairment",
         "desc": "You cannot gain survival.",
         "max": 1,
-    },
-    "Dream of the Beast" : {
-        "type": "ability",
-        "desc": "1 permanent red affinity.",
-        "affinities": {"red": 1},
-        "max": 1,
-        "related": ["Caratosis", "Red Life Exchange"],
-        "epithet": "Red Savior"
-    },
-    "Caratosis" : {
-        "type": "ability",
-        "desc": 'For each <font color="red">red</font> affinity you have, 1 of your attack rolls hits automatically each attack.',
-        "max": 1,
-        "related": ["Dream of the Beast", "Red Life Exchange"],
-    },
-    "Red Life Exchange" : {
-        "type": "ability",
-        "desc": "In the <b>Aftermath</b>, gain 3 additional Hunt XP. You may not place <b>other</b> gear in your grid. Gain +1 permanent strength with each <b>Age</b> milestone. When you retire, you cease to exist.",
-        "max": 1,
-        "related": ["Caratosis", "Dream of the Beast"],
-    },
-    "Dream of the Crown" : {
-        "type": "ability",
-        "desc": "1 permanent green affinity.",
-        "affinities": {"green": 1},
-        "max": 1,
-        "related": ["Dormenatus", "Green Life Exchange"],
-        "epithet": "Green Savior"
-    },
-    "Dormenatus" : {
-        "type": "ability",
-        "desc": 'When you <b>depart</b>, gain +1 to every hit location for each <font color="green">green</font> affinity you have.',
-        "max": 1,
-        "related": ["Dream of the Crown", "Green Life Exchange"],
-    },
-    "Green Life Exchange" : {
-        "type": "ability",
-        "desc": "In the <b>Aftermath</b>, gain 3 additional Hunt XP. You may not place <b>other</b> gear in your grid. Gain +1 permanent evasion with each <b>Age</b> milestone. When you retire, you cease to exist.",
-        "max": 1,
-        "related": ["Dream of the Crown", "Dormenatus"],
-    },
-    "Dream of the Lantern" : {
-        "type": "ability",
-        "desc": "1 permanent blue affinity.",
-        "affinities": {"blue": 1},
-        "max": 1,
-        "related": ["Lucernae", "Blue Life Exchange"],
-        "epithet": "Blue Savior"
-    },
-    "Lucernae" : {
-        "type": "ability",
-        "desc": 'For every <font color="blue">blue</font> affinity you have, your ranged weapons gain this amount of <b>range</b> and your melee weapons gain this amount of <b>reach</b>.',
-        "max": 1,
-        "related": ["Dream of the Lantern", "Blue Life Exchange"],
-    },
-    "Blue Life Exchange" : {
-        "type": "ability",
-        "desc": "In the <b>Aftermath</b>, gain 3 additional Hunt XP. You may not place <b>other</b> gear in your grid. Gain +1 permanent luck with each <b>Age</b> milestone. When you retire, you cease to exist.",
-        "max": 1,
-        "related": ["Dream of the Lantern", "Lucernae"],
     },
     "Marrow Hunger": {
         "type": "impairment",
@@ -710,6 +650,77 @@ abilities_and_impairments = {
         "desc": "An ear-shattering crunch! Adjacent survivors suffer 1 brain damage. Suffer -1 permanent movement. This injury is permanent, and can be recorded twice. Gain 1 bleeding token.",
         "Movement": -1,
         "max": 2,
+    },
+
+    # savior A&I's. set to HIDDEN so they don't show up in any list
+    "Dream of the Beast" : {
+        "type": "ability",
+        "expansion": "HIDDEN",
+        "desc": "1 permanent red affinity.",
+        "affinities": {"red": 1},
+        "max": 1,
+        "related": ["Caratosis", "Red Life Exchange"],
+        "epithet": "Red Savior"
+    },
+    "Caratosis" : {
+        "type": "ability",
+        "expansion": "HIDDEN",
+        "desc": 'For each <font color="red">red</font> affinity you have, 1 of your attack rolls hits automatically each attack.',
+        "max": 1,
+        "related": ["Dream of the Beast", "Red Life Exchange"],
+    },
+    "Red Life Exchange" : {
+        "type": "ability",
+        "expansion": "HIDDEN",
+        "desc": "In the <b>Aftermath</b>, gain 3 additional Hunt XP. You may not place <b>other</b> gear in your grid. Gain +1 permanent strength with each <b>Age</b> milestone. When you retire, you cease to exist.",
+        "max": 1,
+        "related": ["Caratosis", "Dream of the Beast"],
+    },
+    "Dream of the Crown" : {
+        "type": "ability",
+        "expansion": "HIDDEN",
+        "desc": "1 permanent green affinity.",
+        "affinities": {"green": 1},
+        "max": 1,
+        "related": ["Dormenatus", "Green Life Exchange"],
+        "epithet": "Green Savior"
+    },
+    "Dormenatus" : {
+        "type": "ability",
+        "expansion": "HIDDEN",
+        "desc": 'When you <b>depart</b>, gain +1 to every hit location for each <font color="green">green</font> affinity you have.',
+        "max": 1,
+        "related": ["Dream of the Crown", "Green Life Exchange"],
+    },
+    "Green Life Exchange" : {
+        "type": "ability",
+        "expansion": "HIDDEN",
+        "desc": "In the <b>Aftermath</b>, gain 3 additional Hunt XP. You may not place <b>other</b> gear in your grid. Gain +1 permanent evasion with each <b>Age</b> milestone. When you retire, you cease to exist.",
+        "max": 1,
+        "related": ["Dream of the Crown", "Dormenatus"],
+    },
+    "Dream of the Lantern" : {
+        "type": "ability",
+        "expansion": "HIDDEN",
+        "desc": "1 permanent blue affinity.",
+        "affinities": {"blue": 1},
+        "max": 1,
+        "related": ["Lucernae", "Blue Life Exchange"],
+        "epithet": "Blue Savior"
+    },
+    "Lucernae" : {
+        "expansion": "HIDDEN",
+        "type": "ability",
+        "desc": 'For every <font color="blue">blue</font> affinity you have, your ranged weapons gain this amount of <b>range</b> and your melee weapons gain this amount of <b>reach</b>.',
+        "max": 1,
+        "related": ["Dream of the Lantern", "Blue Life Exchange"],
+    },
+    "Blue Life Exchange" : {
+        "expansion": "HIDDEN",
+        "type": "ability",
+        "desc": "In the <b>Aftermath</b>, gain 3 additional Hunt XP. You may not place <b>other</b> gear in your grid. Gain +1 permanent luck with each <b>Age</b> milestone. When you retire, you cease to exist.",
+        "max": 1,
+        "related": ["Dream of the Lantern", "Lucernae"],
     },
 }
 
@@ -3552,6 +3563,14 @@ cause_of_death = {
 
 epithets = {
     # Dragon King
+    "The Witch": {"expansion": "HIDDEN", "bgcolor":"4527A0", "color":"FFF",},
+    "The Rust": {"expansion": "HIDDEN", "bgcolor":"4527A0", "color":"FFF",},
+    "The Storm": {"expansion": "HIDDEN", "bgcolor":"4527A0", "color":"FFF",},
+    "The Reaper": {"expansion": "HIDDEN", "bgcolor":"4527A0", "color":"FFF",},
+    "The Gambler": {"expansion": "HIDDEN", "bgcolor":"4527A0", "color":"FFF",},
+    "The Absolute": {"expansion": "HIDDEN", "bgcolor":"4527A0", "color":"FFF",},
+    "The Sculptor": {"expansion": "HIDDEN", "bgcolor":"4527A0", "color":"FFF",},
+    "The Goblin": {"expansion": "HIDDEN", "bgcolor":"4527A0", "color":"FFF",},
     "Imago Tyrannis": {"expansion": "Dragon King"},
     "Molded by the Tyrant": {"expansion": "Dragon King"},
     "Approached the Throne": {"expansion": "Dragon King"},
@@ -3706,9 +3725,10 @@ epithets = {
     "Twin": {},
 
     # saviors
-    "Caratosis": {"color": "FFF", "bgcolor": "CD2027"},
-    "Lucernae": {"color": "FFF", "bgcolor": "1C99CD"},
-    "Dormenatus": {"color": "FFF", "bgcolor": "4CB848"},
+    "Caratosis": {"color": "FFF", "bgcolor": "CD2027", "expansion": "HIDDEN",},
+    "Lucernae": {"color": "FFF", "bgcolor": "1C99CD", "expansion": "HIDDEN",},
+    "Dormenatus": {"color": "FFF", "bgcolor": "4CB848", "expansion": "HIDDEN",},
+    "Savior": {},
     "Red Savior": {"color": "FFF", "bgcolor": "CD2027"},
     "Blue Savior": {"color": "FFF", "bgcolor": "1C99CD"},
     "Green Savior": {"color": "FFF", "bgcolor": "4CB848"},
@@ -3917,6 +3937,7 @@ campaigns = {
         "default": True,
         "always_available": ["Lantern Hoard", "Language", "Exhausted Lantern Hoard"],
         "forbidden": ["The Sun","Throne","Dragon Speech","Sun Language"],
+        "saviors": "1.3.1",
         "principles": {
             "New Life": principles["new_life"],
             "Death": principles["death"],
@@ -3935,6 +3956,7 @@ campaigns = {
     "People of the Skull": {
         "always_available": ["Lantern Hoard", "Language"],
         "forbidden": ["The Sun","Throne","Dragon Speech","Sun Language"],
+        "saviors": "1.3.1",
         "special_rules": [
             {"name": "People of the Skull",
              "desc": "Survivors can only place weapons and armor with the <b>bone</b> keyword in their gear grid. The people of the skull ignore the <b>Frail</b> rule.",
@@ -3970,6 +3992,7 @@ campaigns = {
     "The Bloom People": {
         "always_available": ["Lantern Hoard", "Language"],
         "expansions": ["Flower Knight"],
+        "saviors": "1.3.1",
         "storage": ["Sleeping Virus Flower"],
         "forbidden": ["The Sun", "Throne" "Flower Addiction", "Flower Knight"],
         "milestones": {
