@@ -69,6 +69,17 @@ mar_2016_expansions = {
             {"ly": 8, "type": "story_event", "name": "Glowing Crater", "excluded_campaign": "People of the Stars"},
         ],
     },
+    "manhunter": {
+        "name": "Manhunter",
+        "always_available": ["War Room", "Settlement Watch", "Crimson Candy"],
+        "always_available_nemesis": True,
+        "timeline_add": [
+            {"ly": 5, "type": "story_event", "name": "The Hanged Man"},
+            {"ly": 10, "type": "nemesis_encounter", "name": "Special Showdown - Manhunter"},
+            {"ly": 16, "type": "nemesis_encounter", "name": "Special Showdown - Manhunter"},
+            {"ly": 22, "type": "nemesis_encounter", "name": "Special Showdown - Manhunter"},
+        ],
+    },
     "lonely_tree": {
         "name": "Lonely Tree",
         "always_available_nemesis": True,

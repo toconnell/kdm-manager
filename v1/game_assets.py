@@ -952,6 +952,28 @@ disorders = {
 
 
 fighting_arts = {
+    "Eternal Will": {
+        "expansion": "Manhunter",
+        "desc": "Gain +1 accuracy and +1 strength for each permanent injury you have.<br/>You may always <b>depart</b>, even when retired.",
+        "secret": True,
+    },
+    "Abyssal Sadist": {
+        "expansion": "Manhunter",
+        "desc": "The first time you wound the monster each attack, gain +1 survival and +1 insanity.<br/>Ignore the effects of the <b>Fear of the Dark</b> and <b>Prey</b> disorders.",
+        "epithet": "Sadist",
+    },
+    "Seasoned Hunter": {
+        "expansion": "Manhunter",
+        "desc": "Whenever a random hunt event result is:<br/>11, 22, 33, 44, 55, 66, 77, 88, 99 or 100,<br/>the event revealer gains +1 understanding and +1 courage.",
+    },
+    "Trailblazer": {
+        "expansion": "Manhunter",
+        "desc": "The hunting party may start the hunt phase 1 space closer to the monster.<br/>At the start of the showdown, all survivors gain +1 survival and up to +1 insanity.",
+    },
+    "Transcended Masochist": {
+        "expansion": "Manhunter",
+        "desc": "When you gain a bleeding token, gain +1 survival and +1 insanity.<br/>Ignore the effects of the <b>Aichmophobia</b> and <b>Apathetic</b> disorders.",
+    },
     "Champion's Rite": {
         "expansion": "Dragon King",
         "desc": "Before making an attack, you may add your understanding to your accuracy attribute for that attack.<br/>Limit, once per showdown.",
@@ -1215,6 +1237,10 @@ defeated_monsters = {
 }
 
 locations = {
+    "Manhunter Gear":{
+        "color": "000",
+        "font_color": "f00",
+    },
     "Dragon Armory":{
         "color": "6A1B9A",
         "font_color": "FFF",
@@ -2838,6 +2864,35 @@ items = {
         "location": "Strange Resources",
         "resource_family": ["organ"],
     },
+    "Red Vial": {
+        "expansion": "Manhunter",
+        "location": "Strange Resources",
+    },
+    "Crimson Vial": {
+        "expansion": "Manhunter",
+        "location": "Strange Resources",
+        "resource_family": ["scrap","iron"],
+    },
+    "Hunter's Heart": {
+        "expansion": "Manhunter",
+        "location": "Manhunter Gear",
+    },
+    "Tool Belt": {
+        "expansion": "Manhunter",
+        "location": "Manhunter Gear",
+    },
+    "Manhunter's Hat": {
+        "expansion": "Manhunter",
+        "location": "Manhunter Gear",
+    },
+    "Deathpact": {
+        "expansion": "Manhunter",
+        "location": "Manhunter Gear",
+    },
+    "Reverberating Lantern": {
+        "expansion": "Manhunter",
+        "location": "Manhunter Gear",
+    },
 
 }
 
@@ -2848,6 +2903,35 @@ items = {
 #
 
 innovations = {
+    "Settlement Watch": {
+        "type": "home",
+        "expansion": "Manhunter",
+        "survivor_buff": "<b>Departing Survivors</b> gain +2 survival when they depart for a Nemesis Encounter or a Special Showdown.",
+        "endeavors": {
+            "New Recruits": {"cost": 1, "type": "home",},
+        },
+    },
+    "War Room": {
+        "type": "education",
+        "expansion": "Manhunter",
+        "survival_limit": 1,
+        "endeavors": {
+            "Hunt Plan": {
+                "hide_name": True,
+                "type": "education",
+                "desc": 'The hunt team makes a plan. The group may reroll 1 <b>Hunt Event Table</b> result (d100) this lantern year. They must reroll before performing the event.',
+                "cost": 1
+            },
+        },
+    },
+    "Crimson Candy": {
+        "type": "science",
+        "expansion": "Manhunter",
+        "survivor_buff": "At the start of the showdown, each survivor gains &#9733; survival.",
+        "endeavors": {
+            "Crimson Cannibalism": {"cost": 1, "type": "science"},
+        },
+    },
     "Dragon Speech": {
         "type": "starting innovation",
         "expansion": "Dragon King",
@@ -3149,13 +3233,13 @@ innovations = {
     },
     "Hovel": {
         "type": "home",
-        "consequences": ["Partnership", "Family", "Bed", "Shadow Dancing","Bloodline"],
+        "consequences": ["Partnership", "Family", "Bed", "Shadow Dancing","Bloodline","Settlement Watch"],
         "departure_buff": "Departing survivors gain +1 survival.",
         "survival_limit": 1,
     },
     "Storytelling": {
         "type": "education",
-        "consequences": ["Records"],
+        "consequences": ["Records","War Room"],
         "survival_limit": 1,
         "endeavors": {
             "Tale as Old as Time": {"cost": 2, "type": "education"},
@@ -3380,12 +3464,13 @@ quarries = {
 }
 
 nemeses = {
-    "Lonely Tree":          {"sort_order": 20, "exclude_from_picker": True,},
+    "Lonely Tree":          {"sort_order": 20, "expansion": "Lonely Tree", "exclude_from_picker": True,},
     "Butcher":              {"sort_order": 21, },
-    "The Tyrant":           {"sort_order": 22, "exclude_from_picker": True,},
-    "King's Man":           {"sort_order": 23, },
-    "Lion Knight":          {"sort_order": 24, "expansion": "Lion Knight"},
-    "The Hand":             {"sort_order": 25, },
+    "The Tyrant":           {"sort_order": 22, "expansion": "Dragon King", "exclude_from_picker": True,},
+    "Manhunter":            {"sort_order": 23, "expansion": "Manhunter", "exclude_from_picker": True, "levels": 4,},
+    "King's Man":           {"sort_order": 24, },
+    "Lion Knight":          {"sort_order": 25, "expansion": "Lion Knight"},
+    "The Hand":             {"sort_order": 26, },
     "Ancient Sunstalker":   {"sort_order": 30, "no_levels": True, "expansion": "Sunstalker", "add_to_timeline_controls_at": 25, "campaign": "People of the Sun"},
     "Watcher":              {"sort_order": 31, "no_levels": True, "add_to_timeline_controls_at": 20, "campaign": "People of the Lantern"},
 }
@@ -3433,6 +3518,12 @@ story_events = {
     "Faces in the Sky": {"page": 20, "book": "Dragon King"},
     "The Tomb": {"page": 22, "book": "Dragon King"},
     "Death of the Dragon King": {"page": 27, "book": "Dragon King"},
+    "The Hanged Man": {"page": 3, "book": "Manhunter"},
+    "Lottery": {"page": 11, "book": "Manhunter"},
+    "Death Pit": {"page": 13, "book": "Manhunter"},
+    "Sonorous Rest": {"page": 15, "book": "Manhunter"},
+    "Bleeding Heart": {"page": 17, "book": "Manhunter"},
+    "Tools of War": {"page": 19, "book": "Manhunter"},
 }
 
 resources = {
@@ -3523,6 +3614,10 @@ cursed_items = {
 
 cause_of_death = {
     # expansion-specific
+    "Death Pit": {"type": "story_event", "expansion": "Manhunter"},
+    "Lottery": {"type": "story_event", "expansion": "Manhunter"},
+    "Culled by the Manhunter": {"type": "story_event", "expansion": "Manhunter"},
+    "Hanged": {"type": "story_event", "expansion": "Manhunter"},
     "Died by the Throne": {"type": "endeavor", "expansion": "Dragon King"},
     "Culled by the Tyrant": {"type": "endeavor", "expansion": "Dragon King"},
     "Buried Alive": {"type": "endeavor", "expansion": "Sunstalker"},
@@ -3562,6 +3657,20 @@ cause_of_death = {
 }
 
 epithets = {
+    # manhunter
+    "Recruit": {"expansion": "Manhunter"},
+    "Settlement Watch": {"expansion": "Manhunter"},
+    "Tuned": {"expansion": "Manhunter", "bgcolor": "1C99CD", "color": "FFF"},
+    "Rested": {"expansion": "Manhunter", "bgcolor": "4CB848", "color": "FFF"},
+    "Slave": {"expansion": "Manhunter", "bgcolor": "000", "color": "f00"},
+    "Sadist": {"expansion": "Manhunter", "bgcolor": "000", "color": "f00"},
+    "Masochist": {"expansion": "Manhunter", "bgcolor": "000", "color": "f00"},
+    "Manhunter": {"expansion": "Manhunter", "bgcolor": "000", "color": "f00"},
+    "Warborn": {"expansion": "Manhunter", "bgcolor": "000", "color": "f00"},
+    "Crimson Confectioner": {"expansion": "Manhunter", "bgcolor": "c00", "color": "fff"},
+    "Sweet Tooth": {"expansion": "Manhunter", },
+    "Deranged": {"expansion": "Manhunter", "bgcolor": "000", "color": "f00"},
+    "Deranged Expression": {"expansion": "Manhunter", "bgcolor": "000", "color": "f00"},
     # Dragon King
     "The Witch": {"expansion": "HIDDEN", "bgcolor":"4527A0", "color":"FFF",},
     "The Rust": {"expansion": "HIDDEN", "bgcolor":"4527A0", "color":"FFF",},
@@ -3729,9 +3838,9 @@ epithets = {
     "Lucernae": {"color": "FFF", "bgcolor": "1C99CD", "expansion": "HIDDEN",},
     "Dormenatus": {"color": "FFF", "bgcolor": "4CB848", "expansion": "HIDDEN",},
     "Savior": {},
-    "Red Savior": {"color": "FFF", "bgcolor": "CD2027"},
-    "Blue Savior": {"color": "FFF", "bgcolor": "1C99CD"},
-    "Green Savior": {"color": "FFF", "bgcolor": "4CB848"},
+    "Red Savior": {"color": "FFF", "bgcolor": "CD2027", "expansion": "HIDDEN"},
+    "Blue Savior": {"color": "FFF", "bgcolor": "1C99CD", "expansion": "HIDDEN"},
+    "Green Savior": {"color": "FFF", "bgcolor": "4CB848", "expansion": "HIDDEN"},
 }
 
 
@@ -3794,6 +3903,16 @@ expansions = {
         "timeline_add": [
             {"ly": 1, "type": "story_event", "name": "The Approaching Storm"},
             {"ly": 2, "type": "settlement_event", "name": "Gorm Climate"},
+        ],
+    },
+    "Manhunter": {
+        "always_available": ["War Room", "Settlement Watch", "Crimson Candy"],
+        "always_available_nemesis": "Manhunter",
+        "timeline_add": [
+            {"ly": 5, "type": "story_event", "name": "The Hanged Man"},
+            {"ly": 10, "type": "nemesis_encounter", "name": "Special Showdown - Manhunter"},
+            {"ly": 16, "type": "nemesis_encounter", "name": "Special Showdown - Manhunter"},
+            {"ly": 22, "type": "nemesis_encounter", "name": "Special Showdown - Manhunter"},
         ],
     },
     "Dung Beetle Knight": {

@@ -448,6 +448,18 @@ class nemesesModel(Model):
         self.game_assets = game_assets.nemeses
         self.name = "nemesis"
 
+    def get_levels(self, n_key):
+        """ Method to determine how many levels a nemesis can have. """
+        n_dict = self.get_asset(n_key)
+        if "levels" in n_dict.keys():
+            return n_dict["levels"]
+        elif "no_levels" in n_dict.keys():
+            return None
+        elif "unique" in n_dict.keys():
+            return None
+        else:
+            return 3
+
 
 class quarriesModel(Model):
     def __init__(self):

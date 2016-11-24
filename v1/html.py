@@ -965,7 +965,9 @@ class survivor:
 
             <p>Maximum 3.</p>
 
-            $fighting_arts
+            <div class="survivor_sheet_fighting_arts_container">
+                $fighting_arts
+            </div>
             $add_fighting_arts
             <br class="mobile_only"/>
             $rm_fighting_arts
@@ -1615,7 +1617,12 @@ class survivor:
     <!-- <p>{{errortext}}</p> -->
     </div>
     \n""")
-
+    survivor_sheet_fighting_art_box = Template("""\n
+    <p class="survivor_sheet_fighting_art $secret $strikethrough">
+        <b class="fa_title $constellation">$name</b>
+    $desc
+    </p>
+    \n""")
 
 
 class settlement:

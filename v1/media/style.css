@@ -339,6 +339,14 @@ div#info_box h2, button#survivor_campaign_asset, button.dashboard_asset {text-al
 
 /* survivor sheet styles */
 
+    /* hooker-up the fighting arts*/
+p.survivor_sheet_fighting_art {display: inline-block; text-align: center; border: 2px solid #E6DECC; border-radius: 5px; margin: 1%; margin-bottom: 3%; background: linear-gradient(to right, #F7F3EB, #eee, #fff, #eee, #F7F3EB); padding: 2%; }
+p.secret_fighting_art {background: linear-gradient(to right, #800, #a00, #c00, #a00, #800); color: #fff; border-color: #f00; }
+p.survivor_sheet_fighting_art b.fa_title {display: block; margin-bottom: 5px; font-size: 1.1em; }
+p.survivor_sheet_fighting_art b.fa_constellation {color: #c00; }
+p.secret_fighting_art b.fa_constellation {color: #FFC107;}
+p.survivor_sheet_fighting_art br {line-height: 160%; }
+
     /* custom A&I modal*/
 form#custom_AI_modal input.custom_AI {width: 99%; margin: 1% auto; }
 div.custom_AI_preview {border: 2px solid #333; margin: 0; padding: 1%; background-color: #fff; clear: both; display: block; }
@@ -895,6 +903,10 @@ right connector from last child*/
     input[type=checkbox].expansion_attrib_toggle {display: none; }
 
     p.survivor_sheet_game_asset_tip {width: 950px;}
+
+        /* fighting art style - tablet */
+    div.survivor_sheet_fighting_arts_container {display: flex; flex-direction: row; clear: right; align-items: flex-start; justify-content: flex-start; width: auto; padding: 0; margin: 0 auto;}
+    p.survivor_sheet_fighting_art {width: 250px; margin: auto; height: 100%; flex-grow: 1; margin: 1%;} 
     
 
     /* Campaign Summary Styles - tablet */
@@ -1136,7 +1148,7 @@ right connector from last child*/
     div.campaign_summary_special_rule {font-size: 11pt;}
     div.campaign_summary_special_rule h3 {font-size: 13pt;}
     div.campaign_summary_facts_box {width: 450px; float: left; margin-top: -75px;}
-    div.campaign_summary_facts_box h4 {z-index: -10; color: #000; width: 428px; margin: 0 auto; margin-left: -5px; margin-top: -5px; padding: 0; padding-top: 7px; padding-left: 20px;  padding-bottom: 5px; border-bottom: 2px solid #333;}
+    div.campaign_summary_facts_box h4 {z-index: -10; color: #000; width: 428px; margin: 0 auto; margin-left: -5px; margin-top: -5px; padding: 0; padding-top: 7px; padding-left: 20px;  padding-bottom: 5px; border-bottom: 2px solid #999;}
     div.campaign_summary_facts_box ul {margin: 0 auto; margin-top: 5px; margin-bottom: 10px; } 
     div.campaign_summary_small_box { width: auto; border: 2px solid #000; padding: 5px; margin-bottom: 10px; }
 
@@ -1299,6 +1311,9 @@ right connector from last child*/
     input[type=checkbox].expansion_attrib_toggle {display: inline-block; transform: scale(1.0); margin: 0 auto; }
     label#skip_next_hunt_label, label#cannot_use_fighting_arts_label {position: relative; top: auto; right: auto; font-size: 13pt; }
 
+        /* fighting arts - wide */
+    div.survivor_sheet_fighting_arts_container{flex-direction: column; }
+    p.survivor_sheet_fighting_art {width: 100%;}
 
         /* survivor sheet attrib controls - wide */
     div.survivor_sheet_attrib_controls {height: 70px; right: 35%; left: 5%; }

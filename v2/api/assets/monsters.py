@@ -89,20 +89,26 @@ nemeses = {
         "selectable": False,
         "misspellings": ["DRAGON KING HUMAN","TYRANT"],
     },
+    "manhunter": {
+        "name": "Manhunter",
+        "sort_order": 103,
+        "selectable": False,
+        "misspellings": ["THE MANHUNTER", "MAN HUNTER"],
+    },
     "kings_man": {
         "name": "King's Man",
-        "sort_order": 103,
+        "sort_order": 104,
         "misspellings": ["KINGSMAN", "KINGMAN", "THE KING'S MAN", "THE KINGSMAN"],
     },
     "lion_knight": {
         "name": "Lion Knight",
         "expansion": "lion_knight",
-        "sort_order": 104,
+        "sort_order": 105,
         "misspellings": ["LIONKNIGHT", "THE LION KNIGHT", "THE LIONKNIGHT"],
     },
     "the_hand": {
         "name": "The Hand",
-        "sort_order": 104,
+        "sort_order": 105,
         "misspellings": ["HAND"],
     },
 }

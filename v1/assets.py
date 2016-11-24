@@ -1022,30 +1022,47 @@ class Survivor:
 
 
     def get_fighting_arts(self, return_type=False, strikethrough=False):
+        """ Returns a survivor's fighting arts. As HTML, if necessary. """
+
         fighting_arts = self.survivor["fighting_arts"]
 
         if return_type == "formatted_html":
-            html = ""
+            output = ""
             for fa_key in fighting_arts:
-                fa_name = fa_key
-                if "constellation" in FightingArts.get_asset(fa_key).keys():
-                    fa_name = '<font class="maroon_text">%s</font>' % fa_key
-                html += '<p class="survivor_sheet_fighting_art"><b>%s:</b> %s</p>\n' % (fa_name, FightingArts.get_asset(fa_key)["desc"])
+                fa_dict = FightingArts.get_asset(fa_key)
 
                 if strikethrough:
-                    html = "<del>%s</del>\n" % html
-            return html
+                    strikethrough = "strikethrough"
+
+                const = ""
+                if "constellation" in fa_dict.keys():
+                    const = "fa_constellation"
+
+                sec = ""
+                if "secret" in fa_dict.keys():
+                    sec = "secret_fighting_art"
+
+                output += html.survivor.survivor_sheet_fighting_art_box.safe_substitute(
+                    name = fa_key,
+                    desc = fa_dict["desc"],
+                    strikethrough = strikethrough,
+                    constellation=const,
+                    secret = sec,
+                )
+
+            return output
+
 
         if return_type == "html_select_remove":
             if fighting_arts == []:
                 return ""
-            html = ""
-            html = '<select name="remove_fighting_art" onchange="this.form.submit()">'
-            html += '<option selected disabled hidden value="">Remove Fighting Art</option>'
+            output = ""
+            output = '<select name="remove_fighting_art" onchange="this.form.submit()">'
+            output += '<option selected disabled hidden value="">Remove Fighting Art</option>'
             for fa in fighting_arts:
-                html += '<option>%s</option>' % fa
-            html += '</select>'
-            return html
+                output += '<option>%s</option>' % fa
+            output += '</select>'
+            return output
 
         return disorders
 
@@ -1353,6 +1370,9 @@ class Survivor:
                 self.update_fighting_arts(random.choice(fa_deck), action="add")
             elif asset_key in FightingArts.get_keys():
                 self.survivor["fighting_arts"].append(asset_key)
+                asset_dict = FightingArts.get_asset(asset_key)
+                if "epithet" in asset_dict.keys():
+                    self.update_epithets(epithet=asset_dict["epithet"])
             else:
                 self.logger.exception("[%s] Attempted to add unknown fighting art!" % self)
                 return False
@@ -4115,9 +4135,9 @@ class Settlement:
             n_options = []
 
 
-            def add_nemesis_to_options(nem):
+            def add_nemesis_to_options(nem, n_levels):
                 """ Stupid DRYness func to update the option drop-down/list. """
-                for i in range(1,4):
+                for i in range(1,n_levels+1):
                     if exp_key in self.settlement["nemesis_monsters"] and "Lvl %s" % i in self.settlement["nemesis_monsters"][nem]:
                         pass
                     else:
@@ -4128,19 +4148,29 @@ class Settlement:
             for exp_key in self.get_expansions():
                 exp_dict = self.get_expansions("dict")[exp_key]
                 if "always_available_nemesis" in exp_dict.keys():
-                    add_nemesis_to_options(exp_dict["always_available_nemesis"])
+                    n_key = exp_dict["always_available_nemesis"]
+                    n_levels = Nemeses.get_levels(n_key)
+                    add_nemesis_to_options(n_key, n_levels)
 
             # do the same check for the campaign
             c_dict = self.get_campaign("dict")
             if "always_available_nemesis" in c_dict.keys():
-                add_nemesis_to_options(c_dict["always_available_nemesis"])
+                n_key = c_dict["always_available_nemesis"]
+                n_levels = Nemeses.get_levels(n_key)
+                add_nemesis_to_options(n_key, n_levels)
 
             # now process settlement nem keys
             for k in nemesis_monster_keys:
                 if k in Nemeses.get_keys() and "no_levels" in Nemeses.get_asset(k).keys():
                     n_options.append(k)
                 else:
-                    for i in range(1,4):
+                    # support for nemeses with variable levels
+                    if "levels" in Nemeses.get_asset(k).keys():
+                        n_levels = (Nemeses.get_asset(k)["levels"] + 1)
+                    else:
+                        n_levels = 4
+
+                    for i in range(1,n_levels):
                         if "Lvl %s" % i not in self.settlement["nemesis_monsters"][k]:
                             n_options.append("%s Lvl %s" % (k,i))
 
