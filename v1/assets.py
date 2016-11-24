@@ -4165,7 +4165,7 @@ class Settlement:
                     n_options.append(k)
                 else:
                     # support for nemeses with variable levels
-                    if "levels" in Nemeses.get_asset(k).keys():
+                    if k in Nemeses.get_keys() and "levels" in Nemeses.get_asset(k).keys():
                         n_levels = (Nemeses.get_asset(k)["levels"] + 1)
                     else:
                         n_levels = 4
