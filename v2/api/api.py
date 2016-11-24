@@ -16,6 +16,7 @@ import utils
 
 # routes
 from routes import monster, survivor
+from assets import cursed_items
 
 # create the flask app with settings/utils info
 application = Flask(__name__)
@@ -46,6 +47,10 @@ def world_json():
     response = Response(response=j, status=200, mimetype="application/json")
     return response
 
+@application.route("/cursed_items")
+def cursed_items_json():
+    j = json.dumps(cursed_items.items, default=json_util.default)
+    return Response(response=j, status=200, mimetype="application/json")
 
 @application.route("/survivor/get/<survivor_id>")
 def get_survivor(survivor_id):

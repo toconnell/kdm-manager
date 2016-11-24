@@ -753,7 +753,12 @@ class WorldDaemon:
         time.sleep(1)
         self.dump_status()
 
-    @retry(tries=3,delay=2,jitter=1,logger=utils.get_logger(settings.get("world","log_level")))
+
+
+    @retry(
+        tries=6,delay=2,jitter=1,
+        logger=utils.get_logger(settings.get("world","log_level")),
+    )
     def start(self):
         """ Starts the daemon. """
         self.logger.info("Starting World Daemon...")
