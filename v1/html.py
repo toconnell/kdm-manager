@@ -462,6 +462,19 @@ class survivor:
      <hr class="invisible"/>
     \n""")
     form = Template("""\n\
+
+    <!-- survivor sheet JS goes here !-->
+    <script>
+    window.onload=function(){
+        var fa_disabled = document.getElementById('survivor_sheet_cannot_use_fighting_arts');
+        if (fa_disabled.checked == true) {
+           $('.survivor_sheet_fighting_art').addClass('strikethrough');
+        };
+    }
+    </script>
+    <!-- survivor sheet JS -->
+
+
     <span class="tablet_and_desktop nav_bar survivor_sheet_gradient"></span>
     <span class="mobile_only nav_bar_mobile survivor_sheet_gradient"></span>
     <span class="top_nav_spacer mobile_only">hidden</span>
@@ -965,9 +978,10 @@ class survivor:
 
             <p>Maximum 3.</p>
 
-            <div class="survivor_sheet_fighting_arts_container">
+            <div class="survivor_sheet_card_container">
                 $fighting_arts
             </div>
+
             $add_fighting_arts
             <br class="mobile_only"/>
             $rm_fighting_arts
@@ -989,7 +1003,9 @@ class survivor:
             <h3>Disorders</h3>
             <p class="survivor_sheet_game_asset_tip">Maximum 3.</p>
 
-            $disorders
+            <div class="survivor_sheet_card_container">
+                $disorders
+            </div>
             $add_disorders<br class="mobile_only"/>
             $rm_disorders
 
@@ -1086,6 +1102,10 @@ class survivor:
     </form>
 
         </div> <!-- asset_management_right_pane -->
+
+    <!-- CURSED ITEMS CONTROLS -->
+
+    $cursed_items_controls
 
     <!-- SURVIVOR ATTRIBUTE CONTROLS -->
 
@@ -1536,6 +1556,72 @@ class survivor:
     </form>
     </div> <!-- survivor_constellation_control_container" -->
     \n""")
+    cursed_items_controls = Template("""\n
+
+    <button
+        id="cursedControlsModal"
+        class="orange bold modal_opener"
+    >
+        Cursed Items ($cursed_item_count)
+    </button>
+
+    <script>
+    // move the mobile-only button into the dynamic container after rendering
+    var cursed_button = document.getElementById("cursedControlsModal");
+    placeDynamicButton(cursed_button)
+    </script>
+
+    <div
+        id="modalCurseControls" class="modal"
+        ng-init="registerModalDiv('cursedControlsModal','modalCurseControls')"
+    >
+        <div class="modal-content survivor_sheet_gradient">
+            <span class="closeModal" onclick="closeModal('modalCurseControls')">×</span>
+
+            <h3>Cursed Items</h3>
+            <p class="cursed_items_subhead">Use the controls below to add cursed items to a Survivor. Cursed
+            gear cannot be removed from the Survivor's gear grid. Archive the gear
+            when the survivor dies.</p>
+
+            <div class="cursed_items_flex_container">
+                $cursed_items
+            </div>
+
+        <hr/>
+        <form method="POST" action="/">
+            <!-- This is just a refresh -->
+            <button class="success" onclick="closeModal('modalCurseControls')">Reload Survivor Sheet</button>
+        </form>
+        </div> <!-- modal-content -->
+    </div> <!-- modalCurseControls -->
+
+    """)
+    cursed_item_toggle = Template("""\n
+    <div class="cursed_item_toggle">
+        <input
+            id="$input_id"
+            class="cursed_item_toggle"
+            name="toggle_cursed_item"
+            onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+            type="checkbox"
+            value="$handle"
+            $checked
+        />
+        <label
+            class="cursed_item_toggle"
+            for="$input_id"
+         >
+            <span class="cursed_item_name">$name</span>
+            $abilities
+        </label>
+    </div><!-- cursed_item_toggle -->
+    """)
+    cursed_items_ability_block = Template("""\n
+    \t<div class="cursed_item_ability_block">
+        \t<span class="cursed_item_ability">$ability</span>
+        \t<span class="cursed_item_ability_desc"> - $desc</span>
+    \t</div>
+    \n""")
     partner_controls_top = '\n<hr/>\n\t<p><span class="tiny_break">&nbsp;</span>Partner<select name="partner_id" onchange="this.form.submit()">\n'
     partner_controls_none = '<option selected disabled>Select a Survivor</option>'
     partner_controls_opt = Template('<option value="$value" $selected>$name</option>')
@@ -1618,9 +1704,16 @@ class survivor:
     </div>
     \n""")
     survivor_sheet_fighting_art_box = Template("""\n
-    <p class="survivor_sheet_fighting_art $secret $strikethrough">
-        <b class="fa_title $constellation">$name</b>
+    <p class="survivor_sheet_fighting_art survivor_sheet_card card_gradient $secret">
+        <b class="card_title $constellation">$name</b>
     $desc
+    </p>
+    \n""")
+    survivor_sheet_disorder_box = Template("""\n
+    <p class="survivor_sheet_disorder survivor_sheet_card disorder_card_gradient">
+        <b class="card_title $constellation">$name</b>
+    $flavor<br/>
+    $effect
     </p>
     \n""")
 
@@ -1842,7 +1935,7 @@ class settlement:
         <span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
         <span class="nav_bar_mobile mobile_only" settlement_sheet_gradient></span>
         <a id="event_log"><span class="top_nav_spacer mobile_only"> hidden </span></a>
-        <h1 class="settlement_name"> $settlement_name Event Log</h1>
+        <h1 class="settlement_name_event_log"> $settlement_name Event Log</h1>
         $log_lines
         <a id="genealogy"><br/></a>
         <hr class="mobile_only"/>
@@ -2435,7 +2528,7 @@ class login:
         <div id="sign_in_last_updated">%s</div>
         <div id="sign_in_controls">
             <form action="#" method="POST">
-            <input class="sign_in" type="email" name="login" placeholder="Email"/ autofocus>
+            <input class="sign_in" type="email" name="login" placeholder="Email" onclick="this.select()" autofocus>
             <input class="sign_in" type="password" name="password" placeholder="Password"/>
 			<div id="sign_in_remember_me">
 			  <label class="sign_in" for="keep_me_signed_in">Stay Logged in:</label>

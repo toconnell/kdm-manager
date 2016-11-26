@@ -17,13 +17,6 @@ def init_survivor(survivor_id):
         return utils.http_404
 
 
-def GET_json(S):
-    """ Simple GET handling for monster assets. Supports lookup by handle or by
-    name and returns a 200 if it can find one. Othewise, you get a 404. """
-
-    return Response(response=S.as_json(), status=200, mimetype="application/json")
-
-
 def POST_to_mdb(S):
     """ Handles a POST containing updates for a survivor MDB document. """
 

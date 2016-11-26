@@ -98,6 +98,7 @@ abilities_and_impairments = {
         "expansion": "Flower Knight",
         "type": "curse",
         "desc": 'When you die, a flower blooms from your corpse. Add <font class="kdm_font">g</font> <b>A Warm Virus</b> to the timeline next year. You are the guest.',
+        "epithet": "Host",
         "max": 1,
         "Luck": 1,
     },
@@ -187,13 +188,16 @@ abilities_and_impairments = {
     },
     "King's Curse": {
         "type": "curse",
+        "epithet": "King\\'s Curse",
         "desc": """At the Aftermath, <font class="kdm_font">g</font> <b>King's Curse</b>.""",
         "max": 1,
     },
     "Gender Swap": {
+        "expansion": "White Box",
         "type": "curse",
         "desc": "You own the <b>Belt of Gender Swap</b>, it will always take one space in your gear grid and while it is there, your gender is reversed.",
         "reverse_sex": True,
+        "epithet": "Gender Swap",
         "max": 1,
     },
     "Crystal Skin": {
@@ -3597,20 +3601,6 @@ weapon_proficiencies = {
     "Twilight Sword": {},
 }
 
-cursed_items = {
-    "Husk of Destiny": {"expansion": "Dragon King"},
-    "Sleeping Virus Flower": {"expansion": "Flower Knight"},
-    "Belt of Gender Swap": {"ability": "Gender Swap"},
-    "Regal Helm": {"ability": "King's Curse",},
-    "Regal Faulds": {"ability": "King's Curse",},
-    "Regal Gauntlets": {"ability": "King's Curse",},
-    "Regal Greaves": {"ability": "King's Curse",},
-    "Regal Plackart": {"ability": "King's Curse",},
-    "Thunder Maul": {},
-    "Twilight Sword": {"ability": "Twilight Sword"},
-    "Hideous Disguise": {"expansion": "Lion Knight", "ability": "Hideous Disguise"},
-	"Death Mehndi": {"expansion": "Lion God", "ability": "Death Mehndi"}
-}
 
 cause_of_death = {
     # expansion-specific
@@ -3623,6 +3613,7 @@ cause_of_death = {
     "Buried Alive": {"type": "endeavor", "expansion": "Sunstalker"},
 
     # monster-specific
+    "Butchered": {"type": "monster"},
 #    "Coup de grace" {"type": "monster"},
     "Never existed": {"type": "monster"},
 
@@ -3647,13 +3638,19 @@ cause_of_death = {
     # brain trauma
     "Mortal Terror": {"type": "brain_trauma"},
 
+    # story_events
+    "Armored Strangers": {"type": "story_event"},
+    "Regal Visit": {"type": "story_event"},
+    "Hooded Knight": {"type": "story_event"},
+
     # settlement events
-    "Armored Strangers": {"type": "settlement_event"},
     "Murdered": {"type": "settlement_event"},
-    "Hooded Knight": {"type": "settlement_event"},
-    "Butchered": {"type": "settlement_event"},
     "Plague": {"type": "settlement_event"},
     "Intimacy": {"type": "settlement_event"},
+
+    # endeavor
+    "Sacrified": {"type": "endeavor"},
+
 }
 
 epithets = {
@@ -3705,10 +3702,10 @@ epithets = {
 
     # flower knight
     "Vespertine": {"expansion": "Flower Knight"},
-    "Host": {"expansion": "Flower Knight"},
-    "Guest": {"expansion": "Flower Knight"},
-    "The First Host": {"expansion": "Flower Knight"},
-    "The First Guest": {"expansion": "Flower Knight"},
+    "Host": {"expansion": "Flower Knight", "bgcolor": "116E17", "color": "0f0"},
+    "Guest": {"expansion": "Flower Knight", "bgcolor": "116E17", "color": "0f0"},
+    "The First Host": {"expansion": "Flower Knight", "bgcolor": "116E17", "color": "0f0"},
+    "The First Guest": {"expansion": "Flower Knight", "bgcolor": "116E17", "color": "0f0"},
     "Flower Addict": {"expansion": "Flower Knight"},
 
     # Sunstalker
@@ -3718,7 +3715,12 @@ epithets = {
     "Triplet": {"expansion": "Sunstalker"},
     "Eye Patch Badass": {"expansion": "Sunstalker"},
 
+    # Lion God
+    "Necromancer": {"expansion": "Lion God"},
+    "Worm Bait": {"expansion": "Lion God"},
+
     # Lion Knight
+    "Hideous": {"expansion": "Lion Knight"},
     "Warlord": {"expansion": "Lion Knight"},
     "Dancer": {"expansion": "Lion Knight"},
     "Brawler": {"expansion": "Lion Knight"},
@@ -3767,7 +3769,10 @@ epithets = {
     "Wanderer": {},
 
     # fun/general
+    "Gender Swap": {"bgcolor": "FF4081", "color": "fff"},
     "Twilight Knight": {"color": "fff", "bgcolor": "546E7A"},
+    "Twilight Sword": {"color": "fff", "bgcolor": "546E7A"},
+    "Twilight Lineage": {"color": "fff", "bgcolor": "546E7A"},
     "Dreamer": {},
     "Cursed": {},
     "Monster": {},
@@ -3829,6 +3834,8 @@ epithets = {
     "Breeder": {},
     "The Fertile": {},
     "Founder": {"bgcolor": "FFC107"},
+    "First Son": {},
+    "First Daughter": {},
     "First Father": {},
     "First Mother": {},
     "Twin": {},

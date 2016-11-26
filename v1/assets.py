@@ -15,10 +15,10 @@ import operator
 import os
 import pickle
 import random
-import requests
 from string import Template, capwords, punctuation
 import types
 
+import api
 import admin
 import export_to_file
 from modular_assets import survivor_names, settlement_names, survivor_attrib_controls
@@ -26,7 +26,7 @@ import game_assets
 import html
 from models import Abilities, NemesisMonsters, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles, SurvivalActions, CauseOfDeath
 from session import Session
-from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd
+from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd, u_to_str
 import world
 
 settings = load_settings()
@@ -379,8 +379,10 @@ class User:
 
         try:
             W = world.api_world()["world"]
-        except:
-            return "<p>World info could not be retrieved!</p>"
+        except Exception as e:
+            self.logger.error("[%s] could not render World panel!" % (self))
+            self.logger.error(e)
+            return "<!-- World info could not be retrieved! -->"
 
         return html.dashboard.world.safe_substitute(
             # results with custom HTML in v1
@@ -441,6 +443,11 @@ class User:
 
 class Survivor:
 
+
+    def __repr__(self):
+        return self.get_name_and_id(include_id=False, include_sex=True)
+
+
     def __init__(self, survivor_id=False, params=None, session_object=None, suppress_event_logging=False, update_mins=True):
         """ Initialize this with a cgi.FieldStorage() as the 'params' kwarg
         to create a new survivor. Otherwise, use a mdb survivor _id value
@@ -485,15 +492,13 @@ class Survivor:
         self.survivor = mdb.survivors.find_one({"_id": ObjectId(survivor_id)})
         if not self.survivor:
             raise Exception("Invalid survivor ID: '%s'" % survivor_id)
+        self.set_api_asset()
 
         settlement_id = self.survivor["settlement"]
         self.Settlement = Settlement(settlement_id=settlement_id, session_object=self.Session, update_mins=self.update_mins)
         if self.Settlement is not None:
             self.normalize()
 
-
-    def __repr__(self):
-        return self.get_name_and_id(include_id=False, include_sex=True)
 
 
     def normalize(self):
@@ -751,6 +756,31 @@ class Survivor:
         self.logger.info("User '%s' created new survivor %s successfully." % (self.User.user["login"], self.get_name_and_id(include_sex=True)))
 
         return survivor_id
+
+
+    def set_api_asset(self):
+        """ Tries to set the survivor's API asset from the session. Fails
+        gracefully if it cannot. """
+
+        self.api_asset = {}
+        if not hasattr(self.Session, "api_survivors") or self.Session.session["current_view"] == "dashboard":
+            return None
+        try:
+            self.api_asset = self.Session.api_survivors[self.survivor["_id"]]
+        except Exception as e:
+            self.logger.error("[%s] could not set API asset for %s!" % (self.User, self))
+            pass
+
+
+    def get_api_asset(self, asset_key):
+        """ Tries to get an asset from the api_asset attribute/dict. Fails
+        gracefully. """
+
+        if not asset_key in self.api_asset.keys():
+            self.logger.warn("[%s] api_asset key '%s' does not exist!" % (self.User, asset_key))
+            return {}
+        else:
+            return self.api_asset[asset_key]
 
 
     def delete(self, run_valkyrie=True):
@@ -1021,7 +1051,7 @@ class Survivor:
         return all_list
 
 
-    def get_fighting_arts(self, return_type=False, strikethrough=False):
+    def get_fighting_arts(self, return_type=False):
         """ Returns a survivor's fighting arts. As HTML, if necessary. """
 
         fighting_arts = self.survivor["fighting_arts"]
@@ -1031,12 +1061,9 @@ class Survivor:
             for fa_key in fighting_arts:
                 fa_dict = FightingArts.get_asset(fa_key)
 
-                if strikethrough:
-                    strikethrough = "strikethrough"
-
                 const = ""
                 if "constellation" in fa_dict.keys():
-                    const = "fa_constellation"
+                    const = "card_constellation"
 
                 sec = ""
                 if "secret" in fa_dict.keys():
@@ -1045,7 +1072,6 @@ class Survivor:
                 output += html.survivor.survivor_sheet_fighting_art_box.safe_substitute(
                     name = fa_key,
                     desc = fa_dict["desc"],
-                    strikethrough = strikethrough,
                     constellation=const,
                     secret = sec,
                 )
@@ -1068,33 +1094,44 @@ class Survivor:
 
 
     def get_disorders(self, return_as=False):
+        """ Gets a survivors disorders. Returns them as HTMl, if necessary. """
+
         disorders = self.survivor["disorders"]
 
         if return_as == "formatted_html":
-            html = ""
+            output = ""
             for disorder_key in disorders:
                 if disorder_key not in Disorders.get_keys():
-                    html += '<p><b>%s:</b> custom disorder.</p>' % disorder_key
+                    output += '<p><b>%s:</b> custom disorder.</p>' % disorder_key
                 else:
-                    flavor = ""
-                    disorder_name = disorder_key
-                    if "constellation" in Disorders.get_asset(disorder_key).keys():
-                        disorder_name = '<font class="maroon_text">%s</font>' % disorder_key
-                    if "flavor_text" in Disorders.get_asset(disorder_key).keys():
-                        flavor = "<i>%s</i><br/>" % Disorders.get_asset(disorder_key)["flavor_text"]
-                    html += '<p><b>%s:</b> %s %s</p>' % (disorder_name, flavor, Disorders.get_asset(disorder_key)["survivor_effect"])
-            return html
+                    d_dict = Disorders.get_asset(disorder_key)
+
+                    const = ""
+                    if "constellation" in d_dict.keys():
+                        const = "card_constellation"
+                    flav = ""
+                    if "flavor_text" in d_dict.keys():
+                        flav = d_dict["flavor_text"] + "<br/>"
+
+                    output += html.survivor.survivor_sheet_disorder_box.safe_substitute(
+                        name = disorder_key,
+                        constellation = const,
+                        flavor = flav,
+                        effect = d_dict["survivor_effect"]
+                    )
+
+            return output
 
         if return_as == "html_select_remove":
             if disorders == []:
                 return ""
-            html = ""
-            html = '<select name="remove_disorder" onchange="this.form.submit()">'
-            html += '<option selected disabled hidden value="">Remove Disorder</option>'
+            output = ""
+            output = '<select name="remove_disorder" onchange="this.form.submit()">'
+            output += '<option selected disabled hidden value="">Remove Disorder</option>'
             for disorder in disorders:
-                html += '<option>%s</option>' % disorder
-            html += '</select>'
-            return html
+                output += '<option>%s</option>' % disorder
+            output += '</select>'
+            return output
 
         return disorders
 
@@ -1743,7 +1780,7 @@ class Survivor:
         impairment_set = set()
         for a in self.survivor["abilities_and_impairments"]:
             if a in Abilities.get_keys():
-                if Abilities.get_asset(a)["type"] in ["impairment","severe_injury"]:
+                if Abilities.get_asset(a)["type"] in ["impairment","severe_injury","curse"]:
                     impairment_set.add(a)
         return list(impairment_set)
 
@@ -2364,6 +2401,8 @@ class Survivor:
 
             if p in ignore_keys:
                 pass
+            elif p == "toggle_cursed_item":
+                self.update_cursed_items("toggle",game_asset_key)
             elif p == "set_constellation":
                 self.update_constellation(game_asset_key)
             elif p == "set_savior_type":
@@ -2542,6 +2581,93 @@ class Survivor:
         )
 
         return output
+
+
+
+
+
+    def update_cursed_items(self, action=None, cursed_item=None):
+        """ Manages a survivor's cursed_items attribute, which is just a list
+        of items. Logs to the setttlement event log, etc. """
+
+        if action is None or cursed_item is None:
+            self.logger.warn("[%s] 'action' and 'cursed_item' kwargs must not be None type." % (self.User))
+            return None
+
+        # now do it to it
+        if not "cursed_items" in self.survivor.keys():
+            self.survivor["cursed_items"] = []
+
+        all_cursed_items = self.Settlement.get_api_asset("cursed_items")
+        ci_dict = all_cursed_items[cursed_item]
+
+
+        def add(cursed_item):
+            self.survivor["cursed_items"].append(cursed_item)
+            if "abilities_and_impairments" in ci_dict.keys():
+                for ai in ci_dict["abilities_and_impairments"]:
+                    self.add_game_asset("abilities_and_impairments", ai)
+            self.Settlement.log_event("%s is cursed! %s added %s to %s's cursed items." % (self, self.User.user["login"], ci_dict["name"], self.survivor["name"]))
+            self.logger.debug("[%s] added cursed item key '%s' to %s." % (self.User, cursed_item, self))
+        def rm(cursed_item):
+            self.survivor["cursed_items"].remove(cursed_item)
+            if "abilities_and_impairments" in ci_dict.keys():
+                for ai in ci_dict["abilities_and_impairments"]:
+                    self.rm_game_asset("abilities_and_impairments", ai)
+            self.Settlement.log_event("%s removed %s from %s's cursed items." % (self.User.user["login"], ci_dict["name"], self.survivor["name"]))
+            
+            self.logger.debug("[%s] removed cursed item key '%s' from %s." % (self.User, cursed_item, self))
+
+        if action=="toggle":
+            if cursed_item in self.get_api_asset("cursed_items"):
+                rm(cursed_item)
+                return False
+            elif cursed_item not in self.get_api_asset("cursed_items"):
+                add(cursed_item)
+                return True
+        else:
+            self.logger.warn("[%s] unknown action '%s' specified!" % (self.User, action))
+            return None
+
+
+
+    def render_cursed_items_controls(self):
+        """ Creates HTML controls, including a modal opener and a modal, for
+        managing a survivor's cursed items. """
+
+        available_items = self.Settlement.get_api_asset("cursed_items")
+
+        options_html = ""
+        for i in sorted(available_items.keys()):
+            c = ""
+            if i in self.get_api_asset("cursed_items"):
+                c = "checked"
+
+            i_dict = available_items[i]
+
+            abilities_html = ""
+            if "abilities_and_impairments" in i_dict.keys():
+                for a in i_dict["abilities_and_impairments"]:
+                    a_dict = Abilities.get_asset(a)
+                    abilities_html += html.survivor.cursed_items_ability_block.safe_substitute(
+                        ability = a,
+                        desc = a_dict["desc"],
+                    )
+
+            options_html += html.survivor.cursed_item_toggle.safe_substitute(
+                survivor_id = self.survivor["_id"],
+                handle = i_dict["handle"],
+                input_id = "%s_toggle_checkbox" % i_dict["handle"],
+                name = i_dict["name"],
+                checked = c,
+                abilities = abilities_html,
+            )
+
+
+        return html.survivor.cursed_items_controls.safe_substitute(
+            cursed_items = options_html,
+            cursed_item_count = len(self.get_api_asset("cursed_items")),
+        )
 
 
     def render_hit_box_controls(self, hit_location=None):
@@ -2812,7 +2938,7 @@ class Survivor:
 
 
             cannot_use_fighting_arts_checked = flags["cannot_use_fighting_arts"],
-            fighting_arts = self.get_fighting_arts("formatted_html", strikethrough=flags["cannot_use_fighting_arts"]),
+            fighting_arts = self.get_fighting_arts("formatted_html"),
             add_fighting_arts = fighting_arts_picker,
             rm_fighting_arts = self.get_fighting_arts("html_select_remove"),
 
@@ -2822,6 +2948,7 @@ class Survivor:
 
             abilities_and_impairments = self.get_abilities_and_impairments("html_formatted"),
             add_abilities_and_impairments = Abilities.render_as_html_dropdown(
+                excluded_type="curse",
                 disable=Abilities.get_maxed_out_abilities(self.survivor["abilities_and_impairments"]),
                 Settlement=self.Settlement,
                 ),
@@ -2839,6 +2966,7 @@ class Survivor:
             custom_cause_of_death = custom_COD,
 
             # optional and/or campaign-specific controls and modals
+            cursed_items_controls = self.render_cursed_items_controls(),
             partner_controls = self.get_partner("html_controls"),
             expansion_attrib_controls = self.get_expansion_attribs("html_controls"),
             dragon_controls = self.render_dragon_controls(),
@@ -2857,6 +2985,10 @@ class Survivor:
 #
 
 class Settlement:
+
+    def __repr__(self):
+        return self.get_name_and_id()
+
 
     def __init__(self, settlement_id=False, name=False, campaign=False, session_object=None, update_mins=True):
         """ Initialize with a settlement from mdb. """
@@ -2878,9 +3010,62 @@ class Settlement:
         self.settlement = mdb.settlements.find_one({"_id": ObjectId(settlement_id)})
         if self.settlement is not None and update_mins:
             self.update_mins()
+        self.set_api_asset()
 
-    def __repr__(self):
-        return self.get_name_and_id()
+
+    def update_mins(self):
+        """ check 'population' and 'death_count' minimums and update the
+        settlement's attribs if necessary.
+
+        There's also some misc. house-keeping that happens here, e.g. changing
+        lists to sets (since MDB doesn't support sets), etc.
+
+        This one should be called FREQUENTLY, as it enforces the data model and
+        sanitizes the settlement object's settlement dict.
+        """
+
+        # uncomment these to log which methods are calling update_mins()
+#        curframe = inspect.currentframe()
+#        calframe = inspect.getouterframes(curframe, 2)
+#        self.logger.debug("update_mins() called by %s" % calframe[1][3])
+
+        for min_key in ["population", "death_count", "survival_limit"]:
+            min_val = self.get_min(min_key)
+            orig_val = int(self.settlement[min_key])
+            if orig_val < min_val:
+                self.settlement[min_key] = min_val
+                self.logger.debug("Automatically updated settlement %s (%s) %s from %s to %s" % (self.settlement["name"], self.settlement["_id"], min_key, orig_val, min_val))
+                self.log_event("Automatically changed %s from %s to %s" % (min_key, orig_val, min_val))
+
+            # just a little idiot- and user-proofing against negative values
+            if self.settlement[min_key] < 0:
+                self.settlement[min_key] = 0
+
+#        self.logger.debug("Updated minimum values for settlement %s (%s)" % (self.settlement["name"], self.settlement["_id"]))
+        self.enforce_data_model()
+        if self.User.get_preference("update_timeline"):
+            self.update_timeline_with_story_events()
+        mdb.settlements.save(self.settlement)
+
+
+    def set_api_asset(self):
+        """ Tries to set the settlement's API asset from the session. Fails
+        gracefully if it cannot. """
+
+        self.api_asset = {}
+        if not hasattr(self.Session, "api_settlement"):
+            return None
+        self.api_asset = self.Session.api_settlement
+
+
+    def get_api_asset(self, asset_key):
+        """ Tries to get an asset from the api_asset attribute/dict. Fails
+        gracefully. """
+
+        if not asset_key in self.api_asset.keys():
+            return {}
+        else:
+            return self.api_asset[asset_key]
 
 
     def log_event(self, msg):
@@ -2987,6 +3172,7 @@ class Settlement:
 
         self.logger.debug("[%s] Added '%s' expansion to %s" % (self.User, e_key, self))
         self.log_event("'%s' expansion is now enabled!" % e_key)
+
 
 
     def get_story_event(self, event=None):
@@ -3114,39 +3300,6 @@ class Settlement:
         self.logger.warn("[%s] Deleted %s from mdb!" % (self.User, self))
 
 
-    def update_mins(self):
-        """ check 'population' and 'death_count' minimums and update the
-        settlement's attribs if necessary.
-
-        There's also some misc. house-keeping that happens here, e.g. changing
-        lists to sets (since MDB doesn't support sets), etc.
-
-        This one should be called FREQUENTLY, as it enforces the data model and
-        sanitizes the settlement object's settlement dict.
-        """
-
-        # uncomment these to log which methods are calling update_mins()
-#        curframe = inspect.currentframe()
-#        calframe = inspect.getouterframes(curframe, 2)
-#        self.logger.debug("update_mins() called by %s" % calframe[1][3])
-
-        for min_key in ["population", "death_count", "survival_limit"]:
-            min_val = self.get_min(min_key)
-            orig_val = int(self.settlement[min_key])
-            if orig_val < min_val:
-                self.settlement[min_key] = min_val
-                self.logger.debug("Automatically updated settlement %s (%s) %s from %s to %s" % (self.settlement["name"], self.settlement["_id"], min_key, orig_val, min_val))
-                self.log_event("Automatically changed %s from %s to %s" % (min_key, orig_val, min_val))
-
-            # just a little idiot- and user-proofing against negative values
-            if self.settlement[min_key] < 0:
-                self.settlement[min_key] = 0
-
-#        self.logger.debug("Updated minimum values for settlement %s (%s)" % (self.settlement["name"], self.settlement["_id"]))
-        self.enforce_data_model()
-        if self.User.get_preference("update_timeline"):
-            self.update_timeline_with_story_events()
-        mdb.settlements.save(self.settlement)
 
 
     def get_story_events(self):
@@ -5147,12 +5300,9 @@ class Settlement:
         #
 
         try:
-            self.logger.debug("[%s] Attempting API call to /monster route..." % self)
-            r_url = "http://api.thewatcher.io/monster"
-            r = requests.get(r_url, params={"name": monster_desc})
-            if r.status_code == 200:
+            api_asset = api.route_to_dict("monster", params={"name": monster_desc})
+            if api_asset != {}:
                 self.logger.debug("[%s] API call successful: monster asset retrieved." % self)
-                api_asset = dict(r.json())
                 kill_board_dict["name"] = api_asset["name"]
                 kill_board_dict["raw_name"] = monster_desc
                 kill_board_dict["handle"] = api_asset["handle"]
@@ -5160,9 +5310,9 @@ class Settlement:
                 for aux_attrib in ["level", "comment"]:
                     if aux_attrib in api_asset.keys():
                         kill_board_dict[aux_attrib] = api_asset[aux_attrib]
-                self.logger.debug("[%s] Killboard dict updated with API data!" % self)
+                self.logger.debug("[%s] Defeated monster dict updated with API data!" % self)
             else:
-                self.logger.warn("[%s] API call failed. Response status code: %s" % (self, r.status_code))
+                self.logger.warn("[%s] API call failed. Skipping killboard update..." % (self.User))
         except Exception as e:
             self.logger.error("API call failed!")
             self.logger.exception(e)

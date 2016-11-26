@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 #   standard
+import collections
 from ConfigParser import SafeConfigParser
 from datetime import datetime, timedelta
 from dateutil.parser import parse as dateutil_parse
@@ -55,6 +56,16 @@ forbidden_names = ["test","Test","TEST","Unknown","UNKNOWN","Anonymous","anonymo
 #
 #  application helper functions
 #
+
+def u_to_str(data):
+    if isinstance(data, basestring):
+        return str(data)
+    elif isinstance(data, collections.Mapping):
+        return dict(map(u_to_str, data.iteritems()))
+    elif isinstance(data, collections.Iterable):
+        return type(data)(map(u_to_str, data))
+    else:
+        return data
 
 def to_handle(s):
     return s.lower().replace(" ","_")

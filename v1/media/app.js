@@ -185,19 +185,9 @@ function updateAssetAttrib(source_input, collection, asset_id) {
     // strikethrough for p.survivor_sheet_fighting_art_elements
     if (source_input.id == 'survivor_sheet_cannot_use_fighting_arts' ) {
         if (source_input.checked == true) {
-            var x = document.getElementsByClassName("survivor_sheet_fighting_art");
-            var i;
-            for (i = 0; i < x.length; i++) {
-                var struck = x[i];
-                x[i].style.setProperty("text-decoration", "line-through");
-                };
-            } else {
-            var x = document.getElementsByClassName("survivor_sheet_fighting_art");
-            var i;
-            for (i = 0; i < x.length; i++) {
-                var struck = x[i];
-                x[i].style.removeProperty("text-decoration", "line-through");
-                };
+            $('.survivor_sheet_fighting_art').addClass('strikethrough');
+        } else {
+            $('.survivor_sheet_fighting_art').removeClass('strikethrough');
         };
     };
 

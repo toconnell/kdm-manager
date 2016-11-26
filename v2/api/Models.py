@@ -1,6 +1,7 @@
 #!/usr/bin/python2.7
 
 from bson.objectid import ObjectId
+from copy import copy
 
 import utils
 
@@ -177,6 +178,11 @@ class UserAsset():
     """ The base class for initializing individual user assets, such as
     survivors, sessions, settlements, etc. """
 
+
+    def __repr__(self):
+        return "%s object. _id: %s" % (self.collection, self._id)
+
+
     def __init__(self, collection=None, _id=None):
 
         # initialize basic vars
@@ -194,11 +200,13 @@ class UserAsset():
         if _id is None:
             self.new()
         else:
-            self._id = ObjectId(_id)
-            self.load()
-
-    def __repr__(self):
-        return "%s object. _id: %s" % (self.collection, self._id)
+            try:
+                self._id = ObjectId(_id)
+                self.load()
+            except Exception as e:
+                self.logger.error("Could not load _id '%s' from %s!" % (_id, self.collection))
+                self.logger.exception(e)
+                self.settlement = None
 
 
     def load(self):
@@ -216,4 +224,15 @@ class UserAsset():
         else:
             raise AssetLoadError("Invalid MDB collection for this asset!")
 
+    def get_serialize_meta(self):
+        """ Sets the 'meta' dictionary for the object when it is serialized. """
 
+        output = copy(utils.api_meta)
+        try:
+            output["meta"]["object"]["version"] = self.object_version
+        except Exception as e:
+            self.logger.error("Could not create 'meta' dictionary when serializing object!")
+            self.logger.exception(e)
+            self.logger.warn(utils.api_meta)
+            self.logger.warn(output["meta"])
+        return output

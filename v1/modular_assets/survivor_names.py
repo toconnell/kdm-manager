@@ -368,4 +368,5 @@ other = [
     "Shadow",
     "Robin",
     "Quinn",
+    "Raven",
 ]

@@ -8,6 +8,7 @@ from flask import Response
 import json
 import logging
 import os
+import socket
 import sys
 from pymongo import MongoClient
 
@@ -25,10 +26,41 @@ thirty_days_ago = datetime.now() - timedelta(days=30)
 recent_session_cutoff = datetime.now() - timedelta(hours=12)
 
 # generic http responses
+http_401 = Response(response="Valid API key required", status=401)
 http_404 = Response(response=None, status=404)
-http_500 = Response(response=None, status=500)
+http_422 = Response(response="Missing argument, parameter or value", status=422)
+http_500 = Response(response="Server explosion! The server erupts in a shower of gore, killing your request instantly. All other servers are so disturbed that they lose 1 survival.", status=500)
 
 
+
+# API response/request helpers
+
+#
+#   stub dictionary for creating the meta element of API returns
+#
+
+api_meta = {
+    "meta": {
+        "api": {
+        "version": settings.get("api","version"),
+        "hostname": socket.gethostname(),
+        "mdb_name": settings.get("api","mdb"),
+        },
+        "object": {},
+    },
+}
+
+def authorize(req):
+    """ Laziness function to check a request and return True if we like the key.
+    Return a 401 if we don't like the key. """
+
+    try:
+        if settings.check_key(req.get_json()["meta"]["api_key"]):
+            return True
+        else:
+            return False
+    except:
+        return False
 
 # laziness and DRYness methods
 

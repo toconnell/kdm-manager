@@ -3,6 +3,7 @@
 from bson.objectid import ObjectId
 import Cookie
 from datetime import datetime
+import json
 import os
 import random
 import string
@@ -10,6 +11,7 @@ import sys
 import traceback
 
 import admin
+import api
 import assets
 import html
 import models
@@ -27,6 +29,10 @@ class Session:
         self.User       -> an assets.User object
 
     """
+
+    def __repr__(self):
+        return str(self.session["_id"])
+
 
     def __init__(self, params={}):
         """ Initialize a new Session object."""
@@ -58,6 +64,7 @@ class Session:
                 user_object = mdb.users.find_one({"current_session": session_id})
                 self.User = assets.User(user_object["_id"], session_object=self)
                 self.set_current_settlement()
+                self.set_api_assets()
 
 
     def new(self, login):
@@ -85,6 +92,33 @@ class Session:
         self.User = assets.User(user["_id"], session_object=self)
 
         return session_id   # passes this back to the html.create_cookie_js()
+
+
+    def set_api_assets(self):
+        """ Sets self.api dictionaries required by the current session. """
+
+        # don't get data from the API unless we need to.
+        if self.session["current_view"] not in ["view_settlement","view_survivor","view_campaign"]:
+            return None
+
+        if not hasattr(self, "current_settlement") or type(self.current_settlement) != ObjectId:
+            self.api={"settlement":{}, "survivors":{}}
+            return None
+
+        self.api_settlement = api.route_to_dict(
+            "settlement/get/%s" % self.current_settlement,
+            authorize=True
+        )
+
+        if self.api_settlement == {}:
+            self.logger.error("[%s] could not retrieve settlement from API server!" % self.User)
+            return False
+
+        self.api_survivors = {}
+        for s in self.api_settlement["survivors"]:
+            s_dict = json.loads(s)
+            _id = ObjectId(s_dict["_id"]["$oid"])
+            self.api_survivors[_id] = s_dict
 
 
     def recover_password(self):
@@ -168,9 +202,9 @@ class Session:
                     s_id = ObjectId(self.session["current_asset"])
                     self.Settlement = assets.Settlement(settlement_id=s_id, session_object=self)
 
+        if "current_settlement" in self.session.keys():
+            self.current_settlement = self.session["current_settlement"]
 
-#        if self.Settlement is None:
-#            self.logger.debug("Unable to set 'current_settlement' for session '%s'." % self.session["_id"])
         mdb.sessions.save(self.session)
 
 

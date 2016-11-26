@@ -6,6 +6,8 @@ SERVICE=api.thewatcher.service
 SOCKET=api.thewatcher.socket
 SYSLOG=/var/log/syslog
 
+echo ""
+
 case "$1" in
     enable)
         $CMD enable $PROJECT_ABS_PATH$SERVICE
@@ -37,5 +39,7 @@ case "$1" in
 		exit 3
 esac
 
-
+sleep 3
 echo "\n\tsystemctl output is logged to /var/log/syslog\n"
+tail -n 10 /var/log/syslog
+echo "...\n"

@@ -15,8 +15,7 @@ import world
 import utils
 
 # routes
-from routes import monster, survivor
-from assets import cursed_items
+from routes import monster, survivor, settlement, cursed_items
 
 # create the flask app with settings/utils info
 application = Flask(__name__)
@@ -31,6 +30,7 @@ application.logger.addHandler(utils.get_logger(log_name="server"))
 #
 #   Routes start here! Settings object initialized above...
 #
+
 
 # default route - landing page, vanity URL stuff
 @application.route("/")
@@ -47,28 +47,40 @@ def world_json():
     response = Response(response=j, status=200, mimetype="application/json")
     return response
 
-@application.route("/cursed_items")
+@application.route("/cursed_items", methods=["GET","POST"])
 def cursed_items_json():
-    j = json.dumps(cursed_items.items, default=json_util.default)
-    return Response(response=j, status=200, mimetype="application/json")
+    if request.method == "GET":
+        return cursed_items.GET_all()
+    else:
+        if not utils.authorize(request):
+            return utils.http_401
+        return cursed_items.POST_available()
 
-@application.route("/survivor/get/<survivor_id>")
+@application.route("/settlement/get/<settlement_id>", methods=["POST"])
+def get_settlement(settlement_id):
+    """ Dumps a settlement's complete record, including all supported supplement
+    dictionaries, methods, etc. """
+
+    S = settlement.init_settlement(settlement_id)
+    if type(S) == Response:
+        return S
+    return Response(response=S.serialize(), status=200, mimetype="application/json")
+
+@application.route("/survivor/get/<survivor_id>", methods=["POST"])
 def get_survivor(survivor_id):
     """ Dumps a survivor's MDB document. """
 
     S = survivor.init_survivor(survivor_id)
     if type(S) == Response:
         return S
-    return survivor.GET_json(S)
+    return Response(response=S.serialize(), status=200, mimetype="application/json")
 
 @application.route("/survivor/update/<survivor_id>", methods=["POST"])
 def update_survivor(survivor_id):
     """ You need to be authorized to do this, i.e. post a key in the JSON. """
 
-    authorized = settings.check_key(request.get_json()["meta"]["api_key"])
-    if not authorized:
-        return Response(response="Valid API key required", status=401)
-
+    if not utils.authorize(request):
+        return utils.http_401
     S = survivor.init_survivor(survivor_id)
     if type(S) == Response:
         return S
