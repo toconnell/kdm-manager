@@ -777,8 +777,8 @@ class Survivor:
         gracefully. """
 
         if not asset_key in self.api_asset.keys():
-            self.logger.debug(self.api_asset)
             self.logger.warn("[%s] api_asset key '%s' does not exist for %s!" % (self.User, asset_key, self))
+            self.logger.debug("[%s] available API asset keys for %s: %s" % (self.User, self, self.api_asset.keys()))
             return {}
         else:
             return self.api_asset[asset_key]
@@ -3069,9 +3069,12 @@ class Settlement:
             return {}
         elif not asset_type in self.api_asset.keys():
             self.logger.warn("[%s] asset type '%s' not found in API asset for %s" % (self.User, asset_type, self))
+            self.logger.debug("[%s] available API asset_types for %s: %s" % (self.User, self, self.api_asset.keys()))
             return {}
         elif not asset_key in self.api_asset[asset_type]:
             self.logger.warn("[%s] asset key '[%s][%s]' not found in API asset for %s" % (self.User, asset_type, asset_key, self))
+            self.logger.debug("[%s] available API asset_keys for %s [%s]: %s" % (self.User, self, asset_type, self.api_asset[asset_type].keys()))
+            return {}
         else:
             return self.api_asset[asset_type][asset_key]
 
