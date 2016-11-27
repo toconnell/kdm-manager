@@ -1225,7 +1225,7 @@ class survivor:
                     <button type="button" class="decrementer" onclick="decrement('greenCountBox');">-</button>
                     </div>
                     <div id="affinity_block" class="affinity_green">&nbsp;</div>
-                    <hr/>
+                    <hr class="affinities_modal_separator"/>
 
                     <center><button class="green" type="submit">Save!</button></center>
                     <br><br>
