@@ -10,6 +10,7 @@ from bson.objectid import ObjectId
 from bson import json_util
 import json
 import requests
+import socket
 from urlparse import urljoin
 
 from utils import get_logger, load_settings
@@ -17,6 +18,20 @@ from utils import get_logger, load_settings
 logger = get_logger(log_name="index")
 settings = load_settings()
 settings_private = load_settings("private")
+
+
+def get_api_url():
+    """ Determines the URL to use for API operations based on some socket
+    operations and settings from the settings.cfg. Defaults to using localhost
+    on the default API port defined in settings.cfg. """
+
+    fqdn = socket.getfqdn()
+    if fqdn == settings.get("api","prod_fqdn"):
+        return settings.get("api","prod_url")
+    else:
+        logger.debug("[API] host FQDN is '%s'. Backing off to dev API settings." % (fqdn))
+        return "http://127.0.0.1:%s" % settings.get("api","default_port")
+
 
 def route_to_dict(route, params={}, return_as=dict, authorize=False):
     """ Retrieves data from a route. Returns a dict by default, which means that
@@ -56,3 +71,8 @@ def route_to_dict(route, params={}, return_as=dict, authorize=False):
     else:
         logger.error("API:GET -> '%s' returned a %s status!" % (r.url, r.status_code))
         return {}
+
+
+
+if __name__ == "__main__":
+    print get_api_url()
