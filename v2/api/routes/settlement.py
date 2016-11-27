@@ -11,7 +11,7 @@ def init_settlement(s_id):
     Otherwise, if it's not legit, return a 404 Response object. """
 
     if not utils.authorize(request):
-        return utils.http_404
+        return utils.http_401
 
     try:
         S = settlements.Settlement(_id=s_id)

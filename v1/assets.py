@@ -2499,9 +2499,9 @@ class Survivor:
                 if "max" in asset_dict.keys():
                     asset_count = self.survivor["abilities_and_impairments"].count(asset_key)
                     while asset_count > asset_dict["max"]:
-                        self.logger.warn("Survivor '%s' has '%s' x%s (max is %s)." % (self, asset_key, asset_count, asset_dict["max"]))
+                        self.logger.warn("[%s] survivor '%s' has '%s' x%s (max is %s)." % (self.User, self, asset_key, asset_count, asset_dict["max"]))
                         self.survivor["abilities_and_impairments"].remove(asset_key)
-                        self.logger.info("Removed '%s' from survivor '%s'." % (asset_key, self))
+                        self.logger.info("[%s] automatically removed extra asset key '%s' from survivor '%s'." % (self.User, asset_key, self))
                         asset_count = self.survivor["abilities_and_impairments"].count(asset_key)
 
         # idiot-proof the hit boxes
