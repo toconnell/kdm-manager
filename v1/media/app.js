@@ -12,12 +12,12 @@ function modifyAsset(collection, asset_id, param_string) {
     // this automatically handles the norefresh flag as well as the modify and
     // asset params
 
-    var http = new XMLHttpRequest();
-    http.open("POST", "/", true);
-    http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/", true);
+    xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
     var params = "modify=" + collection + "&asset_id=" + asset_id + "&" + param_string + "&norefresh=True";
 //    window.alert(params);
-    http.send(params);
+    xhr.send(params);
     $('#saved_dialog').fadeIn(500);
     $('#saved_dialog').fadeOut(1800);
 }
@@ -272,3 +272,11 @@ function placeDynamicButton (button) {
         mobile_holder.appendChild(button);
     };
 }
+
+// global func for damage toggles. 
+function toggleDamage(elem_id, asset_id) {
+    document.getElementById(elem_id).classList.toggle("damage_box_checked");
+    var toggle_key = document.getElementById(elem_id);
+    var params =  toggle_key.name + "=checked";
+    modifyAsset("survivor", asset_id, params);
+    }

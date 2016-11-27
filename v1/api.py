@@ -30,7 +30,7 @@ def get_api_url():
         return settings.get("api","prod_url")
     else:
         logger.debug("[API] host FQDN is '%s'. Backing off to dev API settings." % (fqdn))
-        return "http://127.0.0.1:%s" % settings.get("api","default_port")
+        return "http://127.0.0.1:%s/" % settings.get("api","localhost_port")
 
 
 def route_to_dict(route, params={}, return_as=dict, authorize=False):
@@ -40,8 +40,7 @@ def route_to_dict(route, params={}, return_as=dict, authorize=False):
     if list(route)[-1] == "/":
         route = route[0:-1]
 
-    api_url = settings.get("application","api_url")
-    req_url = urljoin(api_url, route)
+    req_url = urljoin(get_api_url(), route)
 
     # convert object IDs to strings: it's easier to just send a string and
     #   convert it back during API processing
@@ -75,4 +74,6 @@ def route_to_dict(route, params={}, return_as=dict, authorize=False):
 
 
 if __name__ == "__main__":
-    print get_api_url()
+    print "\n localhost FQDN:\t%s" % socket.getfqdn()
+    print " API URL:\t\t%s" % get_api_url()
+    print " API version:\t\t%s\n" % (route_to_dict("settings.json")["api"]["version"])

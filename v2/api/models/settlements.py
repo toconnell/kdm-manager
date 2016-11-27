@@ -15,7 +15,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.1
+        self.object_version=0.2
         Models.UserAsset.__init__(self,  *args, **kwargs)
 
 
@@ -24,12 +24,21 @@ class Settlement(Models.UserAsset):
         a monster JSON object. This one is the gran-pappy. """
 
         output = self.get_serialize_meta()
-        output.update({"settlement": self.settlement})
-        output.update({"campaign": self.get_campaign()})
-        output.update({"expansions": self.get_expansions()})
-        output.update({"players": self.get_players()})
-        output.update({"cursed_items": self.get_cursed_items()})
-        output.update({"survivors": self.get_survivors()})
+
+        # create the sheet
+        output.update({"sheet": self.settlement})
+        output["sheet"].update({"campaign": self.get_campaign()})
+        output["sheet"].update({"expansions": self.get_expansions()})
+
+        # create user_assets
+        output.update({"user_assets": {}})
+        output["user_assets"].update({"players": self.get_players()})
+        output["user_assets"].update({"survivors": self.get_survivors()})
+
+        # great game_assets
+        output.update({"game_assets": {}})
+        output["game_assets"].update({"cursed_items": self.get_cursed_items()})
+
         return json.dumps(output, default=json_util.default)
 
 

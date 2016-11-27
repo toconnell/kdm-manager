@@ -19,7 +19,7 @@ class Survivor(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="survivors"
-        self.object_version = 0.1
+        self.object_version = 0.2
         Models.UserAsset.__init__(self,  *args, **kwargs)
 
 
@@ -28,8 +28,8 @@ class Survivor(Models.UserAsset):
         a monster JSON object. This one is the gran-pappy. """
 
         output = self.get_serialize_meta()
-        output.update(self.survivor)
-        output.update({"cursed_items": self.get_cursed_items()})
+        output.update({"sheet": self.survivor})
+        output["sheet"].update({"cursed_items": self.get_cursed_items()})
         return json.dumps(output, default=json_util.default)
 
 

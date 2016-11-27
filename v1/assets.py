@@ -378,7 +378,7 @@ class User:
         ...at some point, e.g. when I get around to it. """
 
         try:
-            W = world.api_world()["world"]
+            W = api.route_to_dict("world")["world"]
         except Exception as e:
             self.logger.error("[%s] could not render World panel!" % (self))
             self.logger.error(e)
@@ -766,7 +766,7 @@ class Survivor:
         if not hasattr(self.Session, "api_survivors") or self.Session.session["current_view"] == "dashboard":
             return None
         try:
-            self.api_asset = self.Session.api_survivors[self.survivor["_id"]]
+            self.api_asset = self.Session.api_survivors[self.survivor["_id"]]["sheet"]
         except Exception as e:
             self.logger.error("[%s] could not set API asset for %s!" % (self.User, self))
             pass
@@ -777,7 +777,8 @@ class Survivor:
         gracefully. """
 
         if not asset_key in self.api_asset.keys():
-            self.logger.warn("[%s] api_asset key '%s' does not exist!" % (self.User, asset_key))
+            self.logger.debug(self.api_asset)
+            self.logger.warn("[%s] api_asset key '%s' does not exist for %s!" % (self.User, asset_key, self))
             return {}
         else:
             return self.api_asset[asset_key]
@@ -2598,7 +2599,7 @@ class Survivor:
         if not "cursed_items" in self.survivor.keys():
             self.survivor["cursed_items"] = []
 
-        all_cursed_items = self.Settlement.get_api_asset("cursed_items")
+        all_cursed_items = self.Settlement.get_api_asset("game_assets", "cursed_items")
         ci_dict = all_cursed_items[cursed_item]
 
 
@@ -2635,7 +2636,8 @@ class Survivor:
         """ Creates HTML controls, including a modal opener and a modal, for
         managing a survivor's cursed items. """
 
-        available_items = self.Settlement.get_api_asset("cursed_items")
+        available_items = self.Settlement.get_api_asset("game_assets","cursed_items")
+
 
         options_html = ""
         for i in sorted(available_items.keys()):
@@ -3058,14 +3060,20 @@ class Settlement:
         self.api_asset = self.Session.api_settlement
 
 
-    def get_api_asset(self, asset_key):
+    def get_api_asset(self, asset_type="sheet", asset_key=None):
         """ Tries to get an asset from the api_asset attribute/dict. Fails
-        gracefully. """
+        gracefully. Settlement assets are more information-rich than survivor
+        assets, so there's more conditional navigation here. """
 
-        if not asset_key in self.api_asset.keys():
+        if asset_key is None:
             return {}
+        elif not asset_type in self.api_asset.keys():
+            self.logger.warn("[%s] asset type '%s' not found in API asset for %s" % (self.User, asset_type, self))
+            return {}
+        elif not asset_key in self.api_asset[asset_type]:
+            self.logger.warn("[%s] asset key '[%s][%s]' not found in API asset for %s" % (self.User, asset_type, asset_key, self))
         else:
-            return self.api_asset[asset_key]
+            return self.api_asset[asset_type][asset_key]
 
 
     def log_event(self, msg):

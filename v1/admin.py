@@ -13,6 +13,7 @@ import socket
 import time
 from validate_email import validate_email
 
+import api
 import assets
 import html
 import session
@@ -468,7 +469,7 @@ class Panel:
         """ Renders the whole panel. """
 
         try:
-            World = world.api_world()
+            World = api.route_to_dict("world")
             W = World["world"]
         except Exception as e:
             return "World could not be loaded! %s" % e
@@ -486,7 +487,7 @@ class Panel:
 
         output = html.panel.headline.safe_substitute(
             version = settings.get("application","version"),
-            api_url = settings.get("application","api_url"),
+            api_url = api.get_api_url(),
             hostname = socket.getfqdn(),
             world_daemon = daemon_block,
             killboard = world.api_killboard_to_html(W["killboard"]),

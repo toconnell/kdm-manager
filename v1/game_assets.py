@@ -222,7 +222,7 @@ abilities_and_impairments = {
     },
     "Partner": {
         "type": "ability",
-        "desc": 'When you both <b>depart</b>, gain +2 survival. While adjacent to your partner, gain +1 strength. Partners may only nominate each other for <img class="icon" src="http://media.kdm-manager.com/icons/trigger_story_event.png" /> <b>Intimacy</b>. When a partner dies, the remaining partner gains a random disorder and loses this ability.',
+        "desc": 'When you both <b>depart</b>, gain +2 survival. While adjacent to your partner, gain +1 strength. Partners may only nominate each other for <b><font class="kdm_font">g</font> Intimacy</b>. When a partner dies, the remaining partner gains a random disorder and loses this ability.',
     },
     "Specialization - Scythe": {
         "type": "weapon_proficiency",
@@ -3611,22 +3611,31 @@ cause_of_death = {
     "Died by the Throne": {"type": "endeavor", "expansion": "Dragon King"},
     "Culled by the Tyrant": {"type": "endeavor", "expansion": "Dragon King"},
     "Buried Alive": {"type": "endeavor", "expansion": "Sunstalker"},
+    "Necrotoxic Mistletoe": {"type": "story_event", "expansion": "Flower Knight"},
 
-    # monster-specific
+    # showdown
+    "Crushed and devoured": {"type": "monster",},
     "Butchered": {"type": "monster"},
 #    "Coup de grace" {"type": "monster"},
     "Never existed": {"type": "monster"},
+    "Rainbow Droppings": {"type": "monster"},
+    "Parasites": {"type": "showdown"},
+    "Purified": {"type": "showdown"},
+    "Clever ploy": {"type": "showdown"},
+    "Hack City": {"type": "showdown"},
 
     # hunt event
+    "Touched the statue": {"type": "hunt_event"},
     "Devoured by a stone face": {"type": "hunt_event"},
     "Devoured by a Harvester": {"type": "hunt_event"},
     "Eaten by a titanic beast": {"type": "hunt_event"},
     "Death Wager": {"type": "hunt_event"},
+    "The Gambler": {"type": "hunt_event"},
     "Consuming grass": {"type": "hunt_event"},
 
     # severe-injury
     "Bled out": {"type": "severe_injury"},
-    "Head Explosion": {"type": "severe_injury"},
+    "Head Explosion!": {"type": "severe_injury"},
     "Decapitated": {"type": "severe_injury"},
     "Arms ripped off": {"type": "severe_injury"},
     "Died of Shock": {"type": "severe_injury"},
@@ -3642,11 +3651,18 @@ cause_of_death = {
     "Armored Strangers": {"type": "story_event"},
     "Regal Visit": {"type": "story_event"},
     "Hooded Knight": {"type": "story_event"},
+    "Exiled": {"type": "story_event"},
+    "Intimacy": {"type": "story_event"},
+    "Childbirth": {"type": "story_event"},
 
     # settlement events
+    "Rivalry": {"type": "settlement_event",},
+    "Killed in a duel": {"type": "settlement_event",},
+    "Hunt Reenactment": {"type": "settlement_event"},
+    "Fell into a fissure": {"type": "settlement_event"},
     "Murdered": {"type": "settlement_event"},
     "Plague": {"type": "settlement_event"},
-    "Intimacy": {"type": "settlement_event"},
+    "Open maw": {"type": "settlement_event"},
 
     # endeavor
     "Sacrified": {"type": "endeavor"},
@@ -4026,7 +4042,7 @@ milestones = {
     "game_over": {
         "sort_order": 10,
         "story_event": "Game Over",
-        "add_to_timeline": 'int(self.settlement["population"]) == 0 and int(self.settlement["lantern_year"]) >= 1',
+        "add_to_timeline": 'int(self.settlement["death_count"]) >= 1 and int(self.settlement["population"]) == 0 and int(self.settlement["lantern_year"]) >= 1',
     },
 }
 

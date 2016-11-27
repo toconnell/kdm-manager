@@ -938,7 +938,7 @@ class survivor:
             $expansion_attrib_controls
         </form>
 
-        <form method="POST" id="autoForm" action="#edit_misc_attribs">
+        <form method="POST" action="#edit_misc_attribs">
             <button class="hidden"></button>
             <input type="hidden" name="modify" value="survivor" />
             <input type="hidden" name="asset_id" value="$survivor_id" />
@@ -1039,7 +1039,7 @@ class survivor:
             Hunt
         </label>
 
-        <form method="POST" id="autoForm" action="#edit_abilities">
+        <form method="POST" action="#edit_abilities">
             <input type="hidden" name="form_id" value="survivor_edit_abilities" />
             <input type="hidden" name="modify" value="survivor" />
             <input type="hidden" name="asset_id" value="$survivor_id" />
@@ -1077,7 +1077,7 @@ class survivor:
             $children
             <hr />
             <h3>Permissions</h3>
-            <form method="POST" id="autoForm" action="#edit_lineage">
+            <form method="POST" action="#edit_lineage">
               <input type="hidden" name="form_id" value="survivor_edit_abilities"/>
               <input type="hidden" name="modify" value="survivor" />
               <input type="hidden" name="asset_id" value="$survivor_id" />
@@ -1198,7 +1198,7 @@ class survivor:
 
                 <h3>Survivor Affinities</h3>
 
-                <form id="autoForm" method="POST" action="#">
+                <form method="POST" action="#">
                     <input type="hidden" name="modify" value="survivor" />
                     <input type="hidden" name="asset_id" value="$survivor_id" />
                     <input type="hidden" name="modal_update" value="affinities"/>
@@ -1712,7 +1712,7 @@ class survivor:
     survivor_sheet_disorder_box = Template("""\n
     <p class="survivor_sheet_disorder survivor_sheet_card disorder_card_gradient">
         <b class="card_title $constellation">$name</b>
-    $flavor<br/>
+    <span class="disorder_flavor_text">$flavor</span>
     $effect
     </p>
     \n""")
@@ -1954,7 +1954,7 @@ class settlement:
     genealogy_headline = Template('\n<h3 class="$h_class">$value</h3>\n')
     genealogy_survivor_span = Template('\t<span class="genealogy_survivor $class_color" style="display:$display"><b>$name</b> $born $dead</span>\n')
     timeline_button = Template("""\n
-        <form id="autoForm" method="POST" action="#edit_timeline">
+        <form method="POST" action="#edit_timeline">
         <input type="hidden" name="modify" value="settlement" />
         <input type="hidden" name="asset_id" value="$settlement_id" />
             <button id="remove_item" name="increment_lantern_year" class="$button_class $button_color" value="1" $disabled> &nbsp; $LY &nbsp; </button>
@@ -1964,7 +1964,7 @@ class settlement:
     timeline_year_break = '<input type="submit" class="hidden" value="None"/> <hr/></p>\n</form>\n\n'
     timeline_form_top = Template("""\n
             <!-- LY $year form -->
-            <form id="autoForm" method="POST" action="#edit_timeline">
+            <form method="POST" action="#edit_timeline">
             <input type="hidden" name="modify" value="settlement" />
             <input type="hidden" name="asset_id" value="$settlement_id" />
     """)
@@ -2164,7 +2164,7 @@ class settlement:
 
         <!-- BULK ADD is a form and needs a refresh -->
 
-        <form method="POST" id="autoForm" action="#">
+        <form method="POST" action="#">
             <input type="hidden" name="modify" value="settlement" />
             <input type="hidden" name="asset_id" value="$settlement_id" />
 
@@ -2197,7 +2197,7 @@ class settlement:
         shopping list app soon -->
         <h3>Settlement Notes</h3>
 
-        <form id="autoForm" method="POST" action="#settlement_notes">
+        <form method="POST" action="#settlement_notes">
             <input type="hidden" name="modify" value="settlement" />
             <input type="hidden" name="asset_id" value="$settlement_id" />
             <textarea onchange="this.form.submit()"id="settlement_notes" name="settlement_notes" placeholder="Additional settlement notes">$settlement_notes</textarea>
@@ -2234,7 +2234,7 @@ class settlement:
          <hr/>
          $locations
 
-        <form id="autoForm" method="POST" action="#edit_locations">
+        <form method="POST" action="#edit_locations">
         <input type="hidden" name="modify" value="settlement" />
         <input type="hidden" name="asset_id" value="$settlement_id" />
          $locations_add
@@ -2246,7 +2246,7 @@ class settlement:
                     <!-- INNOVATIONS - HAS ITS OWN FORM-->
 
         <a id="edit_innovations" class="mobile_only"/></a>
-        <form id="autoForm" method="POST" action="#edit_innovations">
+        <form method="POST" action="#edit_innovations">
         <input type="hidden" name="modify" value="settlement" />
         <input type="hidden" name="asset_id" value="$settlement_id" />
         <div id="block_group">
@@ -2263,7 +2263,7 @@ class settlement:
                     <!-- PRINCIPLES - HAS ITS OWN FORM-->
 
         <a id="edit_principles" class="mobile_only"></a>
-        <form id="autoForm" method="POST" action="#edit_principles">
+        <form method="POST" action="#edit_principles">
         <input type="hidden" name="modify" value="settlement" />
         <input type="hidden" name="asset_id" value="$settlement_id" />
         <div id="block_group">
@@ -2283,7 +2283,7 @@ class settlement:
                        <!-- MILESTONES - HAS ITS OWN FORM-->
 
         <a id="edit_milestones" class="mobile_only"/></a>
-        <form id="autoForm" method="POST" action="#edit_milestones">
+        <form method="POST" action="#edit_milestones">
         <input type="hidden" name="modify" value="settlement" />
         <input type="hidden" name="asset_id" value="$settlement_id" />
         <div id="block_group">
@@ -2301,7 +2301,7 @@ class settlement:
                     <!-- QUARRIES - HAS ITS OWN FORM-->
 
         <a id="edit_quarries"/>
-        <form id="autoForm" method="POST" action="#edit_quarries">
+        <form method="POST" action="#edit_quarries">
         <input type="hidden" name="modify" value="settlement" />
         <input type="hidden" name="asset_id" value="$settlement_id" />
 
@@ -2318,7 +2318,7 @@ class settlement:
 
                     <!-- NEMESIS MONSTERS -->
         <a id="edit_nemeses"/>
-        <form id="autoForm" method="POST" action="#edit_nemeses">
+        <form method="POST" action="#edit_nemeses">
         <input type="hidden" name="modify" value="settlement" />
         <input type="hidden" name="asset_id" value="$settlement_id" />
 
@@ -2333,7 +2333,7 @@ class settlement:
                     <!-- DEFEATED MONSTERS: HAS ITS OWN FORM -->
 
         <a id="edit_defeated_monsters"/>
-        <form id="autoForm" method="POST" action="#edit_defeated_monsters">
+        <form method="POST" action="#edit_defeated_monsters">
         <input type="hidden" name="modify" value="settlement" />
         <input type="hidden" name="asset_id" value="$settlement_id" />
 
@@ -2360,7 +2360,7 @@ class settlement:
             <br>
              <button class="incrementer" onclick="increment('lanternYearBox');">+</button>
 
-            <form id="autoForm" method="POST" action="#edit_timeline">
+            <form method="POST" action="#edit_timeline">
             <input type="hidden" name="modify" value="settlement" />
             <input type="hidden" name="asset_id" value="$settlement_id" />
             <input id="lanternYearBox" onchange="this.form.submit()" class="big_number_square" type="number" name="lantern_year" value="$lantern_year" min="0"/>
@@ -2379,7 +2379,7 @@ class settlement:
                     <!-- LOST SETTLEMENTS HAS ITS OWN FORM-->
         <div class="block_group">
             <a id="edit_lost_settlements" class="mobile_only"></a>
-            <form id="autoForm" method="POST" action="#edit_lost_settlements">
+            <form method="POST" action="#edit_lost_settlements">
             <input type="hidden" name="modify" value="settlement" />
             <input type="hidden" name="asset_id" value="$settlement_id" />
 
@@ -2401,7 +2401,7 @@ class settlement:
         <hr/>
 
         <h3>Players</h3>
-        <form id="autoForm" method="POST" action="#edit_expansions">
+        <form method="POST" action="#edit_expansions">
             <input type="hidden" name="modify" value="settlement" />
             <input type="hidden" name="asset_id" value="$settlement_id" />
             $player_controls
@@ -2436,7 +2436,7 @@ class settlement:
             <span class="closeModal" onclick="closeModal('modalStorage')">×</span>
 
                 <!-- ADD TO STORAGE - THIS IS ITS OWN FORM-->
-            <form id="autoForm" method="POST" action="#edit_storage">
+            <form method="POST" action="#edit_storage">
                 <input type="hidden" name="modify" value="settlement" />
                 <input type="hidden" name="asset_id" value="$settlement_id" />
 
@@ -2465,7 +2465,7 @@ class settlement:
     <form action="#" method="POST" onsubmit="return confirm('Press OK to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever. Please note that this CANNOT BE UNDONE and is not the same as marking a settlement Abandoned. Consider abandoning old settlements rather than removing them, as this allows data about the settlement to be used in general kdm-manager stats.');"><input type="hidden" name="remove_settlement" value="$settlement_id"/><button class="full_width error">Permanently Delete Settlement</button></form>
     """)
     expansions_block_slug = Template("""\n\
-    <form id="autoForm" method="POST" action="#edit_lost_settlements">
+    <form method="POST" action="#edit_lost_settlements">
         <input type="hidden" name="modify" value="settlement" />
         <input type="hidden" name="asset_id" value="$settlement_id" />
         <p>
@@ -2477,8 +2477,8 @@ class settlement:
     \n""")
 
     location_level_controls = Template("""\n\
-    $location_name - Lvl 
-    <form id="autoForm" method="POST" action="#edit_locations" class="location_level">
+    $location_name - Lvl
+    <form method="POST" action="#edit_locations" class="location_level">
         <input type="hidden" name="modify" value="settlement" />
         <input type="hidden" name="asset_id" value="$settlement_id" />
         <select class="location_level" name="location_level_$location_name" onchange="this.form.submit()">
@@ -2952,70 +2952,27 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
     output += meta.start_head
 
     output += """\n\
+    <!-- android mobile desktop/app stuff -->
     <link rel="manifest" href="/manifest.json">
+
+    <!-- fucking jquery's dumb ass -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script> 
 
     <!-- angular app -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular.min.js"></script>
     <script src="http://code.angularjs.org/1.5.3/angular-route.min.js"></script> 
     <script src="/kdm-manager.js"></script>
+    \n"""
 
-    <!-- auto-save stuff -->
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
-    <script src="http://malsup.github.com/jquery.form.js"></script>
-
+    output += """\n\
     <script>
-
-        $(document).ready(function() {
-
-            $('#saved_dialog').hide();
-
-            $('#autoForm').ajaxForm(function() {
-                $('#saved_dialog').show();
-                $('#saved_dialog').fadeOut(1500)
-            });
-
-            $('.autoFormChild').ajaxForm(function() {
-                 $('#saved_dialog').show();
-                 $('#saved_dialog').fadeOut(1500)
-            });
-
-        });
-
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-71038485-1', 'auto');
+      ga('send', 'pageview');
     </script>
-    \n"""
-
-
-    output += """\n\
-        <script>
-        function toggleDamage(elem_id, asset_id) {
-            document.getElementById(elem_id).classList.toggle("damage_box_checked");
-
-            var toggle_key = document.getElementById(elem_id);
-
-        var http = new XMLHttpRequest();
-        http.open("POST", "/", true);
-        http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-        var params =  toggle_key.name + "=checked" + "&modify=survivor" +"&asset_id=" + asset_id + "&norefresh=True";
-        http.send(params);
-
-        $('#saved_dialog').show();
-        $('#saved_dialog').fadeOut(1500)
-
-        }
-        </script>
-
-    \n"""
-
-
-    output += """\n\
-        <script>
-          (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-          })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-          ga('create', 'UA-71038485-1', 'auto');
-          ga('send', 'pageview');
-        </script>
     \n"""
 
     for element in head:

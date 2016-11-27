@@ -4,6 +4,7 @@ import json
 from datetime import datetime, timedelta
 from optparse import OptionParser
 
+import api
 import assets
 import game_assets
 import html
@@ -34,19 +35,6 @@ def survivor_html(s, item=False):
 #   What follows are all methods for working with API data
 #
 
-def api_world():
-    """ This method, which can be run in the clear from anywhere, retrieves JSON
-    from the API /world route and turns it into a dict. """
-
-    settings = load_settings()
-    w_url = settings.get("application","api_url") + "world"
-    r = requests.get(w_url)
-    if r.status_code == 200:
-       return dict(r.json())
-    else:
-        logger = get_logger()
-        logger.warn("API call failed. Response status code: %s" % (r.status_code))
-        return None
 
 def api_top_principles(p):
     """ Custom function to render top principles as html. """
@@ -244,7 +232,7 @@ if __name__ == "__main__":
     parser.add_option("-q", dest="query", help="Query a specific world value", default=False, metavar="avg_courage")
     (options, args) = parser.parse_args()
 
-    w = api_world()
+    w = api.route_to_dict("world")
 
     if options.query:
         print w["world"][options.query]

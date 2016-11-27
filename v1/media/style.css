@@ -52,6 +52,7 @@ span.campaign_summary_gradient {border-bottom: 3px solid #FFE082;}
 .survival_limit_style {background-color: #B49F75; border: 0.1em solid #C1B290; color: #FFF; border-radius: 0.1em; font-weight: bold; padding: 0.3em;}
 .card_gradient {background: radial-gradient(circle, #EEDEBE, #F3EBD4, #F9F2EF);  border: 2px solid #E6DECC;}
 .disorder_card_gradient {background: radial-gradient(circle, #111,#333,#666); color: #fff; border: 2px solid #000;}
+.disorder_flavor_text {font-style: italic; }
 
     /* KD color emulation */
 .affinity_red {background-color: #CD2027; color: #fff; }

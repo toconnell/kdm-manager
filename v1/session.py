@@ -115,10 +115,11 @@ class Session:
             return False
 
         self.api_survivors = {}
-        for s in self.api_settlement["survivors"]:
+        for s in self.api_settlement["user_assets"]["survivors"]:
             s_dict = json.loads(s)
-            _id = ObjectId(s_dict["_id"]["$oid"])
+            _id = ObjectId(s_dict["sheet"]["_id"]["$oid"])
             self.api_survivors[_id] = s_dict
+
 
 
     def recover_password(self):
