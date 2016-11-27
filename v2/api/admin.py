@@ -1,6 +1,8 @@
 #!/usr/bin/python2.7
 
 
+from collections import Counter
+
 from optparse import OptionParser
 import os
 import sys
@@ -200,12 +202,29 @@ class KillboardMaintenance:
             time.sleep(1)
 
 
+def COD_histogram():
+    """ Dumps a CLI histogram of survivor causes of death (for R&D purposes,
+    mainly, but also useful in verifying world stats. """
+
+    the_dead = utils.mdb.survivors.find({"dead": {"$exists": True}, "cause_of_death": {"$exists": True}})
+    cod_list = []
+    for s in the_dead:
+        cod_list.append(s["cause_of_death"])
+    c = Counter(cod_list)
+    for c in c.most_common():
+        print "%s|%s" % (c[1],c[0].encode('utf-8').strip())
+
+
 if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("-f", dest="force", action="store_true", default=False, help="Skips interactive pauses.")
     parser.add_option("-o", dest="others", action="store_true", default=False, help="Dump killboard entries whose handle is 'other'. Requires -K flag.")
     parser.add_option("-K", dest="killboard", action="store_true", default=False, help="Clean up the Killboard.")
+    parser.add_option("--cod_histogram", dest="cod_histo", action="store_true", default=False, help="Dump a histogram of causes of death.")
     (options, args) = parser.parse_args()
+
+    if options.cod_histo:
+        COD_histogram()
 
     if options.killboard:
         K = KillboardMaintenance(force=options.force)
