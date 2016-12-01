@@ -14,6 +14,7 @@ class Assets(Models.AssetCollection):
         manually add a "meta" style key to indicate their release date. """
 
         self.assets = campaigns.campaign_definitions
+        self.type = "campaign_definition"
 
 
 class Campaign(Models.GameAsset):

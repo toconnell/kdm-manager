@@ -39,12 +39,20 @@ class AssetCollection():
     self.assets dict (preferably in their __init__() method). """
 
     def __init__(self):
-        """ Initialize with a blank self.assets dict. """
-        self.assets = {}
+        """ sets misc attributes of the collection's assets dict. """
+        self.logger = utils.get_logger()
+        for a in self.assets.keys():
+            self.assets[a]["handle"] = a
+            if hasattr(self, "type"):
+                self.assets[a]["type"] = self.type
 
     def get_handles(self):
         """ Dumps all asset handles, i.e. the list of self.assets keys. """
         return self.assets.keys()
+
+    def get_names(self):
+        """ Dumps all asset 'name' attributes, i.e. a list of name values. """
+        return [self.assets[k]["name"] for k in self.assets.keys()]
 
     def get_asset(self, handle):
         """ Return an asset dict based on a handle. Return None if the handle

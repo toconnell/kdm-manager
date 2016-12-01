@@ -768,7 +768,7 @@ class Survivor:
         try:
             self.api_asset = self.Session.api_survivors[self.survivor["_id"]]["sheet"]
         except Exception as e:
-            self.logger.error("[%s] could not set API asset for %s!" % (self.User, self))
+            self.logger.error("[%s] could not set API asset for %s! Current view: '%s'" % (self.User, self, self.Session.session["current_view"]))
             pass
 
 
@@ -1490,7 +1490,6 @@ class Survivor:
         if asset_type == "abilities_and_impairments":
             if asset_key not in Abilities.get_keys():
                 self.survivor["abilities_and_impairments"].remove(asset_key)
-                return True
             elif asset_key in Abilities.get_keys():
                 asset_dict = Abilities.get_asset(asset_key)
                 self.survivor["abilities_and_impairments"].remove(asset_key)
@@ -1506,9 +1505,9 @@ class Survivor:
                             self.survivor["affinities"][k] -= 1
 
                 mdb.survivors.save(self.survivor)
-                return True
-            else:
-                return False
+
+        # do this after removing game assets from survivors
+        self.Settlement.validate_weapon_masteries()
 
 
     def toggle(self, toggle_key, toggle_value, toggle_type="implicit"):
@@ -1802,9 +1801,15 @@ class Survivor:
 
         if return_type == "html":
             list_of_names = []
+
             for s_id in partners:
-                S = Survivor(survivor_id=s_id, session_object=self.Session)
-                list_of_names.append(S.survivor["name"])
+                try:
+                    S = Survivor(survivor_id=s_id, session_object=self.Session)
+                    list_of_names.append(S.survivor["name"])
+                except Exception as e:
+                    self.logger.exception(e)
+                    self.logger.warn("[%s] intimacy partner '%s' for %s could not be initialized!" % (self.User, s_id, self))
+                    list_of_names.append("Unknown/Removed survivor")
             output = ", ".join(sorted(list_of_names))
             if list_of_names != []:
                 return "<p>%s</p>" % output
@@ -2988,6 +2993,7 @@ class Survivor:
 
 class Settlement:
 
+
     def __repr__(self):
         return self.get_name_and_id()
 
@@ -3020,7 +3026,7 @@ class Settlement:
         settlement's attribs if necessary.
 
         There's also some misc. house-keeping that happens here, e.g. changing
-        lists to sets (since MDB doesn't support sets), etc.
+        sets to lists (since MDB doesn't support sets), etc.
 
         This one should be called FREQUENTLY, as it enforces the data model and
         sanitizes the settlement object's settlement dict.
@@ -3054,10 +3060,17 @@ class Settlement:
         """ Tries to set the settlement's API asset from the session. Fails
         gracefully if it cannot. """
 
-        self.api_asset = {}
-        if not hasattr(self.Session, "api_settlement"):
-            return None
-        self.api_asset = self.Session.api_settlement
+        cv = self.Session.get_current_view()
+
+        if cv != "dashboard" and not hasattr(self.Session, "api_settlement"):
+            self.logger.error("[%s] session has no API settlement asset!" % (self.User))
+
+        if cv != "dashboard":
+            if not hasattr(self.Session, "api_settlement"):
+                self.Session.set_api_assets()
+            self.api_asset = self.Session.api_settlement
+            if not "game_assets" in self.api_asset.keys():
+                self.logger.error("[%s] API asset for %s does not contain a 'game_assets' key!" % (self.User, self))
 
 
     def get_api_asset(self, asset_type="sheet", asset_key=None):
@@ -3065,11 +3078,14 @@ class Settlement:
         gracefully. Settlement assets are more information-rich than survivor
         assets, so there's more conditional navigation here. """
 
+        if not hasattr(self, "api_asset"):
+            self.set_api_asset()
+
         if asset_key is None:
             return {}
         elif not asset_type in self.api_asset.keys():
-            self.logger.warn("[%s] asset type '%s' not found in API asset for %s" % (self.User, asset_type, self))
-            self.logger.debug("[%s] available API asset_types for %s: %s" % (self.User, self, self.api_asset.keys()))
+            self.logger.warn("[%s] asset type '%s' not found in API asset for %s. Current view: '%s'" % (self.User, asset_type, self, self.Session.session["current_view"]))
+            self.logger.debug("[%s] available API asset_types for %s: %s" % (self.User, self, self.api_asset))
             return {}
         elif not asset_key in self.api_asset[asset_type]:
             self.logger.warn("[%s] asset key '[%s][%s]' not found in API asset for %s" % (self.User, asset_type, asset_key, self))
@@ -3426,6 +3442,36 @@ class Settlement:
         return "'%s' (%s)" % (self.settlement["name"], self.settlement["_id"])
 
 
+    def get_available_weapon_masteries(self):
+        """ Uses the settlement's API asset to return a list of available weapon
+        mastery names. """
+
+        available = []
+        for k,v in self.get_api_asset("game_assets","weapon_masteries").iteritems():
+            available.append(v["name"])
+        return available
+
+
+    def validate_weapon_masteries(self):
+        """ Checks the possible weapon masteries the settlement might have and,
+        if any of them are among the settlement["innovations"], makes sure that
+        a survivor still has the mastery. If there are no survivors with the
+        mastery, auto-remove the mastery from settlement["innovations"]. """
+
+        survivor_weapon_masteries = []
+        for weapon_mastery in self.get_available_weapon_masteries():
+            for survivor in self.get_survivors():
+                if weapon_mastery in survivor["abilities_and_impairments"]:
+                    survivor_weapon_masteries.append(weapon_mastery)
+
+        for weapon_mastery in self.get_available_weapon_masteries():
+            if weapon_mastery in self.settlement["innovations"]:
+                if weapon_mastery not in survivor_weapon_masteries:
+                    self.logger.debug("""[%s] weapon mastery '%s' is in settlement["innovations"] for %s, but not present on any survivor's A&I attribute.. Updating settlement...""" % (self.User, weapon_mastery, self))
+                    self.rm_game_asset("innovations", weapon_mastery)
+                    self.log_event("Automatically removed '%s' weapon mastery from settlement Innovations, since no survivor possesses the mastery." % (weapon_mastery))
+
+
     def get_attribute(self, attrib=None):
         """ Returns the settlement attribute associated with 'attrib'. Using this
         is preferable to going straight to self.settlement[attrib] because we do
@@ -3483,7 +3529,7 @@ class Settlement:
                 return True
 
         self.settlement["innovations"].append(mastery_string)
-        self.log_event("%s has mastered %s!" % (master, weapon))
+        self.log_event("%s has become a %s master!" % (master, weapon))
         self.log_event("'%s' added to settlement Innovations!" % mastery_string)
         self.logger.debug("[%s] added '%s' to %s Innovations! (Survivor: %s)" % (self.User, mastery_string, self, master))
         mdb.settlements.save(self.settlement)
@@ -5000,6 +5046,60 @@ class Settlement:
             pass
 
 
+    def remove_item_from_storage(self, quantity=1, item_name=None):
+        """ Removes an item from storage by name or handle 'quantity' number of
+        times. Logs it. """
+
+        # normalize/duck-type
+        quantity = int(quantity)
+
+        # try to remove 'quantity' items. fail gracefully if you can't.
+        if item_name is not None:
+            self.logger.debug("[%s] is removing '%s' from %s settlement storage..." % (self.User, item_name, self))
+            rm_candidates = []
+            for i in self.settlement["storage"]:
+                if i.upper() == item_name.upper():
+                    rm_candidates.append(i)
+            if rm_candidates == []:
+                self.logger.error("[%s] attempted to remove '%s' from settlement storage, but no items matching that name could be found!" % (self.User, item_name))
+            else:
+                for i in range(quantity):
+                    self.settlement["storage"].remove(rm_candidates[0])
+                self.log_event("%s removed %s '%s' item(s) from settlement storage." % (self.User.user["login"], quantity, item_name))
+                self.logger.debug("[%s] removed %s '%s' item(s) from settlement storage." % (self.User, quantity, item_name))
+
+
+
+    def add_item_to_storage(self, quantity=1, item_name=None):
+        """ Adds 'quantity' of an item (by name or handle) to settlement
+        storage using the self.add_game_asset method, which has nice logging and
+        normalization.
+
+        We might end up moving that normalization here, as this
+        one gets built out to suppor thandles."""
+
+        self.add_game_asset("storage", item_name, quantity)
+
+
+
+    def update_settlement_storage(self, update_from=None, params=None):
+        """ Updates settlement storage. Capable of accepting several different
+        inputs and doing a few operations at once. """
+
+
+        if update_from == "html_form" and params is not None:
+            if "remove_item" in params:
+                self.remove_item_from_storage(1, params["remove_item"].value)
+            elif "add_item" in params and "add_item_quantity" in params:
+                self.add_item_to_storage(params["add_item_quantity"].value, params["add_item"].value)
+            elif "add_item" in params and not "add_item_quantity" in params:
+                self.add_item_to_storage(1, params["add_item"].value)
+            else:
+                self.logger.warn("[%s] submitted un-actionable form input to update_settlement_storage()" % self.User)
+                self.logger.debug(params)
+
+
+
     def update_location_level(self, location_name, lvl):
         """ Changes 'location_name' level to 'lvl'. """
         self.logger.debug("[%s] Location '%s' level update initiated by %s..." % (self, location_name, self.User))
@@ -5365,8 +5465,11 @@ class Settlement:
 
             for i in range(int(game_asset_quantity)):
                 self.settlement[asset_class].append(game_asset_key)
-            self.logger.info("'%s' appended '%s' x%s to settlement '%s' (%s) storage." % (self.User.user["login"], game_asset_key, game_asset_quantity, self.settlement["name"], self.settlement["_id"]))
+
+            self.log_event("%s added '%s' x%s to settlement storage." % (self.User.user["login"], game_asset_key, game_asset_quantity))
+            self.logger.info("[%s] added '%s' x%s to settlement %s." % (self.User, game_asset_key, game_asset_quantity, self))
             return True
+
 
         # done with storage. processing other asset types
         exec "Asset = %s" % asset_class.capitalize()
@@ -5399,7 +5502,8 @@ class Settlement:
 
 #        exec "Asset = %s" % asset_class.capitalize()   # this isn't necessary yet
         self.settlement[asset_class].remove(game_asset_key)
-        self.logger.debug("%s removed asset '%s' from settlement '%s' (%s) successfully!" % (self.User.user["login"], game_asset_key, self.settlement["name"], self.settlement["_id"]))
+        self.logger.debug("[%s] removed asset '%s' from settlement '%s'" % (self.User, game_asset_key, self))
+        self.log_event("%s removed '%s' from settlement %s." % (self.User.user["login"], game_asset_key, asset_class))
         mdb.settlements.save(self.settlement)
 
 
@@ -5410,7 +5514,11 @@ class Settlement:
         All of the business logic lives here.
         """
 
-        ignore_keys = ["norefresh", "asset_id", "modify", "add_item_quantity"]
+        ignore_keys = [
+            "norefresh", "asset_id", "modify",
+            "add_item_quantity", "rm_item_quantity",
+            "male_survivors","female_survivors", "bulk_add_survivors",
+        ]
 
         for p in params:
 
@@ -5435,11 +5543,8 @@ class Settlement:
                 self.settlement["nemesis_monsters"][params[p].value] = []
             elif p == "increment_nemesis":
                 self.increment_nemesis(game_asset_key)
-            elif p == "add_item" and not "remove_item" in params:
-                self.add_game_asset("storage", game_asset_key, params["add_item_quantity"].value)
-            elif p == "remove_item" and not "add_item" in params:
-                self.settlement["storage"].remove(game_asset_key)
-                self.logger.debug("%s removed %s from settlement %s storage" % (self.User.get_name_and_id(), game_asset_key, self.get_name_and_id()))
+            elif p in ["add_item","remove_item"]:
+                self.update_settlement_storage("html_form", params)
             elif p == "add_innovation":
                 self.add_game_asset("innovations", game_asset_key)
             elif p == "remove_innovation":
@@ -5588,6 +5693,7 @@ class Settlement:
         self.update_mins()
 
         # user preferences determine if the timeline controls are visible
+        #   this will all go away in the timeline refactor
         if self.User.get_preference("hide_timeline"):
             timeline_controls = "none"
         else:
@@ -5598,11 +5704,7 @@ class Settlement:
         if "abandoned" in self.settlement.keys():
             abandoned = '<h1 class="alert">ABANDONED</h1>'
 
-        # expansions
-        exp = []
-        if "expansions" in self.settlement.keys():
-            exp = self.settlement["expansions"]
-
+        # show the settlement rm button if the user prefers
         rm_button = ""
         if self.User.get_preference("show_remove_button"):
             rm_button = html.settlement.remove_settlement_button.safe_substitute(settlement_id=self.settlement["_id"])
@@ -5632,7 +5734,10 @@ class Settlement:
 #           deprecated old UI
 #            items_options = Items.render_as_html_dropdown_with_divisions(recently_added=self.get_recently_added_items()),
             storage = self.get_storage("html_buttons"),
-            add_to_storage_controls = Items.render_as_html_multiple_dropdowns(recently_added=self.get_recently_added_items(), expansions=exp),
+            add_to_storage_controls = Items.render_as_html_multiple_dropdowns(
+                recently_added=self.get_recently_added_items(),
+                expansions=self.get_expansions(),
+            ),
 
             principles_controls = self.get_principles("html_controls"),
             principles_rm = self.get_principles("html_select_remove"),

@@ -2,7 +2,7 @@
 
 from flask import request, Response
 
-from models import monster
+from models import monsters
 import utils
 
 logger = utils.get_logger(log_name="server")
@@ -20,9 +20,9 @@ def GET_json():
 
     try:
         if m_handle is not None:
-            M = monster.Monster(handle=m_handle)
+            M = monsters.Monster(handle=m_handle)
         elif m_name is not None:
-            M = monster.Monster(name=m_name)
+            M = monsters.Monster(name=m_name)
         else:
             return utils.http_404
     except:

@@ -15,6 +15,7 @@ class Assets(Models.AssetCollection):
         release date, so when we initialize an asset dict from expansions.py, we
         manually add a "meta" style key to indicate their release date. """
 
+        self.type = "expansion_definition"
         self.assets = expansions.mar_2016_expansions
         for asset in self.assets:
             self.assets[asset]["__released__"] = datetime(2016,3,14)

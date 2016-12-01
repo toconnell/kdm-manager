@@ -1331,7 +1331,7 @@ class survivor:
                     type="number"
                     class="survivor_sheet_attrib_controls_number"
                     ng-model="base_value"
-                    value="{{raw_base}}"
+                    value="$base_value"
                     onClick="this.select()"
                     ng-change="refresh('$long_name', 'base')"
                     />
@@ -1364,7 +1364,7 @@ class survivor:
                     type="number"
                     class="survivor_sheet_attrib_controls_number"
                     ng-model="gear_value"
-                    value="{{raw_gear}}"
+                    value="$gear_value"
                     onClick="this.select()"
                     ng-change="refresh('$long_name', 'gear')"
                     />
@@ -1393,7 +1393,7 @@ class survivor:
                       id="tokens_value_$controls_id"
                       class="survivor_sheet_attrib_controls_number"
                       type="number"
-                      value="{{raw_tokens}}"
+                      value="$tokens_value"
                       onClick="this.select()"
                       ng-model="tokens_value"
                       ng-change="refresh('$long_name', 'tokens')"
@@ -2162,32 +2162,81 @@ class settlement:
         <hr />
 
 
-        <!-- BULK ADD is a form and needs a refresh -->
+        <!-- BULK ADD is a form and needs a refresh/reload -->
 
-        <form method="POST" action="#">
-            <input type="hidden" name="modify" value="settlement" />
-            <input type="hidden" name="asset_id" value="$settlement_id" />
 
         <h3>Bulk Add New Survivors</h3>
         <div id="bulk_add_survivors">
             <div class="bulk_add_control">
-                Male
-                <button type="button" class="incrementer" onclick="increment('maleCountBox');">+</button>
-                <input id="maleCountBox" class="big_number_square" type="number" name="male_survivors" value="0" min="0"/>
-                <button type="button" class="decrementer" onclick="decrement('maleCountBox');">-</button>
-            </div>
+                <form method="POST" action="#">
+                    <input type="hidden" name="modify" value="settlement" />
+                    <input type="hidden" name="asset_id" value="$settlement_id" />
+                    <input type="hidden" name="bulk_add_survivors" value="True" />
+
+                    Male
+
+                    <button
+                        type="button"
+                        class="incrementer"
+                        onclick="increment('maleCountBox');"
+                    >
+                        +
+                    </button>
+                    <input
+                        id="maleCountBox"
+                        class="big_number_square"
+                        type="number"
+                        name="male_survivors"
+                        value="0"
+                        min="0"
+                    />
+                    <button
+                        type="button"
+                        class="decrementer"
+                        onclick="decrement('maleCountBox');"
+                    >
+                        -
+                    </button>
+            </div>  <!-- bulk_add_control maleCoundBox" -->
             <div class="bulk_add_control">
+
                 Female
-                <button type="button" class="incrementer" onclick="increment('femaleCountBox');">+</button>
-                <input id="femaleCountBox" class="big_number_square" type="number" name="female_survivors" value="0" min="0"/>
-                <button type="button" class="decrementer" onclick="decrement('femaleCountBox');">-</button>
+
+                <button
+                    type="button"
+                    class="incrementer"
+                    onclick="increment('femaleCountBox');"
+                >
+                    +
+                </button>
+                <input
+                    id="femaleCountBox"
+                    class="big_number_square"
+                    type="number"
+                    name="female_survivors"
+                    value="0"
+                    min="0"
+                />
+                <button
+                    type="button"
+                    class="decrementer"
+                    onclick="decrement('femaleCountBox');"
+                >
+                    -
+                </button>
             </div>
 
             <a id="settlement_notes" class="mobile_only"></a>
 
-            <input type="submit" id="settlement_sheet_create_new_survivors" class="survival_limit_style" value="Create New Survivors" />
+            <input
+                type="submit"
+                id="settlement_sheet_create_new_survivors"
+                class="survival_limit_style" value="Create New Survivors"
+            />
+
         </div> <!-- bulk_add_survivors -->
         </form>
+
 
         <hr/>
 
@@ -2209,19 +2258,27 @@ class settlement:
 
 
                     <!-- REMOVE FROM STORAGE - THIS IS ITS OWN FORM-->
+        <div id="block_group">
+        <h2>Storage</h2>
+        <p>Gear and Resources may be stored without limit.<br/><br/>
+        <button id="modalStorageButton" class="yellow bold">+ Add Item to Storage</button>
+        <br><br class="desktop_only">
+        <a id="edit_storage" class="mobile_only"/></a>
+
         <form method="POST" action="#edit_storage">
             <input type="hidden" name="modify" value="settlement" />
             <input type="hidden" name="asset_id" value="$settlement_id" />
+            $storage
             <button id="remove_item" class="hidden" style="display: none" name="remove_item" value="" /> </button>
-            <div id="block_group">
-            <h2>Storage</h2>
-            <p>Gear and Resources may be stored without limit.<br/><br/>
-                <button id="modalStorageButton" class="yellow bold">+ Add Item to Storage</button><br><br class="desktop_only">
-            <a id="edit_storage" class="mobile_only"/></a>
-                $storage
         </form>
 
-     </div></div> <!-- asset_management_left_pane -->
+        </div>
+    </div> <!-- asset_management_left_pane -->
+
+
+    <!-- END LEFT PANE -->
+
+
     <div id="asset_management_middle_pane">
 
                     <!-- LOCATIONS - THIS HAS ITS OWN FORM  -->
@@ -2356,7 +2413,8 @@ class settlement:
         <a id="edit_timeline" class="mobile_only"><br/><br/><br/></a>
         <h2 class="clickable timeline_show_hide" onclick="showHide('timelineBlock')">LY $lantern_year - View Timeline <img class="dashboard_down_arrow" src="http://media.kdm-manager.com/icons/down_arrow_white.png"/> </h2>
         <div id="timelineBlock" class="block_group timeline_block_group collapsing_block_group" style="display: $display_timeline;">
-         <div class="big_number_container left_margin">
+
+            <div class="big_number_container left_margin">
             <br>
              <button class="incrementer" onclick="increment('lanternYearBox');">+</button>
 
@@ -2369,8 +2427,11 @@ class settlement:
          </div>
          <div class="big_number_caption""><br>Lantern Year</div>
         <p id="timeline_tooltip">Tap or click a Lantern Year number below to mark it complete (and end it).</p>
+
         <hr>
-         $timeline
+
+        $timeline
+
         </div> <!-- timelineBlock -->
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/python2.7
 
 
-from assets import cursed_items
+from assets import abilities_and_impairments
 import Models
 import utils
 
@@ -9,6 +9,6 @@ import utils
 class Assets(Models.AssetCollection):
 
     def __init__(self, *args, **kwargs):
-        self.assets = cursed_items.items
-        self.type = "cursed_item"
+        self.assets = abilities_and_impairments.weapon_specializations
+        self.type = "weapon_specialization"
         Models.AssetCollection.__init__(self,  *args, **kwargs)

@@ -9,7 +9,7 @@ import sys
 import time
 
 import utils
-from models import monster
+from models import monsters
 
 
 
@@ -222,6 +222,7 @@ if __name__ == "__main__":
     parser.add_option("-K", dest="killboard", action="store_true", default=False, help="Clean up the Killboard.")
     parser.add_option("--cod_histogram", dest="cod_histo", action="store_true", default=False, help="Dump a histogram of causes of death.")
     (options, args) = parser.parse_args()
+
 
     if options.cod_histo:
         COD_histogram()

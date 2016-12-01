@@ -12,7 +12,6 @@ class Assets(Models.AssetCollection):
 
         self.assets = innovations.innovations
         for a in self.assets.keys():
-            self.assets[a]["handle"] = a
             if "principle" in self.assets[a].keys():
                 self.assets[a]["__type__"] = "principle"
             else:

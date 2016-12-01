@@ -64,8 +64,6 @@ class Session:
                 user_object = mdb.users.find_one({"current_session": session_id})
                 self.User = assets.User(user_object["_id"], session_object=self)
                 self.set_current_settlement()
-                self.set_api_assets()
-
 
     def new(self, login):
         """ Creates a new session. Only needs a valid user login.
@@ -95,31 +93,54 @@ class Session:
 
 
     def set_api_assets(self):
-        """ Sets self.api dictionaries required by the current session. """
+        """ Sets self.api dictionaries required by the current session. There's
+        a lot of sensitivity to order of operations and back-offs and nested
+        try/except stuff here, so read it carefully before you start hacking.
+        Odds are good that if there's something odd, I did it for a reason."""
 
         # don't get data from the API unless we need to.
-        if self.session["current_view"] not in ["view_settlement","view_survivor","view_campaign"]:
+        if self.session["current_view"] not in ["view_settlement","view_survivor","view_campaign","event_log","new_survivor","new_settlement"]:
             return None
 
-        if not hasattr(self, "current_settlement") or type(self.current_settlement) != ObjectId:
-            self.api={"settlement":{}, "survivors":{}}
+        # try to set the self.current_settlement attrib to be a valid ObjectId
+        if self.get_current_view() is None:
+            self.logger.debug("[%s] session has no 'current_settlement'. Returning API as None." % (self.User))
             return None
+        elif "current_settlement" in self.session.keys():
+            try:
+                self.current_settlement = ObjectId(self.session["current_settlement"])
+            except Exception as e:
+                self.logger.error("[%s] could not set current settlement for session!")
+                self.logger.exception(e)
+                raise
 
+        # now dial the API; fail noisily if we can't get it
         self.api_settlement = api.route_to_dict(
             "settlement/get/%s" % self.current_settlement,
             authorize=True
         )
-
         if self.api_settlement == {}:
             self.logger.error("[%s] could not retrieve settlement from API server!" % self.User)
             return False
 
+        # now, assuming we're still here, initialize the survivor assets
         self.api_survivors = {}
         for s in self.api_settlement["user_assets"]["survivors"]:
             s_dict = json.loads(s)
             _id = ObjectId(s_dict["sheet"]["_id"]["$oid"])
             self.api_survivors[_id] = s_dict
 
+
+    def get_current_view(self):
+        """ Returns current view as a string. Also sets the attribute. """
+
+        if hasattr(self, "current_view"):
+            return self.current_view
+        elif "current_view" in self.session.keys():
+            self.current_view = self.session["current_view"]
+            return self.current_view
+        else:
+            return None
 
 
     def recover_password(self):
@@ -188,8 +209,12 @@ class Session:
         object. If you haven't got one of those, this func will back off to the
         current session's mdb object and try to set it from there.
         """
+
         if settlement_id:
             self.session["current_settlement"] = settlement_id
+
+        # retrieve the settlement from the API first
+        self.set_api_assets()
 
         if self.session is not None:
             if "current_settlement" in self.session.keys():

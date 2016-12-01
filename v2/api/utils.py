@@ -62,6 +62,7 @@ def authorize(req):
     except:
         return False
 
+
 # laziness and DRYness methods
 
 def cli_dump(key, spacer, value):

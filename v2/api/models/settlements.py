@@ -4,7 +4,7 @@ from bson import json_util
 import json
 
 import Models
-from models import campaigns, expansions, cursed_items, survivors
+from models import cursed_items, survivors, weapon_specializations, weapon_masteries
 import settings
 import utils
 
@@ -15,7 +15,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.2
+        self.object_version=0.3
         Models.UserAsset.__init__(self,  *args, **kwargs)
 
 
@@ -33,11 +33,15 @@ class Settlement(Models.UserAsset):
         # create user_assets
         output.update({"user_assets": {}})
         output["user_assets"].update({"players": self.get_players()})
+        self.survivor_weapon_masteries = []
         output["user_assets"].update({"survivors": self.get_survivors()})
+        output["user_assets"].update({"survivor_weapon_masteries": self.survivor_weapon_masteries})
 
         # great game_assets
         output.update({"game_assets": {}})
-        output["game_assets"].update({"cursed_items": self.get_cursed_items()})
+        output["game_assets"].update(self.get_available_assets(weapon_specializations))
+        output["game_assets"].update(self.get_available_assets(weapon_masteries))
+        output["game_assets"].update(self.get_available_assets(cursed_items))
 
         return json.dumps(output, default=json_util.default)
 
@@ -66,10 +70,15 @@ class Settlement(Models.UserAsset):
         """ Returns a dictionary of survivors where the keys are bson ObjectIDs
         and the values are serialized survivors. """
 
+        wm = weapon_masteries.Assets()
+
         output = []
         all_survivors = utils.mdb.survivors.find({"settlement": self.settlement["_id"]})
         for s in all_survivors:
             S = survivors.Survivor(_id=s["_id"])
+            for ai in S.survivor["abilities_and_impairments"]:
+                if ai in wm.get_names():
+                    self.survivor_weapon_masteries.append(ai)
             output.append(S.serialize())
         return output
 
@@ -125,18 +134,19 @@ class Settlement(Models.UserAsset):
         return expansions
 
 
-    def get_cursed_items(self):
-        """ Returns a dictionary of cursed items available to a settlement.
-        Should probably be customizable to include campaign, but maybe later.
-        """
+    def get_available_assets(self, asset_module=None):
+        """ Generic function to return a dict of available game assets based on
+        their family. The 'asset_module' should be something such as,
+        'cursed_items' or 'weapon_proficiencies', etc. that has an Assets()
+        method. """
 
         available = {}
-        all_cursed_items = cursed_items.Assets()
-        for k in all_cursed_items.assets.keys():
-            item_dict = all_cursed_items.assets[k]
+        A = asset_module.Assets()
+        for k in A.get_handles():
+            item_dict = A.get_asset(k)
             if self.is_compatible(item_dict):
                 available.update({item_dict["handle"]: item_dict})
-        return available
+        return {"%s" % (asset_module.__name__.split(".")[-1]): available}
 
 
     def is_compatible(self, asset_dict):

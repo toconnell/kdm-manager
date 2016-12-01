@@ -22,7 +22,7 @@ import time
 # local imports
 from assets import world as world_assets
 from models import innovations as innovations_models
-from models import monster as monster_models
+from models import monsters as monster_models
 from models import expansions as expansions_models
 from models import settlements as settlements_models
 import settings

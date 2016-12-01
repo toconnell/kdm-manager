@@ -32,6 +32,7 @@ application.logger.addHandler(utils.get_logger(log_name="server"))
 #
 
 
+
 # default route - landing page, vanity URL stuff
 @application.route("/")
 def index():
