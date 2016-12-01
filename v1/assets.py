@@ -3062,10 +3062,10 @@ class Settlement:
 
         cv = self.Session.get_current_view()
 
-        if cv != "dashboard" and not hasattr(self.Session, "api_settlement"):
+        if cv not in ["dashboard","panel"] and not hasattr(self.Session, "api_settlement"):
             self.logger.error("[%s] session has no API settlement asset!" % (self.User))
 
-        if cv != "dashboard":
+        if cv not in ["dashboard","panel"]:
             if not hasattr(self.Session, "api_settlement"):
                 self.Session.set_api_assets()
             self.api_asset = self.Session.api_settlement
