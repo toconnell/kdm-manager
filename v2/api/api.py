@@ -14,8 +14,12 @@ import settings
 import world
 import utils
 
+
+# models
+from models import settlements, survivors
+
 # routes
-from routes import monster, survivor, settlement, cursed_items
+from routes import monster, cursed_items
 
 # create the flask app with settings/utils info
 application = Flask(__name__)
@@ -57,35 +61,28 @@ def cursed_items_json():
             return utils.http_401
         return cursed_items.POST_available()
 
-@application.route("/settlement/get/<settlement_id>", methods=["POST"])
+@application.route("/settlement/get/<settlement_id>", methods=["POST","GET"])
 def get_settlement(settlement_id):
-    """ Dumps a settlement's complete record, including all supported supplement
-    dictionaries, methods, etc. """
-
-    S = settlement.init_settlement(settlement_id)
-    if type(S) == Response:
-        return S
-    return Response(response=S.serialize(), status=200, mimetype="application/json")
+    """ Dumps a serialized settlement, to include all assets, etc."""
+    S = settlements.Settlement(_id=settlement_id)
+    return S.http_response()
 
 @application.route("/survivor/get/<survivor_id>", methods=["POST"])
 def get_survivor(survivor_id):
     """ Dumps a survivor's MDB document. """
+    S = survivors.Survivor(_id=survivor_id)
+    return S.http_response()
 
-    S = survivor.init_survivor(survivor_id)
-    if type(S) == Response:
-        return S
-    return Response(response=S.serialize(), status=200, mimetype="application/json")
-
-@application.route("/survivor/update/<survivor_id>", methods=["POST"])
-def update_survivor(survivor_id):
-    """ You need to be authorized to do this, i.e. post a key in the JSON. """
-
-    if not utils.authorize(request):
-        return utils.http_401
-    S = survivor.init_survivor(survivor_id)
-    if type(S) == Response:
-        return S
-    return survivor.POST_to_mdb(S)
+#@application.route("/survivor/update/<survivor_id>", methods=["POST"])
+#def update_survivor(survivor_id):
+#    """ You need to be authorized to do this, i.e. post a key in the JSON. """
+#
+#    if not utils.authorize(request):
+#        return utils.http_401
+#    S = survivor.init_survivor(survivor_id)
+#    if type(S) == Response:
+#        return S
+#    return survivor.POST_to_mdb(S)
 
 
 

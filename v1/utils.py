@@ -173,7 +173,7 @@ class mailSession:
         time.sleep(0.75)
 
 
-    def send(self, recipients=["toconnell@tyrannybelle.com"], html_msg='This is a <b>test</b> message!', subject="KDM-Manager!"):
+    def send(self, reply_to=None, recipients=["toconnell@tyrannybelle.com"], html_msg='This is a <b>test</b> message!', subject="KDM-Manager!"):
         """ Generic Emailer. Accepts a list of 'recipients', a 'msg' string and a
         sender name (leave undefinied to use admin@kdm-manager.com). """
 
@@ -182,6 +182,10 @@ class mailSession:
         msg['From'] = author
         msg['Subject'] = subject
         msg['To'] = recipients[0]
+
+        if reply_to is not None:
+            msg.add_header('reply-to', reply_to)
+
         msg.attach(MIMEText(html_msg,'html'))
 
         self.server.sendmail(self.no_reply, recipients, msg.as_string())
@@ -233,6 +237,17 @@ def get_latest_update_string():
             return e
     else:
         return None
+
+#
+#   instrumentation
+#
+
+def record_response_time(view_name=None, tdelta=None):
+    """ Records request response times in mdb. """
+    if not settings.getboolean("application","record_response_times"):
+        return True
+    mdb.response_times.insert({"created_on": datetime.now(),"view":view_name,"time":tdelta.total_seconds()})
+
 
 
 if __name__ == "__main__":

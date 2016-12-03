@@ -1443,6 +1443,13 @@ item_normalization_exceptions = {
 
 
 items = {
+    "Black Friday Lantern": {
+        "expansion": "White Box",
+        "location": "Promo",
+        "desc": "On <b>Arrival</b> (at the start of the showdown), you may archive this and Ambush the monster. Limit, once per campaign.",
+        "attributes": {"Evasion": 1},
+        "type": ["item","lantern","other"],
+    },
     "Jack O' Lantern": {
         "expansion": "White Box",
         "location": "Gear Recipe",
@@ -3911,6 +3918,7 @@ potstars_constellation = {
 expansions = {
     "Beta Challenge Scenarios": {
         "subtitle": "Enables abilities & impairments, disorders, items etc. included in the Beta Challenge Scenarios.",
+        "enforce_survival_limit": False,
         "special_rules": [
         {"name": "Survival Limit Warning!", "desc": "Survival Limit is not automatically enforced by the Manager when Beta Challenge Scenarios content is enabled.", "bg_color": "F87217", "font_color": "FFF"},
         ],

@@ -364,7 +364,7 @@ class dashboard:
 
 
 class survivor:
-    no_survivors_error = '<!-- No Survivors Found! --> <div class="no_survivors_error"><p>Use the navigation menu controls in the upper left to add new survivors!</p></div>'
+    no_survivors_error = '<!-- No Survivors Found! --> <div class="user_asset_sheet_error"><p>Use the navigation menu controls in the upper left to add new survivors!</p></div>'
     new = Template("""\n\
     <span class="tablet_and_desktop nav_bar survivor_sheet_gradient"></span>
     <span class="mobile_only nav_bar_mobile survivor_sheet_gradient"></span>
@@ -581,6 +581,7 @@ class survivor:
                         type="number"
                         name="survival" value="$survival"
                         min="0"
+                        max="$survival_max"
                         onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
                     />
                     <button
@@ -1813,100 +1814,17 @@ class settlement:
     </div> <!-- create_new_asset_form_container -->
     \n""" % (render_campaign_toggles(), render_checkboxes("expansions"), render_checkboxes("survivors"))
 
-    return_hunting_party_with_confirmation = Template("""\n\
-        <form action="#" method="POST" onsubmit="return confirm('Press OK to return all Departing Survivors, heal all wounds, remove all armor points, attribute tokens and gear modifiers, increment Hunt XP +1 and add the current quarry to the Defeated Monsters list as well as the settlement timeline for this year.');">
-            <input type="hidden" name="return_hunting_party" value="$settlement_id"/>
-            <button id="return_hunting_party" class="bold yellow" >&#8629; Return Departing Survivors</button>
-        </form>
-    \n""")
-    return_hunting_party = Template("""\n\
-        <form action="#" method="POST">
-            <input type="hidden" name="return_hunting_party" value="$settlement_id"/>
-            <button id="return_hunting_party" class="bold gradient_orange" >&#8629; Return Departing Survivors</button>
-        </form>
-    \n""")
     current_quarry_select = Template("""\n\
-    <br class="clear_both"/>
-    <h3>Current Quarry:</h3>
-    <form action="#" method="POST">
-        <input type="hidden" name="modify" value="settlement"/>
-        <input type="hidden" name="asset_id" value="$settlement_id"/>
-        <select class="hunting_party_current_quarry" name="current_quarry" onchange="this.form.submit()">
-          <option>None</option>
-            $options
-        </select>
-    </form>
-    <br class="clear_both mobile_only" />
-    <hr/>
-    \n""")
-    hunting_party_macros = Template("""\n\
-    <br class="mobile_only">
-    <hr class="mobile_only">
-    <button class="orange bold" id="departingSurvivorsModal">Manage Departing Survivors</button>
-    <hr class="mobile_only">
-
-    <div
-        id="departingSurvivorsModalContent" class="modal"
-        ng-init="registerModalDiv('departingSurvivorsModal','departingSurvivorsModalContent')"
+    <h3 class="return_departing_survivors_modal">Current Quarry:</h3>
+    <select
+        id="set_departing_survivors_current_quarry"
+        class="hunting_party_current_quarry"
+        name="current_quarry"
+        onchange="updateAssetAttrib(this, 'settlement', '$settlement_id')"
     >
-     <div class="modal-content">
-     <span class="closeModal" onclick="closeModal('departingSurvivorsModalContent')">x</span>
-
-      <div class="hunting_party_macro" style="border-left: 0 none;">
-        <form action="#" method="POST">
-            <input type="hidden" name="modify" value="settlement"/>
-            <input type="hidden" name="asset_id" value="$settlement_id"/>
-            <input type="hidden" name="hunting_party_operation" value="survival"/>
-            Survival
-            <button name="operation" value="increment">+1</button>
-            <button name="operation" value="decrement">-1</button>
-        </form>
-      </div>
-      <div class="hunting_party_macro">
-        <form action="#" method="POST">
-            <input type="hidden" name="modify" value="settlement"/>
-            <input type="hidden" name="asset_id" value="$settlement_id"/>
-            <input type="hidden" name="hunting_party_operation" value="Brain Event Damage"/>
-            Brain Event Damage
-            <button name="operation" value="increment">+1</button>
-        </form>
-      </div>
-        <hr class="invisible mobile_only"/>
-      <div class="hunting_party_macro">
-        <form action="#" method="POST">
-            <input type="hidden" name="modify" value="settlement"/>
-            <input type="hidden" name="asset_id" value="$settlement_id"/>
-            <input type="hidden" name="hunting_party_operation" value="Insanity"/>
-            Insanity
-            <button name="operation" value="increment">+1</button>
-            <button name="operation" value="decrement">-1</button>
-        </form>
-      </div>
-      <div class="hunting_party_macro">
-        <form action="#" method="POST">
-            <input type="hidden" name="modify" value="settlement"/>
-            <input type="hidden" name="asset_id" value="$settlement_id"/>
-            <input type="hidden" class="clear_both" name="hunting_party_operation" value="Courage"/>
-            Courage
-            <button name="operation" value="increment">+1</button>
-            <button name="operation" value="decrement">-1</button>
-        </form>
-      </div>
-        <hr class="invisible mobile_only"/>
-      <div class="hunting_party_macro">
-        <form action="#" method="POST">
-            <input type="hidden" name="modify" value="settlement"/>
-            <input type="hidden" name="asset_id" value="$settlement_id"/>
-            <input type="hidden" name="hunting_party_operation" value="Understanding"/>
-            Understanding
-            <button name="operation" value="increment">+1</button>
-            <button name="operation" value="decrement">-1</button>
-        </form>
-      </div>
-    <!-- departingSurvivorsModalContent continues... -->
-
+        $options
+    </select>
     \n""")
-    hunting_party_macros_footer = "\t</div><!-- modal-content -->\n  </div> <!-- departingSurvivorsModalContent -->\n"
     storage_warning = Template(""" onclick="return confirm('Remove $item_name from Settlement Storage?');" """)
     storage_remove_button = Template("""\n\
     \t<button $confirmation id="remove_item" name="remove_item" value="$item_key" style="background-color: #$item_color; color: #$item_font_color;"> $item_key_and_count </button>
@@ -1933,9 +1851,11 @@ class settlement:
     \n""")
     event_log = Template("""\n\
         <span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
-        <span class="nav_bar_mobile mobile_only" settlement_sheet_gradient></span>
+        <span class="nav_bar_mobile mobile_only settlement_sheet_gradient"></span>
         <a id="event_log"><span class="top_nav_spacer mobile_only"> hidden </span></a>
+
         <h1 class="settlement_name_event_log"> $settlement_name Event Log</h1>
+
         $log_lines
         <a id="genealogy"><br/></a>
         <hr class="mobile_only"/>
@@ -2038,8 +1958,116 @@ class settlement:
                 $nemesis_monsters
             </div>
         </div> <!-- campaign_summary_facts_box -->
+
+    <div class="campaign_summary_bottom_spacer"> </div>
+
     </div> <!-- campaign_summary_panels_container -->
+
+
+
+    <!-- MODAL CONTENT ONLY BELOW HERE -->
+
+
+    <button class="manage_departing_survivors $show_departing_survivors_management_button" id="departingSurvivorsModalOpener">Manage <b>Departing</b> Survivors</button>
+
+    <div
+        id="departingSurvivorsModalContent" class="modal"
+        ng-init="registerModalDiv('departingSurvivorsModalOpener','departingSurvivorsModalContent')"
+    >
+        <div class="modal-content survivor_sheet_gradient">
+        <span class="closeModal" onclick="closeModal('departingSurvivorsModalContent')">x</span>
+        <h3>Modify Departing Survivors</h3>
+        <div class="hunting_party_macro" style="border-left: 0 none;">
+          <form action="#" method="POST">
+            <input type="hidden" name="modify" value="settlement"/>
+            <input type="hidden" name="asset_id" value="$settlement_id"/>
+            <input type="hidden" name="hunting_party_operation" value="survival"/>
+            <p>Survival</p>
+            <button name="operation" value="increment">+1</button>
+            <button name="operation" value="decrement">-1</button>
+        </form>
+      </div>
+      <div class="hunting_party_macro">
+        <form action="#" method="POST">
+            <input type="hidden" name="modify" value="settlement"/>
+            <input type="hidden" name="asset_id" value="$settlement_id"/>
+            <input type="hidden" name="hunting_party_operation" value="Brain Event Damage"/>
+            <p>Brain Event Damage</p>
+            <button name="operation" value="increment">+1</button>
+        </form>
+      </div>
+        <hr class="invisible mobile_only"/>
+      <div class="hunting_party_macro">
+        <form action="#" method="POST">
+            <input type="hidden" name="modify" value="settlement"/>
+            <input type="hidden" name="asset_id" value="$settlement_id"/>
+            <input type="hidden" name="hunting_party_operation" value="Insanity"/>
+            <p>Insanity</p>
+            <button name="operation" value="increment">+1</button>
+            <button name="operation" value="decrement">-1</button>
+        </form>
+      </div>
+      <div class="hunting_party_macro">
+        <form action="#" method="POST">
+            <input type="hidden" name="modify" value="settlement"/>
+            <input type="hidden" name="asset_id" value="$settlement_id"/>
+            <input type="hidden" class="clear_both" name="hunting_party_operation" value="Courage"/>
+            <p>Courage</p>
+            <button name="operation" value="increment">+1</button>
+            <button name="operation" value="decrement">-1</button>
+        </form>
+      </div>
+      <hr class="invisible mobile_only"/>
+      <div class="hunting_party_macro">
+        <form action="#" method="POST">
+            <input type="hidden" name="modify" value="settlement"/>
+            <input type="hidden" name="asset_id" value="$settlement_id"/>
+            <input type="hidden" name="hunting_party_operation" value="Understanding"/>
+            <p>Understanding</p>
+            <button name="operation" value="increment">+1</button>
+            <button name="operation" value="decrement">-1</button>
+        </form>
+      </div>
+
+        <hr/>
+
+        $current_quarry_controls
+
+        <hr/>
+        <div class="departing_survivors_modal_return_container">
+            <h3 class="return_departing_survivors_modal" >Return Departing Survivors</h3>
+
+            <form
+                action="/"
+                method="POST"
+                onsubmit="return confirm('Press OK to return all Departing Survivors. This will automatically do the following for each living Departing Survivor: \\r - Remove them from the Departing Survivors group \\r - Mark them as a returning survivor during the upcoming Lantern Year \\r - Uncheck all hit location boxes \\r - Remove all armor points \\r - Remove all attribute tokens and gear modifiers \\r - Increment Hunt XP by +1 \\r - Increment Hunt XP by +4 for Saviors \\r \\rReturning Departing Survivors will also: \\r Add the current quarry to the Defeated Monsters list \\r Add the current quarry to the settlement timeline for this year \\r Update the settlement Event Log');"
+            >
+                <input type="hidden" name="return_departing_survivors" value="victory"/>
+                <input type="hidden" name="asset_id" value="$settlement_id"/>
+                <button class="success return_departing_survivors">Victorious!</button>
+            </form>
+
+            <hr/>
+
+            <form
+                action="/"
+                method="POST"
+                onsubmit="return confirm('Press OK to return all Departing Survivors. This will automatically do the following for each Departing Survivor: \\r - Remove them from the Departing Survivors group \\r - Uncheck all hit location boxes \\r - Remove all armor points \\r - Remove all attribute tokens and gear modifiers \\r \\rReturning Departing Survivors will also: \\r Add the current quarry to the settlement timeline for this year \\ Update the settlement Event Log ');"
+            >
+                <input type="hidden" name="return_departing_survivors" value="defeat"/>
+                <input type="hidden" name="asset_id" value="$settlement_id"/>
+                <button class="error return_departing_survivors">Defeated...</button>
+            </form>
+
+
+            <br/><br/>
+        </div>
+
+        </div> <!-- modal-content -->
+    </div> <!-- modalDepartingSurvivors whole deal-->
+
     \n""" % dashboard.campaign_flash)
+
     form = Template("""\n\
     <span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
     <span class="nav_bar_mobile mobile_only settlement_sheet_gradient"></span>
@@ -2323,10 +2351,9 @@ class settlement:
         <form method="POST" action="#edit_principles">
         <input type="hidden" name="modify" value="settlement" />
         <input type="hidden" name="asset_id" value="$settlement_id" />
-        <div id="block_group">
+        <div id="block_group" class="settlement_sheet_block_group">
          <h2>Principles</h2>
-         <p>The settlement's established principles.</p>
-        <hr/>
+         <p class="block_group_subhead">The settlement's established principles.</p>
 
         $principles_controls
         $principles_rm
@@ -2553,7 +2580,7 @@ class settlement:
     <label for="$handle" class="radio_principle_label">$key</label>
     <p> &ensp; <font class="kdm_font">g</font> <b>$story_event</b> (p.$story_page) </p>
     \n""")
-    principles_all_hidden_warning = '<p>(Update settlement Milestones to show controls for adding Settlement Principles.)</p>'
+    principles_all_hidden_warning = '<div class="user_asset_sheet_error"><p>Update settlement Milestones to show controls for adding Settlement Principles.</p></div>'
     principle_radio = Template("""\n
         <input onchange="this.form.submit()" type="radio" id="$handle" class="radio_principle" name="principle_$principle_key" value="$option" $checked /> 
         <label class="radio_principle_label" for="$handle"> $option </label>
@@ -2679,8 +2706,8 @@ class meta:
 
     basic_http_header = "Content-type: text/html\n\n"
     basic_file_header = "Content-Disposition: attachment; filename=%s\n"
-    error_500 = Template('%s<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>%s</title></head><body><h1>500 - Internal Server Error</h1><hr/><p>$msg</p><hr/><p>Please report all issues at <a href="https://github.com/toconnell/kdm-manager/issues">https://github.com/toconnell/kdm-manager/issues</a><br/><br/>Use the information below to report the error:</p><hr/><p>%s</p>$exception' % (basic_http_header, settings.get("application","title"), datetime.now()))
-    start_head = '<!DOCTYPE html>\n<html ng-app="kdmManager" ng-controller="globalController">\n<head>\n<meta charset="UTF-8">\n<meta name="theme-color" content="#000000">\n<title>%s</title>\n<link rel="stylesheet" type="text/css" href="/style.css">\n' % settings.get("application","title")
+    error_500 = Template('%s<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>%s</title></head><body><h1>500 - Internal Server Error</h1><hr/><p>$msg</p>$params<hr/><p>Please report all issues at <a href="https://github.com/toconnell/kdm-manager/issues">https://github.com/toconnell/kdm-manager/issues</a><br/><br/>Use the information below to report the error:</p><hr/><p>%s</p><h2>Traceback:</h2>$exception' % (basic_http_header, settings.get("application","title"), datetime.now()))
+    start_head = '<!DOCTYPE html>\n<html ng-app="kdmManager" ng-controller="globalController">\n<head>\n<meta charset="UTF-8">\n<meta name="theme-color" content="#000000">\n<title>%s</title>\n<link rel="stylesheet" type="text/css" href="/media/style.css">\n' % settings.get("application","title")
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
     saved_dialog = '\n    <div id="saved_dialog" class="success hidden">Saved!</div>'
     mobile_hr = '<hr class="mobile_only"/>'
@@ -3022,7 +3049,7 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
     <!-- angular app -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular.min.js"></script>
     <script src="http://code.angularjs.org/1.5.3/angular-route.min.js"></script> 
-    <script src="/kdm-manager.js"></script>
+    <script src="/media/kdm-manager.js"></script>
     \n"""
 
     output += """\n\

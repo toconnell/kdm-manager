@@ -159,6 +159,21 @@ def ls_documents(collection, sort_on="created_on"):
     if collection == "users":
         sort_on = "latest_activity"
 
+    if collection == "response_times":
+        print("\n\t  View\t\t    Avg. response time\t    Max response time\n")
+        for a in mdb.response_times.aggregate([
+            {
+                "$group": {
+                  "_id": "$view",
+                  "avg_time": { "$avg": "$time" },
+                  "max_time": { "$max": "$time" }
+                }
+            }
+        ]):
+            print "\t%s\t\t%s\t\t%s" % (a["_id"],a["avg_time"],a["max_time"])
+        print("")
+        return True
+
     for d in mdb[collection].find().sort(sort_on):
         output = " "
         if sort_on in d.keys():

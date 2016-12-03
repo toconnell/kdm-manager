@@ -3,6 +3,7 @@
 core = [
     "Black Rock",
     "Beacon",
+    "Deadrock",
     "Death Heim",
     "Death Mountain",
     "Ember",

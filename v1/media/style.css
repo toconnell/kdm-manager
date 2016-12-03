@@ -54,6 +54,8 @@ span.campaign_summary_gradient {border-bottom: 3px solid #FFE082;}
 .disorder_card_gradient {background: radial-gradient(circle, #111,#333,#666); color: #fff; border: 2px solid #000;}
 .disorder_flavor_text {font-style: italic; }
 
+button.manage_departing_survivors {border-radius: 10px; border: 0.1em solid #5F4213; background-color: #8C6D49; color:#fff; border-bottom: 0.2em solid #5F4213; }
+
     /* KD color emulation */
 .affinity_red {background-color: #CD2027; color: #fff; }
 .affinity_blue {background-color: #1C99CD; color: #fff; }
@@ -287,7 +289,10 @@ h3.new_asset {clear: left; text-align: center; display: block; }
 hr.new_asset {margin-top: 20px; margin-bottom: 20px; }
 
 /* campaign summary styles */
-div.no_survivors_error {border: 2px solid #aa0000; margin: 2% auto; padding: 1%; display: block;}
+button#departingSurvivorsModalOpener {position: fixed; bottom: 20px; width: 90%; left: 1%; }
+button.manage_departing_survivors {border-radius: 10px; border: 0.1em solid #5F4213; background-color: #8C6D49; color:#fff; border-bottom: 0.2em solid #5F4213; }
+div.campaign_summary_bottom_spacer {display: block; clear: both; height: 200px; }
+div.user_asset_sheet_error {background-color: #FF0040; color: #fff; margin: 5%; padding: 1%; display: block; border-radius:10px; font-family: Arial; padding-top: 1px; padding-bottom: 1px; }
 div#campaign_summary_campaign_type {color: #777; margin-top: -50px; text-align:center; }
 .hunting_party_macro {float: left; padding: 3px; text-align: left; width: 95%; margin: 0 auto; border-bottom: 3px solid #999; font-size: 30pt;}
 .hunting_party_macro button {width: 125px;}
@@ -478,7 +483,7 @@ hr.invisible {border: 0 none; }
 
 /* generic UI/UX facilitation styles */
 .no_border {border: 0 none; }
-.hidden {display: none; }
+.False, .hidden {display: none; }
 .strikethrough {text-decoration: line-through; }
 
 
@@ -546,6 +551,8 @@ h2 {border: 5px solid; }
 #block_group h2, h3 {border: 0 none; }
 .collapsing_block_group {margin: 0px; margin-left: 20px; margin-top: -35px; z-index: -10; border-top: 0px; width: 95%; }
 .collapsing_block_group button#remove_item {margin-left: 45px; }
+
+p.block_group_subhead {border-bottom: 1px solid #999; margin: 0; padding-left: 5%; padding-bottom: 2%;}
 
 
 .shield, .survivor_hit_box {border: 3px solid #000; }
@@ -823,7 +830,10 @@ right connector from last child*/
     div#asset_management_left_pane select { font-size: 17pt; }
     div#asset_management_left_pane p.subhead_p_block {font-size: 16pt; color: #333; margin-bottom: 10px; }
     div#asset_management_left_pane input {height: auto; width: auto; }
+
     div#asset_management_middle_pane {float: right; width: 580px; clear: right; margin-top: 115px; }
+    div#asset_management_middle_pane div.settlement_sheet_block_group {display: flex; flex-direction: column;}
+    div.settlement_sheet_block_group div.user_asset_sheet_error {width: auto; margin: 3%; margin-top: 50px;}
 
     div#asset_management_right_pane {clear: both; }
 
@@ -935,7 +945,7 @@ right connector from last child*/
     
 
     /* Campaign Summary Styles - tablet */
-    div.no_survivors_error {width: 350px; float: left; margin-right: 5%; margin-left: 2%;}
+    div.user_asset_sheet_error {width: 350px; float: left; margin-right: 5%; margin-left: 2%;}
 
     div.campaign_summary_headline_container {position: relative; margin: 0 auto; margin-top: 80px; padding: 0; }
     h1.settlement_name { display: inline-block; margin: 0 auto; margin-left: 10px; font-size: 40pt; }
@@ -948,9 +958,9 @@ right connector from last child*/
     div.campaign_summary_survivors {width: 505px; padding-top: 0px; min-height: 800px; }
     div.campaign_summary_facts_box {width: 445px;}
 
-        /* survivor controls and hunting party management */
+        /* survivor controls and hunting party management - tablet */
     button.add_survivor_to_party { font-size: 25pt; height: 50px; width: 50px; padding: 0px; }
-    button#departingSurvivorsModal {position: absolute; top: 120px; right: 7px; padding: 20px; width: 360px; }
+    button#departingSurvivorsModalOpener {position: absolute; top: 120px; right: 7px; left: auto; bottom: auto; padding: 20px; width: 360px; }
     .hunting_party_macro {float: left; padding: 3px; text-align: center; width: 200px; font-size: 27px; margin-left: 10px; margin-bottom: 10px; border: 0px; }
     .hunting_party_macro button {width: 90%; margin: 3px; }
     #hunting_party_macro_container {width: 100%; padding: 0; margin: 0 auto; text-align: center; }
@@ -963,6 +973,7 @@ right connector from last child*/
     div.survivor_constellation_badge {font-size: 15pt; right: auto; left: 34%; margin-top: -20px; padding-top: 3px; }
 
     /* Settlement Sheet styles - tablet */
+    p.settlement_sheet_principles_hidden_warning {margin: 0 auto; clear: both; margin-bottom: 4%;}
     div#asset_management_left_pane input.settlement_name {font-size: 60px; width: 800px; text-align: left; margin-left: 25px; }
     button#modalStorageButton {margin: 0 auto; margin-left: 14px; }
     p#campaign_type {margin-top: -125px; margin-bottom: -5px; }
@@ -1167,7 +1178,7 @@ right connector from last child*/
     button.add_survivor_to_party {font-size: 18pt; width: 35px; height: 35px; padding: 0px; }
     button#survivor_campaign_asset {width: 400px; }
     img.survivor_avatar_image_campaign_summary {width: 125px; height: auto; float: right; margin: 0; margin-left: 4px; }
-    button#departingSurvivorsModal {position: absolute; top: 210px; left: 170px; right: auto; margin: 0 auto; width: 300px; padding: 10px;  }
+    button#departingSurvivorsModalOpener {position: absolute; top: 210px; left: 170px; right: auto; margin: 0 auto; width: 300px; padding: 10px;  }
 
         /* right panel */
     div.campaign_summary_special_rule {font-size: 11pt;}
@@ -1177,12 +1188,13 @@ right connector from last child*/
     div.campaign_summary_facts_box ul {margin: 0 auto; margin-top: 5px; margin-bottom: 10px; } 
     div.campaign_summary_small_box { width: auto; border: 2px solid #000; padding: 5px; margin-bottom: 10px; }
 
-        /* modal panel departing survivors */
-    div#departingSurvivorsModalContent div.modal-content {width: 600px; }
-    .hunting_party_macro {width: 100px; font-size: 13px; margin-left: 10px; margin-bottom: 10px; border: 0px; clear: left; }
+        /* modal panel departing survivors - wide */
+    div#departingSurvivorsModalContent div.modal-content {width: 600px;  }
+    div#departingSurvivorsModalContent div.hunting_party_macro {width: 300px; font-size: 16px; margin-left: 150px; margin-bottom: 10px; border: 0px; clear: left; text-align: right;  }
+    div#departingSurvivorsModalContent div.hunting_party_macro p {text-align: left; float: left;}
+    div#departingSurvivorsModalContent div.hunting_party_macro button {width: 50px; }
     select.hunting_party_current_quarry {width: auto; }
-    button#return_hunting_party {width: 50%; margin: 0 auto; }
-
+    div#departingSurvivorsModalContent button.return_departing_survivors {width: 50%; margin: 0 auto; }
 
     /* wide settlement sheet styles */
     div.settlement_form_wide_box { float: left; width: 100px; height: 180px; margin: 0 auto; margin-left: 10px; margin-right: 5px; margin-bottom: 10px; padding-top: 0; display: flex; flex-direction: column-reverse; flex-flow: row-wrap;}
@@ -1283,6 +1295,9 @@ right connector from last child*/
     img.icon {width: 14px; }
     div#asset_management_middle_pane div#block_group { min-height: 200px; }
 
+    div#asset_management_middle_pane div.settlement_sheet_block_group {padding-bottom: 0; }
+    div.settlement_sheet_block_group div.user_asset_sheet_error {margin-top: 20px; margin-bottom: 0;}
+
      /* wide right pane */
     p.survivor_sheet_game_asset_tip {width: auto;}
     div#asset_management_right_pane {width: 340px; }
@@ -1312,6 +1327,7 @@ right connector from last child*/
     ul#epithet_angular_ul li {margin: 1%; padding-left: 5px; padding-right: 5px; }
 
     div.modal-content div.bulk_add_control button {width: 67px; }
+    div.modal-content div.big_number_container .incrementer, div.modal-content div.big_number_container .decrementer {width: 80px; }
     .shield, .big_number_square {font-size: 17pt; height: 55px; width: 45px; padding: 0; padding-left: 15px; border: 1px solid #666; margin: 5px; clear: both; }
     div#survivor_dead_retired_container {position: relative; width: 350px; height: 40px; padding: 0px; margin: 0 auto;}
     div#survivor_dead_retired_container label {font-size: 14pt; margin-bottom: 10px; }

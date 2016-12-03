@@ -2,16 +2,21 @@
 
 #   standard
 import cgi, cgitb
+from datetime import datetime
+from flask import Response
 import os
 
 #   custom
 import admin
 import html
 from session import Session
-from utils import load_settings, mdb, get_logger
+from utils import load_settings, mdb, get_logger, record_response_time
 
 
 if __name__ == "__main__":
+
+    start = datetime.now()
+
     settings = load_settings()
     logger = get_logger()
     if settings.getboolean("application","DEBUG"):
@@ -34,12 +39,12 @@ if __name__ == "__main__":
     elif S.session is None and "recover_password" in params:
         output = S.recover_password()
     else:
-        S.process_params(user_action="viewing %s" % S.session["current_view"])
-        try:
-            output, body = S.current_view_html()
-        except TypeError:
-            msg = "Caught exception while rendering index!"
-            logger.critical(msg)
-            output = "Could not create '%s' view for '%s' (session: %s)" % (S.session["current_view"], S.User.user["login"], S.session["_id"])
+        S.process_params(user_action="viewing %s" % S.get_current_view())
+        if "norefresh" in params:
+            print Response(response="OK",status=200)
+        output, body = S.current_view_html()
+
+    stop = datetime.now()
+    record_response_time(S.get_current_view(), stop-start)
 
     html.render(output, body_class=body, session_object=S)

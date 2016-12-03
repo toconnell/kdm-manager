@@ -20,6 +20,51 @@ from utils import mdb, get_logger, get_user_agent, load_settings, ymd, ymdhms, m
 
 settings = load_settings()
 
+
+#
+#   decorators for Session() methods to help users report exceptions
+#
+
+def current_view_failure(func):
+    """ Decorates the Session.current_view() method below, handling render
+    failures according to our usability design. """
+
+    def wrapper(self=None, *args, **kwargs):
+        try:
+            return func(self, *args, **kwargs)
+        except Exception as e:
+            err_msg = "Caught exception while rendering current view for %s!" % self.User
+            self.logger.error(err_msg)
+            self.logger.exception(e)
+            if not self.User.is_admin():
+                self.log_out()
+            tb = traceback.format_exc().replace("    ","&ensp;").replace("\n","<br/>")
+            print html.meta.error_500.safe_substitute(msg=err_msg, exception=tb)
+            sys.exit(255)
+
+    return wrapper
+
+
+def process_params_failure(func):
+    """ Decorates the Session.process_params() method below, handling parameter
+    processing errors in a way that encourages users to report. """
+
+    def wrapper(self=None, *args, **kwargs):
+        try:
+            return func(self, *args, **kwargs)
+        except Exception as e:
+            err_msg = "Caught exception while processing parameters for %s!" % self.User
+            self.logger.error(err_msg)
+            self.logger.exception(e)
+            if not self.User.is_admin():
+                self.log_out()
+            tb = traceback.format_exc().replace("    ","&ensp;").replace("\n","<br/>")
+            print html.meta.error_500.safe_substitute(msg=err_msg, exception=tb, params=str(self.params))
+            sys.exit(255)
+
+    return wrapper
+
+
 class Session:
     """ The properties of a Session object are these:
 
@@ -63,7 +108,13 @@ class Session:
             if self.session is not None:
                 user_object = mdb.users.find_one({"current_session": session_id})
                 self.User = assets.User(user_object["_id"], session_object=self)
-                self.set_current_settlement()
+
+
+    def log_out(self):
+        """ For when the session needs to kill itself. """
+        self.logger.debug("Ending session for '%s' via admin.remove_session()." % self.User.user["login"])
+        admin.remove_session(self.session["_id"], "admin")
+
 
     def new(self, login):
         """ Creates a new session. Only needs a valid user login.
@@ -92,52 +143,17 @@ class Session:
         return session_id   # passes this back to the html.create_cookie_js()
 
 
-    def set_api_assets(self):
-        """ Sets self.api dictionaries required by the current session. There's
-        a lot of sensitivity to order of operations and back-offs and nested
-        try/except stuff here, so read it carefully before you start hacking.
-        Odds are good that if there's something odd, I did it for a reason."""
-
-        # don't get data from the API unless we need to.
-        if self.session["current_view"] not in ["view_settlement","view_survivor","view_campaign","event_log","new_survivor","new_settlement"]:
-            return None
-
-        # try to set the self.current_settlement attrib to be a valid ObjectId
-        if self.get_current_view() is None:
-            self.logger.debug("[%s] session has no 'current_settlement'. Returning API as None." % (self.User))
-            return None
-        elif "current_settlement" in self.session.keys():
-            try:
-                self.current_settlement = ObjectId(self.session["current_settlement"])
-            except Exception as e:
-                self.logger.error("[%s] could not set current settlement for session!")
-                self.logger.exception(e)
-                raise
-
-        # now dial the API; fail noisily if we can't get it
-        self.api_settlement = api.route_to_dict(
-            "settlement/get/%s" % self.current_settlement,
-            authorize=True
-        )
-        if self.api_settlement == {}:
-            self.logger.error("[%s] could not retrieve settlement from API server!" % self.User)
-            return False
-
-        # now, assuming we're still here, initialize the survivor assets
-        self.api_survivors = {}
-        for s in self.api_settlement["user_assets"]["survivors"]:
-            s_dict = json.loads(s)
-            _id = ObjectId(s_dict["sheet"]["_id"]["$oid"])
-            self.api_survivors[_id] = s_dict
-
 
     def get_current_view(self):
         """ Returns current view as a string. Also sets the attribute. """
 
-        if hasattr(self, "current_view"):
-            return self.current_view
-        elif "current_view" in self.session.keys():
+        if self.session is None:
+            return "sign-in / none"
+
+        if "current_view" in self.session.keys():
             self.current_view = self.session["current_view"]
+            return self.current_view
+        elif hasattr(self, "current_view"):
             return self.current_view
         else:
             return None
@@ -202,38 +218,101 @@ class Session:
         return html.login.form + msg
 
 
-    def set_current_settlement(self, settlement_id=False):
-        """ Tries (hard) to set the current settlement.
+    def set_current_settlement(self, settlement_id=None):
+        """ Tries (hard) to set the following attributes of a sesh:
+
+            - self.current_settlement
+            - self.session["current_settlement"]
+            - self.Settlement.
 
         The best way is to use the 'settlement_id' kwarg and feed an ObjectId
         object. If you haven't got one of those, this func will back off to the
         current session's mdb object and try to set it from there.
+
+        The API asset for the current settlement is also retrieved here prior to
+        initializing self.Settlement (which requires an API asset, obvi).
         """
 
-        if settlement_id:
+        # first, if our mdb session document is None, don't do this at all
+        if self.session is None:
+            self.logger.error("[%s] 'session' attribute is None! Cannot set current settlement!" % (self.User))
+            return None
+        elif self.get_current_view() in ["dashboard","panel"]:
+            self.logger.warn("[%s] session tried to set a 'current_settlement' and doesn't need one! Current view: '%s'. Returning None..." % (self.User, self.get_current_view()))
+            return None
+
+        # next, if we're doing this manually, i.e. forcing a new current
+        #   settlement for a view change or whatever, do it now:
+        if settlement_id is not None:
             self.session["current_settlement"] = settlement_id
 
-        # retrieve the settlement from the API first
-        self.set_api_assets()
+        # now, if we've got a 'current_settlement' key, normalize it to ObjectId
+        #   to prevent funny business. back off to the session object attrib and
+        #   the session["current_asset"] (in that order).
+        if "current_settlement" in self.session.keys():
+            self.session["current_settlement"] = ObjectId(self.session["current_settlement"])
+        elif hasattr(self, "current_settlement"):
+            self.session["current_settlement"] = ObjectId(self.current_settlement)
+        elif "current_asset" in self.session.keys() and "current_settlement" not in self.session.keys():
+            self.session["current_settlement"] = ObjectId(self.session["current_asset"])
+            self.logger.warn("[%s] set 'current_settlement' from 'current_asset' key!")
+        else:
+            self.logger.critical("[%s] unable to set 'current_settlement' for session!" % (self.User))
 
-        if self.session is not None:
-            if "current_settlement" in self.session.keys():
-                s_id = ObjectId(self.session["current_settlement"])
-                self.Settlement = assets.Settlement(settlement_id=s_id, session_object=self)
-
-            # back off to current_asset if we haven't got current_settlement
-            if self.Settlement is None:
-                if "current_asset" in self.session.keys():
-                    self.logger.info("set settlement from current_asset %s" % self.session["current_asset"])
-                    s_id = ObjectId(self.session["current_asset"])
-                    self.Settlement = assets.Settlement(settlement_id=s_id, session_object=self)
-
+        # now do the attrib if we've managed to get a settlement object set
         if "current_settlement" in self.session.keys():
             self.current_settlement = self.session["current_settlement"]
+
+        # now, fucking finally, set self.Settlement
+        if "current_settlement" in self.session.keys() and hasattr(self, "current_settlement"):
+            self.set_api_assets()
+            s_id = self.session["current_settlement"]
+            self.Settlement = assets.Settlement(settlement_id=s_id, session_object=self)
+        else:
+            raise Exception("[%s] session could not set current settlement!" % (self.User))
 
         mdb.sessions.save(self.session)
 
 
+    def set_api_assets(self, settlement_id=None):
+        """ Sets self.api dictionaries required by the current session. There's
+        a lot of sensitivity to order of operations and back-offs and nested
+        try/except stuff here, so read it carefully before you start hacking.
+        Odds are good that if there's something odd, I did it for a reason."""
+
+        # don't get data from the API unless we need to.
+        if self.get_current_view() in ["dashboard","panel"]:
+            return None
+
+        # try to set the self.current_settlement attrib to be a valid ObjectId
+        if self.get_current_view() is None:
+            self.logger.debug("[%s] session has no 'current_view'. Returning API as None." % (self.User))
+            return None
+
+        # bail if we haven't set the current settlement
+        if not hasattr(self, "current_settlement"):
+            self.logger.warn("[%s] session has no 'current_settlement'" % self.User)
+
+        if settlement_id is not None:
+            self.current_settlement=settlement_id
+
+        # now dial the API; fail noisily if we can't get it
+        self.api_settlement = api.route_to_dict(
+            "settlement/get/%s" % self.current_settlement,
+            authorize=True
+        )
+        if self.api_settlement == {}:
+            self.logger.error("[%s] could not retrieve settlement from API server!" % self.User)
+            return False
+
+        # now, assuming we're still here, initialize the survivor assets
+        self.api_survivors = {}
+        for s in self.api_settlement["user_assets"]["survivors"]:
+            s_dict = json.loads(s)
+            _id = ObjectId(s_dict["sheet"]["_id"]["$oid"])
+            self.api_survivors[_id] = s_dict
+
+#        self.logger.debug("[%s] API asset set!" % (self.User))
 
 
     def change_current_view(self, target_view, asset_id=False):
@@ -261,10 +340,61 @@ class Session:
         mdb.sessions.save(self.session)
         self.session = mdb.sessions.find_one(self.session["_id"])
 
+        return "changed view to '%s'" % target_view
 
+
+    def change_current_view_to_asset(self, view):
+        """ Changes the current view to a view of a user asset. Returns a
+        string meant to be logged as a user action. """
+
+        a = self.params[view].value
+
+        if view == "view_survivor":
+            asset = mdb.survivors.find_one({"_id": ObjectId(a)})
+            asset_sum = "%s [%s]" % (asset["name"], asset["sex"])
+        elif view in ["view_campaign", "view_settlement"]:
+            asset = mdb.settlements.find_one({"_id": ObjectId(a)})
+            asset_sum = "%s" % (asset["name"])
+        else:
+            self.logger.error("[%s] view could not be changed to asset '%s'" % (self.User,a))
+
+        self.change_current_view(view, asset_id=a)
+
+        return "changed view to '%s' | %s | %s" % (view, a, asset_sum)
+
+
+
+    def report_error(self):
+        """ Uses attributes of the session, including self.params, to create an
+        error report email. """
+
+        self.logger.debug("[%s] is entering an error report!" % self.User)
+        admins = settings.get("application","admin_email").split(",")
+
+        M = mailSession()
+        email_msg = html.meta.error_report_email.safe_substitute(
+            user_email=self.User.user["login"],
+            user_id=self.User.user["_id"],
+            body=self.params["body"].value.replace("\n","<br/>")
+        )
+        M.send(
+            recipients=admins,
+            html_msg=email_msg,
+            subject="KDM-Manager Error Report",
+            reply_to=self.User.user["login"],
+        )
+        self.logger.warn("[%s] Error report email sent!" % self.User)
+
+
+
+    @process_params_failure
     def process_params(self, user_action=None):
         """ All cgi.FieldStorage() params passed to this object on init
         need to be processed. This does ALL OF THEM at once. """
+
+        #
+        #   dashboard-based, user operation params
+        #
 
         if "update_user_preferences" in self.params:
             self.User.update_preferences(self.params)
@@ -279,38 +409,21 @@ class Session:
 
         # do error reporting
         if "error_report" in self.params and "body" in self.params:
-            self.logger.debug("[%s] is entering an error report!" % self.User)
-            admins = settings.get("application","admin_email").split(",")
+            self.report_error()
 
-            M = mailSession()
-            email_msg = html.meta.error_report_email.safe_substitute(
-                user_email=self.User.user["login"],
-                user_id=self.User.user["_id"],
-                body=self.params["body"].value.replace("\n","<br/>")
-            )
-            M.send(recipients=admins, html_msg=email_msg, subject="KDM-Manager Error Report from %s" % self.User.user["login"])
-            self.logger.warn("[%s] Error report email sent!" % self.User)
+        #
+        #   change view operations, incl. with/without an asset
+        #
 
         # change to a generic view without an asset
         if "change_view" in self.params:
             target_view = self.params["change_view"].value
-            self.change_current_view(target_view)
-            user_action = "changed view to '%s'" % target_view
+            user_action = self.change_current_view(target_view)
 
         # change to a view of an asset
         for p in ["view_campaign", "view_settlement", "view_survivor"]:
             if p in self.params:
-                a = self.params[p].value
-                if p == "view_survivor":
-                    asset = mdb.survivors.find_one({"_id": ObjectId(a)})
-                    asset_sum = "%s [%s]" % (asset["name"], asset["sex"])
-                elif p in ["view_campaign", "view_settlement"]:
-                    asset = mdb.settlements.find_one({"_id": ObjectId(a)})
-                    asset_sum = "%s" % (asset["name"])
-                else:
-                    asset_handle = "UNKNOWN - AN ERROR OCCURRED"
-                self.change_current_view(p, asset_id=a)
-                user_action = "changed view to '%s' | %s | %s" % (p, a, asset_sum)
+                user_action = self.change_current_view_to_asset(p)
 
         # these are our two asset removal methods: this is as DRY as I think we
         #   can get with this stuff, since both require unique handling
@@ -320,90 +433,14 @@ class Session:
             S = assets.Settlement(settlement_id=s_id, session_object=self)
             user_action = "removed settlement %s" % S
             S.remove()
+
         if "remove_survivor" in self.params:
             survivor_id = ObjectId(self.params["remove_survivor"].value)
             S = assets.Survivor(survivor_id=survivor_id, session_object=self)
+            self.change_current_view("view_campaign", asset_id=S.survivor["settlement"])
             user_action = "removed survivor %s from %s" % (S, S.Settlement)
             S.remove()
-            self.change_current_view("view_campaign", asset_id=S.survivor["settlement"])
 
-        # this is where we handle requests to create new assets
-        if "bulk_add_survivors" in self.params:
-            S = assets.Settlement(settlement_id=self.params["asset_id"].value, session_object=self)
-            male = int(self.params["male_survivors"].value)
-            female = int(self.params["female_survivors"].value)
-            for s in range(male):
-                m = assets.Survivor(params=None, session_object=self, suppress_event_logging=True, update_mins=False)
-                m.set_attrs({"public": "checked"})
-            for s in range(female):
-                f = assets.Survivor(params={"sex": "F"}, session_object=self, suppress_event_logging=True, update_mins=False)
-                f.set_attrs({"public": "checked"})
-            S.log_event("%s male and %s female survivors joined the settlement!" % (male, female))
-
-        if "new" in self.params:
-            if self.params["new"].value == "settlement":
-
-                # determine whether we're going to add any expansions
-                expansions = []
-                for e in self.params["expansions"]:
-                    if e.value != "None":
-                        expansions.append(e.value)
-
-                # now do everything else
-                if "settlement_name" in self.params:
-                    settlement_name = self.params["settlement_name"].value
-                else:
-                    settlement_name = "Unknown"
-                settlement_campaign = self.params["campaign"].value
-                self.Settlement = assets.Settlement(name=settlement_name, campaign=settlement_campaign, session_object=self)
-                self.change_current_view("view_campaign", asset_id=self.Settlement.settlement["_id"])
-                if "create_prologue_survivors" in self.params:
-                    self.Settlement.first_story()
-                    mdb.settlements.save(self.Settlement.settlement)    # gotta save here
-                    user_action = "created settlement %s with First Story survivors" % self.Settlement
-                else:
-                    user_action = "created vanilla settlement %s" % self.Settlement
-
-                # prefab survivors go here
-                for s in self.params["survivors"]:
-                    if s.value != "None":
-                        s_dict = game_assets.survivors[s.value]
-                        n = assets.Survivor(params=None, session_object=self, suppress_event_logging=True)
-                        n.set_attrs({"name": s.value})
-                        n.set_attrs(s_dict["attribs"])
-
-                # initialize expansion stuff
-                for e_key in expansions:
-                    self.Settlement.add_expansion(e_key)
-                mdb.settlements.save(self.Settlement.settlement)
-
-            if self.params["new"].value == "survivor":
-                S = assets.Survivor(params=self.params, session_object=self)
-                self.change_current_view("view_survivor", asset_id=S.survivor["_id"])
-                user_action = "created survivor %s in %s" % (S, S.Settlement)
-
-        if "modify" in self.params:
-            s_id = self.params["asset_id"].value
-            if self.params["modify"].value == "settlement":
-                if not str(self.Settlement.settlement["_id"]) == (s_id):
-                    S = assets.Settlement(settlement_id=s_id, session_object=self)
-                    S.modify(self.params)
-                else:
-                    self.Settlement.modify(self.params)
-                user_action = "modified settlement %s" % self.Settlement
-            if self.params["modify"].value == "survivor":
-                S = assets.Survivor(survivor_id=s_id, session_object=self)
-                user_action = "modified survivor %s of %s" % (S, S.Settlement)
-                S.modify(self.params)
-
-        if "return_hunting_party" in self.params:
-            s_id = self.params["return_hunting_party"].value
-            if not str(self.Settlement.settlement["_id"]) == (s_id):
-                S = assets.Settlement(settlement_id=s_id, session_object=self)
-                S.return_hunting_party()
-            else:
-                self.Settlement.return_hunting_party()
-            user_action = "returned hunting party to settlement %s" % self.Settlement
 
         # user and campaign exports
         if "export_user_data" in self.params:
@@ -427,120 +464,218 @@ class Session:
             self.logger.debug("[%s] '%s' export complete. Rendering export via HTTP..." % (self.User, export_type))
             html.render(payload, http_headers="Content-type: application/octet-stream;\r\nContent-Disposition: attachment; filename=%s\r\nContent-Title: %s\r\nContent-Length: %i\r\n" % (filename, filename, length))
 
+
+        #
+        #   settlement operations - everything below uses user_asset_id
+        #       which is to say that all forms that submit these params use
+        #       the asset_id=mdb_id convention.
+
+        user_asset_id = None
+        if "asset_id" in self.params:
+            user_asset_id = ObjectId(self.params["asset_id"].value)
+
+
+        #   create new user assets
+
+        if "new" in self.params:
+
+            if self.params["new"].value == "survivor":
+                self.set_current_settlement(user_asset_id)
+                S = assets.Survivor(params=self.params, session_object=self)
+                self.change_current_view("view_survivor", asset_id=S.survivor["_id"])
+                user_action = "created survivor %s in %s" % (S, self.Settlement)
+
+            if self.params["new"].value == "settlement":
+                S = assets.Settlement(session_object=self, cgi_params=self.params)
+                user_action = "created settlement %s" % self.Settlement
+                self.change_current_view("view_campaign", S.settlement["_id"])
+
+        #   bulk add
+
+        if "bulk_add_survivors" in self.params:
+
+            self.set_current_settlement(user_asset_id)
+            S = assets.Settlement(settlement_id=user_asset_id, session_object=self)
+            male = int(self.params["male_survivors"].value)
+            female = int(self.params["female_survivors"].value)
+            S.bulk_add_survivors(male,female)
+
+
+        #   modify
+
+        if "modify" in self.params:
+
+            if self.params["modify"].value == "settlement":
+                s = mdb.settlements.find_one({"_id": ObjectId(user_asset_id)})
+                self.set_current_settlement(s["_id"])
+                S = assets.Settlement(settlement_id=s["_id"], session_object=self)
+                S.modify(self.params)
+                user_action = "modified settlement %s" % self.Settlement
+
+            if self.params["modify"].value == "survivor":
+                s = mdb.survivors.find_one({"_id": ObjectId(user_asset_id)})
+                self.set_current_settlement(s["settlement"])
+                S = assets.Survivor(survivor_id=s["_id"], session_object=self)
+                S.modify(self.params)
+                user_action = "modified survivor %s of %s" % (S, self.Settlement)
+
+        #   hunting party return
+        if "return_departing_survivors" in self.params:
+            self.set_current_settlement(user_asset_id)
+            S = assets.Settlement(settlement_id=user_asset_id, session_object=self)
+            S.return_departing_survivors(self.params["return_departing_survivors"].value)
+            S.save()
+            user_action = "returned departing survivors to settlement %s" % self.Settlement
+
         self.User.mark_usage(user_action)
 
+        #   exit now if we're doing a 'norefresh' request
+#        if "norefresh" in self.params:
+#            self.logger.debug("[%s] all 'norefresh' form parameters processed. Exiting." % self.User)
+#            sys.exit(0)
+#       # index handles this now!!
 
-    def log_out(self):
-        """ For when the session needs to kill itself. """
-        self.logger.debug("Ending session for '%s' via admin.remove_session()." % self.User.user["login"])
-        admin.remove_session(self.session["_id"], "admin")
+
+    def render_user_asset_sheet(self, collection=None):
+        """ Uses session attributes to render the sheet for the user asset
+        currently set to be session["current_asset"].
 
 
+        Only works for Survivor Sheets and Settlement Sheets so far. """
+
+        output = "ERROR!"
+
+        user_asset = mdb[collection].find_one({"_id": self.session["current_asset"]})
+        if user_asset is not None:
+            if collection == "settlements":
+                self.set_current_settlement(user_asset["_id"])
+                S = assets.Settlement(settlement_id = user_asset["_id"], session_object=self)
+            elif collection == "survivors":
+                self.set_current_settlement(user_asset["settlement"])
+                S = assets.Survivor(survivor_id = user_asset["_id"], session_object=self)
+            else:
+                self.logger.error("[%s] user assets from '%s' colletion don't have Sheets!" % (self.User,collection))
+            output = S.render_html_form()
+
+        return output
+
+
+    def render_dashboard(self):
+        """ Renders the user's dashboard. """
+
+        output = self.User.html_motd()
+
+        display_settlements = "none"
+        display_campaigns = ""
+
+        if self.User.get_campaigns() == "":
+            display_settlements = ""
+            display_campaigns = "none"
+
+
+        # render campaigns, settlements and survivors lists for the dashboard.
+        #   all of this goes away when we can get a user from the API
+
+        output += html.dashboard.campaign_summary.safe_substitute(
+            campaigns=self.User.get_campaigns(),
+            display=display_campaigns
+        )
+        output += html.dashboard.settlement_summary.safe_substitute(
+            settlements=self.User.get_settlements(return_as="asset_links"),
+            display=display_settlements
+        )
+        output += html.dashboard.survivor_summary.safe_substitute(
+            survivors=self.User.get_survivors("asset_links")
+        )
+
+        # due to volatility, the html_world() call is wrapped for silent
+        #   failure. No plans to change this at present.
+        try:
+            output += self.User.html_world()
+        except Exception as e:
+            self.logger.exception(e)
+            output += '<!-- ERROR! World Menu could not be created! -->'
+
+        output += admin.render_about_panel()
+
+        if self.User.is_admin():
+            output += html.dashboard.panel_button
+
+        return output
+
+
+    @current_view_failure
     def current_view_html(self):
         """ This func uses session's 'current_view' attribute to render the html
         for that view.
 
-        The whole thing is wrapped in a gigantic try/except so that if we cannot
-        create the HTML for whatever reason, we log it, end the user's session
-        and return False. From there, html.render() will receive the False and
-        print a generic message for the user.
-
         In a best case, we want this function to initialize a class (e.g. a
         Settlement or a Survivor or a User, etc.) and then use one of the render
-        methods of that class to get html.
+        methods of that class to get html and return it.
 
-        Generally speaking, however, we're not above calling one of the methods
-        of the html module to summon some html.
-
-        Ideally, we will be able to refactor that kind of stuff out at some
-        point, and use this function as a function that simply initalizes a
-        class and uses that class's methods to get html.
+        The whole thing is decorated in a function that captures failures and
+        asks users to report them (and kills their session, logging them out, so
+        they don't get stuck in a state where they can't stop re-creating the
+        error, etc.
         """
 
         output = html.meta.saved_dialog
+        self.get_current_view() # sets self.current_view
 
-        try:
-            body = None
+        body = None
 
-            if self.session["current_view"] == "dashboard":
-                body = "dashboard"
-                output += self.User.html_motd()
+        if self.current_view == "dashboard":
+            body = "dashboard"
+            output = self.render_dashboard()
+            output += admin.dashboard_alert()
+            if get_user_agent().browser.family == "Safari":
+                output += html.meta.safari_warning.safe_substitute(vers=get_user_agent().browser.version_string)
 
-                display_settlements = "none"
-                display_campaigns = ""
-                if self.User.get_campaigns() == "":
-                    display_settlements = ""
-                    display_campaigns = "none"
-                output += html.dashboard.campaign_summary.safe_substitute(campaigns=self.User.get_campaigns(), display=display_campaigns)
-                output += html.dashboard.settlement_summary.safe_substitute(settlements=self.User.get_settlements(return_as="asset_links"), display=display_settlements)
-                output += html.dashboard.survivor_summary.safe_substitute(survivors=self.User.get_survivors("asset_links"))
+        elif self.current_view == "event_log":
+            output += html.dashboard.refresh_button
+            self.set_current_settlement()
+            output += self.Settlement.render_html_event_log()
 
-                # due to volatility, the html_world() call is wrapped for silent
-                #   failure. No plans to change this at present.
-                try:
-                    output += self.User.html_world()
-                except Exception as e:
-                    self.logger.exception(e)
-                    output += '<!-- ERROR! World Menu could not be created! -->'
+        elif self.current_view == "view_campaign":
+            output += html.dashboard.refresh_button
+            self.set_current_settlement()
+            output += self.Settlement.render_html_summary(user_id=self.User.user["_id"])
 
-                output += admin.render_about_panel()
+        elif self.current_view == "new_settlement":
+            output += html.settlement.new
 
+        elif self.current_view == "new_survivor":
+            self.set_current_settlement()
+            output += html.survivor.new.safe_substitute(
+                home_settlement=self.current_settlement,
+                user_email=self.User.user["login"],
+                created_by=self.User.user["_id"],
+                add_ancestors=self.Settlement.get_ancestors("html_parent_select")
+            )
 
-                if self.User.is_admin():
-                    output += html.dashboard.panel_button
+        elif self.current_view == "view_settlement":
+            output += html.dashboard.refresh_button
+            output += self.render_user_asset_sheet("settlements")
 
-            elif self.session["current_view"] == "event_log":
-                settlement = mdb.settlements.find_one({"_id": self.session["current_asset"]})
-                if settlement is None:
-                    settlement = mdb.settlements.find_one({"_id": self.session["current_settlement"]})
-                self.set_current_settlement(ObjectId(settlement["_id"]))
-                output += html.dashboard.refresh_button
-                S = assets.Settlement(settlement_id = settlement["_id"], session_object=self)
-                output += S.render_html_event_log()
-            elif self.session["current_view"] == "view_campaign":
-                output += html.dashboard.refresh_button
-                output += self.Settlement.render_html_summary(user_id=self.User.user["_id"])
-            elif self.session["current_view"] == "new_settlement":
-                output += html.settlement.new
-            elif self.session["current_view"] == "new_survivor":
-                options = self.User.get_settlements(return_as="html_option")
-                output += html.survivor.new.safe_substitute(home_settlement=self.session["current_settlement"], user_email=self.User.user["login"], created_by=self.User.user["_id"], add_ancestors=self.Settlement.get_ancestors("html_parent_select"))
-            elif self.session["current_view"] == "view_settlement":
-                output += html.dashboard.refresh_button
-                settlement = mdb.settlements.find_one({"_id": self.session["current_asset"]})
-                self.set_current_settlement(ObjectId(settlement["_id"]))
-                S = assets.Settlement(settlement_id = settlement["_id"], session_object=self)
-                output += S.render_html_form()
-            elif self.session["current_view"] == "view_survivor":
-                output += html.dashboard.refresh_button
-                survivor = mdb.survivors.find_one({"_id": self.session["current_asset"]})
-                S = assets.Survivor(survivor_id = survivor["_id"], session_object=self)
-                if self.Settlement is not None and self.Settlement.settlement is None:
-                    self.set_current_settlement(S.survivor["settlement"])
-                output += S.render_html_form()
-            elif self.session["current_view"] == "panel":
-                if self.User.is_admin():
-                    P = admin.Panel(self.User.user["login"])
-                    body = "helvetica"
-                    output += P.render_html()
-                else:
-                    output += "Nope"
+        elif self.current_view == "view_survivor":
+            output += html.dashboard.refresh_button
+            output += self.render_user_asset_sheet("survivors")
+
+        elif self.current_view == "panel":
+            if self.User.is_admin():
+                P = admin.Panel(self.User.user["login"])
+                body = "helvetica"
+                output += P.render_html()
             else:
-                output += "UNKNOWN VIEW!!!"
+                self.logger.warn("[%s] attempted to view admin panel and is not an admin!" % self.User)
+                raise Exception("Authorization failure!")
+
+        else:
+            self.logger.error("[%s] requested unhandled view '%s'" % (self.User, self.current_view))
+            raise Exception("Unknown View!")
 
 
-            if self.session["current_view"] == "dashboard":
-                output += admin.dashboard_alert()
-                if get_user_agent().browser.family == "Safari":
-                    output += html.meta.safari_warning.safe_substitute(vers=get_user_agent().browser.version_string)
+        return output, body
 
-            return output, body
 
-        except Exception as e:
-            err_msg = "Caught exception while rendering current view for %s!" % self.User.get_name_and_id()
-            self.logger.error(err_msg)
-            self.logger.exception(e)
-            self.log_out()
-            tb = traceback.format_exc().replace("    ","&ensp;").replace("\n","<br/>")
-            print html.meta.error_500.safe_substitute(msg=err_msg, exception=tb)
-            sys.exit(255)
+

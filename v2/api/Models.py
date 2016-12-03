@@ -3,6 +3,8 @@
 from bson.objectid import ObjectId
 from copy import copy
 
+from flask import Response
+
 import utils
 
 #
@@ -205,16 +207,18 @@ class UserAsset():
             self.logger.error(err_msg)
             raise AssetInitError(err_msg)
 
+        # use attribs to determine whether the object has been loaded
+        self.loaded = False
         if _id is None:
             self.new()
         else:
             try:
                 self._id = ObjectId(_id)
                 self.load()
+                self.loaded = True
             except Exception as e:
                 self.logger.error("Could not load _id '%s' from %s!" % (_id, self.collection))
                 self.logger.exception(e)
-                self.settlement = None
 
 
     def load(self):
@@ -232,6 +236,7 @@ class UserAsset():
         else:
             raise AssetLoadError("Invalid MDB collection for this asset!")
 
+
     def get_serialize_meta(self):
         """ Sets the 'meta' dictionary for the object when it is serialized. """
 
@@ -244,3 +249,13 @@ class UserAsset():
             self.logger.warn(utils.api_meta)
             self.logger.warn(output["meta"])
         return output
+
+
+    def http_response(self):
+        """ Generates an HTTP request response: tries to serialize the object instance but,
+        if it can't, returns a 500 or 404 as appropriate. """
+
+        if self.loaded:
+            return Response(response=self.serialize(), status=200, mimetype="application/json")
+        else:
+            return utils.http_404

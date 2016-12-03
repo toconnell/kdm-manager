@@ -50,17 +50,7 @@ api_meta = {
     },
 }
 
-def authorize(req):
-    """ Laziness function to check a request and return True if we like the key.
-    Return a 401 if we don't like the key. """
 
-    try:
-        if settings.check_key(req.get_json()["meta"]["api_key"]):
-            return True
-        else:
-            return False
-    except:
-        return False
 
 
 # laziness and DRYness methods
@@ -179,7 +169,7 @@ def asset_object_to_json(asset):
 
 
 
-# the error.log decorator
+# decorators for logging
 def error_log(func):
     """ This is a decorator that should decorate all functions where we're
     attempting to update or modify a user asset on behalf of an API user.
@@ -196,6 +186,16 @@ def error_log(func):
             return e
     return wrapper
 
+def log_route_error(func):
+    """ Use this decorator to decorate route methods (i.e. modules defined in
+    the routes/ module dir) and capture exceptions to the server.log file."""
+    logger = get_logger(log_name="server")
+    def wrapper(*args, **kwargs):
+        try:
+            func(*args, **kwargs)
+        except Exception as e:
+            logger.exception(e)
+    return wrapper
 
 
 # private exception classes

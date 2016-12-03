@@ -6,17 +6,6 @@ from models import survivors
 import utils
 
 
-def init_survivor(survivor_id):
-    """ Checks a survivor _id and returns a survivor object if it's legit.
-    Otherwise, if it's not legit, return a 404 Response object. """
-
-    try:
-        S = survivors.Survivor(_id=survivor_id)
-        return S
-    except:
-        return utils.http_404
-
-
 def POST_to_mdb(S):
     """ Handles a POST containing updates for a survivor MDB document. """
 
