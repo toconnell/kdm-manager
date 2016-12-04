@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from bson.objectid import ObjectId
+from bson.son import SON
 from datetime import datetime, timedelta
 import gridfs
 from hashlib import md5
@@ -31,6 +32,19 @@ settings = load_settings()
 #
 #   Maintenance and administrative functions
 #
+
+def get_response_times():
+    """ Hits the MDB with an aggregate query re: response times. """
+    return mdb.response_times.aggregate([
+        {"$group": {
+                "_id": "$view",
+                "avg_time": { "$avg": "$time" },
+                "max_time": { "$max": "$time" },
+                "count": {"$sum": 1 },
+            },
+        },
+        {"$sort": SON([("_id", 1)])},
+    ])
 
 
 def prune_sessions():
@@ -161,15 +175,7 @@ def ls_documents(collection, sort_on="created_on"):
 
     if collection == "response_times":
         print("\n\t  View\t\t    Avg. response time\t    Max response time\n")
-        for a in mdb.response_times.aggregate([
-            {
-                "$group": {
-                  "_id": "$view",
-                  "avg_time": { "$avg": "$time" },
-                  "max_time": { "$max": "$time" }
-                }
-            }
-        ]):
+        for a in get_response_times():
             print "\t%s\t\t%s\t\t%s" % (a["_id"],a["avg_time"],a["max_time"])
         print("")
         return True
@@ -500,10 +506,18 @@ class Panel:
                 daemon_block += '<tr><td>%s</td><td>%s</td></tr>' % (k,v)
         daemon_block += "</table>"
 
+        response_block = '<table class="admin_panel_response_block">'
+        response_block += '<tr><th colspan="4">Response Times</th></tr>'
+        response_block += '<tr><th>View</th><th>#</th><th>Avg.</th><th>Max</th></tr>'
+        for r in get_response_times():
+            response_block += "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>" % (r["_id"],r["count"],r["avg_time"],r["max_time"])
+        response_block += "</table>"
+
         output = html.panel.headline.safe_substitute(
             version = settings.get("application","version"),
             api_url = api.get_api_url(),
             hostname = socket.getfqdn(),
+            response_times = response_block,
             world_daemon = daemon_block,
             killboard = world.api_killboard_to_html(W["killboard"]),
             recent_users_count = self.recent_users.count(),

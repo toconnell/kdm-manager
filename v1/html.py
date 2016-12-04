@@ -32,27 +32,35 @@ class panel:
     <div class="admin_panel_floater" id="admin_panel_api_url">api: <code><font class="maroon_text">$api_url</font></code></div>
     <div class="admin_panel_floater" id="admin_panel_version">version: <code><font class="maroon_text">$version</font></code></div>
 
-    <table id="panel_meta_stats">
-        <tr><th colspan="2">Global Stats</th></tr>
-        <tr><td>Total Users:</td><td>$users</td></tr>
-        <tr class="grey"><td>Recent Users:</td><td>$recent_users_count</td></tr>
-        <tr><td>Sessions:</td><td>$sessions</td></tr>
-        <tr class="grey"><td>Settlements:</td><td>$settlements</td></tr>
-        <tr><td>Survivors:</td><td>$live_survivors/$dead_survivors ($total_survivors total)</td></tr>
-        <tr class="world_primary"><th colspan="2">Latest settlement</th></tr>
-        <tr class="world_secondary"><td colspan="2">$latest_settlement</td></tr>
-        <tr class="world_primary"><th colspan="2">Latest fatality</th></tr>
-        <tr class="world_secondary"><td colspan="2">$latest_fatality</td></tr>
-        <tr class="world_primary"><th colspan="2">Latest kill</th></tr>
-        <tr class="world_secondary"><td colspan="2">$latest_kill</td></tr>
-        <tr class="world_primary"><th colspan="2">Current Hunt</th></tr>
-        <tr class="world_secondary"><td colspan="2">$current_hunt</td></tr>
-    </table>
-    <div id="admin_panel_right">
+    <div class="admin_panel_left">
+        <table class="panel_meta_stats">
+            <tr><th colspan="2">Global Stats</th></tr>
+            <tr><td>Total Users:</td><td>$users</td></tr>
+            <tr class="grey"><td>Recent Users:</td><td>$recent_users_count</td></tr>
+            <tr><td>Sessions:</td><td>$sessions</td></tr>
+            <tr class="grey"><td>Settlements:</td><td>$settlements</td></tr>
+            <tr><td>Survivors:</td><td>$live_survivors/$dead_survivors ($total_survivors total)</td></tr>
+            <tr class="world_primary"><th colspan="2">Latest settlement</th></tr>
+            <tr class="world_secondary"><td colspan="2">$latest_settlement</td></tr>
+            <tr class="world_primary"><th colspan="2">Latest fatality</th></tr>
+            <tr class="world_secondary"><td colspan="2">$latest_fatality</td></tr>
+            <tr class="world_primary"><th colspan="2">Latest kill</th></tr>
+            <tr class="world_secondary"><td colspan="2">$latest_kill</td></tr>
+            <tr class="world_primary"><th colspan="2">Current Hunt</th></tr>
+            <tr class="world_secondary"><td colspan="2">$current_hunt</td></tr>
+        </table>
+
+        $response_times
+    </div> <!-- admin_panel_left -->
+
+    <div class="admin_panel_right">
         <h3 class="admin_panel_label">Killboard</h3>
         $killboard
         $world_daemon
     </div>
+
+    <hr class="invisible"/><br/><h1>Recent User Activity</h1>
+
     \n""")
     panel_table_top = '<table id="panel_aux_table">\n'
     panel_table_header = Template('\t<tr><th colspan="2">$title</th></tr>\n')

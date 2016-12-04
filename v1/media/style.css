@@ -1394,8 +1394,10 @@ right connector from last child*/
     div#admin_panel_api_url {top: 100px; }
     div#admin_panel_version {top: 140px; }
     table#admin_panel_world_daemon_table {border-top: 2px solid #333; margin: 0 auto; }
-    #panel_meta_stats, .panel_recent_user {font-size: 12pt; border-collapse: collapse; float: left; }
-    #panel_meta_stats {width: 450px; margin-bottom: 20px; margin-left: 30px; }
+    div.admin_panel_left {float: left; width: 450px; text-align: left; padding-left: 20px; margin: 0 auto; border-bottom: 2px solid #000; }
+    .panel_meta_stats, .panel_recent_user {font-size: 12pt; border-collapse: collapse; float: left; }
+    .panel_meta_stats {margin-bottom: 20px; margin-left: 30px; }
+    table.admin_panel_response_block {width: 100%; border-top: 2px solid #000; }
     table.panel_recent_user {margin: 10px; width: 900px; clear: left;  }
     table.panel_recent_user td {padding: 3px; }
     table.panel_recent_user th {padding: 5px; }
@@ -1403,10 +1405,10 @@ right connector from last child*/
     table.panel_recent_user td.m_ago {border-left: 1px solid #EFEFEF; padding-left: 7px; }
     table.panel_recent_user td.latest_action {background-color: #FFFFEE; padding-left: 7px; font-style: italic; }
 
-    div#admin_panel_right { float: left; min-width: 400px; margin-left: 20px; border-left: 3px solid #333; text-align: left; }
-    div#admin_panel_right h3.admin_panel_label {margin: 0 auto; padding: 0px; float: left; text-align: left; padding-left: 10px; width: 400px; }
-    div#admin_panel_right table.killboard {width: auto; margin: 0 auto; float: left; clear: left; }
-    div#admin_panel_right table.killboard td {padding: 0px; }
+    div.admin_panel_right { float: left; min-width: 400px; margin: 0 auto; border-left: 3px solid #333; text-align: left; }
+    div.admin_panel_right h3.admin_panel_label {margin: 0 auto; padding: 0px; float: left; text-align: left; padding-left: 10px; width: 400px; }
+    div.admin_panel_right table.killboard {width: auto; margin: 0 auto; float: left; clear: left; }
+    div.admin_panel_right table.killboard td {padding: 0px; }
 
     /* wide event log styles */
     .tree {font-size: 11pt;}
