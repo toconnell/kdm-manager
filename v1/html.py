@@ -1086,18 +1086,34 @@ class survivor:
             $children
             <hr />
             <h3>Permissions</h3>
-            <form method="POST" action="#edit_lineage">
-              <input type="hidden" name="form_id" value="survivor_edit_abilities"/>
-              <input type="hidden" name="modify" value="survivor" />
-              <input type="hidden" name="asset_id" value="$survivor_id" />
-              <p>Survivor Owner:</p>
-              <input onchange="this.form.submit()" class="full_width" type="email" name="email" placeholder="email" value="$email"/>
 
-              <input type='hidden' value='unchecked' name='toggle_public'/>
-              <input onchange="updateAssetAttrib(this,'survivor','$survivor_id')" type="checkbox" id="public" class="radio_principle" name="toggle_public" value="checked" $public_checked> 
-              <label class="radio_principle_label" for="public"> Anyone May Manage this Survivor &nbsp; </label>
+              <p>Survivor Owner:</p>
+              <input
+                id="survivor_owner_email"
+                onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+                class="full_width"
+                type="email"
+                name="email"
+                placeholder="email"
+                value="$email"
+              />
+
+              <input
+                onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+                type="checkbox"
+                id="public"
+                class="radio_principle"
+                name="toggle_public" value="checked"
+                $public_checked
+              >
+              <label
+                class="radio_principle_label"
+                for="public"
+              >
+                Anyone May Manage this Survivor &nbsp;
+              </label>
+
               <br/>
-            </form>
             <hr />
 
 
