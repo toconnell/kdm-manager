@@ -60,7 +60,10 @@ class AssetCollection():
         """ Return an asset dict based on a handle. Return None if the handle
         cannot be retrieved. """
         try:
-            return self.assets[handle]
+            asset = self.assets[handle]
+            if not "handle" in asset.keys():
+                asset["handle"] = handle
+            return asset
         except:
             return None
 

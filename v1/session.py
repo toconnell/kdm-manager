@@ -584,9 +584,9 @@ class Session:
             settlements=self.User.get_settlements(return_as="asset_links"),
             display=display_settlements
         )
-        output += html.dashboard.survivor_summary.safe_substitute(
-            survivors=self.User.get_survivors("asset_links")
-        )
+#        output += html.dashboard.survivor_summary.safe_substitute(
+#            survivors=self.User.get_survivors("asset_links")
+#        )
 
         # due to volatility, the html_world() call is wrapped for silent
         #   failure. No plans to change this at present.

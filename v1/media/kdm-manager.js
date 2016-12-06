@@ -22,6 +22,7 @@ function modifyAsset(collection, asset_id, param_string) {
     $('#saved_dialog').fadeOut(1800);
 }
 
+
 // angularjs controllers start here.
 app.controller('globalController', function($scope, $http) {
     $scope.registerModalDiv = function (modal_button_id, modal_div_id) {
@@ -34,7 +35,33 @@ app.controller('globalController', function($scope, $http) {
 });
 
 app.controller("containerController", function($scope) {
+//    $scope.init = function () {window.alert("init!")}
     // TBD
+});
+
+app.controller("endeavorController", function($scope) {
+
+    $scope.init = function(s_id) {
+        $scope.settlement_id=s_id;
+    };
+
+    $scope.range = function(count){
+        var r = []; 
+        for (var i = 0; i < count; i++) { r.push(i) }
+        return r;
+    }
+    $scope.addToken = function(){
+        var params = "endeavor_tokens=1";
+        modifyAsset("settlement", $scope.settlement_id, params);
+        $scope.endeavors += 1;
+    };
+    $scope.rmToken = function(){
+        var params = "endeavor_tokens=-1";
+        modifyAsset("settlement", $scope.settlement_id, params);
+        $scope.endeavors -= 1;
+        if ($scope.endeavors <= 0) {$scope.endeavors = 0;};
+    };
+
 });
 
 
@@ -180,8 +207,6 @@ function updateAssetAttrib(source_input, collection, asset_id) {
     var attrib_key = document.getElementById(source_input.id).name;
     var new_value = document.getElementById(source_input.id).value;
 
-//    window.alert(attrib_key + " - " + new_value);
-
     // strikethrough for p.survivor_sheet_fighting_art_elements
     if (source_input.id == 'survivor_sheet_cannot_use_fighting_arts' ) {
         if (source_input.checked == true) {
@@ -280,3 +305,4 @@ function toggleDamage(elem_id, asset_id) {
     var params =  toggle_key.name + "=checked";
     modifyAsset("survivor", asset_id, params);
     }
+

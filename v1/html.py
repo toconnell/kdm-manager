@@ -116,8 +116,8 @@ class ui:
 
 class dashboard:
     # settlement administrivia; needs to be above the dashboard accordions
-    panel_button = '<hr class="mobile_only"/><form action="#" method="POST"><input type="hidden" name="change_view" value="panel"/><button id="dashboard_admin_panel_launch_button" class="maroon change_view clear_left">Admin Panel!</button></form>\n'
-    new_settlement_button = '<form method="POST" action="#"><input type="hidden" name="change_view" value="new_settlement" /><button class="success">+ New Settlement</button></form>\n'
+    panel_button = '<form action="#" method="POST"><input type="hidden" name="change_view" value="panel"/><button class="dashboard_admin_panel_launch_button touch_me tablet_and_desktop">Admin Panel!</button></form>\n'
+    new_settlement_button = '<form method="POST" action="#"><input type="hidden" name="change_view" value="new_settlement" /><button class="kd_blue">+ New Settlement</button></form>\n'
 
     # flash
     down_arrow_flash = '<img class="dashboard_down_arrow" src="%s/icons/down_arrow.png"/> ' % settings.get("application", "STATIC_URL")
@@ -132,25 +132,41 @@ class dashboard:
     <div class="dashboard_menu">
     <h2 class="clickable about_primary" onclick="showHide('about_div')"> <font class="kdm_font dashboard_kdm_font">g</font> About %s</h2>
         <div id="about_div" style="display: none;" class="dashboard_accordion about_secondary">
-        <p><b>KD:M Manager! Version $version.</b></p><hr/>
-        <p>v$version went live on $latest_change_date. <a target="top" href="$latest_change_link">View change log</a>.</p>
-        <p>v1.7.0, the first production release of the Manager, went live on 2015-11-29.</p>
-        <p>This application is currently under <i>active development and is running in debug mode!</i></p>
-        <hr/>
-        <p>More Information:</p>
+        <p class="title"><b>KD:M Manager! Version $version.</b></p><hr/>
+        <p>About:</p>
         <ul>
-        <li>Application source code is <a href="https://github.com/toconnell/kdm-manager" target="top">available on GitHub</a>.</li>
-        <li>Check <a href="https://github.com/toconnell/kdm-manager/wiki" target="top">the development wiki</a> for complete information about the project.</li>
-        <li>Please <a href="https://github.com/toconnell/kdm-manager/issues" target="top">report issues here</a>.</li>
+            <li>This application, which is called <i>kdm-manager.com</i>, or, more simply, <i>the Manager</i>, is an interactive campaign management tool for use with <i><a href="https://shop.kingdomdeath.com/collections/sold-out/products/kingdom-death-monster" target="top">Monster</a></i>, by <a href="http://kingdomdeath.com" target="top">Kingdom Death</a>.</li>
         </ul>
-
+        <p>Important Information:</p>
+        <ul>
+            <li><b>This application is not developed, maintained, authorized or in any other way supported by or affiliated with <a href="http://kingdomdeath.com" target="top">Kingdom Death</a>.</b></li>
+            <li>This application is currently under active development and is running in debug mode!<li>
+            <li>Among other things, this means not only that <i>errors can and will occur</i>, but also that <i>features may be added and removed without notice</i> and <i>presentation elements are subject to change</i>.</li>
+            <li>Users' email addresses and other information are used only for the purposes of developing and maintaining this application and are never shared, published or distributed.</li>
+        </ul>
+        <hr/>
+        <p>Release Information:</p>
+        <ul>
+            <li>v$version of the Manager went into production on $latest_change_date. <a target="top" href="$latest_change_link">View change log</a>.</li>
+            <li>v1.7.0, the first production release of the Manager, went live on 2015-11-29.</li>
+            <li>For detailed release information, including complete notes and updates for each production release, please check the development blog at <a href="http://blog.kdm-manager.com" target="top"/>blog.kdm-manager.com</a>.</li>
+        </ul>
+        <hr/>
+        <p>Development and Support:</p>
+        <ul>
+            <li>Please report issues and errors using the side navigation panel within the application: this feature sends an email containing pertinent data directly to the application maintainers.</li>
+            <li>Application source code is <a href="https://github.com/toconnell/kdm-manager" target="top">available on GitHub</a>.</li>
+            <li>Github users may prefer to <a href="https://github.com/toconnell/kdm-manager/issues" target="top">report issues there</a>.</li>
+            <li>Check <a href="https://github.com/toconnell/kdm-manager/wiki" target="top">the development wiki</a> for complete information about the project.</li>
+        </ul>
+        <hr/>
         <p>Credits:</p>
         <ul>
-            <li>Developed and maintained by <a href="http://toconnell.info">Timothy O'Connell</a>.</li>
+            <li>Produced, provisioned and supported by <a href="http://thelaborinvain.com">The Labor in Vain</a>.<li>
+            <li>Developed, maintained and edited by <a href="http://toconnell.info">Timothy O'Connell</a>.</li>
             <li>Icon font ('kdm-font-10') by <a href="http://steamcommunity.com/id/GeorgianBalloon" target="top">Miracle Worker</a>.</li>
+            <li>The <font style="font-family: Silverado; font-size: 1.3em;">Silverado Medium Condensed</font> font is licensed through <a href="https://www.myfonts.com/" target="top">MyFonts.com</a>.
         </ul>
-        <hr/>
-        <p>For more information, including complete release notes and updates, or to make comments/ask questions about the project, check out the development blog at <a href="http://blog.kdm-manager.com" target="top"/>blog.kdm-manager.com</a>.</p>
 
         </div> <!-- about_div -->
     </div>
@@ -372,7 +388,7 @@ class dashboard:
 
 
 class survivor:
-    no_survivors_error = '<!-- No Survivors Found! --> <div class="user_asset_sheet_error"><p>Use the navigation menu controls in the upper left to add new survivors!</p></div>'
+    no_survivors_error = '<!-- No Survivors Found! --> <div class="kd_alert user_asset_sheet_error"><p>Use the navigation menu controls in the upper left to add new survivors!</p></div>'
     new = Template("""\n\
     <span class="tablet_and_desktop nav_bar survivor_sheet_gradient"></span>
     <span class="mobile_only nav_bar_mobile survivor_sheet_gradient"></span>
@@ -407,7 +423,7 @@ class survivor:
             <div id="block_group">
             <h2 class="new_asset">Permissions</h2>
             <p class="new_asset">Survivor Owner:</p>
-            <input id="survivor_owner" type="email" name="email" placeholder="Survivor Email" value="$user_email">
+            <input id="survivor_owner" type="email" name="email" placeholder="Survivor Email" value="$user_email" onclick="this.select()">
 
             <p class="new_asset">
             Toggle the options below to control access to this survivor:<br/><br/>
@@ -457,7 +473,7 @@ class survivor:
             $returning
             $constellation
             $avatar
-            <center> <font class="$favorite"/>&#9733;</font> <b>$name</b> [$sex] </center>
+            <center> <font class="$favorite"/>&#9733;</font> <b class="campaign_summary_survivor_name">$name</b> [$sex] </center>
             $special_annotation
             &ensp; XP: $hunt_xp &ensp; Survival: $survival<br/>
             &ensp; Insanity: $insanity <br/>
@@ -1091,6 +1107,7 @@ class survivor:
               <input
                 id="survivor_owner_email"
                 onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+                onclick="this.select()"
                 class="full_width"
                 type="email"
                 name="email"
@@ -1944,6 +1961,36 @@ class settlement:
             <a id="endeavors">
                 <hr class="mobile_only">
             </a>
+
+
+            <!-- angular.js Endeavors app -->
+            <div class="$show_endeavor_controls">
+                <div class="campaign_summary_endeavor_cap">Endeavor Tokens</div>
+                <div
+                    title="Manage settlement Endeavor tokens here! Settlement admins may use the controls at the right to increment or decrement the total number of tokens!"
+                    class="campaign_summary_endeavor_controller"
+                    ng-controller="endeavorController"
+                    ng-init="endeavors=$endeavor_tokens;init('$settlement_id')"
+                >
+
+                    <div class="tokens">
+                        <img
+                            ng-repeat="e in range(endeavors)"
+                            class="campaign_summary_endeavor_star"
+                            src="/media/icons/endeavor_star.png"
+                        >
+                    </div>
+                    <div class="$show_endeavor_paddles controls">
+                        <button ng-click="addToken()" class="endeavor_button"> &#9652; </button>
+                        <button ng-click="rmToken()"class="endeavor_button"> &#9662; </button>
+                    </div>
+                    <div class="endeavor_controls_clear_div"></div>
+                </div>
+            <hr class="mobile_only"/>
+            </div> <!-- show_endeavor_controls -->
+
+            <!-- endeavors app -->
+
             <div class="campaign_summary_small_box endeavor_box">
                 <h4>Available Endeavors</h4>
                 $endeavors
@@ -2604,7 +2651,7 @@ class settlement:
     <label for="$handle" class="radio_principle_label">$key</label>
     <p> &ensp; <font class="kdm_font">g</font> <b>$story_event</b> (p.$story_page) </p>
     \n""")
-    principles_all_hidden_warning = '<div class="user_asset_sheet_error"><p>Update settlement Milestones to show controls for adding Settlement Principles.</p></div>'
+    principles_all_hidden_warning = '<div class="kd_alert user_asset_sheet_error"><p>Update settlement Milestones to show controls for adding Settlement Principles.</p></div>'
     principle_radio = Template("""\n
         <input onchange="this.form.submit()" type="radio" id="$handle" class="radio_principle" name="principle_$principle_key" value="$option" $checked /> 
         <label class="radio_principle_label" for="$handle"> $option </label>
@@ -2640,8 +2687,8 @@ class login:
         <div id="sign_in_last_updated">%s</div>
         <div id="sign_in_controls">
             <form action="#" method="POST">
-            <input class="sign_in" type="email" name="login" placeholder="Email" onclick="this.select()" autofocus>
-            <input class="sign_in" type="password" name="password" placeholder="Password"/>
+            <input class="sign_in" type="email" name="login" placeholder="Email" onclick="this.select()" autofocus required>
+            <input class="sign_in" type="password" name="password" placeholder="Password" required/>
 			<div id="sign_in_remember_me">
 			  <label class="sign_in" for="keep_me_signed_in">Stay Logged in:</label>
 			</div>
@@ -2649,7 +2696,7 @@ class login:
 			  <input type="checkbox" class="sign_in" name="keep_me_signed_in" id="keep_me_signed_in">
 			</div>
 			<div id="sign_in_button">
-			  <button class="sign_in green">Sign In or Register</button>
+			  <button class="sign_in kd_blue">Sign In or Register</button>
 			</div>
             </form>
             <br class="mobile_only"/>
@@ -2675,7 +2722,7 @@ class login:
 			<div id="sign_in_checkbox">
 			  <input type="checkbox" class="sign_in" name="keep_me_signed_in" id="keep_me_signed_in">
 			</div>
-            <button class="sign_in green">Register New User</button>
+            <button class="sign_in kd_blue">Register New User</button>
             </form>
         </div>
     </div> <!-- sign_in_container -->
@@ -2733,11 +2780,11 @@ class meta:
     error_500 = Template('%s<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>%s</title></head><body><h1>500 - Internal Server Error</h1><hr/><p>$msg</p>$params<hr/><p>Please report all issues at <a href="https://github.com/toconnell/kdm-manager/issues">https://github.com/toconnell/kdm-manager/issues</a><br/><br/>Use the information below to report the error:</p><hr/><p>%s</p><h2>Traceback:</h2>$exception' % (basic_http_header, settings.get("application","title"), datetime.now()))
     start_head = '<!DOCTYPE html>\n<html ng-app="kdmManager" ng-controller="globalController">\n<head>\n<meta charset="UTF-8">\n<meta name="theme-color" content="#000000">\n<title>%s</title>\n<link rel="stylesheet" type="text/css" href="/media/style.css">\n' % settings.get("application","title")
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
-    saved_dialog = '\n    <div id="saved_dialog" class="success hidden">Saved!</div>'
+    saved_dialog = '\n    <div id="saved_dialog" class="kd_alert_no_exclaim" style="">Saved!</div>'
     mobile_hr = '<hr class="mobile_only"/>'
     dashboard_alert = Template("""\n\
-    <div id="dashboard_alert_spacer"></div>
-    <div class="dashboard_alert maroon">
+    <div class="dashboard_alert_spacer"></div>
+    <div class="kd_alert dashboard_alert">
     $msg
     </div>
     \n""")
@@ -2751,7 +2798,7 @@ class meta:
     <form id="logout" method="POST" action="/">
     <input type="hidden" name="remove_session" value="$session_id"/>
     <input type="hidden" name="login" value="$login"/>
-    <button>SIGN OUT</button>
+    <button>$login<br/>SIGN OUT</button>
     </form>
     \n""")
     burger_change_view_button = Template("""\n
@@ -2941,7 +2988,7 @@ def render_burger(session_object=None):
             settlement_id = "new_survivor"
         )
     if view in ["view_campaign","event_log","view_survivor","new_survivor","new_settlement"]:
-        if session_object.User.user["login"] in session_object.Settlement.get_admins():
+        if session_object.User.is_settlement_admin():
             actions += meta.burger_change_view_button.safe_substitute(
                 link_text = "Settlement Sheet",
                 target_view = "view_settlement",

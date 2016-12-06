@@ -669,7 +669,7 @@ abilities_and_impairments = {
     "Caratosis" : {
         "type": "ability",
         "expansion": "HIDDEN",
-        "desc": 'For each <font color="red">red</font> affinity you have, 1 of your attack rolls hits automatically each attack.',
+        "desc": 'For each <font class="affinity_red"> &nbsp; red &nbsp;</font> affinity you have, 1 of your attack rolls hits automatically each attack.',
         "max": 1,
         "related": ["Dream of the Beast", "Red Life Exchange"],
     },
@@ -692,7 +692,7 @@ abilities_and_impairments = {
     "Dormenatus" : {
         "type": "ability",
         "expansion": "HIDDEN",
-        "desc": 'When you <b>depart</b>, gain +1 to every hit location for each <font color="green">green</font> affinity you have.',
+        "desc": 'When you <b>depart</b>, gain +1 to every hit location for each <font class="affinity_green"> &nbsp; green &nbsp;</font> affinity you have.',
         "max": 1,
         "related": ["Dream of the Crown", "Green Life Exchange"],
     },
@@ -715,7 +715,7 @@ abilities_and_impairments = {
     "Lucernae" : {
         "expansion": "HIDDEN",
         "type": "ability",
-        "desc": 'For every <font color="blue">blue</font> affinity you have, your ranged weapons gain this amount of <b>range</b> and your melee weapons gain this amount of <b>reach</b>.',
+        "desc": 'For every <font class="affinity_blue"> &nbsp; blue &nbsp;</font> affinity you have, your ranged weapons gain this amount of <b>range</b> and your melee weapons gain this amount of <b>reach</b>.',
         "max": 1,
         "related": ["Dream of the Lantern", "Blue Life Exchange"],
     },
@@ -3432,7 +3432,7 @@ survivors = {
         },
     },
     "Candy & Cola": {
-        "attribs": {"Movement": 1, "disorders": ["Hyperactive"], "sex": "F"},
+        "attribs": {"Movement": 6, "disorders": ["Hyperactive"], "sex": "F"},
     },
     "Kara Black": {
         "attribs": {"survival": 3, "Strength": 1, "fighting_arts": ["Leader","Tough"], "sex": "F"},
@@ -3608,73 +3608,6 @@ weapon_proficiencies = {
     "Twilight Sword": {},
 }
 
-
-cause_of_death = {
-    # expansion-specific
-    "Death Pit": {"type": "story_event", "expansion": "Manhunter"},
-    "Lottery": {"type": "story_event", "expansion": "Manhunter"},
-    "Culled by the Manhunter": {"type": "story_event", "expansion": "Manhunter"},
-    "Hanged": {"type": "story_event", "expansion": "Manhunter"},
-    "Died by the Throne": {"type": "endeavor", "expansion": "Dragon King"},
-    "Culled by the Tyrant": {"type": "endeavor", "expansion": "Dragon King"},
-    "Buried Alive": {"type": "endeavor", "expansion": "Sunstalker"},
-    "Necrotoxic Mistletoe": {"type": "story_event", "expansion": "Flower Knight"},
-
-    # showdown
-    "Crushed and devoured": {"type": "monster",},
-    "Butchered": {"type": "monster"},
-#    "Coup de grace" {"type": "monster"},
-    "Never existed": {"type": "monster"},
-    "Rainbow Droppings": {"type": "monster"},
-    "Parasites": {"type": "showdown"},
-    "Purified": {"type": "showdown"},
-    "Clever ploy": {"type": "showdown"},
-    "Hack City": {"type": "showdown"},
-
-    # hunt event
-    "Touched the statue": {"type": "hunt_event"},
-    "Devoured by a stone face": {"type": "hunt_event"},
-    "Devoured by a Harvester": {"type": "hunt_event"},
-    "Eaten by a titanic beast": {"type": "hunt_event"},
-    "Death Wager": {"type": "hunt_event"},
-    "The Gambler": {"type": "hunt_event"},
-    "Consuming grass": {"type": "hunt_event"},
-
-    # severe-injury
-    "Bled out": {"type": "severe_injury"},
-    "Head Explosion!": {"type": "severe_injury"},
-    "Decapitated": {"type": "severe_injury"},
-    "Arms ripped off": {"type": "severe_injury"},
-    "Died of Shock": {"type": "severe_injury"},
-    "Bone fragment to the heart": {"type": "severe_injury"},
-    "Instant death": {"type": "severe_injury"},
-    "Final breath": {"type": "severe_injury"},
-    "Blood Geyser": {"type": "severe_injury"},
-
-    # brain trauma
-    "Mortal Terror": {"type": "brain_trauma"},
-
-    # story_events
-    "Armored Strangers": {"type": "story_event"},
-    "Regal Visit": {"type": "story_event"},
-    "Hooded Knight": {"type": "story_event"},
-    "Exiled": {"type": "story_event"},
-    "Intimacy": {"type": "story_event"},
-    "Childbirth": {"type": "story_event"},
-
-    # settlement events
-    "Rivalry": {"type": "settlement_event",},
-    "Killed in a duel": {"type": "settlement_event",},
-    "Hunt Reenactment": {"type": "settlement_event"},
-    "Fell into a fissure": {"type": "settlement_event"},
-    "Murdered": {"type": "settlement_event"},
-    "Plague": {"type": "settlement_event"},
-    "Open maw": {"type": "settlement_event"},
-
-    # endeavor
-    "Sacrified": {"type": "endeavor"},
-
-}
 
 epithets = {
     # manhunter

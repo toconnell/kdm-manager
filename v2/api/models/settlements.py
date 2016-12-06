@@ -4,7 +4,7 @@ from bson import json_util
 import json
 
 import Models
-from models import cursed_items, survivors, weapon_specializations, weapon_masteries
+from models import cursed_items, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions
 import settings
 import utils
 
@@ -15,7 +15,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.3
+        self.object_version=0.4
         Models.UserAsset.__init__(self,  *args, **kwargs)
 
 
@@ -42,8 +42,44 @@ class Settlement(Models.UserAsset):
         output["game_assets"].update(self.get_available_assets(weapon_specializations))
         output["game_assets"].update(self.get_available_assets(weapon_masteries))
         output["game_assets"].update(self.get_available_assets(cursed_items))
+        output["game_assets"].update(self.get_available_assets(causes_of_death))
+        output["game_assets"].update(self.get_available_assets(survival_actions))
+        output["game_assets"]["survival_actions_available"] = self.get_available_survival_actions()
 
         return json.dumps(output, default=json_util.default)
+
+
+    def get_innovations(self, return_type=None):
+        """ Returns self.settlement["innovations"] by default; specify 'dict' as
+        the 'return_type' to get a dictionary back instead. """
+
+        s_innovations = self.settlement["innovations"]
+        all_innovations = innovations.Assets()
+
+        if return_type == dict:
+            output = {}
+            for i in s_innovations:
+                if i in all_innovations.get_names():
+                    i_dict = all_innovations.get_asset_from_name(i)
+                    output[i_dict["handle"]] = i_dict
+            return output
+
+        return s_innovations
+
+
+    def get_available_survival_actions(self):
+        """ Returns a dictionary of survival actions available to the settlement
+        and its survivors. """
+
+        all_survival_actions = survival_actions.Assets()
+
+        sa = {}
+        for k,v in self.get_innovations(dict).iteritems():
+            if "survival_action" in v.keys():
+                sa_dict = all_survival_actions.get_asset_from_name(v["survival_action"])
+                sa_dict["innovation"] = v["name"]
+                sa[sa_dict["handle"]] = sa_dict
+        return sa
 
 
     def get_players(self, return_type=None):

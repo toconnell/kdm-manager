@@ -64,10 +64,24 @@ class User:
         else:
             return False
 
+    def is_settlement_admin(self):
+        """ Checks self.Session.Settlement.settlement admins to see if the user
+        is a settlement admin. """
+
+        if self.user["_id"] == self.Session.Settlement.settlement["created_by"]:
+            return True
+        elif "admins" in self.Session.Settlement.settlement.keys():
+            if self.user["login"] in self.Session.Settlement.settlement["admins"]:
+                return True
+
+        return False
+
 
     def can_manage_departing_survivors(self):
         """ Checks 'settlement_id' settlement to see if the user can manage the
-        Departing Survivors on the Campaign Summary. """
+        Departing Survivors on the Campaign Summary. This is different than just
+        being a settlement admin, because it takes into account whether there
+        are, in fact, departing survivors to manage. """
 
         if self.Session.Settlement is None:
             return False
@@ -75,12 +89,8 @@ class User:
         if self.Session.Settlement.get_departing_survivors() == []:
             return False
 
-
-        if self.user["_id"] == self.Session.Settlement.settlement["created_by"]:
+        if self.is_settlement_admin:
             return True
-        elif "admins" in self.Session.Settlement.settlement.keys():
-            if self.user["login"] in self.Session.Settlement.settlement["admins"]:
-                return True
 
         return False
 
@@ -2590,7 +2600,7 @@ class Survivor:
         survivor. """
 
         if not link_text:
-            link_text = "<b>%s</b>" % self.survivor["name"]
+            link_text = '<b>%s</b>' % self.survivor["name"]
             if "sex" in include:
                 link_text += " [%s]" % self.get_sex("html")
 
@@ -3098,7 +3108,6 @@ class Settlement:
             self.update_mins()
 
 
-
     def update_mins(self):
         """ check 'population' and 'death_count' minimums and update the
         settlement's attribs if necessary.
@@ -3151,6 +3160,11 @@ class Settlement:
             self.api_asset = self.Session.api_settlement
             if not "game_assets" in self.api_asset.keys():
                 self.logger.error("[%s] API asset for %s does not contain a 'game_assets' key!" % (self.User, self))
+
+        # re-initialize models that use an API asset (now that we've got one)
+        for M in [CauseOfDeath]:
+            M.load_settlement(self)
+
 
 
     def get_api_asset(self, asset_type="sheet", asset_key=None):
@@ -4488,7 +4502,7 @@ class Settlement:
                 if endeavor_string == "":
                     pass
                 else:
-                    output += "<p><b>%s:</b></p>" % k
+                    output += "<h5>%s:</h5>" % k
                     output += endeavor_string
             return output
 
@@ -4861,6 +4875,7 @@ class Settlement:
         for survivor in self.get_survivors("hunting_party"):
             S = Survivor(survivor_id=survivor["_id"], session_object=self.Session)
             returning_survivor_id_list.append(S.survivor["_id"])
+
             if "dead" not in S.survivor.keys():
                 returning_survivor_name_list.append(S.survivor["name"])
 
@@ -4900,8 +4915,15 @@ class Settlement:
             else:
                 self.logger.debug("[%s] Quarry '%s' already in timeline for this year: %s. Skipping timeline update..." % (self, quarry_key, self.get_timeline_events(event_type="quarry_event")))
 
+        if len(returning_survivor_name_list) > 0:
+            if self.get_endeavor_tokens() == 0:
+                self.update_endeavor_tokens(len(returning_survivor_name_list))
+                self.log_event("Automatically set endeavor tokens to %s" % len(returning_survivor_name_list))
+                self.logger.debug("[%s] automatically applied endeavor tokens for %s returning survivors" % (self.User, len(returning_survivor_name_list)))
+
         returners = ", ".join(returning_survivor_name_list)
         self.log_event("Departing Survivors (%s) have returned in %s!" % (returners, aftermath))
+
 
 
     def modify_departing_survivors(self, params=None):
@@ -4911,7 +4933,7 @@ class Settlement:
         target_attrib = params["hunting_party_operation"].value
         target_action = params["operation"].value
 
-        for s in self.get_survivors("hunting_party"):
+        for s in self.get_survivors("hunting_party", exclude_dead=True):
             S = Survivor(survivor_id=s["_id"], session_object=self.Session)
             if target_action == "increment" and target_attrib == "Brain Event Damage":
                 S.brain_damage()
@@ -4930,7 +4952,7 @@ class Settlement:
             if target_attrib != "Brain Event Damage" and S.survivor[target_attrib] < 0:
                 S.survivor[target_attrib] = 0
 
-            mdb.survivors.save(S.survivor)
+            S.save()
 
         self.logger.debug("[%s] completed Departing Survivors management operation." % (self.User))
         self.log_event("%s %sed Departing Survivors %s" % (self.User.user["login"], target_action, target_attrib))
@@ -5280,6 +5302,15 @@ class Settlement:
                 self.logger.warn("[%s] submitted un-actionable form input to update_settlement_storage()" % self.User)
                 self.logger.debug(params)
 
+    def update_endeavor_tokens(self, value=0):
+        """ Adds 'value' to self.settlement["endeavor_tokens"]. """
+
+        cur_val = self.get_endeavor_tokens()
+        new_val = cur_val + int(value)
+        if new_val < 0:
+            new_val = 0
+        self.settlement["endeavor_tokens"] = new_val
+        self.logger.debug("[%s] updated endeavor tokens for %s. New total %s" % (self.User, self, self.get_endeavor_tokens()))
 
 
     def update_location_level(self, location_name, lvl):
@@ -5443,6 +5474,14 @@ class Settlement:
             return html.settlement.current_quarry_select.safe_substitute(options=options, settlement_id=self.settlement["_id"])
 
         return current_quarry
+
+
+    def get_endeavor_tokens(self):
+        """ Returns self.settlement["endeavor_tokens"] as an int. """
+
+        if not "endeavor_tokens" in self.settlement.keys():
+            self.settlement["endeavor_tokens"] = 0
+        return self.settlement["endeavor_tokens"]
 
 
     def get_game_asset(self, asset_type=None, return_type=False, exclude=[], update_mins=True, admin=False):
@@ -5741,6 +5780,8 @@ class Settlement:
 
             if p in ignore_keys:
                 pass
+            elif p == "endeavor_tokens":
+                self.update_endeavor_tokens(game_asset_key)
             elif p == "name":
                 self.update_settlement_name(game_asset_key)
             elif p == "add_defeated_monster":
@@ -5899,6 +5940,9 @@ class Settlement:
 
             show_departing_survivors_management_button=self.User.can_manage_departing_survivors(),
             current_quarry_controls = self.get_current_quarry("modal_controls"),
+            show_endeavor_controls = self.User.get_preference("show_endeavor_token_controls"),
+            show_endeavor_paddles = self.User.is_settlement_admin(),
+            endeavor_tokens = self.get_endeavor_tokens(),
         )
 
 

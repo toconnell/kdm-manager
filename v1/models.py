@@ -22,6 +22,15 @@ class Model:
     def __init__(self):
         self.logger = get_logger()
 
+    def load_settlement(self, settlement_object=None):
+        """ NB: any object that subclsases this has to have its own, private
+        initialize_API_assets() method, or else this will explode in your face.
+        """
+
+        self.Settlement = settlement_object
+        if hasattr(self.Settlement, "api_asset"):
+            self.initialize_API_assets()
+
     def get_asset(self, game_asset_key):
         return self.game_assets[game_asset_key]
 
@@ -505,8 +514,10 @@ class defeatedMonstersModel(Model):
 class causeOfDeathModel(Model):
     def __init__(self):
         Model.__init__(self)
-        self.game_assets = game_assets.cause_of_death
         self.name = "cause_of_death"
+
+    def initialize_API_assets(self):
+        self.game_assets = self.Settlement.get_api_asset("game_assets","causes_of_death")
 
 class resourcesModel(Model):
     def __init__(self):
@@ -620,11 +631,11 @@ preferences_dict = {
         "affirmative": "Show the next four Lantern Years",
         "negative": "Only show the current Lantern Year",
     },
-    "confirm_on_return": {
+    "show_endeavor_token_controls": {
         "type": "Campaign Summary",
-        "desc": "Confirm Departing Survivors return?",
-        "affirmative": "Confirm",
-        "negative": "Do not confirm",
+        "desc": "Show Endeavor Token controls on Campaign Summary view?",
+        "affirmative": "Show controls",
+        "negative": "Hide controls",
     },
     "update_timeline": {
         "type": "Automation",

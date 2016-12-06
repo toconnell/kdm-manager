@@ -2,6 +2,58 @@
 
 
 innovations = {
+
+    #
+    #   Innovations including a survival action unlock
+    #
+
+    "dragon_speech": {
+        "name": "Dragon Speech",
+        "type": "starting innovation",
+        "expansion": "Dragon King",
+        "survival_limit": 1,
+        "survival_action": "Encourage",
+        "consequences": ["Hovel", "Inner Lantern", "Drums", "Paint", "Symposium", "Ammonia"],
+    },
+    "sun_language": {
+        "name": "Sun Language",
+        "expansion": "Sunstalker",
+        "type": "starting innovation",
+        "survival_limit": 1,
+        "survival_action": "Embolden",
+        "consequences": ["Ammonia", "Drums", "Hovel", "Paint", "Symposium", "Hands of the Sun"],
+    },
+    "hands_of_the_sun": {
+        "name": "Hands of the Sun",
+        "expansion": "Sunstalker",
+        "type": "faith",
+        "survival_action": "Overcharge",
+        "consequences": ["Aquarobics", "Sauna Shrine"],
+    },
+    "inner_lantern": {
+        "name": "Inner Lantern",
+        "type": "faith",
+        "consequences": ["Shrine", "Scarification"],
+        "survival_action": "Surge",
+    },
+    "paint": {
+        "name": "Paint",
+        "type": "art",
+        "consequences": ["Pictograph", "Sculpture", "Face Painting"],
+        "survival_action": "Dash",
+    },
+    "language": {
+        "name": "Language",
+        "type": "starting innovation",
+        "consequences": ["Hovel", "Inner Lantern", "Drums", "Paint", "Symposium", "Ammonia"],
+        "survival_limit": 1,
+        "survival_action": "Encourage",
+    },
+
+    #
+    #    principles
+    #
+
     "graves" : {
         "name": "Graves",
         "principle": "death",
