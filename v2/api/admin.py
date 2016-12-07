@@ -137,7 +137,7 @@ class KillboardMaintenance:
 
         # next, try to make a monster object out of it, for suggested changes
         try:
-            m = monster.Monster(name=doc["name"])
+            m = monsters.Monster(name=doc["name"])
         except:
             m = None
             print("\tMonster object could not be initialized!")
