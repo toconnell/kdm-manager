@@ -16,35 +16,40 @@ quarries = {
         "sort_order": 2,
         "misspellings": ["XCREAMING ANTALOPE","SCREAMING ANTALOPE"],
     },
+    "spidicules": {
+        "name": "Spidicules",
+        "expansion": "spidicules",
+        "sort_order": 3,
+    },
     "flower_knight": {
         "name": "Flower Knight",
         "expansion": "flower_knight",
-        "sort_order": 3,
+        "sort_order": 4,
     },
     "phoenix": {
         "name": "Phoenix",
-        "sort_order": 4,
+        "sort_order": 5,
         "misspellings": ["PHONIEX"],
     },
     "sunstalker": {
         "name": "Sunstalker",
         "expansion": "sunstalker",
-        "sort_order": 5,
+        "sort_order": 6,
     },
     "dragon_king": {
         "name": "Dragon King",
         "expansion": "dragon_king",
-        "sort_order": 6,
+        "sort_order": 7,
     },
     "dung_beetle_knight": {
         "name": "Dung Beetle Knight",
         "expansion": "dung_beetle_knight",
-        "sort_order": 7,
+        "sort_order": 8,
     },
     "lion_god": {
         "name": "Lion God",
         "expansion": "lion_god",
-        "sort_order": 8
+        "sort_order": 9
     },
 }
 

@@ -1120,7 +1120,7 @@ class Survivor:
 
 
     def get_fighting_arts(self, return_type=False):
-        """ Returns a survivor's fighting arts. As HTML, if necessary. """
+        """ Returns a survivor's fighting arts. As HTML with level controls, if necessary. """
 
         fighting_arts = self.survivor["fighting_arts"]
 
@@ -1128,6 +1128,25 @@ class Survivor:
             output = ""
             for fa_key in fighting_arts:
                 fa_dict = FightingArts.get_asset(fa_key)
+
+                level_controls = ""
+                if "levels" in fa_dict:
+                    l_dict = fa_dict["levels"]
+                    level_controls = ""
+                    for lvl in sorted(l_dict.keys()):
+                        checked = ""
+                        if lvl == 0:
+                            checked = "checked"
+                        if lvl in self.get_fighting_art_levels(fa_key):
+                            checked = "checked"
+                        level_controls += html.survivor.survivor_sheet_fa_level_toggle.safe_substitute(
+                            checked = checked,
+                            name = fa_key,
+                            lvl = lvl,
+                            desc = l_dict[lvl],
+                            input_id = "%sFightingArtLevel%sControls" % (fa_key,lvl),
+                            survivor_id = self.survivor["_id"],
+                        )
 
                 const = ""
                 if "constellation" in fa_dict.keys():
@@ -1142,6 +1161,7 @@ class Survivor:
                     desc = fa_dict["desc"],
                     constellation=const,
                     secret = sec,
+                    lvl_cont = level_controls,
                 )
 
             return output
@@ -1478,6 +1498,8 @@ class Survivor:
                 asset_dict = FightingArts.get_asset(asset_key)
                 if "epithet" in asset_dict.keys():
                     self.update_epithets(epithet=asset_dict["epithet"])
+                if "Movement" in asset_dict.keys():
+                    self.survivor["Movement"] = int(self.survivor["Movement"]) + asset_dict["Movement"] 
             else:
                 self.logger.exception("[%s] Attempted to add unknown fighting art!" % self)
                 return False
@@ -1575,6 +1597,40 @@ class Survivor:
 
         # do this after removing game assets from survivors
         self.Settlement.validate_weapon_masteries()
+
+
+    def get_fighting_art_levels(self, fighting_art=None):
+        """ Gets a list of the active levels for 'fighting_art'. Returns an
+        empty list if the survivor doesn't have anything. """
+
+        if not "fighting_art_levels" in self.survivor.keys():
+            return []
+
+        if fighting_art in self.survivor["fighting_art_levels"].keys():
+            return self.survivor["fighting_art_levels"][fighting_art]
+
+        return []
+
+
+    def toggle_fighting_art_level(self, fighting_art=None, lvl=0):
+        """ Toggles a fighting art level on or off. """
+
+        lvl = int(lvl)
+
+        if fighting_art is None or lvl == 0:
+            return Nong
+
+        fa_dict = FightingArts.get_asset(fighting_art)
+        if not "fighting_art_levels" in self.survivor.keys():
+            self.survivor["fighting_art_levels"] = {fighting_art: []}
+
+        if lvl in self.survivor["fighting_art_levels"][fighting_art]:
+            self.survivor["fighting_art_levels"][fighting_art].remove(lvl)
+            self.logger.debug("[%s] toggled '%s' level %s off" % (self.User, fighting_art, lvl))
+        else:
+            self.survivor["fighting_art_levels"][fighting_art].append(lvl)
+            self.logger.debug("[%s] toggled '%s' level %s on" % (self.User, fighting_art, lvl))
+
 
 
     def toggle(self, toggle_key, toggle_value, toggle_type="implicit"):
@@ -2549,6 +2605,9 @@ class Survivor:
                     self.logger.exception(e)
             elif p == "rm_survivor_note":
                 self.update_survivor_notes("rm", game_asset_key)
+            elif p.split("_")[0:4] == ["fighting","art","level","toggle"]:
+                fighting_art = p.split("_")[-1]
+                self.toggle_fighting_art_level(fighting_art, game_asset_key)
             elif p == "angularjs_attrib_update":
                 attribute = params["angularjs_attrib_update"].value
                 attribute_type = params["angularjs_attrib_type"].value
@@ -3330,10 +3389,14 @@ class Settlement:
         if e_key in self.settlement["expansions"]:
             # first purge expansion events from the timeline
             expansion_dict = game_assets.expansions[e_key]
+
             if "timeline_add" in expansion_dict.keys():
                 for e in expansion_dict["timeline_add"]:
                     if e["ly"] >= self.settlement["lantern_year"]:
                         self.update_timeline(rm_event = (e["ly"], e["name"]))
+            if "timeline_rm" in expansion_dict.keys():
+                for e in expansion_dict["timeline_rm"]:
+                    self.update_timeline(add_event = (e["ly"], e["type"], e["name"]))
 
             self.settlement["expansions"].remove(e_key)
             self.log_event("'%s' expansion is now disabled!" % (e_key.replace("_"," ")))
@@ -3354,6 +3417,7 @@ class Settlement:
 
         expansion_dict = game_assets.expansions[e_key]
 
+        # support for expansions that inlcude timeline events
         if "timeline_add" in expansion_dict.keys():
             for e in expansion_dict["timeline_add"]:
                 if "excluded_campaign" in e.keys() and e["excluded_campaign"] == self.get_campaign():
@@ -3361,6 +3425,12 @@ class Settlement:
                 else:
                     if e["ly"] >= int(self.settlement["lantern_year"]):
                         self.update_timeline(add_event = (e["ly"], e["type"], e["name"]))
+
+        # support for expansions that remove timeline events
+        if "timeline_rm" in expansion_dict.keys():
+            for e in expansion_dict["timeline_rm"]:
+                if e["ly"] >= int(self.settlement["lantern_year"]):
+                    self.update_timeline(rm_event = (e["ly"], e["name"]))
 
         self.logger.debug("[%s] Added '%s' expansion to %s" % (self.User, e_key, self))
         self.log_event("'%s' expansion is now enabled!" % e_key)
@@ -4148,7 +4218,7 @@ class Settlement:
 
                 if year == current_lantern_year:
                     output += "\n</div> <!-- completed lys -->\n\n"
-                    button_color = "timeline_current_ly"
+                    button_color = "kd_blue"
 
 
                 if self.User.get_preference("show_future_timeline"):
@@ -4440,6 +4510,7 @@ class Settlement:
         sources = copy(self.get_game_asset("innovations", update_mins=False))
         sources.extend(self.settlement["principles"])
         sources.extend(self.settlement["locations"])
+        sources.extend(self.settlement["storage"])
 
         buffs = {}
         for source_key in sources:
@@ -4447,7 +4518,10 @@ class Settlement:
                 buffs[source_key] = Innovations.get_asset(source_key)["endeavors"]
             elif source_key in Locations.get_keys() and "endeavors" in Locations.get_asset(source_key).keys():
                 buffs[source_key] = Locations.get_asset(source_key)["endeavors"]
+            elif source_key in Items.get_keys() and "endeavors" in Items.get_asset(source_key).keys():
+                buffs[source_key] = Items.get_asset(source_key)["endeavors"]
 
+        # fucking bloom people
         if "endeavors" in self.get_campaign("dict"):
             buffs[self.get_campaign()] = self.get_campaign("dict")["endeavors"]
 
@@ -4469,13 +4543,18 @@ class Settlement:
                     if requirements_met:
                         e_type = ""
                         e_desc = ""
-                        e_name = "<i>%s</i>" % endeavor_key
+
                         if "desc" in e.keys():
                             e_desc = "%s" % e["desc"]
                         if "type" in e.keys():
                             e_type = "(%s)" % e["type"]
+                        else:
+                            self.logger.debug(e.keys())
+
+                        e_name = "<i>%s</i>" % endeavor_key
                         if "hide_name" in e.keys():
                             e_name = ""
+
                         punc = ""
                         if e_desc != "" and not "hide_name" in e.keys():
                             punc = ": "
@@ -4502,7 +4581,16 @@ class Settlement:
                 if endeavor_string == "":
                     pass
                 else:
-                    output += "<h5>%s:</h5>" % k
+                    sub = ""
+                    show = False
+                    if k in Innovations.get_keys() and "subhead" in Innovations.get_asset(k):
+                        sub = Innovations.get_asset(k)["subhead"]
+                        show = True
+                    output += html.settlement.innovation_heading.safe_substitute(
+                        name = k,
+                        show_subhead = show,
+                        subhead = sub,
+                    )
                     output += endeavor_string
             return output
 
@@ -5594,6 +5682,7 @@ class Settlement:
                     name=asset_name,
                     name_pretty=pretty_asset_name,
                 )
+
                 deck = self.get_game_asset_deck(asset_type)
 
                 # Special Innovate bullshit here
@@ -5602,7 +5691,8 @@ class Settlement:
                         if "special_innovate" in Innovations.get_asset(late_key):
                             special_innovate = Innovations.get_asset(late_key)["special_innovate"]
                             if special_innovate[1] in self.settlement[special_innovate[0]]:
-                                deck.append(late_key)
+                                if late_key not in deck:
+                                    deck.append(late_key)
 
                 for asset_key in sorted(deck):
                     output += html.ui.game_asset_select_row.safe_substitute(asset=asset_key)
@@ -6099,10 +6189,19 @@ class Settlement:
             desktop_text = "%s Campaign Summary" % self.settlement["name"]
             asset_type = "campaign"
         elif context == "dashboard_campaign_list":
-            button_class = "settlement_sheet_gradient"
-            link_text = html.dashboard.campaign_flash + "<b>%s</b><br/><i>%s</i><br/>LY %s. Survivors: %s Players: %s" % (self.settlement["name"], self.get_campaign(), self.settlement["lantern_year"], self.settlement["population"], self.get_players(count_only=True))
-            desktop_text = ""
-            asset_type = "campaign"
+            players = self.get_players()
+            if len(players) > 1:
+                players = "<br/>Players: %s" % (", ".join(players))
+            else:
+                players = ""
+            return html.settlement.dashboard_campaign_asset.safe_substitute(
+                asset_id=self.settlement["_id"],
+                name=self.settlement["name"],
+                campaign=self.get_campaign(),
+                ly=self.get_ly(),
+                pop=self.settlement["population"],
+                players_block=players,
+            )
         else:
             button_class = "gradient_yellow"
             link_text = html.dashboard.settlement_flash + "<b>%s</b>" % self.settlement["name"]

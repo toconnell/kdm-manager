@@ -37,6 +37,16 @@ mar_2016_expansions = {
             {"ly": 8, "type": "story_event", "name": "Rumbling in the Dark"},
         ],
     },
+    "spidicules": {
+        "name": "Spidicules",
+        "always_available": ["Legless Ball","Silk Mill","Silk-Refining"],
+        "timeline_add": [
+            {"ly": 2, "type": "story_event", "name": "Young Rivals"},
+        ],
+        "timeline_rm": [
+            {"ly": 2, "type": "story_event", "name": "Endless Screams"},
+        ],
+    },
     "lion_knight": {
         "name": "Lion Knight",
         "always_available": ["Stoic Statue"],

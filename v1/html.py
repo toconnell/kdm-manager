@@ -116,7 +116,7 @@ class ui:
 
 class dashboard:
     # settlement administrivia; needs to be above the dashboard accordions
-    panel_button = '<form action="#" method="POST"><input type="hidden" name="change_view" value="panel"/><button class="dashboard_admin_panel_launch_button touch_me tablet_and_desktop">Admin Panel!</button></form>\n'
+    panel_button = '<form action="#" method="POST"><input type="hidden" name="change_view" value="panel"/><button class="dashboard_admin_panel_launch_button kd_blue tablet_and_desktop">Admin Panel!</button></form>\n'
     new_settlement_button = '<form method="POST" action="#"><input type="hidden" name="change_view" value="new_settlement" /><button class="kd_blue">+ New Settlement</button></form>\n'
 
     # flash
@@ -236,7 +236,8 @@ class dashboard:
     <div class="dashboard_menu">
         <h2 class="clickable campaign_summary_gradient" onclick="showHide('campaign_div')"> <img class="dashboard_icon" src="%s/icons/campaign.png"/> Campaigns %s </h2>
         <div id="campaign_div" style="display: $display" class="dashboard_accordion campaign_summary_gradient">
-        <p>Games you are currently playing.</p>
+        <p class="panel_top_tooltip">Games you are currently playing.</p>
+        <hr class="invisible">
             <div class="dashboard_button_list">
             $campaigns
             </div>
@@ -388,7 +389,7 @@ class dashboard:
 
 
 class survivor:
-    no_survivors_error = '<!-- No Survivors Found! --> <div class="kd_alert user_asset_sheet_error"><p>Use the navigation menu controls in the upper left to add new survivors!</p></div>'
+    no_survivors_error = '<!-- No Survivors Found! --> <div class="kd_alert user_asset_sheet_error">This settlement has no survivors in it! Use the navigation menu controls in the upper left to add new survivors.</div>'
     new = Template("""\n\
     <span class="tablet_and_desktop nav_bar survivor_sheet_gradient"></span>
     <span class="mobile_only nav_bar_mobile survivor_sheet_gradient"></span>
@@ -992,21 +993,21 @@ class survivor:
             Cannot use<br/>Fighting Arts
         </label>
 
-        <form method="POST" action=".#edit_fighting_arts">
+
+        <h3>Fighting Arts</h3>
+
+        <p>Maximum 3.</p>
+
+        <div class="survivor_sheet_card_container">
+            $fighting_arts
+        </div>
+
+        <form method="POST" action="#edit_fighting_arts">
             <input type="hidden" name="form_id" value="survivor_edit_fighting_arts" />
             <input type="hidden" name="modify" value="survivor" />
             <input type="hidden" name="asset_id" value="$survivor_id" />
 
             <button class="hidden"></button> <!-- hacks! -->
-
-            <h3>Fighting Arts</h3>
-
-            <p>Maximum 3.</p>
-
-            <div class="survivor_sheet_card_container">
-                $fighting_arts
-            </div>
-
             $add_fighting_arts
             <br class="mobile_only"/>
             $rm_fighting_arts
@@ -1745,10 +1746,30 @@ class survivor:
     <!-- <p>{{errortext}}</p> -->
     </div>
     \n""")
+    survivor_sheet_fa_level_toggle = Template("""\n
+    <span class="survivor_sheet_fa_level_row">
+        <input
+            id="$input_id"
+            class="fighting_art_level_toggle"
+            name="fighting_art_level_toggle_$name"
+            onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+            type="checkbox"
+            value="$lvl"
+            $checked
+        />
+        <label
+            class="fighting_art_level_toggle"
+            for="$input_id"
+         >
+            <b>Rank $lvl:</b> $desc
+        </label>
+    </span>
+    \n""")
     survivor_sheet_fighting_art_box = Template("""\n
     <p class="survivor_sheet_fighting_art survivor_sheet_card card_gradient $secret">
         <b class="card_title $constellation">$name</b>
-    $desc
+        $lvl_cont
+        $desc
     </p>
     \n""")
     survivor_sheet_disorder_box = Template("""\n
@@ -1879,6 +1900,19 @@ class settlement:
     player_controls_table_top = '<table class="player_management_controls"><tr><th>Email Address</th><th>Role</th></tr>\n'
     player_controls_table_row = Template("""<tr><td>$email</td><td>$role</td></tr>\n""")
     player_controls_table_bot = '<tr class="controller"><td colspan="2"><button class="full_width gradient_orange">Update Player Roles</button></2></tr></table>'
+
+    # dashboard refactor
+    dashboard_campaign_asset = Template("""\n
+    <form method="POST" action="#">
+        <input type="hidden" name="view_campaign" value="$asset_id" />
+        <button class="settlement_sheet_gradient dashboard_settlement_name">
+        <b class="dashboard_settlement_name">$name</b>
+        <i>$campaign</i><br/>
+        LY $ly. &ensp; Survivors: $pop &ensp;
+        $players_block
+        </button>
+    </form>
+    \n""")
 
     #   campaign view campaign summary
     campaign_summary_survivors_top = '<div class="campaign_summary_survivors">\n<h3 class="mobile_only">Survivors</h3>'
@@ -2115,7 +2149,7 @@ class settlement:
             >
                 <input type="hidden" name="return_departing_survivors" value="victory"/>
                 <input type="hidden" name="asset_id" value="$settlement_id"/>
-                <button class="success return_departing_survivors">Victorious!</button>
+                <button class="kd_blue return_departing_survivors">Victorious!</button>
             </form>
 
             <hr/>
@@ -2330,7 +2364,7 @@ class settlement:
             <input
                 type="submit"
                 id="settlement_sheet_create_new_survivors"
-                class="survival_limit_style" value="Create New Survivors"
+                class="kd_blue settlement_sheet_bulk_add" value="Create New Survivors"
             />
 
         </div> <!-- bulk_add_survivors -->
@@ -2651,7 +2685,7 @@ class settlement:
     <label for="$handle" class="radio_principle_label">$key</label>
     <p> &ensp; <font class="kdm_font">g</font> <b>$story_event</b> (p.$story_page) </p>
     \n""")
-    principles_all_hidden_warning = '<div class="kd_alert user_asset_sheet_error"><p>Update settlement Milestones to show controls for adding Settlement Principles.</p></div>'
+    principles_all_hidden_warning = '<div class="kd_alert user_asset_sheet_error">Update settlement Milestones to show controls for adding Settlement Principles.</div>'
     principle_radio = Template("""\n
         <input onchange="this.form.submit()" type="radio" id="$handle" class="radio_principle" name="principle_$principle_key" value="$option" $checked /> 
         <label class="radio_principle_label" for="$handle"> $option </label>
@@ -2670,11 +2704,14 @@ class settlement:
     $desc
     </div>
     """)
+    innovation_heading = Template("""\n
+    <h5>$name</h5><p class="$show_subhead campaign_summary_innovation_subhead innovation_gradient">$subhead</p>
+    \n""")
     endeavor = Template("""\n
     <p class="$p_class">
     &nbsp; $cost $name$punc $desc $type
     </p>
-    """)
+    \n""")
 
 
 class login:

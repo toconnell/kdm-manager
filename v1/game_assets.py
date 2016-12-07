@@ -12,6 +12,15 @@
 #
 
 abilities_and_impairments = {
+    "Rival's Scar": {
+        "type": "ability",
+        "expansion": "Spidicules",
+        "desc":"Gain +1 permanent strength and +1 permanent evasion.",
+        "max": 1,
+        "epithet": "Rival's Scar",
+        "Strength": 1,
+        "Evasion": -1,
+    },
     "Acid Palms": {
         "type": "ability",
         "expansion": "Dragon King",
@@ -735,6 +744,21 @@ abilities_and_impairments = {
 #
 
 disorders = {
+    "Tiny Arachnophobia": {
+        "expansion": "Spidicules",
+        "flavor_text": "You are irrationally scared by tiny spiders and the things they produce.",
+        "survivor_effect": 'You cannot carry any gear with the amber keyword. You cannot gain any resources with the silk keyword.',
+    },
+    "Controlophobia": {
+        "expansion": "Spidicules",
+        "flavor_text": "You are deeply afraid of being the monster controller.",
+        "survivor_effect": 'While you are the monster controller, double any damage you suffer.',
+    },
+    "Revenge": {
+        "expansion": "Spidicules",
+        "flavor_text": "When a fellow hunter perishes you lose control.",
+        "survivor_effect": 'When a survivors dies during the showdown, suffer the <b>Frenzy</b> brain trauma.',
+    },
     "Superstitious": {
         "expansion": "Dragon King",
         "flavor_text": "Evil magic will be your undoing. You do not believe in abusing the other.",
@@ -956,6 +980,34 @@ disorders = {
 
 
 fighting_arts = {
+    "Death Touch": {
+        "expansion": "Spidicules",
+        "desc": "Gain +1 accuracy when attacking with Fist & Tooth.<br/>When you wound a monster, it gains -1 toughness until the end of your attack.<br/>You cannot use this if you are male.",
+        "secret": True,
+        "epithet": "Black Widow"
+    },
+    "Silk Surgeon": {
+        "expansion": "Spidicules",
+        "desc": "",
+        "secret": True,
+        "epithet": "Silk Surgeon",
+        "levels": {
+            0: "",
+            1: 'You may spend <font class="kdm_font">a</font> while adjacent to another survivor to add <font class="inline_shield">2</font> to one of their hit locations.',
+            2: "While all armor in your gear grid is silk and all jewelry is amber, gain +2 evasion.",
+            3: "During the aftermath, roll 1d10 for each other survivor that died during the showdown. On a 7+, revive them.",
+        },
+    },
+    "Vengeance": {
+        "expansion": "Spidicules",
+        "desc": "When a survivor dies during the showdown, gain +4 survival and +1 strength token.",
+    },
+    "Harvestman": {
+        "expansion": "Spidicules",
+        "desc": "Gain +3 movement. Whenever you are knocked down, gain -1 movement token.<br/>If you have the <b>Tiny Arachnophobia</b> disorder, you are too scared of spiders to imitate them and you cannot use this fighting art.",
+        "epithet": "Harvestman",
+        "Movement": 3,
+    },
     "Eternal Will": {
         "expansion": "Manhunter",
         "desc": "Gain +1 accuracy and +1 strength for each permanent injury you have.<br/>You may always <b>depart</b>, even when retired.",
@@ -1241,9 +1293,13 @@ defeated_monsters = {
 }
 
 locations = {
+    "Silk Mill":{
+        "color": "C0CA33",
+        "font_color": "000",
+    },
     "Manhunter Gear":{
         "color": "000",
-        "font_color": "f00",
+        "font_color": "F50057",
     },
     "Dragon Armory":{
         "color": "6A1B9A",
@@ -1443,6 +1499,155 @@ item_normalization_exceptions = {
 
 
 items = {
+    "Venom Sac": {
+        "expansion": "Spidicules",
+        "location": "Spidicules Resources",
+        "resource_family": ["organ",],
+    },
+    "Arachnid Heart": {
+        "expansion": "Spidicules",
+        "location": "Spidicules Resources",
+        "resource_family": ["organ",],
+    },
+    "Serrated Fangs": {
+        "expansion": "Spidicules",
+        "location": "Spidicules Resources",
+        "resource_family": ["bone",],
+        "endeavors": {
+            "Razor Push-ups": {"cost": 1, "type": "education",},
+        },
+    },
+    "Eyeballs": {
+        "expansion": "Spidicules",
+        "location": "Spidicules Resources",
+        "resource_family": ["organ",],
+    },
+    "Unlaid Eggs": {
+        "expansion": "Spidicules",
+        "location": "Spidicules Resources",
+        "resource_family": ["organ",],
+    },
+    "Large Appendage": {
+        "expansion": "Spidicules",
+        "location": "Spidicules Resources",
+        "resource_family": ["bone",],
+    },
+    "Exoskeleton": {
+        "expansion": "Spidicules",
+        "location": "Spidicules Resources",
+        "resource_family": ["hide",],
+    },
+    "Chitin": {
+        "expansion": "Spidicules",
+        "location": "Spidicules Resources",
+        "resource_family": ["hide",],
+    },
+    "Small Appendages": {
+        "expansion": "Spidicules",
+        "location": "Spidicules Resources",
+        "resource_family": ["hide",],
+    },
+    "Stomach": {
+        "expansion": "Spidicules",
+        "location": "Spidicules Resources",
+        "resource_family": ["organ",],
+    },
+    "Spinnerets": {
+        "expansion": "Spidicules",
+        "location": "Spidicules Resources",
+        "resource_family": ["organ","scrap"],
+    },
+    "Thick Web Silk": {
+        "expansion": "Spidicules",
+        "location": "Spidicules Resources",
+        "resource_family": ["silk","hide"],
+    },
+    "Silken Nervous System": {
+        "expansion": "Spidicules",
+        "location": "Strange Resources",
+        "resource_family": ["organ"],
+    },
+    "Web Silk": {
+        "expansion": "Spidicules",
+        "location": "Strange Resources",
+        "resource_family": ["silk"],
+    },
+    "Silk Armor Set": {
+        "expansion": "Spidicules",
+        "location": "Silk Mill",
+    },
+    "Throwing Knife": {
+        "expansion": "Spidicules",
+        "location": "Silk Mill",
+    },
+    "Hooded Scrap Katar": {
+        "expansion": "Spidicules",
+        "location": "Silk Mill",
+    },
+    "Silk Wraps": {
+        "expansion": "Spidicules",
+        "location": "Silk Mill",
+    },
+    "Silk Whip": {
+        "expansion": "Spidicules",
+        "location": "Silk Mill",
+    },
+    "Silk Turban": {
+        "expansion": "Spidicules",
+        "location": "Silk Mill",
+    },
+    "Silk Sash": {
+        "expansion": "Spidicules",
+        "location": "Silk Mill",
+    },
+    "Silk robes": {
+        "expansion": "Spidicules",
+        "location": "Silk Mill",
+    },
+    "Silk Boots": {
+        "expansion": "Spidicules",
+        "location": "Silk Mill",
+    },
+    "Silk Bomb": {
+        "expansion": "Spidicules",
+        "location": "Silk Mill",
+    },
+    "Silk Body Suit": {
+        "expansion": "Spidicules",
+        "location": "Silk Mill",
+    },
+    "Green Ring": {
+        "expansion": "Spidicules",
+        "location": "Silk Mill",
+    },
+    "Red Ring": {
+        "expansion": "Spidicules",
+        "location": "Silk Mill",
+    },
+    "Blue Ring": {
+        "expansion": "Spidicules",
+        "location": "Silk Mill",
+    },
+    "Amber Poleaxe": {
+        "expansion": "Spidicules",
+        "location": "Silk Mill",
+    },
+    "Amber Edge": {
+        "expansion": "Spidicules",
+        "location": "Silk Mill",
+    },
+    "Grinning Visage": {
+        "expansion": "Spidicules",
+        "location": "Rare Gear",
+        "desc": 'When you wound with this shield, you may spend 1 survival to add <font class="inline_shield">1</font> to all hit locations.<br/>Limit, once per attack.',
+        "type": ["weapon","melee","shield"],
+    },
+    "The Weaver": {
+        "expansion": "Spidicules",
+        "location": "Rare Gear",
+        "desc": 'When you wound a monster, add <font class="inline_shield">1</font> to a random hit location.',
+        "type": ["weapon","melee","sword","amber"],
+    },
     "Black Friday Lantern": {
         "expansion": "White Box",
         "location": "Promo",
@@ -2914,6 +3119,60 @@ items = {
 #
 
 innovations = {
+    "Choreia": {
+        "type": "music",
+        "expansion": "Spidicules",
+        "survivor_buff": "At the start of the showdown, each survivor gains &#9733; survival.",
+        "endeavors": {
+            "Spider Dance": {"cost": 1, "type": "music", "desc": "Nominate a male and a female survivor and roll 1d10."},
+        },
+    },
+    "Silk-Refining": {
+        "expansion": "Spidicules",
+        "type": "other",
+        "survival_limit": 1,
+        "endeavors": {
+            "end_0": {
+                "hide_name": True,
+                "type": "other",
+                "desc": '<font class="kdm_font">g</font> <b>Silk Surgery</b>.',
+                "cost": 1,
+            },
+           "end_1": {
+                "hide_name": True,
+                "type": "other",
+                "desc": 'Convert 1 silk resource into 1 hide basic resource.',
+                "cost": 1,
+            },
+           "end_2": {
+                "hide_name": True,
+                "type": "other",
+                "desc": 'Spend 2 silk, 1 bone, and 1 organ to build the <b>Silk Mill</b> settlement location.',
+                "remove_after": "Silk Mill",
+                "cost": 1,
+            },
+        },
+    },
+    "Legless Ball": {
+        "expansion": "Spidicules",
+        "type": "other",
+        "survivor_buff": '<b>Departing survivors</b> gain +2 insanity.',
+        "subhead": 'Spend only 1 <font class="kdm_font">d</font> here per settlement phase.',
+        "endeavors": {
+            "end_0": {
+                "hide_name": True,
+                "type": "other",
+                "desc": 'Add 1 <b>Web Silk</b> strange resource to settlement storage.',
+                "cost": 1,
+            },
+           "end_1": {
+                "hide_name": True,
+                "type": "other",
+                "desc": 'A survivor with 10+ insanity may put the Spidicules out of its misery. Gain the <b>Grinning Visage</b> rare gear and lose this innovation. (Archive this card.)',
+                "cost": 1,
+            },
+        },
+    },
     "Settlement Watch": {
         "type": "home",
         "expansion": "Manhunter",
@@ -3308,7 +3567,7 @@ innovations = {
     },
     "Forbidden Dance": {
         "type": "music",
-        "consequences": ["Petal Spiral"],
+        "consequences": ["Petal Spiral", "Choreia"],
         "endeavors": {
             "Fever Dance": {"cost": 1, "type": "music"},
         },
@@ -3461,17 +3720,18 @@ quarries = {
     "White Lion":               {"sort_order": 1, },
     "Gorm":                     {"sort_order": 2, "expansion": "Gorm"},
     "Screaming Antelope":       {"sort_order": 3, },
-    "Flower Knight":            {"sort_order": 4, "expansion": "Flower Knight"},
-    "Phoenix":                  {"sort_order": 5, },
-    "Sunstalker":               {"sort_order": 6, "expansion": "Sunstalker"},
-    "Dragon King":              {"sort_order": 7, "expansion": "Dragon King"},
-    "Dung Beetle Knight":       {"sort_order": 7, "expansion": "Dung Beetle Knight"},
-	"Lion God":                 {"sort_order": 8, "expansion": "Lion God"},
-    "Beast Of Sorrow":          {"sort_order": 10, "no_levels": True, },
-    "Great Golden Cat":         {"sort_order": 11, "no_levels": True, },
-    "Mad Steed":                {"sort_order": 12, "no_levels": True, },
-    "Golden Eyed King":         {"sort_order": 13, "no_levels": True, },
-    "Old Master":               {"sort_order": 14, "no_levels": True, "expansion": "Dung Beetle Knight"},
+    "Spidicules":               {"sort_order": 4, "expansion": "Spidicules"},
+    "Flower Knight":            {"sort_order": 5, "expansion": "Flower Knight"},
+    "Phoenix":                  {"sort_order": 6, },
+    "Sunstalker":               {"sort_order": 7, "expansion": "Sunstalker"},
+    "Dragon King":              {"sort_order": 8, "expansion": "Dragon King"},
+    "Dung Beetle Knight":       {"sort_order": 8, "expansion": "Dung Beetle Knight"},
+	"Lion God":                 {"sort_order": 9, "expansion": "Lion God"},
+    "Beast Of Sorrow":          {"sort_order": 13, "no_levels": True, },
+    "Great Golden Cat":         {"sort_order": 14, "no_levels": True, },
+    "Mad Steed":                {"sort_order": 15, "no_levels": True, },
+    "Golden Eyed King":         {"sort_order": 16, "no_levels": True, },
+    "Old Master":               {"sort_order": 17, "no_levels": True, "expansion": "Dung Beetle Knight"},
 }
 
 nemeses = {
@@ -3535,6 +3795,12 @@ story_events = {
     "Sonorous Rest": {"page": 15, "book": "Manhunter"},
     "Bleeding Heart": {"page": 17, "book": "Manhunter"},
     "Tools of War": {"page": 19, "book": "Manhunter"},
+    "Young Rivals": {"page": 4, "book": "Spidicules"},
+    "The Forest Wants What it Wants": {"page": 11, "book": "Spidicules"},
+    "Spidisisyphus": {"page": 13, "book": "Spidicules"},
+    "Puppet's Embalming": {"page": 15, "book": "Spidicules"},
+    "Silk Surgery": {"page": 17, "book": "Spidicules"},
+    "Taken": {"page": 19, "book": "Spidicules"},
 }
 
 resources = {
@@ -3545,6 +3811,9 @@ resources = {
         "color": "FFCC66",
     },
     "Phoenix Resources": {
+        "color": "FFCC66",
+    },
+    "Spidicules Resources": {
         "color": "FFCC66",
     },
     "Gorm Resources": {
@@ -3610,6 +3879,19 @@ weapon_proficiencies = {
 
 
 epithets = {
+    # spidicules
+    "Embalmed": {"expansion": "Spidicules"},
+    "Mummified": {"expansion": "Spidicules"},
+    "Mummified Husk": {"expansion": "Spidicules"},
+    "Cut Free": {"expansion": "Spidicules"},
+    "Spider Puppet": {"expansion": "Spidicules"},
+    "Spider Mastermind": {"expansion": "Spidicules"},
+    "Spider Surgeon": {"expansion": "Spidicules"},
+    "Silk Surgeon": {"expansion": "Spidicules"},
+    "Stalk Puppet": {"expansion": "Spidicules"},
+    "Patient": {"expansion": "Spidicules"},
+    "Taken": {"expansion": "Spidicules"},
+
     # manhunter
     "Recruit": {"expansion": "Manhunter"},
     "Settlement Watch": {"expansion": "Manhunter"},
@@ -3877,6 +4159,15 @@ expansions = {
             {"ly": 10, "type": "nemesis_encounter", "name": "Special Showdown - Manhunter"},
             {"ly": 16, "type": "nemesis_encounter", "name": "Special Showdown - Manhunter"},
             {"ly": 22, "type": "nemesis_encounter", "name": "Special Showdown - Manhunter"},
+        ],
+    },
+    "Spidicules": {
+        "always_available": ["Legless Ball","Silk Mill","Silk-Refining"],
+        "timeline_add": [
+            {"ly": 2, "type": "story_event", "name": "Young Rivals"},
+        ],
+        "timeline_rm": [
+            {"ly": 2, "type": "story_event", "name": "Endless Screams"},
         ],
     },
     "Dung Beetle Knight": {

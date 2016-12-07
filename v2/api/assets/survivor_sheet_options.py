@@ -1,5 +1,9 @@
 causes_of_death = {
     #expansion specific
+    "Necrotoxin": {"context": "showdown", "expansion": "Spidicules"},
+    "Embalmed": {"context": "showdown", "expansion": "Spidicules"},
+    "Became a Stalk Puppet": {"context": "showdown", "expansion": "Spidicules"},
+
     "Death Pit": {"context": "story_event", "expansion": "Manhunter"},
     "Lottery": {"context": "story_event", "expansion": "Manhunter"},
     "Culled by the Manhunter": {"context": "story_event", "expansion": "Manhunter"},
