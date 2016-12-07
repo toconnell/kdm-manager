@@ -1618,7 +1618,7 @@ class Survivor:
         lvl = int(lvl)
 
         if fighting_art is None or lvl == 0:
-            return Nong
+            return None
 
         fa_dict = FightingArts.get_asset(fighting_art)
         if not "fighting_art_levels" in self.survivor.keys():
@@ -4548,8 +4548,6 @@ class Settlement:
                             e_desc = "%s" % e["desc"]
                         if "type" in e.keys():
                             e_type = "(%s)" % e["type"]
-                        else:
-                            self.logger.debug(e.keys())
 
                         e_name = "<i>%s</i>" % endeavor_key
                         if "hide_name" in e.keys():
