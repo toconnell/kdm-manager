@@ -3557,7 +3557,8 @@ innovations = {
     "Pictograph": {
         "type": "art",
         "consequences": ["Momento Mori"],
-        "survivor_buff": 'Anytime during the hunt or showdown phase, a survivor may <font class="kdm_font">g</font> <b>Run Away</b>.',
+#        "survivor_buff": 'Anytime during the hunt or showdown phase, a survivor may <font class="kdm_font">g</font> <b>Run Away</b>.',
+        "survivor_buff": 'At the start of a standing survivor\'s act, they may trigger the <font class="kdm_font">g</font> <b>Run Away</b> story event. Limit, once per act.',
     },
     "Heart Flute": {
         "type": "music",

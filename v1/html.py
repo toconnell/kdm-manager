@@ -2461,7 +2461,9 @@ class settlement:
          <p class="block_group_subhead">The settlement's established principles.</p>
 
         $principles_controls
-        $principles_rm
+        <div class="principles_rm_container">
+            $principles_rm
+        </div>
 
         </div> <!-- principle block group -->
         </form>
