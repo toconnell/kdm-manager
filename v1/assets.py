@@ -86,7 +86,6 @@ class User:
             return False
 
         if self.is_settlement_admin():
-            self.logger.debug("[%s] is an admin of %s" % (self, self.Session.Settlement))
             return True
 
         s = mdb.survivors.find_one({"_id": ObjectId(survivor_id)})
