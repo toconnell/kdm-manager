@@ -401,7 +401,7 @@ class survivor:
         <form method="POST" action="#" enctype="multipart/form-data">
         <input type="hidden" name="new" value="survivor" />
         <input type="hidden" name="settlement_id" value="$home_settlement">
-        <input type="text" id="new_asset_name" name="name" placeholder="New Survivor Name" class="full_width" autofocus>
+        <input type="text" id="new_asset_name" name="name" placeholder="New Survivor Name" class="full_width" ng-model="name" autofocus>
 
         <div id="block_group">
             <hr class="invisible">
@@ -436,7 +436,7 @@ class survivor:
 
             <br />
 
-            <button class="success">SAVE</button>
+            <button class="kd_blue">Add {{name}}</button>
             </form>
         </div><!-- create_new_asset_block -->
     </div>
@@ -1132,17 +1132,16 @@ class survivor:
               </label>
 
               <br/>
-            <hr />
 
+            $remove_survivor_controls
 
-            <form action="#" method="POST" onsubmit="return confirm('This cannot be undone! Press OK to permanently delete this survivor forever, which is NOT THE SAME THING as marking it dead: permanently deleting the survivor prevents anyone from viewing and/or editing it ever again! If you are trying to delete all survivors in a settlement, you may delete the settlement from the settlement editing view.');"><input type="hidden" name="remove_survivor" value="$survivor_id"/><button class="error">Permanently Delete Survivor</button></form>
             <div class="survivor_sheet_bottom_attrib_spacer">&nbsp;</div>
 
-    <!-- gotta put this here, outside of the other forms -->
-    <form id="avatar_change_form" method="POST" enctype="multipart/form-data" action="#">
-    <input type="hidden" name="modify" value="survivor" />
-    <input type="hidden" name="asset_id" value="$survivor_id" />
-    </form>
+            <!-- gotta put this here, outside of the other forms -->
+            <form id="avatar_change_form" method="POST" enctype="multipart/form-data" action="#">
+                <input type="hidden" name="modify" value="survivor" />
+                <input type="hidden" name="asset_id" value="$survivor_id" />
+            </form>
 
         </div> <!-- asset_management_right_pane -->
 
@@ -1171,6 +1170,8 @@ class survivor:
             <div class="modal-content survivor_sheet_gradient" ng-app="kdmManager">
                 <span class="closeModal" onclick="closeModal('modalCustomAI')">×</span>
                 <h3>Create Custom A&I</h3>
+                <p>Use the form below to create a new, custom <i>Abilities & Impairments</i> line for $name. As you fill in the fields below, a preview of the new line item will appear in the white box below!</p>
+                <hr/>
 
                 <form id="custom_AI_modal" method="POST" action="#edit_abilities">
                     <input type="hidden" name="modify" value="survivor"/>
@@ -1195,7 +1196,7 @@ class survivor:
 
                     <hr/>
 
-                    <button class="success">Add {{name}} to $name</button>
+                    <button class="kd_blue">Add {{name}} to $name</button>
 
                 </form>
 
@@ -1240,43 +1241,65 @@ class survivor:
                 <span class="closeModal" onclick="closeModal('modalAffinity')">×</span>
 
                 <h3>Survivor Affinities</h3>
+                <p>Use these controls to adjust $name's permanent affinities. These will be reflected on the Survivor Sheet beneath the survivor's name. Negative values are supported. </p><hr/>
 
-                <form method="POST" action="#">
+                <form method="POST" action="#" title="Survivor Sheet permanent affinity controls">
                     <input type="hidden" name="modify" value="survivor" />
                     <input type="hidden" name="asset_id" value="$survivor_id" />
                     <input type="hidden" name="modal_update" value="affinities"/>
 
-                    <div class="bulk_add_control" title="Red affinity controls">
-                    <button type="button" class="incrementer" onclick="increment('redCountBox');">+</button>
-                    <input id="redCountBox" class="big_number_square" type="number" name="red_affinities" value="$red_affinities"/>
-                    <button type="button" class="decrementer" onclick="decrement('redCountBox');">-</button>
-                    </div>
-                    <div id="affinity_block" class="affinity_red">&nbsp;</div>
+                    <div class="modal_affinity_controls_container">
+
+                        <div class="modal_affinity_control_unit">
+                            <div class="bulk_add_control" title="Red affinity controls">
+                                <button type="button" class="incrementer" onclick="increment('redCountBox');">+</button>
+                                <input id="redCountBox" class="big_number_square" type="number" name="red_affinities" value="$red_affinities"/>
+                                <button type="button" class="decrementer" onclick="decrement('redCountBox');">-</button>
+                            </div>
+                            <div class="affinity_block affinity_red">&nbsp;</div>
+                        </div> <!-- modal_affinity_control_unit -->
+
+                        <hr class="affinity_spacer"/>
+
+                        <div class="modal_affinity_control_unit">
+                            <div class="bulk_add_control" title="Blue affinity controls">
+                                <button type="button" class="incrementer" onclick="increment('blueCountBox');">+</button>
+                                <input id="blueCountBox" class="big_number_square" type="number" name="blue_affinities" value="$blue_affinities"/>
+                                <button type="button" class="decrementer" onclick="decrement('blueCountBox');">-</button>
+                            </div>
+                            <div class="affinity_block affinity_blue">&nbsp;</div>
+                        </div> <!-- modal_affinity_control_unit -->
+
+                        <hr class="affinity_spacer"/>
+
+                        <div class="modal_affinity_control_unit">
+                            <div class="bulk_add_control" title="Green affinity controls">
+                                <button type="button" class="incrementer" onclick="increment('greenCountBox');">+</button>
+                                <input id="greenCountBox" class="big_number_square" type="number" name="green_affinities" value="$green_affinities"/>
+                                <button type="button" class="decrementer" onclick="decrement('greenCountBox');">-</button>
+                            </div>
+                            <div class="affinity_block affinity_green">&nbsp;</div>
+                        </div> <!-- modal_affinity_control_unit -->
+
+                    </div> <!-- modal_affinity_controls_container -->
+
                     <hr/>
 
-                    <div class="bulk_add_control" title="Blue affinity controls">
-                    <button type="button" class="incrementer" onclick="increment('blueCountBox');">+</button>
-                    <input id="blueCountBox" class="big_number_square" type="number" name="blue_affinities" value="$blue_affinities"/>
-                    <button type="button" class="decrementer" onclick="decrement('blueCountBox');">-</button>
-                    </div>
-                    <div id="affinity_block" class="affinity_blue">&nbsp;</div>
-                    <hr/>
-
-                    <div class="bulk_add_control" title="Green affinity controls">
-                    <button type="button" class="incrementer" onclick="increment('greenCountBox');">+</button>
-                    <input id="greenCountBox" class="big_number_square" type="number" name="green_affinities" value="$green_affinities"/>
-                    <button type="button" class="decrementer" onclick="decrement('greenCountBox');">-</button>
-                    </div>
-                    <div id="affinity_block" class="affinity_green">&nbsp;</div>
-                    <hr class="affinities_modal_separator"/>
-
-                    <center><button class="green" type="submit">Save!</button></center>
+                    <center><button class="kd_blue" type="submit">Save and Refresh!</button></center>
                     <br><br>
                 </form>
             </div> <!-- modal-content -->
         </div> <!-- modalAffinity -->
-
     \n""")
+    survivor_sheet_rm_controls = Template("""\n
+    <hr />
+    <h3>Permanently Delete Survivor</h3>
+    <form action="#" method="POST" onsubmit="return confirm('Press OK to permanently delete this survivor forever.\\r\\rThis is NOT THE SAME THING as marking it dead using controls above.\\r\\rPermanently deleting the survivor prevents anyone from viewing and/or editing this record ever again!');">
+        <input type="hidden" name="remove_survivor" value="$survivor_id"/>
+        <p>Use the button below to permanently remove $name. Please note that <b>this cannot be undone</b> and that any relationships between $name and other survivors will be removed.</p>
+        <button class="kd_alert_no_exclaim red_glow permanently_delete">Permanently Delete Survivor</button>
+    </form>
+    """)
     survivor_sheet_hit_box_controls = Template("""\n
 
             <!-- $hit_location [ render_hit_box_controls() ] -->
@@ -1622,7 +1645,7 @@ class survivor:
             <span class="closeModal" onclick="closeModal('modalCurseControls')">×</span>
 
             <h3>Cursed Items</h3>
-            <p class="cursed_items_subhead">Use the controls below to add cursed items to a Survivor. Cursed
+            <p>Use the controls below to add cursed items to a Survivor. Cursed
             gear cannot be removed from the Survivor's gear grid. Archive the gear
             when the survivor dies.</p>
 
@@ -1633,7 +1656,7 @@ class survivor:
         <hr/>
         <form method="POST" action="/">
             <!-- This is just a refresh -->
-            <button class="success" onclick="closeModal('modalCurseControls')">Reload Survivor Sheet</button>
+            <button class="kd_blue" onclick="closeModal('modalCurseControls')">Reload Survivor Sheet</button>
         </form>
         </div> <!-- modal-content -->
     </div> <!-- modalCurseControls -->
@@ -1730,8 +1753,8 @@ class survivor:
     </div>
     \n""")
     survivor_notes = Template("""\n
-    <div id="survivor_notes_angular" ng-app="kdmManager" ng-controller="survivorNotesController" ng-init="notes=$note_strings_list" title="Survivor notes. Use controls below to add. Click or tap to remove!">
-
+    <div id="survivor_notes_angular" ng-app="kdmManager" ng-controller="survivorNotesController" ng-init="notes=$note_strings_list" title="Survivor notes controls. Survivor notes are included in the Campaign Summary Survivor Search results.">
+    <p>Add notes to $name's Survivor Sheet using the controls below. Click or tap a note to remove it.</p>
         <ul class="survivor_sheet_survivor_note">
             <li class="survivor_sheet_survivor_note touch_me" ng-repeat="x in notes" ng-click="removeNote($index,'$survivor_id')">
                 {{x}}
@@ -1870,7 +1893,7 @@ class settlement:
             %s<br/>
         </p>
         <hr class="new_asset" />
-        <button class="success">Create!</button>
+        <button class="kd_blue">Create!</button>
         <br/><br/><br/>
         </form>
     </div> <!-- create_new_asset_form_container -->
@@ -2026,40 +2049,40 @@ class settlement:
             <!-- endeavors app -->
 
             <div class="campaign_summary_small_box endeavor_box">
-                <h4>Available Endeavors</h4>
+                <h4>- Available Endeavors -</h4>
                 $endeavors
             </div>
             <div class="campaign_summary_small_box">
-                <h4>Settlement Bonuses</h4>
+                <h4>- Settlement Bonuses -</h4>
                 $settlement_bonuses
                 $survivor_bonuses
             </div>
             <hr class="mobile_only"/>
             <div class="campaign_summary_small_box">
-                <h4>Principles</h4>
+                <h4>- Principles -</h4>
                 $principles
             </div>
             <div class="campaign_summary_small_box">
-                <h4>Innovations</h4>
+                <h4>- Innovations -</h4>
                 $innovations
             </div>
 
             <hr class="mobile_only"/>
 
             <div class="campaign_summary_small_box">
-                <h4>Locations</h4>
+                <h4>- Locations -</h4>
                 $locations
             </div>
 
             <hr class="mobile_only"/>
 
             <div class="campaign_summary_small_box">
-                <h3>Monsters</h3>
-                <h4>Defeated</h4>
+                <h4>- Monsters -</h4>
+                <h3 class="monster_subhead"> Defeated </h3>
                 $defeated_monsters
-                <h4>Quarries</h4>
+                <h3 class="monster_subhead">Quarries </h3>
                 $quarries
-                <h4>Nemeses</h4>
+                <h3 class="monster_subhead">Nemeses</h3>
                 $nemesis_monsters
             </div>
         </div> <!-- campaign_summary_facts_box -->
@@ -2170,6 +2193,55 @@ class settlement:
 
         </div> <!-- modal-content -->
     </div> <!-- modalDepartingSurvivors whole deal-->
+
+
+        <!-- SURVIVOR SEARCH -->
+
+
+    <input
+        id="survivorSearchModalOpener"
+        class="survivor_search"
+        placeholder="Search Living Survivors"
+        ng-model="searchText"
+    </input>
+    <div
+        id="survivorSearchModalContent"
+        class="survivor_search_modal_container modal"
+        ng-init="registerModalDiv('survivorSearchModalOpener','survivorSearchModalContent')"
+    >
+        <div
+            class="survivor_search_modal_content survivor_sheet_gradient"
+            ng-init = "survivors = $survivor_search_options"
+        >
+
+            <div id="searchTextResults" class="survivor_search_results_buttons">
+
+                <form
+                    method="POST" action="/"
+                    ng-repeat="survivor in survivors | filter:searchText"
+                    class="{{survivor.disabled}}"
+                >
+                    <input type="hidden" name="view_survivor" value="{{survivor._id}}" />
+                    <button
+                        class="kd_lantern {{survivor.disabled}}"
+                    >
+                      <p class="survivor_name">{{survivor.name}} [{{survivor.sex}}]</p>
+                      <div class="survivor_assets"><b>Epithets:</b> {{ survivor.epithets.join(", ") }}</div>
+                      <div class="survivor_assets"><b>Fighting Arts:</b> {{ survivor.fa.join(", ") }}</div>
+                      <div class="survivor_assets"><b>Disorders:</b> {{ survivor.disorders.join(", ") }}</div>
+                      <div class="survivor_assets"><b>Abilities & Impairments:</b> {{ survivor.ai.join(", ") }}</div>
+                      <div class="survivor_assets"><b>Notes:</b> {{ survivor.notes.join(", ") }}</div>
+                    </button>
+                </form>
+            </div>
+
+        <hr/>
+
+        <button class="kd_blue close_modal" onclick="closeModal('survivorSearchModalContent')">Close Search Window</button>
+
+        </div> <!-- survivor_search_modal_content -->
+    </div> <!-- survivorSearch -->
+
 
     \n""" % dashboard.campaign_flash)
 
@@ -2394,7 +2466,7 @@ class settlement:
         <div id="block_group">
         <h2>Storage</h2>
         <p>Gear and Resources may be stored without limit.<br/><br/>
-        <button id="modalStorageButton" class="yellow bold">+ Add Item to Storage</button>
+        <button id="modalStorageButton" class="kd_blue">+ Add Item to Storage</button>
         <br><br class="desktop_only">
         <a id="edit_storage" class="mobile_only"/></a>
 
@@ -2657,7 +2729,15 @@ class settlement:
     remove_settlement_button = Template("""\
     <hr/>
     <h3>Permanently Remove Settlement</h3>
-    <form action="#" method="POST" onsubmit="return confirm('Press OK to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever. Please note that this CANNOT BE UNDONE and is not the same as marking a settlement Abandoned. Consider abandoning old settlements rather than removing them, as this allows data about the settlement to be used in general kdm-manager stats.');"><input type="hidden" name="remove_settlement" value="$settlement_id"/><button class="full_width error">Permanently Delete Settlement</button></form>
+    <form
+        action="#"
+        method="POST"
+        onsubmit="return confirm('Press OK to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever. \\r\\rPlease note that this CANNOT BE UNDONE and is not the same as marking a settlement Abandoned.\\r\\rPlease consider abandoning old settlements rather than removing them, as this allows data about the settlement to be used in general kdm-manager stats.\\r\\r');"
+    >
+        <input type="hidden" name="remove_settlement" value="$settlement_id"/>
+        <p>Use the button below to permanently delete <i>$settlement_name</i>. Please note that <b>this cannot be undone</b> and that this will also permanently remove all survivors associated with this settlement.</p>
+        <button class="kd_alert_no_exclaim red_glow permanently_delete">Permanently Delete Settlement</button>
+    </form>
     """)
     expansions_block_slug = Template("""\n\
     <form method="POST" action="#edit_lost_settlements">

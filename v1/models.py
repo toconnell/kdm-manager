@@ -650,10 +650,9 @@ preferences_dict = {
         "negative": "Hide controls and survivor epithets on Survivor Sheets",
     },
     "show_remove_button": {
-        "type": "Settlement Sheet",
-        "desc": "Show controls for removing Settlements?",
-        "affirmative": "Show controls on Settlement Sheet",
-        "negative": "Hide controls on Settlement Sheet",
+        "desc": "Show controls for removing Settlements and Survivors?",
+        "affirmative": "Show controls on Settlement and Survivor Sheets",
+        "negative": "Hide controls on Settlement and Survivor Sheets",
     },
     "dynamic_innovation_deck": {
         "type": "Settlement Sheet",

@@ -509,7 +509,7 @@ abilities_and_impairments = {
         "desc": "Add +5 to your rolls on the Run Away story event."
     },
     # Severe Injuries start here! severe injuries
-    "Intracranial hemmorhage": {
+    "Intracranial hemorrhage": {
         "type": "severe_injury",
         "desc": "You can no longer use or gain any survival. This injury is permanent and can be recorded once. Gain 1 bleeding token.",
         "cannot_gain_survival": True,

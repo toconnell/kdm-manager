@@ -67,6 +67,10 @@ def u_to_str(data):
     else:
         return data
 
+def dict_to_js(d):
+    output =  "{" + ", ".join("%s: %r" % (k, str(d[k])) for k in d) + "}"
+    return output
+
 def to_handle(s):
     return s.lower().replace(" ","_")
 

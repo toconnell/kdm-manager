@@ -26,7 +26,7 @@ import game_assets
 import html
 from models import Abilities, NemesisMonsters, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles, SurvivalActions, CauseOfDeath
 from session import Session
-from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd, u_to_str
+from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd, u_to_str, dict_to_js
 import world
 
 settings = load_settings()
@@ -73,6 +73,31 @@ class User:
         elif "admins" in self.Session.Settlement.settlement.keys():
             if self.user["login"] in self.Session.Settlement.settlement["admins"]:
                 return True
+
+        return False
+
+
+    def can_manage_survivor(self, survivor_id=None):
+        """ Returns a bool expressing whether the user may manage a given the
+        survivor who has the mdb _id of '$survivor_id'. """
+
+        if survivor_id is None:
+            self.logger.warn("[%s] 'survivor_id' kwarg must not be None." % (self))
+            return False
+
+        if self.is_settlement_admin():
+            self.logger.debug("[%s] is an admin of %s" % (self, self.Session.Settlement))
+            return True
+
+        s = mdb.survivors.find_one({"_id": ObjectId(survivor_id)})
+        if s is None:
+            self.logger.warn("[%s] survivor _id '%s' was not found!" % (self, survivor_id))
+            return False
+
+        if s["created_by"] == self.user["_id"]:
+            return True
+        if s["email"] == self.user["login"]:
+            return True
 
         return False
 
@@ -567,6 +592,26 @@ class Survivor:
     def normalize(self):
         """ Run this when a Survivor object is initialized: it will enforce
         the data model and apply settlements defaults to the survivor. """
+
+        # 2016-12 dupe note js bug
+        seen = set()
+        for n in self.get_survivor_notes():
+            if n["note"] in seen:
+                self.logger.debug("[%s] duplicate note ('%s') detected. Removing note..." % (self.User, n["note"]))
+                mdb.survivor_notes.remove(n)
+            seen.add(n["note"])
+
+
+
+        # 2016-12 "hemmorhage" fix; expand as needed for the next typo
+        error_ai = {
+            "Intracranial hemmorhage": "Intracranial hemorrhage",
+        }
+        for ai in self.survivor["abilities_and_impairments"]:
+            if ai in error_ai.keys():
+                self.survivor["abilities_and_impairments"].remove(ai)
+                self.survivor["abilities_and_impairments"].append(error_ai[ai])
+                self.logger.debug("[%s] normalized '%s' to '%s" % (self.User, ai, error_ai[ai]))
 
         # 2016-11 RANDOM_FIGHTING_ART bug
         if "RANDOM_FIGHTING_ART" in self.survivor["fighting_arts"]:
@@ -2378,10 +2423,17 @@ class Survivor:
                 sorted_note_strings.append(str(note["note"]).replace("'","&#8217;").replace('"','&quot;'))
 
             output = html.survivor.survivor_notes.safe_substitute(
+                name = self.survivor["name"],
                 survivor_id = self.survivor["_id"],
                 note_strings_list = sorted_note_strings,
             )
             return output
+
+        if return_type == list:
+            out_list = []
+            for n in notes:
+                out_list.append(n["note"])
+            return out_list
 
         return notes
 
@@ -3017,6 +3069,13 @@ class Survivor:
             COD = self.survivor["cause_of_death"]
             custom_COD = self.survivor["cause_of_death"]
 
+        rm_controls = ""
+        if self.User.get_preference("show_remove_button"):
+            rm_controls = html.survivor.survivor_sheet_rm_controls.safe_substitute(
+                name=self.survivor["name"],
+                survivor_id=self.survivor["_id"],
+            )
+
         output = html.survivor.form.safe_substitute(
             MEDIA_URL = settings.get("application", "STATIC_URL"),
             desktop_avatar_img = self.get_avatar("html_desktop"),
@@ -3043,6 +3102,7 @@ class Survivor:
 
             # controls
             epithet_controls = self.get_epithets("html_angular"),
+            remove_survivor_controls = rm_controls,
 
             # checkbox status
             dead_checked = flags["dead"],
@@ -4748,6 +4808,40 @@ class Settlement:
                     hunting_party.append(survivor)
             return hunting_party
 
+        if return_type == "angularjs":
+
+            def js_list(l):
+                output = "["
+                for i in l:
+                    output += "'%s'," % str(i).replace("'","\\'")
+                return output + "]"
+
+            js = []
+            for s in survivors:
+                disabled = "disabled"
+                survivor_id = ""
+                if self.User.can_manage_survivor(s["_id"]):
+                    disabled = ""
+                    survivor_id = s["_id"]
+                S = Survivor(survivor_id=s["_id"], session_object=self.Session)
+                s_string = "{"
+                s_string += Template("name:'$name',_id:'$_id',fa:$fa,ai:$ai,disorders:$disorders,notes:$notes,epithets:$epithets,sex:$sex,disabled:$disabled").safe_substitute(
+                    name=s["name"],
+                    sex="'%s'" % S.get_sex(),
+                    _id=survivor_id,
+                    fa=js_list(s["fighting_arts"]),
+                    ai=js_list(s["abilities_and_impairments"]),
+                    disorders=js_list(s["disorders"]),
+                    notes=js_list(S.get_survivor_notes(list)),
+                    epithets=js_list(S.get_epithets()),
+                    disabled="'%s'" % disabled,
+                )
+                s_string += "}"
+                js.append(s_string)
+            output = "[" + ",".join(js) + "]"
+#            self.logger.debug(output)
+            return output
+
         if return_type == "html_buttons":
             output = ""
             for survivor in survivors:
@@ -6024,6 +6118,7 @@ class Settlement:
             quarries = self.get_game_asset("quarries", return_type="user_defined", update_mins=False),
             nemesis_monsters = self.get_game_asset("nemesis_monsters", return_type="user_defined", update_mins=False),
             survivors = self.get_survivors(return_type="html_campaign_summary", user_id=user_id),
+            survivor_search_options = self.get_survivors(return_type="angularjs", exclude_dead=True),
             special_rules = self.get_special_rules("html_campaign_summary"),
 
             show_departing_survivors_management_button=self.User.can_manage_departing_survivors(),
@@ -6055,7 +6150,10 @@ class Settlement:
         # show the settlement rm button if the user prefers
         rm_button = ""
         if self.User.get_preference("show_remove_button"):
-            rm_button = html.settlement.remove_settlement_button.safe_substitute(settlement_id=self.settlement["_id"])
+            rm_button = html.settlement.remove_settlement_button.safe_substitute(
+                settlement_id=self.settlement["_id"],
+                settlement_name=self.settlement["name"],
+            )
 
         return html.settlement.form.safe_substitute(
             MEDIA_URL = settings.get("application","STATIC_URL"),
