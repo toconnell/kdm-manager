@@ -3696,6 +3696,16 @@ class Settlement:
         for a in uniq_attribs:
             self.settlement[a] = [i.title().strip() for i in self.settlement[a]]
 
+        # 2016-12 timelines with None type events
+        for ly in self.settlement["timeline"]:
+            for ly_k in ly.keys():
+                if ly_k in ["quarry_event","nemesis_encounter","story_event","settlement_event"]:
+                    for i in ly[ly_k]:
+                        if i is None:
+                            self.logger.debug("[%s] removing '%s' from LY %s" % (self.User, i, ly["year"]))
+                            ly[ly_k].remove(i)
+
+
         # fix broken/incorrectly normalized innovations
         def normalize(settlement_attrib, incorrect, correct):
             if incorrect in self.settlement[settlement_attrib]:
@@ -4318,6 +4328,7 @@ class Settlement:
                                 event_text = target_year[event_type]
                                 this_year_events.append(event_text)
                             elif type(target_year[event_type]) == list:
+                                self.logger.debug(target_year)
                                 event_text = ", ".join(target_year[event_type])
                                 this_year_events.extend(target_year[event_type])
                             else:
