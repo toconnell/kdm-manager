@@ -4327,7 +4327,6 @@ class Settlement:
                                 event_text = target_year[event_type]
                                 this_year_events.append(event_text)
                             elif type(target_year[event_type]) == list:
-                                self.logger.debug(target_year)
                                 event_text = ", ".join(target_year[event_type])
                                 this_year_events.extend(target_year[event_type])
                             else:
