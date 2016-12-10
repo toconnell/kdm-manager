@@ -369,12 +369,14 @@ female = [
 ]
 
 other = [
+    "Ash",
     "Blackthorn",
     "Ghost",
     "Jones",
     "Quinn",
     "Robin",
     "Raven",
+    "Revan",
     "Scout",
     "Shadow",
     "Starbuck",

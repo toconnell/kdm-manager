@@ -4822,6 +4822,8 @@ class Settlement:
             def js_list(l):
                 output = "["
                 for i in l:
+                    if "\\'" in i:
+                        i = i.replace("\\'","'")
                     output += "'%s'," % str(i).replace("'","\\'")
                 return output + "]"
 
