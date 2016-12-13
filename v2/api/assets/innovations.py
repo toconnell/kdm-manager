@@ -76,9 +76,10 @@ innovations = {
         "name": "Survival of the Fittest",
         "principle": "new_life",
         "survival_limit": 1,
-        "settlement_buff": "When rolling on the Intimacy story event, roll twice and pick the lowest result. All newborn survivors gain +1 Strength.",
-        "survivor_buff": "All newborn survivors gain +1 Strength.",
-        "newborn_survivor": {"Strength": 1},
+        "settlement_buff": "When rolling on the Intimacy story event, roll twice and pick the lowest result. All current and newborn survivors gain +1 strength and evasion.<br/>Once per lifetime, a survivor may reroll a single roll result. They must keep this new result.",
+        "survivor_buff": "All current and newborn survivors gain +1 strength and evasion.",
+        "current_survivor": {"Strength": 1, "Evasion": 1},
+        "newborn_survivor": {"Strength": 1, "Evasion": 1},
     },
     "collective_toil": {
         "name": "Collective Toil",

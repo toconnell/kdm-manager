@@ -169,7 +169,7 @@ class Model:
 
         # exclude if the asset wants to be excluded
         for self_ex_asset in self.get_keys():
-            if "exclude_from_picker" in self.get_asset(self_ex_asset):
+            if "exclude_from_picker" in self.get_asset(self_ex_asset) and self_ex_asset in options:
                 options.remove(self_ex_asset)
 
         # exclude by type

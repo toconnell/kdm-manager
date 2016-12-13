@@ -902,7 +902,7 @@ disorders = {
         },
     },
     "Seizures": {
-        "flavor_text": "Lingering damage from your head injuries has caused you to experience period of of uncontrollable shaking and absence of thought.",
+        "flavor_text": "Lingering damage from your head injuries has caused you to experience periods of uncontrollable shaking and absence of thought.",
         "survivor_effect": "During the showdown, whenever you suffer damage to your head location, you are knocked down.",
     },
     "Immortal": {
@@ -4268,7 +4268,7 @@ milestones = {
         "add_to_timeline": 'len(self.settlement["innovations"]) >= 5',
     },
     "innovations_8": {
-        "sort_order": 2,
+        "sort_order": 4,
         "story_event": "Edged Tonometry",
         "add_to_timeline": 'len(self.settlement["innovations"]) >= 8',
     },
@@ -4414,7 +4414,7 @@ campaigns = {
             "Population reaches 15": milestones["pop_15"],
             "Settlement has 8 innovations": milestones["innovations_8"],
             "Population reaches 0": milestones["game_over"],
-            "Not Victorious against Nemesis": {"sort_order": 4, "story_event": "Game Over"},
+            "Not Victorious against Nemesis": {"sort_order": 11, "story_event": "Game Over"},
         },
         "nemesis_monsters": {"Butcher": [u'Lvl 1'], },
         "timeline": [

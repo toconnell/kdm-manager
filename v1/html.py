@@ -108,10 +108,8 @@ class ui:
     """)
     game_asset_select_row = Template('\t  <option value="$asset">$asset</option>\n')
     game_asset_select_bot = '    </select>\n'
-    game_asset_add_custom = Template("""\n\
-<input onchange="this.form.submit()" type="text" class="full_width" name="add_$asset_name" placeholder="add custom $asset_name_pretty"/>
-    \n""")
     text_input = Template('\t  <input onchange="this.form.submit()" type="text" class="full_width" name="$name" placeholder="$placeholder_text"/>')
+
 
 
 class dashboard:
@@ -2175,7 +2173,7 @@ class settlement:
                 <button class="kd_blue return_departing_survivors">Victorious!</button>
             </form>
 
-            <hr/>
+            <br/>
 
             <form
                 action="/"
@@ -2184,7 +2182,7 @@ class settlement:
             >
                 <input type="hidden" name="return_departing_survivors" value="defeat"/>
                 <input type="hidden" name="asset_id" value="$settlement_id"/>
-                <button class="error return_departing_survivors">Defeated...</button>
+                <button class="kd_alert_no_exclaim red_glow return_departing_survivors">Defeated...</button>
             </form>
 
 
@@ -2284,7 +2282,7 @@ class settlement:
                     class="incrementer"
                     onclick="stepAndSave('up','survivalLimitBox','settlement','$settlement_id');"
                 >
-                    +
+                    &#9652;
                 </button>
                 <input
                     id="survivalLimitBox"
@@ -2298,10 +2296,10 @@ class settlement:
                     class="decrementer"
                     onclick="stepAndSave('down','survivalLimitBox','settlement','$settlement_id');"
                 >
-                    -
+                    &#9662;
                 </button>
             </div>
-            <div class="big_number_caption">Survival Limit<br />(min: $min_survival_limit)</div>
+            <div class="big_number_caption">Survival Limit<br /><font class="settlement_sheet_survival_limit_caption">(min: $min_survival_limit)</font></div>
         </div><!-- settlement_form_wide_box -->
 
         <br class="mobile_only"/>
@@ -2313,7 +2311,7 @@ class settlement:
                     class="incrementer"
                     onclick="stepAndSave('down','populationBox','settlement','$settlement_id');"
                 >
-                    +
+                    &#9652;
                 </button>
                 <input
                     id="populationBox"
@@ -2327,7 +2325,7 @@ class settlement:
                     class="decrementer"
                     onclick="stepAndSave('down','populationBox','settlement','$settlement_id');"
                 >
-                    -
+                    &#9662;
                 </button>
             </div>
             <div class="big_number_caption">Population</div>
@@ -2342,7 +2340,7 @@ class settlement:
                     class="decrementer"
                     onclick="stepAndSave('up','deathCountBox','settlement','$settlement_id');"
                 >
-                    +
+                    &#9652;
                 </button>
                 <input
                     id="deathCountBox"
@@ -2357,21 +2355,31 @@ class settlement:
                     class="decrementer"
                     onclick="stepAndSave('down','deathCountBox','settlement','$settlement_id');"
                 >
-                    -
+                    &#9662;
                 </button>
             </div>
             <div class="big_number_caption">Death Count</div>
-            </div> <!-- settlement_form_wide_box -->
+        </div> <!-- settlement_form_wide_box -->
 
 
-        <hr />
+        <hr class="invisible">
 
 
-        <!-- BULK ADD is a form and needs a refresh/reload -->
+            <!-- BULK ADD CONTROLS FOR SURVIVORS START HERE -->
 
 
-        <h3>Bulk Add New Survivors</h3>
-        <div id="bulk_add_survivors">
+        <div class="settlement_sheet_block_group" onclick="showHide('bulk_add_survivors')">
+            <hr class="mobile_only">
+            <h2>Add Multiple New Survivors</h2>
+            <p>Click or tap to show/hide controls for adding <b>multiple new survivors</b> to <i>$name</i>.</p>
+        </div> <!-- settlement_sheet_block_group -->
+
+        <div
+            id="bulk_add_survivors"
+            class="settlement_sheet_hidden_controls"
+            style="display:none"
+            title="New survivors will be named randomly or 'Anonymous' according to user preference. See the Dashboard 'System' panel for more information. "
+        >
             <div class="bulk_add_control">
                 <form method="POST" action="#">
                     <input type="hidden" name="modify" value="settlement" />
@@ -2385,7 +2393,7 @@ class settlement:
                         class="incrementer"
                         onclick="increment('maleCountBox');"
                     >
-                        +
+                        &#9652;
                     </button>
                     <input
                         id="maleCountBox"
@@ -2400,7 +2408,7 @@ class settlement:
                         class="decrementer"
                         onclick="decrement('maleCountBox');"
                     >
-                        -
+                    &#9662;
                     </button>
             </div>  <!-- bulk_add_control maleCoundBox" -->
             <div class="bulk_add_control">
@@ -2412,7 +2420,7 @@ class settlement:
                     class="incrementer"
                     onclick="increment('femaleCountBox');"
                 >
-                    +
+                    &#9652;
                 </button>
                 <input
                     id="femaleCountBox"
@@ -2427,118 +2435,233 @@ class settlement:
                     class="decrementer"
                     onclick="decrement('femaleCountBox');"
                 >
-                    -
+                    &#9662;
                 </button>
             </div>
-
-            <a id="settlement_notes" class="mobile_only"></a>
 
             <input
                 type="submit"
                 id="settlement_sheet_create_new_survivors"
-                class="kd_blue settlement_sheet_bulk_add" value="Create New Survivors"
+                class="kd_alert_no_exclaim settlement_sheet_bulk_add" value="Create New Survivors"
             />
 
+            </form>
         </div> <!-- bulk_add_survivors -->
-        </form>
 
 
-        <hr/>
-
-
-
-        <!-- SETTLEMENT NOTES is a form and will be swapped out for an angularjs
-        shopping list app soon -->
-        <h3>Settlement Notes</h3>
-
-        <form method="POST" action="#settlement_notes">
-            <input type="hidden" name="modify" value="settlement" />
-            <input type="hidden" name="asset_id" value="$settlement_id" />
-            <textarea onchange="this.form.submit()"id="settlement_notes" name="settlement_notes" placeholder="Additional settlement notes">$settlement_notes</textarea>
-            <button class="full_width yellow">Update Notes</button>
-        </form>
-
-        <hr/>
+        <hr class="mobile_only"/>
 
 
 
-                    <!-- REMOVE FROM STORAGE - THIS IS ITS OWN FORM-->
-        <div id="block_group">
-        <h2>Storage</h2>
-        <p>Gear and Resources may be stored without limit.<br/><br/>
-        <button id="modalStorageButton" class="kd_blue">+ Add Item to Storage</button>
-        <br><br class="desktop_only">
-        <a id="edit_storage" class="mobile_only"/></a>
+            <!-- STORAGE CONTROLS START HERE -->
 
-        <form method="POST" action="#edit_storage">
-            <input type="hidden" name="modify" value="settlement" />
-            <input type="hidden" name="asset_id" value="$settlement_id" />
-            $storage
-            <button id="remove_item" class="hidden" style="display: none" name="remove_item" value="" /> </button>
-        </form>
 
-        </div>
+
+        <div class="settlement_sheet_block_group">
+            <h2>Storage</h2>
+            <p>Gear and Resources may be stored without limit.<br/><br/>
+
+            <button id="modalStorageButton" class="kd_blue">+ Add Item to Storage</button>
+
+            <br><br class="desktop_only">
+            <a id="edit_storage" class="mobile_only"/></a>
+
+            <form method="POST" action="#edit_storage">
+                <input type="hidden" name="modify" value="settlement" />
+                <input type="hidden" name="asset_id" value="$settlement_id" />
+                $storage
+                <button id="remove_item" class="hidden" style="display: none" name="remove_item" value="" /> </button>
+            </form>
+
+        </div> <!-- settlement_sheet_block_group for storage -->
+
     </div> <!-- asset_management_left_pane -->
 
 
-    <!-- END LEFT PANE -->
 
 
     <div id="asset_management_middle_pane">
 
+
                     <!-- LOCATIONS - THIS HAS ITS OWN FORM  -->
+
 
         <a id="edit_locations" class="mobile_only"><a/>
 
-        <div id="block_group">
-         <h2>Settlement Locations</h2>
-         <p>Locations in your settlement.</p>
-         <hr/>
-         $locations
+        <div class="settlement_sheet_block_group">
 
-        <form method="POST" action="#edit_locations">
-        <input type="hidden" name="modify" value="settlement" />
-        <input type="hidden" name="asset_id" value="$settlement_id" />
-         $locations_add
-         $locations_rm
-        </div>
-        </form>
+            <h2>Settlement Locations</h2>
+            <p>Locations in your settlement. Click or tap an item to remove it.</p>
+
+            <div
+                ng-init='locations=$locations'
+            >
+                <div
+                    ng-repeat="x in locations"
+                    ng-init="levels=x.lvl;div_id=x.div_id"
+                >
+                    <div class="line_item" ng-if="levels" id="{{x.div_id}}">
+                        <span class="bullet"></span>
+                        <span
+                            class="item"
+                            onclick="removeSettlementSheetAsset(this, 'location','$settlement_id');"
+                        >
+                           {{ x.name }}
+                        </span>
+                        <span class="location_lvl_select">
+                            <select
+                                id="{{x.div_id}}LevelSelect"
+                                class="location_level"
+                                name="location_level_{{x.name}}"
+                                onchange="updateAssetAttrib(this, 'settlement', '$settlement_id')"
+                                ng-model="x.lvl"
+                                ng-options="l.lvl as l.name for l in x.lvl_range"
+                            >
+                            </select>
+                        </span>
+                    </div>
+
+                    <div class="line_item" ng-if="levels==undefined"> <!-- span holder -->
+                        <span class="bullet"></span>
+                        <span
+                            class="item"
+                            onclick="removeSettlementSheetAsset(this, 'location', '$settlement_id');"
+                        >
+                            {{x}}
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+
+            <form method="POST" action="#edit_locations">
+                <input type="hidden" name="modify" value="settlement" />
+                <input type="hidden" name="asset_id" value="$settlement_id" />
+                <div class="line_item">
+                    <span class="empty_bullet" /></span> $locations_add
+                </div>
+                <div class="line_item">
+                    <span class="empty_bullet" /></span>
+                    <input
+                        name="add_location"
+                        onchange="this.form.submit()"
+                        type="text"
+                        placeholder="Enter custom Location"
+                        onclick="showHide('bogus_location_button')"
+                    />
+                </div>
+            </form>
+            <button id="bogus_location_button" class="kd_blue" style="display:none;">Save</button>
+
+        </div> <!-- settlement_sheet_block_group locations -->
 
 
                     <!-- INNOVATIONS - HAS ITS OWN FORM-->
 
         <a id="edit_innovations" class="mobile_only"/></a>
-        <form method="POST" action="#edit_innovations">
-        <input type="hidden" name="modify" value="settlement" />
-        <input type="hidden" name="asset_id" value="$settlement_id" />
-        <div id="block_group">
-         <h2>Innovations</h2>
-         <p>The settlement's innovations (including weapon masteries).</p>
-        <hr/>
-         $innovations
-         $innovations_add
-         $innovations_rm
-         $innovation_deck
+
+
+        <div class="settlement_sheet_block_group">
+
+        <h2>Innovations</h2>
+        <p>The settlement's innovations (including weapon masteries). Click or tap an item to remove it. </p>
+
+        <div ng-init='innovations=$innovations'>
+            <div
+                class="line_item"
+                ng-repeat="x in innovations"
+            >
+                <div> <!-- span holder -->
+                    <span class="bullet"></span>
+                    <span
+                        class="item"
+                        onclick="removeSettlementSheetAsset(this, 'innovation', '$settlement_id');"
+                    >
+                        {{x}}
+                    </span>
+                </div>
+            </div>
         </div>
+
+
+
+        <form method="POST" action="#edit_innovations">
+            <input type="hidden" name="modify" value="settlement" />
+            <input type="hidden" name="asset_id" value="$settlement_id" />
+
+            <div class="line_item">
+                <span class="empty_bullet" /></span> $innovations_add
+            </div>
+            <div class="line_item">
+                <span class="empty_bullet" /></span>
+                <input
+                    name="add_innovation"
+                    onchange="this.form.submit()"
+                    type="text"
+                    placeholder="Enter custom Innovation"
+                    onclick="showHide('bogus_innovation_button')"
+                />
+            </div>
         </form>
+        <button id="bogus_innovation_button" class="kd_blue" style="display:none;">Save</button>
+
+        <div class="innovation_deck">
+            <h3> - Innovation Deck - </h3>
+            $innovation_deck
+        </div>
+
+            </div> <!-- settlement_Sheet_block_group innovations-->
+        </form>
+
+        </div> <!-- asset_management_left_pane -->
+
+
+
+
+        <div id="asset_management_right_pane">
 
                     <!-- PRINCIPLES - HAS ITS OWN FORM-->
 
         <a id="edit_principles" class="mobile_only"></a>
-        <form method="POST" action="#edit_principles">
-        <input type="hidden" name="modify" value="settlement" />
-        <input type="hidden" name="asset_id" value="$settlement_id" />
-        <div id="block_group" class="settlement_sheet_block_group">
-         <h2>Principles</h2>
-         <p class="block_group_subhead">The settlement's established principles.</p>
 
-        $principles_controls
-        <div class="principles_rm_container">
-            $principles_rm
-        </div>
+        <div
+            class="settlement_sheet_block_group"
+            ng-controller="settlementSheetPrinciplesController"
+            ng-init="principles=$principles;settlement_id='$settlement_id';"
+        >
+            <h2>Principles</h2>
+            <p>The settlement's established principles.</p>
+
+            <div principle" ng-repeat="p in principles" class="settlement_sheet_principle_container">
+                <div id="{{p.name}} principle"> <!-- container -->
+                    <div class="settlement_sheet_principle_name">
+                        {{p.name}}
+                    </div>
+                    <label id="{{o.div_id}}Label" ng-repeat="o in p.options" for="{{o.div_id}}" class="kd_radio_option_label">
+                        <input
+                            class="kd_toggle_box"
+                            id="{{o.div_id}}"
+                            type="radio"
+                            name="{{p.form_handle}}"
+                            value="{{o.name}}"
+                            ng-checked="{{o.checked}}"
+                            ng-click="set(o.div_id,p.name,o.name)">
+                        {{ o.name }}
+                    </label>
+                </div>
+            </div>
+
+            <br/>
+            <span class="empty_bullet"></span>
+            <select
+                ng-model="unset"
+                ng-change="unset_principle();"
+                ng-options="p.name for p in principles"
+            >
+                <option disabled value="">Unset Principle</option>
+            </select>
 
         </div> <!-- principle block group -->
-        </form>
 
 
 
@@ -2546,145 +2669,258 @@ class settlement:
                        <!-- MILESTONES - HAS ITS OWN FORM-->
 
         <a id="edit_milestones" class="mobile_only"/></a>
-        <form method="POST" action="#edit_milestones">
-        <input type="hidden" name="modify" value="settlement" />
-        <input type="hidden" name="asset_id" value="$settlement_id" />
-        <div id="block_group">
-         <h2>Milestone Story Events</h2>
-         <p>Trigger these story events when milestone condition is met.</p>
-         <input type="hidden" name="milestone" value="none"/> <!-- hacks! -->
-         <input type="hidden" name="milestone" value="none"/> <!-- need both of these -->
-            $milestone_controls
 
+        <div class="settlement_sheet_block_group">
+            <h2>Milestone Story Events</h2>
+            <p>Trigger these story events when milestone condition is met.</p>
+            $milestone_controls
         </div>
-        </form>
+
 
 
 
                     <!-- QUARRIES - HAS ITS OWN FORM-->
 
         <a id="edit_quarries"/>
-        <form method="POST" action="#edit_quarries">
-        <input type="hidden" name="modify" value="settlement" />
-        <input type="hidden" name="asset_id" value="$settlement_id" />
 
-        <div id="block_group">
-         <h2>Quarries</h2>
-         <p>The monsters your settlement can select to hunt.</p>
-        <hr />
-         <p>$quarries</p>
-            $quarry_options
-         <input onchange="this.form.submit()" type="text" class="full_width" name="add_quarry" placeholder="add custom quarry"/>
-        </div>
+        <div class="settlement_sheet_block_group">
 
-        </form>
+            <h2>Quarries</h2>
+            <p>The monsters your settlement can select to hunt. Click or tap an item to remove it.</p>
+
+            <div ng-init='quarries=$quarries'>
+                <div
+                    class="line_item"
+                    ng-repeat="x in quarries"
+                >
+                    <div> <!-- span holder -->
+                        <span class="bullet"></span>
+                        <span
+                            class="item"
+                            onclick="removeSettlementSheetAsset(this, 'quarry', '$settlement_id');"
+                        >
+                            {{x}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <form method="POST" action="#edit_quarries">
+                <input type="hidden" name="modify" value="settlement" />
+                <input type="hidden" name="asset_id" value="$settlement_id" />
+
+                <div class="line_item">
+                    <span class="empty_bullet" /></span> $quarry_options
+                </div>
+                <div class="line_item">
+                    <span class="empty_bullet" /></span>
+                    <input
+                        name="add_quarry"
+                        onchange="this.form.submit()"
+                        type="text"
+                        placeholder="Enter custom Quarry"
+                        onfocus="showHide('bogus_quarry_button')"
+                        onblur="hide('bogus_quarry_button')"
+                    />
+                </div>
+            </form>
+            <button id="bogus_quarry_button" class="kd_blue" style="display:none;">Save</button>
+
+        </div> <!-- settlement_Sheet_block_group quarry controls-->
+
 
                     <!-- NEMESIS MONSTERS -->
-        <a id="edit_nemeses"/>
-        <form method="POST" action="#edit_nemeses">
-        <input type="hidden" name="modify" value="settlement" />
-        <input type="hidden" name="asset_id" value="$settlement_id" />
 
-        <div id="block_group">
-        <h2>Nemesis Monsters</h2>
-        <p>The available nemesis encounter monsters.</p>
-        <hr>
-        $nemesis_monsters
+        <a id="edit_nemeses"/>
+
+        <div class="settlement_sheet_block_group">
+            <h2><img class="icon" src="http://media.kdm-manager.com/icons/nemesis_encounter_event.jpg"/> Nemesis Monsters</h2>
+            <p>The available nemesis encounter monsters.</p>
+
+            <form method="POST" action="#edit_nemeses">
+            <input type="hidden" name="modify" value="settlement" />
+            <input type="hidden" name="asset_id" value="$settlement_id" />
+
+                $nemesis_monsters
+
+                <span class="empty_bullet"></span> $nemesis_options
+
+                <div class="line_item">
+                    <span class="empty_bullet" /></span>
+                    <input
+                        name="add_nemesis"
+                        onchange="this.form.submit()"
+                        type="text"
+                        placeholder="Enter custom Nemesis"
+                        onclick="showHide('bogus_nemesis_button')"
+                    />
+                </div>
+            </form>
+            <button id="bogus_nemesis_button" class="kd_blue" style="display:none;">Save</button>
+
         </div>
-        </form>
 
                     <!-- DEFEATED MONSTERS: HAS ITS OWN FORM -->
 
         <a id="edit_defeated_monsters"/>
+
+        <div class="settlement_sheet_block_group">
+        <h2>Defeated Monsters</h2>
+        <p>A list of defeated monsters and their level. Use the controls below to remove defeated monsters.</p>
+
+        <div ng-init='defeated=$defeated_monsters'>
+            <div
+                class="line_item"
+                ng-repeat="x in defeated"
+            >
+                <div> <!-- span holder -->
+                    <span class="bullet"></span>
+                    <span
+                        class="item"
+                    >
+                        {{x}}
+                    </span>
+                </div>
+            </div>
+        </div>
+
         <form method="POST" action="#edit_defeated_monsters">
         <input type="hidden" name="modify" value="settlement" />
         <input type="hidden" name="asset_id" value="$settlement_id" />
-
-            <div id="block_group">
-             <h2>Defeated Monsters</h2>
-             <p>A list of defeated monsters and their level.</p>
-            <hr/>
-             $defeated_monsters
-             $defeated_monsters_add
-             $defeated_monsters_rm
-            </div>
+             <div class="line_item">
+                <span class="empty_bullet"></span> $defeated_monsters_add
+             </div>
+             <div class="line_item">
+                <span class="empty_bullet" /></span>
+                <input
+                    name="add_defeated_monster"
+                    onchange="this.form.submit()"
+                    type="text"
+                    placeholder="Enter custom Defeated Monster"
+                    onclick="showHide('bogus_dm_button')"
+                />
+             </div>
+             <button id="bogus_dm_button" class="kd_blue" style="display:none;">Save</button>
+             <div class="line_item">
+                $defeated_monsters_rm
+             </div>
         </form>
+    </div>
+
+    <hr class="mobile_only"/>
+
+        <a id="edit_lost_settlements" class="mobile_only"></a>
+
+
+                    <!-- LOST SETTLEMENTS ANGULARJS app -->
+
+
+        <div
+            class="lost_settlements_app_container"
+            ng-app="kdmManager"
+            ng-controller="lostSettlementController"
+            ng-init="init($lost_settlements);settlement_id='$settlement_id'"
+        >
+        <div
+            onclick="showHide('lostSettlementsTooltip'); showHide('lostSettlementsControls')"
+            class="settlement_sheet_block_group lost_settlements"
+        >
+            <h2>Lost Settlements</h2>
+            <p>Click or tap to show/hide controls.</p>
+            <p style="display: none" id="lostSettlementsTooltip">
+                See <font class="kdm_font">g</font> <b>Game Over</b> on p.179:<br/><br/>
+                    &ensp;
+                        <span class="lost_settlement lost_settlement_checked"></span>
+                        1. Left Overs
+                    <br/>
+                    &ensp;
+                        <span class="lost_settlement lost_settlement_checked"></span>
+                        <span class="lost_settlement lost_settlement_checked"></span>
+                        2. Those Before Us
+                    <br/>
+                    &ensp;
+                        <span class="lost_settlement lost_settlement_checked"></span>
+                        <span class="lost_settlement lost_settlement_checked"></span>
+                        <span class="lost_settlement lost_settlement_checked"></span>
+                        3. Ocular Parasites
+                    <br/>
+                    &ensp;
+                        <span class="lost_settlement lost_settlement_checked"></span>
+                        <span class="lost_settlement lost_settlement_checked"></span>
+                        <span class="lost_settlement lost_settlement_checked"></span>
+                        <span class="lost_settlement lost_settlement_checked"></span>
+                        4. Rainy Season
+                    <br/>
+            </p>
+
+            <div
+                class="lost_settlement_squares"
+            >
+
+            <span
+                class="lost_settlement_box_socket"
+                ng-repeat="x in lost"
+            >
+                <span id="box_{{x.id_num}}" class="lost_settlement {{x.class}}"></span>
+            </span>
+
+            </div>
+        </div> <!-- settlement_sheet_block_group -->
+
+        <div id="lostSettlementsControls" style="display: none" class="lost_settlements_controls">
+            <button
+                ng-click="rmLostSettlement(); ls_range(2)"
+            >
+                &#9662;
+            </button>
+            <button
+                ng-click="addLostSettlement()"
+            >
+                &#9652;
+            </button>
         </div>
 
-        <hr class="tablet_only timeline_insulator" >
-
-        <div id="asset_management_right_pane">
-
-                    <!-- TIMELINE: HAS ITS OWN FORM  -->
-        <a id="edit_timeline" class="mobile_only"><br/><br/><br/></a>
-        <h2 class="clickable timeline_show_hide" onclick="showHide('timelineBlock')">LY $lantern_year - View Timeline <img class="dashboard_down_arrow" src="http://media.kdm-manager.com/icons/down_arrow_white.png"/> </h2>
-        <div id="timelineBlock" class="block_group timeline_block_group collapsing_block_group" style="display: $display_timeline;">
-
-            <div class="big_number_container left_margin">
-            <br>
-             <button class="incrementer" onclick="increment('lanternYearBox');">+</button>
-
-            <form method="POST" action="#edit_timeline">
-            <input type="hidden" name="modify" value="settlement" />
-            <input type="hidden" name="asset_id" value="$settlement_id" />
-            <input id="lanternYearBox" onchange="this.form.submit()" class="big_number_square" type="number" name="lantern_year" value="$lantern_year" min="0"/>
-            </form>
-             <button class="decrementer" onclick="decrement('lanternYearBox');">-</button>
-         </div>
-         <div class="big_number_caption""><br>Lantern Year</div>
-        <p id="timeline_tooltip">Tap or click a Lantern Year number below to mark it complete (and end it).</p>
-
-        <hr>
-
-        $timeline
-
-        </div> <!-- timelineBlock -->
+        </div> <!-- lost settlement application -->
 
 
         <br class="mobile_only"/>
+        <hr class="mobile_only"/>
 
-                    <!-- LOST SETTLEMENTS HAS ITS OWN FORM-->
-        <div class="block_group">
-            <a id="edit_lost_settlements" class="mobile_only"></a>
-            <form method="POST" action="#edit_lost_settlements">
-            <input type="hidden" name="modify" value="settlement" />
-            <input type="hidden" name="asset_id" value="$settlement_id" />
+        <div class="settlement_sheet_block_group">
+            <h2>Expansions</h2>
+            <a id="edit_expansions" class="mobile_only"></a>
+            <p>Toggle expansion content on/off using these controls. Adding
+            or removing content will automatically update drop-down menus, timeline
+            and survivor controls. </p>
+            $expansions_block
+            <br /><br/>
+        </div> <!-- expansions settlement_sheet_block_group -->
 
-            <input onchange="this.form.submit()" class="big_number_square" type="number" name="lost_settlements" value="$lost_settlements" min="0"/>
-            <h3>Lost Settlements</h3>
-            <p>Refer to <font class="kdm_font">g</font> <b>Game Over</b> on p.179: <b>Left Overs</b> occurs at 4; <b>Those Before Us</b> occurs at 8; <b>Ocular Parasites</b> occurs at 12; <b>Rainy Season</b> occurs at 16.</p>
+        <hr class="mobile_only"/>
+
+        <div class="settlement_sheet_block_group">
+            <h2>Players</h2>
+            <form method="POST" action="#edit_expansions">
+                <input type="hidden" name="modify" value="settlement" />
+                <input type="hidden" name="asset_id" value="$settlement_id" />
+                $player_controls
             </form>
         </div>
 
-        <br>
-        <hr/>
-        <h3>Expansions</h3>
-        <a id="edit_expansions" class="mobile_only"></a>
-        <p>Toggle expansion content on/off using these controls. Adding
-        or removing content will automatically update drop-down menus, timeline
-        and survivor controls. </p>
-        $expansions_block
-        <br /><br/>
-        <hr/>
+        <hr class="mobile_only" />
 
-        <h3>Players</h3>
-        <form method="POST" action="#edit_expansions">
-            <input type="hidden" name="modify" value="settlement" />
-            <input type="hidden" name="asset_id" value="$settlement_id" />
-            $player_controls
-        </form>
-
-        <hr/>
-
-        <form action="#" method="POST" onsubmit="return confirm('This will prevent this settlement from appearing on any user Dashboard, including yours. Press OK to Abandon this settlement forever.');">
-            <input type="hidden" name="modify" value="settlement" />
-            <input type="hidden" name="asset_id" value="$settlement_id" />
-            <input type="hidden" name="abandon_settlement" value="toggle" />
+        <div class="settlement_sheet_block_group">
 
             <h3>Abandon Settlement</h3>
             <p>Mark a settlement as "Abandoned" to prevent it from showing up in your active campaigns without removing it from the system.</p>
-            <button class="full_width warn"> Abandon Settlement! </button>
-        </form>
+
+            <form action="#" method="POST" onsubmit="return confirm('This will prevent this settlement from appearing on any user Dashboard, including yours. Press OK to Abandon this settlement forever.');">
+                <input type="hidden" name="modify" value="settlement" />
+                <input type="hidden" name="asset_id" value="$settlement_id" />
+                <input type="hidden" name="abandon_settlement" value="toggle" />
+                <button class="full_width warn"> Abandon Settlement! </button>
+            </form>
+        </div>
 
     $remove_settlement_button
 
@@ -2762,19 +2998,32 @@ class settlement:
     </form>
     \n""")
     milestone_control = Template("""\n
-    <hr />
-    <input onchange="this.form.submit()" id="$handle" type="checkbox" name="milestone" value="$key" class="radio_principle" $checked></input>
-    <label for="$handle" class="radio_principle_label">$key</label>
-    <p> &ensp; <font class="kdm_font">g</font> <b>$story_event</b> (p.$story_page) </p>
+    <div class="kd_toggle_container">
+    <input
+        id="$handle"
+        class="kd_toggle_box"
+        type="checkbox"
+        name="milestone"
+        value="$key"
+        onchange="updateAssetAttrib(this, 'settlement', '$settlement_id');kd_toggle(this);"
+        $checked/>
+    </input>
+    <label
+        class="kd_toggle_box_caption"
+        for="$handle"
+    >
+        $key
+        &ensp; <font class="kdm_font">g</font> <b>$story_event</b> (p.$story_page)
+    </label>
+    </div>
     \n""")
-    principles_all_hidden_warning = '<div class="kd_alert user_asset_sheet_error">Update settlement Milestones to show controls for adding Settlement Principles.</div>'
     principle_radio = Template("""\n
         <input onchange="this.form.submit()" type="radio" id="$handle" class="radio_principle" name="principle_$principle_key" value="$option" $checked /> 
         <label class="radio_principle_label" for="$handle"> $option </label>
     \n""")
     principle_control = Template("""\n
     <div>
-    <h3>$name Principle</h3>
+    <p><b>$name</b></p>
     <fieldset class="settlement_principle">
         $radio_buttons
     </fieldset>
@@ -2926,6 +3175,7 @@ class meta:
     <button class="sidenav_button">$link_text</button>
     </form>
     \n""")
+
     burger_export_button = Template("""\n
     <form method="POST" action="/">
      <input type="hidden" name="export_campaign" value="XLS"/>
@@ -3119,6 +3369,7 @@ def render_burger(session_object=None):
             target_view = "view_campaign",
             settlement_id = session_object.session["current_settlement"]
         )
+    actions += '<button id="" class="sidenav_button">Timeline</button>'
     actions += meta.burger_change_view_button.safe_substitute(
         link_text = "Settlement Event Log",
         target_view = "change_view",
@@ -3240,6 +3491,10 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular.min.js"></script>
     <script src="http://code.angularjs.org/1.5.3/angular-route.min.js"></script> 
     <script src="/media/kdm-manager.js"></script>
+
+    <script type="text/javascript">
+        window.onload = kd_toggle_init;
+    </script>
     \n"""
 
     output += """\n\

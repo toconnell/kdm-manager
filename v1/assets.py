@@ -3426,7 +3426,7 @@ class Settlement:
 
         # save and log it
         mdb.settlements.save(self.settlement)
-        self.logger.info("[%s] created new settlement '%s' (%s)." % (self.User, self, self.settlement["campaign"]))
+        self.logger.info("[%s] created new settlement %s - (%s)." % (self.User, self, self.settlement["campaign"]))
         self.log_event("Settlement founded!")
 
 
@@ -4104,6 +4104,7 @@ class Settlement:
                     storage.remove(broken)
                     storage.append(fixed)
                 self.logger.debug("[%s] Re-normalized '%s' to '%s' (%s times)" % (self, broken, fixed, broken_items))
+                self.save()
 
         if return_type == "html_buttons":
             custom_items = {}
@@ -4147,7 +4148,7 @@ class Settlement:
                     else:
                         custom_items[item_key] += 1
 
-            output = "<hr />\n\t<p>\nTap an item to remove it once:\n\t</p>\n<hr />"
+            output = '<hr class="invisible"/>\n\t<p>\nClick or tap an item to remove it once:\n\t</p>\n<hr />'
             for item_dict in [gear, resources]:
                 for location in sorted(item_dict.keys()):
                     for item_key in sorted(item_dict[location].keys()):
@@ -4415,11 +4416,11 @@ class Settlement:
 
         if return_type in ["list", "comma-delimited"]:
             if principles == []:
-                return "<p>No principles</p>"
+                return ""
             if return_type == "comma-delimited":
                 return "<p>%s</p>" % ", ".join(principles)
             if return_type == "list":
-                output = '\n\n<ul class="asset_list">\n'
+                output = '\n\n<ul>\n'
                 for p in principles:
                     output += "<li>%s</li>\n" % p
                 output += "\n</ul>\n\n"
@@ -4433,48 +4434,41 @@ class Settlement:
         elif return_type == "html_select_remove":
             if principles == []:    #bail if we've got nothing
                 return ""
-            output = html.ui.game_asset_select_top.safe_substitute(operation="remove_", name="principle", operation_pretty="Remove", name_pretty="Principle")
+            output =  '<span class="empty_bullet"></span>'
+            output += html.ui.game_asset_select_top.safe_substitute(operation="remove_", name="principle", operation_pretty="Remove", name_pretty="Principle")
             for principle in principles:
                 output += html.ui.game_asset_select_row.safe_substitute(asset=principle)
             output += html.ui.game_asset_select_bot
             return output
-        elif return_type == "html_controls":
-            output = ""
-            principles = self.get_campaign("dict")["principles"]
-            p_order = {}
-            for p_key in principles.keys():
-                p_dict = principles[p_key]
-                p_order[p_dict["sort_order"]] = p_key
-            for p_number in sorted(p_order.keys()):
-                p_key = p_order[p_number]
-                p_dict = principles[p_key]
-                p_handle = to_handle(p_key)
 
-                # determine whether to show controls for principles
-                show_controls = False
-                if "milestone" in p_dict.keys() and p_dict["milestone"] in self.settlement["milestone_story_events"]:
-                    show_controls = True
-                if "show_controls" in p_dict.keys():
-                    for statement in p_dict["show_controls"]:
-                        if eval(statement):
-                            show_controls = True
-                if not self.User.get_preference("hide_principle_controls"):
-                    show_controls = True
+        elif return_type == "json":
+            all_principles = self.get_campaign("dict")["principles"]
 
-                if show_controls:
-                    p_option_html = []
-                    for option in p_dict["options"]:
-                        o_html = html.settlement.principle_radio.safe_substitute(
-                            handle = to_handle(option),
-                            principle_key = p_key,
-                            option = option,
-                            checked = self.get_principles("checked", option),
-                        )
-                        p_option_html.append(o_html)
-                    output += html.settlement.principle_control.safe_substitute(name=p_key, radio_buttons="\n".join(p_option_html))
+            sorting_hat = {}
+            for p in all_principles.keys():
+                sorting_hat[all_principles[p]["sort_order"]] = p
 
-            if output == "":
-                output = html.settlement.principles_all_hidden_warning
+            output = []
+            for n in sorted(sorting_hat.keys()):
+                principle_name = sorting_hat[n]
+                principle_options = []
+                for o in all_principles[principle_name]["options"]:
+                    selected="false"
+                    if o in self.settlement["principles"]:
+                        selected="true"
+                    principle_options.append({
+                        "name": o,
+                        "div_id": "%s%sSelector" % (principle_name.replace(" ",""), o.replace(" ","")),
+                        "checked": selected,
+                    })
+                for p in principle_options:
+                    if p in self.settlement["principles"]:
+                        selected=p
+                output.append({
+                    "name": principle_name,
+                    "form_handle": "set_principle_%s" % principle_name,
+                    "options": principle_options,
+                })
 
             return output
 
@@ -4507,6 +4501,7 @@ class Settlement:
                 m_story_event = m_dict["story_event"]
                 m_handle = to_handle(m_key)
                 output += html.settlement.milestone_control.safe_substitute(
+                    settlement_id = self.settlement["_id"],
                     key = m_key,
                     handle = m_handle,
                     checked = self.get_milestones("checked", query=m_key),
@@ -4738,10 +4733,6 @@ class Settlement:
                         output += ' <button id="increment_nemesis" class="disabled" disabled>%s</button> ' % level
                 output += '</p>\n'
 
-            # support for expansion nemeses
-            output += Nemeses.render_as_html_dropdown(exclude=self.settlement["nemesis_monsters"].keys(), Settlement=self) 
-
-            output += '\t<input onchange="this.form.submit()" type="text" class="full_width" name="add_nemesis" placeholder="add custom nemesis"/>'
             return output
 
         return self.settlement["nemesis_monsters"].keys()
@@ -5360,6 +5351,32 @@ class Settlement:
         self.logger.debug("[%s] Automatically updated %s survivors!" % (self.User, successful_updates))
 
 
+    def set_principle(self, principle=None, election=None):
+        """ Better than the deprecated update_principles() method (below), but
+        needs to know what principle you're setting in order to work. """
+
+        if election in self.get_principles():
+            self.logger.debug("[%s] is setting %s %s principle to its current value, '%s'." % (self.User, self, principle, election))
+            return True
+
+        if principle is None:
+            return None
+
+        available = self.get_api_asset("game_assets","principles")
+        current = available[principle]
+
+        for o in current["options"]:
+            if o in self.get_principles():
+                self.logger.debug("[%s] unset %s %s principle '%s'." % (self.User, self, principle, o))
+                self.log_event("%s removed the settlement %s principle." % (self.User, principle))
+                self.settlement["principles"].remove(o)
+
+        if election != "UNSET":
+            self.logger.debug("[%s] set %s %s principle '%s'." % (self.User, self, principle, election))
+            self.log_event("Settlement %s principle is now set to '%s'" % (principle, election))
+            self.settlement["principles"].append(election)
+
+
     def update_principles(self, add_new_principle=False):
         """ Since certain principles are mutually exclusive, all of the biz
         logic for toggling one on and toggling off its opposite is here. """
@@ -5411,22 +5428,17 @@ class Settlement:
         self.update_mins()  # this is a save
 
 
-    def update_milestones(self, milestones):
-        """ Takes in a list of milestone keys. Toggles them for the settlement. """
-        self.logger.debug("%s Updating milestones for %s..." % (self.User, self))
-        for m in milestones:
-            if m == "None":
-                milestones.remove(m)
-        for m in milestones:
-            if not m in self.settlement["milestone_story_events"]:
-                self.settlement["milestone_story_events"].append(m)
-                self.log_event("'%s' milestone added to settlement milestones." % m)
-                self.logger.debug("'%s' milestone added to %s milestones." % (m, self))
-        for m in self.settlement["milestone_story_events"]:
-            if not m in milestones:
-                self.settlement["milestone_story_events"].remove(m)
-                self.log_event("'%s' milestone removed form settlement milestones." % m)
-                self.logger.debug("'%s' milestone removed from %s milestones." % (m, self))
+    def update_milestones(self, m):
+        """ Expects checkbox input. """
+
+        if not m in self.settlement["milestone_story_events"]:
+            self.settlement["milestone_story_events"].append(m)
+            self.log_event("'%s' milestone added to settlement milestones." % m)
+            self.logger.debug("[%s] added '%s' to milestones for %s." % (self.User, m, self))
+        elif m in self.settlement["milestone_story_events"]:
+            self.settlement["milestone_story_events"].remove(m)
+            self.log_event("'%s' milestone removed from settlement milestones." % m)
+            self.logger.debug("[%s] removed '%s' from milestones for %s." % (self.User, m, self))
 
 
     def update_settlement_name(self, new_name):
@@ -5493,6 +5505,7 @@ class Settlement:
                 self.logger.warn("[%s] submitted un-actionable form input to update_settlement_storage()" % self.User)
                 self.logger.debug(params)
 
+
     def update_endeavor_tokens(self, value=0):
         """ Adds 'value' to self.settlement["endeavor_tokens"]. """
 
@@ -5504,11 +5517,27 @@ class Settlement:
         self.logger.debug("[%s] updated endeavor tokens for %s. New total %s" % (self.User, self, self.get_endeavor_tokens()))
 
 
+    def update_lost_settlements(self, new_value=None):
+        """ Updates the settlement's lost settlements attribs. """
+
+        if new_value is None:
+            return False
+
+        if int(new_value) <= 0:
+            self.settlement["lost_settlements"] = 0
+        else:
+            self.settlement["lost_settlements"] = int(new_value)
+        self.logger.debug("[%s] set %s lost settlements for %s" % (self.User, self.settlement["lost_settlements"], self))
+
+
     def update_location_level(self, location_name, lvl):
         """ Changes 'location_name' level to 'lvl'. """
         self.logger.debug("[%s] Location '%s' level update initiated by %s..." % (self, location_name, self.User))
 
-        lvl = int(lvl)
+        if len(lvl.split(":"))==2:
+            lvl = int(lvl.split(":")[1])
+        else:
+            lvl = int(lvl)
         if not "location_levels" in self.settlement.keys():
             self.settlement["location_levels"] = {location_name: lvl}
         else:
@@ -5633,11 +5662,11 @@ class Settlement:
             if final_list == []:
                 return ""
             else:
-                output = "<h3>%s Deck</h3>" % Asset.get_pretty_name()
+                output = ""
                 if return_type == "comma-delimited":
                     output += "\n<p>%s</p>" % (", ".join(final_list))
                 elif return_type == "list":
-                    output += "\n<ul>%s</ul>" % "\n".join(["<li>%s</li>" % i for i in final_list])
+                    output += '\n<ul class="asset_deck">%s</ul>' % "\n".join(["<li>%s</li>" % i for i in final_list])
                 return output
 
         return final_list
@@ -5673,6 +5702,15 @@ class Settlement:
         if not "endeavor_tokens" in self.settlement.keys():
             self.settlement["endeavor_tokens"] = 0
         return self.settlement["endeavor_tokens"]
+
+
+    def get_lost_settlements(self, return_type=None):
+        """ Returns the settlement's lost settlements as an int, or as JS
+        object (for use with angular controls). """
+
+        lost = int(self.settlement["lost_settlements"])
+
+        return lost
 
 
     def get_game_asset(self, asset_type=None, return_type=False, exclude=[], update_mins=True, admin=False):
@@ -5740,7 +5778,7 @@ class Settlement:
 
         pretty_asset_name = asset_name.replace("_"," ").title()
 
-        if return_type in ["comma-delimited", "list"]:
+        if return_type in ["comma-delimited", "list","json"]:
             if hasattr(Asset, "uniquify"):
                 asset_keys = list(set(asset_keys))
             if hasattr(Asset, "sort_alpha"):
@@ -5751,29 +5789,38 @@ class Settlement:
             # add embedded controls for locations with levels. #hackCity
             for k in asset_keys:
                 if k in Locations.get_keys() and "levels" in Locations.get_asset(k):
+
                     if not "location_levels" in self.settlement.keys():
                         self.settlement["location_levels"] = {k:1}
+                        self.save()
+
+                    lvl = self.settlement["location_levels"][k]
+                    lvl_range = [l+1 for l in range(Locations.get_asset(k)["levels"])]
+
                     index = asset_keys.index(k)
                     asset_keys.remove(k)
 
-                    select_controls = ""
-                    for lvl in range(Locations.get_asset(k)["levels"]):
-                        lvl = lvl + 1
-                        selected = ""
-                        if lvl == self.settlement["location_levels"][k]:
-                            selected = "selected"
-                        select_controls += '\t<option value="%s" %s>%s</option>\n' % (lvl, selected, lvl)
-
-                    if not admin:
-                        output = "%s - Lvl %s" % (k, self.settlement["location_levels"][k])
-                    elif admin:
-                        output = html.settlement.location_level_controls.safe_substitute(location_name = k, settlement_id=self.settlement["_id"], select_items = select_controls)
-                    asset_keys.insert(index, output)
+                    asset_keys.insert(index,
+                        {
+                            "name": "%s" % k,
+                            "lvl": lvl,
+                            "lvl_range": [{"lvl":l,"name":"Level %s" % l} for l in lvl_range],
+                            "div_id": "locationDiv%s" % k.replace(" ",""),
+                        })
 
             if return_type == "list":
-                return '<ul class="asset_list">%s</ul>' % "\n".join(["<li>%s</li>" % i for i in asset_keys])
+                return "\n".join(['\t<div class="line_item"><span class="bullet"></span><span class="item">%s</span></div>' % i for i in asset_keys])
             elif return_type == "comma-delimited":
                 return "<p>%s</p>" % ", ".join(asset_keys)
+            elif return_type == "json":
+                sanitized_keys = "["
+                for k in asset_keys:
+                    if type(k) in [unicode,str]:
+                        sanitized_keys += '"%s"' % k.replace("'","") + ","
+                    else:
+                        sanitized_keys += '%s' % json.dumps(k) + ","
+                sanitized_keys += "]"
+                return sanitized_keys
 
         elif return_type == "html_add":
             if not self.User.get_preference("dynamic_innovation_deck") and asset_type == "innovations":
@@ -5800,14 +5847,14 @@ class Settlement:
                 for asset_key in sorted(deck):
                     output += html.ui.game_asset_select_row.safe_substitute(asset=asset_key)
                 output += html.ui.game_asset_select_bot
-            output += html.ui.game_asset_add_custom.safe_substitute(asset_name=asset_name, asset_name_pretty=pretty_asset_name)
             return output
 
-        elif return_type == "html_remove":
+        elif return_type in ["html_remove","html_rm"]:
             if asset_keys == []:
                 return ""
             op = "remove"
-            output = html.ui.game_asset_select_top.safe_substitute(
+            output = '<span class="empty_bullet"></span>'
+            output += html.ui.game_asset_select_top.safe_substitute(
                 operation="%s_" % op, operation_pretty=op.capitalize(),
                 name=asset_name,
                 name_pretty=pretty_asset_name,
@@ -5973,6 +6020,8 @@ class Settlement:
 
             if p in ignore_keys:
                 pass
+            elif p == "lost_settlements":
+                self.update_lost_settlements(game_asset_key)
             elif p == "endeavor_tokens":
                 self.update_endeavor_tokens(game_asset_key)
             elif p == "name":
@@ -5982,8 +6031,9 @@ class Settlement:
             elif p == "remove_defeated_monster":
                 self.rm_game_asset("defeated_monsters", game_asset_key)
             elif p == "add_quarry":
-                self.settlement["quarries"].append(game_asset_key)
-                self.log_event("%s added to settlement Quarry List" % game_asset_key)
+                self.add_game_asset("quarries",game_asset_key)
+            elif p == "remove_quarry":
+                self.rm_game_asset("quarries",game_asset_key)
             elif p == "add_nemesis":
                 self.settlement["nemesis_monsters"][params[p].value] = []
             elif p == "increment_nemesis":
@@ -5997,13 +6047,14 @@ class Settlement:
             elif p == "add_location":
                 self.add_game_asset("locations", game_asset_key)
             elif p == "remove_location":
-                self.settlement["locations"].remove(game_asset_key)
-            elif p.split("_")[0] == "principle":
-                self.update_principles(game_asset_key)
+                self.rm_game_asset("locations", game_asset_key)
+            elif p.split("_")[:2] == ["set","principle"]:
+                principle = p.split("_")[2:][0]
+                self.set_principle(principle, game_asset_key)
             elif p == "remove_principle":
                 self.rm_game_asset("principles", game_asset_key)
             elif p == "milestone":
-                self.update_milestones([k.value for k in params[p]])
+                self.update_milestones(game_asset_key)
             elif p == "abandon_settlement":
                 self.log_event("Settlement abandoned!")
                 self.settlement["abandoned"] = datetime.now()
@@ -6146,13 +6197,6 @@ class Settlement:
 
         self.update_mins()
 
-        # user preferences determine if the timeline controls are visible
-        #   this will all go away in the timeline refactor
-        if self.User.get_preference("hide_timeline"):
-            timeline_controls = "none"
-        else:
-            timeline_controls = ""
-
         # this is stupid: I need to refactor this out at some point
         abandoned = ""
         if "abandoned" in self.settlement.keys():
@@ -6179,7 +6223,7 @@ class Settlement:
 
             survival_limit = self.get_attribute("survival_limit"),
             min_survival_limit = self.get_min("survival_limit"),
-            lost_settlements = self.settlement["lost_settlements"],
+            lost_settlements = self.get_lost_settlements("js"),
             settlement_notes = self.get_settlement_notes(),
 
             survivors = self.get_survivors(return_type="html_campaign_summary"),
@@ -6188,40 +6232,35 @@ class Settlement:
             departure_bonuses = self.get_bonuses('departure_buff', return_type="html"),
             settlement_bonuses = self.get_bonuses('settlement_buff', return_type="html"),
 
-#           deprecated old UI
-#            items_options = Items.render_as_html_dropdown_with_divisions(recently_added=self.get_recently_added_items()),
             storage = self.get_storage("html_buttons"),
             add_to_storage_controls = Items.render_as_html_multiple_dropdowns(
                 recently_added=self.get_recently_added_items(),
                 expansions=self.get_expansions(),
             ),
 
-            principles_controls = self.get_principles("html_controls"),
+            principles = self.get_principles("json"),
             principles_rm = self.get_principles("html_select_remove"),
 
             lantern_year = self.settlement["lantern_year"],
-            timeline = self.get_timeline("html"),
-            display_timeline = timeline_controls,
 
             milestone_controls = self.get_milestones("html_controls"),
 
             nemesis_monsters = self.get_nemeses("html_buttons"),
+            nemesis_options = Nemeses.render_as_html_dropdown(exclude=self.settlement["nemesis_monsters"].keys(), Settlement=self),
 
-            quarries = self.get_game_asset("quarries", return_type="user_defined", update_mins=False),
+            quarries = self.get_game_asset("quarries", return_type="json", update_mins=False),
             quarry_options = Quarries.render_as_html_dropdown(exclude=self.settlement["quarries"], Settlement=self),
 
-            innovations = self.get_game_asset("innovations", return_type="user_defined", exclude=self.settlement["principles"], update_mins=False),
+            innovations = self.get_game_asset("innovations", return_type="json", exclude=self.settlement["principles"], update_mins=False),
             innovations_add = self.get_game_asset("innovations", return_type="html_add", update_mins=False),
-            innovations_rm = self.get_game_asset("innovations", return_type="html_remove", exclude=self.settlement["principles"], update_mins=False),
             innovation_deck = self.get_game_asset_deck("innovations", return_type="user_defined", exclude_always_available=True),
 
-            locations = self.get_game_asset("locations", return_type="user_defined", admin=True, update_mins=False),
+            locations = self.get_game_asset("locations", return_type="json", admin=self.User.is_settlement_admin(), update_mins=False),
             locations_add = self.get_game_asset("locations", return_type="html_add", update_mins=False),
-            locations_rm = self.get_game_asset("locations", return_type="html_remove", update_mins=False),
 
-            defeated_monsters = self.get_game_asset("defeated_monsters", return_type="user_defined", update_mins=False),
+            defeated_monsters = self.get_game_asset("defeated_monsters", return_type="json", update_mins=False),
             defeated_monsters_add = self.get_game_asset("defeated_monsters", return_type="html_add", update_mins=False),
-            defeated_monsters_rm = self.get_game_asset("defeated_monsters", return_type="html_remove", update_mins=False),
+            defeated_monsters_rm = self.get_game_asset("defeated_monsters", return_type="html_rm", update_mins=False),
 
             player_controls = self.get_players("html"),
             expansions_block = self.render_expansions_block(),

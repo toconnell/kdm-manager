@@ -37,7 +37,7 @@ core = [
     "The Gold Lantern",
     "The Silver Lantern",
     "The White Lantern",
-    "Tyndall",
+#    "Tyndall",
     "White Rock",
     "Witchweed",
 ]

@@ -1,5 +1,3 @@
-'use strict';
-
 var app = angular.module('kdmManager', []);
 
 
@@ -32,6 +30,100 @@ app.controller('globalController', function($scope, $http) {
         btn.onclick = function(b) {b.preventDefault(); modal.style.display = "block";}
         window.onclick = function(event) {if (event.target == modal) {modal.style.display = "none";}}
     };
+});
+
+app.controller('settlementSheetPrinciplesController', function($scope, $http) {
+    $scope.unset = {"name": "Unset Principle","value": "None"}
+    $scope.toggle_on = function(elem_id) {
+        var bullet = document.getElementById(elem_id + "_bullet_span");
+        bullet.classList.add("checked_kd_toggle_bullet");
+    };
+    $scope.set = function(input_element,principle,selection) {
+        var params = "set_principle_" + principle + "=" + selection;
+        modifyAsset('settlement',$scope.settlement_id,params);
+        var bulletParent = document.getElementById(principle + " principle");
+        var target_bullets = bulletParent.getElementsByTagName('label');
+        for (i = 0; i < target_bullets.length; i++) {
+            $scope.toggle_off(target_bullets[i]);            
+        }
+        $scope.toggle_on(input_element);
+    };
+    $scope.toggle_off = function(toggle_element) {
+        var input_element = toggle_element;
+        input_element.style.fontWeight = "normal";
+        var bullet = document.getElementById(input_element.id.slice(0,-5) + "_bullet_span");
+        bullet.classList.remove("checked_kd_toggle_bullet");
+    };
+    $scope.unset_principle = function () {
+        target_principle = $scope.unset.name;
+        console.log(target_principle);
+        var bulletParent = document.getElementById(target_principle + " principle");
+        var target_bullets = bulletParent.getElementsByTagName('label');
+        for (i = 0; i < target_bullets.length; i++) {
+            $scope.toggle_off(target_bullets[i]);            
+        }
+        var params = "set_principle_" + target_principle + "=UNSET";
+        modifyAsset('settlement',$scope.settlement_id,params);
+    };
+
+});
+
+app.controller("lostSettlementController", function($scope) {
+
+    $scope.rmLostSettlement = function () {
+        var cur = Number($scope.current_val);
+        if (cur == 0) {
+//            window.alert("At minimum!");
+        }
+        else { 
+            cur--;
+            $scope.current_val = cur;
+            var params = "lost_settlements=" + cur;
+            modifyAsset("settlement", $scope.settlement_id, params);
+            var e = document.getElementById('box_' + cur);
+            e.classList.remove('lost_settlement_checked');
+        };
+    };
+
+    $scope.addLostSettlement = function () {
+        var cur = Number($scope.current_val);
+        if (cur == 19) {
+            window.alert("At maximum!");
+        }
+        else { 
+            var e = document.getElementById('box_' + cur);
+            e.classList.remove('bold_check_box');
+            e.classList.add('lost_settlement_checked');
+            cur++;
+            $scope.current_val = cur;
+            var params = "lost_settlements=" + cur;
+            modifyAsset("settlement", $scope.settlement_id, params);
+        };
+    };
+
+    $scope.init = function(init_val) {
+        $scope.current_val = init_val;
+
+        $scope.lost = []; 
+
+        for (var i = 0; i < $scope.current_val; i++) { $scope.lost.push({'class': 'lost_settlement_checked', 'id_num': i}) };
+
+        do {
+            if ($scope.lost.length == 4) 
+                {$scope.lost.push({'class': 'bold_check_box', 'id_num':4})}
+            else if ($scope.lost.length == 9) 
+                {$scope.lost.push({'class': 'bold_check_box', 'id_num':9})}
+            else if ($scope.lost.length == 14) 
+                {$scope.lost.push({'class': 'bold_check_box', 'id_num':14})}
+            else if ($scope.lost.length == 18) 
+                {$scope.lost.push({'class': 'bold_check_box', 'id_num':18})}
+            else
+                {$scope.lost.push({'id_num':$scope.lost.length})};
+        } while ($scope.lost.length < 19) ;
+
+//        console.log(JSON.stringify($scope.lost));
+    };
+    
 });
 
 app.controller("containerController", function($scope) {
@@ -186,10 +278,22 @@ app.controller("epithetController", function($scope) {
         http.send(params);
 
         $('#saved_dialog').show();
-        $('#saved_dialog').fadeOut(1500)
+        $('#saved_dialog').fadeOut(1500);
 
     }
 });
+
+// click/tap remove for the Settlement Sheet
+function removeSettlementSheetAsset(html_element, group, s_id) {
+//    window.alert(html_element.parentElement.classList);
+    html_element.parentElement.style.display="none";
+    var item_name = html_element.innerHTML.trim();
+    var params = "remove_" + group + "=" + item_name;
+//  window.alert(params); 
+    modifyAsset("settlement", s_id, params);
+};
+
+
 
 // generic survivor attrib update sans page refresh
 function updateAssetAttrib(source_input, collection, asset_id) {
@@ -202,10 +306,13 @@ function updateAssetAttrib(source_input, collection, asset_id) {
     if (typeof source_input == "string") {
         var source_input = document.getElementById(source_input);
     };
+
     if (source_input.hasAttribute('id') != true) {window.alert("Trigger element has no id!")};
 
     var attrib_key = document.getElementById(source_input.id).name;
     var new_value = document.getElementById(source_input.id).value;
+
+    if (new_value == '') {window.alert("Blank values cannot be saved!"); return false;};
 
     // strikethrough for p.survivor_sheet_fighting_art_elements
     if (source_input.id == 'survivor_sheet_cannot_use_fighting_arts' ) {
@@ -263,6 +370,12 @@ function showHide(id) {
     else e.style.display = 'block';
 }
 
+function hide(id) {
+    var e = document.getElementById(id);
+    e.style.display="none";
+    window.alert("here");
+};
+
 // inc/dec functions + step-n-save
 function stepAndSave(step_dir, target_element_id, collection, asset_id) {
     var input = document.getElementById(target_element_id);
@@ -304,5 +417,40 @@ function toggleDamage(elem_id, asset_id) {
     var toggle_key = document.getElementById(elem_id);
     var params =  toggle_key.name + "=checked";
     modifyAsset("survivor", asset_id, params);
-    }
+};
 
+
+// custom toggles; we use these to insert spans (because styling bullets and
+//  checkboxes and radios and whatever got to be a pain in the ass
+function kd_toggle_init() {
+    var toggles = document.getElementsByClassName('kd_toggle_box');
+    for (i = 0; i < toggles.length; i++) {
+        var e = toggles[i];
+        var bullet = document.createElement("span");
+        bullet.classList.add("kd_toggle_bullet");
+        bullet.id = e.id + "_bullet_span";
+        if (e.checked == true) {
+            bullet.classList.add("checked_kd_toggle_bullet"); 
+            e.parentElement.style.fontWeight="bold";
+        };
+        e.parentElement.insertBefore(bullet,e); 
+    }; 
+    console.log("initialized " + toggles.length + " toggle elements");
+//    window.alert(toggles.length);
+};
+function kd_toggle(toggle_element) {
+    var input_element = toggle_element;
+    var bullet = document.getElementById(input_element.id + "_bullet_span");
+    if (bullet.classList.contains("checked_kd_toggle_bullet")) {
+        bullet.classList.remove("checked_kd_toggle_bullet")
+    } else {
+        bullet.classList.add("checked_kd_toggle_bullet")
+    };
+};
+function kd_radio(toggle_element, target_collection, asset_id) {
+    var selected = toggle_element;
+    var form_name = selected.name;
+    var form_value = selected.value;
+    var params = form_name + "=" + form_value;
+    modifyAsset(target_collection, asset_id, params);    
+};

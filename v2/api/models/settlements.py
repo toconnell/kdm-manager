@@ -4,7 +4,7 @@ from bson import json_util
 import json
 
 import Models
-from models import cursed_items, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions
+from models import campaigns, cursed_items, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions
 import settings
 import utils
 
@@ -44,6 +44,8 @@ class Settlement(Models.UserAsset):
         output["game_assets"].update(self.get_available_assets(cursed_items))
         output["game_assets"].update(self.get_available_assets(causes_of_death))
         output["game_assets"].update(self.get_available_assets(survival_actions))
+        output["game_assets"]["campaign"] = self.get_campaign(dict)
+        output["game_assets"]["principles"] = self.get_campaign(dict)["principles"]
         output["game_assets"]["survival_actions_available"] = self.get_available_survival_actions()
 
         return json.dumps(output, default=json_util.default)
@@ -130,7 +132,7 @@ class Settlement(Models.UserAsset):
         if not "campaign" in self.settlement.keys():
             self.settlement["campaign"] = "People of the Lantern"
 
-        if return_type == "dict":
+        if return_type == dict:
             C = campaigns.Assets()
             return C.get_asset_from_name(name=self.settlement["campaign"])
         elif return_type == "object":
