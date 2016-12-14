@@ -2244,6 +2244,7 @@ class settlement:
     \n""" % dashboard.campaign_flash)
 
     form = Template("""\n\
+<div ng-controller="settlementSheetGlobalController" ng-init="initialize('$api_url','$settlement_id')">
     <span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
     <span class="nav_bar_mobile mobile_only settlement_sheet_gradient"></span>
     <span class="top_nav_spacer mobile_only"> hidden </span>
@@ -2488,70 +2489,80 @@ class settlement:
 
         <a id="edit_locations" class="mobile_only"><a/>
 
-        <div class="settlement_sheet_block_group">
+        <div
+            class="settlement_sheet_block_group"
+            ng-controller="settlementSheetLocationsController"
+            ng-init='locations=$locations;locations_options=$locations_options;settlement_id="$settlement_id"'
+        >
 
             <h2>Settlement Locations</h2>
             <p>Locations in your settlement. Click or tap an item to remove it.</p>
 
             <div
-                ng-init='locations=$locations'
+                ng-repeat="x in locations"
+                ng-init="levels=x.lvl;div_id=x.div_id"
             >
-                <div
-                    ng-repeat="x in locations"
-                    ng-init="levels=x.lvl;div_id=x.div_id"
-                >
-                    <div class="line_item" ng-if="levels" id="{{x.div_id}}">
-                        <span class="bullet"></span>
-                        <span
-                            class="item"
-                            onclick="removeSettlementSheetAsset(this, 'location','$settlement_id');"
+                <div class="line_item" ng-if="levels" id="{{x.div_id}}">
+                    <span class="bullet"></span>
+                    <span
+                        class="item"
+                        onclick="removeSettlementSheetAsset(this, 'location','$settlement_id');"
+                        ng-click="relist(x);"
+                    >
+                       {{ x.name }}
+                    </span>
+                    <span class="location_lvl_select">
+                        <select
+                            id="{{x.div_id}}LevelSelect"
+                            class="location_level"
+                            name="location_level_{{x.name}}"
+                            onchange="updateAssetAttrib(this, 'settlement', '$settlement_id')"
+                            ng-model="x.lvl"
+                            ng-options="l.lvl as l.name for l in x.lvl_range"
                         >
-                           {{ x.name }}
-                        </span>
-                        <span class="location_lvl_select">
-                            <select
-                                id="{{x.div_id}}LevelSelect"
-                                class="location_level"
-                                name="location_level_{{x.name}}"
-                                onchange="updateAssetAttrib(this, 'settlement', '$settlement_id')"
-                                ng-model="x.lvl"
-                                ng-options="l.lvl as l.name for l in x.lvl_range"
-                            >
-                            </select>
-                        </span>
-                    </div>
-
-                    <div class="line_item" ng-if="levels==undefined"> <!-- span holder -->
-                        <span class="bullet"></span>
-                        <span
-                            class="item"
-                            onclick="removeSettlementSheetAsset(this, 'location', '$settlement_id');"
-                        >
-                            {{x}}
-                        </span>
-                    </div>
-
+                        </select>
+                    </span>
                 </div>
+
+                <div class="line_item" ng-if="levels==undefined"> <!-- span holder -->
+                    <span class="bullet"></span>
+                    <span
+                        class="item"
+                        onclick="removeSettlementSheetAsset(this, 'location', '$settlement_id');"
+                        ng-click="relist(x);"
+                    >
+                        {{x.name}}
+                    </span>
+                </div>
+
             </div>
 
-            <form method="POST" action="#edit_locations">
-                <input type="hidden" name="modify" value="settlement" />
-                <input type="hidden" name="asset_id" value="$settlement_id" />
-                <div class="line_item">
-                    <span class="empty_bullet" /></span> $locations_add
-                </div>
-                <div class="line_item">
-                    <span class="empty_bullet" /></span>
-                    <input
-                        name="add_location"
-                        onchange="this.form.submit()"
-                        type="text"
-                        placeholder="Enter custom Location"
-                        onclick="showHide('bogus_location_button')"
-                    />
-                </div>
-            </form>
-            <button id="bogus_location_button" class="kd_blue" style="display:none;">Save</button>
+            <div class="line_item">
+                <span class="empty_bullet" /></span>
+                <select
+                    id="addLocationSelectAngularJS"
+                    name="add_location"
+                    ng-model="add_location"
+                    ng-options="lo.name for lo in locations_options"
+                    ng-change="add()"
+                >
+                    <option disabled selected value="">Add a Location</option>
+                </select>
+            </div>
+            <div class="line_item">
+                <span class="empty_bullet" /></span>
+                <input
+                    id="addLocationCustomInputHTML"
+                    name="add_location"
+                    type="text"
+                    placeholder="Enter custom Location"
+                    onclick="showHide('bogus_location_button')"
+                    ng-model="add_location"
+                    ng-blur="add()"
+                />
+            </div>
+
+        <button id="bogus_location_button" class="kd_blue" style="display:none;">Save</button>
 
         </div> <!-- settlement_sheet_block_group locations -->
 
@@ -2577,7 +2588,7 @@ class settlement:
                         class="item"
                         onclick="removeSettlementSheetAsset(this, 'innovation', '$settlement_id');"
                     >
-                        {{x}}
+                        {{x.name}}
                     </span>
                 </div>
             </div>
@@ -2633,10 +2644,8 @@ class settlement:
             <p>The settlement's established principles.</p>
 
             <div principle" ng-repeat="p in principles" class="settlement_sheet_principle_container">
-                <div id="{{p.name}} principle"> <!-- container -->
-                    <div class="settlement_sheet_principle_name">
-                        {{p.name}}
-                    </div>
+                <div id="{{p.name}} principle"> <!-- unstyled container -->
+                    <div class="settlement_sheet_principle_name"> {{p.name}} </div>
                     <label id="{{o.div_id}}Label" ng-repeat="o in p.options" for="{{o.div_id}}" class="kd_radio_option_label">
                         <input
                             class="kd_toggle_box"
@@ -2648,18 +2657,20 @@ class settlement:
                             ng-click="set(o.div_id,p.name,o.name)">
                         {{ o.name }}
                     </label>
-                </div>
-            </div>
+                </div> <!-- unstyled container -->
+            </div> <!-- settlement_sheet_principle_container -->
 
             <br/>
-            <span class="empty_bullet"></span>
-            <select
-                ng-model="unset"
-                ng-change="unset_principle();"
-                ng-options="p.name for p in principles"
-            >
-                <option disabled value="">Unset Principle</option>
-            </select>
+            <div class="unset_principle_container">
+                <span class="empty_bullet rm_bullet"></span>
+                <select
+                    ng-model="unset"
+                    ng-change="unset_principle();"
+                    ng-options="p.name for p in principles"
+                >
+                    <option disabled value="">Unset Principle</option>
+                </select>
+            </div> <!-- unset_principle_container -->
 
         </div> <!-- principle block group -->
 
@@ -2699,7 +2710,7 @@ class settlement:
                             class="item"
                             onclick="removeSettlementSheetAsset(this, 'quarry', '$settlement_id');"
                         >
-                            {{x}}
+                            {{x.name}}
                         </span>
                     </div>
                 </div>
@@ -2778,7 +2789,7 @@ class settlement:
                     <span
                         class="item"
                     >
-                        {{x}}
+                        {{x.name}}
                     </span>
                 </div>
             </div>
@@ -2961,6 +2972,28 @@ class settlement:
     </div> <!-- modalStorage -->
 
 
+    <!-- TIMELINE angularjs app! HOLY FUCKING SHIT! -->
+
+
+    <div
+        id="modalTimelineContainer"
+        class="modal"
+        ng-controller="timelineApplicationController"
+        ng-init='registerModalDiv("timelineOpenerButton","modalTimelineContainer")'
+    >
+        <div class="timeline_modal_panel timeline_gradient">
+            <span class="closeModal" onclick="closeModal('modalTimelineContainer')">×</span>
+
+            <h3>$name Timeline</h3>
+
+            <p ng-repeat="t in timeline">{{t}}</p>
+
+        </div>
+
+
+    </div>
+
+</div> <!-- settlementSheetGlobalController -->
     \n""")
     remove_settlement_button = Template("""\
     <hr/>
@@ -3369,7 +3402,7 @@ def render_burger(session_object=None):
             target_view = "view_campaign",
             settlement_id = session_object.session["current_settlement"]
         )
-    actions += '<button id="" class="sidenav_button">Timeline</button>'
+    actions += '<button id="timelineOpenerButton" class="sidenav_button">Timeline</button>'
     actions += meta.burger_change_view_button.safe_substitute(
         link_text = "Settlement Event Log",
         target_view = "change_view",

@@ -26,14 +26,6 @@
 
 /* color styles - all breakpoints */
 
-    /* timeline Material Design */
-.timeline_show_hide, .timeline_completed_lys, .timeline_action, .timeline_current_ly {color: #fff; }
-.timeline_action {background-color: #795548;}           /* 500 */
-.timeline_completed_lys {background-color: #5D4037;}    /* 700 */
-.timeline_show_hide {background-color: #4E342E;}        /* 800 */
-.timeline_current_ly {background-color: #448AFF !important;} /* A200 */
-.timeline_block_group {border: 3px solid #795548 !important; border-top: 0 !important; border-top: none !important; }
-
     /* Survivor Asset Links Material Design */
 .departing_survivor_badge_color {color: #fff; background-color: #F44336;}
 .returning_survivor_badge_color {color: #fff; background-color: #795548;}
@@ -85,7 +77,6 @@ button.manage_departing_survivors {border-radius: 10px; border: 0.1em solid #5F4
 
 
 .red_glow {box-shadow: 0 0px 0.4em rgba(255, 0, 100, 1.5);}
-
 .insanity_font {color: #a73737; font-weight: bold;}
 .maroon {
     background: linear-gradient(#a73737, #7a2828); color: #fff; 
@@ -227,6 +218,12 @@ div#mySidenav button {
     .sidenav {padding-top: 15px;}
     .sidenav a {font-size: 18px;}
 }
+
+/* timeline styles */
+.timeline_gradient {background-color: #fff; background: radial-gradient(#fff,#fff,#fff,#fff,#fff,#FEF0CE,#FBE8C9); }
+div.timeline_modal_panel {z-index: 5000; position: absolute; top: 0.5%; left: 1%; right: 1%; border-radius: 10px; padding: 1%;  border: 0.1em solid #957753; min-height: 50%; }
+div.timeline_modal_panel span.closeModal {top: -40px; }
+
 
 /* event_log styles */
 table.settlement_event_log {border-collapse: collapse; }
@@ -373,6 +370,7 @@ div.settlement_sheet_block_group div.line_item span.item:hover {background-color
 div.settlement_sheet_block_group span.bullet, div.settlement_sheet_block_group span.empty_bullet {height: 39px; width: 39px; border: 3px solid #000; margin-left: 4%; margin-right: 1%; display: inline-block; }
 div.settlement_sheet_block_group span.bullet {background-color: #000; }
 div.settlement_sheet_block_group span.empty_bullet { }
+div.settlement_sheet_block_group span.rm_bullet {border-color: #900;}
 div.settlement_sheet_block_group span.item {display: inline-block; font-size: 65px; min-width: 50%;}
 div.settlement_sheet_block_group input[type=text], div.settlement_sheet_block_group select {border: 0; border-bottom: 0.1em solid #000; padding-bottom: 2px; width: 80%; font-size: 65px; font-family: Silverado; background: none;}
 div.settlement_sheet_block_group select {margin-left: 0; margin-right: 0; }
@@ -402,7 +400,6 @@ div.lost_settlements_controls button {width: 45%; display: inline-block; margin:
 div.principles_rm_container {margin: 5%; } 
 
 button.permanently_delete {margin-top: -1%; margin-bottom: 5%; }
-div#bulk_add_survivors input.settlement_sheet_bulk_add {border-top: 0; border-left: 0; border-right: 0;  width: 90%; }
 
 div#asset_management_left_pane input.settlement_name {margin: 0 auto; width: 99%; border: none; font-size: 100px; text-align: center; font-family: Silverado; font-weight: bold; outline: none; box-shadow: none; margin-bottom: 30px; }
 input.settlement_name:focus, input.settlement_name:active{outline: none; box-shadow: none;}
@@ -901,18 +898,21 @@ div.survivor_search_results_buttons div.survivor_assets b {font-family: Silverad
     /* KD styles - tablet */
     label.kd_toggle_box_caption {font-size: 16pt; }
     span.kd_toggle_box {width: 15px; height: 15px; }
+    div.kd_toggle_container {font-size: 23px;}
+    span.kd_toggle_bullet {width: 15px; height: 15px; }
     .paper_style_toggle {padding: 3px; padding-left: 4px; padding-right: 4px;}
     .kd_alert:before {font-size: 40px; font-size: 5vw; margin-left: 2%; }
     .kd_alert {padding: 2%; }
 
     /* General styles */
+    #saved_dialog {position: fixed; margin-top: 5px; margin-left: 40%; font-size: 25px; padding: 1%; }
     label.radio_principle_label {font-size: 17pt; margin-left: 10px; }
     img.latest_fatality {width: 150px; clear: right; margin-left: 20px; }
     .nav_bar, .nav_bar_mobile {box-shadow: 0px 5px 20px #ccc; margin-top: -1px;}
     .nav_bar {position: fixed; top: 0; left: 0; width: 100%; height: 75px;  opacity: 1; z-index: 100; }
 
     /* modal overlay - tablet */
-    .closeModal {font-size: 100px; }
+    .closeModal {font-size: 100px; top: 0px; }
 
     /* sign-in styles */
     body.sign_in {background: radial-gradient(#fff, #ccc); }
@@ -986,11 +986,6 @@ div.survivor_search_results_buttons div.survivor_assets b {font-family: Silverad
     div#asset_management_left_pane select { font-size: 17pt; }
     div#asset_management_left_pane p.subhead_p_block {font-size: 16pt; color: #333; margin-bottom: 10px; }
     div#asset_management_left_pane input {height: auto; width: auto; }
-
-        /* this is the "no principles" warning */
-    div.campaign_summary_panels_container div.user_asset_sheet_error {font-size: 15px; max-width: 350px; float: left;}
-    div#asset_management_middle_pane div.settlement_sheet_block_group {display: flex; flex-direction: column;}
-    div.settlement_sheet_block_group div.user_asset_sheet_error {font-size: 20px; width: auto; }
 
 
     .shield, .big_number_square {width: 65px; height: 80px; text-align: center; font-size: 25pt; }
@@ -1161,6 +1156,12 @@ div.survivor_search_results_buttons div.survivor_assets b {font-family: Silverad
 
 
     /* settlement sheet styles - tablet */
+
+        /* principles app */
+    div.settlement_sheet_principle_container label {font-size: 23px; margin: 5%; }
+    div.settlement_sheet_principle_name {font-size: 25px; margin: auto; }
+    div.unset_principle_container {margin:0; margin-left: 4%; margin-top: -10%; }
+
     div#asset_management_left_pane input.settlement_name {font-size: 70px; width: 800px; text-align: left; margin-left: 25px; }
     h1.alert {font-size: 35pt; }/* used by ABANDONED */
 
@@ -1178,6 +1179,7 @@ div.survivor_search_results_buttons div.survivor_assets b {font-family: Silverad
     div#bulk_add_survivors div.bulk_add_control button {height: auto; width: 85px; margin-left: 30px; }
 
         /* block_group styles - tablet */
+    div.settlement_sheet_block_group {vertical-align: top; }
     div.settlement_sheet_block_group h2 {font-size: 22pt;}
     div.settlement_sheet_block_group span.bullet, div.settlement_sheet_block_group span.empty_bullet {height: 14px; width: 14px; }
     div.settlement_sheet_block_group p {margin: 0; padding: 0; padding-left: 4%; padding-top: 2%; }

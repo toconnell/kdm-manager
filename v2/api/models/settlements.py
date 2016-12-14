@@ -4,7 +4,7 @@ from bson import json_util
 import json
 
 import Models
-from models import campaigns, cursed_items, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions
+from models import campaigns, cursed_items, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events
 import settings
 import utils
 
@@ -17,6 +17,21 @@ class Settlement(Models.UserAsset):
         self.collection="settlements"
         self.object_version=0.4
         Models.UserAsset.__init__(self,  *args, **kwargs)
+        self.normalize_data()
+
+
+    def normalize_data(self):
+        """ Makes sure that self.settlement is up to our current standards. """
+
+        perform_save = False
+
+        if not "timeline_version" in self.settlement.keys():
+            self.convert_timeline_to_JSON()
+            perform_save = True
+
+        if perform_save:
+            self.logger.debug("Normalized %s" % self)
+            self.save()
 
 
     def serialize(self, return_type="JSON"):
@@ -44,6 +59,7 @@ class Settlement(Models.UserAsset):
         output["game_assets"].update(self.get_available_assets(cursed_items))
         output["game_assets"].update(self.get_available_assets(causes_of_death))
         output["game_assets"].update(self.get_available_assets(survival_actions))
+        output["game_assets"].update(self.get_available_assets(events))
         output["game_assets"]["campaign"] = self.get_campaign(dict)
         output["game_assets"]["principles"] = self.get_campaign(dict)["principles"]
         output["game_assets"]["survival_actions_available"] = self.get_available_survival_actions()
@@ -202,4 +218,34 @@ class Settlement(Models.UserAsset):
                 return False
 
         return True
+
+
+    def convert_timeline_to_JSON(self):
+        """ Converts our old, pseudo-JSON timeline to the standard JSON one. """
+
+        old_timeline = self.settlement["timeline"]
+        new_timeline = []
+
+        all_events = events.Assets()
+
+        for old_ly in old_timeline:
+            new_ly = {}
+            for k in old_ly.keys():
+
+                if type(old_ly[k]) == list:
+                    event_type_list = []
+                    for event in old_ly[k]:
+                        event_dict = {"name": event}
+                        if event in all_events.get_names():
+                            event_dict.update(all_events.get_asset_from_name(event))
+                        event_type_list.append(event_dict)
+                    new_ly[k] = event_type_list
+                else:
+                    new_ly[k] = old_ly[k]
+            new_timeline.append(new_ly)
+
+        self.logger.warn("Converted timeline for %s to version 1.0" % self)
+        self.settlement["timeline_version"] = 1.0
+        self.settlement["timeline"] = new_timeline
+
 

@@ -26,7 +26,7 @@ import game_assets
 import html
 from models import Abilities, NemesisMonsters, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles, SurvivalActions, CauseOfDeath
 from session import Session
-from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd, u_to_str, dict_to_js
+from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd, u_to_str, dict_to_js, list_to_js
 import world
 
 settings = load_settings()
@@ -3508,9 +3508,25 @@ class Settlement:
         self.logger.debug("[%s] bulk-added %s male and %s female survivors to %s" % (self.User.user["login"], male, female, self))
 
 
+    def get_event(self, event_name=None):
+        """ Searches through the settlement's API asset for an event matching
+        'event_name'. Returns an empty dict if no event exists. """
+
+        all_events = self.get_api_asset("game_assets","events")
+        lookup_dict = {}
+        for h in all_events.keys():
+            lookup_dict[all_events[h]["name"]] = h
+
+        if event_name not in lookup_dict.keys():
+            return {}
+
+        event_handle = lookup_dict[event_name]
+        return all_events[event_handle]
+
+
     def get_story_event(self, event=None):
         """ Accepts certain 'event' values and spits out a string of HTML
-        created with assets from game_assets.story_events. """
+        reflecting page numbers, etc.. """
 
         c_dict = self.get_campaign("dict")
         if "replaced_story_events" in c_dict.keys():
@@ -3526,7 +3542,7 @@ class Settlement:
         else:
             return None
 
-        p = game_assets.story_events[event]["page"]
+        p = self.Settlement.get_event(event)["page"]
         output = html.survivor.stat_story_event_stub.safe_substitute(
             event=event,
             page=p,
@@ -3663,7 +3679,8 @@ class Settlement:
             if "add_to_timeline" in milestones_dict[m_key].keys():
                 story_condition = milestones_dict[m_key]["add_to_timeline"]
             story_key = milestones_dict[m_key]["story_event"]
-            story_page = game_assets.story_events[story_key]["page"]
+#            story_page = self.get_api_asset("game_assets")["events"][story_key]["page"]
+            story_page = self.get_event(story_key)["page"]
             story_key_variants = [story_key, "%s (p.%s)" % (story_key, story_page)]
             condition_met = False
             if m_key in self.settlement["milestone_story_events"]:
@@ -4256,137 +4273,31 @@ class Settlement:
     def get_timeline(self, return_type=False):
         """ Returns the settlement's timeline. """
 
-        story_event_icon = '<font class="kdm_font">g</font>'
-        quarry_event_icon = '<font class="kdm_font">f</font>'
-        nemesis_encounter_icon_url = os.path.join(settings.get("application", "STATIC_URL"), "icons/nemesis_encounter_event.jpg")
-        nemesis_encounter_icon = '<img class="icon" src="%s"/>' % nemesis_encounter_icon_url
-        settlement_event_icon_url = os.path.join(settings.get("application", "STATIC_URL"), "icons/settlement.png")
-        settlement_event_icon = '<img class="icon" src="%s"/>' % settlement_event_icon_url
+#        story_event_icon = '<font class="kdm_font">g</font>'
+#        quarry_event_icon = '<font class="kdm_font">f</font>'
+#        nemesis_encounter_icon_url = os.path.join(settings.get("application", "STATIC_URL"), "icons/nemesis_encounter_event.jpg")
+#        nemesis_encounter_icon = '<img class="icon" src="%s"/>' % nemesis_encounter_icon_url
+#        settlement_event_icon_url = os.path.join(settings.get("application", "STATIC_URL"), "icons/settlement.png")
+#        settlement_event_icon = '<img class="icon" src="%s"/>' % settlement_event_icon_url
 
-        current_lantern_year = int(self.settlement["lantern_year"])
+        current_lantern_year = self.get_ly()
+        timeline = self.get_api_asset("sheet","timeline")
 
-        if return_type == "html":
-            output = ""
-
-            if current_lantern_year >= 1:
-                output += """\n
-        <h3 class="clickable timeline_completed_lys" onclick="showHide('completed_lys')">Show/Hide Previous Years<img class="dashboard_down_arrow" src="http://media.kdm-manager.com/icons/down_arrow_white.png"/> </h2> <hr/>
-                """
-            output += '\n<div id="completed_lys" style="display: none;">\n'
-
-            for year in range(0,41):
-                strikethrough = ""
-                disabled = ""
-                hidden = "full_width"
-
-                button_color = "grey"
-
-                if year <= current_lantern_year - 1:
-                    disabled = "disabled"
-                    strikethrough = "strikethrough"
-                    hidden = "hidden"
-
-                if year == current_lantern_year:
-                    output += "\n</div> <!-- completed lys -->\n\n"
-                    button_color = "kd_blue"
+        if return_type == "json":
+            d = {
+                "user_is_settlement_admin": self.User.is_settlement_admin(),
+                "user_login": self.User.user["login"],
+                "timeline": list_to_js(timeline),
+            }
 
 
-                if self.User.get_preference("show_future_timeline"):
-                    ly_horizon = 5
-                else:
-                    ly_horizon = 1
+            output = dict_to_js(d)
 
-                if year == current_lantern_year + ly_horizon:
-                    output += """\n
-                        <h3 class="clickable timeline_show_hide" onclick="showHide('subsequent_lys')">Show/Hide Remaining Years<img class="dashboard_down_arrow" src="http://media.kdm-manager.com/icons/down_arrow.png"/> </h2>
-                """
-                    output += '\n<div id="subsequent_lys" style="display: none;"><hr/>\n'
-
-
-                output += '<p class="%s">' % strikethrough
-                output += html.settlement.timeline_button.safe_substitute(LY=year, button_class=strikethrough, disabled=disabled, settlement_id=self.settlement["_id"], button_color=button_color)
-
-                target_year = {"year": year}
-                for year_dict in self.settlement["timeline"]:
-                    if year == year_dict["year"]:
-                        target_year = year_dict
-
-                event_type_tuples = [
-                    ("nemesis_encounter", nemesis_encounter_icon),
-                    ("story_event", story_event_icon),
-                    ("settlement_event", settlement_event_icon),
-                    ("quarry_event", quarry_event_icon),
-                    ("custom", settlement_event_icon),
-                ]
-
-                this_year_events = []
-                for event_type_tuple in event_type_tuples:
-                    event_type, event_icon = event_type_tuple
-                    if event_type in target_year.keys():
-                        if target_year[event_type] != []:
-                            if type(target_year[event_type]) in [str,unicode]:
-                                event_text = target_year[event_type]
-                                this_year_events.append(event_text)
-                            elif type(target_year[event_type]) == list:
-                                event_text = ", ".join(target_year[event_type])
-                                this_year_events.extend(target_year[event_type])
-                            else:
-                                raise Exception("LY %s contains an event with an unsupported type! %s" % type(target_year[event_type]))
-                            output += '\t<p class="%s">%s %s</p>\n' % (strikethrough, event_icon, event_text)
-
-                # start the form for updating this year
-                output += html.settlement.timeline_form_top.safe_substitute(settlement_id=self.settlement["_id"], year=year)
-
-                # add blanks for adding events
-                output += html.settlement.timeline_add_event.safe_substitute(input_class=hidden, event_type="story_event", pretty_event_type="Story Event", LY="_%s" % year)
-                output += html.settlement.timeline_add_event.safe_substitute(input_class=hidden, event_type="settlement_event", pretty_event_type="Settlement Event", LY="_%s" % year)
-
-                # build the nemesis picker
-                output += html.ui.game_asset_select_top.safe_substitute(operation="add_", name="nemesis_event_%s" % year, operation_pretty="Add", name_pretty="Nemesis Encounter", select_class=hidden)
-                n_options = set()
-
-                #  custom code for nemesis encounters dictated by campaign rules
-                for n in sorted(game_assets.nemeses.keys()):
-                    n_dict = game_assets.nemeses[n]
-                    if n not in self.settlement["nemesis_monsters"] and "add_to_timeline_controls_at" in n_dict.keys():
-                        if year >= n_dict["add_to_timeline_controls_at"] and self.get_campaign() == n_dict["campaign"]:
-                            n_options.add(n)
-
-                for nemesis in self.get_nemeses("list_of_options"):
-                    n_options.add(nemesis)
-                for n in sorted(list(n_options)):
-                    output += html.ui.game_asset_select_row.safe_substitute(asset=n)
-                output += html.ui.game_asset_select_bot
-
-
-                # build the quarry picker
-                output += html.ui.game_asset_select_top.safe_substitute(operation="add_", name="quarry_event_%s" % year, operation_pretty="Add", name_pretty="Quarry", select_class=hidden)
-                quarry_options = []
-                # custom code for prologue
-                if year == 0:
-                    quarry_options.append("White Lion (First Story)")
-                quarry_options.extend(self.get_quarries("list_of_options"))
-                for q in sorted(quarry_options):
-                    output += html.ui.game_asset_select_row.safe_substitute(asset=q)
-                output += html.ui.game_asset_select_bot
-
-                if this_year_events != []:
-                    output += html.ui.game_asset_select_top.safe_substitute(operation="remove_", name="timeline_event_%s" % year, operation_pretty="Remove", name_pretty="Timeline Event", select_class=hidden)
-                    for event in this_year_events:
-                        output += html.ui.game_asset_select_row.safe_substitute(asset=event)
-                    output += html.ui.game_asset_select_bot
-
-                button_class = "full_width timeline_action"
-                if hidden == "hidden":
-                    button_class = hidden
-                output += '<button class="%s">Update Timeline</button>' % button_class
-
-                output += html.settlement.timeline_year_break
-            output += '</div> <!-- subsequent_lys -->'
             return output
 
 
-        return "oops! not implemented yet"
+
+        return timeline
 
 
     def get_principles(self, return_type=None, query=None):
@@ -4500,13 +4411,14 @@ class Settlement:
                 m_dict = campaign_dict["milestones"][m_key]
                 m_story_event = m_dict["story_event"]
                 m_handle = to_handle(m_key)
+                event = self.get_event(m_story_event)
                 output += html.settlement.milestone_control.safe_substitute(
                     settlement_id = self.settlement["_id"],
                     key = m_key,
                     handle = m_handle,
                     checked = self.get_milestones("checked", query=m_key),
                     story_event = m_dict["story_event"],
-                    story_page = game_assets.story_events[m_story_event]["page"],
+                    story_page = event["page"],
                 )
             output += '<hr class="invisible">'
             return output
@@ -5263,45 +5175,13 @@ class Settlement:
             self.settlement["lantern_year"] = new_lantern_year
             self.log_event("It is now Lantern Year %s." % new_lantern_year)
 
-        # add an event to the timeline if we're doing that
         if add_event != ():
-            target_ly, event_type, new_event = add_event
-            target_ly = int(target_ly)
-
-            if event_type == "nemesis_event":
-                event_type = "nemesis_encounter"
-                new_event = "Nemesis Encounter: %s" % new_event
-
-            self.logger.debug("Adding %s event '%s' to LY '%s' for %s" % (event_type, new_event, target_ly, self.get_name_and_id()))
-            for year_dict in self.settlement["timeline"]:   # timeline is a list of dicts
-                if year_dict["year"] == target_ly:
-                    year_index = self.settlement["timeline"].index(year_dict)
-                    self.settlement["timeline"].remove(year_dict)
-                    if event_type not in year_dict:
-                        year_dict[event_type] = []
-                    if type(year_dict[event_type]) in [str,unicode]:
-                        year_dict[event_type] = [year_dict[event_type]] # change strings into lists
-                    year_dict[event_type].append(new_event)
-                    if event_type == "quarry_event":
-                        year_dict[event_type] = sorted(list(year_dict[event_type]))    # sort without uniquify
-                    else:
-                        year_dict[event_type] = sorted(list(set(year_dict[event_type])))    # uniquify and sort
-                    self.settlement["timeline"].insert(year_index, year_dict)
-                    self.log_event("'%s' %s added to LY %s" % (new_event, event_type.replace("_"," "), target_ly))
-
+            pass
+#            raise Exception("NOPE")
         if rm_event != ():
-            target_ly, target_event_string = rm_event
-            for year_dict in self.settlement["timeline"]:
-                if year_dict["year"] == target_ly:
-                    for event_type in year_dict.keys():
-                        if event_type != "year" and target_event_string in year_dict[event_type]:
-                            if type(year_dict[event_type]) in [str, unicode]:
-                                del year_dict[event_type]
-                            else:
-                                year_dict[event_type].remove(target_event_string) 
-                            #year_dict[event_type].remove(target_event_string)
-                            self.log_event("Removed %s '%s' from LY %s." % (event_type.replace("_"," "), target_event_string, target_ly))
-                            self.logger.debug("%s removed %s '%s' from LY %s for %s" % (self.User.user["login"], event_type.replace("_"," "), target_event_string, target_ly, self.get_name_and_id()))
+            pass
+#            raise Exception("NOPE")
+
 
 
     def get_admins(self):
@@ -5713,6 +5593,36 @@ class Settlement:
         return lost
 
 
+    def reprocess_asset_keys(self, asset_keys):
+        """ Helper method for processing a list of asset keys and turning some
+        of them into dictionaries, e.g. if they have certain types of
+        attributes, such as levels, etc. """
+
+        for k in asset_keys:
+
+            if k in Locations.get_keys() and "levels" in Locations.get_asset(k):
+
+                if not "location_levels" in self.settlement.keys():
+                    self.settlement["location_levels"] = {k:1}
+                    self.save()
+
+                lvl = self.settlement["location_levels"][k]
+                lvl_range = [l+1 for l in range(Locations.get_asset(k)["levels"])]
+
+                index = asset_keys.index(k)
+                asset_keys.remove(k)
+
+                asset_keys.insert(index,
+                    {
+                        "name": "%s" % k,
+                        "lvl": lvl,
+                        "lvl_range": [{"lvl":l,"name":"Level %s" % l} for l in lvl_range],
+                        "div_id": "locationDiv%s" % k.replace(" ",""),
+                    })
+
+        return asset_keys
+
+
     def get_game_asset(self, asset_type=None, return_type=False, exclude=[], update_mins=True, admin=False):
         """ This is the generic method for getting a list of the settlement's
         game assets, e.g. innovations, locations, principles, etc.
@@ -5735,6 +5645,7 @@ class Settlement:
 #        curframe = inspect.currentframe()
 #        calframe = inspect.getouterframes(curframe, 2)
 #        self.logger.debug("get_game_asset() called by %s" % calframe[1][3])
+
 
         if update_mins:
             self.update_mins()
@@ -5786,43 +5697,15 @@ class Settlement:
             if hasattr(Asset, "stack"):
                 asset_keys = stack_list(asset_keys)
 
-            # add embedded controls for locations with levels. #hackCity
-            for k in asset_keys:
-                if k in Locations.get_keys() and "levels" in Locations.get_asset(k):
-
-                    if not "location_levels" in self.settlement.keys():
-                        self.settlement["location_levels"] = {k:1}
-                        self.save()
-
-                    lvl = self.settlement["location_levels"][k]
-                    lvl_range = [l+1 for l in range(Locations.get_asset(k)["levels"])]
-
-                    index = asset_keys.index(k)
-                    asset_keys.remove(k)
-
-                    asset_keys.insert(index,
-                        {
-                            "name": "%s" % k,
-                            "lvl": lvl,
-                            "lvl_range": [{"lvl":l,"name":"Level %s" % l} for l in lvl_range],
-                            "div_id": "locationDiv%s" % k.replace(" ",""),
-                        })
-
             if return_type == "list":
                 return "\n".join(['\t<div class="line_item"><span class="bullet"></span><span class="item">%s</span></div>' % i for i in asset_keys])
             elif return_type == "comma-delimited":
                 return "<p>%s</p>" % ", ".join(asset_keys)
             elif return_type == "json":
-                sanitized_keys = "["
-                for k in asset_keys:
-                    if type(k) in [unicode,str]:
-                        sanitized_keys += '"%s"' % k.replace("'","") + ","
-                    else:
-                        sanitized_keys += '%s' % json.dumps(k) + ","
-                sanitized_keys += "]"
-                return sanitized_keys
+                asset_keys = self.reprocess_asset_keys(asset_keys)
+                return list_to_js(asset_keys)
 
-        elif return_type == "html_add":
+        elif return_type in ["html_add","angularjs_options"]:
             if not self.User.get_preference("dynamic_innovation_deck") and asset_type == "innovations":
                 output = Innovations.render_as_html_dropdown(exclude=self.settlement["innovations"], excluded_type="principle")
             else:
@@ -5844,16 +5727,20 @@ class Settlement:
                                 if late_key not in deck:
                                     deck.append(late_key)
 
-                for asset_key in sorted(deck):
-                    output += html.ui.game_asset_select_row.safe_substitute(asset=asset_key)
-                output += html.ui.game_asset_select_bot
-            return output
+                if return_type == "html_add":
+                    for asset_key in sorted(deck):
+                        output += html.ui.game_asset_select_row.safe_substitute(asset=asset_key)
+                    output += html.ui.game_asset_select_bot
+                    return output
+                elif return_type == "angularjs_options":
+                    asset_keys = self.reprocess_asset_keys(deck)
+                    return list_to_js(asset_keys)
 
         elif return_type in ["html_remove","html_rm"]:
             if asset_keys == []:
                 return ""
             op = "remove"
-            output = '<span class="empty_bullet"></span>'
+            output = '<span class="empty_bullet rm_bullet"></span>'
             output += html.ui.game_asset_select_top.safe_substitute(
                 operation="%s_" % op, operation_pretty=op.capitalize(),
                 name=asset_name,
@@ -6212,6 +6099,7 @@ class Settlement:
 
         return html.settlement.form.safe_substitute(
             MEDIA_URL = settings.get("application","STATIC_URL"),
+            api_url = api.get_api_url(),
             settlement_id = self.settlement["_id"],
 
             name = self.settlement["name"],
@@ -6256,7 +6144,7 @@ class Settlement:
             innovation_deck = self.get_game_asset_deck("innovations", return_type="user_defined", exclude_always_available=True),
 
             locations = self.get_game_asset("locations", return_type="json", admin=self.User.is_settlement_admin(), update_mins=False),
-            locations_add = self.get_game_asset("locations", return_type="html_add", update_mins=False),
+            locations_options = self.get_game_asset("locations", return_type="angularjs_options", update_mins=False),
 
             defeated_monsters = self.get_game_asset("defeated_monsters", return_type="json", update_mins=False),
             defeated_monsters_add = self.get_game_asset("defeated_monsters", return_type="html_add", update_mins=False),
@@ -6266,6 +6154,7 @@ class Settlement:
             expansions_block = self.render_expansions_block(),
 
             remove_settlement_button = rm_button,
+            timeline = self.get_timeline("json"),
         )
 
 

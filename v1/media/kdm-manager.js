@@ -32,6 +32,48 @@ app.controller('globalController', function($scope, $http) {
     };
 });
 
+
+// this is the main one for the Settlement Sheet
+app.controller('settlementSheetGlobalController', function($scope, $http) {
+
+    $scope.initialize = function (api_url, settlement_id) {
+
+        $scope.settlement_id = settlement_id;
+
+        url = api_url + "settlement" + "/get/" + settlement_id;
+        $http.get(url).then(function(response){
+            console.log("API request URL: " + url);
+            console.log(response);
+            var t = response;
+            $scope.timeline = t.data.sheet.timeline;
+        })
+    };
+});
+
+// Timeline Application 
+app.controller('timelineApplicationController', function($scope) {
+//
+});
+
+
+app.controller("settlementSheetLocationsController", function($scope) {
+    $scope.add = function() {
+        if (typeof $scope.add_location == "string") {
+            var raw_loc = $scope.add_location;
+            $scope.add_location = {name:raw_loc}; 
+        };
+        $scope.locations.push($scope.add_location);
+        var params = "add_location=" + $scope.add_location.name;
+        modifyAsset('settlement',$scope.settlement_id,params);
+        $scope.add_location = undefined; 
+    } 
+    $scope.relist = function(loc) {
+        $scope.locations.splice( $scope.locations.indexOf(loc), 1 );
+        $scope.locations_options.push(loc);
+    };
+});
+
+
 app.controller('settlementSheetPrinciplesController', function($scope, $http) {
     $scope.unset = {"name": "Unset Principle","value": "None"}
     $scope.toggle_on = function(elem_id) {
@@ -130,6 +172,7 @@ app.controller("containerController", function($scope) {
 //    $scope.init = function () {window.alert("init!")}
     // TBD
 });
+
 
 app.controller("endeavorController", function($scope) {
 

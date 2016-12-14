@@ -193,7 +193,8 @@ class UserAsset():
 
 
     def __repr__(self):
-        return "%s object. _id: %s" % (self.collection, self._id)
+        exec 'repr_name = self.%s["name"]' % (self.collection[:-1])
+        return "%s object '%s' [%s]" % (self.collection, repr_name, self._id)
 
 
     def __init__(self, collection=None, _id=None):
@@ -222,6 +223,19 @@ class UserAsset():
             except Exception as e:
                 self.logger.error("Could not load _id '%s' from %s!" % (_id, self.collection))
                 self.logger.exception(e)
+
+
+    def save(self):
+        """ Saves the user asset back to either the 'survivors' or 'settlements'
+        collection in mdb, depending on self.collection. """
+
+        if self.collection == "settlements":
+            utils.mdb.settlements.save(self.settlement)
+        elif self.collection == "survivors":
+            utils.mdb.survivors.save(self.survivor)
+        else:
+            raise AssetLoadError("Invalid MDB collection for this asset!")
+        self.logger.info("Saved %s to mdb.%s successfully!" % (self, self.collection))
 
 
     def load(self):

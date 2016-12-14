@@ -14,7 +14,6 @@ import settings
 import world
 import utils
 
-
 # models
 from models import settlements, survivors
 
@@ -62,6 +61,7 @@ def cursed_items_json():
         return cursed_items.POST_available()
 
 @application.route("/settlement/get/<settlement_id>", methods=["POST","GET"])
+@utils.crossdomain(origin='*')
 def get_settlement(settlement_id):
     """ Dumps a serialized settlement, to include all assets, etc."""
     S = settlements.Settlement(_id=settlement_id)

@@ -30,7 +30,7 @@ def get_api_url():
         return settings.get("api","prod_url")
     else:
         logger.debug("[API] host FQDN is '%s'. Backing off to dev API settings." % (fqdn))
-        return "http://127.0.0.1:%s/" % settings.get("api","localhost_port")
+        return "http://%s:%s/" % (settings.get("api","localhost_addr"), settings.get("api","localhost_port"))
 
 
 def route_to_dict(route, params={}, return_as=dict, authorize=False):

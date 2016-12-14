@@ -67,9 +67,36 @@ def u_to_str(data):
     else:
         return data
 
-def dict_to_js(d):
-    output =  "{" + ", ".join("%s: %r" % (k, str(d[k])) for k in d) + "}"
-    return output
+
+def dict_to_js(d, internal_quote_char='"'):
+    output =  "{"
+    for k in d.keys():
+        if type(d[k]) in [unicode,str]:
+            v = d[k]
+            v = v.replace("'","&#39;")
+            output += '%s: %s%s%s, ' % (k,internal_quote_char,v,internal_quote_char)
+        elif type(d[k]) == int:
+            output += '%s: %s, ' % (k,d[k])
+        elif type(d[k]) == bool:
+            output += '%s: %s, ' % (k,str(d[k]).lower())
+        elif type(d[k]) == list:
+            output += '%s: [%s], ' % (k, ", ".join([dict_to_js(i) for i in d[k]]))
+        else:
+            raise Exception("dict_to_js() does not support '%s' type objects!" % (type(d[k])))
+    return output[:-2] + "}"
+
+def list_to_js(l,internal_quote_char='"'):
+    output = "["
+    for i in l:
+        if type(i) in [unicode,str]:
+            i = i.replace("'","&#39;")
+            output+= '{name: %s%s%s}, ' % (internal_quote_char,i,internal_quote_char)
+        elif type(i) == dict:
+            output += "%s, " % dict_to_js(i)
+        else:
+            raise Exception("list_to_js() cannot process items with type '%s'" % type(i))
+    return output[:-2] + "]"
+
 
 def to_handle(s):
     return s.lower().replace(" ","_")
