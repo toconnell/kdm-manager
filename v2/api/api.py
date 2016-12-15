@@ -60,12 +60,19 @@ def cursed_items_json():
             return utils.http_401
         return cursed_items.POST_available()
 
-@application.route("/settlement/get/<settlement_id>", methods=["POST","GET"])
+
+@application.route("/settlement/<action>/<settlement_id>", methods=["POST","GET"])
 @utils.crossdomain(origin='*')
-def get_settlement(settlement_id):
+def get_settlement(action, settlement_id):
     """ Dumps a serialized settlement, to include all assets, etc."""
     S = settlements.Settlement(_id=settlement_id)
-    return S.http_response()
+    if action == "get":
+        return S.http_response()
+    elif action == "event_log":
+        return Response(response=S.get_event_log("JSON"), status=200, mimetype="application/json")
+    else:
+        return utils.http_422
+
 
 @application.route("/survivor/get/<survivor_id>", methods=["POST"])
 def get_survivor(survivor_id):

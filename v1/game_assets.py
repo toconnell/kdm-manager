@@ -4447,7 +4447,7 @@ campaigns = {
             {"year": 16, "nemesis_encounter": ["Nemesis Encounter - Lvl 2"]},
             {"year": 17, }, {"year": 18, },
             {"year": 19, "nemesis_encounter": ["Nemesis Encounter - Dragon King Human Lvl 3"]},
-            {"year": 20, "story_event": ["The Dragon's tomb"]},
+            {"year": 20, "story_event": ["The Dragon's Tomb"]},
             {"year": 21, }, {"year": 22, },
             {"year": 23, "nemesis_encounter": ["Nemesis Encounter - Lvl 3"]},
             {"year": 24, },

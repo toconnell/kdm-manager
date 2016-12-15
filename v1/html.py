@@ -2244,7 +2244,13 @@ class settlement:
     \n""" % dashboard.campaign_flash)
 
     form = Template("""\n\
-<div ng-controller="settlementSheetGlobalController" ng-init="initialize('$api_url','$settlement_id')">
+<script src="/media/settlementSheet.js"></script>
+<div
+    ng-app="settlementSheetApp"
+    ng-controller="globalController"
+    ng-init="initialize('$api_url','$settlement_id')"
+>
+
     <span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
     <span class="nav_bar_mobile mobile_only settlement_sheet_gradient"></span>
     <span class="top_nav_spacer mobile_only"> hidden </span>
@@ -2491,8 +2497,8 @@ class settlement:
 
         <div
             class="settlement_sheet_block_group"
-            ng-controller="settlementSheetLocationsController"
-            ng-init='locations=$locations;locations_options=$locations_options;settlement_id="$settlement_id"'
+            ng-controller="locationsController"
+            ng-init='locations=$locations;locations_options=$locations_options'
         >
 
             <h2>Settlement Locations</h2>
@@ -2637,7 +2643,7 @@ class settlement:
 
         <div
             class="settlement_sheet_block_group"
-            ng-controller="settlementSheetPrinciplesController"
+            ng-controller="principlesController"
             ng-init="principles=$principles;settlement_id='$settlement_id';"
         >
             <h2>Principles</h2>
@@ -2829,8 +2835,8 @@ class settlement:
         <div
             class="lost_settlements_app_container"
             ng-app="kdmManager"
-            ng-controller="lostSettlementController"
-            ng-init="init($lost_settlements);settlement_id='$settlement_id'"
+            ng-controller="lostSettlementsController"
+            ng-init="loadLostSettlements();"
         >
         <div
             onclick="showHide('lostSettlementsTooltip'); showHide('lostSettlementsControls')"
@@ -2894,6 +2900,8 @@ class settlement:
         </div> <!-- lost settlement application -->
 
 
+
+
         <br class="mobile_only"/>
         <hr class="mobile_only"/>
 
@@ -2942,7 +2950,6 @@ class settlement:
 
     <div
         id="modalStorage" class="modal"
-        ng-init="registerModalDiv('modalStorageButton','modalStorage')"
     >
 
       <!-- Modal content -->
@@ -2976,24 +2983,104 @@ class settlement:
 
 
     <div
-        id="modalTimelineContainer"
         class="modal"
-        ng-controller="timelineApplicationController"
-        ng-init='registerModalDiv("timelineOpenerButton","modalTimelineContainer")'
+        id="modalTimelineContainer"
+        ng-app="settlementSheetApp"
+        ng-controller="timelineController"
+        ng_init="loadTimeline()"
     >
         <div class="timeline_modal_panel timeline_gradient">
             <span class="closeModal" onclick="closeModal('modalTimelineContainer')">×</span>
 
-            <h3>$name Timeline</h3>
+            <h3>{{ settlement_sheet.name}} Timeline </h3>
+            <p>Click or tap on any Lantern Year below to show/hide controls and complete details for all events taking place in that year.</p>
 
-            <p ng-repeat="t in timeline">{{t}}</p>
+            <div class="timeline_ly_headline">
+                <span>Year</span><span>Story & Special Events</span>
+            </div>
+
+            <div
+                ng-repeat="t in timeline"
+                ng-init="t.log_div_id = 'ly' + t.year + 'LogDivIDHandle'"
+                class="timeline_whole_entry_container"
+            >
+                <div class="timeline_ly_container">
+                    <div class="timeline_bullet_and_year_container">
+                        <span ng-if="t.year >= settlement_sheet.lantern_year" class="kd_toggle_bullet"></span>
+                        <span ng-if="t.year < settlement_sheet.lantern_year" class="kd_toggle_bullet checked_kd_toggle_bullet"></span>
+                        <span class="timeline_ly_number">{{t.year}}</span>
+                    </div>
+
+                    <div class="timeline_events_container">
+                        <span class="timeline_event" ng-repeat="e in t.story_event">
+                            <font class="kdm_font">g &nbsp;</font>
+                            <b>{{e.name}}</b>
+                            <span class="timeline_event_page" ng-if="e.page">
+                                &nbsp;(p.{{e.page}})
+                            </span>
+                        </span>
+                        <span class="timeline_event" ng-repeat="q in t.quarry_event">
+                            <font class="kdm_font">f &nbsp;</font>
+                            {{q.name}}
+                        </span>
+                        <span class="timeline_event" ng-repeat="n in t.nemesis_encounter">
+                        <span><img class="icon" src="http://media.kdm-manager.com/icons/nemesis_encounter_event.jpg"/></span>
+                            &nbsp; <b> {{n.name}}</b>
+                        </span>
+                        <span class="timeline_event" ng-repeat="e in t.settlement_event">
+                            <font class="kdm_font_hit_locations">a &nbsp;</font>
+                            {{e.name}}
+                        </span>
+                    </div>
+                </div>
+
+                <div
+                    ng-if="t.year <= settlement_sheet.lantern_year"
+                    ng-click="showHide(t.log_div_id)"
+                    class="timeline_event_log_revealer settlement_sheet_gradient round_top"
+                >
+                    Settlement Event Log &#9662;
+                </div>
+
+                <div
+                    class="timeline_event_log_container hidden"
+                    id="{{t.log_div_id}}"
+                    ng-click="showHide(t.log_div_id)"
+                >
+                    <span ng-repeat="l in get_event_log(t.year)" ng-bind-html-unsafe="l.event">
+                        <div
+                            ng-class-odd="'log_zebra'"
+                            ng-class-even="'log_no_zebra'"
+                        >
+                            {{l.event}}
+                        </div>
+                   </span>
+
+                    <div
+                        class="timeline_event_log_revealer settlement_sheet_gradient round_bottom"
+                    >
+                        Settlement Event Log &#9652;
+                    </div>
+                </div>
+
+            </div> <!-- iterator ng-repeat -->
+            </div><!-- settlement_sheet_timeline_ly_container -->
 
         </div>
 
 
     </div>
 
-</div> <!-- settlementSheetGlobalController -->
+</div> <!-- settlementSheetApp -->
+
+
+<!-- register modals -->
+
+<script type="text/javascript">
+    registerModalDiv("timelineOpenerButton","modalTimelineContainer");
+    registerModalDiv("modalStorageButton","modalStorage");
+</script>
+
     \n""")
     remove_settlement_button = Template("""\
     <hr/>
@@ -3179,7 +3266,7 @@ class meta:
     basic_http_header = "Content-type: text/html\n\n"
     basic_file_header = "Content-Disposition: attachment; filename=%s\n"
     error_500 = Template('%s<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>%s</title></head><body><h1>500 - Internal Server Error</h1><hr/><p>$msg</p>$params<hr/><p>Please report all issues at <a href="https://github.com/toconnell/kdm-manager/issues">https://github.com/toconnell/kdm-manager/issues</a><br/><br/>Use the information below to report the error:</p><hr/><p>%s</p><h2>Traceback:</h2>$exception' % (basic_http_header, settings.get("application","title"), datetime.now()))
-    start_head = '<!DOCTYPE html>\n<html ng-app="kdmManager" ng-controller="globalController">\n<head>\n<meta charset="UTF-8">\n<meta name="theme-color" content="#000000">\n<title>%s</title>\n<link rel="stylesheet" type="text/css" href="/media/style.css">\n' % settings.get("application","title")
+    start_head = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<meta name="theme-color" content="#000000">\n<title>%s</title>\n<link rel="stylesheet" type="text/css" href="/media/style.css">\n' % settings.get("application","title")
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
     saved_dialog = '\n    <div id="saved_dialog" class="kd_alert_no_exclaim" style="">Saved!</div>'
     mobile_hr = '<hr class="mobile_only"/>'
@@ -3523,7 +3610,7 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
     <!-- angular app -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular.min.js"></script>
     <script src="http://code.angularjs.org/1.5.3/angular-route.min.js"></script> 
-    <script src="/media/kdm-manager.js"></script>
+    <script src="/media/kdmManager.js"></script>
 
     <script type="text/javascript">
         window.onload = kd_toggle_init;

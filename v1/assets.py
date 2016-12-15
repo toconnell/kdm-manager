@@ -3670,6 +3670,19 @@ class Settlement:
         events to the Settlement timeline when the threshold for adding the
         event has been reached. """
 
+#
+#
+#
+#
+# FIX ME FUCK SHIT DAMN PISS HELL FUCK FIX ME
+#
+#
+#
+#
+#
+#
+        return True
+
         all_story_events = self.get_story_events()
 
         campaign_dict = self.get_campaign("dict")
@@ -4269,35 +4282,6 @@ class Settlement:
         else:
             return target_year
 
-
-    def get_timeline(self, return_type=False):
-        """ Returns the settlement's timeline. """
-
-#        story_event_icon = '<font class="kdm_font">g</font>'
-#        quarry_event_icon = '<font class="kdm_font">f</font>'
-#        nemesis_encounter_icon_url = os.path.join(settings.get("application", "STATIC_URL"), "icons/nemesis_encounter_event.jpg")
-#        nemesis_encounter_icon = '<img class="icon" src="%s"/>' % nemesis_encounter_icon_url
-#        settlement_event_icon_url = os.path.join(settings.get("application", "STATIC_URL"), "icons/settlement.png")
-#        settlement_event_icon = '<img class="icon" src="%s"/>' % settlement_event_icon_url
-
-        current_lantern_year = self.get_ly()
-        timeline = self.get_api_asset("sheet","timeline")
-
-        if return_type == "json":
-            d = {
-                "user_is_settlement_admin": self.User.is_settlement_admin(),
-                "user_login": self.User.user["login"],
-                "timeline": list_to_js(timeline),
-            }
-
-
-            output = dict_to_js(d)
-
-            return output
-
-
-
-        return timeline
 
 
     def get_principles(self, return_type=None, query=None):
@@ -6100,6 +6084,7 @@ class Settlement:
         return html.settlement.form.safe_substitute(
             MEDIA_URL = settings.get("application","STATIC_URL"),
             api_url = api.get_api_url(),
+
             settlement_id = self.settlement["_id"],
 
             name = self.settlement["name"],
@@ -6113,8 +6098,6 @@ class Settlement:
             min_survival_limit = self.get_min("survival_limit"),
             lost_settlements = self.get_lost_settlements("js"),
             settlement_notes = self.get_settlement_notes(),
-
-            survivors = self.get_survivors(return_type="html_campaign_summary"),
 
             endeavors = self.get_bonuses('endeavors', return_type="html"),
             departure_bonuses = self.get_bonuses('departure_buff', return_type="html"),
@@ -6154,7 +6137,6 @@ class Settlement:
             expansions_block = self.render_expansions_block(),
 
             remove_settlement_button = rm_button,
-            timeline = self.get_timeline("json"),
         )
 
 

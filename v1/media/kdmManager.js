@@ -21,152 +21,12 @@ function modifyAsset(collection, asset_id, param_string) {
 }
 
 
-// angularjs controllers start here.
-app.controller('globalController', function($scope, $http) {
-    $scope.registerModalDiv = function (modal_button_id, modal_div_id) {
-        var btn = document.getElementById(modal_button_id);
-        var modal = document.getElementById(modal_div_id);
-
-        btn.onclick = function(b) {b.preventDefault(); modal.style.display = "block";}
-        window.onclick = function(event) {if (event.target == modal) {modal.style.display = "none";}}
-    };
-});
+//          angularjs controllers start here.
 
 
-// this is the main one for the Settlement Sheet
-app.controller('settlementSheetGlobalController', function($scope, $http) {
-
-    $scope.initialize = function (api_url, settlement_id) {
-
-        $scope.settlement_id = settlement_id;
-
-        url = api_url + "settlement" + "/get/" + settlement_id;
-        $http.get(url).then(function(response){
-            console.log("API request URL: " + url);
-            console.log(response);
-            var t = response;
-            $scope.timeline = t.data.sheet.timeline;
-        })
-    };
-});
-
-// Timeline Application 
-app.controller('timelineApplicationController', function($scope) {
 //
-});
-
-
-app.controller("settlementSheetLocationsController", function($scope) {
-    $scope.add = function() {
-        if (typeof $scope.add_location == "string") {
-            var raw_loc = $scope.add_location;
-            $scope.add_location = {name:raw_loc}; 
-        };
-        $scope.locations.push($scope.add_location);
-        var params = "add_location=" + $scope.add_location.name;
-        modifyAsset('settlement',$scope.settlement_id,params);
-        $scope.add_location = undefined; 
-    } 
-    $scope.relist = function(loc) {
-        $scope.locations.splice( $scope.locations.indexOf(loc), 1 );
-        $scope.locations_options.push(loc);
-    };
-});
-
-
-app.controller('settlementSheetPrinciplesController', function($scope, $http) {
-    $scope.unset = {"name": "Unset Principle","value": "None"}
-    $scope.toggle_on = function(elem_id) {
-        var bullet = document.getElementById(elem_id + "_bullet_span");
-        bullet.classList.add("checked_kd_toggle_bullet");
-    };
-    $scope.set = function(input_element,principle,selection) {
-        var params = "set_principle_" + principle + "=" + selection;
-        modifyAsset('settlement',$scope.settlement_id,params);
-        var bulletParent = document.getElementById(principle + " principle");
-        var target_bullets = bulletParent.getElementsByTagName('label');
-        for (i = 0; i < target_bullets.length; i++) {
-            $scope.toggle_off(target_bullets[i]);            
-        }
-        $scope.toggle_on(input_element);
-    };
-    $scope.toggle_off = function(toggle_element) {
-        var input_element = toggle_element;
-        input_element.style.fontWeight = "normal";
-        var bullet = document.getElementById(input_element.id.slice(0,-5) + "_bullet_span");
-        bullet.classList.remove("checked_kd_toggle_bullet");
-    };
-    $scope.unset_principle = function () {
-        target_principle = $scope.unset.name;
-        console.log(target_principle);
-        var bulletParent = document.getElementById(target_principle + " principle");
-        var target_bullets = bulletParent.getElementsByTagName('label');
-        for (i = 0; i < target_bullets.length; i++) {
-            $scope.toggle_off(target_bullets[i]);            
-        }
-        var params = "set_principle_" + target_principle + "=UNSET";
-        modifyAsset('settlement',$scope.settlement_id,params);
-    };
-
-});
-
-app.controller("lostSettlementController", function($scope) {
-
-    $scope.rmLostSettlement = function () {
-        var cur = Number($scope.current_val);
-        if (cur == 0) {
-//            window.alert("At minimum!");
-        }
-        else { 
-            cur--;
-            $scope.current_val = cur;
-            var params = "lost_settlements=" + cur;
-            modifyAsset("settlement", $scope.settlement_id, params);
-            var e = document.getElementById('box_' + cur);
-            e.classList.remove('lost_settlement_checked');
-        };
-    };
-
-    $scope.addLostSettlement = function () {
-        var cur = Number($scope.current_val);
-        if (cur == 19) {
-            window.alert("At maximum!");
-        }
-        else { 
-            var e = document.getElementById('box_' + cur);
-            e.classList.remove('bold_check_box');
-            e.classList.add('lost_settlement_checked');
-            cur++;
-            $scope.current_val = cur;
-            var params = "lost_settlements=" + cur;
-            modifyAsset("settlement", $scope.settlement_id, params);
-        };
-    };
-
-    $scope.init = function(init_val) {
-        $scope.current_val = init_val;
-
-        $scope.lost = []; 
-
-        for (var i = 0; i < $scope.current_val; i++) { $scope.lost.push({'class': 'lost_settlement_checked', 'id_num': i}) };
-
-        do {
-            if ($scope.lost.length == 4) 
-                {$scope.lost.push({'class': 'bold_check_box', 'id_num':4})}
-            else if ($scope.lost.length == 9) 
-                {$scope.lost.push({'class': 'bold_check_box', 'id_num':9})}
-            else if ($scope.lost.length == 14) 
-                {$scope.lost.push({'class': 'bold_check_box', 'id_num':14})}
-            else if ($scope.lost.length == 18) 
-                {$scope.lost.push({'class': 'bold_check_box', 'id_num':18})}
-            else
-                {$scope.lost.push({'id_num':$scope.lost.length})};
-        } while ($scope.lost.length < 19) ;
-
-//        console.log(JSON.stringify($scope.lost));
-    };
-    
-});
+//  CAMPAIGN SUMMARY
+//
 
 app.controller("containerController", function($scope) {
 //    $scope.init = function () {window.alert("init!")}
@@ -435,6 +295,19 @@ function decrement(elem_id) {
     e.stepDown();
 }
 
+// button and togglebox registration 
+function registerModalDiv (modal_button_id, modal_div_id) {
+    var btn = document.getElementById(modal_button_id);
+    var modal = document.getElementById(modal_div_id);
+
+    if (btn == undefined) {window.alert("Could not find button id " + modal_button_id)};
+    if (modal == undefined) {window.alert("Could not find button id " + modal_button_id)};
+
+    btn.onclick = function(b) {b.preventDefault(); modal.style.display = "block";};
+    window.onclick = function(event) {if (event.target == modal) {modal.style.display = "none";}};
+
+    console.log( "button: " + modal_button_id + " and div: " + modal_div_id + " are linked!");
+};
 
 // place dynamic buttons in the appropriate holder, depending on what's visible
 function placeDynamicButton (button) {

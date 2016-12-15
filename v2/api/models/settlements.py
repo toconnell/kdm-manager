@@ -15,7 +15,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.4
+        self.object_version=0.6
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize_data()
 
@@ -148,12 +148,16 @@ class Settlement(Models.UserAsset):
         if not "campaign" in self.settlement.keys():
             self.settlement["campaign"] = "People of the Lantern"
 
+        C = campaigns.Assets()
+
+        if self.settlement["campaign"] not in C.get_names():
+            raise Models.AssetInitError("The name '%s' does not belong to any known campaign asset!" % self.settlement["campaign"])
+
         if return_type == dict:
-            C = campaigns.Assets()
             return C.get_asset_from_name(name=self.settlement["campaign"])
-        elif return_type == "object":
-            C = campaigns.Campaign(name=self.settlement["campaign"])
-            return C
+#        elif return_type == "object":
+#            C = campaigns.Campaign(name=self.get_campaign())
+#            return C
 
         return self.settlement["campaign"]
 
@@ -186,6 +190,22 @@ class Settlement(Models.UserAsset):
                 return ", ".join(expansions)
 
         return expansions
+
+
+    def get_event_log(self, return_type=None):
+        """ Returns the settlement's event log as a cursor object unless told to
+        do otherwise."""
+
+        event_log = utils.mdb.settlement_events.find(
+            {
+            "settlement_id": self.settlement["_id"]
+            }
+        ).sort("created_by",-1)
+
+        if return_type=="JSON":
+            return json.dumps(list(event_log),default=json_util.default)
+
+        return event_log
 
 
     def get_available_assets(self, asset_module=None):

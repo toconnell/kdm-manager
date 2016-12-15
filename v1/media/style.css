@@ -12,6 +12,14 @@
 .kdm_font {font-family: 'kdm-font-10'; }
 
 @font-face {
+    font-family: 'kdm-font-2';
+    src: url('/media/fonts/kdm-font-2.ttf') format('truetype'),
+    url('/media/fonts/kdm-font-2-webfont.woff') format('woff'),
+    url('/media/fonts/kdm-font-2-webfont.woff2') format('woff2');
+}
+.kdm_font_hit_locations {font-family: 'kdm-font-2'; }
+
+@font-face {
     font-family: 'Silverado';
     src: url('/media/fonts/329BC2_0_0.eot');
     src: url('/media/fonts/329BC2_0_0.eot?#iefix')
@@ -43,6 +51,7 @@ span.campaign_summary_gradient {border-bottom: 3px solid #D7CCC8;}
 span.settlement_sheet_gradient {border-bottom: 3px solid #FFE082;}
 
     /* KD UI emulation */
+
 input[type=checkbox].kd_toggle_box:checked + label {color: #000; }
 label.kd_toggle_box_caption {display: inline; line-height: 1.5em;}
 span.kd_toggle_bullet {margin-right: 1%; width: 35px; height: 35px; border: 0.1em solid #000; display: inline-block;}
@@ -75,6 +84,9 @@ button.manage_departing_survivors {border-radius: 10px; border: 0.1em solid #5F4
 .affinity_blue {background-color: #1C99CD; color: #fff; }
 .affinity_green {background-color: #4CB848; color: #fff; }
 
+
+.round_top {border-top-right-radius: 10px; border-top-left-radius: 10px; }
+.round_bottom {border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; }
 
 .red_glow {box-shadow: 0 0px 0.4em rgba(255, 0, 100, 1.5);}
 .insanity_font {color: #a73737; font-weight: bold;}
@@ -127,7 +139,7 @@ body {font-family: Silverado; height: 100%; overflow: scroll;}
 button {font-family: Arial, sans-serif; }
 fieldset {border: 0; text-align: left; }
 
-#container {width: 100%; height: 100%; overflow: hidden; z-index: 0; }
+#container {width: 100%; height: 100%; overflow: scroll; z-index: 0; }
 
 .tiny_break {display: block; height: 10px; }
 .center {text-align: center}
@@ -223,6 +235,28 @@ div#mySidenav button {
 .timeline_gradient {background-color: #fff; background: radial-gradient(#fff,#fff,#fff,#fff,#fff,#FEF0CE,#FBE8C9); }
 div.timeline_modal_panel {z-index: 5000; position: absolute; top: 0.5%; left: 1%; right: 1%; border-radius: 10px; padding: 1%;  border: 0.1em solid #957753; min-height: 50%; }
 div.timeline_modal_panel span.closeModal {top: -40px; }
+
+div.timeline_ly_headline {font-size: 35px; font-weight: bold; border-bottom: 0.1em solid #000; }
+div.timeline_ly_headline span {margin-left: 5%; margin-right: 4%; }
+
+div.timeline_whole_entry_container {border-bottom: 0.05em solid #888;} 
+div.timeline_ly_container {margin: 4%; display: flex; flex-direction: row; padding-bottom: 0; margin-bottom: 0; margin-top: 2%; padding-bottom: 2%; }
+div.timeline_bullet_and_year_container, div.timeline_event_container {display: inline-block; height: 100%;}
+div.timeline_bullet_and_year_container {width: 150px; padding-top: 0; margin-top: 0; }
+div.timeline_events_container {width: 75%; }
+span.timeline_ly_number {font-family: arial, sans-serif; text-align: left; margin-left: 10px; }
+
+div.timeline_ly_container font.kdm_font, div.timeline_ly_container font.kdm_font_hit_locations {font-size: 0.8em; margin-right: 1%; font-weight: bold; }
+
+span.timeline_event {font-size: 58px; display: block; flex-direction: row; flex-wrap: wrap; justify-content: flex-start; align-items: center; }
+span.timeline_event img.icon {display: inline; border: 0; float: left; height: 45px; width: auto; margin-right: 2%; margin-top: 2%; }
+span.timeline_event_page {font-family: arial, sans-serif; font-size: 0.7em; display: inline; }
+
+div.timeline_event_log_container {transition-timing-function: ease; transition: height 1s;}
+div.event_log_revealer {display: block; width: auto; clear: left; text-align: left; cursor: pointer; padding: 1%; border-radius: 10px; font-weight: bold; padding-left: 4%; }
+.log_zebra, .log_no_zebra {font-family: arial, sans-serif; font-size: 0.7em; padding: 1%;}
+.log_zebra {background-color: #eee; border-top: 1px solid #aaa; border-bottom: 1px solid #333; }
+.log_no_zebra {background-color: #fff;}
 
 
 /* event_log styles */
