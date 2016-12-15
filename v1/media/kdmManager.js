@@ -1,5 +1,111 @@
 var app = angular.module('kdmManager', []);
 
+function savedAlert() {
+    $('#saved_dialog').fadeIn(500);
+    $('#saved_dialog').show();
+    $('#saved_dialog').fadeOut(1800);
+};
+
+// factories and services for angularjs modules
+
+app.factory('apiService', function($http) {
+    return {
+        getSettlement: function(root_url, api_route, s_id) {
+            return $http.post(root_url + 'settlement/' + api_route + '/' + s_id);
+        }
+    }
+});
+
+app.controller('rootController', function($scope, apiService) {
+
+    $scope.initialize = function(src_view, login, is_admin, api_url, settlement_id) {
+        $scope.api_url = api_url;
+        $scope.settlement_id = settlement_id;
+        $scope.user_login = login;
+        $scope.user_is_settlement_admin = is_admin;
+        $scope.view = src_view;
+        console.log("appRoot controller (" + $scope.view + ") initialized!");
+        console.log($scope.user_login + " admin = " + $scope.user_is_settlement_admin);
+    }
+
+    $scope.loadSettlement = function(r) {
+        var api_route = r
+        if (api_route == undefined) {var api_route='get';};
+
+        // returns a promise
+        return apiService.getSettlement($scope.api_url, api_route, $scope.settlement_id);
+    };
+
+    $scope.range  = function(count) {
+        var r = [];
+        for (var i = 0; i < count; i++) { r.push(i) }
+        return r;
+    };
+
+});
+
+
+//  common and shared angularjs controllers
+
+
+// Timeline Application
+app.controller('timelineController', function($scope) {
+
+    $scope.loadTimeline = function() {
+        $scope.loadSettlement().then(
+            function(payload) {
+                $scope.settlement_sheet = payload.data.sheet;
+                $scope.timeline = payload.data.sheet.timeline;
+            },
+            function(errorPayload) {console.log("Error loading timeline!", errorPayload);}
+        );
+        console.log("timeline initialized!")
+        $scope.loadSettlement('event_log').then(
+            function(payload) {
+                $scope.event_log = payload.data;
+            },
+            function(errorPayload) {console.log("Error loading event_log!", errorPayload);}
+        );
+        console.log("event_log initialized!")
+
+    };
+
+
+    // limits $scope.event_log to only lines from target_ly
+    $scope.get_event_log = function(t) {
+
+        var target_ly = Number(t);
+        local_event_log = new Array();
+
+        for (i = 0; i < $scope.event_log.length; i++) {
+            if (Number($scope.event_log[i].ly) == target_ly) {
+                local_event_log.push($scope.event_log[i]);
+            };
+        };
+
+//        console.log("added " + local_event_log.length + " items to local_event_log");
+//        console.log($scope.local_event_log);
+        return local_event_log;
+    };
+
+    $scope.showHide = function(e_id) {
+        var e = document.getElementById(e_id);
+        var hide_class = "hidden";
+        if (e.classList.contains(hide_class)) {
+            e.classList.remove(hide_class);
+        } else {
+            e.classList.add(hide_class)
+        };
+    }
+
+});
+
+
+
+
+
+// general use and general availability methods. this is like...the junk
+// drawer of javascript methods
 
 function modifyAsset(collection, asset_id, param_string) {
 
@@ -16,46 +122,27 @@ function modifyAsset(collection, asset_id, param_string) {
     var params = "modify=" + collection + "&asset_id=" + asset_id + "&" + param_string + "&norefresh=True";
 //    window.alert(params);
     xhr.send(params);
-    $('#saved_dialog').fadeIn(500);
-    $('#saved_dialog').fadeOut(1800);
+    savedAlert();
 }
 
 
 //          angularjs controllers start here.
 
+// all angularjs apps use this, so it needs to stay generic. at a minimum,
+// an angularjs scope needs to know the following. survivor stuff is NOT handled
+// here because angularjs apps that deal with survivors are necessarily
+// specialized
 
-//
-//  CAMPAIGN SUMMARY
-//
+app.controller("appRootController", function($scope) {
 
-app.controller("containerController", function($scope) {
-//    $scope.init = function () {window.alert("init!")}
-    // TBD
-});
-
-
-app.controller("endeavorController", function($scope) {
-
-    $scope.init = function(s_id) {
-        $scope.settlement_id=s_id;
-    };
-
-    $scope.range = function(count){
-        var r = []; 
-        for (var i = 0; i < count; i++) { r.push(i) }
-        return r;
+    $scope.initialize = function(login, is_admin, api_url, settlement_id) {
+        $scope.settlement_id = settlement_id;
+        $scope.api_url = api_url;
+        $scope.user_login = login;
+        $scope.user_is_settlement_admin = is_admin;
+        console.log("angularjs app root initialized!");
+        console.log($scope.user_login + " admin status = " + $scope.user_is_settlement_admin);
     }
-    $scope.addToken = function(){
-        var params = "endeavor_tokens=1";
-        modifyAsset("settlement", $scope.settlement_id, params);
-        $scope.endeavors += 1;
-    };
-    $scope.rmToken = function(){
-        var params = "endeavor_tokens=-1";
-        modifyAsset("settlement", $scope.settlement_id, params);
-        $scope.endeavors -= 1;
-        if ($scope.endeavors <= 0) {$scope.endeavors = 0;};
-    };
 
 });
 
@@ -122,9 +209,8 @@ app.controller("survivorNotesController", function($scope) {
         http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
         var params = "add_survivor_note=" + $scope.note + "&modify=survivor&asset_id=" + asset_id
         http.send(params);
-        $('#saved_dialog').fadeIn(200)
-        $('#saved_dialog').show();
-        $('#saved_dialog').fadeOut(1500)
+        savedAlert();
+
     };
 
     $scope.removeNote = function (x, asset_id) {
@@ -137,9 +223,8 @@ app.controller("survivorNotesController", function($scope) {
         http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
         var params = "rm_survivor_note=" + rmNote + "&modify=survivor&asset_id=" + asset_id
         http.send(params);
-        $('#saved_dialog').fadeIn(200)
-        $('#saved_dialog').show();
-        $('#saved_dialog').fadeOut(1500)
+
+        savedAlert();
 
     };
 });
@@ -165,8 +250,8 @@ app.controller("epithetController", function($scope) {
         var params = "add_epithet=" + add_name + "&modify=survivor&asset_id=" + asset_id
         http.send(params);
 
-        $('#saved_dialog').show();
-        $('#saved_dialog').fadeOut(1500)
+        savedAlert();
+
     }
     $scope.removeItem = function (x, asset_id) {
         $scope.errortext = "";
@@ -180,8 +265,7 @@ app.controller("epithetController", function($scope) {
         var params = "remove_epithet=" + rm_name + "&modify=survivor&asset_id=" + asset_id;
         http.send(params);
 
-        $('#saved_dialog').show();
-        $('#saved_dialog').fadeOut(1500);
+        savedAlert();
 
     }
 });
@@ -339,7 +423,12 @@ function toggleDamage(elem_id, asset_id) {
 // custom toggles; we use these to insert spans (because styling bullets and
 //  checkboxes and radios and whatever got to be a pain in the ass
 function kd_toggle_init() {
-    var toggles = document.getElementsByClassName('kd_toggle_box');
+
+    var toggle_box_class = 'kd_toggle_box';
+    var toggles = document.getElementsByClassName(toggle_box_class);
+
+    console.log("found " + toggles.length + " " + toggle_box_class + " elements")
+
     for (i = 0; i < toggles.length; i++) {
         var e = toggles[i];
         var bullet = document.createElement("span");
@@ -351,9 +440,10 @@ function kd_toggle_init() {
         };
         e.parentElement.insertBefore(bullet,e); 
     }; 
+
     console.log("initialized " + toggles.length + " toggle elements");
-//    window.alert(toggles.length);
 };
+
 function kd_toggle(toggle_element) {
     var input_element = toggle_element;
     var bullet = document.getElementById(input_element.id + "_bullet_span");
@@ -363,10 +453,27 @@ function kd_toggle(toggle_element) {
         bullet.classList.add("checked_kd_toggle_bullet")
     };
 };
-function kd_radio(toggle_element, target_collection, asset_id) {
-    var selected = toggle_element;
-    var form_name = selected.name;
-    var form_value = selected.value;
-    var params = form_name + "=" + form_value;
-    modifyAsset(target_collection, asset_id, params);    
+
+
+
+
+// User update methods. Not a lot of these.
+
+// saves a user preference; flashes the saved alert. ho-hum
+function updateUserPreference(input_element) {
+
+    var params = input_element.name + "=" + input_element.value;
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/", true);
+    xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    var params = "update_user_preferences=True&norefresh=True&" + params;
+    xhr.send(params);
+
+    savedAlert();
 };
+
+
+
+
+

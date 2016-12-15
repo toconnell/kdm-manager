@@ -1,83 +1,6 @@
-var app = angular.module('settlementSheetApp', []);
-
-app.factory('apiService', function($http) {
-    return {
-        getSettlement: function(root_url, api_route, s_id) {
-            return $http.post(root_url + 'settlement/' + api_route + '/' + s_id);
-        }
-    }
-});
 
 
-app.controller('globalController', function($scope, $http, apiService) {
-
-    $scope.initialize = function(api_url, settlement_id) {
-        $scope.api_url = api_url;
-        $scope.settlement_id = settlement_id;
-        console.log("Global controller initialized!");
-    }
-
-    $scope.loadSettlement = function (r) {
-        var api_route = r
-        if (api_route == undefined) {var api_route='get';};
-
-        // returns a promise
-        return apiService.getSettlement($scope.api_url, api_route, $scope.settlement_id);
-    };
-
-
-});
-
-// Timeline Application 
-app.controller('timelineController', function($scope, $rootScope) {
-    
-    $scope.loadTimeline = function() {
-        $scope.loadSettlement().then(
-            function(payload) {
-                $scope.settlement_sheet = payload.data.sheet; 
-                $scope.timeline = payload.data.sheet.timeline; 
-            },
-            function(errorPayload) {console.log("Error loading timeline!", errorPayload);}
-        );
-        console.log("timeline initialized!")
-        $scope.loadSettlement('event_log').then(
-            function(payload) {
-                $scope.event_log = payload.data; 
-            },
-            function(errorPayload) {console.log("Error loading event_log!", errorPayload);}
-        );
-        console.log("event_log initialized!")
-
-    };
-
-    // limits $scope.event_log to only lines from target_ly
-    $scope.get_event_log = function(t) {
-
-        var target_ly = Number(t);
-        local_event_log = new Array();
-
-        for (i = 0; i < $scope.event_log.length; i++) {
-            if (Number($scope.event_log[i].ly) == target_ly) {
-                local_event_log.push($scope.event_log[i]);
-            };
-        };
-
-//        console.log("added " + local_event_log.length + " items to local_event_log");
-//        console.log($scope.local_event_log);
-        return local_event_log;
-    };
-
-    $scope.showHide = function(e_id) {
-        var e = document.getElementById(e_id);
-        if (e.classList.contains("hidden")) {
-            e.classList.remove("hidden");
-        } else {
-            e.classList.add("hidden")
-        };
-    }
-
-});
-
+// locations application
 
 app.controller("locationsController", function($scope) {
     $scope.add = function() {
@@ -96,6 +19,8 @@ app.controller("locationsController", function($scope) {
     };
 });
 
+
+// principles application
 
 app.controller('principlesController', function($scope, $http) {
     $scope.unset = {"name": "Unset Principle","value": "None"}

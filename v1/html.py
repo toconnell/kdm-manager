@@ -169,31 +169,64 @@ class dashboard:
         </div> <!-- about_div -->
     </div>
     \n""" % (down_arrow_flash))
-    preference_header = Template("<p>&ensp; <b>$title:</b></p>")
-    preference_footer = "<br/><br/>"
-    preference_block = Template("""\n
-    <hr/>
-    <p>$desc</p>
-    <p>
-     <input style="display: none" id="pref_true_$pref_key" class="radio_principle" type="radio" name="$pref_key" value="True" $pref_true_checked/>
-     <label for="pref_true_$pref_key" class="radio_principle_label"> $affirmative </label><br>
-     <input style="display: none" id="pref_false_$pref_key" class="radio_principle" type="radio" name="$pref_key" value="False" $pref_false_checked /> 
-     <label for="pref_false_$pref_key" class="radio_principle_label"> $negative </label> 
-    </p>
+    preference_header = Template("""\n
+    <div class="dashboard_preference_block_group">
+        <h2>$title</h2>
     \n""")
+    preference_footer = "</div> <!-- dashboard_preference_block_group $title--> "
+    preference_block = Template("""\n
+    <p>$desc</p>
+
+    <div class="dashboard_preference_elections_container">
+        <input
+            id="pref_true_$pref_key"
+            class="kd_css_checkbox kd_radio_option"
+            name="$pref_key"
+            style="display: none"
+            type="radio"
+            value="True"
+            $pref_true_checked
+            onchange="updateUserPreference(this);"
+        />
+        <label for="pref_true_$pref_key">
+            $affirmative
+        </label>
+
+        <input
+            id="pref_false_$pref_key"
+            class="kd_css_checkbox kd_radio_option"
+            name="$pref_key"
+            style="display: none"
+            type="radio"
+            value="False"
+            $pref_false_checked
+            onchange="updateUserPreference(this);"
+        />
+        <label for="pref_false_$pref_key">
+            $negative
+        </label>
+    </div> <!-- dashboar_preference_elections_container -->
+
+    \n""")
+
+    #
+    #   DASHBOARD MOTD follows. this is the whole dashboard, basically.
+    #
+
     motd = Template("""\n
+
 	<img class="dashboard_bg" src="%s/tree_logo_shadow.png">
+
     <div class="dashboard_menu">
         <h2 class="clickable system_primary" onclick="showHide('system_div')"> <img class="dashboard_icon" src="%s/icons/system.png"/> System %s</h2>
         <div id="system_div" style="display: none;" class="dashboard_accordion system_secondary">
 
         <div class="dashboard_preferences">
-            <p>Use the controls below to update application-wide preferences. Remember to click the "Save/Update Preferences" button below when you are finished!</p><br/>
-            <form method="POST" action="#">
-            <input type="hidden" name="update_user_preferences" value="True"/>
-                $user_preferences
-            <button class="error"> Save/Update Preferences</button>
-            </form>
+            <p>Use the controls below to update application-wide preferences.
+            These settings will affect all of your settlements and survivors!</p>
+
+            $user_preferences
+
         </div>
 
         <hr/>
@@ -221,10 +254,10 @@ class dashboard:
         $last_log_msg
         <div class="dashboard_preferences">
             <form action="#" method="POST">
-            <input type="hidden" name="change_password" value="True"/>
-            <input type="password" name="password" class="full_width" placeholder="password">
-            <input type="password" name="password_again" class="full_width" placeholder="password (again)"/>
-            <button class="warn"> Change Password</button>
+                <input type="hidden" name="change_password" value="True"/>
+                <input type="password" name="password" class="full_width" placeholder="password">
+                <input type="password" name="password_again" class="full_width" placeholder="password (again)"/>
+                <button class="kd_alert_no_exclaim red_glow"> Change Password</button>
             </form>
         </div>
         </div>
@@ -374,7 +407,7 @@ class dashboard:
 
     # misc html assets
 
-    refresh_button = '\t<form method="POST" action="#"><button id="floating_refresh_button" class="yellow"> %s </button></form>\n' % refresh_flash
+    refresh_button = '\t\t<form method="POST" action="#">\n\t\t\t<button id="floating_refresh_button" class="yellow">\n\t\t\t\t %s\n\t\t\t</button>\n\t\t</form>\n' % refresh_flash
     view_asset_button = Template("""\n\
     <form method="POST" action="#">
     <input type="hidden" name="view_$asset_type" value="$asset_id" />
@@ -388,6 +421,7 @@ class dashboard:
 
 class survivor:
     no_survivors_error = '<!-- No Survivors Found! --> <div class="kd_alert user_asset_sheet_error">This settlement has no survivors in it! Use the navigation menu controls in the upper left to add new survivors.</div>'
+
     new = Template("""\n\
     <span class="tablet_and_desktop nav_bar survivor_sheet_gradient"></span>
     <span class="mobile_only nav_bar_mobile survivor_sheet_gradient"></span>
@@ -395,57 +429,129 @@ class survivor:
 
     <br/>
 
-    <div id="create_new_asset_form_container">
+    <div
+        id="create_new_asset_form_container"
+    >
         <form method="POST" action="#" enctype="multipart/form-data">
         <input type="hidden" name="new" value="survivor" />
         <input type="hidden" name="settlement_id" value="$home_settlement">
-        <input type="text" id="new_asset_name" name="name" placeholder="New Survivor Name" class="full_width" ng-model="name" autofocus>
 
-        <div id="block_group">
-            <hr class="invisible">
-            <p style="margin-top:10px;">Survivor Image (optional):<br/><br/>
-                <input type="file" name="survivor_avatar" accept="image/*">
-            </p>
+        <div class="create_user_asset_block_group">
+            <input
+                ng-model="name"
+                class="new_asset_name"
+                type="text"
+                name="name"
+                placeholder="New Survivor Name"
+                autofocus
+            >
         </div>
 
-        <div id="block_group">
-        <h2 class="new_asset">Survivor Sex</h2>
-            <fieldset class="radio">
-          <input type="radio" id="male_button" class="radio_principle" name="sex" value="M" checked/> 
-          <label class="sex_button radio_principle_label" for="male_button"> Male </label>
-          <input type="radio" id="female_button" class="radio_principle" name="sex" value="F"/> 
-          <label id="female_sex_button" class="sex_button radio_principle_label" for="female_button"> Female </label>
-            </fieldset>
+
+        <div
+            class="create_user_asset_block_group"
+        >
+
+            <h2 class="new_asset">Survivor Sex</h2>
+
+            <input
+                id="maleInput"
+                class="kd_css_checkbox kd_radio_option"
+                type="radio"
+                name="sex"
+                value="M"
+                checked
+            >
+            <label
+                id="survivorSexMaleElection"
+                for="maleInput"
+            >
+                Male
+            </label>
+
+            <input
+                id="femaleInput"
+                class="kd_css_checkbox kd_radio_option"
+                type="radio"
+                name="sex"
+                value="F"
+            >
+            <label
+                id="survivorSexFealeElection"
+                for="femaleInput"
+            >
+                Female
+            </label>
+
         </div>
+
+        <div class="create_user_asset_block_group">
+            <h2 class="no_ul">Survivor Avatar Image</h2>
+            <p>Upload an image to represent this survivor (optional).</p>
+            <br/>
+            <input type="file" name="survivor_avatar" accept="image/*">
+        </div>
+
         <div class="create_new_asset_block">
             $add_ancestors
-            <div id="block_group">
-            <h2 class="new_asset">Permissions</h2>
-            <p class="new_asset">Survivor Owner:</p>
-            <input id="survivor_owner" type="email" name="email" placeholder="Survivor Email" value="$user_email" onclick="this.select()">
 
-            <p class="new_asset">
-            Toggle the options below to control access to this survivor:<br/><br/>
-                <input type="checkbox" id="public" class="radio_principle" name="toggle_public" > 
-                <label class="radio_principle_label" for="public"> Public: anyone may manage this Survivor </label>
-            </p>
-            <br/><br/>
-            </div>
+        <div class="create_user_asset_block_group">
+
+            <h2 class="no_ul">Access Permissions</h2>
+
+            <p>Use the controls below to determine who is the owner of the
+            survivor and whether other players may edit the survivor.</p>
+
+            <input
+                type="email"
+                name="email"
+                placeholder="Survivor Email"
+                value="$user_email"
+                onclick="this.select()"
+            >
+
+            <input
+                id="publicInput"
+                type="checkbox"
+                class="kd_css_checkbox"
+                name="toggle_public"
+            >
+             <label
+                 id="survivorPublic"
+                 for="publicInput"
+             >
+                 Anyone may manage this survivor
+            </label>
+
+        </div>
 
             <br />
-
+    
             <button class="kd_blue">Add {{name}}</button>
+            <br/><br/>
             </form>
         </div><!-- create_new_asset_block -->
     </div>
     \n""")
-    add_ancestor_top = '    <div id="block_group" title="Add survivor parents.">\n    <h2>Survivor Parents</h2>\n<p class="new_asset">Survivors without parents are not eligible for the auto-application of Innovation bonuses granted only to newborn survivors!</p>'
+    add_ancestor_top = """\n
+    <div
+        class="create_user_asset_block_group"
+        title="Add survivor parents."
+    >
+        <h2 class="no_ul">Survivor Parents</h2>
+        <p class="new_asset">Survivors without parents are not eligible for the
+        automatic application of Innovation bonuses granted only to newborn
+        survivors!</p>
+
+        <br/>
+        <br/>
+    \n"""
     add_ancestor_select_top = Template('\t<select name="$parent_role">\n\t<option selected disabled hidden value="">$pretty_role</option>')
     change_ancestor_select_top = Template('\t<select onchange="this.form.submit()" name="$parent_role">\n\t<option selected disabled hidden value="">$pretty_role</option>')
     add_ancestor_select_row = Template('\t<option value="$parent_id">$parent_name</option>\n')
     change_ancestor_select_row = Template('\t<option value="$parent_id" $selected>$parent_name</option>\n')
     add_ancestor_select_bot = '\t</select><br class="mobile_only"/><br class="mobile_only"/>'
-    add_ancestor_bot = '    </div>\n'
+    add_ancestor_bot = '    </div> <!-- create_user_asset_block_group parents -->\n\n'
     campaign_summary_hide_show = Template("""\n\
     <hr class="invisible">
     <span class="tiny_break">
@@ -1118,8 +1224,9 @@ class survivor:
                 onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
                 type="checkbox"
                 id="public"
-                class="radio_principle"
-                name="toggle_public" value="checked"
+                class="kd_css_checkbox"
+                name="toggle_public"
+                value="checked"
                 $public_checked
               >
               <label
@@ -1984,66 +2091,94 @@ class settlement:
             <input type="hidden" name="modify" value="settlement" />
             <input type="hidden" name="asset_id" value="$settlement_id" />
     """)
-    summary = Template("""\n\
-        <span class="tablet_and_desktop nav_bar campaign_summary_gradient"></span>
-        <span class="nav_bar_mobile mobile_only campaign_summary_gradient"></span>
-        <span class="top_nav_spacer mobile_only"> hidden </span>
+    summary = Template("""\n\n
+        <!--
 
-        <div class="campaign_summary_headline_container">
-            <h1 class="settlement_name"> %s $settlement_name</h1>
-            <p class="campaign_summary_campaign_type">$campaign</p>
-            <p>Population: $population ($sex_count); $death_count deaths</p>
-            <hr class="mobile_only"/>
-            <p>LY: $lantern_year, Survival Limit: $survival_limit</p>
-            <hr class="mobile_only"/>
-            </div>
-        </div> <!-- campaign_summary_headline_container -->
+            Campaign Summary App starts here! Beware of JS inheritance (because it
+            hates you and it hates freedom and it will ruin your life).
 
-        <a id="edit_hunting_party" class="mobile_only"></a>
-        <span class="vertical_spacer desktop_only"></span>
+        -->
 
-        <div class="campaign_summary_panels_container">
+        <script src="/media/campaignSummary.js"></script>
 
-            $survivors
+        <div
+            id = "campaign_summary_angularjs_controller_container"
+            ng-init="initialize('campaignSummary', '$user_login', '$user_is_settlement_admin','$api_url','$settlement_id')"
+        >
+            <span class="tablet_and_desktop nav_bar campaign_summary_gradient"></span>
+            <span class="nav_bar_mobile mobile_only campaign_summary_gradient"></span>
+            <span class="top_nav_spacer mobile_only"> hidden </span>
 
-            <hr class="mobile_only invisible">
-            <br class="mobile_only">
+            <div class="campaign_summary_headline_container">
+                <h1 class="settlement_name"> %s $settlement_name</h1>
+                <p class="campaign_summary_campaign_type">$campaign</p>
+                <p>Population: $population ($sex_count); $death_count deaths</p>
+                <hr class="mobile_only"/>
+                <p>LY: $lantern_year, Survival Limit: $survival_limit</p>
+                <hr class="mobile_only"/>
+            </div> <!-- campaign_summary_headline_container -->
 
-            <div class="campaign_summary_facts_box">
+            <a id="edit_hunting_party" class="mobile_only"></a>
 
-            $special_rules
-
-            <a id="endeavors">
-                <hr class="mobile_only">
-            </a>
+            <span class="vertical_spacer desktop_only"></span>
 
 
-            <!-- angular.js Endeavors app -->
-            <div class="$show_endeavor_controls">
-                <div class="campaign_summary_endeavor_cap">Endeavor Tokens</div>
-                <div
-                    title="Manage settlement Endeavor tokens here! Settlement admins may use the controls at the right to increment or decrement the total number of tokens!"
-                    class="campaign_summary_endeavor_controller"
-                    ng-controller="endeavorController"
-                    ng-init="endeavors=$endeavor_tokens;init('$settlement_id')"
-                >
+            <div class="campaign_summary_panels_container">
 
-                    <div class="tokens">
-                        <img
-                            ng-repeat="e in range(endeavors)"
-                            class="campaign_summary_endeavor_star"
-                            src="/media/icons/endeavor_star.png"
+                $survivors
+
+                <hr class="mobile_only invisible">
+                <br class="mobile_only">
+
+                <div class="campaign_summary_facts_box">
+
+                $special_rules
+
+
+                <!-- angular.js Endeavors app -->
+
+                <a id="endeavors"><hr class="mobile_only"/></a>
+
+                <div ng-if="user_is_settlement_admin" class="$show_endeavor_controls">
+                    <div
+                        title="Manage settlement Endeavor tokens here! Settlement admins may use the controls at the right to increment or decrement the total number of tokens!"
+                        class="campaign_summary_endeavor_controller"
+                        ng-controller="endeavorController"
+                        ng-init="endeavors=$endeavor_tokens;"
+                    >
+
+                        <span ng-if="endeavors >= 1">
+                            <div
+                                class="tokens"
+                            >
+                                <img
+                                    ng-repeat="e in range(endeavors)"
+                                    class="campaign_summary_endeavor_star"
+                                    src="/media/icons/endeavor_star.png"
+                                >
+                            </div>
+                            <div ng-if="user_is_settlement_admin" class="controls">
+                                <button ng-click="rmToken()" > &#9662; </button>
+                                <button ng-click="addToken()" > &#9652; </button>
+                            </div>
+                        </span>
+
+                        <div
+                            ng-if="endeavors <= 0"
+                            ng-click="addToken()"
+                            class="endeavor_controls_toggle settlement_sheet_block_group"
                         >
-                    </div>
-                    <div class="$show_endeavor_paddles controls">
-                        <button ng-click="addToken()" class="endeavor_button"> &#9652; </button>
-                        <button ng-click="rmToken()"class="endeavor_button"> &#9662; </button>
-                    </div>
-                    <div class="endeavor_controls_clear_div"></div>
-                </div>
-            <hr class="mobile_only"/>
-            </div> <!-- show_endeavor_controls -->
+                            <h2>Endeavor Tokens</h2>
+                            <span>Click or tap here to manage Endeavor Tokens.</span>
+                        </div>
 
+                        <div class="endeavor_controls_clear_div"></div>
+
+                    </div>
+
+
+                </div> <!-- show_endeavor_controls -->
+            <hr class="mobile_only">
             <!-- endeavors app -->
 
             <div class="campaign_summary_small_box endeavor_box">
@@ -2087,18 +2222,23 @@ class settlement:
 
     <div class="campaign_summary_bottom_spacer"> </div>
 
-    </div> <!-- campaign_summary_panels_container -->
+</div> <!-- campaign_summary_panels_container -->
 
 
 
-    <!-- MODAL CONTENT ONLY BELOW HERE -->
+    <!--
+
+        This is 'the fold'. The only content below here should be heavy-
+        lift JS applications, modals, etc. That don't need to load or be
+        visible right away on page load.
+
+    -->
 
 
     <button class="manage_departing_survivors $show_departing_survivors_management_button" id="departingSurvivorsModalOpener">Manage <b>Departing</b> Survivors</button>
 
     <div
         id="departingSurvivorsModalContent" class="modal"
-        ng-init="registerModalDiv('departingSurvivorsModalOpener','departingSurvivorsModalContent')"
     >
         <div class="modal-content survivor_sheet_gradient">
         <span class="closeModal" onclick="closeModal('departingSurvivorsModalContent')">x</span>
@@ -2205,7 +2345,6 @@ class settlement:
     <div
         id="survivorSearchModalContent"
         class="survivor_search_modal_container modal"
-        ng-init="registerModalDiv('survivorSearchModalOpener','survivorSearchModalContent')"
     >
         <div
             class="survivor_search_modal_content survivor_sheet_gradient"
@@ -2238,47 +2377,67 @@ class settlement:
         <button class="kd_blue close_modal" onclick="closeModal('survivorSearchModalContent')">Close Search Window</button>
 
         </div> <!-- survivor_search_modal_content -->
+
     </div> <!-- survivorSearch -->
+
+    $timeline_app
+
+</div> <!-- campaign_summary methods -->
+
+<!-- register modals -->
+
+<script type="text/javascript">
+    registerModalDiv("survivorSearchModalOpener","survivorSearchModalContent");
+    registerModalDiv("timelineOpenerButton","modalTimelineContainer");
+    registerModalDiv("departingSurvivorsModalOpener","departingSurvivorsModalContent");
+</script>
 
 
     \n""" % dashboard.campaign_flash)
 
     form = Template("""\n\
-<script src="/media/settlementSheet.js"></script>
-<div
-    ng-app="settlementSheetApp"
-    ng-controller="globalController"
-    ng-init="initialize('$api_url','$settlement_id')"
->
+        <!--
 
-    <span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
-    <span class="nav_bar_mobile mobile_only settlement_sheet_gradient"></span>
-    <span class="top_nav_spacer mobile_only"> hidden </span>
+            Sttlement Sheet App starts here! Beware of JS inheritance (because
+            it hates you and it hates freedom and it will ruin your life).
 
-    <br class="tablet_and_desktop"/>
+        -->
 
-    <div id="asset_management_left_pane">
+        <script src="/media/settlementSheet.js"></script>
 
-        <p
-            id="campaign_type"
-            class="center"
-            title="Campaign type may not be changed after a settlement is created!"
+        <div
+            id = "settlement_sheet_angularjs_controller_container"
+            ng-init="initialize('settlementSheet', '$user_login', '$user_is_settlement_admin','$api_url','$settlement_id')"
         >
-            $campaign
-        </p>
 
-        <input
-            name="name"
-            id="settlementName"
-            class="settlement_name"
-            type="text"
-            value="$name"
-            placeholder="Settlement Name"
-            onclick="this.select()"
-            onchange="updateAssetAttrib(this, 'settlement', '$settlement_id')"
-        />
+        <span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
+        <span class="nav_bar_mobile mobile_only settlement_sheet_gradient"></span>
+        <span class="top_nav_spacer mobile_only"> hidden </span>
 
-        $abandoned
+        <br class="tablet_and_desktop"/>
+
+        <div id="asset_management_left_pane">
+
+            <p
+                id="campaign_type"
+                class="center"
+                title="Campaign type may not be changed after a settlement is created!"
+            >
+                $campaign
+            </p>
+
+            <input
+                name="name"
+                id="settlementName"
+                class="settlement_name"
+                type="text"
+                value="$name"
+                placeholder="Settlement Name"
+                onclick="this.select()"
+                onchange="updateAssetAttrib(this, 'settlement', '$settlement_id')"
+            />
+
+            $abandoned
 
         <hr class="mobile_only"/>
         <br class="tablet_and_desktop">
@@ -2946,7 +3105,15 @@ class settlement:
     </div> <!-- right pane -->
 
 
-    <!-- MODAL CONTENT ONLY BELOW THIS POINT -->
+    <!--
+
+        This is the fold! Anything below here is below the fold!
+        This should only be modals, heavy angularjs stuff, etc. that is
+        still within the settlementSheetApp, but that doesn't need to
+        load right away.
+
+    -->
+
 
     <div
         id="modalStorage" class="modal"
@@ -2978,21 +3145,32 @@ class settlement:
         </div> <!-- modal-content -->
     </div> <!-- modalStorage -->
 
+    $timeline_app
 
-    <!-- TIMELINE angularjs app! HOLY FUCKING SHIT! -->
+</div> <!-- settlementSheetApp -->
 
+<!-- register modals -->
+
+<script type="text/javascript">
+    registerModalDiv("timelineOpenerButton","modalTimelineContainer");
+    registerModalDiv("modalStorageButton","modalStorage");
+</script>
+
+    \n""")
+
+    # the timeline_app is NOT A PYTHON TEMPLATE
+    timeline_app = """\n
 
     <div
         class="modal"
         id="modalTimelineContainer"
-        ng-app="settlementSheetApp"
         ng-controller="timelineController"
         ng_init="loadTimeline()"
     >
         <div class="timeline_modal_panel timeline_gradient">
             <span class="closeModal" onclick="closeModal('modalTimelineContainer')">×</span>
 
-            <h3>{{ settlement_sheet.name}} Timeline </h3>
+            <h3>{{ settlement_sheet.name}} Timeline</h3>
             <p>Click or tap on any Lantern Year below to show/hide controls and complete details for all events taking place in that year.</p>
 
             <div class="timeline_ly_headline">
@@ -3037,9 +3215,9 @@ class settlement:
                 <div
                     ng-if="t.year <= settlement_sheet.lantern_year"
                     ng-click="showHide(t.log_div_id)"
-                    class="timeline_event_log_revealer settlement_sheet_gradient round_top"
+                    class="timeline_event_log_revealer round_top"
                 >
-                    Settlement Event Log &#9662;
+                    LY {{t.year}} Event Log &#9662;
                 </div>
 
                 <div
@@ -3059,8 +3237,9 @@ class settlement:
                     <div
                         class="timeline_event_log_revealer settlement_sheet_gradient round_bottom"
                     >
-                        Settlement Event Log &#9652;
+                        LY {{t.year}} Event Log &#9652;
                     </div>
+                    <br/>
                 </div>
 
             </div> <!-- iterator ng-repeat -->
@@ -3070,18 +3249,8 @@ class settlement:
 
 
     </div>
+    \n"""
 
-</div> <!-- settlementSheetApp -->
-
-
-<!-- register modals -->
-
-<script type="text/javascript">
-    registerModalDiv("timelineOpenerButton","modalTimelineContainer");
-    registerModalDiv("modalStorageButton","modalStorage");
-</script>
-
-    \n""")
     remove_settlement_button = Template("""\
     <hr/>
     <h3>Permanently Remove Settlement</h3>
@@ -3268,7 +3437,7 @@ class meta:
     error_500 = Template('%s<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>%s</title></head><body><h1>500 - Internal Server Error</h1><hr/><p>$msg</p>$params<hr/><p>Please report all issues at <a href="https://github.com/toconnell/kdm-manager/issues">https://github.com/toconnell/kdm-manager/issues</a><br/><br/>Use the information below to report the error:</p><hr/><p>%s</p><h2>Traceback:</h2>$exception' % (basic_http_header, settings.get("application","title"), datetime.now()))
     start_head = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<meta name="theme-color" content="#000000">\n<title>%s</title>\n<link rel="stylesheet" type="text/css" href="/media/style.css">\n' % settings.get("application","title")
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
-    saved_dialog = '\n    <div id="saved_dialog" class="kd_alert_no_exclaim" style="">Saved!</div>'
+    saved_dialog = '\n\t\t<div id="saved_dialog" class="kd_alert_no_exclaim" style="">Saved!</div>\n\n'
     mobile_hr = '<hr class="mobile_only"/>'
     dashboard_alert = Template("""\n\
     <div class="dashboard_alert_spacer"></div>
@@ -3610,10 +3779,11 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
     <!-- angular app -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular.min.js"></script>
     <script src="http://code.angularjs.org/1.5.3/angular-route.min.js"></script> 
-    <script src="/media/kdmManager.js"></script>
 
+    <script src="/media/kdmManager.js"></script>
     <script type="text/javascript">
-        window.onload = kd_toggle_init;
+        // first, we kill all the lawyers (i.e. set all the toggles last)
+        window.onload = kd_toggle_init();
     </script>
     \n"""
 
@@ -3641,7 +3811,14 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
 
     output += render_burger(session_object) # burger goes before container
 
-    output += '<div id="container" onclick="closeNav()" ng-controller="containerController" ng-init="init()">\n'
+    output += """\n
+    <div
+        id="container"
+        onclick="closeNav()"
+        ng-app="kdmManager"
+        ng-controller="rootController"
+    >
+    \n"""
 
     output += view_html
 

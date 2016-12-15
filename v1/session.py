@@ -626,7 +626,7 @@ class Session:
 
         if self.current_view == "dashboard":
             body = "dashboard"
-            output = self.render_dashboard()
+            output += self.render_dashboard()
             output += admin.dashboard_alert()
             if get_user_agent().browser.family == "Safari":
                 output += html.meta.safari_warning.safe_substitute(vers=get_user_agent().browser.version_string)

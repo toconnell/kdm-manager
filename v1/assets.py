@@ -57,24 +57,36 @@ class User:
 
 
     def is_admin(self):
-        """ Returns True if the user is an admin, False if they are not. """
+        """ Returns True if the user is an application admin. This only returns
+        python bools because it should only be used for internal application
+        logic and so on.
+
+        Check out the is_settlement_admin() method if you're
+        working in user-space."""
 
         if "admin" in self.user.keys() and type(self.user["admin"]) == datetime:
             return True
         else:
             return False
 
-    def is_settlement_admin(self):
+
+    def is_settlement_admin(self, return_type=None):
         """ Checks self.Session.Settlement.settlement admins to see if the user
-        is a settlement admin. """
+        is a settlement admin. Returns a python bool by default, but can also
+        return JS-friendly 'truthy/falsy' strings if required. """
+
+        is_settlement_admin = False
 
         if self.user["_id"] == self.Session.Settlement.settlement["created_by"]:
-            return True
+            is_settlement_admin = True
         elif "admins" in self.Session.Settlement.settlement.keys():
             if self.user["login"] in self.Session.Settlement.settlement["admins"]:
-                return True
+                is_settlement_admin = True
 
-        return False
+        if return_type == "truthy":
+            return str(is_settlement_admin).lower()
+
+        return is_settlement_admin
 
 
     def can_manage_survivor(self, survivor_id=None):
@@ -182,11 +194,9 @@ class User:
         for p in self.preference_keys:  # this is created when we __init__()
             if p in params:
                 p_value = params[p].value
-                if p_value == "True":
-                    self.user["preferences"][p] = True
-                elif p_value == "False":
-                    self.user["preferences"][p] = False
+                self.user["preferences"][p] = bool(p_value)
                 user_admin_log_dict["msg"] += "'%s' -> %s; " % (p, p_value)
+                self.logger.debug("[%s] set preference '%s' -> '%s'" % (self, p, p_value))
 
         user_admin_log_dict["msg"] = user_admin_log_dict["msg"].strip()
         mdb.user_admin.insert(user_admin_log_dict)
@@ -410,7 +420,14 @@ class User:
             pref_html += html.dashboard.preference_header.safe_substitute(title=category)
             for k in organized_prefs[category]: #list of keys
                 d = pref_models.pref(self, k)
-                pref_html += html.dashboard.preference_block.safe_substitute(desc=d["desc"], pref_key=k, pref_true_checked=d["affirmative_selected"], pref_false_checked=d["negative_selected"], affirmative=d["affirmative"], negative=d["negative"])
+                pref_html += html.dashboard.preference_block.safe_substitute(
+                    desc=d["desc"],
+                    pref_key=k,
+                    pref_true_checked=d["affirmative_selected"],
+                    pref_false_checked=d["negative_selected"],
+                    affirmative=d["affirmative"],
+                    negative=d["negative"]
+                )
             pref_html += html.dashboard.preference_footer
 
 
@@ -713,6 +730,7 @@ class Survivor:
         function call."""
 
         self.logger.debug("[%s] is creating a new survivor..." % self.User)
+        self.Settlement.log_event("%s is adding a new survivor to the settlement!" % (self.User.user["login"]))
 
         email = self.User.user["login"]
 
@@ -730,7 +748,6 @@ class Survivor:
 
         # if we're doing random names for survivors, do it here before we save
         if name == "Anonymous" and self.User.get_preference("random_names_for_unnamed_assets"):
-            self.Settlement.log_event("Choosing a random name for new survivor due to user preference!")
             name_list = survivor_names.other
             if sex == "M":
                 name_list = name_list + survivor_names.male
@@ -739,6 +756,7 @@ class Survivor:
             else:
                 self.logger.error("[%s] unknown survivor sex! '%s' is not allowed!" % (self.User, sex))
             name = random.choice(name_list)
+            self.Settlement.log_event("A random name has been assigned to the new survivor due to user preference.")
 
         survivor_dict = {
             "name": name,
@@ -748,7 +766,7 @@ class Survivor:
             "created_on": datetime.now(),
             "created_by": self.User.user["_id"],
             "settlement": self.Settlement.settlement["_id"],
-            "survival": 1,
+            "survival": 0,
             "hunt_xp": 0,
             "Movement": 5,
             "Accuracy": 0,
@@ -771,6 +789,7 @@ class Survivor:
             "fighting_arts": [],
             "epithets": [],
         }
+
 
         # check the campaign for additional attribs
         c_dict = self.Settlement.get_campaign("dict")
@@ -824,6 +843,13 @@ class Survivor:
             else:
                 self.Settlement.log_event("%s joined the settlement!" % (name_pretty))
 
+        # increment survival if the survivor has a name
+        if self.survivor["name"] != "Anonymous":
+            self.Settlement.log_event("Automatically adding 1 survival to %s" % self.survivor["name"])
+            self.survivor["survival"] += 1
+        else:
+            self.logger.debug("[%s] is creating an anonymous survivor. Survivor survival = %s" % (self.User, self.survivor["survival"]))
+
         # apply settlement buffs to the new guy depending on preference
         if self.User.get_preference("apply_new_survivor_buffs"):
             new_survivor_buffs = self.Settlement.get_bonuses("new_survivor", update_mins=self.update_mins)
@@ -859,10 +885,13 @@ class Survivor:
 
         # save the survivor (in case it got changed above), update settlement
         #   mins and log our successful creation
-        mdb.survivors.save(self.survivor)
+
         if self.update_mins:
             self.Settlement.update_mins()
+
         self.logger.info("User '%s' created new survivor %s successfully." % (self.User.user["login"], self.get_name_and_id(include_sex=True)))
+
+        self.save()
 
         return survivor_id
 
@@ -3395,7 +3424,6 @@ class Settlement:
         self.settlement = mdb.settlements.find_one({"_id": settlement_id})
         self.Session.set_current_settlement(settlement_id)
         self.logger.debug("[%s] initialized a new settlement successfully!" % (self.User))
-        self.log_event("%s created the settlement!" % (self.User.user["login"]))
 
 
         #
@@ -3427,7 +3455,7 @@ class Settlement:
         # save and log it
         mdb.settlements.save(self.settlement)
         self.logger.info("[%s] created new settlement %s - (%s)." % (self.User, self, self.settlement["campaign"]))
-        self.log_event("Settlement founded!")
+        self.log_event("%s founded!" % self.settlement["name"])
 
 
         return settlement_id
@@ -3542,7 +3570,7 @@ class Settlement:
         else:
             return None
 
-        p = self.Settlement.get_event(event)["page"]
+        p = self.get_event(event)["page"]
         output = html.survivor.stat_story_event_stub.safe_substitute(
             event=event,
             page=p,
@@ -6057,8 +6085,13 @@ class Settlement:
             show_departing_survivors_management_button=self.User.can_manage_departing_survivors(),
             current_quarry_controls = self.get_current_quarry("modal_controls"),
             show_endeavor_controls = self.User.get_preference("show_endeavor_token_controls"),
-            show_endeavor_paddles = self.User.is_settlement_admin(),
             endeavor_tokens = self.get_endeavor_tokens(),
+
+            # angularjs appRoot and other app stuff
+            user_login = self.User.user["login"],
+            user_is_settlement_admin=self.User.is_settlement_admin(),
+            api_url = api.get_api_url(),
+            timeline_app = html.settlement.timeline_app,
         )
 
 
@@ -6083,7 +6116,6 @@ class Settlement:
 
         return html.settlement.form.safe_substitute(
             MEDIA_URL = settings.get("application","STATIC_URL"),
-            api_url = api.get_api_url(),
 
             settlement_id = self.settlement["_id"],
 
@@ -6136,7 +6168,11 @@ class Settlement:
             player_controls = self.get_players("html"),
             expansions_block = self.render_expansions_block(),
 
-            remove_settlement_button = rm_button,
+            # angularjs appRoot and other app stuff
+            user_login = self.User.user["login"],
+            user_is_settlement_admin=self.User.is_settlement_admin(),
+            api_url = api.get_api_url(),
+            timeline_app = html.settlement.timeline_app,
         )
 
 
