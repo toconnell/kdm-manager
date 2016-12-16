@@ -905,11 +905,12 @@ right connector from last child*/
     /* survivor search Modal - mobile/default */
 input.survivor_search {z-index: 1200; position: fixed; top: 1.5%; left: 20%; bottom: auto; padding:1%; width: 565px; height: auto; min-width: auto; }
 div.survivor_search_modal_container {z-index: 1199;}
-div.survivor_search_modal_content {position: absolute; top: 0; left: 10%; right: 10%; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; border: 0.1em solid #777; border-top: 0; }
+div.survivor_search_modal_content {position: absolute; top: 0; left: 5%; right: 5%; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; border: 0.1em solid #777; border-top: 0; }
 div.survivor_search_results_buttons {margin-top: 18%; display: flex; flex-direction: column; }
-div.survivor_search_results_buttons p.survivor_name {font-size: 1.5em; padding:0; text-align: left; margin: auto; padding-left: 2%; }
-div.survivor_search_results_buttons div.survivor_assets {padding-left: 1%; width: auto; margin: auto; text-align: left; font-family: Arial, sans-serif;}
+div.survivor_search_results_buttons p.survivor_name {font-size: 55px; padding:0; text-align: left; margin: auto; padding-left: 2%; }
+div.survivor_search_results_buttons div.survivor_assets {padding-left: 1%; width: auto; margin: auto; text-align: left; font-family: Arial, sans-serif; font-size: 37px; }
 div.survivor_search_results_buttons div.survivor_assets b {font-family: Silverado; font-size: 1.1em; }
+button.survivor_search_button {margin-top: 0; }
 
 
 /* tooltips */

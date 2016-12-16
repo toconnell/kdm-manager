@@ -28,18 +28,23 @@ class Survivor(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="survivors"
-        self.object_version = 0.2
+        self.object_version = 0.4
         Models.UserAsset.__init__(self,  *args, **kwargs)
 
 
-    def serialize(self, return_type="JSON"):
+    def serialize(self, return_type=None):
         """ Renders the settlement, including all methods and supplements, as
         a monster JSON object. This one is the gran-pappy. """
 
         output = self.get_serialize_meta()
         output.update({"sheet": self.survivor})
         output["sheet"].update({"cursed_items": self.get_cursed_items()})
-        return json.dumps(output, default=json_util.default)
+        output["sheet"].update({"notes": self.get_notes()})
+
+        if return_type == "JSON":
+           return json.dump(output, default=json_util.default)
+
+        return output
 
 
     def get_cursed_items(self):
@@ -49,7 +54,13 @@ class Survivor(Models.UserAsset):
         else:
             return self.survivor["cursed_items"]
 
-
+    def get_notes(self):
+        """ Gets the survivor's notes as a list of dictionaries. """
+        notes = utils.mdb.survivor_notes.find({
+            "survivor_id": self.survivor["_id"],
+            "created_on": {"$gte": self.survivor["created_on"]}
+        }, sort=[("created_on",-1)])
+        return list(notes)
 
     #
     #   UPDATE and POST Methods below here!

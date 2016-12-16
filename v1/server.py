@@ -77,6 +77,7 @@ def start_server(port=None):
     except Exception as e:
         logger.error("Could not set application CWD!")
         logger.exception(e)
+        raise
 
     try:
         server.serve_forever()

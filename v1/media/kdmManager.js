@@ -36,6 +36,20 @@ app.controller('rootController', function($scope, apiService) {
         return apiService.getSettlement($scope.api_url, api_route, $scope.settlement_id);
     };
 
+    // modal div and button registration!
+    $scope.registerModalDiv = function(modal_button_id, modal_div_id) {
+        var btn = document.getElementById(modal_button_id);
+        var modal = document.getElementById(modal_div_id);
+
+        if (btn == undefined) {window.alert("Could not find button id " + modal_button_id)};
+        if (modal == undefined) {window.alert("Could not find button id " + modal_button_id)};
+
+        btn.onclick = function(b) {b.preventDefault(); modal.style.display = "block";};
+        window.onclick = function(event) {if (event.target == modal) {modal.style.display = "none";}};
+
+        console.log( "button: " + modal_button_id + " and div: " + modal_div_id + " are linked!");
+    };
+
     $scope.range  = function(count) {
         var r = [];
         for (var i = 0; i < count; i++) { r.push(i) }
@@ -56,17 +70,17 @@ app.controller('timelineController', function($scope) {
             function(payload) {
                 $scope.settlement_sheet = payload.data.sheet;
                 $scope.timeline = payload.data.sheet.timeline;
+                console.log("timeline initialized!")
             },
             function(errorPayload) {console.log("Error loading timeline!", errorPayload);}
         );
-        console.log("timeline initialized!")
         $scope.loadSettlement('event_log').then(
             function(payload) {
                 $scope.event_log = payload.data;
+                console.log("event_log initialized!")
             },
             function(errorPayload) {console.log("Error loading event_log!", errorPayload);}
         );
-        console.log("event_log initialized!")
 
     };
 
@@ -380,18 +394,6 @@ function decrement(elem_id) {
 }
 
 // button and togglebox registration 
-function registerModalDiv (modal_button_id, modal_div_id) {
-    var btn = document.getElementById(modal_button_id);
-    var modal = document.getElementById(modal_div_id);
-
-    if (btn == undefined) {window.alert("Could not find button id " + modal_button_id)};
-    if (modal == undefined) {window.alert("Could not find button id " + modal_button_id)};
-
-    btn.onclick = function(b) {b.preventDefault(); modal.style.display = "block";};
-    window.onclick = function(event) {if (event.target == modal) {modal.style.display = "none";}};
-
-    console.log( "button: " + modal_button_id + " and div: " + modal_div_id + " are linked!");
-};
 
 // place dynamic buttons in the appropriate holder, depending on what's visible
 function placeDynamicButton (button) {

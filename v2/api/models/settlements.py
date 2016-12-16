@@ -15,7 +15,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.6
+        self.object_version=0.7
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize_data()
 
@@ -128,12 +128,16 @@ class Settlement(Models.UserAsset):
 
         output = []
         all_survivors = utils.mdb.survivors.find({"settlement": self.settlement["_id"]})
+
         for s in all_survivors:
             S = survivors.Survivor(_id=s["_id"])
+
             for ai in S.survivor["abilities_and_impairments"]:
                 if ai in wm.get_names():
                     self.survivor_weapon_masteries.append(ai)
+
             output.append(S.serialize())
+
         return output
 
 

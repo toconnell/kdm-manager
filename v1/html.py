@@ -2239,6 +2239,7 @@ class settlement:
 
     <div
         id="departingSurvivorsModalContent" class="modal"
+        ng-init="registerModalDiv('departingSurvivorsModalOpener','departingSurvivorsModalContent');"
     >
         <div class="modal-content survivor_sheet_gradient">
         <span class="closeModal" onclick="closeModal('departingSurvivorsModalContent')">x</span>
@@ -2342,32 +2343,46 @@ class settlement:
         placeholder="Search Living Survivors"
         ng-model="searchText"
     </input>
+
     <div
         id="survivorSearchModalContent"
         class="survivor_search_modal_container modal"
     >
         <div
             class="survivor_search_modal_content survivor_sheet_gradient"
-            ng-init = "survivors = $survivor_search_options"
+            ng-controller = "survivorSearchController"
+            ng-init = "loadSurvivors();registerModalDiv('survivorSearchModalOpener','survivorSearchModalContent');"
         >
 
             <div id="searchTextResults" class="survivor_search_results_buttons">
 
                 <form
                     method="POST" action="/"
-                    ng-repeat="survivor in survivors | filter:searchText"
-                    class="{{survivor.disabled}}"
+                    ng-repeat="s in survivors | filter:searchText "
                 >
-                    <input type="hidden" name="view_survivor" value="{{survivor._id}}" />
+                    <input type="hidden" name="view_survivor" value="{{s._id.$oid}}" />
                     <button
-                        class="kd_lantern {{survivor.disabled}}"
+                        class="survivor_search_button kd_lantern"
+                        ng-class="{disabled : userCanManage(s) == false}"
+                        ng-if="s.is_dead == undefined"
                     >
-                      <p class="survivor_name">{{survivor.name}} [{{survivor.sex}}]</p>
-                      <div class="survivor_assets"><b>Epithets:</b> {{ survivor.epithets.join(", ") }}</div>
-                      <div class="survivor_assets"><b>Fighting Arts:</b> {{ survivor.fa.join(", ") }}</div>
-                      <div class="survivor_assets"><b>Disorders:</b> {{ survivor.disorders.join(", ") }}</div>
-                      <div class="survivor_assets"><b>Abilities & Impairments:</b> {{ survivor.ai.join(", ") }}</div>
-                      <div class="survivor_assets"><b>Notes:</b> {{ survivor.notes.join(", ") }}</div>
+                      <p class="survivor_name">{{s.name}} [{{s.sex}}]</p>
+                      <div class="survivor_assets"><b>Hunt XP:</b> {{s.hunt_xp}} <b>Courage:</b> {{s.Courage}} <b>Understanding:</b> {{s.Understanding }}</div>
+                      <div class="survivor_assets">
+                        <b>MOV</b> {{s.Movement}} |
+                        <b>ACC</b> {{s.Accuracy}} |
+                        <b>STR</b> {{s.Strength}} |
+                        <b>EVA</b> {{s.Evasion}} |
+                        <b>LUCK</b> {{s.Luck}} |
+                        <b>SPD</b> {{s.Speed}}
+                      </div>
+                      <div ng-if="s.epithets.length >= 1" class="survivor_assets"><b>Epithets:</b> {{ s.epithets.join(", ") }}</div>
+                      <div ng-if="s.fighting_arts.length >= 1" class="survivor_assets"><b>Fighting Arts:</b> {{ s.fighting_arts.join(", ") }}</div>
+                      <div ng-if="s.disorders.length >= 1" class="survivor_assets"><b>Disorders:</b> {{ s.disorders.join(", ") }}</div>
+                      <div ng-if="s.abilities_and_impairments.length >= 1" class="survivor_assets"><b>Abilities & Impairments:</b> {{ s.abilities_and_impairments.join(", ") }}</div>
+                      <div ng-if="s.notes.length >= 1" class="survivor_assets"><b>Notes:</b>
+                        <span ng-repeat="n in s.notes"> {{n.note}} </span>
+                      </div>
                     </button>
                 </form>
             </div>
@@ -2383,15 +2398,6 @@ class settlement:
     $timeline_app
 
 </div> <!-- campaign_summary methods -->
-
-<!-- register modals -->
-
-<script type="text/javascript">
-    registerModalDiv("survivorSearchModalOpener","survivorSearchModalContent");
-    registerModalDiv("timelineOpenerButton","modalTimelineContainer");
-    registerModalDiv("departingSurvivorsModalOpener","departingSurvivorsModalContent");
-</script>
-
 
     \n""" % dashboard.campaign_flash)
 
@@ -3117,6 +3123,7 @@ class settlement:
 
     <div
         id="modalStorage" class="modal"
+        ng-init="registerModalDiv('modalStorageButton','modalStorage');"
     >
 
       <!-- Modal content -->
@@ -3149,12 +3156,7 @@ class settlement:
 
 </div> <!-- settlementSheetApp -->
 
-<!-- register modals -->
 
-<script type="text/javascript">
-    registerModalDiv("timelineOpenerButton","modalTimelineContainer");
-    registerModalDiv("modalStorageButton","modalStorage");
-</script>
 
     \n""")
 
@@ -3165,7 +3167,7 @@ class settlement:
         class="modal"
         id="modalTimelineContainer"
         ng-controller="timelineController"
-        ng_init="loadTimeline()"
+        ng_init="loadTimeline();registerModalDiv('timelineOpenerButton','modalTimelineContainer');"
     >
         <div class="timeline_modal_panel timeline_gradient">
             <span class="closeModal" onclick="closeModal('modalTimelineContainer')">×</span>

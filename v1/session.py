@@ -308,9 +308,8 @@ class Session:
         # now, assuming we're still here, initialize the survivor assets
         self.api_survivors = {}
         for s in self.api_settlement["user_assets"]["survivors"]:
-            s_dict = json.loads(s)
-            _id = ObjectId(s_dict["sheet"]["_id"]["$oid"])
-            self.api_survivors[_id] = s_dict
+            _id = ObjectId(s["sheet"]["_id"]["$oid"])
+            self.api_survivors[_id] = s
 
 #        self.logger.debug("[%s] API asset set!" % (self.User))
 

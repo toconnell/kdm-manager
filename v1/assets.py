@@ -4732,41 +4732,6 @@ class Settlement:
                     hunting_party.append(survivor)
             return hunting_party
 
-        if return_type == "angularjs":
-
-            def js_list(l):
-                output = "["
-                for i in l:
-                    if "\\'" in i:
-                        i = i.replace("\\'","'")
-                    output += "'%s'," % str(i).replace("'","\\'")
-                return output + "]"
-
-            js = []
-            for s in survivors:
-                disabled = "disabled"
-                survivor_id = ""
-                if self.User.can_manage_survivor(s["_id"]):
-                    disabled = ""
-                    survivor_id = s["_id"]
-                S = Survivor(survivor_id=s["_id"], session_object=self.Session)
-                s_string = "{"
-                s_string += Template("name:'$name',_id:'$_id',fa:$fa,ai:$ai,disorders:$disorders,notes:$notes,epithets:$epithets,sex:$sex,disabled:$disabled").safe_substitute(
-                    name=s["name"],
-                    sex="'%s'" % S.get_sex(),
-                    _id=survivor_id,
-                    fa=js_list(s["fighting_arts"]),
-                    ai=js_list(s["abilities_and_impairments"]),
-                    disorders=js_list(s["disorders"]),
-                    notes=js_list(S.get_survivor_notes(list)),
-                    epithets=js_list(S.get_epithets()),
-                    disabled="'%s'" % disabled,
-                )
-                s_string += "}"
-                js.append(s_string)
-            output = "[" + ",".join(js) + "]"
-#            self.logger.debug(output)
-            return output
 
         if return_type == "html_buttons":
             output = ""
@@ -4940,6 +4905,10 @@ class Settlement:
 
         if return_type == "chronological_order":
             return mdb.survivors.find(query).sort("created_on")
+
+        # finally, capture and scream bloody murder about deprecated return_types
+        if return_type in ["angularjs", "JSON"]:
+            raise Exception("Return type '%s' no longer supported by this method!" % return_type)
 
         return survivors
 
@@ -6079,7 +6048,6 @@ class Settlement:
             quarries = self.get_game_asset("quarries", return_type="user_defined", update_mins=False),
             nemesis_monsters = self.get_game_asset("nemesis_monsters", return_type="user_defined", update_mins=False),
             survivors = self.get_survivors(return_type="html_campaign_summary", user_id=user_id),
-            survivor_search_options = self.get_survivors(return_type="angularjs", exclude_dead=True),
             special_rules = self.get_special_rules("html_campaign_summary"),
 
             show_departing_survivors_management_button=self.User.can_manage_departing_survivors(),
