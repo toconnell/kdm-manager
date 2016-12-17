@@ -1,5 +1,48 @@
 #!/usr/bin/python
 
+curse = {
+    "sleeping_virus_flower": {
+        "name": "Sleeping Virus Flower",
+        "expansion": "Flower Knight",
+        "desc": 'When you die, a flower blooms from your corpse. Add <font class="kdm_font">g</font> <b>A Warm Virus</b> to the timeline next year. You are the guest.',
+        "epithet": "Host",
+        "max": 1,
+        "Luck": 1,
+    },
+    "twilight_sword": {
+        "name": "Twilight Sword",
+        "desc": "You may select <b>Twilight Sword</b> as a weapon proficiency type. This weapon may not be removed from your great grid for any reason. When you die, archive your <b>Twilight Sword</b> card.",
+        "max": 1,
+        "epithet": "Twilight Sword",
+    },
+    "death_mehndi": {
+        "name": "Death Mehndi",
+        "expansion": "Lion God",
+        "desc": "On a <b>Perfect hit</b>, gain 1d10 insanity. -4 to all brain trauma rolls.",
+        "max": 1,
+    },
+    "hideous_disguise": {
+        "name": "Hideous Disguise",
+        "expansion": "Lion Knight",
+        "desc": "At the start of the showdown, if you are fighting the Lion Knight, choose your Role card.",
+        "epithet": "Hideous",
+        "max": 1,
+    },
+    "kings_curse": {
+        "name": "King's Curse",
+        "epithet": "King's Curse",
+        "desc": """At the Aftermath, <font class="kdm_font">g</font> <b>King's Curse</b>.""",
+        "max": 1,
+    },
+    "gender_swap":{
+        "name": "Gender Swap",
+        "expansion": "White Box",
+        "desc": "You own the <b>Belt of Gender Swap</b>, it will always take one space in your gear grid and while it is there, your gender is reversed.",
+        "reverse_sex": True,
+        "epithet": "Gender Swap",
+        "max": 1,
+    },
+}
 
 weapon_masteries = {
     "scythe_master": {

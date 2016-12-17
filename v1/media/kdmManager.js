@@ -16,7 +16,24 @@ app.factory('apiService', function($http) {
     }
 });
 
+app.factory('assetService', function($http) {
+    return {
+        getNewSettlementAssets: function(root_url) {
+            return $http.get(root_url + 'new_settlement');
+        }
+    }
+});
+
+
 app.controller('rootController', function($scope, apiService) {
+
+    $scope.loadSettlement = function(r) {
+        var api_route = r;
+        if (api_route == undefined) {var api_route='get';};
+
+        // returns a promise
+        return apiService.getSettlement($scope.api_url, api_route, $scope.settlement_id);
+    };
 
     $scope.initialize = function(src_view, login, is_admin, api_url, settlement_id) {
         $scope.api_url = api_url;
@@ -24,16 +41,34 @@ app.controller('rootController', function($scope, apiService) {
         $scope.user_login = login;
         $scope.user_is_settlement_admin = is_admin;
         $scope.view = src_view;
+
+        $scope.loadSettlement().then(
+            function(payload) {
+                $scope.settlement = payload.data;
+                $scope.settlement_sheet = $scope.settlement.sheet;
+                console.log("Settlement initialized!")
+            },
+            function(errorPayload) {console.log("Error loading settlement!" + errorPayload);}
+        );
+
         console.log("appRoot controller (" + $scope.view + ") initialized!");
         console.log($scope.user_login + " admin = " + $scope.user_is_settlement_admin);
     }
 
-    $scope.loadSettlement = function(r) {
-        var api_route = r
-        if (api_route == undefined) {var api_route='get';};
-
-        // returns a promise
-        return apiService.getSettlement($scope.api_url, api_route, $scope.settlement_id);
+    // set $scope.survivor to a specific survivor's sheet
+    $scope.loadSurvivor = function(s_id) {
+        $scope.loadSettlement().then(
+            function(payload) {
+                var survivors = payload.data.user_assets.survivors;
+                $scope.survivor = undefined; 
+                for (i = 0; i < survivors.length; i++) {
+                    var survivor = survivors[i];
+                    if (survivor.sheet._id.$oid == s_id) {$scope.survivor = survivor.sheet};
+                };
+                console.log("Survivor " + s_id + " initialized!")
+            },
+            function(errorPayload) {console.log("Error loading survivor " + s_id + " " + errorPayload);}
+        );
     };
 
     // modal div and button registration!
@@ -41,8 +76,8 @@ app.controller('rootController', function($scope, apiService) {
         var btn = document.getElementById(modal_button_id);
         var modal = document.getElementById(modal_div_id);
 
-        if (btn == undefined) {window.alert("Could not find button id " + modal_button_id)};
-        if (modal == undefined) {window.alert("Could not find button id " + modal_button_id)};
+        if (btn == undefined) {console.log("WARN: Could not find button id " + modal_button_id); return false};
+        if (modal == undefined) {console.log("WARN: Could not find button id " + modal_button_id); return false};
 
         btn.onclick = function(b) {b.preventDefault(); modal.style.display = "block";};
         window.onclick = function(event) {if (event.target == modal) {modal.style.display = "none";}};
@@ -50,36 +85,62 @@ app.controller('rootController', function($scope, apiService) {
         console.log( "button: " + modal_button_id + " and div: " + modal_div_id + " are linked!");
     };
 
+
+    // helpers and laziness
     $scope.range  = function(count) {
         var r = [];
         for (var i = 0; i < count; i++) { r.push(i) }
         return r;
     };
 
+    $scope.arrayContains = function(needle, arrhaystack) {
+        if (arrhaystack.indexOf(needle) > -1) {return true; console.log("TRUE"+needle)} else {return false};
+    };
+
 });
 
+app.filter('trustedHTML', 
+   function($sce) { 
+      return $sce.trustAsHtml; 
+   }
+);
 
-//  common and shared angularjs controllers
+
+//  common and shared angularjs controllers. These controllers are used by
+//  more than one (usually all) User Asset views. 
+
+app.controller('newSettlementController', function($scope, assetService) {
+    $scope.showLoader = true;
+    $scope.initNewSettlement = function(api_url) {
+        $scope.api_url = api_url;
+        assetService.getNewSettlementAssets($scope.api_url).then(
+            function(payload) {
+                $scope.new_settlement_assets = payload.data;
+                $scope.showLoader = false;                
+            },
+            function(errorPayload) {console.log("Error loading new settlement assets!" + errorPayload);}
+        );
+    };
 
 
-// Timeline Application
+});
+
 app.controller('timelineController', function($scope) {
 
     $scope.loadTimeline = function() {
         $scope.loadSettlement().then(
             function(payload) {
-                $scope.settlement_sheet = payload.data.sheet;
                 $scope.timeline = payload.data.sheet.timeline;
                 console.log("timeline initialized!")
             },
-            function(errorPayload) {console.log("Error loading timeline!", errorPayload);}
+            function(errorPayload) {console.log("Error loading timeline!" + errorPayload);}
         );
         $scope.loadSettlement('event_log').then(
             function(payload) {
                 $scope.event_log = payload.data;
-                console.log("event_log initialized!")
+                console.log($scope.event_log.length + " item event_log initialized!")
             },
-            function(errorPayload) {console.log("Error loading event_log!", errorPayload);}
+            function(errorPayload) {console.log("Error loading event_log!" + errorPayload);}
         );
 
     };
@@ -90,6 +151,8 @@ app.controller('timelineController', function($scope) {
 
         var target_ly = Number(t);
         local_event_log = new Array();
+
+        if ($scope.event_log == undefined) {return false};
 
         for (i = 0; i < $scope.event_log.length; i++) {
             if (Number($scope.event_log[i].ly) == target_ly) {
@@ -474,8 +537,6 @@ function updateUserPreference(input_element) {
 
     savedAlert();
 };
-
-
 
 
 

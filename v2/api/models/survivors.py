@@ -6,15 +6,16 @@ import json
 import Models
 import utils
 
-from assets import survivor_sheet_options
+from assets import survivor_sheet_options, survivors
 
 
-#class Epithets(Models.AssetCollection):
-#
-#    def __init__(self, *args, **kwargs):
-#        self.assets = survivor_sheet_options.epithets
-#        self.type = "epithet"
-#        Models.AssetCollection.__init__(self,  *args, **kwargs)
+class Assets(Models.AssetCollection):
+    """ These are pre-made survivors, e.g. from the BCS. """
+
+    def __init__(self, *args, **kwargs):
+        self.assets = survivors.beta_challenge_scenarios
+        self.type = "survivor"
+        Models.AssetCollection.__init__(self,  *args, **kwargs)
 
 
 class Survivor(Models.UserAsset):

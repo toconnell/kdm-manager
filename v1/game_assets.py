@@ -194,6 +194,7 @@ abilities_and_impairments = {
         "type": "curse",
         "desc": "At the start of the showdown, if you are fighting the Lion Knight, choose your Role card.",
         "max": 1,
+        "epithet": "Hideous",
     },
     "King's Curse": {
         "type": "curse",

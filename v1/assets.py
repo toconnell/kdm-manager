@@ -31,6 +31,43 @@ import world
 
 settings = load_settings()
 
+
+def ua_decorator(render_func=None):
+    """ Decorate User Asset render methods with this guy to get some additional
+    template variables and header/footer HTML. The 'render_func' kwarg must be
+    a User Asset HTML-rendering method.
+
+    We do a few things here:
+
+        - take the output of the render method (as a string), turn it back
+        into a template and then plug in some additional variables from the
+        self.User object, etc.
+        - tack on some additional HTML to the literal bottom of the second
+        rendering pass (i.e. the one that happens in the previous bullet)
+
+    """
+
+    if render_func is None:
+        raise Exception("This decorator must wrap a User Asset HTML rendering method!")
+
+    def wrapper(self, *args, **kwargs):
+
+        view_html = Template(render_func(self, *args, **kwargs))
+
+        return view_html.safe_substitute(
+
+            # angularjs appRoot and other app stuff
+            MEDIA_URL = settings.get("application", "STATIC_URL"),
+            user_login = self.User.user["login"],
+            user_is_settlement_admin=self.User.is_settlement_admin(),
+            settlement_id = self.Session.Settlement.settlement["_id"],
+
+        ) + html.settlement.timeline_app
+
+    return wrapper
+
+
+
 class User:
 
     def __init__(self, user_id, session_object=None):
@@ -2843,46 +2880,6 @@ class Survivor:
 
 
 
-    def render_cursed_items_controls(self):
-        """ Creates HTML controls, including a modal opener and a modal, for
-        managing a survivor's cursed items. """
-
-        available_items = self.Settlement.get_api_asset("game_assets","cursed_items")
-
-
-        options_html = ""
-        for i in sorted(available_items.keys()):
-            c = ""
-            if i in self.get_api_asset("cursed_items"):
-                c = "checked"
-
-            i_dict = available_items[i]
-
-            abilities_html = ""
-            if "abilities_and_impairments" in i_dict.keys():
-                for a in i_dict["abilities_and_impairments"]:
-                    a_dict = Abilities.get_asset(a)
-                    abilities_html += html.survivor.cursed_items_ability_block.safe_substitute(
-                        ability = a,
-                        desc = a_dict["desc"],
-                    )
-
-            options_html += html.survivor.cursed_item_toggle.safe_substitute(
-                survivor_id = self.survivor["_id"],
-                handle = i_dict["handle"],
-                input_id = "%s_toggle_checkbox" % i_dict["handle"],
-                name = i_dict["name"],
-                checked = c,
-                abilities = abilities_html,
-            )
-
-
-        return html.survivor.cursed_items_controls.safe_substitute(
-            cursed_items = options_html,
-            cursed_item_count = len(self.get_api_asset("cursed_items")),
-        )
-
-
     def render_hit_box_controls(self, hit_location=None):
         """ Fills in the html template for hit box controls and spits out HTML
         for the controller. Kind of kludgey, but slims down the rendering
@@ -3047,6 +3044,7 @@ class Survivor:
             return ""
 
 
+    @ua_decorator
     def render_html_form(self):
         """ Render a Survivor Sheet for the survivor.
 
@@ -3105,10 +3103,9 @@ class Survivor:
             )
 
         output = html.survivor.form.safe_substitute(
-            MEDIA_URL = settings.get("application", "STATIC_URL"),
+            survivor_id = self.survivor["_id"],
             desktop_avatar_img = self.get_avatar("html_desktop"),
             mobile_avatar_img = self.get_avatar("html_mobile"),
-            survivor_id = self.survivor["_id"],
             name = self.survivor["name"],
             email = self.survivor["email"],
             courage = self.survivor["Courage"],
@@ -3188,7 +3185,6 @@ class Survivor:
             custom_cause_of_death = custom_COD,
 
             # optional and/or campaign-specific controls and modals
-            cursed_items_controls = self.render_cursed_items_controls(),
             partner_controls = self.get_partner("html_controls"),
             expansion_attrib_controls = self.get_expansion_attribs("html_controls"),
             dragon_controls = self.render_dragon_controls(),
@@ -5996,32 +5992,7 @@ class Settlement:
         return exp_block
 
 
-    def render_html_event_log(self):
-        """ Renders the settlement's event log as HTMl. """
-
-        event_log_entries = list(mdb.settlement_events.find({"settlement_id": self.settlement["_id"]}).sort("created_by",-1))
-        if event_log_entries == []:
-            event_log_entries.append({"ly":"-","event":"Nothing here yet!"})
-        event_log = html.settlement.event_table_top
-        zebra=False
-        for e in reversed(event_log_entries):
-            event_log += html.settlement.event_table_row.safe_substitute(ly=e["ly"], event=e["event"], zebra=zebra)
-            if not zebra:
-                zebra = True
-            else:
-                zebra = False
-        event_log += html.settlement.event_table_bot
-
-        output = html.settlement.event_log.safe_substitute(
-            generations = self.get_genealogy("html_generations"),
-            family_tree = self.get_genealogy("html_tree"),
-            no_family = self.get_genealogy("html_no_family"),
-            log_lines = event_log,
-            settlement_name = self.settlement["name"],
-        )
-        return output
-
-
+    @ua_decorator
     def render_html_summary(self, user_id=False):
         """ Prints the Campaign Summary view. Remember that this isn't really a
         form: the survivor asset tag buttons are a method of assets.Survivor."""
@@ -6055,14 +6026,9 @@ class Settlement:
             show_endeavor_controls = self.User.get_preference("show_endeavor_token_controls"),
             endeavor_tokens = self.get_endeavor_tokens(),
 
-            # angularjs appRoot and other app stuff
-            user_login = self.User.user["login"],
-            user_is_settlement_admin=self.User.is_settlement_admin(),
-            api_url = api.get_api_url(),
-            timeline_app = html.settlement.timeline_app,
         )
 
-
+    @ua_decorator
     def render_html_form(self):
         """ This is where we create the Settlement Sheet, so there's a lot of
         presentation and business logic here. """
@@ -6083,8 +6049,6 @@ class Settlement:
             )
 
         return html.settlement.form.safe_substitute(
-            MEDIA_URL = settings.get("application","STATIC_URL"),
-
             settlement_id = self.settlement["_id"],
 
             name = self.settlement["name"],
@@ -6136,11 +6100,6 @@ class Settlement:
             player_controls = self.get_players("html"),
             expansions_block = self.render_expansions_block(),
 
-            # angularjs appRoot and other app stuff
-            user_login = self.User.user["login"],
-            user_is_settlement_admin=self.User.is_settlement_admin(),
-            api_url = api.get_api_url(),
-            timeline_app = html.settlement.timeline_app,
         )
 
 

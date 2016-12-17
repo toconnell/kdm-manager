@@ -18,7 +18,7 @@ import utils
 from models import settlements, survivors
 
 # routes
-from routes import monster, cursed_items
+from routes import monster, cursed_items, new_settlement
 
 # create the flask app with settings/utils info
 application = Flask(__name__)
@@ -72,6 +72,13 @@ def get_settlement(action, settlement_id):
         return Response(response=S.get_event_log("JSON"), status=200, mimetype="application/json")
     else:
         return utils.http_422
+
+@application.route("/new_settlement")
+@utils.crossdomain(origin='*')
+def get_new_settlement_assets():
+    """ Returns JSON representation of available game assets required to create
+    a new settlement. """
+    return Response(response=json.dumps(new_settlement.serialize_assets()), status=200, mimetype="application/json")
 
 
 @application.route("/survivor/get/<survivor_id>", methods=["POST"])

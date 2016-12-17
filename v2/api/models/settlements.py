@@ -4,7 +4,7 @@ from bson import json_util
 import json
 
 import Models
-from models import campaigns, cursed_items, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events
+from models import campaigns, cursed_items, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments
 import settings
 import utils
 
@@ -15,7 +15,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.7
+        self.object_version=0.8
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize_data()
 
@@ -54,6 +54,7 @@ class Settlement(Models.UserAsset):
 
         # great game_assets
         output.update({"game_assets": {}})
+        output["game_assets"].update(self.get_available_assets(abilities_and_impairments))
         output["game_assets"].update(self.get_available_assets(weapon_specializations))
         output["game_assets"].update(self.get_available_assets(weapon_masteries))
         output["game_assets"].update(self.get_available_assets(cursed_items))

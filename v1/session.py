@@ -630,11 +630,6 @@ class Session:
             if get_user_agent().browser.family == "Safari":
                 output += html.meta.safari_warning.safe_substitute(vers=get_user_agent().browser.version_string)
 
-        elif self.current_view == "event_log":
-            output += html.dashboard.refresh_button
-            self.set_current_settlement()
-            output += self.Settlement.render_html_event_log()
-
         elif self.current_view == "view_campaign":
             output += html.dashboard.refresh_button
             self.set_current_settlement()

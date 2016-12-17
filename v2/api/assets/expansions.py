@@ -6,6 +6,7 @@ promo_and_misc = {
     "beta_challenge_scenarios": {
         "__released__": datetime(2016,2,1),
         "name": "Beta Challenge Scenarios",
+        "subtitle": "Enables abilities & impairments, disorders, items etc. included in the Beta Challenge Scenarios.",
         "special_rules": [
             {
             "name": "Survival Limit Warning!",
@@ -18,6 +19,7 @@ promo_and_misc = {
     "white_box": {
         "__released__": datetime(2016,8,16),
         "name": "White Box",
+        "subtitle": "Enables promo and early-release items and abilities & impairments included in the so-called 'White Box' collection of survivor minis (released at Gen Con 2016).",
     },
 }
 

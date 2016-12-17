@@ -28,6 +28,7 @@ core = [
     "Hope",
     "Hyrule",
     "Kasuto",
+    "Kattegat",
     "Lantern's Reach",
     "Last Light",
     "Lightfall",

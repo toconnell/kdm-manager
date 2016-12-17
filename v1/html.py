@@ -9,6 +9,7 @@ import sys
 
 #   custom
 import admin
+import api
 import game_assets
 from session import Session
 from utils import load_settings, mdb, get_logger, get_latest_update_string
@@ -123,7 +124,6 @@ class dashboard:
     settlement_flash = '<img class="dashboard_icon" src="%s/icons/settlement.png"/> ' % settings.get("application", "STATIC_URL")
     system_flash = '<img class="dashboard_icon" src="%s/icons/system.png"/> ' % settings.get("application", "STATIC_URL")
     refresh_flash = '<img class="dashboard_icon" src="%s/icons/refresh.png"/> ' % settings.get("application", "STATIC_URL")
-    event_log_flash = '<img class="dashboard_icon" src="%s/icons/settlement_event.png"/> ' % settings.get("application", "STATIC_URL")
 
     # dashboard accordions
     about = Template("""\n
@@ -305,7 +305,12 @@ class dashboard:
     \n""")
     world = Template("""\n
     <div class="dashboard_menu world_panel" # burger/sidenav>
-        <h2 class="clickable world_primary" onclick="showHide('world_div')"> <img class="dashboard_icon" src="%s/icons/world.png"/> World %s</h2>
+        <h2
+            class="clickable world_primary"
+            onclick="showHide('world_div')"
+        >
+            <font class="kdm_font_hit_locations dashboard_kdm_font">g</font> World <img class="dashboard_down_arrow" src="/media/icons/down_arrow_white.png"/>
+        </h2>
         <div id="world_div" style="display: none;" class="dashboard_accordion world_secondary">
 
 
@@ -403,11 +408,11 @@ class dashboard:
         </ul>
         </div>
     </div>
-    """ % (settings.get("application", "STATIC_URL"), down_arrow_flash))
+    """)
 
     # misc html assets
 
-    refresh_button = '\t\t<form method="POST" action="#">\n\t\t\t<button id="floating_refresh_button" class="yellow">\n\t\t\t\t %s\n\t\t\t</button>\n\t\t</form>\n' % refresh_flash
+    refresh_button = '\t\t<form method="POST" action="#">\n\t\t\t<button id="floating_refresh_button" class="touch_me">\n\t\t\t\t %s\n\t\t\t</button>\n\t\t</form>\n' % refresh_flash
     view_asset_button = Template("""\n\
     <form method="POST" action="#">
     <input type="hidden" name="view_$asset_type" value="$asset_id" />
@@ -604,13 +609,22 @@ class survivor:
     <!-- survivor sheet JS -->
 
 
-    <span class="tablet_and_desktop nav_bar survivor_sheet_gradient"></span>
-    <span class="mobile_only nav_bar_mobile survivor_sheet_gradient"></span>
-    <span class="top_nav_spacer mobile_only">hidden</span>
+    <script src="/media/survivorSheet.js"></script>
 
-    <br class="tablet_and_desktop"/>
+   <div
+       id = "survivor_sheet_angularjs_controller_container"
+       ng-init="
+            initialize('survivorSheet', '$user_login', '$user_is_settlement_admin','$api_url','$settlement_id');
+            loadSurvivor('$survivor_id');
+       "
+   >
+        <span class="tablet_and_desktop nav_bar survivor_sheet_gradient"></span>
+        <span class="mobile_only nav_bar_mobile survivor_sheet_gradient"></span>
+        <span class="top_nav_spacer mobile_only">hidden</span>
 
-    <div id="asset_management_left_pane">
+        <br class="tablet_and_desktop"/>
+
+        <div id="asset_management_left_pane">
 
        <input
             id="survivor_sheet_survivor_name"
@@ -649,7 +663,7 @@ class survivor:
 
             <input
                 id="favorite"
-                class="radio_principle"
+                class="kd_css_checkbox"
                 type="checkbox"
                 name="toggle_favorite"
                 value="checked"
@@ -657,10 +671,10 @@ class survivor:
                 onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
             />
             <label
-                class="radio_principle_label toggle_favorite"
+                class="toggle_favorite"
                 for="favorite"
             >
-                &#9733; Favorite
+                Favorite
             </label>
 
             <button
@@ -673,7 +687,7 @@ class survivor:
 
             <input
                 id="retired"
-                class="radio_principle"
+                class="kd_css_checkbox"
                 type="checkbox"
                 name="toggle_retired"
                 value="checked"
@@ -681,7 +695,6 @@ class survivor:
                 onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
             >
             <label
-                class="radio_principle_label"
                 for="retired"
                 style="float: right; clear: none;"
             >
@@ -1252,7 +1265,76 @@ class survivor:
 
     <!-- CURSED ITEMS CONTROLS -->
 
-    $cursed_items_controls
+    <button
+        id="cursedControlsModal"
+        class="orange bold modal_opener"
+    >
+        Cursed Items ({{survivor.cursed_items.length}})
+    </button>
+
+    <script>
+    // move the mobile-only button into the dynamic container after rendering
+    var cursed_button = document.getElementById("cursedControlsModal");
+    placeDynamicButton(cursed_button)
+    </script>
+
+    <div
+        id="modalCurseControls" class="modal"
+        ng-controller="cursedItemsController"
+        ng-init="registerModalDiv('cursedControlsModal','modalCurseControls')"
+    >
+        <div class="modal-content survivor_sheet_gradient">
+            <span class="closeModal" onclick="closeModal('modalCurseControls')">×</span>
+
+            <h3>Cursed Items</h3>
+            <p>Use the controls below to add cursed items to a Survivor. Cursed
+            gear cannot be removed from the Survivor's gear grid. Archive the gear
+            when the survivor dies.</p>
+
+            <div class="cursed_items_flex_container">
+
+                <div class="cursed_item_toggle" ng-repeat="c in settlement.game_assets.cursed_items">
+                    <input
+                        id="{{c.handle}}"
+                        class="cursed_item_toggle"
+                        name="toggle_cursed_item"
+                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+                        type="checkbox"
+                        value="{{c.handle}}"
+                        ng-checked="arrayContains(c.handle, survivor.cursed_items)"
+                    />
+                    <label
+                        class="cursed_item_toggle"
+                        for="{{c.handle}}"
+                     >
+                        <span class="cursed_item_name">{{c.name}}</span>
+
+                        <div class="cursed_item_ability_block" ng-repeat="a in c.abilities_and_impairments">
+                            <span class="cursed_item_ability">{{getAI(a).name}}</span>
+                            <span ng-if"getAI(a).desc != undefined"> - </span>
+                            <span
+                                class="cursed_item_ability_desc"
+                                ng-if"getAI(a).desc != undefined"
+                                ng-bind-html=" getAI(a).desc|trustedHTML"
+                            >
+                            </span>
+                        </div>
+                    </label>
+
+                </div><!-- cursed_item_toggle -->
+            </div> <!-- cursed_items_flex_container-->
+
+            <hr/>
+
+            <form method="POST" action="/">
+            <!-- This is just a refresh -->
+                <button class="kd_blue" onclick="closeModal('modalCurseControls')">
+                    Reload Survivor Sheet
+                </button>
+            </form>
+        </div> <!-- modal-content -->
+    </div> <!-- modal -->
+
 
     <!-- SURVIVOR ATTRIBUTE CONTROLS -->
 
@@ -1324,14 +1406,14 @@ class survivor:
                 <hr/>
                 <p>Or enter a custom cause of death:</p>
                 <p><input type="text" class="full_width" placeholder="Cause of death" name="custom_cause_of_death" value="$custom_cause_of_death"/></p>
-                <button class="error">Die</button>
+                <button class="kd_alert_no_exclaim red_glow">Die</button>
                 </form>
                 <hr/>
                 <form method="POST" action="">
                 <input type="hidden" name="modify" value="survivor"/>
                 <input type="hidden" name="asset_id" value="$survivor_id"/>
                 <input type="hidden" name="resurrect_survivor" value="True"/>
-                <button class="success">Resurrect $name</button>
+                <button class="kd_blue">Resurrect $name</button>
                 </form>
 
             </div> <!-- modal-content -->
@@ -1346,7 +1428,7 @@ class survivor:
                 <span class="closeModal" onclick="closeModal('modalAffinity')">×</span>
 
                 <h3>Survivor Affinities</h3>
-                <p>Use these controls to adjust $name's permanent affinities. These will be reflected on the Survivor Sheet beneath the survivor's name. Negative values are supported. </p><hr/>
+                <p>Use these controls to adjust $name's permanent affinities. Negative values are supported. </p><hr/>
 
                 <form method="POST" action="#" title="Survivor Sheet permanent affinity controls">
                     <input type="hidden" name="modify" value="survivor" />
@@ -1727,72 +1809,6 @@ class survivor:
     </form>
     </div> <!-- survivor_constellation_control_container" -->
     \n""")
-    cursed_items_controls = Template("""\n
-
-    <button
-        id="cursedControlsModal"
-        class="orange bold modal_opener"
-    >
-        Cursed Items ($cursed_item_count)
-    </button>
-
-    <script>
-    // move the mobile-only button into the dynamic container after rendering
-    var cursed_button = document.getElementById("cursedControlsModal");
-    placeDynamicButton(cursed_button)
-    </script>
-
-    <div
-        id="modalCurseControls" class="modal"
-        ng-init="registerModalDiv('cursedControlsModal','modalCurseControls')"
-    >
-        <div class="modal-content survivor_sheet_gradient">
-            <span class="closeModal" onclick="closeModal('modalCurseControls')">×</span>
-
-            <h3>Cursed Items</h3>
-            <p>Use the controls below to add cursed items to a Survivor. Cursed
-            gear cannot be removed from the Survivor's gear grid. Archive the gear
-            when the survivor dies.</p>
-
-            <div class="cursed_items_flex_container">
-                $cursed_items
-            </div>
-
-        <hr/>
-        <form method="POST" action="/">
-            <!-- This is just a refresh -->
-            <button class="kd_blue" onclick="closeModal('modalCurseControls')">Reload Survivor Sheet</button>
-        </form>
-        </div> <!-- modal-content -->
-    </div> <!-- modalCurseControls -->
-
-    """)
-    cursed_item_toggle = Template("""\n
-    <div class="cursed_item_toggle">
-        <input
-            id="$input_id"
-            class="cursed_item_toggle"
-            name="toggle_cursed_item"
-            onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
-            type="checkbox"
-            value="$handle"
-            $checked
-        />
-        <label
-            class="cursed_item_toggle"
-            for="$input_id"
-         >
-            <span class="cursed_item_name">$name</span>
-            $abilities
-        </label>
-    </div><!-- cursed_item_toggle -->
-    """)
-    cursed_items_ability_block = Template("""\n
-    \t<div class="cursed_item_ability_block">
-        \t<span class="cursed_item_ability">$ability</span>
-        \t<span class="cursed_item_ability_desc"> - $desc</span>
-    \t</div>
-    \n""")
     partner_controls_top = '\n<hr/>\n\t<p><span class="tiny_break">&nbsp;</span>Partner<select name="partner_id" onchange="this.form.submit()">\n'
     partner_controls_none = '<option selected disabled>Select a Survivor</option>'
     partner_controls_opt = Template('<option value="$value" $selected>$name</option>')
@@ -1911,62 +1927,6 @@ class survivor:
 
 class settlement:
 
-
-    def render_campaign_toggles():
-        """ Prints the toggles for the campaigns. """
-
-        slug = Template("""\n\
-        <input type="radio" id="$c_id" class="radio_principle" name="campaign" value="$name" $checked/>
-        <label class="radio_principle_label" for="$c_id">$name</label>
-        \n""")
-
-        output = ""
-        for c_name in game_assets.campaigns.keys():
-            c_name_flat = c_name.lower().replace(" ","_")
-            c_dict = game_assets.campaigns[c_name]
-            checked = ""
-            if "default" in c_dict.keys():
-                checked = "checked"
-            output += slug.safe_substitute(name=c_name, checked=checked, c_id = c_name_flat)
-        return output
-
-
-
-    def render_checkboxes(asset_dict_name=None):
-        """ Prints checkboxes for the specified asset dictionary"""
-
-        slug = Template("""\n\
-        <div class="new_settlement_asset">
-            <input id="$a_id" class="radio_principle" type="checkbox" name="%s" value="$var_value" />
-            <label for="$a_id" class="radio_principle_label">$var_value </label>
-            $subtitle
-        </div>
-        \n""" % asset_dict_name)
-
-
-        output = ""
-
-        if asset_dict_name == "expansions":
-            for e_key in sorted(game_assets.expansions.keys()):
-                exp_dict = game_assets.expansions[e_key]
-                sub = ""
-                if "subtitle" in exp_dict.keys():
-                    sub= '<p class="new_settlement_asset">%s</p>' % exp_dict["subtitle"]
-                output += slug.safe_substitute(a_id=e_key.lower().replace(" ","_"), var_value=e_key, subtitle=sub)
-        elif asset_dict_name == "survivors":
-            # special custom box for prologue survivors (calls
-            #   assets.Settlement.first_story() after creation
-            output = """
-                <input type="checkbox" id="create_prologue_survivors" class="radio_principle" name="create_prologue_survivors" value="True" />
-                <label class="radio_principle_label" for="create_prologue_survivors"> Create Four "First Story" Survivors</label><br/>
-            """
-            for s_name in sorted(game_assets.survivors.keys()):
-                s_key = s_name.lower().replace(" ","_")
-                s_dict = game_assets.survivors[s_name]
-                output += slug.safe_substitute(a_id=s_key, var_value=s_name, subtitle="")
-
-        return output
-
     new = """\n\
     <span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
     <span class="nav_bar_mobile mobile_only settlement_sheet_gradient"></span>
@@ -1974,35 +1934,128 @@ class settlement:
 
     <br />
 
-    <div id="create_new_asset_form_container">
+    <div
+        id="create_new_asset_form_container"
+        ng-controller="newSettlementController"
+        ng-init="initNewSettlement('$api_url')"
+    >
+
         <form action="#" method="POST">
-        <input type="hidden" name="new" value="settlement" />
-        <input type="text" id="new_asset_name" name="settlement_name" placeholder="New Settlement Name"/ class="full_width" autofocus>
-        <h3 class="new_asset">Campaign:</h3>
-        <p class="new_asset">
-        Choosing an expansion campaign automatically enables expansion content required by that campaign and modifies the settlement timeline, milestones, principles, rules and Survivor Sheets. A settlement's campaign may <b>not</b> be changed after settlement creation!<br/><br/>
-            %s
-        </p>
-        <h3 class="new_asset">Expansions:</h3>
-        <p class="new_asset">
-        Enable expansion content by toggling items below. Expansion content may also be enabled (or disabled) later using the controls on the Settlement Sheet.<br/>
-        <input type="hidden" name="expansions" value="None"/> <!-- Both of these are necessary -->
-        <input type="hidden" name="expansions" value="None"/> <!-- Hack City! -->
-            %s
-        </p>
-        <h3 class="new_asset">Survivors:</h3>
-        <p class="new_asset">
-        By default, new settlements are created with no survivors. Toggle options below to create the settlement with pre-made survivors. <br/><br/>
+            <div class="create_user_asset_block_group">
+                <input type="hidden" name="new" value="settlement" />
+                <input
+                    type="text"
+                    name="settlement_name"
+                    placeholder="New Settlement Name"
+                    class="new_asset_name"
+                    ng-model = "settlementName"
+                    autofocus
+                >
+            </div>
+
+        <div class="create_user_asset_block_group">
+            <h2 class="no_ul">Campaign:</h2>
+            <p> Choosing an expansion campaign automatically enables expansion content required by that campaign and modifies the settlement timeline, milestones, principles, rules and Survivor Sheets. A settlement's campaign may <b>not</b> be changed after settlement creation!</p>
+
+            <div ng-if="showLoader" class="new_settlement_loading"><img src="/media/loading_io.gif"></div>
+
+            <div
+                class="new_settlement_campaign_container"
+                ng-repeat="c in new_settlement_assets.campaigns"
+            >
+            <input
+                type="radio"
+                id="{{c.handle}}"
+                class="kd_css_checkbox kd_radio_option"
+                name="campaign"
+                value="{{c.name}}"
+                ng-checked="{{c.default}}"
+            />
+            <label for="{{c.handle}}">{{c.name}}</label>
+            </div>
+
+        </div>  <!-- campaigns -->
+
+
+        <div class="create_user_asset_block_group">
+            <h2 class="no_ul">Expansions:</h2>
+            <p> Enable expansion content by toggling items below. Expansion content may also be enabled (or disabled) later using the controls on the Settlement Sheet.</p>
+
+            <input type="hidden" name="expansions" value="None"/> <!-- Both of these are necessary -->
+            <input type="hidden" name="expansions" value="None"/> <!-- Hack City! -->
+
+            <div ng-if="showLoader" class="new_settlement_loading"><img src="/media/loading_io.gif"></div>
+
+            <div
+                class="new_settlement_expansions_container"
+                ng-repeat="e in new_settlement_assets.expansions"
+            >
+            <input
+                type="checkbox"
+                id="{{e.handle}}"
+                class="kd_css_checkbox kd_radio_option"
+                name="expansions"
+                value="{{e.name}}"
+            />
+            <label for="{{e.handle}}">{{e.name}}
+                <p ng-if="e.subtitle" class="new_settlement_asset"> {{e.subtitle}}</p>
+            </label>
+            </div>
+
+        </div> <!-- expansions -->
+
+
+        <div class="create_user_asset_block_group">
+            <h2 class="no_ul">Survivors:</h2>
+            <p>By default, new settlements are created with no survivors. Toggle options below to create the settlement with pre-made survivors. </p>
+
             <input type="hidden" name="survivors" value="None"/> <!-- Both of these are necessary -->
             <input type="hidden" name="survivors" value="None"/> <!-- Hack City! -->
-            %s<br/>
-        </p>
-        <hr class="new_asset" />
-        <button class="kd_blue">Create!</button>
+
+            <input
+                type="checkbox"
+                id="create_prologue_survivors"
+                class="kd_css_checkbox kd_radio_option"
+                name="create_prologue_survivors"
+                value="True"
+            />
+            <label
+                for="create_prologue_survivors"
+            >
+                Four "First Story" Survivors
+            </label>
+
+            <div ng-if="showLoader" class="new_settlement_loading"><img src="/media/loading_io.gif"></div>
+
+            <div
+                class="new_settlement_survivors_container"
+                ng-repeat="s in new_settlement_assets.survivors"
+            >
+                <input
+                    id="{{s.handle}}"
+                    class="kd_css_checkbox kd_radio_option"
+                    type="checkbox"
+                    name="survivors"
+                    value="{{s.name}}"
+                />
+                <label
+                    for="{{s.handle}}"
+                />
+                    {{s.name}}
+                </label>
+            </div> <!-- survivors -->
+
+
+        <br/><br/>
+
+        <button ng-if="showLoader == false" class="kd_blue"> Create {{settlementName}}</button>
+
         <br/><br/><br/>
+
         </form>
+
     </div> <!-- create_new_asset_form_container -->
-    \n""" % (render_campaign_toggles(), render_checkboxes("expansions"), render_checkboxes("survivors"))
+    \n"""
 
     current_quarry_select = Template("""\n\
     <h3 class="return_departing_survivors_modal">Current Quarry:</h3>
@@ -2045,52 +2098,6 @@ class settlement:
     #   campaign view campaign summary
     campaign_summary_survivors_top = '<div class="campaign_summary_survivors">\n<h3 class="mobile_only">Survivors</h3>'
     campaign_summary_survivors_bot = '<hr class="mobile_only"/></div> <!-- campaign_summary_survivors -->'
-    export_button = Template("""\n\
-    <form action="#" method="POST">
-     <input type="hidden" name="export_campaign" value="$export_type"/>
-     <input type="hidden" name="asset_id" value="$asset_id"/>
-     <button class="yellow"> $export_pretty_name </button>
-    </form>
-    \n""")
-    event_log = Template("""\n\
-        <span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
-        <span class="nav_bar_mobile mobile_only settlement_sheet_gradient"></span>
-        <a id="event_log"><span class="top_nav_spacer mobile_only"> hidden </span></a>
-
-        <h1 class="settlement_name_event_log"> $settlement_name Event Log</h1>
-
-        $log_lines
-        <a id="genealogy"><br/></a>
-        <hr class="mobile_only"/>
-        <h1 class="settlement_name"> $settlement_name Lineage and Intimacy Records</h1>
-        <p>Survivor ancestry is represented below by organizing survivors into "generations". <b>Intimacy</b> partners are organized into generations according to the Lantern Year in which they are born: in each generation, all children of those partners are shown. Generations are separated by a horizontal rule. The "family tree" style view of survivor generations is only available at wide/desktop resolution.</p>
-        <hr class="mobile_only"/>
-        $family_tree
-        $generations
-        $no_family
-        <div id="floating_event_log_anchor" class="settlement_sheet_gradient" ><a href="#event_log"><img src="%s/icons/settlement_event.png"/></a></div>
-        <div id="floating_genealogy_anchor" class="settlement_sheet_gradient" ><a href="#genealogy"><img src="%s/icons/genealogy.png"/></a></div>
-        \n""" % (settings.get("application", "STATIC_URL"), settings.get("application", "STATIC_URL")))
-    event_table_top = '<table class="settlement_event_log"><tr><th>LY</th><th>Event</th></tr>\n'
-    event_table_row = Template('<tr class="zebra_$zebra"><td>$ly</td><td>$event</td></tr>\n')
-    event_table_bot = '</table>\n\n'
-    genealogy_headline = Template('\n<h3 class="$h_class">$value</h3>\n')
-    genealogy_survivor_span = Template('\t<span class="genealogy_survivor $class_color" style="display:$display"><b>$name</b> $born $dead</span>\n')
-    timeline_button = Template("""\n
-        <form method="POST" action="#edit_timeline">
-        <input type="hidden" name="modify" value="settlement" />
-        <input type="hidden" name="asset_id" value="$settlement_id" />
-            <button id="remove_item" name="increment_lantern_year" class="$button_class $button_color" value="1" $disabled> &nbsp; $LY &nbsp; </button>
-        </form>
-    \n""")
-    timeline_add_event = Template('<input type="text" class="$input_class" onchange="this.form.submit()" event_type="text" name="add_$event_type$LY" placeholder="add $pretty_event_type"/>\n')
-    timeline_year_break = '<input type="submit" class="hidden" value="None"/> <hr/></p>\n</form>\n\n'
-    timeline_form_top = Template("""\n
-            <!-- LY $year form -->
-            <form method="POST" action="#edit_timeline">
-            <input type="hidden" name="modify" value="settlement" />
-            <input type="hidden" name="asset_id" value="$settlement_id" />
-    """)
     summary = Template("""\n\n
         <!--
 
@@ -2389,13 +2396,16 @@ class settlement:
 
         <hr/>
 
-        <button class="kd_blue close_modal" onclick="closeModal('survivorSearchModalContent')">Close Search Window</button>
+        <button
+            class="kd_blue close_modal"
+            onclick="closeModal('survivorSearchModalContent')"
+        >
+        Close Search Window
+        </button>
 
         </div> <!-- survivor_search_modal_content -->
 
     </div> <!-- survivorSearch -->
-
-    $timeline_app
 
 </div> <!-- campaign_summary methods -->
 
@@ -3152,8 +3162,6 @@ class settlement:
         </div> <!-- modal-content -->
     </div> <!-- modalStorage -->
 
-    $timeline_app
-
 </div> <!-- settlementSheetApp -->
 
 
@@ -3215,7 +3223,7 @@ class settlement:
                 </div>
 
                 <div
-                    ng-if="t.year <= settlement_sheet.lantern_year"
+                    ng-if="t.year <= settlement_sheet.lantern_year && get_event_log(t.year).length >= 1 "
                     ng-click="showHide(t.log_div_id)"
                     class="timeline_event_log_revealer round_top"
                 >
@@ -3227,20 +3235,18 @@ class settlement:
                     id="{{t.log_div_id}}"
                     ng-click="showHide(t.log_div_id)"
                 >
-                    <span ng-repeat="l in get_event_log(t.year)" ng-bind-html-unsafe="l.event">
+                    <span
+                        ng-repeat="l in get_event_log(t.year)"
+                    >
                         <div
                             ng-class-odd="'log_zebra'"
                             ng-class-even="'log_no_zebra'"
+                            ng-bind-html=" l.event|trustedHTML"
                         >
-                            {{l.event}}
                         </div>
                    </span>
 
-                    <div
-                        class="timeline_event_log_revealer settlement_sheet_gradient round_bottom"
-                    >
-                        LY {{t.year}} Event Log &#9652;
-                    </div>
+                    <div class="timeline_event_log_bottom round_bottom" > </div>
                     <br/>
                 </div>
 
@@ -3431,6 +3437,10 @@ class login:
 
 
 class meta:
+
+    def __init__(self):
+        pass
+
     """ This is for HTML that doesn't really fit anywhere else, in terms of
     views, etc. Use this for helpers/containers/administrivia/etc. """
 
@@ -3448,11 +3458,13 @@ class meta:
     </div>
     \n""")
 
+
     burger_top_level_button = Template("""\n
     <form method="POST" action="/"><input type="hidden" name="change_view" value="$view"/>
     <button class="sidenav_top_level"> $link_text </button>
     </form>
     \n""")
+    burger_new_settlement = '<div id="mySidenav" class="sidenav">' + burger_top_level_button.safe_substitute(link_text = "Return to Dashboard", view = "dashboard") + '</div><!-- mySidenav -->' + '<button id="floating_dashboard_button" class="gradient_silver" onclick="openNav()"> &#9776; </button>'
     burger_signout_button = Template("""\n
     <form id="logout" method="POST" action="/">
     <input type="hidden" name="remove_session" value="$session_id"/>
@@ -3487,23 +3499,23 @@ class meta:
         id="modalReportError" class="modal"
         ng-init="registerModalDiv('reportErrorButton','modalReportError')"
     >
-        <div class="modal-content">
+        <div class="modal-content timeline_gradient">
             <span class="closeModal" onclick="closeModal('modalReportError')">×</span>
-            <div id="report_error_container">
+            <div class="report_error_container">
                 <h3>Report an Issue or Error</h3>
                 <p>http://kdm-manager.com is a work in progress and is under active development!</p>
                 <p>If you identify an issue, error or problem with the application, whether a simple typo, a presentation problem or otherwise, there are a number of ways to report it.</p>
                 <p>To rapidly submit an issue via email, use the form below:
-                <div id="error_form">
+                <div class="error_form">
                     <form method="POST" action="/">
                      <input type="hidden" name="error_report" value="from_web">
-                     <textarea id="report_error" name="body" placeholder="Describe your issue here"></textarea>
-                     <input type="submit" class="error" value ="submit"/>
+                     <textarea class="report_error" name="body" placeholder="Describe your issue here"></textarea>
+                     <input type="submit" class="kd_alert_no_exclaim" value ="submit"/>
                     </form>
                 </div>
                 </p>
                 <p><b>General Comments/Questions:</b> use <a href="http://kdm-manager.blogspot.com//" target="top">the Development blog at blog.kdm-manager.com</a> to review change logs, make comments and ask questions about the manager.</p>
-                <p><b>Source code and development questions:</b> if you're interested, you can clone/download and review the <a href="https://github.com/toconnell/kdm-manager" target="top">source code for the manager</a> from GitHub. <a href="https://github.com/toconnell/kdm-manager/wiki" target="top">The development wiki</a> also has some good stuff.<p>
+                <p><b>Source code and development questions:</b> if you're interested, you can clone/download and review the <a href="https://github.com/toconnell/kdm-manager" target="top">source code for the manager</a> from GitHub. <a href="https://github.com/toconnell/kdm-manager/wiki" target="top">The development wiki</a> also has some good stuff.</p>
                 <p><b>Issues and Errors:</b> feel free to mention any issues/errors on the blog comments or, if you use GitHub, you may also submit issues to <a href="https://github.com/toconnell/kdm-manager/issues" target="top">the project's issues tracker</a>.</p>
             </div>
         </div><!-- modal-content -->
@@ -3608,36 +3620,67 @@ def render_burger(session_object=None):
         return no_burger_string
     elif session_object.session is None:
         return no_burger_string
-    elif session_object.Settlement is None:
+    elif session_object.Settlement is None and session_object.session is None:
         return no_burger_string
+    elif session_object.Settlement is None and session_object.session is not None:
+        if session_object.session["current_view"] == "new_settlement":
+            pass
+        else:
+            return no_burger_string
     elif not hasattr(session_object.Settlement, "settlement"):
         return no_burger_string
     elif session_object.Settlement.settlement is None:
         return no_burger_string
 
     view = session_object.session["current_view"]
-    if view not in ["event_log","view_campaign","view_settlement","view_survivor","new_survivor","new_settlement"]:
-        return "\n<!-- no burger in '%s' view -->\n\n" % view
 
-    # now, create a burger.
-    # first, set defaults:
+    if view not in ["view_campaign","view_settlement","view_survivor","new_survivor","new_settlement"]:
+        return "\n<!-- no burger in '%s' view -->\n\n" % view
 
     signout_button = meta.burger_signout_button.safe_substitute(
         session_id=session_object.session["_id"],
         login=session_object.User.user["login"],
     )
 
+    # first, create the mini-burger for the new_settlement view
+    if view == "new_settlement":
+        burger_panel = Template("""\n
+            <!-- $current_view burger -->
+
+            <div id="mySidenav" class="sidenav">
+              $dash
+              <hr/>
+              $report_error
+              $signout
+            </div>
+
+            <button id="floating_dashboard_button" class="gradient_silver" onclick="openNav()">
+                &#9776;
+            </button>
+
+            <!-- end $current_view burger -->
+        """)
+
+        output = burger_panel.safe_substitute(
+            dash=meta.burger_top_level_button.safe_substitute(
+                link_text = "Return to Dashboard",
+                view = "dashboard",
+            ),
+            report_error=meta.report_error_button,
+            signout=signout_button,
+        )
+
+        return output
+
+
+    # now, create a settlement burger.
+    # first, set defaults:
+
+
     new_settlement = meta.burger_top_level_button.safe_substitute(
         link_text = "+ New Settlement",
         view = "new_settlement",
     )
-    if view == "new_settlement":
-        new_settlement = ""
-
-    # this isn't working. gotta troubleshoot later.
-    anchors = ""
-#    if view == "view_campaign":
-#        anchors = meta.burger_anchors_campaign_summary
 
     # create a list of action buttons based on view/session info
     actions = ""
@@ -3647,25 +3690,20 @@ def render_burger(session_object=None):
             target_view = "change_view",
             settlement_id = "new_survivor"
         )
-    if view in ["view_campaign","event_log","view_survivor","new_survivor","new_settlement"]:
+    if view in ["view_campaign","view_survivor","new_survivor"]:
         if session_object.User.is_settlement_admin():
             actions += meta.burger_change_view_button.safe_substitute(
                 link_text = "Settlement Sheet",
                 target_view = "view_settlement",
                 settlement_id = session_object.session["current_settlement"],
             )
-    if view in ["view_settlement","event_log","view_survivor","new_survivor","new_settlement"]:
+    if view in ["view_settlement","view_survivor","new_survivor"]:
         actions += meta.burger_change_view_button.safe_substitute(
             link_text = "Campaign Summary",
             target_view = "view_campaign",
             settlement_id = session_object.session["current_settlement"]
         )
     actions += '<button id="timelineOpenerButton" class="sidenav_button">Timeline</button>'
-    actions += meta.burger_change_view_button.safe_substitute(
-        link_text = "Settlement Event Log",
-        target_view = "change_view",
-        settlement_id = "event_log"
-    )
     actions += meta.burger_export_button.safe_substitute(
         link_text = "Export to XLS",
         settlement_id = session_object.session["current_settlement"],
@@ -3719,8 +3757,6 @@ def render_burger(session_object=None):
               $action_map
               $departing_links
               $favorite_links
-<!--            <H3>Navigation:</h3> -->
-              $anchor_map
             <hr/>
           $report_error
           $signout
@@ -3743,13 +3779,12 @@ def render_burger(session_object=None):
         new_settlement_button = new_settlement,
         report_error=meta.report_error_button,
         signout=signout_button,
-        anchor_map=anchors,
         action_map=actions,
         departing_links=departing,
         favorite_links=favorites,
     )
 
-    output += meta.report_error_div
+    output
 
     return output
 
@@ -3823,8 +3858,13 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
     \n"""
 
     output += view_html
-
+    output += meta.report_error_div
     output += meta.close_body
+
+    # all html we render gets this template substitution
+    output = Template(output).safe_substitute(
+            api_url = api.get_api_url(),
+    )
 
     print(output.encode('utf8'))
 
