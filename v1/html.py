@@ -428,6 +428,71 @@ class angularJS:
     and they may not be python templates or do any other kind of variable
     expansion or anything like that. """
 
+    settlement_notes = """\n\
+    <div
+        class="modal"
+        id="settlementNotesContainer"
+        ng-controller="settlementNotesController"
+        ng-init="registerModalDiv('settlementNotesOpenerButton','settlementNotesContainer');"
+    >
+
+        <div class="full_size_modal_panel campaign_summary_gradient">
+
+            <span class="closeModal" onclick="closeModal('settlementNotesContainer')">×</span>
+
+            <h3>Campaign Notes!</h3>
+            <p>All players in the {{settlement_sheet.name}} campaign may make
+            notes and comments here. Tap or click notes to remove them.</p>
+
+            <div class="settlement_notes_application_container">
+
+                <div class="settlement_notes_note_container">
+
+                    <div class="settlement_notes_controls">
+                        <input ng-model="newNote" onclick="this.select()" class="add_settlement_note">
+                        <button ng-click="addNote()" class="kd_blue add_settlement_note">+</button>
+                    </div> <!-- settlement_notes_controls -->
+
+                    <div
+                        class="settlement_note"
+                        ng-repeat="n in settlement_notes"
+                    >
+                        <div class="note_flair">
+                            <font
+                                ng-if="userRole(n.author) == 'settlement_admin'"
+                                class="kdm_font_hit_locations"
+                            > <span class="flair_text">a</span> </font>
+                            <font
+                                ng-if="userRole(n.author) == 'player'"
+                                class="kdm_font_hit_locations"
+                            > <span class="flair_text">b</span> </font>
+                        </div>
+
+                        <div class="note_content" ng-click="showHide(n.js_id);window.alert(n.js_id)">
+                            {{n.note}} <span class="author" ng-if="n.author != user_login"> - {{n.author}}</span>
+                        </div>
+                        <span
+                            id="{{n.js_id}}"
+                            class="kd_alert_no_exclaim note_remove hidden"
+                            ng-if="n.author == user_login || user_is_settlement_admin"
+                            ng-click="removeNote($index, n.js_id)
+                        ">
+                            &times;
+                        </span>
+
+                    </div><!-- settlement_note -->
+
+                </div> <!-- settlement_notes_note_container -->
+
+
+            </div> <!-- settlement_notes_application_container -->
+
+
+        </div><!-- full size modal panel -->
+
+    </div> <!-- modal (parent) -->
+    \n"""
+
     new_survivor = """\n\
     <div
         class="modal"
@@ -577,7 +642,7 @@ class angularJS:
     </div> <!-- modal (parent) -->
     \n"""
 
-    timeline= """\n
+    timeline = """\n
 
     <div
         class="modal"
@@ -681,7 +746,13 @@ class angularJS:
                             ng-model="lantern_year"
                             ng-change="setLY(t.year - 1); showHideControls(t.year); showControls(t.year-1)"
                         />
-                        <label class="kd_alert_no_exclaim" for="returnToLanternYear{{t.year - 1}}">Return to Lantern Year {{t.year - 1}}</label>
+                        <label
+                            class="kd_alert_no_exclaim"
+                            for="returnToLanternYear{{t.year - 1}}"
+                            ng-if="t.year >= 1"
+                        >
+                            Return to Lantern Year {{t.year - 1}}
+                        </label>
                     </div> <!-- end_current_ly -->
 
                 </div> <!-- timelineControlsLy{{t.year}}-->
@@ -800,7 +871,7 @@ class survivor:
    <div
        id = "survivor_sheet_angularjs_controller_container"
        ng-init="
-            initialize('survivorSheet', '$user_login', '$user_is_settlement_admin','$api_url','$settlement_id');
+            initialize('survivorSheet', '$user_id', '$user_login', '$api_url','$settlement_id');
             loadSurvivor('$survivor_id');
        "
    >
@@ -2296,7 +2367,7 @@ class settlement:
 
         <div
             id = "campaign_summary_angularjs_controller_container"
-            ng-init="initialize('campaignSummary', '$user_login', '$user_is_settlement_admin','$api_url','$settlement_id')"
+            ng-init="initialize('campaignSummary', '$user_id', '$user_login', '$api_url','$settlement_id')"
         >
             <span class="tablet_and_desktop nav_bar campaign_summary_gradient"></span>
             <span class="nav_bar_mobile mobile_only campaign_summary_gradient"></span>
@@ -2609,7 +2680,7 @@ class settlement:
 
         <div
             id = "settlement_sheet_angularjs_controller_container"
-            ng-init="initialize('settlementSheet', '$user_login', '$user_is_settlement_admin','$api_url','$settlement_id')"
+            ng-init="initialize('settlementSheet', '$user_id', '$user_login', '$api_url','$settlement_id')"
         >
 
         <span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
@@ -2859,14 +2930,13 @@ class settlement:
         <div
             class="settlement_sheet_block_group"
             ng-controller="locationsController"
-            ng-init='locations=$locations;locations_options=$locations_options'
         >
 
             <h2>Settlement Locations</h2>
             <p>Locations in your settlement. Click or tap an item to remove it.</p>
 
             <div
-                ng-repeat="x in locations"
+                ng-repeat="x in settlement_sheet.locations"
                 ng-init="levels=x.lvl;div_id=x.div_id"
             >
                 <div class="line_item" ng-if="levels" id="{{x.div_id}}">
@@ -2910,7 +2980,7 @@ class settlement:
                     id="addLocationSelectAngularJS"
                     name="add_location"
                     ng-model="add_location"
-                    ng-options="lo.name for lo in locations_options"
+                    ng-options="lo.name for lo in settlement.game_assets.locations"
                     ng-change="add()"
                 >
                     <option disabled selected value="">Add a Location</option>
@@ -2944,10 +3014,10 @@ class settlement:
         <h2>Innovations</h2>
         <p>The settlement's innovations (including weapon masteries). Click or tap an item to remove it. </p>
 
-        <div ng-init='innovations=$innovations'>
+        <div>
             <div
                 class="line_item"
-                ng-repeat="x in innovations"
+                ng-repeat="x in settlement_sheet.innovations"
             >
                 <div> <!-- span holder -->
                     <span class="bullet"></span>
@@ -3066,10 +3136,10 @@ class settlement:
             <h2>Quarries</h2>
             <p>The monsters your settlement can select to hunt. Click or tap an item to remove it.</p>
 
-            <div ng-init='quarries=$quarries'>
+            <div>
                 <div
                     class="line_item"
-                    ng-repeat="x in quarries"
+                    ng-repeat="x in settlement_sheet.quarries"
                 >
                     <div> <!-- span holder -->
                         <span class="bullet"></span>
@@ -3146,10 +3216,10 @@ class settlement:
         <h2>Defeated Monsters</h2>
         <p>A list of defeated monsters and their level. Use the controls below to remove defeated monsters.</p>
 
-        <div ng-init='defeated=$defeated_monsters'>
+        <div>
             <div
                 class="line_item"
-                ng-repeat="x in defeated"
+                ng-repeat="x in settlement_sheet.defeated_monsters"
             >
                 <div> <!-- span holder -->
                     <span class="bullet"></span>
@@ -3803,10 +3873,11 @@ def render_burger(session_object=None):
 
     if view in ["view_survivor","view_campaign","view_settlement"]:
         actions += '<button id="timelineOpenerButton" class="sidenav_button">Timeline</button>'
-        actions += meta.burger_export_button.safe_substitute(
-            link_text = "Export to XLS",
-            settlement_id = session_object.session["current_settlement"],
-        )
+        actions += '<button id="settlementNotesOpenerButton" class="sidenav_button">Notes</button>'
+#        actions += meta.burger_export_button.safe_substitute(
+#            link_text = "Export to XLS",
+#            settlement_id = session_object.session["current_settlement"],
+#        )
 
     # now add quick links to departing survivors for admins
     departing = ""

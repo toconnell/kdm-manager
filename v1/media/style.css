@@ -279,6 +279,28 @@ span.timeline_overlay_current_ly b {font-size: 50px;}
 select.add_timeline_event {width: 85%; margin: 0 auto; font-size: 50px; }
 input.add_custom_timeline_event {padding: 1%; ; width: 85%; margin-top: 2%; margin-bottom: 5%; font-size: 50px; height: auto; }
 
+
+/* settlement notes*/
+
+div.settlement_notes_application_container {display: flex; flex-direction: column; height: auto; padding: 0; }
+
+div.settlement_notes_note_container {margin: 0; height: 80%; width: 100%; overflow: auto; display: flex; flex-direction: column; margin-bottom: 5%; }
+
+div.settlement_note {border-radius: 20px; border: 1px solid #333; background-color: #fff; margin: 1%; width: 98%; position: relative; min-height: 75px;}
+
+div.note_flair {width: 7%; font-size: 50px; background-color: #5C4649; border-top-left-radius: 20px; border-bottom-left-radius: 20px; display: inline-flex; text-align: center; position: absolute; top: 0; bottom:0; justify-content: center; align-items: center; margin: 0; padding: 1%; }
+span.flair_text {color: #fff; padding: 1%; }
+
+div.note_content {margin-left: 11%; display: inline-block; font-family: Arial, sans-serif; margin-right:7%; font-size: 40px; width: 80%;  margin-top: 1%; }
+div.note_content span.author {color: #999; font-size: 30px; }
+span.note_remove {padding: 2%; position: absolute; top: 0; bottom: 0; display: inline-flex; justify-content: center; align-items: center; right: 0; margin-right: -2px; border-top-left-radius: 0; border-bottom-left-radius: 0;}
+
+div.settlement_notes_controls {margin: 0; width: 100%; height: auto; padding-bottom: 0; margin-bottom: 4%; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: flex-end; align-items: center;  }
+
+input.add_settlement_note {display: inline-block; width: 80%; margin: auto; }
+button.add_settlement_note {display: inline-block; width: auto; padding-left: 3%; padding-right: 3%; margin: auto;}
+
+
 div#floating_event_log_anchor {padding: 5px; position: fixed; right: 250px; bottom: 15px; width: 100px; height: 100px; border: 1px solid #333; border-radius: 3px; }
 div#floating_genealogy_anchor {padding: 5px; position: fixed; right: 75px; bottom: 15px; width: 100px; height: 100px; border: 1px solid #333; border-radius: 3px; }
 div#floating_event_log_anchor img, div#floating_genealogy_anchor img {margin: 0 auto; margin: 25px; }

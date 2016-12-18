@@ -26,7 +26,7 @@ import game_assets
 import html
 from models import Abilities, NemesisMonsters, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles, SurvivalActions, CauseOfDeath
 from session import Session
-from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd, u_to_str, dict_to_js, list_to_js
+from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd, u_to_str
 import world
 
 settings = load_settings()
@@ -59,10 +59,10 @@ def ua_decorator(render_func=None):
             # angularjs appRoot and other app stuff
             MEDIA_URL = settings.get("application", "STATIC_URL"),
             user_login = self.User.user["login"],
-            user_is_settlement_admin=self.User.is_settlement_admin(),
+            user_id = self.User.user["_id"],
             settlement_id = self.Session.Settlement.settlement["_id"],
 
-        ) + html.angularJS.timeline + html.angularJS.new_survivor
+        ) + html.angularJS.timeline + html.angularJS.new_survivor + html.angularJS.settlement_notes
 
     return wrapper
 
@@ -331,6 +331,7 @@ class User:
         the 'return_type' kwarg unspecified/False if you want a mongo cursor
         back (instead of fruity HTML crap). """
 
+        self.logger.debug(self.user["login"])
         survivors = list(mdb.survivors.find({"$or": [
             {"email": self.user["login"]},
             {"created_by": self.user["_id"]},
@@ -2355,7 +2356,7 @@ class Survivor:
 
     def update_email(self, email):
         """ Changes the survivor's email. Does some normalization and checks."""
-        email = email.lower()
+        email = email.lower().strip()
 
         if email == "":
             return
@@ -5616,6 +5617,9 @@ class Settlement:
 #        calframe = inspect.getouterframes(curframe, 2)
 #        self.logger.debug("get_game_asset() called by %s" % calframe[1][3])
 
+        # first, scream bloody murder if we get a banned return_type value
+        if return_type in ["angularjs","json","angularjs_options"]:
+            raise ValueError("The get_game_asset() method no longer supports '%s' returns!" % return_type)
 
         if update_mins:
             self.update_mins()
@@ -5659,7 +5663,7 @@ class Settlement:
 
         pretty_asset_name = asset_name.replace("_"," ").title()
 
-        if return_type in ["comma-delimited", "list","json"]:
+        if return_type in ["comma-delimited", "list"]:
             if hasattr(Asset, "uniquify"):
                 asset_keys = list(set(asset_keys))
             if hasattr(Asset, "sort_alpha"):
@@ -5671,11 +5675,8 @@ class Settlement:
                 return "\n".join(['\t<div class="line_item"><span class="bullet"></span><span class="item">%s</span></div>' % i for i in asset_keys])
             elif return_type == "comma-delimited":
                 return "<p>%s</p>" % ", ".join(asset_keys)
-            elif return_type == "json":
-                asset_keys = self.reprocess_asset_keys(asset_keys)
-                return list_to_js(asset_keys)
 
-        elif return_type in ["html_add","angularjs_options"]:
+        elif return_type in ["html_add"]:
             if not self.User.get_preference("dynamic_innovation_deck") and asset_type == "innovations":
                 output = Innovations.render_as_html_dropdown(exclude=self.settlement["innovations"], excluded_type="principle")
             else:
@@ -6072,17 +6073,11 @@ class Settlement:
             nemesis_monsters = self.get_nemeses("html_buttons"),
             nemesis_options = Nemeses.render_as_html_dropdown(exclude=self.settlement["nemesis_monsters"].keys(), Settlement=self),
 
-            quarries = self.get_game_asset("quarries", return_type="json", update_mins=False),
             quarry_options = Quarries.render_as_html_dropdown(exclude=self.settlement["quarries"], Settlement=self),
 
-            innovations = self.get_game_asset("innovations", return_type="json", exclude=self.settlement["principles"], update_mins=False),
             innovations_add = self.get_game_asset("innovations", return_type="html_add", update_mins=False),
             innovation_deck = self.get_game_asset_deck("innovations", return_type="user_defined", exclude_always_available=True),
 
-            locations = self.get_game_asset("locations", return_type="json", admin=self.User.is_settlement_admin(), update_mins=False),
-            locations_options = self.get_game_asset("locations", return_type="angularjs_options", update_mins=False),
-
-            defeated_monsters = self.get_game_asset("defeated_monsters", return_type="json", update_mins=False),
             defeated_monsters_add = self.get_game_asset("defeated_monsters", return_type="html_add", update_mins=False),
             defeated_monsters_rm = self.get_game_asset("defeated_monsters", return_type="html_rm", update_mins=False),
 

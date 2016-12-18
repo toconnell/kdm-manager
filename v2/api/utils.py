@@ -28,6 +28,7 @@ thirty_days_ago = datetime.now() - timedelta(days=30)
 recent_session_cutoff = datetime.now() - timedelta(hours=12)
 
 # generic http responses
+http_200 = Response(response="OK!", status=200)
 http_401 = Response(response="Valid API key required", status=401)
 http_404 = Response(response=None, status=404)
 http_422 = Response(response="Missing argument, parameter or value", status=422)

@@ -26,7 +26,7 @@ app.factory('assetService', function($http) {
 });
 
 
-app.controller('rootController', function($scope, $rootScope, apiService) {
+app.controller('rootController', function($scope, $rootScope, apiService, $http) {
 
     $scope.loadSettlement = function(r) {
         var api_route = r;
@@ -36,17 +36,34 @@ app.controller('rootController', function($scope, $rootScope, apiService) {
         return apiService.getSettlement($scope.api_url, api_route, $scope.settlement_id);
     };
 
-    $scope.initialize = function(src_view, login, is_admin, api_url, settlement_id) {
+    $scope.postJSONtoAPI = function(collection, action, json_obj) {
+        var url = $scope.api_url + collection + "/" + action + "/" + $scope.settlement_id;
+        var res = $http.post(url, json_obj);
+        res.success(function(data, status, headers, config) {
+            savedAlert();
+        });
+        res.error(function(data, status, headers, config) {
+            errorAlert();
+            console.log("API POST FAILURE!!!");
+            console.log(data);
+        });
+    };
+
+
+    $scope.initialize = function(src_view, u_id, login, api_url, settlement_id) {
         $scope.api_url = api_url;
         $scope.settlement_id = settlement_id;
+        $scope.user_id = u_id;
         $scope.user_login = login;
-        $scope.user_is_settlement_admin = is_admin;
         $scope.view = src_view;
 
         $scope.loadSettlement().then(
             function(payload) {
                 $scope.settlement = payload.data;
                 $scope.settlement_sheet = $scope.settlement.sheet;
+                $scope.user_is_settlement_admin = $scope.arrayContains(login, $scope.settlement_sheet.admins);
+                console.log($scope.user_login + " admin = " + $scope.user_is_settlement_admin);
+                $scope.settlement_notes = $scope.settlement_sheet.settlement_notes;
                 $rootScope.current_ly = $scope.settlement.sheet.lantern_year;
                 console.log("Settlement initialized!")
             },
@@ -54,7 +71,6 @@ app.controller('rootController', function($scope, $rootScope, apiService) {
         );
 
         console.log("appRoot controller (" + $scope.view + ") initialized!");
-        console.log($scope.user_login + " admin = " + $scope.user_is_settlement_admin);
     }
 
     // set $scope.survivor to a specific survivor's sheet
@@ -126,6 +142,42 @@ app.filter('trustedHTML',
 //  with HTML that calls these controllers
 
 app.controller('newSurvivorController', function($scope) {
+}); 
+
+app.controller('settlementNotesController', function($scope) {
+
+    $scope.getID = function () {
+        var text = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        for( var i=0; i < 20; i++ )
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+        return text;
+    };
+
+    $scope.addNote = function () {
+        if (!$scope.newNote) {return;}
+        var new_note_object = {
+            "author": $scope.user_login,
+            "author_id": $scope.user_id,
+            "note": $scope.newNote,
+            "js_id": $scope.getID(),
+            "lantern_year": $scope.current_ly,
+        };
+        $scope.settlement_notes.unshift(new_note_object);
+        $scope.postJSONtoAPI('settlement', 'add_note', new_note_object);
+    };
+    $scope.removeNote = function (x, note_js_id) {
+        $scope.settlement_notes.splice(x, 1);
+        $scope.postJSONtoAPI('settlement', 'rm_note', {"js_id": note_js_id, "user_login": $scope.user_login})
+    };
+    $scope.userRole = function(login) {
+        var role = 'player'
+        if ($scope.arrayContains(login, $scope.settlement_sheet.admins)) {role = 'settlement_admin'}
+        else {role = 'player';};
+        return role;
+    };
 }); 
 
 app.controller('newSettlementController', function($scope, assetService) {

@@ -49,6 +49,7 @@ ymd = "%Y-%m-%d"
 hms = "%H:%M:%S"
 ymdhms = "%Y-%m-%d %H:%M:%S"
 thirty_days_ago = datetime.now() - timedelta(days=30)
+seven_days_ago = datetime.now() - timedelta(days=7)
 recent_session_cutoff = datetime.now() - timedelta(hours=12)
 admin_session = {"_id": 0, "login": "ADMINISTRATOR", "User": {"_id": 0}}
 forbidden_names = ["test","Test","TEST","Unknown","UNKNOWN","Anonymous","anonymous"]
@@ -68,44 +69,16 @@ def u_to_str(data):
         return data
 
 
-def dict_to_js(d, internal_quote_char='"'):
-    output =  "{"
-    for k in d.keys():
-        if type(d[k]) in [unicode,str]:
-            v = d[k]
-            v = v.replace("'","&#39;")
-            output += '%s: %s%s%s, ' % (k,internal_quote_char,v,internal_quote_char)
-        elif type(d[k]) == int:
-            output += '%s: %s, ' % (k,d[k])
-        elif type(d[k]) == bool:
-            output += '%s: %s, ' % (k,str(d[k]).lower())
-        elif type(d[k]) == list:
-            output += '%s: [%s], ' % (k, ", ".join([dict_to_js(i) for i in d[k]]))
-        else:
-            raise Exception("dict_to_js() does not support '%s' type objects!" % (type(d[k])))
-    return output[:-2] + "}"
-
-def list_to_js(l,internal_quote_char='"'):
-    output = "["
-    for i in l:
-        if type(i) in [unicode,str]:
-            i = i.replace("'","&#39;")
-            output+= '{name: %s%s%s}, ' % (internal_quote_char,i,internal_quote_char)
-        elif type(i) == dict:
-            output += "%s, " % dict_to_js(i)
-        else:
-            raise Exception("list_to_js() cannot process items with type '%s'" % type(i))
-    return output[:-2] + "]"
-
-
 def to_handle(s):
     return s.lower().replace(" ","_")
+
 
 def get_percentage(part, whole):
     if whole == 0:
         return 0
     else:
         return 100 * round(float(part)/float(whole), 2)
+
 
 def days_hours_minutes(td):
     return abs(td.days), td.seconds//3600, (td.seconds//60)%60
@@ -275,9 +248,17 @@ def get_latest_update_string():
 
 def record_response_time(view_name=None, tdelta=None):
     """ Records request response times in mdb. """
+    logger = get_logger()
+
     if not settings.getboolean("application","record_response_times"):
         return True
+
     mdb.response_times.insert({"created_on": datetime.now(),"view":view_name,"time":tdelta.total_seconds()})
+
+    old_record_query = {"created_on": {"$lt": seven_days_ago}}
+    removed_records = mdb.response_times.remove(old_record_query)
+    if removed_records["n"] >= 1:
+        logger.info("Found and removed %s old response time records!" % removed_records["n"])
 
 
 

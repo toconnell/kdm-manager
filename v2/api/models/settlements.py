@@ -1,6 +1,8 @@
 #!/usr/bin/python2.7
 
 from bson import json_util
+from bson.objectid import ObjectId
+from datetime import datetime, timedelta
 import json
 
 import Models
@@ -15,7 +17,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.9
+        self.object_version=0.11
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize_data()
 
@@ -29,8 +31,14 @@ class Settlement(Models.UserAsset):
             self.convert_timeline_to_JSON()
             perform_save = True
 
+        if not "admins" in self.settlement.keys():
+            self.logger.info("Creating 'admins' key for %s" % (self))
+            creator = utils.mdb.users.find_one({"_id": self.settlement["created_by"]})
+            self.settlement["admins"] = [creator["login"]]
+            perform_save = True
+
         if perform_save:
-            self.logger.debug("Normalized %s" % self)
+            self.logger.info("Normalized %s" % self)
             self.save()
 
 
@@ -44,11 +52,11 @@ class Settlement(Models.UserAsset):
         output.update({"sheet": self.settlement})
         output["sheet"].update({"campaign": self.get_campaign()})
         output["sheet"].update({"expansions": self.get_expansions()})
+        output["sheet"]["settlement_notes"] = self.get_settlement_notes()
 
         # create user_assets
         output.update({"user_assets": {}})
         output["user_assets"].update({"players": self.get_players()})
-        self.survivor_weapon_masteries = []
         output["user_assets"].update({"survivors": self.get_survivors()})
         output["user_assets"].update({"survivor_weapon_masteries": self.survivor_weapon_masteries})
 
@@ -67,6 +75,41 @@ class Settlement(Models.UserAsset):
         output["game_assets"]["survival_actions_available"] = self.get_available_survival_actions()
 
         return json.dumps(output, default=json_util.default)
+
+
+    def get_settlement_notes(self):
+        """ Returns a list of mdb.settlement_notes documents for the settlement.
+        They're sorted in reverse chronological, because the idea is that you're
+        goign to turn this list into JSON and then use it in the webapp. """
+
+        notes = utils.mdb.settlement_notes.find({"settlement": self.settlement["_id"]}).sort("created_on",-1)
+        if notes is None:
+            return []
+        return [n for n in notes]
+
+
+    def add_settlement_note(self, n={}):
+        """ Adds a settlement note to MDB. Expects a dict. """
+
+        note_dict = {
+            "note": n["note"].strip(),
+            "created_by": ObjectId(n["author_id"]),
+            "js_id": n["js_id"],
+            "author": n["author"],
+            "created_on": datetime.now(),
+            "settlement": self.settlement["_id"],
+            "lantern_year": n["lantern_year"],
+        }
+
+        utils.mdb.settlement_notes.insert(note_dict)
+        self.logger.debug("[%s] added a settlement note to %s" % (n["author"], self))
+
+
+    def rm_settlement_note(self, n={}):
+        """ Removes a note from MDB. Expects a dict with one key. """
+
+        utils.mdb.settlement_notes.remove({"settlement": self.settlement["_id"], "js_id": n["js_id"]})
+        self.logger.debug("[%s] removed a settlement note from %s" % (n["user_login"], self))
 
 
     def get_innovations(self, return_type=None):
@@ -132,6 +175,7 @@ class Settlement(Models.UserAsset):
         """
 
         wm = weapon_masteries.Assets()
+        self.survivor_weapon_masteries = []
 
         output = []
         all_survivors = utils.mdb.survivors.find({"settlement": self.settlement["_id"]})
