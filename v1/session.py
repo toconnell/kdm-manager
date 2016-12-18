@@ -638,15 +638,6 @@ class Session:
         elif self.current_view == "new_settlement":
             output += html.settlement.new
 
-        elif self.current_view == "new_survivor":
-            self.set_current_settlement()
-            output += html.survivor.new.safe_substitute(
-                home_settlement=self.current_settlement,
-                user_email=self.User.user["login"],
-                created_by=self.User.user["_id"],
-                add_ancestors=self.Settlement.get_ancestors("html_parent_select")
-            )
-
         elif self.current_view == "view_settlement":
             output += html.dashboard.refresh_button
             output += self.render_user_asset_sheet("settlements")

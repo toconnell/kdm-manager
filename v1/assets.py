@@ -62,7 +62,7 @@ def ua_decorator(render_func=None):
             user_is_settlement_admin=self.User.is_settlement_admin(),
             settlement_id = self.Session.Settlement.settlement["_id"],
 
-        ) + html.settlement.timeline_app
+        ) + html.angularJS.timeline + html.angularJS.new_survivor
 
     return wrapper
 
@@ -842,7 +842,11 @@ class Survivor:
         parents = []
         for parent in ["father", "mother"]:
             if params is not None and parent in params:
-                p_id = ObjectId(params[parent].value)
+                p_id = params[parent].value
+                if len(p_id.split(":")) >= 1:
+                    self.logger.debug(p_id)
+                    p_id = p_id.split(":")[1]
+                p_id = ObjectId(p_id)
                 parents.append(mdb.survivors.find_one({"_id": p_id})["name"])
                 survivor_dict[parent] = ObjectId(p_id)
 
@@ -987,7 +991,7 @@ class Survivor:
 
         self.Settlement.increment_population(-1)
 
-        self.Settlement.log_event("%s has been permanently deleted from the settlement!" % self)
+        self.Settlement.log_event("%s has <b>permanently removed</b> %s from the settlement!" % (self.User.user["login"], self))
         self.logger.warn("[%s] marked %s as removed!" % (self.User, self))
 
 
@@ -3905,39 +3909,6 @@ class Settlement:
         mdb.settlements.save(self.settlement)
 
 
-    def get_ancestors(self, return_type=None, survivor_id=False):
-        """ This is the settlement's version of this method and it is way
-        different from the survivor """
-
-        if survivor_id:
-            return "NOT IMPLEMENTED YET"
-
-        if return_type == "html_parent_select":
-            male_parent = False
-            female_parent = False
-            for s in self.get_survivors():
-                S = Survivor(survivor_id=s["_id"], session_object=self.Session)
-                if S.get_sex() == "M" and "dead" not in S.survivor.keys():
-                    male_parent = True
-                elif S.get_sex() == "F" and "dead" not in S.survivor.keys():
-                    female_parent = True
-        else:
-            return False
-
-        if not (male_parent and female_parent):
-            return ""
-        else:
-            output = html.survivor.add_ancestor_top
-            for role in [("father", "M"), ("mother", "F")]:
-                output += html.survivor.add_ancestor_select_top.safe_substitute(parent_role=role[0], pretty_role=role[0].capitalize())
-                for s in self.get_survivors():
-                    S = Survivor(survivor_id=s["_id"], session_object=self.Session)
-                    if S.get_sex() == role[1] and "dead" not in S.survivor.keys():
-                        output += html.survivor.add_ancestor_select_row.safe_substitute(parent_id=S.survivor["_id"], parent_name=S.survivor["name"])
-                output += html.survivor.add_ancestor_select_bot
-            output += html.survivor.add_ancestor_bot
-            return output
-
 
     def get_genealogy(self, return_type=False):
         """ Creates a dictionary of the settlement's various clans. """
@@ -5129,7 +5100,7 @@ class Settlement:
         return player_set
 
 
-    def update_timeline(self, new_lantern_year=None, increment=False, add_event=(), rm_event=()):
+    def update_timeline(self, new_lantern_year=None, cgi_params=None):
         """ This is where we manage the timeline, incrementing Lantern Year,
         adding/removing settlement events, etc.
 
@@ -5138,27 +5109,49 @@ class Settlement:
         thing we're removing.
         """
 
-        current_ly = int(self.settlement["lantern_year"])
+        def get_ly_obj_and_index(ly):
+            """ laziness to return a ly object from the timeline list along with
+            its index (e.g. for updating it and putting it back into the list
+            and that sort of thing. """
 
-        # increment LY if we're doing that
-        if increment:
-            self.log_event("Lantern year %s has ended." % current_ly)
-            current_ly = current_ly + 1
-            self.settlement["lantern_year"] = current_ly
+            timeline = self.settlement["timeline"]
+            for i in timeline:
+                if i["year"] == ly:
+                    return i, timeline.index(i)
+
+
+        current_ly = int(self.settlement["lantern_year"])
 
         # handle arbitrary updates/changes to LY
         if new_lantern_year is not None and int(new_lantern_year) != current_ly:
             new_lantern_year= int(new_lantern_year)
             self.settlement["lantern_year"] = new_lantern_year
-            self.log_event("It is now Lantern Year %s." % new_lantern_year)
+            self.log_event("%s set the current Lanter Year to %s." % (self.User.user["login"], new_lantern_year))
+            self.logger.debug("[%s] updated %s current LY to %s" % (self.User, self, new_lantern_year))
 
-        if add_event != ():
-            pass
-#            raise Exception("NOPE")
-        if rm_event != ():
-            pass
-#            raise Exception("NOPE")
+        if cgi_params is not None:
+            self.logger.debug(cgi_params)
+            operation = cgi_params["update_timeline"].value
+            target_year = int(cgi_params["timeline_update_ly"].value)
+            event_handle = cgi_params["timeline_update_event_handle"].value
+            event_dict = self.get_api_asset("game_assets","events")[event_handle]
 
+            year_object, year_index = get_ly_obj_and_index(target_year)
+            self.settlement["timeline"].remove(year_object)
+
+            if not event_dict["type"] in year_object:
+                year_object[event_dict["type"]] = []
+
+            if operation == "add":
+                if not event_dict in year_object[event_dict["type"]]:
+                    year_object[event_dict["type"]].append(event_dict)
+                    self.log_event("%s added '%s' to LY %s" % (self.User.user["login"], event_dict["name"],target_year))
+                else:
+                    "[%s] attempting to add duplicate '%s' entry to LY %s. Ignoring..." % (self.User, event_dict["type"], target_year)
+
+            self.settlement["timeline"].insert(year_index, year_object)
+
+            self.logger.debug("[%s] timeline operation %s -> '%s' to LY %s" % (self.User, operation, event_handle, target_year))
 
 
     def get_admins(self):
@@ -5871,6 +5864,7 @@ class Settlement:
             "norefresh", "asset_id", "modify",
             "add_item_quantity", "rm_item_quantity",
             "male_survivors","female_survivors", "bulk_add_survivors",
+            "timeline_update_ly","timeline_update_event_type","timeline_update_event_handle",
             "operation",
         ]
 
@@ -5926,13 +5920,8 @@ class Settlement:
                 self.update_timeline(increment=True)
             elif p == "lantern_year":
                 self.update_timeline(game_asset_key)
-            elif p.split("_")[0] == 'add' and p.split("_")[2] == 'event':
-                target_year = int(p.split("_")[-1])
-                event_type = "_".join(p.split("_")[1:3])
-                self.update_timeline(add_event=(target_year, event_type, game_asset_key))
-            elif p.split("_")[0:3] == ["remove","timeline","event"]:
-                target_year = int(p.split("_")[-1])
-                self.update_timeline(rm_event=(target_year, game_asset_key))
+            elif p == "update_timeline":
+                self.update_timeline(cgi_params=params)
             elif p == "hunting_party_operation":
                 self.modify_departing_survivors(params)
             elif p.split("_")[0] == "player" and p.split("_")[1] == "role":

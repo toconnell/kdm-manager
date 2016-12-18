@@ -29,13 +29,16 @@ class Survivor(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="survivors"
-        self.object_version = 0.4
+        self.object_version = 0.6
         Models.UserAsset.__init__(self,  *args, **kwargs)
 
 
     def serialize(self, return_type=None):
         """ Renders the settlement, including all methods and supplements, as
         a monster JSON object. This one is the gran-pappy. """
+
+        self.survivor["effective_sex"] = self.get_sex()
+        self.survivor["can_be_nominated_for_intimacy"] = self.can_be_nominated_for_intimacy()
 
         output = self.get_serialize_meta()
         output.update({"sheet": self.survivor})
@@ -55,6 +58,7 @@ class Survivor(Models.UserAsset):
         else:
             return self.survivor["cursed_items"]
 
+
     def get_notes(self):
         """ Gets the survivor's notes as a list of dictionaries. """
         notes = utils.mdb.survivor_notes.find({
@@ -62,6 +66,39 @@ class Survivor(Models.UserAsset):
             "created_on": {"$gte": self.survivor["created_on"]}
         }, sort=[("created_on",-1)])
         return list(notes)
+
+
+    def get_sex(self):
+        """ Returns a string value of 'M' or 'F' representing the survivor's
+        current effective sex. The basic math here is that we start from the
+        survivor's sheet on their sex and then apply any curses, etc. to get
+        our answer. """
+
+        sex = self.survivor["sex"]
+
+        def invert_sex(s):
+            if s == "M":
+                return "F"
+            elif s == "F":
+                return "M"
+
+        if "belt_of_gender_swap" in self.get_cursed_items():
+            sex = invert_sex(sex)
+
+        return sex
+
+
+    def can_be_nominated_for_intimacy(self):
+        """ Returns a bool representing whether the survivor can do the
+        mommmy-daddy dance. """
+
+        output = True
+
+        if "Destroyed Genitals" in self.survivor["abilities_and_impairments"]:
+            output = False
+
+        return output
+
 
     #
     #   UPDATE and POST Methods below here!

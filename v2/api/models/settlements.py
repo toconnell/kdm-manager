@@ -15,7 +15,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.8
+        self.object_version=0.9
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize_data()
 
@@ -61,6 +61,7 @@ class Settlement(Models.UserAsset):
         output["game_assets"].update(self.get_available_assets(causes_of_death))
         output["game_assets"].update(self.get_available_assets(survival_actions))
         output["game_assets"].update(self.get_available_assets(events))
+        output["game_assets"]["eligible_parents"] = self.eligible_parents
         output["game_assets"]["campaign"] = self.get_campaign(dict)
         output["game_assets"]["principles"] = self.get_campaign(dict)["principles"]
         output["game_assets"]["survival_actions_available"] = self.get_available_survival_actions()
@@ -123,12 +124,19 @@ class Settlement(Models.UserAsset):
 
     def get_survivors(self, return_type=None):
         """ Returns a dictionary of survivors where the keys are bson ObjectIDs
-        and the values are serialized survivors. """
+        and the values are serialized survivors.
+
+        Also sets some settlement object attributes such as "eligible_parents"
+        and so on. This is the big survivor investigation method.
+
+        """
 
         wm = weapon_masteries.Assets()
 
         output = []
         all_survivors = utils.mdb.survivors.find({"settlement": self.settlement["_id"]})
+
+        self.eligible_parents = {"male":[], "female":[]}
 
         for s in all_survivors:
             S = survivors.Survivor(_id=s["_id"])
@@ -136,6 +144,13 @@ class Settlement(Models.UserAsset):
             for ai in S.survivor["abilities_and_impairments"]:
                 if ai in wm.get_names():
                     self.survivor_weapon_masteries.append(ai)
+
+            if S.can_be_nominated_for_intimacy():
+                i_dict = {"name": S.survivor["name"], "_id": S.survivor["_id"]}
+                if S.get_sex() == "M":
+                    self.eligible_parents["male"].append(i_dict)
+                elif S.get_sex() == "F":
+                    self.eligible_parents["female"].append(i_dict)
 
             output.append(S.serialize())
 

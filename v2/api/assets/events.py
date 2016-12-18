@@ -1,30 +1,77 @@
 settlement_events = {
 
     # core 1.4
+    "core_acid_storm": {"name": "Acid Storm"},
+    "core_clinging_mist": {"name": "Clinging Mist"},
+    "core_cracks_in_the_ground": {"name": "Cracks in the Ground"},
+    "core_dark_dentist": {"name": "Dark Dentist"},
+    "core_dark_trader": {"name": "Dark Trader"},
+    "core_elder_council": {"name": "Elder Council"},
+    "core_glossolalia": {"name": "Glossolalia"},
+    "core_haunted": {"name": "Haunted"},
+    "core_heat_wave": {"name": "Heat Wave"},
+    "core_lights_in_the_sky": {"name": "Lights in the Sky"},
     "core_first_day": {"name": "First Day"},
+    "core_hunt_reenactment": {"name": "Hunt Reenactment"},
+    "core_murder": {"name": "Murder"},
+    "core_nickname": {"name": "Nickname"},
+    "core_open_maw": {"name": "Open Maw"},
+    "core_plague": {"name": "Plague"},
+    "core_rivalry": {"name": "Rivalry"},
+    "core_skull_eater": {"name": "Skull Eater"},
+    "core_stranger_in_the_dark": {"name": "Stranger in the Dark"},
+    "core_triathalon_of_death": {"name": "Triathalon of Death"},
+    "core_weird_dream": {"name": "Weird Dream"},
+
+    # gorm
+    "gorm_gorm_climate": {"name": "Gorm Climate"},
 
     # promo/white box
-    "promo_strange_spot": {"name": "A Strange Spot"},
+    "promo_strange_spot": {"name": "A Strange Spot", "expansion": "White Box"},
+
+    # spidicules
+    "spid_season_of_the_spiderling": {"name": "Season of the Spiderling", "expansion": "Spidicules"},
+    "spid_silk_storm": {"name": "Silk Storm", "expansion": "Spidicules"},
 
 }
 
 story_events = {
 
     # core 1.4
+    "core_age": {"name": "Age", "page":101,},
     "core_armored_strangers": {"name": "Armored Strangers", "page": 103, },
-    "core_bold": {"name": "Bold", "page": 106, },
+    "core_birth_of_a_savior": {"name": "Birth of a Savior", "page":105,},
+    "core_bold": {"name": "Bold", "page": 107, },
+    "core_bone_witch": {"name": "Bone Witch", "page": 109, },
+    "core_cooking": {"name": "Cooking", "page": 111, },
+    "core_crush_and_devour": {"name": "Cooking", "page": 113, },
     "core_endless_screams": {"name": "Endless Screams", "page": 115, },
+    "core_hands_of_heat": {"name": "Hands of Heat", "page": 117},
+    "core_herb_gathering": {"name": "Herb Gathering", "page": 118},
     "core_hooded_knight": {"name": "Hooded Knight", "page": 121, },
     "core_insight": {"name": "Insight", "page": 123, },
-    "core_intimacy": {"name": "Insight", "page": 125, },
+    "core_intimacy": {"name": "Intimacy", "page": 125, },
+    "core_kings_curse": {"name": "King's Curse", "page": 127, },
+    "core_kings_step": {"name": "King's Step", "page": 129, },
+    "core_legendary_lungs": {"name": "Legendary Lungs", "page": 131, },
+    "core_legendary_monsters": {"name": "Legendary Monsters", "page": 132, },
+    "core_mineral_gathering": {"name": "Mineral Gathering", "page": 134, },
+    "core_overwhelming_darkness": {"name": "Overwhelming Darkness", "page": 137, },
     "core_phoenix_feather": {"name": "Phoenix Feather", "page": 139, },
     "core_conviction": {"name": "Principle: Conviction", "page": 141, },
     "core_death": {"name": "Principle: Death", "page": 143, },
-    "core_new_live": {"name": "Principle: New Life", "page": 145, },
+    "core_new_life": {"name": "Principle: New Life", "page": 145, },
     "core_society": {"name": "Principle: Society", "page": 147, },
     "core_regal_visit": {"name": "Regal Visit", "page": 149, },
+    "core_returning_survivors": {"name": "Returning Survivors", "page": 151, },
+    "core_run_away": {"name": "Run Away", "page": 153, },
+    "core_see_the_truth": {"name": "See the Truth", "page": 155, },
+    "core_white_secret": {"name": "White Secret", "page": 169, },
+    "core_white_speaker": {"name": "White Speaker", "page": 171, },
+    "core_zero_presence": {"name": "Zero Presence", "page": 173, },
     "core_watched": {"name": "Watched", "page": 175, },
     "core_game_over": {"name": "Game Over", "page": 179, },
+    "core_blackout": {"name": "Blackout", "page": 181, },
 
     # sunstalker 
     "ss_pool_and_sun": {"name": "The Pool and the Sun", "page": 15, "expansion": "Sunstalker"},

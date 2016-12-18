@@ -6,6 +6,7 @@ function savedAlert() {
     $('#saved_dialog').fadeOut(1800);
 };
 
+
 // factories and services for angularjs modules
 
 app.factory('apiService', function($http) {
@@ -25,7 +26,7 @@ app.factory('assetService', function($http) {
 });
 
 
-app.controller('rootController', function($scope, apiService) {
+app.controller('rootController', function($scope, $rootScope, apiService) {
 
     $scope.loadSettlement = function(r) {
         var api_route = r;
@@ -46,6 +47,7 @@ app.controller('rootController', function($scope, apiService) {
             function(payload) {
                 $scope.settlement = payload.data;
                 $scope.settlement_sheet = $scope.settlement.sheet;
+                $rootScope.current_ly = $scope.settlement.sheet.lantern_year;
                 console.log("Settlement initialized!")
             },
             function(errorPayload) {console.log("Error loading settlement!" + errorPayload);}
@@ -72,6 +74,8 @@ app.controller('rootController', function($scope, apiService) {
     };
 
     // modal div and button registration!
+    // this needs to always be in scope of ng-init or else the whole website 
+    // breaks (and the baby jesus cries)!
     $scope.registerModalDiv = function(modal_button_id, modal_div_id) {
         var btn = document.getElementById(modal_button_id);
         var modal = document.getElementById(modal_div_id);
@@ -87,6 +91,16 @@ app.controller('rootController', function($scope, apiService) {
 
 
     // helpers and laziness
+    $scope.showHide = function(e_id) {
+        var e = document.getElementById(e_id);
+        var hide_class = "hidden";
+        if (e.classList.contains(hide_class)) {
+            e.classList.remove(hide_class);
+        } else {
+            e.classList.add(hide_class)
+        };
+    }
+
     $scope.range  = function(count) {
         var r = [];
         for (var i = 0; i < count; i++) { r.push(i) }
@@ -107,7 +121,12 @@ app.filter('trustedHTML',
 
 
 //  common and shared angularjs controllers. These controllers are used by
-//  more than one (usually all) User Asset views. 
+//  more than one (usually all) User Asset views. check out the assets.py
+//  ua_decorator() method: it basically suffixes our main user asset views
+//  with HTML that calls these controllers
+
+app.controller('newSurvivorController', function($scope) {
+}); 
 
 app.controller('newSettlementController', function($scope, assetService) {
     $scope.showLoader = true;
@@ -125,12 +144,38 @@ app.controller('newSettlementController', function($scope, assetService) {
 
 });
 
-app.controller('timelineController', function($scope) {
+app.controller('timelineController', function($scope, $rootScope) {
+    
+    $scope.setEvents = function() {
+        var all_events = $scope.settlement.game_assets.events;
+
+        $scope.story_events = new Array();
+        $scope.settlement_events = new Array();
+
+
+        for (var property in all_events) {
+            if (all_events.hasOwnProperty(property)) {
+                var e = all_events[property];
+                if (e.type == 'story_event') {
+                    $scope.story_events.push(e);
+                } else if (e.type == 'settlement_event') {
+                    $scope.settlement_events.push(e)
+                };
+            };
+        };
+
+        $scope.story_events.sort(compare);
+
+        console.log("Initialized " + $scope.story_events.length + " story events and " + $scope.settlement_events.length + " settlement events!");
+
+    };
 
     $scope.loadTimeline = function() {
         $scope.loadSettlement().then(
             function(payload) {
+                $scope.settlement = payload.data;
                 $scope.timeline = payload.data.sheet.timeline;
+                $scope.setEvents();
                 console.log("timeline initialized!")
             },
             function(errorPayload) {console.log("Error loading timeline!" + errorPayload);}
@@ -165,15 +210,60 @@ app.controller('timelineController', function($scope) {
         return local_event_log;
     };
 
-    $scope.showHide = function(e_id) {
-        var e = document.getElementById(e_id);
-        var hide_class = "hidden";
-        if (e.classList.contains(hide_class)) {
-            e.classList.remove(hide_class);
-        } else {
-            e.classList.add(hide_class)
+
+    $scope.showHideControls = function(ly) { 
+        var hidden_controls = document.getElementById('timelineControlsLY' + ly);
+        if (hidden_controls.style.display == 'none') {
+            hidden_controls.style.height = 'auto';
+            hidden_controls.style.display = 'flex';
+        }
+        else if (hidden_controls.style.display == 'flex') {
+            hidden_controls.style.height = 0;
+            hidden_controls.style.display = 'none';
+        } else {console.log("UNHANDLED CONDITION! >" + hidden_controls.style.display + "<")};
+    };
+
+    $scope.showControls = function(ly) {
+        var hidden_controls = document.getElementById('timelineControlsLY' + ly);
+        hidden_controls.style.display='flex';
+        hidden_controls.style.height='auto';
+    };
+
+    $scope.setLY = function(ly) {
+        console.log("setting LY to " + ly);
+        $rootScope.current_ly = ly;
+        modifyAsset('settlement', $scope.settlement_id, "lantern_year=" + $rootScope.current_ly)
+    };
+
+    $scope.getLYObject = function(ly) {
+        // returns the local scope's timeline object for ly
+        for (i = 0; i < $scope.timeline.length; i++) {
+            var timeline_year = $scope.timeline[i];
+            if (timeline_year.year == Number(ly)) {return timeline_year};
+        }
+    };
+
+
+    $scope.addEvent = function(ly,event_handle) {
+        var new_event = $scope.settlement.game_assets.events[event_handle];
+        var target_ly = $scope.getLYObject(ly);
+        if (!(new_event.type in target_ly)) {
+            target_ly[new_event.type] = new Array();
         };
-    }
+
+        for (i = 0; i < target_ly[new_event.type].length; i++) {
+            if (target_ly[new_event.type][i] === new_event) {
+                console.log("Duplicate item. Returning true...");
+                return true;
+            }
+        }
+
+        // if we're still here after that iteration above, add the event
+        target_ly[new_event.type].push(new_event);
+        var params = "update_timeline=add&timeline_update_ly=" + ly + "&timeline_update_event_handle=" + new_event.handle;
+        modifyAsset('settlement',$scope.settlement_id,params)
+
+    };
 
 });
 
@@ -414,7 +504,7 @@ function updateAssetAttrib(source_input, collection, asset_id) {
 
 // burger sidenav
 function openNav() {
-    document.getElementById("mySidenav").style.width = '65%';
+    document.getElementById("mySidenav").style.width = '75%';
 }
 function closeNav() {
     document.getElementById("mySidenav").style.width = "0";
@@ -519,6 +609,16 @@ function kd_toggle(toggle_element) {
     };
 };
 
+
+// Used to sort arrays of objects by name. Should be a lambda or something
+// but FIWE. Maybe when I'm older
+function compare(a,b) {
+  if (a.name < b.name)
+    return -1;
+  if (a.name > b.name)
+    return 1;
+  return 0;
+}
 
 
 

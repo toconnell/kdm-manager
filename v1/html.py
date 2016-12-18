@@ -164,6 +164,7 @@ class dashboard:
             <li>Developed, maintained and edited by <a href="http://toconnell.info">Timothy O'Connell</a>.</li>
             <li>Icon font ('kdm-font-10') by <a href="http://steamcommunity.com/id/GeorgianBalloon" target="top">Miracle Worker</a>.</li>
             <li>The <font style="font-family: Silverado; font-size: 1.3em;">Silverado Medium Condensed</font> font is licensed through <a href="https://www.myfonts.com/" target="top">MyFonts.com</a>.
+            <li>Loading "spinner" gifs by <a href="http://loading.io" target="top">loading.io</a></li>
         </ul>
 
         </div> <!-- about_div -->
@@ -422,131 +423,316 @@ class dashboard:
 
 
 
+class angularJS:
+    """ HTML here should only be angularJS applications. They need to be strings
+    and they may not be python templates or do any other kind of variable
+    expansion or anything like that. """
 
-
-class survivor:
-    no_survivors_error = '<!-- No Survivors Found! --> <div class="kd_alert user_asset_sheet_error">This settlement has no survivors in it! Use the navigation menu controls in the upper left to add new survivors.</div>'
-
-    new = Template("""\n\
-    <span class="tablet_and_desktop nav_bar survivor_sheet_gradient"></span>
-    <span class="mobile_only nav_bar_mobile survivor_sheet_gradient"></span>
-    <span class="top_nav_spacer mobile_only">hidden</span>
-
-    <br/>
-
+    new_survivor = """\n\
     <div
-        id="create_new_asset_form_container"
+        class="modal"
+        id="modalNewSurvivorContainer"
+        ng-controller="newSurvivorController"
+        ng-init="registerModalDiv('newSurvivorButton','modalNewSurvivorContainer');"
     >
-        <form method="POST" action="#" enctype="multipart/form-data">
-        <input type="hidden" name="new" value="survivor" />
-        <input type="hidden" name="settlement_id" value="$home_settlement">
 
-        <div class="create_user_asset_block_group">
+        <div class="full_size_modal_panel survivor_sheet_gradient">
+
+            <h3>New Survivor!</h3>
+
+            <span class="closeModal" onclick="closeModal('modalNewSurvivorContainer')">×</span>
+
+            <form method="POST" action="#" enctype="multipart/form-data">
+            <input type="hidden" name="new" value="survivor" />
+
+            <div class="create_user_asset_block_group">
+
             <input
-                ng-model="name"
+                ng-model="new_survivor_name"
                 class="new_asset_name"
                 type="text"
                 name="name"
                 placeholder="New Survivor Name"
                 autofocus
-            >
-        </div>
+                >
+            </div>
 
 
-        <div
-            class="create_user_asset_block_group"
-        >
-
-            <h2 class="new_asset">Survivor Sex</h2>
-
-            <input
-                id="maleInput"
-                class="kd_css_checkbox kd_radio_option"
-                type="radio"
-                name="sex"
-                value="M"
-                checked
-            >
-            <label
-                id="survivorSexMaleElection"
-                for="maleInput"
-            >
-                Male
-            </label>
-
-            <input
-                id="femaleInput"
-                class="kd_css_checkbox kd_radio_option"
-                type="radio"
-                name="sex"
-                value="F"
-            >
-            <label
-                id="survivorSexFealeElection"
-                for="femaleInput"
-            >
-                Female
-            </label>
-
-        </div>
-
-        <div class="create_user_asset_block_group">
-            <h2 class="no_ul">Survivor Avatar Image</h2>
-            <p>Upload an image to represent this survivor (optional).</p>
-            <br/>
-            <input type="file" name="survivor_avatar" accept="image/*">
-        </div>
-
-        <div class="create_new_asset_block">
-            $add_ancestors
-
-        <div class="create_user_asset_block_group">
-
-            <h2 class="no_ul">Access Permissions</h2>
-
-            <p>Use the controls below to determine who is the owner of the
-            survivor and whether other players may edit the survivor.</p>
-
-            <input
-                type="email"
-                name="email"
-                placeholder="Survivor Email"
-                value="$user_email"
-                onclick="this.select()"
+            <div
+                class="create_user_asset_block_group"
             >
 
-            <input
-                id="publicInput"
-                type="checkbox"
-                class="kd_css_checkbox"
-                name="toggle_public"
-            >
-             <label
-                 id="survivorPublic"
-                 for="publicInput"
-             >
-                 Anyone may manage this survivor
-            </label>
+                <h2 class="new_asset">Survivor Sex</h2>
 
-        </div>
+                <input
+                    id="maleInput"
+                    class="kd_css_checkbox kd_radio_option"
+                    type="radio"
+                    name="sex"
+                    value="M"
+                    checked
+                >
+                <label
+                    id="survivorSexMaleElection"
+                    for="maleInput"
+                >
+                    Male
+                </label>
+
+                <input
+                    id="femaleInput"
+                    class="kd_css_checkbox kd_radio_option"
+                    type="radio"
+                    name="sex"
+                    value="F"
+                >
+                <label
+                    id="survivorSexFealeElection"
+                    for="femaleInput"
+                >
+                    Female
+                </label>
+
+            </div>
+
+            <div class="create_user_asset_block_group">
+                <h2 class="no_ul">Survivor Avatar Image</h2>
+                <p>Upload an image to represent this survivor (optional).</p>
+                <br/>
+                <input type="file" name="survivor_avatar" accept="image/*">
+            </div>
+
+
+            <div
+                class="create_user_asset_block_group"
+                ng-if="
+                    settlement_sheet.lantern_year >= 1 &&
+                    settlement.game_assets.eligible_parents.male.length >= 1 &&
+                    settlement.game_assets.eligible_parents.female.length >= 1
+                "
+            >
+                <h2 class="no_ul">Survivor Parents</h2>
+                <p class="new_asset">Survivors without parents are not eligible
+                for the automatic application of Innovation bonuses granted only
+                to newborn survivors!</p>
+
+                <div class="parent_selectors">
+                    <select
+                        name="father"
+                        ng-model="newSurvivorFather"
+                        ng-options="survivor._id.$oid as survivor.name for survivor in settlement.game_assets.eligible_parents.male"
+                    /><option selected disabled value="" name="father">Father</option></select>
+
+                    <select
+                        name="mother"
+                        ng-model="newSurvivorMother"
+                        ng-options="survivor._id.$oid as survivor.name for survivor in settlement.game_assets.eligible_parents.female"
+                    /><option selected disabled value="" name="mother">Mother</option></select>
+                </div>
+
+
+            </div> <!-- ancestors -->
+
+
+            <div class="create_user_asset_block_group">
+
+                <h2 class="no_ul">Access Permissions</h2>
+
+                <p>Use the controls below to determine who is the owner of the
+                survivor and whether other players may edit the survivor.</p>
+
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Survivor Email"
+                    value="{{user_login}}"
+                    onclick="this.select()"
+                >
+
+                <input
+                    id="publicInput"
+                    type="checkbox"
+                    class="kd_css_checkbox kd_radio_option"
+                    name="toggle_public"
+                >
+                 <label
+                     id="survivorPublic"
+                     for="publicInput"
+                 >
+                     Public - anyone may manage this survivor
+                </label>
+
+            </div> <!-- survivor perms -->
 
             <br />
     
-            <button class="kd_blue">Add {{name}}</button>
+            <button class="kd_blue">Add {{new_survivor_name}}</button>
+
             <br/><br/>
+
             </form>
-        </div><!-- create_new_asset_block -->
-    </div>
-    \n""")
+
+        </div><!-- full size modal panel -->
+
+    </div> <!-- modal (parent) -->
+    \n"""
+
+    timeline= """\n
+
+    <div
+        class="modal"
+        id="modalTimelineContainer"
+        ng-controller="timelineController"
+        ng_init="loadTimeline();registerModalDiv('timelineOpenerButton','modalTimelineContainer');"
+    >
+
+        <span class="touch_me timeline_overlay_current_ly">LY: <b>{{current_ly}}</b></span>
+
+        <div class="full_size_modal_panel timeline_gradient">
+
+            <span class="closeModal" onclick="closeModal('modalTimelineContainer')">×</span>
+
+            <h3>{{ settlement_sheet.name}} Timeline</h3>
+            <p>Click or tap on any Lantern Year below to update events occuring during that year.</p>
+
+            <div class="timeline_ly_headline">
+                <span>Year</span><span>Story & Special Events</span>
+            </div>
+
+            <div
+                ng-repeat="t in timeline"
+                ng-init="t.log_div_id = 'ly' + t.year + 'LogDivIDHandle'"
+                class="timeline_whole_entry_container"
+            >
+                <div class="timeline_ly_container" ng-click="showHideControls(t.year)">
+                    <div class="timeline_bullet_and_year_container">
+                        <span ng-if="t.year >= current_ly" class="kd_toggle_bullet"></span>
+                        <span ng-if="t.year < current_ly" class="kd_toggle_bullet checked_kd_toggle_bullet"></span>
+                        <span class="timeline_ly_number">{{t.year}}</span>
+                    </div>
+
+                    <div class="timeline_events_container">
+                        <span class="timeline_event" ng-repeat="e in t.story_event" ng-model="story_events">
+                            <font class="kdm_font">g &nbsp;</font>
+                            <b>{{e.name}}</b>
+                            <span class="timeline_event_page" ng-if="e.page">
+                                &nbsp;(p.{{e.page}})
+                            </span>
+                        </span>
+                        <span class="timeline_event" ng-repeat="q in t.quarry_event">
+                            <font class="kdm_font">f &nbsp;</font>
+                            {{q.name}}
+                        </span>
+                        <span class="timeline_event" ng-repeat="n in t.nemesis_encounter">
+                        <span><img class="icon" src="http://media.kdm-manager.com/icons/nemesis_encounter_event.jpg"/></span>
+                            &nbsp; <b> {{n.name}}</b>
+                        </span>
+                        <span class="timeline_event" ng-repeat="e in t.settlement_event">
+                            <font class="kdm_font_hit_locations">a &nbsp;</font>
+                            {{e.name}}
+                        </span>
+                    </div>
+                </div>
+
+                <div
+                    id="timelineControlsLY{{t.year}}"
+                    style="display: none; height: 0;"
+                    class="timeline_hidden_controls_container"
+                >
+                    <hr/>
+
+                    <select
+                        name="add_timeline_event"
+                        class="add_timeline_event"
+                        ng-model="newEvent"
+                        ng-options="se.handle as se.name for se in story_events"
+                        ng-change="addEvent(t.year,newEvent)"
+                    >
+                        <option selected disabled value="">
+                            Add Story Event
+                        </option>
+                    </select>
+
+                    <br/>
+
+                    <select
+                        name="add_settlement_event"
+                        class="add_timeline_event"
+                        ng-model="newEvent"
+                        ng-options="se.handle as se.name for se in settlement_events"
+                        ng-change="addEvent(t.year,newEvent)"
+                    >
+                        <option selected disabled value="">
+                            Add Settlement Event
+                        </option>
+                   </select>
+
+                    <div class="end_current_ly" ng-if="t.year==current_ly">
+                        <input
+                            type="checkbox"
+                            id="endLanternYear{{t.year}}"
+                            ng-model="lantern_year"
+                            ng-change="setLY(t.year + 1); showHidecontrols(t.year); showControls(t.year+1)"
+                        />
+                        <label class="kd_blue" for="endLanternYear{{t.year}}">End Lantern Year {{t.year}}</label>
+                        <input
+                            type="checkbox"
+                            id="returnToLanternYear{{t.year - 1}}"
+                            ng-model="lantern_year"
+                            ng-change="setLY(t.year - 1); showHideControls(t.year); showControls(t.year-1)"
+                        />
+                        <label class="kd_alert_no_exclaim" for="returnToLanternYear{{t.year - 1}}">Return to Lantern Year {{t.year - 1}}</label>
+                    </div> <!-- end_current_ly -->
+
+                </div> <!-- timelineControlsLy{{t.year}}-->
+
+                <div
+                    ng-if="t.year <= current_ly && get_event_log(t.year).length >= 1 "
+                    ng-click="showHide(t.log_div_id)"
+                    class="timeline_event_log_revealer round_top"
+                >
+                    LY {{t.year}} Event Log &#9662;
+                </div>
+
+                <div
+                    class="timeline_event_log_container hidden"
+                    id="{{t.log_div_id}}"
+                    ng-click="showHide(t.log_div_id)"
+                >
+                    <span
+                        ng-repeat="l in get_event_log(t.year)"
+                    >
+                        <div
+                            ng-class-odd="'log_zebra'"
+                            ng-class-even="'log_no_zebra'"
+                            ng-bind-html=" l.event|trustedHTML"
+                        >
+                        </div>
+                   </span>
+
+                    <div class="timeline_event_log_bottom round_bottom" > </div>
+                    <br/>
+                </div>
+
+            </div> <!-- iterator ng-repeat t in timeline -->
+
+
+        </div><!-- full size modal  -->
+
+    </div> <!-- modal (parent) -->
+
+    \n"""
+
+
+class survivor:
+    no_survivors_error = '<!-- No Survivors Found! --> <div class="kd_alert user_asset_sheet_error">This settlement has no survivors in it! Use the navigation menu controls in the upper left to add new survivors.</div>'
+
+
     add_ancestor_top = """\n
     <div
         class="create_user_asset_block_group"
         title="Add survivor parents."
     >
-        <h2 class="no_ul">Survivor Parents</h2>
-        <p class="new_asset">Survivors without parents are not eligible for the
-        automatic application of Innovation bonuses granted only to newborn
-        survivors!</p>
 
         <br/>
         <br/>
@@ -2121,7 +2307,7 @@ class settlement:
                 <p class="campaign_summary_campaign_type">$campaign</p>
                 <p>Population: $population ($sex_count); $death_count deaths</p>
                 <hr class="mobile_only"/>
-                <p>LY: $lantern_year, Survival Limit: $survival_limit</p>
+                <p>Lantern Year: {{current_ly}}, Survival Limit: $survival_limit</p>
                 <hr class="mobile_only"/>
             </div> <!-- campaign_summary_headline_container -->
 
@@ -3168,96 +3354,6 @@ class settlement:
 
     \n""")
 
-    # the timeline_app is NOT A PYTHON TEMPLATE
-    timeline_app = """\n
-
-    <div
-        class="modal"
-        id="modalTimelineContainer"
-        ng-controller="timelineController"
-        ng_init="loadTimeline();registerModalDiv('timelineOpenerButton','modalTimelineContainer');"
-    >
-        <div class="timeline_modal_panel timeline_gradient">
-            <span class="closeModal" onclick="closeModal('modalTimelineContainer')">×</span>
-
-            <h3>{{ settlement_sheet.name}} Timeline</h3>
-            <p>Click or tap on any Lantern Year below to show/hide controls and complete details for all events taking place in that year.</p>
-
-            <div class="timeline_ly_headline">
-                <span>Year</span><span>Story & Special Events</span>
-            </div>
-
-            <div
-                ng-repeat="t in timeline"
-                ng-init="t.log_div_id = 'ly' + t.year + 'LogDivIDHandle'"
-                class="timeline_whole_entry_container"
-            >
-                <div class="timeline_ly_container">
-                    <div class="timeline_bullet_and_year_container">
-                        <span ng-if="t.year >= settlement_sheet.lantern_year" class="kd_toggle_bullet"></span>
-                        <span ng-if="t.year < settlement_sheet.lantern_year" class="kd_toggle_bullet checked_kd_toggle_bullet"></span>
-                        <span class="timeline_ly_number">{{t.year}}</span>
-                    </div>
-
-                    <div class="timeline_events_container">
-                        <span class="timeline_event" ng-repeat="e in t.story_event">
-                            <font class="kdm_font">g &nbsp;</font>
-                            <b>{{e.name}}</b>
-                            <span class="timeline_event_page" ng-if="e.page">
-                                &nbsp;(p.{{e.page}})
-                            </span>
-                        </span>
-                        <span class="timeline_event" ng-repeat="q in t.quarry_event">
-                            <font class="kdm_font">f &nbsp;</font>
-                            {{q.name}}
-                        </span>
-                        <span class="timeline_event" ng-repeat="n in t.nemesis_encounter">
-                        <span><img class="icon" src="http://media.kdm-manager.com/icons/nemesis_encounter_event.jpg"/></span>
-                            &nbsp; <b> {{n.name}}</b>
-                        </span>
-                        <span class="timeline_event" ng-repeat="e in t.settlement_event">
-                            <font class="kdm_font_hit_locations">a &nbsp;</font>
-                            {{e.name}}
-                        </span>
-                    </div>
-                </div>
-
-                <div
-                    ng-if="t.year <= settlement_sheet.lantern_year && get_event_log(t.year).length >= 1 "
-                    ng-click="showHide(t.log_div_id)"
-                    class="timeline_event_log_revealer round_top"
-                >
-                    LY {{t.year}} Event Log &#9662;
-                </div>
-
-                <div
-                    class="timeline_event_log_container hidden"
-                    id="{{t.log_div_id}}"
-                    ng-click="showHide(t.log_div_id)"
-                >
-                    <span
-                        ng-repeat="l in get_event_log(t.year)"
-                    >
-                        <div
-                            ng-class-odd="'log_zebra'"
-                            ng-class-even="'log_no_zebra'"
-                            ng-bind-html=" l.event|trustedHTML"
-                        >
-                        </div>
-                   </span>
-
-                    <div class="timeline_event_log_bottom round_bottom" > </div>
-                    <br/>
-                </div>
-
-            </div> <!-- iterator ng-repeat -->
-            </div><!-- settlement_sheet_timeline_ly_container -->
-
-        </div>
-
-
-    </div>
-    \n"""
 
     remove_settlement_button = Template("""\
     <hr/>
@@ -3685,11 +3781,12 @@ def render_burger(session_object=None):
     # create a list of action buttons based on view/session info
     actions = ""
     if view != "new_survivor":
-        actions += meta.burger_change_view_button.safe_substitute(
-            link_text = "+ Create New Survivor",
-            target_view = "change_view",
-            settlement_id = "new_survivor"
-        )
+        actions += '<button id="newSurvivorButton" class="sidenav_button">+ Create New Survivor</button>'
+#        actions += meta.burger_change_view_button.safe_substitute(
+#            link_text = "+ Create New Survivor",
+#            target_view = "change_view",
+#            settlement_id = "new_survivor"
+#        )
     if view in ["view_campaign","view_survivor","new_survivor"]:
         if session_object.User.is_settlement_admin():
             actions += meta.burger_change_view_button.safe_substitute(
@@ -3703,11 +3800,13 @@ def render_burger(session_object=None):
             target_view = "view_campaign",
             settlement_id = session_object.session["current_settlement"]
         )
-    actions += '<button id="timelineOpenerButton" class="sidenav_button">Timeline</button>'
-    actions += meta.burger_export_button.safe_substitute(
-        link_text = "Export to XLS",
-        settlement_id = session_object.session["current_settlement"],
-    )
+
+    if view in ["view_survivor","view_campaign","view_settlement"]:
+        actions += '<button id="timelineOpenerButton" class="sidenav_button">Timeline</button>'
+        actions += meta.burger_export_button.safe_substitute(
+            link_text = "Export to XLS",
+            settlement_id = session_object.session["current_settlement"],
+        )
 
     # now add quick links to departing survivors for admins
     departing = ""
