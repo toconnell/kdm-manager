@@ -84,6 +84,15 @@ def get_percentage(part, whole):
         return 100 * round(float(part)/float(whole), 2)
 
 
+def get_timeline_index_and_object(timeline,lantern_year):
+    """ Input a timeline and a target ly; get the index of that year and the
+    year (as a JSON object i.e. list of dicts) back. """
+
+    for t in timeline:
+        if t["year"] == int(lantern_year):
+            return timeline.index(t), t
+
+
 # general usage methods
 
 def get_logger(log_level=None, log_name=None):

@@ -93,12 +93,14 @@ campaign_definitions = {
         "name": "People of the Lantern",
         "always_available": ["Lantern Hoard", "Language"],
         "principles": ["new_life","death","society","conviction"],
+        "nemesis_monsters": ["butcher","kings_man","the_hand"],
         "milestones": {
             "First child is born": milestones["first_child"],
             "First time death count is updated": milestones["first_death"],
             "Population reaches 15": milestones["pop_15"],
             "Settlement has 5 innovations": milestones["innovations_5"],
             "Population reaches 0": milestones["game_over"],
+        "special_showdowns": ["watcher"],
         },
     },
 

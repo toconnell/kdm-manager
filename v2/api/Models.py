@@ -2,6 +2,7 @@
 
 from bson.objectid import ObjectId
 from copy import copy
+from datetime import datetime, timedelta
 
 from flask import Response
 
@@ -223,6 +224,7 @@ class UserAsset():
             except Exception as e:
                 self.logger.error("Could not load _id '%s' from %s!" % (_id, self.collection))
                 self.logger.exception(e)
+                raise
 
 
     def save(self):
@@ -249,9 +251,24 @@ class UserAsset():
         if self.collection == "settlements":
             self.settlement = mdb_doc
         elif self.collection == "survivors":
+            from models import settlements      # why is this here? wtf?
             self.survivor = mdb_doc
+            self.Settlement = settlements.Settlement(_id=self.survivor["settlement"])
+            self.settlement = self.Settlement.settlement
         else:
             raise AssetLoadError("Invalid MDB collection for this asset!")
+
+
+    def log_event(self, msg):
+        """ Logs a settlement event to mdb.settlement_events. """
+        d = {
+            "created_on": datetime.now(),
+            "settlement_id": self.settlement["_id"],
+            "ly": self.settlement["lantern_year"],
+            "event": msg,
+        }
+        utils.mdb.settlement_events.insert(d)
+        self.logger.debug("%s event: %s" % (self, msg))
 
 
     def get_serialize_meta(self):

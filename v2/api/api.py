@@ -15,10 +15,12 @@ import world
 import utils
 
 # models
-from models import settlements, survivors
+from models import survivors
 
 # routes
 from routes import monster, cursed_items, new_settlement
+from routes import settlement as settlement_route
+
 
 # create the flask app with settings/utils info
 application = Flask(__name__)
@@ -64,20 +66,9 @@ def cursed_items_json():
 @application.route("/settlement/<action>/<settlement_id>", methods=["POST","GET","OPTIONS"])
 @utils.crossdomain(origin='*',headers='Content-Type')
 def get_settlement(action, settlement_id):
-    """ Dumps a serialized settlement, to include all assets, etc."""
-    S = settlements.Settlement(_id=settlement_id)
-    if action == "get":
-        return S.http_response()
-    elif action == "add_note":
-        S.add_settlement_note(dict(request.get_json()))
-        return utils.http_200
-    elif action == "rm_note":
-        S.rm_settlement_note(dict(request.get_json()))
-        return utils.http_200
-    elif action == "event_log":
-        return Response(response=S.get_event_log("JSON"), status=200, mimetype="application/json")
-    else:
-        return utils.http_422
+    """ This is our major method for retrieving and updating settlements. """
+    return settlement_route.render_response(action, settlement_id)
+
 
 @application.route("/new_settlement")
 @utils.crossdomain(origin='*')

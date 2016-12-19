@@ -3542,6 +3542,7 @@ class Settlement:
         'event_name'. Returns an empty dict if no event exists. """
 
         all_events = self.get_api_asset("game_assets","events")
+
         lookup_dict = {}
         for h in all_events.keys():
             lookup_dict[all_events[h]["name"]] = h
@@ -3760,6 +3761,7 @@ class Settlement:
                 if ly_k in ["quarry_event","nemesis_encounter","story_event","settlement_event"]:
                     for i in ly[ly_k]:
                         if i is None:
+                            self.logger.error("[%s] forbidden timeline event found: %s" % (self.User, i))
                             self.logger.debug("[%s] removing '%s' from LY %s" % (self.User, i, ly["year"]))
                             ly[ly_k].remove(i)
 
@@ -3792,6 +3794,8 @@ class Settlement:
         # fix timelines without a zero year for prologue
         years = []
         for ly in self.settlement["timeline"]:
+#            self.logger.debug(self.settlement["_id"])
+#            self.logger.debug(ly)
             years.append(ly["year"])
             if ly["year"] == 1:
                 if "quarry_event" in ly:
@@ -5130,29 +5134,6 @@ class Settlement:
             self.log_event("%s set the current Lanter Year to %s." % (self.User.user["login"], new_lantern_year))
             self.logger.debug("[%s] updated %s current LY to %s" % (self.User, self, new_lantern_year))
 
-        if cgi_params is not None:
-            self.logger.debug(cgi_params)
-            operation = cgi_params["update_timeline"].value
-            target_year = int(cgi_params["timeline_update_ly"].value)
-            event_handle = cgi_params["timeline_update_event_handle"].value
-            event_dict = self.get_api_asset("game_assets","events")[event_handle]
-
-            year_object, year_index = get_ly_obj_and_index(target_year)
-            self.settlement["timeline"].remove(year_object)
-
-            if not event_dict["type"] in year_object:
-                year_object[event_dict["type"]] = []
-
-            if operation == "add":
-                if not event_dict in year_object[event_dict["type"]]:
-                    year_object[event_dict["type"]].append(event_dict)
-                    self.log_event("%s added '%s' to LY %s" % (self.User.user["login"], event_dict["name"],target_year))
-                else:
-                    "[%s] attempting to add duplicate '%s' entry to LY %s. Ignoring..." % (self.User, event_dict["type"], target_year)
-
-            self.settlement["timeline"].insert(year_index, year_object)
-
-            self.logger.debug("[%s] timeline operation %s -> '%s' to LY %s" % (self.User, operation, event_handle, target_year))
 
 
     def get_admins(self):
@@ -5530,19 +5511,6 @@ class Settlement:
         current_quarry = None
         if "current_quarry" in self.settlement.keys():
             current_quarry = self.settlement["current_quarry"]
-
-
-        if return_type == "modal_controls":
-            # this is the options for the Departing Survivors modal
-            options = '<option value="None">None (unset)</option>'
-
-            for q in self.get_game_asset("defeated_monsters", return_type="options"):
-                if q == current_quarry:
-                    options += "<option selected>%s</option>" % q
-                else:
-                    options += "<option>%s</option>" % q
-
-            return html.settlement.current_quarry_select.safe_substitute(options=options, settlement_id=self.settlement["_id"])
 
         return current_quarry
 
@@ -6011,7 +5979,6 @@ class Settlement:
             special_rules = self.get_special_rules("html_campaign_summary"),
 
             show_departing_survivors_management_button=self.User.can_manage_departing_survivors(),
-            current_quarry_controls = self.get_current_quarry("modal_controls"),
             show_endeavor_controls = self.User.get_preference("show_endeavor_token_controls"),
             endeavor_tokens = self.get_endeavor_tokens(),
 
@@ -6068,7 +6035,6 @@ class Settlement:
 
             milestone_controls = self.get_milestones("html_controls"),
 
-            nemesis_options = Nemeses.render_as_html_dropdown(exclude=self.settlement["nemesis_monsters"].keys(), Settlement=self),
 
             quarry_options = Quarries.render_as_html_dropdown(exclude=self.settlement["quarries"], Settlement=self),
 

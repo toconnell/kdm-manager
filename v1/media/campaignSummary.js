@@ -48,3 +48,23 @@ app.controller("endeavorController", function($scope) {
 
 });
 
+
+app.controller("manageDepartingSurvivorsController", function($scope) {
+    $scope.saveCurrentQuarry = function(select_element) {
+        $scope.postJSONtoAPI('settlement', 'set', {"current_quarry": $scope.current_quarry});
+
+        var timeline_event = {
+            "name": $scope.current_quarry,
+            "ly": $scope.current_ly,
+            "user_login": $scope.user_login
+        };
+
+        if ($scope.arrayContains($scope.current_quarry, $scope.settlement.game_assets.showdown_options)) {
+            timeline_event.type = 'showdown_event';
+        } else if ($scope.arrayContains($scope.current_quarry, $scope.settlement.game_assets.nemesis_encounters)) {
+            timeline_event.type = 'nemesis_encounter';
+        };
+
+        $scope.addEvent(timeline_event["ly"],timeline_event["type"],timeline_event["name"]);
+    };    
+});

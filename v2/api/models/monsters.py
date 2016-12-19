@@ -44,14 +44,24 @@ class Monster(Models.GameAsset):
 
 
     def is_unique(self):
-        """ Returns a bool representing whether the monst is unique. """
+        """ Returns a bool representing whether the monst is unique. Monsters
+        are non-unique by default. """
         if hasattr(self, "unique"):
-            return True
+            return self.unique
         return False
 
 
+    def is_selectable(self):
+        """ Returns a bool representing whether the monst is unique. Monsters
+        are selectable by default. """
+        if hasattr(self, "selectable"):
+            return self.selectable
+        return True
+
+
     def get_levels(self):
-        """ Returns an int representing how many levels the monster has. """
+        """ Returns an int representing how many levels the monster has.
+        Monsters have three levels by default. """
         if self.is_unique():
             return 0
         elif hasattr(self,"levels"):

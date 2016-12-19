@@ -648,7 +648,7 @@ class angularJS:
         class="modal"
         id="modalTimelineContainer"
         ng-controller="timelineController"
-        ng_init="loadTimeline();registerModalDiv('timelineOpenerButton','modalTimelineContainer');"
+        ng_init="registerModalDiv('timelineOpenerButton','modalTimelineContainer');"
     >
 
         <span class="touch_me timeline_overlay_current_ly">LY: <b>{{current_ly}}</b></span>
@@ -658,7 +658,13 @@ class angularJS:
             <span class="closeModal" onclick="closeModal('modalTimelineContainer')">×</span>
 
             <h3>{{ settlement_sheet.name}} Timeline</h3>
-            <p>Click or tap on any Lantern Year below to update events occuring during that year.</p>
+
+            <p ng-if="user_is_settlement_admin">
+                Click or tap on any Lantern Year below to update events occuring during that year.
+            </p>
+            <p ng-if="user_is_settlement_admin == false">
+                The Timeline of story, settlement and showdown events for {{settlement_sheet.name}}. Only settlement admins may modify the timeline.
+            </p>
 
             <div class="timeline_ly_headline">
                 <span>Year</span><span>Story & Special Events</span>
@@ -684,6 +690,10 @@ class angularJS:
                                 &nbsp;(p.{{e.page}})
                             </span>
                         </span>
+                        <span class="timeline_event" ng-repeat="q in t.special_showdown_event">
+                            <font class="kdm_font maroon_text">f &nbsp;</font>
+                            {{q.name}}
+                        </span>
                         <span class="timeline_event" ng-repeat="q in t.showdown_event">
                             <font class="kdm_font">f &nbsp;</font>
                             {{q.name}}
@@ -703,6 +713,7 @@ class angularJS:
                     id="timelineControlsLY{{t.year}}"
                     style="display: none; height: 0;"
                     class="timeline_hidden_controls_container"
+                    ng-if="user_is_settlement_admin"
                 >
                     <hr/>
 
@@ -711,10 +722,38 @@ class angularJS:
                         class="add_timeline_event"
                         ng-model="newEvent"
                         ng-options="se.handle as se.name for se in story_events"
-                        ng-change="addEvent(t.year,newEvent)"
+                        ng-change="addEvent(t.year,'story_event',newEvent)"
                     >
                         <option selected disabled value="">
                             Add Story Event
+                        </option>
+                    </select>
+
+                    <br/>
+
+                    <select
+                        name="add_timeline_event"
+                        class="add_timeline_event"
+                        ng-model="newEvent"
+                        ng-options="s for s in settlement.game_assets.showdown_options"
+                        ng-change="addEvent(t.year,'showdown_event',newEvent)"
+                    >
+                        <option selected disabled value="">
+                            Add Showdown
+                        </option>
+                    </select>
+
+                    <br/>
+
+                    <select
+                        name="add_timeline_event"
+                        class="add_timeline_event"
+                        ng-model="newEvent"
+                        ng-options="n for n in settlement.game_assets.nemesis_encounters"
+                        ng-change="addEvent(t.year,'nemesis_encounter',newEvent)"
+                    >
+                        <option selected disabled value="">
+                            Add Nemesis Encounter
                         </option>
                     </select>
 
@@ -725,12 +764,25 @@ class angularJS:
                         class="add_timeline_event"
                         ng-model="newEvent"
                         ng-options="se.handle as se.name for se in settlement_events"
-                        ng-change="addEvent(t.year,newEvent)"
+                        ng-change="addEvent(t.year,'settlement_event',newEvent)"
                     >
                         <option selected disabled value="">
                             Add Settlement Event
                         </option>
                    </select>
+
+                    <br/>
+
+                    <div ng-repeat="event_group in t" class="timeline_rm_controls">
+                        <span ng-if="isObject(event_group)" class="timeline_rm_event_group">
+                            <div
+                                ng-click="rmEvent(t.year, e)"
+                                ng-repeat="e in event_group"
+                                class="kd_alert_no_exclaim rm_timeline_event"
+                            > <b>x</b> {{e.name}}
+                            </div>
+                        </span>
+                    </div>
 
                     <div class="end_current_ly" ng-if="t.year==current_ly">
                         <input
@@ -739,7 +791,12 @@ class angularJS:
                             ng-model="lantern_year"
                             ng-change="setLY(t.year + 1); showHidecontrols(t.year); showControls(t.year+1)"
                         />
-                        <label class="kd_blue" for="endLanternYear{{t.year}}">End Lantern Year {{t.year}}</label>
+                        <label
+                            class="kd_blue timeline_change_ly_button"
+                            for="endLanternYear{{t.year}}"
+                        >
+                                End Lantern Year {{t.year}}
+                        </label>
                         <input
                             type="checkbox"
                             id="returnToLanternYear{{t.year - 1}}"
@@ -747,7 +804,7 @@ class angularJS:
                             ng-change="setLY(t.year - 1); showHideControls(t.year); showControls(t.year-1)"
                         />
                         <label
-                            class="kd_alert_no_exclaim"
+                            class="kd_alert_no_exclaim timeline_change_ly_button"
                             for="returnToLanternYear{{t.year - 1}}"
                             ng-if="t.year >= 1"
                         >
@@ -2314,17 +2371,6 @@ class settlement:
     </div> <!-- create_new_asset_form_container -->
     \n"""
 
-    current_quarry_select = Template("""\n\
-    <h3 class="return_departing_survivors_modal">Current Quarry:</h3>
-    <select
-        id="set_departing_survivors_current_quarry"
-        class="hunting_party_current_quarry"
-        name="current_quarry"
-        onchange="updateAssetAttrib(this, 'settlement', '$settlement_id')"
-    >
-        $options
-    </select>
-    \n""")
     storage_warning = Template(""" onclick="return confirm('Remove $item_name from Settlement Storage?');" """)
     storage_remove_button = Template("""\n\
     \t<button $confirmation id="remove_item" name="remove_item" value="$item_key" style="background-color: #$item_color; color: #$item_font_color;"> $item_key_and_count </button>
@@ -2510,6 +2556,7 @@ class settlement:
 
     <div
         id="departingSurvivorsModalContent" class="modal"
+        ng-controller="manageDepartingSurvivorsController"
         ng-init="registerModalDiv('departingSurvivorsModalOpener','departingSurvivorsModalContent');"
     >
         <div class="modal-content survivor_sheet_gradient">
@@ -2569,9 +2616,21 @@ class settlement:
 
         <hr/>
 
-        $current_quarry_controls
+        <h3 class="return_departing_survivors_modal">Target Monster:</h3>
+
+        <select
+            id="set_departing_survivors_current_quarry"
+            class="hunting_party_current_quarry"
+            name="current_quarry"
+            ng-model="current_quarry"
+            ng-change="saveCurrentQuarry()"
+            ng-options="d for d in settlement.game_assets.defeated_monsters"
+        >
+            <option disabled selected value="">Set Target Monster</option>
+        </select>
 
         <hr/>
+
         <div class="departing_survivors_modal_return_container">
             <h3 class="return_departing_survivors_modal" >Return Departing Survivors</h3>
 
@@ -3196,9 +3255,19 @@ class settlement:
             <input type="hidden" name="modify" value="settlement" />
             <input type="hidden" name="asset_id" value="$settlement_id" />
 
-                $nemesis_monsters
+                <div class="angularjs_line_item" ng-repeat="n in settlement_sheet.nemesis_monsters">
+                    <span class="kd_checkbox_checked">
+                        {{ settlement.game_assets.monsters[n].name }}
+                    </span>
+                </div>
 
-                <span class="empty_bullet"></span> $nemesis_options
+                <span class="empty_bullet"></span>
+                <select
+                    ng-model="addNemesisMonster"
+                    ng-options="n as settlement.game_assets.monsters[n].name for n in settlement.game_assets.nemesis_options"
+                >
+                    <option selected disabled value="">Add Nemesis Monster</option>
+                </select>
 
                 <div class="line_item">
                     <span class="empty_bullet" /></span>
@@ -3619,10 +3688,26 @@ class meta:
 
     basic_http_header = "Content-type: text/html\n\n"
     basic_file_header = "Content-Disposition: attachment; filename=%s\n"
-    error_500 = Template('%s<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>%s</title></head><body><h1>500 - Internal Server Error</h1><hr/><p>$msg</p>$params<hr/><p>Please report all issues at <a href="https://github.com/toconnell/kdm-manager/issues">https://github.com/toconnell/kdm-manager/issues</a><br/><br/>Use the information below to report the error:</p><hr/><p>%s</p><h2>Traceback:</h2>$exception' % (basic_http_header, settings.get("application","title"), datetime.now()))
+
+    error_500 = Template("""%s<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+    <html><head><title>%s</title></head>
+    <body>
+        <h1>500 - Internal Server Error</h1>
+        <hr/>
+        <p><b>Server explosion!</b> The server erupts in a shower of gore, killing your request instantly. All other servers are so disturbed that they lose 1 survival.</p>
+        <p>$msg</p>
+        <p>$params</p>
+        <hr/>
+        <p>Please report errors and issues at <a href="https://github.com/toconnell/kdm-manager/issues">https://github.com/toconnell/kdm-manager/issues</a></p>
+        <p>Use the information below to report this error:</p>
+        <hr/>
+        <p>%s</p>
+        <h2>Traceback:</h2>
+        $exception\n""" % (basic_http_header, settings.get("application","title"), datetime.now()))
+
     start_head = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<meta name="theme-color" content="#000000">\n<title>%s</title>\n<link rel="stylesheet" type="text/css" href="/media/style.css">\n' % settings.get("application","title")
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
-    saved_dialog = '\n\t\t<div id="saved_dialog" class="kd_alert_no_exclaim" style="">Saved!</div>\n\n'
+    saved_dialog = '\n\t\t<div id="saved_dialog" class="kd_blue round_top round_bottom" style="">Saved!</div>\n\n'
     mobile_hr = '<hr class="mobile_only"/>'
     dashboard_alert = Template("""\n\
     <div class="dashboard_alert_spacer"></div>

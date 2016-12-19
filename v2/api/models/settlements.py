@@ -90,12 +90,56 @@ class Settlement(Models.UserAsset):
         output["game_assets"].update(self.get_available_assets(survival_actions))
         output["game_assets"].update(self.get_available_assets(events))
         output["game_assets"].update(self.get_available_assets(monsters))
-        output["game_assets"]["showdown_options"] = self.get_defeated_monster_options()
+        output["game_assets"]["nemesis_options"] = self.get_nemesis_options()
         output["game_assets"]["eligible_parents"] = self.eligible_parents
         output["game_assets"]["campaign"] = self.get_campaign(dict)
         output["game_assets"]["survival_actions_available"] = self.get_available_survival_actions()
 
+        for monster_context in ["showdown_options","nemesis_encounters","defeated_monsters"]:
+            output["game_assets"][monster_context] = self.get_monster_options(monster_context)
+
+        # finally, return a JSON string of our object
         return json.dumps(output, default=json_util.default)
+
+
+    def add_timeline_event(self, e={}):
+        """ Adds a timeline event to self.settlement["timeline"]. Expects a dict
+        containing the whole event's data: no lookups here. """
+
+        timeline = self.settlement["timeline"]
+        t_index, t_object = utils.get_timeline_index_and_object(timeline, e["ly"]);
+
+        timeline.remove(t_object)
+
+        if not e["type"] in t_object.keys():
+            t_object[e["type"]] = []
+        t_object[e["type"]].append(e)
+
+        timeline.insert(t_index,t_object)
+
+        self.settlement["timeline"] = timeline
+        self.save()
+        self.log_event("%s added '%s' to Lantern Year %s" % (e["user_login"], e["name"], e["ly"]))
+
+
+    def rm_timeline_event(self, e={}):
+        """ Removes a timeline event from self.settlement["timeline"]. Expects a
+        dict containing, at a minimum, an ly and a name for the event (so we can
+        use this to remove custom events. """
+
+        timeline = self.settlement["timeline"]
+        t_index, t_object = utils.get_timeline_index_and_object(timeline, e["ly"]);
+
+        timeline.remove(t_object)
+        for i in t_object[e["type"]]:
+            if e["name"] == i["name"]:
+                t_object[e["type"]].remove(i)
+                break
+        timeline.insert(t_index, t_object)
+
+        self.settlement["timeline"] = timeline
+        self.save()
+        self.log_event("%s removed '%s' from Lantern Year %s" % (e["user_login"], e["name"], e["ly"]))
 
 
     def get_settlement_notes(self):
@@ -133,19 +177,81 @@ class Settlement(Models.UserAsset):
         self.logger.debug("[%s] removed a settlement note from %s" % (n["user_login"], self))
 
 
-    def get_defeated_monster_options(self, include_nemeses=False):
-        """ Returns a sorted list of strings (they call it an 'array' in JS,
-        because they fancy) representing the settlement's possible showdowns,
-        given their quarries, nemeses, etc. """
-
-
-        candidate_handles = copy(self.settlement["quarries"])
-        if include_nemeses:
-            candidate_handles.extend(self.settlement["nemesis_monsters"])
+    def get_special_showdowns(self):
+        """ Returns a list of monster handles representing the available special
+        showdown monsters, given campaign and expansion assets. """
 
         output = []
+
+        if "special_showdowns" in self.get_campaign(dict).keys():
+            output.extend(self.get_campaign(dict)["special_showdowns"])
+
+        for expansion in self.get_expansions(dict):
+            self.logger.debug(expansion)
+
+        return list(set(output))
+
+
+    def get_nemesis_options(self):
+        """ Returns a list of available nemesis monster handles. """
+
+        options = self.get_special_showdowns()
+        if "nemesis_monsters" in self.get_campaign(dict):
+            options.extend(self.get_campaign(dict)["nemesis_monsters"])
+        for expansion in self.get_expansions(dict):
+            self.logger.debug(expansion)
+
+        option_set = set(options)
+        for n in self.settlement["nemesis_monsters"]:
+            if n in option_set:
+                option_set.remove(n)
+
+        return list(option_set)
+
+
+    def get_monster_options(self, context=None):
+        """ Returns a sorted list of strings (they call it an 'array' in JS,
+        because they fancy) representing the settlement's possible showdowns,
+        given their quarries, nemeses, etc.
+
+        The idea here is that you specify a 'context' that has to do with user
+        needs, e.g. 'showdown_options' or 'nemesis_options' and then you get
+        back an appropriate list.
+        """
+
+        # use context to get a list of candidate handles
+
+        candidate_handles = []
+        if context == "showdown_options":
+            candidate_handles.extend(self.settlement["quarries"])
+        elif context == "nemesis_encounters":
+            candidate_handles.extend(self.settlement["nemesis_monsters"])
+            candidate_handles.extend(self.get_special_showdowns())
+        elif context == "defeated_monsters":
+            candidate_handles.extend(self.settlement["quarries"])
+            candidate_handles.extend(self.settlement["nemesis_monsters"])
+            candidate_handles.extend(self.get_special_showdowns())
+#        elif context == "special_showdowns":
+        else:
+            self.logger.warn("Unknown 'context' for get_monster_options() method!")
+
+        # now create the output list based on our candidates
+        output = []
+
+        # this context wants handles back
+        if context == "nemesis_encounters":
+            for m in candidate_handles:
+                M = monsters.Monster(m)
+                if not M.is_selectable():
+                    candidate_handles.remove(m)
+
         for m in candidate_handles:
             M = monsters.Monster(m)
+
+            # hack the prologue White Lion in
+            if M.handle == "white_lion":
+                output.append("White Lion (First Story)")
+
             if M.is_unique():
                 output.append(M.name)
             else:
@@ -286,7 +392,7 @@ class Settlement(Models.UserAsset):
         else:
             expansions = []
 
-        if return_type == "dict":
+        if return_type == dict:
             exp_dict = {}
             for exp_name in expansions:
                 E = expansions.Assets()
@@ -309,7 +415,7 @@ class Settlement(Models.UserAsset):
             {
             "settlement_id": self.settlement["_id"]
             }
-        ).sort("created_by",-1)
+        ).sort("created_on",1)
 
         if return_type=="JSON":
             return json.dumps(list(event_log),default=json_util.default)
@@ -347,6 +453,34 @@ class Settlement(Models.UserAsset):
                 return False
 
         return True
+
+
+    #
+    #   update methods here
+    #
+
+    def update_sheet_from_dict(self, d):
+        """ Accepts dict input and uses it to update the settlement sheet. Saves
+        at the end. This is equivalent to the V1 modify() methods, as it only
+        cares about certain keys (and ignores the ones it doesn't care about).
+        """
+        for sheet_k in d.keys():
+
+            new_value = d[sheet_k]
+            if new_value == "None":
+                new_value = None
+
+            if sheet_k == "current_quarry":
+                self.settlement[sheet_k] = new_value
+                self.log_event("Set current quarry to %s" % new_value)
+            else:
+                self.logger.warn("Unhandled update key: '%s' is being ignored!" % (sheet_k))
+
+        # finally, save all changes
+        self.save()
+
+
+
 
 
     #

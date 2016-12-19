@@ -25,6 +25,23 @@ app.factory('assetService', function($http) {
     }
 });
 
+// general-use filters and other AngularJS bric-a-brack
+app.filter('trustedHTML', 
+   function($sce) { 
+      return $sce.trustAsHtml; 
+   }
+);
+app.filter('flatten' , function(){
+  return function(array){
+    return array.reduce(function(flatten, group){
+      group.items.forEach(function(item){
+        flatten.push({ group: group.name , name: item.name})
+      })
+      return flatten;
+    },[]);
+  }
+})
+
 
 app.controller('rootController', function($scope, $rootScope, apiService, $http) {
 
@@ -35,6 +52,53 @@ app.controller('rootController', function($scope, $rootScope, apiService, $http)
         // returns a promise
         return apiService.getSettlement($scope.api_url, api_route, $scope.settlement_id);
     };
+
+    // This is the main event: initialize everything settlement-related that
+    // might be required by any user asset view. This is our de facto rootScope
+    // (even though we don't call it that). 
+    $scope.initialize = function(src_view, u_id, login, api_url, settlement_id) {
+        $scope.api_url = api_url;
+        $scope.settlement_id = settlement_id;
+        $scope.user_id = u_id;
+        $scope.user_login = login;
+        $scope.view = src_view;
+
+        // load the settlement from the API
+        $scope.loadSettlement().then(
+            function(payload) {
+                // get the settlement
+                $scope.settlement = payload.data;
+
+                // create the settlement_sheet in scope (for laziness)
+                $scope.settlement_sheet = $scope.settlement.sheet;
+
+                // create other in-scope stuff off of the sheet:
+                $rootScope.current_ly = $scope.settlement_sheet.lantern_year;
+                $scope.settlement_notes = $scope.settlement_sheet.settlement_notes;
+                $scope.timeline = $scope.settlement_sheet.timeline;
+                $scope.current_quarry = $scope.settlement_sheet.current_quarry;
+                $scope.setEvents();
+
+                // do user stuff
+                $scope.user_is_settlement_admin = $scope.arrayContains(login, $scope.settlement_sheet.admins);
+//                console.log($scope.user_login + " admin = " + $scope.user_is_settlement_admin);
+                console.log("Settlement initialized!")
+            },
+            function(errorPayload) {console.log("Error loading settlement!" + errorPayload);}
+        );
+
+        // now load the event log from the API
+        $scope.loadSettlement('event_log').then(
+            function(payload) {
+                $scope.event_log = payload.data;
+                console.log($scope.event_log.length + " item event_log initialized!")
+            },
+            function(errorPayload) {console.log("Error loading event_log!" + errorPayload);}
+        );
+
+        // finish
+        console.log("appRoot controller (" + $scope.view + ") initialized!");
+    }
 
     $scope.postJSONtoAPI = function(collection, action, json_obj) {
         var url = $scope.api_url + collection + "/" + action + "/" + $scope.settlement_id;
@@ -50,28 +114,31 @@ app.controller('rootController', function($scope, $rootScope, apiService, $http)
     };
 
 
-    $scope.initialize = function(src_view, u_id, login, api_url, settlement_id) {
-        $scope.api_url = api_url;
-        $scope.settlement_id = settlement_id;
-        $scope.user_id = u_id;
-        $scope.user_login = login;
-        $scope.view = src_view;
+    // helper method that sets the scope's story and settlement events
+    $scope.setEvents = function() {
+        var all_events = $scope.settlement.game_assets.events;
 
-        $scope.loadSettlement().then(
-            function(payload) {
-                $scope.settlement = payload.data;
-                $scope.settlement_sheet = $scope.settlement.sheet;
-                $scope.user_is_settlement_admin = $scope.arrayContains(login, $scope.settlement_sheet.admins);
-                console.log($scope.user_login + " admin = " + $scope.user_is_settlement_admin);
-                $scope.settlement_notes = $scope.settlement_sheet.settlement_notes;
-                $rootScope.current_ly = $scope.settlement.sheet.lantern_year;
-                console.log("Settlement initialized!")
-            },
-            function(errorPayload) {console.log("Error loading settlement!" + errorPayload);}
-        );
+        $scope.story_events = new Array();
+        $scope.settlement_events = new Array();
 
-        console.log("appRoot controller (" + $scope.view + ") initialized!");
-    }
+
+        for (var property in all_events) {
+            if (all_events.hasOwnProperty(property)) {
+                var e = all_events[property];
+                if (e.type == 'story_event') {
+                    $scope.story_events.push(e);
+                } else if (e.type == 'settlement_event') {
+                    $scope.settlement_events.push(e)
+                };
+            };
+        };
+
+        $scope.story_events.sort(compare);
+        $scope.settlement_events.sort(compare);
+
+        console.log("Initialized " + $scope.story_events.length + " story events and " + $scope.settlement_events.length + " settlement events!");
+
+    };
 
     // set $scope.survivor to a specific survivor's sheet
     $scope.loadSurvivor = function(s_id) {
@@ -106,7 +173,8 @@ app.controller('rootController', function($scope, $rootScope, apiService, $http)
     };
 
 
-    // helpers and laziness
+    // helpers and laziness - junk drawer functions
+    $scope.isObject = function(a) {return typeof a === 'object';};
     $scope.showHide = function(e_id) {
         var e = document.getElementById(e_id);
         var hide_class = "hidden";
@@ -124,16 +192,10 @@ app.controller('rootController', function($scope, $rootScope, apiService, $http)
     };
 
     $scope.arrayContains = function(needle, arrhaystack) {
-        if (arrhaystack.indexOf(needle) > -1) {return true; console.log("TRUE"+needle)} else {return false};
+        if (arrhaystack.indexOf(needle) > -1) {return true; } else {return false};
     };
 
 });
-
-app.filter('trustedHTML', 
-   function($sce) { 
-      return $sce.trustAsHtml; 
-   }
-);
 
 
 //  common and shared angularjs controllers. These controllers are used by
@@ -163,7 +225,7 @@ app.controller('settlementNotesController', function($scope) {
             "author_id": $scope.user_id,
             "note": $scope.newNote,
             "js_id": $scope.getID(),
-            "lantern_year": $scope.current_ly,
+            "lantern_year": $rootScope.current_ly,
         };
         $scope.settlement_notes.unshift(new_note_object);
         $scope.postJSONtoAPI('settlement', 'add_note', new_note_object);
@@ -197,51 +259,6 @@ app.controller('newSettlementController', function($scope, assetService) {
 });
 
 app.controller('timelineController', function($scope, $rootScope) {
-    
-    $scope.setEvents = function() {
-        var all_events = $scope.settlement.game_assets.events;
-
-        $scope.story_events = new Array();
-        $scope.settlement_events = new Array();
-
-
-        for (var property in all_events) {
-            if (all_events.hasOwnProperty(property)) {
-                var e = all_events[property];
-                if (e.type == 'story_event') {
-                    $scope.story_events.push(e);
-                } else if (e.type == 'settlement_event') {
-                    $scope.settlement_events.push(e)
-                };
-            };
-        };
-
-        $scope.story_events.sort(compare);
-
-        console.log("Initialized " + $scope.story_events.length + " story events and " + $scope.settlement_events.length + " settlement events!");
-
-    };
-
-    $scope.loadTimeline = function() {
-        $scope.loadSettlement().then(
-            function(payload) {
-                $scope.settlement = payload.data;
-                $scope.timeline = payload.data.sheet.timeline;
-                $scope.setEvents();
-                console.log("timeline initialized!")
-            },
-            function(errorPayload) {console.log("Error loading timeline!" + errorPayload);}
-        );
-        $scope.loadSettlement('event_log').then(
-            function(payload) {
-                $scope.event_log = payload.data;
-                console.log($scope.event_log.length + " item event_log initialized!")
-            },
-            function(errorPayload) {console.log("Error loading event_log!" + errorPayload);}
-        );
-
-    };
-
 
     // limits $scope.event_log to only lines from target_ly
     $scope.get_event_log = function(t) {
@@ -283,7 +300,7 @@ app.controller('timelineController', function($scope, $rootScope) {
 
     $scope.setLY = function(ly) {
         console.log("setting LY to " + ly);
-        $rootScope.current_ly = ly;
+        $rootScope.current_ly = Number(ly);
         modifyAsset('settlement', $scope.settlement_id, "lantern_year=" + $rootScope.current_ly)
     };
 
@@ -295,25 +312,49 @@ app.controller('timelineController', function($scope, $rootScope) {
         }
     };
 
-
-    $scope.addEvent = function(ly,event_handle) {
-        var new_event = $scope.settlement.game_assets.events[event_handle];
+    $scope.rmEvent = function(ly,event_obj) {
+        event_obj.user_login = $scope.user_login;
+        event_obj.ly = ly;
         var target_ly = $scope.getLYObject(ly);
-        if (!(new_event.type in target_ly)) {
-            target_ly[new_event.type] = new Array();
+        var target_event_index = target_ly[event_obj.type].indexOf(event_obj);
+        target_ly[event_obj.type].splice(target_event_index,1);
+        $scope.postJSONtoAPI('settlement', 'rm_timeline_event', event_obj);
+    };
+
+    // in which we turn form input into a juicy hunk of API-safe JSON
+    $rootScope.addEvent = function(ly,event_type,event_handle) {
+
+        var event_obj = new Object();
+
+        // use the event_type, if possible, to get the event dict from
+        // active $scope. Works for story/settlement events
+        if (event_type == 'story_event' || event_type == 'settlement_event') {
+            event_obj = ($scope.settlement.game_assets.events[event_handle]);
+        } else if (event_type == 'showdown_event' || event_type == 'nemesis_encounter') {
+            event_obj.type = event_type;
+            event_obj.name = event_handle; // when is a handle not a handle?
+            // do stuff
+        } else {console.log("ERROR! Unknown event type: " + event_type)};
+
+
+        event_obj.user_login = $scope.user_login;
+        event_obj.ly = ly;
+        var target_ly = $scope.getLYObject(ly);
+
+        if (!(event_obj.type in target_ly)) {
+            target_ly[event_obj.type] = new Array();
         };
 
-        for (i = 0; i < target_ly[new_event.type].length; i++) {
-            if (target_ly[new_event.type][i] === new_event) {
+        for (i = 0; i < target_ly[event_obj.type].length; i++) {
+            if (target_ly[event_obj.type][i] === event_obj) {
                 console.log("Duplicate item. Returning true...");
                 return true;
             }
         }
 
         // if we're still here after that iteration above, add the event
-        target_ly[new_event.type].push(new_event);
-        var params = "update_timeline=add&timeline_update_ly=" + ly + "&timeline_update_event_handle=" + new_event.handle;
-        modifyAsset('settlement',$scope.settlement_id,params)
+        target_ly[event_obj.type].push(event_obj);
+        $scope.postJSONtoAPI('settlement', 'add_timeline_event', event_obj);
 
     };
 
