@@ -86,45 +86,13 @@ milestones = {
 }
 
 
-# create generic principle definitions here, just like milestones above
-principles = {
-    "new_life": {
-        "sort_order": 0,
-        "milestone": "First child is born",
-        "show_controls": ['"First child is born" in self.settlement["milestone_story_events"]'],
-        "options": ["Protect the Young","Survival of the Fittest"],
-    },
-    "death": {
-        "sort_order": 1,
-        "milestone": "First time death count is updated",
-        "show_controls": ['int(self.settlement["death_count"]) >= 1'],
-        "options": ["Cannibalize","Graves"]
-    },
-    "society": {
-        "sort_order": 2,
-        "milestone": "Population reaches 15",
-        "options": ["Collective Toil","Accept Darkness"],
-        "show_controls": ['int(self.settlement["population"]) >= 15'],
-    },
-    "conviction": {
-        "sort_order": 3,
-        "options": ["Barbaric","Romantic"],
-        "show_controls": ['int(self.settlement["lantern_year"]) >= 12'],
-    },
-}
-
 
 campaign_definitions = {
     "people_of_the_lantern": {
         "default": True,
         "name": "People of the Lantern",
         "always_available": ["Lantern Hoard", "Language"],
-        "principles": {
-            "New Life": principles["new_life"],
-            "Death": principles["death"],
-            "Society": principles["society"],
-            "Conviction": principles["conviction"],
-        },
+        "principles": ["new_life","death","society","conviction"],
         "milestones": {
             "First child is born": milestones["first_child"],
             "First time death count is updated": milestones["first_death"],
@@ -154,12 +122,7 @@ campaign_definitions = {
         "endeavors": {
             "Skull Ritual": {"cost": 1, "desc": "Costs one Skull resource. Nominate up to four survivors to consume the skull. They gain a permanent +1 to all their attributes."},
         },
-        "principles": {
-            "New Life": principles["new_life"],
-            "Death": principles["death"],
-            "Society": principles["society"],
-            "Conviction": principles["conviction"],
-        },
+        "principles": ["new_life","death","society","conviction"],
         "milestones": {
             "First child is born": milestones["first_child"],
             "First time death count is updated": milestones["first_death"],
@@ -182,12 +145,7 @@ campaign_definitions = {
             "Settlement has 5 innovations": milestones["innovations_5"],
             "Population reaches 0": milestones["game_over"],
         },
-        "principles": {
-            "New Life": principles["new_life"],
-            "Death": principles["death"],
-            "Society": principles["society"],
-            "Conviction": principles["conviction"],
-        },
+        "principles": ["new_life","death","society","conviction"],
         "endeavors": {
             "Forest Run": {"cost": 1, "desc": "You may exchange any number of monster resources for that number of random Flower resources."},
         },
@@ -199,20 +157,10 @@ campaign_definitions = {
     },
 
     "people_of_the_sun": {
-    "name": "People of the Sun",
+        "name": "People of the Sun",
         "expansions": ["Sunstalker"],
         "forbidden": ["Leader", "Lantern Hoard"],
-        "principles": {
-            # custom new life principle
-            "New Life": {
-                "sort_order": 0,
-                "show_controls": ["True"],
-                "options": ["Survival of the Fittest"]
-            },
-            "Death": principles["death"],
-            "Society": principles["society"],
-            "Conviction": principles["conviction"],
-        },
+        "principles": ["potsun_new_life","death","society","conviction"],
         "milestones": {
             "First time death count is updated": milestones["first_death"],
             "Population reaches 15": milestones["pop_15"],
@@ -220,7 +168,6 @@ campaign_definitions = {
             "Population reaches 0": milestones["game_over"],
             "Not Victorious against Nemesis": {"sort_order": 4, "story_event": "Game Over"},
         },
-        "nemesis_monsters": {"Butcher": [u'Lvl 1'], },
         "timeline": [
             {"year": 0, "settlement_event": ["First Day"]},
             {"year": 1, "story_event": ["The Pool and the Sun"]},
@@ -268,19 +215,15 @@ campaign_definitions = {
         "special_rules": [
             {"name": "Removed Story Events", "desc": "If an event or card would cause you to add/trigger <b>Hands of Heat</b>, <b>Regal Visit</b>, <b>Armored Strangers</b>, <b>Watched</b>, or <b>Nemesis Encounter - Watcher</b>, do nothing instead.", "bg_color": "673AB7", "font_color": "FFF"},
         ],
-        "principles": {
-            "New Life": principles["new_life"],
-            "Death": principles["death"],
-            "Society": principles["society"],
-            "Conviction": principles["conviction"],
-        },
+        "principles": ["potsun_new_life","death","society","conviction"],
         "milestones": {
             "First child is born": milestones["first_child"],
             "First time death count is updated": milestones["first_death"],
             "Population reaches 15": milestones["pop_15"],
             "Population reaches 0": milestones["game_over"],
         },
-        "nemesis_monsters": {"Butcher": [u'Lvl 1'], "King's Man": [u'Lvl 1'], "The Hand": [u'Lvl 1'],},
+        "nemesis_monsters": ["butcher","kings_man","the_hand"],
+        "nemesis_encounters": [{"butcher":["Lvl 1"], "kings_man":["Lvl 1"], "the_hand":["Lvl 1"]}],
         "timeline": [
             {"year": 0, "settlement_event": ["First Day"]},
             {"year": 1, "story_event": ["The Foundlings"]},

@@ -13,9 +13,9 @@ class Assets(Models.AssetCollection):
         self.assets = innovations.innovations
         for a in self.assets.keys():
             if "principle" in self.assets[a].keys():
-                self.assets[a]["__type__"] = "principle"
+                self.assets[a]["type"] = "principle"
             else:
-                self.assets[a]["__type__"] = "innovation"
+                self.assets[a]["type"] = "innovation"
 
 
     def get_principles(self):

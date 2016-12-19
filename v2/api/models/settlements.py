@@ -2,11 +2,12 @@
 
 from bson import json_util
 from bson.objectid import ObjectId
+from copy import copy
 from datetime import datetime, timedelta
 import json
 
 import Models
-from models import campaigns, cursed_items, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments
+from models import campaigns, cursed_items, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters
 import settings
 import utils
 
@@ -17,7 +18,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.11
+        self.object_version=0.13
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize_data()
 
@@ -27,18 +28,36 @@ class Settlement(Models.UserAsset):
 
         perform_save = False
 
+        #
+        #   timeline migrations
+        #
         if not "timeline_version" in self.settlement.keys():
             self.convert_timeline_to_JSON()
             perform_save = True
 
+        if self.settlement["timeline_version"] < 1.1:
+            self.convert_timeline_quarry_events()
+            perform_save = True
+
+        #
+        #   misc migrations
+        #
+        if not "monsters_version" in self.settlement.keys():
+            self.convert_monsters_to_handles()
+            perform_save = True
+
+        #
+        #   misc migrations/operations
+        #
         if not "admins" in self.settlement.keys():
             self.logger.info("Creating 'admins' key for %s" % (self))
             creator = utils.mdb.users.find_one({"_id": self.settlement["created_by"]})
             self.settlement["admins"] = [creator["login"]]
             perform_save = True
 
+
+        # finish
         if perform_save:
-            self.logger.info("Normalized %s" % self)
             self.save()
 
 
@@ -62,6 +81,7 @@ class Settlement(Models.UserAsset):
 
         # great game_assets
         output.update({"game_assets": {}})
+        output["game_assets"].update(self.get_available_assets(innovations))
         output["game_assets"].update(self.get_available_assets(abilities_and_impairments))
         output["game_assets"].update(self.get_available_assets(weapon_specializations))
         output["game_assets"].update(self.get_available_assets(weapon_masteries))
@@ -69,9 +89,10 @@ class Settlement(Models.UserAsset):
         output["game_assets"].update(self.get_available_assets(causes_of_death))
         output["game_assets"].update(self.get_available_assets(survival_actions))
         output["game_assets"].update(self.get_available_assets(events))
+        output["game_assets"].update(self.get_available_assets(monsters))
+        output["game_assets"]["showdown_options"] = self.get_defeated_monster_options()
         output["game_assets"]["eligible_parents"] = self.eligible_parents
         output["game_assets"]["campaign"] = self.get_campaign(dict)
-        output["game_assets"]["principles"] = self.get_campaign(dict)["principles"]
         output["game_assets"]["survival_actions_available"] = self.get_available_survival_actions()
 
         return json.dumps(output, default=json_util.default)
@@ -110,6 +131,30 @@ class Settlement(Models.UserAsset):
 
         utils.mdb.settlement_notes.remove({"settlement": self.settlement["_id"], "js_id": n["js_id"]})
         self.logger.debug("[%s] removed a settlement note from %s" % (n["user_login"], self))
+
+
+    def get_defeated_monster_options(self, include_nemeses=False):
+        """ Returns a sorted list of strings (they call it an 'array' in JS,
+        because they fancy) representing the settlement's possible showdowns,
+        given their quarries, nemeses, etc. """
+
+
+        candidate_handles = copy(self.settlement["quarries"])
+        if include_nemeses:
+            candidate_handles.extend(self.settlement["nemesis_monsters"])
+
+        output = []
+        for m in candidate_handles:
+            M = monsters.Monster(m)
+            if M.is_unique():
+                output.append(M.name)
+            else:
+                for l in range(M.get_levels()):
+                    lvl = l+1
+                    output.append("%s Lvl %s" % (M.name,lvl))
+
+
+        return sorted(output)
 
 
     def get_innovations(self, return_type=None):
@@ -304,6 +349,33 @@ class Settlement(Models.UserAsset):
         return True
 
 
+    #
+    #   conversion and migration functions
+    #
+
+    def convert_monsters_to_handles(self):
+        """ Takes a legacy settlement object and swaps out its monster name
+        lists for monster handles. """
+
+        # create the v1.0 'nemesis_encounters' list and transcribe nemesis info
+        self.settlement["nemesis_encounters"] = []
+        for n in self.settlement["nemesis_monsters"]:
+            M = monsters.Monster(name=n)
+            self.settlement["nemesis_encounters"].append({M.handle: self.settlement["nemesis_monsters"][n]})
+
+        for list_key in ["quarries","nemesis_monsters"]:
+            new_list = []
+            old_list = self.settlement[list_key]
+            for m in old_list:
+                M = monsters.Monster(name=m)
+                new_list.append(M.handle)
+
+            self.settlement[list_key] = new_list
+
+        self.settlement["monsters_version"] = 1.0
+        self.logger.debug("Migrated %s monster lists from legacy data model to 1.0." % self)
+
+
     def convert_timeline_to_JSON(self):
         """ Converts our old, pseudo-JSON timeline to the standard JSON one. """
 
@@ -328,8 +400,27 @@ class Settlement(Models.UserAsset):
                     new_ly[k] = old_ly[k]
             new_timeline.append(new_ly)
 
-        self.logger.warn("Converted timeline for %s to version 1.0" % self)
-        self.settlement["timeline_version"] = 1.0
         self.settlement["timeline"] = new_timeline
+        self.settlement["timeline_version"] = 1.0
+        self.logger.warn("Migrated %s timeline from legacy data model to version 1.0" % self)
+
+
+    def convert_timeline_quarry_events(self):
+        """ Takes a 1.0 timeline and converts its "quarry_events" to
+        "showdown_events", making it 1.1. """
+
+        new_timeline = []
+        for y in self.settlement["timeline"]:
+            for event_key in y.keys():
+                if event_key == "quarry_event":
+                    y["showdown_event"] = y[event_key]
+                    del y[event_key]
+            new_timeline.append(y)
+
+        self.settlement["timeline"] = new_timeline
+        self.settlement["timeline_version"] = 1.1
+        self.logger.debug("Migrated %s timeline to version 1.1" % (self))
+
+
 
 

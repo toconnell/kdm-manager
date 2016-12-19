@@ -98,6 +98,7 @@ nemeses = {
         "name": "Manhunter",
         "sort_order": 103,
         "selectable": False,
+        "levels": 4,
         "misspellings": ["THE MANHUNTER", "MAN HUNTER"],
     },
     "kings_man": {

@@ -54,7 +54,7 @@ span.settlement_sheet_gradient {border-bottom: 3px solid #FFE082;}
 
 
     /* box toggling with html entities! */
-input.kd_css_checkbox + label:before {font-size: 80px; padding: 0; margin:0;}
+input.kd_css_checkbox + label:before, span.kd_checkbox_checked {font-size: 80px; padding: 0; margin:0;}
 
 input.kd_css_checkbox + label {padding-bottom: 1%; vertical-align: top; display: flex; flex-direction: row; align-items: center; justify-content: space-around; }
 input.kd_css_checkbox + label:before {content:"\025FB"; }
@@ -63,6 +63,7 @@ input.kd_css_checkbox:checked + label:before {content:"\025FC"; }
 
 input.kd_radio_option + label {display: block; }
 
+span.kd_checkbox_checked:before {content:"\025FC"; }
 
 input[type=checkbox].kd_toggle_box:checked + label {color: #000; }
 label.kd_toggle_box_caption {display: inline; line-height: 1.5em;}
@@ -288,12 +289,12 @@ div.settlement_notes_note_container {margin: 0; height: 80%; width: 100%; overfl
 
 div.settlement_note {border-radius: 20px; border: 1px solid #333; background-color: #fff; margin: 1%; width: 98%; position: relative; min-height: 75px;}
 
-div.note_flair {width: 7%; font-size: 50px; background-color: #5C4649; border-top-left-radius: 20px; border-bottom-left-radius: 20px; display: inline-flex; text-align: center; position: absolute; top: 0; bottom:0; justify-content: center; align-items: center; margin: 0; padding: 1%; }
+div.note_flair {width: 7%; font-size: 50px; background-color: #5C4649; border-top-left-radius: 19px; border-bottom-left-radius: 19px; display: inline-flex; text-align: center; position: absolute; top: 0; bottom:0; justify-content: center; align-items: center; margin: 0; padding: 1%; }
 span.flair_text {color: #fff; padding: 1%; }
 
 div.note_content {margin-left: 11%; display: inline-block; font-family: Arial, sans-serif; margin-right:7%; font-size: 40px; width: 80%;  margin-top: 1%; }
 div.note_content span.author {color: #999; font-size: 30px; }
-span.note_remove {padding: 2%; position: absolute; top: 0; bottom: 0; display: inline-flex; justify-content: center; align-items: center; right: 0; margin-right: -2px; border-top-left-radius: 0; border-bottom-left-radius: 0;}
+span.note_remove {padding: 2%; position: absolute; top: 0; bottom: 0; display: inline-flex; justify-content: center; align-items: center; right: 0; margin-right: 0; border-radius: 19px; border-top-left-radius: 0; border-bottom-left-radius: 0;}
 
 div.settlement_notes_controls {margin: 0; width: 100%; height: auto; padding-bottom: 0; margin-bottom: 4%; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: flex-end; align-items: center;  }
 
@@ -934,9 +935,9 @@ input.survivor_search {z-index: 1200; position: fixed; top: 1.5%; left: 20%; bot
 div.survivor_search_modal_container {z-index: 1199;}
 div.survivor_search_modal_content {position: absolute; top: 0; left: 5%; right: 5%; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; border: 0.1em solid #777; border-top: 0; }
 div.survivor_search_results_buttons {margin-top: 18%; display: flex; flex-direction: column; }
-div.survivor_search_results_buttons p.survivor_name {font-size: 55px; padding:0; text-align: left; margin: auto; padding-left: 2%; }
-div.survivor_search_results_buttons div.survivor_assets {padding-left: 1%; width: auto; margin: auto; text-align: left; font-family: Arial, sans-serif; font-size: 37px; }
-div.survivor_search_results_buttons div.survivor_assets b {font-family: Silverado; font-size: 1.1em; }
+div.survivor_search_results_buttons p.survivor_name {font-size: 40px; padding:0; text-align: left; margin: auto; padding-left: 2%; }
+div.survivor_search_results_buttons div.survivor_assets {padding-left: 1%; width: auto; margin: auto; text-align: left; font-family: Arial, sans-serif; font-size: 35px; }
+div.survivor_search_results_buttons div.survivor_assets b {font-family: Silverado; }
 button.survivor_search_button {margin-top: 0; }
 
 
@@ -1165,6 +1166,22 @@ button.survivor_search_button {margin-top: 0; }
     div.modal_affinity_control_unit {display: flex; align-content: center; }
     div.affinity_block {width: 90px; height: 90px; margin: auto; }
 
+
+    div.full_size_modal_panel {}
+    div.full_size_modal_panel span.closeModal {top: -10px; }
+
+
+        /* campaign notes - tablet */
+    input.add_settlement_note {font-size: 30px; height: auto; padding: 1%; }    
+    button.add_settlement_note {font-size: 40px; padding: 3px; padding-left: 3%; padding-right: 3%;  }
+    div.settlement_note {height: auto; min-height: 50px; }
+    span.flair_text {font-size: 30px; }
+    div.note_flair {width: 5%; }
+    span.flair_text {margin: 0; display: block; }
+    div.note_content {font-size: 20px; margin: 1%; margin-left: 10%; margin-right: 7%; vertical-align:top;}
+    div.note_content span.author {font-size: 16px; }
+
+
     div#survivor_dead_retired_container {width: 370px; padding-top: 10px; padding-bottom: 30px; margin-bottom: 20px; clear:both; }
     div#survivor_dead_retired_container label {font-size: 20pt; background-color: #fefedd; padding: 5px; }
     label#survivor_sheet_avatar {margin: 0 auto; margin-bottom: 30px; margin-right: -45px; position: relative; }
@@ -1202,9 +1219,9 @@ button.survivor_search_button {margin-top: 0; }
     div.survivor_search_modal_content {left: 16%; right: 16%; padding-top: 8%;}
     div.survivor_search_results_buttons {margin: 0 auto; }
     div.survivor_search_results_buttons button {margin-top: 3px; }
-    div.survivor_search_results_buttons p.survivor_name {font-size: 2em; }
+    div.survivor_search_results_buttons p.survivor_name {font-size: 35px; }
     div.survivor_search_results_buttons div.survivor_assets {font-size: 26px; }
-    div.survivor_search_results_buttons div.survivor_assets b {font-family: Silverado; font-size: 1.1em; }
+    div.survivor_search_results_buttons div.survivor_assets b {font-family: Silverado; font-size: 25px; }
 
     b.campaign_summary_survivor_name {font-size: 35px;}
 
@@ -1384,7 +1401,7 @@ button.survivor_search_button {margin-top: 0; }
     img.latest_fatality {width: 100px; clear: right; margin-left: 100px; }
 
     /* modal overlay - wide */
-    .closeModal {top: -20px; }
+    .closeModal {top: -10px; font-size: 60px; right: 10px; }
     .modal-content {width: 60%; font-size: 12pt; text-align: center; padding-bottom: 3%;}
     .modal-content h3 {margin-bottom: 3%; font-size: 25px;}
     .modal-content hr {margin-top: 2%; margin-bottom: 2%;}
@@ -1483,20 +1500,30 @@ button.survivor_search_button {margin-top: 0; }
 
     /* wide campaign summary styles */
 
-        /* survivor search */
+        /* campaign notes - wide */
+    div.settlement_notes_controls {margin-top: 10px; margin-bottom: 10px; }
+    input.add_settlement_note {font-size: 13pt; padding: 5px }    
+    button.add_settlement_note {font-size: 20px; padding-top: 5px; padding-bottom: 5px; }
+    div.settlement_note {height: auto; min-height: 30px; font-size: 12pt;}
+    span.flair_text {font-size: 14pt; }
+    div.note_flair {width: 3%; }
+    div.note_content {font-size: 12pt; margin-left: 7%; }
+    div.note_content span.author {font-size: 9pt; }
+
+        /* survivor search -wide */
     input.survivor_search {left: 23.5%; padding: 0; }
     div.survivor_search_modal_content {left: 16%; right: 16%; padding-top: 5%;}
     div.survivor_search_modal_content button.close_modal {margin: 0 auto; width: 90%; margin-left: 5%; margin-bottom: 3%; }
     div.survivor_search_results_buttons {display: flex; flex-direction: column; justify-content: center; align-content: center;  }
     div.survivor_search_results_buttons form {text-align: center; }
     div.survivor_search_results_buttons button { margin: auto; width: 550px; }
-    div.survivor_search_results_buttons p.survivor_name {font-size: 2em; font-weight: bold; }
+    div.survivor_search_results_buttons p.survivor_name {font-size: 15pt; font-weight: bold; }
     div.survivor_search_results_buttons div.survivor_assets {font-size: 12pt; }
     div.survivor_search_results_buttons div.survivor_assets b {font-family: Silverado; font-size: 1.1em; }
 
     b.campaign_summary_survivor_name {font-size: 27px;}
 
-        /* endeavors app */
+        /* endeavors app - wide */
     div.campaign_summary_endeavor_cap {font-size: 14pt; text-align: center; border-width: 2px; border-radius: 0; margin-top: 10px; }
     div.campaign_summary_endeavor_controller {border-width: 2px; margin-bottom: 10px; border-radius: 0; }
     div.campaign_summary_endeavor_controller div.tokens {font-size: 63px; text-align: center; }

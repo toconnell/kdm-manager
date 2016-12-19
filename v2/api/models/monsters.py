@@ -36,11 +36,28 @@ class Monster(Models.GameAsset):
         """ Enforce our data model after initialization. """
 
         # unique monsters can't have levels, so strip them
-        if hasattr(self, "__unique__"):
+        if hasattr(self, "unique"):
             try:
                 del self.level
             except:
                 pass
+
+
+    def is_unique(self):
+        """ Returns a bool representing whether the monst is unique. """
+        if hasattr(self, "unique"):
+            return True
+        return False
+
+
+    def get_levels(self):
+        """ Returns an int representing how many levels the monster has. """
+        if self.is_unique():
+            return 0
+        elif hasattr(self,"levels"):
+            return int(self.levels)
+        else:
+            return 3
 
 
     def initialize_from_name(self):

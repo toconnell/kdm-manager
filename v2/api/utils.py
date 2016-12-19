@@ -147,14 +147,15 @@ class AssetDict(dict):
         self.update(d)
         self.add_vars_to_dict()
 
+
     def add_vars_to_dict(self):
-        """ Adds the arbitrary attribs of the dictionary to each asset in the dict
-        as an __whatever__ value. """
+        """ Adds the arbitrary attribs of the dictionary to each asset in the
+        dict. """
 
         for d in self.keys():
             self[d]["handle"] = d
             for k, v in self.meta_attribs.iteritems():
-                key = "__%s__" % k
+                key = "%s" % k
                 self[d][key] = v
 
 

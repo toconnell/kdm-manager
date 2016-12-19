@@ -3746,13 +3746,13 @@ class Settlement:
         saving them and exclude any non str/unicode objects that might have
         snuck in while iterating over the cgi.FieldStorage(). """
 
-        set_attribs = ["milestone_story_events", "innovations", "locations", "principles", "quarries"]
-        for a in set_attribs:
-            self.settlement[a] = list(set([i.strip() for i in self.settlement[a] if type(i) in (str, unicode)]))
+#        set_attribs = ["milestone_story_events", "innovations", "locations", "principles", "quarries"]
+#        for a in set_attribs:
+#            self.settlement[a] = list(set([i.strip() for i in self.settlement[a] if type(i) in (str, unicode)]))
 
-        uniq_attribs = ["locations","quarries"]
-        for a in uniq_attribs:
-            self.settlement[a] = [i.title().strip() for i in self.settlement[a]]
+#        uniq_attribs = ["locations","quarries"]
+#        for a in uniq_attribs:
+#            self.settlement[a] = [i.title().strip() for i in self.settlement[a]]
 
         # 2016-12 timelines with None type events
         for ly in self.settlement["timeline"]:
@@ -6007,7 +6007,6 @@ class Settlement:
             survivor_bonuses = self.get_bonuses('survivor_buff', return_type="html", update_mins=False),
             defeated_monsters = self.get_game_asset("defeated_monsters", return_type="user_defined", update_mins=False),
             quarries = self.get_game_asset("quarries", return_type="user_defined", update_mins=False),
-            nemesis_monsters = self.get_game_asset("nemesis_monsters", return_type="user_defined", update_mins=False),
             survivors = self.get_survivors(return_type="html_campaign_summary", user_id=user_id),
             special_rules = self.get_special_rules("html_campaign_summary"),
 
@@ -6066,11 +6065,9 @@ class Settlement:
             principles = self.get_principles("json"),
             principles_rm = self.get_principles("html_select_remove"),
 
-            lantern_year = self.settlement["lantern_year"],
 
             milestone_controls = self.get_milestones("html_controls"),
 
-            nemesis_monsters = self.get_nemeses("html_buttons"),
             nemesis_options = Nemeses.render_as_html_dropdown(exclude=self.settlement["nemesis_monsters"].keys(), Settlement=self),
 
             quarry_options = Quarries.render_as_html_dropdown(exclude=self.settlement["quarries"], Settlement=self),

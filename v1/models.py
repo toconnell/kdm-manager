@@ -506,8 +506,8 @@ class defeatedMonstersModel(Model):
 
         deck = base_options
         deck.append("White Lion (First Story)")
-        deck.extend(settlement.get_quarries("list_of_options"))
-        deck.extend(settlement.get_nemeses("list_of_options"))
+#        deck.extend(settlement.get_quarries("list_of_options"))
+#        deck.extend(settlement.get_nemeses("list_of_options"))
 
         return deck
 

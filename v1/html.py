@@ -684,7 +684,7 @@ class angularJS:
                                 &nbsp;(p.{{e.page}})
                             </span>
                         </span>
-                        <span class="timeline_event" ng-repeat="q in t.quarry_event">
+                        <span class="timeline_event" ng-repeat="q in t.showdown_event">
                             <font class="kdm_font">f &nbsp;</font>
                             {{q.name}}
                         </span>
@@ -2477,10 +2477,17 @@ class settlement:
                 <h4>- Monsters -</h4>
                 <h3 class="monster_subhead"> Defeated </h3>
                 $defeated_monsters
+
                 <h3 class="monster_subhead">Quarries </h3>
-                $quarries
+                <span class="kd_checkbox_checked" ng-repeat="n in settlement_sheet.quarries">
+                    {{ settlement.game_assets.monsters[n].name }}
+                </span>
+
                 <h3 class="monster_subhead">Nemeses</h3>
-                $nemesis_monsters
+                <span class="kd_checkbox_checked" ng-repeat="n in settlement_sheet.nemesis_monsters">
+                    {{ settlement.game_assets.monsters[n].name }}
+                </span>
+
             </div>
         </div> <!-- campaign_summary_facts_box -->
 
