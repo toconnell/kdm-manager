@@ -43,6 +43,14 @@ class Monster(Models.GameAsset):
                 pass
 
 
+    def is_final_boss(self):
+        """ Returns a bool representing whether the monst is a final boss.
+        Monsters are not final bosses by default. """
+        if hasattr(self, "final_boss"):
+            return self.final_boss
+        return False
+
+
     def is_unique(self):
         """ Returns a bool representing whether the monst is unique. Monsters
         are non-unique by default. """

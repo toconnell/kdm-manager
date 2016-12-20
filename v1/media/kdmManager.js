@@ -330,7 +330,11 @@ app.controller('timelineController', function($scope, $rootScope) {
         // active $scope. Works for story/settlement events
         if (event_type == 'story_event' || event_type == 'settlement_event') {
             event_obj = ($scope.settlement.game_assets.events[event_handle]);
-        } else if (event_type == 'showdown_event' || event_type == 'nemesis_encounter') {
+        } else if (
+            event_type == 'showdown_event' ||
+            event_type == 'nemesis_encounter' ||
+            event_type == 'special_showdown'
+            ) {
             event_obj.type = event_type;
             event_obj.name = event_handle; // when is a handle not a handle?
             // do stuff

@@ -13,6 +13,13 @@ import utils
 #       classes live here as well.
 #
 
+class AssetMigrationError(Exception):
+    """ Handler for asset migration/conversion errors. """
+
+    def __init__(self, message="An error occurred while migrating this asset!"):
+        self.logger = utils.get_logger()
+        self.logger.exception(message)
+        Exception.__init__(self, message)
 
 class AssetInitError(Exception):
     """ Handler for asset-based errors. """
@@ -188,6 +195,7 @@ class GameAsset():
             return None
 
 
+
 class UserAsset():
     """ The base class for initializing individual user assets, such as
     survivors, sessions, settlements, etc. """
@@ -271,6 +279,20 @@ class UserAsset():
         self.logger.debug("%s event: %s" % (self, msg))
 
 
+    def http_response(self):
+        """ Generates an HTTP request response: tries to serialize the object instance but,
+        if it can't, returns a 500 or 404 as appropriate. """
+
+        if self.loaded:
+            return Response(response=self.serialize(), status=200, mimetype="application/json")
+        else:
+            return utils.http_404
+
+
+    #
+    #   get/set methods for User Assets below here
+    #
+
     def get_serialize_meta(self):
         """ Sets the 'meta' dictionary for the object when it is serialized. """
 
@@ -285,11 +307,8 @@ class UserAsset():
         return output
 
 
-    def http_response(self):
-        """ Generates an HTTP request response: tries to serialize the object instance but,
-        if it can't, returns a 500 or 404 as appropriate. """
+    def get_current_ly(self):
+        """ Convenience/legibility function to help code readbility and reduce
+        typos, etc. """
 
-        if self.loaded:
-            return Response(response=self.serialize(), status=200, mimetype="application/json")
-        else:
-            return utils.http_404
+        return int(self.settlement["lantern_year"])

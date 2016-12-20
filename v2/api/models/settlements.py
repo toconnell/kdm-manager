@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import json
 
 import Models
-from models import campaigns, cursed_items, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters
+from models import campaigns, cursed_items, expansions, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters
 import settings
 import utils
 
@@ -18,7 +18,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.13
+        self.object_version=0.16
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize_data()
 
@@ -46,6 +46,10 @@ class Settlement(Models.UserAsset):
             self.convert_monsters_to_handles()
             perform_save = True
 
+        if not "expansions_version" in self.settlement.keys():
+            self.convert_expansions_to_handles()
+            perform_save = True
+
         #
         #   misc migrations/operations
         #
@@ -54,7 +58,10 @@ class Settlement(Models.UserAsset):
             creator = utils.mdb.users.find_one({"_id": self.settlement["created_by"]})
             self.settlement["admins"] = [creator["login"]]
             perform_save = True
-
+        if not "expansions" in self.settlement.keys():
+            self.logger.info("Creating 'expansions' key for %s" % (self))
+            self.settlement["expansions"] = []
+            perform_save
 
         # finish
         if perform_save:
@@ -90,16 +97,50 @@ class Settlement(Models.UserAsset):
         output["game_assets"].update(self.get_available_assets(survival_actions))
         output["game_assets"].update(self.get_available_assets(events))
         output["game_assets"].update(self.get_available_assets(monsters))
+
         output["game_assets"]["nemesis_options"] = self.get_nemesis_options()
         output["game_assets"]["eligible_parents"] = self.eligible_parents
+
         output["game_assets"]["campaign"] = self.get_campaign(dict)
+        output["game_assets"]["expansions"] = self.get_expansions(dict)
+
         output["game_assets"]["survival_actions_available"] = self.get_available_survival_actions()
 
-        for monster_context in ["showdown_options","nemesis_encounters","defeated_monsters"]:
+        for monster_context in ["showdown_options","special_showdown_options","nemesis_encounters","defeated_monsters"]:
             output["game_assets"][monster_context] = self.get_monster_options(monster_context)
 
         # finally, return a JSON string of our object
         return json.dumps(output, default=json_util.default)
+
+
+    def add_expansions(self, e_list=[]):
+        """ Takes a list of expansion handles and then adds them to the
+        settlement, applying Timeline updates, etc. as required by the expansion
+        asset definitions. """
+
+        E = expansions.Assets()
+
+        # prune the list to reduce risk of downstream cock-ups
+        for e_handle in e_list:
+            if e_handle not in E.get_handles():
+                e_list.remove(e_handle)
+                self.logger.warn("Unknown expansion handle '%s' is being ignored!" % (e_handle))
+            if e_handle in self.settlement["expansions"]:
+                e_list.remove(e_handle)
+                self.logger.warn("Expansion handle '%s' is already in %s" % (e_handle, self))
+
+        #
+        #   here is where we process the expansion dictionary
+        #
+        for e_handle in e_list:
+            e_dict = E.get_asset(e_handle)
+            self.log_event("Adding '%s' expansion content!" % e_dict["name"])
+            self.settlement["expansions"].append(e_dict["handle"])
+            if "timeline_add" in e_dict.keys():
+               [self.add_timeline_event(e) for e in e_dict["timeline_add"] if e["ly"] >= self.get_current_ly()]
+            if "timeline_rm" in e_dict.keys():
+               [self.rm_timeline_event(e) for e in e_dict["timeline_rm"] if e["ly"] >= self.get_current_ly()]
+            self.logger.info("Added '%s' expansion to %s" % (e_dict["name"], self))
 
 
     def add_timeline_event(self, e={}):
@@ -111,6 +152,11 @@ class Settlement(Models.UserAsset):
 
         timeline.remove(t_object)
 
+        # try to improve the event if we've got a handle on it
+        if "handle" in e.keys() and e["type"] in "story_event":
+            E = events.Assets()
+            e.update(E.get_asset(e["handle"]))
+
         if not e["type"] in t_object.keys():
             t_object[e["type"]] = []
         t_object[e["type"]].append(e)
@@ -119,7 +165,11 @@ class Settlement(Models.UserAsset):
 
         self.settlement["timeline"] = timeline
         self.save()
-        self.log_event("%s added '%s' to Lantern Year %s" % (e["user_login"], e["name"], e["ly"]))
+
+        if "user_login" in e.keys():
+            self.log_event("%s added '%s' to Lantern Year %s" % (e["user_login"], e["name"], e["ly"]))
+        else:
+            self.log_event("Automatically added '%s' to Lantern Year %s" % (e["name"], e["ly"]))
 
 
     def rm_timeline_event(self, e={}):
@@ -139,7 +189,11 @@ class Settlement(Models.UserAsset):
 
         self.settlement["timeline"] = timeline
         self.save()
-        self.log_event("%s removed '%s' from Lantern Year %s" % (e["user_login"], e["name"], e["ly"]))
+
+        if "user_login" in e.keys():
+            self.log_event("%s removed '%s' from Lantern Year %s" % (e["user_login"], e["name"], e["ly"]))
+        else:
+            self.log_event("Automatically removed '%s' from Lantern Year %s" % (e["name"], e["ly"]))
 
 
     def get_settlement_notes(self):
@@ -167,14 +221,14 @@ class Settlement(Models.UserAsset):
         }
 
         utils.mdb.settlement_notes.insert(note_dict)
-        self.logger.debug("[%s] added a settlement note to %s" % (n["author"], self))
+        self.logger.info("[%s] added a settlement note to %s" % (n["author"], self))
 
 
     def rm_settlement_note(self, n={}):
         """ Removes a note from MDB. Expects a dict with one key. """
 
         utils.mdb.settlement_notes.remove({"settlement": self.settlement["_id"], "js_id": n["js_id"]})
-        self.logger.debug("[%s] removed a settlement note from %s" % (n["user_login"], self))
+        self.logger.info("[%s] removed a settlement note from %s" % (n["user_login"], self))
 
 
     def get_special_showdowns(self):
@@ -186,8 +240,10 @@ class Settlement(Models.UserAsset):
         if "special_showdowns" in self.get_campaign(dict).keys():
             output.extend(self.get_campaign(dict)["special_showdowns"])
 
-        for expansion in self.get_expansions(dict):
-            self.logger.debug(expansion)
+        for exp in self.get_expansions(dict).keys():
+            e_dict = self.get_expansions(dict)[exp]
+            if "special_showdowns" in e_dict.keys():
+                output.extend(e_dict["special_showdowns"])
 
         return list(set(output))
 
@@ -195,11 +251,13 @@ class Settlement(Models.UserAsset):
     def get_nemesis_options(self):
         """ Returns a list of available nemesis monster handles. """
 
-        options = self.get_special_showdowns()
+        options = []
         if "nemesis_monsters" in self.get_campaign(dict):
             options.extend(self.get_campaign(dict)["nemesis_monsters"])
-        for expansion in self.get_expansions(dict):
-            self.logger.debug(expansion)
+        for exp in self.get_expansions(dict):
+            e_dict = self.get_expansions(dict)[exp]
+            if "nemesis_monsters" in e_dict.keys():
+                options.extend(e_dict["nemesis_monsters"])
 
         option_set = set(options)
         for n in self.settlement["nemesis_monsters"]:
@@ -226,12 +284,16 @@ class Settlement(Models.UserAsset):
             candidate_handles.extend(self.settlement["quarries"])
         elif context == "nemesis_encounters":
             candidate_handles.extend(self.settlement["nemesis_monsters"])
-            candidate_handles.extend(self.get_special_showdowns())
+            for n in self.get_campaign(dict)["nemesis_monsters"]:
+                M = monsters.Monster(n)
+                if M.is_final_boss():
+                    candidate_handles.append(M.handle)
         elif context == "defeated_monsters":
             candidate_handles.extend(self.settlement["quarries"])
             candidate_handles.extend(self.settlement["nemesis_monsters"])
             candidate_handles.extend(self.get_special_showdowns())
-#        elif context == "special_showdowns":
+        elif context == "special_showdown_options":
+            candidate_handles.extend(self.get_special_showdowns())
         else:
             self.logger.warn("Unknown 'context' for get_monster_options() method!")
 
@@ -386,25 +448,22 @@ class Settlement(Models.UserAsset):
         Setting return_type="dict" gets a dictionary where expansion 'name'
         attributes are the keys and asset dictionaries are the values. """
 
-        if "expansions" in self.settlement.keys():
-            expansions = list(set(self.settlement["expansions"]))
-            self.settlement["expansions"] = expansions
-        else:
-            expansions = []
+        s_expansions = list(set(self.settlement["expansions"]))
 
         if return_type == dict:
+            E = expansions.Assets()
             exp_dict = {}
-            for exp_name in expansions:
-                E = expansions.Assets()
-                exp_dict[exp_name] = E.get_asset_from_name(exp_name)
+            for exp_handle in s_expansions:
+                exp_dict[exp_handle] = E.get_asset(exp_handle)
             return exp_dict
+
         elif return_type == "comma-delimited":
-            if expansions == []:
+            if s_expansions == []:
                 return None
             else:
-                return ", ".join(expansions)
+                return ", ".join(s_expansions)
 
-        return expansions
+        return s_expansions
 
 
     def get_event_log(self, return_type=None):
@@ -486,6 +545,31 @@ class Settlement(Models.UserAsset):
     #
     #   conversion and migration functions
     #
+
+    def convert_expansions_to_handles(self):
+        """ Takes a legacy settlement object and swaps out its expansion name
+        key values for handles. """
+
+        E = expansions.Assets()
+
+        new_expansions = []
+        for e in self.get_expansions():
+            if e in E.get_handles():
+                new_expansions.append(e)
+            elif E.get_asset_from_name(e) is None:
+                self.logger.warn("Expansion '%s' is being removed from %s" % (e, self))
+            elif E.get_asset_from_name(e) is not None:
+                new_expansions.append(E.get_asset_from_name(e)["handle"])
+            else:
+                msg = "The expansion asset '%s' from %s cannot be migrated!" % (e, self)
+                self.logger.error(msg)
+                Models.AssetMigrationError(msg)
+
+        self.settlement["expansions"] = new_expansions
+        self.settlement["expansions_version"] = 1.0
+        self.logger.info("Migrated %s expansions to version 1.0. %s expansions were migrated!" % (self, len(new_expansions)))
+
+
 
     def convert_monsters_to_handles(self):
         """ Takes a legacy settlement object and swaps out its monster name

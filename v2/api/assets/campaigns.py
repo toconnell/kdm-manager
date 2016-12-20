@@ -93,20 +93,20 @@ campaign_definitions = {
         "name": "People of the Lantern",
         "always_available": ["Lantern Hoard", "Language"],
         "principles": ["new_life","death","society","conviction"],
-        "nemesis_monsters": ["butcher","kings_man","the_hand"],
+        "nemesis_monsters": ["butcher","kings_man","the_hand","watcher"],
         "milestones": {
             "First child is born": milestones["first_child"],
             "First time death count is updated": milestones["first_death"],
             "Population reaches 15": milestones["pop_15"],
             "Settlement has 5 innovations": milestones["innovations_5"],
             "Population reaches 0": milestones["game_over"],
-        "special_showdowns": ["watcher"],
         },
     },
 
     "people_of_the_skull": {
         "name": "People of the Skull",
         "always_available": ["Lantern Hoard", "Language"],
+        "nemesis_monsters": ["butcher","kings_man","the_hand","watcher"],
         "special_rules": [
             {"name": "People of the Skull",
              "desc": "Survivors can only place weapons and armor with the <b>bone</b> keyword in their gear grid. The people of the skull ignore the <b>Frail</b> rule.",
@@ -137,6 +137,7 @@ campaign_definitions = {
     "the_bloom_people": {
         "name": "The Bloom People",
         "always_available": ["Lantern Hoard", "Language"],
+        "nemesis_monsters": ["butcher","kings_man","the_hand","watcher"],
         "expansions": ["Flower Knight"],
         "storage": ["Sleeping Virus Flower"],
         "forbidden": ["Flower Addiction", "Flower Knight"],
@@ -163,6 +164,7 @@ campaign_definitions = {
         "expansions": ["Sunstalker"],
         "forbidden": ["Leader", "Lantern Hoard"],
         "principles": ["potsun_new_life","death","society","conviction"],
+        "nemesis_monsters": ["butcher","kings_man","the_hand","ancient_sunstalker"],
         "milestones": {
             "First time death count is updated": milestones["first_death"],
             "Population reaches 15": milestones["pop_15"],
@@ -203,7 +205,12 @@ campaign_definitions = {
         "expansions": ["Dragon King"],
         "always_available": ["Throne","Dragon Speech","Radiating Orb"],
         "forbidden": ["Lantern Hoard", "Language","Lantern Oven","Clan of Death","Family", "Dragon Armory"],
-        "always_available_nemesis": "The Tyrant",
+        "nemesis_monsters": ["butcher","kings_man","the_hand","the_tyrant"],
+        "nemesis_encounters": [
+            {"butcher":["Lvl 1"]},
+            {"kings_man":["Lvl 1"]},
+            {"the_hand":["Lvl 1"]},
+        ],
         "founder_epithet": "Foundling",
         "replaced_story_events": {
             "Bold": "Awake",
@@ -224,8 +231,6 @@ campaign_definitions = {
             "Population reaches 15": milestones["pop_15"],
             "Population reaches 0": milestones["game_over"],
         },
-        "nemesis_monsters": ["butcher","kings_man","the_hand"],
-        "nemesis_encounters": [{"butcher":["Lvl 1"], "kings_man":["Lvl 1"], "the_hand":["Lvl 1"]}],
         "timeline": [
             {"year": 0, "settlement_event": ["First Day"]},
             {"year": 1, "story_event": ["The Foundlings"]},

@@ -63,6 +63,8 @@ app.controller("manageDepartingSurvivorsController", function($scope) {
             timeline_event.type = 'showdown_event';
         } else if ($scope.arrayContains($scope.current_quarry, $scope.settlement.game_assets.nemesis_encounters)) {
             timeline_event.type = 'nemesis_encounter';
+        } else if ($scope.arrayContains($scope.current_quarry, $scope.settlement.game_assets.special_showdown_options)) {
+            timeline_event.type = 'special_showdown';
         };
 
         $scope.addEvent(timeline_event["ly"],timeline_event["type"],timeline_event["name"]);

@@ -38,12 +38,17 @@ def render_response(action, settlement_id):
     #
 
     if request.get_json() is not None:
-        params = dict(request.get_json())
+        try:
+            params = dict(request.get_json())
+        except ValueError:
+            params = request.get_json()
 
     if action == "get":
         return S.http_response()
     elif action == "set":
         S.update_sheet_from_dict(params)
+    elif action == "add_expansions":
+        S.add_expansions(params)
     elif action == "add_note":
         S.add_settlement_note(params)
     elif action == "rm_note":

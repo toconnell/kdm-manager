@@ -690,16 +690,16 @@ class angularJS:
                                 &nbsp;(p.{{e.page}})
                             </span>
                         </span>
-                        <span class="timeline_event" ng-repeat="q in t.special_showdown_event">
-                            <font class="kdm_font maroon_text">f &nbsp;</font>
-                            {{q.name}}
+                        <span class="timeline_event" ng-repeat="q in t.special_showdown">
+                        <span><img class="icon" src="/media/icons/special_showdown_event.jpg"/></span>
+                            <font class="maroon_text"><b>{{q.name}}</b></font>
                         </span>
                         <span class="timeline_event" ng-repeat="q in t.showdown_event">
                             <font class="kdm_font">f &nbsp;</font>
                             {{q.name}}
                         </span>
                         <span class="timeline_event" ng-repeat="n in t.nemesis_encounter">
-                        <span><img class="icon" src="http://media.kdm-manager.com/icons/nemesis_encounter_event.jpg"/></span>
+                        <span><img class="icon" src="/media/icons/nemesis_encounter_event.jpg"/></span>
                             &nbsp; <b> {{n.name}}</b>
                         </span>
                         <span class="timeline_event" ng-repeat="e in t.settlement_event">
@@ -726,6 +726,20 @@ class angularJS:
                     >
                         <option selected disabled value="">
                             Add Story Event
+                        </option>
+                    </select>
+
+                    <br/>
+
+                    <select
+                        name="add_timeline_event"
+                        class="add_timeline_event"
+                        ng-model="newEvent"
+                        ng-options="s for s in settlement.game_assets.special_showdown_options"
+                        ng-change="addEvent(t.year,'special_showdown',newEvent)"
+                    >
+                        <option selected disabled value="">
+                            Add Special Showdown
                         </option>
                     </select>
 
@@ -2295,9 +2309,6 @@ class settlement:
             <h2 class="no_ul">Expansions:</h2>
             <p> Enable expansion content by toggling items below. Expansion content may also be enabled (or disabled) later using the controls on the Settlement Sheet.</p>
 
-            <input type="hidden" name="expansions" value="None"/> <!-- Both of these are necessary -->
-            <input type="hidden" name="expansions" value="None"/> <!-- Hack City! -->
-
             <div ng-if="showLoader" class="new_settlement_loading"><img src="/media/loading_io.gif"></div>
 
             <div
@@ -2309,7 +2320,7 @@ class settlement:
                 id="{{e.handle}}"
                 class="kd_css_checkbox kd_radio_option"
                 name="expansions"
-                value="{{e.name}}"
+                value="{{e.handle}}"
             />
             <label for="{{e.handle}}">{{e.name}}
                 <p ng-if="e.subtitle" class="new_settlement_asset"> {{e.subtitle}}</p>
@@ -2525,12 +2536,12 @@ class settlement:
                 $defeated_monsters
 
                 <h3 class="monster_subhead">Quarries </h3>
-                <span class="kd_checkbox_checked" ng-repeat="n in settlement_sheet.quarries">
+                <span class="kd_checkbox_checked campaign_summary_bullet" ng-repeat="n in settlement_sheet.quarries">
                     {{ settlement.game_assets.monsters[n].name }}
                 </span>
 
                 <h3 class="monster_subhead">Nemeses</h3>
-                <span class="kd_checkbox_checked" ng-repeat="n in settlement_sheet.nemesis_monsters">
+                <span class="kd_checkbox_checked campaign_summary_bullet" ng-repeat="n in settlement_sheet.nemesis_monsters">
                     {{ settlement.game_assets.monsters[n].name }}
                 </span>
 
@@ -3692,9 +3703,10 @@ class meta:
     error_500 = Template("""%s<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
     <html><head><title>%s</title></head>
     <body>
-        <h1>500 - Internal Server Error</h1>
+        <h1>500 - Server Explosion!</h1>
         <hr/>
-        <p><b>Server explosion!</b> The server erupts in a shower of gore, killing your request instantly. All other servers are so disturbed that they lose 1 survival.</p>
+        <p>The server erupts in a shower of gore, killing your request instantly. All other servers are so disturbed that they lose 1 survival.</p>
+        <hr/>
         <p>$msg</p>
         <p>$params</p>
         <hr/>

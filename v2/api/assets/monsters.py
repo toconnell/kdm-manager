@@ -108,6 +108,7 @@ nemeses = {
     },
     "lion_knight": {
         "name": "Lion Knight",
+        "selectable": False,
         "expansion": "lion_knight",
         "sort_order": 105,
         "misspellings": ["LIONKNIGHT", "THE LION KNIGHT", "THE LIONKNIGHT"],
@@ -124,11 +125,13 @@ unique_nemeses = {
         "name": "Ancient Sunstalker",
         "expansion": "sunstalker",
         "sort_order": 200,
+        "final_boss": True,
     },
     "watcher": {
         "name": "Watcher",
         "sort_order": 201,
         "misspellings": ["THE WATCHER"],
+        "final_boss": True,
     },
 }
 

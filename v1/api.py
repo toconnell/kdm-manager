@@ -33,14 +33,28 @@ def get_api_url():
         return "http://%s:%s/" % (settings.get("api","localhost_addr"), settings.get("api","localhost_port"))
 
 
+def route_to_url(r):
+    """ Laziness method to turn a route snip/stub into a URL. """
+    route = r
+    if list(r)[-1] == "/":
+        route = r[0:-1]
+    return urljoin(get_api_url(), route)
+
+
+def post_JSON_to_route(route=None, payload={}):
+    """ Blast some JSON at an API route. Return the response object. No fancy
+    crap in this one, so you better know what you're doing here. """
+    req_url = route_to_url(route)
+    j = json.dumps(payload)
+    h = {'content-type': 'application/json'}
+    return requests.post(req_url, data=j, headers=h)
+
+
 def route_to_dict(route, params={}, return_as=dict, authorize=False):
     """ Retrieves data from a route. Returns a dict by default, which means that
     a 404 will come back as a {}. """
 
-    if list(route)[-1] == "/":
-        route = route[0:-1]
-
-    req_url = urljoin(get_api_url(), route)
+    req_url = route_to_url(route)
 
     # convert object IDs to strings: it's easier to just send a string and
     #   convert it back during API processing

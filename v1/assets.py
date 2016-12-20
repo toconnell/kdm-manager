@@ -298,6 +298,40 @@ class User:
         return assets_dict
 
 
+    def get_campaigns(self):
+        """ This function gets all campaigns in which the user is involved. """
+
+        self.get_settlements()
+        game_list = set()
+
+        if self.settlements is not None:
+            for s in self.settlements:
+                if s is not None:
+                    game_list.add(s["_id"])
+
+        for s in self.get_survivors():
+            game_list.add(s["settlement"])
+
+        output = ""
+
+        game_dict = {}
+        for settlement_id in game_list:
+            S = Settlement(settlement_id=settlement_id, session_object=self.Session, update_mins=False)
+            if S.settlement is not None:
+                if not "abandoned" in S.settlement.keys():
+                    game_dict[settlement_id] = S.settlement["name"]
+            else:
+                self.logger.error("Could not find settlement %s while loading campaigns for %s" % (settlement_id, self.get_name_and_id()))
+        sorted_game_tuples = sorted(game_dict.items(), key=operator.itemgetter(1))
+
+        for settlement_tuple in sorted_game_tuples:
+            settlement_id = settlement_tuple[0]
+            S = Settlement(settlement_id=settlement_id, session_object=self.Session, update_mins=False)
+            if S.settlement is not None:
+                output += S.asset_link(context="dashboard_campaign_list")
+        return output
+
+
     def get_settlements(self, return_as=False):
         """ Returns the user's settlements in a number of ways. Leave
         'return_as' unspecified if you want a mongo cursor back. """
@@ -319,7 +353,7 @@ class User:
         if return_as == "asset_links":
             output = ""
             for settlement in self.settlements:
-                S = Settlement(settlement_id=settlement["_id"], session_object=self.Session)
+                S = Settlement(settlement_id=settlement["_id"], session_object=self.Session, update_mins=False)
                 output += S.asset_link()
             return output
 
@@ -331,7 +365,6 @@ class User:
         the 'return_type' kwarg unspecified/False if you want a mongo cursor
         back (instead of fruity HTML crap). """
 
-        self.logger.debug(self.user["login"])
         survivors = list(mdb.survivors.find({"$or": [
             {"email": self.user["login"]},
             {"created_by": self.user["_id"]},
@@ -376,38 +409,6 @@ class User:
         return all_favorites
 
 
-    def get_campaigns(self):
-        """ This function gets all campaigns in which the user is involved. """
-
-        self.get_settlements()
-        game_list = set()
-
-        if self.settlements is not None:
-            for s in self.settlements:
-                if s is not None:
-                    game_list.add(s["_id"])
-
-        for s in self.get_survivors():
-            game_list.add(s["settlement"])
-
-        output = ""
-
-        game_dict = {}
-        for settlement_id in game_list:
-            S = Settlement(settlement_id=settlement_id, session_object=self.Session)
-            if S.settlement is not None:
-                if not "abandoned" in S.settlement.keys():
-                    game_dict[settlement_id] = S.settlement["name"]
-            else:
-                self.logger.error("Could not find settlement %s while loading campaigns for %s" % (settlement_id, self.get_name_and_id()))
-        sorted_game_tuples = sorted(game_dict.items(), key=operator.itemgetter(1))
-
-        for settlement_tuple in sorted_game_tuples:
-            settlement_id = settlement_tuple[0]
-            S = Settlement(settlement_id=settlement_id, session_object=self.Session)
-            if S.settlement is not None:
-                output += S.asset_link(context="dashboard_campaign_list")
-        return output
 
 
     def get_last_n_user_admin_logs(self, logs):
@@ -945,8 +946,6 @@ class Survivor:
         self.api_asset = {}
         if not hasattr(self.Session, "api_survivors") or self.Session.session["current_view"] == "dashboard":
             return None
-        if self.Session.get_current_view() == "new_survivor":
-            return None
         try:
             self.api_asset = self.Session.api_survivors[self.survivor["_id"]]["sheet"]
         except Exception as e:
@@ -955,8 +954,11 @@ class Survivor:
 
 
     def get_api_asset(self, asset_key):
-        """ Tries to get an asset from the api_asset attribute/dict. Fails
-        gracefully. """
+        """ Tries to get an asset from the api_asset attribute/dict. This is the
+        version of this for SURVIVORS, not for settlements (which is below). """
+
+        if not hasattr(self, "api_asset"):
+            self.set_api_asset()
 
         if not asset_key in self.api_asset.keys():
             self.logger.warn("[%s] api_asset key '%s' does not exist for %s!" % (self.User, asset_key, self))
@@ -2218,8 +2220,8 @@ class Survivor:
 
             # 2.) check the expansions for survivor_attribs
             for exp_key in self.Settlement.get_expansions():
-                if "survivor_attribs" in game_assets.expansions[exp_key].keys():
-                    expansion_attrib_keys.update(game_assets.expansions[exp_key]["survivor_attribs"])
+                if "survivor_attribs" in self.Settlement.get_api_asset("game_assets","expansions")[exp_key]:
+                    expansion_attrib_keys.update(self.Settlement.get_api_asset("game_assets","expansions")[exp_key]["survivor_attribs"])
 
             # as usual, bail early if we don't need to show anything
             if expansion_attrib_keys == set():
@@ -3295,10 +3297,16 @@ class Settlement:
 
     def set_api_asset(self):
         """ Tries to set the settlement's API asset from the session. Fails
-        gracefully if it cannot. """
+        gracelessly if it cannot: if we've got methods looking for API data,
+        they need to scream bloody murder if they can't get it."""
+
+#        self.logger.debug("[%s] setting API asset for %s..." % (self.User, self))
 
         cv = self.Session.get_current_view()
 
+        # if we're looking at any view other than the dashboard or the panel,
+        # throw an error if we haven't got a settlement asset loaded up for the
+        # session (because that's a big fucking problem).
         if cv not in ["dashboard","panel"] and not hasattr(self.Session, "api_settlement"):
             self.logger.error("[%s] session has no API settlement asset!" % (self.User))
 
@@ -3309,7 +3317,11 @@ class Settlement:
             if not "game_assets" in self.api_asset.keys():
                 self.logger.error("[%s] API asset for %s does not contain a 'game_assets' key!" % (self.User, self))
 
-        # re-initialize models that use an API asset (now that we've got one)
+        if not hasattr(self, "api_asset"):
+            self.logger.warn("[%s] no API asset initialized for %s!" % (self.User, self))
+
+        # re-initialize models that use an API asset (now that we've got one).
+        # this is the low-rent equivalent of putting init logic behind a promise
         for M in [CauseOfDeath]:
             M.load_settlement(self)
 
@@ -3336,6 +3348,7 @@ class Settlement:
         else:
             return self.api_asset[asset_type][asset_key]
 
+
     def get_survivor_survival_max(self):
         """ Gets the limit that the survivor can set the Survival to on the
         Sheet by checking epansion properties. """
@@ -3343,7 +3356,7 @@ class Settlement:
         limit = self.get_attribute("survival_limit")
 
         for e in self.get_api_asset("sheet","expansions"):
-            e_dict = game_assets.expansions[e]
+            e_dict = self.get_api_asset("game_assets","expansions")[e]
             if "enforce_survival_limit" in e_dict.keys():
                 if not e_dict["enforce_survival_limit"]:
                     return 666
@@ -3401,6 +3414,7 @@ class Settlement:
             "principles": [],
             "expansions": [],
             "storage": [],
+            "admins": [self.User.user["login"]],
             "timeline": game_assets.default_timeline,
         }
 
@@ -3426,23 +3440,9 @@ class Settlement:
         self.Session.set_current_settlement(settlement_id)
         self.logger.debug("[%s] initialized a new settlement successfully!" % (self.User))
 
-
-        #
-        #   settlement is initialized and saved; now we operating on it using
-        #       available methods in self
-        #
-
-        # determine whether we're going to add any user-specified expansions
-        #   that the user requires but that the campaign might not.
-        settlement_expansions = []
-        for e in self.cgi_params["expansions"]:
-            if e.value != "None" and e.value not in self.settlement["expansions"]:
-                self.add_expansion(e.value)
-
         # now, continue through the CGI params, operating on the 
         if "create_prologue_survivors" in self.cgi_params:
             self.first_story()
-            mdb.settlements.save(self.settlement)    # gotta save here
 
         # prefab survivors go here
         for s in self.cgi_params["survivors"]:
@@ -3452,12 +3452,30 @@ class Settlement:
                 n.set_attrs({"name": s.value})
                 n.set_attrs(s_dict["attribs"])
 
+        self.save() # this is the LAST save
 
-        # save and log it
-        mdb.settlements.save(self.settlement)
+
+        #
+        #   settlement is initialized and saved; only API-based update methods
+        #   may be called past this point! DO NOT save the settlement any more
+        #   within this method, let ye overwrite any API-side changes!
+        #
+
+        if "expansions" in self.cgi_params:
+            if type(self.cgi_params["expansions"]) == list:
+                req_expansions = [e.value for e in self.cgi_params["expansions"]]
+            else:
+                req_expansions = [self.cgi_params["expansions"].value]
+            response = api.post_JSON_to_route("/settlement/add_expansions/%s" % settlement_id, req_expansions)
+            if response.status_code == 200:
+                self.logger.debug("[%s] posted %s expansions to API successfully!" % (self.User, len(req_expansions)))
+            else:
+                self.logger.error("[%s] add_expansions API call returned %s!" % (self.User, response.status_code))
+
+
+        # to play us out!? I don't know what means: to play us out!
         self.logger.info("[%s] created new settlement %s - (%s)." % (self.User, self, self.settlement["campaign"]))
         self.log_event("%s founded!" % self.settlement["name"])
-
 
         return settlement_id
 
@@ -3468,60 +3486,39 @@ class Settlement:
         self.logger.debug("[%s] saved changes to %s" % (self.User, self))
 
 
+    def add_expansion(self, e):
+        """ Interim/legacy support method. Adds an expansion via API POST. """
+        response = api.post_JSON_to_route("/settlement/add_expansions/%s" % settlement_id, [e])
+        if response.status_code == 200:
+            self.logger.debug("[%s] added '%s' expansion to %s via API call!" % (self.User, e, self))
+        else:
+            self.logger.error("[%s] add_expansions API call returned %s!" % (self.User, response.status_code))
+
+
     def toggle_expansion(self, e_key):
         """ Toggles an expansion on or off. """
 
-        if not "expansions" in self.settlement.keys():
-            self.settlement["expansions"] = []
-
-        if e_key in self.settlement["expansions"]:
+        if not e_key in self.get_expansions():
+            self.add_expansion(e_key)
+        else:
             # first purge expansion events from the timeline
+
+            self.settlement["expansions"].remove(e_key)
+
             expansion_dict = game_assets.expansions[e_key]
 
             if "timeline_add" in expansion_dict.keys():
                 for e in expansion_dict["timeline_add"]:
-                    if e["ly"] >= self.settlement["lantern_year"]:
-                        self.update_timeline(rm_event = (e["ly"], e["name"]))
+                    if e["ly"] >= self.get_ly():
+                        self.rm_timeline_event(e)
             if "timeline_rm" in expansion_dict.keys():
                 for e in expansion_dict["timeline_rm"]:
-                    self.update_timeline(add_event = (e["ly"], e["type"], e["name"]))
+                    if e["ly"] >= self.get_ly():
+                        self.add_timeline_event(e)
 
-            self.settlement["expansions"].remove(e_key)
             self.log_event("'%s' expansion is now disabled!" % (e_key.replace("_"," ")))
-            self.logger.debug("[%s] Removed '%s' expansion from %s" % (self.User, e_key, self))
-        else:
-            self.add_expansion(e_key)
+            self.logger.debug("[%s] removed '%s' expansion from %s" % (self.User, e_key, self))
 
-
-    def add_expansion(self, e_key):
-        """ Adds an expansion key ('e_key' kwarg) to a settlement's mdb info. If
-        the mdb object doesn't have the 'expansions' key, this adds it.
-        """
-
-        if not "expansions" in self.settlement.keys():
-            self.settlement["expansions"] = []
-
-        self.settlement["expansions"].append(e_key)
-
-        expansion_dict = game_assets.expansions[e_key]
-
-        # support for expansions that inlcude timeline events
-        if "timeline_add" in expansion_dict.keys():
-            for e in expansion_dict["timeline_add"]:
-                if "excluded_campaign" in e.keys() and e["excluded_campaign"] == self.get_campaign():
-                    pass
-                else:
-                    if e["ly"] >= int(self.settlement["lantern_year"]):
-                        self.update_timeline(add_event = (e["ly"], e["type"], e["name"]))
-
-        # support for expansions that remove timeline events
-        if "timeline_rm" in expansion_dict.keys():
-            for e in expansion_dict["timeline_rm"]:
-                if e["ly"] >= int(self.settlement["lantern_year"]):
-                    self.update_timeline(rm_event = (e["ly"], e["name"]))
-
-        self.logger.debug("[%s] Added '%s' expansion to %s" % (self.User, e_key, self))
-        self.log_event("'%s' expansion is now enabled!" % e_key)
 
 
     def bulk_add_survivors(self, male=0, female=0):
@@ -3700,19 +3697,6 @@ class Settlement:
         events to the Settlement timeline when the threshold for adding the
         event has been reached. """
 
-#
-#
-#
-#
-# FIX ME FUCK SHIT DAMN PISS HELL FUCK FIX ME
-#
-#
-#
-#
-#
-#
-        return True
-
         all_story_events = self.get_story_events()
 
         campaign_dict = self.get_campaign("dict")
@@ -3721,9 +3705,13 @@ class Settlement:
             story_condition = "False"
             if "add_to_timeline" in milestones_dict[m_key].keys():
                 story_condition = milestones_dict[m_key]["add_to_timeline"]
-            story_key = milestones_dict[m_key]["story_event"]
-#            story_page = self.get_api_asset("game_assets")["events"][story_key]["page"]
-            story_page = self.get_event(story_key)["page"]
+            try:
+                story_key = milestones_dict[m_key]["story_event"]
+                story_page = self.get_event(story_key)["page"]
+            except Exception as e:
+                self.logger.error("[%s] an error occurred while processing story event '%s'!" % (self.User, story_key))
+                self.logger.exception(e)
+                raise
             story_key_variants = [story_key, "%s (p.%s)" % (story_key, story_page)]
             condition_met = False
             if m_key in self.settlement["milestone_story_events"]:
@@ -3737,13 +3725,22 @@ class Settlement:
 
             # final evaluation:
             if condition_met and not milestone_present:
-                self.logger.debug("[%s] Automatically adding %s story event to LY %s" % (self, story_key, self.settlement["lantern_year"]))
-                self.log_event('Automatically added <font class="kdm_font">g</font> <b>%s</b> to LY %s.' % (story_key, self.settlement["lantern_year"]))
-                self.update_timeline(add_event = (self.settlement["lantern_year"], "story_event", story_key))
+                self.logger.debug("[%s] automatically adding %s story event to LY %s" % (self, story_key, self.get_ly()))
+                e = {
+                    "ly": self.get_ly(),
+                    "name": story_key,
+                    "type": "story_event",
+                }
+                self.add_timeline_event(e)
+                self.log_event('Automatically added <font class="kdm_font">g</font> <b>%s</b> to LY %s.' % (story_key, self.get_ly()))
 
 
     def enforce_data_model(self):
-        """ mongo will FTFO if it sees a set(): uniquify our unique lists before
+        """ NB: this method is a dead man walking as of the Anniversary Release:
+        we're moving data model normalization to the API as of December 2016, so
+        doing this kind of processing here is officially deprecated!
+
+        mongo will FTFO if it sees a set(): uniquify our unique lists before
         saving them and exclude any non str/unicode objects that might have
         snuck in while iterating over the cgi.FieldStorage(). """
 
@@ -4957,10 +4954,15 @@ class Settlement:
         if aftermath == "victory":
             if quarry_key not in ["None",None]:
                 self.add_kill(quarry_key)
-            if quarry_key not in self.get_timeline_events(event_type="quarry_event"):
-                self.update_timeline(add_event=(self.settlement["lantern_year"], "quarry_event", quarry_key))
+            if quarry_key not in self.get_timeline_events(event_type="showdown_event"):
+                e = {
+                    "ly": self.get_ly(),
+                    "type": "showdown_event",
+                    "name": quarry_key,
+                }
+                self.add_timeline_event(e)
             else:
-                self.logger.debug("[%s] Quarry '%s' already in timeline for this year: %s. Skipping timeline update..." % (self, quarry_key, self.get_timeline_events(event_type="quarry_event")))
+                self.logger.debug("[%s] monster '%s' already in timeline for this year: %s. Skipping timeline update..." % (self, quarry_key, self.get_timeline_events(event_type="showdown_event")))
 
         if len(returning_survivor_name_list) > 0:
             if self.get_endeavor_tokens() == 0:
@@ -5105,35 +5107,31 @@ class Settlement:
         return player_set
 
 
-    def update_timeline(self, new_lantern_year=None, cgi_params=None):
-        """ This is where we manage the timeline, incrementing Lantern Year,
-        adding/removing settlement events, etc.
+    def add_timeline_event(self, event = {}):
+        """ Interim/migration support method for V1. Wraps up an event into an
+        API-safe dict and then uses the api.py module to POST it to the API. """
 
-        The 'add_event' and 'rm_event' kwargs should be two part tuples where
-        the first part is the LY (as an int) and the second part is a str of the
-        thing we're removing.
-        """
-
-        def get_ly_obj_and_index(ly):
-            """ laziness to return a ly object from the timeline list along with
-            its index (e.g. for updating it and putting it back into the list
-            and that sort of thing. """
-
-            timeline = self.settlement["timeline"]
-            for i in timeline:
-                if i["year"] == ly:
-                    return i, timeline.index(i)
+        event["user_login"] = self.User.user["login"]
+        response = api.post_JSON_to_route("/settlement/add_timeline_event/%s" % self.settlement["_id"], event)
+        if response.status_code == 200:
+            self.logger.debug("[%s] added '%s' to %s timeline via POST to API" % (self.User, event["name"], self))
+        else:
+            self.logger.error("[%s] failed to POST '%s' to %s timeline!" % (self.User, event["name"], self))
+            self.logger.error(response)
 
 
-        current_ly = int(self.settlement["lantern_year"])
+    def rm_timeline_event(self, event = {}):
+        """ Interim/migration support method for V1. Wraps up an event into an
+        API-safe dict and then uses the api.py module to POST it to the API's
+        route for removing timeline events. Logs it. """
 
-        # handle arbitrary updates/changes to LY
-        if new_lantern_year is not None and int(new_lantern_year) != current_ly:
-            new_lantern_year= int(new_lantern_year)
-            self.settlement["lantern_year"] = new_lantern_year
-            self.log_event("%s set the current Lanter Year to %s." % (self.User.user["login"], new_lantern_year))
-            self.logger.debug("[%s] updated %s current LY to %s" % (self.User, self, new_lantern_year))
-
+        event["user_login"] = self.User.user["login"]
+        response = api.post_JSON_to_route("/settlement/rm_timeline_event/%s" % self.settlement["_id"], event)
+        if response.status_code == 200:
+            self.logger.debug("[%s] removed '%s' from %s timeline via API" % (self.User, event["name"], self))
+        else:
+            self.logger.error("[%s] failed to remove '%s' from %s timeline!" % (self.User, event["name"], self))
+            self.logger.error(response)
 
 
     def get_admins(self):
@@ -5390,8 +5388,8 @@ class Settlement:
             if location in Locations.get_keys() and "special_rules" in Locations.get_asset(location).keys():
                 special_rules.extend(Locations.get_asset(location)["special_rules"])
         for expansion in self.get_expansions():
-            if "special_rules" in game_assets.expansions[expansion]:
-                special_rules.extend(game_assets.expansions[expansion]["special_rules"])
+            if "special_rules" in self.get_api_asset("game_assets","expansions")[expansion]:
+                special_rules.extend(self.get_api_asset("game_assets","expansions")[expansion]["special_rules"])
         campaign_dict = self.get_campaign("dict")
         if "special_rules" in campaign_dict.keys():
             special_rules.extend(campaign_dict["special_rules"])
@@ -5885,12 +5883,6 @@ class Settlement:
             elif p == "abandon_settlement":
                 self.log_event("Settlement abandoned!")
                 self.settlement["abandoned"] = datetime.now()
-            elif p == "increment_lantern_year":
-                self.update_timeline(increment=True)
-            elif p == "lantern_year":
-                self.update_timeline(game_asset_key)
-            elif p == "update_timeline":
-                self.update_timeline(cgi_params=params)
             elif p == "hunting_party_operation":
                 self.modify_departing_survivors(params)
             elif p.split("_")[0] == "player" and p.split("_")[1] == "role":

@@ -4108,9 +4108,9 @@ expansions = {
         "always_available_nemesis": "Manhunter",
         "timeline_add": [
             {"ly": 5, "type": "story_event", "name": "The Hanged Man"},
-            {"ly": 10, "type": "nemesis_encounter", "name": "Special Showdown - Manhunter"},
-            {"ly": 16, "type": "nemesis_encounter", "name": "Special Showdown - Manhunter"},
-            {"ly": 22, "type": "nemesis_encounter", "name": "Special Showdown - Manhunter"},
+            {"ly": 10, "type": "special_showdown", "name": "Special Showdown - Manhunter"},
+            {"ly": 16, "type": "special_showdown", "name": "Special Showdown - Manhunter"},
+            {"ly": 22, "type": "special_showdown", "name": "Special Showdown - Manhunter"},
         ],
     },
     "Spidicules": {

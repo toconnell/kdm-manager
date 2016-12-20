@@ -64,6 +64,7 @@ input.kd_css_checkbox:checked + label:before {content:"\025FC"; }
 input.kd_radio_option + label {display: block; }
 
 span.kd_checkbox_checked:before {content:"\025FC"; }
+span.campaign_summary_bullet {margin-left: 4%;}
 
 input[type=checkbox].kd_toggle_box:checked + label {color: #000; }
 label.kd_toggle_box_caption {display: inline; line-height: 1.5em;}

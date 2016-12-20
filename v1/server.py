@@ -17,7 +17,7 @@ import subprocess
 import sys
 
 #   custom imports
-from utils import get_logger, load_settings
+from utils import get_logger, load_settings, mdb
 
 class StreamToLogger(object):
    """ Fake file-like stream object that redirects writes to a logger instance.
@@ -74,6 +74,8 @@ def start_server(port=None):
         app_cwd = os.path.join(effective_home_dir, "kdm-manager/v1")
         logger.info("Setting server CWD to %s" % app_cwd)
         os.chdir(app_cwd)
+        removed = mdb.sessions.remove()
+        logger.warn("Removed %s sessions!" % removed["n"])
     except Exception as e:
         logger.error("Could not set application CWD!")
         logger.exception(e)
