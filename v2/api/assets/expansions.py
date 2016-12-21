@@ -52,14 +52,6 @@ mar_2016_expansions = {
     "lion_knight": {
         "name": "Lion Knight",
         "always_available": ["Stoic Statue"],
-        "special_rules": [
-            {
-            "name": "Special Showdowns - Update",
-            "bg_color": "FFD740",
-            "font_color": "000",
-            "desc": "Special Showdowns interrupt the Settlement Phase. After they conclude, the Settlement Phase continues where it left off, regardless of victory of defeat. Heal all light and heavy injuries from the remaining survivors and remove all tokens. Do not repeat any steps of the settlement phase.",
-            },
-        ],
         "special_showdowns": ["lion_knight"],
         "timeline_add": [
             {"ly":  6, "type": "story_event", "handle": "lk_uninvited_guest"},
@@ -96,15 +88,6 @@ mar_2016_expansions = {
     "manhunter": {
         "name": "Manhunter",
         "always_available": ["War Room", "Settlement Watch", "Crimson Candy"],
-#        "always_available_nemesis": True,
-        "special_rules": [
-            {
-            "name": "Special Showdowns - Update",
-            "bg_color": "B71C1C",
-            "font_color": "fff",
-            "desc": "Special Showdowns interrupt the Settlement Phase. After they conclude, the Settlement Phase continues where it left off, regardless of victory of defeat. Heal all light and heavy injuries from the remaining survivors and remove all tokens. Do not repeat any steps of the settlement phase.",
-            },
-        ],
         "special_showdowns": ["manhunter"],
         "timeline_add": [
             {"ly": 5, "type": "story_event", "handle": "mh_hanged_man"},

@@ -23,35 +23,25 @@ app.controller("locationsController", function($scope) {
 // principles application
 
 app.controller('principlesController', function($scope, $http) {
-    $scope.unset = {"name": "Unset Principle","value": "None"}
-    $scope.toggle_on = function(elem_id) {
-        var bullet = document.getElementById(elem_id + "_bullet_span");
-        bullet.classList.add("checked_kd_toggle_bullet");
-    };
-    $scope.set = function(input_element,principle,selection) {
+    $scope.set = function(principle,selection) {
         var params = "set_principle_" + principle + "=" + selection;
         modifyAsset('settlement',$scope.settlement_id,params);
-        var bulletParent = document.getElementById(principle + " principle");
-        var target_bullets = bulletParent.getElementsByTagName('label');
-        for (i = 0; i < target_bullets.length; i++) {
-            $scope.toggle_off(target_bullets[i]);            
-        }
-        $scope.toggle_on(input_element);
-    };
-    $scope.toggle_off = function(toggle_element) {
-        var input_element = toggle_element;
-        input_element.style.fontWeight = "normal";
-        var bullet = document.getElementById(input_element.id.slice(0,-5) + "_bullet_span");
-        bullet.classList.remove("checked_kd_toggle_bullet");
     };
     $scope.unset_principle = function () {
-        target_principle = $scope.unset.name;
-        console.log(target_principle);
-        var bulletParent = document.getElementById(target_principle + " principle");
-        var target_bullets = bulletParent.getElementsByTagName('label');
-        for (i = 0; i < target_bullets.length; i++) {
-            $scope.toggle_off(target_bullets[i]);            
-        }
+        target_principle = $scope.unset;
+
+        var p_options = $scope.settlement.game_assets.principles_options;
+        for (i=0; i < p_options.length; i++) {
+            if (p_options[i].handle==target_principle) { var p_group = p_options[i]};
+        };
+
+        for (var option in p_group.options) {
+            if (p_group.options.hasOwnProperty(option)) {
+                var target_input = document.getElementById(p_group.options[option]["input_id"]);
+                target_input.checked = false;
+            };
+        };
+
         var params = "set_principle_" + target_principle + "=UNSET";
         modifyAsset('settlement',$scope.settlement_id,params);
     };

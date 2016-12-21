@@ -62,7 +62,7 @@ def ua_decorator(render_func=None):
             user_id = self.User.user["_id"],
             settlement_id = self.Session.Settlement.settlement["_id"],
 
-        ) + html.angularJS.timeline + html.angularJS.new_survivor + html.angularJS.settlement_notes
+        ) + html.angularJS.timeline + html.angularJS.new_survivor + html.angularJS.settlement_notes + html.angularJS.bulk_add_survivors
 
     return wrapper
 
@@ -4334,35 +4334,9 @@ class Settlement:
             return output
 
         elif return_type == "json":
-            all_principles = self.get_campaign("dict")["principles"]
-
-            sorting_hat = {}
-            for p in all_principles.keys():
-                sorting_hat[all_principles[p]["sort_order"]] = p
-
-            output = []
-            for n in sorted(sorting_hat.keys()):
-                principle_name = sorting_hat[n]
-                principle_options = []
-                for o in all_principles[principle_name]["options"]:
-                    selected="false"
-                    if o in self.settlement["principles"]:
-                        selected="true"
-                    principle_options.append({
-                        "name": o,
-                        "div_id": "%s%sSelector" % (principle_name.replace(" ",""), o.replace(" ","")),
-                        "checked": selected,
-                    })
-                for p in principle_options:
-                    if p in self.settlement["principles"]:
-                        selected=p
-                output.append({
-                    "name": principle_name,
-                    "form_handle": "set_principle_%s" % principle_name,
-                    "options": principle_options,
-                })
-
-            return output
+            msg = "JSON and JS 'return_type' values are no longer supported!"
+            self.logger.error(msg)
+            raise AttributeError(msg)
 
         return sorted(self.settlement["principles"])
 
@@ -5182,7 +5156,7 @@ class Settlement:
 
 
     def set_principle(self, principle=None, election=None):
-        """ Better than the deprecated update_principles() method (below), but
+        """ Better than the deprecated update_principles() method, but
         needs to know what principle you're setting in order to work. """
 
         if election in self.get_principles():
@@ -5192,70 +5166,28 @@ class Settlement:
         if principle is None:
             return None
 
-        available = self.get_api_asset("game_assets","principles")
-        current = available[principle]
-
-        for o in current["options"]:
-            if o in self.get_principles():
-                self.logger.debug("[%s] unset %s %s principle '%s'." % (self.User, self, principle, o))
-                self.log_event("%s removed the settlement %s principle." % (self.User, principle))
-                self.settlement["principles"].remove(o)
+        # now that we've sanity checked, turn 'principle' and 'election' into
+        #   dictionaries using the API
+        available = self.get_api_asset("game_assets","principles_options")
+        for p in available:
+            if p["handle"] == principle:
+                principle=p
 
         if election != "UNSET":
-            self.logger.debug("[%s] set %s %s principle '%s'." % (self.User, self, principle, election))
-            self.log_event("Settlement %s principle is now set to '%s'" % (principle, election))
-            self.settlement["principles"].append(election)
+            election = principle["options"][election]
 
+        self.logger.debug(principle)
+        for o_handle in principle["option_handles"]:
+            o_dict = principle["options"][o_handle]
+            if o_dict["name"] in self.get_principles():
+                self.logger.debug("[%s] unset %s %s principle '%s'." % (self.User, self, principle["name"], o_dict["name"]))
+                self.log_event("%s removed the settlement %s principle." % (self.User, principle["name"]))
+                self.settlement["principles"].remove(o_dict["name"])
 
-    def update_principles(self, add_new_principle=False):
-        """ Since certain principles are mutually exclusive, all of the biz
-        logic for toggling one on and toggling off its opposite is here. """
-
-        principles = set(self.settlement["principles"])
-
-        # first, see if we've got to remove a principle to make way for the new,
-        #   incoming principle (check the mutual exclusion rules)
-
-        def rm_principle(p):
-            """ Removes a principle and undoes its auto-updates. """
-            principles.remove(p)
-            principle_dict = Innovations.get_asset(p)
-            if "current_survivor" in principle_dict.keys():
-                buff = principle_dict["current_survivor"]
-                self.logger.debug("[%s] Removing '%s' current_survivor buffs:  %s" % (self.User, add_new_principle, buff))
-                self.update_current_survivors(buff, p, rm_buff=True)
-                self.log_event("Automatically removed '%s' bonus from current survivors: %s" % (p, buff))
-            self.log_event("Removed '%s' principle." % p)
-
-
-        for k in mutually_exclusive_principles.keys():
-            tup = mutually_exclusive_principles[k]
-            if tup[0] == add_new_principle:
-                if tup[1] in principles:
-                    rm_principle(tup[1])
-            elif tup[1] == add_new_principle:
-                if tup[0] in principles:
-                    rm_principle(tup[0])
-
-        # now, add the new, incoming principle
-        if add_new_principle and not add_new_principle in self.settlement["principles"]:
-            principles.add(add_new_principle)
-            self.logger.debug("%s added principle '%s' to settlement '%s' (%s)." % (self.User.user["login"], add_new_principle, self.settlement["name"], self.settlement["_id"]))
-            self.log_event("'%s' added to settlement Principles." % add_new_principle)
-
-            if self.User.get_preference("apply_new_survivor_buffs"):
-                principle_dict = Innovations.get_asset(add_new_principle)
-                if "current_survivor" in principle_dict.keys():
-                    buff = principle_dict["current_survivor"]
-                    self.logger.debug("[%s] Automatically updating current survivors with '%s' current_survivor buffs:  %s" % (self.User, add_new_principle, buff))
-                    self.update_current_survivors(buff, add_new_principle)
-                    self.log_event("Current survivors automatically updated: %s" % buff)
-
-
-
-        self.settlement["principles"] = sorted(list(principles))
-        self.logger.debug("%s updated Principles for %s. Updating mins..." % (self.User.user["login"], self))
-        self.update_mins()  # this is a save
+        if election != "UNSET":
+            self.logger.debug("[%s] set %s %s principle '%s'." % (self.User, self, principle["name"], election["name"]))
+            self.log_event("Settlement %s principle is now set to '%s'" % (principle["name"], election["name"]))
+            self.settlement["principles"].append(election["name"])
 
 
     def update_milestones(self, m):
@@ -5874,7 +5806,7 @@ class Settlement:
             elif p == "remove_location":
                 self.rm_game_asset("locations", game_asset_key)
             elif p.split("_")[:2] == ["set","principle"]:
-                principle = p.split("_")[2:][0]
+                principle = "_".join(p.split("_")[2:])
                 self.set_principle(principle, game_asset_key)
             elif p == "remove_principle":
                 self.rm_game_asset("principles", game_asset_key)
@@ -5983,11 +5915,6 @@ class Settlement:
 
         self.update_mins()
 
-        # this is stupid: I need to refactor this out at some point
-        abandoned = ""
-        if "abandoned" in self.settlement.keys():
-            abandoned = '<h1 class="alert">ABANDONED</h1>'
-
         # show the settlement rm button if the user prefers
         rm_button = ""
         if self.User.get_preference("show_remove_button"):
@@ -5999,17 +5926,11 @@ class Settlement:
         return html.settlement.form.safe_substitute(
             settlement_id = self.settlement["_id"],
 
-            name = self.settlement["name"],
-            campaign = self.get_campaign(),
-            abandoned = abandoned,
-
             population = self.get_attribute("population"),
             death_count = self.get_attribute("death_count"),
 
             survival_limit = self.get_attribute("survival_limit"),
             min_survival_limit = self.get_min("survival_limit"),
-            lost_settlements = self.get_lost_settlements("js"),
-            settlement_notes = self.get_settlement_notes(),
 
             endeavors = self.get_bonuses('endeavors', return_type="html"),
             departure_bonuses = self.get_bonuses('departure_buff', return_type="html"),
@@ -6021,23 +5942,9 @@ class Settlement:
                 expansions=self.get_expansions(),
             ),
 
-            principles = self.get_principles("json"),
-            principles_rm = self.get_principles("html_select_remove"),
-
-
-            milestone_controls = self.get_milestones("html_controls"),
-
-
-            quarry_options = Quarries.render_as_html_dropdown(exclude=self.settlement["quarries"], Settlement=self),
-
-            innovations_add = self.get_game_asset("innovations", return_type="html_add", update_mins=False),
-            innovation_deck = self.get_game_asset_deck("innovations", return_type="user_defined", exclude_always_available=True),
-
-            defeated_monsters_add = self.get_game_asset("defeated_monsters", return_type="html_add", update_mins=False),
-            defeated_monsters_rm = self.get_game_asset("defeated_monsters", return_type="html_rm", update_mins=False),
-
             player_controls = self.get_players("html"),
             expansions_block = self.render_expansions_block(),
+            remove_settlement_button = rm_button,
 
         )
 

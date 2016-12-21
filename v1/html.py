@@ -428,6 +428,99 @@ class angularJS:
     and they may not be python templates or do any other kind of variable
     expansion or anything like that. """
 
+
+    bulk_add_survivors = """\n
+    <div
+        id="modalBulkAdd" class="modal"
+        ng-init="registerModalDiv('bulkAddOpenerButton','modalBulkAdd');"
+    >
+
+      <!-- Modal content -->
+        <div class="full_size_modal_panel survivor_sheet_gradient">
+            <span class="closeModal" onclick="closeModal('modalBulkAdd')">×</span>
+
+            <h3>Add Multiple New Survivors</h3>
+            <p>Use these controls to add multiple new survivors to {{settlement_sheet.name}}.
+            New survivors will be named randomly or 'Anonymous' according to user preference.</p>
+
+            <div
+                class="create_user_asset_block_group"
+            >
+                <div class="bulk_add_control">
+                    <form method="POST" action="#">
+                        <input type="hidden" name="modify" value="settlement" />
+                        <input type="hidden" name="asset_id" value="{{settlement_sheet._id.$oid}}" />
+                        <input type="hidden" name="bulk_add_survivors" value="True" />
+
+                        Male
+
+                        <button
+                            type="button"
+                            class="incrementer"
+                            onclick="increment('maleCountBox');"
+                        >
+                            &#9652;
+                        </button>
+                        <input
+                            id="maleCountBox"
+                            class="big_number_square"
+                            type="number"
+                            name="male_survivors"
+                            value="0"
+                            min="0"
+                        />
+                        <button
+                            type="button"
+                            class="decrementer"
+                            onclick="decrement('maleCountBox');"
+                        >
+                        &#9662;
+                        </button>
+                </div>  <!-- bulk_add_control maleCoundBox" -->
+                <div class="bulk_add_control">
+
+                    Female
+
+                    <button
+                        type="button"
+                        class="incrementer"
+                        onclick="increment('femaleCountBox');"
+                    >
+                        &#9652;
+                    </button>
+                    <input
+                        id="femaleCountBox"
+                        class="big_number_square"
+                        type="number"
+                        name="female_survivors"
+                        value="0"
+                        min="0"
+                    />
+                    <button
+                        type="button"
+                        class="decrementer"
+                        onclick="decrement('femaleCountBox');"
+                    >
+                        &#9662;
+                    </button>
+                </div>
+
+                <input
+                    type="submit"
+                    id="settlement_sheet_create_new_survivors"
+                    class="kd_blue settlement_sheet_bulk_add" value="Create New Survivors"
+                />
+
+                </form>
+
+
+            </div> <!-- bulk_add_survivors -->
+
+        </div> <!-- mondal content -->
+    </div> <!-- modal parent -->
+
+    \n"""
+
     settlement_notes = """\n\
     <div
         class="modal"
@@ -691,7 +784,7 @@ class angularJS:
                             </span>
                         </span>
                         <span class="timeline_event" ng-repeat="q in t.special_showdown">
-                        <span><img class="icon" src="/media/icons/special_showdown_event.jpg"/></span>
+                        <span><img class="icon special_showdown" src="/media/icons/special_showdown_event.jpg"/></span>
                             <font class="maroon_text"><b>{{q.name}}</b></font>
                         </span>
                         <span class="timeline_event" ng-repeat="q in t.showdown_event">
@@ -2275,6 +2368,7 @@ class settlement:
                     type="text"
                     name="settlement_name"
                     placeholder="New Settlement Name"
+                    onclick="this.select()"
                     class="new_asset_name"
                     ng-model = "settlementName"
                     autofocus
@@ -2402,7 +2496,7 @@ class settlement:
         <input type="hidden" name="view_campaign" value="$asset_id" />
         <button class="settlement_sheet_gradient dashboard_settlement_name">
         <b class="dashboard_settlement_name">$name</b>
-        <i>$campaign</i><br/>
+        <i>$campaign</i></span><br/>
         LY $ly. &ensp; Survivors: $pop &ensp;
         $players_block
         </button>
@@ -2773,7 +2867,7 @@ class settlement:
                 class="center"
                 title="Campaign type may not be changed after a settlement is created!"
             >
-                $campaign
+                {{settlement_sheet.campaign}}
             </p>
 
             <input
@@ -2781,13 +2875,14 @@ class settlement:
                 id="settlementName"
                 class="settlement_name"
                 type="text"
-                value="$name"
+                value="{{settlement_sheet.name}}"
                 placeholder="Settlement Name"
                 onclick="this.select()"
                 onchange="updateAssetAttrib(this, 'settlement', '$settlement_id')"
             />
 
-            $abandoned
+
+        <h1 ng-if="settlement_sheet.abandoned"class="alert">ABANDONED</h1>
 
         <hr class="mobile_only"/>
         <br class="tablet_and_desktop">
@@ -2881,91 +2976,6 @@ class settlement:
         <hr class="invisible">
 
 
-            <!-- BULK ADD CONTROLS FOR SURVIVORS START HERE -->
-
-
-        <div class="settlement_sheet_block_group" onclick="showHide('bulk_add_survivors')">
-            <hr class="mobile_only">
-            <h2>Add Multiple New Survivors</h2>
-            <p>Click or tap to show/hide controls for adding <b>multiple new survivors</b> to <i>$name</i>.</p>
-        </div> <!-- settlement_sheet_block_group -->
-
-        <div
-            id="bulk_add_survivors"
-            class="settlement_sheet_hidden_controls"
-            style="display:none"
-            title="New survivors will be named randomly or 'Anonymous' according to user preference. See the Dashboard 'System' panel for more information. "
-        >
-            <div class="bulk_add_control">
-                <form method="POST" action="#">
-                    <input type="hidden" name="modify" value="settlement" />
-                    <input type="hidden" name="asset_id" value="$settlement_id" />
-                    <input type="hidden" name="bulk_add_survivors" value="True" />
-
-                    Male
-
-                    <button
-                        type="button"
-                        class="incrementer"
-                        onclick="increment('maleCountBox');"
-                    >
-                        &#9652;
-                    </button>
-                    <input
-                        id="maleCountBox"
-                        class="big_number_square"
-                        type="number"
-                        name="male_survivors"
-                        value="0"
-                        min="0"
-                    />
-                    <button
-                        type="button"
-                        class="decrementer"
-                        onclick="decrement('maleCountBox');"
-                    >
-                    &#9662;
-                    </button>
-            </div>  <!-- bulk_add_control maleCoundBox" -->
-            <div class="bulk_add_control">
-
-                Female
-
-                <button
-                    type="button"
-                    class="incrementer"
-                    onclick="increment('femaleCountBox');"
-                >
-                    &#9652;
-                </button>
-                <input
-                    id="femaleCountBox"
-                    class="big_number_square"
-                    type="number"
-                    name="female_survivors"
-                    value="0"
-                    min="0"
-                />
-                <button
-                    type="button"
-                    class="decrementer"
-                    onclick="decrement('femaleCountBox');"
-                >
-                    &#9662;
-                </button>
-            </div>
-
-            <input
-                type="submit"
-                id="settlement_sheet_create_new_survivors"
-                class="kd_alert_no_exclaim settlement_sheet_bulk_add" value="Create New Survivors"
-            />
-
-            </form>
-        </div> <!-- bulk_add_survivors -->
-
-
-        <hr class="mobile_only"/>
 
 
 
@@ -3152,26 +3162,40 @@ class settlement:
         <div
             class="settlement_sheet_block_group"
             ng-controller="principlesController"
-            ng-init="principles=$principles;settlement_id='$settlement_id';"
         >
             <h2>Principles</h2>
             <p>The settlement's established principles.</p>
 
-            <div principle" ng-repeat="p in principles" class="settlement_sheet_principle_container">
-                <div id="{{p.name}} principle"> <!-- unstyled container -->
+            <div principle" ng-repeat="p in settlement.game_assets.principles_options" class="settlement_sheet_principle_container">
+                <div id="{{p.name}} principle" class="principles_container">
+
                     <div class="settlement_sheet_principle_name"> {{p.name}} </div>
-                    <label id="{{o.div_id}}Label" ng-repeat="o in p.options" for="{{o.div_id}}" class="kd_radio_option_label">
+
+                    <div
+                        class="principle_option"
+                        ng-repeat="o in p.options"
+                    >
                         <input
-                            class="kd_toggle_box"
-                            id="{{o.div_id}}"
                             type="radio"
+                            class="kd_css_checkbox kd_radio"
+                            id="{{o.input_id}}"
                             name="{{p.form_handle}}"
                             value="{{o.name}}"
-                            ng-checked="{{o.checked}}"
-                            ng-click="set(o.div_id,p.name,o.name)">
-                        {{ o.name }}
-                    </label>
-                </div> <!-- unstyled container -->
+                            ng-checked="o.checked"
+                            ng-click="set(p.handle,o.handle)"
+                        >
+
+                        <label
+                            id="{{o.input_id}}Label"
+                            for="{{o.input_id}}"
+                        >
+                            {{ o.name }}
+                        </label>
+
+                    </div> <!-- principle_option repeater-->
+
+                </div> <!-- principles_container -->
+
             </div> <!-- settlement_sheet_principle_container -->
 
             <br/>
@@ -3180,7 +3204,7 @@ class settlement:
                 <select
                     ng-model="unset"
                     ng-change="unset_principle();"
-                    ng-options="p.name for p in principles"
+                    ng-options="p.handle as p.name for p in settlement.game_assets.principles_options"
                 >
                     <option disabled value="">Unset Principle</option>
                 </select>
@@ -3455,7 +3479,7 @@ class settlement:
                 <input type="hidden" name="modify" value="settlement" />
                 <input type="hidden" name="asset_id" value="$settlement_id" />
                 <input type="hidden" name="abandon_settlement" value="toggle" />
-                <button class="full_width warn"> Abandon Settlement! </button>
+                <button class="kd_alert_no_exclaim"> Abandon Settlement! </button>
             </form>
         </div>
 
@@ -3480,7 +3504,7 @@ class settlement:
     >
 
       <!-- Modal content -->
-        <div class="modal-content">
+        <div class="full_size_modal_panel timeline_gradient">
             <span class="closeModal" onclick="closeModal('modalStorage')">×</span>
 
                 <!-- ADD TO STORAGE - THIS IS ITS OWN FORM-->
@@ -3499,11 +3523,14 @@ class settlement:
                 $add_to_storage_controls
 
                 <input type="text" class="full_width" name="add_item" placeholder="Add custom item to storage"/>
-                <center><button class="yellow">Submit</button></center>
+                <center><button class="kd_blue">Add!</button></center>
                 <br><br><br>
             </form>
         </div> <!-- modal-content -->
     </div> <!-- modalStorage -->
+
+
+
 
 </div> <!-- settlementSheetApp -->
 
@@ -3953,22 +3980,17 @@ def render_burger(session_object=None):
     )
 
     # create a list of action buttons based on view/session info
-    actions = ""
-    if view != "new_survivor":
-        actions += '<button id="newSurvivorButton" class="sidenav_button">+ Create New Survivor</button>'
-#        actions += meta.burger_change_view_button.safe_substitute(
-#            link_text = "+ Create New Survivor",
-#            target_view = "change_view",
-#            settlement_id = "new_survivor"
-#        )
-    if view in ["view_campaign","view_survivor","new_survivor"]:
+    actions = '<button id="newSurvivorButton" class="sidenav_button">+ Create New Survivor</button>'
+    if session_object.User.is_settlement_admin():
+        actions += '<button id="bulkAddOpenerButton" class="sidenav_button">+ Create Multiple Survivors</button>'
+    if view in ["view_campaign","view_survivor"]:
         if session_object.User.is_settlement_admin():
             actions += meta.burger_change_view_button.safe_substitute(
                 link_text = "Settlement Sheet",
                 target_view = "view_settlement",
                 settlement_id = session_object.session["current_settlement"],
             )
-    if view in ["view_settlement","view_survivor","new_survivor"]:
+    if view in ["view_settlement","view_survivor"]:
         actions += meta.burger_change_view_button.safe_substitute(
             link_text = "Campaign Summary",
             target_view = "view_campaign",

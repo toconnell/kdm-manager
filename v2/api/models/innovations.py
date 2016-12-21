@@ -22,6 +22,20 @@ class Assets(Models.AssetCollection):
         """ Spits out the principles dict from assets/principles.py. """
         return innovations.principles
 
+    def get_principle(self, p_handle):
+        """ Returns a single principle asset dictionary. """
+        return innovations.principles[p_handle]
+
+    def get_principle_from_name(self, p_name):
+        """ Use a name to get a principle asset. """
+
+        lookup_dict = {}
+        for p_key in innovations.principles.keys():
+            p_dict = innovations.principles[p_key]
+            lookup_dict[p_dict["name"]] = p_dict
+
+        return lookup_dict[p_name]
+
 
     def get_mutually_exclusive_principles(self):
         """ Returns a dictionary object listing game asset names for the

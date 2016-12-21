@@ -98,6 +98,7 @@ class Settlement(Models.UserAsset):
         output["game_assets"].update(self.get_available_assets(events))
         output["game_assets"].update(self.get_available_assets(monsters))
 
+        output["game_assets"]["principles_options"] = self.get_principles_options()
         output["game_assets"]["nemesis_options"] = self.get_nemesis_options()
         output["game_assets"]["eligible_parents"] = self.eligible_parents
 
@@ -229,6 +230,44 @@ class Settlement(Models.UserAsset):
 
         utils.mdb.settlement_notes.remove({"settlement": self.settlement["_id"], "js_id": n["js_id"]})
         self.logger.info("[%s] removed a settlement note from %s" % (n["user_login"], self))
+
+
+    def get_principles_options(self):
+        """ Returns a dict (JSON) meant to be interated over in an ng-repeat on
+        the Settlement Sheet. """
+
+        I = innovations.Assets()
+
+        p_handles = self.get_campaign(dict)["principles"]
+        all_principles = {}
+        for p_handle in p_handles:
+            p_dict = I.get_principle(p_handle)
+            all_principles[p_dict["name"]] = p_dict
+
+        sorting_hat = {}
+        for p in all_principles.keys():
+            sorting_hat[all_principles[p]["sort_order"]] = I.get_principle_from_name(p)
+
+        output = []
+        for n in sorted(sorting_hat.keys()):
+
+            p_dict = sorting_hat[n]
+            p_dict["options"] = {}
+
+            for o in p_dict["option_handles"]:
+                o_dict = I.get_asset(o)
+
+                selected=False
+                if o_dict["name"] in self.settlement["principles"]:
+                    selected=True
+
+                o_dict.update({"input_id": "%s_%s_selector" % (p_dict["handle"],o), "checked": selected})
+                p_dict["options"][o] = o_dict
+
+            p_dict["form_handle"] = "set_principle_%s" % p_dict["name"]
+            output.append(p_dict)
+
+        return output
 
 
     def get_special_showdowns(self):

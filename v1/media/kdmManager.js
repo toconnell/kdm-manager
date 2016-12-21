@@ -206,7 +206,7 @@ app.controller('rootController', function($scope, $rootScope, apiService, $http)
 app.controller('newSurvivorController', function($scope) {
 }); 
 
-app.controller('settlementNotesController', function($scope) {
+app.controller('settlementNotesController', function($scope, $rootScope) {
 
     $scope.getID = function () {
         var text = "";

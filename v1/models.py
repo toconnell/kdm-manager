@@ -619,18 +619,6 @@ preferences_dict = {
         "affirmative": "Add",
         "negative": "Do Not Add",
     },
-    "hide_timeline": {
-        "type": "Timeline",
-        "desc": "Automatically hide the Settlement Sheet Timeline controls?",
-        "affirmative": "Hide",
-        "negative": "Always Show",
-    },
-    "show_future_timeline": {
-        "type": "Timeline",
-        "desc": "How many Lantern Years should be visible when viewing the Timeline?",
-        "affirmative": "Show the next four Lantern Years",
-        "negative": "Only show the current Lantern Year",
-    },
     "show_endeavor_token_controls": {
         "type": "Campaign Summary",
         "desc": "Show Endeavor Token controls on Campaign Summary view?",
