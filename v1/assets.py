@@ -16,6 +16,7 @@ import os
 import pickle
 import random
 from string import Template, capwords, punctuation
+import time
 import types
 
 import api
@@ -62,7 +63,7 @@ def ua_decorator(render_func=None):
             user_id = self.User.user["_id"],
             settlement_id = self.Session.Settlement.settlement["_id"],
 
-        ) + html.angularJS.timeline + html.angularJS.new_survivor + html.angularJS.settlement_notes + html.angularJS.bulk_add_survivors
+        ) + html.angularJS.timeline + html.angularJS.new_survivor + html.angularJS.settlement_notes + html.angularJS.bulk_add_survivors + html.angularJS.expansions_manager
 
     return wrapper
 
@@ -3326,6 +3327,15 @@ class Settlement:
             M.load_settlement(self)
 
 
+    def refresh_from_API(self,k):
+        """ Retrives the settlement from the API and sets self.settlement[k] to
+        whatever the API currently thinks self.settlement happens to be. """
+
+        self.set_api_asset()
+        self.settlement[k] = self.api_asset["sheet"][k]
+        self.logger.debug(self.settlement[k])
+        self.logger.info("[%s] reset self.settlement[%s] from API data" % (self.User, k))
+
 
     def get_api_asset(self, asset_type="sheet", asset_key=None):
         """ Tries to get an asset from the api_asset attribute/dict. Fails
@@ -3453,7 +3463,7 @@ class Settlement:
                 n.set_attrs(s_dict["attribs"])
 
         self.save() # this is the LAST save
-
+        self.logger.debug("[%s] legacy settlement creation method compelte!" % (self.User))
 
         #
         #   settlement is initialized and saved; only API-based update methods
@@ -3486,38 +3496,25 @@ class Settlement:
         self.logger.debug("[%s] saved changes to %s" % (self.User, self))
 
 
-    def add_expansion(self, e):
+    def add_expansions(self, e):
         """ Interim/legacy support method. Adds an expansion via API POST. """
-        response = api.post_JSON_to_route("/settlement/add_expansions/%s" % settlement_id, [e])
+        if type(e) != list:
+            e = [e]
+        response = api.post_JSON_to_route("/settlement/add_expansions/%s" % self.settlement["_id"], e)
         if response.status_code == 200:
-            self.logger.debug("[%s] added '%s' expansion to %s via API call!" % (self.User, e, self))
+            self.logger.debug("[%s] added %s expansions to %s via API call!" % (self.User, e, self))
         else:
             self.logger.error("[%s] add_expansions API call returned %s!" % (self.User, response.status_code))
 
-
-    def toggle_expansion(self, e_key):
-        """ Toggles an expansion on or off. """
-
-        if not e_key in self.get_expansions():
-            self.add_expansion(e_key)
+    def rm_expansions(self, e):
+        """ Interim/legacy support method. Adds an expansion via API POST. """
+        if type(e) != list:
+            e = [e]
+        response = api.post_JSON_to_route("/settlement/rm_expansions/%s" % self.settlement["_id"], e)
+        if response.status_code == 200:
+            self.logger.debug("[%s] removed %s expansions from %s via API call!" % (self.User, e, self))
         else:
-            # first purge expansion events from the timeline
-
-            self.settlement["expansions"].remove(e_key)
-
-            expansion_dict = game_assets.expansions[e_key]
-
-            if "timeline_add" in expansion_dict.keys():
-                for e in expansion_dict["timeline_add"]:
-                    if e["ly"] >= self.get_ly():
-                        self.rm_timeline_event(e)
-            if "timeline_rm" in expansion_dict.keys():
-                for e in expansion_dict["timeline_rm"]:
-                    if e["ly"] >= self.get_ly():
-                        self.add_timeline_event(e)
-
-            self.log_event("'%s' expansion is now disabled!" % (e_key.replace("_"," ")))
-            self.logger.debug("[%s] removed '%s' expansion from %s" % (self.User, e_key, self))
+            self.logger.error("[%s] rm_expansions API call returned %s!" % (self.User, response.status_code))
 
 
 
@@ -4419,7 +4416,7 @@ class Settlement:
         if return_type == "html":
             output = ""
             for k in buffs.keys():
-                output += '<p><i>%s:</i> %s</p>\n' % (k, buffs[k])
+                output += '<p class="settlement_buff"><i>%s:</i> %s</p>\n' % (k, buffs[k])
             return output
 
         return buffs
@@ -5291,6 +5288,22 @@ class Settlement:
             self.settlement["lost_settlements"] = int(new_value)
         self.logger.debug("[%s] set %s lost settlements for %s" % (self.User, self.settlement["lost_settlements"], self))
 
+    def update_quarries(self, action, quarry_handle):
+        """ Operates on self.settlement["quarries"]. """
+
+        m = self.get_api_asset("game_assets","monsters")[quarry_handle]
+
+        if action == "add":
+            self.settlement["quarries"].append(quarry_handle)
+            self.log_event("%s added '%s' to the settlement quarries list." % (self.User.user["login"], m["name"]))
+        elif action == "rm":
+            self.settlement["quarries"].remove(quarry_handle)
+            self.log_event("%s removed '%s' from the settlement quarries list." % (self.User.user["login"], m["name"]))
+        else:
+            logger.warn("[%s] the update_quarries() method does not support the '%s' action!" % (self.User,action))
+        self.logger.debug("[%s] updated settlement quarries (%s %s)" % (self.User, action, quarry_handle))
+
+
 
     def update_location_level(self, location_name, lvl):
         """ Changes 'location_name' level to 'lvl'. """
@@ -5788,9 +5801,9 @@ class Settlement:
             elif p == "remove_defeated_monster":
                 self.rm_game_asset("defeated_monsters", game_asset_key)
             elif p == "add_quarry":
-                self.add_game_asset("quarries",game_asset_key)
-            elif p == "remove_quarry":
-                self.rm_game_asset("quarries",game_asset_key)
+                self.update_quarries("add",game_asset_key)
+            elif p == "rm_quarry":
+                self.update_quarries("rm",game_asset_key)
             elif p == "add_nemesis":
                 self.settlement["nemesis_monsters"][params[p].value] = []
             elif p == "increment_nemesis":
@@ -5808,10 +5821,6 @@ class Settlement:
             elif p.split("_")[:2] == ["set","principle"]:
                 principle = "_".join(p.split("_")[2:])
                 self.set_principle(principle, game_asset_key)
-            elif p == "remove_principle":
-                self.rm_game_asset("principles", game_asset_key)
-            elif p == "milestone":
-                self.update_milestones(game_asset_key)
             elif p == "abandon_settlement":
                 self.log_event("Settlement abandoned!")
                 self.settlement["abandoned"] = datetime.now()
@@ -5822,9 +5831,6 @@ class Settlement:
                 self.update_admins(player_login, game_asset_key)
             elif p == "current_quarry":
                 self.update_current_quarry(game_asset_key)
-            elif p.split("_")[0] == "expansion":
-                exp_key = "_".join(p.split("_")[1:])
-                self.toggle_expansion(exp_key)
             elif p.split("_")[0] == "location" and p.split("_")[1] == "level":
                 self.update_location_level(p.split("_")[2:][0], game_asset_key)
             else:
@@ -5845,34 +5851,6 @@ class Settlement:
         self.update_mins()
 
 
-    def render_expansions_block(self):
-        """ Creates HTML toggles for adding/removing expansion content from the
-        Settlement Sheet. """
-
-        exp_block = ""
-        if "expansions" in self.settlement.keys():
-            for exp_key in sorted(game_assets.expansions.keys()):
-                on_off = ""
-                if exp_key in self.settlement["expansions"]:
-                    on_off = "checked"
-                exp_attribs = game_assets.expansions[exp_key]
-                exp_block += html.settlement.expansions_block_slug.safe_substitute(
-                    settlement_id = self.settlement["_id"],
-                    key = exp_key,
-                    checked = on_off,
-                    nickname = exp_key.lower().replace(" ","_"),
-                )
-        else:
-            for exp_key in sorted(game_assets.expansions.keys()):
-                exp_attribs = game_assets.expansions[exp_key]
-                exp_block += html.settlement.expansions_block_slug.safe_substitute(
-                    settlement_id = self.settlement["_id"],
-                    key = exp_key,
-                    checked = "",
-                    nickname = exp_key.lower().replace(" ","_"),
-                )
-        return exp_block
-
 
     @ua_decorator
     def render_html_summary(self, user_id=False):
@@ -5881,24 +5859,18 @@ class Settlement:
 
 
         return html.settlement.summary.safe_substitute(
-            campaign = self.get_campaign(),
-            settlement_notes = self.get_settlement_notes(),
-            settlement_name=self.settlement["name"],
             settlement_id=self.settlement["_id"],
-            principles = self.get_principles("user_defined"),
             population = self.settlement["population"],
             death_count = self.settlement["death_count"],
             sex_count = self.get_survivors(return_type="sex_count", exclude_dead=True),
             lantern_year = self.settlement["lantern_year"],
             survival_limit = self.settlement["survival_limit"],
             innovations = self.get_game_asset("innovations", return_type="user_defined", exclude=self.settlement["principles"], update_mins=False),
-            locations = self.get_game_asset("locations", return_type="user_defined", update_mins=False),
             endeavors = self.get_endeavors("html"),
             departure_bonuses = self.get_bonuses('departure_buff', return_type="html", update_mins=False),
             settlement_bonuses = self.get_bonuses('settlement_buff', return_type="html", update_mins=False),
             survivor_bonuses = self.get_bonuses('survivor_buff', return_type="html", update_mins=False),
             defeated_monsters = self.get_game_asset("defeated_monsters", return_type="user_defined", update_mins=False),
-            quarries = self.get_game_asset("quarries", return_type="user_defined", update_mins=False),
             survivors = self.get_survivors(return_type="html_campaign_summary", user_id=user_id),
             special_rules = self.get_special_rules("html_campaign_summary"),
 
@@ -5943,7 +5915,6 @@ class Settlement:
             ),
 
             player_controls = self.get_players("html"),
-            expansions_block = self.render_expansions_block(),
             remove_settlement_button = rm_button,
 
         )

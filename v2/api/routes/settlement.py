@@ -49,8 +49,12 @@ def render_response(action, settlement_id):
         S.update_sheet_from_dict(params)
     elif action == "add_expansions":
         S.add_expansions(params)
+    elif action == "rm_expansions":
+        S.rm_expansions(params)
     elif action == "add_note":
         S.add_settlement_note(params)
+    elif action == "update_expansions":
+        logger.debug(params)
     elif action == "rm_note":
         S.rm_settlement_note(params)
     elif action == "add_timeline_event":

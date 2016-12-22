@@ -136,3 +136,16 @@ unique_nemeses = {
 }
 
 
+#
+#   helpers and shorthands below
+#
+
+base_game_quarries = [
+    "white_lion",
+    "screaming_antelope",
+    "phoenix",
+    "beast_of_sorrow",
+    "great_golden_cat",
+    "mad_steed",
+    "golden_eyed_king",
+]

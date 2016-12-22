@@ -429,6 +429,41 @@ class angularJS:
     expansion or anything like that. """
 
 
+    expansions_manager = """\n
+    <div
+        id="modalExpansionsManager" class="modal"
+        ng-init="registerModalDiv('bulkExpansionsManagerButton','modalExpansionsManager');"
+        ng-controller="updateExpansionsController"
+    >
+
+      <!-- Modal content -->
+        <div class="full_size_modal_panel timeline_gradient">
+            <span class="closeModal" onclick="closeModal('modalExpansionsManager')">×</span>
+
+            <h3>Expansions!</h3>
+            <p>Use the controls below to determine which expansion content is
+            enabled for this campaign. Remember to save when finished!</p>
+
+            <form method="POST" action="#">
+                <div class="expansion_content_line_item" ng-repeat="x in new_settlement_assets.expansions">
+                    <input
+                        id="{{x.handle}}_modal_toggle"
+                        name="{{x.handle}}"
+                        type="checkbox"
+                        class="kd_css_checkbox kd_radio_option"
+                        ng-model=incomingExpansion
+                        ng-checked="arrayContains(x.handle, settlement_sheet.expansions)"
+                        ng-click="toggleExpansion(x.handle)"
+                    >
+                    <label for="{{x.handle}}_modal_toggle">{{x.name}}</label>
+                </div> <!-- line_item -->
+
+                <button type="submit" class="kd_blue save_expansions">Save Changes and Reload</button>
+            </form>
+        </div> <!-- modal content -->
+    </div> <!-- parent modal -->
+    """
+
     bulk_add_survivors = """\n
     <div
         id="modalBulkAdd" class="modal"
@@ -940,7 +975,7 @@ class angularJS:
                         <div
                             ng-class-odd="'log_zebra'"
                             ng-class-even="'log_no_zebra'"
-                            ng-bind-html=" l.event|trustedHTML"
+                            ng-bind-html="l.event|trustedHTML"
                         >
                         </div>
                    </span>
@@ -2240,7 +2275,7 @@ class survivor:
     <input type="hidden" name="expansion_attribs" value="None"/> <!-- Hacks -->
     <input type="hidden" name="expansion_attribs" value="None"/> <!-- Hacks -->
     $control_items
-    <br class="clear_both"/>
+    <br/>
     <span class="tiny_break"/>&nbsp;</span>
     \n""")
     expansion_attrib_item = Template("""\n
@@ -2401,7 +2436,9 @@ class settlement:
 
         <div class="create_user_asset_block_group">
             <h2 class="no_ul">Expansions:</h2>
-            <p> Enable expansion content by toggling items below. Expansion content may also be enabled (or disabled) later using the controls on the Settlement Sheet.</p>
+            <p> Enable expansion content by toggling items below. Expansion
+            content may also be enabled (or disabled) later using the controls
+            on the Settlement Sheet.</p>
 
             <div ng-if="showLoader" class="new_settlement_loading"><img src="/media/loading_io.gif"></div>
 
@@ -2525,8 +2562,8 @@ class settlement:
             <span class="top_nav_spacer mobile_only"> hidden </span>
 
             <div class="campaign_summary_headline_container">
-                <h1 class="settlement_name"> %s $settlement_name</h1>
-                <p class="campaign_summary_campaign_type">$campaign</p>
+                <h1 class="settlement_name"> %s {{settlement_sheet.name}}</h1>
+                <p class="campaign_summary_campaign_type">{{settlement_sheet.campaign}}</p>
                 <p>Population: $population ($sex_count); $death_count deaths</p>
                 <hr class="mobile_only"/>
                 <p>Lantern Year: {{current_ly}}, Survival Limit: $survival_limit</p>
@@ -2608,18 +2645,34 @@ class settlement:
             <hr class="mobile_only"/>
             <div class="campaign_summary_small_box">
                 <h4>- Principles -</h4>
-                $principles
+                <span
+                    class="kd_checkbox_checked campaign_summary_bullet"
+                    ng-repeat="p in settlement_sheet.principles"
+                >
+                    {{p}}
+                </span>
+
             </div>
             <div class="campaign_summary_small_box">
                 <h4>- Innovations -</h4>
-                $innovations
+                <span
+                    class="kd_checkbox_checked campaign_summary_bullet"
+                    ng-repeat="i in settlement_sheet.innovations"
+                >
+                    {{i}}
+                </span>
             </div>
 
             <hr class="mobile_only"/>
 
             <div class="campaign_summary_small_box">
                 <h4>- Locations -</h4>
-                $locations
+                <span
+                    class="kd_checkbox_checked campaign_summary_bullet"
+                    ng-repeat="l in settlement_sheet.locations"
+                >
+                    {{l}}
+                </span>
             </div>
 
             <hr class="mobile_only"/>
@@ -2864,7 +2917,6 @@ class settlement:
 
             <p
                 id="campaign_type"
-                class="center"
                 title="Campaign type may not be changed after a settlement is created!"
             >
                 {{settlement_sheet.campaign}}
@@ -2977,13 +3029,11 @@ class settlement:
 
 
 
-
-
             <!-- STORAGE CONTROLS START HERE -->
 
 
 
-        <div class="settlement_sheet_block_group">
+        <div class="settlement_sheet_block_group settlement_storage">
             <h2>Storage</h2>
             <p>Gear and Resources may be stored without limit.<br/><br/>
 
@@ -3240,40 +3290,32 @@ class settlement:
             <div>
                 <div
                     class="line_item"
-                    ng-repeat="x in settlement_sheet.quarries"
+                    ng-controller="quarriesController"
+                    ng-repeat="q in settlement_sheet.quarries"
                 >
                     <div> <!-- span holder -->
                         <span class="bullet"></span>
                         <span
                             class="item"
-                            onclick="removeSettlementSheetAsset(this, 'quarry', '$settlement_id');"
+                            ng-click="removeQuarry($index, q)"
                         >
-                            {{x.name}}
+                            {{settlement.game_assets.monsters[q].name}}
                         </span>
                     </div>
                 </div>
             </div>
 
-            <form method="POST" action="#edit_quarries">
-                <input type="hidden" name="modify" value="settlement" />
-                <input type="hidden" name="asset_id" value="$settlement_id" />
-
-                <div class="line_item">
-                    <span class="empty_bullet" /></span> $quarry_options
-                </div>
-                <div class="line_item">
-                    <span class="empty_bullet" /></span>
-                    <input
-                        name="add_quarry"
-                        onchange="this.form.submit()"
-                        type="text"
-                        placeholder="Enter custom Quarry"
-                        onfocus="showHide('bogus_quarry_button')"
-                        onblur="hide('bogus_quarry_button')"
-                    />
-                </div>
-            </form>
-            <button id="bogus_quarry_button" class="kd_blue" style="display:none;">Save</button>
+            <div class="line_item">
+                <span class="empty_bullet" /></span>
+                <select
+                    ng-controller="quarriesController"
+                    ng-model="addQuarryMonster"
+                    ng-options="q.handle as q.name for q in settlement.game_assets.quarry_options"
+                    ng-change="addQuarry($index)"
+                >
+                    <option selected disabled value="">Add Quarry Monster</option>
+                </select>
+            </div> <!-- line_item -->
 
         </div> <!-- settlement_Sheet_block_group quarry controls-->
 
@@ -3442,21 +3484,7 @@ class settlement:
         </div> <!-- lost settlement application -->
 
 
-
-
         <br class="mobile_only"/>
-        <hr class="mobile_only"/>
-
-        <div class="settlement_sheet_block_group">
-            <h2>Expansions</h2>
-            <a id="edit_expansions" class="mobile_only"></a>
-            <p>Toggle expansion content on/off using these controls. Adding
-            or removing content will automatically update drop-down menus, timeline
-            and survivor controls. </p>
-            $expansions_block
-            <br /><br/>
-        </div> <!-- expansions settlement_sheet_block_group -->
-
         <hr class="mobile_only"/>
 
         <div class="settlement_sheet_block_group">
@@ -3479,7 +3507,7 @@ class settlement:
                 <input type="hidden" name="modify" value="settlement" />
                 <input type="hidden" name="asset_id" value="$settlement_id" />
                 <input type="hidden" name="abandon_settlement" value="toggle" />
-                <button class="kd_alert_no_exclaim"> Abandon Settlement! </button>
+                <button class="kd_alert_no_exclaim red_glow"> Abandon Settlement! </button>
             </form>
         </div>
 
@@ -3552,17 +3580,6 @@ class settlement:
         <button class="kd_alert_no_exclaim red_glow permanently_delete">Permanently Delete Settlement</button>
     </form>
     """)
-    expansions_block_slug = Template("""\n\
-    <form method="POST" action="#edit_lost_settlements">
-        <input type="hidden" name="modify" value="settlement" />
-        <input type="hidden" name="asset_id" value="$settlement_id" />
-        <p>
-            <input type="hidden" name="expansion_$key" value="unchecked"/>
-            <input name="expansion_$key" onchange="this.form.submit()" id="$nickname" class="radio_principle" type="checkbox" $checked />
-            <label for="$nickname" class="radio_principle_label">$key</label>
-        </p>
-    </form>
-    \n""")
 
     location_level_controls = Template("""\n\
     $location_name - Lvl
@@ -3983,6 +4000,7 @@ def render_burger(session_object=None):
     actions = '<button id="newSurvivorButton" class="sidenav_button">+ Create New Survivor</button>'
     if session_object.User.is_settlement_admin():
         actions += '<button id="bulkAddOpenerButton" class="sidenav_button">+ Create Multiple Survivors</button>'
+        actions += '<button id="bulkExpansionsManagerButton" class="sidenav_button"> Expansion Content</button>'
     if view in ["view_campaign","view_survivor"]:
         if session_object.User.is_settlement_admin():
             actions += meta.burger_change_view_button.safe_substitute(

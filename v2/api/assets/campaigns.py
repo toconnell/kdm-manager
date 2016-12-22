@@ -1,5 +1,7 @@
 #!/usr/bin/python2.7
 
+from assets import monsters as monster_assets
+
 #
 #   Some comments on organization/architecture:
 #   
@@ -86,7 +88,6 @@ milestones = {
 }
 
 
-
 campaign_definitions = {
     "people_of_the_lantern": {
         "default": True,
@@ -94,6 +95,7 @@ campaign_definitions = {
         "always_available": ["Lantern Hoard", "Language"],
         "principles": ["new_life","death","society","conviction"],
         "nemesis_monsters": ["butcher","kings_man","the_hand","watcher"],
+        "quarries": monster_assets.base_game_quarries,
         "milestones": {
             "First child is born": milestones["first_child"],
             "First time death count is updated": milestones["first_death"],
@@ -107,6 +109,7 @@ campaign_definitions = {
         "name": "People of the Skull",
         "always_available": ["Lantern Hoard", "Language"],
         "nemesis_monsters": ["butcher","kings_man","the_hand","watcher"],
+        "quarries": monster_assets.base_game_quarries,
         "special_rules": [
             {"name": "People of the Skull",
              "desc": "Survivors can only place weapons and armor with the <b>bone</b> keyword in their gear grid. The people of the skull ignore the <b>Frail</b> rule.",
@@ -138,9 +141,11 @@ campaign_definitions = {
         "name": "The Bloom People",
         "always_available": ["Lantern Hoard", "Language"],
         "nemesis_monsters": ["butcher","kings_man","the_hand","watcher"],
+        "quarries": monster_assets.base_game_quarries,
+        "forbidden_quarries": ["flower_knight"],
         "expansions": ["Flower Knight"],
         "storage": ["Sleeping Virus Flower"],
-        "forbidden": ["Flower Addiction", "Flower Knight"],
+        "forbidden": ["Flower Addiction"],
         "milestones": {
             "First child is born": milestones["first_child"],
             "First time death count is updated": milestones["first_death"],
@@ -165,6 +170,7 @@ campaign_definitions = {
         "forbidden": ["Leader", "Lantern Hoard"],
         "principles": ["potsun_new_life","death","society","conviction"],
         "nemesis_monsters": ["butcher","kings_man","the_hand","ancient_sunstalker"],
+        "quarries": monster_assets.base_game_quarries,
         "milestones": {
             "First time death count is updated": milestones["first_death"],
             "Population reaches 15": milestones["pop_15"],
@@ -205,6 +211,7 @@ campaign_definitions = {
         "expansions": ["Dragon King"],
         "always_available": ["Throne","Dragon Speech","Radiating Orb"],
         "forbidden": ["Lantern Hoard", "Language","Lantern Oven","Clan of Death","Family", "Dragon Armory"],
+        "quarries": monster_assets.base_game_quarries,
         "nemesis_monsters": ["butcher","kings_man","the_hand","the_tyrant"],
         "nemesis_encounters": [
             {"butcher":["Lvl 1"]},

@@ -72,6 +72,9 @@ class Settlement(Models.UserAsset):
         """ Renders the settlement, including all methods and supplements, as
         a monster JSON object. This one is the gran-pappy. """
 
+
+        I = innovations.Assets()
+
         output = self.get_serialize_meta()
 
         # create the sheet
@@ -98,17 +101,28 @@ class Settlement(Models.UserAsset):
         output["game_assets"].update(self.get_available_assets(events))
         output["game_assets"].update(self.get_available_assets(monsters))
 
+            # principles
         output["game_assets"]["principles_options"] = self.get_principles_options()
-        output["game_assets"]["nemesis_options"] = self.get_nemesis_options()
-        output["game_assets"]["eligible_parents"] = self.eligible_parents
 
+            # monster game assets
+        output["game_assets"]["nemesis_options"] = self.get_monster_options("nemesis_monsters")
+        output["game_assets"]["quarry_options"] = self.get_monster_options("quarries")
+        for c in [
+            "showdown_options",
+            "special_showdown_options",
+            "nemesis_encounters",
+            "defeated_monsters"
+        ]:
+            output["game_assets"][c] = self.get_timeline_monster_event_options(c)
+
+            # meta/other game assets
         output["game_assets"]["campaign"] = self.get_campaign(dict)
         output["game_assets"]["expansions"] = self.get_expansions(dict)
 
+            # misc helpers for front-end
+        output["game_assets"]["eligible_parents"] = self.eligible_parents
         output["game_assets"]["survival_actions_available"] = self.get_available_survival_actions()
 
-        for monster_context in ["showdown_options","special_showdown_options","nemesis_encounters","defeated_monsters"]:
-            output["game_assets"][monster_context] = self.get_monster_options(monster_context)
 
         # finally, return a JSON string of our object
         return json.dumps(output, default=json_util.default)
@@ -136,12 +150,52 @@ class Settlement(Models.UserAsset):
         for e_handle in e_list:
             e_dict = E.get_asset(e_handle)
             self.log_event("Adding '%s' expansion content!" % e_dict["name"])
-            self.settlement["expansions"].append(e_dict["handle"])
+
+            self.settlement["expansions"].append(e_handle)
+
             if "timeline_add" in e_dict.keys():
                [self.add_timeline_event(e) for e in e_dict["timeline_add"] if e["ly"] >= self.get_current_ly()]
             if "timeline_rm" in e_dict.keys():
                [self.rm_timeline_event(e) for e in e_dict["timeline_rm"] if e["ly"] >= self.get_current_ly()]
             self.logger.info("Added '%s' expansion to %s" % (e_dict["name"], self))
+
+        self.logger.info("Successfully added %s expansions to %s" % (len(e_list), self))
+        self.save()
+
+
+    def rm_expansions(self, e_list=[]):
+        """ Takes a list of expansion handles and then removes them them from the
+        settlement, undoing Timeline updates, etc. as required by the expansion
+        asset definitions. """
+
+        E = expansions.Assets()
+
+        # prune the list to reduce risk of downstream cock-ups
+        for e_handle in e_list:
+            if e_handle not in E.get_handles():
+                e_list.remove(e_handle)
+                self.logger.warn("Unknown expansion handle '%s' is being ignored!" % (e_handle))
+            if e_handle not in self.settlement["expansions"]:
+                e_list.remove(e_handle)
+                self.logger.warn("Expansion handle '%s' is not in %s" % (e_handle, self))
+
+        #
+        #   here is where we process the expansion dictionary
+        #
+        for e_handle in e_list:
+            e_dict = E.get_asset(e_handle)
+            self.log_event("Removing '%s' expansion content!" % e_dict["name"])
+
+            self.settlement["expansions"].remove(e_handle)
+
+            if "timeline_add" in e_dict.keys():
+               [self.rm_timeline_event(e) for e in e_dict["timeline_add"] if e["ly"] >= self.get_current_ly()]
+            if "timeline_rm" in e_dict.keys():
+               [self.add_timeline_event(e) for e in e_dict["timeline_rm"] if e["ly"] >= self.get_current_ly()]
+            self.logger.info("Removed '%s' expansion from %s" % (e_dict["name"], self))
+
+        self.logger.info("Successfully removed %s expansions to %s" % (len(e_list), self))
+        self.save()
 
 
     def add_timeline_event(self, e={}):
@@ -287,26 +341,59 @@ class Settlement(Models.UserAsset):
         return list(set(output))
 
 
-    def get_nemesis_options(self):
-        """ Returns a list of available nemesis monster handles. """
+    def get_monster_options(self, monster_type):
+        """ Returns a list of available nemesis or quarry monster handles for
+        use with the Settlement Sheet controls.
+
+        The 'monster_type' kwarg should be something such as 'nemesis_monsters'
+        that will be present in our campaign and expansion definitions.
+        """
 
         options = []
-        if "nemesis_monsters" in self.get_campaign(dict):
-            options.extend(self.get_campaign(dict)["nemesis_monsters"])
+
+        # first check our campaign and expansion assets, and get all options
+        if monster_type in self.get_campaign(dict):
+            c_monsters = self.get_campaign(dict)[monster_type]
+            options.extend(c_monsters)
+            if "forbidden_%s" % monster_type in self.get_campaign(dict).keys():
+                f_monsters = self.get_campaign(dict)["forbidden_%s" % monster_type]
+                [options.remove(m) for m in f_monsters]
+
         for exp in self.get_expansions(dict):
             e_dict = self.get_expansions(dict)[exp]
-            if "nemesis_monsters" in e_dict.keys():
-                options.extend(e_dict["nemesis_monsters"])
+            if monster_type in e_dict.keys():
+                options.extend(e_dict[monster_type])
+            if "forbidden_%s" % monster_type in e_dict.keys():
+                f_monsters = e_dict["forbidden_%s" % monster_type]
+                [options.remove(m) for m in f_monsters]
 
+        # now convert our list into a set (just in case) and then go on to
+        # remove anything we've already got present in the settlement
         option_set = set(options)
-        for n in self.settlement["nemesis_monsters"]:
+        for n in self.settlement[monster_type]:
             if n in option_set:
                 option_set.remove(n)
 
-        return list(option_set)
+        # check the remaining to see if they're selectable:
+        option_set = list(option_set)
+        for m in option_set:
+            M = monsters.Monster(m)
+            if not M.is_selectable():
+                option_set.remove(m)
+
+        # now turn our set
+        output = []
+        for m in sorted(list(option_set)):
+            M = monsters.Monster(m)
+            output.append({
+                "handle": M.handle,
+                "name": M.name,
+            })
+
+        return output
 
 
-    def get_monster_options(self, context=None):
+    def get_timeline_monster_event_options(self, context=None):
         """ Returns a sorted list of strings (they call it an 'array' in JS,
         because they fancy) representing the settlement's possible showdowns,
         given their quarries, nemeses, etc.

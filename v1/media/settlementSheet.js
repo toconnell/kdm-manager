@@ -1,7 +1,3 @@
-
-
-// locations application
-
 app.controller("locationsController", function($scope) {
     $scope.add = function() {
         if (typeof $scope.add_location == "string") {
@@ -20,7 +16,22 @@ app.controller("locationsController", function($scope) {
 });
 
 
-// principles application
+app.controller('quarriesController', function($scope, $http) {
+    $scope.addQuarry = function(x) {
+        $scope.settlement_sheet.quarries.push($scope.addQuarryMonster);
+        $scope.settlement.game_assets.quarry_options.splice(x, 1);
+        params = "add_quarry=" + $scope.addQuarryMonster;
+        modifyAsset('settlement',$scope.settlement_id,params);
+    };
+    $scope.removeQuarry = function(x,q_handle) {
+        $scope.settlement_sheet.quarries.splice(x,1);
+        var monster = $scope.settlement.game_assets.monsters[q_handle];
+        $scope.settlement.game_assets.quarry_options.push(monster);
+        params = "rm_quarry=" + q_handle;
+        modifyAsset('settlement',$scope.settlement_id,params);
+    };
+});
+
 
 app.controller('principlesController', function($scope, $http) {
     $scope.set = function(principle,selection) {

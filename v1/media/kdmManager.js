@@ -31,6 +31,7 @@ app.filter('trustedHTML',
       return $sce.trustAsHtml; 
    }
 );
+
 app.filter('flatten' , function(){
   return function(array){
     return array.reduce(function(flatten, group){
@@ -43,7 +44,7 @@ app.filter('flatten' , function(){
 })
 
 
-app.controller('rootController', function($scope, $rootScope, apiService, $http) {
+app.controller('rootController', function($scope, $rootScope, apiService, assetService, $http) {
 
     $scope.loadSettlement = function(r) {
         var api_route = r;
@@ -94,6 +95,14 @@ app.controller('rootController', function($scope, $rootScope, apiService, $http)
                 console.log($scope.event_log.length + " item event_log initialized!")
             },
             function(errorPayload) {console.log("Error loading event_log!" + errorPayload);}
+        );
+
+        assetService.getNewSettlementAssets($scope.api_url).then(
+            function(payload) {
+                $scope.new_settlement_assets = payload.data;
+                console.log("loaded new_settlement assets!");
+            },
+            function(errorPayload) {console.log("Error loading new settlement assets!" + errorPayload);}
         );
 
         // finish
@@ -202,6 +211,17 @@ app.controller('rootController', function($scope, $rootScope, apiService, $http)
 //  more than one (usually all) User Asset views. check out the assets.py
 //  ua_decorator() method: it basically suffixes our main user asset views
 //  with HTML that calls these controllers
+
+app.controller("updateExpansionsController", function($scope) {
+    $scope.toggleExpansion = function(e_handle) {
+        var input_element = document.getElementById(e_handle + "_modal_toggle");
+        if (input_element.checked) {
+            $scope.postJSONtoAPI('settlement', 'add_expansions', [e_handle]);
+        } else {
+            $scope.postJSONtoAPI('settlement', 'rm_expansions', [e_handle]);
+        };
+    };
+});
 
 app.controller('newSurvivorController', function($scope) {
 }); 
