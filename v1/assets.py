@@ -5675,7 +5675,7 @@ class Settlement:
                 kill_board_dict["name"] = api_asset["name"]
                 kill_board_dict["raw_name"] = monster_desc
                 kill_board_dict["handle"] = api_asset["handle"]
-                kill_board_dict["type"] = api_asset["__type__"]
+                kill_board_dict["type"] = api_asset["type"]
                 for aux_attrib in ["level", "comment"]:
                     if aux_attrib in api_asset.keys():
                         kill_board_dict[aux_attrib] = api_asset[aux_attrib]
@@ -5798,7 +5798,7 @@ class Settlement:
                 self.update_settlement_name(game_asset_key)
             elif p == "add_defeated_monster":
                 self.add_kill(game_asset_key)
-            elif p == "remove_defeated_monster":
+            elif p == "rm_defeated_monster":
                 self.rm_game_asset("defeated_monsters", game_asset_key)
             elif p == "add_quarry":
                 self.update_quarries("add",game_asset_key)

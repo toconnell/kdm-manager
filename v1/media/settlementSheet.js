@@ -16,6 +16,18 @@ app.controller("locationsController", function($scope) {
 });
 
 
+app.controller('defeatedMonstersController', function($scope, $http) {
+    $scope.addDefeatedMonster = function() {
+        var params = "add_defeated_monster=" + $scope.dMonst;
+        modifyAsset('settlement',$scope.settlement_id,params);
+        $scope.settlement_sheet.defeated_monsters.push($scope.dMonst);
+    };
+    $scope.rmDefeatedMonster = function(index, monster) {
+        var params = "rm_defeated_monster=" + monster;
+        modifyAsset('settlement',$scope.settlement_id,params);
+        $scope.settlement_sheet.defeated_monsters.splice(index,1);
+    };
+});
 app.controller('quarriesController', function($scope, $http) {
     $scope.addQuarry = function(x) {
         $scope.settlement_sheet.quarries.push($scope.addQuarryMonster);

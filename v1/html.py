@@ -2680,7 +2680,9 @@ class settlement:
             <div class="campaign_summary_small_box">
                 <h4>- Monsters -</h4>
                 <h3 class="monster_subhead"> Defeated </h3>
-                $defeated_monsters
+                <span class="kd_checkbox_checked campaign_summary_bullet" ng-repeat="d in settlement_sheet.defeated_monsters track by $index">
+                    {{d}}
+                </span>
 
                 <h3 class="monster_subhead">Quarries </h3>
                 <span class="kd_checkbox_checked campaign_summary_bullet" ng-repeat="n in settlement_sheet.quarries">
@@ -3369,43 +3371,31 @@ class settlement:
         <h2>Defeated Monsters</h2>
         <p>A list of defeated monsters and their level. Use the controls below to remove defeated monsters.</p>
 
-        <div>
+        <div ng-controller="defeatedMonstersController">
             <div
                 class="line_item"
-                ng-repeat="x in settlement_sheet.defeated_monsters"
+                ng-repeat="x in settlement_sheet.defeated_monsters track by $index"
             >
                 <div> <!-- span holder -->
                     <span class="bullet"></span>
-                    <span
-                        class="item"
-                    >
-                        {{x.name}}
+                    <span class="item" ng-click="rmDefeatedMonster($index, x)">
+                        {{x}}
                     </span>
                 </div>
             </div>
         </div>
 
-        <form method="POST" action="#edit_defeated_monsters">
-        <input type="hidden" name="modify" value="settlement" />
-        <input type="hidden" name="asset_id" value="$settlement_id" />
-             <div class="line_item">
-                <span class="empty_bullet"></span> $defeated_monsters_add
-             </div>
-             <div class="line_item">
+            <div class="line_item">
                 <span class="empty_bullet" /></span>
-                <input
-                    name="add_defeated_monster"
-                    onchange="this.form.submit()"
-                    type="text"
-                    placeholder="Enter custom Defeated Monster"
-                    onclick="showHide('bogus_dm_button')"
-                />
-             </div>
-             <button id="bogus_dm_button" class="kd_blue" style="display:none;">Save</button>
-             <div class="line_item">
-                $defeated_monsters_rm
-             </div>
-        </form>
+                <select
+                    ng-model="dMonst"
+                    ng-change="addDefeatedMonster($index)"
+                    ng-options="d as d for d in settlement.game_assets.defeated_monsters ">
+                >
+                    <option selected disabled value="">Add Defeated Monster</option>
+                </select>
+            </div> <!-- line_item -->
+
     </div>
 
     <hr class="mobile_only"/>
