@@ -501,6 +501,13 @@ li.asset_deck {background: none; margin-left: 5%; }
 
 div.line_item span.location_lvl_select select.location_level {display: inline-block; border: 0;  width: auto; }
 
+    /* milestone story events */
+label.settlement_sheet_milestone_container {cursor: pointer; font-family: Metrophobic; }
+div.milestone_content_container {border-bottom: 0.1em solid #999;}
+span.milestone_story_event {clear: left; display: block; margin-left: 10%; font-size: 43px;}
+span.milestone_story_reference {font-size: 40px;}
+
+
     /*lost settlement app - mobile*/
 div.lost_settlement_squares {margin-left: 4%; margin-right: 4%; margin-top: 5%; }
 span.lost_settlement {display: inline-block; border: 0.1em solid #000; width: 50px; height: 50px; }
@@ -1308,6 +1315,12 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
 
     /* settlement sheet styles - tablet */
 
+        /* milestone story events */
+    div.milestone_content_container {border-bottom: 1px solid #999; }
+    label.settlement_sheet_milestone_container {font-size: 20px;}
+    span.milestone_story_event {font-size: 17px;}
+    span.milestone_story_reference {font-size: 15px;}
+
         /* principles app */
     div.settlement_sheet_principle_container label {font-size: 23px; margin: 0; width: 400px; justify-content: flex-start; }
     div.settlement_sheet_principle_name {font-size: 25px; margin: auto; width: 400px; text-align: left; }
@@ -1330,7 +1343,6 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
     div#bulk_add_survivors div.bulk_add_control button {height: auto; width: 85px; margin-left: 30px; }
 
         /* block_group styles - tablet */
-    div.settlement_sheet_block_group {vertical-align: top; }
     div.settlement_sheet_block_group h2 {font-size: 22pt;}
     div.settlement_sheet_block_group span.bullet, div.settlement_sheet_block_group span.empty_bullet {height: 14px; width: 14px; }
     div.settlement_sheet_block_group p {margin: 0; padding: 0; padding-left: 4%; padding-top: 2%; }
@@ -1355,7 +1367,7 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
         /* settlement sheet - right pane - floaty boxes - tablet */
     div.lost_settlements {margin: 0; padding: 0%; }
     div#asset_management_right_pane {padding-top: 3%; display: flex; flex-direction: row; flex-wrap: wrap; }
-    div#asset_management_right_pane div.settlement_sheet_block_group {width: 470px; margin:auto; margin-bottom: 10%;}
+    div#asset_management_right_pane div.settlement_sheet_block_group {width: 470px; margin:auto; margin-bottom: 10%; margin-top: 0; }
 
     div.lost_settlement_squares {margin-top: -5px; padding: 0; }
     span.lost_settlement_box_socket {padding: 0; margin: 0; display: inline-block; height: 1px; width: 15px; margin-right: 7px; } 

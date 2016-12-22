@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import json
 
 import Models
-from models import campaigns, cursed_items, expansions, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters
+from models import campaigns, cursed_items, expansions, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events
 import settings
 import utils
 
@@ -101,8 +101,9 @@ class Settlement(Models.UserAsset):
         output["game_assets"].update(self.get_available_assets(events))
         output["game_assets"].update(self.get_available_assets(monsters))
 
-            # principles
+            # principles and milestones
         output["game_assets"]["principles_options"] = self.get_principles_options()
+        output["game_assets"]["milestones_options"] = self.get_milestones_options()
 
             # monster game assets
         output["game_assets"]["nemesis_options"] = self.get_monster_options("nemesis_monsters")
@@ -284,6 +285,19 @@ class Settlement(Models.UserAsset):
 
         utils.mdb.settlement_notes.remove({"settlement": self.settlement["_id"], "js_id": n["js_id"]})
         self.logger.info("[%s] removed a settlement note from %s" % (n["user_login"], self))
+
+
+    def get_milestones_options(self):
+        """ Returns a list of dictionaries where each dict is a milestone def-
+        inition. Useful for front-end stuff. """
+
+        M = milestone_story_events.Assets()
+
+        output = []
+        for m_handle in self.get_campaign(dict)["milestones"]:
+            output.append(M.get_asset(m_handle))
+
+        return output
 
 
     def get_principles_options(self):

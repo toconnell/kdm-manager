@@ -2525,7 +2525,7 @@ class settlement:
     player_controls_none = Template('<p>Add other players to the "$name" campaign by making them the Owner of a Survivor in this Settlement!<br/><br/></p>')
     player_controls_table_top = '<table class="player_management_controls"><tr><th>Email Address</th><th>Role</th></tr>\n'
     player_controls_table_row = Template("""<tr><td>$email</td><td>$role</td></tr>\n""")
-    player_controls_table_bot = '<tr class="controller"><td colspan="2"><button class="full_width gradient_orange">Update Player Roles</button></2></tr></table>'
+    player_controls_table_bot = '<tr class="controller"><td colspan="2"><button class="full_width kd_blue">Update Player Roles</button></2></tr></table>'
 
     # dashboard refactor
     dashboard_campaign_asset = Template("""\n
@@ -3274,8 +3274,32 @@ class settlement:
         <div class="settlement_sheet_block_group">
             <h2>Milestone Story Events</h2>
             <p>Trigger these story events when milestone condition is met.</p>
-            $milestone_controls
-        </div>
+
+            <div ng-repeat="m in settlement.game_assets.milestones_options" class="milestone_content_container">
+                <input
+                    id="{{m.handle}}"
+                    class="kd_css_checkbox kd_radio_option"
+                    type="checkbox"
+                    name="toggle_milestone"
+                    value="{{m.name}}"
+                    onchange="updateAssetAttrib(this, 'settlement', '$settlement_id');"
+                    ng-checked="arrayContains(m.name, settlement_sheet.milestone_story_events)"/>
+                </input>
+                <label
+                    for="{{m.handle}}"
+                    class="settlement_sheet_milestone_container"
+                >
+                    {{m.name}}
+                    <span class="milestone_story_event">
+                        <font class="kdm_font">g</font> <b>{{m.story_event}}</b>
+                        <span class="milestone_story_reference">
+                            (p.{{settlement.game_assets.events[m.story_event_handle].page}})
+                        </span>
+                    </span>
+                </label>
+            </div> <!-- milestone div -->
+
+        </div> <!-- block_group for milestones -->
 
 
 
@@ -3367,11 +3391,11 @@ class settlement:
 
         <a id="edit_defeated_monsters"/>
 
-        <div class="settlement_sheet_block_group">
+        <div class="settlement_sheet_block_group" ng-controller="defeatedMonstersController">
         <h2>Defeated Monsters</h2>
         <p>A list of defeated monsters and their level. Use the controls below to remove defeated monsters.</p>
 
-        <div ng-controller="defeatedMonstersController">
+        <div>
             <div
                 class="line_item"
                 ng-repeat="x in settlement_sheet.defeated_monsters track by $index"
@@ -3580,26 +3604,6 @@ class settlement:
             $select_items
         </select>
     </form>
-    \n""")
-    milestone_control = Template("""\n
-    <div class="kd_toggle_container">
-    <input
-        id="$handle"
-        class="kd_toggle_box"
-        type="checkbox"
-        name="milestone"
-        value="$key"
-        onchange="updateAssetAttrib(this, 'settlement', '$settlement_id');kd_toggle(this);"
-        $checked/>
-    </input>
-    <label
-        class="kd_toggle_box_caption"
-        for="$handle"
-    >
-        $key
-        &ensp; <font class="kdm_font">g</font> <b>$story_event</b> (p.$story_page)
-    </label>
-    </div>
     \n""")
     principle_radio = Template("""\n
         <input onchange="this.form.submit()" type="radio" id="$handle" class="radio_principle" name="principle_$principle_key" value="$option" $checked /> 

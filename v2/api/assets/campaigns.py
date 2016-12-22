@@ -2,25 +2,6 @@
 
 from assets import monsters as monster_assets
 
-#
-#   Some comments on organization/architecture:
-#   
-#       - campaigns are really just a stack of assets, e.g. timeline, special
-#       rules, always-available (or banned) innovations, milestones, principles,
-#       etc.
-#       - accordingly, we collect all campaign-related assets here, so any game
-#       asset (formerly stored in the V1 game_assets.py file that is NOT stored
-#       in its own, isolated assets file lives here.
-#       - check the model methods when working with campaign assets, becase the
-#       assets that load by default are fairly minimal and, if you need to work
-#       with things like milestones and principles, you'll need to use special
-#       methods to initialize those asset definitions, etc.
-#       - similarly (but contrastively), initializing a campaign gets you a lot
-#       of unusual, private methods for working with settlement and survivor
-#       objects when those objectes are subject to a campaign.
-#
-
-
 # this is the generic, "People of the Lantern" timeline. individual campaign
 #   dict items (defined in this module) may/may not supply their own timeline
 default_timeline = [
@@ -52,37 +33,52 @@ default_timeline = [
 ]
 
 
-# this is a collection of milestones that might or might not be used in a given
-#   campaign. Campaign assets don't default for this stuff, so you've got to
-#   reference all required milestones when defining the asset below
-milestones = {
+milestone_story_events = {
     "first_child": {
         "sort_order": 0,
+        "name": "First child is born",
         "story_event": "Principle: New Life",
+        "story_event_handle": "core_new_life",
     },
     "first_death": {
         "sort_order": 1,
+        "name": "First time death count is updated",
         "story_event": "Principle: Death",
+        "story_event_handle": "core_death",
         "add_to_timeline": 'int(self.settlement["death_count"]) >= 1',
     },
     "pop_15": {
         "sort_order": 2,
+        "name": "Population reaches 15",
         "story_event": "Principle: Society",
+        "story_event_handle": "core_society",
         "add_to_timeline": 'int(self.settlement["population"]) >= 15',
     },
     "innovations_5": {
         "sort_order": 3,
+        "name": "Settlement has 5 innovations",
         "story_event": "Hooded Knight",
+        "story_event_handle": "core_hooded_knight",
         "add_to_timeline": 'len(self.settlement["innovations"]) >= 5',
     },
     "innovations_8": {
         "sort_order": 2,
+        "name": "Settlement has 8 innovations",
         "story_event": "Edged Tonometry",
+        "story_event_handle": "ss_edged_tonometry",
         "add_to_timeline": 'len(self.settlement["innovations"]) >= 8',
     },
-    "game_over": {
-        "sort_order": 4,
+    "nemesis_defeat": {
+        "sort_order": 6,
+        "name": "Not Victorious against Nemesis",
+        "story_event_handle": "core_game_over",
         "story_event": "Game Over",
+    },
+    "game_over": {
+        "sort_order": 10,
+        "name": "Population reaches 0",
+        "story_event": "Game Over",
+        "story_event_handle": "core_game_over",
         "add_to_timeline": 'int(self.settlement["population"]) == 0 and int(self.settlement["lantern_year"]) >= 1',
     },
 }
@@ -94,15 +90,9 @@ campaign_definitions = {
         "name": "People of the Lantern",
         "always_available": ["Lantern Hoard", "Language"],
         "principles": ["new_life","death","society","conviction"],
+        "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
         "nemesis_monsters": ["butcher","kings_man","the_hand","watcher"],
         "quarries": monster_assets.base_game_quarries,
-        "milestones": {
-            "First child is born": milestones["first_child"],
-            "First time death count is updated": milestones["first_death"],
-            "Population reaches 15": milestones["pop_15"],
-            "Settlement has 5 innovations": milestones["innovations_5"],
-            "Population reaches 0": milestones["game_over"],
-        },
     },
 
     "people_of_the_skull": {
@@ -128,13 +118,7 @@ campaign_definitions = {
             "Skull Ritual": {"cost": 1, "desc": "Costs one Skull resource. Nominate up to four survivors to consume the skull. They gain a permanent +1 to all their attributes."},
         },
         "principles": ["new_life","death","society","conviction"],
-        "milestones": {
-            "First child is born": milestones["first_child"],
-            "First time death count is updated": milestones["first_death"],
-            "Population reaches 15": milestones["pop_15"],
-            "Settlement has 5 innovations": milestones["innovations_5"],
-            "Population reaches 0": milestones["game_over"],
-        },
+        "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
     },
 
     "the_bloom_people": {
@@ -146,14 +130,8 @@ campaign_definitions = {
         "expansions": ["Flower Knight"],
         "storage": ["Sleeping Virus Flower"],
         "forbidden": ["Flower Addiction"],
-        "milestones": {
-            "First child is born": milestones["first_child"],
-            "First time death count is updated": milestones["first_death"],
-            "Population reaches 15": milestones["pop_15"],
-            "Settlement has 5 innovations": milestones["innovations_5"],
-            "Population reaches 0": milestones["game_over"],
-        },
         "principles": ["new_life","death","society","conviction"],
+        "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
         "endeavors": {
             "Forest Run": {"cost": 1, "desc": "You may exchange any number of monster resources for that number of random Flower resources."},
         },
@@ -168,16 +146,10 @@ campaign_definitions = {
         "name": "People of the Sun",
         "expansions": ["Sunstalker"],
         "forbidden": ["Leader", "Lantern Hoard"],
-        "principles": ["potsun_new_life","death","society","conviction"],
         "nemesis_monsters": ["butcher","kings_man","the_hand","ancient_sunstalker"],
         "quarries": monster_assets.base_game_quarries,
-        "milestones": {
-            "First time death count is updated": milestones["first_death"],
-            "Population reaches 15": milestones["pop_15"],
-            "Settlement has 8 innovations": milestones["innovations_8"],
-            "Population reaches 0": milestones["game_over"],
-            "Not Victorious against Nemesis": {"sort_order": 4, "story_event": "Game Over"},
-        },
+        "principles": ["potsun_new_life","death","society","conviction"],
+        "milestones": ["first_child","first_death","pop_15","innovations_8","nemesis_defeat","game_over"],
         "timeline": [
             {"year": 0, "settlement_event": ["First Day"]},
             {"year": 1, "story_event": ["The Pool and the Sun"]},
@@ -231,13 +203,8 @@ campaign_definitions = {
         "special_rules": [
             {"name": "Removed Story Events", "desc": "If an event or card would cause you to add/trigger <b>Hands of Heat</b>, <b>Regal Visit</b>, <b>Armored Strangers</b>, <b>Watched</b>, or <b>Nemesis Encounter - Watcher</b>, do nothing instead.", "bg_color": "673AB7", "font_color": "FFF"},
         ],
-        "principles": ["potsun_new_life","death","society","conviction"],
-        "milestones": {
-            "First child is born": milestones["first_child"],
-            "First time death count is updated": milestones["first_death"],
-            "Population reaches 15": milestones["pop_15"],
-            "Population reaches 0": milestones["game_over"],
-        },
+        "principles": ["new_life","death","society","conviction"],
+        "milestones": ["first_child","first_death","pop_15","game_over"],
         "timeline": [
             {"year": 0, "settlement_event": ["First Day"]},
             {"year": 1, "story_event": ["The Foundlings"]},

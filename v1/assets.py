@@ -5808,6 +5808,8 @@ class Settlement:
                 self.settlement["nemesis_monsters"][params[p].value] = []
             elif p == "increment_nemesis":
                 self.increment_nemesis(game_asset_key)
+            elif p == "toggle_milestone":
+                self.update_milestones(game_asset_key)
             elif p in ["add_item","remove_item"]:
                 self.update_settlement_storage("html_form", params)
             elif p == "add_innovation":
@@ -5818,19 +5820,19 @@ class Settlement:
                 self.add_game_asset("locations", game_asset_key)
             elif p == "remove_location":
                 self.rm_game_asset("locations", game_asset_key)
-            elif p.split("_")[:2] == ["set","principle"]:
-                principle = "_".join(p.split("_")[2:])
-                self.set_principle(principle, game_asset_key)
+            elif p == "current_quarry":
+                self.update_current_quarry(game_asset_key)
             elif p == "abandon_settlement":
                 self.log_event("Settlement abandoned!")
                 self.settlement["abandoned"] = datetime.now()
             elif p == "hunting_party_operation":
                 self.modify_departing_survivors(params)
+            elif p.split("_")[:2] == ["set","principle"]:
+                principle = "_".join(p.split("_")[2:])
+                self.set_principle(principle, game_asset_key)
             elif p.split("_")[0] == "player" and p.split("_")[1] == "role":
                 player_login = "_".join(p.split("_")[2:])
                 self.update_admins(player_login, game_asset_key)
-            elif p == "current_quarry":
-                self.update_current_quarry(game_asset_key)
             elif p.split("_")[0] == "location" and p.split("_")[1] == "level":
                 self.update_location_level(p.split("_")[2:][0], game_asset_key)
             else:
