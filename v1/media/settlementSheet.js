@@ -28,6 +28,7 @@ app.controller('defeatedMonstersController', function($scope, $http) {
         $scope.settlement_sheet.defeated_monsters.splice(index,1);
     };
 });
+
 app.controller('quarriesController', function($scope, $http) {
     $scope.addQuarry = function(x) {
         $scope.settlement_sheet.quarries.push($scope.addQuarryMonster);
@@ -44,6 +45,45 @@ app.controller('quarriesController', function($scope, $http) {
     };
 });
 
+app.controller('nemesisEncountersController', function($scope) {
+
+    $scope.nemesisLvlChecked = function(n_handle,n_lvl) {
+        var n_lvl_array = $scope.settlement_sheet.nemesis_encounters[n_handle];
+        if ($scope.arrayContains(Number(n_lvl), n_lvl_array)) {
+            return true
+        } else {
+            return false
+        };
+    };
+
+    $scope.toggleNemesisLevel = function(n_handle,n_lvl,e) {
+//        console.log(n_handle + " " + n_lvl);
+//        console.log(e);
+        var n_lvl_array = $scope.settlement_sheet.nemesis_encounters[n_handle];
+        if ($scope.arrayContains(n_lvl, n_lvl_array)) {
+            e.target.control.checked = false;
+            n_lvl_array.splice(n_lvl-1,1);
+        } else { 
+            n_lvl_array.push(Number(n_lvl));
+            e.target.control.checked = true;
+        };
+        js_obj = {"handle": n_handle, "levels": n_lvl_array};
+        $scope.postJSONtoAPI('settlement', 'update_nemesis_levels', js_obj);
+    };
+
+    $scope.rmNemesis = function(index, handle) {
+        $scope.settlement_sheet.nemesis_monsters.splice(index,1);
+        params = "rm_nemesis=" + handle;
+        modifyAsset('settlement',$scope.settlement_id,params);
+    };
+    $scope.addNemesis = function() {
+        $scope.settlement_sheet.nemesis_monsters.push($scope.addNemesisMonster);
+        $scope.settlement_sheet.nemesis_encounters[$scope.addNemesisMonster] = [];
+        params = "add_nemesis=" + $scope.addNemesisMonster
+        modifyAsset('settlement',$scope.settlement_id,params);
+    };
+
+});
 
 app.controller('principlesController', function($scope, $http) {
     $scope.set = function(principle,selection) {

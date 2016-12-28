@@ -2689,7 +2689,7 @@ class settlement:
                     {{ settlement.game_assets.monsters[n].name }}
                 </span>
 
-                <h3 class="monster_subhead">Nemeses</h3>
+                <h3 class="monster_subhead">Nemesis Monsters</h3>
                 <span class="kd_checkbox_checked campaign_summary_bullet" ng-repeat="n in settlement_sheet.nemesis_monsters">
                     {{ settlement.game_assets.monsters[n].name }}
                 </span>
@@ -3308,10 +3308,10 @@ class settlement:
 
         <a id="edit_quarries"/>
 
-        <div class="settlement_sheet_block_group">
+        <div class="settlement_sheet_block_group" title="Click or tap an item to remove it from this list.">
 
             <h2>Quarries</h2>
-            <p>The monsters your settlement can select to hunt. Click or tap an item to remove it.</p>
+            <p>The monsters your settlement can select to hunt.</p>
 
             <div>
                 <div
@@ -3350,50 +3350,67 @@ class settlement:
 
         <a id="edit_nemeses"/>
 
-        <div class="settlement_sheet_block_group">
-            <h2><img class="icon" src="http://media.kdm-manager.com/icons/nemesis_encounter_event.jpg"/> Nemesis Monsters</h2>
+        <div
+            class="settlement_sheet_block_group"
+            ng-controller="nemesisEncountersController"
+            title="Click or tap an item to remove it from this list."
+        >
+            <h2><img class="icon" src="media/icons/nemesis_encounter_event.jpg"/> Nemesis Monsters</h2>
             <p>The available nemesis encounter monsters.</p>
 
-            <form method="POST" action="#edit_nemeses">
-            <input type="hidden" name="modify" value="settlement" />
-            <input type="hidden" name="asset_id" value="$settlement_id" />
+            <div
+                class="settlement_sheet_nemesis_line_item"
+                ng-repeat="n in settlement_sheet.nemesis_monsters"
+            >
+                <span class="bullet"></span>
+                <span class="item" ng-click="rmNemesis($index,n)">
+                    {{settlement.game_assets.monsters[n].name}}
+                </span>
+                <span class="nemesis_levels">
+                    <div
+                        class="nemesis_level_toggle_container"
+                        ng-repeat="l in range(settlement.game_assets.monsters[n].levels, 'increment')"
+                    >
+                        <input
+                            id="{{n + '_lvl_' + l}}"
+                            type="checkbox"
+                            class="kd_css_checkbox"
+                            ng-model="nemesisLvlToggleValue"
+                            ng-checked="arrayContains(l,settlement_sheet.nemesis_encounters[n])"
+                        />
+                        <label
+                            for="{{n + '_lvl_' + l}}"
+                            id="{{n+'_lvl_'+l}}_label"
+                            ng-click="toggleNemesisLevel(n,l,$event)"
+                        >
+                            Lvl {{l}}
+                        </label>
+                    </div> <!-- nemesis_level_toggle_container -->
+                </span>
+            </div>
 
-                <div class="angularjs_line_item" ng-repeat="n in settlement_sheet.nemesis_monsters">
-                    <span class="kd_checkbox_checked">
-                        {{ settlement.game_assets.monsters[n].name }}
-                    </span>
-                </div>
+            <span class="empty_bullet"></span>
+            <select
+                ng-model="addNemesisMonster"
+                ng-options="n.handle as n.name for n in settlement.game_assets.nemesis_options"
+                ng-change="addNemesis()"
+            >
+                <option selected disabled value="">Add Nemesis Monster</option>
+            </select>
 
-                <span class="empty_bullet"></span>
-                <select
-                    ng-model="addNemesisMonster"
-                    ng-options="n as settlement.game_assets.monsters[n].name for n in settlement.game_assets.nemesis_options"
-                >
-                    <option selected disabled value="">Add Nemesis Monster</option>
-                </select>
+        </div> <!-- Nemesis block group/controller -->
 
-                <div class="line_item">
-                    <span class="empty_bullet" /></span>
-                    <input
-                        name="add_nemesis"
-                        onchange="this.form.submit()"
-                        type="text"
-                        placeholder="Enter custom Nemesis"
-                        onclick="showHide('bogus_nemesis_button')"
-                    />
-                </div>
-            </form>
-            <button id="bogus_nemesis_button" class="kd_blue" style="display:none;">Save</button>
 
-        </div>
 
                     <!-- DEFEATED MONSTERS: HAS ITS OWN FORM -->
 
+
+
         <a id="edit_defeated_monsters"/>
 
-        <div class="settlement_sheet_block_group" ng-controller="defeatedMonstersController">
+        <div class="settlement_sheet_block_group" ng-controller="defeatedMonstersController" title="Click or tap an item to remove it from this list.">
         <h2>Defeated Monsters</h2>
-        <p>A list of defeated monsters and their level. Use the controls below to remove defeated monsters.</p>
+        <p>A list of defeated monsters and their level.</p>
 
         <div>
             <div
@@ -3443,7 +3460,9 @@ class settlement:
             <h2>Lost Settlements</h2>
             <p>Click or tap to show/hide controls.</p>
             <p style="display: none" id="lostSettlementsTooltip">
-                See <font class="kdm_font">g</font> <b>Game Over</b> on p.179:<br/><br/>
+                <span class="metrophobic">See </span>
+                <font class="kdm_font">g</font> <b>Game Over</b>
+                <span class="metrophobic"> on p.179</span>:<br/><br/>
                     &ensp;
                         <span class="lost_settlement lost_settlement_checked"></span>
                         1. Left Overs

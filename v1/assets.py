@@ -3290,10 +3290,12 @@ class Settlement:
 #        self.logger.debug("Updated minimum values for settlement %s (%s)" % (self.settlement["name"], self.settlement["_id"]))
         self.enforce_data_model()
         if self.User.get_preference("update_timeline"):
-            self.update_timeline_with_story_events()
+            updates_made = self.update_timeline_with_story_events()
+            if updates_made:
+                self.refresh_from_API("timeline") # gotta pull the updated timeline back
 
 #        self.logger.debug("[%s] settlement %s udpated and saved." % (self.User, self))
-        mdb.settlements.save(self.settlement)
+        self.save()
 
 
     def set_api_asset(self):
@@ -3331,10 +3333,9 @@ class Settlement:
         """ Retrives the settlement from the API and sets self.settlement[k] to
         whatever the API currently thinks self.settlement happens to be. """
 
-        self.set_api_asset()
+        self.Session.set_api_assets()
         self.settlement[k] = self.api_asset["sheet"][k]
-        self.logger.debug(self.settlement[k])
-        self.logger.info("[%s] reset self.settlement[%s] from API data" % (self.User, k))
+        self.logger.info("[%s] reloaded self.settlement[%s] from API data" % (self.User, k))
 
 
     def get_api_asset(self, asset_type="sheet", asset_key=None):
@@ -3673,9 +3674,7 @@ class Settlement:
         self.logger.warn("[%s] Deleted %s from mdb!" % (self.User, self))
 
 
-
-
-    def get_story_events(self):
+    def get_story_events(self, return_type="handles"):
         """ Returns a list of the settlement's story events (as strings). Checks
         the whole timeline and supports old and new style timeline entries. """
 
@@ -3686,6 +3685,14 @@ class Settlement:
                     all_story_events.extend(ly["story_event"])
                 else:
                     all_story_events.append(ly["story_event"])
+
+        if return_type=="handles":
+            output = set()
+            for e in all_story_events:
+                if "handle" in e.keys():
+                    output.add(e["handle"])
+            return output
+
         return all_story_events
 
 
@@ -3694,42 +3701,42 @@ class Settlement:
         events to the Settlement timeline when the threshold for adding the
         event has been reached. """
 
-        all_story_events = self.get_story_events()
+        updates_made = False
 
-        campaign_dict = self.get_campaign("dict")
-        milestones_dict = campaign_dict["milestones"]
+        milestones_dict = self.get_campaign("dict")["milestones"]
         for m_key in milestones_dict.keys():
-            story_condition = "False"
+
+            m_dict = milestones_dict[m_key]
+
+            event = self.get_event(m_dict["story_event"])
+
+            # first, if the milestone has an 'add_to_timeline' key, create a 
+            # string from that key to determine whether we've met the criteria 
+            # for adding the story event to the timeline. The string gets an
+            # eval below
+            add_to_timeline = False
             if "add_to_timeline" in milestones_dict[m_key].keys():
-                story_condition = milestones_dict[m_key]["add_to_timeline"]
-            try:
-                story_key = milestones_dict[m_key]["story_event"]
-                story_page = self.get_event(story_key)["page"]
-            except Exception as e:
-                self.logger.error("[%s] an error occurred while processing story event '%s'!" % (self.User, story_key))
-                self.logger.exception(e)
-                raise
-            story_key_variants = [story_key, "%s (p.%s)" % (story_key, story_page)]
+                add_to_timeline = eval(milestones_dict[m_key]["add_to_timeline"])
+
+            # now, here's our real logic
             condition_met = False
             if m_key in self.settlement["milestone_story_events"]:
                 condition_met = True
-            if eval(story_condition):
+            elif add_to_timeline:
                 condition_met = True
-            milestone_present = False
-            for kv in story_key_variants:
-                if kv in all_story_events:
-                    milestone_present = True
+
 
             # final evaluation:
-            if condition_met and not milestone_present:
-                self.logger.debug("[%s] automatically adding %s story event to LY %s" % (self, story_key, self.get_ly()))
-                e = {
-                    "ly": self.get_ly(),
-                    "name": story_key,
-                    "type": "story_event",
-                }
-                self.add_timeline_event(e)
-                self.log_event('Automatically added <font class="kdm_font">g</font> <b>%s</b> to LY %s.' % (story_key, self.get_ly()))
+            if condition_met and event["handle"] not in self.get_story_events("handles"):
+                self.logger.debug("[%s] automatically adding %s story event to LY %s" % (self.User, event["name"], self.get_ly()))
+                event.update({"ly": self.get_ly(),})
+                self.add_timeline_event(event)
+
+                self.log_event('Automatically added <b><font class="kdm_font">g</font> %s</b> to LY %s.' % (event["name"], self.get_ly()))
+                updates_made = True
+
+        return updates_made
+
 
 
     def enforce_data_model(self):
@@ -3741,9 +3748,9 @@ class Settlement:
         saving them and exclude any non str/unicode objects that might have
         snuck in while iterating over the cgi.FieldStorage(). """
 
-#        set_attribs = ["milestone_story_events", "innovations", "locations", "principles", "quarries"]
-#        for a in set_attribs:
-#            self.settlement[a] = list(set([i.strip() for i in self.settlement[a] if type(i) in (str, unicode)]))
+        set_attribs = ["milestone_story_events", "innovations", "locations", "principles", "quarries"]
+        for a in set_attribs:
+            self.settlement[a] = list(set([i.strip() for i in self.settlement[a] if type(i) in (str, unicode)]))
 
 #        uniq_attribs = ["locations","quarries"]
 #        for a in uniq_attribs:
@@ -5173,7 +5180,6 @@ class Settlement:
         if election != "UNSET":
             election = principle["options"][election]
 
-        self.logger.debug(principle)
         for o_handle in principle["option_handles"]:
             o_dict = principle["options"][o_handle]
             if o_dict["name"] in self.get_principles():
@@ -5190,14 +5196,15 @@ class Settlement:
     def update_milestones(self, m):
         """ Expects checkbox input. """
 
-        if not m in self.settlement["milestone_story_events"]:
+        if m not in self.settlement["milestone_story_events"]:
             self.settlement["milestone_story_events"].append(m)
             self.log_event("'%s' milestone added to settlement milestones." % m)
-            self.logger.debug("[%s] added '%s' to milestones for %s." % (self.User, m, self))
+            self.logger.debug("[%s] added '%s' to milestone story events for %s." % (self.User, m, self))
         elif m in self.settlement["milestone_story_events"]:
             self.settlement["milestone_story_events"].remove(m)
             self.log_event("'%s' milestone removed from settlement milestones." % m)
-            self.logger.debug("[%s] removed '%s' from milestones for %s." % (self.User, m, self))
+            self.logger.debug("[%s] removed '%s' from milestone story events for %s." % (self.User, m, self))
+
 
 
     def update_settlement_name(self, new_name):
@@ -5728,11 +5735,22 @@ class Settlement:
             self.logger.info("[%s] added '%s' x%s to settlement %s." % (self.User, game_asset_key, game_asset_quantity, self))
             return True
 
+        if asset_class == "nemesis_monsters":
+            if game_asset_key in self.settlement["nemesis_monsters"]:
+                self.logger.error("[%s] attempting to add '%s' to %s." % (self.User, game_asset_key, self.settlement["nemesis_monsters"]))
+                return False
+            else:
+                self.settlement["nemesis_monsters"].append(game_asset_key)
+                self.settlement["nemesis_encounters"][game_asset_key] = []
+                self.logger.debug("[%s] added '%s' to %s nemesis monsters." % (self.User, game_asset_key, self))
+                M = self.get_api_asset("game_assets","monsters")[game_asset_key]
+                self.log_event("%s added %s to settlement nemesis monsters." % (self.User.user["login"], M["name"]))
+                return True
 
         # done with storage. processing other asset types
         exec "Asset = %s" % asset_class.capitalize()
 
-        self.logger.debug("'%s' is adding '%s' asset '%s' (%s) to settlement '%s' (%s)..." % (self.User.user["login"], asset_class, game_asset_key, type(game_asset_key), self.settlement["name"], self.settlement["_id"]))
+        self.logger.debug("[%s] is adding '%s' asset '%s' (%s) to settlement %s..." % (self.User, asset_class, game_asset_key, type(game_asset_key), self))
 
         if hasattr(Asset, "uniquify"):
             current_assets = set([a for a in self.settlement[asset_class] if type(a) in [str, unicode]])
@@ -5760,8 +5778,10 @@ class Settlement:
 
 #        exec "Asset = %s" % asset_class.capitalize()   # this isn't necessary yet
         self.settlement[asset_class].remove(game_asset_key)
-        self.logger.debug("[%s] removed asset '%s' from settlement '%s'" % (self.User, game_asset_key, self))
-        self.log_event("%s removed '%s' from settlement %s." % (self.User.user["login"], game_asset_key, asset_class))
+        self.logger.debug("[%s] removed asset '%s' from settlement %s" % (self.User, game_asset_key, self))
+
+        ac_pretty = asset_class.replace("_"," ")
+        self.log_event("%s removed '%s' from settlement %s." % (self.User.user["login"], game_asset_key, ac_pretty))
         mdb.settlements.save(self.settlement)
 
 
@@ -5777,7 +5797,7 @@ class Settlement:
             "add_item_quantity", "rm_item_quantity",
             "male_survivors","female_survivors", "bulk_add_survivors",
             "timeline_update_ly","timeline_update_event_type","timeline_update_event_handle",
-            "operation",
+            "operation", "nemesis_levels"
         ]
 
         for p in params:
@@ -5805,7 +5825,9 @@ class Settlement:
             elif p == "rm_quarry":
                 self.update_quarries("rm",game_asset_key)
             elif p == "add_nemesis":
-                self.settlement["nemesis_monsters"][params[p].value] = []
+                self.add_game_asset("nemesis_monsters",game_asset_key)
+            elif p == "rm_nemesis":
+                self.rm_game_asset("nemesis_monsters",game_asset_key)
             elif p == "increment_nemesis":
                 self.increment_nemesis(game_asset_key)
             elif p == "toggle_milestone":
@@ -5842,11 +5864,14 @@ class Settlement:
         #   settlement post-processing starts here!
         #
 
-        #   add milestones for principles:
+        #   auto-add milestones for principles:
         for principle in self.settlement["principles"]:
             principle_dict = Innovations.get_asset(principle)
             if "type" in principle_dict.keys() and principle_dict["type"] == "principle" and "milestone" in principle_dict.keys():
                 self.settlement["milestone_story_events"].append(principle_dict["milestone"])
+                msg = "utomatically marking milestone story event '%s' due to selection of related principle, '%s'." % (principle_dict["milestone"], principle)
+                self.logger.debug("[%s] a%s" % (self.User, msg))
+                self.log_event("A%s" % (msg))
 
 
         # update mins will call self.enforce_data_model() and save

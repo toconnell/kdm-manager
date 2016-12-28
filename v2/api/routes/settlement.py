@@ -53,10 +53,10 @@ def render_response(action, settlement_id):
         S.rm_expansions(params)
     elif action == "add_note":
         S.add_settlement_note(params)
-    elif action == "update_expansions":
-        logger.debug(params)
     elif action == "rm_note":
         S.rm_settlement_note(params)
+    elif action == "update_nemesis_levels":
+        S.update_nemesis_levels(params)
     elif action == "add_timeline_event":
         S.add_timeline_event(params)
     elif action == "rm_timeline_event":

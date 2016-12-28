@@ -21,12 +21,12 @@
 
 @font-face {
     font-family: 'Metrophobic';
-    src: url('/media/fonts/Metrophobic.ttf.eot');
-    src: url('/media/fonts/Metrophobic.ttf.eot?#iefix')
+    src: url('/media/fonts/Metrophobic.ttf.eot')
         format('woff2'), url('/media/fonts/Metrophobic.ttf.woff')
         format('woff'),url('/media/fonts/Metrophobic.ttf') 
         format('truetype');
 }
+.metrophobic {font-family: Metrophobic;}
 
 @font-face {
     font-family: 'Silverado';
@@ -468,6 +468,12 @@ div.endeavor_controls_toggle {cursor: pointer; }
 
 
 /* settlement sheet styles */
+div.settlement_sheet_nemesis_line_item {display: flex; align-items: baseline; flex-wrap:wrap; flex-direction:row; border-bottom: 0.1em solid #999; margin-bottom: 2%; }
+div.settlement_sheet_nemesis_line_item span.item {margin-left: 2%; }
+span.nemesis_levels {align-self: flex-end; margin: auto; margin-right: 0;}
+div.nemesis_level_toggle_container {display: inline-block; }
+div.nemesis_level_toggle_container label {margin-top: 0;}
+
 div.settlement_sheet_principle_container {margin: 4%; }
 div.settlement_sheet_principle_name {font-weight: bold; }
 
@@ -1314,6 +1320,11 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
 
 
     /* settlement sheet styles - tablet */
+    div.settlement_sheet_nemesis_line_item {flex-wrap:nowrap; border-bottom: 1px solid #999; margin-top: 3%; }
+    div.settlement_sheet_nemesis_line_item span.item {margin-left: 2%; min-width: auto;}
+    span.nemesis_levels {margin-top: -20px; }
+    div.nemesis_level_toggle_container {display: inline-block; }
+    div.nemesis_level_toggle_container label {margin-top: 0; font-size: 18pt; width: 90px; line-height: 10px; }
 
         /* milestone story events */
     div.milestone_content_container {border-bottom: 1px solid #999; }

@@ -28,6 +28,7 @@ settlement_events = {
 
     # promo/white box
     "promo_strange_spot": {"name": "A Strange Spot", "expansion": "white_box"},
+    "promo_story_in_the_snow": {"name": "Story in the Snow", "expansion": "white_box"},
 
     # spidicules
     "spid_season_of_the_spiderling": {"name": "Season of the Spiderling", "expansion": "spidicules"},

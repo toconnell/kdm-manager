@@ -18,7 +18,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.16
+        self.object_version=0.17
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize_data()
 
@@ -252,6 +252,21 @@ class Settlement(Models.UserAsset):
             self.log_event("Automatically removed '%s' from Lantern Year %s" % (e["name"], e["ly"]))
 
 
+    def update_nemesis_levels(self, params):
+        """ Updates a settlement's 'nemesis_encounters' array/list for a nemesis
+        monster handle. """
+
+        handle = params["handle"]
+        levels = params["levels"]
+
+        if handle not in self.settlement["nemesis_monsters"]:
+            self.logger.error("Cannot update nemesis levels for '%s' (nemesis is not in 'nemesis_monsters' list for %s)" % (handle, self))
+        else:
+            self.settlement["nemesis_encounters"][handle] = levels
+            self.logger.debug("Update 'nemesis_encounters' for %s" % self)
+            self.save()
+
+
     def get_settlement_notes(self):
         """ Returns a list of mdb.settlement_notes documents for the settlement.
         They're sorted in reverse chronological, because the idea is that you're
@@ -390,14 +405,15 @@ class Settlement(Models.UserAsset):
 
         # check the remaining to see if they're selectable:
         option_set = list(option_set)
+        final_set = []
         for m in option_set:
             M = monsters.Monster(m)
-            if not M.is_selectable():
-                option_set.remove(m)
+            if M.is_selectable():
+                final_set.append(m)
 
         # now turn our set
         output = []
-        for m in sorted(list(option_set)):
+        for m in sorted(list(final_set)):
             M = monsters.Monster(m)
             output.append({
                 "handle": M.handle,
@@ -413,8 +429,7 @@ class Settlement(Models.UserAsset):
         given their quarries, nemeses, etc.
 
         The idea here is that you specify a 'context' that has to do with user
-        needs, e.g. 'showdown_options' or 'nemesis_options' and then you get
-        back an appropriate list.
+        needs, e.g. 'showdown_options', to get back an appropriate list.
         """
 
         # use context to get a list of candidate handles
@@ -457,7 +472,7 @@ class Settlement(Models.UserAsset):
             if M.is_unique():
                 output.append(M.name)
             else:
-                for l in range(M.get_levels()):
+                for l in range(M.levels):
                     lvl = l+1
                     output.append("%s Lvl %s" % (M.name,lvl))
 
@@ -716,10 +731,13 @@ class Settlement(Models.UserAsset):
         lists for monster handles. """
 
         # create the v1.0 'nemesis_encounters' list and transcribe nemesis info
-        self.settlement["nemesis_encounters"] = []
+        self.settlement["nemesis_encounters"] = {}
         for n in self.settlement["nemesis_monsters"]:
             M = monsters.Monster(name=n)
-            self.settlement["nemesis_encounters"].append({M.handle: self.settlement["nemesis_monsters"][n]})
+            self.settlement["nemesis_encounters"][M.handle] = []
+            n_levels = self.settlement["nemesis_monsters"][n]
+            for l in n_levels:
+                self.settlement["nemesis_encounters"][M.handle].append(int(l[-1]))
 
         for list_key in ["quarries","nemesis_monsters"]:
             new_list = []

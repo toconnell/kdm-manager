@@ -194,13 +194,20 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
         };
     }
 
-    $scope.range  = function(count) {
+    $scope.range  = function(count,command) {
         var r = [];
-        for (var i = 0; i < count; i++) { r.push(i) }
+        for (var i = 0; i < count; i++) {
+            if (command=='increment') {
+                r.push(i+1)
+            } else {
+                r.push(i) 
+            };
+        }
         return r;
     };
 
     $scope.arrayContains = function(needle, arrhaystack) {
+//        console.log(typeof arrhaystack + " -> " + arrhaystack);
         if (arrhaystack.indexOf(needle) > -1) {return true; } else {return false};
     };
 

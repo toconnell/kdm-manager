@@ -125,12 +125,14 @@ unique_nemeses = {
         "name": "Ancient Sunstalker",
         "expansion": "sunstalker",
         "sort_order": 200,
+        "selectable": False,
         "final_boss": True,
     },
     "watcher": {
         "name": "Watcher",
         "sort_order": 201,
         "misspellings": ["THE WATCHER"],
+        "selectable": False,
         "final_boss": True,
     },
 }

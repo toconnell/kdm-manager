@@ -14,6 +14,31 @@ class Assets(Models.AssetCollection):
         self.assets.update(utils.AssetDict(monsters.nemeses, {"type": "nemesis"}))
         self.assets.update(utils.AssetDict(monsters.unique_nemeses, {"type": "nemesis", "unique": True}))
 
+        self.set_levels()
+
+
+    def set_levels(self):
+        """ Used while initializing the monsters asset collection to synthesize
+        the levels attribute based on key/value pairs that should already be in
+        the monster's dict.
+
+        Our logic here is this: if the monster dict already has levels, we pass
+        and do nothing; if the dict has 'unique': True, we set levels to 0.
+
+        Otherwise, we set 'levels' = 3 and go about our business.
+        """
+
+        for m in self.assets.keys():
+
+            m_dict = self.assets[m]
+
+            if "levels" in m_dict.keys():
+                pass
+            elif "unique" in m_dict.keys() and m_dict["unique"]:
+                self.assets[m]["levels"] = 0
+            else:
+                self.assets[m]["levels"] = 3
+
 
 
 class Monster(Models.GameAsset):
@@ -67,20 +92,14 @@ class Monster(Models.GameAsset):
         return True
 
 
-    def get_levels(self):
-        """ Returns an int representing how many levels the monster has.
-        Monsters have three levels by default. """
-        if self.is_unique():
-            return 0
-        elif hasattr(self,"levels"):
-            return int(self.levels)
-        else:
-            return 3
 
 
     def initialize_from_name(self):
         """ Try to initialize a monster object from a string. Lots of craziness
-        here to protect the users from themselves. """
+        here to protect the users from themselves.
+
+        Note also that we're overwriting a method of Models.py with this!
+        """
 
         # sanity warning
         if "_" in self.name:

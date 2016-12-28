@@ -1649,6 +1649,10 @@ items = {
         "desc": 'When you wound a monster, add <font class="inline_shield">1</font> to a random hit location.',
         "type": ["weapon","melee","sword","amber"],
     },
+    "Xmaxe": {
+        "expansion": "white_box",
+        "location": "Promo",
+    },
     "Black Friday Lantern": {
         "expansion": "White Box",
         "location": "Promo",
