@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import json
 
 import Models
-from models import campaigns, cursed_items, expansions, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events
+from models import campaigns, cursed_items, expansions, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events, locations
 import settings
 import utils
 
@@ -18,7 +18,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.17
+        self.object_version=0.22
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize_data()
 
@@ -77,6 +77,10 @@ class Settlement(Models.UserAsset):
 
         output = self.get_serialize_meta()
 
+        # do some tidiness operations first
+        for k in ["locations","innovations","defeated_monsters"]:
+            self.settlement[k] = sorted(self.settlement[k])
+
         # create the sheet
         output.update({"sheet": self.settlement})
         output["sheet"].update({"campaign": self.get_campaign()})
@@ -92,6 +96,7 @@ class Settlement(Models.UserAsset):
         # great game_assets
         output.update({"game_assets": {}})
         output["game_assets"].update(self.get_available_assets(innovations))
+        output["game_assets"].update(self.get_available_assets(locations))
         output["game_assets"].update(self.get_available_assets(abilities_and_impairments))
         output["game_assets"].update(self.get_available_assets(weapon_specializations))
         output["game_assets"].update(self.get_available_assets(weapon_masteries))
@@ -101,7 +106,8 @@ class Settlement(Models.UserAsset):
         output["game_assets"].update(self.get_available_assets(events))
         output["game_assets"].update(self.get_available_assets(monsters))
 
-            # principles and milestones
+            # options (i.e. decks)
+        output["game_assets"]["locations_options"] = self.get_locations_options()
         output["game_assets"]["principles_options"] = self.get_principles_options()
         output["game_assets"]["milestones_options"] = self.get_milestones_options()
 
@@ -195,7 +201,7 @@ class Settlement(Models.UserAsset):
                [self.add_timeline_event(e) for e in e_dict["timeline_rm"] if e["ly"] >= self.get_current_ly()]
             self.logger.info("Removed '%s' expansion from %s" % (e_dict["name"], self))
 
-        self.logger.info("Successfully removed %s expansions to %s" % (len(e_list), self))
+        self.logger.info("Successfully removed %s expansions from %s" % (len(e_list), self))
         self.save()
 
 
@@ -267,6 +273,15 @@ class Settlement(Models.UserAsset):
             self.save()
 
 
+    def get_innovation_deck(self):
+        """ Uses the settlement's current innovations to create an Innovation
+        Deck, i.e. a list of innovation handle/name pairs. """
+
+        I = innovations.Assets()
+
+        
+
+
     def get_settlement_notes(self):
         """ Returns a list of mdb.settlement_notes documents for the settlement.
         They're sorted in reverse chronological, because the idea is that you're
@@ -300,6 +315,66 @@ class Settlement(Models.UserAsset):
 
         utils.mdb.settlement_notes.remove({"settlement": self.settlement["_id"], "js_id": n["js_id"]})
         self.logger.info("[%s] removed a settlement note from %s" % (n["user_login"], self))
+
+
+    def get_locations_options(self):
+        """ Returns a list of dictionaries where each dict is a location def-
+        inition of a location that the settlement does not have, but could
+        want to add. Think of it as a location deck. """
+
+        #   first, get an asset collection and the always available locations from
+        #   the campaign and the expansions
+
+        L = locations.Assets()
+        c_dict = self.get_campaign(dict)
+        always_available = c_dict["always_available"]["location"]
+
+        for e in self.get_expansions(dict).keys():
+            e_dict = self.get_expansions(dict)[e]
+            if "always_available" in e_dict.keys() and "location" in e_dict["always_available"].keys():
+                e_loc_names = e_dict["always_available"]["location"]
+                always_available.extend(e_loc_names)
+
+        #   next, form a "base" options list by checking to see which of the
+        #   always available locations are already present 
+        base_options = []
+        for l in always_available:
+            if l not in self.settlement["locations"]:
+                base_options.append(l)
+
+        #   once we've got a "base", check the settlement's current locations,
+        #   and, if present, use them to improve the base list by checking them
+        #   for consequences
+
+        for l in self.settlement["locations"]:
+            l_dict = L.get_asset_from_name(l)
+            if "consequences" in l_dict.keys():
+                base_options.extend(l_dict["consequences"])
+
+        #   remove dupes from base options
+        base_options = set(base_options)
+
+        #   next, do removes: anything that's already in locations gets removed
+        #   and then anything that's forbidden by the campaign gets removed.
+
+        for l in self.settlement["locations"]:
+            if l in base_options:
+                base_options.remove(l)
+        if "forbidden" in c_dict.keys() and "location" in c_dict["forbidden"].keys():
+            for f in c_dict["forbidden"]["location"]:
+                if f in base_options:
+                    base_options.remove(f)
+
+        # finally, convert our list of names (soon to be handles) into a list of
+        # dictionaries (i.e. JSON) that can be used to power the UI
+
+        final_list = []
+        base_options = set(base_options)
+        for l in sorted(base_options):
+            loc_asset = L.get_asset_from_name(l)
+            final_list.append(loc_asset)
+
+        return final_list
 
 
     def get_milestones_options(self):
@@ -379,22 +454,17 @@ class Settlement(Models.UserAsset):
         """
 
         options = []
+        c_dict = self.get_campaign(dict)
 
         # first check our campaign and expansion assets, and get all options
         if monster_type in self.get_campaign(dict):
             c_monsters = self.get_campaign(dict)[monster_type]
             options.extend(c_monsters)
-            if "forbidden_%s" % monster_type in self.get_campaign(dict).keys():
-                f_monsters = self.get_campaign(dict)["forbidden_%s" % monster_type]
-                [options.remove(m) for m in f_monsters]
 
         for exp in self.get_expansions(dict):
             e_dict = self.get_expansions(dict)[exp]
             if monster_type in e_dict.keys():
                 options.extend(e_dict[monster_type])
-            if "forbidden_%s" % monster_type in e_dict.keys():
-                f_monsters = e_dict["forbidden_%s" % monster_type]
-                [options.remove(m) for m in f_monsters]
 
         # now convert our list into a set (just in case) and then go on to
         # remove anything we've already got present in the settlement
@@ -410,6 +480,14 @@ class Settlement(Models.UserAsset):
             M = monsters.Monster(m)
             if M.is_selectable():
                 final_set.append(m)
+
+        # remove anything that the campaign forbids
+        forbidden = []
+        if "forbidden" in c_dict.keys() and monster_type in c_dict["forbidden"].keys():
+            forbidden.extend(c_dict["forbidden"][monster_type])
+        for m_handle in forbidden:
+            if m_handle in final_set:
+                final_set.remove(m_handle)
 
         # now turn our set
         output = []
@@ -665,6 +743,16 @@ class Settlement(Models.UserAsset):
         if "expansion" in asset_dict.keys():
             if asset_dict["expansion"] not in self.get_expansions():
                 return False
+
+        # check to see if the campaign forbids the asset
+        if "forbidden" in self.get_campaign(dict):
+            c_dict = self.get_campaign(dict)
+            for f_key in c_dict["forbidden"]:
+                if "type" in asset_dict.keys() and asset_dict["type"] == f_key:
+                    if asset_dict["handle"] in c_dict["forbidden"][f_key]:
+                        return False
+                    elif asset_dict["name"] in c_dict["forbidden"][f_key]:
+                        return False
 
         return True
 

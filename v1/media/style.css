@@ -505,7 +505,9 @@ list-style-type: none;
 }
 li.asset_deck {background: none; margin-left: 5%; }
 
-div.line_item span.location_lvl_select select.location_level {display: inline-block; border: 0;  width: auto; }
+div.location_container {border-bottom: 0.1em solid #999; }
+span.location_lvl_select {position: absolute; right: 10%; }
+div.line_item span.location_lvl_select select.location_level {display: inline-block; border: 0;  width: auto;}
 
     /* milestone story events */
 label.settlement_sheet_milestone_container {cursor: pointer; font-family: Metrophobic; }
@@ -1320,6 +1322,8 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
 
 
     /* settlement sheet styles - tablet */
+    div.location_container {border-bottom: 1px solid #999; }
+    span.location_lvl_select {font-size: 17pt; padding-top: 20px; right: 5%; }
     div.settlement_sheet_nemesis_line_item {flex-wrap:nowrap; border-bottom: 1px solid #999; margin-top: 3%; }
     div.settlement_sheet_nemesis_line_item span.item {margin-left: 2%; min-width: auto;}
     span.nemesis_levels {margin-top: -20px; }

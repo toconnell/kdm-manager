@@ -1454,7 +1454,15 @@ locations = {
     },
     "The Sun": {
         "expansion": "Sunstalker",
-        "consequences": ["Bone Smith", "Skinnery", "Organ Grinder", "Catarium", "Plumery", "Mask Maker", "Skyreef Sanctuary", "Sacred Pool"],
+        "consequences": [
+            "Bone Smith",
+            "Skinnery",
+            "Organ Grinder",
+            "Catarium",
+            "Plumery",
+            "Mask Maker",
+            "Sacred Pool"
+        ],
         "endeavors": {
             "Innovate": {"cost": 1, "desc": "Once per settlement phase, you may spend the listed resources (1 Bone, 1 Organ, 1 Hide) to draw 2 innovation cards. Keep 1 and return the other to the deck."},
             "Build": {"cost":1, "desc": "Bone Smith", "remove_after": "Bone Smith"},
@@ -4148,7 +4156,7 @@ expansions = {
         ],
     },
     "Sunstalker": {
-        "always_available": ["The Sun", "Sun Language", "Umbilical Bank"],
+        "always_available": ["The Sun", "Sun Language", "Umbilical Bank","Skyreef Sanctuary"],
         "timeline_add": [
             {"ly": 8, "type": "story_event", "name": "Promise Under the Sun", "excluded_campaign": "People of the Sun"},
         ],

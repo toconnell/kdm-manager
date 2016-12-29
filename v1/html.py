@@ -3069,78 +3069,53 @@ class settlement:
         <div
             class="settlement_sheet_block_group"
             ng-controller="locationsController"
+            title="Click or tap an item to remove it from this list."
         >
 
             <h2>Settlement Locations</h2>
-            <p>Locations in your settlement. Click or tap an item to remove it.</p>
+            <p>Locations in your settlement.</p>
+            <hr class="invisible"/> <!-- this is pretty low rent -->
 
             <div
-                ng-repeat="x in settlement_sheet.locations"
-                ng-init="levels=x.lvl;div_id=x.div_id"
+                ng-repeat="l in settlement_sheet.locations"
+                ng-init="locationLevel = settlement_sheet.location_levels[l]"
             >
-                <div class="line_item" ng-if="levels" id="{{x.div_id}}">
+                <div class="line_item location_container">
                     <span class="bullet"></span>
                     <span
                         class="item"
-                        onclick="removeSettlementSheetAsset(this, 'location','$settlement_id');"
-                        ng-click="relist(x);"
+                        ng-click="rmLocation($index,l);"
                     >
-                       {{ x.name }}
+                        {{l}}
                     </span>
-                    <span class="location_lvl_select">
+                    <span ng-if="settlement_sheet.location_levels[l] != undefined" class="location_lvl_select">
                         <select
-                            id="{{x.div_id}}LevelSelect"
                             class="location_level"
-                            name="location_level_{{x.name}}"
-                            onchange="updateAssetAttrib(this, 'settlement', '$settlement_id')"
-                            ng-model="x.lvl"
-                            ng-options="l.lvl as l.name for l in x.lvl_range"
+                            ng-model="locationLevel"
+                            ng-options="locationLevel as 'Lvl. '+locationLevel for locationLevel in [1,2,3]"
+                            ng-change="setLocationLevel(l,locationLevel)"
+                            ng-selected="locationLevel"
                         >
                         </select>
-                    </span>
-                </div>
+                    </span> <!-- optional levels controls -->
+                </div> <!-- location line item -->
 
-                <div class="line_item" ng-if="levels==undefined"> <!-- span holder -->
-                    <span class="bullet"></span>
-                    <span
-                        class="item"
-                        onclick="removeSettlementSheetAsset(this, 'location', '$settlement_id');"
-                        ng-click="relist(x);"
-                    >
-                        {{x.name}}
-                    </span>
-                </div>
+            </div> <!-- settlement_sheet.locations repeater -->
 
-            </div>
 
             <div class="line_item">
-                <span class="empty_bullet" /></span>
+                <span class="empty_bullet"></span>
                 <select
-                    id="addLocationSelectAngularJS"
-                    name="add_location"
-                    ng-model="add_location"
-                    ng-options="lo.name for lo in settlement.game_assets.locations"
-                    ng-change="add()"
+                    ng-model="newLocation"
+                    ng-options="l.handle as l.name for l in settlement.game_assets.locations_options"
+                    ng-change="addLocation()"
                 >
                     <option disabled selected value="">Add a Location</option>
                 </select>
-            </div>
-            <div class="line_item">
-                <span class="empty_bullet" /></span>
-                <input
-                    id="addLocationCustomInputHTML"
-                    name="add_location"
-                    type="text"
-                    placeholder="Enter custom Location"
-                    onclick="showHide('bogus_location_button')"
-                    ng-model="add_location"
-                    ng-blur="add()"
-                />
-            </div>
+            </div> <!-- line item -->
 
-        <button id="bogus_location_button" class="kd_blue" style="display:none;">Save</button>
+        </div> <!-- settlement_sheet_block_group locations controller-->
 
-        </div> <!-- settlement_sheet_block_group locations -->
 
 
                     <!-- INNOVATIONS - HAS ITS OWN FORM-->

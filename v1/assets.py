@@ -5482,35 +5482,6 @@ class Settlement:
         return lost
 
 
-    def reprocess_asset_keys(self, asset_keys):
-        """ Helper method for processing a list of asset keys and turning some
-        of them into dictionaries, e.g. if they have certain types of
-        attributes, such as levels, etc. """
-
-        for k in asset_keys:
-
-            if k in Locations.get_keys() and "levels" in Locations.get_asset(k):
-
-                if not "location_levels" in self.settlement.keys():
-                    self.settlement["location_levels"] = {k:1}
-                    self.save()
-
-                lvl = self.settlement["location_levels"][k]
-                lvl_range = [l+1 for l in range(Locations.get_asset(k)["levels"])]
-
-                index = asset_keys.index(k)
-                asset_keys.remove(k)
-
-                asset_keys.insert(index,
-                    {
-                        "name": "%s" % k,
-                        "lvl": lvl,
-                        "lvl_range": [{"lvl":l,"name":"Level %s" % l} for l in lvl_range],
-                        "div_id": "locationDiv%s" % k.replace(" ",""),
-                    })
-
-        return asset_keys
-
 
     def get_game_asset(self, asset_type=None, return_type=False, exclude=[], update_mins=True, admin=False):
         """ This is the generic method for getting a list of the settlement's
@@ -5622,8 +5593,8 @@ class Settlement:
                     output += html.ui.game_asset_select_bot
                     return output
                 elif return_type == "angularjs_options":
-                    asset_keys = self.reprocess_asset_keys(deck)
-                    return list_to_js(asset_keys)
+                    msg = "JSON and angularjs 'return_type' values are not supported!"
+                    raise Exception(msg)
 
         elif return_type in ["html_remove","html_rm"]:
             if asset_keys == []:
@@ -5742,9 +5713,27 @@ class Settlement:
             else:
                 self.settlement["nemesis_monsters"].append(game_asset_key)
                 self.settlement["nemesis_encounters"][game_asset_key] = []
-                self.logger.debug("[%s] added '%s' to %s nemesis monsters." % (self.User, game_asset_key, self))
                 M = self.get_api_asset("game_assets","monsters")[game_asset_key]
                 self.log_event("%s added %s to settlement nemesis monsters." % (self.User.user["login"], M["name"]))
+                self.logger.debug("[%s] added '%s' to %s nemesis monsters." % (self.User, game_asset_key, self))
+                return True
+
+        if asset_class == "locations":
+            if game_asset_key in self.settlement["locations"]:
+                self.logger.error("[%s] attempting to add '%s' to %s." % (self.User, game_asset_key, self.settlement["locations"]))
+                return False
+            else:
+                self.settlement["locations"].append(game_asset_key)
+                loc_dict = game_assets.locations[game_asset_key]
+
+                if "levels" in loc_dict.keys():
+                    if not "location_levels" in self.settlement.keys():
+                        self.settlement["location_levels"] = {}
+                    self.settlement["location_levels"][game_asset_key] = 1
+
+                self.log_event("%s added %s to settlement locations." % (self.User.user["login"], game_asset_key))
+                self.logger.debug("[%s] added '%s' to %s locations." % (self.User, game_asset_key, self))
+
                 return True
 
         # done with storage. processing other asset types
@@ -5840,7 +5829,7 @@ class Settlement:
                 self.rm_game_asset("innovations", game_asset_key)
             elif p == "add_location":
                 self.add_game_asset("locations", game_asset_key)
-            elif p == "remove_location":
+            elif p == "rm_location":
                 self.rm_game_asset("locations", game_asset_key)
             elif p == "current_quarry":
                 self.update_current_quarry(game_asset_key)

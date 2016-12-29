@@ -1,17 +1,21 @@
 app.controller("locationsController", function($scope) {
-    $scope.add = function() {
-        if (typeof $scope.add_location == "string") {
-            var raw_loc = $scope.add_location;
-            $scope.add_location = {name:raw_loc}; 
-        };
-        $scope.locations.push($scope.add_location);
-        var params = "add_location=" + $scope.add_location.name;
+    $scope.addLocation = function() {
+        var loc_dict = $scope.settlement.game_assets.locations[$scope.newLocation];
+        $scope.settlement_sheet.locations.push(loc_dict.name);        
+        params = "add_location=" + loc_dict["name"];
         modifyAsset('settlement',$scope.settlement_id,params);
-        $scope.add_location = undefined; 
-    } 
-    $scope.relist = function(loc) {
-        $scope.locations.splice( $scope.locations.indexOf(loc), 1 );
-        $scope.locations_options.push(loc);
+        location.reload();
+    };
+    $scope.rmLocation = function(index,loc_name) {
+        params = "rm_location=" + loc_name;
+        $scope.settlement_sheet.locations.splice(index,1);
+        modifyAsset('settlement',$scope.settlement_id,params);
+        location.reload();
+    };
+    $scope.setLocationLevel = function(loc_name,lvl){
+        params = "location_level_" + loc_name + "=" + lvl;
+        console.log(params);
+        modifyAsset('settlement',$scope.settlement_id,params);
     };
 });
 

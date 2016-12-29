@@ -45,6 +45,8 @@ def render_response(action, settlement_id):
 
     if action == "get":
         return S.http_response()
+    if action == "innovation_deck":
+        return S.get_innovation_deck()
     elif action == "set":
         S.update_sheet_from_dict(params)
     elif action == "add_expansions":

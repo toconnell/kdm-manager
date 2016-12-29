@@ -88,7 +88,10 @@ campaign_definitions = {
     "people_of_the_lantern": {
         "default": True,
         "name": "People of the Lantern",
-        "always_available": ["Lantern Hoard", "Language"],
+        "always_available": {
+            "location": ["Lantern Hoard"],
+            "innovation": ["Language"],
+        },
         "principles": ["new_life","death","society","conviction"],
         "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
         "nemesis_monsters": ["butcher","kings_man","the_hand","watcher"],
@@ -97,7 +100,10 @@ campaign_definitions = {
 
     "people_of_the_skull": {
         "name": "People of the Skull",
-        "always_available": ["Lantern Hoard", "Language"],
+        "always_available": {
+            "location": ["Lantern Hoard"],
+            "innovation": ["Language"],
+        },
         "nemesis_monsters": ["butcher","kings_man","the_hand","watcher"],
         "quarries": monster_assets.base_game_quarries,
         "special_rules": [
@@ -123,13 +129,18 @@ campaign_definitions = {
 
     "the_bloom_people": {
         "name": "The Bloom People",
-        "always_available": ["Lantern Hoard", "Language"],
+        "always_available": {
+            "location": ["Lantern Hoard"],
+            "innovation": ["Language"],
+        },
         "nemesis_monsters": ["butcher","kings_man","the_hand","watcher"],
         "quarries": monster_assets.base_game_quarries,
-        "forbidden_quarries": ["flower_knight"],
         "expansions": ["Flower Knight"],
         "storage": ["Sleeping Virus Flower"],
-        "forbidden": ["Flower Addiction"],
+        "forbidden": {
+            "abilities_and_impairments": ["Flower Addiction"],
+            "quarries": ["flower_knight"],
+        },
         "principles": ["new_life","death","society","conviction"],
         "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
         "endeavors": {
@@ -144,8 +155,15 @@ campaign_definitions = {
 
     "people_of_the_sun": {
         "name": "People of the Sun",
-        "expansions": ["Sunstalker"],
-        "forbidden": ["Leader", "Lantern Hoard"],
+        "expansions": ["sunstalker"],
+        "always_available": {
+            "location": ["The Sun","Sacred Pool"],
+            "innovation": ["Sun Language", "Umbilical Bank"],
+        },
+        "forbidden": {
+            "location": ["Lantern Hoard"],
+            "innovation": ["Leader", "Language"],
+        },
         "nemesis_monsters": ["butcher","kings_man","the_hand","ancient_sunstalker"],
         "quarries": monster_assets.base_game_quarries,
         "principles": ["potsun_new_life","death","society","conviction"],
@@ -180,9 +198,15 @@ campaign_definitions = {
 
     "people_of_the_stars": {
         "name": "People of the Stars",
-        "expansions": ["Dragon King"],
-        "always_available": ["Throne","Dragon Speech","Radiating Orb"],
-        "forbidden": ["Lantern Hoard", "Language","Lantern Oven","Clan of Death","Family", "Dragon Armory"],
+        "expansions": ["dragon_king"],
+        "always_available": {
+            "location": ["Throne"],
+            "innovation": ["Dragon Speech","Radiating Orb"],
+        },
+        "forbidden": {
+            "location": ["Lantern Hoard", "Dragon Armory"],
+            "innovation": ["Language","Lantern Oven","Clan of Death","Family"],
+        },
         "quarries": monster_assets.base_game_quarries,
         "nemesis_monsters": ["butcher","kings_man","the_hand","the_tyrant"],
         "nemesis_encounters": [
