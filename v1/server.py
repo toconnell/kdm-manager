@@ -19,33 +19,17 @@ import sys
 #   custom imports
 from utils import get_logger, load_settings, mdb
 
-class StreamToLogger(object):
-   """ Fake file-like stream object that redirects writes to a logger instance.
-   """
 
-   def __init__(self):
-      self.linebuf = ''
 
-   def write(self, buf):
-      for line in buf.rstrip().splitlines():
-         logger.log(logger.level, line.rstrip())
-
+#
+#   Server operations here
+#
 
 class ThreadingSimpleServer(SocketServer.ThreadingMixIn,BaseHTTPServer.HTTPServer):
     """ Initializes a vanilla server with threading by subclassing the above and
     overwriting literally nothing. """
 
     pass
-
-
-class customRequestHandler(CGIHTTPServer.CGIHTTPRequestHandler):
-    """ We need to make a custom request handler so that we can overwrite the
-    log_message func in CGIHTTPRequestHandler (if you don't overwrite it, it
-    prints to STDERR and, if you're a daemon, this just goes into the bit
-    bucket. """
-
-    def log_message(self, format, *args):
-        logger.log(logger.level, "%s" % (format%args))
 
 
 def start_server(port=None):
@@ -57,37 +41,51 @@ def start_server(port=None):
         logger.info("Aborting operation!")
         sys.exit()
 
-    logger.info("Starting server...")
+    removed = mdb.sessions.remove()
+    logger.warn("Removed %s user sessions!" % removed["n"])
 
     server_port = settings.getint("server","port")
     if port is not None:
         server_port = int(port)
 
-    logger.info("Server will listen on port %s..." % server_port)
-
+    # 1.) create the handler and the server object
     try:
-        handler = customRequestHandler  # see above
+        handler = CGIHTTPServer.CGIHTTPRequestHandler
         handler.cgi_directories.extend(["/"])
         server = ThreadingSimpleServer(('', server_port), handler)
-        u_name = getpwuid(os.getuid())[0]
-        effective_home_dir = "/home/%s/" % u_name
-        app_cwd = os.path.join(effective_home_dir, "kdm-manager/v1")
-        logger.info("Setting server CWD to %s" % app_cwd)
-        os.chdir(app_cwd)
-        removed = mdb.sessions.remove()
-        logger.warn("Removed %s sessions!" % removed["n"])
+        logger.info("Server initialized to run on http://%s:%s/" % (server.server_address))
     except Exception as e:
-        logger.error("Could not set application CWD!")
+        logger.error("Server could not be initialized!")
         logger.exception(e)
         raise
 
+    # 2.) set the working directory and change to it
     try:
+        u_name = getpwuid(os.getuid())[0]
+        effective_home_dir = "/home/%s/" % u_name
+        app_cwd = os.path.join(effective_home_dir, "kdm-manager/v1")
+        os.chdir(app_cwd)
+        logger.info("Set server CWD to %s" % app_cwd)
+    except Exception as e:
+        logger.error("Server working drectory could not be set!")
+        logger.exception(e)
+        raise
+
+    # 3.) launch!
+    try:
+        logger.info("Server listening...")
         server.serve_forever()
     except KeyboardInterrupt:
+        logger.critical("Shutting down server %s:%s" % (server.server_address))
         server.shutdown()
-        logger.critical("Caught manual interrupt! Exiting.")
         sys.exit()
+    finally:
+        logger.critical("Server is no longer active!")
 
+
+#
+#   Daemon operations here
+#
 
 def start_daemon():
     """ Uses DaemonContext to fork (i.e. daemonize) the start_server()
@@ -119,6 +117,10 @@ def stop_daemon():
     logger.critical("Process killed.")
 
 
+#
+#   Misc. and helper/laziness functions here
+#
+
 def get_pid():
     """ Gets the current PID associated with the daemon. """
     try:
@@ -143,6 +145,7 @@ def check_pid_dir():
     logger.info("PID dir '%s' is owned by '%s'." % (pid_dir, pid_dir_owner))
     if pid_dir_owner != os.environ["USER"]:
         logger.warn("PID dir owner is not the current user!")
+
 
 
 if __name__ == "__main__":

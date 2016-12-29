@@ -1229,7 +1229,7 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
     span.flair_text {font-size: 30px; }
     div.note_flair {width: 5%; }
     span.flair_text {margin: 0; display: block; }
-    div.note_content {font-size: 20px; margin: 1%; margin-left: 10%; margin-right: 7%; vertical-align:top;}
+    div.note_content {font-size: 25px; margin: 1%; margin-left: 10%; margin-right: 7%; vertical-align:top;}
     div.note_content span.author {font-size: 16px; }
 
 

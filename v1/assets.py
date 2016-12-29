@@ -3287,14 +3287,15 @@ class Settlement:
             if self.settlement[min_key] < 0:
                 self.settlement[min_key] = 0
 
-#        self.logger.debug("Updated minimum values for settlement %s (%s)" % (self.settlement["name"], self.settlement["_id"]))
-        self.enforce_data_model()
+        # auto-update the timeline here, if the user wants us to
         if self.User.get_preference("update_timeline"):
             updates_made = self.update_timeline_with_story_events()
             if updates_made:
                 self.refresh_from_API("timeline") # gotta pull the updated timeline back
 
-#        self.logger.debug("[%s] settlement %s udpated and saved." % (self.User, self))
+        self.enforce_data_model()
+
+        self.logger.debug("[%s] finished update_mins() for %s. Saving..." % (self.User, self))
         self.save()
 
 
@@ -3336,7 +3337,7 @@ class Settlement:
         self.Session.set_api_assets()
         self.settlement[k] = self.api_asset["sheet"][k]
         self.logger.info("[%s] reloaded self.settlement[%s] from API data" % (self.User, k))
-
+        self.save()
 
     def get_api_asset(self, asset_type="sheet", asset_key=None):
         """ Tries to get an asset from the api_asset attribute/dict. Fails
@@ -3748,6 +3749,9 @@ class Settlement:
         saving them and exclude any non str/unicode objects that might have
         snuck in while iterating over the cgi.FieldStorage(). """
 
+        # de-dupe keys in certain groups. Probably not necessary here anymore,
+        # but let's hang onto this as long as we're still updating from HTML
+        # forms (because they're messy)
         set_attribs = ["milestone_story_events", "innovations", "locations", "principles", "quarries"]
         for a in set_attribs:
             self.settlement[a] = list(set([i.strip() for i in self.settlement[a] if type(i) in (str, unicode)]))
@@ -3767,7 +3771,7 @@ class Settlement:
                             ly[ly_k].remove(i)
 
 
-        # fix broken/incorrectly normalized innovations
+        # SUMMER 2016 bug: fix broken/incorrectly normalized innovations
         def normalize(settlement_attrib, incorrect, correct):
             if incorrect in self.settlement[settlement_attrib]:
                 self.settlement[settlement_attrib].remove(incorrect)

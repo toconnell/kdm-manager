@@ -65,6 +65,7 @@ class Settlement(Models.UserAsset):
 
         # finish
         if perform_save:
+            self.logger.debug("%s settlement modified! Saving changes..." % self)
             self.save()
 
 
@@ -226,12 +227,15 @@ class Settlement(Models.UserAsset):
         timeline.insert(t_index,t_object)
 
         self.settlement["timeline"] = timeline
-        self.save()
 
         if "user_login" in e.keys():
             self.log_event("%s added '%s' to Lantern Year %s" % (e["user_login"], e["name"], e["ly"]))
         else:
             self.log_event("Automatically added '%s' to Lantern Year %s" % (e["name"], e["ly"]))
+
+        # finish with a courtesy save
+        self.save()
+
 
 
     def rm_timeline_event(self, e={}):
@@ -250,12 +254,14 @@ class Settlement(Models.UserAsset):
         timeline.insert(t_index, t_object)
 
         self.settlement["timeline"] = timeline
-        self.save()
 
         if "user_login" in e.keys():
             self.log_event("%s removed '%s' from Lantern Year %s" % (e["user_login"], e["name"], e["ly"]))
         else:
             self.log_event("Automatically removed '%s' from Lantern Year %s" % (e["name"], e["ly"]))
+
+        #finish with a courtesy save
+        self.save()
 
 
     def update_nemesis_levels(self, params):
@@ -269,7 +275,7 @@ class Settlement(Models.UserAsset):
             self.logger.error("Cannot update nemesis levels for '%s' (nemesis is not in 'nemesis_monsters' list for %s)" % (handle, self))
         else:
             self.settlement["nemesis_encounters"][handle] = levels
-            self.logger.debug("Update 'nemesis_encounters' for %s" % self)
+            self.logger.debug("Updated 'nemesis_encounters' for %s" % self)
             self.save()
 
 
@@ -278,8 +284,7 @@ class Settlement(Models.UserAsset):
         Deck, i.e. a list of innovation handle/name pairs. """
 
         I = innovations.Assets()
-
-        
+        self.logger.warn("NOT IMPLEMENTED!!!!!")
 
 
     def get_settlement_notes(self):
@@ -779,6 +784,7 @@ class Settlement(Models.UserAsset):
                 self.logger.warn("Unhandled update key: '%s' is being ignored!" % (sheet_k))
 
         # finally, save all changes
+        self.logger.debug("%s settlement has been modified. Saving changes..." % self)
         self.save()
 
 

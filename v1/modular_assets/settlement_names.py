@@ -2,9 +2,9 @@
 
 core = [
     "Beacon",
-    "Black Rock",
-    "Black Friday",
+    "Blackrock",
     "Blackwalk",
+    "Bleakstone",
     "Bloodreach",
     "Bloodstone",
     "Bloodwalk",
@@ -14,7 +14,6 @@ core = [
     "Deadrock",
     "Death Heim",
     "Death Mountain",
-    "Death Wood",
     "Doomrock",
     "Dreadrock",
     "Eastmost Penninsula",
@@ -23,6 +22,8 @@ core = [
     "First Light",
     "Founder's Rest",
     "Gormrange",
+    "Graverock",
+    "Gravestone",
     "Haven",
     "Home",
     "Hope",
@@ -54,7 +55,6 @@ core = [
     "The Silver Lantern",
     "The White Lantern",
     "Three Eye Rock",
-#    "Tyndall",
     "White Rock",
     "Witchweed",
 ]
