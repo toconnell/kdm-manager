@@ -597,11 +597,6 @@ preferences_dict = {
         "affirmative": "Keep me logged in",
         "negative": "Remove sessions after 24 hours",
     },
-    "comma_delimited_lists": {
-        "desc": "How should Location, Innovation, Innovation Deck, etc. lists be displayed?",
-        "affirmative": "Comma-delimited lists",
-        "negative": "Line item, bulleted lists",
-    },
     "random_names_for_unnamed_assets": {
         "desc": "Choose random names for Settlements/Survivors without names?",
         "affirmative": "Choose randomly",

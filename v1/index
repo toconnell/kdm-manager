@@ -42,9 +42,11 @@ if __name__ == "__main__":
         S.process_params(user_action="viewing %s" % S.get_current_view())
         if "norefresh" in params:
             print Response(response="OK",status=200)
-        output, body = S.current_view_html()
+        else:
+            output, body = S.current_view_html()
 
     stop = datetime.now()
     record_response_time(S.get_current_view(), stop-start)
 
-    html.render(output, body_class=body, session_object=S)
+    if "nofrefresh" not in params:
+        html.render(output, body_class=body, session_object=S)

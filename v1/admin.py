@@ -576,48 +576,6 @@ class Panel:
         return output
 
 
-def valkyrie():
-    """ Checks all extant survivors and adds them to mdb.the_dead if they've got
-    the 'dead' attrib. Tries to get their 'cause_of_death'. """
-
-    attribs_of_death = ["Courage", "Understanding", "Insanity", "epithets", "hunt_xp"]
-    options_of_death = ["avatar","cause_of_death"]
-
-    for dead in mdb.the_dead.find({"complete": {"$exists": False}}):
-        # set the settlement_name attrib
-        dead_settlement = mdb.settlements.find_one({"_id": dead["settlement_id"]})
-        if dead_settlement is not None:
-            dead["settlement_name"] = dead_settlement["name"]
-        else:
-            dead["settlement_name"] = "Abandoned Settlement"
-
-        # if the survivor is still in the mdb, try to update his death record
-        survivor_dict = mdb.survivors.find_one({"_id": dead["survivor_id"]})
-        if survivor_dict is not None:
-            for mandatory_attrib in attribs_of_death:
-                dead[mandatory_attrib] = survivor_dict[mandatory_attrib]
-            for optional_attrib in options_of_death:
-                if optional_attrib in survivor_dict.keys():
-                    dead[optional_attrib] = survivor_dict[optional_attrib]
-
-        # determine if the death record is complete
-        complete_rec = True
-        if "cause_of_death" in dead.keys():
-            for a in attribs_of_death:
-                if a not in dead.keys():
-                    complete_rec = False
-        else:
-            complete_rec = False
-        if complete_rec:
-            dead["complete"] = datetime.now()
-
-        # finally, save the death record
-        mdb.the_dead.save(dead)
-
-    logger.info("Valkyrie run complete: %s/%s complete death records." % (mdb.the_dead.find({"complete": {"$exists": True}}).count(), mdb.the_dead.find().count()))
-
-
-
 def dashboard_alert():
     """ Renders a fixed element on the dashboard if we're alerting the users
     about something. """

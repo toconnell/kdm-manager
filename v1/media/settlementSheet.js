@@ -20,6 +20,11 @@ app.controller("locationsController", function($scope) {
 });
 
 
+app.controller('innovationsController', function($scope) {
+    
+});
+
+
 app.controller('defeatedMonstersController', function($scope, $http) {
     $scope.addDefeatedMonster = function() {
         var params = "add_defeated_monster=" + $scope.dMonst;

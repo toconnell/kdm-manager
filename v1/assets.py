@@ -615,6 +615,39 @@ class Survivor:
             self.normalize()
 
 
+    #
+    #   Survivor meta and manager-only methods below
+    #
+
+    def set_api_asset(self):
+        """ Tries to set the survivor's API asset from the session. Fails
+        gracefully if it cannot. """
+
+        self.api_asset = {}
+        if not hasattr(self.Session, "api_survivors") or self.Session.session["current_view"] == "dashboard":
+            return None
+        try:
+            self.api_asset = self.Session.api_survivors[self.survivor["_id"]]["sheet"]
+        except Exception as e:
+            self.logger.error("[%s] could not set API asset for %s! Current view: '%s'" % (self.User, self, self.Session.session["current_view"]))
+            pass
+
+
+    def get_api_asset(self, asset_key):
+        """ Tries to get an asset from the api_asset attribute/dict. This is the
+        version of this for SURVIVORS, not for settlements (which is below). """
+
+        if not hasattr(self, "api_asset"):
+            self.set_api_asset()
+
+        if not asset_key in self.api_asset.keys():
+            self.logger.warn("[%s] api_asset key '%s' does not exist for %s!" % (self.User, asset_key, self))
+            self.logger.debug("[%s] available API asset keys for %s: %s" % (self.User, self, self.api_asset.keys()))
+            return {}
+        else:
+            return self.api_asset[asset_key]
+
+
     def set_objects_from_session(self, session_object=None):
         """ Tries (hard) to set the current self.Session, .User and .Settlement.
         Makes a ton of noise if it can't. """
@@ -940,63 +973,18 @@ class Survivor:
         return survivor_id
 
 
-    def set_api_asset(self):
-        """ Tries to set the survivor's API asset from the session. Fails
-        gracefully if it cannot. """
-
-        self.api_asset = {}
-        if not hasattr(self.Session, "api_survivors") or self.Session.session["current_view"] == "dashboard":
-            return None
-        try:
-            self.api_asset = self.Session.api_survivors[self.survivor["_id"]]["sheet"]
-        except Exception as e:
-            self.logger.error("[%s] could not set API asset for %s! Current view: '%s'" % (self.User, self, self.Session.session["current_view"]))
-            pass
-
-
-    def get_api_asset(self, asset_key):
-        """ Tries to get an asset from the api_asset attribute/dict. This is the
-        version of this for SURVIVORS, not for settlements (which is below). """
-
-        if not hasattr(self, "api_asset"):
-            self.set_api_asset()
-
-        if not asset_key in self.api_asset.keys():
-            self.logger.warn("[%s] api_asset key '%s' does not exist for %s!" % (self.User, asset_key, self))
-            self.logger.debug("[%s] available API asset keys for %s: %s" % (self.User, self, self.api_asset.keys()))
-            return {}
-        else:
-            return self.api_asset[asset_key]
-
-
-    def delete(self, run_valkyrie=True):
-        """ Retires the Survivor (in the Blade Runner sense) and then removes it
-        from the mdb. """
-
-        self.logger.warn("[%s] Deleting survivor %s..." % (self.User, self))
-        if not "cause_of_death" in self.survivor.keys():
-            self.survivor["cause_of_death"] = "Forsaken."
-        self.death()
-        if run_valkyrie:
-            admin.valkyrie()
-        if "avatar" in self.survivor.keys():
-            gridfs.GridFS(mdb).delete(self.survivor["avatar"])
-            self.logger.debug("%s removed an avatar image (%s) from GridFS." % (self.User.user["login"], self.survivor["avatar"]))
-        mdb.survivors.remove({"_id": self.survivor["_id"]})
-        self.Settlement.log_event("%s has been Forsaken (and permanently deleted) by %s" % (self, self.User.user["login"] ))
-        self.logger.warn("%s removed survivor %s from mdb!" % (self.User.user["login"], self.get_name_and_id()))
-
-
     def remove(self):
         """ Markes the survivor 'removed' with a datetime.now(). """
-        self.logger.info("[%s] Removing survivor %s" % (self.User, self))
+
+        self.logger.info("[%s] removing survivor %s" % (self.User, self))
         self.survivor["removed"] = datetime.now()
-        mdb.survivors.save(self.survivor)
+        self.save()
 
         self.Settlement.increment_population(-1)
 
         self.Settlement.log_event("%s has <b>permanently removed</b> %s from the settlement!" % (self.User.user["login"], self))
         self.logger.warn("[%s] marked %s as removed!" % (self.User, self))
+
 
 
     def get_name_and_id(self, include_id=True, include_sex=False):
@@ -1055,7 +1043,7 @@ class Survivor:
 
 
 
-    def death(self, undo_death=False, cause_of_death=None):
+    def death(self, undo_death=False, cause_of_death=None, save=False):
         """ Call this method when a survivor dies. Call it with the 'undo_death'
         kwarg to undo the death.
 
@@ -1066,79 +1054,36 @@ class Survivor:
         return False if the survivor is NOT marked with the 'dead' attrib.
         """
 
-        self.Settlement.update_mins()
 
-        population = int(self.Settlement.settlement["population"])
-        death_count = int(self.Settlement.settlement["death_count"])
-
+        # do cause of death updates before we do anything else.
         if cause_of_death is not None:
             self.survivor["cause_of_death"] = cause_of_death
 
         if undo_death:
-            self.logger.debug("Survivor '%s' is coming back from the dead..." % self.survivor["name"])
+            self.logger.debug("[%s] is resurrecting '%s'" % self.survivor["name"])
             for death_key in ["died_on","died_in","cause_of_death","dead"]:
                 try:
                     del self.survivor[death_key]
                     self.logger.debug("[%s] removed '%s' attrib from survivor %s" % (self.User, death_key, self))
                 except Exception as e:
-                    self.logger.debug("Could not unset '%s'" % death_key)
+                    self.logger.warn("Could not unset '%s'" % death_key)
                     pass
-
-            mdb.the_dead.remove({"survivor_id": self.survivor["_id"]})
-            self.logger.debug("Survivor '%s' removed from the_dead." % self.survivor["name"])
-        else:
-            self.logger.debug("Survivor '%s' (%s) has died!" % (self.survivor["name"], self.survivor["_id"]))
+            self.logger.debug("[%s] has resurrected %s" % (self.User, self))
+        elif not undo_death and "dead" not in self.survivor.keys():
             self.survivor["dead"] = True
-            death_dict = {
-                "name": self.survivor["name"],
-                "epithets": self.survivor["epithets"],
-                "survivor_id": self.survivor["_id"],
-                "created_by": self.survivor["created_by"],
-                "settlement_id": self.Settlement.settlement["_id"],
-                "created_on": datetime.now(),
-                "lantern_year": self.Settlement.settlement["lantern_year"],
-                "Courage": self.survivor["Courage"],
-                "Understanding": self.survivor["Understanding"],
-                "Insanity": self.survivor["Insanity"],
-                "epithets": self.survivor["epithets"],
-                "hunt_xp": self.survivor["hunt_xp"],
-            }
-
-            for optional_attrib in ["avatar","cause_of_death"]:
-                if optional_attrib in self.survivor.keys():
-                    death_dict[optional_attrib] = self.survivor[optional_attrib]
-
-            if mdb.the_dead.find_one({"survivor_id": self.survivor["_id"]}) is None:
-                mdb.the_dead.insert(death_dict)
-                self.logger.debug("Survivor '%s' has joined The Dead." % self.survivor["name"])
-                self.Settlement.settlement["population"] = int(self.Settlement.settlement["population"]) - 1
-                self.Settlement.settlement["death_count"] = int(self.Settlement.settlement["death_count"]) + 1
-                self.logger.debug("Settlement '%s' population and death count automatically adjusted!" % self.Settlement.settlement["name"])
-                self.Settlement.log_event("%s died." % self.get_name_and_id(include_id=False, include_sex=True))
-                self.Settlement.log_event("Population decreased to %s; death count increased to %s." % (self.Settlement.settlement["population"], self.Settlement.settlement["death_count"]))
-            else:
-                self.logger.debug("Survivor '%s' is already among The Dead." % self.survivor["name"])
-
             self.survivor["died_on"] = datetime.now()
             self.survivor["died_in"] = self.Settlement.settlement["lantern_year"]
-
-
-        admin.valkyrie()
-
-        # save the survivor then update settlement mins: you have to do it in
-        # this order, or else update_mins() doesn't know about the stiff and the
-        # population decrement above won't work.
-        mdb.survivors.save(self.survivor)
-        self.Settlement.update_mins()
-
-        if undo_death and "dead" in self.survivor.keys():
-            self.logger.error("[%s] undo survivor death failed for %s!" % (self.User, self))
-            return False
-        elif not undo_death and "dead" in self.survivor.keys():
-            return True
+            if cause_of_death is None:
+                self.Settlement.log_event("%s has died!" % self, "survivor_death")
+            else:
+                self.Settlement.log_event("%s has died! Cause of death: %s" % (self, cause_of_death), "survivor_death")
+            self.logger.debug("[%s] survivor %s is dead!" % (self.User, self))
         else:
-            return False
+            self.logger.warn("[%s] activated the Controls of Death and made no changes." % self.User)
 
+        # saving isn't required if we're calling this from modify()
+        if save:
+            self.save()
 
 
     def get_survival_actions(self, return_as=False):
@@ -2331,16 +2276,8 @@ class Survivor:
 
         if "cause_of_death" in self.survivor and cod == self.survivor["cause_of_death"]:
             return
-
         self.survivor["cause_of_death"] = cod
-        self.logger.debug("[%s] Set cause of death to '%s' for %s." % (self.User, cod, self))
-        admin.valkyrie()
-
-        death_rec = mdb.the_dead.find_one({"survivor_id": self.survivor["_id"]})
-        if death_rec is not None:
-            self.logger.debug("[%s] Updating death record for %s" % (self.User, self))
-            death_rec["cause_of_death"] = cod
-            mdb.the_dead.save(death_rec)
+        self.logger.debug("[%s] set cause of death to '%s' for %s." % (self.User, cod, self))
 
 
     def update_survival(self, new_value):
@@ -2633,7 +2570,7 @@ class Survivor:
         """ Reads through a cgi.FieldStorage() (i.e. 'params') and modifies the
         survivor. """
 
-        self.Settlement.update_mins()
+#        self.logger.debug("[%s] is modifying survivor %s" % (self.User, self))
 
         ignore_keys = [
             # legacy keys (soon to be deprecated)
@@ -2683,9 +2620,7 @@ class Survivor:
                 self.update_fighting_arts(game_asset_key, action="rm")
             elif p == "resurrect_survivor":
                 self.death(undo_death=True)
-            elif p == "custom_cause_of_death":
-                self.death(cause_of_death=game_asset_key)
-            elif p == "add_cause_of_death":
+            elif p in ["custom_cause_of_death","add_cause_of_death"]:
                 self.death(cause_of_death=game_asset_key)
             elif p == "unspecified_death":
                 if "add_cause_of_death" not in params and "custom_cause_of_death" not in params:
@@ -2724,10 +2659,7 @@ class Survivor:
                 toggle_key = "_".join(p.split("_")[1:])
                 self.toggle(toggle_key, game_asset_key, toggle_type="explicit")
             elif p == "add_survivor_note":
-                try:
-                    self.update_survivor_notes("add", game_asset_key)
-                except Exception as e:
-                    self.logger.exception(e)
+                self.update_survivor_notes("add", game_asset_key)
             elif p == "rm_survivor_note":
                 self.update_survivor_notes("rm", game_asset_key)
             elif p.split("_")[0:4] == ["fighting","art","level","toggle"]:
@@ -2776,7 +2708,7 @@ class Survivor:
             self.heal(params["heal_survivor"].value)
 
         # this is the big save. This should be the ONLY SAVE we do during a self.modify()
-        mdb.survivors.save(self.survivor)
+        self.save()
 
 
     def asset_link(self, view="survivor", button_class="survivor", link_text=False, include=["hunt_xp", "insanity", "sex", "dead", "retired", "returning"], disabled=False):
@@ -3241,10 +3173,15 @@ class Settlement:
         self.set_settlement(settlement_id, update_mins)
 
         # uncomment these to log which methods are initializing 
-#        curframe = inspect.currentframe()
-#        calframe = inspect.getouterframes(curframe, 2)
-#        self.logger.debug("settlement initialized by %s" % calframe[1][3])
+        curframe = inspect.currentframe()
+        calframe = inspect.getouterframes(curframe, 2)
+        self.logger.debug("settlement initialized by %s" % calframe[1][3])
 
+
+
+    #
+    #   Settlement meta and manager-only methods below
+    #
 
     def set_settlement(self, s_id, update_mins=False):
         """ Sets self.settlement. """
@@ -3271,9 +3208,9 @@ class Settlement:
         """
 
         # uncomment these to log which methods are calling update_mins()
-#        curframe = inspect.currentframe()
-#        calframe = inspect.getouterframes(curframe, 2)
-#        self.logger.debug("update_mins() called by %s" % calframe[1][3])
+        curframe = inspect.currentframe()
+        calframe = inspect.getouterframes(curframe, 2)
+        self.logger.debug("update_mins() called by %s" % calframe[1][3])
 
         for min_key in ["population", "death_count", "survival_limit"]:
             min_val = self.get_min(min_key)
@@ -3281,7 +3218,7 @@ class Settlement:
             if orig_val < min_val:
                 self.settlement[min_key] = min_val
                 self.logger.debug("Automatically updated settlement %s (%s) %s from %s to %s" % (self.settlement["name"], self.settlement["_id"], min_key, orig_val, min_val))
-                self.log_event("Automatically changed %s from %s to %s" % (min_key, orig_val, min_val))
+                self.log_event("Automatically changed %s from %s to %s" % (min_key.replace("_"," "), orig_val, min_val))
 
             # just a little idiot- and user-proofing against negative values
             if self.settlement[min_key] < 0:
@@ -3299,7 +3236,7 @@ class Settlement:
         self.save()
 
 
-    def set_api_asset(self):
+    def set_api_asset(self, refresh=False):
         """ Tries to set the settlement's API asset from the session. Fails
         gracelessly if it cannot: if we've got methods looking for API data,
         they need to scream bloody murder if they can't get it."""
@@ -3317,6 +3254,8 @@ class Settlement:
         if cv not in ["dashboard","panel"]:
             if not hasattr(self.Session, "api_settlement"):
                 raise Exception("[%s] session has no API assets!" % self.User)
+            if refresh:
+                self.Session.set_api_assets()
             self.api_asset = self.Session.api_settlement
             if not "game_assets" in self.api_asset.keys():
                 self.logger.error("[%s] API asset for %s does not contain a 'game_assets' key!" % (self.User, self))
@@ -3334,10 +3273,11 @@ class Settlement:
         """ Retrives the settlement from the API and sets self.settlement[k] to
         whatever the API currently thinks self.settlement happens to be. """
 
-        self.Session.set_api_assets()
+        self.set_api_asset(refresh=True)
+
         self.settlement[k] = self.api_asset["sheet"][k]
         self.logger.info("[%s] reloaded self.settlement[%s] from API data" % (self.User, k))
-        self.save()
+
 
     def get_api_asset(self, asset_type="sheet", asset_key=None):
         """ Tries to get an asset from the api_asset attribute/dict. Fails
@@ -3361,33 +3301,9 @@ class Settlement:
             return self.api_asset[asset_type][asset_key]
 
 
-    def get_survivor_survival_max(self):
-        """ Gets the limit that the survivor can set the Survival to on the
-        Sheet by checking epansion properties. """
-
-        limit = self.get_attribute("survival_limit")
-
-        for e in self.get_api_asset("sheet","expansions"):
-            e_dict = self.get_api_asset("game_assets","expansions")[e]
-            if "enforce_survival_limit" in e_dict.keys():
-                if not e_dict["enforce_survival_limit"]:
-                    return 666
-
-        return limit
-
-
-    def log_event(self, msg):
-        """ Logs a settlement event to mdb.settlement_events. """
-        d = {
-            "created_on": datetime.now(),
-            "created_by": self.User.user["_id"],
-            "settlement_id": self.settlement["_id"],
-            "ly": self.settlement["lantern_year"],
-            "event": msg,
-        }
-        mdb.settlement_events.insert(d)
-        self.logger.debug("Settlement event logged for %s" % self.get_name_and_id())
-
+    #
+    #   Settlement management and administration methods below
+    #
 
     def new(self):
         """ Creates a new settlement based on self.cgi_params. If you want to do
@@ -3498,6 +3414,53 @@ class Settlement:
         self.logger.debug("[%s] saved changes to %s" % (self.User, self))
 
 
+    def remove(self):
+        """ Marks the settlement and the survivors as "removed", which prevents
+        them from showing up on the dashboard. """
+
+        self.logger.warn("[%s] is removing settlement %s " % (self.User, self))
+        for survivor in self.get_survivors():
+            S = Survivor(survivor_id=survivor["_id"], session_object=self.Session)
+            S.remove()
+        self.settlement["removed"] = datetime.now()
+        self.log_event("%s removed the settlement!" % (self.User.user["login"]))
+        self.logger.warn("[%s] Finished marking %s as 'removed'." % (self.User, self))
+        self.save()
+
+
+    def bulk_add_survivors(self, male=0, female=0):
+        """ Adds 'male' male survivors and 'female' female survivors the settlement. """
+
+        for s in range(male):
+            m = Survivor(params=None, session_object=self.Session, suppress_event_logging=True, update_mins=False)
+            m.set_attrs({"public": "checked"})
+        for s in range(female):
+            f = Survivor(params={"sex": "F"}, session_object=self.Session, suppress_event_logging=True, update_mins=False)
+            f.set_attrs({"public": "checked"})
+        self.log_event("%s added %s male and %s female survivors to %s!" % (self.User, male, female, self.settlement["name"]))
+        self.logger.debug("[%s] bulk-added %s male and %s female survivors to %s" % (self.User.user["login"], male, female, self))
+
+
+    def log_event(self, msg, event_type=None):
+        """ Logs a settlement event to mdb.settlement_events. """
+
+        d = {
+            "created_on": datetime.now(),
+            "created_by": self.User.user["_id"],
+            "settlement_id": self.settlement["_id"],
+            "ly": self.settlement["lantern_year"],
+            "event": msg,
+            "event_type": event_type,
+        }
+        mdb.settlement_events.insert(d)
+        self.logger.debug("Settlement event logged for %s" % self.get_name_and_id())
+
+
+
+    #
+    #   Settlement game asset management methods below
+    #
+
     def add_expansions(self, e):
         """ Interim/legacy support method. Adds an expansion via API POST. """
         if type(e) != list:
@@ -3520,17 +3483,25 @@ class Settlement:
 
 
 
-    def bulk_add_survivors(self, male=0, female=0):
-        """ Adds 'male' male survivors and 'female' female survivors the settlement. """
 
-        for s in range(male):
-            m = Survivor(params=None, session_object=self.Session, suppress_event_logging=True, update_mins=False)
-            m.set_attrs({"public": "checked"})
-        for s in range(female):
-            f = Survivor(params={"sex": "F"}, session_object=self.Session, suppress_event_logging=True, update_mins=False)
-            f.set_attrs({"public": "checked"})
-        self.log_event("%s added %s male and %s female survivors to %s!" % (self.User, male, female, self.settlement["name"]))
-        self.logger.debug("[%s] bulk-added %s male and %s female survivors to %s" % (self.User.user["login"], male, female, self))
+
+    #
+    #   Settlement reference, retrieval and look-up methods below
+    #
+
+    def get_survivor_survival_max(self):
+        """ Gets the limit that the survivor can set the Survival to on the
+        Sheet by checking epansion properties. """
+
+        limit = self.get_attribute("survival_limit")
+
+        for e in self.get_api_asset("sheet","expansions"):
+            e_dict = self.get_api_asset("game_assets","expansions")[e]
+            if "enforce_survival_limit" in e_dict.keys():
+                if not e_dict["enforce_survival_limit"]:
+                    return 666
+
+        return limit
 
 
     def get_event(self, event_name=None):
@@ -3646,33 +3617,6 @@ class Settlement:
         self.log_event("Added four new survivors and Starting Gear to settlement storage")
 
 
-    def remove(self):
-        """ Marks the settlement and the survivors as "removed", which prevents
-        them from showing up on the dashboard. """
-
-
-        self.logger.warn("[%s] Marking %s as 'removed'..." % (self.User, self))
-        for survivor in self.get_survivors():
-            S = Survivor(survivor_id=survivor["_id"], session_object=self.Session)
-            S.remove()
-        self.settlement["removed"] = datetime.now()
-        mdb.settlements.save(self.settlement)
-        self.log_event("Removed settlement!")
-        self.logger.warn("[%s] Finished marking %s as 'removed'." % (self.User, self))
-
-
-    def delete(self):
-        """ Deletes all survivors, runs the Valkyrie and removes the settlement
-        from the mdb. We don't want users to do this, because it ruins world
-        stats. Rather, they use the remove() method. """
-
-        self.logger.warn("[%s] Deleting %s from mdb..." % (self.User, self))
-        for survivor in self.get_survivors():
-            S = Survivor(survivor_id=survivor["_id"], session_object=self.Session)
-            S.delete(run_valkyrie=False)
-        admin.valkyrie()
-        mdb.settlements.remove({"_id": self.settlement["_id"]})
-        self.logger.warn("[%s] Deleted %s from mdb!" % (self.User, self))
 
 
     def get_story_events(self, return_type="handles"):
@@ -3732,7 +3676,6 @@ class Settlement:
                 self.logger.debug("[%s] automatically adding %s story event to LY %s" % (self.User, event["name"], self.get_ly()))
                 event.update({"ly": self.get_ly(),})
                 self.add_timeline_event(event)
-
                 self.log_event('Automatically added <b><font class="kdm_font">g</font> %s</b> to LY %s.' % (event["name"], self.get_ly()))
                 updates_made = True
 
@@ -4301,55 +4244,34 @@ class Settlement:
                 item from the settlement principles list.
             'html_controls': html controls for the Settlement Sheet that use
                 radio buttons and evaluate campaign logic/attribute rules.
-            'user_defined': checks the User.get_preference() method and uses the
-                user's list display preference.
 
         """
 
         principles = sorted(self.settlement["principles"])
 
-        if return_type == "user_defined":
-            if self.User.get_preference("comma_delimited_lists"):
-                return_type = "comma-delimited"
-            else:
-                return_type = "list"
-
-        if return_type in ["list", "comma-delimited"]:
+        if return_type in ["list"]:
             if principles == []:
                 return ""
-            if return_type == "comma-delimited":
-                return "<p>%s</p>" % ", ".join(principles)
-            if return_type == "list":
+            else:
                 output = '\n\n<ul>\n'
                 for p in principles:
                     output += "<li>%s</li>\n" % p
                 output += "\n</ul>\n\n"
                 return output
-
         elif return_type == "checked" and query is not None:
             if query in self.settlement["principles"]:
                 return "checked"
             else:
                 return ""
-        elif return_type == "html_select_remove":
-            if principles == []:    #bail if we've got nothing
-                return ""
-            output =  '<span class="empty_bullet"></span>'
-            output += html.ui.game_asset_select_top.safe_substitute(operation="remove_", name="principle", operation_pretty="Remove", name_pretty="Principle")
-            for principle in principles:
-                output += html.ui.game_asset_select_row.safe_substitute(asset=principle)
-            output += html.ui.game_asset_select_bot
-            return output
-
-        elif return_type == "json":
-            msg = "JSON and JS 'return_type' values are no longer supported!"
+        elif return_type in ["html_select_remove","json"]:
+            msg = "The 'return_type' value '%s' is no longer supported by this method!" % return_type
             self.logger.error(msg)
             raise AttributeError(msg)
 
         return sorted(self.settlement["principles"])
 
 
-    def get_milestones(self, return_type=False, query=None):
+    def get_milestones(self, return_type=None, query=None):
         """ Returns the settlement's milestones as a list. If the 'return_type'
         kwarg is "checked" and the 'query' kwarg is a string, this returns an
         empty string if the 'query' is NOT in the settlement's milestones and
@@ -4357,34 +4279,16 @@ class Settlement:
 
         milestones = self.settlement["milestone_story_events"]
 
+        if return_type in ["html_controls"]:
+            msg = "The 'return_type' value '%s' is no longer supported by get_milestones()" % return_type
+            self.logger.error(msg)
+            raise Exception(msg)
+
         if return_type == "checked" and query is not None:
             if query in milestones:
                 return "checked"
             else:
                 return ""
-        elif return_type == "html_controls":
-            output = ""
-            campaign_dict = self.get_campaign("dict")
-            m_order = {}
-            for m_key in campaign_dict["milestones"].keys():
-                m_dict = campaign_dict["milestones"][m_key]
-                m_order[m_dict["sort_order"]] = m_key
-            for m_num in sorted(m_order):
-                m_key = m_order[m_num]
-                m_dict = campaign_dict["milestones"][m_key]
-                m_story_event = m_dict["story_event"]
-                m_handle = to_handle(m_key)
-                event = self.get_event(m_story_event)
-                output += html.settlement.milestone_control.safe_substitute(
-                    settlement_id = self.settlement["_id"],
-                    key = m_key,
-                    handle = m_handle,
-                    checked = self.get_milestones("checked", query=m_key),
-                    story_event = m_dict["story_event"],
-                    story_page = event["page"],
-                )
-            output += '<hr class="invisible">'
-            return output
 
         return milestones
 
@@ -5102,6 +5006,7 @@ class Settlement:
             self.logger.error(response)
 
 
+
     def rm_timeline_event(self, event = {}):
         """ Interim/migration support method for V1. Wraps up an event into an
         API-safe dict and then uses the api.py module to POST it to the API's
@@ -5437,22 +5342,11 @@ class Settlement:
                     final_list.remove(f)
 
 
-        # handle user-defined return_type
-        if return_type == "user_defined":
-            if self.User.get_preference("comma_delimited_lists"):
-                return_type = "comma-delimited"
-            else:
-                return_type = "list"
-
-        if return_type in ["list","comma-delimited"]:
+        if return_type in ["list"]:
             if final_list == []:
                 return ""
             else:
-                output = ""
-                if return_type == "comma-delimited":
-                    output += "\n<p>%s</p>" % (", ".join(final_list))
-                elif return_type == "list":
-                    output += '\n<ul class="asset_deck">%s</ul>' % "\n".join(["<li>%s</li>" % i for i in final_list])
+                output = '\n<ul class="asset_deck">%s</ul>' % "\n".join(["<li>%s</li>" % i for i in final_list])
                 return output
 
         return final_list
@@ -5506,9 +5400,9 @@ class Settlement:
         because if we've got no options, we display no select element.
         """
         # uncomment these to log which methods are calling
-#        curframe = inspect.currentframe()
-#        calframe = inspect.getouterframes(curframe, 2)
-#        self.logger.debug("get_game_asset() called by %s" % calframe[1][3])
+        curframe = inspect.currentframe()
+        calframe = inspect.getouterframes(curframe, 2)
+        self.logger.debug("get_game_asset() called by %s" % calframe[1][3])
 
         # first, scream bloody murder if we get a banned return_type value
         if return_type in ["angularjs","json","angularjs_options"]:
@@ -5547,16 +5441,9 @@ class Settlement:
                 if f in asset_keys:
                     self.error.log("Forbidden asset '%s' is present in %s after filtering!" % (f, asset_name))
 
-        #   now do return types
-        if return_type is "user_defined":
-            if self.User.get_preference("comma_delimited_lists"):
-                return_type = "comma-delimited"
-            else:
-                return_type = "list"
-
         pretty_asset_name = asset_name.replace("_"," ").title()
 
-        if return_type in ["comma-delimited", "list"]:
+        if return_type in ["list"]:
             if hasattr(Asset, "uniquify"):
                 asset_keys = list(set(asset_keys))
             if hasattr(Asset, "sort_alpha"):
@@ -5564,14 +5451,14 @@ class Settlement:
             if hasattr(Asset, "stack"):
                 asset_keys = stack_list(asset_keys)
 
-            if return_type == "list":
-                return "\n".join(['\t<div class="line_item"><span class="bullet"></span><span class="item">%s</span></div>' % i for i in asset_keys])
-            elif return_type == "comma-delimited":
-                return "<p>%s</p>" % ", ".join(asset_keys)
+            return "\n".join(['\t<div class="line_item"><span class="bullet"></span><span class="item">%s</span></div>' % i for i in asset_keys])
 
         elif return_type in ["html_add"]:
             if not self.User.get_preference("dynamic_innovation_deck") and asset_type == "innovations":
-                output = Innovations.render_as_html_dropdown(exclude=self.settlement["innovations"], excluded_type="principle")
+                output = Innovations.render_as_html_dropdown(
+                    exclude=self.settlement["innovations"],
+                    excluded_type="principle"
+                )
             else:
                 op = "add"
                 output = html.ui.game_asset_select_top.safe_substitute(
@@ -5885,12 +5772,10 @@ class Settlement:
             sex_count = self.get_survivors(return_type="sex_count", exclude_dead=True),
             lantern_year = self.settlement["lantern_year"],
             survival_limit = self.settlement["survival_limit"],
-            innovations = self.get_game_asset("innovations", return_type="user_defined", exclude=self.settlement["principles"], update_mins=False),
             endeavors = self.get_endeavors("html"),
             departure_bonuses = self.get_bonuses('departure_buff', return_type="html", update_mins=False),
             settlement_bonuses = self.get_bonuses('settlement_buff', return_type="html", update_mins=False),
             survivor_bonuses = self.get_bonuses('survivor_buff', return_type="html", update_mins=False),
-            defeated_monsters = self.get_game_asset("defeated_monsters", return_type="user_defined", update_mins=False),
             survivors = self.get_survivors(return_type="html_campaign_summary", user_id=user_id),
             special_rules = self.get_special_rules("html_campaign_summary"),
 
@@ -5996,12 +5881,12 @@ class Settlement:
             self.update_mins()  # update settlement mins before we create any text
 
         if context == "campaign_summary":
-            button_class = "yellow floating_asset_button"
+            button_class = "campaign_summary_gradient"
             link_text = html.dashboard.settlement_flash
             desktop_text = "Edit %s" % self.settlement["name"]
             asset_type = "settlement"
         elif context == "asset_management":
-            button_class = "gradient_purple floating_asset_button"
+            button_class = "settlement_sheet_gradient"
             link_text = html.dashboard.campaign_flash
             desktop_text = "%s Campaign Summary" % self.settlement["name"]
             asset_type = "campaign"
@@ -6020,7 +5905,7 @@ class Settlement:
                 players_block=players,
             )
         else:
-            button_class = "gradient_yellow"
+            button_class = "settlement_sheet_gradient"
             link_text = html.dashboard.settlement_flash + "<b>%s</b>" % self.settlement["name"]
             if "abandoned" in self.settlement.keys():
                 link_text += ' [ABANDONED]'

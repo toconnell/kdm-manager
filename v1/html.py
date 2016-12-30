@@ -1076,44 +1076,43 @@ class survivor:
    >
         <span class="tablet_and_desktop nav_bar survivor_sheet_gradient"></span>
         <span class="mobile_only nav_bar_mobile survivor_sheet_gradient"></span>
-        <span class="top_nav_spacer mobile_only">hidden</span>
+        <div class="top_nav_spacer">hidden</div>
 
-        <br class="tablet_and_desktop"/>
 
         <div id="asset_management_left_pane">
 
-       <input
-            id="survivor_sheet_survivor_name"
-            type="text" name="name" value="$name"
-            placeholder="Survivor Name"
-            onchange="updateAssetAttrib(this, 'survivor', '$survivor_id')"
-            onClick="this.select()"
-        />
-
-        <div class="survivor_sheet_survivor_name_from_top_spacer mobile_only"/>&nbsp</div>
-
-        $epithet_controls
-
-        $affinity_controls
-
-        <p>
-            Survivor Sex:
-            <input
-                id="survivor_sheet_survivor_sex"
-                class="survivor_sex_text"
-                name="sex" value="$sex"
+          <input
+                id="survivor_sheet_survivor_name"
+                type="text" name="name" value="$name"
+                placeholder="Survivor Name"
                 onchange="updateAssetAttrib(this, 'survivor', '$survivor_id')"
+                onClick="this.select()"
             />
 
-            $mobile_avatar_img
+            <div class="survivor_sheet_survivor_name_from_top_spacer mobile_only"/>&nbsp</div>
 
-            <div id="mobileButtonHolder" class="survivor_sheet_dynamic_button_holder mobile_and_tablet">
-            <!-- This holds optional survivor modal openers; otherwise, it's empty -->
-            </div>
+            $epithet_controls
 
-        </p>
+            $affinity_controls
 
-        <br/>
+            <p>
+                Survivor Sex:
+                <input
+                    id="survivor_sheet_survivor_sex"
+                    class="survivor_sex_text"
+                    name="sex" value="$sex"
+                    onchange="updateAssetAttrib(this, 'survivor', '$survivor_id')"
+                />
+
+                $mobile_avatar_img
+
+                <div id="mobileButtonHolder" class="survivor_sheet_dynamic_button_holder mobile_and_tablet">
+                <!-- This holds optional survivor modal openers; otherwise, it's empty -->
+                </div>
+
+            </p>
+
+            <br/>
 
         <div id="survivor_dead_retired_container">
 
@@ -2854,7 +2853,7 @@ class settlement:
                     <button
                         class="survivor_search_button kd_lantern"
                         ng-class="{disabled : userCanManage(s) == false}"
-                        ng-if="s.is_dead == undefined"
+                        ng-if="s.is_dead == undefined && s.is_retired == undefined"
                     >
                       <p class="survivor_name">{{s.name}} [{{s.sex}}]</p>
                       <div class="survivor_assets"><b>Hunt XP:</b> {{s.hunt_xp}} <b>Courage:</b> {{s.Courage}} <b>Understanding:</b> {{s.Understanding }}</div>
@@ -2878,7 +2877,7 @@ class settlement:
             </div>
 
         <hr/>
-
+        <span class="survivor_search_retired_survivors_warning">Retired survivors are not included in these results!</span>
         <button
             class="kd_blue close_modal"
             onclick="closeModal('survivorSearchModalContent')"
@@ -2911,23 +2910,14 @@ class settlement:
 
         <span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
         <span class="nav_bar_mobile mobile_only settlement_sheet_gradient"></span>
-        <span class="top_nav_spacer mobile_only"> hidden </span>
-
-        <br class="tablet_and_desktop"/>
+        <div class="top_nav_spacer"> hidden </div>
 
         <div id="asset_management_left_pane">
-
-            <p
-                id="campaign_type"
-                title="Campaign type may not be changed after a settlement is created!"
-            >
-                {{settlement_sheet.campaign}}
-            </p>
 
             <input
                 name="name"
                 id="settlementName"
-                class="settlement_name"
+                class="settlement_sheet_settlement_name settlement_name"
                 type="text"
                 value="{{settlement_sheet.name}}"
                 placeholder="Settlement Name"
@@ -2935,11 +2925,16 @@ class settlement:
                 onchange="updateAssetAttrib(this, 'settlement', '$settlement_id')"
             />
 
+            <p
+                id="campaign_type"
+                class="settlement_sheet_campaign_type"
+                title="Campaign type may not be changed after a settlement is created!"
+            >
+                {{settlement_sheet.campaign}}
+            </p>
+
 
         <h1 ng-if="settlement_sheet.abandoned"class="alert">ABANDONED</h1>
-
-        <hr class="mobile_only"/>
-        <br class="tablet_and_desktop">
 
         <div class="settlement_form_wide_box">
             <div class="big_number_container left_margin">
@@ -3123,64 +3118,55 @@ class settlement:
         <a id="edit_innovations" class="mobile_only"/></a>
 
 
-        <div class="settlement_sheet_block_group">
+        <div
+            class="settlement_sheet_block_group"
+            ng-controller="innovationsController"
+            title="Click or tap on an item to remove it from this list."
+        >
 
-        <h2>Innovations</h2>
-        <p>The settlement's innovations (including weapon masteries). Click or tap an item to remove it. </p>
+            <h2>Innovations</h2>
+            <p>The settlement's innovations (including weapon masteries).</p>
 
-        <div>
             <div
                 class="line_item"
-                ng-repeat="x in settlement_sheet.innovations"
+                ng-repeat="i in settlement_sheet.innovations"
             >
-                <div> <!-- span holder -->
-                    <span class="bullet"></span>
-                    <span
-                        class="item"
-                        onclick="removeSettlementSheetAsset(this, 'innovation', '$settlement_id');"
-                    >
-                        {{x.name}}
-                    </span>
-                </div>
-            </div>
-        </div>
+                <span class="bullet"></span>
+                <span
+                    class="item"
+                    ng-click="rmInnovation"
+                >
+                    {{i}}
+                </span>
+           </div>
 
-
-
-        <form method="POST" action="#edit_innovations">
-            <input type="hidden" name="modify" value="settlement" />
-            <input type="hidden" name="asset_id" value="$settlement_id" />
-
-            <div class="line_item">
-                <span class="empty_bullet" /></span> $innovations_add
-            </div>
             <div class="line_item">
                 <span class="empty_bullet" /></span>
-                <input
-                    name="add_innovation"
-                    onchange="this.form.submit()"
-                    type="text"
-                    placeholder="Enter custom Innovation"
-                    onclick="showHide('bogus_innovation_button')"
-                />
+                <select
+                    ng-model="newInnovation"
+                    ng-change="addInnovation"
+                >
+                    <option disabled selected value="">Add an Innovation</option>
+                </select>
             </div>
-        </form>
-        <button id="bogus_innovation_button" class="kd_blue" style="display:none;">Save</button>
 
-        <div class="innovation_deck">
-            <h3> - Innovation Deck - </h3>
-            $innovation_deck
-        </div>
+            <div class="innovation_deck">
+                <h3> - Innovation Deck - </h3>
+                $innovation_deck
+            </div>
 
-            </div> <!-- settlement_Sheet_block_group innovations-->
-        </form>
+        </div> <!-- settlement_sheet_block_group innovations-->
 
-        </div> <!-- asset_management_left_pane -->
+
+    </div> <!-- asset_management_left_pane -->
 
 
 
+    <!-- END OF LEFT PANE -->
 
-        <div id="asset_management_right_pane">
+
+
+    <div id="asset_management_right_pane">
 
                     <!-- PRINCIPLES - HAS ITS OWN FORM-->
 
@@ -3749,7 +3735,15 @@ class meta:
         <h2>Traceback:</h2>
         $exception\n""" % (basic_http_header, settings.get("application","title"), datetime.now()))
 
-    start_head = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<meta name="theme-color" content="#000000">\n<title>%s</title>\n<link rel="stylesheet" type="text/css" href="/media/style.css">\n' % settings.get("application","title")
+    start_head = """<!DOCTYPE html>\n<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="theme-color" content="#000000">
+        <title>%s</title>
+        <link rel="stylesheet" type="text/css" href="/media/style.css">
+        <link rel="stylesheet" type="text/css" href="/media/z-index.css">
+    """ % settings.get("application","title")
+
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
     saved_dialog = '\n\t\t<div id="saved_dialog" class="kd_blue round_top round_bottom" style="">Saved!</div>\n\n'
     mobile_hr = '<hr class="mobile_only"/>'
@@ -4086,8 +4080,6 @@ def render_burger(session_object=None):
         favorite_links=favorites,
     )
 
-    output
-
     return output
 
 
@@ -4120,10 +4112,6 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
     <script src="http://code.angularjs.org/1.5.3/angular-route.min.js"></script> 
 
     <script src="/media/kdmManager.js"></script>
-    <script type="text/javascript">
-        // first, we kill all the lawyers (i.e. set all the toggles last)
-        window.onload = kd_toggle_init();
-    </script>
     \n"""
 
     output += """\n\

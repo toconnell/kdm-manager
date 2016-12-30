@@ -221,7 +221,7 @@ class Session:
         return html.login.form + msg
 
 
-    def set_current_settlement(self, settlement_id=None):
+    def set_current_settlement(self, settlement_id=None, update_mins=True):
         """ Tries (hard) to set the following attributes of a sesh:
 
             - self.current_settlement
@@ -270,7 +270,7 @@ class Session:
         if "current_settlement" in self.session.keys() and hasattr(self, "current_settlement"):
             self.set_api_assets()
             s_id = self.session["current_settlement"]
-            self.Settlement = assets.Settlement(settlement_id=s_id, session_object=self)
+            self.Settlement = assets.Settlement(settlement_id=s_id, session_object=self, update_mins=update_mins)
         else:
             raise Exception("[%s] session could not set current settlement!" % (self.User))
 
@@ -302,7 +302,6 @@ class Session:
         # now dial the API; fail noisily if we can't get it
         self.api_settlement = api.route_to_dict(
             "settlement/get/%s" % self.current_settlement,
-            authorize=True
         )
         if self.api_settlement == {}:
             self.logger.error("[%s] could not retrieve settlement from API server!" % self.User)
@@ -314,7 +313,6 @@ class Session:
             _id = ObjectId(s["sheet"]["_id"]["$oid"])
             self.api_survivors[_id] = s
 
-#        self.logger.debug("[%s] API asset set!" % (self.User))
 
 
     def change_current_view(self, target_view, asset_id=False):
@@ -515,8 +513,13 @@ class Session:
                 user_action = "modified settlement %s" % self.Settlement
 
             if self.params["modify"].value == "survivor":
+
+                update_mins = True
+                if "norefresh" in self.params:
+                    update_mins = False
+
                 s = mdb.survivors.find_one({"_id": ObjectId(user_asset_id)})
-                self.set_current_settlement(s["settlement"])
+                self.set_current_settlement(s["settlement"], update_mins)
                 S = assets.Survivor(survivor_id=s["_id"], session_object=self)
                 S.modify(self.params)
                 user_action = "modified survivor %s of %s" % (S, self.Settlement)

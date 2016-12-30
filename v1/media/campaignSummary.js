@@ -12,7 +12,7 @@ app.controller ("survivorSearchController", function($scope) {
                     var survivor = all_survivors[i];
                     $scope.survivors.push(survivor.sheet);
                 }
-                console.log($scope.survivors.length + " survivors loaded into scope!");
+                console.log($scope.survivors.length + " survivors loaded into scope for survivor search!");
             },
             function(errorPayload) {console.log("Error loading survivors for survivor search!", errorPayload);}
         );

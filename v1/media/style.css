@@ -2,6 +2,13 @@
         /*          style.css               */
         /*                                  */
 
+
+
+/*                                              */
+/*  DO NOT EDIT Z-INDEX VALUES IN THIS FILE!!!  */
+/*                                              */
+
+
 /* custom fonts - all breakpoints */
 @font-face {
     font-family: 'kdm-font-10';
@@ -75,8 +82,6 @@ input.kd_radio_option + label {display: block; }
 span.kd_checkbox_checked:before {content:"\025FC"; }
 span.campaign_summary_bullet {margin-left: 4%; display: block; }
 
-input[type=checkbox].kd_toggle_box:checked + label {color: #000; }
-label.kd_toggle_box_caption {display: inline; line-height: 1.5em;}
 span.kd_toggle_bullet {margin-right: 1%; width: 35px; height: 35px; border: 0.1em solid #000; display: inline-block;}
 span.checked_kd_toggle_bullet { background-color: #000; }
 div.kd_toggle_container {margin:4%; cursor: pointer; margin-bottom: 7%; border-bottom: 0.1em solid #999;}
@@ -159,7 +164,7 @@ button.manage_departing_survivors {border-radius: 10px; border: 0.1em solid #5F4
 /* body styles and the the big, meta-div 'container' used at all breakpoints */
 html {min-height: 100%; height: auto; overflow: auto; }
 body {font-family: Silverado; height: 100%; overflow: auto;}
-div#container {width: 100%; height: 100%; overflow: auto; z-index: 0; }
+div#container {width: 100%; height: 100%; overflow: auto;}
 button {font-family: Arial, sans-serif; }
 fieldset {border: 0; text-align: left; }
 
@@ -192,6 +197,28 @@ label#survivor_sheet_avatar {display: block; position: relative; float: right; }
 button#modalDeathButton {width: auto; border: 0px; padding: 2%; float: right; margin: 3%;  margin-top: 0px; font-size: 45pt; font-weight: bold; }
 
 /* general mobile styles - CSS reset */
+p {padding: 10px;}
+.subhead_p_block {font-size: 30px; margin-top: -43px; margin-bottom: -30px; }
+
+/* input styles */
+
+input[type=text], input[type=password] {border: 0; border-right: 1px solid #666; border-bottom: 1px solid #666;}
+input[type=text], textarea, input[type=password], input[type=button], button { outline: none;}
+input[type=text]:focus, textarea:focus, input[type=password]:focus, button:focus {  box-shadow: 0 0 6px rgba(1, 3, 12, 1); }
+
+
+
+
+input, button, div {font-size: 50px; }
+input {height: 100px; }
+input, h2, h3 {padding-left: 10px; }
+input, button, label {cursor: pointer; }
+button {border: 0; border-right: 1px solid #666; border-bottom: 1px solid #666;}
+
+pre { white-space: pre-wrap; }
+
+hr {clear: both;   }
+hr.invisible {border: 0 none; }
 .desktop_only {display: none; }
 .tablet_only {display: none; }
 .tablet_and_desktop {display: none; }
@@ -209,7 +236,6 @@ div#mySidenav button {
     color: #fff;
     width: 0; /* 0 width - change this with JavaScript */
     position: fixed; /* Stay in place */
-    z-index: 2000; /* Stay on top */
     top: 0;
     left: 0;
     background-color: #000; /* Black*/
@@ -254,7 +280,7 @@ div#mySidenav button {
 
 /* timeline styles */
 .timeline_gradient {background-color: #fff; background: radial-gradient(#fff,#fff,#fff,#fff,#fff,#FEF0CE,#FBE8C9); }
-div.full_size_modal_panel {z-index: 5000; position: absolute; top: 0.5%; left: 1%; right: 1%; border-radius: 10px; padding: 1%;  border: 0.1em solid #957753; min-height: 50%; }
+div.full_size_modal_panel {position: absolute; top: 0.5%; left: 1%; right: 1%; border-radius: 10px; padding: 1%;  border: 0.1em solid #957753; min-height: 50%; }
 div.full_size_modal_panel span.closeModal {top: -40px; }
 
 div.timeline_ly_headline {font-size: 35px; font-weight: bold; border-bottom: 0.1em solid #000; }
@@ -282,7 +308,7 @@ div.timeline_event_log_bottom {width: auto; background-color: #000; background: 
 
 div.timeline_hidden_controls_container {margin: 1%; padding: 1%; border-top: 1px solid #aaa; flex-direction: column; flex-wrap: wrap; margin-bottom: 10%; width: 100%; text-align: center; }
 div.timeline_hidden_controls_container label {font-size: 50px; width: 85%; text-align: center; padding: 1%; margin: auto; margin-bottom: 0; margin-top: 7%;  }
-span.timeline_overlay_current_ly {position: fixed; right: 3%; bottom: 1%; border-radius: 100px; z-index: 10000; padding: 3%; font-size: 35px; border-color: #C2081D; }
+span.timeline_overlay_current_ly {position: fixed; right: 3%; bottom: 1%; border-radius: 100px; padding: 3%; font-size: 35px; border-color: #C2081D; }
 span.timeline_overlay_current_ly b {font-size: 50px;}
 
 select.add_timeline_event {width: 85%; margin: 0 auto; font-size: 50px; }
@@ -314,10 +340,6 @@ input.add_settlement_note {display: inline-block; width: 80%; margin: auto; }
 button.add_settlement_note {display: inline-block; width: auto; padding-left: 3%; padding-right: 3%; margin: auto;}
 
 
-div#floating_event_log_anchor {padding: 5px; position: fixed; right: 250px; bottom: 15px; width: 100px; height: 100px; border: 1px solid #333; border-radius: 3px; }
-div#floating_genealogy_anchor {padding: 5px; position: fixed; right: 75px; bottom: 15px; width: 100px; height: 100px; border: 1px solid #333; border-radius: 3px; }
-div#floating_event_log_anchor img, div#floating_genealogy_anchor img {margin: 0 auto; margin: 25px; }
-
 /* error reporting styles */
 div.report_error_container {width: 90%; margin: 0 auto; }
 div.report_error_container p {font-size: 30pt; font-family: arial, sans-serif; }
@@ -335,7 +357,7 @@ h2.seo {font-size: 100px; border: 0 none;  margin-bottom: -10px; }
 
 div#sign_in_last_updated {width: 70%; padding-left: 60px; font-size: 20px; margin-bottom: 275px; font-family: Arial, sans-serif;}
 div#sign_in_container {background: 0 none; width: 80%; margin: 0 auto; margin-top: 5%; }
-img.sign_in {z-index: -10; margin: 0 auto; position: absolute; bottom: 3px; right: 3px; }
+img.sign_in {margin: 0 auto; position: absolute; bottom: 3px; right: 3px; }
 div#sign_in_controls {width:90%; height: 50%; margin: 0 auto; padding: 0 none; text-align: center; }
 
 div#sign_in_remember_me, div#sign_in_checkbox {float: left; }
@@ -390,17 +412,17 @@ div.dashboard_alert_spacer {display: block; clear:both; height: 200px; }
 .dashboard_alert {position: fixed; width: 90%; left: 3%; bottom: 10px; font-size: 25pt; }
 
 .clickable, .dashboard_accordion {margin: auto; padding: 5px; border-left: 1px solid; border-bottom: 2px solid; border-right: 2px solid; margin-bottom: 30px; }
-.dashboard_accordion {border-top: 0 none; margin-top: -35px; z-index: 10; width: 96.3%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; padding: 5px 6px 30px 6px; }
+.dashboard_accordion {border-top: 0 none; margin-top: -35px; width: 96.3%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; padding: 5px 6px 30px 6px; }
 .clickable { 
-    width: 95%; z-index: 5; 
+    width: 95%; 
     cursor: pointer; border-top: 1px solid #666; 
     padding-left: 20px; border-radius: 5px;
     margin-top: 10px; 
     }
 .COD_down_arrow, .dashboard_down_arrow, .dashboard_icon {height: 50px; width: 50px;}
-.dashboard_down_arrow, .COD_down_Arrow {float: right; z-index: 20;}
+.dashboard_down_arrow, .COD_down_Arrow {float: right;}
 .dashboard_down_arrow {margin-right: 20px; margin-top: 20px; }
-.COD_down_arrow {float: right; z-index: 20; margin-right: 80px; margin-top: -50px; }
+.COD_down_arrow {float: right; margin-right: 80px; margin-top: -50px; }
 .dashboard_world_defeated_monsters {width: 80%; margin-left: 7%;}
 #motd {margin: 10px; position: absolute; bottom: 0;  }
 img.latest_fatality {width: 300px; float: right; margin: 10px; }
@@ -468,6 +490,8 @@ div.endeavor_controls_toggle {cursor: pointer; }
 
 
 /* settlement sheet styles */
+p.settlement_sheet_campaign_type {font-size: 45px; margin: auto; text-align: center; width: 100%; color: #666; margin-top: -3%; margin-bottom: 3%; font-style: italic; }
+
 div.settlement_sheet_nemesis_line_item {display: flex; align-items: baseline; flex-wrap:wrap; flex-direction:row; border-bottom: 0.1em solid #999; margin-bottom: 2%; }
 div.settlement_sheet_nemesis_line_item span.item {margin-left: 2%; }
 span.nemesis_levels {align-self: flex-end; margin: auto; margin-right: 0;}
@@ -531,7 +555,7 @@ div.unset_principle_container {margin-bottom: 20%; margin-top: -7%; margin-left:
 
 button.permanently_delete {margin-top: -1%; margin-bottom: 5%; }
 
-div#asset_management_left_pane input.settlement_name {margin: 0 auto; width: 99%; border: none; font-size: 100px; text-align: center; font-family: Silverado; font-weight: bold; outline: none; box-shadow: none; margin-bottom: 30px; }
+input.settlement_sheet_settlement_name {margin: 0 auto; width: 99%; border: none; font-size: 120px; text-align: center; font-family: Silverado; font-weight: bold; outline: none; box-shadow: none; margin-bottom: 30px; }
 input.settlement_name:focus, input.settlement_name:active{outline: none; box-shadow: none;}
 
 textarea#settlement_notes {width: 100%; height: 250px; border: 0; margin-left: 10px;  font-size: 30pt; }
@@ -543,8 +567,8 @@ label.expansion_attrib_toggle {float: left; clear: none; }
 .campaign_summary_special_rule {display: block; font-size: 40px; margin: 0 auto; margin-bottom: 7px; font-family: 'arial'; padding: 10px; text-align: center; clear: both;}
 .campaign_summary_special_rule h3 {text-transform: uppercase; margin: 0 auto;}
 
-h3.inventory_tag {float: right; z-index: -1; clear: none; position: absolute;  margin-top: -40px; right: 56px; opacity: 0.3; padding: 10px; }
-h3.clickable {padding: 1%; z-index: 10; }
+h3.inventory_tag {float: right; clear: none; position: absolute;  margin-top: -40px; right: 56px; opacity: 0.3; padding: 10px; }
+h3.clickable {padding: 1%; }
 table.player_management_controls {width: 94%; border-collapse: collapse; margin-left: 20px; margin-bottom: 30px; }
 table.player_management_controls select {margin-top: 0px; }
 table.player_management_controls tr {border-bottom: 1px solid #666; }
@@ -621,7 +645,7 @@ button.survivor_sheet_attrib_controls_token p.attrib_value {font-size: 75px;}
 .eva_token {background-color: #9FA6AE; color: #000; border-color: #ECCB86;}
 .luck_token {background-color: #AD9E81; color: #000; border-color: #ECCB86;}
 .spd_token {background-color: #8C9A65; color: #fff; border-color: #ECCB86;}
-div.survivor_sheet_attrib_controls_modal {position: fixed; bottom: 0px; left: 2%; right: 2%; min-height: 50%; padding: 0; border: 0.1em solid #BCAAA4; border-bottom: 0; z-index: 100; }
+div.survivor_sheet_attrib_controls_modal {position: fixed; bottom: 0px; left: 2%; right: 2%; min-height: 50%; padding: 0; border: 0.1em solid #BCAAA4; border-bottom: 0;}
 div.survivor_sheet_attrib_controls_modal h3 {margin: 0 auto; padding: 20px;  }
 div.survivor_sheet_attrib_controls_modal {border-top-left-radius: 15px; border-top-right-radius: 15px;}
 span.close_attrib_controls_modal {font-size: 100px; margin: 0px; margin-right: 20px; position: absolute; top: 5px; right: 10px; width: auto; color: #6E342E; font-weight: bold; cursor: pointer; font-family: Arial, sans-serif; }
@@ -646,10 +670,10 @@ table#survivor_constellation_table th {font-weight: bold; vertical-align: middle
 table#survivor_constellation_table td {padding: 5px; background-color: #FDFFFF; text-align: center; vertical-align: center; }
 table#survivor_constellation_table td.active {background-color: #FFF9C4; font-weight: bold;}
 
-input#survivor_sheet_survivor_name {border: 0 none; font-size: 100px; height: auto; width: 97%; font-family: Silverado; font-weight: bold; position: fixed; z-index: 1; opacity: 0.9; text-align: center; margin: 0 auto; margin-top: 40px; }
+input#survivor_sheet_survivor_name {border: 0 none; font-size: 100px; height: auto; width: 97%; font-family: Silverado; font-weight: bold; position: fixed; opacity: 0.9; text-align: center; margin: 0 auto; margin-top: 40px; }
 
 div.returning_survivor_badge {font-size: 0.8em; position: absolute; margin: -3px; margin-top: -20px; border-bottom-right-radius: 25px; width: auto; height: 3%; padding: 0px; padding-left: 2px; padding-right: 1%;}
-div.survivor_constellation_badge {font-size: 23pt; position: absolute; right: 8%; background-color: #4A148C; margin: 0px; margin-left: 30px; margin-top: -20px; border-bottom-right-radius: 25px; border-bottom-left-radius: 25px; width: auto; height: auto; color: #fff; padding: 0px; padding-left: 2%; padding-right: 2%; padding-bottom: 3px; z-index: 100; }
+div.survivor_constellation_badge {font-size: 23pt; position: absolute; right: 8%; background-color: #4A148C; margin: 0px; margin-left: 30px; margin-top: -20px; border-bottom-right-radius: 25px; border-bottom-left-radius: 25px; width: auto; height: auto; color: #fff; padding: 0px; padding-left: 2%; padding-right: 2%; padding-bottom: 3px;}
 
 .survivor_sex_text {width: 50px; font-weight: bold; border: 0; }
 .survivor_avatar_image {float: right; width: 450px; height: 560px; border: 1px solid #000;}
@@ -692,29 +716,6 @@ span#affinity_span {display: inline-block; width: 150px; height: 150px; color: #
 /* margin-left: 20px; */
 p, .left_margin {margin-left: 20px; }
 
-/* p styles */
-p {padding: 10px;}
-.subhead_p_block {font-size: 30px; margin-top: -43px; margin-bottom: -30px; }
-
-/* input styles */
-
-input[type=text], input[type=password] {border: 0; border-right: 1px solid #666; border-bottom: 1px solid #666; z-index: 100;}
-input[type=text], textarea, input[type=password], input[type=button], button { outline: none;}
-input[type=text]:focus, textarea:focus, input[type=password]:focus, button:focus {  box-shadow: 0 0 6px rgba(1, 3, 12, 1); }
-
-
-
-
-input, button, div {font-size: 50px; }
-input {height: 100px; }
-input, h2, h3 {padding-left: 10px; }
-input, button, label {cursor: pointer; }
-button {border: 0; border-right: 1px solid #666; border-bottom: 1px solid #666;}
-
-pre { white-space: pre-wrap; }
-
-hr {clear: both;   }
-hr.invisible {border: 0 none; }
 
 /* generic UI/UX facilitation styles */
 .no_border {border: 0 none; }
@@ -740,7 +741,7 @@ button.add_survivor_to_party { clear: left; background-color: #ddd; font-size: 7
 button.add_survivor_to_party, button#survivor_campaign_asset {display: inline-block; width: auto; margin: 10px;  }
 button#survivor_campaign_asset {width: 75%; margin-right: 0 none; color: #000;}
 
-button#remove_item, button#increment_nemesis {border: 0 none; display: inline-block; width: auto; margin: 10px; z-index: 10; }
+button#remove_item {border: 0 none; display: inline-block; width: auto; margin: 10px; }
 button#remove_item {border-radius: 3px; padding-right: 10px; padding-left: 10px; background-color: #ddd}
 
 .disabled, .strikethrough {color: #999; cursor: not-allowed; }
@@ -748,16 +749,15 @@ button#remove_item {border-radius: 3px; padding-right: 10px; padding-left: 10px;
 
 
  /* nav bar styles */
-#floating_event_log_button, #floating_refresh_button, #floating_dashboard_button, .floating_asset_button {position: fixed; top: 3px; height: 125px; padding: 3px; border: 2px solid; z-index: 110; margin: 0; width: 180px; }
+#floating_refresh_button, #floating_dashboard_button {position: fixed; top: 3px; height: 125px; padding: 3px; border: 2px solid; margin: 0; width: 180px; }
 
-.floating_asset_button {left: 360px; top: 3px; }
 #floating_dashboard_button { left: 3px;  }
 #floating_refresh_button {right: 3px; }
-#floating_event_log_button {right: 225px; }
 
 .nav_bar, .nav_bar_mobile {box-shadow: 0px 10px 17px #ccc; margin-top: -9px;}
-.nav_bar_mobile {width: 100%; height: 135px; position: fixed; margin-left: -8px; z-index: 100;}
-.top_nav_spacer {display: block; height: 110px; }
+.nav_bar_mobile, .top_nav_spacer {height: 135px; }
+.nav_bar_mobile {width: 100%; position: fixed; margin-left: -8px;}
+.top_nav_spacer {margin-bottom: 5%; }
 
 
 /* input styles */
@@ -783,8 +783,6 @@ h2 {border: 5px solid; }
 #block_group, .block_group { border: 3px solid #666; }
 #block_group, .block_group { width: 90%; clear: both; margin-top: 20px;  }
 #block_group h2, h3 {border: 0 none; }
-.collapsing_block_group {margin: 0px; margin-left: 20px; margin-top: -35px; z-index: -10; border-top: 0px; width: 95%; }
-.collapsing_block_group button#remove_item {margin-left: 45px; }
 
 p.block_group_subhead {border-bottom: 1px solid #999; margin: 0; padding-left: 5%; padding-bottom: 2%;}
 
@@ -814,7 +812,7 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
 
 
 /* meta specifc styles */
-#saved_dialog {position: fixed; margin-top: 30%; margin-left: 40%; height: auto; width: 20%; padding: 20px; outline: none; display: none; z-index: 9999; }
+#saved_dialog {position: fixed; margin-top: 30%; margin-left: 40%; height: auto; width: 20%; padding: 20px; outline: none; display: none;}
 
 /*  genealogy styles */
 div.tree {float: left; margin: 0; margin-bottom: 30px; }
@@ -922,7 +920,6 @@ right connector from last child*/
 .modal {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
-    z-index: 2001; /* Sit on top, even higher than the navbar! */
     padding-top: 170px; /* Location of the box */
     left: 0;
     top: 0;
@@ -968,8 +965,7 @@ right connector from last child*/
 
 
     /* survivor search Modal - mobile/default */
-input.survivor_search {z-index: 1200; position: fixed; top: 1.5%; left: 20%; bottom: auto; padding:1%; width: 565px; height: auto; min-width: auto; text-align: center; }
-div.survivor_search_modal_container {z-index: 1199;}
+input.survivor_search {position: fixed; top: 1.5%; left: 20%; bottom: auto; padding:1%; width: 565px; height: auto; min-width: auto; text-align: center; }
 div.survivor_search_modal_content {position: absolute; top: 0; left: 5%; right: 5%; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; border: 0.1em solid #777; border-top: 0; }
 div.survivor_search_results_buttons {margin-top: 18%; display: flex; flex-direction: column; }
 div.survivor_search_results_buttons p.survivor_name {font-size: 40px; padding:0; text-align: left; margin: auto; padding-left: 2%; }
@@ -977,24 +973,8 @@ div.survivor_search_results_buttons div.survivor_assets {padding-left: 1%; width
 div.survivor_search_results_buttons div.survivor_assets b {font-family: Silverado; }
 button.survivor_search_button {margin-top: 0; font-family: Metrophobic; }
 button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silverado;}
+span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; font-size: 35px; text-align: center; display: block; }
 
-
-/* tooltips */
-.tooltip .tooltiptext {
-    width: 120px;
-    background-color: black;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px 0;
-    
-    /* Position the tooltip */
-    position: absolute;
-    z-index: 1;
-    top: 100%;
-    left: 50%;
-    margin-left: -60px;
-}
 
 
 
@@ -1027,8 +1007,6 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
     select {font-size: 18pt; }
 
     /* KD styles - tablet */
-    label.kd_toggle_box_caption {font-size: 16pt; }
-    span.kd_toggle_box {width: 15px; height: 15px; }
     div.kd_toggle_container {font-size: 23px;}
     span.kd_toggle_bullet {width: 15px; height: 15px; }
     .paper_style_toggle {padding: 3px; padding-left: 4px; padding-right: 4px;}
@@ -1039,8 +1017,9 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
     #saved_dialog {position: fixed; top: 40%; margin-top: 5px; margin-left: 40%; font-size: 25px; padding: 1%; }
     label.radio_principle_label {font-size: 17pt; margin-left: 10px; }
     img.latest_fatality {width: 150px; clear: right; margin-left: 20px; }
-    .nav_bar, .nav_bar_mobile {box-shadow: 0px 5px 20px #ccc; margin-top: -1px;}
-    .nav_bar {position: fixed; top: 0; left: 0; width: 100%; height: 75px;  opacity: 1; z-index: 100; }
+    .nav_bar {box-shadow: 0px 5px 20px #ccc; margin-top: -1px; position: fixed; top: 0; left: 0; width: 100%; }
+    .nav_bar, .top_nav_spacer {height: 75px; }
+    .top_nav_spacer {margin-bottom: 0%; }
 
     /* modal overlay - tablet */
     .closeModal {font-size: 100px; top: 0px; }
@@ -1070,7 +1049,7 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
     .dashboard_alert {font-size: 17pt; width: auto; left: 15%; right: 15%; }
 
     table.dashboard_table {width: 80%; margin-left: 20px;}
-	img.dashboard_bg {z-index: -10; position: fixed; right: -50px; top: 200px; display: block; }
+	img.dashboard_bg {position: fixed; right: -50px; top: 200px; display: block; }
     div.dashboard_menu {width: 600px; float:left; display: block; margin: 0 auto; clear: left; }
     div.dashboard_menu h2 {font-size: 40px; }
     img.dashboard_icon, img.dashboard_down_arrow {height: 30px; width: 30px; }
@@ -1095,17 +1074,14 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
 
     /* generic asset management styles: survivor&ettlement - tablet */
 
-    .collapsing_block_group {margin-left: 5px; z-index: -10; border-top: 0px; width: 98%; }
-    #floating_event_log_button, #floating_refresh_button, #floating_dashboard_button, .floating_asset_button {position: fixed; top: 1%; margin: 0 auto; height: auto; width: auto; padding: 5px; border: 2px solid; opacity: 1; z-index: 101; }
+    #floating_refresh_button, #floating_dashboard_button {position: fixed; top: 1%; margin: 0 auto; height: auto; width: auto; padding: 5px; border: 2px solid; opacity: 1;}
     #floating_refresh_button {right: 10px; padding:8px; padding-left: 30px; padding-right: 30px; }
     #floating_dashboard_button { left: 10px; padding: 10px; padding-left: 30px; padding-right: 30px; }
-    #floating_event_log_button {left: 500px; }
-    .floating_asset_button {left: 3px; right: 0 auto; }
 
     input#survivor_sheet_survivor_name {font-size: 40pt; top: 60px; right: auto; left: 1%; text-align: left; padding-left: 30px; min-width: 0; }
 
         /* left and middle split the screen in tablet; right is a sort of foot */
-    div#asset_management_left_pane {margin-top: 145px; float: left; width: 49%; }
+    div#asset_management_left_pane {float: left; width: 49%; }
     div#asset_management_middle_pane {float: right; width:49%; clear: right; margin-top: 115px; }
     div#asset_management_right_pane {clear: both; }
 
@@ -1277,6 +1253,7 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
     div.survivor_search_results_buttons p.survivor_name {font-size: 35px; }
     div.survivor_search_results_buttons div.survivor_assets {font-size: 26px; }
     div.survivor_search_results_buttons div.survivor_assets b {font-family: Silverado; font-size: 25px; }
+    span.survivor_search_retired_survivors_warning {font-size: 25px;}
 
     b.campaign_summary_survivor_name {font-size: 35px;}
 
@@ -1297,6 +1274,7 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
 
     div.campaign_summary_headline_container {position: relative; margin: 0 auto; margin-top: 80px; padding: 0; }
     h1.settlement_name { display: inline-block; margin: 0 auto; margin-left: 10px; font-size: 40pt; }
+    p.settlement_sheet_campaign_type {font-size: 28px; text-align: left; padding-left: 20%; }
     p.campaign_summary_campaign_type {display: block; clear: both; color: #666; margin-left: 30px; margin-top: 0px;}
 
 
@@ -1336,12 +1314,12 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
     span.milestone_story_event {font-size: 17px;}
     span.milestone_story_reference {font-size: 15px;}
 
-        /* principles app */
+        /* principles app - tablet */
     div.settlement_sheet_principle_container label {font-size: 23px; margin: 0; width: 400px; justify-content: flex-start; }
     div.settlement_sheet_principle_name {font-size: 25px; margin: auto; width: 400px; text-align: left; }
     div.unset_principle_container {margin:0; margin-left: 4%; margin-top: -15%; }
 
-    div#asset_management_left_pane input.settlement_name {font-size: 70px; width: 800px; text-align: left; margin-left: 25px; }
+    input.settlement_name {font-size: 70px; width: 800px; text-align: left; margin: 0; margin-left: 25px; }
     h1.alert {font-size: 35pt; }/* used by ABANDONED */
 
     div.settlement_form_wide_box { float: left; width: auto; height: 200px; margin: 0 auto; margin-left: 3%; margin-right: 5px; margin-bottom: 10px; padding-top: 0; display: flex; flex-direction: column-reverse; flex-flow: row-wrap; }
@@ -1372,12 +1350,11 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
     div.settlement_storage {margin-bottom: 10%; }
     button#modalStorageButton {margin: 0 auto; margin-left: 5%; padding:1%; }
 
-    p#campaign_type {margin-top: -125px; margin-bottom: -5px; }
     textarea#settlement_notes {font-size: 15pt; width: 390px;}
 
     div#modalStorage div.modal-content div.big_number_container {width: 94px; min-height:0px; height: auto; }
     div#modalStorage div.modal-content div.big_number_container input#addStorageBox {width: 65px;}
-    h3.inventory_tag {position: relative;  margin: 0 auto; opacity: 0.6; padding: 0; width: auto; height: 50px; z-index: -100;  margin-right: -50px;  font-size: 21px; }
+    h3.inventory_tag {position: relative;  margin: 0 auto; opacity: 0.6; padding: 0; width: auto; height: 50px; margin-right: -50px;  font-size: 21px; }
 
         /* settlement sheet - right pane - floaty boxes - tablet */
     div.lost_settlements {margin: 0; padding: 0%; }
@@ -1460,13 +1437,11 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
     button#modalStorageButton {margin-left: 17px; }
 
     /* general wide style */
-    span.nav_bar {position: fixed; left: 0; right: 0; top:0; height: 50px; display: inline; margin: 0 auto; z-index:100;}
+    span.nav_bar {position: fixed; left: 0; right: 0; top:0; height: 50px; display: inline; margin: 0 auto; }
     select {font-size: 14pt; }
     select.min_width {padding: 0; width:  150px;}
     button.change_view {margin-left: 3%; }
-    #floating_event_log_button, #floating_refresh_button, #floating_dashboard_button, .floating_asset_button {padding: 5px;}
-    .floating_asset_button {left: 1%; }
-    #floating_event_log_button {left: 16%; width: 320px;}
+    #floating_refresh_button, #floating_dashboard_button {padding: 5px;}
     #floating_refresh_button {width: 75px; top: 10px; right: 1%; height: 31px;}
     img.latest_fatality {width: 100px; clear: right; margin-left: 100px; }
 
@@ -1501,11 +1476,11 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
 	input.sign_in, button.sign_in {width: 90%; font-size: 13pt; height: auto; margin: 0 auto; margin-bottom: 10px; }
     input[type="checkbox"].sign_in {height: 30px; width: 30px; }
 	button.sign_in {font-weight: bold; font-size: 20px;}
-    #user_error_msg {width: 28%; font-size: 12pt; right: 30%; top: -50px; bottom: auto; z-index: 0;}
+    #user_error_msg {width: 28%; font-size: 12pt; right: 30%; top: -50px; bottom: auto; }
 
     /*  dashboard styles - wide */
     table.dashboard_table {width: 60%; margin-left: 0px; margin-top: -16px; }
-	img.dashboard_bg {z-index: -10; position: fixed; right: 50px; top: 50px; display: block; }
+	img.dashboard_bg {position: fixed; right: 50px; top: 50px; display: block; }
     div.dashboard_menu {width: 600px; float:left; display: block; margin: 0 auto; clear: left; }
     div.dashboard_menu h2 {font-size: 20pt; }
     .dashboard_kdm_font {font-size: 12pt; }
@@ -1534,14 +1509,12 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
         width: 560px;
     }
     h2.clickable { 
-        z-index: 5; 
         cursor: pointer; border-top: 1px solid #666; 
         padding-bottom: 5px; 
         border-radius: 5px;
         margin-top: 10px; 
     }
     div.dashboard_accordion {
-        z-index: 10;
         margin-top: -10px; 
         border-top: 0 none;
         border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; 
@@ -1550,7 +1523,7 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
     div.dashboard_button_list img {height: 10px; width: 10px; }
     #motd {margin: 10px; position: absolute; bottom: 0;  }
     img.dashboard_down_arrow, img.dashboard_icon {height: 15px; width: 15px;}
-    .dashboard_down_arrow, .COD_down_Arrow {float: right; z-index: 20; margin: 0 auto; }
+    .dashboard_down_arrow, .COD_down_Arrow {float: right; margin: 0 auto; }
     img.dashboard_down_arrow {margin: 0 none; margin-top: 5px; margin-right: 5px;}
     .dashboard_menu ul {padding: 0; margin: 5px; list-style-type: none; margin-left: 15px; }
     .dashboard_menu ol {margin: 0px; padding: 0px; padding-left: 30px; }
@@ -1565,8 +1538,6 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
 
     /* wide asset management styles - generic */
     div#block_group {padding-bottom: 10px; }
-    .collapsing_block_group {margin-top: -6px; }
-    .collapsing_block_group button#remove_item {margin-left: 15px; }
 
     /* wide campaign summary styles */
 
@@ -1598,7 +1569,7 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
     div.campaign_summary_endeavor_controller {border-width: 2px; margin-bottom: 10px; border-radius: 0; }
     div.campaign_summary_endeavor_controller div.tokens {font-size: 63px; text-align: center; }
     div.campaign_summary_endeavor_controller div.controls {padding: 0; display: flex; flex-direction: column; height: 60px; padding-top: 10px; margin-top: -10px; }
-    div.campaign_summary_endeavor_controller div.controls button {width: 90%; height: 20px; padding:0; margin: 0 auto; margin-bottom: 10px; z-index: 70; cursor: pointer; }
+    div.campaign_summary_endeavor_controller div.controls button {width: 90%; height: 20px; padding:0; margin: 0 auto; margin-bottom: 10px; cursor: pointer; }
     div.endeavor_controls_clear_div {clear: both; height: 20px;}
 
     div.campaign_summary_headline_container {margin-top: 50px; }
@@ -1627,7 +1598,7 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
     div.campaign_summary_special_rule {font-size: 11pt;}
     div.campaign_summary_special_rule h3 {font-size: 13pt;}
     div.campaign_summary_facts_box {width: 450px; float: left; margin-top: -75px;}
-    div.campaign_summary_facts_box h4 {z-index: -10; color: #000; width: 428px; margin: 0 auto; margin-left: -5px; margin-top: -5px; padding: 0; padding-top: 7px; padding-left: 20px;  padding-bottom: 5px; border-bottom: 2px solid #999;}
+    div.campaign_summary_facts_box h4 {color: #000; width: 428px; margin: 0 auto; margin-left: -5px; margin-top: -5px; padding: 0; padding-top: 7px; padding-left: 20px;  padding-bottom: 5px; border-bottom: 2px solid #999;}
     div.campaign_summary_facts_box ul {margin: 0 auto; margin-top: 5px; margin-bottom: 10px; } 
     div.campaign_summary_small_box { width: auto; border: 2px solid #000; padding: 5px; margin-bottom: 10px; }
     .campaign_summary_small_box h4 {font-size: 25px; }
@@ -1652,7 +1623,6 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
     div#bulk_add_survivors div.bulk_add_control input[type=number] {height: 60px; width: 57px; margin-left: 30px;}
     div#bulk_add_survivors div.bulk_add_control button {height: auto; width: 75px; }
 
-    p#campaign_type {margin: auto; }
     h1.alert {font-size: 20pt; }/* used by ABANDONED */
     .negative_30px_bottom_margin {margin-bottom: -30px;}
     .campaign_summary_special_rule {font-size: 14px; margin-bottom: 3px; padding: 5px; }
@@ -1669,7 +1639,6 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
     textarea#settlement_notes {font-size: 12pt; width: 90%;}
     ul.asset_list {margin-left: 2px;}
     div.item_rack {position: fixed; height: auto; width: 300px; background-color: #121212;}
-    button#remove_item {z-index: 10;  }
     h3.inventory_tag {font-size: 12pt; }
     fieldset.settlement_principle {margin: 0 auto; padding: 0px; padding-left: 20px;  margin-bottom: 10px; }
     fieldset.settlement_principle input[type=radio] {display: none; }    
@@ -1678,12 +1647,6 @@ button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silve
     div#asset_management_right_pane label.radio_principle_label, div#asset_management_middle_pane label.radio_principle_label {font-size: 13pt; margin-bottom: 8px; }
 
 
-
-
-    /* wide event log styles */
-    div#floating_event_log_anchor {padding: 5px; position: fixed; right: 75px; bottom: 150px; width: 50px; height: 50px; border: 1px solid #333; border-radius: 3px; }
-    div#floating_genealogy_anchor {padding: 5px; position: fixed; right: 75px; bottom: 70px; width: 50px; height: 50px; border: 1px solid #333; border-radius: 3px; }
-    div#floating_event_log_anchor img, div#floating_genealogy_anchor img {margin: 0 auto; }
 
 
     /* wide asset management styles */

@@ -561,16 +561,6 @@ app.controller("epithetController", function($scope) {
     }
 });
 
-// click/tap remove for the Settlement Sheet
-function removeSettlementSheetAsset(html_element, group, s_id) {
-//    window.alert(html_element.parentElement.classList);
-    html_element.parentElement.style.display="none";
-    var item_name = html_element.innerHTML.trim();
-    var params = "remove_" + group + "=" + item_name;
-//  window.alert(params); 
-    modifyAsset("settlement", s_id, params);
-};
-
 
 
 // generic survivor attrib update sans page refresh
@@ -699,41 +689,6 @@ function toggleDamage(elem_id, asset_id) {
 };
 
 
-// custom toggles; we use these to insert spans (because styling bullets and
-//  checkboxes and radios and whatever got to be a pain in the ass
-function kd_toggle_init() {
-
-    var toggle_box_class = 'kd_toggle_box';
-    var toggles = document.getElementsByClassName(toggle_box_class);
-
-    console.log("found " + toggles.length + " " + toggle_box_class + " elements")
-
-    for (i = 0; i < toggles.length; i++) {
-        var e = toggles[i];
-        var bullet = document.createElement("span");
-        bullet.classList.add("kd_toggle_bullet");
-        bullet.id = e.id + "_bullet_span";
-        if (e.checked == true) {
-            bullet.classList.add("checked_kd_toggle_bullet"); 
-            e.parentElement.style.fontWeight="bold";
-        };
-        e.parentElement.insertBefore(bullet,e); 
-    }; 
-
-    console.log("initialized " + toggles.length + " toggle elements");
-};
-
-function kd_toggle(toggle_element) {
-    var input_element = toggle_element;
-    var bullet = document.getElementById(input_element.id + "_bullet_span");
-    if (bullet.classList.contains("checked_kd_toggle_bullet")) {
-        bullet.classList.remove("checked_kd_toggle_bullet")
-    } else {
-        bullet.classList.add("checked_kd_toggle_bullet")
-    };
-};
-
-
 // Used to sort arrays of objects by name. Should be a lambda or something
 // but FIWE. Maybe when I'm older
 function compare(a,b) {
@@ -746,7 +701,7 @@ function compare(a,b) {
 
 
 
-// User update methods. Not a lot of these.
+// User update methods.
 
 // saves a user preference; flashes the saved alert. ho-hum
 function updateUserPreference(input_element) {
