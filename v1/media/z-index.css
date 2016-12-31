@@ -6,6 +6,7 @@ img.sign_in                                 {z-index: -10; }
 input#survivor_sheet_survivor_name          {z-index: 1;}
 div#container                               {z-index: 0; }
 .clickable                                  {z-index: 5; }
+div.create_user_asset_block_group input     {z-index: 1;}
 button#remove_item                          {z-index: 10; }
 h3.clickable                                {z-index: 10; }
 .dashboard_accordion                        {z-index: 10; }

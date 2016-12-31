@@ -5868,10 +5868,19 @@ class Settlement:
                 players_block=players,
             )
         else:
-            button_class = "settlement_sheet_gradient"
-            link_text = html.dashboard.settlement_flash + "<b>%s</b>" % self.settlement["name"]
+            button_class = "kd_dying_lantern dashboard_settlement_list_settlement_button"
+            link_text = "<b class='dashboard_settlement_list_settlement_name'>%s</b>" % self.settlement["name"]
+            link_text += "<br/><i>%s</i>" % self.get_campaign()
+
             if "abandoned" in self.settlement.keys():
                 link_text += ' [ABANDONED]'
+
+            link_text += "<br/>- Created: %s" % self.settlement["created_on"].strftime(ymd)
+            link_text += "<br/>- %s expansions / %s player(s)" % (len(self.get_expansions()), self.get_players(count_only=True))
+            link_text += "<br/>- LY: %s" % (self.get_ly())
+            link_text += "<br/>- Population: %s" % (self.settlement["population"])
+            link_text += "<br/>- Deaths: %s" % (self.settlement["death_count"])
+
             desktop_text = ""
             asset_type = "settlement"
 

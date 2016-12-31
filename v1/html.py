@@ -182,7 +182,7 @@ class dashboard:
     \n""")
     preference_footer = "</div> <!-- dashboard_preference_block_group $title--> "
     preference_block = Template("""\n
-    <p>$desc</p>
+    <p class="preference_description">$desc</p>
 
     <div class="dashboard_preference_elections_container">
         <input
@@ -257,17 +257,20 @@ class dashboard:
         <hr>
 
         <h3>User Management</h3>
-        <p>Currently signed in as: <i>$login</i> (last sign in: $last_sign_in)</p>
-        $last_log_msg
-        <div class="dashboard_preferences">
-            <form action="#" method="POST">
-                <input type="hidden" name="change_password" value="True"/>
-                <input type="password" name="password" class="full_width" placeholder="password">
-                <input type="password" name="password_again" class="full_width" placeholder="password (again)"/>
-                <button class="kd_alert_no_exclaim red_glow"> Change Password</button>
-            </form>
+        <div style="font-family: Metrophobic">
+            <p class="currently_signed_in_as">Currently signed in as: <i>$login</i> (last sign in: $last_sign_in)</p>
+            $last_log_msg
+
+            <div class="dashboard_preferences">
+                <form action="#" method="POST">
+                    <input type="hidden" name="change_password" value="True"/>
+                    <input type="password" name="password" class="full_width" placeholder="password">
+                    <input type="password" name="password_again" class="full_width" placeholder="password (again)"/>
+                    <button class="kd_alert_no_exclaim red_glow"> Change Password</button>
+                </form>
+            </div>
         </div>
-        </div>
+
     </div>
     """ % (settings.get("application","STATIC_URL"), settings.get("application", "STATIC_URL"), down_arrow_flash))
     campaign_summary = Template("""\n\
@@ -2465,7 +2468,11 @@ class settlement:
 
         <div class="create_user_asset_block_group">
             <h2 class="no_ul">Campaign:</h2>
-            <p> Choosing an expansion campaign automatically enables expansion content required by that campaign and modifies the settlement timeline, milestones, principles, rules and Survivor Sheets. A settlement's campaign may <b>not</b> be changed after settlement creation!</p>
+            <p> Choosing an expansion campaign automatically enables expansion
+            content required by that campaign and modifies the settlement timeline,
+            milestones, principles, rules and Survivor Sheets. <br/><br/>
+            A settlement's campaign <b>cannot be changed</b> after settlement
+            creation!</p>
 
             <div ng-if="showLoader" class="new_settlement_loading"><img src="/media/loading_io.gif"></div>
 
@@ -2491,7 +2498,7 @@ class settlement:
             <h2 class="no_ul">Expansions:</h2>
             <p> Enable expansion content by toggling items below. Expansion
             content may also be enabled (or disabled) later using the controls
-            on the Settlement Sheet.</p>
+            on the left-side navigation bar.</p>
 
             <div ng-if="showLoader" class="new_settlement_loading"><img src="/media/loading_io.gif"></div>
 
@@ -2532,6 +2539,10 @@ class settlement:
                 for="create_prologue_survivors"
             >
                 Four "First Story" Survivors
+                <p class="new_settlement_asset">Two randomly generated male and
+                female survivors will be created,and added to the <i>Departing
+                Survivors</i> group. Starting gear will be added to Settlement
+                Storage.</p>
             </label>
 
             <div ng-if="showLoader" class="new_settlement_loading"><img src="/media/loading_io.gif"></div>
@@ -3785,7 +3796,14 @@ class meta:
     """ % settings.get("application","title")
 
     close_body = '\n </div><!-- container -->\n</body>\n</html>'
-    saved_dialog = '\n\t\t<div id="saved_dialog" class="kd_blue round_top round_bottom" style="">Saved!</div>\n\n'
+    saved_dialog = """\n
+    <div id="saved_dialog" class="saved_dialog_frame" style="">
+        <div class="kd_blue saved_dialog_inner">
+            <span class="saved_dialog_cap">S</span>
+            Saved!
+        </div>
+    </div>
+    \n"""
     mobile_hr = '<hr class="mobile_only"/>'
     dashboard_alert = Template("""\n\
     <div class="dashboard_alert_spacer"></div>
