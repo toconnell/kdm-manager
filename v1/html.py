@@ -488,7 +488,7 @@ class angularJS:
             New survivors will be named randomly or 'Anonymous' according to user preference.</p>
 
             <div
-                class="create_user_asset_block_group"
+                class="create_user_asset_block_group bulk_add_block_group"
             >
                 <div class="bulk_add_control">
                     <form method="POST" action="#">
@@ -520,7 +520,7 @@ class angularJS:
                         >
                         &#9662;
                         </button>
-                </div>  <!-- bulk_add_control maleCoundBox" -->
+                </div>  <!-- bulk_add_control maleCountBox" -->
                 <div class="bulk_add_control">
 
                     Female
@@ -549,9 +549,11 @@ class angularJS:
                     </button>
                 </div>
 
+                <hr class="invisible"/>
+
                 <input
                     type="submit"
-                    id="settlement_sheet_create_new_survivors"
+                    id="bulkAddSurvivors"
                     class="kd_blue settlement_sheet_bulk_add" value="Create New Survivors"
                 />
 
@@ -1138,7 +1140,7 @@ class survivor:
 
         <div id="asset_management_left_pane">
 
-          <input
+            <input
                 id="survivor_sheet_survivor_name"
                 type="text" name="name" value="$name"
                 placeholder="Survivor Name"
@@ -1146,7 +1148,7 @@ class survivor:
                 onClick="this.select()"
             />
 
-            <div class="survivor_sheet_survivor_name_from_top_spacer mobile_only"/>&nbsp</div>
+            <hr class="invisible"/>
 
             $epithet_controls
 
@@ -1171,7 +1173,7 @@ class survivor:
 
             <br/>
 
-        <div id="survivor_dead_retired_container">
+        <div class="survivor_dead_retired_container">
 
             <input
                 id="favorite"
@@ -1189,14 +1191,6 @@ class survivor:
                 Favorite
             </label>
 
-            <button
-                id="modalDeathButton"
-                class="$death_button_class"
-                title="Mark this survivor as dead"
-            >
-                Dead
-            </button>
-
             <input
                 id="retired"
                 class="kd_css_checkbox"
@@ -1213,6 +1207,13 @@ class survivor:
                 Retired &nbsp;
             </label>
 
+            <button
+                id="modalDeathButton"
+                class="$death_button_class modal_death_button"
+                title="Mark this survivor as dead"
+            >
+                Dead
+            </button>
 
             </div> <!-- survivor_dead_retired_container -->
 
@@ -1227,7 +1228,7 @@ class survivor:
                         class="incrementer"
                         onclick="increment('survivalBox'); updateAssetAttrib('survivalBox','survivor','$survivor_id');"
                     >
-                        +
+                        &#9652;
                     </button>
                     <input
                         id="survivalBox"
@@ -1242,7 +1243,7 @@ class survivor:
                         class="decrementer"
                         onclick="decrement('survivalBox'); updateAssetAttrib('survivalBox','survivor','$survivor_id');"
                     >
-                        -
+                        &#9662;
                     </button>
                 </div> <!-- big_number_container -->
 
@@ -1260,10 +1261,10 @@ class survivor:
 
                 <h3>Survival Actions</h3>
 
-                <p>
+                <p class="survival_actions_container">
                      <input
                         id="cannot_spend_survival"
-                        class="radio_principle"
+                        class="survivor_sheet_toggle"
                         name="toggle_cannot_spend_survival"
                         onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
                         type="checkbox"
@@ -1272,7 +1273,7 @@ class survivor:
 
                      <label
                         id="cannot_spend_survival"
-                        class="radio_principle_label float_right_toggle"
+                        class="float_right_toggle"
                         for="cannot_spend_survival">
                             Cannot<br/>spend<br/>survival
                      </label>
@@ -1411,15 +1412,19 @@ class survivor:
                 <p><b>H</b>eavy Injury: Knocked Down</p>
             </div> <!-- survivor_hit_box -->
 
+
+
             $arms_hit_box
             $body_hit_box
             $waist_hit_box
             $legs_hit_box
 
+
+
             <a id="edit_wpn_prof" class="mobile_and_tablet"></a>
-            <hr/>
 
             <!-- HUNT XP -->
+
             <div class="survivor_sheet_secondary_attrib_container">
                 <div class="big_number_container">
                     <button
@@ -1445,15 +1450,16 @@ class survivor:
                     </button>
                 </div> <!-- big_number_container -->
 
-                <div class="big_number_caption">Hunt XP</div>
-
-                <p class="secondary_attrib_tip">
-                    <font class="kdm_font">g</font> <b>Age</b> occurs at 2, 6, 10 and 15. $name retires at 16.
-                </p>
+                <div class="survivor_sheet_secondary_attribute_caption">
+                    <div class="big_number_caption">Hunt XP</div>
+                    <p>
+                        <font class="kdm_font">g</font> <b>Age</b> occurs at 2, 6, 10 and 15. $name retires at 16.
+                    </p>
+                </div>
 
             </div> <!-- survivor_sheet_secondary_attrib_container -->
 
-            <hr/>
+            <hr class="mobile_only"/>
 
             <!-- WEAPON PROFICIENCY -->
             <div class="survivor_sheet_secondary_attrib_container">
@@ -1481,20 +1487,21 @@ class survivor:
                     </button>
                 </div> <!-- big_number_container -->
 
-                <div class="big_number_caption">Weapon Proficiency</div>
-
-                <form method="POST" action="#edit_wpn_prof">
-                    <input type="hidden" name="modify" value="survivor" />
-                    <input type="hidden" name="asset_id" value="$survivor_id" />
-                    $weapon_proficiency_options
-                </form>
-
-                <p class="secondary_attrib_tip"><b>Specialist</b> at 3<br/><b>Master</b> at 8.</p>
+                <div class="survivor_sheet_secondary_attribute_caption">
+                    <div class="big_number_caption">Weapon Proficiency</div>
+                    <form method="POST" action="#edit_wpn_prof">
+                        <input type="hidden" name="modify" value="survivor" />
+                        <input type="hidden" name="asset_id" value="$survivor_id" />
+                        $weapon_proficiency_options
+                    </form>
+                    <p>
+                        <b>Specialist</b> at 3<br/><b>Master</b> at 8.
+                    </p>
+                </div>
 
             </div> <!-- survivor_sheet_secondary_attrib_container -->
 
-            <hr/>
-
+            <hr class="mobile_only"/>
 
             <!-- COURAGE AND UNDERSTANDING -->
 
@@ -1522,19 +1529,18 @@ class survivor:
                         -
                     </button>
                 </div>
-                <div class="big_number_caption">Courage</div>
-                <br class="mobile_only"/>
 
-                 <p class="secondary_attrib_tip">
-                    $hunt_xp_3_event
-                    <font class="kdm_font">g</font> <b>See the Truth</b> (p.155) occurs at 9.
-                </p>
+                <div class="survivor_sheet_secondary_attribute_caption">
+                    <div class="big_number_caption">Courage</div>
+                     <p>
+                        $hunt_xp_3_event
+                        <font class="kdm_font">g</font> <b>See the Truth</b> (p.155) occurs at 9.
+                    </p>
+                </div>
 
             </div> <!-- survivor_sheet_secondary_attrib_container -->
 
-
-            <hr/>
-
+            <hr class="mobile_only"/>
 
             <!-- UNDERSTANDING -->
 
@@ -1555,23 +1561,24 @@ class survivor:
                         value="$understanding"
                         onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
                     />
-                    <button
-                        class="decrementer"
-                        onclick="stepAndSave('down','understandingBox','survivor','$survivor_id');"
-                    >
-                        -
-                    </button>
-                </div>
-                <div class="big_number_caption">Understanding</div>
+                        <button
+                            class="decrementer"
+                            onclick="stepAndSave('down','understandingBox','survivor','$survivor_id');"
+                        >
+                            -
+                        </button>
+                    </div>
 
-                <br class="mobile_only"/>
-
-                <p class="secondary_attrib_tip">
-                    $courage_3_event
-                    <font class="kdm_font">g</font> <b>White Secret</b> (p.169) occurs at 9.
-                </p>
+                    <div class="survivor_sheet_secondary_attribute_caption">
+                        <div class="big_number_caption">Understanding</div>
+                        <p>
+                            $courage_3_event
+                            <font class="kdm_font">g</font> <b>White Secret</b> (p.169) occurs at 9.
+                        </p>
+                    </div>
 
             </div> <!-- survivor_sheet_secondary_attrib_container -->
+
 
         </div> <!-- asset_management_middle_pane -->
 
@@ -1580,8 +1587,9 @@ class survivor:
 
                 <!-- RIGHT ASSET MANAGEMENT PANE STARTS HERE -->
 
+        <hr/>
 
-        <div id="asset_management_right_pane">
+        <div id="survivor_sheet_right_pane">
 
         <!-- EXPANSION ATTRIBUTES ; PARTNER CONTROLS -->
 
@@ -1604,11 +1612,10 @@ class survivor:
         <!-- FIGHTING ARTS -->
 
         <a id="edit_fighting_arts" class="mobile_and_tablet"></a>
-        <hr/>
 
         <input
             id="survivor_sheet_cannot_use_fighting_arts"
-            class="radio_principle"
+            class="survivor_sheet_toggle"
             name="toggle_cannot_use_fighting_arts"
             onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
             type="checkbox"
@@ -1616,7 +1623,7 @@ class survivor:
         />
         <label
             id="survivor_sheet_cannot_use_fighting_arts_label"
-            class="radio_principle_label float_right_toggle"
+            class="float_right_toggle"
             for="survivor_sheet_cannot_use_fighting_arts"
          >
             Cannot use<br/>Fighting Arts
@@ -1679,14 +1686,13 @@ class survivor:
             id="skip_next_hunt"
             name="toggle_skip_next_hunt"
             type="checkbox"
-            class="radio_principle"
+            class="survivor_sheet_toggle"
             value="checked"
             $skip_next_hunt_checked
             onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
         />
         <label
-            class="radio_principle_label
-            float_right_toggle"
+            class="float_right_toggle"
             for="skip_next_hunt"
             id="skip_next_hunt_label"
         >
@@ -1713,55 +1719,71 @@ class survivor:
             $rm_abilities_and_impairments
         </form>
 
+        <hr/>
 
         <a id="edit_lineage" class="mobile_and_tablet"></a>
-        <hr />
 
-            <h3>Lineage</h3>
-            <h4>Parents</h4>
-            <form method="POST" action="#edit_lineage">
-              <input type="hidden" name="modify" value="survivor" />
-              <input type="hidden" name="asset_id" value="$survivor_id" />
-              $parents
-            </form>
-            <h4>Intimacy Partners</h4>
-                $partners
-            <h4>Siblings</h4>
-                $siblings
-            <h4>Children</h4>
-            $children
-            <hr />
-            <h3>Permissions</h3>
+        <div class="survivor_sheet_right_pane_blocks_container">
 
-              <p>Survivor Owner:</p>
-              <input
-                id="survivor_owner_email"
-                onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
-                onclick="this.select()"
-                class="full_width"
-                type="email"
-                name="email"
-                placeholder="email"
-                value="$email"
-              />
+            <div class="survivor_sheet_block_group">
+                <h2>Lineage</h2>
+                <h4>Parents</h4>
+                <form method="POST" action="#edit_lineage">
+                  <input type="hidden" name="modify" value="survivor" />
+                  <input type="hidden" name="asset_id" value="$survivor_id" />
+                  $parents
+                </form>
+                <h4>Intimacy Partners</h4>
+                    $partners
+                <h4>Siblings</h4>
+                    $siblings
+                <h4>Children</h4>
+                $children
+            </div> <!-- survivor_sheet_block_group lineage -->
 
-              <input
-                onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
-                type="checkbox"
-                id="public"
-                class="kd_css_checkbox"
-                name="toggle_public"
-                value="checked"
-                $public_checked
-              >
-              <label
-                class="radio_principle_label"
-                for="public"
-              >
-                Anyone May Manage this Survivor &nbsp;
-              </label>
+            <div class="survivor_sheet_block_group">
+                <h2>Permissions</h2>
+                <h4>Owner</h4>
+                    <input
+                        id="survivorOwnerEmail"
+                        class="survivor_owner_email"
+                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+                        onclick="this.select()"
+                        type="email"
+                        name="email"
+                        placeholder="email"
+                        value="$email"
+                    />
 
-              <br/>
+                <p>Enter another registered user's email address here to make
+                them a player in this campaign.</p>
+
+                <h4>Access</h4>
+                <p>Toggle this checkbox on or off to allow any player in this
+                campaign to manage this survivor.</p>
+
+                  <input
+                    onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+                    type="checkbox"
+                    id="public"
+                    class="kd_css_checkbox"
+                    name="toggle_public"
+                    value="checked"
+                    $public_checked
+                  >
+                  <label
+                    class="radio_principle_label"
+                    for="public"
+                  >
+                    Anyone May Manage this Survivor &nbsp;
+                  </label>
+
+                  <br/>
+            </div> <!-- survivor_sheet_block_group perms -->
+
+
+        </div> <!-- survivor_sheet_right_pane_blocks -->
+
 
             $remove_survivor_controls
 
@@ -2914,7 +2936,7 @@ class settlement:
                     <button
                         class="survivor_search_button kd_lantern"
                         ng-class="{disabled : userCanManage(s) == false}"
-                        ng-if="s.is_dead == undefined && s.is_retired == undefined"
+                        ng-if="s.dead == undefined && s.retired == undefined"
                     >
                       <p class="survivor_name">{{s.name}} [{{s.sex}}]</p>
                       <div class="survivor_assets"><b>Hunt XP:</b> {{s.hunt_xp}} <b>Courage:</b> {{s.Courage}} <b>Understanding:</b> {{s.Understanding }}</div>

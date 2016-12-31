@@ -785,8 +785,12 @@ class Survivor:
                 del self.survivor[a]
                 self.logger.debug("Automatically removed bogus key '%s' from %s." % (a, self.get_name_and_id()))
 
+        # remove accidental dupes
+        for s in ["fighting_arts","abilities_and_impairments","disorders"]:
+            self.survivor[s] = list(set(self.survivor[s]))
 
-        mdb.survivors.save(self.survivor)
+        self.logger.debug("[%s] normalized %s" % (self.User, self))
+        self.save()
 
 
     def new(self, params, name="Anonymous", sex="M"):
@@ -2795,7 +2799,8 @@ class Survivor:
             self.survivor["cursed_items"].append(cursed_item)
             if "abilities_and_impairments" in ci_dict.keys():
                 for ai in ci_dict["abilities_and_impairments"]:
-                    self.add_game_asset("abilities_and_impairments", ai)
+                    ai_dict = self.Settlement.get_api_asset("game_assets","abilities_and_impairments")[ai]
+                    self.add_game_asset("abilities_and_impairments", ai_dict["name"])
             self.Settlement.log_event("%s is cursed! %s added %s to %s's cursed items." % (self, self.User.user["login"], ci_dict["name"], self.survivor["name"]))
             self.logger.debug("[%s] added cursed item key '%s' to %s." % (self.User, cursed_item, self))
         def rm(cursed_item):
@@ -3027,7 +3032,7 @@ class Survivor:
 
         death_button_class = "unpressed_button"
         if "dead" in self.survivor.keys():
-            death_button_class = "error"
+            death_button_class = "survivor_is_dead"
 
         COD = ""
         custom_COD = ""

@@ -3769,28 +3769,28 @@ nemeses = {
 
 resources = {
     "White Lion Resources": {
-        "color": "FFCC66",
+        "color": "#DCD900",
     },
     "Screaming Antelope Resources": {
-        "color": "FFCC66",
+        "color": "#DCD900",
     },
     "Phoenix Resources": {
-        "color": "FFCC66",
+        "color": "#DCD900",
     },
     "Spidicules Resources": {
-        "color": "FFCC66",
+        "color": "#DCD900",
     },
     "Gorm Resources": {
         "expansion": "Gorm",
-        "color": "FFCC66",
+        "color": "#DCD900",
     },
     "Dung Beetle Knight Resources": {
         "expansion": "Dung Beetle Knight",
-        "color": "FFCC66",
+        "color": "#DCD900",
     },
     "Dragon King Resources": {
         "expansion": "Dragon King",
-        "color": "FFCC66",
+        "color": "#DCD900",
     },
     "Basic Resources": {
         "color": "B1FB17",
