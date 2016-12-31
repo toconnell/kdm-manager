@@ -3173,9 +3173,9 @@ class Settlement:
         self.set_settlement(settlement_id, update_mins)
 
         # uncomment these to log which methods are initializing 
-        curframe = inspect.currentframe()
-        calframe = inspect.getouterframes(curframe, 2)
-        self.logger.debug("settlement initialized by %s" % calframe[1][3])
+#        curframe = inspect.currentframe()
+#        calframe = inspect.getouterframes(curframe, 2)
+#        self.logger.debug("settlement initialized by %s" % calframe[1][3])
 
 
 
@@ -3208,9 +3208,9 @@ class Settlement:
         """
 
         # uncomment these to log which methods are calling update_mins()
-        curframe = inspect.currentframe()
-        calframe = inspect.getouterframes(curframe, 2)
-        self.logger.debug("update_mins() called by %s" % calframe[1][3])
+#        curframe = inspect.currentframe()
+#        calframe = inspect.getouterframes(curframe, 2)
+#        self.logger.debug("update_mins() called by %s" % calframe[1][3])
 
         for min_key in ["population", "death_count", "survival_limit"]:
             min_val = self.get_min(min_key)
@@ -3231,8 +3231,6 @@ class Settlement:
                 self.refresh_from_API("timeline") # gotta pull the updated timeline back
 
         self.enforce_data_model()
-
-        self.logger.debug("[%s] finished update_mins() for %s. Saving..." % (self.User, self))
         self.save()
 
 
@@ -3567,6 +3565,12 @@ class Settlement:
                 return None
             else:
                 return ", ".join(expansions)
+        elif return_type == "list_of_names":
+            expansions_dict = self.get_api_asset("game_assets","expansions")
+            output_list = []
+            for e in expansions:
+                output_list.append(expansions_dict[e]["name"])
+            return output_list
 
         return expansions
 
@@ -4191,24 +4195,6 @@ class Settlement:
 
         return storage
 
-
-    def increment_nemesis(self, nemesis_key):
-        """ Increments a nemesis once if 'nemesis_key' is in the settlement's
-        list of known nemesis monsters. """
-
-        if nemesis_key not in self.settlement["nemesis_monsters"].keys():
-            return False
-
-        completed_levels = self.settlement["nemesis_monsters"][nemesis_key]
-        if completed_levels == []:
-            self.settlement["nemesis_monsters"][nemesis_key].append("Lvl 1")
-        elif "Lvl 1" in completed_levels:
-            self.settlement["nemesis_monsters"][nemesis_key].append("Lvl 2")
-        elif "Lvl 2" in completed_levels:
-            self.settlement["nemesis_monsters"][nemesis_key].append("Lvl 3")
-        else:
-            raise
-        self.logger.debug("%s checked off nemesis '%s' %s for settlement '%s' (%s)." % (self.User.user["login"], nemesis_key, self.settlement["nemesis_monsters"][nemesis_key][-1], self.settlement["name"], self.settlement["_id"]))
 
 
     def get_timeline_events(self, ly=None, event_type=None):
@@ -4969,27 +4955,6 @@ class Settlement:
         if count_only:
             return len(player_set)
 
-        if return_type == "html":
-            if len(player_set) == 1 and self.User.user["login"] in player_set:
-                return html.settlement.player_controls_none.safe_substitute(name=self.settlement["name"])
-
-            output = html.settlement.player_controls_table_top
-            for player in sorted(list(player_set)):
-                try:
-                    player_id = mdb.users.find_one({"login": player})["_id"]
-                    if player_id == self.settlement["created_by"]:
-                        output += html.settlement.player_controls_table_row.safe_substitute(email=player, role="<i>Founder</i>")
-                    else:
-                        if "admins" in self.settlement.keys() and player in self.settlement["admins"]:
-                            controls = '<select name="player_role_%s"><option>Player</option><option selected>Admin</option></select>' % player
-                        else:
-                            controls = '<select name="player_role_%s"><option selected>Player</option><option>Admin</option></select>' % player
-                        output += html.settlement.player_controls_table_row.safe_substitute(email=player, role=controls)
-                except:
-                        output += html.settlement.player_controls_table_row.safe_substitute(email=player, role="None")
-            output += html.settlement.player_controls_table_bot
-            return output
-
         return player_set
 
 
@@ -5035,18 +5000,19 @@ class Settlement:
         return self.settlement["admins"]
 
 
-    def update_admins(self, player_login, player_role):
-        """ Adds or removes player emails from the admins list. """
-        if not "admins" in self.settlement.keys():
-            self.settlement["admins"] = []
+    def toggle_admin_status(self, login):
+        """ Adds or removes a login from self.settlement["admins"], depending
+        on whether it's already there or not. """
 
-        if player_role != "Admin" and player_login in self.settlement["admins"]:
-            self.settlement["admins"].remove(player_login)
-            self.logger.debug("%s is no longer an admin of %s" % (player_login, self.get_name_and_id()))
+        if login in self.settlement["admins"]:
+            self.settlement["admins"].remove(login)
+            msg = "removed %s from" % login
+        else:
+            self.settlement["admins"].append(login)
+            msg = "added %s to" % login
 
-        if player_role == "Admin" and player_login not in self.settlement["admins"]:
-            self.settlement["admins"].append(player_login)
-            self.logger.debug("%s is now an admin of %s" % (player_login, self.get_name_and_id()))
+        self.logger.debug("[%s] %s %s admins." % (self.User, msg, self))
+
 
 
     def update_current_survivors(self, buff_dict, reason, rm_buff=False):
@@ -5400,9 +5366,9 @@ class Settlement:
         because if we've got no options, we display no select element.
         """
         # uncomment these to log which methods are calling
-        curframe = inspect.currentframe()
-        calframe = inspect.getouterframes(curframe, 2)
-        self.logger.debug("get_game_asset() called by %s" % calframe[1][3])
+#        curframe = inspect.currentframe()
+#        calframe = inspect.getouterframes(curframe, 2)
+#        self.logger.debug("get_game_asset() called by %s" % calframe[1][3])
 
         # first, scream bloody murder if we get a banned return_type value
         if return_type in ["angularjs","json","angularjs_options"]:
@@ -5457,14 +5423,17 @@ class Settlement:
             if not self.User.get_preference("dynamic_innovation_deck") and asset_type == "innovations":
                 output = Innovations.render_as_html_dropdown(
                     exclude=self.settlement["innovations"],
-                    excluded_type="principle"
+                    excluded_type="principle",
                 )
             else:
                 op = "add"
                 output = html.ui.game_asset_select_top.safe_substitute(
-                    operation="%s_" % op, operation_pretty=op.capitalize(),
+                    operation="%s_" % op,
+                    operation_pretty=op.capitalize(),
                     name=asset_name,
                     name_pretty=pretty_asset_name,
+                    ng_model="newInnovation",
+                    ng_change="addInnovation()",
                 )
 
                 deck = self.get_game_asset_deck(asset_type)
@@ -5710,13 +5679,15 @@ class Settlement:
                 self.rm_game_asset("nemesis_monsters",game_asset_key)
             elif p == "increment_nemesis":
                 self.increment_nemesis(game_asset_key)
+            elif p == "toggle_admin_status":
+                self.toggle_admin_status(game_asset_key)
             elif p == "toggle_milestone":
                 self.update_milestones(game_asset_key)
             elif p in ["add_item","remove_item"]:
                 self.update_settlement_storage("html_form", params)
             elif p == "add_innovation":
                 self.add_game_asset("innovations", game_asset_key)
-            elif p == "remove_innovation":
+            elif p == "rm_innovation":
                 self.rm_game_asset("innovations", game_asset_key)
             elif p == "add_location":
                 self.add_game_asset("locations", game_asset_key)
@@ -5732,9 +5703,6 @@ class Settlement:
             elif p.split("_")[:2] == ["set","principle"]:
                 principle = "_".join(p.split("_")[2:])
                 self.set_principle(principle, game_asset_key)
-            elif p.split("_")[0] == "player" and p.split("_")[1] == "role":
-                player_login = "_".join(p.split("_")[2:])
-                self.update_admins(player_login, game_asset_key)
             elif p.split("_")[0] == "location" and p.split("_")[1] == "level":
                 self.update_location_level(p.split("_")[2:][0], game_asset_key)
             else:
@@ -5787,10 +5755,11 @@ class Settlement:
 
     @ua_decorator
     def render_html_form(self):
-        """ This is where we create the Settlement Sheet, so there's a lot of
-        presentation and business logic here. """
+        """ Render settlement.form from html.py. Do a few substitutions during
+        the render (i.e. things that aren't yet managed by the angularjs app.
 
-        self.update_mins()
+        Remember that this passes through @ua_decorator, so it gets some more
+        substitutions done up there. """
 
         # show the settlement rm button if the user prefers
         rm_button = ""
@@ -5801,25 +5770,19 @@ class Settlement:
             )
 
         return html.settlement.form.safe_substitute(
-            settlement_id = self.settlement["_id"],
-
-            population = self.get_attribute("population"),
-            death_count = self.get_attribute("death_count"),
 
             survival_limit = self.get_attribute("survival_limit"),
             min_survival_limit = self.get_min("survival_limit"),
 
-            endeavors = self.get_bonuses('endeavors', return_type="html"),
-            departure_bonuses = self.get_bonuses('departure_buff', return_type="html"),
-            settlement_bonuses = self.get_bonuses('settlement_buff', return_type="html"),
-
             storage = self.get_storage("html_buttons"),
             add_to_storage_controls = Items.render_as_html_multiple_dropdowns(
                 recently_added=self.get_recently_added_items(),
-                expansions=self.get_expansions(),
+                expansions=self.get_expansions("list_of_names"),
             ),
 
-            player_controls = self.get_players("html"),
+            innovations_add = self.get_game_asset("innovations", return_type="html_add", update_mins=False),
+            innovation_deck = self.get_game_asset_deck("innovations", exclude_always_available=True),
+
             remove_settlement_button = rm_button,
 
         )

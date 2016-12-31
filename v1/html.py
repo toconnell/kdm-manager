@@ -104,7 +104,13 @@ class panel:
 
 class ui:
     game_asset_select_top = Template("""\n\
-    <select class="$select_class" name="$operation$name" onchange="this.form.submit()">
+    <select
+        class="$select_class"
+        name="$operation$name"
+        ng_model="$ng_model"
+        ng_change="$ng_change"
+        onchange="this.form.submit()"
+    >
       <option selected disabled hidden value="">$operation_pretty $name_pretty</option>
     """)
     game_asset_select_row = Template('\t  <option value="$asset">$asset</option>\n')
@@ -568,7 +574,7 @@ class angularJS:
 
             <span class="closeModal" onclick="closeModal('settlementNotesContainer')">×</span>
 
-            <h3>Campaign Notes!</h3>
+            <h3>Campaign Notes</h3>
             <p>All players in the {{settlement_sheet.name}} campaign may make
             notes and comments here. Tap or click notes to remove them.</p>
 
@@ -597,7 +603,7 @@ class angularJS:
                         </div>
 
                         <div class="note_content" ng-click="showHide(n.js_id);window.alert(n.js_id)">
-                            {{n.note}} <span class="author" ng-if="n.author != user_login"> - {{n.author}}</span>
+                            {{n.note}} <span class="author" ng-if="n.author != user_login"> {{n.author}}</span>
                         </div>
                         <span
                             id="{{n.js_id}}"
@@ -615,7 +621,55 @@ class angularJS:
 
             </div> <!-- settlement_notes_application_container -->
 
+            <div
+                ng-if="arrayContains(user_login, settlement_sheet.admins) == true"
+                ng-controller="playerManagementController"
+            >
+                <hr/>
+                <h3>Manage Players</h3>
+                    <p>Add other registered users to the {{settlement_sheet.name}}
+                    campaign by adding their email addresses to the Survivor Sheets
+                    of survivors in this campaign. </p>
 
+                    <table class="player_management">
+                        <tr>
+                            <th colspan="2">Login</th>
+                            <th>Admin</th>
+                        </tr>
+                        <tr
+                            class="player_management_row"
+                            ng-repeat="p in settlement.user_assets.players"
+                        >
+                            <td class="flair" ng-if="arrayContains(p.login, settlement_sheet.admins) == true">
+                                <span class="player_management_flair kdm_font_hit_locations">a</span>
+                            </td>
+                            <td class="flair" ng-if="arrayContains(p.login, settlement_sheet.admins) == false">
+                                <span class="player_management_flair kdm_font_hit_locations">b</span>
+                            </td>
+
+                            <td class="login">
+                                {{p.login}}
+                                <span ng-if="p._id.$oid == settlement_sheet.created_by.$oid">
+                                    (Founder)
+                                </span>
+                            </td>
+
+                            <td class="admin">
+                                <input
+                                    type="checkbox"
+                                    class="player_management_admin"
+                                    ng-if="p._id.$oid != settlement_sheet.created_by.$oid"
+                                    ng-model="playerIsAdmin"
+                                    ng-checked="arrayContains(p.login, settlement_sheet.admins) == true"
+                                    ng-click="toggleAdmin(p.login)"
+                                />
+                            </td>
+                        </tr>
+                    </table>
+
+                <hr/>
+                <center><button class="kd_blue" type="submit">Save and Refresh!</button></center>
+            </div> <!-- ng-if div -->
         </div><!-- full size modal panel -->
 
     </div> <!-- modal (parent) -->
@@ -2521,10 +2575,6 @@ class settlement:
     <p>Hide: $hide, Bone: $bone, Scrap: $scrap, Organ: $organ</p>
     \n""")
 
-    player_controls_none = Template('<p>Add other players to the "$name" campaign by making them the Owner of a Survivor in this Settlement!<br/><br/></p>')
-    player_controls_table_top = '<table class="player_management_controls"><tr><th>Email Address</th><th>Role</th></tr>\n'
-    player_controls_table_row = Template("""<tr><td>$email</td><td>$role</td></tr>\n""")
-    player_controls_table_bot = '<tr class="controller"><td colspan="2"><button class="full_width kd_blue">Update Player Roles</button></2></tr></table>'
 
     # dashboard refactor
     dashboard_campaign_asset = Template("""\n
@@ -2977,7 +3027,7 @@ class settlement:
                     id="populationBox"
                     class="big_number_square"
                     type="number" name="population"
-                    value="$population"
+                    value="{{settlement_sheet.population}}"
                     onchange="updateAssetAttrib(this,'settlement','$settlement_id')"
                     min="0"
                 />
@@ -3007,7 +3057,7 @@ class settlement:
                     class="big_number_square"
                     type="number"
                     name="death_count"
-                    value="$death_count"
+                    value="{{settlement_sheet.death_count}}"
                     min="0"
                     onchange="updateAssetAttrib(this,'settlement','$settlement_id')"
                 />
@@ -3128,31 +3178,27 @@ class settlement:
             <p>The settlement's innovations (including weapon masteries).</p>
 
             <div
-                class="line_item"
+                class="line_item location_container"
                 ng-repeat="i in settlement_sheet.innovations"
             >
                 <span class="bullet"></span>
                 <span
                     class="item"
-                    ng-click="rmInnovation"
+                    ng-click="rmInnovation($index,i)"
                 >
                     {{i}}
                 </span>
            </div>
 
             <div class="line_item">
-                <span class="empty_bullet" /></span>
-                <select
-                    ng-model="newInnovation"
-                    ng-change="addInnovation"
-                >
-                    <option disabled selected value="">Add an Innovation</option>
-                </select>
+                <span class="empty_bullet" /></span> $innovations_add
             </div>
 
-            <div class="innovation_deck">
+            <div class="innovation_deck" ng-if="settlement_sheet.innovations.length != 0">
                 <h3> - Innovation Deck - </h3>
-                $innovation_deck
+                <ul class="asset_deck">
+                    <li ng-repeat="i in $innovation_deck"> {{i}} </li>
+                </ul>
             </div>
 
         </div> <!-- settlement_sheet_block_group innovations-->
@@ -3167,8 +3213,6 @@ class settlement:
 
 
     <div id="asset_management_right_pane">
-
-                    <!-- PRINCIPLES - HAS ITS OWN FORM-->
 
         <a id="edit_principles" class="mobile_only"></a>
 
@@ -3226,9 +3270,7 @@ class settlement:
         </div> <!-- principle block group -->
 
 
-
-
-                       <!-- MILESTONES - HAS ITS OWN FORM-->
+                       <!-- MILESTONES -->
 
         <a id="edit_milestones" class="mobile_only"/></a>
 
@@ -3276,7 +3318,7 @@ class settlement:
 
             <div>
                 <div
-                    class="line_item"
+                    class="line_item location_container"
                     ng-controller="quarriesController"
                     ng-repeat="q in settlement_sheet.quarries"
                 >
@@ -3363,7 +3405,7 @@ class settlement:
 
 
 
-                    <!-- DEFEATED MONSTERS: HAS ITS OWN FORM -->
+                    <!-- DEFEATED MONSTERS -->
 
 
 
@@ -3482,17 +3524,6 @@ class settlement:
         <hr class="mobile_only"/>
 
         <div class="settlement_sheet_block_group">
-            <h2>Players</h2>
-            <form method="POST" action="#edit_expansions">
-                <input type="hidden" name="modify" value="settlement" />
-                <input type="hidden" name="asset_id" value="$settlement_id" />
-                $player_controls
-            </form>
-        </div>
-
-        <hr class="mobile_only" />
-
-        <div class="settlement_sheet_block_group">
 
             <h3>Abandon Settlement</h3>
             <p>Mark a settlement as "Abandoned" to prevent it from showing up in your active campaigns without removing it from the system.</p>
@@ -3501,7 +3532,7 @@ class settlement:
                 <input type="hidden" name="modify" value="settlement" />
                 <input type="hidden" name="asset_id" value="$settlement_id" />
                 <input type="hidden" name="abandon_settlement" value="toggle" />
-                <button class="kd_alert_no_exclaim red_glow"> Abandon Settlement! </button>
+                <button class="kd_alert_no_exclaim red_glow"> Abandon Settlement </button>
             </form>
         </div>
 
@@ -3562,17 +3593,26 @@ class settlement:
 
 
     remove_settlement_button = Template("""\
-    <hr/>
-    <h3>Permanently Remove Settlement</h3>
-    <form
-        action="#"
-        method="POST"
-        onsubmit="return confirm('Press OK to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever. \\r\\rPlease note that this CANNOT BE UNDONE and is not the same as marking a settlement Abandoned.\\r\\rPlease consider abandoning old settlements rather than removing them, as this allows data about the settlement to be used in general kdm-manager stats.\\r\\r');"
-    >
-        <input type="hidden" name="remove_settlement" value="$settlement_id"/>
-        <p>Use the button below to permanently delete <i>$settlement_name</i>. Please note that <b>this cannot be undone</b> and that this will also permanently remove all survivors associated with this settlement.</p>
-        <button class="kd_alert_no_exclaim red_glow permanently_delete">Permanently Delete Settlement</button>
-    </form>
+
+    <div class="settlement_sheet_block_group">
+        <h3>Permanently Remove Settlement</h3>
+        <form
+            action="#"
+            method="POST"
+            onsubmit="return confirm('Press OK to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever. \\r\\rPlease note that this CANNOT BE UNDONE and is not the same as marking a settlement Abandoned.\\r\\rPlease consider abandoning old settlements rather than removing them, as this allows data about the settlement to be used in general kdm-manager stats.\\r\\r');"
+        >
+            <input type="hidden" name="remove_settlement" value="$settlement_id"/>
+            <p>
+                Use the button below to permanently delete <i>$settlement_name</i>.
+                Please note that <b>this cannot be undone</b> and that this will
+                also permanently remove all survivors associated with this
+                settlement.
+            </p>
+            <button class="kd_alert_no_exclaim red_glow permanently_delete">
+                Permanently Delete Settlement
+            </button>
+        </form>
+    </div>
     """)
 
     location_level_controls = Template("""\n\
@@ -3999,11 +4039,8 @@ def render_burger(session_object=None):
 
     if view in ["view_survivor","view_campaign","view_settlement"]:
         actions += '<button id="timelineOpenerButton" class="sidenav_button">Timeline</button>'
-        actions += '<button id="settlementNotesOpenerButton" class="sidenav_button">Notes</button>'
-#        actions += meta.burger_export_button.safe_substitute(
-#            link_text = "Export to XLS",
-#            settlement_id = session_object.session["current_settlement"],
-#        )
+        actions += '<button id="settlementNotesOpenerButton" class="sidenav_button">Notes and Players</button>'
+
 
     # now add quick links to departing survivors for admins
     departing = ""

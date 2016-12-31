@@ -107,6 +107,7 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
 
         // finish
         console.log("appRoot controller (" + $scope.view + ") initialized!");
+        console.log("Current user login = " + $scope.user_login);
     }
 
     $scope.postJSONtoAPI = function(collection, action, json_obj) {
@@ -207,7 +208,10 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
     };
 
     $scope.arrayContains = function(needle, arrhaystack) {
-//        console.log(typeof arrhaystack + " -> " + arrhaystack);
+//        if (typeof arrhaystack != Array) {
+//            console.warn(arrhaystack + ' is not an Array and cannot contain "' + needle + '"');
+//        };
+        if (arrhaystack === needle) {return true};
         if (arrhaystack.indexOf(needle) > -1) {return true; } else {return false};
     };
 
@@ -232,6 +236,19 @@ app.controller("updateExpansionsController", function($scope) {
 
 app.controller('newSurvivorController', function($scope) {
 }); 
+
+app.controller('playerManagementController', function($scope) {
+    $scope.toggleAdmin = function(login) {
+        if ($scope.arrayContains(login, $scope.settlement_sheet.admins)) {
+            var login_index = $scope.settlement_sheet.admins.indexOf(login);
+            $scope.settlement_sheet.admins.splice(login_index,1);
+        } else { 
+            $scope.settlement_sheet.admins.push(login);
+        };
+        var params = "toggle_admin_status=" + login;
+        modifyAsset('settlement', $scope.settlement_id, params);
+    };
+});
 
 app.controller('settlementNotesController', function($scope, $rootScope) {
 

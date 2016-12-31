@@ -75,7 +75,7 @@ class Model:
         ones that do. """
 
         campaign = settlement_object.get_campaign()
-        expansions = settlement_object.get_expansions()
+        expansions = settlement_object.get_expansions("list_of_names")
 
         always_available = set()
         for game_asset in self.get_keys():

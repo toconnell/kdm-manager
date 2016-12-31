@@ -318,6 +318,14 @@ div.rm_timeline_event {width: 85%; margin: 2%; text-align: left; }
 label.timeline_change_ly_button {width: 100%; }
 
 
+/* player management */
+
+table.player_management {background-color: #fff; border: 1px solid #ccc; border-radius: 5px; margin: 3%; border-collapse: collapse; }
+table.player_management tr {border-bottom: 1px solid #ccc;}
+table.player_management th, table.player_management td {padding: 10px; }
+table.player_management td.login {font-family: Metrophobic; }
+table.player_management td.admin {text-align: center; }
+input[type=checkbox].player_management_admin {display: block; margin: auto; zoom: 4; height: 20px; }
 
 /* settlement notes*/
 
@@ -519,9 +527,11 @@ div.settlement_sheet_block_group select {margin-left: 0; margin-right: 0; }
 div.settlement_sheet_block_group div.innovation_deck {border: 0.2em solid #000; margin: 1%; margin-top: 10%; margin-bottom: 10%; padding-top: 0; padding-bottom: 4%; }
 div.settlement_sheet_block_group img.icon {width: 73px; height: auto; }
 div.settlement_sheet_hidden_controls {border: 0.1em solid #000; padding: 2%; margin: 2%; text-align: center; margin-top: 4%; margin-bottom: 4%}
+
 div.innovation_deck h3 {margin-top: 3%; }
 ul.asset_deck {
-list-style-type: none;
+    list-style-type: none;
+    padding: 0; 
     margin: 0 auto;
     margin-left: 5%;
     width: 90%; 
@@ -569,11 +579,6 @@ label.expansion_attrib_toggle {float: left; clear: none; }
 
 h3.inventory_tag {float: right; clear: none; position: absolute;  margin-top: -40px; right: 56px; opacity: 0.3; padding: 10px; }
 h3.clickable {padding: 1%; }
-table.player_management_controls {width: 94%; border-collapse: collapse; margin-left: 20px; margin-bottom: 30px; }
-table.player_management_controls select {margin-top: 0px; }
-table.player_management_controls tr {border-bottom: 1px solid #666; }
-table.player_management_controls tr.controller {border-bottom: 0; }
-table.player_management_controls td {padding: 3px; }
 
 
 /* panel styles */
@@ -1099,8 +1104,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
 
     /* timeline modal all views - tablet */
-    div.timeline_ly_headline p {font-size: 20px; }
-    div.timeline_ly_headline span {margin-right: 2%; }
+    div.timeline_ly_headline span {margin-right: 2%; font-size: 20px; }
     div.timeline_bullet_and_year_container {width: 90px; display: inline-flex; }
     span.timeline_ly_number {font-size: 33px; margin-top: -8px;}
     span.timeline_event {font-size: 30px; }
@@ -1112,7 +1116,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     select.add_timeline_event {font-size: 25px; }
     div.timeline_rm_controls {text-align: left; } 
     div.rm_timeline_event {font-size: 25px; display: inline-block; width: auto; }
-    label.timeline_change_ly_button {font-size: 30px; }
+    div.timeline_hidden_controls_container label.timeline_change_ly_button {font-size: 30px; }
 
     /* expansion modal -tablet */
     div.expansion_content_line_item label {font-size: 30px; }
@@ -1208,6 +1212,10 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.note_content {font-size: 25px; margin: 1%; margin-left: 10%; margin-right: 7%; vertical-align:top;}
     div.note_content span.author {font-size: 16px; }
 
+        /* player management - tablet */
+    table.player_management {width: 95%; margin-bottom: 5%;}
+    table.player_management th, table.player_management td {padding: 10px; }
+    input[type=checkbox].player_management_admin {zoom: 2; height: auto;}
 
     div#survivor_dead_retired_container {width: 370px; padding-top: 10px; padding-bottom: 30px; margin-bottom: 20px; clear:both; }
     div#survivor_dead_retired_container label {font-size: 20pt; background-color: #fefedd; padding: 5px; }
@@ -1349,8 +1357,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
         /* settlement storage - tablet */
     div.settlement_storage {margin-bottom: 10%; }
     button#modalStorageButton {margin: 0 auto; margin-left: 5%; padding:1%; }
-
-    textarea#settlement_notes {font-size: 15pt; width: 390px;}
 
     div#modalStorage div.modal-content div.big_number_container {width: 94px; min-height:0px; height: auto; }
     div#modalStorage div.modal-content div.big_number_container input#addStorageBox {width: 65px;}
@@ -1613,7 +1619,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div#departingSurvivorsModalContent button.return_departing_survivors {width: 50%; margin: 0 auto; }
 
     /* wide settlement sheet styles */
-    button.permanently_delete {width: 95%; margin: 0 auto; margin-left: 3%; margin-bottom: 5%; }
     div#bulk_add_survivors input.settlement_sheet_bulk_add {width: 75%; margin-left: -60px; }
 
         /* Bulk Add New Survivors - wide */

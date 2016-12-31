@@ -28,8 +28,8 @@ mar_2016_expansions = {
         "name": "Gorm",
         "quarries": ["gorm"],
         "always_available": {
-            "locations": ["Gormery", "Gormchymist"],
-            "innovations": ["Nigredo"],
+            "location": ["Gormery", "Gormchymist"],
+            "innovation": ["Nigredo"],
         },
         "timeline_add": [
             {"ly": 1, "type": "story_event", "handle": "gorm_approaching_storm"},
@@ -40,8 +40,8 @@ mar_2016_expansions = {
         "name": "Dung Beetle Knight",
         "quarries": ["dung_beetle_knight"],
         "always_available": {
-            "locations": ["Wet Resin Crafter"],
-            "innocations": ["Subterranean Agriculture"],
+            "location": ["Wet Resin Crafter"],
+            "innocation": ["Subterranean Agriculture"],
         },
         "timeline_add": [
             {"ly": 8, "type": "story_event", "handle": "dbk_rumbling_in_the_dark"},
@@ -51,8 +51,8 @@ mar_2016_expansions = {
         "name": "Spidicules",
         "quarries": ["spidicules"],
         "always_available": {
-            "innovations": ["Legless Ball"],
-            "locations": ["Silk Mill","Silk-Refining"],
+            "location": ["Silk Mill","Silk-Refining"],
+            "innovation": ["Legless Ball"],
         },
         "timeline_add": [
             {"ly": 2, "type": "story_event", "handle": "spid_young_rivals"},
@@ -65,7 +65,7 @@ mar_2016_expansions = {
         "name": "Lion Knight",
         "quarries": ["lion_knight"],
         "always_available": {
-            "innovations": ["Stoic Statue"],
+            "innovation": ["Stoic Statue"],
         },
         "special_showdowns": ["lion_knight"],
         "timeline_add": [
@@ -82,7 +82,7 @@ mar_2016_expansions = {
         "name": "Lion God",
         "quarries": ["lion_god"],
         "always_available": {
-            "innovations": ["The Knowledge Worm"],
+            "innovation": ["The Knowledge Worm"],
         },
         "timeline_add": [
             {"ly": 13, "type": "story_event", "handle": "lgod_silver_city"},
@@ -92,8 +92,8 @@ mar_2016_expansions = {
         "name": "Sunstalker",
         "quarries": ["sunstalker"],
         "always_available": {
-            "locations": ["Skyreef Sanctuary"],
-            "innovations": ["Umbilical Bank"],
+            "location": ["Skyreef Sanctuary"],
+            "innovation": ["Umbilical Bank"],
         },
         "survivor_attribs": ["Purified","Sun Eater","Child of the Sun"],
         "timeline_add": [
@@ -104,7 +104,7 @@ mar_2016_expansions = {
         "name": "Dragon King",
         "quarries": ["dragon_king"],
         "always_available": {
-            "locations": ["Dragon Armory"],
+            "location": ["Dragon Armory"],
         },
         "timeline_add": [
             {"ly": 8, "type": "story_event", "handle": "dk_glowing_crater", "excluded_campaign": "People of the Stars"},
@@ -115,7 +115,7 @@ mar_2016_expansions = {
         "nemesis_monsters": ["manhunter"],
         "special_showdowns": ["manhunter"],
         "always_available": {
-            "innovations": ["War Room", "Settlement Watch", "Crimson Candy"],
+            "innovation": ["War Room", "Settlement Watch", "Crimson Candy"],
         },
         "timeline_add": [
             {"ly": 5, "type": "story_event", "handle": "mh_hanged_man"},
@@ -127,9 +127,8 @@ mar_2016_expansions = {
     },
     "lonely_tree": {
         "name": "Lonely Tree",
-        "nemesis_monsters": ["lonely_tree"],
+#        "nemesis_monsters": ["lonely_tree"],
         "special_showdowns": ["lonely_tree"],
-#        "always_available_nemesis": True,
     },
     "flower_knight": {
         "name": "Flower Knight",

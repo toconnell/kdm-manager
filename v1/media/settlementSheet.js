@@ -21,7 +21,18 @@ app.controller("locationsController", function($scope) {
 
 
 app.controller('innovationsController', function($scope) {
-    
+    $scope.addInnovation = function() {
+        $scope.settlement_sheet.innovations.push($scope.newInnovation);
+        params = "add_innovation=" + $scope.newInnovation;
+        modifyAsset('settlement',$scope.settlement_id,params);
+        location.reload();
+    };    
+    $scope.rmInnovation = function(index, innovation_name) {
+        $scope.settlement_sheet.innovations.splice(index,1);
+        params = "rm_innovation=" + innovation_name;
+        modifyAsset('settlement',$scope.settlement_id,params);
+        location.reload();
+    };
 });
 
 
