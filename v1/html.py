@@ -751,7 +751,7 @@ class angularJS:
                 <h2 class="no_ul">Survivor Avatar Image</h2>
                 <p>Upload an image to represent this survivor (optional).</p>
                 <br/>
-                <input type="file" name="survivor_avatar" accept="image/*">
+                <input type="file" class="new_survivor_avatar" name="survivor_avatar" accept="image/*">
             </div>
 
 
@@ -818,7 +818,7 @@ class angularJS:
 
             <br />
     
-            <button class="kd_blue">Add {{new_survivor_name}}</button>
+            <button class="kd_blue add_new_survivor">Add {{new_survivor_name}}</button>
 
             <br/><br/>
 
@@ -902,7 +902,6 @@ class angularJS:
                     class="timeline_hidden_controls_container"
                     ng-if="user_is_settlement_admin"
                 >
-                    <hr/>
 
                     <select
                         name="add_timeline_event"
@@ -972,7 +971,7 @@ class angularJS:
                         </option>
                    </select>
 
-                    <br/>
+                    <hr class="invisible"/>
 
                     <div ng-repeat="event_group in t" class="timeline_rm_controls">
                         <span ng-if="isObject(event_group)" class="timeline_rm_event_group">
@@ -985,6 +984,8 @@ class angularJS:
                         </span>
                     </div>
 
+                    <hr class="invisible"/>
+
                     <div class="end_current_ly" ng-if="t.year==current_ly">
                         <input
                             type="checkbox"
@@ -996,7 +997,7 @@ class angularJS:
                             class="kd_blue timeline_change_ly_button"
                             for="endLanternYear{{t.year}}"
                         >
-                                End Lantern Year {{t.year}}
+                            End Lantern Year {{t.year}}
                         </label>
                         <input
                             type="checkbox"
@@ -1005,7 +1006,7 @@ class angularJS:
                             ng-change="setLY(t.year - 1); showHideControls(t.year); showControls(t.year-1)"
                         />
                         <label
-                            class="kd_alert_no_exclaim timeline_change_ly_button"
+                            class="kd_blue timeline_change_ly_button"
                             for="returnToLanternYear{{t.year - 1}}"
                             ng-if="t.year >= 1"
                         >
@@ -1587,7 +1588,7 @@ class survivor:
 
                 <!-- RIGHT ASSET MANAGEMENT PANE STARTS HERE -->
 
-        <hr/>
+        <hr class="mobile_and_tablet"/>
 
         <div id="survivor_sheet_right_pane">
 
@@ -1700,14 +1701,15 @@ class survivor:
             Hunt
         </label>
 
-        <form method="POST" action="#edit_abilities">
+        <form method="POST" action="#edit_abilities" class="abilities_and_impairments">
             <input type="hidden" name="form_id" value="survivor_edit_abilities" />
             <input type="hidden" name="modify" value="survivor" />
             <input type="hidden" name="asset_id" value="$survivor_id" />
+
             $abilities_and_impairments
-            <br/><br/>
+
             $add_abilities_and_impairments
-            <br/>
+
             <button
                 id="modalCustomAIButton"
                 class="orange bold"
@@ -1715,8 +1717,9 @@ class survivor:
             >
                 + Custom Abilities & Impairments
             </button>
-            <br/>
+
             $rm_abilities_and_impairments
+
         </form>
 
         <hr/>
@@ -1766,13 +1769,13 @@ class survivor:
                     onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
                     type="checkbox"
                     id="public"
-                    class="kd_css_checkbox"
+                    class="kd_css_checkbox kd_radio_option"
                     name="toggle_public"
                     value="checked"
                     $public_checked
                   >
                   <label
-                    class="radio_principle_label"
+                    class="public_survivor_toggle"
                     for="public"
                   >
                     Anyone May Manage this Survivor &nbsp;
@@ -2013,13 +2016,15 @@ class survivor:
         </div> <!-- modalAffinity -->
     \n""")
     survivor_sheet_rm_controls = Template("""\n
-    <hr />
-    <h3>Permanently Delete Survivor</h3>
-    <form action="#" method="POST" onsubmit="return confirm('Press OK to permanently delete this survivor forever.\\r\\rThis is NOT THE SAME THING as marking it dead using controls above.\\r\\rPermanently deleting the survivor prevents anyone from viewing and/or editing this record ever again!');">
-        <input type="hidden" name="remove_survivor" value="$survivor_id"/>
-        <p>Use the button below to permanently remove $name. Please note that <b>this cannot be undone</b> and that any relationships between $name and other survivors will be removed.</p>
-        <button class="kd_alert_no_exclaim red_glow permanently_delete">Permanently Delete Survivor</button>
-    </form>
+    <hr class="mobile_and_tablet"/>
+    <div class="permanently_delete_survivor">
+        <h3>Permanently Delete Survivor</h3>
+        <form action="#" method="POST" onsubmit="return confirm('Press OK to permanently delete this survivor forever.\\r\\rThis is NOT THE SAME THING as marking it dead using controls above.\\r\\rPermanently deleting the survivor prevents anyone from viewing and/or editing this record ever again!');">
+            <input type="hidden" name="remove_survivor" value="$survivor_id"/>
+            <p>Use the button below to permanently remove $name. Please note that <b>this cannot be undone</b> and that any relationships between $name and other survivors will be removed.</p>
+            <button class="kd_alert_no_exclaim red_glow permanently_delete">Permanently Delete Survivor</button>
+        </form>
+    </div>
     """)
     survivor_sheet_hit_box_controls = Template("""\n
 
@@ -3817,13 +3822,26 @@ class meta:
         <link rel="stylesheet" type="text/css" href="/media/z-index.css">
     """ % settings.get("application","title")
 
-    close_body = '\n </div><!-- container -->\n</body>\n</html>'
+    close_body = """\n
+    </div><!-- container -->
+    </body>
+    </html>
+    <script type="text/javascript">
+        // kill the spinner, just in case it hasn't been killed
+        //hideFullPageLoader();
+    </script>
+    """
     saved_dialog = """\n
     <div id="saved_dialog" class="saved_dialog_frame" style="">
         <div class="kd_blue saved_dialog_inner">
             <span class="saved_dialog_cap">S</span>
             Saved!
         </div>
+    </div>
+    \n"""
+    full_page_loader = """\n
+    <div id="fullPageLoader" class="full_page_loading_spinner">
+        <img class="full_page_loading_spinner" src="/media/loading_io.gif">
     </div>
     \n"""
     mobile_hr = '<hr class="mobile_only"/>'

@@ -3231,9 +3231,7 @@ class Settlement:
 
         # auto-update the timeline here, if the user wants us to
         if self.User.get_preference("update_timeline"):
-            updates_made = self.update_timeline_with_story_events()
-            if updates_made:
-                self.refresh_from_API("timeline") # gotta pull the updated timeline back
+            self.update_timeline_with_story_events()
 
         self.enforce_data_model()
         self.save()
@@ -4974,6 +4972,7 @@ class Settlement:
         else:
             self.logger.error("[%s] failed to POST '%s' to %s timeline!" % (self.User, event["name"], self))
             self.logger.error(response)
+        self.refresh_from_API("timeline") # gotta pull the updated timeline back
 
 
 
@@ -4989,6 +4988,7 @@ class Settlement:
         else:
             self.logger.error("[%s] failed to remove '%s' from %s timeline!" % (self.User, event["name"], self))
             self.logger.error(response)
+        self.refresh_from_API("timeline") # gotta pull the updated timeline back
 
 
     def get_admins(self):

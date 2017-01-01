@@ -629,6 +629,11 @@ class Session:
 
         body = None
 
+        # tack on the full-page spinner if we're doing a view that has
+        #   to initialize with API data
+        if self.current_view in ["view_campaign", "view_settlement", "view_survivor"]:
+            output += html.meta.full_page_loader
+
         if self.current_view == "dashboard":
             body = "dashboard"
             output += self.render_dashboard()

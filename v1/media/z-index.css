@@ -12,9 +12,10 @@ h3.clickable                                {z-index: 10; }
 .dashboard_accordion                        {z-index: 10; }
 .dashboard_down_arrow                       {z-index: 20; }
 .COD_down_arrow                             {z-index: 20; }
-input[type=text], input[type=password]      {z-index: 100; }
-div.survivor_sheet_attrib_controls_modal    {z-index: 100; }
-div.survivor_constellation_badge            {z-index: 100; }
+input[type=text], input[type=password]      {z-index: 50; }
+div.survivor_sheet_attrib_controls_modal    {z-index: 50; }
+div.survivor_constellation_badge            {z-index: 50; }
+div.full_page_loading_spinner               {z-index: 99; }
 
     /* top nav_bar indexes */
 .nav_bar, .nav_bar_mobile                   {z-index: 100; }

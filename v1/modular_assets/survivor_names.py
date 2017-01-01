@@ -5,10 +5,11 @@ male = [
     "Achilles",
     "Adam",
     "Aeneas",
+    "Akira",
     "Aldrich",
     "Alexander",
     "Alucard",
-    "Alister",
+    "Allister",
     "Alva",
     "Anchises",
     "Artorias",
@@ -150,6 +151,7 @@ male = [
     "Reinhardt",
     "Reinaldo",
     "Rico",
+    "Rickert",
     "Royal",
     "Raynaldo",
     "Roland",
@@ -197,6 +199,7 @@ male = [
     "Zachary",
     "Zane",
     "Zeke",
+    "Zophar",
 ]
 
 female = [
@@ -233,7 +236,7 @@ female = [
     "Eliza",
     "Emilia",
     "Erica",
-    "Erza",
+    "Ezra",
     "Esmerelda",
     "Esti",
     "Eve",
@@ -281,10 +284,12 @@ female = [
     "Lavender",
     "Laverne",
     "Lavinia",
+    "Leia",
     "Leigh",
     "Libby",
     "Lily",
     "Lucy",
+    "Lucille",
     "Lydia",
     "Maeve",
     "Magdalena",
@@ -372,6 +377,7 @@ female = [
     "Yana",
     "Ylva",
     "Yoko",
+    "Yuki",
     "Zelda",
 ]
 

@@ -6,6 +6,12 @@ function savedAlert() {
     $('#saved_dialog').fadeOut(1800);
 };
 
+function showFullPageLoader() {
+    $('#fullPageLoader').show();
+};
+function hideFullPageLoader() {
+    $('#fullPageLoader').fadeOut(1000);
+};
 
 // factories and services for angularjs modules
 
@@ -84,6 +90,7 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
                 $scope.user_is_settlement_admin = $scope.arrayContains(login, $scope.settlement_sheet.admins);
 //                console.log($scope.user_login + " admin = " + $scope.user_is_settlement_admin);
                 console.log("Settlement initialized!")
+                hideFullPageLoader();
             },
             function(errorPayload) {console.log("Error loading settlement!" + errorPayload);}
         );

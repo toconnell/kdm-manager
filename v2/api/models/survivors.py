@@ -29,7 +29,7 @@ class Survivor(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="survivors"
-        self.object_version = 0.6
+        self.object_version = 0.9
         Models.UserAsset.__init__(self,  *args, **kwargs)
 
 
@@ -88,6 +88,16 @@ class Survivor(Models.UserAsset):
         return sex
 
 
+    def is_dead(self):
+        "Returns a bool of whether the survivor is dead."
+
+        dead = False
+        if "dead" in self.survivor.keys():
+            dead = True
+
+        return dead
+
+
     def can_be_nominated_for_intimacy(self):
         """ Returns a bool representing whether the survivor can do the
         mommmy-daddy dance. """
@@ -95,6 +105,8 @@ class Survivor(Models.UserAsset):
         output = True
 
         if "Destroyed Genitals" in self.survivor["abilities_and_impairments"]:
+            output = False
+        elif self.is_dead():
             output = False
 
         return output
