@@ -1841,7 +1841,7 @@ class Survivor:
         split_name = self.survivor["name"].split(" ")
         for surname in ["Noble","Reincarnated"]:
             if surname in split_name and "%s surname" % surname not in traits:
-                traits.append(surname)
+                traits.append(surname + " surname")
 
         # check abilities_and_impairments for Oracle's Eye, Iridescent Hide, any weapon mastery, Pristine,
         for a in ["Oracle's Eye","Iridescent Hide","Pristine"]:
@@ -1878,8 +1878,7 @@ class Survivor:
 
         # done.
         self.survivor["constellation_traits"] = list(set(traits))
-
-
+        mdb.survivors.save(self.survivor)
 
 
     def update_epithets(self, action="add", epithet=None):
@@ -2858,25 +2857,6 @@ class Survivor:
         )
 
 
-    def render_savior_controls(self):
-        """ Renders the button and the modal controller for the Survivor Sheet.
-        Using a modal for this is fine, since we're going to have to do a page
-        refresh to update a whole grip of survivor attributes on save. """
-
-        c_dict = self.Settlement.get_campaign("dict")
-        if "saviors" not in c_dict.keys():
-            return ""
-        if self.is_founder():
-            return ""
-
-        output = html.survivor.savior_modal_controls.safe_substitute(
-            survivor_id = self.survivor["_id"],
-            savior_type = self.is_savior(),
-        )
-
-        return output
-
-
     def render_dragon_controls(self, return_type=None):
         """ Returns the survivor's constellation table, either as a dict of
         component info or as an HTML table. """
@@ -3133,7 +3113,6 @@ class Survivor:
             partner_controls = self.get_partner("html_controls"),
             expansion_attrib_controls = self.get_expansion_attribs("html_controls"),
             dragon_controls = self.render_dragon_controls(),
-            savior_controls = self.render_savior_controls(),
 
             # angularjs application controls
             survivor_notes = self.get_survivor_notes("angularjs"),

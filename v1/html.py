@@ -1166,8 +1166,33 @@ class survivor:
 
                 $mobile_avatar_img
 
-                <div id="mobileButtonHolder" class="survivor_sheet_dynamic_button_holder mobile_and_tablet">
-                <!-- This holds optional survivor modal openers; otherwise, it's empty -->
+                <div class="survivor_sheet_dynamic_button_holder">
+
+                    <button
+                        id="cursedControlsModal"
+                        class="orange bold modal_opener"
+                    >
+                        Cursed Items ({{survivor.cursed_items.length}})
+                    </button>
+
+                    <button
+                        id="saviorControlsModal"
+                        class="orange bold modal_opener"
+                        ng-if="settlement.game_assets.campaign.saviors != undefined"
+                        ng-init="registerModalDiv('saviorControlsModal','modalSavior')"
+                    >
+                        Savior
+                    </button>
+
+                    <button
+                        id="dragonControlsModal"
+                        class="orange bold modal_opener"
+                        ng-if="settlement.game_assets.campaign.dragon_traits != undefined"
+                        ng-init="registerModalDiv('dragonControlsModal','modalConstellation')"
+                    >
+                        Dragon Traits ({{survivor.constellation_traits.length}})
+                    </button>
+
                 </div>
 
             </p>
@@ -1588,19 +1613,15 @@ class survivor:
 
                 <!-- RIGHT ASSET MANAGEMENT PANE STARTS HERE -->
 
-        <hr class="mobile_and_tablet"/>
+        <a id="edit_misc_attribs" class="mobile_and_tablet"> </a>
+        <hr class="no_desktop" />
 
         <div id="survivor_sheet_right_pane">
 
         <!-- EXPANSION ATTRIBUTES ; PARTNER CONTROLS -->
 
-        <a id="edit_misc_attribs" class="mobile_and_tablet"> </a>
 
-        <form method="POST" action="#edit_misc_attribs">
-            <input type="hidden" name="modify" value="survivor" />
-            <input type="hidden" name="asset_id" value="$survivor_id" />
-            $expansion_attrib_controls
-        </form>
+        $expansion_attrib_controls
 
         <form method="POST" action="#edit_misc_attribs">
             <button class="hidden"></button>
@@ -1613,6 +1634,10 @@ class survivor:
         <!-- FIGHTING ARTS -->
 
         <a id="edit_fighting_arts" class="mobile_and_tablet"></a>
+
+
+
+        <h3>Fighting Arts</h3>
 
         <input
             id="survivor_sheet_cannot_use_fighting_arts"
@@ -1629,9 +1654,6 @@ class survivor:
          >
             Cannot use<br/>Fighting Arts
         </label>
-
-
-        <h3>Fighting Arts</h3>
 
         <p>Maximum 3.</p>
 
@@ -1788,32 +1810,25 @@ class survivor:
         </div> <!-- survivor_sheet_right_pane_blocks -->
 
 
-            $remove_survivor_controls
+        $remove_survivor_controls
 
-            <div class="survivor_sheet_bottom_attrib_spacer">&nbsp;</div>
+        <div class="survivor_sheet_bottom_attrib_spacer">&nbsp;</div>
 
-            <!-- gotta put this here, outside of the other forms -->
-            <form id="avatar_change_form" method="POST" enctype="multipart/form-data" action="#">
-                <input type="hidden" name="modify" value="survivor" />
-                <input type="hidden" name="asset_id" value="$survivor_id" />
-            </form>
+        <!-- gotta put this here, outside of the other forms -->
+        <form id="avatar_change_form" method="POST" enctype="multipart/form-data" action="#">
+            <input type="hidden" name="modify" value="survivor" />
+            <input type="hidden" name="asset_id" value="$survivor_id" />
+        </form>
 
-        </div> <!-- asset_management_right_pane -->
+    </div> <!-- asset_management_right_pane -->
+
+
+
+    <!--            THIS IS THE FOLD! Only Modal content below!     -->
+
+
 
     <!-- CURSED ITEMS CONTROLS -->
-
-    <button
-        id="cursedControlsModal"
-        class="orange bold modal_opener"
-    >
-        Cursed Items ({{survivor.cursed_items.length}})
-    </button>
-
-    <script>
-    // move the mobile-only button into the dynamic container after rendering
-    var cursed_button = document.getElementById("cursedControlsModal");
-    placeDynamicButton(cursed_button)
-    </script>
 
     <div
         id="modalCurseControls" class="modal"
@@ -1883,137 +1898,175 @@ class survivor:
 
     <!-- SAVIOR CONTROLS -->
 
-    $savior_controls
+    <div
+        id="modalSavior" class="modal"
+    >
+        <div class="modal-content survivor_sheet_gradient">
+            <span class="closeModal" onclick="closeModal('modalSavior')">×</span>
 
-    <!-- ONLY MODAL CONTENT PAST THIS POINT!!!! -->
+            <h3>Savior</h3>
 
-        <div
-            id="modalCustomAI" class="modal"
-            ng-init="registerModalDiv('modalCustomAIButton','modalCustomAI')"
-        >
-            <div class="modal-content survivor_sheet_gradient" ng-app="kdmManager">
-                <span class="closeModal" onclick="closeModal('modalCustomAI')">×</span>
-                <h3>Create Custom A&I</h3>
-                <p>Use the form below to create a new, custom <i>Abilities & Impairments</i> line for $name. As you fill in the fields below, a preview of the new line item will appear in the white box below!</p>
-                <hr/>
+            <form method="post" action="/">
+                <input type="hidden" name="modify" value="survivor">
+                <input type="hidden" name="asset_id" value="$survivor_id">
+                <input type="hidden" name="set_savior_type" value="red">
+                <button class="affinity_red">Dream of the Beast</button>
+            </form>
 
-                <form id="custom_AI_modal" method="POST" action="#edit_abilities">
-                    <input type="hidden" name="modify" value="survivor"/>
-                    <input type="hidden" name="asset_id" value="$survivor_id"/>
-                    <input type="hidden" name="add_custom_AI" value="True"/>
-                    <input type="text" class="custom_AI" ng-model="name" name="custom_AI_name" placeholder="Name">
-                    <input type="text" class="custom_AI" ng-model="desc" name="custom_AI_desc" placeholder="Description">
-                    <select name="custom_AI_type">
-                        <option disabled> - A&I Type - </option>
-                        <option value="ability" selected>Ability</option>
-                        <option value="impairment">Impairment</option>
-                        <option value="severe_injury">Severe Injury</option>
-                        <option value="curse">Curse</option>
-                        <option value="weapon_proficiency">Weapon Proficiency</option>
-                    </select>
+            <form method="post" action="/">
+                <input type="hidden" name="modify" value="survivor">
+                <input type="hidden" name="asset_id" value="$survivor_id">
+                <input type="hidden" name="set_savior_type" value="green">
+                <button class="affinity_green">Dream of the Throne</button>
+            </form>
 
-                    <p>Preview:</p>
+            <form method="post" action="/">
+                <input type="hidden" name="modify" value="survivor">
+                <input type="hidden" name="asset_id" value="$survivor_id">
+                <input type="hidden" name="set_savior_type" value="blue">
+                <button class="affinity_blue">Dream of the Lantern</button>
+            </form>
 
-                    <div class="custom_AI_preview">
-                        <b>{{ name }}:</b> {{ desc }}
-                    </div>
+            <hr/>
 
-                    <hr/>
+            <form method="post" action="/">
+                <input type="hidden" name="modify" value="survivor">
+                <input type="hidden" name="asset_id" value="$survivor_id">
+                <input type="hidden" name="set_savior_type" value="UNSET">
+                <button onclick="this.form.submit()">Unset Savior Info</button>
+            </form>
 
-                    <button class="kd_blue">Add {{name}} to $name</button>
+        </div> <!-- modal-content -->
 
-                </form>
+    </div> <!-- modalSavior -->
 
-            </div> <!-- modal-content -->
-        </div> <!-- modalCustomAI -->
+    <div
+        id="modalCustomAI" class="modal"
+        ng-init="registerModalDiv('modalCustomAIButton','modalCustomAI')"
+    >
+        <div class="modal-content survivor_sheet_gradient" ng-app="kdmManager">
+            <span class="closeModal" onclick="closeModal('modalCustomAI')">×</span>
+            <h3>Create Custom A&I</h3>
+            <p>Use the form below to create a new, custom <i>Abilities & Impairments</i> line for $name. As you fill in the fields below, a preview of the new line item will appear in the white box below!</p>
+            <hr/>
 
-        <div
-            id="modalDeath" class="modal"
-            ng-init="registerModalDiv('modalDeathButton','modalDeath')"
-        >
-            <div class="modal-content survivor_sheet_gradient">
-                <span class="closeModal" onclick="closeModal('modalDeath')">×</span>
-                <h3>Controls of Death!</h3>
-                <form method="POST" action="">
+            <form id="custom_AI_modal" method="POST" action="#edit_abilities">
                 <input type="hidden" name="modify" value="survivor"/>
                 <input type="hidden" name="asset_id" value="$survivor_id"/>
-                <input type="hidden" name="unspecified_death" value="True"/>
-                <p><b>Choose cause of death:</b></p>
-                <p>$cod_options</p>
+                <input type="hidden" name="add_custom_AI" value="True"/>
+                <input type="text" class="custom_AI" ng-model="name" name="custom_AI_name" placeholder="Name">
+                <input type="text" class="custom_AI" ng-model="desc" name="custom_AI_desc" placeholder="Description">
+                <select name="custom_AI_type">
+                    <option disabled> - A&I Type - </option>
+                    <option value="ability" selected>Ability</option>
+                    <option value="impairment">Impairment</option>
+                    <option value="severe_injury">Severe Injury</option>
+                    <option value="curse">Curse</option>
+                    <option value="weapon_proficiency">Weapon Proficiency</option>
+                </select>
+
+                <p>Preview:</p>
+
+                <div class="custom_AI_preview">
+                    <b>{{ name }}:</b> {{ desc }}
+                </div>
+
                 <hr/>
-                <p>Or enter a custom cause of death:</p>
-                <p><input type="text" class="full_width" placeholder="Cause of death" name="custom_cause_of_death" value="$custom_cause_of_death"/></p>
-                <button class="kd_alert_no_exclaim red_glow">Die</button>
-                </form>
+
+                <button class="kd_blue">Add {{name}} to $name</button>
+
+            </form>
+
+        </div> <!-- modal-content -->
+    </div> <!-- modalCustomAI -->
+
+    <div
+        id="modalDeath" class="modal"
+        ng-init="registerModalDiv('modalDeathButton','modalDeath')"
+    >
+        <div class="modal-content survivor_sheet_gradient">
+            <span class="closeModal" onclick="closeModal('modalDeath')">×</span>
+            <h3>Controls of Death!</h3>
+            <form method="POST" action="">
+            <input type="hidden" name="modify" value="survivor"/>
+            <input type="hidden" name="asset_id" value="$survivor_id"/>
+            <input type="hidden" name="unspecified_death" value="True"/>
+            <p><b>Choose cause of death:</b></p>
+            <p>$cod_options</p>
+            <hr/>
+            <p>Or enter a custom cause of death:</p>
+            <p><input type="text" class="full_width" placeholder="Cause of death" name="custom_cause_of_death" value="$custom_cause_of_death"/></p>
+            <button class="kd_alert_no_exclaim red_glow">Die</button>
+            </form>
+            <hr/>
+            <form method="POST" action="">
+            <input type="hidden" name="modify" value="survivor"/>
+            <input type="hidden" name="asset_id" value="$survivor_id"/>
+            <input type="hidden" name="resurrect_survivor" value="True"/>
+            <button class="kd_blue">Resurrect $name</button>
+            </form>
+
+        </div> <!-- modal-content -->
+    </div> <!-- modalDeath -->
+
+
+    <div
+        id="modalAffinity" class="modal"
+        ng-init="registerModalDiv('modalAffinityButton','modalAffinity')"
+    >
+        <div class="modal-content survivor_sheet_gradient">
+            <span class="closeModal" onclick="closeModal('modalAffinity')">×</span>
+
+            <h3>Survivor Affinities</h3>
+            <p>Use these controls to adjust $name's permanent affinities. Negative values are supported. </p><hr/>
+
+            <form method="POST" action="#" title="Survivor Sheet permanent affinity controls">
+                <input type="hidden" name="modify" value="survivor" />
+                <input type="hidden" name="asset_id" value="$survivor_id" />
+                <input type="hidden" name="modal_update" value="affinities"/>
+
+                <div class="modal_affinity_controls_container">
+
+                    <div class="modal_affinity_control_unit">
+                        <div class="bulk_add_control" title="Red affinity controls">
+                            <button type="button" class="incrementer" onclick="increment('redCountBox');">+</button>
+                            <input id="redCountBox" class="big_number_square" type="number" name="red_affinities" value="$red_affinities"/>
+                            <button type="button" class="decrementer" onclick="decrement('redCountBox');">-</button>
+                        </div>
+                        <div class="affinity_block affinity_red">&nbsp;</div>
+                    </div> <!-- modal_affinity_control_unit -->
+
+                    <hr class="affinity_spacer"/>
+
+                    <div class="modal_affinity_control_unit">
+                        <div class="bulk_add_control" title="Blue affinity controls">
+                            <button type="button" class="incrementer" onclick="increment('blueCountBox');">+</button>
+                            <input id="blueCountBox" class="big_number_square" type="number" name="blue_affinities" value="$blue_affinities"/>
+                            <button type="button" class="decrementer" onclick="decrement('blueCountBox');">-</button>
+                        </div>
+                        <div class="affinity_block affinity_blue">&nbsp;</div>
+                    </div> <!-- modal_affinity_control_unit -->
+
+                    <hr class="affinity_spacer"/>
+
+                    <div class="modal_affinity_control_unit">
+                        <div class="bulk_add_control" title="Green affinity controls">
+                            <button type="button" class="incrementer" onclick="increment('greenCountBox');">+</button>
+                            <input id="greenCountBox" class="big_number_square" type="number" name="green_affinities" value="$green_affinities"/>
+                            <button type="button" class="decrementer" onclick="decrement('greenCountBox');">-</button>
+                        </div>
+                        <div class="affinity_block affinity_green">&nbsp;</div>
+                    </div> <!-- modal_affinity_control_unit -->
+
+                </div> <!-- modal_affinity_controls_container -->
+
                 <hr/>
-                <form method="POST" action="">
-                <input type="hidden" name="modify" value="survivor"/>
-                <input type="hidden" name="asset_id" value="$survivor_id"/>
-                <input type="hidden" name="resurrect_survivor" value="True"/>
-                <button class="kd_blue">Resurrect $name</button>
-                </form>
 
-            </div> <!-- modal-content -->
-        </div> <!-- modalDeath -->
-
-
-        <div
-            id="modalAffinity" class="modal"
-            ng-init="registerModalDiv('modalAffinityButton','modalAffinity')"
-        >
-            <div class="modal-content survivor_sheet_gradient">
-                <span class="closeModal" onclick="closeModal('modalAffinity')">×</span>
-
-                <h3>Survivor Affinities</h3>
-                <p>Use these controls to adjust $name's permanent affinities. Negative values are supported. </p><hr/>
-
-                <form method="POST" action="#" title="Survivor Sheet permanent affinity controls">
-                    <input type="hidden" name="modify" value="survivor" />
-                    <input type="hidden" name="asset_id" value="$survivor_id" />
-                    <input type="hidden" name="modal_update" value="affinities"/>
-
-                    <div class="modal_affinity_controls_container">
-
-                        <div class="modal_affinity_control_unit">
-                            <div class="bulk_add_control" title="Red affinity controls">
-                                <button type="button" class="incrementer" onclick="increment('redCountBox');">+</button>
-                                <input id="redCountBox" class="big_number_square" type="number" name="red_affinities" value="$red_affinities"/>
-                                <button type="button" class="decrementer" onclick="decrement('redCountBox');">-</button>
-                            </div>
-                            <div class="affinity_block affinity_red">&nbsp;</div>
-                        </div> <!-- modal_affinity_control_unit -->
-
-                        <hr class="affinity_spacer"/>
-
-                        <div class="modal_affinity_control_unit">
-                            <div class="bulk_add_control" title="Blue affinity controls">
-                                <button type="button" class="incrementer" onclick="increment('blueCountBox');">+</button>
-                                <input id="blueCountBox" class="big_number_square" type="number" name="blue_affinities" value="$blue_affinities"/>
-                                <button type="button" class="decrementer" onclick="decrement('blueCountBox');">-</button>
-                            </div>
-                            <div class="affinity_block affinity_blue">&nbsp;</div>
-                        </div> <!-- modal_affinity_control_unit -->
-
-                        <hr class="affinity_spacer"/>
-
-                        <div class="modal_affinity_control_unit">
-                            <div class="bulk_add_control" title="Green affinity controls">
-                                <button type="button" class="incrementer" onclick="increment('greenCountBox');">+</button>
-                                <input id="greenCountBox" class="big_number_square" type="number" name="green_affinities" value="$green_affinities"/>
-                                <button type="button" class="decrementer" onclick="decrement('greenCountBox');">-</button>
-                            </div>
-                            <div class="affinity_block affinity_green">&nbsp;</div>
-                        </div> <!-- modal_affinity_control_unit -->
-
-                    </div> <!-- modal_affinity_controls_container -->
-
-                    <hr/>
-
-                    <center><button class="kd_blue" type="submit">Save and Refresh!</button></center>
-                    <br><br>
-                </form>
-            </div> <!-- modal-content -->
-        </div> <!-- modalAffinity -->
+                <center><button class="kd_blue" type="submit">Save and Refresh!</button></center>
+                <br><br>
+            </form>
+        </div> <!-- modal-content -->
+    </div> <!-- modalAffinity -->
     \n""")
     survivor_sheet_rm_controls = Template("""\n
     <hr class="mobile_and_tablet"/>
@@ -2217,81 +2270,10 @@ class survivor:
     </div> <!-- $long_name_controls_container -->
     """)
     survivor_sheet_attrib_controls_bot = '\t</div> <!-- survivor_sheet_attrib_controls -->'
-    savior_modal_controls = Template("""\n
-    <button
-        id="saviorControlsModal"
-        class="orange bold modal_opener"
-    >
-        Savior
-    </button>
-
-    <script>
-    // move the mobile-only button into the dynamic container after rendering
-    var savior_button = document.getElementById("saviorControlsModal");
-    placeDynamicButton(savior_button)
-    </script>
-
-    <div
-        id="modalSavior" class="modal"
-        ng-init="registerModalDiv('saviorControlsModal','modalSavior')"
-    >
-        <div class="modal-content survivor_sheet_gradient">
-            <span class="closeModal" onclick="closeModal('modalSavior')">×</span>
-
-            <h3>Savior</h3>
-
-            <form method="post" action="/">
-                <input type="hidden" name="modify" value="survivor">
-                <input type="hidden" name="asset_id" value="$survivor_id">
-                <input type="hidden" name="set_savior_type" value="red">
-                <button class="affinity_red">Dream of the Beast</button>
-            </form>
-
-            <form method="post" action="/">
-                <input type="hidden" name="modify" value="survivor">
-                <input type="hidden" name="asset_id" value="$survivor_id">
-                <input type="hidden" name="set_savior_type" value="green">
-                <button class="affinity_green">Dream of the Throne</button>
-            </form>
-
-            <form method="post" action="/">
-                <input type="hidden" name="modify" value="survivor">
-                <input type="hidden" name="asset_id" value="$survivor_id">
-                <input type="hidden" name="set_savior_type" value="blue">
-                <button class="affinity_blue">Dream of the Lantern</button>
-            </form>
-
-            <hr/>
-
-            <form method="post" action="/">
-                <input type="hidden" name="modify" value="survivor">
-                <input type="hidden" name="asset_id" value="$survivor_id">
-                <input type="hidden" name="set_savior_type" value="UNSET">
-                <button onclick="this.form.submit()">Unset Savior Info</button>
-            </form>
-
-        </div> <!-- modal-content -->
-    </div> <!-- modalSavior -->
-
-    \n""")
     dragon_traits_controls = Template("""\n
-
-    <button
-        id="dragonControlsModal"
-        class="orange bold modal_opener"
-    >
-        Dragon Traits ($trait_count)
-    </button>
-
-    <script>
-    // move the mobile-only button into the dynamic container after rendering
-    var dragon_button = document.getElementById("dragonControlsModal");
-    placeDynamicButton(dragon_button)
-    </script>
 
     <div
         id="modalConstellation" class="modal"
-        ng-init="registerModalDiv('dragonControlsModal','modalConstellation')"
     >
         <div class="modal-content survivor_sheet_gradient">
             <span class="closeModal" onclick="closeModal('modalConstellation')">×</span>
@@ -2348,24 +2330,45 @@ class survivor:
     </form>
     </div> <!-- survivor_constellation_control_container" -->
     \n""")
-    partner_controls_top = '\n<hr/>\n\t<p><span class="tiny_break">&nbsp;</span>Partner<select name="partner_id" onchange="this.form.submit()">\n'
+    partner_controls_top = '\n\t<p><span class="tiny_break">&nbsp;</span><h3 class="partner">Partner</h3><select name="partner_id" onchange="this.form.submit()">\n'
     partner_controls_none = '<option selected disabled>Select a Survivor</option>'
     partner_controls_opt = Template('<option value="$value" $selected>$name</option>')
     partner_controls_bot = '</select><span class="tiny_break"/>&nbsp;</span></p>\n\n'
     expansion_attrib_controls = Template("""\n
-    <hr/>
-    <span class="tiny_break"/>&nbsp;</span>
-    <input type="hidden" name="expansion_attribs" value="None"/> <!-- Hacks -->
-    <input type="hidden" name="expansion_attribs" value="None"/> <!-- Hacks -->
-    $control_items
-    <br/>
-    <span class="tiny_break"/>&nbsp;</span>
+
+    <div class="expansion_attribs_container">
+        <form method="POST" action="#edit_misc_attribs">
+        <input type="hidden" name="modify" value="survivor" />
+        <input type="hidden" name="asset_id" value="{{survivor._id.$oid}}" />
+        <input type="hidden" name="expansion_attribs" value="None"/> <!-- Hacks -->
+        <input type="hidden" name="expansion_attribs" value="None"/> <!-- Hacks -->
+
+        $control_items
+
+        </form>
+    </div> <!-- expansion_attribs_container -->
+
+    <hr />
+
     \n""")
     expansion_attrib_item = Template("""\n
-    <div class="expansion_attrib_toggle">
-     <input onchange="this.form.submit()" type="checkbox" id="$item_id" class="expansion_attrib_toggle" name="expansion_attribs" value="$key" $checked/>
-     <label class="expansion_attrib_toggle" for="$item_id">$key</label>
-    </div> <!-- expansion_attrib_toggle -->
+
+    <div class="line_item">
+        <input
+            onchange="this.form.submit()"
+            type="checkbox" id="$item_id"
+            class="kd_css_checkbox kd_radio_option"
+            name="expansion_attribs"
+            value="$key"
+            $checked
+        />
+        <label
+            for="$item_id"
+        >
+            $key
+        </label>
+    </div> <!-- expansion_attrib line_item -->
+
     \n""")
     returning_survivor_badge = Template("""\n\
     <div class="returning_survivor_badge $color_class" title="$div_title">$flag_letter</div>
@@ -3214,6 +3217,8 @@ class settlement:
 
             <h2>Innovations</h2>
             <p>The settlement's innovations (including weapon masteries).</p>
+
+            <hr class="invisible"/>
 
             <div
                 class="line_item location_container"

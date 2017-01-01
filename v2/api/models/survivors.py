@@ -31,6 +31,26 @@ class Survivor(Models.UserAsset):
         self.collection="survivors"
         self.object_version = 0.9
         Models.UserAsset.__init__(self,  *args, **kwargs)
+        self.normalize()
+
+
+    def normalize(self):
+        """ In which we force the survivor's mdb document to adhere to the biz
+        logic of the game and our own data model. """
+
+        perform_save = False
+
+        # enforce the partner A&I
+        if "partner_id" in self.survivor.keys():
+            if "Partner" not in self.survivor["abilities_and_impairments"]:
+                perform_save = True
+                self.logger.debug("Automatically adding 'Partner' A&I to %s." % self)
+                self.survivor["abilities_and_impairments"].append("Partner")
+
+
+        if perform_save:
+            self.logger.debug("Normalized %s" % self)
+            self.save()
 
 
     def serialize(self, return_type=None):

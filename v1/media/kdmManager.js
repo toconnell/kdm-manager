@@ -180,8 +180,8 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
         var btn = document.getElementById(modal_button_id);
         var modal = document.getElementById(modal_div_id);
 
-        if (btn == undefined) {console.log("WARN: Could not find button id " + modal_button_id); return false};
-        if (modal == undefined) {console.log("WARN: Could not find button id " + modal_button_id); return false};
+        if (btn == undefined) {console.warn("WARN: Could not find button id " + modal_button_id); return false};
+        if (modal == undefined) {console.warn("WARN: Could not find button id " + modal_button_id); return false};
 
         btn.onclick = function(b) {b.preventDefault(); modal.style.display = "block";};
         window.onclick = function(event) {if (event.target == modal) {modal.style.display = "none";}};
@@ -685,25 +685,6 @@ function decrement(elem_id) {
 }
 
 // button and togglebox registration 
-
-// place dynamic buttons in the appropriate holder, depending on what's visible
-function placeDynamicButton (button) {
-    // picks the appropriate parent div for a dynamic button on the
-    // Survivor Sheet. This kind of violates responsive design, because if the
-    // user changes the viewport from mobile to wide, they'll lose the button
-    // ...obviously a corner-case, but still makes me feel bad...
-
-    var mobile_holder = document.getElementById("mobileButtonHolder");
-    var wide_holder = document.getElementById("wideButtonHolder");
-
-    var mq = window.matchMedia( "(min-width: 1050px) and (orientation: landscape)" );
-    if (mq.matches) {
-        wide_holder.appendChild(button);
-    } else {
-        mobile_holder.appendChild(button);
-    };
-}
-
 // global func for damage toggles. 
 function toggleDamage(elem_id, asset_id) {
     document.getElementById(elem_id).classList.toggle("damage_box_checked");

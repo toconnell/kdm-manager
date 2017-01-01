@@ -88,6 +88,7 @@ campaign_definitions = {
     "people_of_the_lantern": {
         "default": True,
         "name": "People of the Lantern",
+        "saviors": "1.3.1",
         "always_available": {
             "location": ["Lantern Hoard"],
             "innovation": ["Language"],
@@ -100,6 +101,7 @@ campaign_definitions = {
 
     "people_of_the_skull": {
         "name": "People of the Skull",
+        "saviors": "1.3.1",
         "always_available": {
             "location": ["Lantern Hoard"],
             "innovation": ["Language"],
@@ -129,6 +131,7 @@ campaign_definitions = {
 
     "the_bloom_people": {
         "name": "The Bloom People",
+        "saviors": "1.3.1",
         "always_available": {
             "location": ["Lantern Hoard"],
             "innovation": ["Language"],
@@ -199,6 +202,7 @@ campaign_definitions = {
     "people_of_the_stars": {
         "name": "People of the Stars",
         "expansions": ["dragon_king"],
+        "dragon_traits": "1.3.1",
         "always_available": {
             "location": ["Throne"],
             "innovation": ["Dragon Speech","Radiating Orb"],
