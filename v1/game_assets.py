@@ -1783,7 +1783,7 @@ items = {
     "Dragon Iron": {
         "expansion": "Dragon King",
         "location": "Dragon King Resources",
-        "resource_family": ["scrap","iron"],
+        "resource_family": ["scrap"],
     },
     "King's Tongue": {
         "expansion": "Dragon King",

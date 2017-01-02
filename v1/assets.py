@@ -672,10 +672,11 @@ class Survivor:
                 self.logger.warn("[%s] initializing survivor object without a Settlement..." % (self.User))
 
 
-    def save(self):
+    def save(self, quiet=False):
         """ Saves a survivor's self.survivor to the mdb. Logs it. """
         mdb.survivors.save(self.survivor)
-        self.logger.debug("[%s] saved changes to %s" % (self.User, self))
+        if not quiet:
+            self.logger.debug("[%s] saved changes to %s" % (self.User, self))
 
 
     def normalize(self):
@@ -789,8 +790,8 @@ class Survivor:
         for s in ["fighting_arts","abilities_and_impairments","disorders"]:
             self.survivor[s] = list(set(self.survivor[s]))
 
-        self.logger.debug("[%s] normalized %s" % (self.User, self))
-        self.save()
+#        self.logger.debug("[%s] normalized %s" % (self.User, self))
+        self.save(quiet=True)
 
 
     def new(self, params, name="Anonymous", sex="M"):
@@ -884,7 +885,7 @@ class Survivor:
             if params is not None and parent in params:
                 p_id = params[parent].value
                 if len(p_id.split(":")) >= 1:
-                    self.logger.debug(p_id)
+#                    self.logger.debug(p_id)
                     p_id = p_id.split(":")[1]
                 p_id = ObjectId(p_id)
                 parents.append(mdb.survivors.find_one({"_id": p_id})["name"])
@@ -3213,7 +3214,7 @@ class Settlement:
             self.update_timeline_with_story_events()
 
         self.enforce_data_model()
-        self.save()
+        self.save(quiet=True)
 
 
     def set_api_asset(self, refresh=False):
@@ -3361,7 +3362,7 @@ class Settlement:
                 n.set_attrs(s_dict["attribs"])
 
         self.save() # this is the LAST save
-        self.logger.debug("[%s] legacy settlement creation method compelte!" % (self.User))
+        self.logger.debug("[%s] legacy settlement creation method complete!" % (self.User))
 
         #
         #   settlement is initialized and saved; only API-based update methods
@@ -3388,10 +3389,11 @@ class Settlement:
         return settlement_id
 
 
-    def save(self):
+    def save(self, quiet=False):
         """ Saves the settlement. Logs it. """
         mdb.settlements.save(self.settlement)
-        self.logger.debug("[%s] saved changes to %s" % (self.User, self))
+        if not quiet:
+            self.logger.debug("[%s] saved changes to %s" % (self.User, self))
 
 
     def remove(self):
@@ -3569,7 +3571,7 @@ class Settlement:
         self.log_event("Settlement population automatically adjusted by %s" % amount)
         self.settlement["population"] = current_pop
         mdb.settlements.save(self.settlement)
-        self.logger.debug("[%s] auto-incremented settlement %s population by %s" % (self.User, self, amount))
+        self.logger.info("[%s] auto-incremented settlement %s population by %s" % (self.User, self, amount))
 
 
     def update_current_quarry(self, quarry_string):
@@ -3581,7 +3583,8 @@ class Settlement:
         self.settlement["current_quarry"] = quarry_string
         if quarry_string is not None:
             self.log_event("Current quarry is %s" % quarry_string)
-        self.logger.debug("%s set current_quarry = '%s' for %s." % (self.User.user["login"], quarry_string, self))
+
+        self.logger.info("[%s] set current_quarry = '%s' for %s." % (self.User, quarry_string, self))
 
 
     def first_story(self):
@@ -3599,9 +3602,16 @@ class Settlement:
             f = Survivor(params={"sex":"F"}, session_object=self.Session, suppress_event_logging=True)
             f.set_attrs({"Waist": 1})
             f.join_hunting_party()
-        self.update_current_quarry("White Lion (First Story)")
         self.log_event("Added four new survivors and Starting Gear to settlement storage")
 
+        self.update_current_quarry("White Lion (First Story)")
+        self.add_timeline_event({
+            "ly": self.get_ly(),
+            "user_login": self.User.user["login"],
+            "type": "showdown_event",
+            "name": "White Lion (First Story)",
+            })
+        self.logger.info("[%s] added 'First Story' assets to %s" % (self.User, self))
 
 
 
@@ -4943,6 +4953,11 @@ class Settlement:
     def add_timeline_event(self, event = {}):
         """ Interim/migration support method for V1. Wraps up an event into an
         API-safe dict and then uses the api.py module to POST it to the API. """
+
+        if event in self.get_timeline_events(ly=event["ly"],event_type=event["type"]):
+            self.logger.warn("[%s] attempting to add a duplicate event to %s timeline!" % (self.User, self))
+            self.logger.error("[%s] duplicate event was: %s" % (self.User, event) )
+            return False
 
         event["user_login"] = self.User.user["login"]
         response = api.post_JSON_to_route("/settlement/add_timeline_event/%s" % self.settlement["_id"], event)

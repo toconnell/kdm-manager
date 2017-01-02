@@ -5,6 +5,8 @@ from bson.objectid import ObjectId
 from copy import copy
 from datetime import datetime, timedelta
 import json
+import random
+import time
 
 import Models
 from models import campaigns, cursed_items, expansions, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events, locations
@@ -18,7 +20,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.22
+        self.object_version=0.23
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize_data()
 
@@ -28,8 +30,48 @@ class Settlement(Models.UserAsset):
 
         perform_save = False
 
+        founder = utils.mdb.users.find_one({"_id": self.settlement["created_by"]})
+
         #
-        #   timeline migrations
+        #       1.) low-level/basic functionality
+        #           misc migrations/operations
+        #
+        if not "admins" in self.settlement.keys():
+            self.logger.info("Creating 'admins' key for %s" % (self))
+            creator = utils.mdb.users.find_one({"_id": self.settlement["created_by"]})
+            self.settlement["admins"] = [creator["login"]]
+            perform_save = True
+        if not founder["login"] in self.settlement["admins"]:
+            self.settlement["admins"].append(founder["login"])
+            self.logger.debug("Adding founder '%s' to %s admins list." % (founder["login"], self))
+            perform_save = True
+        if not "expansions" in self.settlement.keys():
+            self.logger.info("Creating 'expansions' key for %s" % (self))
+            self.settlement["expansions"] = []
+            perform_save
+
+        #       get legacy settlement_notes real quick
+        if "settlement_notes" in self.settlement.keys():
+
+            self.logger.debug("Converting legacy 'settlement_notes' to mdb.settlement_notes doc!")
+
+            s = str(int(time.time())) + str(self.settlement["_id"])
+            bogus_id = ''.join(random.sample(s,len(s)))
+
+            note = {
+                "note": self.settlement["settlement_notes"].strip(),
+                "author": founder["login"],
+                "author_id": self.settlement["created_by"],
+                "js_id": bogus_id,
+                "lantern_year": self.get_current_ly(),
+            }
+            self.add_settlement_note(note)
+            del self.settlement["settlement_notes"]
+            perform_save = True
+
+
+        #
+        #       2.) timeline migrations
         #
         if not "timeline_version" in self.settlement.keys():
             self.convert_timeline_to_JSON()
@@ -50,18 +92,6 @@ class Settlement(Models.UserAsset):
             self.convert_expansions_to_handles()
             perform_save = True
 
-        #
-        #   misc migrations/operations
-        #
-        if not "admins" in self.settlement.keys():
-            self.logger.info("Creating 'admins' key for %s" % (self))
-            creator = utils.mdb.users.find_one({"_id": self.settlement["created_by"]})
-            self.settlement["admins"] = [creator["login"]]
-            perform_save = True
-        if not "expansions" in self.settlement.keys():
-            self.logger.info("Creating 'expansions' key for %s" % (self))
-            self.settlement["expansions"] = []
-            perform_save
 
         # finish
         if perform_save:
@@ -222,12 +252,18 @@ class Settlement(Models.UserAsset):
 
         if not e["type"] in t_object.keys():
             t_object[e["type"]] = []
-        t_object[e["type"]].append(e)
+
+        if not e in t_object[e["type"]]:
+            t_object[e["type"]].append(e)
+        else:
+            self.logger.warn("Ignoring attempt to add duplicate event to %s timeline!" % (self))
+            return False
 
         timeline.insert(t_index,t_object)
 
         self.settlement["timeline"] = timeline
 
+        self.logger.debug(t_object)
         if "user_login" in e.keys():
             self.log_event("%s added '%s' to Lantern Year %s" % (e["user_login"], e["name"], e["ly"]))
         else:
@@ -847,28 +883,100 @@ class Settlement(Models.UserAsset):
 
 
     def convert_timeline_to_JSON(self):
-        """ Converts our old, pseudo-JSON timeline to the standard JSON one. """
+        """ Converts our old, pseudo-JSON timeline to the standard JSON one.
+
+        The original/oldest legacy data model LY dictionaries look like this:
+
+            {
+                u'custom': [],
+                u'story_event': u'Returning Survivors',
+                u'year': 1
+            }
+
+        So, as we read individual LY dictionaries, bear in mind that each key
+        within the dict might have a string as a value, rather than a list.
+
+        Slightly less-fucked-up-looking LY dictionaries look like this:
+
+            {
+                u'quarry_event': [u'White Lion (First Story)'],
+                u'settlement_event': [u'First Day'],
+                u'year': 0
+            }
+
+        These are closer to what we want to have in the v1.0 timeline data
+        model, i.e. the LY dict keys have lists as their values. The lists
+        themselves aren't optimal, but they're closer to what we want.
+
+        """
 
         old_timeline = self.settlement["timeline"]
         new_timeline = []
 
         all_events = events.Assets()
 
-        for old_ly in old_timeline:
+        for old_ly in old_timeline:         # this is an ly dict
             new_ly = {}
             for k in old_ly.keys():
+                # k here is an event type key, such as 'quarry_event' or
+                # 'settlement_event' or whatever. In the JSON timeline model,
+                # each of these wants to be a key that points to a list, so
+                # we initialize an empty list to hold the key's events
 
-                if type(old_ly[k]) == list:
-                    event_type_list = []
-                    for event in old_ly[k]:
-                        event_dict = {"name": event}
-                        if event in all_events.get_names():
-                            event_dict.update(all_events.get_asset_from_name(event))
-                        event_type_list.append(event_dict)
-                    new_ly[k] = event_type_list
-                else:
+                event_type_list = []
+                if type(old_ly[k]) == int:
                     new_ly[k] = old_ly[k]
+
+                # handling for newer legacy timeline events
+                elif type(old_ly[k]) == list:
+                    for event in old_ly[k]:
+                        if type(event) == dict:
+                            event_type_list.append(event)
+                        else:
+                            event_dict = {"name": event}
+                            if event in all_events.get_names():
+                                event_dict.update(all_events.get_asset_from_name(event))
+                            event_type_list.append(event_dict)
+                    new_ly[k] = event_type_list
+
+                # this is original data model (see doc string note)
+                else:
+
+                    err_msg = "Error converting legacy timeline! '%s' is an unknown event type!" % k
+
+                    if k in ["settlement_event","story_event"]:
+                        e = all_events.get_asset_from_name(old_ly[k])
+                        if e is not None:
+                            event_type_list.append(e)
+                        else:
+                            try:
+                                event_root, event_parens = old_ly[k].split("(")
+                                e = all_events.get_asset_from_name(event_root)
+                                if e is not None:
+                                    event_type_list.append(e)
+                            except:
+                                self.logger.error("Could not convert all '%s' events! for %s" % (k,self))
+                                self.logger.error("Event value '%s' could not be converted!" % (old_ly[k]))
+                                raise Exception("Fatal legacy timeline event conversion error!")
+
+                    elif k in ["nemesis_encounter","quarry_event"]:
+                        event_dict = {"name": old_ly[k]}
+                        event_type_list.append(event_dict)
+
+                    else:
+                        self.logger.error(err_msg)
+                        raise Exception(err_msg)
+
+                    new_ly[k] = event_type_list
+
             new_timeline.append(new_ly)
+
+        # finally, make sure that LYs are sorted: order is significant here
+        sorting_hat = {}
+        for ly in new_timeline:
+            sorting_hat[int(ly["year"])] = ly
+        new_timeline = [sorting_hat[ly_key] for ly_key in sorted(sorting_hat.keys())]
+
 
         self.settlement["timeline"] = new_timeline
         self.settlement["timeline_version"] = 1.0

@@ -450,25 +450,28 @@ class angularJS:
             <span class="closeModal" onclick="closeModal('modalExpansionsManager')">×</span>
 
             <h3>Expansions!</h3>
-            <p>Use the controls below to determine which expansion content is
-            enabled for this campaign. Remember to save when finished!</p>
 
-            <form method="POST" action="#">
-                <div class="expansion_content_line_item" ng-repeat="x in new_settlement_assets.expansions">
-                    <input
-                        id="{{x.handle}}_modal_toggle"
-                        name="{{x.handle}}"
-                        type="checkbox"
-                        class="kd_css_checkbox kd_radio_option"
-                        ng-model=incomingExpansion
-                        ng-checked="arrayContains(x.handle, settlement_sheet.expansions)"
-                        ng-click="toggleExpansion(x.handle)"
-                    >
-                    <label for="{{x.handle}}_modal_toggle">{{x.name}}</label>
-                </div> <!-- line_item -->
+            <div class="expansions_controls_container">
+                <p>Use the controls below to determine which expansion content is
+                enabled for this campaign. Remember to save when finished!</p>
 
-                <button type="submit" class="kd_blue save_expansions">Save Changes and Reload</button>
-            </form>
+                <form method="POST" action="#">
+                    <div class="expansion_content_line_item" ng-repeat="x in new_settlement_assets.expansions">
+                        <input
+                            id="{{x.handle}}_modal_toggle"
+                            name="{{x.handle}}"
+                            type="checkbox"
+                            class="kd_css_checkbox kd_radio_option"
+                            ng-model=incomingExpansion
+                            ng-checked="arrayContains(x.handle, settlement_sheet.expansions)"
+                            ng-click="toggleExpansion(x.handle)"
+                        >
+                        <label for="{{x.handle}}_modal_toggle">{{x.name}}</label>
+                    </div> <!-- line_item -->
+
+                    <button type="submit" class="kd_blue save_expansions">Save Changes and Reload</button>
+                </form>
+            </div> <!-- container -->
         </div> <!-- modal content -->
     </div> <!-- parent modal -->
     """
@@ -673,7 +676,7 @@ class angularJS:
                     </table>
 
                 <hr/>
-                <center><button class="kd_blue" type="submit">Save and Refresh!</button></center>
+                <center><button class="kd_blue" type="submit">Save Changes and Reload!</button></center>
             </div> <!-- ng-if div -->
         </div><!-- full size modal panel -->
 
@@ -3458,30 +3461,28 @@ class settlement:
         <h2>Defeated Monsters</h2>
         <p>A list of defeated monsters and their level.</p>
 
-        <div>
-            <div
-                class="line_item"
-                ng-repeat="x in settlement_sheet.defeated_monsters track by $index"
-            >
-                <div> <!-- span holder -->
-                    <span class="bullet"></span>
-                    <span class="item" ng-click="rmDefeatedMonster($index, x)">
-                        {{x}}
-                    </span>
-                </div>
+        <div
+            class="line_item defeated_monsters_container"
+            ng-repeat="x in settlement_sheet.defeated_monsters track by $index"
+        >
+            <div> <!-- span holder -->
+                <span class="bullet"></span>
+                <span class="item" ng-click="rmDefeatedMonster($index, x)">
+                    {{x}}
+                </span>
             </div>
         </div>
 
-            <div class="line_item">
-                <span class="empty_bullet" /></span>
-                <select
-                    ng-model="dMonst"
-                    ng-change="addDefeatedMonster($index)"
-                    ng-options="d as d for d in settlement.game_assets.defeated_monsters ">
-                >
-                    <option selected disabled value="">Add Defeated Monster</option>
-                </select>
-            </div> <!-- line_item -->
+        <div class="line_item">
+            <span class="empty_bullet" /></span>
+            <select
+                ng-model="dMonst"
+                ng-change="addDefeatedMonster($index)"
+                ng-options="d as d for d in settlement.game_assets.defeated_monsters ">
+            >
+                <option selected disabled value="">Add Defeated Monster</option>
+            </select>
+        </div> <!-- line_item -->
 
     </div>
 

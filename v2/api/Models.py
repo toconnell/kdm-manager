@@ -82,6 +82,10 @@ class AssetCollection():
         By default, the mactching here is NOT case-sensitive: everything is
         forced to upper() to allow for more permissive matching/laziness. """
 
+        if type(name) not in [str,unicode]:
+            self.logger.error("get_asset_from_name() cannot proceed! '%s' is not a str or unicode object!" % name)
+            raise AssetInitError("The get_asset_from_name() method requires a str or unicode type name!")
+
         name = name.strip()
         if not case_sensitive:
             name = name.upper()
