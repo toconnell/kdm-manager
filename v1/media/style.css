@@ -1010,7 +1010,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     #floating_refresh_button {right: 10px; padding:8px; padding-left: 30px; padding-right: 30px; }
     #floating_dashboard_button { left: 10px; padding: 10px; padding-left: 30px; padding-right: 30px; }
 
-    input#survivor_sheet_survivor_name {font-size: 40pt; top: 60px; right: auto; left: 1%; top: 6%; text-align: left; padding-left: 30px; min-width: 0; }
+    input#survivor_sheet_survivor_name {font-size: 40pt; top: 60px; right: auto; left: 1%; top: 6%; text-align: left; padding-left: 30px; min-width: 0; margin-top: 10px; }
 
         /* left and middle split the screen in tablet; right is a sort of foot */
     div#asset_management_left_pane {float: left; width: 49%; }
@@ -1122,7 +1122,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     button#constellationModalOpener {width: auto; padding-right: 20px; padding-left:20px; margin-top: -686px; float: left; font-size: 17px;}
     div#asset_management_left_pane input.survivor_sex_text {width: 30px; }
 
-    div#epithet_angular {margin-top: 20%; }
+    div#epithet_angular {margin-top: 190px; }
     ul#epithet_angular_ul {margin-top: -30px;  }
 
     button#modalAffinityButton {height: 90px; background-color: #FFF; width: 115%; margin: auto; }
@@ -1474,7 +1474,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     button.dashboard_admin_panel_launch_button {position: fixed; top: 2%; right: 10%;}
 
     div.dashboard_alert_spacer {height: 80px; }
-    div.dashboard_alert {font-size: 10pt; left: 4%; right: auto; width: auto; max-width: 500px; height: auto; padding: 1%; line-height: 20px; }
+    div.dashboard_alert {font-size: 10pt; left: 40px; right: auto; width: auto; max-width: 500px; height: auto; padding: 1%; line-height: 20px; }
 
     div.about_panel {margin-bottom: 50px; }
     div#system_div {margin-top: -4px; padding-top: 10px; }
@@ -1520,7 +1520,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
         /* new survivor */
     div#modalNewSurvivorContainer form {width: 50%; }
-    div#modalNewSurvivorContainer input[type=file].new_survivor_avatar {font-size: 12pt; margin-left: 0; margin-top: -50px; }
+    div#modalNewSurvivorContainer input[type=file].new_survivor_avatar {font-size: 12pt; margin-left: 0; }
     div.create_user_asset_block_group input[type="email"] {font-size: 12pt; }
     button.add_new_survivor {width: auto; display:block; margin: 0 auto; padding: 1%; padding-left: 100px; padding-right: 100px;  }
 

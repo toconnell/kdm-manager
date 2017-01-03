@@ -42,6 +42,8 @@ def render_response(action, settlement_id):
             params = dict(request.get_json())
         except ValueError:
             params = request.get_json()
+#    else:
+#        logger.warn("Request contained no JSON payload!")
 
     if action == "get":
         return S.http_response()

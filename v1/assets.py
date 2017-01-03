@@ -3222,7 +3222,7 @@ class Settlement:
         gracelessly if it cannot: if we've got methods looking for API data,
         they need to scream bloody murder if they can't get it."""
 
-        self.logger.debug("[%s] setting API asset for %s..." % (self.User, self))
+#        self.logger.debug("[%s] setting API asset for %s..." % (self.User, self))
 
         cv = self.Session.get_current_view()
 

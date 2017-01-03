@@ -194,6 +194,7 @@ def crossdomain(origin=None, methods=None, headers=None, max_age=21600, attach_t
     if isinstance(max_age, timedelta):
         max_age = max_age.total_seconds()
 
+
     def get_methods():
         if methods is not None:
             return methods
@@ -212,7 +213,7 @@ def crossdomain(origin=None, methods=None, headers=None, max_age=21600, attach_t
 
             h = resp.headers
 
-            h['Access-Control-Allow-Origin'] = origin
+#            h['Access-Control-Allow-Origin'] = origin
             h['Access-Control-Allow-Methods'] = get_methods()
             h['Access-Control-Max-Age'] = str(max_age)
             if headers is not None:

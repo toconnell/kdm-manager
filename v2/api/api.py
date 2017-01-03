@@ -64,14 +64,16 @@ def cursed_items_json():
 
 
 @application.route("/settlement/<action>/<settlement_id>", methods=["POST","GET","OPTIONS"])
-@utils.crossdomain(origin='*',headers='Content-Type')
+@utils.crossdomain(origin=['*'],headers='Content-Type')
+#@utils.crossdomain(origin='*')
+#@utils.crossdomain(headers=['Content-Type'])
 def get_settlement(action, settlement_id):
     """ This is our major method for retrieving and updating settlements. """
     return settlement_route.render_response(action, settlement_id)
 
 
 @application.route("/new_settlement")
-@utils.crossdomain(origin='*')
+#@utils.crossdomain(origin='*')
 def get_new_settlement_assets():
     """ Returns JSON representation of available game assets required to create
     a new settlement. """
