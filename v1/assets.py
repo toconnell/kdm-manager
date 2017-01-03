@@ -3222,7 +3222,7 @@ class Settlement:
         gracelessly if it cannot: if we've got methods looking for API data,
         they need to scream bloody murder if they can't get it."""
 
-#        self.logger.debug("[%s] setting API asset for %s..." % (self.User, self))
+        self.logger.debug("[%s] setting API asset for %s..." % (self.User, self))
 
         cv = self.Session.get_current_view()
 
@@ -3240,6 +3240,8 @@ class Settlement:
             self.api_asset = self.Session.api_settlement
             if not "game_assets" in self.api_asset.keys():
                 self.logger.error("[%s] API asset for %s does not contain a 'game_assets' key!" % (self.User, self))
+        elif cv == "panel":
+            self.logger.warn("[%s] current view is admin panel. API asset was requested, but cannot be initialized!" % self.User)
 
         if not hasattr(self, "api_asset"):
             self.logger.warn("[%s] no API asset initialized for %s!" % (self.User, self))
@@ -3267,6 +3269,10 @@ class Settlement:
 
         if not hasattr(self, "api_asset"):
             self.set_api_asset()
+            if not hasattr(self, "api_asset"):
+                msg = "[%s] failed to initialize API asset for %s" % (self.User, self)
+                self.logger.error(msg)
+                raise AttributeError(msg)
 
         if asset_key is None:
             return {}

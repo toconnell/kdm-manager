@@ -542,7 +542,7 @@ class Panel:
             settlements = mdb.settlements.find({"created_by": User.user["_id"]}).sort("name")
             settlement_strings = []
             for s in settlements:
-                S = assets.Settlement(settlement_id=s["_id"], session_object=self.Session)
+                S = assets.Settlement(settlement_id=s["_id"], session_object=self.Session, update_mins=False)
                 settlement_strings.append(S.render_admin_panel_html())
 
             output += html.panel.user_status_summary.safe_substitute(

@@ -263,7 +263,6 @@ class Settlement(Models.UserAsset):
 
         self.settlement["timeline"] = timeline
 
-        self.logger.debug(t_object)
         if "user_login" in e.keys():
             self.log_event("%s added '%s' to Lantern Year %s" % (e["user_login"], e["name"], e["ly"]))
         else:

@@ -606,9 +606,13 @@ abilities_and_impairments = {
         "type": "severe_injury",
         "desc": "You can't catch a breath. Gain -1 movement token. Gain 1 bleeding token.",
     },
+    "Bleeding kidneys": {
+        "type": "severe_injury",
+        "desc": "Gain 2 bleeding tokens.",
+    },
     "Intestinal prolapse": {
         "type": "severe_injury",
-        "desc": "Your guy is gravely injured. You can no longer equip any gear on your waist, as it is too painful to wear. This injury is permanent, and can be recorded once. Gain 1 bleeding token.",
+        "desc": "Your gut is gravely injured. You can no longer equip any gear on your waist, as it is too painful to wear. This injury is permanent, and can be recorded once. Gain 1 bleeding token.",
         "max": 1,
     },
     "Warped Pelvis": {
