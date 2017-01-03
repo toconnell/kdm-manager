@@ -554,7 +554,7 @@ class World:
         monster_assets = monster_models.Assets()
         for m_handle in monster_assets.get_handles():
             m_asset = monster_assets.get_asset(m_handle)
-            killboard[m_asset["__type__"]][m_handle] = {"name": m_asset["name"], "count": 0, "sort_order": m_asset["sort_order"]}
+            killboard[m_asset["type"]][m_handle] = {"name": m_asset["name"], "count": 0, "sort_order": m_asset["sort_order"]}
         results = utils.mdb.killboard.find({"handle": {"$exists": True}, "type": {"$exists": True}})
         for d in results:
             killboard[d["type"]][d["handle"]]["count"] += 1
