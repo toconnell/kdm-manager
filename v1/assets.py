@@ -1065,7 +1065,7 @@ class Survivor:
             self.survivor["cause_of_death"] = cause_of_death
 
         if undo_death:
-            self.logger.debug("[%s] is resurrecting '%s'" % self.survivor["name"])
+            self.logger.debug("[%s] is resurrecting '%s'" % (self.User, self))
             for death_key in ["died_on","died_in","cause_of_death","dead"]:
                 try:
                     del self.survivor[death_key]
