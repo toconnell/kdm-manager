@@ -212,6 +212,7 @@ campaign_definitions = {
             "innovation": ["Language","Lantern Oven","Clan of Death","Family"],
         },
         "quarries": monster_assets.base_game_quarries,
+        "special_showdowns": ["the_tyrant"],
         "nemesis_monsters": ["butcher","kings_man","the_hand","the_tyrant"],
         "nemesis_encounters": [
             {"butcher":["Lvl 1"]},
