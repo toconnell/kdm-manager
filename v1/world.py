@@ -212,8 +212,10 @@ def api_settlement_to_html(s):
 
     settlement = s["value"]
 
-    exp_list = settlement["expansions"].split(",")
-    expansions = [e.replace("_"," ").strip().title() for e in exp_list]
+    expansions = []
+    if settlement["expansions"] is not None:
+        exp_list = settlement["expansions"].split(",")
+        expansions = [e.replace("_"," ").strip().title() for e in exp_list]
 
 
     output = '<ul title="%s"><li><b>%s</b></li>' % (s["comment"], settlement["name"])

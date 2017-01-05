@@ -977,8 +977,8 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     button.dashboard_admin_panel_launch_button {position: fixed; top: 1%; right: 1%; left: auto; width: 24%; font-family: Arial; }
     button.dashboard_settlement_name b.dashboard_settlement_name {font-size: 35px;}
 
-        /* dashboard_alert */
-    div.dashboard_alert_spacer {height: 60px; }
+        /* dashboard_alert - tablet */
+    div.dashboard_alert_spacer {height: 200px; }
     .dashboard_alert {font-size: 17pt; width: auto; left: 15%; right: 15%; }
 
     table.dashboard_table {width: 80%; margin-left: 20px;}
@@ -1274,7 +1274,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.settlement_sheet_principle_name {font-size: 25px; margin: auto; width: 400px; text-align: left; }
     div.unset_principle_container {margin:0; margin-left: 4%; margin-top: -15%; }
 
-    input.settlement_name {font-size: 70px; width: 800px; text-align: left; margin: 0; margin-left: 25px; }
+    input.settlement_name {font-size: 70px; width: 800px; text-align: left; margin: 0; margin-left: 25px; padding-top: 90px;}
     h1.alert {font-size: 35pt; }/* used by ABANDONED */
 
     div.settlement_form_wide_box { float: left; width: auto; height: 200px; margin: 0 auto; margin-left: 3%; margin-right: 5px; margin-bottom: 10px; padding-top: 0; display: flex; flex-direction: column-reverse; flex-flow: row-wrap; }
