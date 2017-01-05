@@ -568,7 +568,6 @@ class Survivor:
 
         self.suppress_event_logging = suppress_event_logging
         self.update_mins = update_mins
-
         self.damage_locations = [
             "brain_damage_light",
             "head_damage_heavy",
@@ -1063,6 +1062,7 @@ class Survivor:
         # do cause of death updates before we do anything else.
         if cause_of_death is not None:
             self.survivor["cause_of_death"] = cause_of_death
+            self.logger.debug("[%s] set %s cause of death to '%s'" % (self.User, self, cause_of_death))
 
         if undo_death:
             self.logger.debug("[%s] is resurrecting '%s'" % (self.User, self))
@@ -2382,6 +2382,21 @@ class Survivor:
             self.logger.error("[%s] unknown attribute type '%s' cannot be processed!" % (self.User, attrib_type))
 
 
+    def remove_survivor_attribute(self, attrib):
+        """ Tries to delete an attribute from a survivor's MDB document. Fails
+        gracefully if it cannot. Includes special handling for certain
+        attributes. """
+
+        if attrib == "in_hunting_party":
+            self.join_departing_survivors()
+        else:
+            try:
+                del self.survivor[attrib]
+                self.logger.debug("[%s] removed '%s' key from %s" % (self.User, attrib, self))
+            except:
+                self.logger.error("[%s] attempted to remove '%s' key from %s, but that key does not exist!" % self.User, attrib, self)
+
+
     def update_survivor_notes(self, action="add", note=None):
         """ Use this to add or remove notes. Works on strings, rather than IDs,
         for the sake of making the REST/form side of things simple. """
@@ -2499,12 +2514,19 @@ class Survivor:
             self.Settlement.add_weapon_mastery(self, mastery_string)
 
 
-    def join_hunting_party(self):
-        """ Adds a survivor to his settlement's hunting party and saves. """
-        self.survivor["in_hunting_party"] = "checked"
-        mdb.survivors.save(self.survivor)
-        self.Settlement.log_event("%s has joined the hunting party." % self.get_name_and_id(include_sex=True, include_id=False))
+    def join_departing_survivors(self):
+        """ Toggles whether the survivor is in the Departing Survivors group or
+        not. Watch out for biz logic here! """
 
+        if not "in_hunting_party" in self.survivor.keys():
+            self.survivor["in_hunting_party"] = "checked"
+            msg = "added %s to" % self
+        else:
+            del self.survivor["in_hunting_party"]
+            msg = "removed %s from" % self
+
+        self.Settlement.log_event("%s %s the Departing Survivors group." % (self.User.user["login"], msg))
+        self.logger.debug("[%s] %s the Departing Survivors group." % (self.User, msg))
 
 
     def is_savior(self):
@@ -2636,16 +2658,12 @@ class Survivor:
                     self.survivor["name"] = game_asset_key
             elif p == "email":
                 self.update_email(game_asset_key)
-            elif game_asset_key == "None":
-                del self.survivor[p]
-                if p == "in_hunting_party":
-                    self.Settlement.log_event("%s left the hunting party." % self)
             elif p == "Weapon Proficiency":
                 self.modify_weapon_proficiency(int(game_asset_key))
             elif p == "add_weapon_proficiency_type":
                 self.modify_weapon_proficiency(target_lvl=None, new_type=game_asset_key)
             elif p == "in_hunting_party":
-                self.join_hunting_party()
+                self.join_departing_survivors()
             elif p == "sex":
                 new_sex = game_asset_key.strip()[0].upper()
                 self.update_sex(new_sex)
@@ -2678,6 +2696,8 @@ class Survivor:
                 self.update_survival(game_asset_key)
             elif p in ["Insanity","Head","Arms","Body","Waist","Legs"]:
                 self.update_survivor_attribute(p, "base", game_asset_key)
+            elif game_asset_key == "None":
+                self.remove_survivor_attribute(p)
             else:
                 self.logger.debug("[%s] direct Survivor Sheet update: %s -> %s (%s)" % (self.User, p, game_asset_key, self))
                 self.survivor[p] = game_asset_key
@@ -2985,7 +3005,7 @@ class Survivor:
 
         survivor_survival_points = int(self.survivor["survival"])
         if survivor_survival_points > int(self.Settlement.settlement["survival_limit"]):
-            if 'Beta Challenge Scenarios' in self.Settlement.get_expansions():  # do not enforce survival limit if BCS is
+            if 'Beta Challenge Scenarios' in self.Settlement.get_expansions("list_of_names"):  # do not enforce survival limit if BCS is
                 pass                                                            # active
             else:
                 survivor_survival_points = int(self.Settlement.settlement["survival_limit"])
@@ -2996,9 +3016,7 @@ class Survivor:
             if flag in self.survivor.keys():
                 flags[flag] = self.survivor[flag]
 
-        exp = []
-        if "expansions" in self.Settlement.settlement.keys():
-            exp = self.Settlement.settlement["expansions"]
+        exp = self.Settlement.get_expansions("list_of_names")
 
         # fighting arts widgets
         fighting_arts_picker = FightingArts.render_as_html_dropdown(exclude=self.survivor["fighting_arts"], Settlement=self.Settlement)
@@ -3603,11 +3621,11 @@ class Settlement:
         for i in range(2):
             m = Survivor(params=None, session_object=self.Session, suppress_event_logging=True)
             m.set_attrs({"Waist": 1})
-            m.join_hunting_party()
+            m.join_departing_survivors()
         for i in range(2):
             f = Survivor(params={"sex":"F"}, session_object=self.Session, suppress_event_logging=True)
             f.set_attrs({"Waist": 1})
-            f.join_hunting_party()
+            f.join_departing_survivors()
         self.log_event("Added four new survivors and Starting Gear to settlement storage")
 
         self.update_current_quarry("White Lion (First Story)")
@@ -5300,7 +5318,7 @@ class Settlement:
         for asset_key in asset_deck:
             if asset_key in Asset.get_keys() and "expansion" in Asset.get_asset(asset_key).keys():
                 if "expansions" in self.settlement.keys():
-                    if Asset.get_asset(asset_key)["expansion"] not in self.settlement["expansions"]:
+                    if Asset.get_asset(asset_key)["expansion"] not in self.get_expansions("list_of_names"):
                         final_list.remove(asset_key)
                 else:   # if we've got no expansions, don't show any expansion stuff
                     final_list.remove(asset_key)

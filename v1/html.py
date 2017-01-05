@@ -1093,7 +1093,14 @@ class survivor:
          <input type="hidden" name="asset_id" value="$survivor_id" />
          <input type="hidden" name="view_game" value="$settlement_id" />
          <input type="hidden" name="in_hunting_party" value="$hunting_party_checked"/>
-         <button class="add_survivor_to_party orange $able_to_hunt $disabled" $able_to_hunt $disabled>::</button>
+            <button
+                onclick="showFullPageLoader()"
+                class="add_survivor_to_party orange $able_to_hunt $disabled"
+                $able_to_hunt
+                $disabled
+            >
+                ::
+            </button>
         </form>
 
         <form method="POST" action="#">
@@ -1146,7 +1153,7 @@ class survivor:
 
             <input
                 id="survivor_sheet_survivor_name"
-                type="text" name="name" value="$name"
+                type="text" name="name" value="{{survivor.name}}"
                 placeholder="Survivor Name"
                 onchange="updateAssetAttrib(this, 'survivor', '$survivor_id')"
                 onClick="this.select()"
@@ -1327,7 +1334,9 @@ class survivor:
             </a>
 
             <h3>Bonuses</h3>
-            $settlement_buffs
+            <div class="survivor_sheet_survivor_settlement_bonuses">
+                $settlement_buffs
+            </div>
             <hr/>
             <h3>Survivor Notes</h3>
             $survivor_notes
@@ -3924,6 +3933,9 @@ class meta:
     \n"""
     error_report_email = Template("""\n\
     Greetings!<br/><br/>&ensp;User $user_email [$user_id] has submitted an error report!<br/><br/>The report goes as follows:<hr/>$body<hr/>&ensp;...and that's it. Good luck!<br/><br/>Your friend,<br/>&ensp; meta.error_report_email
+    \n""")
+    view_render_fail_email = Template("""\n
+    Greetings!<br/><br/>&ensp;User $user_email [$user_id] was logged out of the webapp instance on <b>$hostname</b> due to a render failure at $error_time.<br/><br/>&ensp;The traceback from the exception was this:<hr/><code>$exception</code><hr/>&ensp;The session object was this:<hr/><code>$session_obj</code><hr/>&ensp;Good hunting!<br/><br/>Your friend,<br/>meta.view_render_fail_email()
     \n""")
     safari_warning = Template("""\n\
     <div class="safari_warning">

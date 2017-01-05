@@ -73,7 +73,7 @@ def get_settlement(action, settlement_id):
 
 
 @application.route("/new_settlement")
-#@utils.crossdomain(origin='*')
+@utils.crossdomain(origin=['*'])
 def get_new_settlement_assets():
     """ Returns JSON representation of available game assets required to create
     a new settlement. """

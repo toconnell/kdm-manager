@@ -42,7 +42,7 @@ class Model:
         if Settlement is not None:
             for asset_key in keys:
                 asset_dict = self.get_asset(asset_key)
-                if "expansion" in asset_dict.keys() and asset_dict["expansion"] not in Settlement.get_expansions():
+                if "expansion" in asset_dict.keys() and asset_dict["expansion"] not in Settlement.get_expansions("list_of_names"):
                     keys.remove(asset_key)
         return keys
 
@@ -185,7 +185,7 @@ class Model:
         excluded_assets = []
         if Settlement is not None:
             for asset in options:
-                if "expansion" in self.get_asset(asset).keys() and self.get_asset(asset)["expansion"] not in Settlement.get_expansions():
+                if "expansion" in self.get_asset(asset).keys() and self.get_asset(asset)["expansion"] not in Settlement.get_expansions("list_of_names"):
                     excluded_assets.append(asset)
                 if asset in Settlement.get_campaign("dict")["forbidden"]:
                     excluded_assets.append(asset)
@@ -283,7 +283,7 @@ class disordersModel(Model):
         self.name = "disorder"
 
     def build_asset_deck(self, Settlement):
-        expansions = Settlement.get_expansions()
+        expansions = Settlement.get_expansions("list_of_names")
         deck = []
         for disorder in game_assets.disorders.keys():
             d_dict = self.get_asset(disorder)
@@ -324,11 +324,8 @@ class fightingArtsModel(Model):
 		# remove non-enabled expansion content from the deck
         for fa in sorted(fa_deck):
             if "expansion" in self.get_asset(fa):
-                if "expansions" not in Settlement.settlement.keys():
+                if self.get_asset(fa)["expansion"] not in Settlement.get_expansions("list_of_names"):
                     fa_deck.remove(fa)
-                elif "expansions" in Settlement.settlement.keys():
-                    if self.get_asset(fa)["expansion"] not in Settlement.settlement["expansions"]:
-                        fa_deck.remove(fa)
 
 		# add always_available/remove forbidden items to the deck
         fa_deck.extend(self.get_always_available(Settlement))

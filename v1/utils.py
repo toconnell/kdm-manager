@@ -258,7 +258,8 @@ def record_response_time(view_name=None, tdelta=None):
     old_record_query = {"created_on": {"$lt": seven_days_ago}}
     removed_records = mdb.response_times.remove(old_record_query)
     if removed_records["n"] >= 1:
-        logger.info("Found and removed %s old response time records!" % removed_records["n"])
+#        logger.info("Found and removed %s old response time records!" % removed_records["n"])
+        pass
 
 
 

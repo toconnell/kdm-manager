@@ -6,6 +6,7 @@ from datetime import datetime
 import json
 import os
 import random
+import socket
 import string
 import sys
 import traceback
@@ -39,8 +40,10 @@ def current_view_failure(func):
             if not self.User.is_admin():
                 self.logger.warn("[%s] user is not an application admin. Ending session!" % (self.User))
                 self.log_out()
+                self.email_render_error(traceback=tb)
             else:
                 self.logger.warn("[%s] user is an application admin. Preserving session." % self.User)
+
             tb = traceback.format_exc().replace("    ","&ensp;").replace("\n","<br/>")
             print html.meta.error_500.safe_substitute(msg=err_msg, exception=tb)
             sys.exit(255)
@@ -385,6 +388,31 @@ class Session:
         )
         self.logger.warn("[%s] Error report email sent!" % self.User)
 
+    def email_render_error(self, traceback=None):
+        """ Uses the attributes of the session to send an email when a user's
+        current view fails to render. """
+
+        admins = settings.get("application","admin_email").split(",")
+
+
+        session_as_html = "<br/>".join(["&ensp; %s -> %s" % (k,v) for k,v in self.session.iteritems()])
+
+        M = mailSession()
+        email_msg = html.meta.view_render_fail_email.safe_substitute(
+            user_email=self.User.user["login"],
+            user_id=self.User.user["_id"],
+            exception=traceback,
+            hostname=socket.gethostname(),
+            error_time=datetime.now(),
+            session_obj=session_as_html,
+        )
+        M.send(
+            recipients=admins,
+            html_msg=email_msg,
+            subject="KDM-Manager Render Failure! [%s]" % socket.gethostname(),
+#            reply_to=self.User.user["login"],
+        )
+        self.logger.warn("[%s] Current view render failure email sent!" % self.User)
 
 
     @process_params_failure

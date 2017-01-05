@@ -212,9 +212,13 @@ def api_settlement_to_html(s):
 
     settlement = s["value"]
 
+    exp_list = settlement["expansions"].split(",")
+    expansions = [e.replace("_"," ").strip().title() for e in exp_list]
+
+
     output = '<ul title="%s"><li><b>%s</b></li>' % (s["comment"], settlement["name"])
     output += "<li><i>%s</i></li>" % settlement["campaign"]
-    output += "<li>Expansions: %s</li>" % settlement["expansions"]
+    output += "<li>Expansions: %s</li>" % ", ".join(expansions)
     output += "<li>Players: %s</li>" % settlement["player_count"]
     output += "<li>Created on: %s</li>" % datetime.fromtimestamp(settlement["created_on"]["$date"]/1000).strftime(ymd)
     output += "<li>Population: %s</li>" % settlement["population"]

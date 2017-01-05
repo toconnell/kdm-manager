@@ -37,7 +37,7 @@ import utils
 
 class World:
 
-    def __init__(self):
+    def __init__(self, query_debug=False):
         """ Initializing a World object doesn't get you much beyond the ability
         to call the methods below. Typically you shouldn't initialize one of
         these unless you're trying to update warehoused data or maybe get info
@@ -48,11 +48,13 @@ class World:
         output, check the self.list() method. """
 
         self.logger = utils.get_logger(settings.get("world","log_level"))
+        self.query_debug = query_debug
         self.assets = world_assets.general
 
         # common list of banned names (across all collections)
         # maybe this should come from a config file?
         self.ineligible_names = [
+            "-",                                # the 'blank' cause of death
             "test","Test","TEST",
             "unknown", "Unknown","UNKNOWN",
             "Anonymous","anonymous",
@@ -341,16 +343,26 @@ class World:
         """ Assuming that 'collection' documents have a 'doc_attrib' attribute, this
         will return the top five most popular names along with their counts. """
 
+
+        query = {doc_attrib: {"$nin": self.ineligible_names, "$exists": True}}
+
+        if self.query_debug:
+            self.logger.debug("MDB  name:   %s" % utils.mdb.name)
+            self.logger.debug("MDB query:   %s" % query)
+
         results = utils.mdb[collection].group(
-            [doc_attrib],
-            {doc_attrib: {"$nin": self.ineligible_names, "$exists": True}},
-            {"count": 0},
-            "function(o, p){p.count++}"
+            [doc_attrib], query, {"count": 0}, "function(o, p){p.count++}"
         )
+
+
         sorted_list = sorted(results, key=lambda k: k["count"], reverse=True)
         for i in sorted_list:
             i["value"] = i[doc_attrib]
             i["count"] = int(i["count"])
+
+        if self.query_debug:
+            self.logger.debug("MDB results: %s" % sorted_list)
+
         return sorted_list[:limit]
 
 
@@ -893,7 +905,10 @@ if __name__ == "__main__":
     if options.asset:
         print(W.dump(options.asset))
     if options.query:
+        W.query_debug=True
+        W.logger.info("Manually executing query '%s' from CLI..." % (options.query))
         print(W.do_query(options.query))
+        print("\n\tSee '%s' for complete query debug info!\n" % (W.logger.handlers[0].baseFilename))
     if options.list:
         print(W.list("keys_cli"))
 
