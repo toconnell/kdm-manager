@@ -6,6 +6,13 @@ function savedAlert() {
     $('#saved_dialog').fadeOut(1800);
 };
 
+function errorAlert() {
+    console.log("here!");
+    $('#error_dialog').fadeIn(500);
+    $('#error_dialog').show();
+    $('#error_dialog').fadeOut(5000);
+};
+
 function showFullPageLoader() {
     $('#fullPageLoader').show();
 };
@@ -126,7 +133,6 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
         res.error(function(data, status, headers, config) {
             errorAlert();
             console.log("API POST FAILURE!!!");
-            console.log(data);
         });
     };
 
@@ -332,7 +338,22 @@ app.controller('timelineController', function($scope, $rootScope) {
 
 
     $scope.showHideControls = function(ly) { 
-        var hidden_controls = document.getElementById('timelineControlsLY' + ly);
+        elem_id='timelineControlsLY' + ly;
+
+        var hidden_controls = document.getElementById(elem_id);
+//        console.log(elem_id);
+//        console.log("hidden controls = " + hidden_controls);
+
+        if (hidden_controls === undefined) {
+            console.warn('Hidden element is undefined!');
+            return false
+        } else if (hidden_controls === null && $scope.user_is_settlement_admin != true) {
+            console.warn('Timeline controls are hidden! ' + $scope.user_login + ' admin status: ' + $scope.user_is_settlement_admin );
+            return false;
+        } else if (hidden_controls === null && $scope.user_is_settlement_admin == true) {
+            console.error("Div ID " + elem_id + " is null! Timeline admin controls cannot be displayed!");
+        };
+
         if (hidden_controls.style.display == 'none') {
             hidden_controls.style.height = 'auto';
             hidden_controls.style.display = 'flex';

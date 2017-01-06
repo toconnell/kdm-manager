@@ -20,7 +20,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.23
+        self.object_version=0.24
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize_data()
 
@@ -444,7 +444,7 @@ class Settlement(Models.UserAsset):
 
         sorting_hat = {}
         for p in all_principles.keys():
-            sorting_hat[all_principles[p]["sort_order"]] = I.get_principle_from_name(p)
+            sorting_hat[all_principles[p]["sort_order"]] = all_principles[p]
 
         output = []
         for n in sorted(sorting_hat.keys()):

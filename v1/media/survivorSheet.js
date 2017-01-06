@@ -1,6 +1,6 @@
 
 
-app.controller("cursedItemsController", function($scope, $sce) {
+app.controller("cursedItemsController", function($scope) {
 
     $scope.getAI = function(ai_handle) {
         var ai = $scope.settlement.game_assets.abilities_and_impairments;
@@ -9,6 +9,18 @@ app.controller("cursedItemsController", function($scope, $sce) {
 
 });
 
+app.controller("sotfRerollController", function($scope) {
+
+    $scope.sotfToggle = function() {
+//        console.log($scope.sotf_reroll_toggle);
+//        js_obj = {"sotf_reroll": $scope.sotf_reroll_toggle};
+//        $scope.postJSONtoAPI('survivor', 'update_survivor', js_obj);
+        params="sotf_reroll=" + $scope.sotf_reroll_toggle;
+        modifyAsset("survivor", $scope.survivor._id.$oid, params);
+
+    };
+
+});
 
 
 app.controller("attributeController", function($scope) {

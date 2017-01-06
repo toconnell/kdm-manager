@@ -422,7 +422,18 @@ class dashboard:
 
     # misc html assets
 
-    refresh_button = '\t\t<form method="POST" action="#">\n\t\t\t<button id="floating_refresh_button" class="touch_me">\n\t\t\t\t %s\n\t\t\t</button>\n\t\t</form>\n' % refresh_flash
+    refresh_button = """\n
+    <form method="POST" action="/">
+        <button
+            id="floating_refresh_button"
+            class="touch_me"
+            onclick="showFullPageLoader()"
+        >
+            %s
+        </button>
+    </form>
+    """ % refresh_flash
+
     view_asset_button = Template("""\n\
     <form method="POST" action="#">
     <input type="hidden" name="view_$asset_type" value="$asset_id" />
@@ -676,7 +687,11 @@ class angularJS:
                     </table>
 
                 <hr/>
-                <center><button class="kd_blue" type="submit">Save Changes and Reload!</button></center>
+                <form action="/">
+                    <center>
+                        <button class="kd_blue" type="submit">Save Changes and Reload!</button>
+                    </center>
+                </form>
             </div> <!-- ng-if div -->
         </div><!-- full size modal panel -->
 
@@ -899,11 +914,12 @@ class angularJS:
                     </div>
                 </div>
 
+
                 <div
                     id="timelineControlsLY{{t.year}}"
                     style="display: none; height: 0;"
                     class="timeline_hidden_controls_container"
-                    ng-if="user_is_settlement_admin"
+                    ng-if="user_is_settlement_admin == true;"
                 >
 
                     <select
@@ -1631,6 +1647,32 @@ class survivor:
         <div id="survivor_sheet_right_pane">
 
         <!-- EXPANSION ATTRIBUTES ; PARTNER CONTROLS -->
+
+        <div
+            class="sotf_reroll_controls"
+            ng-if="arrayContains('Survival of the Fittest', settlement_sheet.principles)"
+            ng-controller="sotfRerollController"
+        >
+
+        <input
+            id="sotfRerollCheckbox"
+            type="checkbox"
+            class="kd_css_checkbox kd_radio_option"
+            ng-model="sotf_reroll_toggle"
+            ng-checked="survivor.sotf_reroll == true"
+            ng-click="sotfToggle()"
+        />
+        <label
+            for="sotfRerollCheckbox"
+        >
+        Once per lifetime reroll
+        <p class="sotf_reroll_caption">
+            <b>Survival of the fittest:</b> Once per lifetime, a survivor may
+            reroll a single roll result. They must keep this result.</b>
+        </p>
+        </label>
+
+        </div> <!-- sotf reroll -->
 
 
         $expansion_attrib_controls
@@ -3853,7 +3895,15 @@ class meta:
             Saved!
         </div>
     </div>
+
+    <div id="error_dialog" class="saved_dialog_frame" style="">
+        <div class="kd_alert_no_exclaim saved_dialog_inner">
+            <span class="error_dialog_cap">E</span>
+            <b>An Error Occurred!</b>
+        </div>
+    </div>
     \n"""
+
     full_page_loader = """\n
     <div id="fullPageLoader" class="full_page_loading_spinner">
         <img class="full_page_loading_spinner" src="/media/loading_io.gif">
@@ -3923,6 +3973,7 @@ class meta:
                     </form>
                 </div>
                 </p>
+                <p>Please note that until KD:M 1.5 and/or AKD:M are released, the Manager will continues to use <u>all available 1.4n rules plus any errata or corrections from the FAQ</u> on <a href="http://kingdomdeath.com" target="top">http://kingdomdeath.com</a>.</p>
                 <p><b>General Comments/Questions:</b> use <a href="http://kdm-manager.blogspot.com//" target="top">the Development blog at blog.kdm-manager.com</a> to review change logs, make comments and ask questions about the manager.</p>
                 <p><b>Source code and development questions:</b> if you're interested, you can clone/download and review the <a href="https://github.com/toconnell/kdm-manager" target="top">source code for the manager</a> from GitHub. <a href="https://github.com/toconnell/kdm-manager/wiki" target="top">The development wiki</a> also has some good stuff.</p>
                 <p><b>Issues and Errors:</b> feel free to mention any issues/errors on the blog comments or, if you use GitHub, you may also submit issues to <a href="https://github.com/toconnell/kdm-manager/issues" target="top">the project's issues tracker</a>.</p>

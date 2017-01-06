@@ -2614,7 +2614,14 @@ class Survivor:
             game_asset_key = params[p]
             if type(params[p]) != list and p not in ignore_keys:
                 game_asset_key = params[p].value.strip()
-#                self.logger.debug("%s -> '%s' (type=%s)" % (p, game_asset_key, type(params[p])))
+                if game_asset_key == 'true':
+                    game_asset_key = True
+                elif game_asset_key == 'false':
+                    game_asset_key = False
+                else:
+                    pass
+
+                self.logger.debug("%s -> '%s' (type=%s)" % (p, game_asset_key, type(params[p])))
 
             if p in ignore_keys:
                 pass
@@ -5739,11 +5746,10 @@ class Settlement:
         for principle in self.settlement["principles"]:
             principle_dict = Innovations.get_asset(principle)
             if "type" in principle_dict.keys() and principle_dict["type"] == "principle" and "milestone" in principle_dict.keys():
-                self.settlement["milestone_story_events"].append(principle_dict["milestone"])
-                msg = "utomatically marking milestone story event '%s' due to selection of related principle, '%s'." % (principle_dict["milestone"], principle)
-                self.logger.debug("[%s] a%s" % (self.User, msg))
-                self.log_event("A%s" % (msg))
-
+                if principle_dict["milestone"] not in self.settlement["milestone_story_events"]:
+                    self.settlement["milestone_story_events"].append(principle_dict["milestone"])
+                    msg = "utomatically marking milestone story event '%s' due to selection of related principle, '%s'." % (principle_dict["milestone"], principle)
+                    self.log_event("A%s" % (msg))
 
         # update mins will call self.enforce_data_model() and save
         self.update_mins()

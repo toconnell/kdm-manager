@@ -23,7 +23,7 @@ app.controller ("survivorSearchController", function($scope) {
         if ($scope.user_is_settlement_admin == true) { return true;}
         else if ($scope.user_login == s.email) { return true;}
         else { s._id = ''; return false };
-        return s._id = ''; false;
+        return false;
     };
 
 });
