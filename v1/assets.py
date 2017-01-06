@@ -242,7 +242,6 @@ class User:
 
         user_admin_log_dict["msg"] = user_admin_log_dict["msg"].strip()
         mdb.user_admin.insert(user_admin_log_dict)
-        self.logger.debug(self.user)
         self.logger.debug("%s updated preferences." % self.user["login"])
 
 
