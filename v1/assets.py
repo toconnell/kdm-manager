@@ -232,12 +232,17 @@ class User:
         for p in self.preference_keys:  # this is created when we __init__()
             if p in params:
                 p_value = params[p].value
-                self.user["preferences"][p] = bool(p_value)
+                if p_value == "True":
+                    p_value = True
+                elif p_value == "False":
+                    p_value = False
+                self.user["preferences"][p] = p_value
                 user_admin_log_dict["msg"] += "'%s' -> %s; " % (p, p_value)
                 self.logger.debug("[%s] set preference '%s' -> '%s'" % (self, p, p_value))
 
         user_admin_log_dict["msg"] = user_admin_log_dict["msg"].strip()
         mdb.user_admin.insert(user_admin_log_dict)
+        self.logger.debug(self.user)
         self.logger.debug("%s updated preferences." % self.user["login"])
 
 
