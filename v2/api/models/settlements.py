@@ -222,14 +222,25 @@ class Settlement(Models.UserAsset):
         #
         for e_handle in e_list:
             e_dict = E.get_asset(e_handle)
-            self.log_event("Removing '%s' expansion content!" % e_dict["name"])
+            self.log_event("Removing '%s' (%s) expansion content!" % (e_dict["name"], e_dict["handle"]))
 
             self.settlement["expansions"].remove(e_handle)
 
-            if "timeline_add" in e_dict.keys():
-               [self.rm_timeline_event(e) for e in e_dict["timeline_add"] if e["ly"] >= self.get_current_ly()]
-            if "timeline_rm" in e_dict.keys():
-               [self.add_timeline_event(e) for e in e_dict["timeline_rm"] if e["ly"] >= self.get_current_ly()]
+            try:
+                if "timeline_add" in e_dict.keys():
+                   [self.rm_timeline_event(e) for e in e_dict["timeline_add"] if e["ly"] >= self.get_current_ly()]
+            except Exception as e:
+                self.logger.error("Could not remove timeline events for %s expansion!" % e_dict["name"])
+                self.logger.exception(e)
+                raise
+            try:
+                if "timeline_rm" in e_dict.keys():
+                   [self.add_timeline_event(e) for e in e_dict["timeline_rm"] if e["ly"] >= self.get_current_ly()]
+            except Exception as e:
+                self.logger.error("Could not add previously removed timeline events for %s expansion!" % e_dict["name"])
+                self.logger.exception(e)
+                raise
+
             self.logger.info("Removed '%s' expansion from %s" % (e_dict["name"], self))
 
         self.logger.info("Successfully removed %s expansions from %s" % (len(e_list), self))
