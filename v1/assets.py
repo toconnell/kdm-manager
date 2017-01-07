@@ -3633,10 +3633,12 @@ class Settlement:
             m = Survivor(params=None, session_object=self.Session, suppress_event_logging=True)
             m.set_attrs({"Waist": 1})
             m.join_departing_survivors()
+            m.save()
         for i in range(2):
             f = Survivor(params={"sex":"F"}, session_object=self.Session, suppress_event_logging=True)
             f.set_attrs({"Waist": 1})
             f.join_departing_survivors()
+            f.save()
         self.log_event("Added four new survivors and Starting Gear to settlement storage")
 
         self.update_current_quarry("White Lion (First Story)")
