@@ -412,7 +412,10 @@ class Settlement(Models.UserAsset):
         base_options = set(base_options)
         for l in sorted(base_options):
             loc_asset = L.get_asset_from_name(l)
-            final_list.append(loc_asset)
+            if loc_asset is not None:
+                final_list.append(loc_asset)
+            else:
+                self.logger.error("None type location asset retrieved for handle '%s'" % l)
 
         return final_list
 
