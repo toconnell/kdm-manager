@@ -5121,9 +5121,9 @@ class Settlement:
             for attrib in d.keys():
                 self.logger.debug("Attrib: '%s' ; Value: %s (%s)" % (attrib, d[attrib], type(d[attrib])))
                 if action == "increment":
-                    s[attrib] = s[attrib] + int(d[attrib])
+                    s[attrib] = int(s[attrib]) + d[attrib]
                 elif action == "decrement":
-                    s[attrib] = s[attrib] - int(d[attrib])
+                    s[attrib] = int(s[attrib]) - d[attrib]
             self.logger.debug("[%s] automatically %sed %s: %s" % (self.User, action, s["name"], d))
             mdb.survivors.save(s)
         d_string = ["%s: %s" % (attrib, value) for attrib,value in d.iteritems()]
