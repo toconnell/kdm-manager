@@ -294,7 +294,7 @@ class Settlement(Models.UserAsset):
 
         timeline.remove(t_object)
         for i in t_object[e["type"]]:
-            if e["name"] == i["name"]:
+            if "name" in i.keys() and e["name"] == i["name"]:
                 t_object[e["type"]].remove(i)
                 break
         timeline.insert(t_index, t_object)
