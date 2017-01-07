@@ -5090,6 +5090,9 @@ class Settlement:
 
         if election != "UNSET":
             election = principle["options"][election]
+            if election["name"] in self.settlement["principles"]:
+                self.logger.warn("[%s] attempting to set principle that is already set!" % self.User)
+                return None
 
         # this is our UNSET logic
         for o_handle in principle["option_handles"]:
@@ -5117,9 +5120,9 @@ class Settlement:
         for s in self.get_survivors():
             for attrib in d.keys():
                 if action == "increment":
-                    s[attrib] = s[attrib] + d[attrib]
+                    s[attrib] = s[attrib] + int(d[attrib])
                 elif action == "decrement":
-                    s[attrib] = s[attrib] - d[attrib]
+                    s[attrib] = s[attrib] - int(d[attrib])
                 self.logger.debug("[%s] automatically %sed %s: %s" % (self.User, action, s["name"], d))
             mdb.survivors.save(s)
         d_string = ["%s: %s" % (attrib, value) for attrib,value in d.iteritems()]
