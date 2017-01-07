@@ -84,13 +84,31 @@ def get_percentage(part, whole):
         return 100 * round(float(part)/float(whole), 2)
 
 
+def sort_timeline(timeline):
+    """ Returns a sorted timeline. """
+    sorting_hat = {}
+    for ly in timeline:
+        sorting_hat[int(ly["year"])] = ly
+    return [sorting_hat[ly_key] for ly_key in sorted(sorting_hat.keys())]
+
+
 def get_timeline_index_and_object(timeline,lantern_year):
     """ Input a timeline and a target ly; get the index of that year and the
-    year (as a JSON object i.e. list of dicts) back. """
+    year (as a JSON object i.e. list of dicts) back.
 
-    for t in timeline:
-        if t["year"] == int(lantern_year):
-            return timeline.index(t), t
+    If it can't find a year, it adds it. """
+
+    def get_ly():
+        for t in timeline:
+            if t["year"] == int(lantern_year):
+                return timeline.index(t), t
+
+    if get_ly() is None:
+        timeline.append({"year": lantern_year})
+        timeline = sort_timeline(timeline)
+        return get_ly()
+    else:
+        return get_ly()
 
 
 # general usage methods

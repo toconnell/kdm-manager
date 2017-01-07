@@ -252,7 +252,13 @@ class Settlement(Models.UserAsset):
         containing the whole event's data: no lookups here. """
 
         timeline = self.settlement["timeline"]
-        t_index, t_object = utils.get_timeline_index_and_object(timeline, e["ly"]);
+        try:
+            t_index, t_object = utils.get_timeline_index_and_object(timeline, e["ly"]);
+        except Exception as excep:
+            self.logger.error("Timeline event cannot be processed: %s" % e)
+            self.logger.exception(excep)
+            return False
+
 
         timeline.remove(t_object)
 
@@ -290,12 +296,23 @@ class Settlement(Models.UserAsset):
         use this to remove custom events. """
 
         timeline = self.settlement["timeline"]
-        t_index, t_object = utils.get_timeline_index_and_object(timeline, e["ly"]);
+        try:
+            t_index, t_object = utils.get_timeline_index_and_object(timeline, e["ly"]);
+        except Exception as excep:
+            self.logger.debug(timeline)
+            self.logger.error("Timeline event cannot be processed: %s" % e)
+            self.logger.exception(excep)
+            return False
+
 
         success = False
         timeline.remove(t_object)
         for i in t_object[e["type"]]:
             if "name" in i.keys() and "name" in e.keys() and e["name"] == i["name"]:
+                t_object[e["type"]].remove(i)
+                success = True
+                break
+            elif "handle" in i.keys() and "handle" in e.keys() and e["handle"] == i["handle"]:
                 t_object[e["type"]].remove(i)
                 success = True
                 break
@@ -305,12 +322,17 @@ class Settlement(Models.UserAsset):
         if success:
             timeline.insert(t_index, t_object)
             self.settlement["timeline"] = timeline
+            self.logger.debug("Removed %s from %s timeline!" % (e, self))
             self.save()
 
-            if "user_login" in e.keys():
-               self.log_event("%s removed '%s' from Lantern Year %s" % (e["user_login"], e["name"], e["ly"]))
-            else:
-                self.log_event("Automatically removed '%s' from Lantern Year %s" % (e["name"], e["ly"]))
+            try:
+                if "user_login" in e.keys():
+                   self.log_event("%s removed '%s' from Lantern Year %s" % (e["user_login"], e["name"], e["ly"]))
+                else:
+                    self.log_event("Automatically removed '%s' from Lantern Year %s" % (e["name"], e["ly"]))
+            except Exception as excep:
+                self.logger.error("Could not create settlement event log message for %s" % self)
+                self.logger.exception(excep)
 
         else:
             self.logger.error("Event could not be removed from %s timeline! %s" % (self, e))
@@ -992,11 +1014,7 @@ class Settlement(Models.UserAsset):
             new_timeline.append(new_ly)
 
         # finally, make sure that LYs are sorted: order is significant here
-        sorting_hat = {}
-        for ly in new_timeline:
-            sorting_hat[int(ly["year"])] = ly
-        new_timeline = [sorting_hat[ly_key] for ly_key in sorted(sorting_hat.keys())]
-
+        new_timeline = utils.sort_timeline(new_timeline)
 
         self.settlement["timeline"] = new_timeline
         self.settlement["timeline_version"] = 1.0
