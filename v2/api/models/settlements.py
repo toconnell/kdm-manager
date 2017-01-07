@@ -292,24 +292,29 @@ class Settlement(Models.UserAsset):
         timeline = self.settlement["timeline"]
         t_index, t_object = utils.get_timeline_index_and_object(timeline, e["ly"]);
 
+        success = False
         timeline.remove(t_object)
         for i in t_object[e["type"]]:
             if "name" in i.keys() and "name" in e.keys() and e["name"] == i["name"]:
                 t_object[e["type"]].remove(i)
+                success = True
                 break
             else:
                 self.logger.warn("Key errors encountered when comparing events %s and %s" % (e, i) )
-        timeline.insert(t_index, t_object)
 
-        self.settlement["timeline"] = timeline
+        if success:
+            timeline.insert(t_index, t_object)
+            self.settlement["timeline"] = timeline
+            self.save()
 
-        if "user_login" in e.keys():
-            self.log_event("%s removed '%s' from Lantern Year %s" % (e["user_login"], e["name"], e["ly"]))
+            if "user_login" in e.keys():
+               self.log_event("%s removed '%s' from Lantern Year %s" % (e["user_login"], e["name"], e["ly"]))
+            else:
+                self.log_event("Automatically removed '%s' from Lantern Year %s" % (e["name"], e["ly"]))
+
         else:
-            self.log_event("Automatically removed '%s' from Lantern Year %s" % (e["name"], e["ly"]))
+            self.logger.error("Event could not be removed from %s timeline! %s" % (self, e))
 
-        #finish with a courtesy save
-        self.save()
 
 
     def update_nemesis_levels(self, params):
