@@ -2625,7 +2625,7 @@ class Survivor:
                 else:
                     pass
 
-                self.logger.debug("%s -> '%s' (type=%s)" % (p, game_asset_key, type(params[p])))
+#                self.logger.debug("%s -> '%s' (type=%s)" % (p, game_asset_key, type(params[p])))
 
             if p in ignore_keys:
                 pass
