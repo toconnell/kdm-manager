@@ -51,8 +51,8 @@ mar_2016_expansions = {
         "name": "Spidicules",
         "quarries": ["spidicules"],
         "always_available": {
-            "location": ["Silk Mill","Silk-Refining"],
-            "innovation": ["Legless Ball"],
+            "location": ["Silk Mill"],
+            "innovation": ["Legless Ball","Silk-Refining"],
         },
         "timeline_add": [
             {"ly": 2, "type": "story_event", "handle": "spid_young_rivals"},
