@@ -5091,17 +5091,39 @@ class Settlement:
         if election != "UNSET":
             election = principle["options"][election]
 
+        # this is our UNSET logic
         for o_handle in principle["option_handles"]:
             o_dict = principle["options"][o_handle]
             if o_dict["name"] in self.get_principles():
                 self.logger.debug("[%s] unset %s %s principle '%s'." % (self.User, self, principle["name"], o_dict["name"]))
                 self.log_event("%s removed the settlement %s principle." % (self.User, principle["name"]))
                 self.settlement["principles"].remove(o_dict["name"])
+                if "current_survivor" in o_dict.keys():
+                    self.increment_all_survivors(o_dict["current_survivor"], action="decrement")
 
         if election != "UNSET":
             self.logger.debug("[%s] set %s %s principle '%s'." % (self.User, self, principle["name"], election["name"]))
             self.log_event("Settlement %s principle is now set to '%s'" % (principle["name"], election["name"]))
             self.settlement["principles"].append(election["name"])
+            if "current_survivor" in election.keys():
+                self.increment_all_survivors(election["current_survivor"])
+
+
+    def increment_all_survivors(self, d={}, action="increment"):
+        """ d is a dictionary of attributes with numerical values. This method
+        gets all survivors in the settlement and increments each attribute for
+        each survivor. Set 'action' to decrement to do the reverse. """
+
+        for s in self.get_survivors():
+            for attrib in d.keys():
+                if action == "increment":
+                    s[attrib] = s[attrib] + d[attrib]
+                elif action == "decrement":
+                    s[attrib] = s[attrib] - d[attrib]
+                self.logger.debug("[%s] automatically %sed %s: %s" % (self.User, action, s["name"], d))
+            mdb.survivors.save(s)
+        d_string = ["%s: %s" % (attrib, value) for attrib,value in d.iteritems()]
+        self.log_event("Automatically %sed all survivors: %s" % (action, ", ".join(d_string)))
 
 
     def update_milestones(self, m):
