@@ -178,10 +178,12 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
                     };
                 };
 
+                var customCODobj = {"name": "* Custom Cause of Death", "handle":"custom"};
                 var codArray = payload.data.game_assets.causes_of_death;
+                codArray.push({"name": " --- ", disabled: true});
+                codArray.push(customCODobj);
 
                 if ($scope.survivor.cause_of_death != undefined) {
-                    var customCODobj = {"name": "* Custom Cause of Death", "handle":"custom"};
                     var codString = $scope.survivor.cause_of_death;
 //                    console.log("set codString to " + codString);
                     for (i=0; i< codArray.length; i++) {
@@ -196,10 +198,9 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
                         $scope.survivorCOD=customCODobj;
                         $scope.showCustomCOD();
                     };
-                    codArray.push({"name": " --- ", disabled: true});
-                    codArray.push(customCODobj);
                 } else {
                     console.log("Survivor " + $scope.survivor._id.$oid + " is not dead.");
+                    $scope.survivorCOD={"name": "Choose Cause of Death"};
                 };
 
                 $scope.survivor.causes_of_death = codArray;
