@@ -33,35 +33,40 @@ resources = {
     },
     "white_lion_resources": {
         "name": "White Lion Resources",
-        "color": "FFCC66",
+        "color": "DCD900",
     },
     "screaming_antelope_resources": {
         "name": "Screaming Antelope Resources",
-        "color": "FFCC66",
+        "color": "DCD900",
     },
     "phoenix_resources": {
         "name": "Phoenix Resources",
-        "color": "FFCC66",
+        "color": "DCD900",
     },
     "spidicules_resources": {
         "name": "Spidicules Resources",
         "expansion": "spidicules",
-        "color": "FFCC66",
+        "color": "DCD900",
     },
     "gorm_resources":{
         "name": "Gorm Resources",
         "expansion": "gorm",
-        "color": "FFCC66",
+        "color": "DCD900",
+    },
+    "flower_knight_resources":{
+        "name": "Flower Knight Resources",
+        "expansion": "flower_knight",
+        "color": "DCD900",
     },
     "dbk_resources": {
         "name": "Dung Beetle Knight Resources",
         "expansion": "dung_beetle_knight",
-        "color": "FFCC66",
+        "color": "DCD900",
     },
     "dragon_king_resources":{
         "name": "Dragon King Resources",
         "expansion": "dragon_king",
-        "color": "FFCC66",
+        "color": "DCD900",
     },
 }
 

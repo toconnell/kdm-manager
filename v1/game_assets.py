@@ -1808,6 +1808,31 @@ items = {
         "location": "Dragon King Resources",
         "resource_family": ["organ","scrap"],
     },
+    "Lantern Bloom": {
+        "expansion": "Flower Knight",
+        "location": "Flower Knight Resources",
+        "resource_family": ["hide",],
+    },
+    "Sighing Bloom": {
+        "expansion": "Flower Knight",
+        "location": "Flower Knight Resources",
+        "resource_family": ["organ",],
+    },
+    "Osseous Bloom": {
+        "expansion": "Flower Knight",
+        "location": "Flower Knight Resources",
+        "resource_family": ["bone",],
+    },
+    "Lantern Bud": {
+        "expansion": "Flower Knight",
+        "location": "Flower Knight Resources",
+        "resource_family": ["scrap",],
+    },
+    "Warbling Bloom": {
+        "expansion": "Flower Knight",
+        "location": "Flower Knight Resources",
+        "resource_family": ["hide",],
+    },
     "Vespertine Foil": {
         "expansion": "Flower Knight",
         "location": "Sense Memory",
@@ -3781,6 +3806,10 @@ resources = {
         "color": "DCD900",
     },
     "Spidicules Resources": {
+        "color": "DCD900",
+    },
+    "Flower Knight Resources": {
+        "expansion": "Flower Knight",
         "color": "DCD900",
     },
     "Gorm Resources": {
