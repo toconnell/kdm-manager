@@ -37,6 +37,9 @@ def current_view_failure(func):
             err_msg = "Caught exception while rendering current view for %s!" % self.User
             self.logger.error(err_msg)
             self.logger.exception(e)
+            tb = traceback.format_exc().replace("    ","&ensp;").replace("\n","<br/>")
+            print html.meta.error_500.safe_substitute(msg=err_msg, exception=tb)
+
             if not self.User.is_admin():
                 self.logger.warn("[%s] user is not an application admin. Ending session!" % (self.User))
                 self.log_out()
@@ -44,8 +47,6 @@ def current_view_failure(func):
             else:
                 self.logger.warn("[%s] user is an application admin. Preserving session." % self.User)
 
-            tb = traceback.format_exc().replace("    ","&ensp;").replace("\n","<br/>")
-            print html.meta.error_500.safe_substitute(msg=err_msg, exception=tb)
             sys.exit(255)
 
     return wrapper
@@ -62,10 +63,14 @@ def process_params_failure(func):
             err_msg = "Caught exception while processing parameters for %s!" % self.User
             self.logger.error(err_msg)
             self.logger.exception(e)
-            if not self.User.is_admin():
-                self.log_out()
             tb = traceback.format_exc().replace("    ","&ensp;").replace("\n","<br/>")
             print html.meta.error_500.safe_substitute(msg=err_msg, exception=tb, params=str(self.params))
+
+            if not self.User.is_admin():
+                self.log_out()
+                self.email_render_error(traceback=tb)
+            else:
+                self.logger.warn("[%s] user is an application admin. Preserving session." % self.User)
             sys.exit(255)
 
     return wrapper

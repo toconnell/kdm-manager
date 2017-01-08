@@ -25,7 +25,7 @@ import export_to_file
 from modular_assets import survivor_names, settlement_names, survivor_attrib_controls
 import game_assets
 import html
-from models import Abilities, NemesisMonsters, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles, SurvivalActions, CauseOfDeath
+from models import Abilities, NemesisMonsters, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles, SurvivalActions
 from session import Session
 from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd, u_to_str
 import world
@@ -2657,11 +2657,8 @@ class Survivor:
                 self.update_fighting_arts(game_asset_key, action="rm")
             elif p == "resurrect_survivor":
                 self.death(undo_death=True)
-            elif p in ["custom_cause_of_death","add_cause_of_death"]:
+            elif p == "cause_of_death":
                 self.death(cause_of_death=game_asset_key)
-            elif p == "unspecified_death":
-                if "add_cause_of_death" not in params and "custom_cause_of_death" not in params:
-                    self.death()
             elif p == "name":
                 if game_asset_key != self.survivor[p]:
                     self.logger.debug("[%s] renamed %s to '%s'." % (self.User, self, game_asset_key) )
@@ -3136,7 +3133,6 @@ class Survivor:
 
             # controls of death
             death_button_class = death_button_class,
-            cod_options = CauseOfDeath.render_as_html_toggle_dropdown(selected=COD, expansions=exp),
             custom_cause_of_death = custom_COD,
 
             # optional and/or campaign-specific controls and modals
@@ -3275,10 +3271,6 @@ class Settlement:
         if not hasattr(self, "api_asset"):
             self.logger.warn("[%s] no API asset initialized for %s!" % (self.User, self))
 
-        # re-initialize models that use an API asset (now that we've got one).
-        # this is the low-rent equivalent of putting init logic behind a promise
-        for M in [CauseOfDeath]:
-            M.load_settlement(self)
 
 
     def refresh_from_API(self,k):
@@ -5483,10 +5475,14 @@ class Settlement:
 
         elif return_type in ["html_add"]:
             if not self.User.get_preference("dynamic_innovation_deck") and asset_type == "innovations":
-                output = Innovations.render_as_html_dropdown(
-                    exclude=self.settlement["innovations"],
-                    excluded_type="principle",
+                output = html.settlement.add_innovations_form.safe_substitute(
+                    settlement_id = self.settlement["_id"],
+                    select_controls = Innovations.render_as_html_dropdown(
+                        exclude=self.settlement["innovations"],
+                        excluded_type="principle",
+                    ),
                 )
+                return output
             else:
                 op = "add"
                 output = html.ui.game_asset_select_top.safe_substitute(

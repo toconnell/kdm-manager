@@ -223,13 +223,14 @@ class Model:
             output +="\n\n"
         else:
             if submit_on_change:
-                submit_on_change = "this.form.submit()"
+                submit_on_change = "this.form.submit(); showFullPageLoader();"
 
             output = """\n\t<select name="add_%s" onchange="%s" ng-model="addMe" ng-change="addItem('%s')">""" % (self.name, submit_on_change, survivor_id)
             output += '\t<option selected disabled hidden value=''>Add %s</option>' % self.pretty_name
             if self.name in ["disorder","fighting_art"]:
                 output += '\t\t<option value="RANDOM_%s">* Random %s</option>' % (self.name.upper(), self.pretty_name)
                 output += ' <option disabled> &ensp; &ensp; ---  </option>'
+
             for o in sorted(options):
                 disabled = ""
                 if o in disable:
@@ -242,7 +243,6 @@ class Model:
 
                 output += '\t\t<option value="%s" %s>%s</option>\n' % (o, disabled, pretty_o)
             output += '</select>\n'
-
 
         return output
 
@@ -508,13 +508,6 @@ class defeatedMonstersModel(Model):
 
         return deck
 
-class causeOfDeathModel(Model):
-    def __init__(self):
-        Model.__init__(self)
-        self.name = "cause_of_death"
-
-    def initialize_API_assets(self):
-        self.game_assets = self.Settlement.get_api_asset("game_assets","causes_of_death")
 
 class resourcesModel(Model):
     def __init__(self):
@@ -569,7 +562,6 @@ WeaponProficiencies = weaponProficienciesModel()
 DefeatedMonsters = defeatedMonstersModel()      # this is like...a pseudo model
 NemesisMonsters = nemesisMonstersModel()        # another pseudo model
 SurvivalActions = survivalActionsModel()
-CauseOfDeath    = causeOfDeathModel()
 
 #
 #   mutually exclusive principles

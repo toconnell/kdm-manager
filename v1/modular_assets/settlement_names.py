@@ -28,6 +28,7 @@ core = [
     "Home",
     "Hope",
     "Hyrule",
+    "Izalith",
     "Kasuto",
     "Kattegat",
     "Lantern's Reach",

@@ -62,7 +62,7 @@ class AssetCollection():
 
     def get_names(self):
         """ Dumps all asset 'name' attributes, i.e. a list of name values. """
-        return [self.assets[k]["name"] for k in self.get_handles()]
+        return sorted([self.assets[k]["name"] for k in self.get_handles()])
 
     def get_asset(self, handle):
         """ Return an asset dict based on a handle. Return None if the handle

@@ -80,7 +80,7 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
         // load the settlement from the API
         $scope.loadSettlement().then(
             function(payload) {
-                // get the settlement
+                // get the settlement; touch-up some of the arrays for UI/UX purposes
                 $scope.settlement = payload.data;
 
                 // create the settlement_sheet in scope (for laziness)
@@ -167,16 +167,55 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
     $scope.loadSurvivor = function(s_id) {
         $scope.loadSettlement().then(
             function(payload) {
+                console.info("Initializing survivor " + s_id);
                 var survivors = payload.data.user_assets.survivors;
                 $scope.survivor = undefined; 
                 for (i = 0; i < survivors.length; i++) {
                     var survivor = survivors[i];
-                    if (survivor.sheet._id.$oid == s_id) {$scope.survivor = survivor.sheet};
+                    if (survivor.sheet._id.$oid == s_id) {
+                        $scope.survivor = survivor.sheet;
+//                        console.log($scope.survivor);
+                    };
                 };
+
+                var codArray = payload.data.game_assets.causes_of_death;
+
+                if ($scope.survivor.cause_of_death != undefined) {
+                    var customCODobj = {"name": "* Custom Cause of Death", "handle":"custom"};
+                    var codString = $scope.survivor.cause_of_death;
+//                    console.log("set codString to " + codString);
+                    for (i=0; i< codArray.length; i++) {
+                        if (codArray[i].name == codString) {
+                            codArray[i].selected = true;
+                            $scope.survivorCOD=codArray[i];
+                            console.log("Set $scope.survivorCOD: " + JSON.stringify(codArray[i]));
+                        };
+                    };
+                    if ($scope.survivorCOD == undefined) {
+                        console.warn("Custom COD detected. Showing Custom COD controls...")
+                        $scope.survivorCOD=customCODobj;
+                        $scope.showCustomCOD();
+                    };
+                    codArray.push({"name": " --- ", disabled: true});
+                    codArray.push(customCODobj);
+                } else {
+                    console.log("Survivor " + $scope.survivor._id.$oid + " is not dead.");
+                };
+
+                $scope.survivor.causes_of_death = codArray;
                 console.log("Survivor " + s_id + " initialized!")
+
             },
+
             function(errorPayload) {console.log("Error loading survivor " + s_id + " " + errorPayload);}
         );
+    };
+
+    // shows the custom COD block on the Controls of Death
+    $scope.showCustomCOD = function() {
+        var hidden_elem_id = "addCustomCOD";
+        var hidden_elem = document.getElementById(hidden_elem_id);
+        hidden_elem.style.display = "block";
     };
 
     // modal div and button registration!
@@ -221,11 +260,16 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
     };
 
     $scope.arrayContains = function(needle, arrhaystack) {
-//        if (typeof arrhaystack != Array) {
+        if (arrhaystack === needle) {
+            return true;
+        } else if (typeof arrhaystack != Array) {
 //            console.warn(arrhaystack + ' is not an Array and cannot contain "' + needle + '"');
-//        };
-        if (arrhaystack === needle) {return true};
-        if (arrhaystack.indexOf(needle) > -1) {return true; } else {return false};
+            return false;
+        } else if (arrhaystack.indexOf(needle) > -1) {
+            return true; 
+        } else {
+            return false;
+        };
     };
 
 });

@@ -1573,7 +1573,7 @@ items = {
     "Thick Web Silk": {
         "expansion": "Spidicules",
         "location": "Spidicules Resources",
-        "resource_family": ["silk","hide"],
+        "resource_family": ["hide"],
     },
     "Silken Nervous System": {
         "expansion": "Spidicules",
@@ -1583,7 +1583,6 @@ items = {
     "Web Silk": {
         "expansion": "Spidicules",
         "location": "Strange Resources",
-        "resource_family": ["silk"],
     },
     "Silk Armor Set": {
         "expansion": "Spidicules",

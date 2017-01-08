@@ -23,6 +23,56 @@ app.controller("sotfRerollController", function($scope) {
 });
 
 
+app.controller("controlsOfDeath", function($scope) {
+
+    $scope.checkForCustomCOD = function() {
+        if ($scope.arrayContains($scope.survivorCOD, $scope.survivor.causes_of_death) != true) {
+            $scope.showCustomCOD();
+        } else {console.log("no custom COD deteceted")};
+    };
+
+    $scope.showCODwarning = function (){
+//        var hidden_elem_id = "CODwarning";
+//        var hidden_elem = document.getElementById(hidden_elem_id);
+        $('#CODwarning').show();
+        $('#CODwarning').fadeOut(4500);
+    };
+
+    $scope.submitCOD = function(cod) {
+        // here we're processing user input and passing it along to the MDB
+        if (typeof cod === 'string') {
+            var cod_string = cod
+        } else if (typeof cod === 'object') {
+            var cod_string = cod.name;
+        } else if (cod === undefined) {
+            console.warn("COD is undefined! Showing warning div...")
+            $scope.showCODwarning();
+            return false;
+        } else {
+            console.warn("Invalid COD type! Type was: " + typeof cod)
+            return false;
+        };
+
+        closeModal('modalDeath');
+        showFullPageLoader();
+        params="cause_of_death=" + cod_string
+        modifyAsset("survivor", $scope.survivor._id.$oid, params);
+        window.location.href = window.location.href;
+        location.reload();
+    };
+
+    $scope.processSelectCOD = function() {
+        // if the user uses the select drop-down, we do this to see what
+        // to do next, e.g. whether to show the custom box
+        if ($scope.survivorCOD.handle == 'custom') {
+            $scope.showCustomCOD();
+        } else {
+            $scope.submitCOD($scope.survivorCOD);
+        };
+    };
+
+});
+
 app.controller("attributeController", function($scope) {
 
 

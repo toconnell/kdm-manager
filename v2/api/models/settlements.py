@@ -9,7 +9,7 @@ import random
 import time
 
 import Models
-from models import campaigns, cursed_items, expansions, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events, locations
+from models import campaigns, cursed_items, expansions, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events, locations, causes_of_death
 import settings
 import utils
 
@@ -20,7 +20,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.24
+        self.object_version=0.26
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize_data()
 
@@ -132,10 +132,10 @@ class Settlement(Models.UserAsset):
         output["game_assets"].update(self.get_available_assets(weapon_specializations))
         output["game_assets"].update(self.get_available_assets(weapon_masteries))
         output["game_assets"].update(self.get_available_assets(cursed_items))
-        output["game_assets"].update(self.get_available_assets(causes_of_death))
         output["game_assets"].update(self.get_available_assets(survival_actions))
         output["game_assets"].update(self.get_available_assets(events))
         output["game_assets"].update(self.get_available_assets(monsters))
+        output["game_assets"].update(self.get_available_assets(causes_of_death, handles=False))
 
             # options (i.e. decks)
         output["game_assets"]["locations_options"] = self.get_locations_options()
@@ -798,18 +798,36 @@ class Settlement(Models.UserAsset):
         return event_log
 
 
-    def get_available_assets(self, asset_module=None):
+    def get_available_assets(self, asset_module=None, handles=True):
         """ Generic function to return a dict of available game assets based on
         their family. The 'asset_module' should be something such as,
         'cursed_items' or 'weapon_proficiencies', etc. that has an Assets()
-        method. """
+        method.
 
-        available = {}
+
+        Use the 'handles' kwarg (boolean) to determine whether to return a list
+        of asset dictionaries, or a dictionary of dictionaries (where asset
+        handles are the keys.
+        """
+
+        if handles:
+            available = {}
+        else:
+            available = []
+
         A = asset_module.Assets()
-        for k in A.get_handles():
-            item_dict = A.get_asset(k)
-            if self.is_compatible(item_dict):
-                available.update({item_dict["handle"]: item_dict})
+
+        if handles:
+            for k in A.get_handles():
+                item_dict = A.get_asset(k)
+                if self.is_compatible(item_dict):
+                    available.update({item_dict["handle"]: item_dict})
+        else:
+            for n in A.get_names():
+                item_dict = A.get_asset_from_name(n)
+                if self.is_compatible(item_dict):
+                    available.append(item_dict)
+
         return {"%s" % (asset_module.__name__.split(".")[-1]): available}
 
 
@@ -905,18 +923,26 @@ class Settlement(Models.UserAsset):
         # create the v1.0 'nemesis_encounters' list and transcribe nemesis info
         self.settlement["nemesis_encounters"] = {}
         for n in self.settlement["nemesis_monsters"]:
-            M = monsters.Monster(name=n)
-            self.settlement["nemesis_encounters"][M.handle] = []
-            n_levels = self.settlement["nemesis_monsters"][n]
-            for l in n_levels:
-                self.settlement["nemesis_encounters"][M.handle].append(int(l[-1]))
+            try:
+                M = monsters.Monster(name=n)
+                self.settlement["nemesis_encounters"][M.handle] = []
+                n_levels = self.settlement["nemesis_monsters"][n]
+                for l in n_levels:
+                    self.settlement["nemesis_encounters"][M.handle].append(int(l[-1]))
+            except Exception as e:
+                self.logger.exception(e)
+                self.logger.critical("%s nemesis encounter w/ '%s' cannot be migrated to 1.0 data model!" % (self,n))
 
         for list_key in ["quarries","nemesis_monsters"]:
             new_list = []
             old_list = self.settlement[list_key]
             for m in old_list:
-                M = monsters.Monster(name=m)
-                new_list.append(M.handle)
+                try:
+                    M = monsters.Monster(name=m)
+                    new_list.append(M.handle)
+                except:
+                    self.logger.exception(e)
+                    self.logger.critical("%s monster '%s' will cannot be migrated to 1.0 data model!" % (self,m))
 
             self.settlement[list_key] = new_list
 

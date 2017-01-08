@@ -5,14 +5,14 @@ app.controller("locationsController", function($scope) {
         $scope.settlement_sheet.locations.push(loc_dict.name);        
         params = "add_location=" + loc_dict["name"];
         modifyAsset('settlement',$scope.settlement_id,params);
-        location.reload();
+        window.location.href = window.location.href;
     };
     $scope.rmLocation = function(index,loc_name) {
         showFullPageLoader();
         params = "rm_location=" + loc_name;
         $scope.settlement_sheet.locations.splice(index,1);
         modifyAsset('settlement',$scope.settlement_id,params);
-        location.reload();
+        window.location.href = window.location.href;
     };
     $scope.setLocationLevel = function(loc_name,lvl){
         params = "location_level_" + loc_name + "=" + lvl;
@@ -28,14 +28,14 @@ app.controller('innovationsController', function($scope) {
         $scope.settlement_sheet.innovations.push($scope.newInnovation);
         params = "add_innovation=" + $scope.newInnovation;
         modifyAsset('settlement',$scope.settlement_id,params);
-        location.reload();
+        window.location.href = window.location.href;
     };    
     $scope.rmInnovation = function(index, innovation_name) {
         showFullPageLoader();
         $scope.settlement_sheet.innovations.splice(index,1);
         params = "rm_innovation=" + innovation_name;
         modifyAsset('settlement',$scope.settlement_id,params);
-        location.reload();
+        window.location.href = window.location.href;
     };
 });
 

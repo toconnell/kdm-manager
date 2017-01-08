@@ -1866,7 +1866,6 @@ class survivor:
 
         $remove_survivor_controls
 
-        <div class="survivor_sheet_bottom_attrib_spacer">&nbsp;</div>
 
         <!-- gotta put this here, outside of the other forms -->
         <form id="avatar_change_form" method="POST" enctype="multipart/form-data" action="#">
@@ -1876,6 +1875,8 @@ class survivor:
 
     </div> <!-- asset_management_right_pane -->
 
+
+    <div class="survivor_sheet_bottom_attrib_spacer">&nbsp;</div>
 
 
     <!--            THIS IS THE FOLD! Only Modal content below!     -->
@@ -2037,22 +2038,50 @@ class survivor:
     <div
         id="modalDeath" class="modal"
         ng-init="registerModalDiv('modalDeathButton','modalDeath')"
+        ng-controller="controlsOfDeath"
     >
         <div class="modal-content survivor_sheet_gradient">
             <span class="closeModal" onclick="closeModal('modalDeath')">×</span>
             <h3>Controls of Death!</h3>
-            <form method="POST" action="">
-            <input type="hidden" name="modify" value="survivor"/>
-            <input type="hidden" name="asset_id" value="$survivor_id"/>
-            <input type="hidden" name="unspecified_death" value="True"/>
             <p><b>Choose cause of death:</b></p>
-            <p>$cod_options</p>
+
+            <select
+                class="survivor_sheet_cod_picker"
+                ng-model="survivorCOD"
+                ng-options="c as c.name disable when c.disabled for c in survivor.causes_of_death"
+                ng-change="processSelectCOD()"
+            >
+                <option disabled value="">Choose Cause of Death</option>
+            </select>
+
+            <p id="addCustomCOD" style="display: none">
+                <input
+                    type="text"
+                    class="custom_cod_text"
+                    placeholder="Enter custom Cause of Death"
+                    name="enter_cause_of_death"
+                    value="{{survivor.cause_of_death}}"
+                    ng-model="customCOD"
+                />
+            </p>
+
+            <div
+                id="CODwarning"
+                class="kd_alert cod_error"
+                style="display: none"
+            >
+                Please select or enter a Cause of Death!
+            </div>
+
+            <button
+                class="kd_alert_no_exclaim red_glow"
+                ng-click="submitCOD(customCOD)"
+            >
+                Die
+            </button>
+
             <hr/>
-            <p>Or enter a custom cause of death:</p>
-            <p><input type="text" class="full_width" placeholder="Cause of death" name="custom_cause_of_death" value="$custom_cause_of_death"/></p>
-            <button class="kd_alert_no_exclaim red_glow">Die</button>
-            </form>
-            <hr/>
+
             <form method="POST" action="">
             <input type="hidden" name="modify" value="survivor"/>
             <input type="hidden" name="asset_id" value="$survivor_id"/>
@@ -2660,7 +2689,13 @@ class settlement:
 
     </div> <!-- create_new_asset_form_container -->
     \n"""
-
+    add_innovations_form = Template("""\n
+        <form action="/" method="POST" class="settlement_sheet_add_innovations_legacy_form">
+            <input type="hidden" name="modify" value="settlement"/>
+            <input type="hidden" name="asset_id" value="$settlement_id"/>
+            $select_controls
+        </form>
+    """)
     storage_warning = Template(""" onclick="return confirm('Remove $item_name from Settlement Storage?');" """)
     storage_remove_button = Template("""\n\
     \t<button $confirmation id="remove_item" name="remove_item" value="$item_key" style="background-color: #$item_color; color: #$item_font_color;"> $item_key_and_count </button>
