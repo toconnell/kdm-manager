@@ -272,7 +272,7 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
             return true;
         } else if (typeof arrhaystack != Array) {
 //            console.warn(arrhaystack + ' is not an Array and cannot contain "' + needle + '"');
-            return false;
+            return true;
         } else if (arrhaystack.indexOf(needle) > -1) {
             return true; 
         } else {
