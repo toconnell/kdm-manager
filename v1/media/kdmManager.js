@@ -268,16 +268,18 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
     };
 
     $scope.arrayContains = function(needle, arrhaystack) {
-        if (arrhaystack === needle) {
-            return true;
-        } else if (typeof arrhaystack != Array) {
-//            console.warn(arrhaystack + ' is not an Array and cannot contain "' + needle + '"');
-            return true;
-        } else if (arrhaystack.indexOf(needle) > -1) {
-            return true; 
-        } else {
-            return false;
+        if (arrhaystack === undefined) {console.error("Cannot find " + needle + " in undefined!"); return false;};
+        if (typeof arrhaystack != "array") {
+            if (typeof arrhaystack == "object") {
+                //
+            } else {
+                console.warn(arrhaystack + ' does not appear to be an array or an object!')
+            };
         };
+        if (arrhaystack.indexOf(needle) > -1) {
+            return true;
+        };
+        return false; 
     };
 
 });

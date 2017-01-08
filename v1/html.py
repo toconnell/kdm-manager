@@ -474,7 +474,7 @@ class angularJS:
                             type="checkbox"
                             class="kd_css_checkbox kd_radio_option"
                             ng-model=incomingExpansion
-                            ng-checked="arrayContains(x.handle, settlement_sheet.expansions)"
+                            ng-checked="hasattr(settlement_sheet.expansions, x.handle)"
                             ng-click="toggleExpansion(x.handle)"
                         >
                         <label for="{{x.handle}}_modal_toggle">{{x.name}}</label>
