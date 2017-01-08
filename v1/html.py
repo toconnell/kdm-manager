@@ -3418,7 +3418,7 @@ class settlement:
                     name="toggle_milestone"
                     value="{{m.name}}"
                     onchange="updateAssetAttrib(this, 'settlement', '$settlement_id');"
-                    ng-checked="arrayContains(m.name, settlement_sheet.milestone_story_events)"/>
+                    ng-checked="hasattr(settlement_sheet.milestone_story_events, m.name) "/>
                 </input>
                 <label
                     for="{{m.handle}}"

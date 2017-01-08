@@ -260,6 +260,13 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
         return r;
     };
 
+    $scope.hasattr = function(obj, name) {
+        if (obj.indexOf(name) > -1) {
+            return true
+        };
+        return false;
+    };
+
     $scope.arrayContains = function(needle, arrhaystack) {
         if (arrhaystack === needle) {
             return true;

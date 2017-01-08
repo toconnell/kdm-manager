@@ -5778,6 +5778,7 @@ class Settlement:
                     self.settlement["milestone_story_events"].append(principle_dict["milestone"])
                     msg = "utomatically marking milestone story event '%s' due to selection of related principle, '%s'." % (principle_dict["milestone"], principle)
                     self.log_event("A%s" % (msg))
+                    self.logger.debug("[%s] a%s" % (self.User, msg))
 
         # update mins will call self.enforce_data_model() and save
         self.update_mins()
