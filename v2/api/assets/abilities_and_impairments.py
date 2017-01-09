@@ -3,7 +3,7 @@
 curse = {
     "sleeping_virus_flower": {
         "name": "Sleeping Virus Flower",
-        "expansion": "Flower Knight",
+        "expansion": "flower_knight",
         "desc": 'When you die, a flower blooms from your corpse. Add <font class="kdm_font">g</font> <b>A Warm Virus</b> to the timeline next year. You are the guest.',
         "epithet": "Host",
         "max": 1,
@@ -17,13 +17,13 @@ curse = {
     },
     "death_mehndi": {
         "name": "Death Mehndi",
-        "expansion": "Lion God",
+        "expansion": "lion_god",
         "desc": "On a <b>Perfect hit</b>, gain 1d10 insanity. -4 to all brain trauma rolls.",
         "max": 1,
     },
     "hideous_disguise": {
         "name": "Hideous Disguise",
-        "expansion": "Lion Knight",
+        "expansion": "lion_knight",
         "desc": "At the start of the showdown, if you are fighting the Lion Knight, choose your Role card.",
         "epithet": "Hideous",
         "max": 1,
@@ -36,7 +36,7 @@ curse = {
     },
     "gender_swap":{
         "name": "Gender Swap",
-        "expansion": "White Box",
+        "expansion": "white_box",
         "desc": "You own the <b>Belt of Gender Swap</b>, it will always take one space in your gear grid and while it is there, your gender is reversed.",
         "reverse_sex": True,
         "epithet": "Gender Swap",
@@ -48,12 +48,12 @@ weapon_masteries = {
     "scythe_master": {
         "name": "Mastery - Scythe",
         "desc": "When you critically wound with a scythe, roll 1d10. On a 6+, shuffle the hit location deck (do not shuffle unresolved hit locations).<br/>Limit, once per round.",
-        "expansion": "Dragon King",
+        "expansion": "dragon_king",
     },
     "katana_mastery": {
         "name": "Mastery - Katana",
         "desc": "When a survivor reaches Katana Mastery, they leave the settlement forever, heeding the call of the sstorm to hone their art.<br/>Before the master leaves, you may nominate a survivor. Set that survivor's weapon type to Katana and their weapon proficiency level to 1.",
-        "expansion": "Sunstalker",
+        "expansion": "sunstalker",
     },
     "katar_mastery": {
         "name": "Mastery - Katar",
@@ -151,12 +151,12 @@ weapon_specializations = {
     "katana_specialization": {
         "name": "Specialization - Katana",
         "desc": "You may not select this as your weapon type.<br/>If you are <b>blind</b> and have 4+ levels of Katana proficiency, gain the following:<br/>On your first <b>Perfect Hit</b> each attack with a Katana, do not draw a hit location. The monster suffers 1 wound.",
-        "expansion": "Sunstalker",
+        "expansion": "sunstalker",
      },
     "scythe_specialization": {
         "name": "Specialization - Scythe",
         "desc": "When you critically wound with a scythe, roll 1d10. On a 6+, shuffle the hit location deck (do not shuffle unresolved hit locations).<br/>Limit, once per round.",
-        "expansion": "Dragon King",
+        "expansion": "dragon_king",
      },
     "bow_specialization": {
         "name": "Specialization - Bow",

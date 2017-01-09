@@ -3,16 +3,16 @@
 items = {
     "husk_of_destiny": {
         "name": "Husk of Destiny",
-        "expansion": "Dragon King",
+        "expansion": "dragon_king",
     },
     "sleeping_virus_flower": {
         "name": "Sleeping Virus Flower",
-        "expansion": "Flower Knight",
+        "expansion": "flower_knight",
         "abilities_and_impairments": ["sleeping_virus_flower"],
     },
     "belt_of_gender_swap": {
         "name": "Belt of Gender Swap",
-        "expansion": "White Box",
+        "expansion": "white_box",
         "abilities_and_impairments": ["gender_swap"],
     },
     "regal_helm": {
@@ -48,13 +48,13 @@ items = {
     },
     "hideous_disguise": {
         "name": "Hideous Disguise",
-        "expansion": "Lion Knight",
+        "expansion": "lion_knight",
         "abilities_and_impairments": ["hideous_disguise"],
         "epithets": ["Hideous"],
     },
     "death_mehndi": {
         "name": "Death Mehndi",
-        "expansion": "Lion God",
+        "expansion": "lion_god",
         "abilities_and_impairments": ["death_mehndi"],
         "epithets": ["Necromancer"],
     },

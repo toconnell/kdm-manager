@@ -4048,6 +4048,8 @@ epithets = {
     "Dimmed by the Lantern": {},
     "Murderer": {},
     "Endless Arguer": {},
+    "Cleared the Mist": {},
+    "Urine-soaked": {},
 
     # story event
     "Speaker of the First Words": {},
