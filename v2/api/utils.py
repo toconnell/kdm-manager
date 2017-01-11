@@ -21,14 +21,18 @@ import settings
 # random, one-off helpers in the main namespace
 
 mdb = MongoClient()[settings.get("api","mdb")]
+
 ymd = "%Y-%m-%d"
 hms = "%H:%M:%S"
 ymdhms = "%Y-%m-%d %H:%M:%S"
 thirty_days_ago = datetime.now() - timedelta(days=30)
-recent_session_cutoff = datetime.now() - timedelta(hours=12)
+recent_session_cutoff = datetime.now() - timedelta(hours=settings.get("application","recent_session_horizon"))
+active_user_cutoff = datetime.now() - timedelta(minutes=settings.get("application","active_user_horizon"))
+
 
 # generic http responses
 http_200 = Response(response="OK!", status=200)
+http_400 = Response(response="Bad Request!", status=400)
 http_401 = Response(response="Valid API key required", status=401)
 http_404 = Response(response=None, status=404)
 http_422 = Response(response="Missing argument, parameter or value", status=422)
@@ -52,7 +56,6 @@ api_meta = {
         "object": {},
     },
 }
-
 
 
 

@@ -1,1 +1,24 @@
-body {background-color: #999;}
+body {background-color: #ddd;}
+a {color: #B57E2F}
+a:hover {color: #D57E2F;}
+a:active {color: #D57E2F;}
+a:visited {color: #B57E2F}
+
+.api_documentation {
+    margin-left: 5%;
+    margin-bottom: 1%; 
+    width: 70%;
+    border-collapse: collapse;
+    background-color: #fff; 
+}
+.ul {border-bottom: 1px solid #999; }
+.route_root {text-align: left; background-color: #ffffaa; }
+.route_root th {padding-left: 10%; font-family: monospace; font-weight: normal; }
+.route {}
+.methods { width: 12%; }
+.comment {}
+.api_documentation td,
+    table.api_documentation th {padding: 1%; }
+.api_documentation td {vertical-align: top; }
+
+code {background-color: #DDFFDD; }

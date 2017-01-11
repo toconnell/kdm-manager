@@ -139,11 +139,13 @@ class Session:
         session_dict = {
             "login": login,
             "created_on": datetime.now(),
+            "created_by": user["_id"],
             "current_view": "dashboard",
             "user_agent": {"is_mobile": get_user_agent().is_mobile, "browser": get_user_agent().browser },
         }
+
         session_id = mdb.sessions.insert(session_dict)
-        self.session = mdb.sessions.find_one({"_id": ObjectId(session_id)})
+        self.session = mdb.sessions.find_one({"_id": session_id})
 
         # update the user with the session ID
         user["current_session"] = session_id

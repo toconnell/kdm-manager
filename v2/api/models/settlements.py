@@ -4,6 +4,7 @@ from bson import json_util
 from bson.objectid import ObjectId
 from copy import copy
 from datetime import datetime, timedelta
+from flask import Response
 import json
 import random
 import time
@@ -20,7 +21,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.26
+        self.object_version=0.29
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize_data()
 
@@ -99,10 +100,9 @@ class Settlement(Models.UserAsset):
             self.save()
 
 
-    def serialize(self, return_type="JSON"):
+    def serialize(self):
         """ Renders the settlement, including all methods and supplements, as
-        a monster JSON object. This one is the gran-pappy. """
-
+        a monster JSON object. This is where all views come from."""
 
         I = innovations.Assets()
 
@@ -675,8 +675,12 @@ class Settlement(Models.UserAsset):
 
 
     def get_players(self, return_type=None):
-        """ Returns a set type object containing mdb.users documents if the
-        'return_type' kwarg is left unspecified.
+        """ Returns a list of dictionaries where each dict is a short summary of
+        the significant attributes of the player, as far as the settlement is
+        concerned.
+
+        This is NOT the place to get full user information and these dicts are
+        intentionally sparse for exactly that reason.
 
         Otherwise, use return_type="count" to get an int representation of the
         set of players. """
@@ -691,7 +695,17 @@ class Settlement(Models.UserAsset):
         if return_type == "count":
             return player_set.count()
 
-        return [x for x in player_set]
+        player_list = []
+        for p in player_set:
+            p_dict = {"login": p["login"], "_id": p["_id"]}
+            if p["login"] in self.settlement["admins"]:
+                p_dict["settlement_admin"] = True
+            if p["_id"] == self.settlement["created_by"]:
+                p_dict["settlement_founder"] = True
+
+            player_list.append(p_dict)
+
+        return player_list
 
 
     def get_survivors(self, return_type=None):
@@ -725,7 +739,7 @@ class Settlement(Models.UserAsset):
                 elif S.get_sex() == "F":
                     self.eligible_parents["female"].append(i_dict)
 
-            output.append(S.serialize())
+            output.append(json.loads(S.serialize()))
 
         return output
 
@@ -1065,4 +1079,50 @@ class Settlement(Models.UserAsset):
 
 
 
+    #
+    #   finally, the daddy. Don't write model methods below this one.
+    #
 
+    def request_response(self, action=None):
+        """ Initializes params from the request and then response to the
+        'action' kwarg appropriately. This is the ancestor of the legacy app
+        assets.Settlement.modify() method. """
+
+        self.get_request_params()
+
+        if action == "get":
+            return self.get_json()
+        elif action == "innovation_deck":
+            return self.get_innovation_deck()
+        elif action == "set":
+            self.update_sheet_from_dict(self.params)
+        elif action == "add_expansions":
+            self.add_expansions(self.params)
+        elif action == "rm_expansions":
+            self.rm_expansions(self.params)
+        elif action == "add_note":
+            self.add_settlement_note(self.params)
+        elif action == "rm_note":
+            self.rm_settlement_note(self.params)
+        elif action == "update_nemesis_levels":
+            self.update_nemesis_levels(self.params)
+        elif action == "add_timeline_event":
+            self.add_timeline_event(self.params)
+        elif action == "rm_timeline_event":
+            self.rm_timeline_event(self.params)
+        elif action == "event_log":
+            return Response(response=self.get_event_log("JSON"), status=200, mimetype="application/json")
+        else:
+            # unknown/unsupported action response
+            self.logger.warn("Unsupported settlement action '%s' received!" % action)
+            return utils.http_400
+
+
+        # finish successfully
+        return utils.http_200
+
+
+
+
+
+# ~fin

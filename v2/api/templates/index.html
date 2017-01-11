@@ -22,59 +22,120 @@
  <body>
 
     <h1>{{ settings.application.app_name }}</h1>
-    <h2> Version {{ settings.api.version }}</h2>
+    <h2>{{ settings.application.title }}</h2>
+    <h3> API Version {{ settings.api.version }}</h3>
 
 
-    GET/POST routes:
+    <table class="api_documentation public_routes">
+        <tr><th colspan="3">PUBLIC ROUTES</th></tr>
+        <tr>
+            <td colspan="3">
+                <p>
+                    These routes <b>DO NOT</b> require authentication. Use them
+                    to construct dashboard, "create new whatever" type views and
+                    to look up game asset data that does not belong to any user.
+                </p>
+            </td>
+        </tr>
 
-    <ul>
-        <li>cursed_items:
-            <ul>
-                <li>GET:
-                    <ul>
-                        <li><a href="/cursed_items">/cursed_items</a></li>
-                    </ul>
-                </li>
-                <li>POST:
-                    <ul>
-                        <li><a href="/cursed_items">/cursed_items</a> + {"settlement_id": 5817c7998740d92cf55a7f91}</li>
-                    </li>
-                </ul>   
-            </ul>
-        <li>settlement:
-            <ul>
-                <li>POST (requires auth):
-                    <ul>
-                        <li>/settlement/get/5817c7998740d92cf55a7f91</li>
-                    </ul>
-                </li>
-            </ul>
-        </li>
-        <li>survivor:
-            <ul>
-                <li>POST (requires auth):
-                    <ul>
-                        <li>/survivor/update/5817c7998740d92cf55a7f91 + {&lt;settlement_dictionary&gt;}</li>
-                        <li>/survivor/get/5817c7998740d92cf55a7f91</li>
-                    </ul>
-                </li>
-            </ul>
-        </li>
-    </ul>
+        <tr class="ul">
+            <th class="route">Route</th><th class="methods">Methods</th><th class="comment">Comment/Note</th>
+        </tr>
 
-    GET only routes:
-    <ul>
-        <li>monster (requires JSON params):
-            <ul>
-                <li>by handle: <a href="/monster">/monster</a> + {"handle":"white_lion"}</li>
-                <li>by name: <a href="/monster">/monster</a> + {"name": "Dung Beetle Knight Lvl 2}</li>
-            </ul>
-        </li>
-         <li>settings: <a href="/settings.json">/settings.json</a></li>
-         <li>world: <a href="/world">/world</a></li>
-    </ul>
+        <tr class="ul">
+            <td> <a href="/auth">/auth</a> </td>
+            <td> POST </td>
+            <td>
+                <p>        
+                    The KD:M API uses JSON Web Tokens (<a
+                    href="https://jwt.io/">https://jwt.io</a>) to manage user
+                    sessions and user authentication.
+                </p>
+                <p> POST some simple JSON to this route to authenticate: </p>
+                <code>{"username": "demo@kdm-manager.com", "password": 
+                "l33th4x0r"}</code>
+                <p>...if your credential checks out, you get a token back. Easy!</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> <a href="/monster">/monster</a> </td>
+            <td> GET, POST </td>
+            <td>
+                <p>
+                    Accepts a "name" or "handle" parameter (via JSON) and
+                    returns a JSON representation of a monster type game asset.
+                    For example, POSTing to /monster with JSON such as this:
+                </p>
+                <code>{"name": "White Lion Lvl. 1"}</code>
+                <p>...returns JSON like this: </p>
+                <code>{"comment": "Lvl. 1", "handle": "white_lion", "name":
+                "White Lion", "level": 1, "levels": 3, "sort_order": 0, "type":
+                "quarry"}
+                <p>Or, with a handle:</p>
+                <code>{"handle": "manhunter"}</code>
+                <p>...you get:</p>
+                <code>{"handle": "manhunter", "name": "Manhunter", "levels": 4,
+                "sort_order": 103, "type": "nemesis", "selectable": false, 
+                "misspellings": ["THE MANHUNTER", "MAN HUNTER"]}
+                </code>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> <a href="/new_settlement">/new_settlement</a></td>
+            <td> GET </td>
+            <td> Returns JSON representing available options for creating a new
+            settlement, including expansions, pre-fab survivors, etc. Also
+            includes subtitle/description elements. Use this to make "create
+            new settlement" type views. </td>
+        </tr>
+        <tr class="ul">
+            <td> <a href="/settings.json">/settings.json</a> </td>
+            <td> GET</td>
+            <td> Not strictly a part of the API, but sometimes useful. Hit this
+            route to download an attachement of settings.cfg as JSON. </td>
+        </tr>
+        <tr class="ul">
+            <td> <a href="/settings">/settings</a> </td>
+            <td> GET </td>
+            <td> Retrieve settings.cfg as JSON</td>
+        </tr>
+        <tr class="ul">
+            <td> <a href="/world">/world</a> </td>
+            <td> GET </td>
+            <td> Retrieve a JSON representation of aggregate/world stats.</td>
+        </tr>
+    </table>
 
-<p>NB: all POST routes accept JSON data and require a valid API key to authenticate: use the "meta" element to transmit your "api_key"</p> 
+
+    <table class="api_documentation private_routes">
+        <tr><th colspan="3">PRIVATE ROUTES</th></tr>
+        <tr>
+            <td colspan="3">
+                <p>
+                    Private routes require authentication via JWT (see above).
+                </p>
+            </td>
+        </tr>
+
+        <tr class="ul">
+            <th class="route">Route</th><th class="methods">Methods</th><th class="comment">Comment/Note</th>
+        </tr>
+
+        <tr class="ul route_root">
+            <th colspan="3"><b>Settlement Routes:</b> /settlement/&lt;action&gt;/&lt;settlement_id&gt;</th>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/get/&lt;settlement_id&gt; </td>
+            <td> POST, OPTIONS </td>
+            <td> Retrieve a serialized version of the settlement associated with
+            &lt;settlement_id&gt; (to include all related user and game assets).</td>
+        </tr>
+
+        <tr class="ul route_root">
+            <th colspan="3"><b>Survivor Routes:</b> /survivor/&lt;action&gt;/&lt;settlement_id&gt;</th>
+        </tr>
+
+    </table>
 
 
  </body>

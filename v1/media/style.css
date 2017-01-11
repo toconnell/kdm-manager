@@ -640,8 +640,9 @@ label.cursed_item_toggle {border: 0.2em solid #dedede; border-radius: 5px; paddi
 div.cursed_item_toggle {margin-bottom: 3%; }
 span.cursed_item_name {font-weight: bold; margin-bottom: 1%; vertical-align: top; font-size: 50px; }
 div.cursed_item_ability_block {font-size: 30px;}
-span.cursed_item_ability {padding-left: 1%; font-style: italic; font-size: 1.2em;}
-span.cursed_item_ability_desc {font-family: Arial, sans-serif; }
+span.cursed_item_ability {padding-left: 1%; font-style: italic; font-size: 1.3em;}
+span.cursed_item_ability_desc {font-family: Metrophobic; }
+span.cursed_item_ability_desc b {font-family: Silverado;}
 
     /* hooker-up the fighting arts and disorders*/
 p.survivor_sheet_card {display: inline-block; text-align: center; border-radius: 5px; margin: 1%; margin-bottom: 3%; padding: 2%; width: 94%; }
@@ -1858,6 +1859,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.cursed_items_flex_container {display: block; text-align: center; }
     div.cursed_item_toggle {width: 275px; font-size: 12pt; text-align: left; display: inline-block; vertical-align: top; margin: 2%; margin-right: 2%; }
     label.cursed_item_toggle {width: 100%; }
+    label.cursed_item_toggle:hover {font-weight:normal; color: #666; }
     p.cursed_items_subhead {font-size: 12pt; }
     span.cursed_item_name { font-size: 14pt; }
     div.cursed_item_ability_block {margin: 0; }

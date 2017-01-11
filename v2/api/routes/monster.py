@@ -5,22 +5,26 @@ from flask import request, Response
 from models import monsters
 import utils
 
-logger = utils.get_logger(log_name="server")
+#logger = utils.get_logger(log_name="server")
 
 def GET_json():
     """ Simple GET handling for monster assets. Supports lookup by handle or by
     name and returns a 200 if it can find one. Othewise, you get a 404. """
 
-    m_handle = None
+    if request.json is None:
+        return utils.http_422
+
     m_name = None
     if "name" in request.json:
         m_name = request.json["name"]
+
+    m_handle = None
     if "handle" in request.json:
-        m_name = request.json["handle"]
+        m_handle = request.json["handle"]
 
     try:
         if m_handle is not None:
-            M = monsters.Monster(handle=m_handle)
+            M = monsters.Monster(m_handle)
         elif m_name is not None:
             M = monsters.Monster(name=m_name)
         else:

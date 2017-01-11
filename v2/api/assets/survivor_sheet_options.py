@@ -71,7 +71,8 @@ causes_of_death = {
     "core_mortal_terror":       {"name": "Mortal Terror", "context": "brain_trauma"},
 
     # story_events
-    "core_armored_strangers":   {"name": "Armored Strangers", "context": "story_event"},
+    "core_armored_strangers_00":{"name": "Armored Strangers", "context": "story_event"},
+    "core_armored_strangers_01":{"name": "Impaled on the Guidepost", "context": "story_event"},
     "core_regal_visit":         {"name": "Regal Visit", "context": "story_event"},
     "core_hk_00":               {"name": "Hooded Knight", "context": "story_event"},
     "core_bone_witch":          {"name": "Exiled", "context": "story_event"},

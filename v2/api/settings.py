@@ -94,13 +94,16 @@ def check_key(k=None):
         return False
 
 
-def get(section=None, query=None):
+def get(section=None, query=None, private=False):
     """ Laziness/convenience function to get a setting without initializing a
     Settings object. """
 
     if section is None or query is None:
         raise TypeError("settings.get() does not accept None type arguments.")
-    S = Settings()
+    if not private:
+        S = Settings()
+    else:
+        S = Settings("private")
     return S.get(section,query)
 
 

@@ -29,7 +29,7 @@ class Survivor(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="survivors"
-        self.object_version = 0.9
+        self.object_version = 0.12
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize()
 
@@ -53,9 +53,8 @@ class Survivor(Models.UserAsset):
             self.save()
 
 
-    def serialize(self, return_type=None):
-        """ Renders the settlement, including all methods and supplements, as
-        a monster JSON object. This one is the gran-pappy. """
+    def serialize(self):
+        """ Renders the survivor as JSON. We don't serialize to anything else."""
 
         self.survivor["effective_sex"] = self.get_sex()
         self.survivor["can_be_nominated_for_intimacy"] = self.can_be_nominated_for_intimacy()
@@ -65,10 +64,7 @@ class Survivor(Models.UserAsset):
         output["sheet"].update({"cursed_items": self.get_cursed_items()})
         output["sheet"].update({"notes": self.get_notes()})
 
-        if return_type == "JSON":
-           return json.dump(output, default=json_util.default)
-
-        return output
+        return json.dumps(output, default=json_util.default)
 
 
     def get_cursed_items(self):
@@ -144,3 +140,32 @@ class Survivor(Models.UserAsset):
         for k in d:
             self.survivor[k] = d[k]
         utils.mdb.survivors.save(self.survivor)
+
+
+    #
+    #   Do not write model methods below this one. 
+    #
+
+    def request_response(self, action=None):
+        """ Initializes params from the request and then response to the
+        'action' kwarg appropriately. This is the ancestor of the legacy app
+        assets.Survivor.modify() method. """
+
+        self.get_request_params()
+
+        if action == "get":
+            return self.get_json()
+        else:
+            # unknown/unsupported action response
+            self.logger.warn("Unsupported survivor action '%s' received!" % action)
+            return utils.http_400
+
+
+        # finish successfully
+        return utils.http_200
+
+
+
+
+
+# ~fin

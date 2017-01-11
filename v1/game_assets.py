@@ -3876,6 +3876,7 @@ weapon_proficiencies = {
 
 epithets = {
     # spidicules
+    "Silk Nest Rescue": {"expansion": "Spidicules"},
     "Embalmed": {"expansion": "Spidicules"},
     "Mummified": {"expansion": "Spidicules"},
     "Mummified Husk": {"expansion": "Spidicules"},
@@ -4051,6 +4052,10 @@ epithets = {
     "Cleared the Mist": {},
     "Urine-soaked": {},
 
+    # endeavor
+    "Augurer": {},
+    "Scrap Scavenger": {},
+
     # story event
     "Speaker of the First Words": {},
     "Father of Words": {},
@@ -4065,6 +4070,7 @@ epithets = {
     "Voice of Reason": {},
     "Bone Witch": {"color": "FFF", "bgcolor": "212121"},
     "Leader of the Settlement": {},
+    "Scarred by the First Grave": {},
 
     # lineage/ancestry/etc.
     "Breeder": {},

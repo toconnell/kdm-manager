@@ -1,5 +1,8 @@
-Responsive webapp with a few breakpoints
-Some kind of js framework for client-side fanciness
+
+#
+#   Are you n API developer or sysadmin? If not, it's probably a good idea to
+#   turn back: nothing but trouble here, friend.
+#
 
 
 ### API Stack
@@ -8,16 +11,10 @@ Some kind of js framework for client-side fanciness
  - flask (for routes)
 
 
-### Routes
- - update user
- - update survivor
- - update settlement
-
-
 ### Dependencies
 
 apt install python-pip gunicorn ubuntu-standard systemd-sysv 
-pip install Flask requests
+pip install Flask requests Flask-JWT
 
 
 ### first-time install
@@ -33,4 +30,16 @@ $ cd kdm-manager/v2/api
 $ git pull
 $ world.py -d restart
 # ./server.sh restart
+
+
+### request reponse troubleshooting:
+ - api.py receives requests and activates a route method
+ - the route method will do one of the following:
+    - initialize a Models.AssetCollection() object and return a response
+    - use call the request_broker.py method to initialize a specific user asset 
+
+NB: successfully initialized user assets should only ever respond via their
+private request_response() method.
+
+
 

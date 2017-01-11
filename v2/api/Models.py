@@ -4,7 +4,7 @@ from bson.objectid import ObjectId
 from copy import copy
 from datetime import datetime, timedelta
 
-from flask import Response
+from flask import request, Response
 
 import utils
 
@@ -120,6 +120,7 @@ class GameAsset():
         self.handle = handle
 
 
+
     def initialize(self):
         """ Call this method to initialize the object. """
 
@@ -201,8 +202,9 @@ class GameAsset():
 
 
 class UserAsset():
-    """ The base class for initializing individual user assets, such as
-    survivors, sessions, settlements, etc. """
+    """ The base class for all user asset objects, such as survivors, sessions,
+    settlements and users. All user asset controllers in the 'models' module
+    use this as their base class. """
 
 
     def __repr__(self):
@@ -247,6 +249,8 @@ class UserAsset():
             utils.mdb.settlements.save(self.settlement)
         elif self.collection == "survivors":
             utils.mdb.survivors.save(self.survivor)
+        elif self.collection == "users":
+            utils.mdb.users.save(self.user)
         else:
             raise AssetLoadError("Invalid MDB collection for this asset!")
         self.logger.info("Saved %s to mdb.%s successfully!" % (self, self.collection))
@@ -263,34 +267,35 @@ class UserAsset():
         if self.collection == "settlements":
             self.settlement = mdb_doc
         elif self.collection == "survivors":
-            from models import settlements      # why is this here? wtf?
             self.survivor = mdb_doc
-            self.Settlement = settlements.Settlement(_id=self.survivor["settlement"])
-            self.settlement = self.Settlement.settlement
+        elif self.collection == "users":
+            self.user = mdb_doc
         else:
             raise AssetLoadError("Invalid MDB collection for this asset!")
 
 
-    def log_event(self, msg):
-        """ Logs a settlement event to mdb.settlement_events. """
-        d = {
-            "created_on": datetime.now(),
-            "settlement_id": self.settlement["_id"],
-            "ly": self.settlement["lantern_year"],
-            "event": msg,
-        }
-        utils.mdb.settlement_events.insert(d)
-        self.logger.debug("%s event: %s" % (self, msg))
+    def get_json(self):
+        """ Calls the asset's serialize() method and creates a simple HTTP
+        response. """
+        return Response(response=self.serialize(), status=200, mimetype="application/json")
 
 
-    def http_response(self):
-        """ Generates an HTTP request response: tries to serialize the object instance but,
-        if it can't, returns a 500 or 404 as appropriate. """
+    def get_request_params(self):
+        """ Checks the incoming request (from Flask) for JSON and tries to add
+        it to self. """
 
-        if self.loaded:
-            return Response(response=self.serialize(), status=200, mimetype="application/json")
-        else:
-            return utils.http_404
+        params = {}
+        if request.get_json() is not None:
+            try:
+                params = dict(request.get_json())
+            except ValueError:
+                self.logger.warn("%s request JSON could not be converted to dict!" % request.method)
+                params = request.get_json()
+
+        if request.method != "GET" and request.get_json() is None:
+            self.logger.warn("%s request contained no JSON payload!" % request.method)
+
+        self.params = params
 
 
     #
@@ -316,3 +321,22 @@ class UserAsset():
         typos, etc. """
 
         return int(self.settlement["lantern_year"])
+
+    #
+    #   asset update methods below
+    #
+
+    def log_event(self, msg):
+        """ Logs a settlement event to mdb.settlement_events. """
+        d = {
+            "created_on": datetime.now(),
+            "settlement_id": self.settlement["_id"],
+            "ly": self.settlement["lantern_year"],
+            "event": msg,
+        }
+        utils.mdb.settlement_events.insert(d)
+        self.logger.debug("%s event: %s" % (self, msg))
+
+
+
+

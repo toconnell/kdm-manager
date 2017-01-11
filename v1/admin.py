@@ -226,7 +226,7 @@ def dump_document(collection, doc_id):
     print("")
     for a in sorted(document.keys()):
 #        print(" %s%s%s%s %s" % (a, " " * (key_length - len(a)), document[a], " " * (key_length - len(str(document[a]))), type(document[a])))
-        print(" %s%s%s%s%s" % (a, " "*(key_length - len(a)), type(document[a]), " "*(key_length+7 - len(str(type(document[a])))), document[a]))
+        print(" %s%s%s%s|%s|" % (a, " "*(key_length - len(a)), type(document[a]), " "*(key_length+7 - len(str(type(document[a])))), document[a]))
     print("")
 
 
@@ -680,7 +680,6 @@ if __name__ == "__main__":
     parser.add_option("-R", dest="drop_collection", help="Drop all docs in a collection.", metavar="users", default=False)
 
     parser.add_option("--play_summary", dest="play_summary", help="Summarize play sessions for users.", action="store_true", default=False)
-    parser.add_option("--valkyrie", dest="valkyrie", help="Run the valkyrie.", action="store_true", default=False)
 
     parser.add_option("-u", dest="user_id", help="Specify a user to work with.", default=False)
     parser.add_option("-p", dest="user_pass", help="Update a user's password (requires -u).", default=False)
@@ -707,9 +706,6 @@ if __name__ == "__main__":
 
     if options.import_data:
         import_data(options.import_data)
-
-    if options.valkyrie:
-        valkyrie()
 
     if options.user_repr:
         User = assets.User(user_id=options.user_repr, session_object=admin_session)
