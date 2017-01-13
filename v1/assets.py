@@ -5227,7 +5227,12 @@ class Settlement:
     def update_quarries(self, action, quarry_handle):
         """ Operates on self.settlement["quarries"]. """
 
-        m = self.get_api_asset("game_assets","monsters")[quarry_handle]
+        try:
+            m = self.get_api_asset("game_assets","monsters")[quarry_handle]
+        except Exception as e:
+            self.logger.exception(e)
+            self.logger.error("[%s] tried to work with quarry handle '%s', but that quarry handle could not be retrieved from API data!" % (self.User, quarry_handle))
+            return False
 
         if action == "add":
             self.settlement["quarries"].append(quarry_handle)
@@ -5712,6 +5717,7 @@ class Settlement:
             game_asset_key = None
             if type(params[p]) != list:
                 game_asset_key = params[p].value.strip()
+
 #            self.logger.debug("%s -> %s (%s)" % (p, params[p], type(params[p])))
 
 

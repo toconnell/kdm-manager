@@ -10,6 +10,7 @@ from bson.objectid import ObjectId
 from bson import json_util
 import json
 import requests
+from retry import retry
 import socket
 from urlparse import urljoin
 
@@ -50,7 +51,25 @@ def post_JSON_to_route(route=None, payload={}):
     return requests.post(req_url, data=j, headers=h)
 
 
-def route_to_dict(route, params={}, return_as=dict, authorize=False):
+def get_jwt_token(username=None, password=None):
+    """ Gets a JWT token from /auth. Returns it (returns None if it fails for
+    whatever reason, and tries to do some logging). """
+
+    if not username or not password:
+        raise Exception("JWT token cannot be retrieved without a username and password!")
+
+    req_url = route_to_url("/auth")
+    auth_dict = {"username": username, "password": password}
+    response = post_JSON_to_route(req_url, auth_dict)
+    if response.status_code == 200:
+        return response.json()["access_token"]
+    return None
+
+@retry(
+    tries=3,delay=1,jitter=1,
+    logger=logger,
+)
+def route_to_dict(route, params={}, return_as=dict, access_token=None):
     """ Retrieves data from a route. Returns a dict by default, which means that
     a 404 will come back as a {}. """
 
@@ -62,18 +81,17 @@ def route_to_dict(route, params={}, return_as=dict, authorize=False):
         if type(v) == ObjectId:
             params[k] = str(v)
 
-    if authorize:
-        params.update({"meta": {"api_key": settings_private.get("api","key")}})
-
     j = json.dumps(params, default=json_util.default)
 
     h = {'content-type': 'application/json'}
+    if access_token is not None:
+        h["Authorization"] = "JWT %s" % access_token
 
     try:
-        if authorize:
-            r = requests.post(req_url, data=j, headers=h)
-        else:
+        if params == {}:
             r = requests.get(req_url, data=j, headers=h)
+        else:
+            r = requests.post(req_url, data=j, headers=h)
     except Exception as e:
         logger.error("Could not retrieve data from API server!")
         logger.exception(e)
@@ -82,7 +100,8 @@ def route_to_dict(route, params={}, return_as=dict, authorize=False):
     if r.status_code == 200:
         return dict(r.json())
     else:
-        logger.error("API:GET -> '%s' returned a %s status!" % (r.url, r.status_code))
+        logger.error("%s - '%s' responded: %s - %s" % (r.request.method, r.url, r.status_code, r.reason))
+        raise Exception("API Failure!")
         return {}
 
 

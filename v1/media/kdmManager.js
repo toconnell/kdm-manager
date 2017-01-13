@@ -25,7 +25,7 @@ function hideFullPageLoader() {
 app.factory('apiService', function($http) {
     return {
         getSettlement: function(root_url, api_route, s_id) {
-            return $http.post(root_url + 'settlement/' + api_route + '/' + s_id);
+            return $http.get(root_url + 'settlement/' + api_route + '/' + s_id);
         }
     }
 });
@@ -507,12 +507,23 @@ function modifyAsset(collection, asset_id, param_string) {
     // asset params
 
     var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function (oEvent) {  
+        if (xhr.readyState === 4) {  
+            if (xhr.status === 200) {  
+                savedAlert();
+            } else {  
+                console.error("Error -> ", xhr.responseText);  
+                errorAlert();
+            }  
+        }  
+    }; 
+
     xhr.open("POST", "/", true);
     xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
     var params = "modify=" + collection + "&asset_id=" + asset_id + "&" + param_string + "&norefresh=True";
 //    window.alert(params);
     xhr.send(params);
-    savedAlert();
+
 }
 
 

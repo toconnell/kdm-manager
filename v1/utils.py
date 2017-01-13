@@ -170,7 +170,7 @@ class mailSession:
 
     def connect(self):
         self.server = smtplib.SMTP(self.smtp_host, 587)
-        self.server.set_debuglevel(1)
+#        self.server.set_debuglevel(1)
         self.server.starttls()
         self.server.login(self.smtp_user, self.smtp_pass)
         self.logger.debug("SMTP Authentication successful for %s (%s)." % (self.smtp_user, self.smtp_host))

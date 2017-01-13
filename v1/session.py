@@ -127,8 +127,8 @@ class Session:
         admin.remove_session(self.session["_id"], "admin")
 
 
-    def new(self, login):
-        """ Creates a new session. Only needs a valid user login.
+    def new(self, login, password):
+        """ Creates a new session. Needs a valid user login and password..
 
         Updates the session with a User object ('self.User') and a new Session
         object ('self.session'). """
@@ -136,12 +136,18 @@ class Session:
         user = mdb.users.find_one({"login": login})
         mdb.sessions.remove({"login": user["login"]})
 
+        # new! get a JWT token and add it to your sesh so that your sesh can be
+        # used to add it to your cookie
+
+        token = api.get_jwt_token(login, password)
+
         session_dict = {
             "login": login,
             "created_on": datetime.now(),
             "created_by": user["_id"],
             "current_view": "dashboard",
             "user_agent": {"is_mobile": get_user_agent().is_mobile, "browser": get_user_agent().browser },
+            "access_token": token,
         }
 
         session_id = mdb.sessions.insert(session_dict)
@@ -312,6 +318,7 @@ class Session:
         # now dial the API; fail noisily if we can't get it
         self.api_settlement = api.route_to_dict(
             "settlement/get/%s" % self.current_settlement,
+            access_token = self.session["access_token"],
         )
         if self.api_settlement == {}:
             self.logger.error("[%s] could not retrieve settlement from API server!" % self.User)
@@ -463,18 +470,24 @@ class Session:
         # these are our two asset removal methods: this is as DRY as I think we
         #   can get with this stuff, since both require unique handling
         if "remove_settlement" in self.params:
-            self.change_current_view("dashboard")
             s_id = ObjectId(self.params["remove_settlement"].value)
+            self.set_current_settlement(s_id)
             S = assets.Settlement(settlement_id=s_id, session_object=self)
-            user_action = "removed settlement %s" % S
             S.remove()
+            user_action = "removed settlement %s" % S
+            self.change_current_view("dashboard")
 
         if "remove_survivor" in self.params:
-            survivor_id = ObjectId(self.params["remove_survivor"].value)
-            S = assets.Survivor(survivor_id=survivor_id, session_object=self)
-            self.change_current_view("view_campaign", asset_id=S.survivor["settlement"])
-            user_action = "removed survivor %s from %s" % (S, S.Settlement)
+            # we actually have to get the survivor from the MDB to set the
+            # current settlement before we can initialize the survivor and
+            # use its remove() method.
+            s_id = ObjectId(self.params["remove_survivor"].value)
+            s_doc = mdb.survivors.find_one({"_id": s_id})
+            self.set_current_settlement(s_doc["settlement"])
+            S = assets.Survivor(survivor_id=s_id, session_object=self)
             S.remove()
+            user_action = "removed survivor %s from %s" % (S, S.Settlement)
+            self.change_current_view("view_campaign", asset_id=S.survivor["settlement"])
 
 
         # user and campaign exports

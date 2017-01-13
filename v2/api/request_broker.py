@@ -1,8 +1,10 @@
 #!/usr/bin/python2.7
 
+from flask import request, Response
+
 import utils
 
-from models import survivors, settlements, users
+from models import survivors, settlements, users, monsters
 from Models import AssetLoadError
 
 logger = utils.get_logger(log_name="errors")
@@ -25,8 +27,17 @@ class badResponse():
         self.logger.warn("Returning failure response to bad '%s' request." % action)
         return self.response
 
+    def send_bad_response(self, e):
+        # return a 404 if we can't find the asset ID
+        if isinstance(e, AssetLoadError):
+            self.logger.warn("Requested asset _id could not be initialized!")
+            return utils.http_404
 
-def get_asset(collection=None, asset_id=None):
+        self.logger.exception(e)
+        return utils.http_500
+
+
+def get_user_asset(collection=None, asset_id=None):
     """ Tries to return an initialized asset from one of our collections.
     Returns a (bad) HTTP response if it cannot. """
 
@@ -43,18 +54,26 @@ def get_asset(collection=None, asset_id=None):
             return R
 
     except Exception as e:
+        R.send_bad_response(e)
 
-        # return a 404 if we can't find the asset ID
-        if isinstance(e, AssetLoadError):
-            R.logger.warn("Requested %s asset _id %s could not be initialized!" % (collection, asset_id))
-            R.response = utils.http_404
+
+def get_game_asset(collection):
+    """ Simliar to get_user_asset(), except for game assets, such as monsters,
+    gear, locations, etc. """
+
+    R = badResponse()
+
+    if request.json is None:
+        return utils.http_422
+
+    try:
+        if collection == "monster":
+            M = monsters.Assets()
+            return M.request_response(request.json)
+        else:
             return R
 
-        R.response = utils.http_500
-        R.logger.exception(e)
-        return R
-
-
-
+    except Exception as e:
+        R.send_bad_response(e)
 
 

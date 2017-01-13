@@ -13,6 +13,7 @@ import pymongo
 import socket
 import time
 from validate_email import validate_email
+from werkzeug.security import safe_str_cmp
 
 import api
 import assets
@@ -140,7 +141,7 @@ def authenticate(login, password):
     if user is None:
         return None
 
-    if md5(password).hexdigest() == user["password"]:
+    if safe_str_cmp(md5(password).hexdigest(), user["password"]):
         user["latest_sign_in"] = datetime.now()
         mdb.users.save(user)
         logger.debug("User '%s' authenticated successfully (%s)." % (login, get_user_agent()))

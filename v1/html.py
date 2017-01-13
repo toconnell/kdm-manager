@@ -3888,6 +3888,10 @@ class meta:
     basic_http_header = "Content-type: text/html\n\n"
     basic_file_header = "Content-Disposition: attachment; filename=%s\n"
 
+    norefresh_response = Template("""Content-type: text/html\nStatus: $status\n\n
+    <html><head><title>$status - $response</title></head><body>$response</body></html>
+    """)
+
     error_500 = Template("""%s<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
     <html><head><title>%s</title></head>
     <body>
@@ -4040,7 +4044,7 @@ class meta:
 #   application helper functions for HTML interfacing
 #
 
-def set_cookie_js(session_id):
+def set_cookie_js(session_id, token):
     """ This returns a snippet of javascript that, if inserted into the html
     head will set the cookie to have the session_id given as the first/only
     argument to this function.
@@ -4051,6 +4055,7 @@ def set_cookie_js(session_id):
     cookie = Cookie.SimpleCookie()
     cookie["session"] = session_id
     cookie["session"]["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
+    cookie["jwt_token"] = token
     return cookie.js_output()
 
 
@@ -4072,17 +4077,21 @@ def authenticate_by_form(params):
                 logger.exception("admin.create_new_user returned unexpected results!")
                 logger.error(create_new)
     if "login" in params and "password" in params:
-        auth = admin.authenticate(params["login"].value.strip().lower(), params["password"].value.strip())
+        username = params["login"].value.strip().lower()
+        password = params["password"].value.strip()
+
+        auth = admin.authenticate(username, password)
+
         if auth == False:
             output = user_error_msg.safe_substitute(err_class="error", err_msg="Invalid password! Please re-enter.")
             output += login.form
         elif auth is None:
-            output = login.new_user.safe_substitute(login=params["login"].value.strip().lower())
+            output = login.new_user.safe_substitute(login=username)
             output += err_msg
         elif auth == True:
-
             s = Session()
-            session_id = s.new(params["login"].value.strip().lower())
+            session_id = s.new(username, password)
+            new_sesh = mdb.sessions.find_one({"_id": session_id})
             s.User.mark_usage("authenticated successfully")
 
 			# handle preserve sessions checkbox on the sign in view
@@ -4093,7 +4102,7 @@ def authenticate_by_form(params):
                 mdb.users.save(s.User.user)
 
             html, body = s.current_view_html()
-            render(html, body_class=body, head=[set_cookie_js(session_id)])
+            render(html, body_class=body, head=[set_cookie_js(new_sesh["_id"],new_sesh["access_token"])])
     else:
         output = login.form
     return output

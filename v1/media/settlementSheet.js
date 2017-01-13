@@ -55,8 +55,15 @@ app.controller('defeatedMonstersController', function($scope, $http) {
 
 app.controller('quarriesController', function($scope, $http) {
     $scope.addQuarry = function(x) {
-        $scope.settlement_sheet.quarries.push($scope.addQuarryMonster);
+        // set the quarry handle that we're going to add; bail if it's bogus
+        var quarry_handle = $scope.addQuarryMonster;
+        if (quarry_handle === null) {console.error("quarry handle is null!"); return false};
+
+        // update the settlement object; 
+        $scope.settlement_sheet.quarries.push(quarry_handle);
         $scope.settlement.game_assets.quarry_options.splice(x, 1);
+
+        // send an update to the legacy app
         params = "add_quarry=" + $scope.addQuarryMonster;
         modifyAsset('settlement',$scope.settlement_id,params);
     };

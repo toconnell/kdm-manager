@@ -116,6 +116,16 @@ def get_timeline_index_and_object(timeline,lantern_year):
 
 # general usage methods
 
+def basic_logging():
+    """ Executes logging.basicConfig() to catch logging from imported modules,
+    i.e. to make sure we don't lose any logging. """
+
+    logging.basicConfig(
+        filename = os.path.join(settings.get("api","log_dir"), "server.log"),
+        format = '[%(asctime)s] %(levelname)s:\t%(message)s',
+        level = settings.get("server","log_level"),
+    )
+
 def get_logger(log_level=None, log_name=None):
     """ Initialize a logger, specifying a new file if necessary. """
     logger = logging.getLogger(__name__)

@@ -5,12 +5,10 @@
 from bson.objectid import ObjectId
 from bson import json_util
 
-from flask import Flask, send_file, request, Response
-from flask_jwt import  JWT, jwt_required, current_identity
+from flask import Flask, send_file, request, Response, send_from_directory
+import flask_jwt
 
 import json
-import logging
-from logging.handlers import RotatingFileHandler
 import os
 
 # application-specific imports
@@ -20,11 +18,9 @@ import world
 import utils
 
 # models
-from models import users
+from models import users, settlements
 
-# routes
-from routes import monster, cursed_items, new_settlement
-
+utils.basic_logging()
 
 # create the flask app with settings/utils info
 application = Flask(__name__)
@@ -36,25 +32,23 @@ application.logger.addHandler(utils.get_logger(log_name="server"))
 application.config['SECRET_KEY'] = settings.get("api","secret_key","private")
 
 #   Javascript Web Token!
-jwt = JWT(application, users.authenticate, users.jwt_identity_handler)
-
+jwt = flask_jwt.JWT(application, users.authenticate, users.jwt_identity_handler)
 
 
 #
 #   Routes start here! Settings object initialized above...
 #
 
-@application.route('/protected')
-@jwt_required()
-def protected():
-    meow
-    return '%s' % current_identity
-
 
 # default route - landing page, vanity URL stuff
 @application.route("/")
 def index():
     return send_file("templates/index.html")
+
+# static css and js routes
+@application.route('/static/<sub_dir>/<path:path>')
+def route_to_static(path, sub_dir):
+    return send_from_directory('static/%s' % sub_dir, path)
 
 
 #
@@ -63,7 +57,7 @@ def index():
 
 @application.route("/monster", methods=["GET","POST"])
 def monster_json():
-    return monster.GET_json()
+    return request_broker.get_game_asset("monster")
 
 @application.route("/settings.json")
 def get_settings_json():
@@ -93,8 +87,9 @@ def world_json():
 @application.route("/new_settlement")
 @utils.crossdomain(origin=['*'])
 def get_new_settlement_assets():
+    S = settlements.Assets()
     return Response(
-        response=json.dumps(new_settlement.serialize_assets()),
+        response=json.dumps(S.serialize()),
         status=200,
         mimetype="application/json"
     )
@@ -106,11 +101,19 @@ def get_new_settlement_assets():
 #   private routes
 #
 
-@application.route("/<collection>/<action>/<asset_id>", methods=["POST","OPTIONS"])
+@application.route('/protected',methods=["GET","POST"])
+@flask_jwt.jwt_required()
+def protected():
+    meow
+    return '%s' % flask_jwt.current_identity
+
+
+@application.route("/<collection>/<action>/<asset_id>", methods=["GET","POST","OPTIONS"])
 @utils.crossdomain(origin=['*'],headers='Content-Type')
+#@flask_jwt.jwt_required()
 def get_settlement(collection, action, asset_id):
     """ This is our major method for retrieving and updating settlements. """
-    asset_object = request_broker.get_asset(collection, asset_id)
+    asset_object = request_broker.get_user_asset(collection, asset_id)
     return asset_object.request_response(action)
 
 

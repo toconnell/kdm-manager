@@ -34,19 +34,21 @@ if __name__ == "__main__":
         logger.exception(e)
         raise
 
+#    if "norefresh" in params and S.session is None:
+#        raise  # force a 502 !hacks!
     if S.session is None and "recover_password" not in params:
         output = html.authenticate_by_form(params)
     elif S.session is None and "recover_password" in params:
         output = S.recover_password()
     else:
         S.process_params(user_action="viewing %s" % S.get_current_view())
-        if "norefresh" in params:
-            print Response(response="OK",status=200)
+        if "norefresh" in params and S.session is not None:
+            print html.meta.norefresh_response.safe_substitute(response="OK",status=200)
         else:
             output, body = S.current_view_html()
 
     stop = datetime.now()
     record_response_time(S.get_current_view(), stop-start)
 
-    if "nofrefresh" not in params:
+    if "norefresh" not in params:
         html.render(output, body_class=body, session_object=S)

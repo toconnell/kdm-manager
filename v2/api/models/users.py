@@ -28,7 +28,7 @@ def jwt_identity_handler(payload):
     """ Bounces the authentication request payload off of the user collection.
     Returns a user object if "identity" in the request exists. """
 
-    logger.debug("here")
+    MEOW
     u_id = payload["identity"]
     return utils.mdb.users.find_one({"_id": ObjectId(u_id)})
 
