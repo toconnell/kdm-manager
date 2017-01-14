@@ -406,7 +406,7 @@ class World:
         return utils.mdb.users.find().count()
 
     def total_users_last_30(self):
-        return utils.mdb.sessions.find({"created_on": {"$gte": utils.thirty_days_ago}}).count()
+        return utils.mdb.users.find({"latest_activity": {"$gte": utils.thirty_days_ago}}).count()
 
     def recent_sessions(self):
         return utils.mdb.users.find({"latest_activity": {"$gte": utils.recent_session_cutoff}}).count()
