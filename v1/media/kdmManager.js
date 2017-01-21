@@ -7,7 +7,6 @@ function savedAlert() {
 };
 
 function errorAlert() {
-    console.log("here!");
     $('#error_dialog').fadeIn(500);
     $('#error_dialog').show();
     $('#error_dialog').fadeOut(5000);

@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 
-#
-#   Only game_asset dictionaries belong in this file. Do not add any methods or
-#       other helpers here. Those all belong in models.py
-#
-
-
 
 #
 #   Abilities and Impairments
 #
 
 abilities_and_impairments = {
+    "Forgettable": {
+        "type": "ability",
+        "max": 1,
+        "expansion": "Slenderman",
+        "desc": "Gain +2 permanent evasion. Forgettable survivors cannot be encouraged.",
+        "Evasion": 2,
+    },
     "Rival's Scar": {
         "type": "ability",
         "expansion": "Spidicules",
@@ -749,6 +750,16 @@ abilities_and_impairments = {
 #
 
 disorders = {
+    "Spiral Ganglia": {
+        "expansion": "Slenderman",
+        "flavor_text": "The roads in your mind cross and reveal a strange new path.",
+        "survivor_effect": "At the start of the showdown, gain the <b>Darkness Awareness</b> survivor status card.",
+    },
+    "Hyper-Sensitivity": {
+        "expansion": "Slenderman",
+        "flavor_text": "Your will to survive has become indefatigable",
+        "survivor_effect": "You may <b>dodge</b> one additional time per round.<br/>Whenever you are hit by an attack, you must <b>dodge</b> at least once, if possible.",
+    },
     "Tiny Arachnophobia": {
         "expansion": "Spidicules",
         "flavor_text": "You are irrationally scared by tiny spiders and the things they produce.",
@@ -985,6 +996,20 @@ disorders = {
 
 
 fighting_arts = {
+    "Blotted Out": {
+        "expansion": "Slenderman",
+        "desc": "When you suffer a brain trauma, gain a bleeding token.",
+        "epithet": "Blotted Out",
+    },
+    "Phantom Friend": {
+        "expansion": "Slenderman",
+        "desc": "The first time you gain a resource during a showdown, you may feed it to your phantom friend. If you do, archive the resources and gain +1 evasion token.<br/>Lose this token if you are <b>deaf</b> or become <b>deaf</b> during the showdown."
+    },
+    "Clarity of Darkness": {
+        "expansion": "Slenderman",
+        "desc": "At the start of the showdown, gain the <b>Path of Gloom</b> survivor status card.<br/>There is a deadly, otherworldly presence about you. Other survivors cannot voluntarily end their movement adjacent to you.",
+        "secret": True,
+    },
     "Death Touch": {
         "expansion": "Spidicules",
         "desc": "Gain +1 accuracy when attacking with Fist & Tooth.<br/>When you wound a monster, it gains -1 toughness until the end of your attack.<br/>You cannot use this if you are male.",
@@ -1291,13 +1316,16 @@ fighting_arts = {
     },
 }
 
-defeated_monsters = {
-    "White Lion (First Story)": {
-        "always_vailable": True,
-    }
-}
 
 locations = {
+    "Light-Forging": {
+        "color": "570A75",
+        "font-color": "fff",
+    },
+    "Green Knight Armor": {
+        "color": "42AB59",
+        "font_color": "fff",
+    },
     "Silk Mill":{
         "color": "C0CA33",
         "font_color": "000",
@@ -1512,6 +1540,82 @@ item_normalization_exceptions = {
 
 
 items = {
+    "Gloom Hammer": {
+        "expansion": "Slenderman",
+        "location": "Light-Forging",
+    },
+    "Gloom Katana": {
+        "expansion": "Slenderman",
+        "location": "Light-Forging",
+    },
+    "Gloom Sheath": {
+        "expansion": "Slenderman",
+        "location": "Light-Forging",
+    },
+    "Gloom Bracelets": {
+        "expansion": "Slenderman",
+        "location": "Light-Forging",
+    },
+    "Gloom-Coated Arrow": {
+        "expansion": "Slenderman",
+        "location": "Light-Forging",
+    },
+    "Gloom Mehndi": {
+        "expansion": "Slenderman",
+        "location": "Light-Forging",
+    },
+    "Dark Water Vial": {
+        "expansion": "Slenderman",
+        "location": "Light-Forging",
+    },
+    "Raptor-Worm Collar": {
+        "expansion": "Slenderman",
+        "location": "Light-Forging",
+    },
+    "Gloom Cream": {
+        "expansion": "Slenderman",
+        "location": "Light-Forging",
+    },
+    "Slender Ovule": {
+        "expansion": "Slenderman",
+        "location": "Light-Forging",
+    },
+    "Crystal Sword Mold": {
+        "expansion": "Slenderman",
+        "location": "Strange Resources",
+    },
+    "Dark Water": {
+        "expansion": "Slenderman",
+        "location": "Strange Resources",
+    },
+    "Green Boots" : {
+        "expansion": "Green Knight Armor",
+        "location": "Green Knight Armor",
+    },
+    "Green Plate" : {
+        "expansion": "Green Knight Armor",
+        "location": "Green Knight Armor",
+    },
+    "Green Gloves" : {
+        "expansion": "Green Knight Armor",
+        "location": "Green Knight Armor",
+    },
+    "Green Helm" : {
+        "expansion": "Green Knight Armor",
+        "location": "Green Knight Armor",
+    },
+    "Green Faulds" : {
+        "expansion": "Green Knight Armor",
+        "location": "Green Knight Armor",
+    },
+    "Fetorsaurus" : {
+        "expansion": "Green Knight Armor",
+        "location": "Green Knight Armor",
+    },
+    "Griswaldo" : {
+        "expansion": "Green Knight Armor",
+        "location": "Green Knight Armor",
+    },
     "Venom Sac": {
         "expansion": "Spidicules",
         "location": "Spidicules Resources",
@@ -3163,7 +3267,6 @@ innovations = {
     "Choreia": {
         "type": "music",
         "expansion": "Spidicules",
-        "survivor_buff": "At the start of the showdown, each survivor gains &#9733; survival.",
         "endeavors": {
             "Spider Dance": {"cost": 1, "type": "music", "desc": "Nominate a male and a female survivor and roll 1d10."},
         },
@@ -3214,6 +3317,7 @@ innovations = {
             },
         },
     },
+
     "Settlement Watch": {
         "type": "home",
         "expansion": "Manhunter",
@@ -3243,6 +3347,7 @@ innovations = {
             "Crimson Cannibalism": {"cost": 1, "type": "science"},
         },
     },
+
     "Dragon Speech": {
         "type": "starting innovation",
         "expansion": "Dragon King",
@@ -3276,12 +3381,28 @@ innovations = {
         "consequences": ["Cooking", "Scrap Smelting"],
         "newborn_survivor": {"survival": 1},
     },
+
     "Petal Spiral": {
         "type": "music",
         "expansion": "Flower Knight",
         "endeavors": {
             "Trace Petals": {"cost": 1, "type": "music"},
         },
+    },
+
+    "Dark Water Research": {
+        "type": "science",
+        "expansion": "Slenderman",
+        "endeavors": {
+            '<font class="kdm_font">g</font> Light-Forging': {"cost": 2, "type": "science"},
+            "end_0": {
+                "hide_name": True,
+                "type": "science",
+                "desc": 'Spend 2x resources and 2x Dark Water to increase the level of <b>Dark Water Research</b> by 1, to a maximum of 3. (Update your settlement record sheet.)',
+                "cost": 1,
+            },
+        },
+        "levels": 3,
     },
     "Sun Language": {
         "expansion": "Sunstalker",
@@ -3337,11 +3458,13 @@ innovations = {
             "Final Dance": {"cost": 1, "type": "home"},
         },
     },
+
 	"The Knowledge Worm" :{
 		"type": "other",
 		"expansion": "Lion God",
 		"settlement_buff": 'At the start of each settlement phase, add 1 scrap to settlement storage.<br/><b>Departing Survivors</b> gain +3 survival and +3 insanity. If any of those survivors have 10+ insanity, <font class="kdm_font">g</font> <b>A Gracious Host</b>.',
 	},
+
     "Stoic Statue" : {
         "consequences": ["Black Mask", "White Mask"],
         "expansion": "Lion Knight",
@@ -3368,6 +3491,7 @@ innovations = {
             "Leave the monster an offering": {"cost": 1, "type": "other"},
         },
     },
+
     "Subterranean Agriculture": {
         "expansion": "Dung Beetle Knight",
         "type": "science",
@@ -3394,6 +3518,7 @@ innovations = {
             "Train": {"cost": 1, "type": "education"},
         },
     },
+
     "Nigredo": {
         "expansion": "Gorm",
         "type": "science",
@@ -3427,6 +3552,7 @@ innovations = {
             "Rubedo": {"cost": 4, "type": "science"},
         },
     },
+
     "Graves": {
         "type": "principle",
         "milestone": "First time death count is updated",
@@ -3479,6 +3605,7 @@ innovations = {
         "current_survivor": {"Strength": 1, "Evasion": 1},
         "newborn_survivor": {"Strength": 1, "Evasion": 1},
     },
+
     "Clan of Death": {
         "type": "home",
         "survivor_buff": "All newborn survivors gain <b>+1 Accuracy</b>, <b>+1 Strength</b> and <b>+1 Evasion</b>.",
@@ -3754,42 +3881,6 @@ survivors = {
 
 
 
-#
-#   Monster assets
-#
-
-quarries = {
-    "White Lion":               {"sort_order": 1, },
-    "Gorm":                     {"sort_order": 2, "expansion": "Gorm"},
-    "Screaming Antelope":       {"sort_order": 3, },
-    "Spidicules":               {"sort_order": 4, "expansion": "Spidicules"},
-    "Flower Knight":            {"sort_order": 5, "expansion": "Flower Knight"},
-    "Phoenix":                  {"sort_order": 6, },
-    "Sunstalker":               {"sort_order": 7, "expansion": "Sunstalker"},
-    "Dragon King":              {"sort_order": 8, "expansion": "Dragon King"},
-    "Dung Beetle Knight":       {"sort_order": 8, "expansion": "Dung Beetle Knight"},
-	"Lion God":                 {"sort_order": 9, "expansion": "Lion God"},
-    "Beast Of Sorrow":          {"sort_order": 13, "no_levels": True, },
-    "Great Golden Cat":         {"sort_order": 14, "no_levels": True, },
-    "Mad Steed":                {"sort_order": 15, "no_levels": True, },
-    "Golden Eyed King":         {"sort_order": 16, "no_levels": True, },
-    "Old Master":               {"sort_order": 17, "no_levels": True, "expansion": "Dung Beetle Knight"},
-}
-
-nemeses = {
-    "Lonely Tree":          {"sort_order": 20, "expansion": "Lonely Tree", "exclude_from_picker": True,},
-    "Butcher":              {"sort_order": 21, },
-    "The Tyrant":           {"sort_order": 22, "expansion": "Dragon King", "exclude_from_picker": True,},
-    "Manhunter":            {"sort_order": 23, "expansion": "Manhunter", "exclude_from_picker": True, "levels": 4,},
-    "King's Man":           {"sort_order": 24, },
-    "Lion Knight":          {"sort_order": 25, "expansion": "Lion Knight"},
-    "The Hand":             {"sort_order": 26, },
-    "Ancient Sunstalker":   {"sort_order": 30, "no_levels": True, "expansion": "Sunstalker", "add_to_timeline_controls_at": 25, "campaign": "People of the Sun"},
-    "Watcher":              {"sort_order": 31, "no_levels": True, "add_to_timeline_controls_at": 20, "campaign": "People of the Lantern"},
-}
-
-
-
 
 #
 #   Settlement Sheet assets
@@ -3875,6 +3966,14 @@ weapon_proficiencies = {
 
 
 epithets = {
+    # slenderman
+    "Gloomy": {"expansion": "Slenderman", "bgcolor": "570A75", "color": "fff"},
+    "Blotted Out": {"expansion": "Slenderman", "bgcolor": "570A75", "color": "fff"},
+    "Stranger": {"expansion": "Slenderman", "bgcolor": "570A75", "color": "fff"},
+    "Forgettable": {"expansion": "Slenderman"},
+    "Forgotten": {"expansion": "Slenderman"},
+    "Pod Prisoner": {"expansion": "Slenderman"},
+
     # spidicules
     "Silk Nest Rescue": {"expansion": "Spidicules"},
     "Embalmed": {"expansion": "Spidicules"},
@@ -4142,6 +4241,12 @@ expansions = {
         {"name": "Survival Limit Warning!", "desc": "Survival Limit is not automatically enforced by the Manager when Beta Challenge Scenarios content is enabled.", "bg_color": "F87217", "font_color": "FFF"},
         ],
     },
+    "Green Knight Armor": {
+        "always_available": ["Green Knight Armor"],
+    },
+    "Slenderman": {
+        "always_available": ["Dark Water Research"],
+    },
     "Dragon King": {
         "always_available": ["Dragon Armory"],
         "timeline_add": [
@@ -4311,6 +4416,24 @@ principles = {
 
 # define all campaign assets here
 campaigns = {
+    "Ballad of the Green Knight": {
+        "always_available": ["Lantern Hoard", "Language", "Exhausted Lantern Hoard"],
+        "forbidden": ["The Sun","Throne","Dragon Speech","Sun Language"],
+        "saviors": "1.3.1",
+        "principles": {
+            "New Life": principles["new_life"],
+            "Death": principles["death"],
+            "Society": principles["society"],
+            "Conviction": principles["conviction"],
+        },
+        "milestones": {
+            "First child is born": milestones["first_child"],
+            "First time death count is updated": milestones["first_death"],
+            "Population reaches 15": milestones["pop_15"],
+            "Settlement has 5 innovations": milestones["innovations_5"],
+            "Population reaches 0": milestones["game_over"],
+        },
+    },
     "People of the Lantern": {
         "default": True,
         "always_available": ["Lantern Hoard", "Language", "Exhausted Lantern Hoard"],

@@ -3,6 +3,8 @@
 from bson.objectid import ObjectId
 from copy import copy
 from datetime import datetime, timedelta
+import json
+from bson import json_util
 
 from flask import request, Response
 
@@ -105,6 +107,30 @@ class AssetCollection():
             return None
 
 
+    def request_response(self, req):
+        """ Processes a JSON request for a specific asset from the collection,
+        initializes the asset (if it can) and then calls the asset's serialize()
+        method to create an HTTP response. """
+
+        a_name = req.get("name", None)
+        a_handle = req.get("handle", None)
+
+        try:
+            if a_handle is not None:
+                A = self.AssetClass(a_handle)
+            elif a_name is not None:
+                A = self.AssetClass(name=a_name)
+            else:
+                return utils.http_422
+        except Exception as e:
+            self.logger.exception(e)
+            return utils.http_404
+
+        return Response(response=A.serialize(), status=200, mimetype="application/json")
+
+
+
+
 class GameAsset():
     """ The base class for initializing individual game asset objects. All of
     the specific models in the models/ folder will sub-class this model for
@@ -119,6 +145,8 @@ class GameAsset():
         self.name = name
         self.handle = handle
 
+    def __repr__(self):
+        return "%s object '%s' (assets.%ss['%s'])" % (self.type.title(), self.name, self.type, self.handle)
 
 
     def initialize(self):
@@ -169,6 +197,7 @@ class GameAsset():
         by checking self.assets to see if we can find an asset whose "name"
         value matches our self.name. """
 
+
         # sanity warning
         if "_" in self.name:
             self.logger.warn("Asset name '%s' contains underscores. Names should use whitespaces." % self.name)
@@ -184,6 +213,19 @@ class GameAsset():
 
         if self.handle is None:
             raise AssetInitError("Asset handle '%s' could not be retrieved!" % self.handle)
+
+
+    def serialize(self):
+        """ Allows the object to represent itself as JSON by transforming itself
+        into a JSON-safe dict. """
+
+        shadow_self = copy(self)
+
+        for banned_attrib in ["logger", "assets"]:
+            if hasattr(shadow_self, banned_attrib):
+                delattr(shadow_self, banned_attrib)
+
+        return json.dumps(shadow_self.__dict__, default=json_util.default)
 
 
     #
@@ -274,7 +316,7 @@ class UserAsset():
             raise AssetLoadError("Invalid MDB collection for this asset!")
 
 
-    def get_json(self):
+    def return_json(self):
         """ Calls the asset's serialize() method and creates a simple HTTP
         response. """
         return Response(response=self.serialize(), status=200, mimetype="application/json")
@@ -285,15 +327,20 @@ class UserAsset():
         it to self. """
 
         params = {}
+
+        if request.method == "GET":
+            self.logger.warn("%s:%s get_request_params() call is being ignored!" % (request.method, request.url))
+            return False
+
         if request.get_json() is not None:
             try:
                 params = dict(request.get_json())
             except ValueError:
                 self.logger.warn("%s request JSON could not be converted to dict!" % request.method)
                 params = request.get_json()
-
-        if request.method != "GET" and request.get_json() is None:
-            self.logger.warn("%s request contained no JSON payload!" % request.method)
+        else:
+            self.logger.error("%s request did not contain JSON data!" % request.method)
+            self.logger.error("Request URL: %s" % request.url)
 
         self.params = params
 
@@ -326,13 +373,15 @@ class UserAsset():
     #   asset update methods below
     #
 
-    def log_event(self, msg):
+    def log_event(self, msg, event_type=None):
         """ Logs a settlement event to mdb.settlement_events. """
         d = {
             "created_on": datetime.now(),
+            "created_by": None,
             "settlement_id": self.settlement["_id"],
             "ly": self.settlement["lantern_year"],
             "event": msg,
+            "event_type": event_type,
         }
         utils.mdb.settlement_events.insert(d)
         self.logger.debug("%s event: %s" % (self, msg))

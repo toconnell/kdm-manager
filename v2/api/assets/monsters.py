@@ -106,16 +106,21 @@ nemeses = {
         "sort_order": 104,
         "misspellings": ["KINGSMAN", "KINGMAN", "THE KING'S MAN", "THE KINGSMAN"],
     },
+    "slenderman": {
+        "name": "Slenderman",
+        "sort_order": 105,
+        "misspellings": ["SLENDER MAN",],
+    },
     "lion_knight": {
         "name": "Lion Knight",
         "selectable": False,
         "expansion": "lion_knight",
-        "sort_order": 105,
+        "sort_order": 106,
         "misspellings": ["LIONKNIGHT", "THE LION KNIGHT", "THE LIONKNIGHT"],
     },
     "the_hand": {
         "name": "The Hand",
-        "sort_order": 105,
+        "sort_order": 107,
         "misspellings": ["HAND"],
     },
 }
@@ -132,6 +137,12 @@ unique_nemeses = {
         "name": "Watcher",
         "sort_order": 201,
         "misspellings": ["THE WATCHER"],
+        "selectable": False,
+        "final_boss": True,
+    },
+    "dragon_king_lv3": {
+        "name": "The Dragon King",
+        "sort_order": 202,
         "selectable": False,
         "final_boss": True,
     },

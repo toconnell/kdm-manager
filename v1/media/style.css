@@ -1790,6 +1790,8 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     label.settlement_sheet_milestone_container {width: 100%; font-size: 12pt; }
     span.milestone_story_event {font-size: inherit; margin-left: 15%; }
 
+    span.location_lvl_select {position: relative; margin: 0 auto; margin-top: -30px; float: right; }
+
         /* nemesis monsters - wide */
     div.nemesis_level_toggle_container label {font-size: 12pt; width: 70px;} 
     div.settlement_sheet_nemesis_line_item {width: 100%; }

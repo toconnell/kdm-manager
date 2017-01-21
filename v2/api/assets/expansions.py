@@ -36,6 +36,13 @@ mar_2016_expansions = {
             {"ly": 2, "type": "settlement_event", "name": "Gorm Climate"},
         ],
     },
+    "green_knight_armor": {
+        "name": "Green Knight Armor",
+        "subtitle": "Crafting GKA items requires DBK, Flower Knight, Lion Knight and Gorm expansions!",
+        "always_available": {
+            "location": ["Green Knight Armor"],
+        },
+    },
     "dung_beetle_knight": {
         "name": "Dung Beetle Knight",
         "quarries": ["dung_beetle_knight"],
@@ -59,6 +66,22 @@ mar_2016_expansions = {
         ],
         "timeline_rm": [
             {"ly": 2, "type": "story_event", "name": "Endless Screams"},
+        ],
+    },
+    "slenderman": {
+        "name": "Slenderman",
+        "nemesis_monsters": ["slenderman"],
+        "rm_nemesis_monsters": ["kings_man"],
+        "always_available": {
+            "innovation": ["Dark Water Research"],
+        },
+        "timeline_add": [
+            {"ly": 6, "type": "story_event", "handle": "slender_its_already_here"},
+            {"ly": 9, "type": "nemesis_encounter", "name": "Nemesis Encounter"},
+        ],
+        "timeline_rm": [
+            {"ly": 6, "type": "story_event", "name": "Armored Strangers"},
+            {"ly": 9, "type": "nemesis_encounter", "name": "Nemesis Encounter: King's Man"},
         ],
     },
     "lion_knight": {

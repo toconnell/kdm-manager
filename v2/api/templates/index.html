@@ -57,9 +57,34 @@
                 <p>...if your credential checks out, you get a token back. Easy!</p>
             </td>
         </tr>
+
+        <tr class="">
+            <td> <a href="/campaign">/campaign</a> </td>
+            <td> POST </td>
+            <td>
+                <p>Accepts a "name" or "handle" parameter included in the body
+                of the request (which should be JSON) and returns a JSON
+                representation of the campaign:</p>
+                <code>{"name": "People of the Lantern"}</code>
+                <p>...gets you something like this:</p>
+                <code>{"handle": "people_of_the_lantern","milestones":
+                ["first_child", "first_death", "pop_15", "innovations_5",
+                "game_over" ], "saviors": "1.3.1", "name": "People of the Lantern",
+                "default": true, "principles": ["new_life", "death", "society",
+                "conviction"], "always_available": { "location": ["Lantern
+                Hoard"], "innovation": ["Language"]},"nemesis_monsters": [
+                "butcher", "kings_man","the_hand","watcher"],"quarries": [
+                "white_lion","screaming_antelope","phoenix", "beast_of_sorrow",
+                "great_golden_cat", "mad_steed", "golden_eyed_king"],"type":
+                "campaign_definition"}</code>
+                <p>NB: this also works with handles, e.g.:</p>
+                <code>{"handle": "people_of_the_stars"}</code>
+            </td>
+        </tr>
+
         <tr class="ul">
             <td> <a href="/monster">/monster</a> </td>
-            <td> GET, POST </td>
+            <td> POST </td>
             <td>
                 <p>
                     Accepts a "name" or "handle" parameter (via JSON) and
@@ -126,7 +151,7 @@
         </tr>
         <tr class="ul">
             <td> /settlement/get/&lt;settlement_id&gt; </td>
-            <td> POST, OPTIONS </td>
+            <td> GET, POST, OPTIONS </td>
             <td> Retrieve a serialized version of the settlement associated with
             &lt;settlement_id&gt; (to include all related user and game assets).</td>
         </tr>

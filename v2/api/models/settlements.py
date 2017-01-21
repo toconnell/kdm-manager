@@ -4,7 +4,7 @@ from bson import json_util
 from bson.objectid import ObjectId
 from copy import copy
 from datetime import datetime, timedelta
-from flask import Response
+from flask import Response, request
 import json
 import random
 import time
@@ -55,7 +55,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.29
+        self.object_version=0.31
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize_data()
 
@@ -229,6 +229,12 @@ class Settlement(Models.UserAsset):
                [self.add_timeline_event(e) for e in e_dict["timeline_add"] if e["ly"] >= self.get_current_ly()]
             if "timeline_rm" in e_dict.keys():
                [self.rm_timeline_event(e) for e in e_dict["timeline_rm"] if e["ly"] >= self.get_current_ly()]
+            if "rm_nemesis_monsters" in e_dict.keys():
+                for m in e_dict["rm_nemesis_monsters"]:
+                    if m in self.settlement["nemesis_monsters"]:
+                        self.settlement["nemesis_monsters"].remove(m)
+                        self.logger.info("Removed '%s' from %s nemesis monsters." % (m, self))
+
             self.logger.info("Added '%s' expansion to %s" % (e_dict["name"], self))
 
         self.logger.info("Successfully added %s expansions to %s" % (len(e_list), self))
@@ -275,9 +281,65 @@ class Settlement(Models.UserAsset):
                 self.logger.exception(e)
                 raise
 
+            if "rm_nemesis_monsters" in e_dict.keys():
+                for m in e_dict["rm_nemesis_monsters"]:
+                    if m not in self.settlement["nemesis_monsters"]:
+                        self.settlement["nemesis_monsters"].append(m)
+                        self.logger.info("Added '%s' to %s nemesis monsters." % (m, self))
+
             self.logger.info("Removed '%s' expansion from %s" % (e_dict["name"], self))
 
         self.logger.info("Successfully removed %s expansions from %s" % (len(e_list), self))
+        self.save()
+
+
+    def add_innovation(self):
+        """ Adds an innovation to the settlement. Does business logic. """
+
+        # first, try to initialize an innovations.Innovation object
+        try:
+            I = innovations.Innovation(name=self.params["name"])
+        except:
+            self.logger.error("Could not initialize innovation asset from dict: %s" % i)
+            self.logger.error("Unable to add '%s' to %s innovations!" % (i, self))
+            raise Exception
+
+        if I.name in self.settlement["innovations"]:
+            self.logger.warn("Ignoring attempt to add duplicate %s to %s" % (I, self))
+            return False
+
+
+        # finally, do it
+
+        self.settlement["innovations"].append(I.name)
+
+        if hasattr(I, "levels") and not self.settlement.get("innovation_levels", False):
+            self.settlement["innovation_levels"] = {}
+        if hasattr(I, "levels"):
+            self.settlement["innovation_levels"][I.name] = 1
+
+        self.log_event("Added '%s' to settlement innovations." % (I.name), event_type="add_innovation")
+
+        self.save()
+
+
+    def set_innovation_level(self):
+        """ Sets self.settlement["innovation_levels"][innovation] to an int. """
+
+        try:
+            name = self.params["name"]
+            level = self.params["level"]
+        except Exception as e:
+            self.logger.error("Could not set settlement innovation level from JSON request: %s" % self.params)
+            raise
+
+        if name not in self.settlement["innovations"]:
+            self.logger.error("Could not set settlement innovation level for '%s', because that innovation is not included in the %s innovations list: %s" % (name, self, self.settlement["innovations"]))
+        else:
+            self.settlement["innovation_levels"][name] = int(level)
+
+        self.log_event("Set '%s' innovation level to %s." % (name, level), event_type="set_innovation_level")
+
         self.save()
 
 
@@ -1122,30 +1184,52 @@ class Settlement(Models.UserAsset):
         'action' kwarg appropriately. This is the ancestor of the legacy app
         assets.Settlement.modify() method. """
 
-        self.get_request_params()
+        if request.method != "GET":
+            self.get_request_params()
 
+        #
+        #   simple GET type methods
+        #
         if action == "get":
-            return self.get_json()
+            return self.return_json()
+        elif action == "event_log":
+            return Response(response=self.get_event_log("JSON"), status=200, mimetype="application/json")
         elif action == "innovation_deck":
             return self.get_innovation_deck()
-        elif action == "set":
-            self.update_sheet_from_dict(self.params)
+
+        #
+        #   misc. controllers and actions (most actions go here)
+        #
         elif action == "add_expansions":
             self.add_expansions(self.params)
         elif action == "rm_expansions":
             self.rm_expansions(self.params)
-        elif action == "add_note":
-            self.add_settlement_note(self.params)
-        elif action == "rm_note":
-            self.rm_settlement_note(self.params)
+
         elif action == "update_nemesis_levels":
             self.update_nemesis_levels(self.params)
+
         elif action == "add_timeline_event":
             self.add_timeline_event(self.params)
         elif action == "rm_timeline_event":
             self.rm_timeline_event(self.params)
-        elif action == "event_log":
-            return Response(response=self.get_event_log("JSON"), status=200, mimetype="application/json")
+
+        elif action == "add_innovation":
+            self.add_innovation()
+        elif action == "set_innovation_level":
+            self.set_innovation_level()
+
+        #
+        #   campaign notes controllers
+        #
+        elif action == "add_note":
+            self.add_settlement_note(self.params)
+        elif action == "rm_note":
+            self.rm_settlement_note(self.params)
+
+
+        #
+        #   finally, the catch-all/exception-catcher
+        #
         else:
             # unknown/unsupported action response
             self.logger.warn("Unsupported settlement action '%s' received!" % action)

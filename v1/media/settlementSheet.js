@@ -6,6 +6,7 @@ app.controller("locationsController", function($scope) {
         params = "add_location=" + loc_dict["name"];
         modifyAsset('settlement',$scope.settlement_id,params);
         window.location.href = window.location.href;
+        location.reload();
     };
     $scope.rmLocation = function(index,loc_name) {
         showFullPageLoader();
@@ -13,6 +14,7 @@ app.controller("locationsController", function($scope) {
         $scope.settlement_sheet.locations.splice(index,1);
         modifyAsset('settlement',$scope.settlement_id,params);
         window.location.href = window.location.href;
+        location.reload();
     };
     $scope.setLocationLevel = function(loc_name,lvl){
         params = "location_level_" + loc_name + "=" + lvl;
@@ -26,16 +28,23 @@ app.controller('innovationsController', function($scope) {
     $scope.addInnovation = function() {
         showFullPageLoader();
         $scope.settlement_sheet.innovations.push($scope.newInnovation);
-        params = "add_innovation=" + $scope.newInnovation;
-        modifyAsset('settlement',$scope.settlement_id,params);
+        var js_obj = {"name": $scope.newInnovation};
+        $scope.postJSONtoAPI('settlement', 'add_innovation', js_obj);
+//        modifyAsset('settlement',$scope.settlement_id,params);
         window.location.href = window.location.href;
+        location.reload();
     };    
+    $scope.setInnovationLevel = function(innovation_name,lvl){
+        var js_obj = {"name": innovation_name, "level": lvl};
+        $scope.postJSONtoAPI('settlement', 'set_innovation_level', js_obj);
+    };
     $scope.rmInnovation = function(index, innovation_name) {
         showFullPageLoader();
         $scope.settlement_sheet.innovations.splice(index,1);
         params = "rm_innovation=" + innovation_name;
         modifyAsset('settlement',$scope.settlement_id,params);
         window.location.href = window.location.href;
+        location.reload();
     };
 });
 

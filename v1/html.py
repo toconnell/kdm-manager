@@ -464,7 +464,7 @@ class angularJS:
 
             <div class="expansions_controls_container">
                 <p>Use the controls below to determine which expansion content is
-                enabled for this campaign. Remember to save when finished!</p>
+                enabled for this campaign. Remember to save and reload when finished!</p>
 
                 <form method="POST" action="#">
                     <div class="expansion_content_line_item" ng-repeat="x in new_settlement_assets.expansions">
@@ -2009,8 +2009,8 @@ class survivor:
                 <input type="hidden" name="modify" value="survivor"/>
                 <input type="hidden" name="asset_id" value="$survivor_id"/>
                 <input type="hidden" name="add_custom_AI" value="True"/>
-                <input type="text" class="custom_AI" ng-model="name" name="custom_AI_name" placeholder="Name">
-                <input type="text" class="custom_AI" ng-model="desc" name="custom_AI_desc" placeholder="Description">
+                <input type="text" class="custom_AI" ng-model="name" name="custom_AI_name" placeholder="Name" required>
+                <input type="text" class="custom_AI" ng-model="desc" name="custom_AI_desc" placeholder="Description" required>
                 <select name="custom_AI_type">
                     <option disabled> - A&I Type - </option>
                     <option value="ability" selected>Ability</option>
@@ -2601,7 +2601,9 @@ class settlement:
                 value="{{c.name}}"
                 ng-checked="{{c.default}}"
             />
-            <label for="{{c.handle}}">{{c.name}}</label>
+            <label for="{{c.handle}}">{{c.name}}
+                <p ng-if="c.subtitle" class="new_settlement_asset"> {{c.subtitle}}</p>
+            </label>
             </div>
 
         </div>  <!-- campaigns -->
@@ -2652,8 +2654,8 @@ class settlement:
                 for="create_prologue_survivors"
             >
                 Four "First Story" Survivors
-                <p class="new_settlement_asset">Two randomly generated male and
-                female survivors will be created,and added to the <i>Departing
+                <p class="new_settlement_asset">Two male and two female survivors
+                will be randomly generated and automatically added to the <i>Departing
                 Survivors</i> group. Starting gear will be added to Settlement
                 Storage.</p>
             </label>
@@ -3052,6 +3054,7 @@ class settlement:
                       <div ng-if="s.notes.length >= 1" class="survivor_assets"><b>Notes:</b>
                         <span ng-repeat="n in s.notes"> {{n.note}} </span>
                       </div>
+                      <div ng-if="s.sotf_reroll" class="survivor_assets"><b>Once per lifetime SotF re-roll:</b> used.</div>
                     </button>
                 </form>
             </div>
@@ -3312,6 +3315,7 @@ class settlement:
             <div
                 class="line_item location_container"
                 ng-repeat="i in settlement_sheet.innovations"
+                ng-init="innovationLevel = settlement_sheet.innovation_levels[i]"
             >
                 <span class="bullet"></span>
                 <span
@@ -3320,6 +3324,16 @@ class settlement:
                 >
                     {{i}}
                 </span>
+                <span ng-if="settlement_sheet.innovation_levels[i] != undefined" class="location_lvl_select">
+                    <select
+                        class="location_level"
+                        ng-model="innovationLevel"
+                        ng-options="innovationLevel as 'Lvl. '+ innovationLevel for innovationLevel in [1,2,3]"
+                        ng-change="setInnovationLevel(i,innovationLevel)"
+                        ng-selected="innovationLevel"
+                    >
+                    </select>
+                </span> <!-- optional levels controls -->
            </div>
 
             <div class="line_item">

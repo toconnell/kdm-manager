@@ -95,8 +95,27 @@ campaign_definitions = {
         },
         "principles": ["new_life","death","society","conviction"],
         "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
-        "nemesis_monsters": ["butcher","kings_man","the_hand","watcher"],
+        "special_showdowns": ["watcher"],
+        "nemesis_monsters": ["butcher","kings_man","the_hand"],
         "quarries": monster_assets.base_game_quarries,
+        "timeline": default_timeline,
+    },
+
+    "ballad_of_the_green_knight": {
+        "name": "Ballad of the Green Knight",
+        "subtitle": "Creates a vanilla, 'People of the Lantern' type campaign that begins with all expansion content required by the Green Knight Armor expansion enabled.",
+        "saviors": "1.3.1",
+        "always_available": {
+            "location": ["Lantern Hoard"],
+            "innovation": ["Language"],
+        },
+        "expansions": ["green_knight_armor", "dung_beetle_knight","flower_knight","lion_knight","gorm"],
+        "principles": ["new_life","death","society","conviction"],
+        "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
+        "special_showdowns": ["watcher"],
+        "nemesis_monsters": ["butcher","kings_man","the_hand"],
+        "quarries": monster_assets.base_game_quarries,
+        "timeline": default_timeline,
     },
 
     "people_of_the_skull": {
@@ -106,7 +125,8 @@ campaign_definitions = {
             "location": ["Lantern Hoard"],
             "innovation": ["Language"],
         },
-        "nemesis_monsters": ["butcher","kings_man","the_hand","watcher"],
+        "special_showdowns": ["watcher"],
+        "nemesis_monsters": ["butcher","kings_man","the_hand"],
         "quarries": monster_assets.base_game_quarries,
         "special_rules": [
             {"name": "People of the Skull",
@@ -127,6 +147,7 @@ campaign_definitions = {
         },
         "principles": ["new_life","death","society","conviction"],
         "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
+        "timeline": default_timeline,
     },
 
     "the_bloom_people": {
@@ -136,9 +157,10 @@ campaign_definitions = {
             "location": ["Lantern Hoard"],
             "innovation": ["Language"],
         },
-        "nemesis_monsters": ["butcher","kings_man","the_hand","watcher"],
+        "special_showdowns": ["watcher"],
+        "nemesis_monsters": ["butcher","kings_man","the_hand"],
         "quarries": monster_assets.base_game_quarries,
-        "expansions": ["Flower Knight"],
+        "expansions": ["flower_knight"],
         "storage": ["Sleeping Virus Flower"],
         "forbidden": {
             "abilities_and_impairments": ["Flower Addiction"],
@@ -154,6 +176,7 @@ campaign_definitions = {
             "affinities": {"red": -2, "green": 1,},
             "Luck": 1,
         },
+        "timeline": default_timeline,
     },
 
     "people_of_the_sun": {
@@ -167,7 +190,8 @@ campaign_definitions = {
             "location": ["Lantern Hoard"],
             "innovation": ["Leader", "Language"],
         },
-        "nemesis_monsters": ["butcher","kings_man","the_hand","ancient_sunstalker"],
+        "special_showdowns": ["ancient_sunstalker"],
+        "nemesis_monsters": ["butcher","kings_man","the_hand"],
         "quarries": monster_assets.base_game_quarries,
         "principles": ["potsun_new_life","death","society","conviction"],
         "milestones": ["first_child","first_death","pop_15","innovations_8","nemesis_defeat","game_over"],
@@ -212,8 +236,8 @@ campaign_definitions = {
             "innovation": ["Language","Lantern Oven","Clan of Death","Family"],
         },
         "quarries": monster_assets.base_game_quarries,
-        "special_showdowns": ["the_tyrant"],
-        "nemesis_monsters": ["butcher","kings_man","the_hand","the_tyrant"],
+        "special_showdowns": ["the_tyrant","dragon_king_lv3"],
+        "nemesis_monsters": ["butcher","kings_man","the_hand"],
         "nemesis_encounters": [
             {"butcher":["Lvl 1"]},
             {"kings_man":["Lvl 1"]},

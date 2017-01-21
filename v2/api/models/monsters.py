@@ -8,7 +8,7 @@ import utils
 
 class Assets(Models.AssetCollection):
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self.assets = {}
         self.assets.update(utils.AssetDict(monsters.quarries, {"type": "quarry"}))
         self.assets.update(utils.AssetDict(monsters.unique_quarries, {"type": "quarry", "unique": True}))
@@ -16,6 +16,9 @@ class Assets(Models.AssetCollection):
         self.assets.update(utils.AssetDict(monsters.unique_nemeses, {"type": "nemesis", "unique": True}))
 
         self.set_levels()
+
+        self.AssetClass = Monster
+        Models.AssetCollection.__init__(self,  *args, **kwargs)
 
 
     def set_levels(self):
@@ -40,25 +43,6 @@ class Assets(Models.AssetCollection):
             else:
                 self.assets[m]["levels"] = 3
 
-
-    def request_response(self, req):
-        """ Takes in a JSON request dict and returns an HTTP response. """
-
-        m_name = req.get("name", None)
-        m_handle = req.get("handle", None)
-
-        try:
-            if m_handle is not None:
-                M = Monster(m_handle)
-            elif m_name is not None:
-                M = Monster(name=m_name)
-            else:
-                return utils.http_422
-        except:
-            return utils.http_404
-
-        r = utils.asset_object_to_json(M)
-        return Response(response=r, status=200, mimetype="application/json")
 
 
 

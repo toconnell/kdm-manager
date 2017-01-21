@@ -59,6 +59,10 @@ def route_to_static(path, sub_dir):
 def monster_json():
     return request_broker.get_game_asset("monster")
 
+@application.route("/campaign", methods=["POST"])
+def campaign_json():
+    return request_broker.get_game_asset("campaign")
+
 @application.route("/settings.json")
 def get_settings_json():
     S = settings.Settings()
@@ -104,7 +108,6 @@ def get_new_settlement_assets():
 @application.route('/protected',methods=["GET","POST"])
 @flask_jwt.jwt_required()
 def protected():
-    meow
     return '%s' % flask_jwt.current_identity
 
 

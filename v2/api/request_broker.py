@@ -4,14 +4,15 @@ from flask import request, Response
 
 import utils
 
-from models import survivors, settlements, users, monsters
+from models import survivors, settlements, users, monsters, campaigns
 from Models import AssetLoadError
 
 logger = utils.get_logger(log_name="errors")
 
 #
-#   routing.py is meant to centralize the "hand-off" operations between api.py
-#   and the various modules in the routes/ module.
+#   The point of this module is to get business logic re: request-handling
+#   out of api.py, so that can stay focused on authenticaiton and request
+#   routing.
 #
 #   All methods in this module should return an HTTP response if they fail.
 #
@@ -70,6 +71,9 @@ def get_game_asset(collection):
         if collection == "monster":
             M = monsters.Assets()
             return M.request_response(request.json)
+        elif collection == "campaign":
+            C = campaigns.Assets()
+            return C.request_response(request.json)
         else:
             return R
 

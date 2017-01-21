@@ -25,7 +25,7 @@ import export_to_file
 from modular_assets import survivor_names, settlement_names, survivor_attrib_controls
 import game_assets
 import html
-from models import Abilities, NemesisMonsters, DefeatedMonsters, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Nemeses, Resources, Quarries, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles, SurvivalActions
+from models import Abilities, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Resources, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles, SurvivalActions
 from session import Session
 from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd, u_to_str
 import world
@@ -1504,9 +1504,14 @@ class Survivor:
             self.logger.error("Must supply a valid cgi.FieldStorage() object!")
             return False
 
-        ai_name = params["custom_AI_name"].value
-        ai_desc = params["custom_AI_desc"].value
-        ai_type = params["custom_AI_type"].value
+        try:
+            ai_name = params["custom_AI_name"].value
+            ai_desc = params["custom_AI_desc"].value
+            ai_type = params["custom_AI_type"].value
+        except Exception as e:
+            self.logger.exception(e)
+            self.logger.error("[%s] attempted to add a custom AI but did not provide all required values!" % (self.User))
+            return False
 
         # add the asset key
         self.add_game_asset("abilities_and_impairments", ai_name)
@@ -3366,9 +3371,10 @@ class Settlement:
             settlement["name"] = random.choice(name_list)
 
         # sometimes campaign assets have additional attribs
+        c_dict = api.route_to_dict("/campaign", params={"name": settlement["campaign"]})
         for optional_attrib in ["storage","expansions","timeline","nemesis_monsters"]:
-            if optional_attrib in game_assets.campaigns[settlement["campaign"]].keys():
-                settlement[optional_attrib] = game_assets.campaigns[settlement["campaign"]][optional_attrib]
+            if optional_attrib in c_dict.keys():
+                settlement[optional_attrib] = c_dict[optional_attrib]
 
         # create the settlement and update the Settlement obj
         settlement_id = mdb.settlements.insert(settlement)
@@ -3524,6 +3530,7 @@ class Settlement:
             lookup_dict[all_events[h]["name"]] = h
 
         if event_name not in lookup_dict.keys():
+            self.logger.warn("[%s] event name '%s' not found in API event asset list!" % (self.User, event_name))
             return {}
 
         event_handle = lookup_dict[event_name]
@@ -3548,7 +3555,11 @@ class Settlement:
         else:
             return None
 
-        p = self.get_event(event)["page"]
+        p = self.get_event(event).get("page",None)
+
+        if p == None:
+            self.logger.warn("[%s] the 'page' attrib of event '%s' could not be retrieved!" % (self.User, event))
+
         output = html.survivor.stat_story_event_stub.safe_substitute(
             event=event,
             page=p,
@@ -3556,6 +3567,7 @@ class Settlement:
         )
 
         return output
+
 
     def get_expansions(self, return_type=None):
         """ Returns expansions as a list. """
@@ -4523,42 +4535,6 @@ class Settlement:
 
         return self.settlement["nemesis_monsters"].keys()
 
-
-    def get_quarries(self, return_type=None):
-        """ Returns a list of the settlement's quarries. Leave the 'return_type'
-        arg unspecified to get a sorted list. """
-
-        quarries = sorted(self.settlement["quarries"])
-
-        if return_type == "comma-delimited":
-            return ", ".join(quarries)
-
-        if return_type == "list_of_options":
-            output_list = []
-
-            for exp_key in self.get_expansions():
-                if "always_available_quarry" in self.get_expansions("dict")[exp_key].keys():
-                    for i in range(1,4):
-                        output_list.append("%s Lvl %s" % (exp_key,i))
-
-            for quarry in quarries:
-                if quarry in Quarries.get_keys() and "no_levels" in Quarries.get_asset(quarry).keys():
-                    output_list.append(quarry)
-                else:
-                    for i in range(1,4):
-                        output_list.append("%s Lvl %s" % (quarry,i))
-            return output_list
-
-        return quarries
-
-
-    def get_settlement_notes(self):
-        """ Returns the settlement's notes. Assumes an HTML target. """
-
-        if not "settlement_notes" in self.settlement:
-            return ""
-        else:
-            return self.settlement["settlement_notes"]
 
 
     def get_survivors(self, return_type=False, user_id=None, exclude=[], exclude_dead=False):
@@ -5688,12 +5664,16 @@ class Settlement:
         """ Generic function for removing game assets from a settlement.
         """
 
-#        exec "Asset = %s" % asset_class.capitalize()   # this isn't necessary yet
+        if game_asset_key not in self.settlement[asset_class]:
+            self.logger.error("[%s] attempted to remove non-existent asset '%s' from settlement %s!" % (self.User,game_asset_key,asset_class))
+            return False
+
         self.settlement[asset_class].remove(game_asset_key)
         self.logger.debug("[%s] removed asset '%s' from settlement %s" % (self.User, game_asset_key, self))
 
         ac_pretty = asset_class.replace("_"," ")
         self.log_event("%s removed '%s' from settlement %s." % (self.User.user["login"], game_asset_key, ac_pretty))
+
         mdb.settlements.save(self.settlement)
 
 

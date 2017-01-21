@@ -34,6 +34,10 @@ settlement_events = {
     "spid_season_of_the_spiderling": {"name": "Season of the Spiderling", "expansion": "spidicules"},
     "spid_silk_storm": {"name": "Silk Storm", "expansion": "spidicules"},
 
+    # slenderman
+    "slender_phantom": {"name": "Phantom", "expansion": "slenderman"},
+    "slender_slender_blight": {"name": "Slender Blight", "expansion": "slenderman"},
+
 }
 
 story_events = {
@@ -149,4 +153,10 @@ story_events = {
     "spid_puppets_embalming": {"name": "Puppet's Embalming", "page": 15, "expansion": "spidicules"},
     "spid_silk_surgery": {"name": "Silk Surgery", "page": 17, "expansion": "spidicules"},
     "spid_taken": {"name": "Taken", "page": 19, "expansion": "spidicules"},
+
+    # Slenderman
+    "slender_its_already_here": {"name": "It's Already Here", "page": 2, "expansion": "slenderman",},
+    "slender_dark_place": {"name": "Dark Place", "page": 11, "expansion": "slenderman",},
+    "slender_light_forging": {"name": "Light-Forging", "page": 13, "expansion": "slenderman",},
+    "slender_forgotten_fear": {"name": "Forgotten Fear", "page": 15, "expansion": "slenderman",},
 }

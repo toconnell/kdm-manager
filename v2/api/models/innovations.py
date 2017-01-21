@@ -61,3 +61,4 @@ class Innovation(Models.GameAsset):
 
         self.assets = Assets()
         self.initialize()
+

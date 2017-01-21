@@ -199,17 +199,6 @@ class AssetDict(dict):
                 self[d][key] = v
 
 
-def asset_object_to_json(asset):
-    """ Takes one of our asset objects and coerces it to json, stripping it of
-    internal-use attributes, logger objects, etc. that is not serializeable or
-    relevant to an object retrieval. """
-
-
-    for banned_attrib in ["logger", "assets"]:
-        if hasattr(asset, banned_attrib):
-            delattr(asset, banned_attrib)
-
-    return json.dumps(asset.__dict__, default=json_util.default)
 
 
 # decorators for API
