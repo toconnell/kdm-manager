@@ -272,14 +272,12 @@ class Settlement(Models.UserAsset):
             except Exception as e:
                 self.logger.error("Could not remove timeline events for %s expansion!" % e_dict["name"])
                 self.logger.exception(e)
-                raise
             try:
                 if "timeline_rm" in e_dict.keys():
                    [self.add_timeline_event(e) for e in e_dict["timeline_rm"] if e["ly"] >= self.get_current_ly()]
             except Exception as e:
                 self.logger.error("Could not add previously removed timeline events for %s expansion!" % e_dict["name"])
                 self.logger.exception(e)
-                raise
 
             if "rm_nemesis_monsters" in e_dict.keys():
                 for m in e_dict["rm_nemesis_monsters"]:
@@ -290,6 +288,16 @@ class Settlement(Models.UserAsset):
             self.logger.info("Removed '%s' expansion from %s" % (e_dict["name"], self))
 
         self.logger.info("Successfully removed %s expansions from %s" % (len(e_list), self))
+        self.save()
+
+
+    def set_current_quarry(self):
+        """ Sets the self.settlement["current_quarry"] attrib. """
+
+        new_value = self.params["current_quarry"]
+        self.settlement["hunt_started"] = datetime.now()
+        self.settlement["current_quarry"] = new_value
+        self.log_event("Set target monster to %s" % new_value)
         self.save()
 
 
@@ -966,35 +974,7 @@ class Settlement(Models.UserAsset):
                         return False
 
         return True
-
-
-    #
-    #   update methods here
-    #
-
-    def update_sheet_from_dict(self, d):
-        """ Accepts dict input and uses it to update the settlement sheet. Saves
-        at the end. This is equivalent to the V1 modify() methods, as it only
-        cares about certain keys (and ignores the ones it doesn't care about).
-        """
-        for sheet_k in d.keys():
-
-            new_value = d[sheet_k]
-            if new_value == "None":
-                new_value = None
-
-            if sheet_k == "current_quarry":
-                self.settlement[sheet_k] = new_value
-                self.log_event("Set current quarry to %s" % new_value)
-            else:
-                self.logger.warn("Unhandled update key: '%s' is being ignored!" % (sheet_k))
-
-        # finally, save all changes
-        self.logger.debug("%s settlement has been modified. Saving changes..." % self)
-        self.save()
-
-
-
+        # end of is_compatible()
 
 
     #
@@ -1204,6 +1184,9 @@ class Settlement(Models.UserAsset):
             self.add_expansions(self.params)
         elif action == "rm_expansions":
             self.rm_expansions(self.params)
+
+        elif action == "set_current_quarry":
+            self.set_current_quarry()
 
         elif action == "update_nemesis_levels":
             self.update_nemesis_levels(self.params)

@@ -3613,18 +3613,6 @@ class Settlement:
         self.logger.info("[%s] auto-incremented settlement %s population by %s" % (self.User, self, amount))
 
 
-    def update_current_quarry(self, quarry_string):
-        """ Updates the 'current_quarry' attrib. Logs about it."""
-        if quarry_string == "None":
-            quarry_string = None
-
-        self.settlement["hunt_started"] = datetime.now()
-        self.settlement["current_quarry"] = quarry_string
-        if quarry_string is not None:
-            self.log_event("Current quarry is %s" % quarry_string)
-
-        self.logger.info("[%s] set current_quarry = '%s' for %s." % (self.User, quarry_string, self))
-
 
     def first_story(self):
         """ Adds "First Story" survivors, items and Hunting Party setup to the
@@ -3645,13 +3633,17 @@ class Settlement:
             f.save()
         self.log_event("Added four new survivors and Starting Gear to settlement storage")
 
-        self.update_current_quarry("White Lion (First Story)")
+        # API operations
+        q_json = json.dumps({"current_quarry": "White Lion (First Story)"})
+        api.post_JSON_to_route("/settlement/set_current_Quarry/%s" % self.settlement["_id"], q_json)
+
         self.add_timeline_event({
             "ly": self.get_ly(),
             "user_login": self.User.user["login"],
             "type": "showdown_event",
             "name": "White Lion (First Story)",
             })
+
         self.logger.info("[%s] added 'First Story' assets to %s" % (self.User, self))
 
 
@@ -5737,8 +5729,6 @@ class Settlement:
                 self.add_game_asset("locations", game_asset_key)
             elif p == "rm_location":
                 self.rm_game_asset("locations", game_asset_key)
-            elif p == "current_quarry":
-                self.update_current_quarry(game_asset_key)
             elif p == "abandon_settlement":
                 self.log_event("Settlement abandoned!")
                 self.settlement["abandoned"] = datetime.now()

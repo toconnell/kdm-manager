@@ -51,7 +51,7 @@ app.controller("endeavorController", function($scope) {
 
 app.controller("manageDepartingSurvivorsController", function($scope) {
     $scope.saveCurrentQuarry = function(select_element) {
-        $scope.postJSONtoAPI('settlement', 'set', {"current_quarry": $scope.current_quarry});
+        $scope.postJSONtoAPI('settlement', 'set_current_quarry', {"current_quarry": $scope.current_quarry});
 
         var timeline_event = {
             "name": $scope.current_quarry,

@@ -19,6 +19,7 @@ male = [
     "Astyanax",
     "Atreyu",
     "Atticus",
+    "Augustus",
     "Amos",
     "Benedict",
     "Borris",
@@ -132,6 +133,7 @@ male = [
     "Merlin",
     "Modesto",
     "Mohammed",
+    "Morne",
     "Moshe",
     "Micah",
     "Nathan",
@@ -212,12 +214,13 @@ male = [
 ]
 
 female = [
-    "3Jane",
+    "April",
     "Anna",
     "Arabella",
     "Andromache",
     "Aria",
     "Athena",
+    "Aurelia",
     "Aurora",
     "Ava",
     "Avalon",
@@ -398,6 +401,7 @@ female = [
     "Ylva",
     "Yoko",
     "Yuki",
+    "Yuria",
     "Zelda",
 ]
 

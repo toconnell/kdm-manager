@@ -4416,7 +4416,7 @@ principles = {
 
 # define all campaign assets here
 campaigns = {
-    "Ballad of the Green Knight": {
+    "The Green Knight": {
         "always_available": ["Lantern Hoard", "Language", "Exhausted Lantern Hoard"],
         "forbidden": ["The Sun","Throne","Dragon Speech","Sun Language"],
         "saviors": "1.3.1",

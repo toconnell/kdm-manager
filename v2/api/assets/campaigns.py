@@ -101,9 +101,9 @@ campaign_definitions = {
         "timeline": default_timeline,
     },
 
-    "ballad_of_the_green_knight": {
-        "name": "Ballad of the Green Knight",
-        "subtitle": "Creates a vanilla, 'People of the Lantern' type campaign that begins with all expansion content required by the Green Knight Armor expansion enabled.",
+    "the_green_knight": {
+        "name": "The Green Knight",
+        "subtitle": "A campaign following the 'People of the Lantern' timeline that includes all content required by the Green Knight Armor expansion.",
         "saviors": "1.3.1",
         "always_available": {
             "location": ["Lantern Hoard"],
@@ -120,6 +120,7 @@ campaign_definitions = {
 
     "people_of_the_skull": {
         "name": "People of the Skull",
+        "subtitle": "Always displays the alternate rules and endeavors on p.213 of the core game manual on the Campaign Summary view.",
         "saviors": "1.3.1",
         "always_available": {
             "location": ["Lantern Hoard"],

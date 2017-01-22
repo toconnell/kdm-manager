@@ -1417,7 +1417,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     #error_dialog {width: 450px; left: 28%; top: 15%; }
     div.saved_dialog_frame {padding: 1%;}
     div.saved_dialog_inner {font-size: 20px; }
-    span.error_dialog_cap, span.saved_dialog_cap { margin-top: -5px; margin-left: -6px; padding: 6px; padding-left: 8%; padding-right: 6%; }
+    span.error_dialog_cap, span.saved_dialog_cap { margin-top: -5px; margin-left: -6px; padding: 6px; padding-left: 8%; padding-right: 6%; padding-bottom: 1%; }
 
 
     /* general wide style */
