@@ -3694,6 +3694,8 @@ class settlement:
 
     -->
 
+    <form id="settlementSheetReload" method="POST" action="/"><button class="hidden" />SUBMIT</button></form>
+
 
     <div
         id="modalStorage" class="modal"

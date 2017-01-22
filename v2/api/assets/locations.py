@@ -76,6 +76,18 @@ gear = {
         "name": "Starting Gear",
         "color": "CCC",
     },
+    "light_forging_gear": {
+        "name": "Light-Forging",
+        "expansion": "slenderman",
+        "color": "570A75",
+        "font-color": "fff",
+    },
+    "green_knight_armor_gear": {
+        "name": "Green Knight Armor",
+        "expansion": "green_knight_armor",
+        "color": "42AB59",
+        "font_color": "fff",
+    },
     "manhunter_gear": {
         "name": "Manhunter Gear",
         "expansion": "manhunter",

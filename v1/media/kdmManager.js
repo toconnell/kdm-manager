@@ -505,21 +505,33 @@ function modifyAsset(collection, asset_id, param_string) {
     // this automatically handles the norefresh flag as well as the modify and
     // asset params
 
+    var method = "POST"
+    var url = "/"
+    var params = "modify=" + collection + "&asset_id=" + asset_id + "&" + param_string + "&norefresh=True";
+
     var xhr = new XMLHttpRequest();
+
     xhr.onreadystatechange = function (oEvent) {  
         if (xhr.readyState === 4) {  
             if (xhr.status === 200) {  
                 savedAlert();
             } else {  
-                console.error("Error -> ", xhr.responseText);  
+                console.error(method + " -> " + xhr.responseURL + " -> " + params);
+                console.error("Legacy app response was: " + xhr.status);
+                console.error("Error -> '" + xhr.responseText + "' <-");  
+                console.error(xhr);
+                console.error(oEvent);
                 errorAlert();
             }  
         }  
     }; 
 
-    xhr.open("POST", "/", true);
+//  2017-01-22 we're canceling the callback part until we can fix it for Safari
+//  and firefox and the other POS browsers whose javascript sucks the sweat off
+//  a dead donkey's balls
+//    xhr.open(method, url, true);
+    xhr.open(method, url, false);
     xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-    var params = "modify=" + collection + "&asset_id=" + asset_id + "&" + param_string + "&norefresh=True";
 //    window.alert(params);
     xhr.send(params);
 

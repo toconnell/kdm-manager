@@ -40,7 +40,7 @@ mar_2016_expansions = {
         "name": "Green Knight Armor",
         "subtitle": "Crafting GKA items requires DBK, Flower Knight, Lion Knight and Gorm expansions!",
         "always_available": {
-            "location": ["Green Knight Armor"],
+#            "location": ["Green Knight Armor"],
         },
     },
     "dung_beetle_knight": {
