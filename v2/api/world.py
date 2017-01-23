@@ -626,8 +626,10 @@ class World:
         expansions_assets = expansions_models.Assets()
         for e in expansions_assets.get_handles():
             e_dict = expansions_assets.get_asset(e)
-            e_count = utils.mdb.settlements.find({"expansions": {"$in": [e_dict["name"]]}}).count()
-            popularity_contest[e_dict["name"]] = e_count
+            e_name_count = utils.mdb.settlements.find({"expansions": {"$in": [e_dict["name"]]}}).count()
+            e_handle_count = utils.mdb.settlements.find({"expansions": {"$in": [e]}}).count()
+            popularity_contest[e_dict["name"]] = e_name_count
+            popularity_contest[e_dict["name"]] += e_handle_count
 
         return popularity_contest
 

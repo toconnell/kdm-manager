@@ -149,7 +149,7 @@ class KillboardMaintenance:
         update_dict = {"raw_name": doc["name"]}
         for var in ["level","handle","comment","name"]:
             if m is not None:
-                update_dict["type"] = m.__type__
+                update_dict["type"] = m.type
             elif m is None:
                 update_dict["handle"] = "other"
             if hasattr(m, var):
