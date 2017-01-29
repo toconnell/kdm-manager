@@ -147,17 +147,35 @@
         </tr>
 
         <tr class="ul route_root">
-            <th colspan="3"><b>Settlement Routes:</b> /settlement/&lt;action&gt;/&lt;settlement_id&gt;</th>
-        </tr>
-        <tr class="ul">
-            <td> /settlement/get/&lt;settlement_id&gt; </td>
-            <td> GET, POST, OPTIONS </td>
-            <td> Retrieve a serialized version of the settlement associated with
-            &lt;settlement_id&gt; (to include all related user and game assets).</td>
+            <th colspan="3"><b>Settlement Routes:</b> all routes for working directly with a settlement follow a <code>/settlement/&lt;action&gt;/&lt;settlement_id&gt;</code> convention. These routes are private and require authentication. </th>
         </tr>
 
+        <tr class="ul">
+            <td> /settlement/get/&lt;settlement_id&gt; </td>
+            <td> GET </td>
+            <td> Retrieve a serialized version of the settlement associated with
+            &lt;settlement_id&gt; (to include all related user and game assets, including survivors).</td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/get_event_log/&lt;settlement_id&gt; </td>
+            <td> GET </td>
+            <td> Retrieve all settlement event log entries (in a giant hunk of JSON).</td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/get_innovation_deck/&lt;settlement_id&gt; </td>
+            <td> GET </td>
+            <td> Retrieve the settlement's current innovation deck (as an array).</td>
+        </tr>
+
+
         <tr class="ul route_root">
-            <th colspan="3"><b>Survivor Routes:</b> /survivor/&lt;action&gt;/&lt;settlement_id&gt;</th>
+            <th colspan="3"><b>Survivor Routes:</b> all routes for working directly with an individual survivor follow a <code>/settlement/&lt;action&gt;/&lt;settlement_id&gt;</code> convention. Like settlement routes, these routes are private and require authentication. </th>
+        </tr>
+
+        <tr class="ul">
+            <td> /settlement/get/&lt;survivor_id&gt; </td>
+            <td> GET </td>
+            <td> Retrieve a serialized version of the survivor.</td>
         </tr>
 
     </table>

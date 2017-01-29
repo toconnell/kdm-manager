@@ -2,6 +2,7 @@
 
 from bson import json_util
 from bson.objectid import ObjectId
+import collections
 from copy import copy
 from datetime import datetime, timedelta
 from flask import Response, request
@@ -49,13 +50,14 @@ class Assets(Models.AssetCollection):
         return output
 
 
+
 class Settlement(Models.UserAsset):
     """ This is the base class for all expansions. Private methods exist for
     enabling and disabling expansions (within a campaign/settlement). """
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.31
+        self.object_version=0.36
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize_data()
 
@@ -63,74 +65,40 @@ class Settlement(Models.UserAsset):
     def normalize_data(self):
         """ Makes sure that self.settlement is up to our current standards. """
 
-        perform_save = False
+        self.perform_save = False
 
-        founder = utils.mdb.users.find_one({"_id": self.settlement["created_by"]})
-
-        #
-        #       1.) low-level/basic functionality
-        #           misc migrations/operations
-        #
-        if not "admins" in self.settlement.keys():
-            self.logger.info("Creating 'admins' key for %s" % (self))
-            creator = utils.mdb.users.find_one({"_id": self.settlement["created_by"]})
-            self.settlement["admins"] = [creator["login"]]
-            perform_save = True
-        if not founder["login"] in self.settlement["admins"]:
-            self.settlement["admins"].append(founder["login"])
-            self.logger.debug("Adding founder '%s' to %s admins list." % (founder["login"], self))
-            perform_save = True
-        if not "expansions" in self.settlement.keys():
-            self.logger.info("Creating 'expansions' key for %s" % (self))
-            self.settlement["expansions"] = []
-            perform_save
-
-        #       get legacy settlement_notes real quick
-        if "settlement_notes" in self.settlement.keys():
-
-            self.logger.debug("Converting legacy 'settlement_notes' to mdb.settlement_notes doc!")
-
-            s = str(int(time.time())) + str(self.settlement["_id"])
-            bogus_id = ''.join(random.sample(s,len(s)))
-
-            note = {
-                "note": self.settlement["settlement_notes"].strip(),
-                "author": founder["login"],
-                "author_id": self.settlement["created_by"],
-                "js_id": bogus_id,
-                "lantern_year": self.get_current_ly(),
-            }
-            self.add_settlement_note(note)
-            del self.settlement["settlement_notes"]
-            perform_save = True
-
+        self.baseline_data_model()
+        self.migrate_settlement_notes()
 
         #
-        #       2.) timeline migrations
+        #       timeline migrations
         #
-        if not "timeline_version" in self.settlement.keys():
+        if not "timeline_version" in self.settlement["meta"].keys():
             self.convert_timeline_to_JSON()
-            perform_save = True
+            self.perform_save = True
 
-        if self.settlement["timeline_version"] < 1.1:
+        if self.settlement["meta"]["timeline_version"] < 1.1:
             self.convert_timeline_quarry_events()
-            perform_save = True
+            self.perform_save = True
 
         #
-        #   misc migrations
+        #       other migrations
         #
-        if not "monsters_version" in self.settlement.keys():
+        if self.settlement["meta"].get("monsters_version", None) is None:
             self.convert_monsters_to_handles()
-            perform_save = True
+            self.perform_save = True
 
-        if not "expansions_version" in self.settlement.keys():
+        if self.settlement["meta"].get("expansions_version", None) is None:
             self.convert_expansions_to_handles()
-            perform_save = True
+            self.perform_save = True
 
+        if self.settlement["meta"].get("innovations_version", None) is None:
+            self.convert_innovations_to_handles()
+            self.perform_save = True
 
         # finish
-        if perform_save:
-            self.logger.debug("%s settlement modified! Saving changes..." % self)
+        if self.perform_save:
+            self.logger.info("%s settlement modified! Saving changes..." % self)
             self.save()
 
 
@@ -306,10 +274,11 @@ class Settlement(Models.UserAsset):
 
         # first, try to initialize an innovations.Innovation object
         try:
-            I = innovations.Innovation(name=self.params["name"])
+            I = innovations.Innovation(self.params["handle"])
         except:
-            self.logger.error("Could not initialize innovation asset from dict: %s" % i)
-            self.logger.error("Unable to add '%s' to %s innovations!" % (i, self))
+            self.logger.error("Could not initialize innovation asset from dict: %s" % self.params["handle"])
+            self.logger.error("Unable to add '%s' to %s innovations!" % (self.params["handle"], self))
+            self.logger.error("Bad params were: %s" % self.params)
             raise Exception
 
         if I.name in self.settlement["innovations"]:
@@ -319,15 +288,36 @@ class Settlement(Models.UserAsset):
 
         # finally, do it
 
-        self.settlement["innovations"].append(I.name)
+        self.settlement["innovations"].append(I.handle)
 
         if hasattr(I, "levels") and not self.settlement.get("innovation_levels", False):
             self.settlement["innovation_levels"] = {}
         if hasattr(I, "levels"):
-            self.settlement["innovation_levels"][I.name] = 1
+            self.settlement["innovation_levels"][I.handle] = 1
 
         self.log_event("Added '%s' to settlement innovations." % (I.name), event_type="add_innovation")
 
+        self.save()
+
+
+    def rm_innovation(self):
+        """ Removes an innovation from the settlement. """
+
+        # first, try to initialize an innovations.Innovation object
+        try:
+            I = innovations.Innovation(self.params["handle"])
+        except:
+            self.logger.error("Could not initialize innovation asset from dict: %s" % self.params["handle"])
+            self.logger.error("Unable to remove '%s' from %s innovations!" % (self.params["handle"], self))
+            self.logger.error("Bad params were: %s" % self.params)
+            raise Exception
+
+        if I.handle not in self.settlement["innovations"]:
+            self.logger.warn("Ignoring attempt to remove %s to %s innovations (because it is not there)." % (I, self))
+            return False
+
+        self.settlement["innovations"].remove(I.handle)
+        self.log_event("Removed '%s' from settlement innovations." % (I.name), event_type="rm_innovation")
         self.save()
 
 
@@ -458,12 +448,75 @@ class Settlement(Models.UserAsset):
             self.save()
 
 
-    def get_innovation_deck(self):
+    def get_founder(self):
+        """ Helper method to rapidly get the mdb document of the settlement's
+        creator/founder. """
+        return utils.mdb.users.find_one({"_id": self.settlement["created_by"]})
+
+
+    def get_innovation_deck(self, return_type=False):
         """ Uses the settlement's current innovations to create an Innovation
-        Deck, i.e. a list of innovation handle/name pairs. """
+        Deck, which, since it's a pure game asset, is returned as a list of
+        names, rather than as an object or as handles, etc."""
+
+        #
+        #   This is a port of the legacy method, but this method combines every-
+        #   thing that the legacy app did in like, three different places to be
+        #   the ultimately, single/central source of truth
+        #
+        #   The general logic of this method is that we start with a huge list
+        #   of all possible options and then filter it down to a baseline.
+        #
+        #   Once we've got that baseline, we check the individual innovations
+        #   we've got left to see if we keep them in the deck. 
 
         I = innovations.Assets()
-        self.logger.warn("NOT IMPLEMENTED!!!!!")
+        available = dict(self.get_available_assets(innovations)["innovations"])
+
+        # remove principles and innovations from expansions we don't use
+        for a in available.keys():
+            if available[a].get("type",None) == "principle":
+                del available[a]
+
+        # remove ones we've already got and make a list of consequences
+        consequences = []
+        for i_handle in self.settlement["innovations"]:
+            if available[i_handle].get("consequences",None) is not None:
+                consequences.extend(available[i_handle]["consequences"])
+            if i_handle in available.keys():
+                del available[i_handle]
+        consequences = list(set(consequences))
+
+
+        # now, we use the baseline and the consequences list to build a deck
+        deck_dict = {}
+
+        for c in consequences:
+            if c not in self.settlement["innovations"]:
+                if c in available.keys():
+                    del available[c]
+                deck_dict[c] = I.get_asset(c)
+
+
+        # we've got a good list, but we still need to check available inno-
+        # vations for some attribs that might force them into the list.
+        for i in available:
+            available_if = available[i].get("available_if",None)
+            if available_if is not None:
+                for tup in available_if:
+                    asset,collection = tup
+                    if asset in self.settlement[collection]:
+                        deck_dict[i] = I.get_asset(i)
+
+        # finally, create a new list and use the deck dict to 
+        deck_list = []
+        for k in deck_dict.keys():
+            deck_list.append(deck_dict[k]["name"])
+
+        if return_type == "JSON":
+            return json.dumps(sorted(deck_list))
+        else:
+            return deck_dict
 
 
     def get_settlement_notes(self):
@@ -946,7 +999,13 @@ class Settlement(Models.UserAsset):
                 if self.is_compatible(item_dict):
                     available.append(item_dict)
 
-        return {"%s" % (asset_module.__name__.split(".")[-1]): available}
+        final = []
+        if type(available) == list:
+            final = sorted(available)
+        else:
+            final = collections.OrderedDict(sorted(available.items()))
+
+        return {"%s" % (asset_module.__name__.split(".")[-1]): final}
 
 
     def is_compatible(self, asset_dict):
@@ -981,6 +1040,66 @@ class Settlement(Models.UserAsset):
     #   conversion and migration functions
     #
 
+    def baseline_data_model(self):
+        """ This checks the mdb document to make sure that it has basic aux-
+        iliary and supplemental attribute keys. If it doesn't have them, they
+        get added and we set self.perform_save = True. """
+
+        if not "meta" in self.settlement.keys():
+            self.logger.info("Creating 'meta' key for %s" % self)
+            self.settlement["meta"] = {}
+            for meta_key in ["timeline_version", "monsters_version","expansions_version"]:
+                if meta_key in self.settlement:
+                    self.settlement["meta"][meta_key] = self.settlement[meta_key]
+                    del self.settlement[meta_key]
+                    self.logger.info("Moved meta key '%s' to settlement 'meta' dict for %s" % (meta_key,self))
+            self.perform_save = True
+
+        if not "admins" in self.settlement.keys():
+            self.logger.info("Creating 'admins' key for %s" % (self))
+            creator = utils.mdb.users.find_one({"_id": self.settlement["created_by"]})
+            self.settlement["admins"] = [creator["login"]]
+            self.perform_save = True
+
+        founder = self.get_founder()
+        if not founder["login"] in self.settlement["admins"]:
+            self.settlement["admins"].append(founder["login"])
+            self.logger.debug("Adding founder '%s' to %s admins list." % (founder["login"], self))
+            self.perform_save = True
+
+        if not "expansions" in self.settlement.keys():
+            self.logger.info("Creating 'expansions' key for %s" % (self))
+            self.settlement["expansions"] = []
+            self.perform_save = True
+
+
+    def migrate_settlement_notes(self):
+        """ In the legacy data model, settlement notes were a single string that
+        got saved to MDB on the settlement (yikes!). If the settlement has the
+        'settlement_notes' key, this method removes it and creates that string
+        as a proper settlement_note document in mdb. """
+
+        if self.settlement.get("settlement_notes", None) is None:
+            return True
+        else:
+            self.logger.debug("Converting legacy 'settlement_notes' to mdb.settlement_notes doc!")
+
+            s = str(int(time.time())) + str(self.settlement["_id"])
+            bogus_id = ''.join(random.sample(s,len(s)))
+
+            founder = self.get_founder()
+            note = {
+                "note": self.settlement["settlement_notes"].strip(),
+                "author": founder["login"],
+                "author_id": self.settlement["created_by"],
+                "js_id": bogus_id,
+                "lantern_year": self.get_current_ly(),
+            }
+            self.add_settlement_note(note)
+            del self.settlement["settlement_notes"]
+            self.perform_save = True
+
+
     def convert_expansions_to_handles(self):
         """ Takes a legacy settlement object and swaps out its expansion name
         key values for handles. """
@@ -1001,8 +1120,38 @@ class Settlement(Models.UserAsset):
                 Models.AssetMigrationError(msg)
 
         self.settlement["expansions"] = new_expansions
-        self.settlement["expansions_version"] = 1.0
+        self.settlement["meta"]["expansions_version"] = 1.0
         self.logger.info("Migrated %s expansions to version 1.0. %s expansions were migrated!" % (self, len(new_expansions)))
+
+
+    def convert_innovations_to_handles(self):
+        """ Swaps out expansion name key values for handles. """
+
+        I = innovations.Assets()
+
+        new_innovations = []
+        conversions = 0
+        for i in self.settlement["innovations"]:
+            i_dict = I.get_asset_from_name(i)
+            if i_dict is None:
+                self.logger.warn("Could not migrate location '%s'!" % i)
+            else:
+                new_innovations.append(i_dict["handle"])
+                conversions += 1
+
+        if "innovation_levels" in self.settlement.keys():
+            for i_name in self.settlement["innovation_levels"].keys():
+                i_dict = I.get_asset_from_name(i_name)
+                if i_dict is None:
+                    self.logger.warn("Could not convert location level for '%s'!" % i_name)
+                else:
+                    self.settlement["innovation_levels"][i_dict["handle"]] = self.settlement["innovation_levels"][i_name]
+                    del self.settlement["innovation_levels"][i_name]
+            self.logger.debug(self.settlement["innovation_levels"])
+
+        self.settlement["innovations"] = new_innovations
+        self.settlement["meta"]["innovations_version"] = 1.0
+        self.logger.info("Converted %s innovations from names (legacy) to handles for %s" % (conversions, self))
 
 
 
@@ -1036,7 +1185,7 @@ class Settlement(Models.UserAsset):
 
             self.settlement[list_key] = new_list
 
-        self.settlement["monsters_version"] = 1.0
+        self.settlement["meta"]["monsters_version"] = 1.0
         self.logger.debug("Migrated %s monster lists from legacy data model to 1.0." % self)
 
 
@@ -1133,7 +1282,7 @@ class Settlement(Models.UserAsset):
         new_timeline = utils.sort_timeline(new_timeline)
 
         self.settlement["timeline"] = new_timeline
-        self.settlement["timeline_version"] = 1.0
+        self.settlement["meta"]["timeline_version"] = 1.0
         self.logger.warn("Migrated %s timeline from legacy data model to version 1.0" % self)
 
 
@@ -1150,7 +1299,7 @@ class Settlement(Models.UserAsset):
             new_timeline.append(y)
 
         self.settlement["timeline"] = new_timeline
-        self.settlement["timeline_version"] = 1.1
+        self.settlement["meta"]["timeline_version"] = 1.1
         self.logger.debug("Migrated %s timeline to version 1.1" % (self))
 
 
@@ -1174,8 +1323,8 @@ class Settlement(Models.UserAsset):
             return self.return_json()
         elif action == "event_log":
             return Response(response=self.get_event_log("JSON"), status=200, mimetype="application/json")
-        elif action == "innovation_deck":
-            return self.get_innovation_deck()
+        elif action == "get_innovation_deck":
+            return Response(response=self.get_innovation_deck("JSON"), status=200, mimetype="application/json")
 
         #
         #   misc. controllers and actions (most actions go here)
@@ -1198,6 +1347,8 @@ class Settlement(Models.UserAsset):
 
         elif action == "add_innovation":
             self.add_innovation()
+        elif action == "rm_innovation":
+            self.rm_innovation()
         elif action == "set_innovation_level":
             self.set_innovation_level()
 

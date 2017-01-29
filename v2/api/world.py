@@ -149,7 +149,7 @@ class World:
     def list(self, output_type="JSON"):
         """ Dump world data in a few different formats."""
 
-        d = {"world": {}}
+        d = {"world": {}, "meta": {"api_version": settings.get("api","version")}}
         for asset in utils.mdb.world.find():
             d["world"][asset["handle"]] = asset
             d["world"][asset["handle"]]["age_in_seconds"] = (datetime.now() - asset["created_on"]).seconds

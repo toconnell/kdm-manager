@@ -120,8 +120,13 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
 
         // finish
         console.log("appRoot controller (" + $scope.view + ") initialized!");
+        console.log("Settlement ID = " + $scope.settlement_id);
         console.log("Current user login = " + $scope.user_login);
     }
+
+    $scope.getJSONfromAPI = function(collection, action) {
+        return apiService.getSettlement($scope.api_url, action, $scope.settlement_id);
+    };
 
     $scope.postJSONtoAPI = function(collection, action, json_obj) {
         var url = $scope.api_url + collection + "/" + action + "/" + $scope.settlement_id;
@@ -131,8 +136,9 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
         });
         res.error(function(data, status, headers, config) {
             errorAlert();
-            console.log("API POST FAILURE!!!");
+            console.error("API POST FAILURE!!!");
         });
+        return res;
     };
 
 
@@ -280,6 +286,7 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
         };
         return false; 
     };
+
 
 });
 
@@ -529,8 +536,8 @@ function modifyAsset(collection, asset_id, param_string) {
 //  2017-01-22 we're canceling the callback part until we can fix it for Safari
 //  and firefox and the other POS browsers whose javascript sucks the sweat off
 //  a dead donkey's balls
-//    xhr.open(method, url, true);
-    xhr.open(method, url, false);
+    xhr.open(method, url, true);
+//    xhr.open(method, url, false);
     xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 //    window.alert(params);
     xhr.send(params);
@@ -742,9 +749,13 @@ function openNav() {
     document.getElementById("mySidenav").style.width = '75%';
 }
 function closeNav() {
-    document.getElementById("mySidenav").style.width = "0";
+    var nav = document.getElementById("mySidenav");
+    if (nav === null){
+//        console.warn("mySidenav element does not exist!")
+    } else {
+        nav.style.width = "0"
+    };
 }
-
 
 // close modal windows from a span
 function closeModal(modal_div_id) {

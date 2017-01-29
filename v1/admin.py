@@ -493,6 +493,7 @@ class Panel:
         try:
             World = api.route_to_dict("world")
             W = World["world"]
+            meta = World["meta"]
         except Exception as e:
             return "World could not be loaded! %s" % e
 
@@ -517,6 +518,7 @@ class Panel:
         output = html.panel.headline.safe_substitute(
             version = settings.get("application","version"),
             api_url = api.get_api_url(),
+            api_version = meta["api_version"],
             hostname = socket.getfqdn(),
             response_times = response_block,
             world_daemon = daemon_block,

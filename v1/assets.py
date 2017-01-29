@@ -4361,7 +4361,7 @@ class Settlement:
 
         # now create our list of all possible sources: any game asset with an
         #  an endeavor should be in this
-        sources = copy(self.get_game_asset("innovations", update_mins=False))
+        sources = copy(self.get_game_asset("innovations", update_mins=False, handles_to_names=True))
         sources.extend(self.settlement["principles"])
         sources.extend(self.settlement["locations"])
         sources.extend(self.settlement["storage"])
@@ -5374,7 +5374,7 @@ class Settlement:
 
 
 
-    def get_game_asset(self, asset_type=None, return_type=False, exclude=[], update_mins=True, admin=False):
+    def get_game_asset(self, asset_type=None, return_type=False, exclude=[], update_mins=True, admin=False, handles_to_names=False):
         """ This is the generic method for getting a list of the settlement's
         game assets, e.g. innovations, locations, principles, etc.
 
@@ -5447,45 +5447,36 @@ class Settlement:
             return "\n".join(['\t<div class="line_item"><span class="bullet"></span><span class="item">%s</span></div>' % i for i in asset_keys])
 
         elif return_type in ["html_add"]:
-            if not self.User.get_preference("dynamic_innovation_deck") and asset_type == "innovations":
-                output = html.settlement.add_innovations_form.safe_substitute(
-                    settlement_id = self.settlement["_id"],
-                    select_controls = Innovations.render_as_html_dropdown(
-                        exclude=self.settlement["innovations"],
-                        excluded_type="principle",
-                    ),
-                )
+            op = "add"
+            output = html.ui.game_asset_select_top.safe_substitute(
+                operation="%s_" % op,
+                operation_pretty=op.capitalize(),
+                name=asset_name,
+                name_pretty=pretty_asset_name,
+                ng_model="newInnovation",
+                ng_change="addInnovation()",
+                on_change="",
+            )
+
+            deck = self.get_game_asset_deck(asset_type)
+
+            # Special Innovate bullshit here
+            if asset_type == "innovations":
+                for late_key in Innovations.get_keys():
+                    if "special_innovate" in Innovations.get_asset(late_key):
+                        special_innovate = Innovations.get_asset(late_key)["special_innovate"]
+                        if special_innovate[1] in self.settlement[special_innovate[0]]:
+                            if late_key not in deck:
+                                deck.append(late_key)
+
+            if return_type == "html_add":
+                for asset_key in sorted(deck):
+                    output += html.ui.game_asset_select_row.safe_substitute(asset=asset_key)
+                output += html.ui.game_asset_select_bot
                 return output
-            else:
-                op = "add"
-                output = html.ui.game_asset_select_top.safe_substitute(
-                    operation="%s_" % op,
-                    operation_pretty=op.capitalize(),
-                    name=asset_name,
-                    name_pretty=pretty_asset_name,
-                    ng_model="newInnovation",
-                    ng_change="addInnovation()",
-                )
-
-                deck = self.get_game_asset_deck(asset_type)
-
-                # Special Innovate bullshit here
-                if asset_type == "innovations":
-                    for late_key in Innovations.get_keys():
-                        if "special_innovate" in Innovations.get_asset(late_key):
-                            special_innovate = Innovations.get_asset(late_key)["special_innovate"]
-                            if special_innovate[1] in self.settlement[special_innovate[0]]:
-                                if late_key not in deck:
-                                    deck.append(late_key)
-
-                if return_type == "html_add":
-                    for asset_key in sorted(deck):
-                        output += html.ui.game_asset_select_row.safe_substitute(asset=asset_key)
-                    output += html.ui.game_asset_select_bot
-                    return output
-                elif return_type == "angularjs_options":
-                    msg = "JSON and angularjs 'return_type' values are not supported!"
-                    raise Exception(msg)
+            elif return_type == "angularjs_options":
+                msg = "JSON and angularjs 'return_type' values are not supported!"
+                raise Exception(msg)
 
         elif return_type in ["html_remove","html_rm"]:
             if asset_keys == []:
@@ -5511,7 +5502,13 @@ class Settlement:
             return self.get_game_asset_deck(asset_type)
 
         elif not return_type:
-            return asset_keys
+            if handles_to_names:
+                name_list = []
+                lookup_dict = self.get_api_asset("game_assets",asset_type)
+                for a_name in asset_keys:
+                    name_list.append(lookup_dict[a_name]["name"])
+                asset_keys = name_list
+            return sorted(asset_keys)
 
         else:
             self.logger.error("An error occurred while retrieving settlement game assets ('%s')!" % asset_type)
@@ -5721,10 +5718,6 @@ class Settlement:
                 self.update_milestones(game_asset_key)
             elif p in ["add_item","remove_item"]:
                 self.update_settlement_storage("html_form", params)
-            elif p == "add_innovation":
-                self.add_game_asset("innovations", game_asset_key)
-            elif p == "rm_innovation":
-                self.rm_game_asset("innovations", game_asset_key)
             elif p == "add_location":
                 self.add_game_asset("locations", game_asset_key)
             elif p == "rm_location":
@@ -5813,9 +5806,6 @@ class Settlement:
                 recently_added=self.get_recently_added_items(),
                 expansions=self.get_expansions("list_of_names"),
             ),
-
-            innovations_add = self.get_game_asset("innovations", return_type="html_add", update_mins=False),
-            innovation_deck = self.get_game_asset_deck("innovations", exclude_always_available=True),
 
             remove_settlement_button = rm_button,
 

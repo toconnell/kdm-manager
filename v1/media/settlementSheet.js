@@ -30,23 +30,79 @@ app.controller("locationsController", function($scope) {
 
 
 app.controller('innovationsController', function($scope) {
+    $scope.spinner = function(operation) {
+        var spinner = document.getElementById('innovationDeckSpinner');
+        if (spinner === null) {return false};
+        if (operation == "hide") {
+            spinner.style.display = "none"
+        } else {
+            spinner.style.display = "block"
+        };
+    };
+    $scope.innovationInSettlement = function(innovation) {
+        if ($scope.settlement_sheet.innovations.indexOf(innovation.handle) > -1) {return true};
+        return false; 
+    };
+    $scope.setInnovationOptions = function() {
+        var res = $scope.getJSONfromAPI('settlement','get');
+        res.then(
+            function(payload) {
+                $scope.innovation_options = payload.data.game_assets.innovations;
+                for (var k in $scope.innovation_options) {
+                    if ($scope.innovation_options[k].type == "principle") {
+                        delete $scope.innovation_options[k];
+                    };
+                };
+                for (var i = 0; i < $scope.settlement_sheet.innovations.length; i++) {
+                    var innovation = $scope.settlement_sheet.innovations[i];
+                    delete $scope.innovation_options[innovation];
+                };
+//                console.log("Innovations options updated!")
+            },
+            function(errorPayload) {console.log("Could not retrieve innovation options from API!" + errorPayload);}
+        );
+    };
+    $scope.setInnovationDeck = function() {
+        $scope.innovation_deck = null;
+        $scope.spinner();
+        var res = $scope.getJSONfromAPI('settlement','get_innovation_deck');
+        res.then(
+            function(payload) {
+                $scope.innovation_deck = payload.data;
+                var retry_flag = false;
+                if ($scope.innovation_deck.length < 1 && $scope.settlement_sheet.innovations.length > 0) {
+                    if (retry_flag == true) {
+                        $scope.setInnovationDeck();
+                        var retry_flag = true;
+                    } else {
+                        console.warn("Blank Innovation Deck returned after retry!")
+                    };
+                };
+//                console.log("Innovation Deck refreshed!");
+                $scope.spinner("hide");
+            },
+            function(errorPayload) {console.log("Could not retrieve innovation deck from API!" + errorPayload);}
+        );
+    };
     $scope.addInnovation = function() {
-        showFullPageLoader();
+//        console.warn("Adding innovation: " + $scope.newInnovation);
+        if ($scope.newInnovation === null) {return false};
         $scope.settlement_sheet.innovations.push($scope.newInnovation);
-        var js_obj = {"name": $scope.newInnovation};
-        $scope.postJSONtoAPI('settlement', 'add_innovation', js_obj);
-        reloadSheet();
+        var js_obj = {"handle": $scope.newInnovation};
+        var out = $scope.postJSONtoAPI('settlement', 'add_innovation', js_obj);
+        $scope.setInnovationDeck();
+        $scope.setInnovationOptions();
     };    
     $scope.setInnovationLevel = function(innovation_name,lvl){
         var js_obj = {"name": innovation_name, "level": lvl};
         $scope.postJSONtoAPI('settlement', 'set_innovation_level', js_obj);
     };
-    $scope.rmInnovation = function(index, innovation_name) {
-        showFullPageLoader();
+    $scope.rmInnovation = function(index, innovation_handle) {
         $scope.settlement_sheet.innovations.splice(index,1);
-        params = "rm_innovation=" + innovation_name;
-        modifyAsset('settlement',$scope.settlement_id,params);
-        reloadSheet();
+        var js_obj = {"handle": innovation_handle};
+        $scope.postJSONtoAPI('settlement', 'rm_innovation', js_obj); 
+        $scope.setInnovationDeck();
+        $scope.setInnovationOptions();
     };
 });
 

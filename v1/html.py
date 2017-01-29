@@ -30,8 +30,9 @@ class panel:
     </form>
 
     <div class="admin_panel_floater" id="admin_panel_hostname">host: <code><font class="maroon_text">$hostname</font></code></div>
-    <div class="admin_panel_floater" id="admin_panel_api_url">api: <code><font class="maroon_text">$api_url</font></code></div>
-    <div class="admin_panel_floater" id="admin_panel_version">version: <code><font class="maroon_text">$version</font></code></div>
+    <div class="admin_panel_floater" id="admin_panel_version">Application version: <code><font class="maroon_text">$version</font></code></div>
+    <div class="admin_panel_floater" id="admin_panel_api_url">API: <code><font class="maroon_text">$api_url</font></code></div>
+    <div class="admin_panel_floater" id="admin_panel_api_version">API version: <code><font class="maroon_text">$api_version</font></code></div>
 
     <div class="admin_panel_left">
         <table class="panel_meta_stats">
@@ -109,7 +110,7 @@ class ui:
         name="$operation$name"
         ng_model="$ng_model"
         ng_change="$ng_change"
-        onchange="this.form.submit()"
+        onchange="$on_change"
     >
       <option selected disabled hidden value="">$operation_pretty $name_pretty</option>
     """)
@@ -814,7 +815,7 @@ class angularJS:
                 <input
                     type="email"
                     name="email"
-                    placeholder="Survivor Email"
+                    ng-placeholder="Survivor Email"
                     value="{{user_login}}"
                     onclick="this.select()"
                 >
@@ -1170,7 +1171,7 @@ class survivor:
             <input
                 id="survivor_sheet_survivor_name"
                 type="text" name="name" value="{{survivor.name}}"
-                placeholder="Survivor Name"
+                ng-placeholder="Survivor Name"
                 onchange="updateAssetAttrib(this, 'survivor', '$survivor_id')"
                 onClick="this.select()"
             />
@@ -2840,7 +2841,7 @@ class settlement:
                     class="kd_checkbox_checked campaign_summary_bullet"
                     ng-repeat="i in settlement_sheet.innovations"
                 >
-                    {{i}}
+                    {{settlement.game_assets.innovations[i].name}}
                 </span>
             </div>
 
@@ -3103,7 +3104,7 @@ class settlement:
                 class="settlement_sheet_settlement_name settlement_name"
                 type="text"
                 value="{{settlement_sheet.name}}"
-                placeholder="Settlement Name"
+                ng-placeholder="Settlement Name"
                 onclick="this.select()"
                 onchange="updateAssetAttrib(this, 'settlement', '$settlement_id')"
             />
@@ -3322,7 +3323,7 @@ class settlement:
                     class="item"
                     ng-click="rmInnovation($index,i)"
                 >
-                    {{i}}
+                    {{settlement.game_assets.innovations[i].name}}
                 </span>
                 <span ng-if="settlement_sheet.innovation_levels[i] != undefined" class="location_lvl_select">
                     <select
@@ -3337,13 +3338,30 @@ class settlement:
            </div>
 
             <div class="line_item">
-                <span class="empty_bullet" /></span> $innovations_add
+                <span class="empty_bullet" /></span>
+                <select
+                    name="add_innovation"
+                    ng-init="setInnovationOptions()"
+                    ng_model="newInnovation"
+                    ng_change="addInnovation()"
+                    ng-options="i.handle as i.name for i in innovation_options"
+                >
+                    <option value="" disabled selected>Add Innovation</option>
+                </select>
             </div>
 
-            <div class="innovation_deck" ng-if="settlement_sheet.innovations.length != 0">
+            <div
+                id="innovationDeckContainerdiv"
+                class="innovation_deck"
+                title="The current innovation deck for {{settlement_sheet.name}}. Tap or click to refresh!"
+                ng-if="settlement_sheet.innovations.length != 0"
+                ng-init="setInnovationDeck()"
+                ng-click="setInnovationDeck()"
+            >
                 <h3> - Innovation Deck - </h3>
+                <img id="innovationDeckSpinner" class="innovation_deck_spinner" src="/media/loading_io.gif">
                 <ul class="asset_deck">
-                    <li ng-repeat="i in $innovation_deck"> {{i}} </li>
+                    <li ng-repeat="i in innovation_deck"> {{i}} </li>
                 </ul>
             </div>
 

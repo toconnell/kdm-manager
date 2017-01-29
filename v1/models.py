@@ -203,10 +203,10 @@ class Model:
             options_list = []
             for o in options:
                 options_list.append(game_asset_to_json(o, self))
+
             html_stub = Template("""\n
             <select
                 name = "add_$asset_name"
-                ng-init="what"
                 ng-change="addItem('$survivor_id')"
                 ng-options="option as option.name for option in $options_json"
                 ng-model="addMe"
@@ -214,6 +214,7 @@ class Model:
             <option value="" disabled hidden selected ng-if="!selectedObject">Add $pretty_name</option>
             </select>
             \n""")
+
             output = html_stub.safe_substitute(
                 pretty_name = self.pretty_name,
                 asset_name = self.name,
@@ -227,6 +228,7 @@ class Model:
 
             output = """\n\t<select name="add_%s" onchange="%s" ng-model="addMe" ng-change="addItem('%s')">""" % (self.name, submit_on_change, survivor_id)
             output += '\t<option selected disabled hidden value=''>Add %s</option>' % self.pretty_name
+
             if self.name in ["disorder","fighting_art"]:
                 output += '\t\t<option value="RANDOM_%s">* Random %s</option>' % (self.name.upper(), self.pretty_name)
                 output += ' <option disabled> &ensp; &ensp; ---  </option>'
@@ -561,18 +563,6 @@ preferences_dict = {
         "desc": "Show controls for removing Settlements and Survivors?",
         "affirmative": "Show controls on Settlement and Survivor Sheets",
         "negative": "Hide controls on Settlement and Survivor Sheets",
-    },
-    "dynamic_innovation_deck": {
-        "type": "Settlement Sheet",
-        "desc": "What Innovations should be selectable?",
-        "affirmative": "Innovation Deck only",
-        "negative": "All Innovations (not recommended)",
-    },
-    "hide_principle_controls": {
-        "type": "Settlement Sheet",
-        "desc": "Use settlement milestones to hide unavailable principles?",
-        "affirmative": "Dynamically hide Principle controls",
-        "negative": "Always show all Principle controls",
     },
     "confirm_on_remove_from_storage": {
         "type": "Settlement Sheet",

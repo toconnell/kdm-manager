@@ -406,6 +406,7 @@ female = [
 ]
 
 other = [
+    "Anri",
     "Ash",
     "Blackthorn",
     "Ghost",

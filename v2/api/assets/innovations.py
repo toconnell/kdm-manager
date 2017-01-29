@@ -491,6 +491,10 @@ innovations = {
         "endeavors": [
             {"name": "New Recruits", "cost": 1, "type": "home"},
         ],
+        "available_if": [
+            ("Manhunter Lvl 1","defeated_monsters"),
+            ("Manhunter Lvl 2","defeated_monsters"),
+        ],
     },
     "war_room": {
         "name": "War Room",
