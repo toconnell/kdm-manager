@@ -1649,7 +1649,8 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     p.settlement_sheet_campaign_type {font-size: 15pt; margin: 0 auto; display: block; text-align: center; padding:0; width: auto; margin-bottom: 5%; }
     div#bulk_add_survivors input.settlement_sheet_bulk_add {width: 75%; margin-left: -60px; }
 
-    div.settlement_form_wide_box {margin-left: 10%; }
+    div.settlement_sheet_tumblers_container {display: flex; width: 360px; align-items: baseline; justify-content: center; }
+    div.settlement_form_wide_box {display: flex; flex-direction: column-reverse; float: left; width: auto; height: 200px; margin-bottom: 10px; text-align: center; }
 
         /* Bulk Add New Survivors - wide */
     div.bulk_add_control {float: left; width: 120px; text-align: center; margin: 0; margin-bottom: 0; margin-left: 20px; font-size: 12pt; color: #666; }
@@ -1687,7 +1688,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     /* settlement storage - wide */
     ul.asset_list {margin-left: 2px;}
     div.item_rack {position: fixed; height: auto; width: 300px; background-color: #121212;}
-    h3.inventory_tag {font-size: 12pt; }
+    h3.inventory_tag {font-size: 12pt; position: relative; margin: 0 auto; margin-right: -50px; }
 
 
 
@@ -1802,11 +1803,14 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
         /* nemesis monsters - wide */
     div.nemesis_level_toggle_container label {font-size: 12pt; width: 70px;} 
+    span.nemesis_levels {padding: 0; margin: auto; margin-right: 1%; }
+    label.settlement_sheet_nemesis_lvl_label { padding: 0; margin: 0 auto; }
     div.settlement_sheet_nemesis_line_item {width: 100%; }
-    span.nemesis_levels {margin-top: 1%; margin-right: 4%; }
 
         /* right pane styles - wide */
     div.lost_settlements_controls {margin-top: -10px;}
+    span.lost_settlement {height: 15px; width: 15px; border-width: 2px; margin: 0; }
+    span.lost_settlement.bold_check_box {height: 12px; width: 12px; border: 4px solid #000; }
 
     div#asset_management_right_pane {border-right: 1px solid #999; }
     div#survivor_sheet_right_pane {width: 340px; float: left; }

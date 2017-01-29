@@ -738,7 +738,7 @@ class Survivor:
         # check the settlements innovations and auto-add Weapon Specializations
         #   if there are any masteries in the settlement innovations 
         if not "dead" in self.survivor.keys():
-            for innovation_key in self.Settlement.settlement["innovations"]:
+            for innovation_key in self.Settlement.get_game_asset("innovations", update_mins=False, handles_to_names=True):
                 if innovation_key in WeaponMasteries.get_keys():
                     prof_dict = WeaponMasteries.get_asset(innovation_key)
                     if "auto-apply_specialization" in prof_dict.keys() and not prof_dict["auto-apply_specialization"]:

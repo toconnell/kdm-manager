@@ -1,7 +1,7 @@
 #!/usr/bin/python2.7
 
 
-from assets import innovations
+from assets import innovations, abilities_and_impairments
 import Models
 import utils
 
@@ -16,6 +16,12 @@ class Assets(Models.AssetCollection):
                 self.assets[a]["type"] = "principle"
             else:
                 self.assets[a]["type"] = "innovation"
+
+        for m in abilities_and_impairments.weapon_masteries.keys():
+            wm = abilities_and_impairments.weapon_masteries[m]
+            wm["handle"] = m
+            wm["type"] = "weapon_mastery"
+            self.assets[m] = wm
 
 
     def get_principles(self):

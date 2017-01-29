@@ -43,7 +43,6 @@ def get_user_asset(collection=None, asset_id=None):
     Returns a (bad) HTTP response if it cannot. """
 
     R = badResponse()
-
     try:
         if collection == "settlement":
             return settlements.Settlement(_id=asset_id)
@@ -55,7 +54,7 @@ def get_user_asset(collection=None, asset_id=None):
             return R
 
     except Exception as e:
-        R.send_bad_response(e)
+        return R.send_bad_response(e)
 
 
 def get_game_asset(collection):
@@ -78,6 +77,6 @@ def get_game_asset(collection):
             return R
 
     except Exception as e:
-        R.send_bad_response(e)
+        return R.send_bad_response(e)
 
 

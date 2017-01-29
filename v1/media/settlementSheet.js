@@ -62,21 +62,20 @@ app.controller('innovationsController', function($scope) {
             function(errorPayload) {console.log("Could not retrieve innovation options from API!" + errorPayload);}
         );
     };
-    $scope.setInnovationDeck = function() {
+    $scope.setInnovationDeck = function(retry) {
         $scope.innovation_deck = null;
         $scope.spinner();
         var res = $scope.getJSONfromAPI('settlement','get_innovation_deck');
         res.then(
             function(payload) {
                 $scope.innovation_deck = payload.data;
-                var retry_flag = false;
                 if ($scope.innovation_deck.length < 1 && $scope.settlement_sheet.innovations.length > 0) {
-                    if (retry_flag == true) {
-                        $scope.setInnovationDeck();
-                        var retry_flag = true;
-                    } else {
+                    if (retry === undefined) {
+                        console.warn("Empty Innovation Deck! Retrying...")
+                        $scope.setInnovationDeck(true);
+                    } else if (retry === true) {
                         console.warn("Blank Innovation Deck returned after retry!")
-                    };
+                    } else {console.error("retry was " + retry + " which is unexpected!")};
                 };
 //                console.log("Innovation Deck refreshed!");
                 $scope.spinner("hide");

@@ -117,6 +117,8 @@ def protected():
 def get_settlement(collection, action, asset_id):
     """ This is our major method for retrieving and updating settlements. """
     asset_object = request_broker.get_user_asset(collection, asset_id)
+    if type(asset_object) == Response:
+        return asset_object
     return asset_object.request_response(action)
 
 

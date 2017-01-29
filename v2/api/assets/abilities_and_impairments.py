@@ -45,62 +45,62 @@ curse = {
 }
 
 weapon_masteries = {
-    "scythe_master": {
+    "mastery_scythe": {
         "name": "Mastery - Scythe",
         "desc": "When you critically wound with a scythe, roll 1d10. On a 6+, shuffle the hit location deck (do not shuffle unresolved hit locations).<br/>Limit, once per round.",
         "expansion": "dragon_king",
     },
-    "katana_mastery": {
+    "mastery_katana": {
         "name": "Mastery - Katana",
         "desc": "When a survivor reaches Katana Mastery, they leave the settlement forever, heeding the call of the sstorm to hone their art.<br/>Before the master leaves, you may nominate a survivor. Set that survivor's weapon type to Katana and their weapon proficiency level to 1.",
         "expansion": "sunstalker",
     },
-    "katar_mastery": {
+    "mastery_katar": {
         "name": "Mastery - Katar",
         "desc": "If you are a Katar Master, gain a <i>+1 evasion</i> token on a <b>perfect hit</b> with a katar. When you are knocked down, remove all +1 evasion tokens.",
     },
-    "bow_mastery": {
+    "mastery_bow": {
         "name": "Mastery - Bow",
         "desc": "If you are a Bow Master, all bows in your gear grid gain <b>Deadly 2</b>. In addition, ignore <b>cumbersome</b> on all Bows.",
     },
-    "twilight_sword_mastery": {
+    "mastery_twilight_sword": {
         "name": "Mastery - Twilight Sword",
         "desc": "Any Survivor who attains Twilight Sword Mastery leaves the settlement forever in pursuit of a higher purpose. Remove them from the settlement's population. You may place the master's Twilight Sword in another survivor's gear grid or archive it.",
         "excluded_campaigns": ["People of the Stars","People of the Sun"],
     },
-    "axe_mastery": {
+    "mastery_axe": {
         "name": "Mastery - Axe",
         "desc": "When an Axe Master wounds a monster with an axe at a location with a persistent injury, that wound becomes a critical wound.",
     },
-    "spear_mastery": {
+    "mastery_spear": {
         "name": "Mastery - Spear",
         "desc": "Whenever a Spear Master hits a monster with a Separ, they may spend 1 survival to gain the Priority Target token. If they made the hit from directly behind another survivor, that survivor gains the Priority Target token instead.",
     },
-    "club_mastery": {
+    "mastery_club": {
         "name": "Mastery - Club",
         "desc": "If you are a Club Master, all Clubs in your gear grid gain <b>Savage</b>. On a <b>Perfect hit</b> with a Club, gain <i>+3 strength</i> until the end of the attack.",
     },
-    "fist_and_tooth_mastery": {
+    "mastery_fist_and_tooth": {
         "name": "Mastery - Fist & Tooth",
         "desc": "While a survivor is a Fist & Tooth Master, they gain <i>+2 permanent accuracy</i> and <i>+2 permanent strength</i> (they receive this bonus even when not attacking with Fist and Tooth).",
     },
-    "grand_weapon_mastery": {
+    "mastery_grand_weapon": {
         "name": "Mastery - Grand Weapon",
         "desc": "When a Grand Weapon Master perfectly hits with a grand weapon, cancel all reactions for that attack.",
     },
-    "whip_mastery": {
+    "mastery_whip": {
         "name": "Mastery - Whip",
         "desc": "Whip Masters gain <i>+5 strength</i> when attacking with a Whip.",
     },
-    "shield_mastery": {
+    "mastery_shield": {
         "name": "Mastery - Shield",
         "desc": "When a Shield Master is adjacent to a survivor that is targeted by a monster, they may swap spaces on the baord with the survivor and become the target instead. The master must have a shield to perform this.",
     },
-    "dagger_mastery": {
+    "mastery_dagger": {
         "name": "Mastery - Dagger",
         "desc": "After a wounded hit location is discarded, a Dagger Master who is adjacent to the attacker and the wounded monster may spend 1 survival to re-draw the wounded hit location and attempt to wound with a dagger. Treat monster reactions on the re-drawn hit location card normally.",
     },
-    "sword_mastery": {
+    "mastery_sword": {
         "name": "Mastery - Sword",
         "desc": "A Sword master gains +1 accuracy, +1 strength, and +1 speed when attacking with a Sword.",
     },

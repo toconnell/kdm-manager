@@ -3120,90 +3120,92 @@ class settlement:
 
         <h1 ng-if="settlement_sheet.abandoned"class="alert">ABANDONED</h1>
 
-        <div class="settlement_form_wide_box">
-            <div class="big_number_container left_margin">
-                <button
-                    class="incrementer"
-                    onclick="stepAndSave('up','survivalLimitBox','settlement','$settlement_id');"
-                >
-                    &#9652;
-                </button>
-                <input
-                    id="survivalLimitBox"
-                    class="big_number_square"
-                    type="number" name="survival_limit"
-                    value="$survival_limit"
-                    min="$min_survival_limit"
-                    onchange="updateAssetAttrib(this,'settlement','$settlement_id')"
-                />
-                <button
-                    class="decrementer"
-                    onclick="stepAndSave('down','survivalLimitBox','settlement','$settlement_id');"
-                >
-                    &#9662;
-                </button>
-            </div>
-            <div class="big_number_caption">Survival Limit<br /><font class="settlement_sheet_survival_limit_caption">(min: $min_survival_limit)</font></div>
-        </div><!-- settlement_form_wide_box -->
+        <div class="settlement_sheet_tumblers_container">
+            <div class="settlement_form_wide_box">
+                <div class="big_number_container left_margin">
+                    <button
+                        class="incrementer"
+                        onclick="stepAndSave('up','survivalLimitBox','settlement','$settlement_id');"
+                    >
+                        &#9652;
+                    </button>
+                    <input
+                        id="survivalLimitBox"
+                        class="big_number_square"
+                        type="number" name="survival_limit"
+                        value="$survival_limit"
+                        min="$min_survival_limit"
+                        onchange="updateAssetAttrib(this,'settlement','$settlement_id')"
+                    />
+                    <button
+                        class="decrementer"
+                        onclick="stepAndSave('down','survivalLimitBox','settlement','$settlement_id');"
+                    >
+                        &#9662;
+                    </button>
+                </div>
+                <div class="big_number_caption">Survival Limit<br /><font class="settlement_sheet_survival_limit_caption">(min: $min_survival_limit)</font></div>
+            </div><!-- settlement_form_wide_box -->
 
-        <br class="mobile_only"/>
-        <hr class="mobile_only"/>
+            <br class="mobile_only"/>
+            <hr class="mobile_only"/>
 
-        <div class="settlement_form_wide_box">
-            <div class="big_number_container left_margin">
-                <button
-                    class="incrementer"
-                    onclick="stepAndSave('down','populationBox','settlement','$settlement_id');"
-                >
-                    &#9652;
-                </button>
-                <input
-                    id="populationBox"
-                    class="big_number_square"
-                    type="number" name="population"
-                    value="{{settlement_sheet.population}}"
-                    onchange="updateAssetAttrib(this,'settlement','$settlement_id')"
-                    min="0"
-                />
-                <button
-                    class="decrementer"
-                    onclick="stepAndSave('down','populationBox','settlement','$settlement_id');"
-                >
-                    &#9662;
-                </button>
-            </div>
-            <div class="big_number_caption">Population</div>
-        </div> <!-- settlement_form_wide_box -->
+            <div class="settlement_form_wide_box">
+                <div class="big_number_container left_margin">
+                    <button
+                        class="incrementer"
+                        onclick="stepAndSave('down','populationBox','settlement','$settlement_id');"
+                    >
+                        &#9652;
+                    </button>
+                    <input
+                        id="populationBox"
+                        class="big_number_square"
+                        type="number" name="population"
+                        value="{{settlement_sheet.population}}"
+                        onchange="updateAssetAttrib(this,'settlement','$settlement_id')"
+                        min="0"
+                    />
+                    <button
+                        class="decrementer"
+                        onclick="stepAndSave('down','populationBox','settlement','$settlement_id');"
+                    >
+                        &#9662;
+                    </button>
+                </div>
+                <div class="big_number_caption">Population</div>
+            </div> <!-- settlement_form_wide_box -->
 
-        <br class="mobile_only"/>
-        <hr class="mobile_only"/>
+            <br class="mobile_only"/>
+            <hr class="mobile_only"/>
 
-        <div class="settlement_form_wide_box">
-            <div class="big_number_container left_margin">
-                <button
-                    class="decrementer"
-                    onclick="stepAndSave('up','deathCountBox','settlement','$settlement_id');"
-                >
-                    &#9652;
-                </button>
-                <input
-                    id="deathCountBox"
-                    class="big_number_square"
-                    type="number"
-                    name="death_count"
-                    value="{{settlement_sheet.death_count}}"
-                    min="0"
-                    onchange="updateAssetAttrib(this,'settlement','$settlement_id')"
-                />
-                <button
-                    class="decrementer"
-                    onclick="stepAndSave('down','deathCountBox','settlement','$settlement_id');"
-                >
-                    &#9662;
-                </button>
-            </div>
-            <div class="big_number_caption">Death Count</div>
-        </div> <!-- settlement_form_wide_box -->
+            <div class="settlement_form_wide_box">
+                <div class="big_number_container left_margin">
+                    <button
+                        class="decrementer"
+                        onclick="stepAndSave('up','deathCountBox','settlement','$settlement_id');"
+                    >
+                        &#9652;
+                    </button>
+                    <input
+                        id="deathCountBox"
+                        class="big_number_square"
+                        type="number"
+                        name="death_count"
+                        value="{{settlement_sheet.death_count}}"
+                        min="0"
+                        onchange="updateAssetAttrib(this,'settlement','$settlement_id')"
+                    />
+                    <button
+                        class="decrementer"
+                        onclick="stepAndSave('down','deathCountBox','settlement','$settlement_id');"
+                    >
+                        &#9662;
+                    </button>
+                </div>
+                <div class="big_number_caption">Death Count</div>
+            </div> <!-- settlement_form_wide_box -->
+        </div> <!-- settlement_sheet_tumblers_container -->
 
 
         <hr class="invisible">
@@ -3546,6 +3548,7 @@ class settlement:
                             ng-checked="arrayContains(l,settlement_sheet.nemesis_encounters[n])"
                         />
                         <label
+                            class="settlement_sheet_nemesis_lvl_label"
                             for="{{n + '_lvl_' + l}}"
                             id="{{n+'_lvl_'+l}}_label"
                             ng-click="toggleNemesisLevel(n,l,$event)"

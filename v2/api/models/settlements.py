@@ -57,7 +57,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.36
+        self.object_version=0.37
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize_data()
 
@@ -469,6 +469,9 @@ class Settlement(Models.UserAsset):
         #
         #   Once we've got that baseline, we check the individual innovations
         #   we've got left to see if we keep them in the deck. 
+
+        time.sleep(1)   # hack city! makes it feel more like something is
+                        # happening; slows the users down
 
         I = innovations.Assets()
         available = dict(self.get_available_assets(innovations)["innovations"])
@@ -1134,9 +1137,10 @@ class Settlement(Models.UserAsset):
         for i in self.settlement["innovations"]:
             i_dict = I.get_asset_from_name(i)
             if i_dict is None:
-                self.logger.warn("Could not migrate location '%s'!" % i)
+                self.logger.warn("Could not migrate innovation '%s'!" % i)
             else:
                 new_innovations.append(i_dict["handle"])
+                self.logger.debug("Converted '%s' to '%s'" % (i, i_dict["handle"]))
                 conversions += 1
 
         if "innovation_levels" in self.settlement.keys():
