@@ -3247,6 +3247,89 @@ class Settlement:
         self.save(quiet=True)
 
 
+    def enforce_data_model(self):
+        """ NB: this method is a dead man walking as of the Anniversary Release:
+        we're moving data model normalization to the API as of December 2016, so
+        doing this kind of processing here is officially deprecated!
+
+        mongo will FTFO if it sees a set(): uniquify our unique lists before
+        saving them and exclude any non str/unicode objects that might have
+        snuck in while iterating over the cgi.FieldStorage(). """
+
+        # de-dupe keys in certain groups. Probably not necessary here anymore,
+        # but let's hang onto this as long as we're still updating from HTML
+        # forms (because they're messy)
+        set_attribs = ["milestone_story_events", "innovations", "locations", "principles", "quarries"]
+        for a in set_attribs:
+            self.settlement[a] = list(set([i.strip() for i in self.settlement[a] if type(i) in (str, unicode)]))
+
+        # 2016-12 timelines with None type events
+        for ly in self.settlement["timeline"]:
+            for ly_k in ly.keys():
+                if ly_k in ["quarry_event","nemesis_encounter","story_event","settlement_event"]:
+                    for i in ly[ly_k]:
+                        if i is None:
+                            self.logger.error("[%s] forbidden timeline event found: %s" % (self.User, i))
+                            self.logger.debug("[%s] removing '%s' from LY %s" % (self.User, i, ly["year"]))
+                            ly[ly_k].remove(i)
+
+
+        # SUMMER 2016 bug: fix broken/incorrectly normalized innovations
+        def normalize(settlement_attrib, incorrect, correct):
+            if incorrect in self.settlement[settlement_attrib]:
+                self.settlement[settlement_attrib].remove(incorrect)
+                self.settlement[settlement_attrib].append(correct)
+                self.logger.debug("Normalized '%s' (%s) to '%s' for %s." % (incorrect,settlement_attrib,correct,self.get_name_and_id()))
+
+        mixed_case_tuples = [
+            ("innovations", "Song Of The Brave", "Song of the Brave"),
+            ("innovations", "Clan Of Death", "Clan of Death"),
+            ("principles", "Survival Of The Fittest", "Survival of the Fittest"),
+            ("principles", "Protect The Young", "Protect the Young"),
+        ]
+        for t in mixed_case_tuples:
+            normalize(t[0],t[1],t[2])
+
+
+        # keep innovations and principles separated
+        for innovation_key in self.settlement["innovations"]:
+            if innovation_key in Innovations.get_keys():
+                innovation_dict = Innovations.get_asset(innovation_key)
+                if "type" in innovation_dict.keys() and innovation_dict["type"] == "principle":
+                    self.settlement["innovations"].remove(innovation_key)
+                    self.logger.debug("Automatically removed principle '%s' from settlement '%s' (%s) innovations." % (innovation_key, self.settlement["name"], self.settlement["_id"]))
+
+        # fix timelines without a zero year for prologue
+        years = []
+        for ly in self.settlement["timeline"]:
+            years.append(ly["year"])
+            if ly["year"] == 1:
+                if "quarry_event" in ly:
+                    try:
+                        ly["quarry_event"].remove(u'White Lion (First Story)')
+                        self.logger.debug("Removed 'White Lion (First Story) from LY 1 for %s" % self.get_name_and_id())
+                    except:
+                        pass
+                    try:
+                        ly["settlement_event"].remove(u'First Day')
+                        self.logger.debug("Removed 'First Day' event from LY1 for %s" % self.get_name_and_id())
+                    except:
+                        pass
+        if not 0 in years:
+            year_zero = {"year": 0, "settlement_event": [u"First Day"], "quarry_event": [u'White Lion (First Story)']}
+            self.settlement["timeline"].append(year_zero)
+            self.logger.debug("Added errata LY 0 to %s" % self.get_name_and_id())
+
+
+
+    def save(self, quiet=False):
+        """ Saves the settlement. Logs it. """
+        mdb.settlements.save(self.settlement)
+        if not quiet:
+            self.logger.debug("[%s] saved changes to %s" % (self.User, self))
+
+
+
     def set_api_asset(self, refresh=False):
         """ Tries to set the settlement's API asset from the session. Fails
         gracelessly if it cannot: if we've got methods looking for API data,
@@ -3421,12 +3504,6 @@ class Settlement:
 
         return settlement_id
 
-
-    def save(self, quiet=False):
-        """ Saves the settlement. Logs it. """
-        mdb.settlements.save(self.settlement)
-        if not quiet:
-            self.logger.debug("[%s] saved changes to %s" % (self.User, self))
 
 
     def remove(self):
@@ -3712,84 +3789,6 @@ class Settlement:
 
 
 
-    def enforce_data_model(self):
-        """ NB: this method is a dead man walking as of the Anniversary Release:
-        we're moving data model normalization to the API as of December 2016, so
-        doing this kind of processing here is officially deprecated!
-
-        mongo will FTFO if it sees a set(): uniquify our unique lists before
-        saving them and exclude any non str/unicode objects that might have
-        snuck in while iterating over the cgi.FieldStorage(). """
-
-        # de-dupe keys in certain groups. Probably not necessary here anymore,
-        # but let's hang onto this as long as we're still updating from HTML
-        # forms (because they're messy)
-        set_attribs = ["milestone_story_events", "innovations", "locations", "principles", "quarries"]
-        for a in set_attribs:
-            self.settlement[a] = list(set([i.strip() for i in self.settlement[a] if type(i) in (str, unicode)]))
-
-#        uniq_attribs = ["locations","quarries"]
-#        for a in uniq_attribs:
-#            self.settlement[a] = [i.title().strip() for i in self.settlement[a]]
-
-        # 2016-12 timelines with None type events
-        for ly in self.settlement["timeline"]:
-            for ly_k in ly.keys():
-                if ly_k in ["quarry_event","nemesis_encounter","story_event","settlement_event"]:
-                    for i in ly[ly_k]:
-                        if i is None:
-                            self.logger.error("[%s] forbidden timeline event found: %s" % (self.User, i))
-                            self.logger.debug("[%s] removing '%s' from LY %s" % (self.User, i, ly["year"]))
-                            ly[ly_k].remove(i)
-
-
-        # SUMMER 2016 bug: fix broken/incorrectly normalized innovations
-        def normalize(settlement_attrib, incorrect, correct):
-            if incorrect in self.settlement[settlement_attrib]:
-                self.settlement[settlement_attrib].remove(incorrect)
-                self.settlement[settlement_attrib].append(correct)
-                self.logger.debug("Normalized '%s' (%s) to '%s' for %s." % (incorrect,settlement_attrib,correct,self.get_name_and_id()))
-
-        mixed_case_tuples = [
-            ("innovations", "Song Of The Brave", "Song of the Brave"),
-            ("innovations", "Clan Of Death", "Clan of Death"),
-            ("principles", "Survival Of The Fittest", "Survival of the Fittest"),
-            ("principles", "Protect The Young", "Protect the Young"),
-        ]
-        for t in mixed_case_tuples:
-            normalize(t[0],t[1],t[2])
-
-
-        # keep innovations and principles separated
-        for innovation_key in self.settlement["innovations"]:
-            if innovation_key in Innovations.get_keys():
-                innovation_dict = Innovations.get_asset(innovation_key)
-                if "type" in innovation_dict.keys() and innovation_dict["type"] == "principle":
-                    self.settlement["innovations"].remove(innovation_key)
-                    self.logger.debug("Automatically removed principle '%s' from settlement '%s' (%s) innovations." % (innovation_key, self.settlement["name"], self.settlement["_id"]))
-
-        # fix timelines without a zero year for prologue
-        years = []
-        for ly in self.settlement["timeline"]:
-#            self.logger.debug(self.settlement["_id"])
-#            self.logger.debug(ly)
-            years.append(ly["year"])
-            if ly["year"] == 1:
-                if "quarry_event" in ly:
-                    try:
-                        ly["quarry_event"].remove(u'White Lion (First Story)')
-                        self.logger.debug("Removed 'White Lion (First Story) from LY 1 for %s" % self.get_name_and_id())
-                    except:
-                        pass
-                    try:
-                        ly["settlement_event"].remove(u'First Day')
-                        self.logger.debug("Removed 'First Day' event from LY1 for %s" % self.get_name_and_id())
-                    except:
-                        pass
-        if not 0 in years:
-            year_zero = {"year": 0, "settlement_event": [u"First Day"], "quarry_event": [u'White Lion (First Story)']}
-            self.settlement["timeline"].append(year_zero)
-            self.logger.debug("Added errata LY 0 to %s" % self.get_name_and_id())
 
 
 
@@ -3877,18 +3876,24 @@ class Settlement:
         'master' arg is a Survivor object. The 'mastery_string' can be whatever,
         so long as it follows the general naming conventions for masteries. """
 
-        weapon = mastery_string.split("-")[1].strip()
+        all_masteries = self.get_api_asset("game_assets","weapon_masteries")
+        mastery_lookup = {}
+        for m in all_masteries.keys():
+            mastery_lookup[all_masteries[m]["name"]] = m
 
-        if weapon in WeaponProficiencies.get_keys():
-            w = WeaponProficiencies.get_asset(weapon)
-            if "auto-apply_specialization" in w.keys() and not w["auto-apply_specialization"]:
-                return True
+        m_handle = mastery_lookup[mastery_string]
+        M = all_masteries[m_handle]
 
-        self.settlement["innovations"].append(mastery_string)
-        self.log_event("%s has become a %s master!" % (master, weapon))
+        if not M.get("add_to_innovations", True):
+            self.logger.debug("[%s] Not adding '%s' to settlement innovations..." % (self.User, mastery_string))
+            return True
+
+        self.settlement["innovations"].append(M["handle"])
+        self.log_event("%s has become a %s master!" % (master, M["weapon"]))
         self.log_event("'%s' added to settlement Innovations!" % mastery_string)
-        self.logger.debug("[%s] added '%s' to %s Innovations! (Survivor: %s)" % (self.User, mastery_string, self, master))
-        mdb.settlements.save(self.settlement)
+        self.logger.debug("[%s] added '%s' to %s Innovations! (Survivor: %s)" % (self.User, M["handle"], self, master))
+
+        self.save()
 
 
 
@@ -5759,7 +5764,6 @@ class Settlement:
         """ Prints the Campaign Summary view. Remember that this isn't really a
         form: the survivor asset tag buttons are a method of assets.Survivor."""
 
-
         return html.settlement.summary.safe_substitute(
             settlement_id=self.settlement["_id"],
             population = self.settlement["population"],
@@ -5779,6 +5783,7 @@ class Settlement:
             endeavor_tokens = self.get_endeavor_tokens(),
 
         )
+
 
     @ua_decorator
     def render_html_form(self):

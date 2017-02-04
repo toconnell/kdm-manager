@@ -57,7 +57,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.37
+        self.object_version=0.38
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize_data()
 
@@ -67,6 +67,7 @@ class Settlement(Models.UserAsset):
 
         self.perform_save = False
 
+        self.bug_fixes()
         self.baseline_data_model()
         self.migrate_settlement_notes()
 
@@ -1040,8 +1041,26 @@ class Settlement(Models.UserAsset):
 
 
     #
-    #   conversion and migration functions
+    #   bug fix, conversion and migration functions
     #
+
+    def bug_fixes(self):
+        """ In which we burn CPU cycles to fix our mistakes. """
+
+        # 2016-02-02 - Weapon Masteries bug
+        I = innovations.Assets()
+        for i in self.settlement["innovations"]:
+            if len(i.split(" ")) > 1 and "-" in i.split(" "):
+                self.logger.warn("Removing name '%s' from innovations for %s" % (i, self))
+                self.settlement["innovations"].remove(i)
+                replacement = I.get_asset_from_name(i)
+                if replacement is not None:
+                    self.settlement["innovations"].append(replacement["handle"])
+                    self.logger.warn("Replaced '%s' with '%s'" % (i, replacement["handle"]))
+                else:
+                    self.logger.error("Could not find an asset with the name '%s' for %s. Failing..." % (i, self))
+                self.perform_save = True
+
 
     def baseline_data_model(self):
         """ This checks the mdb document to make sure that it has basic aux-
