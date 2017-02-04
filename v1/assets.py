@@ -4916,7 +4916,7 @@ class Settlement:
         settlement_id = ObjectId(self.settlement["_id"])
 
         if value == "population":
-            results = mdb.survivors.find({"settlement": settlement_id, "dead": {"$exists": False}}).count()
+            results = mdb.survivors.find({"settlement": settlement_id, "dead": {"$exists": False}, "removed": {"$exists": False}}).count()
         elif value == "deaths" or value == "death_count":
             results = mdb.survivors.find({"settlement": settlement_id, "dead": {"$exists": True}}).count()
         elif value == "survival_limit":
