@@ -481,6 +481,14 @@ class angularJS:
                         <label for="{{x.handle}}_modal_toggle">{{x.name}}</label>
                     </div> <!-- line_item -->
 
+                    <div class="expansion_content_remove_warning">
+                    <b>Warning!</b>
+                    Disabling expansion content when it is required by the
+                    campaign or the items on the campaign's Settlement and Survivor
+                    Sheets (innovations, locations, fighting arts, etc.)
+                    can cause errors and other unexpected behavior!
+                    </div>
+
                     <button type="submit" class="kd_blue save_expansions">Save Changes and Reload</button>
                 </form>
             </div> <!-- container -->

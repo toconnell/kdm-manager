@@ -4314,15 +4314,12 @@ class Settlement:
         the settlement's innovations and returns a list of available survival
         actions for survivors to use during Showdowns. """
 
-        innovations = self.get_game_asset("innovations")
+        survival_actions = []
+        available = self.get_api_asset("game_assets","available_survival_actions")
+        for sa in available:
+            survival_actions.append(available[sa]["name"])
 
-        survival_actions = ["Dodge"]
-        for innovation in innovations:
-            if innovation in Innovations.get_keys(Settlement=self) and "survival_action" in Innovations.get_asset(innovation).keys():
-                sa_key = Innovations.get_asset(innovation)["survival_action"]
-                survival_actions.append(Innovations.get_asset(innovation)["survival_action"])
-
-        return list(set(survival_actions))
+        return sorted(survival_actions)
 
 
     def get_bonuses(self, bonus_type, return_type=False, update_mins=True):

@@ -625,6 +625,7 @@ div.survivor_dead_retired_container {display: flex; flex-direction: row; margin-
 
     /* expansion attrib toggles */
 div.expansion_attribs_container {margin: 4%; border: 0.1em solid #aaa; }
+div.expansion_content_remove_warning {width: 90%; font-family: Metrophobic; font-size: 35px; margin: 0 auto; margin-top: 5%; margin-bottom: 5%;}
 
     /* generic toggles */
 span.survivor_sheet_fa_level_row {text-align: left; }
@@ -1207,6 +1208,8 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     div.expansion_attribs_container {display: block; width: auto; }
     div.expansion_attribs_container label {font-size: 25px; }
+    div.expansion_content_remove_warning {font-size: 20px; margin-bottom: 3%; }
+
 
     p.survivor_sheet_game_asset_tip {width: 950px;}
 
@@ -1569,7 +1572,8 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.campaign_summary_panels_container div.user_asset_sheet_error {position: absolute; left: 550px; top: 100px; width: 400px;  }
     div.expansions_controls_container {width: 40%; display: flex; flex-direction:column; margin: 0 auto; }
     div.expansion_content_line_item label {font-size: 15pt; width: 100%; }
-    button.save_expansions {width: auto; padding: 1%; padding-left: 40px; padding-right: 40px; margin: auto; display: inline-block;  margin-top: 7%; margin-bottom: 10%; }
+    div.expansion_content_remove_warning {font-size: 9pt; display: block; height: auto; margin-top: 90%; }
+    button.save_expansions {width: auto; padding: 1%; padding-left: 60px; padding-right: 60px; margin: 0 auto; display: block;  margin-top: 7%; margin-bottom: 10%; }
 
         /* campaign notes - wide */
     div.settlement_notes_controls {margin-top: 10px; margin-bottom: 10px; }

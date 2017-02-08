@@ -339,26 +339,41 @@ class World:
         return round(result,2)
 
 
-    def get_top(self, collection=None, doc_attrib=None, limit=5):
-        """ Assuming that 'collection' documents have a 'doc_attrib' attribute, this
+    def get_top(self, collection=None, attrib=None, limit=5, asset_type=str):
+        """ Assuming that 'collection' documents have a 'attrib' attribute, this
         will return the top five most popular names along with their counts. """
 
-
-        query = {doc_attrib: {"$nin": self.ineligible_names, "$exists": True}}
+        query = {attrib: {"$nin": self.ineligible_names, "$exists": True}}
 
         if self.query_debug:
             self.logger.debug("MDB  name:   %s" % utils.mdb.name)
             self.logger.debug("MDB query:   %s" % query)
 
-        results = utils.mdb[collection].group(
-            [doc_attrib], query, {"count": 0}, "function(o, p){p.count++}"
-        )
+        if asset_type == str:
+            results = utils.mdb[collection].group(
+                [attrib], query, {"count": 0}, "function(o, p){p.count++}"
+            )
 
+            sorted_list = sorted(results, key=lambda k: k["count"], reverse=True)
+            for i in sorted_list:
+                i["value"] = i[attrib]
+                i["count"] = int(i["count"])
 
-        sorted_list = sorted(results, key=lambda k: k["count"], reverse=True)
-        for i in sorted_list:
-            i["value"] = i[doc_attrib]
-            i["count"] = int(i["count"])
+        elif asset_type == list:
+            sample_set = self.get_eligible_documents(collection, attrib)
+            master_list = []
+            for s in sample_set:
+                master_list.extend(s[attrib])
+            master_dict = {}
+            for i in master_list:
+                if i in master_dict.keys():
+                    master_dict[i] += 1
+                else:
+                    master_dict[i] = 1
+            return sorted(master_dict.items(), key=lambda x: x[1], reverse=True)
+
+        else:
+            raise Exception("%s is not a supported asset type for this query!" % asset_type)
 
         if self.query_debug:
             self.logger.debug("MDB results: %s" % sorted_list)
@@ -596,6 +611,9 @@ class World:
 
     def top_causes_of_death(self):
         return self.get_top("survivors","cause_of_death",limit=10)
+
+    def top_innovations(self):
+        return self.get_top("settlements", "innovations", asset_type=list)
 
     def principle_selection_rates(self):
         """ This is pretty much a direct port from V1. It's still a hot mess.

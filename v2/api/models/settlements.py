@@ -11,7 +11,7 @@ import random
 import time
 
 import Models
-from models import campaigns, cursed_items, expansions, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events, locations, causes_of_death
+from models import campaigns, cursed_items, epithets, expansions, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events, locations, causes_of_death
 import settings
 import utils
 
@@ -57,7 +57,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.38
+        self.object_version=0.40
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize_data()
 
@@ -127,7 +127,7 @@ class Settlement(Models.UserAsset):
         output["user_assets"].update({"survivors": self.get_survivors()})
         output["user_assets"].update({"survivor_weapon_masteries": self.survivor_weapon_masteries})
 
-        # great game_assets
+        # create game_assets
         output.update({"game_assets": {}})
         output["game_assets"].update(self.get_available_assets(innovations))
         output["game_assets"].update(self.get_available_assets(locations))
@@ -139,6 +139,7 @@ class Settlement(Models.UserAsset):
         output["game_assets"].update(self.get_available_assets(events))
         output["game_assets"].update(self.get_available_assets(monsters))
         output["game_assets"].update(self.get_available_assets(causes_of_death, handles=False))
+        output["game_assets"].update(self.get_available_assets(epithets))
 
             # options (i.e. decks)
         output["game_assets"]["locations_options"] = self.get_locations_options()
@@ -162,7 +163,7 @@ class Settlement(Models.UserAsset):
 
             # misc helpers for front-end
         output["game_assets"]["eligible_parents"] = self.eligible_parents
-        output["game_assets"]["survival_actions_available"] = self.get_available_survival_actions()
+        output["game_assets"]["available_survival_actions"] = self.get_available_survival_actions()
 
 
         # finally, return a JSON string of our object
@@ -812,8 +813,8 @@ class Settlement(Models.UserAsset):
         if return_type == dict:
             output = {}
             for i in s_innovations:
-                if i in all_innovations.get_names():
-                    i_dict = all_innovations.get_asset_from_name(i)
+                if i in all_innovations.get_handles():
+                    i_dict = all_innovations.get_asset(i)
                     output[i_dict["handle"]] = i_dict
             return output
 
@@ -826,7 +827,7 @@ class Settlement(Models.UserAsset):
 
         all_survival_actions = survival_actions.Assets()
 
-        sa = {}
+        sa = {"dodge": all_survival_actions.get_asset("dodge")}
         for k,v in self.get_innovations(dict).iteritems():
             if "survival_action" in v.keys():
                 sa_dict = all_survival_actions.get_asset_from_name(v["survival_action"])
@@ -1081,6 +1082,11 @@ class Settlement(Models.UserAsset):
             self.logger.info("Creating 'admins' key for %s" % (self))
             creator = utils.mdb.users.find_one({"_id": self.settlement["created_by"]})
             self.settlement["admins"] = [creator["login"]]
+            self.perform_save = True
+
+        if not "custom_epithets" in self.settlement.keys():
+            self.logger.info("Creating 'custom_epithets' key for %s" %(self))
+            self.settlement["custom_epithets"] = []
             self.perform_save = True
 
         founder = self.get_founder()

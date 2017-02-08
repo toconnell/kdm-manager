@@ -19,7 +19,7 @@ import api
 import assets
 import html
 import session
-from utils import email, mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes, ymd, admin_session, thirty_days_ago, get_latest_change_log
+from utils import email, mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes, ymd, admin_session, thirty_days_ago, get_latest_change_log, convert_game_asset
 import world
 
 import sys
@@ -690,6 +690,7 @@ if __name__ == "__main__":
     parser.add_option("-e", dest="export_data", help="export data to a pickle. needs a user _id", metavar="5681f9e7421aa93924b6d013", default=False)
     parser.add_option("-i", dest="import_data", help="import data from a pickle", metavar="/home/toconnell/data.pickle", default=False)
     parser.add_option("--user", dest="pretty_view_user", help="Print a pretty summary of a user", metavar="5665026954922d076285bdec", default=False)
+    parser.add_option("--convert", dest="convert_game_asset", help="Convert a dictionary from game_assets.py to API-style asset dictionary and dump the converted dict to STDOUT.", metavar="epithets", default=False)
     parser.add_option("--tail", dest="tail_settlement", help="tail -f a settlement's log", metavar="5665123bfhas90213bdhs85b123", default=False)
     parser.add_option("--user_repr", dest="user_repr", help="Dump a user's repr", metavar="5665026954922d076285bdec", default=False)
     parser.add_option("--admin", dest="toggle_admin", help="toggle admin status for a user _id", default=False)
@@ -754,6 +755,9 @@ if __name__ == "__main__":
                 update_survivor("remove", s_id=options.survivor, attrib=options.survivor_attrib, attrib_value=options.remove_attrib)
         if options.remove_key:
             update_survivor("del", s_id=options.survivor, survivor_key=options.remove_key)
+
+    if options.convert_game_asset:
+        convert_game_asset(options.convert_game_asset)
 
     if options.email:
         email(recipients=options.email.split(), msg="This is a test message!\nGood!")
