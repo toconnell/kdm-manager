@@ -107,26 +107,29 @@ class User(Models.UserAsset):
         friend_emails   = set()
 
         campaigns = self.get_settlements(qualifier="player")
-        for s in campaigns:
-            friend_ids.add(s["created_by"])
-            c_survivors = utils.mdb.survivors.find({"settlement": s["_id"]})
-            for survivor in c_survivors:
-                friend_ids.add(survivor["created_by"])
-                friend_emails.add(survivor["email"])
+        if campaigns.count() > 0:
+            for s in campaigns:
+                friend_ids.add(s["created_by"])
+                c_survivors = utils.mdb.survivors.find({"settlement": s["_id"]})
+                for survivor in c_survivors:
+                    friend_ids.add(survivor["created_by"])
+                    friend_emails.add(survivor["email"])
 
-        # you can't be friends with yourself
-        friend_ids.remove(self.user["_id"])
-        friend_emails.remove(self.user["login"])
+            # you can't be friends with yourself
+            friend_ids.remove(self.user["_id"])
+            friend_emails.remove(self.user["login"])
 
-        # they're only your friend if they're a registered email
-        friends = utils.mdb.users.find({"$or":
-            [
-                {"_id": {"$in": list(friend_ids)}},
-                {"login": {"$in": list(friend_emails)}},
-            ]
-        })
+            # they're only your friend if they're a registered email
+            friends = utils.mdb.users.find({"$or":
+                [
+                    {"_id": {"$in": list(friend_ids)}},
+                    {"login": {"$in": list(friend_emails)}},
+                ]
+            })
+        else:
+            friends = None
 
-        if return_type == int:
+        if return_type == int and friends != None:
             return friends.count()
 
         return friends
@@ -155,9 +158,7 @@ class User(Models.UserAsset):
             settlements_owned = self.get_settlements()
             for s in settlements_owned:
                 settlement_id_set.add(s["_id"])
-
             settlements = utils.mdb.settlements.find({"_id": {"$in": list(settlement_id_set)}})
-
         elif qualifier == "admin":
             settlements = utils.mdb.settlements.find({
                 "admins": {"$in": [self.user["login"]]},

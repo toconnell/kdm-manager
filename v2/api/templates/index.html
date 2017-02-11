@@ -42,21 +42,6 @@
             <th class="route">Route</th><th class="methods">Methods</th><th class="comment">Comment/Note</th>
         </tr>
 
-        <tr class="ul">
-            <td> <a href="/auth">/auth</a> </td>
-            <td> POST </td>
-            <td>
-                <p>        
-                    The KD:M API uses JSON Web Tokens (<a
-                    href="https://jwt.io/">https://jwt.io</a>) to manage user
-                    sessions and user authentication.
-                </p>
-                <p> POST some simple JSON to this route to authenticate: </p>
-                <code>{"username": "demo@kdm-manager.com", "password": 
-                "l33th4x0r"}</code>
-                <p>...if your credential checks out, you get a token back. Easy!</p>
-            </td>
-        </tr>
 
         <tr class="">
             <td> <a href="/campaign">/campaign</a> </td>
@@ -79,6 +64,23 @@
                 "campaign_definition"}</code>
                 <p>NB: this also works with handles, e.g.:</p>
                 <code>{"handle": "people_of_the_stars"}</code>
+            </td>
+        </tr>
+
+        <tr class="ul">
+            <td> <a href="/login">/login</a> </td>
+            <td> POST </td>
+            <td>
+                <p>        
+                    The KD:M API uses JSON Web Tokens (<a
+                    href="https://jwt.io/">https://jwt.io</a>) to manage user
+                    sessions and user authentication.
+                </p>
+                <p> POST to this route with a header containing an "Authorization"
+                element that contains JSON: </p>
+                <code>Authorization: {"username": "demo@kdm-manager.com", "password": 
+                "l33th4x0r"}</code>
+                <p>...if your credential checks out, you get a token back. Easy!</p>
             </td>
         </tr>
 
