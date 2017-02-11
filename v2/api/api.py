@@ -105,7 +105,7 @@ def get_new_settlement_assets():
 #   /login (not to be confused with the built-in /auth route)
 #
 @application.route("/login", methods=["POST","OPTIONS"])
-@utils.crossdomain(origin=['*'],headers='Content-Type')
+@utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization'])
 def get_token():
     cred = json.loads(request.headers["Authorization"])
     U = users.authenticate(cred.get("username",None), cred.get("password",None))
