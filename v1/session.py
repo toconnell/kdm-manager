@@ -141,6 +141,9 @@ class Session:
 
         token = api.get_jwt_token(login, password)
 
+        if token:
+            self.logger.debug("[%s] JWT token retrieved!" % (login))
+
         session_dict = {
             "login": login,
             "created_on": datetime.now(),

@@ -7,6 +7,7 @@ from bson import json_util
 
 from flask import Flask, send_file, request, Response, send_from_directory
 import flask_jwt
+import flask_jwt_extended
 
 import json
 import os
@@ -28,11 +29,12 @@ application.config.update(
     DEBUG = settings.get("server","DEBUG"),
     TESTING = settings.get("server","DEBUG"),
 )
-application.logger.addHandler(utils.get_logger(log_name="server"))
+application.logger.addHandler(utils.get_logger(log_name="server.log"))
 application.config['SECRET_KEY'] = settings.get("api","secret_key","private")
 
 #   Javascript Web Token!
-jwt = flask_jwt.JWT(application, users.authenticate, users.jwt_identity_handler)
+jwt = flask_jwt_extended.JWTManager(application)
+#jwt = flask_jwt.JWT(application, users.authenticate, users.jwt_identity_handler)
 
 
 #
@@ -99,20 +101,33 @@ def get_new_settlement_assets():
     )
 
 
+#
+#   /login (not to be confused with the built-in /auth route)
+#
+@application.route("/login", methods=["POST"])
+@utils.crossdomain(origin=['*'])
+def get_token():
+    cred = json.loads(request.headers["Authorization"])
+    U = users.authenticate(cred.get("username",None), cred.get("password",None))
+    if U is None:
+        return utils.http_401
+    tok = {'access_token': flask_jwt_extended.create_access_token(identity=U.serialize())}
+    return Response(response=json.dumps(tok), status=200, mimetype="application/json")
 
 
 #
 #   private routes
 #
 
-@application.route('/protected',methods=["GET","POST"])
+@application.route('/protected',methods=["GET","POST","OPTIONS"])
 @flask_jwt.jwt_required()
 def protected():
-    return '%s' % flask_jwt.current_identity
+    return Response(response=flask_jwt.current_identity, status=200, mimetype="application/json")
 
 
 @application.route("/<collection>/<action>/<asset_id>", methods=["GET","POST","OPTIONS"])
 @utils.crossdomain(origin=['*'],headers='Content-Type')
+#@cross_origin(headers=['Content-Type','Authorization'])
 #@flask_jwt.jwt_required()
 def get_settlement(collection, action, asset_id):
     """ This is our major method for retrieving and updating settlements. """

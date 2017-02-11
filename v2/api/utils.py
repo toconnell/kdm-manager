@@ -33,8 +33,8 @@ active_user_cutoff = datetime.now() - timedelta(minutes=settings.get("applicatio
 # generic http responses
 http_200 = Response(response="OK!", status=200)
 http_400 = Response(response="Bad Request!", status=400)
-http_401 = Response(response="Valid API key required", status=401)
-http_404 = Response(response=None, status=404)
+http_401 = Response(response="Authorization required", status=401)
+http_404 = Response(response="Resource not found", status=404)
 http_422 = Response(response="Missing argument, parameter or value", status=422)
 http_500 = Response(response="Server explosion! The server erupts in a shower of gore, killing your request instantly. All other servers are so disturbed that they lose 1 survival.", status=500)
 

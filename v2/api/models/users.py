@@ -20,18 +20,23 @@ def authenticate(username, password):
     case we return a user document from the MDB. """
 
     user = utils.mdb.users.find_one({"login": username})
-    if user is not None and safe_str_cmp(user["password"], md5(password).hexdigest()):
+    if user and safe_str_cmp(user["password"], md5(password).hexdigest()):
         U = User(_id=user["_id"])
         return U
+
 
 def jwt_identity_handler(payload):
     """ Bounces the authentication request payload off of the user collection.
     Returns a user object if "identity" in the request exists. """
 
-    MEOW
     u_id = payload["identity"]
-    return utils.mdb.users.find_one({"_id": ObjectId(u_id)})
+    user = utils.mdb.users.find_one({"_id": ObjectId(u_id)})
 
+    if user is not None:
+        U = User(_id=user["_id"])
+        return U.serialize()
+
+    return utils.http_404
 
 
 class User(Models.UserAsset):
@@ -39,17 +44,20 @@ class User(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="users"
-        self.object_version=0.0
+        self.object_version=0.3
         Models.UserAsset.__init__(self,  *args, **kwargs)
 
         # JWT needs this
         self.id = str(self.user["_id"])
 
 
+    def __repr__(self):
+        return "users object '%s' [%s]" % (self.user["login"], self._id)
+
+
     def serialize(self):
         """ Creates a dictionary meant to be converted to JSON that represents
         everything that the front-end might need to know about a user. """
-
 
         output = self.get_serialize_meta()
         output["user_attr"] = self.user

@@ -250,7 +250,11 @@ class UserAsset():
 
 
     def __repr__(self):
-        exec 'repr_name = self.%s["name"]' % (self.collection[:-1])
+        try:
+            exec 'repr_name = self.%s["name"]' % (self.collection[:-1])
+        except:
+            self.logger.warn("UserAsset object has no 'name' attribute!")
+            repr_name = "UNKNOWN"
         return "%s object '%s' [%s]" % (self.collection, repr_name, self._id)
 
 

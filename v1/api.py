@@ -42,12 +42,13 @@ def route_to_url(r):
     return urljoin(get_api_url(), route)
 
 
-def post_JSON_to_route(route=None, payload={}):
+def post_JSON_to_route(route=None, payload={}, headers={}):
     """ Blast some JSON at an API route. Return the response object. No fancy
     crap in this one, so you better know what you're doing here. """
     req_url = route_to_url(route)
     j = json.dumps(payload)
     h = {'content-type': 'application/json'}
+    h.update(headers)
     return requests.post(req_url, data=j, headers=h)
 
 
@@ -58,12 +59,13 @@ def get_jwt_token(username=None, password=None):
     if not username or not password:
         raise Exception("JWT token cannot be retrieved without a username and password!")
 
-    req_url = route_to_url("/auth")
+    req_url = route_to_url("/login")
     auth_dict = {"username": username, "password": password}
-    response = post_JSON_to_route(req_url, auth_dict)
+    response = post_JSON_to_route(req_url, headers={"Authorization": json.dumps(auth_dict)})
     if response.status_code == 200:
         return response.json()["access_token"]
     return None
+
 
 @retry(
     tries=3,delay=1,jitter=1,
