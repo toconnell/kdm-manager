@@ -107,7 +107,19 @@ def get_new_settlement_assets():
 @application.route("/login", methods=["POST","OPTIONS"])
 @utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization'])
 def get_token():
-    cred = json.loads(request.headers["Authorization"])
+    """ Tries to get credentials from the request headers. Fails verbosely."""
+
+
+    auth_header = request.headers.get("Authorization",None)
+
+    try:
+        cred = json.loads(auth_header)
+    except ValueError as e:
+        return Response(
+            response="'Authorization' header value '%s' (%s) could not be coerced to JSON!" % (auth_header,type(auth_header)), 
+            status=400,
+        )
+
     U = users.authenticate(cred.get("username",None), cred.get("password",None))
     if U is None:
         return utils.http_401
