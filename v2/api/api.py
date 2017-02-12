@@ -11,6 +11,7 @@ import flask_jwt_extended
 
 import json
 import os
+from pprint import pprint
 
 # application-specific imports
 import request_broker
@@ -29,7 +30,7 @@ application.config.update(
     DEBUG = settings.get("server","DEBUG"),
     TESTING = settings.get("server","DEBUG"),
 )
-application.logger.addHandler(utils.get_logger(log_name="server.log"))
+application.logger.addHandler(utils.get_logger(log_name="server"))
 application.config['SECRET_KEY'] = settings.get("api","secret_key","private")
 
 #   Javascript Web Token!
@@ -109,18 +110,7 @@ def get_new_settlement_assets():
 def get_token():
     """ Tries to get credentials from the request headers. Fails verbosely."""
 
-
-    auth_header = request.headers.get("Authorization",None)
-
-    try:
-        cred = json.loads(auth_header)
-    except ValueError as e:
-        return Response(
-            response="'Authorization' header value '%s' (%s) could not be coerced to JSON!" % (auth_header,type(auth_header)), 
-            status=400,
-        )
-
-    U = users.authenticate(cred.get("username",None), cred.get("password",None))
+    U = users.authenticate(request.json.get("username",None), request.json.get("password",None))
     if U is None:
         return utils.http_401
     tok = {'access_token': flask_jwt_extended.create_access_token(identity=U.serialize())}

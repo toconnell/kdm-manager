@@ -48,7 +48,8 @@ def post_JSON_to_route(route=None, payload={}, headers={}):
     req_url = route_to_url(route)
     j = json.dumps(payload)
     h = {'content-type': 'application/json'}
-    h.update(headers)
+    if headers != {}:
+        h.update(headers)
     return requests.post(req_url, data=j, headers=h)
 
 
@@ -61,7 +62,7 @@ def get_jwt_token(username=None, password=None):
 
     req_url = route_to_url("/login")
     auth_dict = {"username": username, "password": password}
-    response = post_JSON_to_route(req_url, headers={"Authorization": json.dumps(auth_dict)})
+    response = post_JSON_to_route(req_url, auth_dict)
     if response.status_code == 200:
         return response.json()["access_token"]
     return None
