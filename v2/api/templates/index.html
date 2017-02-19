@@ -76,11 +76,12 @@
                     href="https://jwt.io/">https://jwt.io</a>) to manage user
                     sessions and user authentication.
                 </p>
-                <p> POST to this route with a header containing an "Authorization"
-                element that contains JSON: </p>
+                <p> POST to this route with JSON containing user credentials in
+                the body of the request to get a token:</p>
                 <code>Authorization: {"username": "demo@kdm-manager.com", "password": 
                 "l33th4x0r"}</code>
-                <p>...if your credential checks out, you get a token back. Easy!</p>
+                <p>...if your credential checks out, you get a token and the the
+                the user's ID (see below for working with users) back. Easy!</p>
             </td>
         </tr>
 
@@ -149,9 +150,19 @@
         </tr>
 
         <tr class="ul route_root">
-            <th colspan="3"><b>Settlement Routes:</b> all routes for working directly with a settlement follow a <code>/settlement/&lt;action&gt;/&lt;settlement_id&gt;</code> convention. These routes are private and require authentication. </th>
+            <th colspan="3"><b>User Routes:</b> all routes for working directly with a user follow a <code>/user/&lt;action&gt;/&lt;settlement_id&gt;</code> convention. These routes are private and require authentication.</th>
+        </tr>
+        <tr class="ul">
+            <td> /user/get/&lt;user_id&gt; </td>
+            <td> GET </td>
+            <td> Retrieve a serialized version of the user who owns &lt;user_id&gt;,
+            to include some additional usage and meta facts about that user. </td>
         </tr>
 
+
+        <tr class="ul route_root">
+            <th colspan="3"><b>Settlement Routes:</b> all routes for working directly with a settlement follow a <code>/settlement/&lt;action&gt;/&lt;settlement_id&gt;</code> convention. These routes are private and require authentication. </th>
+        </tr>
         <tr class="ul">
             <td> /settlement/get/&lt;settlement_id&gt; </td>
             <td> GET </td>

@@ -44,7 +44,7 @@ class User(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="users"
-        self.object_version=0.3
+        self.object_version=0.6
         Models.UserAsset.__init__(self,  *args, **kwargs)
 
         # JWT needs this
@@ -60,21 +60,25 @@ class User(Models.UserAsset):
         everything that the front-end might need to know about a user. """
 
         output = self.get_serialize_meta()
-        output["user_attr"] = self.user
+        output["user"] = self.user
 
         # user assets
 #        output["user_stat"] = {}
+        output["user_assets"] = {}
+        output["user_assets"]["survivors"] = self.get_survivors(return_type=list)
+        output["user_assets"]["settlements"] = self.get_settlements(return_type=list)
 
         # user facts
-        output["user_fact"] = {}
-        output["user_fact"]["has_session"] = self.has_session()
-        output["user_fact"]["is_active"] = self.is_active()
-        output["user_fact"]["settlements_created"] = self.get_settlements(return_type=int)
-        output["user_fact"]["settlements_administered"] = self.get_settlements(qualifier="admin", return_type=int)
-        output["user_fact"]["campaigns"] = self.get_settlements(qualifier="player", return_type=int)
-        output["user_fact"]["survivors_created"] = self.get_survivors(return_type=int)
-        output["user_fact"]["survivors_owned"] = self.get_survivors(qualifier="owner", return_type=int)
-        output["user_fact"]["friends"] = self.get_friends(return_type=int)
+        output["user_facts"] = {}
+        output["user_facts"]["has_session"] = self.has_session()
+        output["user_facts"]["is_active"] = self.is_active()
+        output["user_facts"]["settlements_created"] = self.get_settlements(return_type=int)
+        output["user_facts"]["settlements_administered"] = self.get_settlements(qualifier="admin", return_type=int)
+        output["user_facts"]["campaigns"] = self.get_settlements(qualifier="player", return_type=int)
+        output["user_facts"]["survivors_created"] = self.get_survivors(return_type=int)
+        output["user_facts"]["survivors_owned"] = self.get_survivors(qualifier="owner", return_type=int)
+        output["user_facts"]["friend_count"] = self.get_friends(return_type=int)
+
 
         return json.dumps(output, default=json_util.default)
 
@@ -129,8 +133,11 @@ class User(Models.UserAsset):
         else:
             friends = None
 
-        if return_type == int and friends != None:
-            return friends.count()
+        if return_type == int:
+            if friends is not None:
+                return friends.count()
+            else:
+                return 0
 
         return friends
 
@@ -147,7 +154,10 @@ class User(Models.UserAsset):
         """
 
         if qualifier is None:
-            settlements = utils.mdb.settlements.find({"created_by": self.user["_id"]})
+            settlements = utils.mdb.settlements.find({"$or": [
+                {"created_by": self.user["_id"]},
+                {"admins": {"$in": [self.user["login"], ]}, },
+            ]})
         elif qualifier == "player":
             settlement_id_set = set()
 
@@ -169,22 +179,28 @@ class User(Models.UserAsset):
 
         if return_type == int:
             return settlements.count()
+        elif return_type == list:
+            output = [s["_id"] for s in settlements]
+            output = list(set(output))
+            return output
 
         return settlements
 
 
     def get_survivors(self, qualifier=None, return_type=None):
-        """ Returns all of the settlements created by the user. """
+        """ Returns all of the survivors created by the user. """
 
         if qualifier is None:
-            survivors = utils.mdb.survivors.find({"created_by": self.user["_id"]})
+            survivors = utils.mdb.survivors.find({"$or": [
+                {"created_by": self.user["_id"]},
+                {"email": self.user["login"]},
+            ]})
+
         elif qualifier == "player":
-            survivors = utils.mdb.survivors.find({"$or":
-                [
-                    {"created_by": self.user["_id"]},
-                    {"email": self.user["login"]},
-                ]
-            })
+            survivors = utils.mdb.survivors.find({"$or": [
+                {"created_by": self.user["_id"]},
+                {"email": self.user["login"]},
+            ]})
         elif qualifier == "owner":
             survivors = utils.mdb.survivors.find({
                 "email": self.user["login"],
@@ -195,6 +211,10 @@ class User(Models.UserAsset):
 
         if return_type == int:
             return survivors.count()
+        elif return_type == list:
+            output = [s["_id"] for s in survivors]
+            output = list(set(output))
+            return output
 
         return survivors
 
@@ -211,7 +231,7 @@ class User(Models.UserAsset):
         self.get_request_params()
 
         if action == "get":
-            return self.get_json()
+            return self.return_json()
         else:
             # unknown/unsupported action response
             self.logger.warn("Unsupported survivor action '%s' received!" % action)

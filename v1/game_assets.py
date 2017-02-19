@@ -3093,7 +3093,7 @@ items = {
     "Jowls": {
         "expansion": "Sunstalker",
         "location": "Strange Resources",
-        "resource_family": ["iron","scrap"],
+        "resource_family": ["scrap"],
     },
     "Hagfish": {
         "expansion": "Sunstalker",
@@ -3232,7 +3232,7 @@ items = {
     "Crimson Vial": {
         "expansion": "Manhunter",
         "location": "Strange Resources",
-        "resource_family": ["scrap","iron"],
+        "resource_family": ["scrap"],
     },
     "Hunter's Heart": {
         "expansion": "Manhunter",

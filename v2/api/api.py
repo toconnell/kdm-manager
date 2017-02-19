@@ -113,7 +113,7 @@ def get_token():
     U = users.authenticate(request.json.get("username",None), request.json.get("password",None))
     if U is None:
         return utils.http_401
-    tok = {'access_token': flask_jwt_extended.create_access_token(identity=U.serialize())}
+    tok = {'access_token': flask_jwt_extended.create_access_token(identity=U.serialize()), "_id": str(U.user["_id"])}
     return Response(response=json.dumps(tok), status=200, mimetype="application/json")
 
 
