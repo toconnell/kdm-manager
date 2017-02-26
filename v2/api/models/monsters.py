@@ -110,6 +110,10 @@ class Monster(Models.GameAsset):
         # sanity warning
         if "_" in self.name:
             self.logger.warn("Asset name '%s' contains underscores. Names should use whitespace." % self.name)
+            self.logger.warn("Attempting to initialize by handle...")
+            self.handle = self.name
+            self.initialize_from_handle()
+            return True
 
         # first, check for an exact name match (long-shot)
         asset_dict = self.assets.get_asset_from_name(self.name)

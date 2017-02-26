@@ -3162,7 +3162,7 @@ class settlement:
                 <div class="big_number_container left_margin">
                     <button
                         class="incrementer"
-                        onclick="stepAndSave('down','populationBox','settlement','$settlement_id');"
+                        onclick="stepAndSave('up','populationBox','settlement','$settlement_id');"
                     >
                         &#9652;
                     </button>

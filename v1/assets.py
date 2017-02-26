@@ -94,6 +94,13 @@ class User:
         return self.get_name_and_id()
 
 
+    def save(self):
+        """ Save method for user objects. """
+
+        mdb.users.save(self.user)
+        self.logger.info("[%s] saved changes to %s" % (self, self))
+
+
     def is_admin(self):
         """ Returns True if the user is an application admin. This only returns
         python bools because it should only be used for internal application
@@ -3430,13 +3437,10 @@ class Settlement:
             "milestone_story_events": [],
             "innovations": [],
             "locations": [],
-            "quarries": ["White Lion"],
-            "nemesis_monsters": {"Butcher": [], },
             "defeated_monsters": [],
             "population": 0,
             "lost_settlements": 0,
             "principles": [],
-            "expansions": [],
             "storage": [],
             "admins": [self.User.user["login"]],
             "timeline": game_assets.default_timeline,
@@ -3455,9 +3459,13 @@ class Settlement:
 
         # sometimes campaign assets have additional attribs
         c_dict = api.route_to_dict("/campaign", params={"name": settlement["campaign"]})
-        for optional_attrib in ["storage","expansions","timeline","nemesis_monsters"]:
+        for optional_attrib in ["storage","timeline"]:
             if optional_attrib in c_dict.keys():
                 settlement[optional_attrib] = c_dict[optional_attrib]
+
+        # overwrite current values with settlement_sheet_init values
+        for default_attrib in c_dict["settlement_sheet_init"]:
+            settlement[default_attrib] = c_dict["settlement_sheet_init"][default_attrib]
 
         # create the settlement and update the Settlement obj
         settlement_id = mdb.settlements.insert(settlement)

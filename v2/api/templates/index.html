@@ -158,6 +158,27 @@
             <td> Retrieve a serialized version of the user who owns &lt;user_id&gt;,
             to include some additional usage and meta facts about that user. </td>
         </tr>
+        <tr class="ul">
+            <td> /user/set/&lt;user_id&gt; </td>
+            <td> POST, OPTIONS </td>
+            <td> <p>This route supports the assignment of user-specified key/value
+            attributes to the user object.</p><p>To set an attribute, include
+            JSON in the body of the request that indicates the key/value to set.</p>
+            Supported attribute keys include:
+                <table class="embedded_table">
+                    <tr><th>key</th><th>value</th></tr>
+                    <tr><td class="key">current_settlement</td><td class="value">
+                    OID of an existing,non-removed settlement.</td></tr>
+                </table>
+            Use multiple key/value pairs to set multiple attributes in a single
+            request, e.g. <code>{"current_settlement": $oid, "current_session":
+            $oid}</code>
+            </p>
+            <p><b>Important!</b> This route does not support the assignment of
+            arbitrary keys and will completely fail any request that includes
+            unsupported keys!</p>
+            </td>
+        </tr>
 
 
         <tr class="ul route_root">

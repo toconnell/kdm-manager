@@ -157,6 +157,7 @@ app.controller('nemesisEncountersController', function($scope) {
 //        console.log(n_handle + " " + n_lvl);
 //        console.log(e);
         var n_lvl_array = $scope.settlement_sheet.nemesis_encounters[n_handle];
+//        console.log(n_lvl_array)
         if ($scope.arrayContains(n_lvl, n_lvl_array)) {
             e.target.control.checked = false;
             n_lvl_array.splice(n_lvl-1,1);

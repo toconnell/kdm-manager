@@ -1,6 +1,8 @@
 #!/usr/bin/python2.7
 
 from bson import json_util
+from bson.objectid import ObjectId
+from flask import Response
 from hashlib import md5
 import json
 from werkzeug.security import safe_str_cmp
@@ -44,11 +46,14 @@ class User(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="users"
-        self.object_version=0.6
+        self.object_version=0.11
         Models.UserAsset.__init__(self,  *args, **kwargs)
 
         # JWT needs this
         self.id = str(self.user["_id"])
+
+        # random initialization methods
+        self.set_current_settlement()
 
 
     def __repr__(self):
@@ -79,9 +84,69 @@ class User(Models.UserAsset):
         output["user_facts"]["survivors_owned"] = self.get_survivors(qualifier="owner", return_type=int)
         output["user_facts"]["friend_count"] = self.get_friends(return_type=int)
 
-
         return json.dumps(output, default=json_util.default)
 
+
+    #
+    #   set/update/modify methods
+    #
+
+    def set_attrib(self):
+        """ Parses and processes request JSON and attempts to set user attrib
+        key/value pairs. Returns an http response. """
+
+        allowed_keys = ["current_settlement"]
+
+        # first, check the keys to see if they're legit; bail if any of them is
+        #   bogus, i.e. bail before we attempt to do anything.
+        for k in self.params.keys():
+            if k not in allowed_keys:
+                self.logger.warn("Unknown key '%s' will not be processed!" % k)
+                return Response(response="Unknown user attribute '%s' cannot be set!" % k, status=400)
+
+        # now, individual value handling for allow keys begins
+        for k in self.params.keys():
+            if k == "current_settlement":
+                self.user[k] = ObjectId(self.params[k])
+            else:
+                self.user[k] = self.params[k]
+            self.logger.debug("Set {'%s': '%s'} for %s" % (k, self.params[k], self))
+
+        # finally, assuming we're still here, go ahead and save/return 200
+        self.save()
+
+        return utils.http_200
+
+
+    def set_current_settlement(self):
+        """ This should probably more accurately be called 'default_current_settlement'
+        or something along those lines, because it basically tries a series of
+        back-offs to set a settlement for a user who hasn't got one set. """
+
+        if "current_settlement" in self.user.keys():
+            return True
+
+        settlements = self.get_settlements()
+        if settlements.count() != 0:
+            self.user["current_settlement"] = settlements[0]["_id"]
+            self.logger.warn("Defaulting 'current_settlement' to %s for %s" % (settlements[0]["_id"], self))
+        elif settlements.count() == 0:
+            self.logger.debug("User %s does not own or administer any settlements!")
+            p_settlements = self.get_settlements(qualifier="player")
+            if p_settlements.count() != 0:
+                self.user["current_settlement"] = p_settlements[0]["_id"]
+                self.logger.warn("Defaulting 'current_settlement' to %s for %s" % (p_settlements[0]["_id"], self))
+            elif p_settlements.count() == 0:
+                self.logger.warn("Unable to default a 'current_settlement' value for %s" % self)
+                self.user["current_settlement"] = None
+
+        self.save()
+
+
+
+    #
+    #   query/assess methods
+    #
 
     def has_session(self):
         """ Returns a bool representing whether there is a session in the mdb
@@ -102,6 +167,11 @@ class User(Models.UserAsset):
             return True
         return False
 
+
+
+    #
+    #   get methods
+    #
 
     def get_friends(self, return_type=None):
         """ Returns all of the user's friends (i.e. people he plays in campaigns
@@ -155,8 +225,8 @@ class User(Models.UserAsset):
 
         if qualifier is None:
             settlements = utils.mdb.settlements.find({"$or": [
-                {"created_by": self.user["_id"]},
-                {"admins": {"$in": [self.user["login"], ]}, },
+                {"created_by": self.user["_id"], "removed": {"$exists": False}, },
+                {"admins": {"$in": [self.user["login"], ]}, "removed": {"$exists": False}, },
             ]})
         elif qualifier == "player":
             settlement_id_set = set()
@@ -168,11 +238,12 @@ class User(Models.UserAsset):
             settlements_owned = self.get_settlements()
             for s in settlements_owned:
                 settlement_id_set.add(s["_id"])
-            settlements = utils.mdb.settlements.find({"_id": {"$in": list(settlement_id_set)}})
+            settlements = utils.mdb.settlements.find({"_id": {"$in": list(settlement_id_set)}, "removed": {"$exists": False}})
         elif qualifier == "admin":
             settlements = utils.mdb.settlements.find({
                 "admins": {"$in": [self.user["login"]]},
                 "created_by": {"$ne": self.user["_id"]},
+                "removed": {"$exists": False},
             })
         else:
             raise Exception("'%s' is not a valid qualifier for this method!" % qualifier)
@@ -192,19 +263,20 @@ class User(Models.UserAsset):
 
         if qualifier is None:
             survivors = utils.mdb.survivors.find({"$or": [
-                {"created_by": self.user["_id"]},
-                {"email": self.user["login"]},
+                {"created_by": self.user["_id"], "removed": {"$exists": False}},
+                {"email": self.user["login"], "removed": {"$exists": False}},
             ]})
 
         elif qualifier == "player":
             survivors = utils.mdb.survivors.find({"$or": [
-                {"created_by": self.user["_id"]},
-                {"email": self.user["login"]},
+                {"created_by": self.user["_id"], "removed": {"$exists": False}},
+                {"email": self.user["login"], "removed": {"$exists": False}},
             ]})
         elif qualifier == "owner":
             survivors = utils.mdb.survivors.find({
                 "email": self.user["login"],
                 "created_by": {"$ne": self.user["_id"]},
+                "removed": {"$exists": False},
             })
         else:
             raise Exception("'%s' is not a valid qualifier for this method!" % qualifier)
@@ -223,6 +295,7 @@ class User(Models.UserAsset):
     #   Do not write model methods below this one.
     #
 
+
     def request_response(self, action=None):
         """ Initializes params from the request and then response to the
         'action' kwarg appropriately. This is the ancestor of the legacy app
@@ -232,6 +305,8 @@ class User(Models.UserAsset):
 
         if action == "get":
             return self.return_json()
+        elif action == "set":
+            return self.set_attrib()
         else:
             # unknown/unsupported action response
             self.logger.warn("Unsupported survivor action '%s' received!" % action)

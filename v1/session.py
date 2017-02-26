@@ -293,6 +293,21 @@ class Session:
         else:
             raise Exception("[%s] session could not set current settlement!" % (self.User))
 
+
+        user_current_settlement = self.User.user.get("current_settlement", None)
+        if user_current_settlement != self.session["current_settlement"]:
+#            self.logger.debug("[%s] current settlement has changed from '%s' to '%s'!" % (self.User, user_current_settlement, self.session["current_settlement"]))
+
+#            self.logger.debug("[%s] changing current settlement via API call..." % self.User)
+#            api.post_JSON_to_route(
+#                "/user/set/%s" % self.User.user["_id"],
+#                {"current_settlement": self.session["current_settlement"]},
+#                Session=self,
+#            )
+            self.logger.info("[%s] changing current settlement to %s" % (self.User, self.session["current_settlement"]))
+            self.User.user["current_settlement"] = self.session["current_settlement"]
+            self.User.save()
+
         mdb.sessions.save(self.session)
 
 

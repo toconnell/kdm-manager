@@ -1,6 +1,7 @@
 #!/usr/bin/python2.7
 
 core = [
+    "Anor Londo",
     "Beacon",
     "Blackrock",
     "Blackwalk",
@@ -29,6 +30,7 @@ core = [
     "Hope",
     "Hyrule",
     "Izalith",
+    "Kaer Morhen"
     "Kasuto",
     "Kattegat",
     "Lantern's Reach",
@@ -41,9 +43,11 @@ core = [
     "Mist",
     "Mysidia",
     "Narshe",
+    "Nilfgaard",
     "Nox",
     "Old Kasuto",
     "Onrac",
+    "Rivia",
     "Ruto",
     "Sanctuary",
     "Satan's Lantern",
@@ -56,6 +60,7 @@ core = [
     "The Silver Lantern",
     "The White Lantern",
     "Three Eye Rock",
+    "Vizima",
     "White Rock",
     "Witchweed",
 ]

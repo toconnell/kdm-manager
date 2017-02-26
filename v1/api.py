@@ -9,6 +9,7 @@
 from bson.objectid import ObjectId
 from bson import json_util
 import json
+import flask
 import requests
 from retry import retry
 import socket
@@ -42,15 +43,29 @@ def route_to_url(r):
     return urljoin(get_api_url(), route)
 
 
-def post_JSON_to_route(route=None, payload={}, headers={}):
+def post_JSON_to_route(route=None, payload={}, headers={}, Session=None):
     """ Blast some JSON at an API route. Return the response object. No fancy
     crap in this one, so you better know what you're doing here. """
+
+    class customJSONencoder(json.JSONEncoder):
+        def default(self, o):
+            if isinstance(o, ObjectId):
+                return str(o)
+            return json.JSONEncoder.default(self, o)
+
     req_url = route_to_url(route)
-    j = json.dumps(payload)
+
+    # construct headers
     h = {'content-type': 'application/json'}
+
+    if Session is not None:
+        h['Authorization'] = Session.session["access_token"]
+
     if headers != {}:
         h.update(headers)
-    return requests.post(req_url, data=j, headers=h)
+
+
+    return requests.post(req_url, data=json.dumps(payload, cls=customJSONencoder), headers=h)
 
 
 def get_jwt_token(username=None, password=None):

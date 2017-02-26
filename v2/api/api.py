@@ -131,7 +131,7 @@ def protected():
 @utils.crossdomain(origin=['*'],headers='Content-Type')
 #@cross_origin(headers=['Content-Type','Authorization'])
 #@flask_jwt.jwt_required()
-def get_settlement(collection, action, asset_id):
+def collection_action(collection, action, asset_id):
     """ This is our major method for retrieving and updating settlements. """
     asset_object = request_broker.get_user_asset(collection, asset_id)
     if type(asset_object) == Response:
