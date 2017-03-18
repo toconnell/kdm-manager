@@ -149,6 +149,54 @@
             <th class="route">Route</th><th class="methods">Methods</th><th class="comment">Comment/Note</th>
         </tr>
 
+
+        <tr class="ul route_root">
+            <th colspan="3"><b>Authorization Token Management:</b> if you've
+            got an authorization token, you can do things with it using these
+            routes. All failures from these endpoints are reported back as
+            401's, since they concern authorization. </th>
+        </tr>
+        <tr class="ul">
+            <td> /refresh_authorization </td>
+            <td> POST </td>
+            <td> 
+            <p> Use the standard 'Authorization' header and POST an empty request to
+            this route to recieve a new Auth token based on the previous one.</p>
+            <p> On the back end, this route reads the incoming 'Authorization'
+            header and, even if the JWT token is expired, will check the 'login'
+            and 'password' (hash) keys: if they check out, you get a 200 and a
+            brand new token.</p>
+            <p> The KDM API does NOT use refresh tokens (it just feels like
+            over kill, you know?).
+            </td>
+        </tr>
+
+
+        <tr class="ul route_root">
+            <th colspan="3"><b>Create Assets:</b> To create new assets (survivor, settlement),
+            POST JSON containing appropriate params to the /new/&lt;asset_type&gt;
+            route. Invalid or unrecognized params will be ignored!</th>
+        </tr>
+        <tr class="ul">
+            <td> /new/&lt;settlement&gt; </td>
+            <td> POST </td>
+            <td> <p>Use 'handle' values from the <code>/new_settlement</code>
+            route (see above) as params, like this:</p>
+            <code> {"campaign": "people_of_the_lantern", "expansions": ["dung_beetle_knight",
+            "lion_god"], "survivors": ["adam", "anna"], "name": "Chicago"}
+            </code>
+            <p><b>NB:</b> this route returns a serialized version of the new settlement,
+            including its OID, as JSON (if successful).</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /new/&lt;survivor&gt; </td>
+            <td> POST </td>
+            <td> Not implemented!</td>
+        </tr>
+
+
+
         <tr class="ul route_root">
             <th colspan="3"><b>User Routes:</b> all routes for working directly with a user follow a <code>/user/&lt;action&gt;/&lt;settlement_id&gt;</code> convention. These routes are private and require authentication.</th>
         </tr>

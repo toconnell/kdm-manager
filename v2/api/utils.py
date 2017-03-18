@@ -114,6 +114,8 @@ def get_timeline_index_and_object(timeline,lantern_year):
         return get_ly()
 
 
+
+
 # general usage methods
 
 def basic_logging():

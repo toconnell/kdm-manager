@@ -5,11 +5,18 @@ from bson.objectid import ObjectId
 from flask import Response
 from hashlib import md5
 import json
+import jwt
 from werkzeug.security import safe_str_cmp
 
 import Models
 import settings
 import utils
+
+
+
+# laaaaaazy
+logger = utils.get_logger()
+secret_key = settings.get("api","secret_key","private")
 
 
 #
@@ -26,6 +33,18 @@ def authenticate(username, password):
         U = User(_id=user["_id"])
         return U
 
+def refresh_authorization(expired_token):
+    """ Opens an expired token, gets the login and password hash, and checks
+    those against mdb. If they match, we return the user. This is what is
+    referred to, in the field, as "meh--good enough" security. """
+
+    decoded = jwt.decode(expired_token, secret_key, verify=False)
+    user = dict(json.loads(decoded["identity"]))["user"]
+    login = user["login"]
+    pw_hash = user["password"]
+
+    return utils.mdb.users.find_one({"login": login, "password": pw_hash})
+
 
 def jwt_identity_handler(payload):
     """ Bounces the authentication request payload off of the user collection.
@@ -41,12 +60,44 @@ def jwt_identity_handler(payload):
     return utils.http_404
 
 
+def token_to_object(request):
+    """ Processes the "Authorization" param in the header and returns an http
+    response OR a user object. Requires the application's initialized JWT to
+    work. """
+
+    # first, get the token or bail
+
+    auth_token = request.headers.get("Authorization", None)
+    if auth_token is None:
+        logger.error("Authorization header missing!")
+        return utils.http_401
+
+    # now, try to decode the token and get a dict
+
+    try:
+        decoded = jwt.decode(auth_token, secret_key)
+        user_dict = dict(json.loads(decoded["identity"]))["user"]
+        return User(_id=user_dict["_id"]["$oid"])
+    except jwt.DecodeError:
+        logger.error("Incorrectly formatted token!")
+    except Exception as e:
+        logger.exception(e)
+
+    return utils.http_401
+
+
+
+
+#
+#   The big User object starts here
+#
+
 class User(Models.UserAsset):
     """ This is the main controller for all user objects. """
 
     def __init__(self, *args, **kwargs):
         self.collection="users"
-        self.object_version=0.11
+        self.object_version=0.13
         Models.UserAsset.__init__(self,  *args, **kwargs)
 
         # JWT needs this
@@ -57,7 +108,7 @@ class User(Models.UserAsset):
 
 
     def __repr__(self):
-        return "users object '%s' [%s]" % (self.user["login"], self._id)
+        return "[%s (%s)]" % (self.user["login"], self._id)
 
 
     def serialize(self):
@@ -131,7 +182,7 @@ class User(Models.UserAsset):
             self.user["current_settlement"] = settlements[0]["_id"]
             self.logger.warn("Defaulting 'current_settlement' to %s for %s" % (settlements[0]["_id"], self))
         elif settlements.count() == 0:
-            self.logger.debug("User %s does not own or administer any settlements!")
+            self.logger.debug("User %s does not own or administer any settlements!" % self)
             p_settlements = self.get_settlements(qualifier="player")
             if p_settlements.count() != 0:
                 self.user["current_settlement"] = p_settlements[0]["_id"]
@@ -172,6 +223,25 @@ class User(Models.UserAsset):
     #
     #   get methods
     #
+
+    def get_preference(self, p_key):
+        """ Ported from the legacy app: checks the user's MDB document for the
+        'preference' key and returns its value (which is a bool).
+
+        If the key is NOT present on the user's MDB document, return the default
+        value from settings.cfg. """
+
+        default_value = settings.get("users", p_key)
+
+        if "preferences" not in self.user.keys():
+            return default_value
+
+        if p_key not in self.user["preferences"].keys():
+            return default_value
+
+        return self.user["preferences"][p_key]
+
+
 
     def get_friends(self, return_type=None):
         """ Returns all of the user's friends (i.e. people he plays in campaigns

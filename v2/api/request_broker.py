@@ -7,7 +7,7 @@ import utils
 from models import survivors, settlements, users, monsters, campaigns
 from Models import AssetLoadError
 
-logger = utils.get_logger(log_name="errors")
+logger = utils.get_logger(log_name="server")
 
 #
 #   The point of this module is to get business logic re: request-handling
@@ -78,5 +78,44 @@ def get_game_asset(collection):
 
     except Exception as e:
         return R.send_bad_response(e)
+
+
+def new_user_asset(asset_type=None):
+    """ Hands off a new asset creation request and returns the result of the
+    request. Like all brokerage methods, this method always returns an HTTP
+    response.
+
+    The idea is to call this in request-processing workflow when you know that
+    you've got an asset creation request.
+
+    This brokerage method expects a few things:
+
+        1.) you've added a logger to the request
+        2.) you've also added a models.users.User object to the request
+        3.) you're passing in JSON params that can be processed when
+            fulfilling your request
+
+    If you are NOT doing all of that, do NOT pass off a request to this method,
+    unless you want to throw a 500 back at the user.
+
+    """
+
+    request.logger.debug("%s is requesting a new '%s' asset!" % (request.User, asset_type))
+
+    if asset_type == "settlement":
+        S = settlements.Settlement()
+        return S.serialize()
+    else:
+        return Response(
+            response="Creating '%s' user assets via API is not supported!" % asset_type,
+            status=422,
+            mimetype="text/plain",
+        )
+
+    return utils.http_400
+
+
+
+
 
 

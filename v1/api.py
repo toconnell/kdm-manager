@@ -43,6 +43,40 @@ def route_to_url(r):
     return urljoin(get_api_url(), route)
 
 
+@retry(tries=3,delay=1,jitter=1,logger=logger)
+def get_jwt_token(username=None, password=None, Session=None):
+    """ Gets a JWT token from /auth. Returns it (returns None if it fails for
+    whatever reason, and tries to do some logging). """
+
+    if not username or not password:
+        raise Exception("JWT token cannot be retrieved without a username and password!")
+
+    req_url = route_to_url("/login")
+    auth_dict = {"username": username, "password": password}
+    response = post_JSON_to_route(req_url, auth_dict)
+    if response.status_code == 200:
+        return response.json()["access_token"]
+    return None
+
+
+@retry(tries=3,delay=1,jitter=1,logger=logger)
+def refresh_jwt_token(Session):
+    req_url = route_to_url("/refresh_authorization")
+    h = {
+        'content-type':     'application/json',
+        'Authorization':    Session.session["access_token"],
+    }
+    r = requests.post(req_url, headers=h)
+
+    if r.status_code == 200:
+        Session.session["access_token"] = r.json()["access_token"]
+        Session.logger.info("[%s] Refreshed JWT auth token!" % (Session.User))
+        Session.save()
+    else:
+        raise Exception("JWT token could not be refreshed!")
+
+
+@retry(tries=3,delay=1,jitter=1,logger=logger)
 def post_JSON_to_route(route=None, payload={}, headers={}, Session=None):
     """ Blast some JSON at an API route. Return the response object. No fancy
     crap in this one, so you better know what you're doing here. """
@@ -59,34 +93,18 @@ def post_JSON_to_route(route=None, payload={}, headers={}, Session=None):
     h = {'content-type': 'application/json'}
 
     if Session is not None:
+        refresh_jwt_token(Session)
         h['Authorization'] = Session.session["access_token"]
 
     if headers != {}:
         h.update(headers)
 
-
     return requests.post(req_url, data=json.dumps(payload, cls=customJSONencoder), headers=h)
 
 
-def get_jwt_token(username=None, password=None):
-    """ Gets a JWT token from /auth. Returns it (returns None if it fails for
-    whatever reason, and tries to do some logging). """
-
-    if not username or not password:
-        raise Exception("JWT token cannot be retrieved without a username and password!")
-
-    req_url = route_to_url("/login")
-    auth_dict = {"username": username, "password": password}
-    response = post_JSON_to_route(req_url, auth_dict)
-    if response.status_code == 200:
-        return response.json()["access_token"]
-    return None
 
 
-@retry(
-    tries=3,delay=1,jitter=1,
-    logger=logger,
-)
+@retry(tries=3,delay=1,jitter=1,logger=logger)
 def route_to_dict(route, params={}, return_as=dict, access_token=None):
     """ Retrieves data from a route. Returns a dict by default, which means that
     a 404 will come back as a {}. """

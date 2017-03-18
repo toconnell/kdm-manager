@@ -250,6 +250,10 @@ class UserAsset():
 
 
     def __repr__(self):
+        """ Default __repr__ method for all user assets. Note that you should
+        PROBABLY define a __repr__ for your individual assets, if for no other
+        reason than to make the logs look cleaner. """
+
         try:
             exec 'repr_name = self.%s["name"]' % (self.collection[:-1])
         except:
@@ -261,30 +265,32 @@ class UserAsset():
     def __init__(self, collection=None, _id=None):
 
         # initialize basic vars
-        self.logger = utils.get_logger(log_name="server")
+        self.logger = utils.get_logger()
 
         if collection is not None:
             self.collection = collection
         elif hasattr(self,"collection"):
             pass
         else:
-            err_msg = "User assets may not be initialized without specifying a collection!"
+            err_msg = "User assets (settlements, users, etc.) may not be initialized without specifying a collection!"
             self.logger.error(err_msg)
             raise AssetInitError(err_msg)
 
         # use attribs to determine whether the object has been loaded
         self.loaded = False
+
         if _id is None:
-            self.new()
-        else:
-            try:
-                self._id = ObjectId(_id)
-                self.load()
-                self.loaded = True
-            except Exception as e:
-                self.logger.error("Could not load _id '%s' from %s!" % (_id, self.collection))
-                self.logger.exception(e)
-                raise
+            N = self.new()
+            _id = N._id
+
+        try:
+            self._id = ObjectId(_id)
+            self.load()
+            self.loaded = True
+        except Exception as e:
+            self.logger.error("Could not load _id '%s' from %s!" % (_id, self.collection))
+            self.logger.exception(e)
+            raise
 
 
     def save(self):
@@ -312,10 +318,14 @@ class UserAsset():
 
         if self.collection == "settlements":
             self.settlement = mdb_doc
+            self._id = self.settlement["_id"]
         elif self.collection == "survivors":
             self.survivor = mdb_doc
+            self._id = self.survivor["_id"]
         elif self.collection == "users":
             self.user = mdb_doc
+            self._id = self.user["_id"]
+            self.login = self.user["login"]
         else:
             raise AssetLoadError("Invalid MDB collection for this asset!")
 

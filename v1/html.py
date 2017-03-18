@@ -2579,7 +2579,7 @@ class settlement:
                 <input type="hidden" name="new" value="settlement" />
                 <input
                     type="text"
-                    name="settlement_name"
+                    name="name"
                     placeholder="New Settlement Name"
                     onclick="this.select()"
                     class="new_asset_name"
@@ -2607,7 +2607,7 @@ class settlement:
                 id="{{c.handle}}"
                 class="kd_css_checkbox kd_radio_option"
                 name="campaign"
-                value="{{c.name}}"
+                value="{{c.handle}}"
                 ng-checked="{{c.default}}"
             />
             <label for="{{c.handle}}">{{c.name}}
@@ -2649,15 +2649,12 @@ class settlement:
             <h2 class="no_ul">Survivors:</h2>
             <p>By default, new settlements are created with no survivors. Toggle options below to create the settlement with pre-made survivors. </p>
 
-            <input type="hidden" name="survivors" value="None"/> <!-- Both of these are necessary -->
-            <input type="hidden" name="survivors" value="None"/> <!-- Hack City! -->
-
             <input
                 type="checkbox"
                 id="create_prologue_survivors"
                 class="kd_css_checkbox kd_radio_option"
-                name="create_prologue_survivors"
-                value="True"
+                name="special"
+                value="create_first_story_survivors"
             />
             <label
                 for="create_prologue_survivors"
@@ -2680,7 +2677,7 @@ class settlement:
                     class="kd_css_checkbox kd_radio_option"
                     type="checkbox"
                     name="survivors"
-                    value="{{s.name}}"
+                    value="{{s.handle}}"
                 />
                 <label
                     for="{{s.handle}}"

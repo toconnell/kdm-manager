@@ -22,7 +22,7 @@ import types
 import api
 import admin
 import export_to_file
-from modular_assets import survivor_names, settlement_names, survivor_attrib_controls
+from modular_assets import survivor_names, survivor_attrib_controls
 import game_assets
 import html
 from models import Abilities, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Resources, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles, SurvivalActions
@@ -1172,6 +1172,7 @@ class Survivor:
                 operation_pretty = "Remove",
                 name = "ability",
                 name_pretty = "Ability or Impairment",
+                on_change = "this.form.submit()"
             )
             for ability in all_list:
                 output += '<option>%s</option>' % ability
@@ -3409,53 +3410,9 @@ class Settlement:
     #
 
     def new(self):
-        """ Creates a new settlement based on self.cgi_params. If you want to do
-        this some other way, it's going to require a total rebuild of this
-        method. Just FYI.
 
-        This happens in two stages, presently. First, we process the CGI params
-        that determine the fundamental characteristics of the settlement and
-        save a basic settlement dictionary to the MDB.
-
-        Next, we pull that settlement and set it as the 'settlement' attribute
-        of the Settlement object (i.e self) and then start in on the rest of the
-        CGI params, e.g. ones that require an initialized Settlement object.
-
-        She might not look like much, but she's got it where it counts.
-        """
-
-        self.logger.debug("[%s] creating a new settlement..." % self.User)
-
-        settlement = {
-            "name": "Unknown",
-            "campaign": "People of the Lantern",
-            "created_on": datetime.now(),
-            "created_by": self.User.user["_id"],
-            "survival_limit": 1,
-            "lantern_year": 0,
-            "death_count": 0,
-            "milestone_story_events": [],
-            "innovations": [],
-            "locations": [],
-            "defeated_monsters": [],
-            "population": 0,
-            "lost_settlements": 0,
-            "principles": [],
-            "storage": [],
-            "admins": [self.User.user["login"]],
-            "timeline": game_assets.default_timeline,
-        }
-
-        # set the campaign
-        if "campaign" in self.cgi_params:
-            settlement["campaign"] = self.cgi_params["campaign"].value
-
-        # set the name if the user wants
-        if "settlement_name" in self.cgi_params:
-            settlement["name"] = self.cgi_params["settlement_name"].value
-        elif "settlement_name" not in self.cgi_params and self.User.get_preference("random_names_for_unnamed_assets"):
-            name_list = settlement_names.core
-            settlement["name"] = random.choice(name_list)
+        pass
+        # DEPRECATED
 
         # sometimes campaign assets have additional attribs
         c_dict = api.route_to_dict("/campaign", params={"name": settlement["campaign"]})

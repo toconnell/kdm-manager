@@ -11,7 +11,8 @@ import random
 import time
 
 import Models
-from models import campaigns, cursed_items, epithets, expansions, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events, locations, causes_of_death
+import assets
+from models import campaigns, cursed_items, epithets, expansions, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events, locations, causes_of_death, names
 import settings
 import utils
 
@@ -62,6 +63,65 @@ class Settlement(Models.UserAsset):
         self.normalize_data()
 
 
+    def new(self):
+        """ Creates a new settlement. Expects a full-loaded request, i.e. with
+        an initialized User object, json() params, etc. """
+
+        self.logger.info("%s creating a new settlement..." % request.User)
+        self.logger.debug("%s new settlement params: %s" % (request.User, request.json))
+
+        settlement = {
+            # meta
+            "created_on": datetime.now(),
+            "created_by": request.User._id,
+            "admins": [request.User.login],
+            "meta": {
+                "timeline_version":     1.1,
+                "campaign_version":     1.0,
+                "monsters_version":     1.0,
+                "expansions_version":   1.0,
+                "innovations_version":  1.0,
+            },
+            # sheet
+            "name": request.json.get("name", None),
+            "campaign": request.json.get("campaign", "people_of_the_lantern"),
+            "expansions": request.json.get("expansions", []),
+
+            "lantern_year":             0,
+            "population":               0,
+            "death_count":              0,
+            "survival_limit":           1,
+            "lost_settlements":         0,
+            "milestone_story_events":   [],
+            "innovations":              [],
+            "defeated_monsters":        [],
+            "principles":               [],
+            "storage":                  [],
+        }
+
+
+        # set the settlement name before we save to MDB
+        if settlement["name"] is None and request.User.get_preference("random_names_for_unnamed_assets"):
+            N = names.Assets()
+            settlement["name"] = N.get_random_settlement_name()
+            self.logger.info("%s selected random settlement name due to user preference!" % request.User)
+        elif settlement["name"] is None and not request.User.get_preference("random_names_for_unnamed_assets"):
+            settlement["name"] = "Unknown"
+            self.logger.info("%s set settlement name to 'Unknown' due to user preference!" % request.User)
+
+        # save the settlement to the mdb and refresh self.settlement by calling
+        #   self.load with the id
+        self._id = utils.mdb.settlements.insert(settlement)
+        self.load() # uses self._id
+
+        self.initialize_sheet()
+        self.initialize_timeline()
+
+        self.logger.debug(self.settlement)
+
+        self.save()
+
+
     def normalize_data(self):
         """ Makes sure that self.settlement is up to our current standards. """
 
@@ -74,7 +134,7 @@ class Settlement(Models.UserAsset):
         #
         #       timeline migrations
         #
-        if not "timeline_version" in self.settlement["meta"].keys():
+        if self.settlement["meta"].get("timeline_version", None) is None:
             self.convert_timeline_to_JSON()
             self.perform_save = True
 
@@ -85,6 +145,10 @@ class Settlement(Models.UserAsset):
         #
         #       other migrations
         #
+        if self.settlement["meta"].get("campaign_version", None) is None:
+            self.convert_campaign_to_handle()
+            self.perform_save = True
+
         if self.settlement["meta"].get("monsters_version", None) is None:
             self.convert_monsters_to_handles()
             self.perform_save = True
@@ -168,6 +232,58 @@ class Settlement(Models.UserAsset):
 
         # finally, return a JSON string of our object
         return json.dumps(output, default=json_util.default)
+
+
+
+    #
+    #   Initialization methods. Be careful with these because every single one
+    #   of them does massive overwrites and doesn't ask for permission, if you
+    #   know what I mean.
+    #
+
+    def initialize_sheet(self):
+        """ Initializes the settlement sheet according to the campaign
+        definition's 'settlement_sheet_init' attribute. Meant to be used when
+        creating new settlements. """
+
+        self.logger.warn("%s is initializing the sheet for %s" % (request.User, self))
+        c_dict = self.get_campaign(dict)
+        for init_key in c_dict["settlement_sheet_init"].keys():
+            self.settlement[init_key] = c_dict["settlement_sheet_init"][init_key]
+        self.logger.info("%s initialized settlement sheet for '%s'" % (request.User, self))
+
+
+    def initialize_timeline(self):
+        """ Meant to be called during settlement creation, this method
+        completely overwrites the settlement's timeline with the timeline
+        'template' from the settlement's campaign.
+
+        DO NOT call this method on an active/live settlement, unless you really
+        know what you're doing.
+
+        """
+
+        self.logger.warn("%s is initializing the timeline for %s" % (request.User, self))
+
+        template = self.get_campaign(dict)["timeline"]
+        E = events.Assets()
+
+        self.settlement["timeline"] = []
+        for year_dict in template:
+            new_year = {}
+            for k in year_dict.keys():
+                if k == "year":
+                    new_year[k] = year_dict[k]
+                else:
+                    new_year[k] = []
+                    for event_dict in year_dict[k]:
+                        event_dict["created_by"] = request.User._id
+                        if "handle" in event_dict.keys():
+                            event_dict.update(E.get_asset(event_dict["handle"]))
+                    new_year[k].append(event_dict)
+            self.settlement["timeline"].append(new_year)
+
+        self.logger.info("%s initialized timeline for %s!" % (request.User, self))
 
 
     def add_expansions(self, e_list=[]):
@@ -907,26 +1023,22 @@ class Settlement(Models.UserAsset):
 
 
     def get_campaign(self, return_type=None):
-        """ Returns the campaign of the settlement as a string, if nothing is
-        specified for kwarg 'return_type'.
+        """ Returns the campaign handle of the settlement as a string, if
+        nothing is specified for kwarg 'return_type'.
 
-        'return_type' can also be 'dict' or 'object'. Specifying 'dict' gets the
-        raw campaign definition from assets/campaigns.py; specifying 'object'
-        gets a campaign asset object. """
+        'return_type' can also be 'dict'. Specifying 'dict' gets the
+        raw campaign definition from assets/campaigns.py. """
 
-        if not "campaign" in self.settlement.keys():
-            self.settlement["campaign"] = "People of the Lantern"
 
+        # sanity check; fail big if we can't pass this
         C = campaigns.Assets()
+        if self.settlement["campaign"] not in C.get_handles():
+            err = "The handle '%s' does not reference any known campaign definition!" % self.settlement["campaign"]
+            raise Models.AssetInitError(err)
 
-        if self.settlement["campaign"] not in C.get_names():
-            raise Models.AssetInitError("The name '%s' does not belong to any known campaign asset!" % self.settlement["campaign"])
-
+        # handle return_type requests
         if return_type == dict:
-            return C.get_asset_from_name(name=self.settlement["campaign"])
-#        elif return_type == "object":
-#            C = campaigns.Campaign(name=self.get_campaign())
-#            return C
+            return C.get_asset(self.settlement["campaign"])
 
         return self.settlement["campaign"]
 
@@ -1039,6 +1151,7 @@ class Settlement(Models.UserAsset):
 
         return True
         # end of is_compatible()
+
 
 
     #
@@ -1216,6 +1329,37 @@ class Settlement(Models.UserAsset):
 
         self.settlement["meta"]["monsters_version"] = 1.0
         self.logger.debug("Migrated %s monster lists from legacy data model to 1.0." % self)
+
+
+    def convert_campaign_to_handle(self):
+        """ Takes a name string 'campaign' attribute from self.settlement and
+        swaps it out for the handle for that campaign. Fails big if it can't."""
+
+        # first, some basic defaulting for the oldest legacy settlements
+        if not "campaign" in self.settlement.keys():
+            self.settlement["campaign"] = "people_of_the_lantern"
+            self.logger.warn("Defaulted %s 'campaign' attrib to %s" % (self, self.settlement["campaign"]))
+            self.settlement["meta"]["campaign_version"] = 1.0
+            return True
+
+        incoming_name = self.settlement["campaign"]
+
+        C = campaigns.Assets()
+
+        sorting_hat = {}
+        for handle in C.get_handles():
+            c_dict = C.get_asset(handle)
+            sorting_hat[c_dict["name"]] = handle
+
+        try:
+            self.settlement["campaign"] = sorting_hat[incoming_name]
+        except Exception as e:
+            self.logger.error("Coult not convert %s campaign attrib!" % self)
+            self.logger.exception(e)
+            raise
+
+        self.settlement["meta"]["campaign_version"] = 1.0
+        self.logger.debug("Migrated %s campaign attrib from '%s' to '%s'." % (self, incoming_name, self.settlement["campaign"]))
 
 
     def convert_timeline_to_JSON(self):

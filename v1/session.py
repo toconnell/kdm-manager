@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
 from bson.objectid import ObjectId
+import cgi
 import Cookie
 from datetime import datetime
 import json
+import jwt
 import os
 import random
 import socket
@@ -121,6 +123,12 @@ class Session:
                 self.User = assets.User(user_object["_id"], session_object=self)
 
 
+    def save(self):
+        """ Generic save method. """
+        mdb.sessions.save(self.session)
+        self.logger.debug("[%s] saved changes to session in mdb!" % (self.User))
+
+
     def log_out(self):
         """ For when the session needs to kill itself. """
         self.logger.debug("Ending session for '%s' via admin.remove_session()." % self.User.user["login"])
@@ -163,7 +171,6 @@ class Session:
         self.User = assets.User(user["_id"], session_object=self)
 
         return session_id   # passes this back to the html.create_cookie_js()
-
 
 
     def get_current_view(self):
@@ -296,14 +303,6 @@ class Session:
 
         user_current_settlement = self.User.user.get("current_settlement", None)
         if user_current_settlement != self.session["current_settlement"]:
-#            self.logger.debug("[%s] current settlement has changed from '%s' to '%s'!" % (self.User, user_current_settlement, self.session["current_settlement"]))
-
-#            self.logger.debug("[%s] changing current settlement via API call..." % self.User)
-#            api.post_JSON_to_route(
-#                "/user/set/%s" % self.User.user["_id"],
-#                {"current_settlement": self.session["current_settlement"]},
-#                Session=self,
-#            )
             self.logger.info("[%s] changing current settlement to %s" % (self.User, self.session["current_settlement"]))
             self.User.user["current_settlement"] = self.session["current_settlement"]
             self.User.save()
@@ -545,16 +544,53 @@ class Session:
 
         if "new" in self.params:
 
+            #
+            #   new survivor creation via legacy app methods
+            #
+
             if self.params["new"].value == "survivor":
                 self.set_current_settlement(user_asset_id)
                 S = assets.Survivor(params=self.params, session_object=self)
                 self.change_current_view("view_survivor", asset_id=S.survivor["_id"])
                 user_action = "created survivor %s in %s" % (S, self.Settlement)
 
+            #
+            #   new settlement creation via API call
+            #
+
             if self.params["new"].value == "settlement":
-                S = assets.Settlement(session_object=self, cgi_params=self.params)
-                user_action = "created settlement %s" % self.Settlement
-                self.change_current_view("view_campaign", S.settlement["_id"])
+
+                params = {}
+                params["campaign"] = self.params["campaign"].value
+
+                # try to get a name or default to None
+                if "name" in self.params:
+                    params["name"] = self.params["name"].value
+                else:
+                    params["name"] = None
+
+                # try to get expansions/survivors params or default to []
+                for p in ["expansions", "survivors", "special"]:
+                    if p not in self.params:
+                        params[p] = []
+                    elif p in self.params and isinstance(self.params[p], cgi.MiniFieldStorage):
+                        params[p] = [self.params[p].value]
+                    elif p in self.params and type(self.params[p]) == list:
+                        params[p] = [i.value for i in self.params[p]]
+                    else:
+                        msg = "Invalid form parameter! '%s' is unknown type: '%s'" % (p, type(self.params[p]).__name__)
+                        self.logger.error("[%s] invalid param key '%s' was %s. Params: %s" % (self.User, p, type(self.params[p]), self.params))
+                        raise AttributeError(msg)
+
+                response = api.post_JSON_to_route("/new/settlement", payload=params, Session=self)
+
+                # debug / stub
+                self.logger.debug(response.status_code)
+                self.logger.debug(response.reason)
+                self.logger.debug(response.json)
+
+
+
 
         #   bulk add
 

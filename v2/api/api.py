@@ -22,7 +22,10 @@ import utils
 # models
 from models import users, settlements
 
-utils.basic_logging()
+
+# general logging
+#utils.basic_logging()
+
 
 # create the flask app with settings/utils info
 application = Flask(__name__)
@@ -33,9 +36,10 @@ application.config.update(
 application.logger.addHandler(utils.get_logger(log_name="server"))
 application.config['SECRET_KEY'] = settings.get("api","secret_key","private")
 
-#   Javascript Web Token!
+
+#   Javascript Web Token! DO NOT import jwt (i.e. pyjwt) here!
 jwt = flask_jwt_extended.JWTManager(application)
-#jwt = flask_jwt.JWT(application, users.authenticate, users.jwt_identity_handler)
+
 
 
 #
@@ -107,13 +111,21 @@ def get_new_settlement_assets():
 #
 @application.route("/login", methods=["POST","OPTIONS"])
 @utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization'])
-def get_token():
+def get_token(check_pw=True, user_id=False):
     """ Tries to get credentials from the request headers. Fails verbosely."""
 
-    U = users.authenticate(request.json.get("username",None), request.json.get("password",None))
+    U = None
+    if check_pw:
+        U = users.authenticate(request.json.get("username",None), request.json.get("password",None))
+    else:
+        U = users.User(_id=user_id)
+
     if U is None:
         return utils.http_401
-    tok = {'access_token': flask_jwt_extended.create_access_token(identity=U.serialize()), "_id": str(U.user["_id"])}
+    tok = {
+        'access_token': flask_jwt_extended.create_access_token(identity=U.serialize()),
+        "_id": str(U.user["_id"]),
+    }
     return Response(response=json.dumps(tok), status=200, mimetype="application/json")
 
 
@@ -121,10 +133,30 @@ def get_token():
 #   private routes
 #
 
-@application.route('/protected',methods=["GET","POST","OPTIONS"])
-@flask_jwt.jwt_required()
-def protected():
-    return Response(response=flask_jwt.current_identity, status=200, mimetype="application/json")
+@application.route("/refresh_authorization", methods=["POST"])
+@utils.crossdomain(origin=['*'],headers='Content-Type')
+def refresh_auth():
+    if not "Authorization" in request.headers:
+        return utils.http_401
+
+    user = users.refresh_authorization(request.headers["Authorization"])
+    if user is not None:
+        return get_token(check_pw=False, user_id=user["_id"])
+    else:
+        return utils.http_401
+
+
+@application.route("/new/<asset_type>", methods=["POST"])
+@utils.crossdomain(origin=['*'],headers='Content-Type')
+def new_asset(asset_type):
+    """ Uses the 'Authorization' block of the header and POSTed params to create
+    a new settlement. """
+    request.logger = utils.get_logger()
+    request.User = users.token_to_object(request)
+    if isinstance(request.User, users.User):
+        return request_broker.new_user_asset(asset_type)
+    else:
+        return utils.http_401 #unauthorized
 
 
 @application.route("/<collection>/<action>/<asset_id>", methods=["GET","POST","OPTIONS"])
