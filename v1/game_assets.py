@@ -3817,7 +3817,8 @@ innovations = {
 #
 
 survivors = {
-    "Adam": {
+    "adam": {
+        "name": "Adam",
         "attribs": {
             "survival": 4,
             "Insanity": 4,
@@ -3831,7 +3832,8 @@ survivors = {
             "ability_customizations": {"Partner": "Partner: Anna"},
         },
     },
-    "Anna": {
+    "anna": {
+        "name": "Anna",
         "attribs": {
             "sex": "F",
             "survival": 4,
@@ -3846,7 +3848,8 @@ survivors = {
             "ability_customizations": {"Partner": "Partner: Adam"},
         },
     },
-    "Paul the Survivor": {
+    "paul_the_survivor": {
+        "name": "Paul the Survivor",
         "attribs": {
             "name": "Paul",
             "survival": 5,
@@ -3859,22 +3862,28 @@ survivors = {
             "ability_customizations": {"Sworn Enemy": "Halberdless Man"},
         },
     },
-    "Candy & Cola": {
+    "candy_and_cola":{
+        "name": "Candy & Cola",
         "attribs": {"Movement": 6, "disorders": ["Hyperactive"], "sex": "F"},
     },
-    "Kara Black": {
+    "kara_black": {
+        "name": "Kara Black",
         "attribs": {"survival": 3, "Strength": 1, "fighting_arts": ["Leader","Tough"], "sex": "F"},
     },
-    "Messenger of the First Story": {
-        "attribs": {"sex": "F", "survival": 6, "Insanity": 6, "Courage": 6, "Strength": 1, "Evasion": 1, "Speed": 1, "fighting_arts": ["Last Man Standing"], },
+    "messenger_of_the_first_story": {
+        "name": "Messenger of the First Story",
+        "attribs": {"sex": "F", "survival": 6, "Insanity": 6, "Courage": 6, "Strength": 1, "Evasion": 1, "Speed": 1,"fighting_arts": ["Last Man Standing"], },
     },
-    "Messenger of Courage": {
+    "messenger_of_courage":{
+        "name": "Messenger of Courage",
         "attribs": {"sex": "F", "survival": 6, "Insanity": 9, "Courage":  9, "Understanding": 5, "Strength": 1, "Evasion": 2, "Speed": 2, "hunt_xp": 2, "Weapon Proficiency": 5, "weapon_proficiency_type": "Twilight Sword", "fighting_arts": ["Last Man Standing"], "abilities_and_impairments": ["Specialization - Twilight Sword"]},
     },
-    "Messenger of Humanity": {
+    "messenger_of_courage":{
+        "name":  "Messenger of Humanity",
         "attribs": {"survival": 10, "abilities_and_impairments": ["Bitter Frenzy", "Solid", "Specialization - Grand Weapon"], "fighting_arts": ["Berserker", "Crossarm Block", "Unconscious Fighter"], "disorders": ["Rageholic"]},
     },
-    "Snow the Savior": {
+    "snow_the_savior":{
+        "name": "Snow the Savior",
         "attribs": {"name": "Snow", "sex": "F", "survival": 6, "Insanity": 8, "Courage": 5, "Understanding": 5, "fighting_arts": ["Unconscious Fighter"], "abilities_and_impairments": ["Red Glow", "Blue Glow", "Green Glow"]},
     },
 }
@@ -4411,227 +4420,6 @@ principles = {
         "sort_order": 3,
         "options": ["Barbaric","Romantic"],
         "show_controls": ['int(self.settlement["lantern_year"]) >= 12'],
-    },
-}
-
-# define all campaign assets here
-campaigns = {
-    "The Green Knight": {
-        "always_available": ["Lantern Hoard", "Language", "Exhausted Lantern Hoard"],
-        "forbidden": ["The Sun","Throne","Dragon Speech","Sun Language"],
-        "saviors": "1.3.1",
-        "principles": {
-            "New Life": principles["new_life"],
-            "Death": principles["death"],
-            "Society": principles["society"],
-            "Conviction": principles["conviction"],
-        },
-        "milestones": {
-            "First child is born": milestones["first_child"],
-            "First time death count is updated": milestones["first_death"],
-            "Population reaches 15": milestones["pop_15"],
-            "Settlement has 5 innovations": milestones["innovations_5"],
-            "Population reaches 0": milestones["game_over"],
-        },
-    },
-    "People of the Lantern": {
-        "default": True,
-        "always_available": ["Lantern Hoard", "Language", "Exhausted Lantern Hoard"],
-        "forbidden": ["The Sun","Throne","Dragon Speech","Sun Language"],
-        "saviors": "1.3.1",
-        "principles": {
-            "New Life": principles["new_life"],
-            "Death": principles["death"],
-            "Society": principles["society"],
-            "Conviction": principles["conviction"],
-        },
-        "milestones": {
-            "First child is born": milestones["first_child"],
-            "First time death count is updated": milestones["first_death"],
-            "Population reaches 15": milestones["pop_15"],
-            "Settlement has 5 innovations": milestones["innovations_5"],
-            "Population reaches 0": milestones["game_over"],
-        },
-    },
-
-    "People of the Skull": {
-        "always_available": ["Lantern Hoard", "Language"],
-        "forbidden": ["The Sun","Throne","Dragon Speech","Sun Language"],
-        "saviors": "1.3.1",
-        "special_rules": [
-            {"name": "People of the Skull",
-             "desc": "Survivors can only place weapons and armor with the <b>bone</b> keyword in their gear grid. The people of the skull ignore the <b>Frail</b> rule.",
-             "bg_color": "E3DAC9",
-             "font_color": "333"},
-            {"name": "People of the Skull",
-             "desc": "When you name a survivor, if they have the word bone or skull in their name, in addition to +1 survival, players choose to gain +1 permanent accuracy, evasion, strength, luck or speed.",
-             "bg_color": "E3DAC9",
-             "font_color": "333"},
-            {"name": "Black Skull",
-             "desc": "If a weapon or armor is made with the Black Skull resource, a survivor may place it in their gear grid despite being iron.",
-             "bg_color": "333",
-             "font_color": "efefef"},
-        ],
-        "endeavors": {
-            "Skull Ritual": {"cost": 1, "desc": "Costs one Skull resource. Nominate up to four survivors to consume the skull. They gain a permanent +1 to all their attributes."},
-        },
-        "principles": {
-            "New Life": principles["new_life"],
-            "Death": principles["death"],
-            "Society": principles["society"],
-            "Conviction": principles["conviction"],
-        },
-        "milestones": {
-            "First child is born": milestones["first_child"],
-            "First time death count is updated": milestones["first_death"],
-            "Population reaches 15": milestones["pop_15"],
-            "Settlement has 5 innovations": milestones["innovations_5"],
-            "Population reaches 0": milestones["game_over"],
-        },
-    },
-
-    "The Bloom People": {
-        "always_available": ["Lantern Hoard", "Language"],
-        "expansions": ["Flower Knight"],
-        "saviors": "1.3.1",
-        "storage": ["Sleeping Virus Flower"],
-        "forbidden": ["The Sun", "Throne" "Flower Addiction", "Flower Knight"],
-        "milestones": {
-            "First child is born": milestones["first_child"],
-            "First time death count is updated": milestones["first_death"],
-            "Population reaches 15": milestones["pop_15"],
-            "Settlement has 5 innovations": milestones["innovations_5"],
-            "Population reaches 0": milestones["game_over"],
-        },
-        "principles": {
-            "New Life": principles["new_life"],
-            "Death": principles["death"],
-            "Society": principles["society"],
-            "Conviction": principles["conviction"],
-        },
-        "endeavors": {
-            "Forest Run": {"cost": 1, "desc": "You may exchange any number of monster resources for that number of random Flower resources."},
-        },
-        "settlement_buff": "All survivors are born with +1 permanent luck, +1 permanent green affinity and -2 permanent red affinities.",
-        "newborn_survivor": {
-            "affinities": {"red": -2, "green": 1,},
-            "Luck": 1,
-        },
-    },
-
-    "People of the Sun": {
-        "expansions": ["Sunstalker"],
-        "survivor_attribs": ["Purified","Sun Eater","Child of the Sun"],
-        "always_available": ["Sun Language","The Sun"],
-        "forbidden": ["Leader", "Lantern Hoard", "Exhausted Lantern Hoard"],
-        "principles": {
-            # custom new life principle
-            "New Life": {
-                "sort_order": 0,
-                "show_controls": ["True"],
-                "options": ["Survival of the Fittest"]
-            },
-            "Death": principles["death"],
-            "Society": principles["society"],
-            "Conviction": principles["conviction"],
-        },
-        "milestones": {
-            "First time death count is updated": milestones["first_death"],
-            "Population reaches 15": milestones["pop_15"],
-            "Settlement has 8 innovations": milestones["innovations_8"],
-            "Population reaches 0": milestones["game_over"],
-            "Not Victorious against Nemesis": {"sort_order": 11, "story_event": "Game Over"},
-        },
-        "nemesis_monsters": {"Butcher": [u'Lvl 1'], },
-        "timeline": [
-            {"year": 0, "settlement_event": ["First Day"]},
-            {"year": 1, "story_event": ["The Pool and the Sun"]},
-            {"year": 2, "story_event": ["Endless Screams"]},
-            {"year": 3, },
-            {"year": 4, "story_event": ["Sun Dipping"]},
-            {"year": 5, "story_event": ["The Great Sky Gift"]},
-            {"year": 6, },
-            {"year": 7, "story_event": ["Phoenix Feather"]},
-            {"year": 8, }, {"year": 9, },
-            {"year": 10, "story_event": ["Birth of Color"]},
-            {"year": 11, "story_event": ["Principle: Conviction"]},
-            {"year": 12, "story_event": ["Sun Dipping"]},
-            {"year": 13, "story_event": ["The Great Sky Gift"]},
-            {"year": 14, }, {"year": 15, }, {"year": 16, }, {"year": 17, }, {"year": 18, },
-            {"year": 19, "story_event": ["Sun Dipping"]},
-            {"year": 20, "story_event": ["Final Gift"]},
-            {"year": 21, "nemesis_encounter": ["Nemesis Encounter: Kings Man Level 2"]},
-            {"year": 22, "nemesis_encounter": ["Nemesis Encounter: Butcher Level 3"]},
-            {"year": 23, "nemesis_encounter": ["Nemesis Encounter: Kings Man Level 3"]},
-            {"year": 24, "nemesis_encounter": ["Nemesis Encounter: The Hand Level 3"]},
-            {"year": 25, "story_event": ["The Great Devourer"]},
-            {"year": 26, }, {"year": 27, }, {"year": 28, }, {"year": 29, }, {"year": 30, }, {"year": 31, },
-            {"year": 32, }, {"year": 33, }, {"year": 34, }, {"year": 35, }, {"year": 36, },
-            {"year": 37, }, {"year": 38, }, {"year": 39, }, {"year": 40, },
-        ],
-    },
-
-    "People of the Stars": {
-        "expansions": ["Dragon King"],
-        "always_available": ["Throne","Dragon Speech","Radiating Orb"],
-        "forbidden": ["Lantern Hoard", "Language","Lantern Oven","Clan of Death","Family", "Dragon Armory"],
-        "always_available_nemesis": "The Tyrant",
-        "founder_epithet": "Foundling",
-        "replaced_story_events": {
-            "Bold": "Awake",
-            "Insight": "Awake",
-        },
-        "new_survivor_additional_attribs": {
-            "constellation": None,
-            "constellation_traits": [],
-        },
-        "survivor_attribs": ["Scar","Noble surname","Reincarnated surname"],
-        "special_rules": [
-            {"name": "Removed Story Events", "desc": "If an event or card would cause you to add/trigger <b>Hands of Heat</b>, <b>Regal Visit</b>, <b>Armored Strangers</b>, <b>Watched</b>, or <b>Nemesis Encounter - Watcher</b>, do nothing instead.", "bg_color": "673AB7", "font_color": "FFF"},
-#            {"name": "Removed Innovations", "desc": "Remove the following innovations from the pool of possible innovations: <b>Language</b>, <b>Lantern Oven</b>, <b>Family</b>, and <b>Clan of Death</b>.", "bg_color": "4527A0", "font_color": "FFF"},
-        ],
-        "principles": {
-            # custom new life principle
-            "New Life": principles["new_life"],
-            "Death": principles["death"],
-            "Society": principles["society"],
-            "Conviction": principles["conviction"],
-        },
-        "milestones": {
-            "First child is born": milestones["first_child"],
-            "First time death count is updated": milestones["first_death"],
-            "Population reaches 15": milestones["pop_15"],
-            "Population reaches 0": milestones["game_over"],
-        },
-        "nemesis_monsters": {"Butcher": [u'Lvl 1'], "King's Man": [u'Lvl 1'], "The Hand": [u'Lvl 1'],},
-        "timeline": [
-            {"year": 0, "settlement_event": ["First Day"]},
-            {"year": 1, "story_event": ["The Foundlings"]},
-            {"year": 2, "story_event": ["Endless Screams"]},
-            {"year": 3, },
-            {"year": 4, "nemesis_encounter": ["Nemesis Encounter - Dragon King Human Lvl 1"]},
-            {"year": 5, "story_event": ["Midnight's Children"]},
-            {"year": 6, },
-            {"year": 7, "story_event": ["Phoenix Feather"]},
-            {"year": 8, },
-            {"year": 9, "nemesis_encounter": ["Nemesis Encounter - Dragon King Human Lvl 2"]},
-            {"year": 10, "story_event": ["Unveil the Sky"]},
-            {"year": 11, },
-            {"year": 12, "story_event": ["Principle: Conviction"]},
-            {"year": 13, "nemesis_encounter": ["Nemesis Encounter - Butcher Lvl 2"]},
-            {"year": 14, }, {"year": 15, },
-            {"year": 16, "nemesis_encounter": ["Nemesis Encounter - Lvl 2"]},
-            {"year": 17, }, {"year": 18, },
-            {"year": 19, "nemesis_encounter": ["Nemesis Encounter - Dragon King Human Lvl 3"]},
-            {"year": 20, "story_event": ["The Dragon's Tomb"]},
-            {"year": 21, }, {"year": 22, },
-            {"year": 23, "nemesis_encounter": ["Nemesis Encounter - Lvl 3"]},
-            {"year": 24, },
-            {"year": 25, "nemesis_encounter": ["Nemesis Encounter - Death of the Dragon King"]},
-            {"year": 26, }, {"year": 27, }, {"year": 28, }, {"year": 29, }, {"year": 30, }, {"year": 31, },
-            {"year": 32, }, {"year": 33, }, {"year": 34, }, {"year": 35, }, {"year": 36, },
-            {"year": 37, }, {"year": 38, }, {"year": 39, }, {"year": 40, },
-        ],
     },
 }
 

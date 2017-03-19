@@ -64,14 +64,31 @@ class Settlement(Models.UserAsset):
 
 
     def new(self):
-        """ Creates a new settlement. Expects a full-loaded request, i.e. with
-        an initialized User object, json() params, etc. """
+        """ Creates a new settlement. Expects a fully-loaded request, i.e. with
+        an initialized User object, json() params, etc.
+
+        Think of this method as an alternate form of Models.UserAsset.load()
+        where, instead of getting a document from MDB and setting attribs from
+        that, we have to create the document (and touch it up) to complete
+        the load() request.
+
+        The basic order-of-operations logic here is that we do a bunch of stuff
+        to create what ammounts to the settlement 'sheet' and then save it to
+        the MDB.
+
+        Once it's saved, we call the base class load() method to initialize the
+        object.
+
+        Finally, once its initialized, we can use normal methods to apply what-
+        ever other changes we need to apply (based on user params, etc.).
+
+        """
 
         self.logger.info("%s creating a new settlement..." % request.User)
         self.logger.debug("%s new settlement params: %s" % (request.User, request.json))
 
         settlement = {
-            # meta
+            # meta / admin
             "created_on": datetime.now(),
             "created_by": request.User._id,
             "admins": [request.User.login],
@@ -82,21 +99,23 @@ class Settlement(Models.UserAsset):
                 "expansions_version":   1.0,
                 "innovations_version":  1.0,
             },
+
             # sheet
             "name": request.json.get("name", None),
             "campaign": request.json.get("campaign", "people_of_the_lantern"),
-            "expansions": request.json.get("expansions", []),
-
             "lantern_year":             0,
             "population":               0,
             "death_count":              0,
             "survival_limit":           1,
             "lost_settlements":         0,
+            "expansions":               [],
             "milestone_story_events":   [],
             "innovations":              [],
+            "locations":                [],
             "defeated_monsters":        [],
             "principles":               [],
             "storage":                  [],
+            "custom_epithets":          [],
         }
 
 
@@ -109,16 +128,41 @@ class Settlement(Models.UserAsset):
             settlement["name"] = "Unknown"
             self.logger.info("%s set settlement name to 'Unknown' due to user preference!" % request.User)
 
-        # save the settlement to the mdb and refresh self.settlement by calling
-        #   self.load with the id
+
+        #
+        #   This is where we save and load(); use self.settlement from here
+        #
+
         self._id = utils.mdb.settlements.insert(settlement)
+        self.logger.debug("%s new settlement _id=%s" % (request.User, self._id))
         self.load() # uses self._id
+
+        # initialize methods
 
         self.initialize_sheet()
         self.initialize_timeline()
 
-        self.logger.debug(self.settlement)
+        # check params for additional expansions
+        req_expansions = request.json.get("expansions", [])
+        for e in req_expansions:
+            if e not in self.settlement["expansions"]:
+                self.settlement["expansions"].append(e)
 
+        # add all expansions
+        all_expansions = self.settlement["expansions"]
+        self.settlement["expansions"] = []
+        self.add_expansions(all_expansions)
+
+        # process 'special' params here
+        #   COMING SOON
+
+        # finally, add pre-fab survivors
+        #   COMING SOON
+
+        # log settlement creation and save/exit
+#        self.logger.debug(self.settlement)
+
+        self.logger.info("%s created new %s and applied all user params successfully!" % (request.User, self))
         self.save()
 
 
@@ -209,6 +253,7 @@ class Settlement(Models.UserAsset):
         output["game_assets"]["locations_options"] = self.get_locations_options()
         output["game_assets"]["principles_options"] = self.get_principles_options()
         output["game_assets"]["milestones_options"] = self.get_milestones_options()
+        output["game_assets"]["milestones_dictionary"] = self.get_milestones_options(dict)
 
             # monster game assets
         output["game_assets"]["nemesis_options"] = self.get_monster_options("nemesis_monsters")
@@ -236,6 +281,38 @@ class Settlement(Models.UserAsset):
 
 
     #
+    #   meta/check/query methods here
+    #
+
+    def is_compatible(self, asset_dict):
+        """Evaluates an asset's dictionary to determine it is compatible for
+        use with this settlement. Always returns a bool (no matter what). """
+
+        # check to see if the asset excludes certian campaign types
+        if "excluded_campaigns" in asset_dict.keys():
+            if self.get_campaign() in asset_dict["excluded_campaigns"]:
+                return False
+
+        # check to see if the asset belongs to an expansion
+        if "expansion" in asset_dict.keys():
+            if asset_dict["expansion"] not in self.get_expansions():
+                return False
+
+        # check to see if the campaign forbids the asset
+        if "forbidden" in self.get_campaign(dict):
+            c_dict = self.get_campaign(dict)
+            for f_key in c_dict["forbidden"]:
+                if "type" in asset_dict.keys() and asset_dict["type"] == f_key:
+                    if asset_dict["handle"] in c_dict["forbidden"][f_key]:
+                        return False
+                    elif asset_dict["name"] in c_dict["forbidden"][f_key]:
+                        return False
+
+        return True
+
+
+
+    #
     #   Initialization methods. Be careful with these because every single one
     #   of them does massive overwrites and doesn't ask for permission, if you
     #   know what I mean.
@@ -246,7 +323,7 @@ class Settlement(Models.UserAsset):
         definition's 'settlement_sheet_init' attribute. Meant to be used when
         creating new settlements. """
 
-        self.logger.warn("%s is initializing the sheet for %s" % (request.User, self))
+#        self.logger.debug("%s is initializing the sheet for %s" % (request.User, self))
         c_dict = self.get_campaign(dict)
         for init_key in c_dict["settlement_sheet_init"].keys():
             self.settlement[init_key] = c_dict["settlement_sheet_init"][init_key]
@@ -263,7 +340,7 @@ class Settlement(Models.UserAsset):
 
         """
 
-        self.logger.warn("%s is initializing the timeline for %s" % (request.User, self))
+#        self.logger.debug("%s is initializing the timeline for %s" % (request.User, self))
 
         template = self.get_campaign(dict)["timeline"]
         E = events.Assets()
@@ -278,13 +355,23 @@ class Settlement(Models.UserAsset):
                     new_year[k] = []
                     for event_dict in year_dict[k]:
                         event_dict["created_by"] = request.User._id
-                        if "handle" in event_dict.keys():
-                            event_dict.update(E.get_asset(event_dict["handle"]))
+                        try:
+                            if "handle" in event_dict.keys():
+                                event_dict.update(E.get_asset(event_dict["handle"]))
+                        except TypeError:
+                            self.logger.error("%s failed to initialize timeline for %s" % (request.User, self))
+                            self.logger.error("%s event handle '%s' does not exist!" % (request.User, event_dict))
+                            raise
                     new_year[k].append(event_dict)
             self.settlement["timeline"].append(new_year)
 
         self.logger.info("%s initialized timeline for %s!" % (request.User, self))
 
+
+
+    #
+    #   add/rm methods start here!
+    #
 
     def add_expansions(self, e_list=[]):
         """ Takes a list of expansion handles and then adds them to the
@@ -312,9 +399,9 @@ class Settlement(Models.UserAsset):
             self.settlement["expansions"].append(e_handle)
 
             if "timeline_add" in e_dict.keys():
-               [self.add_timeline_event(e) for e in e_dict["timeline_add"] if e["ly"] >= self.get_current_ly()]
+               [self.add_timeline_event(e, save=False) for e in e_dict["timeline_add"] if e["ly"] >= self.get_current_ly()]
             if "timeline_rm" in e_dict.keys():
-               [self.rm_timeline_event(e) for e in e_dict["timeline_rm"] if e["ly"] >= self.get_current_ly()]
+               [self.rm_timeline_event(e, save=False) for e in e_dict["timeline_rm"] if e["ly"] >= self.get_current_ly()]
             if "rm_nemesis_monsters" in e_dict.keys():
                 for m in e_dict["rm_nemesis_monsters"]:
                     if m in self.settlement["nemesis_monsters"]:
@@ -354,13 +441,13 @@ class Settlement(Models.UserAsset):
 
             try:
                 if "timeline_add" in e_dict.keys():
-                   [self.rm_timeline_event(e) for e in e_dict["timeline_add"] if e["ly"] >= self.get_current_ly()]
+                   [self.rm_timeline_event(e, save=False) for e in e_dict["timeline_add"] if e["ly"] >= self.get_current_ly()]
             except Exception as e:
                 self.logger.error("Could not remove timeline events for %s expansion!" % e_dict["name"])
                 self.logger.exception(e)
             try:
                 if "timeline_rm" in e_dict.keys():
-                   [self.add_timeline_event(e) for e in e_dict["timeline_rm"] if e["ly"] >= self.get_current_ly()]
+                   [self.add_timeline_event(e, save=False) for e in e_dict["timeline_rm"] if e["ly"] >= self.get_current_ly()]
             except Exception as e:
                 self.logger.error("Could not add previously removed timeline events for %s expansion!" % e_dict["name"])
                 self.logger.exception(e)
@@ -374,16 +461,6 @@ class Settlement(Models.UserAsset):
             self.logger.info("Removed '%s' expansion from %s" % (e_dict["name"], self))
 
         self.logger.info("Successfully removed %s expansions from %s" % (len(e_list), self))
-        self.save()
-
-
-    def set_current_quarry(self):
-        """ Sets the self.settlement["current_quarry"] attrib. """
-
-        new_value = self.params["current_quarry"]
-        self.settlement["hunt_started"] = datetime.now()
-        self.settlement["current_quarry"] = new_value
-        self.log_event("Set target monster to %s" % new_value)
         self.save()
 
 
@@ -439,29 +516,37 @@ class Settlement(Models.UserAsset):
         self.save()
 
 
-    def set_innovation_level(self):
-        """ Sets self.settlement["innovation_levels"][innovation] to an int. """
+    def add_settlement_note(self, n={}):
+        """ Adds a settlement note to MDB. Expects a dict. """
 
-        try:
-            name = self.params["name"]
-            level = self.params["level"]
-        except Exception as e:
-            self.logger.error("Could not set settlement innovation level from JSON request: %s" % self.params)
-            raise
+        note_dict = {
+            "note": n["note"].strip(),
+            "created_by": ObjectId(n["author_id"]),
+            "js_id": n["js_id"],
+            "author": n["author"],
+            "created_on": datetime.now(),
+            "settlement": self.settlement["_id"],
+            "lantern_year": n["lantern_year"],
+        }
 
-        if name not in self.settlement["innovations"]:
-            self.logger.error("Could not set settlement innovation level for '%s', because that innovation is not included in the %s innovations list: %s" % (name, self, self.settlement["innovations"]))
-        else:
-            self.settlement["innovation_levels"][name] = int(level)
-
-        self.log_event("Set '%s' innovation level to %s." % (name, level), event_type="set_innovation_level")
-
-        self.save()
+        utils.mdb.settlement_notes.insert(note_dict)
+        self.logger.info("[%s] added a settlement note to %s" % (n["author"], self))
 
 
-    def add_timeline_event(self, e={}):
+    def rm_settlement_note(self, n={}):
+        """ Removes a note from MDB. Expects a dict with one key. """
+
+        utils.mdb.settlement_notes.remove({"settlement": self.settlement["_id"], "js_id": n["js_id"]})
+        self.logger.info("[%s] removed a settlement note from %s" % (n["user_login"], self))
+
+
+    def add_timeline_event(self, e={}, save=True):
         """ Adds a timeline event to self.settlement["timeline"]. Expects a dict
         containing the whole event's data: no lookups here. """
+
+        if e.get("excluded_campaign", None) == self.settlement["campaign"]:
+            self.logger.warn("Ignoring attempt to add event to excluded campaign: %s" % e)
+            return False
 
         timeline = self.settlement["timeline"]
         try:
@@ -498,14 +583,18 @@ class Settlement(Models.UserAsset):
             self.log_event("Automatically added '%s' to Lantern Year %s" % (e["name"], e["ly"]))
 
         # finish with a courtesy save
-        self.save()
+        if save:
+            self.save()
 
 
-
-    def rm_timeline_event(self, e={}):
+    def rm_timeline_event(self, e={}, save=True):
         """ Removes a timeline event from self.settlement["timeline"]. Expects a
         dict containing, at a minimum, an ly and a name for the event (so we can
         use this to remove custom events. """
+
+        if e.get("excluded_campaign", None) == self.settlement["campaign"]:
+            self.logger.warn("Ignoring attempt to add event to excluded campaign: %s" % e)
+            return False
 
         timeline = self.settlement["timeline"]
         try:
@@ -535,7 +624,8 @@ class Settlement(Models.UserAsset):
             timeline.insert(t_index, t_object)
             self.settlement["timeline"] = timeline
             self.logger.debug("Removed %s from %s timeline!" % (e, self))
-            self.save()
+            if save:
+                self.save()
 
             try:
                 if "user_login" in e.keys():
@@ -548,7 +638,6 @@ class Settlement(Models.UserAsset):
 
         else:
             self.logger.error("Event could not be removed from %s timeline! %s" % (self, e))
-
 
 
     def update_nemesis_levels(self, params):
@@ -564,6 +653,41 @@ class Settlement(Models.UserAsset):
             self.settlement["nemesis_encounters"][handle] = levels
             self.logger.debug("Updated 'nemesis_encounters' for %s" % self)
             self.save()
+
+
+
+    #
+    #   get/set methods start here!
+    #
+
+    def set_current_quarry(self):
+        """ Sets the self.settlement["current_quarry"] attrib. """
+
+        new_value = self.params["current_quarry"]
+        self.settlement["hunt_started"] = datetime.now()
+        self.settlement["current_quarry"] = new_value
+        self.log_event("Set target monster to %s" % new_value)
+        self.save()
+
+
+    def set_innovation_level(self):
+        """ Sets self.settlement["innovation_levels"][innovation] to an int. """
+
+        try:
+            name = self.params["name"]
+            level = self.params["level"]
+        except Exception as e:
+            self.logger.error("Could not set settlement innovation level from JSON request: %s" % self.params)
+            raise
+
+        if name not in self.settlement["innovations"]:
+            self.logger.error("Could not set settlement innovation level for '%s', because that innovation is not included in the %s innovations list: %s" % (name, self, self.settlement["innovations"]))
+        else:
+            self.settlement["innovation_levels"][name] = int(level)
+
+        self.log_event("Set '%s' innovation level to %s." % (name, level), event_type="set_innovation_level")
+
+        self.save()
 
 
     def get_founder(self):
@@ -651,30 +775,6 @@ class Settlement(Models.UserAsset):
         return [n for n in notes]
 
 
-    def add_settlement_note(self, n={}):
-        """ Adds a settlement note to MDB. Expects a dict. """
-
-        note_dict = {
-            "note": n["note"].strip(),
-            "created_by": ObjectId(n["author_id"]),
-            "js_id": n["js_id"],
-            "author": n["author"],
-            "created_on": datetime.now(),
-            "settlement": self.settlement["_id"],
-            "lantern_year": n["lantern_year"],
-        }
-
-        utils.mdb.settlement_notes.insert(note_dict)
-        self.logger.info("[%s] added a settlement note to %s" % (n["author"], self))
-
-
-    def rm_settlement_note(self, n={}):
-        """ Removes a note from MDB. Expects a dict with one key. """
-
-        utils.mdb.settlement_notes.remove({"settlement": self.settlement["_id"], "js_id": n["js_id"]})
-        self.logger.info("[%s] removed a settlement note from %s" % (n["user_login"], self))
-
-
     def get_locations_options(self):
         """ Returns a list of dictionaries where each dict is a location def-
         inition of a location that the settlement does not have, but could
@@ -738,17 +838,26 @@ class Settlement(Models.UserAsset):
         return final_list
 
 
-    def get_milestones_options(self):
+    def get_milestones_options(self, return_type=list):
         """ Returns a list of dictionaries where each dict is a milestone def-
         inition. Useful for front-end stuff. """
 
         M = milestone_story_events.Assets()
 
-        output = []
-        for m_handle in self.get_campaign(dict)["milestones"]:
-            output.append(M.get_asset(m_handle))
 
-        return output
+        if return_type==dict:
+            output = {}
+            for m_handle in self.get_campaign(dict)["milestones"]:
+                output[m_handle] = M.get_asset(m_handle)
+            return output
+        elif return_type==list:
+            output = []
+            for m_handle in self.get_campaign(dict)["milestones"]:
+                output.append(M.get_asset(m_handle))
+            return output
+        else:
+            self.logger.error("get_milestones_options() does not support return_type=%s" % return_type)
+            raise AttributeError
 
 
     def get_principles_options(self):
@@ -1125,37 +1234,9 @@ class Settlement(Models.UserAsset):
         return {"%s" % (asset_module.__name__.split(".")[-1]): final}
 
 
-    def is_compatible(self, asset_dict):
-        """Evaluates an asset's dictionary to determine it is compatible for
-        use with this settlement. Always returns a bool (no matter what). """
-
-        # check to see if the asset excludes certian campaign types
-        if "excluded_campaigns" in asset_dict.keys():
-            if self.get_campaign() in asset_dict["excluded_campaigns"]:
-                return False
-
-        # check to see if the asset belongs to an expansion
-        if "expansion" in asset_dict.keys():
-            if asset_dict["expansion"] not in self.get_expansions():
-                return False
-
-        # check to see if the campaign forbids the asset
-        if "forbidden" in self.get_campaign(dict):
-            c_dict = self.get_campaign(dict)
-            for f_key in c_dict["forbidden"]:
-                if "type" in asset_dict.keys() and asset_dict["type"] == f_key:
-                    if asset_dict["handle"] in c_dict["forbidden"][f_key]:
-                        return False
-                    elif asset_dict["name"] in c_dict["forbidden"][f_key]:
-                        return False
-
-        return True
-        # end of is_compatible()
-
-
 
     #
-    #   bug fix, conversion and migration functions
+    #   bug fix, conversion and migration functions start here!
     #
 
     def bug_fixes(self):
@@ -1478,7 +1559,8 @@ class Settlement(Models.UserAsset):
 
 
     #
-    #   finally, the daddy. Don't write model methods below this one.
+    #   finally, the request response router and biz logic. Don't write model
+    #   methods below this one.
     #
 
     def request_response(self, action=None):

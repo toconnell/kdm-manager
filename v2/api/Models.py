@@ -280,8 +280,8 @@ class UserAsset():
         self.loaded = False
 
         if _id is None:
-            N = self.new()
-            _id = N._id
+            self.new()
+            _id = self._id
 
         try:
             self._id = ObjectId(_id)

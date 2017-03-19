@@ -582,14 +582,20 @@ class Session:
                         self.logger.error("[%s] invalid param key '%s' was %s. Params: %s" % (self.User, p, type(self.params[p]), self.params))
                         raise AttributeError(msg)
 
+                # hit the route; check the response
                 response = api.post_JSON_to_route("/new/settlement", payload=params, Session=self)
-
-                # debug / stub
-                self.logger.debug(response.status_code)
-                self.logger.debug(response.reason)
-                self.logger.debug(response.json)
-
-
+                if response.status_code == 200:
+                    s_id = ObjectId(response.json()["sheet"]["_id"]["$oid"])
+                    self.set_current_settlement(s_id)
+                    S = assets.Settlement(s_id, session_object=self)
+                    S.new(params)
+                    user_action = "created settlement %s" % self.Settlement
+                    self.change_current_view("view_campaign", S.settlement["_id"])
+                else:
+                    msg = "An API error caused settlement creation to fail! API response was: %s - %s" % (response.status_code, response.reason)
+                    self.logger.error("[%s] new settlement creation failed!" % self.User)
+                    self.logger.error("[%s] %s" % (self.User, msg))
+                    raise RuntimeError(msg)
 
 
         #   bulk add

@@ -3172,10 +3172,9 @@ class Settlement:
         return self.get_name_and_id()
 
 
-    def __init__(self, settlement_id=False, name=False, campaign=False, session_object=None, update_mins=True, cgi_params=None):
+    def __init__(self, settlement_id=False, name=False, campaign=False, session_object=None, update_mins=True):
         """ Initialize with a settlement from mdb. """
         self.logger = get_logger()
-        self.cgi_params = cgi_params
 
         # initialize session and user objects
         self.Session = session_object
@@ -3409,66 +3408,24 @@ class Settlement:
     #   Settlement management and administration methods below
     #
 
-    def new(self):
+    def new(self, params):
+        """ Do not use the legacy app to create new settlements. Use the API
+        /new/settlement route (requires JWT Authorization header). """
 
-        pass
-        # DEPRECATED
-
-        # sometimes campaign assets have additional attribs
-        c_dict = api.route_to_dict("/campaign", params={"name": settlement["campaign"]})
-        for optional_attrib in ["storage","timeline"]:
-            if optional_attrib in c_dict.keys():
-                settlement[optional_attrib] = c_dict[optional_attrib]
-
-        # overwrite current values with settlement_sheet_init values
-        for default_attrib in c_dict["settlement_sheet_init"]:
-            settlement[default_attrib] = c_dict["settlement_sheet_init"][default_attrib]
-
-        # create the settlement and update the Settlement obj
-        settlement_id = mdb.settlements.insert(settlement)
-        self.settlement = mdb.settlements.find_one({"_id": settlement_id})
-        self.Session.set_current_settlement(settlement_id)
-        self.logger.debug("[%s] initialized a new settlement successfully!" % (self.User))
+        self.logger.warn("[%s] assets.Settlement.new() is deprecated as of 2017-03-19" % self.User)
 
         # now, continue through the CGI params, operating on the 
-        if "create_prologue_survivors" in self.cgi_params:
+        if "create_first_story_survivors" in params["special"]:
             self.first_story()
 
         # prefab survivors go here
-        for s in self.cgi_params["survivors"]:
-            if s.value != "None":
-                s_dict = game_assets.survivors[s.value]
-                n = Survivor(params=None, session_object=self.Session, suppress_event_logging=True)
-                n.set_attrs({"name": s.value})
-                n.set_attrs(s_dict["attribs"])
+        for s in params["survivors"]:
+            s_dict = game_assets.survivors[s]
+            n = Survivor(params=None, session_object=self.Session, suppress_event_logging=True)
+            n.set_attrs({"name": s_dict["name"]})
+            n.set_attrs(s_dict["attribs"])
 
-        self.save() # this is the LAST save
-        self.logger.debug("[%s] legacy settlement creation method complete!" % (self.User))
-
-        #
-        #   settlement is initialized and saved; only API-based update methods
-        #   may be called past this point! DO NOT save the settlement any more
-        #   within this method, let ye overwrite any API-side changes!
-        #
-
-        if "expansions" in self.cgi_params:
-            if type(self.cgi_params["expansions"]) == list:
-                req_expansions = [e.value for e in self.cgi_params["expansions"]]
-            else:
-                req_expansions = [self.cgi_params["expansions"].value]
-            response = api.post_JSON_to_route("/settlement/add_expansions/%s" % settlement_id, req_expansions)
-            if response.status_code == 200:
-                self.logger.debug("[%s] posted %s expansions to API successfully!" % (self.User, len(req_expansions)))
-            else:
-                self.logger.error("[%s] add_expansions API call returned %s!" % (self.User, response.status_code))
-
-
-        # to play us out!? I don't know what means: to play us out!
-        self.logger.info("[%s] created new settlement %s - (%s)." % (self.User, self, self.settlement["campaign"]))
-        self.log_event("%s founded!" % self.settlement["name"])
-
-        return settlement_id
-
+        self.logger.debug("[%s] processed new settlement params successfully!" % self.User)
 
 
     def remove(self):
@@ -3677,7 +3634,7 @@ class Settlement:
 
         # API operations
         q_json = json.dumps({"current_quarry": "White Lion (First Story)"})
-        api.post_JSON_to_route("/settlement/set_current_Quarry/%s" % self.settlement["_id"], q_json)
+        api.post_JSON_to_route("/settlement/set_current_quarry/%s" % self.settlement["_id"], q_json)
 
         self.add_timeline_event({
             "ly": self.get_ly(),
@@ -3719,8 +3676,9 @@ class Settlement:
 
         updates_made = False
 
-        milestones_dict = self.get_campaign("dict")["milestones"]
-        for m_key in milestones_dict.keys():
+        milestones_dict = self.get_api_asset("game_assets", "milestones_dictionary")
+
+        for m_key in self.get_campaign("dict")["milestones"]:
 
             m_dict = milestones_dict[m_key]
 
@@ -4304,7 +4262,7 @@ class Settlement:
         # support for campaign settlement_buff
         campaign_dict = self.get_campaign("dict")
         if bonus_type in campaign_dict.keys():
-            buffs[self.get_campaign()] = campaign_dict[bonus_type]
+            buffs[self.get_campaign("name")] = campaign_dict[bonus_type]
 
         if return_type == "html":
             output = ""
@@ -4344,7 +4302,7 @@ class Settlement:
 
         # fucking bloom people
         if "endeavors" in self.get_campaign("dict"):
-            buffs[self.get_campaign()] = self.get_campaign("dict")["endeavors"]
+            buffs[self.get_campaign("name")] = self.get_campaign("dict")["endeavors"]
 
         if return_type == "html":
             output = ""
@@ -4852,14 +4810,10 @@ class Settlement:
         User.get_campaigns() method, which returns campaigns a user is currently
         associated with. """
 
-        if not "campaign" in self.settlement.keys():
-            self.settlement["campaign"] = "People of the Lantern"
-
         if return_type == "dict":
-            campaign_dict = game_assets.campaigns[self.settlement["campaign"]]
-            if not "forbidden" in campaign_dict.keys():
-                campaign_dict["forbidden"] = []
-            return campaign_dict
+            return self.get_api_asset("game_assets","campaign")
+        if return_type == "name":
+            return self.get_api_asset("game_assets","campaign")["name"]
 
         return self.settlement["campaign"]
 

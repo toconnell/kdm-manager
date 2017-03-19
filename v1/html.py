@@ -2750,7 +2750,7 @@ class settlement:
 
             <div class="campaign_summary_headline_container">
                 <h1 class="settlement_name"> %s {{settlement_sheet.name}}</h1>
-                <p class="campaign_summary_campaign_type">{{settlement_sheet.campaign}}</p>
+                <p class="campaign_summary_campaign_type">{{settlement.game_assets.campaign.name}}</p>
                 <p>Population: $population ($sex_count); $death_count deaths</p>
                 <hr class="mobile_only"/>
                 <p>Lantern Year: {{current_ly}}, Survival Limit: $survival_limit</p>
@@ -3119,7 +3119,7 @@ class settlement:
                 class="settlement_sheet_campaign_type"
                 title="Campaign type may not be changed after a settlement is created!"
             >
-                {{settlement_sheet.campaign}}
+                {{settlement.game_assets.campaign.name}}
             </p>
 
 

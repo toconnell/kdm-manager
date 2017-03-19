@@ -120,7 +120,7 @@ mar_2016_expansions = {
         },
         "survivor_attribs": ["Purified","Sun Eater","Child of the Sun"],
         "timeline_add": [
-            {"ly": 8, "type": "story_event", "handle": "ss_promise_under_the_sun", "excluded_campaign": "People of the Sun"},
+            {"ly": 8, "type": "story_event", "handle": "ss_promise_under_the_sun", "excluded_campaign": "people_of_the_sun"},
         ],
     },
     "dragon_king": {
@@ -130,7 +130,7 @@ mar_2016_expansions = {
             "location": ["Dragon Armory"],
         },
         "timeline_add": [
-            {"ly": 8, "type": "story_event", "handle": "dk_glowing_crater", "excluded_campaign": "People of the Stars"},
+            {"ly": 8, "type": "story_event", "handle": "dk_glowing_crater", "excluded_campaign": "people_of_the_stars"},
         ],
     },
     "manhunter": {
@@ -157,7 +157,7 @@ mar_2016_expansions = {
         "name": "Flower Knight",
         "quarries": ["flower_knight"],
         "timeline_add": [
-            {"ly": 5, "type": "story_event", "handle": "fk_crones_tale", "excluded_campaign": "The Bloom People"}
+            {"ly": 5, "type": "story_event", "handle": "fk_crones_tale", "excluded_campaign": "the_bloom_people"}
         ],
     },
 }
