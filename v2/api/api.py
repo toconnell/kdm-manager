@@ -134,12 +134,14 @@ def get_token(check_pw=True, user_id=False):
 #
 
 @application.route("/refresh_authorization", methods=["POST"])
-@utils.crossdomain(origin=['*'],headers='Content-Type')
+@utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization'])
 def refresh_auth():
+
     if not "Authorization" in request.headers:
         return utils.http_401
 
     user = users.refresh_authorization(request.headers["Authorization"])
+
     if user is not None:
         return get_token(check_pw=False, user_id=user["_id"])
     else:

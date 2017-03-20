@@ -73,6 +73,7 @@ def refresh_jwt_token(Session):
         Session.logger.info("[%s] Refreshed JWT auth token!" % (Session.User))
         Session.save()
     else:
+        logger.error("[%s] JWT refresh response was %s - %s" % (Session.User, r.status_code, r.reason))
         raise Exception("JWT token could not be refreshed!")
 
 
