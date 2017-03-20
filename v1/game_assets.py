@@ -4423,3 +4423,21 @@ principles = {
     },
 }
 
+
+# temporary/transitional lookup table for campaign names
+campaign_look_up = {
+    "people_of_the_sun": "People of the Sun",
+    "people_of_the_lantern": "People of the Lantern",
+    "people_of_the_skull": "People of the Skull",
+    "people_of_the_stars": "People of the Stars",
+    "the_bloom_people": "The Bloom People",
+    "the_green_knight": "The Green Knight",
+    "People of the Sun": "People of the Sun",
+    "People of the Lantern": "People of the Lantern",
+    "People of the Skull": "People of the Skull",
+    "People of the Stars": "People of the Stars",
+    "The Bloom People": "The Bloom People",
+    "The Green Knight": "The Green Knight",
+}
+
+

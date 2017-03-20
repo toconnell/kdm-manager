@@ -134,7 +134,7 @@ def route_to_dict(route, params={}, return_as=dict, access_token=None):
         return {}
 
     if r.status_code == 200:
-        return dict(r.json())
+        return r.json()
     else:
         logger.error("%s - '%s' responded: %s - %s" % (r.request.method, r.url, r.status_code, r.reason))
         raise Exception("API Failure!")

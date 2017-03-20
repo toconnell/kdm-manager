@@ -57,12 +57,10 @@ class Model:
         """ Checks all assets for whether they are forbidden by settlement
         attributes, i.e. whether they're on a 'forbidden' list. """
 
-        campaign = settlement_object.get_campaign()
-
         forbidden = set()
         for game_asset in self.get_keys():
-            c_dict = game_assets.campaigns[campaign]
-            if "forbidden" in c_dict.keys() and game_asset in c_dict["forbidden"]:
+            c_dict = settlement_object.get_campaign("dict")
+            if game_asset in settlement_object.get_campaign("forbidden"):
                 forbidden.add(game_asset)
 
         return forbidden
@@ -81,7 +79,7 @@ class Model:
         for game_asset in self.get_keys():
 
             # first check the campaign
-            c_dict = game_assets.campaigns[campaign]
+            c_dict = settlement_object.get_campaign("dict")
             if "always_available" in c_dict and game_asset in c_dict["always_available"]:
                 always_available.add(game_asset)
 
@@ -98,13 +96,12 @@ class Model:
 
         # normatively speaking, forbidden trumps always_available (someone's got
         #   to have precedence, you know?)
-        if "forbidden" in settlement_object.get_campaign("dict"):
-            forbidden = settlement_object.get_campaign("dict")["forbidden"]
-            always_available = list(always_available)
-            for game_asset in always_available:
-                if game_asset in forbidden:
-                    always_available.remove(game_asset)
-            always_available = set(always_available)
+        forbidden = settlement_object.get_campaign("forbidden")
+        always_available = list(always_available)
+        for game_asset in always_available:
+            if game_asset in forbidden:
+                always_available.remove(game_asset)
+        always_available = set(always_available)
 
         return always_available
 
@@ -187,7 +184,7 @@ class Model:
             for asset in options:
                 if "expansion" in self.get_asset(asset).keys() and self.get_asset(asset)["expansion"] not in Settlement.get_expansions("list_of_names"):
                     excluded_assets.append(asset)
-                if asset in Settlement.get_campaign("dict")["forbidden"]:
+                if asset in Settlement.get_campaign("forbidden"):
                     excluded_assets.append(asset)
         for excluded_key in excluded_assets:
             options.remove(excluded_key)
@@ -294,10 +291,13 @@ class disordersModel(Model):
             elif "expansion" in d_dict.keys():
                 if d_dict["expansion"] in expansions:
                     deck.append(disorder)
+
+        # remove forbidden assets
+        forbidden = Settlement.get_campaign("forbidden")
         for d_key in deck:
-            campaign_dict = Settlement.get_campaign("dict")
-            if d_key in campaign_dict["forbidden"]:
+            if d_key in forbidden:
                 deck.remove(d_key)
+
         return sorted(deck)
 
 

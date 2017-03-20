@@ -58,7 +58,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.40
+        self.object_version=0.41
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize_data()
 
@@ -326,7 +326,7 @@ class Settlement(Models.UserAsset):
 #        self.logger.debug("%s is initializing the sheet for %s" % (request.User, self))
         c_dict = self.get_campaign(dict)
         for init_key in c_dict["settlement_sheet_init"].keys():
-            self.settlement[init_key] = c_dict["settlement_sheet_init"][init_key]
+            self.settlement[init_key] = copy(c_dict["settlement_sheet_init"][init_key])
         self.logger.info("%s initialized settlement sheet for '%s'" % (request.User, self))
 
 
@@ -354,7 +354,6 @@ class Settlement(Models.UserAsset):
                 else:
                     new_year[k] = []
                     for event_dict in year_dict[k]:
-                        event_dict["created_by"] = request.User._id
                         try:
                             if "handle" in event_dict.keys():
                                 event_dict.update(E.get_asset(event_dict["handle"]))
@@ -1138,9 +1137,9 @@ class Settlement(Models.UserAsset):
         'return_type' can also be 'dict'. Specifying 'dict' gets the
         raw campaign definition from assets/campaigns.py. """
 
+        C = campaigns.Assets()
 
         # sanity check; fail big if we can't pass this
-        C = campaigns.Assets()
         if self.settlement["campaign"] not in C.get_handles():
             err = "The handle '%s' does not reference any known campaign definition!" % self.settlement["campaign"]
             raise Models.AssetInitError(err)

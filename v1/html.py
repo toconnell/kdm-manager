@@ -463,7 +463,7 @@ class angularJS:
 
             <h3>Expansions!</h3>
 
-            <div class="expansions_controls_container">
+            <div class="expansions_controls_container" >
                 <p>Use the controls below to determine which expansion content is
                 enabled for this campaign. Remember to save and reload when finished!</p>
 
@@ -477,6 +477,7 @@ class angularJS:
                             ng-model=incomingExpansion
                             ng-checked="hasattr(settlement_sheet.expansions, x.handle)"
                             ng-click="toggleExpansion(x.handle)"
+                            ng-disabled="settlement.game_assets.campaign.settlement_sheet_init.expansions.includes(x.handle)"
                         >
                         <label for="{{x.handle}}_modal_toggle">{{x.name}}</label>
                     </div> <!-- line_item -->
@@ -717,7 +718,7 @@ class angularJS:
 
         <div class="full_size_modal_panel survivor_sheet_gradient">
 
-            <h3>New Survivor!</h3>
+            <h3>Create New Survivor</h3>
 
             <span class="closeModal" onclick="closeModal('modalNewSurvivorContainer')">×</span>
 
@@ -1223,7 +1224,7 @@ class survivor:
                         id="dragonControlsModal"
                         class="orange bold modal_opener"
                         ng-if="settlement.game_assets.campaign.dragon_traits != undefined"
-                        ng-init="registerModalDiv('dragonControlsModal','modalConstellation')"
+                        ng-init="registerModalDiv('dragonControlsModal','dragonTraitsModal')"
                     >
                         Dragon Traits ({{survivor.constellation_traits.length}})
                     </button>
@@ -2365,14 +2366,14 @@ class survivor:
     dragon_traits_controls = Template("""\n
 
     <div
-        id="modalConstellation" class="modal"
+        id="dragonTraitsModal" class="modal"
     >
         <div class="modal-content survivor_sheet_gradient">
-            <span class="closeModal" onclick="closeModal('modalConstellation')">×</span>
+            <span class="closeModal" onclick="closeModal('dragonTraitsModal')">×</span>
             <h3>The Constellations</h3>
             $constellation_table
         </div> <!-- modal-content -->
-    </div> <!-- modalConstellation -->
+    </div> <!-- dragonTraitsModal -->
 
     """)
     constellation_table_top = '<table id="survivor_constellation_table">'
@@ -2562,6 +2563,10 @@ class survivor:
 class settlement:
 
     new = """\n\
+    <script type="text/javascript">
+        // kill the spinner, just in case it hasn't been killed
+        hideFullPageLoader();
+    </script>
     <span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
     <span class="nav_bar_mobile mobile_only settlement_sheet_gradient"></span>
     <span class="top_nav_spacer mobile_only"> hidden </span>
@@ -2689,7 +2694,13 @@ class settlement:
 
         <br/><br/>
 
-        <button ng-if="showLoader == false" class="kd_blue"> Create {{settlementName}}</button>
+        <button
+            onclick="showFullPageLoader()"
+            ng-if="showLoader == false"
+            class="kd_blue"
+        >
+                Create {{settlementName}}
+        </button>
 
         <br/><br/><br/>
 

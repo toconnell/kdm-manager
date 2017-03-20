@@ -8,7 +8,7 @@ import utils
 
 class Assets(Models.AssetCollection):
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
 
         self.assets = innovations.innovations
         for a in self.assets.keys():
@@ -22,6 +22,8 @@ class Assets(Models.AssetCollection):
             wm["handle"] = m
             wm["type"] = "weapon_mastery"
             self.assets[m] = wm
+
+        Models.AssetCollection.__init__(self,  *args, **kwargs)
 
 
     def get_principles(self):

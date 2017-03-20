@@ -2180,9 +2180,10 @@ class Survivor:
             expansion_attrib_keys = set()
 
             # 1.) check the campaign for survivor_attribs
-            if "survivor_attribs" in self.Settlement.get_campaign("dict"):
+            c_dict = self.Settlement.get_campaign("dict")
+            if "survivor_attribs" in c_dict.keys():
                 expansion_attrib_keys.update(
-                    game_assets.campaigns[self.Settlement.get_campaign()]["survivor_attribs"]
+                    c_dict["survivor_attribs"]
                 )
 
             # 2.) check the expansions for survivor_attribs
@@ -2903,7 +2904,7 @@ class Survivor:
         """ Returns the survivor's constellation table, either as a dict of
         component info or as an HTML table. """
 
-        if self.Settlement.get_campaign() != "People of the Stars":
+        if not "dragon_traits" in self.Settlement.get_campaign("dict").keys():
             return ""
 
         self.set_constellation_traits()
@@ -3373,7 +3374,6 @@ class Settlement:
         whatever the API currently thinks self.settlement happens to be. """
 
         self.set_api_asset(refresh=True)
-
         self.settlement[k] = self.api_asset["sheet"][k]
         self.logger.info("[%s] reloaded self.settlement[%s] from API data" % (self.User, k))
 
@@ -4806,14 +4806,35 @@ class Settlement:
 
 
     def get_campaign(self, return_type=None):
-        """ Returns the campaign of the settlement. Not to be confused with the
-        User.get_campaigns() method, which returns campaigns a user is currently
-        associated with. """
+        """ Returns the campaign of the settlement as a handle. Not to be
+        confused with the User.get_campaigns() method, which returns campaigns a
+        user is currently  associated with.
+
+        For transitional/legacy purposes, this method can accept a few different
+        'return_type' kwargs:
+
+            - "dict"        returns the campaign definition dict
+            - "name"        returns the campaign name (rather than handle)
+            - "forbidden"   returns a list of 'forbidden' game assets
+
+        NB: that the 'forbidden' return type includes innovations, locations,
+        etc. and is not limited to one type of 'forbidden' game asset.
+
+        """
+
+        if return_type is not None:
+            c_dict = self.get_api_asset("game_assets","campaign")
 
         if return_type == "dict":
-            return self.get_api_asset("game_assets","campaign")
-        if return_type == "name":
-            return self.get_api_asset("game_assets","campaign")["name"]
+            return c_dict
+        elif return_type == "name":
+            return c_dict["name"]
+        elif return_type == "forbidden":
+            forbidden = []
+            f_dict = c_dict.get("forbidden",{})
+            for k in f_dict.keys():
+                forbidden.extend(f_dict[k])
+            return list(set(forbidden))
 
         return self.settlement["campaign"]
 
@@ -5807,7 +5828,7 @@ class Settlement:
             return html.settlement.dashboard_campaign_asset.safe_substitute(
                 asset_id=self.settlement["_id"],
                 name=self.settlement["name"],
-                campaign=self.get_campaign(),
+                campaign=game_assets.campaign_look_up[self.get_campaign()],
                 ly=self.get_ly(),
                 pop=self.settlement["population"],
                 players_block=players,
@@ -5815,7 +5836,7 @@ class Settlement:
         else:
             button_class = "kd_dying_lantern dashboard_settlement_list_settlement_button"
             link_text = "<b class='dashboard_settlement_list_settlement_name'>%s</b>" % self.settlement["name"]
-            link_text += "<br/><i>%s</i>" % self.get_campaign()
+            link_text += "<br/><i>%s</i>" % game_assets.campaign_look_up[self.get_campaign()]
 
             if "abandoned" in self.settlement.keys():
                 link_text += ' [ABANDONED]'

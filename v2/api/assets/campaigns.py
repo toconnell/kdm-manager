@@ -202,6 +202,7 @@ campaign_definitions = {
 
     "people_of_the_sun": {
         "name": "People of the Sun",
+        "survivor_attribs": ["Purified","Sun Eater","Child of the Sun"],
         "always_available": {
             "location": ["The Sun","Sacred Pool"],
             "innovation": ["Sun Language", "Umbilical Bank"],
@@ -252,6 +253,7 @@ campaign_definitions = {
     "people_of_the_stars": {
         "name": "People of the Stars",
         "dragon_traits": "1.3.1",
+        "survivor_attribs": ["Scar","Noble surname","Reincarnated surname"],
         "always_available": {
             "location": ["Throne"],
             "innovation": ["Dragon Speech","Radiating Orb"],

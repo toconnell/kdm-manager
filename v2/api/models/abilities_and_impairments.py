@@ -8,7 +8,7 @@ import utils
 
 class Assets(Models.AssetCollection):
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
 
         self.assets = {}
         for k, v in abilities_and_impairments.__dict__.iteritems():
@@ -16,3 +16,5 @@ class Assets(Models.AssetCollection):
                 for dict_key in v.keys():
                     v[dict_key]["type"] = k
                 self.assets.update(v)
+
+        Models.AssetCollection.__init__(self,  *args, **kwargs)

@@ -69,12 +69,18 @@ class AssetCollection():
     def get_asset(self, handle):
         """ Return an asset dict based on a handle. Return None if the handle
         cannot be retrieved. """
+
+#        if not hasattr(self, "logger"):
+#            raise AttributeError("AssetCollection object has no logger! %s -> %s" % (self, dir(self)))
+
         try:
             asset = self.assets[handle]
             if not "handle" in asset.keys():
                 asset["handle"] = handle
+#            self.logger.debug(asset)
             return asset
-        except:
+        except Exception as e:
+            self.logger.exception(e)
             return None
 
     def get_asset_from_name(self, name, case_sensitive=False):

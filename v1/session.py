@@ -150,7 +150,7 @@ class Session:
         token = api.get_jwt_token(login, password)
 
         if token:
-            self.logger.debug("[%s] JWT token retrieved!" % (login))
+            self.logger.debug("[%s] JWT token retrieved!" % (self.User))
 
         session_dict = {
             "login": login,
@@ -607,6 +607,7 @@ class Session:
             male = int(self.params["male_survivors"].value)
             female = int(self.params["female_survivors"].value)
             S.bulk_add_survivors(male,female)
+            self.change_current_view("view_campaign", user_asset_id)
 
 
         #   modify
@@ -739,7 +740,7 @@ class Session:
 
         # tack on the full-page spinner if we're doing a view that has
         #   to initialize with API data
-        if self.current_view in ["view_campaign", "view_settlement", "view_survivor"]:
+        if self.current_view in ["view_campaign", "view_settlement", "view_survivor","new_settlement"]:
             output += html.meta.full_page_loader
 
         if self.current_view == "dashboard":

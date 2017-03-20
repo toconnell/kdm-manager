@@ -57,8 +57,7 @@ app.controller("controlsOfDeath", function($scope) {
         showFullPageLoader();
         params="cause_of_death=" + cod_string
         modifyAsset("survivor", $scope.survivor._id.$oid, params);
-        window.location.href = window.location.href;
-        location.reload();
+        location.assign("/");
     };
 
     $scope.processSelectCOD = function() {

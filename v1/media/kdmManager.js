@@ -298,6 +298,7 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
 
 app.controller("updateExpansionsController", function($scope) {
     $scope.toggleExpansion = function(e_handle) {
+//        console.log($scope.settlement.game_assets.campaign.settlement_sheet_init.expansions.includes(e_handle));
         var input_element = document.getElementById(e_handle + "_modal_toggle");
         if (input_element.checked) {
             $scope.postJSONtoAPI('settlement', 'add_expansions', [e_handle]);
