@@ -1137,7 +1137,9 @@ class Settlement(Models.UserAsset):
         """ Returns the campaign handle of the settlement as a string, if
         nothing is specified for kwarg 'return_type'.
 
-        'return_type' can also be 'dict'. Specifying 'dict' gets the
+        Use 'name' to return the campaign's name (from its definition).
+
+        'return_type' can also be dict. Specifying dict gets the
         raw campaign definition from assets/campaigns.py. """
 
         C = campaigns.Assets()
@@ -1146,6 +1148,9 @@ class Settlement(Models.UserAsset):
         if self.settlement["campaign"] not in C.get_handles():
             err = "The handle '%s' does not reference any known campaign definition!" % self.settlement["campaign"]
             raise Models.AssetInitError(err)
+
+        if return_type == 'name':
+            return C.get_asset(self.settlement["campaign"])["name"]
 
         # handle return_type requests
         if return_type == dict:

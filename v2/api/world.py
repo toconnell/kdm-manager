@@ -25,6 +25,7 @@ from models import innovations as innovations_models
 from models import monsters as monster_models
 from models import expansions as expansions_models
 from models import settlements as settlements_models
+from models import campaigns as campaigns_models
 import settings
 import utils
 
@@ -563,7 +564,8 @@ class World:
 
         S = settlements_models.Settlement(_id=s["_id"])
 
-        s["campaign"] = S.get_campaign()
+        s["campaign"] = S.get_campaign("name")
+        self.logger.debug(s["campaign"])
         s["expansions"] = S.get_expansions("comma-delimited")
         s["player_count"] = S.get_players("count")
 
@@ -662,8 +664,14 @@ class World:
 
         campaigns = utils.mdb.settlements.find({"campaign": {"$exists": True}}).distinct("campaign")
 
+        C = campaigns_models.Assets()
+
         for c in campaigns:
             total = utils.mdb.settlements.find({"campaign": c}).count()
+
+            if C.get_asset_from_name(c) is None:
+                c = C.get_asset(c)["name"]
+
             if c in popularity_contest.keys():
                 popularity_contest[c] += total
             else:
