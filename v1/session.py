@@ -122,6 +122,14 @@ class Session:
                 user_object = mdb.users.find_one({"current_session": session_id})
                 self.User = assets.User(user_object["_id"], session_object=self)
 
+        if self.session is not None:
+            if not api.check_token(self):
+                self.logger.debug("JWT Token expired! Attempting to refresh...")
+                r = api.refresh_jwt_token(self)
+                if r.status_code == 401:
+                    self.log_out()
+                    self.session = None
+
 
     def save(self):
         """ Generic save method. """
@@ -150,7 +158,7 @@ class Session:
         token = api.get_jwt_token(login, password)
 
         if token:
-            self.logger.debug("[%s] JWT token retrieved!" % (self.User))
+            self.logger.debug("[%s (%s)] JWT token retrieved!" % (user["login"], user["_id"]))
 
         session_dict = {
             "login": login,

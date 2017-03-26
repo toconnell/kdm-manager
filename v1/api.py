@@ -59,9 +59,25 @@ def get_jwt_token(username=None, password=None, Session=None):
     return None
 
 
+def check_token(Session):
+    """ Checks the token on the sesh: returns True if it's still good, returns
+    False if it's expired/whatever else. """
+
+    req_url = route_to_url("/authorization/check")
+    h = {
+        'content-type':     'application/json',
+        'Authorization':    Session.session["access_token"],
+    }
+    r = requests.get(req_url, headers=h)
+    if r.status_code == 200:
+        return True
+    else:
+        return False
+
+
 @retry(tries=3,delay=1,jitter=1,logger=logger)
 def refresh_jwt_token(Session):
-    req_url = route_to_url("/refresh_authorization")
+    req_url = route_to_url("/authorization/refresh")
     h = {
         'content-type':     'application/json',
         'Authorization':    Session.session["access_token"],
@@ -74,7 +90,8 @@ def refresh_jwt_token(Session):
         Session.save()
     else:
         logger.error("[%s] JWT refresh response was %s - %s" % (Session.User, r.status_code, r.reason))
-        raise Exception("JWT token could not be refreshed!")
+
+    return r
 
 
 @retry(tries=3,delay=1,jitter=1,logger=logger)
@@ -94,7 +111,8 @@ def post_JSON_to_route(route=None, payload={}, headers={}, Session=None):
     h = {'content-type': 'application/json'}
 
     if Session is not None:
-        refresh_jwt_token(Session)
+        if not check_token(Session):
+            refresh_jwt_token(Session)
         h['Authorization'] = Session.session["access_token"]
 
     if headers != {}:

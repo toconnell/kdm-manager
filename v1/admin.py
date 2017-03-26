@@ -19,7 +19,7 @@ import api
 import assets
 import html
 import session
-from utils import email, mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes, ymd, admin_session, thirty_days_ago, get_latest_change_log, convert_game_asset
+from utils import email, mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes, ymd, admin_session, thirty_days_ago, get_latest_change_log, convert_game_asset, get_latest_update_string
 import world
 
 import sys
@@ -497,7 +497,7 @@ class Panel:
         except Exception as e:
             return "World could not be loaded! %s" % e
 
-        daemon_block = '<table id="admin_panel_world_daemon_table">'
+        daemon_block = '<table class="admin_panel_right_child">'
         daemon_block += '<tr><th colspan="2">World Daemon</th></tr>'
         for k, v in World["world_daemon"].iteritems():
             if type(v) == dict:
@@ -508,21 +508,33 @@ class Panel:
                 daemon_block += '<tr><td>%s</td><td>%s</td></tr>' % (k,v)
         daemon_block += "</table>"
 
-        response_block = '<table class="admin_panel_response_block">'
+        response_block = '<table class="admin_panel_right_child">'
         response_block += '<tr><th colspan="4">Response Times</th></tr>'
-        response_block += '<tr><th>View</th><th>#</th><th>Avg.</th><th>Max</th></tr>'
+        response_block += '<tr><td><i>View</i></td><td><i>#</i></td><td><i>Avg.</i></td><td><i>Max</i></td></tr>'
         for r in get_response_times():
             response_block += "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>" % (r["_id"],r["count"],r["avg_time"],r["max_time"])
         response_block += "</table>"
 
+        admins_block = '<table class="admin_panel_right_child">'
+        admins_block += '<tr><th colspan="2">Administrators</th></tr>'
+        admins = mdb.users.find({"admin":{"$exists":True}})
+        for a in admins:
+            admins_block += '<tr><td>%s</td><td>%s</td></tr>' % (a["login"],a["_id"])
+        admins_block += '</table>'
+
+        stat_block = '<table class="admin_panel_right_child">'
+        stat_block += '<tr><th colspan="2">Environment</th></tr>'
+        stat_block += '<tr><td>Host</td><td>%s</td></tr>' % socket.getfqdn()
+        stat_block += '<tr><td>Application version</td><td>%s</td></tr>' % settings.get("application","version")
+        stat_block += '<tr><td>Release</td><td>%s</td></tr>' % get_latest_update_string()
+        stat_block += '<tr><td>API URL</td><td>%s</td></tr>' % api.get_api_url()
+        stat_block += '<tr><td>API Version</td><td>%s</td></tr>' % meta["api_version"]
+        stat_block += '</table>'
+
+
         output = html.panel.headline.safe_substitute(
-            version = settings.get("application","version"),
-            api_url = api.get_api_url(),
-            api_version = meta["api_version"],
-            hostname = socket.getfqdn(),
             response_times = response_block,
             world_daemon = daemon_block,
-            killboard = world.api_killboard_to_html(W["killboard"]),
             recent_users_count = self.recent_users.count(),
             users = W["total_users"]["value"],
             sessions = mdb.sessions.find().count(),
@@ -535,6 +547,8 @@ class Panel:
             latest_settlement = world.api_settlement_to_html(W["latest_settlement"]),
             latest_kill = world.api_monster_to_html(W["latest_kill"]),
             current_hunt = world.api_current_hunt(W["current_hunt"]),
+            admin_stats = stat_block,
+            admins = admins_block,
         )
 
 
@@ -564,7 +578,8 @@ class Panel:
                 user_created_on_days = (datetime.now() - User.user["created_on"]).days
             )
 
-        output += "<hr/><h1>index.log</h1>"
+        output += "<hr/>"
+
 
         log_lines = self.get_last_n_log_lines(50)
         zebra = False

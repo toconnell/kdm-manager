@@ -160,6 +160,7 @@ male = [
     "Quentin",
     "Ramza",
     "Rashad",
+    "Ravix",
     "Reuben",
     "Reed",
     "Robb",

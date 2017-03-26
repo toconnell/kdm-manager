@@ -34,8 +34,6 @@ if __name__ == "__main__":
         logger.exception(e)
         raise
 
-#    if "norefresh" in params and S.session is None:
-#        raise  # force a 502 !hacks!
     if S.session is None and "recover_password" not in params:
         output = html.authenticate_by_form(params)
     elif S.session is None and "recover_password" in params:

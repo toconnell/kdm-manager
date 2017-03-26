@@ -78,18 +78,17 @@ def api_killboard_to_html(k):
 
     killboard = k["value"]
 
-    output = ""
+    output = "<h3>Killboard!</h3>"
     list_tup = [("quarry","Quarries"), ("nemesis", "Nemeses")]
     for tup in list_tup:
         group_key = tup[0]
         group_title = tup[1]
-        output += '<p><table class="dashboard_table killboard" title="%s">' % k["comment"]
+        output += '<table class="admin_panel_right_child" title="%s">' % k["comment"]
         output += '<tr><th colspan="2">%s:</th></tr>' % group_title
         for monster in killboard[group_key]:
             output += '<tr><td>%s</td><td class="value">%s</td>' % (monster["name"], monster["count"])
         output += "</table>"
 
-    output += "</p>"
     return output
 
 def api_top_five_list(l):

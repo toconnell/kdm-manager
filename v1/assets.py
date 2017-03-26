@@ -1677,8 +1677,13 @@ class Survivor:
                         if "affinities" in self.survivor.keys() and self.survivor["affinities"][k] >= asset_dict["affinities"][k]:
                             self.logger.debug("[%s] automatically decrementing %s affinity by %s for %s" % (self.User, k,asset_dict["affinities"][k], self))
                             self.survivor["affinities"][k] -= 1
+        else:
+            self.survivor[asset_type].remove(asset_key)
 
-                mdb.survivors.save(self.survivor)
+        # save
+        mdb.survivors.save(self.survivor)
+        self.logger.debug("[%s] removed '%s' from %s (%s)" % (self.User, asset_key, self, asset_type))
+
 
         # do this after removing game assets from survivors
         self.Settlement.validate_weapon_masteries()
@@ -2664,7 +2669,7 @@ class Survivor:
             elif p == "add_disorder":
                 self.add_game_asset("disorder", game_asset_key)
             elif p == "remove_disorder":
-                self.survivor["disorders"].remove(params[p].value)
+                self.rm_game_asset('disorders',game_asset_key)
             elif p == "add_fighting_art":
                 self.add_game_asset("fighting_art", game_asset_key)
             elif p == "remove_fighting_art":
@@ -4821,6 +4826,13 @@ class Settlement:
         etc. and is not limited to one type of 'forbidden' game asset.
 
         """
+
+        # legacy app data noramlization required because the dashboard breaks
+        #   if it doesn't have this (and it doesn't do an API call)
+        if self.settlement.get("campaign", None) is None:
+            self.settlement["campaign"] = "People of the Lantern"
+            self.logger.debug("[%s] defaulting 'campaign' attrib for %s" % (self.User, self))
+            self.save()
 
         if return_type is not None:
             c_dict = self.get_api_asset("game_assets","campaign")

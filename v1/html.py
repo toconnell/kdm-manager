@@ -22,26 +22,22 @@ user_error_msg = Template('<div id="user_error_msg" class="$err_class">$err_msg<
 
 class panel:
     headline = Template("""\n\
-    <meta http-equiv="refresh" content="30">
+    <meta http-equiv="refresh" content="60">
 
     <form method="POST" action="">
         <input type="hidden" name="change_view" value="dashboard"/>
         <button id="admin_panel_floating_dashboard">Dashboard</button>
     </form>
 
-    <div class="admin_panel_floater" id="admin_panel_hostname">host: <code><font class="maroon_text">$hostname</font></code></div>
-    <div class="admin_panel_floater" id="admin_panel_version">Application version: <code><font class="maroon_text">$version</font></code></div>
-    <div class="admin_panel_floater" id="admin_panel_api_url">API: <code><font class="maroon_text">$api_url</font></code></div>
-    <div class="admin_panel_floater" id="admin_panel_api_version">API version: <code><font class="maroon_text">$api_version</font></code></div>
-
     <div class="admin_panel_left">
+        <h3>World</h3>
         <table class="panel_meta_stats">
-            <tr><th colspan="2">Global Stats</th></tr>
             <tr><td>Total Users:</td><td>$users</td></tr>
-            <tr class="grey"><td>Recent Users:</td><td>$recent_users_count</td></tr>
+            <tr><td>Recent Users:</td><td>$recent_users_count</td></tr>
             <tr><td>Sessions:</td><td>$sessions</td></tr>
-            <tr class="grey"><td>Settlements:</td><td>$settlements</td></tr>
+            <tr><td>Settlements:</td><td>$settlements</td></tr>
             <tr><td>Survivors:</td><td>$live_survivors/$dead_survivors ($total_survivors total)</td></tr>
+            <tr><td colspan="2"><br></td></tr>
             <tr class="world_primary"><th colspan="2">Latest settlement</th></tr>
             <tr class="world_secondary"><td colspan="2">$latest_settlement</td></tr>
             <tr class="world_primary"><th colspan="2">Latest fatality</th></tr>
@@ -52,16 +48,17 @@ class panel:
             <tr class="world_secondary"><td colspan="2">$current_hunt</td></tr>
         </table>
 
-        $response_times
     </div> <!-- admin_panel_left -->
 
     <div class="admin_panel_right">
-        <h3 class="admin_panel_label">Killboard</h3>
-        $killboard
+        <h3>Administration</h3>
+        $admin_stats
+        $admins
+        $response_times
         $world_daemon
     </div>
 
-    <hr class="invisible"/><br/><h1>Recent User Activity</h1>
+    <hr class="invisible"/><br/><hr/><h1>Recent User Activity</h1>
 
     \n""")
     panel_table_top = '<table id="panel_aux_table">\n'
@@ -163,6 +160,13 @@ class dashboard:
             <li>Application source code is <a href="https://github.com/toconnell/kdm-manager" target="top">available on GitHub</a>.</li>
             <li>Github users may prefer to <a href="https://github.com/toconnell/kdm-manager/issues" target="top">report issues there</a>.</li>
             <li>Check <a href="https://github.com/toconnell/kdm-manager/wiki" target="top">the development wiki</a> for complete information about the project.</li>
+        </ul>
+        <hr/>
+        <p>Privacy and Data Usage:</p>
+        <ul>
+            <li>Individually identifiable user data, e.g. email addresses and application data, are not shared or sold.</li>
+            <li>Individually identifiable user data are used for development purposes, including testing and QA.</li>
+            <li>Aggregate, deidentified user data are aggregated and displayed within the application and are available for general review via the KDM API.</li>
         </ul>
         <hr/>
         <p>Credits:</p>
