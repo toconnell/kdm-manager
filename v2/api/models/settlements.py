@@ -48,6 +48,8 @@ class Assets(Models.AssetCollection):
                         asset_repr[optional_key] = asset[optional_key]
                 output[mod_string].append(asset_repr)
 
+        output["special"] = survivors.Assets().get_specials().keys()
+
         return output
 
 
@@ -676,18 +678,18 @@ class Settlement(Models.UserAsset):
         """ Sets self.settlement["innovation_levels"][innovation] to an int. """
 
         try:
-            name = self.params["name"]
+            handle = self.params["handle"]
             level = self.params["level"]
         except Exception as e:
             self.logger.error("Could not set settlement innovation level from JSON request: %s" % self.params)
             raise
 
-        if name not in self.settlement["innovations"]:
-            self.logger.error("Could not set settlement innovation level for '%s', because that innovation is not included in the %s innovations list: %s" % (name, self, self.settlement["innovations"]))
+        if handle not in self.settlement["innovations"]:
+            self.logger.error("Could not set settlement innovation level for '%s', because that innovation is not included in the %s innovations list: %s" % (handle, self, self.settlement["innovations"]))
         else:
-            self.settlement["innovation_levels"][name] = int(level)
+            self.settlement["innovation_levels"][handle] = int(level)
 
-        self.log_event("Set '%s' innovation level to %s." % (name, level), event_type="set_innovation_level")
+        self.log_event("Set '%s' innovation level to %s." % (handle, level), event_type="set_innovation_level")
 
         self.save()
 

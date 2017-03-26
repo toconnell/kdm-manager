@@ -122,8 +122,9 @@ def get_token(check_pw=True, user_id=False):
 
     if U is None:
         return utils.http_401
+
     tok = {
-        'access_token': flask_jwt_extended.create_access_token(identity=U.serialize()),
+        'access_token': flask_jwt_extended.create_access_token(identity=U.jsonize()),
         "_id": str(U.user["_id"]),
     }
     return Response(response=json.dumps(tok), status=200, mimetype="application/json")
@@ -133,19 +134,25 @@ def get_token(check_pw=True, user_id=False):
 #   private routes
 #
 
-@application.route("/refresh_authorization", methods=["POST"])
+@application.route("/authorization/<action>", methods=["POST","GET"])
 @utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization'])
-def refresh_auth():
+def refresh_auth(action):
 
     if not "Authorization" in request.headers:
         return utils.http_401
-
-    user = users.refresh_authorization(request.headers["Authorization"])
-
-    if user is not None:
-        return get_token(check_pw=False, user_id=user["_id"])
     else:
-        return utils.http_401
+        auth = request.headers["Authorization"]
+
+    if action == "refresh":
+        user = users.refresh_authorization(auth)
+        if user is not None:
+            return get_token(check_pw=False, user_id=user["_id"])
+        else:
+            return utils.http_401
+    elif action == "check":
+        return users.check_authorization(auth)
+    else:
+        return utils.http_402
 
 
 @application.route("/new/<asset_type>", methods=["POST"])

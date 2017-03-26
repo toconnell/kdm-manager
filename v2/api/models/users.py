@@ -33,13 +33,26 @@ def authenticate(username, password):
         U = User(_id=user["_id"])
         return U
 
+def check_authorization(token):
+    """ Tries to decode 'token'. Returns an HTTP 200 if it works, returns a 401
+    if it doesn't. """
+
+    try:
+        jwt.decode(token, secret_key, verify=True)
+        return utils.http_200
+    except Exception as e:
+        decoded = json.loads(jwt.decode(token, secret_key, verify=False)["identity"])
+        logger.info("[%s (%s)] authorization check failed: %s!" % (decoded["login"], decoded["_id"]["$oid"], e))
+        return utils.http_401
+
+
 def refresh_authorization(expired_token):
     """ Opens an expired token, gets the login and password hash, and checks
     those against mdb. If they match, we return the user. This is what is
     referred to, in the field, as "meh--good enough" security. """
 
     decoded = jwt.decode(expired_token, secret_key, verify=False)
-    user = dict(json.loads(decoded["identity"]))["user"]
+    user = dict(json.loads(decoded["identity"]))
     login = user["login"]
     pw_hash = user["password"]
 
@@ -76,7 +89,7 @@ def token_to_object(request):
 
     try:
         decoded = jwt.decode(auth_token, secret_key)
-        user_dict = dict(json.loads(decoded["identity"]))["user"]
+        user_dict = dict(json.loads(decoded["identity"]))
         return User(_id=user_dict["_id"]["$oid"])
     except jwt.DecodeError:
         logger.error("Incorrectly formatted token!")
@@ -136,6 +149,11 @@ class User(Models.UserAsset):
         output["user_facts"]["friend_count"] = self.get_friends(return_type=int)
 
         return json.dumps(output, default=json_util.default)
+
+
+    def jsonize(self):
+        """ Returns JSON of the user's MDB dict. """
+        return json.dumps(self.user, default=json_util.default)
 
 
     #

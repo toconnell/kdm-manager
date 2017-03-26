@@ -352,6 +352,8 @@ class UserAsset():
             self.logger.warn("%s:%s get_request_params() call is being ignored!" % (request.method, request.url))
             return False
 
+        self.logger.debug(request.get_json())
+
         if request.get_json() is not None:
             try:
                 params = dict(request.get_json())

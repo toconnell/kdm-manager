@@ -17,6 +17,12 @@ class Assets(Models.AssetCollection):
         self.type = "survivor"
         Models.AssetCollection.__init__(self,  *args, **kwargs)
 
+    def get_specials(self):
+        """ This returns the 'specials' macro dicts, which are basically simple
+        'scripts' for operating on a settlement at creation time. """
+
+        return survivors.specials
+
 
 class Survivor(Models.UserAsset):
     """ This is the base class for all expansions. Private methods exist for

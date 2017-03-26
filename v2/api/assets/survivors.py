@@ -1,3 +1,28 @@
+#
+#   these are the 'macro' options used when creating new settlements
+#
+
+specials = {
+    "create_first_story_survivors": {
+        "random_survivors": {
+            "M": 2,
+            "F": 2,
+        },
+        "storage": [],
+    },
+
+#    "create_seven_swordsmen": {
+#
+#    },
+
+}
+
+
+
+#
+#   the survivors in the BCS PDF
+#
+
 beta_challenge_scenarios = {
     "adam": {
         "name": "Adam",
