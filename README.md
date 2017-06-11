@@ -1,48 +1,88 @@
-#   INSTALLATION and INITIAL SETUP  #
-Follow this guide to install and configure the manager for the first time on a
-Debian system. Production runs on Ubuntu LTS.  
+#   INSTALLATION and INITIAL SETUP
+Follow this guide to install and configure the Manager and the KDM API on a
+Debian system. 
 
-Start from bare metal on deb/ubuntu (do this in order):
+(You may choose to skip to the section about deploying the API server if you are
+not planning on running the Manager, but be advised that the two share apt and
+python dependencies.)
 
-    # apt-get install git mongodb-server nginx python2.7 python-dev python-setuptools gcc python-imaging python-gridfs  
+Both [http:///kdm-manager.com] and [http://thewatcher.io] run on Ubuntu 16.04 LTS.
 
 
-python dependencies
+## 1.) Install Dependencies 
 
-    # easy_install python-dateutil python-daemon psutil lockfile pymongo pydns validate-email user-agents xlwt requests
+If your goal is to start from bare metal on a deb/ubuntu system, you will need
+to install the following packages:
 
-Now, as the non-root user who is going to run the Manager's processes, do this:
+    # apt-get install git mongodb-server nginx python2.7 python-dev python-setuptools gcc python-imaging python-gridfs
+
+
+python dependencies (PIP should work for all of these if you've moved from `easy_install`)
+
+    # easy_install python-dateutil python-daemon=2.1.1 psutil lockfile pymongo pydns validate-email user-agents xlwt requests flask flask_jwt flask-jwt-extended retry gunicorn
+
+**Important!** If you have installed the normal jwt package (e.g. via *easy_install*
+or *pip*) and experience issues running the Manager, open an issue in GitHub and
+let me know.
+
+As the non-root user who is going to run the Manager's processes, do this:
 
     # exit
     $ cd
     $ git clone https://github.com/toconnell/kdm-manager.git 
 
-Assuming that the user who wants to run the application is toconnell, and that 
-you're ONLY using this server for kdm-manager, do this as root:
-
-    # ln -s /home/toconnell/kdm-manager/v1/init_script /etc/init.d/kdm-manager  
-    # update-rc.d -f kdm-manager defaults  
-    # /etc/init.d/nginx stop
-    # rm /etc/nginx/sites-enabled/default
-    # ln -s /home/toconnell/kdm-manager/v1/nginx/default /etc/nginx/sites-enabled/kdm-manager_dev
-
-The file /v1/nginx/production that ships with the repo contains all of the 
-media (static content) server and redirect configs that facilitate the 
-production deployment of the Manager. 
-
-If you're just doing some dev/support work, you don't need all of that and you
-should stick with /v1/nginx/default as your webserver config.
-
-Restarting nginx and running the Manager's init script for the first time will
-create the log and lockfile directories. it should also start the server on the
-port specified in settings.cfg:
-
-    # /etc/init.d/nginx start
-    # /etc/init.d/kdm-manager start  
+Now that you've got all of the prerequisites in place, you are ready to run the
+`install.sh` script in the project root directory.
 
 
-Following that, the Manager will be running and it should start automatically on
-reboot.
+## 2.) Install the Manager and the API
 
-Finally, please review the wiki for additional information on installation and
-deployment, including troubleshooting tips: https://github.com/toconnell/kdm-manager/wiki
+First, review the `install.sh` script in the root of the kdm-manager folder and
+set the parameters according to the instructions provided.
+
+Then, as root, run the script:
+
+	# install.sh
+
+Assuming that you chose the *dev* install type, the Manager is now the default 
+server and if you point your browser at it, you should be good to go.
+
+If you chose the *prod* install type, your NGINX sites-enabled directory has a
+symlink to the v1/nginx/production config and has been reloaded to include it.
+
+
+## Administration
+
+The `install.sh` script installs two *systemd* services, `kdm-manager` (i.e. the
+CGI server/webapp) and `api.thewatcher.service`, which must both be running for
+the Manager to work properly.
+
+The API, however, does not require the `kdm-manager` service, and you may choose
+to stop/disable it using regular `systemctl` syntax:
+
+    # systemctl stop kdm-manager
+    # systemctl disable kdm-manager
+
+Both services will start when the system starts, unless disabled.
+
+
+# Additional Resources
+
+The headings below provide links to other development/administration resources
+for both the Manager and the KDM API.
+
+## General Development
+
+Please review the [Github wiki pages](https://github.com/toconnell/kdm-manager/wiki)
+for additional information on installation and deployment, including
+troubleshooting tips.
+
+The [kdm-manager Development Blog](http://blog.kdm-manager.com) contains detailed
+release notes for every production release of the manager and the KDM API.
+
+## API Development
+
+The KDM API has built-in documentation. The production release of that documentation
+will always be available at [api.thewatcher.io](http://api.thewatcher.io)
+
+

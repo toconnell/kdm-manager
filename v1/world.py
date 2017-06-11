@@ -13,6 +13,8 @@ import requests
 from utils import mdb, get_percentage, ymd, admin_session, load_settings, get_logger, thirty_days_ago, recent_session_cutoff, forbidden_names
 
 
+# HTML Helpers
+
 def survivor_html(s, item=False):
     """ Helper function that returns survivor HTML for dashboard/panel use. """
     output = ""
@@ -27,6 +29,20 @@ def survivor_html(s, item=False):
 
     return output
 
+
+def validate_api_return(d):
+    """ Checks an incoming API dictionary and, if it's null/None/nothing,
+    returns our default "no data" HTML warning. Otherwise, returns True. """
+
+    html_error = "<p>No data available.</p>"
+    if d is None:
+        return html_error
+    elif d == {}:
+        return html_error
+    elif d["value"] is None:
+        return html_error
+    else:
+        return True
 
 #
 #   World data comes from a call to the production API; the Warehouse object is
@@ -107,12 +123,13 @@ def api_top_five_list(l):
     return output
 
 
+
 def api_survivor_to_html(s, supplemental_info=["birth","death"]):
     """ Meant to be at least a little bit extensible, this one can show latest
     birth/death without too much fiddling (and a lot of user friendliness). """
 
-    if s is None:
-        return "<p>No data available.</p>"
+    if validate_api_return(s) is not True:
+        return validate_api_return(s)
 
     survivor = s["value"]
 
@@ -177,8 +194,8 @@ def api_monster_to_html(m):
     and 'comment' keys are sometimes absent from mdb.killboard documents, so we
     handle for that. """
 
-    if m is None:
-        return "<p>No data available.</p>"
+    if validate_api_return(m) is not True:
+        return validate_api_return(m)
 
     monster = m["value"]
 
@@ -206,8 +223,8 @@ def api_settlement_to_html(s):
     context in which we want to represent a settlement...maybe latest nemesis
     kill or something, this could work for that as well. """
 
-    if s is None:
-        return "<p>No data available.</p>"
+    if validate_api_return(s) is not True:
+        return validate_api_return(s)
 
     settlement = s["value"]
 

@@ -270,11 +270,13 @@ class World:
             sort_params = [(sort_on, -1)]
         results = utils.mdb[collection].find(query, sort=sort_params)
 
-        # throw an exception if results is None
+        # log an exception if results is None
         if results is None:
-            raise utils.WorldQueryError(query)
+            self.logger.exception(utils.WorldQueryError(query=query))
+            return None
         elif results.count() == 0:
-            raise utils.WorldQueryError(query)
+            self.logger.exception(utils.WorldQueryError(query=query))
+            return None
 
         # change results from a query object to a list
         results = [x for x in results]
@@ -298,6 +300,9 @@ class World:
 
         sample_set = self.get_eligible_documents(collection, attrib)
 
+        if sample_set is None:
+            return (None, None)
+
         data_points = []
         for sample in sample_set:
             data_points.append(int(sample[attrib]))
@@ -313,6 +318,9 @@ class World:
         coerce the return a str or int as desired. """
 
         sample_set = self.get_eligible_documents(collection, attrib)
+
+        if sample_set is None:
+            return None
 
         data_points = []
         for sample in sample_set:
@@ -362,6 +370,8 @@ class World:
 
         elif asset_type == list:
             sample_set = self.get_eligible_documents(collection, attrib)
+            if sample_set is None:
+                return None
             master_list = []
             for s in sample_set:
                 master_list.extend(s[attrib])
@@ -557,9 +567,10 @@ class World:
         """
 
 #        s = self.get_eligible_documents(collection="settlements", limit=1)
-        s = utils.mdb.settlements.find({"name": {"$nin": self.ineligible_names}}, sort=[("created_on",-1)])[0]
-
-        if s is None:
+        try:
+            s = utils.mdb.settlements.find({"name": {"$nin": self.ineligible_names}}, sort=[("created_on",-1)])[0]
+        except IndexError:
+            self.logger.error("No settlements in mdb match the 'latest_settlement' criteria! Returning None...")
             return None
 
         S = settlements_models.Settlement(_id=s["_id"])
@@ -576,6 +587,11 @@ class World:
 
     def killboard(self):
         known_types = utils.mdb.killboard.find().distinct("type")
+
+        if known_types == []:
+            self.logger.exception("No kills in mdb! Returning None for killboard...")
+            return None
+
         killboard = {}
         for t in known_types:
             killboard[t] = {}

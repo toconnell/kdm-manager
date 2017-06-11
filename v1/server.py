@@ -156,20 +156,34 @@ if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("-i", dest="interactive", help="Run the server in 'interactive' mode (print output to STDOUT)", default=False, action="store_true")
     parser.add_option("-p", dest="port", help="Force the server to run on the specified port", default=None, metavar="9999")
+    parser.add_option("--action", dest="action", help="Run withouth this arg to toggle; otherwise, use start|stop|restart as the value of this arg to do a specific operation.", default=False, metavar="start")
     (options, args) = parser.parse_args()
+
 
     if options.interactive:
         logger.info("Starting server in interactive mode!")
         start_server(options.port)
 
-    if not os.path.isfile(settings.get("server","pid_file")):
-        start_daemon()
-    else:
-        logger.info("PID found. Attempting to stop server...")
-        pid = get_pid()
-        if psutil.pid_exists(pid):
-            stop_daemon()
-        else:
-            logger.warn("pid file '%s' exists, but PID '%s' does not!" % (settings.server_pidfile, pid))
-            shutil.os.remove(settings.server_pidfile)
+    if options.action is not False:
+        if options.action.lower() == "start":
             start_daemon()
+        elif options.action.lower() == "stop":
+            stop_daemon()
+        elif options.action.lower() == "restart":
+            stop_daemon()
+            start_daemon()
+        else:
+            print("Invalid operation. Use -h for help.")
+            sys.exit(1)
+    else:	# no action arg means do a toggle. This is toggle:
+        if not os.path.isfile(settings.get("server","pid_file")):
+            start_daemon()
+        else:
+            logger.info("PID found. Attempting to stop server...")
+            pid = get_pid()
+            if psutil.pid_exists(pid):
+                stop_daemon()
+            else:
+                logger.warn("pid file '%s' exists, but PID '%s' does not!" % (settings.server_pidfile, pid))
+                shutil.os.remove(settings.server_pidfile)
+                start_daemon()

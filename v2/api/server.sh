@@ -1,12 +1,13 @@
 #!/bin/sh
 
-CMD=`which systemctl`
 PROJECT_ABS_PATH=/home/toconnell/kdm-manager/v2/api/
 SERVICE=api.thewatcher.service
 SOCKET=api.thewatcher.socket
 SYSLOG=/var/log/syslog
+CMD=`which systemctl`
 
-echo ""
+cd $PROJECT_ABS_PATH
+echo "Working directory set to `pwd` "
 
 case "$1" in
     enable)
@@ -14,13 +15,16 @@ case "$1" in
         $CMD enable $PROJECT_ABS_PATH$SOCKET
         ;;
     disable)
-        stop_service
+        $CMD stop $SERVICE
+        $CMD stop $SOCKET
         $CMD disable $SERVICE
         $CMD disable $SOCKET
         ;;
 	start)
+        printf "Starting..."
         $CMD start $SERVICE
         $CMD start $SOCKET
+        echo "done."
         ;;
 	stop)
         $CMD stop $SERVICE
@@ -41,5 +45,6 @@ esac
 
 sleep 3
 echo "\n\tsystemctl output is logged to /var/log/syslog\n"
-tail -n 10 /var/log/syslog
+tail -n 15 $SYSLOG
 echo "...\n"
+

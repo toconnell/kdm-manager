@@ -284,6 +284,6 @@ class WorldQueryError(Exception):
     def __init__(self, query=None, message="World query produced zero results!"):
         self.logger = get_logger()
         self.logger.exception(message)
-        self.logger.error(query)
+        self.logger.error("Query was: %s" % query)
         Exception.__init__(self, message)
 
