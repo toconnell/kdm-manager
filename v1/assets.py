@@ -4252,7 +4252,11 @@ class Settlement:
     def get_bonuses(self, bonus_type, return_type=False, update_mins=True):
         """ Returns the buffs/bonuses that settlement gets. 'bonus_type' is
         required and can be 'departure_buff', 'settlement_buff' or
-        'survivor_buff'.  """
+        'survivor_buff'.
+
+        THIS IS DEPRECATED AS OF 2016-06-12 AND IT IS GOING AWAY!!!
+
+        """
 
         innovations = copy(self.get_game_asset("innovations", update_mins=update_mins))
         innovations.extend(self.settlement["principles"])
@@ -4263,7 +4267,6 @@ class Settlement:
             if innovation_key in Innovations.get_keys() and bonus_type in Innovations.get_asset(innovation_key).keys():
                 buffs[innovation_key] = Innovations.get_asset(innovation_key)[bonus_type]
 
-        self.logger.debug(innovations)
 
         # support for campaign settlement_buff
         campaign_dict = self.get_campaign("dict")
