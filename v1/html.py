@@ -1363,11 +1363,20 @@ class survivor:
                 <hr>
             </a>
 
-            <h3>Bonuses</h3>
-            <div class="survivor_sheet_survivor_settlement_bonuses">
-                $settlement_buffs
+            <div
+                ng-if="bonuses.survivor_buff.length != 0"
+                class="survivor_sheet_survivor_settlement_bonuses"
+            >
+
+                <h3>Survivor Bonuses</h3>
+
+                <p class="settlement_buff" ng-repeat="b in bonuses.survivor_buff">
+                    <i>{{b.name}}:</i> <span ng-bind-html="b.desc|trustedHTML"></span>
+                </p>
+
+                <hr/>
             </div>
-            <hr/>
+
             <h3>Survivor Notes</h3>
             $survivor_notes
 

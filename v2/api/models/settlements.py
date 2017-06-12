@@ -12,7 +12,7 @@ import time
 
 import Models
 import assets
-from models import campaigns, cursed_items, epithets, expansions, survivors, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events, locations, causes_of_death, names
+from models import survivors, campaigns, cursed_items, epithets, expansions, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events, locations, causes_of_death, names
 import settings
 import utils
 
@@ -471,10 +471,11 @@ class Settlement(Models.UserAsset):
         # first, try to initialize an innovations.Innovation object
         try:
             I = innovations.Innovation(self.params["handle"])
-        except:
+        except Exception as e:
             self.logger.error("Could not initialize innovation asset from dict: %s" % self.params["handle"])
             self.logger.error("Unable to add '%s' to %s innovations!" % (self.params["handle"], self))
             self.logger.error("Bad params were: %s" % self.params)
+            self.logger.exception(e)
             raise Exception
 
         if I.name in self.settlement["innovations"]:
@@ -1032,11 +1033,14 @@ class Settlement(Models.UserAsset):
         return sorted(output)
 
 
-    def get_innovations(self, return_type=None):
+    def get_innovations(self, return_type=None, include_principles=False):
         """ Returns self.settlement["innovations"] by default; specify 'dict' as
         the 'return_type' to get a dictionary back instead. """
 
-        s_innovations = self.settlement["innovations"]
+        s_innovations = copy(self.settlement["innovations"])
+        if include_principles:
+            s_innovations.extend(self.settlement["principles"])
+
         all_innovations = innovations.Assets()
 
         if return_type == dict:
@@ -1045,6 +1049,12 @@ class Settlement(Models.UserAsset):
                 if i in all_innovations.get_handles():
                     i_dict = all_innovations.get_asset(i)
                     output[i_dict["handle"]] = i_dict
+                else:
+                    try:
+                        i_dict = all_innovations.get_principle_from_name(i)
+                        output[i_dict["handle"]] = i_dict
+                    except KeyError as e:
+                        self.logger.warn("%s is not a known innovation asset handle! Ignoring..." % e)
             return output
 
         return s_innovations
@@ -1241,6 +1251,53 @@ class Settlement(Models.UserAsset):
             final = collections.OrderedDict(sorted(available.items()))
 
         return {"%s" % (asset_module.__name__.split(".")[-1]): final}
+
+
+    def get_bonuses(self, return_type=None):
+        """ Returns settlement and survivor bonuses according to 'return_type'.
+        Supported types are:
+
+            - dict (same as None/unspecified)
+            - "json"
+
+        The JSON type return is especially designed for front-end developers,
+        and includes a pseudo-buff group called "all" that includes all buffs.
+        Also, the JSON type return sorts by innovation name, which is nice.
+        """
+
+        output = {
+            "settlement_buff": {},
+            "survivor_buff": {},
+            "departure_buff": {},
+        }
+
+        if return_type == "json":
+            output = {
+                "settlement_buff": [],
+                "survivor_buff": [],
+                "departure_buff": [],
+                "all": [],
+            }
+
+        for handle,d in self.get_innovations(return_type=dict, include_principles=True).iteritems():
+            for k in d.keys():
+                if k in output.keys():
+                    if return_type == "json":
+                        dict_repr = {"name": d["name"], "desc": d[k]}
+                        output[k].append(dict_repr)
+                        output["all"].append(dict_repr)
+                    else:
+                        output[k][handle] = d[k]
+
+
+        # sort, if we're doing JSON, and save the UI guys the trouble
+        if return_type == "json":
+            for buff_group in output:
+                output[buff_group] = sorted(output[buff_group], key=lambda k: k['name'])
+
+        return output
+
+
 
 
 

@@ -3088,7 +3088,6 @@ class Survivor:
             hunt_xp = self.survivor["hunt_xp"],
             survival_actions = self.get_survival_actions(return_as="html_checkboxes"),
             departure_buffs = self.Settlement.get_bonuses("departure_buff", return_type="html"),
-            settlement_buffs = self.Settlement.get_bonuses("survivor_buff", return_type="html"),
             hunt_xp_3_event = self.Settlement.get_story_event("Bold"),
             courage_3_event = self.Settlement.get_story_event("Insight"),
 
@@ -4263,6 +4262,8 @@ class Settlement:
         for innovation_key in innovations:
             if innovation_key in Innovations.get_keys() and bonus_type in Innovations.get_asset(innovation_key).keys():
                 buffs[innovation_key] = Innovations.get_asset(innovation_key)[bonus_type]
+
+        self.logger.debug(innovations)
 
         # support for campaign settlement_buff
         campaign_dict = self.get_campaign("dict")

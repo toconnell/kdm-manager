@@ -24,6 +24,7 @@ class Assets(Models.AssetCollection):
         return survivors.specials
 
 
+
 class Survivor(Models.UserAsset):
     """ This is the base class for all expansions. Private methods exist for
     enabling and disabling expansions (within a campaign/settlement). """
@@ -35,9 +36,13 @@ class Survivor(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="survivors"
-        self.object_version = 0.12
+        self.object_version = 0.14
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize()
+
+        # this makes the baby jesus cry
+        import settlements
+        self.Settlement = settlements.Settlement(_id=self.survivor["settlement"])
 
 
     def normalize(self):
@@ -68,7 +73,9 @@ class Survivor(Models.UserAsset):
         output = self.get_serialize_meta()
         output.update({"sheet": self.survivor})
         output["sheet"].update({"cursed_items": self.get_cursed_items()})
-        output["sheet"].update({"notes": self.get_notes()})
+
+        output.update({"notes": self.get_notes()})
+        output.update({"bonuses": self.Settlement.get_bonuses("json")})
 
         return json.dumps(output, default=json_util.default)
 
@@ -160,7 +167,7 @@ class Survivor(Models.UserAsset):
         self.get_request_params()
 
         if action == "get":
-            return self.get_json()
+            return self.return_json()
         else:
             # unknown/unsupported action response
             self.logger.warn("Unsupported survivor action '%s' received!" % action)

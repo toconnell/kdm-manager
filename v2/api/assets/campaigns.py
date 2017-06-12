@@ -93,6 +93,10 @@ campaign_definitions = {
             "location": ["Lantern Hoard"],
             "innovation": ["Language"],
         },
+        "forbidden": {
+            "location": ["The Sun","Throne"],
+            "innovation": ["Sun Language","Dragon Speech","Radiating Orb"],
+        },
         "principles": ["new_life","death","society","conviction"],
         "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
         "special_showdowns": ["watcher"],
@@ -113,6 +117,10 @@ campaign_definitions = {
         "always_available": {
             "location": ["Lantern Hoard"],
             "innovation": ["Language"],
+        },
+        "forbidden": {
+            "location": ["The Sun","Throne"],
+            "innovation": ["Sun Language","Dragon Speech","Radiating Orb"],
         },
         "principles": ["new_life","death","society","conviction"],
         "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],

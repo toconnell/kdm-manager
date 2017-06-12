@@ -91,7 +91,7 @@ innovations = {
         "name": "Pictograph",
         "type": "art",
         "consequences": ["memento_mori"],
-        "survivor_buff": 'At the start of a standing survivor\'s act, they may trigger the <font class="kdm_font">g</font> <b>Run Away</b> story event. Limit, once per act.',
+        "survivor_buff": 'At the start of a standing survivor\'s act, they may trigger the <font class=kdm_font>g</font> <b>Run Away</b> story event. Limit, once per act.',
     },
     "memento_mori": {
         "name": "Momento Mori",

@@ -34,13 +34,17 @@ class Assets(Models.AssetCollection):
         """ Returns a single principle asset dictionary. """
         return innovations.principles[p_handle]
 
+
     def get_principle_from_name(self, p_name):
-        """ Use a name to get a principle asset. """
+        """ Use a name to get a principle asset (dict) back. This is basically
+        a legacy support method for retrieving principles based on a name b/c
+        settlements are still using names instead of handles for principles."""
 
         lookup_dict = {}
-        for p_key in innovations.principles.keys():
-            p_dict = innovations.principles[p_key]
-            lookup_dict[p_dict["name"]] = p_dict
+        for i_handle in self.assets.keys():
+            if "principle" in self.get_asset(i_handle).keys():
+                p_dict = self.get_asset(i_handle)
+                lookup_dict[p_dict["name"]] = p_dict
 
         return lookup_dict[p_name]
 

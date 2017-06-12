@@ -608,7 +608,6 @@ div#info_box h2, button#survivor_campaign_asset, button.dashboard_asset {text-al
 div.sotf_reroll_controls {border-bottom: 1px solid #aaa; margin: 4% auto;}
 p.sotf_reroll_caption {font-size: 35px; margin-top: 0; font-family: Metrophobic; }
 
-div.survivor_sheet_survivor_settlement_bonuses {font-family: Metrophobic; }
 div.survivor_sheet_block_group h2 {border: 0; margin-left: 2%; }
 div.survivor_sheet_block_group h4 {border: 0; margin-left: 4%; }
 div.survivor_sheet_block_group p {border: 0; margin-left: 4%; }
@@ -1888,7 +1887,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     p.survivor_sheet_card {width: 100%;}
 
 
-    div.survivor_sheet_survivor_settlement_bonuses li {font-size: 11pt; }
 
         /* survivor sheet attrib controls - wide */
     div.survivor_sheet_attrib_controls {height: 70px; right: 35%; left: 5%; }

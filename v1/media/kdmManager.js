@@ -179,7 +179,9 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
                     var survivor = survivors[i];
                     if (survivor.sheet._id.$oid == s_id) {
                         $scope.survivor = survivor.sheet;
+                        $scope.bonuses = survivor.bonuses;
 //                        console.log($scope.survivor);
+//                        console.log($scope.bonuses);
                     };
                 };
 
