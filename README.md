@@ -14,12 +14,12 @@ Both [http:///kdm-manager.com] and [http://thewatcher.io] run on Ubuntu 16.04 LT
 If your goal is to start from bare metal on a deb/ubuntu system, you will need
 to install the following packages:
 
-    # apt-get install git mongodb-server nginx python2.7 python-dev python-setuptools gcc python-imaging python-gridfs
+    ~# apt-get install git mongodb-server nginx python2.7 python-dev python-setuptools gcc python-imaging python-gridfs
 
 
 python dependencies (PIP should work for all of these if you've moved from `easy_install`)
 
-    # easy_install python-dateutil python-daemon=2.1.1 psutil lockfile pymongo pydns validate-email user-agents xlwt requests flask flask_jwt flask-jwt-extended retry gunicorn
+    ~# easy_install python-dateutil python-daemon=2.1.1 psutil lockfile pymongo pydns validate-email user-agents xlwt requests flask flask_jwt flask-jwt-extended retry gunicorn
 
 **Important!** If you have installed the normal jwt package (e.g. via *easy_install*
 or *pip*) and experience issues running the Manager, open an issue in GitHub and
@@ -27,9 +27,9 @@ let me know.
 
 As the non-root user who is going to run the Manager's processes, do this:
 
-    # exit
-    $ cd
-    $ git clone https://github.com/toconnell/kdm-manager.git 
+    ~# exit
+    ~$ cd
+    ~$ git clone https://github.com/toconnell/kdm-manager.git 
 
 Now that you've got all of the prerequisites in place, you are ready to run the
 `install.sh` script in the project root directory.
@@ -42,7 +42,7 @@ set the parameters according to the instructions provided.
 
 Then, as root, run the script:
 
-	# install.sh
+	root@mona:/home/toconnell/kdm-manager# ./install.sh
 
 Assuming that you chose the *dev* install type, the Manager is now the default 
 server and if you point your browser at it, you should be good to go.
