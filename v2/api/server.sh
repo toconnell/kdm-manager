@@ -1,6 +1,7 @@
 #!/bin/sh
 
 PROJECT_ABS_PATH=/home/toconnell/kdm-manager/v2/api/
+WORLD_DAEMON=/home/toconnell/kdm-manager/v2/api/world.py
 SERVICE=api.thewatcher.service
 SOCKET=api.thewatcher.socket
 SYSLOG=/var/log/syslog
@@ -9,30 +10,41 @@ CMD=`which systemctl`
 cd $PROJECT_ABS_PATH
 echo "Working directory set to `pwd` "
 
+
+start_service () {
+    $CMD start $SOCKET
+    $CMD start $SERVICE
+    su - toconnell -c "$WORLD_DAEMON -d start"
+    sleep 2
+    su - toconnell -c "$WORLD_DAEMON -d status"
+}
+
+stop_service () {
+    su - toconnell -c "$WORLD_DAEMON -d stop"
+    $CMD stop $SERVICE
+    $CMD stop $SOCKET
+}
+
+
 case "$1" in
     enable)
         $CMD enable $PROJECT_ABS_PATH$SERVICE
         $CMD enable $PROJECT_ABS_PATH$SOCKET
         ;;
     disable)
-        $CMD stop $SERVICE
-        $CMD stop $SOCKET
+        stop_service
         $CMD disable $SERVICE
         $CMD disable $SOCKET
         ;;
 	start)
-        printf "Starting..."
-        $CMD start $SERVICE
-        $CMD start $SOCKET
-        echo "done."
+        start_service
         ;;
 	stop)
-        $CMD stop $SERVICE
-        $CMD stop $SOCKET
+        stop_service
         ;;
 	restart)
-		$CMD restart $SERVICE
-		$CMD restart $SOCKET
+        stop_service
+        start_service
         ;;
 	status)
 		$CMD status $SERVICE
@@ -43,8 +55,9 @@ case "$1" in
 		exit 3
 esac
 
-sleep 3
-echo "\n\tsystemctl output is logged to /var/log/syslog\n"
-tail -n 15 $SYSLOG
-echo "...\n"
+
+#sleep 3
+#echo "\n\tsystemctl output is logged to /var/log/syslog\n"
+#tail -n 15 $SYSLOG
+#echo "...\n"
 

@@ -1,5 +1,38 @@
 #!/usr/bin/python
 
+
+abilities_and_impairments = {
+    "homing_instinct": {
+        "name": "Homing Instinct",
+        "type": "ability",
+        "desc": "Add +5 to your rolls on the Run Away story event."
+    },
+}
+
+severe_injuries = {
+    "intracranial_hemorrhage": {
+        "name": "Intracranial hemorrhage",
+        "type": "impairment",
+        "desc": "You can no longer use or gain any survival. This injury is permanent and can be recorded once. Gain 1 bleeding token.",
+        "cannot_gain_survival": True,
+        "cannot_spend_survival": True,
+        "max": 1,
+    },
+}
+
+expansion_ai = {
+
+    # slenderman
+    "forgettable": {
+        "name": "Forgettable",
+        "type": "ability",
+        "max": 1,
+        "expansion": "Slenderman",
+        "desc": "Gain +2 permanent evasion. Forgettable survivors cannot be encouraged.",
+        "Evasion": 2,
+    },
+}
+
 curse = {
     "sleeping_virus_flower": {
         "name": "Sleeping Virus Flower",

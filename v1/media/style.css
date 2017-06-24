@@ -182,6 +182,7 @@ fieldset {border: 0; text-align: left; }
 
 /* all breakpoints - general styles */ 
 fieldset {padding: 0; margin: 0 auto;}
+p.survivor_sheet_survival_action {margin: 0; }
 font.survivor_sheet_survival_action_item {padding-left: 60px; font-size: 57pt; color: #eee;}
 font.survival_action_emphasize {font-weight: bold; color: #000; }
 
@@ -1708,7 +1709,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
         /* wide left pane */
     div.survivor_sheet_dynamic_button_holder {margin: 0 auto; text-align: right; clear: none; width: 100%; padding: 0; height: auto; display: flex; flex-direction: row; }
     div.survivor_sheet_dynamic_button_holder button {margin: auto; width: 150px; }
-    div#asset_management_left_pane img.survivor_avatar_image {width: 175px; height: auto; margin: 0 auto; margin-top: -30px; margin-bottom: 20px;}
+    div#asset_management_left_pane img.survivor_avatar_image {width: 175px; height: auto; margin: 0 auto; margin-top: -45%; margin-bottom: 20px;}
     div#asset_management_left_pane {width: 360px; padding-left: 10px; font-size: 15pt;}
     div#asset_management_left_pane p.subhead_p_block {font-size: 11pt; margin: 0 auto; }
     div#asset_management_left_pane input.big_number_square {width: 50px; height: 60px; }

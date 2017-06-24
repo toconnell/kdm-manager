@@ -1,8 +1,16 @@
 #!/usr/bin/python
 
 dictionary = {
+
+    #   define all survival actions here, regardless of campaign or
+    #   expansion. Remember: survival actions are defined by the campaign,
+    #   but whether they're avalable is determined by settlement innovations
+    #   as well as survivor impairments, so there is no need to define expansion
+    #   or other SA attributes here.
+
     "dodge": {
         "name": "Dodge",
+        "available": True,
         "sort_order": 0,
     },
     "encourage": {
@@ -20,11 +28,9 @@ dictionary = {
     "overcharge": {
         "name": "Overcharge",
         "sort_order": 5,
-        "expansion": "Sunstalker"
     },
     "embolden": {
         "name": "Embolden",
         "sort_order": 2,
-        "expansion": "Sunstalker"
     },
 }

@@ -29,7 +29,7 @@ def authenticate(username, password):
     case we return a user document from the MDB. """
 
     user = utils.mdb.users.find_one({"login": username})
-    if user and safe_str_cmp(user["password"], md5(password).hexdigest()):
+    if user is not None and safe_str_cmp(user["password"], md5(password).hexdigest()):
         U = User(_id=user["_id"])
         return U
 
@@ -49,7 +49,11 @@ def check_authorization(token):
 def refresh_authorization(expired_token):
     """ Opens an expired token, gets the login and password hash, and checks
     those against mdb. If they match, we return the user. This is what is
-    referred to, in the field, as "meh--good enough" security. """
+    referred to, in the field, as "meh--good enough" security.
+
+    If you find yourself getting None back from thi sone, it's because your
+    user changed his password.
+    """
 
     decoded = jwt.decode(expired_token, secret_key, verify=False)
     user = dict(json.loads(decoded["identity"]))

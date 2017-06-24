@@ -3945,15 +3945,6 @@ resources = {
 #   Survivor Sheet assets
 #
 
-survival_actions = {
-    "Dodge": {"sort_order": 0},
-    "Encourage": {"sort_order": 1},
-    "Embolden": {"sort_order": 2, "expansion": "Sunstalker"},
-    "Dash": {"sort_order": 3},
-    "Surge": {"sort_order": 4},
-    "Overcharge": {"sort_order": 5, "expansion": "Sunstalker"},
-    }
-
 survivor_attributes = ["Movement", "Accuracy", "Strength", "Evasion", "Luck", "Speed"]
 
 weapon_proficiencies = {

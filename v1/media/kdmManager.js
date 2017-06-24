@@ -128,9 +128,34 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
         return apiService.getSettlement($scope.api_url, action, $scope.settlement_id);
     };
 
+
+    $scope.set_jwt_from_cookie = function() {
+        var cname = "jwt_token";
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i <ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                $scope.jwt = c.substring(name.length, c.length);
+                return true;
+            }
+        }
+        console.warn("Could not set JWT from cookie!");
+        $scope.jwt = false;
+        return false;
+    };
+
     $scope.postJSONtoAPI = function(collection, action, json_obj) {
+
+        $scope.set_jwt_from_cookie();
+        var config = {"headers": {"Authorization": $scope.jwt}};
+
         var url = $scope.api_url + collection + "/" + action + "/" + $scope.settlement_id;
-        var res = $http.post(url, json_obj);
+        var res = $http.post(url, json_obj, config);
         res.success(function(data, status, headers, config) {
             savedAlert();
         });
@@ -180,8 +205,7 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
                     if (survivor.sheet._id.$oid == s_id) {
                         $scope.survivor = survivor.sheet;
                         $scope.bonuses = survivor.bonuses;
-//                        console.log($scope.survivor);
-//                        console.log($scope.bonuses);
+                        $scope.survival_actions = survivor.survival_actions;
                     };
                 };
 
@@ -278,7 +302,6 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
         if (arrhaystack === undefined) {console.error("Cannot find " + needle + " in undefined!"); return false;};
         if (typeof arrhaystack != "array") {
             if (typeof arrhaystack == "object") {
-                //
             } else {
                 console.warn(arrhaystack + ' does not appear to be an array or an object!')
             };

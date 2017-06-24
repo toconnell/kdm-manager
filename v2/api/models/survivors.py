@@ -7,7 +7,7 @@ import Models
 import utils
 
 from assets import survivor_sheet_options, survivors
-
+from models import abilities_and_impairments, survival_actions
 
 class Assets(Models.AssetCollection):
     """ These are pre-made survivors, e.g. from the BCS. """
@@ -74,11 +74,18 @@ class Survivor(Models.UserAsset):
         output.update({"sheet": self.survivor})
         output["sheet"].update({"cursed_items": self.get_cursed_items()})
 
-        output.update({"notes": self.get_notes()})
+        # now add the additional top-level items ("keep it flat!" -khoa)
+
         output.update({"bonuses": self.Settlement.get_bonuses("json")})
+        output.update({"notes": self.get_notes()})
+        output.update({"survival_actions": self.get_survival_actions()})
 
         return json.dumps(output, default=json_util.default)
 
+
+    #
+    #   get methods
+    #
 
     def get_cursed_items(self):
         """ Returns a list of cursed item handles on the survivor. """
@@ -111,11 +118,38 @@ class Survivor(Models.UserAsset):
             elif s == "F":
                 return "M"
 
-        if "belt_of_gender_swap" in self.get_cursed_items():
+        if "belt_of_gender_swap" in self.get_cursed_items():    # TK fix this
             sex = invert_sex(sex)
 
         return sex
 
+    def get_survival_actions(self):
+        """ Returns the SA's available to the survivor based on current
+        impairments, etc. """
+
+        SA = survival_actions
+
+        available_actions = self.Settlement.get_survival_actions("JSON")
+
+
+        # check AIs and see if any add a survival action
+        AI = abilities_and_impairments.Assets()
+        for ai in self.survivor["abilities_and_impairments"]:
+            ai_dict = AI.get(ai)
+            add_sa = ai_dict.get("survival_action", None)
+            if add_sa is not None:
+                sa_dict = SA.get_asset(add_sa)
+                sa_dict["available"] = True
+                available_actions.append(sa_dict)
+
+        return available_actions
+
+
+
+
+    #
+    #   evaluation / biz logic methods
+    #
 
     def is_dead(self):
         "Returns a bool of whether the survivor is dead."
@@ -142,7 +176,7 @@ class Survivor(Models.UserAsset):
 
 
     #
-    #   UPDATE and POST Methods below here!
+    #   UPDATE and POST Methods
     #
 
     @utils.error_log
@@ -155,8 +189,11 @@ class Survivor(Models.UserAsset):
         utils.mdb.survivors.save(self.survivor)
 
 
+
+
+
     #
-    #   Do not write model methods below this one. 
+    #   NO METHODS BELOW THIS POINT
     #
 
     def request_response(self, action=None):

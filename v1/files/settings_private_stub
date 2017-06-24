@@ -1,9 +1,0 @@
-[admin]
-admin_key   = SET THIS TO A SECURE, UNIQUE VALUE IF RUNNING IN PRODUCTION
-
-[smtp]
-host        = smtp.gmail.com
-pass        = SMTPPASSWORD
-name        = sysadminemail@whatever.com
-name_pretty = KDM-Manager Administrator
-no-reply    = noreply@whatever.com

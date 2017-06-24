@@ -1344,7 +1344,24 @@ class survivor:
                             Cannot<br/>spend<br/>survival
                      </label>
 
-                    $survival_actions
+
+                    <p
+                        class="survivor_sheet_survival_action"
+                        ng-repeat="sa in survival_actions"
+                    >
+                        <font
+                            ng-if="sa.available == false"
+                            class="survivor_sheet_survival_action_item"
+                        >
+                            {{sa.name}}
+                        </font>
+                        <font
+                            ng-if="sa.available == true"
+                            class="survivor_sheet_survival_action_item survival_action_emphasize"
+                        >
+                            {{sa.name}}
+                        </font>
+                    </p>
 
                 </p>
 
@@ -2103,14 +2120,16 @@ class survivor:
                 Die
             </button>
 
-            <hr/>
+            <div ng-if="survivor.cause_of_death != undefined">
+                <hr/>
 
-            <form method="POST" action="">
-            <input type="hidden" name="modify" value="survivor"/>
-            <input type="hidden" name="asset_id" value="$survivor_id"/>
-            <input type="hidden" name="resurrect_survivor" value="True"/>
-            <button class="kd_blue">Resurrect $name</button>
-            </form>
+                <form method="POST" action="">
+                <input type="hidden" name="modify" value="survivor"/>
+                <input type="hidden" name="asset_id" value="$survivor_id"/>
+                <input type="hidden" name="resurrect_survivor" value="True"/>
+                <button class="kd_blue">Resurrect $name</button>
+                </form>
+            </div>
 
         </div> <!-- modal-content -->
     </div> <!-- modalDeath -->
@@ -2807,15 +2826,14 @@ class settlement:
                         title="Manage settlement Endeavor tokens here! Settlement admins may use the controls at the right to increment or decrement the total number of tokens!"
                         class="campaign_summary_endeavor_controller"
                         ng-controller="endeavorController"
-                        ng-init="endeavors=$endeavor_tokens;"
                     >
 
-                        <span ng-if="endeavors >= 1">
+                        <span ng-if="settlement_sheet.endeavor_tokens >= 1">
                             <div
                                 class="tokens"
                             >
                                 <img
-                                    ng-repeat="e in range(endeavors)"
+                                    ng-repeat="e in range(settlement_sheet.endeavor_tokens)"
                                     class="campaign_summary_endeavor_star"
                                     src="/media/icons/endeavor_star.png"
                                 >
@@ -2827,7 +2845,7 @@ class settlement:
                         </span>
 
                         <div
-                            ng-if="endeavors <= 0"
+                            ng-if="settlement_sheet.endeavor_tokens <= 0"
                             ng-click="addToken()"
                             class="endeavor_controls_toggle settlement_sheet_block_group"
                         >
@@ -3271,7 +3289,7 @@ class settlement:
     <div id="asset_management_middle_pane">
 
 
-                    <!-- LOCATIONS - THIS HAS ITS OWN FORM  -->
+                    <!-- LOCATIONS - ANGULARJS CONTROLS -->
 
 
         <a id="edit_locations" class="mobile_only"><a/>
@@ -3284,51 +3302,44 @@ class settlement:
 
             <h2>Settlement Locations</h2>
             <p>Locations in your settlement.</p>
-            <hr class="invisible"/> <!-- this is pretty low rent -->
+
+            <hr class="invisible"/> <!-- TK this is pretty low rent -->
 
             <div
-                ng-repeat="l in settlement_sheet.locations"
-                ng-init="locationLevel = settlement_sheet.location_levels[l]"
+                class="line_item location_container"
+                ng-repeat="loc in settlement_sheet.locations"
+                ng-init="locationLevel = settlement_sheet.location_levels[loc]"
             >
-                <div class="line_item location_container">
-                    <span class="bullet"></span>
-                    <span
-                        class="item"
-                        ng-click="rmLocation($index,l);"
-                    >
-                        {{l}}
-                    </span>
-                    <span ng-if="settlement_sheet.location_levels[l] != undefined" class="location_lvl_select">
-                        <select
-                            class="location_level"
-                            ng-model="locationLevel"
-                            ng-options="locationLevel as 'Lvl. '+locationLevel for locationLevel in [1,2,3]"
-                            ng-change="setLocationLevel(l,locationLevel)"
-                            ng-selected="locationLevel"
-                        >
-                        </select>
-                    </span> <!-- optional levels controls -->
-                </div> <!-- location line item -->
-
-            </div> <!-- settlement_sheet.locations repeater -->
-
-
-            <div class="line_item">
-                <span class="empty_bullet"></span>
-                <select
-                    ng-model="newLocation"
-                    ng-options="l.handle as l.name for l in settlement.game_assets.locations_options"
-                    ng-change="addLocation()"
+                <span class="bullet"></span>
+                <span
+                    class="item"
+                    ng-click="rmLocation(loc)"
                 >
-                    <option disabled selected value="">Add a Location</option>
-                </select>
-            </div> <!-- line item -->
+                    {{settlement.game_assets.locations[loc].name}}
+                </span>
+                <span ng-if="settlement_sheet.location_levels[loc] != undefined" class="location_lvl_select">
+                    <select
+                        class="location_level"
+                        ng-model="locationLevel"
+                        ng-options="locationLevel as 'Lvl. '+ locationLevel for locationLevel in [1,2,3]"
+                        ng-change="setLocationLevel(loc, locationLevel)"
+                        ng-selected="locationLevel"
+                    >
+                    </select>
+                </span> <!-- optional levels controls -->
+
+            </div> <!-- line_item location_container add/rm for locations -->
+
+            <BR><BR>
+            PICKER NOT IMPLEMENTED
+
 
         </div> <!-- settlement_sheet_block_group locations controller-->
 
 
 
-                    <!-- INNOVATIONS - HAS ITS OWN FORM-->
+
+                    <!-- INNOVATIONS - ANGULARJS CONTROLS -->
 
         <a id="edit_innovations" class="mobile_only"/></a>
 
@@ -3342,7 +3353,7 @@ class settlement:
             <h2>Innovations</h2>
             <p>The settlement's innovations (including weapon masteries).</p>
 
-            <hr class="invisible"/>
+            <hr class="invisible"/> <!-- TK why is this still here? need to fix -->
 
             <div
                 class="line_item location_container"

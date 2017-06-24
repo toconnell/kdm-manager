@@ -1,5 +1,14 @@
 #!/usr/bin/python2.7
 
+import os
+import sys
+os.chdir(os.path.dirname(sys.argv[0]))
+
+
+# imports for root switch
+import settings
+from pwd import getpwuid, getpwnam
+
 
 # general imports
 from bson.son import SON
@@ -10,13 +19,10 @@ from datetime import datetime, timedelta
 import json
 from lockfile.pidlockfile import PIDLockFile
 from optparse import OptionParser
-import os
-from pwd import getpwuid
 from retry import retry
 import shutil
 import subprocess
 import stat
-import sys
 import time
 
 # local imports
@@ -26,7 +32,6 @@ from models import monsters as monster_models
 from models import expansions as expansions_models
 from models import settlements as settlements_models
 from models import campaigns as campaigns_models
-import settings
 import utils
 
 
@@ -748,11 +753,10 @@ class WorldDaemon:
 
         self.logger = utils.get_logger(log_name="world_daemon", log_level=settings.get("world","log_level"))
 
-        self.pid_file_path = os.path.abspath(settings.get("world","daemon_pid_file"))
-        self.pid_dir = os.path.dirname(self.pid_file_path)
+        self.pid_dir = settings.get("application","pid_root_dir")
+        self.pid_file_path = os.path.join(self.pid_dir, os.path.basename(sys.argv[0]))
         self.set_pid()
 
-        self.kill_command = "/bin/kill"
 
 
     def check_pid_dir(self):
@@ -770,21 +774,33 @@ class WorldDaemon:
                 self.logger.exception(e)
                 sys.exit(255)
 
+
+        # warn if we're going to start off by trying to write a lock/pid file to
+        # some other user's directory, b/c that would be bad
         pid_dir_owner = getpwuid(os.stat(self.pid_dir).st_uid).pw_name
-        self.logger.debug("PID dir '%s' is owned by '%s'." % (self.pid_dir, pid_dir_owner))
-        if pid_dir_owner != os.environ["USER"]:
-            self.logger.warn("PID dir owner is not the current user!")
+        cur_user = os.getlogin()
+        if pid_dir_owner != cur_user:
+            self.logger.warn("PID dir owner is not the current user (%s)!" % cur_user)
 
 
     def set_pid(self):
         """ Updates 'self.pid' with the int in the daemon pid file. Returns None
         if there is no file or the file cannot be parsed. """
         self.pid = None
+
         if os.path.isfile(self.pid_file_path):
             try:
                 self.pid = int(file(self.pid_file_path, "rb").read().strip())
             except Exception as e:
                 self.logger.exception(e)
+
+            try:
+                os.kill(self.pid, 0)
+            except OSError as e:
+                self.logger.exception(e)
+                self.logger.error("PID %s does not exist! Removing PID file..." % self.pid)
+                shutil.os.remove(self.pid_file_path)
+                self.pid = None
 
 
     def command(self, command=None):
@@ -816,14 +832,20 @@ class WorldDaemon:
     )
     def start(self):
         """ Starts the daemon. """
-        self.logger.info("Starting World Daemon...")
+
+        self.set_pid()
+        if self.pid is not None:
+            try:
+                os.kill(self.pid, 0)
+                self.logger.warn("PID %s exists! Demon is already running! Exiting..." % self.pid)
+                sys.exit(1)
+            except OSError:
+                self.logger.info("Starting World Daemon...")
+        else:
+            self.logger.info("Starting World Daemon...")
 
         # pre-flight sanity checks and initialization tasks
         self.check_pid_dir()
-
-        if os.getuid() == 0:
-            self.logger.error("The World Daemon may not be started as root!")
-            sys.exit(255)
 
         context = daemon.DaemonContext(
             working_directory = (settings.get("api","cwd")),
@@ -858,13 +880,16 @@ class WorldDaemon:
 
     def stop(self):
         """ Stops the daemon. """
-        self.set_pid()
 
+        self.set_pid()
+        self.logger.warn("Preparing to kill PID %s..." % self.pid)
         if self.pid is not None:
-            self.logger.warn("Preparing to kill PID %s" % self.pid)
-            p = subprocess.Popen([self.kill_command, str(self.pid)], stdout=subprocess.PIPE)
-            out, err = p.communicate()
-            self.logger.warn("Process killed.")
+            os.kill(self.pid, 15)
+            time.sleep(2)
+            try:
+                os.kill(self.pid, 0)
+            except:
+                self.logger.warn("PID %s has been killed." % self.pid)
         else:
             self.logger.debug("Daemon is not running. Ignoring stop command...")
 
@@ -929,6 +954,21 @@ class WorldDaemon:
 
 
 if __name__ == "__main__":
+
+    # never ever do anything in this file as root. 
+    if os.getuid() == 0:
+        sys.stderr.write("The API World Daemon may not be operated as root!\n")
+        daemon_user = getpwnam(settings.get("world","daemon_user"))
+        uid = daemon_user.pw_uid
+        gid = daemon_user.pw_gid
+        sys.stderr.write("Changing UID to %s\n" % (uid))
+        try:
+            os.setuid(uid)
+        except Exception as e:
+            sys.stderr.write("Could not set UID!")
+            raise
+
+    # optparse
     parser = OptionParser()
     parser.add_option("-l", dest="list", action="store_true", default=False, help="List warehoused asset handles")
     parser.add_option("-r", dest="refresh", action="store_true", default=False, help="Force a warehouse refresh")

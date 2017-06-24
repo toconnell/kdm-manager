@@ -25,7 +25,7 @@ import export_to_file
 from modular_assets import survivor_names, survivor_attrib_controls
 import game_assets
 import html
-from models import Abilities, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Resources, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles, SurvivalActions
+from models import Abilities, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Resources, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles 
 from session import Session
 from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd, u_to_str
 import world
@@ -1100,54 +1100,6 @@ class Survivor:
         # saving isn't required if we're calling this from modify()
         if save:
             self.save()
-
-
-    def get_survival_actions(self, return_as=False):
-        """ Creates a list of survival actions that the survivor can do. """
-        possible_actions = SurvivalActions.get_keys(Settlement=self.Settlement)
-
-        available_actions = []
-        for a in possible_actions:
-            if a in self.Settlement.get_survival_actions():
-                available_actions.append(a)
-
-        for i in self.get_impairments():
-            if i in Abilities.get_keys():
-                if "survival_actions_disabled" in Abilities.get_asset(i).keys():
-                    for action in Abilities.get_asset(i)["survival_actions_disabled"]:
-                        try:
-                            available_actions.remove(action)
-                        except:
-                            pass
-
-        emphasized_actions = copy(available_actions)
-        if "cannot_spend_survival" in self.survivor.keys():
-            emphasized_actions = []
-
-        if return_as == "html_checkboxes":
-            sorted_actions = {}
-            for a in possible_actions:
-                sorted_actions[SurvivalActions.get_asset(a)["sort_order"]] = a
-            possible_actions = []
-            for k in sorted(sorted_actions.keys()):
-                possible_actions.append(sorted_actions[k])
-
-            output = ""
-            for a in possible_actions:
-                p_class = ""
-                font_class = ""
-                if a in available_actions:
-                    font_class += "survival_action_available"
-                if a in emphasized_actions:
-                    font_class += " survival_action_emphasize"
-                output += html.survivor.survival_action_item.safe_substitute(
-                    action = a,
-                    f_class=font_class,
-                )
-
-            return output
-
-        return available_actions
 
 
 
@@ -3086,7 +3038,6 @@ class Survivor:
             survival_limit = self.Settlement.get_attribute("survival_limit"),
             survival_max = self.Settlement.get_survivor_survival_max(),
             hunt_xp = self.survivor["hunt_xp"],
-            survival_actions = self.get_survival_actions(return_as="html_checkboxes"),
             departure_buffs = self.Settlement.get_bonuses("departure_buff", return_type="html"),
             hunt_xp_3_event = self.Settlement.get_story_event("Bold"),
             courage_3_event = self.Settlement.get_story_event("Insight"),
@@ -4236,18 +4187,6 @@ class Settlement:
         return milestones
 
 
-    def get_survival_actions(self, return_as=False):
-        """ Available survival actions depend on innovations. This func checks
-        the settlement's innovations and returns a list of available survival
-        actions for survivors to use during Showdowns. """
-
-        survival_actions = []
-        available = self.get_api_asset("game_assets","available_survival_actions")
-        for sa in available:
-            survival_actions.append(available[sa]["name"])
-
-        return sorted(survival_actions)
-
 
     def get_bonuses(self, bonus_type, return_type=False, update_mins=True):
         """ Returns the buffs/bonuses that settlement gets. 'bonus_type' is
@@ -5127,16 +5066,6 @@ class Settlement:
                 self.logger.debug(params)
 
 
-    def update_endeavor_tokens(self, value=0):
-        """ Adds 'value' to self.settlement["endeavor_tokens"]. """
-
-        cur_val = self.get_endeavor_tokens()
-        new_val = cur_val + int(value)
-        if new_val < 0:
-            new_val = 0
-        self.settlement["endeavor_tokens"] = new_val
-        self.logger.debug("[%s] updated endeavor tokens for %s. New total %s" % (self.User, self, self.get_endeavor_tokens()))
-
 
     def update_lost_settlements(self, new_value=None):
         """ Updates the settlement's lost settlements attribs. """
@@ -5312,14 +5241,6 @@ class Settlement:
             current_quarry = self.settlement["current_quarry"]
 
         return current_quarry
-
-
-    def get_endeavor_tokens(self):
-        """ Returns self.settlement["endeavor_tokens"] as an int. """
-
-        if not "endeavor_tokens" in self.settlement.keys():
-            self.settlement["endeavor_tokens"] = 0
-        return self.settlement["endeavor_tokens"]
 
 
     def get_lost_settlements(self, return_type=None):
@@ -5652,8 +5573,6 @@ class Settlement:
                 pass
             elif p == "lost_settlements":
                 self.update_lost_settlements(game_asset_key)
-            elif p == "endeavor_tokens":
-                self.update_endeavor_tokens(game_asset_key)
             elif p == "name":
                 self.update_settlement_name(game_asset_key)
             elif p == "add_defeated_monster":
@@ -5733,7 +5652,6 @@ class Settlement:
 
             show_departing_survivors_management_button=self.User.can_manage_departing_survivors(),
             show_endeavor_controls = self.User.get_preference("show_endeavor_token_controls"),
-            endeavor_tokens = self.get_endeavor_tokens(),
 
         )
 

@@ -123,7 +123,7 @@ def basic_logging():
     i.e. to make sure we don't lose any logging. """
 
     logging.basicConfig(
-        filename = os.path.join(settings.get("api","log_dir"), "server.log"),
+        filename = os.path.join(settings.get("application","log_root_dir"), "server.log"),
         format = '[%(asctime)s] %(levelname)s:\t%(message)s',
         level = settings.get("server","log_level"),
     )
@@ -153,7 +153,7 @@ def get_logger(log_level=None, log_name=None):
             logger.setLevel(log_handler_level)
 
         # now check the logging root, just as a precaution
-        log_root_dir = settings.get("api","log_dir")
+        log_root_dir = settings.get("application","log_root_dir")
         if not os.path.isdir(log_root_dir):
             e = Exception("Logging root dir '%s' does not exist!" % log_root_dir)
             raise e

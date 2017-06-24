@@ -84,13 +84,14 @@ def api_pop_con_to_html(p):
 
     return output
 
+
 def api_killboard_to_html(k):
     """ Makes a few tables representing kills across the various monster
     type groups. Only reasons mdb.killboard (doesn't read settlement objects).
     """
 
-    if k is None:
-        return "<p>Data unavailable.</p>"
+    if validate_api_return(k) is not True:
+        return validate_api_return(k)
 
     killboard = k["value"]
 
@@ -107,6 +108,7 @@ def api_killboard_to_html(k):
 
     return output
 
+
 def api_top_five_list(l):
     """ Takes a top-five-type list and returns it as an html <ol> element. """
 
@@ -121,7 +123,6 @@ def api_top_five_list(l):
     output += "</ol>"
 
     return output
-
 
 
 def api_survivor_to_html(s, supplemental_info=["birth","death"]):

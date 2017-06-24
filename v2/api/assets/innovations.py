@@ -11,20 +11,20 @@ innovations = {
         "name": "Inner Lantern",
         "type": "faith",
         "consequences": ["shrine", "scarification"],
-        "survival_action": "Surge",
+        "survival_action": "surge",
     },
     "paint": {
         "name": "Paint",
         "type": "art",
         "consequences": ["pictograph","sculpture","face_painting"],
-        "survival_action": "Dash",
+        "survival_action": "dash",
     },
     "language": {
         "name": "Language",
         "type": "starting innovation",
         "consequences": ["hovel","inner_lantern","drums","paint","symposium","ammonia"],
         "survival_limit": 1,
-        "survival_action": "Encourage",
+        "survival_action": "encourage",
     },
 
     # expansions
@@ -33,7 +33,7 @@ innovations = {
         "type": "starting innovation",
         "expansion": "dragon_king",
         "survival_limit": 1,
-        "survival_action": "Encourage",
+        "survival_action": "encourage",
         "consequences": ["hovel", "inner_lantern","drums","paint","symposium","ammonia"],
     },
     "sun_language": {
@@ -41,14 +41,14 @@ innovations = {
         "expansion": "sunstalker",
         "type": "starting innovation",
         "survival_limit": 1,
-        "survival_action": "Embolden",
+        "survival_action": "embolden",
         "consequences": ["ammonia","drums","hovel","paint","symposium","hands_of_the_sun"],
     },
     "hands_of_the_sun": {
         "name": "Hands of the Sun",
         "expansion": "sunstalker",
         "type": "faith",
-        "survival_action": "Overcharge",
+        "survival_action": "overcharge",
         "consequences": ["aquarobics", "sauna_shrine"],
     },
 

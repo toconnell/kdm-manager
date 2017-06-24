@@ -89,6 +89,7 @@ campaign_definitions = {
         "default": True,
         "name": "People of the Lantern",
         "saviors": "1.3.1",
+        "survival_actions": ["dodge","encourage","dash","surge"],
         "always_available": {
             "location": ["Lantern Hoard"],
             "innovation": ["Language"],
@@ -114,6 +115,7 @@ campaign_definitions = {
         "name": "The Green Knight",
         "subtitle": "A campaign following the 'People of the Lantern' timeline that includes all content required by the Green Knight Armor expansion.",
         "saviors": "1.3.1",
+        "survival_actions": ["dodge","encourage","dash","surge"],
         "always_available": {
             "location": ["Lantern Hoard"],
             "innovation": ["Language"],
@@ -140,6 +142,7 @@ campaign_definitions = {
         "name": "People of the Skull",
         "subtitle": "Always displays the alternate rules and endeavors on p.213 of the core game manual on the Campaign Summary view.",
         "saviors": "1.3.1",
+        "survival_actions": ["dodge","encourage","dash","surge"],
         "always_available": {
             "location": ["Lantern Hoard"],
             "innovation": ["Language"],
@@ -177,6 +180,7 @@ campaign_definitions = {
     "the_bloom_people": {
         "name": "The Bloom People",
         "saviors": "1.3.1",
+        "survival_actions": ["dodge","encourage","dash","surge"],
         "always_available": {
             "location": ["Lantern Hoard"],
             "innovation": ["Language"],
@@ -211,6 +215,7 @@ campaign_definitions = {
     "people_of_the_sun": {
         "name": "People of the Sun",
         "survivor_attribs": ["Purified","Sun Eater","Child of the Sun"],
+        "survival_actions": ["dodge","overcharge","embolden"],
         "always_available": {
             "location": ["The Sun","Sacred Pool"],
             "innovation": ["Sun Language", "Umbilical Bank"],
@@ -262,6 +267,7 @@ campaign_definitions = {
         "name": "People of the Stars",
         "dragon_traits": "1.3.1",
         "survivor_attribs": ["Scar","Noble surname","Reincarnated surname"],
+        "survival_actions": ["dodge","encourage","dash","surge"],
         "always_available": {
             "location": ["Throne"],
             "innovation": ["Dragon Speech","Radiating Orb"],

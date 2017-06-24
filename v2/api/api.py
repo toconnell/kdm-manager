@@ -1,6 +1,5 @@
 #!/usr/bin/python2.7
 
-
 # general imports
 from bson.objectid import ObjectId
 from bson import json_util
@@ -169,11 +168,26 @@ def new_asset(asset_type):
 
 
 @application.route("/<collection>/<action>/<asset_id>", methods=["GET","POST","OPTIONS"])
-@utils.crossdomain(origin=['*'],headers='Content-Type')
-#@cross_origin(headers=['Content-Type','Authorization'])
+@utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization'])
 #@flask_jwt.jwt_required()
 def collection_action(collection, action, asset_id):
     """ This is our major method for retrieving and updating settlements. """
+
+
+    #
+    #   This is temporary! For the next few releases, auth is optional and will
+    #   only truly bomb out the request if the password in the cookie's JWT is
+    #   incorrect.
+    #
+
+    if not "Authorization" in request.headers:
+        application.logger.warn("Performing '%s' on '%s' object '%s' without authorization!" % (action, collection, asset_id))
+    else:
+        u = users.refresh_authorization(request.headers["Authorization"])
+        request.User = users.User(_id=u["_id"])
+        if not isinstance(request.User, users.User):
+            return utils.http_401 #unauthorized
+
     asset_object = request_broker.get_user_asset(collection, asset_id)
     if type(asset_object) == Response:
         return asset_object

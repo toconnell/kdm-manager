@@ -162,8 +162,6 @@ class Settlement(Models.UserAsset):
         #   COMING SOON
 
         # log settlement creation and save/exit
-#        self.logger.debug(self.settlement)
-
         self.logger.info("%s created new %s and applied all user params successfully!" % (request.User, self))
         self.save()
 
@@ -176,6 +174,14 @@ class Settlement(Models.UserAsset):
         self.bug_fixes()
         self.baseline_data_model()
         self.migrate_settlement_notes()
+
+	#
+	#	general normalization
+	#
+
+        if not "endeavor_tokens" in self.settlement.keys():
+            self.settlement["endeavor_tokens"] = 0
+            self.perform_save = True
 
         #
         #       timeline migrations
@@ -205,6 +211,10 @@ class Settlement(Models.UserAsset):
 
         if self.settlement["meta"].get("innovations_version", None) is None:
             self.convert_innovations_to_handles()
+            self.perform_save = True
+
+        if self.settlement["meta"].get("locations_version", None) is None:
+            self.convert_locations_to_handles()
             self.perform_save = True
 
         # finish
@@ -252,7 +262,6 @@ class Settlement(Models.UserAsset):
         output["game_assets"].update(self.get_available_assets(epithets))
 
             # options (i.e. decks)
-        output["game_assets"]["locations_options"] = self.get_locations_options()
         output["game_assets"]["principles_options"] = self.get_principles_options()
         output["game_assets"]["milestones_options"] = self.get_milestones_options()
         output["game_assets"]["milestones_dictionary"] = self.get_milestones_options(dict)
@@ -274,8 +283,7 @@ class Settlement(Models.UserAsset):
 
             # misc helpers for front-end
         output["game_assets"]["eligible_parents"] = self.eligible_parents
-        output["game_assets"]["available_survival_actions"] = self.get_available_survival_actions()
-
+        output["game_assets"]["survival_actions"] = self.get_survival_actions("JSON")
 
         # finally, return a JSON string of our object
         return json.dumps(output, default=json_util.default)
@@ -643,6 +651,25 @@ class Settlement(Models.UserAsset):
 
         if save:
             self.save()
+
+
+    def update_endeavor_tokens(self, modifier=0):
+        """ Updates settlement["endeavor_tokens"] by taking the current value,
+        which is normalized (above) to zero, if it is not defined or set, and
+        adding 'modifier' to it.
+
+        To increment ETs, do 'modifier=1'; to decrement, do 'modifier=-1'.
+        """
+
+        if "modifier" in self.params:
+            modifier = self.params["modifier"]
+
+        new_val = self.settlement["endeavor_tokens"] + int(modifier)
+        if new_val < 0:
+            new_val = 0
+        self.settlement["endeavor_tokens"] = new_val
+        self.log_event("%s set endeavor tokens to %s" % (request.User.login, new_val))
+        self.save()
 
 
     def update_nemesis_levels(self, params):
@@ -1060,19 +1087,41 @@ class Settlement(Models.UserAsset):
         return s_innovations
 
 
-    def get_available_survival_actions(self):
-        """ Returns a dictionary of survival actions available to the settlement
-        and its survivors. """
+    def get_survival_actions(self, return_type=dict):
+        """ Returns a dictionary of survival actions available to the survivor
+        based on campaign type. Individual SAs are either 'available' or not,
+        depending on whether they're unlocked and whether the survivor has an
+        impairment that prevents them from using the SA. """
 
-        all_survival_actions = survival_actions.Assets()
+        SA = survival_actions.Assets()
 
-        sa = {"dodge": all_survival_actions.get_asset("dodge")}
+        # first, build the master dict based on the campaign def
+        sa_handles = self.get_campaign(dict)["survival_actions"]
+        sa_dict = {k: SA.get_asset(k) for k in sa_handles}
+
+        # set innovations to unavailable if their availablility is not defined
+        # already within their definition:
+        for k in sa_dict.keys():
+            if not "available" in sa_dict[k]:
+                sa_dict[k]["available"] = False
+
+        # second, udpate the master list to say which are available
         for k,v in self.get_innovations(dict).iteritems():
-            if "survival_action" in v.keys():
-                sa_dict = all_survival_actions.get_asset_from_name(v["survival_action"])
-                sa_dict["innovation"] = v["name"]
-                sa[sa_dict["handle"]] = sa_dict
-        return sa
+            innovation_sa = v.get("survival_action", None)
+            if innovation_sa in sa_dict.keys():
+                sa_dict[innovation_sa]["available"] = True
+
+        # finally, since this is likely going back to the front-end guys, we
+        # support a JSON return type:
+
+        if return_type=="JSON":
+            j_out = []
+            for sa_key in sa_dict.keys():
+                j_out.append(sa_dict[sa_key])
+            return sorted(j_out, key=lambda k: k['sort_order'])
+
+        # otherwise, just return the sa_dict, au naturale
+        return sa_dict
 
 
     def get_players(self, return_type=None):
@@ -1413,35 +1462,63 @@ class Settlement(Models.UserAsset):
 
 
     def convert_innovations_to_handles(self):
-        """ Swaps out expansion name key values for handles. """
+        """ Swaps out innovation 'name' key values for handles. """
 
         I = innovations.Assets()
 
         new_innovations = []
-        conversions = 0
         for i in self.settlement["innovations"]:
             i_dict = I.get_asset_from_name(i)
             if i_dict is None:
+                self.log_event("Unknown innovation '%s' removed from settlement!" % loc)
                 self.logger.warn("Could not migrate innovation '%s'!" % i)
             else:
                 new_innovations.append(i_dict["handle"])
                 self.logger.debug("Converted '%s' to '%s'" % (i, i_dict["handle"]))
-                conversions += 1
 
         if "innovation_levels" in self.settlement.keys():
             for i_name in self.settlement["innovation_levels"].keys():
                 i_dict = I.get_asset_from_name(i_name)
                 if i_dict is None:
-                    self.logger.warn("Could not convert location level for '%s'!" % i_name)
+                    self.logger.warn("Could not convert innovation level for '%s'!" % i_name)
                 else:
                     self.settlement["innovation_levels"][i_dict["handle"]] = self.settlement["innovation_levels"][i_name]
                     del self.settlement["innovation_levels"][i_name]
-            self.logger.debug(self.settlement["innovation_levels"])
 
         self.settlement["innovations"] = new_innovations
         self.settlement["meta"]["innovations_version"] = 1.0
-        self.logger.info("Converted %s innovations from names (legacy) to handles for %s" % (conversions, self))
+        self.logger.info("Converted innovations from names (legacy) to handles for %s" % (self))
 
+
+    def convert_locations_to_handles(self):
+        """ Swaps out location 'name' key values for handles. """
+
+        L = locations.Assets()
+
+        # first, swap all keys for handles, dropping any that we can't look up
+        new_locations = []
+        for loc in self.settlement["locations"]:
+            loc_dict = L.get_asset_from_name(loc)
+            if loc_dict is None:
+                self.log_event("Unknown location '%s' removed from settlement!" % loc)
+                self.logger.warn("Could not migrate location '%s'!" % loc)
+            else:
+                new_locations.append(loc_dict["handle"])
+                self.logger.debug("Converted '%s' to '%s'" % (loc, loc_dict["handle"]))
+
+        # next, migrate any location levels
+        if "location_levels" in self.settlement.keys():
+            for loc_name in self.settlement["location_levels"].keys():
+                loc_dict = L.get_asset_from_name(loc_name)
+                if loc_dict is None:
+                    self.logger.warn("Could not convert location level for '%s'!" % loc_name)
+                else:
+                    self.settlement["location_levels"][loc_dict["handle"]] = self.settlement["location_levels"][loc_name]
+                    del self.settlement["location_levels"][loc_name]
+
+        self.settlement["locations"] = new_locations
+        self.settlement["meta"]["locations_version"] = 1.0
+        self.logger.info("Converted locations from names (legacy) to handles for %s" % (self))
 
 
     def convert_monsters_to_handles(self):
@@ -1660,6 +1737,9 @@ class Settlement(Models.UserAsset):
 
         elif action == "update_nemesis_levels":
             self.update_nemesis_levels(self.params)
+
+        elif action == "update_endeavor_tokens":
+            self.update_endeavor_tokens()
 
         elif action == "add_timeline_event":
             self.add_timeline_event(self.params)

@@ -34,16 +34,14 @@ app.controller ("survivorSearchController", function($scope) {
 app.controller("endeavorController", function($scope) {
 
     $scope.addToken = function(){
-        var params = "endeavor_tokens=1";
-        modifyAsset("settlement", $scope.settlement_id, params);
-        $scope.endeavors += 1;
+        $scope.postJSONtoAPI('settlement', 'update_endeavor_tokens', {"modifier": 1});
+        $scope.settlement_sheet.endeavor_tokens += 1;
     };
 
     $scope.rmToken = function(){
-        var params = "endeavor_tokens=-1";
-        modifyAsset("settlement", $scope.settlement_id, params);
-        $scope.endeavors -= 1;
-        if ($scope.endeavors <= 0) {$scope.endeavors = 0;};
+        $scope.postJSONtoAPI('settlement', 'update_endeavor_tokens', {"modifier": -1});
+        $scope.settlement_sheet.endeavor_tokens -= 1;
+        if ($scope.settlement_sheet.endeavor_tokens <= 0) {$scope.settlement_sheet.endeavor_tokens = 0;};
     };
 
 });

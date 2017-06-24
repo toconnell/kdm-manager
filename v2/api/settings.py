@@ -2,10 +2,12 @@
 
 import cStringIO
 from ConfigParser import SafeConfigParser
+import inspect
 import json
 import logging
+from optparse import OptionParser
 import os
-
+import sys
 
 class Settings:
 
@@ -17,10 +19,20 @@ class Settings:
         else:
             filename = "settings.cfg"
 
+        # always using the settings.cfg file that lives in the same dir
+        # as this script: lots of modules can call settings.py, and we need
+        # to guarantee that they can find the file
+        dirname = os.path.dirname(inspect.getfile(inspect.currentframe()))
+        settings_abs_path = os.path.join(dirname, filename)
+
+        # fail if the dir with settings.py does not have a settings.cfg
+        if not os.path.isfile(settings_abs_path):
+            raise OSError("%s: Settings file '%s' does not exist!" % (sys.argv[0], settings_abs_path))
+
         self.config = SafeConfigParser()
-        self.config.readfp(open(filename))
+        self.config.file_path = settings_abs_path
+        self.config.readfp(open(self.config.file_path))
         self.config.settings_type = settings_type
-        self.config.file_path = os.path.abspath(filename)
 
         self.load_api_keys()
 
@@ -105,5 +117,31 @@ def get(section=None, query=None, private=False):
     else:
         S = Settings("private")
     return S.get(section,query)
+
+
+def update(section=None, key=None, value=None):
+    """ Sets a key/value in a section, writes a new file and exits. """
+    if section is None or key is None or value is None:
+        raise TypeError("update() does not accept None type arguments!")
+
+    S = Settings()
+    S.config.set(section, key, value)
+    with open(S.config.file_path, 'wb') as c_file:
+        S.config.write(c_file)
+
+
+if __name__=="__main__":
+    parser = OptionParser()
+    parser.add_option("--update", dest="update", help="Update a section/key/value", metavar='"application log_root_dir /var/log/kdm-manager"')
+    (options, args) = parser.parse_args()
+
+    os.chdir(os.path.dirname(sys.argv[0]))
+
+    if options.update:
+        section, key, value = tuple(options.update.split(" "))
+        update(section, key, value)
+
+
+
 
 

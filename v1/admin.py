@@ -619,9 +619,13 @@ def import_data(data_pickle_path):
     This will absolutely overwrite/clobber any documents whose _id values match
     those in the pickled data. YHBW. """
 
-    if not os.path.isfile(data_pickle_path):
-        raise Exception("Path '%s' looks bogus!" % data_pickle_path)
-    data = pickle.load(file(data_pickle_path, "rb"))
+    try:
+        data = pickle.loads(data_pickle_path)
+    except:
+        if not os.path.isfile(data_pickle_path):
+            raise Exception("Path '%s' looks bogus!" % data_pickle_path)
+        else:
+            data = pickle.load(file(data_pickle_path, "rb"))
 
     print("\n Importing user %s (%s)" % (data["user"]["login"], data["user"]["_id"]))
     if "current_session" in data["user"].keys():

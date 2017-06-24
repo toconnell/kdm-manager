@@ -461,11 +461,6 @@ class resourcesModel(Model):
         Model.__init__(self)
         self.game_assets = game_assets.resources
 
-class survivalActionsModel(Model):
-    def __init__(self):
-        Model.__init__(self)
-        self.game_assets = game_assets.survival_actions
-
 class weaponProficienciesModel(Model):
     def __init__(self):
         Model.__init__(self)
@@ -499,7 +494,6 @@ Innovations     = innovationsModel()
 Resources       = resourcesModel()
 WeaponMasteries = weaponMasteriesModel()
 WeaponProficiencies = weaponProficienciesModel()
-SurvivalActions = survivalActionsModel()
 
 #
 #   mutually exclusive principles

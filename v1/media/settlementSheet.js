@@ -2,29 +2,18 @@ function reloadSheet() {
     showFullPageLoader();
     var reload_form = document.getElementById("settlementSheetReload");
     reload_form.submit();
-    console.warn("Settlement Sheet reload form submitted...");
+//    console.warn("Settlement Sheet reload form submitted...");
 };
 
 app.controller("locationsController", function($scope) {
     $scope.addLocation = function() {
-        showFullPageLoader();
-        var loc_dict = $scope.settlement.game_assets.locations[$scope.newLocation];
-        $scope.settlement_sheet.locations.push(loc_dict.name);        
-        params = "add_location=" + loc_dict["name"];
-        modifyAsset('settlement',$scope.settlement_id,params);
-        reloadSheet();
+        console.error("addLocation is not implemented!")
     };
     $scope.rmLocation = function(index,loc_name) {
-        showFullPageLoader();
-        params = "rm_location=" + loc_name;
-        $scope.settlement_sheet.locations.splice(index,1);
-        modifyAsset('settlement',$scope.settlement_id,params);
-        reloadSheet();
+        console.error("rmLocation is not implemented!")
     };
     $scope.setLocationLevel = function(loc_name,lvl){
-        params = "location_level_" + loc_name + "=" + lvl;
-        console.log(params);
-        modifyAsset('settlement',$scope.settlement_id,params);
+        console.error("setLocationLevel is not implemented!")
     };
 });
 
@@ -48,18 +37,20 @@ app.controller('innovationsController', function($scope) {
         res.then(
             function(payload) {
                 $scope.innovation_options = payload.data.game_assets.innovations;
+                // ignore principles
                 for (var k in $scope.innovation_options) {
                     if ($scope.innovation_options[k].type == "principle") {
                         delete $scope.innovation_options[k];
                     };
                 };
+                // remove anything that's currently in the settlement sheet
                 for (var i = 0; i < $scope.settlement_sheet.innovations.length; i++) {
                     var innovation = $scope.settlement_sheet.innovations[i];
                     delete $scope.innovation_options[innovation];
                 };
 //                console.log("Innovations options updated!")
             },
-            function(errorPayload) {console.log("Could not retrieve innovation options from API!" + errorPayload);}
+            function(errorPayload) {console.error("Could not retrieve innovation options from API!" + errorPayload);}
         );
     };
     $scope.setInnovationDeck = function(retry) {

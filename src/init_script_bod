@@ -22,10 +22,12 @@ preflight () {
     # this is why the script runs as root: this module forcibly creates the
     # required directories in /var/ that are necessary for the server to run
 
-	mkdir $LOG_ROOT_DIR > /dev/null 2>&1
-	chown -R $USERNAME: $LOG_ROOT_DIR > /dev/null 2>&1
-	mkdir $PID_ROOT_DIR > /dev/null 2>&1
-	chown -R $USERNAME: $PID_ROOT_DIR > /dev/null 2>&1
+	mkdir $LOG_ROOT_DIR -v
+	chown -vR $USERNAME: $LOG_ROOT_DIR
+#    chmod g+s $LOG_ROOT_DIR -v
+	mkdir $PID_ROOT_DIR -v
+	chown -vR $USERNAME: $PID_ROOT_DIR
+#    chmod g+s $PID_ROOT_DIR -v
 }
 
 toggle_server () {
