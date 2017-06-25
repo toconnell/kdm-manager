@@ -86,7 +86,7 @@ def refresh_jwt_token(Session):
 
     if r.status_code == 200:
         Session.session["access_token"] = r.json()["access_token"]
-        Session.logger.info("[%s] Refreshed JWT auth token!" % (Session.User))
+#        Session.logger.info("[%s] Refreshed JWT auth token!" % (Session.User))
         Session.save()
     else:
         logger.error("[%s] JWT refresh response was %s - %s" % (Session.User, r.status_code, r.reason))

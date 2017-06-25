@@ -47,41 +47,101 @@ class AssetCollection():
     Each model in the models/ folder should have a method that subclasses this
     base class.
 
-    All asset objects that use this as their base class MUST define their own
-    self.assets dict (preferably in their __init__() method). """
+    Most Asset() objects that use this as their base class will define their own
+    self.assets dict, e.g. in their __init__() method. But is not mandatory:
+    review the __init__ method of this class carefully before writing custom
+    __init__ code in in an individual Asset() object module. """
+
 
     def __init__(self):
-        """ sets misc attributes of the collection's assets dict. """
+        """ All Assets() models must base-class this guy to get access to the
+        full range of AssetCollection methods, i.e. all of the common/ubiquitous
+        ones.
+
+        Base-classing also does a little user-friendliness/auto-magic when you
+        invoke it:
+
+            - you get self.logger for free.
+
+            - if you set 'self.root_module' to be an actual module from the
+            assets folder, that module will be scraped for dictionaries: those
+            dictionaries will then be used as your self.assets dict, i.e. so
+            that you DO NOT have to define your self.assets in your
+            models.Assets() sub class.
+
+            - if you have assets in your model.Assets.assets dict that DO NOT
+            set their own type, you can set self.type on your model.Assets when
+            you initialize it (but before you base-class this module) to force
+            a default 'type' attribute on all of your self.assets dict items.
+
+            - finally, all self.assets items get a 'handle' attribute that is
+            the same as their actual dictionary key value. Individual assets
+            SHOULD NEVER have a 'handle' attribute.
+
+        """
+
         self.logger = utils.get_logger()
+
+        if hasattr(self, "root_module"):
+            self.set_assets_from_root_module()
+
+        if hasattr(self, "type"):
+            for a in self.assets.keys():
+                self.assets[a]["type"] = self.type
+
         for a in self.assets.keys():
             self.assets[a]["handle"] = a
-            if hasattr(self, "type"):
-                self.assets[a]["type"] = self.type
+
+
+    #
+    #   get / set / filter methods here
+    #
+
+
+    def set_assets_from_root_module(self):
+        """ This is the vanilla AssetCollection initialization method. You feed
+        it a 'module' value (which should be something from the assets/ folder)
+        and it creates a self.assets dictionary by iterating through the module.
+
+        If you need to do custom asset initialization, that is a fine and a good
+        thing to do, but do it in the actual models/whatever.py file.
+
+        Important! Adjusting the self.assets dict before calling this method
+        will overwrite any adjustments because this method starts self.assets as
+        a blank dict!
+        """
+
+        self.assets = {}
+        for k, v in self.root_module.__dict__.iteritems():
+            if isinstance(v, dict) and not k.startswith('_'):
+                for dict_key in v.keys():
+                    v[dict_key]["type"] = k
+                    self.assets.update(v)
+
 
     def get_handles(self):
         """ Dumps all asset handles, i.e. the list of self.assets keys. """
         return sorted(self.assets.keys())
 
+
     def get_names(self):
         """ Dumps all asset 'name' attributes, i.e. a list of name values. """
         return sorted([self.assets[k]["name"] for k in self.get_handles()])
+
 
     def get_asset(self, handle):
         """ Return an asset dict based on a handle. Return None if the handle
         cannot be retrieved. """
 
-#        if not hasattr(self, "logger"):
-#            raise AttributeError("AssetCollection object has no logger! %s -> %s" % (self, dir(self)))
-
         try:
             asset = self.assets[handle]
             if not "handle" in asset.keys():
                 asset["handle"] = handle
-#            self.logger.debug(asset)
             return asset
         except Exception as e:
             self.logger.exception(e)
             return None
+
 
     def get_asset_from_name(self, name, case_sensitive=False):
         """ Tries to return an asset dict by looking up "name" attributes within
@@ -112,6 +172,23 @@ class AssetCollection():
         else:
             return None
 
+
+    def filter(self, filter_attrib=None, filtered_attrib_values=[]):
+        """ Drops assets from the collection if their 'filter_attrib' value is
+        in the 'attrib_values' list. """
+
+        if filter_attrib is None or filtered_attrib_values == []:
+            self.logger.error("AssetCollection.filter() method does not accept None or empty list values!")
+            return False
+
+        for asset_key in self.assets.keys():
+            if self.get_asset(asset_key)[filter_attrib] in filtered_attrib_values:
+                del self.assets[asset_key]
+
+
+    #
+    #   no set/get/filter methods below this point!
+    #
 
     def request_response(self, req):
         """ Processes a JSON request for a specific asset from the collection,
@@ -365,6 +442,23 @@ class UserAsset():
             self.logger.error("Request URL: %s" % request.url)
 
         self.params = params
+
+
+    def check_request_params(self, keys=[], verbose=False):
+        """ Checks self.params for the presence of all keys specified in 'keys'
+        list. Returns True if they're present and False if they're not.
+
+        Set 'verbose' to True if you want to log validation failures as errors.
+        """
+
+        for k in keys:
+            if k not in self.params.keys():
+                if verbose:
+                    self.logger.error("Request JSON is missing required parameter '%s'!" % k)
+                return False
+
+        return True
+
 
 
     #

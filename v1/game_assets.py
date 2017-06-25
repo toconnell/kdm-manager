@@ -1320,7 +1320,7 @@ fighting_arts = {
 locations = {
     "Light-Forging": {
         "color": "570A75",
-        "font-color": "fff",
+        "font_color": "fff",
     },
     "Green Knight Armor": {
         "color": "42AB59",

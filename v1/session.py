@@ -124,7 +124,7 @@ class Session:
 
         if self.session is not None:
             if not api.check_token(self):
-                self.logger.debug("JWT Token expired! Attempting to refresh...")
+#                self.logger.debug("JWT Token expired! Attempting to refresh...")
                 r = api.refresh_jwt_token(self)
                 if r.status_code == 401:
                     self.log_out()

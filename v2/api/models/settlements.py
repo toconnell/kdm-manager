@@ -60,7 +60,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.41
+        self.object_version=0.46
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize_data()
 
@@ -100,6 +100,7 @@ class Settlement(Models.UserAsset):
                 "monsters_version":     1.0,
                 "expansions_version":   1.0,
                 "innovations_version":  1.0,
+                "locations_version":    1.0,
             },
 
             # sheet
@@ -183,6 +184,13 @@ class Settlement(Models.UserAsset):
             self.settlement["endeavor_tokens"] = 0
             self.perform_save = True
 
+        if not "location_levels" in self.settlement.keys():
+            self.settlement["location_levels"] = {}
+            self.perform_save = True
+        if not "innovation_levels" in self.settlement.keys():
+            self.settlement["innovation_levels"] = {}
+            self.perform_save = True
+
         #
         #       timeline migrations
         #
@@ -250,7 +258,7 @@ class Settlement(Models.UserAsset):
         # create game_assets
         output.update({"game_assets": {}})
         output["game_assets"].update(self.get_available_assets(innovations))
-        output["game_assets"].update(self.get_available_assets(locations))
+        output["game_assets"].update(self.get_available_assets(locations, exclude_types=["resources","gear"]))
         output["game_assets"].update(self.get_available_assets(abilities_and_impairments))
         output["game_assets"].update(self.get_available_assets(weapon_specializations))
         output["game_assets"].update(self.get_available_assets(weapon_masteries))
@@ -333,7 +341,6 @@ class Settlement(Models.UserAsset):
         definition's 'settlement_sheet_init' attribute. Meant to be used when
         creating new settlements. """
 
-#        self.logger.debug("%s is initializing the sheet for %s" % (request.User, self))
         c_dict = self.get_campaign(dict)
         for init_key in c_dict["settlement_sheet_init"].keys():
             self.settlement[init_key] = copy(c_dict["settlement_sheet_init"][init_key])
@@ -349,8 +356,6 @@ class Settlement(Models.UserAsset):
         know what you're doing.
 
         """
-
-#        self.logger.debug("%s is initializing the timeline for %s" % (request.User, self))
 
         template = self.get_campaign(dict)["timeline"]
         E = events.Assets()
@@ -473,6 +478,59 @@ class Settlement(Models.UserAsset):
         self.save()
 
 
+    def add_location(self):
+        "Adds a location to the settlement. """
+
+        loc_handle = self.params["handle"]
+
+        # first, verify that the incoming handle is legit
+        L = locations.Assets()
+        loc_dict = L.get_asset(loc_handle)
+        if loc_dict is None:
+            self.logger.error("Location asset handle '%s' does not exist!" % loc_handle)
+            return False
+
+        # next, make sure it's not a dupe
+        if loc_handle in self.settlement["locations"]:
+            self.logger.error("Ignoring request to add duplicate location handle '%s' to settlement." % loc_handle)
+            return False
+
+        # now add it
+        self.settlement["locations"].append(loc_handle)
+
+        if "levels" in loc_dict.keys():
+            self.settlement["location_levels"][loc_handle] = 1
+
+        self.log_event("%s added '%s' to settlement locations." % (request.User.login, loc_dict["name"]), event_type="add_location")
+
+        self.save()
+
+
+    def rm_location(self):
+        """ Removes a location from the settlement. Requires a request.User
+        object, i.e. should not be called unless it is part of a request.  """
+
+        # spin everything up
+        L = locations.Assets()
+        loc_handle = self.params["handle"]
+        loc_dict = L.get_asset(loc_handle)
+
+        # first, see if it's a real handle
+        if loc_handle not in L.get_handles():
+            self.logger.error("Location asset handle '%s' does not exist!" % loc_handle)
+            return False
+
+        # now check to see if it's there to remove in the first place
+        if loc_handle not in self.settlement["locations"]:
+            self.logger.warn("Ignoring attempt to remove %s from %s locations  (because it is not there)." % (loc_handle, self))
+            return False
+
+        # now do it
+        self.settlement["locations"].remove(loc_handle)
+        self.log_event("%s removed '%s' from settlement locations." % (request.User.login, loc_dict["name"]), event_type="rm_location")
+        self.save()
+
+
     def add_innovation(self):
         """ Adds an innovation to the settlement. Does business logic. """
 
@@ -495,18 +553,17 @@ class Settlement(Models.UserAsset):
 
         self.settlement["innovations"].append(I.handle)
 
-        if hasattr(I, "levels") and not self.settlement.get("innovation_levels", False):
-            self.settlement["innovation_levels"] = {}
         if hasattr(I, "levels"):
             self.settlement["innovation_levels"][I.handle] = 1
 
-        self.log_event("Added '%s' to settlement innovations." % (I.name), event_type="add_innovation")
+        self.log_event("%s added '%s' to settlement innovations." % (request.User.login, I.name), event_type="add_innovation")
 
         self.save()
 
 
     def rm_innovation(self):
-        """ Removes an innovation from the settlement. """
+        """ Removes an innovation from the settlement. Requires request.User
+        object, i.e. should not be called unless it is part of a request.  """
 
         # first, try to initialize an innovations.Innovation object
         try:
@@ -522,7 +579,7 @@ class Settlement(Models.UserAsset):
             return False
 
         self.settlement["innovations"].remove(I.handle)
-        self.log_event("Removed '%s' from settlement innovations." % (I.name), event_type="rm_innovation")
+        self.log_event("%s removed '%s' from settlement innovations." % (request.User.login, I.name), event_type="rm_innovation")
         self.save()
 
 
@@ -702,22 +759,48 @@ class Settlement(Models.UserAsset):
         self.save()
 
 
-    def set_innovation_level(self):
-        """ Sets self.settlement["innovation_levels"][innovation] to an int. """
+    def set_location_level(self):
+        """ Sets self.settlement["location_levels"][handle] to an int. """
 
-        try:
+        if self.check_request_params(["handle","level"], True):
             handle = self.params["handle"]
             level = self.params["level"]
-        except Exception as e:
-            self.logger.error("Could not set settlement innovation level from JSON request: %s" % self.params)
-            raise
+        else:
+            self.logger.error("Could not set settlement location level!")
+            raise Exception
+
+        L = locations.Assets()
+        loc_dict = L.get_asset(handle)
+
+        if handle not in self.settlement["locations"]:
+            self.logger.error("Could not set settlement location level for '%s', which is not in %s locations: %s" % (handle, self, self.settlement["locations"]))
+        else:
+            self.settlement["location_levels"][handle] = int(level)
+
+        self.log_event("%s set '%s' location level to %s." % (request.User.login, loc_dict["name"], level), event_type="set_innovation_level")
+
+        self.save()
+
+
+    def set_innovation_level(self):
+        """ Sets self.settlement["innovation_levels"][handle] to an int. """
+
+        if self.check_request_params(["handle","level"], True):
+            handle = self.params["handle"]
+            level = self.params["level"]
+        else:
+            self.logger.error("Could not set settlement innovation level!")
+            raise Exception
+
+        I = innovations.Assets()
+        i_dict = I.get_asset(handle)
 
         if handle not in self.settlement["innovations"]:
             self.logger.error("Could not set settlement innovation level for '%s', because that innovation is not included in the %s innovations list: %s" % (handle, self, self.settlement["innovations"]))
         else:
             self.settlement["innovation_levels"][handle] = int(level)
 
-        self.log_event("Set '%s' innovation level to %s." % (handle, level), event_type="set_innovation_level")
+        self.log_event("%s set '%s' innovation level to %s." % (request.User.login, i_dict["name"], level), event_type="set_innovation_level")
 
         self.save()
 
@@ -1263,16 +1346,18 @@ class Settlement(Models.UserAsset):
         return event_log
 
 
-    def get_available_assets(self, asset_module=None, handles=True):
+    def get_available_assets(self, asset_module=None, handles=True, exclude_types=[]):
         """ Generic function to return a dict of available game assets based on
         their family. The 'asset_module' should be something such as,
         'cursed_items' or 'weapon_proficiencies', etc. that has an Assets()
         method.
 
-
         Use the 'handles' kwarg (boolean) to determine whether to return a list
         of asset dictionaries, or a dictionary of dictionaries (where asset
         handles are the keys.
+
+        Use the 'ignore_types' kwarg (list) to filter/exclude assets whose
+        'type' should NOT be returned.
         """
 
         if handles:
@@ -1280,8 +1365,13 @@ class Settlement(Models.UserAsset):
         else:
             available = []
 
-        A = asset_module.Assets()
+        A = copy(asset_module.Assets())
 
+        # remove excluded types
+        if exclude_types != []:
+            A.filter("type", exclude_types)
+
+        # create the final output object based on kwarg
         if handles:
             for k in A.get_handles():
                 item_dict = A.get_asset(k)
@@ -1293,6 +1383,7 @@ class Settlement(Models.UserAsset):
                 if self.is_compatible(item_dict):
                     available.append(item_dict)
 
+        # return the final output object after sorting
         final = []
         if type(available) == list:
             final = sorted(available)
@@ -1745,6 +1836,13 @@ class Settlement(Models.UserAsset):
             self.add_timeline_event(self.params)
         elif action == "rm_timeline_event":
             self.rm_timeline_event(self.params)
+
+        elif action == "add_location":
+            self.add_location()
+        elif action == "rm_location":
+            self.rm_location()
+        elif action == "set_location_level":
+            self.set_location_level()
 
         elif action == "add_innovation":
             self.add_innovation()

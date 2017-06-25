@@ -2900,7 +2900,7 @@ class settlement:
                     class="kd_checkbox_checked campaign_summary_bullet"
                     ng-repeat="l in settlement_sheet.locations"
                 >
-                    {{l}}
+                    {{settlement.game_assets.locations[l].name}}
                 </span>
             </div>
 
@@ -3313,7 +3313,7 @@ class settlement:
                 <span class="bullet"></span>
                 <span
                     class="item"
-                    ng-click="rmLocation(loc)"
+                    ng-click="rmLocation($index, loc)"
                 >
                     {{settlement.game_assets.locations[loc].name}}
                 </span>
@@ -3328,11 +3328,21 @@ class settlement:
                     </select>
                 </span> <!-- optional levels controls -->
 
-            </div> <!-- line_item location_container add/rm for locations -->
+            </div> <!-- line_item location_container: list/rm locations -->
 
-            <BR><BR>
-            PICKER NOT IMPLEMENTED
 
+            <div class="line_item">
+                <span class="empty_bullet" /></span>
+                <select
+                    name="add_location"
+                    ng-init="setLocationOptions()"
+                    ng_model="newLocation"
+                    ng_change="addLocation()"
+                    ng-options="loc.handle as loc.name for loc in location_options"
+                >
+                    <option value="" disabled selected>Add Location</option>
+                </select>
+            </div>
 
         </div> <!-- settlement_sheet_block_group locations controller-->
 
@@ -3377,7 +3387,7 @@ class settlement:
                     >
                     </select>
                 </span> <!-- optional levels controls -->
-           </div>
+            </div>
 
             <div class="line_item">
                 <span class="empty_bullet" /></span>

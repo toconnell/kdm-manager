@@ -7,13 +7,34 @@ function reloadSheet() {
 
 app.controller("locationsController", function($scope) {
     $scope.addLocation = function() {
-        console.error("addLocation is not implemented!")
+        if ($scope.newLocation === null) {return false};
+        $scope.settlement_sheet.locations.push($scope.newLocation);
+        $scope.postJSONtoAPI('settlement', 'add_location', {"handle": $scope.newLocation});
+        $scope.setLocationOptions();
     };
-    $scope.rmLocation = function(index,loc_name) {
-        console.error("rmLocation is not implemented!")
+    $scope.rmLocation = function(index, loc_handle) {
+        $scope.settlement_sheet.locations.splice(index, 1);
+        $scope.postJSONtoAPI('settlement', 'rm_location', {"handle": loc_handle}); 
+        $scope.setLocationOptions();
     };
-    $scope.setLocationLevel = function(loc_name,lvl){
-        console.error("setLocationLevel is not implemented!")
+    $scope.setLocationLevel = function(loc_name, lvl) {
+        var js_obj = {"handle": loc_name, "level": lvl};
+        $scope.postJSONtoAPI('settlement', 'set_location_level', js_obj);
+    };
+    $scope.setLocationOptions = function() {
+        var res = $scope.getJSONfromAPI('settlement','get');
+        res.then(
+            function(payload) {
+                $scope.location_options = payload.data.game_assets.locations;
+                // remove anything that's currently in the settlement sheet
+                for (var i = 0; i < $scope.settlement_sheet.locations.length; i++) {
+                    var loc = $scope.settlement_sheet.locations[i];
+                    delete $scope.location_options[loc];
+                };
+//                console.log("Locations options updated!");
+            },
+            function(errorPayload) {console.error("Could not retrieve location options from API!" + errorPayload);}
+        );
     };
 });
 

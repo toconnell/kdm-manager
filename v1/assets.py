@@ -4235,8 +4235,8 @@ class Settlement:
         # now create our list of all possible sources: any game asset with an
         #  an endeavor should be in this
         sources = copy(self.get_game_asset("innovations", update_mins=False, handles_to_names=True))
+        sources = copy(self.get_game_asset("locations", update_mins=False, handles_to_names=True))
         sources.extend(self.settlement["principles"])
-        sources.extend(self.settlement["locations"])
         sources.extend(self.settlement["storage"])
 
         buffs = {}
@@ -4956,7 +4956,7 @@ class Settlement:
             o_dict = principle["options"][o_handle]
             if o_dict["name"] in self.get_principles():
                 self.logger.debug("[%s] unset %s %s principle '%s'." % (self.User, self, principle["name"], o_dict["name"]))
-                self.log_event("%s removed the settlement %s principle." % (self.User, principle["name"]))
+                self.log_event("%s removed the settlement %s principle." % (self.User.user["login"], principle["name"]))
                 self.settlement["principles"].remove(o_dict["name"])
                 if "current_survivor" in o_dict.keys():
                     self.increment_all_survivors(o_dict["current_survivor"], action="decrement")
