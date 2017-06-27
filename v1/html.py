@@ -655,7 +655,7 @@ class angularJS:
             </div> <!-- settlement_notes_application_container -->
 
             <div
-                ng-if="arrayContains(user_login, settlement_sheet.admins) == true"
+                ng-if="user_is_settlement_admin"
                 ng-controller="playerManagementController"
             >
                 <hr/>

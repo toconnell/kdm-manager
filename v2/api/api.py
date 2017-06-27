@@ -182,6 +182,7 @@ def collection_action(collection, action, asset_id):
 
     if not "Authorization" in request.headers:
         application.logger.warn("Performing '%s' on '%s' object '%s' without authorization!" % (action, collection, asset_id))
+        application.logger.warn("Request URL -> %s" % request.url)
     else:
         u = users.refresh_authorization(request.headers["Authorization"])
         request.User = users.User(_id=u["_id"])

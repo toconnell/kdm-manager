@@ -124,7 +124,7 @@ def post_JSON_to_route(route=None, payload={}, headers={}, Session=None):
 
 
 @retry(tries=3,delay=1,jitter=1,logger=logger)
-def route_to_dict(route, params={}, return_as=dict, access_token=None):
+def route_to_dict(route, params={}, return_as=dict, Session=None):
     """ Retrieves data from a route. Returns a dict by default, which means that
     a 404 will come back as a {}. """
 
@@ -139,8 +139,11 @@ def route_to_dict(route, params={}, return_as=dict, access_token=None):
     j = json.dumps(params, default=json_util.default)
 
     h = {'content-type': 'application/json'}
-    if access_token is not None:
-        h["Authorization"] = "JWT %s" % access_token
+
+    if Session is not None:
+        if not check_token(Session):
+            refresh_jwt_token(Session)
+        h['Authorization'] = Session.session["access_token"]
 
     try:
         if params == {}:

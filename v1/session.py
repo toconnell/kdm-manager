@@ -343,7 +343,7 @@ class Session:
         # now dial the API; fail noisily if we can't get it
         self.api_settlement = api.route_to_dict(
             "settlement/get/%s" % self.current_settlement,
-#            access_token = self.session["access_token"],
+            Session=self,
         )
         if self.api_settlement == {}:
             self.logger.error("[%s] could not retrieve settlement from API server!" % self.User)

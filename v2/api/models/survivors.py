@@ -135,12 +135,13 @@ class Survivor(Models.UserAsset):
         # check AIs and see if any add a survival action
         AI = abilities_and_impairments.Assets()
         for ai in self.survivor["abilities_and_impairments"]:
-            ai_dict = AI.get(ai)
-            add_sa = ai_dict.get("survival_action", None)
-            if add_sa is not None:
-                sa_dict = SA.get_asset(add_sa)
-                sa_dict["available"] = True
-                available_actions.append(sa_dict)
+            ai_dict = AI.get_asset(ai)
+            if ai_dict is not None:
+                add_sa = ai_dict.get("survival_action", None)
+                if add_sa is not None:
+                    sa_dict = SA.get_asset(add_sa)
+                    sa_dict["available"] = True
+                    available_actions.append(sa_dict)
 
         return available_actions
 

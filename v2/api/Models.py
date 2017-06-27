@@ -121,11 +121,13 @@ class AssetCollection():
 
     def get_handles(self):
         """ Dumps all asset handles, i.e. the list of self.assets keys. """
+
         return sorted(self.assets.keys())
 
 
     def get_names(self):
         """ Dumps all asset 'name' attributes, i.e. a list of name values. """
+
         return sorted([self.assets[k]["name"] for k in self.get_handles()])
 
 
@@ -133,14 +135,7 @@ class AssetCollection():
         """ Return an asset dict based on a handle. Return None if the handle
         cannot be retrieved. """
 
-        try:
-            asset = self.assets[handle]
-            if not "handle" in asset.keys():
-                asset["handle"] = handle
-            return asset
-        except Exception as e:
-            self.logger.exception(e)
-            return None
+        return self.assets.get(handle, None)
 
 
     def get_asset_from_name(self, name, case_sensitive=False):

@@ -23,8 +23,9 @@ function hideFullPageLoader() {
 
 app.factory('apiService', function($http) {
     return {
-        getSettlement: function(root_url, api_route, s_id) {
-            return $http.get(root_url + 'settlement/' + api_route + '/' + s_id);
+        getSettlement: function(root_url, api_route, s_id, config) {
+            if (config === undefined) {console.error("apiService factory invoked without 'Authorization' header!")};
+            return $http.get(root_url + 'settlement/' + api_route + '/' + s_id, config);
         }
     }
 });
@@ -62,8 +63,12 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
         var api_route = r;
         if (api_route == undefined) {var api_route='get';};
 
+        // get the Authorization JWT stuff
+        $scope.set_jwt_from_cookie();
+        var config = {"headers": {"Authorization": $scope.jwt}};
+
         // returns a promise
-        return apiService.getSettlement($scope.api_url, api_route, $scope.settlement_id);
+        return apiService.getSettlement($scope.api_url, api_route, $scope.settlement_id, config);
     };
 
     // This is the main event: initialize everything settlement-related that
@@ -124,10 +129,6 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
         console.log("Current user login = " + $scope.user_login);
     }
 
-    $scope.getJSONfromAPI = function(collection, action) {
-        return apiService.getSettlement($scope.api_url, action, $scope.settlement_id);
-    };
-
 
     $scope.set_jwt_from_cookie = function() {
         var cname = "jwt_token";
@@ -147,6 +148,14 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
         console.warn("Could not set JWT from cookie!");
         $scope.jwt = false;
         return false;
+    };
+
+    $scope.getJSONfromAPI = function(collection, action) {
+
+        $scope.set_jwt_from_cookie();
+        var config = {"headers": {"Authorization": $scope.jwt}};
+
+        return apiService.getSettlement($scope.api_url, action, $scope.settlement_id, config);
     };
 
     $scope.postJSONtoAPI = function(collection, action, json_obj) {
@@ -299,7 +308,7 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
     };
 
     $scope.arrayContains = function(needle, arrhaystack) {
-        if (arrhaystack === undefined) {console.error("Cannot find " + needle + " in undefined!"); return false;};
+        if (arrhaystack === undefined) {console.warn("Cannot find " + needle + " in undefined!"); return false;};
         if (typeof arrhaystack != "array") {
             if (typeof arrhaystack == "object") {
             } else {
