@@ -6,7 +6,7 @@ Debian system.
 not planning on running the Manager, but be advised that the two share apt and
 python dependencies.)
 
-Both [http:///kdm-manager.com] and [http://thewatcher.io] run on Ubuntu 16.04 LTS.
+Both [http://kdm-manager.com] and [http://thewatcher.io] run on Ubuntu 16.04 LTS.
 
 
 ## 1.) Install Dependencies 
