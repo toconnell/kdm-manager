@@ -382,7 +382,7 @@ input.sign_in, button.sign_in {border-right: 1px solid #666; font-weight: normal
 label.sign_in, input.sign_in[type=checkbox] {position: relative; display:block;   }
 label.sign_in {font-size: 50px; }
 
-#user_error_msg {position: absolute; top: 30%; border: 0; padding: 10px; }
+#user_error_msg {position: absolute; bottom: 3%; left: 2%; right: 2%; border: 0; padding: 3%; text-align: center; }
 button.tiny_button {padding: 5px; font-size: 70%; margin: auto; margin-top: 40px; float: left; width: auto; padding: 10px; margin-left: 30px;  }
 
 
@@ -800,7 +800,7 @@ input[type=radio], input[type=checkbox] {display: none; }
 label {margin: 20px; font-size: 65px; color: #999; }
 label, .full_width {clear: both; display: block; }
 
-button, #user_error_msg, .full_width {width: 90%; margin: 5%; }
+button, .full_width {width: 90%; margin: 5%; }
 .min_width {min-width: 5%; padding: 5px; }
 
 select {width: auto; margin-left: 20px; font-size: 60px; }
@@ -1473,7 +1473,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 	input.sign_in, button.sign_in {width: 90%; font-size: 13pt; height: auto; margin: 0 auto; margin-bottom: 10px; }
     input[type="checkbox"].sign_in {height: 30px; width: 30px; }
 	button.sign_in {font-weight: bold; font-size: 20px;}
-    #user_error_msg {width: 28%; font-size: 12pt; right: 30%; top: -50px; bottom: auto; }
+    #user_error_msg {bottom: 1%; padding: 1%; }
 
     /*  dashboard styles - wide */
     div.dashboard_preferences {width: auto; margin-left: 20px; margin-right: 20px; margin-top: 10px;}

@@ -10,14 +10,8 @@ app.controller("cursedItemsController", function($scope) {
 });
 
 app.controller("sotfRerollController", function($scope) {
-
     $scope.sotfToggle = function() {
-//        console.log($scope.sotf_reroll_toggle);
-//        js_obj = {"sotf_reroll": $scope.sotf_reroll_toggle};
-//        $scope.postJSONtoAPI('survivor', 'update_survivor', js_obj);
-        params="sotf_reroll=" + $scope.sotf_reroll_toggle;
-        modifyAsset("survivor", $scope.survivor._id.$oid, params);
-
+        $scope.postJSONtoAPI('survivor', 'toggle_sotf_reroll', {});
     };
 
 });

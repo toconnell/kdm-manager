@@ -118,7 +118,7 @@ do_dev_install () {
 	ln -s $INSTALL_DIR/v1/nginx/default $NGINX_ROOT_D/sites-enabled/default -v
 }
 do_prod_install () {
-	ln -s $INSTALL_DIR/v1/nginx/kdm-manager $NGINX_ROOT_D/sites-enabled/kdm-manager -v
+	ln -s $INSTALL_DIR/v1/nginx/production $NGINX_ROOT_D/sites-enabled/kdm-manager -v
 }
 
 do_install () {

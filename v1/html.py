@@ -17,7 +17,9 @@ from utils import load_settings, mdb, get_logger, get_latest_update_string
 settings = load_settings()
 logger = get_logger()
 
-user_error_msg = Template('<div id="user_error_msg" class="$err_class">$err_msg</div>')
+user_error_msg = Template("""
+    <div id="user_error_msg" class="$err_class" onclick="hide('user_error_msg')">$err_msg</div>
+    """)
 
 
 class panel:
@@ -175,7 +177,8 @@ class dashboard:
             <li>Developed, maintained and edited by <a href="http://toconnell.info">Timothy O'Connell</a>.</li>
             <li>Icon font ('kdm-font-10') by <a href="http://steamcommunity.com/id/GeorgianBalloon" target="top">Miracle Worker</a>.</li>
             <li>The <font style="font-family: Silverado; font-size: 1.3em;">Silverado Medium Condensed</font> font is licensed through <a href="https://www.myfonts.com/" target="top">MyFonts.com</a>.
-            <li>Loading "spinner" gifs by <a href="http://loading.io" target="top">loading.io</a></li>
+            <li>Loading hourglass GIF designed by <a href="http://loganogden.com/" target="top">Logan Ogden</a>.</li>
+            <li>Loading spinner GIF by <a href="http://loading.io" target="top">loading.io</a></li>
         </ul>
 
         </div> <!-- about_div -->
@@ -1694,23 +1697,24 @@ class survivor:
             ng-controller="sotfRerollController"
         >
 
-        <input
-            id="sotfRerollCheckbox"
-            type="checkbox"
-            class="kd_css_checkbox kd_radio_option"
-            ng-model="sotf_reroll_toggle"
-            ng-checked="survivor.sotf_reroll == true"
-            ng-click="sotfToggle()"
-        />
-        <label
-            for="sotfRerollCheckbox"
-        >
-        Once per lifetime reroll
-        <p class="sotf_reroll_caption">
-            <b>Survival of the fittest:</b> Once per lifetime, a survivor may
-            reroll a single roll result. They must keep this result.</b>
-        </p>
-        </label>
+            <input
+                id="sotfRerollCheckbox"
+                type="checkbox"
+                class="kd_css_checkbox kd_radio_option"
+                ng-model="sotf_reroll_toggle"
+                ng-checked="survivor.sotf_reroll == true"
+                ng-click="sotfToggle()"
+            />
+
+            <label
+                for="sotfRerollCheckbox"
+            >
+                Once per lifetime reroll
+                <p class="sotf_reroll_caption">
+                    <b>Survival of the fittest:</b> Once per lifetime, a survivor may
+                    reroll a single roll result. They must keep this result.</b>
+                </p>
+            </label>
 
         </div> <!-- sotf reroll -->
 
@@ -4156,6 +4160,8 @@ def authenticate_by_form(params):
             create_new = admin.create_new_user(params["login"].value.strip().lower(), params["password"].value.strip(), params["password_again"].value.strip(), params)
             if create_new == False:
                 err_msg = user_error_msg.safe_substitute(err_class="warn", err_msg="Passwords did not match! Please re-enter.")
+            elif create_new == "invalid_email":
+                err_msg = user_error_msg.safe_substitute(err_class="warn", err_msg="A valid email address is required!")
             elif create_new is None:
                 err_msg = user_error_msg.safe_substitute(err_class="warn", err_msg="Email address could not be verified! Please re-enter.")
             elif create_new == True:

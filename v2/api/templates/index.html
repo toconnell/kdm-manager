@@ -227,14 +227,30 @@
             "lion_god"], "survivors": ["adam", "anna"], "name": "Chicago",
             "special": ["create_first_story_survivors"]}
             </code>
-            <p><b>NB:</b> if successful, this route returns a serialized version of the new settlement,
+            <p>If successful, this route returns a serialized version of the new settlement,
             including its OID, as JSON.</p>
+            <p>The following <code>special</code> values are supported by the API:</p>
+                <table class="embedded_table">
+                    <tr><th>value</th><th>result</th></tr>
+                    <tr>
+                     <td class="key">create_first_story_survivors</td>
+                     <td class="value">Creates two male and two female survivors,
+                     assigns them names and places Founding Stones and Cloths in
+                     Settlement Storage.</td>
+                    </tr>
+                    <tr>
+                     <td class="key">create_seven_swordsmen</td>
+                     <td class="value">Not implemented. Coming soon!</td>
+                    </tr>
+                </table>
+            <p><b>Important!</b> Unsupported <code>special</code> values are
+            ignored.</p>
             </td>
         </tr>
         <tr class="ul">
             <td> /new/survivor </td>
             <td> POST </td>
-            <td> Coming Soon!</td>
+            <td> Not implemented! Coming Soon!</td>
         </tr>
 
 
@@ -272,7 +288,40 @@
 
 
         <tr class="ul route_root">
-            <th colspan="3"><b>Settlement Routes:</b> all routes for working directly with a settlement follow a <code>/settlement/&lt;action&gt;/&lt;settlement_id&gt;</code> convention. These routes are private and require authentication. </th>
+            <th colspan="3">
+                <b>Settlement Routes:</b> all routes for working directly with a settlement follow a <code>/settlement/&lt;action&gt;/&lt;settlement_id&gt;</code> convention. These routes are private and require authentication. 
+
+            <p>Many operations below require asset handles.
+            Asset handles may be found in the settlement's <code>game_assets</code>
+            element, which contains dictionaries and lists of assets that are
+            available to the settlement based on its campaign, expansions, etc.</p>
+            <p>Typical settlement JSON looks like this:</p>
+            <pre><code>
+            {
+                "user_assets": {...},
+                "meta": {...},
+                "sheet": {...},
+                "game_assets": {
+                    "milestones_options": {...},
+                    "campaign": {...},
+                    "weapon_specializations": {...},
+                    "locations": {...},
+                    "innovations": {...},
+                    "principles_options": {...},
+                    "causes_of_death": {...},
+                    "quarry_options": {...},
+                    "nemesis_options": {...},
+                    "eligible_parents": {...},
+                    ...
+                },
+            }
+            </code></pre>
+
+            <p><b>Important!</b> As indicated elsewhere in this documentation,
+            asset handles will never change. Asset names are subject to change,
+            and, while name-based lookup methods are supported by various routes,
+            using names instead of handles is not recommended.</p>
+            </th>
         </tr>
  
 
@@ -296,13 +345,14 @@
         </tr>
 
 
-        <!-- settlement update -->
 
-        <tr class="ul">
-            <td> /settlement/set/&lt;settlement_id&gt; </td>
-            <td> POST </td>
-            <td> Not implemented! Coming soon!</td>
+        <!-- expansion controls -->
+        <tr>
+            <td class="subsection_header" colspan="3"><b>Expansion content
+            management:</b> add and remove expansion content. These methods
+            require posting lists of expansion content handles. </td>
         </tr>
+
         <tr class="ul">
             <td> /settlement/add_expansions/&lt;settlement_id&gt; </td>
             <td> POST </td>
@@ -335,6 +385,14 @@
             considerations.</p>
             </td>
         </tr>
+
+
+        <!-- monster controls -->
+        <tr>
+            <td class="subsection_header" colspan="3"><b>Monster management:</b>
+            update the settlement's quarries, current quarry, nemesis info,
+            etc. </td>
+        </tr>
         <tr class="ul">
             <td> /settlement/set_current_quarry/&lt;settlement_id&gt; </td>
             <td> POST </td>
@@ -350,6 +408,34 @@
             list (which is a list of monster names created for the settlement
             based on expansion content, etc.)</p>
             </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/update_nemesis_levels/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td>
+             <p>Use this method to update the Settlement sheet's <code>nemesis_encounters</code>
+             dictionary, i.e. to indicate that a nemesis encounter has occurred.</p>
+             <p>A typical dictionary might look like this:</p>
+             <code>        "nemesis_encounters": {"slenderman": [], "butcher": [1,2]}</code>
+             <p>In this example, the settlement has (somehow) encountered a
+             a level 1 Butcher, but has not yet encountered a Slenderman.</p>
+             <p>To update the dictionary, POST some JSON that includes the
+             nemesis monster's handle and the levels that are complete.</p>
+             <p>POST this JSON to reset/undo/remove Butcher encounters:<p>
+             <code>{"handle": "butcher", "levels": []}</code>
+             <p>POST this JSON to record an encounter with a level 1 Manhunter:</p>
+             <code>{"handle": "manhunter", "levels": [1]}</code>
+            </td>
+        </tr>
+
+
+
+        <!-- timeline controls -->
+        <tr>
+            <td class="subsection_header" colspan="3"><b>Timeline controls:</b>
+            use these routes to manage the settlement's timeline. These are
+            probably the most complicated controls in the API, so read the docs
+            carefully! </td>
         </tr>
         <tr class="ul">
             <td> /settlement/add_timeline_event/&lt;settlement_id&gt; </td>
@@ -400,6 +486,46 @@
             'user_login': 'user@whatever.com'}</code>
             </td>
         </tr>
+
+
+        <!-- location controls -->
+        <tr>
+            <td class="subsection_header" colspan="3"><b>Locations:</b>
+            manage settlement locations and location levels.</td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/add_location/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td> <p> POS aa location <code>handle</code> to this route to add
+            it to the settlement's Locations:</p>
+            <code>{'handle': 'bome_smith'}</code>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/rm_location/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td> <p>This is basically the reverse of <code>add_location</code>
+            and works nearly identically. POST a JSON representation of a 
+            Location handle to remove it from the settlement's list:</p>
+            <code>{'handle': 'barber_surgeon'}</code>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/set_location_level/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td> <p>For Locations that have a level (e.g. the People of the 
+            Sun's 'Sacred Pool'), you may set the Location's level by posting
+            the <code>handle</code> of the location and the desired level:</p>
+            <code>{'handle': 'sacred_pool', 'level': 2}</code>
+            </td>
+        </tr>
+
+
+        <!-- Innovation controls -->
+        <tr>
+            <td class="subsection_header" colspan="3"><b>Innovations:</b>
+            manage settlement innovations and innovation levels.</td>
+        </tr>
         <tr class="ul">
             <td> /settlement/add_innovation/&lt;settlement_id&gt; </td>
             <td> POST </td>
@@ -407,9 +533,6 @@
             it to the settlement's Innovations:</p>
             <code>{'handle': 'hovel'}</code>
             <p>...or:</p><code>{'handle': 'mastery_club'}</code>
-            <p>Innovation handles may be found in the settlement's
-            <code>game_assets -> innovations</code> element, which is a
-            dictionary/hash of innovations where the keys are handles.</p>
             </td>
         </tr>
         <tr class="ul">
@@ -432,7 +555,43 @@
         </tr>
 
 
+        <!-- misc -->
+        <tr>
+            <td class="subsection_header" colspan="3"><b>Other:</b>
+            update the settlement's endeavor token count, lost settlements and
+            other miscellaneous Settlement attributes. </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/update_endeavor_tokens/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td>
+            <p>Use this route to change a settlement's endeavor token count.</p>
+            <p>POST some JSON containing the number to modify by:</p>
+            <code>{"modifier": 2}</code>
+            <p>The above code would add two to the settlement's current total,
+            whereas the code below would decrement by one:</p>
+            <code>{"modifier": -1}</code>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/set_lost_settlements/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td>
+            <p>Use this route to set a settlement's Lost Settlements total.</p>
+            <p>POST some JSON containing the new value to set it to:</p>
+            <code>{"value": 2}</code>
+            <p>The above code would set the settlement's Lost Settlements total
+            to two; negative numbers will default to zero. </p>
+            </td>
+        </tr>
+
+
         <!-- meta updates, e.g. logs, notes, etc. -->
+        <tr>
+            <td class="subsection_header" colspan="3"><b>Meta and admin controls:</b>
+            manage settlement meta data, including adding/removing settlement notes,
+            changing the list of settlement admins, etc. </td>
+        </tr>
         <tr class="ul">
             <td> /settlement/add_settlement_note/&lt;settlement_id&gt; </td>
             <td> POST </td>
@@ -446,6 +605,7 @@
 
 
 
+
         <tr class="ul route_root">
             <th colspan="3"><b>Survivor Routes:</b> all routes for working directly with an individual survivor follow a <code>/settlement/&lt;action&gt;/&lt;settlement_id&gt;</code> convention. Like settlement routes, these routes are private and require authentication. </th>
         </tr>
@@ -454,6 +614,37 @@
             <td> /settlement/get/&lt;survivor_id&gt; </td>
             <td> GET </td>
             <td> Retrieve a serialized version of the survivor.</td>
+        </tr>
+
+
+        <!-- survival -->
+        <tr class="ul">
+            <td> /settlement/update_survival/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p>POST a 'modifier' integer to this route to add that number
+            to the survivor's Survival: </p>
+            <code>{"modifier": 2}</code>
+            <p>...or:</p>
+            <code>{"modifier": -1}</code>
+            <p><b>Important!</b> The API will not go higher than the settlement's
+            survival limit or lower than zero, regardless of values POSTed to
+            this route.</p>
+            </td>
+        </tr>
+
+        <!-- misc. -->
+        <tr class="ul">
+            <td> /settlement/toggle_sotf_reroll/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p>POST a blank/empty request to this route to toggle the survivor's
+            once per lifetime Survival of the Fittest reroll on or off.</p>
+            <p><b>Important!</b> The actual attribute of the survivor's <code>
+            sheet</code> is <i>sotf_reroll</i>:</p>
+            <code>{"sheet": {"sotf_reroll": true, ...}, "meta": {...}, ...}</code>
+            <p>But since it is not part of the default data model for survivors,
+            it will sometimes simply be undefined/unset, rather than a.) always
+            present and b.) always a boolean.</p>
+            </td>
         </tr>
 
     </table>

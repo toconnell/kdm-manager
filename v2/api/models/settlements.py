@@ -60,7 +60,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.46
+        self.object_version=0.47
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize_data()
 
@@ -709,6 +709,30 @@ class Settlement(Models.UserAsset):
         if save:
             self.save()
 
+    def set_lost_settlements(self, new_value=None):
+        """ Updates settlement["lost_settlements"] to be int('new_value'). """
+
+        if self.check_request_params(["value"], True):
+            new_value = self.params["value"]
+        else:
+            self.logger.error("Incomplete params for updating lost settlements!")
+            raise Exception
+
+        try:
+            new_value = int(new_value)
+        except Exception as e:
+            self.logger.error("Unable to set 'lost_settlements' to non-integer '%s'!" % new_value)
+            self.logger.exception(e)
+            raise Exception(e)
+
+        if new_value <= 0:
+            self.settlement["lost_settlements"] = 0
+        else:
+            self.settlement["lost_settlements"] = new_value
+
+        self.log_event("%s set Lost Settlements count to %s" % (request.User.login, new_value))
+        self.save()
+
 
     def update_endeavor_tokens(self, modifier=0):
         """ Updates settlement["endeavor_tokens"] by taking the current value,
@@ -729,12 +753,16 @@ class Settlement(Models.UserAsset):
         self.save()
 
 
-    def update_nemesis_levels(self, params):
+    def update_nemesis_levels(self):
         """ Updates a settlement's 'nemesis_encounters' array/list for a nemesis
         monster handle. """
 
-        handle = params["handle"]
-        levels = params["levels"]
+        if self.check_request_params(["handle","levels"], True):
+            handle = self.params["handle"]
+            levels = self.params["levels"]
+        else:
+            self.logger.error("Incomplete params for updating nemesis level!")
+            raise Exception
 
         if handle not in self.settlement["nemesis_monsters"]:
             self.logger.error("Cannot update nemesis levels for '%s' (nemesis is not in 'nemesis_monsters' list for %s)" % (handle, self))
@@ -809,6 +837,11 @@ class Settlement(Models.UserAsset):
         """ Helper method to rapidly get the mdb document of the settlement's
         creator/founder. """
         return utils.mdb.users.find_one({"_id": self.settlement["created_by"]})
+
+
+    def get_survival_limit(self):
+        """ Returns the settlement's survival limit as an int. """
+        return int(self.settlement["survival_limit"])
 
 
     def get_innovation_deck(self, return_type=False):
@@ -1802,12 +1835,12 @@ class Settlement(Models.UserAsset):
         'action' kwarg appropriately. This is the ancestor of the legacy app
         assets.Settlement.modify() method. """
 
-        if request.method != "GET":
-            self.get_request_params()
+        self.get_request_params(verbose=False)
 
         #
         #   simple GET type methods
         #
+
         if action == "get":
             return self.return_json()
         elif action == "event_log":
@@ -1815,28 +1848,31 @@ class Settlement(Models.UserAsset):
         elif action == "get_innovation_deck":
             return Response(response=self.get_innovation_deck("JSON"), status=200, mimetype="application/json")
 
-        #
-        #   misc. controllers and actions (most actions go here)
-        #
+        # expansions
         elif action == "add_expansions":
             self.add_expansions(self.params)
         elif action == "rm_expansions":
             self.rm_expansions(self.params)
 
+        # set methods
         elif action == "set_current_quarry":
             self.set_current_quarry()
+        elif action == "set_lost_settlements":
+            self.set_lost_settlements()
 
+        # update methods
         elif action == "update_nemesis_levels":
-            self.update_nemesis_levels(self.params)
-
+            self.update_nemesis_levels()
         elif action == "update_endeavor_tokens":
             self.update_endeavor_tokens()
 
+        # timeline 
         elif action == "add_timeline_event":
             self.add_timeline_event(self.params)
         elif action == "rm_timeline_event":
             self.rm_timeline_event(self.params)
 
+        # specialized controllers
         elif action == "add_location":
             self.add_location()
         elif action == "rm_location":

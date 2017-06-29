@@ -9,6 +9,7 @@ from bson import json_util
 from flask import request, Response
 
 import utils
+import models
 
 #
 #   Base classes for game assets are here. Also, special exceptions for those
@@ -115,7 +116,8 @@ class AssetCollection():
         for k, v in self.root_module.__dict__.iteritems():
             if isinstance(v, dict) and not k.startswith('_'):
                 for dict_key in v.keys():
-                    v[dict_key]["type"] = k
+                    if v[dict_key].get("type", None) is None:
+                        v[dict_key]["type"] = k
                     self.assets.update(v)
 
 
@@ -131,11 +133,16 @@ class AssetCollection():
         return sorted([self.assets[k]["name"] for k in self.get_handles()])
 
 
-    def get_asset(self, handle):
+    def get_asset(self, handle, backoff_to_name=False):
         """ Return an asset dict based on a handle. Return None if the handle
         cannot be retrieved. """
 
-        return self.assets.get(handle, None)
+        asset = self.assets.get(handle, None)
+
+        if asset is None and backoff_to_name:
+            return self.get_asset_from_name(handle)
+        else:
+            return asset
 
 
     def get_asset_from_name(self, name, case_sensitive=False):
@@ -397,9 +404,11 @@ class UserAsset():
         if self.collection == "settlements":
             self.settlement = mdb_doc
             self._id = self.settlement["_id"]
+            self.settlement_id = self._id
         elif self.collection == "survivors":
             self.survivor = mdb_doc
             self._id = self.survivor["_id"]
+            self.settlement_id = self.survivor["settlement"]
         elif self.collection == "users":
             self.user = mdb_doc
             self._id = self.user["_id"]
@@ -414,13 +423,17 @@ class UserAsset():
         return Response(response=self.serialize(), status=200, mimetype="application/json")
 
 
-    def get_request_params(self):
+    def get_request_params(self, verbose=False):
         """ Checks the incoming request (from Flask) for JSON and tries to add
         it to self. """
 
         params = {}
 
-        if request.method == "GET":
+        if verbose:
+            self.logger.debug("%s request info: %s" % (request.method, request.url))
+            self.logger.debug("%s request user: %s" % (request.method, request.User))
+
+        if request.method == "GET" and verbose:
             self.logger.warn("%s:%s get_request_params() call is being ignored!" % (request.method, request.url))
             return False
 
@@ -433,8 +446,9 @@ class UserAsset():
                 self.logger.warn("%s request JSON could not be converted to dict!" % request.method)
                 params = request.get_json()
         else:
-            self.logger.error("%s request did not contain JSON data!" % request.method)
-            self.logger.error("Request URL: %s" % request.url)
+            if verbose:
+                self.logger.warn("%s request did not contain JSON data!" % request.method)
+                self.logger.warn("Request URL: %s" % request.url)
 
         self.params = params
 
@@ -460,6 +474,31 @@ class UserAsset():
     #   get/set methods for User Assets below here
     #
 
+    def list_assets(self, attrib=None):
+        """ Laziness method that returns a list of dictionaries where dictionary
+        in the list is an asset in the object's list of those assets.
+
+        Basically, if your object is a survivor, and you set 'attrib' to
+        'abilities_and_impairments', you get back a list of dictionaries where
+        dictionary is an A&I asset dictionary.
+
+        Same goes for settlements: if you set 'attrib' to 'locations', you get
+        a list where each item is a location asset dict.
+
+        Important! This ignores unregistered/unknown/bogus items! Anything that
+        cannot be looked up by its handle or name is ignored!
+        """
+
+        output = []
+        exec "A = models.%s.Assets()" % attrib
+        exec "asset_list = self.%s['%s']" % (self.collection[:-1], attrib)
+        for a in asset_list:
+            a_dict = A.get_asset(a, backoff_to_name=True)
+            if a_dict is not None:
+                output.append(a_dict)
+        return output
+
+
     def get_serialize_meta(self):
         """ Sets the 'meta' dictionary for the object when it is serialized. """
 
@@ -480,17 +519,24 @@ class UserAsset():
 
         return int(self.settlement["lantern_year"])
 
+
     #
     #   asset update methods below
     #
 
     def log_event(self, msg, event_type=None):
         """ Logs a settlement event to mdb.settlement_events. """
+
+        if self.collection == "survivors":
+            current_ly = self.Settlement.get_current_ly()
+        else:
+            current_ly = self.get_current_ly()
+
         d = {
             "created_on": datetime.now(),
             "created_by": None,
-            "settlement_id": self.settlement["_id"],
-            "ly": self.settlement["lantern_year"],
+            "settlement_id": self.settlement_id,
+            "ly": current_ly,
             "event": msg,
             "event_type": event_type,
         }

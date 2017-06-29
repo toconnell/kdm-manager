@@ -26,3 +26,5 @@ code {background-color: #DDFFDD; }
 .embedded_table {margin: 2% auto; border-collapse: collapse; }
 .embedded_table td {padding: 2%; border-top: 1px solid #aaa; }
 .embedded_table td.key {font-family: monospace; border-right: 2px solid #aaa; width: 40%; }
+
+td.subsection_header {padding: 3%; border-bottom: 1px solid #ddd; }

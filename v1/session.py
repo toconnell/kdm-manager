@@ -131,10 +131,11 @@ class Session:
                     self.session = None
 
 
-    def save(self):
+    def save(self, verbose=True):
         """ Generic save method. """
         mdb.sessions.save(self.session)
-        self.logger.debug("[%s] saved changes to session in mdb!" % (self.User))
+        if verbose:
+            self.logger.debug("[%s] saved changes to session in mdb!" % (self.User))
 
 
     def log_out(self):

@@ -160,11 +160,25 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
 
     $scope.postJSONtoAPI = function(collection, action, json_obj) {
 
+        // figure out which asset ID to use
+        if (collection == 'settlement') {
+            var asset_id = $scope.settlement_id;
+        } else if (collection == 'survivor') {
+            var asset_id = $scope.survivor_id;
+        } else {
+            console.error("Collection '" + collection + "' is not supported by postJSONtoAPI method!");  
+            errorAlert();
+            return false;
+        };
+
+        // get auth header
         $scope.set_jwt_from_cookie();
         var config = {"headers": {"Authorization": $scope.jwt}};
 
-        var url = $scope.api_url + collection + "/" + action + "/" + $scope.settlement_id;
+        // create the URL and do the POST
+        var url = $scope.api_url + collection + "/" + action + "/" + asset_id;
         var res = $http.post(url, json_obj, config);
+
         res.success(function(data, status, headers, config) {
             savedAlert();
         });
@@ -172,6 +186,7 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
             errorAlert();
             console.error("API POST FAILURE!!!");
         });
+
         return res;
     };
 
@@ -212,6 +227,7 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
                 for (i = 0; i < survivors.length; i++) {
                     var survivor = survivors[i];
                     if (survivor.sheet._id.$oid == s_id) {
+                        $scope.survivor_id = survivor.sheet._id.$oid;
                         $scope.survivor = survivor.sheet;
                         $scope.bonuses = survivor.bonuses;
                         $scope.survival_actions = survivor.survival_actions;
@@ -808,7 +824,6 @@ function showHide(id) {
 function hide(id) {
     var e = document.getElementById(id);
     e.style.display="none";
-    window.alert("here");
 };
 
 // inc/dec functions + step-n-save

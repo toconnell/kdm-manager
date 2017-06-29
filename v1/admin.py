@@ -89,8 +89,11 @@ def create_new_user(login, password, password_again, params):
     login = login.lower()   # normalize email address on creation
 
     if password != password_again:
-        logger.error("New user creation failed! %s %s %s" % (login, password, password_again))
+        logger.error("New user creation failed! '%s' passwords do not match!" % (login))
         return False
+    elif "@" not in login:
+        logger.error("New User creation failed! %s does not contain an arrobe!")
+        return "invalid_email"
     else:
         logger.debug("Creating user '%s' from %s" % (login, get_user_agent()))
 

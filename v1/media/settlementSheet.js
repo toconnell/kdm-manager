@@ -269,8 +269,7 @@ app.controller("lostSettlementsController", function($scope,$rootScope) {
         else { 
             cur--;
             $scope.current_val = cur;
-            var params = "lost_settlements=" + cur;
-            modifyAsset("settlement", $scope.settlement_id, params);
+            $scope.postJSONtoAPI('settlement', 'set_lost_settlements', {"value": cur});
             var e = document.getElementById('box_' + cur);
             e.classList.remove('lost_settlement_checked');
         };
@@ -287,8 +286,7 @@ app.controller("lostSettlementsController", function($scope,$rootScope) {
             e.classList.add('lost_settlement_checked');
             cur++;
             $scope.current_val = cur;
-            var params = "lost_settlements=" + cur;
-            modifyAsset("settlement", $scope.settlement_id, params);
+            $scope.postJSONtoAPI('settlement', 'set_lost_settlements', {"value": cur});
         };
     };
 

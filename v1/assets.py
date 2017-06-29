@@ -3426,33 +3426,6 @@ class Settlement:
 
 
 
-    #
-    #   Settlement game asset management methods below
-    #
-
-    def add_expansions(self, e):
-        """ Interim/legacy support method. Adds an expansion via API POST. """
-        if type(e) != list:
-            e = [e]
-        response = api.post_JSON_to_route("/settlement/add_expansions/%s" % self.settlement["_id"], e)
-        if response.status_code == 200:
-            self.logger.debug("[%s] added %s expansions to %s via API call!" % (self.User, e, self))
-        else:
-            self.logger.error("[%s] add_expansions API call returned %s!" % (self.User, response.status_code))
-
-    def rm_expansions(self, e):
-        """ Interim/legacy support method. Adds an expansion via API POST. """
-        if type(e) != list:
-            e = [e]
-        response = api.post_JSON_to_route("/settlement/rm_expansions/%s" % self.settlement["_id"], e)
-        if response.status_code == 200:
-            self.logger.debug("[%s] removed %s expansions from %s via API call!" % (self.User, e, self))
-        else:
-            self.logger.error("[%s] rm_expansions API call returned %s!" % (self.User, response.status_code))
-
-
-
-
 
     #
     #   Settlement reference, retrieval and look-up methods below
@@ -4699,8 +4672,8 @@ class Settlement:
                 self.logger.debug("[%s] monster '%s' already in timeline for this year: %s. Skipping timeline update..." % (self, quarry_key, self.get_timeline_events(event_type="showdown_event")))
 
         if len(returning_survivor_name_list) > 0:
-            if self.get_endeavor_tokens() == 0:
-                self.update_endeavor_tokens(len(returning_survivor_name_list))
+            if self.settlement["endeavor_tokens"] == 0:
+                self.settlement["endeavor_tokens"] += len(returning_survivor_name_list)
                 self.log_event("Automatically set endeavor tokens to %s" % len(returning_survivor_name_list))
                 self.logger.debug("[%s] automatically applied endeavor tokens for %s returning survivors" % (self.User, len(returning_survivor_name_list)))
 
@@ -5066,19 +5039,6 @@ class Settlement:
                 self.logger.debug(params)
 
 
-
-    def update_lost_settlements(self, new_value=None):
-        """ Updates the settlement's lost settlements attribs. """
-
-        if new_value is None:
-            return False
-
-        if int(new_value) <= 0:
-            self.settlement["lost_settlements"] = 0
-        else:
-            self.settlement["lost_settlements"] = int(new_value)
-        self.logger.debug("[%s] set %s lost settlements for %s" % (self.User, self.settlement["lost_settlements"], self))
-
     def update_quarries(self, action, quarry_handle):
         """ Operates on self.settlement["quarries"]. """
 
@@ -5098,22 +5058,6 @@ class Settlement:
         else:
             logger.warn("[%s] the update_quarries() method does not support the '%s' action!" % (self.User,action))
         self.logger.debug("[%s] updated settlement quarries (%s %s)" % (self.User, action, quarry_handle))
-
-
-
-    def update_location_level(self, location_name, lvl):
-        """ Changes 'location_name' level to 'lvl'. """
-        self.logger.debug("[%s] Location '%s' level update initiated by %s..." % (self, location_name, self.User))
-
-        if len(lvl.split(":"))==2:
-            lvl = int(lvl.split(":")[1])
-        else:
-            lvl = int(lvl)
-        if not "location_levels" in self.settlement.keys():
-            self.settlement["location_levels"] = {location_name: lvl}
-        else:
-            self.settlement["location_levels"][location_name] = lvl
-        self.logger.debug("[%s] Location '%s' level set to %s." % (self, location_name, lvl))
 
 
     def get_special_rules(self, return_type=None):
@@ -5241,16 +5185,6 @@ class Settlement:
             current_quarry = self.settlement["current_quarry"]
 
         return current_quarry
-
-
-    def get_lost_settlements(self, return_type=None):
-        """ Returns the settlement's lost settlements as an int, or as JS
-        object (for use with angular controls). """
-
-        lost = int(self.settlement["lost_settlements"])
-
-        return lost
-
 
 
     def get_game_asset(self, asset_type=None, return_type=False, exclude=[], update_mins=True, admin=False, handles_to_names=False):
@@ -5571,8 +5505,6 @@ class Settlement:
 
             if p in ignore_keys:
                 pass
-            elif p == "lost_settlements":
-                self.update_lost_settlements(game_asset_key)
             elif p == "name":
                 self.update_settlement_name(game_asset_key)
             elif p == "add_defeated_monster":
@@ -5595,10 +5527,6 @@ class Settlement:
                 self.update_milestones(game_asset_key)
             elif p in ["add_item","remove_item"]:
                 self.update_settlement_storage("html_form", params)
-            elif p == "add_location":
-                self.add_game_asset("locations", game_asset_key)
-            elif p == "rm_location":
-                self.rm_game_asset("locations", game_asset_key)
             elif p == "abandon_settlement":
                 self.log_event("Settlement abandoned!")
                 self.settlement["abandoned"] = datetime.now()
@@ -5607,8 +5535,6 @@ class Settlement:
             elif p.split("_")[:2] == ["set","principle"]:
                 principle = "_".join(p.split("_")[2:])
                 self.set_principle(principle, game_asset_key)
-            elif p.split("_")[0] == "location" and p.split("_")[1] == "level":
-                self.update_location_level(p.split("_")[2:][0], game_asset_key)
             else:
                 self.settlement[p] = game_asset_key
                 self.logger.debug("%s set '%s' = '%s' for %s" % (self.User.user["login"], p, game_asset_key, self.get_name_and_id()))
