@@ -868,7 +868,7 @@ class Settlement(Models.UserAsset):
 
         # remove principles and innovations from expansions we don't use
         for a in available.keys():
-            if available[a].get("type",None) == "principle":
+            if available[a].get("type", None) == "principle":
                 del available[a]
 
         # remove ones we've already got and make a list of consequences
@@ -883,12 +883,13 @@ class Settlement(Models.UserAsset):
 
         # now, we use the baseline and the consequences list to build a deck
         deck_dict = {}
-
         for c in consequences:
             if c not in self.settlement["innovations"]:
                 if c in available.keys():
                     del available[c]
-                deck_dict[c] = I.get_asset(c)
+                asset_dict = I.get_asset(c)
+                if self.is_compatible(asset_dict):
+                    deck_dict[c] = asset_dict
 
 
         # we've got a good list, but we still need to check available inno-
