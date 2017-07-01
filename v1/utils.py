@@ -14,6 +14,7 @@ import logging
 import os
 import pprint
 from pymongo import MongoClient
+import socket
 import smtplib
 import sys
 import time
@@ -62,6 +63,15 @@ forbidden_names = ["test","Test","TEST","Unknown","UNKNOWN","Anonymous","anonymo
 #
 #  application helper functions
 #
+
+def get_local_ip():
+    """ Uses the 8.8.8.8 trick to get the localhost IP address. """
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    ip = s.getsockname()[0]
+    s.close()
+    return ip
+
 
 def u_to_str(data):
     if isinstance(data, basestring):

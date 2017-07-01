@@ -15,7 +15,7 @@ from retry import retry
 import socket
 from urlparse import urljoin
 
-from utils import get_logger, load_settings
+from utils import get_logger, get_local_ip, load_settings
 
 logger = get_logger(log_name="index")
 settings = load_settings()
@@ -32,7 +32,8 @@ def get_api_url():
         return settings.get("api","prod_url")
     else:
         logger.debug("[API] host FQDN is '%s'. Backing off to dev API settings." % (fqdn))
-        return "http://%s:%s/" % (settings.get("api","localhost_addr"), settings.get("api","localhost_port"))
+#        return "http://%s:%s/" % (settings.get("api","localhost_addr"), settings.get("api","localhost_port"))
+        return "http://%s:%s/" % (get_local_ip(), settings.get("api","localhost_port"))
 
 
 def route_to_url(r):
