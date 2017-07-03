@@ -649,10 +649,13 @@ class World:
         for principle in mep_dict.keys():
             tup = mep_dict[principle]
             sample_set = utils.mdb.settlements.find({"principles": {"$in": tup} }).count()
-            popularity_contest[principle] = {"sample_size": sample_set, "options": tup}
-            for option in tup:
-                total = utils.mdb.settlements.find({"principles": {"$in": [option]}}).count()
-                popularity_contest[principle][option] = {
+            popularity_contest[principle] = {"sample_size": sample_set, "options": []}
+
+            for option_list in tup:
+                total = utils.mdb.settlements.find({"principles": {"$in": option_list}}).count()
+                option_pretty_name = option_list[0]
+                popularity_contest[principle]["options"].append(option_pretty_name)
+                popularity_contest[principle][option_pretty_name] = {
                     "total": total,
                     "percentage": int(utils.get_percentage(total, sample_set)),
                 }
@@ -754,7 +757,7 @@ class WorldDaemon:
         self.logger = utils.get_logger(log_name="world_daemon", log_level=settings.get("world","log_level"))
 
         self.pid_dir = settings.get("application","pid_root_dir")
-        self.pid_file_path = os.path.join(self.pid_dir, os.path.basename(sys.argv[0]))
+        self.pid_file_path = os.path.join(self.pid_dir, "world_daemon.pid")
         self.set_pid()
 
 

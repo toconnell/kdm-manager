@@ -135,6 +135,7 @@ mar_2016_expansions = {
         'expansion': 'sunstalker',
     },
     'eye_patch_badass': {'expansion': 'sunstalker', 'name': 'Eye Patch Badass'},
+    'hellion': {'expansion': 'sunstalker', 'name': 'Hellion'},
     'purified': {'expansion': 'sunstalker', 'name': 'Purified'},
     'triplet': {'expansion': 'sunstalker', 'name': 'Triplet'},
     'sun_eater': {
@@ -209,8 +210,11 @@ mar_2016_expansions = {
     },
 
     # Spidicules
+    'avenger': {'expansion': 'spidicules', 'name': 'Avenger'},
+    'black_widow': {'expansion': 'spidicules', 'name': 'Black Widow'},
     'cut_free': {'expansion': 'spidicules', 'name': 'Cut Free'},
     'embalmed': {'expansion': 'spidicules', 'name': 'Embalmed'},
+    'harvestman': {'expansion': 'spidicules', 'name': 'Harvestman'},
     'mummified': {'expansion': 'spidicules', 'name': 'Mummified'},
     'mummified_husk': {'expansion': 'spidicules', 'name': 'Mummified Husk'},
     'patient': {'expansion': 'spidicules', 'name': 'Patient'},

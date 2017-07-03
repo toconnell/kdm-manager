@@ -1057,52 +1057,6 @@ class Survivor:
         mdb.survivors.save(self.survivor)
 
 
-
-    def death(self, undo_death=False, cause_of_death=None, save=False):
-        """ Call this method when a survivor dies. Call it with the 'undo_death'
-        kwarg to undo the death.
-
-        This returns a True or False that reflects the life/death status of the
-        survivor (which is a little strange, but bear with me).
-
-        We return True if the survivor is marked with the 'dead' attrib and we
-        return False if the survivor is NOT marked with the 'dead' attrib.
-        """
-
-
-        # do cause of death updates before we do anything else.
-        if cause_of_death is not None:
-            self.survivor["cause_of_death"] = cause_of_death
-            self.logger.debug("[%s] set %s cause of death to '%s'" % (self.User, self, cause_of_death))
-
-        if undo_death:
-            self.logger.debug("[%s] is resurrecting '%s'" % (self.User, self))
-            for death_key in ["died_on","died_in","cause_of_death","dead"]:
-                try:
-                    del self.survivor[death_key]
-                    self.logger.debug("[%s] removed '%s' attrib from survivor %s" % (self.User, death_key, self))
-                except Exception as e:
-                    self.logger.warn("Could not unset '%s'" % death_key)
-                    pass
-            self.logger.debug("[%s] has resurrected %s" % (self.User, self))
-        elif not undo_death and "dead" not in self.survivor.keys():
-            self.survivor["dead"] = True
-            self.survivor["died_on"] = datetime.now()
-            self.survivor["died_in"] = self.Settlement.settlement["lantern_year"]
-            if cause_of_death is None:
-                self.Settlement.log_event("%s has died!" % self, "survivor_death")
-            else:
-                self.Settlement.log_event("%s has died! Cause of death: %s" % (self, cause_of_death), "survivor_death")
-            self.logger.debug("[%s] survivor %s is dead!" % (self.User, self))
-        else:
-            self.logger.warn("[%s] activated the Controls of Death and made no changes." % self.User)
-
-        # saving isn't required if we're calling this from modify()
-        if save:
-            self.save()
-
-
-
     def get_abilities_and_impairments(self, return_type=False):
         """ This...really needs to be deprecated soon. """
 
@@ -1703,24 +1657,6 @@ class Survivor:
                 self.logger.debug("[%s] toggled '%s' OFF for survivor %s." % (self.User, toggle_key, self))
                 return True
 
-#        if type(toggle_value) != list:
-#            try:
-#                del self.survivor[toggle_key]
-#                self.logger.debug("%s toggled '%s' OFF for survivor %s." % (self.User.user["login"], toggle_key, self.get_name_and_id()))
-#                if toggle_key == "dead":
-#                    if self.death(undo_death=True):
-#                        self.logger.debug("Survivor '%s' (%s) has not returned from death!" % (self.survivor["name"], self.survivor["_id"]))
-#            except Exception as e:
-#                pass
-#        else:
-#            self.survivor[toggle_key] = "checked"
-#            if toggle_key == "dead":
-#                if not self.death():
-#                    self.logger.error("Could not process death for survivor '%s' (%s)." % (self.survivor["name"], self.survivor["_id"]))
-#            if toggle_key == "retired":
-#                self.retire()
-
-
         mdb.survivors.save(self.survivor)
 
 
@@ -2249,16 +2185,6 @@ class Survivor:
         self.logger.debug("[%s] updated affinities for %s. New affinities: %s" % (self.User, self, new_affinities))
 
 
-    def update_cod(self, cod):
-        """ Updates the COD. If the survivor is already among the dead, try to
-        update it there as well. """
-
-        if "cause_of_death" in self.survivor and cod == self.survivor["cause_of_death"]:
-            return
-        self.survivor["cause_of_death"] = cod
-        self.logger.debug("[%s] set cause of death to '%s' for %s." % (self.User, cod, self))
-
-
     def update_survival(self, new_value):
         """ Updates the survivor's 'survival' attrib. Tries to force 'new_value'
         to an int and fails gracefully if it can't (to protect us from rogue
@@ -2626,10 +2552,6 @@ class Survivor:
                 self.add_game_asset("fighting_art", game_asset_key)
             elif p == "remove_fighting_art":
                 self.update_fighting_arts(game_asset_key, action="rm")
-            elif p == "resurrect_survivor":
-                self.death(undo_death=True)
-            elif p == "cause_of_death":
-                self.death(cause_of_death=game_asset_key)
             elif p == "name":
                 if game_asset_key != self.survivor[p]:
                     self.logger.debug("[%s] renamed %s to '%s'." % (self.User, self, game_asset_key) )
@@ -2982,13 +2904,6 @@ class Survivor:
         """
 
 
-        survivor_survival_points = int(self.survivor["survival"])
-        if survivor_survival_points > int(self.Settlement.settlement["survival_limit"]):
-            if 'Beta Challenge Scenarios' in self.Settlement.get_expansions("list_of_names"):  # do not enforce survival limit if BCS is
-                pass                                                            # active
-            else:
-                survivor_survival_points = int(self.Settlement.settlement["survival_limit"])
-
         flags = {}
         for flag in self.flags:
             flags[flag] = ""
@@ -3008,16 +2923,6 @@ class Survivor:
             disorders_picker = ""
 
 
-        death_button_class = "unpressed_button"
-        if "dead" in self.survivor.keys():
-            death_button_class = "survivor_is_dead"
-
-        COD = ""
-        custom_COD = ""
-        if "cause_of_death" in self.survivor.keys():
-            COD = self.survivor["cause_of_death"]
-            custom_COD = self.survivor["cause_of_death"]
-
         rm_controls = ""
         if self.User.get_preference("show_remove_button"):
             rm_controls = html.survivor.survivor_sheet_rm_controls.safe_substitute(
@@ -3034,9 +2939,6 @@ class Survivor:
             courage = self.survivor["Courage"],
             understanding = self.survivor["Understanding"],
             sex = self.get_sex(),
-            survival = survivor_survival_points,
-            survival_limit = self.Settlement.get_attribute("survival_limit"),
-            survival_max = self.Settlement.get_survivor_survival_max(),
             hunt_xp = self.survivor["hunt_xp"],
             departure_buffs = self.Settlement.get_bonuses("departure_buff", return_type="html"),
             hunt_xp_3_event = self.Settlement.get_story_event("Bold"),
@@ -3099,10 +3001,6 @@ class Survivor:
             children = self.get_children(return_type="html"),
             siblings = self.get_siblings(return_type="html"),
             partners = self.get_intimacy_partners("html"),
-
-            # controls of death
-            death_button_class = death_button_class,
-            custom_cause_of_death = custom_COD,
 
             # optional and/or campaign-specific controls and modals
             partner_controls = self.get_partner("html_controls"),
@@ -4199,11 +4097,15 @@ class Settlement:
         it's such an insane coke-fest of business logic, it got promoted into
         it's own method. """
 
+
+        innovation_names_list = copy(self.get_game_asset("innovations", update_mins=False, handles_to_names=True))
+        location_names_list = copy(self.get_game_asset("locations", update_mins=False, handles_to_names=True))
+
         # this is a list of locations and innovations together that will be used
         #  later to determine if the settlement meets the requirements for an
         #  endeavor
-        prereq_assets = copy(self.settlement["innovations"])
-        prereq_assets.extend(self.settlement["locations"])
+        prereq_assets = innovation_names_list
+        prereq_assets.extend(location_names_list)
 
         # now create our list of all possible sources: any game asset with an
         #  an endeavor should be in this
@@ -4900,64 +4802,11 @@ class Settlement:
         self.logger.debug("[%s] Automatically updated %s survivors!" % (self.User, successful_updates))
 
 
-    def set_principle(self, principle=None, election=None):
-        """ Better than the deprecated update_principles() method, but
-        needs to know what principle you're setting in order to work. """
-
-        if election in self.get_principles():
-            self.logger.debug("[%s] is setting %s %s principle to its current value, '%s'." % (self.User, self, principle, election))
-            return True
-
-        if principle is None:
-            return None
-
-        # now that we've sanity checked, turn 'principle' and 'election' into
-        #   dictionaries using the API
-        available = self.get_api_asset("game_assets","principles_options")
-        for p in available:
-            if p["handle"] == principle:
-                principle=p
-
         if election != "UNSET":
             election = principle["options"][election]
             if election["name"] in self.settlement["principles"]:
                 self.logger.warn("[%s] attempting to set principle that is already set!" % self.User)
                 return None
-
-        # this is our UNSET logic
-        for o_handle in principle["option_handles"]:
-            o_dict = principle["options"][o_handle]
-            if o_dict["name"] in self.get_principles():
-                self.logger.debug("[%s] unset %s %s principle '%s'." % (self.User, self, principle["name"], o_dict["name"]))
-                self.log_event("%s removed the settlement %s principle." % (self.User.user["login"], principle["name"]))
-                self.settlement["principles"].remove(o_dict["name"])
-                if "current_survivor" in o_dict.keys():
-                    self.increment_all_survivors(o_dict["current_survivor"], action="decrement")
-
-        if election != "UNSET":
-            self.logger.debug("[%s] set %s %s principle '%s'." % (self.User, self, principle["name"], election["name"]))
-            self.log_event("Settlement %s principle is now set to '%s'" % (principle["name"], election["name"]))
-            self.settlement["principles"].append(election["name"])
-            if "current_survivor" in election.keys():
-                self.increment_all_survivors(election["current_survivor"])
-
-
-    def increment_all_survivors(self, d={}, action="increment"):
-        """ d is a dictionary of attributes with numerical values. This method
-        gets all survivors in the settlement and increments each attribute for
-        each survivor. Set 'action' to decrement to do the reverse. """
-
-        for s in self.get_survivors():
-            for attrib in d.keys():
-                self.logger.debug("Attrib: '%s' ; Value: %s (%s)" % (attrib, d[attrib], type(d[attrib])))
-                if action == "increment":
-                    s[attrib] = int(s[attrib]) + d[attrib]
-                elif action == "decrement":
-                    s[attrib] = int(s[attrib]) - d[attrib]
-            self.logger.debug("[%s] automatically %sed %s: %s" % (self.User, action, s["name"], d))
-            mdb.survivors.save(s)
-        d_string = ["%s: %s" % (attrib, value) for attrib,value in d.iteritems()]
-        self.log_event("Automatically %sed all survivors: %s" % (action, ", ".join(d_string)))
 
 
     def update_milestones(self, m):
@@ -5532,9 +5381,6 @@ class Settlement:
                 self.settlement["abandoned"] = datetime.now()
             elif p == "hunting_party_operation":
                 self.modify_departing_survivors(params)
-            elif p.split("_")[:2] == ["set","principle"]:
-                principle = "_".join(p.split("_")[2:])
-                self.set_principle(principle, game_asset_key)
             else:
                 self.settlement[p] = game_asset_key
                 self.logger.debug("%s set '%s' = '%s' for %s" % (self.User.user["login"], p, game_asset_key, self.get_name_and_id()))

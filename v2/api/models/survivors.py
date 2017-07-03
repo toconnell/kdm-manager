@@ -1,6 +1,7 @@
 #!/usr/bin/python2.7
 
 from bson import json_util
+from datetime import datetime
 from flask import request
 import json
 
@@ -37,13 +38,13 @@ class Survivor(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="survivors"
-        self.object_version = 0.17
+        self.object_version = 0.20
         Models.UserAsset.__init__(self,  *args, **kwargs)
         self.normalize()
 
         # this makes the baby jesus cry
         import settlements
-        self.Settlement = settlements.Settlement(_id=self.survivor["settlement"])
+        self.Settlement = settlements.Settlement(_id=self.survivor["settlement"], normalize_on_init=False)
 
 
     def normalize(self):
@@ -87,8 +88,57 @@ class Survivor(Models.UserAsset):
 
 
     #
+    #   normalization and data model normalization/enforcement methods
+    #
+
+    def apply_survival_limit(self, save=False):
+        """ Check the settlement to see if we're enforcing Survival Limit. Then
+        enforce it, if indicated. Force values less than zero to zero. """
+
+        # no negative numbers
+        if self.survivor["survival"] < 0:
+            self.survivor["survival"] = 0
+
+        # see if we want to enforce the Survival Limit
+        if self.Settlement.get_survival_limit(bool):
+            if self.survivor["survival"] > self.Settlement.get_survival_limit():
+                self.survivor["survival"] = self.Settlement.get_survival_limit()
+
+        # save, if params require
+        if save:
+            self.save()
+
+
+
+    #
     #   update/set methods
     #
+
+    def update_attribute(self, attribute=None, modifier=None, verbose=False):
+        """ Adds 'modifier' value to self.survivor value for 'attribute'. """
+
+        if attribute is None or modifier is None:
+            self.check_request_params(['attribute','modifier'])
+            attribute = self.params["attribute"]
+            modifier = self.params["modifier"]
+
+        # sanity check!
+        if attribute not in self.survivor.keys():
+            msg = "%s does not have '%s' attribute!" % (self, attribute)
+            self.logger.exception(msg)
+            raise utils.InvalidUsage(msg, status_code=400)
+        elif type(self.survivor[attribute]) != int:
+            msg = "%s '%s' attribute is not an int type!" % (self, attribute)
+            self.logger.exception(msg)
+            raise utils.InvalidUsage(msg, status_code=400)
+        else:
+            pass
+
+        self.survivor[attribute] = self.survivor[attribute] + modifier
+        if verbose:
+            self.logger.debug("%s Set %s attribute '%s' to %s" % (request.User.login, self, attribute, self.survivor[attribute]))
+        self.save()
+
 
     def toggle_sotf_reroll(self):
         """ toggles the survivor's Survival of the Fittest once-in-a-lifetime
@@ -98,13 +148,13 @@ class Survivor(Models.UserAsset):
 
         if not "sotf_reroll" in self.survivor.keys():
             self.survivor["sotf_reroll"] = True
-            self.log_event("%s toggled SotF reroll on for %s" % (request.User.login, self))
+            self.log_event("%s toggled SotF reroll on for %s" % (request.User.login, self.pretty_name()))
         elif self.survivor["sotf_reroll"]:
             self.survivor["sotf_reroll"] = False
-            self.log_event("%s toggled SotF reroll off for %s" % (request.User.login, self))
+            self.log_event("%s toggled SotF reroll off for %s" % (request.User.login, self.pretty_name()))
         elif not self.survivor["sotf_reroll"]:
             self.survivor["sotf_reroll"] = True
-            self.log_event("%s toggled SotF reroll on for %s" % (request.User.login, self))
+            self.log_event("%s toggled SotF reroll on for %s" % (request.User.login, self.pretty_name()))
         else:
             self.logger.error("Unhandled logic in toggle_sotf_reroll() method!")
             raise Exception
@@ -112,33 +162,79 @@ class Survivor(Models.UserAsset):
         self.save()
 
 
+
     def update_survival(self, modifier=0):
-        """ Adds 'modifier' to survivor["survival"]. Will not go below zero. """
+        """ Adds 'modifier' to survivor["survival"]. Respects settlement rules
+        about whether to enforce the Survival Limit. Will not go below zero. """
 
-        if self.check_request_params("modifier"):
-            modifier = int(self.params["modifier"])
-        else:
-            self.logger.error('Insufficient parameters for updating survival!')
-            raise Exception
-
+        self.check_request_params(["modifier"])
+        modifier = int(self.params["modifier"])
         self.survivor["survival"] += modifier
-
-        if self.survivor["survival"] < 0:
-            self.survivor["survival"] = 0
-
-        if self.survivor["survival"] > self.Settlement.get_survival_limit():
-            self.survivor["survival"] = self.Settlement.get_survival_limit()
-
+        self.apply_survival_limit()
         self.logger.debug("%s set %s survival to %s" % (request.User, self, self.survivor["survival"]))
-
         self.save()
 
+
+    def set_survival(self, value=0):
+        """ Sets survivor["survival"] to 'value'. Respects settlement rules
+        about whether to enforce the Survival Limit. Will not go below zero. """
+
+        self.check_request_params(["value"])
+        value = int(self.params["value"])
+        self.survivor["survival"] = value
+        self.apply_survival_limit()
+        self.logger.debug("%s set %s survival to %s" % (request.User, self, self.survivor["survival"]))
+        self.save()
+
+
+    def controls_of_death(self):
+        """ Manage all aspects of the survivor's death here. This is tied to a
+        a number of settlement methods/values, so be cautious with this one. """
+
+        self.check_request_params(["dead"])
+        dead = self.params["dead"]
+
+        if dead is False:
+            for death_key in ["died_on","died_in","cause_of_death","dead"]:
+                if death_key in self.survivor.keys():
+                    del self.survivor[death_key]
+                    self.logger.debug("%s Removed '%s' from %s" % (request.User, death_key, self))
+            self.log_event("%s has resurrected %s!" % (request.User.login, self.pretty_name()))
+        else:
+            self.survivor["dead"] = True
+            self.survivor["died_on"] = datetime.now()
+
+            # this isn't very DRY, but we've got to strictly type here
+            if 'dead_in' in self.params:
+                self.survivor['died_in'] = int(self.params["died_in"])
+
+            if 'cause_of_death' in self.params:
+                self.survivor['cause_of_death'] = str(self.params["cause_of_death"])
+            else:
+                self.survivor['cause_of_death'] = "Unspecified"
+
+            self.log_event('%s has died! Cause of death: %s' % (self.pretty_name(), self.survivor["cause_of_death"]))
+
+        self.save()
 
 
 
     #
     #   get methods
     #
+
+    def pretty_name(self):
+        """ Returns the survivor's name in a prettified way, e.g. 'Timothy [M]'.
+        Meant to be an alternative for the __repr__() way of doing it, which
+        includes the asset's OID. Use this method when calling log_event().
+
+        NB! This returns the survivor's effective sex (i.e. calls self.get_sex()
+        instead of using the base attribute), which is different from the way
+        the __repr__() method does it!
+        """
+
+        return "%s [%s]" % (self.survivor["name"], self.get_sex())
+
 
     def get_cursed_items(self):
         """ Returns a list of cursed item handles on the survivor. """
@@ -199,14 +295,14 @@ class Survivor(Models.UserAsset):
         add_sa_keys = set()
         rm_sa_keys = set()
 
-        # first check A&Is
-        for ai_dict in self.list_assets("abilities_and_impairments"):
-            if "survival_actions" in ai_dict.keys():
-                add_sa_keys.update(ai_dict["survival_actions"].get("enable", []))
-                rm_sa_keys.update(ai_dict["survival_actions"].get("disable", []))
+        # check A&Is and FAs/SFAs   # disorders coming soon! TKTK
+        attrib_keys = ['abilities_and_impairments', 'fighting_arts']
+        for ak in attrib_keys:
+            for ai_dict in self.list_assets(ak):
+                if "survival_actions" in ai_dict.keys():
+                    add_sa_keys.update(ai_dict["survival_actions"].get("enable", []))
+                    rm_sa_keys.update(ai_dict["survival_actions"].get("disable", []))
 
-        # now check fighting arts
-        #   COMING SOON!
 
         # now add keys
         for k in add_sa_keys:
@@ -306,10 +402,22 @@ class Survivor(Models.UserAsset):
 
         if action == "get":
             return self.return_json()
-        elif action == "toggle_sotf_reroll":
-            self.toggle_sotf_reroll()
+
+        # controllers with biz logic
+        elif action == "controls_of_death":
+            self.controls_of_death()
+
+        # sheet operations
+        elif action == "update_attribute":
+            self.update_attribute()
         elif action == "update_survival":
             self.update_survival()
+        elif action == "set_survival":
+            self.set_survival()
+
+        elif action == "toggle_sotf_reroll":
+            self.toggle_sotf_reroll()
+
         else:
             # unknown/unsupported action response
             self.logger.warn("Unsupported survivor action '%s' received!" % action)

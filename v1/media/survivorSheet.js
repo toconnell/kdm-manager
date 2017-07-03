@@ -1,5 +1,4 @@
 
-
 app.controller("cursedItemsController", function($scope) {
 
     $scope.getAI = function(ai_handle) {
@@ -8,6 +7,55 @@ app.controller("cursedItemsController", function($scope) {
     };
 
 });
+
+
+app.controller("survivalController", function($scope) {
+
+    // bound to the increment/decrement "paddles"
+    $scope.updateSurvival = function (modifier) {
+        new_total = $scope.survivor.survival + modifier;
+        if  (
+                $scope.settlement.sheet.enforce_survival_limit == true && 
+                new_total > $scope.settlement.sheet.survival_limit
+            ) {
+            $scope.showSLwarning();
+        } else if (new_total < 0) {
+            console.warn("Survival cannot be less than zero!");
+        } else {
+            $scope.postJSONtoAPI('survivor', 'update_survival', {"modifier": modifier});
+            $scope.survivor.survival += modifier;
+        };
+    };
+
+    // bound to the actual number element
+    $scope.setSurvival = function () {
+        if ($scope.survival_input_value === null) {return false};
+        if ($scope.survival_input_value === undefined) {$scope.survival_input_value = $scope.survivor.survival};
+        console.warn($scope.survival_input_value);
+        new_value = $scope.survival_input_value;
+        if  (
+                $scope.settlement.sheet.enforce_survival_limit == true && 
+                new_value > $scope.settlement.sheet.survival_limit
+            ) {
+            $scope.showSLwarning();
+            $scope.survival_input_value = $scope.settlement.sheet.survival_limit;
+        } else if (new_value < 0) {
+            console.warn("Survival cannot be less than zero!");
+            $scope.survival_input_value = 0;
+        } else {
+            $scope.postJSONtoAPI('survivor', 'set_survival', {"value": new_value});
+            $scope.survival_input_value = new_value;
+        };
+        
+    };
+
+    $scope.showSLwarning = function () {
+        $('#SLwarning').show();
+        $('#SLwarning').fadeOut(4500);
+    };
+
+});
+
 
 app.controller("sotfRerollController", function($scope) {
     $scope.sotfToggle = function() {
@@ -19,21 +67,24 @@ app.controller("sotfRerollController", function($scope) {
 
 app.controller("controlsOfDeath", function($scope) {
 
-    $scope.checkForCustomCOD = function() {
-        if ($scope.arrayContains($scope.survivorCOD, $scope.survivor.causes_of_death) != true) {
-            $scope.showCustomCOD();
-        } else {console.log("no custom COD deteceted")};
-    };
-
     $scope.showCODwarning = function (){
-//        var hidden_elem_id = "CODwarning";
-//        var hidden_elem = document.getElementById(hidden_elem_id);
         $('#CODwarning').show();
         $('#CODwarning').fadeOut(4500);
     };
 
+    $scope.resurrect = function() {
+        // resurrects the survivor, closes the controls of death
+        $scope.survivor.dead = undefined;
+        $scope.survivor.cause_of_death = undefined;
+        $scope.survivor.died_in = undefined
+        $scope.postJSONtoAPI('survivor', 'controls_of_death', {'dead': false});
+        closeModal('modalDeath');
+    };
+
     $scope.submitCOD = function(cod) {
-        // here we're processing user input and passing it along to the MDB
+        // get the COD from the HTML controls; POST them to the API; close
+        // the modal
+
         if (typeof cod === 'string') {
             var cod_string = cod
         } else if (typeof cod === 'object') {
@@ -47,11 +98,18 @@ app.controller("controlsOfDeath", function($scope) {
             return false;
         };
 
+        // now POST the JSON back to the mother ship
+        cod_json = {
+            'dead': true,
+            'cause_of_death': cod_string,
+            'died_in': $scope.settlement.sheet.lantern_year
+        };
+        $scope.survivor.dead = true;
+        $scope.survivor.cause_of_death = cod_string;
+        $scope.survivor.died_in = $scope.settlement.sheet.lantern_year
+        $scope.postJSONtoAPI('survivor', 'controls_of_death', cod_json);
         closeModal('modalDeath');
-        showFullPageLoader();
-        params="cause_of_death=" + cod_string
-        modifyAsset("survivor", $scope.survivor._id.$oid, params);
-        location.assign("/");
+
     };
 
     $scope.processSelectCOD = function() {

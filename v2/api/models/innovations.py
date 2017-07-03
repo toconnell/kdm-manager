@@ -35,20 +35,6 @@ class Assets(Models.AssetCollection):
         return innovations.principles[p_handle]
 
 
-    def get_principle_from_name(self, p_name):
-        """ Use a name to get a principle asset (dict) back. This is basically
-        a legacy support method for retrieving principles based on a name b/c
-        settlements are still using names instead of handles for principles."""
-
-        lookup_dict = {}
-        for i_handle in self.assets.keys():
-            if "principle" in self.get_asset(i_handle).keys():
-                p_dict = self.get_asset(i_handle)
-                lookup_dict[p_dict["name"]] = p_dict
-
-        return lookup_dict[p_name]
-
-
     def get_mutually_exclusive_principles(self):
         """ Returns a dictionary object listing game asset names for the
         mutually exclusive principle pairs. """
@@ -57,9 +43,10 @@ class Assets(Models.AssetCollection):
         principles = self.get_principles()
         for p in principles.keys():
             p_dict = principles[p]
-            alternatives = set()
+            alternatives = []
             for option in p_dict["option_handles"]:
-                alternatives.add(self.get_asset(option)["name"])
+                alternatives_list = [self.get_asset(option)["name"], self.get_asset(option)["handle"]]
+                alternatives.append(alternatives_list)
             output[p_dict["name"]] = tuple(alternatives)
         return output
 

@@ -12,7 +12,7 @@ import time
 
 import Models
 import assets
-from models import survivors, campaigns, cursed_items, epithets, expansions, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events, locations, causes_of_death, names
+from models import survivors, campaigns, cursed_items, epithets, expansions, fighting_arts, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events, locations, causes_of_death, names
 import settings
 import utils
 
@@ -60,9 +60,10 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.47
+        self.object_version=0.61
         Models.UserAsset.__init__(self,  *args, **kwargs)
-        self.normalize_data()
+        if self.normalize_on_init:
+            self.normalize_data()
 
 
     def new(self):
@@ -101,6 +102,7 @@ class Settlement(Models.UserAsset):
                 "expansions_version":   1.0,
                 "innovations_version":  1.0,
                 "locations_version":    1.0,
+                "principles_version":    1.0,
             },
 
             # sheet
@@ -176,20 +178,6 @@ class Settlement(Models.UserAsset):
         self.baseline_data_model()
         self.migrate_settlement_notes()
 
-	#
-	#	general normalization
-	#
-
-        if not "endeavor_tokens" in self.settlement.keys():
-            self.settlement["endeavor_tokens"] = 0
-            self.perform_save = True
-
-        if not "location_levels" in self.settlement.keys():
-            self.settlement["location_levels"] = {}
-            self.perform_save = True
-        if not "innovation_levels" in self.settlement.keys():
-            self.settlement["innovation_levels"] = {}
-            self.perform_save = True
 
         #
         #       timeline migrations
@@ -209,10 +197,6 @@ class Settlement(Models.UserAsset):
             self.convert_campaign_to_handle()
             self.perform_save = True
 
-        if self.settlement["meta"].get("monsters_version", None) is None:
-            self.convert_monsters_to_handles()
-            self.perform_save = True
-
         if self.settlement["meta"].get("expansions_version", None) is None:
             self.convert_expansions_to_handles()
             self.perform_save = True
@@ -224,6 +208,18 @@ class Settlement(Models.UserAsset):
         if self.settlement["meta"].get("locations_version", None) is None:
             self.convert_locations_to_handles()
             self.perform_save = True
+
+        if self.settlement["meta"].get("monsters_version", None) is None:
+            self.convert_monsters_to_handles()
+            self.perform_save = True
+
+        if self.settlement["meta"].get("principles_version", None) is None:
+            self.convert_principles_to_handles()
+            self.perform_save = True
+
+
+        # enforce minimums
+        self.enforce_minimums()
 
         # finish
         if self.perform_save:
@@ -248,12 +244,17 @@ class Settlement(Models.UserAsset):
         output["sheet"].update({"campaign": self.get_campaign()})
         output["sheet"].update({"expansions": self.get_expansions()})
         output["sheet"]["settlement_notes"] = self.get_settlement_notes()
+        output["sheet"]["enforce_survival_limit"] = self.get_survival_limit(bool)
+        output["sheet"]["minimum_survival_limit"] = self.get_survival_limit("min")
+        output["sheet"]["minimum_death_count"] = self.get_death_count("min")
+        output["sheet"]["minimum_population"] = self.get_population("min")
 
         # create user_assets
         output.update({"user_assets": {}})
         output["user_assets"].update({"players": self.get_players()})
         output["user_assets"].update({"survivors": self.get_survivors()})
-        output["user_assets"].update({"survivor_weapon_masteries": self.survivor_weapon_masteries})
+        output["user_assets"].update({"survivor_weapon_masteries": self.get_survivor_weapon_masteries()})
+        output["user_assets"].update({"eligible_parents": self.get_eligible_parents()})
 
         # create game_assets
         output.update({"game_assets": {}})
@@ -268,6 +269,7 @@ class Settlement(Models.UserAsset):
         output["game_assets"].update(self.get_available_assets(monsters))
         output["game_assets"].update(self.get_available_assets(causes_of_death, handles=False))
         output["game_assets"].update(self.get_available_assets(epithets))
+        output["game_assets"].update(self.get_available_assets(fighting_arts))
 
             # options (i.e. decks)
         output["game_assets"]["principles_options"] = self.get_principles_options()
@@ -290,7 +292,6 @@ class Settlement(Models.UserAsset):
         output["game_assets"]["expansions"] = self.get_expansions(dict)
 
             # misc helpers for front-end
-        output["game_assets"]["eligible_parents"] = self.eligible_parents
         output["game_assets"]["survival_actions"] = self.get_survival_actions("JSON")
 
         # finally, return a JSON string of our object
@@ -734,6 +735,108 @@ class Settlement(Models.UserAsset):
         self.save()
 
 
+    def set_principle(self):
+        """ Basically, we're looking for incoming JSON to include a 'principle'
+        key and an 'election' key.
+
+        The 'principle' should be something such as,
+        'new_life', 'conviction', 'new_life_potsun', etc. The 'election' should
+        be an Innovation (principle) handle such as, 'barbaric', 'romantic, etc.
+
+        Alternately, the 'principle' can be a boolean False. If this is the case
+        we 'unset' the principle from the settlement.
+        """
+
+        # initialize
+        self.check_request_params(["principle", "election"])
+        principle = self.params["principle"]
+        election = self.params["election"]
+
+        # validate the principle first
+        I = innovations.Assets()
+        principles = I.get_principles()
+
+        if principle in principles.keys():
+            p_dict = principles[principle]
+        else:
+            msg = "The principle handle '%s' is not recognized!" % principle
+            self.logger.error(msg)
+            raise utils.InvalidUsage(msg, status_code=400)
+
+        # now validate the election
+        unset = False
+        if election in I.get_handles():
+            e_dict = I.get_asset(election)
+        elif type(election) == bool:
+            unset = True
+        else:
+            msg = "The '%s' principle election handle '%s' is not recognized!" % (p_dict["name"], election)
+
+
+        def remove_principle(principle_handle):
+            """ private, internal fun for removing a principle. """
+            principle_dict = I.get_asset(principle_handle)
+            self.settlement["principles"].remove(principle_handle)
+            self.logger.debug("%s removed '%s' from %s principles" % (request.User, principle_handle, self))
+            if principle_dict.get("current_survivor", None) is not None:
+                self.update_all_survivors("decrement", principle_dict["current_survivor"])
+
+
+        # do unset logic
+        if unset:
+            for option in p_dict["option_handles"]:
+                if option in self.settlement["principles"]:
+                    remove_principle(option)
+                self.log_event("%s unset settlement %s principle.")
+        else:
+            # ignore re-clicks
+            if e_dict["handle"] in self.settlement["principles"]:
+                self.logger.warn("%s Ignoring addition of duplicate principle handle '%s' to %s" % (request.User, e_dict["handle"], self))
+                return True
+
+            # remove the opposite principle
+            for option in p_dict["option_handles"]:
+                if option in self.settlement["principles"]:
+                    remove_principle(option)
+
+            # finally, add the little fucker
+            self.settlement["principles"].append(e_dict["handle"])
+            self.log_event("%s set settlement %s principle to %s" % (request.User.login, p_dict["name"], e_dict["name"]))
+            if e_dict.get("current_survivor", None) is not None:
+                self.update_all_survivors("increment", e_dict["current_survivor"])
+
+        # if we're still here, go ahead and save since we probably updated
+        self.save()
+
+
+    def update_all_survivors(self, operation=None, attrib_dict={}):
+        """ Performs bulk operations on all survivors. Use 'operation' kwarg to
+        either 'increment' or 'decrement' all attributes in 'attrib_dict'.
+
+        'attrib_dict' should look like this:
+
+        {
+            'Strength': 1,
+            'Courage': 1,
+        }
+
+        The 'increment' or 'decrement' values call the corresponding methods
+        on the survivors.
+        """
+
+        if operation not in ['increment','decrement']:
+            self.logger.exception("update_all_survivors() methods does not support '%s' operations!" % operation)
+            raise Exception
+
+        for s in self.get_survivors(list):
+            S = survivors.Survivor(_id=s["_id"])
+            for attribute, modifier in attrib_dict.iteritems():
+                if operation == 'increment':
+                    S.update_attribute(attribute, modifier, True)
+                elif operation == 'decrement':
+                    S.update_attribute(attribute, -modifier, True)
+
+
     def update_endeavor_tokens(self, modifier=0):
         """ Updates settlement["endeavor_tokens"] by taking the current value,
         which is normalized (above) to zero, if it is not defined or set, and
@@ -745,7 +848,7 @@ class Settlement(Models.UserAsset):
         if "modifier" in self.params:
             modifier = self.params["modifier"]
 
-        new_val = self.settlement["endeavor_tokens"] + int(modifier)
+        new_val = self.get_endeavor_tokens() + int(modifier)
         if new_val < 0:
             new_val = 0
         self.settlement["endeavor_tokens"] = new_val
@@ -773,8 +876,10 @@ class Settlement(Models.UserAsset):
 
 
 
+
+
     #
-    #   get/set methods start here!
+    #   set methods
     #
 
     def set_current_quarry(self):
@@ -785,6 +890,7 @@ class Settlement(Models.UserAsset):
         self.settlement["current_quarry"] = new_value
         self.log_event("Set target monster to %s" % new_value)
         self.save()
+
 
 
     def set_location_level(self):
@@ -833,15 +939,268 @@ class Settlement(Models.UserAsset):
         self.save()
 
 
+
+    #
+    #   get methods
+    #
+
+
+    def get_available_assets(self, asset_module=None, handles=True, exclude_types=[]):
+        """ Generic function to return a dict of available game assets based on
+        their family. The 'asset_module' should be something such as,
+        'cursed_items' or 'weapon_proficiencies', etc. that has an Assets()
+        method.
+
+        Use the 'handles' kwarg (boolean) to determine whether to return a list
+        of asset dictionaries, or a dictionary of dictionaries (where asset
+        handles are the keys.
+
+        Use the 'ignore_types' kwarg (list) to filter/exclude assets whose
+        'type' should NOT be returned.
+        """
+
+        if handles:
+            available = {}
+        else:
+            available = []
+
+        A = copy(asset_module.Assets())
+
+        # remove excluded types
+        if exclude_types != []:
+            A.filter("type", exclude_types)
+
+        # create the final output object based on kwarg
+        if handles:
+            for k in A.get_handles():
+                item_dict = A.get_asset(k)
+                if self.is_compatible(item_dict):
+                    available.update({item_dict["handle"]: item_dict})
+        else:
+            for n in A.get_names():
+                item_dict = A.get_asset_from_name(n)
+                if self.is_compatible(item_dict):
+                    available.append(item_dict)
+
+        # return the final output object after sorting
+        final = []
+        if type(available) == list:
+            final = sorted(available, key=lambda k: k['name'])
+        else:
+            final = collections.OrderedDict(sorted(available.items()))
+
+        return {"%s" % (asset_module.__name__.split(".")[-1]): final}
+
+
+    def get_bonuses(self, return_type=None):
+        """ Returns settlement and survivor bonuses according to 'return_type'.
+        Supported types are:
+
+            - dict (same as None/unspecified)
+            - "json"
+
+        The JSON type return is especially designed for front-end developers,
+        and includes a pseudo-buff group called "all" that includes all buffs.
+        Also, the JSON type return sorts by innovation name, which is nice.
+        """
+
+        output = {
+            "settlement_buff": {},
+            "survivor_buff": {},
+            "departure_buff": {},
+        }
+
+        if return_type == "json":
+            output = {
+                "settlement_buff": [],
+                "survivor_buff": [],
+                "departure_buff": [],
+                "all": [],
+            }
+
+        for handle,d in self.get_innovations(return_type=dict, include_principles=True).iteritems():
+            for k in d.keys():
+                if k in output.keys():
+                    if return_type == "json":
+                        dict_repr = {"name": d["name"], "desc": d[k]}
+                        output[k].append(dict_repr)
+                        output["all"].append(dict_repr)
+                    else:
+                        output[k][handle] = d[k]
+
+
+        # sort, if we're doing JSON, and save the UI guys the trouble
+        if return_type == "json":
+            for buff_group in output:
+                output[buff_group] = sorted(output[buff_group], key=lambda k: k['name'])
+
+        return output
+
+
+    def get_campaign(self, return_type=None):
+        """ Returns the campaign handle of the settlement as a string, if
+        nothing is specified for kwarg 'return_type'.
+
+        Use 'name' to return the campaign's name (from its definition).
+
+        'return_type' can also be dict. Specifying dict gets the
+        raw campaign definition from assets/campaigns.py. """
+
+        C = campaigns.Assets()
+
+        # sanity check; fail big if we can't pass this
+        if self.settlement["campaign"] not in C.get_handles():
+            err = "The handle '%s' does not reference any known campaign definition!" % self.settlement["campaign"]
+            raise Models.AssetInitError(err)
+
+        if return_type == 'name':
+            return C.get_asset(self.settlement["campaign"])["name"]
+
+        # handle return_type requests
+        if return_type == dict:
+            return C.get_asset(self.settlement["campaign"])
+
+        return self.settlement["campaign"]
+
+
+    def get_death_count(self, return_type=int):
+        """ By default this returns the settlement's total number of deaths as
+        an int.
+
+        This method can accept the following values for 'return_type':
+
+            - int
+            - "min"
+
+        Setting return_type='min' will return the settlement's minimum death
+        count, i.e. the number of survivors in the settlement with
+        survivor["dead"] = True. """
+
+        if return_type == "min":
+            min_death_count = 0
+            for s in self.get_survivors(list):
+                if s.get("dead", False):
+                    min_death_count += 1
+            return min_death_count
+
+        return self.settlement["death_count"]
+
+
+    def get_endeavor_tokens(self):
+        """ Returns settlement Endeavor Tokens as an int. Does some aggressive
+        duck-typing to prevent legacy data model issues from fucking everything
+        up and causing us to throw a 500. """
+
+        try:
+            return int(self.settlement["endeavor_tokens"])
+        except:
+            return 0
+
+
+    def get_expansions(self, return_type=None):
+        """ Returns a list of expansions if the 'return_type' kwarg is left
+        unspecified.
+
+        Otherwise, 'return_type' can be either 'dict' or 'comma_delimited'.
+
+        Setting return_type="dict" gets a dictionary where expansion 'name'
+        attributes are the keys and asset dictionaries are the values. """
+
+        s_expansions = list(set(self.settlement["expansions"]))
+
+        if return_type == dict:
+            E = expansions.Assets()
+            exp_dict = {}
+            for exp_handle in s_expansions:
+                exp_dict[exp_handle] = E.get_asset(exp_handle)
+            return exp_dict
+
+        elif return_type == "comma-delimited":
+            if s_expansions == []:
+                return None
+            else:
+                return ", ".join(s_expansions)
+
+        return s_expansions
+
+
+    def get_event_log(self, return_type=None):
+        """ Returns the settlement's event log as a cursor object unless told to
+        do otherwise."""
+
+        event_log = utils.mdb.settlement_events.find(
+            {
+            "settlement_id": self.settlement["_id"]
+            }
+        ).sort("created_on",1)
+
+        if return_type=="JSON":
+            return json.dumps(list(event_log),default=json_util.default)
+
+        return event_log
+
+
+    def get_eligible_parents(self):
+        """ Returns a dictionary with two lists of survivors who are able to do
+        the mommy-daddy dance: one for male survivors and one for female
+        survivors.
+
+        This method uses methods of the Survivor class to assess preparedness to
+        do the deed. Check those methods for more info on how survivors are
+        assessed.
+
+        Important! The lists only contain survivor names and OIDs (i.e. you do
+        NOT get a fully serialized survivor back in this list. """
+
+        eligible_parents = {"male":[], "female":[]}
+
+        for s in self.get_survivors(list):
+
+            S = survivors.Survivor(_id=s["_id"])
+
+            if S.can_be_nominated_for_intimacy():
+                s_dict = {
+                    "name": S.survivor["name"],
+                    "_id": S.survivor["_id"]
+                }
+
+                if S.get_sex() == "M":
+                    eligible_parents["male"].append(s_dict)
+                elif S.get_sex() == "F":
+                    eligible_parents["female"].append(s_dict)
+
+        return eligible_parents
+
+
+
     def get_founder(self):
         """ Helper method to rapidly get the mdb document of the settlement's
         creator/founder. """
+
         return utils.mdb.users.find_one({"_id": self.settlement["created_by"]})
 
 
-    def get_survival_limit(self):
-        """ Returns the settlement's survival limit as an int. """
-        return int(self.settlement["survival_limit"])
+    def get_innovations(self, return_type=None, include_principles=False):
+        """ Returns self.settlement["innovations"] by default; specify 'dict' as
+        the 'return_type' to get a dictionary back instead. """
+
+        s_innovations = copy(self.settlement["innovations"])
+        if include_principles:
+            s_innovations.extend(self.settlement["principles"])
+
+        I = innovations.Assets()
+
+        if return_type == dict:
+            output = {}
+            for i_handle in s_innovations:
+                i_dict = I.get_asset(i_handle)
+                if i_dict is not None:
+                    output[i_handle] = i_dict
+                else:
+                    self.logger.error("Ignoring unknown Innovation handle '%s'!" % i_handle)
+            return output
+
+        return s_innovations
 
 
     def get_innovation_deck(self, return_type=False):
@@ -913,6 +1272,24 @@ class Settlement(Models.UserAsset):
             return deck_dict
 
 
+    def get_population(self, return_type=int):
+        """ By default, this returns settlement["population"] as an int. Use the
+        'return_type' kwarg to get different returns:
+
+            - "min" -> returns the minimum population based on living survivors
+
+        """
+
+        if return_type == "min":
+            min_pop = 0
+            for s in self.get_survivors(list):
+                if not s.get("dead", False):
+                    min_pop += 1
+            return min_pop
+
+        return int(self.settlement["population"])
+
+
     def get_settlement_notes(self):
         """ Returns a list of mdb.settlement_notes documents for the settlement.
         They're sorted in reverse chronological, because the idea is that you're
@@ -924,67 +1301,125 @@ class Settlement(Models.UserAsset):
         return [n for n in notes]
 
 
-    def get_locations_options(self):
-        """ Returns a list of dictionaries where each dict is a location def-
-        inition of a location that the settlement does not have, but could
-        want to add. Think of it as a location deck. """
+    def get_survivors(self, return_type=None):
+        """ By default, this returns a dictionary of survivors where the keys
+        are bson ObjectIDs and the values are serialized survivors.
 
-        #   first, get an asset collection and the always available locations from
-        #   the campaign and the expansions
+        This is the way you want to represent the settlement's survivors when
+        you serialize your settlement.
 
-        L = locations.Assets()
-        c_dict = self.get_campaign(dict)
-        always_available = c_dict["always_available"]["location"]
+        You might also, however, sometimes just want a list of dictionaries, i.e
+        a list where each dict is survivor MDB. For that, do 'return_type'=list.
+        """
 
-        for e in self.get_expansions(dict).keys():
-            e_dict = self.get_expansions(dict)[e]
-            if "always_available" in e_dict.keys() and "location" in e_dict["always_available"].keys():
-                e_loc_names = e_dict["always_available"]["location"]
-                always_available.extend(e_loc_names)
 
-        #   next, form a "base" options list by checking to see which of the
-        #   always available locations are already present 
-        base_options = []
-        for l in always_available:
-            if l not in self.settlement["locations"]:
-                base_options.append(l)
+        all_survivors = utils.mdb.survivors.find({"settlement": self.settlement["_id"]})
+        if return_type == list:
+            return all_survivors
 
-        #   once we've got a "base", check the settlement's current locations,
-        #   and, if present, use them to improve the base list by checking them
-        #   for consequences
+        output = []
+        for s in all_survivors:
+            S = survivors.Survivor(_id=s["_id"])
 
-        for l in self.settlement["locations"]:
-            l_dict = L.get_asset_from_name(l)
-            if "consequences" in l_dict.keys():
-                base_options.extend(l_dict["consequences"])
+            output.append(json.loads(S.serialize()))
 
-        #   remove dupes from base options
-        base_options = set(base_options)
+        return output
 
-        #   next, do removes: anything that's already in locations gets removed
-        #   and then anything that's forbidden by the campaign gets removed.
 
-        for l in self.settlement["locations"]:
-            if l in base_options:
-                base_options.remove(l)
-        if "forbidden" in c_dict.keys() and "location" in c_dict["forbidden"].keys():
-            for f in c_dict["forbidden"]["location"]:
-                if f in base_options:
-                    base_options.remove(f)
+    def get_survivor_weapon_masteries(self):
+        """ Returns a list of weapon mastery handles representing the weapon
+        masteries that have been acquired by the settlement's survivors. """
 
-        # finally, convert our list of names (soon to be handles) into a list of
-        # dictionaries (i.e. JSON) that can be used to power the UI
+        WM = weapon_masteries.Assets()
+        survivor_weapon_masteries = set()
 
-        final_list = []
-        base_options = set(base_options)
-        for l in sorted(base_options):
-            loc_asset = L.get_asset_from_name(l)
-            if loc_asset is not None:
-                final_list.append(loc_asset)
-            else:
-                self.logger.error("None type location asset retrieved for handle '%s'" % l)
+        for s in self.get_survivors(list):
 
-        return final_list
+            S = survivors.Survivor(_id=s["_id"])
+
+            for ai in S.list_assets("abilities_and_impairments"):
+                if ai["handle"] in WM.get_handles():
+                    survivor_weapon_masteries.add(ai)
+
+        return sorted(list(survivor_weapon_masteries))
+
+
+    def get_survival_actions(self, return_type=dict):
+        """ Returns a dictionary of survival actions available to the survivor
+        based on campaign type. Individual SAs are either 'available' or not,
+        depending on whether they're unlocked and whether the survivor has an
+        impairment that prevents them from using the SA. """
+
+        SA = survival_actions.Assets()
+
+        # first, build the master dict based on the campaign def
+        sa_handles = self.get_campaign(dict)["survival_actions"]
+        sa_dict = {k: SA.get_asset(k) for k in sa_handles}
+
+        # set innovations to unavailable if their availablility is not defined
+        # already within their definition:
+        for k in sa_dict.keys():
+            if not "available" in sa_dict[k]:
+                sa_dict[k]["available"] = False
+
+        # second, udpate the master list to say which are available
+        for k,v in self.get_innovations(dict).iteritems():
+            innovation_sa = v.get("survival_action", None)
+            if innovation_sa in sa_dict.keys():
+                sa_dict[innovation_sa]["available"] = True
+
+        # finally, since this is likely going back to the front-end guys, we
+        # support a JSON return type:
+
+        if return_type=="JSON":
+            j_out = []
+            for sa_key in sa_dict.keys():
+                j_out.append(sa_dict[sa_key])
+            return sorted(j_out, key=lambda k: k['sort_order'])
+
+        # otherwise, just return the sa_dict, au naturale
+        return sa_dict
+
+
+    def get_survival_limit(self, return_type=int):
+        """ By default, this returns the settlement's Survival Limit as an
+        integer.
+
+        This method accepts the following values for 'return_type':
+            - int (default)
+            - bool
+            - 'min'
+
+        Setting the 'return_type' kwarg to bool when calling this method will
+        return a boolean representing whether the settlement is enforcing the
+        survival limit (based on expansions, etc.).
+
+        Setting 'return_type' to "min" will return the minimum possible value
+        that the settlement's Survival Limit may be set to.
+        """
+
+        if return_type == bool:
+            for e_dict in self.list_assets("expansions"):
+                if not e_dict.get("enforce_survival_limit", True):
+                    return False
+            return True
+        elif return_type == 'min':
+
+            minimum = 0
+
+            # process innovations
+            for i_dict in self.list_assets("innovations"):
+                minimum += i_dict.get("survival_limit", 0)
+
+            # process principles (separately)
+            I = innovations.Assets()
+            for p in self.settlement["principles"]:
+                p_dict = I.get_asset(p, backoff_to_name=True)
+                minimum += p_dict.get("survival_limit", 0)
+
+            return minimum
+
+        return int(self.settlement["survival_limit"])
 
 
     def get_milestones_options(self, return_type=list):
@@ -1035,7 +1470,7 @@ class Settlement(Models.UserAsset):
                 o_dict = I.get_asset(o)
 
                 selected=False
-                if o_dict["name"] in self.settlement["principles"]:
+                if o_dict["handle"] in self.settlement["principles"]:
                     selected=True
 
                 o_dict.update({"input_id": "%s_%s_selector" % (p_dict["handle"],o), "checked": selected})
@@ -1177,70 +1612,6 @@ class Settlement(Models.UserAsset):
         return sorted(output)
 
 
-    def get_innovations(self, return_type=None, include_principles=False):
-        """ Returns self.settlement["innovations"] by default; specify 'dict' as
-        the 'return_type' to get a dictionary back instead. """
-
-        s_innovations = copy(self.settlement["innovations"])
-        if include_principles:
-            s_innovations.extend(self.settlement["principles"])
-
-        all_innovations = innovations.Assets()
-
-        if return_type == dict:
-            output = {}
-            for i in s_innovations:
-                if i in all_innovations.get_handles():
-                    i_dict = all_innovations.get_asset(i)
-                    output[i_dict["handle"]] = i_dict
-                else:
-                    try:
-                        i_dict = all_innovations.get_principle_from_name(i)
-                        output[i_dict["handle"]] = i_dict
-                    except KeyError as e:
-                        self.logger.warn("%s is not a known innovation asset handle! Ignoring..." % e)
-            return output
-
-        return s_innovations
-
-
-    def get_survival_actions(self, return_type=dict):
-        """ Returns a dictionary of survival actions available to the survivor
-        based on campaign type. Individual SAs are either 'available' or not,
-        depending on whether they're unlocked and whether the survivor has an
-        impairment that prevents them from using the SA. """
-
-        SA = survival_actions.Assets()
-
-        # first, build the master dict based on the campaign def
-        sa_handles = self.get_campaign(dict)["survival_actions"]
-        sa_dict = {k: SA.get_asset(k) for k in sa_handles}
-
-        # set innovations to unavailable if their availablility is not defined
-        # already within their definition:
-        for k in sa_dict.keys():
-            if not "available" in sa_dict[k]:
-                sa_dict[k]["available"] = False
-
-        # second, udpate the master list to say which are available
-        for k,v in self.get_innovations(dict).iteritems():
-            innovation_sa = v.get("survival_action", None)
-            if innovation_sa in sa_dict.keys():
-                sa_dict[innovation_sa]["available"] = True
-
-        # finally, since this is likely going back to the front-end guys, we
-        # support a JSON return type:
-
-        if return_type=="JSON":
-            j_out = []
-            for sa_key in sa_dict.keys():
-                j_out.append(sa_dict[sa_key])
-            return sorted(j_out, key=lambda k: k['sort_order'])
-
-        # otherwise, just return the sa_dict, au naturale
-        return sa_dict
-
-
     def get_players(self, return_type=None):
         """ Returns a list of dictionaries where each dict is a short summary of
         the significant attributes of the player, as far as the settlement is
@@ -1275,232 +1646,32 @@ class Settlement(Models.UserAsset):
         return player_list
 
 
-    def get_survivors(self, return_type=None):
-        """ Returns a dictionary of survivors where the keys are bson ObjectIDs
-        and the values are serialized survivors.
-
-        Also sets some settlement object attributes such as "eligible_parents"
-        and so on. This is the big survivor investigation method.
-
-        """
-
-        wm = weapon_masteries.Assets()
-        self.survivor_weapon_masteries = []
-
-        output = []
-        all_survivors = utils.mdb.survivors.find({"settlement": self.settlement["_id"]})
-
-        self.eligible_parents = {"male":[], "female":[]}
-
-        for s in all_survivors:
-            S = survivors.Survivor(_id=s["_id"])
-
-            for ai in S.survivor["abilities_and_impairments"]:
-                if ai in wm.get_names():
-                    self.survivor_weapon_masteries.append(ai)
-
-            if S.can_be_nominated_for_intimacy():
-                i_dict = {"name": S.survivor["name"], "_id": S.survivor["_id"]}
-                if S.get_sex() == "M":
-                    self.eligible_parents["male"].append(i_dict)
-                elif S.get_sex() == "F":
-                    self.eligible_parents["female"].append(i_dict)
-
-            output.append(json.loads(S.serialize()))
-
-        return output
-
-
-    def get_campaign(self, return_type=None):
-        """ Returns the campaign handle of the settlement as a string, if
-        nothing is specified for kwarg 'return_type'.
-
-        Use 'name' to return the campaign's name (from its definition).
-
-        'return_type' can also be dict. Specifying dict gets the
-        raw campaign definition from assets/campaigns.py. """
-
-        C = campaigns.Assets()
-
-        # sanity check; fail big if we can't pass this
-        if self.settlement["campaign"] not in C.get_handles():
-            err = "The handle '%s' does not reference any known campaign definition!" % self.settlement["campaign"]
-            raise Models.AssetInitError(err)
-
-        if return_type == 'name':
-            return C.get_asset(self.settlement["campaign"])["name"]
-
-        # handle return_type requests
-        if return_type == dict:
-            return C.get_asset(self.settlement["campaign"])
-
-        return self.settlement["campaign"]
-
-
-    def get_expansions(self, return_type=None):
-        """ Returns a list of expansions if the 'return_type' kwarg is left
-        unspecified.
-
-        Otherwise, 'return_type' can be either 'dict' or 'comma_delimited'.
-
-        Setting return_type="dict" gets a dictionary where expansion 'name'
-        attributes are the keys and asset dictionaries are the values. """
-
-        s_expansions = list(set(self.settlement["expansions"]))
-
-        if return_type == dict:
-            E = expansions.Assets()
-            exp_dict = {}
-            for exp_handle in s_expansions:
-                exp_dict[exp_handle] = E.get_asset(exp_handle)
-            return exp_dict
-
-        elif return_type == "comma-delimited":
-            if s_expansions == []:
-                return None
-            else:
-                return ", ".join(s_expansions)
-
-        return s_expansions
-
-
-    def get_event_log(self, return_type=None):
-        """ Returns the settlement's event log as a cursor object unless told to
-        do otherwise."""
-
-        event_log = utils.mdb.settlement_events.find(
-            {
-            "settlement_id": self.settlement["_id"]
-            }
-        ).sort("created_on",1)
-
-        if return_type=="JSON":
-            return json.dumps(list(event_log),default=json_util.default)
-
-        return event_log
-
-
-    def get_available_assets(self, asset_module=None, handles=True, exclude_types=[]):
-        """ Generic function to return a dict of available game assets based on
-        their family. The 'asset_module' should be something such as,
-        'cursed_items' or 'weapon_proficiencies', etc. that has an Assets()
-        method.
-
-        Use the 'handles' kwarg (boolean) to determine whether to return a list
-        of asset dictionaries, or a dictionary of dictionaries (where asset
-        handles are the keys.
-
-        Use the 'ignore_types' kwarg (list) to filter/exclude assets whose
-        'type' should NOT be returned.
-        """
-
-        if handles:
-            available = {}
-        else:
-            available = []
-
-        A = copy(asset_module.Assets())
-
-        # remove excluded types
-        if exclude_types != []:
-            A.filter("type", exclude_types)
-
-        # create the final output object based on kwarg
-        if handles:
-            for k in A.get_handles():
-                item_dict = A.get_asset(k)
-                if self.is_compatible(item_dict):
-                    available.update({item_dict["handle"]: item_dict})
-        else:
-            for n in A.get_names():
-                item_dict = A.get_asset_from_name(n)
-                if self.is_compatible(item_dict):
-                    available.append(item_dict)
-
-        # return the final output object after sorting
-        final = []
-        if type(available) == list:
-            final = sorted(available)
-        else:
-            final = collections.OrderedDict(sorted(available.items()))
-
-        return {"%s" % (asset_module.__name__.split(".")[-1]): final}
-
-
-    def get_bonuses(self, return_type=None):
-        """ Returns settlement and survivor bonuses according to 'return_type'.
-        Supported types are:
-
-            - dict (same as None/unspecified)
-            - "json"
-
-        The JSON type return is especially designed for front-end developers,
-        and includes a pseudo-buff group called "all" that includes all buffs.
-        Also, the JSON type return sorts by innovation name, which is nice.
-        """
-
-        output = {
-            "settlement_buff": {},
-            "survivor_buff": {},
-            "departure_buff": {},
-        }
-
-        if return_type == "json":
-            output = {
-                "settlement_buff": [],
-                "survivor_buff": [],
-                "departure_buff": [],
-                "all": [],
-            }
-
-        for handle,d in self.get_innovations(return_type=dict, include_principles=True).iteritems():
-            for k in d.keys():
-                if k in output.keys():
-                    if return_type == "json":
-                        dict_repr = {"name": d["name"], "desc": d[k]}
-                        output[k].append(dict_repr)
-                        output["all"].append(dict_repr)
-                    else:
-                        output[k][handle] = d[k]
-
-
-        # sort, if we're doing JSON, and save the UI guys the trouble
-        if return_type == "json":
-            for buff_group in output:
-                output[buff_group] = sorted(output[buff_group], key=lambda k: k['name'])
-
-        return output
-
-
-
 
 
     #
     #   bug fix, conversion and migration functions start here!
     #
 
-    def bug_fixes(self):
-        """ In which we burn CPU cycles to fix our mistakes. """
-
-        # 2016-02-02 - Weapon Masteries bug
-        I = innovations.Assets()
-        for i in self.settlement["innovations"]:
-            if len(i.split(" ")) > 1 and "-" in i.split(" "):
-                self.logger.warn("Removing name '%s' from innovations for %s" % (i, self))
-                self.settlement["innovations"].remove(i)
-                replacement = I.get_asset_from_name(i)
-                if replacement is not None:
-                    self.settlement["innovations"].append(replacement["handle"])
-                    self.logger.warn("Replaced '%s' with '%s'" % (i, replacement["handle"]))
-                else:
-                    self.logger.error("Could not find an asset with the name '%s' for %s. Failing..." % (i, self))
-                self.perform_save = True
-
-
     def baseline_data_model(self):
         """ This checks the mdb document to make sure that it has basic aux-
         iliary and supplemental attribute keys. If it doesn't have them, they
         get added and we set self.perform_save = True. """
+
+
+        #
+        #   general data model 
+        #
+
+        if not "endeavor_tokens" in self.settlement.keys():
+            self.settlement["endeavor_tokens"] = 0
+            self.perform_save = True
+
+        if not "location_levels" in self.settlement.keys():
+            self.settlement["location_levels"] = {}
+            self.perform_save = True
+        if not "innovation_levels" in self.settlement.keys():
+            self.settlement["innovation_levels"] = {}
+            self.perform_save = True
 
         if not "meta" in self.settlement.keys():
             self.logger.info("Creating 'meta' key for %s" % self)
@@ -1535,31 +1706,22 @@ class Settlement(Models.UserAsset):
             self.perform_save = True
 
 
-    def migrate_settlement_notes(self):
-        """ In the legacy data model, settlement notes were a single string that
-        got saved to MDB on the settlement (yikes!). If the settlement has the
-        'settlement_notes' key, this method removes it and creates that string
-        as a proper settlement_note document in mdb. """
+    def bug_fixes(self):
+        """ In which we burn CPU cycles to fix our mistakes. """
 
-        if self.settlement.get("settlement_notes", None) is None:
-            return True
-        else:
-            self.logger.debug("Converting legacy 'settlement_notes' to mdb.settlement_notes doc!")
-
-            s = str(int(time.time())) + str(self.settlement["_id"])
-            bogus_id = ''.join(random.sample(s,len(s)))
-
-            founder = self.get_founder()
-            note = {
-                "note": self.settlement["settlement_notes"].strip(),
-                "author": founder["login"],
-                "author_id": self.settlement["created_by"],
-                "js_id": bogus_id,
-                "lantern_year": self.get_current_ly(),
-            }
-            self.add_settlement_note(note)
-            del self.settlement["settlement_notes"]
-            self.perform_save = True
+        # 2016-02-02 - Weapon Masteries bug
+        I = innovations.Assets()
+        for i in self.settlement["innovations"]:
+            if len(i.split(" ")) > 1 and "-" in i.split(" "):
+                self.logger.warn("Removing name '%s' from innovations for %s" % (i, self))
+                self.settlement["innovations"].remove(i)
+                replacement = I.get_asset_from_name(i)
+                if replacement is not None:
+                    self.settlement["innovations"].append(replacement["handle"])
+                    self.logger.warn("Replaced '%s' with '%s'" % (i, replacement["handle"]))
+                else:
+                    self.logger.error("Could not find an asset with the name '%s' for %s. Failing..." % (i, self))
+                self.perform_save = True
 
 
     def convert_expansions_to_handles(self):
@@ -1644,6 +1806,27 @@ class Settlement(Models.UserAsset):
         self.settlement["locations"] = new_locations
         self.settlement["meta"]["locations_version"] = 1.0
         self.logger.info("Converted locations from names (legacy) to handles for %s" % (self))
+
+
+    def convert_principles_to_handles(self):
+        """ Swaps out principle 'name' keys for handles. """
+
+        I = innovations.Assets()
+
+        new_principles = []
+
+        for p in self.settlement["principles"]:
+            p_dict = I.get_asset_from_name(p)
+
+            if p_dict is None:
+                self.logger.error("%s Ignoring unknown principle '%s'! Unable to convert!" % (self,p))
+            else:
+                new_principles.append(p_dict["handle"])
+                self.logger.info("%s Migrated principle '%s' to '%s'" % (self, p, p_dict["handle"]))
+
+        self.settlement["principles"] = new_principles
+        self.settlement["meta"]["principles_version"] = 1.0
+        self.logger.info("Converted principles from names (legacy) to handles for %s" % (self))
 
 
     def convert_monsters_to_handles(self):
@@ -1825,6 +2008,61 @@ class Settlement(Models.UserAsset):
         self.logger.debug("Migrated %s timeline to version 1.1" % (self))
 
 
+    def enforce_minimums(self):
+        """ Enforces settlement minimums for Survival Limit, Death Count, etc.
+        """
+
+        # TK this isn't very DRY; could probably use some optimization
+
+        min_sl = self.get_survival_limit("min")
+        if self.settlement["survival_limit"] < min_sl:
+            self.settlement["survival_limit"] = min_sl
+            self.log_event("Survival Limit automatically increased to %s" % min_sl)
+            self.perform_save = True
+
+        min_pop = self.get_population("min")
+        if self.settlement["population"] < min_pop:
+            self.settlement["population"] = min_pop
+            self.log_event("Settlement Population automatically increased to %s" % min_pop)
+            self.perform_Save = True
+
+        min_death_count = self.get_death_count("min")
+        if self.settlement["death_count"] < min_death_count:
+            self.settlement["death_count"] = min_death_count
+            self.log_event("Settlement Death Count automatically increased to %s" % min_death_count)
+            self.perform_Save = True
+
+
+
+    def migrate_settlement_notes(self):
+        """ In the legacy data model, settlement notes were a single string that
+        got saved to MDB on the settlement (yikes!). If the settlement has the
+        'settlement_notes' key, this method removes it and creates that string
+        as a proper settlement_note document in mdb. """
+
+        if self.settlement.get("settlement_notes", None) is None:
+            return True
+        else:
+            self.logger.debug("Converting legacy 'settlement_notes' to mdb.settlement_notes doc!")
+
+            s = str(int(time.time())) + str(self.settlement["_id"])
+            bogus_id = ''.join(random.sample(s,len(s)))
+
+            founder = self.get_founder()
+            note = {
+                "note": self.settlement["settlement_notes"].strip(),
+                "author": founder["login"],
+                "author_id": self.settlement["created_by"],
+                "js_id": bogus_id,
+                "lantern_year": self.get_current_ly(),
+            }
+            self.add_settlement_note(note)
+            del self.settlement["settlement_notes"]
+            self.perform_save = True
+
+
+
+
 
     #
     #   finally, the request response router and biz logic. Don't write model
@@ -1860,6 +2098,8 @@ class Settlement(Models.UserAsset):
             self.set_current_quarry()
         elif action == "set_lost_settlements":
             self.set_lost_settlements()
+        elif action == "set_principle":
+            self.set_principle()
 
         # update methods
         elif action == "update_nemesis_levels":

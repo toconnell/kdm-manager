@@ -600,6 +600,7 @@ class Session:
                     S.new(params)
                     user_action = "created settlement %s" % self.Settlement
                     self.change_current_view("view_campaign", S.settlement["_id"])
+                    S.save()
                 else:
                     msg = "An API error caused settlement creation to fail! API response was: %s - %s" % (response.status_code, response.reason)
                     self.logger.error("[%s] new settlement creation failed!" % self.User)
@@ -751,6 +752,7 @@ class Session:
         #   to initialize with API data
         if self.current_view in ["view_campaign", "view_settlement", "view_survivor","new_settlement"]:
             output += html.meta.full_page_loader
+            output += html.meta.corner_loader
 
         if self.current_view == "dashboard":
             body = "dashboard"

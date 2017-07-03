@@ -287,3 +287,26 @@ class WorldQueryError(Exception):
         self.logger.error("Query was: %s" % query)
         Exception.__init__(self, message)
 
+
+class InvalidUsage(Exception):
+    """ Raise this type of exception at any point to return an HTTP response to
+    the requester. Syntax goes like this:
+
+        raise utils.InvalidUsage("Message", status_code=400)
+
+    Do this whenever the requester's param keys/values are not up to snuff, etc.
+    """
+
+    status_code = 400
+
+    def __init__(self, message, status_code=None, payload=None):
+        Exception.__init__(self)
+        self.message = message
+        if status_code is not None:
+           self.status_code = status_code
+           self.payload = payload
+
+    def to_dict(self):
+       rv = dict(self.payload or ())
+       rv['message'] = self.message
+       return rv

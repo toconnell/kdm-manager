@@ -1242,6 +1242,7 @@ class survivor:
 
             <br/>
 
+
         <div class="survivor_dead_retired_container">
 
             <input
@@ -1278,24 +1279,29 @@ class survivor:
 
             <button
                 id="modalDeathButton"
-                class="$death_button_class modal_death_button"
-                title="Mark this survivor as dead"
+                class="modal_death_button"
+                ng-class="{true: 'survivor_is_dead', false: 'unpressed_button'}[survivor.dead]"
+                title="Open the Controls of Death!"
             >
                 Dead
             </button>
 
-            </div> <!-- survivor_dead_retired_container -->
+        </div> <!-- survivor_dead_retired_container -->
+
 
 
             <hr />
 
 
-            <div id="survivor_survival_box_container">
+            <div
+                id="survivor_survival_box_container"
+                ng-controller="survivalController"
+            >
 
                 <div class="big_number_container left_margin">
                     <button
                         class="incrementer"
-                        onclick="increment('survivalBox'); updateAssetAttrib('survivalBox','survivor','$survivor_id');"
+                        ng-click="updateSurvival(1)"
                     >
                         &#9652;
                     </button>
@@ -1303,21 +1309,30 @@ class survivor:
                         id="survivalBox"
                         class="big_number_square"
                         type="number"
-                        name="survival" value="$survival"
+                        name="survival"
+                        ng-model="survival_input_value"
+                        ng-change="setSurvival()"
+                        value="{{survivor.survival}}"
                         min="0"
-                        max="$survival_max"
-                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
                     />
                     <button
                         class="decrementer"
-                        onclick="decrement('survivalBox'); updateAssetAttrib('survivalBox','survivor','$survivor_id');"
+                        ng-click="updateSurvival(-1)"
                     >
                         &#9662;
                     </button>
                 </div> <!-- big_number_container -->
 
+                <div
+                    id="SLwarning"
+                    class="kd_alert control_error"
+                    style="display: none"
+                >
+                    {{settlement.sheet.name}} Survival Limit is {{settlement.sheet.survival_limit}}!
+                </div>
+
                 <div class="big_number_caption">
-                    Survival <p>(max: $survival_limit)</p>
+                    Survival <p>(limit: {{settlement.sheet.survival_limit}})</p>
                 </div>
 
             </div> <!-- survivor_survival_box_container -->
@@ -2111,7 +2126,7 @@ class survivor:
 
             <div
                 id="CODwarning"
-                class="kd_alert cod_error"
+                class="kd_alert control_error"
                 style="display: none"
             >
                 Please select or enter a Cause of Death!
@@ -2124,15 +2139,14 @@ class survivor:
                 Die
             </button>
 
-            <div ng-if="survivor.cause_of_death != undefined">
+            <div ng-if="survivor.dead == true">
                 <hr/>
-
-                <form method="POST" action="">
-                <input type="hidden" name="modify" value="survivor"/>
-                <input type="hidden" name="asset_id" value="$survivor_id"/>
-                <input type="hidden" name="resurrect_survivor" value="True"/>
-                <button class="kd_blue">Resurrect $name</button>
-                </form>
+                <button
+                    class="kd_blue"
+                    ng-click="resurrect()"
+                >
+                    Resurrect $name
+                </button>
             </div>
 
         </div> <!-- modal-content -->
@@ -2882,7 +2896,7 @@ class settlement:
                     class="kd_checkbox_checked campaign_summary_bullet"
                     ng-repeat="p in settlement_sheet.principles"
                 >
-                    {{p}}
+                    {{settlement.game_assets.innovations[p].name}}
                 </span>
 
             </div>
@@ -3183,9 +3197,10 @@ class settlement:
                     <input
                         id="survivalLimitBox"
                         class="big_number_square"
-                        type="number" name="survival_limit"
-                        value="$survival_limit"
-                        min="$min_survival_limit"
+                        type="number"
+                        name="survival_limit"
+                        value="{{settlement.sheet.survival_limit}}"
+                        min="{{settlement.sheet.minimum_survival_limit}}"
                         onchange="updateAssetAttrib(this,'settlement','$settlement_id')"
                     />
                     <button
@@ -3195,7 +3210,21 @@ class settlement:
                         &#9662;
                     </button>
                 </div>
-                <div class="big_number_caption">Survival Limit<br /><font class="settlement_sheet_survival_limit_caption">(min: $min_survival_limit)</font></div>
+
+                <div class="big_number_caption">
+                    <div class="help-tip">
+                        Survival Limit
+                        <p> The minimum Survival Limit for <b>{{settlement.sheet.name}}</b>, based on settlement innovations and principles, is <b>{{settlement.sheet.minimum_survival_limit}}</b>.
+                            <span ng-if="settlement.sheet.enforce_survival_limit == true">
+                                The settlement Survival Limit of <b>{{settlement.sheet.survival_limit}}</b> is enforced on the Survivor Sheet.
+                            </span>
+                            <span ng-if="settlement.sheet.enforce_survival_limit == false">
+                                Due to expansion or campaign rules, the settlement Survival Limit of <b>{{settlement.sheet.survival_limit}}</b> is <u>not</u> enforced on the Survivor Sheet!
+                            </span>
+                        </p>
+                    </div>
+                </div>
+
             </div><!-- settlement_form_wide_box -->
 
             <br class="mobile_only"/>
@@ -3215,7 +3244,7 @@ class settlement:
                         type="number" name="population"
                         value="{{settlement_sheet.population}}"
                         onchange="updateAssetAttrib(this,'settlement','$settlement_id')"
-                        min="0"
+                        min="{{settlement_sheet.minimum_population}}"
                     />
                     <button
                         class="decrementer"
@@ -3224,7 +3253,13 @@ class settlement:
                         &#9662;
                     </button>
                 </div>
-                <div class="big_number_caption">Population</div>
+                <div class="big_number_caption">
+                    <div class="help-tip">
+                        Poulation
+                        <p> The minimum Population for <b>{{settlement.sheet.name}}</b>, based on the total number of living survivors in the settlement, is <b>{{settlement.sheet.minimum_population}}</b>.
+                        </p>
+                    </div>
+                </div>
             </div> <!-- settlement_form_wide_box -->
 
             <br class="mobile_only"/>
@@ -3254,7 +3289,13 @@ class settlement:
                         &#9662;
                     </button>
                 </div>
-                <div class="big_number_caption">Death Count</div>
+                <div class="big_number_caption">
+                    <div class="help-tip">
+                        Death Count
+                        <p> The minimum Death Count for <b>{{settlement.sheet.name}}</b>, based on the total number of dead survivors in the settlement, is <b>{{settlement.sheet.minimum_death_count}}</b>.
+                        </p>
+                    </div>
+                </div>
             </div> <!-- settlement_form_wide_box -->
         </div> <!-- settlement_sheet_tumblers_container -->
 
@@ -3443,10 +3484,18 @@ class settlement:
             <h2>Principles</h2>
             <p>The settlement's established principles.</p>
 
-            <div principle" ng-repeat="p in settlement.game_assets.principles_options" class="settlement_sheet_principle_container">
-                <div id="{{p.name}} principle" class="principles_container">
+            <div
+                ng-repeat="p in settlement.game_assets.principles_options"
+                class="settlement_sheet_principle_container"
+            >
+                <div
+                    id="{{p.name}} principle"
+                    class="principles_container"
+                >
 
-                    <div class="settlement_sheet_principle_name"> {{p.name}} </div>
+                    <div class="settlement_sheet_principle_name">
+                        {{p.name}}
+                    </div>
 
                     <div
                         class="principle_option"
@@ -4006,6 +4055,7 @@ class meta:
         <meta name="theme-color" content="#000000">
         <title>%s</title>
         <link rel="stylesheet" type="text/css" href="/media/style.css">
+        <link rel="stylesheet" type="text/css" href="/media/help-tip.css">
         <link rel="stylesheet" type="text/css" href="/media/z-index.css">
     """ % settings.get("application","title")
 
@@ -4037,6 +4087,11 @@ class meta:
     full_page_loader = """\n
     <div id="fullPageLoader" class="full_page_loading_spinner">
         <img class="full_page_loading_spinner" src="/media/loading_io.gif">
+    </div>
+    \n"""
+    corner_loader = """\n
+    <div id="cornerLoader" class="corner_loading_spinner">
+        <img class="corner_loading_spinner" src="/media/loading_io.gif">
     </div>
     \n"""
     mobile_hr = '<hr class="mobile_only"/>'

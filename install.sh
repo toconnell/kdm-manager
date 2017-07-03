@@ -56,7 +56,7 @@ do_create_api_service_file () {
     echo "User=$INSTALL_USER" >> $SERVICE_FILE
     echo "Group=www-data" >> $SERVICE_FILE
     echo "WorkingDirectory=$INSTALL_DIR/v2/api" >> $SERVICE_FILE
-    echo "ExecStart=$GUNICORN_BIN --workers 3 --bind unix:thewatcher.api.sock -m 007 wsgi" >> $SERVICE_FILE
+    echo "ExecStart=$GUNICORN_BIN --pid $PID_FILE_DIR/api.thewatcher.pid --workers 3 --bind unix:thewatcher.api.sock -m 007 wsgi" >> $SERVICE_FILE
     cat $INSTALL_DIR/src/api_service_bot >> $SERVICE_FILE
     echo "done".
 }

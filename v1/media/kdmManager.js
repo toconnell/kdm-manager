@@ -18,6 +18,12 @@ function showFullPageLoader() {
 function hideFullPageLoader() {
     $('#fullPageLoader').fadeOut(1000);
 };
+function showCornerLoader() {
+    $('#cornerLoader').show();
+};
+function hideCornerLoader() {
+    $('#cornerLoader').fadeOut(1000);
+};
 
 // factories and services for angularjs modules
 
@@ -71,6 +77,20 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
         return apiService.getSettlement($scope.api_url, api_route, $scope.settlement_id, config);
     };
 
+
+    $scope.reinitialize = function() {
+        
+        console.log("Re-initializing settlement...");
+        showCornerLoader();
+        $scope.initialize(
+            $scope.view,
+            $scope.user_id,
+            $scope.user_login,
+            $scope.api_url,
+            $scope.settlement_id
+        );
+    };
+
     // This is the main event: initialize everything settlement-related that
     // might be required by any user asset view. This is our de facto rootScope
     // (even though we don't call it that). 
@@ -102,6 +122,7 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
 //                console.log($scope.user_login + " admin = " + $scope.user_is_settlement_admin);
                 console.log("Settlement initialized!")
                 hideFullPageLoader();
+                hideCornerLoader();
             },
             function(errorPayload) {console.log("Error loading settlement!" + errorPayload);}
         );

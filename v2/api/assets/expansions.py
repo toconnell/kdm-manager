@@ -6,6 +6,7 @@ promo_and_misc = {
     "beta_challenge_scenarios": {
         "released": datetime(2016,2,1),
         "name": "Beta Challenge Scenarios",
+        "enforce_survival_limit": False,
         "subtitle": "Enables abilities & impairments, disorders, items etc. included in the Beta Challenge Scenarios.",
         "special_rules": [
             {

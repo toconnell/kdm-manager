@@ -4,7 +4,7 @@
 from bson.objectid import ObjectId
 from bson import json_util
 
-from flask import Flask, send_file, request, Response, send_from_directory
+from flask import Flask, send_file, request, Response, send_from_directory, jsonify
 import flask_jwt
 import flask_jwt_extended
 
@@ -193,6 +193,19 @@ def collection_action(collection, action, asset_id):
     if type(asset_object) == Response:
         return asset_object
     return asset_object.request_response(action)
+
+
+#
+#   special/bogus/meta routes
+#
+
+@application.errorhandler(utils.InvalidUsage)
+@utils.crossdomain(origin=['*'])
+def return_exception(error):
+    response = jsonify(error.to_dict())
+    response.status_code = error.status_code
+    return response
+
 
 
 if __name__ == "__main__":

@@ -22,6 +22,8 @@ div.full_page_loading_spinner               {z-index: 99; }
 #floating_refresh_button,
 #floating_dashboard_button                  {z-index: 101; }
 
+.help-tip p                                 {z-index: 105}
+
     /* modal indexes */
 div.survivor_search_modal_container         {z-index: 1199;}
 input.survivor_search                       {z-index: 1200; }
@@ -31,6 +33,7 @@ div.full_size_modal_panel                   {z-index: 5000; }
 span.timeline_overlay_current_ly            {z-index: 10000; }
 
     /* UI and feedback indexes */
+.control_error                              {z-index: 9999998;}
 #error_dialog, #saved_dialog                {z-index: 9999999;} /* platinum ticket */
 
 

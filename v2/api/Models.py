@@ -5,6 +5,7 @@ from copy import copy
 from datetime import datetime, timedelta
 import json
 from bson import json_util
+import inspect
 
 from flask import request, Response
 
@@ -347,10 +348,11 @@ class UserAsset():
         return "%s object '%s' [%s]" % (self.collection, repr_name, self._id)
 
 
-    def __init__(self, collection=None, _id=None):
+    def __init__(self, collection=None, _id=None, normalize_on_init=True):
 
         # initialize basic vars
         self.logger = utils.get_logger()
+        self.normalize_on_init = normalize_on_init
 
         if collection is not None:
             self.collection = collection
@@ -453,7 +455,7 @@ class UserAsset():
         self.params = params
 
 
-    def check_request_params(self, keys=[], verbose=False):
+    def check_request_params(self, keys=[], verbose=True, raise_exception=True):
         """ Checks self.params for the presence of all keys specified in 'keys'
         list. Returns True if they're present and False if they're not.
 
@@ -464,7 +466,15 @@ class UserAsset():
             if k not in self.params.keys():
                 if verbose:
                     self.logger.error("Request JSON is missing required parameter '%s'!" % k)
-                return False
+                if raise_exception:
+                    curframe = inspect.currentframe()
+                    calframe = inspect.getouterframes(curframe, 2)
+                    caller_function = calframe[1][3]
+                    msg = "Insufficient request params for %s() method!" % caller_function
+                    self.logger.exception(msg)
+                    raise utils.InvalidUsage(msg, status_code=400)
+                else:
+                    return False
 
         return True
 

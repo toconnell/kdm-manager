@@ -428,6 +428,40 @@
             </td>
         </tr>
 
+        <!-- principle/milestone -->
+        <tr>
+            <td class="subsection_header" colspan="3"><b>Principles and Milestones:</b>
+            routes for setting/unsetting principles and settlement Milestones.</td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/set_principle/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td> <p>POST some JSON to this route to set or unset a settlement
+            principle. Request the handle of the principle and the election you
+            want to make:</p>
+            <pre><code>
+            {
+                'principle': 'conviction',
+                'election': 'romantic',
+            }</code></pre>
+            <p>This route has a couple of unusual behaviors to note:
+            <ul>
+                <li>It requires both keys (i.e. you will get a 400 back if you
+                POST any JSON that does not include both).</li>
+                <li>It will accept a Boolean for 'election', because this is how
+                you 'un-set' a principle.</li>
+            </ul>
+            </p>
+            <p> To un-set a principle, simply post the principle handle and set
+            the 'election' key to 'false':</p>
+            <code>{'principle': 'new_life', 'election': false}</code>
+            <p> <b>Important!</b> Adding principles to (or removing them from) a
+            settlement automatically modifies all current survivors, in many
+            cases. Be sure to refresh any survivor info after POSTing JSON to
+            this route!</p>
+            </td>
+        </tr>
+
 
 
         <!-- timeline controls -->
@@ -616,8 +650,76 @@
             <td> Retrieve a serialized version of the survivor.</td>
         </tr>
 
+        <!-- controls of death!!! -->
+        <tr class="ul">
+            <td> /settlement/controls_of_death/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p>This route is the all-purpose route for managing aspects of
+            a survivor's death, including when it happened, how it happened and
+            so on. </p>
+            <p>Supported key/value info:</p>
+            <table class="embedded_table">
+             <tr><th>key</th><th><b>R</b>/O</th><th>value</th></tr>
+             <tr>
+                <td class="key">dead</td>
+                <td><b>R</b></td>
+                <td class="value">Boolean. Set to 'true' if the survivor is dead.</td>
+             </tr><tr>
+                <td class="key">died_in</td>
+                <td>O</td>
+                <td class="value">Integer. The Lantern Year in which the survivor died.</td>
+             </tr><tr>
+                <td class="key">cause_of_death</td>
+                <td>O</td>
+                <td class="value">String. Can be anything, but check the settlement's
+                assets for some recommended values: <code>game_assets.causes_of_death</code>
+                </td>
+             </tr>
+            </table>
+            <p>Here is some example JSON for marking a survivor dead:</p>
+            <pre><code>
+            {
+                "dead": true,
+                "died_in": 4,
+                "cause_of_death": "Hack City",
+            }
+            </code></pre>
+            <p>To resurrect a survivor (i.e. undo their death), simply post some
+            JSON with {"dead": false}:</p>
+            <code>
+            {"dead": false}
+            </code>
+            <p>This will unset other death-related attributes, e.g. 'cause_of_death',
+            'died_in', etc.</p>
+            <p><b>Important!</b> Since <code>dead</code> is the only required key
+            in JSON that gets POSTed to this route, there is some defaulting that goes
+            on if the other values are undefined. Be as explicit as possible with
+            this route.</p>
+            </td>
+        </tr>
 
+        <!-- sheet attribs -->
+        <tr>
+            <td class="subsection_header" colspan="3"><b>Sheet Attributes:</b>
+            routes for updating Survivor Sheet attributes</td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/update_attribute/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p>Supports arbitrary survivor attribute updates. Requires JSON
+            contianing an 'attribute' and a 'modifier'. Adds the value of
+            'modifier' to the current value of 'attribute'.</p>
+            <p>Sample JSON to increase strength by two:</p>
+            <code>{'attribute': 'Strength', 'modifier': 2}</code>
+            <p>Sample JSON to decrease Insanity by 1:</p>
+            <code>{'attribute': 'Insanity', 'modifier': -1}</code>
+            </td>
+        </tr>
         <!-- survival -->
+        <tr>
+            <td class="subsection_header" colspan="3"><b>Survival:</b>
+            routes for managing the survivor's Survival value.</td>
+        </tr>
         <tr class="ul">
             <td> /settlement/update_survival/&lt;survivor_id&gt; </td>
             <td> POST </td>
@@ -626,13 +728,33 @@
             <code>{"modifier": 2}</code>
             <p>...or:</p>
             <code>{"modifier": -1}</code>
-            <p><b>Important!</b> The API will not go higher than the settlement's
-            survival limit or lower than zero, regardless of values POSTed to
-            this route.</p>
+            <p><b>Important!</b> The API will only allow values greater than the
+            settlement's Survival Limit if expansion (or other) content requires
+            the settlement to NOT enforce Survival Limit.</p>
+            <p><b>Important!</b> The API will normalize negative numbers to zero
+            automatically.</p> 
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/set_survival/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p>POST a 'value' integer to this route to set that integer as
+            the survivor's Survival value.: </p>
+            <code>{"value": 6}</code>
+            <p><b>Important!</b> The API will only allow values greater than the
+            settlement's Survival Limit if expansion (or other) content requires
+            the settlement to NOT enforce Survival Limit.</p>
+            <p><b>Important!</b> The API will normalize negative numbers to zero
+            automatically.</p> 
             </td>
         </tr>
 
         <!-- misc. -->
+        <tr>
+            <td class="subsection_header" colspan="3"><b>Miscellaneous and
+            campaign-specific controls:</b> special routes and methods for
+            managing survivors subject to special campaign or settlement rules.</td>
+        </tr>
         <tr class="ul">
             <td> /settlement/toggle_sotf_reroll/&lt;survivor_id&gt; </td>
             <td> POST </td>

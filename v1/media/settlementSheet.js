@@ -11,11 +11,13 @@ app.controller("locationsController", function($scope) {
         $scope.settlement_sheet.locations.push($scope.newLocation);
         $scope.postJSONtoAPI('settlement', 'add_location', {"handle": $scope.newLocation});
         $scope.setLocationOptions();
+        $scope.reinitialize();
     };
     $scope.rmLocation = function(index, loc_handle) {
         $scope.settlement_sheet.locations.splice(index, 1);
         $scope.postJSONtoAPI('settlement', 'rm_location', {"handle": loc_handle}); 
         $scope.setLocationOptions();
+        $scope.reinitialize();
     };
     $scope.setLocationLevel = function(loc_name, lvl) {
         var js_obj = {"handle": loc_name, "level": lvl};
@@ -103,6 +105,7 @@ app.controller('innovationsController', function($scope) {
         var out = $scope.postJSONtoAPI('settlement', 'add_innovation', js_obj);
         $scope.setInnovationDeck();
         $scope.setInnovationOptions();
+        $scope.reinitialize();
     };    
     $scope.setInnovationLevel = function(innovation_name,lvl){
         var js_obj = {"handle": innovation_name, "level": lvl};
@@ -114,6 +117,7 @@ app.controller('innovationsController', function($scope) {
         $scope.postJSONtoAPI('settlement', 'rm_innovation', js_obj); 
         $scope.setInnovationDeck();
         $scope.setInnovationOptions();
+        $scope.reinitialize();
     };
 });
 
@@ -196,9 +200,9 @@ app.controller('nemesisEncountersController', function($scope) {
 });
 
 app.controller('principlesController', function($scope, $http) {
-    $scope.set = function(principle,selection) {
-        var params = "set_principle_" + principle + "=" + selection;
-        modifyAsset('settlement',$scope.settlement_id,params);
+    $scope.set = function(principle, election) {
+        $scope.postJSONtoAPI('settlement', 'set_principle', {"principle": principle, "election": election});
+        $scope.reinitialize();
     };
     $scope.unset_principle = function () {
         target_principle = $scope.unset;
@@ -217,8 +221,8 @@ app.controller('principlesController', function($scope, $http) {
 
         var params = "set_principle_" + target_principle + "=UNSET";
         modifyAsset('settlement',$scope.settlement_id,params);
+        $scope.reinitialize();
     };
-
 });
 
 app.controller("lostSettlementsController", function($scope,$rootScope) {
