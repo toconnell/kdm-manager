@@ -5390,10 +5390,10 @@ class Settlement:
 
         #   auto-add milestones for principles:
         for principle in self.settlement["principles"]:
-            principle_dict = Innovations.get_asset(principle)
-            if "type" in principle_dict.keys() and principle_dict["type"] == "principle" and "milestone" in principle_dict.keys():
-                if principle_dict["milestone"] not in self.settlement["milestone_story_events"]:
-                    self.settlement["milestone_story_events"].append(principle_dict["milestone"])
+            p_dict = self.get_api_asset("game_assets", "innovations")[principle]
+            if p_dict.get("milestone", None) is not None:
+                if p_dict["milestone"] not in self.settlement["milestone_story_events"]:
+                    self.settlement["milestone_story_events"].append(p_dict["milestone"])
                     msg = "utomatically marking milestone story event '%s' due to selection of related principle, '%s'." % (principle_dict["milestone"], principle)
                     self.log_event("A%s" % (msg))
                     self.logger.debug("[%s] a%s" % (self.User, msg))

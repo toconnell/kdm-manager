@@ -200,9 +200,22 @@ app.controller('nemesisEncountersController', function($scope) {
 });
 
 app.controller('principlesController', function($scope, $http) {
+    $scope.get_principle_group = function (target_principle) {
+        var p_options = $scope.settlement.game_assets.principles_options;
+        for (i=0; i < p_options.length; i++) {
+            if (p_options[i].handle==target_principle) { return p_options[i]};
+        };
+    };
+
+    function sleep (time) {
+        return new Promise((resolve) => setTimeout(resolve, time));
+    }
+
     $scope.set = function(principle, election) {
         $scope.postJSONtoAPI('settlement', 'set_principle', {"principle": principle, "election": election});
-        $scope.reinitialize();
+        sleep(2000).then(() => {
+            $scope.reinitialize();
+        });
     };
     $scope.unset_principle = function () {
         target_principle = $scope.unset;
@@ -219,8 +232,7 @@ app.controller('principlesController', function($scope, $http) {
             };
         };
 
-        var params = "set_principle_" + target_principle + "=UNSET";
-        modifyAsset('settlement',$scope.settlement_id,params);
+        $scope.postJSONtoAPI('settlement', 'set_principle', {"principle": target_principle, "election": false});
         $scope.reinitialize();
     };
 });

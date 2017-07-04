@@ -836,7 +836,6 @@ class Settlement(Models.UserAsset):
                 elif operation == 'decrement':
                     S.update_attribute(attribute, -modifier, True)
 
-
     def update_endeavor_tokens(self, modifier=0):
         """ Updates settlement["endeavor_tokens"] by taking the current value,
         which is normalized (above) to zero, if it is not defined or set, and
@@ -873,6 +872,26 @@ class Settlement(Models.UserAsset):
             self.settlement["nemesis_encounters"][handle] = levels
             self.logger.debug("Updated 'nemesis_encounters' for %s" % self)
             self.save()
+
+
+    def update_population(self, modifier=None):
+        """ Updates settlement["population"] by adding 'modifier' to it. Will
+        never go below zero."""
+
+        if modifier is None:
+            self.check_request_params["modifier"]
+            modifier = self.params["modifier"]
+
+        current = self.settlement["population"]
+        new = current + modifier
+
+        if new < 0:
+            new = 0
+
+        self.settlement["population"] = new
+
+        self.log_event("%s updated settlement population to %s" % (request.User.login, self.settlement["population"]))
+        self.save()
 
 
 
@@ -2087,7 +2106,11 @@ class Settlement(Models.UserAsset):
         elif action == "get_innovation_deck":
             return Response(response=self.get_innovation_deck("JSON"), status=200, mimetype="application/json")
 
-        # expansions
+
+        #
+        #   set / update, etc. methods
+        #
+
         elif action == "add_expansions":
             self.add_expansions(self.params)
         elif action == "rm_expansions":
@@ -2144,7 +2167,6 @@ class Settlement(Models.UserAsset):
             # unknown/unsupported action response
             self.logger.warn("Unsupported settlement action '%s' received!" % action)
             return utils.http_400
-
 
         # finish successfully
         return utils.http_200

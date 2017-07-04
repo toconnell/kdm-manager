@@ -344,6 +344,27 @@
             <td> Retrieve the settlement's current innovation deck (as an array).</td>
         </tr>
 
+        <tr>
+            <td class="subsection_header" colspan="3"><b>Settlement attributes:
+            </b> set/update Settlement Sheet attributes, e.g. population, death
+            count, etc.</td>
+        </tr>
+
+        <tr class="ul">
+            <td> /settlement/update_population/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td> <p>POST some JSON containing the key 'modifier' whose value is
+            an integer that you want to add to the settlement's population
+            number.<p>
+            <p>For example, this JSON would add two to the settlement's
+            population number:</p>
+            <code>{'modifier': 2}</code>
+            <p>POST negative numbers to decrease.</p>
+            <p><b>important!</b> Settlement population can never go below zero,
+            so any 'modifier' values that would cause this simply cause the
+            total to become zero.</p>
+            </td>
+        </tr>
 
 
         <!-- expansion controls -->

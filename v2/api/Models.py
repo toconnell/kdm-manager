@@ -399,9 +399,7 @@ class UserAsset():
         """ Retrieves an mdb doc using self.collection and makes the document an
         attribute of the object. """
 
-        mdb_doc = utils.mdb[self.collection].find_one({"_id": self._id})
-        if mdb_doc is None:
-            raise AssetLoadError()
+        mdb_doc = self.get_mdb_doc()
 
         if self.collection == "settlements":
             self.settlement = mdb_doc
@@ -418,11 +416,61 @@ class UserAsset():
         else:
             raise AssetLoadError("Invalid MDB collection for this asset!")
 
+    #
+    #   asset lock/unlock methods
+    #
+
+    def lock(self):
+        """ Locks the asset. """
+
+        while self.locked():
+            self.logger.debug("locked since %s" % self.locked())
+            if (datetime.now() - self.locked()).seconds >= 5:
+                self.logger.warn("Asset lock timeout exceeded!")
+                self.unlock()
+
+        mdb_doc = self.get_mdb_doc()
+        mdb_doc["locked"] = datetime.now()
+        utils.mdb[self.collection].save(mdb_doc)
+        self.logger.debug("%s locked." % self)
+
+    def unlock(self):
+        """ Unlocks the asset. """
+
+        mdb_doc = self.get_mdb_doc()
+        if self.locked():
+            del mdb_doc["locked"]
+            utils.mdb[self.collection].save(mdb_doc)
+        self.logger.debug("%s unlocked." % self)
+
+    def locked(self):
+        """ Returns a bool of whether the asset is locked. """
+
+        locked = self.get_mdb_doc().get("locked", None)
+        if locked is not None:
+            return locked
+        return False
+
+
 
     def return_json(self):
         """ Calls the asset's serialize() method and creates a simple HTTP
         response. """
         return Response(response=self.serialize(), status=200, mimetype="application/json")
+
+
+    #
+    #   get methods
+    #
+
+    def get_mdb_doc(self):
+        """ Retrieves the asset's MDB document. Raises a special exception if it
+        cannot for some reason. """
+
+        mdb_doc = utils.mdb[self.collection].find_one({"_id": self._id})
+        if mdb_doc is None:
+            raise AssetLoadError()
+        return mdb_doc
 
 
     def get_request_params(self, verbose=False):

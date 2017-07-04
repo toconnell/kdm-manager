@@ -214,6 +214,7 @@ class Survivor(Models.UserAsset):
                 self.survivor['cause_of_death'] = "Unspecified"
 
             self.log_event('%s has died! Cause of death: %s' % (self.pretty_name(), self.survivor["cause_of_death"]))
+            self.Settlement.update_population(-1)
 
         self.save()
 
