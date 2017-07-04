@@ -205,8 +205,10 @@ class Survivor(Models.UserAsset):
             self.survivor["died_on"] = datetime.now()
 
             # this isn't very DRY, but we've got to strictly type here
-            if 'dead_in' in self.params:
+            if 'died_in' in self.params:
                 self.survivor['died_in'] = int(self.params["died_in"])
+            else:
+                self.survivor["died_in"] = self.Settlement.get_current_ly()
 
             if 'cause_of_death' in self.params:
                 self.survivor['cause_of_death'] = str(self.params["cause_of_death"])
