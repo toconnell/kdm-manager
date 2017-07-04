@@ -648,7 +648,12 @@ class World:
         popularity_contest = {}
         for principle in mep_dict.keys():
             tup = mep_dict[principle]
-            sample_set = utils.mdb.settlements.find({"principles": {"$in": tup} }).count()
+
+            all_options = []
+            for l in tup:
+                all_options.extend(l)
+
+            sample_set = utils.mdb.settlements.find({"principles": {"$in": all_options} }).count()
             popularity_contest[principle] = {"sample_size": sample_set, "options": []}
 
             for option_list in tup:
