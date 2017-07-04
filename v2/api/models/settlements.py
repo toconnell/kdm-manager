@@ -1358,7 +1358,7 @@ class Settlement(Models.UserAsset):
 
             for ai in S.list_assets("abilities_and_impairments"):
                 if ai["handle"] in WM.get_handles():
-                    survivor_weapon_masteries.add(ai)
+                    survivor_weapon_masteries.add(ai["handle"])
 
         return sorted(list(survivor_weapon_masteries))
 
