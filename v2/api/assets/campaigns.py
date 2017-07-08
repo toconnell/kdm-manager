@@ -2,8 +2,18 @@
 
 from assets import monsters as monster_assets
 
-# this is the generic, "People of the Lantern" timeline. individual campaign
-#   dict items (defined in this module) may/may not supply their own timeline
+
+#
+#   This assets file is more complicated than others, since a lot of it drives
+#   the business logic of campaigns, i.e. the rules and things that affect or
+#   interact with lesser game assets.
+#
+
+
+#
+#   default and baseline ("standard") campaign assets
+#
+
 default_timeline = [
     {"year": 0,  "settlement_event":    [{"handle": "core_first_day"}]              },
     {"year": 1,  "story_event":         [{"handle": "core_returning_survivors"}]    },
@@ -31,6 +41,21 @@ default_timeline = [
     {"year": 32, }, {"year": 33,}, {"year": 34,}, {"year": 35,}, {"year": 36,},
     {"year": 37, }, {"year": 38,}, {"year": 39,}, {"year": 40,},
 ]
+
+
+default_survivor_attribute_milestones = {
+    "hunt_xp": [
+        {"values": [2,6,10,15], "handle": "core_age"},
+    ],
+    "Courage": [
+        {"values": [3], "handle": "core_bold"},
+        {"values": [9], "handle": "core_see_the_truth"},
+    ],
+    "Understanding": [
+        {"values": [3], "handle": "core_insight"},
+        {"values": [9], "handle": "core_white_secret"},
+    ],
+}
 
 
 milestone_story_events = {
@@ -102,6 +127,7 @@ campaign_definitions = {
         "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
         "special_showdowns": ["watcher"],
         "nemesis_monsters": ["butcher","kings_man","the_hand"],
+        "survivor_attribute_milestones": default_survivor_attribute_milestones,
         "quarries": monster_assets.base_game_quarries,
         "timeline": default_timeline,
         "settlement_sheet_init": {
@@ -128,6 +154,7 @@ campaign_definitions = {
         "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
         "special_showdowns": ["watcher"],
         "nemesis_monsters": ["butcher","kings_man","the_hand"],
+        "survivor_attribute_milestones": default_survivor_attribute_milestones,
         "quarries": monster_assets.base_game_quarries,
         "timeline": default_timeline,
         "settlement_sheet_init": {
@@ -168,6 +195,7 @@ campaign_definitions = {
         "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
         "special_showdowns": ["watcher"],
         "nemesis_monsters": ["butcher","kings_man","the_hand"],
+        "survivor_attribute_milestones": default_survivor_attribute_milestones,
         "quarries": monster_assets.base_game_quarries,
         "timeline": default_timeline,
         "settlement_sheet_init": {
@@ -202,6 +230,7 @@ campaign_definitions = {
         "timeline": default_timeline,
         "special_showdowns": ["watcher"],
         "nemesis_monsters": ["butcher","kings_man","the_hand"],
+        "survivor_attribute_milestones": default_survivor_attribute_milestones,
         "quarries": monster_assets.base_game_quarries,
         "settlement_sheet_init": {
             "storage": ["Sleeping Virus Flower"],
@@ -254,6 +283,7 @@ campaign_definitions = {
         ],
         "special_showdowns": ["ancient_sunstalker"],
         "nemesis_monsters": ["butcher","kings_man","the_hand"],
+        "survivor_attribute_milestones": default_survivor_attribute_milestones,
         "quarries": monster_assets.base_game_quarries,
         "settlement_sheet_init": {
             "expansions": ["sunstalker"],
@@ -276,7 +306,7 @@ campaign_definitions = {
             "location": ["Lantern Hoard", "Dragon Armory"],
             "innovation": ["Language","Lantern Oven","Clan of Death","Family"],
         },
-        "founder_epithet": "Foundling",
+        "founder_epithet": "foundling",
         "replaced_story_events": {
             "Bold": "Awake",
             "Insight": "Awake",
@@ -319,6 +349,19 @@ campaign_definitions = {
             {"year": 32, }, {"year": 33, }, {"year": 34, }, {"year": 35, }, {"year": 36, },
             {"year": 37, }, {"year": 38, }, {"year": 39, }, {"year": 40, },
         ],
+        "survivor_attribute_milestones": {
+            "hunt_xp": [
+                {"values": [2,6,10,15], "handle": "core_age"},
+            ],
+            "Courage": [
+                {"values": [3], "handle": "dk_awake"},
+                {"values": [9], "handle": "core_see_the_truth"},
+            ],
+            "Understanding": [
+                {"values": [3], "handle": "dk_awake"},
+                {"values": [9], "handle": "core_white_secret"},
+            ],
+        },
         "quarries": monster_assets.base_game_quarries,
         "special_showdowns": ["the_tyrant","dragon_king_lv3"],
         "nemesis_monsters": ["butcher","kings_man","the_hand"],

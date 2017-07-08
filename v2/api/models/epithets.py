@@ -9,8 +9,9 @@ import utils
 class Assets(Models.AssetCollection):
 
     def __init__(self, *args, **kwargs):
-
-        self.assets = epithets.core
-        self.assets.update(epithets.mar_2016_expansions)
-
+        self.root_module = epithets
         Models.AssetCollection.__init__(self,  *args, **kwargs)
+
+        # force all epithet assets to have 'max': 1, i.e. to prevent dupes
+        for h in self.get_handles():
+            self.assets[h]["max"] = 1

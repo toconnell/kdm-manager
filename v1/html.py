@@ -794,8 +794,8 @@ class angularJS:
                 class="create_user_asset_block_group"
                 ng-if="
                     settlement_sheet.lantern_year >= 1 &&
-                    settlement.game_assets.eligible_parents.male.length >= 1 &&
-                    settlement.game_assets.eligible_parents.female.length >= 1
+                    settlement.eligible_parents.male.length >= 1 &&
+                    settlement.eligible_parents.female.length >= 1
                 "
             >
                 <h2 class="no_ul">Survivor Parents</h2>
@@ -807,13 +807,13 @@ class angularJS:
                     <select
                         name="father"
                         ng-model="newSurvivorFather"
-                        ng-options="survivor._id.$oid as survivor.name for survivor in settlement.game_assets.eligible_parents.male"
+                        ng-options="survivor._id.$oid as survivor.name for survivor in settlement.eligible_parents.male"
                     /><option selected disabled value="" name="father">Father</option></select>
 
                     <select
                         name="mother"
                         ng-model="newSurvivorMother"
-                        ng-options="survivor._id.$oid as survivor.name for survivor in settlement.game_assets.eligible_parents.female"
+                        ng-options="survivor._id.$oid as survivor.name for survivor in settlement.eligible_parents.female"
                     /><option selected disabled value="" name="mother">Mother</option></select>
                 </div>
 
@@ -1170,13 +1170,12 @@ class survivor:
 
     <script src="/media/survivorSheet.js"></script>
 
-   <div
+    <div
        id = "survivor_sheet_angularjs_controller_container"
        ng-init="
-            initialize('survivorSheet', '$user_id', '$user_login', '$api_url','$settlement_id');
-            loadSurvivor('$survivor_id');
+            initialize('survivorSheet', '$user_id', '$user_login', '$api_url','$settlement_id','$survivor_id');
        "
-   >
+    >
         <span class="tablet_and_desktop nav_bar survivor_sheet_gradient"></span>
         <span class="mobile_only nav_bar_mobile survivor_sheet_gradient"></span>
         <div class="top_nav_spacer">hidden</div>
@@ -1186,7 +1185,7 @@ class survivor:
 
             <input
                 id="survivor_sheet_survivor_name"
-                type="text" name="name" value="{{survivor.name}}"
+                type="text" name="name" value="{{survivor.sheet.name}}"
                 ng-placeholder="Survivor Name"
                 onchange="updateAssetAttrib(this, 'survivor', '$survivor_id')"
                 onClick="this.select()"
@@ -1194,7 +1193,37 @@ class survivor:
 
             <hr class="invisible"/>
 
-            $epithet_controls
+            <div
+                id="epithet_angular"
+                ng-controller="epithetController"
+                title="Survivor epithets. Use controls below to add. Click or tap to remove!"
+            >
+
+                <ul id="epithet_angular_ul">
+                    <li
+                        class="touch_me"
+                        ng-repeat="e in survivor.sheet.epithets"
+                        ng-click="removeItem($index,'$survivor_id')"
+                        style="
+                            background-color: #{{settlement.game_assets.epithets[e].bgcolor}};
+                            color: #{{settlement.game_assets.epithets[e].color}};
+                            border-color: #{{settlement.game_assets.epithets[e].bgcolor}};
+                        "
+                    >
+                        <span>{{settlement.game_assets.epithets[e].name}}</span>
+                    </li>
+                </ul>
+
+                <select
+                    name="add_epithets"
+                    ng-model="new_epithet"
+                    ng-change="addEpithet()"
+                    ng-options="e.handle as e.name for e in epithetOptions"
+                >
+                    <option value="" disabled selected>Add Epithets</option>
+                </select>
+
+            </div>
 
             $affinity_controls
 
@@ -1203,7 +1232,8 @@ class survivor:
                 <input
                     id="survivor_sheet_survivor_sex"
                     class="survivor_sex_text"
-                    name="sex" value="$sex"
+                    name="sex"
+                    value="{{survivor.sheet.effective_sex}}"
                     onchange="updateAssetAttrib(this, 'survivor', '$survivor_id')"
                 />
 
@@ -1215,13 +1245,13 @@ class survivor:
                         id="cursedControlsModal"
                         class="orange bold modal_opener"
                     >
-                        Cursed Items ({{survivor.cursed_items.length}})
+                        Cursed Items ({{survivor.sheet.cursed_items.length}})
                     </button>
 
                     <button
                         id="saviorControlsModal"
                         class="orange bold modal_opener"
-                        ng-if="settlement.game_assets.campaign.saviors != undefined"
+                        ng-if="settlement.game_assets.campaign.saviors >= '1.3.1'"
                         ng-init="registerModalDiv('saviorControlsModal','modalSavior')"
                     >
                         Savior
@@ -1233,7 +1263,7 @@ class survivor:
                         ng-if="settlement.game_assets.campaign.dragon_traits != undefined"
                         ng-init="registerModalDiv('dragonControlsModal','dragonTraitsModal')"
                     >
-                        Dragon Traits ({{survivor.constellation_traits.length}})
+                        Dragon Traits ({{survivor.sheet.constellation_traits.length}})
                     </button>
 
                 </div>
@@ -1280,7 +1310,7 @@ class survivor:
             <button
                 id="modalDeathButton"
                 class="modal_death_button"
-                ng-class="{true: 'survivor_is_dead', false: 'unpressed_button'}[survivor.dead]"
+                ng-class="{true: 'survivor_is_dead', false: 'unpressed_button'}[survivor.sheet.dead]"
                 title="Open the Controls of Death!"
             >
                 Dead
@@ -1290,12 +1320,16 @@ class survivor:
 
 
 
-            <hr />
+        <hr />
 
+
+
+        <div
+            ng-controller="survivalController"
+        >
 
             <div
                 id="survivor_survival_box_container"
-                ng-controller="survivalController"
             >
 
                 <div class="big_number_container left_margin">
@@ -1312,7 +1346,7 @@ class survivor:
                         name="survival"
                         ng-model="survival_input_value"
                         ng-change="setSurvival()"
-                        value="{{survivor.survival}}"
+                        value="{{survivor.sheet.survival}}"
                         min="0"
                     />
                     <button
@@ -1350,36 +1384,42 @@ class survivor:
                         id="cannot_spend_survival"
                         class="survivor_sheet_toggle"
                         name="toggle_cannot_spend_survival"
-                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
                         type="checkbox"
-                        value="checked" $cannot_spend_survival_checked
-                     />
+                        ng-model='survivor.sheet.cannot_spend_survival'
+                        ng-change='toggleStatusFlag()'
+                        ng-checked="survivor.sheet.cannot_spend_survival == true"
+                    />
 
-                     <label
+                    <label
                         id="cannot_spend_survival"
                         class="float_right_toggle"
-                        for="cannot_spend_survival">
-                            Cannot<br/>spend<br/>survival
-                     </label>
-
-
-                    <p
-                        class="survivor_sheet_survival_action"
-                        ng-repeat="sa in survival_actions"
+                        for="cannot_spend_survival"
                     >
-                        <font
-                            ng-if="sa.available == false"
-                            class="survivor_sheet_survival_action_item"
+                        Cannot<br/>spend<br/>survival
+                    </label>
+
+                    <div
+                        ng-if="survivor.survival_actions != undefined"
+                    >
+                        <div
+                            class="help-tip survivor_sheet_survival_action"
+                            ng-repeat="sa in survivor.survival_actions"
                         >
-                            {{sa.name}}
-                        </font>
-                        <font
-                            ng-if="sa.available == true"
-                            class="survivor_sheet_survival_action_item survival_action_emphasize"
-                        >
-                            {{sa.name}}
-                        </font>
-                    </p>
+                            <font
+                                ng-if="sa.available == false"
+                                class="survivor_sheet_survival_action_item"
+                            >
+                                {{sa.name}}
+                            </font>
+                            <font
+                                ng-if="sa.available == true"
+                                class="survivor_sheet_survival_action_item survival_action_emphasize"
+                            >
+                                {{sa.name}}
+                            </font>
+                            <p>{{sa.title_tip}}</p>
+                        </div>
+                    </div>
 
                 </p>
 
@@ -1391,29 +1431,31 @@ class survivor:
                 $desktop_avatar_img
 
 
-            </div> <!-- survivor_survival_actions_container -->
+            </div> <!-- survivor_survival_actions_container  -->
+        </div> <!-- survivalController scope -->
 
 
-            <a id="edit_attribs">
-                <hr>
-            </a>
+        <a id="edit_attribs">
+            <hr>
+        </a>
 
-            <div
-                ng-if="bonuses.survivor_buff.length != 0"
-                class="survivor_sheet_survivor_settlement_bonuses"
-            >
 
-                <h3>Survivor Bonuses</h3>
+        <div
+            ng-if="settlement.survivor_bonuses.survivor_buff.length != 0"
+            class="survivor_sheet_survivor_settlement_bonuses"
+        >
 
-                <p class="settlement_buff" ng-repeat="b in bonuses.survivor_buff">
-                    <i>{{b.name}}:</i> <span ng-bind-html="b.desc|trustedHTML"></span>
-                </p>
+            <h3>Survivor Bonuses</h3>
 
-                <hr/>
-            </div>
+            <p class="settlement_buff" ng-repeat="b in settlement.survivor_bonuses.survivor_buff">
+                <i>{{b.name}}:</i> <span ng-bind-html="b.desc|trustedHTML"></span>
+            </p>
 
-            <h3>Survivor Notes</h3>
-            $survivor_notes
+            <hr/>
+        </div>
+
+        <h3>Survivor Notes</h3>
+        $survivor_notes
 
 
         </div> <!-- asset_management_left_pane -->
@@ -1717,7 +1759,7 @@ class survivor:
                 type="checkbox"
                 class="kd_css_checkbox kd_radio_option"
                 ng-model="sotf_reroll_toggle"
-                ng-checked="survivor.sotf_reroll == true"
+                ng-checked="survivor.sheet.sotf_reroll == true"
                 ng-click="sotfToggle()"
             />
 
@@ -1749,42 +1791,46 @@ class survivor:
         <a id="edit_fighting_arts" class="mobile_and_tablet"></a>
 
 
+        <div
+            ng-controller='fightingArtsController'
+        >
+            <h3>Fighting Arts</h3>
 
-        <h3>Fighting Arts</h3>
+            <input
+                id="survivor_sheet_cannot_use_fighting_arts"
+                class="survivor_sheet_toggle"
+                name="toggle_cannot_use_fighting_arts"
+                type="checkbox"
+                ng-model='survivor.sheet.cannot_use_fighting_arts'
+                ng-change='toggleStatusFlag()'
+                ng-checked="survivor.sheet.cannot_use_fighting_arts == true"
+            />
+            <label
+                id="survivor_sheet_cannot_use_fighting_arts_label"
+                class="float_right_toggle"
+                for="survivor_sheet_cannot_use_fighting_arts"
+             >
+                Cannot use<br/>Fighting Arts
+            </label>
 
-        <input
-            id="survivor_sheet_cannot_use_fighting_arts"
-            class="survivor_sheet_toggle"
-            name="toggle_cannot_use_fighting_arts"
-            onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
-            type="checkbox"
-            value="checked" $cannot_use_fighting_arts_checked
-        />
-        <label
-            id="survivor_sheet_cannot_use_fighting_arts_label"
-            class="float_right_toggle"
-            for="survivor_sheet_cannot_use_fighting_arts"
-         >
-            Cannot use<br/>Fighting Arts
-        </label>
+            <p>Maximum 3.</p>
 
-        <p>Maximum 3.</p>
+            <div class="survivor_sheet_card_container">
+                $fighting_arts
+            </div>
 
-        <div class="survivor_sheet_card_container">
-            $fighting_arts
-        </div>
+            <form method="POST" action="#edit_fighting_arts">
+                <input type="hidden" name="form_id" value="survivor_edit_fighting_arts" />
+                <input type="hidden" name="modify" value="survivor" />
+                <input type="hidden" name="asset_id" value="$survivor_id" />
 
-        <form method="POST" action="#edit_fighting_arts">
-            <input type="hidden" name="form_id" value="survivor_edit_fighting_arts" />
-            <input type="hidden" name="modify" value="survivor" />
-            <input type="hidden" name="asset_id" value="$survivor_id" />
+                <button class="hidden"></button> <!-- hacks! -->
+                $add_fighting_arts
+                <br class="mobile_only"/>
+                $rm_fighting_arts
 
-            <button class="hidden"></button> <!-- hacks! -->
-            $add_fighting_arts
-            <br class="mobile_only"/>
-            $rm_fighting_arts
-
-        </form>
+            </form>
+        </div> <!-- fartingArtsController -->
 
 
         <a id="edit_disorders" class="mobile_and_tablet"></a>
@@ -1818,32 +1864,57 @@ class survivor:
 
 
         <h3>Abilities & Impairments</h3>
-        <input
-            id="skip_next_hunt"
-            name="toggle_skip_next_hunt"
-            type="checkbox"
-            class="survivor_sheet_toggle"
-            value="checked"
-            $skip_next_hunt_checked
-            onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
-        />
-        <label
-            class="float_right_toggle"
-            for="skip_next_hunt"
-            id="skip_next_hunt_label"
+
+        <div ng-controller="skipNextHuntController">
+            <input
+                id="skip_next_hunt"
+                name="toggle_skip_next_hunt"
+                type="checkbox"
+                class="survivor_sheet_toggle"
+                ng-model='survivor.sheet.skip_next_hunt'
+                ng-change='toggleStatusFlag()'
+                ng-checked="survivor.sheet.skip_next_hunt == true"
+            />
+            <label
+                class="float_right_toggle"
+                for="skip_next_hunt"
+                id="skip_next_hunt_label"
+            >
+                Skip Next<br/>
+                Hunt
+            </label>
+        </div>
+
+        <div
+            title="Click or tap to remove survivor Abilities & Impairments."
+            ng-controller="abilitiesAndImpairmentsController"
         >
-            Skip Next<br/>
-            Hunt
-        </label>
 
-        <form method="POST" action="#edit_abilities" class="abilities_and_impairments">
-            <input type="hidden" name="form_id" value="survivor_edit_abilities" />
-            <input type="hidden" name="modify" value="survivor" />
-            <input type="hidden" name="asset_id" value="$survivor_id" />
+            <div
+                class="survivor_sheet_ai_container"
+                ng-repeat="ai_handle in survivor.sheet.abilities_and_impairments track by $index"
+            >
+                <span
+                    class="survivor_sheet_ai"
+                    ng-click="rmAI($index, ai_handle)"
+                >
+                    <b>{{settlement.game_assets.abilities_and_impairments[ai_handle].name}}:</b>
+                    <span ng-bind-html="settlement.game_assets.abilities_and_impairments[ai_handle].desc|trustedHTML"></span>
+                </span>
 
-            $abilities_and_impairments
+            </div>
 
-            $add_abilities_and_impairments
+            <div class="line_item">
+                <span class="empty_bullet" /></span>
+                <select
+                    name="add_abilities_and_impairments"
+                    ng_model="newAI"
+                    ng_change="addAI()"
+                    ng-options="ai.handle as (ai.name + ' (' + ai.type_pretty + ')'  ) for ai in AIoptions"
+                >
+                    <option value="" disabled selected>Add Abilities & Impairments</option>
+                </select>
+            </div>
 
             <button
                 id="modalCustomAIButton"
@@ -1853,9 +1924,9 @@ class survivor:
                 + Custom Abilities & Impairments
             </button>
 
-            $rm_abilities_and_impairments
 
-        </form>
+        </div> <!-- A&I controller -->
+
 
         <hr/>
 
@@ -1967,7 +2038,7 @@ class survivor:
                         onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
                         type="checkbox"
                         value="{{c.handle}}"
-                        ng-checked="arrayContains(c.handle, survivor.cursed_items)"
+                        ng-checked="survivor.sheet.cursed_items[c.handle] != undefined"
                     />
                     <label
                         class="cursed_item_toggle"
@@ -1976,14 +2047,19 @@ class survivor:
                         <span class="cursed_item_name">{{c.name}}</span>
 
                         <div class="cursed_item_ability_block" ng-repeat="a in c.abilities_and_impairments">
-                            <span class="cursed_item_ability">{{getAI(a).name}}</span>
-                            <span ng-if"getAI(a).desc != undefined"> - </span>
+                            <span
+                                ng-if="settlement.game_assets.abilities_and_impairments[a] != undefined"
+                                class="cursed_item_ability"
+                            >
+                                {{settlement.game_assets.abilities_and_impairments[a].name}} - 
+                            </span>
                             <span
                                 class="cursed_item_ability_desc"
-                                ng-if"getAI(a).desc != undefined"
-                                ng-bind-html=" getAI(a).desc|trustedHTML"
+                                ng-if="settlement.game_assets.abilities_and_impairments[a] != undefined"
+                                ng-bind-html="settlement.game_assets.abilities_and_impairments[a].desc|trustedHTML"
                             >
                             </span>
+
                         </div>
                     </label>
 
@@ -2013,6 +2089,7 @@ class survivor:
     <!-- SAVIOR CONTROLS -->
 
     <div
+        ng-controller="saviorController"
         id="modalSavior" class="modal"
     >
         <div class="modal-content survivor_sheet_gradient">
@@ -2031,7 +2108,7 @@ class survivor:
                 <input type="hidden" name="modify" value="survivor">
                 <input type="hidden" name="asset_id" value="$survivor_id">
                 <input type="hidden" name="set_savior_type" value="green">
-                <button class="affinity_green">Dream of the Throne</button>
+                <button class="affinity_green">Dream of the Crown</button>
             </form>
 
             <form method="post" action="/">
@@ -2139,7 +2216,7 @@ class survivor:
                 Die
             </button>
 
-            <div ng-if="survivor.dead == true">
+            <div ng-if="survivor.sheet.dead == true">
                 <hr/>
                 <button
                     class="kd_blue"
@@ -2541,23 +2618,6 @@ class survivor:
     survival_action_item = Template('\
         <font class="survivor_sheet_survival_action_item $f_class">$action</font><br/>\
     \n')
-    epithet_angular_controls = Template("""\n
-    <div id="epithet_angular" ng-app="kdmManager" ng-controller="epithetController" ng-init="epithets=[$current_epithets]" title="Survivor epithets. Use controls below to add. Click or tap to remove!">
-
-        <ul id="epithet_angular_ul">
-            <li class="touch_me" ng-repeat="x in epithets" ng-click="removeItem($index,'$survivor_id')" style="background-color: #{{x.bgcolor}}; color: #{{x.color}}; border-color: #{{x.bgcolor}}">
-                <span ng-if='x.name == undefined'>{{x}}</span>
-                <span ng-if='x.name'>{{x.name}}</span>
-            </li>
-        </ul>
-
-    $epithet_options
-<!--    <button ng-click="addItem()">Add</button> -->
-
-    <!-- suppress error text if not debugging -->
-    <!-- <p>{{errortext}}</p> -->
-    </div>
-    \n""")
     survivor_notes = Template("""\n
     <div id="survivor_notes_angular" ng-app="kdmManager" ng-controller="survivorNotesController" ng-init="notes=$note_strings_list" title="Survivor notes controls. Survivor notes are included in the Campaign Summary Survivor Search results.">
     <p>Add notes to $name's Survivor Sheet using the controls below. Click or tap a note to remove it.</p>
@@ -2886,8 +2946,13 @@ class settlement:
             </div>
             <div class="campaign_summary_small_box">
                 <h4>- Settlement Bonuses -</h4>
-                $settlement_bonuses
-                $survivor_bonuses
+                <span
+                    class="kd_checkbox_checked campaign_summary_bullet"
+                    ng-repeat="p in settlement.survivor_bonuses.all"
+                >
+                    <b>{{p.name}}:</b>
+                    <span ng-bind-html="p.desc|trustedHTML"></span>
+                </span>
             </div>
             <hr class="mobile_only"/>
             <div class="campaign_summary_small_box">
@@ -3383,7 +3448,7 @@ class settlement:
                     ng-init="setLocationOptions()"
                     ng_model="newLocation"
                     ng_change="addLocation()"
-                    ng-options="loc.handle as loc.name for loc in location_options"
+                    ng-options="loc.handle as loc.name for loc in locationOptions"
                 >
                     <option value="" disabled selected>Add Location</option>
                 </select>
@@ -3441,7 +3506,7 @@ class settlement:
                     ng-init="setInnovationOptions()"
                     ng_model="newInnovation"
                     ng_change="addInnovation()"
-                    ng-options="i.handle as i.name for i in innovation_options"
+                    ng-options="i.handle as i.name for i in innovationOptions"
                 >
                     <option value="" disabled selected>Add Innovation</option>
                 </select>

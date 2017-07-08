@@ -60,10 +60,10 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.61
+        self.object_version=0.66
         Models.UserAsset.__init__(self,  *args, **kwargs)
         if self.normalize_on_init:
-            self.normalize_data()
+            self.normalize()
 
 
     def new(self):
@@ -102,7 +102,7 @@ class Settlement(Models.UserAsset):
                 "expansions_version":   1.0,
                 "innovations_version":  1.0,
                 "locations_version":    1.0,
-                "principles_version":    1.0,
+                "principles_version":   1.0,
             },
 
             # sheet
@@ -169,13 +169,13 @@ class Settlement(Models.UserAsset):
         self.save()
 
 
-    def normalize_data(self):
+    def normalize(self):
         """ Makes sure that self.settlement is up to our current standards. """
 
         self.perform_save = False
 
         self.bug_fixes()
-        self.baseline_data_model()
+        self.baseline()
         self.migrate_settlement_notes()
 
 
@@ -223,7 +223,7 @@ class Settlement(Models.UserAsset):
 
         # finish
         if self.perform_save:
-            self.logger.info("%s settlement modified! Saving changes..." % self)
+            self.logger.info("%s settlement modified during normalization! Saving changes..." % self)
             self.save()
 
 
@@ -231,13 +231,14 @@ class Settlement(Models.UserAsset):
         """ Renders the settlement, including all methods and supplements, as
         a monster JSON object. This is where all views come from."""
 
-        I = innovations.Assets()
-
-        output = self.get_serialize_meta()
-
         # do some tidiness operations first
+
         for k in ["locations","innovations","defeated_monsters"]:
             self.settlement[k] = sorted(self.settlement[k])
+
+
+        # now start
+        output = self.get_serialize_meta()
 
         # create the sheet
         output.update({"sheet": self.settlement})
@@ -253,8 +254,7 @@ class Settlement(Models.UserAsset):
         output.update({"user_assets": {}})
         output["user_assets"].update({"players": self.get_players()})
         output["user_assets"].update({"survivors": self.get_survivors()})
-        output["user_assets"].update({"survivor_weapon_masteries": self.get_survivor_weapon_masteries()})
-        output["user_assets"].update({"eligible_parents": self.get_eligible_parents()})
+#        output["user_assets"].update({"survivor_weapon_masteries": self.get_survivor_weapon_masteries()})
 
         # create game_assets
         output.update({"game_assets": {}})
@@ -293,6 +293,13 @@ class Settlement(Models.UserAsset):
 
             # misc helpers for front-end
         output["game_assets"]["survival_actions"] = self.get_survival_actions("JSON")
+
+
+        # additional top-level elements for more API "flatness"
+        output["survivor_bonuses"] = self.get_bonuses("JSON")
+        output["survivor_attribute_milestones"] = self.get_survivor_attribute_milestones()
+        output["eligible_parents"] = self.get_eligible_parents()
+
 
         # finally, return a JSON string of our object
         return json.dumps(output, default=json_util.default)
@@ -532,32 +539,31 @@ class Settlement(Models.UserAsset):
         self.save()
 
 
-    def add_innovation(self):
+    def add_innovation(self, i_handle=None):
         """ Adds an innovation to the settlement. Does business logic. """
 
-        # first, try to initialize an innovations.Innovation object
-        try:
-            I = innovations.Innovation(self.params["handle"])
-        except Exception as e:
-            self.logger.error("Could not initialize innovation asset from dict: %s" % self.params["handle"])
-            self.logger.error("Unable to add '%s' to %s innovations!" % (self.params["handle"], self))
-            self.logger.error("Bad params were: %s" % self.params)
-            self.logger.exception(e)
-            raise Exception
+        if i_handle is None:
+            self.check_request_params(["handle"])
+            i_handle = self.params["handle"]
 
-        if I.name in self.settlement["innovations"]:
-            self.logger.warn("Ignoring attempt to add duplicate %s to %s" % (I, self))
+        # first, pass/ignore if we're trying to add an innovation twice:
+        if i_handle in self.get_innovations():
+            self.logger.warn("%s Attempted to add duplicate innovation handle, '%s'" % (request.User, i_handle))
             return False
 
+        # now try to get the dict; bail if it's bogus
+        I = innovations.Assets()
+        i_dict = I.get_asset(i_handle)
+        if i_dict is None:
+            self.logger.error("%s Attempted to add unknown innovation handle, '%s'" % (request.User, i_handle))
 
-        # finally, do it
+        # finally, do it and log it
+        self.settlement["innovations"].append(i_handle)
 
-        self.settlement["innovations"].append(I.handle)
+        if i_dict.get("levels", None) is not None:
+            self.settlement["innovation_levels"][i_handle] = 1
 
-        if hasattr(I, "levels"):
-            self.settlement["innovation_levels"][I.handle] = 1
-
-        self.log_event("%s added '%s' to settlement innovations." % (request.User.login, I.name), event_type="add_innovation")
+        self.log_event("%s added '%s' to settlement innovations." % (request.User.login, i_dict["name"]), event_type="add_innovation")
 
         self.save()
 
@@ -979,7 +985,7 @@ class Settlement(Models.UserAsset):
         """
 
         if handles:
-            available = {}
+            available = collections.OrderedDict()   # NOT A REGULAR DICT!!!
         else:
             available = []
 
@@ -989,26 +995,19 @@ class Settlement(Models.UserAsset):
         if exclude_types != []:
             A.filter("type", exclude_types)
 
-        # create the final output object based on kwarg
-        if handles:
-            for k in A.get_handles():
-                item_dict = A.get_asset(k)
-                if self.is_compatible(item_dict):
-                    available.update({item_dict["handle"]: item_dict})
-        else:
-            for n in A.get_names():
-                item_dict = A.get_asset_from_name(n)
-                if self.is_compatible(item_dict):
-                    available.append(item_dict)
+        # update available
+        for n in A.get_names():
+            asset_dict = A.get_asset_from_name(n)
+            if self.is_compatible(asset_dict):
+                if handles: # return a dict
+                    available.update({asset_dict["handle"]: asset_dict})
+                else:       # return a list of dicts
+                    available.append(asset_dict)
 
-        # return the final output object after sorting
-        final = []
-        if type(available) == list:
-            final = sorted(available, key=lambda k: k['name'])
-        else:
-            final = collections.OrderedDict(sorted(available.items()))
+        if type(available) == list: #list of dicts; needs sorting
+            available = sorted(available, key=lambda k: k['name'])
 
-        return {"%s" % (asset_module.__name__.split(".")[-1]): final}
+        return {"%s" % (asset_module.__name__.split(".")[-1]): available}
 
 
     def get_bonuses(self, return_type=None):
@@ -1016,7 +1015,7 @@ class Settlement(Models.UserAsset):
         Supported types are:
 
             - dict (same as None/unspecified)
-            - "json"
+            - "JSON"
 
         The JSON type return is especially designed for front-end developers,
         and includes a pseudo-buff group called "all" that includes all buffs.
@@ -1029,7 +1028,7 @@ class Settlement(Models.UserAsset):
             "departure_buff": {},
         }
 
-        if return_type == "json":
+        if return_type == "JSON":
             output = {
                 "settlement_buff": [],
                 "survivor_buff": [],
@@ -1040,7 +1039,7 @@ class Settlement(Models.UserAsset):
         for handle,d in self.get_innovations(return_type=dict, include_principles=True).iteritems():
             for k in d.keys():
                 if k in output.keys():
-                    if return_type == "json":
+                    if return_type == "JSON":
                         dict_repr = {"name": d["name"], "desc": d[k]}
                         output[k].append(dict_repr)
                         output["all"].append(dict_repr)
@@ -1049,7 +1048,7 @@ class Settlement(Models.UserAsset):
 
 
         # sort, if we're doing JSON, and save the UI guys the trouble
-        if return_type == "json":
+        if return_type == "JSON":
             for buff_group in output:
                 output[buff_group] = sorted(output[buff_group], key=lambda k: k['name'])
 
@@ -1345,59 +1344,50 @@ class Settlement(Models.UserAsset):
         return output
 
 
-    def get_survivor_weapon_masteries(self):
-        """ Returns a list of weapon mastery handles representing the weapon
-        masteries that have been acquired by the settlement's survivors. """
-
-        WM = weapon_masteries.Assets()
-        survivor_weapon_masteries = set()
-
-        for s in self.get_survivors(list):
-
-            S = survivors.Survivor(_id=s["_id"])
-
-            for ai in S.list_assets("abilities_and_impairments"):
-                if ai["handle"] in WM.get_handles():
-                    survivor_weapon_masteries.add(ai["handle"])
-
-        return sorted(list(survivor_weapon_masteries))
-
-
     def get_survival_actions(self, return_type=dict):
         """ Returns a dictionary of survival actions available to the survivor
         based on campaign type. Individual SAs are either 'available' or not,
-        depending on whether they're unlocked and whether the survivor has an
-        impairment that prevents them from using the SA. """
+        depending on whether they're unlocked. """
 
         SA = survival_actions.Assets()
 
         # first, build the master dict based on the campaign def
+        sa_dict = {}
         sa_handles = self.get_campaign(dict)["survival_actions"]
-        sa_dict = {k: SA.get_asset(k) for k in sa_handles}
+        for handle in sa_handles:
+            sa_dict[handle] = SA.get_asset(handle)
 
         # set innovations to unavailable if their availablility is not defined
         # already within their definition:
         for k in sa_dict.keys():
             if not "available" in sa_dict[k]:
                 sa_dict[k]["available"] = False
+                sa_dict[k]["title_tip"] = "Not unlocked."
 
         # second, udpate the master list to say which are available
         for k,v in self.get_innovations(dict).iteritems():
             innovation_sa = v.get("survival_action", None)
             if innovation_sa in sa_dict.keys():
                 sa_dict[innovation_sa]["available"] = True
+                sa_dict[innovation_sa]["title_tip"] = "Settlement innovation '%s' unlocks this ability." % v["name"]
 
-        # finally, since this is likely going back to the front-end guys, we
         # support a JSON return type:
-
         if return_type=="JSON":
             j_out = []
             for sa_key in sa_dict.keys():
                 j_out.append(sa_dict[sa_key])
             return sorted(j_out, key=lambda k: k['sort_order'])
 
-        # otherwise, just return the sa_dict, au naturale
+        # dict return
         return sa_dict
+
+
+    def get_survivor_attribute_milestones(self):
+        """ Returns a dictionary of the settlement's survivor attribute
+        milestones. """
+
+        c_dict = self.get_campaign(dict)
+        return c_dict["survivor_attribute_milestones"]
 
 
     def get_survival_limit(self, return_type=int):
@@ -1439,6 +1429,26 @@ class Settlement(Models.UserAsset):
             return minimum
 
         return int(self.settlement["survival_limit"])
+
+
+    def get_survivor_weapon_masteries(self):
+        """ Returns a list of weapon mastery handles representing the weapon
+        masteries that have been acquired by the settlement's survivors. """
+
+        WM = weapon_masteries.Assets()
+        survivor_weapon_masteries = set()
+
+        for s in self.get_survivors(list):
+
+            S = survivors.Survivor(_id=s["_id"])
+
+            for ai in S.list_assets("abilities_and_impairments"):
+                if ai["handle"] in WM.get_handles():
+                    survivor_weapon_masteries.add(ai["handle"])
+
+        return sorted(list(survivor_weapon_masteries))
+
+
 
 
     def get_milestones_options(self, return_type=list):
@@ -1671,7 +1681,7 @@ class Settlement(Models.UserAsset):
     #   bug fix, conversion and migration functions start here!
     #
 
-    def baseline_data_model(self):
+    def baseline(self):
         """ This checks the mdb document to make sure that it has basic aux-
         iliary and supplemental attribute keys. If it doesn't have them, they
         get added and we set self.perform_save = True. """
@@ -1691,6 +1701,12 @@ class Settlement(Models.UserAsset):
         if not "innovation_levels" in self.settlement.keys():
             self.settlement["innovation_levels"] = {}
             self.perform_save = True
+
+
+        #
+        #   This is where we add the 'meta' element; note that we actually
+        #   convert from the old/initial implementation of 'meta' in this code
+        #
 
         if not "meta" in self.settlement.keys():
             self.logger.info("Creating 'meta' key for %s" % self)

@@ -122,6 +122,12 @@ class AssetCollection():
                     self.assets.update(v)
 
 
+    def set_pretty_types(self):
+        """ Iterates over self.assets; adds the "type_pretty" key to all assets. """
+        for a in self.assets.keys():
+            self.assets[a]["type_pretty"] = self.get_asset(a)["type"].replace("_"," ")
+
+
     def get_handles(self):
         """ Dumps all asset handles, i.e. the list of self.assets keys. """
 
@@ -133,12 +139,20 @@ class AssetCollection():
 
         return sorted([self.assets[k]["name"] for k in self.get_handles()])
 
+    def get_dicts(self):
+        """ Dumps a list of dicts where each dict is an asset dict. """
+
+        output = []
+        for h in sorted(self.get_handles()):
+            output.append(self.get_asset(h))
+        return output
+
 
     def get_asset(self, handle, backoff_to_name=False):
         """ Return an asset dict based on a handle. Return None if the handle
         cannot be retrieved. """
 
-        asset = self.assets.get(handle, None)
+        asset = copy(self.assets.get(handle, None))     # return a copy, so we don't modify the actual def
 
         if asset is None and backoff_to_name:
             return self.get_asset_from_name(handle)
@@ -326,6 +340,7 @@ class GameAsset():
             return getattr(self, attrib)
         except:
             return None
+
 
 
 
@@ -532,7 +547,7 @@ class UserAsset():
     #   get/set methods for User Assets below here
     #
 
-    def list_assets(self, attrib=None):
+    def list_assets(self, attrib=None, log_failures=False):
         """ Laziness method that returns a list of dictionaries where dictionary
         in the list is an asset in the object's list of those assets.
 
@@ -554,6 +569,11 @@ class UserAsset():
             a_dict = A.get_asset(a, backoff_to_name=True)
             if a_dict is not None:
                 output.append(a_dict)
+            elif a_dict is None and log_failures:
+                self.logger.error("%s Unknown '%s' asset '%s' cannot be listed!" % (self, attrib, a))
+            else:
+                pass # just ignore failures and silently fail
+
         return output
 
 
@@ -575,7 +595,11 @@ class UserAsset():
         """ Convenience/legibility function to help code readbility and reduce
         typos, etc. """
 
+        if self.collection == "survivors":
+            return int(self.Settlement.settlement["lantern_year"])
         return int(self.settlement["lantern_year"])
+
+
 
 
     #
@@ -585,16 +609,11 @@ class UserAsset():
     def log_event(self, msg, event_type=None):
         """ Logs a settlement event to mdb.settlement_events. """
 
-        if self.collection == "survivors":
-            current_ly = self.Settlement.get_current_ly()
-        else:
-            current_ly = self.get_current_ly()
-
         d = {
             "created_on": datetime.now(),
             "created_by": None,
             "settlement_id": self.settlement_id,
-            "ly": current_ly,
+            "ly": self.get_current_ly(),
             "event": msg,
             "event_type": event_type,
         }

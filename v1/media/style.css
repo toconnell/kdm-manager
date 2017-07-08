@@ -182,8 +182,8 @@ fieldset {border: 0; text-align: left; }
 
 /* all breakpoints - general styles */ 
 fieldset {padding: 0; margin: 0 auto;}
-p.survivor_sheet_survival_action {margin: 0; }
-font.survivor_sheet_survival_action_item {padding-left: 60px; font-size: 57pt; color: #eee;}
+.survivor_sheet_survival_action {margin: 0; display: flex; margin-bottom: 3%; margin-left: 2%; }
+font.survivor_sheet_survival_action_item {padding-left: 60px; font-size: 57pt; color: #eee; cursor: pointer;}
 font.survival_action_emphasize {font-weight: bold; color: #000; }
 
 
@@ -622,6 +622,9 @@ div#info_box h2, button#survivor_campaign_asset, button.dashboard_asset {text-al
 .bold, .success, .error, .warn { font-weight: bold; }
 
 /* survivor sheet styles */
+.survivor_sheet_ai_container {padding-left: 3.5%; text-indent: -0.5%; margin-bottom: 3.5%; }
+.survivor_sheet_ai {cursor: pointer;}
+
 div.sotf_reroll_controls {border-bottom: 1px solid #aaa; margin: 4% auto;}
 p.sotf_reroll_caption {font-size: 35px; margin-top: 0; font-family: Metrophobic; }
 
@@ -1049,6 +1052,9 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     #floating_refresh_button, #floating_dashboard_button {position: fixed; top: 1%; margin: 0 auto; height: auto; width: auto; padding: 5px; border: 2px solid; opacity: 1;}
     #floating_refresh_button {right: 10px; padding:8px; padding-left: 30px; padding-right: 30px; }
     #floating_dashboard_button { left: 10px; padding: 10px; padding-left: 30px; padding-right: 30px; }
+
+    .survivor_sheet_ai_container {margin-left: 3%; text-indent: -2%; display: flex; }
+    .survivor_sheet_ai {font-size: 20pt; line-height: 120%; margin-right: 5%; }
 
     input#survivor_sheet_survivor_name {font-size: 40pt; top: 60px; right: auto; left: 1%; top: 6%; text-align: left; padding-left: 30px; min-width: 0; margin-top: 10px; }
 
@@ -1782,6 +1788,9 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.sotf_reroll_controls {height: 100px; }
     div.sotf_reroll_controls label {font-size: 13pt;}
     p.sotf_reroll_caption {font-size: 9pt;}
+
+    .survivor_sheet_ai_container {}
+    .survivor_sheet_ai {font-size: 12pt;}
 
     input#survivor_sheet_survivor_name {width: 320px; font-size: 25pt; position: relative; text-align: center; opacity: 1.0; top: auto; left: auto; right: auto; bottom: auto; margin: 0px; }
 

@@ -665,13 +665,198 @@
             <th colspan="3"><b>Survivor Routes:</b> all routes for working directly with an individual survivor follow a <code>/settlement/&lt;action&gt;/&lt;settlement_id&gt;</code> convention. Like settlement routes, these routes are private and require authentication. </th>
         </tr>
 
+        <tr>
+            <td class="subsection_header" colspan="3"><b>GET routes:</b>
+            retrieve various types of survivor data.</td>
+        </tr>
         <tr class="ul">
             <td> /settlement/get/&lt;survivor_id&gt; </td>
             <td> GET </td>
             <td> Retrieve a serialized version of the survivor.</td>
         </tr>
+        <tr class="ul">
+            <td> /settlement/get_survival_actions/&lt;survivor_id&gt; </td>
+            <td> GET </td>
+            <td> <p>Retrieve JSON representing the Survival Actions currently
+            available to the survivor: </p>
+            <pre><code>
+    [
+        {
+            "available": false,
+            "sort_order": 0,
+            "handle": "dodge",
+            "name": "Dodge",
+            "type": "survival_action",
+            "title_tip": "Impairment 'Broken hip' prevents Wallace from using this ability."
+        },
+        {
+            "available": true,
+            "handle": "embolden",
+            "name": "Embolden",
+            "sort_order": 2,
+            "type": "survival_action",
+            "title_tip": "Settlement innovation 'Sun Language' unlocks this ability."
+        },
+        {
+            "available": false,
+            "handle": "overcharge",
+            "name": "Overcharge",
+            "sort_order": 5,
+            "type": "survival_action",
+            "title_tip": "Not unlocked."
+        }
+    ]</code></pre>
+            <p>This JSON is updated automatically whenever the
+            the settlement's innovations are update or the survivor's abilities
+            are updated.</p>
+            </td>
+        </tr>
+
+
+        <!-- asset mgmt -->
+        <tr>
+            <td class="subsection_header" colspan="3"><b>Asset management:</b>
+            routes for adding, removing and modifying Survivor Sheet game asset
+            info, e.g. Fighting Arts, Disorders, Abilities & Impairments, etc.</td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/add_game_asset/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p>Use this route to add an asset 'handle' of whatever 'type'
+            to a survivor.</p>
+            <p>Requires the 'handle' and 'type' keys and supports an optional
+            'quanity' key, which allows the asset to be added multiple times:</p>
+            <code>{'handle': 'blind', 'type': 'abilities_and_impairments', 'quantity': 2}</code>
+            <p>POST without the 'quanity' key in your JSON to add an asset one
+            time:</p>
+            <code>{'handle': 'crossarm_block', 'type': 'fighting_arts'}</code>
+            <p><b>Important!</b> This method enforces many of the incoming
+            asset's attributes, including <code>max</code>, <code>epithet</code>,
+            and os on. Reloading or refreshing the survivor after POSTing to this
+            route is highly recommended!</p> 
+            </td>
+        </tr>
+
+        <!-- sheet attribs -->
+        <tr>
+            <td class="subsection_header" colspan="3"><b>Sheet Attributes:</b>
+            routes for updating Survivor Sheet attributes</td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/update_attribute/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p>Supports arbitrary survivor attribute updates. Requires JSON
+            contianing an 'attribute' and a 'modifier'. Adds the value of
+            'modifier' to the current value of 'attribute'.</p>
+            <p>Sample JSON to increase strength by two:</p>
+            <code>{'attribute': 'Strength', 'modifier': 2}</code>
+            <p>Sample JSON to decrease Insanity by 1:</p>
+            <code>{'attribute': 'Insanity', 'modifier': -1}</code>
+            </td>
+        </tr>
+
+        <tr class="ul">
+            <td> /settlement/set_attribute/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td><p>Use this route to set an arbitrary survivor attribute to an
+            arbitrary value. Requires 'attribute' and 'value' keys.<p>
+            <p>POST some JSON containing the 'attrib' name and the new 'value'
+            like so:</p>
+            <code>{'attribute': 'Strength', 'value': 3}</code>
+            <p>The JSON above would set the survivor's Strength to three. The
+            'value' should always be an integer. Negative numbers are supported:</p>
+            <code>{'attribute': 'Evasion', 'value': -2}</code>
+            </td>
+        </tr>
+
+        <tr class="ul">
+            <td> /settlement/set_attribute_detail/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p>All survivors have an <code>attribute_detail</code> element in
+            their <code>sheet</code> JSON:</p>
+            <code><pre>
+        "attribute_detail": {
+            "Strength": {
+                "tokens": 0,
+                "gear": 0
+            },
+            "Evasion": {
+                "tokens": 0,
+                "gear": 0
+            },
+            "Movement": {
+                "tokens": 0,
+                "gear": 0
+            },
+            "Luck": {
+                "tokens": 0,
+                "gear": 0
+            },
+            "Speed": {
+                "tokens": 0,
+                "gear": 0
+            },
+            "Accuracy": {
+                "tokens": 1,
+                "gear": 0
+            }
+        },</code></pre>
+            <p>This is used to manage attribute info that is NOT the base
+            attribute value (see <code>set_attribute</code> and <code>
+            update_attribute</code> for updating base values).</p>
+            <p>To update <code>attribute_detail</code> info, POST some JSON
+            that includes an 'attribute', 'detail' and 'value':</p>
+            <code>{'attribute': 'Luck', 'detail': 'tokens', 'value': 2}</code>
+            <p>The sample code above would set the survivor's 'Luck' attribute
+            detail for 'tokens' to two.</p>
+            </td>
+        </tr>
+
+
+
+        <!-- survival -->
+        <tr>
+            <td class="subsection_header" colspan="3"><b>Survival:</b>
+            routes for managing the survivor's Survival value.</td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/update_survival/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p>POST a 'modifier' integer to this route to add that number
+            to the survivor's Survival: </p>
+            <code>{"modifier": 2}</code>
+            <p>...or:</p>
+            <code>{"modifier": -1}</code>
+            <p><b>Important!</b> The API will only allow values greater than the
+            settlement's Survival Limit if expansion (or other) content requires
+            the settlement to NOT enforce Survival Limit.</p>
+            <p><b>Important!</b> The API will normalize negative numbers to zero
+            automatically.</p> 
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/set_survival/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p>POST a 'value' integer to this route to set that integer as
+            the survivor's Survival value.: </p>
+            <code>{"value": 6}</code>
+            <p><b>Important!</b> The API will only allow values greater than the
+            settlement's Survival Limit if expansion (or other) content requires
+            the settlement to NOT enforce Survival Limit.</p>
+            <p><b>Important!</b> The API will normalize negative numbers to zero
+            automatically.</p> 
+            </td>
+        </tr>
+
 
         <!-- controls of death!!! -->
+        <tr>
+            <td class="subsection_header" colspan="3"><b>Specialty routes and
+            'meta' data controllers:</b> these routes allow the management of
+            data beyond the standard Survivor Sheet fields. These routes
+            typically expect detailed/complex JSON, so read carefully!
+            </td>
+        </tr>
         <tr class="ul">
             <td> /settlement/controls_of_death/&lt;survivor_id&gt; </td>
             <td> POST </td>
@@ -719,62 +904,11 @@
             </td>
         </tr>
 
-        <!-- sheet attribs -->
-        <tr>
-            <td class="subsection_header" colspan="3"><b>Sheet Attributes:</b>
-            routes for updating Survivor Sheet attributes</td>
-        </tr>
-        <tr class="ul">
-            <td> /settlement/update_attribute/&lt;survivor_id&gt; </td>
-            <td> POST </td>
-            <td> <p>Supports arbitrary survivor attribute updates. Requires JSON
-            contianing an 'attribute' and a 'modifier'. Adds the value of
-            'modifier' to the current value of 'attribute'.</p>
-            <p>Sample JSON to increase strength by two:</p>
-            <code>{'attribute': 'Strength', 'modifier': 2}</code>
-            <p>Sample JSON to decrease Insanity by 1:</p>
-            <code>{'attribute': 'Insanity', 'modifier': -1}</code>
-            </td>
-        </tr>
-        <!-- survival -->
-        <tr>
-            <td class="subsection_header" colspan="3"><b>Survival:</b>
-            routes for managing the survivor's Survival value.</td>
-        </tr>
-        <tr class="ul">
-            <td> /settlement/update_survival/&lt;survivor_id&gt; </td>
-            <td> POST </td>
-            <td> <p>POST a 'modifier' integer to this route to add that number
-            to the survivor's Survival: </p>
-            <code>{"modifier": 2}</code>
-            <p>...or:</p>
-            <code>{"modifier": -1}</code>
-            <p><b>Important!</b> The API will only allow values greater than the
-            settlement's Survival Limit if expansion (or other) content requires
-            the settlement to NOT enforce Survival Limit.</p>
-            <p><b>Important!</b> The API will normalize negative numbers to zero
-            automatically.</p> 
-            </td>
-        </tr>
-        <tr class="ul">
-            <td> /settlement/set_survival/&lt;survivor_id&gt; </td>
-            <td> POST </td>
-            <td> <p>POST a 'value' integer to this route to set that integer as
-            the survivor's Survival value.: </p>
-            <code>{"value": 6}</code>
-            <p><b>Important!</b> The API will only allow values greater than the
-            settlement's Survival Limit if expansion (or other) content requires
-            the settlement to NOT enforce Survival Limit.</p>
-            <p><b>Important!</b> The API will normalize negative numbers to zero
-            automatically.</p> 
-            </td>
-        </tr>
-
         <!-- misc. -->
         <tr>
-            <td class="subsection_header" colspan="3"><b>Miscellaneous and
-            campaign-specific controls:</b> special routes and methods for
-            managing survivors subject to special campaign or settlement rules.</td>
+            <td class="subsection_header" colspan="3"><b>Flags and toggles:</b>
+            special routes and methods for setting/unsetting 'flag' type
+            aspects of the Settlement Sheet.</td>
         </tr>
         <tr class="ul">
             <td> /settlement/toggle_sotf_reroll/&lt;survivor_id&gt; </td>
@@ -787,6 +921,35 @@
             <p>But since it is not part of the default data model for survivors,
             it will sometimes simply be undefined/unset, rather than a.) always
             present and b.) always a boolean.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/set_status_flag/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p> This route and its related route <code>toggle_status_flag</code>
+            are used to work with Survivor Sheet 'flags'. The following 'flag'
+            attributes can be set to a boolean value:</p>
+            <ul>
+                <li>cannot_spend_survival</li>
+                <li>cannot_use_fighting_arts</li>
+                <li>skip_next_hunt</li>
+            </ul>
+            <p>To set a flag (i.e. to True/true), POST some JSON to this route
+            that includes the 'flag' key with the value of the flag you want to
+            set:</p>
+            <code>{'flag': 'cannot_spend_survival'}</code>
+            <p> To unset/remove a flag, POST the key/value, plus the key 'unset'
+            with a value of True/true:</p>
+            <code>{'flag': 'skip_next_hunt', 'unset': True}</code>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/toggle_status_flag/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p>Works nearly identically to <code>set_status_flag</code>
+            (see above), except toggles the flag on/off. POST simple JSON
+            containing the target 'flag' to toggle it:</p>
+            <code>{'flag': 'cannot_use_fighting_arts'}</code>
             </td>
         </tr>
 

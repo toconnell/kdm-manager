@@ -17,8 +17,8 @@ class Assets(Models.AssetCollection):
             else:
                 self.assets[a]["type"] = "innovation"
 
-        for m in abilities_and_impairments.weapon_masteries.keys():
-            wm = abilities_and_impairments.weapon_masteries[m]
+        for m in abilities_and_impairments.weapon_mastery.keys():
+            wm = abilities_and_impairments.weapon_mastery[m]
             wm["handle"] = m
             wm["type"] = "weapon_mastery"
             self.assets[m] = wm

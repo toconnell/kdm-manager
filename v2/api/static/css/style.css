@@ -11,14 +11,15 @@ a:visited {color: #B57E2F}
     border-collapse: collapse;
     background-color: #fff; 
 }
+.api_documentation td,
+    table.api_documentation th {padding: 1%; }
+
 .ul {border-bottom: 1px solid #999; }
 .route_root {text-align: left; background-color: #ffffaa; }
-.route_root th {padding-left: 10%; font-family: monospace; font-weight: normal; }
+tr.route_root th {padding: 3%; padding-right: 5%; font-family: monospace; font-weight: normal; }
 .route {}
 .methods { width: 12%; }
 .comment {}
-.api_documentation td,
-    table.api_documentation th {padding: 1%; }
 .api_documentation td {vertical-align: top; }
 
 code {background-color: #DDFFDD; }

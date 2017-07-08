@@ -9,6 +9,6 @@ import utils
 class Assets(Models.AssetCollection):
 
     def __init__(self, *args, **kwargs):
-        self.assets = survival_actions.dictionary
-        self.type = "survival_action"
+        self.root_module=survival_actions
         Models.AssetCollection.__init__(self,  *args, **kwargs)
+

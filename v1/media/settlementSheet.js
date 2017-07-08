@@ -24,19 +24,7 @@ app.controller("locationsController", function($scope) {
         $scope.postJSONtoAPI('settlement', 'set_location_level', js_obj);
     };
     $scope.setLocationOptions = function() {
-        var res = $scope.getJSONfromAPI('settlement','get');
-        res.then(
-            function(payload) {
-                $scope.location_options = payload.data.game_assets.locations;
-                // remove anything that's currently in the settlement sheet
-                for (var i = 0; i < $scope.settlement_sheet.locations.length; i++) {
-                    var loc = $scope.settlement_sheet.locations[i];
-                    delete $scope.location_options[loc];
-                };
-//                console.log("Locations options updated!");
-            },
-            function(errorPayload) {console.error("Could not retrieve location options from API!" + errorPayload);}
-        );
+        $scope.setGameAssetOptions('locations', "settlement_sheet", "locationOptions");
     };
 });
 
@@ -56,25 +44,7 @@ app.controller('innovationsController', function($scope) {
         return false; 
     };
     $scope.setInnovationOptions = function() {
-        var res = $scope.getJSONfromAPI('settlement','get');
-        res.then(
-            function(payload) {
-                $scope.innovation_options = payload.data.game_assets.innovations;
-                // ignore principles
-                for (var k in $scope.innovation_options) {
-                    if ($scope.innovation_options[k].type == "principle") {
-                        delete $scope.innovation_options[k];
-                    };
-                };
-                // remove anything that's currently in the settlement sheet
-                for (var i = 0; i < $scope.settlement_sheet.innovations.length; i++) {
-                    var innovation = $scope.settlement_sheet.innovations[i];
-                    delete $scope.innovation_options[innovation];
-                };
-//                console.log("Innovations options updated!")
-            },
-            function(errorPayload) {console.error("Could not retrieve innovation options from API!" + errorPayload);}
-        );
+        $scope.setGameAssetOptions('innovations', "settlement_sheet", "innovationOptions", "principle");
     };
     $scope.setInnovationDeck = function(retry) {
         $scope.innovation_deck = null;
@@ -206,10 +176,6 @@ app.controller('principlesController', function($scope, $http) {
             if (p_options[i].handle==target_principle) { return p_options[i]};
         };
     };
-
-    function sleep (time) {
-        return new Promise((resolve) => setTimeout(resolve, time));
-    }
 
     $scope.set = function(principle, election) {
         $scope.postJSONtoAPI('settlement', 'set_principle', {"principle": principle, "election": election});

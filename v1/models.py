@@ -262,18 +262,6 @@ class abilitiesModel(Model):
         self.game_assets = game_assets.abilities_and_impairments
         self.name = "ability"
 
-    def get_maxed_out_abilities(self, survivor_abilities):
-        """ Pass this a survivor["abilities_and_impairments"] list and it will
-        return a list of ability/impairment keys for which the survivor is
-        ineligible. """
-        maxed_out = set()
-        for ability_key in self.game_assets.keys():
-            ability_dict = self.get_asset(ability_key)
-            if "max" in ability_dict and ability_key in survivor_abilities:
-                survivor_total = survivor_abilities.count(ability_key)
-                if survivor_total == ability_dict["max"]:
-                    maxed_out.add(ability_key)
-        return sorted(list(maxed_out))
 
 class disordersModel(Model):
     def __init__(self):

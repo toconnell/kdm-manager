@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-dictionary = {
+survival_action = {
 
     #   define all survival actions here, regardless of campaign or
     #   expansion. Remember: survival actions are defined by the campaign,
@@ -12,6 +12,7 @@ dictionary = {
         "name": "Dodge",
         "available": True,
         "sort_order": 0,
+        "title_tip": "Available by default.",
     },
     "encourage": {
         "name": "Encourage",

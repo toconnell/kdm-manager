@@ -4,26 +4,22 @@
 abilities_and_impairments = {
     'ageless': {
         'desc': 'You may hunt if you are retired. When you gain Hunt XP, you may decide not to gain it.',
-        'max': 1,
         'name': 'Ageless',
         'type': 'ability'
     },
     'analyze': {
         'desc': "At the start of the Survivors' turn, if you are adjacent to the monster, reveal the top AI card, then place back on top of the deck.",
-        'max': 1,
         'name': 'Analyze',
         'type': 'ability'
     },
     'bitter_frenzy': {
         'desc': 'You may spend survival and use fighting arts, weapon specialization, and weapon mastery while Frenzied.',
-        'max': 1,
         'name': 'Bitter Frenzy',
         'type': 'ability'
     },
     'blue_life_exchange': {
         'desc': 'In the <b>Aftermath</b>, gain 3 additional Hunt XP. You may not place <b>other</b> gear in your grid. Gain +1 permanent luck with each <b>Age</b> milestone. When you retire, you cease to exist.',
         'selectable': False,
-        'max': 1,
         'name': 'Blue Life Exchange',
         'related': ['dream_of_the_lantern', 'lucernae'],
         'type': 'ability'
@@ -32,7 +28,6 @@ abilities_and_impairments = {
         'Accuracy': -4,
         'Strength': 4,
         'desc': 'Suffer -4 permanent Accuracy and gain +4 permanent strength.',
-        'max': 1,
         'name': 'Bone Witch - Scarred Eyes',
         'type': 'impairment'
     },
@@ -46,7 +41,6 @@ abilities_and_impairments = {
     },
     'cancerous_illness': {
         'desc': 'You cannot gain survival.',
-        'max': 1,
         'name': 'Cancerous Illness',
         'type': 'impairment',
         'cannot_gain_survival': True,
@@ -54,21 +48,18 @@ abilities_and_impairments = {
     'caratosis': {
         'desc': 'For each <font class="affinity_red"> &nbsp; red &nbsp;</font> affinity you have, 1 of your attack rolls hits automatically each attack.',
         'selectable': False,
-        'max': 1,
         'name': 'Caratosis',
         'related': ['dream_of_the_beast', 'red_life_exchange'],
         'type': 'ability'
     },
     'crystal_skin': {
         'desc': 'You cannot place armor in your gear grid. When you <b>depart</b>, gain <font class="inline_shield">2</font> to all hit locations. Suffer -1 to the result of all severe injury rolls.',
-        'max': 1,
         'name': 'Crystal Skin',
         'type': 'ability'
     },
     'dormenatus': {
         'desc': 'When you <b>depart</b>, gain +1 to every hit location for each <font class="affinity_green"> &nbsp; green &nbsp;</font> affinity you have.',
         'selectable': False,
-        'max': 1,
         'name': 'Dormenatus',
         'related': ['dream_of_the_crown', 'green_life_exchange'],
         'type': 'ability'
@@ -78,7 +69,6 @@ abilities_and_impairments = {
         'desc': '1 permanent red affinity.',
         'epithet': 'red_savior',
         'selectable': False,
-        'max': 1,
         'name': 'Dream of the Beast',
         'related': ['caratosis', 'red_life_exchange'],
         'type': 'ability'
@@ -88,7 +78,6 @@ abilities_and_impairments = {
         'desc': '1 permanent green affinity.',
         'epithet': 'green_savior',
         'selectable': False,
-        'max': 1,
         'name': 'Dream of the Crown',
         'related': ['dormenatus', 'green_life_exchange'],
         'type': 'ability'
@@ -98,14 +87,12 @@ abilities_and_impairments = {
         'desc': '1 permanent blue affinity.',
         'epithet': 'blue_savior',
         'selectable': False,
-        'max': 1,
         'name': 'Dream of the Lantern',
         'related': ['Lucernae', 'blue_life_exchange'],
         'type': 'ability'
     },
     'endless_babble': {
         'desc': 'When you <b>depart</b>, <b>departing survivors</b> gain +1 insanity. You may not encourage.',
-        'max': 1,
         'name': 'Endless Babble',
         'survival_actions': {
             'disable': ['encourage'],
@@ -114,7 +101,6 @@ abilities_and_impairments = {
     },
     'explore': {
         'desc': 'When you roll on an investigate table, add +2 to your roll result.',
-        'max': 1,
         'name': 'Explore',
         'type': 'ability'
     },
@@ -123,19 +109,9 @@ abilities_and_impairments = {
         'name': 'Fated Battle',
         'type': 'ability'
     },
-    'forgettable': {
-        'Evasion': 2,
-        'desc': 'Gain +2 permanent evasion. Forgettable survivors cannot be encouraged.',
-        'expansion': 'slenderman',
-        'epithet': 'forgettable',
-        'max': 1,
-        'name': 'Forgettable',
-        'type': 'ability'
-    },
     'green_life_exchange': {
         'desc': 'In the <b>Aftermath</b>, gain 3 additional Hunt XP. You may not place <b>other</b> gear in your grid. Gain +1 permanent evasion with each <b>Age</b> milestone. When you retire, you cease to exist.',
          'selectable': False,
-         'max': 1,
          'name': 'Green Life Exchange',
          'related': ['dream_of_the_crown', 'dormenatus'],
          'type': 'ability'
@@ -148,28 +124,24 @@ abilities_and_impairments = {
     "kings_curse": {
         'desc': 'At the Aftermath, <font class="kdm_font">g</font> <b>King\'s Curse</b>.',
         'epithet': "kings_curse",
-        'max': 1,
         'name': "King's Curse",
         'type': 'curse'
     },
     'legendcaller': {
         'desc': 'Once a lifetime, on a hunt board space after <b>Overwhelming Darkness</b>, in place of rolling a random hunt event, use "53" as your result.',
         'epithet': 'legendcaller',
-        'max': 1,
         'name': 'Legendcaller',
         'type': 'ability'
     },
     'leprosy': {
         'desc': 'Reduce all damage suffered by 1 to a minimum of 1. When rolling on the severe injury table, -2 to any result.',
         'epithet': 'leper',
-        'max': 1,
         'name': 'Leprosy',
         'type': 'impairment'
     },
     'leyline_walker': {
         'desc': 'While there is no armor or accessory gear in your grid, gain +3 evasion.',
         'epithet': 'leyline_walker',
-        'max': 1,
         'name': 'Leyline Walker',
         'type': 'ability'
     },
@@ -182,7 +154,6 @@ abilities_and_impairments = {
     'lucernae': {
         'desc': 'For every <font class="affinity_blue"> &nbsp; blue &nbsp;</font> affinity you have, your ranged weapons gain this amount of <b>range</b> and your melee weapons gain this amount of <b>reach</b>.',
         'selectable': False,
-        'max': 1,
         'name': 'Lucernae',
         'related': ['dream_of_the_lantern', 'blue_life_exchange'],
         'type': 'ability'
@@ -190,19 +161,16 @@ abilities_and_impairments = {
     'marrow_hunger': {
         'desc': 'When the Murder or Skull Eater settlement events are drawn, this survivor is nominated.',
         'epithet': 'skull_Eater',
-        'max': 1,
         'name': 'Marrow Hunger',
         'type': 'impairment'
     },
     'matchmaker': {
         'desc': 'When you are a returning survivor, once per year you may spend 1 Endeavor to trigger Intimacy (story event).',
-        'max': 1,
         'name': 'Matchmaker',
         'type': 'ability'
     },
     'metal_maw': {
         'desc': 'Your Fist & Tooth gains <b>Sharp</b>. (Add 1d10 strength to each wound attempt using this gear. This d10 is not a wound roll, and cannot cause critical wounds.)',
-        'max': 1,
         'name': 'Metal Maw',
         'type': 'ability'
     },
@@ -213,7 +181,6 @@ abilities_and_impairments = {
     },
     'peerless': {
         'desc': 'When you gain insanity, you may gain an equal amount of survival.',
-        'max': 1,
         'name': 'Peerless',
         'type': 'ability'
     },
@@ -222,57 +189,48 @@ abilities_and_impairments = {
         'Strength': 2,
         'cannot_use_fighting_arts': True,
         'desc': 'Cannot use weapon specialization, weapon mastery, or fighting arts.',
-        'max': 1,
         'name': 'Possessed',
         'type': 'ability',
     },
     'prepared': {
         'desc': 'When rolling to determine a straggler, add your hunt experience to your roll result.',
-        'max': 1,
         'name': 'Prepared',
         'type': 'ability'
     },
     'red_life_exchange': {
         'desc': 'In the <b>Aftermath</b>, gain 3 additional Hunt XP. You may not place <b>other</b> gear in your grid. Gain +1 permanent strength with each <b>Age</b> milestone. When you retire, you cease to exist.',
         'selectable': False,
-        'max': 1,
         'name': 'Red Life Exchange',
         'related': ['caratosis', 'dream_of_the_beast'],
         'type': 'ability'
     },
     'sour_death': {
         'desc': 'When you are knocked down, you may encourage yourself. If you do, gain +1 strength token.',
-        'max': 1,
         'name': 'Sour Death',
         'type': 'ability'
     },
     'stalwart': {
         'desc': 'Ignore being knocked down by brain trauma and intimidation actions.',
-        'max': 1,
         'name': 'Stalwart',
         'type': 'ability'
     },
     'story_of_the_forsaker': {
         'desc': 'You cannot be knocked down during a showdown with a nemesis monster.',
-        'max': 1,
         'name': 'Story of the Forsaker',
         'type': 'ability'
     },
     'story_of_the_goblin': {
         'desc': 'Once per showdown you may...roll 1d10. On a 3+, gain the priority target token and the monster gains +1 damage token.',
-        'max': 1,
         'name': 'Story of the Goblin',
         'type': 'ability'
     },
     'story_of_the_young_hero': {
         'desc': 'At the start of your act, you may...[g]ain 2 bleeding tokens and +1 survival.',
-        'max': 1,
         'name': 'Story of the Young Hero',
         'type': 'ability'
     },
     'sweet_battle': {
         'desc': 'You may surge without spending survival. If you do, the Activation must be used to activate a weapon.',
-        'max': 1,
         'name': 'Sweet Battle',
         'type': 'ability',
         'survival_actions': {
@@ -282,20 +240,17 @@ abilities_and_impairments = {
     'thundercaller': {
         'desc': 'Once a lifetime, on a hunt board space after <b>Overwhelming Darkness</b>, in place of rolling a random hunt event, use "100" as your result.',
         'epithet': 'thundercaller',
-        'max': 1,
         'name': 'Thundercaller',
         'type': 'ability'
     },
     'tinker': {
         'desc': 'When you are a returning survivor, gain +1 Endeavor to use this settlement phase.',
-        'max': 1,
         'name': 'Tinker',
         'type': 'ability'
     },
     'twilight_sword': {
         'desc': 'You may select <b>Twilight Sword</b> as a weapon proficiency type. This weapon may not be removed from your great grid for any reason. When you die, archive your <b>Twilight Sword</b> card.',
         'epithet': 'twilight_sword',
-        'max': 1,
         'name': 'Twilight Sword',
         'type': 'curse'
     },
@@ -305,6 +260,7 @@ severe_injury = {
     'bleeding_kidneys': {
         'desc': 'Gain 2 bleeding tokens.',
         'name': 'Bleeding kidneys',
+        'max': False,
     },
     'blind': {
         'Accuracy': -1,
@@ -323,7 +279,6 @@ severe_injury = {
     'broken_hip': {
         'Movement': -1,
         'desc': 'Your hip is dislocated. You can no longer <b>dodge</b>. Suffer -1 permanent movement. This injury is permanent and can be recorded once. Gain 1 bleeding token.',
-        'max': 1,
         'name': 'Broken hip',
         'survival_actions': {
             'disable': ['dodge'],
@@ -339,54 +294,59 @@ severe_injury = {
         'Speed': -1,
         'desc': 'It even hurts to breathe. Suffer -1 permanent speed. This injury is permanent, and can be recorded multiple times. Gain 1 bleeding token.',
         'name': 'Broken rib',
+        "max": False,
     },
     'bruised_tailbone': {
         'desc': 'The base of your spine is in agony. You cannot <b>dash</b> until showdown ends. You are knocked down. Gain 1 bleeding token.',
         'name': 'Bruised tailbone',
+        "max": False,
     },
     'collapsed_lung': {
         'desc': "You can't catch a breath. Gain -1 movement token. Gain 1 bleeding token.",
         'name': 'Collapsed Lung',
+        "max": False,
     },
     'concussion': {
         'desc': 'Your brain is scrambled like an egg. Gain a random disorder. Gain 1 bleeding token.',
         'name': 'Concussion',
+        "max": False,
     },
     'contracture': {
         'Accuracy': -1,
         'desc': 'The arm will never be the same. Suffer -1 permanent Accuracy. This injury is permanent and can be recorded multiple times. Gain 1 bleeding token.',
         'name': 'Contracture',
+        "max": False,
     },
     'deaf': {
         'Evasion': -1,
         'desc': 'Suffer -1 permanent Evasion. This injury is permanent and can be recorded once.',
-        'max': 1,
         'name': 'Deaf',
     },
     'destroyed_back': {
         'Movement': -2,
         'desc': 'A sharp cracking noise. Suffer -2 permanent movement. You can no longer activate any gear that has 2+ Strength. This injury is permanent and can be recorded once. Gain 1 bleeding token.',
-        'max': 1,
         'name': 'Destroyed back',
     },
     'destroyed_genitals': {
         'desc': 'You cannot be nominated for the Intimacy story event. This injury is permanent and can be recorded once. Gain a random disorder. You are knocked down. Gazing upwards, you wonder at the futility of your struggle. Gain +3 insanity. Gain 1 bleeding token.',
-        'max': 1,
         'name': 'Destroyed genitals',
         'cannot_be_nominated_for_intimacy': True,
     },
     'destroyed_tooth': {
         'desc': 'If you have 3+ courage, you boldly spit the tooth out and gain +2 insanity! Otherwise. the blow sends you sprawling and you are knocked down.',
         'name': 'Destroyed tooth',
+        'max': False,
     },
     'disemboweled': {
         'desc': 'Your movement is reduced to 1 until the showdown ends. Gain 1 bleeding token. Skip the next hunt. If you suffer <b>disemboweled</b> during a showdown, at least one other survivor must live to the end of the showdown to carry you back to the settlement. Otherwise, at the end of the showdown, you are lost. Dead.',
         'name': 'Disemboweled',
         'skip_next_hunt': True,
+        'max': False,
     },
     'dislocated_shoulder': {
         'desc': 'Pop! You cannot activate two-handed or <b>paired</b> weapons or use <b>block</b> until showdown ends. Gain 1 bleeding token.',
         'name': 'Dislocated shoulder',
+        'max': False,
     },
     'dismembered_arm': {
         'desc': 'Lose an arm. You can no longer activate two-handed weapons. This injury is permanent, and can be recorded twice. A survivor with two <b>dismembered arm</b> severe injuries cannot activate any weapons. Gain 1 bleeding token.',
@@ -406,16 +366,16 @@ severe_injury = {
         'Strength': -1,
         'desc': 'Suffer -1 permanent Strength. This injury is permanent and can be recorded multiple times. Gain 1 bleeding token.',
         'name': 'Gaping chest wound',
+        'max': False,
     },
     'hamstrung': {
         'cannot_use_fighting_arts': True,
         'desc': 'A painful rip. The leg is unusable. You can no longer use any fighting arts or abilities. This injury is permanent and can be recorded once. Gain 1 bleeding token.',
-        'max': 1,
         'name': 'Hamstrung',
     },
     'intestinal_prolapse': {
         'desc': 'Your gut is gravely injured. You can no longer equip any gear on your waist, as it is too painful to wear. This injury is permanent, and can be recorded once. Gain 1 bleeding token.',
-        'max': 1,
+        'disable_locations': ['Waist'],
         'name': 'Intestinal prolapse',
     },
     "intracranial_hemorrhage": {
@@ -423,22 +383,20 @@ severe_injury = {
         "desc": "You can no longer use or gain any survival. This injury is permanent and can be recorded once. Gain 1 bleeding token.",
         "cannot_gain_survival": True,
         "cannot_spend_survival": True,
-        "max": 1,
     },
     'ruptured_muscle': {
         'cannot_use_fighting_arts': True,
         'desc': 'A painful rip. The arm hangs limp. You can no longer activate fighting arts. This injury is permanent and can be recorded once. Gain 1 bleeding token.',
-        'max': 1,
         'name': 'Ruptured muscle',
     },
     'ruptured_spleen': {
         'desc': 'A vicious body blow. Skip the next hunt. Gain 2 bleeding tokens.',
         'name': 'Ruptured spleen',
         'skip_next_hunt': True,
+        'max': False,
     },
     'shattered_jaw': {
         'desc': 'You drink your meat through a straw. You can no longer <b>consume</b> or be affected by events requiring you to <b>consume</b>. You can no longer <b>encourage</b>. This injury is permanent and can be recorded once. Gain 1 bleeding token.',
-        'max': 1,
         'name': 'Shattered jaw',
         'survival_actions': {
             'disable': ['encourage'],
@@ -447,27 +405,32 @@ severe_injury = {
     'slashed_back': {
         'desc': 'Making sudden movement is excruciatingly painful. You cannot <b>surge</b> until showdown ends. Gain 1 bleeding token.',
         'name': 'Slashed back',
-        'type': 'severe_injury'
+        'type': 'severe_injury',
+        'max': False,
     },
     'spiral_fracture': {
         'desc': 'Your arm twists unnaturally. Gain -2 strength tokens. Skip the next hunt. Gain 1 bleeding token.',
         'name': 'Spiral fracture',
         'skip_next_hunt': True,
+        'max': False,
     },
     'torn_achilles_tendon': {
         'desc': 'Your leg cannot bear your weight. Until the end of the showdown, whenever you suffer light, heavy, or severe injury, you are also knocked down. Skip the next hunt. Gain 1 bleeding token.',
         'name': 'Torn Achilles Tendon',
         'skip_next_hunt': True,
+        'max': False,
     },
     'torn_muscle': {
         'desc': 'Your quadriceps is ripped to shreds. You cannot <b>dash</b> until he showdown ends. Skip the next hunt. Gain 1 bleeding token.',
         'name': 'Torn muscle',
         'skip_next_hunt': True,
+        'max': False,
     },
     'warped_pelvis': {
         'Luck': -1,
         'desc': 'Your pelvis is disfigured. Suffer -1 permanent luck. This injury is permanent and can be recorded multiple times. Gain 1 bleeding token.',
         'name': 'Warped Pelvis',
+        'max': False,
     },
 
 
@@ -704,7 +667,7 @@ expansion_ai = {
 }
 
 
-weapon_masteries = {
+weapon_mastery = {
     "mastery_scythe": {
         "name": "Mastery - Scythe",
         "desc": "When you critically wound with a scythe, roll 1d10. On a 6+, shuffle the hit location deck (do not shuffle unresolved hit locations).<br/>Limit, once per round.",
@@ -713,7 +676,7 @@ weapon_masteries = {
     },
     "mastery_katana": {
         "name": "Mastery - Katana",
-        "desc": "When a survivor reaches Katana Mastery, they leave the settlement forever, heeding the call of the sstorm to hone their art.<br/>Before the master leaves, you may nominate a survivor. Set that survivor's weapon type to Katana and their weapon proficiency level to 1.",
+        "desc": "When a survivor reaches Katana Mastery, they leave the settlement forever, heeding the call of the storm to hone their art.<br/>Before the master leaves, you may nominate a survivor. Set that survivor's weapon type to Katana and their weapon proficiency level to 1.",
         "expansion": "sunstalker",
         "add_to_innovations": False,
         "weapon": "katana",

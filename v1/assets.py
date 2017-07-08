@@ -701,29 +701,9 @@ class Survivor:
                 mdb.survivor_notes.remove(n)
             seen.add(n["note"])
 
-
-
-        # 2016-12 "hemmorhage" fix; expand as needed for the next typo
-        error_ai = {
-            "Intracranial hemmorhage": "Intracranial hemorrhage",
-        }
-        for ai in self.survivor["abilities_and_impairments"]:
-            if ai in error_ai.keys():
-                self.survivor["abilities_and_impairments"].remove(ai)
-                self.survivor["abilities_and_impairments"].append(error_ai[ai])
-                self.logger.debug("[%s] normalized '%s' to '%s" % (self.User, ai, error_ai[ai]))
-
         # 2016-11 RANDOM_FIGHTING_ART bug
         if "RANDOM_FIGHTING_ART" in self.survivor["fighting_arts"]:
             self.survivor["fighting_arts"].remove("RANDOM_FIGHTING_ART")
-
-        # 2016-11 epithet bug
-        for e in self.survivor["epithets"]:
-            if '"' in e:
-                self.update_epithets(action="remove", epithet=e)
-            if e.split(":")[0].strip() == "object":
-                self.logger.debug("[%s] bogus epithet '%s' detected on survivor %s" % (self.User, e, self))
-                self.update_epithets(action="remove", epithet=e)
 
         # see if we need to retire this guy, based on recent updates
         if int(self.survivor["hunt_xp"]) >= 16 and not "retired" in self.survivor.keys():
@@ -797,7 +777,7 @@ class Survivor:
                 self.logger.debug("Automatically removed bogus key '%s' from %s." % (a, self.get_name_and_id()))
 
         # remove accidental dupes
-        for s in ["fighting_arts","abilities_and_impairments","disorders"]:
+        for s in ["fighting_arts","disorders"]:
             self.survivor[s] = list(set(self.survivor[s]))
 
 #        self.logger.debug("[%s] normalized %s" % (self.User, self))
@@ -916,16 +896,6 @@ class Survivor:
         survivor_id = mdb.survivors.insert(survivor_dict)
         self.survivor = mdb.survivors.find_one({"_id": survivor_id})
 
-        # Add our campaign's founder epithet if the survivor is a founder
-        founder_epithet = "Founder"
-        if "founder_epithet" in self.Settlement.get_campaign("dict"):
-            founder_epithet = self.Settlement.get_campaign("dict")["founder_epithet"]
-        if self.is_founder():
-            self.logger.debug("%s is a founder. Adding founder epithet!" % self)
-            self.update_epithets(epithet=founder_epithet)
-        else:
-            self.logger.debug("%s is not a founder. Skipping founder epithet." % self)
-
         # log the addition or birth of the new survivor
         name_pretty = self.get_name_and_id(include_sex=True, include_id=False)
         current_ly = self.Settlement.settlement["lantern_year"]
@@ -1008,7 +978,7 @@ class Survivor:
 
         output = [self.survivor["name"]]
         if include_sex:
-            output.append("[%s]" % self.get_sex())
+            output.append("[%s]" % self.survivor["sex"])
         if include_id:
             output.append("(%s)" % self.survivor["_id"])
         return " ".join(output)
@@ -1039,7 +1009,7 @@ class Survivor:
 
         if self.survivor["born_in_ly"] == 0:
             return True
-        elif "Founder" in self.survivor["epithets"]:
+        elif "founder" in self.survivor["epithets"]:
             return True
         else:
             return False
@@ -1056,53 +1026,6 @@ class Survivor:
         self.Settlement.log_event("%s has retired." % self)
         mdb.survivors.save(self.survivor)
 
-
-    def get_abilities_and_impairments(self, return_type=False):
-        """ This...really needs to be deprecated soon. """
-
-        all_list = sorted(self.survivor["abilities_and_impairments"])
-
-        for old_attrib in ["courage_attribute", "understanding_attribute"]:
-            if old_attrib in self.survivor.keys():
-                all_list.append(self.survivor[old_attrib])
-
-        if return_type == "comma-delimited":
-            return ", ".join(all_list)
-
-        if return_type == "html_select_remove":
-            if all_list == []:
-                return ""
-
-            output = html.ui.game_asset_select_top.safe_substitute(
-                operation = "remove_",
-                operation_pretty = "Remove",
-                name = "ability",
-                name_pretty = "Ability or Impairment",
-                on_change = "this.form.submit()"
-            )
-            for ability in all_list:
-                output += '<option>%s</option>' % ability
-            output += '</select>'
-            return output
-
-        if return_type == "html_formatted":
-            pretty_list = []
-            for ability in all_list:
-                suffix = ""
-                if "ability_customizations" in self.survivor.keys() and ability in self.survivor["ability_customizations"]:
-                    suffix = self.survivor["ability_customizations"][ability]
-                if ability in Abilities.get_keys():
-                    desc = Abilities.get_asset(ability)["desc"]
-                    if "constellation" in Abilities.get_asset(ability).keys():
-                        ability = '<font class="maroon_text">%s</font>' % ability
-                    pretty_list.append("<p><b>%s:</b> %s %s</p>" % (ability, desc, suffix))
-                elif ability not in Abilities.get_keys() and suffix != "":
-                    pretty_list.append("<p><b>%s:</b> %s" % (ability, suffix))
-                else:
-                    pretty_list.append("<p><b>%s:</b> custom ability or impairment (use fields below to add a description).</p>" % ability)
-            return "\n".join(pretty_list)
-
-        return all_list
 
 
     def get_fighting_arts(self, return_type=False):
@@ -1208,48 +1131,6 @@ class Survivor:
             return output
 
         return disorders
-
-
-    def get_epithets(self, return_type=False):
-        """ Returns survivor epithets in a number of different formats. """
-
-        epithets = self.survivor["epithets"]
-
-        if return_type == "comma-delimited":
-            return ", ".join(epithets)
-
-        if return_type == "html_angular":
-            js_epithets = []
-            for e in epithets:
-                e_bgcolor = None
-                e_color = None
-                if e in game_assets.epithets:
-                    e_dict = game_assets.epithets[e]
-                    if "bgcolor" in e_dict:
-                        e_bgcolor = e_dict["bgcolor"]
-                    if "color" in e_dict:
-                        e_color = e_dict["color"]
-                js_epithets.append("{'name':'%s', 'bgcolor':'%s', 'color':'%s'}" % (e, e_bgcolor, e_color))
-
-            return html.survivor.epithet_angular_controls.safe_substitute(
-                survivor_id = self.survivor["_id"],
-                current_epithets = ",".join(js_epithets),
-                epithet_options = Epithets.render_as_html_dropdown(
-                    select_type="angularjs",
-                    survivor_id = self.survivor["_id"],
-#                    exclude=self.survivor["epithets"], # the .js app prevents dupes
-                    Settlement=self.Settlement,
-                    submit_on_change=False,
-                ),
-            )
-
-        if return_type == "html_formatted":
-            if epithets == []:
-                return ""
-            else:
-                return '<p class="subhead_p_block">%s</p>' % ", ".join(epithets)
-
-        return epithets
 
 
     def get_affinities(self, return_type=False):
@@ -1496,37 +1377,9 @@ class Survivor:
                 return False
 
         elif asset_type == "abilities_and_impairments":
-            # log twilight sword reciept
-            if asset_key == "Twilight Sword":
-                self.Settlement.log_event("%s got the Twilight Sword!" % self.get_name_and_id(include_id=False, include_sex=True))
 
-            # handle weapon masteries
-            if asset_key.split("-")[0] == "Mastery ":
-                self.Settlement.add_weapon_mastery(self, asset_key)
-
-            # add custom abilities and impairments
-            if asset_key not in Abilities.get_keys():
-                self.survivor["abilities_and_impairments"].append("%s" % asset_key)
-                return True
-
-            # now, add standard/supported abilities defined in game_assets.py
-            elif asset_key in Abilities.get_keys():
-                asset_dict = Abilities.get_asset(asset_key)
-                self.survivor["abilities_and_impairments"].append(asset_key)
-
-                # toggle flags on if their keys are in the asset dict
-                for flag_attrib in ["cannot_spend_survival", "cannot_use_fighting_arts", "skip_next_hunt"]:
-                    if flag_attrib in asset_dict.keys():
-                        self.survivor[flag_attrib] = "checked"
-                        self.logger.debug("Automatically toggling '%s' on for survivor '%s' (%s)" % (flag_attrib, self.survivor["name"], self.survivor["_id"]))
-
-                # apply Understanding, Accuracy, etc. mods here
-                for attrib in game_assets.survivor_attributes:
-                    if attrib in asset_dict and attrib in self.survivor.keys():
-                        old_value = int(self.survivor[attrib])
-                        new_value = old_value + asset_dict[attrib]
-                        self.survivor[attrib] = new_value
-
+            if True:
+                #TKTKTKTKTK
                 # update affinities, if the ability indicates an update:
                 if "affinities" in asset_dict.keys():
                     if not "affinities" in self.survivor:
@@ -1671,7 +1524,7 @@ class Survivor:
                 hide_class = "mobile_and_tablet"
 
             avatar_url = "/media/default_avatar_male.png"
-            if self.get_sex() == "F":
+            if self.get_api_asset("effective_sex") == "F":
                 avatar_url = "/media/default_avatar_female.png"
             if "avatar" in self.survivor.keys():
                 avatar_url = "/get_image?id=%s" % self.survivor["avatar"]
@@ -1759,10 +1612,6 @@ class Survivor:
             if a in self.survivor["abilities_and_impairments"]:
                 traits.append("%s ability" % a)
 
-        for a in self.survivor["abilities_and_impairments"]:
-            if a.split(" ")[0] == "Mastery":
-                traits.append("Weapon Mastery")
-
         # check disorders for "Destined"
         if "Destined" in self.survivor["disorders"]:
             traits.append("Destined disorder")
@@ -1791,31 +1640,6 @@ class Survivor:
         self.survivor["constellation_traits"] = list(set(traits))
         mdb.survivors.save(self.survivor)
 
-
-    def update_epithets(self, action="add", epithet=None):
-        """ Adds and removes epithets from self.survivor["epithets"]. """
-
-        if epithet is None:
-            self.logger.warn("[%s] update_epithets() -> epithet is None!" % self.User)
-            return
-
-        if action == "add":
-            if epithet.split(":")[0].strip() == "object":
-                self.logger.warn("[%s] ignoring bogus epithet '%s'." % (self.User, epithet))
-            elif epithet not in self.survivor["epithets"]:
-                self.survivor["epithets"].append(epithet)
-                self.logger.debug("[%s] added epithet '%s' to %s." % (self.User, epithet, self))
-            else:
-                self.logger.warn("[%s] epithet '%s' has already been added to %s!" % (self.User, epithet, self))
-        elif action in ["rm","remove"]:
-            if epithet in self.survivor["epithets"]:
-                self.survivor["epithets"].remove(epithet)
-                self.logger.debug("[%s] removed epithet '%s' from %s." % (self.User, epithet, self))
-            else:
-                self.logger.warn("[%s] attempted to remove epithet '%s' from %s. Epithet does not exist!" % (self.User, epithet, self))
-
-        # uniquify and sort on exit
-        self.survivor["epithets"] = sorted(list(set(self.survivor["epithets"])))
 
 
     def update_partner(self, p_id):
@@ -1872,17 +1696,6 @@ class Survivor:
         mdb.survivors.save(self.survivor)
         self.logger.debug("%s updated the avatar for survivor %s." % (self.User.user["login"], self.get_name_and_id()))
 
-
-    def get_impairments(self):
-        """ Returns a list of survivor impairments (i.e. returns the survivor's
-        'abilities_and_impairments' attribute without the abilities). """
-
-        impairment_set = set()
-        for a in self.survivor["abilities_and_impairments"]:
-            if a in Abilities.get_keys():
-                if Abilities.get_asset(a)["type"] in ["impairment","severe_injury","curse"]:
-                    impairment_set.add(a)
-        return list(impairment_set)
 
 
     def get_intimacy_partners(self, return_type=None):
@@ -1972,7 +1785,7 @@ class Survivor:
                 output += html.survivor.change_ancestor_select_top.safe_substitute(parent_role=role[0], pretty_role=role[0].capitalize())
                 for s in self.Settlement.get_survivors():
                     S = Survivor(survivor_id=s["_id"], session_object=self.Session)
-                    if S.get_sex() == role[1]:
+                    if S.get_api_asset("effective_sex") == role[1]:
                         selected = ""
                         if S.survivor["_id"] in parents:
                             selected = "selected"
@@ -2212,32 +2025,6 @@ class Survivor:
             self.Settlement.log_event("%s is now managed by %s." % (self, email))
             self.logger.debug("[%s] changed survivor %s email to %s." % (self.User, self, email))
 
-
-    def get_sex(self, return_type=None):
-        """ Gets the survivor's sex. Takes abilities_and_impairments into
-        account: anything with the 'reverse_sex' attribute will reverse this."""
-
-        functional_sex = self.survivor["sex"]
-
-        reverse_sex = False
-        impairment_keys = self.get_impairments()
-        for i in impairment_keys:
-            if i in Abilities.get_keys():
-                if "reverse_sex" in Abilities.get_asset(i).keys():
-                    reverse_sex = True
-
-        if reverse_sex:
-            if functional_sex == "M":
-                functional_sex = "F"
-            elif functional_sex == "F":
-                functional_sex = "M"
-
-        if return_type=="html":
-            functional_sex = '<b>%s</b>' % functional_sex
-            if reverse_sex:
-                functional_sex = '<font class="alert">%s</font>' % functional_sex
-
-        return functional_sex
 
 
     def get_survivor_attribute(self, attrib=None, attrib_detail=None):
@@ -2536,14 +2323,6 @@ class Survivor:
                 self.update_avatar(params[p])
             elif p == "add_custom_AI":
                 self.add_custom_AI(params)
-            elif p == "add_epithet":
-                self.update_epithets(epithet=game_asset_key)
-            elif p == "remove_epithet":
-                self.update_epithets(action="rm", epithet=game_asset_key)
-            elif p == "add_ability":
-                self.add_game_asset("abilities_and_impairments", game_asset_key)
-            elif p == "remove_ability":
-                self.rm_game_asset("abilities_and_impairments", game_asset_key)
             elif p == "add_disorder":
                 self.add_game_asset("disorder", game_asset_key)
             elif p == "remove_disorder":
@@ -2588,11 +2367,6 @@ class Survivor:
             elif p.split("_")[0:4] == ["fighting","art","level","toggle"]:
                 fighting_art = p.split("_")[-1]
                 self.toggle_fighting_art_level(fighting_art, game_asset_key)
-            elif p == "angularjs_attrib_update":
-                attribute = params["angularjs_attrib_update"].value
-                attribute_type = params["angularjs_attrib_type"].value
-                attribute_type_value = params["angularjs_attrib_value"].value
-                self.update_survivor_attribute(attribute, attribute_type, attribute_type_value)
             elif p == "survival":
                 self.update_survival(game_asset_key)
             elif p in ["Insanity","Head","Arms","Body","Waist","Legs"]:
@@ -2604,19 +2378,6 @@ class Survivor:
                 self.survivor[p] = game_asset_key
 
 
-        # enforce ability and impairment maxes
-        for asset_key in self.survivor["abilities_and_impairments"]:
-            if asset_key not in Abilities.get_keys():
-                pass
-            else:
-                asset_dict = Abilities.get_asset(asset_key)
-                if "max" in asset_dict.keys():
-                    asset_count = self.survivor["abilities_and_impairments"].count(asset_key)
-                    while asset_count > asset_dict["max"]:
-                        self.logger.warn("[%s] survivor '%s' has '%s' x%s (max is %s)." % (self.User, self, asset_key, asset_count, asset_dict["max"]))
-                        self.survivor["abilities_and_impairments"].remove(asset_key)
-                        self.logger.info("[%s] automatically removed extra asset key '%s' from survivor '%s'." % (self.User, asset_key, self))
-                        asset_count = self.survivor["abilities_and_impairments"].count(asset_key)
 
         # idiot-proof the hit boxes
         for hit_tuplet in [("arms_damage_light","arms_damage_heavy"), ("body_damage_light", "body_damage_heavy"), ("legs_damage_light", "legs_damage_heavy"), ("waist_damage_light", "waist_damage_heavy")]:
@@ -2643,7 +2404,7 @@ class Survivor:
         if not link_text:
             link_text = '<b>%s</b>' % self.survivor["name"]
             if "sex" in include:
-                link_text += " [%s]" % self.get_sex("html")
+                link_text += " [%s]" % self.get_api_asset("effective_sex")
 
         if disabled:
             link_text += "<br />%s" % self.survivor["email"]
@@ -2938,9 +2699,7 @@ class Survivor:
             email = self.survivor["email"],
             courage = self.survivor["Courage"],
             understanding = self.survivor["Understanding"],
-            sex = self.get_sex(),
             hunt_xp = self.survivor["hunt_xp"],
-            departure_buffs = self.Settlement.get_bonuses("departure_buff", return_type="html"),
             hunt_xp_3_event = self.Settlement.get_story_event("Bold"),
             courage_3_event = self.Settlement.get_story_event("Insight"),
 
@@ -2949,7 +2708,6 @@ class Survivor:
             weapon_proficiency_options = WeaponProficiencies.render_as_html_toggle_dropdown(selected=self.survivor["weapon_proficiency_type"], expansions=exp),
 
             # controls
-            epithet_controls = self.get_epithets("html_angular"),
             remove_survivor_controls = rm_controls,
 
             # checkbox status
@@ -2958,7 +2716,6 @@ class Survivor:
             retired_checked = flags["retired"],
             public_checked = flags["public"],
             skip_next_hunt_checked = flags["skip_next_hunt"],
-            cannot_spend_survival_checked = flags["cannot_spend_survival"],
 
             # manually generated hit boxes
             insanity = self.survivor["Insanity"],
@@ -2978,8 +2735,6 @@ class Survivor:
             blue_affinities = self.get_affinities()["blue"],
             green_affinities = self.get_affinities()["green"],
 
-
-            cannot_use_fighting_arts_checked = flags["cannot_use_fighting_arts"],
             fighting_arts = self.get_fighting_arts("formatted_html"),
             add_fighting_arts = fighting_arts_picker,
             rm_fighting_arts = self.get_fighting_arts("html_select_remove"),
@@ -2987,14 +2742,6 @@ class Survivor:
             disorders = self.get_disorders(return_as="formatted_html"),
             add_disorders = disorders_picker,
             rm_disorders = self.get_disorders(return_as="html_select_remove"),
-
-            abilities_and_impairments = self.get_abilities_and_impairments("html_formatted"),
-            add_abilities_and_impairments = Abilities.render_as_html_dropdown(
-                excluded_type="curse",
-                disable=Abilities.get_maxed_out_abilities(self.survivor["abilities_and_impairments"]),
-                Settlement=self.Settlement,
-                ),
-            rm_abilities_and_impairments = self.get_abilities_and_impairments("html_select_remove"),
 
             # lineage
             parents = self.get_parents(return_type="html_select"),
@@ -4399,6 +4146,7 @@ class Settlement:
 
                 survivor_html = html.survivor.campaign_asset.safe_substitute(
                     avatar = avatar_img,
+                    sex = S.get_api_asset("effective_sex"),
                     survivor_id = s_id,
                     settlement_id = self.settlement["_id"],
                     hunting_party_checked = in_hunting_party,
@@ -4410,7 +4158,6 @@ class Settlement:
                     special_annotation = annotation,
                     disabled = disabled,
                     name = S.survivor["name"],
-                    sex = S.get_sex("html"),
                     favorite = is_favorite,
                     hunt_xp = S.survivor["hunt_xp"],
                     survival = S.survivor["survival"],
@@ -5416,9 +5163,6 @@ class Settlement:
             lantern_year = self.settlement["lantern_year"],
             survival_limit = self.settlement["survival_limit"],
             endeavors = self.get_endeavors("html"),
-            departure_bonuses = self.get_bonuses('departure_buff', return_type="html", update_mins=False),
-            settlement_bonuses = self.get_bonuses('settlement_buff', return_type="html", update_mins=False),
-            survivor_bonuses = self.get_bonuses('survivor_buff', return_type="html", update_mins=False),
             survivors = self.get_survivors(return_type="html_campaign_summary", user_id=user_id),
             special_rules = self.get_special_rules("html_campaign_summary"),
 

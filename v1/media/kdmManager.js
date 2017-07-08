@@ -25,15 +25,24 @@ function hideCornerLoader() {
     $('#cornerLoader').fadeOut(1000);
 };
 
+function sleep (time) {
+    return new Promise((resolve) => setTimeout(resolve, time));
+}
+
+
 // factories and services for angularjs modules
 
 app.factory('apiService', function($http) {
-    return {
-        getSettlement: function(root_url, api_route, s_id, config) {
+    var factory = {};
+    factory.getSettlement = function(root_url, api_route, s_id, config) {
             if (config === undefined) {console.error("apiService factory invoked without 'Authorization' header!")};
             return $http.get(root_url + 'settlement/' + api_route + '/' + s_id, config);
-        }
-    }
+        };
+    factory.getSurvivor = function(root_url, api_route, s_id, config) {
+            if (config === undefined) {console.error("apiService factory invoked without 'Authorization' header!")};
+            return $http.get(root_url + 'survivor/' + api_route + '/' + s_id, config);
+        };
+    return factory;
 });
 
 app.factory('assetService', function($http) {
@@ -94,12 +103,13 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
     // This is the main event: initialize everything settlement-related that
     // might be required by any user asset view. This is our de facto rootScope
     // (even though we don't call it that). 
-    $scope.initialize = function(src_view, u_id, login, api_url, settlement_id) {
+    $scope.initialize = function(src_view, u_id, login, api_url, settlement_id, survivor_id) {
         $scope.api_url = api_url;
         $scope.settlement_id = settlement_id;
         $scope.user_id = u_id;
         $scope.user_login = login;
         $scope.view = src_view;
+        $scope.survivor_id = survivor_id;
 
         // load the settlement from the API
         $scope.loadSettlement().then(
@@ -119,10 +129,17 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
 
                 // do user stuff
                 $scope.user_is_settlement_admin = $scope.arrayContains(login, $scope.settlement_sheet.admins);
-//                console.log($scope.user_login + " admin = " + $scope.user_is_settlement_admin);
-                console.log("Settlement initialized!")
+
+                // finish initializing the settlement
+                console.log("Settlement '" + $scope.settlement_id + "' initialized!")
                 hideFullPageLoader();
                 hideCornerLoader();
+
+                // finally, if we're initializing a survivor sheet, do that
+                if ($scope.view=='survivorSheet') {
+                    $scope.initializeSurvivor($scope.survivor_id);
+                };
+
             },
             function(errorPayload) {console.log("Error loading settlement!" + errorPayload);}
         );
@@ -151,6 +168,56 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
     }
 
 
+    $scope.initializeSurvivor = function(s_id) {
+        // pulls a specific survivor down from the API and sets it as
+        // $scope.survivor; also sets some other helpful $scope vars
+
+        console.info("Initializing survivor " + s_id);
+        $scope.survivor_id = s_id;
+
+        $scope.getJSONfromAPI('survivor','get').then(
+            function(payload) {
+                $scope.survivor = payload.data;
+                $scope.survivor_sheet = payload.data.sheet;
+                console.info("Survivor Sheet initialized for survivor " + $scope.survivor_id);
+
+                var customCODobj = {"name": "* Custom Cause of Death", "handle":"custom"};
+                var codArray = $scope.settlement.game_assets.causes_of_death;
+                codArray.push({"name": " --- ", disabled: true});
+                codArray.push(customCODobj);
+
+                if ($scope.survivor.cause_of_death != undefined) {
+                    var codString = $scope.survivor.cause_of_death;
+//                    console.log("set codString to " + codString);
+                    for (i=0; i< codArray.length; i++) {
+                        if (codArray[i].name == codString) {
+                            codArray[i].selected = true;
+                            $scope.survivorCOD=codArray[i];
+                            console.log("Set $scope.survivorCOD: " + JSON.stringify(codArray[i]));
+                        };
+                    };
+                    if ($scope.survivorCOD == undefined) {
+                        console.warn("Custom COD detected. Showing Custom COD controls...")
+                        $scope.survivorCOD=customCODobj;
+                        $scope.showCustomCOD();
+                    };
+                } else {
+                    console.log("Survivor " + $scope.survivor_id + " is not dead.");
+                    $scope.survivorCOD={"name": "Choose Cause of Death"};
+                };
+
+                $scope.survivor.causes_of_death = codArray;
+                console.log("Survivor " + s_id + " initialized!")
+
+            },
+
+            function(errorPayload) {console.log("Error loading survivor " + s_id + " " + errorPayload);}
+        );
+    };
+
+
+
+
     $scope.set_jwt_from_cookie = function() {
         var cname = "jwt_token";
         var name = cname + "=";
@@ -175,8 +242,11 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
 
         $scope.set_jwt_from_cookie();
         var config = {"headers": {"Authorization": $scope.jwt}};
-
-        return apiService.getSettlement($scope.api_url, action, $scope.settlement_id, config);
+        if (collection == "settlement") {
+            return apiService.getSettlement($scope.api_url, action, $scope.settlement_id, config);
+        } else if (collection = "survivor") {
+            return apiService.getSurvivor($scope.api_url, action, $scope.survivor_id, config);
+        };
     };
 
     $scope.postJSONtoAPI = function(collection, action, json_obj) {
@@ -212,6 +282,52 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
     };
 
 
+    $scope.setGameAssetOptions = function(game_asset, user_asset, destination, exclude_type) {
+        // generic method to create a set of options by comparing a baseline
+        // list to a list of items to exclude from that list
+        // 'game_asset' wants to be something from settlement.game_assets
+        // 'user_asset' wants to be a user's list, e.g. $scope.survivor.sheet.epithets
+        // 'destination' wants to be the outpue, e.g. $scope.locationOptions
+        var res = $scope.getJSONfromAPI('settlement','get');
+        res.then(
+            function(payload) {
+                console.log("Refreshing '" + game_asset + "' game asset options...");
+                var output = payload.data.game_assets[game_asset];
+                for (var i = 0; i < $scope[user_asset][game_asset].length; i++) {
+                    var a = $scope[user_asset][game_asset][i];
+                    if (output[a] != undefined) {
+                        if (output[a].max != undefined) {
+                            var asset_max = output[a].max;
+                            var asset_count = 0;
+                            for (var j = 0; j < $scope[user_asset][game_asset].length; j++) {
+                                if ($scope[user_asset][game_asset][j] == a) {asset_count += 1};
+                            };
+//                            console.log(a + " count: " + asset_count + "; max: " + asset_max);
+                            if (asset_count >= asset_max) {
+                                delete output[a];
+                            };
+                        } else {
+                            delete output[a];
+                        };
+                    };
+                };
+                console.log("Game asset '" + game_asset + "' options updated!");
+                for (var b in output) {
+                    if (output[b].type == exclude_type) {
+                        delete output[b];
+                    };
+                };
+                for (var c in output) {
+                    if (output[c].selectable == false) {
+                        delete output[c];
+                    };
+                };
+                $scope[destination] = output;
+            },
+            function(errorPayload) {console.error("Could not update '" + game_asset + "' game asset options!" + errorPayload);}
+        );
+    };
+
     // helper method that sets the scope's story and settlement events
     $scope.setEvents = function() {
         var all_events = $scope.settlement.game_assets.events;
@@ -238,56 +354,6 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
 
     };
 
-    // set $scope.survivor to a specific survivor's sheet
-    $scope.loadSurvivor = function(s_id) {
-        $scope.loadSettlement().then(
-            function(payload) {
-                console.info("Initializing survivor " + s_id);
-                var survivors = payload.data.user_assets.survivors;
-                $scope.survivor = undefined; 
-                for (i = 0; i < survivors.length; i++) {
-                    var survivor = survivors[i];
-                    if (survivor.sheet._id.$oid == s_id) {
-                        $scope.survivor_id = survivor.sheet._id.$oid;
-                        $scope.survivor = survivor.sheet;
-                        $scope.bonuses = survivor.bonuses;
-                        $scope.survival_actions = survivor.survival_actions;
-                    };
-                };
-
-                var customCODobj = {"name": "* Custom Cause of Death", "handle":"custom"};
-                var codArray = payload.data.game_assets.causes_of_death;
-                codArray.push({"name": " --- ", disabled: true});
-                codArray.push(customCODobj);
-
-                if ($scope.survivor.cause_of_death != undefined) {
-                    var codString = $scope.survivor.cause_of_death;
-//                    console.log("set codString to " + codString);
-                    for (i=0; i< codArray.length; i++) {
-                        if (codArray[i].name == codString) {
-                            codArray[i].selected = true;
-                            $scope.survivorCOD=codArray[i];
-                            console.log("Set $scope.survivorCOD: " + JSON.stringify(codArray[i]));
-                        };
-                    };
-                    if ($scope.survivorCOD == undefined) {
-                        console.warn("Custom COD detected. Showing Custom COD controls...")
-                        $scope.survivorCOD=customCODobj;
-                        $scope.showCustomCOD();
-                    };
-                } else {
-                    console.log("Survivor " + $scope.survivor._id.$oid + " is not dead.");
-                    $scope.survivorCOD={"name": "Choose Cause of Death"};
-                };
-
-                $scope.survivor.causes_of_death = codArray;
-                console.log("Survivor " + s_id + " initialized!")
-
-            },
-
-            function(errorPayload) {console.log("Error loading survivor " + s_id + " " + errorPayload);}
-        );
-    };
 
     // shows the custom COD block on the Controls of Death
     $scope.showCustomCOD = function() {

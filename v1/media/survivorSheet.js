@@ -1,19 +1,75 @@
 
 app.controller("cursedItemsController", function($scope) {
 
-    $scope.getAI = function(ai_handle) {
-        var ai = $scope.settlement.game_assets.abilities_and_impairments;
-        return ai[ai_handle];
+});
+
+app.controller('saviorController', function($scope) {
+
+});
+
+app.controller('fightingArtsController', function($scope) {
+    $scope.toggleStatusFlag = function() {
+        $scope.postJSONtoAPI('survivor','toggle_status_flag', {'flag': 'cannot_use_fighting_arts'});
+        $scope.initializeSurvivor($scope.survivor_id); // because this could affect SA's, etc.
+    };
+});
+
+app.controller('skipNextHuntController', function($scope) {
+    $scope.toggleStatusFlag = function() {
+        $scope.postJSONtoAPI('survivor','toggle_status_flag', {'flag': 'skip_next_hunt'});
+    };
+});
+
+app.controller('abilitiesAndImpairmentsController', function($scope) {
+
+    //
+    //  initialize!
+    //
+
+    $scope.init = function() {
+        if ( typeof $scope.survivor_sheet !== "undefined") {
+            $scope.setAIoptions();
+        }
+        else {
+            setTimeout($scope.init, 250);
+        }
+    };
+    $scope.init();
+
+    // define the option setter
+
+    $scope.setAIoptions = function() {
+        $scope.setGameAssetOptions('abilities_and_impairments', "survivor_sheet", "AIoptions", "curse");
+    };
+
+
+    //
+    //  regular methods below here
+    //
+
+    $scope.addAI = function() {
+        var ai_handle = $scope.newAI;
+        if (ai_handle === null) {return false};
+        $scope.survivor.sheet.abilities_and_impairments.push(ai_handle);
+        js_obj = {"handle": ai_handle, "quantity": 1, "type": "abilities_and_impairments"};
+        $scope.postJSONtoAPI('survivor', 'add_game_asset', js_obj);
+        sleep(1000).then(() => {
+            $scope.initializeSurvivor($scope.survivor_id);
+        });
+        $scope.setAIoptions();
     };
 
 });
 
-
 app.controller("survivalController", function($scope) {
+
+    $scope.toggleStatusFlag = function() {
+        $scope.postJSONtoAPI('survivor','toggle_status_flag', {'flag': 'cannot_spend_survival'});
+    };
 
     // bound to the increment/decrement "paddles"
     $scope.updateSurvival = function (modifier) {
-        new_total = $scope.survivor.survival + modifier;
+        new_total = $scope.survivor.sheet.survival + modifier;
         if  (
                 $scope.settlement.sheet.enforce_survival_limit == true && 
                 new_total > $scope.settlement.sheet.survival_limit
@@ -23,7 +79,7 @@ app.controller("survivalController", function($scope) {
             console.warn("Survival cannot be less than zero!");
         } else {
             $scope.postJSONtoAPI('survivor', 'update_survival', {"modifier": modifier});
-            $scope.survivor.survival += modifier;
+            $scope.survivor.sheet.survival += modifier;
         };
     };
 
@@ -54,6 +110,17 @@ app.controller("survivalController", function($scope) {
         $('#SLwarning').fadeOut(4500);
     };
 
+    $scope.setSurvivalActions = function() {
+        var res = $scope.getJSONfromAPI('survivor','get_survival_actions');
+        res.then(
+            function(payload) {
+                console.log("Refreshing Survival Actions for survivor " + $scope.survivor_id);
+                $scope.survivor.survival_actions = payload.data;
+            },
+            function(errorPayload) {console.log("Could not retrieve Survival Actions from API!" + errorPayload);}
+        );
+    };
+
 });
 
 
@@ -74,9 +141,9 @@ app.controller("controlsOfDeath", function($scope) {
 
     $scope.resurrect = function() {
         // resurrects the survivor, closes the controls of death
-        $scope.survivor.dead = undefined;
-        $scope.survivor.cause_of_death = undefined;
-        $scope.survivor.died_in = undefined
+        $scope.survivor.sheet.dead = undefined;
+        $scope.survivor.sheet.cause_of_death = undefined;
+        $scope.survivor.sheet.died_in = undefined
         $scope.postJSONtoAPI('survivor', 'controls_of_death', {'dead': false});
         closeModal('modalDeath');
     };
@@ -104,9 +171,9 @@ app.controller("controlsOfDeath", function($scope) {
             'cause_of_death': cod_string,
             'died_in': $scope.settlement.sheet.lantern_year
         };
-        $scope.survivor.dead = true;
-        $scope.survivor.cause_of_death = cod_string;
-        $scope.survivor.died_in = $scope.settlement.sheet.lantern_year
+        $scope.survivor.sheet.dead = true;
+        $scope.survivor.sheet.cause_of_death = cod_string;
+        $scope.survivor.sheet.died_in = $scope.settlement.sheet.lantern_year
         $scope.postJSONtoAPI('survivor', 'controls_of_death', cod_json);
         closeModal('modalDeath');
 
@@ -160,10 +227,15 @@ app.controller("attributeController", function($scope) {
             x[i].innerHTML = total;
         };
 
-        var source = document.getElementById(attrib_type + "_value_" + attrib + "_controller")
-//        window.alert("[" + $scope.survivor_id + "] Would POST " + attrib + " -> " + attrib_type + " = " + source.value);
-        var params = "angularjs_attrib_update=" + attrib + "&angularjs_attrib_type=" + attrib_type + "&angularjs_attrib_value=" + Number(source.value);
-        modifyAsset("survivor", $scope.survivor_id, params);
+        var source = document.getElementById(attrib_type + "_value_" + attrib + "_controller");
+        var value = Number(source.value);
+        if (attrib_type == 'base') {
+            js_obj = {"attribute": attrib, "value": value}
+            $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj);
+        } else {
+            js_obj = {'attribute': attrib, 'detail': attrib_type, 'value': value}
+            $scope.postJSONtoAPI('survivor', 'set_attribute_detail', js_obj);
+        };
 
     };
 
@@ -179,7 +251,7 @@ app.controller("survivorNotesController", function($scope) {
             $scope.notes.splice(0, 0, $scope.note);
 //            $scope.notes.push($scope.note);
         } else {
-            $scope.errortext = "The epithet has already been added!";
+            $scope.errortext = "The note has already been added!";
         };
         var http = new XMLHttpRequest();
         http.open("POST", "/", true);
@@ -207,29 +279,45 @@ app.controller("survivorNotesController", function($scope) {
 });
 
 app.controller("epithetController", function($scope) {
-    $scope.epithets = [];
-    $scope.formData = {};
-    $scope.addItem = function (asset_id) {
-        $scope.errortext = "";
-        if (!$scope.addMe) {return;}
-        if ($scope.epithets.indexOf($scope.addMe) == -1) {
-            $scope.epithets.push($scope.addMe);
+
+    //
+    //  initialize!
+    //
+
+    $scope.init = function() {
+        if ( typeof $scope.survivor_sheet !== "undefined") {
+            $scope.setEpithetOptions();
+        }
+        else {
+            setTimeout($scope.init, 250);
+        }
+    };
+    $scope.init();
+
+    // define the option setter
+
+    $scope.setEpithetOptions = function() {
+        $scope.setGameAssetOptions('epithets', "survivor_sheet", "epithetOptions");
+    };
+
+
+
+    //
+    //  regular methods below here
+    //
+
+    $scope.addEpithet = function () {
+        if ($scope.new_epithet === null) {return false};
+        if ($scope.survivor.sheet.epithets.indexOf($scope.new_epithet) == -1) {
+            $scope.survivor.sheet.epithets.push($scope.new_epithet);
+            var js_obj = {"handle": $scope.new_epithet, "quantity": 1, "type": "epithets"};
+//            console.warn(js_obj);
+            $scope.postJSONtoAPI('survivor','add_game_asset', js_obj);
         } else {
-            $scope.errortext = "The epithet has already been added!";
+            console.error("Epithet handle '" + $scope.new_epithet + "' has already been added!")
         };
-
-
-        var http = new XMLHttpRequest();
-        http.open("POST", "/", true);
-        http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-        var add_name = $scope.addMe.name;
-        if (add_name == undefined) {var add_name = $scope.addMe};
-        var params = "add_epithet=" + add_name + "&modify=survivor&asset_id=" + asset_id
-        http.send(params);
-
-        savedAlert();
-
-    }
+        $scope.setEpithetOptions();
+    };
     $scope.removeItem = function (x, asset_id) {
         $scope.errortext = "";
         var removedEpithet = $scope.epithets[x];

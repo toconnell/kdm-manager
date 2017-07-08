@@ -9,6 +9,6 @@ import utils
 class Assets(Models.AssetCollection):
 
     def __init__(self, *args, **kwargs):
-        self.assets = abilities_and_impairments.weapon_masteries
+        self.assets = abilities_and_impairments.weapon_mastery
         self.type = "weapon_mastery"
         Models.AssetCollection.__init__(self,  *args, **kwargs)
