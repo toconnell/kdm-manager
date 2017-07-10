@@ -722,27 +722,6 @@ class Survivor:
         else:
             self.survivor["weapon_proficiency_type"] = ""
 
-        # check the settlements innovations and auto-add Weapon Specializations
-        #   if there are any masteries in the settlement innovations 
-        if not "dead" in self.survivor.keys():
-            for innovation_key in self.Settlement.get_game_asset("innovations", update_mins=False, handles_to_names=True):
-                if innovation_key in WeaponMasteries.get_keys():
-                    prof_dict = WeaponMasteries.get_asset(innovation_key)
-                    if "auto-apply_specialization" in prof_dict.keys() and not prof_dict["auto-apply_specialization"]:
-                        pass
-                    else:
-                        if prof_dict["all_survivors"] not in self.survivor["abilities_and_impairments"]:
-                            if self.User.get_preference("apply_weapon_specialization"):
-                                if prof_dict["all_survivors"] not in self.survivor["abilities_and_impairments"]:
-                                    self.survivor["abilities_and_impairments"].append(prof_dict["all_survivors"])
-                                    self.logger.debug("Auto-applied settlement default '%s' to survivor '%s' of '%s'." % (prof_dict["all_survivors"], self.survivor["name"], self.Settlement.settlement["name"]))
-                                    self.Settlement.log_event("Automatically added '%s' to %s's abilities!" % (prof_dict["all_survivors"], self.survivor["name"]))
-                elif innovation_key.split("-")[0].strip() == "Mastery":
-                    custom_weapon = " ".join(innovation_key.split("-")[1:]).title().strip()
-                    spec_str = "Specialization - %s" % custom_weapon
-                    if spec_str not in self.survivor["abilities_and_impairments"]:
-                        self.survivor["abilities_and_impairments"].append(spec_str)
-                        self.logger.debug("Auto-applied settlement default '%s' to survivor '%s'." % (spec_str, self.survivor["name"]))
 
         # if the survivor is legacy data model, he doesn't have a born_in_ly
         #   attrib, so we have to get him one:
@@ -1133,42 +1112,6 @@ class Survivor:
         return disorders
 
 
-    def get_affinities(self, return_type=False):
-        no_affinities = {"red": 0, "green": 0, "blue": 0}
-
-        s_affinities = no_affinities
-        if "affinities" in self.survivor.keys():
-            s_affinities = self.survivor["affinities"]
-
-        for color in ["red","green","blue"]:
-            if color not in s_affinities.keys():
-                s_affinities[color] = 0
-
-
-        if return_type == "survivor_sheet_controls":
-            if s_affinities == no_affinities:
-                return html.survivor.affinity_controls.safe_substitute(
-                    button_class = "no_affinities",
-                    text="&#9633; &#9633; &#9633;",
-                )
-            else:
-                button_text = ""
-                for affinity_key in ["red","blue","green"]:
-                    a_value = s_affinities[affinity_key]
-                    span_class = affinity_key
-                    if a_value != 0:
-                        button_text += html.survivor.affinity_span.safe_substitute(
-                            value = a_value,
-                            span_class = span_class
-                        )
-                return html.survivor.affinity_controls.safe_substitute(
-                    button_class = "affinities",
-                    text = button_text
-                )
-
-        return s_affinities
-
-
     def get_returning_survivor_status(self, return_type=None):
         """ Returns a bool of whether the survivor is currently a Returning
         Survivor. Use different return_type values for prettiness. """
@@ -1225,7 +1168,7 @@ class Survivor:
             self.update_returning_survivor_years(self.Settlement.settlement["lantern_year"])
 
             # bump up the increment number for saviors
-            if self.is_savior():
+            if "savior" in self.survivor.keys():
                 increment_hunt_xp=4
 
 
@@ -1291,34 +1234,6 @@ class Survivor:
         self.logger.debug("Inflicted brain damage on %s successfully!" % self)
 
 
-    def add_custom_AI(self, params=None):
-        """ Processes cgi.FieldStorage() params and creates a custom A&I entry
-        for the survivor. """
-
-        if params is None:
-            self.logger.error("Must supply a valid cgi.FieldStorage() object!")
-            return False
-
-        try:
-            ai_name = params["custom_AI_name"].value
-            ai_desc = params["custom_AI_desc"].value
-            ai_type = params["custom_AI_type"].value
-        except Exception as e:
-            self.logger.exception(e)
-            self.logger.error("[%s] attempted to add a custom AI but did not provide all required values!" % (self.User))
-            return False
-
-        # add the asset key
-        self.add_game_asset("abilities_and_impairments", ai_name)
-
-        # see if we've got an ability_customizations dict on the survivor yet
-        if not "ability_customizations" in self.survivor.keys():
-            self.survivor["ability_customizations"] = {}
-
-        self.survivor["ability_customizations"][ai_name] = ai_desc
-        self.logger.debug("[%s] added custom A&I '%s: %s' (%s) to %s" % (self.User, ai_name, ai_desc, ai_type, self))
-
-
 
     def add_game_asset(self, asset_type, asset_key, asset_desc=None):
         """ Our generic function for adding a game_asset to a survivor. Some biz
@@ -1375,36 +1290,10 @@ class Survivor:
             else:
                 self.logger.exception("[%s] Attempted to add unknown fighting art!" % self)
                 return False
-
         elif asset_type == "abilities_and_impairments":
-
-            if True:
-                #TKTKTKTKTK
-                # update affinities, if the ability indicates an update:
-                if "affinities" in asset_dict.keys():
-                    if not "affinities" in self.survivor:
-                        self.survivor["affinities"] = {"red":0,"blue":0,"green":0}
-                    for affinity_key in asset_dict["affinities"].keys():
-                        a_adjustment = asset_dict["affinities"][affinity_key]
-                        self.survivor["affinities"][affinity_key] += a_adjustment
-                        self.logger.debug("Automatically updated '%s' affinity for %s. + %s due to '%s'" % (affinity_key, self, a_adjustment, asset_key))
-
-                # auto-add any mandatory epithets
-                if "epithet" in asset_dict.keys():
-                    self.update_epithets(epithet=asset_dict["epithet"])
-
-
-                # now that we're basically done, handle related abilities:
-                if "related" in asset_dict.keys():
-                    for related_ability in asset_dict["related"]:
-                        if related_ability not in self.survivor["abilities_and_impairments"]:
-                            self.logger.debug("%s is adding '%s' to '%s': automatically adding related '%s' ability." % (self.User.user["login"], asset_key, self.survivor["name"], related_ability))
-                            self.add_game_asset("abilities_and_impairments", related_ability)
-
-
-                return True
-            else:
-                return False
+            msg = "Adding A&Is to survivors is not supported by the legacy webapp!"
+            self.logger.exception(msg)
+            raise Exception(msg)
         else:
             self.logger.critical("Attempted to add unknown game_asset type '%s'. Doing nothing!" % asset_type)
 
@@ -1421,21 +1310,9 @@ class Survivor:
             return False
 
         if asset_type == "abilities_and_impairments":
-            if asset_key not in Abilities.get_keys():
-                self.survivor["abilities_and_impairments"].remove(asset_key)
-            elif asset_key in Abilities.get_keys():
-                asset_dict = Abilities.get_asset(asset_key)
-                self.survivor["abilities_and_impairments"].remove(asset_key)
-                if "epithet" in asset_dict.keys():
-                    self.update_epithets(action="rm", epithet=asset_dict["epithet"])
-                if "cannot_spend_survival" in asset_dict.keys() and "cannot_spend_survival" in self.survivor.keys():
-                    del self.survivor["cannot_spend_survival"]
-
-                if "affinities" in asset_dict.keys():
-                    for k in asset_dict["affinities"].keys():
-                        if "affinities" in self.survivor.keys() and self.survivor["affinities"][k] >= asset_dict["affinities"][k]:
-                            self.logger.debug("[%s] automatically decrementing %s affinity by %s for %s" % (self.User, k,asset_dict["affinities"][k], self))
-                            self.survivor["affinities"][k] -= 1
+            msg = "Removing A&Is from survivors is not supported by the legacy webapp!"
+            self.logger.exception(msg)
+            raise Exception(msg)
         else:
             self.survivor[asset_type].remove(asset_key)
 
@@ -1938,24 +1815,6 @@ class Survivor:
                 self.logger.debug("[%s] toggled OFF expansion attribute '%s' for %s" % (self.User, attrib, self))
 
 
-    def update_sex(self, new_sex):
-        """ Method for updating a survivor's sex. """
-
-        # return false if we get a bogus value
-        if new_sex not in ["M","F"]:
-            return False
-
-        # check for Gender Swap A&I
-        if "Gender Swap" in self.survivor["abilities_and_impairments"]:
-            return False
-
-        if new_sex == self.survivor["sex"]:
-            return False
-
-        self.logger.debug("[%s] changed survivor %s sex to %s" % (self.User, self, new_sex))
-        self.Settlement.log_event("%s sex changed to %s!" % (self, new_sex))
-        self.survivor["sex"] = new_sex
-
 
     def update_fighting_arts(self, fighting_art=None, action=None):
         """ Adds/removes a fighting art from a survivor. Logs it. """
@@ -2217,68 +2076,6 @@ class Survivor:
         self.logger.debug("[%s] %s the Departing Survivors group." % (self.User, msg))
 
 
-    def is_savior(self):
-        """ Returns False if the survivor is NOT a savior. Returns their color
-        otherwise. """
-
-        for red_ai in ["Dream of the Beast", "Red Life Exchange", "Caratosis"]:
-            if red_ai in self.survivor["abilities_and_impairments"]:
-                return "red"
-        for red_ai in ["Dream of the Crown", "Green Life Exchange", "Dormenatus"]:
-            if red_ai in self.survivor["abilities_and_impairments"]:
-                return "green"
-        for red_ai in ["Dream of the Lantern", "Blue Life Exchange", "Lucernae"]:
-            if red_ai in self.survivor["abilities_and_impairments"]:
-                return "blue"
-
-        return False
-
-
-    def update_savior_status(self, savior_type=None):
-        """ Method for working with a Survivor's savior status. """
-
-        def rm(rm_tuple):
-            for ai in rm_tuple:
-                if ai in self.survivor["abilities_and_impairments"]:
-                    self.rm_game_asset("abilities_and_impairments", ai)
-                    self.update_epithets("rm",ai)
-            self.logger.debug("[%s] removed savior status from %s." % (self.User, self))
-            self.Settlement.log_event("%s is no longer a %s savior." % (self, savior_type))
-
-        def add(add_tuple):
-            for ai in add_tuple:
-                self.add_game_asset("abilities_and_impairments", ai)
-            self.update_epithets("add",add_tuple[2])
-            self.logger.debug("[%s] added savior status to %s." % (self.User, self))
-            self.Settlement.log_event("A savior was born! %s is a %s savior!" % (self, savior_type))
-
-        ai_tuples = {
-            "red": ("Dream of the Beast", "Red Life Exchange", "Caratosis"),
-            "green": ("Dream of the Crown", "Green Life Exchange", "Dormenatus"),
-            "blue":  ("Dream of the Lantern", "Blue Life Exchange", "Lucernae"),
-        }
-
-
-        if savior_type is None:
-            return None
-        elif savior_type == "UNSET":
-            if self.is_savior():
-                rm(ai_tuples[self.is_savior()])
-            return True
-        elif self.is_savior() == savior_type:
-            self.logger.debug("[%s] survivor %s is already a %s savior. No change." % (self.User, self, savior_type))
-            return None
-        elif self.is_savior() and self.is_savior() != savior_type:   # the toggle!
-            rm(ai_tuples[self.is_savior()])
-            add(ai_tuples[savior_type])
-            return True
-        elif not self.is_savior():
-            add(ai_tuples[savior_type])
-            return True
-        else:
-            self.logger.error("Unknown condition encountered during assets.Survivor.update_savior_status()!")
-            return False
-
 
     def modify(self, params):
         """ Reads through a cgi.FieldStorage() (i.e. 'params') and modifies the
@@ -2291,10 +2088,6 @@ class Survivor:
             "heal_survivor","form_id",
             # misc controls that we're already done with by now
             "norefresh", "modify", "view_game", "asset_id",
-            # app.js -> attributeController elements
-            "gear","tokens","base","angularjs_attrib_type","angularjs_attrib_value",
-            # custom_AI form
-            "custom_AI_name", "custom_AI_desc", "custom_AI_type", "custom_AI_color",
         ]
 
         for p in params:
@@ -2313,16 +2106,10 @@ class Survivor:
 
             if p in ignore_keys:
                 pass
-            elif p == "toggle_cursed_item":
-                self.update_cursed_items("toggle",game_asset_key)
             elif p == "set_constellation":
                 self.update_constellation(game_asset_key)
-            elif p == "set_savior_type":
-                self.update_savior_status(game_asset_key)
             elif p == "survivor_avatar":
                 self.update_avatar(params[p])
-            elif p == "add_custom_AI":
-                self.add_custom_AI(params)
             elif p == "add_disorder":
                 self.add_game_asset("disorder", game_asset_key)
             elif p == "remove_disorder":
@@ -2344,16 +2131,10 @@ class Survivor:
                 self.modify_weapon_proficiency(target_lvl=None, new_type=game_asset_key)
             elif p == "in_hunting_party":
                 self.join_departing_survivors()
-            elif p == "sex":
-                new_sex = game_asset_key.strip()[0].upper()
-                self.update_sex(new_sex)
             elif p == "partner_id":
                 self.update_partner(game_asset_key)
             elif p == "expansion_attribs":
                 self.update_expansion_attribs(params[p])
-            elif p == "modal_update":
-                if game_asset_key == "affinities":
-                    self.update_affinities(params)
             elif p.split("_")[0] == "toggle" and "norefresh" in params:
                 toggle_key = "_".join(p.split("_")[1:])
                 self.toggle(toggle_key, game_asset_key, toggle_type="explicit")
@@ -2367,8 +2148,6 @@ class Survivor:
             elif p.split("_")[0:4] == ["fighting","art","level","toggle"]:
                 fighting_art = p.split("_")[-1]
                 self.toggle_fighting_art_level(fighting_art, game_asset_key)
-            elif p == "survival":
-                self.update_survival(game_asset_key)
             elif p in ["Insanity","Head","Arms","Body","Waist","Legs"]:
                 self.update_survivor_attribute(p, "base", game_asset_key)
             elif game_asset_key == "None":
@@ -2384,10 +2163,6 @@ class Survivor:
             light, heavy = hit_tuplet
             if heavy in self.survivor.keys() and not light in self.survivor.keys():
                 self.survivor[light] = "checked"
-
-        # prevent movement from going below 1
-        if int(self.survivor["Movement"]) < 1:
-            self.survivor["Movement"] = 1
 
         # do healing absolutely last
         if "heal_survivor" in params:
@@ -2456,54 +2231,6 @@ class Survivor:
         )
 
         return output
-
-
-
-
-
-    def update_cursed_items(self, action=None, cursed_item=None):
-        """ Manages a survivor's cursed_items attribute, which is just a list
-        of items. Logs to the setttlement event log, etc. """
-
-        if action is None or cursed_item is None:
-            self.logger.warn("[%s] 'action' and 'cursed_item' kwargs must not be None type." % (self.User))
-            return None
-
-        # now do it to it
-        if not "cursed_items" in self.survivor.keys():
-            self.survivor["cursed_items"] = []
-
-        all_cursed_items = self.Settlement.get_api_asset("game_assets", "cursed_items")
-        ci_dict = all_cursed_items[cursed_item]
-
-
-        def add(cursed_item):
-            self.survivor["cursed_items"].append(cursed_item)
-            if "abilities_and_impairments" in ci_dict.keys():
-                for ai in ci_dict["abilities_and_impairments"]:
-                    ai_dict = self.Settlement.get_api_asset("game_assets","abilities_and_impairments")[ai]
-                    self.add_game_asset("abilities_and_impairments", ai_dict["name"])
-            self.Settlement.log_event("%s is cursed! %s added %s to %s's cursed items." % (self, self.User.user["login"], ci_dict["name"], self.survivor["name"]))
-            self.logger.debug("[%s] added cursed item key '%s' to %s." % (self.User, cursed_item, self))
-        def rm(cursed_item):
-            self.survivor["cursed_items"].remove(cursed_item)
-            if "abilities_and_impairments" in ci_dict.keys():
-                for ai in ci_dict["abilities_and_impairments"]:
-                    self.rm_game_asset("abilities_and_impairments", ai)
-            self.Settlement.log_event("%s removed %s from %s's cursed items." % (self.User.user["login"], ci_dict["name"], self.survivor["name"]))
-            
-            self.logger.debug("[%s] removed cursed item key '%s' from %s." % (self.User, cursed_item, self))
-
-        if action=="toggle":
-            if cursed_item in self.get_api_asset("cursed_items"):
-                rm(cursed_item)
-                return False
-            elif cursed_item not in self.get_api_asset("cursed_items"):
-                add(cursed_item)
-                return True
-        else:
-            self.logger.warn("[%s] unknown action '%s' specified!" % (self.User, action))
-            return None
 
 
 
@@ -2697,12 +2424,6 @@ class Survivor:
             mobile_avatar_img = self.get_avatar("html_mobile"),
             name = self.survivor["name"],
             email = self.survivor["email"],
-            courage = self.survivor["Courage"],
-            understanding = self.survivor["Understanding"],
-            hunt_xp = self.survivor["hunt_xp"],
-            hunt_xp_3_event = self.Settlement.get_story_event("Bold"),
-            courage_3_event = self.Settlement.get_story_event("Insight"),
-
 
             weapon_proficiency = self.survivor["Weapon Proficiency"],   # this is the score
             weapon_proficiency_options = WeaponProficiencies.render_as_html_toggle_dropdown(selected=self.survivor["weapon_proficiency_type"], expansions=exp),
@@ -2711,11 +2432,9 @@ class Survivor:
             remove_survivor_controls = rm_controls,
 
             # checkbox status
-            dead_checked = flags["dead"],
             favorite_checked = flags["favorite"],
             retired_checked = flags["retired"],
             public_checked = flags["public"],
-            skip_next_hunt_checked = flags["skip_next_hunt"],
 
             # manually generated hit boxes
             insanity = self.survivor["Insanity"],
@@ -2728,12 +2447,6 @@ class Survivor:
             body_hit_box = self.render_hit_box_controls("Body"),
             waist_hit_box = self.render_hit_box_controls("Waist"),
             legs_hit_box = self.render_hit_box_controls("Legs"),
-
-            # affinities
-            affinity_controls = self.get_affinities("survivor_sheet_controls"),
-            red_affinities = self.get_affinities()["red"],
-            blue_affinities = self.get_affinities()["blue"],
-            green_affinities = self.get_affinities()["green"],
 
             fighting_arts = self.get_fighting_arts("formatted_html"),
             add_fighting_arts = fighting_arts_picker,
@@ -4095,8 +3808,6 @@ class Settlement:
 
                 S = Survivor(survivor_id=survivor["_id"], session_object=self.Session)
                 annotation = ""
-                if S.is_savior():
-                    annotation += '&ensp; <span class="survivor_annotation affinity_%s">%s Savior</span><br/>' % (S.is_savior(), S.is_savior().capitalize())
                 user_owns_survivor = False
                 disabled = "disabled"
 

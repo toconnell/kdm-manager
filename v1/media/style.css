@@ -13,25 +13,24 @@
 @font-face {
     font-family: 'kdm-font-10';
     src: url('/media/fonts/kdm-font-10.ttf') format('truetype'),
-    url('/media/fonts/kdm-font-10-webfont.woff') format('woff'),
-    url('/media/fonts/kdm-font-10-webfont.woff2') format('woff2');
+        url('/media/fonts/kdm-font-10-webfont.woff') format('woff'),
+        url('/media/fonts/kdm-font-10-webfont.woff2') format('woff2');
 }
 .kdm_font {font-family: 'kdm-font-10'; }
 
 @font-face {
     font-family: 'kdm-font-2';
     src: url('/media/fonts/kdm-font-2.ttf') format('truetype'),
-    url('/media/fonts/kdm-font-2-webfont.woff') format('woff'),
-    url('/media/fonts/kdm-font-2-webfont.woff2') format('woff2');
+        url('/media/fonts/kdm-font-2-webfont.woff') format('woff'),
+        url('/media/fonts/kdm-font-2-webfont.woff2') format('woff2');
 }
 .kdm_font_hit_locations {font-family: 'kdm-font-2'; }
 
 @font-face {
     font-family: 'Metrophobic';
-    src: url('/media/fonts/Metrophobic.ttf.eot')
-        format('woff2'), url('/media/fonts/Metrophobic.ttf.woff')
-        format('woff'),url('/media/fonts/Metrophobic.ttf') 
-        format('truetype');
+/*    src: url('/media/fonts/Metrophobic.woff2') format('woff2'),*/
+    src: url('/media/fonts/Metrophobic.woff') format('woff'),
+        url('/media/fonts/Metrophobic.ttf') format('truetype');
 }
 .metrophobic {font-family: Metrophobic;}
 
@@ -39,10 +38,9 @@
     font-family: 'Silverado';
     src: url('/media/fonts/329BC2_0_0.eot');
     src: url('/media/fonts/329BC2_0_0.eot?#iefix')
-        format('embedded-opentype'), url('/media/fonts/329BC2_0_0.woff2')
-        format('woff2'), url('/media/fonts/329BC2_0_0.woff')
-        format('woff'),url('/media/fonts/329BC2_0_0.ttf') 
-        format('truetype');
+        format('embedded-opentype'), url('/media/fonts/329BC2_0_0.woff2') format('woff2'),
+        url('/media/fonts/329BC2_0_0.woff') format('woff'),
+        url('/media/fonts/329BC2_0_0.ttf') format('truetype');
 }
 
 .helvetica {font-family: Helvetica, sans-serif; height: 100%; }
@@ -634,7 +632,6 @@ div.survivor_sheet_block_group p {border: 0; margin-left: 4%; }
 input.survivor_owner_email {border: 0; outline: 0; display: block; margin: 0 auto; width: 95%; text-align:center; font-family: Silverado; height: auto; border-radius: 10px; padding: 2%; }
 input.survivor_owner_email:focus {background: radial-gradient(#FDEDA9, #FFFFC5); }
 
-div.survivor_dead_retired_container {display: flex; flex-direction: row; margin-top: 40%; }
 .modal_death_button {width: auto; border: 0.2em solid #aaa; color: #aaa; background-color: #fff; padding: 2%; margin: auto; font-size: 45pt; }
 .survivor_is_dead {border-color: #660000; background-color: #aa0000; background: radial-gradient(#880000, #cc0000); color: #fff; font-weight: bold; text-transform: uppercase; }
 
@@ -725,7 +722,12 @@ input#survivor_sheet_survivor_name {border: 0 none; font-size: 100px; height: au
 div.returning_survivor_badge {font-size: 0.8em; position: absolute; margin: -3px; margin-top: -20px; border-bottom-right-radius: 25px; width: auto; height: 3%; padding: 0px; padding-left: 2px; padding-right: 1%;}
 div.survivor_constellation_badge {font-size: 23pt; position: absolute; right: 8%; background-color: #4A148C; margin: 0px; margin-left: 30px; margin-top: -20px; border-bottom-right-radius: 25px; border-bottom-left-radius: 25px; width: auto; height: auto; color: #fff; padding: 0px; padding-left: 2%; padding-right: 2%; padding-bottom: 3px;}
 
+
+/*  sex, avatar, misc. toggles and dynamic control buttons - mobile */
+.survivor_sheet_savior_and_sex_controls {display: inline-block; }
+.survivor_sheet_survivor_sex {display: inline-block; margin: 5%; margin-bottom: 10%; }
 .survivor_sex_text {width: 50px; font-weight: bold; border: 0; }
+div.survivor_dead_retired_container {display: flex; flex-direction: row; margin-top: 10%; }
 .survivor_avatar_image {float: right; width: 450px; max-height: 560px; border: 1px solid #000;}
 .survivor_avatar_image_campaign_summary {width: 180px; height: 240px; float: right; margin-top: 20px; }
 .toggle_favorite {float: left; min-width: 50px; }
@@ -744,13 +746,12 @@ div.survivor_sheet_secondary_attrib_container .big_number_caption { margin-botto
 .secondary_attrib_tip {margin-left: 25%; }
 
 /* affinity controls ; mobile width */
-button#modalAffinityButton {border: 0; padding: 0; height: 150px; background-color: #fff; overflow: hidden; }
-button#modalAffinityButton.no_affinities {margin-top: -20px; font-size: 250px; line-height: 0px; margin-bottom: -500px; height: 175px; }
-button#modalAffinityButton.affinities {margin-top: -50px; margin-bottom: -100px; }
+.modal_affinity_launcher {border: 0; padding: 0; height: 150px; background-color: #fff; overflow: hidden; margin-top: 3%; margin-bottom: 3%; display: flex; flex-direction: row; justify-content: space-around; }
+.modal_affinity_launcher:focus {outline: 0; -webkit-box-shadow: none; box-shadow: none;}
+.modal_affinity_launcher span.affinity_span {display: inline-flex; width: 160px; height: 160px; color: #fff; padding: 0; font-size: 100px; font-family: Arial, sans-serif; align-items: center; justify-content: center; }
 
 div.modal_affinity_control_unit {display: flex; flex-direction: row; align-items: center; justify-content: center; }
 div.affinity_block {width: 250px; height: 250px; float: right; margin: auto;  }
-span#affinity_span {display: inline-block; width: 150px; height: 150px; color: #fff; padding: 0; font-size: 110px; font-family: Arial, sans-serif;}
 
 /* clear: none styles*/
 #damage_box, .floating_label, form, label#skip_next_hunt, div#info_box {clear: none;}
@@ -1115,7 +1116,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     button#modalCustomAIButton {width: auto; }
     div.survivor_sheet_dynamic_button_holder {width: 225px; clear: left; margin: 0 auto; text-align: right;}
-    .survivor_avatar_image {width: 175px; max-height: 250px; margin: 0; margin-right: 30%; }
+    .survivor_avatar_image {width: 175px; max-height: 250px; margin: 0; margin-right: 30%; margin-top: 20%; }
 
         /* fighting art controls */
     label.fighting_art_level_toggle {font-size: 24px; margin-bottom: 10px; }
@@ -1178,22 +1179,22 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div#epithet_angular {margin-top: 190px; }
     ul#epithet_angular_ul {margin-top: -30px;  }
 
-    button#modalAffinityButton {height: 90px; background-color: #FFF; width: 115%; margin: auto; }
-    button#modalAffinityButton.no_affinities {margin-top: -20px; font-size: 60px; line-height: 0px; width: 450px; height: 50px; }
-    button#modalAffinityButton.affinities {margin: 0; margin-top: -20px; margin-bottom: 3px; }
+        /* affinity - tablet */
+    .modal_affinity_launcher {height: auto; margin: 5%; }
+    .modal_affinity_launcher span.affinity_span {width: 45px; height: 45px; font-size: 25px; }
 
 
         /* modal-content - tablet */
     div.modal-content {}
     div.modal-content div.bulk_add_control {width: 95px; }
-    div#modalAffinity div.modal-content div.bulk_add_control button {width: 80px; vertical-align: middle; padding-bottom: 30px; }
+    div#modalAffinity div.modal-content div.bulk_add_control button {width: 80px; height: 60px; display:inline-flex; align-content: center; justify-content: center; }
     div#modalAffinity div.modal-content div.bulk_add_control input.big_number_sqaure {margin-right: 0px; }
     div#modalAffinity div.modal-content  hr.affinity_spacer {display: none;}
     span#affinity_span {display: inline-block; width: 50px; height: 50px; color: #fff; padding: 0; font-size: 44px;}
-    div.modal_affinity_controls_container {display: flex; flex-direction: row; justify-content: center; }
+    div.modal_affinity_controls_container {display: flex; flex-direction: row; justify-content: center; padding-bottom: 5%; }
     div.modal_affinity_control_unit {display: flex; align-content: center; margin-right: 2%; }
     div.modal_affinity_control_unit div.bulk_add_control {margin-left: -20px; margin-right: 50px; }
-    div.affinity_block {width: 90px; height: 90px; margin: auto; }
+    div.affinity_block {width: 90px; height: 90px; margin: auto; margin-left: -20px; }
 
 
     div.full_size_modal_panel span.closeModal {top: -10px; }
@@ -1217,7 +1218,10 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     table.player_management th, table.player_management td {padding: 10px; }
     input[type=checkbox].player_management_admin {zoom: 2; height: auto;}
 
-    div.survivor_dead_retired_container {margin-top: 30%; align-items: baseline; }
+    .survivor_sheet_survivor_sex {margin: 3%; }
+    .survivor_sheet_survivor_sex font.legend {font-size: 30px; }
+
+    div.survivor_dead_retired_container {margin-top: 0; align-items: baseline; }
     div.survivor_dead_retired_container label {font-size: 20pt; padding: 5px; margin: 0; width: 150px; }
     label#survivor_sheet_avatar {margin: 0 auto; margin-bottom: 30px; margin-right: -45px; position: relative; }
     div#survivor_survival_box_container {margin: 0px; height: auto; padding-bottom: 5%; width: auto; float: left; clear: right; }
@@ -1343,7 +1347,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.big_number_container input#survivalLimitBox, div.big_number_container input#populationBox, div.big_number_container input#deathCountBox {width: 65px; height:  70px; }
     div.bulk_add_block_group {display: flex; flex-direction: row; flex-wrap: wrap; }
     div.bulk_add_control {width: 140px; text-align: center; margin: auto; margin-top: 5%; font-size: 20pt; color: #666; text-align: center; margin-left: 16%; }
-    div.bulk_add_control input[type=number] {height: 70px; width: 70px; margin-left: 30px; font-size: 30pt; }
+    div.bulk_add_control input[type=number] {height: 80px; width: 78px; font-size: 30pt; display: inline-flex; align-content: center; justify-content: center; border: 1px solid #666; padding: 0; margin: 5%; margin-left: 30px; }
     div.bulk_add_control button {height: auto; width: 85px; margin-left: 30px; }
     div.bulk_add_block_group input.settlement_sheet_bulk_add {margin: auto; font-size: 30px; height: auto; padding: 1%; margin-top: 10%; } 
 
@@ -1483,11 +1487,9 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .modal-content button {width: 80%; padding: 7px; margin: 3%; }
     .modal p {text-align: center; }
 
-    div#modalAffinity div.modal-content div.bulk_add_control button {width: 150px; height: 10px;}
+    div#modalAffinity div.modal-content div.bulk_add_control button {width: 150px; height: auto;}
     div.affinity_block {width: 60px; height: 60px; margin: auto;}
     div.modal-content hr.affinity_spacer {display: none; }
-    div#asset_management_left_pane button#modalAffinityButton {height: 70px; width: 90%; margin: 0 auto; position: relative; font-size: 100px; padding-bottom: 10px; padding-left: 20px; text-align: center; }
-    div#asset_management_left_pane span#affinity_span {margin: 0; display:block; position: relative; float: left; margin-left: 40px; }
 
 
     /* wide sign-in styles */
@@ -1692,7 +1694,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
         /* Bulk Add New Survivors - wide */
     div.bulk_add_control {float: left; width: 120px; text-align: center; margin: 0; margin-bottom: 0; margin-left: 20px; font-size: 12pt; color: #666; }
-    div.bulk_add_control input[type=number] {margin-right: 15px; }
+    div.bulk_add_control input[type=number] {margin-right: 15px; padding-left: 15px;}
     div.bulk_add_block_group {flex-direction: row; width: 30%; justify-content: space-around; padding-top: 3%; }
     div.bulk_add_block_group input.settlement_sheet_bulk_add  {margin-bottom: 5%; font-size: 12pt; padding: 0; padding-left: 40px; padding-right: 40px; }
     
@@ -1791,6 +1793,11 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     .survivor_sheet_ai_container {}
     .survivor_sheet_ai {font-size: 12pt;}
+
+    .modal_affinity_launcher {margin: 7%; margin-bottom: 2%; margin-top: 2%; }
+    .survivor_sheet_survivor_sex font.legend {font-size: 20px; }
+
+    .survivor_sheet_savior_and_sex_controls {margin-bottom: 4%; }
 
     input#survivor_sheet_survivor_name {width: 320px; font-size: 25pt; position: relative; text-align: center; opacity: 1.0; top: auto; left: auto; right: auto; bottom: auto; margin: 0px; }
 

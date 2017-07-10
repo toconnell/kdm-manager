@@ -87,9 +87,13 @@ class AssetCollection():
         if hasattr(self, "root_module"):
             self.set_assets_from_root_module()
 
+        # type override
         if hasattr(self, "type"):
             for a in self.assets.keys():
                 self.assets[a]["type"] = self.type
+
+        # set the default 'type_pretty' value (no caps)
+        self.set_pretty_types()
 
         for a in self.assets.keys():
             self.assets[a]["handle"] = a
@@ -122,10 +126,18 @@ class AssetCollection():
                     self.assets.update(v)
 
 
-    def set_pretty_types(self):
+    def set_pretty_types(self, capitalize=False):
         """ Iterates over self.assets; adds the "type_pretty" key to all assets. """
         for a in self.assets.keys():
-            self.assets[a]["type_pretty"] = self.get_asset(a)["type"].replace("_"," ")
+            pretty_type = self.get_asset(a)["type"].replace("_"," ")
+            if capitalize:
+                pretty_type = pretty_type.capitalize()
+            self.assets[a]["type_pretty"] = pretty_type
+
+
+    #
+    #   common get and lookup methods
+    #
 
 
     def get_handles(self):
@@ -190,17 +202,27 @@ class AssetCollection():
             return None
 
 
-    def filter(self, filter_attrib=None, filtered_attrib_values=[]):
+    def filter(self, filter_attrib=None, filtered_attrib_values=[], reverse=False):
         """ Drops assets from the collection if their 'filter_attrib' value is
-        in the 'attrib_values' list. """
+        in the 'attrib_values' list.
+
+        Set 'reverse' kwarg to True to have the filter work in reverse, i.e. to
+        drop all assets that DO NOT have 'filter_attrib' values in the
+        'filtered_attrib_values' list.
+        """
 
         if filter_attrib is None or filtered_attrib_values == []:
             self.logger.error("AssetCollection.filter() method does not accept None or empty list values!")
             return False
 
         for asset_key in self.assets.keys():
-            if self.get_asset(asset_key)[filter_attrib] in filtered_attrib_values:
-                del self.assets[asset_key]
+            if reverse:
+                if self.get_asset(asset_key)[filter_attrib] not in filtered_attrib_values:
+                    del self.assets[asset_key]
+            else:
+                if self.get_asset(asset_key)[filter_attrib] in filtered_attrib_values:
+                    del self.assets[asset_key]
+
 
 
     #
@@ -431,41 +453,6 @@ class UserAsset():
         else:
             raise AssetLoadError("Invalid MDB collection for this asset!")
 
-    #
-    #   asset lock/unlock methods
-    #
-
-    def lock(self):
-        """ Locks the asset. """
-
-        while self.locked():
-            self.logger.debug("locked since %s" % self.locked())
-            if (datetime.now() - self.locked()).seconds >= 5:
-                self.logger.warn("Asset lock timeout exceeded!")
-                self.unlock()
-
-        mdb_doc = self.get_mdb_doc()
-        mdb_doc["locked"] = datetime.now()
-        utils.mdb[self.collection].save(mdb_doc)
-        self.logger.debug("%s locked." % self)
-
-    def unlock(self):
-        """ Unlocks the asset. """
-
-        mdb_doc = self.get_mdb_doc()
-        if self.locked():
-            del mdb_doc["locked"]
-            utils.mdb[self.collection].save(mdb_doc)
-        self.logger.debug("%s unlocked." % self)
-
-    def locked(self):
-        """ Returns a bool of whether the asset is locked. """
-
-        locked = self.get_mdb_doc().get("locked", None)
-        if locked is not None:
-            return locked
-        return False
-
 
 
     def return_json(self):
@@ -475,17 +462,40 @@ class UserAsset():
 
 
     #
-    #   get methods
+    #   request helpers
     #
 
-    def get_mdb_doc(self):
-        """ Retrieves the asset's MDB document. Raises a special exception if it
-        cannot for some reason. """
+    def get_asset(self, asset_class=None, asset_handle=None):
+        """ Set 'asset_class' kwarg to the string of an asset collection and
+        'asset_handle' to any handle within that asset collection and this
+        func will return the value of 'asset_class' and an asset dict for the
+        'asset_handle' value.
 
-        mdb_doc = utils.mdb[self.collection].find_one({"_id": self._id})
-        if mdb_doc is None:
-            raise AssetLoadError()
-        return mdb_doc
+        This method will back off to the incoming request if 'asset_type' is
+        None. """
+
+        #
+        #   initialize. Try to use kwargs, but back off to request params
+        #   if incoming kwargs are None
+        #
+
+        if asset_class is None:
+            self.check_request_params(["type", "handle"])
+            asset_class = self.params["type"]
+            asset_handle = self.params["handle"]
+        elif asset_class is not None and asset_handle is None:
+            self.check_request_params(["handle"])
+            asset_handle = self.params["handle"]
+
+        # try to get the asset; bomb out if we can't
+        exec "A = models.%s.Assets()" % asset_class
+        asset_dict = A.get_asset(asset_handle)
+        if asset_dict is None:
+            msg = "%s.Assets() class does not include handle '%s'!" % (asset_class, asset_handle)
+            self.logger.exception(msg)
+            raise utils.InvalidUsage(msg, status_code=400)
+
+        return asset_class, asset_dict
 
 
     def get_request_params(self, verbose=False):
@@ -547,6 +557,74 @@ class UserAsset():
     #   get/set methods for User Assets below here
     #
 
+
+    def get_campaign(self, return_type=None):
+        """ Returns the campaign handle of the settlement as a string, if
+        nothing is specified for kwarg 'return_type'.
+
+        Use 'name' to return the campaign's name (from its definition).
+
+        'return_type' can also be dict. Specifying dict gets the
+        raw campaign definition from assets/campaigns.py. """
+
+        # first, get the handle; die if we can't
+	if self.collection == "survivors":
+            c_handle = self.Settlement.settlement["campaign"]
+        elif self.collection == "settlements":
+            c_handle = self.settlement["campaign"]
+        else:
+            msg = "Objects whose collection is '%s' may not call the get_campaign() method!" % (self.collection)
+            raise AssetInitError(msg)
+
+        # now try to get the dict
+        C = models.campaigns.Assets()
+
+        if c_handle not in C.get_handles():
+            err = "The handle '%s' does not reference any known campaign definition!" % c_handle
+            raise AssetInitError(err)
+
+        # handle return_type requests
+        if return_type == 'name':
+            return C.get_asset(c_handle)["name"]
+        elif return_type == dict:
+            return C.get_asset(c_handle)
+
+        return c_handle
+
+
+    def get_serialize_meta(self):
+        """ Sets the 'meta' dictionary for the object when it is serialized. """
+
+        output = copy(utils.api_meta)
+        try:
+            output["meta"]["object"]["version"] = self.object_version
+        except Exception as e:
+            self.logger.error("Could not create 'meta' dictionary when serializing object!")
+            self.logger.exception(e)
+            self.logger.warn(utils.api_meta)
+            self.logger.warn(output["meta"])
+        return output
+
+
+    def get_current_ly(self):
+        """ Convenience/legibility function to help code readbility and reduce
+        typos, etc. """
+
+        if self.collection == "survivors":
+            return int(self.Settlement.settlement["lantern_year"])
+        return int(self.settlement["lantern_year"])
+
+
+    def get_mdb_doc(self):
+        """ Retrieves the asset's MDB document. Raises a special exception if it
+        cannot for some reason. """
+
+        mdb_doc = utils.mdb[self.collection].find_one({"_id": self._id})
+        if mdb_doc is None:
+            raise AssetLoadError()
+        return mdb_doc
+
+
     def list_assets(self, attrib=None, log_failures=False):
         """ Laziness method that returns a list of dictionaries where dictionary
         in the list is an asset in the object's list of those assets.
@@ -575,29 +653,6 @@ class UserAsset():
                 pass # just ignore failures and silently fail
 
         return output
-
-
-    def get_serialize_meta(self):
-        """ Sets the 'meta' dictionary for the object when it is serialized. """
-
-        output = copy(utils.api_meta)
-        try:
-            output["meta"]["object"]["version"] = self.object_version
-        except Exception as e:
-            self.logger.error("Could not create 'meta' dictionary when serializing object!")
-            self.logger.exception(e)
-            self.logger.warn(utils.api_meta)
-            self.logger.warn(output["meta"])
-        return output
-
-
-    def get_current_ly(self):
-        """ Convenience/legibility function to help code readbility and reduce
-        typos, etc. """
-
-        if self.collection == "survivors":
-            return int(self.Settlement.settlement["lantern_year"])
-        return int(self.settlement["lantern_year"])
 
 
 

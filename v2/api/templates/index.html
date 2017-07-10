@@ -715,25 +715,54 @@
 
         <!-- asset mgmt -->
         <tr>
-            <td class="subsection_header" colspan="3"><b>Asset management:</b>
+            <td class="subsection_header" colspan="3"><p><b>Asset management:</b>
             routes for adding, removing and modifying Survivor Sheet game asset
-            info, e.g. Fighting Arts, Disorders, Abilities & Impairments, etc.</td>
+            info, e.g. Fighting Arts, Disorders, Abilities & Impairments, etc.</p>
+            <p><b>Important!</b> Most of these routes have back-end business logic
+            "baked" into them, so it is <u>highly recommended</u> that you reload/re-get
+            your survivor's JSON after POSTing commands to these routes!</p>
+            </td>
         </tr>
         <tr class="ul">
             <td> /settlement/add_game_asset/&lt;survivor_id&gt; </td>
             <td> POST </td>
             <td> <p>Use this route to add an asset 'handle' of whatever 'type'
             to a survivor.</p>
-            <p>Requires the 'handle' and 'type' keys and supports an optional
-            'quanity' key, which allows the asset to be added multiple times:</p>
-            <code>{'handle': 'blind', 'type': 'abilities_and_impairments', 'quantity': 2}</code>
-            <p>POST without the 'quanity' key in your JSON to add an asset one
-            time:</p>
+            <p>Requires both the 'handle' and 'type' keys:</p>
+            <code>{'handle': 'blind', 'type': 'abilities_and_impairments'}</code>
             <code>{'handle': 'crossarm_block', 'type': 'fighting_arts'}</code>
             <p><b>Important!</b> This method enforces many of the incoming
             asset's attributes, including <code>max</code>, <code>epithet</code>,
-            and os on. Reloading or refreshing the survivor after POSTing to this
-            route is highly recommended!</p> 
+            and so on.</p> 
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/rm_game_asset/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p>The exact inverse of <code>add_game_asset</code>, POSTing to
+            this route requires both 'handle' and 'type' keys and removes a game
+            asset handle from a survivor. </p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/add_cursed_item/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td><p>POST a cursed item 'handle' to this route to add that cursed
+            item to the survivor:</p>
+            <code>{'handle': 'thunder_maul'}</code>
+            <p><b>Important!</b> This will automatically apply any A&Is and
+            epithets related to the curse to the survivor.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/rm_cursed_item/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td><p>POST a cursed item 'handle' to this route to remove that
+            cursed item from the survivor:</p>
+            <code>{'handle': 'husk_of_destiny'}</code>
+            <p><b>Important!</b> This will automatically apply remove any epithets
+            A&Is, etc. from the survivor (but will not remove any that are still
+            effective, e.g. because another cursed item also requires them.</p>
             </td>
         </tr>
 
@@ -811,6 +840,14 @@
             detail for 'tokens' to two.</p>
             </td>
         </tr>
+        <tr class="ul">
+            <td> /settlement/set_sex/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p>Modify the survivor's sex by POSTing a simple JSON object
+            containing the key 'sex' and a value of either 'M' or 'F'.</p>
+            <code>{'sex': 'M'}</code>
+            </td>
+        </tr>
 
 
 
@@ -849,7 +886,7 @@
         </tr>
 
 
-        <!-- controls of death!!! -->
+        <!-- specialty/meta -->
         <tr>
             <td class="subsection_header" colspan="3"><b>Specialty routes and
             'meta' data controllers:</b> these routes allow the management of
@@ -891,16 +928,47 @@
             }
             </code></pre>
             <p>To resurrect a survivor (i.e. undo their death), simply post some
-            JSON with {"dead": false}:</p>
-            <code>
-            {"dead": false}
-            </code>
+            JSON with  <code> {"dead": false} </code>,</p>
             <p>This will unset other death-related attributes, e.g. 'cause_of_death',
             'died_in', etc.</p>
             <p><b>Important!</b> Since <code>dead</code> is the only required key
             in JSON that gets POSTed to this route, there is some defaulting that goes
             on if the other values are undefined. Be as explicit as possible with
             this route.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/update_affinities/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p>Works with the Survivor's <code>affinities</code> dictionary,
+            which contains their permanent, non-token affinities and looks like
+            this by default:</p>
+            <code>{'red': 0, 'blue': 0, 'green': 0}</code>
+            <p>POST some JSON containing an optional 'operation' key whose value
+            is 'add' or 'rm' to add or subtract an affinities dictionary called
+            'aff_dict' to/from the survivor.</p>
+            <p><b>Important!</b> The 'operation' key is optional because the default
+            behavior of this method/route is to add the incoming 'aff_dict'.</p>
+            <p>For example, if you wanted to add a permanent blue affinity to the
+            survivor, you would POST this:</p>
+            <code>{'aff_dict': {'blue': 1}}</code>
+            <p>Similarly, if you wanted to add two red affinities and subtract
+            one green affinity, you would POST a JSON object like this one:</p>
+            <code>{'aff_dict': {'red': 2, 'green': -1}, 'operation': 'add'}</code>
+            <p>If you wanted to subtract a blue and a green affinity from the
+            survivor, you could POST a JSON object like this one:</p>
+            <code>{'aff_dict': {'blue': 1, 'green': 1}, 'operation': 'rm'}</code>
+            <p><b>Important!</b> The 'operation' key's value must be 'add' or
+            'rm'. Anything else will get you a 400 response from this route.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/set_affinity/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p>POST some JSON containing the two required keys, 'color' and
+            'value' to set a single survivor affinity to a new integer value.</p>
+            <code>{'color': 'blue', 'value': -2}</code>
+            <p>The 'value' key must always have an integer value.</p>
             </td>
         </tr>
 

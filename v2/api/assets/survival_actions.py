@@ -12,7 +12,7 @@ survival_action = {
         "name": "Dodge",
         "available": True,
         "sort_order": 0,
-        "title_tip": "Available by default.",
+        "title_tip": "'Dodge' is available by default.",
     },
     "encourage": {
         "name": "Encourage",

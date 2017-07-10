@@ -774,7 +774,7 @@ class angularJS:
                     value="F"
                 >
                 <label
-                    id="survivorSexFealeElection"
+                    id="survivorSexFemaleElection"
                     for="femaleInput"
                 >
                     Female
@@ -1203,17 +1203,17 @@ class survivor:
                     <li
                         class="touch_me"
                         ng-repeat="e in survivor.sheet.epithets"
-                        ng-click="removeItem($index,'$survivor_id')"
+                        ng-click="rmEpithet($index)"
                         style="
                             background-color: #{{settlement.game_assets.epithets[e].bgcolor}};
                             color: #{{settlement.game_assets.epithets[e].color}};
-                            border-color: #{{settlement.game_assets.epithets[e].bgcolor}};
+                            border-color: #{{settlement.game_assets.epithets[e].bordercolor}};
                         "
                     >
                         <span>{{settlement.game_assets.epithets[e].name}}</span>
                     </li>
                 </ul>
-
+                <br/>
                 <select
                     name="add_epithets"
                     ng-model="new_epithet"
@@ -1225,16 +1225,45 @@ class survivor:
 
             </div>
 
-            $affinity_controls
+            <!-- AFFINITIES -->
+            <button
+                id="modalAffinityButton"
+                class="modal_affinity_launcher"
+                title="Permanent Affinities: click or tap to update!"
+            >
+                <span
+                    ng-repeat="a in ['red','green','blue']"
+                >
+                    <span
+                        class="affinity_{{a}} affinity_span"
+                    >
+                        {{survivor.sheet.affinities[a]}}
+                    </span>
+                </span>
+            </button>
+            <!-- end of AFFINITIES -->
 
-            <p>
-                Survivor Sex:
+            <!-- SAVIOR controller includes SEX -->
+            <div
+                class="survivor_sheet_savior_and_sex_controls"
+                ng-controller="sexController"
+            >
+                <div class="help-tip survivor_sheet_survivor_sex">
+                    <font class="legend">Survivor Sex:</font>
+                    <p ng-if="survivor.sheet.sex == survivor.sheet.effective_sex">
+                        {{survivor.sheet.name}} has a sex of '{{survivor.sheet.sex}}'.
+                    </p>
+                    <p ng-if="survivor.sheet.sex != survivor.sheet.effective_sex">
+                        {{survivor.sheet.name}} has a sex of '{{survivor.sheet.sex}}', which is different from the survivor's effective sex, '{{survivor.sheet.effective_sex}}', due to a curse.
+                    </p>
+                </div>
                 <input
                     id="survivor_sheet_survivor_sex"
                     class="survivor_sex_text"
                     name="sex"
-                    value="{{survivor.sheet.effective_sex}}"
-                    onchange="updateAssetAttrib(this, 'survivor', '$survivor_id')"
+                    ng-model="survivorSex"
+                    ng-value="survivor.sheet.effective_sex"
+                    ng-change="updateSex()"
                 />
 
                 $mobile_avatar_img
@@ -1268,9 +1297,7 @@ class survivor:
 
                 </div>
 
-            </p>
-
-            <br/>
+            </div> <!-- savior controller -->
 
 
         <div class="survivor_dead_retired_container">
@@ -1346,7 +1373,7 @@ class survivor:
                         name="survival"
                         ng-model="survival_input_value"
                         ng-change="setSurvival()"
-                        value="{{survivor.sheet.survival}}"
+                        ng-value="survivor.sheet.survival"
                         min="0"
                     />
                     <button
@@ -1577,45 +1604,45 @@ class survivor:
 
             <a id="edit_wpn_prof" class="mobile_and_tablet"></a>
 
-            <!-- HUNT XP -->
+            <div ng-controller="secondaryAttributeController">
 
-            <div class="survivor_sheet_secondary_attrib_container">
-                <div class="big_number_container">
-                    <button
-                        class="incrementer"
-                        onclick="stepAndSave('up','huntXPBox','survivor','$survivor_id');"
-                    >
-                        +
-                    </button>
-                    <input
-                        id="huntXPBox"
-                        name="hunt_xp"
-                        class="big_number_square"
-                        type="number"
-                        value="$hunt_xp"
-                        min="0"
-                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
-                    />
-                    <button
-                        class="decrementer"
-                        onclick="stepAndSave('down','huntXPBox','survivor','$survivor_id');"
-                    >
-                        -
-                    </button>
-                </div> <!-- big_number_container -->
+                <!-- HUNT XP -->
+                <div class="survivor_sheet_secondary_attrib_container">
+                    <div class="big_number_container">
+                        <button
+                            class="incrementer"
+                            ng-click="incrementAttrib('hunt_xp',1)"
+                        >
+                            +
+                        </button>
+                        <input
+                            id="huntXPBox"
+                            class="big_number_square"
+                            type="number"
+                            ng-model="hunt_xp"
+                            ng-value="survivor.sheet.hunt_xp"
+                            ng-change="updateAttrib('hunt_xp')"
+                        />
+                        <button
+                            class="decrementer"
+                            ng-click="incrementAttrib('hunt_xp',-1)"
+                        >
+                            -
+                        </button>
+                    </div> <!-- big_number_container -->
 
-                <div class="survivor_sheet_secondary_attribute_caption">
-                    <div class="big_number_caption">Hunt XP</div>
-                    <p>
-                        <font class="kdm_font">g</font> <b>Age</b> occurs at 2, 6, 10 and 15. $name retires at 16.
-                    </p>
-                </div>
+                    <div class="survivor_sheet_secondary_attribute_caption">
+                        <div class="big_number_caption">Hunt XP</div>
+                        <p>
+                            <font class="kdm_font">g</font> <b>Age</b> occurs at 2, 6, 10 and 15. {{survivor.sheet.name}} retires at 16.
+                        </p>
+                    </div>
 
-            </div> <!-- survivor_sheet_secondary_attrib_container -->
+                </div> <!-- HUNT XP -->
 
-            <hr class="mobile_only"/>
+                <hr class="mobile_only"/>
 
-            <!-- WEAPON PROFICIENCY -->
+                <!-- WEAPON PROFICIENCY -->
             <div class="survivor_sheet_secondary_attrib_container">
                 <div class="big_number_container">
                     <button
@@ -1655,69 +1682,70 @@ class survivor:
 
             </div> <!-- survivor_sheet_secondary_attrib_container -->
 
-            <hr class="mobile_only"/>
+                <hr class="mobile_only"/>
 
-            <!-- COURAGE AND UNDERSTANDING -->
+                <!-- COURAGE AND UNDERSTANDING -->
 
-            <div class="survivor_sheet_secondary_attrib_container">
-                <div class="big_number_container">
-                    <button
-                        class="incrementer"
-                        onclick="stepAndSave('up','courageBox','survivor','$survivor_id');"
-                    >
-                        +
-                    </button>
-                    <input
-                        id="courageBox"
-                        name="Courage"
-                        class="big_number_square"
-                        type="number"
-                        min="0"
-                        value="$courage"
-                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
-                    />
-                    <button
-                        class="decrementer"
-                        onclick="stepAndSave('down','courageBox','survivor','$survivor_id');"
-                    >
-                        -
-                    </button>
-                </div>
-
-                <div class="survivor_sheet_secondary_attribute_caption">
-                    <div class="big_number_caption">Courage</div>
-                     <p>
-                        $hunt_xp_3_event
-                        <font class="kdm_font">g</font> <b>See the Truth</b> (p.155) occurs at 9.
-                    </p>
-                </div>
-
-            </div> <!-- survivor_sheet_secondary_attrib_container -->
-
-            <hr class="mobile_only"/>
-
-            <!-- UNDERSTANDING -->
-
-            <div class="survivor_sheet_secondary_attrib_container">
-                <div class="big_number_container">
-                    <button
-                        class="incrementer"
-                        onclick="stepAndSave('up','understandingBox','survivor','$survivor_id');"
-                    >
-                        +
-                    </button>
-                    <input
-                        id="understandingBox"
-                        name="Understanding"
-                        class="big_number_square"
-                        type="number"
-                        min="0"
-                        value="$understanding"
-                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
-                    />
+                <div class="survivor_sheet_secondary_attrib_container">
+                    <div class="big_number_container">
+                        <button
+                            class="incrementer"
+                            ng-click="incrementAttrib('Courage',1)"
+                        >
+                            +
+                        </button>
+                        <input
+                            id="courageBox"
+                            class="big_number_square"
+                            type="number"
+                            ng-value="survivor.sheet.Courage"
+                            ng-model="Courage"
+                            ng-change="updateAttrib(this.value, 'Courage')"
+                        />
                         <button
                             class="decrementer"
-                            onclick="stepAndSave('down','understandingBox','survivor','$survivor_id');"
+                            ng-click="incrementAttrib('Courage',-1)"
+                        >
+                            -
+                        </button>
+                    </div>
+
+                    <div class="survivor_sheet_secondary_attribute_caption">
+                        <div class="big_number_caption">Courage</div>
+                        <div ng-repeat="m in settlement.survivor_attribute_milestones.Courage">
+                            <p ng-repeat="v in m.values">
+                                <font class="kdm_font">g</font>
+                                <b>{{settlement.game_assets.events[m.handle].name}}</b>
+                                (p.{{settlement.game_assets.events[m.handle].page}}) occurs at {{v}}.
+                            </p>
+                        </div>
+                    </div>
+
+                </div> <!-- survivor_sheet_secondary_attrib_container -->
+
+                <hr class="mobile_only"/>
+
+                <!-- UNDERSTANDING -->
+
+                <div class="survivor_sheet_secondary_attrib_container">
+                    <div class="big_number_container">
+                        <button
+                            class="incrementer"
+                            ng-click="incrementAttrib('Understanding',1)"
+                        >
+                            +
+                        </button>
+                        <input
+                            id="understandingBox"
+                            class="big_number_square"
+                            type="number"
+                            ng-value="survivor.sheet.Understanding"
+                            ng-model="Understanding"
+                            ng-change="updateAttrib(this.value, 'Understanding')"
+                        />
+                        <button
+                            class="decrementer"
+                            ng-click="incrementAttrib('Understanding',-1)"
                         >
                             -
                         </button>
@@ -1725,14 +1753,18 @@ class survivor:
 
                     <div class="survivor_sheet_secondary_attribute_caption">
                         <div class="big_number_caption">Understanding</div>
-                        <p>
-                            $courage_3_event
-                            <font class="kdm_font">g</font> <b>White Secret</b> (p.169) occurs at 9.
-                        </p>
+                        <div ng-repeat="m in settlement.survivor_attribute_milestones.Understanding">
+                            <p ng-repeat="v in m.values">
+                                <font class="kdm_font">g</font>
+                                <b>{{settlement.game_assets.events[m.handle].name}}</b>
+                                (p.{{settlement.game_assets.events[m.handle].page}}) occurs at {{v}}.
+                            </p>
+                        </div>
                     </div>
 
-            </div> <!-- survivor_sheet_secondary_attrib_container -->
+                </div> <!-- survivor_sheet_secondary_attrib_container -->
 
+            </div> <!-- SECONDARY ATTRIB CONTROLLER SCOPE -->
 
         </div> <!-- asset_management_middle_pane -->
 
@@ -1746,11 +1778,12 @@ class survivor:
 
         <div id="survivor_sheet_right_pane">
 
-        <!-- EXPANSION ATTRIBUTES ; PARTNER CONTROLS -->
+
+        <!-- SOTF REROLL ; EXPANSION ATTRIBUTES ; PARTNER CONTROLS -->
 
         <div
             class="sotf_reroll_controls"
-            ng-if="arrayContains('Survival of the Fittest', settlement_sheet.principles)"
+            ng-if="settlement.sheet.principles.indexOf('survival_of_the_fittest') != -1"
             ng-controller="sotfRerollController"
         >
 
@@ -1775,7 +1808,6 @@ class survivor:
 
         </div> <!-- sotf reroll -->
 
-
         $expansion_attrib_controls
 
         <form method="POST" action="#edit_misc_attribs">
@@ -1786,7 +1818,9 @@ class survivor:
         </form>
 
 
-        <!-- FIGHTING ARTS -->
+
+
+        <!-- FARTING ARTS -->
 
         <a id="edit_fighting_arts" class="mobile_and_tablet"></a>
 
@@ -1896,7 +1930,7 @@ class survivor:
             >
                 <span
                     class="survivor_sheet_ai"
-                    ng-click="rmAI($index, ai_handle)"
+                    ng-click="rmAI(ai_handle, $index)"
                 >
                     <b>{{settlement.game_assets.abilities_and_impairments[ai_handle].name}}:</b>
                     <span ng-bind-html="settlement.game_assets.abilities_and_impairments[ai_handle].desc|trustedHTML"></span>
@@ -1915,15 +1949,6 @@ class survivor:
                     <option value="" disabled selected>Add Abilities & Impairments</option>
                 </select>
             </div>
-
-            <button
-                id="modalCustomAIButton"
-                class="orange bold"
-                title="Add custom Abilities & Impairments"
-            >
-                + Custom Abilities & Impairments
-            </button>
-
 
         </div> <!-- A&I controller -->
 
@@ -2034,11 +2059,10 @@ class survivor:
                     <input
                         id="{{c.handle}}"
                         class="cursed_item_toggle"
-                        name="toggle_cursed_item"
-                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
                         type="checkbox"
-                        value="{{c.handle}}"
-                        ng-checked="survivor.sheet.cursed_items[c.handle] != undefined"
+                        ng-model="cursedItemHandle"
+                        ng-change="toggleCursedItem(c.handle)"
+                        ng-checked="survivor.sheet.cursed_items.indexOf(c.handle) != -1"
                     />
                     <label
                         class="cursed_item_toggle"
@@ -2065,17 +2089,9 @@ class survivor:
 
                 </div><!-- cursed_item_toggle -->
             </div> <!-- cursed_items_flex_container-->
-
-            <hr/>
-
-            <form method="POST" action="/">
-            <!-- This is just a refresh -->
-                <button class="kd_blue" onclick="closeModal('modalCurseControls')">
-                    Reload Survivor Sheet
-                </button>
-            </form>
         </div> <!-- modal-content -->
     </div> <!-- modal -->
+
 
 
     <!-- SURVIVOR ATTRIBUTE CONTROLS -->
@@ -2097,79 +2113,37 @@ class survivor:
 
             <h3>Savior</h3>
 
-            <form method="post" action="/">
-                <input type="hidden" name="modify" value="survivor">
-                <input type="hidden" name="asset_id" value="$survivor_id">
-                <input type="hidden" name="set_savior_type" value="red">
-                <button class="affinity_red">Dream of the Beast</button>
-            </form>
+            <button
+                class="affinity_red"
+                ng-click="setSaviorStatus('red')"
+            >
+                Dream of the Beast
+            </button>
+            <button
+                class="affinity_green"
+                ng-click="setSaviorStatus('green')"
+            >
+                Dream of the Crown
+            </button>
+            <button
+                class="affinity_blue"
+                ng-click="setSaviorStatus('blue')"
+            >
+                Dream of the Lantern
+            </button>
 
-            <form method="post" action="/">
-                <input type="hidden" name="modify" value="survivor">
-                <input type="hidden" name="asset_id" value="$survivor_id">
-                <input type="hidden" name="set_savior_type" value="green">
-                <button class="affinity_green">Dream of the Crown</button>
-            </form>
+            <br/>
 
-            <form method="post" action="/">
-                <input type="hidden" name="modify" value="survivor">
-                <input type="hidden" name="asset_id" value="$survivor_id">
-                <input type="hidden" name="set_savior_type" value="blue">
-                <button class="affinity_blue">Dream of the Lantern</button>
-            </form>
-
-            <hr/>
-
-            <form method="post" action="/">
-                <input type="hidden" name="modify" value="survivor">
-                <input type="hidden" name="asset_id" value="$survivor_id">
-                <input type="hidden" name="set_savior_type" value="UNSET">
-                <button onclick="this.form.submit()">Unset Savior Info</button>
-            </form>
+            <button
+                ng-if = "survivor.sheet.savior != false"
+                ng-click = "unsetSaviorStatus()"
+            >
+                Unset Savior Info
+            </button>
 
         </div> <!-- modal-content -->
 
     </div> <!-- modalSavior -->
-
-    <div
-        id="modalCustomAI" class="modal"
-        ng-init="registerModalDiv('modalCustomAIButton','modalCustomAI')"
-    >
-        <div class="modal-content survivor_sheet_gradient" ng-app="kdmManager">
-            <span class="closeModal" onclick="closeModal('modalCustomAI')">×</span>
-            <h3>Create Custom A&I</h3>
-            <p>Use the form below to create a new, custom <i>Abilities & Impairments</i> line for $name. As you fill in the fields below, a preview of the new line item will appear in the white box below!</p>
-            <hr/>
-
-            <form id="custom_AI_modal" method="POST" action="#edit_abilities">
-                <input type="hidden" name="modify" value="survivor"/>
-                <input type="hidden" name="asset_id" value="$survivor_id"/>
-                <input type="hidden" name="add_custom_AI" value="True"/>
-                <input type="text" class="custom_AI" ng-model="name" name="custom_AI_name" placeholder="Name" required>
-                <input type="text" class="custom_AI" ng-model="desc" name="custom_AI_desc" placeholder="Description" required>
-                <select name="custom_AI_type">
-                    <option disabled> - A&I Type - </option>
-                    <option value="ability" selected>Ability</option>
-                    <option value="impairment">Impairment</option>
-                    <option value="severe_injury">Severe Injury</option>
-                    <option value="curse">Curse</option>
-                    <option value="weapon_proficiency">Weapon Proficiency</option>
-                </select>
-
-                <p>Preview:</p>
-
-                <div class="custom_AI_preview">
-                    <b>{{ name }}:</b> {{ desc }}
-                </div>
-
-                <hr/>
-
-                <button class="kd_blue">Add {{name}} to $name</button>
-
-            </form>
-
-        </div> <!-- modal-content -->
-    </div> <!-- modalCustomAI -->
 
     <div
         id="modalDeath" class="modal"
@@ -2232,62 +2206,60 @@ class survivor:
 
     <div
         id="modalAffinity" class="modal"
+        ng-controller = "affinitiesController"
         ng-init="registerModalDiv('modalAffinityButton','modalAffinity')"
     >
         <div class="modal-content survivor_sheet_gradient">
             <span class="closeModal" onclick="closeModal('modalAffinity')">×</span>
 
             <h3>Survivor Affinities</h3>
-            <p>Use these controls to adjust $name's permanent affinities. Negative values are supported. </p><hr/>
+            <p>Adjust permanent affinities for <b>{{survivor.sheet.name}}</b>. Changes are saved automatically.</p><hr/>
 
-            <form method="POST" action="#" title="Survivor Sheet permanent affinity controls">
-                <input type="hidden" name="modify" value="survivor" />
-                <input type="hidden" name="asset_id" value="$survivor_id" />
-                <input type="hidden" name="modal_update" value="affinities"/>
+            <div class="modal_affinity_controls_container">
 
-                <div class="modal_affinity_controls_container">
+                <div
+                    ng-repeat="a in ['red','green','blue']"
+                    class="modal_affinity_control_unit"
+                >
+                    <div class="bulk_add_control" title="{{a}} affinity controls">
+                        <button
+                            type="button"
+                            class="incrementer"
+                            ng-click="incrementAffinity(a, 1)"
+                        >
+                            +
+                        </button>
+                        <input
+                            id="{{a}}CountBox"
+                            class="big_number_square"
+                            type="number"
+                            name="{{a}}_affinities"
+                            ng-value="survivor.sheet.affinities[a]"
+                            ng-model = 'affValue'
+                            ng-change = "updateAffinity(this)"
+                        />
+                        <button
+                            type="button"
+                            class="decrementer"
+                            ng-click="incrementAffinity(a, -1)"
+                        >
+                            -
+                        </button>
+                    </div>
 
-                    <div class="modal_affinity_control_unit">
-                        <div class="bulk_add_control" title="Red affinity controls">
-                            <button type="button" class="incrementer" onclick="increment('redCountBox');">+</button>
-                            <input id="redCountBox" class="big_number_square" type="number" name="red_affinities" value="$red_affinities"/>
-                            <button type="button" class="decrementer" onclick="decrement('redCountBox');">-</button>
-                        </div>
-                        <div class="affinity_block affinity_red">&nbsp;</div>
-                    </div> <!-- modal_affinity_control_unit -->
+                    <div class="affinity_block affinity_{{a}}">&nbsp;</div>
 
                     <hr class="affinity_spacer"/>
 
-                    <div class="modal_affinity_control_unit">
-                        <div class="bulk_add_control" title="Blue affinity controls">
-                            <button type="button" class="incrementer" onclick="increment('blueCountBox');">+</button>
-                            <input id="blueCountBox" class="big_number_square" type="number" name="blue_affinities" value="$blue_affinities"/>
-                            <button type="button" class="decrementer" onclick="decrement('blueCountBox');">-</button>
-                        </div>
-                        <div class="affinity_block affinity_blue">&nbsp;</div>
-                    </div> <!-- modal_affinity_control_unit -->
+                </div> <!-- modal_affinity_control_unit REPEATS/ng-repeat-->
 
-                    <hr class="affinity_spacer"/>
-
-                    <div class="modal_affinity_control_unit">
-                        <div class="bulk_add_control" title="Green affinity controls">
-                            <button type="button" class="incrementer" onclick="increment('greenCountBox');">+</button>
-                            <input id="greenCountBox" class="big_number_square" type="number" name="green_affinities" value="$green_affinities"/>
-                            <button type="button" class="decrementer" onclick="decrement('greenCountBox');">-</button>
-                        </div>
-                        <div class="affinity_block affinity_green">&nbsp;</div>
-                    </div> <!-- modal_affinity_control_unit -->
-
-                </div> <!-- modal_affinity_controls_container -->
-
-                <hr/>
-
-                <center><button class="kd_blue" type="submit">Save and Refresh!</button></center>
-                <br><br>
-            </form>
+            </div> <!-- modal_affinity_controls_container -->
         </div> <!-- modal-content -->
     </div> <!-- modalAffinity -->
+
     \n""")
+
+
     survivor_sheet_rm_controls = Template("""\n
     <hr class="mobile_and_tablet"/>
     <div class="permanently_delete_survivor">
@@ -2595,14 +2567,6 @@ class survivor:
     \n""")
     survivor_constellation_badge = Template("""\n\
     <div class="survivor_constellation_badge" title="Survivor Constellation">$value</div>
-    \n""")
-    affinity_controls = Template("""\n\
-    <p>
-    <button id="modalAffinityButton" class="$button_class" title="Permanent Affinity controls"> $text </button>
-    </p>
-    \n""")
-    affinity_span = Template("""\n
-    <span id="affinity_span" class="affinity_$span_class">$value</span>
     \n""")
     stat_story_event_stub = Template("""\n
                <font class="kdm_font">g</font> <b>$event</b> (p.$page) occurs at $attrib_value<br/>

@@ -838,9 +838,10 @@ class Settlement(Models.UserAsset):
             S = survivors.Survivor(_id=s["_id"])
             for attribute, modifier in attrib_dict.iteritems():
                 if operation == 'increment':
-                    S.update_attribute(attribute, modifier, True)
+                    S.update_attribute(attribute, modifier)
                 elif operation == 'decrement':
-                    S.update_attribute(attribute, -modifier, True)
+                    S.update_attribute(attribute, -modifier)
+
 
     def update_endeavor_tokens(self, modifier=0):
         """ Updates settlement["endeavor_tokens"] by taking the current value,
@@ -1053,32 +1054,6 @@ class Settlement(Models.UserAsset):
                 output[buff_group] = sorted(output[buff_group], key=lambda k: k['name'])
 
         return output
-
-
-    def get_campaign(self, return_type=None):
-        """ Returns the campaign handle of the settlement as a string, if
-        nothing is specified for kwarg 'return_type'.
-
-        Use 'name' to return the campaign's name (from its definition).
-
-        'return_type' can also be dict. Specifying dict gets the
-        raw campaign definition from assets/campaigns.py. """
-
-        C = campaigns.Assets()
-
-        # sanity check; fail big if we can't pass this
-        if self.settlement["campaign"] not in C.get_handles():
-            err = "The handle '%s' does not reference any known campaign definition!" % self.settlement["campaign"]
-            raise Models.AssetInitError(err)
-
-        if return_type == 'name':
-            return C.get_asset(self.settlement["campaign"])["name"]
-
-        # handle return_type requests
-        if return_type == dict:
-            return C.get_asset(self.settlement["campaign"])
-
-        return self.settlement["campaign"]
 
 
     def get_death_count(self, return_type=int):
@@ -1362,7 +1337,7 @@ class Settlement(Models.UserAsset):
         for k in sa_dict.keys():
             if not "available" in sa_dict[k]:
                 sa_dict[k]["available"] = False
-                sa_dict[k]["title_tip"] = "Not unlocked."
+                sa_dict[k]["title_tip"] = "'%s' has not been unlocked yet." % sa_dict[k]["name"]
 
         # second, udpate the master list to say which are available
         for k,v in self.get_innovations(dict).iteritems():

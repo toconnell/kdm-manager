@@ -9,7 +9,7 @@ import Models
 import utils
 
 from assets import survivor_sheet_options, survivors
-from models import abilities_and_impairments, epithets, survival_actions
+from models import abilities_and_impairments, cursed_items, epithets, saviors, survival_actions
 
 
 class Assets(Models.AssetCollection):
@@ -39,9 +39,13 @@ class Survivor(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="survivors"
-        self.object_version = 0.32
-        self.stats = ['Movement','Accuracy','Strength','Evasion','Luck','Speed']
-        self.flags = ['skip_next_hunt','cannot_use_fighting_arts','cannot_spend_survival']
+        self.object_version = 0.48
+
+        # data model meta data
+        self.stats =            ['Movement','Accuracy','Strength','Evasion','Luck','Speed']
+        self.flags =            ['skip_next_hunt','cannot_use_fighting_arts','cannot_spend_survival']
+        self.min_zero_attribs =  ["hunt_xp","Courage","Understanding"]
+        self.min_one_attribs =   ["Movement"]
 
         Models.UserAsset.__init__(self,  *args, **kwargs)
 
@@ -64,10 +68,11 @@ class Survivor(Models.UserAsset):
         # Add our campaign's founder epithet if the survivor is a founder
         if self.is_founder():
             self.logger.debug("%s is a founder. Adding founder epithet!" % self)
-            founder_epithet = self.Settlement.get_campaign(dict).get("founder_epithet", "founder")
+            founder_epithet = self.get_campaign(dict).get("founder_epithet", "founder")
             self.add_game_asset("epithets", founder_epithet)
 
         self.save()
+
 
     def normalize(self):
         """ In which we force the survivor's mdb document to adhere to the biz
@@ -76,7 +81,7 @@ class Survivor(Models.UserAsset):
         self.perform_save = False
 
         self.baseline()
-
+        self.duck_type()
 
         #
         #   asset migrations (names to handles)
@@ -101,6 +106,13 @@ class Survivor(Models.UserAsset):
                 self.survivor["abilities_and_impairments"].append("Partner")
                 self.perform_save = True
 
+        # add the savior key if we're dealing with a savior
+        if self.is_savior() and not "savior" in self.survivor.keys():
+            self.survivor["savior"] = self.is_savior()
+            self.perform_save
+
+        # enforce minimum attributes for certain attribs
+        self.min_attributes()
 
         if self.perform_save:
             self.logger.info("%s survivor modified during normalization! Saving changes..." % self)
@@ -126,8 +138,8 @@ class Survivor(Models.UserAsset):
         output["sheet"].update({"cannot_spend_survival": self.cannot_spend_survival()})
         output["sheet"].update({"cannot_use_fighting_arts": self.cannot_use_fighting_arts()})
         output["sheet"].update({"skip_next_hunt": self.skip_next_hunt()})
-
-        output["sheet"].update({"cursed_items": self.get_cursed_items()})
+        output["sheet"].update({"founder": self.is_founder()})
+        output["sheet"].update({"savior": self.is_savior()})
 
         # now add the additional top-level items ("keep it flat!" -khoa)
         output.update({"notes": self.get_notes()})
@@ -137,7 +149,7 @@ class Survivor(Models.UserAsset):
 
 
     #
-    #   normalization and data model normalization/enforcement methods
+    #   normalization/enforcement helper methods
     #
 
     def apply_survival_limit(self, save=False):
@@ -159,19 +171,89 @@ class Survivor(Models.UserAsset):
 
 
 
+
     #
     #   update/set methods
     #
 
-    @utils.error_log
+
     def add_custom_ai(self, ai_name=None, ai_desc=None, ai_type=None):
         """ Adds a custom A&I to the survivor. """
 
         raise Exception("NOT IMPLEMENTED!!")
 
 
-    @utils.error_log
-    def add_game_asset(self, asset_class=None, handle=None, quantity=1):
+    def add_cursed_item(self, handle=None):
+        """ Adds a cursed item to a survivor. Does a bit of biz logic, based on
+        the asset dict for the item.
+
+        If the 'handle' kwarg is None, this method will look for a request
+        param, e.g. as if this was a reqeuest_response() call.
+        """
+
+        # initialize
+        asset_class, ci_dict = self.get_asset('cursed_items', handle)
+
+        # check for the handle (gracefully fail if it's a dupe)
+        if ci_dict["handle"] in self.survivor["cursed_items"]:
+            self.logger.error("%s already has cursed item '%s'" % (self, ci_dict["handle"]))
+            return False
+
+        # log to settlement event
+        self.log_event("%s is cursed! %s added %s to survivor." % (self.pretty_name(), request.User.login, ci_dict["name"]), event_type="survivor_curse")
+
+        # add related A&Is
+        if ci_dict.get("abilities_and_impairments", None) is not None:
+            for ai_handle in ci_dict["abilities_and_impairments"]:
+                self.add_game_asset('abilities_and_impairments', ai_handle)
+
+        self.add_game_asset("epithets", "cursed")
+
+        # append it, save and exit
+        self.survivor["cursed_items"].append(ci_dict["handle"])
+        self.save()
+
+
+    def rm_cursed_item(self, handle=None):
+        """ Removes cursed items from the survivor, to include any A&Is that go
+        along with that cursed item. Does NOT remove any A&Is that are caused by
+        any remaining cursed items, i.e. so you can have multiple items with the
+        King's Curse, etc. """
+
+        # initialize
+        asset_class, ci_dict = self.get_asset('cursed_items', handle)
+
+        # log to settlement event
+        self.log_event("%s removed %s from %s" % (request.User.login, ci_dict["name"], self.pretty_name()))
+
+        # remove any A&Is that are no longer required/present
+        if ci_dict.get("abilities_and_impairments", None) is not None:
+
+            # create a set of the curse A&Is that are sticking around
+            CI = cursed_items.Assets()
+            remaining_curse_ai = set()
+
+            for ci_handle in self.survivor["cursed_items"]:
+                if ci_handle == handle:     # ignore the one we're processing currently
+                    pass
+                else:
+                    remaining_ci_dict = CI.get_asset(ci_handle)
+                    if remaining_ci_dict.get("abilities_and_impairments", None) is not None:
+                        remaining_curse_ai.update(remaining_ci_dict["abilities_and_impairments"])
+
+            # now check the CI we're processing against the list we created
+            for ai_handle in ci_dict["abilities_and_impairments"]:
+                if ai_handle not in remaining_curse_ai:
+                    self.rm_game_asset('abilities_and_impairments', ai_handle)
+                else:
+                    self.logger.info("%s Not removing '%s' A&I; survivor is still cursed." % (self, ai_handle))
+
+        # remove it, save and exit
+        self.survivor["cursed_items"].remove(ci_dict["handle"])
+        self.save()
+
+
+    def add_game_asset(self, asset_class=None, asset_handle=None, apply_related=True):
         """ Port of the legacy method of the same name.
 
         Does not apply nearly as much business logic as the legacy webapp
@@ -186,13 +268,7 @@ class Survivor(Models.UserAsset):
         their AssetCollection class's get_asset() method! Any handle that cannot
         be turned into a dict in this way will bomb out and raise an exception!
 
-        The following business logic is automatically implemented by this
-        method:
-
-            1.) Weapon masteries get a log_event() call. They are also added
-                to the settlement's Innovations (via add_innovation() call.)
-
-        Finally, here are the rules that apply to adding assets to survivors:
+        Here is the order of operations on how an incoming handle is evaluated:
 
             1.) the "max" attribute of any incoming asset is respected. The
                 asset WILL NOT be added if doing so would go above the asset's
@@ -207,28 +283,64 @@ class Survivor(Models.UserAsset):
             4.) if the asset dict has an 'epithet' key, the value of that key
                 (which should always be an epithet handle) will be added to the
                 survivor.
+            5.) the survivor's permanent affinities are modified if the asset
+                dict contains the 'affinities' key
+            6.) similarly, if the asset dict has a 'related' key, any related
+                asset handles are applied to the survivr.
+
+        Once added to the survivor, the following 'post-processing' business
+        logic is automatically handled by this method:
+
+            1.) Weapon masteries get a log_event() call. They are also added
+                to the settlement's Innovations (via add_innovation() call.)
+
 
         That's it! Have fun!
         """
 
-        # check the request
-        if asset_class is None:
-            self.check_request_params(["type", "handle"])
-            asset_class = self.params["type"]
-            handle = self.params["handle"]
-            if "quantity" in self.params:
-                quantity = self.params["quantity"]
-
-        # try to get the asset; bomb out if we can't
-        exec "A = %s.Assets()" % asset_class
-        asset_dict = A.get_asset(handle)
-        if asset_dict is None:
-            msg = "%s.Assets() class does not include handle '%s'!" % (asset_class, handle)
-            self.logger.exception(msg)
-            raise utils.InvalidUsage(msg, status_code=400)
+        asset_class, asset_dict = self.get_asset(asset_class, asset_handle)
 
         #
         #   at this point, we have an asset dict and we're ready to plow
+        #
+
+        # 1.) MAX - check the asset's 'max' attribute:
+        if asset_dict.get("max", None) is not None:
+            if self.survivor[asset_class].count(asset_dict["handle"]) >= asset_dict["max"]:
+                self.logger.warn("%s max for '%s' (%s) has already been reached! Ignoring..." % (self, asset_dict["handle"], asset_class))
+                return False
+
+        # 2.) STATUS - set status flags if they're in the dict
+        for flag in self.flags:
+            if asset_dict.get(flag, None) is True:
+                self.set_status_flag(flag)
+
+        # 3.) ATTRIBS - now check asset dict keys for survivor dict attribs
+        for ak in asset_dict.keys():
+            if ak in self.stats:
+                self.update_attribute(ak, asset_dict[ak])
+
+        # 4.) EPITHETS - check for 'epithet' key
+        if asset_dict.get("epithet", None) is not None:
+            self.add_game_asset("epithets", asset_dict["epithet"])
+
+        # 5.) AFFINITIES - some assets add permanent affinities
+        if asset_dict.get('affinities', None) is not None:
+            self.update_affinities(asset_dict["affinities"])
+
+        # 6.) RELATED - add any related 
+        if apply_related and asset_dict.get("related", None) is not None:
+            self.logger.info("Automatically applying %s related asset handles to %s" % (len(asset_dict["related"]), self))
+            for related_handle in asset_dict["related"]:
+                self.add_game_asset(asset_class, related_handle, apply_related=False)
+
+        # finally, if we're still here, add it and log_event() it
+        self.survivor[asset_class].append(asset_dict["handle"])
+        self.log_event("%s added '%s' (%s) to %s" % (request.User.login, asset_dict["name"], asset_dict["type_pretty"], self.pretty_name()))
+
+
+        #
+        #   post-processing/special handling starts here
         #
 
         # special handling for certain game asset types
@@ -238,39 +350,97 @@ class Survivor(Models.UserAsset):
                 self.Settlement.add_innovation(asset_dict["handle"])
 
 
-        # check the asset's 'max' attribute:
-        if asset_dict.get("max", None) is not None:
-            if self.survivor[asset_class].count(asset_dict["handle"]) >= asset_dict["max"]:
-                self.logger.warn("%s max for '%s' (%s) has already been reached! Ignoring..." % (self, asset_dict["handle"], asset_class))
-                return False
-
-        # set status flags if they're in the dict
-        for flag in self.flags:
-            if asset_dict.get(flag, None) is True:
-                self.set_status_flag(flag)
-
-        # now check asset dict keys for survivor dict attribs
-        for ak in asset_dict.keys():
-            if ak in self.stats:
-                self.update_attribute(ak, asset_dict[ak])
-
-        #
-        #   NEXT to port:
-        #
-        #   - affinities
-        #   - related abilities
-
-        # check for 'epithet' key
-        if asset_dict.get("epithet", None) is not None:
-            self.add_game_asset("epithets", asset_dict["epithet"])
-
-        # finally, if we're still here, add it and save!
-        self.survivor[asset_class].append(asset_dict["handle"])
-        self.log_event("%s added '%s' to %s" % (request.User.login, asset_dict["name"], self.pretty_name()))
+        # finally, save the survivor and return
         self.save()
 
 
-    @utils.error_log
+    def rm_game_asset(self, asset_class=None, asset_handle=None, rm_related=True):
+        """ The inverse of the add_game_asset() method, this one most all the
+        same stuff, except it does it in reverse order:
+
+        One thing it does NOT do is check the asset dict's 'max' attribute, since
+        that is irrelevant.
+        """
+
+        asset_class, asset_dict = self.get_asset(asset_class, asset_handle)
+
+        # 1.) fail gracefully if this is a bogus request
+        if asset_dict["handle"] not in self.survivor[asset_class]:
+            self.logger.warn("%s Attempt to remove non-existent key '%s' from '%s'. Ignoring..." % (self, asset_dict["handle"], asset_class))
+            return False
+
+        # 2.) STATUS - unset status flags if they're in the dict
+        for flag in self.flags:
+            if asset_dict.get(flag, None) is True:
+                self.set_status_flag(flag, unset=True)
+
+        # 3.) ATTRIBS - now check asset dict keys for survivor dict attribs
+        for ak in asset_dict.keys():
+            if ak in self.stats:
+                self.update_attribute(ak, -asset_dict[ak])
+
+        # 4.) EPITHETS - check for 'epithet' key
+        if asset_dict.get("epithet", None) is not None:
+            self.rm_game_asset("epithets", asset_dict["epithet"])
+
+        # 5.) AFFINITIES - some assets add permanent affinities: rm those
+        if asset_dict.get('affinities', None) is not None:
+            self.update_affinities(asset_dict["affinities"], operation="rm")
+
+        # 6.) RELATED - rm any related 
+        if rm_related and asset_dict.get("related", None) is not None:
+            self.logger.info("Automatically removing %s related asset handles from %s" % (len(asset_dict["related"]), self))
+            for related_handle in asset_dict["related"]:
+                self.rm_game_asset(asset_class, related_handle, rm_related=False)
+
+        # finally, if we're still here, add it and log_event() it
+        self.survivor[asset_class].remove(asset_dict["handle"])
+        self.log_event("%s removed '%s' (%s) from %s" % (request.User.login, asset_dict["name"], asset_dict["type_pretty"], self.pretty_name()))
+
+        self.save()
+
+
+    def update_affinities(self, aff_dict={}, operation="add"):
+        """ Set the kwarg 'operation' to either 'add' or 'rm' in order to
+        do that operation on self.survivor["affinities"], which looks like this:
+
+            {'red': 0, 'blue': 0, 'green': 0}
+
+        The 'aff_dict' should mirror the actual affinities dict, except without
+        all of the color keys. For example:
+
+            {'red': 1, 'blue': 2}
+            {'green': -1}
+
+        If 'aff_dict' is unspecified or an empty dict, this method will assume
+        that it is being called by request_response() and check for 'aff_dict'
+        in self.params.
+        """
+
+        # initialize
+        if aff_dict == {}:
+            self.check_request_params(['aff_dict'])
+            aff_dict = self.params["aff_dict"]
+            if 'operation' in self.params:
+                operation = self.params["operation"]
+
+        # sanity check
+        if operation not in ["add","rm"]:
+            msg = "The '%s' operation is not supported by the update_affinities() method!" % (operation)
+            self.logger.exception(msg)
+            raise utils.InvalidUsage(msg, status_code=400)
+
+        # now do it and log_event() the results for each key
+        for aff_key in aff_dict.keys():
+            if operation == "add":
+                self.survivor["affinities"][aff_key] += aff_dict[aff_key]
+            elif operation == 'rm':
+                self.survivor["affinities"][aff_key] -= aff_dict[aff_key]
+            self.log_event("%s set %s '%s' affinity to %s" % (request.User.login, self.pretty_name(), aff_key, self.survivor["affinities"][aff_key]))
+
+        self.save()
+
+
     def update_attribute(self, attribute=None, modifier=None):
         """ Adds 'modifier' value to self.survivor value for 'attribute'. """
 
@@ -285,14 +455,18 @@ class Survivor(Models.UserAsset):
             self.logger.exception(msg)
             raise utils.InvalidUsage(msg, status_code=400)
         elif type(self.survivor[attribute]) != int:
-            msg = "%s '%s' attribute is not an int type!" % (self, attribute)
+            msg = "%s '%s' attribute is not an int type! (It's a '%s')" % (self, attribute, type(self.survivor[attribute]))
             self.logger.exception(msg)
             raise utils.InvalidUsage(msg, status_code=400)
         else:
             pass
 
-        # ok, do it!
+        # ok, do it, but enforce mins
         self.survivor[attribute] = self.survivor[attribute] + modifier
+        if attribute in self.min_zero_attribs and self.survivor[attribute] < 0:
+            self.survivor[attribute] = 0
+        if attribute in self.min_one_attribs and self.survivor[attribute] < 1:
+            self.survivor[attribute] = 1
 
         # log and save
         self.log_event("%s set %s attribute '%s' to %s" % (request.User.login, self.pretty_name(), attribute, self.survivor[attribute]))
@@ -417,6 +591,27 @@ class Survivor(Models.UserAsset):
     #   set methods!
     #
 
+    def set_affinity(self, color=None, value=None):
+        """ Adds 'modifier' value to self.survivor value for 'attribute'. If the
+        'attrib' kwarg is None, the function assumes that this is part of a call
+        to request_response() and will get request params. """
+
+        if color is None:
+            self.check_request_params(['color','value'])
+            color = self.params["color"]
+            value = int(self.params["value"])
+
+        # sanity check!
+        if color not in self.survivor["affinities"].keys():
+            msg = "%s does not have a '%s' affinity!" % (self, color)
+            self.logger.exception(msg)
+            raise utils.InvalidUsage(msg, status_code=400)
+
+        self.survivor["affinities"][color] = value
+        self.log_event("%s set %s %s affinity to %s" % (request.User.login, self.pretty_name(), color, value))
+        self.save()
+
+
     def set_attribute(self, attrib=None, value=None):
         """ Adds 'modifier' value to self.survivor value for 'attribute'. If the
         'attrib' kwarg is None, the function assumes that this is part of a call
@@ -476,6 +671,88 @@ class Survivor(Models.UserAsset):
 
         self.survivor["attribute_detail"][attrib][detail] = value
         self.log_event("%s set %s '%s' detail '%s' to %s" % (request.User.login, self.pretty_name(), attrib, detail, value))
+        self.save()
+
+
+    def set_savior_status(self, color=None, unset=False):
+        """ Makes the survivor a savior or removes all savior A&Is. """
+
+        # initialize!
+        S = saviors.Assets()
+        S.filter("version", [self.get_campaign(dict)["saviors"]], reverse=True)
+
+        if "unset" in self.params:
+            unset = True
+
+        # handle 'unset' operations first
+        if unset and self.is_savior():
+            s_dict = S.get_asset_by_color(self.is_savior())
+
+            for ai_handle in s_dict["abilities_and_impairments"]:
+                self.rm_game_asset("abilities_and_impairments", ai_handle, rm_related=False)
+
+            del self.survivor["savior"]
+            self.save()
+            self.log_event("%s unset savior status for %s" % (request.User.login, self.pretty_name()))
+            return True
+        elif unset and not self.is_savior():
+            self.logger.error("%s Not a savior: cannot unset savior status!" % (self))
+            return False
+        else:
+            pass    # moving along...
+
+        # now handle 'set' operations
+        if color is None:
+            self.check_request_params(["color"])
+            color = self.params["color"]
+
+        # bail if this is redundant/double-click
+        if color == self.is_savior():
+            self.logger.error("%s is already a %s savior. Ignoring..." % (self, color))
+            return False
+
+        # remove previous if we're switching
+        if self.is_savior() and color != self.is_savior():
+            self.logger.warn("%s changing savior color from %s to %s..." % (self, self.is_savior(), color))
+            s_dict = S.get_asset_by_color(self.is_savior())
+            for ai_handle in s_dict["abilities_and_impairments"]:
+                self.rm_game_asset("abilities_and_impairments", ai_handle, rm_related=False)
+
+        # finally, if we're still here, set it
+        self.survivor["savior"] = color
+        s_dict = S.get_asset_by_color(color)
+        for ai_handle in s_dict["abilities_and_impairments"]:
+            self.add_game_asset("abilities_and_impairments", ai_handle, apply_related=False)
+
+        self.log_event("A savior is born! %s applied %s savior status to %s" % (request.User.login, color, self.pretty_name()), event_type="savior_birth")
+
+        self.save()
+
+
+    def set_sex(self, sex=None):
+        """ Sets self.survivor["sex"] attribute. Can only be 'M' or 'F'.
+
+        Note that this should not be used to set the survivor's 'effective sex',
+        i.e. in the event of a Gender Swap curse, etc.
+
+        'Effective sex' is determined automatically (see the get_effective_sex()
+        method in this module for more info.
+
+        If the 'sex' kwarg is None, this method assumes that it is being called
+        by request_response() and will look for 'sex' in self.params.
+        """
+
+        if sex is None:
+            self.check_request_params(['sex'])
+            sex = self.params["sex"]
+
+        if sex not in ["M","F"]:
+            msg = "Survivor sex must be 'M' or 'F'. Survivor sex cannot be '%s'." % sex
+            self.logger.exception(msg)
+            raise utils.InvalidUsage(msg, status_code=400)
+
+        self.survivor["sex"] = sex
+        self.log_event("%s set %s sex to '%s'." % (request.User.login, self.pretty_name(), sex))
         self.save()
 
 
@@ -541,14 +818,6 @@ class Survivor(Models.UserAsset):
         """
 
         return "%s [%s]" % (self.survivor["name"], self.get_sex())
-
-
-    def get_cursed_items(self):
-        """ Returns a list of cursed item handles on the survivor. """
-        if not "cursed_items" in self.survivor.keys():
-            return []
-        else:
-            return self.survivor["cursed_items"]
 
 
     def get_notes(self):
@@ -714,10 +983,44 @@ class Survivor(Models.UserAsset):
 
 
     def is_dead(self):
-        "Returns a bool of whether the survivor is dead."
+        """Returns a bool of whether the survivor is dead."""
 
         if "dead" in self.survivor.keys():
             return True
+
+        return False
+
+
+    def is_founder(self):
+        """Returns a bool of whether the survivor is a founding survivor. """
+
+        if self.survivor["born_in_ly"] == 0:
+            return True
+
+        return False
+
+
+    def is_savior(self):
+        """ Returns False if the survivor is NOT a savior; returns their color
+        if they are (which should evaluate to Boolean true wherever we evaluate
+        it, right?). """
+
+        # automatically return false if the campaign doesn't have saviors
+        if self.get_campaign(dict).get("saviors", None) is None:
+            return False
+
+        # automatically return the survivor's 'savior' attrib if the survivor
+        # is a savior
+        if self.survivor.get("savior", False):
+            return self.survivor["savior"]
+
+        # now do the legacy check
+        S = saviors.Assets()
+        S.filter('version', [self.get_campaign(dict)["saviors"]], reverse=True)
+        for s_dict in S.get_dicts():
+            for s_ai in s_dict["abilities_and_impairments"]:
+                if s_ai in self.survivor["abilities_and_impairments"]:
+                    return s_ai["color"]
 
         return False
 
@@ -733,22 +1036,6 @@ class Survivor(Models.UserAsset):
 
 
 
-    #
-    #   UPDATE and POST Methods
-    #
-
-    def update_from_dict(self, d):
-        """ Updates the survivor's MDB record from a dictionary. Saves it. Be
-        REAL careful with this one.
-
-        TKTKTK DEPRECATE THIS SOON! 2017-07-06
-        """
-
-        for k in d:
-            self.survivor[k] = d[k]
-        utils.mdb.survivors.save(self.survivor)
-
-
 
 
 
@@ -758,7 +1045,15 @@ class Survivor(Models.UserAsset):
 
     def baseline(self):
         """ Baselines the MDB doc to bring it into compliance with our general
-        data model for survivors. """
+        data model for survivors.
+
+        We update the actual data in the MDB, rather than simply having a base-
+        line model (e.g. in a config file somewhere) and then initializing new
+        assets such that they overwrite/fill-in the blanks.
+
+        This might seem like an odd design decision, but the data is designed to
+        be portable, so we inflict/enforce a lot of the model on the 'database'.
+        """
 
         if not "meta" in self.survivor.keys():
             self.logger.warn("Creating 'meta' key for %s" % self)
@@ -776,6 +1071,60 @@ class Survivor(Models.UserAsset):
             }
             self.perform_save = True
 
+        if not 'affinities' in self.survivor.keys():
+            self.survivor["affinities"] = {"red":0,"blue":0,"green":0}
+            self.perform_save = True
+
+        if not 'cursed_items' in self.survivor.keys():
+            self.survivor["cursed_items"] = []
+            self.perform_save = True
+
+
+    def duck_type(self):
+        """ Duck-types certain survivor sheet attributes, e.g. to make sure they
+        didn't experience a type change due to bad form input, etc. """
+
+        # enforce ints first
+        int_types = [
+            "Insanity",
+            "Accuracy",
+            "Evasion",
+            "Luck",
+            "Movement",
+            "Speed",
+            "Strength",
+            "Arms",
+            "Body",
+            "Head",
+            "Legs",
+            "Waist",
+            "Understanding",
+            "Courage",
+            "survival",
+            "hunt_xp",
+        ]
+
+        for attrib in int_types:
+            if type(self.survivor[attrib]) != int:
+                self.logger.warn("%s Duck-typed '%s' attrib to int." % (self, attrib))
+                self.survivor[attrib] = int(self.survivor[attrib])
+                self.perform_save = True
+
+
+    def min_attributes(self):
+        """ Applies assorted game rules to the survivor. """
+
+        for attrib in self.min_zero_attribs:
+            if self.survivor[attrib] < 0:
+                self.survivor[attrib] = 0
+                self.logger.warn("%s Survivor '%s' attrib normalized to minimum value of zero." % (self, attrib))
+                self.perform_save = True
+
+        for attrib in self.min_one_attribs:
+            if self.survivor[attrib] < 1:
+                self.survivor[attrib] = 0
+                self.logger.warn("%s Survivor '%s' attrib normalized to minimum value of one." % (self, attrib))
+                self.perform_save = True
 
 
     def convert_abilities_and_impairments(self):
@@ -832,17 +1181,37 @@ class Survivor(Models.UserAsset):
         elif action == "controls_of_death":
             self.controls_of_death()
 
-        # add assets
+        # add/rm assets
         elif action == "add_game_asset":
             self.add_game_asset()
+        elif action == "rm_game_asset":
+            self.rm_game_asset()
+
+        # add cursed_item
+        elif action == "add_cursed_item":
+            self.add_cursed_item()
+        elif action == "rm_cursed_item":
+            self.rm_cursed_item()
+
+        # savior stuff
+        elif action == "set_savior_status":
+            self.set_savior_status()
 
         # sheet attribute operations
+        elif action == "set_sex":
+            self.set_sex()
         elif action == "update_attribute":
             self.update_attribute()
         elif action == "set_attribute":
             self.set_attribute()
         elif action == "set_attribute_detail":  # tokens/gear
             self.set_attribute_detail()
+
+        # affinities
+        elif action == "update_affinities":
+            self.update_affinities()
+        elif action == "set_affinity":
+            self.set_affinity()
 
         # status flags!
         elif action == 'set_status_flag':

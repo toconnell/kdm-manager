@@ -437,6 +437,7 @@ secret_fighting_art = {
     'black_guard_style': {
         'desc': 'Swords in your gear grid gain <b>Block 1</b>.<br/>When you block a hit with a sword, your next attack that round with a sword gains +2 accuracy, +2 strength, +2 speed. Limit, once per round.<br/> During the settlement phase you may spend <font class="kdm_font">d</font> to train a survivor. They gain the <b>Black Guard Style</b> secret fighting art. You lose it and suffer the <b>broken arm</b> severe injury.',
         'expansion': 'white_box',
+        'epithet': 'black_guard',
         'name': 'Black Guard Style',
     },
 

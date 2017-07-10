@@ -172,6 +172,7 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
         // pulls a specific survivor down from the API and sets it as
         // $scope.survivor; also sets some other helpful $scope vars
 
+        showCornerLoader();
         console.info("Initializing survivor " + s_id);
         $scope.survivor_id = s_id;
 
@@ -208,7 +209,7 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
 
                 $scope.survivor.causes_of_death = codArray;
                 console.log("Survivor " + s_id + " initialized!")
-
+                hideCornerLoader();
             },
 
             function(errorPayload) {console.log("Error loading survivor " + s_id + " " + errorPayload);}
@@ -369,10 +370,13 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
         var btn = document.getElementById(modal_button_id);
         var modal = document.getElementById(modal_div_id);
 
-        if (btn == undefined) {console.warn("WARN: Could not find button id " + modal_button_id); return false};
-        if (modal == undefined) {console.warn("WARN: Could not find button id " + modal_button_id); return false};
+        if (btn == undefined) {console.error("WARN: Could not find button id " + modal_button_id); return false};
+        if (modal == undefined) {console.error("WARN: Could not find button id " + modal_button_id); return false};
 
-        btn.onclick = function(b) {b.preventDefault(); modal.style.display = "block";};
+        btn.onclick = function(b) {
+            b.preventDefault();
+            modal.style.display = "block";
+        };
         window.onclick = function(event) {if (event.target == modal) {modal.style.display = "none";}};
 
         console.log( "button: " + modal_button_id + " and div: " + modal_div_id + " are linked!");
@@ -484,16 +488,18 @@ app.controller('settlementNotesController', function($scope, $rootScope) {
         };
         $scope.settlement_notes.unshift(new_note_object);
         $scope.postJSONtoAPI('settlement', 'add_note', new_note_object);
+        $scope.reinitialize();
     };
     $scope.removeNote = function (x, note_js_id) {
         $scope.settlement_notes.splice(x, 1);
         $scope.postJSONtoAPI('settlement', 'rm_note', {"js_id": note_js_id, "user_login": $scope.user_login})
+        $scope.reinitialize();
     };
     $scope.userRole = function(login) {
-        var role = 'player'
-        if ($scope.arrayContains(login, $scope.settlement_sheet.admins)) {role = 'settlement_admin'}
-        else {role = 'player';};
-        return role;
+        if ($scope.arrayContains(login, $scope.settlement_sheet.admins)) {
+            return 'settlement_admin'} else {
+            return 'player';
+        };
     };
 }); 
 

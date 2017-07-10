@@ -49,6 +49,7 @@ abilities_and_impairments = {
         'desc': 'For each <font class="affinity_red"> &nbsp; red &nbsp;</font> affinity you have, 1 of your attack rolls hits automatically each attack.',
         'selectable': False,
         'name': 'Caratosis',
+        'epithet': 'caratosis',
         'related': ['dream_of_the_beast', 'red_life_exchange'],
         'type': 'ability'
     },
@@ -61,6 +62,7 @@ abilities_and_impairments = {
         'desc': 'When you <b>depart</b>, gain +1 to every hit location for each <font class="affinity_green"> &nbsp; green &nbsp;</font> affinity you have.',
         'selectable': False,
         'name': 'Dormenatus',
+        'epithet': 'dormenatus',
         'related': ['dream_of_the_crown', 'green_life_exchange'],
         'type': 'ability'
     },
@@ -155,6 +157,7 @@ abilities_and_impairments = {
         'desc': 'For every <font class="affinity_blue"> &nbsp; blue &nbsp;</font> affinity you have, your ranged weapons gain this amount of <b>range</b> and your melee weapons gain this amount of <b>reach</b>.',
         'selectable': False,
         'name': 'Lucernae',
+        'epithet': 'lucernae',
         'related': ['dream_of_the_lantern', 'blue_life_exchange'],
         'type': 'ability'
     },
@@ -249,7 +252,7 @@ abilities_and_impairments = {
         'type': 'ability'
     },
     'twilight_sword': {
-        'desc': 'You may select <b>Twilight Sword</b> as a weapon proficiency type. This weapon may not be removed from your great grid for any reason. When you die, archive your <b>Twilight Sword</b> card.',
+        'desc': 'You may select <b>Twilight Sword</b> as a weapon proficiency type. This weapon may not be removed from your gear grid for any reason. When you die, archive your <b>Twilight Sword</b> card.',
         'epithet': 'twilight_sword',
         'name': 'Twilight Sword',
         'type': 'curse'
@@ -656,7 +659,7 @@ expansion_ai = {
     # white box
     'gender_swap': {
         'desc': 'You own the <b>Belt of Gender Swap</b>, it will always take one space in your gear grid and while it is there, your gender is reversed.',
-        'epithet': 'Gender Swap',
+        'epithet': 'gender_swap',
         'expansion': 'white_box',
         'max': 1,
         'name': 'Gender Swap',
