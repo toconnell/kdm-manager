@@ -1,19 +1,43 @@
 #
-#   these are the 'macro' options used when creating new settlements
+#   these are the 'macro' options used when creating new settlements. See the
+#   new_settlement_special() method of the settlements.Settlement model/class
 #
 
 specials = {
     "create_first_story_survivors": {
-        "random_survivors": {
-            "M": 2,
-            "F": 2,
-        },
-        "storage": [],
+        "name": "First Story",
+        "title": 'Four "First Story" Survivors',
+        "desc": 'Two male and two female survivors will be randomly generated and automatically added to the <i>Departing Survivors</i> group. Starting gear will be added to Settlement Storage.',
+        "current_quarry": "White Lion (First Story)",
+        "random_survivors": [
+            {"sex": "M", "Waist": 1, "in_hunting_party": "checked"},
+            {"sex": "M", "Waist": 1, "in_hunting_party": "checked"},
+            {"sex": "F", "Waist": 1, "in_hunting_party": "checked"},
+            {"sex": "F", "Waist": 1, "in_hunting_party": "checked"},
+        ],
+        "storage": [
+            {"name": "Founding Stone", "quantity": 4},
+            {"name": "Cloth", "quantity": 4},
+        ],
+        "timeline_events": [
+            {"ly": 0, "type": "showdown_event", "name": "White Lion (First Story)"},
+        ],
     },
 
-#    "create_seven_swordsmen": {
-#
-#    },
+    "create_seven_swordsmen": {
+        "name": "Seven Swordsmen",
+        "title": "Seven Swordsmen",
+        "desc": 'Seven survivors with the "Ageless" ability and Sword mastery will be randomly generated.',
+        "random_survivors": [
+            {"sex": "R", 'abilities_and_impairments': ['ageless','mastery_sword']},
+            {"sex": "R", 'abilities_and_impairments': ['ageless','mastery_sword']},
+            {"sex": "R", 'abilities_and_impairments': ['ageless','mastery_sword']},
+            {"sex": "R", 'abilities_and_impairments': ['ageless','mastery_sword']},
+            {"sex": "R", 'abilities_and_impairments': ['ageless','mastery_sword']},
+            {"sex": "R", 'abilities_and_impairments': ['ageless','mastery_sword']},
+            {"sex": "R", 'abilities_and_impairments': ['ageless','mastery_sword']},
+        ],
+    },
 
 }
 

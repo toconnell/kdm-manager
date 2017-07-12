@@ -22,7 +22,7 @@ import types
 import api
 import admin
 import export_to_file
-from modular_assets import survivor_names, survivor_attrib_controls
+from modular_assets import survivor_attrib_controls
 import game_assets
 import html
 from models import Abilities, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Resources, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles 
@@ -763,182 +763,9 @@ class Survivor:
         self.save(quiet=True)
 
 
-    def new(self, params, name="Anonymous", sex="M"):
-        """ All that is required to make a new survivor is a name, a sex and an
-        email address for its owner/operator. If you have those in a
-        cgi.FieldStorage(), you may pass that in as the first arg and leave it
-        at that.
-
-        If the cgi.FieldStorage() contains "father" and "mother" params, those
-        will be applied during initialization.
-
-        Otherwise, pass a None in place of a cgi.FieldStorage to use default
-        values or use the appropriate kwargs to provide that information in the
-        function call."""
-
-        self.logger.debug("[%s] is creating a new survivor..." % self.User)
-        self.Settlement.log_event("%s is adding a new survivor to the settlement!" % (self.User.user["login"]))
-
-        email = self.User.user["login"]
-
-        # if we have a cgi.FieldStorage() as our first arg
-        if params is not None:
-            if "name" in params and params["name"].value != "":
-                name = params["name"].value.strip()
-            if "sex" in params:
-                try:
-                    sex = params["sex"].value
-                except AttributeError:
-                    sex = params["sex"].strip()
-            if "email" in params:
-                email = params["email"].value.strip()
-
-        # if we're doing random names for survivors, do it here before we save
-        if name == "Anonymous" and self.User.get_preference("random_names_for_unnamed_assets"):
-            name_list = survivor_names.other
-            if sex == "M":
-                name_list = name_list + survivor_names.male
-            elif sex == "F":
-                name_list = name_list + survivor_names.female
-            else:
-                self.logger.error("[%s] unknown survivor sex! '%s' is not allowed!" % (self.User, sex))
-            name = random.choice(name_list)
-            self.Settlement.log_event("A random name has been assigned to the new survivor due to user preference.")
-
-        survivor_dict = {
-            "name": name,
-            "email": email,
-            "sex": sex,
-            "born_in_ly": self.Settlement.settlement["lantern_year"],
-            "created_on": datetime.now(),
-            "created_by": self.User.user["_id"],
-            "settlement": self.Settlement.settlement["_id"],
-            "survival": 0,
-            "hunt_xp": 0,
-            "Movement": 5,
-            "Accuracy": 0,
-            "Strength": 0,
-            "Evasion": 0,
-            "Luck": 0,
-            "Speed": 0,
-            "Insanity": 0,
-            "Head": 0,
-            "Arms": 0,
-            "Body": 0,
-            "Waist": 0,
-            "Legs": 0,
-            "Courage": 0,
-            "Understanding": 0,
-            "Weapon Proficiency": 0,
-            "weapon_proficiency_type": "",
-            "disorders": [],
-            "abilities_and_impairments": [],
-            "fighting_arts": [],
-            "epithets": [],
-        }
-
-
-        # check the campaign for additional attribs
-        c_dict = self.Settlement.get_campaign("dict")
-        if "new_survivor_additional_attribs" in c_dict.keys():
-            for k,v in c_dict["new_survivor_additional_attribs"].iteritems():
-                survivor_dict[k] = v
-
-        # set the public bit if it's supplied:
-        if params is not None and "toggle_public" in params:
-            survivor_dict["public"] = "checked"
-
-        # add parents if they're specified
-        parents = []
-        for parent in ["father", "mother"]:
-            if params is not None and parent in params:
-                p_id = params[parent].value
-                if len(p_id.split(":")) >= 1:
-#                    self.logger.debug(p_id)
-                    p_id = p_id.split(":")[1]
-                p_id = ObjectId(p_id)
-                parents.append(mdb.survivors.find_one({"_id": p_id})["name"])
-                survivor_dict[parent] = ObjectId(p_id)
-
-        newborn = False
-        if parents != []:
-            newborn = True
-            self.logger.debug("New survivor %s is a newborn." % name)
-            if sex == "M":
-                genitive_appellation = "Son"
-            elif sex == "F":
-                genitive_appellation = "Daughter"
-            survivor_dict["epithets"].append("%s of %s" % (genitive_appellation, " and ".join(parents)))
-
-        # insert the new survivor into mdb and use its newly minted id to set
-        #   self.survivor with the info we just inserted
-        survivor_id = mdb.survivors.insert(survivor_dict)
-        self.survivor = mdb.survivors.find_one({"_id": survivor_id})
-
-        # log the addition or birth of the new survivor
-        name_pretty = self.get_name_and_id(include_sex=True, include_id=False)
-        current_ly = self.Settlement.settlement["lantern_year"]
-        if not self.suppress_event_logging:
-            if newborn:
-                self.Settlement.log_event("%s born to %s!" % (name_pretty, " and ".join(parents)))
-            else:
-                self.Settlement.log_event("%s joined the settlement!" % (name_pretty))
-
-        # increment survival if the survivor has a name
-        if self.survivor["name"] != "Anonymous":
-            self.Settlement.log_event("Automatically adding 1 survival to %s" % self.survivor["name"])
-            self.survivor["survival"] += 1
-        else:
-            self.logger.debug("[%s] is creating an anonymous survivor. Survivor survival = %s" % (self.User, self.survivor["survival"]))
-
-        # apply settlement buffs to the new guy depending on preference
-        if self.User.get_preference("apply_new_survivor_buffs"):
-            new_survivor_buffs = self.Settlement.get_bonuses("new_survivor", update_mins=self.update_mins)
-            newborn_survivor_buffs = self.Settlement.get_bonuses("newborn_survivor", update_mins=self.update_mins)
-
-            def apply_buffs(buff_dict, buff_desc):
-                for b in buff_dict.keys():
-                    buffs = buff_dict[b]
-                    for attrib in buffs.keys():
-                        if attrib == "affinities":
-                            self.update_affinities(buffs[attrib])
-                        elif attrib == "abilities_and_impairments":
-                            self.survivor["abilities_and_impairments"].append(buffs[attrib])
-                        else:
-                            self.survivor[attrib] = self.survivor[attrib] + buffs[attrib]
-                    self.logger.debug("Applied %s survivor buffs for '%s' successfully: %s" % (buff_desc, b, buffs))
-                    self.Settlement.log_event("Applied '%s' bonus to %s." % (b, self))
-
-            # now do it !
-            self.logger.debug("Applying %s new survivor buffs to %s." % (len(new_survivor_buffs.keys()), self))
-            apply_buffs(new_survivor_buffs, "new")
-            if newborn:
-                self.logger.debug("Applying %s newborn survivor buffs to %s." % (len(newborn_survivor_buffs.keys()), self))
-                apply_buffs(newborn_survivor_buffs, "newborn")
-
-        else:
-            self.Settlement.log_event("Settlement bonuses were not applied to %s." % (name))
-            self.logger.debug("Skipping auto-application of new survivor buffs for %s." % self.get_name_and_id())
-
-        # if we've got an avatar, do that AFTER we insert the survivor record
-        if params is not None and "survivor_avatar" in params and params["survivor_avatar"].filename != "":
-            self.update_avatar(params["survivor_avatar"])
-
-        # save the survivor (in case it got changed above), update settlement
-        #   mins and log our successful creation
-
-        if self.update_mins:
-            self.Settlement.update_mins()
-
-        self.logger.info("User '%s' created new survivor %s successfully." % (self.User.user["login"], self.get_name_and_id(include_sex=True)))
-
-        self.save()
-
-        return survivor_id
-
 
     def remove(self):
-        """ Markes the survivor 'removed' with a datetime.now(). """
+        """ Marks the survivor 'removed' with a datetime.now(). """
 
         self.logger.info("[%s] removing survivor %s" % (self.User, self))
         self.survivor["removed"] = datetime.now()
@@ -1173,7 +1000,8 @@ class Survivor:
 
 
         if return_to_settlement:
-            if "in_hunting_party" in self.survivor.keys():
+#            if "in_hunting_party" in self.survivor.keys():
+            if self.survivor.get("in_hunting_party", None) == "checked":
                 del self.survivor["in_hunting_party"]
 
 
@@ -2420,8 +2248,6 @@ class Survivor:
 
         output = html.survivor.form.safe_substitute(
             survivor_id = self.survivor["_id"],
-            desktop_avatar_img = self.get_avatar("html_desktop"),
-            mobile_avatar_img = self.get_avatar("html_mobile"),
             name = self.survivor["name"],
             email = self.survivor["email"],
 
@@ -2721,25 +2547,6 @@ class Settlement:
     #   Settlement management and administration methods below
     #
 
-    def new(self, params):
-        """ Do not use the legacy app to create new settlements. Use the API
-        /new/settlement route (requires JWT Authorization header). """
-
-        self.logger.warn("[%s] assets.Settlement.new() is deprecated as of 2017-03-19" % self.User)
-
-        # now, continue through the CGI params, operating on the 
-        if "create_first_story_survivors" in params["special"]:
-            self.first_story()
-
-        # prefab survivors go here
-        for s in params["survivors"]:
-            s_dict = game_assets.survivors[s]
-            n = Survivor(params=None, session_object=self.Session, suppress_event_logging=True)
-            n.set_attrs({"name": s_dict["name"]})
-            n.set_attrs(s_dict["attribs"])
-
-        self.logger.debug("[%s] processed new settlement params successfully!" % self.User)
-
 
     def remove(self):
         """ Marks the settlement and the survivors as "removed", which prevents
@@ -2896,41 +2703,6 @@ class Settlement:
         self.settlement["population"] = current_pop
         mdb.settlements.save(self.settlement)
         self.logger.info("[%s] auto-incremented settlement %s population by %s" % (self.User, self, amount))
-
-
-
-    def first_story(self):
-        """ Adds "First Story" survivors, items and Hunting Party setup to the
-        settlement. """
-
-        self.add_game_asset("storage", "Founding Stone", 4)
-        self.add_game_asset("storage", "Cloth", 4)
-
-        for i in range(2):
-            m = Survivor(params=None, session_object=self.Session, suppress_event_logging=True)
-            m.set_attrs({"Waist": 1})
-            m.join_departing_survivors()
-            m.save()
-        for i in range(2):
-            f = Survivor(params={"sex":"F"}, session_object=self.Session, suppress_event_logging=True)
-            f.set_attrs({"Waist": 1})
-            f.join_departing_survivors()
-            f.save()
-        self.log_event("Added four new survivors and Starting Gear to settlement storage")
-
-        # API operations
-        q_json = json.dumps({"current_quarry": "White Lion (First Story)"})
-        api.post_JSON_to_route("/settlement/set_current_quarry/%s" % self.settlement["_id"], q_json)
-
-        self.add_timeline_event({
-            "ly": self.get_ly(),
-            "user_login": self.User.user["login"],
-            "type": "showdown_event",
-            "name": "White Lion (First Story)",
-            })
-
-        self.logger.info("[%s] added 'First Story' assets to %s" % (self.User, self))
-
 
 
     def get_story_events(self, return_type="handles"):
@@ -3766,7 +3538,7 @@ class Settlement:
         if return_type == "hunting_party":
             hunting_party = []
             for survivor in survivors:
-                if "in_hunting_party" in survivor.keys():
+                if survivor.get("in_hunting_party", None) == "checked":
                     hunting_party.append(survivor)
             return hunting_party
 
@@ -3843,7 +3615,8 @@ class Settlement:
                     can_hunt = "disabled"
 
                 in_hunting_party = "checked"
-                if "in_hunting_party" in S.survivor.keys():
+#                if "in_hunting_party" in S.survivor.keys():
+                if S.survivor.get("in_hunting_party", None):
                     in_hunting_party = None
                     can_hunt = ""
 
@@ -3878,7 +3651,8 @@ class Settlement:
                 )
 
                 # finally, file our newly minted survivor in a group:
-                if "in_hunting_party" in S.survivor.keys():
+#                if "in_hunting_party" in S.survivor.keys():
+                if S.survivor.get("in_hunting_party", None) == "checked":
                     groups[1]["survivors"].append(survivor_html)
                 elif "dead" in S.survivor.keys():
                     groups[6]["survivors"].append(survivor_html)
@@ -3955,7 +3729,7 @@ class Settlement:
         departing=set()
 
         for s in self.get_survivors():
-            if "in_hunting_party" in s.keys():
+            if s.get("in_hunting_party", None) == "checked":
                 departing.add(s["_id"])
 
         return list(departing)

@@ -1,15 +1,18 @@
 #!/usr/bin/python2.7
 
 from bson import json_util
+from bson.objectid import ObjectId
+from copy import copy
 from datetime import datetime
 from flask import request
 import json
+import random
 
 import Models
 import utils
 
 from assets import survivor_sheet_options, survivors
-from models import abilities_and_impairments, cursed_items, epithets, saviors, survival_actions
+from models import abilities_and_impairments, cursed_items, epithets, names, saviors, survival_actions
 
 
 class Assets(Models.AssetCollection):
@@ -20,11 +23,23 @@ class Assets(Models.AssetCollection):
         self.type = "survivor"
         Models.AssetCollection.__init__(self,  *args, **kwargs)
 
-    def get_specials(self):
+    def get_specials(self, return_type=dict):
         """ This returns the 'specials' macro dicts, which are basically simple
         'scripts' for operating on a settlement at creation time. """
 
-        return survivors.specials
+        d = copy(survivors.specials)
+
+        for k in sorted(d.keys()):
+            d[k]["handle"] = k
+
+        if return_type == "JSON":
+            output = []
+            for k in sorted(d.keys()):
+                output.append(d[k])
+            return output
+
+        return d
+
 
 
 
@@ -47,6 +62,8 @@ class Survivor(Models.UserAsset):
         self.min_zero_attribs =  ["hunt_xp","Courage","Understanding"]
         self.min_one_attribs =   ["Movement"]
 
+        # if we're doing a new survivor, it will happen when we subclass the
+        # Models.UserAsset class:
         Models.UserAsset.__init__(self,  *args, **kwargs)
 
         # this makes the baby jesus cry
@@ -58,20 +75,236 @@ class Survivor(Models.UserAsset):
 
 
     def new(self):
-        """ Creates a new survivor. """
+        """ Creates a new survivor.
+
+        The 'attribs' dictionary will be used, after initialization, to add or
+        overwrite all key/value pairs on self.survivor.
+
+        Important! Only attrib keys that are part of the baseline survivor data
+        model will be used! Any other keys in 'attribs' will be ignored!
+
+        If this is an internal call, i.e. from the settlement creation method
+        or similar, simply set self.new_asset_attribs to be a dictionary of the
+        required survivor attribs.
+
+        Otherwise, attribs will come from the request params.
+
+        """
+
+        # if called without attribs dict, assume we're responding to a request
+        #   and initialize attribs to be request params
+        if self.new_asset_attribs == {}:
+            self.get_request_params()
+            attribs = self.params
+        else:
+            attribs = self.new_asset_attribs
+
+        self.logger.debug(attribs)
 
         #
-        #   TO-DO
+        #   Can't create a survivor without initializing a settlement! do
+        #   that first, an fail bigly if you cannot
         #
-        #   
+
+        import settlements  # baby jesus, still crying
+        self.Settlement = settlements.Settlement(_id=attribs["settlement"])
+        self.settlement_id = self.Settlement.settlement["_id"]
+
+
+        self.survivor = {
+
+            # meta and housekeeping
+            "meta": {
+                "abilities_and_impairments_version": 1.0,
+                "epithets_version": 1.0
+            },
+            "email":        request.User.login,
+            "born_in_ly":   self.get_current_ly(),
+            "created_on":   datetime.now(),
+            "created_by":   request.User._id,
+            "settlement":   self.settlement_id,
+            "public":       False,
+            "in_hunting_party": False,
+
+            # survivor sheet
+            "name":     "Anonymous",
+            "sex":      "M",
+            "survival": 0,
+            "hunt_xp":  0,
+            "Insanity": 0,
+            "Head":     0,
+            "Arms":     0,
+            "Body":     0,
+            "Waist":    0,
+            "Legs":     0,
+            "Courage":  0,
+            "Understanding": 0,
+            "affinities": {"red":0,"blue":0,"green":0},
+
+            # attributes
+            "Movement": 5,
+            "Accuracy": 0,
+            "Strength": 0,
+            "Evasion":  0,
+            "Luck":     0,
+            "Speed":    0,
+            "attribute_detail": {
+                "Movement": {"tokens": 0, "gear": 0},
+                "Accuracy": {"tokens": 0, "gear": 0},
+                "Strength": {"tokens": 0, "gear": 0},
+                "Evasion":  {"tokens": 0, "gear": 0},
+                "Luck":     {"tokens": 0, "gear": 0},
+                "Speed":    {"tokens": 0, "gear": 0},
+            },
+
+            # weapon proficiency 
+            "Weapon Proficiency": 0,
+            "weapon_proficiency_type": "",
+
+            # game assets
+            "abilities_and_impairments": [],
+            "cursed_items": [],
+            "disorders": [],
+            "fighting_arts": [],
+            "epithets": [],
+
+        }
+
+        # 1.a add campaign-specific attribs
+        c_dict = self.get_campaign(dict)
+        if c_dict.get("new_survivor_additional_attribs", None) is not None:
+            for k, v in c_dict["new_survivor_additional_attribs"].iteritems():
+                self.survivor[k] = v
+
+        # 1.b apply/overwrite attribs that go with our data model
+        for a in attribs.keys():
+            if a in self.survivor.keys():
+                forbidden_keys = ['settlement']
+                if a not in forbidden_keys and attribs[a] != None:
+                    self.survivor[a] = attribs[a]
+
+        # transitional:
+        if self.survivor["in_hunting_party"] == False:
+            del self.survivor["in_hunting_party"]
+
+        # 1.c if sex is "R", pick a random sex
+        if self.survivor["sex"] == "R":
+            self.survivor["sex"] = random.choice(["M","F"])
+
+        # 1.d sanity check new attribs; die violently if we fail here
+        if self.survivor["sex"] not in ["M","F"]:
+            msg = "Invalid survivor 'sex' attrib '%s' received! Must be 'M' or 'F' and str type!" % (self.survivor["sex"])
+            self.logger.exception(msg)
+            raise utils.InvalidUsage(msg, status_code=400)
+
+
+        # 1.e random name
+        N = names.Assets()
+        if self.survivor["name"] == "Anonymous" and request.User.get_preference("random_names_for_unnamed_assets"):
+            self.survivor["name"] = N.get_random_survivor_name(self.survivor["sex"])
+
+        #
+        #   2. parents and newborn status/operations
+        #
+
+        # 2.a check for incoming parents
+        parent_names = []
+        for parent in ["father","mother"]:
+            if parent in attribs.keys() and attribs[parent] is not None:
+                parent_oid = ObjectId(attribs[parent])
+                parent_mdb = utils.mdb.survivors.find_one({"_id": parent_oid})
+                parent_names.append(parent_mdb["name"])
+                self.survivor[parent] = parent_oid
+
+        # 2.b assign parents
+        survivor_is_a_newborn = False
+        if parent_names != []:
+            survivor_is_a_newborn = True
+
+            genitive_appellation = "Son"
+            parent_string = ' and '.join(parent_names)
+            if self.survivor["sex"] == "F":
+                genitive_appellation = "Daughter"
+#            self.survivor["epithets"].append("%s of %s" % (genitive_appellation, parent_string))
+
+        # 2.c now save, get an OID so we can start logging and
+        #   start doing new survivor operations
+
+        self._id = utils.mdb.survivors.insert(self.survivor)
+        self.load()
+        self.log_event("%s created new survivor %s" % (request.User.login, self.pretty_name()))
+
+        # 2.c log the birth/joining
+        if survivor_is_a_newborn:
+            self.log_event("%s born to %s!" % (self.pretty_name(), parent_string))
+        else:
+            self.log_event('%s joined the settlement!' % (self.pretty_name()))
+
+        # 2.d increment survivial if we're named
+        if self.survivor["name"] != "Anonymous":
+            self.log_event("Automatically added 1 survival to %s" % self.pretty_name())
+            self.survivor["survival"] += 1
+
+        # 3.a avatar - LEGACY CODE BELOW
+#        if params is not None and "survivor_avatar" in params and params["survivor_avatar"].filename != "":
+#        self.update_avatar(params["survivor_avatar"]
+
+        # 3.b settlement buffs - move this to a separate function
+        if request.User.get_preference("apply_new_survivor_buffs"):
+
+            def apply_buff_list(l):
+                """ Private helper to apply a dictionary of bonuses. """
+
+                for d in l:
+                    for k in d.keys():
+                        if k == "affinities":
+                            self.update_affinities(d[k])
+                        elif k == "abilities_and_impairments":
+                            for a_handle in d[k]:
+                                self.add_game_asset("abilities_and_impairments", a_handle)
+                        else:
+                            self.update_attribute(k, d[k])
+
+
+            buff_sources = set()
+            buff_list = []
+            # bonuses come from principles, innovations...
+            for attrib in ["principles","innovations"]:
+                for d in self.Settlement.list_assets(attrib):
+                    if d.get("new_survivor", None) is not None:
+                        buff_list.append(d["new_survivor"])
+                        buff_sources.add(d["name"])
+                    if survivor_is_a_newborn:
+                        if d.get("newborn_survivor", None) is not None:
+                            buff_list.append(d["newborn_survivor"])
+                            buff_sources.add(d["name"])
+            # ...and also from the campaign definition for now
+            if c_dict.get('new_survivor', None) is not None:
+                buff_list.append(c_dict['new_survivor'])
+                buff_sources.add("'%s' campaign" % c_dict["name"])
+            if survivor_is_a_newborn:
+                if c_dict.get('newborn_survivor', None) is not None:
+                    buff_list.append(c_dict['born_survivor'])
+                    buff_sources.add("'%s' campaign" % c_dict["name"])
+
+            if buff_list != []:
+                buff_string = utils.list_to_pretty_string(buff_sources)
+                self.log_event("Applying %s bonuses to %s" % (buff_string, self.pretty_name()))
+                apply_buff_list(buff_list)
+        else:
+            self.log_event("Settlement bonuses where not applied to %s due to user preference." % self.pretty_name())
 
         # Add our campaign's founder epithet if the survivor is a founder
         if self.is_founder():
-            self.logger.debug("%s is a founder. Adding founder epithet!" % self)
+            self.logger.debug("%s is a founder. Adding founder epithet!" % self.pretty_name())
             founder_epithet = self.get_campaign(dict).get("founder_epithet", "founder")
             self.add_game_asset("epithets", founder_epithet)
 
+        # log and save
+        self.logger.debug("%s created by %s (%s)" % (self, request.User, self.Settlement))
         self.save()
+
+        return self._id
 
 
     def normalize(self):
@@ -91,7 +324,7 @@ class Survivor(Models.UserAsset):
             self.convert_abilities_and_impairments()
             self.perform_save = True
 
-        if self.survivor["meta"].get("epithets", None) is None:
+        if self.survivor["meta"].get("epithets_version", None) is None:
             self.convert_epithets()
             self.perform_save = True
 
@@ -101,9 +334,9 @@ class Survivor(Models.UserAsset):
 
         # enforce the partner A&I
         if "partner_id" in self.survivor.keys():
-            if "Partner" not in self.survivor["abilities_and_impairments"]:
+            if "partner" not in self.survivor["abilities_and_impairments"]:
                 self.logger.debug("Automatically adding 'Partner' A&I to %s." % self)
-                self.survivor["abilities_and_impairments"].append("Partner")
+                self.survivor["abilities_and_impairments"].append("partner")
                 self.perform_save = True
 
         # add the savior key if we're dealing with a savior
@@ -234,7 +467,7 @@ class Survivor(Models.UserAsset):
             remaining_curse_ai = set()
 
             for ci_handle in self.survivor["cursed_items"]:
-                if ci_handle == handle:     # ignore the one we're processing currently
+                if ci_handle == ci_dict["handle"]:     # ignore the one we're processing currently
                     pass
                 else:
                     remaining_ci_dict = CI.get_asset(ci_handle)
@@ -246,6 +479,7 @@ class Survivor(Models.UserAsset):
                 if ai_handle not in remaining_curse_ai:
                     self.rm_game_asset('abilities_and_impairments', ai_handle)
                 else:
+#                    self.logger.debug("%s is still in %s" % (ai_handle, remaining_curse_ai))
                     self.logger.info("%s Not removing '%s' A&I; survivor is still cursed." % (self, ai_handle))
 
         # remove it, save and exit
@@ -1079,6 +1313,13 @@ class Survivor(Models.UserAsset):
             self.survivor["cursed_items"] = []
             self.perform_save = True
 
+        if not 'public' in self.survivor.keys():
+            self.survivor["public"] = False
+            self.perform_save = True
+        elif self.survivor["public"] == "checked":
+            self.survivor["public"] = True
+            self.perform_save = True
+
 
     def duck_type(self):
         """ Duck-types certain survivor sheet attributes, e.g. to make sure they
@@ -1155,7 +1396,7 @@ class Survivor(Models.UserAsset):
             self.logger.info("%s Converted '%s' epithet name to handle '%s'" % (self, e_dict["name"], e_dict["handle"]))
 
         self.survivor["epithets"] = new_epithets
-        self.survivor["meta"]["epithets"] = 1.0
+        self.survivor["meta"]["epithets_version"] = 1.0
         self.logger.info("Converted epithets from names (legacy) to handles for %s" % (self))
 
 

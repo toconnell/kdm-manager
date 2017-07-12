@@ -428,6 +428,7 @@ class Session:
         )
         self.logger.warn("[%s] Error report email sent!" % self.User)
 
+
     def email_render_error(self, traceback=None):
         """ Uses the attributes of the session to send an email when a user's
         current view fails to render. """
@@ -554,14 +555,36 @@ class Session:
         if "new" in self.params:
 
             #
-            #   new survivor creation via legacy app methods
+            #   new survivor creation via API call
             #
 
             if self.params["new"].value == "survivor":
                 self.set_current_settlement(user_asset_id)
-                S = assets.Survivor(params=self.params, session_object=self)
-                self.change_current_view("view_survivor", asset_id=S.survivor["_id"])
-                user_action = "created survivor %s in %s" % (S, self.Settlement)
+
+                POST_params = {"settlement": self.Settlement.settlement["_id"]}
+                incoming_form_params = ["name","sex","survivor_avatar","father","mother","email","public"]
+                for p in incoming_form_params:
+                    if p in self.params and self.params[p].value not in ["",u""]:
+                        if "string:" in self.params[p].value:
+                            oid = self.params[p].value.split("string:")[1]
+                            POST_params[p] = oid
+                        else:
+                            POST_params[p] = self.params[p].value
+                    else:
+                        pass
+
+                response = api.post_JSON_to_route("/new/survivor", payload=POST_params, Session=self)
+                if response.status_code == 200:
+                    s_id = ObjectId(response.json()["sheet"]["_id"]["$oid"])
+                    self.change_current_view("view_survivor", asset_id=s_id)
+                    S = assets.Survivor(s_id, session_object=self)
+                    user_action = "created survivor %s in %s" % (S, self.Settlement)
+                else:
+                    msg = "An API error caused survivor creation to fail! API response was: %s - %s" % (response.status_code, response.reason)
+                    self.logger.error("[%s] new survivor creation failed!" % self.User)
+                    self.logger.error("[%s] %s" % (self.User, msg))
+                    raise RuntimeError(msg)
+
 
             #
             #   new settlement creation via API call
@@ -579,7 +602,7 @@ class Session:
                     params["name"] = None
 
                 # try to get expansions/survivors params or default to []
-                for p in ["expansions", "survivors", "special"]:
+                for p in ["expansions", "survivors", "specials"]:
                     if p not in self.params:
                         params[p] = []
                     elif p in self.params and isinstance(self.params[p], cgi.MiniFieldStorage):
@@ -597,7 +620,6 @@ class Session:
                     s_id = ObjectId(response.json()["sheet"]["_id"]["$oid"])
                     self.set_current_settlement(s_id)
                     S = assets.Settlement(s_id, session_object=self)
-                    S.new(params)
                     user_action = "created settlement %s" % self.Settlement
                     self.change_current_view("view_campaign", S.settlement["_id"])
                     S.save()

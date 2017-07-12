@@ -385,11 +385,12 @@ class UserAsset():
         return "%s object '%s' [%s]" % (self.collection, repr_name, self._id)
 
 
-    def __init__(self, collection=None, _id=None, normalize_on_init=True):
+    def __init__(self, collection=None, _id=None, normalize_on_init=True, new_asset_attribs={}):
 
         # initialize basic vars
         self.logger = utils.get_logger()
         self.normalize_on_init = normalize_on_init
+        self.new_asset_attribs = new_asset_attribs
 
         if collection is not None:
             self.collection = collection
@@ -640,8 +641,16 @@ class UserAsset():
         cannot be looked up by its handle or name is ignored!
         """
 
+        if attrib is None:
+            msg = "The list_assets() method cannot process 'None' type values!"
+            self.logger.error(msg)
+            raise Exception(msg)
+
         output = []
-        exec "A = models.%s.Assets()" % attrib
+        if attrib == "principles":
+            A = models.innovations.Assets()
+        else:
+            exec "A = models.%s.Assets()" % attrib
         exec "asset_list = self.%s['%s']" % (self.collection[:-1], attrib)
         for a in asset_list:
             a_dict = A.get_asset(a, backoff_to_name=True)

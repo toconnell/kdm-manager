@@ -48,7 +48,8 @@ class Assets(Models.AssetCollection):
                         asset_repr[optional_key] = asset[optional_key]
                 output[mod_string].append(asset_repr)
 
-        output["special"] = survivors.Assets().get_specials().keys()
+        S = survivors.Assets()
+        output["specials"] = S.get_specials("JSON")
 
         return output
 
@@ -88,7 +89,8 @@ class Settlement(Models.UserAsset):
         """
 
         self.logger.info("%s creating a new settlement..." % request.User)
-        self.logger.debug("%s new settlement params: %s" % (request.User, request.json))
+        self.get_request_params()
+        self.logger.debug("%s new settlement params: %s" % (request.User, self.params))
 
         settlement = {
             # meta / admin
@@ -128,10 +130,8 @@ class Settlement(Models.UserAsset):
         if settlement["name"] is None and request.User.get_preference("random_names_for_unnamed_assets"):
             N = names.Assets()
             settlement["name"] = N.get_random_settlement_name()
-            self.logger.info("%s selected random settlement name due to user preference!" % request.User)
         elif settlement["name"] is None and not request.User.get_preference("random_names_for_unnamed_assets"):
             settlement["name"] = "Unknown"
-            self.logger.info("%s set settlement name to 'Unknown' due to user preference!" % request.User)
 
 
         #
@@ -139,8 +139,8 @@ class Settlement(Models.UserAsset):
         #
 
         self._id = utils.mdb.settlements.insert(settlement)
-        self.logger.debug("%s new settlement _id=%s" % (request.User, self._id))
         self.load() # uses self._id
+        self.log_event("%s created %s" % (request.User.login, self.settlement["name"]), event_type="new_settlement")
 
         # initialize methods
 
@@ -158,15 +158,55 @@ class Settlement(Models.UserAsset):
         self.settlement["expansions"] = []
         self.add_expansions(all_expansions)
 
-        # process 'special' params here
-        #   COMING SOON
+        # handle specials, i.e. first story, seven swordsmen, etc.
+        if self.params.get("specials", None) is not None:
+            for special_handle in self.params["specials"]:
+                self.new_settlement_special(special_handle)
 
-        # finally, add pre-fab survivors
-        #   COMING SOON
+        # prefab survivors go here LEGACY CODE
+#        for s in params["survivors"]:
+#            s_dict = game_assets.survivors[s]
+#            n = Survivor(params=None, session_object=self.Session, suppress_event_logging=True)
+#            n.set_attrs({"name": s_dict["name"]})
+#            n.set_attrs(s_dict["attribs"])
 
         # log settlement creation and save/exit
-        self.logger.info("%s created new %s and applied all user params successfully!" % (request.User, self))
         self.save()
+
+
+    def new_settlement_special(self, special_handle):
+        """ Think of these as macros. Basically, you feed this a handle, it
+        checks out the handle and then takes action based on it. """
+
+        S = survivors.Assets()
+        specials = S.get_specials()
+        script = copy(specials.get(special_handle, None))
+
+        if script is None:
+            return True
+
+        # do random survivors
+        if script.get("random_survivors", None) is not None:
+            for s in script["random_survivors"]:
+                s.update({"settlement": self._id})
+                N = survivors.Survivor(new_asset_attribs=s)
+
+        # then storage
+        if script.get("storage", None) is not None:
+            for d in script["storage"]:
+                for i in range(d["quantity"]):
+                    self.settlement["storage"].append(d["name"])
+
+        # quarry
+        if script.get("current_quarry", None) is not None:
+            self.set_current_quarry(script["current_quarry"])
+
+        # events
+        if script.get("timeline_events", None) is not None:
+            for event in script["timeline_events"]:
+                self.add_timeline_event(event)
+
+        self.log_event("Automatically applied '%s' parameters." % (script["name"]))
 
 
     def normalize(self):
@@ -630,8 +670,12 @@ class Settlement(Models.UserAsset):
             self.logger.exception(excep)
             return False
 
-
         timeline.remove(t_object)
+
+
+        # warn about deprecated params
+        if "user_login" in e.keys():
+            self.logger.warn("add_timeline_event() -> the 'user_login' parameter is deprecated!")
 
         # try to improve the event if we've got a handle on it
         if "handle" in e.keys() and e["type"] in "story_event":
@@ -651,10 +695,7 @@ class Settlement(Models.UserAsset):
 
         self.settlement["timeline"] = timeline
 
-        if "user_login" in e.keys():
-            self.log_event("%s added '%s' to Lantern Year %s" % (e["user_login"], e["name"], e["ly"]))
-        else:
-            self.log_event("Automatically added '%s' to Lantern Year %s" % (e["name"], e["ly"]))
+        self.log_event("%s added '%s' to Lantern Year %s" % (request.User.login, e["name"], e["ly"]))
 
         # finish with a courtesy save
         if save:
@@ -908,13 +949,15 @@ class Settlement(Models.UserAsset):
     #   set methods
     #
 
-    def set_current_quarry(self):
+    def set_current_quarry(self, new_quarry=None):
         """ Sets the self.settlement["current_quarry"] attrib. """
 
-        new_value = self.params["current_quarry"]
+        if new_quarry is None:
+            new_quarry = self.params["current_quarry"]
+
         self.settlement["hunt_started"] = datetime.now()
-        self.settlement["current_quarry"] = new_value
-        self.log_event("Set target monster to %s" % new_value)
+        self.settlement["current_quarry"] = new_quarry
+        self.log_event("%s set target monster to %s" % (request.User.login, new_quarry), event_type="set_quarry")
         self.save()
 
 
@@ -1154,7 +1197,8 @@ class Settlement(Models.UserAsset):
             if S.can_be_nominated_for_intimacy():
                 s_dict = {
                     "name": S.survivor["name"],
-                    "_id": S.survivor["_id"]
+                    "_id": S.survivor["_id"],
+                    "oid_string": str(S.survivor["_id"]),
                 }
 
                 if S.get_sex() == "M":

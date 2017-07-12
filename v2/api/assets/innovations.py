@@ -614,7 +614,7 @@ innovations = {
         "survivor_buff": 'Newborn survivors are born with +1 permanent strength and the <font class="maroon_text">Pristine</font> ability.',
         "newborn_survivor": {
             "Strength": 1,
-            "abilities_and_impairments": "Pristine"
+            "abilities_and_impairments": ["Pristine"],
         },
     },
 

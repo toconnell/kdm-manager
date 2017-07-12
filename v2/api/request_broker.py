@@ -105,6 +105,9 @@ def new_user_asset(asset_type=None):
     if asset_type == "settlement":
         S = settlements.Settlement()
         return S.serialize()
+    elif asset_type == "survivor":
+        S = survivors.Survivor()
+        return S.serialize()
     else:
         return Response(
             response="Creating '%s' user assets via API is not supported!" % asset_type,

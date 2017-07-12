@@ -446,11 +446,17 @@ app.controller("updateExpansionsController", function($scope) {
         } else {
             $scope.postJSONtoAPI('settlement', 'rm_expansions', [e_handle]);
         };
+        $scope.reinitialize();
     };
 });
 
 app.controller('newSurvivorController', function($scope) {
+
+    $scope.addNewSurvivor = function(e) {
+    };
+
 }); 
+
 
 app.controller('playerManagementController', function($scope) {
     $scope.toggleAdmin = function(login) {
@@ -575,9 +581,10 @@ app.controller('timelineController', function($scope, $rootScope) {
     };
 
     $scope.setLY = function(ly) {
-        console.log("setting LY to " + ly);
+//        console.log("setting LY to " + ly);
         $rootScope.current_ly = Number(ly);
-        modifyAsset('settlement', $scope.settlement_id, "lantern_year=" + $rootScope.current_ly)
+        modifyAsset('settlement', $scope.settlement_id, "lantern_year=" + $rootScope.current_ly);
+        $scope.reinitialize();
     };
 
     $scope.getLYObject = function(ly) {

@@ -86,6 +86,17 @@ def get_percentage(part, whole):
     else:
         return 100 * round(float(part)/float(whole), 2)
 
+def list_to_pretty_string(l):
+    """ Takes a list of strings and makes it into a single, pretty string
+    with commas, the word 'and' and that type of shit. """
+
+    l = list(l)
+
+    if len(l) == 1:
+        return l[0]
+
+    return " and ".join([", ".join(l[:-1]), l[-1]])
+
 
 def sort_timeline(timeline):
     """ Returns a sorted timeline. """

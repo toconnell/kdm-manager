@@ -1266,7 +1266,28 @@ class survivor:
                     ng-change="updateSex()"
                 />
 
-                $mobile_avatar_img
+                <label
+                    id="survivor_sheet_avatar"
+                    for="avatar_file_input"
+                    ng-if="survivor.sheet.avatar != undefined"
+                >
+                    <img
+                        class="survivor_avatar_image mobile_and_tablet"
+                        src="/get_image?id={{survivor.sheet.avatar}}"
+                        alt="Click to change the avatar image for {{survivor.sheet.name}}"
+                        />
+                </label>
+                <label
+                    id="survivor_sheet_avatar"
+                    for="avatar_file_input"
+                    ng-if="survivor.sheet.avatar == undefined"
+                >
+                    <img
+                        class="survivor_avatar_image mobile_and_tablet"
+                        src="/media/default_avatar_{{survivor.sheet.effective_sex}}.png"
+                        alt="Click to change the avatar image for {{survivor.sheet.name}}"
+                        />
+                </label>
 
                 <div class="survivor_sheet_dynamic_button_holder">
 
@@ -1454,8 +1475,38 @@ class survivor:
                     <!-- This holds optional survivor modal openers; otherwise, it's empty -->
                 </div>
 
+                <label
+                    id="survivor_sheet_avatar"
+                    for="avatar_file_input"
+                    ng-if="survivor.sheet.avatar != undefined"
+                >
+                    <img
+                        class="survivor_avatar_image desktop_only"
+                        src="/get_image?id={{survivor.sheet.avatar}}"
+                        alt="Click to change the avatar image for {{survivor.sheet.name}}"
+                        />
+                </label>
+                <label
+                    id="survivor_sheet_avatar"
+                    for="avatar_file_input"
+                    ng-if="survivor.sheet.avatar == undefined"
+                >
+                    <img
+                        class="survivor_avatar_image desktop_only"
+                        src="/media/default_avatar_{{survivor.sheet.effective_sex}}.png"
+                        alt="Click to change the avatar image for {{survivor.sheet.name}}"
+                        />
+                </label>
 
-                $desktop_avatar_img
+                <input
+                    onchange='document.getElementById("avatar_change_form").submit()'
+                    id="avatar_file_input"
+                    class="hidden"
+                    type="file"
+                    name="survivor_avatar"
+                    accept="image/*"
+                    form="avatar_change_form"
+                >
 
 
             </div> <!-- survivor_survival_actions_container  -->
@@ -2571,14 +2622,6 @@ class survivor:
     stat_story_event_stub = Template("""\n
                <font class="kdm_font">g</font> <b>$event</b> (p.$page) occurs at $attrib_value<br/>
     """)
-    clickable_avatar_upload = Template("""\n
-
-    <label id="survivor_sheet_avatar" for="avatar_file_input">
-        <img class="survivor_avatar_image $img_class" src="$img_src" alt="$alt_text"/>
-    </label>
-
-    <input onchange='document.getElementById("avatar_change_form").submit()' id="avatar_file_input" class="hidden" type="file" name="survivor_avatar" accept="image/*" form="avatar_change_form">
-    \n""")
     survival_action_item = Template('\
         <font class="survivor_sheet_survival_action_item $f_class">$action</font><br/>\
     \n')
@@ -2728,22 +2771,26 @@ class settlement:
             <h2 class="no_ul">Survivors:</h2>
             <p>By default, new settlements are created with no survivors. Toggle options below to create the settlement with pre-made survivors. </p>
 
-            <input
-                type="checkbox"
-                id="create_prologue_survivors"
-                class="kd_css_checkbox kd_radio_option"
-                name="special"
-                value="create_first_story_survivors"
-            />
-            <label
-                for="create_prologue_survivors"
-            >
-                Four "First Story" Survivors
-                <p class="new_settlement_asset">Two male and two female survivors
-                will be randomly generated and automatically added to the <i>Departing
-                Survivors</i> group. Starting gear will be added to Settlement
-                Storage.</p>
-            </label>
+            <div ng-repeat="c in new_settlement_assets.specials">
+                <input
+                    type="checkbox"
+                    id="{{c.handle}}_checkbox"
+                    class="kd_css_checkbox kd_radio_option"
+                    name="specials"
+                    ng-value="c.handle"
+                />
+                <label
+                    for="{{c.handle}}_checkbox"
+                >
+                    {{c.title}}
+                    <p
+                        class="new_settlement_asset"
+                        ng-bind-html="c.desc|trustedHTML"
+                    ></p>
+
+                </label>
+
+            </div> <!-- specials-->
 
             <div ng-if="showLoader" class="new_settlement_loading"><img src="/media/loading_io.gif"></div>
 
