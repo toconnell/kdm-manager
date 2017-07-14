@@ -144,6 +144,7 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
             function(errorPayload) {console.log("Error loading settlement!" + errorPayload);}
         );
 
+
         // now load the event log from the API
         $scope.loadSettlement('event_log').then(
             function(payload) {

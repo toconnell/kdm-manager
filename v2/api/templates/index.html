@@ -182,7 +182,6 @@
             <th class="route">Route</th><th class="methods">Methods</th><th class="comment">Comment/Note</th>
         </tr>
 
-
         <tr class="ul route_root">
             <th colspan="3"><b>Authorization Token Management:</b> once you've
             got an authorization token, you can work with it using these
@@ -214,6 +213,30 @@
 
 
         <tr class="ul route_root">
+            <th colspan="3"><b>Administrative views and data:</b> If your user
+            has the 'admin' attribute, you can hit these routes to retrieve data
+            about application usage, etc.</th>
+        </tr>
+        <tr class="ul">
+            <td> /admin/view/panel</td>
+            <td> GET </td>
+            <td><p>Admin panel. Not implemented yet.</p></td>
+        </tr>
+        <tr class="ul">
+            <td> /admin/data/recent_user_activity</td>
+            <td> GET </td>
+            <td><p>Admin panel JSON re: usage, etc. Not implemented yet.</p></td>
+        </tr>
+        <tr class="ul">
+            <td> /admin/data/api_logs</td>
+            <td> GET </td>
+            <td><p>Returns logs within the requested time/length params. Not implemented yet.</p></td>
+        </tr>
+
+
+
+
+        <tr class="ul route_root">
             <th colspan="3"><b>Create Assets:</b> To create new assets (survivor, settlement),
             POST JSON containing appropriate params to the /new/&lt;asset_type&gt;
             route. Invalid or unrecognized params will be ignored!</th>
@@ -240,7 +263,8 @@
                     </tr>
                     <tr>
                      <td class="key">create_seven_swordsmen</td>
-                     <td class="value">Not implemented. Coming soon!</td>
+                     <td class="value">Creates seven random survivors with the
+                    'Ageless' and Sword Mastery A&Is. </td>
                     </tr>
                 </table>
             <p><b>Important!</b> Unsupported <code>special</code> values are
@@ -250,7 +274,58 @@
         <tr class="ul">
             <td> /new/survivor </td>
             <td> POST </td>
-            <td> Not implemented! Coming Soon!</td>
+            <td> <p>This works differently from <code>/new/settlement</code> in
+            a number of significant ways.</p>
+            <p> In a nutshell, the basic idea here is that the only required key
+            in the JSON you POST to this route is an object ID for the settlement
+            to which the survivor belongs:</p>
+            <code>{'settlement': '59669ace4af5ca799c968c94'}</code>
+            <p> Beyond that, you are free to supply any other attributes of the
+            survivor, so long as they comply with the data model for survivors.
+
+            <p> Finally, here is a table of all modifiable elements of the survivor
+            data model:
+            <table class="embedded_table">
+                <tr><th>key</th><th>R/O</th><th>&nbsp; type &nbsp;</th><th>description</th></tr>
+                <tr><td class="key">email</td><td>O</td><td>str</td><td>Defaults to the requesting user's login.</td></tr>
+                <tr><td class="key">born_in_ly</td><td>O</td><td>int</td><td>Defaults to current LY.</td></tr>
+                <tr><td class="key">settlement</td><td><b>R</b></td><td>OID</td><td></td></tr>
+                <tr><td class="key">public</td><td>O</td><td>bool</td><td>Defaults to Boolean false. Submitting anything that evaluates to Boolean true will be treated as such.</td></tr>
+                <tr><td class="key">name</td><td>O</td><td>str</td><td></td></tr>
+                <tr><td class="key">sex</td><td>O</td><td>str</td><td>Accepts 'M', 'F' or 'R' (for random). Defaults to 'R'.</td></tr>
+                <tr><td class="key">survival</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">hunt_xp</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">Insanity</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">Head</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">Arms</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">Body</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">Waist</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">Legs</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">Courage</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">Understanding</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">affinities</td><td>O</td><td>dict</td><td>consider using <code>set_affinities</code> route after creation to set this, unless you really know what you're doing</td></tr>
+                <tr><td class="key">Movement</td><td>O</td><td>int</td><td>Defaults to 5.</td></tr>
+                <tr><td class="key">Accuracy</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">Strength</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">Evasion</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">Luck</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">Speed</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">Weapon Proficiency</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">weapon_proficiency_type</td><td>O</td><td>str</td><td>should be a Name (not a handle: this is transitional.)</td></tr>
+                <tr><td class="key">abilities_and_impairments</td><td>O</td><td>list</td><td>Needs a list of handles from the settlement's <code>game_assets</code> element, e.g. <code>{'abilities_and_impairments': ['ageless','mastery_sword']}</code> or similar.</td></tr>
+                <tr><td class="key">cursed_items</td><td>O</td><td>list</td><td>List of handles</td></tr>
+                <tr><td class="key">disorders</td><td>O</td><td>list</td><td>List of names (transitional: changing soon)</td></tr>
+                <tr><td class="key">fighting_arts</td><td>O</td><td>list</td><td>List of names (transitional: changing soon)</td></tr>
+                <tr><td class="key">epithets</td><td>O</td><td>list</td><td>list of handles</td></tr>
+            </table>
+            <p>As a general piece of advice, it typically makes more sense to
+            just initialize a new survivor with defaults and then operate on it
+            using the routes below.</p>
+            <p><b>Important!</b>Just like the <code>/new/settlement</code> route,
+            a successful POST to the <code>/new/survivor</code> route will return
+            a serialized version (i.e. JSON) of the new survivor, complete with
+            the <code>sheet</code> element, etc.</p>
+            </td>
         </tr>
 
 
@@ -670,12 +745,12 @@
             retrieve various types of survivor data.</td>
         </tr>
         <tr class="ul">
-            <td> /settlement/get/&lt;survivor_id&gt; </td>
+            <td> /survivor/get/&lt;survivor_id&gt; </td>
             <td> GET </td>
             <td> Retrieve a serialized version of the survivor.</td>
         </tr>
         <tr class="ul">
-            <td> /settlement/get_survival_actions/&lt;survivor_id&gt; </td>
+            <td> /survivor/get_survival_actions/&lt;survivor_id&gt; </td>
             <td> GET </td>
             <td> <p>Retrieve JSON representing the Survival Actions currently
             available to the survivor: </p>
@@ -724,7 +799,7 @@
             </td>
         </tr>
         <tr class="ul">
-            <td> /settlement/add_game_asset/&lt;survivor_id&gt; </td>
+            <td> /survivor/add_game_asset/&lt;survivor_id&gt; </td>
             <td> POST </td>
             <td> <p>Use this route to add an asset 'handle' of whatever 'type'
             to a survivor.</p>
@@ -737,7 +812,7 @@
             </td>
         </tr>
         <tr class="ul">
-            <td> /settlement/rm_game_asset/&lt;survivor_id&gt; </td>
+            <td> /survivor/rm_game_asset/&lt;survivor_id&gt; </td>
             <td> POST </td>
             <td> <p>The exact inverse of <code>add_game_asset</code>, POSTing to
             this route requires both 'handle' and 'type' keys and removes a game
@@ -745,7 +820,7 @@
             </td>
         </tr>
         <tr class="ul">
-            <td> /settlement/add_cursed_item/&lt;survivor_id&gt; </td>
+            <td> /survivor/add_cursed_item/&lt;survivor_id&gt; </td>
             <td> POST </td>
             <td><p>POST a cursed item 'handle' to this route to add that cursed
             item to the survivor:</p>
@@ -755,7 +830,7 @@
             </td>
         </tr>
         <tr class="ul">
-            <td> /settlement/rm_cursed_item/&lt;survivor_id&gt; </td>
+            <td> /survivor/rm_cursed_item/&lt;survivor_id&gt; </td>
             <td> POST </td>
             <td><p>POST a cursed item 'handle' to this route to remove that
             cursed item from the survivor:</p>
@@ -772,7 +847,7 @@
             routes for updating Survivor Sheet attributes</td>
         </tr>
         <tr class="ul">
-            <td> /settlement/update_attribute/&lt;survivor_id&gt; </td>
+            <td> /survivor/update_attribute/&lt;survivor_id&gt; </td>
             <td> POST </td>
             <td> <p>Supports arbitrary survivor attribute updates. Requires JSON
             contianing an 'attribute' and a 'modifier'. Adds the value of
@@ -785,7 +860,7 @@
         </tr>
 
         <tr class="ul">
-            <td> /settlement/set_attribute/&lt;survivor_id&gt; </td>
+            <td> /survivor/set_attribute/&lt;survivor_id&gt; </td>
             <td> POST </td>
             <td><p>Use this route to set an arbitrary survivor attribute to an
             arbitrary value. Requires 'attribute' and 'value' keys.<p>
@@ -799,7 +874,7 @@
         </tr>
 
         <tr class="ul">
-            <td> /settlement/set_attribute_detail/&lt;survivor_id&gt; </td>
+            <td> /survivor/set_attribute_detail/&lt;survivor_id&gt; </td>
             <td> POST </td>
             <td> <p>All survivors have an <code>attribute_detail</code> element in
             their <code>sheet</code> JSON:</p>
@@ -841,7 +916,7 @@
             </td>
         </tr>
         <tr class="ul">
-            <td> /settlement/set_sex/&lt;survivor_id&gt; </td>
+            <td> /survivor/set_sex/&lt;survivor_id&gt; </td>
             <td> POST </td>
             <td> <p>Modify the survivor's sex by POSTing a simple JSON object
             containing the key 'sex' and a value of either 'M' or 'F'.</p>
@@ -857,7 +932,7 @@
             routes for managing the survivor's Survival value.</td>
         </tr>
         <tr class="ul">
-            <td> /settlement/update_survival/&lt;survivor_id&gt; </td>
+            <td> /survivor/update_survival/&lt;survivor_id&gt; </td>
             <td> POST </td>
             <td> <p>POST a 'modifier' integer to this route to add that number
             to the survivor's Survival: </p>
@@ -872,7 +947,7 @@
             </td>
         </tr>
         <tr class="ul">
-            <td> /settlement/set_survival/&lt;survivor_id&gt; </td>
+            <td> /survivor/set_survival/&lt;survivor_id&gt; </td>
             <td> POST </td>
             <td> <p>POST a 'value' integer to this route to set that integer as
             the survivor's Survival value.: </p>
@@ -895,7 +970,7 @@
             </td>
         </tr>
         <tr class="ul">
-            <td> /settlement/controls_of_death/&lt;survivor_id&gt; </td>
+            <td> /survivor/controls_of_death/&lt;survivor_id&gt; </td>
             <td> POST </td>
             <td> <p>This route is the all-purpose route for managing aspects of
             a survivor's death, including when it happened, how it happened and
@@ -938,7 +1013,7 @@
             </td>
         </tr>
         <tr class="ul">
-            <td> /settlement/update_affinities/&lt;survivor_id&gt; </td>
+            <td> /survivor/update_affinities/&lt;survivor_id&gt; </td>
             <td> POST </td>
             <td> <p>Works with the Survivor's <code>affinities</code> dictionary,
             which contains their permanent, non-token affinities and looks like
@@ -963,7 +1038,7 @@
             </td>
         </tr>
         <tr class="ul">
-            <td> /settlement/set_affinity/&lt;survivor_id&gt; </td>
+            <td> /survivor/set_affinity/&lt;survivor_id&gt; </td>
             <td> POST </td>
             <td> <p>POST some JSON containing the two required keys, 'color' and
             'value' to set a single survivor affinity to a new integer value.</p>
@@ -971,15 +1046,39 @@
             <p>The 'value' key must always have an integer value.</p>
             </td>
         </tr>
+        <tr class="ul">
+            <td> /survivor/set_constellation/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p>For survivors with Dragon Traits (i.e. PotStars), use this
+            route to set their 'constellation':</p>
+            <code>{'constellation': 'Witch'}</code>
+            <p>Simply POST similar JSON to overwrite/change it:</p>
+            <code>{'constellation': 'Absolute'}</code>
+            <p>This one also works to unset/remove it:</p>
+            <code>{'unset': true}</code>
+            <p>Here is a list of accepted/supported values for 'constellation':
+            <ul>
+                <li>Absolute</li>
+                <li>Gambler</li>
+                <li>Goblin</li>
+                <li>Reaper</li>
+                <li>Rust</li>
+                <li>Sculptor</li>
+                <li>Storm</li>
+                <li>Witch</li>
+            </ul>
+            </p>
+            </td>
+        </tr>
 
-        <!-- misc. -->
+        <!-- toggles and flgs -->
         <tr>
             <td class="subsection_header" colspan="3"><b>Flags and toggles:</b>
             special routes and methods for setting/unsetting 'flag' type
             aspects of the Settlement Sheet.</td>
         </tr>
         <tr class="ul">
-            <td> /settlement/toggle_sotf_reroll/&lt;survivor_id&gt; </td>
+            <td> /survivor/toggle_sotf_reroll/&lt;survivor_id&gt; </td>
             <td> POST </td>
             <td> <p>POST a blank/empty request to this route to toggle the survivor's
             once per lifetime Survival of the Fittest reroll on or off.</p>
@@ -992,7 +1091,19 @@
             </td>
         </tr>
         <tr class="ul">
-            <td> /settlement/set_status_flag/&lt;survivor_id&gt; </td>
+            <td> /survivor/toggle_boolean/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p>Use this route to toggle Boolean attributes of the survivor
+            data model, such as 'public'</p>
+            <code>{'attribute': 'public'}</code>
+            <p><p><b>Important!</b> These attributes are not the same as <code>
+            status flags</code>, which also evaluate Boolean when present on the
+            survivor. See <code>set_status_flag</code> and <code>toggle_status_flag</code>
+            routes below for info on working with status flags.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/set_status_flag/&lt;survivor_id&gt; </td>
             <td> POST </td>
             <td> <p> This route and its related route <code>toggle_status_flag</code>
             are used to work with Survivor Sheet 'flags'. The following 'flag'
@@ -1012,7 +1123,7 @@
             </td>
         </tr>
         <tr class="ul">
-            <td> /settlement/toggle_status_flag/&lt;survivor_id&gt; </td>
+            <td> /survivor/toggle_status_flag/&lt;survivor_id&gt; </td>
             <td> POST </td>
             <td> <p>Works nearly identically to <code>set_status_flag</code>
             (see above), except toggles the flag on/off. POST simple JSON
@@ -1021,6 +1132,22 @@
             </td>
         </tr>
 
+        <!-- misc. and meta -->
+        <tr>
+            <td class="subsection_header" colspan="3"><b>Meta and admin controls:</b>
+            manage survivor meta data, including adding/removing survivor notes,
+            etc.</td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/add_survivor_note/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> Documentation coming soon! </td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/rm_survivor_note/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> Documentation coming soon! </td>
+        </tr>
     </table>
 
 

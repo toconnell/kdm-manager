@@ -311,10 +311,6 @@ campaign_definitions = {
             "Bold": "Awake",
             "Insight": "Awake",
         },
-        "new_survivor_additional_attribs": {
-            "constellation": None,
-            "constellation_traits": [],
-        },
         "survivor_attribs": ["Scar","Noble surname","Reincarnated surname"],
         "special_rules": [
             {"name": "Removed Story Events", "desc": "If an event or card would cause you to add/trigger <b>Hands of Heat</b>, <b>Regal Visit</b>, <b>Armored Strangers</b>, <b>Watched</b>, or <b>Nemesis Encounter - Watcher</b>, do nothing instead.", "bg_color": "673AB7", "font_color": "FFF"},

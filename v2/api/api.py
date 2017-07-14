@@ -154,40 +154,50 @@ def refresh_auth(action):
         return utils.http_402
 
 
+@application.route("/admin/<requested>/<resource>", methods=["GET"])
+@utils.crossdomain(origin=['*'],headers='Content-Type')
+def admin_view(requested, resource):
+    """ Admin panel type views are accessed via this routed. Beyond normal auth,
+    You also need to have a user with the 'admin' bit set to True. """
+
+    request.User = users.token_to_object(request)
+    if isinstance(request.User, users.User) and users.User.admin == True:
+        if requested == 'view':
+            request_broker.get_admin_view(resource)
+        elif requested == 'JSON':
+            request_broker.get_admin_data(resource)
+        else:
+            return utils.http_405
+    else:
+        return utils.http_401
+
+
 @application.route("/new/<asset_type>", methods=["POST"])
 @utils.crossdomain(origin=['*'],headers='Content-Type')
 def new_asset(asset_type):
     """ Uses the 'Authorization' block of the header and POSTed params to create
     a new settlement. """
-    request.logger = utils.get_logger()
+
     request.User = users.token_to_object(request)
     if isinstance(request.User, users.User):
         return request_broker.new_user_asset(asset_type)
     else:
-        return utils.http_401 #unauthorized
+        return utils.http_401
 
 
 @application.route("/<collection>/<action>/<asset_id>", methods=["GET","POST","OPTIONS"])
 @utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization'])
-#@flask_jwt.jwt_required()
 def collection_action(collection, action, asset_id):
-    """ This is our major method for retrieving and updating settlements. """
+    """ This is our major method for retrieving and updating settlements.
 
+    This is also one of our so-called 'private' routes, so you can't do this
+    stuff without an authenticated user.
+    """
 
-    #
-    #   This is temporary! For the next few releases, auth is optional and will
-    #   only truly bomb out the request if the password in the cookie's JWT is
-    #   incorrect.
-    #
+    request.User = users.token_to_object(request, strict=False)     # temporarily non-strict
 
-    if not "Authorization" in request.headers:
-        application.logger.warn("Performing '%s' on '%s' object '%s' without authorization!" % (action, collection, asset_id))
-        application.logger.warn("Request URL -> %s" % request.url)
-    else:
-        u = users.refresh_authorization(request.headers["Authorization"])
-        request.User = users.User(_id=u["_id"])
-        if not isinstance(request.User, users.User):
-            return utils.http_401 #unauthorized
+    if not isinstance(request.User, users.User):
+        return utils.http_401
 
     asset_object = request_broker.get_user_asset(collection, asset_id)
     if type(asset_object) == Response:

@@ -163,12 +163,16 @@ class Settlement(Models.UserAsset):
             for special_handle in self.params["specials"]:
                 self.new_settlement_special(special_handle)
 
-        # prefab survivors go here LEGACY CODE
-#        for s in params["survivors"]:
-#            s_dict = game_assets.survivors[s]
-#            n = Survivor(params=None, session_object=self.Session, suppress_event_logging=True)
-#            n.set_attrs({"name": s_dict["name"]})
-#            n.set_attrs(s_dict["attribs"])
+        # prefab survivors go here
+        if self.params.get("survivors", None) is not None:
+            S = survivors.Assets()
+            for s in self.params["survivors"]:
+                s_dict = copy(S.get_asset(s))
+                attribs = s_dict["attribs"]
+                attribs.update({"settlement": self._id})
+                survivors.Survivor(new_asset_attribs=attribs)
+                if s_dict.get("storage", None) is not None:
+                    self.settlement["storage"].extend(s_dict["storage"])
 
         # log settlement creation and save/exit
         self.save()
@@ -188,8 +192,9 @@ class Settlement(Models.UserAsset):
         # do random survivors
         if script.get("random_survivors", None) is not None:
             for s in script["random_survivors"]:
-                s.update({"settlement": self._id})
-                N = survivors.Survivor(new_asset_attribs=s)
+                n = copy(s)
+                n.update({"settlement": self._id})
+                N = survivors.Survivor(new_asset_attribs=n)
 
         # then storage
         if script.get("storage", None) is not None:

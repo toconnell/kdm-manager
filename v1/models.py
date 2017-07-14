@@ -256,12 +256,6 @@ class Model:
 #       add_item/remove_item, add_disorder/remove_disorder, etc.
 #
 
-class abilitiesModel(Model):
-    def __init__(self):
-        Model.__init__(self)
-        self.game_assets = game_assets.abilities_and_impairments
-        self.name = "ability"
-
 
 class disordersModel(Model):
     def __init__(self):
@@ -472,7 +466,6 @@ class weaponMasteriesModel(Model):
 
 
 # initialize all of our classes above when this module is imported
-Abilities       = abilitiesModel()
 Disorders       = disordersModel()
 Epithets        = epithetsModel()
 FightingArts    = fightingArtsModel()

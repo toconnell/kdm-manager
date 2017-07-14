@@ -516,7 +516,8 @@ class angularJS:
 
             <h3>Add Multiple New Survivors</h3>
             <p>Use these controls to add multiple new survivors to {{settlement_sheet.name}}.
-            New survivors will be named randomly or 'Anonymous' according to user preference.</p>
+            New survivors will be manageable by all players in the campaign and
+            named randomly or 'Anonymous' according to user preference.</p>
 
             <div
                 class="create_user_asset_block_group bulk_add_block_group"
@@ -585,6 +586,7 @@ class angularJS:
                 <input
                     type="submit"
                     id="bulkAddSurvivors"
+                    onclick="closeModal('modalBulkAdd'); showFullPageLoader()"
                     class="kd_blue settlement_sheet_bulk_add" value="Create New Survivors"
                 />
 
@@ -840,7 +842,7 @@ class angularJS:
                     id="publicInput"
                     type="checkbox"
                     class="kd_css_checkbox kd_radio_option"
-                    name="toggle_public"
+                    name="public"
                 >
                  <label
                      id="survivorPublic"
@@ -853,7 +855,12 @@ class angularJS:
 
             <br />
     
-            <button class="kd_blue add_new_survivor">Add {{new_survivor_name}}</button>
+            <button
+                onclick="closeModal('modalNewSurvivorContainer'); showFullPageLoader()"
+                class="kd_blue add_new_survivor"
+            >
+                Add {{new_survivor_name}}
+            </button>
 
             <br/><br/>
 
@@ -1313,7 +1320,7 @@ class survivor:
                         ng-if="settlement.game_assets.campaign.dragon_traits != undefined"
                         ng-init="registerModalDiv('dragonControlsModal','dragonTraitsModal')"
                     >
-                        Dragon Traits ({{survivor.sheet.constellation_traits.length}})
+                        Dragon Traits ({{survivor.dragon_traits.trait_list.length}})
                     </button>
 
                 </div>
@@ -1751,7 +1758,7 @@ class survivor:
                             type="number"
                             ng-value="survivor.sheet.Courage"
                             ng-model="Courage"
-                            ng-change="updateAttrib(this.value, 'Courage')"
+                            ng-change="updateAttrib('Courage')"
                         />
                         <button
                             class="decrementer"
@@ -1792,7 +1799,7 @@ class survivor:
                             type="number"
                             ng-value="survivor.sheet.Understanding"
                             ng-model="Understanding"
-                            ng-change="updateAttrib(this.value, 'Understanding')"
+                            ng-change="updateAttrib('Understanding')"
                         />
                         <button
                             class="decrementer"
@@ -2008,7 +2015,10 @@ class survivor:
 
         <a id="edit_lineage" class="mobile_and_tablet"></a>
 
-        <div class="survivor_sheet_right_pane_blocks_container">
+        <div
+            class="survivor_sheet_right_pane_blocks_container"
+            ng-controller="metaDataController"
+        >
 
             <div class="survivor_sheet_block_group">
                 <h2>Lineage</h2>
@@ -2048,13 +2058,13 @@ class survivor:
                 campaign to manage this survivor.</p>
 
                   <input
-                    onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
                     type="checkbox"
                     id="public"
                     class="kd_css_checkbox kd_radio_option"
                     name="toggle_public"
-                    value="checked"
-                    $public_checked
+                    ng-model="public"
+                    ng-checked="survivor.sheet.public"
+                    ng-change="togglePublic()"
                   >
                   <label
                     class="public_survivor_toggle"
@@ -2147,13 +2157,258 @@ class survivor:
 
     <!-- SURVIVOR ATTRIBUTE CONTROLS -->
 
-    $survivor_attrib_controls
+    <div
+        ng-controller="attributeController"
+        class="survivor_sheet_attrib_controls"
+    >
 
-    <!-- DRAGON TRAITS -->
+        <div
+            ng-repeat="token in attributeTokens"
+            ng-init="control_id = token.longName + '_controller'"
+            id="{{token.longName}}_controls_container"
+        >
 
-    $dragon_controls
+            <div
+                id="{{control_id}}"
+                class="survivor_sheet_attrib_controls_modal survivor_sheet_gradient hidden"
+            >
+                <span
+                    class="close_attrib_controls_modal"
+                    ng-click="showHide(control_id)"
+                >
+                    X
+                </span>
+
+                <h3 class="{{token.buttonClass}}">{{token.longName}}</h3>
+
+                <div
+                    class="synthetic_attrib_total synthetic_attrib_total_{{token.longName}}"
+                >
+                    {{ survivor.sheet[token.longName] + survivor.sheet.attribute_detail[token.longName].gear + survivor.sheet.attribute_detail[token.longName].tokens }}
+                </div>
+
+                <hr/>
+
+                <div class="survivor_sheet_attrib_controls_number_container_container">
+
+                    <!-- start of BASE -->
+
+                    <div class="survivor_sheet_attrib_controls_number_container">
+
+                        <button
+                            class="incrementer"
+                            ng-click="incrementBase(token.longName, 1)"
+                        >
+                            +
+                        </button>
+
+                        <input
+                            id="base_value_{{control_id}}"
+                            type="number"
+                            class="survivor_sheet_attrib_controls_number"
+                            onClick="this.select()"
+                            ng-model="base_value"
+                            ng-value="survivor.sheet[token.longName]"
+                        />
+
+                        <button
+                            class="decrementer"
+                            ng-click="incrementBase(token.longName, -1)"
+                        >
+                            -
+                        </button>
+
+                        <p><b>Base</b></p>
+
+                    </div> <!-- survivor_sheet_attrib_controls_number_container -->
+
+                    <!-- end of BASE; start of GEAR -->
+
+                    <div class="survivor_sheet_attrib_controls_number_container">
+
+                        <button
+                            class="incrementer"
+                            ng-click="incrementDetail(token.longName, 'gear', 1)"
+                        >
+                            +
+                        </button>
+
+                        <input
+                            id="gear_value_{{token.longName}}_controller"
+                            type="number"
+                            class="survivor_sheet_attrib_controls_number"
+                            onClick="this.select()"
+                            ng-model="gear_value"
+                            ng-value="survivor.sheet.attribute_detail[token.longName].gear"
+                        />
+
+                        <button
+                            class="decrementer"
+                            ng-click="incrementDetail(token.longName, 'gear', -1)"
+                        >
+                            -
+                        </button>
+
+                        <p>Gear</p>
+
+                    </div> <!-- survivor_sheet_attrib_controls_number_container GEAR -->
+
+                    <!-- end $long_name GEAR; begin TOKENS -->
+
+                    <div class="survivor_sheet_attrib_controls_number_container">
+
+                        <button
+                            class="incrementer"
+                            ng-click="incrementDetail(token.longName, 'tokens', 1)"
+                        >
+                            +
+                        </button>
+
+                        <input
+                            id="tokens_value_{{token.longName}}_controller"
+                            class="survivor_sheet_attrib_controls_number"
+                            type="number"
+                            onClick="this.select()"
+                            ng-value="survivor.sheet.attribute_detail[token.longName].tokens"
+                            ng-model="tokens_value"
+                            ng-change="refresh(token.longName, 'tokens')"
+                        />
+
+                        <button
+                            class="decrementer"
+                            ng-click="incrementDetail(token.longName, 'tokens', -1)"
+                        >
+                            -
+                        </button>
+
+                        <p>Tokens</p>
+
+                    </div> <!-- survivor_sheet_attrib_controls_number_container -->
+
+                </div><!-- survivor_sheet_attrib_controls_number_container_container -->
+
+            </div> <!-- survivor_sheet_attrib_controls_modal starts out hidden -->
+
+        <button
+            class="survivor_sheet_attrib_controls_token {{token.buttonClass}}"
+            ng-click="showHide(control_id)"
+        >
+            <p class="short_name">{{token.shortName}}</p>
+            <p class="attrib_value synthetic_attrib_total_{{token.longName}}">
+                {{ survivor.sheet[token.longName] + survivor.sheet.attribute_detail[token.longName].gear + survivor.sheet.attribute_detail[token.longName].tokens }}
+            </p>
+        </button>
+
+        </div> <!-- attrib token controls container ng-repeat -->
+
+    </div> <!-- survivor_sheet_attrib_controls -->
+
+
+    <!-- THE CONSTELLATIONS -->
+
+
+    <div
+        id="dragonTraitsModal"
+        class="modal"
+        ng-controller='theConstellationsController'
+    >
+        <div class="modal-content survivor_sheet_gradient">
+
+            <span class="closeModal" onclick="closeModal('dragonTraitsModal')">×</span>
+
+            <h3>The Constellations</h3>
+
+            {{survivor.dragon_Traits.available_constellations}}
+
+            <table id="survivor_constellation_table">
+                <tr><th colspan="6">&nbsp</th></tr>
+                <tr>
+                    <th>&nbsp</th>
+                    <th>Witch</th>
+                    <th>Rust</th>
+                    <th>Storm</th>
+                    <th>Reaper</th>
+                    <th>&nbsp</th>
+                </tr>
+                <tr>
+                    <th>Gambler</th>
+                    <td ng-if="activeCell('A1') == false">9 Understanding (max)</td>
+                    <td ng-if="activeCell('A1') == true" class="active">9 Understanding (max)</td>
+                    <td ng-if="activeCell('B1') == false">Destined disorder</td>
+                    <td ng-if="activeCell('B1') == true" class="active">Destined disorder</td>
+                    <td ng-if="activeCell('C1') == false">Fated Blow fighting art</td>
+                    <td ng-if="activeCell('C1') == true" class="active">Fated Blow fighting art</td>
+                    <td ng-if="activeCell('D1') == false">Pristine ability</td>
+                    <td ng-if="activeCell('D1') == true" class="active">Pristine ability</td>
+                </tr>
+                <tr>
+                    <th>Absolute</th>
+                    <td ng-if="activeCell('A2') == false">Reincarnated Surname</td>
+                    <td ng-if="activeCell('A2') == true" class="active">Reincarnated Surname</td>
+                    <td ng-if="activeCell('B2') == false">Frozen Star secret fighting art</td>
+                    <td ng-if="activeCell('B2') == true" class="active">Frozen Star secret fighting art</td>
+                    <td ng-if="activeCell('C2') == false">Iridescent Hide ability</td>
+                    <td ng-if="activeCell('C2') == true" class="active">Iridescent Hide ability</td>
+                    <td ng-if="activeCell('D2') == false">Champion's Rite fighting art</td>
+                    <td ng-if="activeCell('D2') == true" class="active">Champion's Rite fighting art</td>
+                </tr>
+                <tr>
+                    <th>Sculptor</th>
+                    <td ng-if="activeCell('A3') == false">Scar</td>
+                    <td ng-if="activeCell('A3') == true" class="active">Scar</td>
+                    <td ng-if="activeCell('B3') == false">Noble surname</td>
+                    <td ng-if="activeCell('B3') == true" class="active">Noble surname</td>
+                    <td ng-if="activeCell('C3') == false">Weapon Mastery</td>
+                    <td ng-if="activeCell('C3') == true" class="active">Weapon Mastery</td>
+                    <td ng-if="activeCell('D3') == false">+1 Accuracy attribute</td>
+                    <td ng-if="activeCell('D3') == true" class="active">+1 Accuracy attribute</td>
+                </tr>
+                <tr>
+                    <th>Goblin</th>
+                    <td ng-if="activeCell('A4') == false">Oracle's Eye ability</td>
+                    <td ng-if="activeCell('A4') == true" class="active">Oracle's Eye ability</td>
+                    <td ng-if="activeCell('B4') == false">Unbreakable fighting art</td>
+                    <td ng-if="activeCell('B4') == true" class="active">Unbreakable fighting art</td>
+                    <td ng-if="activeCell('C4') == false">3+ Strength attribute</td>
+                    <td ng-if="activeCell('C4') == true" class="active">3+ Strength attribute</td>
+                    <td ng-if="activeCell('D4') == false">9 Courage (max)</td>
+                    <td ng-if="activeCell('D4') == true" class="active">9 courage (max)</td>
+                </tr>
+                <tr><th colspan="6">&nbsp</th></tr>
+
+            </table>
+            <br />
+
+            <div id="survivor_constellation_control_container">
+
+                <select
+                    class="survivor_sheet_constellations_picker"
+                    ng-if="survivor.dragon_traits.available_constellations.length >= 1"
+                    ng-model="survivor.sheet.constellation"
+                    ng-options="c for c in survivor.dragon_traits.available_constellations"
+                    ng-change="setConstellation(survivor.sheet.constellation)"
+                    ng-selected="survivor.sheet.constellation"
+                >
+                    <option disabled value="">Choose a Constellation</option>
+                </select>
+
+                <button
+                    ng-if="survivor.sheet.constellation != undefined"
+                    ng-click="unsetConstellation()"
+                >
+                    Unset Constellation
+                </button>
+            </div>
+
+            <br/><br/>
+
+        </div> <!-- modal-content -->
+
+    </div> <!-- dragonTraitsModal ng-controller -->
+
 
     <!-- SAVIOR CONTROLS -->
+
 
     <div
         ng-controller="saviorController"
@@ -2373,206 +2628,6 @@ class survivor:
             </div> <!-- survivor_hit_box -->
 
     \n""")
-    survivor_sheet_attrib_controls_top = '\t<div class="survivor_sheet_attrib_controls">'
-    survivor_sheet_attrib_controls_token = Template("""\n
-
-    <!-- $long_name attribute controls start here! -->
-
-    <div id="$long_name_controls_container"
-        ng-app="kdmManager"
-        ng-controller="attributeController"
-        ng-init="base_value=$base_value;gear_value=$gear_value;tokens_value=$tokens_value;survivor_id='$survivor_id'"
-    >
-
-
-        <!-- $long_name modal window controls first; token buttons next -->
-
-        <div id="$controls_id" class="survivor_sheet_attrib_controls_modal survivor_sheet_gradient" style="display: none;">
-            <span
-                class="close_attrib_controls_modal"
-                onClick="showHide('$controls_id')"
-            >
-                X
-            </span>
-
-            <h3 class="$token_class">$long_name</h3>
-            <div class="synthetic_attrib_total synthetic_attrib_total_$long_name">{{ getTotal() }}</div>
-            <hr/>
-
-            <div class="survivor_sheet_attrib_controls_number_container_container">
-
-
-              <!-- $long_name BASE container starts -->
-
-              <div class="survivor_sheet_attrib_controls_number_container">
-
-                <button
-                    class="incrementer"
-                    onClick="increment('base_value_$controls_id')"
-                    ng-click="refresh('$long_name', 'base')"
-                >
-                    +
-                </button>
-
-                <input
-                    id="base_value_$controls_id"
-                    type="number"
-                    class="survivor_sheet_attrib_controls_number"
-                    ng-model="base_value"
-                    value="$base_value"
-                    onClick="this.select()"
-                    ng-change="refresh('$long_name', 'base')"
-                    />
-
-                <button
-                    class="decrementer"
-                    onClick="decrement('base_value_$controls_id')"
-                    ng-click="refresh('$long_name', 'base')"
-                >
-                    -
-                </button>
-
-                <p><b>Base</b></p>
-
-              </div> <!-- survivor_sheet_attrib_controls_number_container -->
-
-        <!-- end of BASE; start of GEAR -->
-
-
-              <div class="survivor_sheet_attrib_controls_number_container">
-              <button
-                  class="incrementer"
-                  onClick="increment('gear_value_$controls_id')"
-                  ng-click="refresh('$long_name', 'gear')"
-              >
-                  +
-              </button>
-                 <input
-                    id="gear_value_$controls_id"
-                    type="number"
-                    class="survivor_sheet_attrib_controls_number"
-                    ng-model="gear_value"
-                    value="$gear_value"
-                    onClick="this.select()"
-                    ng-change="refresh('$long_name', 'gear')"
-                    />
-              <button
-                  class="decrementer"
-                  onClick="decrement('gear_value_$controls_id')"
-                  ng-click="refresh('$long_name', 'gear')"
-              >
-                  -
-              </button>
-              <p>Gear</p>
-              </div> <!-- survivor_sheet_attrib_controls_number_container -->
-
-
-        <!-- end $long_name GEAR; begin TOKENS -->
-
-              <div class="survivor_sheet_attrib_controls_number_container">
-                <button
-                    class="incrementer"
-                    onClick="increment('tokens_value_$controls_id')"
-                    ng-click="refresh('$long_name', 'tokens')"
-                >
-                    +
-                </button>
-                  <input
-                      id="tokens_value_$controls_id"
-                      class="survivor_sheet_attrib_controls_number"
-                      type="number"
-                      value="$tokens_value"
-                      onClick="this.select()"
-                      ng-model="tokens_value"
-                      ng-change="refresh('$long_name', 'tokens')"
-                  />
-                <button
-                    class="decrementer"
-                    onClick="decrement('tokens_value_$controls_id')"
-                    ng-click="refresh('$long_name', 'tokens')"
-                >
-                    -
-                </button>
-                <p>Tokens</p>
-              </div> <!-- survivor_sheet_attrib_controls_number_container -->
-
-            </div><!-- survivor_sheet_attrib_controls_number_container_container -->
-
-        </div> <!-- survivor_sheet_attrib_controls_modal -->
-
-
-        <!-- $long_name token button -->
-        <button
-            class="survivor_sheet_attrib_controls_token $token_class"
-            onClick="showHide('$controls_id')"
-        >
-        <p class="short_name">$short_name</p>
-        <p class="attrib_value synthetic_attrib_total_$long_name">{{ getTotal() }}</p>
-        </button>
-
-    </div> <!-- $long_name_controls_container -->
-    """)
-    survivor_sheet_attrib_controls_bot = '\t</div> <!-- survivor_sheet_attrib_controls -->'
-    dragon_traits_controls = Template("""\n
-
-    <div
-        id="dragonTraitsModal" class="modal"
-    >
-        <div class="modal-content survivor_sheet_gradient">
-            <span class="closeModal" onclick="closeModal('dragonTraitsModal')">×</span>
-            <h3>The Constellations</h3>
-            $constellation_table
-        </div> <!-- modal-content -->
-    </div> <!-- dragonTraitsModal -->
-
-    """)
-    constellation_table_top = '<table id="survivor_constellation_table">'
-    constellation_table_row_top = Template("""
-        <tr><th colspan="6">&nbsp</th></tr>
-        <tr>
-         <th>&nbsp</th>
-         <th class="$witch_class">Witch</th>
-         <th class="$rust_class">Rust</th>
-         <th class="$storm_class">Storm</th>
-         <th class="$reaper_class">Reaper</th>
-         <th>&nbsp</th>
-        </tr>
-    \n""")
-    constellation_table_row = Template("""
-        <tr>
-         <th>$th</th>
-          $cells
-         <th>&nbsp</th>
-        </tr>
-    \n""")
-    constellation_table_cell = Template("""
-        <td class="$td_class">$value</td>
-    \n""")
-    constellation_table_bot = '<tr><th colspan="6">&nbsp</th></tr></table>\n\n'
-    constellation_table_select_top = Template("""\n
-    <br/>
-    <div id="survivor_constellation_control_container">
-    <form method="POST" action="/" >
-        <input type="hidden" name="modify" value="survivor">
-        <input type="hidden" name="asset_id" value="$survivor_id">
-        <select name="set_constellation" onchange="this.form.submit()">
-            <option selected disabled hidden>Set Constellation</option>
-            $options
-    """)
-    constellation_table_select_option = Template('<option $selected>$value</option>')
-    constellation_table_select_bot = Template("""\n
-        </select>
-<!--        <button class="orange bold">Set constellation!</button> -->
-    </form>
-
-    <form method="POST" action="/">
-        <input type="hidden" name="modify" value="survivor">
-        <input type="hidden" name="asset_id" value="$survivor_id">
-        <input type="hidden" name="set_constellation" value="UNSET">
-        <button onclick="this.form.submit()">Unset constellation</button>
-    </form>
-    </div> <!-- survivor_constellation_control_container" -->
-    \n""")
     partner_controls_top = '\n\t<p><span class="tiny_break">&nbsp;</span><h3 class="partner">Partner</h3><select name="partner_id" onchange="this.form.submit()">\n'
     partner_controls_none = '<option selected disabled>Select a Survivor</option>'
     partner_controls_opt = Template('<option value="$value" $selected>$name</option>')
@@ -2582,7 +2637,7 @@ class survivor:
     <div class="expansion_attribs_container">
         <form method="POST" action="#edit_misc_attribs">
         <input type="hidden" name="modify" value="survivor" />
-        <input type="hidden" name="asset_id" value="{{survivor._id.$oid}}" />
+        <input type="hidden" name="asset_id" ng-value="survivor_id" />
         <input type="hidden" name="expansion_attribs" value="None"/> <!-- Hacks -->
         <input type="hidden" name="expansion_attribs" value="None"/> <!-- Hacks -->
 

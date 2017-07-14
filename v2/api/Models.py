@@ -167,7 +167,7 @@ class AssetCollection():
         asset = copy(self.assets.get(handle, None))     # return a copy, so we don't modify the actual def
 
         if asset is None and backoff_to_name:
-            return self.get_asset_from_name(handle)
+            return copy(self.get_asset_from_name(handle))
         else:
             return asset
 

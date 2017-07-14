@@ -638,14 +638,27 @@ class Session:
             S = assets.Settlement(settlement_id=user_asset_id, session_object=self)
             male = int(self.params["male_survivors"].value)
             female = int(self.params["female_survivors"].value)
-            S.bulk_add_survivors(male,female)
+
+            for tup in [("M", male), ("F",female)]:
+                letter, sex = tup
+                for i in range(sex):
+                    POST_params = {"settlement": self.Settlement.settlement["_id"], "sex": letter, "public": True,}
+                    response = api.post_JSON_to_route("/new/survivor", payload=POST_params, Session=self)
+                    if response.status_code == 200:
+                        pass
+                    else:
+                        msg = "An API error caused survivor creation to fail! API response was: %s - %s" % (response.status_code, response.reason)
+                        self.logger.error("[%s] new survivor creation failed!" % self.User)
+                        self.logger.error("[%s] %s" % (self.User, msg))
+                        raise RuntimeError(msg)
+
+            user_action = "added %s male and %s survivors to %s" % (male, female, self.Settlement)
             self.change_current_view("view_campaign", user_asset_id)
 
 
         #   modify
 
         if "modify" in self.params:
-
             if self.params["modify"].value == "settlement":
                 s = mdb.settlements.find_one({"_id": ObjectId(user_asset_id)})
                 self.set_current_settlement(s["_id"])

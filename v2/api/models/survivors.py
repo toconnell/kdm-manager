@@ -12,7 +12,7 @@ import Models
 import utils
 
 from assets import survivor_sheet_options, survivors
-from models import abilities_and_impairments, cursed_items, epithets, names, saviors, survival_actions
+from models import abilities_and_impairments, cursed_items, epithets, names, saviors, survival_actions, the_constellations
 
 
 class Assets(Models.AssetCollection):
@@ -124,11 +124,11 @@ class Survivor(Models.UserAsset):
             "created_by":   request.User._id,
             "settlement":   self.settlement_id,
             "public":       False,
-            "in_hunting_party": False,
+            "in_hunting_party": False,  # transitional
 
             # survivor sheet
             "name":     "Anonymous",
-            "sex":      "M",
+            "sex":      "R",
             "survival": 0,
             "hunt_xp":  0,
             "Insanity": 0,
@@ -170,18 +170,18 @@ class Survivor(Models.UserAsset):
 
         }
 
-        # 1.a add campaign-specific attribs
         c_dict = self.get_campaign(dict)
-        if c_dict.get("new_survivor_additional_attribs", None) is not None:
-            for k, v in c_dict["new_survivor_additional_attribs"].iteritems():
-                self.survivor[k] = v
 
-        # 1.b apply/overwrite attribs that go with our data model
+        # 1.a apply/overwrite attribs that go with our data model
         for a in attribs.keys():
             if a in self.survivor.keys():
                 forbidden_keys = ['settlement']
                 if a not in forbidden_keys and attribs[a] != None:
                     self.survivor[a] = attribs[a]
+
+        # 1.b for bools, keep 'em bool, e.g. in case they come in as 'checked'
+        for boolean in ["public"]:
+            self.survivor[boolean] = bool(self.survivor[boolean])
 
         # transitional:
         if self.survivor["in_hunting_party"] == False:
@@ -241,7 +241,7 @@ class Survivor(Models.UserAsset):
             self.log_event('%s joined the settlement!' % (self.pretty_name()))
 
         # 2.d increment survivial if we're named
-        if self.survivor["name"] != "Anonymous":
+        if self.survivor["name"] != "Anonymous" and self.survivor["survival"] == 0:
             self.log_event("Automatically added 1 survival to %s" % self.pretty_name())
             self.survivor["survival"] += 1
 
@@ -374,6 +374,13 @@ class Survivor(Models.UserAsset):
         output["sheet"].update({"founder": self.is_founder()})
         output["sheet"].update({"savior": self.is_savior()})
 
+        # survivors whose campaigns use dragon traits get a top-level element
+        if self.get_campaign(dict).get("dragon_traits", False):
+            output["dragon_traits"] = {}
+            output["dragon_traits"].update({"trait_list": self.get_dragon_traits()})
+            output["dragon_traits"].update({"active_cells": self.get_dragon_traits("active_cells")})
+            output["dragon_traits"].update({"available_constellations": self.get_dragon_traits("available_constellations")})
+
         # now add the additional top-level items ("keep it flat!" -khoa)
         output.update({"notes": self.get_notes()})
         output.update({"survival_actions": self.get_survival_actions("JSON")})
@@ -425,7 +432,7 @@ class Survivor(Models.UserAsset):
         """
 
         # initialize
-        asset_class, ci_dict = self.get_asset('cursed_items', handle)
+        a, ci_dict = self.get_asset('cursed_items', handle)
 
         # check for the handle (gracefully fail if it's a dupe)
         if ci_dict["handle"] in self.survivor["cursed_items"]:
@@ -724,6 +731,38 @@ class Survivor(Models.UserAsset):
     #   toggles and flags!
     #
 
+    def toggle_boolean(self, attribute=None):
+        """ This is a generic toggle that will toggle any attribute of the
+        survivor that is Boolean. Note that this will only work on attributes
+        that are part of the survivor data model (check the baseline() method)
+        and will not work, for example, on status flags such as 'skip_next_hunt'
+        and similar. """
+
+        if attribute is None:
+            self.check_request_params(["attribute"])
+            attribute = self.params["attribute"]
+
+        if attribute not in self.survivor.keys():
+            msg = "The attribute '%s' is not part of the survivor data model!" % attribute
+            self.logger.error(msg)
+            raise utils.InvalidUsage(msg, status_code=400)
+        elif type(self.survivor[attribute]) != bool:
+            msg = "The attribute '%s' is not type 'bool'!" % attribute
+            self.logger.error(msg)
+            raise utils.InvalidUsage(msg, status_code=400)
+
+        if self.survivor[attribute]:
+            self.survivor[attribute] = False
+        else:
+            self.survivor[attribute] = True
+
+        self.log_event("%s changed %s attribute '%s' to %s" % (request.User.login, self.pretty_name(), attribute, self.survivor[attribute]))
+        self.save()
+
+        pass
+
+
+
     def toggle_sotf_reroll(self):
         """ toggles the survivor's Survival of the Fittest once-in-a-lifetime
         reroll on or off. This is self.survivor["sotf_reroll"] and it's a bool
@@ -752,6 +791,7 @@ class Survivor(Models.UserAsset):
             - cannot_spend_survival
             - cannot_use_fighting_arts
             - skip_next_hunt
+            - retired
 
         If 'flag' is None, this method assumes that it is being called by a the
         request_response() method and will check for incoming params.
@@ -908,6 +948,44 @@ class Survivor(Models.UserAsset):
         self.save()
 
 
+    def set_constellation(self, constellation=None, unset=None):
+        """ Sets or unsets the survivor's self.survivor["constellation"]. """
+
+        current_constellation = self.survivor.get("constellation", False)
+
+        # figure out if we're unsetting
+        if unset is None:
+            if "unset" in self.params:
+                unset = True
+            else:
+                unset = False
+
+        if unset and current_constellation:
+            del self.survivor["constellation"]
+            self.log_event("%s unset the constellation for %s" % (request.User.login, self.pretty_name()))
+            self.rm_game_asset("epithets", "the_%s" % current_constellation.lower())
+            return True
+        elif unset and not current_constellation:
+            self.logger.warn("%s Does not have a constellation! Ignoring unset request..." % (self))
+            return False
+
+        if constellation is None:
+            self.check_request_params(['constellation'])
+            constellation = self.params["constellation"]
+
+        if current_constellation == constellation:
+            self.logger.warn("%s Constellation is already %s. Ignoring request..." % (self, constellation))
+            return False
+        else:
+            if current_constellation:
+                self.rm_game_asset("epithets", "the_%s" % current_constellation.lower())
+            self.survivor["constellation"] = constellation
+            self.add_game_asset("epithets", "the_%s" % constellation.lower())
+            self.log_event("%s set %s constellation to '%s'" % (request.User.login, self.pretty_name(), constellation))
+            self.log_event("%s has become one of the People of the Stars!" % (self.pretty_name), event_type="potstars_constellation")
+            self.save()
+
+
     def set_savior_status(self, color=None, unset=False):
         """ Makes the survivor a savior or removes all savior A&Is. """
 
@@ -1052,6 +1130,85 @@ class Survivor(Models.UserAsset):
         """
 
         return "%s [%s]" % (self.survivor["name"], self.get_sex())
+
+
+    def get_dragon_traits(self, return_type=dict):
+        """ Returns survivor Dragon Traits. """
+
+        traits = []
+
+        # check Understanding for 9+
+        if int(self.survivor["Understanding"]) >= 9:
+            traits.append("9 Understanding (max)")
+
+        # check self.survivor["expansion_attribs"] for "Reincarnated surname","Scar","Noble surname"
+        if "expansion_attribs" in self.survivor.keys():
+            for attrib in ["Reincarnated surname", "Scar", "Noble surname"]:
+                if attrib in self.survivor["expansion_attribs"].keys():
+                    traits.append(attrib)
+
+        # check the actual survivor name too, you know, for the real role players
+        split_name = self.survivor["name"].split(" ")
+        for surname in ["Noble","Reincarnated"]:
+            if surname in split_name and "%s surname" % surname not in traits:
+                traits.append(surname + " surname")
+
+        # check abilities_and_impairments for Oracle's Eye, Iridescent Hide, Pristine,
+        AI = abilities_and_impairments.Assets()
+        for a in [AI.get_asset('oracles_eye'), AI.get_asset('pristine'), AI.get_asset('iridescent_hide')]:
+            if a["handle"] in self.survivor["abilities_and_impairments"]:
+                traits.append("%s ability" % a["name"])
+
+        # check for any weapon mastery
+        AI.filter("type", ["weapon_mastery"], reverse=True)
+        for wm in AI.get_dicts():
+            if wm["handle"] in self.survivor["abilities_and_impairments"]:
+                traits.append("Weapon Mastery")
+
+        # check disorders for "Destined"
+        if "Destined" in self.survivor["disorders"]:
+            traits.append("Destined disorder")
+
+        # check fighting arts for "Fated Blow", "Frozen Star", "Unbreakable", "Champion's Rite"
+        for fa in ["Fated Blow","Frozen Star","Unbreakable","Champion's Rite"]:
+            if fa in self.survivor["fighting_arts"]:
+                if fa == "Frozen Star":
+                    fa = "Frozen Star secret"
+                traits.append("%s fighting art" % fa)
+
+        # check for 3+ strength
+        if int(self.survivor["Strength"]) >= 3:
+            traits.append("3+ Strength attribute")
+
+        # check for 1+ Accuracy
+        if int(self.survivor["Accuracy"]) >= 1:
+            traits.append("1+ Accuracy attribute")
+
+        # check Courage for 9+
+        if int(self.survivor["Courage"]) >= 9:
+            traits.append("9 Courage (max)")
+
+        if return_type == "active_cells":
+            cells = set()
+            C = the_constellations.Assets()
+            c_map = C.get_asset('lookups')["map"]
+            for t in traits:
+                if t in c_map.keys():
+                    cells.add(c_map[t])
+            return list(cells)
+        elif return_type == 'available_constellations':
+            constellations = set()
+            active_cells = self.get_dragon_traits('active_cells')
+            C = the_constellations.Assets()
+            c_formulae = C.get_asset('lookups')["formulae"]
+            for k,v in c_formulae.iteritems():      # k = "Witch", v = set(["A1","A2","A3","A4"])
+                if v.issubset(active_cells):
+                    constellations.add(k)
+            return list(constellations)
+
+        # if no return_type, just return the trait list
+
+        return traits
 
 
     def get_notes(self):
@@ -1441,6 +1598,8 @@ class Survivor(Models.UserAsset):
         # sheet attribute operations
         elif action == "set_sex":
             self.set_sex()
+        elif action == "set_constellation":
+            self.set_constellation()
         elif action == "update_attribute":
             self.update_attribute()
         elif action == "set_attribute":
@@ -1459,6 +1618,8 @@ class Survivor(Models.UserAsset):
             self.set_status_flag()
         elif action == 'toggle_status_flag':
             self.toggle_status_flag()
+        elif action == 'toggle_boolean':
+            self.toggle_boolean()
 
         # survival
         elif action == "update_survival":

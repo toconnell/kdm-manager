@@ -38,6 +38,16 @@ class badResponse():
         return utils.http_500
 
 
+def get_admin_view(view=None):
+    """ Not implemented! """
+    return utils.http_501
+
+
+def get_admin_data(view=None):
+    """ Not implemented! """
+    return utils.http_501
+
+
 def get_user_asset(collection=None, asset_id=None):
     """ Tries to return an initialized asset from one of our collections.
     Returns a (bad) HTTP response if it cannot. """
@@ -100,7 +110,7 @@ def new_user_asset(asset_type=None):
 
     """
 
-    request.logger.debug("%s is requesting a new '%s' asset!" % (request.User, asset_type))
+    logger.debug("%s is requesting a new '%s' asset!" % (request.User, asset_type))
 
     if asset_type == "settlement":
         S = settlements.Settlement()

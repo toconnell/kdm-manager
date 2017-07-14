@@ -77,7 +77,7 @@ def jwt_identity_handler(payload):
     return utils.http_404
 
 
-def token_to_object(request):
+def token_to_object(request, strict=True):
     """ Processes the "Authorization" param in the header and returns an http
     response OR a user object. Requires the application's initialized JWT to
     work. """
@@ -92,7 +92,7 @@ def token_to_object(request):
     # now, try to decode the token and get a dict
 
     try:
-        decoded = jwt.decode(auth_token, secret_key)
+        decoded = jwt.decode(auth_token, secret_key, verify=strict)
         user_dict = dict(json.loads(decoded["identity"]))
         return User(_id=user_dict["_id"]["$oid"])
     except jwt.DecodeError:

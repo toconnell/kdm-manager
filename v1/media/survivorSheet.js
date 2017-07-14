@@ -64,7 +64,9 @@ app.controller('secondaryAttributeController', function($scope) {
         if (value < 0) {value = $scope.survivor.sheet[attrib]};
         var js_obj = {'attribute': attrib, 'value': value};
         $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj);
-        $scope.initializeSurvivor($scope.survivor_id);
+        sleep(500).then(() => {
+            $scope.initializeSurvivor($scope.survivor_id);
+        });
     };
 });
 
@@ -133,7 +135,7 @@ app.controller('abilitiesAndImpairmentsController', function($scope) {
 //        console.log(ai_handle + " index: " + ai_index);
         js_obj = {"handle": ai_handle, "type": "abilities_and_impairments"};
         $scope.postJSONtoAPI('survivor', 'rm_game_asset', js_obj);
-        sleep(1000).then(() => {
+        sleep(500).then(() => {
             $scope.initializeSurvivor($scope.survivor_id);
         });
         $scope.setAIoptions();
@@ -151,6 +153,12 @@ app.controller('abilitiesAndImpairmentsController', function($scope) {
         $scope.setAIoptions();
     };
 
+});
+
+app.controller('metaDataController', function($scope) {
+    $scope.togglePublic = function() {
+        $scope.postJSONtoAPI('survivor','toggle_boolean', {'attribute': 'public'});
+    };
 });
 
 app.controller("survivalController", function($scope) {
@@ -285,50 +293,50 @@ app.controller("controlsOfDeath", function($scope) {
 
 app.controller("attributeController", function($scope) {
 
+    $scope.attributeTokens = [
+        {
+            "longName": "Movement",
+            "shortName": "MOV",
+            "buttonClass": "mov_token",
+        },
+        {
+            "longName": "Accuracy",
+            "shortName": "ACC",
+            "buttonClass": "acc_token",
+        },
+        {
+            "longName": "Strength",
+            "shortName": "STR",
+            "buttonClass": "str_token",
+        },
+        {
+            "longName": "Evasion",
+            "shortName": "EVA",
+            "buttonClass": "eva_token",
+        },
+        {
+            "longName": "Luck",
+            "shortName": "LUCK",
+            "buttonClass": "luck_token",
+        },
+        {
+            "longName": "Speed",
+            "shortName": "SPD",
+            "buttonClass": "spd_token",
+        },
+    ];
 
-    $scope.getTotal = function(base,gear,tokens) {
-
-        // generic function for computing the total value of the survivor's
-        // attribute. could be a little DRYer, but FIWE: I'm a n00b at this.
-
-        if (base == undefined) {var a = Number($scope.base_value || 0)} else {var a = Number(base)};
-        if (gear == undefined) {var b = Number($scope.gear_value || 0)} else {var b = Number(gear)};
-        if (tokens == undefined) {var c = Number($scope.tokens_value || 0)} else {var c = Number(tokens)};
-        $scope.sum = a+b+c;
-        return Number($scope.sum);
+    $scope.incrementBase = function(stat, modifier) {
+        // bind the paddles to this
+        $scope.survivor.sheet[stat] += modifier;
+        var js_obj = {'attribute': stat, 'value': $scope.survivor.sheet[stat]};
+        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj);
     };
 
-
-    $scope.refresh = function (attrib, attrib_type, target_class) {
-
-        // any time a user adjusts one of the inputs within the scope of our
-        // controller, they call this refresh() method (even if they use the
-        // increment/decrement paddles). The refresh checks all fields within
-        // scope, updates the total (with innerHTML injection) and then submits
-        // the incoming change back to the webapp as a survivor update
-
-        var base = Number(document.getElementById("base_value_" + attrib + "_controller").value);
-        var gear = Number(document.getElementById("gear_value_" + attrib + "_controller").value);
-        var tokens = Number(document.getElementById("tokens_value_" + attrib + "_controller").value);
-        var total = $scope.getTotal(base,gear,tokens);
-
-//        window.alert("total is " + total);
-        var x = document.getElementsByClassName("synthetic_attrib_total_" + attrib);
-        var i;
-        for (i = 0; i < x.length; i++) {
-            x[i].innerHTML = total;
-        };
-
-        var source = document.getElementById(attrib_type + "_value_" + attrib + "_controller");
-        var value = Number(source.value);
-        if (attrib_type == 'base') {
-            js_obj = {"attribute": attrib, "value": value}
-            $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj);
-        } else {
-            js_obj = {'attribute': attrib, 'detail': attrib_type, 'value': value}
-            $scope.postJSONtoAPI('survivor', 'set_attribute_detail', js_obj);
-        };
-
+    $scope.incrementDetail = function(stat, detail, modifier) {
+        $scope.survivor.sheet.attribute_detail[stat][detail] += modifier;
+        var js_obj = {'attribute': stat, 'detail': detail, 'value': $scope.survivor.sheet.attribute_detail[stat][detail]};
+        $scope.postJSONtoAPI('survivor', 'set_attribute_detail', js_obj);
     };
 
 });
@@ -431,5 +439,49 @@ app.controller("epithetController", function($scope) {
 });
 
 
+app.controller("theConstellationsController", function($scope) {
+    // controls for 'The Constellations' view
 
+    // watch the attribs that figure into the constellations
+    $scope.$watch('survivor.sheet.Accuracy', function () {
+        $scope.initializeSurvivor($scope.survivor_id);
+    });
+    $scope.$watch('survivor.sheet.Courage', function () {
+        $scope.initializeSurvivor($scope.survivor_id);
+    });
+    $scope.$watch('survivor.sheet.name', function () {
+        $scope.initializeSurvivor($scope.survivor_id);
+    });
+    $scope.$watch('survivor.sheet.Strength', function () {
+        $scope.initializeSurvivor($scope.survivor_id);
+    });
+    $scope.$watch('survivor.sheet.Understanding', function () {
+        $scope.initializeSurvivor($scope.survivor_id);
+    });
+
+    // actual methods
+    $scope.activeCell = function(cell) {
+        if ($scope.survivor == undefined) {return false};
+        if ($scope.survivor.dragon_traits.active_cells.indexOf(cell) == -1 ) {
+            return false; } else {
+            return true;
+        };
+    };
+
+    $scope.unsetConstellation = function() {
+        var js_obj = {"unset": true};
+        $scope.postJSONtoAPI('survivor','set_constellation', js_obj);
+        $scope.initializeSurvivor($scope.survivor_id);
+    };
+
+    $scope.setConstellation = function(c) {
+        var js_obj = {"constellation": c};
+        $scope.survivor.sheet.constellation = c;
+        $scope.postJSONtoAPI('survivor','set_constellation', js_obj);
+        sleep(1000).then(() => {
+            $scope.initializeSurvivor($scope.survivor_id);
+        });
+    };
+
+});
 

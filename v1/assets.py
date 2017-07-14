@@ -25,7 +25,7 @@ import export_to_file
 from modular_assets import survivor_attrib_controls
 import game_assets
 import html
-from models import Abilities, Disorders, Epithets, FightingArts, Locations, Items, Innovations, Resources, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles 
+from models import Disorders, Epithets, FightingArts, Locations, Items, Innovations, Resources, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles 
 from session import Session
 from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd, u_to_str
 import world
@@ -1250,29 +1250,6 @@ class Survivor:
 
 
 
-    def update_constellation(self, new_value):
-        """ Sets (or unsets) the survivor's constellation. """
-
-        def rm():
-            self.update_epithets("rm","The %s" % self.survivor["constellation"])
-            self.survivor["constellation"] = None
-
-        def add():
-            self.survivor["constellation"] = new_value
-            self.update_epithets("add", "The %s" % new_value)
-            self.Settlement.log_event("%s has been reborn under the sign of The %s as one of the <b>People of the Stars</b>!" % (self, new_value))
-
-        if new_value == "UNSET" and "constellation" in self.survivor.keys():
-            rm()
-        elif "constellation" in self.survivor.keys() and self.survivor["constellation"] is not None:
-            rm()
-            add()
-        else:
-            add()
-
-
-        self.logger.debug("[%s] set survivor %s constellation ('%s')." % (self.User, self, new_value))
-
 
     def get_constellation(self, return_type=None):
         """ Returns the survivor's constellation. Non if they haven't got one.
@@ -1289,62 +1266,6 @@ class Survivor:
                 return ""
 
         return const
-
-
-    def set_constellation_traits(self):
-        """ Checks the survivor for the presence of the 16 constellation traits.
-        Sets self.survivor["constellation_traits"] dict. """
-
-        traits = []
-
-        # check Understanding for 9+
-        if int(self.survivor["Understanding"]) >= 9:
-            traits.append("9 Understanding (max)")
-
-        # check self.survivor["expansion_attribs"] for "Reincarnated surname","Scar","Noble surname"
-        if "expansion_attribs" in self.survivor.keys():
-            for attrib in ["Reincarnated surname", "Scar", "Noble surname"]:
-                if attrib in self.survivor["expansion_attribs"].keys():
-                    traits.append(attrib)
-
-        split_name = self.survivor["name"].split(" ")
-        for surname in ["Noble","Reincarnated"]:
-            if surname in split_name and "%s surname" % surname not in traits:
-                traits.append(surname + " surname")
-
-        # check abilities_and_impairments for Oracle's Eye, Iridescent Hide, any weapon mastery, Pristine,
-        for a in ["Oracle's Eye","Iridescent Hide","Pristine"]:
-            if a in self.survivor["abilities_and_impairments"]:
-                traits.append("%s ability" % a)
-
-        # check disorders for "Destined"
-        if "Destined" in self.survivor["disorders"]:
-            traits.append("Destined disorder")
-
-        # check fighting arts for "Fated Blow", "Frozen Star", "Unbreakable", "Champion's Rite"
-        for fa in ["Fated Blow","Frozen Star","Unbreakable","Champion's Rite"]:
-            if fa in self.survivor["fighting_arts"]:
-                if fa == "Frozen Star":
-                    fa = "Frozen Star secret"
-                traits.append("%s fighting art" % fa)
-
-        # check for 3+ strength
-        if int(self.survivor["Strength"]) >= 3:
-            traits.append("3+ Strength attribute")
-
-        # check for 1+ Accuracy
-        if int(self.survivor["Accuracy"]) >= 1:
-            traits.append("1+ Accuracy attribute")
-
-        # check Courage for 9+
-        if int(self.survivor["Courage"]) >= 9:
-            traits.append("9 Courage (max)")
-
-
-        # done.
-        self.survivor["constellation_traits"] = list(set(traits))
-        mdb.survivors.save(self.survivor)
-
 
 
     def update_partner(self, p_id):
@@ -1556,7 +1477,7 @@ class Survivor:
         if return_type == "html_controls":
 
             # bail if the settlement hasn't got partnership
-            if not "Partnership" in self.Settlement.settlement["innovations"]:
+            if not "partnership" in self.Settlement.settlement["innovations"]:
                 return ""
 
             output = html.survivor.partner_controls_top
@@ -1634,12 +1555,12 @@ class Survivor:
         for attrib in active:
             if not attrib in self.get_expansion_attribs().keys():
                 self.survivor["expansion_attribs"][attrib] = "checked"
-                self.update_epithets(epithet=attrib)    # issue #81
+#                self.update_epithets(epithet=attrib)    # issue #81
                 self.logger.debug("[%s] toggled ON expansion attribute '%s' for %s" % (self.User, attrib, self))
         for attrib in self.get_expansion_attribs().keys():
             if not attrib in active:
                 del self.survivor["expansion_attribs"][attrib]
-                self.update_epithets(action="rm", epithet=attrib)
+#                self.update_epithets(action="rm", epithet=attrib)
                 self.logger.debug("[%s] toggled OFF expansion attribute '%s' for %s" % (self.User, attrib, self))
 
 
@@ -1934,8 +1855,6 @@ class Survivor:
 
             if p in ignore_keys:
                 pass
-            elif p == "set_constellation":
-                self.update_constellation(game_asset_key)
             elif p == "survivor_avatar":
                 self.update_avatar(params[p])
             elif p == "add_disorder":
@@ -2095,116 +2014,6 @@ class Survivor:
         )
 
 
-    def render_dragon_controls(self, return_type=None):
-        """ Returns the survivor's constellation table, either as a dict of
-        component info or as an HTML table. """
-
-        if not "dragon_traits" in self.Settlement.get_campaign("dict").keys():
-            return ""
-
-        self.set_constellation_traits()
-
-        table_map = game_assets.potstars_constellation["map"]
-
-        rows = {}
-        for k,v in table_map.iteritems():
-            col = v[0]
-            row = int(v[1])
-            if not row in rows.keys():
-                rows[row] = {col: k}
-            else:
-                rows[row][col] = k
-
-        active_td = []
-        for t in self.survivor["constellation_traits"]:
-            if t in table_map.keys():
-                active_td.append(table_map[t])
-
-        table_formulae = game_assets.potstars_constellation["formulae"]
-        active_th = []
-        for const in table_formulae.keys():
-            jackpot = set(table_formulae[const])
-            if jackpot.issubset(set(active_td)):
-                active_th.append(const)
-
-        constellation_table = (active_th, active_td)
-
-
-        html_table = html.survivor.constellation_table_top
-        html_table += html.survivor.constellation_table_row_top.safe_substitute(
-        )
-
-        for t in [(1,"Gambler"),(2,"Absolute"),(3,"Sculptor"),(4,"Goblin")]:
-            row, const = t
-            row_cells = ""
-            for col in sorted(rows[row]):
-                cell_id = "%s%s" % (col,row)
-                td_class = ""
-                if cell_id in active_td:
-                    td_class="active"
-                row_cells += html.survivor.constellation_table_cell.safe_substitute(
-                    value=rows[row][col],
-                    td_class=td_class
-                )
-            html_table += html.survivor.constellation_table_row.safe_substitute(
-                th = const,
-                cells = row_cells,
-            )
-
-        html_table += html.survivor.constellation_table_bot
-
-        const_options = ""
-        for const in sorted(table_formulae.keys()):
-            selected = ""
-            if const in active_th:
-                 selected = "selected"
-            if self.survivor["constellation"] is not None:
-                if const == self.survivor["constellation"]:
-                    selected = "selected"
-            const_options += html.survivor.constellation_table_select_option.safe_substitute(
-                selected=selected,
-                value=const
-            )
-
-        html_table += html.survivor.constellation_table_select_top.safe_substitute(
-            survivor_id = self.survivor["_id"],
-            options=const_options,
-        )
-        html_table += html.survivor.constellation_table_select_bot.safe_substitute(
-            survivor_id = self.survivor["_id"],
-        )
-
-        output = html.survivor.dragon_traits_controls.safe_substitute(
-            trait_count=len(self.survivor["constellation_traits"]),
-            constellation_table = html_table,
-        )
-        return output
-
-
-
-
-    def render_attribute_controls(self, return_type="survivor_sheet"):
-        """ Renders the controls for modifying/managing/investigating the
-        survivor's attributes, e.g. MOV, ACC, STR, etc. """
-
-        if return_type == "survivor_sheet":
-            output = html.survivor.survivor_sheet_attrib_controls_top
-            for token in survivor_attrib_controls.tokens:
-                output += html.survivor.survivor_sheet_attrib_controls_token.safe_substitute(
-                    survivor_id=self.survivor["_id"],
-                    controls_id=token["long_name"] + "_controller",
-                    base_value=self.survivor[token["long_name"]],
-                    gear_value=self.get_survivor_attribute(token["long_name"],"gear"),
-                    tokens_value=self.get_survivor_attribute(token["long_name"],"tokens"),
-                    token_class=token["token_button_class"],
-                    short_name=token["short_name"],
-                    long_name=token["long_name"],
-                )
-            output += html.survivor.survivor_sheet_attrib_controls_bot
-            return output
-        else:
-            self.logger.error("Unsupported 'return_type' kwarg value: %s" % return_type)
-            return ""
 
 
     @ua_decorator
@@ -2260,7 +2069,6 @@ class Survivor:
             # checkbox status
             favorite_checked = flags["favorite"],
             retired_checked = flags["retired"],
-            public_checked = flags["public"],
 
             # manually generated hit boxes
             insanity = self.survivor["Insanity"],
@@ -2291,11 +2099,9 @@ class Survivor:
             # optional and/or campaign-specific controls and modals
             partner_controls = self.get_partner("html_controls"),
             expansion_attrib_controls = self.get_expansion_attribs("html_controls"),
-            dragon_controls = self.render_dragon_controls(),
 
             # angularjs application controls
             survivor_notes = self.get_survivor_notes("angularjs"),
-            survivor_attrib_controls = self.render_attribute_controls(),
         )
         return output
 
@@ -2560,19 +2366,6 @@ class Settlement:
         self.log_event("%s removed the settlement!" % (self.User.user["login"]))
         self.logger.warn("[%s] Finished marking %s as 'removed'." % (self.User, self))
         self.save()
-
-
-    def bulk_add_survivors(self, male=0, female=0):
-        """ Adds 'male' male survivors and 'female' female survivors the settlement. """
-
-        for s in range(male):
-            m = Survivor(params=None, session_object=self.Session, suppress_event_logging=True, update_mins=False)
-            m.set_attrs({"public": "checked"})
-        for s in range(female):
-            f = Survivor(params={"sex": "F"}, session_object=self.Session, suppress_event_logging=True, update_mins=False)
-            f.set_attrs({"public": "checked"})
-        self.log_event("%s added %s male and %s female survivors to %s!" % (self.User, male, female, self.settlement["name"]))
-        self.logger.debug("[%s] bulk-added %s male and %s female survivors to %s" % (self.User.user["login"], male, female, self))
 
 
     def log_event(self, msg, event_type=None):
@@ -3583,7 +3376,7 @@ class Settlement:
                 user_owns_survivor = False
                 disabled = "disabled"
 
-                if survivor["email"] == user_login or current_user_is_settlement_creator or "public" in survivor.keys():
+                if survivor["email"] == user_login or current_user_is_settlement_creator or survivor.get("public",None) is not None:
                     disabled = ""
                     user_owns_survivor = True
 
