@@ -3203,24 +3203,6 @@ resources = {
 
 survivor_attributes = ["Movement", "Accuracy", "Strength", "Evasion", "Luck", "Speed"]
 
-weapon_proficiencies = {
-    "Scythe": {"expansion": "Dragon King"},
-    "Katana": {"expansion": "Sunstalker", "auto-apply_specialization": False},
-    "Bow": {},
-    "Katar": {},
-    "Sword": {},
-    "Dagger": {},
-    "Shield": {},
-    "Whip": {},
-    "Grand Weapon": { },
-    "Fist & Tooth": { },
-    "Club": {},
-    "Spear": {},
-    "Axe": {},
-    "Twilight Sword": {},
-}
-
-
 epithets = {
     # slenderman
     "Gloomy": {"expansion": "Slenderman", "bgcolor": "570A75", "color": "fff"},
@@ -3536,40 +3518,6 @@ expansions = {
     },
 }
 
-
-
-
-#
-#   Campaign assets and definitions
-#
-
-default_timeline = [
-    {"year": 0, "settlement_event": ["First Day"]},
-    {"year": 1, "story_event": ["Returning Survivors"]},
-    {"year": 2, "story_event": ["Endless Screams"]},
-    {"year": 3, },
-    {"year": 4, "nemesis_encounter": ["Nemesis Encounter: Butcher"]},
-    {"year": 5, "story_event": ["Hands of Heat"]},
-    {"year": 6, "story_event": ["Armored Strangers"]},
-    {"year": 7, "story_event": ["Phoenix Feather"]},
-    {"year": 8, },
-    {"year": 9, "nemesis_encounter": ["Nemesis Encounter: King's Man"]},
-    {"year": 10, },
-    {"year": 11, "story_event": ["Regal Visit"]},
-    {"year": 12, "story_event": ["Principle: Conviction"]},
-    {"year": 13, }, {"year": 14, }, {"year": 15, },
-    {"year": 16, "nemesis_encounter": ["Nemesis Encounter"]},
-    {"year": 17, }, {"year": 18, },
-    {"year": 19, "nemesis_encounter": ["Nemesis Encounter"]},
-    {"year": 20, "story_event": ["Watched"], },
-    {"year": 21, }, {"year": 22, },
-    {"year": 23, "nemesis_encounter": ["Nemesis Encounter: Level 3"]},
-    {"year": 24, }, {"year": 25, },
-    {"year": 26, "nemesis_encounter": ["Nemesis Encounter: Watcher"]},
-    {"year": 27, }, {"year": 28, }, {"year": 29, }, {"year": 30, }, {"year": 31, },
-    {"year": 32, }, {"year": 33, }, {"year": 34, }, {"year": 35, }, {"year": 36, },
-    {"year": 37, }, {"year": 38, }, {"year": 39, }, {"year": 40, },
-]
 
 # this is a collection of milestones that might or might not be used in a given
 #   campaign. Campaign assets don't default for this stuff, so you've got to

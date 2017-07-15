@@ -834,7 +834,7 @@ class angularJS:
                     type="email"
                     name="email"
                     ng-placeholder="Survivor Email"
-                    value="{{user_login}}"
+                    ng-value="user_login"
                     onclick="this.select()"
                 >
 
@@ -1192,7 +1192,9 @@ class survivor:
 
             <input
                 id="survivor_sheet_survivor_name"
-                type="text" name="name" value="{{survivor.sheet.name}}"
+                type="text"
+                name="name"
+                ng-value="survivor.sheet.name"
                 ng-placeholder="Survivor Name"
                 onchange="updateAssetAttrib(this, 'survivor', '$survivor_id')"
                 onClick="this.select()"
@@ -1699,40 +1701,41 @@ class survivor:
                 </div> <!-- HUNT XP -->
 
                 <hr class="mobile_only"/>
-
                 <!-- WEAPON PROFICIENCY -->
             <div class="survivor_sheet_secondary_attrib_container">
                 <div class="big_number_container">
                     <button
                         class="incrementer"
-                        onclick="stepAndSave('up','proficiencyBox','survivor','$survivor_id');"
+                        ng-click="incrementAttrib('Weapon Proficiency',1)"
                     >
                         +
                     </button>
                     <input
                         id="proficiencyBox"
-                        name="Weapon Proficiency"
                         class="big_number_square"
                         type="number"
-                        value="$weapon_proficiency"
-                        min="0"
-                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+                        ng-model="WeaponProficiency"
+                        ng-value='survivor.sheet["Weapon Proficiency"]'
+                        ng-change="updateAttrib('Weapon Proficiency')"
                     />
                     <button
                         class="decrementer"
-                        onclick="stepAndSave('down','proficiencyBox','survivor','$survivor_id');"
+                        ng-click="incrementAttrib('Weapon Proficiency',-1)"
                     >
                         -
                     </button>
                 </div> <!-- big_number_container -->
-
                 <div class="survivor_sheet_secondary_attribute_caption">
                     <div class="big_number_caption">Weapon Proficiency</div>
-                    <form method="POST" action="#edit_wpn_prof">
-                        <input type="hidden" name="modify" value="survivor" />
-                        <input type="hidden" name="asset_id" value="$survivor_id" />
-                        $weapon_proficiency_options
-                    </form>
+                        <select
+                            ng-model="survivor.sheet.weapon_proficiency_type"
+                            ng-options="w.handle as w.name for w in settlement.game_assets.weapon_proficiency"
+                            ng-change="setWeaponProficiencyType()"
+                            ng-selected="survivor.sheet.weapon_proficiency_type"
+                        >
+                            <option disabled value="">Choose a Weapon Type</option>
+                        </select>
+
                     <p>
                         <b>Specialist</b> at 3<br/><b>Master</b> at 8.
                     </p>

@@ -443,25 +443,6 @@ class resourcesModel(Model):
         Model.__init__(self)
         self.game_assets = game_assets.resources
 
-class weaponProficienciesModel(Model):
-    def __init__(self):
-        Model.__init__(self)
-        self.game_assets = game_assets.weapon_proficiencies
-        self.name = "weapon_proficiency_type"
-
-
-class weaponMasteriesModel(Model):
-    def __init__(self):
-        Model.__init__(self)
-        self.game_assets = {}
-        for weapon in game_assets.weapon_proficiencies:
-            self.game_assets["Mastery - %s" % weapon] = {
-                "type": "weapon proficiency",
-                "all_survivors": "Specialization - %s" % weapon,
-                "settlement_buff": "All survivors gain <i>Specialization - %s</i>." % weapon,
-            }
-        self.name = "weapon_mastery_type"
-
 
 
 
@@ -473,8 +454,6 @@ Locations       = locationsModel()
 Items           = itemsModel()
 Innovations     = innovationsModel()
 Resources       = resourcesModel()
-WeaponMasteries = weaponMasteriesModel()
-WeaponProficiencies = weaponProficienciesModel()
 
 #
 #   mutually exclusive principles

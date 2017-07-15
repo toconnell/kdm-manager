@@ -297,6 +297,22 @@ mar_2016_expansions = {
     'worm_bait': {'expansion': 'lion_god', 'name': 'Worm Bait'},
 }
 
+mastery = {
+    'scythe_master':            {'name': 'Scythe Master', 'selectable': False},
+    'katana_master':            {'name': 'Katana Master', 'selectable': False},
+    'bow_master':               {'name': 'Bow Master', 'selectable': False},
+    'katar_master':             {'name': 'Katar Master', 'selectable': False},
+    'sword_master':             {'name': 'Sword Master', 'selectable': False},
+    'dagger_master':            {'name': 'Dagger Master', 'selectable': False},
+    'shield_master':            {'name': 'Shield Master', 'selectable': False},
+    'whip_master':              {'name': 'Whip Master', 'selectable': False},
+    'grand_weapon_master':      {'name': 'Grand Weapon Master', 'selectable': False},
+    'fist_and_tooth_master':    {'name': 'Fist & Tooth Master', 'selectable': False},
+    'club_master':              {'name': 'Club Master', 'selectable': False},
+    'spear_master':             {'name': 'Spear Master', 'selectable': False},
+    'axe_master':               {'name': 'Axe Master', 'selectable': False},
+    'twilight_sword_master':    {'name': 'Twilight Sword master', 'selectable': False},
+}
 
 core = {
     'ate_the_fruit':                        {'name': 'Ate the Fruit'},

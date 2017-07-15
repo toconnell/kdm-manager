@@ -12,7 +12,7 @@ import time
 
 import Models
 import assets
-from models import survivors, campaigns, cursed_items, epithets, expansions, fighting_arts, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events, locations, causes_of_death, names
+from models import survivors, campaigns, cursed_items, epithets, expansions, fighting_arts, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events, locations, causes_of_death, names, weapon_proficiency
 import settings
 import utils
 
@@ -308,6 +308,7 @@ class Settlement(Models.UserAsset):
         output["game_assets"].update(self.get_available_assets(abilities_and_impairments))
         output["game_assets"].update(self.get_available_assets(weapon_specializations))
         output["game_assets"].update(self.get_available_assets(weapon_masteries))
+        output["game_assets"].update(self.get_available_assets(weapon_proficiency, handles=False))
         output["game_assets"].update(self.get_available_assets(cursed_items))
         output["game_assets"].update(self.get_available_assets(survival_actions))
         output["game_assets"].update(self.get_available_assets(events))

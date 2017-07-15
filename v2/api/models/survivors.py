@@ -12,7 +12,7 @@ import Models
 import utils
 
 from assets import survivor_sheet_options, survivors
-from models import abilities_and_impairments, cursed_items, epithets, names, saviors, survival_actions, the_constellations
+from models import abilities_and_impairments, cursed_items, epithets, names, saviors, survival_actions, the_constellations, weapon_proficiency
 
 
 class Assets(Models.AssetCollection):
@@ -116,7 +116,8 @@ class Survivor(Models.UserAsset):
             # meta and housekeeping
             "meta": {
                 "abilities_and_impairments_version": 1.0,
-                "epithets_version": 1.0
+                "epithets_version": 1.0,
+                "weapon_proficiency_type": 1.0,
             },
             "email":        request.User.login,
             "born_in_ly":   self.get_current_ly(),
@@ -159,7 +160,7 @@ class Survivor(Models.UserAsset):
 
             # weapon proficiency 
             "Weapon Proficiency": 0,
-            "weapon_proficiency_type": "",
+            "weapon_proficiency_type": None,
 
             # game assets
             "abilities_and_impairments": [],
@@ -254,12 +255,15 @@ class Survivor(Models.UserAsset):
 
             def apply_buff_list(l):
                 """ Private helper to apply a dictionary of bonuses. """
-
                 for d in l:
                     for k in d.keys():
                         if k == "affinities":
                             self.update_affinities(d[k])
                         elif k == "abilities_and_impairments":
+                            if type(d[k]) != list:
+                                msg = "The 'abilities_and_impairments' bonus must be a list! Failing on %s" % d
+                                self.logger.exception(msg)
+                                raise Exception(msg)
                             for a_handle in d[k]:
                                 self.add_game_asset("abilities_and_impairments", a_handle)
                         else:
@@ -274,6 +278,9 @@ class Survivor(Models.UserAsset):
                     if d.get("new_survivor", None) is not None:
                         buff_list.append(d["new_survivor"])
                         buff_sources.add(d["name"])
+                    if d.get("all_survivors", None) is not None:
+                        buff_list.append(d["all_survivors"])
+                        buff_sources.add(d["name"])
                     if survivor_is_a_newborn:
                         if d.get("newborn_survivor", None) is not None:
                             buff_list.append(d["newborn_survivor"])
@@ -281,6 +288,9 @@ class Survivor(Models.UserAsset):
             # ...and also from the campaign definition for now
             if c_dict.get('new_survivor', None) is not None:
                 buff_list.append(c_dict['new_survivor'])
+                buff_sources.add("'%s' campaign" % c_dict["name"])
+            if c_dict.get("all_survivors", None) is not None:
+                buff_list.append(c_dict["all_survivors"])
                 buff_sources.add("'%s' campaign" % c_dict["name"])
             if survivor_is_a_newborn:
                 if c_dict.get('newborn_survivor', None) is not None:
@@ -326,6 +336,10 @@ class Survivor(Models.UserAsset):
 
         if self.survivor["meta"].get("epithets_version", None) is None:
             self.convert_epithets()
+            self.perform_save = True
+
+        if self.survivor["meta"].get("weapon_proficiency_type_version", None) is None:
+            self.convert_weapon_proficiency_type()
             self.perform_save = True
 
         #
@@ -586,7 +600,7 @@ class Survivor(Models.UserAsset):
 
         # special handling for certain game asset types
         if asset_dict.get("type", None) == "weapon_mastery":
-            self.log_event("%s has become a %s master!" % (self.pretty_name(), asset_dict["weapon"]), event_type="survivor_mastery")
+            self.log_event("%s has become a %s master!" % (self.pretty_name(), asset_dict["weapon_name"]), event_type="survivor_mastery")
             if asset_dict.get("add_to_innovations", True):
                 self.Settlement.add_innovation(asset_dict["handle"])
 
@@ -709,9 +723,22 @@ class Survivor(Models.UserAsset):
         if attribute in self.min_one_attribs and self.survivor[attribute] < 1:
             self.survivor[attribute] = 1
 
-        # log and save
+        # log completion of the update 
         self.log_event("%s set %s attribute '%s' to %s" % (request.User.login, self.pretty_name(), attribute, self.survivor[attribute]))
         self.save()
+
+        # biz logic for weapon proficiency - POST PROCESS
+        if attribute == "Weapon Proficiency" and self.survivor[attribute] >= 3:
+            if self.survivor["weapon_proficiency_type"] is not None:
+                W = weapon_proficiency.Assets()
+                w_handle = self.survivor["weapon_proficiency_type"]
+                w_dict = W.get_asset(w_handle)
+                if self.survivor[attribute] == 3:
+                    self.log_event("%s is a %s specialist!" % (self.pretty_name(), w_dict["name"]))
+                    self.add_game_asset("abilities_and_impairments", "%s_specialization" % w_handle)
+                elif self.survivor[attribute] == 8:
+                    self.add_game_asset("abilities_and_impairments", "mastery_%s" % w_handle)
+
 
 
     def update_survival(self, modifier=0):
@@ -1113,6 +1140,26 @@ class Survivor(Models.UserAsset):
         self.logger.debug("%s set %s survival to %s" % (request.User, self, self.survivor["survival"]))
         self.save()
 
+
+    def set_weapon_proficiency_type(self, handle=None, unset=False):
+        """ Sets the self.survivor["weapon_proficiency_type"] string to a
+        handle. """
+
+        if handle is None:
+            self.check_request_params(["handle"])
+            handle = self.params["handle"]
+
+        W = weapon_proficiency.Assets()
+        h_dict = W.get_asset(handle)
+
+        if h_dict is None:
+            msg = "The weapon proficiency type handle '%s' is not supported!" % handle
+            self.logger.exception(msg)
+            return utils.InvalidUsage(msg, status_code=400)
+
+        self.survivor["weapon_proficiency_type"] = handle
+        self.log_event("%s set weapon proficiency type to '%s' for %s" % (request.User.login, h_dict["handle"], self.pretty_name()))
+        self.save()
 
 
     #
@@ -1528,8 +1575,6 @@ class Survivor(Models.UserAsset):
     def convert_abilities_and_impairments(self):
         """ Swaps out A&I names for handles. """
 
-        AI = abilities_and_impairments
-
         new_ai = []
 
         for ai_dict in self.list_assets("abilities_and_impairments", log_failures=True):
@@ -1555,6 +1600,28 @@ class Survivor(Models.UserAsset):
         self.survivor["epithets"] = new_epithets
         self.survivor["meta"]["epithets_version"] = 1.0
         self.logger.info("Converted epithets from names (legacy) to handles for %s" % (self))
+
+
+    def convert_weapon_proficiency_type(self):
+        """ Swaps out names for handles. """
+
+        # first normalize an empty string to None type
+        if self.survivor["weapon_proficiency_type"] == "":
+            self.survivor["weapon_proficiency_type"] = None
+
+        if self.survivor["weapon_proficiency_type"] != None:
+            w_name = self.survivor["weapon_proficiency_type"]
+            W = weapon_proficiency.Assets()
+            w_dict = W.get_asset_from_name(w_name)
+            if w_dict is None:
+                self.logger.error("%s Weapon proficiency type '%s' could not be migrated!" % (self, w_name))
+            else:
+                self.survivor["weapon_proficiency_type"] = w_dict["handle"]
+                self.logger.info("%s Migrated weapon proficiency type '%s' to '%s'" % (self, w_name, w_dict["handle"]))
+
+        self.survivor["meta"]["weapon_proficiency_type_version"] = 1.0
+        self.logger.info("Converted weapon proficiency type name (legacy) to handle for %s" % (self))
+
 
 
 
@@ -1606,6 +1673,9 @@ class Survivor(Models.UserAsset):
             self.set_attribute()
         elif action == "set_attribute_detail":  # tokens/gear
             self.set_attribute_detail()
+
+        elif action == "set_weapon_proficiency_type":
+            self.set_weapon_proficiency_type()
 
         # affinities
         elif action == "update_affinities":

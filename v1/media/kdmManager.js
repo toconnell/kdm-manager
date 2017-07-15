@@ -495,7 +495,6 @@ app.controller('settlementNotesController', function($scope, $rootScope) {
         };
         $scope.settlement_notes.unshift(new_note_object);
         $scope.postJSONtoAPI('settlement', 'add_note', new_note_object);
-        $scope.reinitialize();
     };
     $scope.removeNote = function (x, note_js_id) {
         $scope.settlement_notes.splice(x, 1);

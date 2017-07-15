@@ -25,7 +25,7 @@ import export_to_file
 from modular_assets import survivor_attrib_controls
 import game_assets
 import html
-from models import Disorders, Epithets, FightingArts, Locations, Items, Innovations, Resources, WeaponMasteries, WeaponProficiencies, userPreferences, mutually_exclusive_principles 
+from models import Disorders, Epithets, FightingArts, Locations, Items, Innovations, Resources, userPreferences, mutually_exclusive_principles 
 from session import Session
 from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd, u_to_str
 import world
@@ -709,19 +709,6 @@ class Survivor:
         if int(self.survivor["hunt_xp"]) >= 16 and not "retired" in self.survivor.keys():
             self.retire()
 
-        # normalize weapon proficiency type
-        if "weapon_proficiency_type" in self.survivor.keys() and self.survivor["weapon_proficiency_type"] != "":
-            raw_value = str(self.survivor["weapon_proficiency_type"])
-            sanitized = raw_value.strip().title()
-            sanitized = " ".join(sanitized.split())
-            if sanitized[-1] == "s":
-                sanitized = sanitized[:-1]
-            self.survivor["weapon_proficiency_type"] = sanitized
-            if self.survivor["weapon_proficiency_type"] == "Fist And Tooth":
-                self.survivor["weapon_proficiency_type"] = "Fist & Tooth"
-        else:
-            self.survivor["weapon_proficiency_type"] = ""
-
 
         # if the survivor is legacy data model, he doesn't have a born_in_ly
         #   attrib, so we have to get him one:
@@ -1149,8 +1136,6 @@ class Survivor:
         self.logger.debug("[%s] removed '%s' from %s (%s)" % (self.User, asset_key, self, asset_type))
 
 
-        # do this after removing game assets from survivors
-        self.Settlement.validate_weapon_masteries()
 
 
     def get_fighting_art_levels(self, fighting_art=None):
@@ -1776,40 +1761,6 @@ class Survivor:
 
 
 
-    def modify_weapon_proficiency(self, target_lvl=None, new_type=None):
-        """ Wherein we update the survivor's 'Weapon Proficiency' attrib. There
-        is some biz logic here re: specializations and masteries. """
-
-        if target_lvl is None and new_type is not None:
-            self.survivor["weapon_proficiency_type"] = new_type
-            self.Settlement.log_event("%s set '%s' as their weapon proficiency." % (self, new_type))
-            self.logger.debug("[%s] set weapon proficiency type to '%s' for %s." %(self.User, new_type, self))
-            return True
-
-        # if we do nothing else, at least update the level
-        self.survivor["Weapon Proficiency"] = target_lvl
-        self.logger.debug("[%s] set Weapon Proficiency to %s for %s" % (self.User, target_lvl, self))
-
-        # bail if the user hasn't selected a weapon type
-        if self.survivor["weapon_proficiency_type"] == "":
-            return True
-
-        # otherwise, do the logic for setting/unsetting specialize and master
-        weapon = self.survivor["weapon_proficiency_type"].title().strip()
-        specialization_string = "Specialization - %s" % weapon
-        mastery_string = "Mastery - %s" % weapon
-
-        for proficiency_tuple in [(3, specialization_string), (8, mastery_string)]:
-            lvl, p_str = proficiency_tuple
-            if target_lvl < lvl and p_str in self.survivor["abilities_and_impairments"]:
-                self.survivor["abilities_and_impairments"].remove(p_str)
-            if target_lvl >= lvl and p_str not in self.survivor["abilities_and_impairments"]:
-                self.survivor["abilities_and_impairments"].append(p_str)
-
-        if mastery_string in self.survivor["abilities_and_impairments"] and mastery_string not in self.Settlement.settlement["innovations"]:
-            self.Settlement.add_weapon_mastery(self, mastery_string)
-
-
     def join_departing_survivors(self):
         """ Toggles whether the survivor is in the Departing Survivors group or
         not. Watch out for biz logic here! """
@@ -1872,10 +1823,6 @@ class Survivor:
                     self.survivor["name"] = game_asset_key
             elif p == "email":
                 self.update_email(game_asset_key)
-            elif p == "Weapon Proficiency":
-                self.modify_weapon_proficiency(int(game_asset_key))
-            elif p == "add_weapon_proficiency_type":
-                self.modify_weapon_proficiency(target_lvl=None, new_type=game_asset_key)
             elif p == "in_hunting_party":
                 self.join_departing_survivors()
             elif p == "partner_id":
@@ -2059,9 +2006,6 @@ class Survivor:
             survivor_id = self.survivor["_id"],
             name = self.survivor["name"],
             email = self.survivor["email"],
-
-            weapon_proficiency = self.survivor["Weapon Proficiency"],   # this is the score
-            weapon_proficiency_options = WeaponProficiencies.render_as_html_toggle_dropdown(selected=self.survivor["weapon_proficiency_type"], expansions=exp),
 
             # controls
             remove_survivor_controls = rm_controls,
@@ -2571,35 +2515,6 @@ class Settlement:
         return "'%s' (%s)" % (self.settlement["name"], self.settlement["_id"])
 
 
-    def get_available_weapon_masteries(self):
-        """ Uses the settlement's API asset to return a list of available weapon
-        mastery names. """
-
-        available = []
-        for k,v in self.get_api_asset("game_assets","weapon_masteries").iteritems():
-            available.append(v["name"])
-        return available
-
-
-    def validate_weapon_masteries(self):
-        """ Checks the possible weapon masteries the settlement might have and,
-        if any of them are among the settlement["innovations"], makes sure that
-        a survivor still has the mastery. If there are no survivors with the
-        mastery, auto-remove the mastery from settlement["innovations"]. """
-
-        survivor_weapon_masteries = []
-        for weapon_mastery in self.get_available_weapon_masteries():
-            for survivor in self.get_survivors():
-                if weapon_mastery in survivor["abilities_and_impairments"]:
-                    survivor_weapon_masteries.append(weapon_mastery)
-
-        for weapon_mastery in self.get_available_weapon_masteries():
-            if weapon_mastery in self.settlement["innovations"]:
-                if weapon_mastery not in survivor_weapon_masteries:
-                    self.logger.debug("""[%s] weapon mastery '%s' is in settlement["innovations"] for %s, but not present on any survivor's A&I attribute.. Updating settlement...""" % (self.User, weapon_mastery, self))
-                    self.rm_game_asset("innovations", weapon_mastery)
-                    self.log_event("Automatically removed '%s' weapon mastery from settlement Innovations, since no survivor possesses the mastery." % (weapon_mastery))
-
 
     def get_attribute(self, attrib=None):
         """ Returns the settlement attribute associated with 'attrib'. Using this
@@ -2644,30 +2559,6 @@ class Settlement:
 
         return "Invalid export type.", 0
 
-
-    def add_weapon_mastery(self, master, mastery_string):
-        """ Adds a weapon mastery to settlement innovations. Make sure that the
-        'master' arg is a Survivor object. The 'mastery_string' can be whatever,
-        so long as it follows the general naming conventions for masteries. """
-
-        all_masteries = self.get_api_asset("game_assets","weapon_masteries")
-        mastery_lookup = {}
-        for m in all_masteries.keys():
-            mastery_lookup[all_masteries[m]["name"]] = m
-
-        m_handle = mastery_lookup[mastery_string]
-        M = all_masteries[m_handle]
-
-        if not M.get("add_to_innovations", True):
-            self.logger.debug("[%s] Not adding '%s' to settlement innovations..." % (self.User, mastery_string))
-            return True
-
-        self.settlement["innovations"].append(M["handle"])
-        self.log_event("%s has become a %s master!" % (master, M["weapon"]))
-        self.log_event("'%s' added to settlement Innovations!" % mastery_string)
-        self.logger.debug("[%s] added '%s' to %s Innovations! (Survivor: %s)" % (self.User, M["handle"], self, master))
-
-        self.save()
 
 
 

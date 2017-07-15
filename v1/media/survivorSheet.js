@@ -68,6 +68,10 @@ app.controller('secondaryAttributeController', function($scope) {
             $scope.initializeSurvivor($scope.survivor_id);
         });
     };
+    $scope.setWeaponProficiencyType = function() {
+        js_obj = {'handle': $scope.survivor.sheet.weapon_proficiency_type};
+        $scope.postJSONtoAPI('survivor', 'set_weapon_proficiency_type', js_obj);
+    };
 });
 
 app.controller('saviorController', function($scope) {

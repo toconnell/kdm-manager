@@ -1615,7 +1615,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.settlement_notes_controls {margin-top: 10px; margin-bottom: 10px; }
     input.add_settlement_note {font-size: 13pt; padding: 5px }    
     button.add_settlement_note {font-size: 20px; padding-top: 5px; padding-bottom: 5px; }
-    div.settlement_note {height: auto; min-height: 30px; font-size: 12pt;}
+    div.settlement_note {height: auto; min-height: 30px; font-size: 12pt; margin-bottom: 5px; }
     span.flair_text {font-size: 14pt; }
     div.note_flair {width: 3%; }
     div.note_content {font-size: 12pt; margin-left: 7%; }
@@ -1929,7 +1929,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
         /* fighting arts and disorders - wide */
     div.survivor_sheet_card_container{flex-direction: column; }
-    p.survivor_sheet_card {width: 100%;}
+    p.survivor_sheet_card {width: 100%; margin-top: 10px; margin-bottom: 5px; }
 
 
 

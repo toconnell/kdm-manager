@@ -124,3 +124,20 @@ the_constellations = {
         },
     },
 }
+
+weapon_proficiency = {
+    "scythe": {"name": "Scythe", "expansion": "dragon_king"},
+    "katana": {"name": "Katana", "expansion": "sunstalker"},
+    "bow": {"name": "Bow"},
+    "katar": {"name":"Katar"},
+    "sword": {"name": "Sword"},
+    "dagger": {"name": "Dagger"},
+    "shield": {"name": "Shield"},
+    "whip": {"name": "Whip"},
+    "grand_weapon": {"name": "Grand Weapon"},
+    "fist_and_tooth": {"name": "Fist & Tooth"},
+    "club": {"name": "Club"},
+    "spear": {"name": "Spear"},
+    "axe": {"name":"Axe"},
+    "twilight_sword": {"name": "Twilight Sword", "excluded_campaigns": ["people_of_the_stars","people_of_the_sun"]},
+}
