@@ -268,7 +268,7 @@ severe_injury = {
     'blind': {
         'Accuracy': -1,
         'desc': 'Lose an eye. Suffer -1 permanent Accuracy. This injury is permanent and can be recorded twice. A survivor with two <b>blind</b> severe injuries suffers -4 permanent accuracy and retires at the end of the next showdown or settlement phase, having lost all sight. Gain 1 bleeding token.',
-        'epithet': 'The Blind',
+        'epithet': 'the_blind',
         'max': 2,
         'name': 'Blind',
     },

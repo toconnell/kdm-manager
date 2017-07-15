@@ -116,8 +116,15 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
             function(payload) {
                 // get the settlement; touch-up some of the arrays for UI/UX purposes
                 $scope.settlement = payload.data;
+                $scope.settlement.game_assets.causes_of_death.push({'name': ' --- ', 'disabled': true});
+                $scope.settlement.game_assets.causes_of_death.push({'name': '* Custom Cause of Death', 'handle': 'custom'});
+                var cod_list = [];
+                for (var i = 0; i < $scope.settlement.game_assets.causes_of_death.length; i++) {
+                    cod_list.push($scope.settlement.game_assets.causes_of_death[i]["name"]);
+                };
+                $scope.settlement_cod_list = cod_list;
 
-                // create the settlement_sheet in scope (for laziness)
+                // create the settlement_sheet in scope (for laziness/legacy)
                 $scope.settlement_sheet = $scope.settlement.sheet;
 
                 // create other in-scope stuff off of the sheet:
@@ -182,34 +189,6 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
                 $scope.survivor = payload.data;
                 $scope.survivor_sheet = payload.data.sheet;
                 console.info("Survivor Sheet initialized for survivor " + $scope.survivor_id);
-
-                var customCODobj = {"name": "* Custom Cause of Death", "handle":"custom"};
-                var codArray = $scope.settlement.game_assets.causes_of_death;
-                codArray.push({"name": " --- ", disabled: true});
-                codArray.push(customCODobj);
-
-                if ($scope.survivor.cause_of_death != undefined) {
-                    var codString = $scope.survivor.cause_of_death;
-//                    console.log("set codString to " + codString);
-                    for (i=0; i< codArray.length; i++) {
-                        if (codArray[i].name == codString) {
-                            codArray[i].selected = true;
-                            $scope.survivorCOD=codArray[i];
-                            console.log("Set $scope.survivorCOD: " + JSON.stringify(codArray[i]));
-                        };
-                    };
-                    if ($scope.survivorCOD == undefined) {
-                        console.warn("Custom COD detected. Showing Custom COD controls...")
-                        $scope.survivorCOD=customCODobj;
-                        $scope.showCustomCOD();
-                    };
-                } else {
-                    console.log("Survivor " + $scope.survivor_id + " is not dead.");
-                    $scope.survivorCOD={"name": "Choose Cause of Death"};
-                };
-
-                $scope.survivor.causes_of_death = codArray;
-                console.log("Survivor " + s_id + " initialized!")
                 hideCornerLoader();
             },
 
@@ -447,7 +426,9 @@ app.controller("updateExpansionsController", function($scope) {
         } else {
             $scope.postJSONtoAPI('settlement', 'rm_expansions', [e_handle]);
         };
-        $scope.reinitialize();
+        sleep(500).then(() => {
+            $scope.reinitialize();
+        });
     };
 });
 
@@ -499,7 +480,9 @@ app.controller('settlementNotesController', function($scope, $rootScope) {
     $scope.removeNote = function (x, note_js_id) {
         $scope.settlement_notes.splice(x, 1);
         $scope.postJSONtoAPI('settlement', 'rm_note', {"js_id": note_js_id, "user_login": $scope.user_login})
-        $scope.reinitialize();
+        sleep(500).then(() => {
+            $scope.reinitialize();
+        });
     };
     $scope.userRole = function(login) {
         if ($scope.arrayContains(login, $scope.settlement_sheet.admins)) {
@@ -584,7 +567,9 @@ app.controller('timelineController', function($scope, $rootScope) {
 //        console.log("setting LY to " + ly);
         $rootScope.current_ly = Number(ly);
         modifyAsset('settlement', $scope.settlement_id, "lantern_year=" + $rootScope.current_ly);
-        $scope.reinitialize();
+        sleep(500).then(() => {
+            $scope.reinitialize();
+        });
     };
 
     $scope.getLYObject = function(ly) {

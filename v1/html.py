@@ -1991,9 +1991,18 @@ class survivor:
             >
                 <span
                     class="survivor_sheet_ai"
-                    ng-click="rmAI(ai_handle, $index)"
                 >
-                    <b>{{settlement.game_assets.abilities_and_impairments[ai_handle].name}}:</b>
+                    <b
+                        ng-if="settlement.game_assets.abilities_and_impairments[ai_handle].constellation == undefined"
+                    >
+                        {{settlement.game_assets.abilities_and_impairments[ai_handle].name}}:
+                    </b>
+                    <b
+                        ng-if="settlement.game_assets.abilities_and_impairments[ai_handle].constellation != undefined"
+                        class="card_constellation"
+                    >
+                        {{settlement.game_assets.abilities_and_impairments[ai_handle].name}}:
+                    </b>
                     <span ng-bind-html="settlement.game_assets.abilities_and_impairments[ai_handle].desc|trustedHTML"></span>
                 </span>
 
@@ -2456,19 +2465,20 @@ class survivor:
 
     <div
         id="modalDeath" class="modal"
-        ng-init="registerModalDiv('modalDeathButton','modalDeath')"
+        ng-init="
+            registerModalDiv('modalDeathButton','modalDeath');
+        "
         ng-controller="controlsOfDeath"
     >
         <div class="modal-content survivor_sheet_gradient">
             <span class="closeModal" onclick="closeModal('modalDeath')">×</span>
             <h3>Controls of Death!</h3>
-            <p><b>Choose cause of death:</b></p>
-
             <select
                 class="survivor_sheet_cod_picker"
-                ng-model="survivorCOD"
-                ng-options="c as c.name disable when c.disabled for c in survivor.causes_of_death"
+                ng-model="survivor.sheet.cause_of_death"
+                ng-options="c.name as c.name disable when c.disabled for c in settlement.game_assets.causes_of_death"
                 ng-change="processSelectCOD()"
+                ng-selected='survivor.sheet.cause_of_death'
             >
                 <option disabled value="">Choose Cause of Death</option>
             </select>
@@ -2479,7 +2489,24 @@ class survivor:
                     class="custom_cod_text"
                     placeholder="Enter custom Cause of Death"
                     name="enter_cause_of_death"
-                    value="{{survivor.cause_of_death}}"
+                    ng-value="survivor.sheet.cause_of_death"
+                    ng-model="customCOD"
+                />
+            </p>
+
+            <p
+                id="addCustomCOD"
+                ng-if="
+                    survivor.sheet.cause_of_death != undefined &&
+                    settlement_cod_list.indexOf(survivor.sheet.cause_of_death) == -1
+                "
+            >
+                <input
+                    type="text"
+                    class="custom_cod_text"
+                    placeholder="Enter custom Cause of Death"
+                    name="enter_cause_of_death"
+                    ng-value="survivor.sheet.cause_of_death"
                     ng-model="customCOD"
                 />
             </p>

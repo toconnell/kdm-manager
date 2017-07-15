@@ -56,7 +56,9 @@ app.controller('secondaryAttributeController', function($scope) {
         var js_obj = {'attribute': attrib, 'modifier': modifier};
         $scope.survivor.sheet[attrib] += modifier;
         $scope.postJSONtoAPI('survivor', 'update_attribute', js_obj);
-        $scope.initializeSurvivor($scope.survivor_id);
+        sleep(1000).then(() => {
+            $scope.initializeSurvivor($scope.survivor_id);
+        });
     };
     $scope.updateAttrib = function(attrib) {
         var value = $scope[attrib];
@@ -249,7 +251,7 @@ app.controller("controlsOfDeath", function($scope) {
         $scope.survivor.sheet.cause_of_death = undefined;
         $scope.survivor.sheet.died_in = undefined
         $scope.postJSONtoAPI('survivor', 'controls_of_death', {'dead': false});
-        closeModal('modalDeath');
+        $('#modalDeath').fadeOut(1000);
     };
 
     $scope.submitCOD = function(cod) {
@@ -279,14 +281,18 @@ app.controller("controlsOfDeath", function($scope) {
         $scope.survivor.sheet.cause_of_death = cod_string;
         $scope.survivor.sheet.died_in = $scope.settlement.sheet.lantern_year
         $scope.postJSONtoAPI('survivor', 'controls_of_death', cod_json);
-        closeModal('modalDeath');
+        $('#modalDeath').fadeOut(1000);
+//        closeModal('modalDeath');
 
     };
 
     $scope.processSelectCOD = function() {
         // if the user uses the select drop-down, we do this to see what
         // to do next, e.g. whether to show the custom box
-        if ($scope.survivorCOD.handle == 'custom') {
+        $scope.survivorCOD = $scope.survivor.sheet.cause_of_death;
+        console.warn($scope.survivorCOD);
+        if ($scope.survivorCOD == '* Custom Cause of Death') {
+            delete $scope.survivor.sheet.cause_of_death;
             $scope.showCustomCOD();
         } else {
             $scope.submitCOD($scope.survivorCOD);
@@ -465,7 +471,8 @@ app.controller("theConstellationsController", function($scope) {
 
     // actual methods
     $scope.activeCell = function(cell) {
-        if ($scope.survivor == undefined) {return false};
+        if ($scope.survivor == undefined || $scope.settlement == undefined) {return false};
+        if ($scope.settlement.sheet.campaign.dragon_traits == undefined) {return false};
         if ($scope.survivor.dragon_traits.active_cells.indexOf(cell) == -1 ) {
             return false; } else {
             return true;

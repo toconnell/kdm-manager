@@ -75,7 +75,9 @@ app.controller('innovationsController', function($scope) {
         var out = $scope.postJSONtoAPI('settlement', 'add_innovation', js_obj);
         $scope.setInnovationDeck();
         $scope.setInnovationOptions();
-        $scope.reinitialize();
+        sleep(500).then(() => {
+            $scope.reinitialize();
+        });
     };    
     $scope.setInnovationLevel = function(innovation_name,lvl){
         var js_obj = {"handle": innovation_name, "level": lvl};
@@ -87,7 +89,9 @@ app.controller('innovationsController', function($scope) {
         $scope.postJSONtoAPI('settlement', 'rm_innovation', js_obj); 
         $scope.setInnovationDeck();
         $scope.setInnovationOptions();
-        $scope.reinitialize();
+        sleep(500).then(() => {
+            $scope.reinitialize();
+        });
     };
 });
 

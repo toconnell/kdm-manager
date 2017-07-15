@@ -116,6 +116,8 @@ def post_JSON_to_route(route=None, payload={}, headers={}, Session=None):
         if not check_token(Session):
             refresh_jwt_token(Session)
         h['Authorization'] = Session.session["access_token"]
+    else:
+        logger.warn("API POST to JSON did not include a Session object!")
 
     if headers != {}:
         h.update(headers)

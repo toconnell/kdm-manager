@@ -3267,7 +3267,7 @@ class Settlement:
                 user_owns_survivor = False
                 disabled = "disabled"
 
-                if survivor["email"] == user_login or current_user_is_settlement_creator or survivor.get("public",None) is not None:
+                if survivor["email"] == user_login or current_user_is_settlement_creator or survivor.get("public", False) is not False:
                     disabled = ""
                     user_owns_survivor = True
 
@@ -3645,7 +3645,7 @@ class Settlement:
             return False
 
         event["user_login"] = self.User.user["login"]
-        response = api.post_JSON_to_route("/settlement/add_timeline_event/%s" % self.settlement["_id"], event)
+        response = api.post_JSON_to_route("/settlement/add_timeline_event/%s" % self.settlement["_id"], event, Session=self.Session)
         if response.status_code == 200:
             self.logger.debug("[%s] added '%s' to %s timeline via POST to API" % (self.User, event["name"], self))
         else:
@@ -3661,7 +3661,7 @@ class Settlement:
         route for removing timeline events. Logs it. """
 
         event["user_login"] = self.User.user["login"]
-        response = api.post_JSON_to_route("/settlement/rm_timeline_event/%s" % self.settlement["_id"], event)
+        response = api.post_JSON_to_route("/settlement/rm_timeline_event/%s" % self.settlement["_id"], event, Session=self.Session)
         if response.status_code == 200:
             self.logger.debug("[%s] removed '%s' from %s timeline via API" % (self.User, event["name"], self))
         else:

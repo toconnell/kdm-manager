@@ -99,7 +99,7 @@ class Survivor(Models.UserAsset):
         else:
             attribs = self.new_asset_attribs
 
-        self.logger.debug(attribs)
+#        self.logger.debug(attribs)
 
         #
         #   Can't create a survivor without initializing a settlement! do
@@ -294,7 +294,7 @@ class Survivor(Models.UserAsset):
                 buff_sources.add("'%s' campaign" % c_dict["name"])
             if survivor_is_a_newborn:
                 if c_dict.get('newborn_survivor', None) is not None:
-                    buff_list.append(c_dict['born_survivor'])
+                    buff_list.append(c_dict['newborn_survivor'])
                     buff_sources.add("'%s' campaign" % c_dict["name"])
 
             if buff_list != []:
