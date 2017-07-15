@@ -234,6 +234,39 @@
         </tr>
 
 
+        <tr class="ul route_root">
+            <th colspan="3"><b>User Routes:</b> all routes for working directly with a user follow a <code>/user/&lt;action&gt;/&lt;settlement_id&gt;</code> convention. These routes are private and require authentication.</th>
+        </tr>
+        <tr class="ul">
+            <td> /user/get/&lt;user_id&gt; </td>
+            <td> GET </td>
+            <td> Retrieve a serialized version of the user who owns &lt;user_id&gt;,
+            to include some additional usage and meta facts about that user. </td>
+        </tr>
+        <tr class="ul">
+            <td> /user/set/&lt;user_id&gt; </td>
+            <td> POST, OPTIONS </td>
+            <td> <p>This route supports the assignment of user-specified key/value
+            attributes to the user object.</p><p>To set an attribute, include
+            JSON in the body of the request that indicates the key/value to set.</p>
+            Supported attribute keys include:
+                <table class="embedded_table">
+                    <tr><th>key</th><th>value</th></tr>
+                    <tr><td class="key">current_settlement</td><td class="value">
+                    OID of an existing,non-removed settlement.</td></tr>
+                </table>
+            Use multiple key/value pairs to set multiple attributes in a single
+            request, e.g. <code>{"current_settlement": $oid, "current_session":
+            $oid}</code>
+            </p>
+            <p><b>Important!</b> This route does not support the assignment of
+            arbitrary keys and will completely fail any request that includes
+            unsupported keys!</p>
+            </td>
+        </tr>
+
+
+
 
 
         <tr class="ul route_root">
@@ -311,7 +344,7 @@
                 <tr><td class="key">Luck</td><td>O</td><td>int</td><td></td></tr>
                 <tr><td class="key">Speed</td><td>O</td><td>int</td><td></td></tr>
                 <tr><td class="key">Weapon Proficiency</td><td>O</td><td>int</td><td></td></tr>
-                <tr><td class="key">weapon_proficiency_type</td><td>O</td><td>str</td><td>should be a Name (not a handle: this is transitional.)</td></tr>
+                <tr><td class="key">weapon_proficiency_type</td><td>O</td><td>str</td><td>handle</td></tr>
                 <tr><td class="key">abilities_and_impairments</td><td>O</td><td>list</td><td>Needs a list of handles from the settlement's <code>game_assets</code> element, e.g. <code>{'abilities_and_impairments': ['ageless','mastery_sword']}</code> or similar.</td></tr>
                 <tr><td class="key">cursed_items</td><td>O</td><td>list</td><td>List of handles</td></tr>
                 <tr><td class="key">disorders</td><td>O</td><td>list</td><td>List of names (transitional: changing soon)</td></tr>
@@ -328,38 +361,6 @@
             </td>
         </tr>
 
-
-
-        <tr class="ul route_root">
-            <th colspan="3"><b>User Routes:</b> all routes for working directly with a user follow a <code>/user/&lt;action&gt;/&lt;settlement_id&gt;</code> convention. These routes are private and require authentication.</th>
-        </tr>
-        <tr class="ul">
-            <td> /user/get/&lt;user_id&gt; </td>
-            <td> GET </td>
-            <td> Retrieve a serialized version of the user who owns &lt;user_id&gt;,
-            to include some additional usage and meta facts about that user. </td>
-        </tr>
-        <tr class="ul">
-            <td> /user/set/&lt;user_id&gt; </td>
-            <td> POST, OPTIONS </td>
-            <td> <p>This route supports the assignment of user-specified key/value
-            attributes to the user object.</p><p>To set an attribute, include
-            JSON in the body of the request that indicates the key/value to set.</p>
-            Supported attribute keys include:
-                <table class="embedded_table">
-                    <tr><th>key</th><th>value</th></tr>
-                    <tr><td class="key">current_settlement</td><td class="value">
-                    OID of an existing,non-removed settlement.</td></tr>
-                </table>
-            Use multiple key/value pairs to set multiple attributes in a single
-            request, e.g. <code>{"current_settlement": $oid, "current_session":
-            $oid}</code>
-            </p>
-            <p><b>Important!</b> This route does not support the assignment of
-            arbitrary keys and will completely fail any request that includes
-            unsupported keys!</p>
-            </td>
-        </tr>
 
 
         <tr class="ul route_root">
@@ -838,6 +839,15 @@
             <p><b>Important!</b> This will automatically apply remove any epithets
             A&Is, etc. from the survivor (but will not remove any that are still
             effective, e.g. because another cursed item also requires them.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/set_weapon_proficiency_type/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td><p>POST some JSON containing a weapon proficiency type handle
+            (from the settlement's <code>game_assets</code> to set it as the
+            survivor's weapon type:</p>
+            <code>{'handle': 'sword'}</code>
             </td>
         </tr>
 
