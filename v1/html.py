@@ -1179,6 +1179,7 @@ class survivor:
 
     <div
        id = "survivor_sheet_angularjs_controller_container"
+       ng-controller="survivorSheetController"
        ng-init="
             initialize('survivorSheet', '$user_id', '$user_login', '$api_url','$settlement_id','$survivor_id');
        "
@@ -1196,7 +1197,8 @@ class survivor:
                 name="name"
                 ng-value="survivor.sheet.name"
                 ng-placeholder="Survivor Name"
-                onchange="updateAssetAttrib(this, 'survivor', '$survivor_id')"
+                ng-model="survivor.sheet.name"
+                ng-blur="setSurvivorName()"
                 onClick="this.select()"
             />
 
@@ -1282,7 +1284,7 @@ class survivor:
                 >
                     <img
                         class="survivor_avatar_image mobile_and_tablet"
-                        src="/get_image?id={{survivor.sheet.avatar}}"
+                        ng-src="/get_image?id={{survivor.sheet.avatar.$oid}}"
                         alt="Click to change the avatar image for {{survivor.sheet.name}}"
                         />
                 </label>
@@ -1293,7 +1295,7 @@ class survivor:
                 >
                     <img
                         class="survivor_avatar_image mobile_and_tablet"
-                        src="/media/default_avatar_{{survivor.sheet.effective_sex}}.png"
+                        ng-src="/media/default_avatar_{{survivor.sheet.effective_sex}}.png"
                         alt="Click to change the avatar image for {{survivor.sheet.name}}"
                         />
                 </label>
@@ -1363,7 +1365,6 @@ class survivor:
             >
                 Retired &nbsp;
             </label>
-
             <button
                 id="modalDeathButton"
                 class="modal_death_button"
@@ -1491,7 +1492,7 @@ class survivor:
                 >
                     <img
                         class="survivor_avatar_image desktop_only"
-                        src="/get_image?id={{survivor.sheet.avatar}}"
+                        ng-src="/get_image?id={{survivor.sheet.avatar.$oid}}"
                         alt="Click to change the avatar image for {{survivor.sheet.name}}"
                         />
                 </label>
@@ -1501,8 +1502,9 @@ class survivor:
                     ng-if="survivor.sheet.avatar == undefined"
                 >
                     <img
+                        ng-if="survivor.sheet.effective_sex != undefined"
                         class="survivor_avatar_image desktop_only"
-                        src="/media/default_avatar_{{survivor.sheet.effective_sex}}.png"
+                        ng-src="/media/default_avatar_{{survivor.sheet.effective_sex}}.png"
                         alt="Click to change the avatar image for {{survivor.sheet.name}}"
                         />
                 </label>
@@ -1847,7 +1849,6 @@ class survivor:
             ng-if="settlement.sheet.principles.indexOf('survival_of_the_fittest') != -1"
             ng-controller="sotfRerollController"
         >
-
             <input
                 id="sotfRerollCheckbox"
                 type="checkbox"
@@ -1871,7 +1872,11 @@ class survivor:
 
         $expansion_attrib_controls
 
-        <form method="POST" action="#edit_misc_attribs">
+        <form
+            method="POST"
+            action="#edit_misc_attribs"
+            ng-if="survivor.sheet.abilities_and_impairments.indexOf('partner') != -1"
+        >
             <button class="hidden"></button>
             <input type="hidden" name="modify" value="survivor" />
             <input type="hidden" name="asset_id" value="$survivor_id" />
@@ -2330,8 +2335,6 @@ class survivor:
 
             <h3>The Constellations</h3>
 
-            {{survivor.dragon_Traits.available_constellations}}
-
             <table id="survivor_constellation_table">
                 <tr><th colspan="6">&nbsp</th></tr>
                 <tr>
@@ -2344,47 +2347,47 @@ class survivor:
                 </tr>
                 <tr>
                     <th>Gambler</th>
-                    <td ng-if="activeCell('A1') == false">9 Understanding (max)</td>
-                    <td ng-if="activeCell('A1') == true" class="active">9 Understanding (max)</td>
-                    <td ng-if="activeCell('B1') == false">Destined disorder</td>
-                    <td ng-if="activeCell('B1') == true" class="active">Destined disorder</td>
-                    <td ng-if="activeCell('C1') == false">Fated Blow fighting art</td>
-                    <td ng-if="activeCell('C1') == true" class="active">Fated Blow fighting art</td>
-                    <td ng-if="activeCell('D1') == false">Pristine ability</td>
-                    <td ng-if="activeCell('D1') == true" class="active">Pristine ability</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('A1') == false">9 Understanding (max)</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('A1') == true" class="active">9 Understanding (max)</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('B1') == false">Destined disorder</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('B1') == true" class="active">Destined disorder</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('C1') == false">Fated Blow fighting art</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('C1') == true" class="active">Fated Blow fighting art</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('D1') == false">Pristine ability</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('D1') == true" class="active">Pristine ability</td>
                 </tr>
                 <tr>
                     <th>Absolute</th>
-                    <td ng-if="activeCell('A2') == false">Reincarnated Surname</td>
-                    <td ng-if="activeCell('A2') == true" class="active">Reincarnated Surname</td>
-                    <td ng-if="activeCell('B2') == false">Frozen Star secret fighting art</td>
-                    <td ng-if="activeCell('B2') == true" class="active">Frozen Star secret fighting art</td>
-                    <td ng-if="activeCell('C2') == false">Iridescent Hide ability</td>
-                    <td ng-if="activeCell('C2') == true" class="active">Iridescent Hide ability</td>
-                    <td ng-if="activeCell('D2') == false">Champion's Rite fighting art</td>
-                    <td ng-if="activeCell('D2') == true" class="active">Champion's Rite fighting art</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('A2') == false">Reincarnated Surname</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('A2') == true" class="active">Reincarnated Surname</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('B2') == false">Frozen Star secret fighting art</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('B2') == true" class="active">Frozen Star secret fighting art</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('C2') == false">Iridescent Hide ability</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('C2') == true" class="active">Iridescent Hide ability</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('D2') == false">Champion's Rite fighting art</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('D2') == true" class="active">Champion's Rite fighting art</td>
                 </tr>
                 <tr>
                     <th>Sculptor</th>
-                    <td ng-if="activeCell('A3') == false">Scar</td>
-                    <td ng-if="activeCell('A3') == true" class="active">Scar</td>
-                    <td ng-if="activeCell('B3') == false">Noble surname</td>
-                    <td ng-if="activeCell('B3') == true" class="active">Noble surname</td>
-                    <td ng-if="activeCell('C3') == false">Weapon Mastery</td>
-                    <td ng-if="activeCell('C3') == true" class="active">Weapon Mastery</td>
-                    <td ng-if="activeCell('D3') == false">+1 Accuracy attribute</td>
-                    <td ng-if="activeCell('D3') == true" class="active">+1 Accuracy attribute</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('A3') == false">Scar</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('A3') == true" class="active">Scar</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('B3') == false">Noble surname</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('B3') == true" class="active">Noble surname</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('C3') == false">Weapon Mastery</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('C3') == true" class="active">Weapon Mastery</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('D3') == false">+1 Accuracy attribute</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('D3') == true" class="active">+1 Accuracy attribute</td>
                 </tr>
                 <tr>
                     <th>Goblin</th>
-                    <td ng-if="activeCell('A4') == false">Oracle's Eye ability</td>
-                    <td ng-if="activeCell('A4') == true" class="active">Oracle's Eye ability</td>
-                    <td ng-if="activeCell('B4') == false">Unbreakable fighting art</td>
-                    <td ng-if="activeCell('B4') == true" class="active">Unbreakable fighting art</td>
-                    <td ng-if="activeCell('C4') == false">3+ Strength attribute</td>
-                    <td ng-if="activeCell('C4') == true" class="active">3+ Strength attribute</td>
-                    <td ng-if="activeCell('D4') == false">9 Courage (max)</td>
-                    <td ng-if="activeCell('D4') == true" class="active">9 courage (max)</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('A4') == false">Oracle's Eye ability</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('A4') == true" class="active">Oracle's Eye ability</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('B4') == false">Unbreakable fighting art</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('B4') == true" class="active">Unbreakable fighting art</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('C4') == false">3+ Strength attribute</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('C4') == true" class="active">3+ Strength attribute</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('D4') == false">9 Courage (max)</td>
+                    <td ng-if="survivor.dragon_traits.active_cells.includes('D4') == true" class="active">9 courage (max)</td>
                 </tr>
                 <tr><th colspan="6">&nbsp</th></tr>
 
@@ -3360,7 +3363,7 @@ class settlement:
                         class="big_number_square"
                         type="number"
                         name="survival_limit"
-                        value="{{settlement.sheet.survival_limit}}"
+                        ng-value="settlement.sheet.survival_limit"
                         min="{{settlement.sheet.minimum_survival_limit}}"
                         onchange="updateAssetAttrib(this,'settlement','$settlement_id')"
                     />
@@ -3403,7 +3406,7 @@ class settlement:
                         id="populationBox"
                         class="big_number_square"
                         type="number" name="population"
-                        value="{{settlement_sheet.population}}"
+                        ng-value="settlement.sheet.population"
                         onchange="updateAssetAttrib(this,'settlement','$settlement_id')"
                         min="{{settlement_sheet.minimum_population}}"
                     />
@@ -3439,7 +3442,7 @@ class settlement:
                         class="big_number_square"
                         type="number"
                         name="death_count"
-                        value="{{settlement_sheet.death_count}}"
+                        ng-value="settlement_sheet.death_count"
                         min="0"
                         onchange="updateAssetAttrib(this,'settlement','$settlement_id')"
                     />

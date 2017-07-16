@@ -149,6 +149,7 @@ mar_2016_expansions = {
     'child_of_the_sun': {
         'name': 'Child of the Sun',
         'bgcolor': 'FFEB3B',
+        'bordercolor': 'FFEB3B',
         'expansion': 'sunstalker',
     },
     'eye_patch_badass': {'expansion': 'sunstalker', 'name': 'Eye Patch Badass'},
@@ -158,6 +159,7 @@ mar_2016_expansions = {
     'sun_eater': {
         'name': 'Sun Eater',
         'bgcolor': 'FFEB3B',
+        'bordercolor': 'FFEB3B',
         'expansion': 'sunstalker',
     },
 
@@ -257,17 +259,20 @@ mar_2016_expansions = {
     'guest': {
         'name': 'Guest',
         'bgcolor': '116E17',
+        'bordercolor': '116E17',
         'color': '0f0',
         'expansion': 'flower_knight',
     },
     'host': {
         'name': 'Host',
         'bgcolor': '116E17',
+        'bordercolor': '116E17',
         'color': '0f0',
         'expansion': 'flower_knight',
     },
     'the_first_guest': {
         'bgcolor': '116E17',
+        'bordercolor': '116E17',
         'color': '0f0',
         'expansion': 'flower_knight',
         'name': 'The First Guest'

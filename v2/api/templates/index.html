@@ -857,19 +857,6 @@
             routes for updating Survivor Sheet attributes</td>
         </tr>
         <tr class="ul">
-            <td> /survivor/update_attribute/&lt;survivor_id&gt; </td>
-            <td> POST </td>
-            <td> <p>Supports arbitrary survivor attribute updates. Requires JSON
-            contianing an 'attribute' and a 'modifier'. Adds the value of
-            'modifier' to the current value of 'attribute'.</p>
-            <p>Sample JSON to increase strength by two:</p>
-            <code>{'attribute': 'Strength', 'modifier': 2}</code>
-            <p>Sample JSON to decrease Insanity by 1:</p>
-            <code>{'attribute': 'Insanity', 'modifier': -1}</code>
-            </td>
-        </tr>
-
-        <tr class="ul">
             <td> /survivor/set_attribute/&lt;survivor_id&gt; </td>
             <td> POST </td>
             <td><p>Use this route to set an arbitrary survivor attribute to an
@@ -882,7 +869,6 @@
             <code>{'attribute': 'Evasion', 'value': -2}</code>
             </td>
         </tr>
-
         <tr class="ul">
             <td> /survivor/set_attribute_detail/&lt;survivor_id&gt; </td>
             <td> POST </td>
@@ -923,6 +909,28 @@
             <code>{'attribute': 'Luck', 'detail': 'tokens', 'value': 2}</code>
             <p>The sample code above would set the survivor's 'Luck' attribute
             detail for 'tokens' to two.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/update_attribute/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p>Supports arbitrary survivor attribute updates. Requires JSON
+            contianing an 'attribute' and a 'modifier'. Adds the value of
+            'modifier' to the current value of 'attribute'.</p>
+            <p>Sample JSON to increase strength by two:</p>
+            <code>{'attribute': 'Strength', 'modifier': 2}</code>
+            <p>Sample JSON to decrease Insanity by 1:</p>
+            <code>{'attribute': 'Insanity', 'modifier': -1}</code>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/set_name/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td><p>POST some JSON containing the survivor's new name like so:</p>
+            <code>{'name': 'Adam'}</code>
+            <p><b>Important!</b> POSTing a blank string as the value of 'name'
+            will result in the survivor's name defaulting to 'Anonymous':</p>
+            <code>{'name': ''}</code>
             </td>
         </tr>
         <tr class="ul">

@@ -1,3 +1,16 @@
+app.controller("survivorSheetController", function($scope) {
+    // this is the root controller for the survivor sheet; it is initialized
+    // at the top of the sheet
+
+    $scope.setSurvivorName = function() {
+        $scope.postJSONtoAPI('survivor','set_name', {"name": $scope.survivor.sheet.name});
+        sleep(500).then(() => {
+            $scope.initializeSurvivor($scope.survivor_id);
+        });
+    };
+
+});
+
 
 app.controller("affinitiesController", function($scope) {
 
@@ -282,7 +295,6 @@ app.controller("controlsOfDeath", function($scope) {
         $scope.survivor.sheet.died_in = $scope.settlement.sheet.lantern_year
         $scope.postJSONtoAPI('survivor', 'controls_of_death', cod_json);
         $('#modalDeath').fadeOut(1000);
-//        closeModal('modalDeath');
 
     };
 
@@ -290,7 +302,6 @@ app.controller("controlsOfDeath", function($scope) {
         // if the user uses the select drop-down, we do this to see what
         // to do next, e.g. whether to show the custom box
         $scope.survivorCOD = $scope.survivor.sheet.cause_of_death;
-        console.warn($scope.survivorCOD);
         if ($scope.survivorCOD == '* Custom Cause of Death') {
             delete $scope.survivor.sheet.cause_of_death;
             $scope.showCustomCOD();
@@ -341,6 +352,9 @@ app.controller("attributeController", function($scope) {
         $scope.survivor.sheet[stat] += modifier;
         var js_obj = {'attribute': stat, 'value': $scope.survivor.sheet[stat]};
         $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj);
+        sleep(500).then(() => {
+            $scope.initializeSurvivor($scope.survivor_id);
+        });
     };
 
     $scope.incrementDetail = function(stat, detail, modifier) {
@@ -452,33 +466,7 @@ app.controller("epithetController", function($scope) {
 app.controller("theConstellationsController", function($scope) {
     // controls for 'The Constellations' view
 
-    // watch the attribs that figure into the constellations
-    $scope.$watch('survivor.sheet.Accuracy', function () {
-        $scope.initializeSurvivor($scope.survivor_id);
-    });
-    $scope.$watch('survivor.sheet.Courage', function () {
-        $scope.initializeSurvivor($scope.survivor_id);
-    });
-    $scope.$watch('survivor.sheet.name', function () {
-        $scope.initializeSurvivor($scope.survivor_id);
-    });
-    $scope.$watch('survivor.sheet.Strength', function () {
-        $scope.initializeSurvivor($scope.survivor_id);
-    });
-    $scope.$watch('survivor.sheet.Understanding', function () {
-        $scope.initializeSurvivor($scope.survivor_id);
-    });
-
     // actual methods
-    $scope.activeCell = function(cell) {
-        if ($scope.survivor == undefined || $scope.settlement == undefined) {return false};
-        if ($scope.settlement.sheet.campaign.dragon_traits == undefined) {return false};
-        if ($scope.survivor.dragon_traits.active_cells.indexOf(cell) == -1 ) {
-            return false; } else {
-            return true;
-        };
-    };
-
     $scope.unsetConstellation = function() {
         var js_obj = {"unset": true};
         $scope.postJSONtoAPI('survivor','set_constellation', js_obj);

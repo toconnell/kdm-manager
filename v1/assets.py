@@ -21,11 +21,10 @@ import types
 
 import api
 import admin
-import export_to_file
 from modular_assets import survivor_attrib_controls
 import game_assets
 import html
-from models import Disorders, Epithets, FightingArts, Locations, Items, Innovations, Resources, userPreferences, mutually_exclusive_principles 
+from models import Disorders, FightingArts, Locations, Items, Innovations, Resources, userPreferences, mutually_exclusive_principles 
 from session import Session
 from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd, u_to_str
 import world
@@ -1461,10 +1460,6 @@ class Survivor:
 
         if return_type == "html_controls":
 
-            # bail if the settlement hasn't got partnership
-            if not "partnership" in self.Settlement.settlement["innovations"]:
-                return ""
-
             output = html.survivor.partner_controls_top
             if partner is None:
                 output += html.survivor.partner_controls_none
@@ -2160,63 +2155,6 @@ class Settlement:
         for a in set_attribs:
             self.settlement[a] = list(set([i.strip() for i in self.settlement[a] if type(i) in (str, unicode)]))
 
-        # 2016-12 timelines with None type events
-        for ly in self.settlement["timeline"]:
-            for ly_k in ly.keys():
-                if ly_k in ["quarry_event","nemesis_encounter","story_event","settlement_event"]:
-                    for i in ly[ly_k]:
-                        if i is None:
-                            self.logger.error("[%s] forbidden timeline event found: %s" % (self.User, i))
-                            self.logger.debug("[%s] removing '%s' from LY %s" % (self.User, i, ly["year"]))
-                            ly[ly_k].remove(i)
-
-
-        # SUMMER 2016 bug: fix broken/incorrectly normalized innovations
-        def normalize(settlement_attrib, incorrect, correct):
-            if incorrect in self.settlement[settlement_attrib]:
-                self.settlement[settlement_attrib].remove(incorrect)
-                self.settlement[settlement_attrib].append(correct)
-                self.logger.debug("Normalized '%s' (%s) to '%s' for %s." % (incorrect,settlement_attrib,correct,self.get_name_and_id()))
-
-        mixed_case_tuples = [
-            ("innovations", "Song Of The Brave", "Song of the Brave"),
-            ("innovations", "Clan Of Death", "Clan of Death"),
-            ("principles", "Survival Of The Fittest", "Survival of the Fittest"),
-            ("principles", "Protect The Young", "Protect the Young"),
-        ]
-        for t in mixed_case_tuples:
-            normalize(t[0],t[1],t[2])
-
-
-        # keep innovations and principles separated
-        for innovation_key in self.settlement["innovations"]:
-            if innovation_key in Innovations.get_keys():
-                innovation_dict = Innovations.get_asset(innovation_key)
-                if "type" in innovation_dict.keys() and innovation_dict["type"] == "principle":
-                    self.settlement["innovations"].remove(innovation_key)
-                    self.logger.debug("Automatically removed principle '%s' from settlement '%s' (%s) innovations." % (innovation_key, self.settlement["name"], self.settlement["_id"]))
-
-        # fix timelines without a zero year for prologue
-        years = []
-        for ly in self.settlement["timeline"]:
-            years.append(ly["year"])
-            if ly["year"] == 1:
-                if "quarry_event" in ly:
-                    try:
-                        ly["quarry_event"].remove(u'White Lion (First Story)')
-                        self.logger.debug("Removed 'White Lion (First Story) from LY 1 for %s" % self.get_name_and_id())
-                    except:
-                        pass
-                    try:
-                        ly["settlement_event"].remove(u'First Day')
-                        self.logger.debug("Removed 'First Day' event from LY1 for %s" % self.get_name_and_id())
-                    except:
-                        pass
-        if not 0 in years:
-            year_zero = {"year": 0, "settlement_event": [u"First Day"], "quarry_event": [u'White Lion (First Story)']}
-            self.settlement["timeline"].append(year_zero)
-            self.logger.debug("Added errata LY 0 to %s" % self.get_name_and_id())
-
 
 
     def save(self, quiet=False):
@@ -2332,20 +2270,6 @@ class Settlement:
     #
     #   Settlement reference, retrieval and look-up methods below
     #
-
-    def get_survivor_survival_max(self):
-        """ Gets the limit that the survivor can set the Survival to on the
-        Sheet by checking epansion properties. """
-
-        limit = self.get_attribute("survival_limit")
-
-        for e in self.get_api_asset("sheet","expansions"):
-            e_dict = self.get_api_asset("game_assets","expansions")[e]
-            if "enforce_survival_limit" in e_dict.keys():
-                if not e_dict["enforce_survival_limit"]:
-                    return 666
-
-        return limit
 
 
     def get_event(self, event_name=None):
@@ -2541,23 +2465,6 @@ class Settlement:
             return int(raw_value)
         except ValueError:
             return raw_value
-
-
-    def export(self, export_type):
-        """ Dumps the settlement to a file, e.g. XLS or PDF. """
-
-        self.logger.debug("[%s] Exporting campaign %s as '%s'..." % (self.User, self, export_type))
-
-        if export_type == "XLS":
-            book = export_to_file.xls(self.settlement, self.get_survivors(), self.Session)
-            s = StringIO()
-            book.save(s)
-            length = s.tell()
-            s.seek(0)
-            self.logger.debug("[%s] Export successful. Returning XLS payload." % self.User)
-            return s, length
-
-        return "Invalid export type.", 0
 
 
 
@@ -2975,38 +2882,6 @@ class Settlement:
 
 
 
-    def get_bonuses(self, bonus_type, return_type=False, update_mins=True):
-        """ Returns the buffs/bonuses that settlement gets. 'bonus_type' is
-        required and can be 'departure_buff', 'settlement_buff' or
-        'survivor_buff'.
-
-        THIS IS DEPRECATED AS OF 2016-06-12 AND IT IS GOING AWAY!!!
-
-        """
-
-        innovations = copy(self.get_game_asset("innovations", update_mins=update_mins))
-        innovations.extend(self.settlement["principles"])
-
-        buffs = {}
-
-        for innovation_key in innovations:
-            if innovation_key in Innovations.get_keys() and bonus_type in Innovations.get_asset(innovation_key).keys():
-                buffs[innovation_key] = Innovations.get_asset(innovation_key)[bonus_type]
-
-
-        # support for campaign settlement_buff
-        campaign_dict = self.get_campaign("dict")
-        if bonus_type in campaign_dict.keys():
-            buffs[self.get_campaign("name")] = campaign_dict[bonus_type]
-
-        if return_type == "html":
-            output = ""
-            for k in buffs.keys():
-                output += '<p class="settlement_buff"><i>%s:</i> %s</p>\n' % (k, buffs[k])
-            return output
-
-        return buffs
-
 
     def get_endeavors(self, return_type=False):
         """ Returns available endeavors. This used to be in 'get_bonuses()', but
@@ -3380,15 +3255,6 @@ class Settlement:
 
                     for s in group["survivors"]:
                         output += "  %s\n" % s
-
-                    if group["name"] == "Departing" and group["survivors"] != []:
-                        bonuses = self.get_bonuses("departure_buff")
-                        if bonuses != {}:
-                            output += '<hr class="invisible"><span class="tiny_break"></span>'
-                        for b in sorted(bonuses.keys()):
-                            output += "<p><b>%s:</b> %s</p>" % (b, bonuses[b])
-                        if bonuses != {}:
-                            output += '<span class="tiny_break"/></span>'
 
 
                 if group["name"] == "Departing" and group["survivors"] == []:

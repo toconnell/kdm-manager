@@ -1452,6 +1452,9 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .kd_checkbox_checked {}
     span.campaign_summary_bullet {font-size: 13pt; margin-top: 1%; }
 
+
+    div.corner_loading_spinner {left: auto; right: 1px; }
+
         /* saved dialog - wide */
     #saved_dialog {margin-left: 0; left: 28%; }
     #error_dialog {width: 450px; left: 28%; top: 15%; }

@@ -283,11 +283,6 @@ class disordersModel(Model):
         return sorted(deck)
 
 
-class epithetsModel(Model):
-    def __init__(self):
-        Model.__init__(self)
-        self.game_assets = game_assets.epithets
-        self.name = "epithet"
 
 class fightingArtsModel(Model):
     def __init__(self):
@@ -448,7 +443,6 @@ class resourcesModel(Model):
 
 # initialize all of our classes above when this module is imported
 Disorders       = disordersModel()
-Epithets        = epithetsModel()
 FightingArts    = fightingArtsModel()
 Locations       = locationsModel()
 Items           = itemsModel()

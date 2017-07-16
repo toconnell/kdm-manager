@@ -54,7 +54,7 @@ class Survivor(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="survivors"
-        self.object_version = 0.48
+        self.object_version = 0.51
 
         # data model meta data
         self.stats =            ['Movement','Accuracy','Strength','Evasion','Luck','Speed']
@@ -1012,6 +1012,26 @@ class Survivor(Models.UserAsset):
             self.log_event("%s has become one of the People of the Stars!" % (self.pretty_name), event_type="potstars_constellation")
             self.save()
 
+    def set_name(self, new_name=None):
+        """ Sets the survivor's name. Logs it. """
+
+        if new_name is None:
+            self.check_request_params(["name"])
+            new_name = self.params["name"]
+
+        if new_name == self.survivor["name"]:
+            self.logger.warn("%s Survivor name unchanged! Ignoring set_name() call..." % self)
+            return true
+
+        if new_name in ["", u""]:
+            new_name = "Anonymous"
+
+        old_name = self.survivor["name"]
+        self.survivor["name"] = new_name
+
+        self.log_event("%s renamed %s to %s" % (request.User.login, old_name, new_name))
+        self.save()
+
 
     def set_savior_status(self, color=None, unset=False):
         """ Makes the survivor a savior or removes all savior A&Is. """
@@ -1458,7 +1478,7 @@ class Survivor(Models.UserAsset):
         for s_dict in S.get_dicts():
             for s_ai in s_dict["abilities_and_impairments"]:
                 if s_ai in self.survivor["abilities_and_impairments"]:
-                    return s_ai["color"]
+                    return s_dict["color"]
 
         return False
 
@@ -1555,6 +1575,12 @@ class Survivor(Models.UserAsset):
                 self.survivor[attrib] = int(self.survivor[attrib])
                 self.perform_save = True
 
+        for checked_attrib in ['dead','sotf_reroll']:
+            if checked_attrib in self.survivor.keys() and self.survivor[checked_attrib] == 'checked':
+                self.survivor[checked_attrib] = True
+                self.logger.warn("%s Duck-typed '%s' attrib from 'checked' to True" % (self, checked_attrib))
+                self.perform_save = True
+
 
     def min_attributes(self):
         """ Applies assorted game rules to the survivor. """
@@ -1641,6 +1667,9 @@ class Survivor(Models.UserAsset):
         elif action == "get_survival_actions":
             sa = self.get_survival_actions("JSON")
             return json.dumps(sa, default=json_util.default)
+
+        elif action == "set_name":
+            self.set_name()
 
         # controllers with biz logic
         elif action == "controls_of_death":
