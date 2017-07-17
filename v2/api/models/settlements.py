@@ -1836,7 +1836,7 @@ class Settlement(Models.UserAsset):
         for i in self.settlement["innovations"]:
             i_dict = I.get_asset_from_name(i)
             if i_dict is None:
-                self.log_event("Unknown innovation '%s' removed from settlement!" % loc)
+                self.log_event("Unknown innovation '%s' removed from settlement!" % i)
                 self.logger.warn("Could not migrate innovation '%s'!" % i)
             else:
                 new_innovations.append(i_dict["handle"])
