@@ -613,6 +613,10 @@ class Settlement(Models.UserAsset):
 
         self.save()
 
+        # now do survivor post-processing
+        if i_dict.get("current_survivor", None) is not None:
+            self.update_all_survivors("increment", i_dict["current_survivor"])
+
 
     def rm_innovation(self):
         """ Removes an innovation from the settlement. Requires request.User
@@ -634,6 +638,10 @@ class Settlement(Models.UserAsset):
         self.settlement["innovations"].remove(I.handle)
         self.log_event("%s removed '%s' from settlement innovations." % (request.User.login, I.name), event_type="rm_innovation")
         self.save()
+
+        # now do survivor post-processing
+#        if i_dict.get("current_survivor", None) is not None:
+#            self.update_all_survivors("decrement", i_dict["current_survivor"])
 
 
     def add_settlement_note(self, n={}):
@@ -847,19 +855,22 @@ class Settlement(Models.UserAsset):
                 self.logger.warn("%s Ignoring addition of duplicate principle handle '%s' to %s" % (request.User, e_dict["handle"], self))
                 return True
 
-            # remove the opposite principle
-            for option in p_dict["option_handles"]:
-                if option in self.settlement["principles"]:
-                    remove_principle(option)
+        # remove the opposite principle
+        for option in p_dict["option_handles"]:
+            if option in self.settlement["principles"]:
+                remove_principle(option)
 
-            # finally, add the little fucker
-            self.settlement["principles"].append(e_dict["handle"])
-            self.log_event("%s set settlement %s principle to %s" % (request.User.login, p_dict["name"], e_dict["name"]))
-            if e_dict.get("current_survivor", None) is not None:
-                self.update_all_survivors("increment", e_dict["current_survivor"])
+        # finally, add the little fucker
+        self.settlement["principles"].append(e_dict["handle"])
+        self.log_event("%s set settlement %s principle to %s" % (request.User.login, p_dict["name"], e_dict["name"]))
 
         # if we're still here, go ahead and save since we probably updated
         self.save()
+
+        # post-processing: add 'current_survivor' effects
+        if e_dict.get("current_survivor", None) is not None:
+            self.update_all_survivors("increment", e_dict["current_survivor"])
+
 
 
     def update_all_survivors(self, operation=None, attrib_dict={}):
@@ -885,9 +896,17 @@ class Settlement(Models.UserAsset):
             S = survivors.Survivor(_id=s["_id"])
             for attribute, modifier in attrib_dict.iteritems():
                 if operation == 'increment':
-                    S.update_attribute(attribute, modifier)
+                    if attribute == 'abilities_and_impairments':
+                        for ai_handle in modifier:  # 'modifier' is a list here
+                            S.add_game_asset('abilities_and_impairments', ai_handle)
+                    else:
+                        S.update_attribute(attribute, modifier)
                 elif operation == 'decrement':
-                    S.update_attribute(attribute, -modifier)
+                    if attribute == 'abilities_and_impairments':
+                        for ai_handle in modifier:  # 'modifier' is a list here
+                            S.rm_game_asset('abilities_and_impairments', ai_handle)
+                    else:
+                        S.update_attribute(attribute, -modifier)
 
 
     def update_endeavor_tokens(self, modifier=0):

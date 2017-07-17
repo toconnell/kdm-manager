@@ -934,6 +934,17 @@
             </td>
         </tr>
         <tr class="ul">
+            <td> /survivor/set_retired/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td><p>POST some JSON containing a Boolean value representing whether
+            the survivor is retired or not:</p>
+            <code>{'retired': true}</code>
+            <p>The 'retired' value will be duck-typed to a Boolean, so posting
+            anything that evaluates true (e.g. 'checked') will count as a Boolean
+            true, for the intents and purposes of this route.</p>
+            </td>
+        </tr>
+        <tr class="ul">
             <td> /survivor/set_sex/&lt;survivor_id&gt; </td>
             <td> POST </td>
             <td> <p>Modify the survivor's sex by POSTing a simple JSON object

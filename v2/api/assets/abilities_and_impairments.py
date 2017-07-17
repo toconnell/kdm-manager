@@ -670,6 +670,16 @@ expansion_ai = {
 }
 
 
+#   p.43
+# When a survivor reaches a weapon mastery,
+# it is permanently added to your settlement as an
+# innovation. The survivor's command of the weapon
+# is so extensive that all current and future survivors
+# of that settlement gain that weapon's specialization
+# ability in addition to their own weapon proficiencies.
+# The master will keep the full benefits of the mastery,
+# so long as the innovation remains in the settlement. 
+
 weapon_mastery = {
     "mastery_scythe": {
         "name": "Mastery - Scythe",
@@ -677,7 +687,8 @@ weapon_mastery = {
         "expansion": "dragon_king",
         "weapon_proficiency": "scythe",
         "weapon_name": "scythe",
-        "all_survivors": {"abilities_and_impairments": ["scythe_specialization"]},
+        "current_survivor": {"abilities_and_impairments": ["scythe_specialization"]},
+        "new_survivor": {"abilities_and_impairments": ["scythe_specialization"]},
         'epithet': 'scythe_master',
     },
     "mastery_katana": {
@@ -694,7 +705,8 @@ weapon_mastery = {
         "desc": "If you are a Katar Master, gain a <i>+1 evasion</i> token on a <b>perfect hit</b> with a katar. When you are knocked down, remove all +1 evasion tokens.",
         "weapon_proficiency": "katar",
         "weapon_name": "katar",
-        "all_survivors": {"abilities_and_impairments": ["katar_specialization"]},
+        "current_survivor": {"abilities_and_impairments": ["katar_specialization"]},
+        "new_survivor": {"abilities_and_impairments": ["katar_specialization"]},
         'epithet': 'katar_master',
     },
     "mastery_bow": {
@@ -702,7 +714,8 @@ weapon_mastery = {
         "desc": "If you are a Bow Master, all bows in your gear grid gain <b>Deadly 2</b>. In addition, ignore <b>cumbersome</b> on all Bows.",
         "weapon_proficiency": "bow",
         "weapon_name": "bow",
-        "all_survivors": {"abilities_and_impairments": ["bow_specialization"]},
+        "current_survivor": {"abilities_and_impairments": ["bow_specialization"]},
+        "new_survivor": {"abilities_and_impairments": ["bow_specialization"]},
         'epithet': 'bow_master',
     },
     "mastery_twilight_sword": {
@@ -711,7 +724,8 @@ weapon_mastery = {
         "excluded_campaigns": ["people_of_the_stars","people_of_the_sun"],
         "weapon_proficiency": "twilight_sword",
         "weapon_name": "Twilight Sword",
-        "all_survivors": {"abilities_and_impairments": ["twilight_sword_specialization"]},
+        "current_survivor": {"abilities_and_impairments": ["twilight_sword_specialization"]},
+        "new_survivor": {"abilities_and_impairments": ["twilight_sword_specialization"]},
         'epithet': 'twilight_sword_master',
     },
     "mastery_axe": {
@@ -719,7 +733,8 @@ weapon_mastery = {
         "desc": "When an Axe Master wounds a monster with an axe at a location with a persistent injury, that wound becomes a critical wound.",
         "weapon_proficiency": "axe",
         "weapon_name": "axe",
-        "all_survivors": {"abilities_and_impairments": ["axe_specialization"]},
+        "current_survivor": {"abilities_and_impairments": ["axe_specialization"]},
+        "new_survivor": {"abilities_and_impairments": ["axe_specialization"]},
         'epithet': 'axe_master',
     },
     "mastery_spear": {
@@ -727,7 +742,8 @@ weapon_mastery = {
         "desc": "Whenever a Spear Master hits a monster with a Separ, they may spend 1 survival to gain the Priority Target token. If they made the hit from directly behind another survivor, that survivor gains the Priority Target token instead.",
         "weapon_proficiency": "spear",
         "weapon_name": "spear",
-        "all_survivors": {"abilities_and_impairments": ["spear_specialization"]},
+        "current_survivor": {"abilities_and_impairments": ["spear_specialization"]},
+        "new_survivor": {"abilities_and_impairments": ["spear_specialization"]},
         'epithet': 'spear_master',
     },
     "mastery_club": {
@@ -735,7 +751,8 @@ weapon_mastery = {
         "desc": "If you are a Club Master, all Clubs in your gear grid gain <b>Savage</b>. On a <b>Perfect hit</b> with a Club, gain <i>+3 strength</i> until the end of the attack.",
         "weapon_proficiency": "club",
         "weapon_name": "club",
-        "all_survivors": {"abilities_and_impairments": ["club_specialization"]},
+        "current_survivor": {"abilities_and_impairments": ["club_specialization"]},
+        "new_survivor": {"abilities_and_impairments": ["club_specialization"]},
         'epithet': 'club_master',
     },
     "mastery_fist_and_tooth": {
@@ -743,7 +760,8 @@ weapon_mastery = {
         "desc": "While a survivor is a Fist & Tooth Master, they gain <i>+2 permanent accuracy</i> and <i>+2 permanent strength</i> (they receive this bonus even when not attacking with Fist and Tooth).",
         "weapon_proficiency": "fist_and_tooth",
         "weapon_name": "fist & tooth",
-        "all_survivors": {"abilities_and_impairments": ["fist_and_tooth_specialization"]},
+        "current_survivor": {"abilities_and_impairments": ["fist_and_tooth_specialization"]},
+        "new_survivor": {"abilities_and_impairments": ["fist_and_tooth_specialization"]},
         'epithet': 'fist_and_tooth_master',
     },
     "mastery_grand_weapon": {
@@ -751,7 +769,8 @@ weapon_mastery = {
         "desc": "When a Grand Weapon Master perfectly hits with a grand weapon, cancel all reactions for that attack.",
         "weapon_proficiency": "grand_weapon",
         "weapon_name": "grand weapon",
-        "all_survivors": {"abilities_and_impairments": ["grand_weapon_specialization"]},
+        "current_survivor": {"abilities_and_impairments": ["grand_weapon_specialization"]},
+        "new_survivor": {"abilities_and_impairments": ["grand_weapon_specialization"]},
         'epithet': 'grand_weapon_master',
     },
     "mastery_whip": {
@@ -759,7 +778,8 @@ weapon_mastery = {
         "desc": "Whip Masters gain <i>+5 strength</i> when attacking with a Whip.",
         "weapon_proficiency": "whip",
         "weapon_name": "whip",
-        "all_survivors": {"abilities_and_impairments": ["whip_specialization"]},
+        "current_survivor": {"abilities_and_impairments": ["whip_specialization"]},
+        "new_survivor": {"abilities_and_impairments": ["whip_specialization"]},
         'epithet': 'whip_master',
     },
     "mastery_shield": {
@@ -767,7 +787,8 @@ weapon_mastery = {
         "desc": "When a Shield Master is adjacent to a survivor that is targeted by a monster, they may swap spaces on the baord with the survivor and become the target instead. The master must have a shield to perform this.",
         "weapon_proficiency": "shield",
         "weapon_name": "shield",
-        "all_survivors": {"abilities_and_impairments": ["shield_specialization"]},
+        "current_survivor": {"abilities_and_impairments": ["shield_specialization"]},
+        "new_survivor": {"abilities_and_impairments": ["shield_specialization"]},
         'epithet': 'shield_master',
     },
     "mastery_dagger": {
@@ -775,7 +796,8 @@ weapon_mastery = {
         "desc": "After a wounded hit location is discarded, a Dagger Master who is adjacent to the attacker and the wounded monster may spend 1 survival to re-draw the wounded hit location and attempt to wound with a dagger. Treat monster reactions on the re-drawn hit location card normally.",
         "weapon_proficiency": "dagger",
         "weapon_name": "dagger",
-        "all_survivors": {"abilities_and_impairments": ["dagger_specialization"]},
+        "current_survivor": {"abilities_and_impairments": ["dagger_specialization"]},
+        "new_survivor": {"abilities_and_impairments": ["dagger_specialization"]},
         'epithet': 'dagger_master',
     },
     "mastery_sword": {
@@ -783,7 +805,8 @@ weapon_mastery = {
         "desc": "A Sword master gains +1 accuracy, +1 strength, and +1 speed when attacking with a Sword.",
         "weapon_proficiency": "sword",
         "weapon_name": "sword",
-        "all_survivors": {"abilities_and_impairments": ["sword_specialization"]},
+        "current_survivor": {"abilities_and_impairments": ["sword_specialization"]},
+        "new_survivor": {"abilities_and_impairments": ["sword_specialization"]},
         'epithet': 'sword_master',
     },
 }

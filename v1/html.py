@@ -1255,10 +1255,7 @@ class survivor:
             <!-- end of AFFINITIES -->
 
             <!-- SAVIOR controller includes SEX -->
-            <div
-                class="survivor_sheet_savior_and_sex_controls"
-                ng-controller="sexController"
-            >
+            <div class="survivor_sheet_savior_and_sex_controls" >
                 <div class="help-tip survivor_sheet_survivor_sex">
                     <font class="legend">Survivor Sex:</font>
                     <p ng-if="survivor.sheet.sex == survivor.sheet.effective_sex">
@@ -1274,7 +1271,7 @@ class survivor:
                     name="sex"
                     ng-model="survivorSex"
                     ng-value="survivor.sheet.effective_sex"
-                    ng-change="updateSex()"
+                    ng-blur="updateSex()"
                 />
 
                 <label
@@ -1332,16 +1329,13 @@ class survivor:
             </div> <!-- savior controller -->
 
 
-        <div class="survivor_dead_retired_container">
+        <div class="survivor_dead_retired_container" >
 
             <input
                 id="favorite"
                 class="kd_css_checkbox"
                 type="checkbox"
                 name="toggle_favorite"
-                value="checked"
-                $favorite_checked
-                onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
             />
             <label
                 class="toggle_favorite"
@@ -1350,14 +1344,15 @@ class survivor:
                 Favorite
             </label>
 
+            <!-- RETIRED -->
             <input
                 id="retired"
                 class="kd_css_checkbox"
                 type="checkbox"
                 name="toggle_retired"
-                value="checked"
-                $retired_checked
-                onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+                ng-model="retiredCheckBox"
+                ng-checked="survivor.sheet.retired == true"
+                ng-change="setRetired()"
             >
             <label
                 for="retired"
@@ -1365,6 +1360,7 @@ class survivor:
             >
                 Retired &nbsp;
             </label>
+
             <button
                 id="modalDeathButton"
                 class="modal_death_button"

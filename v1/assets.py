@@ -1811,11 +1811,6 @@ class Survivor:
                 self.add_game_asset("fighting_art", game_asset_key)
             elif p == "remove_fighting_art":
                 self.update_fighting_arts(game_asset_key, action="rm")
-            elif p == "name":
-                if game_asset_key != self.survivor[p]:
-                    self.logger.debug("[%s] renamed %s to '%s'." % (self.User, self, game_asset_key) )
-                    self.Settlement.log_event("%s was renamed to '%s'" % (self, game_asset_key))
-                    self.survivor["name"] = game_asset_key
             elif p == "email":
                 self.update_email(game_asset_key)
             elif p == "in_hunting_party":
@@ -2007,7 +2002,6 @@ class Survivor:
 
             # checkbox status
             favorite_checked = flags["favorite"],
-            retired_checked = flags["retired"],
 
             # manually generated hit boxes
             insanity = self.survivor["Insanity"],
@@ -2988,86 +2982,6 @@ class Settlement:
         return buffs
 
 
-    def get_nemeses(self, return_type=None):
-        """ Use the 'return_type' arg to specify a special return type, or leave
-        unspecified to get sorted list of nemesis monsters back. """
-
-        nemesis_monster_keys = sorted(self.settlement["nemesis_monsters"].keys())
-
-        if return_type == "comma-delimited":
-            return ", ".join(nemesis_monster_keys)
-
-        if return_type == "list_of_options":
-            n_options = []
-
-
-            def add_nemesis_to_options(nem, n_levels):
-                """ Stupid DRYness func to update the option drop-down/list. """
-                for i in range(1,n_levels+1):
-                    if exp_key in self.settlement["nemesis_monsters"] and "Lvl %s" % i in self.settlement["nemesis_monsters"][nem]:
-                        pass
-                    else:
-                        n_options.append("%s Lvl %s" % (nem,i))
-
-
-            # check expansion content and add always available nems
-            for exp_key in self.get_expansions():
-                exp_dict = self.get_expansions("dict")[exp_key]
-                if "always_available_nemesis" in exp_dict.keys():
-                    n_key = exp_dict["always_available_nemesis"]
-                    n_levels = Nemeses.get_levels(n_key)
-                    add_nemesis_to_options(n_key, n_levels)
-
-            # do the same check for the campaign
-            c_dict = self.get_campaign("dict")
-            if "always_available_nemesis" in c_dict.keys():
-                n_key = c_dict["always_available_nemesis"]
-                n_levels = Nemeses.get_levels(n_key)
-                add_nemesis_to_options(n_key, n_levels)
-
-            # now process settlement nem keys
-            for k in nemesis_monster_keys:
-                if k in Nemeses.get_keys() and "no_levels" in Nemeses.get_asset(k).keys():
-                    n_options.append(k)
-                else:
-                    # support for nemeses with variable levels
-                    if k in Nemeses.get_keys() and "levels" in Nemeses.get_asset(k).keys():
-                        n_levels = (Nemeses.get_asset(k)["levels"] + 1)
-                    else:
-                        n_levels = 4
-
-                    for i in range(1,n_levels):
-                        if "Lvl %s" % i not in self.settlement["nemesis_monsters"][k]:
-                            n_options.append("%s Lvl %s" % (k,i))
-
-            # finally, check defeated monsters and remove those options
-            for d_mon in self.settlement["defeated_monsters"]:
-                if d_mon in n_options:
-                    n_options.remove(d_mon)
-
-            return n_options
-
-        if return_type == "html_buttons":
-            output = '<input class="hidden" type="submit" name="increment_nemesis" value="None"/>\n'
-            for k in nemesis_monster_keys:
-                output += '<p><b>%s</b> ' % k
-                if k in Nemeses.get_keys() and "no_levels" in Nemeses.get_asset(k).keys():
-                    levels = ["Lvl 1"]
-                else:
-                    levels = ["Lvl 1", "Lvl 2", "lvl 3"]
-                for level in levels:
-                    if level not in self.settlement["nemesis_monsters"][k]:
-                        output += ' <button id="increment_nemesis" name="increment_nemesis" value="%s">%s</button> ' % (k,level)
-                    else:
-                        output += ' <button id="increment_nemesis" class="disabled" disabled>%s</button> ' % level
-                output += '</p>\n'
-
-            return output
-
-        return self.settlement["nemesis_monsters"].keys()
-
-
-
     def get_survivors(self, return_type=False, user_id=None, exclude=[], exclude_dead=False):
         """ Returns the settlement's survivors. Leave 'return_type' unspecified
         if you want a mongo cursor object back. """
@@ -3670,27 +3584,6 @@ class Settlement:
                 self.logger.debug(params)
 
 
-    def update_quarries(self, action, quarry_handle):
-        """ Operates on self.settlement["quarries"]. """
-
-        try:
-            m = self.get_api_asset("game_assets","monsters")[quarry_handle]
-        except Exception as e:
-            self.logger.exception(e)
-            self.logger.error("[%s] tried to work with quarry handle '%s', but that quarry handle could not be retrieved from API data!" % (self.User, quarry_handle))
-            return False
-
-        if action == "add":
-            self.settlement["quarries"].append(quarry_handle)
-            self.log_event("%s added '%s' to the settlement quarries list." % (self.User.user["login"], m["name"]))
-        elif action == "rm":
-            self.settlement["quarries"].remove(quarry_handle)
-            self.log_event("%s removed '%s' from the settlement quarries list." % (self.User.user["login"], m["name"]))
-        else:
-            logger.warn("[%s] the update_quarries() method does not support the '%s' action!" % (self.User,action))
-        self.logger.debug("[%s] updated settlement quarries (%s %s)" % (self.User, action, quarry_handle))
-
-
     def get_special_rules(self, return_type=None):
         """ Checks locations and returns special rules from locations in the
         settlement. Use "html_campaign_summary" as the 'return_type' to get
@@ -4138,20 +4031,6 @@ class Settlement:
                 pass
             elif p == "name":
                 self.update_settlement_name(game_asset_key)
-            elif p == "add_defeated_monster":
-                self.add_kill(game_asset_key)
-            elif p == "rm_defeated_monster":
-                self.rm_game_asset("defeated_monsters", game_asset_key)
-            elif p == "add_quarry":
-                self.update_quarries("add",game_asset_key)
-            elif p == "rm_quarry":
-                self.update_quarries("rm",game_asset_key)
-            elif p == "add_nemesis":
-                self.add_game_asset("nemesis_monsters",game_asset_key)
-            elif p == "rm_nemesis":
-                self.rm_game_asset("nemesis_monsters",game_asset_key)
-            elif p == "increment_nemesis":
-                self.increment_nemesis(game_asset_key)
             elif p == "toggle_admin_status":
                 self.toggle_admin_status(game_asset_key)
             elif p == "toggle_milestone":

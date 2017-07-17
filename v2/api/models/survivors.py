@@ -278,9 +278,6 @@ class Survivor(Models.UserAsset):
                     if d.get("new_survivor", None) is not None:
                         buff_list.append(d["new_survivor"])
                         buff_sources.add(d["name"])
-                    if d.get("all_survivors", None) is not None:
-                        buff_list.append(d["all_survivors"])
-                        buff_sources.add(d["name"])
                     if survivor_is_a_newborn:
                         if d.get("newborn_survivor", None) is not None:
                             buff_list.append(d["newborn_survivor"])
@@ -288,9 +285,6 @@ class Survivor(Models.UserAsset):
             # ...and also from the campaign definition for now
             if c_dict.get('new_survivor', None) is not None:
                 buff_list.append(c_dict['new_survivor'])
-                buff_sources.add("'%s' campaign" % c_dict["name"])
-            if c_dict.get("all_survivors", None) is not None:
-                buff_list.append(c_dict["all_survivors"])
                 buff_sources.add("'%s' campaign" % c_dict["name"])
             if survivor_is_a_newborn:
                 if c_dict.get('newborn_survivor', None) is not None:
@@ -1033,6 +1027,29 @@ class Survivor(Models.UserAsset):
         self.save()
 
 
+    def set_retired(self, retired=None):
+        """ Set to true or false. Backs off to request params is 'retired' kwarg
+        is None. Does a little user-friendliness/sanity-checking."""
+
+        if retired == None:
+            self.check_request_params(["retired"])
+            retired=self.params["retired"]
+
+        if type(retired) != bool:
+            retired = bool(retired)
+
+        if "retired" in self.survivor.keys() and self.survivor["retired"] == retired:
+            self.logger.warn("%s Already has 'retired' set to '%s'. Ignoring bogus request..." % (self, retired))
+            return True
+
+        self.survivor["retired"] = retired
+        if retired:
+            self.log_event("%s has retired %s." % (request.User.login, self.pretty_name()))
+        else:
+            self.log_event("%s has taken %s out of reitrement." % (request.User.login, self.pretty_name()))
+        self.save()
+
+
     def set_savior_status(self, color=None, unset=False):
         """ Makes the survivor a savior or removes all savior A&Is. """
 
@@ -1575,7 +1592,7 @@ class Survivor(Models.UserAsset):
                 self.survivor[attrib] = int(self.survivor[attrib])
                 self.perform_save = True
 
-        for checked_attrib in ['dead','sotf_reroll']:
+        for checked_attrib in ['dead','sotf_reroll','retired']:
             if checked_attrib in self.survivor.keys() and self.survivor[checked_attrib] == 'checked':
                 self.survivor[checked_attrib] = True
                 self.logger.warn("%s Duck-typed '%s' attrib from 'checked' to True" % (self, checked_attrib))
@@ -1692,6 +1709,8 @@ class Survivor(Models.UserAsset):
             self.set_savior_status()
 
         # sheet attribute operations
+        elif action == "set_retired":
+            self.set_retired()
         elif action == "set_sex":
             self.set_sex()
         elif action == "set_constellation":

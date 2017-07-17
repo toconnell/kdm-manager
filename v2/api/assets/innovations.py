@@ -685,7 +685,7 @@ innovations = {
         "survival_limit": 1,
         "settlement_buff": "You may innovate one additional time during the settlement phase. In addition, all current and newborn survivors gain +1 understanding.",
         "survivor_buff": "All current and newborn survivors gain +1 understanding.",
-        "living_survivor": {"Understanding": 1},
+        "current_survivor": {"Understanding": 1},
         "newborn_survivor": {"Understanding": 1},
     },
     "barbaric": {
@@ -693,7 +693,7 @@ innovations = {
         "principle": "conviction",
         "survival_limit": 1,
         "survivor_buff": "All current and newborn survivors gain +1 permanent Strength.",
-        "living_survivor": {"Strength": 1},
+        "current_survivor": {"Strength": 1},
         "newborn_survivor": {"Strength": 1},
     },
 }

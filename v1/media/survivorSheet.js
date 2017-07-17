@@ -1,12 +1,32 @@
 app.controller("survivorSheetController", function($scope) {
     // this is the root controller for the survivor sheet; it is initialized
-    // at the top of the sheet
+    // at the top of the sheet, so it's like...a mini root scope, sort of.
 
     $scope.setSurvivorName = function() {
         $scope.postJSONtoAPI('survivor','set_name', {"name": $scope.survivor.sheet.name});
         sleep(500).then(() => {
             $scope.initializeSurvivor($scope.survivor_id);
         });
+    };
+
+    $scope.updateSex = function() {
+        var sex = $scope.survivorSex.toUpperCase();
+        if (sex == '') {return false};
+        if (sex > 1) {sex = $scope.survivor.sheet.sex; };
+        if (sex != 'M' && sex != 'F') {sex = $scope.survivor.sheet.sex; };
+        if (sex != $scope.survivor.sheet.sex) {
+            $scope.postJSONtoAPI('survivor','set_sex', {'sex': sex})
+            $scope.initializeSurvivor($scope.survivor_id);
+        } else {
+            $scope.survivorSex = sex;
+        };
+        sleep(500).then(() => {
+            $scope.initializeSurvivor($scope.survivor_id);
+        });
+    };
+
+    $scope.setRetired = function() {
+        $scope.postJSONtoAPI('survivor','set_retired', {'retired': $scope.retiredCheckBox})
     };
 
 });
@@ -48,20 +68,6 @@ app.controller("cursedItemsController", function($scope) {
 
 });
 
-app.controller('sexController', function($scope) {
-    $scope.updateSex = function() {
-        var sex = $scope.survivorSex.toUpperCase();
-        if (sex == '') {return false};
-        if (sex > 1) {sex = $scope.survivor.sheet.sex; };
-        if (sex != 'M' && sex != 'F') {sex = $scope.survivor.sheet.sex; };
-        if (sex != $scope.survivor.sheet.sex) {
-            $scope.postJSONtoAPI('survivor','set_sex', {'sex': sex})
-            $scope.initializeSurvivor($scope.survivor_id);
-        } else {
-            $scope.survivorSex = sex;
-        };
-    };
-});
 
 app.controller('secondaryAttributeController', function($scope) {
     $scope.incrementAttrib = function(attrib, modifier) {
