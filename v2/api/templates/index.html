@@ -530,6 +530,31 @@
             </td>
         </tr>
         <tr class="ul">
+            <td> /settlement/add_monster/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td> <P>Use this route to add quarry or nemesis type monsters to the
+            settlement. POST some JSON containing the handle of the monster to
+            add it:</p>
+            <code>{'handle': 'flower_knight'}</code>
+            <p>The API will determine whether the monster is a nemesis or a quarry
+            and add it to the appropriate list. For nemesis monsters, use the
+            <code>/settlement/update_nemesis_levels</code> route (below) to manage
+            the checked/completed levels for that nemesis.</p>
+            <p>Make sure to check the settlement JSON <code>game_assets.monsters</code>
+            and use the correct handle for the desired monster.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/rm_monster/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td><p>POST some JSON containing a quarry or nemesis type monster handle
+            to remove it from the settlement's list:</p>
+            <code>{'handle': 'sunstalker'}</code>
+            <p>The API will determine whether the monster is a quarry or a nemesis.
+            When a nemesis monster is removed, its level detail is also removed.</p>
+            </td>
+        </tr>
+        <tr class="ul">
             <td> /settlement/update_nemesis_levels/&lt;settlement_id&gt; </td>
             <td> POST </td>
             <td>

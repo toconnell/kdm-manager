@@ -167,6 +167,7 @@ app.controller('nemesisEncountersController', function($scope) {
         $scope.postJSONtoAPI('settlement', 'rm_monster', js_obj);
     };
     $scope.addNemesis = function() {
+        if ($scope.addNemesisMonster === null) {console.error("nemesis handle is null!"); return false};
         $scope.settlement_sheet.nemesis_monsters.push($scope.addNemesisMonster);
         $scope.settlement_sheet.nemesis_encounters[$scope.addNemesisMonster] = [];
         js_obj = {'handle': $scope.addNemesisMonster};

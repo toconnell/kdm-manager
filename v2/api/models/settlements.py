@@ -544,11 +544,14 @@ class Settlement(Models.UserAsset):
             target_list = self.settlement["nemesis_monsters"]
 
         # finally, add, log and save
-        if monster_handle not in target_list:
+        if monster_handle in target_list:
             target_list.remove(monster_handle)
             if m_dict["type"] == 'nemesis':
                 del self.settlement["nemesis_encounters"][monster_handle]
+        else:
+            self.logger.error("%s Ignoring attempt to remove non-existing item '%s' from %s" % (request.User, monster_handle, target_list))
         self.log_event("%s removed '%s' from the settlement %s list." % (request.User.login, m_dict["name"], m_dict["type"]))
+        self.logger.debug(target_list)
         self.save()
 
 
