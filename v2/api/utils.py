@@ -94,8 +94,12 @@ def list_to_pretty_string(l):
 
     l = list(l)
 
-    if len(l) == 1:
+    if len(l) == 0:
+        return None
+    elif len(l) == 1:
         return l[0]
+
+    l = [str(i) for i in l]
 
     return " and ".join([", ".join(l[:-1]), l[-1]])
 
@@ -312,7 +316,7 @@ class InvalidUsage(Exception):
 
     status_code = 400
 
-    def __init__(self, message, status_code=None, payload=None):
+    def __init__(self, message, status_code=400, payload=None):
         Exception.__init__(self)
         self.message = message
         if status_code is not None:

@@ -16,8 +16,6 @@ class Assets(Models.AssetCollection):
         self.assets.update(utils.AssetDict(monsters.unique_nemeses, {"type": "nemesis", "unique": True}))
 
         self.set_levels()
-
-        self.AssetClass = Monster
         Models.AssetCollection.__init__(self,  *args, **kwargs)
 
 

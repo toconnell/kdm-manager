@@ -98,14 +98,14 @@ app.controller('innovationsController', function($scope) {
 
 app.controller('defeatedMonstersController', function($scope, $http) {
     $scope.addDefeatedMonster = function() {
-        var params = "add_defeated_monster=" + $scope.dMonst;
-        modifyAsset('settlement',$scope.settlement_id,params);
-        $scope.settlement_sheet.defeated_monsters.push($scope.dMonst);
+        js_obj = {'monster': $scope.dMonst}
+        $scope.postJSONtoAPI('settlement', 'add_defeated_monster', js_obj);
+        $scope.settlement.sheet.defeated_monsters.push($scope.dMonst);
     };
     $scope.rmDefeatedMonster = function(index, monster) {
-        var params = "rm_defeated_monster=" + monster;
-        modifyAsset('settlement',$scope.settlement_id,params);
-        $scope.settlement_sheet.defeated_monsters.splice(index,1);
+        js_obj = {'monster': monster}
+        $scope.postJSONtoAPI('settlement', 'rm_defeated_monster', js_obj);
+        $scope.settlement.sheet.defeated_monsters.splice(index,1);
     };
 });
 
@@ -116,19 +116,21 @@ app.controller('quarriesController', function($scope, $http) {
         if (quarry_handle === null) {console.error("quarry handle is null!"); return false};
 
         // update the settlement object; 
-        $scope.settlement_sheet.quarries.push(quarry_handle);
+        $scope.settlement.sheet.quarries.push(quarry_handle);
         $scope.settlement.game_assets.quarry_options.splice(x, 1);
 
-        // send an update to the legacy app
-        params = "add_quarry=" + $scope.addQuarryMonster;
-        modifyAsset('settlement',$scope.settlement_id,params);
+        // post
+        js_obj = {'handle': quarry_handle}
+        $scope.postJSONtoAPI('settlement', 'add_monster', js_obj);
     };
     $scope.removeQuarry = function(x,q_handle) {
         $scope.settlement_sheet.quarries.splice(x,1);
         var monster = $scope.settlement.game_assets.monsters[q_handle];
         $scope.settlement.game_assets.quarry_options.push(monster);
-        params = "rm_quarry=" + q_handle;
-        modifyAsset('settlement',$scope.settlement_id,params);
+
+        // post
+        js_obj = {'handle': q_handle}
+        $scope.postJSONtoAPI('settlement', 'rm_monster', js_obj);
     };
 });
 
@@ -161,14 +163,14 @@ app.controller('nemesisEncountersController', function($scope) {
 
     $scope.rmNemesis = function(index, handle) {
         $scope.settlement_sheet.nemesis_monsters.splice(index,1);
-        params = "rm_nemesis=" + handle;
-        modifyAsset('settlement',$scope.settlement_id,params);
+        js_obj = {'handle': handle}
+        $scope.postJSONtoAPI('settlement', 'rm_monster', js_obj);
     };
     $scope.addNemesis = function() {
         $scope.settlement_sheet.nemesis_monsters.push($scope.addNemesisMonster);
         $scope.settlement_sheet.nemesis_encounters[$scope.addNemesisMonster] = [];
-        params = "add_nemesis=" + $scope.addNemesisMonster
-        modifyAsset('settlement',$scope.settlement_id,params);
+        js_obj = {'handle': $scope.addNemesisMonster};
+        $scope.postJSONtoAPI('settlement', 'add_monster', js_obj);
     };
 
 });

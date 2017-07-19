@@ -3862,7 +3862,7 @@ class settlement:
             <span class="empty_bullet" /></span>
             <select
                 ng-model="dMonst"
-                ng-change="addDefeatedMonster($index)"
+                ng-change="addDefeatedMonster()"
                 ng-options="d as d for d in settlement.game_assets.defeated_monsters ">
             >
                 <option selected disabled value="">Add Defeated Monster</option>

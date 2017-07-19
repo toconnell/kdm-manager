@@ -1830,7 +1830,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     div.settlement_sheet_block_group span.item,
         div.settlement_sheet_block_group select, 
-        div.settlement_sheet_block_group input[type=text] {font-size: 12pt; }
+        div.settlement_sheet_block_group input[type=text] {font-size: 12pt; cursor: pointer;}
     div.settlement_sheet_block_group img.icon {height: 20px;width: auto; }
 
     div.settlement_sheet_principle_container label {font-size: 12pt;}

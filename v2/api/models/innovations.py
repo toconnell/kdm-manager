@@ -9,7 +9,6 @@ import utils
 class Assets(Models.AssetCollection):
 
     def __init__(self, *args, **kwargs):
-
         self.assets = innovations.innovations
         for a in self.assets.keys():
             if "principle" in self.assets[a].keys():

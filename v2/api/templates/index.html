@@ -507,6 +507,29 @@
             </td>
         </tr>
         <tr class="ul">
+            <td> /settlement/add_defeated_monster/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td> <p>POST a 'monster' string to this route to add it to the
+            settlement's list of defeated monsters:</p>
+            <code>{'monster': 'White Lion (First Story)}</code> or
+            <code>{'monster': 'Flower Knight Lvl 1'}</code>
+            <p><b>Important!</b> Watch the strings on this one and try to avoid
+            free text: if the API cannot parse the monster name and match it to
+            a known monster type/name, this will fail.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/rm_defeated_monster/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td><p>POST a 'monster' string to this route to remove it from the
+            settlement's list of defeated monsters, i.e. the <code>sheet.defeated_monsters</code>
+            array/list: </p>
+            <code>{'monster': 'Manhunter Lvl 4'}</code>
+            <p>Attempts to remove strings that do NOT exist in the list will
+            not fail (i.e. they will be ignored and fail 'gracefully').</p>
+            </td>
+        </tr>
+        <tr class="ul">
             <td> /settlement/update_nemesis_levels/&lt;settlement_id&gt; </td>
             <td> POST </td>
             <td>

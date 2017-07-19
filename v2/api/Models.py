@@ -160,16 +160,21 @@ class AssetCollection():
         return output
 
 
-    def get_asset(self, handle, backoff_to_name=False):
+    def get_asset(self, handle=None, backoff_to_name=False, raise_exception_if_not_found=True):
         """ Return an asset dict based on a handle. Return None if the handle
         cannot be retrieved. """
 
         asset = copy(self.assets.get(handle, None))     # return a copy, so we don't modify the actual def
 
         if asset is None and backoff_to_name:
-            return copy(self.get_asset_from_name(handle))
-        else:
-            return asset
+            asset = copy(self.get_asset_from_name(handle))
+
+        if asset is None and raise_exception_if_not_found:
+            msg = "The handle '%s' is not a recognized %s asset!" % (handle, self)
+            self.logger.error(msg)
+            raise utils.InvalidUsage(msg)
+
+        return asset
 
 
     def get_asset_from_name(self, name, case_sensitive=False):

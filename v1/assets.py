@@ -3257,8 +3257,16 @@ class Settlement:
         #
 
         if aftermath == "victory":
+
             if quarry_key not in ["None",None]:
-                self.add_kill(quarry_key)
+                response = api.post_JSON_to_route("/settlement/add_defeated_monster/%s" % self.settlement["_id"], {'monster': quarry_key}, Session=self.Session)
+                if response.status_code == 200:
+                    self.logger.debug("[%s] added '%s' kill via API POST!" % (quarry_key, self.User))
+                    self.refresh_from_API("defeated_monsters")
+                else:
+                    self.logger.error("[%s] failed to POST kill '%s' to API!" % (self.User, quarry_key))
+                    self.logger.error("%s: %s" % (response.status_code, response.reason))
+
             if quarry_key not in self.get_timeline_events(event_type="showdown_event"):
                 e = {
                     "ly": self.get_ly(),
@@ -3851,51 +3859,6 @@ class Settlement:
             self.logger.error("An error occurred while retrieving settlement game assets ('%s')!" % asset_type)
 
 
-    def add_kill(self, monster_desc):
-        """ Adds a kill to the settlement: appends it to the 'defeated_monsters'
-        monsters and also to the settlement's kill_board. """
-
-        kill_board_dict = {
-            "settlement_id": self.settlement["_id"],
-            "settlement_name": self.settlement["name"],
-            "kill_ly": self.get_ly(),
-            "name": monster_desc,
-            "created_by": self.User.user["_id"],
-            "created_on": datetime.now(),
-            "handle": "other",
-        }
-
-
-
-        #
-        #   V2 API call to try to get more monster info
-        #
-
-        try:
-            api_asset = api.route_to_dict("monster", params={"name": monster_desc})
-            if api_asset != {}:
-                self.logger.debug("[%s] API call successful: monster asset retrieved." % self.User)
-                kill_board_dict["name"] = api_asset["name"]
-                kill_board_dict["raw_name"] = monster_desc
-                kill_board_dict["handle"] = api_asset["handle"]
-                kill_board_dict["type"] = api_asset["type"]
-                for aux_attrib in ["level", "comment"]:
-                    if aux_attrib in api_asset.keys():
-                        kill_board_dict[aux_attrib] = api_asset[aux_attrib]
-                self.logger.debug("[%s] Defeated monster dict updated with API data!" % self.User)
-            else:
-                self.logger.warn("[%s] API call failed. Skipping killboard update..." % (self.User))
-        except Exception as e:
-            self.logger.error("API call failed!")
-            self.logger.exception(e)
-
-
-        mdb.killboard.insert(kill_board_dict)
-        self.logger.debug("[%s] Updated application killboard: %s" % (self.User, monster_desc))
-
-        # update the settlement sheet and do a settlement event log
-        self.settlement["defeated_monsters"].append(monster_desc)
-        self.log_event("%s defeated!" % monster_desc)
 
 
     def add_game_asset(self, asset_class, game_asset_key=None, game_asset_quantity=1):

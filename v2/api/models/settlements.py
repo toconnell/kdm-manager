@@ -441,6 +441,119 @@ class Settlement(Models.UserAsset):
     #   add/rm methods start here!
     #
 
+    def add_defeated_monster(self, monster_string=None):
+        """ Adds a monster to the settlement's defeated monsters. Updates the
+        killboard. """
+
+        if monster_string is None:
+            self.check_request_params(['monster'])
+            monster_string = self.params["monster"]
+
+        M = monsters.Monster(name=monster_string)
+
+        # do the killboard update
+        killboard_dict = {
+            'settlement_id': self.settlement['_id'],
+            'settlement_name': self.settlement['name'],
+            'kill_ly': self.get_current_ly(),
+            'created_by': request.User._id,
+            'created_on': datetime.now(),
+            'handle': M.handle,
+            'name': M.name,
+            'type': M.type,
+            'raw_name': monster_string,
+        }
+        for a in ['comment','level']:
+            if hasattr(M, a):
+                killboard_dict[a] = M.get(a)
+
+        utils.mdb.killboard.insert(killboard_dict)
+        self.logger.info("%s Updated the application killboard to include '%s' (%s) in LY %s" % (request.User, monster_string, M.type, self.get_current_ly()))
+
+        # add it and save
+        self.settlement["defeated_monsters"].append(monster_string)
+        self.log_event("%s added '%s' to the settlement's defeated monsters list!" % (request.User.login, monster_string), event_type="defeated_monster")
+        self.save()
+
+
+    def rm_defeated_monster(self, monster_string=None):
+        """ Removes a monster string from the settlement's list, i.e. the
+        self.settlement["defeated_monsters"] list of strings, if that monster
+        string is present. """
+
+        if monster_string is None:
+            self.check_request_params(['monster'])
+            monster_string = self.params['monster']
+
+        if monster_string not in self.settlement["defeated_monsters"]:
+            msg = "The string '%s' was not found in the settlement's list of defeated monsters!" % monster_string
+            self.logger.error(msg)
+            raise utils.InvalidUsage(msg)
+
+        self.settlement["defeated_monsters"].remove(monster_string)
+        self.log_event("%s removed '%s' from the settlement's defeated monsters." % (request.User.login, monster_string))
+        self.save()
+
+
+    def add_monster(self, monster_handle=None):
+        """ Adds quarry and nemesis type monsters to the appropriate settlement
+        list, e.g. self.settlemnt["nemesis_monsters"], etc.
+
+        If the 'monster_handle' kwargs is None, this method, list most others,
+        will assume that this is a request, and will get request params. """
+
+        if monster_handle is None:
+            self.check_request_params(["handle"])
+            monster_handle = self.params["handle"]
+
+        # sanity check the handle; load an asset dict for it
+        M = monsters.Assets()
+        m_dict = M.get_asset(monster_handle)
+
+        # get the type from the asset dict
+        if m_dict["type"] == 'quarry':
+            target_list = self.settlement["quarries"]
+        elif m_dict["type"] == 'nemesis':
+            target_list = self.settlement["nemesis_monsters"]
+
+        # finally, add, log and save
+        if monster_handle not in target_list:
+            target_list.append(monster_handle)
+            if m_dict["type"] == 'nemesis':
+                self.settlement["nemesis_encounters"][monster_handle] = []
+        self.log_event("%s added '%s' to the settlement %s list." % (request.User.login, m_dict["name"], m_dict["type"]))
+        self.save()
+
+
+    def rm_monster(self, monster_handle=None):
+        """ Removes a monster from the settlement's list of quarry or nemesis
+        monsters. Basically the inverse of the add_monster() method (above)."""
+
+        if monster_handle is None:
+            self.check_request_params(["handle"])
+            monster_handle = self.params["handle"]
+
+        # sanity check the handle; load an asset dict for it
+        M = monsters.Assets()
+        m_dict = M.get_asset(monster_handle)
+
+        # get the type from the asset dict
+        if m_dict["type"] == 'quarry':
+            target_list = self.settlement["quarries"]
+        elif m_dict["type"] == 'nemesis':
+            target_list = self.settlement["nemesis_monsters"]
+
+        # finally, add, log and save
+        if monster_handle not in target_list:
+            target_list.remove(monster_handle)
+            if m_dict["type"] == 'nemesis':
+                del self.settlement["nemesis_encounters"][monster_handle]
+        self.log_event("%s removed '%s' from the settlement %s list." % (request.User.login, m_dict["name"], m_dict["type"]))
+        self.save()
+
+
+
+
     def add_expansions(self, e_list=[]):
         """ Takes a list of expansion handles and then adds them to the
         settlement, applying Timeline updates, etc. as required by the expansion
@@ -540,9 +653,6 @@ class Settlement(Models.UserAsset):
         # first, verify that the incoming handle is legit
         L = locations.Assets()
         loc_dict = L.get_asset(loc_handle)
-        if loc_dict is None:
-            self.logger.error("Location asset handle '%s' does not exist!" % loc_handle)
-            return False
 
         # next, make sure it's not a dupe
         if loc_handle in self.settlement["locations"]:
@@ -600,8 +710,6 @@ class Settlement(Models.UserAsset):
         # now try to get the dict; bail if it's bogus
         I = innovations.Assets()
         i_dict = I.get_asset(i_handle)
-        if i_dict is None:
-            self.logger.error("%s Attempted to add unknown innovation handle, '%s'" % (request.User, i_handle))
 
         # finally, do it and log it
         self.settlement["innovations"].append(i_handle)
@@ -930,20 +1038,20 @@ class Settlement(Models.UserAsset):
 
     def update_nemesis_levels(self):
         """ Updates a settlement's 'nemesis_encounters' array/list for a nemesis
-        monster handle. """
+        monster handle. Assumes that this is a request. """
 
-        if self.check_request_params(["handle","levels"], True):
-            handle = self.params["handle"]
-            levels = self.params["levels"]
-        else:
-            self.logger.error("Incomplete params for updating nemesis level!")
-            raise Exception
+        self.check_request_params(["handle","levels"])
+        handle = self.params["handle"]
+        levels = list(self.params["levels"])
+
+        M = monsters.Assets()
+        m_dict = M.get_asset(handle)
 
         if handle not in self.settlement["nemesis_monsters"]:
             self.logger.error("Cannot update nemesis levels for '%s' (nemesis is not in 'nemesis_monsters' list for %s)" % (handle, self))
         else:
             self.settlement["nemesis_encounters"][handle] = levels
-            self.logger.debug("Updated 'nemesis_encounters' for %s" % self)
+            self.log_event('%s updated %s encounters to include %s' % (request.User.login, m_dict["name"], utils.list_to_pretty_string(levels)))
             self.save()
 
 
@@ -2176,19 +2284,29 @@ class Settlement(Models.UserAsset):
         elif action == "rm_expansions":
             self.rm_expansions(self.params)
 
-        # set methods
+        # monster methods
         elif action == "set_current_quarry":
             self.set_current_quarry()
-        elif action == "set_lost_settlements":
-            self.set_lost_settlements()
-        elif action == "set_principle":
-            self.set_principle()
+        elif action == "add_defeated_monster":
+            self.add_defeated_monster()
+        elif action == "rm_defeated_monster":
+            self.rm_defeated_monster()
 
-        # update methods
+        elif action == "add_monster":
+            self.add_monster()
+        elif action == "rm_monster":
+            self.rm_monster()
         elif action == "update_nemesis_levels":
             self.update_nemesis_levels()
+
+
+        # misc sheet controllers
         elif action == "update_endeavor_tokens":
             self.update_endeavor_tokens()
+        elif action == "set_lost_settlements":
+            self.set_lost_settlements()
+
+
 
         # timeline 
         elif action == "add_timeline_event":
@@ -2196,7 +2314,7 @@ class Settlement(Models.UserAsset):
         elif action == "rm_timeline_event":
             self.rm_timeline_event(self.params)
 
-        # specialized controllers
+        # innovations, locations, etc.
         elif action == "add_location":
             self.add_location()
         elif action == "rm_location":
@@ -2210,6 +2328,8 @@ class Settlement(Models.UserAsset):
             self.rm_innovation()
         elif action == "set_innovation_level":
             self.set_innovation_level()
+        elif action == "set_principle":
+            self.set_principle()
 
         #
         #   campaign notes controllers

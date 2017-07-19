@@ -15,7 +15,7 @@ class Assets(Models.AssetCollection):
 
         self.AssetClass = Campaign
         self.assets = campaigns.campaign_definitions
-        self.type = "campaign_definition"
+        self.type = "campaign"
 
         Models.AssetCollection.__init__(self,  *args, **kwargs)
 
