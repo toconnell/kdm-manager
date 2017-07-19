@@ -159,6 +159,7 @@ class dashboard:
         <p>Development and Support:</p>
         <ul>
             <li>Please report issues and errors using the side navigation panel within the application: this feature sends an email containing pertinent data directly to the application maintainers.</li>
+            <li>Follow the project <a href="https://twitter.com/kdmmanager" target="top">on Twitter</a> for updates/announcements.</li>
             <li>Application source code is <a href="https://github.com/toconnell/kdm-manager" target="top">available on GitHub</a>.</li>
             <li>Github users may prefer to <a href="https://github.com/toconnell/kdm-manager/issues" target="top">report issues there</a>.</li>
             <li>Check <a href="https://github.com/toconnell/kdm-manager/wiki" target="top">the development wiki</a> for complete information about the project.</li>
