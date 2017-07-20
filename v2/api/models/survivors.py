@@ -1189,11 +1189,6 @@ class Survivor(Models.UserAsset):
         W = weapon_proficiency.Assets()
         h_dict = W.get_asset(handle)
 
-        if h_dict is None:
-            msg = "The weapon proficiency type handle '%s' is not supported!" % handle
-            self.logger.exception(msg)
-            return utils.InvalidUsage(msg, status_code=400)
-
         self.survivor["weapon_proficiency_type"] = handle
         self.log_event("%s set weapon proficiency type to '%s' for %s" % (request.User.login, h_dict["handle"], self.pretty_name()))
         self.save()
@@ -1655,7 +1650,7 @@ class Survivor(Models.UserAsset):
         if self.survivor["weapon_proficiency_type"] != None:
             w_name = self.survivor["weapon_proficiency_type"]
             W = weapon_proficiency.Assets()
-            w_dict = W.get_asset_from_name(w_name)
+            w_dict = W.get_asset_from_name(w_name, raise_exception_if_not_found=False)
             if w_dict is None:
                 self.logger.error("%s Weapon proficiency type '%s' could not be migrated!" % (self, w_name))
             else:
