@@ -658,7 +658,7 @@ class UserAsset():
             exec "A = models.%s.Assets()" % attrib
         exec "asset_list = self.%s['%s']" % (self.collection[:-1], attrib)
         for a in asset_list:
-            a_dict = A.get_asset(a, backoff_to_name=True)
+            a_dict = A.get_asset(a, backoff_to_name=True, raise_exception_if_not_found=False)
             if a_dict is not None:
                 output.append(a_dict)
             elif a_dict is None and log_failures:
