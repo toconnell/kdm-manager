@@ -1176,7 +1176,7 @@ class survivor:
     <!-- survivor sheet JS -->
 
 
-    <script src="/media/survivorSheet.js"></script>
+    <script src="/media/survivorSheet.js?v=$application_version"></script>
 
     <div
        id = "survivor_sheet_angularjs_controller_container"
@@ -1678,9 +1678,9 @@ class survivor:
                             id="huntXPBox"
                             class="big_number_square"
                             type="number"
-                            ng-model="hunt_xp"
+                            ng-model="survivor.sheet.hunt_xp"
                             ng-value="survivor.sheet.hunt_xp"
-                            ng-change="updateAttrib('hunt_xp')"
+                            ng-blur="updateAttrib('hunt_xp')"
                         />
                         <button
                             class="decrementer"
@@ -1713,9 +1713,9 @@ class survivor:
                         id="proficiencyBox"
                         class="big_number_square"
                         type="number"
-                        ng-model="WeaponProficiency"
+                        ng-model='survivor.sheet["Weapon Proficiency"]'
                         ng-value='survivor.sheet["Weapon Proficiency"]'
-                        ng-change="updateAttrib('Weapon Proficiency')"
+                        ng-blur="updateAttrib('Weapon Proficiency')"
                     />
                     <button
                         class="decrementer"
@@ -1759,8 +1759,8 @@ class survivor:
                             class="big_number_square"
                             type="number"
                             ng-value="survivor.sheet.Courage"
-                            ng-model="Courage"
-                            ng-change="updateAttrib('Courage')"
+                            ng-model="survivor.sheet.Courage"
+                            ng-blur="updateAttrib('Courage')"
                         />
                         <button
                             class="decrementer"
@@ -1800,8 +1800,8 @@ class survivor:
                             class="big_number_square"
                             type="number"
                             ng-value="survivor.sheet.Understanding"
-                            ng-model="Understanding"
-                            ng-change="updateAttrib('Understanding')"
+                            ng-model="survivor.sheet.Understanding"
+                            ng-blur="updateAttrib('Understanding')"
                         />
                         <button
                             class="decrementer"
@@ -2218,11 +2218,12 @@ class survivor:
 
                         <input
                             id="base_value_{{control_id}}"
-                            type="number"
+                            type="number" string-to-number
                             class="survivor_sheet_attrib_controls_number"
                             onClick="this.select()"
-                            ng-model="base_value"
+                            ng-model="survivor.sheet[token.longName]"
                             ng-value="survivor.sheet[token.longName]"
+                            ng-blur="setBase(token.longName)"
                         />
 
                         <button
@@ -2252,8 +2253,9 @@ class survivor:
                             type="number"
                             class="survivor_sheet_attrib_controls_number"
                             onClick="this.select()"
-                            ng-model="gear_value"
+                            ng-model="survivor.sheet.attribute_detail[token.longName].gear"
                             ng-value="survivor.sheet.attribute_detail[token.longName].gear"
+                            ng-blur="setDetail(token.longName, 'gear')"
                         />
 
                         <button
@@ -2283,9 +2285,9 @@ class survivor:
                             class="survivor_sheet_attrib_controls_number"
                             type="number"
                             onClick="this.select()"
+                            ng-model="survivor.sheet.attribute_detail[token.longName].tokens"
                             ng-value="survivor.sheet.attribute_detail[token.longName].tokens"
-                            ng-model="tokens_value"
-                            ng-change="refresh(token.longName, 'tokens')"
+                            ng-blur="setDetail(token.longName, 'tokens')"
                         />
 
                         <button
@@ -2955,7 +2957,7 @@ class settlement:
 
         -->
 
-        <script src="/media/campaignSummary.js"></script>
+        <script src="/media/campaignSummary.js?v=$application_version"></script>
 
         <div
             id = "campaign_summary_angularjs_controller_container"
@@ -3311,7 +3313,7 @@ class settlement:
 
         -->
 
-        <script src="/media/settlementSheet.js"></script>
+        <script src="/media/settlementSheet.js?v=$application_version"></script>
 
         <div
             id = "settlement_sheet_angularjs_controller_container"
@@ -4628,8 +4630,8 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular.min.js"></script>
     <script src="http://code.angularjs.org/1.5.3/angular-route.min.js"></script> 
 
-    <script src="/media/kdmManager.js"></script>
-    \n"""
+    <script src="/media/kdmManager.js?v=%s"></script>
+    \n""" % settings.get("application", "version")
 
     output += """\n\
     <script>

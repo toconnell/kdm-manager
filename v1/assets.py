@@ -56,6 +56,8 @@ def ua_decorator(render_func=None):
 
         return view_html.safe_substitute(
 
+            application_version = settings.get("application", "version"),
+
             # angularjs appRoot and other app stuff
             MEDIA_URL = settings.get("application", "STATIC_URL"),
             user_login = self.User.user["login"],

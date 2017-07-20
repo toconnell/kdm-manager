@@ -52,6 +52,83 @@ app.controller("affinitiesController", function($scope) {
 
 });
 
+
+app.controller("attributeController", function($scope) {
+
+    $scope.attributeTokens = [
+        {
+            "longName": "Movement",
+            "shortName": "MOV",
+            "buttonClass": "mov_token",
+        },
+        {
+            "longName": "Accuracy",
+            "shortName": "ACC",
+            "buttonClass": "acc_token",
+        },
+        {
+            "longName": "Strength",
+            "shortName": "STR",
+            "buttonClass": "str_token",
+        },
+        {
+            "longName": "Evasion",
+            "shortName": "EVA",
+            "buttonClass": "eva_token",
+        },
+        {
+            "longName": "Luck",
+            "shortName": "LUCK",
+            "buttonClass": "luck_token",
+        },
+        {
+            "longName": "Speed",
+            "shortName": "SPD",
+            "buttonClass": "spd_token",
+        },
+    ];
+
+    $scope.setBase = function(stat) {
+        // bind the paddles to this
+        if ($scope.survivor.sheet[stat] === null) {$scope.survivor.sheet[stat] = 0};
+        var js_obj = {'attribute': stat, 'value': $scope.survivor.sheet[stat]};
+        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj);
+        sleep(500).then(() => {
+            $scope.initializeSurvivor($scope.survivor_id);
+        });
+    };
+
+    $scope.setDetail = function(stat, detail) {
+        if ($scope.survivor.sheet.attribute_detail[stat][detail] === null) {
+            $scope.survivor.sheet.attribute_detail[stat][detail] = 0;
+        };
+        var new_value = $scope.survivor.sheet.attribute_detail[stat][detail];
+        var js_obj = {
+            'attribute': stat,
+            'detail': detail,
+            'value': new_value,
+        };
+        $scope.postJSONtoAPI('survivor', 'set_attribute_detail', js_obj);
+    };
+
+    $scope.incrementBase = function(stat, modifier) {
+        // bind the paddles to this
+        $scope.survivor.sheet[stat] += modifier;
+        var js_obj = {'attribute': stat, 'value': $scope.survivor.sheet[stat]};
+        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj);
+        sleep(500).then(() => {
+            $scope.initializeSurvivor($scope.survivor_id);
+        });
+    };
+
+    $scope.incrementDetail = function(stat, detail, modifier) {
+        $scope.survivor.sheet.attribute_detail[stat][detail] += modifier;
+        var js_obj = {'attribute': stat, 'detail': detail, 'value': $scope.survivor.sheet.attribute_detail[stat][detail]};
+        $scope.postJSONtoAPI('survivor', 'set_attribute_detail', js_obj);
+    };
+
+});
+
 app.controller("cursedItemsController", function($scope) {
 
     $scope.toggleCursedItem = function(handle) {
@@ -75,14 +152,14 @@ app.controller('secondaryAttributeController', function($scope) {
         var js_obj = {'attribute': attrib, 'modifier': modifier};
         $scope.survivor.sheet[attrib] += modifier;
         $scope.postJSONtoAPI('survivor', 'update_attribute', js_obj);
-        sleep(1000).then(() => {
+        sleep(500).then(() => {
             $scope.initializeSurvivor($scope.survivor_id);
         });
     };
     $scope.updateAttrib = function(attrib) {
-        var value = $scope[attrib];
-        if (value == null) {return false};
-        if (value < 0) {value = $scope.survivor.sheet[attrib]};
+        var value = $scope.survivor.sheet[attrib];
+        if (value === null) {value = 0};
+        if (value < 0) {value = 0};
         var js_obj = {'attribute': attrib, 'value': value};
         $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj);
         sleep(500).then(() => {
@@ -318,58 +395,6 @@ app.controller("controlsOfDeath", function($scope) {
 
 });
 
-app.controller("attributeController", function($scope) {
-
-    $scope.attributeTokens = [
-        {
-            "longName": "Movement",
-            "shortName": "MOV",
-            "buttonClass": "mov_token",
-        },
-        {
-            "longName": "Accuracy",
-            "shortName": "ACC",
-            "buttonClass": "acc_token",
-        },
-        {
-            "longName": "Strength",
-            "shortName": "STR",
-            "buttonClass": "str_token",
-        },
-        {
-            "longName": "Evasion",
-            "shortName": "EVA",
-            "buttonClass": "eva_token",
-        },
-        {
-            "longName": "Luck",
-            "shortName": "LUCK",
-            "buttonClass": "luck_token",
-        },
-        {
-            "longName": "Speed",
-            "shortName": "SPD",
-            "buttonClass": "spd_token",
-        },
-    ];
-
-    $scope.incrementBase = function(stat, modifier) {
-        // bind the paddles to this
-        $scope.survivor.sheet[stat] += modifier;
-        var js_obj = {'attribute': stat, 'value': $scope.survivor.sheet[stat]};
-        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj);
-        sleep(500).then(() => {
-            $scope.initializeSurvivor($scope.survivor_id);
-        });
-    };
-
-    $scope.incrementDetail = function(stat, detail, modifier) {
-        $scope.survivor.sheet.attribute_detail[stat][detail] += modifier;
-        var js_obj = {'attribute': stat, 'detail': detail, 'value': $scope.survivor.sheet.attribute_detail[stat][detail]};
-        $scope.postJSONtoAPI('survivor', 'set_attribute_detail', js_obj);
-    };
-
-});
 
 app.controller("survivorNotesController", function($scope) {
     $scope.notes = [];

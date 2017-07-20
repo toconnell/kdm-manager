@@ -1,34 +1,34 @@
-var app = angular.module('kdmManager', []);
+
+// alerts -> call these anywhere
 
 function savedAlert() {
     $('#saved_dialog').fadeIn(500);
     $('#saved_dialog').show();
     $('#saved_dialog').fadeOut(1800);
 };
-
 function errorAlert() {
     $('#error_dialog').fadeIn(500);
     $('#error_dialog').show();
     $('#error_dialog').fadeOut(5000);
 };
 
-function showFullPageLoader() {
-    $('#fullPageLoader').show();
-};
-function hideFullPageLoader() {
-    $('#fullPageLoader').fadeOut(1000);
-};
-function showCornerLoader() {
-    $('#cornerLoader').show();
-};
-function hideCornerLoader() {
-    $('#cornerLoader').fadeOut(1000);
-};
+// loaders -> call these anywhere
 
-function sleep (time) {
-    return new Promise((resolve) => setTimeout(resolve, time));
-}
+function showFullPageLoader()   {$('#fullPageLoader').show();};
+function hideFullPageLoader()   {$('#fullPageLoader').fadeOut(1000);};
+function showCornerLoader()     {$('#cornerLoader').show();};
+function hideCornerLoader()     {$('#cornerLoader').fadeOut(1000);};
 
+// public helpers
+
+function sleep (time) {return new Promise((resolve) => setTimeout(resolve, time));}
+
+
+//
+//      The angular application starts here!
+//
+
+var app = angular.module('kdmManager', []);
 
 // factories and services for angularjs modules
 
@@ -269,6 +269,7 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
         // 'game_asset' wants to be something from settlement.game_assets
         // 'user_asset' wants to be a user's list, e.g. $scope.survivor.sheet.epithets
         // 'destination' wants to be the outpue, e.g. $scope.locationOptions
+        showCornerLoader();
         var res = $scope.getJSONfromAPI('settlement','get');
         res.then(
             function(payload) {
@@ -292,7 +293,6 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
                         };
                     };
                 };
-                console.log("Game asset '" + game_asset + "' options updated!");
                 for (var b in output) {
                     if (output[b].type == exclude_type) {
                         delete output[b];
@@ -304,6 +304,8 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
                     };
                 };
                 $scope[destination] = output;
+                console.log("Game asset '" + game_asset + "' options updated!");
+                hideCornerLoader();
             },
             function(errorPayload) {console.error("Could not update '" + game_asset + "' game asset options!" + errorPayload);}
         );
@@ -701,51 +703,6 @@ app.controller("appRootController", function($scope) {
 
 });
 
-
-app.controller("attributeController", function($scope) {
-
-
-    $scope.getTotal = function(base,gear,tokens) {
-
-        // generic function for computing the total value of the survivor's
-        // attribute. could be a little DRYer, but FIWE: I'm a n00b at this.
-
-        if (base == undefined) {var a = Number($scope.base_value || 0)} else {var a = Number(base)};
-        if (gear == undefined) {var b = Number($scope.gear_value || 0)} else {var b = Number(gear)};
-        if (tokens == undefined) {var c = Number($scope.tokens_value || 0)} else {var c = Number(tokens)};
-        $scope.sum = a+b+c;
-        return Number($scope.sum);
-    };
-
-
-    $scope.refresh = function (attrib, attrib_type, target_class) {
-
-        // any time a user adjusts one of the inputs within the scope of our
-        // controller, they call this refresh() method (even if they use the
-        // increment/decrement paddles). The refresh checks all fields within
-        // scope, updates the total (with innerHTML injection) and then submits
-        // the incoming change back to the webapp as a survivor update
-
-        var base = Number(document.getElementById("base_value_" + attrib + "_controller").value);
-        var gear = Number(document.getElementById("gear_value_" + attrib + "_controller").value);
-        var tokens = Number(document.getElementById("tokens_value_" + attrib + "_controller").value);
-        var total = $scope.getTotal(base,gear,tokens);
-
-//        window.alert("total is " + total);
-        var x = document.getElementsByClassName("synthetic_attrib_total_" + attrib);
-        var i;
-        for (i = 0; i < x.length; i++) {
-            x[i].innerHTML = total;
-        };
-
-        var source = document.getElementById(attrib_type + "_value_" + attrib + "_controller")
-//        window.alert("[" + $scope.survivor_id + "] Would POST " + attrib + " -> " + attrib_type + " = " + source.value);
-        var params = "angularjs_attrib_update=" + attrib + "&angularjs_attrib_type=" + attrib_type + "&angularjs_attrib_value=" + Number(source.value);
-        modifyAsset("survivor", $scope.survivor_id, params);
-
-    };
-
-});
 
 app.controller("survivorNotesController", function($scope) {
     $scope.notes = [];
