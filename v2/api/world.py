@@ -32,6 +32,7 @@ from models import monsters as monster_models
 from models import expansions as expansions_models
 from models import settlements as settlements_models
 from models import campaigns as campaigns_models
+from models import epithets as epithets_models
 import utils
 
 
@@ -557,7 +558,7 @@ class World:
         return self.get_eligible_documents(collection="survivors", limit=1, include_settlement=True)
 
     def latest_fatality(self):
-        return self.get_eligible_documents(
+        s = self.get_eligible_documents(
             collection="survivors",
             required_attribs=["dead","cause_of_death"],
             limit=1,
@@ -565,6 +566,13 @@ class World:
             include_settlement=True,
             sort_on="died_on",
         )
+        new_epithets = set()
+        E = epithets_models.Assets()
+        for e_handle in s["epithets"]:
+            d = E.get_asset(e_handle)
+            new_epithets.add(d["name"])
+        s["epithets"] = sorted(list(new_epithets))
+        return s
 
     def latest_settlement(self):
         """ Get the latest settlement and punch it up with some additional info,
