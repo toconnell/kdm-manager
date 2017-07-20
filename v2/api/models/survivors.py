@@ -1650,7 +1650,7 @@ class Survivor(Models.UserAsset):
         if self.survivor["weapon_proficiency_type"] != None:
             w_name = self.survivor["weapon_proficiency_type"]
             W = weapon_proficiency.Assets()
-            w_dict = W.get_asset_from_name(w_name, raise_exception_if_not_found=False)
+            w_dict = W.get_asset_from_name(w_name)
             if w_dict is None:
                 self.logger.error("%s Weapon proficiency type '%s' could not be migrated!" % (self, w_name))
             else:
