@@ -1993,6 +1993,8 @@ class survivor:
             >
                 <span
                     class="survivor_sheet_ai"
+                    ng-click="rmAI($index, ai_handle)"
+                    title="Click or tap to remove '{{settlement.game_assets.abilities_and_impairments[ai_handle].name}}'"
                 >
                     <b
                         ng-if="settlement.game_assets.abilities_and_impairments[ai_handle].constellation == undefined"

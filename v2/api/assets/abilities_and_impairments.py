@@ -123,6 +123,10 @@ abilities_and_impairments = {
         "type": "ability",
         "desc": "Add +5 to your rolls on the Run Away story event."
     },
+    "iron_will": {
+        "name": "Iron Will",
+        "desc": "You cannot be knocked down. Reduce all knockback you suffer to <b>knockback 1</b>.",
+    },
     "kings_curse": {
         'desc': 'At the Aftermath, <font class="kdm_font">g</font> <b>King\'s Curse</b>.',
         'epithet': "kings_curse",
