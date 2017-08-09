@@ -237,6 +237,7 @@ app.controller('abilitiesAndImpairmentsController', function($scope) {
 //        console.log(ai_handle + " index: " + ai_index);
         js_obj = {"handle": ai_handle, "type": "abilities_and_impairments"};
         $scope.postJSONtoAPI('survivor', 'rm_game_asset', js_obj);
+        $scope.survivor.sheet.abilities_and_impairments.splice(ai_index, 1);
         sleep(500).then(() => {
             $scope.initializeSurvivor($scope.survivor_id);
         });
