@@ -279,6 +279,7 @@ mar_2016_expansions = {
     },
     'the_first_host': {
         'bgcolor': '116E17',
+        'bordercolor': '116E17',
         'color': '0f0',
         'expansion': 'flower_knight',
         'name': 'The First Host'
