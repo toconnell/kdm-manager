@@ -183,7 +183,10 @@ def api_current_hunt(h):
         hunter_names = []
         for h in hunters:
             hunter_names.append(h["name"])
-        output = ", ".join(hunter_names[:-1])
+        try:
+            output = ", ".join(hunter_names[:-1])
+        except Exception as e:
+            return hunter_names
         output += " and %s of <b>%s</b>" % (hunter_names[-1], settlement["name"])
         output += " are currently out hunting!<br/>Monster: %s" % (settlement["current_quarry"])
 
