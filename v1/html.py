@@ -498,7 +498,14 @@ class angularJS:
                     can cause errors and other unexpected behavior!
                     </div>
 
-                    <button type="submit" class="kd_blue save_expansions">Save Changes and Reload</button>
+                    <button
+                        type="submit"
+                        class="kd_blue save_expansions"
+                        onclick="closeModal('modalExpansionsManager'); showFullPageLoader()"
+                    >
+                        Save Changes and Reload
+                    </button>
+
                 </form>
             </div> <!-- container -->
         </div> <!-- modal content -->
@@ -881,7 +888,7 @@ class angularJS:
         ng_init="registerModalDiv('timelineOpenerButton','modalTimelineContainer');"
     >
 
-        <span class="touch_me timeline_overlay_current_ly">LY: <b>{{current_ly}}</b></span>
+        <span class="touch_me timeline_overlay_current_ly">LY: <b>{{settlement.sheet.lantern_year}}</b></span>
 
         <div class="full_size_modal_panel timeline_gradient">
 
@@ -907,8 +914,8 @@ class angularJS:
             >
                 <div class="timeline_ly_container" ng-click="showHideControls(t.year)">
                     <div class="timeline_bullet_and_year_container">
-                        <span ng-if="t.year >= current_ly" class="kd_toggle_bullet"></span>
-                        <span ng-if="t.year < current_ly" class="kd_toggle_bullet checked_kd_toggle_bullet"></span>
+                        <span ng-if="t.year >= settlement.sheet.lantern_year" class="kd_toggle_bullet"></span>
+                        <span ng-if="t.year < settlement.sheet.lantern_year" class="kd_toggle_bullet checked_kd_toggle_bullet"></span>
                         <span class="timeline_ly_number">{{t.year}}</span>
                     </div>
 
@@ -1030,12 +1037,12 @@ class angularJS:
 
                     <hr class="invisible"/>
 
-                    <div class="end_current_ly" ng-if="t.year==current_ly">
+                    <div class="end_current_ly" ng-if="t.year==settlement.sheet.lantern_year">
                         <input
                             type="checkbox"
                             id="endLanternYear{{t.year}}"
                             ng-model="lantern_year"
-                            ng-change="setLY(t.year + 1); showHidecontrols(t.year); showControls(t.year+1)"
+                            ng-click="setLY(t.year + 1); showHideControls(t.year); showControls(t.year+1)"
                         />
                         <label
                             class="kd_blue timeline_change_ly_button"
@@ -1061,7 +1068,7 @@ class angularJS:
                 </div> <!-- timelineControlsLy{{t.year}}-->
 
                 <div
-                    ng-if="t.year <= current_ly && get_event_log(t.year).length >= 1 "
+                    ng-if="t.year <= settlement.sheet.lantern_year && get_event_log(t.year).length >= 1 "
                     ng-click="showHide(t.log_div_id)"
                     class="timeline_event_log_revealer round_top"
                 >
@@ -2974,7 +2981,7 @@ class settlement:
                 <p class="campaign_summary_campaign_type">{{settlement.game_assets.campaign.name}}</p>
                 <p>Population: $population ($sex_count); $death_count deaths</p>
                 <hr class="mobile_only"/>
-                <p>Lantern Year: {{current_ly}}, Survival Limit: $survival_limit</p>
+                <p>Lantern Year: {{settlement.sheet.lantern_year}}, Survival Limit: $survival_limit</p>
                 <hr class="mobile_only"/>
             </div> <!-- campaign_summary_headline_container -->
 

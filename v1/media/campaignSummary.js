@@ -53,7 +53,7 @@ app.controller("manageDepartingSurvivorsController", function($scope) {
 
         var timeline_event = {
             "name": $scope.current_quarry,
-            "ly": $scope.current_ly,
+            "ly": $scope.settlement.sheet.lantern_year,
             "user_login": $scope.user_login
         };
 

@@ -1325,6 +1325,81 @@ items = {
         "expansion": "Sunstalker",
         "location": "Rare Gear",
     },
+    "Huge Sunteeth": {
+        "expansion": "Sunstalker",
+        "location": "Sunstalker Resources",
+        "resource_family": ["bone"],
+    },
+    "Small Sunteeth": {
+        "expansion": "Sunstalker",
+        "location": "Sunstalker Resources",
+        "resource_family": ["bone"],
+    },
+    "Shadow Tentacles": {
+        "expansion": "Sunstalker",
+        "location": "Sunstalker Resources",
+        "resource_family": ["organ","hide"],
+    },
+    "Shark Tongue": {
+        "expansion": "Sunstalker",
+        "location": "Sunstalker Resources",
+        "resource_family": ["organ"],
+    },
+    "Cycloid Scales": {
+        "expansion": "Sunstalker",
+        "location": "Sunstalker Resources",
+        "resource_family": ["hide"],
+    },
+    "Inner Shadow Skin": {
+        "expansion": "Sunstalker",
+        "location": "Sunstalker Resources",
+        "resource_family": ["hide"],
+    },
+    "Prismatic Gills": {
+        "expansion": "Sunstalker",
+        "location": "Sunstalker Resources",
+        "resource_family": ["organ"],
+    },
+    "Sunshark Fin": {
+        "expansion": "Sunstalker",
+        "location": "Sunstalker Resources",
+        "resource_family": ["bone","hide"],
+    },
+    "Sunshark Bone": {
+        "expansion": "Sunstalker",
+        "location": "Sunstalker Resources",
+        "resource_family": ["bone"],
+    },
+    "Stink Lung": {
+        "expansion": "Sunstalker",
+        "location": "Sunstalker Resources",
+        "resource_family": ["organ"],
+    },
+    "Brain Root": {
+        "expansion": "Sunstalker",
+        "location": "Sunstalker Resources",
+        "resource_family": ["organ"],
+    },
+    "Fertility Tentacle": {
+        "expansion": "Sunstalker",
+        "location": "Sunstalker Resources",
+        "resource_family": ["organ"],
+    },
+    "Shadow Ink Gland": {
+        "expansion": "Sunstalker",
+        "location": "Sunstalker Resources",
+        "resource_family": ["organ"],
+    },
+    "Sunshark Blubber": {
+        "expansion": "Sunstalker",
+        "location": "Sunstalker Resources",
+        "resource_family": ["organ"],
+    },
+    "Black Lens": {
+        "expansion": "Sunstalker",
+        "location": "Sunstalker Resources",
+        "resource_family": ["organ"],
+    },
     "Riot Mace": {
         "expansion": "Gorm",
         "location": "Gormery",
@@ -3092,6 +3167,10 @@ resources = {
     },
     "Gorm Resources": {
         "expansion": "Gorm",
+        "color": "DCD900",
+    },
+    "Sunstalker Resources": {
+        "expansion": "Sunstalker",
         "color": "DCD900",
     },
     "Dung Beetle Knight Resources": {

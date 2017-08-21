@@ -196,7 +196,9 @@ app.controller('saviorController', function($scope) {
 app.controller('fightingArtsController', function($scope) {
     $scope.toggleStatusFlag = function() {
         $scope.postJSONtoAPI('survivor','toggle_status_flag', {'flag': 'cannot_use_fighting_arts'});
-        $scope.initializeSurvivor($scope.survivor_id); // because this could affect SA's, etc.
+        sleep(500).then(() => {
+            $scope.initializeSurvivor($scope.survivor_id);
+        });
     };
 });
 

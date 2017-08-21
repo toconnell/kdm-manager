@@ -1203,7 +1203,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
         /* campaign notes - tablet */
     input.add_settlement_note {font-size: 30px; height: auto; padding: 1%; }    
-    button.add_settlement_note {font-size: 40px; padding: 3px; padding-left: 3%; padding-right: 3%;  }
+    button.add_settlement_note {font-size: 40px; padding: 3px; padding-left: 3%; padding-right: 3%;  width: auto;}
     div.settlement_note {height: auto; min-height: 50px; }
     span.flair_text {font-size: 30px; }
     div.note_flair {width: 5%; }

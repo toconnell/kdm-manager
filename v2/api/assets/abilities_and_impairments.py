@@ -516,12 +516,12 @@ expansion_ai = {
     "rivals_scar": {
         "name": "Rival's Scar",
         "type": "ability",
-        "expansion": "Spidicules",
+        "expansion": "spidicules",
         "desc":"Gain +1 permanent strength and +1 permanent evasion.",
         "max": 1,
         "epithet": "rivals_scar",
         "Strength": 1,
-        "Evasion": -1,
+        "Evasion": 1,
     },
 
     # flower knight
@@ -533,6 +533,7 @@ expansion_ai = {
         "max": 1,
         "Luck": 1,
     },
+
 
     # lion knight
     "hideous_disguise": {
@@ -578,8 +579,17 @@ expansion_ai = {
         "Evasion": 2,
     },
 
+    # gorm
+    'acid_palms_gorm': {
+        'desc': 'Add 1d10 strength to your wound attempts when attacking with Fist & Tooth.',
+        'expansion': 'gorm',
+        'max': 1,
+        'name': 'Acid Palms',
+        'type': 'ability'
+    },
+
     # dragon king
-    'acid_palms': {
+    'acid_palms_dk': {
         'desc': 'Add 1d10 strength to your wound attempts when attacking with Fist & Tooth.',
         'expansion': 'dragon_king',
         'max': 1,

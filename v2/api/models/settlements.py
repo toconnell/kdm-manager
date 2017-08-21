@@ -1176,14 +1176,15 @@ class Settlement(Models.UserAsset):
             A.filter("type", exclude_types)
 
         # update available
-        for n in A.get_names():
-            asset_dict = A.get_asset_from_name(n)
+        for n in A.get_handles():
+            asset_dict = A.get_asset(n)
             if self.is_compatible(asset_dict):
                 if handles: # return a dict
                     available.update({asset_dict["handle"]: asset_dict})
                 else:       # return a list of dicts
                     available.append(asset_dict)
 
+        # REMOVE THIS
         if type(available) == list: #list of dicts; needs sorting
             available = sorted(available, key=lambda k: k['name'])
 

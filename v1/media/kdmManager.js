@@ -111,6 +111,9 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
         $scope.view = src_view;
         $scope.survivor_id = survivor_id;
 
+        // declare the view
+        console.log('Initializing ' + $scope.view + ' view...');
+
         // load the settlement from the API
         $scope.loadSettlement().then(
             function(payload) {
@@ -128,7 +131,6 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
                 $scope.settlement_sheet = $scope.settlement.sheet;
 
                 // create other in-scope stuff off of the sheet:
-                $rootScope.current_ly = $scope.settlement_sheet.lantern_year;
                 $scope.settlement_notes = $scope.settlement_sheet.settlement_notes;
                 $scope.timeline = $scope.settlement_sheet.timeline;
                 $scope.current_quarry = $scope.settlement_sheet.current_quarry;
@@ -429,7 +431,11 @@ app.controller("updateExpansionsController", function($scope) {
             $scope.postJSONtoAPI('settlement', 'rm_expansions', [e_handle]);
         };
         sleep(500).then(() => {
-            $scope.reinitialize();
+            if ($scope.view == 'survivorSheet') {
+                $scope.initializeSurvivor($scope.survivor_id);
+            } else {
+                $scope.reinitialize();
+            };
         });
     };
 });
@@ -474,7 +480,7 @@ app.controller('settlementNotesController', function($scope, $rootScope) {
             "author_id": $scope.user_id,
             "note": $scope.newNote,
             "js_id": $scope.getID(),
-            "lantern_year": $rootScope.current_ly,
+            "lantern_year": $scope.settlement.sheet.lantern_year,
         };
         $scope.settlement_notes.unshift(new_note_object);
         $scope.postJSONtoAPI('settlement', 'add_note', new_note_object);
@@ -533,6 +539,7 @@ app.controller('timelineController', function($scope, $rootScope) {
 
 
     $scope.showHideControls = function(ly) { 
+//        console.warn('hiding LY ' + ly);
         elem_id='timelineControlsLY' + ly;
 
         var hidden_controls = document.getElementById(elem_id);
@@ -566,12 +573,9 @@ app.controller('timelineController', function($scope, $rootScope) {
     };
 
     $scope.setLY = function(ly) {
-//        console.log("setting LY to " + ly);
-        $rootScope.current_ly = Number(ly);
-        modifyAsset('settlement', $scope.settlement_id, "lantern_year=" + $rootScope.current_ly);
-        sleep(500).then(() => {
-            $scope.reinitialize();
-        });
+        console.log("setting LY to " + ly);
+        modifyAsset('settlement', $scope.settlement_id, "lantern_year=" + ly);
+        $scope.settlement.sheet.lantern_year = ly;
     };
 
     $scope.getLYObject = function(ly) {

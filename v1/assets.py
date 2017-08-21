@@ -1099,8 +1099,8 @@ class Survivor:
             elif asset_key in FightingArts.get_keys():
                 self.survivor["fighting_arts"].append(asset_key)
                 asset_dict = FightingArts.get_asset(asset_key)
-                if "epithet" in asset_dict.keys():
-                    self.update_epithets(epithet=asset_dict["epithet"])
+#                if "epithet" in asset_dict.keys():
+#                    self.update_epithets(epithet=asset_dict["epithet"])
                 if "Movement" in asset_dict.keys():
                     self.survivor["Movement"] = int(self.survivor["Movement"]) + asset_dict["Movement"] 
             else:

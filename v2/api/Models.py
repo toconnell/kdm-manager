@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 import json
 from bson import json_util
 import inspect
+import operator
 
 from flask import request, Response
 
@@ -143,7 +144,10 @@ class AssetCollection():
     def get_handles(self):
         """ Dumps all asset handles, i.e. the list of self.assets keys. """
 
-        return sorted(self.assets.keys())
+        try:
+            return sorted(self.assets, key=lambda x: self.assets[x]['name'])
+        except:
+            return sorted(self.assets.keys())
 
 
     def get_names(self):
