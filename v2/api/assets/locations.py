@@ -132,7 +132,7 @@ gear = {
 
 }
 
-settlement = {
+location = {
 
     #
     #   Core locations! Keep these on top

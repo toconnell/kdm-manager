@@ -147,7 +147,7 @@ campaign_definitions = {
             "innovation": ["Language"],
         },
         "forbidden": {
-            "location": ["The Sun","Throne"],
+            "location": ["the_sun","throne"],
             "innovation": ["Sun Language","Dragon Speech","Radiating Orb"],
         },
         "principles": ["new_life","death","society","conviction"],
@@ -214,7 +214,7 @@ campaign_definitions = {
             "innovation": ["Language"],
         },
         "forbidden": {
-            "abilities_and_impairments": ["Flower Addiction"],
+            "disorders": ["flower_addiction"],
             "quarries": ["flower_knight"],
         },
         "principles": ["new_life","death","society","conviction"],
@@ -250,8 +250,8 @@ campaign_definitions = {
             "innovation": ["Sun Language", "Umbilical Bank"],
         },
         "forbidden": {
-            "location": ["Lantern Hoard"],
-            "innovation": ["Leader", "Language"],
+            "location": ["lantern_hoard"],
+            "innovation": ["leader", "language"],
         },
         "principles": ["potsun_new_life","death","society","conviction"],
         "milestones": ["first_child","first_death","pop_15","innovations_8","nemesis_defeat","game_over"],
@@ -303,7 +303,7 @@ campaign_definitions = {
             "innovation": ["Dragon Speech","Radiating Orb"],
         },
         "forbidden": {
-            "location": ["Lantern Hoard", "Dragon Armory"],
+            "location": ["lantern_hoard", "dragon_armory"],
             "innovation": ["Language","Lantern Oven","Clan of Death","Family"],
         },
         "founder_epithet": "foundling",
