@@ -38,30 +38,6 @@
 
         </div>
 
-        <div class="flex_item_basic">
-            <h1> API Log</h1>
-            <p ng-click="showHide('api_log')" class="clickable">
-                View last {{settings.application.log_summary_length}} lines.
-            </p>
-            <div class="log_detail" id="api_log">
-                <div class="log_line" ng-repeat="l in logs.api track by $index" ng-class-even="'zebra'">
-                    {{l}}
-                </div>
-            </div>
-
-                <br/><br/>
-
-            <h1> Server Log</h1>
-            <p ng-click="showHide('server_log')" class="clickable">
-                View last {{settings.application.log_summary_length}} lines.
-            </p>
-            <div class="log_detail" id="server_log">
-                <div class="log_line" ng-repeat="l in logs.server track by $index" ng-class-even="'zebra'">
-                    {{l}}
-                </div>
-            </div>
-        </div>
-
 
         <div class="flex_item_basic">
             <h1>User Activity </h1>
@@ -98,6 +74,44 @@
             </table>
 
         </div>
+
+
+        <div class="flex_item_basic">
+            <h1> API Log</h1>
+            <p ng-click="showHide('api_log')" class="clickable">
+                View last {{settings.application.log_summary_length}} lines.
+            </p>
+            <div class="log_detail" id="api_log">
+                <div class="log_line" ng-repeat="l in logs.api track by $index" ng-class-even="'zebra'">
+                    {{l}}
+                </div>
+            </div>
+
+                <br/><br/>
+
+            <h1> Gunicorn Log</h1>
+            <p ng-click="showHide('gunicorn_log')" class="clickable">
+                View last {{settings.application.log_summary_length}} lines.
+            </p>
+            <div class="log_detail" id="gunicorn_log">
+                <div class="log_line" ng-repeat="l in logs.gunicorn track by $index" ng-class-even="'zebra'">
+                    {{l}}
+                </div>
+            </div>
+
+                <br/><br/>
+
+            <h1> Server Log</h1>
+            <p ng-click="showHide('server_log')" class="clickable">
+                View last {{settings.application.log_summary_length}} lines.
+            </p>
+            <div class="log_detail" id="server_log">
+                <div class="log_line" ng-repeat="l in logs.server track by $index" ng-class-even="'zebra'">
+                    {{l}}
+                </div>
+            </div>
+        </div>
+
 
         <div class="flex_item_basic">
             <h1>World Daemon</h1>

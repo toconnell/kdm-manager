@@ -176,7 +176,7 @@ class World:
         for i in sorted_list:
             i["value"] = i['latest_user_agent']
             i["count"] = int(i["count"])
-        d["user_agent_stats"] = sorted_list
+        d["user_agent_stats"] = sorted_list[:20]
 
 
         # get the raw world info (we'll sort it later)

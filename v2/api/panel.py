@@ -53,12 +53,15 @@ def serialize_system_logs():
 
     log_root = settings.get("application","log_root_dir")
 
-    for l in ["world","api","server","world_daemon"]:
+    for l in ["world","api","server","world_daemon","gunicorn"]:
         log_file_name = os.path.join(log_root, "%s.log" % l)
-        fh = file(log_file_name, "r")
-        log_lines = fh.readlines()
-        log_limit = settings.get("application","log_summary_length")
-        d[l] = [line for line in reversed(log_lines[-log_limit:])]
+        if os.path.isfile(log_file_name):
+            fh = file(log_file_name, "r")
+            log_lines = fh.readlines()
+            log_limit = settings.get("application","log_summary_length")
+            d[l] = [line for line in reversed(log_lines[-log_limit:])]
+        else:
+            d[l] = ["'%s' does not exist!" % log_file_name]
 
 
     return json.dumps(d, default=json_util.default)
