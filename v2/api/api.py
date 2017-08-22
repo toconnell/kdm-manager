@@ -4,7 +4,9 @@
 from bson.objectid import ObjectId
 from bson import json_util
 
-from flask import Flask, send_file, request, Response, send_from_directory, jsonify
+from flask import Flask, send_file, render_template, request, Response, send_from_directory, jsonify
+from flask_httpauth import HTTPBasicAuth
+basicAuth = HTTPBasicAuth()
 import flask_jwt
 import flask_jwt_extended
 
@@ -49,7 +51,7 @@ jwt = flask_jwt_extended.JWTManager(application)
 # default route - landing page, vanity URL stuff
 @application.route("/")
 def index():
-    return send_file("templates/index.html")
+    return send_file("html/index.html")
 
 # static css and js routes
 @application.route('/static/<sub_dir>/<path:path>')
@@ -88,8 +90,8 @@ def get_settings():
 def world_json():
     W = world.World()
     D = world.WorldDaemon()
-    d = {"world_daemon": D.dump_status("dict")}
-    d.update(W.list("dict"))
+    d = {"world_daemon": D.dump_status(dict)}
+    d.update(W.list(dict))
     j = json.dumps(d, default=json_util.default)
     response = Response(response=j, status=200, mimetype="application/json")
     return response
@@ -154,23 +156,6 @@ def refresh_auth(action):
         return utils.http_402
 
 
-@application.route("/admin/<requested>/<resource>", methods=["GET"])
-@utils.crossdomain(origin=['*'],headers='Content-Type')
-def admin_view(requested, resource):
-    """ Admin panel type views are accessed via this routed. Beyond normal auth,
-    You also need to have a user with the 'admin' bit set to True. """
-
-    request.User = users.token_to_object(request)
-    if isinstance(request.User, users.User) and users.User.admin == True:
-        if requested == 'view':
-            request_broker.get_admin_view(resource)
-        elif requested == 'JSON':
-            request_broker.get_admin_data(resource)
-        else:
-            return utils.http_405
-    else:
-        return utils.http_401
-
 
 @application.route("/new/<asset_type>", methods=["POST"])
 @utils.crossdomain(origin=['*'],headers='Content-Type')
@@ -203,6 +188,39 @@ def collection_action(collection, action, asset_id):
     if type(asset_object) == Response:
         return asset_object
     return asset_object.request_response(action)
+
+
+
+
+#                      
+#      ADMIN PANEL     
+#                      
+
+@basicAuth.verify_password
+def verify_password(username, password):
+    request.User = users.authenticate(username, password)
+    if request.User is None:
+        return False
+    elif request.User.user.get("admin", None) is None:
+        msg = "Non-admin user %s attempted to access the admin panel!" % request.User.user["login"]
+        application.logger.warn(msg)
+        return False
+    return True
+
+
+@application.route("/admin")
+@basicAuth.login_required
+def panel():
+    return send_file("html/admin/panel.html")
+
+
+@application.route("/admin/get/<resource>", methods=["GET"])
+#@basicAuth.login_required
+def admin_view(resource):
+    """ Retrieves admin panel resources as JSON. """
+    return request_broker.get_admin_data(resource)
+
+
 
 
 #

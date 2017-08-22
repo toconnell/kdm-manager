@@ -2,6 +2,8 @@
 
 from bson import json_util
 from bson.objectid import ObjectId
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 from flask import Response
 from hashlib import md5
 import json
@@ -246,6 +248,19 @@ class User(Models.UserAsset):
     #   get methods
     #
 
+    def get_age(self, return_type="years"):
+        """ Returns the user's age. """
+
+        delta = datetime.now() - self.user["created_on"]
+
+        if return_type == 'days':
+            return delta.days
+        elif return_type == 'years':
+            return relativedelta(datetime.now(), self.user["created_on"]).years
+
+        return delta
+
+
     def get_preference(self, p_key):
         """ Ported from the legacy app: checks the user's MDB document for the
         'preference' key and returns its value (which is a bool).
@@ -300,6 +315,8 @@ class User(Models.UserAsset):
                 return friends.count()
             else:
                 return 0
+        elif return_type == list:
+            return [f["login"] for f in friends]
 
         return friends
 

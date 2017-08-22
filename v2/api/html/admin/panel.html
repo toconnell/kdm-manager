@@ -1,0 +1,163 @@
+<!doctype html>
+<html ng-app="adminPanel" ng-controller="globalController">
+ <title>http://thewatcher.io - The Watcher - Admin Panel</title>
+ <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="/static/js/adminPanel.js"></script>
+    <link rel="stylesheet" href="/static/css/adminPanel.css" />
+ </head>
+
+
+ <body>
+
+
+    <img id="spinner" src="/static/media/images/loading_io.gif">
+
+    <div class="container">
+
+
+        <div class="flex_item_basic">
+            <h1>{{settings.application.app_name}}</h1>
+            {{settings.application.title}}
+            <br/><br/>
+            <b>API Version:</b> {{settings.api.version}}<br/>
+            <b>Last Push:</b> {{github.pushed_at}}<br/>
+            <b>Open Issues:</b> {{github.open_issues}}<br/>
+            <br/>
+            <b>Administrators:</b>
+            <ul>
+                <li ng-repeat="a in world.meta.admins">{{a.login}} - {{a._id.$oid}}</li>
+            </ul>
+
+            <br/><br/>
+
+            <h1>Admin Panel</h1>
+            <b>Revision:</b> {{settings.application.panel_revision}}<br/>
+            <b>Last Refreshed:</b> {{refreshed}}
+
+        </div>
+
+        <div class="flex_item_basic">
+            <h1> API Log</h1>
+            <p ng-click="showHide('api_log')" class="clickable">
+                View last {{settings.application.log_summary_length}} lines.
+            </p>
+            <div class="log_detail" id="api_log">
+                <div class="log_line" ng-repeat="l in logs.api track by $index" ng-class-even="'zebra'">
+                    {{l}}
+                </div>
+            </div>
+
+                <br/><br/>
+
+            <h1> Server Log</h1>
+            <p ng-click="showHide('server_log')" class="clickable">
+                View last {{settings.application.log_summary_length}} lines.
+            </p>
+            <div class="log_detail" id="server_log">
+                <div class="log_line" ng-repeat="l in logs.server track by $index" ng-class-even="'zebra'">
+                    {{l}}
+                </div>
+            </div>
+        </div>
+
+
+        <div class="flex_item_basic">
+            <h1>User Activity </h1>
+            <b title="Users with activity after {{active_users.meta.active_user_cutoff}}">Active user count:</b> {{active_users.meta.active_user_count}}<br/>
+            
+            <div class="users_container">
+                <div class="user_basic_info" ng-repeat="u in active_users.users" ng-click="showHide('user_' + u._id.$oid)">
+                    <h2>{{u.login}}</h2>
+                    <div class="user_detail" id="user_{{u._id.$oid}}">
+                        <br><br/>
+                        <b>Latest Activity:</b> {{u.latest_activity.$date}}<br/>
+                        <b>Latest Action:</b> {{u.latest_action}}<br/>
+                        <span ng-if="u.friend_count > 0">
+                            <br>
+                            <b>Friends:</b> {{ u.friend_list.join(', ') }} <br/>
+                        </span>
+                        <br>
+                        <b>OID:</b> {{u._id.$oid}}<br/>
+                        <b>Created On:</b> {{u.created_on.$date}}<br/>
+                        <b>Age:</b> {{u.age_days}} days ({{u.age_years}} years)<br/>
+                        <br><br>
+                        <b>User Agent:</b> {{u.latest_user_agent}}<br/>
+                    </div>
+                </div>
+            </div>
+
+                <br/><br/>
+
+            <h1>User Agent Info</h1>
+            <table>
+                <tr ng-repeat="ua in world.user_agent_stats" ng-class-even="'zebra'">
+                    <td>{{ua.latest_user_agent}}:</td><td>{{ua.count}}</td>
+                </tr>
+            </table>
+
+        </div>
+
+        <div class="flex_item_basic">
+            <h1>World Daemon</h1>
+            <b>Active:</b> {{world.world_daemon.active}}<br/>
+            <b>Uptime:</b> {{world.world_daemon.uptime_hms}}<br/>
+            <b>Assets:</b> {{world.world_daemon.assets}}<br/>
+            <b>PID:</b> {{world.world_daemon.pid}}<br/>
+            <b>PID File:</b> <code>{{world.world_daemon.pid_file}}</code><br/>
+
+               <br/><br/>
+
+            <h1>World Log</h1>
+            <p ng-click="showHide('world_log')" class="clickable">
+                View last {{settings.application.log_summary_length}} lines.
+            </p>
+            <div class="log_detail" id="world_log">
+                <div class="log_line" ng-repeat="l in logs.world track by $index" ng-class-even="'zebra'">
+                    {{l}}
+                </div>
+            </div>
+
+               <br/><br/>
+
+            <h1>World Daemon Log</h1>
+            <p ng-click="showHide('world_daemon_log')" class="clickable">
+                View last {{settings.application.log_summary_length}} lines.
+            </p>
+            <div class="log_detail" id="world_daemon_log">
+                <div class="log_line" ng-repeat="l in logs.world_daemon track by $index" ng-class-even="'zebra'">
+                    {{l}}
+                </div>
+            </div>
+        </div>
+
+        <div class="flex_item_basic">
+            <h1>World Stats</h1>
+
+            <div class="world_item clickable" ng-repeat="w in world.world">
+                <div
+                    title="{{w.comment}}"
+                    ng-if="w.value_type == 'int' || w.value_type == 'float'" 
+                    ng-click="showHide(w.handle + '_tooltip')"
+                >
+                    <div class="world_key">{{w.name}}:</div>
+                    <div class="world_value">{{w.value}}</div>
+                    <span id="{{w.handle}}_tooltip" class="world_tooltip">
+                        <i>comment:</i> {{w.comment}}<br/>
+                        <i>handle:</i> <code>{{w.handle}}</code><br/>
+                        <i>mdb OID:</i> {{w._id.$oid}}<br/>
+                        <i>refreshed:</i> {{w.created_on.$date}}<br/>
+                        <i>age (seconds):</i> {{w.age_in_seconds}}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div> <!-- container -->
+
+ </body>
+
+</html>

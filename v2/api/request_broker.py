@@ -2,6 +2,7 @@
 
 from flask import request, Response
 
+import panel
 import utils
 
 from models import survivors, settlements, users, monsters, campaigns
@@ -38,13 +39,14 @@ class badResponse():
         return utils.http_500
 
 
-def get_admin_view(view=None):
-    """ Not implemented! """
-    return utils.http_501
+def get_admin_data(resource=None):
+    """ Retrieves admin panel data. """
 
+    if resource == 'active_users':
+        return panel.active_users()
+    elif resource == 'logs':
+        return panel.serialize_system_logs()
 
-def get_admin_data(view=None):
-    """ Not implemented! """
     return utils.http_501
 
 

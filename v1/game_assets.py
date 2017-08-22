@@ -1020,6 +1020,14 @@ items = {
         "desc": 'When you wound a monster, add <font class="inline_shield">1</font> to a random hit location.',
         "type": ["weapon","melee","sword","amber"],
     },
+    "Detective Cap": {
+        "expansion": "white_box",
+        "location": "Promo",
+    },
+    "Twilight Revolver": {
+        "expansion": "white_box",
+        "location": "Promo",
+    },
     "Xmaxe": {
         "expansion": "white_box",
         "location": "Promo",

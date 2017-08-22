@@ -250,7 +250,7 @@ campaign_definitions = {
             "innovation": ["Sun Language", "Umbilical Bank"],
         },
         "forbidden": {
-            "location": ["lantern_hoard"],
+            "location": ["lantern_hoard","exhausted_lantern_hoard"],
             "innovation": ["leader", "language"],
         },
         "principles": ["potsun_new_life","death","society","conviction"],
@@ -303,7 +303,7 @@ campaign_definitions = {
             "innovation": ["Dragon Speech","Radiating Orb"],
         },
         "forbidden": {
-            "location": ["lantern_hoard", "dragon_armory"],
+            "location": ["lantern_hoard", "dragon_armory","exhausted_lantern_hoard"],
             "innovation": ["Language","Lantern Oven","Clan of Death","Family"],
         },
         "founder_epithet": "foundling",

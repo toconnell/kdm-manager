@@ -19,8 +19,8 @@ promo_and_misc = {
     },
     "white_box": {
         "released": datetime(2016,8,16),
-        "name": "White Box",
-        "subtitle": "Enables promo and early-release items and abilities & impairments included in the so-called 'White Box' collection of survivor minis (released at Gen Con 2016).",
+        "name": "White Box & Promo",
+        "subtitle": "Adds promotional content (items, Abilities & Impairments, etc.) to Settlement and Survivor Sheet drop-down lists. Content includes Gen Con, Black Friday and other promos.",
     },
 }
 

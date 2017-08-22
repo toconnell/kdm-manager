@@ -14,6 +14,7 @@ from pwd import getpwuid, getpwnam
 from bson.son import SON
 from bson import json_util
 from bson.objectid import ObjectId
+import collections
 import daemon
 from datetime import datetime, timedelta
 import json
@@ -122,6 +123,7 @@ class World:
                 asset_dict.update({"handle": asset_key})
                 asset_dict.update({"created_on": datetime.now()})
                 asset_dict.update({"value": value})
+                asset_dict["value_type"] = type(value).__name__
                 self.update_mdb(asset_dict)
                 self.total_refreshed_assets += 1
                 self.logger.debug("Updated '%s' asset in mdb." % asset_key)
@@ -130,7 +132,6 @@ class World:
             except Exception as e:
                 self.logger.error("Exception caught while refreshing asset!")
                 self.logger.exception(e)
-
 
     def update_mdb(self, asset_dict):
         """ Creates a new document in mdb.world OR, if this handle already
@@ -156,11 +157,33 @@ class World:
     def list(self, output_type="JSON"):
         """ Dump world data in a few different formats."""
 
-        d = {"world": {}, "meta": {"api_version": settings.get("api","version")}}
-        for asset in utils.mdb.world.find():
-            d["world"][asset["handle"]] = asset
-            d["world"][asset["handle"]]["age_in_seconds"] = (datetime.now() - asset["created_on"]).seconds
+        d = {
+            "world": collections.OrderedDict(),
+            "meta": {
+                "api_version": settings.get("api","version"),
+                "admins": list(utils.mdb.users.find({"admin": {"$exists": True}})),
+            },
+        }
 
+        # do the user agent popularity contest here
+        results = utils.mdb.users.group(
+            ['latest_user_agent'],
+            {'latest_user_agent': {'$exists': True}},
+            {"count": 0},
+            "function(o, p){p.count++}"
+        )
+        sorted_list = sorted(results, key=lambda k: k["count"], reverse=True)
+        for i in sorted_list:
+            i["value"] = i['latest_user_agent']
+            i["count"] = int(i["count"])
+        d["user_agent_stats"] = sorted_list
+
+
+        # get the raw world info (we'll sort it later)
+        raw_world = {}
+        for asset in utils.mdb.world.find():
+            raw_world[asset["handle"]] = asset
+            raw_world[asset["handle"]]["age_in_seconds"] = (datetime.now() - asset["created_on"]).seconds
 
         #
         # This is where we filter data key/value pairs from being returned
@@ -176,8 +199,13 @@ class World:
                     recursive_key_del(chk_d[k], f_key)
 
         for banned_key in ["max_age", "email","admins"]:
-            recursive_key_del(d["world"], banned_key)
+            recursive_key_del(raw_world, banned_key)
 
+
+        # sort the world dict
+        key_order = sorted(raw_world, key=lambda x: raw_world[x]["name"])
+        for k in key_order:
+            d["world"][k] = raw_world[k]
 
         # output options from here down:
 
@@ -194,7 +222,7 @@ class World:
             for k in sorted(d["world"].keys()):
                 output += "  %s\n" % k
             return output
-        elif output_type == "dict":
+        elif output_type == dict:
             return d
         elif output_type == "JSON":
             return json.dumps(d, default=json_util.default)
@@ -957,7 +985,7 @@ class WorldDaemon:
             d["pid_file"] = self.pid_file_path
             d["assets"] = utils.mdb.world.find().count()
 
-        if output_type == "dict":
+        if output_type == dict:
             return d
         elif output_type == "CLI":
             spacer = 15
@@ -987,6 +1015,7 @@ if __name__ == "__main__":
     # optparse
     parser = OptionParser()
     parser.add_option("-l", dest="list", action="store_true", default=False, help="List warehoused asset handles")
+    parser.add_option("-j", dest="list_JSON", action="store_true", default=False, help="Dump 'world' JSON")
     parser.add_option("-r", dest="refresh", action="store_true", default=False, help="Force a warehouse refresh")
     parser.add_option("-a", dest="asset", default=False, help="Retrieve an mdb world asset (print a summary)", metavar="latest_survivor")
     parser.add_option("-q", dest="query", default=False, help="Execute a query method (print results)", metavar="avg_pop")
@@ -1010,6 +1039,8 @@ if __name__ == "__main__":
         print("\n\tSee '%s' for complete query debug info!\n" % (W.logger.handlers[0].baseFilename))
     if options.list:
         print(W.list("keys_cli"))
+    if options.list_JSON:
+        print(W.list(dict)["world"])
 
     # now process daemon commands
     if options.daemon_cmd is not None:
