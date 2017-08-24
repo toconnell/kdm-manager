@@ -54,7 +54,7 @@ class Survivor(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="survivors"
-        self.object_version = 0.51
+        self.object_version = 0.52
 
         # data model meta data
         self.stats =            ['Movement','Accuracy','Strength','Evasion','Luck','Speed']
@@ -1288,6 +1288,23 @@ class Survivor(Models.UserAsset):
         # if no return_type, just return the trait list
 
         return traits
+
+    def get_epithets(self, return_type=None):
+        """ Returns survivor epithet (handles) as a list, unless the
+        'return_type' kwarg is set to 'pretty', which gets you a nice
+        string. """
+
+        e = self.survivor["epithets"]
+
+        if return_type == "pretty":
+            E = epithets.Assets()
+            output = ""
+            for e_handle in e:
+                e_asset = E.get_asset(e_handle)
+                output += e_asset["name"]
+            return output
+
+        return e
 
 
     def get_notes(self):

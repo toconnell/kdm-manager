@@ -4,7 +4,7 @@
 var myApp = angular.module('adminPanel', []);
 
 
-myApp.controller('globalController', function($scope, $http) {
+myApp.controller('globalController', function($scope, $http, $interval) {
 
     $scope.showSpinner = function() {
         $("#spinner").fadeIn(3000);
@@ -13,19 +13,26 @@ myApp.controller('globalController', function($scope, $http) {
         $("#spinner").fadeOut(3000);
     };
 
+    $scope.seconds_since_last_refresh = 0;
+    $scope.updateCounter = function() {
+        $scope.seconds_since_last_refresh++; 
+    };
+    $interval($scope.updateCounter, 1000);
+
     setInterval( function init() {
-        console.log("Initializing...")
+//        console.log("Initializing...")
         $scope.showSpinner();
         $http.get('settings.json').then(function(result){$scope.settings = result.data;});
         $http.get('https://api.github.com/repos/toconnell/kdm-manager').then(function(result){$scope.github = result.data;});
 
-        $http.get('admin/get/active_users').then(function(result){$scope.active_users = result.data;});
+        $http.get('admin/get/user_data').then(function(result){$scope.users = result.data;});
         $http.get('admin/get/logs').then(function(result){$scope.logs = result.data;});
 
         $http.get('world').then(function(result){
             $scope.world = result.data;
             $scope.hideSpinner();
             $scope.refreshed = new Date();
+            $scope.seconds_since_last_refresh = 0;
             });
 
         return init;
@@ -40,6 +47,7 @@ myApp.controller('globalController', function($scope, $http) {
             element.style.display='block';
         };
     };
+
 
 
     // initialize

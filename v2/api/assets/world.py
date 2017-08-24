@@ -60,7 +60,7 @@ general = {
     "recent_sessions": {
         "max_age": 30,
         "name": "Recent sessions",
-        "comment": "total of all sessions within the 'recent_session' horizon"
+        "comment": "Total of all sessions within the 'recent_session' horizon"
     },
     "max_pop": {
         "name": "Maximum population",
@@ -181,7 +181,7 @@ general = {
     },
     "killboard": {
         "name": "Kill Board",
-        "comment": "monster kills logged by all settlements",
+        "comment": "Monster kills logged by all settlements",
     },
     "latest_kill": {
         "max_age": 3,
@@ -191,57 +191,58 @@ general = {
     "latest_survivor": {
         "max_age": 3,
         "name": "Latest Survivor",
-        "comment": "most recently created survivor across all settlements",
+        "comment": "Most recently created survivor across all settlements",
     },
     "latest_fatality": {
         "max_age": 3,
         "name": "Latest fatality",
-        "comment": "most recently killed survivor across all settlements",
+        "comment": "Most recently killed survivor across all settlements",
     },
     "latest_settlement": {
         "max_age": 3,
         "name": "Latest Settlement",
-        "comment": "most recently created settlement",
+        "comment": "Most recently created settlement",
     },
     "top_survivor_names": {
         "max_age": 30,
         "name": "Top Survivor names",
-        "comment": "most popular survivor names across all settlements",
+        "comment": "Most popular survivor names across all settlements",
     },
     "top_settlement_names": {
         "max_age": 30,
         "name": "Top Settlement names",
-        "comment": "most popular survivor names across all settlements",
+        "comment": "Most popular survivor names across all settlements",
     },
     "top_causes_of_death": {
         "max_age": 30,
         "name": "Top causes of death",
-        "comment": "most popular causes of survivor death across all settlements",
+        "comment": "Most popular causes of survivor death across all settlements",
     },
     "top_innovations": {
         "max_age": 30,
-        "name": "Top Innovations",
-        "comment": "top five innovations",
+        "limit": 10,
+        "name": "Popularity contest: innovations",
+        "comment": "Top innovations by frequency across all settlements",
     },
     "principle_selection_rates": {
         "max_age": 60,
         "name": "Principle selection rates",
-        "comment": "principle selection rates across all settlements",
+        "comment": "Principle selection rates across all settlements",
     },
     "settlement_popularity_contest_expansions": {
         "max_age": 30,
         "name": "Popularity contest: expansions",
-        "comment": "number of settlements where each available expansion module is enabled",
+        "comment": "Number of settlements where each available expansion module is enabled",
     },
     "settlement_popularity_contest_campaigns": {
         "max_age": 30,
         "name": "Popularity contest: campaigns",
-        "comment": "number of settlements where each different campaign is enabled",
+        "comment": "Number of settlements where each different campaign is enabled",
     },
     "current_hunt": {
         "max_age": 3,
         "name": "Current hunt",
-        "comment": "info on the most recent hunting departure.",
+        "comment": "Info on the most recent group of Departing Survivors.",
     },
 
 }

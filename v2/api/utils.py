@@ -26,8 +26,6 @@ ymd = "%Y-%m-%d"
 hms = "%H:%M:%S"
 ymdhms = "%Y-%m-%d %H:%M:%S"
 thirty_days_ago = datetime.now() - timedelta(days=30)
-recent_session_cutoff = datetime.now() - timedelta(hours=settings.get("application","recent_session_horizon"))
-active_user_cutoff = datetime.now() - timedelta(minutes=settings.get("application","active_user_horizon"))
 
 
 # generic http responses
@@ -51,10 +49,11 @@ http_501 = Response(response="Not implemented in this release", status=501)
 api_meta = {
     "meta": {
         "api": {
-        "version": settings.get("api","version"),
-        "hostname": socket.gethostname(),
-        "mdb_name": settings.get("api","mdb"),
+            "version": settings.get("api","version"),
+            "hostname": socket.gethostname(),
+            "mdb_name": settings.get("api","mdb"),
         },
+        "admins": list(mdb.users.find({"admin": {"$exists": True}})),
         "object": {},
     },
 }
@@ -81,12 +80,57 @@ def seconds_to_hms(seconds):
     h, m = divmod(m, 60)
     return "%d:%02d:%02d" % (h, m, s)
 
+
 def get_percentage(part, whole):
     """ Input a part, then the whole. Returns percent as a float. """
     if whole == 0:
         return 0
     else:
         return 100 * round(float(part)/float(whole), 2)
+
+
+def get_time_elapsed_since(start_time, units=None):
+    """ Use a datetime object as the first arg and a 'units' kwarg value of
+    either 'minutes' or 'hours' to find out how long it has been since that
+    time (in your preferred units).
+
+    Use 'age' as the value for 'units' to get a human-readable string
+    representing the elapsed time.
+    """
+
+    delta = (datetime.now() - start_time)
+    offset = delta.total_seconds()
+
+    offset_hours = offset / 3600.0
+
+    if units == "seconds":
+        return offset
+    elif units == "hours":
+        return int(offset_hours)
+    elif units == "minutes":
+        return int(delta.seconds / 60)
+    elif units == "days":
+        return delta.days
+    elif units == "age":
+        if offset == 1:
+            return 'one second'
+        elif offset < 60:
+           return '%s seconds' % offset
+        elif offset == 60:
+            return 'one minute'
+        elif offset < 3600:
+           return "%s minutes" % get_time_elapsed_since(start_time, "minutes")
+        elif offset == 3600:
+            return 'one hour'
+        elif offset < 86400:
+           return "%s hours" % get_time_elapsed_since(start_time, "hours")
+        elif offset < 172800:
+           return "one day"
+        else:
+           return "%s days" % get_time_elapsed_since(start_time, "days")
+
+    return delta
+
 
 def list_to_pretty_string(l):
     """ Takes a list of strings and makes it into a single, pretty string

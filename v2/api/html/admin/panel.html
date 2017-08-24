@@ -21,7 +21,8 @@
             <h1>{{settings.application.app_name}}</h1>
             {{settings.application.title}}
             <br/><br/>
-            <b>API Version:</b> {{settings.api.version}}<br/>
+            <b>API Hostname:</b> {{world.meta.api.hostname}}<br/>
+            <b>API Version:</b> {{world.meta.api.version}}<br/>
             <b>Last Push:</b> {{github.pushed_at}}<br/>
             <b>Open Issues:</b> {{github.open_issues}}<br/>
             <br/>
@@ -30,26 +31,34 @@
                 <li ng-repeat="a in world.meta.admins">{{a.login}} - {{a._id.$oid}}</li>
             </ul>
 
-            <br/><br/>
+            <br/>
 
-            <h1>Admin Panel</h1>
-            <b>Revision:</b> {{settings.application.panel_revision}}<br/>
-            <b>Last Refreshed:</b> {{refreshed}}
+            <h2>Admin Panel</h2>
+            <b>Revision:</b> {{world.meta.object.panel_revision}}<br/>
+            <b>Last Refreshed:</b> {{refreshed}} ({{seconds_since_last_refresh}} seconds ago)
 
         </div>
 
 
         <div class="flex_item_basic">
-            <h1>User Activity </h1>
-            <b title="Users with activity after {{active_users.meta.active_user_cutoff}}">Active user count:</b> {{active_users.meta.active_user_count}}<br/>
+            <h2>Recent User Activity </h2>
+            <b title="Active during the last {{users.meta.active_user_horizon}} minutes">Active user count:</b> {{users.meta.active_user_count}}<br/>
+            <b title="Active during the last {{users.meta.recent_user_horizon}} hours">Recent user count:</b> {{users.meta.recent_user_count}}<br/>
             
             <div class="users_container">
-                <div class="user_basic_info" ng-repeat="u in active_users.users" ng-click="showHide('user_' + u._id.$oid)">
-                    <h2>{{u.login}}</h2>
+                <div
+                    class="user_basic_info clickable"
+                    ng-repeat="u in users.user_info"
+                    ng-click="showHide('user_' + u._id.$oid)"
+                >
+                    <h2>{{u.login}}
+                        <span ng-if="u.is_active == true">*</span>
+                    </h2>
                     <div class="user_detail" id="user_{{u._id.$oid}}">
                         <br><br/>
-                        <b>Latest Activity:</b> {{u.latest_activity.$date}}<br/>
+                        <b>Latest Activity:</b> {{u.latest_activity_age}} ago<br/>
                         <b>Latest Action:</b> {{u.latest_action}}<br/>
+                        <b>Active:</b> {{u.is_active}}<br/>
                         <span ng-if="u.friend_count > 0">
                             <br>
                             <b>Friends:</b> {{ u.friend_list.join(', ') }} <br/>
@@ -57,18 +66,18 @@
                         <br>
                         <b>OID:</b> {{u._id.$oid}}<br/>
                         <b>Created On:</b> {{u.created_on.$date}}<br/>
-                        <b>Age:</b> {{u.age_days}} days ({{u.age_years}} years)<br/>
+                        <b>User Age:</b> {{u.age_years_and_days}}<br/>
                         <br><br>
-                        <b>User Agent:</b> {{u.latest_user_agent}}<br/>
+                        <b>Latest User Agent:</b> {{u.latest_user_agent}}<br/>
                     </div>
                 </div>
             </div>
 
                 <br/><br/>
 
-            <h1>User Agent Info</h1>
+            <h2>User Agent Info</h2>
             <table>
-                <tr ng-repeat="ua in world.user_agent_stats" ng-class-even="'zebra'">
+                <tr ng-repeat="ua in users.user_agent_stats" ng-class-even="'zebra'">
                     <td>{{ua.latest_user_agent}}:</td><td>{{ua.count}}</td>
                 </tr>
             </table>
@@ -77,7 +86,7 @@
 
 
         <div class="flex_item_basic">
-            <h1> API Log</h1>
+            <h2> API Log</h2>
             <p ng-click="showHide('api_log')" class="clickable">
                 View last {{settings.application.log_summary_length}} lines.
             </p>
@@ -89,7 +98,7 @@
 
                 <br/><br/>
 
-            <h1> Gunicorn Log</h1>
+            <h2> Gunicorn Log</h2>
             <p ng-click="showHide('gunicorn_log')" class="clickable">
                 View last {{settings.application.log_summary_length}} lines.
             </p>
@@ -101,7 +110,7 @@
 
                 <br/><br/>
 
-            <h1> Server Log</h1>
+            <h2> Server Log</h2>
             <p ng-click="showHide('server_log')" class="clickable">
                 View last {{settings.application.log_summary_length}} lines.
             </p>
@@ -113,8 +122,8 @@
         </div>
 
 
-        <div class="flex_item_basic">
-            <h1>World Daemon</h1>
+        <div class="flex_item_basic world">
+            <h2>World Daemon</h2>
             <b>Active:</b> {{world.world_daemon.active}}<br/>
             <b>Uptime:</b> {{world.world_daemon.uptime_hms}}<br/>
             <b>Assets:</b> {{world.world_daemon.assets}}<br/>
@@ -123,7 +132,7 @@
 
                <br/><br/>
 
-            <h1>World Log</h1>
+            <h2>World Log</h2>
             <p ng-click="showHide('world_log')" class="clickable">
                 View last {{settings.application.log_summary_length}} lines.
             </p>
@@ -135,7 +144,7 @@
 
                <br/><br/>
 
-            <h1>World Daemon Log</h1>
+            <h2>World Daemon Log</h2>
             <p ng-click="showHide('world_daemon_log')" class="clickable">
                 View last {{settings.application.log_summary_length}} lines.
             </p>
@@ -146,8 +155,8 @@
             </div>
         </div>
 
-        <div class="flex_item_basic">
-            <h1>World Stats</h1>
+        <div class="flex_item_basic world">
+            <h2>World Stats</h2>
 
             <div class="world_item clickable" ng-repeat="w in world.world">
                 <div
@@ -168,7 +177,157 @@
             </div>
         </div>
 
+        <div class="flex_item_basic world">
+            <h2>{{world.world.killboard.name}}</h2>
+            {{world.world.killboard.comment}}<br/>
+            <div ng-repeat="(type,board) in world.world.killboard.value">
+                <h3 class="capitalize">{{type}}</h3>
+                <table>
+                    <tr ng-repeat="row in board" ng-class-even="'zebra'">
+                        <td>{{row.name}}</td> <td class="int_key">{{row.count}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
 
+        <div class="flex_item_basic world" ng-if="world.world.current_hunt.value != null">
+            <h2>{{world.world.current_hunt.name}}</h2>
+            {{world.world.current_hunt.comment}}<hr/>
+
+            <b>Settlement:</b> <i>{{world.world.current_hunt.value.settlement.name}}</i> (LY: {{world.world.current_hunt.value.settlement.lantern_year}})<br/>
+            <b>Quarry:</b> {{world.world.current_hunt.value.settlement.current_quarry}}<br/>
+            <b>Departing Survivors:</b>
+            <table>
+                <tr ng-repeat="s in world.world.current_hunt.value.survivors" ng-class-even="'zebra'">
+                    <td>{{s.name}}</td><td class="int_key">{{s.sex}}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="flex_item_basic world">
+            <h2>{{world.world.latest_settlement.name}}</h2>
+            {{world.world.latest_settlement.comment}}
+
+            <div ng-click="showHide('latest_settlement_detail')" class="clickable">
+                <b>{{world.world.latest_settlement.value.name}}</b><br/>
+                <i>{{world.world.latest_settlement.value.campaign}} - LY {{world.world.latest_settlement.value.lantern_year}}</i>
+            </div>
+
+            <table id='latest_settlement_detail' class="hidden">
+                <tr ng-repeat="(k,v) in world.world.latest_settlement.value" ng-class-even="'zebra'">
+                    <td class="int_key">{{k}}</td> <td>{{v}}</td>
+                </tr>
+            </table>
+<hr/>
+            <h2>{{world.world.latest_survivor.name}}</h2>
+            {{world.world.latest_survivor.comment}}
+
+            <div ng-click="showHide('latest_survivor_detail')" class="clickable">
+                <b>{{world.world.latest_survivor.value.name}}</b> [{{world.world.latest_survivor.value.sex}}]<br/>
+                <i>{{world.world.latest_survivor.value.settlement_name}}</i>
+            </div>
+
+            <table id='latest_survivor_detail' class="hidden">
+                <tr ng-repeat="(k,v) in world.world.latest_survivor.value" ng-class-even="'zebra'">
+                    <td class="int_key">{{k}}</td> <td>{{v}}</td>
+                </tr>
+            </table>
+<hr/>
+            <h2>{{world.world.latest_fatality.name}}</h2>
+            {{world.world.latest_fatality.comment}}
+
+            <div ng-click="showHide('latest_fatality_detail')" class="clickable">
+                <b>{{world.world.latest_fatality.value.name}}</b> [{{world.world.latest_survivor.value.sex}}]<br/>
+                <i>{{world.world.latest_fatality.value.settlement_name}}</i>
+            </div>
+
+            <table id='latest_fatality_detail' class="hidden">
+                <tr ng-repeat="(k,v) in world.world.latest_fatality.value" ng-class-even="'zebra'">
+                    <td class="int_key">{{k}}</td> <td>{{v}}</td>
+                </tr>
+            </table>
+<hr/>
+
+            <h2>{{world.world.latest_kill.name}}</h2>
+            {{world.world.latest_kill.comment}}
+
+            <div ng-click="showHide('latest_kill_detail')" class="clickable">
+                <b>{{world.world.latest_kill.value.raw_name}}</b> ({{world.world.latest_kill.type}})<br/>
+                Killed by the survivors of <i>{{world.world.latest_kill.value.settlement_name}}</i> in LY {{world.world.latest_kill.value.kill_ly}}
+            </div>
+
+            <table id='latest_kill_detail' class="hidden">
+                <tr ng-repeat="(k,v) in world.world.latest_kill.value" ng-class-even="'zebra'">
+                    <td>{{k}}</td> <td>{{v}}</td>
+                </tr>
+            </table>
+
+        </div>
+
+        <div class="flex_item_basic world">
+            <h2>{{world.world.settlement_popularity_contest_campaigns.name}}</h2>
+            {{world.world.settlement_popularity_contest_campaigns.comment}}
+            <table>
+                <tr ng-repeat="(name,count) in world.world.settlement_popularity_contest_campaigns.value" ng-class-even="'zebra'">
+                    <td>{{name}}</td> <td class="int_key">{{count}}</td>
+                </tr>
+            </table>
+            <h2>{{world.world.settlement_popularity_contest_expansions.name}}</h2>
+            {{world.world.settlement_popularity_contest_expansions.comment}}
+            <table>
+                <tr ng-repeat="(name,count) in world.world.settlement_popularity_contest_expansions.value" ng-class-even="'zebra'">
+                    <td>{{name}}</td> <td class="int_key">{{count}}</td>
+                </tr>
+            </table>
+
+
+            <h2>{{world.world.top_innovations.name}}</h2>
+            {{world.world.top_innovations.comment}}
+            <table>
+                <tr ng-repeat="row in world.world.top_innovations.value" ng-class-even="'zebra'">
+                    <td>{{row.name}}</td> <td class="int_key">{{row.count}}</td>
+                </tr>
+            </table>
+
+            <h2>{{world.world.principle_selection_rates.name}}</h2>
+            {{world.world.principle_selection_rates.comment}}
+            <div ng-repeat="(principle, selections) in world.world.principle_selection_rates.value">
+                <h3 class="capitalize">{{principle}}</h3>
+                <table>
+                    <tr><td></td><td>#</td><td>%</td></tr>
+                    <tr ng-repeat="option in selections.options" ng-class-odd="'zebra'">
+                        <td>{{option}}</td>
+                        <td class="int_key">{{selections[option].total}}</td>
+                        <td class="int_key">{{selections[option].percentage}}</td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+
+        <div class="flex_item_basic world">
+            <h2>{{world.world.top_settlement_names.name}}</h2>
+            {{world.world.top_settlement_names.comment}}<br/>
+            <table>
+                <tr ng-repeat="row in world.world.top_settlement_names.value" ng-class-even="'zebra'">
+                    <td>{{row.name}}</td> <td class="int_key">{{row.count}}</td>
+                </tr>
+            </table>
+            <h2>{{world.world.top_survivor_names.name}}</h2>
+            {{world.world.top_survivor_names.comment}}<br/>
+            <table>
+                <tr ng-repeat="row in world.world.top_survivor_names.value" ng-class-even="'zebra'">
+                    <td>{{row.name}}</td> <td class="int_key">{{row.count}}</td>
+                </tr>
+            </table>
+            <h2>{{world.world.top_causes_of_death.name}}</h2>
+            {{world.world.top_causes_of_death.comment}}<br/>
+            <table>
+                <tr ng-repeat="row in world.world.top_causes_of_death.value" ng-class-even="'zebra'">
+                    <td>{{row.cause_of_death}}</td> <td class="int_key">{{row.count}}</td>
+                </tr>
+            </table>
+        </div>
 
     </div> <!-- container -->
 

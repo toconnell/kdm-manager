@@ -1279,20 +1279,24 @@ class Settlement(Models.UserAsset):
         Setting return_type="dict" gets a dictionary where expansion 'name'
         attributes are the keys and asset dictionaries are the values. """
 
-        s_expansions = list(set(self.settlement["expansions"]))
+        s_expansions = sorted(list(set(self.settlement["expansions"])))
+        E = expansions.Assets()
 
         if return_type == dict:
-            E = expansions.Assets()
             exp_dict = {}
             for exp_handle in s_expansions:
                 exp_dict[exp_handle] = E.get_asset(exp_handle)
             return exp_dict
-
         elif return_type == "comma-delimited":
             if s_expansions == []:
                 return None
             else:
                 return ", ".join(s_expansions)
+        elif return_type == 'pretty':
+            output = []
+            for e in s_expansions:
+                output.append(E.get_asset(e)["name"])
+            return utils.list_to_pretty_string(output)
 
         return s_expansions
 

@@ -32,6 +32,7 @@ from models import innovations as innovations_models
 from models import monsters as monster_models
 from models import expansions as expansions_models
 from models import settlements as settlements_models
+from models import survivors as survivors_models
 from models import campaigns as campaigns_models
 from models import epithets as epithets_models
 import utils
@@ -78,28 +79,23 @@ class World:
         self.total_refreshed_assets = 0
         for asset_key in self.assets.keys():
             self.refresh_asset(asset_key, force=force)
+            self.total_refreshed_assets += 1
 
         self.logger.info("Refreshed %s/%s assets." % (self.total_refreshed_assets, len(self.assets.keys())))
 
 
-    def refresh_asset(self, asset_key=None, force=False):
+    def refresh_asset(self, asset_key=None, force=False, dump=False):
         """ Updates a single asset. Checks the 'max_age' of the asset and falls
         back to settings.world.asset_max_age if it can't find one.
 
         Set 'force' to True if you want to force a refresh, regardless of the
         asset's age. """
 
-
-        max_age = settings.get("world", "asset_max_age") * 60
-
-        asset_dict = self.assets[asset_key]
-        if "max_age" in asset_dict.keys():
-            max_age = asset_dict["max_age"] * 60
+        asset_dict = self.initialize_asset_dict(asset_key)
 
         # now determine whether we want to refresh it
         do_refresh = False
         current_age = None
-
 
         mdb_asset = utils.mdb.world.find_one({"handle": asset_key})
         if mdb_asset is None:
@@ -109,8 +105,8 @@ class World:
             current_age = datetime.now() - mdb_asset["created_on"]
         if current_age is None:
             do_refresh = True
-        elif current_age.seconds > max_age:
-            self.logger.debug("Asset '%s' has a current age of %s seconds (max age is %s seconds)." % (asset_key, current_age.seconds, max_age))
+        elif current_age.seconds > asset_dict["max_age"]:
+            self.logger.debug("Asset '%s' has a current age of %s seconds (max age is %s seconds)." % (asset_key, current_age.seconds, asset_dict["max_age"]))
             do_refresh = True
         if force:
             do_refresh = True
@@ -119,19 +115,65 @@ class World:
         if do_refresh:
             self.logger.debug("Refreshing '%s' asset..." % asset_key)
             try:
-                exec "value = self.%s()" % asset_key
-                asset_dict.update({"handle": asset_key})
-                asset_dict.update({"created_on": datetime.now()})
-                asset_dict.update({"value": value})
-                asset_dict["value_type"] = type(value).__name__
+                self.update_asset_dict(asset_dict)
                 self.update_mdb(asset_dict)
-                self.total_refreshed_assets += 1
                 self.logger.debug("Updated '%s' asset in mdb." % asset_key)
-            except AttributeError:
-                self.logger.error("Could not refresh '%s' asset: no method available." % asset_key)
             except Exception as e:
-                self.logger.error("Exception caught while refreshing asset!")
+                self.logger.error("Exception caught while refreshing '%s' asset!" % asset_key)
                 self.logger.exception(e)
+
+        if dump:
+            print(asset_dict)
+
+
+    def initialize_asset_dict(self, asset_key):
+        """ Turn an asset key (e.g. 'top_innovations', etc.) into a basic dict
+        that is ready to be updated/processed. """
+
+        # basic init
+        if self.assets.get(asset_key, None) is None:
+            msg = "Could not refresh '%s' asset: no such asset exists!" % asset_key
+            self.logger.exception(msg)
+            raise Exception(msg)
+
+        asset_dict = self.assets[asset_key]
+        asset_dict["handle"] = asset_key
+
+        # default the asset's 'max_age' attribute if it hasn't got one
+        if asset_dict.get("max_age", None) is None:
+            asset_dict["max_age"] = settings.get("world", "asset_max_age") * 60
+
+        return asset_dict
+
+
+
+    def update_asset_dict(self, asset_dict):
+        """ this is where the magic happens: a valid asset_dict goes in and a
+        fully fleshed-out asset dictionary with current data comes out. """
+
+        if asset_dict["handle"] not in dir(self):
+            msg = "Could not refresh '%s' asset: no such world.World class method exists!" % asset_dict["handle"]
+            self.logger.exception(msg)
+            raise Exception(msg)
+
+        try:
+            exec "value = self.%s()" % asset_dict["handle"]
+        except Exception as e:
+            self.logger.error("Could not update asset dictionary for '%s' world asset!" % asset_dict["handle"])
+            self.logger.exception(e)
+            raise
+
+        asset_dict.update({"created_on": datetime.now()})
+        asset_dict.update({"value": value})
+
+        # respect the asset dictionary's "limit" attrib, if extant
+        if asset_dict.get("limit", None) is not None:
+            asset_dict["value"] = asset_dict["value"][:asset_dict["limit"]]
+
+        asset_dict["value_type"] = type(value).__name__
+
+        return asset_dict
+
 
     def update_mdb(self, asset_dict):
         """ Creates a new document in mdb.world OR, if this handle already
@@ -157,27 +199,10 @@ class World:
     def list(self, output_type="JSON"):
         """ Dump world data in a few different formats."""
 
-        d = {
-            "world": collections.OrderedDict(),
-            "meta": {
-                "api_version": settings.get("api","version"),
-                "admins": list(utils.mdb.users.find({"admin": {"$exists": True}})),
-            },
-        }
-
-        # do the user agent popularity contest here
-        results = utils.mdb.users.group(
-            ['latest_user_agent'],
-            {'latest_user_agent': {'$exists': True}},
-            {"count": 0},
-            "function(o, p){p.count++}"
-        )
-        sorted_list = sorted(results, key=lambda k: k["count"], reverse=True)
-        for i in sorted_list:
-            i["value"] = i['latest_user_agent']
-            i["count"] = int(i["count"])
-        d["user_agent_stats"] = sorted_list[:20]
-
+        # initialize our final dict
+        d = utils.api_meta
+        d["meta"]["object"]["panel_revision"] = settings.get("application","panel_revision")
+        d["world"] = collections.OrderedDict()
 
         # get the raw world info (we'll sort it later)
         raw_world = {}
@@ -239,15 +264,34 @@ class World:
         print("\n")
 
 
-    def do_query(self, query):
+    def do_query(self, asset_key):
         """ Executes a query and returns its results. Meant for CLI debugging
         and admin reference. """
-        exec "results = self.%s()" % query
-        return results
+
+        asset_dict = self.initialize_asset_dict(asset_key)
+        self.logger.debug("'%s' asset dict initialized..." % asset_dict["handle"])
+        return self.update_asset_dict(asset_dict)
 
     #
     # refresh method helpers and shortcuts
     #
+
+    def pretty_survivor(self, survivor):
+        """ Clean a survivor up and make it 'shippable' as part of the world
+        JSON. This initializes the survivor and will normalize it. """
+
+        # init
+        S = survivors_models.Survivor(_id=survivor["_id"])
+        survivor["epithets"] = S.get_epithets("pretty")
+
+        # redact/remove
+        survivor["attribute_detail"] = 'REDACTED'
+
+        # add settlement info
+        settlement = utils.mdb.settlements.find_one({"_id": survivor["settlement"]})
+        survivor["settlement_name"] = settlement["name"]
+
+        return survivor
 
 
     def get_eligible_documents(self, collection=None, required_attribs=None, limit=None, exclude_dead_survivors=True, include_settlement=False, sort_on=None):
@@ -314,12 +358,6 @@ class World:
 
         # change results from a query object to a list
         results = [x for x in results]
-
-        # include the settlement if we're doing a survivor and using the flag
-        if include_settlement and collection == "survivors":
-            for item in results:
-                settlement = utils.mdb.settlements.find_one({"_id": item["settlement"]})
-                item["settlement"] = settlement
 
         # hack around the dumbass implementation of .limit() in mongo
         if limit is not None:
@@ -459,17 +497,21 @@ class World:
             {"abandoned": {"$exists": True}},
         ]}).count()
 
-    def new_settlements_last_30(self):
-        return utils.mdb.settlements.find({"created_on": {"$gte": utils.thirty_days_ago}}).count()
 
     def total_users(self):
         return utils.mdb.users.find().count()
 
     def total_users_last_30(self):
-        return utils.mdb.users.find({"latest_activity": {"$gte": utils.thirty_days_ago}}).count()
+        thirty_days_ago = datetime.now() - timedelta(days=30)
+        return utils.mdb.users.find({"latest_activity": {"$gte": thirty_days_ago}}).count()
+
+    def new_settlements_last_30(self):
+        thirty_days_ago = datetime.now() - timedelta(days=30)
+        return utils.mdb.settlements.find({"created_on": {"$gte": thirty_days_ago}}).count()
 
     def recent_sessions(self):
-        return utils.mdb.users.find({"latest_activity": {"$gte": utils.recent_session_cutoff}}).count()
+        recent_session_cutoff = datetime.now() - timedelta(hours=settings.get("application", "recent_user_horizon"))
+        return utils.mdb.users.find({"latest_activity": {"$gte": recent_session_cutoff}}).count()
 
     # min/max queries
     def max_pop(self):
@@ -583,7 +625,8 @@ class World:
         return self.get_eligible_documents(collection="killboard", required_attribs=["handle"], limit=1)
 
     def latest_survivor(self):
-        return self.get_eligible_documents(collection="survivors", limit=1, include_settlement=True)
+        s = self.get_eligible_documents(collection="survivors", limit=1, include_settlement=True)
+        return self.pretty_survivor(s)
 
     def latest_fatality(self):
         s = self.get_eligible_documents(
@@ -594,13 +637,7 @@ class World:
             include_settlement=True,
             sort_on="died_on",
         )
-        new_epithets = set()
-        E = epithets_models.Assets()
-        for e_handle in s["epithets"]:
-            d = E.get_asset(e_handle)
-            new_epithets.add(d["name"])
-        s["epithets"] = sorted(list(new_epithets))
-        return s
+        return self.pretty_survivor(s)
 
     def latest_settlement(self):
         """ Get the latest settlement and punch it up with some additional info,
@@ -617,9 +654,12 @@ class World:
         S = settlements_models.Settlement(_id=s["_id"])
 
         s["campaign"] = S.get_campaign("name")
-        self.logger.debug(s["campaign"])
-        s["expansions"] = S.get_expansions("comma-delimited")
+        s["expansions"] = S.get_expansions("pretty")
         s["player_count"] = S.get_players("count")
+
+        for k in ['timeline',]:
+            if k in s.keys():
+                s[k] = "REDACTED"
 
         return s
 
@@ -672,14 +712,30 @@ class World:
         return self.get_top("survivors","cause_of_death",limit=10)
 
     def top_innovations(self):
-        return self.get_top("settlements", "innovations", asset_type=list)
+        """ Does an innovations popularity contest, accounting for both names
+        and handles (for legacy support). """
+
+        I = innovations_models.Assets()
+        I.filter("type", ["principle"])
+
+        all_results = []
+        for i_dict in I.get_dicts():
+            aliases = [i_dict["name"], i_dict["handle"]]
+            results = utils.mdb.settlements.find({"innovations": {"$in": aliases}})
+            all_results.append({
+                "name": i_dict["name"],
+                "handle": i_dict["handle"],
+                "count": results.count(),
+            })
+
+        return sorted(all_results, key=lambda x: x["count"], reverse=1)
 
     def principle_selection_rates(self):
         """ This is pretty much a direct port from V1. It's still a hot mess.
         This should probably get a refactor prior to launch. """
 
-        innovations_assets = innovations_models.Assets()
-        mep_dict = innovations_assets.get_mutually_exclusive_principles()
+        I = innovations_models.Assets()
+        mep_dict = I.get_mutually_exclusive_principles()
 
         popularity_contest = {}
         for principle in mep_dict.keys():
@@ -1016,6 +1072,7 @@ if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("-l", dest="list", action="store_true", default=False, help="List warehoused asset handles")
     parser.add_option("-j", dest="list_JSON", action="store_true", default=False, help="Dump 'world' JSON")
+    parser.add_option("-u", dest="update", default=False, help="Update one asset's warehouse value", metavar="top_principles")
     parser.add_option("-r", dest="refresh", action="store_true", default=False, help="Force a warehouse refresh")
     parser.add_option("-a", dest="asset", default=False, help="Retrieve an mdb world asset (print a summary)", metavar="latest_survivor")
     parser.add_option("-q", dest="query", default=False, help="Execute a query method (print results)", metavar="avg_pop")
@@ -1032,6 +1089,8 @@ if __name__ == "__main__":
         W.refresh_all_assets(force=True)
     if options.asset:
         print(W.dump(options.asset))
+    if options.update:
+        W.refresh_asset(asset_key=options.update, force=True, dump=True)
     if options.query:
         W.query_debug=True
         W.logger.info("Manually executing query '%s' from CLI..." % (options.query))

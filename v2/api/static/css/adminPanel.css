@@ -4,28 +4,39 @@ a {color: #B57E2F}
 a:hover {color: #D57E2F;}
 a:active {color: #D57E2F;}
 a:visited {color: #B57E2F}
-
 code {background-color: #eee; font-size: 1.1em; }
 
-.clickable {cursor: pointer;}
+/* generic table style */
+table {border-collapse: collapse; width: 90%; margin: 1.5% auto;}
+td {word-wrap: break-word; word-break: break-all;}
+td.int_key {width: 10%; word-break: inherit;}
+
+/*  reusable style / generic style  */
+.clickable {cursor: pointer; background-color: #ffffEF; border-radius: 5%;}
 .zebra {background-color: #efefef; }
+.hidden {display: none; }
 
 #spinner {position: fixed; bottom: 3%; right: 3%; z-index: 100;}
 
 .container { display: flex; position: absolute; top: 1%; left: 1%; right: 1%; background-color: #eee; padding: 0.5%; flex-wrap: wrap; }
 .flex_item_basic {background-color: #fff; padding: 1%; margin: 1%; flex-grow: 1; width: 30%; }
-.flex_item_basic h1 {margin: 0; }
+.flex_item_basic h1, .flex_item_basic h2 {margin: 0; }
 
 .users_container {display: flex; flex-direction: column; }
 
+.world {border: 0.2em solid #DDDDFF; }
 .world_item {margin: 0.5%; }
 .world_item .world_key {font-weight: bold; display: inline-block; }
 .world_item .world_value {display: inline-block; }
 .world_item .world_tooltip {display: none; margin-left: 1%; }
 .world_item .world_tooltip i {color: #666; }
 
-.user_basic_info {background-color: #FFFFDD; border: 1px solid #aaa; padding: 1%; width: auto; margin: 2%; cursor: pointer; display: inline-block; border-bottom: 0.15em solid #333; }
+.user_basic_info {padding: 1%; width: auto; margin: 2%; display: inline-block; }
 .user_basic_info h2 { font-size: 1em; margin: 0 auto; }
 .user_detail {display: none; }
 .log_detail {display: none; }
 .log_line {padding: 1%; }
+
+.capitalize {text-transform: capitalize;}
+
+table.killboard {margin-left: 1%;}

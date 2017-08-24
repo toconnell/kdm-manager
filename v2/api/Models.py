@@ -170,14 +170,21 @@ class AssetCollection():
 
         asset = copy(self.assets.get(handle, None))     # return a copy, so we don't modify the actual def
 
+        # implement backoff logic
         if asset is None and backoff_to_name:
             asset = copy(self.get_asset_from_name(handle))
 
+        # if the asset is still None, see if we want to raise an expception
         if asset is None and raise_exception_if_not_found:
-            msg = "The handle '%s' is not a recognized %s asset!" % (handle, self)
-            self.logger.error(msg)
+            if not backoff_to_name:
+                msg = "The handle '%s' is not in %s and could not be retrieved! " % (handle, self.get_handles())
+                self.logger.error(msg)
+            elif backoff_to_name:
+                msg = "After backoff to name lookup, asset handle '%s' is not in %s and could not be retrieved." % (handle, self.get_names())
+                self.logger.error(msg)
             raise utils.InvalidUsage(msg)
 
+        # finally, return the asset (or the NoneType)
         return asset
 
 
@@ -209,6 +216,7 @@ class AssetCollection():
             return self.get_asset(name_lookup[name])
         else:
             return None
+
 
 
     def filter(self, filter_attrib=None, filtered_attrib_values=[], reverse=False):
@@ -588,16 +596,13 @@ class UserAsset():
 
         # now try to get the dict
         C = models.campaigns.Assets()
-
-        if c_handle not in C.get_handles():
-            err = "The handle '%s' does not reference any known campaign definition!" % c_handle
-            raise AssetInitError(err)
+        c_dict = C.get_asset(c_handle, backoff_to_name=True)
 
         # handle return_type requests
         if return_type == 'name':
-            return C.get_asset(c_handle)["name"]
+            return c_dict["name"]
         elif return_type == dict:
-            return C.get_asset(c_handle)
+            return c_dict
 
         return c_handle
 

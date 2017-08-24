@@ -42,8 +42,8 @@ class badResponse():
 def get_admin_data(resource=None):
     """ Retrieves admin panel data. """
 
-    if resource == 'active_users':
-        return panel.active_users()
+    if resource == 'user_data':
+        return panel.get_user_data()
     elif resource == 'logs':
         return panel.serialize_system_logs()
 

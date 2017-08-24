@@ -238,8 +238,12 @@ class User(Models.UserAsset):
 
         if not self.has_session():
             return False
-        if self.user["latest_activity"] > utils.active_user_cutoff:
+
+        minutes_since_latest = self.get_latest_activity('minutes')
+        active_horizon = settings.get("application","active_user_horizon")
+        if minutes_since_latest <= active_horizon:
             return True
+
         return False
 
 
@@ -251,12 +255,21 @@ class User(Models.UserAsset):
     def get_age(self, return_type="years"):
         """ Returns the user's age. """
 
-        delta = datetime.now() - self.user["created_on"]
+        delta = utils.get_time_elapsed_since(self.user["created_on"])
 
         if return_type == 'days':
             return delta.days
         elif return_type == 'years':
             return relativedelta(datetime.now(), self.user["created_on"]).years
+        elif return_type == 'years_and_days':
+            days = delta.days
+            years = relativedelta(datetime.now(), self.user["created_on"]).years
+            for y in range(years):
+                days -= 365
+            year_word = "year"
+            if years >= 2:
+                year_word = "years"
+            return "%s %s and %s days" % (years, year_word, days)
 
         return delta
 
@@ -298,7 +311,8 @@ class User(Models.UserAsset):
 
             # you can't be friends with yourself
             friend_ids.remove(self.user["_id"])
-            friend_emails.remove(self.user["login"])
+            if self.user["login"] in friend_emails:
+                friend_emails.remove(self.user["login"])
 
             # they're only your friend if they're a registered email
             friends = utils.mdb.users.find({"$or":
@@ -319,6 +333,19 @@ class User(Models.UserAsset):
             return [f["login"] for f in friends]
 
         return friends
+
+
+    def get_latest_activity(self, return_type=None):
+        """ Returns the user's latest activity in a number of ways. Leave the
+        'return_type' kwarg blank for a datetime stamp.
+        """
+
+        la = self.user["latest_activity"]
+
+        if return_type is not None:
+            return utils.get_time_elapsed_since(la, return_type)
+
+        return la
 
 
     def get_settlements(self, qualifier=None, return_type=None):
