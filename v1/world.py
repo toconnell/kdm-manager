@@ -22,10 +22,6 @@ def survivor_html(s, item=False):
     if item == "avatar":
         if "avatar" in s.keys():
             output = html.dashboard.avatar_image.safe_substitute(name=s["name"], avatar_id=s["avatar"])
-    elif item == "epithets":
-        if "epithets" in s.keys() and s["epithets"] != []:
-            epithets = ", ".join(s["epithets"])
-            output = "<li><i>%s</i></li>" % epithets
 
     return output
 
@@ -139,11 +135,12 @@ def api_survivor_to_html(s, supplemental_info=["birth","death"]):
         output = html.dashboard.avatar_image.safe_substitute(name=survivor["name"], avatar_id=survivor["avatar"]["$oid"])
 
     try:
-        output += "<p><ul><li><b>%s</b> of <b>%s</b></li>" % (survivor["name"], survivor["settlement"]["name"])
+        output += "<p><ul><li><b>%s</b> of <b>%s</b></li>" % (survivor["name"], survivor["settlement_name"])
     except Exception as e:
         raise Exception("survivor missing name")
 
-    output += survivor_html(survivor, item="epithets")
+#    output += survivor_html(survivor, item="epithets")
+    output += "<li><i>%s</i></li>" % survivor["epithets"]
 
     if "death" in supplemental_info:
         output += '<li>Died in LY %s on %s</li>' % (survivor["died_in"], datetime.fromtimestamp(survivor["died_on"]["$date"]/1000).strftime(ymd))
