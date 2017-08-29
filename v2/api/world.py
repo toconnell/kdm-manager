@@ -283,6 +283,7 @@ class World:
         # init
         S = survivors_models.Survivor(_id=survivor["_id"])
         survivor["epithets"] = S.get_epithets("pretty")
+        survivor["age"] = utils.get_time_elapsed_since(survivor["created_on"], "age")
 
         # redact/remove
         survivor["attribute_detail"] = 'REDACTED'
@@ -420,7 +421,7 @@ class World:
         return round(result,2)
 
 
-    def get_top(self, collection=None, attrib=None, limit=5, asset_type=str):
+    def get_top(self, collection=None, attrib=None, limit=None, asset_type=str):
         """ Assuming that 'collection' documents have a 'attrib' attribute, this
         will return the top five most popular names along with their counts. """
 
@@ -461,7 +462,10 @@ class World:
         if self.query_debug:
             self.logger.debug("MDB results: %s" % sorted_list)
 
-        return sorted_list[:limit]
+        if limit is not None:
+            return sorted_list[:limit]
+        else:
+            return sorted_list
 
 
     #
@@ -622,7 +626,10 @@ class World:
 
     # latest event queries
     def latest_kill(self):
-        return self.get_eligible_documents(collection="killboard", required_attribs=["handle"], limit=1)
+        k = self.get_eligible_documents(collection="killboard", required_attribs=["handle"], limit=1)
+        k["killed_date"] = k["created_on"].strftime(utils.ymd)
+        k["killed_time"] = k["created_on"].strftime(utils.hms)
+        return k
 
     def latest_survivor(self):
         s = self.get_eligible_documents(collection="survivors", limit=1, include_settlement=True)
@@ -656,6 +663,7 @@ class World:
         s["campaign"] = S.get_campaign("name")
         s["expansions"] = S.get_expansions("pretty")
         s["player_count"] = S.get_players("count")
+        s["age"] = utils.get_time_elapsed_since(s["created_on"], 'age')
 
         for k in ['timeline',]:
             if k in s.keys():

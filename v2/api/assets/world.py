@@ -207,11 +207,13 @@ general = {
         "max_age": 30,
         "name": "Top Survivor names",
         "comment": "Most popular survivor names across all settlements",
+        "limit": 10,
     },
     "top_settlement_names": {
         "max_age": 30,
         "name": "Top Settlement names",
         "comment": "Most popular survivor names across all settlements",
+        "limit": 10,
     },
     "top_causes_of_death": {
         "max_age": 30,

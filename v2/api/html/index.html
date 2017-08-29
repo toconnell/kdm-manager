@@ -220,17 +220,19 @@
         <tr class="ul">
             <td> /admin/view/panel</td>
             <td> GET </td>
-            <td><p>Admin panel. Not implemented yet.</p></td>
+            <td><p>API Admin panel. Uses HTTP basic auth (no cookies/no sessions)
+            and requires a user have the 'admin' bit flipped on their user.</p></td>
         </tr>
         <tr class="ul">
-            <td> /admin/data/recent_user_activity</td>
+            <td> /admin/get/user_data</td>
             <td> GET </td>
-            <td><p>Admin panel JSON re: usage, etc. Not implemented yet.</p></td>
+            <td><p>Retrieves a nice, juicy hunk of JSON re: recent users of the API.</p></td>
         </tr>
         <tr class="ul">
-            <td> /admin/data/api_logs</td>
+            <td> /admin/get/logs</td>
             <td> GET </td>
-            <td><p>Returns logs within the requested time/length params. Not implemented yet.</p></td>
+            <td><p>Dumps the contents of a number of system logs from the local
+            filesystem where the API is running and represents them as JSON.</p></td>
         </tr>
 
 

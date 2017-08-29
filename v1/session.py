@@ -749,11 +749,16 @@ class Session:
 
         # due to volatility, the html_world() call is wrapped for silent
         #   failure. No plans to change this at present.
-        try:
-            output += self.User.html_world()
-        except Exception as e:
-            self.logger.exception(e)
-            output += '<!-- ERROR! World Menu could not be created! -->'
+#        try:
+#            output += self.User.html_world()
+#        except Exception as e:
+#            self.logger.exception(e)
+#            output += '<!-- ERROR! World Menu could not be created! -->'
+
+        output += html.dashboard.world.safe_substitute(
+            application_version = settings.get("application","version"),
+            api_url = api.get_api_url(),
+        )
 
         output += admin.render_about_panel()
 
@@ -779,6 +784,7 @@ class Session:
         """
 
         output = html.meta.saved_dialog
+        output += html.meta.corner_loader
         self.get_current_view() # sets self.current_view
 
         body = None
@@ -787,7 +793,6 @@ class Session:
         #   to initialize with API data
         if self.current_view in ["view_campaign", "view_settlement", "view_survivor","new_settlement"]:
             output += html.meta.full_page_loader
-            output += html.meta.corner_loader
 
         if self.current_view == "dashboard":
             body = "dashboard"

@@ -5,6 +5,7 @@
 # general imports
 from bson import json_util
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 from flask import Response, make_response, request, current_app
 from functools import update_wrapper
 import json
@@ -89,7 +90,7 @@ def get_percentage(part, whole):
         return 100 * round(float(part)/float(whole), 2)
 
 
-def get_time_elapsed_since(start_time, units=None):
+def get_time_elapsed_since(start_time, units=None, round_seconds=True):
     """ Use a datetime object as the first arg and a 'units' kwarg value of
     either 'minutes' or 'hours' to find out how long it has been since that
     time (in your preferred units).
@@ -99,9 +100,14 @@ def get_time_elapsed_since(start_time, units=None):
     """
 
     delta = (datetime.now() - start_time)
+    days = delta.days
+    years = relativedelta(datetime.now(), start_time).years
     offset = delta.total_seconds()
 
     offset_hours = offset / 3600.0
+
+    if round_seconds:
+        offset = int(offset)
 
     if units == "seconds":
         return offset
@@ -111,6 +117,15 @@ def get_time_elapsed_since(start_time, units=None):
         return int(delta.seconds / 60)
     elif units == "days":
         return delta.days
+    elif units == "years":
+        return years
+    elif units == "years_and_days":
+        for y in range(years):
+           days -= 365
+           year_word = "year"
+           if years >= 2:
+               year_word = "years"
+           return "%s %s and %s days" % (years, year_word, days)
     elif units == "age":
         if offset == 1:
             return 'one second'
@@ -126,8 +141,12 @@ def get_time_elapsed_since(start_time, units=None):
            return "%s hours" % get_time_elapsed_since(start_time, "hours")
         elif offset < 172800:
            return "one day"
-        else:
+        elif delta.days < 365:
            return "%s days" % get_time_elapsed_since(start_time, "days")
+        elif delta.days == 365:
+           return "one year"
+        elif delta.days > 365:
+           return get_time_elapsed_since(start_time, 'years_and_days')
 
     return delta
 

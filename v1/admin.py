@@ -531,6 +531,7 @@ class Panel:
         stat_block += '<tr><td>Application version</td><td>%s</td></tr>' % settings.get("application","version")
         stat_block += '<tr><td>Release</td><td>%s</td></tr>' % get_latest_update_string()
         stat_block += '<tr><td>API URL</td><td>%s</td></tr>' % api.get_api_url()
+        stat_block += '<tr><td>API admin panel</td><td><a href="%sadmin">%sadmin</a></td></tr>' % (api.get_api_url(), api.get_api_url())
         stat_block += '<tr><td>API Version</td><td>%s</td></tr>' % meta["api"]["version"]
         stat_block += '</table>'
 

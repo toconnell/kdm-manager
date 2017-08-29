@@ -44,8 +44,7 @@ def get_user_data():
 
     def update_user_info(u):
         U = users.User(_id=u["_id"])
-        u["age_days"] = U.get_age('days')
-        u["age_years_and_days"] = U.get_age('years_and_days')
+        u["age"] = U.get_age()
         u["latest_activity_age"] = U.get_latest_activity(return_type='age')
         u["has_session"] = U.has_session()
         u["is_active"] = U.is_active()

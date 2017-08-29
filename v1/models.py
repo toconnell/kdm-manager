@@ -85,9 +85,10 @@ class Model:
 
             # then check the expansions
             for e in expansions:
-                e_dict = game_assets.expansions[e]
-                if "always_available" in e_dict.keys() and game_asset in e_dict["always_available"]:
-                    always_available.add(game_asset)
+                e_dict = game_assets.expansions.get(e, None)
+                if e_dict is not None:
+                    if "always_available" in e_dict.keys() and game_asset in e_dict["always_available"]:
+                        always_available.add(game_asset)
 
             # finally, check the asset itself
             asset_dict = self.get_asset(game_asset)

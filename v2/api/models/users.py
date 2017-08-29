@@ -255,23 +255,7 @@ class User(Models.UserAsset):
     def get_age(self, return_type="years"):
         """ Returns the user's age. """
 
-        delta = utils.get_time_elapsed_since(self.user["created_on"])
-
-        if return_type == 'days':
-            return delta.days
-        elif return_type == 'years':
-            return relativedelta(datetime.now(), self.user["created_on"]).years
-        elif return_type == 'years_and_days':
-            days = delta.days
-            years = relativedelta(datetime.now(), self.user["created_on"]).years
-            for y in range(years):
-                days -= 365
-            year_word = "year"
-            if years >= 2:
-                year_word = "years"
-            return "%s %s and %s days" % (years, year_word, days)
-
-        return delta
+        return utils.get_time_elapsed_since(self.user["created_on"], 'age')
 
 
     def get_preference(self, p_key):

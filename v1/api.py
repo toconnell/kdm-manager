@@ -22,18 +22,22 @@ settings = load_settings()
 settings_private = load_settings("private")
 
 
-def get_api_url():
+def get_api_url(strip_http=False):
     """ Determines the URL to use for API operations based on some socket
     operations and settings from the settings.cfg. Defaults to using localhost
     on the default API port defined in settings.cfg. """
 
     fqdn = socket.getfqdn()
     if fqdn == settings.get("api","prod_fqdn"):
-        return settings.get("api","prod_url")
+        output = settings.get("api","prod_url")
     else:
-        logger.debug("[API] host FQDN is '%s'. Backing off to dev API settings." % (fqdn))
-#        return "http://%s:%s/" % (settings.get("api","localhost_addr"), settings.get("api","localhost_port"))
-        return "http://%s:%s/" % (get_local_ip(), settings.get("api","localhost_port"))
+#        logger.debug("[API] host FQDN is '%s'. Backing off to dev API settings." % (fqdn))
+        output = "http://%s:%s/" % (get_local_ip(), settings.get("api","localhost_port"))
+
+    if strip_http:
+        return output[7:]
+    else:
+        return output
 
 
 def route_to_url(r):

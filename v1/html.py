@@ -32,24 +32,7 @@ class panel:
     </form>
 
     <div class="admin_panel_left">
-        <h3>World</h3>
-        <table class="panel_meta_stats">
-            <tr><td>Total Users:</td><td>$users</td></tr>
-            <tr><td>Recent Users:</td><td>$recent_users_count</td></tr>
-            <tr><td>Sessions:</td><td>$sessions</td></tr>
-            <tr><td>Settlements:</td><td>$settlements</td></tr>
-            <tr><td>Survivors:</td><td>$live_survivors/$dead_survivors ($total_survivors total)</td></tr>
-            <tr><td colspan="2"><br></td></tr>
-            <tr class="world_primary"><th colspan="2">Latest settlement</th></tr>
-            <tr class="world_secondary"><td colspan="2">$latest_settlement</td></tr>
-            <tr class="world_primary"><th colspan="2">Latest fatality</th></tr>
-            <tr class="world_secondary"><td colspan="2">$latest_fatality</td></tr>
-            <tr class="world_primary"><th colspan="2">Latest kill</th></tr>
-            <tr class="world_secondary"><td colspan="2">$latest_kill</td></tr>
-            <tr class="world_primary"><th colspan="2">Current Hunt</th></tr>
-            <tr class="world_secondary"><td colspan="2">$current_hunt</td></tr>
-        </table>
-
+        <!-- nothing here -->
     </div> <!-- admin_panel_left -->
 
     <div class="admin_panel_right">
@@ -225,6 +208,254 @@ class dashboard:
 
     \n""")
 
+
+    #
+    #   ANGULARJS dashboard components!
+    #
+
+    world = Template("""
+
+    <script
+        src="/media/worldPanel.js?v=$application_version"
+    >
+    </script>
+
+    <div
+        id="world_container"
+        class="dashboard_menu world_panel"
+        ng-controller="dashboardController"
+        ng-init="initWorld('$api_url')"
+    >
+
+        <h2 class="clickable world_primary" ng-click="showHide('world_detail_div')">
+            <font class="kdm_font_hit_locations dashboard_kdm_font white">g</font>
+            <font class="white">World</font> <img class="dashboard_down_arrow" src="/media/icons/down_arrow_white.png"/>
+        </h2>
+
+        <div id="world_detail_div" class="dashboard_accordion world_secondary hidden world_container">
+
+            <div class="world_panel_basic_box">
+                <p>
+                    <font class="green_text"> <b>{{world.active_settlements.value}} </b></font> Settlements are holding fast.
+                    <font class="maroon_text"><b> {{world.abandoned_settlements.value}} </b></font> have been abandoned.
+                </p>
+                <p>
+                    <font class="green_text"> <b>{{world.live_survivors.value}}</b> </font> Survivors are alive and fighting.
+                    <font class="maroon_text"><b>{{world.dead_survivors.value}}</b></font> have perished.</p>
+            </div>
+
+            <div class="world_panel_basic_box">
+                <h3>Settlement Statistics</h3>
+
+                <p>{{world.total_multiplayer_settlements.name}}: <b>{{world.total_multiplayer_settlements.value}}</b></p>
+                <p>{{world.new_settlements_last_30.name}}: <b>{{world.new_settlements_last_30.value}}</b></p>
+
+                <table>
+                    <tr><th colspan="2">{{world.top_settlement_names.name}}</th></tr>
+                    <tr ng-repeat="row in world.top_settlement_names.value" ng-class-even="'zebra'">
+                        <td>{{row.name}}</td><td class="int_value">{{row.count}}</td>
+                    </tr>
+                </table>
+
+                <table>
+                    <tr><th colspan="2">Active Campaigns</th></tr>
+                    <tr ng-repeat="(name,count) in world.settlement_popularity_contest_campaigns.value" ng-class-even="'zebra'">
+                        <td>{{name}}</td> <td class="int_value">{{count}}</td>
+                    </tr>
+                </table>
+
+                <table>
+                    <tr><th colspan="2">Campaigns w/ Expansion Content</th></tr>
+                    <tr ng-repeat="(name,count) in world.settlement_popularity_contest_expansions.value" ng-class-even="'zebra'">
+                        <td>{{name}}</td> <td class="int_value">{{count}}</td>
+                    </tr>
+                </table>
+
+                <table>
+                    <tr><th colspan="2">Settlement Averages</th></tr>
+                    <tr><td>Lantern Year: </td><td class="int_value">{{world.avg_ly.value}}</td></tr>
+                    <tr class="zebra"><td>Innovation Count: </td><td>{{world.avg_innovations.value}}</td></tr>
+                    <tr><td>Expansions:</td><td> {{world.avg_expansions.value}}</td></tr>
+                    <tr class="zebra"><td>Defeated Monsters:</td><td> {{world.avg_defeated_monsters.value}}</td></tr>
+                    <tr><td>Items in Storage:</td> <td>{{world.avg_storage.value}}</td></tr>
+                    <tr class="zebra"><td>Milestone Story Events:</td><td> {{world.avg_milestones.value}}</td></tr>
+                    <tr><td>Lost Settlements: </td><td>{{world.avg_lost_settlements.value}}</td></tr>
+                </table>
+
+                <table><tr><th>Principle selection rates</th></tr></table>
+                <div ng-repeat="(principle, selections) in world.principle_selection_rates.value">
+                    <table>
+                        <tr><th colspan="2" class="principle">{{principle}}</th></tr>
+                        <tr ng-repeat="option in selections.options" ng-class-even="'zebra'">
+                            <td>{{option}}</td>
+                            <td class="int_value">{{selections[option].percentage}}%</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <table>
+                    <tr><th colspan="2">Top Innovations</th></tr>
+                    <tr ng-repeat="row in world.top_innovations.value" ng-class-even="'zebra'">
+                        <td>{{row.name}}</td><td class="int_value">{{row.count}}</td>
+                    </tr>
+                </table>
+
+                <table>
+                    <tr><th>Survival Limit stats</th></tr>
+                    <tr><td>Average Survival Limit:</td><td class="int_value">{{world.avg_survival_limit.value}}</td></tr>
+                    <tr class="zebra"><td>Max Survival Limit:</td><td>{{world.max_survival_limit.value}}</td></tr>
+                </table>
+
+
+            </div>
+
+            <div class="world_panel_basic_box">
+                <h3>Latest Settlement</h3>
+                <table>
+                    <tr><td colspan="2"><b>{{world.latest_settlement.value.name}}</b></td></tr>
+                    <tr><td colspan="2"><i>{{world.latest_settlement.value.campaign}}</i></td></tr>
+                    <tr ng-if="world.latest_settlement.value.expansions != null">
+                        <td colspan="2">{{world.latest_settlement.value.expansions}}</td>
+                    </tr>
+                    <tr><td>Created:</td><td>{{world.latest_settlement.value.age}} ago</td></tr>
+                    <tr class="zebra"><td>Players:</td><td>{{world.latest_settlement.value.player_count}}</td></tr>
+                    <tr><td>Population:</td><td>{{world.latest_settlement.value.population}}</td></tr>
+                    <tr class="zebra"><td>Death count:</td><td>{{world.latest_settlement.value.death_count}}</td></tr>
+                </table>
+
+            </div>
+
+            <div class="world_panel_basic_box">
+                <h3>Survivor Statistics</h3>
+
+                <table>
+                    <tr><th>Population and death stats</th></tr>
+                    <tr><td>Average Population:</td><td class="int_value">{{world.avg_pop.value}}</td></tr>
+                    <tr class="zebra"><td>Max Population:</td><td>{{world.max_pop.value}}</td></tr>
+                    <tr><td>Average Death count:</td><td> {{world.avg_death_count.value}}</td></tr>
+                    <tr class="zebra"><td>Max Death Count:</td> <td>{{world.max_death_count.value}}</td></tr>
+                </table>
+
+                <table>
+                    <tr><th colspan="2">Top Survivor names</th></tr>
+                    <tr ng-repeat="row in world.top_survivor_names.value" ng-class-even="'zebra'">
+                        <td>{{row.name}}</td> <td class="int_value">{{row.count}}</td>
+                    </tr>
+                </table>
+
+                <table>
+                    <tr><th colspan="2">Top Causes of Death</th></tr>
+                    <tr ng-repeat="row in world.top_causes_of_death.value" ng-class-even="'zebra'">
+                        <td>{{row.cause_of_death}}</td> <td class="int_value">{{row.count}}</td>
+                    </tr>
+                </table>
+
+                <table>
+                    <tr><th colspan="2">Living survivor averages</th></tr>
+                    <tr><td>Hunt XP:</td><td>{{world.avg_hunt_xp.value}}</td></tr>
+                    <tr class="zebra"><td>Insanity:</td><td class="int_value">{{world.avg_insanity.value}}</td></tr>
+                    <tr><td>Courage:</td><td>{{world.avg_courage.value}}</td></tr>
+                    <tr class="zebra"><td>Fighting Arts:</td><td>{{world.avg_fighting_arts.value}}</td></tr>
+                    <tr><td>Understanding:</td><td>{{world.avg_understanding.value}}</td></tr>
+                    <tr class="zebra"><td>Disorders:</td><td>{{world.avg_disorders.value}}</td></tr>
+                    <tr><td>Abilities/Impairments:</td><td>{{world.avg_abilities.value}}</td></tr>
+                </table>
+
+            </div>
+
+            <div class="world_panel_basic_box">
+                <h3>Latest Survivor</h3>
+                <table>
+                    <tr ng-if="world.latest_survivor.value.avatar != undefined">
+                        <td colspan="2" class="world_panel_avatar_cell">
+                            <img
+                                class="world_panel_avatar"
+                                ng-src="/get_image?id={{world.latest_survivor.value.avatar.$oid}}"
+                                title="{{world.latest_survivor.value.name}}"
+                            />
+                    </tr>
+                    <tr><td colspan="2"><b>{{world.latest_survivor.value.name}}</b> [{{world.latest_survivor.value.sex}}] of </td></tr>
+                    <tr><td colspan="2"><i>{{world.latest_survivor.value.settlement_name}}</i></td></tr>
+                    <tr ng-if="world.latest_settlement.value.epithets != null">
+                        <td colspan="2">{{world.latest_survivor.value.epithets}}</td>
+                    </tr>
+                    <tr><td>Created:</td><td>{{world.latest_survivor.value.age}} ago</td></tr>
+                    <tr class="zebra"><td>Joined in LY:</td><td>{{world.latest_survivor.value.born_in_ly}}</td></tr>
+                    <tr><td>Hunt XP:</td><td>{{world.latest_survivor.value.hunt_xp}}</td></tr>
+                    <tr class="zebra"><td>Insanity:</td><td>{{world.latest_survivor.value.Insanity}}</td></tr>
+                    <tr><td>Courage:</td><td>{{world.latest_survivor.value.Understanding}}</td></tr>
+                    <tr class="zebra"><td>Understanding:</td><td>{{world.latest_survivor.value.Insanity}}</td></tr>
+                </table>
+
+            </div>
+
+            <div class="world_panel_basic_box">
+                <h3>Latest Fatality</h3>
+                <table>
+                    <tr ng-if="world.latest_fatality.value.avatar != undefined">
+                        <td colspan="2" class="world_panel_avatar_cell">
+                            <img
+                                class="world_panel_avatar"
+                                ng-src="/get_image?id={{world.latest_fatality.value.avatar.$oid}}"
+                                title="{{world.latest_fatality.value.name}}"
+                            />
+                    </tr>
+                    <tr><td colspan="2"><b>{{world.latest_fatality.value.name}}</b> [{{world.latest_fatality.value.sex}}] of </td></tr>
+                    <tr><td colspan="2"><i>{{world.latest_fatality.value.settlement_name}}</i></td></tr>
+                    <tr><td colspan="2">Cause of Death:</i></td></tr>
+                    <tr><td colspan="2">&ensp; <font class="maroon_text"><b>{{world.latest_fatality.value.cause_of_death}}</b></td></tr>
+                    <tr ng-if="world.latest_settlement.value.epithets != null">
+                        <td colspan="2">{{world.latest_fatality.value.epithets}}</td>
+                    </tr>
+                    <tr><td>Created:</td><td>{{world.latest_fatality.value.age}} ago</td></tr>
+                    <tr class="zebra"><td>Died in LY:</td><td>{{world.latest_fatality.value.died_in}}</td></tr>
+                    <tr><td>Hunt XP:</td><td>{{world.latest_fatality.value.hunt_xp}}</td></tr>
+                    <tr class="zebra"><td>Insanity:</td><td>{{world.latest_fatality.value.Insanity}}</td></tr>
+                    <tr><td>Courage:</td><td>{{world.latest_fatality.value.Understanding}}</td></tr>
+                    <tr class="zebra"><td>Understanding:</td><td>{{world.latest_fatality.value.Insanity}}</td></tr>
+                </table>
+
+            </div> <!-- latest fatality -->
+
+            <div class="world_panel_basic_box">
+                <h3>Latest Kill</h3>
+                <p><b>{{world.latest_kill.value.raw_name}}</b></p>
+                <p>Defeated by the survivors of <b>{{world.latest_kill.value.settlement_name}}</b> on {{world.latest_kill.value.killed_date}} at {{world.latest_kill.value.killed_time}}.</p>
+            </div>
+
+            <div class="world_panel_basic_box">
+                <h3>{{world.killboard.name}}</h3>
+                <table ng-repeat="(type,board) in world.killboard.value">
+                    <tr><th class="principle capitalize" colspan="2">{{type}}</th></tr>
+                    <tr ng-repeat="row in board" ng-class-even="'zebra'">
+                        <td>{{row.name}}</td> <td class="int_value">{{row.count}}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="world_panel_basic_box">
+                <h3>User Statistics</h3>
+                <p> <b>{{world.total_users.value}}</b> users are registered.</p>
+                <p> <b>{{world.recent_sessions.value}}</b> users have managed campaigns in the last 12 hours.</p>
+                <p> <b>{{world.total_users_last_30.value}}</b> users have managed campaigns in the last 30 days.</p>
+
+                <table>
+                    <tr><th colspan="2">Per user averages</th></tr>
+                    <tr><td>Survivors:</td><td class="int_value">{{world.avg_user_survivors.value}}</td></tr>
+                    <tr class="zebra"><td>Settlements:</td><td>{{world.avg_user_settlements.value}}</td></tr>
+                    <tr><td>Avatars:</td><td>{{world.avg_user_avatars.value}}</tr></tr>
+                </table>
+            </div> <!-- user stats -->
+
+        </div> <!-- world_detail_div -->
+
+    </div> <!-- world_container -->
+    """)
+
+
+
+
+
     #
     #   DASHBOARD MOTD follows. this is the whole dashboard, basically.
     #
@@ -322,112 +553,6 @@ class dashboard:
     avatar_image = Template("""\n
     <img class="latest_fatality" src="/get_image?id=$avatar_id" alt="$name"/>
     \n""")
-    world = Template("""\n
-    <div class="dashboard_menu world_panel" # burger/sidenav>
-        <h2
-            class="clickable world_primary"
-            onclick="showHide('world_div')"
-        >
-            <font class="kdm_font_hit_locations dashboard_kdm_font">g</font> World <img class="dashboard_down_arrow" src="/media/icons/down_arrow_white.png"/>
-        </h2>
-        <div id="world_div" style="display: none;" class="dashboard_accordion world_secondary">
-
-
-        <p><font class="green_text"><b>$active_settlements</b></font> settlements are holding fast; <font class="maroon_text"><b>$abandoned_settlements</b></font> settlements have been abandoned.</p>
-        <p><font class="green_text"><b>$live_survivors</b></font> survivors are alive and fighting; <font class="maroon_text"><b>$dead_survivors</b></font> have perished.</p>
-
-        <h3>Settlement Statistics</h3>
-        <ul>
-            <li>Multiplayer settlements: $total_multiplayer</li>
-            <li>Settlements created in the last 30 days: $new_settlements_last_30</li>
-        </ul>
-        <p>Top five settlement names:</p>
-        $top_settlement_names
-        <p>Averages across all settlements:</p>
-        <ul>
-            <li>Lantern Year: $avg_ly</li>
-            <li>Innovation Count: $avg_innovations</li>
-            <li>Expansions: $avg_expansions</li>
-            <li>Defeated Monsters: $avg_defeated</li>
-            <li>Items in Storage: $avg_storage</li>
-            <li>Milestone Story Events: $avg_milestones</li>
-            <li>Lost Settlements: $avg_lost_settlements</li>
-        </ul>
-        <p>Population and death stats:</p>
-        <ul>
-            <li>Average Population: $avg_pop</li>
-            <li>Max Population: $max_pop</li>
-            <li>Average Death count: $avg_death</li>
-            <li>Max Death Count: $max_death</li>
-        </ul>
-        <p>Survival Limit stats:</p>
-        <ul>
-            <li>Average Survival Limit: $avg_survival_limit</li>
-            <li>Max Survival Limit: $max_survival</li>
-        </ul>
-        <p>Principle selection rates:</p>
-        $top_principles
-        <p>Settlements using expansion content:</p>
-        <ul>
-            $expansion_popularity_bullets
-        </ul>
-        <p>Campaign counts:</p>
-        <ul>
-            $campaign_popularity_bullets
-        </ul>
-        <p>Latest settlement:</p>
-        $latest_settlement
-
-
-        <h3>Survivor Statistics</h3>
-        <p>Top five survivor names:</p>
-        $top_survivor_names
-        <p>Top 10 causes of death:</p>
-        $top_COD
-        <p>Averages for all living survivors:</p>
-        <ul>
-            <li>Hunt XP: $avg_hunt_xp</li>
-            <li>Insanity: $avg_insanity</li>
-            <li>Courage: $avg_courage</li>
-            <li>Fighting Arts: $avg_fighting_arts</li>
-            <li>Understanding: $avg_understanding</li>
-            <li>Disorders: $avg_disorders</li>
-            <li>Abilities/Impairments: $avg_abilities</li>
-        </ul>
-        <p>Latest Fatality:</p>
-        $latest_fatality
-        <p>Newest Survivor:</p>
-        $latest_survivor
-
-
-        <h3>Monster Statistics</h3>
-        <p>Latest hunt activity:</p>
-        <ul>
-            <li>$current_hunt</li>
-        </ul>
-        <p>Latest kill:</p>
-        <ul>
-            $latest_kill
-        </ul>
-        <p>Defeated Monster Totals:
-            <table class="dashboard_world_defeated_monsters">
-            $defeated_monsters
-            </table>
-        </p>
-
-
-        <h3>User Statistics</h3>
-        <p>$total_users users are registered; $recent_sessions users have managed campaigns in the last 12 hours.</p>
-        <p>$total_users_last_30 users have managed campaigns in the last 30 days.</p>
-        <p>Per user averages:</p>
-        <ul>
-            <li>Survivors: $avg_user_survivors</li>
-            <li>Settlements: $avg_user_settlements</li>
-            <li>Avatars: $avg_user_avatars</li>
-        </ul>
-        </div>
-    </div>
-    """)
 
     # misc html assets
 
