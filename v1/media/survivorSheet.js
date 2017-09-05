@@ -24,7 +24,7 @@ app.controller("survivorSheetController", function($scope) {
                     hideCornerLoader();
                 },
                 function(errorPayload) {
-                    console.error("FAIL FAIL FAIL");
+                    console.error("Asset pick list refresh failed!");
                     console.error(errorPayload);
                 }
             );
