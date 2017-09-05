@@ -7,6 +7,7 @@ import json
 from bson import json_util
 import inspect
 import operator
+import random
 
 from flask import request, Response
 
@@ -482,39 +483,6 @@ class UserAsset():
     #
     #   request helpers
     #
-
-    def get_asset(self, asset_class=None, asset_handle=None):
-        """ Set 'asset_class' kwarg to the string of an asset collection and
-        'asset_handle' to any handle within that asset collection and this
-        func will return the value of 'asset_class' and an asset dict for the
-        'asset_handle' value.
-
-        This method will back off to the incoming request if 'asset_type' is
-        None. """
-
-        #
-        #   initialize. Try to use kwargs, but back off to request params
-        #   if incoming kwargs are None
-        #
-
-        if asset_class is None:
-            self.check_request_params(["type", "handle"])
-            asset_class = self.params["type"]
-            asset_handle = self.params["handle"]
-        elif asset_class is not None and asset_handle is None:
-            self.check_request_params(["handle"])
-            asset_handle = self.params["handle"]
-
-        # try to get the asset; bomb out if we can't
-        exec "A = models.%s.Assets()" % asset_class
-        asset_dict = A.get_asset(asset_handle)
-        if asset_dict is None:
-            msg = "%s.Assets() class does not include handle '%s'!" % (asset_class, asset_handle)
-            self.logger.exception(msg)
-            raise utils.InvalidUsage(msg, status_code=400)
-
-        return asset_class, asset_dict
-
 
     def get_request_params(self, verbose=False):
         """ Checks the incoming request (from Flask) for JSON and tries to add

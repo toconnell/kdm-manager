@@ -2154,8 +2154,9 @@ class survivor:
                 <select
                     name="add_fighting_arts"
                     ng-model="userFA.newFA"
-                    ng-change="addFightingArt()"
-                    ng-options="fa.handle as (fa.name + ' (' + fa.type_pretty + ')'  ) for fa in FAoptions"
+                    ng-change="addFightingArt(); userFA.newFA = FAoptions[0]"
+                    ng-blur="userFA.newFA = FAoptions[0]"
+                    ng-options="fa.handle as (fa.name + ' (' + fa.type_pretty + ')'  ) for fa in FAoptions | orderObjectBy:'handle':false"
                 >
                     <option value="" disabled selected>Add Fighting Arts</option>
                 </select>

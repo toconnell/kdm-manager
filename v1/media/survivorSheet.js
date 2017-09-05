@@ -18,6 +18,7 @@ app.controller("survivorSheetController", function($scope) {
 
                     $scope.setGameAssetOptions('abilities_and_impairments', "survivor_sheet", "AIoptions", "curse");
                     $scope.setGameAssetOptions('fighting_arts', "survivor_sheet", "FAoptions");
+                    $scope.FAoptions["_random"]  = {handle: "_random", name: "* Random Fighting Art", type_pretty: "Special"};
                     $scope.setGameAssetOptions('epithets', "survivor_sheet", "epithetOptions");
 
                     console.log("Asset pick lists initialized!")

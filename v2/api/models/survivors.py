@@ -553,11 +553,9 @@ class Survivor(Models.UserAsset):
         That's it! Have fun!
         """
 
-        asset_class, asset_dict = self.get_asset(asset_class, asset_handle)
+        #   method preprocessing first
 
-        #
-        #   at this point, we have an asset dict and we're ready to plow
-        #
+        asset_class, asset_dict = self.asset_operation_preprocess(asset_class, asset_handle)
 
         # 1.) MAX - check the asset's 'max' attribute:
         if asset_dict.get("max", None) is not None:
@@ -614,6 +612,72 @@ class Survivor(Models.UserAsset):
         self.save()
 
 
+    def asset_operation_preprocess(self, asset_class=None, asset_handle=None):
+        """ As its name suggests, the purpose of this method is to 'stage up' or
+        prepare to do the add_game_asset() method (above). The idea is that you
+        call this method at the beginning of add_game_asset() to sanity check it
+        and do any other preprocessing tasks.
+
+        Set 'asset_class' kwarg to the string of an asset collection and
+        'asset_handle' to any handle within that asset collection and this
+        func will return the value of 'asset_class' and an asset dict for the
+        'asset_handle' value.
+
+        This method will back off to the incoming request if 'asset_type' is
+        None.
+        """
+
+        #
+        #   1.) initialize the request. Try to use kwargs, but back off to
+        #   request params if incoming kwargs are None
+        #
+
+        if asset_class is None:
+            self.check_request_params(["type", "handle"])
+            asset_class = self.params["type"]
+            asset_handle = self.params["handle"]
+        elif asset_class is not None and asset_handle is None:
+            self.check_request_params(["handle"])
+            asset_handle = self.params["handle"]
+
+
+        #   2.) initialize/import the AssetModule and an AssetCollection object
+        exec "AssetModule = %s" % asset_class
+        A = AssetModule.Assets()
+
+
+        #   3.) handle the _random pseudo/bogus/magic handle
+        if asset_handle == "_random":
+            self.logger.info("%s selecting random '%s' asset..." % (self, asset_class))
+            available = copy(self.Settlement.get_available_assets(AssetModule)[asset_class])
+
+            # filter out assets that the survivor already has
+            for h in self.survivor[asset_class]:
+                if available.get(h, None) is not None:
+                    del available[h]
+
+            # filter out 'secret' assets
+            for k in available.keys():
+                if A.get_asset(k).get('type', None) == 'secret_fighting_art':
+                    del available[k]
+
+            asset_handle = random.choice(available.keys())
+            self.logger.info("%s selected '%s' asset handle at random." % (self, asset_handle))
+
+
+        #   4.) try to get the asset; bomb out if we can't
+        asset_dict = A.get_asset(asset_handle)
+        if asset_dict is None:
+            msg = "%s.Assets() class does not include handle '%s'!" % (asset_class, asset_handle)
+            self.logger.exception(msg)
+            raise utils.InvalidUsage(msg, status_code=400)
+
+
+        # exit preprocessing with a valid class name and asset dictionary
+        return asset_class, asset_dict
+
+
+
     def rm_game_asset(self, asset_class=None, asset_handle=None, rm_related=True):
         """ The inverse of the add_game_asset() method, this one most all the
         same stuff, except it does it in reverse order:
@@ -622,7 +686,7 @@ class Survivor(Models.UserAsset):
         that is irrelevant.
         """
 
-        asset_class, asset_dict = self.get_asset(asset_class, asset_handle)
+        asset_class, asset_dict = self.asset_operation_preprocess(asset_class, asset_handle)
 
         # 1.) fail gracefully if this is a bogus request
         if asset_dict["handle"] not in self.survivor[asset_class]:
