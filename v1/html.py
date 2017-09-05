@@ -281,13 +281,13 @@ class dashboard:
 
                 <table>
                     <tr><th colspan="2">Settlement Averages</th></tr>
-                    <tr><td>Lantern Year: </td><td class="int_value">{{world.avg_ly.value}}</td></tr>
-                    <tr class="zebra"><td>Innovation Count: </td><td>{{world.avg_innovations.value}}</td></tr>
-                    <tr><td>Expansions:</td><td> {{world.avg_expansions.value}}</td></tr>
-                    <tr class="zebra"><td>Defeated Monsters:</td><td> {{world.avg_defeated_monsters.value}}</td></tr>
-                    <tr><td>Items in Storage:</td> <td>{{world.avg_storage.value}}</td></tr>
-                    <tr class="zebra"><td>Milestone Story Events:</td><td> {{world.avg_milestones.value}}</td></tr>
-                    <tr><td>Lost Settlements: </td><td>{{world.avg_lost_settlements.value}}</td></tr>
+                    <tr><td>Lantern Year </td><td class="int_value">{{world.avg_ly.value}}</td></tr>
+                    <tr class="zebra"><td>Innovation Count </td><td>{{world.avg_innovations.value}}</td></tr>
+                    <tr><td>Expansions</td><td> {{world.avg_expansions.value}}</td></tr>
+                    <tr class="zebra"><td>Defeated Monsters</td><td> {{world.avg_defeated_monsters.value}}</td></tr>
+                    <tr><td>Items in Storage</td> <td>{{world.avg_storage.value}}</td></tr>
+                    <tr class="zebra"><td>Milestone Story Events</td><td> {{world.avg_milestones.value}}</td></tr>
+                    <tr><td>Lost Settlements </td><td>{{world.avg_lost_settlements.value}}</td></tr>
                 </table>
 
                 <table><tr><th>Principle selection rates</th></tr></table>
@@ -325,10 +325,10 @@ class dashboard:
                     <tr ng-if="world.latest_settlement.value.expansions != null">
                         <td colspan="2">{{world.latest_settlement.value.expansions}}</td>
                     </tr>
-                    <tr><td>Created:</td><td>{{world.latest_settlement.value.age}} ago</td></tr>
-                    <tr class="zebra"><td>Players:</td><td>{{world.latest_settlement.value.player_count}}</td></tr>
-                    <tr><td>Population:</td><td>{{world.latest_settlement.value.population}}</td></tr>
-                    <tr class="zebra"><td>Death count:</td><td>{{world.latest_settlement.value.death_count}}</td></tr>
+                    <tr><td>Created</td><td>{{world.latest_settlement.value.age}} ago</td></tr>
+                    <tr class="zebra"><td>Players</td><td>{{world.latest_settlement.value.player_count}}</td></tr>
+                    <tr><td>Population</td><td>{{world.latest_settlement.value.population}}</td></tr>
+                    <tr class="zebra"><td>Death count</td><td>{{world.latest_settlement.value.death_count}}</td></tr>
                 </table>
 
             </div>
@@ -338,10 +338,10 @@ class dashboard:
 
                 <table>
                     <tr><th>Population and death stats</th></tr>
-                    <tr><td>Average Population:</td><td class="int_value">{{world.avg_pop.value}}</td></tr>
-                    <tr class="zebra"><td>Max Population:</td><td>{{world.max_pop.value}}</td></tr>
-                    <tr><td>Average Death count:</td><td> {{world.avg_death_count.value}}</td></tr>
-                    <tr class="zebra"><td>Max Death Count:</td> <td>{{world.max_death_count.value}}</td></tr>
+                    <tr><td>Average Population</td><td class="int_value">{{world.avg_pop.value}}</td></tr>
+                    <tr class="zebra"><td>Max Population</td><td>{{world.max_pop.value}}</td></tr>
+                    <tr><td>Average Death count</td><td> {{world.avg_death_count.value}}</td></tr>
+                    <tr class="zebra"><td>Max Death Count</td> <td>{{world.max_death_count.value}}</td></tr>
                 </table>
 
                 <table>
@@ -387,12 +387,12 @@ class dashboard:
                     <tr ng-if="world.latest_settlement.value.epithets != null">
                         <td colspan="2">{{world.latest_survivor.value.epithets}}</td>
                     </tr>
-                    <tr><td>Created:</td><td>{{world.latest_survivor.value.age}} ago</td></tr>
-                    <tr class="zebra"><td>Joined in LY:</td><td>{{world.latest_survivor.value.born_in_ly}}</td></tr>
-                    <tr><td>Hunt XP:</td><td>{{world.latest_survivor.value.hunt_xp}}</td></tr>
-                    <tr class="zebra"><td>Insanity:</td><td>{{world.latest_survivor.value.Insanity}}</td></tr>
-                    <tr><td>Courage:</td><td>{{world.latest_survivor.value.Understanding}}</td></tr>
-                    <tr class="zebra"><td>Understanding:</td><td>{{world.latest_survivor.value.Insanity}}</td></tr>
+                    <tr><td>Created</td><td>{{world.latest_survivor.value.age}} ago</td></tr>
+                    <tr class="zebra"><td>Joined in LY</td><td>{{world.latest_survivor.value.born_in_ly}}</td></tr>
+                    <tr><td>Hunt XP</td><td>{{world.latest_survivor.value.hunt_xp}}</td></tr>
+                    <tr class="zebra"><td>Insanity</td><td>{{world.latest_survivor.value.Insanity}}</td></tr>
+                    <tr><td>Courage</td><td>{{world.latest_survivor.value.Understanding}}</td></tr>
+                    <tr class="zebra"><td>Understanding</td><td>{{world.latest_survivor.value.Insanity}}</td></tr>
                 </table>
 
             </div>
@@ -415,12 +415,12 @@ class dashboard:
                     <tr ng-if="world.latest_settlement.value.epithets != null">
                         <td colspan="2">{{world.latest_fatality.value.epithets}}</td>
                     </tr>
-                    <tr><td>Created:</td><td>{{world.latest_fatality.value.age}} ago</td></tr>
-                    <tr class="zebra"><td>Died in LY:</td><td>{{world.latest_fatality.value.died_in}}</td></tr>
-                    <tr><td>Hunt XP:</td><td>{{world.latest_fatality.value.hunt_xp}}</td></tr>
-                    <tr class="zebra"><td>Insanity:</td><td>{{world.latest_fatality.value.Insanity}}</td></tr>
-                    <tr><td>Courage:</td><td>{{world.latest_fatality.value.Understanding}}</td></tr>
-                    <tr class="zebra"><td>Understanding:</td><td>{{world.latest_fatality.value.Insanity}}</td></tr>
+                    <tr><td>Created</td><td>{{world.latest_fatality.value.age}} ago</td></tr>
+                    <tr class="zebra"><td>Died in LY</td><td>{{world.latest_fatality.value.died_in}}</td></tr>
+                    <tr><td>Hunt XP</td><td>{{world.latest_fatality.value.hunt_xp}}</td></tr>
+                    <tr class="zebra"><td>Insanity</td><td>{{world.latest_fatality.value.Insanity}}</td></tr>
+                    <tr><td>Courage</td><td>{{world.latest_fatality.value.Understanding}}</td></tr>
+                    <tr class="zebra"><td>Understanding</td><td>{{world.latest_fatality.value.Insanity}}</td></tr>
                 </table>
 
             </div> <!-- latest fatality -->
@@ -449,9 +449,9 @@ class dashboard:
 
                 <table>
                     <tr><th colspan="2">Per user averages</th></tr>
-                    <tr><td>Survivors:</td><td class="int_value">{{world.avg_user_survivors.value}}</td></tr>
-                    <tr class="zebra"><td>Settlements:</td><td>{{world.avg_user_settlements.value}}</td></tr>
-                    <tr><td>Avatars:</td><td>{{world.avg_user_avatars.value}}</tr></tr>
+                    <tr><td>Survivors</td><td class="int_value">{{world.avg_user_survivors.value}}</td></tr>
+                    <tr class="zebra"><td>Settlements</td><td>{{world.avg_user_settlements.value}}</td></tr>
+                    <tr><td>Avatars</td><td>{{world.avg_user_avatars.value}}</tr></tr>
                 </table>
             </div> <!-- user stats -->
 
@@ -1536,48 +1536,43 @@ class survivor:
             ng-controller="survivalController"
         >
 
-            <div
-                id="survivor_survival_box_container"
-            >
-
-                <div class="big_number_container left_margin">
-                    <button
-                        class="incrementer"
-                        ng-click="updateSurvival(1)"
-                    >
-                        &#9652;
-                    </button>
-                    <input
-                        id="survivalBox"
-                        class="big_number_square"
-                        type="number"
-                        name="survival"
-                        ng-model="survival_input_value"
-                        ng-change="setSurvival()"
-                        ng-value="survivor.sheet.survival"
-                        min="0"
-                    />
-                    <button
-                        class="decrementer"
-                        ng-click="updateSurvival(-1)"
-                    >
-                        &#9662;
-                    </button>
-                </div> <!-- big_number_container -->
-
-                <div
-                    id="SLwarning"
-                    class="kd_alert control_error"
-                    style="display: none"
+            <div class="survivor_sheet_survival_container">
+                <button
+                    class="survivor_sheet_survival_button"
+                    ng-click="updateSurvival(1)"
                 >
-                    {{settlement.sheet.name}} Survival Limit is {{settlement.sheet.survival_limit}}!
-                </div>
+                    &#9652;
+                </button>
+                <input
+                    id="survivalBox"
+                    class="survivor_sheet_survival_box"
+                    type="number"
+                    name="survival"
+                    ng-model="survival_input_value"
+                    ng-change="setSurvival()"
+                    ng-value="survivor.sheet.survival"
+                    min="0"
+                />
+                <button
+                    class="survivor_sheet_survival_button"
+                    ng-click="updateSurvival(-1)"
+                >
+                    &#9662;
+                </button>
+            </div> <!-- big_number_container -->
 
-                <div class="big_number_caption">
-                    Survival <p>(limit: {{settlement.sheet.survival_limit}})</p>
-                </div>
+            <div
+                id="SLwarning"
+                class="kd_alert_no_exclaim control_error"
+                style="display: none"
+            >
+                {{settlement.sheet.name}} Survival Limit is <b>{{settlement.sheet.survival_limit}}</b>!
+            </div>
 
-            </div> <!-- survivor_survival_box_container -->
+            <div class="help-tip big_number_caption survivor_sheet_survival_limit_caption">
+                Survival
+                <p>{{settlement.sheet.name}} Survival Limit is <b>{{settlement.sheet.survival_limit}}</b></p>
+            </div>
 
 
             <hr />
@@ -2044,9 +2039,11 @@ class survivor:
         <div
             ng-controller='fightingArtsController'
         >
+<!--
             <div class="help-tip help-icon kd_promo">
                 <p> Use the drop-down controls below to add new Fighting Arts; click or tap a Fighting Art to remove it. <br/>Fighting Arts with levels, such as "Silk Surgeon", may be improved by tapping or clicking on the desired level.</p>
             </div>
+-->
 
             <h3>Fighting Arts</h3>
 

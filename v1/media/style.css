@@ -636,6 +636,11 @@ div#info_box h2, button#survivor_campaign_asset, button.dashboard_asset {text-al
 .bold, .success, .error, .warn { font-weight: bold; }
 
 /* survivor sheet styles */
+.survivor_sheet_survival_container {display: inline-flex; flex-direction: column; width: 25%; margin-left: 5%; }
+.survivor_sheet_survival_box {font-size: 100pt; height: 200px; border: 1px solid #ccc; margin: 5%; text-align: center; width: 89%; padding: 0; font-family: 'Metrophobic'; }
+.survivor_sheet_survival_limit_caption {float: right; margin-right: 5%; margin-top: 15%; width: 55%; }
+.big_number_caption.survivor_sheet_survival_limit_caption {font-size: 75pt; color: #000; font-weight: bold;  }
+
 .survivor_sheet_ai_container {padding-left: 3.5%; text-indent: -0.5%; margin-bottom: 3.5%; }
 
 div.sotf_reroll_controls {border-bottom: 1px solid #aaa; margin: 4% auto;}
@@ -679,7 +684,7 @@ span.cursed_item_ability_desc b {font-family: Silverado;}
 
     /* hooker-up the fighting arts and disorders*/
 .survivor_sheet_card_container {display: flex; flex-direction: column; width: 100%; margin-top: 30%; }
-.survivor_sheet_card {display: inline-block; border-radius: 20px; margin: 0 auto; margin-bottom: 6%; width: 94%; border: 1px solid #aaa; padding: 0; padding-top: 4%; padding-bottom: 4%; text-align: center; }
+.survivor_sheet_card {display: inline-block; border-radius: 20px; margin: 0 auto; margin-bottom: 6%; width: 94%; border: 1px solid #aaa; padding: 0; padding-top: 4%; padding-bottom: 4%; text-align: center; border: 0; }
 .fighting_art_gradient {background: radial-gradient(circle, #DFd733, #E4e3cC, #d0f0fc); color: #000; }
 .secret_fighting_art_gradient {background: radial-gradient(circle, #800, #a00, #c00); color: #fff; }
 .survivor_sheet_card b.card_title {display: block; margin-bottom: 5px; font-size: 1.2em; }
@@ -1128,6 +1133,12 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.expansion_content_line_item label {font-size: 30px; }
 
     /* survivor sheet styles - tablet */
+    .survivor_sheet_survival_container {margin: 0; margin-left: 5%; width: 20%; }
+    input#survivalBox.survivor_sheet_survival_box {font-size: 30pt; height: 80px; }
+    .survivor_sheet_survival_limit_caption {width: 70%; float: right; margin-top: 10%; }
+    .big_number_caption.survivor_sheet_survival_limit_caption {font-size: 35pt;}
+    .survivor_sheet_survival_button {display: flex; flex: 1 1 40px; justify-content: center; padding:0; }
+
     select.survivor_sheet_cod_picker {width: 95%; }
     .control_error {font-size: 20pt; width: 60%; bottom: 20%; left: 19%; line-height: 20pt; }
     input[type=text].custom_cod_text {font-size: 17pt; padding: 1.5%; width: 95%; margin: 0 auto;  height: auto; }
@@ -1258,7 +1269,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.survivor_dead_retired_container label {font-size: 20pt; padding: 5px; margin: 0; width: 150px; }
     label#survivor_sheet_avatar {margin: 0 auto; margin-bottom: 30px; margin-right: -45px; position: relative; }
     div#survivor_survival_box_container {margin: 0px; height: auto; padding-bottom: 5%; width: auto; float: left; clear: right; }
-    div#survivor_survival_box_container input#survivalBox {width: 60px; height: 60px; margin: 0 auto; margin-left: 27px; }
     div#survivor_survival_box_container button {margin-left: 25px; line-height: 5%; }
 
     div#asset_management_left_pane div#survivor_stats {position: relative; clear: both;  margin-top: 10px; }
@@ -1826,6 +1836,18 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
 
     /* wide survivor sheet styles */
+    .survivor_sheet_survival_container {width: 20%; display: inline-block; }
+    .survivor_sheet_survival_limit_caption {width: 70%; float: right; margin-top: 10%; }
+    .big_number_caption.survivor_sheet_survival_limit_caption {font-size: 15pt;}
+    .survivor_sheet_survival_button {flex: 1 1 20px;}
+    input#survivalBox.survivor_sheet_survival_box {font-size: 25pt; height: 50px; width: 62px; }
+    input#survivalBox.survivor_sheet_survival_box::-webkit-inner-spin-button, 
+        input#survivalBox.survivor_sheet_survival_box::-webkit-outer-spin-button { 
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+
     input[type=text].custom_cod_text {font-size: 12pt; margin-top: 2%; }
     div.control_error {font-size: 14pt; width: 35%; bottom: 20%; left: 33%; line-height: 12pt; }
 
@@ -1912,7 +1934,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     button#modalCustomAIButton {width: auto; margin: 10px; margin-top: 20px;  }
     div.custom_AI_preview {font-size: 14pt; text-align: left; }
-    label#cannot_spend_survival {margin-top: -205px; margin-right: 50px; }
+    label#cannot_spend_survival {margin-top: -190px; margin-right: 50px; }
     font.survivor_sheet_survival_action_item {margin: 5px; font-size: 13pt;}
     button#modalDeathButton {font-size: 17px; }
     button#constellationModalOpener {width: 40%; margin-top: 25%; margin-bottom: 10px;  float: left; }
@@ -1932,7 +1954,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     div#survivor_survival_box_container {height: auto; width: auto; float: left;}
     div#survivor_survival_box_container button {height: 17px; width: 60px; margin: 3px; }
-    div#survivor_survival_box_container input#survivalBox {min-width: auto; width: 60px; padding: 0px; margin: 0 auto; margin-left: 2px; text-align: right; }
     div#survivor_survival_box_container div.big_number_caption {font-size: 18pt;}
     div#survivor_survival_actions_container {width: 100%; height: auto; margin: 0 auto; }
 
@@ -1970,7 +1991,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.cursed_item_ability_block span {font-size: 12pt; }
 
         /* fighting arts and disorders - wide */
-    .survivor_sheet_card_container{flex-direction: column; }
+    .survivor_sheet_card_container{display: inline-block; margin-top: 5%;}
     .survivor_sheet_card {width: 100%; margin-top: 10px; margin-bottom: 5px; max-width: none; }
     .settlement_sheet_card_expansion_flair {margin-top: -18px; font-size: 10pt; }
     .survivor_sheet_card b.card_title {font-size: 16pt; }

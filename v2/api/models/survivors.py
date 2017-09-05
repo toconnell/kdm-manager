@@ -168,7 +168,7 @@ class Survivor(Models.UserAsset):
             "cursed_items": [],
             "disorders": [],
             "fighting_arts": [],
-            "fighting_arts_levels": [],
+            "fighting_arts_levels": {},
             "epithets": [],
 
         }
