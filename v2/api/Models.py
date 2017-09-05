@@ -127,12 +127,12 @@ class AssetCollection():
                     self.assets.update(v)
 
 
-    def set_pretty_types(self, capitalize=False):
+    def set_pretty_types(self, capitalize=True):
         """ Iterates over self.assets; adds the "type_pretty" key to all assets. """
         for a in self.assets.keys():
             pretty_type = self.get_asset(a)["type"].replace("_"," ")
             if capitalize:
-                pretty_type = pretty_type.capitalize()
+                pretty_type = pretty_type.title()
             self.assets[a]["type_pretty"] = pretty_type
 
 
@@ -563,6 +563,7 @@ class UserAsset():
                     caller_function = calframe[1][3]
                     msg = "Insufficient request params for %s() method!" % caller_function
                     self.logger.exception(msg)
+                    self.logger.error("Bad request params were: %s" % self.params)
                     raise utils.InvalidUsage(msg, status_code=400)
                 else:
                     return False
@@ -640,7 +641,7 @@ class UserAsset():
         return mdb_doc
 
 
-    def list_assets(self, attrib=None, log_failures=False):
+    def list_assets(self, attrib=None, log_failures=True):
         """ Laziness method that returns a list of dictionaries where dictionary
         in the list is an asset in the object's list of those assets.
 
@@ -666,6 +667,7 @@ class UserAsset():
         else:
             exec "A = models.%s.Assets()" % attrib
         exec "asset_list = self.%s['%s']" % (self.collection[:-1], attrib)
+
         for a in asset_list:
             a_dict = A.get_asset(a, backoff_to_name=True, raise_exception_if_not_found=False)
             if a_dict is not None:

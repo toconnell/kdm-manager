@@ -271,46 +271,42 @@ app.controller('rootController', function($scope, $rootScope, apiService, assetS
         // 'game_asset' wants to be something from settlement.game_assets
         // 'user_asset' wants to be a user's list, e.g. $scope.survivor.sheet.epithets
         // 'destination' wants to be the outpue, e.g. $scope.locationOptions
-        showCornerLoader();
-        var res = $scope.getJSONfromAPI('settlement','get');
-        res.then(
-            function(payload) {
-                console.log("Refreshing '" + game_asset + "' game asset options...");
-                var output = payload.data.game_assets[game_asset];
-                for (var i = 0; i < $scope[user_asset][game_asset].length; i++) {
-                    var a = $scope[user_asset][game_asset][i];
-                    if (output[a] != undefined) {
-                        if (output[a].max != undefined) {
-                            var asset_max = output[a].max;
-                            var asset_count = 0;
-                            for (var j = 0; j < $scope[user_asset][game_asset].length; j++) {
-                                if ($scope[user_asset][game_asset][j] == a) {asset_count += 1};
-                            };
-//                            console.log(a + " count: " + asset_count + "; max: " + asset_max);
-                            if (asset_count >= asset_max) {
-                                delete output[a];
-                            };
-                        } else {
-                            delete output[a];
-                        };
+
+        console.log("Refreshing '" + game_asset + "' game asset options...");
+        var output = $scope.settlement.game_assets[game_asset];
+        for (var i = 0; i < $scope[user_asset][game_asset].length; i++) {
+            var a = $scope[user_asset][game_asset][i];
+
+            if (output[a] != undefined) {
+                if (output[a].max != undefined) {
+                    var asset_max = output[a].max;
+                    var asset_count = 0;
+                    for (var j = 0; j < $scope[user_asset][game_asset].length; j++) {
+                        if ($scope[user_asset][game_asset][j] == a) {asset_count += 1};
                     };
-                };
-                for (var b in output) {
-                    if (output[b].type == exclude_type) {
-                        delete output[b];
+                    if (asset_count >= asset_max) {
+                        delete output[a];
                     };
+                } else {
+                    delete output[a];
                 };
-                for (var c in output) {
-                    if (output[c].selectable == false) {
-                        delete output[c];
-                    };
-                };
-                $scope[destination] = output;
-                console.log("Game asset '" + game_asset + "' options updated!");
-                hideCornerLoader();
-            },
-            function(errorPayload) {console.error("Could not update '" + game_asset + "' game asset options!" + errorPayload);}
-        );
+            };
+        };
+
+        for (var b in output) {
+            if (output[b].type == exclude_type) {
+                delete output[b];
+            };
+        };
+
+        for (var c in output) {
+            if (output[c].selectable == false) {
+                delete output[c];
+            };
+        };
+
+        $scope[destination] = output;
+        console.log("Game asset '" + game_asset + "' options updated!");
     };
 
     // helper method that sets the scope's story and settlement events

@@ -46,8 +46,10 @@
 .helvetica {font-family: Helvetica, sans-serif; height: 100%; }
 
 
-/* color styles - all breakpoints */
+    /* UI/UX styles - all breakpoints */
+.clickable {cursor: pointer; }
 
+    /* color styles - all breakpoints */
 .zebra {background-color: #efefef; }
 .capitalize {text-transform: capitalize;}
 
@@ -109,6 +111,7 @@ button.manage_departing_survivors {border-radius: 10px; border: 0.1em solid #5F4
 .kd_alert:before {content: " ! "; font-size: 90px; font-size: 8vw; float: left; color: #EBb6d1; margin-right: 1.5%; font-weight: bold; }
 .kd_alert, .kd_alert_no_exclaim {background-color: #FF0040; color: #fff; font-family: Arial; border-radius: 25px; padding: 2%; border: 0; }
 
+
 .control_error {position: fixed; bottom: 2%; top: auto; left: 3%; width: 90%; font-size: 45px; line-height: 50px; }
 input[type=text].custom_cod_text {width: 95%; }
 
@@ -117,6 +120,7 @@ input[type=text].custom_cod_text {width: 95%; }
 .affinity_blue {background-color: #1C99CD; color: #fff; }
 .affinity_green {background-color: #4CB848; color: #fff; }
 
+.kd_promo {color: #fff; background: radial-gradient(circle, #5Dd7F2, #50CAF5, #3FACCF); }
 
 .round_top {border-top-right-radius: 20px; border-top-left-radius: 20px; }
 .round_bottom {border-bottom-right-radius: 20px; border-bottom-left-radius: 20px; }
@@ -351,6 +355,8 @@ label.timeline_change_ly_button {width: 100%; }
     left: 5%;
     right: 5%;
 }
+.help-icon {content: "?"; display: inline-block; width: 60px; border-radius: 100%; text-align: center;  padding: 1%; position: absolute; right: 5%; }
+.help-icon::after {content: "a"; font-family: 'kdm-font-2'; font-size: 1em; }
 
 /* player management */
 
@@ -446,22 +452,21 @@ div.dashboard_button_list button {width: 100%; text-align: left; padding-left: 3
 div.dashboard_button_list img {width: 40px; height: 40px; }
 .dashboard_kdm_font {vertical-align: middle; font-size: 35pt; }
 .dashboard_bg {display: none; }
-.dashboard_menu ul {list-style-type: none;}
-.dashboard_menu ol {padding-left: 120px; }
 body.dashboard {background: linear-gradient(to right, #fff, #eee); }
 
     /* dashboard_alert */
 div.dashboard_alert_spacer {display: block; clear:both; height: 200px; }
 .dashboard_alert {position: fixed; width: 90%; left: 3%; bottom: 10px; font-size: 25pt; }
 
-.clickable, .dashboard_accordion {margin: auto; padding: 5px; border-left: 1px solid; border-bottom: 2px solid; border-right: 2px solid; margin-bottom: 30px; }
-.dashboard_accordion {border-top: 0 none; margin-top: -35px; width: 96.3%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; padding: 5px 6px 30px 6px; }
-.clickable { 
-    width: 95%; 
-    cursor: pointer; border-top: 1px solid #666; 
-    padding-left: 20px; border-radius: 5px;
-    margin-top: 10px; 
-    }
+
+    /* dashboard rollups/accordions */
+
+.dashboard_rollup {width: 95%; padding-left: 20px; margin: 0 auto; margin-bottom: 5%; border: 0; border-top-right-radius: 25px; }
+.dashboard_accordion {width: 96%; padding: 5px; margin: 0 auto; margin-bottom: 5%; margin-top: -5.2%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; padding: 5px 6px 30px 6px; }
+.dashboard_menu ul {list-style-type: none;}
+.dashboard_menu ol {padding-left: 120px; }
+
+
 .COD_down_arrow, .dashboard_down_arrow, .dashboard_icon {height: 50px; width: 50px;}
 .dashboard_down_arrow, .COD_down_Arrow {float: right;}
 .dashboard_down_arrow {margin-right: 20px; margin-top: 20px; }
@@ -527,7 +532,6 @@ img.campaign_summary_endeavor_star {width: 225px; height: 225px; margin: 5px; }
 div.campaign_summary_endeavor_controller div.controls {display: flex; flex-direction: row; margin: 4%; margin-left: 2%; width: 90%;padding : 2%; padding-top: 4%; margin-bottom:0; padding-bottom:0; }
 div.campaign_summary_endeavor_controller div.controls button {margin: auto; height: 100px; margin-left:2%; margin-right: 2%; }
 div.endeavor_controls_clear_div {clear: both; height: 50px;}
-div.endeavor_controls_toggle {cursor: pointer; }
 
 
 /* settlement sheet styles */
@@ -633,7 +637,6 @@ div#info_box h2, button#survivor_campaign_asset, button.dashboard_asset {text-al
 
 /* survivor sheet styles */
 .survivor_sheet_ai_container {padding-left: 3.5%; text-indent: -0.5%; margin-bottom: 3.5%; }
-.survivor_sheet_ai {cursor: pointer;}
 
 div.sotf_reroll_controls {border-bottom: 1px solid #aaa; margin: 4% auto;}
 p.sotf_reroll_caption {font-size: 35px; margin-top: 0; font-family: Metrophobic; }
@@ -675,13 +678,29 @@ span.cursed_item_ability_desc {font-family: Metrophobic; }
 span.cursed_item_ability_desc b {font-family: Silverado;}
 
     /* hooker-up the fighting arts and disorders*/
-p.survivor_sheet_card {display: inline-block; text-align: center; border-radius: 5px; margin: 1%; margin-bottom: 3%; padding: 2%; width: 94%; }
-p.secret_fighting_art {background: radial-gradient(circle, #800, #a00, #c00); color: #fff; border-color: #f00; }
-p.survivor_sheet_card b.card_title {display: block; margin-bottom: 5px; font-size: 1.1em; }
-p.survivor_sheet_card b.card_constellation {color: #c00; }
-p.secret_fighting_art b.card_constellation {color: #FFC107;}
+.survivor_sheet_card_container {display: flex; flex-direction: column; width: 100%; margin-top: 30%; }
+.survivor_sheet_card {display: inline-block; border-radius: 20px; margin: 0 auto; margin-bottom: 6%; width: 94%; border: 1px solid #aaa; padding: 0; padding-top: 4%; padding-bottom: 4%; text-align: center; }
+.fighting_art_gradient {background: radial-gradient(circle, #DFd733, #E4e3cC, #d0f0fc); color: #000; }
+.secret_fighting_art_gradient {background: radial-gradient(circle, #800, #a00, #c00); color: #fff; }
+.survivor_sheet_card b.card_title {display: block; margin-bottom: 5px; font-size: 1.2em; }
+.survivor_sheet_card b.card_constellation {color: #c00; }
+.secret_fighting_art b.card_constellation {color: #FFC107;}
 .card_constellation {color: #c00; }
-p.survivor_sheet_card br {line-height: 160%; }
+.survivor_sheet_card br {line-height: 160%; }
+
+p.survivor_sheet_card_subhead {margin-top: -1%; font-size: 0.75em; text-transform: lowercase; }
+.survivor_sheet_fighting_art_color_span {height: 50px; border: 0; margin: 0; margin-bottom: 5%; }
+div.survivor_sheet_card_text, .survivor_sheet_card_level_block {margin-left: 7%; margin-right: 7%; }
+.survivor_sheet_card_asset_list_container {margin-top: 7%; margin-bottom: 7%; }
+
+.survivor_sheet_card_level_block {color: #ccc;  display: block; text-align:left; display: flex; padding: 1%; }
+.survivor_sheet_card_level_number {background-color: #ccc; color: #fff; text-align:center; display: flex; flex: 0 0 75px; height:75px; margin-right: 2%; justify-content: center; align-items: center; border-radius: 50%;}
+.survivor_sheet_card_level_number.toggled_on {background-color: #CD4438; }
+.survivor_sheet_card_level_desc {margin: 1%; }
+.survivor_sheet_card_level_desc.toggled_on {color: #000;}
+.survivor_sheet_card_click_to_remove {text-align:center; background-color: #CD4438; color: #fff; font-size: 0.70em; padding: 2%; margin: 0; margin-top: 5%;  margin-bottom: -5%; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
+
+.settlement_sheet_card_expansion_flair {border: 0; padding: 1%; font-weight: bold; margin-top: -5%; margin-bottom: 4%; border-top-right-radius: 20px; border-top-left-radius: 20px; text-align: left; padding-left: 4%;  }
 
     /* custom A&I modal*/
 form#custom_AI_modal input.custom_AI {width: 99%; margin: 1% auto; }
@@ -1043,7 +1062,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.dashboard_menu h2 {font-size: 40px; }
     img.dashboard_icon, img.dashboard_down_arrow {height: 30px; width: 30px; }
     img.dashboard_down_arrow {margin-top: 10px;}
-    div.dashboard_accordion {padding: 10px 9px 30px 9px;}
+    div.dashboard_accordion {padding: 10px 9px 30px 9px; width: 95.4%; }
     .dashboard_kdm_font {font-size: 20pt;}
     div.dashboard_button_list button {padding: 10px 0px 10px 10px;}
     div.dashboard_button_list img {width: 15px; height: 15px; }
@@ -1225,6 +1244,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
         /* help-tip pop-up/modal - tablet*/
     .help-tip p { font-size: 20px;}
+    .help-icon { margin-top: -60px; }
 
         /* player management - tablet */
     table.player_management {width: 95%; margin-bottom: 5%;}
@@ -1262,9 +1282,15 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     p.survivor_sheet_game_asset_tip {width: 950px;}
 
         /* fighting art/disorderstyle - tablet */
-    div.survivor_sheet_card_container {display: flex; flex-direction: row; clear: right; align-items: flex-start; justify-content: flex-start; width: auto; padding: 0; margin: 0 auto;}
-    p.survivor_sheet_card {width: 250px; margin: auto; height: 100%; flex-grow: 1; margin: 1%;} 
-    
+    .survivor_sheet_card_container {display: flex; flex-direction: row; clear: right; align-items: flex-start; justify-content: flex-start; width: auto; padding: 0; margin: 0 auto; margin-top: 12%; }
+    .survivor_sheet_card {width: 250px; margin: 1%; height: 100%; flex-grow: 1; margin: 1%; max-width: 33%;} 
+    .settlement_sheet_card_expansion_flair {font-size: 20px; margin-top: -15%; padding: 1%; padding-left: 6%; }
+    .survivor_sheet_card b.card_title {font-size: 30px; } 
+    p.survivor_sheet_card_subhead {font-size: 18px; }
+    .survivor_sheet_fighting_art_color_span {height: 10px; }
+    .survivor_sheet_card_text, .survivor_sheet_card_level_block {font-size: 23px; }
+    .survivor_sheet_card_level_number {height: 30px; flex: 0 0 30px;}
+    .survivor_sheet_card_click_to_remove {font-size: 15px; margin-bottom: -50px;}
 
     /* campaign summary Styles - tablet */
     h3.monster_subhead {font-size: 17pt; text-align: left; padding-left: 5%; margin: 0; margin-top: 2%; }
@@ -1488,6 +1514,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     /* help-tip pop-up/modal - wide*/
     .help-tip p { font-size: 13px; left: 10%; right: 10%; padding: 15px; }
+    .help-icon {margin: 0; width: 20px; margin-top: -10px; }
 
     /* modal overlay - wide */
     .modal {
@@ -1559,7 +1586,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.about_panel {margin-bottom: 50px; }
     div#system_div {margin-top: -4px; padding-top: 10px; }
 
-        /* dashboard accordions; crazy kludges for Safari*/
+        /* dashboard accordions; crazy kludges for Safari - wide */
     h2.clickable, div.dashboard_accordion {
         border-left: 1px solid; border-bottom: 2px solid; border-right: 2px solid; 
         margin: 0 auto;
@@ -1943,10 +1970,14 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.cursed_item_ability_block span {font-size: 12pt; }
 
         /* fighting arts and disorders - wide */
-    div.survivor_sheet_card_container{flex-direction: column; }
-    p.survivor_sheet_card {width: 100%; margin-top: 10px; margin-bottom: 5px; }
-
-
+    .survivor_sheet_card_container{flex-direction: column; }
+    .survivor_sheet_card {width: 100%; margin-top: 10px; margin-bottom: 5px; max-width: none; }
+    .settlement_sheet_card_expansion_flair {margin-top: -18px; font-size: 10pt; }
+    .survivor_sheet_card b.card_title {font-size: 16pt; }
+    .survivor_sheet_card_subhead {font-size: 10pt; text-align: center; }
+    .survivor_sheet_fighting_art_color_span {margin-top: 5%; }
+    .survivor_sheet_card_text, .survivor_sheet_card_level_block {font-size: 12pt; }
+    .survivor_sheet_card_click_to_remove {margin-bottom: -15px; font-size: 8pt;}
 
         /* survivor sheet attrib controls - wide */
     div.survivor_sheet_attrib_controls {height: 70px; right: 35%; left: 5%; }

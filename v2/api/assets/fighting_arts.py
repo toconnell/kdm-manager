@@ -92,7 +92,7 @@ fighting_art = {
         'expansion': 'dragon_king',
         'name': 'Acrobatics'
     },
-    "champion's_rite": {
+    "champions_rite": {
         'constellation': {'horizontal': 'Absolute','vertical': 'Reaper'},
         'desc': 'Before making an attack, you may add your understanding to your accuracy attribute for that attack.<br/>Limit, once per showdown.',
         'expansion': 'dragon_king',

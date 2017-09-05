@@ -6,6 +6,10 @@ promo_and_misc = {
     "beta_challenge_scenarios": {
         "released": datetime(2016,2,1),
         "name": "Beta Challenge Scenarios",
+        "flair": {
+            "color": "#FFF",
+            "bgcolor": "#4EC6F0",
+        },
         "enforce_survival_limit": False,
         "subtitle": "Enables abilities & impairments, disorders, items etc. included in the Beta Challenge Scenarios.",
         "special_rules": [
@@ -20,6 +24,10 @@ promo_and_misc = {
     "white_box": {
         "released": datetime(2016,8,16),
         "name": "White Box & Promo",
+        "flair": {
+            "color": "#FFF",
+            "bgcolor": "#4EC6F0",
+        },
         "subtitle": "Adds promotional content (items, Abilities & Impairments, etc.) to Settlement and Survivor Sheet drop-down lists. Content includes Gen Con, Black Friday and other promos.",
     },
 }
@@ -27,6 +35,10 @@ promo_and_misc = {
 mar_2016_expansions = {
     "gorm": {
         "name": "Gorm",
+        "flair": {
+            "color": "#EAE40A",
+            "bgcolor": "#958C83",
+        },
         "quarries": ["gorm"],
         "always_available": {
             "location": ["Gormery", "Gormchymist"],
@@ -46,6 +58,10 @@ mar_2016_expansions = {
     },
     "dung_beetle_knight": {
         "name": "Dung Beetle Knight",
+        "flair": {
+            "color": "#EAE40A",
+            "bgcolor": "#C3C8AB",
+        },
         "quarries": ["dung_beetle_knight"],
         "always_available": {
             "location": ["Wet Resin Crafter"],
@@ -57,6 +73,10 @@ mar_2016_expansions = {
     },
     "spidicules": {
         "name": "Spidicules",
+        "flair": {
+            "color": "#333",
+            "bgcolor": "#C0B870",
+        },
         "quarries": ["spidicules"],
         "always_available": {
             "location": ["Silk Mill"],
@@ -71,6 +91,10 @@ mar_2016_expansions = {
     },
     "slenderman": {
         "name": "Slenderman",
+        "flair": {
+            "color": "#fff2b7",
+            "bgcolor": "#BEA9CB",
+        },
         "nemesis_monsters": ["slenderman"],
         "rm_nemesis_monsters": ["kings_man"],
         "always_available": {
@@ -87,6 +111,10 @@ mar_2016_expansions = {
     },
     "lion_knight": {
         "name": "Lion Knight",
+        "flair": {
+            "color": "#666",
+            "bgcolor": "#FCF78F",
+        },
         "quarries": ["lion_knight"],
         "always_available": {
             "innovation": ["Stoic Statue"],
@@ -104,6 +132,10 @@ mar_2016_expansions = {
     },
     "lion_god": {
         "name": "Lion God",
+        "flair": {
+            "color": "#E8cE55",
+            "bgcolor": "#712C2B",
+        },
         "quarries": ["lion_god"],
         "always_available": {
             "innovation": ["The Knowledge Worm"],
@@ -114,6 +146,10 @@ mar_2016_expansions = {
     },
     "sunstalker": {
         "name": "Sunstalker",
+        "flair": {
+            "color": "#000",
+            "bgcolor": "#ECD77E",
+        },
         "quarries": ["sunstalker"],
         "always_available": {
             "location": ["Skyreef Sanctuary"],
@@ -126,6 +162,10 @@ mar_2016_expansions = {
     },
     "dragon_king": {
         "name": "Dragon King",
+        "flair": {
+            "color": "#E8cE55",
+            "bgcolor": "#6260A9",
+        },
         "quarries": ["dragon_king"],
         "always_available": {
             "location": ["Dragon Armory"],
@@ -136,6 +176,10 @@ mar_2016_expansions = {
     },
     "manhunter": {
         "name": "Manhunter",
+        "flair": {
+            "color": "#E8cE55",
+            "bgcolor": "#8D0000",
+        },
         "nemesis_monsters": ["manhunter"],
         "special_showdowns": ["manhunter"],
         "always_available": {
@@ -156,6 +200,10 @@ mar_2016_expansions = {
     },
     "flower_knight": {
         "name": "Flower Knight",
+        "flair": {
+            "color": "#EAE40A",
+            "bgcolor": "#4E7D49",
+        },
         "quarries": ["flower_knight"],
         "timeline_add": [
             {"ly": 5, "type": "story_event", "handle": "fk_crones_tale", "excluded_campaign": "the_bloom_people"}

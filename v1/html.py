@@ -117,9 +117,17 @@ class dashboard:
     # dashboard accordions
     about = Template("""\n
     <div class="dashboard_menu">
-    <h2 class="clickable about_primary" onclick="showHide('about_div')"> <font class="kdm_font dashboard_kdm_font">g</font> About %s</h2>
-        <div id="about_div" style="display: none;" class="dashboard_accordion about_secondary">
-        <p class="title"><b>KD:M Manager! Version $version.</b></p><hr/>
+
+    <h2
+        class="clickable about_primary dashboard_rollup"
+        onclick="showHide('about_div')"
+    >
+        <font class="kdm_font dashboard_kdm_font">g</font> About %s
+    </h2>
+
+    <div id="about_div" style="display: none;" class="dashboard_accordion about_secondary">
+        <p class="title"><b>KD:M Manager! Version $version.</b></p>
+        <hr/>
         <p>About:</p>
         <ul>
             <li>This application, which is called <i>kdm-manager.com</i>, or, more simply, <i>the Manager</i>, is an interactive campaign management tool for use with <i><a href="https://shop.kingdomdeath.com/collections/sold-out/products/kingdom-death-monster" target="top">Monster</a></i>, by <a href="http://kingdomdeath.com" target="top">Kingdom Death</a>.</li>
@@ -227,7 +235,7 @@ class dashboard:
         ng-init="initWorld('$api_url')"
     >
 
-        <h2 class="clickable world_primary" ng-click="showHide('world_detail_div')">
+        <h2 class="clickable world_primary dashboard_rollup" ng-click="showHide('world_detail_div')">
             <font class="kdm_font_hit_locations dashboard_kdm_font white">g</font>
             <font class="white">World</font> <img class="dashboard_down_arrow" src="/media/icons/down_arrow_white.png"/>
         </h2>
@@ -237,7 +245,7 @@ class dashboard:
             <div class="world_panel_basic_box">
                 <p>
                     <font class="green_text"> <b>{{world.active_settlements.value}} </b></font> Settlements are holding fast.
-                    <font class="maroon_text"><b> {{world.abandoned_settlements.value}} </b></font> have been abandoned.
+                    <font class="maroon_text"><b> {{world.abandoned_or_removed_settlements.value}} </b></font> have been abandoned.
                 </p>
                 <p>
                     <font class="green_text"> <b>{{world.live_survivors.value}}</b> </font> Survivors are alive and fighting.
@@ -462,10 +470,17 @@ class dashboard:
 
     motd = Template("""\n
 
-	<img class="dashboard_bg" src="%s/tree_logo_shadow.png">
+    <img class="dashboard_bg" src="%s/tree_logo_shadow.png">
 
     <div class="dashboard_menu">
-        <h2 class="clickable system_primary" onclick="showHide('system_div')"> <img class="dashboard_icon" src="%s/icons/system.png"/> System %s</h2>
+
+        <h2
+            class="clickable system_primary dashboard_rollup"
+            onclick="showHide('system_div')"
+        >
+            <img class="dashboard_icon" src="%s/icons/system.png"/> System %s
+        </h2>
+
         <div id="system_div" style="display: none;" class="dashboard_accordion system_secondary">
 
         <div class="dashboard_preferences">
@@ -515,7 +530,13 @@ class dashboard:
     """ % (settings.get("application","STATIC_URL"), settings.get("application", "STATIC_URL"), down_arrow_flash))
     campaign_summary = Template("""\n\
     <div class="dashboard_menu">
-        <h2 class="clickable campaign_summary_gradient" onclick="showHide('campaign_div')"> <img class="dashboard_icon" src="%s/icons/campaign.png"/> Campaigns %s </h2>
+        <h2
+            class="clickable campaign_summary_gradient dashboard_rollup"
+            onclick="showHide('campaign_div')"
+        >
+            <img class="dashboard_icon" src="%s/icons/campaign.png"/> Campaigns %s 
+        </h2>
+
         <div id="campaign_div" style="display: $display" class="dashboard_accordion campaign_summary_gradient">
         <p class="panel_top_tooltip">Games you are currently playing.</p>
         <hr class="invisible">
@@ -527,7 +548,7 @@ class dashboard:
     \n""" % (settings.get("application", "STATIC_URL"), down_arrow_flash))
     settlement_summary = Template("""\n\
     <div class="dashboard_menu">
-        <h2 class="clickable settlement_sheet_gradient" onclick="showHide('settlement_div')"> <img class="dashboard_icon" src="%s/icons/settlement.png"/> Settlements %s </h2>
+        <h2 class="clickable settlement_sheet_gradient dashboard_rollup" onclick="showHide('settlement_div')"> <img class="dashboard_icon" src="%s/icons/settlement.png"/> Settlements %s </h2>
         <div id="settlement_div" style="display: $display" class="dashboard_accordion settlement_sheet_gradient">
         <p>Manage Settlements you have created.</p>
         <div class="dashboard_button_list">
@@ -2023,6 +2044,10 @@ class survivor:
         <div
             ng-controller='fightingArtsController'
         >
+            <div class="help-tip help-icon kd_promo">
+                <p> Use the drop-down controls below to add new Fighting Arts; click or tap a Fighting Art to remove it. <br/>Fighting Arts with levels, such as "Silk Surgeon", may be improved by tapping or clicking on the desired level.</p>
+            </div>
+
             <h3>Fighting Arts</h3>
 
             <input
@@ -2044,21 +2069,101 @@ class survivor:
 
             <p>Maximum 3.</p>
 
-            <div class="survivor_sheet_card_container">
-                $fighting_arts
+
+        <div
+            ng-controller="fightingArtsController"
+            ng-init="setFAoptions()"
+        >
+            <div
+                title="Click or tap to remove survivor Fighting Arts."
+                class="survivor_sheet_card_container"
+            >
+                <div
+                    ng-repeat="fa_handle in survivor.sheet.fighting_arts"
+                    class="survivor_sheet_card survivor_sheet_gradient clickable"
+                >
+                    <span
+                        ng-init="
+                            FA = settlement.game_assets.fighting_arts[fa_handle];
+                            expansion_handle = settlement.game_assets.fighting_arts[fa_handle].expansion;
+                            expansion_dict = settlement.game_assets.expansions[expansion_handle];
+                        "
+                        ng-click="rmFightingArt(fa_handle, $index)"
+                        title="Click or tap to remove {{FA.name}} from {{survivor.sheet.name}}"
+                    >
+
+                        <div
+                            class="settlement_sheet_card_expansion_flair"
+                            ng-if="expansion_handle != null"
+                            title="{{expansion_dict.name}} expansion Fighting Art"
+                            style='
+                                color: {{expansion_dict.flair.color}};
+                                background-color: {{expansion_dict.flair.bgcolor}};
+                            '
+                            >
+                        {{expansion_dict.name}}
+                        </div>
+
+                            <!-- regular title -->
+                        <b ng-if="FA.constellation == null" class="card_title">
+                            {{FA.name}}
+                        </b>
+
+                            <!-- dragon trait title -->
+                        <b ng-if="FA.constellation != null" class="card_title card_constellation">
+                            {{FA.name}}
+                        </b>
+
+                        <p class="survivor_sheet_card_subhead">- {{FA.type_pretty}} -</p>
+                        <p class="survivor_sheet_fighting_art_color_span {{FA.type}}_gradient"> </p>
+                        <div
+                            class="survivor_sheet_card_text"
+                            ng-bind-html="FA.desc|trustedHTML"
+                        >
+                        </div>
+                        <div
+                            ng-repeat="(level, desc) in FA.levels track by $index"
+                            ng-if="desc != ''"
+                            title="Tap or click a {{FA.name}} skill level to toggle it on or off."
+                        >
+                            <div
+                                class="survivor_sheet_card_level_block clickable"
+                                ng-click="toggleLevel($event, fa_handle, level)"
+                                ng-if="survivor.sheet.fighting_arts_levels[fa_handle].indexOf($index) !== -1"
+                            >
+                                <span class="survivor_sheet_card_level_number toggled_on">{{level}}</span>
+                                <span
+                                    class="survivor_sheet_card_level_desc toggled_on"
+                                    ng-bind-html="desc|trustedHTML"
+                                >
+                                </span>
+                            </div>
+                            <div
+                                class="survivor_sheet_card_level_block clickable"
+                                ng-click="toggleLevel($event, fa_handle, level)"
+                                ng-if="survivor.sheet.fighting_arts_levels[fa_handle].indexOf($index) === -1"
+                            >
+                                <span class="survivor_sheet_card_level_number">{{level}}</span>
+                                <span class="survivor_sheet_card_level_desc" ng-bind-html="desc|trustedHTML"></span>
+                            </div>
+                        </div>
+                        <div class="survivor_sheet_card_click_to_remove">Tap or click to <b>remove</b>.</div>
+                    </span>
+                </div>
+            </div> <!-- survivor_sheet_card_container -->
+
+            <div class="survivor_sheet_card_asset_list_container" ng-if="survivor.sheet.fighting_arts.length <= 2">
+                <span class="empty_bullet" /></span>
+                <select
+                    name="add_fighting_arts"
+                    ng-model="userFA.newFA"
+                    ng-change="addFightingArt()"
+                    ng-options="fa.handle as (fa.name + ' (' + fa.type_pretty + ')'  ) for fa in FAoptions"
+                >
+                    <option value="" disabled selected>Add Fighting Arts</option>
+                </select>
             </div>
 
-            <form method="POST" action="#edit_fighting_arts">
-                <input type="hidden" name="form_id" value="survivor_edit_fighting_arts" />
-                <input type="hidden" name="modify" value="survivor" />
-                <input type="hidden" name="asset_id" value="$survivor_id" />
-
-                <button class="hidden"></button> <!-- hacks! -->
-                $add_fighting_arts
-                <br class="mobile_only"/>
-                $rm_fighting_arts
-
-            </form>
         </div> <!-- fartingArtsController -->
 
 
@@ -2124,7 +2229,7 @@ class survivor:
                 ng-repeat="ai_handle in survivor.sheet.abilities_and_impairments track by $index"
             >
                 <span
-                    class="survivor_sheet_ai"
+                    class="survivor_sheet_ai clickable"
                     ng-click="rmAI(ai_handle, $index)"
                     title="Click or tap to remove '{{settlement.game_assets.abilities_and_impairments[ai_handle].name}}'"
                 >
@@ -3157,7 +3262,7 @@ class settlement:
                         <div
                             ng-if="settlement_sheet.endeavor_tokens <= 0"
                             ng-click="addToken()"
-                            class="endeavor_controls_toggle settlement_sheet_block_group"
+                            class="endeavor_controls_toggle settlement_sheet_block_group clickable"
                         >
                             <h2>Endeavor Tokens</h2>
                             <span>Click or tap here to manage Endeavor Tokens.</span>

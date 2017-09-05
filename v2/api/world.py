@@ -495,7 +495,7 @@ class World:
     def abandoned_settlements(self):
         return utils.mdb.settlements.find({"abandoned": {"$exists": True}}).count()
 
-    def abandoned_and_removed_settlements(self):
+    def abandoned_or_removed_settlements(self):
         return utils.mdb.settlements.find({"$or": [
             {"removed": {"$exists": True}},
             {"abandoned": {"$exists": True}},

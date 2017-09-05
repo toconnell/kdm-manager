@@ -40,7 +40,7 @@
         </div>
 
 
-        <div class="flex_item_basic">
+        <div class="flex_item_basic" ng-if="users.user_info.length != 0">
             <h2>Recent User Activity </h2>
             <b title="Active during the last {{users.meta.active_user_horizon}} minutes">Active user count:</b> {{users.meta.active_user_count}}<br/>
             <b title="Active during the last {{users.meta.recent_user_horizon}} hours">Recent user count:</b> {{users.meta.recent_user_count}}<br/>
@@ -76,7 +76,10 @@
                 <br/><br/>
 
             <h2>User Agent Info</h2>
-            <table>
+            <p ng-click="showHide('user_agent_popularity_contest')" class="clickable">
+                View user agent popularity contest.
+            </p>
+            <table id="user_agent_popularity_contest" class="hidden">
                 <tr ng-repeat="ua in users.user_agent_stats" ng-class-even="'zebra'">
                     <td>{{ua.latest_user_agent}}:</td><td>{{ua.count}}</td>
                 </tr>

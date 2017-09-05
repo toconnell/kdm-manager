@@ -12,7 +12,7 @@ import Models
 import utils
 
 from assets import survivor_sheet_options, survivors
-from models import abilities_and_impairments, cursed_items, epithets, names, saviors, survival_actions, the_constellations, weapon_proficiency
+from models import abilities_and_impairments, cursed_items, epithets, fighting_arts, names, saviors, survival_actions, the_constellations, weapon_proficiency
 
 
 class Assets(Models.AssetCollection):
@@ -117,6 +117,7 @@ class Survivor(Models.UserAsset):
             "meta": {
                 "abilities_and_impairments_version": 1.0,
                 "epithets_version": 1.0,
+                "fighting_arts_version": 1.0,
                 "weapon_proficiency_type": 1.0,
             },
             "email":        request.User.login,
@@ -167,6 +168,7 @@ class Survivor(Models.UserAsset):
             "cursed_items": [],
             "disorders": [],
             "fighting_arts": [],
+            "fighting_arts_levels": [],
             "epithets": [],
 
         }
@@ -330,6 +332,10 @@ class Survivor(Models.UserAsset):
 
         if self.survivor["meta"].get("epithets_version", None) is None:
             self.convert_epithets()
+            self.perform_save = True
+
+        if self.survivor["meta"].get("fighting_arts_version", None) is None:
+            self.convert_fighting_arts()
             self.perform_save = True
 
         if self.survivor["meta"].get("weapon_proficiency_type_version", None) is None:
@@ -569,6 +575,10 @@ class Survivor(Models.UserAsset):
             if ak in self.stats:
                 self.update_attribute(ak, asset_dict[ak])
 
+        # levels!?
+        if asset_dict.get('levels', None) is not None:
+            self.survivor["fighting_arts_levels"][asset_dict["handle"]] = []
+
         # 4.) EPITHETS - check for 'epithet' key
         if asset_dict.get("epithet", None) is not None:
             self.add_game_asset("epithets", asset_dict["epithet"])
@@ -585,6 +595,7 @@ class Survivor(Models.UserAsset):
 
         # finally, if we're still here, add it and log_event() it
         self.survivor[asset_class].append(asset_dict["handle"])
+        self.survivor[asset_class].sort()
         self.log_event("%s added '%s' (%s) to %s" % (request.User.login, asset_dict["name"], asset_dict["type_pretty"], self.pretty_name()))
 
 
@@ -782,6 +793,38 @@ class Survivor(Models.UserAsset):
 
         pass
 
+
+    def toggle_fighting_arts_level(self):
+        """ Toggles a fighting arts level on or off, e.g. by adding it to or
+        removing it from the array for a particular FA's handle.
+
+        Assumes that this is an API request and does not process any args that
+        do not come in the request object.
+        """
+
+        self.check_request_params(['handle', 'level'])
+        fa_handle = self.params["handle"]
+        fa_level = int(self.params["level"])
+
+        FA = fighting_arts.Assets()
+        fa_dict = FA.get_asset(fa_handle)
+
+        if fa_handle not in self.survivor['fighting_arts_levels'].keys():
+            self.survivor["fighting_arts_levels"][fa_handle] = []
+            self.logger.warn("%s Adding fighting art handle '%s' to 'fighting_arts_levels' dict." % (self, fa_handle))
+
+        if fa_level in self.survivor['fighting_arts_levels'][fa_handle]:
+            toggle_operation = "off"
+            self.survivor['fighting_arts_levels'][fa_handle].remove(fa_level)
+        else:
+            toggle_operation = "on"
+            self.survivor['fighting_arts_levels'][fa_handle].append(fa_level)
+
+        self.survivor['fighting_arts_levels'][fa_handle] = sorted(self.survivor['fighting_arts_levels'][fa_handle])
+
+        self.logger.debug("%s toggled '%s' fighting art level %s %s for %s." % (request.User.login, fa_dict["name"], fa_level, toggle_operation, self.pretty_name()))
+
+        self.save()
 
 
     def toggle_sotf_reroll(self):
@@ -1005,6 +1048,7 @@ class Survivor(Models.UserAsset):
             self.log_event("%s set %s constellation to '%s'" % (request.User.login, self.pretty_name(), constellation))
             self.log_event("%s has become one of the People of the Stars!" % (self.pretty_name), event_type="potstars_constellation")
             self.save()
+
 
     def set_name(self, new_name=None):
         """ Sets the survivor's name. Logs it. """
@@ -1249,11 +1293,15 @@ class Survivor(Models.UserAsset):
             traits.append("Destined disorder")
 
         # check fighting arts for "Fated Blow", "Frozen Star", "Unbreakable", "Champion's Rite"
-        for fa in ["Fated Blow","Frozen Star","Unbreakable","Champion's Rite"]:
+#        for fa in ["Fated Blow","Frozen Star","Unbreakable","Champion's Rite"]:
+        FA = fighting_arts.Assets()
+        for fa in ['champions_rite', 'fated_blow', 'frozen_star', 'unbreakable']:
             if fa in self.survivor["fighting_arts"]:
-                if fa == "Frozen Star":
-                    fa = "Frozen Star secret"
-                traits.append("%s fighting art" % fa)
+                fa_dict = FA.get_asset(fa)
+                fa_name = copy(fa_dict["name"])
+                if fa_name == "Frozen Star":
+                    fa_name = "Frozen Star secret"
+                traits.append("%s fighting art" % fa_name)
 
         # check for 3+ strength
         if int(self.survivor["Strength"]) >= 3:
@@ -1573,6 +1621,10 @@ class Survivor(Models.UserAsset):
             self.survivor["public"] = True
             self.perform_save = True
 
+        if not 'fighting_arts_levels' in self.survivor.keys():
+            self.survivor['fighting_arts_levels'] = {}
+            self.perform_save = True
+
 
     def duck_type(self):
         """ Duck-types certain survivor sheet attributes, e.g. to make sure they
@@ -1648,13 +1700,30 @@ class Survivor(Models.UserAsset):
 
         new_epithets = []
 
-        for e_dict in self.list_assets("epithets", log_failures=True):
+        for e_dict in self.list_assets("epithets"):
             new_epithets.append(e_dict["handle"])
             self.logger.info("%s Converted '%s' epithet name to handle '%s'" % (self, e_dict["name"], e_dict["handle"]))
 
         self.survivor["epithets"] = new_epithets
         self.survivor["meta"]["epithets_version"] = 1.0
         self.logger.info("Converted epithets from names (legacy) to handles for %s" % (self))
+
+
+    def convert_fighting_arts(self):
+        """ Tries to convert Fighting Art names to to handles. Drops anything
+        that it cannot convert. """
+
+        FA = fighting_arts
+
+        new_fa_list = []
+
+        for fa_dict in self.list_assets("fighting_arts"):
+            new_fa_list.append(fa_dict["handle"])
+            self.logger.info("%s Converted '%s' Fighting Art name to handle '%s'" % (self, fa_dict["name"], fa_dict["handle"]))
+
+        self.survivor["fighting_arts"] = new_fa_list
+        self.survivor["meta"]["fighting_arts_version"] = 1.0
+        self.logger.info("Converted Fighting Arts from names (legacy) to handles for %s" % (self))
 
 
     def convert_weapon_proficiency_type(self):
@@ -1709,6 +1778,10 @@ class Survivor(Models.UserAsset):
             self.add_game_asset()
         elif action == "rm_game_asset":
             self.rm_game_asset()
+
+
+        elif action == "toggle_fighting_arts_level":
+            self.toggle_fighting_arts_level()
 
         # add cursed_item
         elif action == "add_cursed_item":

@@ -38,9 +38,9 @@ general = {
         "name": "Removed settlements",
         "comment": "worldwide count of all removed settlements",
     },
-    "abandoned_and_removed_settlements": {
-        "name": "Abandoned and removed settlements",
-        "comment": "worldwide count of all abandoned and removed settlements",
+    "abandoned_or_removed_settlements": {
+        "name": "Abandoned or removed settlements",
+        "comment": "Application-wide count of all abandoned or removed settlements (does not double-dip)",
     },
     "total_users": {
         "max_age": 30,

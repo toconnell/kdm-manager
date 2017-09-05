@@ -227,7 +227,7 @@ class Model:
             output = """\n\t<select name="add_%s" onchange="%s" ng-model="addMe" ng-change="addItem('%s')">""" % (self.name, submit_on_change, survivor_id)
             output += '\t<option selected disabled hidden value=''>Add %s</option>' % self.pretty_name
 
-            if self.name in ["disorder","fighting_art"]:
+            if self.name in ["disorder"]:
                 output += '\t\t<option value="RANDOM_%s">* Random %s</option>' % (self.name.upper(), self.pretty_name)
                 output += ' <option disabled> &ensp; &ensp; ---  </option>'
 
@@ -283,41 +283,6 @@ class disordersModel(Model):
 
         return sorted(deck)
 
-
-
-class fightingArtsModel(Model):
-    def __init__(self):
-        Model.__init__(self)
-        self.game_assets = game_assets.fighting_arts
-        self.name = "fighting_art"
-
-    def build_survivor_deck(self, Survivor=None, Settlement=None):
-        """ Builds a survivor's personal fighting arts deck. """
-
-        fa_deck = self.get_keys(exclude_if_attrib_exists="secret")
-
-		# remove survivor's current arts from the deck
-        for fa in Survivor.survivor["fighting_arts"]:
-            if fa in fa_deck:
-                fa_deck.remove(fa)
-
-		# remove non-enabled expansion content from the deck
-        for fa in sorted(fa_deck):
-            if "expansion" in self.get_asset(fa):
-                if self.get_asset(fa)["expansion"] not in Settlement.get_expansions("list_of_names"):
-                    fa_deck.remove(fa)
-
-		# add always_available/remove forbidden items to the deck
-        fa_deck.extend(self.get_always_available(Settlement))
-        for forbidden_asset in self.get_forbidden(Settlement):
-            fa_deck.remove(forbidden_asset)
-
-        # uniquify and sort
-        fa_deck = sorted(list(set(fa_deck)))
-
-        # return
-#        self.logger.debug("[%s] fighting arts deck: %s" % (Survivor, fa_deck))
-        return fa_deck
 
 class locationsModel(Model):
     def __init__(self):
@@ -444,7 +409,6 @@ class resourcesModel(Model):
 
 # initialize all of our classes above when this module is imported
 Disorders       = disordersModel()
-FightingArts    = fightingArtsModel()
 Locations       = locationsModel()
 Items           = itemsModel()
 Innovations     = innovationsModel()

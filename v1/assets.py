@@ -24,7 +24,7 @@ import admin
 from modular_assets import survivor_attrib_controls
 import game_assets
 import html
-from models import Disorders, FightingArts, Locations, Items, Innovations, Resources, userPreferences, mutually_exclusive_principles 
+from models import Disorders, Locations, Items, Innovations, Resources, userPreferences, mutually_exclusive_principles 
 from session import Session
 from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd, u_to_str
 import world
@@ -680,7 +680,7 @@ class Survivor:
                 self.logger.debug("Automatically removed bogus key '%s' from %s." % (a, self.get_name_and_id()))
 
         # remove accidental dupes
-        for s in ["fighting_arts","disorders"]:
+        for s in ["disorders"]:
             self.survivor[s] = list(set(self.survivor[s]))
 
 #        self.logger.debug("[%s] normalized %s" % (self.User, self))
@@ -755,69 +755,6 @@ class Survivor:
         self.logger.debug("[%s] just retired %s" % (self.User, self))
         self.Settlement.log_event("%s has retired." % self)
         mdb.survivors.save(self.survivor)
-
-
-
-    def get_fighting_arts(self, return_type=False):
-        """ Returns a survivor's fighting arts. As HTML with level controls, if necessary. """
-
-        fighting_arts = self.survivor["fighting_arts"]
-
-        if return_type == "formatted_html":
-            output = ""
-            for fa_key in fighting_arts:
-                fa_dict = FightingArts.get_asset(fa_key)
-
-                level_controls = ""
-                if "levels" in fa_dict:
-                    l_dict = fa_dict["levels"]
-                    level_controls = ""
-                    for lvl in sorted(l_dict.keys()):
-                        checked = ""
-                        if lvl == 0:
-                            checked = "checked"
-                        if lvl in self.get_fighting_art_levels(fa_key):
-                            checked = "checked"
-                        level_controls += html.survivor.survivor_sheet_fa_level_toggle.safe_substitute(
-                            checked = checked,
-                            name = fa_key,
-                            lvl = lvl,
-                            desc = l_dict[lvl],
-                            input_id = "%sFightingArtLevel%sControls" % (fa_key,lvl),
-                            survivor_id = self.survivor["_id"],
-                        )
-
-                const = ""
-                if "constellation" in fa_dict.keys():
-                    const = "card_constellation"
-
-                sec = ""
-                if "secret" in fa_dict.keys():
-                    sec = "secret_fighting_art"
-
-                output += html.survivor.survivor_sheet_fighting_art_box.safe_substitute(
-                    name = fa_key,
-                    desc = fa_dict["desc"],
-                    constellation=const,
-                    secret = sec,
-                    lvl_cont = level_controls,
-                )
-
-            return output
-
-
-        if return_type == "html_select_remove":
-            if fighting_arts == []:
-                return ""
-            output = ""
-            output = '<select name="remove_fighting_art" onchange="this.form.submit()">'
-            output += '<option selected disabled hidden value="">Remove Fighting Art</option>'
-            for fa in fighting_arts:
-                output += '<option>%s</option>' % fa
-            output += '</select>'
-            return output
-
-        return disorders
 
 
     def get_disorders(self, return_as=False):
@@ -1027,21 +964,10 @@ class Survivor:
                 return True
             else:
                 return False
-
         elif asset_type == "fighting_art":
-            if asset_key == "RANDOM_FIGHTING_ART":
-                fa_deck = FightingArts.build_survivor_deck(self, self.Settlement)
-                self.update_fighting_arts(random.choice(fa_deck), action="add")
-            elif asset_key in FightingArts.get_keys():
-                self.survivor["fighting_arts"].append(asset_key)
-                asset_dict = FightingArts.get_asset(asset_key)
-#                if "epithet" in asset_dict.keys():
-#                    self.update_epithets(epithet=asset_dict["epithet"])
-                if "Movement" in asset_dict.keys():
-                    self.survivor["Movement"] = int(self.survivor["Movement"]) + asset_dict["Movement"] 
-            else:
-                self.logger.exception("[%s] Attempted to add unknown fighting art!" % self)
-                return False
+            msg = "Adding Fighting Arts to survivors is not supported by the legacy webapp!"
+            self.logger.exception(msg)
+            raise Exception(msg)
         elif asset_type == "abilities_and_impairments":
             msg = "Adding A&Is to survivors is not supported by the legacy webapp!"
             self.logger.exception(msg)
@@ -1071,42 +997,6 @@ class Survivor:
         # save
         mdb.survivors.save(self.survivor)
         self.logger.debug("[%s] removed '%s' from %s (%s)" % (self.User, asset_key, self, asset_type))
-
-
-
-
-    def get_fighting_art_levels(self, fighting_art=None):
-        """ Gets a list of the active levels for 'fighting_art'. Returns an
-        empty list if the survivor doesn't have anything. """
-
-        if not "fighting_art_levels" in self.survivor.keys():
-            return []
-
-        if fighting_art in self.survivor["fighting_art_levels"].keys():
-            return self.survivor["fighting_art_levels"][fighting_art]
-
-        return []
-
-
-    def toggle_fighting_art_level(self, fighting_art=None, lvl=0):
-        """ Toggles a fighting art level on or off. """
-
-        lvl = int(lvl)
-
-        if fighting_art is None or lvl == 0:
-            return None
-
-        fa_dict = FightingArts.get_asset(fighting_art)
-        if not "fighting_art_levels" in self.survivor.keys():
-            self.survivor["fighting_art_levels"] = {fighting_art: []}
-
-        if lvl in self.survivor["fighting_art_levels"][fighting_art]:
-            self.survivor["fighting_art_levels"][fighting_art].remove(lvl)
-            self.logger.debug("[%s] toggled '%s' level %s off" % (self.User, fighting_art, lvl))
-        else:
-            self.survivor["fighting_art_levels"][fighting_art].append(lvl)
-            self.logger.debug("[%s] toggled '%s' level %s on" % (self.User, fighting_art, lvl))
-
 
 
     def toggle(self, toggle_key, toggle_value, toggle_type="implicit"):
@@ -1483,61 +1373,6 @@ class Survivor:
 
 
 
-    def update_fighting_arts(self, fighting_art=None, action=None):
-        """ Adds/removes a fighting art from a survivor. Logs it. """
-
-        if action == "add":
-            if fighting_art in self.survivor["fighting_arts"]:
-                return False
-
-            if len(self.survivor["fighting_arts"]) >= 3:
-                self.logger.warn("[%s] attempting to add a fourth fighting art to %s" % (self.User, self))
-                return False
-            else:
-                self.survivor["fighting_arts"].append(fighting_art)
-                self.logger.debug("[%s] added the '%s' fighting art to %s" % (self.User, fighting_art, self))
-                self.Settlement.log_event("%s acquired the '%s' fighting art!" % (self, fighting_art))
-
-        if action in ["rm","remove"]:
-            if fighting_art not in self.survivor["fighting_arts"]:
-                return False
-            else:
-                self.survivor["fighting_arts"].remove(fighting_art)
-                self.logger.debug("[%s] removed the '%s' fighting art from %s" % (self.User, fighting_art, self))
-                self.Settlement.log_event("%s lost the '%s' fighting art!" % (self, fighting_art))
-
-
-    def update_affinities(self, params):
-        """ Updates the survivor's "affinities" attrib. The 'params' arg can be
-        either a dict or a cgi.FieldStorage(). The function will handle either
-        automatically."""
-
-        if type(params) == dict:
-            new_affinities = params
-        else:
-            new_affinities = {
-                "red": int(params["red_affinities"].value),
-                "blue": int(params["blue_affinities"].value),
-                "green": int(params["green_affinities"].value),
-            }
-        self.survivor["affinities"] = new_affinities
-        self.logger.debug("[%s] updated affinities for %s. New affinities: %s" % (self.User, self, new_affinities))
-
-
-    def update_survival(self, new_value):
-        """ Updates the survivor's 'survival' attrib. Tries to force 'new_value'
-        to an int and fails gracefully if it can't (to protect us from rogue
-        orm input, PEBKAC, etc. """
-
-        try:
-            survival = int(new_value)
-        except:
-            return False
-
-        self.survivor["survival"] = survival
-        self.logger.debug("[%s] set %s survival to %s" % (self.User, self, survival))
-
-
     def update_email(self, email):
         """ Changes the survivor's email. Does some normalization and checks."""
         email = email.lower().strip()
@@ -1745,10 +1580,6 @@ class Survivor:
                 self.add_game_asset("disorder", game_asset_key)
             elif p == "remove_disorder":
                 self.rm_game_asset('disorders',game_asset_key)
-            elif p == "add_fighting_art":
-                self.add_game_asset("fighting_art", game_asset_key)
-            elif p == "remove_fighting_art":
-                self.update_fighting_arts(game_asset_key, action="rm")
             elif p == "email":
                 self.update_email(game_asset_key)
             elif p == "in_hunting_party":
@@ -1767,9 +1598,6 @@ class Survivor:
                 self.update_survivor_notes("add", game_asset_key)
             elif p == "rm_survivor_note":
                 self.update_survivor_notes("rm", game_asset_key)
-            elif p.split("_")[0:4] == ["fighting","art","level","toggle"]:
-                fighting_art = p.split("_")[-1]
-                self.toggle_fighting_art_level(fighting_art, game_asset_key)
             elif p in ["Insanity","Head","Arms","Body","Waist","Legs"]:
                 self.update_survivor_attribute(p, "base", game_asset_key)
             elif game_asset_key == "None":
@@ -1912,11 +1740,6 @@ class Survivor:
 
         exp = self.Settlement.get_expansions("list_of_names")
 
-        # fighting arts widgets
-        fighting_arts_picker = FightingArts.render_as_html_dropdown(exclude=self.survivor["fighting_arts"], Settlement=self.Settlement)
-        if len(self.survivor["fighting_arts"]) >= 3:
-            fighting_arts_picker = ""
-
         # disorders widgets
         disorders_picker = Disorders.render_as_html_dropdown(exclude=self.survivor["disorders"], Settlement=self.Settlement)
         if len(self.survivor["disorders"]) >= 3:
@@ -1952,10 +1775,6 @@ class Survivor:
             body_hit_box = self.render_hit_box_controls("Body"),
             waist_hit_box = self.render_hit_box_controls("Waist"),
             legs_hit_box = self.render_hit_box_controls("Legs"),
-
-            fighting_arts = self.get_fighting_arts("formatted_html"),
-            add_fighting_arts = fighting_arts_picker,
-            rm_fighting_arts = self.get_fighting_arts("html_select_remove"),
 
             disorders = self.get_disorders(return_as="formatted_html"),
             add_disorders = disorders_picker,

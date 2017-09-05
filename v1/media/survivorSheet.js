@@ -2,6 +2,43 @@ app.controller("survivorSheetController", function($scope) {
     // this is the root controller for the survivor sheet; it is initialized
     // at the top of the sheet, so it's like...a mini root scope, sort of.
 
+    //
+    //  initialize!
+    //
+
+    $scope.initAssetLists = function() {
+        if ( typeof $scope.survivor_sheet !== "undefined") {
+            showCornerLoader();
+            console.log("Retrieving settlement data...");
+            var res = $scope.getJSONfromAPI('settlement','get');
+            res.then(
+                function(payload) {
+                    $scope.settlement = payload.data
+                    console.log("Settlement data retrieved! Initializing asset pick lists!");
+
+                    $scope.setGameAssetOptions('abilities_and_impairments', "survivor_sheet", "AIoptions", "curse");
+                    $scope.setGameAssetOptions('fighting_arts', "survivor_sheet", "FAoptions");
+                    $scope.setGameAssetOptions('epithets', "survivor_sheet", "epithetOptions");
+
+                    console.log("Asset pick lists initialized!")
+                    hideCornerLoader();
+                },
+                function(errorPayload) {
+                    console.error("FAIL FAIL FAIL");
+                    console.error(errorPayload);
+                }
+            );
+        } else {
+//            console.warn("$scope.survivor_sheet is " + typeof $scope.survivor_sheet + "! Retrying in 250ms...");
+            setTimeout($scope.initAssetLists, 500);
+        }
+    };
+
+    $scope.initAssetLists();
+
+
+
+
     $scope.setSurvivorName = function() {
         $scope.postJSONtoAPI('survivor','set_name', {"name": $scope.survivor.sheet.name});
         sleep(500).then(() => {
@@ -31,6 +68,37 @@ app.controller("survivorSheetController", function($scope) {
 
 });
 
+
+app.controller('abilitiesAndImpairmentsController', function($scope) {
+
+    //
+    //  regular methods below here
+    //
+
+    $scope.rmAI = function(ai_handle, ai_index) {
+//        console.log(ai_handle + " index: " + ai_index);
+        js_obj = {"handle": ai_handle, "type": "abilities_and_impairments"};
+        $scope.postJSONtoAPI('survivor', 'rm_game_asset', js_obj);
+        $scope.survivor.sheet.abilities_and_impairments.splice(ai_index, 1);
+        sleep(500).then(() => {
+            $scope.initializeSurvivor($scope.survivor_id);
+        });
+        $scope.initAssetLists();
+    };
+
+    $scope.addAI = function() {
+        var ai_handle = $scope.newAI;
+        if (ai_handle === null) {return false};
+        $scope.survivor.sheet.abilities_and_impairments.push(ai_handle);
+        js_obj = {"handle": ai_handle, "type": "abilities_and_impairments"};
+        $scope.postJSONtoAPI('survivor', 'add_game_asset', js_obj);
+        sleep(1000).then(() => {
+            $scope.initializeSurvivor($scope.survivor_id);
+        });
+        $scope.initAssetLists();
+    };
+
+});
 
 app.controller("affinitiesController", function($scope) {
 
@@ -129,6 +197,7 @@ app.controller("attributeController", function($scope) {
 
 });
 
+
 app.controller("cursedItemsController", function($scope) {
 
     $scope.toggleCursedItem = function(handle) {
@@ -144,6 +213,91 @@ app.controller("cursedItemsController", function($scope) {
     };
 
 });
+
+
+app.controller("epithetController", function($scope) {
+
+    $scope.$watch("epithetOptions", function() {
+        // this is our totally bogus epithet sex filter. 
+        if ($scope.epithetOptions === undefined) {return false};
+        for (var ep_key in $scope.epithetOptions) {
+            var ep = $scope.epithetOptions[ep_key];
+            if (ep.sex === undefined) {
+                } else if (ep.sex != $scope.survivor.sheet.effective_sex) {
+                delete $scope.epithetOptions[ep_key];
+            };
+        };
+    });
+
+
+    //
+    //  regular methods below here
+    //
+
+    $scope.addEpithet = function () {
+        if ($scope.new_epithet === null) {return false};
+        if ($scope.survivor.sheet.epithets.indexOf($scope.new_epithet) == -1) {
+            $scope.survivor.sheet.epithets.push($scope.new_epithet);
+            var js_obj = {"handle": $scope.new_epithet, "type": "epithets"};
+//            console.warn(js_obj);
+            $scope.postJSONtoAPI('survivor','add_game_asset', js_obj);
+        } else {
+            console.error("Epithet handle '" + $scope.new_epithet + "' has already been added!")
+        };
+        $scope.initAssetLists();
+    };
+    $scope.rmEpithet = function (ep_index) {
+        var removedEpithet = $scope.survivor.sheet.epithets[ep_index];
+        $scope.survivor.sheet.epithets.splice(ep_index, 1);
+        var js_obj = {"handle": removedEpithet, "type": "epithets"};
+        $scope.postJSONtoAPI('survivor','rm_game_asset', js_obj);
+    };
+});
+
+
+app.controller('fightingArtsController', function($scope) {
+    $scope.userFA = {}; // if you're gonna use ng-model, you have to have a dot in there
+    $scope.toggleStatusFlag = function() {
+        $scope.postJSONtoAPI('survivor','toggle_status_flag', {'flag': 'cannot_use_fighting_arts'});
+        sleep(500).then(() => {
+            $scope.initializeSurvivor($scope.survivor_id);
+        });
+    };
+    $scope.addFightingArt = function() {
+        var fa_handle = $scope.userFA.newFA;
+        if (fa_handle === null) {return false};
+//        $scope.survivor.sheet.fighting_arts.push(fa_handle);
+        js_obj = {"handle": fa_handle, "type": "fighting_arts"};
+        $scope.postJSONtoAPI('survivor', 'add_game_asset', js_obj);
+        sleep(500).then(() => {
+            $scope.initializeSurvivor($scope.survivor_id);
+            $scope.initAssetLists();
+        });
+    };
+    $scope.rmFightingArt = function(handle, index) {
+        js_obj = {"handle": handle, "type": "fighting_arts"};
+        $scope.postJSONtoAPI('survivor', 'rm_game_asset', js_obj);
+        $scope.survivor.sheet.fighting_arts.splice(index, 1);
+        sleep(500).then(() => {
+            $scope.initializeSurvivor($scope.survivor_id);
+            $scope.initAssetLists();
+        });
+    };
+    $scope.toggleLevel = function($event, fa_handle, level) {
+        var level = Number(level);
+        js_obj = {"handle": fa_handle, "level": level};
+//        console.warn(js_obj);
+        $scope.postJSONtoAPI('survivor', 'toggle_fighting_arts_level', js_obj);
+        if ($scope.arrayContains(level, $scope.survivor.sheet.fighting_arts_levels[fa_handle]) === false) {
+            $scope.survivor.sheet.fighting_arts_levels[fa_handle].push(level);
+        } else {
+            var level_index = $scope.survivor.sheet.fighting_arts_levels[fa_handle].indexOf(level);
+            $scope.survivor.sheet.fighting_arts_levels[fa_handle].splice(level_index, 1);
+        };
+        $event.stopPropagation();   // so we don't remove the card (below)
+    };
+});
+
 
 
 app.controller('secondaryAttributeController', function($scope) {
@@ -193,14 +347,6 @@ app.controller('saviorController', function($scope) {
 
 });
 
-app.controller('fightingArtsController', function($scope) {
-    $scope.toggleStatusFlag = function() {
-        $scope.postJSONtoAPI('survivor','toggle_status_flag', {'flag': 'cannot_use_fighting_arts'});
-        sleep(500).then(() => {
-            $scope.initializeSurvivor($scope.survivor_id);
-        });
-    };
-});
 
 app.controller('skipNextHuntController', function($scope) {
     $scope.toggleStatusFlag = function() {
@@ -208,57 +354,6 @@ app.controller('skipNextHuntController', function($scope) {
     };
 });
 
-app.controller('abilitiesAndImpairmentsController', function($scope) {
-
-    //
-    //  initialize!
-    //
-
-    $scope.init = function() {
-        if ( typeof $scope.survivor_sheet !== "undefined") {
-            $scope.setAIoptions();
-        }
-        else {
-            setTimeout($scope.init, 250);
-        }
-    };
-    $scope.init();
-
-    // define the option setter
-
-    $scope.setAIoptions = function() {
-        $scope.setGameAssetOptions('abilities_and_impairments', "survivor_sheet", "AIoptions", "curse");
-    };
-
-
-    //
-    //  regular methods below here
-    //
-
-    $scope.rmAI = function(ai_handle, ai_index) {
-//        console.log(ai_handle + " index: " + ai_index);
-        js_obj = {"handle": ai_handle, "type": "abilities_and_impairments"};
-        $scope.postJSONtoAPI('survivor', 'rm_game_asset', js_obj);
-        $scope.survivor.sheet.abilities_and_impairments.splice(ai_index, 1);
-        sleep(500).then(() => {
-            $scope.initializeSurvivor($scope.survivor_id);
-        });
-        $scope.setAIoptions();
-    };
-
-    $scope.addAI = function() {
-        var ai_handle = $scope.newAI;
-        if (ai_handle === null) {return false};
-        $scope.survivor.sheet.abilities_and_impairments.push(ai_handle);
-        js_obj = {"handle": ai_handle, "type": "abilities_and_impairments"};
-        $scope.postJSONtoAPI('survivor', 'add_game_asset', js_obj);
-        sleep(1000).then(() => {
-            $scope.initializeSurvivor($scope.survivor_id);
-        });
-        $scope.setAIoptions();
-    };
-
-});
 
 app.controller('metaDataController', function($scope) {
     $scope.togglePublic = function() {
@@ -433,66 +528,6 @@ app.controller("survivorNotesController", function($scope) {
 
         savedAlert();
 
-    };
-});
-
-app.controller("epithetController", function($scope) {
-
-    //
-    //  initialize!
-    //
-
-    $scope.init = function() {
-        if ( typeof $scope.survivor_sheet !== "undefined") {
-            $scope.setEpithetOptions();
-        }
-        else {
-            setTimeout($scope.init, 250);
-        }
-    };
-    $scope.init();
-
-    // define the option setter
-
-    $scope.setEpithetOptions = function() {
-        $scope.setGameAssetOptions('epithets', "survivor_sheet", "epithetOptions");
-    };
-
-    $scope.$watch("epithetOptions", function() {
-        // this is our totally bogus epithet sex filter. 
-        if ($scope.epithetOptions === undefined) {return false};
-        for (var ep_key in $scope.epithetOptions) {
-            var ep = $scope.epithetOptions[ep_key];
-            if (ep.sex === undefined) {
-                } else if (ep.sex != $scope.survivor.sheet.effective_sex) {
-                delete $scope.epithetOptions[ep_key];
-            };
-        };
-    });
-
-
-
-    //
-    //  regular methods below here
-    //
-
-    $scope.addEpithet = function () {
-        if ($scope.new_epithet === null) {return false};
-        if ($scope.survivor.sheet.epithets.indexOf($scope.new_epithet) == -1) {
-            $scope.survivor.sheet.epithets.push($scope.new_epithet);
-            var js_obj = {"handle": $scope.new_epithet, "type": "epithets"};
-//            console.warn(js_obj);
-            $scope.postJSONtoAPI('survivor','add_game_asset', js_obj);
-        } else {
-            console.error("Epithet handle '" + $scope.new_epithet + "' has already been added!")
-        };
-        $scope.setEpithetOptions();
-    };
-    $scope.rmEpithet = function (ep_index) {
-        var removedEpithet = $scope.survivor.sheet.epithets[ep_index];
-        $scope.survivor.sheet.epithets.splice(ep_index, 1);
-        var js_obj = {"handle": removedEpithet, "type": "epithets"};
-        $scope.postJSONtoAPI('survivor','rm_game_asset', js_obj);
     };
 });
 

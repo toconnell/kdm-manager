@@ -111,6 +111,7 @@ mar_2016_expansions = {
     # Slenderman
     'blotted_out': {
         'bgcolor': '570A75',
+        'bordercolor': '470A65',
         'color': 'fff',
         'expansion': 'slenderman',
         'name': 'Blotted Out'
