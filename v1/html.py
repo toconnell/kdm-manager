@@ -4453,10 +4453,10 @@ class meta:
         <meta charset="UTF-8">
         <meta name="theme-color" content="#000000">
         <title>%s</title>
-        <link rel="stylesheet" type="text/css" href="/media/style.css">
+        <link rel="stylesheet" type="text/css" href="/media/style.css?v=%s">
         <link rel="stylesheet" type="text/css" href="/media/help-tip.css">
         <link rel="stylesheet" type="text/css" href="/media/z-index.css">
-    """ % settings.get("application","title")
+    """ % (settings.get("application","title"), settings.get('application', 'version'))
 
     close_body = """\n
     </div><!-- container -->
