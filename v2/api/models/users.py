@@ -4,10 +4,12 @@ from bson import json_util
 from bson.objectid import ObjectId
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
-from flask import Response
+from flask import Response, request
 from hashlib import md5
 import json
 import jwt
+import random
+import string
 from werkzeug.security import safe_str_cmp
 
 import Models
@@ -29,6 +31,9 @@ def authenticate(username, password):
     """ Returns None unless a.) there's a real user for 'username' and b.) the
     MD5 hash of the user's password matches the hash of 'password', in which
     case we return a user document from the MDB. """
+
+    if username is None or password is None:
+        return None
 
     user = utils.mdb.users.find_one({"login": username})
     if user is not None and safe_str_cmp(user["password"], md5(password).hexdigest()):
@@ -65,6 +70,64 @@ def refresh_authorization(expired_token):
     return utils.mdb.users.find_one({"login": login, "password": pw_hash})
 
 
+def reset_password():
+    """ Checks out an incoming recovery code and, if everything looks OK, loads
+    up the user, changes its password, removes the code from the user and saves
+    it back to the mdb. """
+
+    user_login = request.get_json().get('username', None)
+    new_password = request.get_json().get('password', None)
+    recovery_code = request.get_json().get('recovery_code', None)
+
+    for v in [user_login, new_password, recovery_code]:
+        if v is None:
+            return Response(response="Password reset requests require a login, password and a recovery code.", status=400)
+
+    user = utils.mdb.users.find_one({'login': user_login, 'recovery_code': recovery_code})
+    if user is None:
+        return Response(response="The recovery code '%s' does not appear to be valid for '%s'." % (recovery_code, user_login))
+
+    U = User(_id = user["_id"])
+    del U.user['recovery_code']
+    U.update_password(new_password)
+    return utils.http_200
+
+
+def initiate_password_reset():
+    """ Attempts to start the mechanism for resetting a user's password.
+    Unlike a lot of methods, this one handles the whole request processing and
+    is very...self-contained. """
+
+    # first, validate the post
+    user_login = request.get_json().get('username', None)
+    if user_login is None:
+        return Response(
+            response="A valid user email address must be included in password reset requests!",
+            status=400
+        )
+
+    # next, validate the user
+    user = utils.mdb.users.find_one({"login": user_login})
+    if user is None:
+        return Response(
+            response="'%s' is not a registered email address." % user_login,
+            status=404
+        )
+
+    # if the user looks good, set the code
+    U = User(_id=user["_id"])
+    user_code = U.set_recovery_code()
+
+    # finally, send the email to the user
+    msg = string.Template(file("html/password_recovery.html", "rb").read())
+    msg = msg.safe_substitute(login=user_login, recovery_code=user_code, app_url=utils.get_application_url())
+    e = utils.mailSession()
+    e.send(recipients=[user_login], html_msg=msg)
+
+    # exit 200
+    return utils.http_200
+
+
 def jwt_identity_handler(payload):
     """ Bounces the authentication request payload off of the user collection.
     Returns a user object if "identity" in the request exists. """
@@ -77,6 +140,8 @@ def jwt_identity_handler(payload):
         return U.serialize()
 
     return utils.http_404
+
+
 
 
 def token_to_object(request, strict=True):
@@ -114,6 +179,10 @@ def token_to_object(request, strict=True):
 class User(Models.UserAsset):
     """ This is the main controller for all user objects. """
 
+    def __repr__(self):
+        return "[%s (%s)]" % (self.user["login"], self._id)
+
+
     def __init__(self, *args, **kwargs):
         self.collection="users"
         self.object_version=0.13
@@ -126,8 +195,46 @@ class User(Models.UserAsset):
         self.set_current_settlement()
 
 
-    def __repr__(self):
-        return "[%s (%s)]" % (self.user["login"], self._id)
+    def new(self):
+        """ Creates a new user based on request.json values. Like all UserAsset
+        'new()' methods, this one returns the new user's MDB _id when it's done.
+        """
+
+        self.logger.info("Creating new user...")
+        self.check_request_params(['username','password'])
+
+        # clean up the incoming values so that they conform to our data model
+        username = self.params["username"].strip().lower()
+        password = self.params["password"].strip()
+
+        # do some minimalistic validation (i.e. rely on front-end for good data)
+        #   and barf if it fails #separationOfConcerns
+
+        msg = "The email address '%s' does not appear to be a valid email address!" % username
+        if not '@' in username:
+            raise utils.InvalidUsage(msg)
+        elif not '.' in username:
+            raise utils.InvalidUsage(msg)
+
+        # make sure the new user doesn't already exist
+
+        msg = "The email address '%s' is already in use by another user!" % username
+        if utils.mdb.users.find_one({'login': username}) is not None:
+            raise utils.InvalidUsage(msg)
+
+
+        # now do it
+        self.user = {
+            'created_on': datetime.now(),
+            'login': username,
+            'password': md5(password).hexdigest(),
+            'preferences': {},
+        }
+        self._id = utils.mdb.users.insert(self.user)
+        self.load()
+        logger.info("New user '%s' created!" % username)
+
+        return self.user["_id"]
 
 
     def serialize(self):
@@ -216,6 +323,29 @@ class User(Models.UserAsset):
                 self.user["current_settlement"] = None
 
         self.save()
+
+
+    def set_recovery_code(self):
+        """ Sets self.user['recovery_code'] to a random value. Returns the code
+        when it is called. """
+
+        r_code = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(30))
+        self.user["recovery_code"] = r_code
+        self.logger.info("'%s set recovery code '%s' for their account" % (self, r_code))
+        self.save()
+        return self.user["recovery_code"]
+
+
+    def update_password(self, new_password=None):
+        """ Changes the user's password. Saves. """
+
+        if new_password is None:
+            raise Exception("New password cannot be None type!")
+
+        self.user['password'] = md5(new_password).hexdigest()
+        self.logger.warn("%s Changed password!" % self)
+        self.save()
+
 
 
 

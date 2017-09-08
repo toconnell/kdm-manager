@@ -5,26 +5,36 @@ function reloadSheet() {
 //    console.warn("Settlement Sheet reload form submitted...");
 };
 
+app.controller("settlementSheetController", function($scope) {
+    $scope.setSettlementName = function() {
+        js_obj = {'name': $scope.newSettlementName};
+        $scope.postJSONtoAPI('settlement', 'set_name', js_obj);
+    };
+    $scope.incrementAttrib = function(attrib, modifier) {
+        if ($scope.settlement.sheet[attrib] + modifier < 0) {return false};
+        var js_obj = {'attribute': attrib, 'modifier': modifier};
+        $scope.settlement.sheet[attrib] += Number(modifier);
+        $scope.postJSONtoAPI('settlement', 'update_attribute', js_obj);
+    };
+    $scope.setAttrib = function(attrib, value) {
+        if (value < 0) {return false};
+        var js_obj = {'attribute': attrib, 'value': value};
+        $scope.postJSONtoAPI('settlement', 'set_attribute', js_obj);
+    };
+});
+
 app.controller("locationsController", function($scope) {
     $scope.addLocation = function() {
         if ($scope.newLocation === null) {return false};
-        $scope.settlement_sheet.locations.push($scope.newLocation);
         $scope.postJSONtoAPI('settlement', 'add_location', {"handle": $scope.newLocation});
-        $scope.setLocationOptions();
-        $scope.reinitialize();
     };
     $scope.rmLocation = function(index, loc_handle) {
         $scope.settlement_sheet.locations.splice(index, 1);
         $scope.postJSONtoAPI('settlement', 'rm_location', {"handle": loc_handle}); 
-        $scope.setLocationOptions();
-        $scope.reinitialize();
     };
     $scope.setLocationLevel = function(loc_name, lvl) {
         var js_obj = {"handle": loc_name, "level": lvl};
         $scope.postJSONtoAPI('settlement', 'set_location_level', js_obj);
-    };
-    $scope.setLocationOptions = function() {
-        $scope.setGameAssetOptions('locations', "settlement_sheet", "locationOptions");
     };
 });
 
@@ -43,9 +53,7 @@ app.controller('innovationsController', function($scope) {
         if ($scope.settlement_sheet.innovations.indexOf(innovation.handle) > -1) {return true};
         return false; 
     };
-    $scope.setInnovationOptions = function() {
-        $scope.setGameAssetOptions('innovations', "settlement_sheet", "innovationOptions", "principle");
-    };
+
     $scope.setInnovationDeck = function(retry) {
         $scope.innovation_deck = null;
         $scope.spinner();
@@ -70,13 +78,10 @@ app.controller('innovationsController', function($scope) {
     $scope.addInnovation = function() {
 //        console.warn("Adding innovation: " + $scope.newInnovation);
         if ($scope.newInnovation === null) {return false};
-        $scope.settlement_sheet.innovations.push($scope.newInnovation);
         var js_obj = {"handle": $scope.newInnovation};
         var out = $scope.postJSONtoAPI('settlement', 'add_innovation', js_obj);
-        $scope.setInnovationDeck();
-        $scope.setInnovationOptions();
         sleep(500).then(() => {
-            $scope.reinitialize();
+            $scope.setInnovationDeck();
         });
     };    
     $scope.setInnovationLevel = function(innovation_name,lvl){
@@ -87,10 +92,8 @@ app.controller('innovationsController', function($scope) {
         $scope.settlement_sheet.innovations.splice(index,1);
         var js_obj = {"handle": innovation_handle};
         $scope.postJSONtoAPI('settlement', 'rm_innovation', js_obj); 
-        $scope.setInnovationDeck();
-        $scope.setInnovationOptions();
         sleep(500).then(() => {
-            $scope.reinitialize();
+            $scope.setInnovationDeck();
         });
     };
 });
@@ -186,9 +189,6 @@ app.controller('principlesController', function($scope, $http) {
 
     $scope.set = function(principle, election) {
         $scope.postJSONtoAPI('settlement', 'set_principle', {"principle": principle, "election": election});
-        sleep(2000).then(() => {
-            $scope.reinitialize();
-        });
     };
     $scope.unset_principle = function () {
         target_principle = $scope.unset;
@@ -206,7 +206,6 @@ app.controller('principlesController', function($scope, $http) {
         };
 
         $scope.postJSONtoAPI('settlement', 'set_principle', {"principle": target_principle, "election": false});
-        $scope.reinitialize();
     };
 });
 
@@ -214,7 +213,7 @@ app.controller("lostSettlementsController", function($scope,$rootScope) {
 
     // get $scope.lost_settlements from the API
     $scope.loadLostSettlements = function() {
-        $scope.loadSettlement().then(
+        $scope.getJSONfromAPI('settlement','get').then(
             // once we've got a payload, build the controls
             function(payload) {
                 $scope.lost_settlements = payload.data.sheet.lost_settlements;

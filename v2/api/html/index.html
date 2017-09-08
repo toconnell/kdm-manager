@@ -277,6 +277,12 @@
             route. Invalid or unrecognized params will be ignored!</th>
         </tr>
         <tr class="ul">
+            <td> /new/user </td>
+            <td> POST </td>
+            <td> DOCUMENTATION COMING SOON!
+            </td>
+        </tr>
+        <tr class="ul">
             <td> /new/settlement </td>
             <td> POST </td>
             <td> <p>Use 'handle' values from the <code>/new_settlement</code>
@@ -423,23 +429,61 @@
             <td> Retrieve the settlement's current innovation deck (as an array).</td>
         </tr>
 
-        <tr>
-            <td class="subsection_header" colspan="3"><b>Settlement attributes:
-            </b> set/update Settlement Sheet attributes, e.g. population, death
-            count, etc.</td>
-        </tr>
 
+        <tr>
+            <td class="subsection_header" colspan="3"><b>Settlement attributes:</b>
+            attributes such as Survival Limit, Population and Death Count are more
+            or less automatically tracked by the API, but you can use these routes
+            to modify them directly, if necessary. </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/set_name/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td><p>POST some JSON whose body contains the key 'name' and whatever the
+            new name is going to be as that key's value to change the settlement's
+            name:</p>
+            <code>{'name': 'The Black Lantern'}</code>
+            <p><b>Important!</b> Submitting an empty string will cause the API to
+            default the settlement's name to "UNKNOWN". There are no technical
+            reasons (e.g. limitations) for this, but it breaks the display in most
+            client apps, so null/empty names are forbidden.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/set_attribute/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td> <p>POST some basic JSON containing an 'attribute' and a 'value'
+            key where 'attribute' is an integer settlement attrib and 'value' is
+            the new value:</p>
+            <code>{'attribute': 'survival_limit', 'value': 3}</code>
+            <p> This route also supports incrementing the <code>population</code>
+             and <code>death_count</code> attributes. </p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/update_attribute/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td> <p>POST some JSON containing an 'attribute' and a 'modifier'
+            key where 'attribute' is an integer settlement attrib and 'mofier' is
+            how much you want to increment it by:</p>
+            <code>{'attribute': 'death_count', 'modifier': -1}</code>
+            <p> This route also supports incrementing the <code>survival_limit
+            </code> and <code>death_count</code> routes.</p>
+            </td>
+        </tr>
         <tr class="ul">
             <td> /settlement/update_population/&lt;settlement_id&gt; </td>
             <td> POST </td>
             <td> <p>POST some JSON containing the key 'modifier' whose value is
             an integer that you want to add to the settlement's population
             number.<p>
+            <p>This works basically identically to the <code>update_attribute</code>
+            route, so considering using that route instead. </p>
             <p>For example, this JSON would add two to the settlement's
             population number:</p>
             <code>{'modifier': 2}</code>
             <p>POST negative numbers to decrease.</p>
-            <p><b>important!</b> Settlement population can never go below zero,
+            <p><b>Important!</b> Settlement population can never go below zero,
             so any 'modifier' values that would cause this simply cause the
             total to become zero.</p>
             </td>

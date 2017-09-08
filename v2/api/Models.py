@@ -423,6 +423,7 @@ class UserAsset():
         self.loaded = False
 
         if _id is None:
+            self.get_request_params()
             self.new()
             _id = self._id
 
@@ -529,7 +530,7 @@ class UserAsset():
                     curframe = inspect.currentframe()
                     calframe = inspect.getouterframes(curframe, 2)
                     caller_function = calframe[1][3]
-                    msg = "Insufficient request params for %s() method!" % caller_function
+                    msg = "Insufficient request parameters for this route! The %s() method requires values for the following keys: %s." % (caller_function, utils.list_to_pretty_string(keys))
                     self.logger.exception(msg)
                     self.logger.error("Bad request params were: %s" % self.params)
                     raise utils.InvalidUsage(msg, status_code=400)

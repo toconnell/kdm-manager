@@ -106,6 +106,15 @@ def get_new_settlement_assets():
         mimetype="application/json"
     )
 
+@application.route("/reset_password/<action>", methods=["POST","OPTIONS"])
+@utils.crossdomain(origin=['*'],headers='Content-Type')
+def reset_password(action):
+
+    if action == 'request_code':
+        return users.initiate_password_reset()
+    elif action == 'reset':
+        return users.reset_password()
+    return Response(response="'%s' is not a valid action for this route." % action, status=422)
 
 #
 #   /login (not to be confused with the built-in /auth route)
@@ -117,6 +126,8 @@ def get_token(check_pw=True, user_id=False):
 
     U = None
     if check_pw:
+        if request.json is None:
+            return Response(response="JSON payload missing from /login request!", status=422)
         U = users.authenticate(request.json.get("username",None), request.json.get("password",None))
     else:
         U = users.User(_id=user_id)
@@ -157,11 +168,18 @@ def refresh_auth(action):
 
 
 
-@application.route("/new/<asset_type>", methods=["POST"])
+@application.route("/new/<asset_type>", methods=["POST", "OPTIONS"])
 @utils.crossdomain(origin=['*'],headers='Content-Type')
 def new_asset(asset_type):
     """ Uses the 'Authorization' block of the header and POSTed params to create
     a new settlement. """
+
+    # first, check to see if this is a request to make a new user. If it is, we
+    #   don't need to try to pull the user from the token b/c it doesn't exist
+    #   yet, obvi. Instead, call the users.User.new() method
+    if asset_type == 'user':
+        U = users.User()
+        return U.serialize()
 
     request.User = users.token_to_object(request)
     if isinstance(request.User, users.User):

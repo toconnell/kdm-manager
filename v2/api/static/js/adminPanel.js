@@ -1,6 +1,7 @@
 'use strict'; 
 
 
+
 var myApp = angular.module('adminPanel', []);
 
 
@@ -49,6 +50,9 @@ myApp.controller('globalController', function($scope, $http, $interval) {
     };
 
 
+    $scope.copyToClipboard = function(text) {
+        window.prompt("Copy User OID to clipboard:", text);
+    };
 
     // initialize
 

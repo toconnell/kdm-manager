@@ -17,6 +17,7 @@ import admin
 import api
 import assets
 import html
+import login
 import models
 import game_assets
 from utils import mdb, get_logger, get_user_agent, load_settings, ymd, ymdhms, mailSession
@@ -111,16 +112,45 @@ class Session:
                 self.User.mark_usage("signed out")
             admin.remove_session(self.params["remove_session"].value, self.params["login"].value)
 
+        # ok, if this is a recovery request, let's try to do that
+        if 'recovery_code' in self.params:
+            self.logger.info("Password Recovery Code sign-in initiated!")
+            user = mdb.users.find_one({'recovery_code': self.params["recovery_code"].value})
+            if user is None:
+                self.logger.info("Password Recovery Code not found (possibly expired). Aborting attempt.")
+            else:
+                self.logger.info("Rendering Password Recovery controls for '%s'" % user["login"])
+                login.render("reset", user["login"], self.params['recovery_code'].value)
+
         # try to retrieve a session and other session attributes from mdb using
         #   the browser cookie
         self.cookie = Cookie.SimpleCookie(os.environ.get("HTTP_COOKIE"))
 
-        if self.cookie is not None and "session" in self.cookie.keys():
+        creds_present = False
+        if 'login' in self.params and 'password' in self.params:
+            creds_present = True
+
+        def sign_in(creds=()):
+            """ Private DRYness method for quickly logging in with params. """
+            if 'login' in self.params and 'password' in self.params:
+                A = login.AuthObject(self.params)
+                A.authenticate_and_render_view()
+
+        if self.cookie is None and creds_present:
+            sign_in()
+        elif self.cookie is not None and "session" in self.cookie.keys():
             session_id = ObjectId(self.cookie["session"].value)
             self.session = mdb.sessions.find_one({"_id": session_id})
             if self.session is not None:
                 user_object = mdb.users.find_one({"current_session": session_id})
                 self.User = assets.User(user_object["_id"], session_object=self)
+            elif self.session is None:
+                sign_in()
+        elif self.cookie is not None and 'Session' not in self.cookie.keys() and creds_present:
+            sign_in()
+        else:
+            self.logger.error("Error attempting to process cookie!")
+            self.logger.error(self.cookie)
 
         if self.session is not None:
             if not api.check_token(self):
@@ -196,64 +226,6 @@ class Session:
         else:
             return None
 
-
-    def recover_password(self):
-        """ Call this method to process params related to password recovery and
-        return text that will be rendered by the index. """
-
-        if "login" not in self.params and "recovery_code" not in self.params:
-            return html.login.recover_password
-
-        if "recovery_code" not in self.params:
-            user = mdb.users.find_one({"login": self.params["login"].value.lower().strip()})
-        elif "recovery_code" in self.params:
-            user = mdb.users.find_one({"recovery_code": self.params["recovery_code"].value})
-
-        if user is None:
-            if "recovery_code" in self.params:
-                err = "Your recovery code appears to have expired! Please check your email and try again."
-            else:
-                err = "The login '%s' does not exist! Notification email NOT sent." % self.params["login"].value
-            msg = html.user_error_msg.safe_substitute(err_class="error", err_msg=err)
-            return html.login.form + msg
-
-        self.User = assets.User(user_id=user["_id"], session_object=self)
-        login = self.User.user["login"]
-
-        if "recovery_code" in self.params:
-            msg = ""
-            recovery_code = self.params["recovery_code"].value
-            self.logger.debug("%s is activating password recovery code '%s'" % (login, recovery_code))
-            if "password" in self.params and "password_again" in self.params:
-                reset_successful = self.User.update_password(self.params["password"].value, self.params["password_again"].value)
-                if not reset_successful:
-                    self.logger.debug("%s failed to reset password" % login)
-                    msg = html.user_error_msg.safe_substitute(err_class="error", err_msg="Passwords did not match! Please try again.")
-                    return html.login.reset_pw.safe_substitute(login=login, recovery_code=recovery_code) + msg
-                else:
-                    del self.User.user["recovery_code"]
-                    mdb.users.save(self.User.user)
-                    self.logger.debug("Removed recovery code from user %s" % login)
-                    msg = html.user_error_msg.safe_substitute(err_class="success", err_msg="Password reset successful!")
-                    return html.login.form + msg
-            else:
-                return html.login.reset_pw.safe_substitute(login=login, recovery_code=recovery_code)
-
-        self.logger.debug("New password recovery request initiated by %s" % login)
-        if not "@" in list(login):
-            err = "Unable to validate email address '%s'. Notification email NOT sent." % login
-            msg = html.user_error_msg.safe_substitute(err_class="error", err_msg=err)
-            self.logger.critical(err)
-        else:
-            recovery_code = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(30))
-            self.logger.debug("Recovery code for %s is '%s'" % (login, recovery_code))
-            self.User.user["recovery_code"] = recovery_code
-            mdb.users.save(self.User.user)
-            email_msg = html.login.pw_recovery_email.safe_substitute(login=login, recovery_code=recovery_code)
-            M = mailSession()
-            M.send(recipients=[login], html_msg=email_msg, subject="KDM-Manager Password Recovery!")
-            msg = html.user_error_msg.safe_substitute(err_class="success", err_msg="Password recovery instructions sent to %s" % login)
-        return html.login.form + msg
 
 
     def set_current_settlement(self, settlement_id=None, update_mins=True):

@@ -2,7 +2,6 @@
 #!/usr/bin/env python
 
 #   standard
-import Cookie
 from datetime import datetime, timedelta
 from string import Template
 import sys
@@ -629,7 +628,7 @@ class angularJS:
                             type="checkbox"
                             class="kd_css_checkbox kd_radio_option"
                             ng-model=incomingExpansion
-                            ng-checked="hasattr(settlement_sheet.expansions, x.handle)"
+                            ng-checked="settlement.sheet.expansions.indexOf(x.handle) != -1"
                             ng-click="toggleExpansion(x.handle)"
                             ng-disabled="settlement.game_assets.campaign.settlement_sheet_init.expansions.includes(x.handle)"
                         >
@@ -1332,11 +1331,11 @@ class survivor:
     <script src="/media/survivorSheet.js?v=$application_version"></script>
 
     <div
-       id = "survivor_sheet_angularjs_controller_container"
-       ng-controller="survivorSheetController"
-       ng-init="
+        id = "survivor_sheet_angularjs_controller_container"
+        ng-controller="survivorSheetController"
+        ng-init="
             initialize('survivorSheet', '$user_id', '$user_login', '$api_url','$settlement_id','$survivor_id');
-       "
+        "
     >
         <span class="tablet_and_desktop nav_bar survivor_sheet_gradient"></span>
         <span class="mobile_only nav_bar_mobile survivor_sheet_gradient"></span>
@@ -2079,12 +2078,16 @@ class survivor:
                     ng-repeat="fa_handle in survivor.sheet.fighting_arts"
                     class="survivor_sheet_card survivor_sheet_gradient clickable"
                 >
+                    <span ng-if = "settlement.game_assets.fighting_arts[fa_handle] == undefined">
+                        <img src="/media/loading_lantern.gif">
+                    </span>
                     <span
                         ng-init="
                             FA = settlement.game_assets.fighting_arts[fa_handle];
                             expansion_handle = settlement.game_assets.fighting_arts[fa_handle].expansion;
                             expansion_dict = settlement.game_assets.expansions[expansion_handle];
                         "
+                        ng-if = "settlement.game_assets.fighting_arts[fa_handle] != undefined"
                         ng-click="rmFightingArt(fa_handle, $index)"
                         title="Click or tap to remove {{FA.name}} from {{survivor.sheet.name}}"
                     >
@@ -3316,7 +3319,7 @@ class settlement:
                 <h4>- Locations -</h4>
                 <span
                     class="kd_checkbox_checked campaign_summary_bullet"
-                    ng-repeat="l in settlement_sheet.locations"
+                    ng-repeat="l in settlement.sheet.locations"
                 >
                     {{settlement.game_assets.locations[l].name}}
                 </span>
@@ -3555,6 +3558,7 @@ class settlement:
         <div
             id = "settlement_sheet_angularjs_controller_container"
             ng-init="initialize('settlementSheet', '$user_id', '$user_login', '$api_url','$settlement_id')"
+            ng-controller="settlementSheetController"
         >
 
         <span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
@@ -3568,10 +3572,11 @@ class settlement:
                 id="settlementName"
                 class="settlement_sheet_settlement_name settlement_name"
                 type="text"
-                value="{{settlement_sheet.name}}"
+                ng-value="settlement.sheet.name"
+                ng-model="newSettlementName"
                 ng-placeholder="Settlement Name"
+                ng-blur="setSettlementName()"
                 onclick="this.select()"
-                onchange="updateAssetAttrib(this, 'settlement', '$settlement_id')"
             />
 
             <p
@@ -3590,7 +3595,7 @@ class settlement:
                 <div class="big_number_container left_margin">
                     <button
                         class="incrementer"
-                        onclick="stepAndSave('up','survivalLimitBox','settlement','$settlement_id');"
+                        ng-click="incrementAttrib('survival_limit',1)"
                     >
                         &#9652;
                     </button>
@@ -3600,12 +3605,13 @@ class settlement:
                         type="number"
                         name="survival_limit"
                         ng-value="settlement.sheet.survival_limit"
+                        ng-model="settlement.sheet.survival_limit"
+                        ng-blur="setAttrib('survival_limit', settlement.sheet.survival_limit)"
                         min="{{settlement.sheet.minimum_survival_limit}}"
-                        onchange="updateAssetAttrib(this,'settlement','$settlement_id')"
                     />
                     <button
                         class="decrementer"
-                        onclick="stepAndSave('down','survivalLimitBox','settlement','$settlement_id');"
+                        ng-click="incrementAttrib('survival_limit',-1)"
                     >
                         &#9662;
                     </button>
@@ -3634,7 +3640,7 @@ class settlement:
                 <div class="big_number_container left_margin">
                     <button
                         class="incrementer"
-                        onclick="stepAndSave('up','populationBox','settlement','$settlement_id');"
+                        ng-click="incrementAttrib('population',1)"
                     >
                         &#9652;
                     </button>
@@ -3643,12 +3649,13 @@ class settlement:
                         class="big_number_square"
                         type="number" name="population"
                         ng-value="settlement.sheet.population"
-                        onchange="updateAssetAttrib(this,'settlement','$settlement_id')"
-                        min="{{settlement_sheet.minimum_population}}"
+                        ng-model="settlement.sheet.population"
+                        ng-blur="setAttrib('population', settlement.sheet.population)"
+                        min="{{Number(settlement.sheet.minimum_population)}}"
                     />
                     <button
                         class="decrementer"
-                        onclick="stepAndSave('down','populationBox','settlement','$settlement_id');"
+                        ng-click="incrementAttrib('population',-1)"
                     >
                         &#9662;
                     </button>
@@ -3669,7 +3676,7 @@ class settlement:
                 <div class="big_number_container left_margin">
                     <button
                         class="decrementer"
-                        onclick="stepAndSave('up','deathCountBox','settlement','$settlement_id');"
+                        ng-click="incrementAttrib('death_count',1)"
                     >
                         &#9652;
                     </button>
@@ -3678,13 +3685,14 @@ class settlement:
                         class="big_number_square"
                         type="number"
                         name="death_count"
-                        ng-value="settlement_sheet.death_count"
-                        min="0"
-                        onchange="updateAssetAttrib(this,'settlement','$settlement_id')"
+                        ng-value="settlement.sheet.death_count"
+                        ng-model="settlement.sheet.death_count"
+                        ng-blur="setAttrib('death_count', settlement.sheet.death_count)"
+                        min="{{Number(settlement.sheet.minimum_death_count)}}"
                     />
                     <button
                         class="decrementer"
-                        onclick="stepAndSave('down','deathCountBox','settlement','$settlement_id');"
+                        ng-click="incrementAttrib('death_count',-1)"
                     >
                         &#9662;
                     </button>
@@ -3725,7 +3733,6 @@ class settlement:
             </form>
 
         </div> <!-- settlement_sheet_block_group for storage -->
-
     </div> <!-- asset_management_left_pane -->
 
 
@@ -3747,13 +3754,11 @@ class settlement:
 
             <h2>Settlement Locations</h2>
             <p>Locations in your settlement.</p>
-
             <hr class="invisible"/> <!-- TK this is pretty low rent -->
-
             <div
                 class="line_item location_container"
-                ng-repeat="loc in settlement_sheet.locations"
-                ng-init="locationLevel = settlement_sheet.location_levels[loc]"
+                ng-repeat="loc in settlement.sheet.locations"
+                ng-init="locationLevel = settlement.sheet.location_levels[loc]"
             >
                 <span class="bullet"></span>
                 <span
@@ -3780,7 +3785,6 @@ class settlement:
                 <span class="empty_bullet" /></span>
                 <select
                     name="add_location"
-                    ng-init="setLocationOptions()"
                     ng_model="newLocation"
                     ng_change="addLocation()"
                     ng-options="loc.handle as loc.name for loc in locationOptions"
@@ -3838,7 +3842,6 @@ class settlement:
                 <span class="empty_bullet" /></span>
                 <select
                     name="add_innovation"
-                    ng-init="setInnovationOptions()"
                     ng_model="newInnovation"
                     ng_change="addInnovation()"
                     ng-options="i.handle as i.name for i in innovationOptions"
@@ -4323,100 +4326,6 @@ class settlement:
     \n""")
 
 
-class login:
-    """ The HTML for form-based authentication goes here."""
-    form = """\n\
-    <div id="sign_in_container">
-        <img src="%s/tree_logo_shadow.png" class="sign_in tablet_and_desktop"/>
-        <h2 class="seo">KD:M Manager!</h2>
-        <h1 class="seo">An interactive campaign manager for <a href="http://kingdomdeath.com/" target="top">Kingdom Death: <i>Monster</i></a>.</h1>
-        <div id="sign_in_last_updated">%s</div>
-        <div id="sign_in_controls">
-            <form action="#" method="POST">
-            <input class="sign_in" type="email" name="login" placeholder="Email" onclick="this.select()" autofocus required>
-            <input class="sign_in" type="password" name="password" placeholder="Password" required/>
-			<div id="sign_in_remember_me">
-			  <label class="sign_in" for="keep_me_signed_in">Stay Logged in:</label>
-			</div>
-			<div id="sign_in_checkbox">
-			  <input type="checkbox" class="sign_in" name="keep_me_signed_in" id="keep_me_signed_in">
-			</div>
-			<div id="sign_in_button">
-			  <button class="sign_in kd_blue">Sign In or Register</button>
-			</div>
-            </form>
-            <br class="mobile_only"/>
-            <form action="#" method="POST">
-            <input type="hidden" name="recover_password" value="True"/>
-            <button class="gradient_black tiny_button">Forgot Password?</button>
-            </form>
-        </div>
-    </div> <!-- sign_in_container -->
-    \n""" % (settings.get("application", "STATIC_URL"), get_latest_update_string())
-    new_user = Template("""\n\
-    <div id="sign_in_container">
-        <h2 class="seo">Create a New User!</h2>
-        <h1 class="seo">Use an email address to share campaigns with friends.</h1>
-        <div id="sign_in_controls">
-            <form action="#" method="POST">
-            <input class="sign_in" type="email" name="login" value="$login"/>
-            <input class="sign_in" type="password" name="password" placeholder="password" autofocus/>
-            <input class="sign_in" type="password" name="password_again" placeholder="password (again)"/>
-			<div id="sign_in_remember_me">
-			  <label class="sign_in" for="keep_me_signed_in">Stay Logged in:</label>
-			</div>
-			<div id="sign_in_checkbox">
-			  <input type="checkbox" class="sign_in" name="keep_me_signed_in" id="keep_me_signed_in">
-			</div>
-            <button class="sign_in kd_blue">Register New User</button>
-            </form>
-        </div>
-    </div> <!-- sign_in_container -->
-    \n""")
-    reset_pw = Template("""\n\
-    <div id="sign_in_container">
-        <h2 class="seo">Reset Password!</h2>
-        <h1 class="seo">Reset the password for $login.</h1>
-        <div id="sign_in_controls">
-            <form method="POST" action="/">
-            <input type="hidden" name="login" value="$login"/>
-            <input type="hidden" name="recover_password" value="True"/>
-            <input type="hidden" name="recovery_code" value="$recovery_code"/>
-            <input class="sign_in" type="password" name="password" placeholder="password" autofocus/>
-            <input class="sign_in" type="password" name="password_again" placeholder="password (again)"/>
-            <input type="submit" class="sign_in gradient_green" value="Reset Password"/>
-            </form>
-        </div>
-    </div> <!-- sign_in_container -->
-    \n""")
-    recover_password = """\n\
-    <div id="sign_in_container">
-        <h2 class="seo">Password Recovery!</h2>
-        <h1 class="seo">Enter your email address below to receive an email with recovery instructions.</h1>
-        <div id="sign_in_controls">
-            <form method="POST" action="#" >
-            <input type="hidden" name="recover_password" value="True"/>
-            <input class="sign_in" type="text" name="login" placeholder="email" autofocus/>
-            <button class="sign_in gradient_green">Recover Password</button>
-            </form>
-        </div>
-    </div> <!-- sign_in_container -->
-    \n"""
-    recovery_successful = """\n\
-    <div id="sign_in_container">
-        <h2 class="seo">Password Reset!</h2>
-        <h1 class="seo">Use the link below to log in with your new password.</h1>
-        <div id="sign_in_controls">
-            <a href="">http://kdm-manager.com</a>
-        </div>
-    </div> <!-- sign_in_container -->
-    \n"""
-    pw_recovery_email = Template("""\n\
-    Hello $login!<br/><br/>&ensp;You are receiving this message because a password recovery request was made at <a href="http://kdm-manager.com">http://kdm-manager.com</a> for your user, $login.<br/><br/>If you made this request and would like to reset your password, please use the following URL:<br/><br/>&ensp;<a href="http://kdm-manager.com?recover_password=True&recovery_code=$recovery_code">http://kdm-manager.com?recover_password=True&recovery_code=$recovery_code</a><br/><br/>If you did not create this request, you may ignore this email and continue to use your existing/current credentials.<br/><br/>Thanks again for using the manager!<br/><br/>Your friend,<br/>Timothy O'Connell<br/><br/>
-    \n""")
-
-
-
 class meta:
 
     def __init__(self):
@@ -4472,7 +4381,7 @@ class meta:
     <div id="saved_dialog" class="saved_dialog_frame" style="">
         <div class="kd_blue saved_dialog_inner">
             <span class="saved_dialog_cap">S</span>
-            Saved!
+            Saving...
         </div>
     </div>
 
@@ -4584,76 +4493,6 @@ class meta:
     </div>
     \n""")
 
-
-
-#
-#   application helper functions for HTML interfacing
-#
-
-def set_cookie_js(session_id, token):
-    """ This returns a snippet of javascript that, if inserted into the html
-    head will set the cookie to have the session_id given as the first/only
-    argument to this function.
-
-    Note that the cookie will not appear to have the correct session ID until
-    the NEXT page load after the one where the cookie is set.    """
-    expiration = datetime.now() + timedelta(days=30)
-    cookie = Cookie.SimpleCookie()
-    cookie["session"] = session_id
-    cookie["session"]["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
-    cookie["jwt_token"] = token
-    return cookie.js_output()
-
-
-def authenticate_by_form(params):
-    """ Pass this a cgi.FieldStorage() to try to manually authenticate a user"""
-
-    err_msg = ""
-
-    if "password_again" in params:
-        if "login" in params and "password" in params:
-            create_new = admin.create_new_user(params["login"].value.strip().lower(), params["password"].value.strip(), params["password_again"].value.strip(), params)
-            if create_new == False:
-                err_msg = user_error_msg.safe_substitute(err_class="warn", err_msg="Passwords did not match! Please re-enter.")
-            elif create_new == "invalid_email":
-                err_msg = user_error_msg.safe_substitute(err_class="warn", err_msg="A valid email address is required!")
-            elif create_new is None:
-                err_msg = user_error_msg.safe_substitute(err_class="warn", err_msg="Email address could not be verified! Please re-enter.")
-            elif create_new == True:
-                pass
-            else:
-                logger.exception("admin.create_new_user returned unexpected results!")
-                logger.error(create_new)
-    if "login" in params and "password" in params:
-        username = params["login"].value.strip().lower()
-        password = params["password"].value.strip()
-
-        auth = admin.authenticate(username, password)
-
-        if auth == False:
-            output = user_error_msg.safe_substitute(err_class="error", err_msg="Invalid password! Please re-enter.")
-            output += login.form
-        elif auth is None:
-            output = login.new_user.safe_substitute(login=username)
-            output += err_msg
-        elif auth == True:
-            s = Session()
-            session_id = s.new(username, password)
-            new_sesh = mdb.sessions.find_one({"_id": session_id})
-            s.User.mark_usage("authenticated successfully")
-
-			# handle preserve sessions checkbox on the sign in view
-            if "keep_me_signed_in" in params:
-                if "preferences" not in s.User.user:
-                    s.User.user["preferences"] = {}
-                s.User.user["preferences"]["preserve_sessions"] = True
-                mdb.users.save(s.User.user)
-
-            html, body = s.current_view_html()
-            render(html, body_class=body, head=[set_cookie_js(new_sesh["_id"],new_sesh["access_token"])])
-    else:
-        output = login.form
-    return output
 
 
 
@@ -4865,7 +4704,6 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
 
     <!-- angular app -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular.min.js"></script>
-    <script src="http://code.angularjs.org/1.5.3/angular-route.min.js"></script> 
 
     <script src="/media/kdmManager.js?v=%s"></script>
     \n""" % settings.get("application", "version")

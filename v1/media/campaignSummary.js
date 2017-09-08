@@ -4,7 +4,7 @@
 app.controller ("survivorSearchController", function($scope) {
 
     $scope.loadSurvivors = function() {
-        $scope.loadSettlement().then(
+        $scope.getJSONfromAPI('settlement','get').then(
             function(payload) {
                 var all_survivors = payload.data.user_assets.survivors;
                 $scope.survivors = new Array();

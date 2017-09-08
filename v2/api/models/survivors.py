@@ -94,7 +94,6 @@ class Survivor(Models.UserAsset):
         # if called without attribs dict, assume we're responding to a request
         #   and initialize attribs to be request params
         if self.new_asset_attribs == {}:
-            self.get_request_params()
             attribs = self.params
         else:
             attribs = self.new_asset_attribs
@@ -446,7 +445,12 @@ class Survivor(Models.UserAsset):
         """
 
         # initialize
-        a, ci_dict = self.get_asset('cursed_items', handle)
+        if handle is None:
+            self.check_request_params(['handle'])
+            handle = self.params["handle"]
+
+        CI = cursed_items.Assets()
+        ci_dict = CI.get_asset(handle)
 
         # check for the handle (gracefully fail if it's a dupe)
         if ci_dict["handle"] in self.survivor["cursed_items"]:

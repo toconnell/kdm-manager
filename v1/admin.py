@@ -81,55 +81,6 @@ def prune_sessions():
 #   administrative helper functions for user-land
 #
 
-def create_new_user(login, password, password_again, params):
-    """ Creates a new user. Returns False if the passwords don't match;
-    returns None if the email address is bogus. Returns True and logs a user in
-    if we create a new user successfully. """
-
-    login = login.lower()   # normalize email address on creation
-
-    if password != password_again:
-        logger.error("New user creation failed! '%s' passwords do not match!" % (login))
-        return False
-    elif "@" not in login:
-        logger.error("New User creation failed! %s does not contain an arrobe!")
-        return "invalid_email"
-    else:
-        logger.debug("Creating user '%s' from %s" % (login, get_user_agent()))
-
-        # email validation
-        if settings.getboolean("application", "validate_email"):
-            validated = validate_email(login, verify=True)
-            if validated is None:
-                logger.critical("Unable to validate email address '%s'." % login)
-                logger.error(validated)
-                return None
-        else:
-            logger.debug("Skipping email validation...")
-
-        prefs = {}
-        if "keep_me_logged_in" in params:
-            prefs = {"preserve_sessions": True}
-
-        # create the user and update mdb
-        user_dict = {
-            "created_on": datetime.now(),
-            "login": login,
-            "password": md5(password).hexdigest(),
-            "preferences": prefs,
-        }
-        try:
-            mdb.users.insert(user_dict)
-        except Exception as e:
-            logger.error("An error occurred while registering a new user!")
-            logger.exception(e)
-            return False
-        mdb.users.create_index("login", unique=True)
-        logger.info("New user '%s' created successfully!" % login)
-        return True
-
-
-
 def authenticate(login, password):
     """ Tries to authenticate a user and log him in. Returns None if the user's
     login cannot be found. Returns False if he enters a bad password.

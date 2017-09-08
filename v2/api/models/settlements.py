@@ -89,7 +89,6 @@ class Settlement(Models.UserAsset):
         """
 
         self.logger.info("%s creating a new settlement..." % request.User)
-        self.get_request_params()
         self.logger.debug("%s new settlement params: %s" % (request.User, self.params))
 
         settlement = {
@@ -907,6 +906,23 @@ class Settlement(Models.UserAsset):
         self.save()
 
 
+    def set_name(self):
+        """ Assumes a request context. Looks for the param key 'name' and then
+        changes the Settlement's self.settlement["name"] to be that value. """
+
+        self.check_request_params(['name'])
+        new_name = self.params["name"].strip()
+
+        if new_name == "":
+            new_name = "UNKNOWN"
+
+        old_name = self.settlement["name"]
+        self.settlement["name"] = new_name
+
+        self.log_event("%s changed settlement name from '%s' to '%s'" % (request.User.login, old_name, new_name))
+        self.save()
+
+
     def set_principle(self):
         """ Basically, we're looking for incoming JSON to include a 'principle'
         key and an 'election' key.
@@ -1019,6 +1035,19 @@ class Settlement(Models.UserAsset):
                     else:
                         S.update_attribute(attribute, -modifier)
 
+    def update_attribute(self):
+        """ Assumes a request context and looks for 'attribute' and 'modifier'
+        keys in self.params. Uses them to increment (literally adds) the current
+        self.settlement[attribute] value. """
+
+        self.check_request_params(['attribute','modifier'])
+        attribute = self.params["attribute"]
+        modifier = self.params["modifier"]
+
+        self.settlement[attribute] = self.settlement[attribute] + modifier
+        self.log_event("%s updated settlement %s to %s" % (request.User.login, attribute, self.settlement[attribute]))
+        self.save()
+
 
     def update_endeavor_tokens(self, modifier=0):
         """ Updates settlement["endeavor_tokens"] by taking the current value,
@@ -1084,6 +1113,20 @@ class Settlement(Models.UserAsset):
     #
     #   set methods
     #
+
+    def set_attribute(self):
+        """ Assumes a request context and looks for 'attribute' and 'modifier'
+        keys in self.params. Uses them to increment (literally adds) the current
+        self.settlement[attribute] value. """
+
+        self.check_request_params(['attribute','value'])
+        attribute = self.params["attribute"]
+        value = self.params["value"]
+
+        self.settlement[attribute] = value
+        self.log_event("%s updated settlement %s to %s" % (request.User.login, attribute, self.settlement[attribute]))
+        self.save()
+
 
     def set_current_quarry(self, new_quarry=None):
         """ Sets the self.settlement["current_quarry"] attrib. """
@@ -1901,6 +1944,12 @@ class Settlement(Models.UserAsset):
             self.perform_save = True
 
 
+        # Duck Typing!
+
+        for attrib in ['survival_limit', 'population', 'death_count']:
+            self.settlement[attrib] = int(self.settlement[attrib])
+
+
     def bug_fixes(self):
         """ In which we burn CPU cycles to fix our mistakes. """
 
@@ -2309,6 +2358,12 @@ class Settlement(Models.UserAsset):
 
 
         # misc sheet controllers
+        elif action == "set_name":
+            self.set_name()
+        elif action == "set_attribute":
+            self.set_attribute()
+        elif action == "update_attribute":
+            self.update_attribute()
         elif action == "update_endeavor_tokens":
             self.update_endeavor_tokens()
         elif action == "set_lost_settlements":

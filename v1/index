@@ -3,11 +3,11 @@
 #   standard
 import cgi, cgitb
 from datetime import datetime
-from flask import Response
 import os
 
 #   custom
 import admin
+import login
 import html
 from session import Session
 from utils import load_settings, mdb, get_logger, record_response_time
@@ -19,11 +19,8 @@ if __name__ == "__main__":
 
     settings = load_settings()
     logger = get_logger()
-    if settings.getboolean("application","DEBUG"):
+    if settings.getboolean("application","debug"):
         cgitb.enable()
-
-    output = html.login.form
-    body = "sign_in"
 
     params = cgi.FieldStorage()
 
@@ -34,10 +31,8 @@ if __name__ == "__main__":
         logger.exception(e)
         raise
 
-    if S.session is None and "recover_password" not in params:
-        output = html.authenticate_by_form(params)
-    elif S.session is None and "recover_password" in params:
-        output = S.recover_password()
+    if S.session is None:
+        output = login.render()
     else:
         S.process_params(user_action="viewing %s" % S.get_current_view())
         if "norefresh" in params and S.session is not None:

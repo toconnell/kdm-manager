@@ -49,7 +49,10 @@
                 <div
                     class="user_basic_info clickable"
                     ng-repeat="u in users.user_info"
-                    ng-click="showHide('user_' + u._id.$oid)"
+                    ng-click="
+                        copyToClipboard(u._id.$oid);
+                        showHide('user_' + u._id.$oid);
+                    "
                 >
                     <h2>{{u.login}}
                         <span ng-if="u.is_active == true">*</span>

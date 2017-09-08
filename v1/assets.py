@@ -1388,23 +1388,6 @@ class Survivor:
 
 
 
-    def get_survivor_attribute(self, attrib=None, attrib_detail=None):
-        """ Returns a survivor attribute (MOV, ACC, EVA, etc.) as an integer.
-        Use the 'attrib_detail' kwarg to retrieve attribute details, if they
-        exist (if they don't you'll get a zero back). """
-
-        if attrib is None:
-            self.logger.error("get_survivor_attribute() requires a non-None attribute!")
-
-        if attrib_detail is None and attrib in self.survivor.keys():
-            return int(self.survivor[attrib])
-
-        if attrib_detail in ["gear","tokens"] and "attribute_detail" in self.survivor.keys():
-            return int(self.survivor["attribute_detail"][attrib][attrib_detail])
-
-        return 0
-
-
     def update_survivor_attribute(self, attrib, attrib_type, attrib_type_value):
         """ Processes input from the angularjs attributeController app. Updates
         a survivor's base, gear and token attribute stats. Logs. """
@@ -3283,19 +3266,6 @@ class Settlement:
             self.logger.debug("[%s] removed '%s' from milestone story events for %s." % (self.User, m, self))
 
 
-
-    def update_settlement_name(self, new_name):
-        """ Updates the settlement's name. Logs an event if it does. """
-        if new_name != self.settlement["name"]:
-            old_name = self.settlement["name"]
-            self.settlement["name"] = new_name
-            
-            self.logger.debug("%s updated settlement name: '%s' is now '%s'." % (self.User, old_name, new_name))
-            self.log_event("'%s' is now known as '%s'." % (old_name, new_name))
-        else:
-            pass
-
-
     def remove_item_from_storage(self, quantity=1, item_name=None):
         """ Removes an item from storage by name or handle 'quantity' number of
         times. Logs it. """
@@ -3749,8 +3719,6 @@ class Settlement:
 
             if p in ignore_keys:
                 pass
-            elif p == "name":
-                self.update_settlement_name(game_asset_key)
             elif p == "toggle_admin_status":
                 self.toggle_admin_status(game_asset_key)
             elif p == "toggle_milestone":

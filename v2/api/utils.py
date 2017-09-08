@@ -1,19 +1,23 @@
 #!/usr/bin/python2.7
 
-
-
 # general imports
 from bson import json_util
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
+import email
+from email.header import Header as email_Header
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from flask import Response, make_response, request, current_app
 from functools import update_wrapper
 import json
 import logging
 import os
+from pymongo import MongoClient
+import smtplib
 import socket
 import sys
-from pymongo import MongoClient
+import time
 
 # project-specific imports
 import settings
@@ -195,6 +199,50 @@ def get_timeline_index_and_object(timeline,lantern_year):
 
 
 
+# mail session object
+
+class mailSession:
+    """ Initialize one of these to authenticate via SMTP and send emails. This
+    is a port from the legacy app."""
+
+    def __init__(self):
+        self.logger = get_logger()
+        p_settings = settings.Settings('private')
+        self.smtp_host = p_settings.get("smtp","host")
+        self.smtp_user = p_settings.get("smtp","name")
+        self.smtp_pass = p_settings.get("smtp","pass")
+        self.sender_name = p_settings.get("smtp","name_pretty")
+        self.no_reply = p_settings.get("smtp","no-reply")
+        self.connect()
+
+    def connect(self):
+        self.server = smtplib.SMTP(self.smtp_host, 587)
+        self.server.starttls()
+        self.server.login(self.smtp_user, self.smtp_pass)
+        self.logger.debug("SMTP Authentication successful for %s (%s)." % (self.smtp_user, self.smtp_host))
+        time.sleep(0.75)
+
+
+    def send(self, reply_to=None, recipients=["toconnell@tyrannybelle.com"], html_msg='This is a <b>test</b> message!', subject="KDM-Manager!"):
+        """ Generic Emailer. Accepts a list of 'recipients', a 'msg' string and a
+        sender name (leave undefinied to use admin@kdm-manager.com). """
+
+        author = email.utils.formataddr((str(email_Header(self.sender_name, 'utf-8')), self.no_reply))
+        msg = MIMEMultipart('alternative')
+        msg['From'] = author
+        msg['Subject'] = subject
+        msg['To'] = recipients[0]
+
+        if reply_to is not None:
+            msg.add_header('reply-to', reply_to)
+
+        msg.attach(MIMEText(html_msg,'html'))
+
+        self.server.sendmail(self.no_reply, recipients, msg.as_string())
+        self.server.quit()
+        self.logger.debug("Email sent successfully!")
+
+
 
 # general usage methods
 
@@ -248,6 +296,32 @@ def get_logger(log_level=None, log_name=None):
         logger.addHandler(logger_fh)
 
     return logger
+
+
+def get_local_ip():
+    """ Uses the 8.8.8.8 trick to get the localhost IP address. """
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    ip = s.getsockname()[0]
+    s.close()
+    return ip
+
+
+def get_application_url(strip_http=False):
+    """ Determines the URL to use for API operations based on some socket
+    operations and settings from the settings.cfg. Defaults to using localhost
+    on the default API port defined in settings.cfg. """
+
+    fqdn = socket.getfqdn()
+    if fqdn == settings.get("api","prod_fqdn"):
+        output = 'http://kdm-manager.com'
+    else:
+        output = "http://%s" % (get_local_ip())
+
+    if strip_http:
+        return output[7:]
+    else:
+        return output
 
 
 class AssetDict(dict):
