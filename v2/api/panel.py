@@ -41,7 +41,7 @@ def get_user_data():
 
     # now enhance the user data to include a bit more info (to avoid having to
     #   do date calc in javascripts, etc.
-
+    logger.info("made it to the user part")
     def update_user_info(u):
         U = users.User(_id=u["_id"])
         u["age"] = U.get_age()
@@ -53,13 +53,14 @@ def get_user_data():
         u["current_session"] = utils.mdb.sessions.find_one({"_id": u["current_session"]})
         return u
 
-    try:
-        final_user_info = []
-        for u in recent_users:
+    final_user_info = []
+    for u in recent_users:
+        try:
             final_user_info.append(update_user_info(u))
-    except Exception as e:
-        logger.error("panel.py caugh an exception while attempting to update recent user data!")
-        logger.error(e)
+        except Exception as e:
+            logger.error("panel.py threw an exception while attempting to update recent user data!")
+            logger.error(u)
+            logger.error("Exception was: %s" % e)
 
     active_user_count = 0
     recent_user_count = 0
