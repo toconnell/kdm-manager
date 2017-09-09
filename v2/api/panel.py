@@ -41,9 +41,13 @@ def get_user_data():
 
     # now enhance the user data to include a bit more info (to avoid having to
     #   do date calc in javascripts, etc.
-    logger.info("made it to the user part")
+
     def update_user_info(u):
-        U = users.User(_id=u["_id"])
+        try:
+            U = users.User(_id=u["_id"])
+        except Exception as e:
+            logger.error("panel.py failed to initialize user '%s'" % u["login"])
+            logger.error(e)
         u["age"] = U.get_age()
         u["latest_activity_age"] = U.get_latest_activity(return_type='age')
         u["has_session"] = U.has_session()
@@ -58,9 +62,11 @@ def get_user_data():
         try:
             final_user_info.append(update_user_info(u))
         except Exception as e:
-            logger.error("panel.py threw an exception while attempting to update recent user data!")
-            logger.error(u)
+            logger.error("panel.py threw an exception while attempting to enhance recent user data!")
+            logger.error("User '%s' (%s) could not be initialized and enhanced! Returning it as-is..." % (u["login"], u["_id"]))
             logger.error("Exception was: %s" % e)
+            u["retrieval_error"] = True
+            final_user_info.append(u)
 
     active_user_count = 0
     recent_user_count = 0
