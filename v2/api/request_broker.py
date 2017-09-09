@@ -42,12 +42,17 @@ class badResponse():
 def get_admin_data(resource=None):
     """ Retrieves admin panel data. """
 
-    if resource == 'user_data':
-        return panel.get_user_data()
-    elif resource == 'logs':
-        return panel.serialize_system_logs()
+    try:
+        if resource == 'user_data':
+            return panel.get_user_data()
+        elif resource == 'logs':
+            return panel.serialize_system_logs()
+    except Exception as e:
+        logger.error("Unable to return '%s' admin data!" % resource)
+        logger.error(e)
+        raise
 
-    return utils.http_501
+    return utils.http_500
 
 
 def get_user_asset(collection=None, asset_id=None):

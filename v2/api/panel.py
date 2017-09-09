@@ -53,9 +53,13 @@ def get_user_data():
         u["current_session"] = utils.mdb.sessions.find_one({"_id": u["current_session"]})
         return u
 
-    final_user_info = []
-    for u in recent_users:
-        final_user_info.append(update_user_info(u))
+    try:
+        final_user_info = []
+        for u in recent_users:
+            final_user_info.append(update_user_info(u))
+    except Exception as e:
+        logger.error("panel.py caugh an exception while attempting to update recent user data!")
+        logger.error(e)
 
     active_user_count = 0
     recent_user_count = 0
