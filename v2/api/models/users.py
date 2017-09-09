@@ -8,6 +8,7 @@ from flask import Response, request
 from hashlib import md5
 import json
 import jwt
+import os
 import random
 import string
 from werkzeug.security import safe_str_cmp
@@ -119,10 +120,15 @@ def initiate_password_reset():
     user_code = U.set_recovery_code()
 
     # finally, send the email to the user
-    msg = string.Template(file("html/password_recovery.html", "rb").read())
-    msg = msg.safe_substitute(login=user_login, recovery_code=user_code, app_url=utils.get_application_url())
-    e = utils.mailSession()
-    e.send(recipients=[user_login], html_msg=msg)
+    try:
+        tmp_file = os.path.join(settings.get("api","cwd"), "html/password_recovery.html")
+        msg = string.Template(file(tmp_file, "rb").read())
+        msg = msg.safe_substitute(login=user_login, recovery_code=user_code, app_url=utils.get_application_url())
+        e = utils.mailSession()
+        e.send(recipients=[user_login], html_msg=msg)
+    except Exception as e:
+        logger.error(e)
+        raise
 
     # exit 200
     return utils.http_200
