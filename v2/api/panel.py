@@ -62,9 +62,9 @@ def get_user_data():
         try:
             final_user_info.append(update_user_info(u))
         except Exception as e:
-            logger.error("panel.py threw an exception while attempting to enhance recent user data!")
-            logger.error("User '%s' (%s) could not be initialized and enhanced! Returning it as-is..." % (u["login"], u["_id"]))
-            logger.error("Exception was: %s" % e)
+#            logger.error("panel.py threw an exception while attempting to enhance recent user data!")
+#            logger.error("User '%s' (%s) could not be initialized and enhanced! Returning it as-is..." % (u["login"], u["_id"]))
+#            logger.error("Exception was: %s" % e)
             u["retrieval_error"] = True
             final_user_info.append(u)
 
