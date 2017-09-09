@@ -1503,7 +1503,7 @@ class survivor:
                 class="kd_css_checkbox"
                 type="checkbox"
                 name="toggle_retired"
-                ng-model="retiredCheckBox"
+                ng-model="survivor.sheet.retired"
                 ng-checked="survivor.sheet.retired == true"
                 ng-change="setRetired()"
             >
@@ -3307,7 +3307,7 @@ class settlement:
                 <h4>- Innovations -</h4>
                 <span
                     class="kd_checkbox_checked campaign_summary_bullet"
-                    ng-repeat="i in settlement_sheet.innovations"
+                    ng-repeat="i in settlement.sheet.innovations"
                 >
                     {{settlement.game_assets.innovations[i].name}}
                 </span>
@@ -3767,7 +3767,7 @@ class settlement:
                 >
                     {{settlement.game_assets.locations[loc].name}}
                 </span>
-                <span ng-if="settlement_sheet.location_levels[loc] != undefined" class="location_lvl_select">
+                <span ng-if="settlement.sheet.location_levels[loc] != undefined" class="location_lvl_select">
                     <select
                         class="location_level"
                         ng-model="locationLevel"
@@ -3816,8 +3816,8 @@ class settlement:
 
             <div
                 class="line_item location_container"
-                ng-repeat="i in settlement_sheet.innovations"
-                ng-init="innovationLevel = settlement_sheet.innovation_levels[i]"
+                ng-repeat="i in settlement.sheet.innovations"
+                ng-init="innovationLevel = settlement.sheet.innovation_levels[i]"
             >
                 <span class="bullet"></span>
                 <span
@@ -3826,7 +3826,7 @@ class settlement:
                 >
                     {{settlement.game_assets.innovations[i].name}}
                 </span>
-                <span ng-if="settlement_sheet.innovation_levels[i] != undefined" class="location_lvl_select">
+                <span ng-if="settlement.sheet.innovation_levels[i] != undefined" class="location_lvl_select">
                     <select
                         class="location_level"
                         ng-model="innovationLevel"
@@ -3853,8 +3853,8 @@ class settlement:
             <div
                 id="innovationDeckContainerdiv"
                 class="innovation_deck"
-                title="The current innovation deck for {{settlement_sheet.name}}. Tap or click to refresh!"
-                ng-if="settlement_sheet.innovations.length != 0"
+                title="The current innovation deck for {{settlement.sheet.name}}. Tap or click to refresh!"
+                ng-if="settlement.sheet.innovations.length != 0"
                 ng-init="setInnovationDeck()"
                 ng-click="setInnovationDeck()"
             >

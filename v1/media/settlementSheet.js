@@ -26,6 +26,7 @@ app.controller("settlementSheetController", function($scope) {
 app.controller("locationsController", function($scope) {
     $scope.addLocation = function() {
         if ($scope.newLocation === null) {return false};
+        $scope.settlement.sheet.locations.push($scope.newLocation);
         $scope.postJSONtoAPI('settlement', 'add_location', {"handle": $scope.newLocation});
     };
     $scope.rmLocation = function(index, loc_handle) {
@@ -78,6 +79,7 @@ app.controller('innovationsController', function($scope) {
     $scope.addInnovation = function() {
 //        console.warn("Adding innovation: " + $scope.newInnovation);
         if ($scope.newInnovation === null) {return false};
+        $scope.settlement.sheet.innovations.push($scope.newInnovation);
         var js_obj = {"handle": $scope.newInnovation};
         var out = $scope.postJSONtoAPI('settlement', 'add_innovation', js_obj);
         sleep(500).then(() => {

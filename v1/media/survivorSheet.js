@@ -2,6 +2,8 @@ app.controller("survivorSheetController", function($scope) {
     // this is the root controller for the survivor sheet; it is initialized
     // at the top of the sheet, so it's like...a mini root scope, sort of.
 
+    $scope.miscAttribs = {}
+
     // general sheet methods
     $scope.setSurvivorName = function() {
         $scope.postJSONtoAPI('survivor','set_name', {"name": $scope.survivor.sheet.name});
@@ -20,7 +22,7 @@ app.controller("survivorSheetController", function($scope) {
     };
 
     $scope.setRetired = function() {
-        $scope.postJSONtoAPI('survivor','set_retired', {'retired': $scope.retiredCheckBox})
+        $scope.postJSONtoAPI('survivor','set_retired', {'retired': $scope.survivor.sheet.retired})
     };
 
 });

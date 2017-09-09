@@ -1155,10 +1155,11 @@ class Survivor(Models.UserAsset):
             return True
 
         self.survivor["retired"] = retired
-        if retired:
+        if self.survivor["retired"]:
             self.log_event("%s has retired %s." % (request.User.login, self.pretty_name()))
         else:
-            self.log_event("%s has taken %s out of reitrement." % (request.User.login, self.pretty_name()))
+            del self.survivor["retired"]
+            self.log_event("%s has taken %s out of retirement." % (request.User.login, self.pretty_name()))
         self.save()
 
 
