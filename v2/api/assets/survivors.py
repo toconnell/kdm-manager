@@ -1,3 +1,9 @@
+defaults = {
+    "Movement": 5,
+    "max_bleeding_tokens": 5,
+}
+
+
 #
 #   these are the 'macro' options used when creating new settlements. See the
 #   new_settlement_special() method of the settlements.Settlement model/class

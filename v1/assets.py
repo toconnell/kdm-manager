@@ -396,33 +396,6 @@ class User:
         return survivors
 
 
-    def get_favorites(self, scope=None):
-        """ Returns a list of the user's favorite survivors. For the purposes of
-        this method, a survivor "belongs" to a user if it has their 'login' attr
-        as its 'email' attr. Only returns live survivors."""
-
-        all_favorites = mdb.survivors.find({
-            "$or":
-            [
-                {"email": self.user["login"],},
-                {"created_by": self.user["_id"],}
-            ],
-            "favorite": {"$exists": True},
-            "dead": {"$exists": False},
-        })
-
-
-        if scope == "current_settlement":
-            out_list = []
-            for f in all_favorites:
-                if f["settlement"] == self.Session.Settlement.settlement["_id"]:
-                    out_list.append(f)
-            return out_list
-
-        return all_favorites
-
-
-
 
     def get_last_n_user_admin_logs(self, logs):
         if logs == 1:
@@ -1373,21 +1346,6 @@ class Survivor:
 
 
 
-    def update_email(self, email):
-        """ Changes the survivor's email. Does some normalization and checks."""
-        email = email.lower().strip()
-
-        if email == "":
-            return
-        elif email == self.survivor["email"]:
-            return
-        else:
-            self.survivor["email"] = email
-            self.Settlement.log_event("%s is now managed by %s." % (self, email))
-            self.logger.debug("[%s] changed survivor %s email to %s." % (self.User, self, email))
-
-
-
     def update_survivor_attribute(self, attrib, attrib_type, attrib_type_value):
         """ Processes input from the angularjs attributeController app. Updates
         a survivor's base, gear and token attribute stats. Logs. """
@@ -1563,8 +1521,6 @@ class Survivor:
                 self.add_game_asset("disorder", game_asset_key)
             elif p == "remove_disorder":
                 self.rm_game_asset('disorders',game_asset_key)
-            elif p == "email":
-                self.update_email(game_asset_key)
             elif p == "in_hunting_party":
                 self.join_departing_survivors()
             elif p == "partner_id":
@@ -1743,9 +1699,6 @@ class Survivor:
 
             # controls
             remove_survivor_controls = rm_controls,
-
-            # checkbox status
-            favorite_checked = flags["favorite"],
 
             # manually generated hit boxes
             insanity = self.survivor["Insanity"],
@@ -2833,13 +2786,13 @@ class Settlement:
                     in_hunting_party = None
                     can_hunt = ""
 
-                is_favorite = "hidden"
-                if "favorite" in S.survivor.keys():
-                    is_favorite = "favorite"
-
                 avatar_img = ""
                 if "avatar" in S.survivor.keys():
                     avatar_img = S.get_avatar("html_campaign_summary")
+
+                favorite = 'hidden'
+                if self.User.user["login"] in S.survivor["favorite"]:
+                    favorite = 'favorite'
 
                 survivor_html = html.survivor.campaign_asset.safe_substitute(
                     avatar = avatar_img,
@@ -2855,12 +2808,12 @@ class Settlement:
                     special_annotation = annotation,
                     disabled = disabled,
                     name = S.survivor["name"],
-                    favorite = is_favorite,
                     hunt_xp = S.survivor["hunt_xp"],
                     survival = S.survivor["survival"],
                     insanity = S.survivor["Insanity"],
                     courage = S.survivor["Courage"],
                     understanding = S.survivor["Understanding"],
+                    favorite = favorite,
                 )
 
                 # finally, file our newly minted survivor in a group:
@@ -2873,7 +2826,7 @@ class Settlement:
                     groups[5]["survivors"].append(survivor_html)
                 elif "skip_next_hunt" in S.survivor.keys():
                     groups[4]["survivors"].append(survivor_html)
-                elif "favorite" in S.survivor.keys():
+                elif self.User.user["login"] in S.survivor['favorite']:
                     groups[2]["survivors"].append(survivor_html)
                 else:
                     if S.survivor["name"] == "Anonymous":

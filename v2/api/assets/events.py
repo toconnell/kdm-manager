@@ -1,3 +1,7 @@
+ui_prompts = {
+    'retired': {'name': 'Retired', 'desc': 'Retired survivors cannot depart, but still contribute to the total population of the settlement, and may participate in settlement events and endeavors.'},
+}
+
 settlement_events = {
 
     # core 1.4

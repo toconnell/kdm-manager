@@ -61,7 +61,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.66
+        self.object_version=0.68
         Models.UserAsset.__init__(self,  *args, **kwargs)
         if self.normalize_on_init:
             self.normalize()
@@ -271,7 +271,7 @@ class Settlement(Models.UserAsset):
             self.save()
 
 
-    def serialize(self):
+    def serialize(self, return_type=None):
         """ Renders the settlement, including all methods and supplements, as
         a monster JSON object. This is where all views come from."""
 
@@ -284,66 +284,69 @@ class Settlement(Models.UserAsset):
         # now start
         output = self.get_serialize_meta()
 
-        # create the sheet
-        output.update({"sheet": self.settlement})
-        output["sheet"].update({"campaign": self.get_campaign()})
-        output["sheet"].update({"expansions": self.get_expansions()})
-        output["sheet"]["settlement_notes"] = self.get_settlement_notes()
-        output["sheet"]["enforce_survival_limit"] = self.get_survival_limit(bool)
-        output["sheet"]["minimum_survival_limit"] = self.get_survival_limit("min")
-        output["sheet"]["minimum_death_count"] = self.get_death_count("min")
-        output["sheet"]["minimum_population"] = self.get_population("min")
+        # retrieve user assets
+        if return_type in [None]:
+            output.update({"user_assets": {}})
+            output["user_assets"].update({"players": self.get_players()})
+            output["user_assets"].update({"survivors": self.get_survivors()})
 
-        # create user_assets
-        output.update({"user_assets": {}})
-        output["user_assets"].update({"players": self.get_players()})
-        output["user_assets"].update({"survivors": self.get_survivors()})
-#        output["user_assets"].update({"survivor_weapon_masteries": self.get_survivor_weapon_masteries()})
+        # create the sheet
+        if return_type in [None, 'sheet']:
+            output.update({"sheet": self.settlement})
+            output["sheet"].update({"campaign": self.get_campaign()})
+            output["sheet"].update({"expansions": self.get_expansions()})
+            output["sheet"]["settlement_notes"] = self.get_settlement_notes()
+            output["sheet"]["enforce_survival_limit"] = self.get_survival_limit(bool)
+            output["sheet"]["minimum_survival_limit"] = self.get_survival_limit("min")
+            output["sheet"]["minimum_death_count"] = self.get_death_count("min")
+            output["sheet"]["minimum_population"] = self.get_population("min")
 
         # create game_assets
-        output.update({"game_assets": {}})
-        output["game_assets"].update(self.get_available_assets(innovations))
-        output["game_assets"].update(self.get_available_assets(locations, exclude_types=["resources","gear"]))
-        output["game_assets"].update(self.get_available_assets(abilities_and_impairments))
-        output["game_assets"].update(self.get_available_assets(weapon_specializations))
-        output["game_assets"].update(self.get_available_assets(weapon_masteries))
-        output["game_assets"].update(self.get_available_assets(weapon_proficiency, handles=False))
-        output["game_assets"].update(self.get_available_assets(cursed_items))
-        output["game_assets"].update(self.get_available_assets(survival_actions))
-        output["game_assets"].update(self.get_available_assets(events))
-        output["game_assets"].update(self.get_available_assets(monsters))
-        output["game_assets"].update(self.get_available_assets(causes_of_death, handles=False))
-        output["game_assets"].update(self.get_available_assets(epithets))
-        output["game_assets"].update(self.get_available_assets(fighting_arts))
+        if return_type in [None, 'game_assets']:
+            output.update({"game_assets": {}})
+            output["game_assets"].update(self.get_available_assets(innovations))
+            output["game_assets"].update(self.get_available_assets(locations, exclude_types=["resources","gear"]))
+            output["game_assets"].update(self.get_available_assets(abilities_and_impairments))
+            output["game_assets"].update(self.get_available_assets(weapon_specializations))
+            output["game_assets"].update(self.get_available_assets(weapon_masteries))
+            output["game_assets"].update(self.get_available_assets(weapon_proficiency, handles=False))
+            output["game_assets"].update(self.get_available_assets(cursed_items))
+            output["game_assets"].update(self.get_available_assets(survival_actions))
+            output["game_assets"].update(self.get_available_assets(events))
+            output["game_assets"].update(self.get_available_assets(monsters))
+            output["game_assets"].update(self.get_available_assets(causes_of_death, handles=False))
+            output["game_assets"].update(self.get_available_assets(epithets))
+            output["game_assets"].update(self.get_available_assets(fighting_arts))
 
             # options (i.e. decks)
-        output["game_assets"]["principles_options"] = self.get_principles_options()
-        output["game_assets"]["milestones_options"] = self.get_milestones_options()
-        output["game_assets"]["milestones_dictionary"] = self.get_milestones_options(dict)
+            output["game_assets"]["principles_options"] = self.get_principles_options()
+            output["game_assets"]["milestones_options"] = self.get_milestones_options()
+            output["game_assets"]["milestones_dictionary"] = self.get_milestones_options(dict)
 
             # monster game assets
-        output["game_assets"]["nemesis_options"] = self.get_monster_options("nemesis_monsters")
-        output["game_assets"]["quarry_options"] = self.get_monster_options("quarries")
-        for c in [
-            "showdown_options",
-            "special_showdown_options",
-            "nemesis_encounters",
-            "defeated_monsters"
-        ]:
-            output["game_assets"][c] = self.get_timeline_monster_event_options(c)
+            output["game_assets"]["nemesis_options"] = self.get_monster_options("nemesis_monsters")
+            output["game_assets"]["quarry_options"] = self.get_monster_options("quarries")
+            for c in [
+                "showdown_options",
+                "special_showdown_options",
+                "nemesis_encounters",
+                "defeated_monsters"
+            ]:
+                output["game_assets"][c] = self.get_timeline_monster_event_options(c)
 
             # meta/other game assets
-        output["game_assets"]["campaign"] = self.get_campaign(dict)
-        output["game_assets"]["expansions"] = self.get_expansions(dict)
+            output["game_assets"]["campaign"] = self.get_campaign(dict)
+            output["game_assets"]["expansions"] = self.get_expansions(dict)
 
             # misc helpers for front-end
-        output["game_assets"]["survival_actions"] = self.get_survival_actions("JSON")
+            output["game_assets"]["survival_actions"] = self.get_survival_actions("JSON")
 
 
         # additional top-level elements for more API "flatness"
-        output["survivor_bonuses"] = self.get_bonuses("JSON")
-        output["survivor_attribute_milestones"] = self.get_survivor_attribute_milestones()
-        output["eligible_parents"] = self.get_eligible_parents()
+        if return_type in [None]:
+            output["survivor_bonuses"] = self.get_bonuses("JSON")
+            output["survivor_attribute_milestones"] = self.get_survivor_attribute_milestones()
+            output["eligible_parents"] = self.get_eligible_parents()
 
 
         # finally, return a JSON string of our object
@@ -2325,8 +2328,12 @@ class Settlement(Models.UserAsset):
         #
 
         if action == "get":
-            return self.return_json()
-        elif action == "event_log":
+            return Response(response=self.serialize(), status=200, mimetype="application/json")
+        if action == 'get_sheet':
+            return Response(response=self.serialize('sheet'), status=200, mimetype="application/json")
+        if action == 'get_game_assets':
+            return Response(response=self.serialize('game_assets'), status=200, mimetype="application/json")
+        elif action == "get_event_log":
             return Response(response=self.get_event_log("JSON"), status=200, mimetype="application/json")
         elif action == "get_innovation_deck":
             return Response(response=self.get_innovation_deck("JSON"), status=200, mimetype="application/json")

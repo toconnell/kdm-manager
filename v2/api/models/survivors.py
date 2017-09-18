@@ -4,7 +4,7 @@ from bson import json_util
 from bson.objectid import ObjectId
 from copy import copy
 from datetime import datetime
-from flask import request
+from flask import request, Response
 import json
 import random
 
@@ -40,6 +40,12 @@ class Assets(Models.AssetCollection):
 
         return d
 
+    def get_defaults(self):
+        """ Returns a dictionary of default attribute values for survivors. """
+
+        d = copy(survivors.defaults)
+        return d
+
 
 
 
@@ -54,13 +60,14 @@ class Survivor(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="survivors"
-        self.object_version = 0.52
+        self.object_version = 0.59
 
         # data model meta data
-        self.stats =            ['Movement','Accuracy','Strength','Evasion','Luck','Speed']
-        self.flags =            ['skip_next_hunt','cannot_use_fighting_arts','cannot_spend_survival']
-        self.min_zero_attribs =  ["hunt_xp","Courage","Understanding"]
-        self.min_one_attribs =   ["Movement"]
+        self.stats =                ['Movement','Accuracy','Strength','Evasion','Luck','Speed']
+        self.flags =                ['skip_next_hunt','cannot_use_fighting_arts','cannot_spend_survival']
+        self.abs_value_attribs =    ['max_bleeding_tokens', ]
+        self.min_zero_attribs =     ["hunt_xp","Courage","Understanding"]
+        self.min_one_attribs =      ["Movement"]
 
         # if we're doing a new survivor, it will happen when we subclass the
         # Models.UserAsset class:
@@ -116,6 +123,7 @@ class Survivor(Models.UserAsset):
             "meta": {
                 "abilities_and_impairments_version": 1.0,
                 "epithets_version": 1.0,
+                "favorites_version": 1.0,
                 "fighting_arts_version": 1.0,
                 "weapon_proficiency_type": 1.0,
             },
@@ -125,6 +133,7 @@ class Survivor(Models.UserAsset):
             "created_by":   request.User._id,
             "settlement":   self.settlement_id,
             "public":       False,
+
             "in_hunting_party": False,  # transitional
 
             # survivor sheet
@@ -141,6 +150,10 @@ class Survivor(Models.UserAsset):
             "Courage":  0,
             "Understanding": 0,
             "affinities": {"red":0,"blue":0,"green":0},
+
+            # misc
+            'bleeding_tokens': 0,
+            'max_bleeding_tokens': 5,
 
             # attributes
             "Movement": 5,
@@ -166,6 +179,7 @@ class Survivor(Models.UserAsset):
             "abilities_and_impairments": [],
             "cursed_items": [],
             "disorders": [],
+            "favorite": [],
             "fighting_arts": [],
             "fighting_arts_levels": {},
             "epithets": [],
@@ -331,6 +345,10 @@ class Survivor(Models.UserAsset):
 
         if self.survivor["meta"].get("epithets_version", None) is None:
             self.convert_epithets()
+            self.perform_save = True
+
+        if self.survivor["meta"].get("favorites_version", None) is None:
+            self.convert_favorite()
             self.perform_save = True
 
         if self.survivor["meta"].get("fighting_arts_version", None) is None:
@@ -512,6 +530,45 @@ class Survivor(Models.UserAsset):
         self.save()
 
 
+    def add_favorite(self, user_email=None):
+        """Adds the value of the incoming 'user_email' kwarg to the survivor's
+        'favorite' attribute (which is a list of users who have favorited the
+        survivor. """
+
+        if user_email is None:
+            self.check_request_params(['user_email'])
+            user_email = self.params['user_email']
+
+        if user_email in self.survivor['favorite']:
+            self.logger.error("%s User '%s' is already in this survivor's favorite list. Ignoring bogus add request." % (self, user_email))
+            return True
+        else:
+            self.survivor['favorite'].append(user_email)
+            self.log_event('%s added %s to their favorite survivors.' % (user_email, self.pretty_name()))
+
+        self.save()
+
+
+    def rm_favorite(self, user_email=None):
+        """Removes the value of the incoming 'user_email' kwarg from the
+        survivor's 'favorite' attribute (which is a list of users who have
+        favorited the survivor. """
+
+        if user_email is None:
+            self.check_request_params(['user_email'])
+            user_email = self.params['user_email']
+
+        if user_email not in self.survivor['favorite']:
+            self.logger.error("%s User '%s' is not in this survivor's favorite list. Ignoring bogus remove request." % (self, user_email))
+            return True
+        else:
+            self.survivor['favorite'].remove(user_email)
+            self.log_event('%s removed %s from their favorite survivors.' % (user_email, self.pretty_name()))
+
+        self.save()
+
+
+
     def add_game_asset(self, asset_class=None, asset_handle=None, apply_related=True):
         """ Port of the legacy method of the same name.
 
@@ -576,6 +633,8 @@ class Survivor(Models.UserAsset):
         for ak in asset_dict.keys():
             if ak in self.stats:
                 self.update_attribute(ak, asset_dict[ak])
+            if ak in self.abs_value_attribs:
+                self.set_attribute(ak, asset_dict[ak])
 
         # levels!?
         if asset_dict.get('levels', None) is not None:
@@ -706,6 +765,8 @@ class Survivor(Models.UserAsset):
         for ak in asset_dict.keys():
             if ak in self.stats:
                 self.update_attribute(ak, -asset_dict[ak])
+            if ak in self.abs_value_attribs:
+                self.default_attribute(ak)
 
         # 4.) EPITHETS - check for 'epithet' key
         if asset_dict.get("epithet", None) is not None:
@@ -812,6 +873,26 @@ class Survivor(Models.UserAsset):
                 elif self.survivor[attribute] == 8:
                     self.add_game_asset("abilities_and_impairments", "mastery_%s" % w_handle)
 
+
+    def update_bleeding_tokens(self, modifier=None):
+        """ Adds 'modifier' to the survivor["bleeding_tokens"]. Cannot go below
+        zero, e.g. by adding a negative number, or above
+        survivor["max_bleeding_tokens"]. Fails gracefully in either case. """
+
+        if modifier is None:
+            self.check_request_params(['modifier'])
+            modifier = int(self.params["modifier"])
+
+        current_value = self.survivor["bleeding_tokens"]
+        self.survivor['bleeding_tokens'] = current_value + modifier
+
+        if self.survivor["bleeding_tokens"] > 0:
+            self.survivor["bleeding_tokens"] = 0
+        elif self.survivor["bleeding_tokens"] > self.survivor["max_bleeding_tokens"]:
+            self.survivor["bleeding_tokens"] = self.survivor["max_bleding_tokens"]
+
+        self.log_event('%s set %s bleeding tokens to %s.' % (request.User.login, self.survivor.pretty_name(), self.survivor["bleeding_tokens"]))
+        self.save()
 
 
     def update_survival(self, modifier=0):
@@ -1118,6 +1199,38 @@ class Survivor(Models.UserAsset):
             self.save()
 
 
+    def set_email(self, new_email=None):
+        """ Validates an incoming email address and attempts to set it as the
+        survivor's new email. It has to a.) be different, b.) look like an email
+        address and c.) belong to a registered user before we'll set it."""
+
+        if new_email is None:
+            self.check_request_params(["email"])
+            new_email = self.params["email"]
+
+        # sanity checks
+        if new_email == self.survivor["email"]:
+            msg = "%s Survivor email unchanged! Ignoring request..." % self
+            self.logger.warn(msg)
+            return Response(response=msg, status=200)
+        elif not '@' in new_email:
+            msg = "'%s Survivor email '%s' does not look like an email address! Ignoring..." % (self, new_email)
+            self.logger.warn(msg)
+            return Response(response=msg, status=200)
+        elif utils.mdb.users.find_one({'login': new_email}) is None:
+            msg = "The email address '%s' is not associated with any known user." % new_email
+            self.logger.error(msg)
+            return Response(response=msg, status=422)
+
+        # if we're still here, do it.
+        old_email = self.survivor["email"]
+        self.survivor["email"] = new_email
+
+        self.log_event("%s changed the manager of %s to %s." % (request.User.login, old_email, self.survivor["email"]))
+        self.save()
+        return utils.http_200
+
+
     def set_name(self, new_name=None):
         """ Sets the survivor's name. Logs it. """
 
@@ -1304,6 +1417,36 @@ class Survivor(Models.UserAsset):
 
         self.survivor["weapon_proficiency_type"] = handle
         self.log_event("%s set weapon proficiency type to '%s' for %s" % (request.User.login, h_dict["handle"], self.pretty_name()))
+        self.save()
+
+
+    #
+    #   defaults and resets
+    #
+
+    def default_attribute(self, attrib=None):
+        """ Defaults a Survivor attribute to its base value, as determined the
+        assets.survivors.py module. This absolutely will clobber the current
+        value, leaving no trace of it. YHBW. """
+
+        if attrib is None:
+            self.check_request_params(['attribute'])
+            attrib = self.params["attribute"]
+
+        # sanity check!
+        SA = Assets()
+        defaults = SA.get_defaults()
+        if attrib not in defaults.keys():
+            msg = "%s does not have a default value!" % (attrib)
+            self.logger.exception(msg)
+            raise utils.InvalidUsage(msg, status_code=400)
+        if attrib not in self.survivor.keys():
+            msg = "%s does not have '%s' attribute!" % (self, attrib)
+            self.logger.exception(msg)
+            raise utils.InvalidUsage(msg, status_code=400)
+
+        self.survivor[attrib] = defaults[attrib]
+        self.log_event("%s defaulted %s '%s' to %s" % (request.User.login, self.pretty_name(), attrib, defaults[attrib]))
         self.save()
 
 
@@ -1679,6 +1822,16 @@ class Survivor(Models.UserAsset):
             self.survivor["affinities"] = {"red":0,"blue":0,"green":0}
             self.perform_save = True
 
+        if not 'bleeding_tokens' in self.survivor.keys():
+            self.survivor["bleeding_tokens"] = 0
+            self.logger.info("Adding baseline 'bleeding_tokens' (int) attrib to %s" % self)
+            self.perform_save = True
+
+        if not 'max_bleeding_tokens' in self.survivor.keys():
+            self.survivor["max_bleeding_tokens"] = 5
+            self.logger.info("Adding baseline 'max_bleeding_tokens' (int) attrib to %s" % self)
+            self.perform_save = True
+
         if not 'cursed_items' in self.survivor.keys():
             self.survivor["cursed_items"] = []
             self.perform_save = True
@@ -1717,6 +1870,8 @@ class Survivor(Models.UserAsset):
             "Courage",
             "survival",
             "hunt_xp",
+            "bleeding_tokens",
+            "max_bleeding_tokens",
         ]
 
         for attrib in int_types:
@@ -1778,6 +1933,20 @@ class Survivor(Models.UserAsset):
         self.logger.info("Converted epithets from names (legacy) to handles for %s" % (self))
 
 
+    def convert_favorite(self):
+        """ Turns the 'favorite' attribute from a string to a list of email
+        addresses. """
+
+        if self.survivor.get('favorite', None) is None:
+            self.survivor['favorite'] = []
+        else:
+            self.survivor['favorite'] = []
+            self.add_favorite(self.survivor["email"])
+
+        self.survivor["meta"]["favorites_version"] = 1.0
+        self.logger.info("Converted 'favorite' attrib from str (legacy) to list for %s" % (self))
+
+
     def convert_fighting_arts(self):
         """ Tries to convert Fighting Art names to to handles. Drops anything
         that it cannot convert. """
@@ -1837,12 +2006,18 @@ class Survivor(Models.UserAsset):
 
         elif action == "set_name":
             self.set_name()
+        elif action == "set_email":
+            return self.set_email()
 
         # controllers with biz logic
         elif action == "controls_of_death":
             self.controls_of_death()
 
         # add/rm assets
+        elif action == "add_favorite":
+            self.add_favorite()
+        elif action == "rm_favorite":
+            self.rm_favorite()
         elif action == "add_game_asset":
             self.add_game_asset()
         elif action == "rm_game_asset":
@@ -1875,6 +2050,9 @@ class Survivor(Models.UserAsset):
             self.set_attribute()
         elif action == "set_attribute_detail":  # tokens/gear
             self.set_attribute_detail()
+
+        elif action == "update_bleeding_tokens":
+            self.update_bleeding_tokens()
 
         elif action == "set_weapon_proficiency_type":
             self.set_weapon_proficiency_type()

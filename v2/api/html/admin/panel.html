@@ -48,16 +48,19 @@
             <div class="users_container">
                 <div
                     class="user_basic_info clickable"
+                    ng-class="{'active_user': u.is_active}"
                     ng-repeat="u in users.user_info"
-                    ng-click="
-                        copyToClipboard(u._id.$oid);
-                        showHide('user_' + u._id.$oid);
-                    "
+                    ng-click="showHide('user_' + u._id.$oid);"
                 >
                     <h2>{{u.login}}
                         <span ng-if="u.is_active == true">*</span>
                     </h2>
-                    <div class="user_detail" id="user_{{u._id.$oid}}">
+                    <div
+                        class="user_detail"
+                        id="user_{{u._id.$oid}}"
+                        title="Click to copy OID to clipboard."
+                        ng-click="copyToClipboard(u._id.$oid);"
+                    >
                         <br><br/>
                         <b>Latest Activity:</b> {{u.latest_activity_age}} ago<br/>
                         <b>Latest Action:</b> {{u.latest_action}}<br/>

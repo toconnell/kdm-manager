@@ -45,15 +45,16 @@ default_timeline = [
 
 default_survivor_attribute_milestones = {
     "hunt_xp": [
-        {"values": [2,6,10,15], "handle": "core_age"},
+        {"values": [2,6,10,15], "handle": "core_age", 'event': 'story_events'},
+        {'values': [16], 'handle': 'retired', 'event': 'ui_prompts'},
     ],
     "Courage": [
-        {"values": [3], "handle": "core_bold"},
-        {"values": [9], "handle": "core_see_the_truth"},
+        {"values": [3], "handle": "core_bold", 'event': 'story_events'},
+        {"values": [9], "handle": "core_see_the_truth", 'event': 'story_events'},
     ],
     "Understanding": [
-        {"values": [3], "handle": "core_insight"},
-        {"values": [9], "handle": "core_white_secret"},
+        {"values": [3], "handle": "core_insight", 'event': 'story_events'},
+        {"values": [9], "handle": "core_white_secret", 'event': 'story_events'},
     ],
 }
 
@@ -347,15 +348,16 @@ campaign_definitions = {
         ],
         "survivor_attribute_milestones": {
             "hunt_xp": [
-                {"values": [2,6,10,15], "handle": "core_age"},
+                {"values": [2,6,10,15], "handle": "core_age", 'event': 'story_events'},
+                {'values': [16], 'handle': 'retired', 'event': 'ui_prompts'},
             ],
             "Courage": [
-                {"values": [3], "handle": "dk_awake"},
-                {"values": [9], "handle": "core_see_the_truth"},
+                {"values": [3], "handle": "dk_awake", 'event': 'story_events'},
+                {"values": [9], "handle": "core_see_the_truth", 'event': 'story_events'},
             ],
             "Understanding": [
-                {"values": [3], "handle": "dk_awake"},
-                {"values": [9], "handle": "core_white_secret"},
+                {"values": [3], "handle": "dk_awake", 'event': 'story_events'},
+                {"values": [9], "handle": "core_white_secret", 'event': 'story_events'},
             ],
         },
         "quarries": monster_assets.base_game_quarries,

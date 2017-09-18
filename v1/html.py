@@ -1302,7 +1302,8 @@ class survivor:
             $returning
             $constellation
             $avatar
-            <center> <font class="$favorite"/>&#9733;</font> <b class="campaign_summary_survivor_name">$name</b> [$sex] </center>
+            <center>
+                <font class="$favorite"/>&#9733;</font> <b class="campaign_summary_survivor_name">$name</b> [$sex] </center>
             $special_annotation
             &ensp; XP: $hunt_xp &ensp; Survival: $survival<br/>
             &ensp; Insanity: $insanity <br/>
@@ -1484,11 +1485,15 @@ class survivor:
 
         <div class="survivor_dead_retired_container" >
 
+            <!-- favorite controls -->
             <input
                 id="favorite"
+                name="toggle_favorite"
                 class="kd_css_checkbox"
                 type="checkbox"
-                name="toggle_favorite"
+                ng-model = 'favoriteBox'
+                ng-change = "toggleFavorite()"
+                ng-checked = 'survivor.sheet.favorite.indexOf(user_login) !== -1'
             />
             <label
                 class="toggle_favorite"
@@ -1548,7 +1553,7 @@ class survivor:
                     type="number"
                     name="survival"
                     ng-model="survival_input_value"
-                    ng-change="setSurvival()"
+                    ng-blur="setSurvival()"
                     ng-value="survivor.sheet.survival"
                     min="0"
                 />
@@ -2296,12 +2301,13 @@ class survivor:
                     <input
                         id="survivorOwnerEmail"
                         class="survivor_owner_email"
-                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
                         onclick="this.select()"
                         type="email"
                         name="email"
                         placeholder="email"
-                        value="$email"
+                        ng-model="newSurvivorEmail"
+                        ng-value="survivor.sheet.email"
+                        ng-blur="setEmail()"
                     />
 
                 <p>Enter another registered user's email address here to make
@@ -4123,7 +4129,6 @@ class settlement:
 
         <div
             class="lost_settlements_app_container"
-            ng-app="kdmManager"
             ng-controller="lostSettlementsController"
             ng-init="loadLostSettlements();"
         >
@@ -4391,6 +4396,18 @@ class meta:
             <b>An Error Occurred!</b>
         </div>
     </div>
+
+    <div
+        id="apiErrorModal"
+        class="api_error_modal hidden ease clickable"
+        onclick="hideAPIerrorModal()">
+    >
+        <p class="api_error_debug">User login: {{user_login}}</p>
+        <p class="api_error_debug">Settlement OID: {{settlement.sheet._id.$oid}}</p>
+        <p id="apiErrorModalMsgRequest" class="api_error_debug"></p>
+        <p id="apiErrorModalMsg" class="kd_alert_no_exclaim api_error_modal_msg"></p>
+        <p>Tap or click anywhere to continue...</p>
+    </div>
     \n"""
 
     full_page_loader = """\n
@@ -4617,41 +4634,32 @@ def render_burger(session_object=None):
                         settlement_id = h["_id"],
                     )
 
-    # now add favorites
-    favorites = ""
-    favorite_survivors = session_object.User.get_favorites(scope="current_settlement")
-    if favorite_survivors != []:
-        favorites = "<h3>Favorites:</h3>"
-        for f in favorite_survivors:
-            if f["_id"] == session_object.session["current_asset"]:
-                pass
-            elif f in hunting_party:
-                pass
-            else:
-                favorites += meta.burger_change_view_button.safe_substitute(
-                    link_text = "%s (%s)" % (f["name"],f["sex"]),
-                    target_view = "view_survivor",
-                    settlement_id = f["_id"],
-                )
-    if favorites == "<h3>Favorites:</h3>":
-        favorites = ""
-
 
     burger_panel = Template("""\n
         <!-- $current_view burger -->
 
-        <div id="mySidenav" class="sidenav">
+        <div id="mySidenav" class="sidenav" ng-controller="sideNavController">
           $dash
           $new_settlement_button
             <hr/>
             <h3>$settlement_name:</h3>
               $action_map
               $departing_links
-              $favorite_links
+
+            <h3 ng-if="countFavorites() > 0">Favorites</h3>
+                <form
+                    method="POST"
+                    action="/"
+                    ng-repeat="s in settlement.user_assets.survivors | filter: favoriteFilter"
+                >
+                    <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
+                    <button class="sidenav_button">{{s.sheet.name}} ({{s.sheet.effective_sex}})</button>
+                </form>
+
             <hr/>
           $report_error
           $signout
-        </div>
+        </div> <!-- mySidenav -->
 
         <button id="floating_dashboard_button" class="gradient_silver" onclick="openNav()">
             &#9776;
@@ -4661,6 +4669,7 @@ def render_burger(session_object=None):
     """)
 
     output = burger_panel.safe_substitute(
+        application_version = settings.get('application', 'version'),
         settlement_name=session_object.Settlement.settlement["name"],
         current_view=view,
         dash=meta.burger_top_level_button.safe_substitute(
@@ -4672,7 +4681,6 @@ def render_burger(session_object=None):
         signout=signout_button,
         action_map=actions,
         departing_links=departing,
-        favorite_links=favorites,
     )
 
     return output
@@ -4728,7 +4736,7 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
     #   it to stdout (i.e. render it as a response
     #
 
-    output += '</head>\n<body class="%s">\n' % body_class
+    output += '</head>\n<body class="%s" ng-app="kdmManager" ng-controller="rootController">\n' % body_class
 
     output += render_burger(session_object) # burger goes before container
 
@@ -4736,8 +4744,6 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
     <div
         id="container"
         onclick="closeNav()"
-        ng-app="kdmManager"
-        ng-controller="rootController"
     >
     \n"""
 

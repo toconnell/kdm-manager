@@ -207,6 +207,11 @@
                 so you should be prepared to refresh them frequently. See the
                 section below on 'Authorization Token Management' for more info
                 on checking/refreshing tokens.</p>
+                <p><b>Important!</b> In order to support the CORS pre-flight
+                checks that most browsers are going to auto-magically perform
+                before POSTing to one of these routes, <u>all private routes
+                supported by the KD:M API also support the <code>OPTIONS</code>
+                method</u>, regardless of how they are documented below.</p>
             </td>
         </tr>
 
@@ -222,7 +227,7 @@
         </tr>
         <tr class="ul">
             <td> /authorization/check</td>
-            <td> GET,POST </td>
+            <td> GET,POST,OPTIONS </td>
             <td> 
             GET or POST to this endpoint to determine if your Authorization header
             is still valid or if it has expired.
@@ -230,7 +235,7 @@
         </tr>
         <tr class="ul">
             <td> /authorization/refresh</td>
-            <td> POST </td>
+            <td> POST,OPTIONS</td>
             <td> 
             <p> Use the standard 'Authorization' header and POST an empty request to
             this route to recieve a new Auth token based on the previous one.</p>
@@ -273,9 +278,13 @@
         </tr>
         <tr class="ul">
             <td> /user/get/&lt;user_id&gt; </td>
-            <td> GET </td>
-            <td> Retrieve a serialized version of the user who owns &lt;user_id&gt;,
-            to include some additional usage and meta facts about that user. </td>
+            <td> GET, POST, OPTIONS </td>
+            <td><p>Retrieve a serialized version of the user who owns &lt;user_id&gt;,
+            to include some additional usage and meta facts about that user.</p>
+            <p>Like many of the <code>GET</code> routes supported by the KD:M API,
+            this route will return user info whether you use <code>POST</code> or
+            any other supported method.</p>
+            </td>
         </tr>
         <tr class="ul">
             <td> /user/set/&lt;user_id&gt; </td>
@@ -310,7 +319,7 @@
         </tr>
         <tr class="ul">
             <td> /new/user </td>
-            <td> POST </td>
+            <td> POST, OPTIONS</td>
             <td> <p>Include the valid email address and password in the JSON body
             of your POST to create a new user:</p>
             <code>{'username': 'demo@kdm-manager.com', 'password': 'tehH4x0r'}</code>
@@ -323,7 +332,7 @@
         </tr>
         <tr class="ul">
             <td> /new/settlement </td>
-            <td> POST </td>
+            <td> POST, OPTIONS </td>
             <td> <p>Use 'handle' values from the <code>/new_settlement</code>
             route (see above) as params, like this:</p>
             <code> {"campaign": "people_of_the_lantern", "expansions": ["dung_beetle_knight",
@@ -352,8 +361,8 @@
             </td>
         </tr>
         <tr class="ul">
-            <td> /new/survivor </td>
-            <td> POST </td>
+            <td> <a id="newSurvivor"></a>/new/survivor </td>
+            <td> POST, OPTIONS</td>
             <td> <p>This works differently from <code>/new/settlement</code> in
             a number of significant ways.</p>
             <p> In a nutshell, the basic idea here is that the only required key
@@ -361,44 +370,10 @@
             to which the survivor belongs:</p>
             <code>{'settlement': '59669ace4af5ca799c968c94'}</code>
             <p> Beyond that, you are free to supply any other attributes of the
-            survivor, so long as they comply with the data model for survivors.
-
-            <p> Finally, here is a table of all modifiable elements of the survivor
-            data model:
-            <table class="embedded_table">
-                <tr><th>key</th><th>R/O</th><th>&nbsp; type &nbsp;</th><th>description</th></tr>
-                <tr><td class="key">email</td><td>O</td><td>str</td><td>Defaults to the requesting user's login.</td></tr>
-                <tr><td class="key">born_in_ly</td><td>O</td><td>int</td><td>Defaults to current LY.</td></tr>
-                <tr><td class="key">settlement</td><td><b>R</b></td><td>OID</td><td></td></tr>
-                <tr><td class="key">public</td><td>O</td><td>bool</td><td>Defaults to Boolean false. Submitting anything that evaluates to Boolean true will be treated as such.</td></tr>
-                <tr><td class="key">name</td><td>O</td><td>str</td><td></td></tr>
-                <tr><td class="key">sex</td><td>O</td><td>str</td><td>Accepts 'M', 'F' or 'R' (for random). Defaults to 'R'.</td></tr>
-                <tr><td class="key">survival</td><td>O</td><td>int</td><td></td></tr>
-                <tr><td class="key">hunt_xp</td><td>O</td><td>int</td><td></td></tr>
-                <tr><td class="key">Insanity</td><td>O</td><td>int</td><td></td></tr>
-                <tr><td class="key">Head</td><td>O</td><td>int</td><td></td></tr>
-                <tr><td class="key">Arms</td><td>O</td><td>int</td><td></td></tr>
-                <tr><td class="key">Body</td><td>O</td><td>int</td><td></td></tr>
-                <tr><td class="key">Waist</td><td>O</td><td>int</td><td></td></tr>
-                <tr><td class="key">Legs</td><td>O</td><td>int</td><td></td></tr>
-                <tr><td class="key">Courage</td><td>O</td><td>int</td><td></td></tr>
-                <tr><td class="key">Understanding</td><td>O</td><td>int</td><td></td></tr>
-                <tr><td class="key">affinities</td><td>O</td><td>dict</td><td>consider using <code>set_affinities</code> route after creation to set this, unless you really know what you're doing</td></tr>
-                <tr><td class="key">Movement</td><td>O</td><td>int</td><td>Defaults to 5.</td></tr>
-                <tr><td class="key">Accuracy</td><td>O</td><td>int</td><td></td></tr>
-                <tr><td class="key">Strength</td><td>O</td><td>int</td><td></td></tr>
-                <tr><td class="key">Evasion</td><td>O</td><td>int</td><td></td></tr>
-                <tr><td class="key">Luck</td><td>O</td><td>int</td><td></td></tr>
-                <tr><td class="key">Speed</td><td>O</td><td>int</td><td></td></tr>
-                <tr><td class="key">Weapon Proficiency</td><td>O</td><td>int</td><td></td></tr>
-                <tr><td class="key">weapon_proficiency_type</td><td>O</td><td>str</td><td>handle</td></tr>
-                <tr><td class="key">abilities_and_impairments</td><td>O</td><td>list</td><td>Needs a list of handles from the settlement's <code>game_assets</code> element, e.g. <code>{'abilities_and_impairments': ['ageless','mastery_sword']}</code> or similar.</td></tr>
-                <tr><td class="key">cursed_items</td><td>O</td><td>list</td><td>List of handles</td></tr>
-                <tr><td class="key">disorders</td><td>O</td><td>list</td><td>List of names (transitional: changing soon)</td></tr>
-                <tr><td class="key">fighting_arts</td><td>O</td><td>list</td><td>List of handles</td></tr>
-                <tr><td class="key">fighting_arts_levels</td><td>O</td><td>list</td><td>dictionary where each key is a Fighting Art handle whose value is an array, e.g. {'silk_surgeon': [1,2]}</td></tr>
-                <tr><td class="key">epithets</td><td>O</td><td>list</td><td>list of handles</td></tr>
-            </table>
+            survivor, so long as they comply with the data model for survivors.</p>
+            <p> Consult the <a href="/#survivorDataModel">Survivor Data Model (below)</a> for a
+            complete reference on what attributes of the survivor may be set at
+            creation time.</p>
             <p>As a general piece of advice, it typically makes more sense to
             just initialize a new survivor with defaults and then operate on it
             using the routes below.</p>
@@ -413,7 +388,10 @@
 
         <tr class="ul route_root">
             <th colspan="3">
-                <b>Settlement Routes:</b> all routes for working directly with a settlement follow a <code>/settlement/&lt;action&gt;/&lt;settlement_id&gt;</code> convention. These routes are private and require authentication. 
+            <p><b>Settlement Routes:</b> all routes for working directly with a
+            settlement follow a <code>/settlement/&lt;action&gt;/&lt;settlement_id&gt;
+            </code> convention.</p>
+            <p>These routes are private and require authentication.</p>
 
             <p>Many operations below require asset handles.
             Asset handles may be found in the settlement's <code>game_assets</code>
@@ -450,17 +428,46 @@
  
 
         <!-- settlement GET -->
+        <tr>
+            <td class="subsection_header" colspan="3"><b>Settlement data retrieval:</b>
+            The routes in this section only support the GET method and are meant
+            to be used to retrieve certain types of Settlement data. </td>
+        </tr>
 
-       <tr class="ul">
+        <tr class="ul">
             <td> /settlement/get/&lt;settlement_id&gt; </td>
             <td> GET </td>
-            <td> Retrieve a serialized version of the settlement associated with
-            &lt;settlement_id&gt; (to include all related user and game assets, including survivors).</td>
+            <td> <p> Retrieve a serialized version of the settlement associated
+            with &lt;settlement_id&gt; (to include all related user and game
+            assets, including survivors).</p>
+            <p><b>Important!</b> Depending on the number of expansions, survivors,
+            users, etc. involved in a settlement/campaign, this one can take a
+            long time to come back (over 2.5 seconds on Production hardware).
+            YHBW</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/get_game_assets/&lt;settlement_id&gt; </td>
+            <td> GET </td>
+            <td><p>Retrieve a serialized version of just the settlement that only
+            includes the settlement's <code>game_assets</code> element.
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/get_sheet/&lt;settlement_id&gt; </td>
+            <td> GET </td>
+            <td><p>Retrieve a serialized version of just the settlement that only
+            includes the <code>sheet</code> element.
+            </td>
         </tr>
         <tr class="ul">
             <td> /settlement/get_event_log/&lt;settlement_id&gt; </td>
             <td> GET </td>
-            <td> Retrieve all settlement event log entries (in a giant hunk of JSON).</td>
+            <td> <p>Retrieve all settlement event log entries (in a giant hunk
+            of JSON). For higher LY settlements, this can get really huge.</p>
+            <p>Definitely consider loading this one AFTER you have rendered the
+            rest of the view. </p>
+            </td>            
         </tr>
         <tr class="ul">
             <td> /settlement/get_innovation_deck/&lt;settlement_id&gt; </td>
@@ -872,7 +879,69 @@
 
 
         <tr class="ul route_root">
-            <th colspan="3"><b>Survivor Routes:</b> all routes for working directly with an individual survivor follow a <code>/settlement/&lt;action&gt;/&lt;settlement_id&gt;</code> convention. Like settlement routes, these routes are private and require authentication. </th>
+            <th colspan="3">
+                <a id="survivorDataModel"></a>
+                <p> <b>Survivor Routes:</b> all routes for working directly with
+                an individual survivor follow a <code>
+                /settlement/&lt;action&gt;/&lt;settlement_id&gt;</code> convention.</p>
+
+                <p>Like settlement management routes, these routes are private, require
+                authentication and accept the <code>OPTIONS</code> requests method.</p>
+
+
+            </th>
+        </tr>
+
+        <tr>
+            <td class="subsection_header" colspan="3"><b>Survivor Data Model:</b><br/><br/>
+                <table class="data_model_table">
+                <tr><th>key</th><th>R/O</th><th>&nbsp; type &nbsp;</th><th width="40%">description</th><th>related endpoints</th></tr>
+                <tr><td class="key">email</td><td>O</td><td>str</td><td>Defaults to the creator's login.</td></tr>
+                <tr><td class="key">born_in_ly</td><td>O</td><td>int</td><td>Defaults to current LY.</td></tr>
+                <tr><td class="key">settlement</td><td><b>R</b></td><td>OID</td><td>This must be set to a valid settlement OID at creation time and may never be changed. See <a href="#newSurvivor"><code>/new/survivor</code></a> above for more info on creating survivors.</td><td class="mono"></td></tr>
+                <tr><td class="key">public</td><td>O</td><td>bool</td><td>Defaults to Boolean false. Submitting anything that evaluates to Boolean true will be treated as such.</td><td class="mono">toggle_boolean</td></tr>
+                <tr><td class="key">name</td><td>O</td><td>str</td><td></td><td class="mono">set_name</td></tr>
+                <tr><td class="key">sex</td><td>O</td><td>str</td><td>At creation time, this can be set to 'M', 'F' or 'R' (for random). Defaults to 'R' during creation if not specified in the POST body.</td><td class="mono">set_sex</td></tr>
+                <tr><td class="key">survival</td><td>O</td><td>int</td><td></td><td class="mono">update_survival set_survival</td></tr>
+                <tr><td class="key">hunt_xp</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">Insanity</td><td>O</td><td>int</td><td></td><td class="mono">set_attribute update_attribute</td></tr>
+                <tr><td class="key">Head</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">Arms</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">Body</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">Waist</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">Legs</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">Courage</td><td>O</td><td>int</td><td></td><td class="mono">set_attribute update_attribute</td></tr>
+                <tr><td class="key">Understanding</td><td>O</td><td>int</td><td></td><td class="mono">set_attribute update_attribute</td></tr>
+                <tr><td class="key">affinities</td><td>O</td><td>dict</td><td>Rather than setting this at creation time, consider using <code>upfate_affinities</code> route after creation to set this, unless you really know what you're doing</td><td class="mono">update_affinities set_affinity</td></tr>
+                <tr><td class="key">bleeding_tokens</td><td>O</td><td>int</td><td></td><td class="mono">update_bleeding_tokens</td></tr>
+                <tr><td class="key">max_bleeding_tokens</td><td>O</td><td>int</td><td>Defaults to 5.</td><td class="mono">set_attribute</td></tr>
+                <tr><td class="key">Movement</td><td>O</td><td>int</td><td>Defaults to 5.</td><td class="mono">set_attribute update_attribute</td></tr>
+                <tr><td class="key">Accuracy</td><td>O</td><td>int</td><td></td><td class="mono">set_attribute update_attribute</td></tr>
+                <tr><td class="key">Strength</td><td>O</td><td>int</td><td></td><td class="mono">set_attribute update_attribute</td></tr>
+                <tr><td class="key">Evasion</td><td>O</td><td>int</td><td></td><td class="mono">set_attribute update_attribute</td></tr>
+                <tr><td class="key">Luck</td><td>O</td><td>int</td><td></td><td class="mono">set_attribute update_attribute</td></tr>
+                <tr><td class="key">Speed</td><td>O</td><td>int</td><td></td><td class="mono">set_attribute update_attribute</td></tr>
+                <tr><td class="key">attribute_detail</td><td>O</td><td>dict</td><td></td><td class="mono">set_attribute_detail</td></tr>
+                <tr><td class="key">Weapon Proficiency</td><td>O</td><td>int</td><td></td><td class="mono">set_attribute update_attribute</td></tr>
+                <tr><td class="key">weapon_proficiency_type</td><td>O</td><td>str</td><td>handle</td><td class="mono">set_weapon_proficiency_type</td></tr>
+                <tr><td class="key">abilities_and_impairments</td><td>O</td><td>list</td><td>Needs a list of handles from the settlement's <code>game_assets</code> element, e.g. <code>{'abilities_and_impairments': ['ageless','mastery_sword']}</code> or similar.</td><td class="mono">add_game_asset rm_game_asset</td></tr>
+                <tr><td class="key">cursed_items</td><td>O</td><td>list</td><td>List of handles</td><td class="mono">add_cursed_item rm_cursed_item</tr>
+                <tr><td class="key">disorders</td><td>O</td><td>list</td><td>List of names (transitional: changing soon)</td></tr>
+                <tr><td class="key">favorite</td><td>O</td><td>list</td><td>list of user emails, i.e. users who have favorited the survivor</td><td class="mono">add_favorite rm_favorite</td></tr>
+                <tr><td class="key">fighting_arts</td><td>O</td><td>list</td><td>List of handles</td><td class="mono">add_game_asset rm_game_asset</td></tr>
+                <tr><td class="key">fighting_arts_levels</td><td>O</td><td>list</td><td>dictionary where each key is a Fighting Art handle whose value is an array, e.g. <code>{'silk_surgeon': [1,2]}</code></td><td class="mono">toggle_fighting_arts_level</td></tr>
+                <tr><td class="key">epithets</td><td>O</td><td>list</td><td>list of handles</td></tr>
+                </table>
+
+                <p><b>Important!</b> There are certain endpoints below that may
+                add additional attributes to a survivor record, e.g. <code>
+                controls_of_death</code>, <code>set_retired</code>, etc.</p>
+
+                <p>Attributes such as <code>dead</code> and <code>retired</code>
+                are not part of the baseline data model, i.e. they are not part
+                of the survivor record when it is created. YHBW</p>
+
+            </td>
         </tr>
 
         <tr>
@@ -1058,6 +1127,18 @@
             <code>{'attribute': 'Strength', 'modifier': 2}</code>
             <p>Sample JSON to decrease Insanity by 1:</p>
             <code>{'attribute': 'Insanity', 'modifier': -1}</code>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/update_bleeding_tokens/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td><p> Use this to add an integer to the survivor's bleeding token
+            count:</p>
+            <code>{'modifier': -2}</code>
+            <p><b>Important!</b> The API will never set the survivor's <code>
+            bleeding_tokens</code> value lower than zero or higher than the
+            survivor's <code>max_bleeding_tokens</code>. It will return 200's to
+            requests that break these rules.</p>
             </td>
         </tr>
         <tr class="ul">
@@ -1316,6 +1397,28 @@
             <td class="subsection_header" colspan="3"><b>Meta and admin controls:</b>
             manage survivor meta data, including adding/removing survivor notes,
             etc.</td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/add_favorite/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p>Use this route to POST a user's email address and add the address
+            to the survivor's <code>favorite</code> list, i.e. the list of users
+            who have favorited the Survivor:</p>
+            <code>{'user_email': 'demo@kdm-manager.com'}</code>
+            <p> This route gracefully fails on bogus requests, so feel free to
+            spam it (haha--j/k).</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/rm_favorite/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p>Use this route to POST a user's email address and remove the
+            address from the survivor's <code>favorite</code> list, i.e. the
+            list of users who have favorited the Survivor:</p>
+            <code>{'user_email': 'test@kdm-manager.com'}</code>
+            <p> This route gracefully fails on bogus requests and will return a
+            a 200 if asked to remove a user that is not currently in the list.</p>
+            </td>
         </tr>
         <tr class="ul">
             <td> /survivor/add_survivor_note/&lt;survivor_id&gt; </td>

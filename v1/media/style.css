@@ -48,6 +48,7 @@
 
     /* UI/UX styles - all breakpoints */
 .clickable {cursor: pointer; }
+.ease {  -webkit-transition: all 0.30s ease-in-out;  -moz-transition: all 0.30s ease-in-out;  -ms-transition: all 0.30s ease-in-out;  -o-transition: all 0.30s ease-in-out;}
 
     /* color styles - all breakpoints */
 .zebra {background-color: #efefef; }
@@ -909,6 +910,9 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
 .error_dialog_cap, .saved_dialog_cap {background-color: #fff; font-family: Silverado; margin: 0; margin-top: -2.5%; margin-left: -2.5%; border-top-left-radius: inherit; border-bottom-left-radius: inherit; color: #00BEED; height: 101%; padding: 2.5%; padding-left: 10%; padding-right: 8%; float: left; }
 .error_dialog_cap {color: #ff3333; }
 
+.api_error_modal {position: fixed; top: 0%; bottom: 0%; left: 0%; right: 0%; background: rgba(0,0,0,0.92); color: #fff; padding-top: 30%}
+.api_error_modal_msg {margin: 0 auto; padding: 3%; width: 90%; }
+.api_error_debug {font-size: 50%; }
 
 div.full_page_loading_spinner {position: fixed; left: 0; right:0; top: 0; bottom: 0; background-color: #fff; background: rgba(255,255,255,0.9);  }
 img.full_page_loading_spinner {position: fixed; top: 40%; left: 40%; }
@@ -1510,6 +1514,8 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.saved_dialog_inner {font-size: 20px; }
     span.error_dialog_cap, span.saved_dialog_cap { margin-top: -5px; margin-left: -6px; padding: 6px; padding-left: 8%; padding-right: 6%; padding-bottom: 1%; }
 
+    .api_error_modal {padding: 25%; }
+    .api_error_debug {font-size: 100%; }
 
     /* general wide style */
     .nav_bar, .top_nav_spacer {height: 55px; font-size: 12pt; display: inherit; margin-bottom: 0; }

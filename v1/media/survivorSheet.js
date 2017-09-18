@@ -21,6 +21,18 @@ app.controller("survivorSheetController", function($scope) {
         };
     };
 
+    $scope.toggleFavorite = function() {
+        if ($scope.survivor.sheet.favorite.indexOf($scope.user_login) === -1) {
+//            console.log($scope.user_login + " is not in Survivor favorites list");
+            $scope.postJSONtoAPI('survivor','add_favorite',{'user_email': $scope.user_login});
+            $scope.favoriteBox.checked = true;
+        } else {
+//            console.log($scope.user_login + " is in Survivor favorites list");
+            $scope.postJSONtoAPI('survivor','rm_favorite',{'user_email': $scope.user_login});
+            $scope.favoriteBox.checked = false;
+        };
+    };
+
     $scope.setRetired = function() {
         $scope.postJSONtoAPI('survivor','set_retired', {'retired': $scope.survivor.sheet.retired})
     };
@@ -275,6 +287,12 @@ app.controller('metaDataController', function($scope) {
     $scope.togglePublic = function() {
         $scope.postJSONtoAPI('survivor','toggle_boolean', {'attribute': 'public'});
     };
+    $scope.setEmail = function() {
+        var res = $scope.postJSONtoAPI('survivor','set_email', {'email': $scope.newSurvivorEmail});
+        res.error(function(data, status, headers, config) {
+            $scope.newSurvivorEmail = $scope.survivor.sheet.email;
+        });
+    };
 });
 
 app.controller("survivalController", function($scope) {
@@ -286,7 +304,7 @@ app.controller("survivalController", function($scope) {
     // bound to the increment/decrement "paddles"
     $scope.updateSurvival = function (modifier) {
         new_total = $scope.survivor.sheet.survival + modifier;
-        console.log(new_total);
+//        console.log(new_total);
         if  (
                 $scope.settlement.sheet.enforce_survival_limit == true && 
                 new_total > $scope.settlement.sheet.survival_limit
@@ -304,7 +322,7 @@ app.controller("survivalController", function($scope) {
     $scope.setSurvival = function () {
         if ($scope.survival_input_value === null) {return false};
         if ($scope.survival_input_value === undefined) {$scope.survival_input_value = $scope.survivor.survival};
-        console.warn($scope.survival_input_value);
+//        console.warn($scope.survival_input_value);
         new_value = $scope.survival_input_value;
         if  (
                 $scope.settlement.sheet.enforce_survival_limit == true && 

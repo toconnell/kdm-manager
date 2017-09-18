@@ -4,6 +4,8 @@ a:hover {color: #D57E2F;}
 a:active {color: #D57E2F;}
 a:visited {color: #B57E2F}
 
+.mono {font-family: monospace; }
+
 .api_documentation {
     margin-left: 5%;
     margin-bottom: 1%; 
@@ -31,3 +33,8 @@ code {background-color: #DDFFDD; }
 
 td.subsection_header {padding: 3%; border-bottom: 1px solid #ddd; background-color: #ffffee;}
 
+table.data_model_table {background-color: rgba(255,255,255,0.1); font-family: Arial; border-collapse: collapse;}
+table.data_model_table tbody tr:nth-child(even) {background-color: rgba(255,255,255,1);}
+table.data_model_table th {font-family: Arial; font-weight: bold; padding: 5px; text-align: center;  background-color: rgba(255,255,255,1); }
+table.data_model_table td.key {font-family: monospace; }
+table.data_model_table tbody tr:hover {background-color: #ffffaa; }

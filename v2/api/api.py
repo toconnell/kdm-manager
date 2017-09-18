@@ -146,7 +146,7 @@ def get_token(check_pw=True, user_id=False):
 #   private routes
 #
 
-@application.route("/authorization/<action>", methods=["POST","GET"])
+@application.route("/authorization/<action>", methods=["POST","GET","OPTIONS"])
 @utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization'])
 def refresh_auth(action):
 
@@ -156,6 +156,8 @@ def refresh_auth(action):
         auth = request.headers["Authorization"]
 
     if action == "refresh":
+        if request.method == "GET":
+            return utils.http_402
         user = users.refresh_authorization(auth)
         if user is not None:
             return get_token(check_pw=False, user_id=user["_id"])
@@ -248,9 +250,7 @@ def admin_view(resource):
 @application.errorhandler(utils.InvalidUsage)
 @utils.crossdomain(origin=['*'])
 def return_exception(error):
-    response = jsonify(error.to_dict())
-    response.status_code = error.status_code
-    return response
+    return Response(response=error.message, status=error.status_code)
 
 
 

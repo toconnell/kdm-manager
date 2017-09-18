@@ -19,6 +19,19 @@ function hideFullPageLoader()   {$('#fullPageLoader').fadeOut(1000);};
 function showCornerLoader()     {$('#cornerLoader').show();};
 function hideCornerLoader()     {$('#cornerLoader').fadeOut(1000);};
 
+function showAPIerrorModal(msg, request) {
+    e = document.getElementById('apiErrorModal');
+    e.classList.remove('hidden');
+    r = document.getElementById('apiErrorModalMsgRequest');
+    r.innerHTML = request;
+    m = document.getElementById('apiErrorModalMsg');
+    m.innerHTML = msg;
+};
+function hideAPIerrorModal() {
+    e = document.getElementById('apiErrorModal');
+    e.classList.add('hidden');
+};
+
 // public helpers
 
 function sleep (time) {return new Promise((resolve) => setTimeout(resolve, time));}
@@ -72,6 +85,8 @@ app.filter('orderObjectBy', function() {
     return filtered;
   };
 });
+
+
 
 
 app.controller('rootController', function($scope, $rootScope, assetService, $http) {
@@ -147,7 +162,7 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
 
 
         // now load the event log from the API
-        $scope.getJSONfromAPI('settlement','event_log').then(
+        $scope.getJSONfromAPI('settlement','get_event_log').then(
             function(payload) {
                 $scope.event_log = payload.data;
                 console.log($scope.event_log.length + " item event_log initialized!")
@@ -363,10 +378,14 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
         res.error(function(data, status, headers, config) {
             errorAlert();
             console.error("postJSONtoAPI() call has FAILED!!!");
+            console.error(data);
+            showAPIerrorModal(data, config.url);
+            hideCornerLoader();
         });
 
         return res;
     };
+
 
 
 
@@ -838,7 +857,6 @@ app.controller("epithetController", function($scope) {
 });
 
 
-
 // generic survivor attrib update sans page refresh
 function updateAssetAttrib(source_input, collection, asset_id) {
 
@@ -979,3 +997,28 @@ function updateUserPreference(input_element) {
 
 
 
+app.controller("sideNavController", function($scope) {
+    // feed it a survivor, this returns a bool of whether it's one of
+    // the user's favorites. useful in lots of different scopes, hence
+    // part of the root
+    $scope.favoriteFilter = function(s) {
+        var fav = false;
+        if (s.sheet.favorite.indexOf($scope.user_login) !== -1) {fav = true};
+//        console.log($scope.user_login + " -> " + s.sheet.name + " fav: " + fav);
+        if (s.sheet._id.$oid === $scope.survivor_id) {fav = false};
+        if (s.sheet.dead !== undefined) {fav = false};
+        return fav;
+    };
+
+    $scope.countFavorites = function() {
+        var userFavorites = 0;
+        incrementFavorites = function(s, index) {
+            if ($scope.favoriteFilter(s) === true) {userFavorites += 1};
+        };
+        if ($scope.settlement !== undefined) {
+            $scope.settlement.user_assets.survivors.forEach(incrementFavorites);
+//        console.log($scope.user_login + " has " + userFavorites + " favorites!");
+        }
+        return userFavorites;
+    };
+});

@@ -12,7 +12,7 @@ td {word-wrap: break-word; word-break: break-all;}
 td.int_key {width: 10%; word-break: inherit;}
 
 /*  reusable style / generic style  */
-.clickable {cursor: pointer; background-color: #ffffEF; border-radius: 5%;}
+.clickable {cursor: pointer; background-color: #ffffEF; padding: 3%; }
 .zebra {background-color: #efefef; }
 .hidden {display: none; }
 
@@ -31,8 +31,9 @@ td.int_key {width: 10%; word-break: inherit;}
 .world_item .world_tooltip {display: none; margin-left: 1%; }
 .world_item .world_tooltip i {color: #666; }
 
-.user_basic_info {padding: 1%; width: auto; margin: 2%; display: inline-block; }
+.user_basic_info {width: auto; margin: 2%; display: inline-block; }
 .user_basic_info h2 { font-size: 1em; margin: 0 auto; }
+.active_user {background-color: #FFFFbb;}
 .user_detail {display: none; }
 .log_detail {display: none; }
 .log_line {padding: 1%; }

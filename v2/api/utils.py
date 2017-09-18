@@ -463,4 +463,4 @@ class InvalidUsage(Exception):
     def to_dict(self):
        rv = dict(self.payload or ())
        rv['message'] = self.message
-       return rv
+       return Response(rv['message'], self.status_code)

@@ -78,7 +78,8 @@ fighting_art = {
     },
     'unconscious_fighter': {
         'desc': 'It takes 7 bleeding tokens to kill you.',
-        'name': 'Unconscious Fighter'
+        'name': 'Unconscious Fighter',
+        'max_bleeding_tokens': 7,
     },
 
 
