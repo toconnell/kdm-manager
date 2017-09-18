@@ -1491,8 +1491,8 @@ class survivor:
                 name="toggle_favorite"
                 class="kd_css_checkbox"
                 type="checkbox"
-                ng-model = 'favoriteBox'
-                ng-change = "toggleFavorite()"
+                ng-model = 'miscAttribs.favoriteBox'
+                ng-click = "toggleFavorite()"
                 ng-checked = 'survivor.sheet.favorite.indexOf(user_login) !== -1'
             />
             <label

@@ -22,14 +22,15 @@ app.controller("survivorSheetController", function($scope) {
     };
 
     $scope.toggleFavorite = function() {
+        console.warn('toggling favorite status.');
         if ($scope.survivor.sheet.favorite.indexOf($scope.user_login) === -1) {
 //            console.log($scope.user_login + " is not in Survivor favorites list");
             $scope.postJSONtoAPI('survivor','add_favorite',{'user_email': $scope.user_login});
-            $scope.favoriteBox.checked = true;
+            $scope.miscAttribs.favoriteBox.checked = true;
         } else {
 //            console.log($scope.user_login + " is in Survivor favorites list");
             $scope.postJSONtoAPI('survivor','rm_favorite',{'user_email': $scope.user_login});
-            $scope.favoriteBox.checked = false;
+            $scope.miscAttribs.favoriteBox.checked = false;
         };
     };
 
