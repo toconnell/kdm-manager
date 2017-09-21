@@ -428,7 +428,11 @@ class UserAsset():
             _id = self._id
 
         try:
-            self._id = ObjectId(_id)
+            try:
+                self._id = ObjectId(_id)
+            except Exception as e:
+                self.logger.error(e)
+                raise utils.InvalidUsage("The asset OID '%s' does not appear to be a valid object ID! %s" % (_id,e), status_code=422)
             self.load()
             self.loaded = True
         except Exception as e:

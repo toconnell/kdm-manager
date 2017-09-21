@@ -30,10 +30,20 @@ class badResponse():
         return self.response
 
     def send_bad_response(self, e):
+        """ We have a coupld of bad responses we can return when the broker
+        fails. First, we if an AsseLoadError type exception, we do a generic
+        404. Second, if we are being asked to return a utils.InvalidUsage
+        type object, we just raise that as we normally would.
+
+        Otherwise, we're sending the generic 500 server explosion back.
+        """
+
         # return a 404 if we can't find the asset ID
         if isinstance(e, AssetLoadError):
             self.logger.warn("Requested asset _id could not be initialized!")
             return utils.http_404
+        elif isinstance(e, utils.InvalidUsage):
+            raise e
 
         self.logger.exception(e)
         return utils.http_500
@@ -127,7 +137,7 @@ def new_user_asset(asset_type=None):
         return S.serialize()
     else:
         return Response(
-            response="Creating '%s' user assets via API is not supported!" % asset_type,
+            response="Creating '%s' user assets via request_broker() is not supported!" % asset_type,
             status=422,
             mimetype="text/plain",
         )

@@ -16,6 +16,7 @@ import os
 from pymongo import MongoClient
 import smtplib
 import socket
+from string import Template
 import sys
 import time
 
@@ -43,25 +44,6 @@ http_422 = Response(response="Missing argument, parameter or value", status=422)
 http_500 = Response(response="Server explosion! The server erupts in a shower of gore, killing your request instantly. All other servers are so disturbed that they lose 1 survival.", status=500)
 http_501 = Response(response="Not implemented in this release", status=501)
 
-
-
-# API response/request helpers
-
-#
-#   stub dictionary for creating the meta element of API returns
-#
-
-api_meta = {
-    "meta": {
-        "api": {
-            "version": settings.get("api","version"),
-            "hostname": socket.gethostname(),
-            "mdb_name": settings.get("api","mdb"),
-        },
-        "admins": list(mdb.users.find({"admin": {"$exists": True}})),
-        "object": {},
-    },
-}
 
 
 
@@ -196,6 +178,31 @@ def get_timeline_index_and_object(timeline,lantern_year):
         return get_ly()
     else:
         return get_ly()
+
+
+
+# API response/request helpers
+
+#
+#   stub dictionary for creating the meta element of API returns
+#
+
+api_meta = {
+    "meta": {
+        "webapp": {
+            "release": settings.get('application','webapp_release'),
+            "age": get_time_elapsed_since(datetime.strptime('2015-11-29', '%Y-%m-%d'), units='age'),
+        },
+        "api": {
+            "version": settings.get("api","version"),
+            "hostname": socket.gethostname(),
+            "mdb_name": settings.get("api","mdb"),
+        },
+        "admins": list(mdb.users.find({"admin": {"$exists": True}})),
+        "object": {},
+    },
+}
+
 
 
 

@@ -84,7 +84,11 @@ app.controller("signInController", function($scope, $http) {
             }, function errorCallback(response) {
                 console.error(response.data);
                 $scope.loading('off');
-                $scope.showControls('sign_in_error');
+                if (response.status === -1) {
+                    $scope.showControls('api_unavailable');
+                } else {
+                    $scope.showControls('sign_in_error');
+                };
             });
         };
 

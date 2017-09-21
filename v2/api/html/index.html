@@ -548,7 +548,7 @@
             <td> POST </td>
             <td> Add expansions to a settlement by POSTing a list of expansion
             handles. The body of your post should be a JSON-style list: 
-            <code>['beta_challenge_scenarios','dragon_king']</code>
+            <code>{'expansions': ['beta_challenge_scenarios','dragon_king']}</code>
             <p>
             Note that this route not only updates the settlement sheet, but also
             adds/removes timeline events, updates the settlement's available game
@@ -562,7 +562,7 @@
             <td> Remove expansions from a settlement by POSTing a list of
             expansion handles. The body of your post should be a JSON-style 
             list: 
-            <code>['manhunter','gorm','spidicules']</code>
+            <code>{'expansions': ['manhunter','gorm','spidicules']}</code>
             <p>
             Note that this route not only updates the settlement sheet, but also
             adds/removes timeline events, updates the settlement's available game

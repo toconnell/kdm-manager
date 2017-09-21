@@ -91,97 +91,118 @@ app.filter('orderObjectBy', function() {
 
 app.controller('rootController', function($scope, $rootScope, assetService, $http) {
 
-//    $scope.$watch("settlement", function() {
-        // watches $scope.settlement and pings whenever it changes. Also has a
-        // special shout-out for $scope.settlement.sheet
-//        console.warn("$scope.settlement (type: <" + typeof $scope.settlement + ">) modified");
-//        if ($scope.settlement === undefined) {return false};
-//        if ($scope.settlement.sheet == undefined) {
-//            console.error("settlement.sheet is NOT in $scope!");
-//        } else {
-//            console.warn("settlement.sheet is in $scope!");
-//        };
-//    });
+    $scope.legacySignOut = function(session_oid) {;
+        console.warn("Attempting legacy sign-out...");
 
-    // This is the main event: initialize everything settlement-related that
-    // might be required by any user asset view. This is our de facto rootScope
-    // (even though we don't call it that). 
-    $scope.initialize = function(src_view, u_id, login, api_url, settlement_id, survivor_id) {
+        // signs into the legacy webapp by emulating a form POST
+        var form = document.createElement("form");
+        form.method = "POST";
+        form.action = "/";
+
+        var rm = document.createElement("input");
+
+        rm.name = 'remove_session';
+        rm.value =  session_oid;
+        rm.classList.add('hidden');
+        form.appendChild(rm);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    $scope.initialize = function(src_view, u_id, api_url, settlement_id, survivor_id) {
         $scope.api_url = api_url;
         $scope.settlement_id = settlement_id;
         $scope.user_id = u_id;
-        $scope.user_login = login;
         $scope.view = src_view;
         $scope.survivor_id = survivor_id;
 
         // declare the view
-        console.log('Initializing ' + $scope.view + ' view...');
+        console.log("Initializing '" + $scope.view + "' view...");
 
-        // load the settlement from the API
-        $scope.getJSONfromAPI('settlement','get').then(
+        // get the user first, since we always at least have a user
+        var user_endpoint = "get"
+        if ($scope.view === 'dashboard') {user_endpoint = 'dashboard'};
+        $scope.getJSONfromAPI('user',user_endpoint).then(
             function(payload) {
-                // get the settlement; touch-up some of the arrays for UI/UX purposes
-                $scope.settlement = payload.data;
-                $scope.settlement.game_assets.causes_of_death.push({'name': ' --- ', 'disabled': true});
-                $scope.settlement.game_assets.causes_of_death.push({'name': '* Custom Cause of Death', 'handle': 'custom'});
-                var cod_list = [];
-                for (var i = 0; i < $scope.settlement.game_assets.causes_of_death.length; i++) {
-                    cod_list.push($scope.settlement.game_assets.causes_of_death[i]["name"]);
-                };
-                $scope.settlement_cod_list = cod_list;
+            $scope.user = payload.data;
+            $scope.user_login = $scope.user.user.login;
+            console.log("Initialized user " + $scope.user_login + " (" + $scope.user_id + ")"); 
+        },
+            function(errorPayload) {
+            console.error("Could not retrieve user information!");
+            console.error(errorPayload);
+        });
 
-                // create the settlement_sheet in scope and update asset lists
-                $scope.settlement_sheet = $scope.settlement.sheet;
-                $scope.initAssetLists('settlement_sheet');
+        // now load the settlement/survivor from the API if we're doing that
+        if ($scope.settlement_id != undefined) {
+            $scope.getJSONfromAPI('settlement','get').then(
+                function(payload) {
+                    // get the settlement; touch-up some of the arrays for UI/UX purposes
+                    $scope.settlement = payload.data;
+                    $scope.settlement.game_assets.causes_of_death.push({'name': ' --- ', 'disabled': true});
+                    $scope.settlement.game_assets.causes_of_death.push({'name': '* Custom Cause of Death', 'handle': 'custom'});
+                    var cod_list = [];
+                    for (var i = 0; i < $scope.settlement.game_assets.causes_of_death.length; i++) {
+                        cod_list.push($scope.settlement.game_assets.causes_of_death[i]["name"]);
+                    };
+                    $scope.settlement_cod_list = cod_list;
 
-                // create other in-scope stuff off of the sheet:
-                $scope.settlement_notes = $scope.settlement_sheet.settlement_notes;
-                $scope.timeline = $scope.settlement_sheet.timeline;
-                $scope.current_quarry = $scope.settlement_sheet.current_quarry;
-                $scope.setEvents();
+                    // create the settlement_sheet in scope and update asset lists
+                    $scope.settlement_sheet = $scope.settlement.sheet;
+                    $scope.initAssetLists('settlement_sheet');
 
-                // do user stuff
-                $scope.user_is_settlement_admin = $scope.arrayContains(login, $scope.settlement_sheet.admins);
+                    // create other in-scope stuff off of the sheet:
+                    $scope.settlement_notes = $scope.settlement_sheet.settlement_notes;
+                    $scope.timeline = $scope.settlement_sheet.timeline;
+                    $scope.current_quarry = $scope.settlement_sheet.current_quarry;
+                    $scope.setEvents();
 
-                // finish initializing the settlement
-                console.log("Settlement '" + $scope.settlement_id + "' initialized!");
+                    // do user stuff
+                    $scope.user_is_settlement_admin = $scope.arrayContains($scope.user_login, $scope.settlement_sheet.admins);
 
-                // finally, if we're initializing a survivor sheet, do that
-                if ($scope.view=='survivorSheet') {
-                    console.log('Settlement initialized. $scope.view == survivorSheet. Initializing survivor...');
-                    $scope.initializeSurvivor($scope.survivor_id);
-                };
+                    // finish initializing the settlement
+                    console.log("Settlement '" + $scope.settlement_id + "' initialized!");
 
-                // kill the loaders
-                hideFullPageLoader();
-                hideCornerLoader();
+                    // finally, if we're initializing a survivor sheet, do that
+                    if ($scope.view=='survivorSheet') {
+                        console.log('Settlement initialized. $scope.view == survivorSheet. Initializing survivor...');
+                        $scope.initializeSurvivor($scope.survivor_id);
+                    };
 
-            },
-            function(errorPayload) {console.log("Error loading settlement!" + errorPayload);}
-        );
+                    // kill the loaders
+                    hideFullPageLoader();
+                    hideCornerLoader();
 
+                },
+                function(errorPayload) {console.log("Error loading settlement!" + errorPayload);}
+            );
 
-        // now load the event log from the API
-        $scope.getJSONfromAPI('settlement','get_event_log').then(
-            function(payload) {
-                $scope.event_log = payload.data;
-                console.log($scope.event_log.length + " item event_log initialized!")
-            },
-            function(errorPayload) {console.log("Error loading event_log!" + errorPayload);}
-        );
+            // now load the event log from the API, if we're doing the settlement
+            $scope.getJSONfromAPI('settlement','get_event_log').then(
+                function(payload) {
+                    $scope.event_log = payload.data;
+                    console.log($scope.event_log.length + " item event_log initialized!")
+                },
+                function(errorPayload) {console.log("Error loading event_log!" + errorPayload);}
+            );
 
-        assetService.getNewSettlementAssets($scope.api_url).then(
-            function(payload) {
-                $scope.new_settlement_assets = payload.data;
-                console.log("loaded new_settlement assets!");
-            },
-            function(errorPayload) {console.log("Error loading new settlement assets!" + errorPayload);}
-        );
+            console.log("Initialized settlement ID = " + $scope.settlement_id);
 
-        // finish
-        console.log("appRoot controller (" + $scope.view + ") initialized!");
-        console.log("Settlement ID = " + $scope.settlement_id);
-        console.log("Current user login = " + $scope.user_login);
+        };
+
+        if ($scope.view === 'dashboard') {
+//          console.log("skipping new asset load")  
+        } else {
+            assetService.getNewSettlementAssets($scope.api_url).then(
+                function(payload) {
+                    $scope.new_settlement_assets = payload.data;
+                    console.log("loaded new_settlement assets!");
+                },
+                function(errorPayload) {console.log("Error loading new settlement assets!" + errorPayload);}
+            );
+        };
+
     }
 
     $scope.reinitialize = function() {
@@ -194,7 +215,6 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
         $scope.initialize(
             $scope.view,
             $scope.user_id,
-            $scope.user_login,
             $scope.api_url,
             $scope.settlement_id,
             $scope.survivor_id,
@@ -324,24 +344,35 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
             while (c.charAt(0) == ' ') {
                 c = c.substring(1);
             }
+            if (c.indexOf('session=') == 0) {
+                $scope.session_oid = c.substring('session='.length, c.length);
+            };
             if (c.indexOf(name) == 0) {
                 $scope.jwt = c.substring(name.length, c.length);
                 return true;
-            }
+            };
         }
-        console.warn("Could not set JWT from cookie!");
+        console.error("Could not set JWT from cookie!");
+        console.error("Session: " + $scope.session_oid);
+        if ($scope.session_oid !== undefined) {
+            $scope.legacySignOut($scope.session_oid);
+        };
+        console.error("Bad cookie: " + decodedCookie);
         $scope.jwt = false;
         return false;
     };
 
     $scope.getJSONfromAPI = function(collection, action) {
         console.log("Retrieving '" + collection + "' asset '" + action + "' data from API:");
+        if ($scope.api_url === undefined){console.error('$scope.api_url is ' + $scope.api_url + '! API retrieval cannot proceed!'); return false};
         $scope.set_jwt_from_cookie();
         var config = {"headers": {"Authorization": $scope.jwt}};
         if (collection == "settlement") {
             var url = $scope.api_url + "settlement/" + action + "/" + $scope.settlement_id;
         } else if (collection == "survivor") {
             var url = $scope.api_url + "survivor/" + action + "/" + $scope.survivor_id;
+        } else if (collection == "user") {
+            var url = $scope.api_url + "user/" + action + "/" + $scope.user_id;
         };
         console.log("getJSONfromAPI() -> " + url);
         return $http.get(url, config);
@@ -503,9 +534,9 @@ app.controller("updateExpansionsController", function($scope) {
 //        console.log($scope.settlement.game_assets.campaign.settlement_sheet_init.expansions.includes(e_handle));
         var input_element = document.getElementById(e_handle + "_modal_toggle");
         if (input_element.checked) {
-            $scope.postJSONtoAPI('settlement', 'add_expansions', [e_handle]);
+            $scope.postJSONtoAPI('settlement', 'add_expansions', {'expansions': [e_handle]});
         } else {
-            $scope.postJSONtoAPI('settlement', 'rm_expansions', [e_handle]);
+            $scope.postJSONtoAPI('settlement', 'rm_expansions', {'expansions': [e_handle]});
         };
     };
 });
@@ -1022,3 +1053,4 @@ app.controller("sideNavController", function($scope) {
         return userFavorites;
     };
 });
+

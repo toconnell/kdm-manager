@@ -120,7 +120,7 @@ def reset_password(action):
 #   /login (not to be confused with the built-in /auth route)
 #
 @application.route("/login", methods=["POST","OPTIONS"])
-@utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization'])
+@utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization','Access-Control-Allow-Origin'])
 def get_token(check_pw=True, user_id=False):
     """ Tries to get credentials from the request headers. Fails verbosely."""
 
@@ -147,7 +147,7 @@ def get_token(check_pw=True, user_id=False):
 #
 
 @application.route("/authorization/<action>", methods=["POST","GET","OPTIONS"])
-@utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization'])
+@utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization','Access-Control-Allow-Origin'])
 def refresh_auth(action):
 
     if not "Authorization" in request.headers:
@@ -171,27 +171,24 @@ def refresh_auth(action):
 
 
 @application.route("/new/<asset_type>", methods=["POST", "OPTIONS"])
-@utils.crossdomain(origin=['*'],headers='Content-Type')
+@utils.crossdomain(origin=['*'],headers=['Content-Type','Access-Control-Allow-Origin'])
 def new_asset(asset_type):
     """ Uses the 'Authorization' block of the header and POSTed params to create
     a new settlement. """
 
     # first, check to see if this is a request to make a new user. If it is, we
     #   don't need to try to pull the user from the token b/c it doesn't exist
-    #   yet, obvi. Instead, call the users.User.new() method
+    #   yet, obvi. Instead, initialize a user obj w/ no _id to call User.new().
     if asset_type == 'user':
         U = users.User()
         return U.serialize()
 
     request.User = users.token_to_object(request)
-    if isinstance(request.User, users.User):
-        return request_broker.new_user_asset(asset_type)
-    else:
-        return utils.http_401
+    return request_broker.new_user_asset(asset_type)
 
 
 @application.route("/<collection>/<action>/<asset_id>", methods=["GET","POST","OPTIONS"])
-@utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization'])
+@utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization','Access-Control-Allow-Origin'])
 def collection_action(collection, action, asset_id):
     """ This is our major method for retrieving and updating settlements.
 
@@ -200,10 +197,6 @@ def collection_action(collection, action, asset_id):
     """
 
     request.User = users.token_to_object(request, strict=False)     # temporarily non-strict
-
-    if not isinstance(request.User, users.User):
-        return utils.http_401
-
     asset_object = request_broker.get_user_asset(collection, asset_id)
     if type(asset_object) == Response:
         return asset_object

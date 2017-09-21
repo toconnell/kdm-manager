@@ -66,7 +66,7 @@ beta_challenge_scenarios = {
             "Weapon Proficiency": 3,
             "Strength": 1,
             "weapon_proficiency_type": "Sword",
-            "fighting_arts": ["Timeless Eye"],
+            "fighting_arts": ["timeless_eye"],
             "abilities_and_impairments": ["partner", "sword_specialization"],
         },
 #        "storage": [
@@ -90,7 +90,7 @@ beta_challenge_scenarios = {
             "Weapon Proficiency": 3,
             "Evasion": 1,
             "weapon_proficiency_type": "Spear",
-            "fighting_arts": ["Leader"],
+            "fighting_arts": ["leader"],
             "abilities_and_impairments": ["partner", "spear_specialization"],
         },
 #        "storage": [
@@ -111,7 +111,7 @@ beta_challenge_scenarios = {
             "Insanity": 9,
             "Courage": 3,
             "Understanding": 3,
-            "fighting_arts": ["Thrill Seeker","Clutch Fighter","Extra Sense"],
+            "fighting_arts": ["thrill_seeker","clutch_fighter","extra_sense"],
             "disorders": ["Rageholic","Sworn Enemy"],
         },
         "storage": [
@@ -131,7 +131,7 @@ beta_challenge_scenarios = {
     },
     "kara_black": {
         "name": "Kara Black",
-        "attribs": {"name": "Kara Black", "survival": 3, "Strength": 1, "fighting_arts": ["Leader","Tough"], "sex": "F"},
+        "attribs": {"name": "Kara Black", "survival": 3, "Strength": 1, "fighting_arts": ["leader","tough"], "sex": "F"},
 #        "storage": ["Founding Stone", "Cloth", "Giant Stone Face"],
     },
     "messenger_of_the_first_story": {
@@ -145,7 +145,7 @@ beta_challenge_scenarios = {
             "Strength": 1,
             "Evasion": 1,
             "Speed": 1,
-            "fighting_arts": ["Last Man Standing"],
+            "fighting_arts": ["last_man_standing"],
         },
 #        "storage": [
 #            "Screaming Horns",
@@ -174,7 +174,7 @@ beta_challenge_scenarios = {
             "hunt_xp": 2,
             "Weapon Proficiency": 5,
             "weapon_proficiency_type": "Twilight Sword",
-            "fighting_arts": ["Last Man Standing"],
+            "fighting_arts": ["last_man_standing"],
             "cursed_items": ["twilight_sword"],
             "abilities_and_impairments": ["twilight_sword_specialization"],
             "epithets": ["twilight_sword"],
@@ -196,7 +196,7 @@ beta_challenge_scenarios = {
             "sex": "M",
             "survival": 10,
             "abilities_and_impairments": ["bitter_frenzy", "solid", "grand_weapon_specialization"],
-            "fighting_arts": ["Berserker", "Crossarm Block", "Unconscious Fighter"],
+            "fighting_arts": ["berserker", "crossarm_block", "unconscious_fighter"],
             "disorders": ["Rageholic"],
         },
 #        "storage": [
@@ -219,7 +219,7 @@ beta_challenge_scenarios = {
             "Insanity": 8,
             "Courage": 5,
             "Understanding": 5,
-            "fighting_arts": ["Unconscious Fighter"],
+            "fighting_arts": ["unconscious_fighter"],
             "abilities_and_impairments": ["red_glow", "blue_glow", "green_glow"]
         },
     },

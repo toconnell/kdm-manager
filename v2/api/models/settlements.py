@@ -566,6 +566,10 @@ class Settlement(Models.UserAsset):
 
         E = expansions.Assets()
 
+        if e_list == []:
+            self.check_request_params(['expansions'])
+            e_list = self.params['expansions']
+
         # prune the list to reduce risk of downstream cock-ups
         for e_handle in e_list:
             if e_handle not in E.get_handles():
@@ -604,6 +608,11 @@ class Settlement(Models.UserAsset):
         """ Takes a list of expansion handles and then removes them them from the
         settlement, undoing Timeline updates, etc. as required by the expansion
         asset definitions. """
+
+        # initialize
+        if e_list == []:
+            self.check_request_params(['expansions'])
+            e_list = self.params['expansions']
 
         E = expansions.Assets()
 
@@ -2344,9 +2353,9 @@ class Settlement(Models.UserAsset):
         #
 
         elif action == "add_expansions":
-            self.add_expansions(self.params)
+            self.add_expansions()
         elif action == "rm_expansions":
-            self.rm_expansions(self.params)
+            self.rm_expansions()
 
         # monster methods
         elif action == "set_current_quarry":

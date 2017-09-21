@@ -14,6 +14,7 @@ import string
 from werkzeug.security import safe_str_cmp
 
 import Models
+from settlements import Settlement
 import settings
 import utils
 
@@ -155,25 +156,44 @@ def token_to_object(request, strict=True):
     response OR a user object. Requires the application's initialized JWT to
     work. """
 
-    # first, get the token or bail
+    # khoa's back door - chop this whole block when he gets CORS sorted out
+    if request.method == "POST" and request.json.get('user_id', None) is not None:
+        logger.warn("'user_id' key in POST body; attempting Khoa-style token-less auth...")
+        try:
+            user_oid = ObjectId(request.json['user_id'])
+        except Exception as e:
+            msg = "User OID '%s' does not look like an OID!" % request.json['user_id']
+            logger.error(msg)
+            logger.error(e)
+            raise utils.InvalidUsage(msg, status_code=422)
+        try:
+            return User(_id=user_oid)
+        except Exception as e:
+            msg = "The OID '%s' does not belong to any known user! %s" % (user_oid, e)
+            logger.error(msg)
+            raise utils.InvalidUsage(msg, status_code=401)
 
+
+    #   real auth workflow starts here
+    # first, get the token or bail
     auth_token = request.headers.get("Authorization", None)
     if auth_token is None:
-        logger.error("Authorization header missing!")
-        return utils.http_401
+        msg = "'Authorization' header missing!"
+        logger.error(msg)
+        raise utils.InvalidUsage(msg, status_code=401)
 
     # now, try to decode the token and get a dict
-
     try:
         decoded = jwt.decode(auth_token, secret_key, verify=strict)
         user_dict = dict(json.loads(decoded["identity"]))
         return User(_id=user_dict["_id"]["$oid"])
     except jwt.DecodeError:
         logger.error("Incorrectly formatted token!")
+        logger.error("Token contents: |%s|" % auth_token)
     except Exception as e:
         logger.exception(e)
 
-    return utils.http_401
+    raise utils.InvalidUsage("Incoming JWT could not be processed!", status_code=422)
 
 
 
@@ -191,7 +211,7 @@ class User(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="users"
-        self.object_version=0.13
+        self.object_version=0.22
         Models.UserAsset.__init__(self,  *args, **kwargs)
 
         # JWT needs this
@@ -243,7 +263,7 @@ class User(Models.UserAsset):
         return self.user["_id"]
 
 
-    def serialize(self):
+    def serialize(self, return_type=None):
         """ Creates a dictionary meant to be converted to JSON that represents
         everything that the front-end might need to know about a user. """
 
@@ -266,6 +286,12 @@ class User(Models.UserAsset):
         output["user_facts"]["survivors_created"] = self.get_survivors(return_type=int)
         output["user_facts"]["survivors_owned"] = self.get_survivors(qualifier="owner", return_type=int)
         output["user_facts"]["friend_count"] = self.get_friends(return_type=int)
+
+        # if we're doing the dash, create the dashboard key and fill it in
+        if return_type == 'dashboard':
+            output["dashboard"] = {}
+            output["dashboard"]["friends"] = self.get_friends(return_type=list)
+            output["dashboard"]["settlements"] = self.get_settlements(return_type='asset_list', qualifier='player')
 
         return json.dumps(output, default=json_util.default)
 
@@ -450,7 +476,10 @@ class User(Models.UserAsset):
             else:
                 return 0
         elif return_type == list:
-            return [f["login"] for f in friends]
+            if friends is None:
+                return []
+            else:
+                return [f["login"] for f in friends]
 
         return friends
 
@@ -510,6 +539,11 @@ class User(Models.UserAsset):
             output = [s["_id"] for s in settlements]
             output = list(set(output))
             return output
+        elif return_type == "asset_list":
+            output = []
+            for s in settlements:
+                output.append(s)
+            return output
 
         return settlements
 
@@ -560,7 +594,9 @@ class User(Models.UserAsset):
         self.get_request_params()
 
         if action == "get":
-            return self.return_json()
+            return Response(response=self.serialize(), status=200, mimetype="application/json")
+        elif action == "dashboard":
+            return Response(response=self.serialize('dashboard'), status=200, mimetype="application/json")
         elif action == "set":
             return self.set_attrib()
         else:
@@ -570,7 +606,7 @@ class User(Models.UserAsset):
 
 
         # finish successfully
-        return utils.http_200
+        return Response(response="Completed '%s' action successfully!" % action, status=200)
 
 
 

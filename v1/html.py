@@ -102,10 +102,6 @@ class ui:
 
 
 class dashboard:
-    # settlement administrivia; needs to be above the dashboard accordions
-    panel_button = '<form action="#" method="POST"><input type="hidden" name="change_view" value="panel"/><button class="dashboard_admin_panel_launch_button kd_blue tablet_and_desktop">Admin Panel!</button></form>\n'
-    new_settlement_button = '<form method="POST" action="#"><input type="hidden" name="change_view" value="new_settlement" /><button class="kd_blue">+ New Settlement</button></form>\n'
-
     # flash
     down_arrow_flash = '<img class="dashboard_down_arrow" src="%s/icons/down_arrow.png"/> ' % settings.get("application", "STATIC_URL")
     campaign_flash = '<img class="dashboard_icon" src="%s/icons/campaign.png"/> ' % settings.get("application", "STATIC_URL")
@@ -113,68 +109,15 @@ class dashboard:
     system_flash = '<img class="dashboard_icon" src="%s/icons/system.png"/> ' % settings.get("application", "STATIC_URL")
     refresh_flash = '<img class="dashboard_icon" src="%s/icons/refresh.png"/> ' % settings.get("application", "STATIC_URL")
 
+
+    # AngularJS and V2 stuff
+
+    # settlement administrivia; needs to be above the dashboard accordions
+    panel_button = '<form action="#" method="POST"><input type="hidden" name="change_view" value="panel"/><button class="dashboard_admin_panel_launch_button kd_blue tablet_and_desktop">Admin Panel!</button></form>\n'
+    new_settlement_button = '<form method="POST" action="#"><input type="hidden" name="change_view" value="new_settlement" /><button class="kd_blue">+ New Settlement</button></form>\n'
+
     # dashboard accordions
-    about = Template("""\n
-    <div class="dashboard_menu">
 
-    <h2
-        class="clickable about_primary dashboard_rollup"
-        onclick="showHide('about_div')"
-    >
-        <font class="kdm_font dashboard_kdm_font">g</font> About %s
-    </h2>
-
-    <div id="about_div" style="display: none;" class="dashboard_accordion about_secondary">
-        <p class="title"><b>KD:M Manager! Version $version.</b></p>
-        <hr/>
-        <p>About:</p>
-        <ul>
-            <li>This application, which is called <i>kdm-manager.com</i>, or, more simply, <i>the Manager</i>, is an interactive campaign management tool for use with <i><a href="https://shop.kingdomdeath.com/collections/sold-out/products/kingdom-death-monster" target="top">Monster</a></i>, by <a href="http://kingdomdeath.com" target="top">Kingdom Death</a>.</li>
-        </ul>
-        <p>Important Information:</p>
-        <ul>
-            <li><b>This application is not developed, maintained, authorized or in any other way supported by or affiliated with <a href="http://kingdomdeath.com" target="top">Kingdom Death</a>.</b></li>
-            <li>This application is currently under active development and is running in debug mode!<li>
-            <li>Among other things, this means not only that <i>errors can and will occur</i>, but also that <i>features may be added and removed without notice</i> and <i>presentation elements are subject to change</i>.</li>
-            <li>Users' email addresses and other information are used only for the purposes of developing and maintaining this application and are never shared, published or distributed.</li>
-        </ul>
-        <hr/>
-        <p>Release Information:</p>
-        <ul>
-            <li>v$version of the Manager went into production on $latest_change_date. <a target="top" href="$latest_change_link">View change log</a>.</li>
-            <li>v1.7.0, the first production release of the Manager, went live on 2015-11-29.</li>
-            <li>For detailed release information, including complete notes and updates for each production release, please check the development blog at <a href="http://blog.kdm-manager.com" target="top"/>blog.kdm-manager.com</a>.</li>
-        </ul>
-        <hr/>
-        <p>Development and Support:</p>
-        <ul>
-            <li>Please report issues and errors using the side navigation panel within the application: this feature sends an email containing pertinent data directly to the application maintainers.</li>
-            <li>Follow the project <a href="https://twitter.com/kdmmanager" target="top">on Twitter</a> for updates/announcements.</li>
-            <li>Application source code is <a href="https://github.com/toconnell/kdm-manager" target="top">available on GitHub</a>.</li>
-            <li>Github users may prefer to <a href="https://github.com/toconnell/kdm-manager/issues" target="top">report issues there</a>.</li>
-            <li>Check <a href="https://github.com/toconnell/kdm-manager/wiki" target="top">the development wiki</a> for complete information about the project.</li>
-        </ul>
-        <hr/>
-        <p>Privacy and Data Usage:</p>
-        <ul>
-            <li>Individually identifiable user data, e.g. email addresses and application data, are not shared or sold.</li>
-            <li>Individually identifiable user data are used for development purposes, including testing and QA.</li>
-            <li>Aggregate, deidentified user data are aggregated and displayed within the application and are available for general review via the KDM API.</li>
-        </ul>
-        <hr/>
-        <p>Credits:</p>
-        <ul>
-            <li>Produced, provisioned and supported by <a href="http://thelaborinvain.com">The Labor in Vain</a>.<li>
-            <li>Developed, maintained and edited by <a href="http://toconnell.info">Timothy O'Connell</a>.</li>
-            <li>Icon font ('kdm-font-10') by <a href="http://steamcommunity.com/id/GeorgianBalloon" target="top">Miracle Worker</a>.</li>
-            <li>The <font style="font-family: Silverado; font-size: 1.3em;">Silverado Medium Condensed</font> font is licensed through <a href="https://www.myfonts.com/" target="top">MyFonts.com</a>.
-            <li>Loading hourglass GIF designed by <a href="http://loganogden.com/" target="top">Logan Ogden</a>.</li>
-            <li>Loading spinner GIF by <a href="http://loading.io" target="top">loading.io</a></li>
-        </ul>
-
-        </div> <!-- about_div -->
-    </div>
-    \n""" % (down_arrow_flash))
     preference_header = Template("""\n
     <div class="dashboard_preference_block_group">
         <h2>$title</h2>
@@ -220,18 +163,23 @@ class dashboard:
     #   ANGULARJS dashboard components!
     #
 
-    world = Template("""
-
-    <script
-        src="/media/worldPanel.js?v=$application_version"
+    initializer = Template("""\
+    <script src="/media/dashboard.js?v=$application_version"></script>
+    <div
+        id="dashboardControlElement"
+        ng-controller="dashboardController"
+        ng-init="initialize('dashboard', '$user_id', '$api_url')"
     >
-    </script>
+    """)
+
+    angular_app = """\
+
 
     <div
         id="world_container"
         class="dashboard_menu world_panel"
         ng-controller="dashboardController"
-        ng-init="initWorld('$api_url')"
+        ng-init="initWorld()"
     >
 
         <h2 class="clickable world_primary dashboard_rollup" ng-click="showHide('world_detail_div')">
@@ -456,8 +404,93 @@ class dashboard:
 
         </div> <!-- world_detail_div -->
 
-    </div> <!-- world_container -->
-    """)
+    </div> <!-- dashboard_menu 'World'-->
+
+        <div
+            class="dashboard_menu"
+            ng-init="setLatestChangeLog();"
+        >
+            <h2
+                class="clickable about_primary dashboard_rollup"
+                onclick="showHide('about_div')"
+            >
+                <font class="kdm_font dashboard_kdm_font">g</font> About <img class="dashboard_down_arrow" src="/media/icons/down_arrow.png">
+            </h2>
+
+            <div
+                id="about_div"
+                style="display: none;"
+                class="dashboard_accordion about_secondary"
+            >
+
+                <p class="title">
+                    <b>KD:M Manager! Production release {{user.meta.webapp.release}} (<a href="http://api.thewatcher.io">KDM API</a> release version {{user.meta.api.version}}).
+                    </b>
+                </p>
+
+		<hr/>
+
+		<p>About:</p>
+		<ul>
+                    <li>This application, which is called <i>kdm-manager.com</i>, or simply, <i>the Manager</i>, is an interactive campaign management tool for use with <i><a href="https://shop.kingdomdeath.com/collections/sold-out/products/kingdom-death-monster" target="top">Monster</a></i>, by <a href="http://kingdomdeath.com" target="top">Kingdom Death</a>.
+                    </li>
+                </ul>
+
+                <p>Important Information:</p>
+                <ul>
+                    <li><b>This application is not developed, maintained, authorized or in any other way supported by or affiliated with <a href="http://kingdomdeath.com" target="top">Kingdom Death</a>.</b></li>
+                    <li>This application is currently under active development and is running in debug mode!<li>
+                    <li>Among other things, this means not only that <i>errors can and will occur</i>, but also that <i>features may be added or removed without notice</i> and <i>presentation elements are subject to change</i>.</li>
+                    <li>Users' email addresses and other information are used only for the purposes of developing and maintaining this application and are never shared, published or distributed.</li>
+                </ul>
+
+                <hr/>
+
+                <p>Release Information:</p>
+                <ul>
+                    <li>Release {{user.meta.webapp_release}} of the Manager went into production on {{latest_blog_post.published}}. <a target="top" href="{{latest_blog_post.url}}">View change log</a>.</li>
+                    <li>v1.7.0, the first production release of the Manager, went live {{user.meta.webapp.age}} ago on 2015-11-29.</li>
+                    <li>For detailed release information, including complete notes and updates for each production release, please check the development blog at <a href="http://blog.kdm-manager.com" target="top"/>blog.kdm-manager.com</a>.</li>
+                </ul>
+
+                 <hr/>
+
+                 <p>Development and Support:</p>
+                 <ul>
+                      <li>Please report issues and errors using the side navigation panel within the application: this feature sends an email containing pertinent data directly to the application maintainers.</li>
+                      <li>Follow the project <a href="https://twitter.com/kdmmanager" target="top">on Twitter</a> for updates/announcements.</li>
+                      <li>Application source code is <a href="https://github.com/toconnell/kdm-manager" target="top">availableon GitHub</a>.</li>
+                      <li>Github users may prefer to <a href="https://github.com/toconnell/kdm-manager/issues" target="top">report issues there</a>.</li>
+                      <li>Check <a href="https://github.com/toconnell/kdm-manager/wiki" target="top">the development wiki</a> for complete information about the project.</li>
+                 </ul>
+
+                 <hr/>
+
+                 <p>Privacy and Data Usage:</p>
+                 <ul>
+                      <li>Individually identifiable user data, e.g. email addresses and application data, are not shared or sold.</li>
+                      <li>Individually identifiable user data are used for development purposes, including testing and QA.</li>
+                      <li>Aggregate, deidentified user data are aggregated and displayed within the application and are available for general review via the KDM API.</li>
+                 </ul>
+
+                 <hr/>
+
+                 <p>Credits:</p>
+                 <ul>
+                     <li> Produced, provisioned and supported by <a href="http://thelaborinvain.com">The Labor in Vain</a>.<li>
+                     <li> Developed, maintained and edited by <a href="http://toconnell.info">Timothy O'Connell</a>.</li>
+                     <li>Icon font ('kdm-font-10') by <a href="http://steamcommunity.com/id/GeorgianBalloon" target="top"> Miracle Worker</a>.</li>
+                     <li>The <font style="font-family: Silverado; font-size: 1.3em;">Silverado Medium Condensed</font> font is licensed through <a href="https://www.myfonts.com/" target="top">MyFonts.com</a>.</li>
+                     <li>Loading spinner GIF by <a href="http://loading.io" target="top">loading.io</a></li>
+                </ul>
+
+            </div> <!-- about_div -->
+
+        </div> <!-- dashboard_menu 'About' -->
+
+    </div> <!-- dashboardControlElement -->
+    """
+
 
 
 
@@ -471,7 +504,7 @@ class dashboard:
 
     <img class="dashboard_bg" src="%s/tree_logo_shadow.png">
 
-    <div class="dashboard_menu">
+    <div id="preferencesContainerElement" class="dashboard_menu">
 
         <h2
             class="clickable system_primary dashboard_rollup"
@@ -482,50 +515,50 @@ class dashboard:
 
         <div id="system_div" style="display: none;" class="dashboard_accordion system_secondary">
 
-        <div class="dashboard_preferences">
-            <p>Use the controls below to update application-wide preferences.
-            These settings will affect all of your settlements and survivors!</p>
+            <div class="dashboard_preferences">
+                <p>Use the controls below to update application-wide preferences.
+                These settings will affect all of your settlements and survivors!</p>
 
-            $user_preferences
+                $user_preferences
 
-        </div>
+            </div>
 
-        <hr/>
-
-        <div class="dashboard_preferences">
-            <h3>Export User Data</h3>
-<!--            <form method="POST" action="#">
-                <input type="hidden" name="export_user_data" value="json">
-                <button class="silver">JSON</button>
-            </form> -->
-            <form method="POST" action="#">
-                <input type="hidden" name="export_user_data" value="dict">
-                <button class="silver">Python Dictionary</button>
-            </form>
-            <form method="POST" action="#">
-                <input type="hidden" name="export_user_data" value="pickle">
-                <button class="silver">Python Pickle</button>
-            </form>
-        </div>
-
-        <hr>
-
-        <h3>User Management</h3>
-        <div style="font-family: Metrophobic">
-            <p class="currently_signed_in_as">Currently signed in as: <i>$login</i> (last sign in: $last_sign_in)</p>
-            $last_log_msg
+            <hr/>
 
             <div class="dashboard_preferences">
-                <form action="#" method="POST">
-                    <input type="hidden" name="change_password" value="True"/>
-                    <input type="password" name="password" class="full_width" placeholder="password">
-                    <input type="password" name="password_again" class="full_width" placeholder="password (again)"/>
-                    <button class="kd_alert_no_exclaim red_glow"> Change Password</button>
+                <h3>Export User Data</h3>
+<!--                <form method="POST" action="#">
+                    <input type="hidden" name="export_user_data" value="json">
+                    <button class="silver">JSON</button>
+                </form> -->
+                <form method="POST" action="#">
+                    <input type="hidden" name="export_user_data" value="dict">
+                    <button class="silver">Python Dictionary</button>
+                </form>
+                <form method="POST" action="#">
+                    <input type="hidden" name="export_user_data" value="pickle">
+                    <button class="silver">Python Pickle</button>
                 </form>
             </div>
-        </div>
 
-    </div>
+            <hr>
+
+            <h3>User Management</h3>
+            <div style="font-family: Metrophobic">
+                <p class="currently_signed_in_as">Currently signed in as: <i>$login</i> (last sign in: $last_sign_in)</p>
+                $last_log_msg
+
+                <div class="dashboard_preferences">
+                    <form action="#" method="POST">
+                        <input type="hidden" name="change_password" value="True"/>
+                        <input type="password" name="password" class="full_width" placeholder="password">
+                        <input type="password" name="password_again" class="full_width" placeholder="password (again)"/>
+                        <button class="kd_alert_no_exclaim red_glow"> Change Password</button>
+                    </form>
+                </div>
+            </div>
+        </div> <!-- system_div -->
+    </div> <!-- preferencesContainerElement -->
     """ % (settings.get("application","STATIC_URL"), settings.get("application", "STATIC_URL"), down_arrow_flash))
     campaign_summary = Template("""\n\
     <div class="dashboard_menu">
@@ -1335,7 +1368,7 @@ class survivor:
         id = "survivor_sheet_angularjs_controller_container"
         ng-controller="survivorSheetController"
         ng-init="
-            initialize('survivorSheet', '$user_id', '$user_login', '$api_url','$settlement_id','$survivor_id');
+            initialize('survivorSheet', '$user_id', '$api_url','$settlement_id','$survivor_id');
         "
     >
         <span class="tablet_and_desktop nav_bar survivor_sheet_gradient"></span>
@@ -2084,7 +2117,8 @@ class survivor:
                     class="survivor_sheet_card survivor_sheet_gradient clickable"
                 >
                     <span ng-if = "settlement.game_assets.fighting_arts[fa_handle] == undefined">
-                        <img src="/media/loading_lantern.gif">
+                        <img src="/media/loading_lantern.gif"><br/>
+                        Loading Fighting Art data...
                     </span>
                     <span
                         ng-init="
@@ -3207,7 +3241,7 @@ class settlement:
 
         <div
             id = "campaign_summary_angularjs_controller_container"
-            ng-init="initialize('campaignSummary', '$user_id', '$user_login', '$api_url','$settlement_id')"
+            ng-init="initialize('campaignSummary', '$user_id', '$api_url','$settlement_id')"
         >
             <span class="tablet_and_desktop nav_bar campaign_summary_gradient"></span>
             <span class="nav_bar_mobile mobile_only campaign_summary_gradient"></span>
@@ -3563,7 +3597,7 @@ class settlement:
 
         <div
             id = "settlement_sheet_angularjs_controller_container"
-            ng-init="initialize('settlementSheet', '$user_id', '$user_login', '$api_url','$settlement_id')"
+            ng-init="initialize('settlementSheet', '$user_id', '$api_url','$settlement_id')"
             ng-controller="settlementSheetController"
         >
 
@@ -4365,7 +4399,7 @@ class meta:
 
     start_head = """<!DOCTYPE html>\n<html>
     <head>
-        <meta charset="UTF-8">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
         <meta name="theme-color" content="#000000">
         <title>%s</title>
         <link rel="stylesheet" type="text/css" href="/media/style.css?v=%s">

@@ -6,6 +6,7 @@ promo_and_misc = {
     "beta_challenge_scenarios": {
         "released": datetime(2016,2,1),
         "name": "Beta Challenge Scenarios",
+        "ui": {"pretty_category": "Enhancement"},
         "flair": {
             "color": "#FFF",
             "bgcolor": "#4EC6F0",
@@ -24,6 +25,7 @@ promo_and_misc = {
     "white_box": {
         "released": datetime(2016,8,16),
         "name": "White Box & Promo",
+        "ui": {"pretty_category": "Enhancement"},
         "flair": {
             "color": "#FFF",
             "bgcolor": "#4EC6F0",
@@ -35,6 +37,7 @@ promo_and_misc = {
 mar_2016_expansions = {
     "gorm": {
         "name": "Gorm",
+        "ui": {"pretty_category": "Quarry"},
         "flair": {
             "color": "#EAE40A",
             "bgcolor": "#958C83",
@@ -51,6 +54,7 @@ mar_2016_expansions = {
     },
     "green_knight_armor": {
         "name": "Green Knight Armor",
+        "ui": {"pretty_category": "Enhancement"},
         "subtitle": "Crafting GKA items requires DBK, Flower Knight, Lion Knight and Gorm expansions!",
         "always_available": {
 #            "location": ["Green Knight Armor"],
@@ -58,6 +62,7 @@ mar_2016_expansions = {
     },
     "dung_beetle_knight": {
         "name": "Dung Beetle Knight",
+        "ui": {"pretty_category": "Quarry"},
         "flair": {
             "color": "#EAE40A",
             "bgcolor": "#C3C8AB",
@@ -73,6 +78,7 @@ mar_2016_expansions = {
     },
     "spidicules": {
         "name": "Spidicules",
+        "ui": {"pretty_category": "Quarry"},
         "flair": {
             "color": "#333",
             "bgcolor": "#C0B870",
@@ -91,6 +97,7 @@ mar_2016_expansions = {
     },
     "slenderman": {
         "name": "Slenderman",
+        "ui": {"pretty_category": "Nemesis"},
         "flair": {
             "color": "#fff2b7",
             "bgcolor": "#BEA9CB",
@@ -111,6 +118,7 @@ mar_2016_expansions = {
     },
     "lion_knight": {
         "name": "Lion Knight",
+        "ui": {"pretty_category": "Nemesis"},
         "flair": {
             "color": "#666",
             "bgcolor": "#FCF78F",
@@ -132,6 +140,7 @@ mar_2016_expansions = {
     },
     "lion_god": {
         "name": "Lion God",
+        "ui": {"pretty_category": "Quarry"},
         "flair": {
             "color": "#E8cE55",
             "bgcolor": "#712C2B",
@@ -176,6 +185,7 @@ mar_2016_expansions = {
     },
     "manhunter": {
         "name": "Manhunter",
+        "ui": {"pretty_category": "Nemesis"},
         "flair": {
             "color": "#E8cE55",
             "bgcolor": "#8D0000",
@@ -195,6 +205,7 @@ mar_2016_expansions = {
     },
     "lonely_tree": {
         "name": "Lonely Tree",
+        "ui": {"pretty_category": "Enhancement"},
 #        "nemesis_monsters": ["lonely_tree"],
         "special_showdowns": ["lonely_tree"],
     },

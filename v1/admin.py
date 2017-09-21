@@ -400,7 +400,7 @@ def tail(settlement_id, interval=5, last=20):
         sys.exit(1)
 
 
-def render_about_panel():
+def render_about_panel(user_oid):
     """ Random method to render the HTML for the Dashboard "about" panel. """
     lcl = ""
     lcd = "ERROR"
@@ -412,6 +412,8 @@ def render_about_panel():
         self.logger.exception("An error occurred while trying to retrieve blog info!")
 
     output = html.dashboard.about.safe_substitute(
+        user_oid = user_oid,
+        api_url = api.get_api_url(),
         version = settings.get("application","version"),
         latest_change_date = lcd,
         latest_change_link = lcl,

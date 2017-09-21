@@ -107,10 +107,15 @@ class Session:
         #   do it here, while we're initializing a new session object.
         if "remove_session" in self.params:
             user = mdb.users.find_one({"current_session": ObjectId(self.params["remove_session"].value)})
+
             if user is not None:
                 self.User = assets.User(user_id=user["_id"], session_object={"_id": 0})
                 self.User.mark_usage("signed out")
-            admin.remove_session(self.params["remove_session"].value, self.params["login"].value)
+
+            if 'login' in self.params:
+                admin.remove_session(self.params["remove_session"].value, self.params["login"].value)
+            else:
+                admin.remove_session(self.params["remove_session"].value, "webapp_error")
 
         # ok, if this is a recovery request, let's try to do that
         if 'recovery_code' in self.params:
@@ -694,7 +699,13 @@ class Session:
     def render_dashboard(self):
         """ Renders the user's dashboard. """
 
-        output = self.User.html_motd()
+        output = html.dashboard.initializer.safe_substitute(
+            application_version = settings.get("application","version"),
+            api_url = api.get_api_url(),
+            user_id = self.User.user["_id"],
+        )
+
+        output += self.User.html_motd()
 
         display_settlements = "none"
         display_campaigns = ""
@@ -702,7 +713,6 @@ class Session:
         if self.User.get_campaigns() == "":
             display_settlements = ""
             display_campaigns = "none"
-
 
         # render campaigns, settlements and survivors lists for the dashboard.
         #   all of this goes away when we can get a user from the API
@@ -715,24 +725,8 @@ class Session:
             settlements=self.User.get_settlements(return_as="asset_links"),
             display=display_settlements
         )
-#        output += html.dashboard.survivor_summary.safe_substitute(
-#            survivors=self.User.get_survivors("asset_links")
-#        )
 
-        # due to volatility, the html_world() call is wrapped for silent
-        #   failure. No plans to change this at present.
-#        try:
-#            output += self.User.html_world()
-#        except Exception as e:
-#            self.logger.exception(e)
-#            output += '<!-- ERROR! World Menu could not be created! -->'
-
-        output += html.dashboard.world.safe_substitute(
-            application_version = settings.get("application","version"),
-            api_url = api.get_api_url(),
-        )
-
-        output += admin.render_about_panel()
+        output += html.dashboard.angular_app
 
         if self.User.is_admin():
             output += html.dashboard.panel_button

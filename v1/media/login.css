@@ -85,7 +85,7 @@ button.submit {width: 100%;}
 
     button {font-size: 100%; }
 
-    input, button.submit {height: 40px; font-size: 100%; width: 35%}
+    input, button.submit {height: 40px; font-size: 100%; width: 35%; margin-bottom: 25px; }
     button.submit {width: 40%; margin: 0 auto;}
 
     .spinner {height: auto; width: 125px; margin: 0 auto; }
