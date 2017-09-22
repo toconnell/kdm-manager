@@ -167,7 +167,7 @@ abilities_and_impairments = {
     },
     'marrow_hunger': {
         'desc': 'When the Murder or Skull Eater settlement events are drawn, this survivor is nominated.',
-        'epithet': 'skull_Eater',
+        'epithet': 'skull_eater',
         'name': 'Marrow Hunger',
         'type': 'impairment'
     },
