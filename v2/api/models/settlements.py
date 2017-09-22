@@ -155,7 +155,8 @@ class Settlement(Models.UserAsset):
         # add all expansions
         all_expansions = self.settlement["expansions"]
         self.settlement["expansions"] = []
-        self.add_expansions(all_expansions)
+        if all_expansions != []:
+            self.add_expansions(all_expansions)
 
         # handle specials, i.e. first story, seven swordsmen, etc.
         if self.params.get("specials", None) is not None:
