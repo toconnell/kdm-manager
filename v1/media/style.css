@@ -1754,7 +1754,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.bulk_add_control {float: left; width: 120px; text-align: center; margin: 0; margin-bottom: 0; margin-left: 20px; font-size: 12pt; color: #666; }
     div.bulk_add_control input[type=number] {margin-right: 15px; padding-left: 5px;}
     div.bulk_add_block_group {flex-direction: row; width: 30%; justify-content: space-around; padding-top: 3%; }
-    div.bulk_add_block_group input.settlement_sheet_bulk_add  {margin-bottom: 5%; font-size: 12pt; padding: 0; padding-left: 40px; padding-right: 40px; }
+    div.bulk_add_block_group input.settlement_sheet_bulk_add  {margin-bottom: 5%; font-size: 12pt; padding: 0; padding-left: 40px; padding-right: 40px; margin-top: 30px; }
     
 
     h1.alert {font-size: 20pt; }/* used by ABANDONED */
