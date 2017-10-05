@@ -1351,6 +1351,10 @@ class Settlement(Models.UserAsset):
         Setting return_type="dict" gets a dictionary where expansion 'name'
         attributes are the keys and asset dictionaries are the values. """
 
+        # 2017-10-05 legacy data bug
+        if self.settlement.get("expansions", None) is None:
+            self.settlement["expansions"] = []
+
         s_expansions = sorted(list(set(self.settlement["expansions"])))
         E = expansions.Assets()
 
@@ -1983,6 +1987,11 @@ class Settlement(Models.UserAsset):
 
     def bug_fixes(self):
         """ In which we burn CPU cycles to fix our mistakes. """
+
+        # 2017-10-05 - missing settlement attrib
+        if self.settlement.get("expansions", None) is None:
+            self.settlement["expansions"] = []
+            self.perform_save = True
 
         # 2016-02-02 - Weapon Masteries bug
         I = innovations.Assets()

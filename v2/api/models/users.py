@@ -155,7 +155,6 @@ def token_to_object(request, strict=True):
     """ Processes the "Authorization" param in the header and returns an http
     response OR a user object. Requires the application's initialized JWT to
     work. """
-
     # khoa's back door - chop this whole block when he gets CORS sorted out
     if request.method == "POST" and request.json.get('user_id', None) is not None:
         logger.warn("'user_id' key in POST body; attempting Khoa-style token-less auth...")
@@ -194,7 +193,6 @@ def token_to_object(request, strict=True):
         logger.exception(e)
 
     raise utils.InvalidUsage("Incoming JWT could not be processed!", status_code=422)
-
 
 
 
@@ -261,7 +259,6 @@ class User(Models.UserAsset):
         logger.info("New user '%s' created!" % username)
 
         return self.user["_id"]
-
 
     def serialize(self, return_type=None):
         """ Creates a dictionary meant to be converted to JSON that represents
@@ -553,9 +550,15 @@ class User(Models.UserAsset):
         elif return_type == "asset_list":
             output = []
             for s in settlements:
-                S = Settlement(_id=s["_id"], normalize_on_init=False)
-                sheet = json.loads(S.serialize('dashboard'))
-                output.append(sheet)
+                try:
+                    S = Settlement(_id=s["_id"], normalize_on_init=False)
+                    sheet = json.loads(S.serialize('dashboard'))
+                    output.append(sheet)
+                except Exception as e:
+                    logger.error("Could not serialize %s" % s)
+                    logger.exception(e)
+                    raise
+
             return output
 
         return settlements
