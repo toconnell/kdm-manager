@@ -2,6 +2,7 @@
 
 # general imports
 from bson import json_util
+from bson.objectid import ObjectId
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import email
@@ -190,6 +191,33 @@ def get_timeline_index_and_object(timeline,lantern_year):
 # API response/request helpers
 
 #
+#   performance monitoring
+#
+
+def record_response_time(r):
+    """ Accepts a request object, uses it to log the request and its response
+    time to mdb. Prunes old lines. """
+    duration = request.stop_time - r.start_time
+
+    url_list = request.url.split(request.url_root)[1].split("/")
+    for i in url_list:
+        try:
+            ObjectId(i)
+            url_list.remove(i)
+        except:
+            pass
+    url = "/".join(url_list)
+
+    mdb.api_response_times.insert({
+       "created_on": datetime.now(),
+       "url": url,
+       "method": request.method,
+       "time": duration.total_seconds()
+    })
+    old_record_query = {"created_on": {"$lt": (datetime.now() - timedelta(days=7))}}
+    removed_records = mdb.api_response_times.remove(old_record_query)
+
+#
 #   stub dictionary for creating the meta element of API returns
 #
 
@@ -371,7 +399,6 @@ class AssetDict(dict):
 
 
 # decorators for API
-
 
 def crossdomain(origin=None, methods=None, headers=None, max_age=21600, attach_to_all=True, automatic_options=True):
     if methods is not None:

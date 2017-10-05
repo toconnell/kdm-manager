@@ -2582,7 +2582,7 @@ class survivor:
             >
                 <span
                     class="close_attrib_controls_modal"
-                    onclick="showHide(control_id)"
+                    ng-click="showHide(control_id)"
                 >
                     X
                 </span>
@@ -2701,7 +2701,7 @@ class survivor:
 
         <button
             class="survivor_sheet_attrib_controls_token {{token.buttonClass}}"
-            onclick="showHide(control_id)"
+            ng-click="showHide(control_id)"
         >
             <p class="short_name">{{token.shortName}}</p>
             <p class="attrib_value synthetic_attrib_total_{{token.longName}}">

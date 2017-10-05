@@ -6,6 +6,11 @@
 import utils
 
 general = {
+    "api_response_times": {
+        "name": "API Request Response Times",
+        "max_age": 3,
+        "comment": "Information re: API request response times, including average and max.",
+    },
     "dead_survivors": {
         "name": "Dead survivors",
         "max_age": 5,

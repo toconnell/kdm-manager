@@ -234,9 +234,10 @@ class World:
 
         # output options from here down:
 
+        spacer = 45
         if output_type == "CLI":
-            print("\n\tWarehouse data:\n")
             spacer = 25
+            print("\n\tWarehouse data:\n")
             for k, v in d["world"].iteritems():
                 utils.cli_dump(k, spacer, v)
                 print("")
@@ -245,7 +246,7 @@ class World:
         elif output_type == "keys_cli":
             output = ""
             for k in sorted(d["world"].keys()):
-                output += "  %s\n" % k
+                utils.cli_dump(k, spacer, d["world"][k]["_id"])
             return output
         elif output_type == dict:
             return d
@@ -471,6 +472,23 @@ class World:
     #
     # actual refresh methods from here down (nothing after)
     #
+
+    # application/meta
+    def api_response_times(self):
+        results = utils.mdb.api_response_times.aggregate([
+            {"$group": {
+                "_id": {
+                    "url": "$url",
+                    "method": "$method",
+                },
+                "avg_time": { "$avg": "$time" },
+                "max_time": { "$max": "$time" },
+                "count": {"$sum": 1 },
+                },
+            },
+            {"$sort": SON([("_id", 1)])},
+        ])
+        return [r for r in results]
 
     # survivors
     def total_survivors(self):

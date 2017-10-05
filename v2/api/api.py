@@ -3,6 +3,7 @@
 # general imports
 from bson.objectid import ObjectId
 from bson import json_util
+from datetime import datetime
 
 from flask import Flask, send_file, render_template, request, Response, send_from_directory, jsonify
 from flask_httpauth import HTTPBasicAuth
@@ -40,7 +41,6 @@ application.config['SECRET_KEY'] = settings.get("api","secret_key","private")
 
 #   Javascript Web Token! DO NOT import jwt (i.e. pyjwt) here!
 jwt = flask_jwt_extended.JWTManager(application)
-
 
 
 #
@@ -234,6 +234,22 @@ def admin_view(resource):
     return request_broker.get_admin_data(resource)
 
 
+#
+#   request logger (special route)
+#
+
+@application.before_request
+def before_request():
+    """ Updates the request with the 'start_time' attrib, which is used for
+    performance monitoring. """
+    request.start_time = datetime.now()
+
+@application.after_request
+def after_request(response):
+    """ Logs requests. """
+    request.stop_time = datetime.now()
+    utils.record_response_time(request)
+    return response
 
 
 #
