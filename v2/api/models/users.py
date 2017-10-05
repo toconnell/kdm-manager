@@ -271,7 +271,6 @@ class User(Models.UserAsset):
         output["user"] = self.user
 
         # user assets
-#        output["user_stat"] = {}
         output["user_assets"] = {}
         output["user_assets"]["survivors"] = self.get_survivors(return_type=list)
         output["user_assets"]["settlements"] = self.get_settlements(return_type=list)
@@ -291,6 +290,7 @@ class User(Models.UserAsset):
         if return_type == 'dashboard':
             output["dashboard"] = {}
             output["dashboard"]["friends"] = self.get_friends(return_type=list)
+#            output["dashboard"]["survivors"] = self.get_survivors(return_type=list)
             output["dashboard"]["settlements"] = self.get_settlements(return_type='asset_list', qualifier='player')
 
         return json.dumps(output, default=json_util.default)
@@ -310,26 +310,37 @@ class User(Models.UserAsset):
         key/value pairs. Returns an http response. """
 
         allowed_keys = ["current_settlement"]
+        failed_keys = []
+        success_keys = []
 
         # first, check the keys to see if they're legit; bail if any of them is
         #   bogus, i.e. bail before we attempt to do anything.
         for k in self.params.keys():
             if k not in allowed_keys:
                 self.logger.warn("Unknown key '%s' will not be processed!" % k)
-                return Response(response="Unknown user attribute '%s' cannot be set!" % k, status=400)
+                failed_keys.append(k)
+            else:
+                success_keys.append(k)
 
         # now, individual value handling for allow keys begins
-        for k in self.params.keys():
+        for k in success_keys:
             if k == "current_settlement":
                 self.user[k] = ObjectId(self.params[k])
             else:
                 self.user[k] = self.params[k]
             self.logger.debug("Set {'%s': '%s'} for %s" % (k, self.params[k], self))
 
+        # build the response message
+        msg = "OK!"
+        if len(success_keys) >= 1:
+            msg += " User attributes successfully updated: %s." % (utils.list_to_pretty_string(success_keys, quote_char="'"))
+        if len(failed_keys) >= 1:
+            msg += " The following user attributes are NOT supported and could not be updated: %s." % (utils.list_to_pretty_string(failed_keys, quote_char="'"))
+
         # finally, assuming we're still here, go ahead and save/return 200
         self.save()
 
-        return utils.http_200
+        return Response(response=msg, status=200)
 
 
     def set_current_settlement(self):
@@ -542,7 +553,9 @@ class User(Models.UserAsset):
         elif return_type == "asset_list":
             output = []
             for s in settlements:
-                output.append(s)
+                S = Settlement(_id=s["_id"], normalize_on_init=False)
+                sheet = json.loads(S.serialize('dashboard'))
+                output.append(sheet)
             return output
 
         return settlements

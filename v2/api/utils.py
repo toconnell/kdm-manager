@@ -137,7 +137,7 @@ def get_time_elapsed_since(start_time, units=None, round_seconds=True):
     return delta
 
 
-def list_to_pretty_string(l):
+def list_to_pretty_string(l, quote_char=False):
     """ Takes a list of strings and makes it into a single, pretty string
     with commas, the word 'and' and that type of shit. """
 
@@ -146,9 +146,15 @@ def list_to_pretty_string(l):
     if len(l) == 0:
         return None
     elif len(l) == 1:
-        return l[0]
+        if quote_char:
+            return "%s%s%s" % (quote_char, l[0], quote_char)
+        else:
+            return l[0]
 
-    l = [str(i) for i in l]
+    if quote_char:
+        l = [str("%s%s%s" % (quote_char,i,quote_char)) for i in l]
+    else:
+        l = [str(i) for i in l]
 
     return " and ".join([", ".join(l[:-1]), l[-1]])
 

@@ -697,35 +697,20 @@ class Session:
 
 
     def render_dashboard(self):
-        """ Renders the user's dashboard. """
+        """ Renders the user's dashboard. Leans heavily on the AngularJS app
+        calling on the API for data, etc."""
 
+        # initialize the angular APP
         output = html.dashboard.initializer.safe_substitute(
             application_version = settings.get("application","version"),
             api_url = api.get_api_url(),
             user_id = self.User.user["_id"],
         )
 
+        # do the settings block (transitional)
         output += self.User.html_motd()
 
-        display_settlements = "none"
-        display_campaigns = ""
-
-        if self.User.get_campaigns() == "":
-            display_settlements = ""
-            display_campaigns = "none"
-
-        # render campaigns, settlements and survivors lists for the dashboard.
-        #   all of this goes away when we can get a user from the API
-
-        output += html.dashboard.campaign_summary.safe_substitute(
-            campaigns=self.User.get_campaigns(),
-            display=display_campaigns
-        )
-        output += html.dashboard.settlement_summary.safe_substitute(
-            settlements=self.User.get_settlements(return_as="asset_links"),
-            display=display_settlements
-        )
-
+        # do the campaign/settlement inventory for the user
         output += html.dashboard.angular_app
 
         if self.User.is_admin():
@@ -755,10 +740,7 @@ class Session:
 
         body = None
 
-        # tack on the full-page spinner if we're doing a view that has
-        #   to initialize with API data
-        if self.current_view in ["view_campaign", "view_settlement", "view_survivor","new_settlement"]:
-            output += html.meta.full_page_loader
+        output += html.meta.full_page_loader
 
         if self.current_view == "dashboard":
             body = "dashboard"

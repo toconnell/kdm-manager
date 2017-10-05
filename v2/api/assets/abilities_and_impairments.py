@@ -268,6 +268,7 @@ severe_injury = {
         'desc': 'Gain 2 bleeding tokens.',
         'name': 'Bleeding kidneys',
         'max': False,
+        "bleeding_tokens": 2,
     },
     'blind': {
         'Accuracy': -1,
@@ -275,6 +276,7 @@ severe_injury = {
         'epithet': 'the_blind',
         'max': 2,
         'name': 'Blind',
+        "bleeding_tokens": 1,
     },
     'broken_arm': {
         'Accuracy': -1,
@@ -282,6 +284,7 @@ severe_injury = {
         'desc': 'An ear-shattering crunch. Suffer -1 permanent Accuracy and -1 permanent Strength. This injury is permanent and can be recorded twice. Gain 1 bleeding token.',
         'max': 2,
         'name': 'Broken arm',
+        "bleeding_tokens": 1,
     },
     'broken_hip': {
         'Movement': -1,
@@ -289,40 +292,48 @@ severe_injury = {
         'name': 'Broken hip',
         'survival_actions': {
             'disable': ['dodge'],
-        }
+        },
+        "bleeding_tokens": 1,
     },
     'broken_leg': {
         'Movement': -1,
         'desc': 'An ear-shattering crunch! Adjacent survivors suffer 1 brain damage. Suffer -1 permanent movement. This injury is permanent, and can be recorded twice. Gain 1 bleeding token.',
         'max': 2,
         'name': 'Broken leg',
+        "bleeding_tokens": 1,
     },
     'broken_rib': {
         'Speed': -1,
         'desc': 'It even hurts to breathe. Suffer -1 permanent speed. This injury is permanent, and can be recorded multiple times. Gain 1 bleeding token.',
         'name': 'Broken rib',
         "max": False,
+        "bleeding_tokens": 1,
     },
     'bruised_tailbone': {
         'desc': 'The base of your spine is in agony. You cannot <b>dash</b> until showdown ends. You are knocked down. Gain 1 bleeding token.',
         'name': 'Bruised tailbone',
         "max": False,
+        "bleeding_tokens": 1,
     },
     'collapsed_lung': {
         'desc': "You can't catch a breath. Gain -1 movement token. Gain 1 bleeding token.",
         'name': 'Collapsed Lung',
         "max": False,
+        "attribute_detail": {"Movement": {"tokens": -1}},
+        "bleeding_tokens": 1,
     },
     'concussion': {
         'desc': 'Your brain is scrambled like an egg. Gain a random disorder. Gain 1 bleeding token.',
         'name': 'Concussion',
         "max": False,
+        "bleeding_tokens": 1,
     },
     'contracture': {
         'Accuracy': -1,
         'desc': 'The arm will never be the same. Suffer -1 permanent Accuracy. This injury is permanent and can be recorded multiple times. Gain 1 bleeding token.',
         'name': 'Contracture',
         "max": False,
+        "bleeding_tokens": 1,
     },
     'deaf': {
         'Evasion': -1,
@@ -333,11 +344,13 @@ severe_injury = {
         'Movement': -2,
         'desc': 'A sharp cracking noise. Suffer -2 permanent movement. You can no longer activate any gear that has 2+ Strength. This injury is permanent and can be recorded once. Gain 1 bleeding token.',
         'name': 'Destroyed back',
+        "bleeding_tokens": 1,
     },
     'destroyed_genitals': {
         'desc': 'You cannot be nominated for the Intimacy story event. This injury is permanent and can be recorded once. Gain a random disorder. You are knocked down. Gazing upwards, you wonder at the futility of your struggle. Gain +3 insanity. Gain 1 bleeding token.',
         'name': 'Destroyed genitals',
         'cannot_be_nominated_for_intimacy': True,
+        "bleeding_tokens": 1,
     },
     'destroyed_tooth': {
         'desc': 'If you have 3+ courage, you boldly spit the tooth out and gain +2 insanity! Otherwise. the blow sends you sprawling and you are knocked down.',
@@ -349,16 +362,19 @@ severe_injury = {
         'name': 'Disemboweled',
         'skip_next_hunt': True,
         'max': False,
+        "bleeding_tokens": 1,
     },
     'dislocated_shoulder': {
         'desc': 'Pop! You cannot activate two-handed or <b>paired</b> weapons or use <b>block</b> until showdown ends. Gain 1 bleeding token.',
         'name': 'Dislocated shoulder',
         'max': False,
+        "bleeding_tokens": 1,
     },
     'dismembered_arm': {
         'desc': 'Lose an arm. You can no longer activate two-handed weapons. This injury is permanent, and can be recorded twice. A survivor with two <b>dismembered arm</b> severe injuries cannot activate any weapons. Gain 1 bleeding token.',
         'max': 2,
         'name': 'Dismembered Arm',
+        "bleeding_tokens": 1,
     },
     'dismembered_leg': {
         'Movement': -2,
@@ -367,77 +383,90 @@ severe_injury = {
         'name': 'Dismembered leg',
         'survival_actions': {
             'disable': ['dash'],
-        }
+        },
+        "bleeding_tokens": 1,
     },
     'gaping_chest_wound': {
         'Strength': -1,
         'desc': 'Suffer -1 permanent Strength. This injury is permanent and can be recorded multiple times. Gain 1 bleeding token.',
         'name': 'Gaping chest wound',
         'max': False,
+        "bleeding_tokens": 1,
     },
     'hamstrung': {
         'cannot_use_fighting_arts': True,
         'desc': 'A painful rip. The leg is unusable. You can no longer use any fighting arts or abilities. This injury is permanent and can be recorded once. Gain 1 bleeding token.',
         'name': 'Hamstrung',
+        "bleeding_tokens": 1,
     },
     'intestinal_prolapse': {
         'desc': 'Your gut is gravely injured. You can no longer equip any gear on your waist, as it is too painful to wear. This injury is permanent, and can be recorded once. Gain 1 bleeding token.',
         'disable_locations': ['Waist'],
         'name': 'Intestinal prolapse',
+        "bleeding_tokens": 1,
     },
     "intracranial_hemorrhage": {
         "name": "Intracranial hemorrhage",
         "desc": "You can no longer use or gain any survival. This injury is permanent and can be recorded once. Gain 1 bleeding token.",
         "cannot_gain_survival": True,
         "cannot_spend_survival": True,
+        "bleeding_tokens": 1,
     },
     'ruptured_muscle': {
         'cannot_use_fighting_arts': True,
         'desc': 'A painful rip. The arm hangs limp. You can no longer activate fighting arts. This injury is permanent and can be recorded once. Gain 1 bleeding token.',
         'name': 'Ruptured muscle',
+        "bleeding_tokens": 1,
     },
     'ruptured_spleen': {
         'desc': 'A vicious body blow. Skip the next hunt. Gain 2 bleeding tokens.',
         'name': 'Ruptured spleen',
         'skip_next_hunt': True,
         'max': False,
+        "bleeding_tokens": 2,
     },
     'shattered_jaw': {
         'desc': 'You drink your meat through a straw. You can no longer <b>consume</b> or be affected by events requiring you to <b>consume</b>. You can no longer <b>encourage</b>. This injury is permanent and can be recorded once. Gain 1 bleeding token.',
         'name': 'Shattered jaw',
         'survival_actions': {
             'disable': ['encourage'],
-        }
+        },
+        "bleeding_tokens": 1,
     },
     'slashed_back': {
         'desc': 'Making sudden movement is excruciatingly painful. You cannot <b>surge</b> until showdown ends. Gain 1 bleeding token.',
         'name': 'Slashed back',
         'type': 'severe_injury',
         'max': False,
+        "bleeding_tokens": 1,
     },
     'spiral_fracture': {
         'desc': 'Your arm twists unnaturally. Gain -2 strength tokens. Skip the next hunt. Gain 1 bleeding token.',
         'name': 'Spiral fracture',
         'skip_next_hunt': True,
         'max': False,
+        "bleeding_tokens": 1,
     },
     'torn_achilles_tendon': {
         'desc': 'Your leg cannot bear your weight. Until the end of the showdown, whenever you suffer light, heavy, or severe injury, you are also knocked down. Skip the next hunt. Gain 1 bleeding token.',
         'name': 'Torn Achilles Tendon',
         'skip_next_hunt': True,
         'max': False,
+        "bleeding_tokens": 1,
     },
     'torn_muscle': {
         'desc': 'Your quadriceps is ripped to shreds. You cannot <b>dash</b> until he showdown ends. Skip the next hunt. Gain 1 bleeding token.',
         'name': 'Torn muscle',
         'skip_next_hunt': True,
         'max': False,
+        "bleeding_tokens": 1,
     },
     'warped_pelvis': {
         'Luck': -1,
         'desc': 'Your pelvis is disfigured. Suffer -1 permanent luck. This injury is permanent and can be recorded multiple times. Gain 1 bleeding token.',
         'name': 'Warped Pelvis',
         'max': False,
+        "bleeding_tokens": 1,
     },
 
 

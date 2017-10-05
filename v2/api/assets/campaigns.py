@@ -51,10 +51,15 @@ default_survivor_attribute_milestones = {
     "Courage": [
         {"values": [3], "handle": "core_bold", 'event': 'story_events'},
         {"values": [9], "handle": "core_see_the_truth", 'event': 'story_events'},
+        {"values": [9], "handle": "max_courage", 'event': 'ui_prompts'},
     ],
     "Understanding": [
         {"values": [3], "handle": "core_insight", 'event': 'story_events'},
         {"values": [9], "handle": "core_white_secret", 'event': 'story_events'},
+        {"values": [9], "handle": "max_understanding", 'event': 'ui_prompts'},
+    ],
+    "Weapon Proficiency": [
+        {"values": [8], "handle": "max_weapon_proficiency", 'event': 'ui_prompts'},
     ],
 }
 
@@ -354,10 +359,15 @@ campaign_definitions = {
             "Courage": [
                 {"values": [3], "handle": "dk_awake", 'event': 'story_events'},
                 {"values": [9], "handle": "core_see_the_truth", 'event': 'story_events'},
+                {"values": [9], "handle": "max_courage", 'event': 'ui_prompts'},
             ],
             "Understanding": [
                 {"values": [3], "handle": "dk_awake", 'event': 'story_events'},
                 {"values": [9], "handle": "core_white_secret", 'event': 'story_events'},
+                {"values": [9], "handle": "max_understanding", 'event': 'ui_prompts'},
+            ],
+            "Weapon Proficiency": [
+                {"values": [8], "handle": "max_weapon_proficiency", 'event': 'ui_prompts'},
             ],
         },
         "quarries": monster_assets.base_game_quarries,

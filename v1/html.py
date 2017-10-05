@@ -166,25 +166,174 @@ class dashboard:
     initializer = Template("""\
     <script src="/media/dashboard.js?v=$application_version"></script>
     <div
+        id="dashboardWelcomeModal"
+        class="modal dashboard_welcome_modal"
+        ng-class="{true: 'visible', false: 'hidden'}[user.dashboard.settlements.length == 0]"
+        onclick="showHide('dashboardWelcomeModal')"
+    >
+    <p>Welcome to <b>http://kdm-manager.com</b>!</p>
+    <p><b>The Manager</b> is an interactive webapp intended to make it
+    easier to manage and share your Kingdom Death: <i>Monster</i> campaigns.</p>
+    <p>&nbsp; </p>
+    <p>This application is fan-maintained and <b>is not</b> supported by or
+    affiliated with Kingdom Death.</p>
+    <p>&nbsp; </p>
+    <p>To get started, you will have to <b>create a new settlement</b>. Once your new
+    settlement is created, you will be shown a <b>campaign summary</b>, which is
+    is like a dashboard for your campaign.</p>
+    <p>From the <b>campaign summary</b>, you can use the controls in the upper-left
+    corner to add new survivors, view your settlement's "sheet" and add/remove
+    expansion content.</p>
+    <p>In order to add other players to your campaign, all you have to do is
+    navigate to an individual survivor's "sheet" and change that survivor's email
+    address to the email address of another registered user of this site.</p>
+    <p>Changes to settlement and survivor sheets are always saved
+    automatically.</p>
+    <p>&nbsp; </p>
+    <p>Finally, this application is <u>under active development</u> and problems <b>will</b>
+    occur! Please use the controls within the app to report errors/issues.</p>
+    <p>&nbsp; </p>
+    <div class="kd_alert_no_exclaim">Click or tap anywhere to get started!</div>
+    </div>
+    <div
         id="dashboardControlElement"
         ng-controller="dashboardController"
-        ng-init="initialize('dashboard', '$user_id', '$api_url')"
+        ng-init="initialize('dashboard', '$user_id', '$api_url'); showInitDash();"
     >
     """)
 
     angular_app = """\
+    <div class="dashboard_menu">
+        <h2
+            class="clickable campaign_summary_gradient dashboard_rollup"
+            onclick="showHide('campaign_div')"
+        >
+            <img class="dashboard_icon" src="/media/icons/campaign.png"/>
+            Campaigns <img class="dashboard_down_arrow" src="/media/icons/down_arrow.png"/>
+        </h2>
 
+        <div
+            id="campaign_div"
+            class="dashboard_accordion campaign_summary_gradient"
+        >
+            <p class="panel_top_tooltip">Games you are currently playing.</p>
+
+            <div class="dashboard_button_list">
+
+                <div
+                    id="dashboardCampaignsLoader"
+                    class="dashboard_settlement_loader"
+                >
+                    <img
+                        src="/media/loading_lantern.gif"
+                        alt="Retrieving settlements..."
+                    /> Retrieving campaigns...
+                </div>
+
+                <form
+                    ng-repeat="s in user.dashboard.settlements | orderBy: '-'"
+                    ng-if="s.sheet.abandoned == undefined"
+                    method="POST"
+                >
+                    <input type="hidden" name="view_campaign" value="{{s.sheet._id.$oid}}" />
+                    <button
+                        class="kd_dying_lantern dashboard_settlement_list_settlement_button"
+                        onclick="showFullPageLoader(); this.form.submit()"
+                    >
+                        <b>{{s.sheet.name}}</b>
+                        <br/><i>{{s.sheet.campaign_pretty}}</i>
+                        <ul class="dashboard_settlement_list_settlement_attribs">
+                            <li ng-if="s.meta.creator_email != user_login"><i>Created by:</i> {{s.meta.creator_email}}</li>
+                            <li><i>Started:</i> {{s.meta.age}} ago</li>
+                            <li><i>LY:</i> {{s.sheet.lantern_year}} &nbsp; <i>Survivors:</i> {{s.sheet.population}}</li>
+                            <li ng-if="s.meta.player_email_list.length >= 2">
+                                <i>Players:</i> {{s.meta.player_email_list.join(', ')}}
+                            </li>
+                        </ul>
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <div
+        id="all_settlements_panel"
+        class="dashboard_menu all_settlements_panel"
+    >
+        <h2
+            class="clickable settlement_sheet_gradient dashboard_rollup"
+            onclick="showHide('all_settlements_div')"
+        >
+            <img class="dashboard_icon" src="/media/icons/settlement.png"/>
+            Settlements <img class="dashboard_down_arrow" src="/media/icons/down_arrow.png"/>
+        </h2>
+
+        <div
+            id="all_settlements_div"
+            class="dashboard_accordion settlement_sheet_gradient hidden"
+        >
+            <p class="panel_top_tooltip">Manage settlements you have created.</p>
+
+            <div class="dashboard_button_list">
+
+                <form method="POST" action="">
+                    <input type="hidden" name="change_view" value="new_settlement" />
+                    <button class="kd_blue centered" onclick="showFullPageLoader()">+ Create New Settlement</button>
+                </form>
+
+                <div
+                    id="dashboardSettlementsLoader"
+                    class="dashboard_settlement_loader"
+                >
+                    <img
+                        src="/media/loading_lantern.gif"
+                        alt="Retrieving settlements..."
+                    /> Retrieving settlements...
+                </div>
+
+                <form
+                    ng-repeat="s in user.dashboard.settlements"
+                    ng-if="s.sheet.created_by.$oid == user_id"
+                    method="POST"
+                >
+                    <input type="hidden" name="view_settlement" value="{{s.sheet._id.$oid}}" />
+                    <button
+                        class="kd_dying_lantern dashboard_settlement_list_settlement_button"
+                        onclick="showFullPageLoader(); this.form.submit()"
+                    >
+                        <b>{{s.sheet.name}}</b>
+                        <span class="maroon_text" ng-if="s.sheet.abandoned != undefined">[ABANDONED]</span>
+                        <br/><i>{{s.campaign_pretty}}</i>
+                        <ul class="dashboard_settlement_list_settlement_attribs">
+                            <li><i>Created on:</i> {{s.meta.age}} ago</li>
+                            <li>{{s.sheet.expansions.length}} expansions / {{s.meta.player_email_list.length}} player(s)</li>
+                            <li><i>LY:</i> {{s.sheet.lantern_year}}</li>
+                            <li><i>Population:</i> {{s.sheet.population}}</li>
+                            <li><i>Deaths:</i> {{s.sheet.death_count}}</li>
+                            <li ng-if="s.meta.player_email_list.length >= 2"><i>Admins:</i> {{s.sheet.admins.join(', ')}}</li>
+                            <li ng-if="s.meta.player_email_list.length >= 2"><i>Players:</i> {{s.meta.player_email_list.join(', ')}}</li>
+                        </ul>
+                    </button>
+                </form>
+
+            </div> <!-- dashboard_button_list -->
+
+        </div> <!-- all_settlements_div -->
+    </div> <!-- all_settlements_panel -->
 
     <div
         id="world_container"
         class="dashboard_menu world_panel"
-        ng-controller="dashboardController"
-        ng-init="initWorld()"
     >
 
-        <h2 class="clickable world_primary dashboard_rollup" ng-click="showHide('world_detail_div')">
+        <h2
+            class="clickable world_primary dashboard_rollup"
+            onclick="showHide('world_detail_div')"
+        >
             <font class="kdm_font_hit_locations dashboard_kdm_font white">g</font>
-            <font class="white">World</font> <img class="dashboard_down_arrow" src="/media/icons/down_arrow_white.png"/>
+            <font class="white">World</font>
+            <img class="dashboard_down_arrow" src="/media/icons/down_arrow_white.png"/>
         </h2>
 
         <div id="world_detail_div" class="dashboard_accordion world_secondary hidden world_container">
@@ -489,6 +638,13 @@ class dashboard:
         </div> <!-- dashboard_menu 'About' -->
 
     </div> <!-- dashboardControlElement -->
+
+    <script type="text/javascript">
+        // kill the spinner, since we're done loading the page now.
+        hideFullPageLoader();
+    </script>
+
+
     """
 
 
@@ -513,7 +669,7 @@ class dashboard:
             <img class="dashboard_icon" src="%s/icons/system.png"/> System %s
         </h2>
 
-        <div id="system_div" style="display: none;" class="dashboard_accordion system_secondary">
+        <div id="system_div" class="dashboard_accordion system_secondary hidden">
 
             <div class="dashboard_preferences">
                 <p>Use the controls below to update application-wide preferences.
@@ -560,49 +716,7 @@ class dashboard:
         </div> <!-- system_div -->
     </div> <!-- preferencesContainerElement -->
     """ % (settings.get("application","STATIC_URL"), settings.get("application", "STATIC_URL"), down_arrow_flash))
-    campaign_summary = Template("""\n\
-    <div class="dashboard_menu">
-        <h2
-            class="clickable campaign_summary_gradient dashboard_rollup"
-            onclick="showHide('campaign_div')"
-        >
-            <img class="dashboard_icon" src="%s/icons/campaign.png"/> Campaigns %s 
-        </h2>
 
-        <div id="campaign_div" style="display: $display" class="dashboard_accordion campaign_summary_gradient">
-        <p class="panel_top_tooltip">Games you are currently playing.</p>
-        <hr class="invisible">
-            <div class="dashboard_button_list">
-            $campaigns
-            </div>
-        </div>
-    </div>
-    \n""" % (settings.get("application", "STATIC_URL"), down_arrow_flash))
-    settlement_summary = Template("""\n\
-    <div class="dashboard_menu">
-        <h2 class="clickable settlement_sheet_gradient dashboard_rollup" onclick="showHide('settlement_div')"> <img class="dashboard_icon" src="%s/icons/settlement.png"/> Settlements %s </h2>
-        <div id="settlement_div" style="display: $display" class="dashboard_accordion settlement_sheet_gradient">
-        <p>Manage Settlements you have created.</p>
-        <div class="dashboard_button_list">
-            %s
-            $settlements
-        </div>
-        </div>
-    </div>
-    \n""" % (settings.get("application", "STATIC_URL"), down_arrow_flash, new_settlement_button))
-    survivor_summary = Template("""\n\
-    <div class="dashboard_menu">
-        <h2 class="clickable survivor_sheet_gradient" onclick="showHide('survivors_div')"> <img class="dashboard_icon" src="%s/icons/survivor.png"/> Survivors %s</h2>
-        <div id="survivors_div" style="display: none;" class="dashboard_accordion survivor_sheet_gradient">
-        <p>Manage survivors created by you or shared with you. New survivors are created from the "Campaign" and "Settlement" views.</p>
-        <div class="dashboard_button_list">
-            $survivors
-        </div>
-        </div>
-    </div>
-    \n""" % (settings.get("application", "STATIC_URL"), down_arrow_flash))
-    kill_board_row = Template('<tr><td>$monster</td><td>$kills</td></tr>')
-    kill_board_foot = Template('<tr><td colspan="2">&ensp; $other_list</td></tr>')
     avatar_image = Template("""\n
     <img class="latest_fatality" src="/get_image?id=$avatar_id" alt="$name"/>
     \n""")
@@ -826,7 +940,7 @@ class angularJS:
                             > <span class="flair_text">b</span> </font>
                         </div>
 
-                        <div class="note_content" ng-click="showHide(n.js_id);window.alert(n.js_id)">
+                        <div class="note_content" onclick="showHide(n.js_id);window.alert(n.js_id)">
                             {{n.note}} <span class="author" ng-if="n.author != user_login"> {{n.author}}</span>
                         </div>
                         <span
@@ -2468,7 +2582,7 @@ class survivor:
             >
                 <span
                     class="close_attrib_controls_modal"
-                    ng-click="showHide(control_id)"
+                    onclick="showHide(control_id)"
                 >
                     X
                 </span>
@@ -2587,7 +2701,7 @@ class survivor:
 
         <button
             class="survivor_sheet_attrib_controls_token {{token.buttonClass}}"
-            ng-click="showHide(control_id)"
+            onclick="showHide(control_id)"
         >
             <p class="short_name">{{token.shortName}}</p>
             <p class="attrib_value synthetic_attrib_total_{{token.longName}}">

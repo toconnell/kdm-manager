@@ -277,8 +277,16 @@
             <th colspan="3"><b>User Routes:</b> all routes for working directly with a user follow a <code>/user/&lt;action&gt;/&lt;settlement_id&gt;</code> convention. These routes are private and require authentication.</th>
         </tr>
         <tr class="ul">
+            <td> /user/dashboard/&lt;user_id&gt; </td>
+            <td> GET, OPTIONS</td>
+            <td><p>This fetches a serialized version of the user that includes the
+            <code>/world</code> output as well as a bunch of info about the user,
+            including their friends, settlements they own or are playing in, etc.</p>
+            </td>
+        </tr>
+        <tr class="ul">
             <td> /user/get/&lt;user_id&gt; </td>
-            <td> GET, POST, OPTIONS </td>
+            <td> GET, OPTIONS </td>
             <td><p>Retrieve a serialized version of the user who owns &lt;user_id&gt;,
             to include some additional usage and meta facts about that user.</p>
             <p>Like many of the <code>GET</code> routes supported by the KD:M API,

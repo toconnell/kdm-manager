@@ -63,7 +63,7 @@ class Survivor(Models.UserAsset):
         self.object_version = 0.59
 
         # data model meta data
-        self.stats =                ['Movement','Accuracy','Strength','Evasion','Luck','Speed']
+        self.stats =                ['Movement','Accuracy','Strength','Evasion','Luck','Speed','bleeding_tokens']
         self.flags =                ['skip_next_hunt','cannot_use_fighting_arts','cannot_spend_survival']
         self.abs_value_attribs =    ['max_bleeding_tokens', ]
         self.min_zero_attribs =     ["hunt_xp","Courage","Understanding"]
@@ -1880,11 +1880,16 @@ class Survivor(Models.UserAsset):
                 self.survivor[attrib] = int(self.survivor[attrib])
                 self.perform_save = True
 
+        # now translate checkbox ui stuff to bools
         for checked_attrib in ['dead','sotf_reroll','retired']:
             if checked_attrib in self.survivor.keys() and self.survivor[checked_attrib] == 'checked':
                 self.survivor[checked_attrib] = True
                 self.logger.warn("%s Duck-typed '%s' attrib from 'checked' to True" % (self, checked_attrib))
                 self.perform_save = True
+
+        if type(self.survivor["name"]) not in [unicode, str]:
+            self.survivor["name"] = str(self.survivor["name"])
+            self.perform_save = True
 
 
     def min_attributes(self):

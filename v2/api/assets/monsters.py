@@ -5,51 +5,61 @@ quarries = {
     "white_lion": {
         "name": "White Lion",
         "sort_order": 0,
+        "node": 1,
     },
     "gorm": {
         "name": "Gorm",
         "expansion": "gorm",
         "sort_order": 1,
+        "node": 1,
     },
     "screaming_antelope": {
         "name": "Screaming Antelope",
         "sort_order": 2,
         "misspellings": ["XCREAMING ANTALOPE","SCREAMING ANTALOPE"],
+        "node": 2,
     },
     "spidicules": {
         "name": "Spidicules",
         "expansion": "spidicules",
         "sort_order": 3,
+        "node": 2,
     },
     "flower_knight": {
         "name": "Flower Knight",
         "expansion": "flower_knight",
         "sort_order": 4,
+        "node": 3,
     },
     "phoenix": {
         "name": "Phoenix",
         "sort_order": 5,
         "misspellings": ["PHONIEX"],
+        "node": 3,
     },
     "sunstalker": {
         "name": "Sunstalker",
         "expansion": "sunstalker",
         "sort_order": 6,
+        "node": 4,
     },
     "dragon_king": {
         "name": "Dragon King",
         "expansion": "dragon_king",
         "sort_order": 7,
+        "node": 4,
     },
     "dung_beetle_knight": {
         "name": "Dung Beetle Knight",
         "expansion": "dung_beetle_knight",
         "sort_order": 8,
+        "node": 4,
     },
     "lion_god": {
         "name": "Lion God",
         "expansion": "lion_god",
-        "sort_order": 9
+        "sort_order": 9,
+        "node": 5,
     },
 }
 
@@ -87,6 +97,7 @@ nemeses = {
         "name": "Butcher",
         "sort_order": 101,
         "misspellings": ["THE BUTCHER", "BUTCHEE"],
+        "node": 1,
     },
     "the_tyrant": {
         "name": "The Tyrant",
@@ -100,16 +111,19 @@ nemeses = {
         "selectable": False,
         "levels": 4,
         "misspellings": ["THE MANHUNTER", "MAN HUNTER"],
+        "node": 1,
     },
     "kings_man": {
         "name": "King's Man",
         "sort_order": 104,
         "misspellings": ["KINGSMAN", "KINGMAN", "THE KING'S MAN", "THE KINGSMAN"],
+        "node": 2,
     },
     "slenderman": {
         "name": "Slenderman",
         "sort_order": 105,
         "misspellings": ["SLENDER MAN",],
+        "node": 2,
     },
     "lion_knight": {
         "name": "Lion Knight",
@@ -117,6 +131,7 @@ nemeses = {
         "expansion": "lion_knight",
         "sort_order": 106,
         "misspellings": ["LIONKNIGHT", "THE LION KNIGHT", "THE LIONKNIGHT"],
+        "node": 2,
     },
     "the_hand": {
         "name": "The Hand",

@@ -155,6 +155,7 @@ mar_2016_expansions = {
     },
     "sunstalker": {
         "name": "Sunstalker",
+        "ui": {"pretty_category": "Quarry"},
         "flair": {
             "color": "#000",
             "bgcolor": "#ECD77E",
@@ -171,6 +172,7 @@ mar_2016_expansions = {
     },
     "dragon_king": {
         "name": "Dragon King",
+        "ui": {"pretty_category": "Quarry"},
         "flair": {
             "color": "#E8cE55",
             "bgcolor": "#6260A9",

@@ -101,7 +101,7 @@ def world_json():
 def get_new_settlement_assets():
     S = settlements.Assets()
     return Response(
-        response=json.dumps(S.serialize()),
+        response=json.dumps(S.serialize(), default=json_util.default),
         status=200,
         mimetype="application/json"
     )

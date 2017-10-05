@@ -31,6 +31,16 @@ class Assets(Models.AssetCollection):
 
 
     def serialize(self):
+        """ This is primarily used by the '/new_settlement' public route to
+        indicate what options are available (in terms of asset handles) when
+        creating a new settlement.
+
+        Keep in mind that we DO NOT return all attributes of every campaign,
+        expansion, survivor, etc. asset that we serialize here: that would a.)
+        make the '/new_settlement' output really heavy/big, potentially
+        hurting page load times, and b.) return mostly irrelevant stuff, e.g.
+        back-end and meta data, timelines, etc.
+        """
         output = {}
 
         for mod in [campaigns, expansions, survivors]:
@@ -43,7 +53,7 @@ class Assets(Models.AssetCollection):
             for c in sorted(CA.get_handles()):
                 asset = CA.get_asset(c)
                 asset_repr = {"handle": c, "name": asset["name"]}
-                for optional_key in ["subtitle", "default"]:
+                for optional_key in ["subtitle", "default",'ui']:
                     if optional_key in asset.keys():
                         asset_repr[optional_key] = asset[optional_key]
                 output[mod_string].append(asset_repr)
@@ -61,7 +71,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.68
+        self.object_version=0.72
         Models.UserAsset.__init__(self,  *args, **kwargs)
         if self.normalize_on_init:
             self.normalize()
@@ -284,17 +294,23 @@ class Settlement(Models.UserAsset):
 
         # now start
         output = self.get_serialize_meta()
+        output["meta"].update({
+            'creator_email': utils.mdb.users.find_one({'_id': self.settlement["created_by"]})['login'],
+            'age': utils.get_time_elapsed_since(self.settlement["created_on"], units='age'),
+            'player_email_list': self.get_players('email'),
+        })
 
         # retrieve user assets
-        if return_type in [None]:
+        if return_type in [None, "sheet"]:
             output.update({"user_assets": {}})
             output["user_assets"].update({"players": self.get_players()})
             output["user_assets"].update({"survivors": self.get_survivors()})
 
         # create the sheet
-        if return_type in [None, 'sheet']:
+        if return_type in [None, 'sheet', 'dashboard']:
             output.update({"sheet": self.settlement})
             output["sheet"].update({"campaign": self.get_campaign()})
+            output["sheet"].update({"campaign_pretty": self.get_campaign(dict)["name"]})
             output["sheet"].update({"expansions": self.get_expansions()})
             output["sheet"]["settlement_notes"] = self.get_settlement_notes()
             output["sheet"]["enforce_survival_limit"] = self.get_survival_limit(bool)
@@ -1869,7 +1885,7 @@ class Settlement(Models.UserAsset):
         set of players. """
 
         player_set = set()
-        survivors = utils.mdb.survivors.find({"settlement": self.settlement["_id"]})
+        survivors = utils.mdb.survivors.find({"settlement": self.settlement["_id"], "removed": {"$exists": False}})
         for s in survivors:
             player_set.add(s["email"])
 
@@ -1877,6 +1893,8 @@ class Settlement(Models.UserAsset):
 
         if return_type == "count":
             return player_set.count()
+        elif return_type == "email":
+            return [p["login"] for p in player_set]
 
         player_list = []
         for p in player_set:
@@ -2281,13 +2299,13 @@ class Settlement(Models.UserAsset):
         if self.settlement["population"] < min_pop:
             self.settlement["population"] = min_pop
             self.log_event("Settlement Population automatically increased to %s" % min_pop)
-            self.perform_Save = True
+            self.perform_save = True
 
         min_death_count = self.get_death_count("min")
         if self.settlement["death_count"] < min_death_count:
             self.settlement["death_count"] = min_death_count
             self.log_event("Settlement Death Count automatically increased to %s" % min_death_count)
-            self.perform_Save = True
+            self.perform_save = True
 
 
 

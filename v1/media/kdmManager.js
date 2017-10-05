@@ -34,6 +34,19 @@ function hideAPIerrorModal() {
 
 // public helpers
 
+function showHide(e_id) {
+    var e = document.getElementById(e_id);
+    var hide_class = "hidden";
+    var visible_class = "visible";
+    if (e.classList.contains(hide_class)) {
+        e.classList.remove(hide_class);
+        e.classList.add(visible_class);
+    } else {
+        e.classList.add(hide_class);
+        e.classList.remove(visible_class)
+    };
+ }
+
 function sleep (time) {return new Promise((resolve) => setTimeout(resolve, time));}
 
 
@@ -91,6 +104,8 @@ app.filter('orderObjectBy', function() {
 
 app.controller('rootController', function($scope, $rootScope, assetService, $http) {
 
+    $rootScope.showHide = showHide;
+
     $scope.legacySignOut = function(session_oid) {;
         console.warn("Attempting legacy sign-out...");
 
@@ -110,7 +125,32 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
         form.submit();
     }
 
+    $scope.initWorld = function() {
+
+        setInterval( function init() {
+            
+            showCornerLoader();
+
+            var world_url = $scope.api_url + "world";
+            $http.get(world_url).then(
+                function(result) {
+                    $scope.world = result.data.world;
+                    hideCornerLoader();
+                    console.log('[WORLD] Retrieved data successfully!')
+                }
+            );
+
+            return init;
+            }(), 180000)
+
+    };
+
     $scope.initialize = function(src_view, u_id, api_url, settlement_id, survivor_id) {
+
+        // every view in the legacy webapp has to call this method. Therefore,
+        // it's got lots of twists, turns, evaluations, etc. and can make a lot
+        // of API requests.
+
         $scope.api_url = api_url;
         $scope.settlement_id = settlement_id;
         $scope.user_id = u_id;
@@ -121,18 +161,35 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
         console.log("Initializing '" + $scope.view + "' view...");
 
         // get the user first, since we always at least have a user
+        // determine which user endpoint to hit (i.e. 'get' or 'dashboard')
         var user_endpoint = "get"
-        if ($scope.view === 'dashboard') {user_endpoint = 'dashboard'};
-        $scope.getJSONfromAPI('user',user_endpoint).then(
-            function(payload) {
+        if ($scope.view === 'dashboard') {user_endpoint = 'dashboard'; };
+
+        $scope.getJSONfromAPI('user',user_endpoint).then(function(payload) {
             $scope.user = payload.data;
             $scope.user_login = $scope.user.user.login;
-            console.log("Initialized user " + $scope.user_login + " (" + $scope.user_id + ")"); 
+
+            // if we're doing the dash, we've got to fiddle the UI
+            if ($scope.view === 'dashboard') {
+                console.log("[WORLD] Retrieving assets from API...");
+                $scope.initWorld();
+                showHide('dashboardSettlementsLoader');
+                showHide('dashboardCampaignsLoader');
+
+                if ($scope.user.dashboard.settlements.length === 0) {
+                    showHide('campaign_div');   // this will hide it, because it's visible on-load
+                    showHide('all_settlements_div');
+                } else {
+                    // pass
+                };
+            };
+            console.log("[USER] Initialized user " + $scope.user_login + " (" + $scope.user_id + ")");
         },
             function(errorPayload) {
-            console.error("Could not retrieve user information!");
-            console.error(errorPayload);
-        });
+                console.error("Could not retrieve user information!");
+                console.error(errorPayload);
+            }
+        );
 
         // now load the settlement/survivor from the API if we're doing that
         if ($scope.settlement_id != undefined) {
@@ -476,15 +533,6 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
 
     // helpers and laziness - junk drawer functions
     $scope.isObject = function(a) {return typeof a === 'object';};
-    $scope.showHide = function(e_id) {
-        var e = document.getElementById(e_id);
-        var hide_class = "hidden";
-        if (e.classList.contains(hide_class)) {
-            e.classList.remove(hide_class);
-        } else {
-            e.classList.add(hide_class)
-        };
-    }
 
     $scope.range  = function(count,command) {
         var r = [];
@@ -958,13 +1006,6 @@ function closeNav() {
 function closeModal(modal_div_id) {
     var modal = document.getElementById(modal_div_id);
     modal.style.display = "none";
-}
-
-// showHide func for attrib controls, accordion h3's, etc.
-function showHide(id) {
-    var e = document.getElementById(id);
-    if (e.style.display != 'none') e.style.display = 'none';
-    else e.style.display = 'block';
 }
 
 function hide(id) {
