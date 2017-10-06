@@ -1375,7 +1375,7 @@ class Settlement(Models.UserAsset):
         elif return_type in ['pretty', str]:
             output = []
             for e in s_expansions:
-                output.append(E.get_asset(e)["name"])
+                output.append(E.get_asset(e, backoff_to_name=True)["name"])
             return utils.list_to_pretty_string(output)
 
         return s_expansions

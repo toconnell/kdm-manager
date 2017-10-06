@@ -201,6 +201,11 @@ class AssetCollection():
             raise AssetInitError("The get_asset_from_name() method requires a str or unicode type name!")
 
         name = name.strip()
+
+        # special backoff for this dumbass pseudo-expansion
+        if name == 'White Box':
+            name = 'White Box & Promo'
+
         if not case_sensitive:
             name = name.upper()
 

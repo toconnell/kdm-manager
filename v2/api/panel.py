@@ -35,8 +35,6 @@ def get_settlement_data():
     for timestamp in sorted(sorting_hat.keys(), reverse=True):
         sorted_ids.append(sorting_hat[timestamp])
 
-    logger.info(sorted_ids)
-
     for s_id in sorted_ids:
         S = settlements.Settlement(_id=s_id, normalize_on_init=False)
         s_dict = copy(S.serialize('dashboard',include_event_log=True))
