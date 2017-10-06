@@ -282,7 +282,7 @@ class Settlement(Models.UserAsset):
             self.save()
 
 
-    def serialize(self, return_type=None):
+    def serialize(self, return_type=None, include_event_log=False):
         """ Renders the settlement, including all methods and supplements, as
         a monster JSON object. This is where all views come from."""
 
@@ -312,6 +312,7 @@ class Settlement(Models.UserAsset):
             output["sheet"].update({"campaign": self.get_campaign()})
             output["sheet"].update({"campaign_pretty": self.get_campaign(dict)["name"]})
             output["sheet"].update({"expansions": self.get_expansions()})
+            output["sheet"].update({"expansions_pretty": self.get_expansions(str)})
             output["sheet"]["settlement_notes"] = self.get_settlement_notes()
             output["sheet"]["enforce_survival_limit"] = self.get_survival_limit(bool)
             output["sheet"]["minimum_survival_limit"] = self.get_survival_limit("min")
@@ -365,6 +366,9 @@ class Settlement(Models.UserAsset):
             output["survivor_attribute_milestones"] = self.get_survivor_attribute_milestones()
             output["eligible_parents"] = self.get_eligible_parents()
 
+        # if we want the log, go get it
+        if include_event_log:
+            output["event_log"] = [l for l in utils.mdb.settlement_events.find({'settlement_id': self.settlement["_id"]}).sort('created_on', -1)]
 
         # finally, return a JSON string of our object
         return json.dumps(output, default=json_util.default)
@@ -1018,7 +1022,7 @@ class Settlement(Models.UserAsset):
 
         # finally, add the little fucker
         self.settlement["principles"].append(e_dict["handle"])
-        self.log_event("%s set settlement %s principle to %s" % (request.User.login, p_dict["name"], e_dict["name"]))
+        self.log_event("%s set settlement %s principle to %s" % (request.User.login, p_dict["name"], e_dict["name"]), event_type="set_principle")
 
         # if we're still here, go ahead and save since we probably updated
         self.save()
@@ -1188,7 +1192,7 @@ class Settlement(Models.UserAsset):
         else:
             self.settlement["location_levels"][handle] = int(level)
 
-        self.log_event("%s set '%s' location level to %s." % (request.User.login, loc_dict["name"], level), event_type="set_innovation_level")
+        self.log_event("%s set '%s' location level to %s." % (request.User.login, loc_dict["name"], level), event_type="set_location_level")
 
         self.save()
 
@@ -1368,7 +1372,7 @@ class Settlement(Models.UserAsset):
                 return None
             else:
                 return ", ".join(s_expansions)
-        elif return_type == 'pretty':
+        elif return_type in ['pretty', str]:
             output = []
             for e in s_expansions:
                 output.append(E.get_asset(e)["name"])

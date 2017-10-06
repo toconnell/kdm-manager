@@ -30,6 +30,12 @@ from models import monsters
 #   General purpose helper functions
 #
 
+def remove_api_response_data():
+    """ Drops all documents from the mdb.api_response_times collection."""
+    removed = utils.mdb.api_response_times.remove()
+    print("\n  Removed %s API response time records." % removed)
+
+
 def dump_doc_to_cli(m, tab_spaces=2, gap_spaces=20, buffer_lines=0):
     """ Convenience function for this collection of CLI admin scripts.
     Dumps a single MDB record to stdout using print() statements.
@@ -221,8 +227,11 @@ if __name__ == "__main__":
     parser.add_option("-o", dest="others", action="store_true", default=False, help="Dump killboard entries whose handle is 'other'. Requires -K flag.")
     parser.add_option("-K", dest="killboard", action="store_true", default=False, help="Clean up the Killboard.")
     parser.add_option("--cod_histogram", dest="cod_histo", action="store_true", default=False, help="Dump a histogram of causes of death.")
+    parser.add_option("--reset_api_response_data", dest="reset_api_response_data", action="store_true", default=False, help="Removes all data from mdb.api_response_times collection.")
     (options, args) = parser.parse_args()
 
+    if options.reset_api_response_data:
+        remove_api_response_data()
 
     if options.cod_histo:
         COD_histogram()

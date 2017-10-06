@@ -55,6 +55,8 @@ def get_admin_data(resource=None):
     try:
         if resource == 'user_data':
             return panel.get_user_data()
+        if resource == 'settlement_data':
+            return panel.get_settlement_data()
         elif resource == 'logs':
             return panel.serialize_system_logs()
     except Exception as e:

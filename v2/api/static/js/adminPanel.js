@@ -27,6 +27,7 @@ myApp.controller('globalController', function($scope, $http, $interval) {
         $http.get('https://api.github.com/repos/toconnell/kdm-manager').then(function(result){$scope.github = result.data;});
 
         $http.get('admin/get/user_data').then(function(result){$scope.users = result.data;});
+        $http.get('admin/get/settlement_data').then(function(result){$scope.settlements = result.data;});
         $http.get('admin/get/logs').then(function(result){$scope.logs = result.data;});
 
         $http.get('world').then(function(result){

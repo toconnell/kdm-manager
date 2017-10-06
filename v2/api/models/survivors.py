@@ -252,9 +252,9 @@ class Survivor(Models.UserAsset):
 
         # 2.c log the birth/joining
         if survivor_is_a_newborn:
-            self.log_event("%s born to %s!" % (self.pretty_name(), parent_string))
+            self.log_event("%s born to %s!" % (self.pretty_name(), parent_string), event_type="survivor_birth")
         else:
-            self.log_event('%s joined the settlement!' % (self.pretty_name()))
+            self.log_event('%s joined the settlement!' % (self.pretty_name()), event_type="survivor_join")
 
         # 2.d increment survivial if we're named
         if self.survivor["name"] != "Anonymous" and self.survivor["survival"] == 0:
@@ -1066,7 +1066,7 @@ class Survivor(Models.UserAsset):
             else:
                 self.survivor['cause_of_death'] = "Unspecified"
 
-            self.log_event('%s has died! Cause of death: %s' % (self.pretty_name(), self.survivor["cause_of_death"]))
+            self.log_event('%s has died! Cause of death: %s' % (self.pretty_name(), self.survivor["cause_of_death"]), event_type="survivor_death")
             self.Settlement.update_population(-1)
 
         self.save()

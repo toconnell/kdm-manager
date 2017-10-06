@@ -37,10 +37,24 @@
             <b>Revision:</b> {{world.meta.object.panel_revision}}<br/>
             <b>Last Refreshed:</b> {{refreshed}} ({{seconds_since_last_refresh}} seconds ago)
 
+
         </div>
 
 
-        <div class="flex_item_basic" ng-if="users.user_info.length != 0">
+        <div class="flex_item_basic users">
+            <h2>User Agent Info</h2>
+            <p ng-click="showHide('user_agent_popularity_contest')" class="clickable">
+                Click/tap to show/hide the User Agent popularity contest.
+            </p>
+            <table id="user_agent_popularity_contest" class="hidden">
+                <tr ng-repeat="ua in users.user_agent_stats" ng-class-even="'zebra'">
+                    <td>{{ua.latest_user_agent}}:</td><td>{{ua.count}}</td>
+                </tr>
+            </table>
+        </div>
+
+
+        <div class="flex_item_basic users" ng-if="users.user_info.length != 0">
             <h2>Recent User Activity </h2>
             <b title="Active during the last {{users.meta.active_user_horizon}} minutes">Active user count:</b> {{users.meta.active_user_count}}<br/>
             <b title="Active during the last {{users.meta.recent_user_horizon}} hours">Recent user count:</b> {{users.meta.recent_user_count}}<br/>
@@ -78,23 +92,61 @@
                     </div>
                 </div>
             </div>
-
-                <br/><br/>
-
-            <h2>User Agent Info</h2>
-            <p ng-click="showHide('user_agent_popularity_contest')" class="clickable">
-                View user agent popularity contest.
-            </p>
-            <table id="user_agent_popularity_contest" class="hidden">
-                <tr ng-repeat="ua in users.user_agent_stats" ng-class-even="'zebra'">
-                    <td>{{ua.latest_user_agent}}:</td><td>{{ua.count}}</td>
-                </tr>
-            </table>
-
         </div>
 
 
-        <div class="flex_item_basic">
+        <div class="flex_item_basic users" ng-if="settlements.length >= 1">
+            <h2>Recent Settlement Activity</h2>
+            <br/><br/>
+            <div class="settlement" ng-repeat="settlement in settlements">
+                <button
+                    class="toggle_settlement_event_log"
+                    ng-click="showHide(settlement.sheet._id.$oid + '_event_log')"
+                >
+                    Show/Hide settlement event log ({{settlement.event_log.length}} lines)
+                </button>
+                <h3 class="settlement_name"><b>{{settlement.sheet.name}}</b> <i>LY:</i> {{settlement.sheet.lantern_year}} </h3>
+                <i>{{settlement.sheet.campaign_pretty}}</i><br>
+                <i ng-if="settlement.sheet.expansions.length >= 1">Expansions:</i> {{settlement.sheet.expansions_pretty}}</i>
+                <ul>
+                    <li><i>Creator:</i> {{settlement.meta.creator_email}}</li>                   
+                    <li><i>Created:</i> {{settlement.meta.age}} ago</li>
+                    <li><i>Players:</i> {{settlement.meta.player_email_list.join(', ')}}</li>
+                    <li><i>Survivors:</i> {{settlement.sheet.population}}/{{settlement.sheet.death_count}}</li>
+                </ul>
+                <div id="{{settlement.sheet._id.$oid}}_event_log" class="settlement_event_log hidden">
+                    <table class="settlement_event_log">
+                        <tr><th>LY</th><th>Event</th></tr>
+                        <tr
+                            title="{{l}}"
+                            ng-repeat="l in settlement.event_log"
+                            ng-class-odd="'zebra'"
+                            class="{{l.event_type}}"
+                        >
+                            <td>{{l.ly}}</td>
+                            <td>{{l.event}}</td>
+                        </tr>
+                    </table>
+                </div>
+                <hr ng-if="!$last">
+            </div> <!-- settlement repeater -->
+        </div> <!-- flex_item_basic -->
+
+        <div class="flex_item_basic api">
+            <h2>Response Times</h2>
+            <table class="api_response_times">
+            <tr><th>Method</th><th>Route</th><th>#</th><th>Avg.</th><th>Max</th></tr>
+            <tr ng-repeat="r in world.world.api_response_times.value">
+                <td>{{r._id.method}}</td>
+                <td><code>{{r._id.url}}</code></td>
+                <td>{{r.count}}</td>
+                <td>{{r.avg_time | limitTo:6}}</td>
+                <td>{{r.max_time | limitTo:6}}</td>
+            </tr>
+            </table>
+        </div>
+
+        <div class="flex_item_basic api">
             <h2> API Log</h2>
             <p ng-click="showHide('api_log')" class="clickable">
                 View last {{settings.application.log_summary_length}} lines.
@@ -207,7 +259,9 @@
             <b>Quarry:</b> {{world.world.current_hunt.value.settlement.current_quarry}}<br/>
             <b>Departing Survivors:</b>
             <table>
-                <tr ng-repeat="s in world.world.current_hunt.value.survivors" ng-class-even="'zebra'">
+                <tr
+                    ng-repeat="s in world.world.current_hunt.value.survivors"
+                >
                     <td>{{s.name}}</td><td class="int_key">{{s.sex}}</td>
                 </tr>
             </table>

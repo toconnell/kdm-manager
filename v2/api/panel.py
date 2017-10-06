@@ -3,6 +3,7 @@
 # standard
 from bson import json_util
 from bson.objectid import ObjectId
+from copy import copy
 from datetime import datetime, timedelta
 import json
 import os
@@ -11,9 +12,38 @@ import sys
 
 # project
 import utils
-from models import users
+from models import users, settlements
 
 logger = utils.get_logger(log_name="server")
+
+def get_settlement_data():
+    """ Returns JSON about recently updated settlements. Also serializes those
+    settlements and gets their event_log. """
+
+    recent_cutoff = datetime.now() - timedelta(hours=settings.get("application","recent_user_horizon"))
+
+    s_info = []
+
+    ids = utils.mdb.settlement_events.find({"created_on": {"$gte": recent_cutoff}}).distinct("settlement_id")
+
+    sorting_hat = {}
+    for s_id in ids:
+        last_updated = utils.mdb.settlement_events.find({'settlement_id': s_id}).limit(1).sort("created_on",-1)[0]['created_on']
+        sorting_hat[last_updated] = s_id
+
+    sorted_ids = []
+    for timestamp in sorted(sorting_hat.keys(), reverse=True):
+        sorted_ids.append(sorting_hat[timestamp])
+
+    logger.info(sorted_ids)
+
+    for s_id in sorted_ids:
+        S = settlements.Settlement(_id=s_id, normalize_on_init=False)
+        s_dict = copy(S.serialize('dashboard',include_event_log=True))
+        s_info.append(s_dict)
+
+    return "[" + ",".join(s_info) + "]"
+
 
 def get_user_data():
     """ Returns JSON about active and recently active users, as well as info
