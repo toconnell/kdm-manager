@@ -24,7 +24,7 @@ import admin
 from modular_assets import survivor_attrib_controls
 import game_assets
 import html
-from models import Disorders, Locations, Items, Innovations, Resources, userPreferences, mutually_exclusive_principles 
+from models import Locations, Items, Innovations, Resources, userPreferences, mutually_exclusive_principles 
 from session import Session
 from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd, u_to_str
 import world
@@ -652,11 +652,6 @@ class Survivor:
                 del self.survivor[a]
                 self.logger.debug("Automatically removed bogus key '%s' from %s." % (a, self.get_name_and_id()))
 
-        # remove accidental dupes
-        for s in ["disorders"]:
-            self.survivor[s] = list(set(self.survivor[s]))
-
-#        self.logger.debug("[%s] normalized %s" % (self.User, self))
         self.save(quiet=True)
 
 
@@ -728,49 +723,6 @@ class Survivor:
         self.logger.debug("[%s] just retired %s" % (self.User, self))
         self.Settlement.log_event("%s has retired." % self)
         mdb.survivors.save(self.survivor)
-
-
-    def get_disorders(self, return_as=False):
-        """ Gets a survivors disorders. Returns them as HTMl, if necessary. """
-
-        disorders = self.survivor["disorders"]
-
-        if return_as == "formatted_html":
-            output = ""
-            for disorder_key in disorders:
-                if disorder_key not in Disorders.get_keys():
-                    output += '<p><b>%s:</b> custom disorder.</p>' % disorder_key
-                else:
-                    d_dict = Disorders.get_asset(disorder_key)
-
-                    const = ""
-                    if "constellation" in d_dict.keys():
-                        const = "card_constellation"
-                    flav = ""
-                    if "flavor_text" in d_dict.keys():
-                        flav = d_dict["flavor_text"] + "<br/>"
-
-                    output += html.survivor.survivor_sheet_disorder_box.safe_substitute(
-                        name = disorder_key,
-                        constellation = const,
-                        flavor = flav,
-                        effect = d_dict["survivor_effect"]
-                    )
-
-            return output
-
-        if return_as == "html_select_remove":
-            if disorders == []:
-                return ""
-            output = ""
-            output = '<select name="remove_disorder" onchange="this.form.submit()">'
-            output += '<option selected disabled hidden value="">Remove Disorder</option>'
-            for disorder in disorders:
-                output += '<option>%s</option>' % disorder
-            output += '</select>'
-            return output
-
-        return disorders
 
 
     def get_returning_survivor_status(self, return_type=None):
@@ -894,82 +846,6 @@ class Survivor:
             self.logger.exception("Something bad happened!")
 
         self.logger.debug("Inflicted brain damage on %s successfully!" % self)
-
-
-
-    def add_game_asset(self, asset_type, asset_key, asset_desc=None):
-        """ Our generic function for adding a game_asset to a survivor. Some biz
-        logic/game rules happen here.
-
-        The kwarg 'asset_type' should always be the self.name value of the
-        game_asset model (see models.py for more details).
-
-        Finally, if, for whatever reason, we can't add the asset, we return
-        False.
-        """
-
-        self.logger.debug("[%s] Adding '%s' to %s of %s..." % (self.User, asset_key, self, self.Settlement))
-
-        asset_key = asset_key.strip()
-
-        if asset_type == "disorder":
-            self.survivor["disorders"] = list(set([d for d in self.survivor["disorders"]])) # uniquify
-            if len(self.survivor["disorders"]) >= 3:
-                return False
-
-            if asset_key == "RANDOM_DISORDER":
-                disorder_deck = Disorders.build_asset_deck(self.Settlement)
-                for disorder in self.survivor["disorders"]:
-                    if disorder in disorder_deck:
-                        disorder_deck.remove(disorder)
-                self.survivor["disorders"].append(random.choice(disorder_deck))
-            elif asset_key not in Disorders.get_keys():
-                self.survivor["disorders"].append(asset_key)
-                return True
-            elif asset_key in Disorders.get_keys():
-                asset_dict = Disorders.get_asset(asset_key)
-                self.survivor["disorders"].append(asset_key)
-                if "skip_next_hunt" in asset_dict.keys():
-                    self.survivor["skip_next_hunt"] = "checked"
-                if "retire" in asset_dict.keys():
-                    self.retire()
-                mdb.survivors.save(self.survivor)
-                return True
-            else:
-                return False
-        elif asset_type == "fighting_art":
-            msg = "Adding Fighting Arts to survivors is not supported by the legacy webapp!"
-            self.logger.exception(msg)
-            raise Exception(msg)
-        elif asset_type == "abilities_and_impairments":
-            msg = "Adding A&Is to survivors is not supported by the legacy webapp!"
-            self.logger.exception(msg)
-            raise Exception(msg)
-        else:
-            self.logger.critical("Attempted to add unknown game_asset type '%s'. Doing nothing!" % asset_type)
-
-
-
-    def rm_game_asset(self, asset_type, asset_key):
-        """ This is the reverse of the above function: give it a type and a key
-        to remove that key from that type of asset on the survivor. """
-
-        asset_key = asset_key.strip()
-
-        if asset_key not in self.survivor[asset_type]:
-            self.logger.debug("[%s] tried to remove '%s' from %s ('%s'), but the asset does not exist!" % (self.User, asset_key, self, asset_type))
-            return False
-
-        if asset_type == "abilities_and_impairments":
-            msg = "Removing A&Is from survivors is not supported by the legacy webapp!"
-            self.logger.exception(msg)
-            raise Exception(msg)
-        else:
-            self.survivor[asset_type].remove(asset_key)
-
-        # save
-        mdb.survivors.save(self.survivor)
-        self.logger.debug("[%s] removed '%s' from %s (%s)" % (self.User, asset_key, self, asset_type))
 
 
     def toggle(self, toggle_key, toggle_value, toggle_type="implicit"):
@@ -1107,140 +983,6 @@ class Survivor:
         mdb.survivors.save(self.survivor)
         self.logger.debug("%s updated the avatar for survivor %s." % (self.User.user["login"], self.get_name_and_id()))
 
-
-
-    def get_intimacy_partners(self, return_type=None):
-        """ Gets a list of survivors with whom the survivor has done the mommy-
-        daddy dance. """
-        partners = []
-        for s in self.Settlement.get_survivors():
-            S = Survivor(survivor_id=s["_id"], session_object=self.Session)
-            if self.survivor["_id"] in S.get_parents():
-                partners.extend(S.get_parents())
-        partners = set(partners)
-        try:
-            partners.remove(self.survivor["_id"])
-        except:
-            pass
-
-        if return_type == "html":
-            list_of_names = []
-
-            for s_id in partners:
-                try:
-                    S = Survivor(survivor_id=s_id, session_object=self.Session)
-                    list_of_names.append(S.survivor["name"])
-                except Exception as e:
-                    self.logger.exception(e)
-                    self.logger.warn("[%s] intimacy partner '%s' for %s could not be initialized!" % (self.User, s_id, self))
-                    list_of_names.append("Unknown/Removed survivor")
-            output = ", ".join(sorted(list_of_names))
-            if list_of_names != []:
-                return "<p>%s</p>" % output
-            else:
-                return ""
-
-        return partners
-
-
-    def get_siblings(self, return_type=None):
-        """ Gets a survivors siblings and returns it as a dictionary (by
-        default). Our pretty/HTML return comes back as a list. """
-
-        siblings = {}
-
-        for s in self.Settlement.get_survivors():
-            S = Survivor(survivor_id=s["_id"], session_object=self.Session)
-            for p in self.get_parents():
-                if p in S.get_parents():
-                    siblings[S.survivor["_id"]] = "half"
-            if self.get_parents() != [] and S.get_parents() == self.get_parents():
-                siblings[S.survivor["_id"]] = "full"
-
-        try:
-            del siblings[self.survivor["_id"]]   # remove yourself
-        except:
-            pass
-
-        if return_type == "html":
-            if siblings == {}:
-                return ""
-            sib_list = []
-            for s in siblings.keys():
-                S = Survivor(survivor_id=s, session_object=self.Session)
-                if siblings[s] == "half":
-                    sib_list.append("%s (half)" % S.get_name_and_id(include_sex=True, include_id=False))
-                else:
-                    sib_list.append("%s" % S.get_name_and_id(include_sex=True, include_id=False))
-            return "<p>%s</p>" % ", ".join(sib_list)
-
-        return siblings
-
-
-    def get_parents(self, return_type=None):
-        """ Uses Settlement.get_ancestors() sort of like the new Survivor
-        creation screen to allow parent changes. """
-
-        parents = []
-        for p in ["father","mother"]:
-            if p in self.survivor.keys():
-                parents.append(self.survivor[p])
-
-        if return_type == "html_select":
-            output = ""
-
-            if self.is_founder():
-                return "<p>None. %s is a founding member of %s.</p>" % (self.survivor["name"], self.Settlement.settlement["name"])   # founders don't have parents
-
-            for role in [("father", "M"), ("mother", "F")]:
-                output += html.survivor.change_ancestor_select_top.safe_substitute(parent_role=role[0], pretty_role=role[0].capitalize())
-                for s in self.Settlement.get_survivors():
-                    S = Survivor(survivor_id=s["_id"], session_object=self.Session)
-                    if S.get_api_asset("effective_sex") == role[1]:
-                        selected = ""
-                        if S.survivor["_id"] in parents:
-                            selected = "selected"
-                        output += html.survivor.change_ancestor_select_row.safe_substitute(parent_id=S.survivor["_id"], parent_name=S.survivor["name"], selected=selected)
-                output += html.survivor.add_ancestor_select_bot
-            return output
-
-        return parents
-
-
-    def get_children(self, return_type=None):
-        """ Returns a dictionary of the survivor's children. """
-        children = set()
-        children_raw = []
-        survivors = self.Settlement.get_survivors()
-        for s in survivors:
-            survivor_parents = []
-            for p in ["father","mother"]:
-                if p in s.keys():
-                    survivor_parents.append(s[p])
-            for p in ["father","mother"]:
-                if p in s.keys() and s[p] == self.survivor["_id"]:
-                    other_parent = None
-                    survivor_parents.remove(s[p])
-                    if survivor_parents != []:
-                        other_parent = survivor_parents[0]
-                    if other_parent is not None:
-                        try:
-                            O = Survivor(survivor_id=other_parent, session_object=self.Session)
-                            children.add("%s (with %s)" % (s["name"], O.survivor["name"]))
-                            children_raw.append(s)
-                        except:
-                            pass
-                    else:
-                        children.add(s["name"])
-                        children_raw.append(s)
-
-        if return_type == "html":
-            if children == set():
-                return ""
-            else:
-                return "<p>%s<p>" % (", ".join(list(children)))
-
-        return list(children_raw)
 
 
     def get_partner(self, return_type="html_controls"):
@@ -1517,10 +1259,6 @@ class Survivor:
                 pass
             elif p == "survivor_avatar":
                 self.update_avatar(params[p])
-            elif p == "add_disorder":
-                self.add_game_asset("disorder", game_asset_key)
-            elif p == "remove_disorder":
-                self.rm_game_asset('disorders',game_asset_key)
             elif p == "in_hunting_party":
                 self.join_departing_survivors()
             elif p == "partner_id":
@@ -1679,12 +1417,6 @@ class Survivor:
 
         exp = self.Settlement.get_expansions("list_of_names")
 
-        # disorders widgets
-        disorders_picker = Disorders.render_as_html_dropdown(exclude=self.survivor["disorders"], Settlement=self.Settlement)
-        if len(self.survivor["disorders"]) >= 3:
-            disorders_picker = ""
-
-
         rm_controls = ""
         if self.User.get_preference("show_remove_button"):
             rm_controls = html.survivor.survivor_sheet_rm_controls.safe_substitute(
@@ -1712,15 +1444,6 @@ class Survivor:
             waist_hit_box = self.render_hit_box_controls("Waist"),
             legs_hit_box = self.render_hit_box_controls("Legs"),
 
-            disorders = self.get_disorders(return_as="formatted_html"),
-            add_disorders = disorders_picker,
-            rm_disorders = self.get_disorders(return_as="html_select_remove"),
-
-            # lineage
-            parents = self.get_parents(return_type="html_select"),
-            children = self.get_children(return_type="html"),
-            siblings = self.get_siblings(return_type="html"),
-            partners = self.get_intimacy_partners("html"),
 
             # optional and/or campaign-specific controls and modals
             partner_controls = self.get_partner("html_controls"),
@@ -2927,12 +2650,6 @@ class Settlement:
                 S.heal("defeated", heal_armor=True, increment_hunt_xp=False, remove_attribute_detail=True, return_to_settlement=True)
 
             healed_survivors += 1
-
-            # Check for disorders with an "on_return" effect
-            for d in S.survivor["disorders"]:
-                if d in Disorders.get_keys() and "on_return" in Disorders.get_asset(d):
-                    for k, v in Disorders.get_asset(d)["on_return"].iteritems():
-                        S.survivor[k] = v
 
             # save the survivor last
             S.save()

@@ -227,9 +227,6 @@ class Model:
             output = """\n\t<select name="add_%s" onchange="%s" ng-model="addMe" ng-change="addItem('%s')">""" % (self.name, submit_on_change, survivor_id)
             output += '\t<option selected disabled hidden value=''>Add %s</option>' % self.pretty_name
 
-            if self.name in ["disorder"]:
-                output += '\t\t<option value="RANDOM_%s">* Random %s</option>' % (self.name.upper(), self.pretty_name)
-                output += ' <option disabled> &ensp; &ensp; ---  </option>'
 
             for o in sorted(options):
                 disabled = ""
@@ -256,32 +253,6 @@ class Model:
 #       add/remove the game asset from one of our application assets, e.g. 
 #       add_item/remove_item, add_disorder/remove_disorder, etc.
 #
-
-
-class disordersModel(Model):
-    def __init__(self):
-        Model.__init__(self)
-        self.game_assets = game_assets.disorders
-        self.name = "disorder"
-
-    def build_asset_deck(self, Settlement):
-        expansions = Settlement.get_expansions("list_of_names")
-        deck = []
-        for disorder in game_assets.disorders.keys():
-            d_dict = self.get_asset(disorder)
-            if not "expansion" in d_dict.keys():
-                deck.append(disorder)
-            elif "expansion" in d_dict.keys():
-                if d_dict["expansion"] in expansions:
-                    deck.append(disorder)
-
-        # remove forbidden assets
-        forbidden = Settlement.get_campaign("forbidden")
-        for d_key in deck:
-            if d_key in forbidden:
-                deck.remove(d_key)
-
-        return sorted(deck)
 
 
 class locationsModel(Model):
@@ -408,7 +379,6 @@ class resourcesModel(Model):
 
 
 # initialize all of our classes above when this module is imported
-Disorders       = disordersModel()
 Locations       = locationsModel()
 Items           = itemsModel()
 Innovations     = innovationsModel()

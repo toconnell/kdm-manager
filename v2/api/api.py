@@ -186,7 +186,6 @@ def new_asset(asset_type):
     request.User = users.token_to_object(request)
     return request_broker.new_user_asset(asset_type)
 
-
 @application.route("/<collection>/<action>/<asset_id>", methods=["GET","POST","OPTIONS"])
 @utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization','Access-Control-Allow-Origin'])
 def collection_action(collection, action, asset_id):
@@ -249,6 +248,8 @@ def after_request(response):
     """ Logs requests. """
     request.stop_time = datetime.now()
     utils.record_response_time(request)
+    if response.status == 500:
+        application.logger.error("fail")
     return response
 
 

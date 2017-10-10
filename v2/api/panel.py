@@ -24,7 +24,7 @@ def get_settlement_data():
 
     s_info = []
 
-    ids = utils.mdb.settlement_events.find({"created_on": {"$gte": recent_cutoff}}).distinct("settlement_id")
+    ids = utils.mdb.settlements.find({'last_accessed': {'$gte': recent_cutoff}}).distinct('_id')
 
     sorting_hat = {}
     for s_id in ids:

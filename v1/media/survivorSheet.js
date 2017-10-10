@@ -4,6 +4,20 @@ app.controller("survivorSheetController", function($scope) {
 
     $scope.miscAttribs = {}
 
+    $scope.getLineage = function() {
+        // retrieves survivor lineage info from the API and sets 
+        // $scope.lineage
+        var res = $scope.getJSONfromAPI('survivor','get_lineage');
+        res.then(
+            function(payload) {
+                console.log("Retrieving survivor lineage data... ");
+                $scope.lineage = payload.data;
+                console.log('Lineage retrieved!');
+            },
+            function(errorPayload) {console.error("Could not retrieve survivor lineage from API!" + errorPayload);}
+        );
+    };
+
     // general sheet methods
     $scope.setSurvivorName = function() {
         $scope.postJSONtoAPI('survivor','set_name', {"name": $scope.survivor.sheet.name});
@@ -22,24 +36,44 @@ app.controller("survivorSheetController", function($scope) {
     };
 
     $scope.toggleFavorite = function() {
-        console.warn('toggling favorite status.');
+//        console.warn('toggling favorite status.');
         if ($scope.survivor.sheet.favorite.indexOf($scope.user_login) === -1) {
 //            console.log($scope.user_login + " is not in Survivor favorites list");
-            $scope.postJSONtoAPI('survivor','add_favorite',{'user_email': $scope.user_login});
+            $scope.postJSONtoAPI('survivor','add_favorite',{'user_email': $scope.user_login}, false);
             $scope.miscAttribs.favoriteBox.checked = true;
         } else {
 //            console.log($scope.user_login + " is in Survivor favorites list");
-            $scope.postJSONtoAPI('survivor','rm_favorite',{'user_email': $scope.user_login});
+            $scope.postJSONtoAPI('survivor','rm_favorite',{'user_email': $scope.user_login}, false);
             $scope.miscAttribs.favoriteBox.checked = false;
         };
     };
 
     $scope.setRetired = function() {
-        $scope.postJSONtoAPI('survivor','set_retired', {'retired': $scope.survivor.sheet.retired})
+        $scope.postJSONtoAPI('survivor','set_retired', {'retired': $scope.survivor.sheet.retired}, false)
     };
 
 });
 
+
+app.controller('disordersController', function($scope) {
+
+    $scope.userD = {} 
+
+    $scope.addDisorder = function() {
+        var d_handle = $scope.userD.newD;
+        if (d_handle === null) {return false};
+        $scope.survivor.sheet.disorders.push(d_handle);
+        js_obj = {"handle": d_handle, "type": "disorders"};
+        $scope.postJSONtoAPI('survivor', 'add_game_asset', js_obj);
+    };
+    $scope.rmDisorder = function(handle, index) {
+        $scope.survivor.sheet.disorders.splice(index, 1);
+        js_obj = {"handle": handle, "type": "disorders"};
+        $scope.postJSONtoAPI('survivor', 'rm_game_asset', js_obj);
+    };
+
+
+})
 
 app.controller('abilitiesAndImpairmentsController', function($scope) {
 
@@ -72,14 +106,14 @@ app.controller("affinitiesController", function($scope) {
 //        console.log(color + "==" + value);
         $scope.survivor.sheet.affinities[color] = value;
         if (value === null) {return false};
-        $scope.postJSONtoAPI('survivor','set_affinity', {'color': color, 'value': value})
+        $scope.postJSONtoAPI('survivor','set_affinity', {'color': color, 'value': value}, false)
     };
 
     $scope.incrementAffinity = function(color, modifier) {
         $scope.survivor.sheet.affinities[color] += modifier;
         js_obj = {'red':0, 'blue':0, 'green':0};
         js_obj[color] += modifier;
-        $scope.postJSONtoAPI('survivor','update_affinities', {"aff_dict": js_obj});
+        $scope.postJSONtoAPI('survivor','update_affinities', {"aff_dict": js_obj}, false);
     };
 
 });
@@ -195,7 +229,7 @@ app.controller("epithetController", function($scope) {
             $scope.survivor.sheet.epithets.push($scope.new_epithet);
             var js_obj = {"handle": $scope.new_epithet, "type": "epithets"};
 //            console.warn(js_obj);
-            $scope.postJSONtoAPI('survivor','add_game_asset', js_obj);
+            $scope.postJSONtoAPI('survivor','add_game_asset', js_obj, false);
         } else {
             console.error("Epithet handle '" + $scope.new_epithet + "' has already been added!")
         };
@@ -205,7 +239,7 @@ app.controller("epithetController", function($scope) {
         var removedEpithet = $scope.survivor.sheet.epithets[ep_index];
         $scope.survivor.sheet.epithets.splice(ep_index, 1);
         var js_obj = {"handle": removedEpithet, "type": "epithets"};
-        $scope.postJSONtoAPI('survivor','rm_game_asset', js_obj);
+        $scope.postJSONtoAPI('survivor','rm_game_asset', js_obj, false);
     };
 });
 
@@ -248,18 +282,18 @@ app.controller('secondaryAttributeController', function($scope) {
         if ($scope.survivor.sheet[attrib] + modifier < 0) {return false};
         var js_obj = {'attribute': attrib, 'modifier': modifier};
         $scope.survivor.sheet[attrib] += modifier;
-        $scope.postJSONtoAPI('survivor', 'update_attribute', js_obj);
+        $scope.postJSONtoAPI('survivor', 'update_attribute', js_obj, false);
     };
     $scope.updateAttrib = function(attrib) {
         var value = $scope.survivor.sheet[attrib];
         if (value === null) {value = 0};
         if (value < 0) {value = 0};
         var js_obj = {'attribute': attrib, 'value': value};
-        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj);
+        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj, false);
     };
     $scope.setWeaponProficiencyType = function() {
         js_obj = {'handle': $scope.survivor.sheet.weapon_proficiency_type};
-        $scope.postJSONtoAPI('survivor', 'set_weapon_proficiency_type', js_obj);
+        $scope.postJSONtoAPI('survivor', 'set_weapon_proficiency_type', js_obj, false);
     };
 });
 
@@ -284,15 +318,37 @@ app.controller('skipNextHuntController', function($scope) {
 });
 
 
-app.controller('metaDataController', function($scope) {
+app.controller('lineageController', function($scope) {
     $scope.togglePublic = function() {
-        $scope.postJSONtoAPI('survivor','toggle_boolean', {'attribute': 'public'});
+        $scope.postJSONtoAPI('survivor','toggle_boolean', {'attribute': 'public'}, false);
     };
     $scope.setEmail = function() {
         var res = $scope.postJSONtoAPI('survivor','set_email', {'email': $scope.newSurvivorEmail});
         res.error(function(data, status, headers, config) {
             $scope.newSurvivorEmail = $scope.survivor.sheet.email;
         });
+    };
+    $scope.maleFilter = function(s) {
+        if (s.sheet._id.$oid == $scope.survivor.sheet._id.$oid) {return false};
+        if (s.sheet.sex == 'M') {return true} else {return false};
+    };
+    $scope.femaleFilter = function(s) {
+        // returns true if the survivor is female
+        if (s.sheet._id.$oid == $scope.survivor.sheet._id.$oid) {return false};
+        if (s.sheet.sex == 'F') {return true} else {return false};
+    };
+    $scope.setParent = function(role, new_oid) {
+        $scope.postJSONtoAPI('survivor','set_parent', {'role': role, 'oid': new_oid}, false);
+    };
+
+    $scope.currentPartners = function(s){
+        // returns true if the survivor is NOT another notch on the current
+        // survivor's lipstick case
+        if ($scope.survivor.sheet.intimacy_partners.indexOf(s.sheet._id.$oid) === -1)
+            {return true} else {return false}; 
+    };
+    $scope.addIntimacyPartner = function(oid) {
+    
     };
 });
 
@@ -335,7 +391,7 @@ app.controller("survivalController", function($scope) {
             console.warn("Survival cannot be less than zero!");
             $scope.survival_input_value = 0;
         } else {
-            $scope.postJSONtoAPI('survivor', 'set_survival', {"value": new_value});
+            $scope.postJSONtoAPI('survivor', 'set_survival', {"value": new_value}, false);
             $scope.survival_input_value = new_value;
         };
         

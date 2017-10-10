@@ -446,7 +446,7 @@ class UserAsset():
             raise
 
 
-    def save(self):
+    def save(self, verbose=True):
         """ Saves the user asset back to either the 'survivors' or 'settlements'
         collection in mdb, depending on self.collection. """
 
@@ -458,7 +458,8 @@ class UserAsset():
             utils.mdb.users.save(self.user)
         else:
             raise AssetLoadError("Invalid MDB collection for this asset!")
-        self.logger.info("Saved %s to mdb.%s successfully!" % (self, self.collection))
+        if verbose:
+            self.logger.info("Saved %s to mdb.%s successfully!" % (self, self.collection))
 
 
     def load(self):

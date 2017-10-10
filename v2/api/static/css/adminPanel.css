@@ -39,6 +39,7 @@ td.int_key {width: 10%; word-break: inherit;}
 .user_basic_info {width: auto; margin: 2%; display: inline-block; }
 .user_basic_info h2 { font-size: 1em; margin: 0 auto; }
 .active_user {background-color: #FFFFbb;}
+.signed_out {background-color: #EfEfbb;}
 .user_detail {display: none; }
 .log_detail {display: none; }
 .log_line {padding: 1%; }

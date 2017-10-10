@@ -464,7 +464,8 @@ class User(Models.UserAsset):
                     friend_emails.add(survivor["email"])
 
             # you can't be friends with yourself
-            friend_ids.remove(self.user["_id"])
+            if self.user["_id"] in friend_ids:
+                friend_ids.remove(self.user["_id"])
             if self.user["login"] in friend_emails:
                 friend_emails.remove(self.user["login"])
 

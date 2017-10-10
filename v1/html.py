@@ -198,11 +198,43 @@ class dashboard:
     <div
         id="dashboardControlElement"
         ng-controller="dashboardController"
-        ng-init="initialize('dashboard', '$user_id', '$api_url'); showInitDash();"
+        ng-init="initialize('dashboard', '$user_id', '$api_url'); showInitDash(); setLatestChangeLog();"
     >
     """)
 
     angular_app = """\
+
+    <div
+        id="dashboardTwitter"
+        class="dashboard_twitter_container modal"
+        ng-init="registerModalDiv('dashboardTwitterButton','dashboardTwitter');"
+    >
+        <h3>Updates!</h3>
+        <p><b>http://kdm-manager.com</b> is currently running release <b>{{user.meta.webapp.release}}</b> of the Manager, which went into production on {{latest_blog_post.published}}.</p>
+        <p class="latest_blog"><a target="top" href="{{latest_blog_post.url}}">Click here to view the latest change log!</a></p>
+        <p>&nbsp;</p>
+
+        <div class="twitter_embed_container">
+            <a
+                class="twitter-timeline"
+                href="https://twitter.com/kdmManager"
+                data-tweet-limit="3"
+            > Retrieving tweets...
+            </a>
+            <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+        </div>
+
+        <p>&nbsp;</p>
+        <button class="kd_alert_no_exclaim" onclick="closeModal('dashboardTwitter')">Return to the Dashboard!</button>
+
+    </div> <!-- dashboard_twitter -->
+
+    <button
+        id="dashboardTwitterButton"
+        class="dashboard_twitter_button kd_promo"
+    > !
+    </button>
+
     <div class="dashboard_menu">
         <h2
             class="clickable campaign_summary_gradient dashboard_rollup"
@@ -370,8 +402,8 @@ class dashboard:
 
                 <table>
                     <tr><th colspan="2">Campaigns w/ Expansion Content</th></tr>
-                    <tr ng-repeat="(name,count) in world.settlement_popularity_contest_expansions.value" ng-class-even="'zebra'">
-                        <td>{{name}}</td> <td class="int_value">{{count}}</td>
+                    <tr ng-repeat="e in world.settlement_popularity_contest_expansions.value" ng-class-even="'zebra'">
+                        <td>{{e.name}}</td> <td class="int_value">{{e.count}}</td>
                     </tr>
                 </table>
 
@@ -557,7 +589,6 @@ class dashboard:
 
         <div
             class="dashboard_menu"
-            ng-init="setLatestChangeLog();"
         >
             <h2
                 class="clickable about_primary dashboard_rollup"
@@ -1483,6 +1514,7 @@ class survivor:
         ng-controller="survivorSheetController"
         ng-init="
             initialize('survivorSheet', '$user_id', '$api_url','$settlement_id','$survivor_id');
+            getLineage();
         "
     >
         <span class="tablet_and_desktop nav_bar survivor_sheet_gradient"></span>
@@ -1806,7 +1838,7 @@ class survivor:
                 </label>
 
                 <input
-                    onchange='document.getElementById("avatar_change_form").submit()'
+                    onchange='document.getElementById("avatar_change_form").submit(); showFullPageLoader();'
                     id="avatar_file_input"
                     class="hidden"
                     type="file"
@@ -2164,6 +2196,8 @@ class survivor:
                 </p>
             </label>
 
+        <hr/>
+
         </div> <!-- sotf reroll -->
 
         $expansion_attrib_controls
@@ -2189,6 +2223,8 @@ class survivor:
 
         <div
             ng-controller='fightingArtsController'
+            ng-init="setFAoptions()"
+            ng-if="survivor.sheet.fighting_arts != undefined"
         >
 <!--
             <div class="help-tip help-icon kd_promo">
@@ -2218,10 +2254,6 @@ class survivor:
             <p>Maximum 3.</p>
 
 
-        <div
-            ng-controller="fightingArtsController"
-            ng-init="setFAoptions()"
-        >
             <div
                 title="Click or tap to remove survivor Fighting Arts."
                 class="survivor_sheet_card_container"
@@ -2299,7 +2331,7 @@ class survivor:
                                 <span class="survivor_sheet_card_level_number">{{level}}</span>
                                 <span class="survivor_sheet_card_level_desc" ng-bind-html="desc|trustedHTML"></span>
                             </div>
-                        </div>
+                        </div> <!-- levels -->
                         <div class="survivor_sheet_card_click_to_remove">Tap or click to <b>remove</b>.</div>
                     </span>
                 </div>
@@ -2314,34 +2346,103 @@ class survivor:
                     ng-blur="userFA.newFA = FAoptions[0]"
                     ng-options="fa.handle as (fa.name + ' (' + fa.type_pretty + ')'  ) for fa in FAoptions | orderObjectBy:'handle':false"
                 >
-                    <option value="" disabled selected>Add Fighting Arts</option>
+                    <option value="" disabled selected>Add Fighting Art</option>
                 </select>
             </div>
+
+        <hr />
 
         </div> <!-- fartingArtsController -->
 
 
         <a id="edit_disorders" class="mobile_and_tablet"></a>
-        <hr />
 
 
-        <!-- DISORDERS - HAS ITS OWN FORM-->
+        <!-- DISORDERS -->
 
-        <form method="POST" action="#edit_disorders">
-            <input type="hidden" name="form_id" value="survivor_edit_disorders" />
-            <input type="hidden" name="modify" value="survivor" />
-            <input type="hidden" name="asset_id" value="$survivor_id" />
+        <div ng-controller="disordersController" ng-if="survivor.sheet.disorders != undefined">
 
             <h3>Disorders</h3>
+
             <p class="survivor_sheet_game_asset_tip">Maximum 3.</p>
 
-            <div class="survivor_sheet_card_container">
-                $disorders
-            </div>
-            $add_disorders<br class="mobile_only"/>
-            $rm_disorders
+            <div
+                title="Click or tap to remove survivor Disorders."
+                class="survivor_sheet_card_container disorders_container"
+            >
+                <div
+                    ng-repeat="d_handle in survivor.sheet.disorders"
+                    class="survivor_sheet_card disorder_card_gradient clickable"
+                >
+                    <span ng-if = "settlement.game_assets.disorders[d_handle] == undefined">
+                        <img src="/media/loading_lantern.gif"><br/>
+                        Loading Disorder data...
+                    </span>
+                    <span
+                        ng-init="
+                            D = settlement.game_assets.disorders[d_handle];
+                            expansion_handle = settlement.game_assets.disorders[d_handle].expansion;
+                            expansion_dict = settlement.game_assets.expansions[expansion_handle];
+                        "
+                        ng-if = "settlement.game_assets.disorders[d_handle] != undefined"
+                        ng-click="rmDisorder(d_handle, $index)"
+                        title="Click or tap to remove {{D.name}} from {{survivor.sheet.name}}"
+                    >
+                        <!-- EXPANSION FLAIR -->
 
-        </form>
+                        <div
+                            class="settlement_sheet_card_expansion_flair"
+                            ng-if="expansion_handle != null"
+                            title="{{expansion_dict.name}} expansion Disorder"
+                            style='
+                                color: {{expansion_dict.flair.color}};
+                                background-color: {{expansion_dict.flair.bgcolor}};
+                            '
+                        >
+                            {{expansion_dict.name}}
+                        </div>
+
+                        <!-- regular title -->
+                        <b ng-if="D.constellation == null" class="card_title">
+                            {{D.name}}
+                        </b>
+
+                        <!-- dragon trait title -->
+                        <b ng-if="D.constellation != null" class="card_title card_constellation">
+                            {{D.name}}
+                        </b>
+                        <div
+                            class="survivor_sheet_card_text disorder_flavor_text"
+                            ng-bind-html="D.flavor_text|trustedHTML"
+                        >
+                        </div>
+                        <div
+                            class="survivor_sheet_card_text"
+                            ng-bind-html="D.survivor_effect|trustedHTML"
+                        >
+                        </div>
+
+                        <div class="survivor_sheet_card_click_to_remove remove_disorder">
+                            Tap or click to <b>remove</b>.
+                        </div>
+
+                    </span> <!-- actual disorder span -->
+                </div> <!-- disorder ng-repeat -->
+            </div> <!-- disorders survivor_sheet_card_container -->
+
+            <div class="survivor_sheet_card_asset_list_container" ng-if="survivor.sheet.disorders.length <= 2">
+                <span class="empty_bullet" /></span>
+                <select
+                    name="add_disorders"
+                    ng-model="userD.newD"
+                    ng-change="addDisorder(); userD.newD = dOptions[0]"
+                    ng-blur="userD.newD = dOptions[0]"
+                    ng-options="d.handle as (d.name for d in dOptions | orderObjectBy:'handle':false"
+                >
+                    <option value="" disabled selected>Add Disorder</option>
+                </select>
+            </div>
+        </div> <!-- disordersController -->
 
 
         <a id="edit_abilities" class="mobile_only"></a>
@@ -2415,33 +2516,113 @@ class survivor:
                 </select>
             </div>
 
+        <hr/>
+
         </div> <!-- A&I controller -->
 
 
-        <hr/>
 
-        <a id="edit_lineage" class="mobile_and_tablet"></a>
+        <a
+            id="edit_lineage"
+            class="mobile_and_tablet"
+        >
+            &nbsp;
+        </a>
+
 
         <div
-            class="survivor_sheet_right_pane_blocks_container"
-            ng-controller="metaDataController"
+            ng-controller="lineageController"
+            ng-if="lineage != undefined"
         >
 
-            <div class="survivor_sheet_block_group">
-                <h2>Lineage</h2>
-                <h4>Parents</h4>
-                <form method="POST" action="#edit_lineage">
-                  <input type="hidden" name="modify" value="survivor" />
-                  <input type="hidden" name="asset_id" value="$survivor_id" />
-                  $parents
-                </form>
-                <h4>Intimacy Partners</h4>
-                    $partners
-                <h4>Siblings</h4>
-                    $siblings
-                <h4>Children</h4>
-                $children
+            <h3 title="Survivor family and relationship information is stored here">Lineage</h3>
+
+            <div class="survivor_sheet_block_group lineage_block">
+
+                <div>
+                    <h4>Biography</h4>
+                    <p ng-if="survivor.sheet.founder == true">
+                        <font class="kdm_font_hit_locations">a</font> Founding member of {{settlement.sheet.name}}. 
+                    </p>
+                    <p ng-if="survivor.sheet.father != undefined || survivor.sheet.mother != undefined">
+                        <font class="kdm_font_hit_locations">a</font> Born in LY{{survivor.sheet.born_in_ly}}. 
+                    </p>
+                    <p ng-if="survivor.sheet.father == undefined && survivor.sheet.mother == undefined">
+                        <font class="kdm_font_hit_locations">a</font> Joined the settlement in LY{{survivor.sheet.born_in_ly}}.
+                    </p>
+                    <p ng-if="survivor.sheet.returning_survivor.length >= 1">
+                        <font class="kdm_font_hit_locations">a</font> Returning survivor in the following Lantern Years: {{survivor.sheet.returning_survivor.join(', ')}}. 
+                    </p>
+                    <p ng-if="survivor.sheet.dead == true" class="maroon_text">
+                        <font class="kdm_font_hit_locations">a</font> <b>Died in LY{{survivor.sheet.died_in}}.</b>
+                    </p>
+                </div> <!-- bio -->
+
+                <div
+                    id="survivorParents"
+                    class="survivor_sheet_parents_container"
+                    ng-if="survivor.sheet.founder == false"
+                >
+                    <h4>Parents</h4>
+
+                    <select
+                        class="survivor_sheet_father_picker"
+                        ng-model="survivor.sheet.father.$oid"
+                        ng-selected="survivor.sheet.father"
+                        ng-options="s.sheet._id.$oid as s.sheet.name for s in settlement.user_assets.survivors | filter:maleFilter"
+                        ng-change="setParent('father',survivor.sheet.father.$oid)"
+                    >
+                        <option disabled value="">Father</option>
+                    </select>
+
+                    <select
+                        class="survivor_sheet_mother_picker"
+                        ng-model="survivor.sheet.mother.$oid"
+                        ng-selected="survivor.sheet.mother"
+                        ng-options="s.sheet._id.$oid as s.sheet.name for s in settlement.user_assets.survivors | filter:femaleFilter"
+                        ng-change="setParent('mother', survivor.sheet.mother.$oid)"
+                    >
+                        <option disabled value="">Mother</option>
+                    </select>
+
+
+                </div>
+
+                <div ng-if="lineage.intimacy_partners >= 1">
+                    <h4>Intimacy Partners</h4>
+                    <p>
+                        <span ng-repeat="s in lineage.intimacy_partners">{{s.name}}{{$last ? '' : ', '}}</span>
+                    </p>
+                </div>
+
+                <div ng-if="lineage.siblings.full.length >= 1 || lineage.siblings.half.length >= 1">
+                    <h4>Siblings</h4>
+                    <p ng-if='lineage.siblings.full.length >= 1'>
+                        <i>Full:</i> <span ng-repeat='s in lineage.siblings.full'>
+                            {{s.name}}{{$last ? '' : ', '}}
+                        </span>
+                    </p>
+                    <p ng-if='lineage.siblings.half.length >= 1'>
+                        <i>Half</i>: <span ng-repeat='s in lineage.siblings.half'>
+                            {{s.name}}{{$last ? '' : ', '}}
+                        </span>
+                    </p>
+                </div> <!-- siblings container -->
+
+                <div ng-if="lineage.intimacy_partners.length >= 1">
+                    <h4>Children</h4>
+                    <p span ng-repeat="p in lineage.intimacy_partners">
+                        <i>with</i> <b>{{p.name}}</b> [{{p.sex}}]</b><i>: </i>
+                        <span ng-repeat="s in lineage.children[p._id.$oid]">
+                            {{s.name}} (LY{{s.born_in_ly}}){{$last ? '' : ', '}}
+                        </span>
+                    </p>
+                </div>
+
+            <hr/>
+
             </div> <!-- survivor_sheet_block_group lineage -->
+
 
             <div class="survivor_sheet_block_group">
                 <h2>Permissions</h2>
@@ -2484,7 +2665,6 @@ class survivor:
                   <br/>
             </div> <!-- survivor_sheet_block_group perms -->
 
-
         </div> <!-- survivor_sheet_right_pane_blocks -->
 
 
@@ -2492,7 +2672,12 @@ class survivor:
 
 
         <!-- gotta put this here, outside of the other forms -->
-        <form id="avatar_change_form" method="POST" enctype="multipart/form-data" action="#">
+        <form
+            id="avatar_change_form"
+            method="POST"
+            action="#"
+            enctype="multipart/form-data"
+        >
             <input type="hidden" name="modify" value="survivor" />
             <input type="hidden" name="asset_id" value="$survivor_id" />
         </form>
@@ -4480,15 +4665,13 @@ class settlement:
 
 
 class meta:
-
-    def __init__(self):
-        pass
-
     """ This is for HTML that doesn't really fit anywhere else, in terms of
     views, etc. Use this for helpers/containers/administrivia/etc. """
 
     basic_http_header = "Content-type: text/html\n\n"
     basic_file_header = "Content-Disposition: attachment; filename=%s\n"
+
+    hide_full_page_loader = '<script type="text/javascript">hideFullPageLoader();</script>'
 
     norefresh_response = Template("""Content-type: text/html\nStatus: $status\n\n
     <html><head><title>$status - $response</title></head><body>$response</body></html>
@@ -4518,8 +4701,12 @@ class meta:
         <title>%s</title>
         <link rel="stylesheet" type="text/css" href="/media/style.css?v=%s">
         <link rel="stylesheet" type="text/css" href="/media/help-tip.css">
-        <link rel="stylesheet" type="text/css" href="/media/z-index.css">
-    """ % (settings.get("application","title"), settings.get('application', 'version'))
+        <link rel="stylesheet" type="text/css" href="/media/z-index.css?v=%s">
+    """ % (
+        settings.get("application","title"),
+        settings.get('application', 'version'),
+        settings.get('application', 'version')
+    )
 
     close_body = """\n
     </div><!-- container -->

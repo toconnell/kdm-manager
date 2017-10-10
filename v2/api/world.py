@@ -798,7 +798,8 @@ class World:
             popularity_contest[e_dict["name"]] = e_name_count
             popularity_contest[e_dict["name"]] += e_handle_count
 
-        return popularity_contest
+        sorted_keys = sorted(popularity_contest, key=lambda x: popularity_contest[x], reverse=1)
+        return [{'name': k, 'count': popularity_contest[k]} for k in sorted_keys]
 
     def settlement_popularity_contest_campaigns(self):
         """ Uses the assets in assets/campaigns.py to return a popularity

@@ -12,7 +12,7 @@ import time
 
 import Models
 import assets
-from models import survivors, campaigns, cursed_items, epithets, expansions, fighting_arts, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events, locations, causes_of_death, names, weapon_proficiency
+from models import survivors, campaigns, cursed_items, disorders, epithets, expansions, fighting_arts, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events, locations, causes_of_death, names, weapon_proficiency
 import settings
 import utils
 
@@ -335,6 +335,7 @@ class Settlement(Models.UserAsset):
             output["game_assets"].update(self.get_available_assets(causes_of_death, handles=False))
             output["game_assets"].update(self.get_available_assets(epithets))
             output["game_assets"].update(self.get_available_assets(fighting_arts))
+            output["game_assets"].update(self.get_available_assets(disorders))
 
             # options (i.e. decks)
             output["game_assets"]["principles_options"] = self.get_principles_options()
@@ -913,6 +914,19 @@ class Settlement(Models.UserAsset):
 
         if save:
             self.save()
+
+
+    def set_last_accessed(self, access_time=None):
+        """ Set 'access_time' to a valid datetime object to set the settlement's
+        'last_accessed' value or leave it set to None to set the 'last_accessed'
+        time to now. """
+
+        if access_time is not None:
+            self.settlement['last_accessed'] = access_time
+        else:
+            self.settlement['last_accessed'] = datetime.now()
+        self.save(False)
+
 
     def set_lost_settlements(self, new_value=None):
         """ Updates settlement["lost_settlements"] to be int('new_value'). """
@@ -1530,6 +1544,26 @@ class Settlement(Models.UserAsset):
             return deck_dict
 
 
+    def get_parents(self):
+        """ Returns a list of survivor couplings, based on the 'father'/'mother'
+        attributes of all survivors in the settlement. """
+
+        couples = {}
+        for s in self.get_survivors(list):
+            if 'father' in s.keys() and 'mother' in s.keys():
+                couple_id = "%s+%s" %(str(s['father']), str(s['mother']))
+                couple = {'father': s['father'], 'mother': s['mother']}
+                if couples.get(couple_id, None) is None:
+                    couples[couple_id] = {'father': s['father'], 'mother': s['mother'], 'children': []}
+                couples[couple_id]['children'].append(s['_id'])
+
+        output = []
+        for c in couples.keys():
+            output.append(couples[c])
+
+        return output
+
+
     def get_population(self, return_type=int):
         """ By default, this returns settlement["population"] as an int. Use the
         'return_type' kwarg to get different returns:
@@ -1559,7 +1593,7 @@ class Settlement(Models.UserAsset):
         return [n for n in notes]
 
 
-    def get_survivors(self, return_type=None):
+    def get_survivors(self, return_type=None, excluded=[]):
         """ By default, this returns a dictionary of survivors where the keys
         are bson ObjectIDs and the values are serialized survivors.
 
@@ -1568,18 +1602,23 @@ class Settlement(Models.UserAsset):
 
         You might also, however, sometimes just want a list of dictionaries, i.e
         a list where each dict is survivor MDB. For that, do 'return_type'=list.
+
+        The 'excluded' kwarg should be a list of OIDs that you DO NOT want
+        returned.
         """
 
-
-        all_survivors = utils.mdb.survivors.find({"settlement": self.settlement["_id"]})
+        all_survivors = utils.mdb.survivors.find({"settlement": self.settlement["_id"], '_id': {"$nin": excluded}})
         if return_type == list:
             return all_survivors
 
         output = []
         for s in all_survivors:
-            S = survivors.Survivor(_id=s["_id"])
-
-            output.append(json.loads(S.serialize()))
+            if s["_id"] in excluded:
+                pass
+            else:
+                S = survivors.Survivor(_id=s["_id"])
+                s_dict = json.loads(S.serialize())
+                output.append(s_dict)
 
         return output
 
@@ -2383,7 +2422,8 @@ class Settlement(Models.UserAsset):
         #
         #   set / update, etc. methods
         #
-
+        elif action == 'set_last_accessed':
+            self.set_last_accessed()
         elif action == "add_expansions":
             self.add_expansions()
         elif action == "rm_expansions":

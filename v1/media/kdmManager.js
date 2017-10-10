@@ -245,7 +245,7 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
             );
 
             console.log("Initialized settlement ID = " + $scope.settlement_id);
-
+            $scope.postJSONtoAPI('settlement', 'set_last_accessed', {}, false, false);
         };
 
         if ($scope.view === 'dashboard') {
@@ -353,8 +353,13 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
        if (view == 'survivor_sheet') {
            console.log('Initializing Survivor Sheet asset pickers...');
            $scope.setGameAssetOptions('abilities_and_impairments', view, "AIoptions", "curse");
+
            $scope.setGameAssetOptions('fighting_arts', view, "FAoptions");
            $scope.FAoptions["_random"]  = {handle: "_random", name: "* Random Fighting Art", type_pretty: "Special"};
+
+           $scope.setGameAssetOptions('disorders', view, "dOptions");
+           $scope.dOptions["_random"]  = {handle: "_random", name: "* Random Disorder", type_pretty: "Special"};
+
            $scope.setGameAssetOptions('epithets', view, "epithetOptions");
        } else {
            console.log('Initializing Settlement Sheet asset pickers...');
@@ -435,7 +440,9 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
         return $http.get(url, config);
     };
 
-    $scope.postJSONtoAPI = function(collection, action, json_obj) {
+    $scope.postJSONtoAPI = function(collection, action, json_obj, reinit, show_alert) {
+        if (reinit === undefined) {reinit = true};
+        if (show_alert === undefined) {show_alert = true};
         showCornerLoader();
         // figure out which asset ID to use
         if (collection == 'settlement') {
@@ -459,8 +466,8 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
         res.success(function(data, status, headers, config) {
             console.warn("postJSONtoAPI() call successful!");
             sleep(1000).then(() => {
-                $scope.reinitialize();
-                savedAlert();
+                if (reinit === true) {$scope.reinitialize()} else {hideCornerLoader()};
+                if (show_alert === true) {savedAlert();}
             });
         });
         res.error(function(data, status, headers, config) {

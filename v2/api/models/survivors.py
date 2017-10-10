@@ -12,7 +12,7 @@ import Models
 import utils
 
 from assets import survivor_sheet_options, survivors
-from models import abilities_and_impairments, cursed_items, epithets, fighting_arts, names, saviors, survival_actions, the_constellations, weapon_proficiency
+from models import abilities_and_impairments, cursed_items, disorders, epithets, fighting_arts, names, saviors, survival_actions, the_constellations, weapon_proficiency
 
 
 class Assets(Models.AssetCollection):
@@ -60,7 +60,7 @@ class Survivor(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="survivors"
-        self.object_version = 0.59
+        self.object_version = 0.60
 
         # data model meta data
         self.stats =                ['Movement','Accuracy','Strength','Evasion','Luck','Speed','bleeding_tokens']
@@ -179,11 +179,10 @@ class Survivor(Models.UserAsset):
             "abilities_and_impairments": [],
             "cursed_items": [],
             "disorders": [],
+            "epithets": [],
             "favorite": [],
             "fighting_arts": [],
             "fighting_arts_levels": {},
-            "epithets": [],
-
         }
 
         c_dict = self.get_campaign(dict)
@@ -343,6 +342,10 @@ class Survivor(Models.UserAsset):
             self.convert_abilities_and_impairments()
             self.perform_save = True
 
+        if self.survivor["meta"].get("disorders_version", None) is None:
+            self.convert_disorders()
+            self.perform_save = True
+
         if self.survivor["meta"].get("epithets_version", None) is None:
             self.convert_epithets()
             self.perform_save = True
@@ -404,6 +407,7 @@ class Survivor(Models.UserAsset):
         output["sheet"].update({"skip_next_hunt": self.skip_next_hunt()})
         output["sheet"].update({"founder": self.is_founder()})
         output["sheet"].update({"savior": self.is_savior()})
+        output['sheet'].update({'parents': self.get_parents(dict)})
 
         # survivors whose campaigns use dragon traits get a top-level element
         if self.get_campaign(dict).get("dragon_traits", False):
@@ -415,6 +419,7 @@ class Survivor(Models.UserAsset):
         # now add the additional top-level items ("keep it flat!" -khoa)
         output.update({"notes": self.get_notes()})
         output.update({"survival_actions": self.get_survival_actions("JSON")})
+
 
         return json.dumps(output, default=json_util.default)
 
@@ -636,6 +641,10 @@ class Survivor(Models.UserAsset):
             if ak in self.abs_value_attribs:
                 self.set_attribute(ak, asset_dict[ak])
 
+        # RETIRED mostly this is for the 'Fear of the Dark' disorder, TBH
+        if 'retire' in asset_dict.keys():
+            self.set_retired(True)
+
         # levels!?
         if asset_dict.get('levels', None) is not None:
             self.survivor["fighting_arts_levels"][asset_dict["handle"]] = []
@@ -767,6 +776,10 @@ class Survivor(Models.UserAsset):
                 self.update_attribute(ak, -asset_dict[ak])
             if ak in self.abs_value_attribs:
                 self.default_attribute(ak)
+
+        # RETIRED mostly this is for the 'Fear of the Dark' disorder, TBH
+        if 'retire' in asset_dict.keys():
+            self.set_retired(False)
 
         # 4.) EPITHETS - check for 'epithet' key
         if asset_dict.get("epithet", None) is not None:
@@ -1252,6 +1265,32 @@ class Survivor(Models.UserAsset):
         self.save()
 
 
+    def set_parent(self, role=None, oid=None):
+        """ Sets the survivor's 'mother' or 'father' attribute. """
+
+        if role is None or oid is None:
+            self.check_request_params(['role', 'oid'])
+            role = self.params['role']
+            oid = self.params['oid']
+
+        oid = ObjectId(oid)
+
+        if role not in ['father','mother']:
+            utils.invalidUsage("Parent 'role' value must be 'father' or 'mother'!")
+
+        new_parent = utils.mdb.survivors.find_one({"_id": oid})
+        if new_parent is None:
+            utils.invalidUsage("Parent OID '%s' does not exist!" % oid)
+
+        if oid == self.survivor[role]:
+            self.logger.warn("%s %s is already %s. Ignoring request..." % (self, role, new_parent["name"]))
+            return True
+
+        self.survivor[role] = ObjectId(oid)
+        self.log_event("%s updated %s lineage: %s is now %s" % (request.User.login, self.pretty_name(), role, new_parent["name"]))
+        self.save()
+
+
     def set_retired(self, retired=None):
         """ Set to true or false. Backs off to request params is 'retired' kwarg
         is None. Does a little user-friendliness/sanity-checking."""
@@ -1501,7 +1540,7 @@ class Survivor(Models.UserAsset):
                 traits.append("Weapon Mastery")
 
         # check disorders for "Destined"
-        if "Destined" in self.survivor["disorders"]:
+        if "destined" in self.survivor["disorders"]:
             traits.append("Destined disorder")
 
         # check fighting arts for "Fated Blow", "Frozen Star", "Unbreakable", "Champion's Rite"
@@ -1567,6 +1606,88 @@ class Survivor(Models.UserAsset):
         return e
 
 
+    def get_lineage(self):
+        """ DO NOT call this method during normal serialization: it is a PIG and
+        running it on more than one survivor at once is a really, really bad
+        idea.
+
+        Also, it returns a Response object. So yeah.
+
+        This method creates a dictionary of survivor lineage information. """
+
+        # initialize
+        output = {
+            'intimacy_partners': set(),
+            'siblings': { 'full': [], 'half': [] },
+        }
+
+        # PROCESS parents first w the survivor version of get_parents() b/c that's easy
+        survivor_parents = self.get_parents(dict)
+        output['parents'] = survivor_parents
+
+        # now PROCESS the settlement's get_parents() output for partners, children and sibs
+        children = set()
+        siblings = {'full': set(), 'half': set()}
+
+        couplings = self.Settlement.get_parents()
+        for coupling in couplings:
+            if self.survivor['_id'] == coupling['father']:
+                output['intimacy_partners'].add(coupling['mother'])
+                children = children.union(coupling['children'])
+            elif self.survivor['_id'] == coupling['mother']:
+                output['intimacy_partners'].add(coupling['father'])
+                children = children.union(coupling['children'])
+
+            # full-blood sibs
+            if self.survivor['_id'] in coupling['children']:
+                siblings['full'] = coupling['children'] # you can only have one set of full-blood sibs, right?
+
+            # half-blood sibs
+            if survivor_parents != {'father': None, 'mother': None}:
+                if survivor_parents['father']['_id'] == coupling['father'] and survivor_parents['mother']['_id'] != coupling['mother']:
+                    siblings['half'] = siblings['half'].union(coupling['children'])
+                if survivor_parents['father']['_id'] != coupling['father'] and survivor_parents['mother']['_id'] == coupling['mother']:
+                    siblings['half'] = siblings['half'].union(coupling['children'])
+
+
+        #
+        #   Post-process
+        #
+
+        # process sibling oids and make lists of dictionaries
+        for k in siblings: # i.e. 'half' or 'full'
+            for s in siblings[k]:
+                if s == self.survivor["_id"]:
+                    pass # can't be your own sib
+                else:
+                    output['siblings'][k].append(utils.mdb.survivors.find_one({'_id': s}))
+
+        # retrieve children from mdb; process oid lists into dictionaries
+        output['children'] = {}
+        for p in output['intimacy_partners']:
+            output['children'][str(p)] = []
+        for c in children:
+            c_dict = utils.mdb.survivors.find_one({'_id': c})
+            if c_dict['father'] == self.survivor['_id']:
+                output['children'][str(c_dict['mother'])].append(c_dict)
+            elif c_dict['mother'] == self.survivor['_id']:
+                output['children'][str(c_dict['father'])].append(c_dict)
+
+        # sort the children on their born in LY
+        for p_id in output['children']:
+            output['children'][p_id] = sorted(output['children'][p_id], key=lambda k: k['born_in_ly'])
+
+        # get fuck buddy survivor data from mdb
+        output['intimacy_partners'] = [utils.mdb.survivors.find_one({'_id': s}) for s in output['intimacy_partners']]
+
+
+        return Response(
+            response=json.dumps(output, default=json_util.default),
+            status=200,
+            mimetype="application/json"
+        )
+
+
     def get_notes(self):
         """ Gets the survivor's notes as a list of dictionaries. """
         notes = utils.mdb.survivor_notes.find({
@@ -1574,6 +1695,31 @@ class Survivor(Models.UserAsset):
             "created_on": {"$gte": self.survivor["created_on"]}
         }, sort=[("created_on",-1)])
         return list(notes)
+
+
+    def get_parents(self, return_type=None):
+        """ Returns survivor OIDs for survivor parents by default. Set
+        'return_type' to 'dict' (w/o the quotes) to get survivor dictionaries
+        back. """
+
+        parents = []
+        for p in ["father","mother"]:
+            if p in self.survivor.keys():
+                parents.append(self.survivor[p])
+
+        if return_type == dict:
+            output = {'mother': None, 'father': None}
+            for p_oid in parents:
+                p = utils.mdb.survivors.find_one({'_id': p_oid})
+                if p["sex"] == 'M':
+                    output['father'] = p
+                elif p['sex'] == 'F':
+                    output['mother'] = p
+                else:
+                    raise
+            return output
+
+        return parents
 
 
     def get_sex(self):
@@ -1848,6 +1994,7 @@ class Survivor(Models.UserAsset):
             self.perform_save = True
 
 
+
     def duck_type(self):
         """ Duck-types certain survivor sheet attributes, e.g. to make sure they
         didn't experience a type change due to bad form input, etc. """
@@ -1920,6 +2067,20 @@ class Survivor(Models.UserAsset):
         self.survivor["abilities_and_impairments"] = new_ai
         self.survivor["meta"]["abilities_and_impairments_version"] = 1.0
         self.logger.info("Converted A&Is from names (legacy) to handles for %s" % (self))
+
+
+    def convert_disorders(self):
+        """ Swaps out disorder names for handles. """
+
+        new_d = []
+
+        for d_dict in self.list_assets("disorders", log_failures=True):
+            new_d.append(d_dict["handle"])
+            self.logger.info("%s Migrated Disorder '%s' to '%s'" % (self, d_dict["name"], d_dict["handle"]))
+
+        self.survivor["disorders"] = new_d
+        self.survivor["meta"]["disorders_version"] = 1.0
+        self.logger.info("Converted Disorders from names (legacy) to handles for %s" % (self))
 
 
     def convert_epithets(self):
@@ -2005,6 +2166,8 @@ class Survivor(Models.UserAsset):
 
         if action == "get":
             return self.return_json()
+        elif action == "get_lineage":
+            return self.get_lineage()
         elif action == "get_survival_actions":
             sa = self.get_survival_actions("JSON")
             return json.dumps(sa, default=json_util.default)
@@ -2061,6 +2224,9 @@ class Survivor(Models.UserAsset):
 
         elif action == "set_weapon_proficiency_type":
             self.set_weapon_proficiency_type()
+
+        elif action == 'set_parent':
+            self.set_parent()
 
         # affinities
         elif action == "update_affinities":

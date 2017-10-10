@@ -47,6 +47,7 @@
                 Click/tap to show/hide the User Agent popularity contest.
             </p>
             <table id="user_agent_popularity_contest" class="hidden">
+                <tr><th>UA String</th><th>&nbsp; # &nbsp; </th></tr>
                 <tr ng-repeat="ua in users.user_agent_stats" ng-class-even="'zebra'">
                     <td>{{ua.latest_user_agent}}:</td><td>{{ua.count}}</td>
                 </tr>
@@ -62,11 +63,12 @@
             <div class="users_container">
                 <div
                     class="user_basic_info clickable"
-                    ng-class="{'active_user': u.is_active}"
+                    ng-class="{'active_user': u.is_active, 'signed_out': u.latest_action=='signed out'}"
                     ng-repeat="u in users.user_info"
                     ng-click="showHide('user_' + u._id.$oid);"
                 >
                     <h2>{{u.login}}
+                        <span ng-if="u.latest_action == 'signed out'" style="font-weight: normal">(signed out)</span>
                         <span ng-if="u.is_active == true">*</span>
                     </h2>
                     <div
@@ -97,7 +99,7 @@
 
         <div class="flex_item_basic users" ng-if="settlements.length >= 1">
             <h2>Recent Settlement Activity</h2>
-            <br/><br/>
+            <br/>
             <div class="settlement" ng-repeat="settlement in settlements">
                 <button
                     class="toggle_settlement_event_log"
@@ -133,12 +135,12 @@
         </div> <!-- flex_item_basic -->
 
         <div class="flex_item_basic api">
-            <h2>Response Times</h2>
+            <h2>Response Times (last seven days)</h2>
             <table class="api_response_times">
             <tr><th>Method</th><th>Route</th><th>#</th><th>Avg.</th><th>Max</th></tr>
             <tr ng-repeat="r in world.world.api_response_times.value">
                 <td>{{r._id.method}}</td>
-                <td><code>{{r._id.url}}</code></td>
+                <td><code>/{{r._id.url}}</code></td>
                 <td>{{r.count}}</td>
                 <td>{{r.avg_time | limitTo:6}}</td>
                 <td>{{r.max_time | limitTo:6}}</td>
@@ -338,8 +340,8 @@
             <h2>{{world.world.settlement_popularity_contest_expansions.name}}</h2>
             {{world.world.settlement_popularity_contest_expansions.comment}}
             <table>
-                <tr ng-repeat="(name,count) in world.world.settlement_popularity_contest_expansions.value" ng-class-even="'zebra'">
-                    <td>{{name}}</td> <td class="int_key">{{count}}</td>
+                <tr ng-repeat="e in world.world.settlement_popularity_contest_expansions.value" ng-class-even="'zebra'">
+                    <td>{{e.name}}</td> <td class="int_key">{{e.count}}</td>
                 </tr>
             </table>
 

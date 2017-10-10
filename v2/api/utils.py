@@ -495,10 +495,18 @@ class InvalidUsage(Exception):
 
     def __init__(self, message, status_code=400, payload=None):
         Exception.__init__(self)
+        self.logger = get_logger(log_name='error')
         self.message = message
         if status_code is not None:
            self.status_code = status_code
            self.payload = payload
+        alert()
+
+    def alert(self):
+        """ Records the error and alerts the admins. TBD. """
+        self.logger.error("%s - %s" % (self.status_code, self.message))
+#        e = utils.mailSession()
+#        e.send(recipients=[user_login]i, html_msg=self.message)
 
     def to_dict(self):
        rv = dict(self.payload or ())

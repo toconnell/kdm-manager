@@ -882,6 +882,15 @@
             <td> POST </td>
             <td> Documentation coming soon! </td>
         </tr>
+        <tr class="ul">
+            <td> /settlement/set_last_accessed/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td> <p>This endpoint allows you to set the settlement's <code>last_accessed</code>
+            attribute, which is used in dashboard reporting, etc. </p>
+            <p>POSTing an empty JSON payload to this will cause the settlement's <code>
+            last_accessed</code> value to be set to now.</p>
+            </td>
+        </tr>
 
 
 
@@ -934,7 +943,7 @@
                 <tr><td class="key">weapon_proficiency_type</td><td>O</td><td>str</td><td>handle</td><td class="mono">set_weapon_proficiency_type</td></tr>
                 <tr><td class="key">abilities_and_impairments</td><td>O</td><td>list</td><td>Needs a list of handles from the settlement's <code>game_assets</code> element, e.g. <code>{'abilities_and_impairments': ['ageless','mastery_sword']}</code> or similar.</td><td class="mono">add_game_asset rm_game_asset</td></tr>
                 <tr><td class="key">cursed_items</td><td>O</td><td>list</td><td>List of handles</td><td class="mono">add_cursed_item rm_cursed_item</tr>
-                <tr><td class="key">disorders</td><td>O</td><td>list</td><td>List of names (transitional: changing soon)</td></tr>
+                <tr><td class="key">disorders</td><td>O</td><td>list</td><td>List of handles</td><td class="mono">add_game_asset, rm_game_asset</td></tr>
                 <tr><td class="key">favorite</td><td>O</td><td>list</td><td>list of user emails, i.e. users who have favorited the survivor</td><td class="mono">add_favorite rm_favorite</td></tr>
                 <tr><td class="key">fighting_arts</td><td>O</td><td>list</td><td>List of handles</td><td class="mono">add_game_asset rm_game_asset</td></tr>
                 <tr><td class="key">fighting_arts_levels</td><td>O</td><td>list</td><td>dictionary where each key is a Fighting Art handle whose value is an array, e.g. <code>{'silk_surgeon': [1,2]}</code></td><td class="mono">toggle_fighting_arts_level</td></tr>
@@ -960,6 +969,15 @@
             <td> /survivor/get/&lt;survivor_id&gt; </td>
             <td> GET </td>
             <td> Retrieve a serialized version of the survivor.</td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/get_lineage/&lt;survivor_id&gt; </td>
+            <td> GET </td>
+            <td> <p>Retrieve a dictionary of survivor family info.</p>
+            <p>This method can take a minute to return, as it does recursion,
+            initializes all surviviors, living and dead, etc. It's probably
+            a good idea to use this one with a loading graphic, etc.</p>
+            </td>
         </tr>
         <tr class="ul">
             <td> /survivor/get_survival_actions/&lt;survivor_id&gt; </td>
@@ -1176,6 +1194,18 @@
             <td> <p>Modify the survivor's sex by POSTing a simple JSON object
             containing the key 'sex' and a value of either 'M' or 'F'.</p>
             <code>{'sex': 'M'}</code>
+            <p><b>Important!</b> This is not the same as the survivor's
+            'effective_sex' attribute, which is mutable. Make sure you're
+            modifying the correct one!</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/set_parent/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td> <p>Update a survivor's <code>father</code> or <code>mother</code>
+            attributes by posting a role (e.g. 'father' or 'mother') plus a valid
+            survivor OID to this endpoint:</p>
+            <code>{role: 'father', 'oid': 59d78f014af5ca22ab609db2}</code>
             </td>
         </tr>
 

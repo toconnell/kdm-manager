@@ -315,13 +315,13 @@ location = {
         "name": "The Sun",
         "expansion": "sunstalker",
         "consequences": [
-            "Bone Smith",
-            "Skinnery",
-            "Organ Grinder",
-            "Catarium",
-            "Plumery",
-            "Mask Maker",
-            "Sacred Pool"
+            "bone_smith",
+            "skinnery",
+            "organ_grinder",
+            "catarium",
+            "plumery",
+            "mask_maker",
+            "sacred_pool"
         ],
         "endeavors": {
             "Innovate": {
@@ -363,7 +363,7 @@ location = {
                 "desc": "You may endeavor here once per lifetime. Your body is infused with sacred water and <b>Purified</b> (record this). You cannot <b>depart</b> this year. Gain the <b>Protective</b> disorder and roll 1d10. On 8+, gain +1 permanent attribute of your choice. Otherwise, gain +1 permanent strength or accuracy."
             },
             "Sun Sealing": {
-                "requires": ["Sauna Shrine"],
+                "requires": ["sauna_shrine"],
                 "cost": 1,
                 "desc": "You sit for a year, in the boiling darkness of the Shrine. Gain the <b>Hellfire</b> secret fighting art. You cannot <b>depart</b> this year."
             },
