@@ -4,6 +4,20 @@ app.controller("survivorSheetController", function($scope) {
 
     $scope.miscAttribs = {}
 
+    $scope.incrementAttrib = function(attrib, modifier) {
+        if ($scope.survivor.sheet[attrib] + modifier < 0) {return false};
+        var js_obj = {'attribute': attrib, 'modifier': modifier};
+        $scope.survivor.sheet[attrib] += modifier;
+        $scope.postJSONtoAPI('survivor', 'update_attribute', js_obj, false);
+    };
+    $scope.updateAttrib = function(attrib) {
+        var value = $scope.survivor.sheet[attrib];
+        if (value === null) {value = 0};
+        if (value < 0) {value = 0};
+        var js_obj = {'attribute': attrib, 'value': value};
+        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj, false);
+    };
+
     $scope.getLineage = function() {
         // retrieves survivor lineage info from the API and sets 
         // $scope.lineage
@@ -278,19 +292,6 @@ app.controller('fightingArtsController', function($scope) {
 
 
 app.controller('secondaryAttributeController', function($scope) {
-    $scope.incrementAttrib = function(attrib, modifier) {
-        if ($scope.survivor.sheet[attrib] + modifier < 0) {return false};
-        var js_obj = {'attribute': attrib, 'modifier': modifier};
-        $scope.survivor.sheet[attrib] += modifier;
-        $scope.postJSONtoAPI('survivor', 'update_attribute', js_obj, false);
-    };
-    $scope.updateAttrib = function(attrib) {
-        var value = $scope.survivor.sheet[attrib];
-        if (value === null) {value = 0};
-        if (value < 0) {value = 0};
-        var js_obj = {'attribute': attrib, 'value': value};
-        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj, false);
-    };
     $scope.setWeaponProficiencyType = function() {
         js_obj = {'handle': $scope.survivor.sheet.weapon_proficiency_type};
         $scope.postJSONtoAPI('survivor', 'set_weapon_proficiency_type', js_obj, false);
@@ -370,7 +371,7 @@ app.controller("survivalController", function($scope) {
         } else if (new_total < 0) {
             console.warn("Survival cannot be less than zero!");
         } else {
-            $scope.postJSONtoAPI('survivor', 'update_survival', {"modifier": modifier});
+            $scope.postJSONtoAPI('survivor', 'update_survival', {"modifier": modifier}, false);
             $scope.survivor.sheet.survival += modifier;
         };
     };
@@ -418,7 +419,7 @@ app.controller("survivalController", function($scope) {
 
 app.controller("sotfRerollController", function($scope) {
     $scope.sotfToggle = function() {
-        $scope.postJSONtoAPI('survivor', 'toggle_sotf_reroll', {});
+        $scope.postJSONtoAPI('survivor', 'toggle_sotf_reroll', {}, false);
     };
 
 });

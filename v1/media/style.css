@@ -671,6 +671,7 @@ div.survivor_sheet_block_group h2 {border: 0; margin-left: 2%; }
 div.survivor_sheet_block_group h4 {border: 0; margin-left: 4%; }
 div.survivor_sheet_block_group p {border: 0; margin-left: 4%; }
 div.lineage_block p {font-family: 'Metrophobic'; }
+.lineage_subhead {padding-left: 4%; padding-right: 4%;  }
 input.survivor_owner_email {border: 0; outline: 0; display: block; margin: 0 auto; width: 95%; text-align:center; font-family: Silverado; height: auto; border-radius: 10px; padding: 2%; }
 input.survivor_owner_email:focus {background: radial-gradient(#FDEDA9, #FFFFC5); }
 
@@ -789,7 +790,7 @@ div.survivor_constellation_badge {font-size: 23pt; position: absolute; right: 8%
 .survivor_sheet_survivor_sex {display: inline-block; margin: 5%; margin-bottom: 10%; }
 .survivor_sex_text {width: 50px; font-weight: bold; border: 0; }
 div.survivor_dead_retired_container {display: flex; flex-direction: row; margin-top: 10%; }
-.survivor_avatar_image {float: right; width: 450px; max-height: 560px; border: 1px solid #000;}
+.survivor_avatar_image {float: right; width: 450px; max-height: 560px; border: 1px solid #000; font-size: 1%; }
 .survivor_avatar_image_campaign_summary {width: 180px; height: 240px; float: right; margin-top: 20px; }
 .toggle_favorite {float: left; min-width: 50px; }
 
@@ -834,7 +835,7 @@ p, .left_margin {margin-left: 20px; }
 .False, .hidden {display: none !important; }
 .visible {display: inherit !important; }
 .strikethrough {text-decoration: line-through; }
-
+.faded {opacity: 0.3; transition: 4s; }
 
 
 /* button styles */
@@ -1180,12 +1181,13 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .control_error {font-size: 20pt; width: 60%; bottom: 20%; left: 19%; line-height: 20pt; }
     input[type=text].custom_cod_text {font-size: 17pt; padding: 1.5%; width: 95%; margin: 0 auto;  height: auto; }
 
-    div.sotf_reroll_controls label {font-size: 25pt;}
-    p.sotf_reroll_caption {font-size: 18pt; width: 80%; margin-left: 5%; margin-bottom: 3%; }
+    div.sotf_reroll_controls {font-size: 1%; }
+    div.sotf_reroll_controls label {font-size: 17pt;}
+    p.sotf_reroll_caption {font-size: 14pt; width: 80%; margin-left: 5%; margin-bottom: 3%; }
 
     div#survivor_sheet_right_pane {}
     div.survivor_sheet_right_pane_blocks_container {display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; }
-    div.survivor_sheet_block_group {width: 40%; padding: 2%; padding-top: 0; border: 0; margin: 2%;}
+    div.survivor_sheet_block_group {padding: 2%; padding-top: 0; border: 0; margin: 2%;}
     div.survivor_sheet_block_group h2,
         div.survivor_sheet_block_group h3 {font-family: Silverado; margin-top: 0; padding-left: 5%; margin-bottom: 1%; }
     div.survivor_sheet_block_group h4 {font-family: Silverado; margin: 1%; }

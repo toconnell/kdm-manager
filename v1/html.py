@@ -1495,18 +1495,6 @@ class survivor:
     \n""")
     form = Template("""\n\
 
-    <!-- survivor sheet JS goes here !-->
-    <script>
-    window.onload=function(){
-        var fa_disabled = document.getElementById('survivor_sheet_cannot_use_fighting_arts');
-        if (fa_disabled.checked == true) {
-           $('.survivor_sheet_fighting_art').addClass('strikethrough');
-        };
-    }
-    </script>
-    <!-- survivor sheet JS -->
-
-
     <script src="/media/survivorSheet.js?v=$application_version"></script>
 
     <div
@@ -1713,6 +1701,34 @@ class survivor:
 
         <hr />
 
+            <div
+                class="sotf_reroll_controls"
+                ng-if="settlement.sheet.principles.indexOf('survival_of_the_fittest') != -1"
+                ng-controller="sotfRerollController"
+            >
+                <input
+                    id="sotfRerollCheckbox"
+                    type="checkbox"
+                    class="kd_css_checkbox kd_radio_option"
+                    ng-model="sotf_reroll_toggle"
+                    ng-checked="survivor.sheet.sotf_reroll == true"
+                    ng-click="sotfToggle()"
+                />
+
+                <label
+                    for="sotfRerollCheckbox"
+                >
+                    Once per lifetime reroll
+                    <p class="sotf_reroll_caption">
+                        <b>Survival of the fittest:</b> Once per lifetime, a survivor may
+                        reroll a single roll result. They must keep this result.</b>
+                    </p>
+                </label>
+
+                <hr/>
+
+            </div> <!-- sotf reroll -->
+
 
 
         <div
@@ -1898,25 +1914,28 @@ class survivor:
 
                     <button
                         class="incrementer"
-                        onclick="stepAndSave('up','insanityBox','survivor','$survivor_id');"
+                        ng-click="incrementAttrib('Insanity',1)"
                     >
                         +
                     </button>
+
 
                     <input
                         id="insanityBox"
                         type="number"
                         class="shield"
                         name="Insanity" min="0"
-                        value="$insanity"
-                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
+                        ng-model="survivor.sheet.Insanity"
+                        ng-value="survivor.sheet.Insanity"
+                        ng-blur="updateAttrib('Insanity')"
+                        ng-class="{true: 'maroon_text'}[survivor.sheet.Insanity >= 3]"
                     />
 
                     <font id="hit_box_insanity">Insanity</font>
 
                     <button
                         class="decrementer"
-                        onclick="stepAndSave('down','insanityBox','survivor','$survivor_id');"
+                        ng-click="incrementAttrib('Insanity',-1)"
                     >
                         -
                     </button>
@@ -2172,33 +2191,6 @@ class survivor:
 
         <!-- SOTF REROLL ; EXPANSION ATTRIBUTES ; PARTNER CONTROLS -->
 
-        <div
-            class="sotf_reroll_controls"
-            ng-if="settlement.sheet.principles.indexOf('survival_of_the_fittest') != -1"
-            ng-controller="sotfRerollController"
-        >
-            <input
-                id="sotfRerollCheckbox"
-                type="checkbox"
-                class="kd_css_checkbox kd_radio_option"
-                ng-model="sotf_reroll_toggle"
-                ng-checked="survivor.sheet.sotf_reroll == true"
-                ng-click="sotfToggle()"
-            />
-
-            <label
-                for="sotfRerollCheckbox"
-            >
-                Once per lifetime reroll
-                <p class="sotf_reroll_caption">
-                    <b>Survival of the fittest:</b> Once per lifetime, a survivor may
-                    reroll a single roll result. They must keep this result.</b>
-                </p>
-            </label>
-
-        <hr/>
-
-        </div> <!-- sotf reroll -->
 
         $expansion_attrib_controls
 
@@ -2261,6 +2253,7 @@ class survivor:
                 <div
                     ng-repeat="fa_handle in survivor.sheet.fighting_arts"
                     class="survivor_sheet_card survivor_sheet_gradient clickable"
+                    ng-class="{true: 'faded'}[survivor.sheet.cannot_use_fighting_arts]"
                 >
                     <span ng-if = "settlement.game_assets.fighting_arts[fa_handle] == undefined">
                         <img src="/media/loading_lantern.gif"><br/>
@@ -2437,7 +2430,7 @@ class survivor:
                     ng-model="userD.newD"
                     ng-change="addDisorder(); userD.newD = dOptions[0]"
                     ng-blur="userD.newD = dOptions[0]"
-                    ng-options="d.handle as (d.name for d in dOptions | orderObjectBy:'handle':false"
+                    ng-options="d.handle as d.name for d in dOptions | orderObjectBy:'handle':false"
                 >
                     <option value="" disabled selected>Add Disorder</option>
                 </select>
@@ -2533,9 +2526,12 @@ class survivor:
         <div
             ng-controller="lineageController"
             ng-if="lineage != undefined"
+            class="lineage_block"
         >
 
             <h3 title="Survivor family and relationship information is stored here">Lineage</h3>
+            <p class="lineage_subhead">Facts about the life and relationships of <b>{{survivor.sheet.name}}</b> will appear here
+            as the campaign unfolds.</p>
 
             <div class="survivor_sheet_block_group lineage_block">
 
@@ -2547,7 +2543,7 @@ class survivor:
                     <p ng-if="survivor.sheet.father != undefined || survivor.sheet.mother != undefined">
                         <font class="kdm_font_hit_locations">a</font> Born in LY{{survivor.sheet.born_in_ly}}. 
                     </p>
-                    <p ng-if="survivor.sheet.father == undefined && survivor.sheet.mother == undefined">
+                    <p ng-if="survivor.sheet.father == undefined && survivor.sheet.mother == undefined && survivor.sheet.founder == false">
                         <font class="kdm_font_hit_locations">a</font> Joined the settlement in LY{{survivor.sheet.born_in_ly}}.
                     </p>
                     <p ng-if="survivor.sheet.returning_survivor.length >= 1">
@@ -2624,8 +2620,8 @@ class survivor:
             </div> <!-- survivor_sheet_block_group lineage -->
 
 
+            <h3>Permissions</h3>
             <div class="survivor_sheet_block_group">
-                <h2>Permissions</h2>
                 <h4>Owner</h4>
                     <input
                         id="survivorOwnerEmail"

@@ -1282,7 +1282,7 @@ class Survivor(Models.UserAsset):
         if new_parent is None:
             utils.invalidUsage("Parent OID '%s' does not exist!" % oid)
 
-        if oid == self.survivor[role]:
+        if oid == self.survivor.get(role, None):
             self.logger.warn("%s %s is already %s. Ignoring request..." % (self, role, new_parent["name"]))
             return True
 
