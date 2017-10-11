@@ -232,7 +232,7 @@ api_meta = {
             "hostname": socket.gethostname(),
             "mdb_name": settings.get("api","mdb"),
         },
-        "admins": list(mdb.users.find({"admin": {"$exists": True}})),
+        "admins": list(mdb.users.find({"admin": {"$exists": True}}).sort('login')),
         "object": {},
     },
 }
