@@ -1132,8 +1132,8 @@ class Survivor(Models.UserAsset):
 
         remainder = self.survivor['Insanity'] - dmg
 
+        log_damage = False
         if remainder < 0:
-            log_damage = False
             if self.survivor.get('brain_damage_light', None) is None:
                 self.survivor['brain_damage_light'] = 'checked' #transitional
                 log_damage = True

@@ -3915,7 +3915,7 @@ class settlement:
 
         <div class="departing_survivors_control">
             <div class="label_div">Survival</div>
-            <div class="button_div">
+            <div class="button_div" ng-if="hideControls==false">
                 <button
                     ng-click="updateDepartingSurvivors('survival', +1)"
                 > +1
@@ -3929,7 +3929,7 @@ class settlement:
 
         <div class="departing_survivors_control">
             <div class="label_div">Insanity</div>
-            <div class="button_div">
+            <div class="button_div" ng-if="hideControls==false">
                 <button
                     ng-click="updateDepartingSurvivors('Insanity', +1)"
                 > +1
@@ -3943,7 +3943,7 @@ class settlement:
 
         <div class="departing_survivors_control">
             <div class="label_div">Courage</div>
-            <div class="button_div">
+            <div class="button_div" ng-if="hideControls==false">
                 <button
                     ng-click="updateDepartingSurvivors('Courage', +1)"
                 > +1
@@ -3957,7 +3957,7 @@ class settlement:
 
         <div class="departing_survivors_control">
             <div class="label_div">Understanding</div>
-            <div class="button_div">
+            <div class="button_div" ng-if="hideControls==false">
                 <button
                     ng-click="updateDepartingSurvivors('Understanding', +1)"
                 > +1
@@ -3971,7 +3971,7 @@ class settlement:
 
         <div class="departing_survivors_control">
             <div class="label_div">Brain Event Damage</div>
-            <div class="button_div">
+            <div class="button_div" ng-if="hideControls==false">
                 <button
                     ng-click="updateDepartingSurvivors('brain_event_damage', 1)"
                     class="maroon_text"

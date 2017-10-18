@@ -47,7 +47,7 @@ app.controller("endeavorController", function($scope) {
 });
 
 
-app.controller("manageDepartingSurvivorsController", function($scope) {
+app.controller("manageDepartingSurvivorsController", function($scope, $rootScope) {
     $scope.saveCurrentQuarry = function(select_element) {
 
         var timeline_event = {
@@ -75,6 +75,7 @@ app.controller("manageDepartingSurvivorsController", function($scope) {
 
     $scope.updateDepartingSurvivors = function(attrib, mod){
         showFullPageLoader();
+        $rootScope.hideControls = true;
         $scope.postJSONtoAPI('settlement', 'update_survivors', {
             include: 'departing', attribute: attrib, 'modifier': mod,
         });
@@ -89,6 +90,7 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
 
 
     $scope.flipArrow = function(group) {
+        // flips the expand/collapse arrow arround
         if (group.arrow === true) {
             group.arrow = false;
         } else if (group.arrow === false) {
@@ -96,7 +98,6 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
         } else if (group.arrow === undefined) {
             group.arrow = true;
         };
-        console.warn(group.arrow);
     };
 
     $scope.checkManageable = function() {

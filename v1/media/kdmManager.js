@@ -164,6 +164,7 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
 
         // initialize misc. scope elements
         $rootScope.departing_survivor_count = 0;
+        $rootScope.hideControls = true;
 
         // declare the view
         console.log("Initializing '" + $scope.view + "' view...");
@@ -246,9 +247,10 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
                         $scope.initializeSurvivor($scope.survivor_id);
                     };
 
-                    // kill the loaders
+                    // kill the loaders and do cleanup, since we've got the data now
                     hideFullPageLoader();
                     hideCornerLoader();
+                    $rootScope.hideControls = false; 
 
                 },
                 function(errorPayload) {console.log("Error loading settlement!" + errorPayload);}
@@ -265,6 +267,7 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
 
             console.log("Initialized settlement ID = " + $scope.settlement_id);
             $scope.postJSONtoAPI('settlement', 'set_last_accessed', {}, false, false);
+
         };
 
         if ($scope.view === 'dashboard') {
