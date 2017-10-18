@@ -192,13 +192,13 @@ app.controller("attributeController", function($scope) {
         // bind the paddles to this
         $scope.survivor.sheet[stat] += modifier;
         var js_obj = {'attribute': stat, 'value': $scope.survivor.sheet[stat]};
-        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj);
+        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj, false);
     };
 
     $scope.incrementDetail = function(stat, detail, modifier) {
         $scope.survivor.sheet.attribute_detail[stat][detail] += modifier;
         var js_obj = {'attribute': stat, 'detail': detail, 'value': $scope.survivor.sheet.attribute_detail[stat][detail]};
-        $scope.postJSONtoAPI('survivor', 'set_attribute_detail', js_obj);
+        $scope.postJSONtoAPI('survivor', 'set_attribute_detail', js_obj, false);
     };
 
 });

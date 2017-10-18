@@ -108,6 +108,7 @@
                     Show/Hide settlement event log ({{settlement.event_log.length}} lines)
                 </button>
                 <h3 class="settlement_name"><b>{{settlement.sheet.name}}</b> <i>LY:</i> {{settlement.sheet.lantern_year}} </h3>
+                {{settlement.sheet._id.$oid}}<br/><br/>
                 <i>{{settlement.sheet.campaign_pretty}}</i><br>
                 <i ng-if="settlement.sheet.expansions.length >= 1">Expansions:</i> {{settlement.sheet.expansions_pretty}}</i>
                 <ul>

@@ -301,13 +301,18 @@ class Settlement(Models.UserAsset):
         })
 
         # retrieve user assets
-        if return_type in [None, "sheet"]:
+        if return_type in [None, "sheet",'groups']:
             output.update({"user_assets": {}})
             output["user_assets"].update({"players": self.get_players()})
             output["user_assets"].update({"survivors": self.get_survivors()})
 
+        # if we're doing a campaign summary, break up the users into groups for
+        # the front-end
+        if return_type in ['groups']:
+            output["user_assets"].update({'survivor_groups': self.get_survivors('groups')})
+
         # create the sheet
-        if return_type in [None, 'sheet', 'dashboard']:
+        if return_type in [None, 'sheet', 'dashboard', 'groups']:
             output.update({"sheet": self.settlement})
             output["sheet"].update({"campaign": self.get_campaign()})
             output["sheet"].update({"campaign_pretty": self.get_campaign(dict)["name"]})
@@ -318,9 +323,10 @@ class Settlement(Models.UserAsset):
             output["sheet"]["minimum_survival_limit"] = self.get_survival_limit("min")
             output["sheet"]["minimum_death_count"] = self.get_death_count("min")
             output["sheet"]["minimum_population"] = self.get_population("min")
+            output['sheet']['population_by_sex'] = self.get_population('sex')
 
         # create game_assets
-        if return_type in [None, 'game_assets']:
+        if return_type in [None, 'game_assets','groups']:
             output.update({"game_assets": {}})
             output["game_assets"].update(self.get_available_assets(innovations))
             output["game_assets"].update(self.get_available_assets(locations, exclude_types=["resources","gear"]))
@@ -366,6 +372,7 @@ class Settlement(Models.UserAsset):
             output["survivor_bonuses"] = self.get_bonuses("JSON")
             output["survivor_attribute_milestones"] = self.get_survivor_attribute_milestones()
             output["eligible_parents"] = self.get_eligible_parents()
+
 
         # if we want the log, go get it
         if include_event_log:
@@ -916,6 +923,71 @@ class Settlement(Models.UserAsset):
             self.save()
 
 
+    #
+    #   misc. methods
+    #
+
+    def return_survivors(self, aftermath=None):
+        """ Returns all survivors with departing=True (i.e. initializes the
+        survivor and calls Survivor.return_survivor() on it and then processes
+        showdown/hunt attributes.
+        
+        Assumes a request context (because why else would you be doing this?)
+        """
+
+        # initialize!
+        if aftermath is None:
+            self.check_request_params(['aftermath'])
+            aftermath = self.params['aftermath']
+        if aftermath not in ['victory','defeat']:
+            raise Exception("The 'aftermath' value of '%s' is not allowed!" % (aftermath))
+
+        # 1.) handle the current quarry/showdown monst 
+        if aftermath == 'victory' and self.settlement.get('current_quarry', None) is not None:
+            self.add_defeated_monster(self.settlement['current_quarry'])
+            del self.settlement['current_quarry']
+
+        # 2.) remove misc meta data
+        if 'hunt_started' in self.settlement.keys():
+            del self.settlement['hunt_started']
+
+        # 3.) process survivors, keeping a list of IDs for later
+        returned = []
+        for s in self.get_survivors('departing'):
+            S = survivors.Survivor(_id=s['_id'])
+            S.return_survivor()
+            returned.append(s['_id'])
+
+        # 4.) remove 'skip_next_hunt' from anyone who sat this one out
+        for s in self.get_survivors(list, excluded=returned, exclude_dead=True):
+            if 'skip_next_hunt' in s.keys():
+                S = survivors.Survivor(_id=s['_id'])
+                S.toggle_boolean('skip_next_hunt')
+
+        # 5.) log the return
+        live_returns = []
+        for s_id in returned:
+            S = survivors.Survivor(_id=s_id)
+            if not S.is_dead():
+                live_returns.append(S.survivor['name'])
+        if live_returns != []:
+            msg = "%s returned to the settlement in %s." % (utils.list_to_pretty_string(live_returns), aftermath)
+        else:
+            msg = "No survivors returned to the settlement."
+        self.log_event(msg, event_type="survivors_return_%s" % aftermath)
+
+
+        # 6.) increment endeavors
+        if live_returns != []:
+            self.update_endeavor_tokens(len(live_returns), save=False)
+
+        self.save()
+
+
+    #
+    #   set methods
+    #
+
     def set_last_accessed(self, access_time=None):
         """ Set 'access_time' to a valid datetime object to set the settlement's
         'last_accessed' value or leave it set to None to set the 'last_accessed'
@@ -1019,10 +1091,17 @@ class Settlement(Models.UserAsset):
 
         # do unset logic
         if unset:
+            removed = 0
             for option in p_dict["option_handles"]:
                 if option in self.settlement["principles"]:
                     remove_principle(option)
-                self.log_event("%s unset settlement %s principle.")
+                    removed += 1
+            if removed >= 1:
+                self.log_event("%s unset settlement %s principle." % (request.User.login, p_dict['name']))
+                self.save()
+            else:
+                self.logger.debug("%s Ignoring bogus 'unset princple' request." % (self))
+            return True
         else:
             # ignore re-clicks
             if e_dict["handle"] in self.settlement["principles"]:
@@ -1096,7 +1175,7 @@ class Settlement(Models.UserAsset):
         self.save()
 
 
-    def update_endeavor_tokens(self, modifier=0):
+    def update_endeavor_tokens(self, modifier=0, save=True):
         """ Updates settlement["endeavor_tokens"] by taking the current value,
         which is normalized (above) to zero, if it is not defined or set, and
         adding 'modifier' to it.
@@ -1112,7 +1191,9 @@ class Settlement(Models.UserAsset):
             new_val = 0
         self.settlement["endeavor_tokens"] = new_val
         self.log_event("%s set endeavor tokens to %s" % (request.User.login, new_val))
-        self.save()
+
+        if save:
+            self.save()
 
 
     def update_nemesis_levels(self):
@@ -1153,6 +1234,37 @@ class Settlement(Models.UserAsset):
         self.log_event("%s updated settlement population to %s" % (request.User.login, self.settlement["population"]))
         self.save()
 
+
+    def update_survivors(self, include=None, attribute=None, modifier=None):
+        """ This method assumes a request context and should not be called from
+        outside of a request.
+
+        Use this to modify a single attribute for one of the following groups of
+        survivors:
+
+            'departing': All survivors with 'departing': True
+
+        NB: this is a waaaaaaay different method from update_all_survivors(), so
+        make sure you know the difference between the two. """
+
+        # initialize; assume a request context
+        if include is None:
+            self.check_request_params(['include', 'attribute', 'modifier'])
+            include = self.params['include']
+            attribute = self.params['attribute']
+            modifier = self.params['modifier']
+
+        # now check the include and get our targets
+        target_group = []
+        if include == 'departing':
+            target_group = utils.mdb.survivors.find({'settlement': self.settlement['_id'], 'departing': True, 'dead': {'$exists': False}})
+        else:
+            raise InvalidUsage("update_survivors() cannot process the 'include' value '%s'" % (include))
+
+        # now initialize survivors and update them with update_attribute()
+        for s in target_group:
+            S = survivors.Survivor(_id=s['_id'])
+            S.update_attribute(attribute, modifier)
 
 
 
@@ -1465,7 +1577,7 @@ class Settlement(Models.UserAsset):
         if return_type == dict:
             output = {}
             for i_handle in s_innovations:
-                i_dict = I.get_asset(i_handle)
+                i_dict = I.get_asset(i_handle, backoff_to_name=True)
                 if i_dict is not None:
                     output[i_handle] = i_dict
                 else:
@@ -1578,6 +1690,11 @@ class Settlement(Models.UserAsset):
                 if not s.get("dead", False):
                     min_pop += 1
             return min_pop
+        elif return_type == 'sex':
+            output = {'M':0, 'F':0}
+            for s in self.get_survivors(exclude_dead=True):
+                output[s['sheet']['effective_sex']] += 1
+            return output
 
         return int(self.settlement["population"])
 
@@ -1593,7 +1710,7 @@ class Settlement(Models.UserAsset):
         return [n for n in notes]
 
 
-    def get_survivors(self, return_type=None, excluded=[]):
+    def get_survivors(self, return_type=None, excluded=[], exclude_dead=False):
         """ By default, this returns a dictionary of survivors where the keys
         are bson ObjectIDs and the values are serialized survivors.
 
@@ -1603,24 +1720,108 @@ class Settlement(Models.UserAsset):
         You might also, however, sometimes just want a list of dictionaries, i.e
         a list where each dict is survivor MDB. For that, do 'return_type'=list.
 
+        (That's like, the lightweight version, since it doesn't init any survivors.)
+
         The 'excluded' kwarg should be a list of OIDs that you DO NOT want
         returned.
         """
 
-        all_survivors = utils.mdb.survivors.find({"settlement": self.settlement["_id"], '_id': {"$nin": excluded}})
-        if return_type == list:
-            return all_survivors
+        query = {"settlement": self.settlement["_id"]}
 
-        output = []
+        # query mods
+        if excluded != []:
+            query.update({'_id': {"$nin": excluded}})
+        if exclude_dead:
+            query.update({'dead': {'$exists': False}})
+        if return_type == 'departing':
+            query.update({'departing': True})
+
+        all_survivors = utils.mdb.survivors.find(query).sort('name')
+
+        # early returns
+        if return_type == list:
+            return list(all_survivors)
+        elif return_type == 'departing':
+            return list(all_survivors)
+
+        #
+        # late/fancy returns start here
+        #
+
+        final_list = []
         for s in all_survivors:
             if s["_id"] in excluded:
                 pass
             else:
                 S = survivors.Survivor(_id=s["_id"])
                 s_dict = json.loads(S.serialize())
-                output.append(s_dict)
+                if s_dict.get('world', None) is not None:
+                    del s_dict['world']
+                final_list.append(s_dict)
 
-        return output
+        if return_type == 'groups':
+            # This is where we do the who dance of organizing survivors for
+            # the Campaign Summary. This is a LOOSE port of the legacy app
+            # version of this method, and skips...a lot of its BS.
+
+            groups = {
+                'departing': {
+                    'name': 'Departing',
+                    'bgcolor': '#FFF',
+                    'color': '#000',
+                    'title_tip': 'Survivors in this group are currently <b>Departing</b> for a Showdown.',
+                    'sort_order': '0',
+                    'survivors': [],
+                },
+                'favorite':  {
+                    'name': 'Favorite',
+                    'title_tip': 'Survivors in this group are your favorite survivors.',
+                    'sort_order': '1',
+                    'survivors': []
+                },
+                'available': {
+                    'name': 'Available',
+                    'bgcolor': '#FFF',
+                    'color': '#000',
+                    'title_tip': 'Survivors in this group are currently in the Settlement and available to <b>Depart</b> or to participate in <b>Endeavors</b>.',
+                    'sort_order': '2',
+                    'survivors': [],
+                },
+                'skip_next': {'name': 'Skipping Next Hunt', 'sort_order': '3', 'survivors': []},
+                'retired':   {'name': 'Retired', 'sort_order': '4', 'survivors': []},
+                'the_dead':  {
+                    'name': 'The Dead',
+                    'bgcolor': '#FFF',
+                    'color': '#000',
+                    'title_tip': 'Dead survivors are memorialized here.',
+                    'sort_order': '5',
+                    'survivors': [],
+                },
+            }
+
+            for s in final_list:
+                if s['sheet'].get('departing', None) == True:
+                    groups['departing']['survivors'].append(s)
+                elif s['sheet'].get('dead', None) == True:
+                    groups['the_dead']['survivors'].append(s)
+                elif s['sheet'].get('retired', None) == True:
+                    groups['retired']['survivors'].append(s)
+                elif s['sheet'].get('skip_next_hunt', None) == True:
+                    groups['skip_next']['survivors'].append(s)
+                elif 'favorite' in s['sheet'].keys() and request.User.login in s['sheet']['favorite']:
+                    groups['favorite']['survivors'].append(s)
+                else:
+                    groups['available']['survivors'].append(s)
+
+            # make it JSON-ish
+            output = []
+            for k in sorted(groups.keys(), key=lambda k: groups[k]['sort_order']):
+                groups[k]['handle'] = k
+                output.append(groups[k])
+            return output
+
+
+        return final_list
 
 
     def get_survival_actions(self, return_type=dict):
@@ -2409,10 +2610,12 @@ class Settlement(Models.UserAsset):
 
         if action == "get":
             return Response(response=self.serialize(), status=200, mimetype="application/json")
-        if action == 'get_sheet':
+        elif action == 'get_sheet':
             return Response(response=self.serialize('sheet'), status=200, mimetype="application/json")
-        if action == 'get_game_assets':
+        elif action == 'get_game_assets':
             return Response(response=self.serialize('game_assets'), status=200, mimetype="application/json")
+        elif action == 'get_campaign':
+            return Response(response=self.serialize('groups'), status=200, mimetype="application/json")
         elif action == "get_event_log":
             return Response(response=self.get_event_log("JSON"), status=200, mimetype="application/json")
         elif action == "get_innovation_deck":
@@ -2457,6 +2660,9 @@ class Settlement(Models.UserAsset):
         elif action == "set_lost_settlements":
             self.set_lost_settlements()
 
+        # survivor methods
+        elif action == 'update_survivors':
+            self.update_survivors()
 
 
         # timeline 
@@ -2490,6 +2696,9 @@ class Settlement(Models.UserAsset):
         elif action == "rm_note":
             self.rm_settlement_note(self.params)
 
+
+        elif action == "return_survivors":
+            self.return_survivors()
 
         #
         #   finally, the catch-all/exception-catcher

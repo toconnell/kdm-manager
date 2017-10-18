@@ -120,10 +120,15 @@
                 <p>Or, with a handle:</p>
                 <code>{"handle": "manhunter"}</code>
                 <p>...you get:</p>
-                <code>{"handle": "manhunter", "name": "Manhunter", "levels": 4,
-                "sort_order": 103, "type": "nemesis", "selectable": false, 
-                "misspellings": ["THE MANHUNTER", "MAN HUNTER"]}
-                </code>
+                <pre><code>{
+    "handle": "manhunter",
+    "name": "Manhunter",
+    "levels": 4,
+    "sort_order": 103,
+    "type": "nemesis",
+    "selectable": false, 
+    "misspellings": ["THE MANHUNTER", "MAN HUNTER"],
+}</code></pre>
             </td>
         </tr>
         <tr class="ul">
@@ -133,6 +138,30 @@
             settlement, including expansions, pre-fab survivors, etc. Also
             includes subtitle/description elements. Use this to make "create
             new settlement" type views. </td>
+        </tr>
+        <tr class="ul">
+            <td> <a href="/get_random_names/10">/get_random_names/&lt;count&gt;</a></td>
+            <td> GET </td>
+            <td> 
+                <p>Returns <code>count</code> random names for each possible
+                survivor sex.</p>
+                <p><b>Important!</b>This method DOES NOT accept POST-type
+                requests and <code>count</code> must be an integer!</p>
+                <p>Output looks like this:</p>
+                <pre><code>{
+    "M": [
+        "Fingal",
+        "Pelagius",
+        "Stark"
+    ],
+    "F": [
+        "Hope",
+        "Moana",
+        "Rasha"
+    ]
+}
+</code></pre>
+            </td>
         </tr>
         <tr class="ul">
             <td> <a href="/settings.json">/settings.json</a> </td>
@@ -469,6 +498,18 @@
             </td>
         </tr>
         <tr class="ul">
+            <td> /settlement/get_campaign/&lt;settlement_id&gt; </td>
+            <td> GET </td>
+            <td><p>Retrieve a serialized version of the settlement where the
+            <code>user_assets</code> element includes the <code>groups</code>
+            list, among other things, and is intended to be used in creating
+            'campaign' type views.</p>
+            <p>Much like the big <code>get</code> route for settlements, this one
+            can take a while to come back, e.g. two or more seconds for a normal
+            settlement. YHBW.</p>
+            </td>
+        </tr>
+        <tr class="ul">
             <td> /settlement/get_event_log/&lt;settlement_id&gt; </td>
             <td> GET </td>
             <td> <p>Retrieve all settlement event log entries (in a giant hunk
@@ -540,6 +581,20 @@
             <p><b>Important!</b> Settlement population can never go below zero,
             so any 'modifier' values that would cause this simply cause the
             total to become zero.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/update_survivors/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td>
+                <p>Use this route to update a specific group of survivors, e.g.
+                Departing survivors.</p>
+                <p>POST some JSON including the type of survivors to include,
+                the attribute to modify, and the modifier:</p>
+                <code>{include: 'departing', attribute: 'Insanity', modifier: 1}</code>
+                <p><b>Important!</b> This route currently only supports the
+                <code>include</code> value 'departing' and will error/fail/400 on
+                literally anything else.</p>
             </td>
         </tr>
 
@@ -930,7 +985,8 @@
                 <tr><td class="key">Courage</td><td>O</td><td>int</td><td></td><td class="mono">set_attribute update_attribute</td></tr>
                 <tr><td class="key">Understanding</td><td>O</td><td>int</td><td></td><td class="mono">set_attribute update_attribute</td></tr>
                 <tr><td class="key">affinities</td><td>O</td><td>dict</td><td>Rather than setting this at creation time, consider using <code>upfate_affinities</code> route after creation to set this, unless you really know what you're doing</td><td class="mono">update_affinities set_affinity</td></tr>
-                <tr><td class="key">bleeding_tokens</td><td>O</td><td>int</td><td></td><td class="mono">update_bleeding_tokens</td></tr>
+                <tr><td class="key">departing</td><td>O</td><td>bool</td><td></td><td class="mono">set_status_flag</td></tr>
+                <tr><td class="key">bleeding_tokens</td><td>O</td><td>int</td><td></td><td class="mono">update_bleeding_tokens set_bleeding_tokens</td></tr>
                 <tr><td class="key">max_bleeding_tokens</td><td>O</td><td>int</td><td>Defaults to 5.</td><td class="mono">set_attribute</td></tr>
                 <tr><td class="key">Movement</td><td>O</td><td>int</td><td>Defaults to 5.</td><td class="mono">set_attribute update_attribute</td></tr>
                 <tr><td class="key">Accuracy</td><td>O</td><td>int</td><td></td><td class="mono">set_attribute update_attribute</td></tr>
@@ -1161,6 +1217,19 @@
             <td><p> Use this to add an integer to the survivor's bleeding token
             count:</p>
             <code>{'modifier': -2}</code>
+            <p><b>Important!</b> The API will never set the survivor's <code>
+            bleeding_tokens</code> value lower than zero or higher than the
+            survivor's <code>max_bleeding_tokens</code>. It will return 200's to
+            requests that break these rules.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/set_bleeding_tokens/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td><p> Use this route to set the survivor's <code>bleeding_tokens</code>
+            attribute to an arbitrary integer value.</p>
+            <code>{'value': 4}</code>
+            <p>Negative values will be ignored (and you'll get a 200 back).</p>
             <p><b>Important!</b> The API will never set the survivor's <code>
             bleeding_tokens</code> value lower than zero or higher than the
             survivor's <code>max_bleeding_tokens</code>. It will return 200's to
@@ -1410,6 +1479,7 @@
                 <li>cannot_spend_survival</li>
                 <li>cannot_use_fighting_arts</li>
                 <li>skip_next_hunt</li>
+                <li>departing</li>
             </ul>
             <p>To set a flag (i.e. to True/true), POST some JSON to this route
             that includes the 'flag' key with the value of the flag you want to

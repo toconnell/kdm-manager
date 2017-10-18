@@ -64,10 +64,23 @@ class Survivor(Models.UserAsset):
 
         # data model meta data
         self.stats =                ['Movement','Accuracy','Strength','Evasion','Luck','Speed','bleeding_tokens']
-        self.flags =                ['skip_next_hunt','cannot_use_fighting_arts','cannot_spend_survival']
+        self.armor_locations =      ['Head', 'Body', 'Arms', 'Waist', 'Legs']
+        self.flags =                ['skip_next_hunt','cannot_use_fighting_arts','cannot_spend_survival','departing']
         self.abs_value_attribs =    ['max_bleeding_tokens', ]
         self.min_zero_attribs =     ["hunt_xp","Courage","Understanding"]
         self.min_one_attribs =      ["Movement"]
+        self.damage_locations = [
+           "brain_damage_light",
+           "head_damage_heavy",
+           "arms_damage_light",
+           "arms_damage_heavy",
+           "body_damage_light",
+           "body_damage_heavy",
+           "waist_damage_light",
+           "waist_damage_heavy",
+           "legs_damage_light",
+           "legs_damage_heavy",
+        ]
 
         # if we're doing a new survivor, it will happen when we subclass the
         # Models.UserAsset class:
@@ -134,8 +147,6 @@ class Survivor(Models.UserAsset):
             "settlement":   self.settlement_id,
             "public":       False,
 
-            "in_hunting_party": False,  # transitional
-
             # survivor sheet
             "name":     "Anonymous",
             "sex":      "R",
@@ -152,6 +163,7 @@ class Survivor(Models.UserAsset):
             "affinities": {"red":0,"blue":0,"green":0},
 
             # misc
+            'departing': False,
             'bleeding_tokens': 0,
             'max_bleeding_tokens': 5,
 
@@ -197,10 +209,6 @@ class Survivor(Models.UserAsset):
         # 1.b for bools, keep 'em bool, e.g. in case they come in as 'checked'
         for boolean in ["public"]:
             self.survivor[boolean] = bool(self.survivor[boolean])
-
-        # transitional:
-        if self.survivor["in_hunting_party"] == False:
-            del self.survivor["in_hunting_party"]
 
         # 1.c if sex is "R", pick a random sex
         if self.survivor["sex"] == "R":
@@ -851,6 +859,14 @@ class Survivor(Models.UserAsset):
             attribute = self.params["attribute"]
             modifier = self.params["modifier"]
 
+        # hand off to update_survival or damage_brain if that's the shot
+        if attribute == 'survival':
+            self.update_survival(modifier)
+            return True
+        elif attribute == 'brain_event_damage':
+            self.damage_brain(modifier)
+            return True
+
         # sanity check!
         if attribute not in self.survivor.keys():
             msg = "%s does not have '%s' attribute!" % (self, attribute)
@@ -869,6 +885,11 @@ class Survivor(Models.UserAsset):
             self.survivor[attribute] = 0
         if attribute in self.min_one_attribs and self.survivor[attribute] < 1:
             self.survivor[attribute] = 1
+
+        # force a max of 9 for courage and understanding
+        if attribute in ['Courage','Understanding']:
+            if self.survivor[attribute] > 9:
+                self.survivor[attribute] = 9
 
         # log completion of the update 
         self.log_event("%s set %s attribute '%s' to %s" % (request.User.login, self.pretty_name(), attribute, self.survivor[attribute]))
@@ -908,12 +929,33 @@ class Survivor(Models.UserAsset):
         self.save()
 
 
-    def update_survival(self, modifier=0):
+    def update_returning_survivor_years(self, add_year=None, save=True):
+        """ Adds the current LY to the survivor's 'returning_survivor' attrib
+        (i.e. list) by default. Set 'add_year' to any integer to add an arbitrary
+        value. """
+
+        if add_year is None:
+            add_year = self.Settlement.get_current_ly()
+
+        if not 'returning_survivor' in self.survivor.keys():
+            self.survivor['returning_survivor'] = []
+
+        self.survivor['returning_survivor'].append(add_year)
+
+        self.survivor['returning_survivor'] = list(set(self.survivor['returning_survivor']))
+
+        if save:
+            self.save()
+
+
+    def update_survival(self, modifier=None):
         """ Adds 'modifier' to survivor["survival"]. Respects settlement rules
         about whether to enforce the Survival Limit. Will not go below zero. """
 
-        self.check_request_params(["modifier"])
-        modifier = int(self.params["modifier"])
+        if modifier is None:
+            self.check_request_params(["modifier"])
+            modifier = int(self.params["modifier"])
+
         self.survivor["survival"] += modifier
         self.apply_survival_limit()
         self.logger.debug("%s set %s survival to %s" % (request.User, self, self.survivor["survival"]))
@@ -1048,7 +1090,7 @@ class Survivor(Models.UserAsset):
 
 
     #
-    #   controls of death! THE CHEESE STANDS ALONE
+    #   special game controls
     #
 
     def controls_of_death(self):
@@ -1083,6 +1125,97 @@ class Survivor(Models.UserAsset):
             self.Settlement.update_population(-1)
 
         self.save()
+
+
+    def damage_brain(self, dmg=0):
+        """ Inflicts brain event damage on the survivor."""
+
+        remainder = self.survivor['Insanity'] - dmg
+
+        if remainder < 0:
+            log_damage = False
+            if self.survivor.get('brain_damage_light', None) is None:
+                self.survivor['brain_damage_light'] = 'checked' #transitional
+                log_damage = True
+            self.survivor['Insanity'] = 0
+        elif remainder == 0:
+            self.survivor['Insanity'] = 0
+        elif remainder > 0:
+            self.survivor['Insanity'] = remainder
+        else:
+            raise Exception('%s Impossible damage_brain() result!' % self)
+
+        self.log_event("%s inflicted %s Brain Event Damage on %s. The survivor's Insanity is now %s" % (request.User.login, dmg, self.pretty_name(), self.survivor["Insanity"]), event_type="brain_event_damage")
+        if log_damage:
+            self.log_event("%s has suffered a Brain injury due to Brain Event Damage!" % (self.pretty_name()))
+        self.save()
+
+
+    def return_survivor(self):
+        """ Returns the departing survivor. This is a minimized port of the legacy
+        webapp's heal() method (which was super overkill in the first place).
+
+        This method assumes a request context, so don't try if it you haven't got
+        a request object initialized and in the global namespace. """
+
+
+        #
+        #   initialize/sanity check
+        #
+
+        if not 'departing' in self.survivor.keys():
+            self.logger.warn('%s is not a Departing Survivor! Skipping bogus return() request...' % self)
+
+        def finish():
+            """ Private method for concluding the return. Enhances DRYness. """
+            msg = "%s returned %s to %s" % (request.User.login, self.pretty_name(), self.Settlement.settlement['name'])
+            self.log_event(msg, event_type="survivor_return")
+            self.save()
+
+
+        #
+        #   Living and dead survivor return operations
+        #
+
+        # 1.) update meta data
+        self.survivor['departing'] = False
+        self.update_returning_survivor_years(save=False)
+
+        # 2.) remove armor
+        for loc in self.armor_locations:
+            self.survivor[loc] = 0
+
+        # 3.) remove tokens/gear modifiers
+        self.reset_attribute_details(save=False)
+
+        # 4.) heal injury boxes
+        self.reset_damage(save=False)
+
+        # 5.) finish if the survivor is dead
+        if self.is_dead():
+            finish()
+
+
+        #
+        #   Living survivors only from here!
+        #
+
+        # 6.) increment Hunt XP
+        if self.is_savior():
+            self.update_attribute('hunt_xp', 4)
+        else:
+            self.update_attribute('hunt_xp', 1)
+
+        # 7.) process disorders with 'on_return' attribs
+        for d in self.survivor['disorders']:
+            D = disorders.Assets()
+            d_dict = d.get_asset(d)
+            if d_dict.get('on_return', None) is not None:
+                for k,v in d_dict['on_return'].iteritems():
+                    self.survivor[k] = v
+
+        # OK, we out!
+        finish()
 
 
 
@@ -1174,6 +1307,26 @@ class Survivor(Models.UserAsset):
         self.save()
 
 
+
+    def set_bleeding_tokens(self, value=None):
+        """ Sets self.survivor['bleeding_tokens'] to 'value', respecting the
+        survivor's max and refusing to go below zero. """
+
+        if value is None:
+            self.check_request_params(['modifier'])
+            modifier = int(self.params["value"])
+
+        self.survivor['bleeding_tokens'] = value
+
+        if self.survivor["bleeding_tokens"] > 0:
+            self.survivor["bleeding_tokens"] = 0
+        elif self.survivor["bleeding_tokens"] > self.survivor["max_bleeding_tokens"]:
+            self.survivor["bleeding_tokens"] = self.survivor["max_bleding_tokens"]
+
+        self.log_event('%s set %s bleeding tokens to %s.' % (request.User.login, self.survivor.pretty_name(), self.survivor["bleeding_tokens"]))
+        self.save()
+
+
     def set_constellation(self, constellation=None, unset=None):
         """ Sets or unsets the survivor's self.survivor["constellation"]. """
 
@@ -1210,6 +1363,7 @@ class Survivor(Models.UserAsset):
             self.log_event("%s set %s constellation to '%s'" % (request.User.login, self.pretty_name(), constellation))
             self.log_event("%s has become one of the People of the Stars!" % (self.pretty_name), event_type="potstars_constellation")
             self.save()
+
 
 
     def set_email(self, new_email=None):
@@ -1253,7 +1407,7 @@ class Survivor(Models.UserAsset):
 
         if new_name == self.survivor["name"]:
             self.logger.warn("%s Survivor name unchanged! Ignoring set_name() call..." % self)
-            return true
+            return True
 
         if new_name in ["", u""]:
             new_name = "Anonymous"
@@ -1415,6 +1569,9 @@ class Survivor(Models.UserAsset):
             self.check_request_params(['flag'])
             flag = self.params["flag"]
 
+        if 'unset' in self.params:
+            unset = True
+
         if flag not in self.flags:
             msg = "Survivor status flag '%s' cannot be set!" % flag
             raise utils.InvalidUsage(msg, status_code=400)
@@ -1488,6 +1645,33 @@ class Survivor(Models.UserAsset):
         self.log_event("%s defaulted %s '%s' to %s" % (request.User.login, self.pretty_name(), attrib, defaults[attrib]))
         self.save()
 
+
+    def reset_attribute_details(self, save=True):
+        """ Zero-out all attribute_detail values and will overwrite with
+        extreme prejudice. """
+
+        self.survivor["attribute_detail"] = {
+            "Strength": {"tokens": 0, "gear": 0},
+            "Evasion":  {"tokens": 0, "gear": 0},
+            "Movement": {"tokens": 0, "gear": 0},
+            "Luck":     {"tokens": 0, "gear": 0},
+            "Speed":    {"tokens": 0, "gear": 0},
+            "Accuracy": {"tokens": 0, "gear": 0},
+        }
+
+        if save:
+            self.save()
+
+
+    def reset_damage(self, save=True):
+        """ Remove all damage attribs/bools from the survivor. """
+
+        for d in self.damage_locations:
+            if d in self.survivor.keys():
+                del self.survivor[d]
+
+        if save:
+            self.save()
 
     #
     #   get methods
@@ -1711,12 +1895,13 @@ class Survivor(Models.UserAsset):
             output = {'mother': None, 'father': None}
             for p_oid in parents:
                 p = utils.mdb.survivors.find_one({'_id': p_oid})
-                if p["sex"] == 'M':
-                    output['father'] = p
-                elif p['sex'] == 'F':
-                    output['mother'] = p
-                else:
-                    raise
+                if p is not None:
+                    if p["sex"] == 'M':
+                        output['father'] = p
+                    elif p['sex'] == 'F':
+                        output['mother'] = p
+                    else:
+                        raise
             return output
 
         return parents
@@ -1954,14 +2139,7 @@ class Survivor(Models.UserAsset):
             self.perform_save = True
 
         if not "attribute_detail" in self.survivor.keys():
-            self.survivor["attribute_detail"] = {
-                "Strength": {"tokens": 0, "gear": 0},
-                "Evasion":  {"tokens": 0, "gear": 0},
-                "Movement": {"tokens": 0, "gear": 0},
-                "Luck":     {"tokens": 0, "gear": 0},
-                "Speed":    {"tokens": 0, "gear": 0},
-                "Accuracy": {"tokens": 0, "gear": 0},
-            }
+            self.reset_attribute_details(save=False)
             self.perform_save = True
 
         if not 'affinities' in self.survivor.keys():
@@ -1993,6 +2171,14 @@ class Survivor(Models.UserAsset):
             self.survivor['fighting_arts_levels'] = {}
             self.perform_save = True
 
+        if 'in_hunting_party' in self.survivor.keys():
+            if self.survivor['in_hunting_party'] == True:
+                self.survivor['departing'] = True
+            else:
+                self.survivor['departing'] = False
+            del self.survivor['in_hunting_party']
+            self.logger.info("Removed deprecated attribute 'in_hunting_party' from %s" % self)
+            self.perform_save = True
 
 
     def duck_type(self):
@@ -2221,6 +2407,8 @@ class Survivor(Models.UserAsset):
 
         elif action == "update_bleeding_tokens":
             self.update_bleeding_tokens()
+        elif action == "set_bleeding_tokens":
+            self.set_bleeding_tokens()
 
         elif action == "set_weapon_proficiency_type":
             self.set_weapon_proficiency_type()

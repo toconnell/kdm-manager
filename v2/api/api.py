@@ -22,7 +22,7 @@ import world
 import utils
 
 # models
-from models import users, settlements
+from models import users, settlements, names
 
 
 # general logging
@@ -102,6 +102,16 @@ def get_new_settlement_assets():
     S = settlements.Assets()
     return Response(
         response=json.dumps(S.serialize(), default=json_util.default),
+        status=200,
+        mimetype="application/json"
+    )
+
+@application.route("/get_random_names/<count>")
+@utils.crossdomain(origin=['*'],headers='Content-Type')
+def get_random_names(count):
+    N = names.Assets()
+    return Response(
+        response=json.dumps(N.get_random_names(int(count)), default=json_util.default),
         status=200,
         mimetype="application/json"
     )

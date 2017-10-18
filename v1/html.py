@@ -210,19 +210,22 @@ class dashboard:
         ng-init="registerModalDiv('dashboardTwitterButton','dashboardTwitter');"
     >
         <h3>Updates!</h3>
-        <p><b>http://kdm-manager.com</b> is currently running release <b>{{user.meta.webapp.release}}</b> of the Manager, which went into production on {{latest_blog_post.published}}.</p>
-        <p class="latest_blog"><a target="top" href="{{latest_blog_post.url}}">Click here to view the latest change log!</a></p>
-        <p>&nbsp;</p>
-
-        <div class="twitter_embed_container">
-            <a
-                class="twitter-timeline"
-                href="https://twitter.com/kdmManager"
-                data-tweet-limit="3"
-            > Retrieving tweets...
-            </a>
-            <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
-        </div>
+        <div class="dashboard_updates_container">
+            <div class="updates">
+                <p><b>http://kdm-manager.com</b> is currently running release <b>{{user.meta.webapp.release}}</b> of the Manager, which went into production on {{latest_blog_post.published}}.</p>
+                <p class="latest_blog"><a target="top" href="{{latest_blog_post.url}}">Click here to view the latest change log!</a></p>
+                <p>&nbsp;</p>
+            </div>
+            <div class="twitter_embed_container">
+                <a
+                    class="twitter-timeline"
+                    href="https://twitter.com/kdmManager"
+                    data-tweet-limit="3"
+                > Retrieving tweets...
+                </a>
+                <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+            </div>
+        </div> <!-- dashboard_updates_container -->
 
         <p>&nbsp;</p>
         <button class="kd_alert_no_exclaim" onclick="closeModal('dashboardTwitter')">Return to the Dashboard!</button>
@@ -1429,70 +1432,7 @@ class angularJS:
 
 
 class survivor:
-    no_survivors_error = '<!-- No Survivors Found! --> <div class="kd_alert user_asset_sheet_error">This settlement has no survivors in it! Use the navigation menu controls in the upper left to add new survivors.</div>'
 
-
-    add_ancestor_top = """\n
-    <div
-        class="create_user_asset_block_group"
-        title="Add survivor parents."
-    >
-
-        <br/>
-        <br/>
-    \n"""
-    add_ancestor_select_top = Template('\t<select name="$parent_role">\n\t<option selected disabled hidden value="">$pretty_role</option>')
-    change_ancestor_select_top = Template('\t<select onchange="this.form.submit()" name="$parent_role">\n\t<option selected disabled hidden value="">$pretty_role</option>')
-    add_ancestor_select_row = Template('\t<option value="$parent_id">$parent_name</option>\n')
-    change_ancestor_select_row = Template('\t<option value="$parent_id" $selected>$parent_name</option>\n')
-    add_ancestor_select_bot = '\t</select><br class="mobile_only"/><br class="mobile_only"/>'
-    add_ancestor_bot = '    </div> <!-- create_user_asset_block_group parents -->\n\n'
-    campaign_summary_hide_show = Template("""\n\
-    <hr class="invisible">
-    <span class="tiny_break">
-    <h3 class="clickable $color align_left" onclick="showHide('$group_id')">$heading ($death_count) <img class="dashboard_down_arrow" src="%s/icons/down_arrow.png"/> </h3>
-    <div id="$group_id" style="display: none;">
-        $dead_survivors
-    </div> <!-- deadSurvivorsBlock -->
-    <hr class="invisible">
-    \n""" % (settings.get("application","STATIC_URL")))
-    campaign_asset = Template("""\n\
-      <div class="survivor_campaign_asset_container">
-
-        <form method="POST" action="#edit_hunting_party">
-         <input type="hidden" name="modify" value="survivor" />
-         <input type="hidden" name="asset_id" value="$survivor_id" />
-         <input type="hidden" name="view_game" value="$settlement_id" />
-         <input type="hidden" name="in_hunting_party" value="$hunting_party_checked"/>
-            <button
-                onclick="showFullPageLoader()"
-                class="add_survivor_to_party orange $able_to_hunt $disabled"
-                $able_to_hunt
-                $disabled
-            >
-                ::
-            </button>
-        </form>
-
-        <form method="POST" action="#">
-         <input type="hidden" name="view_survivor" value="$survivor_id" />
-         <button id="survivor_campaign_asset" class="$b_class $disabled" $disabled>
-            $returning
-            $constellation
-            $avatar
-            <center>
-                <font class="$favorite"/>&#9733;</font> <b class="campaign_summary_survivor_name">$name</b> [$sex] </center>
-            $special_annotation
-            &ensp; XP: $hunt_xp &ensp; Survival: $survival<br/>
-            &ensp; Insanity: $insanity <br/>
-            &ensp; Courage: $courage<br/>
-            &ensp; Understanding: $understanding
-         </button>
-        </form>
-
-      </div> <!-- survivor_campaign_asset_container-->
-     <hr class="invisible"/>
-    \n""")
     form = Template("""\n\
 
     <script src="/media/survivorSheet.js?v=$application_version"></script>
@@ -1604,7 +1544,7 @@ class survivor:
                         class="survivor_avatar_image mobile_and_tablet"
                         ng-src="/get_image?id={{survivor.sheet.avatar.$oid}}"
                         alt="Click to change the avatar image for {{survivor.sheet.name}}"
-                        />
+                    />
                 </label>
                 <label
                     id="survivor_sheet_avatar"
@@ -1641,6 +1581,7 @@ class survivor:
                         class="orange bold modal_opener"
                         ng-if="settlement.game_assets.campaign.dragon_traits != undefined"
                         ng-init="registerModalDiv('dragonControlsModal','dragonTraitsModal')"
+                        ng-click="reinitialize()"
                     >
                         Dragon Traits ({{survivor.dragon_traits.trait_list.length}})
                     </button>
@@ -3304,39 +3245,6 @@ class survivor:
     <!-- <p>{{errortext}}</p> -->
     </div>
     \n""")
-    survivor_sheet_fa_level_toggle = Template("""\n
-    <span class="survivor_sheet_fa_level_row">
-        <input
-            id="$input_id"
-            class="fighting_art_level_toggle"
-            name="fighting_art_level_toggle_$name"
-            onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
-            type="checkbox"
-            value="$lvl"
-            $checked
-        />
-        <label
-            class="fighting_art_level_toggle"
-            for="$input_id"
-         >
-            <b>Rank $lvl:</b> $desc
-        </label>
-    </span>
-    \n""")
-    survivor_sheet_fighting_art_box = Template("""\n
-    <p class="survivor_sheet_fighting_art survivor_sheet_card card_gradient $secret">
-        <b class="card_title $constellation">$name</b>
-        $lvl_cont
-        $desc
-    </p>
-    \n""")
-    survivor_sheet_disorder_box = Template("""\n
-    <p class="survivor_sheet_disorder survivor_sheet_card disorder_card_gradient">
-        <b class="card_title $constellation">$name</b>
-    <span class="disorder_flavor_text">$flavor</span>
-    $effect
-    </p>
-    \n""")
 
 
 class settlement:
@@ -3522,57 +3430,347 @@ class settlement:
     \n""")
 
     #   campaign view campaign summary
-    campaign_summary_survivors_top = '<div class="campaign_summary_survivors">\n<h3 class="mobile_only">Survivors</h3>'
-    campaign_summary_survivors_bot = '<hr class="mobile_only"/></div> <!-- campaign_summary_survivors -->'
     summary = Template("""\n\n
-        <!--
 
-            Campaign Summary App starts here! Beware of JS inheritance (because it
-            hates you and it hates freedom and it will ruin your life).
+    <script src="/media/campaignSummary.js?v=$application_version"></script>
+    <div
+        id = "campaign_summary_angularjs_controller_container"
+        ng-init="initialize('campaignSummary', '$user_id', '$api_url','$settlement_id')"
+    >
+        <span class="tablet_and_desktop nav_bar campaign_summary_gradient"></span>
+        <span class="nav_bar_mobile mobile_only campaign_summary_gradient"></span>
+        <span class="top_nav_spacer mobile_only"> hidden </span>
 
-        -->
+        <div class="campaign_summary_headline_container">
+            <h1 class="settlement_name"> %s {{settlement_sheet.name}}</h1>
+            <p class="campaign_summary_campaign_type">{{settlement.game_assets.campaign.name}}</p>
+            <p>Population:
+                {{settlement.sheet.population}}
+                ({{settlement.sheet.population_by_sex.M}}M/{{settlement.sheet.population_by_sex.F}}F)<span ng-if="settlement.sheet.death_count > 0">; 
+                    {{settlement.sheet.death_count}} death<span ng-if="settlement.sheet.death_count > 1">s</span>
+                </span>
+            </p>
+            <hr class="mobile_only"/>
+            <p>Lantern Year: {{settlement.sheet.lantern_year}}, Survival Limit: {{settlement.sheet.survival_limit}}</p>
+            <hr class="mobile_only"/>
+        </div> <!-- campaign_summary_headline_container -->
 
-        <script src="/media/campaignSummary.js?v=$application_version"></script>
+        <div class="campaign_summary_panels_container">
 
-        <div
-            id = "campaign_summary_angularjs_controller_container"
-            ng-init="initialize('campaignSummary', '$user_id', '$api_url','$settlement_id')"
-        >
-            <span class="tablet_and_desktop nav_bar campaign_summary_gradient"></span>
-            <span class="nav_bar_mobile mobile_only campaign_summary_gradient"></span>
-            <span class="top_nav_spacer mobile_only"> hidden </span>
-
-            <div class="campaign_summary_headline_container">
-                <h1 class="settlement_name"> %s {{settlement_sheet.name}}</h1>
-                <p class="campaign_summary_campaign_type">{{settlement.game_assets.campaign.name}}</p>
-                <p>Population: $population ($sex_count); $death_count deaths</p>
-                <hr class="mobile_only"/>
-                <p>Lantern Year: {{settlement.sheet.lantern_year}}, Survival Limit: $survival_limit</p>
-                <hr class="mobile_only"/>
-            </div> <!-- campaign_summary_headline_container -->
-
-            <a id="edit_hunting_party" class="mobile_only"></a>
-
-            <span class="vertical_spacer desktop_only"></span>
+            <div
+                ng-if="settlement.user_assets.survivors.length == 0"
+                class="kd_alert user_asset_sheet_error"
+            >
+                    <b>{{settlement.sheet.name}}</b> does not have any survivors!
+                    Use the navigation menu controls in the upper left to add new survivors.
+            </div>
 
 
-            <div class="campaign_summary_panels_container">
+            <div
+                class="campaign_summary_survivors_container"
+                ng-if="settlement.user_assets.survivors.length >= 0"
+                ng-controller="survivorManagementController"
+            >
 
-                $survivors
+            <h2>- Survivors - </h2>
+            <p class="subtitle">Tap or click a survivor for management options.</p>
 
-                <hr class="mobile_only invisible">
-                <br class="mobile_only">
+                <div
+                    class="campaign_summary_survivors_group"
+                    ng-repeat="group in settlement.user_assets.survivor_groups"
+                    ng-if="group.survivors.length >= 1"
+                    ng-init="containerID = group.handle + '_container'; group.arrow = false; "
+                >
 
-                <div class="campaign_summary_facts_box">
+                    <h3 title="group.title_tip" ng-click="showHide(containerID); flipArrow(group)" class="clickable {{group.handle}}">
+                        <span ng-if="group.arrow == true || group.arrow == undefined">
+                            &#x25B2;
+                        </span>
+                        <span ng-if="group.arrow == false">
+                            &#x25BC;
+                        </span>
+
+                        {{group.name}} ({{group.survivors.length}})
+                    </h3>
+
+                    <div id="{{containerID}}" >
+
+                        <div
+                            class="campaign_summary_survivor_container {{group.handle}}"
+                            ng-repeat="s in group.survivors"
+                            ng-init="initSurvivorCard(s)"
+                        >
+                            <button
+                                class="campaign_summary_survivor {{group.handle}}"
+                                ng-click="showSurvivorControls(s)"
+                                ng-class="{
+                                    disabled: s.meta.manageable == false,
+                                    survivor_sheet_gradient: s.meta.manageable == true,
+                                    dead_survivor_gradient: s.sheet.dead == true,
+                                    affinity_red: s.sheet.savior == 'red',
+                                    affinity_green: s.sheet.savior == 'green',
+                                    affinity_blue: s.sheet.savior == 'blue',
+                                }"
+                            >
+                                <div
+                                    ng-if="s.meta.returning_survivor == true && s.sheet.dead != true"
+                                    class="campaign_summary_survivor_returning_flash"
+                                >
+                                    Returning Survivor
+                                </div>
+
+                                <div class="avatar_and_summary">
+                                    <div class="avatar">
+                                        <span class="death_x" ng-if="s.sheet.dead == true">
+                                            X
+                                        </span>
+                                        <img
+                                            class="campaign_summary_avatar"
+                                            ng-if="s.sheet.avatar != undefined"
+                                            ng-src="/get_image?id={{s.sheet.avatar.$oid}}"
+                                        />
+                                        <img
+                                            class="campaign_summary_avatar"
+                                            ng-if="s.sheet.avatar == undefined"
+                                            ng-src="/media/default_avatar_{{s.sheet.effective_sex}}.png"
+                                        />
+                                    </div>
+                                    <div class="summary">
+                                        <div
+                                            class="name"
+                                            ng-class="{maroon_text: s.sheet.dead == true}"
+                                        >
+                                            <b>{{s.sheet.name}}</b> [{{s.sheet.effective_sex}}]
+                                        </div>
+
+                                        <div class="epithets">
+                                            <span ng-repeat="e in s.sheet.epithets">
+                                                {{settlement.game_assets.epithets[e].name}}{{$last ? '' : ', '}}
+                                            </span>
+                                        </div>
+                                        <div class="attr_holder">
+                                            <div class="attr maroon_text" ng-if="s.sheet.dead == true">
+                                                <b>Died in Lantern Year {{s.sheet.died_in}} </b>
+                                            </div>
+                                            <div class="attr COD maroon_text" ng-if="s.sheet.dead == true">
+                                                Cause of death: {{s.sheet.cause_of_death}}
+                                            </div>
+                                            <div class="attr">Hunt XP: {{s.sheet.hunt_xp}}</div>
+                                            <div class="attr">Survival: {{s.sheet.survival}}</div>
+                                            <div class="attr" ng-class="{maroon_text: s.sheet.Insanity >= 3}">Insanity: {{s.sheet.Insanity}}</div>
+                                            <div class="attr">Courage: {{s.sheet.Courage}}</div>
+                                            <div class="attr">Understanding: {{s.sheet.Understanding}}</div>
+                                        </div> <!-- attr_holder -->
+
+                                    </div> <!-- summary -->
+                                </div> <!-- avatar_and_summary -->
+
+                                <div class="campaign_summary_survivor_tags_container">
+                                    <!-- NOT IMPLEMENTED -->
+                                </div>
+
+                                <div
+                                    ng-if="s.sheet.constellation != undefined"
+                                    class="campaign_summary_survivor_constellation dragon_king"
+                                >
+                                    {{s.sheet.constellation}}
+                                </div>
+
+                            </button>
+
+                            <div
+                                id="{{s.sheet._id.$oid}}_modal_controls"
+                                class="hidden modal survivor_controls modal-black"
+                            >
+                                <h3><b>{{s.sheet.name}}</b> [{{s.sheet.effective_sex}}]</h3>
+
+                                <div class="avatar_and_stats">
+                                    <img
+                                        ng-src="/get_image?id={{s.sheet.avatar.$oid}}"
+                                        ng-if="s.sheet.avatar != undefined"
+                                    />
+                                    <img
+                                        ng-if="s.sheet.avatar == undefined"
+                                        ng-src="/media/default_avatar_{{s.sheet.effective_sex}}.png"
+                                    />
+
+                                    <table class="stats_table">
+                                        <tr><th></th><th>Base </th><th>Gear </th><th>Tok</th></tr>
+                                        <tr>
+                                            <td class="key">MOV:</td>
+                                            <td>{{s.sheet.Movement}}</td>
+                                            <td>{{s.sheet.attribute_detail.Movement.gear}}</td>
+                                            <td>{{s.sheet.attribute_detail.Movement.tokens}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="key">ACC:</td>
+                                            <td>{{s.sheet.Accuracy}}</td>
+                                            <td>{{s.sheet.attribute_detail.Accuracy.gear}}</td>
+                                            <td>{{s.sheet.attribute_detail.Accuracy.tokens}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="key">STR:</td>
+                                            <td>{{s.sheet.Strength}}</td>
+                                            <td>{{s.sheet.attribute_detail.Strength.gear}}</td>
+                                            <td>{{s.sheet.attribute_detail.Strength.tokens}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="key">EVA:</td>
+                                            <td>{{s.sheet.Evasion}}</td>
+                                            <td>{{s.sheet.attribute_detail.Evasion.gear}}</td>
+                                            <td>{{s.sheet.attribute_detail.Evasion.tokens}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="key">LUCK:</td>
+                                            <td>{{s.sheet.Luck}}</td>
+                                            <td>{{s.sheet.attribute_detail.Luck.gear}}</td>
+                                            <td>{{s.sheet.attribute_detail.Luck.tokens}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="key">SPD:</td>
+                                            <td>{{s.sheet.Speed}}</td>
+                                            <td>{{s.sheet.attribute_detail.Speed.gear}}</td>
+                                            <td>{{s.sheet.attribute_detail.Speed.tokens}}</td>
+                                        </tr>
+                                    </table>
+                                </div> <!-- avatar and stats -->
+
+                                <div class="campaign_summary_survivor_attrib_tumblers">
+                                    <div class="tumbler">
+                                        <button
+                                            ng-click="modifySurvivorAttrib(s, 'survival', 1, settlement.sheet.survival_limit)"
+                                            ng-class="{disabled: s.sheet.survival == settlement.sheet.survival_limit}"
+                                        >
+                                            &#9652;
+                                        </button>
+                                        <div class="value">{{s.sheet.survival}}</div>
+                                        Survival
+                                        <button
+                                            ng-click="modifySurvivorAttrib(s, 'survival', -1)"
+                                            ng-class="{disabled: s.sheet.survival == 0}"
+                                        >
+                                            &#9662;
+                                        </button>
+                                    </div>
+                                    <div class="tumbler">
+                                        <button
+                                            ng-click="modifySurvivorAttrib(s, 'Insanity', 1)"
+                                        >
+                                            &#9652;
+                                        </button>
+                                        <div
+                                            class="value"
+                                            ng-class="{maroon_text: s.sheet.Insanity >= 3}"
+                                        >
+                                            {{s.sheet.Insanity}}
+                                        </div>
+                                        Insanity
+                                        <button
+                                            ng-click="modifySurvivorAttrib(s, 'Insanity', -1)"
+                                            ng-class="{disabled: s.sheet.Insanity == 0}"
+                                        >
+                                            &#9662;
+                                        </button>
+                                    </div>
+                                    <div class="tumbler">
+                                        <button
+                                            ng-click="modifySurvivorAttrib(s, 'Courage', 1, 9)"
+                                            ng-class="{disabled: s.sheet.Courage == 9}"
+                                        >
+                                            &#9652;
+                                        </button>
+                                        <div class="value">{{s.sheet.Courage}}</div>
+                                        Courage
+                                        <button
+                                            ng-click="modifySurvivorAttrib(s, 'Courage', -1)"
+                                            ng-class="{disabled: s.sheet.Courage == 0}"
+                                        >
+                                            &#9662;
+                                        </button>
+                                    </div>
+                                    <div class="tumbler">
+                                        <button
+                                            ng-click="modifySurvivorAttrib(s, 'Understanding', 1, 9)"
+                                            ng-class="{disabled: s.sheet.Understanding == 9}"
+                                        >
+                                            &#9652;
+                                        </button>
+                                        <div class="value">{{s.sheet.Understanding}}</div>
+                                        Understanding
+                                        <button
+                                            ng-click="modifySurvivorAttrib(s, 'Understanding', -1)"
+                                            ng-class="{disabled: s.sheet.Understanding == 0}"
+                                        >
+                                            &#9662;
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <form action="" method="POST">
+                                    <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
+                                    <button
+                                        class="modal_manager survivor_sheet_gradient"
+                                        onclick="showFullPageLoader()"
+                                        ng-click="showHide(s.sheet._id.$oid + '_modal_controls');"
+                                    >
+                                        Edit <b>Survivor Sheet</b>
+                                    >
+                                    </button>
+                                </form>
+
+                                <div
+                                    ng-if="
+                                        group.handle == 'available' ||
+                                        group.handle == 'favorite' ||
+                                        group.handle == 'departing'
+                                    "
+                                >
+                                    <button
+                                        ng-if="s.sheet.departing == true"
+                                        ng-click="
+                                            toggleDepartingStatus(s);
+                                            showHide(s.sheet._id.$oid + '_modal_controls');
+                                        "
+                                        class="modal_manager departing_toggle"
+                                    >   Leave <b>Departing</b> Survivors
+                                    </button>
+                                    <button
+                                        ng-if="s.sheet.departing != true"
+                                        ng-click="
+                                            toggleDepartingStatus(s);
+                                            showHide(s.sheet._id.$oid + '_modal_controls');
+                                        "
+                                        class="modal_manager departing_toggle"
+                                    >   Join <b>Departing</b> Survivors
+                                    </button>
+                                </div> <!-- conditional -->
+
+                                <hr>
+
+                                <button
+                                    class="modal_manager"
+                                    ng-click="showHide(s.sheet._id.$oid + '_modal_controls')"
+                                > Back
+                                </button>
+
+                            </div> <!-- modal controls -->
+
+
+                        </div> <!-- survivor container -->
+
+                    </div><!-- show/hide container -->
+
+                </div> <!-- survivors_group -->
+
+                <footer ng-repeat-end ng-init="checkManageable()"></footer>
+
+            </div> <!-- campaign_summary_survivors_container -->
+
+            <div class="campaign_summary_facts_box">
 
                 $special_rules
 
-
-                <!-- angular.js Endeavors app -->
-
-                <a id="endeavors"><hr class="mobile_only"/></a>
-
-                <div ng-if="user_is_settlement_admin" class="$show_endeavor_controls">
+                <div ng-if="user_is_settlement_admin" class="$show_endeavor_controls campaign_summary_small_box">
                     <div
                         title="Manage settlement Endeavor tokens here! Settlement admins may use the controls at the right to increment or decrement the total number of tokens!"
                         class="campaign_summary_endeavor_controller"
@@ -3600,7 +3798,7 @@ class settlement:
                             ng-click="addToken()"
                             class="endeavor_controls_toggle settlement_sheet_block_group clickable"
                         >
-                            <h2>Endeavor Tokens</h2>
+                            <h4>- Endeavor Tokens -</h4>
                             <span>Click or tap here to manage Endeavor Tokens.</span>
                         </div>
 
@@ -3608,10 +3806,10 @@ class settlement:
 
                     </div>
 
-
                 </div> <!-- show_endeavor_controls -->
+
             <hr class="mobile_only">
-            <!-- endeavors app -->
+
 
             <div class="campaign_summary_small_box endeavor_box">
                 <h4>- Available Endeavors -</h4>
@@ -3697,115 +3895,138 @@ class settlement:
     -->
 
 
-    <button class="manage_departing_survivors $show_departing_survivors_management_button" id="departingSurvivorsModalOpener">Manage <b>Departing</b> Survivors</button>
+    <button
+        id="departingSurvivorsModalOpener"
+        class="manage_departing_survivors"
+        ng-if="departing_survivor_count > 0"
+        onclick="showHide('departingSurvivorsModalContent')"
+    >
+        Manage {{departing_survivor_count}} <b>Departing</b> Survivors
+    </button>
 
     <div
-        id="departingSurvivorsModalContent" class="modal"
+        id="departingSurvivorsModalContent"
+        class="hidden modal modal-black"
         ng-controller="manageDepartingSurvivorsController"
-        ng-init="registerModalDiv('departingSurvivorsModalOpener','departingSurvivorsModalContent');"
     >
-        <div class="modal-content survivor_sheet_gradient">
-        <span class="closeModal" onclick="closeModal('departingSurvivorsModalContent')">x</span>
-        <h3>Modify Departing Survivors</h3>
-        <div class="hunting_party_macro" style="border-left: 0 none;">
-          <form action="#" method="POST">
-            <input type="hidden" name="modify" value="settlement"/>
-            <input type="hidden" name="asset_id" value="$settlement_id"/>
-            <input type="hidden" name="hunting_party_operation" value="survival"/>
-            <p>Survival</p>
-            <button name="operation" value="increment">+1</button>
-            <button name="operation" value="decrement">-1</button>
-        </form>
-      </div>
-      <div class="hunting_party_macro">
-        <form action="#" method="POST">
-            <input type="hidden" name="modify" value="settlement"/>
-            <input type="hidden" name="asset_id" value="$settlement_id"/>
-            <input type="hidden" name="hunting_party_operation" value="Brain Event Damage"/>
-            <p>Brain Event Damage</p>
-            <button name="operation" value="increment">+1</button>
-        </form>
-      </div>
-        <hr class="invisible mobile_only"/>
-      <div class="hunting_party_macro">
-        <form action="#" method="POST">
-            <input type="hidden" name="modify" value="settlement"/>
-            <input type="hidden" name="asset_id" value="$settlement_id"/>
-            <input type="hidden" name="hunting_party_operation" value="Insanity"/>
-            <p>Insanity</p>
-            <button name="operation" value="increment">+1</button>
-            <button name="operation" value="decrement">-1</button>
-        </form>
-      </div>
-      <div class="hunting_party_macro">
-        <form action="#" method="POST">
-            <input type="hidden" name="modify" value="settlement"/>
-            <input type="hidden" name="asset_id" value="$settlement_id"/>
-            <input type="hidden" class="clear_both" name="hunting_party_operation" value="Courage"/>
-            <p>Courage</p>
-            <button name="operation" value="increment">+1</button>
-            <button name="operation" value="decrement">-1</button>
-        </form>
-      </div>
-      <hr class="invisible mobile_only"/>
-      <div class="hunting_party_macro">
-        <form action="#" method="POST">
-            <input type="hidden" name="modify" value="settlement"/>
-            <input type="hidden" name="asset_id" value="$settlement_id"/>
-            <input type="hidden" name="hunting_party_operation" value="Understanding"/>
-            <p>Understanding</p>
-            <button name="operation" value="increment">+1</button>
-            <button name="operation" value="decrement">-1</button>
-        </form>
-      </div>
+        <h3>Manage Departing Survivors</h3>
+        <p class="modal_subtitle">Use the controls below to modify all <i>living</i>
+        survivors in the <b>Departing Survivors</b> group. </p>
 
-        <hr/>
+        <div class="departing_survivors_control">
+            <div class="label_div">Survival</div>
+            <div class="button_div">
+                <button
+                    ng-click="updateDepartingSurvivors('survival', +1)"
+                > +1
+                </button>
+                <button
+                    ng-click="updateDepartingSurvivors('survival', -1)"
+                > -1
+                </button>
+            </div> <!-- button div -->
+        </div> <!-- departing_survivors_control Survival -->
 
-        <h3 class="return_departing_survivors_modal">Target Monster:</h3>
+        <div class="departing_survivors_control">
+            <div class="label_div">Insanity</div>
+            <div class="button_div">
+                <button
+                    ng-click="updateDepartingSurvivors('Insanity', +1)"
+                > +1
+                </button>
+                <button
+                    ng-click="updateDepartingSurvivors('Insanity', -1)"
+                > -1
+                </button>
+            </div> <!-- button div -->
+        </div> <!-- departing_survivors_control Insanity -->
 
-        <select
-            id="set_departing_survivors_current_quarry"
-            class="hunting_party_current_quarry"
-            name="current_quarry"
-            ng-model="current_quarry"
-            ng-change="saveCurrentQuarry()"
-            ng-options="d for d in settlement.game_assets.defeated_monsters"
-        >
-            <option disabled selected value="">Set Target Monster</option>
-        </select>
+        <div class="departing_survivors_control">
+            <div class="label_div">Courage</div>
+            <div class="button_div">
+                <button
+                    ng-click="updateDepartingSurvivors('Courage', +1)"
+                > +1
+                </button>
+                <button
+                    ng-click="updateDepartingSurvivors('Courage', -1)"
+                > -1
+                </button>
+            </div> <!-- button div -->
+        </div> <!-- departing_survivors_control Insanity -->
 
-        <hr/>
+        <div class="departing_survivors_control">
+            <div class="label_div">Understanding</div>
+            <div class="button_div">
+                <button
+                    ng-click="updateDepartingSurvivors('Understanding', +1)"
+                > +1
+                </button>
+                <button
+                    ng-click="updateDepartingSurvivors('Understanding', -1)"
+                > -1
+                </button>
+            </div> <!-- button div -->
+        </div> <!-- departing_survivors_control Understanding -->
 
-        <div class="departing_survivors_modal_return_container">
-            <h3 class="return_departing_survivors_modal" >Return Departing Survivors</h3>
+        <div class="departing_survivors_control">
+            <div class="label_div">Brain Event Damage</div>
+            <div class="button_div">
+                <button
+                    ng-click="updateDepartingSurvivors('brain_event_damage', 1)"
+                    class="maroon_text"
+                > 1
+                </button>
+            </div> <!-- button div -->
+        </div> <!-- departing_survivors_control brain event damage -->
 
-            <form
-                action="/"
-                method="POST"
-                onsubmit="return confirm('Press OK to return all Departing Survivors. This will automatically do the following for each living Departing Survivor: \\r - Remove them from the Departing Survivors group \\r - Mark them as a returning survivor during the upcoming Lantern Year \\r - Uncheck all hit location boxes \\r - Remove all armor points \\r - Remove all attribute tokens and gear modifiers \\r - Increment Hunt XP by +1 \\r - Increment Hunt XP by +4 for Saviors \\r \\rReturning Departing Survivors will also: \\r Add the current quarry to the Defeated Monsters list \\r Add the current quarry to the settlement timeline for this year \\r Update the settlement Event Log');"
+
+        <h3>Showdown</h3>
+        <p class="modal_subtitle">Use the controls below to select the monster
+        facing the survivors in the current Showdown. </p>
+
+        <div class="current_hunt_container">
+            <select
+                id="set_departing_survivors_current_quarry"
+                class="hunting_party_current_quarry"
+                name="current_quarry"
+                ng-model="current_quarry"
+                ng-change="saveCurrentQuarry()"
+                ng-options="d for d in settlement.game_assets.defeated_monsters"
             >
-                <input type="hidden" name="return_departing_survivors" value="victory"/>
-                <input type="hidden" name="asset_id" value="$settlement_id"/>
-                <button class="kd_blue return_departing_survivors">Victorious!</button>
-            </form>
-
-            <br/>
-
-            <form
-                action="/"
-                method="POST"
-                onsubmit="return confirm('Press OK to return all Departing Survivors. This will automatically do the following for each Departing Survivor: \\r - Remove them from the Departing Survivors group \\r - Uncheck all hit location boxes \\r - Remove all armor points \\r - Remove all attribute tokens and gear modifiers \\r \\rReturning Departing Survivors will also: \\r Add the current quarry to the settlement timeline for this year \\ Update the settlement Event Log ');"
-            >
-                <input type="hidden" name="return_departing_survivors" value="defeat"/>
-                <input type="hidden" name="asset_id" value="$settlement_id"/>
-                <button class="kd_alert_no_exclaim red_glow return_departing_survivors">Defeated...</button>
-            </form>
-
-
-            <br/><br/>
+                <option disabled selected value="">Set Target Monster</option>
+            </select>
         </div>
 
-        </div> <!-- modal-content -->
+        <h3>Return Survivors</h3>
+        <p class="modal_subtitle">Use the buttons below to return <b>Departing</b>
+        Survivors to <b>{{settlement.sheet.name}}</b>. This automatically removes
+        armor points, attribute modifiers and damage. Living survivors' Hunt XP
+        will be automatically incremented, if victorious.</p>
+
+        <button
+            class="kd_blue departing_survivors_mgmt"
+            ng-click="returnDepartingSurvivors('victory')"
+            onclick="showHide('departingSurvivorsModalContent')"
+        >
+            Victorious!
+        </button>
+        <button
+            class="kd_alert_no_exclaim departing_survivors_mgmt"
+            ng-click="returnDepartingSurvivors('defeat')"
+            onclick="showHide('departingSurvivorsModalContent')"
+        >
+            Defeated...
+        </button>
+
+        <hr>
+
+        <button
+            class="departing_survivors_mgmt"
+            onclick="showHide('departingSurvivorsModalContent')"
+        >
+            <b>Back</b>
+        </button>
     </div> <!-- modalDepartingSurvivors whole deal-->
 
 
@@ -3881,12 +4102,6 @@ class settlement:
     \n""" % dashboard.campaign_flash)
 
     form = Template("""\n\
-        <!--
-
-            Sttlement Sheet App starts here! Beware of JS inheritance (because
-            it hates you and it hates freedom and it will ruin your life).
-
-        -->
 
         <script src="/media/settlementSheet.js?v=$application_version"></script>
 
@@ -4762,7 +4977,7 @@ class meta:
 
     burger_top_level_button = Template("""\n
     <form method="POST" action="/"><input type="hidden" name="change_view" value="$view"/>
-    <button class="sidenav_top_level"> $link_text </button>
+    <button class="sidenav_top_level" onclick="showFullPageLoader(); closeNav()"> $link_text </button>
     </form>
     \n""")
     burger_new_settlement = '<div id="mySidenav" class="sidenav">' + burger_top_level_button.safe_substitute(link_text = "Return to Dashboard", view = "dashboard") + '</div><!-- mySidenav -->' + '<button id="floating_dashboard_button" class="gradient_silver" onclick="openNav()"> &#9776; </button>'
@@ -4776,7 +4991,7 @@ class meta:
     burger_change_view_button = Template("""\n
     <form method="POST" action="/">
     <input type="hidden" name="$target_view" value="$settlement_id" />
-    <button class="sidenav_button">$link_text</button>
+    <button class="sidenav_button" onclick="showFullPageLoader(); closeNav()">$link_text</button>
     </form>
     \n""")
 
@@ -4789,7 +5004,7 @@ class meta:
     \n""")
 
     burger_anchors_campaign_summary = """\n
-    <a href="#edit_hunting_party" onclick="closeNav()">Survivors</a>
+    <a href="#" onclick="closeNav()">Survivors</a>
     <a href="#endeavors" onclick="closeNav()">Endeavors</a>
     <a href="#principles" onclick="closeNav()">Principles</a>
     <a href="#innovations" onclick="closeNav()">Innovations</a>
@@ -4948,24 +5163,6 @@ def render_burger(session_object=None):
         actions += '<button id="settlementNotesOpenerButton" class="sidenav_button">Notes and Players</button>'
 
 
-    # now add quick links to departing survivors for admins
-    departing = ""
-    hunting_party = []
-    if session_object.User.user["login"] in session_object.Settlement.get_admins():
-        hunting_party = session_object.Settlement.get_survivors(return_type="hunting_party")
-        if hunting_party != []:
-            departing = "<h3>Departing Survivors:</h3>"
-            for h in hunting_party:
-                if h["_id"] == session_object.session["current_asset"]:
-                    pass
-                else:
-                    departing += meta.burger_change_view_button.safe_substitute(
-                        link_text = "%s (%s)" % (h["name"],h["sex"]),
-                        target_view = "view_survivor",
-                        settlement_id = h["_id"],
-                    )
-
-
     burger_panel = Template("""\n
         <!-- $current_view burger -->
 
@@ -4974,18 +5171,27 @@ def render_burger(session_object=None):
           $new_settlement_button
             <hr/>
             <h3>$settlement_name:</h3>
-              $action_map
-              $departing_links
+            $action_map
 
-            <h3 ng-if="countFavorites() > 0">Favorites</h3>
-                <form
-                    method="POST"
-                    action="/"
-                    ng-repeat="s in settlement.user_assets.survivors | filter: favoriteFilter"
-                >
-                    <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
-                    <button class="sidenav_button">{{s.sheet.name}} ({{s.sheet.effective_sex}})</button>
-                </form>
+            <h3 ng-if="countSurvivors('departing') > 0">Departing</h3>
+            <form
+                method="POST"
+                action="/"
+                ng-repeat="s in settlement.user_assets.survivors | filter: departingFilter"
+            >
+                <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
+                <button class="sidenav_button" onclick="showFullPageLoader(); closeNav()">{{s.sheet.name}} ({{s.sheet.effective_sex}})</button>
+            </form>
+
+            <h3 ng-if="countSurvivors('favorite') > 0">Favorites</h3>
+            <form
+                method="POST"
+                action="/"
+                ng-repeat="s in settlement.user_assets.survivors | filter: favoriteFilter"
+            >
+                <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
+                <button class="sidenav_button" onclick="showFullPageLoader(); closeNav()">{{s.sheet.name}} ({{s.sheet.effective_sex}})</button>
+            </form>
 
             <hr/>
           $report_error
@@ -5011,7 +5217,6 @@ def render_burger(session_object=None):
         report_error=meta.report_error_button,
         signout=signout_button,
         action_map=actions,
-        departing_links=departing,
     )
 
     return output

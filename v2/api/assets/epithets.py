@@ -27,6 +27,7 @@ mar_2016_expansions = {
     'nuclear_warrior': {'expansion': 'dragon_king', 'name': 'Nuclear Warrior'},
     'numerologist': {'expansion': 'dragon_king', 'name': 'Numerologist'},
     'peered_into_destiny': {'expansion': 'dragon_king','name': 'Peered into Destiny'},
+    "pristine": {'expansion': 'dragon_king', 'name': 'Pristine'},
     'reincarnated': {'expansion': 'dragon_king', 'name': 'Reincarnated'},
     'star_gazer': {'expansion': 'dragon_king', 'name': 'Star Gazer'},
     'starbound': {'expansion': 'dragon_king', 'name': 'Starbound'},

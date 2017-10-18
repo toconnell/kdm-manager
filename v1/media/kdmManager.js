@@ -104,7 +104,12 @@ app.filter('orderObjectBy', function() {
 
 app.controller('rootController', function($scope, $rootScope, assetService, $http) {
 
+    // initialize rootScope elements here; these are set on every view
     $rootScope.showHide = showHide;
+
+    //
+    // methods below here
+    //
 
     $scope.legacySignOut = function(session_oid) {;
         console.warn("Attempting legacy sign-out...");
@@ -157,15 +162,23 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
         $scope.view = src_view;
         $scope.survivor_id = survivor_id;
 
+        // initialize misc. scope elements
+        $rootScope.departing_survivor_count = 0;
+
         // declare the view
         console.log("Initializing '" + $scope.view + "' view...");
 
-        // get the user first, since we always at least have a user
-        // determine which user endpoint to hit (i.e. 'get' or 'dashboard')
-        var user_endpoint = "get"
-        if ($scope.view === 'dashboard') {user_endpoint = 'dashboard'; };
+        // set the API endpoints
+        var user_endpoint = 'get'
+        var settlement_endpoint = 'get'
+        if ($scope.view === 'campaignSummary') {
+            settlement_endpoint = 'get_campaign';
+        } else if ($scope.view === 'dashboard') {
+            user_endpoint = 'dashboard';
+        }
 
-        $scope.getJSONfromAPI('user',user_endpoint).then(function(payload) {
+        // first, hit our user_endpoint and init the user
+        $scope.getJSONfromAPI('user', user_endpoint).then(function(payload) {
             $scope.user = payload.data;
             $scope.user_login = $scope.user.user.login;
 
@@ -193,7 +206,8 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
 
         // now load the settlement/survivor from the API if we're doing that
         if ($scope.settlement_id != undefined) {
-            $scope.getJSONfromAPI('settlement','get').then(
+
+            $scope.getJSONfromAPI('settlement',settlement_endpoint).then(
                 function(payload) {
                     // get the settlement; touch-up some of the arrays for UI/UX purposes
                     $scope.settlement = payload.data;
@@ -215,14 +229,19 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
                     $scope.current_quarry = $scope.settlement_sheet.current_quarry;
                     $scope.setEvents();
 
-                    // do user stuff
-                    $scope.user_is_settlement_admin = $scope.arrayContains($scope.user_login, $scope.settlement_sheet.admins);
+                    // eval the user
+                    if ($scope.settlement.sheet.admins.indexOf($scope.user_login) != -1) {
+                        $scope.user_is_settlement_admin = true;
+                        console.warn($scope.user_login + ' is a settlement admin!');
+                    } else {
+                        $scope.user_is_settlement_admin = false;
+                    };
 
                     // finish initializing the settlement
                     console.log("Settlement '" + $scope.settlement_id + "' initialized!");
 
                     // finally, if we're initializing a survivor sheet, do that
-                    if ($scope.view=='survivorSheet') {
+                    if ($scope.view === 'survivorSheet') {
                         console.log('Settlement initialized. $scope.view == survivorSheet. Initializing survivor...');
                         $scope.initializeSurvivor($scope.survivor_id);
                     };
@@ -449,6 +468,7 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
             var asset_id = $scope.settlement_id;
         } else if (collection == 'survivor') {
             var asset_id = $scope.survivor_id;
+            if (asset_id === undefined) {asset_id = $rootScope.survivor_id};
         } else {
             console.error("Collection '" + collection + "' is not supported by postJSONtoAPI method!");  
             errorAlert();
@@ -1085,20 +1105,35 @@ app.controller("sideNavController", function($scope) {
         if (s.sheet.favorite.indexOf($scope.user_login) !== -1) {fav = true};
 //        console.log($scope.user_login + " -> " + s.sheet.name + " fav: " + fav);
         if (s.sheet._id.$oid === $scope.survivor_id) {fav = false};
-        if (s.sheet.dead !== undefined) {fav = false};
+        if (s.sheet.dead === true) {fav = false};
+        if (s.sheet.departing === true) {fav = false};  //exclude departing survivors
         return fav;
     };
 
-    $scope.countFavorites = function() {
-        var userFavorites = 0;
+    $scope.departingFilter = function(s)  {
+        var dep = false;
+        if (s.sheet.departing === true) {dep = true};
+        return dep;
+    };
+
+    $scope.countSurvivors = function(type) {
+        var survivors = 0;
+
         incrementFavorites = function(s, index) {
-            if ($scope.favoriteFilter(s) === true) {userFavorites += 1};
+            if ($scope.favoriteFilter(s) === true) {survivors += 1};
         };
+        incrementDeparting = function(s, index) {
+            if ($scope.departingFilter(s) === true) {survivors += 1};
+        };
+
         if ($scope.settlement !== undefined) {
-            $scope.settlement.user_assets.survivors.forEach(incrementFavorites);
-//        console.log($scope.user_login + " has " + userFavorites + " favorites!");
-        }
-        return userFavorites;
+            if (type === 'favorite') {
+                $scope.settlement.user_assets.survivors.forEach(incrementFavorites);
+            } else if (type === 'departing') {
+                $scope.settlement.user_assets.survivors.forEach(incrementDeparting);
+            };
+        };
+        return survivors;
     };
 });
 

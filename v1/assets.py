@@ -159,23 +159,6 @@ class User:
         return False
 
 
-    def can_manage_departing_survivors(self):
-        """ Checks 'settlement_id' settlement to see if the user can manage the
-        Departing Survivors on the Campaign Summary. This is different than just
-        being a settlement admin, because it takes into account whether there
-        are, in fact, departing survivors to manage. """
-
-        if self.Session.Settlement is None:
-            return False
-
-        if self.Session.Settlement.get_departing_survivors() == []:
-            return False
-
-        if self.is_settlement_admin:
-            return True
-
-        return False
-
 
     def get_preference(self, p_key):
         """ The 'p_key' kwarg should be a preference key. This funciton returns
@@ -529,7 +512,6 @@ class Survivor:
         if self.survivor is None:
             survivor_id = self.new(params)
 
-        self.set_api_asset()
 
         if self.Settlement is not None:
             self.normalize()
@@ -538,34 +520,6 @@ class Survivor:
     #
     #   Survivor meta and manager-only methods below
     #
-
-    def set_api_asset(self):
-        """ Tries to set the survivor's API asset from the session. Fails
-        gracefully if it cannot. """
-
-        self.api_asset = {}
-        if not hasattr(self.Session, "api_survivors") or self.Session.session["current_view"] == "dashboard":
-            return None
-        try:
-            self.api_asset = self.Session.api_survivors[self.survivor["_id"]]["sheet"]
-        except Exception as e:
-            self.logger.error("[%s] could not set API asset for %s! Current view: '%s'" % (self.User, self, self.Session.session["current_view"]))
-            pass
-
-
-    def get_api_asset(self, asset_key):
-        """ Tries to get an asset from the api_asset attribute/dict. This is the
-        version of this for SURVIVORS, not for settlements (which is below). """
-
-        if not hasattr(self, "api_asset"):
-            self.set_api_asset()
-
-        if not asset_key in self.api_asset.keys():
-            self.logger.warn("[%s] api_asset key '%s' does not exist for %s!" % (self.User, asset_key, self))
-            self.logger.debug("[%s] available API asset keys for %s: %s" % (self.User, self, self.api_asset.keys()))
-            return {}
-        else:
-            return self.api_asset[asset_key]
 
 
     def set_objects_from_session(self, session_object=None):
@@ -758,96 +712,6 @@ class Survivor:
         return returning
 
 
-    def heal(self, cmd, heal_armor=False, increment_hunt_xp=False, remove_attribute_detail=False, return_to_settlement=False):
-        """ This removes the keys defined in self.damage_locations from the
-        survivor's MDB object. It can also do some game logic, e.g. remove armor
-        points and increment hunt XP.
-
-            'heal_armor'        -> bool; use to zero out armor in addition to
-                removing self.damage_location keys
-            'increment_hunt_xp' -> int; increment hunt XP by whatever
-
-        """
-
-        if cmd == "Heal Injuries and Remove Armor":
-            heal_armor=True
-        elif cmd == "Return from Hunt":
-            return_to_settlement = True
-            remove_attribute_detail=True
-            heal_armor=True
-            increment_hunt_xp=1
-
-            # record this as a year that we're a returning survivor
-            self.update_returning_survivor_years(self.Settlement.settlement["lantern_year"])
-
-            # bump up the increment number for saviors
-            if "savior" in self.survivor.keys():
-                increment_hunt_xp=4
-
-
-        if return_to_settlement:
-#            if "in_hunting_party" in self.survivor.keys():
-            if self.survivor.get("in_hunting_party", None) == "checked":
-                del self.survivor["in_hunting_party"]
-
-
-        for damage_loc in self.damage_locations:
-            try:
-                del self.survivor[damage_loc]
-            except:
-                pass
-
-        if heal_armor:
-            for armor_loc in ["Head","Arms","Body","Waist","Legs"]:
-                self.survivor[armor_loc] = 0
-
-        if increment_hunt_xp and not "dead" in self.survivor.keys():
-            current_xp = int(self.survivor["hunt_xp"])
-            self.survivor["hunt_xp"] = current_xp + increment_hunt_xp
-
-        if remove_attribute_detail:
-            if "attribute_detail" in self.survivor.keys():
-                del self.survivor["attribute_detail"]
-
-
-        self.logger.debug("[%s] has healed %s: command = '%s'" % (self.User, self, cmd))
-        mdb.survivors.save(self.survivor)
-
-
-    def update_returning_survivor_years(self, add_year=None):
-        """ Update/modify the self.survivor["returning_survivor"] list (which
-        is a list of lantern years normalized to be a set of integers). """
-
-        r = "returning_survivor"
-
-        if not r in self.survivor.keys():
-            self.survivor[r] = []
-
-        if add_year is not None and not "dead" in self.survivor.keys():
-            add_year = int(add_year)
-            self.survivor[r].append(add_year)
-
-        self.survivor[r] = list(set(self.survivor[r]))
-
-
-    def brain_damage(self, dmg=1):
-        """ Damages the survivor's brain, removing insanity or toggling the
-        brain box "on" as appropriate. """
-
-        ins = int(self.survivor["Insanity"])
-
-        if ins > 0:
-            self.survivor["Insanity"] = int(self.survivor["Insanity"]) - dmg
-        elif ins <= 0 and "brain_damage_light" in self.survivor.keys():
-            self.logger.debug("%s would suffer Brain Trauma." % self)
-        elif ins <= 0 and not "brain_damage_light" in self.survivor.keys():
-            self.survivor["brain_damage_light"] = "checked"
-        else:
-            self.logger.exception("Something bad happened!")
-
-        self.logger.debug("Inflicted brain damage on %s successfully!" % self)
-
-
     def toggle(self, toggle_key, toggle_value, toggle_type="implicit"):
         """ Toggles an attribute on or off. The 'toggle_value' arg is either
         going to be a MiniFieldStorage list (from cgi.FieldStorage) or its going
@@ -877,38 +741,6 @@ class Survivor:
                 return True
 
         mdb.survivors.save(self.survivor)
-
-
-    def get_avatar(self, return_type=False):
-        """ Returns the avatar's GridFS id AS A STRING if you don't specify a
-        'return_type'. Use 'html' to get an img element back. """
-
-        if return_type in ["html_desktop", "html_mobile"]:
-            if return_type == "html_desktop":
-                hide_class = "desktop_only"
-            elif return_type == "html_mobile":
-                hide_class = "mobile_and_tablet"
-
-            avatar_url = "/media/default_avatar_male.png"
-            if self.get_api_asset("effective_sex") == "F":
-                avatar_url = "/media/default_avatar_female.png"
-            if "avatar" in self.survivor.keys():
-                avatar_url = "/get_image?id=%s" % self.survivor["avatar"]
-
-            return html.survivor.clickable_avatar_upload.safe_substitute(
-                survivor_id=self.survivor["_id"],
-                alt_text="Click to change the avatar image for %s" % self,
-                img_src=avatar_url,
-                img_class=hide_class,
-            )
-
-        if return_type == "html_campaign_summary":
-            img_element = '<img class="survivor_avatar_image_campaign_summary" src="/get_image?id=%s"/>' % (self.survivor["avatar"])
-            return img_element
-
-        return self.survivor["avatar"]
-
-
 
 
 
@@ -1119,14 +951,11 @@ class Survivor:
         gracefully if it cannot. Includes special handling for certain
         attributes. """
 
-        if attrib == "in_hunting_party":
-            self.join_departing_survivors()
-        else:
-            try:
-                del self.survivor[attrib]
-                self.logger.debug("[%s] removed '%s' key from %s" % (self.User, attrib, self))
-            except:
-                self.logger.error("[%s] attempted to remove '%s' key from %s, but that key does not exist!" % self.User, attrib, self)
+        try:
+            del self.survivor[attrib]
+            self.logger.debug("[%s] removed '%s' key from %s" % (self.User, attrib, self))
+        except:
+            self.logger.error("[%s] attempted to remove '%s' key from %s, but that key does not exist!" % self.User, attrib, self)
 
 
     def update_survivor_notes(self, action="add", note=None):
@@ -1212,21 +1041,6 @@ class Survivor:
 
 
 
-    def join_departing_survivors(self):
-        """ Toggles whether the survivor is in the Departing Survivors group or
-        not. Watch out for biz logic here! """
-
-        if not "in_hunting_party" in self.survivor.keys():
-            self.survivor["in_hunting_party"] = "checked"
-            msg = "added %s to" % self
-        else:
-            del self.survivor["in_hunting_party"]
-            msg = "removed %s from" % self
-
-        self.Settlement.log_event("%s %s the Departing Survivors group." % (self.User.user["login"], msg))
-        self.logger.debug("[%s] %s the Departing Survivors group." % (self.User, msg))
-
-
 
     def modify(self, params):
         """ Reads through a cgi.FieldStorage() (i.e. 'params') and modifies the
@@ -1236,7 +1050,7 @@ class Survivor:
 
         ignore_keys = [
             # legacy keys (soon to be deprecated)
-            "heal_survivor","form_id",
+            "form_id",
             # misc controls that we're already done with by now
             "norefresh", "modify", "view_game", "asset_id",
         ]
@@ -1259,8 +1073,6 @@ class Survivor:
                 pass
             elif p == "survivor_avatar":
                 self.update_avatar(params[p])
-            elif p == "in_hunting_party":
-                self.join_departing_survivors()
             elif p == "partner_id":
                 self.update_partner(game_asset_key)
             elif p == "expansion_attribs":
@@ -1291,9 +1103,6 @@ class Survivor:
             if heavy in self.survivor.keys() and not light in self.survivor.keys():
                 self.survivor[light] = "checked"
 
-        # do healing absolutely last
-        if "heal_survivor" in params:
-            self.heal(params["heal_survivor"].value)
 
         # this is the big save. This should be the ONLY SAVE we do during a self.modify()
         self.save()
@@ -1324,10 +1133,6 @@ class Survivor:
                 if "retired" in self.survivor.keys():
                     button_class = "warn"
                     attribs.append("Retired")
-
-            if "returning" in include:
-                if self.Settlement.get_ly() in self.get_returning_survivor_years():
-                    attribs.append("Returning Survivor")
 
             if "settlement_name" in include:
                 attribs.append(self.Settlement.settlement["name"])
@@ -1877,200 +1682,6 @@ class Settlement:
             return raw_value
 
 
-
-
-    def get_genealogy(self, return_type=False):
-        """ Creates a dictionary of the settlement's various clans. """
-
-        # helper func to render survivors as html spans
-        def survivor_to_span(S, display="inline"):
-            """ Turns a survivor into an HTML span for genealogy use. """
-            span = ""
-            class_color = "green_text"
-            born = ""
-            if "born_in_ly" in S.survivor.keys():
-                born = "- born in LY %s" % S.survivor["born_in_ly"]
-            dead = ""
-            if "dead" in S.survivor.keys():
-                class_color = "maroon_text"
-                dead = "- died"
-                if "died_in" in S.survivor.keys():
-                    dead = "- died in LY %s" % S.survivor["died_in"]
-
-            span += html.settlement.genealogy_survivor_span.safe_substitute(
-                name=S.get_name_and_id(include_sex=True, include_id=False),
-                dead = dead,
-                born = born,
-                class_color=class_color,
-                display=display,
-            )
-            return span
-
-        # now, start the insanity:
-        genealogy = {"has_no_parents": set(), "is_a_parent": set(), "has_no_children": set(), "no_family": set(), "founders": set(), "parent_pairs": set(), "tree": [], "has_parents": set(),}
-
-        survivors = list(self.get_survivors())
-
-        # determine who has no parents
-        for s in survivors:
-            if not "father" in s.keys() and not "mother" in s.keys():
-                genealogy["has_no_parents"].add(s["_id"])
-            else:
-                genealogy["has_parents"].add(s["_id"])
-
-        # determine who IS a parent
-        for s in survivors:
-            for parent in ["father","mother"]:
-                if parent in s.keys():
-                    genealogy["is_a_parent"].add(s[parent])
-
-        # ...and use that to figure out who is NOT a parent
-        for s in survivors:
-            if s["_id"] not in genealogy["is_a_parent"]:
-                genealogy["has_no_children"].add(s["_id"])
-
-        # ...and then create our list of no family survivors
-        for s in survivors:
-            if s["_id"] in genealogy["has_no_parents"] and s["_id"] in genealogy["has_no_children"]:
-                genealogy["no_family"].add(s["_id"])
-
-        # ...and finally determine who the settlement founders are
-        for s in survivors:
-            if s["_id"] in genealogy["has_no_parents"] and s["born_in_ly"] in [0,1]:
-                genealogy["founders"].add(s["_id"])
-
-        # create a set of parent "pairs"; also include single parents, in case
-        #   anyone's been a clever dick (looking at you, Kendal)
-        for s in survivors:
-            if "father" in s.keys() and "mother" in s.keys():
-                genealogy["parent_pairs"].add((s["father"], s["mother"]))
-            if "father" in s.keys() and "mother" not in s.keys():
-                genealogy["parent_pairs"].add((s["father"]))
-            if "mother" in s.keys() and "father" not in s.keys():
-                genealogy["parent_pairs"].add((s["mother"]))
-
-        generation = 0
-        generations = {}
-        for s in genealogy["founders"]:
-#            self.logger.debug("%s is a founder." % s)
-            generations[s] = 0
-
-        everyone = list(self.get_survivors("chronological_order").sort("created_on",-1))
-        loops = 0
-        while everyone != []:
-            for s in everyone:
-                if s["_id"] in generations.keys():
-                    everyone.remove(s)
-                elif s["_id"] in genealogy["founders"]:
-                    everyone.remove(s)
-                elif s["_id"] in genealogy["no_family"]:
-                    everyone.remove(s)
-                elif "father" in s.keys() and s["father"] in generations.keys():
-                    generations[s["_id"]] = generations[s["father"]] + 1
-                elif "mother" in s.keys() and s["mother"] in generations.keys():
-                    generations[s["_id"]] = generations[s["mother"]] + 1
-                # and now we start the wild and wolly batshit insanity for
-                # handling incomplete records and single parents
-                elif s["_id"] in genealogy["is_a_parent"]:
-                    for parent_pair in genealogy["parent_pairs"]:
-                        if type(parent_pair) == tuple and s["_id"] in parent_pair:
-#                            self.logger.debug("%s belongs to parent pair %s" % (s["name"], parent_pair))
-                            for partner in parent_pair:
-                                if partner in generations.keys():
-                                    generations[s["_id"]] = generations[partner]
-                    S = Survivor(survivor_id=s["_id"], session_object=self.Session)
-                    for child in S.get_children():
-                        if child["_id"] in generations.keys():
-                            generations[s["_id"]] = generations[child["_id"]] + 1
-                else:
-                    if loops >= 5:
-                        pass
-                        self.logger.debug("Unable to determine generation for %s after %s loops." % (s["name"], loops))
-            loops += 1
-            if loops == 10:
-                self.logger.error("Settlement %s hit %s loops while calculating generations!" % (self.get_name_and_id(), loops))
-                self.logger.debug(generations)
-                for survivor in everyone:
-                    self.logger.error("Could not determine generation for '%s' -> %s" % (survivor["name"], survivor["_id"]))
-                    genealogy["no_family"].add(survivor["_id"])
-
-        # now, finally, start creating representations of the genealogy
-        genealogy["tree"] = ""
-        genealogy["summary"] = ""
-        for generation in sorted(list(set(generations.values())))[:-1]:
-            genealogy["summary"] += '<h4>Generation %s</h4>' % generation
-            generators = set()
-            for s, s_gen in generations.iteritems():
-                if s_gen == generation:
-                    for parent_pair in genealogy["parent_pairs"]:
-                        if type(parent_pair) == tuple and s in parent_pair:
-                            generators.add(parent_pair)
-            for parent_pair in generators:
-                try:
-                    parent_pair_list = [Survivor(survivor_id=p, session_object=self.Session).get_name_and_id(include_id=False, include_sex=True) for p in parent_pair]
-                except TypeError:
-                    parent_pair_list = [Survivor(survivor_id=p, session_object=self.Session).get_name_and_id(include_id=False, include_sex=True)]
-                parent_pair_string = " and ".join(parent_pair_list)
-                children = []
-                for s in genealogy["has_parents"]:
-                    if generations[s] == generation + 1:
-                        S = Survivor(survivor_id=s, session_object=self.Session)
-                        parent_tuple = None
-                        if "father" in S.survivor.keys() and "mother" in S.survivor.keys():
-                            parent_tuple = (S.survivor["father"], S.survivor["mother"])
-                        if "father" in S.survivor.keys() and "mother" not in S.survivor.keys():
-                            parent_tuple = (S.survivor["father"])
-                        if "father" not in S.survivor.keys() and "mother" in S.survivor.keys():
-                            parent_tuple = (S.survivor["mother"])
-                        if parent_tuple == parent_pair:
-                            children.append(S)
-
-                def generation_html(children_list, recursion=False):
-                    """ Helper that makes ul's of survivors. """
-                    output = '<ul>\n'
-                    if children_list == []:
-                        return ""
-                    for child in children_list:
-                        grand_children = [Survivor(survivor_id=c["_id"], session_object=self.Session) for c in child.get_children()]
-                        if not recursion:
-                            gc_html = ""
-                        else:
-                            gc_html = generation_html(grand_children, recursion=recursion)
-                        output += '\n\t<a><li>%s</li></a>\n' % survivor_to_span(child)
-                    output += '</ul>\n'
-                    return output
-
-                if children != []:
-                    genealogy["tree"] += '\t<div class="tree desktop_only">\n<ul><li><a>%s</a>\n\t\t' % parent_pair_string
-                    genealogy["tree"] += generation_html(children)
-                    genealogy["tree"] += '\n\t</li>\n</ul></div><!-- tree -->\n'
-                    genealogy["summary"] += '<p>&ensp; %s gave birth to:</p>' % parent_pair_string
-                    genealogy["summary"] += "<p>%s</p>" % generation_html(children, recursion=False)
-
-            genealogy["summary"] += "<hr/>"
-            genealogy["tree"] += '<hr class="desktop_only"/>'
-
-
-
-
-        if return_type == "html_no_family":
-            output = html.settlement.genealogy_headline.safe_substitute(value="Founders")
-            sorted_survivor_list = mdb.survivors.find({"_id": {"$in": list(genealogy["founders"])}}).sort("created_on")
-            for s in sorted_survivor_list:
-                S = Survivor(survivor_id=s["_id"], session_object=self.Session)
-                output += survivor_to_span(S, display="block")
-            output += html.settlement.genealogy_headline.safe_substitute(value="Undetermined Lineage")
-            sorted_survivor_list = mdb.survivors.find({"_id": {"$in": list(genealogy["no_family"])}}).sort("created_on")
-            return output
-        if return_type == "html_tree":
-            return genealogy["tree"]
-        if return_type == "html_generations":
-            return genealogy["summary"]
-
-        return genealogy
-
-
-
     def get_storage(self, return_type=False):
         """ Returns the settlement's storage in a number of ways. """
 
@@ -2425,12 +2036,7 @@ class Settlement:
             current_user_is_settlement_creator = True
 
         if return_type == "hunting_party":
-            hunting_party = []
-            for survivor in survivors:
-                if survivor.get("in_hunting_party", None) == "checked":
-                    hunting_party.append(survivor)
-            return hunting_party
-
+            raise Exception("Using get_survivors() with the 'hunting_party' return type is not supported!")
 
         if return_type == "html_buttons":
             output = ""
@@ -2449,150 +2055,6 @@ class Settlement:
                     female += 1
             return "%sM/%sF" % (male,female)
 
-        if return_type == "html_campaign_summary":
-            # this is our big boy, full-featured controls for survivor management
-            if survivors.count() == 0:
-                return html.survivor.no_survivors_error
-
-            groups = {
-                1: {"name": "Departing", "survivors": [], },
-                2: {"name": "Favorite", "survivors": [], },
-                3: {"name": "Available", "survivors": [], },
-                4: {"name": "Skipping Next Hunt", "survivors": [], },
-                5: {"name": "Retired", "survivors": [], },
-                6: {"name": "The Dead", "survivors": [], },
-            }
-
-            anonymous = []
-            available = []
-            for survivor in survivors:
-
-                S = Survivor(survivor_id=survivor["_id"], session_object=self.Session)
-                annotation = ""
-                user_owns_survivor = False
-                disabled = "disabled"
-
-                if survivor["email"] == user_login or current_user_is_settlement_creator or survivor.get("public", False) is not False:
-                    disabled = ""
-                    user_owns_survivor = True
-
-                button_class = ""
-                if user_owns_survivor:
-                    button_class = "survivor_sheet_gradient touch_me"
-
-                if "skip_next_hunt" in S.survivor.keys():
-                    annotation += "&ensp; <i>Skipping next hunt</i><br/>"
-                    button_class = "tan"
-
-                for t in [("retired", "retired_in", "tan"),("dead", "died_in", "silver")]:
-                    attrib, event, color = t
-                    if attrib in S.survivor.keys():
-                        if event in S.survivor.keys():
-                            annotation += "&ensp; <i>%s LY %s</i><br/>" % (event.replace("_"," ").capitalize(), S.survivor[event])
-                        else:
-                            annotation += "&ensp; <i>%s</i><br/>" % attrib.title()
-                        button_class = color
-
-
-                s_id = S.survivor["_id"]
-                if not user_owns_survivor:
-                    s_id = None
-
-
-                can_hunt = ""
-                if "dead" in S.survivor.keys() or "retired" in S.survivor.keys() or "skip_next_hunt" in S.survivor.keys():
-                    can_hunt = "disabled"
-
-                in_hunting_party = "checked"
-#                if "in_hunting_party" in S.survivor.keys():
-                if S.survivor.get("in_hunting_party", None):
-                    in_hunting_party = None
-                    can_hunt = ""
-
-                avatar_img = ""
-                if "avatar" in S.survivor.keys():
-                    avatar_img = S.get_avatar("html_campaign_summary")
-
-                favorite = 'hidden'
-                if self.User.user["login"] in S.survivor["favorite"]:
-                    favorite = 'favorite'
-
-                survivor_html = html.survivor.campaign_asset.safe_substitute(
-                    avatar = avatar_img,
-                    sex = S.get_api_asset("effective_sex"),
-                    survivor_id = s_id,
-                    settlement_id = self.settlement["_id"],
-                    hunting_party_checked = in_hunting_party,
-                    settlement_name = self.settlement["name"],
-                    b_class = button_class,
-                    able_to_hunt = can_hunt,
-                    returning = S.get_returning_survivor_status("html_badge"),
-                    constellation = S.get_constellation("html_badge"),
-                    special_annotation = annotation,
-                    disabled = disabled,
-                    name = S.survivor["name"],
-                    hunt_xp = S.survivor["hunt_xp"],
-                    survival = S.survivor["survival"],
-                    insanity = S.survivor["Insanity"],
-                    courage = S.survivor["Courage"],
-                    understanding = S.survivor["Understanding"],
-                    favorite = favorite,
-                )
-
-                # finally, file our newly minted survivor in a group:
-#                if "in_hunting_party" in S.survivor.keys():
-                if S.survivor.get("in_hunting_party", None) == "checked":
-                    groups[1]["survivors"].append(survivor_html)
-                elif "dead" in S.survivor.keys():
-                    groups[6]["survivors"].append(survivor_html)
-                elif "retired" in S.survivor.keys():
-                    groups[5]["survivors"].append(survivor_html)
-                elif "skip_next_hunt" in S.survivor.keys():
-                    groups[4]["survivors"].append(survivor_html)
-                elif self.User.user["login"] in S.survivor['favorite']:
-                    groups[2]["survivors"].append(survivor_html)
-                else:
-                    if S.survivor["name"] == "Anonymous":
-                        anonymous.append(survivor_html)
-                    else:
-                        available.append(survivor_html)
-
-            # build the "available" group
-            groups[3]["survivors"].extend(available)
-            groups[3]["survivors"].extend(anonymous)
-
-            #
-            #   Start assembling HTML here
-            #
-            output = html.settlement.campaign_summary_survivors_top
-
-            for g in sorted(groups.keys()):
-                group = groups[g]
-
-
-                if group["name"] in ["The Dead", "Retired"]:
-                    color = None
-                    if group["name"] == "The Dead":
-                        color = "grey"
-                    elif group["name"] == "Retired":
-                        color = "tan"
-                    the_dead = "\n".join(group["survivors"])
-                    g = group["name"].replace(" ","").lower() + "BlockGroup"
-                    output += html.survivor.campaign_summary_hide_show.safe_substitute(color=color, group_id=g, heading=group["name"], death_count = len(group["survivors"]), dead_survivors=the_dead)
-                else:
-                    output += "<h4>%s (%s)</h4>\n" % (group["name"], len(group["survivors"]))
-
-
-                    for s in group["survivors"]:
-                        output += "  %s\n" % s
-
-
-                if group["name"] == "Departing" and group["survivors"] == []:
-                    output += "<p>Use [::] to add survivors to the Departing group.</p>"
-
-
-            return output + html.settlement.campaign_summary_survivors_bot
-
         if return_type == "chronological_order":
             return mdb.survivors.find(query).sort("created_on")
 
@@ -2601,133 +2063,6 @@ class Settlement:
             raise Exception("Return type '%s' no longer supported by this method!" % return_type)
 
         return survivors
-
-
-    def get_departing_survivors(self):
-        """ Returns a list of survivors who are currently departing. """
-
-        departing=set()
-
-        for s in self.get_survivors():
-            if s.get("in_hunting_party", None) == "checked":
-                departing.add(s["_id"])
-
-        return list(departing)
-
-
-    def return_departing_survivors(self, aftermath="victory"):
-        """ Processes departing survivors, returning them from the hunt. Specify
-        'aftermath' as either 'victory' or 'defeat' to update the departing
-        survivors and settlement according. Log everything. """
-
-
-        healed_survivors = 0
-        returning_survivor_id_list = []
-        returning_survivor_name_list = []
-
-
-        # operations for either type of aftermath
-
-        if "hunt_started" in self.settlement.keys():
-            del self.settlement["hunt_started"]
-
-        quarry_key = None
-        if "current_quarry" in self.settlement.keys() and self.settlement["current_quarry"] is not None:
-            quarry_key = self.settlement["current_quarry"]
-            self.settlement["current_quarry"] = None
-
-
-        for survivor in self.get_survivors("hunting_party"):
-            S = Survivor(survivor_id=survivor["_id"], session_object=self.Session)
-            returning_survivor_id_list.append(S.survivor["_id"])
-
-            if "dead" not in S.survivor.keys():
-                returning_survivor_name_list.append(S.survivor["name"])
-
-            if aftermath == "victory":
-                S.heal("Return from Hunt")
-            elif aftermath == "defeat":
-                S.heal("defeated", heal_armor=True, increment_hunt_xp=False, remove_attribute_detail=True, return_to_settlement=True)
-
-            healed_survivors += 1
-
-            # save the survivor last
-            S.save()
-
-
-        # remove "skip_next_hunt" from anyone who has it but didn't return
-        for survivor in self.get_survivors(exclude=returning_survivor_id_list, exclude_dead=False):
-            if "skip_next_hunt" in survivor.keys():
-                del survivor["skip_next_hunt"]
-                mdb.survivors.save(survivor)
-
-
-        #
-        #   victory!
-        #
-
-        if aftermath == "victory":
-
-            if quarry_key not in ["None",None]:
-                response = api.post_JSON_to_route("/settlement/add_defeated_monster/%s" % self.settlement["_id"], {'monster': quarry_key}, Session=self.Session)
-                if response.status_code == 200:
-                    self.logger.debug("[%s] added '%s' kill via API POST!" % (quarry_key, self.User))
-                    self.refresh_from_API("defeated_monsters")
-                else:
-                    self.logger.error("[%s] failed to POST kill '%s' to API!" % (self.User, quarry_key))
-                    self.logger.error("%s: %s" % (response.status_code, response.reason))
-
-            if quarry_key not in self.get_timeline_events(event_type="showdown_event"):
-                e = {
-                    "ly": self.get_ly(),
-                    "type": "showdown_event",
-                    "name": quarry_key,
-                }
-                self.add_timeline_event(e)
-            else:
-                self.logger.debug("[%s] monster '%s' already in timeline for this year: %s. Skipping timeline update..." % (self, quarry_key, self.get_timeline_events(event_type="showdown_event")))
-
-        if len(returning_survivor_name_list) > 0:
-            if self.settlement["endeavor_tokens"] == 0:
-                self.settlement["endeavor_tokens"] += len(returning_survivor_name_list)
-                self.log_event("Automatically set endeavor tokens to %s" % len(returning_survivor_name_list))
-                self.logger.debug("[%s] automatically applied endeavor tokens for %s returning survivors" % (self.User, len(returning_survivor_name_list)))
-
-        returners = ", ".join(returning_survivor_name_list)
-        self.log_event("Departing Survivors (%s) have returned in %s!" % (returners, aftermath))
-
-
-
-    def modify_departing_survivors(self, params=None):
-        """ Modifies all hunters in the settlement's departing survivors group
-        according to cgi.FieldStorage() params. """
-
-        target_attrib = params["hunting_party_operation"].value
-        target_action = params["operation"].value
-
-        for s in self.get_survivors("hunting_party", exclude_dead=True):
-            S = Survivor(survivor_id=s["_id"], session_object=self.Session)
-            if target_action == "increment" and target_attrib == "Brain Event Damage":
-                S.brain_damage()
-            elif target_action == "increment":
-                S.survivor[target_attrib] = int(s[target_attrib]) + 1
-            elif target_action == "decrement":
-                S.survivor[target_attrib] = int(s[target_attrib]) - 1
-            self.logger.debug("[%s] %sed %s %s by 1" % (self.User, target_action, S, target_attrib))
-
-            # enforce settlement survival limit/min
-            if target_attrib == "survival":
-                if S.survivor[target_attrib] > int(self.settlement["survival_limit"]):
-                    S.survivor[target_attrib] = self.settlement["survival_limit"]
-
-            # enforce a minimum of zero for all attribs
-            if target_attrib != "Brain Event Damage" and S.survivor[target_attrib] < 0:
-                S.survivor[target_attrib] = 0
-
-            S.save()
-
-        self.logger.debug("[%s] completed Departing Survivors management operation." % (self.User))
-        self.log_event("%s %sed Departing Survivors %s" % (self.User.user["login"], target_action, target_attrib))
 
 
     def get_recently_added_items(self):
@@ -3398,8 +2733,6 @@ class Settlement:
             elif p == "abandon_settlement":
                 self.log_event("Settlement abandoned!")
                 self.settlement["abandoned"] = datetime.now()
-            elif p == "hunting_party_operation":
-                self.modify_departing_survivors(params)
             else:
                 self.settlement[p] = game_asset_key
                 self.logger.debug("%s set '%s' = '%s' for %s" % (self.User.user["login"], p, game_asset_key, self.get_name_and_id()))
@@ -3424,23 +2757,13 @@ class Settlement:
 
     @ua_decorator
     def render_html_summary(self, user_id=False):
-        """ Prints the Campaign Summary view. Remember that this isn't really a
-        form: the survivor asset tag buttons are a method of assets.Survivor."""
+        """ Prints the campaign summary view HTML. Does template subs to
+        initialize the AngularJS application. """
 
         return html.settlement.summary.safe_substitute(
-            settlement_id=self.settlement["_id"],
-            population = self.settlement["population"],
-            death_count = self.settlement["death_count"],
-            sex_count = self.get_survivors(return_type="sex_count", exclude_dead=True),
-            lantern_year = self.settlement["lantern_year"],
-            survival_limit = self.settlement["survival_limit"],
             endeavors = self.get_endeavors("html"),
-            survivors = self.get_survivors(return_type="html_campaign_summary", user_id=user_id),
             special_rules = self.get_special_rules("html_campaign_summary"),
-
-            show_departing_survivors_management_button=self.User.can_manage_departing_survivors(),
             show_endeavor_controls = self.User.get_preference("show_endeavor_token_controls"),
-
         )
 
 

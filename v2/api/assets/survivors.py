@@ -16,10 +16,10 @@ specials = {
         "desc": 'Two male and two female survivors will be randomly generated and automatically added to the <i>Departing Survivors</i> group. Starting gear will be added to Settlement Storage.',
         "current_quarry": "White Lion (First Story)",
         "random_survivors": [
-            {"sex": "M", "Waist": 1, "in_hunting_party": "checked"},
-            {"sex": "M", "Waist": 1, "in_hunting_party": "checked"},
-            {"sex": "F", "Waist": 1, "in_hunting_party": "checked"},
-            {"sex": "F", "Waist": 1, "in_hunting_party": "checked"},
+            {"sex": "M", "Waist": 1, "departing": True},
+            {"sex": "M", "Waist": 1, "departing": True},
+            {"sex": "F", "Waist": 1, "departing": True},
+            {"sex": "F", "Waist": 1, "departing": True},
         ],
         "storage": [
             {"name": "Founding Stone", "quantity": 4},

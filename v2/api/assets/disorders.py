@@ -89,7 +89,9 @@ core = {
     'secretive': {
         'flavor_text': 'You love secrets. So much, in fact, that you pretend to have many.',
         'name': 'Secretive',
-        'skip_next_hunt': True,
+        'on_return': {
+            'skip_next_hunt': True,
+        },
         'survivor_effect': 'When you are a <b>returning survivor</b>, you quickly become preoccuiped with your own affairs. You must skip the next hunt to deal with them.'
         },
     'seizures': {

@@ -62,7 +62,7 @@ def get_admin_data(resource=None):
     except Exception as e:
         logger.error("Unable to return '%s' admin data!" % resource)
         logger.error(e)
-        raise InvalidUsage(e, status_code=500)
+        raise utils.InvalidUsage(e, status_code=500)
 
     return utils.http_500
 

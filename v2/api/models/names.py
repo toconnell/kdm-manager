@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 
-
+from copy import copy
 import random
 
 from assets import names
@@ -41,6 +41,32 @@ class Assets(Models.AssetCollection):
             self.assets[self.name_to_handle("neuter", n)] = {"name": n, "type": "neuter"}
 
         Models.AssetCollection.__init__(self,  *args, **kwargs)
+
+
+    def get_random_names(self, count=100):
+        """ Returns 'count' random names for each sex. This is meant primarily
+        as a front-end helper, so it returns a JSON-like dict. It also raises
+        a big, wordy error if you ask it for too many names. """
+
+        m = copy(names.male)
+        f = copy(names.female)
+
+        m.extend(copy(names.neuter))
+        f.extend(copy(names.neuter))
+
+        male = set()
+        female = set()
+
+        for l in m,f:
+            if count > len(l):
+                raise utils.InvalidUsage('Cannot return more than %s random names!' % len(l))
+
+        for i in [(male, m), (female, f)]:
+            l, s = (i)
+            while len(l) < count:
+                l.add(random.choice(s))
+
+        return {'M': sorted(list(male)), 'F': sorted(list(female))}
 
 
     def name_to_handle(self, prefix, name):

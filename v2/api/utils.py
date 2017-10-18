@@ -500,7 +500,7 @@ class InvalidUsage(Exception):
         if status_code is not None:
            self.status_code = status_code
            self.payload = payload
-        alert()
+        self.alert()
 
     def alert(self):
         """ Records the error and alerts the admins. TBD. """
