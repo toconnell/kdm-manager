@@ -557,14 +557,6 @@ class Survivor:
         """ Run this when a Survivor object is initialized: it will enforce
         the data model and apply settlements defaults to the survivor. """
 
-        # 2016-12 dupe note js bug
-        seen = set()
-        for n in self.get_survivor_notes():
-            if n["note"] in seen:
-                self.logger.debug("[%s] duplicate note ('%s') detected. Removing note..." % (self.User, n["note"]))
-                mdb.survivor_notes.remove(n)
-            seen.add(n["note"])
-
         # 2016-11 RANDOM_FIGHTING_ART bug
         if "RANDOM_FIGHTING_ART" in self.survivor["fighting_arts"]:
             self.survivor["fighting_arts"].remove("RANDOM_FIGHTING_ART")
@@ -958,77 +950,6 @@ class Survivor:
             self.logger.error("[%s] attempted to remove '%s' key from %s, but that key does not exist!" % self.User, attrib, self)
 
 
-    def update_survivor_notes(self, action="add", note=None):
-        """ Use this to add or remove notes. Works on strings, rather than IDs,
-        for the sake of making the REST/form side of things simple. """
-
-        if note is None:
-            self.logger.warn("[%s] note is None!" % self.User)
-
-        if action=="add":
-            note_handle = "%s_%s" % (datetime.now().strftime("%Y%m%d%H%M%S"), self.survivor["_id"])
-            note_dict = {
-                "created_by": self.User.user["_id"],
-                "created_on": datetime.now(),
-                "survivor_id": self.survivor["_id"],
-                "settlement_id": self.Settlement.settlement["_id"],
-                "note": note,
-                "note_zero_punctuation": unicode(note.translate(None, punctuation).replace(" ","").strip()),
-                "name": "%s note" % self,
-            }
-
-
-            mdb.survivor_notes.insert(note_dict)
-            self.logger.debug("[%s] added note '%s' to %s." % (self.User, note, self))
-        elif action=="rm":
-            try:
-                note = str(note.decode('ascii', 'ignore'))
-                note_zp = unicode(note.translate(None, punctuation).replace(" ","").strip())
-            except Exception as e:
-                self.logger.exception(e)
-                raise
-            target_note = mdb.survivor_notes.find_one({"note_zero_punctuation":note_zp, "survivor_id": self.survivor["_id"]})
-            if target_note is None:
-                self.logger.error("[%s] attempted to remove a note from survivor %s (%s) that could not be found!" % (self.User, self, self.survivor["_id"]))
-                self.logger.error(note_zp)
-            else:
-                mdb.survivor_notes.remove(target_note)
-                self.logger.debug("[%s] removed note '%s' from %s." % (self.User, note, self))
-
-
-    def get_survivor_notes(self, return_type=None):
-        """ Tries to retrieve documents from mdb.survivor_notes registered to
-        the survivor's _id. Sorts them for return on the Survivor Sheet, etc.
-        Only searches notes created LATER than the survivor's 'created_on'
-        attribute, i.e. to speed up return. """
-
-        notes = mdb.survivor_notes.find({
-            "survivor_id": self.survivor["_id"],
-            "created_on": {"$gte": self.survivor["created_on"]}
-        }, sort=[("created_on",-1)])
-
-        if return_type == "angularjs":
-            sorted_note_strings = []
-            for note in notes:
-                sorted_note_strings.append(str(note["note"]).replace("'","&#8217;").replace('"','&quot;'))
-
-            output = html.survivor.survivor_notes.safe_substitute(
-                name = self.survivor["name"],
-                survivor_id = self.survivor["_id"],
-                note_strings_list = sorted_note_strings,
-            )
-            return output
-
-        if return_type == list:
-            out_list = []
-            for n in notes:
-                out_list.append(n["note"])
-            return out_list
-
-        return notes
-
-
-
 
     def get_returning_survivor_years(self):
         """ Returns a list of integers representing the lantern years during
@@ -1083,10 +1004,6 @@ class Survivor:
             elif p.split("_")[0] == "toggle" and "damage" in p.split("_"):
                 toggle_key = "_".join(p.split("_")[1:])
                 self.toggle(toggle_key, game_asset_key, toggle_type="explicit")
-            elif p == "add_survivor_note":
-                self.update_survivor_notes("add", game_asset_key)
-            elif p == "rm_survivor_note":
-                self.update_survivor_notes("rm", game_asset_key)
             elif p in ["Insanity","Head","Arms","Body","Waist","Legs"]:
                 self.update_survivor_attribute(p, "base", game_asset_key)
             elif game_asset_key == "None":
@@ -1254,8 +1171,6 @@ class Survivor:
             partner_controls = self.get_partner("html_controls"),
             expansion_attrib_controls = self.get_expansion_attribs("html_controls"),
 
-            # angularjs application controls
-            survivor_notes = self.get_survivor_notes("angularjs"),
         )
         return output
 

@@ -138,13 +138,23 @@
         <div class="flex_item_basic api">
             <h2>Response Times (last seven days)</h2>
             <table class="api_response_times">
-            <tr><th>Method</th><th>Route</th><th>#</th><th>Avg.</th><th>Max</th></tr>
+            <tr>
+                <th>Method</th>
+                <th>Route</th>
+                <th>#</th>
+                <th>24Hrs</th>
+                <th>Avg.</th>
+                <th>Min</th>
+                <th>Max</th>
+            </tr>
             <tr ng-repeat="r in world.world.api_response_times.value">
                 <td>{{r._id.method}}</td>
                 <td><code>/{{r._id.url}}</code></td>
                 <td>{{r.count}}</td>
-                <td>{{r.avg_time | limitTo:6}}</td>
-                <td>{{r.max_time | limitTo:6}}</td>
+                <td>{{r.last_24_avg | limitTo:5}}</td>
+                <td>{{r.avg_time | limitTo:5}}</td>
+                <td>{{r.min_time | limitTo:5}}</td>
+                <td>{{r.max_time | limitTo:5}}</td>
             </tr>
             </table>
         </div>

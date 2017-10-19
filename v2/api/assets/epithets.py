@@ -343,6 +343,7 @@ core = {
     'branded_by_the_lantern':               {'name': 'Branded by the Lantern'},
     'breeder':                              {'name': 'Breeder'},
     'broke_the_silence':                    {'name': 'Broke the Silence'},
+    'butcher':                              {'name': 'Butcher'},
     'caratosis': {
         'name': 'Caratosis',
         'bgcolor': 'CD2027',

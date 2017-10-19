@@ -1829,7 +1829,40 @@ class survivor:
         </div>
 
         <h3>Survivor Notes</h3>
-        $survivor_notes
+
+        <div
+            id="survivor_notes_angular"
+            ng-controller="survivorNotesController"
+            title="Survivor notes controls. Survivor notes are included in the Campaign Summary Survivor Search results."
+        >
+            <p>Add notes to {{survivor.sheet.name}}'s Survivor Sheet using the controls below. Click or tap a note to remove it.</p>
+            <ul class="survivor_sheet_survivor_note">
+            <li
+                class="survivor_sheet_survivor_note touch_me"
+                ng-repeat="x in survivor.notes"
+                ng-click="removeNote($index, x._id.$oid)"
+            >
+                {{x.note}}
+            </li>
+        </ul>
+
+        <input
+            class="survivor_sheet_add_survivor_note"
+            ng-model="note"
+            placeholder="Add a Survivor Note"
+            onClick="this.select()"
+        />
+        <button
+            class="survival_limit_style survivor_sheet_add_survivor_note"
+            ng-click="addNote()"
+        >
+            Add Note
+        </button>
+    <br/>
+
+    <!-- suppress error text if not debugging -->
+    <!-- <p>{{errortext}}</p> -->
+    </div>
 
 
         </div> <!-- asset_management_left_pane -->
@@ -3228,23 +3261,6 @@ class survivor:
     survival_action_item = Template('\
         <font class="survivor_sheet_survival_action_item $f_class">$action</font><br/>\
     \n')
-    survivor_notes = Template("""\n
-    <div id="survivor_notes_angular" ng-app="kdmManager" ng-controller="survivorNotesController" ng-init="notes=$note_strings_list" title="Survivor notes controls. Survivor notes are included in the Campaign Summary Survivor Search results.">
-    <p>Add notes to $name's Survivor Sheet using the controls below. Click or tap a note to remove it.</p>
-        <ul class="survivor_sheet_survivor_note">
-            <li class="survivor_sheet_survivor_note touch_me" ng-repeat="x in notes" ng-click="removeNote($index,'$survivor_id')">
-                {{x}}
-            </li>
-        </ul>
-
-    <input class="survivor_sheet_add_survivor_note" ng-model="note" placeholder="Add a Survivor Note" onClick="this.select()"/>
-    <button class="survival_limit_style survivor_sheet_add_survivor_note" ng-click="addNote('$survivor_id')">Add Note</button>
-    <br/>
-
-    <!-- suppress error text if not debugging -->
-    <!-- <p>{{errortext}}</p> -->
-    </div>
-    \n""")
 
 
 class settlement:

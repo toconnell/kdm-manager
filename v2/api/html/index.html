@@ -960,6 +960,12 @@
                 <p>Like settlement management routes, these routes are private, require
                 authentication and accept the <code>OPTIONS</code> requests method.</p>
 
+                <p><b>Important!</b> Any POST to any of these routes can also
+                include the optional parameter <code>{"serialize_on_response": true}
+                </code>. Including this param will get you a serialized version
+                of the survivor as part of your response.</p>
+
+
 
             </th>
         </tr>
@@ -1109,6 +1115,48 @@
             </td>
         </tr>
         <tr class="ul">
+            <td> /survivor/set_many_game_assets/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td>
+                <p>This route allows you to add or remove multiple game assets
+                from a survivor by POSTing a list of handles/types, as if you
+                were doing many <code>add_game_asset</code> or <code>rm_game_asset</code>
+                operations serially.</p>
+                <p>The JSON you have to POST must include the action you want to
+                take:</p>
+                <pre><code>{
+    "action": "rm",
+    "game_assets": [
+        {"type": "abilities_and_impairments", "handle": "blind"},
+        {"type": "fighting_arts", "handle": "crossarm_block"}
+    ]
+}</code></pre>
+                <p><b>Important!</b> As with <code>set_many_attributes()</code>,
+                the hashes in the <code>game_assets</code> list are pressed in
+                the order you POST them. YHBW.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/replace_game_assets/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td>
+                <p>This route accepts a list of handles and a type of game asset
+                and then evalutes the survivor's current handles of that type,
+                removing and adding as necessary in order to bring the survivor's
+                list in sync with the incoming list. </p>
+                <p>Your JSON should look basically like this:</p>
+                <pre><code>{
+    "type": "abilities_and_impairments",
+    "handles": [
+        "bitter_frenzy","ageless","analyze"
+    ]
+}</code></pre>
+                <p>You're going to want to also include <code>{"serialize_on_response": true}</code>
+                in your POST body on this one, because your survivor is DEFINITELY
+                going to come back way different than he was before you did this.</p>
+            </td>
+        </tr>
+        <tr class="ul">
             <td> /survivor/add_cursed_item/&lt;survivor_id&gt; </td>
             <td> POST </td>
             <td><p>POST a cursed item 'handle' to this route to add that cursed
@@ -1155,6 +1203,24 @@
             <p>The JSON above would set the survivor's Strength to three. The
             'value' should always be an integer. Negative numbers are supported:</p>
             <code>{'attribute': 'Evasion', 'value': -2}</code>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/set_many_attributes/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td>
+                <p>This one works similarly to <code>/survivor/set_attribute/&lt;survivor_id&gt;</code>,
+                except it can update a list of attribute key/value pairs.</p>
+                <p>The body of your POST should look like this:</p>
+                <pre><code>{
+    attributes: [
+        {attribute: 'Strength', value: 2},
+        {attribute: 'survival', value: 5}
+    ]
+}</code></pre>
+                <p><b>Important!</b> Since the <code>attributes</code> array will
+                be processed as a Python <code>list</code> type object, attributes
+                will be updated synchronously, in the order they are posted.</p>
             </td>
         </tr>
         <tr class="ul">
@@ -1529,14 +1595,25 @@
             </td>
         </tr>
         <tr class="ul">
-            <td> /survivor/add_survivor_note/&lt;survivor_id&gt; </td>
+            <td> /survivor/add_note/&lt;survivor_id&gt; </td>
             <td> POST </td>
-            <td> Documentation coming soon! </td>
+            <td>
+                <p>Adds a text note to a survivor. The note is returned on the
+                serliazed survivor (in <code>survivor.notes</codes>).</p>
+                <p>The POST body requirements are simple:</p>
+                <code>{'note': 'This is my important note about Ugg-Ugg the maker
+                of the soup.'}</code>
+                <p>Unlike other routes, this one returns the OID of the note:</p> 
+                <code>{'note_oid': {$oid: '58703a398740d9730c7abeb2'}}</code>
+            </td>
         </tr>
         <tr class="ul">
-            <td> /survivor/rm_survivor_note/&lt;survivor_id&gt; </td>
+            <td> /survivor/rm_note/&lt;survivor_id&gt; </td>
             <td> POST </td>
-            <td> Documentation coming soon! </td>
+            <td>
+                <p>POST an existing note OID to this route to remove it:</p>
+                <code>{'_id': '58703a398740d9730c7abeb2'}</code>
+            </td>
         </tr>
     </table>
 

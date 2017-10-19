@@ -301,18 +301,14 @@ class Settlement(Models.UserAsset):
         })
 
         # retrieve user assets
-        if return_type in [None, "sheet",'groups']:
+        if return_type in [None, "sheet",'campaign']:
             output.update({"user_assets": {}})
             output["user_assets"].update({"players": self.get_players()})
             output["user_assets"].update({"survivors": self.get_survivors()})
 
-        # if we're doing a campaign summary, break up the users into groups for
-        # the front-end
-        if return_type in ['groups']:
-            output["user_assets"].update({'survivor_groups': self.get_survivors('groups')})
 
         # create the sheet
-        if return_type in [None, 'sheet', 'dashboard', 'groups']:
+        if return_type in [None, 'sheet', 'dashboard', 'campaign']:
             output.update({"sheet": self.settlement})
             output["sheet"].update({"campaign": self.get_campaign()})
             output["sheet"].update({"campaign_pretty": self.get_campaign(dict)["name"]})
@@ -326,7 +322,7 @@ class Settlement(Models.UserAsset):
             output['sheet']['population_by_sex'] = self.get_population('sex')
 
         # create game_assets
-        if return_type in [None, 'game_assets','groups']:
+        if return_type in [None, 'game_assets','campaign']:
             output.update({"game_assets": {}})
             output["game_assets"].update(self.get_available_assets(innovations))
             output["game_assets"].update(self.get_available_assets(locations, exclude_types=["resources","gear"]))
@@ -373,6 +369,15 @@ class Settlement(Models.UserAsset):
             output["survivor_attribute_milestones"] = self.get_survivor_attribute_milestones()
             output["eligible_parents"] = self.get_eligible_parents()
 
+        # campaign summary specific
+        if return_type in ['campaign']:
+            output["user_assets"].update({'survivor_groups': self.get_survivors('groups')})
+
+        if return_type in ['campaign']:
+            output.update({'campaign':{}})
+            output['campaign'].update({'last_five_log_lines': self.get_event_log(lines=5)})
+            output['campaign'].update({'latest_death': self.get_latest_survivor('dead')})
+            output['campaign'].update({'latest_birth': self.get_latest_survivor('born')})
 
         # if we want the log, go get it
         if include_event_log:
@@ -1507,7 +1512,7 @@ class Settlement(Models.UserAsset):
         return s_expansions
 
 
-    def get_event_log(self, return_type=None):
+    def get_event_log(self, return_type=None, lines=None):
         """ Returns the settlement's event log as a cursor object unless told to
         do otherwise."""
 
@@ -1516,6 +1521,9 @@ class Settlement(Models.UserAsset):
             "settlement_id": self.settlement["_id"]
             }
         ).sort("created_on",1)
+
+        if lines is not None:
+            event_log = list(event_log)[-lines:]
 
         if return_type=="JSON":
             return json.dumps(list(event_log),default=json_util.default)
@@ -1562,6 +1570,21 @@ class Settlement(Models.UserAsset):
         creator/founder. """
 
         return utils.mdb.users.find_one({"_id": self.settlement["created_by"]})
+
+
+    def get_latest_survivor(self, category='dead'):
+        """ Gets the latest survivor, based on the 'category' kwarg value. """
+
+        if category == 'dead':
+            s = utils.mdb.survivors.find({'dead': True}).sort('died_on')
+            if s is not None:
+                return s[0]
+        elif category == 'born':
+            s = utils.mdb.survivors.find({'born_in_ly': {'$exists': True}}).sort('created_on')
+            if s is not None:
+                return s[0]
+
+        return None
 
 
     def get_innovations(self, return_type=None, include_principles=False):
@@ -2615,7 +2638,7 @@ class Settlement(Models.UserAsset):
         elif action == 'get_game_assets':
             return Response(response=self.serialize('game_assets'), status=200, mimetype="application/json")
         elif action == 'get_campaign':
-            return Response(response=self.serialize('groups'), status=200, mimetype="application/json")
+            return Response(response=self.serialize('campaign'), status=200, mimetype="application/json")
         elif action == "get_event_log":
             return Response(response=self.get_event_log("JSON"), status=200, mimetype="application/json")
         elif action == "get_innovation_deck":

@@ -60,10 +60,11 @@ class Survivor(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="survivors"
-        self.object_version = 0.60
+        self.object_version = 0.76
 
         # data model meta data
         self.stats =                ['Movement','Accuracy','Strength','Evasion','Luck','Speed','bleeding_tokens']
+        self.game_asset_keys =      ['disorders','epithets','fighting_arts','abilities_and_impairments']
         self.armor_locations =      ['Head', 'Body', 'Arms', 'Waist', 'Legs']
         self.flags =                ['skip_next_hunt','cannot_use_fighting_arts','cannot_spend_survival','departing']
         self.abs_value_attribs =    ['max_bleeding_tokens', ]
@@ -582,7 +583,7 @@ class Survivor(Models.UserAsset):
 
 
 
-    def add_game_asset(self, asset_class=None, asset_handle=None, apply_related=True):
+    def add_game_asset(self, asset_class=None, asset_handle=None, apply_related=True, save=True):
         """ Port of the legacy method of the same name.
 
         Does not apply nearly as much business logic as the legacy webapp
@@ -689,7 +690,8 @@ class Survivor(Models.UserAsset):
 
 
         # finally, save the survivor and return
-        self.save()
+        if save:
+            self.save()
 
 
     def asset_operation_preprocess(self, asset_class=None, asset_handle=None):
@@ -757,8 +759,87 @@ class Survivor(Models.UserAsset):
         return asset_class, asset_dict
 
 
+    def set_many_game_assets(self):
+        """ Much like the set_many_attributes() route/method, this one WILL ONLY
+        WORK WITH A REQUEST object present.
 
-    def rm_game_asset(self, asset_class=None, asset_handle=None, rm_related=True):
+        Iterates over a list of assets to add and calls add_game_asset() once for
+        every asset in the array. """
+
+        # initialize and sanity check!
+        self.check_request_params(['game_assets','action'])
+        action = self.params['action']
+        updates = self.params['game_assets']
+
+        if type(updates) != list:
+            raise utils.InvalidUsage("The add_many_game_assets() method requires the 'assets' param to be an array/list!")
+        elif action not in ['add','rm']:
+            raise utils.InvalidUsage("add_many_game_assets() 'action' param must be 'add' or 'rm'.")
+
+        for u in updates:
+            asset_class = u.get('type', None)
+            asset_handle = u.get('handle', None)
+
+            err = "set_many_game_assets() is unable to process hash: %s" % u
+            usg = " Should be: {handle: 'string', type: 'string'}"
+            err_msg = err + usg
+            if asset_class is None:
+                raise utils.InvalidUsage(err_msg)
+            elif asset_handle is None:
+                raise utils.InvalidUsage(err_msg)
+
+            if action == 'add':
+                self.add_game_asset(str(asset_class), str(asset_handle), save=False)
+            elif action == 'rm':
+                self.rm_game_asset(str(asset_class), str(asset_handle), save=False)
+
+        self.save()
+
+
+    def replace_game_assets(self):
+        """ Much like set_many_game_assets(), this route facilitates The Watcher
+        UI/UX and SHOULD ONLY BE USED WITH A REQUEST OBJECT since it pulls all
+        params from there and cannot be called directly.
+
+        This one takes a game asset category and overwrites it with an incoming
+        list of handles.
+        """
+
+        self.check_request_params(['type','handles'])
+        asset_class = self.params['type']
+        asset_handles = self.params['handles']
+
+        if asset_class not in self.game_asset_keys:
+            raise utils.InvalidUsage("The replace_game_assets() method cannot modify asset type '%s'. Allowed types include: %s" % (asset_class, self.game_asset_keys))
+
+        # start the riot
+        handles_to_rm = set()
+        handles_to_add = set()
+
+        # process the current list: figure out what has to be removed
+        for h in self.survivor[asset_class]:
+            if h not in asset_handles:
+                handles_to_rm.add(h)
+        # process the incoming list: figure out what we need to add
+        for h in asset_handles:
+            if h not in self.survivor[asset_class]:
+                handles_to_add.add(h)
+
+        # bail if we've got no changes
+        if handles_to_add == set() and handles_to_rm == set():
+            self.logger.warn('Ignoring bogus replace_game_assets() operation: no changes to make...')
+            return True
+
+        for h in handles_to_rm:
+            self.rm_game_asset(asset_class, h, save=False)
+        for h in handles_to_add:
+            self.add_game_asset(asset_class, h, save=False)
+
+        self.save()
+
+
+
+    def rm_game_asset(self, asset_class=None, asset_handle=None, rm_related=True, save=True):
         """ The inverse of the add_game_asset() method, this one most all the
         same stuff, except it does it in reverse order:
 
@@ -807,7 +888,37 @@ class Survivor(Models.UserAsset):
         self.survivor[asset_class].remove(asset_dict["handle"])
         self.log_event("%s removed '%s' (%s) from %s" % (request.User.login, asset_dict["name"], asset_dict["type_pretty"], self.pretty_name()))
 
-        self.save()
+        if save:
+            self.save()
+
+
+    def add_note(self):
+        """ Adds a Survivor note to the mdb. Expects a request context. """
+
+        self.check_request_params(['note'])
+        note = self.params['note']
+
+        note_dict = {
+            "created_by": request.User._id,
+            "created_on": datetime.now(),
+            "survivor_id": self.survivor["_id"],
+            "settlement_id": self.Settlement.settlement['_id'],
+            "note": note,
+        }
+
+        note_oid = utils.mdb.survivor_notes.insert(note_dict)
+        self.logger.debug("%s Added a note to %s" % (request.User, self))
+        return Response(response={'note_oid': note_oid}, status=200)
+
+
+    def rm_note(self):
+        """ Removes a Survivor note from the MDB. Expects a request context. """
+
+        self.check_request_params(['_id'])
+        _id = ObjectId(self.params['_id'])
+
+        utils.mdb.survivor_notes.remove({'_id': _id})
+        self.logger.debug("%s Removed a note from %s" % (request.User, self))
 
 
     def update_affinities(self, aff_dict={}, operation="add"):
@@ -1200,13 +1311,16 @@ class Survivor(Models.UserAsset):
         #   Living survivors only from here!
         #
 
-        # 6.) increment Hunt XP
+        # 6.) zero-out bleeding tokens
+        self.set_bleeding_tokens(0, save=False)
+
+        # 7.) increment Hunt XP
         if self.is_savior():
             self.update_attribute('hunt_xp', 4)
         else:
             self.update_attribute('hunt_xp', 1)
 
-        # 7.) process disorders with 'on_return' attribs
+        # 8.) process disorders with 'on_return' attribs
         for d in self.survivor['disorders']:
             D = disorders.Assets()
             d_dict = d.get_asset(d)
@@ -1245,7 +1359,7 @@ class Survivor(Models.UserAsset):
         self.save()
 
 
-    def set_attribute(self, attrib=None, value=None):
+    def set_attribute(self, attrib=None, value=None, save=True):
         """ Adds 'modifier' value to self.survivor value for 'attribute'. If the
         'attrib' kwarg is None, the function assumes that this is part of a call
         to request_response() and will get request params. """
@@ -1267,6 +1381,42 @@ class Survivor(Models.UserAsset):
 
         self.survivor[attrib] = value
         self.log_event("%s set %s '%s' to %s" % (request.User.login, self.pretty_name(), attrib, value))
+
+        if save:
+            self.save()
+
+
+    def set_many_attributes(self):
+        """ This is an API-only route and therefore ONLY WORKS IF YOU HAVE
+        request parameters!
+
+        This basically reads a list of attributes to update and then updates
+        them in the order they appear.
+        """
+
+        # initialize and sanity check!
+        self.check_request_params(['attributes'])
+        updates = self.params['attributes']
+
+        if type(updates) != list:
+            raise utils.InvalidUsage("The set_many_attributes() method requires 'attributes' param to be an array/list!")
+
+        for u in updates:
+            if type(u) != dict:
+                raise utils.InvalidUsage("The set_many_attributes() method 'attributes' must be hashes/dicts!")
+            attrib = u.get('attribute', None)
+            value = u.get('value', None)
+
+            err = "set_many_attributes() is unable to process hash: %s" % u
+            usg = " Should be: {attribute: 'string', value: 'int'}"
+            err_msg = err + usg
+            if attrib is None:
+                raise utils.InvalidUsage(err_msg)
+            elif value is None:
+                raise utils.InvalidUsage(err_msg)
+
+            self.set_attribute(str(attrib), int(value), False)
+
         self.save()
 
 
@@ -1308,12 +1458,12 @@ class Survivor(Models.UserAsset):
 
 
 
-    def set_bleeding_tokens(self, value=None):
+    def set_bleeding_tokens(self, value=None, save=True):
         """ Sets self.survivor['bleeding_tokens'] to 'value', respecting the
         survivor's max and refusing to go below zero. """
 
         if value is None:
-            self.check_request_params(['modifier'])
+            self.check_request_params(['value'])
             modifier = int(self.params["value"])
 
         self.survivor['bleeding_tokens'] = value
@@ -1324,7 +1474,9 @@ class Survivor(Models.UserAsset):
             self.survivor["bleeding_tokens"] = self.survivor["max_bleding_tokens"]
 
         self.log_event('%s set %s bleeding tokens to %s.' % (request.User.login, self.survivor.pretty_name(), self.survivor["bleeding_tokens"]))
-        self.save()
+
+        if save:
+            self.save()
 
 
     def set_constellation(self, constellation=None, unset=None):
@@ -1877,7 +2029,7 @@ class Survivor(Models.UserAsset):
         notes = utils.mdb.survivor_notes.find({
             "survivor_id": self.survivor["_id"],
             "created_on": {"$gte": self.survivor["created_on"]}
-        }, sort=[("created_on",-1)])
+        }, sort=[("created_on",1)])
         return list(notes)
 
 
@@ -2350,6 +2502,8 @@ class Survivor(Models.UserAsset):
 
         self.get_request_params()
 
+
+        # get methods first
         if action == "get":
             return self.return_json()
         elif action == "get_lineage":
@@ -2358,14 +2512,14 @@ class Survivor(Models.UserAsset):
             sa = self.get_survival_actions("JSON")
             return json.dumps(sa, default=json_util.default)
 
-        elif action == "set_name":
-            self.set_name()
-        elif action == "set_email":
-            return self.set_email()
 
-        # controllers with biz logic
+        # controllers with biz logic - i.e. fancy-pants methods
         elif action == "controls_of_death":
             self.controls_of_death()
+        elif action == "update_bleeding_tokens":
+            self.update_bleeding_tokens()
+        elif action == "set_bleeding_tokens":
+            self.set_bleeding_tokens()
 
         # add/rm assets
         elif action == "add_favorite":
@@ -2376,12 +2530,16 @@ class Survivor(Models.UserAsset):
             self.add_game_asset()
         elif action == "rm_game_asset":
             self.rm_game_asset()
+        elif action == "set_many_game_assets":  # serial add/rm game asset calls
+            self.set_many_game_assets()
+        elif action == "replace_game_assets":
+            self.replace_game_assets()
 
 
         elif action == "toggle_fighting_arts_level":
             self.toggle_fighting_arts_level()
 
-        # add cursed_item
+        # Cursed item methods
         elif action == "add_cursed_item":
             self.add_cursed_item()
         elif action == "rm_cursed_item":
@@ -2391,30 +2549,36 @@ class Survivor(Models.UserAsset):
         elif action == "set_savior_status":
             self.set_savior_status()
 
-        # sheet attribute operations
+        # misc sheet operations
+        elif action == "set_name":
+            self.set_name()
+        elif action == "set_email":
+            return self.set_email()     # because we're doing server-side validation
         elif action == "set_retired":
             self.set_retired()
         elif action == "set_sex":
             self.set_sex()
         elif action == "set_constellation":
             self.set_constellation()
-        elif action == "update_attribute":
-            self.update_attribute()
-        elif action == "set_attribute":
-            self.set_attribute()
-        elif action == "set_attribute_detail":  # tokens/gear
-            self.set_attribute_detail()
-
-        elif action == "update_bleeding_tokens":
-            self.update_bleeding_tokens()
-        elif action == "set_bleeding_tokens":
-            self.set_bleeding_tokens()
-
         elif action == "set_weapon_proficiency_type":
             self.set_weapon_proficiency_type()
 
-        elif action == 'set_parent':
-            self.set_parent()
+        # sheet attribute operations
+        elif action == "set_attribute":
+            self.set_attribute()
+        elif action == "set_many_attributes":   # serial set_attribute()
+            self.set_many_attributes()
+        elif action == "set_attribute_detail":  # tokens/gear
+            self.set_attribute_detail()
+        elif action == "update_attribute":
+            self.update_attribute()
+
+        # notes
+        elif action == 'add_note':
+            self.add_note()
+        elif action == 'rm_note':
+            self.rm_note()
+
 
         # affinities
         elif action == "update_affinities":
@@ -2436,8 +2600,13 @@ class Survivor(Models.UserAsset):
         elif action == "set_survival":
             self.set_survival()
 
+
+        # manager-only / non-game methods
         elif action == "toggle_sotf_reroll":
             self.toggle_sotf_reroll()
+        elif action == 'set_parent':
+            self.set_parent()
+
 
         else:
             # unknown/unsupported action response
@@ -2445,8 +2614,12 @@ class Survivor(Models.UserAsset):
             return utils.http_400
 
 
+
         # finish successfully
-        return utils.http_200
+        if self.params.get('serialize_on_response', False):
+            return Response(response=self.serialize(), status=200)
+        else:
+            return utils.http_200
 
 
 

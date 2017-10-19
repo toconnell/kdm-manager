@@ -490,37 +490,17 @@ app.controller("controlsOfDeath", function($scope) {
 app.controller("survivorNotesController", function($scope) {
     $scope.notes = [];
     $scope.formData = {};
-    $scope.addNote = function (asset_id) {
-        $scope.errortext = "";
+    $scope.addNote = function () {
         if (!$scope.note) {return;}
-        if ($scope.notes.indexOf($scope.note) == -1) {
-            $scope.notes.splice(0, 0, $scope.note);
-//            $scope.notes.push($scope.note);
-        } else {
-            $scope.errortext = "The note has already been added!";
-        };
-        var http = new XMLHttpRequest();
-        http.open("POST", "/", true);
-        http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-        var params = "add_survivor_note=" + $scope.note + "&modify=survivor&asset_id=" + asset_id
-        http.send(params);
-        savedAlert();
-
+        $scope.survivor.notes.push({note: $scope.note});
+        $scope.postJSONtoAPI('survivor', 'add_note', {'note': $scope.note});
     };
 
-    $scope.removeNote = function (x, asset_id) {
-        $scope.errortext = "";
-        var rmNote = $scope.notes[x];
-        $scope.notes.splice(x, 1);
-
-        var http = new XMLHttpRequest();
-        http.open("POST", "/", true);
-        http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-        var params = "rm_survivor_note=" + rmNote + "&modify=survivor&asset_id=" + asset_id
-        http.send(params);
-
-        savedAlert();
-
+    $scope.removeNote = function (x, note_oid) {
+        $scope.survivor.notes.splice(x, 1);
+        if (note_oid !== undefined) {
+            $scope.postJSONtoAPI('survivor', 'rm_note', {'_id': note_oid}, false)
+        };
     };
 });
 

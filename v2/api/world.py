@@ -482,7 +482,11 @@ class World:
                     "method": "$method",
                 },
                 "avg_time": { "$avg": "$time" },
+                "last_24_avg": {
+                    "$avg": {"$gte": ["$time", datetime.now()-timedelta(days=1)]},
+                },
                 "max_time": { "$max": "$time" },
+                "min_time": { "$min": "$time" },
                 "count": {"$sum": 1 },
                 },
             },
