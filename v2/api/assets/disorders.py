@@ -16,7 +16,7 @@ core = {
     },
     'binge_eating_disorder': {
         'flavor_text': 'Eating is the only thing that helps you escape your miserable life.',
-        'name': 'Binge Eating Disorder',
+        'name': 'Binge Eating',
         'survivor_effect': 'You cannot <b>depart</b> unless you have <b>consumable</b> gear in your gear grid. You must <b>consume</b> if a choice to <b>consume</b> arises.'
     },
     'coprolalia': {

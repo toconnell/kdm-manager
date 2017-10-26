@@ -193,7 +193,9 @@ def new_asset(asset_type):
         U = users.User()
         return U.serialize()
 
+    request.collection = asset_type
     request.User = users.token_to_object(request)
+
     return request_broker.new_user_asset(asset_type)
 
 @application.route("/<collection>/<action>/<asset_id>", methods=["GET","POST","OPTIONS"])
@@ -205,7 +207,11 @@ def collection_action(collection, action, asset_id):
     stuff without an authenticated user.
     """
 
+    # update the request object
+    request.collection = collection
+    request.action = action
     request.User = users.token_to_object(request, strict=False)     # temporarily non-strict
+
     asset_object = request_broker.get_user_asset(collection, asset_id)
     if type(asset_object) == Response:
         return asset_object

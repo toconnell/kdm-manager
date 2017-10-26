@@ -14,16 +14,7 @@ class Assets(Models.AssetCollection):
         """ This method will return an asset dictionary whose 'color' attrib
         matches the value of the 'color' kwarg.
 
-        Important! You only want to call this method AFTER you filter the
-        self.assets dict of the collection down to your campaign's version, like
-        so:
-
-            S = saviors.Assets()
-            S.filter("version", ["1.3.1"], reverse=True)
-
-        This pretty much guarantees that you'll only get a single result. If you
-        would get multiple results, this method will bomb out and log an
-        exception. """
+        """
 
         if color is None:
             msg = "get_asset_by_color() requires the 'color' kwarg!"

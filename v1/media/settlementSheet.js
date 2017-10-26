@@ -5,7 +5,86 @@ function reloadSheet() {
 //    console.warn("Settlement Sheet reload form submitted...");
 };
 
+app.controller("lanternResearchController", function($scope) {
+    $scope.setLanternResearch = function() {
+        js_obj = {value: $scope.settlement.sheet.lantern_research_level};
+        $scope.postJSONtoAPI('settlement', 'set_lantern_research_level', js_obj, false);
+    };
+    $scope.incrementLanternResearch = function(modifier) {
+        $scope.settlement.sheet.lantern_research_level += modifier;
+        $scope.setLanternResearch();
+    };
+});
+
+app.controller("inspirationalStatueController", function($scope) {
+    $scope.setInspirationalStatue = function() {
+        js_obj = {handle: $scope.settlement.sheet.inspirational_statue};
+        $scope.postJSONtoAPI('settlement', 'set_inspirational_statue', js_obj, false)
+    };
+});
+
+app.controller('monsterVolumesController', function($scope) {
+    $scope.scratch = {};
+    $scope.addMonsterVolume = function() {
+        if ($scope.scratch.monster_volume == undefined) {return false};
+        $scope.settlement.sheet.monster_volumes.push($scope.scratch.monster_volume);
+        js_obj = {name: $scope.scratch.monster_volume};
+        $scope.postJSONtoAPI('settlement', 'add_monster_volume', js_obj);
+    };
+    $scope.rmMonsterVolume = function(index, vol_string) { 
+        $scope.settlement.sheet.monster_volumes.splice(index,1);
+        var js_obj = {"name": vol_string};
+        $scope.postJSONtoAPI('settlement', 'rm_monster_volume', js_obj); 
+    };
+});
+
+app.controller("storageController", function($scope) {
+    $scope.showSpinner = function(){
+        $scope.showHide('storageSpinner');
+    };
+    $scope.hideSpinner = function(){
+        $scope.showHide('storageSpinner');
+    };
+    $scope.toggleFlippers = function(h) {
+        // flips the expand/collapse arrow arround
+        if (h.flippers === true) {
+            h.flippers = false;
+        } else if (h.flippers === false) {
+            h.flippers = true;
+        };
+    };
+    $scope.flipArrow = function(h) {
+        // flips the expand/collapse arrow arround
+        if (h.arrow === true) {
+            h.arrow = false;
+        } else if (h.arrow === false) {
+            h.arrow = true;
+        } else if (h.arrow === undefined) {
+            h.arrow = true;
+        };
+    };
+
+    $scope.setStorage = function(asset, modifier) {
+        asset.quantity += modifier;
+        js_obj = {handle: asset.handle, value: asset.quantity};
+        $scope.postJSONtoAPI('settlement','set_storage', {storage: [js_obj]}, false);
+    };
+
+    $scope.loadStorage = function() {
+        $scope.showSpinner();
+        $scope.settlementStorage = undefined;
+        var res = $scope.getJSONfromAPI('settlement','get_storage', 'loadStorage');
+        res.then(
+            function(payload) { $scope.settlementStorage = payload.data; $scope.hideSpinner(); },
+            function(errorPayload) {console.log("Could not retrieve settlement storage from API!" + errorPayload);}
+        );
+    };
+    $scope.loadStorage();
+
+});
+
 app.controller("settlementSheetController", function($scope) {
+    
     $scope.setSettlementName = function() {
         js_obj = {'name': $scope.newSettlementName};
         $scope.postJSONtoAPI('settlement', 'set_name', js_obj);
@@ -58,7 +137,7 @@ app.controller('innovationsController', function($scope) {
     $scope.setInnovationDeck = function(retry) {
         $scope.innovation_deck = null;
         $scope.spinner();
-        var res = $scope.getJSONfromAPI('settlement','get_innovation_deck');
+        var res = $scope.getJSONfromAPI('settlement','get_innovation_deck', 'setInnovationDeck');
         res.then(
             function(payload) {
                 $scope.innovation_deck = payload.data;
@@ -213,44 +292,6 @@ app.controller('principlesController', function($scope, $http) {
 
 app.controller("lostSettlementsController", function($scope,$rootScope) {
 
-    // get $scope.lost_settlements from the API
-    $scope.loadLostSettlements = function() {
-        $scope.getJSONfromAPI('settlement','get').then(
-            // once we've got a payload, build the controls
-            function(payload) {
-                $scope.lost_settlements = payload.data.sheet.lost_settlements;
-
-                $scope.current_val = $scope.lost_settlements
-
-                $scope.lost = []; 
-
-                // build the first elements in the control array
-                for (var i = 0; i < $scope.current_val; i++) {
-                    $scope.lost.push({'class': 'lost_settlement_checked', 'id_num': i}) 
-                };
-
-                // now, based on what we've got, build the rest of the array
-                do {
-                    if ($scope.lost.length == 4) 
-                        {$scope.lost.push({'class': 'bold_check_box', 'id_num':4})}
-                    else if ($scope.lost.length == 9) 
-                        {$scope.lost.push({'class': 'bold_check_box', 'id_num':9})}
-                    else if ($scope.lost.length == 14) 
-                        {$scope.lost.push({'class': 'bold_check_box', 'id_num':14})}
-                    else if ($scope.lost.length == 18) 
-                        {$scope.lost.push({'class': 'bold_check_box', 'id_num':18})}
-                    else
-                        {$scope.lost.push({'id_num':$scope.lost.length})};
-                } while ($scope.lost.length < 19) ;
-
-//                console.log(JSON.stringify($scope.lost));
-                console.log("lost_settlements control array initialized!");
-            },
-
-            function(errorPayload) {console.log("Error loading settlement!", errorPayload);}
-        );
-    };
-
     $scope.rmLostSettlement = function () {
         var cur = Number($scope.current_val);
         if (cur == 0) {
@@ -259,7 +300,7 @@ app.controller("lostSettlementsController", function($scope,$rootScope) {
         else { 
             cur--;
             $scope.current_val = cur;
-            $scope.postJSONtoAPI('settlement', 'set_lost_settlements', {"value": cur});
+            $scope.postJSONtoAPI('settlement', 'set_lost_settlements', {"value": cur}, false);
             var e = document.getElementById('box_' + cur);
             e.classList.remove('lost_settlement_checked');
         };

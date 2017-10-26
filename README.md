@@ -1,3 +1,8 @@
+API: Flask (http://flask.pocoo.org/)
+Frontend: AngularJS (1.5.4)
+Webserver: Gunicorn (http://gunicorn.org/)
+
+
 #   INSTALLATION and INITIAL SETUP
 Follow this guide to install and configure the Manager and the KDM API on a
 Debian system. 

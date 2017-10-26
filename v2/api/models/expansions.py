@@ -31,4 +31,12 @@ class Expansion(Models.GameAsset):
         Models.GameAsset.__init__(self,  *args, **kwargs)
 
         self.assets = Assets()
+        self.baseline()
         self.initialize()
+
+
+    def baseline(self):
+        """ Default some attributes for self. Everything here is subject
+        to overwrite by the self.initialize() call. """
+
+        self.survivor_special_attributes = []

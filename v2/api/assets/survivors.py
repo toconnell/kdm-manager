@@ -22,8 +22,8 @@ specials = {
             {"sex": "F", "Waist": 1, "departing": True},
         ],
         "storage": [
-            {"name": "Founding Stone", "quantity": 4},
-            {"name": "Cloth", "quantity": 4},
+            {"name": "founding_stone", "quantity": 4},
+            {"name": "cloth", "quantity": 4},
         ],
         "timeline_events": [
             {"ly": 0, "type": "showdown_event", "name": "White Lion (First Story)"},

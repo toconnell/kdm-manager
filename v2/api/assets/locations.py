@@ -141,104 +141,78 @@ location = {
     "lantern_hoard": {
         "name": "Lantern Hoard",
         "consequences": [
-            "Bone Smith",
-            "Skinnery",
-            "Organ Grinder",
-            "Catarium",
-            "Plumery",
-            "Exhausted Lantern Hoard",
-            "Mask Maker"
+            "bone_smith",
+            "skinnery",
+            "organ_grinder",
+            "catarium",
+            "plumery",
+            "exhausted_lantern_hoard",
+            "mask_maker"
         ],
-        "endeavors": {
-            "Innovate": {
-                "cost": 1,
-                "desc": "Once per settlement phase, you may spend the listed resources (1 Endeavor, 1 Bone, 1 Organ, 1 Hide) to draw 2 innovation cards. Keep 1 and return the other to the deck."
-            },
-            "Shared Experience": {
-                "cost": 1,
-                "requires": ["Symposium"],
-                "desc": "Nominate a survivor that has 2 or more Hunt XP than yourself. They describe illuminating details of their desired death. If you are not deaf, gain +1 Hunt XP from their story.  If the nominated survivor has abroken jaw, instead gain +1 insanity.",
-            },
-            "Build": {"cost":1, "desc": "Bone Smith", "remove_after": "Bone Smith"},
-            " Build": {"cost":1, "desc": "Skinnery", "remove_after": "Skinnery"},
-            "  Build": {"cost":1, "desc": "Organ Grinder", "remove_after": "Organ Grinder"},
-        },
+        "endeavors": [
+            'innovate',
+            'build_bonesmith',
+            'build_skinnery',
+            'build_organ_grinder',
+            'lantern_hoard_shared_experience',
+        ],
     },
     "exhausted_lantern_hoard": {
         "name": "Exhausted Lantern Hoard",
-        "color": "ddd",
+        "color": "9F99A5",
+        "special_rules": [
+            {
+                "name": "Dead Guardian",
+                "desc": "The sleeping predator is gone. Without its protective presence, intelligent monsters draw near.<ul><li>You may only hunt Lvl 3+ monsters</li><li>All departing survivors must have 1 gear with the <i>lantern</i> keyword in their gear grid.</li><li>If the settlement has the Final Lantern, 1 survivor must depart with it in their gear grid.</li></ul><br/><b>The light of inspiration is extinguished. You cannot innovate</b>",
+                "bg_color": "9F99A5",
+                "font_color": "FFF",
+            },
+        ],
+        'endeavors': [
+            'exhausted_lantern_hoard_0_lantern_research',
+            'exhausted_lantern_hoard_1_oxidation',
+            'exhausted_lantern_hoard_2_survivors_lantern',
+            'exhausted_lantern_hoard_3_investigate',
+        ],
     },
 
     "bone_smith": {
         "name": "Bone Smith",
         "color": "e3dac9",
         "consequences": ["Weapon Crafter"],
-        "endeavors": {
-            "Build": {"cost": 1, "desc": "Weapon Crafter (3 x bone, 1 x hide)", "remove_after": "Weapon Crafter"},
-        },
+        "endeavors": ['bone_smith_build_weapon_crafter'],
     },
     "weapon_crafter": {
         "name": "Weapon Crafter",
         "color": "E1D4C0",
-        "endeavors": {
-            "Scrap Scavenge": {"cost": 1, },
-            "Special Innovate": {
-                "cost": 1,
-                "desc": "Scrap Smelting (2 x scrap, 5 x bone, 5 x organ)",
-                "remove_after": "Scrap Smelting"
-            },
-        },
+        "endeavors": ['weapon_crafter_innovate_scrap_smelting','weapon_crafter_scrap_scavenge'],
     },
 
     "skinnery": {
         "name": "Skinnery",
         "color": "FFCBA4",
-        "consequences": ["Leather Worker"],
-        "endeavors": {
-            "Build": {
-                "cost": 1,
-                "desc": "Leather Worker (3 x hide, 1 x organ)",
-                "remove_after": "Leather Worker"
-            },
-        },
+        "consequences": ["leather_worker"],
+        "endeavors": ['skinnery_build_leather_worker',],
     },
     "leather_worker": {
         "name": "Leather Worker",
         "color": "7F462C",
         "font_color": "FFF",
-        "endeavors": {
-            "Leather-Making": {
-                "cost": 1,
-                "desc": "Spend any number of hide to add an equal number of leather strange resources to the settlement storage.",
-                "requires": ["Ammonia"],
-                },
-        },
+        "endeavors": ['leather_worker_leather_making'],
     },
 
     "organ_grinder": {
         "name": "Organ Grinder",
         "color": "B58AA5",
         "consequences": ["Stone Circle"],
-        "endeavors": {
-            "Augury": {"cost": 1},
-            "Build": {
-                "cost": 1,
-                "desc": "Stone Circle (3 x organ, 1 x hide)",
-                "remove_after": "Stone Circle"
-            },
-        },
+        "endeavors": ['organ_grinder_augury','organ_grinder_build_stone_circle','organ_grinder_stone_noses'],
     },
 
     "stone_circle": {
         "name": "Stone Circle",
         "color": "835C3B",
         "font_color": "FFF",
-        "endeavors": {
-            "Harvest Ritual": {
-                "cost": 1,
-                "desc": "Spend any number of monster resources to draw an equal number of basic resources."
-            },
-        },
+        "endeavors": ['stone_circle_harvest_ritual'],
     },
 
     "plumery": {
@@ -261,15 +235,13 @@ location = {
         "requires": ("innovations", "Pottery"),
         "color": "E55451",
         "font_color": "FFF",
+        'endeavors': ['barber_surgeon_trepanning'],
     },
     "mask_maker": {
         "name": "Mask Maker",
         "color": "FFD700",
-        "endeavors": {
-            "White Lion Mask": {"cost": 1, "desc": "You may hunt the Great Golden Cat."},
-            "Antelope Mask": {"cost": 1, "desc": "You may hunt the Mad Steed."},
-            "Phoenix Mask": {"cost": 1, "desc": "You may hunt the Golden Eyed King."},
-        },
+        'settlement_buff': 'A <b>departing survivor</b> with a mask in their gear grid may lead their hunting party to a legendary monster. Rules for these monsters are found on the Legendary Monster story event.',
+        "endeavors": ['mask_maker_0', 'mask_maker_1', 'mask_maker_2'],
     },
 
 
@@ -292,12 +264,7 @@ location = {
         "expansion": "gorm",
         "color": "8C001A",
         "font_color": "FFF",
-        "endeavors": {
-            "Special Innovate": {
-                "cost": 1,
-                "desc": "Gain the next Gormchymy innovation (1 x strange resource, 1 x gorm brain)"
-            },
-        },
+        "endeavors": ['gormchymist_special_innovate'],
     },
     "gormery": {
         "name": "Gormery",
@@ -323,15 +290,7 @@ location = {
             "mask_maker",
             "sacred_pool"
         ],
-        "endeavors": {
-            "Innovate": {
-                "cost": 1,
-                "desc": "Once per settlement phase, you may spend the listed resources (1 Bone, 1 Organ, 1 Hide) to draw 2 innovation cards. Keep 1 and return the other to the deck."
-            },
-            "Build": {"cost":1, "desc": "Bone Smith", "remove_after": "Bone Smith"},
-            " Build": {"cost":1, "desc": "Skinnery", "remove_after": "Skinnery"},     # hacks!
-            "  Build": {"cost":1, "desc": "Organ Grinder", "remove_after": "Organ Grinder"},
-        },
+        "endeavors": ['innovate', 'build_bonesmith', 'build_organ_grinder','build_skinnery'],
         "special_rules": [
             {
                 "name": "Extreme Heat",
@@ -353,21 +312,7 @@ location = {
         "expansion": "sunstalker",
         "levels": 3,
         "color": "eee541",
-        "endeavors": {
-            "Sacred Water": {
-                "cost": 1,
-                "desc": 'Once per settlement phase, the settlement drinks the oil that builds up on the surface of the pool. <font class="kdm_font">g</font> <b>Intimacy</b>.'
-            },
-            "Purification Ceremony": {
-                "cost": 2,
-                "desc": "You may endeavor here once per lifetime. Your body is infused with sacred water and <b>Purified</b> (record this). You cannot <b>depart</b> this year. Gain the <b>Protective</b> disorder and roll 1d10. On 8+, gain +1 permanent attribute of your choice. Otherwise, gain +1 permanent strength or accuracy."
-            },
-            "Sun Sealing": {
-                "requires": ["sauna_shrine"],
-                "cost": 1,
-                "desc": "You sit for a year, in the boiling darkness of the Shrine. Gain the <b>Hellfire</b> secret fighting art. You cannot <b>depart</b> this year."
-            },
-        },
+        "endeavors": ['sacred_pool_0','sacred_pool_1','sacred_pool_2'],
     },
 
     "skyreef_sanctuary": {
@@ -392,13 +337,7 @@ location = {
         "name": "Throne",
         "expansion": "dragon_king",
         "consequences": ["Bone Smith", "Skinnery", "Organ Grinder", "Catarium", "Plumery", "Mask Maker"],
-        "endeavors": {
-            "Innovate": {"cost": 1, "desc": "Once per settlement phase, you may spend the listed resources (1 Endeavor, 1 Bone, 1 Organ, 1 Hide) to draw 2 innovation cards. Keep 1 and return the other to the deck."},
-            "Fear and Trembling": {"cost": 1, "desc": 'Once per settlement phase, a survivor may spend <font class="kdm_font">d</font> to approach the throne and roll 1d10.'},
-            "Build": {"cost":1, "desc": "Bone Smith", "remove_after": "Bone Smith"},
-            " Build": {"cost":1, "desc": "Skinnery", "remove_after": "Skinnery"},
-            "  Build": {"cost":1, "desc": "Organ Grinder", "remove_after": "Organ Grinder"},
-        },
+        "endeavors": ['innovate', 'build_bonesmith', 'build_organ_grinder', 'build_skinnery', 'fear_and_trembling'],
     },
 
 

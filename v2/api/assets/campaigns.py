@@ -15,8 +15,11 @@ from assets import monsters as monster_assets
 #
 
 default_timeline = [
-    {"year": 0,  "settlement_event":    [{"handle": "core_first_day"}]              },
-    {"year": 1,  "story_event":         [{"handle": "core_returning_survivors"}]    },
+    {"year": 0, },
+    {"year": 1,
+        "story_event":          [{"handle": "core_returning_survivors"}],
+        'settlement_event':     [{'handle': 'core_first_day'}],
+    },
     {"year": 2,  "story_event":         [{"handle": "core_endless_screams"}]        },
     {"year": 3,  },
     {"year": 4,  "nemesis_encounter":   [{"name": "Nemesis Encounter: Butcher"}]    },
@@ -24,22 +27,25 @@ default_timeline = [
     {"year": 6,  "story_event":         [{"handle": "core_armored_strangers"}]      },
     {"year": 7,  "story_event":         [{"handle": "core_phoenix_feather"}]        },
     {"year": 8,  },
-    {"year": 9,  "nemesis_encounter":   [{"name": "Nemesis Encounter: King's Man"}] },
+    {"year": 9,  "nemesis_encounter":   [{"name": "Nemesis Encounter: King's Man Lvl 1"}] },
     {"year": 10, },
     {"year": 11, "story_event":         [{"handle": "core_regal_visit"}]            },
     {"year": 12, "story_event":         [{"handle": "core_conviction"}]             },
-    {"year": 13, }, {"year": 14, }, {"year": 15, },
-    {"year": 16, "nemesis_encounter":   [{"name": "Nemesis Encounter"}]             },
+    {"year": 13, "nemesis_encounter":   [{'name': 'Nemesis Encounter: The Hand Lvl 1'}]},
+    {"year": 14, }, {"year": 15, },
+    {"year": 16, "nemesis_encounter":   [{"name": "Nemesis Encounter: Butcher Lvl 2"}]},
     {"year": 17, }, {"year": 18, },
-    {"year": 19, "nemesis_encounter":   [{"name": "Nemesis Encounter"}]             },
+    {"year": 19, "nemesis_encounter":   [{"name": "Nemesis Encounter: King's Man Lvl 2"}]             },
     {"year": 20, "story_event":         [{"handle": "core_watched"}]                },
     {"year": 21, }, {"year": 22, },
-    {"year": 23, "nemesis_encounter":   [{"name": "Nemesis Encounter: Level 3"}]    },
-    {"year": 24, }, {"year": 25, },
-    {"year": 26, "nemesis_encounter":   [{"name": "Nemesis Encounter: Watcher"}]    },
-    {"year": 27, }, {"year": 28,}, {"year": 29,}, {"year": 30,}, {"year": 31,},
-    {"year": 32, }, {"year": 33,}, {"year": 34,}, {"year": 35,}, {"year": 36,},
-    {"year": 37, }, {"year": 38,}, {"year": 39,}, {"year": 40,},
+    {"year": 23, "nemesis_encounter":   [{"name": "Nemesis Encounter: Butcher Level 3"}]    },
+    {"year": 24, },
+    {"year": 25, "nemesis_encounter":   [{"name": "Nemesis Encounter: Watcher"}]    },
+    {"year": 26  }, {"year": 27, },
+    {"year": 28, "nemesis_encounter":   [{'name': "Nemesis Encounter: - King's Man Lvl 3"}]},
+    {"year": 29,},
+    {"year": 30, "nemesis_encounter":   [{'name': "Nemesis Encounter: Gold Smoke Knight"}]},
+    {"year": 31,}, {"year": 32, }, {"year": 33,}, {"year": 34,}, {"year": 35,}, {"year": 36,},
 ]
 
 
@@ -118,9 +124,9 @@ milestone_story_events = {
 campaign_definitions = {
     "people_of_the_lantern": {
         "default": True,
+        'saviors': True,
         "name": "People of the Lantern",
-        "saviors": "1.3.1",
-        "survival_actions": ["dodge","encourage","dash","surge"],
+        "survival_actions": ["dodge","encourage","dash","surge",'endure'],
         "always_available": {
             "location": ["Lantern Hoard"],
             "innovation": ["Language"],
@@ -131,8 +137,9 @@ campaign_definitions = {
         },
         "principles": ["new_life","death","society","conviction"],
         "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
-        "special_showdowns": ["watcher"],
-        "nemesis_monsters": ["butcher","kings_man","the_hand"],
+        "special_showdowns": ['kings_man'],
+        "nemesis_monsters": ["butcher","kings_man","the_hand",'watcher'],
+        'final_boss': 'gold_smoke_knight',
         "survivor_attribute_milestones": default_survivor_attribute_milestones,
         "quarries": monster_assets.base_game_quarries,
         "timeline": default_timeline,
@@ -145,9 +152,9 @@ campaign_definitions = {
 
     "the_green_knight": {
         "name": "The Green Knight",
+        'saviors': True,
         "subtitle": "A campaign following the 'People of the Lantern' timeline that includes all content required by the Green Knight Armor expansion.",
-        "saviors": "1.3.1",
-        "survival_actions": ["dodge","encourage","dash","surge"],
+        "survival_actions": ["dodge","encourage","dash","surge",'endure'],
         "always_available": {
             "location": ["Lantern Hoard"],
             "innovation": ["Language"],
@@ -158,8 +165,9 @@ campaign_definitions = {
         },
         "principles": ["new_life","death","society","conviction"],
         "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
-        "special_showdowns": ["watcher"],
-        "nemesis_monsters": ["butcher","kings_man","the_hand"],
+        "nemesis_monsters": ["butcher","kings_man","the_hand","watcher"],
+        "special_showdowns": ["kings_man"],
+        'final_boss': 'gold_smoke_knight',
         "survivor_attribute_milestones": default_survivor_attribute_milestones,
         "quarries": monster_assets.base_game_quarries,
         "timeline": default_timeline,
@@ -173,9 +181,9 @@ campaign_definitions = {
 
     "people_of_the_skull": {
         "name": "People of the Skull",
+        'saviors': True,
         "subtitle": "Always displays the alternate rules and endeavors on p.213 of the core game manual on the Campaign Summary view.",
-        "saviors": "1.3.1",
-        "survival_actions": ["dodge","encourage","dash","surge"],
+        "survival_actions": ["dodge","encourage","dash","surge",'endure'],
         "always_available": {
             "location": ["Lantern Hoard"],
             "innovation": ["Language"],
@@ -194,13 +202,12 @@ campaign_definitions = {
              "bg_color": "333",
              "font_color": "efefef"},
         ],
-        "endeavors": {
-            "Skull Ritual": {"cost": 1, "desc": "Costs one Skull resource. Nominate up to four survivors to consume the skull. They gain a permanent +1 to all their attributes."},
-        },
+        "endeavors": ['potskull_skull_ritual'],
         "principles": ["new_life","death","society","conviction"],
         "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
-        "special_showdowns": ["watcher"],
         "nemesis_monsters": ["butcher","kings_man","the_hand"],
+        "special_showdowns": ["kings_man"],
+        'final_boss': 'gold_smoke_knight',
         "survivor_attribute_milestones": default_survivor_attribute_milestones,
         "quarries": monster_assets.base_game_quarries,
         "timeline": default_timeline,
@@ -213,8 +220,8 @@ campaign_definitions = {
 
     "the_bloom_people": {
         "name": "The Bloom People",
-        "saviors": "1.3.1",
-        "survival_actions": ["dodge","encourage","dash","surge"],
+        'saviors': True,
+        "survival_actions": ["dodge","encourage","dash","surge",'endure'],
         "always_available": {
             "location": ["Lantern Hoard"],
             "innovation": ["Language"],
@@ -225,17 +232,16 @@ campaign_definitions = {
         },
         "principles": ["new_life","death","society","conviction"],
         "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
-        "endeavors": {
-            "Forest Run": {"cost": 1, "desc": "You may exchange any number of monster resources for that number of random Flower resources."},
-        },
+        "endeavors": ['bloom_people_forest_run'],
         "settlement_buff": "All survivors are born with +1 permanent luck, +1 permanent green affinity and -2 permanent red affinities.",
         "newborn_survivor": {
             "affinities": {"red": -2, "green": 1,},
             "Luck": 1,
         },
         "timeline": default_timeline,
-        "special_showdowns": ["watcher"],
         "nemesis_monsters": ["butcher","kings_man","the_hand"],
+        "special_showdowns": ["kings_man"],
+        'final_boss': 'gold_smoke_knight',
         "survivor_attribute_milestones": default_survivor_attribute_milestones,
         "quarries": monster_assets.base_game_quarries,
         "settlement_sheet_init": {
@@ -249,8 +255,8 @@ campaign_definitions = {
 
     "people_of_the_sun": {
         "name": "People of the Sun",
-        "survivor_attribs": ["Purified","Sun Eater","Child of the Sun"],
-        "survival_actions": ["dodge","overcharge","embolden"],
+        "survivor_special_attributes": ['potsun_purified','potsun_sun_eater','potsun_child_of_the_sun'],
+        "survival_actions": ["dodge","overcharge","embolden","dash"],
         "always_available": {
             "location": ["The Sun","Sacred Pool"],
             "innovation": ["Sun Language", "Umbilical Bank"],
@@ -262,8 +268,11 @@ campaign_definitions = {
         "principles": ["potsun_new_life","death","society","conviction"],
         "milestones": ["first_child","first_death","pop_15","innovations_8","nemesis_defeat","game_over"],
         "timeline": [
-            {"year": 0,  "settlement_event":    [{"handle": "core_first_day"}]              },
-            {"year": 1,  "story_event":         [{"handle": "ss_pool_and_sun"}]             },
+            {"year": 0,  },
+            {"year": 1,
+                "story_event":          [{"handle": "ss_pool_and_sun"}],
+                'settlement_event':     [{'handle': 'core_first_day'}],
+            },
             {"year": 2,  "story_event":         [{"handle": "core_endless_screams"}]        },
             {"year": 3,  },
             {"year": 4,  "story_event":         [{"handle": "ss_sun_dipping"}]              },
@@ -285,9 +294,8 @@ campaign_definitions = {
             {"year": 25, "story_event":         [{"handle": "ss_great_devourer"}]           },
             {"year": 26,}, {"year": 27,}, {"year": 28,}, {"year": 29,}, {"year": 30,}, {"year": 31,},
             {"year": 32,}, {"year": 33,}, {"year": 34,}, {"year": 35,}, {"year": 36,},
-            {"year": 37,}, {"year": 38,}, {"year": 39,}, {"year": 40,},
         ],
-        "special_showdowns": ["ancient_sunstalker"],
+        "final_boss": "ancient_sunstalker",
         "nemesis_monsters": ["butcher","kings_man","the_hand"],
         "survivor_attribute_milestones": default_survivor_attribute_milestones,
         "quarries": monster_assets.base_game_quarries,
@@ -302,8 +310,8 @@ campaign_definitions = {
     "people_of_the_stars": {
         "name": "People of the Stars",
         "dragon_traits": "1.3.1",
-        "survivor_attribs": ["Scar","Noble surname","Reincarnated surname"],
         "survival_actions": ["dodge","encourage","dash","surge"],
+        'survivor_special_attributes': ['potstars_scar','potstars_noble_surname','potstars_reincarnated_surname'],
         "always_available": {
             "location": ["Throne"],
             "innovation": ["Dragon Speech","Radiating Orb"],
@@ -317,15 +325,17 @@ campaign_definitions = {
             "Bold": "Awake",
             "Insight": "Awake",
         },
-        "survivor_attribs": ["Scar","Noble surname","Reincarnated surname"],
         "special_rules": [
             {"name": "Removed Story Events", "desc": "If an event or card would cause you to add/trigger <b>Hands of Heat</b>, <b>Regal Visit</b>, <b>Armored Strangers</b>, <b>Watched</b>, or <b>Nemesis Encounter - Watcher</b>, do nothing instead.", "bg_color": "673AB7", "font_color": "FFF"},
         ],
         "principles": ["new_life","death","society","conviction"],
         "milestones": ["first_child","first_death","pop_15","game_over"],
         "timeline": [
-            {"year": 0,  "settlement_event":    [{"handle": "core_first_day"}]              },
-            {"year": 1,  "story_event":         [{"handle": "dk_foundlings"}]               },
+            {"year": 0,  },
+            {"year": 1,
+                "story_event":          [{"handle": "dk_foundlings"}],
+                'settlement_event':     [{'handle': 'core_first_day'}],
+            },
             {"year": 2,  "story_event":         [{"handle": "core_endless_screams"}]        },
             {"year": 3,  },
             {"year": 4,  "nemesis_encounter":   [{"name": "Nemesis Encounter - Dragon King Human Lvl 1"}]   },
@@ -349,7 +359,6 @@ campaign_definitions = {
             {"year": 25, "nemesis_encounter":   [{"handle": "dk_death_of_the_dragon_king"}] },
             {"year": 26, }, {"year": 27, }, {"year": 28, }, {"year": 29, }, {"year": 30, }, {"year": 31, },
             {"year": 32, }, {"year": 33, }, {"year": 34, }, {"year": 35, }, {"year": 36, },
-            {"year": 37, }, {"year": 38, }, {"year": 39, }, {"year": 40, },
         ],
         "survivor_attribute_milestones": {
             "hunt_xp": [
@@ -371,8 +380,9 @@ campaign_definitions = {
             ],
         },
         "quarries": monster_assets.base_game_quarries,
-        "special_showdowns": ["the_tyrant","dragon_king_lv3"],
+        "special_showdowns": ["the_tyrant"],
         "nemesis_monsters": ["butcher","kings_man","the_hand"],
+        'final_boss': 'dragon_king_lv3',
         "settlement_sheet_init": {
             "expansions": ["dragon_king"],
             "quarries": ["white_lion"],

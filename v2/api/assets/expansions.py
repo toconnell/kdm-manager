@@ -8,8 +8,8 @@ promo_and_misc = {
         "name": "Beta Challenge Scenarios",
         "ui": {"pretty_category": "Enhancement"},
         "flair": {
-            "color": "#FFF",
-            "bgcolor": "#4EC6F0",
+            "color": "FFF",
+            "bgcolor": "4EC6F0",
         },
         "enforce_survival_limit": False,
         "subtitle": "Enables abilities & impairments, disorders, items etc. included in the Beta Challenge Scenarios.",
@@ -27,8 +27,8 @@ promo_and_misc = {
         "name": "White Box & Promo",
         "ui": {"pretty_category": "Enhancement"},
         "flair": {
-            "color": "#FFF",
-            "bgcolor": "#4EC6F0",
+            "color": "FFF",
+            "bgcolor": "4EC6F0",
         },
         "subtitle": "Adds promotional content (items, Abilities & Impairments, etc.) to Settlement and Survivor Sheet drop-down lists. Content includes Gen Con, Black Friday and other promos.",
     },
@@ -39,8 +39,8 @@ mar_2016_expansions = {
         "name": "Gorm",
         "ui": {"pretty_category": "Quarry"},
         "flair": {
-            "color": "#EAE40A",
-            "bgcolor": "#958C83",
+            "color": "EAE40A",
+            "bgcolor": "958C83",
         },
         "quarries": ["gorm"],
         "always_available": {
@@ -57,15 +57,19 @@ mar_2016_expansions = {
         "ui": {"pretty_category": "Enhancement"},
         "subtitle": "Crafting GKA items requires DBK, Flower Knight, Lion Knight and Gorm expansions!",
         "always_available": {
-#            "location": ["Green Knight Armor"],
+            "location": ["Green Knight Armor"],
+        },
+        "flair": {
+            "color": "EAE40A",
+            "bgcolor": "958C83",
         },
     },
     "dung_beetle_knight": {
         "name": "Dung Beetle Knight",
         "ui": {"pretty_category": "Quarry"},
         "flair": {
-            "color": "#EAE40A",
-            "bgcolor": "#C3C8AB",
+            "color": "EAE40A",
+            "bgcolor": "C3C8AB",
         },
         "quarries": ["dung_beetle_knight"],
         "always_available": {
@@ -80,8 +84,8 @@ mar_2016_expansions = {
         "name": "Spidicules",
         "ui": {"pretty_category": "Quarry"},
         "flair": {
-            "color": "#333",
-            "bgcolor": "#C0B870",
+            "color": "333",
+            "bgcolor": "C0B870",
         },
         "quarries": ["spidicules"],
         "always_available": {
@@ -99,8 +103,8 @@ mar_2016_expansions = {
         "name": "Slenderman",
         "ui": {"pretty_category": "Nemesis"},
         "flair": {
-            "color": "#fff2b7",
-            "bgcolor": "#BEA9CB",
+            "color": "fff2b7",
+            "bgcolor": "BEA9CB",
         },
         "nemesis_monsters": ["slenderman"],
         "rm_nemesis_monsters": ["kings_man"],
@@ -120,8 +124,8 @@ mar_2016_expansions = {
         "name": "Lion Knight",
         "ui": {"pretty_category": "Nemesis"},
         "flair": {
-            "color": "#666",
-            "bgcolor": "#FCF78F",
+            "color": "666",
+            "bgcolor": "FCF78F",
         },
         "quarries": ["lion_knight"],
         "always_available": {
@@ -142,8 +146,8 @@ mar_2016_expansions = {
         "name": "Lion God",
         "ui": {"pretty_category": "Quarry"},
         "flair": {
-            "color": "#E8cE55",
-            "bgcolor": "#712C2B",
+            "color": "E8cE55",
+            "bgcolor": "712C2B",
         },
         "quarries": ["lion_god"],
         "always_available": {
@@ -157,15 +161,14 @@ mar_2016_expansions = {
         "name": "Sunstalker",
         "ui": {"pretty_category": "Quarry"},
         "flair": {
-            "color": "#000",
-            "bgcolor": "#ECD77E",
+            "color": "000",
+            "bgcolor": "ECD77E",
         },
         "quarries": ["sunstalker"],
         "always_available": {
             "location": ["Skyreef Sanctuary"],
             "innovation": ["Umbilical Bank"],
         },
-        "survivor_attribs": ["Purified","Sun Eater","Child of the Sun"],
         "timeline_add": [
             {"ly": 8, "type": "story_event", "handle": "ss_promise_under_the_sun", "excluded_campaign": "people_of_the_sun"},
         ],
@@ -174,8 +177,8 @@ mar_2016_expansions = {
         "name": "Dragon King",
         "ui": {"pretty_category": "Quarry"},
         "flair": {
-            "color": "#E8cE55",
-            "bgcolor": "#6260A9",
+            "color": "E8cE55",
+            "bgcolor": "6260A9",
         },
         "quarries": ["dragon_king"],
         "always_available": {
@@ -189,8 +192,8 @@ mar_2016_expansions = {
         "name": "Manhunter",
         "ui": {"pretty_category": "Nemesis"},
         "flair": {
-            "color": "#E8cE55",
-            "bgcolor": "#8D0000",
+            "color": "E8cE55",
+            "bgcolor": "8D0000",
         },
         "nemesis_monsters": ["manhunter"],
         "special_showdowns": ["manhunter"],
@@ -198,8 +201,8 @@ mar_2016_expansions = {
             "innovation": ["War Room", "Settlement Watch", "Crimson Candy"],
         },
         "timeline_add": [
-            {"ly": 5, "type": "story_event", "handle": "mh_hanged_man"},
-            {"ly":  5, "type": "special_showdown", "name": "Special Showdown - Manhunter"},
+            {"ly": 5,  "type": "story_event", "handle": "mh_hanged_man"},
+            {"ly": 5,  "type": "special_showdown", "name": "Special Showdown - Manhunter"},
             {"ly": 10, "type": "special_showdown", "name": "Special Showdown - Manhunter"},
             {"ly": 16, "type": "special_showdown", "name": "Special Showdown - Manhunter"},
             {"ly": 22, "type": "special_showdown", "name": "Special Showdown - Manhunter"},
@@ -208,14 +211,18 @@ mar_2016_expansions = {
     "lonely_tree": {
         "name": "Lonely Tree",
         "ui": {"pretty_category": "Enhancement"},
-#        "nemesis_monsters": ["lonely_tree"],
+        "nemesis_monsters": ["lonely_tree"],
         "special_showdowns": ["lonely_tree"],
+        "flair": {
+            "color": "EAE40A",
+            "bgcolor": "958C83",
+        },
     },
     "flower_knight": {
         "name": "Flower Knight",
         "flair": {
-            "color": "#EAE40A",
-            "bgcolor": "#4E7D49",
+            "color": "EAE40A",
+            "bgcolor": "4E7D49",
         },
         "quarries": ["flower_knight"],
         "timeline_add": [

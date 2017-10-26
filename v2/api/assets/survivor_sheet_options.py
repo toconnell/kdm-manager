@@ -11,14 +11,18 @@ causes_of_death = {
 
     "dragon_king_00":   {"name": "Died by the Throne", "context": "endeavor", "expansion": "dragon_king"},
     "dragon_king_01":   {"name": "Culled by the Tyrant", "context": "endeavor", "expansion": "dragon_king"},
+    'dragon_king_02':   {'name': 'Burst into flames', 'context': 'settlement', 'expansion': 'dragon_king'},
+    'dragon_king_03':   {'name': 'Grew to giant size', 'context': 'consume', 'expansion': 'dragon_king'},
 
     "sunstalker_00":    {"name": "Buried Alive", "context": "endeavor", "expansion": "sunstalker"},
     "sunstalker_01":    {"name": "Sunshark Bite", "context": "showdown", "expansion": "sunstalker"},
+    'sunstalker_02':    {'name': 'Sunspot Crafting', 'context': 'settlement', 'expansion': 'sunstalker'},
 
     "gorm_00":          {"name": "Flattened", "context": "showdown", "expansion": "gorm"},
     "gorm_01":          {"name": "Ancient Claw", "context": "showdown", "expansion": "gorm"},
     "gorm_02":          {"name": "Ancient Tusk", "context": "showdown", "expansion": "gorm"},
     "gorm_03":          {"name": "Ancient Indigestion", "context": "showdown", "expansion": "gorm"},
+    'gorm_04':          {'name': 'Heart exploded', 'context': 'consume', 'expansion': 'gorm'},
 
     "flower_knight_00": {"name": "Exterminated", "context": "showdown", "expansion": "flower_knight"},
     "flower_knight_01": {"name": "One Thousand Cuts", "context": "showdown", "expansion": "flower_knight"},
@@ -36,7 +40,7 @@ causes_of_death = {
     "s_antelope_04":    {"name": "Back Kick", "context":"showdown"},
 
     "phoenix_00":       {"name": "Never existed", "context": "showdown"},
-    "phoenix_01":       {"name": "Rainbow Droppings", "context": "consumption"},
+    "phoenix_01":       {"name": "Rainbow Droppings", "context": "consume"},
     "phoenix_02":       {"name": "Parasites", "context": "showdown"},
 
     "butcher_00":       {"name": "Butchered", "context": "showdown"},
@@ -87,6 +91,7 @@ causes_of_death = {
     "core_murdered":            {"name": "Murdered", "context": "settlement_event"},
     "core_plague":              {"name": "Plague", "context": "settlement_event"},
     "core_open_maw":            {"name": "Open maw", "context": "settlement_event"},
+    'core_perfect_crucible':    {'name': 'Perfect Crucible crafting', 'context': 'settlement'},
 
     # endeavor
     "core_sacrificed":          {"name": "Sacrified", "context": "endeavor"},
@@ -140,4 +145,36 @@ weapon_proficiency = {
     "spear": {"name": "Spear"},
     "axe": {"name":"Axe"},
     "twilight_sword": {"name": "Twilight Sword", "excluded_campaigns": ["people_of_the_stars","people_of_the_sun"]},
+}
+
+survivor_special_attributes = {
+    # additional flag-type attribs (all of these are bools, for now)
+    # that may appear on survivor sheets
+    'potsun_purified': {
+        'name': 'Purified',
+        'epithet': 'purified',
+        'title_tip': 'This survivor is Purified.',
+    },
+    'potsun_sun_eater': {
+        'name': 'Sun Eater',
+        'epithet': 'sun_eater',
+        'title_tip': 'This survivor is a Sun Eater.',
+    },
+    'potsun_child_of_the_sun': {
+        'name': "Child of the Sun",
+        'epithet': 'child_of_the_sun',
+        'title_tip': 'This survivor is a Child of the Sun.',
+    },
+    'potstars_scar':{
+        'name': 'Scar',
+        'title_tip': 'This survivor has a scar.',
+    },
+    'potstars_noble_surname':{
+        'name': 'Noble Surname',
+        'title_tip': 'This survivor has a Noble surname.',
+    },
+    'potstars_reincarnated_surname': {
+        'name': 'Reincarnated Surname',
+        'title_tip': 'This survivor has a Reincarnated surname.',
+    },
 }

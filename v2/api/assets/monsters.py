@@ -148,16 +148,22 @@ unique_nemeses = {
         "selectable": False,
         "final_boss": True,
     },
-    "watcher": {
-        "name": "Watcher",
+    "dragon_king_lv3": {
+        "name": "The Dragon King",
         "sort_order": 201,
-        "misspellings": ["THE WATCHER"],
         "selectable": False,
         "final_boss": True,
     },
-    "dragon_king_lv3": {
-        "name": "The Dragon King",
+    "watcher": {
+        "name": "Watcher",
         "sort_order": 202,
+        "misspellings": ["THE WATCHER"],
+        "selectable": True,
+        "final_boss": False,
+    },
+    "gold_smoke_knight": {
+        "name": "Gold Smoke Knight",
+        "sort_order": 203,
         "selectable": False,
         "final_boss": True,
     },

@@ -1,28 +1,25 @@
 #!/usr/bin/env python
 
 saviors = {
-    "red_131": {
+    "red": {
         "color": "red",
-        "version": "1.3.1",
-        "epithet": "Red Savior",
+        "epithet": "red_savior",
         "abilities_and_impairments": [
-            "dream_of_the_beast","red_life_exchange","caratosis",
+            "dream_of_the_beast","life_exchange","caratosis",
         ],
     },
-    "green_131": {
+    "green": {
         "color": "green",
-        "version": "1.3.1",
-        "epithet": "Green Savior",
+        "epithet": "green_savior",
         "abilities_and_impairments": [
-            "dream_of_the_crown","green_life_exchange","dormenatus",
+            "dream_of_the_crown","life_exchange","dormenatus",
         ],
     },
-    "blue_131": {
+    "blue": {
         "color": "blue",
-        "version": "1.3.1",
-        "epithet": "Blue Savior",
+        "epithet": "blue_savior",
         "abilities_and_impairments": [
-            "dream_of_the_lantern","blue_life_exchange","lucernae",
+            "dream_of_the_lantern","life_exchange","lucernae",
         ],
     },
 }

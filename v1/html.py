@@ -1254,8 +1254,8 @@ class angularJS:
                             </span>
                         </span>
                         <span class="timeline_event" ng-repeat="q in t.special_showdown">
-                        <span><img class="icon special_showdown" src="/media/icons/special_showdown_event.jpg"/></span>
-                            <font class="maroon_text"><b>{{q.name}}</b></font>
+                        <span><img class="icon special_showdown" src="/media/icons/special_showdown_event.png"/></span>
+                            <font class="special_showdown_text"><b>{{q.name}}</b></font>
                         </span>
                         <span class="timeline_event" ng-repeat="q in t.showdown_event">
                             <font class="kdm_font">f &nbsp;</font>
@@ -1570,7 +1570,7 @@ class survivor:
                     <button
                         id="saviorControlsModal"
                         class="orange bold modal_opener"
-                        ng-if="settlement.game_assets.campaign.saviors >= '1.3.1'"
+                        ng-if="settlement.game_assets.campaign.saviors == true"
                         ng-init="registerModalDiv('saviorControlsModal','modalSavior')"
                     >
                         Savior
@@ -2163,10 +2163,38 @@ class survivor:
         <div id="survivor_sheet_right_pane">
 
 
-        <!-- SOTF REROLL ; EXPANSION ATTRIBUTES ; PARTNER CONTROLS -->
+        <!-- SURVIVOR SPECIAL ATTRIBUTES -->
+
+        <div
+            ng-controller="survivorSpecialAttribsController"
+            ng-if="settlement.game_assets.survivor_special_attributes.length >= 1"
+            class="survivor_sheet_special_attributes_container"
+        >
+            <div
+                class = "survivor_sheet_special_attribute_container clickable"
+                ng-repeat="s in settlement.game_assets.survivor_special_attributes"
+                ng-click="toggleSpecialAttrib(s.handle)"
+                ng-class="{active: survivor.sheet[s.handle] == true}",
+                title = "{{s.title_tip}}"
+            >
+                <div
+                    class="special_attribute_checkbox"
+                    ng-class="{active: survivor.sheet[s.handle] == true}"
+                ></div>
+                <div
+                    class="special_attribute_text"
+                    ng-class="{active: survivor.sheet[s.handle] == true}"
+                >
+                    {{s.name}}
+                </div>
+            </div>
+
+        </div><!-- special attributes controller -->
+
+        <hr ng-if="settlement.game_assets.survivor_special_attributes.length >= 1">
 
 
-        $expansion_attrib_controls
+        <!-- PARTNER CONTROLS - why hasn't this been refactored? -->
 
         <form
             method="POST"
@@ -2249,8 +2277,8 @@ class survivor:
                             ng-if="expansion_handle != null"
                             title="{{expansion_dict.name}} expansion Fighting Art"
                             style='
-                                color: {{expansion_dict.flair.color}};
-                                background-color: {{expansion_dict.flair.bgcolor}};
+                                color: #{{expansion_dict.flair.color}};
+                                background-color: #{{expansion_dict.flair.bgcolor}};
                             '
                             >
                         {{expansion_dict.name}}
@@ -2362,8 +2390,8 @@ class survivor:
                             ng-if="expansion_handle != null"
                             title="{{expansion_dict.name}} expansion Disorder"
                             style='
-                                color: {{expansion_dict.flair.color}};
-                                background-color: {{expansion_dict.flair.bgcolor}};
+                                color: #{{expansion_dict.flair.color}};
+                                background-color: #{{expansion_dict.flair.bgcolor}};
                             '
                         >
                             {{expansion_dict.name}}
@@ -2511,15 +2539,29 @@ class survivor:
 
                 <div>
                     <h4>Biography</h4>
+
+                    <!-- founder -->
                     <p ng-if="survivor.sheet.founder == true">
                         <font class="kdm_font_hit_locations">a</font> Founding member of {{settlement.sheet.name}}. 
                     </p>
+
+                    <!-- born or joined -->
                     <p ng-if="survivor.sheet.father != undefined || survivor.sheet.mother != undefined">
                         <font class="kdm_font_hit_locations">a</font> Born in LY{{survivor.sheet.born_in_ly}}. 
                     </p>
                     <p ng-if="survivor.sheet.father == undefined && survivor.sheet.mother == undefined && survivor.sheet.founder == false">
                         <font class="kdm_font_hit_locations">a</font> Joined the settlement in LY{{survivor.sheet.born_in_ly}}.
                     </p>
+
+                    <!-- inheritance -->
+                    <p ng-repeat="ai in survivor.sheet.inherited.father.abilities_and_impairments">
+                        <font class="kdm_font_hit_locations">a</font> Inherited <b>{{settlement.game_assets.abilities_and_impairments[ai].name}}</b> from <b>{{survivor.sheet.parents.father.name}}</b> (father).
+                    </p>
+                    <p ng-repeat="ai in survivor.sheet.inherited.mother.abilities_and_impairments">
+                        <font class="kdm_font_hit_locations">a</font> Inherited <b>{{settlement.game_assets.abilities_and_impairments[ai].name}}</b> from <b>{{survivor.sheet.parents.mother.name}}</b> (mother).
+                    </p>
+
+                    <!-- returning survivor -->
                     <p ng-if="survivor.sheet.returning_survivor.length >= 1">
                         <font class="kdm_font_hit_locations">a</font> Returning survivor in the following Lantern Years: {{survivor.sheet.returning_survivor.join(', ')}}. 
                     </p>
@@ -3784,9 +3826,21 @@ class settlement:
 
             <div class="campaign_summary_facts_box">
 
-                $special_rules
-
-                <div ng-if="user_is_settlement_admin" class="$show_endeavor_controls campaign_summary_small_box">
+                <div
+                    ng-repeat="r in settlement.campaign.special_rules"
+                    class="campaign_summary_special_rule"
+                    style="background-color: #{{r.bg_color}}; color: #{{r.font_color}}"
+                >
+                    <h3>{{r.name}}</h3>
+                    <span ng-bind-html="r.desc|trustedHTML"></span>
+                </div>
+                <div
+                    ng-if="
+                        user_is_settlement_admin &&
+                        user.user.preferences.show_endeavor_token_controls != false
+                    "
+                    class="campaign_summary_small_box"
+                >
                     <div
                         title="Manage settlement Endeavor tokens here! Settlement admins may use the controls at the right to increment or decrement the total number of tokens!"
                         class="campaign_summary_endeavor_controller"
@@ -3826,13 +3880,153 @@ class settlement:
 
             <hr class="mobile_only">
 
+            <div
+                class="campaign_summary_small_box"
+                ng-if="settlement.sheet.lantern_research_level >= 1"
+            >
+                <h4 class="pulse_discoveries">- Pulse Discoveries -</h4>
+                <div
+                    class="pulse_discovery"
+                    ng-repeat="d in settlement.game_assets.pulse_discoveries"
+                    ng-if="settlement.sheet.lantern_research_level >= d.level"
+                    style="background-color: {{d.bgcolor}}"
+                >
+                    <div class="pd_level_container">
+                        <div class="pd_level">{{d.level}}</div>
+                    </div>
+                    <div class="pd_text">
+                        <b>{{d.name}}</b>
+                        <span ng-if="d.subtitle != undefined"> - {{d.subtitle}}</span>
+                        <br/>
+                        {{d.desc}}
+                    </div>
+                </div><!-- repeater -->
+            </div> <!-- pulse discoveries -->
 
-            <div class="campaign_summary_small_box endeavor_box">
+            <div class="campaign_summary_small_box endeavor_box" ng-controller='availableEndeavorsController'>
                 <h4>- Available Endeavors -</h4>
-                $endeavors
+
+                <!-- campaign-specific -->
+                <div ng-if="settlement.campaign.endeavors.campaign.length >= 1">
+                    <h5><b>Campaign:</b></h5>
+                    <div
+                        ng-repeat="e in settlement.campaign.endeavors.campaign"
+                        class="campaign_summary_endeavor_container campaign_endeavor {{e.class}}"
+                    >
+                        <div class="endeavor_cost {{e.class}}">
+                            <img ng-repeat="c in range(e.cost)" src="/media/icons/endeavor_star.png" class="endeavor_cost">
+                        </div>
+                        <div class="endeavor_text">
+                            <b ng-if="e.name != undefined">{{e.name}}</b>
+                            <span ng-if="e.name != undefined && e.desc != undefined"> - </span>
+                            <span ng-bind-html="e.desc|trustedHTML"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- innovations -->
+                <div
+                    ng-repeat="i in settlement.campaign.endeavors.innovations"
+                >
+                    <h5><b>{{settlement.game_assets.innovations[i['handle']].name}}</b> ({{settlement.game_assets.innovations[i['handle']].innovation_type}}):</h5>
+                    <div
+                        ng-repeat="e_handle in i.endeavors"
+                        ng-init="e = settlement.game_assets.endeavors[e_handle]"
+                        class="campaign_summary_endeavor_container {{e.class}}"
+                    >
+                        <div class="endeavor_cost {{e.class}}">
+                            <img ng-repeat="c in range(e.cost)" src="/media/icons/endeavor_star.png" class="endeavor_cost">
+                        </div>
+                        <div class="endeavor_text">
+                            <b ng-if="e.name != undefined">{{e.name}}</b>
+                            <span ng-if="e.name != undefined && e.desc != undefined"> - </span>
+                            <span ng-bind-html="e.desc|trustedHTML"></span>
+                        </div>
+                        <div ng-if="e.cost_detail != undefined" class="cost_detail {{e.cost_detail_type}}_cost_detail">
+                            <div ng-repeat="i in e.cost_detail">
+                                {{i}}
+                            </div>
+                        </div>
+                    </div> <!-- endeavor container -->
+                </div> <!-- innovations endeavors -->
+
+                <!-- locations -->
+                <div
+                    ng-repeat="l in settlement.campaign.endeavors.locations"
+                >
+                    <h5><b>{{settlement.game_assets.locations[l['handle']].name}}</b>:</h5>
+                    <div
+                        ng-repeat="e_handle in l.endeavors"
+                        ng-init="e = settlement.game_assets.endeavors[e_handle]"
+                        class="campaign_summary_endeavor_container {{e.class}}"
+                    >
+                        <div class="endeavor_cost {{e.class}}">
+                            <img ng-repeat="c in range(e.cost)" src="/media/icons/endeavor_star.png" class="endeavor_cost">
+                        </div>
+                        <div class="endeavor_text">
+                            <b ng-if="e.name != undefined">{{e.name}}</b>
+                            <span ng-if="e.name != undefined && e.desc != undefined"> - </span>
+                            <span ng-bind-html="e.desc|trustedHTML"></span>
+                        </div>
+                        <div ng-if="e.cost_detail != undefined" class="cost_detail {{e.cost_detail_type}}_cost_detail">
+                            <div ng-repeat="i in e.cost_detail">
+                                {{i}}
+                            </div>
+                        </div>
+                    </div> <!-- endeavor container -->
+                </div> <!-- locations endeavors -->
+
+                <!-- survivors -->
+                <div
+                    ng-repeat="s in settlement.campaign.endeavors.survivors"
+                >
+                    <h5><b>{{s.sheet.name}} [{{s.sheet.effective_sex}}]</b>:</h5>
+                    <div
+                        ng-repeat="e_handle in s.sheet.endeavors"
+                        ng-init="e = settlement.game_assets.endeavors[e_handle]"
+                        class="campaign_summary_endeavor_container {{e.class}}"
+                    >
+                        <div class="endeavor_cost {{e.class}}">
+                            <img ng-repeat="c in range(e.cost)" src="/media/icons/endeavor_star.png" class="endeavor_cost">
+                        </div>
+                        <div class="endeavor_text">
+                            <b ng-if="e.name != undefined">{{e.name}}</b>
+                            <span ng-if="e.name != undefined && e.desc != undefined"> - </span>
+                            <span ng-bind-html="e.desc|trustedHTML"></span>
+                        </div>
+                        <div ng-if="e.cost_detail != undefined" class="cost_detail {{e.cost_detail_type}}_cost_detail">
+                            <div ng-repeat="i in e.cost_detail">
+                                {{i}}
+                            </div>
+                        </div>
+                    </div> <!-- endeavor container -->
+                </div><!-- survivor repeater -->
+
+                <!-- storage -->
+                <div
+                    ng-repeat="item in settlement.campaign.endeavors.storage"
+                >
+                    <h5><b>{{item.name}} ({{item.type}})</b>:</h5>
+                    <div
+                        ng-repeat="e_handle in item.endeavors"
+                        ng-init="e = settlement.game_assets.endeavors[e_handle]"
+                        class="campaign_summary_endeavor_container {{e.class}}"
+                    >
+                        <div class="endeavor_cost {{e.class}}">
+                            <img ng-repeat="c in range(e.cost)" src="/media/icons/endeavor_star.png" class="endeavor_cost">
+                        </div>
+                        <div class="endeavor_text">
+                            <b ng-if="e.name != undefined">{{e.name}}</b>
+                            <span ng-if="e.name != undefined && e.desc != undefined"> - </span>
+                            <span ng-bind-html="e.desc|trustedHTML"></span>
+                        </div>
+                    </div> <!-- endeavor container -->
+                </div> <!-- storage endeavors -->
+
+
             </div>
             <div class="campaign_summary_small_box">
-                <h4>- Settlement Bonuses -</h4>
+                <h4 ng-if='settlement.survivor_bonuses.all.length >=1'>- Settlement Bonuses -</h4>
                 <span
                     class="kd_checkbox_checked campaign_summary_bullet"
                     ng-repeat="p in settlement.survivor_bonuses.all"
@@ -3843,7 +4037,7 @@ class settlement:
             </div>
             <hr class="mobile_only"/>
             <div class="campaign_summary_small_box">
-                <h4>- Principles -</h4>
+                <h4 ng-if="settlement.sheet.principles.length >= 1">- Principles -</h4>
                 <span
                     class="kd_checkbox_checked campaign_summary_bullet"
                     ng-repeat="p in settlement_sheet.principles"
@@ -3853,7 +4047,7 @@ class settlement:
 
             </div>
             <div class="campaign_summary_small_box">
-                <h4>- Innovations -</h4>
+                <h4 ng-if="settlement.sheet.innovations.length >= 1">- Innovations -</h4>
                 <span
                     class="kd_checkbox_checked campaign_summary_bullet"
                     ng-repeat="i in settlement.sheet.innovations"
@@ -3865,7 +4059,7 @@ class settlement:
             <hr class="mobile_only"/>
 
             <div class="campaign_summary_small_box">
-                <h4>- Locations -</h4>
+                <h4 ng-if="settlement.sheet.locations.length >= 1">- Locations -</h4>
                 <span
                     class="kd_checkbox_checked campaign_summary_bullet"
                     ng-repeat="l in settlement.sheet.locations"
@@ -3878,8 +4072,24 @@ class settlement:
 
             <div class="campaign_summary_small_box">
                 <h4>- Monsters -</h4>
-                <h3 class="monster_subhead"> Defeated </h3>
-                <span class="kd_checkbox_checked campaign_summary_bullet" ng-repeat="d in settlement_sheet.defeated_monsters track by $index">
+
+                <h3 class="monster_subhead" ng-if="settlement.sheet.monster_volumes.length >= 1">
+                    Monster Volumes
+                </h3>
+                <span
+                    class="kd_checkbox_checked campaign_summary_bullet"
+                    ng-repeat='v in settlement.sheet.monster_volumes'
+                >
+                    {{v}}
+                </span>
+
+                <h3 class="monster_subhead" ng-if="settlement.sheet.defeated_monsters.length >=1">
+                    Defeated Monsters
+                </h3>
+                <span
+                    class="kd_checkbox_checked campaign_summary_bullet"
+                    ng-repeat="d in settlement.sheet.defeated_monsters track by $index"
+                >
                     {{d}}
                 </span>
 
@@ -3997,9 +4207,9 @@ class settlement:
         </div> <!-- departing_survivors_control brain event damage -->
 
 
-        <h3>Showdown</h3>
+        <h3>Monster</h3>
         <p class="modal_subtitle">Use the controls below to select the monster
-        facing the survivors in the current Showdown. </p>
+        facing the survivors in the upcoming Showdown. </p>
 
         <div class="current_hunt_container">
             <select
@@ -4010,30 +4220,47 @@ class settlement:
                 ng-change="saveCurrentQuarry()"
                 ng-options="d for d in settlement.game_assets.defeated_monsters"
             >
-                <option disabled selected value="">Set Target Monster</option>
+                <option disabled selected value="">Choose Monster</option>
             </select>
         </div>
 
-        <h3>Return Survivors</h3>
-        <p class="modal_subtitle">Use the buttons below to return <b>Departing</b>
-        Survivors to <b>{{settlement.sheet.name}}</b>. This automatically removes
-        armor points, attribute modifiers and damage. Living survivors' Hunt XP
-        will be automatically incremented, if victorious.</p>
+        <div class="showdown_type">
+            <h3>Showdown</h3>
+            <p class="modal_subtitle">Use the buttons below to select the type of
+            showdown.</p>
+            <div class="options">
+                <button class="departing_survivors_mgmt">Showdown</button>
+                <button class="departing_survivors_mgmt">Special Showdown</button>
+            </div>
+        </div>
 
-        <button
-            class="kd_blue departing_survivors_mgmt"
-            ng-click="returnDepartingSurvivors('victory')"
-            onclick="showHide('departingSurvivorsModalContent')"
-        >
-            Victorious!
-        </button>
-        <button
-            class="kd_alert_no_exclaim departing_survivors_mgmt"
-            ng-click="returnDepartingSurvivors('defeat')"
-            onclick="showHide('departingSurvivorsModalContent')"
-        >
-            Defeated...
-        </button>
+        <div ng-if="settlement.sheet.showdown_type == 'special'">
+            <h3>Heal Survivors</h3>
+            <p class="modal_subtitle">Use the buttons below to</p>
+        </div>
+
+        <div ng-if="settlement.sheet.showdown_type == 'normal'">
+            <h3>Return Survivors</h3>
+            <p class="modal_subtitle">Use the buttons below to return <b>Departing</b>
+            Survivors to <b>{{settlement.sheet.name}}</b>. This automatically removes
+            armor points, attribute modifiers and damage. Living survivors' Hunt XP
+            will be automatically incremented, if victorious.</p>
+
+            <button
+                class="kd_blue departing_survivors_mgmt"
+                ng-click="returnDepartingSurvivors('victory')"
+                onclick="showHide('departingSurvivorsModalContent')"
+            >
+                Victorious!
+            </button>
+            <button
+                class="kd_alert_no_exclaim departing_survivors_mgmt"
+                ng-click="returnDepartingSurvivors('defeat')"
+                onclick="showHide('departingSurvivorsModalContent')"
+            >
+                Defeated...
+            </button>
+        </div>
 
         <hr>
 
@@ -4063,39 +4290,69 @@ class settlement:
         <div
             class="survivor_search_modal_content survivor_sheet_gradient"
             ng-controller = "survivorSearchController"
-            ng-init = "loadSurvivors();registerModalDiv('survivorSearchModalOpener','survivorSearchModalContent');"
+            ng-init = "registerModalDiv('survivorSearchModalOpener','survivorSearchModalContent');"
         >
 
             <div id="searchTextResults" class="survivor_search_results_buttons">
 
                 <form
                     method="POST" action="/"
-                    ng-repeat="s in survivors | filter:searchText "
+                    ng-repeat="s in settlement.user_assets.survivors | filter:searchText "
                 >
-                    <input type="hidden" name="view_survivor" value="{{s._id.$oid}}" />
+                    <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
                     <button
                         class="survivor_search_button kd_lantern"
                         ng-class="{disabled : userCanManage(s) == false}"
                         ng-if="s.dead == undefined && s.retired == undefined"
                     >
-                      <p class="survivor_name">{{s.name}} [{{s.sex}}]</p>
-                      <div class="survivor_assets"><b>Hunt XP:</b> {{s.hunt_xp}} <b>Courage:</b> {{s.Courage}} <b>Understanding:</b> {{s.Understanding }}</div>
+                      <p class="survivor_name">{{s.sheet.name}} [{{s.sheet.effective_sex}}]</p>
+                      <div class="survivor_assets"><b>Hunt XP:</b> {{s.sheet.hunt_xp}} <b>Courage:</b> {{s.sheet.Courage}} <b>Understanding:</b> {{s.sheet.Understanding }}</div>
                       <div class="survivor_assets">
-                        <b>MOV</b> {{s.Movement}} |
-                        <b>ACC</b> {{s.Accuracy}} |
-                        <b>STR</b> {{s.Strength}} |
-                        <b>EVA</b> {{s.Evasion}} |
-                        <b>LUCK</b> {{s.Luck}} |
-                        <b>SPD</b> {{s.Speed}}
+                        <b>MOV</b> {{s.sheet.Movement}} |
+                        <b>ACC</b> {{s.sheet.Accuracy}} |
+                        <b>STR</b> {{s.sheet.Strength}} |
+                        <b>EVA</b> {{s.sheet.Evasion}} |
+                        <b>LUCK</b> {{s.sheet.Luck}} |
+                        <b>SPD</b> {{s.sheet.Speed}}
                       </div>
-                      <div ng-if="s.epithets.length >= 1" class="survivor_assets"><b>Epithets:</b> {{ s.epithets.join(", ") }}</div>
-                      <div ng-if="s.fighting_arts.length >= 1" class="survivor_assets"><b>Fighting Arts:</b> {{ s.fighting_arts.join(", ") }}</div>
-                      <div ng-if="s.disorders.length >= 1" class="survivor_assets"><b>Disorders:</b> {{ s.disorders.join(", ") }}</div>
-                      <div ng-if="s.abilities_and_impairments.length >= 1" class="survivor_assets"><b>Abilities & Impairments:</b> {{ s.abilities_and_impairments.join(", ") }}</div>
+
+                      <div
+                          ng-if="s.sheet.epithets.length >= 1"
+                          class="survivor_assets"
+                      >
+                        <b>Epithets:</b> <span ng-repeat="e in s.sheet.epithets">
+                            {{settlement.game_assets.epithets[e].name}}{{$last ? '' : ', '}}
+                        </span>
+                      </div>
+                      <div
+                          ng-if="s.sheet.fighting_arts.length >= 1"
+                          class="survivor_assets"
+                      >
+                        <b>Fighting Arts:</b> <span ng-repeat="e in s.sheet.fighting_arts">
+                            {{settlement.game_assets.fighting_arts[e].name}}{{$last ? '' : ', '}}
+                        </span>
+                      </div>
+                      <div
+                          ng-if="s.sheet.disorders.length >= 1"
+                          class="survivor_assets"
+                      >
+                        <b>Disorders:</b> <span ng-repeat="e in s.sheet.disorders">
+                            {{settlement.game_assets.disorders[e].name}}{{$last ? '' : ', '}}
+                        </span>
+                      </div>
+                      <div
+                          ng-if="s.sheet.abilities_and_impairments.length >= 1"
+                          class="survivor_assets"
+                      >
+                        <b>Abilities & Impairments:</b> <span ng-repeat="e in s.sheet.abilities_and_impairments">
+                            {{settlement.game_assets.abilities_and_impairments[e].name}}{{$last ? '' : ', '}}
+                        </span>
+                      </div>
+
                       <div ng-if="s.notes.length >= 1" class="survivor_assets"><b>Notes:</b>
                         <span ng-repeat="n in s.notes"> {{n.note}} </span>
                       </div>
-                      <div ng-if="s.sotf_reroll" class="survivor_assets"><b>Once per lifetime SotF re-roll:</b> used.</div>
+                      <div ng-if="s.sheet.sotf_reroll" class="survivor_assets"><b>Once per lifetime SotF re-roll:</b> used.</div>
                     </button>
                 </form>
             </div>
@@ -4282,26 +4539,146 @@ class settlement:
 
 
 
-        <div class="settlement_sheet_block_group settlement_storage">
-            <h2>Storage</h2>
-            <p>Gear and Resources may be stored without limit.<br/><br/>
+        <div
+            class="settlement_sheet_block_group settlement_storage"
+            ng-controller="storageController"
+        >
+            <h2 class="clickable" ng-click="showHide('editStorage')">Storage</h2>
+            <p class="clickable" ng-click="showHide('editStorage')">Gear & Resources may be stored without limit. <b>Tap or click here to edit settlement storage.</b></p>
 
-            <button id="modalStorageButton" class="kd_blue">+ Add Item to Storage</button>
+            <div id="editStorage" class="hidden modal storage_modal">
+                    <div
+                        class="storage_modal_storage_type"
+                        ng-repeat="s_type in settlementStorage"
+                    >
+                        <h3>{{s_type.name}} Storage</h3>
 
-            <br><br class="desktop_only">
-            <a id="edit_storage" class="mobile_only"/></a>
+                        <div
+                            ng-repeat="loc in s_type.locations"
+                            ng-init="loc.arrow=false"
+                            class="storage_modal_storage_location"
+                        >
+                            <h4
+                                class="clickable"
+                                ng-click="showHide(loc.handle + '_container'); flipArrow(loc)"
+                            >
+                                {{loc.name}} <span class="metrophobic"></span>
+                                <span ng-if="loc.arrow == false" class="arrow">
+                                    &#x25BC;
+                                </span>
+                                <span ng-if="loc.arrow == true" class="arrow">
+                                    &#x25B2;
+                                </span>
+                            </h4>
+                            <div class="hidden" id="{{loc.handle}}_container"> <!-- show hide -->
+                                <div
+                                    class="inventory_row" ng-repeat="asset in loc.collection"
+                                    ng-init="detailId = asset.handle + '_detail'; asset.flippers=false"
+                                >
+                                    <div
+                                        class="inventory_row_item_controls clickable"
+                                        ng-click="showHide(detailId); toggleFlippers(asset)"
+                                    >
+                                        <span class="name">
+                                            {{asset.name}}
+                                        </span>
+                                        <span class="quantity">
+                                            {{asset.quantity}}
+                                        </span>
+                                    </div> <!-- controls -->
+                                    <div class="flippers" ng-if="asset.flippers">
+                                        <button ng-click="setStorage(asset, 1)"> + </button>
+                                        <button ng-click="setStorage(asset, -1)"> - </button>
+                                    </div>
+                                    <div id="{{detailId}}" class="hidden inventory_row_detail">
+                                        <div class="rules" ng-if="asset.rules.length >= 1">
+                                            &nbsp; <span ng-repeat="k in asset.rules">
+                                                <b>{{k}}</b>{{$last ? '' : ', '}}
+                                            </span>
+                                        </div>
+                                        &nbsp; <span ng-repeat="k in asset.keywords">{{k}}{{$last ? '' : ', '}}</span><br/>
+                                        <span ng-bind-html="asset.desc|trustedHTML"></span>
+                                    </div>
+                                </div>
+                            </div>
 
-            <form method="POST" action="#edit_storage">
-                <input type="hidden" name="modify" value="settlement" />
-                <input type="hidden" name="asset_id" value="$settlement_id" />
-                $storage
-                <button id="remove_item" class="hidden" style="display: none" name="remove_item" value="" /> </button>
-            </form>
+                        </div> <!-- storage_location -->
+
+                    </div> <!-- storage_type -->
+
+                <div class="button_spacer"></div>
+                <button
+                    class="kd_blue close_storage"
+                    ng-click="showHide('editStorage'); loadStorage();"
+                >
+                    Save Changes and Return
+                </button>
+            </div> <!-- storage_modal container -->
+
+            <div id="storageSpinner" class="hidden storage_loading_spinner">
+                <img src="/media/loading_io.gif"><br/>
+                Loading storage...
+            </div>
+            <div
+                class="settlement_storage_type_container"
+                ng-repeat="s_type in settlementStorage"
+            >
+                <h3 ng-if="s_type.total >= 1">
+                    {{s_type.name}} Storage
+                </h3>
+                <div
+                    class="settlement_storage_location"
+                    ng-repeat="loc in s_type.locations"
+                    ng-if="loc.inventory.length >= 1"
+                    ng-init="loc.arrow = false"
+                >
+                    <h4
+                        class="clickable"
+                        ng-click="showHide(loc.handle + '_digest_container'); flipArrow(loc)"
+                    >
+                        {{loc.name}} ({{loc.inventory.length}})
+                        <span ng-if="loc.arrow == false" class="arrow">
+                            &#x25BC;
+                        </span>
+                        <span ng-if="loc.arrow == true" class="arrow">
+                            &#x25B2;
+                        </span>
+                    </h4>
+                    <div class="hidden" id="{{loc.handle}}_digest_container"> <!-- show hide -->
+                        <div
+                            class="settlement_storage_inventory_container"
+                        >
+                            <div
+                                class="inventory_repeater clickable"
+                                ng-repeat="t in loc.digest"
+                                ng-init="detailId = t.handle + '_digest_detail'"
+                                style="background-color: #{{loc.bgcolor}}; color: #{{loc.color}}"
+                                ng-click="showHide(detailId)"
+                            >
+                                {{t.name}}
+                                <span ng-if="t.count > 1">x {{t.count}}</span>
+                                <div id="{{detailId}}" class="hidden inventory_repeater_detail">
+                                    <div class="rules" ng-if="t.rules.length >= 1">
+                                        &nbsp; <span ng-repeat="k in t.rules">
+                                            <b>{{k}}</b>{{$last ? '' : ', '}}
+                                        </span>
+                                    </div>
+                                    &nbsp; <span ng-repeat="k in t.keywords">{{k}}{{$last ? '' : ', '}}</span><br/>
+                                    <span ng-bind-html="t.desc|trustedHTML"></span>
+                                </div>
+                            </div> <!-- inventory repeater, click to remove -->
+                        </div> <!-- container flex -->
+                    </div> <!-- showhide -->
+                </div><!-- storage location container-->
+            </div> <!-- storage type container, e.g. gear/resources-->
+
+
 
         </div> <!-- settlement_sheet_block_group for storage -->
+
+
+
     </div> <!-- asset_management_left_pane -->
-
-
 
 
     <div id="asset_management_middle_pane">
@@ -4311,6 +4688,32 @@ class settlement:
 
 
         <a id="edit_locations" class="mobile_only"><a/>
+
+        <div
+            class="settlement_sheet_block_group"
+            ng-if="settlement.sheet.innovations.indexOf('sculpture') != -1"
+            ng-controller="inspirationalStatueController"
+            title="Use these controls to manage your settlement's Inspirational Statue!"
+        >
+            <h2>Inspirational Statue</h2>
+            <p>A settlement can only have one Inspirational Statue.</p>
+
+            <div class="line_item">
+                <span class="empty_bullet" ng-if="settlement.sheet.inspirational_statue == undefined"/></span>
+                <span class="bullet" ng-if="settlement.sheet.inspirational_statue != undefined"/></span>
+                <select
+                    ng-model="settlement.sheet.inspirational_statue"
+                    ng-options="
+                        fa_handle as settlement.game_assets.fighting_arts[fa_handle].name for fa_handle in settlement.game_assets.inspirational_statue_options
+                    "
+                    ng-change="setInspirationalStatue()"
+                    ng-selected="settlement.sheet.inspirational_statue"
+                >
+                    <option disabled value="">Select a Fighting Art</option>
+                </select>
+            </div> <!-- line_item -->
+
+        </div>
 
         <div
             class="settlement_sheet_block_group"
@@ -4432,6 +4835,84 @@ class settlement:
             </div>
 
         </div> <!-- settlement_sheet_block_group innovations-->
+
+        <div
+            class="settlement_sheet_block_group"
+            ng-controller="lanternResearchController"
+            ng-if="settlement.sheet.locations.indexOf('exhausted_lantern_hoard') != -1"
+        >
+
+            <h2>Lantern Research Level</h2>
+
+            <div class="lantern_research_level">
+                <div class="big_number_container">
+                    <button
+                        class="incrementer"
+                        ng-click="incrementLanternResearch(1)"
+                    >
+                        &#9652;
+                    </button>
+                    <input
+                        id="lanternResearchBox"
+                        class="big_number_square"
+                        type="number" name="population"
+                        ng-value="settlement.sheet.lantern_research_level"
+                        ng-model="settlement.sheet.lantern_research_level"
+                        ng-blur="setLanternResearch()"
+                        min="0"
+                        max="5"
+                    />
+                    <button
+                        class="decrementer"
+                        ng-click="incrementLanternResearch(-1)"
+                    >
+                        &#9662;
+                    </button>
+                </div> <!-- big_number_container -->
+                <div class="desc_text">
+                    <p><b>Once per lantern year, spend 2 x Bone, 2 x hide, 2 x organ to research.</b><br/>If you do, gain the next level of Lantern Research.</p>
+                    <p>Corresponding <b>Pulse Discoveries</b> are displayed on the Campaign Summary view.</p>
+                </div> <!-- desc_text -->
+
+            </div><!-- big_number_container -->
+
+        </div> <!-- lantern research level -->
+
+        <div
+            class="settlement_sheet_block_group"
+            ng-controller="monsterVolumesController"
+            ng-if="settlement.sheet.innovations.indexOf('records') != -1"
+            title="Click or tap on an item to remove it from this list."
+        >
+
+            <h2>Monster Volumes</h2>
+            <p>There can be up to 3 volumes for each monster.</p>
+
+            <div
+                class="line_item location_container"
+                ng-repeat="v in settlement.sheet.monster_volumes"
+            >
+                <span class="bullet"></span>
+                <span
+                    class="item"
+                    ng-click="rmMonsterVolume($index, v)"
+                >
+                    {{v}}
+                </span>
+            </div> <!-- line_item -->
+
+            <div class="line_item">
+                <span class="empty_bullet"></span>
+                <select
+                    ng-model="scratch.monster_volume"
+                    ng-options="m_string for m_string in settlement.game_assets.monster_volumes_options"
+                    ng-change="addMonsterVolume()"
+                >
+                    <option disabled value="">Add a Monster Volume</option>
+                </select>
+            </div> <!-- line_item -->
+
+        </div>
 
 
     </div> <!-- asset_management_left_pane -->
@@ -4690,7 +5171,6 @@ class settlement:
         <div
             class="lost_settlements_app_container"
             ng-controller="lostSettlementsController"
-            ng-init="loadLostSettlements();"
         >
         <div
             onclick="showHide('lostSettlementsTooltip'); showHide('lostSettlementsControls')"
@@ -4789,39 +5269,6 @@ class settlement:
     <form id="settlementSheetReload" method="POST" action="/"><button class="hidden" />SUBMIT</button></form>
 
 
-    <div
-        id="modalStorage" class="modal"
-        ng-init="registerModalDiv('modalStorageButton','modalStorage');"
-    >
-
-      <!-- Modal content -->
-        <div class="full_size_modal_panel timeline_gradient">
-            <span class="closeModal" onclick="closeModal('modalStorage')">×</span>
-
-                <!-- ADD TO STORAGE - THIS IS ITS OWN FORM-->
-            <form method="POST" action="#edit_storage">
-                <input type="hidden" name="modify" value="settlement" />
-                <input type="hidden" name="asset_id" value="$settlement_id" />
-
-                 <div class="big_number_container">
-                     <button type="button" class="incrementer" onclick="increment('addStorageBox');">+</button>
-                     <input id="addStorageBox" class="big_number_square" type="number" name="add_item_quantity" value="1" min="1"/>
-                     <button type="button" class="decrementer" onclick="decrement('addStorageBox');">-</button>
-                 </div> <!-- big_number_container -->
-                 <div class="big_number_caption">Quantity</div>
-                <hr>
-
-                $add_to_storage_controls
-
-                <input type="text" class="full_width" name="add_item" placeholder="Add custom item to storage"/>
-                <center><button class="kd_blue">Add!</button></center>
-                <br><br><br>
-            </form>
-        </div> <!-- modal-content -->
-    </div> <!-- modalStorage -->
-
-
-
 
 </div> <!-- settlementSheetApp -->
 
@@ -4875,19 +5322,8 @@ class settlement:
     </fieldset>
     </div>
     \n""")
-    special_rule = Template("""\n
-    <div class="campaign_summary_special_rule" style="background-color: #$bg_color; color: #$font_color">
-    <h3>$name</h3>
-    $desc
-    </div>
-    """)
     innovation_heading = Template("""\n
     <h5>$name</h5><p class="$show_subhead campaign_summary_innovation_subhead innovation_gradient">$subhead</p>
-    \n""")
-    endeavor = Template("""\n
-    <p class="$p_class">
-    &nbsp; $cost $name$punc $desc $type
-    </p>
     \n""")
 
 

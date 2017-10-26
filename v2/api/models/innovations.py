@@ -1,13 +1,15 @@
 #!/usr/bin/python2.7
 
 
-from assets import innovations, abilities_and_impairments, principles
 from copy import copy
+
+from assets import innovations, abilities_and_impairments, principles
+import endeavors
 import Models
 import utils
 
 
-class Assets(Models.AssetCollection):
+class Assets(object, Models.AssetCollection):
 
     def __init__(self, *args, **kwargs):
         self.root_module = innovations
@@ -88,4 +90,5 @@ class Innovation(Models.GameAsset):
 
         self.assets = Assets()
         self.initialize()
+
 

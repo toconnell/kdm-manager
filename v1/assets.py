@@ -24,7 +24,7 @@ import admin
 from modular_assets import survivor_attrib_controls
 import game_assets
 import html
-from models import Locations, Items, Innovations, Resources, userPreferences, mutually_exclusive_principles 
+from models import Locations, Items, Resources, userPreferences, mutually_exclusive_principles 
 from session import Session
 from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd, u_to_str
 import world
@@ -84,9 +84,6 @@ class User:
         self.Session = session_object
         if self.Session is None:
             raise Exception("User Objects may not be initialized without a session object!")
-
-        self.get_settlements()
-        self.get_survivors()
 
         self.preference_keys = [t[0] for t in settings.items("users")]
 
@@ -293,67 +290,6 @@ class User:
 
         return assets_dict
 
-
-    def get_campaigns(self):
-        """ This function gets all campaigns in which the user is involved. """
-
-        self.get_settlements()
-        game_list = set()
-
-        if self.settlements is not None:
-            for s in self.settlements:
-                if s is not None:
-                    game_list.add(s["_id"])
-
-        for s in self.get_survivors():
-            game_list.add(s["settlement"])
-
-        output = ""
-
-        game_dict = {}
-        for settlement_id in game_list:
-            S = Settlement(settlement_id=settlement_id, session_object=self.Session, update_mins=False)
-            if S.settlement is not None:
-                if not "abandoned" in S.settlement.keys():
-                    game_dict[settlement_id] = S.settlement["name"]
-            else:
-                self.logger.error("Could not find settlement %s while loading campaigns for %s" % (settlement_id, self.get_name_and_id()))
-        sorted_game_tuples = sorted(game_dict.items(), key=operator.itemgetter(1))
-
-        for settlement_tuple in sorted_game_tuples:
-            settlement_id = settlement_tuple[0]
-            S = Settlement(settlement_id=settlement_id, session_object=self.Session, update_mins=False)
-            if S.settlement is not None:
-                output += S.asset_link(context="dashboard_campaign_list")
-        return output
-
-
-    def get_settlements(self, return_as=False):
-        """ Returns the user's settlements in a number of ways. Leave
-        'return_as' unspecified if you want a mongo cursor back. """
-
-        self.settlements = list(mdb.settlements.find({
-            "created_by": self.user["_id"],
-            "removed": {"$exists": False},
-            }).sort("created_on"))
-
-        if self.settlements is None:
-            return "NONE!"
-
-        if return_as == "html_option":
-            output = ""
-            for settlement in self.settlements:
-                output += '<option value="%s">%s</option>' % (settlement["_id"], settlement["name"])
-            return output
-
-        if return_as == "asset_links":
-            output = ""
-            for settlement in self.settlements:
-                S = Settlement(settlement_id=settlement["_id"], session_object=self.Session, update_mins=False)
-                output += S.asset_link()
-            return output
-
-        return self.settlements
 
 
     def get_survivors(self, return_type=False):
@@ -844,73 +780,6 @@ class Survivor:
         return partner
 
 
-    def get_expansion_attribs(self, return_type=False):
-        """ Expansion content that has the 'survivor_attribs' key is retrieved
-        using this. The 'expansion_attribs' of a survivor is a dict of attribs
-        and their values. These things are totally arbitrary. """
-
-        survivor_expansion_attribs = {}
-        if "expansion_attribs" in self.survivor.keys() and type(self.survivor["expansion_attribs"]) == dict:
-            survivor_expansion_attribs = self.survivor["expansion_attribs"]
-
-        if return_type == "html_controls":
-            # first, figure out if we're using expansion content with these
-            # attributes, so we can decide whether to go forward
-            expansion_attrib_keys = set()
-
-            # 1.) check the campaign for survivor_attribs
-            c_dict = self.Settlement.get_campaign("dict")
-            if "survivor_attribs" in c_dict.keys():
-                expansion_attrib_keys.update(
-                    c_dict["survivor_attribs"]
-                )
-
-            # 2.) check the expansions for survivor_attribs
-            for exp_key in self.Settlement.get_expansions():
-                if "survivor_attribs" in self.Settlement.get_api_asset("game_assets","expansions")[exp_key]:
-                    expansion_attrib_keys.update(self.Settlement.get_api_asset("game_assets","expansions")[exp_key]["survivor_attribs"])
-
-            # as usual, bail early if we don't need to show anything
-            if expansion_attrib_keys == set():
-                return ""
-
-            control_html = ""
-            for expansion_attrib_key in expansion_attrib_keys:
-                c = ""
-                if expansion_attrib_key in survivor_expansion_attribs.keys():
-                    c = survivor_expansion_attribs[expansion_attrib_key]
-                control_html += html.survivor.expansion_attrib_item.safe_substitute(item_id=to_handle(expansion_attrib_key), key=expansion_attrib_key, checked=c)
-            output = html.survivor.expansion_attrib_controls.safe_substitute(control_items=control_html)
-            return output
-
-        return survivor_expansion_attribs
-
-
-    def update_expansion_attribs(self, attribs):
-        """ Expansion content with 'survivor_attribs' updates survivors with
-        special attribs. Update them here using cgi.FieldStorage() key/value
-        pairs. """
-
-        active = set()
-        for pair in attribs:
-            if pair.value != "None":
-                active.add(pair.value)
-
-        if not "expansion_attribs" in self.survivor.keys():
-            self.survivor["expansion_attribs"] = {}
-
-        for attrib in active:
-            if not attrib in self.get_expansion_attribs().keys():
-                self.survivor["expansion_attribs"][attrib] = "checked"
-#                self.update_epithets(epithet=attrib)    # issue #81
-                self.logger.debug("[%s] toggled ON expansion attribute '%s' for %s" % (self.User, attrib, self))
-        for attrib in self.get_expansion_attribs().keys():
-            if not attrib in active:
-                del self.survivor["expansion_attribs"][attrib]
-#                self.update_epithets(action="rm", epithet=attrib)
-                self.logger.debug("[%s] toggled OFF expansion attribute '%s' for %s" % (self.User, attrib, self))
-
-
 
     def update_survivor_attribute(self, attrib, attrib_type, attrib_type_value):
         """ Processes input from the angularjs attributeController app. Updates
@@ -996,8 +865,6 @@ class Survivor:
                 self.update_avatar(params[p])
             elif p == "partner_id":
                 self.update_partner(game_asset_key)
-            elif p == "expansion_attribs":
-                self.update_expansion_attribs(params[p])
             elif p.split("_")[0] == "toggle" and "norefresh" in params:
                 toggle_key = "_".join(p.split("_")[1:])
                 self.toggle(toggle_key, game_asset_key, toggle_type="explicit")
@@ -1137,8 +1004,6 @@ class Survivor:
             if flag in self.survivor.keys():
                 flags[flag] = self.survivor[flag]
 
-        exp = self.Settlement.get_expansions("list_of_names")
-
         rm_controls = ""
         if self.User.get_preference("show_remove_button"):
             rm_controls = html.survivor.survivor_sheet_rm_controls.safe_substitute(
@@ -1169,7 +1034,6 @@ class Survivor:
 
             # optional and/or campaign-specific controls and modals
             partner_controls = self.get_partner("html_controls"),
-            expansion_attrib_controls = self.get_expansion_attribs("html_controls"),
 
         )
         return output
@@ -1229,8 +1093,8 @@ class Settlement:
             self.logger.error("[%s] failed to initialize settlement _id: %s" % (self.User, s_id))
             raise Exception("Could not initialize requested settlement %s!" % s_id)
 
-        if update_mins:
-            self.update_mins()
+#        if update_mins:
+#            self.update_mins()
 
 
     def update_mins(self):
@@ -1261,10 +1125,6 @@ class Settlement:
             if self.settlement[min_key] < 0:
                 self.settlement[min_key] = 0
 
-        # auto-update the timeline here, if the user wants us to
-        if self.User.get_preference("update_timeline"):
-            self.update_timeline_with_story_events()
-
         self.enforce_data_model()
         self.save(quiet=True)
 
@@ -1294,38 +1154,6 @@ class Settlement:
             self.logger.debug("[%s] saved changes to %s" % (self.User, self))
 
 
-
-    def set_api_asset(self, refresh=False):
-        """ Tries to set the settlement's API asset from the session. Fails
-        gracelessly if it cannot: if we've got methods looking for API data,
-        they need to scream bloody murder if they can't get it."""
-
-#        self.logger.debug("[%s] setting API asset for %s..." % (self.User, self))
-
-        cv = self.Session.get_current_view()
-
-        # if we're looking at any view other than the dashboard or the panel,
-        # throw an error if we haven't got a settlement asset loaded up for the
-        # session (because that's a big fucking problem).
-        if cv not in ["dashboard","panel"] and not hasattr(self.Session, "api_settlement"):
-            self.logger.error("[%s] session has no API settlement asset!" % (self.User))
-
-        if cv not in ["dashboard","panel"]:
-            if not hasattr(self.Session, "api_settlement"):
-                raise Exception("[%s] session has no API assets!" % self.User)
-            if refresh:
-                self.Session.set_api_assets()
-            self.api_asset = self.Session.api_settlement
-            if not "game_assets" in self.api_asset.keys():
-                self.logger.error("[%s] API asset for %s does not contain a 'game_assets' key!" % (self.User, self))
-        elif cv == "panel":
-            self.logger.warn("[%s] current view is admin panel. API asset was requested, but cannot be initialized!" % self.User)
-
-        if not hasattr(self, "api_asset"):
-            self.logger.warn("[%s] no API asset initialized for %s!" % (self.User, self))
-
-
-
     def refresh_from_API(self,k):
         """ Retrives the settlement from the API and sets self.settlement[k] to
         whatever the API currently thinks self.settlement happens to be. """
@@ -1333,32 +1161,6 @@ class Settlement:
         self.set_api_asset(refresh=True)
         self.settlement[k] = self.api_asset["sheet"][k]
         self.logger.info("[%s] reloaded self.settlement[%s] from API data" % (self.User, k))
-
-
-    def get_api_asset(self, asset_type="sheet", asset_key=None):
-        """ Tries to get an asset from the api_asset attribute/dict. Fails
-        gracefully. Settlement assets are more information-rich than survivor
-        assets, so there's more conditional navigation here. """
-
-        if not hasattr(self, "api_asset"):
-            self.set_api_asset()
-            if not hasattr(self, "api_asset"):
-                msg = "[%s] failed to initialize API asset for %s" % (self.User, self)
-                self.logger.error(msg)
-                raise AttributeError(msg)
-
-        if asset_key is None:
-            return {}
-        elif not asset_type in self.api_asset.keys():
-            self.logger.warn("[%s] asset type '%s' not found in API asset for %s. Current view: '%s'" % (self.User, asset_type, self, self.Session.session["current_view"]))
-            self.logger.debug("[%s] available API asset_types for %s: %s" % (self.User, self, self.api_asset))
-            return {}
-        elif not asset_key in self.api_asset[asset_type]:
-            self.logger.warn("[%s] asset key '[%s][%s]' not found in API asset for %s" % (self.User, asset_type, asset_key, self))
-            self.logger.debug("[%s] available API asset_keys for %s [%s]: %s" % (self.User, self, asset_type, self.api_asset[asset_type].keys()))
-            return {}
-        else:
-            return self.api_asset[asset_type][asset_key]
 
 
     #
@@ -1472,11 +1274,13 @@ class Settlement:
             else:
                 return ", ".join(expansions)
         elif return_type == "list_of_names":
-            expansions_dict = self.get_api_asset("game_assets","expansions")
-            output_list = []
-            for e in expansions:
-                output_list.append(expansions_dict[e]["name"])
-            return output_list
+#            expansions_dict = self.get_api_asset("game_assets","expansions")
+#            output_list = []
+#            for e in expansions:
+#                output_list.append(expansions_dict[e]["name"])
+#            return output_list
+            self.logger.error('Calling get_expansions(return_type="list_of_names") is deprecated!')
+            return expansions
 
         return expansions
 
@@ -1518,56 +1322,9 @@ class Settlement:
         return all_story_events
 
 
-    def update_timeline_with_story_events(self):
-        """ This runs during Settlement normalization to automatically add story
-        events to the Settlement timeline when the threshold for adding the
-        event has been reached. """
-
-        updates_made = False
-
-        milestones_dict = self.get_api_asset("game_assets", "milestones_dictionary")
-
-        for m_key in self.get_campaign("dict")["milestones"]:
-
-            m_dict = milestones_dict[m_key]
-
-            event = self.get_event(m_dict["story_event"])
-
-            # first, if the milestone has an 'add_to_timeline' key, create a 
-            # string from that key to determine whether we've met the criteria 
-            # for adding the story event to the timeline. The string gets an
-            # eval below
-            add_to_timeline = False
-            if "add_to_timeline" in milestones_dict[m_key].keys():
-                add_to_timeline = eval(milestones_dict[m_key]["add_to_timeline"])
-
-            # now, here's our real logic
-            condition_met = False
-            if m_key in self.settlement["milestone_story_events"]:
-                condition_met = True
-            elif add_to_timeline:
-                condition_met = True
-
-
-            # final evaluation:
-            if condition_met and event["handle"] not in self.get_story_events("handles"):
-                self.logger.debug("[%s] automatically adding %s story event to LY %s" % (self.User, event["name"], self.get_ly()))
-                event.update({"ly": self.get_ly(),})
-                self.add_timeline_event(event)
-                self.log_event('Automatically added <b><font class="kdm_font">g</font> %s</b> to LY %s.' % (event["name"], self.get_ly()))
-                updates_made = True
-
-        return updates_made
-
-
-
-
-
-
     def get_name_and_id(self):
         """ Laziness function for DRYer log construction. Called by self.__repr__() """
         return "'%s' (%s)" % (self.settlement["name"], self.settlement["_id"])
-
 
 
     def get_attribute(self, attrib=None):
@@ -1596,142 +1353,6 @@ class Settlement:
         except ValueError:
             return raw_value
 
-
-    def get_storage(self, return_type=False):
-        """ Returns the settlement's storage in a number of ways. """
-
-        # first, normalize storage to try to fix case-sensitivity PEBKAC
-        normalization_exceptions = [key_tuple[1] for key_tuple in game_assets.item_normalization_exceptions]
-        storage = []
-        for i in self.settlement["storage"]:
-            if i in normalization_exceptions:
-                storage.append(i)
-            else:
-                storage.append(capwords(i))
-        self.settlement["storage"] = storage
-        mdb.settlements.save(self.settlement)
-
-        if self.settlement["storage"] == []:
-            return ""
-
-        # Now handle our normalization exceptions, so they don't get mix-cased
-        # incorrectly/automatically
-        for normalization_exception in game_assets.item_normalization_exceptions:
-            broken, fixed = normalization_exception
-            if broken in storage:
-                broken_items = storage.count(broken)
-                for i in range(broken_items):
-                    storage.remove(broken)
-                    storage.append(fixed)
-                self.logger.debug("[%s] Re-normalized '%s' to '%s' (%s times)" % (self, broken, fixed, broken_items))
-                self.save()
-
-        if return_type == "html_buttons":
-            custom_items = {}
-            gear = {}
-            resources = {}
-
-            def add_to_gear_dict(item_key):
-                item_dict = Items.get_asset(item_key)
-                item_location = item_dict["location"]
-
-                font_color = "000"
-                if item_location in Resources.get_keys():
-                    item_color = Resources.get_asset(item_location)["color"]
-                    if "font_color" in Resources.get_asset(item_location):
-                        font_color = Resources.get_asset(item_location)["font_color"]
-                    target_item_dict = resources
-                elif item_location in Locations.get_keys():
-                    target_item_dict = gear
-                    item_color = Locations.get_asset(item_location)["color"]
-                    if "font_color" in Locations.get_asset(item_location):
-                        font_color = Locations.get_asset(item_location)["font_color"]
-
-                if "type" in item_dict.keys():
-                    if item_dict["type"] == "gear":
-                        target_item_dict = gear
-                    else:
-                        target_item_dict = resources
-                if not item_dict["location"] in target_item_dict.keys():
-                    target_item_dict[item_location] = {}
-                if not item_key in target_item_dict[item_location].keys():
-                    target_item_dict[item_location][item_key] = {"count": 1, "color": item_color, "font_color": font_color}
-                else:
-                    target_item_dict[item_location][item_key]["count"] += 1
-
-            for item_key in storage:
-                if item_key in Items.get_keys():
-                    add_to_gear_dict(item_key)
-                else:
-                    if not item_key in custom_items.keys():
-                        custom_items[item_key] = 1
-                    else:
-                        custom_items[item_key] += 1
-
-            output = '<hr class="invisible"/>\n\t<p>\nClick or tap an item to remove it once:\n\t</p>\n<hr />'
-            for item_dict in [gear, resources]:
-                for location in sorted(item_dict.keys()):
-                    for item_key in sorted(item_dict[location].keys()):
-                        quantity = item_dict[location][item_key]["count"]
-                        color = item_dict[location][item_key]["color"]
-                        font_color = item_dict[location][item_key]["font_color"]
-                        suffix = ""
-                        if item_key in Items.get_keys() and "resource_family" in Items.get_asset(item_key):
-                            suffix = " <sup>%s</sup>" % "/".join([c[0].upper() for c in sorted(Items.get_asset(item_key)["resource_family"])])
-                        if quantity > 1:
-                            pretty_text = "%s %s x %s" % (item_key, suffix, quantity)
-                        else:
-                            pretty_text = item_key + suffix
-
-                        # check preferences and include a pop-up if the user
-                        #   prefers to be warned
-                        confirmation_pop_up = ""
-                        if self.User.get_preference("confirm_on_remove_from_storage"):
-                            confirmation_pop_up = html.settlement.storage_warning.safe_substitute(item_name=item_key)
-
-                        output += html.settlement.storage_remove_button.safe_substitute(
-                            confirmation = confirmation_pop_up,
-                            item_key = item_key,
-                            item_font_color = font_color,
-                            item_color = color,
-                            item_key_and_count = pretty_text
-                        )
-                    output += "<div class='item_rack'>"
-                    output += '</div><!-- item_rack -->'
-                    output += html.settlement.storage_tag.safe_substitute(name=location, color=color)
-            if custom_items != {}:
-                for item_key in custom_items.keys():
-                    color = "FFAF0A"
-                    if custom_items[item_key] > 1:
-                        pretty_text = "%s x %s" % (item_key, custom_items[item_key])
-                    else:
-                        pretty_text = item_key
-                    output += html.settlement.storage_remove_button.safe_substitute( item_key = item_key, item_color = color, item_key_and_count = pretty_text)
-                output += html.settlement.storage_tag.safe_substitute(name="Custom Items", color=color)
-
-            resource_pool = {"hide": 0, "scrap": 0, "bone": 0, "organ": 0}
-            pool_is_empty = True
-            for item_key in storage:
-                if item_key in Items.get_keys() and "resource_family" in Items.get_asset(item_key).keys():
-                    item_dict = Items.get_asset(item_key)
-                    for resource_key in item_dict["resource_family"]:
-                        resource_pool[resource_key] += 1
-                        pool_is_empty = False
-            if not pool_is_empty:
-                output += html.settlement.storage_resource_pool.safe_substitute(
-                    hide = resource_pool["hide"],
-                    bone = resource_pool["bone"],
-                    scrap = resource_pool["scrap"],
-                    organ =resource_pool["organ"],
-                )
-
-            return output
-
-
-        if return_type == "comma-delimited":
-            return "<p>%s</p>" % ", ".join(storage)
-
-        return storage
 
 
 
@@ -1817,111 +1438,6 @@ class Settlement:
         return milestones
 
 
-
-
-    def get_endeavors(self, return_type=False):
-        """ Returns available endeavors. This used to be in 'get_bonuses()', but
-        it's such an insane coke-fest of business logic, it got promoted into
-        it's own method. """
-
-
-        innovation_names_list = copy(self.get_game_asset("innovations", update_mins=False, handles_to_names=True))
-        location_names_list = copy(self.get_game_asset("locations", update_mins=False, handles_to_names=True))
-
-        # this is a list of locations and innovations together that will be used
-        #  later to determine if the settlement meets the requirements for an
-        #  endeavor
-        prereq_assets = innovation_names_list
-        prereq_assets.extend(location_names_list)
-
-        # now create our list of all possible sources: any game asset with an
-        #  an endeavor should be in this
-        sources = copy(self.get_game_asset("innovations", update_mins=False, handles_to_names=True))
-        sources = copy(self.get_game_asset("locations", update_mins=False, handles_to_names=True))
-        sources.extend(self.settlement["principles"])
-        sources.extend(self.settlement["storage"])
-
-        buffs = {}
-        for source_key in sources:
-            if source_key in Innovations.get_keys() and "endeavors" in Innovations.get_asset(source_key).keys():
-                buffs[source_key] = Innovations.get_asset(source_key)["endeavors"]
-            elif source_key in Locations.get_keys() and "endeavors" in Locations.get_asset(source_key).keys():
-                buffs[source_key] = Locations.get_asset(source_key)["endeavors"]
-            elif source_key in Items.get_keys() and "endeavors" in Items.get_asset(source_key).keys():
-                buffs[source_key] = Items.get_asset(source_key)["endeavors"]
-
-        # fucking bloom people
-        if "endeavors" in self.get_campaign("dict"):
-            buffs[self.get_campaign("name")] = self.get_campaign("dict")["endeavors"]
-
-        if return_type == "html":
-            output = ""
-            for k in sorted(buffs.keys()):          # e.g. [u'Lantern Hoard', u'Cooking', u'Drums', u'Bloodletting']
-                endeavor_string = ""
-                for endeavor_key in sorted(buffs[k].keys()):
-                    requirements_met = True             # endeavor_key is 'Bone Beats'
-                    e = buffs[k][endeavor_key]         # e is {'cost': 1, 'type': 'music'}
-                    if "requires" in e.keys():
-                        for req in e["requires"]:
-                            if req not in prereq_assets:
-                                requirements_met = False
-
-                    if "remove_after" in e.keys() and e["remove_after"] in prereq_assets:
-                        requirements_met = False
-
-                    if requirements_met:
-                        e_type = ""
-                        e_desc = ""
-
-                        if "desc" in e.keys():
-                            e_desc = "%s" % e["desc"]
-                        if "type" in e.keys():
-                            e_type = "(%s)" % e["type"]
-
-                        e_name = "<i>%s</i>" % endeavor_key
-                        if "hide_name" in e.keys():
-                            e_name = ""
-
-                        punc = ""
-                        if e_desc != "" and not "hide_name" in e.keys():
-                            punc = ": "
-
-                        bg = ""
-                        fg = ""
-
-                        p_class = ""
-
-                        if endeavor_key.strip() == "Build":
-                            p_class = "available_endeavors_build"
-                        elif endeavor_key.strip() == "Special Innovate":
-                            p_class = "available_endeavors_special_innovate"
-
-                        endeavor_string += html.settlement.endeavor.safe_substitute(
-                            p_class = p_class,
-                            cost = '<font class="kdm_font">%s</font>' % (e["cost"]*"d "),
-                            name = e_name,
-                            punc = punc,
-                            desc = e_desc,
-                            type = e_type,
-                        )
-
-                if endeavor_string == "":
-                    pass
-                else:
-                    sub = ""
-                    show = False
-                    if k in Innovations.get_keys() and "subhead" in Innovations.get_asset(k):
-                        sub = Innovations.get_asset(k)["subhead"]
-                        show = True
-                    output += html.settlement.innovation_heading.safe_substitute(
-                        name = k,
-                        show_subhead = show,
-                        subhead = sub,
-                    )
-                    output += endeavor_string
-            return output
-
-        return buffs
 
 
     def get_survivors(self, return_type=False, user_id=None, exclude=[], exclude_dead=False):
@@ -2239,43 +1755,6 @@ class Settlement:
                 self.logger.debug(params)
 
 
-    def get_special_rules(self, return_type=None):
-        """ Checks locations and returns special rules from locations in the
-        settlement. Use "html_campaign_summary" as the 'return_type' to get
-        fancy HTML banners. """
-
-        special_rules = []
-
-        # check locations, expansions and the campaign, as each might have a
-        # a list of special rules dict items
-        for location in self.settlement["locations"]:
-            if location in Locations.get_keys() and "special_rules" in Locations.get_asset(location).keys():
-                special_rules.extend(Locations.get_asset(location)["special_rules"])
-        for expansion in self.get_expansions():
-            if "special_rules" in self.get_api_asset("game_assets","expansions")[expansion]:
-                special_rules.extend(self.get_api_asset("game_assets","expansions")[expansion]["special_rules"])
-        campaign_dict = self.get_campaign("dict")
-        if "special_rules" in campaign_dict.keys():
-            special_rules.extend(campaign_dict["special_rules"])
-
-        # now do returns
-        if return_type == "html_campaign_summary":
-            # bail if we've got nothing and return a blank string
-            if special_rules == []:
-                return ""
-            # otherwise, do it:
-            output = ""
-            for r in special_rules:
-                output += html.settlement.special_rule.safe_substitute(
-                    name = r["name"],
-                    desc = r["desc"],
-                    bg_color = r["bg_color"],
-                    font_color = r["font_color"],
-                )
-            return output
-
-        return special_rules
-
 
     def get_game_asset_deck(self, asset_type, return_type=None, exclude_always_available=False):
         """ The 'asset_type' kwarg should be 'locations', 'innovations', etc.
@@ -2393,8 +1872,8 @@ class Settlement:
         if return_type in ["angularjs","json","angularjs_options"]:
             raise ValueError("The get_game_asset() method no longer supports '%s' returns!" % return_type)
 
-        if update_mins:
-            self.update_mins()
+#        if update_mins:
+#            self.update_mins()
 
         if asset_type == "defeated_monsters":   # our pseudo model
             Asset = DefeatedMonsters
@@ -2656,17 +2135,17 @@ class Settlement:
         #
 
         #   auto-add milestones for principles:
-        for principle in self.settlement["principles"]:
-            p_dict = self.get_api_asset("game_assets", "innovations")[principle]
-            if p_dict.get("milestone", None) is not None:
-                if p_dict["milestone"] not in self.settlement["milestone_story_events"]:
-                    self.settlement["milestone_story_events"].append(p_dict["milestone"])
-                    msg = "utomatically marking milestone story event '%s' due to selection of related principle, '%s'." % (principle_dict["milestone"], principle)
-                    self.log_event("A%s" % (msg))
-                    self.logger.debug("[%s] a%s" % (self.User, msg))
+#        for principle in self.settlement["principles"]:
+#            p_dict = self.get_api_asset("game_assets", "innovations")[principle]
+#            if p_dict.get("milestone", None) is not None:
+#                if p_dict["milestone"] not in self.settlement["milestone_story_events"]:
+#                    self.settlement["milestone_story_events"].append(p_dict["milestone"])
+#                    msg = "utomatically marking milestone story event '%s' due to selection of related principle, '%s'." % (principle_dict["milestone"], principle)
+#                    self.log_event("A%s" % (msg))
+#                    self.logger.debug("[%s] a%s" % (self.User, msg))
 
         # update mins will call self.enforce_data_model() and save
-        self.update_mins()
+#        self.update_mins()
 
 
 
@@ -2675,11 +2154,7 @@ class Settlement:
         """ Prints the campaign summary view HTML. Does template subs to
         initialize the AngularJS application. """
 
-        return html.settlement.summary.safe_substitute(
-            endeavors = self.get_endeavors("html"),
-            special_rules = self.get_special_rules("html_campaign_summary"),
-            show_endeavor_controls = self.User.get_preference("show_endeavor_token_controls"),
-        )
+        return html.settlement.summary.safe_substitute()
 
 
     @ua_decorator
@@ -2699,15 +2174,6 @@ class Settlement:
             )
 
         return html.settlement.form.safe_substitute(
-
-            survival_limit = self.get_attribute("survival_limit"),
-            min_survival_limit = self.get_min("survival_limit"),
-
-            storage = self.get_storage("html_buttons"),
-            add_to_storage_controls = Items.render_as_html_multiple_dropdowns(
-                recently_added=self.get_recently_added_items(),
-                expansions=self.get_expansions("list_of_names"),
-            ),
 
             remove_settlement_button = rm_button,
 
@@ -2766,8 +2232,8 @@ class Settlement:
         settlement flash and the name.
         """
 
-        if update_mins:
-            self.update_mins()  # update settlement mins before we create any text
+#        if update_mins:
+#            self.update_mins()  # update settlement mins before we create any text
 
         if context == "campaign_summary":
             button_class = "campaign_summary_gradient"

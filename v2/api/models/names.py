@@ -112,6 +112,6 @@ class Assets(Models.AssetCollection):
 
         survivor_names = self.get_names_by_type(sex)
         if include_neuter:
-            survivor_names.append(self.get_names_by_type('neuter'))
+            survivor_names.extend(self.get_names_by_type('neuter'))
         return random.choice(survivor_names)
 

@@ -3,21 +3,6 @@
 
 app.controller ("survivorSearchController", function($scope) {
 
-    $scope.loadSurvivors = function() {
-        $scope.getJSONfromAPI('settlement','get').then(
-            function(payload) {
-                var all_survivors = payload.data.user_assets.survivors;
-                $scope.survivors = new Array();
-                for (i=0; i < all_survivors.length; i++) {
-                    var survivor = all_survivors[i];
-                    $scope.survivors.push(survivor.sheet);
-                }
-                console.log($scope.survivors.length + " survivors loaded into scope for survivor search!");
-            },
-            function(errorPayload) {console.log("Error loading survivors for survivor search!", errorPayload);}
-        );
-    };
-
     // test a survivor object to see if a user can manage it
     $scope.userCanManage = function(s) {
         if ($scope.user_is_settlement_admin == true) { return true;}
@@ -26,6 +11,11 @@ app.controller ("survivorSearchController", function($scope) {
         return false;
     };
 
+});
+
+
+// available endeavors
+app.controller("availableEndeavorsController", function($scope) {
 });
 
 
@@ -48,6 +38,7 @@ app.controller("endeavorController", function($scope) {
 
 
 app.controller("manageDepartingSurvivorsController", function($scope, $rootScope) {
+    
     $scope.saveCurrentQuarry = function(select_element) {
 
         var timeline_event = {
@@ -118,7 +109,7 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
         // sets survivor.meta.manageable within a given survivor. access/security
         // logic is all right here, folks. Hack away!
 
-
+        survivor.meta = {};
         if (survivor.sheet.departing === true) {$rootScope.departing_survivor_count += 1};
 
         // set whether the survivor is returning

@@ -2,20 +2,28 @@ app.controller("survivorSheetController", function($scope) {
     // this is the root controller for the survivor sheet; it is initialized
     // at the top of the sheet, so it's like...a mini root scope, sort of.
 
-    $scope.miscAttribs = {}
+    $scope.scratch = {}
 
     $scope.incrementAttrib = function(attrib, modifier) {
         if ($scope.survivor.sheet[attrib] + modifier < 0) {return false};
         var js_obj = {'attribute': attrib, 'modifier': modifier};
         $scope.survivor.sheet[attrib] += modifier;
-        $scope.postJSONtoAPI('survivor', 'update_attribute', js_obj, false);
+        if (attrib === 'Weapon Proficiency' && $scope.survivor.sheet[attrib] === 3) {
+            showFullPageLoader();
+            $scope.postJSONtoAPI('survivor', 'update_attribute', js_obj);
+        } else if (attrib === 'Weapon Proficiency' && $scope.survivor.sheet[attrib] === 8) {
+            showFullPageLoader();
+            $scope.postJSONtoAPI('survivor', 'update_attribute', js_obj);
+        } else {
+            $scope.postJSONtoAPI('survivor', 'update_attribute', js_obj, false);
+        };
     };
     $scope.updateAttrib = function(attrib) {
         var value = $scope.survivor.sheet[attrib];
         if (value === null) {value = 0};
         if (value < 0) {value = 0};
         var js_obj = {'attribute': attrib, 'value': value};
-        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj, false);
+        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj);
     };
 
     $scope.getLineage = function() {
@@ -54,11 +62,11 @@ app.controller("survivorSheetController", function($scope) {
         if ($scope.survivor.sheet.favorite.indexOf($scope.user_login) === -1) {
 //            console.log($scope.user_login + " is not in Survivor favorites list");
             $scope.postJSONtoAPI('survivor','add_favorite',{'user_email': $scope.user_login}, false);
-            $scope.miscAttribs.favoriteBox.checked = true;
+            $scope.scratch.favoriteBox.checked = true;
         } else {
 //            console.log($scope.user_login + " is in Survivor favorites list");
             $scope.postJSONtoAPI('survivor','rm_favorite',{'user_email': $scope.user_login}, false);
-            $scope.miscAttribs.favoriteBox.checked = false;
+            $scope.scratch.favoriteBox.checked = false;
         };
     };
 
@@ -67,7 +75,6 @@ app.controller("survivorSheetController", function($scope) {
     };
 
 });
-
 
 app.controller('disordersController', function($scope) {
 
@@ -317,6 +324,23 @@ app.controller('skipNextHuntController', function($scope) {
         $scope.postJSONtoAPI('survivor','toggle_status_flag', {'flag': 'skip_next_hunt'});
     };
 });
+
+
+app.controller('survivorSpecialAttribsController', function($scope) {
+    // for the campaign-specific and expansion-specific bool attribs
+    $scope.toggleSpecialAttrib = function(sa_handle) {
+        if ($scope.survivor.sheet[sa_handle] === undefined) {
+            $scope.survivor.sheet[sa_handle] = true;
+        } else if ($scope.survivor.sheet[sa_handle] === true) {
+            $scope.survivor.sheet[sa_handle] = false;
+        } else if ($scope.survivor.sheet[sa_handle] === false) {
+            $scope.survivor.sheet[sa_handle] = true;
+        };
+        js_obj = {handle: sa_handle, value: $scope.survivor.sheet[sa_handle]};
+        $scope.postJSONtoAPI('survivor','set_special_attribute',js_obj);
+    }; 
+});
+
 
 
 app.controller('lineageController', function($scope) {

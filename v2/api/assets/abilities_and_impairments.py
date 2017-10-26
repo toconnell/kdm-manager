@@ -46,51 +46,59 @@ abilities_and_impairments = {
         'cannot_gain_survival': True,
     },
     'caratosis': {
-        'desc': 'For each <font class="affinity_red"> &nbsp; red &nbsp;</font> affinity you have, 1 of your attack rolls hits automatically each attack.',
+#        'desc': 'For each <font class="affinity_red"> &nbsp; red &nbsp;</font> affinity you have, 1 of your attack rolls hits automatically each attack.',
+        'desc': 'Before making an attack roll, you may declare "Caratosis X" in a loud, booming voice. If you do, that attack gains X automatic hits. X cannot be more than your total red affinities. When the attack ends, gain +X hunt Xp.<br/>When you trigger Age 2, gain the <b>Beast of Caratosis</b> secret fighting art.',
         'selectable': False,
         'name': 'Caratosis',
         'epithet': 'caratosis',
-        'related': ['dream_of_the_beast', 'red_life_exchange'],
+        'related': ['dream_of_the_beast', 'life_exchange'],
         'type': 'ability'
     },
     'crystal_skin': {
-        'desc': 'You cannot place armor in your gear grid. When you <b>depart</b>, gain <font class="inline_shield">2</font> to all hit locations. Suffer -1 to the result of all severe injury rolls.',
+#        'desc': 'You cannot place armor in your gear grid. When you <b>depart</b>, gain <font class="inline_shield">2</font> to all hit locations. Suffer -1 to the result of all severe injury rolls.',
+        'desc': 'You ignore <b>cursed</b> and cannot wear armor. When you <b>depart</b>, gain <font class="inline_shield">3</font> to all hit locations. Suffer -2 to the result of all severe injury rolls. When you participate in <b>Intimacy</b>, newborns gain <b>Crystal Skin</b> in addition to any other roll results.',
         'name': 'Crystal Skin',
-        'type': 'ability'
+        'type': 'ability',
+        'inheritable': True,
+        'max': 1,
     },
     'dormenatus': {
-        'desc': 'When you <b>depart</b>, gain +1 to every hit location for each <font class="affinity_green"> &nbsp; green &nbsp;</font> affinity you have.',
+#        'desc': 'When you <b>depart</b>, gain +1 to every hit location for each <font class="affinity_green"> &nbsp; green &nbsp;</font> affinity you have.',
+        'desc': """When you suffer damage, you may declare 'Dormenatus X' in a loud, booming voice. If you do, gain <font class="inline_shield">x</font> to each hit location. X cannot be more than your total green affinities. After the damage is resolved, gain +X hunt XP.<br/>When you trigger Age 2, gain the <b>Grace of Dormenatus</b> secret fighting art.""",
         'selectable': False,
         'name': 'Dormenatus',
         'epithet': 'dormenatus',
-        'related': ['dream_of_the_crown', 'green_life_exchange'],
+        'related': ['dream_of_the_crown', 'life_exchange'],
         'type': 'ability'
     },
     'dream_of_the_beast': {
+        'Strength': 1,
         'affinities': {'red': 1},
         'desc': '1 permanent red affinity.',
         'epithet': 'red_savior',
         'selectable': False,
         'name': 'Dream of the Beast',
-        'related': ['caratosis', 'red_life_exchange'],
+        'related': ['caratosis', 'life_exchange'],
         'type': 'ability'
     },
     'dream_of_the_crown': {
+        'Evasion': 1,
         'affinities': {'green': 1},
         'desc': '1 permanent green affinity.',
         'epithet': 'green_savior',
         'selectable': False,
         'name': 'Dream of the Crown',
-        'related': ['dormenatus', 'green_life_exchange'],
+        'related': ['dormenatus', 'life_exchange'],
         'type': 'ability'
     },
     'dream_of_the_lantern': {
+        'Luck': 1,
         'affinities': {'blue': 1},
         'desc': '1 permanent blue affinity.',
         'epithet': 'blue_savior',
         'selectable': False,
         'name': 'Dream of the Lantern',
-        'related': ['Lucernae', 'blue_life_exchange'],
+        'related': ['lucernae', 'life_exchange'],
         'type': 'ability'
     },
     'endless_babble': {
@@ -140,7 +148,8 @@ abilities_and_impairments = {
         'type': 'ability'
     },
     'leprosy': {
-        'desc': 'Reduce all damage suffered by 1 to a minimum of 1. When rolling on the severe injury table, -2 to any result.',
+#        'desc': 'Reduce all damage suffered by 1 to a minimum of 1. When rolling on the severe injury table, -2 to any result.',
+        'desc': 'Reduce all damage suffered by 1 to a minimum of 1. Suffer -2 to severe injury rolls.',
         'epithet': 'leper',
         'name': 'Leprosy',
         'type': 'impairment'
@@ -158,11 +167,12 @@ abilities_and_impairments = {
         'epithet': 'lithophile',
     },
     'lucernae': {
-        'desc': 'For every <font class="affinity_blue"> &nbsp; blue &nbsp;</font> affinity you have, your ranged weapons gain this amount of <b>range</b> and your melee weapons gain this amount of <b>reach</b>.',
+#        'desc': 'For every <font class="affinity_blue"> &nbsp; blue &nbsp;</font> affinity you have, your ranged weapons gain this amount of <b>range</b> and your melee weapons gain this amount of <b>reach</b>.',
+        'desc': """Before making a wound attempt, you may declare "Lucernae X" in a loud, booming voice. If you do, that wound attempt gains X luck. X cannot be more than your total blue affinities. When the attack ends, you gain +X hunt XP.<br/> When you trigger Age 2, gain the <b>Lucernae's Lantern</b> secret Fighting Art.""",
         'selectable': False,
         'name': 'Lucernae',
         'epithet': 'lucernae',
-        'related': ['dream_of_the_lantern', 'blue_life_exchange'],
+        'related': ['dream_of_the_lantern', 'life_exchange'],
         'type': 'ability'
     },
     'marrow_hunger': {
@@ -174,7 +184,8 @@ abilities_and_impairments = {
     'matchmaker': {
         'desc': 'When you are a returning survivor, once per year you may spend 1 Endeavor to trigger Intimacy (story event).',
         'name': 'Matchmaker',
-        'type': 'ability'
+        'type': 'ability',
+        'endeavors': ['matchmaker_trigger_intimacy'],
     },
     'metal_maw': {
         'desc': 'Your Fist & Tooth gains <b>Sharp</b>. (Add 1d10 strength to each wound attempt using this gear. This d10 is not a wound roll, and cannot cause critical wounds.)',
@@ -182,7 +193,8 @@ abilities_and_impairments = {
         'type': 'ability'
     },
     'partner': {
-        'desc': 'When you both <b>depart</b>, gain +2 survival. While adjacent to your partner, gain +1 strength. Partners may only nominate each other for <b><font class="kdm_font">g</font> Intimacy</b>. When a partner dies, the remaining partner gains a random disorder and loses this ability.',
+#        'desc': 'When you both <b>depart</b>, gain +2 survival. While adjacent to your partner, gain +1 strength. Partners may only nominate each other for <b><font class="kdm_font">g</font> Intimacy</b>. When a partner dies, the remaining partner gains a random disorder and loses this ability.',
+        'desc': 'When you both <b>Arrive</b>, gain survival up to the survival limit. Partners may only nominate each other for <b><font class="kdm_font">g</font> Intimacy</b>. When a partner dies, the remaining partner gains a random disorder and loses this ability.',
         'name': 'Partner',
         'type': 'ability'
     },
@@ -203,6 +215,10 @@ abilities_and_impairments = {
         'desc': 'When rolling to determine a straggler, add your hunt experience to your roll result.',
         'name': 'Prepared',
         'type': 'ability'
+    },
+    'life_exchange': {
+        'desc': 'In the <b>Aftermath</b>, gain 1 additional Hunt XP. You may not wear <b>other</b> gear. If you trigger the White Secret story event, you cease to exist. When you retire, you cease to exist.',
+        'name': 'Life Exchange',
     },
     'red_life_exchange': {
         'desc': 'In the <b>Aftermath</b>, gain 3 additional Hunt XP. You may not place <b>other</b> gear in your grid. Gain +1 permanent strength with each <b>Age</b> milestone. When you retire, you cease to exist.',
@@ -724,6 +740,15 @@ expansion_ai = {
 # so long as the innovation remains in the settlement. 
 
 weapon_mastery = {
+    "mastery_club": {
+        "name": "Mastery - Club",
+        "desc": "When a Club Master attacks with a club, if a successful wound attempt total is greater than or equal to twice the monster's toughness, inflict an additional wound.",
+        "weapon_proficiency": "club",
+        "weapon_name": "club",
+        "current_survivor": {"abilities_and_impairments": ["club_specialization"]},
+        "new_survivor": {"abilities_and_impairments": ["club_specialization"]},
+        'epithet': 'club_master',
+    },
     "mastery_scythe": {
         "name": "Mastery - Scythe",
         "desc": "When you critically wound with a scythe, roll 1d10. On a 6+, shuffle the hit location deck (do not shuffle unresolved hit locations).<br/>Limit, once per round.",
@@ -789,15 +814,16 @@ weapon_mastery = {
         "new_survivor": {"abilities_and_impairments": ["spear_specialization"]},
         'epithet': 'spear_master',
     },
-    "mastery_club": {
-        "name": "Mastery - Club",
-        "desc": "If you are a Club Master, all Clubs in your gear grid gain <b>Savage</b>. On a <b>Perfect hit</b> with a Club, gain <i>+3 strength</i> until the end of the attack.",
-        "weapon_proficiency": "club",
-        "weapon_name": "club",
-        "current_survivor": {"abilities_and_impairments": ["club_specialization"]},
-        "new_survivor": {"abilities_and_impairments": ["club_specialization"]},
-        'epithet': 'club_master',
-    },
+# 1.3
+#    "mastery_club": {
+#        "name": "Mastery - Club",
+#        "desc": "If you are a Club Master, all Clubs in your gear grid gain <b>Savage</b>. On a <b>Perfect hit</b> with a Club, gain <i>+3 strength</i> until the end of the attack.",
+#        "weapon_proficiency": "club",
+#        "weapon_name": "club",
+#        "current_survivor": {"abilities_and_impairments": ["club_specialization"]},
+#        "new_survivor": {"abilities_and_impairments": ["club_specialization"]},
+#        'epithet': 'club_master',
+#    },
     "mastery_fist_and_tooth": {
         "name": "Mastery - Fist & Tooth",
         "desc": "While a survivor is a Fist & Tooth Master, they gain <i>+2 permanent accuracy</i> and <i>+2 permanent strength</i> (they receive this bonus even when not attacking with Fist and Tooth).",
@@ -855,6 +881,15 @@ weapon_mastery = {
 }
 
 weapon_specializations = {
+    "club_specialization": {
+        "name": "Specialization - Club",
+        "desc": "When attacking with a club, on a <b>perfect hit</b>, double your wound attempt total on the first selected hit location.<br/>Limit, once per attack.",
+    },
+# 1.3
+#    "club_specialization": {
+#        "name": "Specialization - Club",
+#        "desc": "All clubs in your gear grid gain <b>paired</b>. Cannot use this with two-handed clubs.",
+#    },
     "twilight_sword_specialization": {
         "name": "Specialization - Twilight Sword",
         "desc": "This sentient sword improves as it's used. Gain the effect as proficiency rank increases. Rank 2: Ignore <b>Cumbersome</b> on Twilight Sword. Rank 4: When attacking with the Twilight Sword, ignore <b>slow</b> and gain +2 speed. Rank 6: Twilight Sword gains <b>Deadly</b>.",
@@ -867,10 +902,6 @@ weapon_specializations = {
     "spear_specialization": {
         "name": "Specialization - Spear",
         "desc": "When attacking with a spear, if you draw a <b>trap</b>, roll 1d10. On a 7+, cancel the <b>trap</b>. Discard it, then reshuffle the hit location discard into the hit location deck and draw a new card. Limit, once per round.",
-    },
-    "club_specialization": {
-        "name": "Specialization - Club",
-        "desc": "All clubs in your gear grid gain <b>paired</b>. Cannot use this with two-handed clubs.",
     },
     "fist_and_tooth_specialization": {
         "name": "Specialization - Fist & Tooth",

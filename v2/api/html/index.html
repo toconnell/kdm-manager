@@ -597,6 +597,31 @@
                 literally anything else.</p>
             </td>
         </tr>
+        <tr class="ul">
+            <td> /settlement/set_inspirational_statue/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td>
+                <p>Set the settlement's <code>inspirational_statue</code> attrib
+                by POSTing a Fighting Art handle to this route:</p>
+                <code>{'handle': 'leader'}</code>
+                <p>This route will actually check out the handle and barf on you
+                if you try to POST an unrecognized FA handle to it. YHBW.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/set_lantern_research_level/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td>
+                <p>Set the Settlement's Lantern Research Level with some basic
+                JSON:</p>
+                <code>{'value': 3}</code>
+                <p>This route is preferably to a generic attribute setting route
+                becuase it a.) ignores values over 5 and b.) forces the attrib,
+                which is not part of the standard data motel, to exist if it does
+                not.</p>
+                <p>Definitely use this instead of <code>set_attribute</code>.</p>
+            </td>
+        </tr>
 
 
         <!-- expansion controls -->
@@ -1175,6 +1200,26 @@
             <p><b>Important!</b> This will automatically apply remove any epithets
             A&Is, etc. from the survivor (but will not remove any that are still
             effective, e.g. because another cursed item also requires them.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/set_special_attribute/&lt;survivor_id&gt; </td>
+            <td> POST </td>
+            <td>
+                <p>Use this route to set a survivor special attribute to a
+                Boolean value:</p>
+                <code>{'handle': 'pots_purified', 'value': false}</code>
+                <p>A couple of things to note here:
+                <ul>
+                    <li>The 'handle' will be validated and if you POST a bad/bogus
+                    handle, you'll get a 400 (or worse).</li>
+                    <li>The 'value' must be a Boolean/truthy/falsy type value.
+                    Anything else will get you a 400 (probably a 500, tbh).</li>
+                    <li>Once added to a survivor, this attribute is not removed,
+                    so it will forever be a Boolean attrib of the survivor (i.e.
+                    so feel free to reference it after setting it False, etc.).</li>
+                </ul>
+                </p>
             </td>
         </tr>
         <tr class="ul">

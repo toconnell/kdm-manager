@@ -9,7 +9,8 @@ fighting_art = {
         'name': 'Berserker'
     },
     'clutch_fighter': {
-        'desc': 'While you have 3 or more blood tokens, gain +1 Strength and +1 Accuracy.',
+#        'desc': 'While you have 3 or more blood tokens, gain +1 Strength and +1 Accuracy.',
+        'desc': 'While you have 3 or more bleeding tokens, gain +1 strength and +1 accuracy.',
         'name': 'Clutch Fighter'
     },
     'combo_master': {
@@ -37,8 +38,9 @@ fighting_art = {
         'name': 'Last Man Standing'
     },
     'leader': {
-        'desc': 'Whenever you <b>encourage</b> a survivor they gain +1 speed token until the end of the round.',
-        'name': 'Leader'
+#        'desc': 'Whenever you <b>encourage</b> a survivor they gain +1 speed token until the end of the round.',
+        'desc': 'Whenever you <b>encourage</b> a survivor, they gain +1 speed token until the end of the round.<br/>Once per hunt phase, you may inspire another survivor. They use your understanding and courage to resolve a hunt or story event. (Example: if you have 3+ courage you can inspire another survivor to walk the path of the brave during <b>Overwhelming Darkness</b>.)',
+        'name': 'Leader',
     },
     'mighty_strike': {
         'desc': 'On a <b>Perfect hit</b>, gain +2 Strength until the end of the attack.',
@@ -53,8 +55,9 @@ fighting_art = {
         'name': 'Orator of Death'
     },
     'rhythm_chaser': {
-        'desc': 'Gain +1 Evasion token the first time you critically wound during a showdown.<br/>Rhythm Chaser cannot be used if there are any shields or <i>heavy</i> gear in your grid.',
-        'name': 'Rhythm Chaser'
+#        'desc': 'Gain +1 Evasion token the first time you critically wound during a showdown.<br/>Rhythm Chaser cannot be used if there are any shields or <i>heavy</i> gear in your grid.',
+        'desc': "On <b>Arrival</b>, gain +1 evasion token. When you are knocked down, if you don't have an instrument in your gear grid, remove all your +1 evasion tokens.<br/>Rhythm Chaser cannot be used if there is any heavy gear in your grid.",
+        'name': 'Rhythm Chaser',
     },
     'strategist': {
         'desc': 'During the showdown setup, after placing terrain, you may add a <b>Giant Stone Face</b> or a <b>Toppled Pillar</b> terrain card to the showdown board.',
@@ -275,7 +278,25 @@ fighting_art = {
 
 secret_fighting_art = {
 
-    "king's_step": {
+    "beast_of_caratosis": {
+        'desc': "You may <b>Concentrate</b>. If you do, perform <b>Beast of Caratosis</b> at the start of your next act.<br/><b>Beast of Caratosis:</b> You reach into the dream and disappear in a shimmer of heat.<br/>Place your survivor adjacent to the monster. For this attack, your attack speed is equal to your red affinities, you hit automatically, and you gain strength equal to double your red affinities. Then, gain +6 Hunt XP.",
+        'name': "Beast of Caratosis",
+    },
+    "bone_whisperer": {
+        'desc': """\
+When another survivor dies on the showdown board, place a token where they died. If you pass over it, remove the token and eat their skull. <b>Heal</b> your survivor and roll 1d10 + your Hunt XP:<br/><table><tr class="zebra"><td class="roll">1-3</td><td class="result">You feel amazing! Gain +1 permanent movement, speed and evasion.</td></tr><tr><td class="roll">4-8</td><td class="result">Gain +1 permanent strength.</td></tr><tr class="zebra"><td class="roll">9-18</td><td class="result">You gain a fighting art and +5 survival.</td></tr><tr><td class="roll">19+</td><td class="result">You run away into exile. At the end of the showdown, you are gone forever.</td></tr></table>
+        """,
+        'name': "Bone Whisperer",
+    },
+    "lucernaes_lantern": {
+        'desc': "You may <b>Concentrate</b>. If you do, perform <b>Lucernae's Lantern</b> at the start of your next act.<br/><b>Lucernae's Lantern:</b> You reach into the dream and excise a screeching skull, darker than darkness. It hurtles at the monster.<br/>Reveal hit locations equal to half your blue affinities (rounded down) one at a time. The mosnter suffers a critical wound at any locations with critical wound effects. (Ignore the effects of trap.) Then reshuffle the hit location deck. Gain +6 Hunt XP.",
+        'name': "Lucernae's Lantern",
+    },
+    "grace_of_dormenatus": {
+        'name': "Grace of Dormenatus",
+        'desc': "You may <b>Concentrate</b>. If you do, perform <b>Grace of Dormenatus</b> at the start of your next act.<br/><b>Grace of Dormenatus:</b> You reach into the dream and remove a twisting green crown. The crown explodes. A glittering rain of shards coats the survivors.<br/>All survivors gain armor at all hit locations equal to your green affinities. They may remove up to the same number of tokens. Them, gain +6 Hunt XP. If you still exist, gain the priority target token. ",
+    },
+    "kings_step": {
         'desc': 'Whenever you attack, you may discard any number of Battle Pressure hit locations drawn and draw an equal number of new hit locations. Whenever you attack, after drawing hit locations, but before rolling to wound, you may choose one hit location drawn and discard it to draw a new hit location. Traps will cancel these effects.',
         'name': "King's Step",
     },
@@ -291,9 +312,17 @@ secret_fighting_art = {
         'desc': 'At the start of each showdown, each survivor gains +1 Strength token. Survivors may spend +1 Strength tokens in place of survival.',
         'name': 'Red Fist',
     },
+    "scholar_of_death": {
+        'desc': "On <b>Arrival</b>, gain reroll tokens equal to the number of volumes recorded about your quarry. (e.g. if your settlement has White Lion Volumes 1, 2, and 3 when you fight a White Lion, gain 3 reroll tokens.)<br/>Discard a reroll token to reroll one of your roll results during the showdown. This includes monster roll results when you are the monster controller.",
+        'name': "Scholar of Death",
+    },
     "swordsmans_promise": {
         'desc': "At the start of each showdown, gain survival up to your settlement's survival limit if you have a sword in your gear grid.",
         'name': "Swordsman's Promise",
+    },
+    "synchronized_strike": {
+        'desc': """With flawless coordination, you strike as one. When <font class="kd_blue_font">you're adjacent</font> to a monster, attack with a melee weapon, and have an <font class="kd_pink_font">Attack Assist</font>, your attack gains +1 Accuracy, +1 Strength. Limit, once per round.<br/><font class="kd_pink_font">Attack Assist:</font> A survivor who also has <b>Synchronized Strike</b> and is in the right spot. They are standing adjacent to the monster, on its opposite side, and parallel to you.""",
+        'name': "Synchronized Strike",
     },
     'zero_presence': {
         'desc': 'Gain +1 Strength when attacking a monster from its blind spot. Whenever you attack a monster, you are always considered to be in its blind spot.',

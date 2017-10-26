@@ -18,20 +18,24 @@ survival_action = {
         "name": "Encourage",
         "sort_order": 1,
     },
-    "dash": {
-        "name": "Dash",
-        "sort_order": 3,
-    },
     "surge":{
         "name": "Surge",
+        "sort_order": 3,
+    },
+    "dash": {
+        "name": "Dash",
         "sort_order": 4,
     },
     "overcharge": {
         "name": "Overcharge",
         "sort_order": 5,
     },
-    "embolden": {
+    "embolden": {               # resolve on the 1.3 sheet
         "name": "Embolden",
         "sort_order": 2,
+    },
+    "endure": {
+        "name": "Endure",
+        "sort_order": 6,
     },
 }

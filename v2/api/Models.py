@@ -57,6 +57,9 @@ class AssetCollection():
     __init__ code in in an individual Asset() object module. """
 
 
+    def __repr__(self):
+        return "AssetCollection object '%s' (%s assets)" % (self.type, len(self.assets))
+
     def __init__(self):
         """ All Assets() models must base-class this guy to get access to the
         full range of AssetCollection methods, i.e. all of the common/ubiquitous
@@ -88,6 +91,12 @@ class AssetCollection():
 
         if hasattr(self, "root_module"):
             self.set_assets_from_root_module()
+
+        # preserve 'raw' types as sub types
+        for a in self.assets.keys():
+            a_dict = self.assets[a]
+            if 'type' in a_dict.keys() and not 'sub_type' in a_dict.keys():
+                self.assets[a]['sub_type'] = self.assets[a]['type']
 
         # type override
         if hasattr(self, "type"):
@@ -141,6 +150,29 @@ class AssetCollection():
     #   common get and lookup methods
     #
 
+    def get_assets_by_sub_type(self, sub_type=None):
+        """ Returns a list of asset handles whose 'sub_type' attribute matches
+        the 'sub_type' kwarg value."""
+
+        handles = []
+        for a_dict in self.get_dicts():
+            sub = a_dict.get('sub_type', None)
+            if sub == sub_type:
+                handles.append(a_dict['handle'])
+        return handles
+
+
+    def get_assets_by_type(self, asset_type=None):
+        """ Returns a list of asset handles whose 'sub_type' attribute matches
+        the 'sub_type' kwarg value."""
+
+        handles = []
+        for a_dict in self.get_dicts():
+            a_type = a_dict.get('type', None)
+            if a_type == asset_type:
+                handles.append(a_dict['handle'])
+        return handles
+
 
     def get_handles(self):
         """ Dumps all asset handles, i.e. the list of self.assets keys. """
@@ -155,6 +187,24 @@ class AssetCollection():
         """ Dumps all asset 'name' attributes, i.e. a list of name values. """
 
         return sorted([self.assets[k]["name"] for k in self.get_handles()])
+
+    def get_sub_types(self):
+        """ Dumps a list of all asset 'sub_type' attributes. """
+
+        subtypes = set()
+        for a in self.get_handles():
+            a_dict = self.get_asset(a)
+            subtypes.add(a_dict.get('sub_type', None))
+        return sorted(subtypes)
+
+    def get_types(self):
+        """ Dumps a list of all asset 'type' attributes. """
+
+        subtypes = set()
+        for a in self.get_handles():
+            a_dict = self.get_asset(a)
+            subtypes.add(a_dict.get('type', None))
+        return subtypes
 
     def get_dicts(self):
         """ Dumps a list of dicts where each dict is an asset dict. """
@@ -276,7 +326,7 @@ class AssetCollection():
 
 
 
-class GameAsset():
+class GameAsset(object):
     """ The base class for initializing individual game asset objects. All of
     the specific models in the models/ folder will sub-class this model for
     their generally available methods, etc.
@@ -316,9 +366,15 @@ class GameAsset():
 
         for k, v in asset_dict.iteritems():
             if type(v) == str:
-                exec """self.%s = "%s" """ % (k,v)
+                exec """self.%s = '%s' """ % (k,v.replace('"','\\"').replace("'","\\'"))
+            elif type(v) == datetime:
+                exec """self.%s = '%s' """ % (k,v.strftime(utils.ymd))
             else:
                 exec "self.%s = %s" % (k,v)
+
+#            if k == 'expansion':
+#                exp_obj = models.expansions.Expansion(v)
+#                self.expansion_flair = exp_obj.flair
 
 
     def initialize_from_handle(self):
@@ -360,7 +416,7 @@ class GameAsset():
             raise AssetInitError("Asset handle '%s' could not be retrieved!" % self.handle)
 
 
-    def serialize(self):
+    def serialize(self, return_type=None):
         """ Allows the object to represent itself as JSON by transforming itself
         into a JSON-safe dict. """
 
@@ -369,6 +425,9 @@ class GameAsset():
         for banned_attrib in ["logger", "assets"]:
             if hasattr(shadow_self, banned_attrib):
                 delattr(shadow_self, banned_attrib)
+
+        if return_type == dict:
+            return shadow_self.__dict__
 
         return json.dumps(shadow_self.__dict__, default=json_util.default)
 
@@ -408,7 +467,7 @@ class UserAsset():
         return "%s object '%s' [%s]" % (self.collection, repr_name, self._id)
 
 
-    def __init__(self, collection=None, _id=None, normalize_on_init=True, new_asset_attribs={}):
+    def __init__(self, collection=None, _id=None, normalize_on_init=True, new_asset_attribs={}, Settlement=None):
 
         # initialize basic vars
         self.logger = utils.get_logger()
@@ -432,6 +491,11 @@ class UserAsset():
             self.new()
             _id = self._id
 
+        # if we're initializing with a settlement object already in memory, use it
+        # if this object IS a Settlement, the load() call below will overwrite this
+        self.Settlement = Settlement
+
+        # now do load() stuff
         try:
             try:
                 self._id = ObjectId(_id)
@@ -444,6 +508,7 @@ class UserAsset():
             self.logger.error("Could not load _id '%s' from %s!" % (_id, self.collection))
             self.logger.exception(e)
             raise
+
 
 
     def save(self, verbose=True):
@@ -472,6 +537,9 @@ class UserAsset():
             self.settlement = mdb_doc
             self._id = self.settlement["_id"]
             self.settlement_id = self._id
+            self.get_campaign('initialize')     # sets an object
+            self.get_survivors('initialize')    # sets a list of objects
+            self.init_asset_collections()
         elif self.collection == "survivors":
             self.survivor = mdb_doc
             self._id = self.survivor["_id"]
@@ -583,6 +651,9 @@ class UserAsset():
             return c_dict["name"]
         elif return_type == dict:
             return c_dict
+        elif return_type == 'initialize':
+            self.campaign = models.campaigns.Campaign(c_dict['handle'])
+            return True
 
         return c_handle
 

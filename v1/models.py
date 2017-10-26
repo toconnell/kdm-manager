@@ -355,33 +355,18 @@ class itemsModel(Model):
 
         return output
 
-class innovationsModel(Model):
-    def __init__(self):
-        Model.__init__(self)
-        self.game_assets = game_assets.innovations
-        self.sort_alpha = True
-        self.uniquify = True
-        self.name = "innovation"
-
 
 
 class resourcesModel(Model):
     def __init__(self):
         Model.__init__(self)
         self.game_assets = game_assets.resources
-
-class resourcesModel(Model):
-    def __init__(self):
-        Model.__init__(self)
-        self.game_assets = game_assets.resources
-
 
 
 
 # initialize all of our classes above when this module is imported
 Locations       = locationsModel()
 Items           = itemsModel()
-Innovations     = innovationsModel()
 Resources       = resourcesModel()
 
 #

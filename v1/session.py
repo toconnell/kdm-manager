@@ -280,7 +280,6 @@ class Session:
 
         # now, fucking finally, set self.Settlement
         if "current_settlement" in self.session.keys() and hasattr(self, "current_settlement"):
-            self.set_api_assets()
             s_id = self.session["current_settlement"]
             self.Settlement = assets.Settlement(settlement_id=s_id, session_object=self, update_mins=update_mins)
         else:
@@ -294,45 +293,6 @@ class Session:
             self.User.save()
 
         mdb.sessions.save(self.session)
-
-
-    def set_api_assets(self, settlement_id=None):
-        """ Sets self.api dictionaries required by the current session. There's
-        a lot of sensitivity to order of operations and back-offs and nested
-        try/except stuff here, so read it carefully before you start hacking.
-        Odds are good that if there's something odd, I did it for a reason."""
-
-        # don't get data from the API unless we need to.
-        if self.get_current_view() in ["dashboard","panel"]:
-            return None
-
-        # try to set the self.current_settlement attrib to be a valid ObjectId
-        if self.get_current_view() is None:
-            self.logger.debug("[%s] session has no 'current_view'. Returning API as None." % (self.User))
-            return None
-
-        # bail if we haven't set the current settlement
-        if not hasattr(self, "current_settlement"):
-            self.logger.warn("[%s] session has no 'current_settlement'" % self.User)
-
-        if settlement_id is not None:
-            self.current_settlement=settlement_id
-
-        # now dial the API; fail noisily if we can't get it
-        self.api_settlement = api.route_to_dict(
-            "settlement/get/%s" % self.current_settlement,
-            Session=self,
-        )
-        if self.api_settlement == {}:
-            self.logger.error("[%s] could not retrieve settlement from API server!" % self.User)
-            return False
-
-        # now, assuming we're still here, initialize the survivor assets
-        self.api_survivors = {}
-        for s in self.api_settlement["user_assets"]["survivors"]:
-            _id = ObjectId(s["sheet"]["_id"]["$oid"])
-            self.api_survivors[_id] = s
-
 
 
     def change_current_view(self, target_view, asset_id=False):

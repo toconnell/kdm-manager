@@ -1,0 +1,942 @@
+core = {
+    'adventure_sword': {
+        'type': 'rare_gear',
+        'name': 'Adventure Sword'
+    },
+    'almanac': {'type': 'barber_surgeon', 'name': 'Almanac'},
+    'antelope_mask': {'type': 'mask_maker', 'name': 'Antelope Mask'},
+    'arc_bow': {'type': 'plumery', 'name': 'Arc Bow'},
+    'bandages': {
+        'type': 'skinnery',
+        'name': 'Bandages',
+    },
+    'beacon_shield': {'type': 'blacksmith', 'name': 'Beacon Shield'},
+    'beast_knuckle': {'type': 'stone_circle', 'name': 'Beast Knuckle'},
+    'bird_bread': {'type': 'plumery', 'name': 'Bird Bread'},
+    'blood_paint': {'type': 'stone_circle', 'name': 'Blood Paint'},
+    'blood_sheath': {'type': 'weapon_crafter', 'name': 'Blood Sheath'},
+    'bloom_sphere': {'type': 'plumery', 'name': 'Bloom Sphere'},
+    'blue_charm': {'type': 'stone_circle', 'name': 'Blue Charm'},
+    'bone_axe': {'type': 'bone_smith', 'name': 'Bone Axe'},
+    'bone_blade': {'type': 'bone_smith', 'name': 'Bone Blade'},
+    'bone_club': {
+        'type': 'bone_smith',
+        'name': 'Bone Club',
+        'resource_cost': {'bone': 3}
+    },
+    'bone_dagger': {'type': 'bone_smith', 'name': 'Bone Dagger'},
+    'bone_darts': {'type': 'bone_smith', 'name': 'Bone Darts'},
+    'bone_earrings': {'type': 'stone_circle', 'name': 'Bone Earrings'},
+    'bone_pickaxe': {'type': 'bone_smith', 'name': 'Bone Pickaxe'},
+    'bone_sickle': {'type': 'bone_smith', 'name': 'Bone Sickle'},
+    'boss_mehndi': {'type': 'stone_circle', 'name': 'Boss Mehndi'},
+    'brain_mint': {'type': 'barber_surgeon', 'name': 'Brain Mint'},
+    'bug_trap': {
+        'type': 'barber_surgeon',
+        'name': 'Bug Trap'
+    },
+    'butcher_cleaver': {
+        'type': 'rare_gear',
+        'name': 'Butcher Cleaver'
+    },
+    'cat_eye_circlet': {'type': 'catarium', 'name': 'Cat Eye Circlet'},
+    'cat_fang_knife': {'type': 'catarium', 'name': 'Cat Fang Knife'},
+    'cat_gut_bow': {'type': 'catarium', 'name': 'Cat Gut Bow'},
+    'claw_head_arrow': {
+        'attack': (1, 6, 6),
+        'type': 'catarium',
+        'name': 'Claw Head Arrow'
+    },
+    'cloth': {
+        'type': 'starting_gear',
+        'name': 'Cloth',
+        'keywords': ['armor'],
+        'desc': 'The Cloth protects your waist. Gain 1 armor point at the waist hit location.',
+    },
+    'counterweighted_axe': {'type': 'weapon_crafter', 'name': 'Counterweighted Axe'},
+    'crest_crown': {'type': 'plumery', 'name': 'Crest Crown'},
+    'death_mask': {'type': 'mask_maker', 'name': 'Death Mask'},
+    'dragon_slayer': {'type': 'blacksmith', 'name': 'Dragon Slayer'},
+    'dried_acanthus': {'type': 'organ_grinder', 'name': 'Dried Acanthus'},
+    'elder_earrings': {'type': 'barber_surgeon', 'name': 'Elder Earrings'},
+    'feather_mantle': {'type': 'plumery', 'name': 'Feather Mantle'},
+    'feather_shield': {'type': 'plumery', 'name': 'Feather Shield'},
+    'fecal_salve': {'type': 'organ_grinder', 'name': 'Fecal Salve'},
+    'final_lantern': {
+        'type': 'exhausted_lantern_hoard',
+        'name': 'Final Lantern',
+        'keywords': ['item','other'],
+        'rules': ['Vital'],
+    },
+    'finger_of_god': {'type': 'weapon_crafter', 'name': 'Finger of God'},
+    'first_aid_kit': {'type': 'barber_surgeon', 'name': 'First Aid Kit'},
+    'forsaker_mask': {'type': 'rare_gear', 'name': 'Forsaker Mask'},
+    'founding_stone': {
+        'type': 'starting_gear',
+        'name': 'Founding Stone',
+        'keywords': ['weapon','melee','stone'],
+    },
+    'frenzy_drink': {'type': 'catarium', 'name': 'Frenzy Drink'},
+    'god_mask': {'type': 'mask_maker', 'name': 'God Mask'},
+    'green_charm': {'type': 'stone_circle', 'name': 'Green Charm'},
+    'hollow_sword': {'type': 'plumery', 'name': 'Hollow Sword'},
+    'hollowpoint_arrow': {'type': 'plumery', 'name': 'Hollowpoint Arrow'},
+    'hours_ring': {'type': 'plumery', 'name': 'Hours Ring'},
+    'hunter_whip': {'type': 'leather_worker', 'name': 'Hunter Whip'},
+    'king_spear': {'type': 'catarium', 'name': 'King Spear'},
+    'lance_of_longinus': {'type': 'stone_circle',
+                       'name': 'Lance Of Longinus'},
+    'lantern_armor_set': {'type': 'blacksmith', 'name': 'Lantern Armor Set'},
+    'lantern_cuirass': {'type': 'blacksmith', 'name': 'Lantern Cuirass'},
+    'lantern_dagger': {'type': 'blacksmith', 'name': 'Lantern Dagger'},
+    'lantern_gauntlets': {'type': 'blacksmith', 'name': 'Lantern Gauntlets'},
+    'lantern_glaive': {'type': 'blacksmith', 'name': 'Lantern Glaive'},
+    'lantern_greaves': {'type': 'blacksmith', 'name': 'Lantern Greaves'},
+    'lantern_halberd': {'type': 'rare_gear', 'name': 'Lantern Halberd'},
+    'lantern_helm': {'type': 'blacksmith', 'name': 'Lantern Helm'},
+    'lantern_mail': {'type': 'blacksmith', 'name': 'Lantern Mail'},
+    'lantern_sword': {'type': 'blacksmith', 'name': 'Lantern Sword'},
+    'leather_armor_set': {'type': 'leather_worker',
+                       'name': 'Leather Armor Set'},
+    'leather_boots': {'type': 'leather_worker', 'name': 'Leather Boots'},
+    'leather_bracers': {'type': 'leather_worker', 'name': 'Leather Bracers'},
+    'leather_cuirass': {'type': 'leather_worker', 'name': 'Leather Cuirass'},
+    'leather_mask': {'type': 'leather_worker', 'name': 'Leather Mask'},
+    'leather_skirt': {'type': 'leather_worker', 'name': 'Leather Skirt'},
+    'lion_beast_katar': {'type': 'catarium', 'name': 'Lion Beast Katar'},
+    'lion_headdress': {'type': 'catarium', 'name': 'Lion Headdress'},
+    'lion_skin_cloak': {'type': 'catarium', 'name': 'Lion Skin Cloak'},
+    'lucky_charm': {'type': 'organ_grinder', 'name': 'Lucky Charm'},
+    'man_mask': {'type': 'mask_maker', 'name': 'Man Mask'},
+    'monster_grease': {'type': 'organ_grinder', 'name': 'Monster Grease'},
+    'monster_tooth_necklace': {'type': 'organ_grinder','name': 'Monster Tooth Necklace'},
+    'muramasa': {'type': 'rare_gear', 'name': 'Muramasa'},
+    'musk_bomb': {'type': 'barber_surgeon', 'name': 'Musk Bomb'},
+    'oxidized_beacon_shield': {'type': 'exhausted_lantern_hoard',
+                            'name': 'Oxidized Beacon Shield'},
+    'oxidized_lantern_dagger': {'type': 'exhausted_lantern_hoard',
+                             'name': 'Oxidized Lantern Dagger'},
+    'oxidized_lantern_glaive': {'type': 'exhausted_lantern_hoard',
+                             'name': 'Oxidized Lantern Glaive'},
+    'oxidized_lantern_helm': {'type': 'exhausted_lantern_hoard',
+                           'name': 'Oxidized Lantern Helm'},
+    'oxidized_lantern_sword': {'type': 'exhausted_lantern_hoard',
+                            'name': 'Oxidized Lantern Sword'},
+    'oxidized_ring_whip': {'type': 'exhausted_lantern_hoard', 'name': 'Oxidized Ring Whip'},
+    'perfect_slayer': {'type': 'blacksmith', 'name': 'Perfect Slayer'},
+    'phoenix_armor_set': {'type': 'plumery', 'name': 'Phoenix Armor Set'},
+    'phoenix_faulds': {'type': 'plumery', 'name': 'Phoenix Faulds'},
+    'phoenix_gauntlet': {'type': 'plumery', 'name': 'Phoenix Gauntlet'},
+    'phoenix_greaves': {'type': 'plumery', 'name': 'Phoenix Greaves'},
+    'phoenix_helm': {'type': 'plumery', 'name': 'Phoenix Helm'},
+    'phoenix_mask': {'type': 'mask_maker', 'name': 'Phoenix Mask'},
+    'phoenix_plackart': {'type': 'plumery', 'name': 'Phoenix Plackart'},
+    'portcullis_key': {'type': 'other', 'name': 'Portcullis Key'},
+    'rainbow_katana': {'type': 'weapon_crafter', 'name': 'Rainbow Katana'},
+    'rawhide_armor_set': {'type': 'skinnery', 'name': 'Rawhide Armor Set'},
+    'rawhide_boots': {'type': 'skinnery', 'name': 'Rawhide Boots'},
+    'rawhide_drum': {'type': 'skinnery', 'name': 'Rawhide Drum'},
+    'rawhide_gloves': {'type': 'skinnery', 'name': 'Rawhide Gloves'},
+    'rawhide_headband': {'type': 'skinnery', 'name': 'Rawhide Headband'},
+    'rawhide_pants': {'type': 'skinnery', 'name': 'Rawhide Pants'},
+    'rawhide_vest': {'type': 'skinnery', 'name': 'Rawhide Vest'},
+    'rawhide_whip': {'type': 'skinnery', 'name': 'Rawhide Whip'},
+    'red_charm': {'type': 'stone_circle', 'name': 'Red Charm'},
+    'regal_faulds': {'type': 'rare_gear', 'name': 'Regal Faulds'},
+    'regal_gauntlet': {'type': 'rare_gear', 'name': 'Regal Gauntlet'},
+    'regal_greaves': {'type': 'rare_gear', 'name': 'Regal Greaves'},
+    'regal_helm': {'type': 'rare_gear', 'name': 'Regal Helm'},
+    'regal_plackart': {'type': 'rare_gear', 'name': 'Regal Plackart'},
+    'ring_whip': {'type': 'blacksmith', 'name': 'Ring Whip'},
+    'round_leather_shield': {'type': 'leather_worker',
+                          'name': 'Round Leather Shield'},
+    'scavenger_kit': {'type': 'barber_surgeon', 'name': 'Scavenger Kit'},
+    'scrap_dagger': {'type': 'weapon_crafter', 'name': 'Scrap Dagger'},
+    'scrap_shield': {'type': 'blacksmith', 'name': 'Scrap Shield'},
+    'scrap_sword': {'type': 'weapon_crafter', 'name': 'Scrap Sword'},
+    'screaming_armor_set': {'type': 'stone_circle','name': 'Screaming Armor Set'},
+    'screaming_bracers': {'type': 'stone_circle','name': 'Screaming Bracers'},
+    'screaming_coat': {'type': 'stone_circle', 'name': 'Screaming Coat'},
+    'screaming_horns': {'type': 'stone_circle', 'name': 'Screaming Horns'},
+    'screaming_leg_warmers': {'type': 'stone_circle','name': 'Screaming Leg Warmers'},
+    'screaming_skirt': {'type': 'stone_circle', 'name': 'Screaming Skirt'},
+    'skull_helm': {'type': 'bone_smith', 'name': 'Skull Helm'},
+    'skullcap_hammer': {'type': 'weapon_crafter', 'name': 'Skullcap Hammer'},
+    'sonic_tomahawk': {'type': 'plumery', 'name': 'Sonic Tomahawk'},
+    'speed_powder': {'type': 'barber_surgeon', 'name': 'Speed Powder'},
+    'steel_shield': {'type': 'rare_gear', 'name': 'Steel Shield'},
+    'steel_sword': {'type': 'rare_gear', 'name': 'Steel Sword'},
+    'stone_noses': {'type': 'organ_grinder', 'name': 'Stone Noses'},
+    "survivors_lantern": {
+        'type': 'exhausted_lantern_hoard',
+        'name': "Survivor's Lantern",
+        'keywords': ['item','lantern'],
+    },
+    'thunder_maul': {'type': 'rare_gear', 'name': 'Thunder Maul'},
+    'twilight_sword': {'type': 'rare_gear', 'name': 'Twilight Sword'},
+    'whisker_harp': {'type': 'catarium', 'name': 'Whisker Harp'},
+    'whistling_mace': {'type': 'weapon_crafter', 'name': 'Whistling Mace'},
+    'white_lion_armor_set': {'type': 'catarium', 'name': 'White Lion Armor Set'},
+    'white_lion_boots': {'type': 'catarium', 'name': 'White Lion Boots'},
+    'white_lion_coat': {'type': 'catarium', 'name': 'White Lion Coat'},
+    'white_lion_gauntlets': {'type': 'catarium', 'name': 'White Lion Gauntlets'},
+    'white_lion_helm': {'type': 'catarium', 'name': 'White Lion Helm'},
+    'white_lion_mask': {'type': 'mask_maker', 'name': 'White Lion Mask'},
+    'white_lion_skirt': {'type': 'catarium', 'name': 'White Lion Skirt'},
+    'zanbato': {'type': 'weapon_crafter', 'name': 'Zanbato'},
+}
+
+beta_challenge_scenarios = {
+    'arm_of_the_first_tree': {
+        'keywords': ['weapon', 'melee', 'club'],
+        'expansion': 'beta_challenge_scenarios',
+        'type': 'rare_gear',
+        'name': 'Arm of the First Tree'
+    },
+    "ayas_spear": {'keywords': ['weapon', 'melee', 'spear'],
+                 'expansion': 'beta_challenge_scenarios',
+                 'type': 'rare_gear',
+                 'name': "Aya's Spear"},
+    "ayas_sword": {'keywords': ['weapon', 'melee', 'sword'],
+                 'expansion': 'beta_challenge_scenarios',
+                 'type': 'rare_gear',
+                 'name': "Aya's Sword"
+    },
+    'cola_bottle_lantern': {
+        'keywords': ['item', 'fragile', 'other'],
+        'expansion': 'beta_challenge_scenarios',
+        'type': 'rare_gear',
+        'name': 'Cola Bottle Lantern',
+    },
+    'fairy_bottle': {
+        'keywords': ['item', 'fragile', 'other'],
+        'expansion': 'beta_challenge_scenarios',
+        'type': 'rare_gear',
+        'name': 'Fairy Bottle'
+    },
+    'giant_stone_face': {
+        'keywords': ['weapon','melee', 'grand', 'heavy', 'two-handed', 'stone'],
+        'expansion': 'beta_challenge_scenarios',
+        'type': 'rare_gear',
+        'name': 'Giant Stone Face'
+    },
+ 'petal_lantern': {'keywords': ['item', 'lantern', 'other'],
+                   'expansion': 'beta_challenge_scenarios',
+                   'type': 'rare_gear',
+                   'name': 'Petal Lantern'},
+ 'piranha_helm': {'keywords': ['armor', 'set', 'rawhide'],
+                  'expansion': 'beta_challenge_scenarios',
+                  'type': 'rare_gear',
+                  'name': 'Piranha Helm'},
+ "scouts_tunic": {'keywords': ['armor', 'set', 'leather'],
+                   'expansion': 'beta_challenge_scenarios',
+                   'type': 'rare_gear',
+                   'name': "Scout's Tunic"},
+ 'stone_arm': {'keywords': ['item', 'stone', 'heavy'],
+               'expansion': 'beta_challenge_scenarios',
+               'type': 'rare_gear',
+               'name': 'Stone Arm'},
+
+}
+
+gorm = {
+    'acid_tooth_dagger': {
+        'expansion': 'gorm',
+        'type': 'gormery',
+        'name': 'Acid Tooth Dagger'
+    },
+    'armor_spikes': {
+        'expansion': 'gorm',
+        'type': 'gormery',
+        'name': 'Armor Spikes'
+    },
+    'black_sword': {
+        'expansion': 'gorm',
+        'type': 'gormery',
+        'name': 'Black Sword'
+    },
+    'gaxe': {
+        'expansion': 'gorm',
+        'type': 'gormery',
+        'name': 'Gaxe'
+    },
+ 'gorment_armor_set': {'expansion': 'gorm',
+                       'type': 'gormery',
+                       'name': 'Gorment Armor Set'},
+ 'gorment_boots': {'expansion': 'gorm',
+                   'type': 'gormery',
+                   'name': 'Gorment Boots'},
+ 'gorment_mask': {'expansion': 'gorm',
+                  'type': 'gormery',
+                  'name': 'Gorment Mask'},
+ 'gorment_sleeves': {'expansion': 'gorm',
+                     'type': 'gormery',
+                     'name': 'Gorment Sleeves'},
+ 'gorment_suit': {'expansion': 'gorm',
+                  'type': 'gormery',
+                  'name': 'Gorment Suit'},
+ 'gorn': {'expansion': 'gorm', 'type': 'gormery', 'name': 'Gorn'},
+ 'greater_gaxe': {'expansion': 'gorm',
+                  'type': 'gormery',
+                  'name': 'Greater Gaxe'},
+ 'healing_potion': {'type': 'gormchymist', 'name': 'Healing Potion'},
+ 'knuckle_shield': {'expansion': 'gorm',
+                    'type': 'gormery',
+                    'name': 'Knuckle Shield'},
+ 'life_elixir': {'type': 'gormchymist', 'name': 'Life Elixir'},
+ 'power_potion': {'type': 'gormchymist', 'name': 'Power Potion'},
+ 'pulse_lantern': {'expansion': 'gorm',
+                   'type': 'gormery',
+                   'name': 'Pulse Lantern'},
+ 'regeneration_suit': {'expansion': 'gorm',
+                       'type': 'gormery',
+                       'name': 'Regeneration Suit'},
+ 'rib_blade': {'expansion': 'gorm',
+               'type': 'gormery',
+               'name': 'Rib Blade'},
+ 'riot_mace': {'expansion': 'gorm',
+               'type': 'gormery',
+               'name': 'Riot Mace'},
+ 'steadfast_potion': {'type': 'gormchymist', 'name': 'Steadfast Potion'},
+ 'wisdom_potion': {'type': 'gormchymist', 'name': 'wisdom potion'},
+}
+
+spidicules = {
+    # rare gear
+    'grinning_visage': {
+        'keywords': ['weapon', 'melee', 'shield'],
+        'desc': """When you wound with this shield, you may spend 1 survival to add <font class="inline_shield">1</font> to all hit locations.<br/>Limit, once per attack.""",
+        'expansion': 'spidicules',
+        'type': 'rare_gear',
+        'name': 'Grinning Visage',
+    },
+
+    # silk mill
+    'amber_edge': {
+        'expansion': 'spidicules',
+        'type': 'silk_mill',
+        'name': 'Amber Edge'
+    },
+    'amber_poleaxe': {
+        'expansion': 'spidicules',
+        'type': 'silk_mill',
+        'name': 'Amber Poleaxe'
+    },
+    'blue_ring': {
+        'expansion': 'spidicules',
+        'type': 'silk_mill',
+        'name': 'Blue Ring'
+    },
+    'green_ring': {
+        'expansion': 'spidicules',
+        'type': 'silk_mill',
+        'name': 'Green Ring'
+    },
+ 'hooded_scrap_katar': {'expansion': 'spidicules',
+                        'type': 'silk_mill',
+                        'name': 'Hooded Scrap Katar'},
+ 'red_ring': {'expansion': 'spidicules',
+              'type': 'silk_mill',
+              'name': 'Red Ring'},
+ 'silk_armor_set': {'expansion': 'spidicules',
+                    'type': 'silk_mill',
+                    'name': 'Silk Armor Set'},
+ 'silk_body_suit': {'expansion': 'spidicules',
+                    'type': 'silk_mill',
+                    'name': 'Silk Body Suit'},
+ 'silk_bomb': {'expansion': 'spidicules',
+               'type': 'silk_mill',
+               'name': 'Silk Bomb'},
+ 'silk_boots': {'expansion': 'spidicules',
+                'type': 'silk_mill',
+                'name': 'Silk Boots'},
+ 'silk_robes': {'expansion': 'spidicules',
+                'type': 'silk_mill',
+                'name': 'Silk Robes'},
+ 'silk_sash': {'expansion': 'spidicules',
+               'type': 'silk_mill',
+               'name': 'Silk Sash'},
+ 'silk_turban': {'expansion': 'spidicules',
+                 'type': 'silk_mill',
+                 'name': 'Silk Turban'},
+ 'silk_whip': {'expansion': 'spidicules',
+               'type': 'silk_mill',
+               'name': 'Silk Whip'},
+ 'silk_wraps': {'expansion': 'spidicules',
+                'type': 'silk_mill',
+                'name': 'Silk Wraps'},
+ 'throwing_knife': {'expansion': 'spidicules',
+                    'type': 'silk_mill',
+                    'name': 'Throwing Knife'},
+    'the_weaver': {
+        'desc': 'When you wound a monster, add <font class="inline_shield">1</font> to a random hit location.',
+        'expansion': 'spidicules',
+        'type': 'rare_gear',
+        'name': 'The Weaver',
+        'keywords': ['weapon', 'melee', 'sword', 'amber'],
+    },
+}
+
+lion_god = {
+    'ancient_lion_claws': {'expansion': 'lion_god',
+                        'type': 'rare_gear',
+                        'name': 'Ancient Lion Claws'
+    },
+    'bone_witch_mehndi': {'expansion': 'lion_god',
+                       'type': 'rare_gear',
+                       'name': 'Bone Witch Mehndi'
+    },
+    "butchers_blood": {'expansion': 'lion_god',
+                     'type': 'rare_gear',
+                     'name': "Butcher's Blood"
+    },
+    'death_mehndi': {
+        'expansion': 'lion_god',
+        'type': 'rare_gear',
+        'name': 'Death Mehndi'
+    },
+ 'glyph_of_solitude': {'expansion': 'lion_god',
+                       'type': 'rare_gear',
+                       'name': 'Glyph of Solitude'},
+ 'golden_plate': {'expansion': 'lion_god',
+                  'type': 'rare_gear',
+                  'name': 'Golden Plate'},
+ 'lantern_mehndi': {'expansion': 'lion_god',
+                    'type': 'rare_gear',
+                    'name': 'Lantern Mehndi'},
+ 'lion_god_statue': {'expansion': 'lion_god',
+                     'type': 'rare_gear',
+                     'name': 'Lion God Statue'},
+    "necromancers_eye": {
+        'expansion': 'lion_god',
+        'type': 'rare_gear',
+        'name': "Necromancer's Eye",
+    },
+}
+
+sunstalker = {
+ 'apostle_crown': {'expansion': 'sunstalker',
+                   'type': 'sacred_pool',
+                   'name': 'Apostle Crown'},
+ 'cycloid_scale_armor': {'expansion': 'sunstalker',
+                         'type': 'skyreef_sanctuary',
+                         'name': 'Cycloid Scale Armor'},
+ 'cycloid_scale_hood': {'expansion': 'sunstalker',
+                        'type': 'skyreef_sanctuary',
+                        'name': 'Cycloid Scale Hood'},
+ 'cycloid_scale_jacket': {'expansion': 'sunstalker',
+                          'type': 'skyreef_sanctuary',
+                          'name': 'Cycloid Scale Jacket'},
+ 'cycloid_scale_shoes': {'expansion': 'sunstalker',
+                         'type': 'skyreef_sanctuary',
+                         'name': 'Cycloid Scale Shoes'},
+ 'cycloid_scale_skirt': {'expansion': 'sunstalker',
+                         'type': 'skyreef_sanctuary',
+                         'name': 'Cycloid Scale Skirt'},
+ 'cycloid_scale_sleeves': {'expansion': 'sunstalker',
+                           'type': 'skyreef_sanctuary',
+                           'name': 'Cycloid Scale Sleeves'},
+    'denticle_axe': {
+        'expansion': 'sunstalker',
+        'type': 'skyreef_sanctuary',
+        'name': 'Denticle axe'
+    },
+    'eye_patch': {
+        'expansion': 'sunstalker',
+        'type': 'rare_gear',
+        'name': 'Eye Patch'
+    },
+ "gods_string": {'expansion': 'sunstalker',
+                  'type': 'rare_gear',
+                  'name': "God's String"},
+ 'ink_blood_bow': {'expansion': 'sunstalker',
+                   'type': 'skyreef_sanctuary',
+                   'name': 'Ink Blood Bow'},
+ 'ink_sword': {'expansion': 'sunstalker',
+               'type': 'skyreef_sanctuary',
+               'name': 'Ink Sword'},
+ 'prism_mace': {'expansion': 'sunstalker',
+                'type': 'sacred_pool',
+                'name': 'Prism Mace'},
+ 'quiver_and_sunstring': {'expansion': 'sunstalker',
+                          'type': 'skyreef_sanctuary',
+                          'name': 'Quiver and Sunstring'},
+ 'shadow_saliva_shawl': {'expansion': 'sunstalker',
+                         'type': 'skyreef_sanctuary',
+                         'name': 'Shadow Saliva Shawl'},
+ 'skleaver': {'expansion': 'sunstalker',
+              'type': 'skyreef_sanctuary',
+              'name': 'Skleaver'},
+ 'sky_harpoon': {'expansion': 'sunstalker',
+                 'type': 'skyreef_sanctuary',
+                 'name': 'Sky Harpoon'},
+ 'sun_lure_and_hook': {'expansion': 'sunstalker',
+                       'type': 'skyreef_sanctuary',
+                       'name': 'Sun Lure and Hook'},
+ 'sun_vestments': {'expansion': 'sunstalker',
+                   'type': 'sacred_pool',
+                   'name': 'Sun Vestments'},
+ 'sunring_bow': {'expansion': 'sunstalker',
+                 'type': 'sacred_pool',
+                 'name': 'Sunring Bow'},
+ 'sunshark_arrows': {'expansion': 'sunstalker',
+                     'type': 'skyreef_sanctuary',
+                     'name': 'Sunshark Arrows'},
+ 'sunshark_bow': {'expansion': 'sunstalker',
+                  'type': 'skyreef_sanctuary',
+                  'name': 'Sunshark Bow'},
+ 'sunspot_dart': {'expansion': 'sunstalker',
+                  'type': 'skyreef_sanctuary',
+                  'name': 'Sunspot Dart'},
+    'sunspot_lantern': {
+        'expansion': 'sunstalker',
+        'type': 'skyreef_sanctuary',
+        'name': 'Sunspot Lantern'
+    },
+}
+
+white_box_promo = {
+    # rare gear
+    'bloodskin': {
+        'expansion': 'white_box',
+        'type': 'rare_gear',
+        'name': 'Bloodskin',
+    },
+    'blue_lantern': {
+        'expansion': 'white_box',
+        'type': 'rare_gear',
+        'name': 'Blue Lantern',
+    },
+    'dormant_twilight_cloak': {
+        'expansion': 'white_box',
+        'type': 'rare_gear',
+        'name': 'Dormant Twilight Cloak',
+    },
+    'speaker_cult_knife': {
+        'expansion': 'white_box',
+        'type': 'rare_gear',
+        'name': 'Speaker Cult Knife',
+    },
+    'sword_of_silence': {
+        'expansion': 'white_box',
+        'type': 'rare_gear',
+        'name': 'Sword of Silence',
+    },
+
+    # promo
+    'black_friday_lantern': {
+        'attributes': {'evasion': 1},
+        'desc': 'on <b>arrival</b> (at the start of the showdown), you may archive this and ambush the monster. limit, once per campaign.',
+        'expansion': 'white_box',
+        'type': 'promo',
+        'name': 'Black Friday Lantern',
+        'keywords': ['item', 'lantern', 'other']
+    },
+    'belt_of_gender_swap': {
+        'expansion': 'white_box',
+        'type': 'promo',
+        'name': 'Belt of Gender Swap'
+    },
+    'blood_plasma_gun': {
+        'expansion': 'white_box',
+        'type': 'promo',
+        'name': 'Blood Plasma Gun'
+    },
+    'blood_plasma_katana': {
+        'expansion': 'white_box',
+        'type': 'promo',
+        'name': 'Blood Plasma Katana',
+    },
+    'detective_cap': {
+        'expansion': 'white_box',
+        'type': 'promo',
+        'name': 'Detective Cap',
+    },
+    'dying_lantern': {
+        'expansion': 'white_box',
+        'type': 'promo',
+        'name': 'Dying Lantern',
+    },
+    'nightmare_breast_pump': {'expansion': 'white_box',
+                           'type': 'promo',
+                           'name': 'Nightmare Breast Pump'},
+ 'prismatic_lantern': {'expansion': 'white_box',
+                       'type': 'promo',
+                       'name': 'Prismatic Lantern'},
+ 'twilight_revolver': {'expansion': 'white_box',
+                       'type': 'promo',
+                       'name': 'Twilight Revolver'},
+    'twilight_thong': {
+        'expansion': 'white_box',
+        'type': 'promo',
+        'name': 'Twilight Thong'
+    },
+    'vibrant_lantern': {
+        'expansion': 'white_box',
+        'type': 'promo',
+        'name': 'Vibrant Lantern',
+    },
+    'xmaxe': {'expansion': 'white_box', 'type': 'promo', 'name': 'Xmaxe'},
+
+    # gear recipe
+    'cloth_leggings': {
+        'expansion': 'white_box',
+        'type': 'gear_recipe',
+        'name': 'Cloth Leggings',
+    },
+    'hard_breastplate': {
+        'expansion': 'white_box',
+        'type': 'gear_recipe',
+        'name': 'Hard Breastplate',
+    },
+    "jack_o'_lantern": {
+        'expansion': 'white_box',
+        'type': 'gear_recipe',
+        'name': "Jack O' Lantern"
+    },
+    'tabard': {'expansion': 'white_box',
+            'type': 'gear_recipe',
+            'name': 'Tabard'},
+    'vagabond_armor_set': {'expansion': 'white_box', 'type': 'gear_recipe', 'name': 'Vagabond Armor Set'},
+
+    # ivory carver
+    'white_dragon_gauntlets': {
+        'expansion': 'white_box',
+        'type': 'ivory_carver',
+        'name': 'White Dragon Gauntlets'
+    },
+
+}
+
+dragon_king = {
+    'blast_shield': {'expansion': 'dragon_king',
+                  'type': 'dragon_armory',
+                  'name': 'Blast Shield'
+    },
+    'blast_sword': {'expansion': 'dragon_king',
+                 'type': 'dragon_armory',
+                 'name': 'Blast Sword'
+    },
+    'blue_power_core': {'expansion': 'dragon_king',
+                     'type': 'dragon_armory',
+                     'name': 'Blue Power Core'
+    },
+    'celestial_spear': {
+        'expansion': 'dragon_king',
+        'type': 'rare_gear',
+        'name': 'Celestial Spear',
+    },
+    'dragon_armor_set': {'expansion': 'dragon_king',
+                      'type': 'dragon_armory',
+                      'name': 'Dragon Armor Set'},
+    'dragon_belt': {'expansion': 'dragon_king',
+                 'type': 'dragon_armory',
+                 'name': 'Dragon Belt'},
+    'dragon_bite_bolt': {'expansion': 'dragon_king',
+                      'type': 'dragon_armory',
+                      'name': 'Dragon Bite Bolt'},
+    'dragon_boots': {'expansion': 'dragon_king',
+                  'type': 'dragon_armory',
+                  'name': 'Dragon Boots'},
+    'dragon_chakram': {'expansion': 'dragon_king',
+                    'type': 'dragon_armory',
+                    'name': 'Dragon Chakram'},
+    'dragon_gloves': {'expansion': 'dragon_king',
+                   'type': 'dragon_armory',
+                   'name': 'Dragon Gloves'},
+    'dragon_mantle': {
+        'expansion': 'dragon_king',
+        'type': 'dragon_armory',
+        'name': 'Dragon Mantle'
+    },
+    'dragon_vestments': {
+        'expansion': 'dragon_king',
+        'type': 'rare_gear',
+        'name': 'Dragon Vestments'
+    },
+    'dragonskull_helm': {
+        'expansion': 'dragon_king',
+        'type': 'dragon_armory',
+        'name': 'Dragonskull Helm',
+    },
+    'hazmat_shield': {
+        'expansion': 'dragon_king',
+        'type': 'rare_gear',
+        'name': 'Hazmat Shield'
+    },
+    'husk_of_destiny': {
+        'expansion': 'dragon_king',
+        'type': 'rare_gear',
+        'name': 'Husk of Destiny'
+    },
+    'nuclear_knife': {
+        'expansion': 'dragon_king',
+        'type': 'dragon_armory',
+        'name': 'Nuclear Knife'
+    },
+    'nuclear_scythe': {
+        'expansion': 'dragon_king',
+        'type': 'dragon_armory',
+        'name': 'Nuclear Scythe'
+    },
+ 'red_power_core': {'expansion': 'dragon_king',
+                    'type': 'dragon_armory',
+                    'name': 'Red Power Core'},
+ 'regal_edge': {'expansion': 'dragon_king',
+                'type': 'rare_gear',
+                'name': 'Regal Edge'},
+ 'shielded_quiver': {'expansion': 'dragon_king',
+                     'type': 'dragon_armory',
+                     'name': 'Shielded Quiver'},
+ 'talon_knife': {'expansion': 'dragon_king',
+                 'type': 'dragon_armory',
+                 'name': 'Talon Knife'},
+}
+
+dbk = {
+    'calcified_digging_claw': {'expansion': 'dung_beetle_knight',
+                            'type': 'black_harvest',
+                            'name': 'Calcified Digging Claw'
+    },
+    'calcified_greaves': {'expansion': 'dung_beetle_knight',
+                       'type': 'black_harvest',
+                       'name': 'Calcified Greaves'
+    },
+    'calcified_juggernaut_blade': {'expansion': 'dung_beetle_knight',
+                                'type': 'rare_gear',
+                                'name': 'Calcified Juggernaut Blade'
+    },
+    'calcified_shoulder_pads': {'expansion': 'dung_beetle_knight',
+                             'type': 'black_harvest',
+                             'name': 'Calcified Shoulder Pads'
+    },
+    'calcified_zanbato': {'expansion': 'dung_beetle_knight',
+                       'type': 'black_harvest',
+                       'name': 'Calcified Zanbato'
+    },
+    'century_greaves': {'expansion': 'dung_beetle_knight',
+                     'type': 'wet_resin_crafter',
+                     'name': 'Century Greaves'
+    },
+    'century_shoulder_pads': {
+        'expansion': 'dung_beetle_knight',
+        'type': 'wet_resin_crafter',
+        'name': 'Century Shoulder Pads'
+    },
+    'dbk_errant_badge': {
+        'expansion': 'dung_beetle_knight',
+        'type': 'wet_resin_crafter',
+        'name': 'DBK Errant Badge'
+    },
+    'digging_claw': {
+        'expansion': 'dung_beetle_knight',
+        'type': 'wet_resin_crafter',
+        'name': 'Digging Claw'
+    },
+ 'hidden_crimson_jewel': {'expansion': 'dung_beetle_knight',
+                          'type': 'rare_gear',
+                          'name': 'Hidden Crimson Jewel'},
+ 'rainbow_wing_belt': {'expansion': 'dung_beetle_knight',
+                       'type': 'wet_resin_crafter',
+                       'name': 'Rainbow Wing Belt'},
+ 'regenerating_blade': {'expansion': 'dung_beetle_knight',
+                        'type': 'rare_gear',
+                        'name': 'Regenerating Blade'},
+ 'rolling_armor_set': {'expansion': 'dung_beetle_knight',
+                       'type': 'wet_resin_crafter',
+                       'name': 'Rolling Armor Set'},
+ 'rubber_bone_harness': {'expansion': 'dung_beetle_knight',
+                         'type': 'wet_resin_crafter',
+                         'name': 'Rubber Bone Harness'},
+ 'scarab_circlet': {'expansion': 'dung_beetle_knight',
+                    'type': 'wet_resin_crafter',
+                    'name': 'Scarab Circlet'},
+ 'seasoned_monster_meat': {'expansion': 'dung_beetle_knight',
+                           'type': 'wet_resin_crafter',
+                           'name': 'Seasoned Monster Meat'},
+ 'the_beetle_bomb': {'expansion': 'dung_beetle_knight',
+                     'type': 'wet_resin_crafter',
+                     'name': 'The Beetle Bomb'},
+ 'trash_crown': {'expansion': 'dung_beetle_knight',
+                 'type': 'rare_gear',
+                 'name': 'Trash Crown'},
+}
+
+manhunter = {
+    'deathpact': {
+        'expansion': 'manhunter',
+        'type': 'manhunter_gear',
+        'name': 'Deathpact'
+    },
+ "hunter's_heart": {'expansion': 'manhunter',
+                    'type': 'manhunter_gear',
+                    'name': "Hunter's Heart"},
+ "manhunter's_hat": {'expansion': 'manhunter',
+                     'type': 'manhunter_gear',
+                     'name': "Manhunter's Hat"},
+ 'reverberating_lantern': {'expansion': 'manhunter',
+                           'type': 'manhunter_gear',
+                           'name': 'Reverberating Lantern'},
+ 'tool_belt': {'expansion': 'manhunter',
+               'type': 'manhunter_gear',
+               'name': 'Tool Belt'},
+
+}
+
+green_knight = {
+    'fetorsaurus': {'expansion': 'green_knight_armor',
+                 'type': 'green_knight_armor',
+                 'name': 'Fetorsaurus'
+    },
+    'green_boots': {'expansion': 'green_knight_armor',
+                 'type': 'green_knight_armor',
+                 'name': 'Green Boots'
+    },
+    'green_faulds': {'expansion': 'green_knight_armor',
+                  'type': 'green_knight_armor',
+                  'name': 'Green Faulds'},
+ 'green_gloves': {'expansion': 'green_knight_armor',
+                  'type': 'green_knight_armor',
+                  'name': 'Green Gloves'},
+ 'green_helm': {'expansion': 'green_knight_armor',
+                'type': 'green_knight_armor',
+                'name': 'Green Helm'},
+    'green_plate': {'expansion': 'green_knight_armor',
+                 'type': 'green_knight_armor',
+                 'name': 'Green Plate'
+    },
+    'griswaldo': {
+        'expansion': 'green_knight_armor',
+        'type': 'green_knight_armor',
+        'name': 'Griswaldo',
+    },
+
+}
+
+unique_no_location = {
+}
+
+
+flower_knight = {
+    'flower_knight_badge': {
+        'expansion': 'flower_knight',
+        'type': 'sense_memory',
+        'name': 'Flower Knight Badge'
+    },
+    'flower_knight_helm': {
+        'expansion': 'flower_knight',
+        'type': 'rare_gear',
+        'name': 'Flower Knight Helm'
+    },
+ 'replica_flower_sword': {'expansion': 'flower_knight',
+                          'type': 'rare_gear',
+                          'name': 'Replica Flower Sword'},
+ 'satchel': {'expansion': 'flower_knight',
+             'type': 'sense_memory',
+             'name': 'Satchel'},
+ 'sleeping_virus_flower': {'expansion': 'flower_knight',
+                           'type': 'rare_gear',
+                           'name': 'Sleeping Virus Flower'},
+ 'vespertine_arrow': {'expansion': 'flower_knight',
+                      'type': 'sense_memory',
+                      'name': 'Vespertine Arrow'},
+ 'vespertine_bow': {'expansion': 'flower_knight',
+                    'type': 'sense_memory',
+                    'name': 'Vespertine Bow'},
+ 'vespertine_cello': {'expansion': 'flower_knight',
+                      'type': 'sense_memory',
+                      'name': 'Vespertine Cello'},
+ 'vespertine_foil': {'expansion': 'flower_knight',
+                     'type': 'sense_memory',
+                     'name': 'Vespertine Foil'},
+}
+
+slenderman = {
+    'dark_water_vial': {
+        'expansion': 'slenderman',
+        'type': 'light_forging',
+        'name': 'Dark Water vial',
+        'keywords': ['item','consumable','gloomy','fragile'],
+    },
+    'gloom_bracelets': {
+        'expansion': 'slenderman',
+        'type': 'light_forging',
+        'name': 'Gloom Bracelets',
+        'keywords': ['item','jewelry','gloomy','fragile','heavy'],
+        'rules': ['Accessory'],
+        'desc': 'When you <b>depart</b>, gain +2 insanity. When you suffer a severe arm injury, archive this card.',
+    },
+    'gloom_coated_arrow': {
+        'expansion': 'slenderman',
+        'type': 'light_forging',
+        'name': 'Gloom-Coated Arrow',
+        'rules': ['Ammo - Bow','Cumbersome','Deadly'],
+        'keywords': ['item','ammunition','arrow','gloomy'],
+    },
+    'gloom_cream': {
+        'expansion': 'slenderman',
+        'type': 'light_forging',
+        'name': 'Gloom Cream',
+        'keywords': ['item','consumable','balm','gloomy','stinky','other'],
+    },
+    'gloom_hammer': {
+        'expansion': 'slenderman',
+        'type': 'light_forging',
+        'name': 'Gloom Hammer',
+        'rules': ['Unique','Sentient','Reach 2','Deadly'],
+        'keywords': ['weapon','melee','club','two-handed','gloomy','other'],
+    },
+    'gloom_katana': {
+        'expansion': 'slenderman',
+        'type': 'light_forging',
+        'name': 'Gloom Katana',
+        'keywords': ['weapon','melee','katana','two-handed','finesse','gloomy','other'],
+        'desc': "Your insanity is added to this weapon's strength. When Gloom Sheath is right of this in your gear grid, Gloom Katana gains <b>Savage</b>.",
+    },
+    'gloom_mehndi': {
+        'expansion': 'slenderman',
+        'type': 'light_forging',
+        'name': 'Gloom Mehndi',
+        'keywords': ['item','gloomy','soluble'],
+    },
+    'gloom_sheath': {
+        'expansion': 'slenderman',
+        'type': 'light_forging',
+        'name': 'Gloom Sheath',
+        'keywords': ['item','gloomy','other'],
+        'rules': ['Block 1'],
+    },
+    'raptor_worm_collar': {
+        'expansion': 'slenderman',
+        'type': 'light_forging',
+        'name': 'Raptor-Worm Collar',
+        'keywords': ['item','jewelry','gloomy'],
+        'desc': 'You may <b>encourage</b> without spending survival. When you <b>encourage</b> a survivor, they suffer 2 brain damage.',
+    },
+    'slender_ovule': {
+        'expansion': 'slenderman',
+        'type': 'light_forging',
+        'name': 'Slender Ovule',
+        'keywords': ['item','jewelry','gloomy','other'],
+        'rules': ['Unique'],
+        'desc': 'When you <b>depart</b>, gain +3 insanity.',
+    },
+}
+
+
+lion_knight = {
+ 'hideous_disguise': {'expansion': 'lion_knight',
+                      'type': 'rare_gear',
+                      'name': 'Hideous Disguise'},
+ "lion_knights_left_claw": {'expansion': 'lion_knight',
+                             'type': 'rare_gear',
+                             'name': "Lion Knight's Left Claw"},
+ "lion_knights_right_claw": {'expansion': 'lion_knight',
+                              'type': 'rare_gear',
+                              'name': "Lion Knight's Right claw"},
+ 'lion_knight_badge': {'expansion': 'lion_knight',
+                       'type': 'rare_gear',
+                       'name': 'Lion Knight Badge'},
+}
+
+
