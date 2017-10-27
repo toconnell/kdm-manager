@@ -194,6 +194,9 @@ class Settlement(Models.UserAsset):
             s_name = self.Names.get_random_settlement_name()
         elif settlement["name"] is None and not request.User.get_preference("random_names_for_unnamed_assets"):
             s_name = "Unknown"
+        else:
+            s_name = settlement['name']
+
         self.set_name(s_name)
 
         # initialize methods
@@ -1855,7 +1858,7 @@ class Settlement(Models.UserAsset):
             {
             "settlement_id": self.settlement["_id"]
             }
-        ).sort("created_on",1)
+        ).sort("created_on",-1)
 
         if lines is not None:
             event_log = list(event_log)[-lines:]
