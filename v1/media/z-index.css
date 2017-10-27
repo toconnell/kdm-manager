@@ -6,7 +6,6 @@ img.sign_in                                 {z-index: -10; }
 input#survivor_sheet_survivor_name          {z-index: 1;}
 div#container                               {z-index: 0; }
 div.create_user_asset_block_group input     {z-index: 1;}
-.campaign_summary_surviviors_group h3       {z-index: 10; }
 button#remove_item                          {z-index: 10; }
 h3.clickable                                {z-index: 10; }
 .dashboard_accordion                        {z-index: 10; }
@@ -15,7 +14,7 @@ h3.clickable                                {z-index: 10; }
 .death_x                                    {z-index: 20; }
 input[type=text], input[type=password]      {z-index: 50; }
 div.survivor_sheet_attrib_controls_modal    {z-index: 50; }
-div.survivor_constellation_badge            {z-index: 50; }
+button.manage_departing_survivors           {z-index: 50; } /* must be above death_x */
 div.full_page_loading_spinner               {z-index: 99; }
 
     /* top nav_bar indexes */

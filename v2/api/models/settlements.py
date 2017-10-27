@@ -1039,6 +1039,9 @@ class Settlement(Models.UserAsset):
         Assumes a request context (because why else would you be doing this?)
         """
 
+        # determine (or default) the showdown type
+        showdown_type = self.settlement.get('showdown_type', 'normal')
+
         # initialize!
         if aftermath is None:
             self.check_request_params(['aftermath'])
@@ -1052,21 +1055,24 @@ class Settlement(Models.UserAsset):
             del self.settlement['current_quarry']
 
         # 2.) remove misc meta data
-        if 'hunt_started' in self.settlement.keys():
-            del self.settlement['hunt_started']
+        for tmp_key in ['hunt_started','showdown_type']:
+            if tmp_key in self.settlement.keys():
+                self.logger.debug("%s Removed tmp attribute: '%s'." % (self, tmp_key))
+                del self.settlement[tmp_key]
 
         # 3.) process survivors, keeping a list of IDs for later
         returned = []
         for s in self.survivors:
             if s.is_departing():
-                s.return_survivor()
+                s.return_survivor(showdown_type)
                 returned.append(s)
 
         # 4.) remove 'skip_next_hunt' from anyone who sat this one out
-        for s in self.get_survivors(list, excluded=[s._id for s in returned], exclude_dead=True):
-            if 'skip_next_hunt' in s.keys():
-                S = survivors.Survivor(_id=s['_id'], Settlement=self)
-                S.toggle_boolean('skip_next_hunt')
+        if showdown_type == 'normal':
+            for s in self.get_survivors(list, excluded=[s._id for s in returned], exclude_dead=True):
+                if 'skip_next_hunt' in s.keys():
+                    S = survivors.Survivor(_id=s['_id'], Settlement=self)
+                    S.toggle_boolean('skip_next_hunt')
 
         # 5.) log the return
         live_returns = []
@@ -1075,14 +1081,21 @@ class Settlement(Models.UserAsset):
                 live_returns.append(s.survivor['name'])
                 
         if live_returns != []:
-            msg = "%s returned to the settlement in %s." % (utils.list_to_pretty_string(live_returns), aftermath)
+            returners = utils.list_to_pretty_string(live_returns)
+            if showdown_type == 'normal':
+                msg = "%s returned to the settlement in %s." % (returners, aftermath)
+            elif showdown_type == 'special':
+                msg = "%s healed %s." % (request.User.login, returners)
         else:
-            msg = "No survivors returned to the settlement."
+            if showdown_type == 'normal':
+                msg = "No survivors returned to the settlement."
+            elif showdown_type == 'special':
+                msg = 'No survivors were healed after the Special Showdown.'
         self.log_event(msg, event_type="survivors_return_%s" % aftermath)
 
 
         # 6.) increment endeavors
-        if live_returns != []:
+        if showdown_type == 'normal' and live_returns != []:
             self.update_endeavor_tokens(len(live_returns), save=False)
 
         self.save()
@@ -1257,6 +1270,17 @@ class Settlement(Models.UserAsset):
         # post-processing: add 'current_survivor' effects
         if e_dict.get("current_survivor", None) is not None:
             self.update_all_survivors("increment", e_dict["current_survivor"])
+
+
+    def set_showdown_type(self):
+        """ Expects a request context and looks for key named 'type'. Uses the
+        value of that key as self.settlement['showdown_type']. """
+
+        self.check_request_params(['showdown_type'])
+        showdown_type = self.params['showdown_type']
+        self.settlement['showdown_type'] = showdown_type
+        self.logger.debug("%s Set showdown type to '%s' for %s" % (request.User, showdown_type, self.Settlement))
+        self.save()
 
 
     def set_storage(self):
@@ -1986,12 +2010,11 @@ class Settlement(Models.UserAsset):
 
         if category == 'dead':
             s = utils.mdb.survivors.find({'dead': True}).sort('died_on')
-            if list(s) != []:
+            if s.count() >= 1:
                 return s[0]
         elif category == 'born':
             s = utils.mdb.survivors.find({'born_in_ly': {'$exists': True}}).sort('created_on')
-            s = [c for c in s]
-            if s != []:
+            if s.count() >= 1:
                 return s[0]
 
         return None
@@ -2121,11 +2144,12 @@ class Settlement(Models.UserAsset):
         for item_handle in sorted(self.settlement['storage']):
             item_obj = self.storage_handle_to_obj(item_handle)
             item_type = item_obj.sub_type # this will be a key in storage_repr
-            storage_repr[item_type]['inventory'].append(item_handle)
-            if item_handle in storage_repr[item_type]['digest'].keys():
-                storage_repr[item_type]['digest'][item_handle]['count'] += 1
-            else:
-                storage_repr[item_type]['digest'][item_handle] = {'count': 1, 'name': item_obj.name, 'handle': item_handle, 'desc': item_obj.desc, 'keywords': item_obj.keywords, 'rules': item_obj.rules}
+            if item_type in storage_repr.keys():
+                storage_repr[item_type]['inventory'].append(item_handle)
+                if item_handle in storage_repr[item_type]['digest'].keys():
+                   storage_repr[item_type]['digest'][item_handle]['count'] += 1
+                else:
+                    storage_repr[item_type]['digest'][item_handle] = {'count': 1, 'name': item_obj.name, 'handle': item_handle, 'desc': item_obj.desc, 'keywords': item_obj.keywords, 'rules': item_obj.rules}
 
 
         # now turn the digest dict into a list of dicts for easy iteration
@@ -2206,9 +2230,9 @@ class Settlement(Models.UserAsset):
 
         # do filters
         for s in output_list:
-            if exclude_dead and s.is_dead():
+            if exclude_dead and s.is_dead() and s in output_list:
                 output_list.remove(s)
-            if excluded != [] and s._id in excluded:
+            if excluded != [] and s._id in excluded and s in output_list:
                 output_list.remove(s)
 
         # early returns
@@ -2565,14 +2589,12 @@ class Settlement(Models.UserAsset):
             candidate_handles.extend(self.settlement["quarries"])
         elif context == "nemesis_encounters":
             candidate_handles.extend(self.settlement["nemesis_monsters"])
-            for n in self.campaign.nemesis_monsters:
-                M = monsters.Monster(n)
-                if M.is_final_boss():
-                    candidate_handles.append(M.handle)
+            candidate_handles.append(self.campaign.final_boss)
         elif context == "defeated_monsters":
             candidate_handles.extend(self.settlement["quarries"])
             candidate_handles.extend(self.settlement["nemesis_monsters"])
             candidate_handles.extend(self.get_special_showdowns())
+            candidate_handles.append(self.campaign.final_boss)
         elif context == "special_showdown_options":
             candidate_handles.extend(self.get_special_showdowns())
         else:
@@ -2581,12 +2603,15 @@ class Settlement(Models.UserAsset):
         # now create the output list based on our candidates
         output = []
 
+        # uniquify candidate handles just in case
+        candidate_handles = list(set(candidate_handles))
+
         # this context wants handles back
-        if context == "nemesis_encounters":
-            for m in candidate_handles:
-                M = monsters.Monster(m)
-                if not M.is_selectable():
-                    candidate_handles.remove(m)
+#        if context == "nemesis_encounters":
+#            for m in candidate_handles:
+#                M = monsters.Monster(m)
+#                if not M.is_selectable():
+#                    candidate_handles.remove(m)
 
         for m in candidate_handles:
             M = monsters.Monster(m)
@@ -2601,10 +2626,7 @@ class Settlement(Models.UserAsset):
                 for l in range(M.levels):
                     lvl = l+1
                     output.append("%s Lvl %s" % (M.name,lvl))
-
         output = sorted(output)
-        if context == 'defeated_monsters':
-            output.append(self.get_final_boss('name'))
         return output
 
 
@@ -3221,7 +3243,8 @@ class Settlement(Models.UserAsset):
 
         elif action == 'set_storage':
             self.set_storage()
-
+        elif action == 'set_showdown_type':
+            self.set_showdown_type()
 
         elif action == 'add_monster_volume':
             self.add_monster_volume()

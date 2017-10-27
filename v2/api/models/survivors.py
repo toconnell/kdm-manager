@@ -1298,7 +1298,7 @@ class Survivor(Models.UserAsset):
         self.save()
 
 
-    def return_survivor(self):
+    def return_survivor(self, showdown_type=None):
         """ Returns the departing survivor. This is a minimized port of the legacy
         webapp's heal() method (which was super overkill in the first place).
 
@@ -1326,7 +1326,9 @@ class Survivor(Models.UserAsset):
 
         # 1.) update meta data
         self.survivor['departing'] = False
-        self.update_returning_survivor_years(save=False)
+
+        if showdown_type == 'normal':
+            self.update_returning_survivor_years(save=False)
 
         # 2.) remove armor
         for loc in self.armor_locations:
@@ -1351,10 +1353,10 @@ class Survivor(Models.UserAsset):
         self.set_bleeding_tokens(0, save=False)
 
         # 7.) increment Hunt XP
-        if self.is_savior():
-            self.update_attribute('hunt_xp', 4)
-        else:
-            self.update_attribute('hunt_xp', 1)
+#        if self.is_savior():
+#            self.update_attribute('hunt_xp', 4)
+#        else:
+#            self.update_attribute('hunt_xp', 1)
 
         # 8.) process disorders with 'on_return' attribs
         for d in self.survivor['disorders']:
@@ -2323,9 +2325,7 @@ class Survivor(Models.UserAsset):
     def is_departing(self):
         """ Returns a bool of whether the survivor is departing. """
 
-        if 'departing' in self.survivor.keys():
-            return True
-        return False
+        return self.survivor.get('departing', False)
 
 
     def is_founder(self):

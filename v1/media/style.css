@@ -100,11 +100,6 @@ div.kd_toggle_container:hover {font-weight: normal; background-color: #FFeeee;}
 div.settlement_sheet_principle_name {font-size: 60px; }
 .kd_radio_option_label {font-size: 60px; color: #000;}
 
-.kd_lantern {background-color: #F9EFCE; background: radial-gradient(#F9E6A4, #FCF3D5 ); border: 0.1em solid #EBD6AB;}
-.kd_dying_lantern {background-color: #F9EFCE; background: radial-gradient(#FDE6C4, #FCF3D5); }
-.kd_blue {background-color: #50CAF5; background: linear-gradient(to bottom, #60DAF5, #40AFD3); border-bottom: 0.1em solid #8D8E90; color: #fff; border-radius: 3px; font-family: Arial, sans-serif; font-weight: bold; }
-.kd_blue_font {color: #50AAF5; font-weight: bold; }
-.kd_pink_font {color: #FF0040; font-weight: bold; }
 
 .touch_me {background-color: #f7f3eb; border: 0.2em solid #E6DECC; cursor: pointer; }
 .paper_style_toggle {margin: 0 auto; width: auto; background: none; border: 0.3em solid #000; font-weight: bold; cursor: pointer;}
@@ -115,7 +110,9 @@ div.settlement_sheet_principle_name {font-size: 60px; }
 .disorder_flavor_text {font-style: italic; margin-top: 7%; margin-bottom: 7%}
 .innovation_gradient {border-top: 0.1em solid #333; background: linear-gradient(to bottom, #9E939B,#888,#9e939b); border-bottom: 0.1em solid #333; color: #fff; }
 
-button.manage_departing_survivors {border-radius: 10px; border: 0.1em solid #5F4213; background-color: #8C6D49; color:#fff; border-bottom: 0.2em solid #5F4213; transition: 2s; }
+/* The departing survivors management button */
+button#departingSurvivorsModalOpener {position: fixed; bottom: 20px; width: 90%; left: 1%; }
+.manage_departing_survivors {border-radius: 25px; border: 7px solid #fff; transition: 2s; font-family: 'Metrophobic';}
 
 .kd_alert:before {content: " ! "; font-size: 90px; font-size: 8vw; float: left; color: #EBb6d1; margin-right: 1.5%; font-weight: bold; }
 .kd_alert, .kd_alert_no_exclaim {background-color: #FF0040; color: #fff; font-family: Arial; border-radius: 25px; padding: 2%; border: 0; }
@@ -198,6 +195,8 @@ fieldset {padding: 0; margin: 0 auto;}
 .survivor_sheet_survival_action {margin: 0; display: flex; margin-bottom: 3%; margin-left: 2%; }
 font.survivor_sheet_survival_action_item {padding-left: 60px; font-size: 57pt; color: #eee; cursor: pointer;}
 font.survival_action_emphasize {font-weight: bold; color: #000; }
+
+.asset_management_left_pane, .asset_management_right_pane, .survivor_sheet_right_pane {transition: 1s; }
 
 
 label:hover {font-weight: bold; }
@@ -433,12 +432,14 @@ button.tiny_button {padding: 5px; font-size: 70%; margin: auto; margin-top: 40px
 
 .dashboard_twitter_button {position: fixed; margin: 0; bottom: 1%; right: 2%; height: 6%; width: 10%; border-radius: 100%;}
 div.dashboard_twitter_container {background-color: rgba(255,255,255,1); color: #000; font-family: "Metrophobic"; padding-top: 1%; }
-div.dashboard_twitter_container p {font-size: 16pt; }
+div.dashboard_twitter_container p {font-size: 13pt; }
+div.updates {text-align: center; width: 98%; }
+.full_width_modal_button {border-radius: 25px; font-size: 20pt; margin: 0 auto; border: 3px solid #fff; }
 div.dashboard_twitter_container a:link,
     div.dashboard_twitter_container a:visited {color: #333; font-style: italic; text-decoration: none;}
-div.dashboard_twitter_container h3 {border: 0; }
+div.dashboard_twitter_container h3 {border: 0; margin-top: 1%; }
 div.dashboard_twitter_container p.latest_blog {display: block; padding-left: 7%; width: 100%; }
-.twitter_embed_container {margin-left: 2%; margin-right: 2%; }
+.twitter_embed_container {margin-bottom: 3%; margin-top: 5%; }
 
 div.dashboard_welcome_modal {color: #fff; background: rgba(0,0,0,0.95); padding:0; padding-top: 3%; }
 div.dashboard_welcome_modal p {width: 90%; }
@@ -587,8 +588,6 @@ div.campaign_summary_headline_container p.campaign_summary_campaign_type {font-f
 div#campaign_summary_campaign_type {color: #777; margin-top: -50px; text-align:center; }
 
 /* Campaign Summary Departing survivor management */
-button#departingSurvivorsModalOpener {position: fixed; bottom: 20px; width: 90%; left: 1%; }
-button.manage_departing_survivors {border-radius: 10px; border: 0.1em solid #5F4213; background-color: #8C6D49; color:#fff; background: linear-gradient(to bottom, #8C7516, #9A7A01, #8C7516); border-bottom: 0.2em solid #5F4213; }
 p.modal_subtitle {font-size: 13px; margin-top: -3%; margin-left: 7%; margin-right: 7%; margin-bottom: 2%; font-family: 'Metrophobic'; text-align: center; }
 
 .departing_survivors_control {background-color: #000; width: 80%; margin: 0 auto; display: flex; flex-direction: row; justify-content: space-between; width: 70%; border-bottom: 1px solid #333; border-top: 1px solid #333;  }
@@ -597,7 +596,8 @@ p.modal_subtitle {font-size: 13px; margin-top: -3%; margin-left: 7%; margin-righ
 .departing_survivors_control div.button_div button {border-radius: 50%; width: 100px; height: 100px; background: radial-gradient(#fff, #fff, #fff, #ddd, #666, #333); border: 3px solid #666; margin: 3%; font-family: 'Metrophobic'; font-size: 30pt; }
 
 .current_hunt_container {width: 80%; margin: 0 auto; display: flex; flex-direction: column; padding-left: 7%; padding-right: 7%; }
-.departing_survivors_mgmt {border: 3px solid #fff;  border-right: 3px solid #eee; border-bottom: 3px solid #ddd;}
+.showdown_arrow {font-size: 8pt; }
+.departing_survivors_mgmt {border: 3px solid #fff;  border-right: 3px solid #eee; border-bottom: 3px solid #ddd; font-family: 'Metrophobic'; }
 
 
 /* no survivors error */
@@ -607,11 +607,15 @@ div.user_asset_sheet_error {margin: 5%; font-size: 35px; }
 
 /* campaign summary endeavor controls */
 .endeavor_box {font-family: 'arial';}
+.campaign_summary_small_box.settlement_fact {width: 90%; margin: 0 auto; border: 2px solid #333; padding: 3%; margin-top: 5%; border-radius: 10px; }
+.campaign_summary_small_box.settlement_fact h4 {margin: 1%;}
+.campaign_summary_small_box.settlement_fact span {font-size: 35pt; }
 .endeavor_box h4, .campaign_summary_small_box h3, .campaign_summary_small_box h4, .campaign_summary_small_box h5 {font-family: Silverado;}
 .campaign_summary_small_box h4 {text-align: center; font-size: 80px; }
 .campaign_summary_small_box h5 {font-weight: normal; margin: 0; padding:0; font-size: 75px; padding-left: 15px; margin-top: 20px; }
 .campaign_summary_small_box p {font-family: Arial, sans-serif; font-weight: normal; }
 .campaign_summary_small_box p i {font-family: Silverado; font-size: 1.2em;}
+.campaign_summary_bottom_spacer {height: 300px; }
 
 .campaign_summary_endeavor_container {margin-top: 0; margin-bottom: 2%; border-radius: 10px; background-color: #997030; color: #fff; display: flex; flex-direction: row; width: 98%; }
 div.endeavor_cost {border-top-left-radius: 10px; border-bottom-left-radius: 10px; background-color: #D0AB51; margin: 0 auto; width auto; padding: 2%; display: flex; align-items: center; border: 0; }
@@ -1214,9 +1218,10 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.dashboard_welcome_modal {margin: 0 auto; }
     div.dashboard_welcome_modal p {font-size: 20pt; width: 85%; }
 
+    .full_width_modal_button {font-size: 15pt; }
     .dashboard_twitter_button {width: 8%; font-size: 27pt; }
-    div.dashboard_twitter_container {padding: 10%; width: auto; padding-bottom: 0;   }
-    .twitter_embed_container {width: 80%; margin: 0 auto; }
+    div.dashboard_twitter_container {padding: 10%; padding-top: 2%; width: auto; padding-bottom: 0;   }
+    .twitter_embed_container {width: 80%; margin: 0 auto; margin-top: 5%; margin-bottom: 5%; }
 
     .dashboard_settlement_loader {font-size: 28px; }
     .dashboard_settlement_loader img {width: 25%; height: auto; }
@@ -1500,6 +1505,8 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .campaign_summary_small_box h4 {font-size: 30px; margin-bottom: 0; }
     .campaign_summary_small_box h5 {font-size: 25px; }
     .campaign_summary_small_box p.endeavor {font-size: 14pt; }
+    .campaign_summary_small_box.settlement_fact {border: 0; padding: 0; width: 95%; margin-left: 0; margin-top: 10%; }
+    .campaign_summary_small_box.settlement_fact span {font-size: 18pt; }
     img.endeavor_cost {width: 25px; }
     div.endeavor_text {font-size: 15pt;}
     div.campaign_endeavor {width: 94%; margin-left: 4%; }
@@ -1560,6 +1567,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     /* departing survivors management - tablet */
     button#departingSurvivorsModalOpener {position: absolute; top: 120px; right: 7px; left: auto; bottom: auto; padding: 20px; width: 360px; }
+    .manage_departing_survivors {border-radius: 15px; }
     .departing_survivors_control {width: 60%; }
     .departing_survivors_control div.label_div {font-size: 25pt; }
     .departing_survivors_control div.button_div button {padding:0; width: 65px; height: 65px; font-size: 18pt; }
@@ -1804,9 +1812,11 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.dashboard_twitter_container {padding-top: 2%; }
     div.dashboard_twitter_container p {font-size: 12pt; margin-bottom: 2%}
     div.dashboard_twitter_container p.latest_blog {padding: 0; }
-    .twitter_embed_container {width: 100%%; }
+    .twitter_embed_container {width: 100%%; margin-top: 0; }
     #twitter-widget-0 { width: 100% !important; }
     #twitter-widget-0 .timeline-Header {display: None !important;}
+    .full_width_modal_button {font-size: 12pt; padding: 1%; }
+
 
     .dashboard_settlement_loader {font-size: 13pt; }
     .dashboard_settlement_loader img {width: 25%; height: auto; }
@@ -1937,7 +1947,8 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
         /* endeavors app - wide */
     div.campaign_summary_endeavor_cap {font-size: 14pt; text-align: center; border-width: 2px; border-radius: 0; margin-top: 10px; }
-    div.campaign_summary_endeavor_controller {border-width: 2px; margin-bottom: 10px; border-radius: 0; }
+    div.campaign_summary_endeavor_container {}
+    div.endeavor_cost {}
     div.campaign_summary_endeavor_controller div.tokens {font-size: 63px; text-align: center; }
     div.campaign_summary_endeavor_controller div.controls {padding: 0; display: flex; flex-direction: row; height: 60px; padding-top: 10px; margin-top: -10px; }
     div.campaign_summary_endeavor_controller div.controls button {width: 45%; height: 20px; padding:0; margin: 0 auto; margin-bottom: 10px; cursor: pointer; }
@@ -1971,6 +1982,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     button#survivor_campaign_asset {width: 400px; }
     img.survivor_avatar_image_campaign_summary {width: 125px; height: auto; float: right; margin: 0; margin-left: 4px; }
     button#departingSurvivorsModalOpener {position: absolute; bottom: auto; top: 140px; left: 610px; right: auto; margin: 0 auto; width: 300px; padding: 10px;  }
+    .manage_departing_survivors {border-radius: 7px; }
 
     /* campaign summary survivors */
     .campaign_summary_survivors_group h3 {margin-bottom: 3%; }
@@ -1999,13 +2011,14 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .campaign_summary_survivor_attrib_tumblers div.tumbler button {font-size: 12pt; margin: 5%; }
     .modal_manager {width: 400px; padding 7%; font-size: 15pt; }
 
-    /* campaign summary manage departing survivors modal */
+    /* campaign summary manage departing survivors modal - wide */
     p.modal_subtitle {font-size: 11pt; margin-top: -1%; margin-bottom: 1%; width: 40%; }
     .departing_survivors_control {width: 30%; }
     .departing_survivors_control div.label_div {font-size: 12pt; }
     .departing_survivors_control div.button_div button {font-size: 12pt; width: 40px; height: 40px; }
     .current_hunt_container {width: 35%; margin-bottom: 5%; }
-    .departing_survivors_mgmt {width: 35%; }
+    .departing_survivors_mgmt {width: 40%; }
+    .showdown_type div.options {display: flex; flex-direction: row; flex-wrap: nowrap; margin: 0 auto; width: 50%; }
 
     /* campaign summary right panel - wide */
     div.campaign_summary_special_rule {font-size: 11pt;}
@@ -2017,8 +2030,11 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .campaign_summary_small_box h4 {font-size: 25px; }
     .campaign_summary_small_box h5 {font-size: 20px; padding-left: 5px; }
     .campaign_summary_small_box p.endeavor {font-size: 11pt; }
+    .campaign_summary_small_box.settlement_fact {width: 98%; margin: 0 auto; margin-top: 7%; }
+    .campaign_summary_small_box.settlement_fact span {font-size: 12pt; }
     img.endeavor_cost {width: 15px; }
-    div.endeavor_text {font-size: 11pt;}
+    div.endeavor_text {font-size: 11pt; margin-top: 7px; margin-bottom: 7px; }
+    div.cost_detail {margin-top: 7px; margin-bottom: 7px; }
     div.campaign_endeavor {width: 96%; margin-left: 2%; }
     div.cost_detail {font-size: 9pt;}
 
@@ -2032,7 +2048,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .settlement_storage_type_container h3 {font-size: 14pt; }
     .settlement_storage_location h4 {font-size: 12pt; }
     .settlement_storage_location span.arrow {font-size: 8pt; }
-    .inventory_repeater {font-size: 10pt; }
+    .inventory_repeater {font-size: 10pt; margin-bottom: 7px; }
     .inventory_repeater_detail {font-size: 9pt;}
 
     /* settlement storage modal - wide */
@@ -2385,6 +2401,16 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
 
 /* LAST CHANCE STYLES! Final overwrites. Probably not a best practice... */
+
+.kd_lantern {background-color: #F9EFCE; background: radial-gradient(#F9E6A4, #FCF3D5 ); border: 0.1em solid #EBD6AB;}
+.kd_dying_lantern {background-color: #F9EFCE; background: radial-gradient(#FDE6C4, #FCF3D5); }
+.kd_blue {background-color: #50CAF5; background: linear-gradient(to bottom, #60DAF5, #40AFD3); border-bottom: 0.1em solid #8D8E90; color: #fff; border-radius: 3px; font-family: Arial, sans-serif; font-weight: bold; }
+.kd_blue_font {color: #50AAF5; font-weight: bold; }
+.kd_pink_font {color: #FF0040; font-weight: bold; }
+
+/* button styles */
+.kd_brown, .endeavor_brown {background-color: #997030; background: linear-gradient(#997030, #a47a41, #997030); border-color: #B6B057; color: #fff; border-right-color: #C6C057; border-bottom-color: #C6C057;}
+.kd_special_showdown {background-color: #DC2426; color: #fff; }
 
 .affinity_red {background: #CD2027; background-color: #CD2027; color: #fff;}
 .affinity_blue {background: #1C99CD; background-color: #1C99CD; color: #fff;}

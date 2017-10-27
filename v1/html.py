@@ -212,9 +212,9 @@ class dashboard:
         <h3>Updates!</h3>
         <div class="dashboard_updates_container">
             <div class="updates">
-                <p><b>http://kdm-manager.com</b> is currently running release <b>{{user.meta.webapp.release}}</b> of the Manager, which went into production on {{latest_blog_post.published}}.</p>
-                <p class="latest_blog"><a target="top" href="{{latest_blog_post.url}}">Click here to view the latest change log!</a></p>
-                <p>&nbsp;</p>
+                <p><b>http://kdm-manager.com</b> release <b>{{user.meta.webapp.release}}</b> is currently running on version <b>{{user.meta.api.version}}</b> of <a href="http://api.thewatcher.io" target="top">the Kingdom Death API</a>, which was released on {{latest_blog_post.published}}.</p>
+                <p>The KDM API currently supports version <b>1.5</b> of Kingdom Death: <i>Monster</i>.</p>
+                <a target="top" href="{{latest_blog_post.url}}"><button class="kd_blue full_width_modal_button">View latest change log</button></a>
             </div>
             <div class="twitter_embed_container">
                 <a
@@ -226,8 +226,6 @@ class dashboard:
                 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
             </div>
         </div> <!-- dashboard_updates_container -->
-
-        <p>&nbsp;</p>
         <button class="kd_alert_no_exclaim" onclick="closeModal('dashboardTwitter')">Return to the Dashboard!</button>
 
     </div> <!-- dashboard_twitter -->
@@ -1877,7 +1875,7 @@ class survivor:
             <hr class="mobile_only"/>
         </a>
 
-        <div id="asset_management_middle_pane">
+        <div id="asset_management_middle_pane" ng-if="survivor != undefined">
 
 
             <!-- BRAIN -->
@@ -2154,13 +2152,7 @@ class survivor:
 
 
 
-
-                <!-- RIGHT ASSET MANAGEMENT PANE STARTS HERE -->
-
-        <a id="edit_misc_attribs" class="mobile_and_tablet"> </a>
-        <hr class="no_desktop" />
-
-        <div id="survivor_sheet_right_pane">
+        <div id="survivor_sheet_right_pane" >
 
 
         <!-- SURVIVOR SPECIAL ATTRIBUTES -->
@@ -3824,7 +3816,7 @@ class settlement:
 
             </div> <!-- campaign_summary_survivors_container -->
 
-            <div class="campaign_summary_facts_box">
+            <div class="campaign_summary_facts_box" ng-if="settlement != undefined">
 
                 <div
                     ng-repeat="r in settlement.campaign.special_rules"
@@ -3877,8 +3869,6 @@ class settlement:
                     </div>
 
                 </div> <!-- show_endeavor_controls -->
-
-            <hr class="mobile_only">
 
             <div
                 class="campaign_summary_small_box"
@@ -4025,19 +4015,18 @@ class settlement:
 
 
             </div>
-            <div class="campaign_summary_small_box">
-                <h4 ng-if='settlement.survivor_bonuses.all.length >=1'>- Settlement Bonuses -</h4>
+            <div class="campaign_summary_small_box settlement_fact" ng-if='settlement.survivor_bonuses.all.length >=1'>
+                <h4>- Settlement Bonuses -</h4>
                 <span
                     class="kd_checkbox_checked campaign_summary_bullet"
                     ng-repeat="p in settlement.survivor_bonuses.all"
                 >
-                    <b>{{p.name}}:</b>
+                    <b> {{p.name}}:</b>
                     <span ng-bind-html="p.desc|trustedHTML"></span>
                 </span>
             </div>
-            <hr class="mobile_only"/>
-            <div class="campaign_summary_small_box">
-                <h4 ng-if="settlement.sheet.principles.length >= 1">- Principles -</h4>
+            <div class="campaign_summary_small_box settlement_fact" ng-if="settlement.sheet.principles.length >= 1">
+                <h4>- Principles -</h4>
                 <span
                     class="kd_checkbox_checked campaign_summary_bullet"
                     ng-repeat="p in settlement_sheet.principles"
@@ -4046,8 +4035,8 @@ class settlement:
                 </span>
 
             </div>
-            <div class="campaign_summary_small_box">
-                <h4 ng-if="settlement.sheet.innovations.length >= 1">- Innovations -</h4>
+            <div class="campaign_summary_small_box settlement_fact" ng-if="settlement.sheet.innovations.length >= 1">
+                <h4>- Innovations -</h4>
                 <span
                     class="kd_checkbox_checked campaign_summary_bullet"
                     ng-repeat="i in settlement.sheet.innovations"
@@ -4056,10 +4045,8 @@ class settlement:
                 </span>
             </div>
 
-            <hr class="mobile_only"/>
-
-            <div class="campaign_summary_small_box">
-                <h4 ng-if="settlement.sheet.locations.length >= 1">- Locations -</h4>
+            <div class="campaign_summary_small_box settlement_fact" ng-if="settlement.sheet.locations.length >= 1">
+                <h4>- Locations -</h4>
                 <span
                     class="kd_checkbox_checked campaign_summary_bullet"
                     ng-repeat="l in settlement.sheet.locations"
@@ -4068,9 +4055,7 @@ class settlement:
                 </span>
             </div>
 
-            <hr class="mobile_only"/>
-
-            <div class="campaign_summary_small_box">
+            <div class="campaign_summary_small_box settlement_fact">
                 <h4>- Monsters -</h4>
 
                 <h3 class="monster_subhead" ng-if="settlement.sheet.monster_volumes.length >= 1">
@@ -4123,7 +4108,7 @@ class settlement:
 
     <button
         id="departingSurvivorsModalOpener"
-        class="manage_departing_survivors"
+        class="manage_departing_survivors kd_brown"
         ng-if="departing_survivor_count > 0"
         onclick="showHide('departingSurvivorsModalContent')"
     >
@@ -4225,26 +4210,55 @@ class settlement:
         </div>
 
         <div class="showdown_type">
-            <h3>Showdown</h3>
+            <span ng-if="settlement.sheet != undefined" ng-init="initShowdownControls()"></span>
+            <h3
+                ng-click="
+                    showHide('showdownOptions');
+                    flipShowdownArrow();
+                "
+            >
+                Showdown
+                <span class="showdown_arrow" ng-if="scratch.showdown_arrow == true">
+                    &#x25BC;
+                </span>
+                <span class="showdown_arrow" ng-if="scratch.showdown_arrow == false">
+                    &#x25B2;
+                </span>
+            </h3>
             <p class="modal_subtitle">Use the buttons below to select the type of
             showdown.</p>
-            <div class="options">
-                <button class="departing_survivors_mgmt">Showdown</button>
-                <button class="departing_survivors_mgmt">Special Showdown</button>
+            <div id="showdownOptions" class="options" ng-class="{hidden: settlement.sheet.showdown_type != undefined}">
+                <button
+                    class="departing_survivors_mgmt kd_brown"
+                    ng-click="setShowdownType('normal'); showHide('showdownOptions')"
+                >
+                    <b>Showdown</b>
+		</button>
+                <button
+                    class="departing_survivors_mgmt kd_special_showdown"
+                    ng-click="setShowdownType('special'); showHide('showdownOptions')"
+                >
+                    <b>Special Showdown</b>
+                </button>
             </div>
         </div>
 
-        <div ng-if="settlement.sheet.showdown_type == 'special'">
-            <h3>Heal Survivors</h3>
-            <p class="modal_subtitle">Use the buttons below to</p>
-        </div>
-
-        <div ng-if="settlement.sheet.showdown_type == 'normal'">
-            <h3>Return Survivors</h3>
-            <p class="modal_subtitle">Use the buttons below to return <b>Departing</b>
-            Survivors to <b>{{settlement.sheet.name}}</b>. This automatically removes
-            armor points, attribute modifiers and damage. Living survivors' Hunt XP
-            will be automatically incremented, if victorious.</p>
+        <div ng-if="settlement.sheet.showdown_type != undefined">
+            <h3 ng-if="settlement.sheet.showdown_type == 'normal'">Return Survivors from Showdown</h3>
+            <p class="modal_subtitle" ng-if="settlement.sheet.showdown_type == 'normal'">
+                Use the buttons below to return <b>Departing</b> Survivors to
+                <b>{{settlement.sheet.name}}</b>. This automatically marks living
+                survivors as <b>Returning Survivors</b> and removes armor points,
+                attribute modifiers and damage. Settlement <b>Endeavor Tokens</b>
+                will also be automatically udpated.<br/>
+            </p>
+            <h3 ng-if="settlement.sheet.showdown_type == 'special'">Heal Survivors</h3>
+            <p class="modal_subtitle" ng-if="settlement.sheet.showdown_type == 'special'">
+                Use the buttons below to heal <b>Departing</b> Survivors and
+                remove them from the <b>Departing Survivors</b> group. Healing
+                survivors automatically removes armor points, attribute
+                modifiers and damage.<br/>
+            </p>
 
             <button
                 class="kd_blue departing_survivors_mgmt"
@@ -4388,7 +4402,7 @@ class settlement:
         <span class="nav_bar_mobile mobile_only settlement_sheet_gradient"></span>
         <div class="top_nav_spacer"> hidden </div>
 
-        <div id="asset_management_left_pane">
+        <div id="asset_management_left_pane" ng-if="settlement != undefined">
 
             <input
                 name="name"
@@ -4681,7 +4695,7 @@ class settlement:
     </div> <!-- asset_management_left_pane -->
 
 
-    <div id="asset_management_middle_pane">
+    <div id="asset_management_middle_pane" ng-if="settlement != undefined">
 
 
                     <!-- LOCATIONS - ANGULARJS CONTROLS -->
@@ -4834,6 +4848,7 @@ class settlement:
                 </ul>
             </div>
 
+
         </div> <!-- settlement_sheet_block_group innovations-->
 
         <div
@@ -4923,7 +4938,7 @@ class settlement:
 
 
 
-    <div id="asset_management_right_pane">
+    <div id="asset_management_right_pane" ng-if="settlement != undefined">
 
         <a id="edit_principles" class="mobile_only"></a>
 

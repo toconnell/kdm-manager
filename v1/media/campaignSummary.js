@@ -24,12 +24,12 @@ app.controller("availableEndeavorsController", function($scope) {
 app.controller("endeavorController", function($scope) {
 
     $scope.addToken = function(){
-        $scope.postJSONtoAPI('settlement', 'update_endeavor_tokens', {"modifier": 1});
+        $scope.postJSONtoAPI('settlement', 'update_endeavor_tokens', {"modifier": 1}, false);
         $scope.settlement_sheet.endeavor_tokens += 1;
     };
 
     $scope.rmToken = function(){
-        $scope.postJSONtoAPI('settlement', 'update_endeavor_tokens', {"modifier": -1});
+        $scope.postJSONtoAPI('settlement', 'update_endeavor_tokens', {"modifier": -1}, false);
         $scope.settlement_sheet.endeavor_tokens -= 1;
         if ($scope.settlement_sheet.endeavor_tokens <= 0) {$scope.settlement_sheet.endeavor_tokens = 0;};
     };
@@ -38,7 +38,18 @@ app.controller("endeavorController", function($scope) {
 
 
 app.controller("manageDepartingSurvivorsController", function($scope, $rootScope) {
-    
+    $scope.scratch = {}; 
+    $scope.initShowdownControls = function(){
+        if ($scope.settlement.sheet.showdown_type != undefined) {
+            $scope.scratch.showdown_arrow=true
+        } else {
+            $scope.scratch.showdown_arrow = false; 
+        };
+    };
+    $scope.flipShowdownArrow = function(){
+        if ($scope.scratch.showdown_arrow === true) {$scope.scratch.showdown_arrow = false; return true};
+        if ($scope.scratch.showdown_arrow === false) {$scope.scratch.showdown_arrow = true; return true};
+    };
     $scope.saveCurrentQuarry = function(select_element) {
 
         var timeline_event = {
@@ -70,6 +81,12 @@ app.controller("manageDepartingSurvivorsController", function($scope, $rootScope
         $scope.postJSONtoAPI('settlement', 'update_survivors', {
             include: 'departing', attribute: attrib, 'modifier': mod,
         });
+    };
+
+    $scope.setShowdownType = function(s){
+        $scope.settlement.sheet.showdown_type = s;
+        var js_obj = {showdown_type: s};
+        $scope.postJSONtoAPI('settlement','set_showdown_type',js_obj, false);
     };
 });
 
