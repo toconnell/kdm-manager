@@ -621,7 +621,7 @@ div.user_asset_sheet_error {margin: 5%; font-size: 35px; }
 div.endeavor_cost {border-top-left-radius: 10px; border-bottom-left-radius: 10px; background-color: #D0AB51; margin: 0 auto; width auto; padding: 2%; display: flex; align-items: center; border: 0; }
 img.endeavor_cost {width: 50px; }
 div.endeavor_text {font-family: 'Metrophobic'; padding: 2%; font-size: 35pt; width: 100%; vertical-align: middle; }
-div.campaign_endeavor {margin-left: 2%; margin-top: 2%; width: 96%; }
+div.campaign_endeavor {margin-top: 2%; }
 div.cost_detail {font-size: 23pt; color: #fff; width: 30%; margin: 2%; border-radius: 10px; padding: 2%; }
 div.cost_detail div {font-size: inherit; font-family: 'Metrophobic'; padding-left: 10%; }
 
@@ -1509,7 +1509,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .campaign_summary_small_box.settlement_fact span {font-size: 18pt; }
     img.endeavor_cost {width: 25px; }
     div.endeavor_text {font-size: 15pt;}
-    div.campaign_endeavor {width: 94%; margin-left: 4%; }
     div.cost_detail {font-size: 11pt;}
     div.cost_detail div {}
 
@@ -2035,7 +2034,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     img.endeavor_cost {width: 15px; }
     div.endeavor_text {font-size: 11pt; margin-top: 7px; margin-bottom: 7px; }
     div.cost_detail {margin-top: 7px; margin-bottom: 7px; }
-    div.campaign_endeavor {width: 96%; margin-left: 2%; }
+    div.campaign_endeavor {width: 98%; margin-left: 0; }
     div.cost_detail {font-size: 9pt;}
 
     /* Endeavor Controls */

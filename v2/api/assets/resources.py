@@ -52,14 +52,12 @@ core_resources = {
         'keywords': ['bone','organ','hide','consumable','other'],
         'type': 'strange_resources',
         'name': 'Black Lichen',
-        'keywords': ['bone', 'organ', 'hide']
     },
     'cocoon_membrane': {
         'desc': 'Thin copper hairs permeate this jellylike substance.<br/>Lanterns are repelled by the copper hairs, their light bending to avoid them.',
         'keywords': ['organ', 'other'],
         'type': 'strange_resources',
         'name': 'Cocoon Membrane',
-        'keywords': ['organ']
     },
     'elder_cat_teeth': {
         'type': 'strange_resources',

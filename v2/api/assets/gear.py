@@ -462,7 +462,9 @@ sunstalker = {
     'eye_patch': {
         'expansion': 'sunstalker',
         'type': 'rare_gear',
-        'name': 'Eye Patch'
+        'name': 'Eye Patch',
+        'keywords': ['item','leather'],
+        'desc': 'While you wear this, you are <b>blind</b> in one eye (-1 accuracy), if you are already <b>blind</b>, gain +2 strength for being a badass instead.',
     },
  "gods_string": {'expansion': 'sunstalker',
                   'type': 'rare_gear',
