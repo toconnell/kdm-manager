@@ -2404,7 +2404,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
 .kd_lantern {background-color: #F9EFCE; background: radial-gradient(#F9E6A4, #FCF3D5 ); border: 0.1em solid #EBD6AB;}
 .kd_dying_lantern {background-color: #F9EFCE; background: radial-gradient(#FDE6C4, #FCF3D5); }
-.kd_blue {background-color: #50CAF5; background: linear-gradient(to bottom, #60DAF5, #40AFD3); border-bottom: 0.1em solid #8D8E90; color: #fff; border-radius: 3px; font-family: Arial, sans-serif; font-weight: bold; }
+.kd_blue {background-color: #50CAF5; background: linear-gradient(to bottom, #60DAF5, #40AFD3); border-bottom: 0.1em solid #8D8E90; color: #fff; font-family: Arial, sans-serif; font-weight: bold; }
 .kd_blue_font {color: #50AAF5; font-weight: bold; }
 .kd_pink_font {color: #FF0040; font-weight: bold; }
 

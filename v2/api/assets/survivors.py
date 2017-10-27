@@ -112,7 +112,7 @@ beta_challenge_scenarios = {
             "Courage": 3,
             "Understanding": 3,
             "fighting_arts": ["thrill_seeker","clutch_fighter","extra_sense"],
-            "disorders": ["Rageholic","Sworn Enemy"],
+            "disorders": ["rageholic","sworn_enemy"],
         },
         "storage": [
 #            "Rawhide Pants",
@@ -127,7 +127,7 @@ beta_challenge_scenarios = {
     },
     "candy_and_cola":{
         "name": "Candy & Cola",
-        "attribs": {"name": "Candy & Cola", "Movement": 6, "disorders": ["Hyperactive"], "sex": "F"},
+        "attribs": {"name": "Candy & Cola", "Movement": 6, "disorders": ["hyperactive"], "sex": "F"},
     },
     "kara_black": {
         "name": "Kara Black",
@@ -197,7 +197,7 @@ beta_challenge_scenarios = {
             "survival": 10,
             "abilities_and_impairments": ["bitter_frenzy", "solid", "grand_weapon_specialization"],
             "fighting_arts": ["berserker", "crossarm_block", "unconscious_fighter"],
-            "disorders": ["Rageholic"],
+            "disorders": ["rageholic"],
         },
 #        "storage": [
 #            "Lantern Helm",

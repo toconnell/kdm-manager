@@ -106,10 +106,19 @@ class Settlement(Models.UserAsset):
         self.Endeavors = endeavors.Assets()
         self.Events = events.Assets()
         self.Expansions = expansions.Assets()
+        self.FightingArts = fighting_arts.Assets()
         self.Gear = gear.Assets()
         self.Innovations = innovations.Assets()
+        self.Locations = locations.Assets()
+        self.Milestones = milestone_story_events.Assets()
+        self.Monsters = monsters.Assets()
+        self.Names = names.Assets()
         self.Resources = resources.Assets()
 #        self.Storage = storage.Assets()
+        self.SpecialAttributes = survivor_special_attributes.Assets()
+        self.SurvivalActions = survival_actions.Assets()
+        self.Survivors = survivors.Assets()
+        self.WeaponMasteries = weapon_masteries.Assets()
 
 
     def new(self):
@@ -134,7 +143,7 @@ class Settlement(Models.UserAsset):
         """
 
         self.logger.info("%s creating a new settlement..." % request.User)
-        self.logger.debug("%s new settlement params: %s" % (request.User, self.params))
+#        self.logger.debug("%s new settlement params: %s" % (request.User, self.params))
 
         settlement = {
             # meta / admin
@@ -171,12 +180,6 @@ class Settlement(Models.UserAsset):
         }
 
 
-        # set the settlement name before we save to MDB
-        if settlement["name"] is None and request.User.get_preference("random_names_for_unnamed_assets"):
-            N = names.Assets()
-            settlement["name"] = N.get_random_settlement_name()
-        elif settlement["name"] is None and not request.User.get_preference("random_names_for_unnamed_assets"):
-            settlement["name"] = "Unknown"
 
 
         #
@@ -185,7 +188,13 @@ class Settlement(Models.UserAsset):
 
         self._id = utils.mdb.settlements.insert(settlement)
         self.load() # uses self._id
-        self.log_event("%s created %s" % (request.User.login, self.settlement["name"]), event_type="new_settlement")
+
+        # set the settlement name before we save to MDB
+        if settlement["name"] is None and request.User.get_preference("random_names_for_unnamed_assets"):
+            s_name = self.Names.get_random_settlement_name()
+        elif settlement["name"] is None and not request.User.get_preference("random_names_for_unnamed_assets"):
+            s_name = "Unknown"
+        self.set_name(s_name)
 
         # initialize methods
 
@@ -211,9 +220,8 @@ class Settlement(Models.UserAsset):
 
         # prefab survivors go here
         if self.params.get("survivors", None) is not None:
-            S = survivors.Assets()
             for s in self.params["survivors"]:
-                s_dict = copy(S.get_asset(s))
+                s_dict = copy(self.Survivors.get_asset(s))
                 attribs = s_dict["attribs"]
                 attribs.update({"settlement": self._id})
                 survivors.Survivor(new_asset_attribs=attribs, Settlement=self)
@@ -228,8 +236,7 @@ class Settlement(Models.UserAsset):
         """ Think of these as macros. Basically, you feed this a handle, it
         checks out the handle and then takes action based on it. """
 
-        S = survivors.Assets()
-        specials = S.get_specials()
+        specials = self.Survivors.get_specials()
         script = copy(specials.get(special_handle, None))
 
         if script is None:
@@ -610,8 +617,7 @@ class Settlement(Models.UserAsset):
             monster_handle = self.params["handle"]
 
         # sanity check the handle; load an asset dict for it
-        M = monsters.Assets()
-        m_dict = M.get_asset(monster_handle)
+        m_dict = self.Monsters.get_asset(monster_handle)
 
         # get the type from the asset dict
         if m_dict["type"] == 'quarry':
@@ -637,8 +643,7 @@ class Settlement(Models.UserAsset):
             monster_handle = self.params["handle"]
 
         # sanity check the handle; load an asset dict for it
-        M = monsters.Assets()
-        m_dict = M.get_asset(monster_handle)
+        m_dict = self.Monsters.get_asset(monster_handle)
 
         # get the type from the asset dict
         if m_dict["type"] == 'quarry':
@@ -800,8 +805,7 @@ class Settlement(Models.UserAsset):
         loc_handle = self.params["handle"]
 
         # first, verify that the incoming handle is legit
-        L = locations.Assets()
-        loc_dict = L.get_asset(loc_handle)
+        loc_dict = self.Locations.get_asset(loc_handle)
 
         # next, make sure it's not a dupe
         if loc_handle in self.settlement["locations"]:
@@ -824,12 +828,11 @@ class Settlement(Models.UserAsset):
         object, i.e. should not be called unless it is part of a request.  """
 
         # spin everything up
-        L = locations.Assets()
         loc_handle = self.params["handle"]
-        loc_dict = L.get_asset(loc_handle)
+        loc_dict = self.Locations.get_asset(loc_handle)
 
         # first, see if it's a real handle
-        if loc_handle not in L.get_handles():
+        if loc_handle not in self.Locations.get_handles():
             self.logger.error("Location asset handle '%s' does not exist!" % loc_handle)
             return False
 
@@ -1113,8 +1116,7 @@ class Settlement(Models.UserAsset):
         fa_handle = self.params['handle']
 
         try:
-            FA = fighting_arts.Assets()
-            fa_dict = FA.get_asset(fa_handle)
+            fa_dict = self.FightingArts.get_asset(fa_handle)
         except:
             raise utils.InvalidUsage("Fighting Art handle '%s' is not a known asset handle!" % (fa_handle))
 
@@ -1173,12 +1175,14 @@ class Settlement(Models.UserAsset):
         self.save()
 
 
-    def set_name(self):
-        """ Assumes a request context. Looks for the param key 'name' and then
-        changes the Settlement's self.settlement["name"] to be that value. """
+    def set_name(self, new_name=None):
+        """ Looks for the param key 'name' and then changes the Settlement's
+        self.settlement["name"] to be that value. Works with or without a
+        request context. """
 
-        self.check_request_params(['name'])
-        new_name = self.params["name"].strip()
+        if new_name is None:
+            self.check_request_params(['name'])
+            new_name = self.params["name"].strip()
 
         if new_name == "":
             new_name = "UNKNOWN"
@@ -1186,7 +1190,12 @@ class Settlement(Models.UserAsset):
         old_name = self.settlement["name"]
         self.settlement["name"] = new_name
 
-        self.log_event("%s changed settlement name from '%s' to '%s'" % (request.User.login, old_name, new_name))
+        if old_name is None:
+            msg = "%s named the settlement '%s'." % (request.User.login, new_name)
+        else:
+            msg = "%s changed settlement name from '%s' to '%s'" % (request.User.login, old_name, new_name)
+
+        self.log_event(msg)
         self.save()
 
 
@@ -1379,8 +1388,7 @@ class Settlement(Models.UserAsset):
         handle = self.params["handle"]
         levels = list(self.params["levels"])
 
-        M = monsters.Assets()
-        m_dict = M.get_asset(handle)
+        m_dict = self.Monsters.get_asset(handle)
 
         if handle not in self.settlement["nemesis_monsters"]:
             self.logger.error("Cannot update nemesis levels for '%s' (nemesis is not in 'nemesis_monsters' list for %s)" % (handle, self))
@@ -1693,7 +1701,6 @@ class Settlement(Models.UserAsset):
         """ Returns a uniqified list of farting art handles based on LIVING
         survivors. """
 
-        FA = fighting_arts.Assets()
         output = set()
 
         fa_handles = set()
@@ -1702,7 +1709,7 @@ class Settlement(Models.UserAsset):
                 fa_handles = fa_handles.union(s.survivor['fighting_arts'])
 
         for fa_handle in fa_handles:
-            fa_dict = FA.get_asset(fa_handle)
+            fa_dict = self.FightingArts.get_asset(fa_handle)
             if fa_dict['type'] == 'fighting_art':
                 output.add(fa_handle)
 
@@ -2176,10 +2183,9 @@ class Settlement(Models.UserAsset):
         expansion (so far). The assets live in the assets/survivor_sheet_options.py
         file. """
 
-        SA = survivor_special_attributes.Assets()
         output = []
         for h in self.campaign.survivor_special_attributes:
-            output.append(SA.get_asset(h))
+            output.append(self.SpecialAttributes.get_asset(h))
         return output
 
 
@@ -2313,13 +2319,12 @@ class Settlement(Models.UserAsset):
         based on campaign type. Individual SAs are either 'available' or not,
         depending on whether they're unlocked. """
 
-        SA = survival_actions.Assets()
 
         # first, build the master dict based on the campaign def
         sa_dict = {}
         sa_handles = self.campaign.survival_actions
         for handle in sa_handles:
-            sa_dict[handle] = SA.get_asset(handle)
+            sa_dict[handle] = self.SurvivalActions.get_asset(handle)
 
         # set innovations to unavailable if their availablility is not defined
         # already within their definition:
@@ -2397,15 +2402,11 @@ class Settlement(Models.UserAsset):
         """ Returns a list of weapon mastery handles representing the weapon
         masteries that have been acquired by the settlement's survivors. """
 
-        WM = weapon_masteries.Assets()
         survivor_weapon_masteries = set()
 
-        for s in self.get_survivors(list):
-
-            S = survivors.Survivor(_id=s["_id"], Settlement=self)
-
+        for S in self.survivors:
             for ai in S.list_assets("abilities_and_impairments"):
-                if ai["handle"] in WM.get_handles():
+                if ai["handle"] in self.WeaponMasteries.get_handles():
                     survivor_weapon_masteries.add(ai["handle"])
 
         return sorted(list(survivor_weapon_masteries))
@@ -2417,18 +2418,17 @@ class Settlement(Models.UserAsset):
         """ Returns a list of dictionaries where each dict is a milestone def-
         inition. Useful for front-end stuff. """
 
-        M = milestone_story_events.Assets()
 
 
         if return_type==dict:
             output = {}
             for m_handle in self.campaign.milestones:
-                output[m_handle] = M.get_asset(m_handle)
+                output[m_handle] = self.Milestones.get_asset(m_handle)
             return output
         elif return_type==list:
             output = []
             for m_handle in self.campaign.milestones:
-                output.append(M.get_asset(m_handle))
+                output.append(self.Milestones.get_asset(m_handle))
             return output
         else:
             self.logger.error("get_milestones_options() does not support return_type=%s" % return_type)
@@ -2988,8 +2988,6 @@ class Settlement(Models.UserAsset):
         old_timeline = self.settlement["timeline"]
         new_timeline = []
 
-        all_events = events.Assets()
-
         for old_ly in old_timeline:         # this is an ly dict
             new_ly = {}
             for k in old_ly.keys():
@@ -3009,8 +3007,8 @@ class Settlement(Models.UserAsset):
                             event_type_list.append(event)
                         else:
                             event_dict = {"name": event}
-                            if event in all_events.get_names():
-                                event_dict.update(all_events.get_asset_from_name(event))
+                            if event in self.Events.get_names():
+                                event_dict.update(self.Events.get_asset_from_name(event))
                             event_type_list.append(event_dict)
                     new_ly[k] = event_type_list
 
@@ -3020,13 +3018,13 @@ class Settlement(Models.UserAsset):
                     err_msg = "Error converting legacy timeline! '%s' is an unknown event type!" % k
 
                     if k in ["settlement_event","story_event"]:
-                        e = all_events.get_asset_from_name(old_ly[k])
+                        e = self.Events.get_asset_from_name(old_ly[k])
                         if e is not None:
                             event_type_list.append(e)
                         else:
                             try:
                                 event_root, event_parens = old_ly[k].split("(")
-                                e = all_events.get_asset_from_name(event_root)
+                                e = self.Events.get_asset_from_name(event_root)
                                 if e is not None:
                                     event_type_list.append(e)
                             except:

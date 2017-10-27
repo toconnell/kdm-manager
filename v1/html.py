@@ -4410,7 +4410,7 @@ class settlement:
                 class="settlement_sheet_settlement_name settlement_name"
                 type="text"
                 ng-value="settlement.sheet.name"
-                ng-model="newSettlementName"
+                ng-model="scratch.newSettlementName"
                 ng-placeholder="Settlement Name"
                 ng-blur="setSettlementName()"
                 onclick="this.select()"

@@ -84,9 +84,9 @@ app.controller("storageController", function($scope) {
 });
 
 app.controller("settlementSheetController", function($scope) {
-    
+    $scope.scratch = {} 
     $scope.setSettlementName = function() {
-        js_obj = {'name': $scope.newSettlementName};
+        js_obj = {name: $scope.scratch.newSettlementName};
         $scope.postJSONtoAPI('settlement', 'set_name', js_obj);
     };
     $scope.incrementAttrib = function(attrib, modifier) {

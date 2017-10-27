@@ -245,7 +245,7 @@ campaign_definitions = {
         "survivor_attribute_milestones": default_survivor_attribute_milestones,
         "quarries": monster_assets.base_game_quarries,
         "settlement_sheet_init": {
-            "storage": ["Sleeping Virus Flower"],
+            "storage": ["sleeping_virus_flower"],
             "expansions": ["flower_knight"],
             "quarries": ["white_lion"],
             "nemesis_monsters": ["butcher"],

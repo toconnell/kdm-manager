@@ -63,6 +63,7 @@ class Survivor(Models.UserAsset):
         self.object_version = 0.76
 
         # initialize AssetCollections for later
+        self.Disorders = disorders.Assets()
         self.Saviors = saviors.Assets()
         self.SpecialAttributes = survivor_special_attributes.Assets()
 
@@ -1360,8 +1361,7 @@ class Survivor(Models.UserAsset):
 
         # 8.) process disorders with 'on_return' attribs
         for d in self.survivor['disorders']:
-            D = disorders.Assets()
-            d_dict = d.get_asset(d)
+            d_dict = self.Disorders.get_asset(d)
             if d_dict.get('on_return', None) is not None:
                 for k,v in d_dict['on_return'].iteritems():
                     self.survivor[k] = v
