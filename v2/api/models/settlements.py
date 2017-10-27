@@ -190,14 +190,15 @@ class Settlement(Models.UserAsset):
         self.load() # uses self._id
 
         # set the settlement name before we save to MDB
-        if settlement["name"] is None and request.User.get_preference("random_names_for_unnamed_assets"):
+        s_name = settlement['name']
+        if s_name is None and request.User.get_preference("random_names_for_unnamed_assets"):
             s_name = self.Names.get_random_settlement_name()
-        elif settlement["name"] is None and not request.User.get_preference("random_names_for_unnamed_assets"):
+        elif s_name is None and not request.User.get_preference("random_names_for_unnamed_assets"):
             s_name = "Unknown"
-        else:
-            s_name = settlement['name']
 
+        self.settlement['name'] = None
         self.set_name(s_name)
+
 
         # initialize methods
 
