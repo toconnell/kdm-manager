@@ -1142,6 +1142,7 @@ class Settlement(Models.UserAsset):
         self.save()
 
 
+
     def set_last_accessed(self, access_time=None):
         """ Set 'access_time' to a valid datetime object to set the settlement's
         'last_accessed' value or leave it set to None to set the 'last_accessed'
@@ -1359,7 +1360,8 @@ class Settlement(Models.UserAsset):
         modifier = self.params["modifier"]
 
         self.settlement[attribute] = self.settlement[attribute] + modifier
-        self.log_event("%s updated settlement %s to %s" % (request.User.login, attribute, self.settlement[attribute]))
+        attribute_pretty = attribute.title().replace('_',' ')
+        self.log_event("%s updated settlement %s to %s" % (request.User.login, attribute_pretty, self.settlement[attribute]))
         self.save()
 
 
@@ -1515,7 +1517,8 @@ class Settlement(Models.UserAsset):
         value = self.params["value"]
 
         self.settlement[attribute] = value
-        self.log_event("%s updated settlement %s to %s" % (request.User.login, attribute, self.settlement[attribute]))
+        pretty_attribute = attribute.title().replace('_',' ')
+        self.log_event("%s set settlement %s to %s" % (request.User.login, pretty_attribute, self.settlement[attribute]))
         self.save()
 
 
@@ -3257,6 +3260,7 @@ class Settlement(Models.UserAsset):
             self.set_inspirational_statue()
         elif action == 'set_lantern_research_level':
             self.set_lantern_research_level()
+
 
         #
         #   campaign notes controllers

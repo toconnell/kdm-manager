@@ -795,8 +795,8 @@ app.controller('timelineController', function($scope, $rootScope) {
 
     $scope.setLY = function(ly) {
         console.log("setting LY to " + ly);
-        modifyAsset('settlement', $scope.settlement_id, "lantern_year=" + ly);
         $scope.settlement.sheet.lantern_year = ly;
+        $scope.postJSONtoAPI('settlement','set_attribute',{attribute: 'lantern_year',  value: ly});
     };
 
     $scope.getLYObject = function(ly) {
