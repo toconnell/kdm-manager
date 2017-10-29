@@ -159,16 +159,45 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
         if (survivor.meta.manageable === true) {$scope.manageable_survivors += 1; $scope.verify_manageable=false};
     };
 
+    $scope.popSurvivor = function(s_id){
+        // removes a survivor from whatever group they're in; returns their dict
+        for (i=0; i < $scope.settlement.user_assets.survivor_groups.length; i++) {
+            var g_dict = $scope.settlement.user_assets.survivor_groups[i];
+            for (j=0; j < g_dict.survivors.length; j++) {
+                var s_dict = g_dict.survivors[j];
+                if (s_dict.sheet._id.$oid == s_id) {
+                    g_dict.survivors.splice(j, 1);
+                    return s_dict;
+                };
+            };
+        };
+    };
+
+    $scope.pushSurvivor = function(s_dict, group){
+        // pushes a survivor dict onto a group's survivors list
+        for (i=0; i < $scope.settlement.user_assets.survivor_groups.length; i++) {
+            var g_dict = $scope.settlement.user_assets.survivor_groups[i];
+            if (g_dict.handle == group) {
+                g_dict.survivors.push(s_dict);
+                return true
+            };
+        };
+    };
+
     $scope.toggleDepartingStatus = function(s){
         // this is a little hack-y, but hey: FIWE
 
-        showFullPageLoader();
         $rootScope.survivor_id = s.sheet._id.$oid;
         var set = true;
         if (s.sheet.departing === true) {set = false};
         if (set === true) {
-            $scope.postJSONtoAPI('survivor','set_status_flag', {'flag': 'departing'});
+            var s_dict = $scope.popSurvivor(s.sheet._id.$oid);
+            $scope.pushSurvivor(s_dict, 'departing');
+            $scope.postJSONtoAPI('survivor','set_status_flag', {'flag': 'departing'}, false);
         } else {
+            showFullPageLoader();
+            var s_dict = $scope.popSurvivor(s.sheet._id.$oid);
+//            $scope.pushSurvivor(s_dict, 'available');
             $scope.postJSONtoAPI('survivor', 'set_status_flag', {'flag': 'departing', 'unset': true})
         };
 

@@ -1244,6 +1244,10 @@ class angularJS:
                     </div>
 
                     <div class="timeline_events_container">
+                        <span class="timeline_event" ng-repeat="e in t.settlement_event">
+                            <font class="kdm_font_hit_locations">a &nbsp;</font>
+                            {{e.name}}
+                        </span>
                         <span class="timeline_event" ng-repeat="e in t.story_event" ng-model="story_events">
                             <font class="kdm_font">g &nbsp;</font>
                             <b>{{e.name}}</b>
@@ -1262,10 +1266,6 @@ class angularJS:
                         <span class="timeline_event" ng-repeat="n in t.nemesis_encounter">
                         <span><img class="icon" src="/media/icons/nemesis_encounter_event.jpg"/></span>
                             &nbsp; <b> {{n.name}}</b>
-                        </span>
-                        <span class="timeline_event" ng-repeat="e in t.settlement_event">
-                            <font class="kdm_font_hit_locations">a &nbsp;</font>
-                            {{e.name}}
                         </span>
                     </div>
                 </div>
@@ -1411,6 +1411,7 @@ class angularJS:
                             ng-class-odd="'log_zebra'"
                             ng-class-even="'log_no_zebra'"
                             ng-bind-html="l.event|trustedHTML"
+                            class="{{l.event_type}}"
                         >
                         </div>
                    </span>
@@ -4181,6 +4182,20 @@ class settlement:
         </div> <!-- departing_survivors_control Understanding -->
 
         <div class="departing_survivors_control">
+            <div class="label_div">Hunt XP</div>
+            <div class="button_div" ng-if="hideControls==false">
+                <button
+                    ng-click="updateDepartingSurvivors('hunt_xp', +1)"
+                > +1
+                </button>
+                <button
+                    ng-click="updateDepartingSurvivors('hunt_xp', -1)"
+                > -1
+                </button>
+            </div> <!-- button div -->
+        </div> <!-- departing_survivors_control Understanding -->
+
+        <div class="departing_survivors_control">
             <div class="label_div">Brain Event Damage</div>
             <div class="button_div" ng-if="hideControls==false">
                 <button
@@ -5372,18 +5387,18 @@ class meta:
         <h2>Traceback:</h2>
         $exception\n""" % (basic_http_header, settings.get("application","title"), datetime.now()))
 
-    start_head = """<!DOCTYPE html>\n<html>
+    start_head = Template("""<!DOCTYPE html>\n<html>
     <head>
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
         <meta name="theme-color" content="#000000">
-        <title>%s</title>
-        <link rel="stylesheet" type="text/css" href="/media/style.css?v=%s">
+        <title>$title</title>
+        <link rel="stylesheet" type="text/css" href="/media/style.css?v=$version">
+        <link rel="stylesheet" type="text/css" href="/media/settlement_event_log.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/media/help-tip.css">
-        <link rel="stylesheet" type="text/css" href="/media/z-index.css?v=%s">
-    """ % (
-        settings.get("application","title"),
-        settings.get('application', 'version'),
-        settings.get('application', 'version')
+        <link rel="stylesheet" type="text/css" href="/media/z-index.css?v=$version">
+    """).safe_substitute(
+        title = settings.get("application","title"),
+        version = settings.get('application', 'version'),
     )
 
     close_body = """\n

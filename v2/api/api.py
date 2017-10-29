@@ -206,7 +206,6 @@ def collection_action(collection, action, asset_id):
     This is also one of our so-called 'private' routes, so you can't do this
     stuff without an authenticated user.
     """
-
     # update the request object
     request.collection = collection
     request.action = action
@@ -272,6 +271,12 @@ def after_request(response):
 #
 #   special/bogus/meta routes
 #
+@application.errorhandler(Exception)
+@utils.crossdomain(origin=['*'])
+def general_exception(exception):
+    utils.email_exception(exception)
+    return Response(response=exception.message, status=500)
+
 
 @application.errorhandler(utils.InvalidUsage)
 @utils.crossdomain(origin=['*'])

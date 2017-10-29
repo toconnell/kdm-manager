@@ -86,7 +86,6 @@ class Settlement(Models.UserAsset):
         Models.UserAsset.__init__(self,  *args, **kwargs)
 
         self.init_asset_collections()
-
         # now normalize
         if self.normalize_on_init:
             self.normalize()
@@ -2234,7 +2233,17 @@ class Settlement(Models.UserAsset):
 
             all_survivors = utils.mdb.survivors.find(query).sort('name')
             for s in all_survivors:
-                self.survivors.append(survivors.Survivor(_id=s["_id"], Settlement=self, normalize_on_init=False))
+                # init the survivor
+                S = survivors.Survivor(_id=s["_id"], Settlement=self, normalize_on_init=False)
+
+                # 2017-10-25 The "king's_step" bug
+                if "king's_step" in S.survivor['fighting_arts']:
+                    self.logger.debug("%s King's Step bad asset handle detected on %s! Fixing..." % (self,S))
+                    S.survivor['fighting_arts'].remove("king's_step")
+                    S.survivor['fighting_arts'].append('kings_step')
+                    S.save()
+
+                self.survivors.append(S)
 #            self.logger.debug("%s Initialized %s survivors!" % (self, len(self.survivors)))
             return True
 

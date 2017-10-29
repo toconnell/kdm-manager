@@ -231,7 +231,7 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
         },
             function(errorPayload) {
                 console.error(log_level + "Could not retrieve user information!");
-                console.error(log_level + errorPayload);
+                console.error(log_level + errorPayload.status + " -> " + errorPayload.data);
             }
         );
 
@@ -749,7 +749,7 @@ app.controller('timelineController', function($scope, $rootScope) {
 
         for (i = 0; i < $scope.event_log.length; i++) {
             if (Number($scope.event_log[i].ly) == target_ly) {
-                local_event_log.push($scope.event_log[i]);
+                local_event_log.unshift($scope.event_log[i]);
             };
         };
 

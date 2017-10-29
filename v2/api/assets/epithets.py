@@ -370,6 +370,7 @@ core = {
     'fast_runner':                          {'name': 'Fast Runner'},
     'father_of_words':                      {'name': 'Father of Words', 'sex': 'M'},
     'mother_of_words':                      {'name': 'Mother of Words', 'sex': 'F'},
+    'first_blood':                          {'name': 'First Blood'},
     'first_daughter':                       {'name': 'First Daughter', 'sex': 'F'},
     'first_father':                         {'name': 'First Father', 'sex': 'M'},
     'first_mother':                         {'name': 'First Mother', 'sex': 'F'},

@@ -7,11 +7,11 @@ var myApp = angular.module('adminPanel', []);
 
 myApp.controller('globalController', function($scope, $http, $interval) {
 
-    $scope.showSpinner = function() {
-        $("#spinner").fadeIn(3000);
+    $scope.showSpinner = function(id) {
+        $("#" + id).fadeIn(3000);
     };
-    $scope.hideSpinner = function() {
-        $("#spinner").fadeOut(3000);
+    $scope.hideSpinner = function(id) {
+        $("#" + id).fadeOut(3000);
     };
 
     $scope.seconds_since_last_refresh = 0;
@@ -20,19 +20,33 @@ myApp.controller('globalController', function($scope, $http, $interval) {
     };
     $interval($scope.updateCounter, 1000);
 
+    $scope.getRecentSettlements = function() {
+        $scope.retrievingSettlements = true;
+        $scope.showSpinner('recentSettlementsSpinner'); 
+        $http.get('admin/get/settlement_data').then(function(result){
+            $scope.settlements = result.data;
+            $scope.hideSpinner('recentSettlementsSpinner');
+            $scope.retrievingSettlements = false;
+//            console.warn('Got recent settlements!');
+        });
+    };
+
     setInterval( function init() {
 //        console.log("Initializing...")
-        $scope.showSpinner();
+        $scope.showSpinner('spinner');
         $http.get('settings.json').then(function(result){$scope.settings = result.data;});
         $http.get('https://api.github.com/repos/toconnell/kdm-manager').then(function(result){$scope.github = result.data;});
 
+        if ($scope.retrievingSettlements != true){
+//            console.warn('Not currently retrieving settlements. Starting retrieval...');
+            $scope.getRecentSettlements();
+        };
         $http.get('admin/get/user_data').then(function(result){$scope.users = result.data;});
-        $http.get('admin/get/settlement_data').then(function(result){$scope.settlements = result.data;});
         $http.get('admin/get/logs').then(function(result){$scope.logs = result.data;});
 
         $http.get('world').then(function(result){
             $scope.world = result.data;
-            $scope.hideSpinner();
+            $scope.hideSpinner('spinner');
             $scope.refreshed = new Date();
             $scope.seconds_since_last_refresh = 0;
             });
@@ -41,14 +55,6 @@ myApp.controller('globalController', function($scope, $http, $interval) {
         }(), 60000)
 
 
-    $scope.showHide = function(e_id) {
-        var element = document.getElementById(e_id); 
-        if (element.style.display=='block') {
-            element.style.display='none'
-        } else {
-            element.style.display='block';
-        };
-    };
 
 
     $scope.copyToClipboard = function(text) {

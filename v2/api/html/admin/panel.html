@@ -98,6 +98,10 @@
 
 
         <div class="flex_item_basic users" ng-if="settlements.length >= 1">
+            <div id="recentSettlementsSpinner" class="recent_settlements_spinner hidden">
+                <img src="/static/media/images/loading_io.gif" /><br/>
+                Refreshing...
+            </div>
             <h2>Recent Settlement Activity</h2>
             <br/>
             <div class="settlement" ng-repeat="settlement in settlements">

@@ -1,0 +1,8 @@
+.survivor_curse {background-color: #FFD740; }
+.survivor_death {background-color: #F50057; color: #fff}
+.survivor_birth {background-color: #B2FF59; background: linear-gradient(#B2FF59, #d2fF59, #B2FF59)}
+.survivor_join {background-color: #EEFF41; }
+.defeated_monster {color: #fff; background-color: #0288D1}
+.new_settlement {background: linear-gradient(to bottom, #1C7FC2, #137ABF};}
+.add_location  {color: #fff; background: linear-gradient(to bottom, #73C26C, #51B952); }
+.add_innovation {color: #fff; background: linear-gradient(#4EC7F1, #40ADD0); }

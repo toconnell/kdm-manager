@@ -20,6 +20,7 @@ import socket
 from string import Template
 import sys
 import time
+import traceback
 
 # project-specific imports
 import settings
@@ -441,33 +442,17 @@ def crossdomain(origin=None, methods=None, headers=None, max_age=21600, attach_t
     return decorator
 
 
-# decorators for logging
-def error_log(func):
-    """ This is a decorator that should decorate all functions where we're
-    attempting to update or modify a user asset on behalf of an API user.
-    This will wrap any function in a try/except, log and return exceptions
-    or simply return True if everything works out OK. """
+# exception auto-mailer
+def email_exception(exception):
 
-    logger = get_logger(log_name="error")
-    def wrapper(*args, **kwargs):
-        try:
-            func(*args, **kwargs)
-            return True
-        except Exception as e:
-            logger.exception(e)
-            return e
-    return wrapper
+    tmp_file = os.path.join(settings.get("api","cwd"), "html/exception_alert.html")
+    msg = Template(file(tmp_file, "rb").read())
 
-def log_route_error(func):
-    """ Use this decorator to decorate route methods (i.e. modules defined in
-    the routes/ module dir) and capture exceptions to the server.log file."""
-    logger = get_logger(log_name="server")
-    def wrapper(*args, **kwargs):
-        try:
-            func(*args, **kwargs)
-        except Exception as e:
-            logger.exception(e)
-    return wrapper
+    tb = traceback.format_exc().replace("    ","&ensp;").replace("\n","<br/>")
+
+    s = msg.safe_substitute(traceback=tb, user_login=request.User.login, user_oid=request.User._id, datetime=datetime.now(), r_method=request.method, r_url=request.url, r_json=request.json)
+    e = mailSession()
+    e.send(subject="API Error! [%s]" % socket.getfqdn(), recipients=['toconnell@tyrannybelle.com'], html_msg=s)
 
 
 # private exception classes

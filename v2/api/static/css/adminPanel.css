@@ -46,6 +46,8 @@ td.int_key {width: 10%; word-break: inherit;}
 
 .capitalize {text-transform: capitalize;}
 
+.recent_settlements_spinner {float: right; font-size: 7pt; text-align: center; }
+.recent_settlements_spinner img {width: 30px; margin: 0 auto;}
 .settlement {margin-top: 3%; }
 
 table.killboard {margin-left: 1%;}

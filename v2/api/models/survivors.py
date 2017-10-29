@@ -2446,11 +2446,6 @@ class Survivor(Models.UserAsset):
         year has passed.
         """
 
-        # 2017-10-25 The "king's_step" bug
-        if "king's_step" in self.survivor['fighting_arts']:
-            self.survivor['fighting_arts'].remove("king's_step")
-            self.survivor['fighting_arts'].append('kings_step')
-
         # 2017-10-22 'acid_palms' asset handle Issue #341
         # https://github.com/toconnell/kdm-manager/issues/341
 
