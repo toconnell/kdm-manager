@@ -6,6 +6,14 @@ var myApp = angular.module('adminPanel', []);
 
 
 myApp.controller('globalController', function($scope, $http, $interval) {
+    $scope.showHide = function(e_id) {
+        var element = document.getElementById(e_id);
+        if (element.style.display=='block') {
+            element.style.display='none'
+        } else {
+            element.style.display='block';
+        };
+    };
 
     $scope.showSpinner = function(id) {
         $("#" + id).fadeIn(3000);
