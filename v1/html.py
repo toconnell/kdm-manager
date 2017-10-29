@@ -4373,7 +4373,7 @@ class settlement:
                           ng-if="s.sheet.abilities_and_impairments.length >= 1"
                           class="survivor_assets"
                       >
-                        <b>Abilities & Impairments:</b> <span ng-repeat="e in s.sheet.abilities_and_impairments">
+                        <b>Abilities & Impairments:</b> <span ng-repeat="e in s.sheet.abilities_and_impairments track by $index">
                             {{settlement.game_assets.abilities_and_impairments[e].name}}{{$last ? '' : ', '}}
                         </span>
                       </div>

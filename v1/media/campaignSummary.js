@@ -193,11 +193,10 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
         if (set === true) {
             var s_dict = $scope.popSurvivor(s.sheet._id.$oid);
             $scope.pushSurvivor(s_dict, 'departing');
-            $scope.postJSONtoAPI('survivor','set_status_flag', {'flag': 'departing'}, false);
+            $scope.postJSONtoAPI('survivor','set_status_flag', {'flag': 'departing'});
         } else {
-            showFullPageLoader();
             var s_dict = $scope.popSurvivor(s.sheet._id.$oid);
-//            $scope.pushSurvivor(s_dict, 'available');
+            $scope.pushSurvivor(s_dict, 'available');
             $scope.postJSONtoAPI('survivor', 'set_status_flag', {'flag': 'departing', 'unset': true})
         };
 
