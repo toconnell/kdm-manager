@@ -151,6 +151,7 @@ male = [
     "Diego",
     "Donovan",
     "Draco",
+    "Drizzt",
     "Duncan",
     "Edward",
     "Eirik",

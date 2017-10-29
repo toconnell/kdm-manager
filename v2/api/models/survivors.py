@@ -2438,13 +2438,27 @@ class Survivor(Models.UserAsset):
             self.perform_save = True
 
 
-    def bug_fixes(self):
+    def bug_fixes(self, force_save=False):
         """ This should be called during normalize() BEFORE you call baseline().
 
         Compare with the way this works on the Settlement object. Make sure all
         bugs are dated and have a ticket number, so we can remove them after a
         year has passed.
         """
+
+        # 2017-10-25 The "king's_step" bug
+        if "king's_step" in self.survivor['fighting_arts']:
+            self.logger.debug("%s King's Step bad asset handle detected! Fixing..." % (self))
+            self.survivor['fighting_arts'].remove("king's_step")
+            self.survivor['fighting_arts'].append('kings_step')
+            self.perform_save = True
+
+        # 2017-10-28 The "weak spot" bug
+        for bad_handle in ['Weak Spot', 'Intracranial hemmorhage']:
+            if bad_handle in self.survivor['abilities_and_impairments']:
+                self.logger.debug("%s Bad asset handle '%s' detected! Fixing..." % (self, bad_handle))
+                self.survivor['abilities_and_impairments'].remove(bad_handle)
+                self.perform_save = True
 
         # 2017-10-22 'acid_palms' asset handle Issue #341
         # https://github.com/toconnell/kdm-manager/issues/341
@@ -2461,6 +2475,13 @@ class Survivor(Models.UserAsset):
             else:
                 self.logger.error("Unable to replace 'acid_palms' A&I with a real handle!")
             self.perform_save = True
+
+
+        # now, if we're forcing a save (e.g. because the settlement is calling
+        # method or something, do it
+        if force_save and hasattr(self, 'perform_save') and self.perform_save:
+            self.save()
+
 
 
     def duck_type(self):

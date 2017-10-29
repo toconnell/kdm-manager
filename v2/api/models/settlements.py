@@ -2235,14 +2235,7 @@ class Settlement(Models.UserAsset):
             for s in all_survivors:
                 # init the survivor
                 S = survivors.Survivor(_id=s["_id"], Settlement=self, normalize_on_init=False)
-
-                # 2017-10-25 The "king's_step" bug
-                if "king's_step" in S.survivor['fighting_arts']:
-                    self.logger.debug("%s King's Step bad asset handle detected on %s! Fixing..." % (self,S))
-                    S.survivor['fighting_arts'].remove("king's_step")
-                    S.survivor['fighting_arts'].append('kings_step')
-                    S.save()
-
+                S.bug_fixes(force_save=True)
                 self.survivors.append(S)
 #            self.logger.debug("%s Initialized %s survivors!" % (self, len(self.survivors)))
             return True
