@@ -808,6 +808,9 @@ class hunt:
                         class="card_desc"
                         ng-bind-html="card.desc|trustedHTML"
                     ></p>
+                    <div class="die_roll" ng-if="card.roll_die">
+                        {{card.die_roll}}
+                    </div>
                 </span>
             </div>
         </div>

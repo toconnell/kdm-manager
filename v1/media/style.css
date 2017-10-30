@@ -1277,6 +1277,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .hunt_phase_container p.card_title {font-weight: bold; text-align: center; }
     .hunt_phase_container p.card_subtitle {font-size: 11pt; text-align: center; margin: 0; margin-top: -5%; padding: 0; }
     .hunt_phase_container p.card_desc {font-family: 'Metrophobic'; font-size: 13pt; }
+    .hunt_phase_container div.die_roll {font-size: 20pt; border-radius: 100%; background: radial-gradient(#000, #333); color: #fff; width: 30px; display: flex; justify-content: center; margin: 0 auto; margin-bottom: 5%;  padding:5%; border: 2px solid #fff; }
 
     /* generic asset management styles: survivor&ettlement - tablet */
 

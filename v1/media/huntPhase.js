@@ -1,4 +1,7 @@
 app.controller ("huntPhaseRootController", function($scope) {
+    $scope.rollD100 = function(){
+        return Math.floor(Math.random() * 100) + 1;
+    };
 
     $scope.deck = [];
     $scope.drawn = []
@@ -9,6 +12,7 @@ app.controller ("huntPhaseRootController", function($scope) {
         $scope.drawn.push(rand);
     };
 
+
     $scope.cards = {
         random: {
             handle: 'random_event',
@@ -16,6 +20,7 @@ app.controller ("huntPhaseRootController", function($scope) {
             subtitle: 'basic hunt event',
             desc: "Roll d100 on the <b>Hunt Event Table</b>",
             optional: false,
+            roll_die: true,
         },
         baby_and_the_sword: {
             handle: 'baby_and_the_sword',
@@ -63,7 +68,9 @@ app.controller ("huntPhaseRootController", function($scope) {
 
         var random = 12;
         for(var i=0; i < random; i++){
-            $scope.deck.push($scope.cards.random);
+            var randomCard = jQuery.extend({}, $scope.cards.random);
+            randomCard.die_roll = $scope.rollD100();
+            $scope.deck.push(randomCard);
         };
         for(var i=0; i < $scope.include.length; i++){
             var handle = $scope.include[i];
