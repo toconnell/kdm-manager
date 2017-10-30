@@ -615,21 +615,8 @@ class Session:
                 S.modify(self.params)
                 user_action = "modified survivor %s of %s" % (S, self.Settlement)
 
-        #   hunting party return
-        if "return_departing_survivors" in self.params:
-            self.set_current_settlement(user_asset_id)
-            S = assets.Settlement(settlement_id=user_asset_id, session_object=self)
-            S.return_departing_survivors(self.params["return_departing_survivors"].value)
-            S.save()
-            user_action = "returned departing survivors to settlement %s" % self.Settlement
-
         self.User.mark_usage(user_action)
 
-        #   exit now if we're doing a 'norefresh' request
-#        if "norefresh" in self.params:
-#            self.logger.debug("[%s] all 'norefresh' form parameters processed. Exiting." % self.User)
-#            sys.exit(0)
-#       # index handles this now!!
 
 
     def render_user_asset_sheet(self, collection=None):

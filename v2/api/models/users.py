@@ -267,6 +267,9 @@ class User(Models.UserAsset):
         output = self.get_serialize_meta()
         output["user"] = self.user
 
+        if 'admin' in self.user.keys():
+            output['is_admin'] = True
+
         # user assets
         output["user_assets"] = {}
         output["user_assets"]["survivors"] = self.get_survivors(return_type=list)

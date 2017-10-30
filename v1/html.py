@@ -775,6 +775,74 @@ class dashboard:
     \n""")
 
 
+class hunt:
+    """ HTML hunting deck shuffler app. Not sure this will ever become a
+    feature. It's more like an exercise. """
+
+    body = Template("""
+<script src="/media/huntPhase.js?v=$version"></script>
+<div
+    class="modal-black hidden"
+    ng-if="user.user.admin != undefined"
+    id="huntPhaseModal"
+    ng_init="showHide('huntPhaseOpenerButton')"
+    ng-controller = huntPhaseRootController
+>
+    <div class="hunt_phase_container">
+        <div class="option_container " ng-if="deck.length > 0 || drawn.length > 1">
+            <button
+                class="kd_brown draw_one"
+                ng-click="draw()"
+                ng-if="deck.length > 0"
+            >
+                <b>Draw One!</b> {{deck.length}} remaining
+            </button><br ng-if="drawn.length >= 1">
+            <div class="card_container">
+                <span
+                    class="card survivor_sheet_gradient"
+                    ng-repeat="card in drawn track by $index"
+                >
+                    <p class="card_title">{{$index + 1}}. {{card.name}}</p>
+                    <p class="card_subtitle"> - {{card.subtitle}} - </p>
+                    <p
+                        class="card_desc"
+                        ng-bind-html="card.desc|trustedHTML"
+                    ></p>
+                </span>
+            </div>
+        </div>
+
+        <div class="option_container">
+
+            <button
+                ng-repeat="card in cards"
+                ng-if="card.optional == true"
+                ng-click="includeCard(card)"
+                ng-class="{true: 'kd_blue', }[card.included]"
+            >
+                {{card.name}}
+            </button>
+
+        </div>
+        <div
+            class="option_container"
+        >
+            <button
+                class="kd_brown"
+                ng-click="shuffleDeck()"
+            >
+                Shuffle the deck!
+            </button>
+        </div>
+
+        <button class="kd_alert_no_exclaim" ng-click="showHide('huntPhaseModal')">Back</button>
+
+    </div> <!-- container -->
+</div>
+
+
+    """).safe_substitute(version = settings.get('application', 'version'))
+
 
 class angularJS:
     """ HTML here should only be angularJS applications. They need to be strings
@@ -5574,7 +5642,7 @@ def render_burger(session_object=None):
 
     view = session_object.session["current_view"]
 
-    if view not in ["view_campaign","view_settlement","view_survivor","new_survivor","new_settlement"]:
+    if view not in ["view_campaign","view_settlement","view_survivor","new_survivor","new_settlement",'hunt']:
         return "\n<!-- no burger in '%s' view -->\n\n" % view
 
     signout_button = meta.burger_signout_button.safe_substitute(
@@ -5656,6 +5724,13 @@ def render_burger(session_object=None):
             <h3>$settlement_name:</h3>
             $action_map
 
+            <button
+                id="huntPhaseOpenerButton" class="sidenav_button hidden"
+                ng-click="showHide('huntPhaseModal')"
+            >
+                Hunt Phase
+            </button>
+
             <h3 ng-if="countSurvivors('departing') > 0">Departing</h3>
             <form
                 method="POST"
@@ -5665,6 +5740,7 @@ def render_burger(session_object=None):
                 <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
                 <button class="sidenav_button" onclick="showFullPageLoader(); closeNav()">{{s.sheet.name}} ({{s.sheet.effective_sex}})</button>
             </form>
+
 
             <h3 ng-if="countSurvivors('favorite') > 0">Favorites</h3>
             <form
@@ -5766,7 +5842,10 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
     >
     \n"""
 
+    # experimental hunt phase
+
     output += view_html
+    output += hunt.body # experimental
     output += meta.report_error_div
     output += meta.close_body
 

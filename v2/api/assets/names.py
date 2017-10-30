@@ -71,6 +71,7 @@ settlements = [
     "Rockall",
     "Ruto",
     "Sanctuary",
+    "San Junipero",
     "Satan's Lantern",
     "Serenity Valley",
     "Shadow's End",
