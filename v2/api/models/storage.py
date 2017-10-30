@@ -33,5 +33,4 @@ class Storage(Models.GameAsset):
         return A.get_assets_by_sub_type(self.handle)
 
 
-        
 

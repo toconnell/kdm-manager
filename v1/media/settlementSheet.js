@@ -5,6 +5,13 @@ function reloadSheet() {
 //    console.warn("Settlement Sheet reload form submitted...");
 };
 
+app.controller("abandonSettlementController", function($scope) {
+    $scope.abandonSettlement = function() {
+        showFullPageLoader();
+        $scope.postJSONtoAPI('settlement','abandon',{})
+    };
+});
+
 app.controller("lanternResearchController", function($scope) {
     $scope.setLanternResearch = function() {
         js_obj = {value: $scope.settlement.sheet.lantern_research_level};

@@ -5269,20 +5269,44 @@ class settlement:
         <br class="mobile_only"/>
         <hr class="mobile_only"/>
 
-        <div class="settlement_sheet_block_group">
+        <div class="settlement_sheet_block_group" ng-controller="abandonSettlementController" ng-if="settlement.sheet.abandoned == undefined">
 
             <h3>Abandon Settlement</h3>
             <p>Mark a settlement as "Abandoned" to prevent it from showing up in your active campaigns without removing it from the system.</p>
+            <p class="maroon_text">&nbsp; <b>This cannot be undone.</b></p>
 
-            <form action="#" method="POST" onsubmit="return confirm('This will prevent this settlement from appearing on any user Dashboard, including yours. Press OK to Abandon this settlement forever.');">
-                <input type="hidden" name="modify" value="settlement" />
-                <input type="hidden" name="asset_id" value="$settlement_id" />
-                <input type="hidden" name="abandon_settlement" value="toggle" />
-                <button class="kd_alert_no_exclaim red_glow"> Abandon Settlement </button>
+            <button
+                class="kd_alert_no_exclaim red_glow"
+                ng-click="abandonSettlement()"
+            >
+                Abandon Settlement
+            </button>
+        </div>
+
+        <!-- remove settlement button -->
+        <div
+            ng-if="user.user.preferences.show_remove_button == true"
+            class="settlement_sheet_block_group"
+        >
+            <h3>Permanently Remove Settlement</h3>
+            <form
+                action="#"
+                method="POST"
+                onsubmit="return confirm('Press OK to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever. \\r\\rPlease note that this CANNOT BE UNDONE and is not the same as marking a settlement Abandoned.\\r\\rPlease consider abandoning old settlements rather than removing them, as this allows data about the settlement to be used in general kdm-manager stats.\\r\\r');"
+            >
+                <input type="hidden" name="remove_settlement" ng-value="settlement.sheet._id.$oid"/>
+                <p>
+                    Use the button below to permanently delete <b>{{settlement.sheet.name}}</b>.
+                    Please note that <b>this cannot be undone</b> and that this will
+                    also permanently remove all survivors associated with this
+                    settlement.
+                </p>
+                <button class="kd_alert_no_exclaim red_glow permanently_delete">
+                    Permanently Delete Settlement
+                </button>
             </form>
         </div>
 
-    $remove_settlement_button
 
     </div> <!-- right pane -->
 
@@ -5306,29 +5330,6 @@ class settlement:
 
     \n""")
 
-
-    remove_settlement_button = Template("""\
-
-    <div class="settlement_sheet_block_group">
-        <h3>Permanently Remove Settlement</h3>
-        <form
-            action="#"
-            method="POST"
-            onsubmit="return confirm('Press OK to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever. \\r\\rPlease note that this CANNOT BE UNDONE and is not the same as marking a settlement Abandoned.\\r\\rPlease consider abandoning old settlements rather than removing them, as this allows data about the settlement to be used in general kdm-manager stats.\\r\\r');"
-        >
-            <input type="hidden" name="remove_settlement" value="$settlement_id"/>
-            <p>
-                Use the button below to permanently delete <i>$settlement_name</i>.
-                Please note that <b>this cannot be undone</b> and that this will
-                also permanently remove all survivors associated with this
-                settlement.
-            </p>
-            <button class="kd_alert_no_exclaim red_glow permanently_delete">
-                Permanently Delete Settlement
-            </button>
-        </form>
-    </div>
-    """)
 
     location_level_controls = Template("""\n\
     $location_name - Lvl

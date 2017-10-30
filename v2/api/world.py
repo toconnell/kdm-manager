@@ -282,7 +282,7 @@ class World:
         JSON. This initializes the survivor and will normalize it. """
 
         # init
-        S = survivors_models.Survivor(_id=survivor["_id"])
+        S = survivors_models.Survivor(_id=survivor["_id"], normalize_on_init=False)
         survivor["epithets"] = S.get_epithets("pretty")
         survivor["age"] = utils.get_time_elapsed_since(survivor["created_on"], "age")
 

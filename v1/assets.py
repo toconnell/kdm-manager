@@ -132,31 +132,6 @@ class User:
         return is_settlement_admin
 
 
-    def can_manage_survivor(self, survivor_id=None):
-        """ Returns a bool expressing whether the user may manage a given the
-        survivor who has the mdb _id of '$survivor_id'. """
-
-        if survivor_id is None:
-            self.logger.warn("[%s] 'survivor_id' kwarg must not be None." % (self))
-            return False
-
-        if self.is_settlement_admin():
-            return True
-
-        s = mdb.survivors.find_one({"_id": ObjectId(survivor_id)})
-        if s is None:
-            self.logger.warn("[%s] survivor _id '%s' was not found!" % (self, survivor_id))
-            return False
-
-        if s["created_by"] == self.user["_id"]:
-            return True
-        if s["email"] == self.user["login"]:
-            return True
-
-        return False
-
-
-
     def get_preference(self, p_key):
         """ The 'p_key' kwarg should be a preference key. This funciton returns
         a bool for a preference, e.g. if the user has it set to True or False.
@@ -562,19 +537,6 @@ class Survivor:
         if include_id:
             output.append("(%s)" % self.survivor["_id"])
         return " ".join(output)
-
-
-    def set_attrs(self, attrs_dict):
-        """ Accepts a dictionary and updates self.survivor with its keys and
-        values. There's no user-friendliness or checking here--this is an admin
-        type method--so make sure you know what you're doing with this. """
-
-        for k in attrs_dict.keys():
-            self.survivor[k] = attrs_dict[k]
-            self.logger.debug("%s set '%s' = '%s' for %s" % (self.User.user["login"], k, attrs_dict[k], self.get_name_and_id()))
-            if not self.suppress_event_logging:
-                self.Settlement.log_event("Set %s to '%s' for %s" % (k,attrs_dict[k],self.get_name_and_id(include_id=False,include_sex=True)))
-        mdb.survivors.save(self.survivor)
 
 
     def is_founder(self):
@@ -1013,14 +975,11 @@ class Survivor:
 
         output = html.survivor.form.safe_substitute(
             survivor_id = self.survivor["_id"],
-            name = self.survivor["name"],
-            email = self.survivor["email"],
 
             # controls
             remove_survivor_controls = rm_controls,
 
             # manually generated hit boxes
-            insanity = self.survivor["Insanity"],
             brain_damage_light_checked = flags["brain_damage_light"],
             head_damage_heavy_checked = flags["head_damage_heavy"],
             head = self.survivor["Head"],
@@ -1152,15 +1111,6 @@ class Settlement:
         mdb.settlements.save(self.settlement)
         if not quiet:
             self.logger.debug("[%s] saved changes to %s" % (self.User, self))
-
-
-    def refresh_from_API(self,k):
-        """ Retrives the settlement from the API and sets self.settlement[k] to
-        whatever the API currently thinks self.settlement happens to be. """
-
-        self.set_api_asset(refresh=True)
-        self.settlement[k] = self.api_asset["sheet"][k]
-        self.logger.info("[%s] reloaded self.settlement[%s] from API data" % (self.User, k))
 
 
     #
@@ -1377,45 +1327,6 @@ class Settlement:
 
 
 
-    def get_principles(self, return_type=None, query=None):
-        """ Returns the settlement's principles. Use the 'return_type' arg to
-        specify one of the following, or leave it unspecified to get a sorted
-        list back:
-
-            'comma-delimited': a comma-delimited list wrapped in <p> tags.
-            'checked': use this with kwarg 'query' to return an empty string if
-                if the principle is not present or the string 'checked' if it is
-            'html_select_remove': html controls that allow users to remove an
-                item from the settlement principles list.
-            'html_controls': html controls for the Settlement Sheet that use
-                radio buttons and evaluate campaign logic/attribute rules.
-
-        """
-
-        principles = sorted(self.settlement["principles"])
-
-        if return_type in ["list"]:
-            if principles == []:
-                return ""
-            else:
-                output = '\n\n<ul>\n'
-                for p in principles:
-                    output += "<li>%s</li>\n" % p
-                output += "\n</ul>\n\n"
-                return output
-        elif return_type == "checked" and query is not None:
-            if query in self.settlement["principles"]:
-                return "checked"
-            else:
-                return ""
-        elif return_type in ["html_select_remove","json"]:
-            msg = "The 'return_type' value '%s' is no longer supported by this method!" % return_type
-            self.logger.error(msg)
-            raise AttributeError(msg)
-
-        return sorted(self.settlement["principles"])
-
-
     def get_milestones(self, return_type=None, query=None):
         """ Returns the settlement's milestones as a list. If the 'return_type'
         kwarg is "checked" and the 'query' kwarg is a string, this returns an
@@ -1494,18 +1405,6 @@ class Settlement:
             raise Exception("Return type '%s' no longer supported by this method!" % return_type)
 
         return survivors
-
-
-    def get_recently_added_items(self):
-        """ Returns the three items most recently appended to storage. """
-        max_items = 10
-        all_items = copy(self.settlement["storage"])
-        return_list = set()
-        while len(return_list) < max_items:
-            if all_items == []:
-                break
-            return_list.add(all_items.pop())
-        return sorted(list([i for i in return_list]))
 
 
     def get_campaign(self, return_type=None):
@@ -1599,41 +1498,6 @@ class Settlement:
         return player_set
 
 
-    def add_timeline_event(self, event = {}):
-        """ Interim/migration support method for V1. Wraps up an event into an
-        API-safe dict and then uses the api.py module to POST it to the API. """
-
-        if event in self.get_timeline_events(ly=event["ly"],event_type=event["type"]):
-            self.logger.warn("[%s] attempting to add a duplicate event to %s timeline!" % (self.User, self))
-            self.logger.error("[%s] duplicate event was: %s" % (self.User, event) )
-            return False
-
-        event["user_login"] = self.User.user["login"]
-        response = api.post_JSON_to_route("/settlement/add_timeline_event/%s" % self.settlement["_id"], event, Session=self.Session)
-        if response.status_code == 200:
-            self.logger.debug("[%s] added '%s' to %s timeline via POST to API" % (self.User, event["name"], self))
-        else:
-            self.logger.error("[%s] failed to POST '%s' to %s timeline!" % (self.User, event["name"], self))
-            self.logger.error(response)
-        self.refresh_from_API("timeline") # gotta pull the updated timeline back
-
-
-
-    def rm_timeline_event(self, event = {}):
-        """ Interim/migration support method for V1. Wraps up an event into an
-        API-safe dict and then uses the api.py module to POST it to the API's
-        route for removing timeline events. Logs it. """
-
-        event["user_login"] = self.User.user["login"]
-        response = api.post_JSON_to_route("/settlement/rm_timeline_event/%s" % self.settlement["_id"], event, Session=self.Session)
-        if response.status_code == 200:
-            self.logger.debug("[%s] removed '%s' from %s timeline via API" % (self.User, event["name"], self))
-        else:
-            self.logger.error("[%s] failed to remove '%s' from %s timeline!" % (self.User, event["name"], self))
-            self.logger.error(response)
-        self.refresh_from_API("timeline") # gotta pull the updated timeline back
-
-
     def get_admins(self):
         """ Creates an admins list if one doesn't exist; adds the settlement
         creator to it if it's new; returns the list. """
@@ -1700,60 +1564,6 @@ class Settlement:
             self.settlement["milestone_story_events"].remove(m)
             self.log_event("'%s' milestone removed from settlement milestones." % m)
             self.logger.debug("[%s] removed '%s' from milestone story events for %s." % (self.User, m, self))
-
-
-    def remove_item_from_storage(self, quantity=1, item_name=None):
-        """ Removes an item from storage by name or handle 'quantity' number of
-        times. Logs it. """
-
-        # normalize/duck-type
-        quantity = int(quantity)
-
-        # try to remove 'quantity' items. fail gracefully if you can't.
-        if item_name is not None:
-            self.logger.debug("[%s] is removing '%s' from %s settlement storage..." % (self.User, item_name, self))
-            rm_candidates = []
-            for i in self.settlement["storage"]:
-                if i.upper() == item_name.upper():
-                    rm_candidates.append(i)
-            if rm_candidates == []:
-                self.logger.error("[%s] attempted to remove '%s' from settlement storage, but no items matching that name could be found!" % (self.User, item_name))
-            else:
-                for i in range(quantity):
-                    self.settlement["storage"].remove(rm_candidates[0])
-                self.log_event("%s removed %s '%s' item(s) from settlement storage." % (self.User.user["login"], quantity, item_name))
-                self.logger.debug("[%s] removed %s '%s' item(s) from settlement storage." % (self.User, quantity, item_name))
-
-
-
-    def add_item_to_storage(self, quantity=1, item_name=None):
-        """ Adds 'quantity' of an item (by name or handle) to settlement
-        storage using the self.add_game_asset method, which has nice logging and
-        normalization.
-
-        We might end up moving that normalization here, as this
-        one gets built out to suppor thandles."""
-
-        self.add_game_asset("storage", item_name, quantity)
-
-
-
-    def update_settlement_storage(self, update_from=None, params=None):
-        """ Updates settlement storage. Capable of accepting several different
-        inputs and doing a few operations at once. """
-
-
-        if update_from == "html_form" and params is not None:
-            if "remove_item" in params:
-                self.remove_item_from_storage(1, params["remove_item"].value)
-            elif "add_item" in params and "add_item_quantity" in params:
-                self.add_item_to_storage(params["add_item_quantity"].value, params["add_item"].value)
-            elif "add_item" in params and not "add_item_quantity" in params:
-                self.add_item_to_storage(1, params["add_item"].value)
-            else:
-                self.logger.warn("[%s] submitted un-actionable form input to update_settlement_storage()" % self.User)
-                self.logger.debug(params)
-
 
 
     def get_game_asset_deck(self, asset_type, return_type=None, exclude_always_available=False):
@@ -1833,16 +1643,6 @@ class Settlement:
 
         return final_list
 
-
-    def get_current_quarry(self, return_type=None):
-        """ Returns the settlement's current quarry, if it has one. Otherwise,
-        returns a None. """
-
-        current_quarry = None
-        if "current_quarry" in self.settlement.keys():
-            current_quarry = self.settlement["current_quarry"]
-
-        return current_quarry
 
 
     def get_game_asset(self, asset_type=None, return_type=False, exclude=[], update_mins=True, admin=False, handles_to_names=False):
@@ -2113,7 +1913,7 @@ class Settlement:
             if type(params[p]) != list:
                 game_asset_key = params[p].value.strip()
 
-#            self.logger.debug("%s -> %s (%s)" % (p, params[p], type(params[p])))
+            self.logger.debug("%s -> %s (%s)" % (p, params[p], type(params[p])))
 
 
             if p in ignore_keys:
@@ -2124,9 +1924,6 @@ class Settlement:
                 self.update_milestones(game_asset_key)
             elif p in ["add_item","remove_item"]:
                 self.update_settlement_storage("html_form", params)
-            elif p == "abandon_settlement":
-                self.log_event("Settlement abandoned!")
-                self.settlement["abandoned"] = datetime.now()
             else:
                 self.settlement[p] = game_asset_key
                 self.logger.debug("%s set '%s' = '%s' for %s" % (self.User.user["login"], p, game_asset_key, self.get_name_and_id()))
@@ -2165,19 +1962,7 @@ class Settlement:
         Remember that this passes through @ua_decorator, so it gets some more
         substitutions done up there. """
 
-        # show the settlement rm button if the user prefers
-        rm_button = ""
-        if self.User.get_preference("show_remove_button"):
-            rm_button = html.settlement.remove_settlement_button.safe_substitute(
-                settlement_id=self.settlement["_id"],
-                settlement_name=self.settlement["name"],
-            )
-
-        return html.settlement.form.safe_substitute(
-
-            remove_settlement_button = rm_button,
-
-        )
+        return html.settlement.form.safe_substitute( )
 
 
 

@@ -94,7 +94,7 @@ class Survivor(Models.UserAsset):
 
         # this makes the baby jesus cry
         if self.Settlement is None:
-            if request.collection != 'survivor':
+            if request and request.collection != 'survivor':
                 self.logger.warn("%s Initializing Settlement object! THIS IS BAD FIX IT" % self)
             import settlements
             self.Settlement = settlements.Settlement(_id=self.survivor["settlement"], normalize_on_init=False)
@@ -1653,8 +1653,13 @@ class Survivor(Models.UserAsset):
         self.survivor["retired"] = retired
         if self.survivor["retired"]:
             self.log_event("%s has retired %s." % (request.User.login, self.pretty_name()))
+            self.survivor['retired_in'] = self.get_current_ly()
         else:
             del self.survivor["retired"]
+            try:
+                del self.survivor['retired_in']
+            except:
+                pass
             self.log_event("%s has taken %s out of retirement." % (request.User.login, self.pretty_name()))
         self.save()
 

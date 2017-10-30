@@ -360,7 +360,7 @@ class Settlement(Models.UserAsset):
 
 
         # create the sheet
-        if return_type in [None, 'sheet', 'dashboard', 'campaign', 'admin_panel']:
+        if return_type in [None, 'sheet', 'dashboard', 'campaign']:
             output.update({"sheet": self.settlement})
             output["sheet"].update({"campaign": self.campaign.handle})
             output["sheet"].update({"campaign_pretty": self.campaign.name})
@@ -451,9 +451,6 @@ class Settlement(Models.UserAsset):
             duration = stop - start
             if self.metering:
                 self.logger.debug("%s serialize(%s) -> Campaign element in %s" % (self, return_type, duration))
-
-        if return_type in ['admin_panel']:
-            output.update({'event_log': list(self.get_event_log())})
 
         # finally, return a JSON string of our object
         total_stop = datetime.now()
@@ -1111,6 +1108,15 @@ class Settlement(Models.UserAsset):
     #   set methods
     #
 
+    def set_abandoned(self):
+        """ Abandons the settlement by setting self.settlement['abandoned'] to
+        datetime.now(). Logs it. Expects a request context. """
+
+        self.settlement['abandoned'] = datetime.now()
+        self.log_event('%s abandoned the settlement!' % (request.User.login))
+        self.save()
+
+
     def set_inspirational_statue(self):
         """ Set the self.settlement['inspirational_statue'] to a fighting art
         handle. Assumes a request context. """
@@ -1305,12 +1311,14 @@ class Settlement(Models.UserAsset):
 
         for d in dict_list:
             handle = d['handle']
+            a_obj = self.storage_handle_to_obj(d['handle'])
             value = int(d['value'])
 
             # remove all occurrences of handle from storage
             self.settlement['storage'] = filter(lambda a: a != handle, self.settlement['storage'])
             for i in range(value):
                 self.settlement['storage'].append(handle)
+            self.log_event("%s updated settlement storage: %s x %s" % (request.User.login, a_obj.name, value))
 
         self.save()
 
@@ -3140,6 +3148,7 @@ class Settlement(Models.UserAsset):
         asset_dict = self.Gear.get_asset(handle, raise_exception_if_not_found=False)
         if asset_dict is None:
             asset_dict = self.Resources.get_asset(handle)
+
         if asset_dict['type'] == 'gear':
             return gear.Gear(handle)
         else:
@@ -3262,6 +3271,10 @@ class Settlement(Models.UserAsset):
             self.set_inspirational_statue()
         elif action == 'set_lantern_research_level':
             self.set_lantern_research_level()
+
+
+        elif action == 'abandon':
+            self.set_abandoned()
 
 
         #

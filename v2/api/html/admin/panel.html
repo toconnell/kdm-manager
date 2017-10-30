@@ -104,12 +104,17 @@
             </div>
             <h2>Recent Settlement Activity</h2>
             <br/>
-            <div class="settlement" ng-repeat="settlement in settlements">
+            <div
+                class="settlement"
+                ng-repeat="settlement in settlements"
+                ng-init="eventLogContainer = settlement.sheet._id.$oid + '_event_log'"
+            >
                 <button
                     class="toggle_settlement_event_log"
-                    ng-click="showHide(settlement.sheet._id.$oid + '_event_log')"
+                    ng-if="world.meta.admins != undefined"
+                    ng-click="getEventLog(settlement); showHide(eventLogContainer)"
                 >
-                    Show/Hide settlement event log ({{settlement.event_log.length}} lines)
+                    View settlement event log
                 </button>
                 <h3 class="settlement_name"><b>{{settlement.sheet.name}}</b> <i>LY:</i> {{settlement.sheet.lantern_year}} </h3>
                 {{settlement.sheet._id.$oid}}<br/><br/>
@@ -121,7 +126,7 @@
                     <li><i>Players:</i> {{settlement.meta.player_email_list.join(', ')}}</li>
                     <li><i>Survivors:</i> {{settlement.sheet.population}}/{{settlement.sheet.death_count}}</li>
                 </ul>
-                <div id="{{settlement.sheet._id.$oid}}_event_log" class="settlement_event_log hidden">
+                <div id="{{eventLogContainer}}" class="settlement_event_log hidden">
                     <table class="settlement_event_log">
                         <tr><th>LY</th><th>Event</th></tr>
                         <tr

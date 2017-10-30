@@ -6,6 +6,18 @@ var myApp = angular.module('adminPanel', []);
 
 
 myApp.controller('globalController', function($scope, $http, $interval) {
+
+    $scope.getEventLog = function(settlement) {
+        for (var i=0; i < $scope.world.meta.admins.length; i++) {
+            var admin_id = $scope.world.meta.admins[i]._id.$oid;
+            var admin_login = $scope.world.meta.admins[i].login;
+        };
+        var url = '/settlement/get_event_log/' + settlement.sheet._id.$oid;
+        settlement.event_log = [{event: 'Retrieving settlement Event Log as ' + admin_login + '...'}]
+        $http.post(url, {user_id: admin_id}).then(function(result){
+            settlement.event_log = result.data;
+        });
+    };
     $scope.showHide = function(e_id) {
         var element = document.getElementById(e_id);
         if (element.style.display=='block') {

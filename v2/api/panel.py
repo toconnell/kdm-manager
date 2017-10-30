@@ -37,7 +37,7 @@ def get_settlement_data():
 
     for s_id in sorted_ids:
         S = settlements.Settlement(_id=s_id, normalize_on_init=False)
-        s_dict = copy(S.serialize('admin_panel'))
+        s_dict = copy(S.serialize('dashboard'))
         s_info.append(s_dict)
 
     return "[" + ",".join(s_info) + "]"
