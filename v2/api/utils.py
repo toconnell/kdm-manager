@@ -450,6 +450,15 @@ def email_exception(exception):
 
     tb = traceback.format_exc().replace("    ","&ensp;").replace("\n","<br/>")
 
+    class noUser:
+        def __init__(self):
+            self.login="admin@kdm-manager.com"
+            self._id = "666"
+
+    if not hasattr(request, 'User'):
+        request.User = noUser()
+
+
     s = msg.safe_substitute(traceback=tb, user_login=request.User.login, user_oid=request.User._id, datetime=datetime.now(), r_method=request.method, r_url=request.url, r_json=request.json)
     e = mailSession()
     e.send(subject="API Error! [%s]" % socket.getfqdn(), recipients=['toconnell@tyrannybelle.com'], html_msg=s)

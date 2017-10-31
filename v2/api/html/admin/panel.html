@@ -63,34 +63,41 @@
             <div class="users_container">
                 <div
                     class="user_basic_info clickable"
-                    ng-class="{'active_user': u.is_active, 'signed_out': u.latest_action=='signed out'}"
+                    ng-class="{'active_user': u.user.is_active, 'signed_out': u.user.latest_action=='signed out'}"
                     ng-repeat="u in users.user_info"
-                    ng-click="showHide('user_' + u._id.$oid);"
+                    ng-click="showHide('user_' + u.user._id.$oid);"
                 >
-                    <h2>{{u.login}}
-                        <span ng-if="u.latest_action == 'signed out'" style="font-weight: normal">(signed out)</span>
-                        <span ng-if="u.is_active == true">*</span>
+                    <h2>{{u.user.login}}
+                        <span ng-if="u.user.latest_action == 'signed out'" style="font-weight: normal">(signed out)</span>
+                        <span ng-if="u.user.is_active == true">*</span>
                     </h2>
                     <div
                         class="user_detail"
-                        id="user_{{u._id.$oid}}"
+                        id="user_{{u.user._id.$oid}}"
                         title="Click again to close and copy OID to clipboard."
-                        ng-click="copyToClipboard(u._id.$oid);"
+                        ng-click="copyToClipboard(u.user._id.$oid);"
                     >
                         <br><br/>
-                        <b>Latest Activity:</b> {{u.latest_activity_age}} ago<br/>
-                        <b>Latest Action:</b> {{u.latest_action}}<br/>
-                        <b>Active:</b> {{u.is_active}}<br/>
-                        <span ng-if="u.friend_count > 0">
+                        <b>Latest Activity:</b> {{u.user.latest_activity_age}} ago<br/>
+                        <b>Latest Action:</b> {{u.user.latest_action}}<br/>
+                        <b>Active:</b> {{u.user.is_active}}<br/>
+                        <span ng-if="u.user.friends.length > 0">
                             <br>
-                            <b>Friends:</b> {{ u.friend_list.join(', ') }} <br/>
+                            <b>Friends:</b> {{ u.user.friend_list.join(', ') }} <br/>
                         </span>
                         <br>
-                        <b>OID:</b> {{u._id.$oid}}<br/>
-                        <b>Created On:</b> {{u.created_on.$date}}<br/>
-                        <b>User Age:</b> {{u.age}}<br/>
+                        <b>OID:</b> {{u.user._id.$oid}}<br/>
+                        <b>Created On:</b> {{u.user.created_on.$date}}<br/>
+                        <b>User Age:</b> {{u.user.age}}<br/>
+                        <b>Campaigns played:</b> {{u.user.campaigns_played}}<br/>
+                        <b>Settlements created:</b> {{u.user.settlements_created}}<br/>
+                        <b>Survivors created:</b> {{u.user.survivors_created}}
                         <br><br>
-                        <b>Latest User Agent:</b> {{u.latest_user_agent}}<br/>
+                        <span ng-if="u.patron.created_on"><b>Patron for:</b> {{u.patron.age}}<br/></span>
+                        <b>Patron level:</b> {{u.patron.level}}<br/>
+                        <b>Beta access:</b> {{u.patron.beta}}
+                        <br/><br/>
+                        <b>Latest User Agent:</b> {{u.user.latest_user_agent}}<br/>
                     </div>
                 </div>
             </div>

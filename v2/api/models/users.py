@@ -260,31 +260,43 @@ class User(Models.UserAsset):
 
         return self.user["_id"]
 
+
     def serialize(self, return_type=None):
         """ Creates a dictionary meant to be converted to JSON that represents
         everything that the front-end might need to know about a user. """
 
         output = self.get_serialize_meta()
+
+        # check if this is an application admin
+        if 'admin' in self.user.keys():
+            output['is_application_admin'] = True
+
+        # now create the user dict (analogous to 'sheet' in asset exports)
         output["user"] = self.user
 
-        if 'admin' in self.user.keys():
-            output['is_admin'] = True
+        # punch the user up if we're returning to the admin panel
+        if return_type == 'admin_panel':
+            output["user"]["age"] = self.get_age()
+            output['user']["latest_activity_age"] = self.get_latest_activity(return_type='age')
+            output["user"]["has_session"] = self.has_session()
+            output["user"]["is_active"] = self.is_active()
+            output['user']["friend_list"] = self.get_friends(list)
+            output['user']["current_session"] = utils.mdb.sessions.find_one({"_id": self.user["current_session"]})
+            output["user"]["survivors_created"] = self.get_survivors(return_type=int)
+            output["user"]["survivors_owned"] = self.get_survivors(qualifier="owner", return_type=int)
+            output["user"]["settlements_created"] = self.get_settlements(return_type=int)
+            output["user"]["settlements_administered"] = self.get_settlements(qualifier="admin", return_type=int)
+            output["user"]["campaigns_played"] = self.get_settlements(qualifier="player", return_type=int)
 
         # user assets
         output["user_assets"] = {}
         output["user_assets"]["survivors"] = self.get_survivors(return_type=list)
         output["user_assets"]["settlements"] = self.get_settlements(return_type=list)
 
-        # user facts
-        output["user_facts"] = {}
-        output["user_facts"]["has_session"] = self.has_session()
-        output["user_facts"]["is_active"] = self.is_active()
-        output["user_facts"]["settlements_created"] = self.get_settlements(return_type=int)
-        output["user_facts"]["settlements_administered"] = self.get_settlements(qualifier="admin", return_type=int)
-        output["user_facts"]["campaigns"] = self.get_settlements(qualifier="player", return_type=int)
-        output["user_facts"]["survivors_created"] = self.get_survivors(return_type=int)
-        output["user_facts"]["survivors_owned"] = self.get_survivors(qualifier="owner", return_type=int)
-        output["user_facts"]["friend_count"] = self.get_friends(return_type=int)
+
+        # patronage
+        output['patron'] = self.get_patron_attributes()
+
 
         # if we're doing the dash, create the dashboard key and fill it in
         if return_type == 'dashboard':
@@ -292,6 +304,10 @@ class User(Models.UserAsset):
             output["dashboard"]["friends"] = self.get_friends(return_type=list)
 #            output["dashboard"]["survivors"] = self.get_survivors(return_type=list)
             output["dashboard"]["settlements"] = self.get_settlements(return_type='asset_list', qualifier='player')
+
+
+        if return_type == 'admin_panel':
+            return output
 
         return json.dumps(output, default=json_util.default)
 
@@ -368,6 +384,26 @@ class User(Models.UserAsset):
         self.save()
 
 
+    def set_patron_attributes(self, level=0, beta=False):
+        """ Updates the user's self.user['patron'] dictionary: sets the level
+        (int) and the beta flag (bool)."""
+
+        if not 'patron' in self.user.keys():
+            self.user['patron'] = {'created_on': datetime.now()}
+
+        self.user['patron']['updated_on'] = datetime.now()
+        self.user['patron']['level'] = level
+        self.user['patron']['beta'] = beta
+
+        if level == 1:
+            self.user['patron']['desc'] = 'Survival +1'
+        elif level == 2:
+            self.user['patron']['desc'] = 'Survival +5'
+
+        self.logger.info("%s Set patron level to %s; set beta access to %s." % (self, level, beta))
+        self.save()
+
+
     def set_recovery_code(self):
         """ Sets self.user['recovery_code'] to a random value. Returns the code
         when it is called. """
@@ -429,6 +465,16 @@ class User(Models.UserAsset):
         """ Returns the user's age. """
 
         return utils.get_time_elapsed_since(self.user["created_on"], 'age')
+
+
+    def get_patron_attributes(self):
+        """ Returns a dictionary of patronage information. """
+
+        if 'patron' not in self.user.keys():
+            return {'level': 0, 'beta': False}
+
+        self.user['patron'].update({'age': utils.get_time_elapsed_since(self.user['patron']['created_on'], 'age')})
+        return self.user['patron']
 
 
     def get_preference(self, p_key):

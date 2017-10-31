@@ -38,6 +38,7 @@ function showHide(e_id) {
     var e = document.getElementById(e_id);
     var hide_class = "hidden";
     var visible_class = "visible";
+    if (e === null) {console.error("No element with ID value '" + e_id + "' found on the page!"); return false}
     if (e.classList.contains(hide_class)) {
         e.classList.remove(hide_class);
         e.classList.add(visible_class);

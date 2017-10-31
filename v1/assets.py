@@ -1327,30 +1327,6 @@ class Settlement:
 
 
 
-    def get_milestones(self, return_type=None, query=None):
-        """ Returns the settlement's milestones as a list. If the 'return_type'
-        kwarg is "checked" and the 'query' kwarg is a string, this returns an
-        empty string if the 'query' is NOT in the settlement's milestones and
-        the string 'checked' if it is present."""
-
-        milestones = self.settlement["milestone_story_events"]
-
-        if return_type in ["html_controls"]:
-            msg = "The 'return_type' value '%s' is no longer supported by get_milestones()" % return_type
-            self.logger.error(msg)
-            raise Exception(msg)
-
-        if return_type == "checked" and query is not None:
-            if query in milestones:
-                return "checked"
-            else:
-                return ""
-
-        return milestones
-
-
-
-
     def get_survivors(self, return_type=False, user_id=None, exclude=[], exclude_dead=False):
         """ Returns the settlement's survivors. Leave 'return_type' unspecified
         if you want a mongo cursor object back. """
@@ -1551,19 +1527,6 @@ class Settlement:
             if election["name"] in self.settlement["principles"]:
                 self.logger.warn("[%s] attempting to set principle that is already set!" % self.User)
                 return None
-
-
-    def update_milestones(self, m):
-        """ Expects checkbox input. """
-
-        if m not in self.settlement["milestone_story_events"]:
-            self.settlement["milestone_story_events"].append(m)
-            self.log_event("'%s' milestone added to settlement milestones." % m)
-            self.logger.debug("[%s] added '%s' to milestone story events for %s." % (self.User, m, self))
-        elif m in self.settlement["milestone_story_events"]:
-            self.settlement["milestone_story_events"].remove(m)
-            self.log_event("'%s' milestone removed from settlement milestones." % m)
-            self.logger.debug("[%s] removed '%s' from milestone story events for %s." % (self.User, m, self))
 
 
     def get_game_asset_deck(self, asset_type, return_type=None, exclude_always_available=False):
@@ -1907,23 +1870,19 @@ class Settlement:
             "operation", "nemesis_levels"
         ]
 
+        self.logger.warn('assets.Settlement.modify() is deprecated! Request params were:')
+        self.logger.warn("%s -> %s (%s)" % (p, params[p], type(params[p])))
+
         for p in params:
 
             game_asset_key = None
             if type(params[p]) != list:
                 game_asset_key = params[p].value.strip()
 
-            self.logger.debug("%s -> %s (%s)" % (p, params[p], type(params[p])))
-
-
             if p in ignore_keys:
                 pass
             elif p == "toggle_admin_status":
                 self.toggle_admin_status(game_asset_key)
-            elif p == "toggle_milestone":
-                self.update_milestones(game_asset_key)
-            elif p in ["add_item","remove_item"]:
-                self.update_settlement_storage("html_form", params)
             else:
                 self.settlement[p] = game_asset_key
                 self.logger.debug("%s set '%s' = '%s' for %s" % (self.User.user["login"], p, game_asset_key, self.get_name_and_id()))

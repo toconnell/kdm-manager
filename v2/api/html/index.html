@@ -760,6 +760,30 @@
             routes for setting/unsetting principles and settlement Milestones.</td>
         </tr>
         <tr class="ul">
+            <td> /settlement/add_milestone/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td>
+                <p>POST a milestone handle (get it from <code>game_assets</code>
+                to this route to add it to the settlement's list of milestones:</p>
+                <code>{handle: 'game_over'}</code><p>...or...</p>
+                <code>{handle: 'innovations_5'}
+                <p>This endpoint will gracefully fail and politely ignore dupes.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/rm_milestone/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td>
+                <p>POST a milestone handle (get it from <code>game_assets</code>
+                to this route to remove it from the settlement's list of
+                milestones:</p>
+                <code>{handle: 'pop_15'}</code><p>...or...</p>
+                <code>{handle: 'first_death'}
+                <p>This endpoint will gracefully fail and politely ignore
+                attempts to remove handles that are not present.</p>
+            </td>
+        </tr>
+        <tr class="ul">
             <td> /settlement/set_principle/&lt;settlement_id&gt; </td>
             <td> POST </td>
             <td> <p>POST some JSON to this route to set or unset a settlement

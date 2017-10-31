@@ -66,6 +66,7 @@ settlements = [
     "Nox",
     "Old Kasuto",
     "Onrac",
+    "Proudrock",
     "Pthumeria",
     "Rivia",
     "Rockall",

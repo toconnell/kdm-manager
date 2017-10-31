@@ -70,36 +70,20 @@ def get_user_data():
     # now enhance the user data to include a bit more info (to avoid having to
     #   do date calc in javascripts, etc.
 
-    def update_user_info(u):
-        try:
-            U = users.User(_id=u["_id"])
-        except Exception as e:
-            logger.error("panel.py failed to initialize user '%s'" % u["login"])
-            logger.error(e)
-        u["age"] = U.get_age()
-        u["latest_activity_age"] = U.get_latest_activity(return_type='age')
-        u["has_session"] = U.has_session()
-        u["is_active"] = U.is_active()
-        u["friend_count"] = U.get_friends(int)
-        u["friend_list"] = U.get_friends(list)
-        u["current_session"] = utils.mdb.sessions.find_one({"_id": u["current_session"]})
-        return u
-
     final_user_info = []
     for u in recent_users:
         try:
-            final_user_info.append(update_user_info(u))
+            U = users.User(_id=u["_id"])
+            final_user_info.append(U.serialize('admin_panel'))
         except Exception as e:
-#            logger.error("panel.py threw an exception while attempting to enhance recent user data!")
-#            logger.error("User '%s' (%s) could not be initialized and enhanced! Returning it as-is..." % (u["login"], u["_id"]))
-#            logger.error("Exception was: %s" % e)
-            u["retrieval_error"] = True
-            final_user_info.append(u)
+            logger.error("panel.py threw an exception while attempting to enhance recent user data!")
+            logger.error("User '%s' (%s) could not be initialized and enhanced! Returning it as-is..." % (u["login"], u["_id"]))
+            logger.error("Exception was: %s" % e)
 
     active_user_count = 0
     recent_user_count = 0
     for u in final_user_info:
-        if u["is_active"]:
+        if u['user']["is_active"] == True:
             active_user_count += 1
         else:
             recent_user_count += 1
@@ -115,7 +99,6 @@ def get_user_data():
         "user_agent_stats": ua_data,
         "user_info": final_user_info,
     }
-
     # and return it as json
     return json.dumps(d, default=json_util.default)
 

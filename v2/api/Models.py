@@ -239,7 +239,7 @@ class AssetCollection():
         return asset
 
 
-    def get_asset_from_name(self, name, case_sensitive=False):
+    def get_asset_from_name(self, name, case_sensitive=False, raise_exception_if_not_found=True):
         """ Tries to return an asset dict by looking up "name" attributes within
         the self.assets. dict. Returns None if it fails.
 
@@ -248,7 +248,10 @@ class AssetCollection():
 
         if type(name) not in [str,unicode]:
             self.logger.error("get_asset_from_name() cannot proceed! '%s' is not a str or unicode object!" % name)
-            raise AssetInitError("The get_asset_from_name() method requires a str or unicode type name!")
+            if raise_exception_if_not_found:
+                raise AssetInitError("The get_asset_from_name() method requires a str or unicode type name!")
+            else:
+                return None
 
         name = name.strip()
 

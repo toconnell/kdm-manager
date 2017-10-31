@@ -74,6 +74,7 @@ class Assets(Models.AssetCollection):
 #       2. serialize() calls should be as 'light', i.e. specific, as possible
 #       3. use self.Innovations (for example) instead of initializing a new
 #           AssetCollection object
+#       4. NEVER SORT THE settlement['milestone_story_events'] list
 #
 
 class Settlement(Models.UserAsset):
@@ -82,7 +83,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.72
+        self.object_version=0.77
         Models.UserAsset.__init__(self,  *args, **kwargs)
 
         self.init_asset_collections()
@@ -141,6 +142,10 @@ class Settlement(Models.UserAsset):
 
         """
 
+        patron_attribs = request.User.get_patron_attributes()
+        if request.User.get_settlements(return_type=int) >= 3 and patron_attribs['level'] < 1:
+            raise utils.InvalidUsage('Non-supporters may only create three settlements!', status_code=405)
+
         self.logger.info("%s creating a new settlement..." % request.User)
 #        self.logger.debug("%s new settlement params: %s" % (request.User, self.params))
 
@@ -156,6 +161,7 @@ class Settlement(Models.UserAsset):
                 "expansions_version":   1.0,
                 "innovations_version":  1.0,
                 "locations_version":    1.0,
+                "milestones_version":   1.0,
                 "principles_version":   1.0,
                 'storage_version':      1.0,
             },
@@ -261,6 +267,8 @@ class Settlement(Models.UserAsset):
         # quarry
         if script.get("current_quarry", None) is not None:
             self.set_current_quarry(script["current_quarry"])
+        if script.get('showdown_type', None) is not None:
+            self.set_showdown_type(script['showdown_type'])
 
         # events
         if script.get("timeline_events", None) is not None:
@@ -308,6 +316,10 @@ class Settlement(Models.UserAsset):
 
         if self.settlement["meta"].get("locations_version", None) is None:
             self.convert_locations_to_handles()
+            self.perform_save = True
+
+        if self.settlement["meta"].get("milestones_version", None) is None:
+            self.convert_milestones_to_handles()
             self.perform_save = True
 
         if self.settlement["meta"].get("monsters_version", None) is None:
@@ -441,6 +453,8 @@ class Settlement(Models.UserAsset):
             start = datetime.now()
             output.update({'campaign':{}})
             output['campaign'].update({'last_five_log_lines': self.get_event_log(lines=5)})
+            output['campaign'].update({'most_recent_milestone': self.get_latest_milestone()})
+            output['campaign'].update({'most_recent_hunt': self.get_latest_defeated_monster()})
             output['campaign'].update({'latest_death': self.get_latest_survivor('dead')})
             output['campaign'].update({'latest_birth': self.get_latest_survivor('born')})
             output['campaign'].update({'endeavors': self.get_available_endeavors()})
@@ -844,6 +858,40 @@ class Settlement(Models.UserAsset):
         # now do it
         self.settlement["locations"].remove(loc_handle)
         self.log_event("%s removed '%s' from settlement locations." % (request.User.login, loc_dict["name"]), event_type="rm_location")
+        self.save()
+
+
+    def add_milestone(self, handle=None):
+        """ Adds a Milestone Story Event. Wants a request context. """
+
+        if handle is None:
+            self.check_request_params(['handle'])
+            handle = self.params['handle']
+
+        M = milestone_story_events.Milestone(handle)
+        if M.handle in self.settlement['milestone_story_events']:
+            self.logger.info("%s Attempting to add Milestone that is already present. Ignoring bogus request..." % self)
+            return True
+
+        self.settlement['milestone_story_events'].append(M.handle)
+        self.log_event("%s added Milestone Story Event '%s'" % (request.User.login, M.name), event_type="milestone_story_event")
+        self.save()
+
+
+    def rm_milestone(self, handle=None):
+        """ Removes a Milestone Story Event. Wants a request context. """
+
+        if handle is None:
+            self.check_request_params(['handle'])
+            handle = self.params['handle']
+
+        M = milestone_story_events.Milestone(handle)
+        if M.handle not in self.settlement['milestone_story_events']:
+            self.logger.info("%s Attempting to remove Milestone that is not present. Ignoring bogus request..." % self)
+            return True
+
+        self.settlement['milestone_story_events'].remove(M.handle)
+        self.log_event("%s removed Milestone Story Event '%s'" % (request.User.login, M.name))
         self.save()
 
 
@@ -1291,14 +1339,15 @@ class Settlement(Models.UserAsset):
             self.update_all_survivors("increment", e_dict["current_survivor"])
 
 
-    def set_showdown_type(self):
+    def set_showdown_type(self, showdown_type=None):
         """ Expects a request context and looks for key named 'type'. Uses the
         value of that key as self.settlement['showdown_type']. """
 
-        self.check_request_params(['showdown_type'])
-        showdown_type = self.params['showdown_type']
+        if showdown_type is None:
+            self.check_request_params(['showdown_type'])
+            showdown_type = self.params['showdown_type']
+
         self.settlement['showdown_type'] = showdown_type
-        self.logger.debug("%s Set showdown type to '%s' for %s" % (request.User, showdown_type, self.Settlement))
         self.save()
 
 
@@ -1723,8 +1772,8 @@ class Settlement(Models.UserAsset):
                 fa_handles = fa_handles.union(s.survivor['fighting_arts'])
 
         for fa_handle in fa_handles:
-            fa_dict = self.FightingArts.get_asset(fa_handle)
-            if fa_dict['type'] == 'fighting_art':
+            fa_dict = self.FightingArts.get_asset(fa_handle, raise_exception_if_not_found=False)
+            if fa_dict is not None and fa_dict['type'] == 'fighting_art':
                 output.add(fa_handle)
 
         output = sorted(list(output))
@@ -2024,6 +2073,26 @@ class Settlement(Models.UserAsset):
         """ Returns self.settlement['lantern_resarch_level']. Always an int."""
 
         return self.settlement.get('lantern_research_level', 0)
+
+
+    def get_latest_defeated_monster(self):
+        """ Tries to get the last handle in the defeated monsters list. Returns
+        None if there is no such thing. """
+
+        try:
+            return self.settlement['defeated_monsters'][-1]
+        except:
+            return None
+
+
+    def get_latest_milestone(self):
+        """ Tries to get the last handle in the milestones list. Returns None if
+        there is no such thing. """
+
+        try:
+            return self.settlement['milestone_story_events'][-1]
+        except:
+            return None
 
 
     def get_latest_survivor(self, category='dead'):
@@ -2434,8 +2503,6 @@ class Settlement(Models.UserAsset):
     def get_milestones_options(self, return_type=list):
         """ Returns a list of dictionaries where each dict is a milestone def-
         inition. Useful for front-end stuff. """
-
-
 
         if return_type==dict:
             output = {}
@@ -2892,6 +2959,18 @@ class Settlement(Models.UserAsset):
         self.logger.info("Converted locations from names (legacy) to handles for %s" % (self))
 
 
+    def convert_milestones_to_handles(self):
+        """ Swaps out milestone name values for handles. """
+
+        new_milestones = []
+        for m_dict in self.list_assets('milestone_story_events'):
+            if m_dict is not None:
+                new_milestones.append(m_dict['handle'])
+        self.settlement['milestone_story_events'] = new_milestones
+        self.settlement["meta"]["milestones_version"] = 1.0
+        self.logger.info("%s Converted %s milestones form names (legacy) to handles." % (self, len(new_milestones)))
+
+
     def convert_principles_to_handles(self):
         """ Swaps out principle 'name' keys for handles. """
 
@@ -3256,6 +3335,12 @@ class Settlement(Models.UserAsset):
             self.set_innovation_level()
         elif action == "set_principle":
             self.set_principle()
+
+        # milestone story events
+        elif action == "add_milestone":
+            self.add_milestone()
+        elif action == "rm_milestone":
+            self.rm_milestone()
 
         elif action == 'set_storage':
             self.set_storage()

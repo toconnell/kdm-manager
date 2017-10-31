@@ -307,10 +307,20 @@ class dashboard:
             class="dashboard_accordion settlement_sheet_gradient hidden"
         >
             <p class="panel_top_tooltip">Manage settlements you have created.</p>
+            <p
+                ng-if="user.patron.level < 1"
+            > New users may create up to three settlements:
+                <a href="https://thelaborinvain-2.myshopify.com/" target="top">
+                    purchase a lifetime subscription to the Manager</a>
+                to create an unlimited number of settlements!
+            </p> <!-- subscribers alert -->
 
             <div class="dashboard_button_list">
-
-                <form method="POST" action="">
+                <form
+                    method="POST"
+                    action=""
+                    ng-if="user.user_assets.settlements.length < 3 || user.patron.level > 0"
+                >
                     <input type="hidden" name="change_view" value="new_settlement" />
                     <button class="kd_blue centered" onclick="showFullPageLoader()">+ Create New Settlement</button>
                 </form>
@@ -702,6 +712,18 @@ class dashboard:
         </h2>
 
         <div id="system_div" class="dashboard_accordion system_secondary hidden">
+            <div class="supporter_container" ng-if="user.user != undefined">
+                <p><b>{{user.user.login}}</b></p>
+                <p ng-if="user.patron.level < 1">
+                    <a href="https://thelaborinvain-2.myshopify.com/" target="top">
+                        Support the Manager! Buy a subscription today!
+                    </a>
+                </p>
+                <p ng-if="user.patron.level > 0">
+                    &nbsp; Subscription level: <b>{{user.user.patron.desc}}</b><br/>
+                    &nbsp; Beta feature access: <b>{{user.user.patron.beta}}</b>
+                </p>
+            </div>
 
             <div class="dashboard_preferences">
                 <p>Use the controls below to update application-wide preferences.
@@ -5094,7 +5116,7 @@ class settlement:
 
         <a id="edit_milestones" class="mobile_only"/></a>
 
-        <div class="settlement_sheet_block_group">
+        <div class="settlement_sheet_block_group" ng-controller="milestonesController">
             <h2>Milestone Story Events</h2>
             <p>Trigger these story events when milestone condition is met.</p>
 
@@ -5103,11 +5125,9 @@ class settlement:
                     id="{{m.handle}}"
                     class="kd_css_checkbox kd_radio_option"
                     type="checkbox"
-                    name="toggle_milestone"
-                    value="{{m.name}}"
-                    onchange="updateAssetAttrib(this, 'settlement', '$settlement_id');"
-                    ng-checked="hasattr(settlement_sheet.milestone_story_events, m.name) "/>
-                </input>
+                    ng-click="toggleMilestone(m.handle)"
+                    ng-checked="settlement.sheet.milestone_story_events.indexOf(m.handle) != -1"
+                />
                 <label
                     for="{{m.handle}}"
                     class="settlement_sheet_milestone_container"
@@ -5684,15 +5704,6 @@ def render_burger(session_object=None):
         return output
 
 
-    # now, create a settlement burger.
-    # first, set defaults:
-
-
-    new_settlement = meta.burger_top_level_button.safe_substitute(
-        link_text = "+ New Settlement",
-        view = "new_settlement",
-    )
-
     # create a list of action buttons based on view/session info
     actions = '<button id="newSurvivorButton" class="sidenav_button">+ Create New Survivor</button>'
     if session_object.User.is_settlement_admin():
@@ -5722,8 +5733,20 @@ def render_burger(session_object=None):
 
         <div id="mySidenav" class="sidenav" ng-controller="sideNavController">
           $dash
-          $new_settlement_button
+
+            <form
+                method="POST"
+                action=""
+                ng-if="user.user_assets.settlements.length < 3 || user.patron.level > 0"
+            >
+                <input type="hidden" name="change_view" value="new_settlement" />
+                <button class="sidenav_button" onclick="showFullPageLoader()">
+			+ Create New Settlement
+		</button>
+            </form>
+
             <hr/>
+
             <h3>$settlement_name:</h3>
             $action_map
 
@@ -5775,7 +5798,6 @@ def render_burger(session_object=None):
             link_text = "Return to Dashboard",
             view = "dashboard",
         ),
-        new_settlement_button = new_settlement,
         report_error=meta.report_error_button,
         signout=signout_button,
         action_map=actions,

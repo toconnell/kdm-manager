@@ -1506,7 +1506,7 @@ class Survivor(Models.UserAsset):
 
         self.survivor['bleeding_tokens'] = value
 
-        if self.survivor["bleeding_tokens"] > 0:
+        if self.survivor["bleeding_tokens"] < 0:
             self.survivor["bleeding_tokens"] = 0
         elif self.survivor["bleeding_tokens"] > self.survivor["max_bleeding_tokens"]:
             self.survivor["bleeding_tokens"] = self.survivor["max_bleding_tokens"]
@@ -2442,6 +2442,10 @@ class Survivor(Models.UserAsset):
             self.logger.info("Removed deprecated attribute 'in_hunting_party' from %s" % self)
             self.perform_save = True
 
+        if not 'favorite' in self.survivor.keys():
+            self.survivor["favorite"] = []
+            self.perform_save = True
+
 
     def bug_fixes(self, force_save=False):
         """ This should be called during normalize() BEFORE you call baseline().
@@ -2616,8 +2620,11 @@ class Survivor(Models.UserAsset):
         new_fa_list = []
 
         for fa_dict in self.list_assets("fighting_arts"):
-            new_fa_list.append(fa_dict["handle"])
-            self.logger.info("%s Converted '%s' Fighting Art name to handle '%s'" % (self, fa_dict["name"], fa_dict["handle"]))
+            if fa_dict is None:
+                pass
+            else:
+                new_fa_list.append(fa_dict["handle"])
+                self.logger.info("%s Converted '%s' Fighting Art name to handle '%s'" % (self, fa_dict["name"], fa_dict["handle"]))
 
         self.survivor["fighting_arts"] = new_fa_list
         self.survivor["meta"]["fighting_arts_version"] = 1.0

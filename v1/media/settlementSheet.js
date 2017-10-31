@@ -23,6 +23,22 @@ app.controller("lanternResearchController", function($scope) {
     };
 });
 
+
+app.controller("milestonesController", function($scope) {
+    $scope.toggleMilestone = function(m_handle) {
+        console.warn(m_handle);
+        var handle_index = $scope.settlement.sheet.milestone_story_events.indexOf(m_handle);
+        if (handle_index == -1 ) {
+            $scope.settlement.sheet.milestone_story_events.push(m_handle);
+            $scope.postJSONtoAPI('settlement', 'add_milestone', {handle: m_handle}, false);
+        } else {
+            $scope.settlement.sheet.milestone_story_events.splice(handle_index, 1);
+            $scope.postJSONtoAPI('settlement', 'rm_milestone', {handle: m_handle}, false);
+        };
+    };  
+});
+
+
 app.controller("inspirationalStatueController", function($scope) {
     $scope.setInspirationalStatue = function() {
         js_obj = {handle: $scope.settlement.sheet.inspirational_statue};

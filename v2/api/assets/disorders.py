@@ -196,7 +196,8 @@ expansions = {
         'expansion': 'lion_god',
         'flavor_text': 'You are delicate flower, wilting in the darkness.',
         'name': 'Enfeebled',
-        'survivor_effect': 'It takes one less bleeding token to kill you.'
+        'survivor_effect': 'It takes one less bleeding token to kill you.',
+        'max_bleeding_tokens': 4,
     },
     'stark_raving': {
         'expansion': 'lion_god',

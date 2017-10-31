@@ -206,6 +206,10 @@ def collection_action(collection, action, asset_id):
     This is also one of our so-called 'private' routes, so you can't do this
     stuff without an authenticated user.
     """
+
+    if not ObjectId.is_valid(asset_id):
+        return Response(response='The /%s/%s/ route requires a valid Object ID!' % (collection, action), status=400)
+
     # update the request object
     request.collection = collection
     request.action = action

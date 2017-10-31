@@ -560,6 +560,8 @@ class Session:
                     user_action = "created settlement %s" % self.Settlement
                     self.change_current_view("view_campaign", S.settlement["_id"])
                     S.save()
+                elif response.status_code == 405:
+                    self.change_current_view('dashboard')
                 else:
                     msg = "An API error caused settlement creation to fail! API response was: %s - %s" % (response.status_code, response.reason)
                     self.logger.error("[%s] new settlement creation failed!" % self.User)

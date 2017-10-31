@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 
-
+from bson.objectid import ObjectId
 from collections import Counter
 
 from optparse import OptionParser
@@ -9,8 +9,7 @@ import sys
 import time
 
 import utils
-from models import monsters
-
+from models import monsters, users
 
 
 #
@@ -208,6 +207,26 @@ class KillboardMaintenance:
             time.sleep(1)
 
 
+def update_user(oid, level, beta):
+    """ Loads a user from the MDB, initializes it and calls the methods that set
+    the patron level and the beta flag, etc. """
+
+    if not ObjectId.is_valid(oid):
+        print("The user ID '%s' is not a valid Object ID." % (oid))
+
+    if type(beta) == bool:
+        pass
+    elif beta[0].upper() == 'T':
+        beta = True
+    else:
+        beta = False
+
+    U = users.User(_id=ObjectId(oid))
+    U.set_patron_attributes(int(level), beta)
+
+    print("\n %s Updated patron attributes:\n %s\n" % (U, U.user['patron']))
+
+
 def COD_histogram():
     """ Dumps a CLI histogram of survivor causes of death (for R&D purposes,
     mainly, but also useful in verifying world stats. """
@@ -223,12 +242,18 @@ def COD_histogram():
 
 if __name__ == "__main__":
     parser = OptionParser()
+    parser.add_option("-U", dest="work_with_user", default=None, help="Work with a user.")
+    parser.add_option("--level", dest="user_level", default=0, help="Work with a user.")
+    parser.add_option("--beta", dest="user_beta", default=False, help="Work with a user.")
     parser.add_option("-f", dest="force", action="store_true", default=False, help="Skips interactive pauses.")
     parser.add_option("-o", dest="others", action="store_true", default=False, help="Dump killboard entries whose handle is 'other'. Requires -K flag.")
     parser.add_option("-K", dest="killboard", action="store_true", default=False, help="Clean up the Killboard.")
     parser.add_option("--cod_histogram", dest="cod_histo", action="store_true", default=False, help="Dump a histogram of causes of death.")
     parser.add_option("--reset_api_response_data", dest="reset_api_response_data", action="store_true", default=False, help="Removes all data from mdb.api_response_times collection.")
     (options, args) = parser.parse_args()
+
+    if options.work_with_user is not None:
+        update_user(options.work_with_user, options.user_level, options.user_beta)
 
     if options.reset_api_response_data:
         remove_api_response_data()
