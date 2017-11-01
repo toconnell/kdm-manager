@@ -279,15 +279,15 @@ class User(Models.UserAsset):
         output["user"] = self.user
 
         # basics; all views, generic UI/UX stuff
-        output["user"]["settlements_created"] = self.get_settlements(return_type=int)
+        output["user"]["age"] = self.get_age()
+        output["user"]["settlements_created"] = utils.mdb.settlements.find({'created_by': self.user['_id']}).count()
         output['patron'] = self.get_patron_attributes()
         output["preferences"] = self.get_preferences()
 
         # items common to dashboard and admin_panel
-        if return_type in ['dashboard', 'admin_panel']:
-            output["user"]["age"] = self.get_age()
+        if return_type in ['dashboard']:
             output["dashboard"] = {}
-            output["dashboard"]["friends"] = self.get_friends(return_type=list)
+#            output["dashboard"]["friends"] = self.get_friends(return_type=list)
             output["dashboard"]["campaigns"] = self.get_settlements(return_type='asset_list', qualifier='player')
             output["dashboard"]["settlements"] = self.get_settlements(return_type='asset_list')
 

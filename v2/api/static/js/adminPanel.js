@@ -41,18 +41,19 @@ myApp.controller('globalController', function($scope, $http, $interval) {
     $interval($scope.updateCounter, 1000);
 
     $scope.getRecentSettlements = function() {
+//        console.warn('[RECENT SETTLEMENTS] Getting recent settlements...');
         $scope.retrievingSettlements = true;
         $scope.showSpinner('recentSettlementsSpinner'); 
         $http.get('admin/get/settlement_data').then(function(result){
             $scope.settlements = result.data;
             $scope.hideSpinner('recentSettlementsSpinner');
             $scope.retrievingSettlements = false;
-//            console.warn('Got recent settlements!');
+//            console.warn('[RECENT SETTLEMENTS] Got recent settlements!');
         });
     };
 
     setInterval( function init() {
-//        console.log("Initializing...")
+//        console.log("[MAIN] Refreshing main view...")
         $scope.showSpinner('spinner');
         $http.get('settings.json').then(function(result){$scope.settings = result.data;});
         $http.get('https://api.github.com/repos/toconnell/kdm-manager').then(function(result){$scope.github = result.data;});
@@ -69,10 +70,11 @@ myApp.controller('globalController', function($scope, $http, $interval) {
             $scope.hideSpinner('spinner');
             $scope.refreshed = new Date();
             $scope.seconds_since_last_refresh = 0;
+//            console.log("[MAIN] Refreshed main view!");
             });
 
         return init;
-        }(), 180)
+        }(), 60000)
 
 
 
