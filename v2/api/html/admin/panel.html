@@ -56,10 +56,21 @@
 
 
         <div class="flex_item_basic users" ng-if="users.user_info.length != 0">
+            <div id="userSpinner" class="bg_spinner">
+                <img src="/static/media/images/loading_io.gif" >
+            </div>
+
             <h2>Recent User Activity </h2>
             <b title="Active during the last {{users.meta.active_user_horizon}} minutes">Active user count:</b> {{users.meta.active_user_count}}<br/>
             <b title="Active during the last {{users.meta.recent_user_horizon}} hours">Recent user count:</b> {{users.meta.recent_user_count}}<br/>
             
+
+            <div id="userFailure" ng-if="scratch.get_user_data_failure == true">
+                <hr/>
+                <p><b>Could not refresh recent user data!</b></p>
+                <code>{{scratch.get_user_data_failure_msg}}</code>
+            </div>
+
             <div class="users_container">
                 <div
                     class="user_basic_info clickable"

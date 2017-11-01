@@ -7,6 +7,8 @@ var myApp = angular.module('adminPanel', []);
 
 myApp.controller('globalController', function($scope, $http, $interval) {
 
+    $scope.scratch = {};
+
     $scope.getEventLog = function(settlement) {
         for (var i=0; i < $scope.world.meta.admins.length; i++) {
             var admin_id = $scope.world.meta.admins[i]._id.$oid;
@@ -62,7 +64,19 @@ myApp.controller('globalController', function($scope, $http, $interval) {
 //            console.warn('Not currently retrieving settlements. Starting retrieval...');
             $scope.getRecentSettlements();
         };
-        $http.get('admin/get/user_data').then(function(result){$scope.users = result.data;});
+        $scope.users = undefined;
+        $scope.showSpinner('userSpinner');
+        $scope.scratch.get_user_data_failure = false;
+        $http.get('admin/get/user_data').then(
+            function(result){$scope.users = result.data; $scope.hideSpinner('userSpinner')},
+            function(result){
+                console.error('Could not retrieve recent user data!');
+                console.error(result);
+                $scope.hideSpinner('userSpinner');
+                $scope.scratch.get_user_data_failure = true;
+                $scope.scratch.get_user_data_failure_msg = result.data;
+            }
+        );
         $http.get('admin/get/logs').then(function(result){$scope.logs = result.data;});
 
         $http.get('world').then(function(result){
