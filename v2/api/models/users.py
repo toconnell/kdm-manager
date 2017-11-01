@@ -15,6 +15,7 @@ from werkzeug.security import safe_str_cmp
 
 import Models
 from settlements import Settlement
+import user_preferences
 import settings
 import utils
 
@@ -218,6 +219,9 @@ class User(Models.UserAsset):
         # random initialization methods
         self.set_current_settlement()
 
+        # assets
+        self.Preferences = user_preferences.Assets()
+
 
     def new(self):
         """ Creates a new user based on request.json values. Like all UserAsset
@@ -274,9 +278,21 @@ class User(Models.UserAsset):
         # now create the user dict (analogous to 'sheet' in asset exports)
         output["user"] = self.user
 
-        # punch the user up if we're returning to the admin panel
-        if return_type == 'admin_panel':
+        # basics; all views, generic UI/UX stuff
+        output["user"]["settlements_created"] = self.get_settlements(return_type=int)
+        output['patron'] = self.get_patron_attributes()
+        output["preferences"] = self.get_preferences()
+
+        # items common to dashboard and admin_panel
+        if return_type in ['dashboard', 'admin_panel']:
             output["user"]["age"] = self.get_age()
+            output["dashboard"] = {}
+            output["dashboard"]["friends"] = self.get_friends(return_type=list)
+            output["dashboard"]["campaigns"] = self.get_settlements(return_type='asset_list', qualifier='player')
+            output["dashboard"]["settlements"] = self.get_settlements(return_type='asset_list')
+
+        # punch the user up if we're returning to the admin panel
+        if return_type in ['admin_panel']:
             output['user']["latest_activity_age"] = self.get_latest_activity(return_type='age')
             output["user"]["has_session"] = self.has_session()
             output["user"]["is_active"] = self.is_active()
@@ -284,26 +300,12 @@ class User(Models.UserAsset):
             output['user']["current_session"] = utils.mdb.sessions.find_one({"_id": self.user["current_session"]})
             output["user"]["survivors_created"] = self.get_survivors(return_type=int)
             output["user"]["survivors_owned"] = self.get_survivors(qualifier="owner", return_type=int)
-            output["user"]["settlements_created"] = self.get_settlements(return_type=int)
             output["user"]["settlements_administered"] = self.get_settlements(qualifier="admin", return_type=int)
             output["user"]["campaigns_played"] = self.get_settlements(qualifier="player", return_type=int)
 
         # user assets
-        output["user_assets"] = {}
-        output["user_assets"]["survivors"] = self.get_survivors(return_type=list)
-        output["user_assets"]["settlements"] = self.get_settlements(return_type=list)
-
-
-        # patronage
-        output['patron'] = self.get_patron_attributes()
-
-
-        # if we're doing the dash, create the dashboard key and fill it in
-        if return_type == 'dashboard':
-            output["dashboard"] = {}
-            output["dashboard"]["friends"] = self.get_friends(return_type=list)
-#            output["dashboard"]["survivors"] = self.get_survivors(return_type=list)
-            output["dashboard"]["settlements"] = self.get_settlements(return_type='asset_list', qualifier='player')
+#        output["user_assets"] = {}
+#        output["user_assets"]["survivors"] = self.get_survivors(return_type=list)
 
 
         if return_type == 'admin_panel':
@@ -393,7 +395,6 @@ class User(Models.UserAsset):
 
         self.user['patron']['updated_on'] = datetime.now()
         self.user['patron']['level'] = level
-        self.user['patron']['beta'] = beta
 
         if level == 1:
             self.user['patron']['desc'] = 'Survival +1'
@@ -401,6 +402,24 @@ class User(Models.UserAsset):
             self.user['patron']['desc'] = 'Survival +5'
 
         self.logger.info("%s Set patron level to %s; set beta access to %s." % (self, level, beta))
+        self.save()
+
+
+    def set_preferences(self):
+        """ Expects a request context and will not work without one. Iterates
+        thru a list of preference handles and sets them. """
+
+        self.check_request_params(['preferences'])
+        pref_list = self.params['preferences']
+        if type(pref_list) != list:
+            raise utils.InvalidUsage("set_preferences() endpoint requires 'preferences' to be a list!")
+
+        for pref_dict in pref_list:
+            handle = pref_dict['handle']
+            value = pref_dict['value']
+            self.user['preferences'][handle] = value
+            self.logger.info("%s Set '%s' = %s'" % (request.User.login, handle, value))
+
         self.save()
 
 
@@ -417,6 +436,10 @@ class User(Models.UserAsset):
 
     def update_password(self, new_password=None):
         """ Changes the user's password. Saves. """
+
+        if new_password is None:
+            self.check_request_params(['password'])
+            new_password = self.params['password']
 
         if new_password is None:
             raise Exception("New password cannot be None type!")
@@ -494,6 +517,29 @@ class User(Models.UserAsset):
 
         return self.user["preferences"][p_key]
 
+
+    def get_preferences(self):
+        """ Not to be confused with self.get_preference(), which gets a bool for
+        a single preference handle, this renders a JSON-ish return meant to be
+        included in the self.serialize() call (and ultimately represented on the
+        application dashboard. """
+
+        groups = set()
+        for p_dict in self.Preferences.get_dicts():
+            groups.add(p_dict['sub_type'])
+
+        output = []
+        for g_name in sorted(groups):
+            g_handle = g_name.lower().replace(" ","_")
+            g_dict = {'name': g_name, 'handle': g_handle, 'items': []}
+            for p_dict in self.Preferences.get_dicts():
+                if p_dict['sub_type'] == g_name:
+                    election = self.get_preference(p_dict['handle'])
+                    p_dict['value'] = election
+                    g_dict['items'].append(p_dict)
+            output.append(g_dict)
+
+        return output
 
 
     def get_friends(self, return_type=None):
@@ -665,6 +711,12 @@ class User(Models.UserAsset):
             return Response(response=self.serialize('dashboard'), status=200, mimetype="application/json")
         elif action == "set":
             return self.set_attrib()
+
+        elif action == "update_password":
+            self.update_password()
+        elif action == 'set_preferences':
+            self.set_preferences()
+
         else:
             # unknown/unsupported action response
             self.logger.warn("Unsupported survivor action '%s' received!" % action)

@@ -58,6 +58,10 @@ def index():
 def route_to_static(path, sub_dir):
     return send_from_directory('static/%s' % sub_dir, path)
 
+@application.route("/favicon.ico")
+def favicon():
+    return send_file("static/media/images/the_watcher.png")
+
 
 #
 #   public routes

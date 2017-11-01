@@ -207,25 +207,10 @@ class KillboardMaintenance:
             time.sleep(1)
 
 
-def update_user(oid, level, beta):
-    """ Loads a user from the MDB, initializes it and calls the methods that set
-    the patron level and the beta flag, etc. """
 
-    if not ObjectId.is_valid(oid):
-        print("The user ID '%s' is not a valid Object ID." % (oid))
-
-    if type(beta) == bool:
-        pass
-    elif beta[0].upper() == 'T':
-        beta = True
-    else:
-        beta = False
-
-    U = users.User(_id=ObjectId(oid))
-    U.set_patron_attributes(int(level), beta)
-
-    print("\n %s Updated patron attributes:\n %s\n" % (U, U.user['patron']))
-
+#
+#   research and development helper methods and one-offs
+#
 
 def COD_histogram():
     """ Dumps a CLI histogram of survivor causes of death (for R&D purposes,
@@ -240,6 +225,43 @@ def COD_histogram():
         print "%s|%s" % (c[1],c[0].encode('utf-8').strip())
 
 
+
+#
+#   one-off methods for CLI management of user subscriptions
+#
+
+def update_user(oid, level, beta):
+    """ Loads a user from the MDB, initializes it and calls the methods that set
+    the patron level and the beta flag, etc. """
+
+    if not ObjectId.is_valid(oid):
+        print("The user ID '%s' is not a valid Object ID." % (oid))
+
+    if type(beta) == bool:
+        pass
+    elif beta[0].upper() == 'T':
+        beta = True
+    else:
+        beta = False
+
+    U = users.User(_id=oid)
+    U.set_patron_attributes(int(level), beta)
+
+    print("\n %s Updated patron attributes:" % (U))
+    dump_doc_to_cli(U.user['patron'])
+
+
+def get_user_id_from_email(email):
+    """ Pulls the user from the MDB (or dies trying). Returns its email. """
+
+    u = utils.mdb.users.find_one({'login': email})
+    if u is None:
+        raise Exception("Could not find user data for %s" % email)
+    return u['_id']
+
+
+
+
 if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("-U", dest="work_with_user", default=None, help="Work with a user.")
@@ -252,8 +274,14 @@ if __name__ == "__main__":
     parser.add_option("--reset_api_response_data", dest="reset_api_response_data", action="store_true", default=False, help="Removes all data from mdb.api_response_times collection.")
     (options, args) = parser.parse_args()
 
+    # manage subscriptions
     if options.work_with_user is not None:
-        update_user(options.work_with_user, options.user_level, options.user_beta)
+        if ObjectId.is_valid(options.work_with_user):
+            user_oid = ObjectId(options.work_with_user)
+        else:
+            # assume it's an email if it's not an oid
+            user_oid = get_user_id_from_email(options.work_with_user)
+        update_user(user_oid, options.user_level, options.user_beta)
 
     if options.reset_api_response_data:
         remove_api_response_data()

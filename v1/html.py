@@ -118,59 +118,19 @@ class dashboard:
 
     # dashboard accordions
 
-    preference_header = Template("""\n
-    <div class="dashboard_preference_block_group">
-        <h2>$title</h2>
-    \n""")
-    preference_footer = "</div> <!-- dashboard_preference_block_group $title--> "
-    preference_block = Template("""\n
-    <p class="preference_description">$desc</p>
-
-    <div class="dashboard_preference_elections_container">
-        <input
-            id="pref_true_$pref_key"
-            class="kd_css_checkbox kd_radio_option"
-            name="$pref_key"
-            style="display: none"
-            type="radio"
-            value="True"
-            $pref_true_checked
-            onchange="updateUserPreference(this);"
-        />
-        <label for="pref_true_$pref_key">
-            $affirmative
-        </label>
-
-        <input
-            id="pref_false_$pref_key"
-            class="kd_css_checkbox kd_radio_option"
-            name="$pref_key"
-            style="display: none"
-            type="radio"
-            value="False"
-            $pref_false_checked
-            onchange="updateUserPreference(this);"
-        />
-        <label for="pref_false_$pref_key">
-            $negative
-        </label>
-    </div> <!-- dashboar_preference_elections_container -->
-
-    \n""")
-
 
     #
     #   ANGULARJS dashboard components!
     #
 
-    initializer = Template("""\
-    <script src="/media/dashboard.js?v=$application_version"></script>
-    <div
-        id="dashboardWelcomeModal"
-        class="modal dashboard_welcome_modal"
-        ng-class="{true: 'visible', false: 'hidden'}[user.dashboard.settlements.length == 0]"
-        onclick="showHide('dashboardWelcomeModal')"
-    >
+    angular_app = Template("""\
+<script src="/media/dashboard.js?v=$application_version"></script>
+<div
+    id="dashboardWelcomeModal"
+    class="modal dashboard_welcome_modal"
+    ng-class="{true: 'visible', false: 'hidden'}[user.dashboard.settlements.length == 0]"
+    onclick="showHide('dashboardWelcomeModal')"
+>
     <p>Welcome to <b>http://kdm-manager.com</b>!</p>
     <p><b>The Manager</b> is an interactive webapp intended to make it
     easier to manage and share your Kingdom Death: <i>Monster</i> campaigns.</p>
@@ -194,55 +154,136 @@ class dashboard:
     occur! Please use the controls within the app to report errors/issues.</p>
     <p>&nbsp; </p>
     <div class="kd_alert_no_exclaim">Click or tap anywhere to get started!</div>
-    </div>
-    <div
-        id="dashboardControlElement"
-        ng-controller="dashboardController"
-        ng-init="initialize('dashboard', '$user_id', '$api_url'); showInitDash(); setLatestChangeLog();"
-    >
-    """)
+</div>
 
-    angular_app = """\
+<div
+    id="dashboardControlElement"
+    ng-controller="dashboardController"
+    ng-init="initialize('dashboard', '$user_id', '$api_url'); showInitDash(); setLatestChangeLog();"
+>
 
-    <div
-        id="dashboardTwitter"
-        class="dashboard_twitter_container modal"
-        ng-init="registerModalDiv('dashboardTwitterButton','dashboardTwitter');"
-    >
-        <h3>Updates!</h3>
-        <div class="dashboard_updates_container">
-            <div class="updates">
-                <p><b>http://kdm-manager.com</b> release <b>{{user.meta.webapp.release}}</b> is currently running on version <b>{{user.meta.api.version}}</b> of <a href="http://api.thewatcher.io" target="top">the Kingdom Death API</a>, which was released on {{latest_blog_post.published}}.</p>
-                <p>The KDM API currently supports version <b>1.5</b> of Kingdom Death: <i>Monster</i>.</p>
-                <a target="top" href="{{latest_blog_post.url}}"><button class="kd_blue full_width_modal_button">View latest change log</button></a>
+    <img class="dashboard_bg" src="/media/images/tree_logo_shadow.png"> <!-- DASHBOARD LOGO ART -->
+
+    <div class="dashboard_menu">
+        <h2
+            class="clickable system_primary dashboard_rollup"
+            ng-click="showHide('system_div'); toggleArrow('user_preference_arrow');"
+            ng-init="scratch.user_preference_arrow = false"
+        >
+            <img class="dashboard_icon" src="/media/icons/system.png"/>
+            System
+            <span class="dashboard_rollup_arrow" ng-if="scratch.user_preference_arrow == true">
+                &#x25B2;
+            </span>
+            <span class="dashboard_rollup_arrow" ng-if="scratch.user_preference_arrow == false">
+                &#x25BC;
+            </span>
+        </h2>
+
+        <div id="system_div" class="dashboard_accordion system_secondary hidden">
+
+            <h3 class="system_preference_user_login"> {{user.user.login }} </h3>
+            <div class="preferences_sub_block preferences_sign_out">
+                <form method="POST" action="/">
+                    <input type="hidden" name="remove_session" value="{{user.user.current_session.$oid}}"/>
+                    <input type="hidden" name="login" value="{{user.user.login}}"/>
+                    <button>SIGN OUT</button>
+                </form>
             </div>
-            <div class="twitter_embed_container">
-                <a
-                    class="twitter-timeline"
-                    href="https://twitter.com/kdmManager"
-                    data-tweet-limit="3"
-                > Retrieving tweets...
-                </a>
-                <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
-            </div>
-        </div> <!-- dashboard_updates_container -->
-        <button class="kd_alert_no_exclaim" onclick="closeModal('dashboardTwitter')">Return to the Dashboard!</button>
+            <div class="dashboard_preferences_container user_info">
+                <p>Registered user for {{user.user.age}}.</p>
+                <p ng-if="user.patron.level < 1">
+                    <a href="https://thelaborinvain-2.myshopify.com/" target="top">
+                        Support the Manager! Buy a lifetime subscription for $1!
+                    </a>
+                </p>
+                <p ng-if="user.patron.level > 0">Subscription level: <b>{{user.user.patron.desc}}.</b>
+                <p ng-if="user.patron.level > 0">Subscriber for <b>{{user.user.patron.age}}.</b>
+                <p ng-if="user.patron.beta == true" class="maroon_text">
+                    Beta warning!
+                </p>
+                <div class="preferences_sub_block preferences_change_pw">
+                <p><b>Change Password!</b></p>
+                    <input
+                        type="password"
+                        ng-model="scratch.password"
+                        placeholder="new password"
+                        ng-focus="scratch.saved_password = undefined"/><br/>
+                    <input type="password" ng-model="scratch.password_again" placeholder="new password (again)"><br/>
+                    <button
+                        ng-click="updatePassword()"
+                        class="kd_alert_no_exclaim change_pw"
+                        ng-if="scratch.password != undefined && scratch.password == scratch.password_again"
+                    >
+                        Change Password
+                    </button>
+                    <p class="centered" ng-if="scratch.saved_password">Password updated! <b>Signing out...</b></p>
+                </div>
+            </div> <!-- user info -->
 
-    </div> <!-- dashboard_twitter -->
+            <h3> Manage Preferences</h3>
+            <div class="dashboard_preferences_container">
+                <p>Use the controls below to update application-wide preferences.
+                These settings will affect all of your settlements and survivors!</p>
 
-    <button
-        id="dashboardTwitterButton"
-        class="dashboard_twitter_button kd_promo"
-    > !
-    </button>
+                <div class="dashboard_preference_block_group" ng-repeat="group in user.preferences">
+                    <h2>{{group.name}}</h2>
+
+                    <div
+                        class="dashboard_preference"
+                        ng-repeat="pref in group.items"
+                        ng-if="user.patron.level >= pref.patron_level"
+                    >
+                        <p class="dashboard_preference_description">
+                            {{pref.desc}}
+                        </p>
+                        <div class="dashboard_preference_elections_container">
+                            <input
+                                id="{{pref.handle}}_affirmative"
+                                class="kd_css_checkbox kd_radio_option"
+                                style="display: none"
+                                type="radio"
+                                ng-checked="pref.value == true"
+                                ng-click="setPref(pref,true)"
+                            />
+                            <label for="{{pref.handle}}_affirmative">
+                                {{pref.affirmative}}
+                            </label>
+
+                            <input
+                                id="{{pref.handle}}_negative"
+                                class="kd_css_checkbox kd_radio_option"
+                                style="display: none"
+                                type="radio"
+                                ng-checked="pref.value == false"
+                                ng-click="setPref(pref,false)"
+                            />
+                            <label for="{{pref.handle}}_negative">
+                                {{pref.negative}}
+                            </label>
+                        </div> <!-- dashboar_preference_elections_container -->
+                    </div><!-- dashboard_preference -->
+                </div><!-- dashboard_preference_block_group -->
+            </div> <!-- dashboard_preferences -->
+        </div> <!-- system_div -->
+    </div> <!-- preferencesContainerElement -->
+
+
 
     <div class="dashboard_menu">
         <h2
             class="clickable campaign_summary_gradient dashboard_rollup"
-            onclick="showHide('campaign_div')"
+            ng-click="showHide('campaign_div'); toggleArrow('campaigns_arrow')"
+            ng-init="scratch.campaigns_arrow = false"
         >
             <img class="dashboard_icon" src="/media/icons/campaign.png"/>
-            Campaigns <img class="dashboard_down_arrow" src="/media/icons/down_arrow.png"/>
+            Campaigns
+            <span class="dashboard_rollup_arrow" ng-if="scratch.campaigns_arrow == true">
+                &#x25B2;
+            </span>
+            <span class="dashboard_rollup_arrow" ng-if="scratch.campaigns_arrow == false">
+                &#x25BC;
+            </span>
         </h2>
 
         <div
@@ -264,7 +305,7 @@ class dashboard:
                 </div>
 
                 <form
-                    ng-repeat="s in user.dashboard.settlements | orderBy: '-'"
+                    ng-repeat="s in user.dashboard.campaigns | orderBy: '-'"
                     ng-if="s.sheet.abandoned == undefined"
                     method="POST"
                 >
@@ -296,10 +337,17 @@ class dashboard:
     >
         <h2
             class="clickable settlement_sheet_gradient dashboard_rollup"
-            onclick="showHide('all_settlements_div')"
+            ng-click="showHide('all_settlements_div'); toggleArrow('settlements_arrow')"
+            ng-init="scratch.settlements_arrow = false"
         >
             <img class="dashboard_icon" src="/media/icons/settlement.png"/>
-            Settlements <img class="dashboard_down_arrow" src="/media/icons/down_arrow.png"/>
+            Settlements 
+            <span class="dashboard_rollup_arrow" ng-if="scratch.settlements_arrow == true">
+                &#x25B2;
+            </span>
+            <span class="dashboard_rollup_arrow" ng-if="scratch.settlements_arrow == false">
+                &#x25BC;
+            </span>
         </h2>
 
         <div
@@ -319,7 +367,7 @@ class dashboard:
                 <form
                     method="POST"
                     action=""
-                    ng-if="user.user_assets.settlements.length < 3 || user.patron.level > 0"
+                    ng-if="user.dashboard.settlements.length < 3 || user.patron.level > 0"
                 >
                     <input type="hidden" name="change_view" value="new_settlement" />
                     <button class="kd_blue centered" onclick="showFullPageLoader()">+ Create New Settlement</button>
@@ -337,7 +385,6 @@ class dashboard:
 
                 <form
                     ng-repeat="s in user.dashboard.settlements"
-                    ng-if="s.sheet.created_by.$oid == user_id"
                     method="POST"
                 >
                     <input type="hidden" name="view_settlement" value="{{s.sheet._id.$oid}}" />
@@ -372,11 +419,17 @@ class dashboard:
 
         <h2
             class="clickable world_primary dashboard_rollup"
-            onclick="showHide('world_detail_div')"
+            ng-click="showHide('world_detail_div'); toggleArrow('world_arrow')"
+            ng-init="scratch.world_arrow = false"
         >
             <font class="kdm_font_hit_locations dashboard_kdm_font white">g</font>
             <font class="white">World</font>
-            <img class="dashboard_down_arrow" src="/media/icons/down_arrow_white.png"/>
+            <span class="white dashboard_rollup_arrow" ng-if="scratch.world_arrow == true">
+                &#x25B2;
+            </span>
+            <span class="white dashboard_rollup_arrow" ng-if="scratch.world_arrow == false">
+                &#x25BC;
+            </span>
         </h2>
 
         <div id="world_detail_div" class="dashboard_accordion world_secondary hidden world_container">
@@ -603,15 +656,21 @@ class dashboard:
         >
             <h2
                 class="clickable about_primary dashboard_rollup"
-                onclick="showHide('about_div')"
+                ng-click="showHide('about_div'); toggleArrow('about_arrow')"
+                ng-init="scratch.about_arrow=false"
             >
-                <font class="kdm_font dashboard_kdm_font">g</font> About <img class="dashboard_down_arrow" src="/media/icons/down_arrow.png">
+                <font class="kdm_font dashboard_kdm_font">g</font> About
+                <span class="dashboard_rollup_arrow" ng-if="scratch.about_arrow == true">
+                    &#x25B2;
+                </span>
+                <span class="dashboard_rollup_arrow" ng-if="scratch.about_arrow == false">
+                    &#x25BC;
+                </span>
             </h2>
 
             <div
                 id="about_div"
-                style="display: none;"
-                class="dashboard_accordion about_secondary"
+                class="dashboard_accordion about_secondary hidden"
             >
 
                 <p class="title">
@@ -679,7 +738,38 @@ class dashboard:
 
         </div> <!-- dashboard_menu 'About' -->
 
-    </div> <!-- dashboardControlElement -->
+        <div
+            id="dashboardTwitter"
+            class="dashboard_twitter_container modal"
+            ng-init="registerModalDiv('dashboardTwitterButton','dashboardTwitter');"
+        >
+            <h3>Updates!</h3>
+            <div class="dashboard_updates_container">
+                <div class="updates">
+                    <p><b>http://kdm-manager.com</b> release <b>{{user.meta.webapp.release}}</b> is currently running on version <b>{{user.meta.api.version}}</b> of <a href="http://api.thewatcher.io" target="top">the Kingdom Death API</a>, which was released on {{latest_blog_post.published}}.</p>
+                    <p>The KDM API currently supports version <b>1.5</b> of Kingdom Death: <i>Monster</i>.</p>
+                    <a target="top" href="{{latest_blog_post.url}}"><button class="kd_blue full_width_modal_button">View latest change log</button></a>
+                </div>
+                <div class="twitter_embed_container">
+                    <a
+                        class="twitter-timeline"
+                        href="https://twitter.com/kdmManager"
+                        data-tweet-limit="3"
+                    > Retrieving tweets...
+                    </a>
+                    <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+                </div>
+            </div> <!-- dashboard_updates_container -->
+            <button class="kd_alert_no_exclaim" onclick="closeModal('dashboardTwitter')">Return to the Dashboard!</button>
+
+        </div> <!-- dashboard_twitter -->
+
+        <button
+            id="dashboardTwitterButton"
+            class="dashboard_twitter_button kd_promo"
+        > !
+        </button>
+        </div> <!-- dashboardControlElement -->
 
     <script type="text/javascript">
         // kill the spinner, since we're done loading the page now.
@@ -687,7 +777,7 @@ class dashboard:
     </script>
 
 
-    """
+    """)
 
 
 
@@ -698,78 +788,8 @@ class dashboard:
     #   DASHBOARD MOTD follows. this is the whole dashboard, basically.
     #
 
-    motd = Template("""\n
 
-    <img class="dashboard_bg" src="%s/tree_logo_shadow.png">
 
-    <div id="preferencesContainerElement" class="dashboard_menu">
-
-        <h2
-            class="clickable system_primary dashboard_rollup"
-            onclick="showHide('system_div')"
-        >
-            <img class="dashboard_icon" src="%s/icons/system.png"/> System %s
-        </h2>
-
-        <div id="system_div" class="dashboard_accordion system_secondary hidden">
-            <div class="supporter_container" ng-if="user.user != undefined">
-                <p><b>{{user.user.login}}</b></p>
-                <p ng-if="user.patron.level < 1">
-                    <a href="https://thelaborinvain-2.myshopify.com/" target="top">
-                        Support the Manager! Buy a subscription today!
-                    </a>
-                </p>
-                <p ng-if="user.patron.level > 0">
-                    &nbsp; Subscription level: <b>{{user.user.patron.desc}}</b><br/>
-                    &nbsp; Beta feature access: <b>{{user.user.patron.beta}}</b>
-                </p>
-            </div>
-
-            <div class="dashboard_preferences">
-                <p>Use the controls below to update application-wide preferences.
-                These settings will affect all of your settlements and survivors!</p>
-
-                $user_preferences
-
-            </div>
-
-            <hr/>
-
-            <div class="dashboard_preferences">
-                <h3>Export User Data</h3>
-<!--                <form method="POST" action="#">
-                    <input type="hidden" name="export_user_data" value="json">
-                    <button class="silver">JSON</button>
-                </form> -->
-                <form method="POST" action="#">
-                    <input type="hidden" name="export_user_data" value="dict">
-                    <button class="silver">Python Dictionary</button>
-                </form>
-                <form method="POST" action="#">
-                    <input type="hidden" name="export_user_data" value="pickle">
-                    <button class="silver">Python Pickle</button>
-                </form>
-            </div>
-
-            <hr>
-
-            <h3>User Management</h3>
-            <div style="font-family: Metrophobic">
-                <p class="currently_signed_in_as">Currently signed in as: <i>$login</i> (last sign in: $last_sign_in)</p>
-                $last_log_msg
-
-                <div class="dashboard_preferences">
-                    <form action="#" method="POST">
-                        <input type="hidden" name="change_password" value="True"/>
-                        <input type="password" name="password" class="full_width" placeholder="password">
-                        <input type="password" name="password_again" class="full_width" placeholder="password (again)"/>
-                        <button class="kd_alert_no_exclaim red_glow"> Change Password</button>
-                    </form>
-                </div>
-            </div>
-        </div> <!-- system_div -->
-    </div> <!-- preferencesContainerElement -->
-    """ % (settings.get("application","STATIC_URL"), settings.get("application", "STATIC_URL"), down_arrow_flash))
 
     avatar_image = Template("""\n
     <img class="latest_fatality" src="/get_image?id=$avatar_id" alt="$name"/>
@@ -4696,6 +4716,9 @@ class settlement:
                                 <div
                                     class="inventory_row" ng-repeat="asset in loc.collection"
                                     ng-init="detailId = asset.handle + '_detail'; asset.flippers=false"
+                                    ng-class-even="'no_zebra'"
+                                    ng-class-odd="'zebra'"
+                                    ng-class="{inventory_row_item_last:$last}"
                                 >
                                     <div
                                         class="inventory_row_item_controls clickable"
@@ -5737,7 +5760,7 @@ def render_burger(session_object=None):
             <form
                 method="POST"
                 action=""
-                ng-if="user.user_assets.settlements.length < 3 || user.patron.level > 0"
+                ng-if="user.user.settlements_created < 3 || user.patron.level > 0"
             >
                 <input type="hidden" name="change_view" value="new_settlement" />
                 <button class="sidenav_button" onclick="showFullPageLoader()">

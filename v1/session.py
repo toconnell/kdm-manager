@@ -402,17 +402,6 @@ class Session:
         #   dashboard-based, user operation params
         #
 
-        if "update_user_preferences" in self.params:
-            self.User.update_preferences(self.params)
-            user_action = "updated user preferences"
-
-        if "change_password" in self.params:
-            if "password" in self.params and "password_again" in self.params:
-                self.User.update_password(self.params["password"].value, self.params["password_again"].value)
-                user_action = "updated password"
-            else:
-                user_action = "failed to update password"
-
         # do error reporting
         if "error_report" in self.params and "body" in self.params:
             self.report_error()
@@ -649,18 +638,11 @@ class Session:
         """ Renders the user's dashboard. Leans heavily on the AngularJS app
         calling on the API for data, etc."""
 
-        # initialize the angular APP
-        output = html.dashboard.initializer.safe_substitute(
+        output = html.dashboard.angular_app.safe_substitute(
             application_version = settings.get("application","version"),
             api_url = api.get_api_url(),
             user_id = self.User.user["_id"],
         )
-
-        # do the settings block (transitional)
-        output += self.User.html_motd()
-
-        # do the campaign/settlement inventory for the user
-        output += html.dashboard.angular_app
 
         if self.User.is_admin():
             output += html.dashboard.panel_button

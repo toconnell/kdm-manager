@@ -515,6 +515,8 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
         } else if (collection == 'survivor') {
             var asset_id = $scope.survivor_id;
             if (asset_id === undefined) {asset_id = $rootScope.survivor_id};
+        } else if (collection == 'user') {
+            var asset_id = $scope.user_id;
         } else {
             console.error("Collection '" + collection + "' is not supported by postJSONtoAPI method!");  
             errorAlert();

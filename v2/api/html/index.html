@@ -344,6 +344,20 @@
             unsupported keys!</p>
             </td>
         </tr>
+        <tr class="ul">
+            <td> /user/set_preferences/&lt;user_id&gt; </td>
+            <td> POST, OPTIONS </td>
+            <td>
+                <p>POST a list of hashes to this endpoint to set user preferences.</p>
+                <p>Your list has to be named <code>preferences</code> and your
+                hashes have to be key/value pairs where they key is a valid
+                preferences handle and the key is a Boolean:</p>
+                <code>{preferences: [{beta: true}]}</code>
+                <p>Since this is mostly a sysadmin/back-of-house kind of route,
+                it fails pretty easily if you try to POST something it doesn't
+                like. The good news, is that it should fail pretty descriptively.</p>
+            </td>
+        </tr>
 
 
 

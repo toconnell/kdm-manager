@@ -24,7 +24,7 @@ import admin
 from modular_assets import survivor_attrib_controls
 import game_assets
 import html
-from models import Locations, Items, Resources, userPreferences, mutually_exclusive_principles 
+from models import Locations, Items, Resources, mutually_exclusive_principles 
 from session import Session
 from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd, u_to_str
 import world
@@ -85,7 +85,6 @@ class User:
         if self.Session is None:
             raise Exception("User Objects may not be initialized without a session object!")
 
-        self.preference_keys = [t[0] for t in settings.items("users")]
 
 
     def __repr__(self):
@@ -133,79 +132,18 @@ class User:
 
 
     def get_preference(self, p_key):
-        """ The 'p_key' kwarg should be a preference key. This funciton returns
-        a bool for a preference, e.g. if the user has it set to True or False.
-        If the user has no preferences set, or no preference for the key, this
-        function returns the preference's default value. """
+        """ This is transitional code: you should REALLY be looking at the API
+        for this kind of stuff.
 
-        default_value = settings.getboolean("users", p_key)
+        For now, since we still have some legacy webapp needs for this kind of
+        thing, default all unspecified preferences to False. """
 
-        if "preferences" not in self.user.keys():
-            return default_value
-
-        if p_key not in self.user["preferences"].keys():
-            return default_value
-
-        return self.user["preferences"][p_key]
+        return self.user["preferences"].get(p_key, False)
 
 
     def get_name_and_id(self):
         """ Returns a string of the user login and _id value. """
         return "%s (%s)" % (self.user["login"], self.user["_id"])
-
-
-    def update_password(self, password, password_again=False):
-        """ Leave the 'password_again' kwarg blank if you're not checking two
-        passwords to see if they match, e.g. if you're doing this from the CLI.
-        """
-
-        user_admin_log_dict = {
-            "created_on": datetime.now(),
-            "u_id": self.user["_id"],
-        }
-
-        if password_again:
-            if password != password_again:
-                err_msg = "Could not change password for '%s' (passwords did not match)!" % self.user["login"]
-                self.logger.error(err_msg)
-                user_admin_log_dict["msg"] = err_msg
-                mdb.user_admin.insert(user_admin_log_dict)
-                return False
-        self.user["password"] = md5(password).hexdigest()
-        self.logger.info("Password update for '%s' was successful!" % self.user["login"])
-        mdb.users.save(self.user)
-        user_admin_log_dict["msg"] = "Password Updated!"
-        mdb.user_admin.insert(user_admin_log_dict)
-        return True
-
-
-    def update_preferences(self, params):
-        """ Processes a cgi.FieldStorage() containing user preferences. Updates
-        the mdb object for the user. """
-
-        if not "preferences" in self.user.keys():
-            self.user["preferences"] = {}
-
-        user_admin_log_dict = {
-            "created_on": datetime.now(),
-            "u_id": self.user["_id"],
-            "msg" : "Updated Preferences. "
-        }
-
-        for p in self.preference_keys:  # this is created when we __init__()
-            if p in params:
-                p_value = params[p].value
-                if p_value == "True":
-                    p_value = True
-                elif p_value == "False":
-                    p_value = False
-                self.user["preferences"][p] = p_value
-                user_admin_log_dict["msg"] += "'%s' -> %s; " % (p, p_value)
-                self.logger.debug("[%s] set preference '%s' -> '%s'" % (self, p, p_value))
-
-        user_admin_log_dict["msg"] = user_admin_log_dict["msg"].strip()
-        mdb.user_admin.insert(user_admin_log_dict)
-        self.logger.debug("%s updated preferences." % self.user["login"])
 
 
     def dump_assets(self, dump_type=None):
@@ -291,12 +229,6 @@ class User:
 
 
 
-    def get_last_n_user_admin_logs(self, logs):
-        if logs == 1:
-            return mdb.user_admin.find_one({"u_id": self.user["_id"]}, sort=[("created_on", -1)])
-        else:
-            return mdb.user_admin.find({"u_id": self.user["_id"]}).sort("created_on").limit(logs)
-
 
     def mark_usage(self, action=None):
         """ Updates the user's mdb object with some data. """
@@ -318,47 +250,6 @@ class User:
         mdb.users.save(self.user)
 
 
-    def html_motd(self):
-        """ Creates an HTML MoTD for the user. This needs a refactor that
-        breaks it up into a few more intelligently named methods.
-
-        This function is basically the "System" panel and nothing else.
-
-        """
-
-        formatted_log_msg = ""
-        last_log_msg = self.get_last_n_user_admin_logs(1)
-        if last_log_msg is not None:
-            formatted_log_msg = "<p>&nbsp;Latest user admin activity:</p><p>&nbsp;<b>%s</b>:</b> %s</p>" % (last_log_msg["created_on"].strftime(ymdhms), last_log_msg["msg"])
-
-        pref_html = ""
-        pref_models = userPreferences()
-
-        organized_prefs = pref_models.get_category_dict()
-        for category in sorted(organized_prefs.keys()):
-            pref_html += html.dashboard.preference_header.safe_substitute(title=category)
-            for k in organized_prefs[category]: #list of keys
-                d = pref_models.pref(self, k)
-                pref_html += html.dashboard.preference_block.safe_substitute(
-                    desc=d["desc"],
-                    pref_key=k,
-                    pref_true_checked=d["affirmative_selected"],
-                    pref_false_checked=d["negative_selected"],
-                    affirmative=d["affirmative"],
-                    negative=d["negative"]
-                )
-            pref_html += html.dashboard.preference_footer
-
-
-        output = html.dashboard.motd.safe_substitute(
-            user_preferences = pref_html,
-            session_id = self.Session.session["_id"],
-            login = self.user["login"],
-            last_sign_in = self.user["latest_sign_in"].strftime(ymdhms),
-            version = settings.get("application", "version"),
-            last_log_msg = formatted_log_msg,
-        )
-        return output
 
 
 
@@ -1871,7 +1762,7 @@ class Settlement:
         ]
 
         self.logger.warn('assets.Settlement.modify() is deprecated! Request params were:')
-        self.logger.warn("%s -> %s (%s)" % (p, params[p], type(params[p])))
+        self.logger.warn("%s" % (params))
 
         for p in params:
 
