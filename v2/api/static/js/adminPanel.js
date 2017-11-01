@@ -72,7 +72,7 @@ myApp.controller('globalController', function($scope, $http, $interval) {
             });
 
         return init;
-        }(), 60000)
+        }(), 180)
 
 
 

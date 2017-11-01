@@ -2462,8 +2462,8 @@ class Survivor(Models.UserAsset):
             self.survivor['fighting_arts'].append('kings_step')
             self.perform_save = True
 
-        # 2017-10-28 The "weak spot" bug
-        for bad_handle in ['Weak Spot', 'Intracranial hemmorhage']:
+        # 2017-10-28 The "weak spot" bug (other bad A&Is)
+        for bad_handle in ['Weak Spot', 'Intracranial hemmorhage','Weak spot: arms', "Weak spot is body."]:
             if bad_handle in self.survivor['abilities_and_impairments']:
                 self.logger.debug("%s Bad asset handle '%s' detected! Fixing..." % (self, bad_handle))
                 self.survivor['abilities_and_impairments'].remove(bad_handle)
