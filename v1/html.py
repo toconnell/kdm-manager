@@ -162,7 +162,7 @@ class dashboard:
     ng-init="initialize('dashboard', '$user_id', '$api_url'); showInitDash(); setLatestChangeLog();"
 >
 
-    <img class="dashboard_bg" src="/media/images/tree_logo_shadow.png"> <!-- DASHBOARD LOGO ART -->
+    <img class="dashboard_bg" src="/media/tree_logo_shadow.png"> <!-- DASHBOARD LOGO ART -->
 
     <div class="dashboard_menu">
         <h2
