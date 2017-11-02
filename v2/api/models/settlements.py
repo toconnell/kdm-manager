@@ -3254,6 +3254,8 @@ class Settlement(Models.UserAsset):
 
         if action == "get":
             return Response(response=self.serialize(), status=200, mimetype="application/json")
+        elif action == 'get_summary':
+            return Response(response=self.serialize('dashboard'), status=200, mimetype="application/json")
         elif action == 'get_sheet':
             return Response(response=self.serialize('sheet'), status=200, mimetype="application/json")
         elif action == 'get_survivors':

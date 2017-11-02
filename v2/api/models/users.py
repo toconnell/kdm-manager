@@ -288,8 +288,8 @@ class User(Models.UserAsset):
         if return_type in ['dashboard']:
             output["dashboard"] = {}
 #            output["dashboard"]["friends"] = self.get_friends(return_type=list)
-            output["dashboard"]["campaigns"] = self.get_settlements(return_type='asset_list', qualifier='player')
-            output["dashboard"]["settlements"] = self.get_settlements(return_type='asset_list')
+            output["dashboard"]["campaigns"] = self.get_settlements(return_type=list, qualifier='player')
+            output["dashboard"]["settlements"] = self.get_settlements(return_type=list)
 
         # punch the user up if we're returning to the admin panel
         if return_type in ['admin_panel']:

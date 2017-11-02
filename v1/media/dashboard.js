@@ -55,4 +55,5 @@ app.controller("dashboardController", function($scope, $http) {
         $scope.postJSONtoAPI('user','set_preferences',js_obj,false);
     };
 
+
 });

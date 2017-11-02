@@ -64,7 +64,6 @@ myApp.controller('globalController', function($scope, $http, $interval) {
 //            console.warn('Not currently retrieving settlements. Starting retrieval...');
             $scope.getRecentSettlements();
         };
-        $scope.users = undefined;
         $scope.showSpinner('userSpinner');
         $scope.scratch.get_user_data_failure = false;
         $http.get('admin/get/user_data').then(
@@ -75,6 +74,7 @@ myApp.controller('globalController', function($scope, $http, $interval) {
                 $scope.hideSpinner('userSpinner');
                 $scope.scratch.get_user_data_failure = true;
                 $scope.scratch.get_user_data_failure_msg = result.data;
+                $scope.users = undefined;
             }
         );
         $http.get('admin/get/logs').then(function(result){$scope.logs = result.data;});

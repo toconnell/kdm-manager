@@ -69,7 +69,7 @@ def get_user_data():
 
     # now enhance the user data to include a bit more info (to avoid having to
     #   do date calc in javascripts, etc.
-    logger.debug("Admin Panel attempting to serialize data about %s users..." % recent_users.count())
+#    logger.debug("Admin Panel attempting to serialize data about %s users..." % recent_users.count())
     final_user_info = []
     for u in recent_users:
         try:

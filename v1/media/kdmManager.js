@@ -179,6 +179,23 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
         console.log("lost_settlements control array initialized!");
     };
 
+
+    $scope.getSettlement = function(s_id, dest){
+        // pass in a string of a settlement OID to push a settlement onto array
+        // 'dest'
+        var config = {"headers": {"Authorization": $scope.jwt}};
+        $http.get($scope.api_url + 'settlement/get_summary/' + s_id, config).then(
+            function(payload) {
+                dest.push(payload.data);
+            },
+            function(errorPayload) {
+                console.error("[rootController.getSettlement()] Could not get settlement " + s_id);
+                console.error(errorPayload);
+            }
+        );
+    };
+
+
     $scope.initialize = function(src_view, u_id, api_url, settlement_id, survivor_id) {
 
         // every view in the legacy webapp has to call this method. Therefore,
@@ -214,12 +231,24 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
             $scope.user = payload.data;
             $scope.user_login = $scope.user.user.login;
 
-            // if we're doing the dash, we've got to fiddle the UI
+            // if we're doing the dash, we've got to get settlements and fiddle
+            // the UI for new users
+
             if ($scope.view === 'dashboard') {
                 console.log(log_level + "Retrieving assets from API...");
                 $scope.initWorld();
-                showHide('dashboardSettlementsLoader');
-                showHide('dashboardCampaignsLoader');
+
+                $scope.campaigns = [];
+                for (var i = 0; i < $scope.user.dashboard.campaigns.length; i++) {
+                    var s_id = $scope.user.dashboard.campaigns[i].$oid;
+                    $scope.getSettlement(s_id, $scope.campaigns);
+                };
+
+                $scope.settlements = [];
+                for (var i = 0; i < $scope.user.dashboard.settlements.length; i++) {
+                    var s_id = $scope.user.dashboard.settlements[i].$oid;
+                    $scope.getSettlement(s_id, $scope.settlements);
+                };
 
                 if ($scope.user.dashboard.settlements.length === 0) {
                     showHide('campaign_div');   // this will hide it, because it's visible on-load
@@ -1136,6 +1165,7 @@ app.controller("sideNavController", function($scope) {
     // part of the root
     $scope.favoriteFilter = function(s) {
         var fav = false;
+        if (s.sheet.favorite == undefined) {return false;}
         if (s.sheet.favorite.indexOf($scope.user_login) !== -1) {fav = true};
 //        console.log($scope.user_login + " -> " + s.sheet.name + " fav: " + fav);
         if (s.sheet._id.$oid === $scope.survivor_id) {fav = false};

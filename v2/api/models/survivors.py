@@ -408,6 +408,11 @@ class Survivor(Models.UserAsset):
         #   game asset normalization - TKTK fix this up
         #
 
+        if 'ability_customizations' in self.survivor.keys():
+            del self.survivor['ability_customizations']
+            self.logger.debug("%s Removing deprecated attribute 'ability_customizations'." % self)
+            self.perform_save = True
+
         # enforce the partner A&I
         if "partner_id" in self.survivor.keys():
             if "partner" not in self.survivor["abilities_and_impairments"]:

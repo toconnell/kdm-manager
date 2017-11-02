@@ -294,18 +294,8 @@ class dashboard:
 
             <div class="dashboard_button_list">
 
-                <div
-                    id="dashboardCampaignsLoader"
-                    class="dashboard_settlement_loader"
-                >
-                    <img
-                        src="/media/loading_lantern.gif"
-                        alt="Retrieving settlements..."
-                    /> Retrieving campaigns...
-                </div>
-
                 <form
-                    ng-repeat="s in user.dashboard.campaigns | orderBy: '-'"
+                    ng-repeat="s in campaigns | orderBy: '-'"
                     ng-if="s.sheet.abandoned == undefined"
                     method="POST"
                 >
@@ -326,6 +316,18 @@ class dashboard:
                         </ul>
                     </button>
                 </form>
+
+                <div
+                    id="dashboardCampaignsLoader"
+                    class="dashboard_settlement_loader"
+                    ng-if="campaigns.length < user.dashboard.campaigns.length"
+                >
+                    <img
+                        src="/media/loading_lantern.gif"
+                        alt="Retrieving settlements..."
+                    /> Retrieving campaigns...
+                </div>
+
 
             </div>
         </div>
@@ -373,18 +375,8 @@ class dashboard:
                     <button class="kd_blue centered" onclick="showFullPageLoader()">+ Create New Settlement</button>
                 </form>
 
-                <div
-                    id="dashboardSettlementsLoader"
-                    class="dashboard_settlement_loader"
-                >
-                    <img
-                        src="/media/loading_lantern.gif"
-                        alt="Retrieving settlements..."
-                    /> Retrieving settlements...
-                </div>
-
                 <form
-                    ng-repeat="s in user.dashboard.settlements"
+                    ng-repeat="s in settlements"
                     method="POST"
                 >
                     <input type="hidden" name="view_settlement" value="{{s.sheet._id.$oid}}" />
@@ -406,6 +398,18 @@ class dashboard:
                         </ul>
                     </button>
                 </form>
+
+                <div
+                    id="dashboardSettlementsLoader"
+                    class="dashboard_settlement_loader"
+                    ng-if="settlements.length < user.dashboard.settlements.length"
+                >
+                    <img
+                        src="/media/loading_lantern.gif"
+                        alt="Retrieving settlements..."
+                    /> Retrieving settlements...
+                </div>
+
 
             </div> <!-- dashboard_button_list -->
 
@@ -434,7 +438,14 @@ class dashboard:
 
         <div id="world_detail_div" class="dashboard_accordion world_secondary hidden world_container">
 
-            <div class="world_panel_basic_box">
+            <center ng-if="world == undefined">
+                <br/>
+                <img src="/media/loading_lantern.gif"><br/>
+                <span class="white">Retrieving World data...</span>
+                <br/>
+            </center>
+
+            <div class="world_panel_basic_box" ng-if="world != undefined">
                 <p>
                     <font class="green_text"> <b>{{world.active_settlements.value}} </b></font> Settlements are holding fast.
                     <font class="maroon_text"><b> {{world.abandoned_or_removed_settlements.value}} </b></font> have been abandoned.
@@ -444,7 +455,7 @@ class dashboard:
                     <font class="maroon_text"><b>{{world.dead_survivors.value}}</b></font> have perished.</p>
             </div>
 
-            <div class="world_panel_basic_box">
+            <div class="world_panel_basic_box" ng-if="world != undefined">
                 <h3>Settlement Statistics</h3>
 
                 <p>{{world.total_multiplayer_settlements.name}}: <b>{{world.total_multiplayer_settlements.value}}</b></p>
@@ -509,7 +520,7 @@ class dashboard:
 
             </div>
 
-            <div class="world_panel_basic_box">
+            <div class="world_panel_basic_box" ng-if="world != undefined">
                 <h3>Latest Settlement</h3>
                 <table>
                     <tr><td colspan="2"><b>{{world.latest_settlement.value.name}}</b></td></tr>
@@ -525,7 +536,7 @@ class dashboard:
 
             </div>
 
-            <div class="world_panel_basic_box">
+            <div class="world_panel_basic_box" ng-if="world != undefined">
                 <h3>Survivor Statistics</h3>
 
                 <table>
@@ -563,7 +574,7 @@ class dashboard:
 
             </div>
 
-            <div class="world_panel_basic_box">
+            <div class="world_panel_basic_box" ng-if="world != undefined">
                 <h3>Latest Survivor</h3>
                 <table>
                     <tr ng-if="world.latest_survivor.value.avatar != undefined">
@@ -589,7 +600,7 @@ class dashboard:
 
             </div>
 
-            <div class="world_panel_basic_box">
+            <div class="world_panel_basic_box" ng-if="world != undefined">
                 <h3>Latest Fatality</h3>
                 <table>
                     <tr ng-if="world.latest_fatality.value.avatar != undefined">
@@ -617,13 +628,13 @@ class dashboard:
 
             </div> <!-- latest fatality -->
 
-            <div class="world_panel_basic_box">
+            <div class="world_panel_basic_box" ng-if="world != undefined">
                 <h3>Latest Kill</h3>
                 <p><b>{{world.latest_kill.value.raw_name}}</b></p>
                 <p>Defeated by the survivors of <b>{{world.latest_kill.value.settlement_name}}</b> on {{world.latest_kill.value.killed_date}} at {{world.latest_kill.value.killed_time}}.</p>
             </div>
 
-            <div class="world_panel_basic_box">
+            <div class="world_panel_basic_box" ng-if="world != undefined">
                 <h3>{{world.killboard.name}}</h3>
                 <table ng-repeat="(type,board) in world.killboard.value">
                     <tr><th class="principle capitalize" colspan="2">{{type}}</th></tr>
@@ -633,7 +644,7 @@ class dashboard:
                 </table>
             </div>
 
-            <div class="world_panel_basic_box">
+            <div class="world_panel_basic_box" ng-if="world != undefined">
                 <h3>User Statistics</h3>
                 <p> <b>{{world.total_users.value}}</b> users are registered.</p>
                 <p> <b>{{world.recent_sessions.value}}</b> users have managed campaigns in the last 12 hours.</p>
@@ -3730,7 +3741,28 @@ class settlement:
                                 </div> <!-- avatar_and_summary -->
 
                                 <div class="campaign_summary_survivor_tags_container">
-                                    <!-- NOT IMPLEMENTED -->
+                                    <div
+                                        class="survivor_tag fighting_arts_tag"
+                                        ng-repeat="fa in s.sheet.fighting_arts"
+                                    >
+                                        {{settlement.game_assets.fighting_arts[fa].name}}
+                                    </div>
+                                </div>
+                                <div class="campaign_summary_survivor_tags_container">
+                                    <div
+                                        class="survivor_tag disorders_tag"
+                                        ng-repeat="d in s.sheet.disorders"
+                                    >
+                                        {{settlement.game_assets.disorders[d].name}}
+                                    </div>
+                                </div>
+                                <div class="campaign_summary_survivor_tags_container">
+                                    <div
+                                        class="survivor_tag ai_tag {{settlement.game_assets.abilities_and_impairments[ai].type}}"
+                                        ng-repeat="ai in s.sheet.abilities_and_impairments"
+                                    >
+                                        {{settlement.game_assets.abilities_and_impairments[ai].name}}
+                                    </div>
                                 </div>
 
                                 <div
