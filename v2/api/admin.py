@@ -49,7 +49,10 @@ def dump_doc_to_cli(m, tab_spaces=2, gap_spaces=20, buffer_lines=0):
 
     for k in sorted(m.keys()):
         first_spacer = " " * (gap_spaces - len(k))
-        second_spacer = " " * ((gap_spaces * 2) - len(str(m[k])))
+        if gap_spaces >= 30:
+            second_spacer = " " * (gap_spaces - len(str(m[k])))
+        else:
+            second_spacer = " " * ((gap_spaces * 2) - len(str(m[k])))
         print("%s%s%s%s%s%s" % (tab, k.decode('utf8'), first_spacer, m[k.decode('utf8')], second_spacer, type(m[k])))
 
 
@@ -249,6 +252,7 @@ def update_user(oid, level, beta):
 
     print("\n %s Updated patron attributes:" % (U))
     dump_doc_to_cli(U.user['patron'])
+    dump_doc_to_cli(U.user['preferences'], gap_spaces=35)
 
 
 def get_user_id_from_email(email):

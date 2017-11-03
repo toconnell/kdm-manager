@@ -264,6 +264,7 @@ div#mySidenav button {
 .sidenav button.sidenav_button {text-align: left; padding: 0px; padding-left: 1%; }
 .sidenav button.sidenav_top_level {margin: 0 auto; text-align: right; }
 
+
 /* The navigation menu links */
 .sidenav a {
     font-family: Arial, sans-serif;
@@ -1123,6 +1124,7 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; right: 1px; display: n
 }
 
 .modal-black {
+    overflow: scroll; 
     background: rgba(0,0,0,0.9);
     color: #fff;
     flex-direction: column;
@@ -1301,18 +1303,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.create_user_asset_block_group p {font-size: 25px;  }
     div.create_user_asset_block_group label {font-size: 35px;  }
     
-
-    /* hunt phase app */
-    .hunt_phase_container {width: 90%; padding: 1%;  margin: 0 auto; margin-top: 2%; }
-    .hunt_phase_container .option_container {border: 2px solid #666; border-radius: 10px; padding: 1%; margin: 1%; }
-    .hunt_phase_container .option_container button {width: auto; margin: 1%; padding: 1%; padding-left: 3%; padding-right: 3%; }
-    .hunt_phase_container .card_container {display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-evenly;  }
-    .draw_one {font-family: 'Metrophobic'}
-    .hunt_phase_container span.card {width: 30%; border: 2px solid #000; border-radius: 25px; display: inline-block; color: #000; margin: 3px; }
-    .hunt_phase_container p.card_title {font-weight: bold; text-align: center; }
-    .hunt_phase_container p.card_subtitle {font-size: 11pt; text-align: center; margin: 0; margin-top: -5%; padding: 0; }
-    .hunt_phase_container p.card_desc {font-family: 'Metrophobic'; font-size: 13pt; }
-    .hunt_phase_container div.die_roll {font-size: 20pt; border-radius: 100%; background: radial-gradient(#000, #333); color: #fff; width: 30px; display: flex; justify-content: center; margin: 0 auto; margin-bottom: 5%;  padding:5%; border: 2px solid #fff; }
 
     /* generic asset management styles: survivor&ettlement - tablet */
 
@@ -2437,6 +2427,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .sidenav hr {border: 1px solid #fff;}
     .sidenav button {text-align: left; padding: 0; padding-left: 10%; margin-bottom: 20px; }
     .sidenav button.sidenav_button {text-align: left; padding: 0px; padding-left: 15%; margin-left: 0; }
+    .sidenav_modal_launcher {margin-top: 3%; }
 
     /* error reporting styles */
     div.report_error_container p {width: 50%; margin: 0 auto; font-size: 12pt; }

@@ -89,6 +89,7 @@
                         ng-click="copyToClipboard(u.user._id.$oid);"
                     >
                         <br><br/>
+                        <b>Latest User Agent:</b> {{u.user.latest_user_agent}}<br/>
                         <b>Latest Activity:</b> {{u.user.latest_activity_age}} ago<br/>
                         <b>Latest Action:</b> {{u.user.latest_action}}<br/>
                         <b>Active:</b> {{u.user.is_active}}<br/>
@@ -104,11 +105,9 @@
                         <b>Settlements created:</b> {{u.user.settlements_created}}<br/>
                         <b>Survivors created:</b> {{u.user.survivors_created}}
                         <br><br>
-                        <span ng-if="u.patron.created_on"><b>Patron for:</b> {{u.patron.age}}<br/></span>
-                        <b>Patron level:</b> {{u.patron.level}}<br/>
-                        <b>Beta access:</b> {{u.patron.beta}}
-                        <br/><br/>
-                        <b>Latest User Agent:</b> {{u.user.latest_user_agent}}<br/>
+                        <span ng-if="u.patron.created_on"><b>Subscriber for:</b> {{u.patron.age}}<br/></span>
+                        <span ng-if="u.patron.created_on"><b>Subscriber level:</b> {{u.patron.level}}<br/></span>
+                        <span ng-if="u.user.preferences.beta != undefined"><b>Beta:</b> {{u.user.preferences.beta}}<br/></span>
                     </div>
                 </div>
             </div>

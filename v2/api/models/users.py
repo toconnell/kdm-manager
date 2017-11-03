@@ -386,17 +386,24 @@ class User(Models.UserAsset):
         self.save()
 
 
-    def set_patron_attributes(self, level=0, beta=False):
+    def set_patron_attributes(self, level=0, beta=None):
         """ Updates the user's self.user['patron'] dictionary: sets the level
         (int) and the beta flag (bool)."""
 
         if not 'patron' in self.user.keys():
             self.user['patron'] = {'created_on': datetime.now()}
 
+        if 'beta' in self.user['patron'].keys():
+            del self.user['patron']['beta']
         self.user['patron']['updated_on'] = datetime.now()
         self.user['patron']['level'] = level
 
-        if level == 1:
+        if beta is not None:
+            self.user['preferences']['beta'] = beta
+
+        if level == 0:
+            self.user['patron']['desc'] = None
+        elif level == 1:
             self.user['patron']['desc'] = 'Survival +1'
         elif level == 2:
             self.user['patron']['desc'] = 'Survival +5'

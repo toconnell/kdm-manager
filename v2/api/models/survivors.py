@@ -63,6 +63,7 @@ class Survivor(Models.UserAsset):
         self.object_version = 0.76
 
         # initialize AssetCollections for later
+        self.CursedItems = cursed_items.Assets()
         self.Disorders = disorders.Assets()
         self.Saviors = saviors.Assets()
         self.SpecialAttributes = survivor_special_attributes.Assets()
@@ -522,9 +523,7 @@ class Survivor(Models.UserAsset):
         if handle is None:
             self.check_request_params(['handle'])
             handle = self.params["handle"]
-
-        CI = cursed_items.Assets()
-        ci_dict = CI.get_asset(handle)
+        ci_dict = self.CursedItems.get_asset(handle)
 
         # check for the handle (gracefully fail if it's a dupe)
         if ci_dict["handle"] in self.survivor["cursed_items"]:
@@ -553,7 +552,15 @@ class Survivor(Models.UserAsset):
         King's Curse, etc. """
 
         # initialize
-        asset_class, ci_dict = self.get_asset('cursed_items', handle)
+        if handle is None:
+            self.check_request_params(['handle'])
+            handle = self.params['handle']
+        ci_dict = self.CursedItems.get_asset(handle)
+
+        # check for the handle (gracefully fail if it's no thtere)
+        if ci_dict["handle"] not in self.survivor["cursed_items"]:
+            self.logger.error("%s does not have cursed item '%s'. Ignoring bogus request..." % (self, ci_dict["handle"]))
+            return False
 
         # log to settlement event
         self.log_event("%s removed %s from %s" % (request.User.login, ci_dict["name"], self.pretty_name()))
@@ -562,14 +569,13 @@ class Survivor(Models.UserAsset):
         if ci_dict.get("abilities_and_impairments", None) is not None:
 
             # create a set of the curse A&Is that are sticking around
-            CI = cursed_items.Assets()
             remaining_curse_ai = set()
 
             for ci_handle in self.survivor["cursed_items"]:
                 if ci_handle == ci_dict["handle"]:     # ignore the one we're processing currently
                     pass
                 else:
-                    remaining_ci_dict = CI.get_asset(ci_handle)
+                    remaining_ci_dict = self.CursedItems.get_asset(ci_handle)
                     if remaining_ci_dict.get("abilities_and_impairments", None) is not None:
                         remaining_curse_ai.update(remaining_ci_dict["abilities_and_impairments"])
 
@@ -580,6 +586,10 @@ class Survivor(Models.UserAsset):
                 else:
 #                    self.logger.debug("%s is still in %s" % (ai_handle, remaining_curse_ai))
                     self.logger.info("%s Not removing '%s' A&I; survivor is still cursed." % (self, ai_handle))
+
+        # rm the epithet if we have no curses
+        if self.survivor['cursed_items'] == []:
+            self.rm_game_asset("epithets", "cursed")
 
         # remove it, save and exit
         self.survivor["cursed_items"].remove(ci_dict["handle"])

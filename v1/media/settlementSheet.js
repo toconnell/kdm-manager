@@ -340,7 +340,7 @@ app.controller("lostSettlementsController", function($scope,$rootScope) {
             e.classList.add('lost_settlement_checked');
             cur++;
             $scope.current_val = cur;
-            $scope.postJSONtoAPI('settlement', 'set_lost_settlements', {"value": cur});
+            $scope.postJSONtoAPI('settlement', 'set_lost_settlements', {"value": cur}, false);
         };
     };
 

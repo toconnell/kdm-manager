@@ -442,14 +442,24 @@ def crossdomain(origin=None, methods=None, headers=None, max_age=21600, attach_t
     return decorator
 
 
+
+#
 # exception auto-mailer
+#
+
 def email_exception(exception):
+    """ This is called by the main Flask errorhandler() decorator in api.py
+    when we have an unhandled exception at any point of responding to a request.
 
-    tmp_file = os.path.join(settings.get("api","cwd"), "html/exception_alert.html")
-    msg = Template(file(tmp_file, "rb").read())
+    This prevents user-facing (or Khoa-facing) failures from being silently
+    swallowed. """
 
-    tb = traceback.format_exc().replace("    ","&ensp;").replace("\n","<br/>")
+    # first, log it
+    logger = get_logger(log_level='DEBUG', log_name='error')
+    logger.exception(exception)
 
+    # next, just in case we don't have a user (e.g. we're doing maintenance ops
+    # or something, initialize a bogus user class
     class noUser:
         def __init__(self):
             self.login="admin@kdm-manager.com"
@@ -458,13 +468,21 @@ def email_exception(exception):
     if not hasattr(request, 'User'):
         request.User = noUser()
 
+    # finally, prepare the message template and the traceback for emailing
+    tmp_file = os.path.join(settings.get("api","cwd"), "html/exception_alert.html")
+    msg = Template(file(tmp_file, "rb").read())
+    tb = traceback.format_exc().replace("    ","&ensp;").replace("\n","<br/>")
 
+    # do it
     s = msg.safe_substitute(traceback=tb, user_login=request.User.login, user_oid=request.User._id, datetime=datetime.now(), r_method=request.method, r_url=request.url, r_json=request.json)
     e = mailSession()
     e.send(subject="API Error! [%s]" % socket.getfqdn(), recipients=['toconnell@tyrannybelle.com'], html_msg=s)
 
 
-# private exception classes
+
+#
+#   special exception classes
+#
 
 class WorldQueryError(Exception):
     """ Handler for asset-based errors. """

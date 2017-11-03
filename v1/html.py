@@ -274,7 +274,7 @@ class dashboard:
         <h2
             class="clickable campaign_summary_gradient dashboard_rollup"
             ng-click="showHide('campaign_div'); toggleArrow('campaigns_arrow')"
-            ng-init="scratch.campaigns_arrow = false"
+            ng-init="scratch.campaigns_arrow = true"
         >
             <img class="dashboard_icon" src="/media/icons/campaign.png"/>
             Campaigns
@@ -830,26 +830,40 @@ class dashboard:
 
 class hunt:
     """ HTML hunting deck shuffler app. Not sure this will ever become a
-    feature. It's more like an exercise. """
+    real feature, but it will at least be a subscriber-only beta thing. """
 
     body = Template("""
 <script src="/media/huntPhase.js?v=$version"></script>
 <div
-    class="modal-black hidden"
-    ng-if="user.user.admin != undefined"
     id="huntPhaseModal"
+    class="modal-black hidden"
+    ng-if="user.user.preferences.beta == true"
     ng_init="showHide('huntPhaseOpenerButton')"
     ng-controller = huntPhaseRootController
 >
+    <h3 class="hunt_phase">[BETA] Basic Hunt Event simulator!</h3>
+    <p class="hunt_phase_subtitle">
+        Use the controls below to simulate drawing cards from the Basic Hunt Event deck!
+    </p>
     <div class="hunt_phase_container">
-        <div class="option_container " ng-if="deck.length > 0 || drawn.length > 1">
+        <div
+            class="option_container controls"
+        >
+            <button
+                class="kd_brown"
+                ng-click="shuffleDeck()"
+            >
+                Shuffle the deck!
+            </button>
             <button
                 class="kd_brown draw_one"
                 ng-click="draw()"
                 ng-if="deck.length > 0"
             >
-                <b>Draw One!</b> {{deck.length}} remaining
-            </button><br ng-if="drawn.length >= 1">
+                <b>Draw One!</b><br/> <span class="metrophobic">{{deck.length}} remaining</span>
+            </button>
+        </div>
+        <div class="option_container drawn_cards" ng-if="deck.length > 0 || drawn.length > 1">
             <div class="card_container">
                 <span
                     class="card survivor_sheet_gradient"
@@ -868,9 +882,13 @@ class hunt:
             </div>
         </div>
 
-        <div class="option_container">
+        <h3 class="hunt_phase">Optional Basic Hunt Event cards</h3>
+        <p class="hunt_phase_subtitle">Tap or click a card to include it in your deck. Don't forget to re-shuffle afterwards!</p>
+
+        <div class="option_container expansion_cards">
 
             <button
+                class="expansion_card"
                 ng-repeat="card in cards"
                 ng-if="card.optional == true"
                 ng-click="includeCard(card)"
@@ -879,16 +897,6 @@ class hunt:
                 {{card.name}}
             </button>
 
-        </div>
-        <div
-            class="option_container"
-        >
-            <button
-                class="kd_brown"
-                ng-click="shuffleDeck()"
-            >
-                Shuffle the deck!
-            </button>
         </div>
 
         <button class="kd_alert_no_exclaim" ng-click="showHide('huntPhaseModal')">Back</button>
@@ -5350,7 +5358,7 @@ class settlement:
         >
         <div
             onclick="showHide('lostSettlementsTooltip'); showHide('lostSettlementsControls')"
-            class="settlement_sheet_block_group lost_settlements"
+            class="settlement_sheet_block_group lost_settlements clickable"
         >
             <h2>Lost Settlements</h2>
             <p>Click or tap to show/hide controls.</p>
@@ -5541,6 +5549,7 @@ class meta:
         <title>$title</title>
         <link rel="stylesheet" type="text/css" href="/media/style.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/media/settlement_event_log.css?v=$version">
+        <link rel="stylesheet" type="text/css" href="/media/hunt_phase.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/media/help-tip.css">
         <link rel="stylesheet" type="text/css" href="/media/z-index.css?v=$version">
     """).safe_substitute(
@@ -5806,10 +5815,11 @@ def render_burger(session_object=None):
             $action_map
 
             <button
-                id="huntPhaseOpenerButton" class="sidenav_button hidden"
+                id="huntPhaseOpenerButton"
+                class="sidenav_button sidenav_modal_launcher hidden"
                 ng-click="showHide('huntPhaseModal')"
             >
-                Hunt Phase
+                &beta; Hunt Phase
             </button>
 
             <h3 ng-if="countSurvivors('departing') > 0">Departing</h3>
