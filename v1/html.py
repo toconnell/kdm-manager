@@ -192,14 +192,14 @@ class dashboard:
             </div>
             <div class="dashboard_preferences_container user_info">
                 <p>Registered user for {{user.user.age}}.</p>
-                <p ng-if="user.patron.level < 1">
+                <p ng-if="user.user.subscriber.level < 1">
                     <a href="https://thelaborinvain-2.myshopify.com/" target="top">
                         Support the Manager! Buy a lifetime subscription for $1!
                     </a>
                 </p>
-                <p ng-if="user.patron.level > 0">Subscription level: <b>{{user.user.patron.desc}}.</b>
-                <p ng-if="user.patron.level > 0">Subscriber for <b>{{user.user.patron.age}}.</b>
-                <p ng-if="user.patron.beta == true" class="maroon_text">
+                <p ng-if="user.user.subscriber.level > 0">Subscription level: <b>{{user.user.subscriber.desc}}.</b>
+                <p ng-if="user.user.subscriber.level > 0">Subscriber for <b>{{user.user.subscriber.age}}.</b>
+                <p ng-if="user.user.subscriber.beta == true" class="maroon_text">
                     Beta warning!
                 </p>
                 <div class="preferences_sub_block preferences_change_pw">
@@ -232,7 +232,7 @@ class dashboard:
                     <div
                         class="dashboard_preference"
                         ng-repeat="pref in group.items"
-                        ng-if="user.patron.level >= pref.patron_level"
+                        ng-if="user.user.subscriber.level >= pref.patron_level"
                     >
                         <p class="dashboard_preference_description">
                             {{pref.desc}}
@@ -291,6 +291,14 @@ class dashboard:
             class="dashboard_accordion campaign_summary_gradient"
         >
             <p class="panel_top_tooltip">Games you are currently playing.</p>
+            <p
+                class="panel_top_tooltip"
+                ng-if="user.user.subscriber.level < 1"
+            > Campaigns created by non-subscribers are automatically removed after six months.
+                <a href="https://thelaborinvain-2.myshopify.com/" target="top">
+                    Purchase a lifetime subscription to the Manager</a>
+                to store your campaigns permanently!
+            </p> <!-- subscribers alert -->
 
             <div class="dashboard_button_list">
 
@@ -343,7 +351,7 @@ class dashboard:
             ng-init="scratch.settlements_arrow = false"
         >
             <img class="dashboard_icon" src="/media/icons/settlement.png"/>
-            Settlements 
+            Settlements
             <span class="dashboard_rollup_arrow" ng-if="scratch.settlements_arrow == true">
                 &#x25B2;
             </span>
@@ -358,8 +366,9 @@ class dashboard:
         >
             <p class="panel_top_tooltip">Manage settlements you have created.</p>
             <p
-                ng-if="user.patron.level < 1"
-            > New users may create up to three settlements:
+                class="panel_top_tooltip"
+                ng-if="user.user.subscriber.level < 1"
+            > Non-subscriber users may create up to three settlements:
                 <a href="https://thelaborinvain-2.myshopify.com/" target="top">
                     purchase a lifetime subscription to the Manager</a>
                 to create an unlimited number of settlements!
@@ -369,7 +378,7 @@ class dashboard:
                 <form
                     method="POST"
                     action=""
-                    ng-if="user.dashboard.settlements.length < 3 || user.patron.level > 0"
+                    ng-if="user.dashboard.settlements.length < 3 || user.user.subscriber.level > 0"
                 >
                     <input type="hidden" name="change_view" value="new_settlement" />
                     <button class="kd_blue centered" onclick="showFullPageLoader()">+ Create New Settlement</button>
@@ -1151,7 +1160,7 @@ class angularJS:
 
                             <td class="login">
                                 {{p.login}}
-                                <span ng-if="p._id.$oid == settlement_sheet.created_by.$oid">
+                                <span ng-if="p._id.$oid == settlement.sheet.created_by.$oid">
                                     (Founder)
                                 </span>
                             </td>
@@ -1160,9 +1169,9 @@ class angularJS:
                                 <input
                                     type="checkbox"
                                     class="player_management_admin"
-                                    ng-if="p._id.$oid != settlement_sheet.created_by.$oid"
+                                    ng-if="p._id.$oid != settlement.sheet.created_by.$oid"
                                     ng-model="playerIsAdmin"
-                                    ng-checked="arrayContains(p.login, settlement_sheet.admins) == true"
+                                    ng-checked="settlement.sheet.admins.indexOf(p.login) != -1"
                                     ng-click="toggleAdmin(p.login)"
                                 />
                             </td>
@@ -5801,7 +5810,7 @@ def render_burger(session_object=None):
             <form
                 method="POST"
                 action=""
-                ng-if="user.user.settlements_created < 3 || user.patron.level > 0"
+                ng-if="user.user.settlements_created < 3 || user.user.subscription.level > 0"
             >
                 <input type="hidden" name="change_view" value="new_settlement" />
                 <button class="sidenav_button" onclick="showFullPageLoader()">

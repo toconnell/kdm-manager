@@ -951,6 +951,48 @@ class Settlement(Models.UserAsset):
 #            self.update_all_survivors("decrement", i_dict["current_survivor"])
 
 
+    def add_settlement_admin(self, user_login=None):
+        """ Adds a user login (i.e. email address) to the self.settlement['admins']
+        list. Fails gracefully if the user is already there. Expects a request
+        context. """
+
+        if user_login is None:
+            self.check_request_params(['login'])
+            user_login = self.params['login']
+
+        if user_login in self.settlement['admins']:
+            self.logger.warn("%s User '%s' is already a settlement admin! Ignoring bogus request..." % (self, user_login))
+            return True
+
+        if utils.mdb.users.find_one({'login': user_login}) is None:
+            raise utils.InvalidUsage("The email address '%s' does not belong to a registered user!" % user_login, status_code=400)
+
+        self.settlement['admins'].append(user_login)
+        self.log_event("%s made %s a settlement admin!" % (request.User.login, user_login))
+        self.save()
+
+
+    def rm_settlement_admin(self, user_login=None):
+        """ Removes a user login (i.e. email address) from the
+        self.settlement['admins'] list. Fails gracefully if the user is already
+        there. Expects a request context. """
+
+        if user_login is None:
+            self.check_request_params(['login'])
+            user_login = self.params['login']
+
+        if user_login not in self.settlement['admins']:
+            self.logger.warn("%s User '%s' is not a settlement admin! Ignoring bogus request..." % (self, user_login))
+            return True
+
+        if utils.mdb.users.find_one({'login': user_login}) is None:
+            raise utils.InvalidUsage("The email address '%s' does not belong to a registered user!" % user_login, status_code=400)
+
+        self.settlement['admins'].remove(user_login)
+        self.log_event("%s removed %s from the settlement admins list!" % (request.User.login, user_login))
+        self.save()
+
+
     def add_settlement_note(self, n={}):
         """ Adds a settlement note to MDB. Expects a dict. """
 
@@ -3363,6 +3405,15 @@ class Settlement(Models.UserAsset):
         elif action == 'abandon':
             self.set_abandoned()
 
+
+        #
+        #   meta/admin
+        #
+
+        elif action == 'add_admin':
+            self.add_settlement_admin()
+        elif action == 'rm_admin':
+            self.rm_settlement_admin()
 
         #
         #   campaign notes controllers

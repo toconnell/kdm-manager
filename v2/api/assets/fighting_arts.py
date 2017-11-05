@@ -35,7 +35,8 @@ fighting_art = {
     },
     'last_man_standing': {
         'desc': 'While you are the only survivor on the showdown board, you may not gain bleeding tokens or be knocked down.',
-        'name': 'Last Man Standing'
+        'name': 'Last Man Standing',
+#        'cannot_gain_bleeding_tokens': True,
     },
     'leader': {
 #        'desc': 'Whenever you <b>encourage</b> a survivor they gain +1 speed token until the end of the round.',

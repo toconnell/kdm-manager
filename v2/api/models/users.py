@@ -281,7 +281,7 @@ class User(Models.UserAsset):
         # basics; all views, generic UI/UX stuff
         output["user"]["age"] = self.get_age()
         output["user"]["settlements_created"] = utils.mdb.settlements.find({'created_by': self.user['_id']}).count()
-        output['patron'] = self.get_patron_attributes()
+        output['user']['subscriber'] = self.get_patron_attributes()
         output["preferences"] = self.get_preferences()
 
         # items common to dashboard and admin_panel

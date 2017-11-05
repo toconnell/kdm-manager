@@ -60,7 +60,7 @@ class Survivor(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="survivors"
-        self.object_version = 0.76
+        self.object_version = 0.79
 
         # initialize AssetCollections for later
         self.CursedItems = cursed_items.Assets()
@@ -72,7 +72,7 @@ class Survivor(Models.UserAsset):
         self.stats =                ['Movement','Accuracy','Strength','Evasion','Luck','Speed','bleeding_tokens']
         self.game_asset_keys =      ['disorders','epithets','fighting_arts','abilities_and_impairments']
         self.armor_locations =      ['Head', 'Body', 'Arms', 'Waist', 'Legs']
-        self.flags =                ['skip_next_hunt','cannot_use_fighting_arts','cannot_spend_survival','departing']
+        self.flags =                ['skip_next_hunt','cannot_use_fighting_arts','cannot_spend_survival','departing','cannot_gain_bleeding_tokens']
         self.abs_value_attribs =    ['max_bleeding_tokens', ]
         self.min_zero_attribs =     ["hunt_xp","Courage","Understanding"]
         self.min_one_attribs =      ["Movement"]
@@ -451,6 +451,7 @@ class Survivor(Models.UserAsset):
         output.update({"sheet": self.survivor})
         output["sheet"].update({"effective_sex": self.get_sex()})
         output["sheet"].update({"can_be_nominated_for_intimacy": self.can_be_nominated_for_intimacy()})
+        output["sheet"].update({"can_gain_bleeding_tokens": self.can_gain_bleeding_tokens()})
         output["sheet"].update({"can_gain_survival": self.can_gain_survival()})
         output["sheet"].update({"cannot_spend_survival": self.cannot_spend_survival()})
         output["sheet"].update({"cannot_use_fighting_arts": self.cannot_use_fighting_arts()})
@@ -2303,6 +2304,15 @@ class Survivor(Models.UserAsset):
                 return False
 
         return True
+
+
+    def can_gain_bleeding_tokens(self):
+        """ Returns a bool describing whether the survivor can gain bleeding
+        tokens. """
+
+        if self.survivor.get('cannot_gain_bleeding_tokens', None) is None:
+            return True
+        return False
 
 
     def cannot_spend_survival(self):

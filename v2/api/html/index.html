@@ -308,9 +308,43 @@
         <tr class="ul">
             <td> /user/dashboard/&lt;user_id&gt; </td>
             <td> GET, OPTIONS</td>
-            <td><p>This fetches a serialized version of the user that includes the
-            <code>/world</code> output as well as a bunch of info about the user,
-            including their friends, settlements they own or are playing in, etc.</p>
+            <td>
+                <p>This fetches a serialized version of the user that includes the
+                <code>/world</code> output as well as a bunch of info about the
+                user, including their friends, settlements they own or are
+                playing in, etc.</p>
+                <p>Here's a run-down of the key elements:</p>
+                <pre><code>{
+    "is_application_admin": true,
+    "meta": {...},
+    "user": {...},
+    "preferences": [...],
+    "dashboard": {
+        "campaigns": [...],
+        "settlements": [...],
+    },
+}</code></pre>
+                <p>The top-level <code>dashboard</code> element includes two arrays:
+                <code>campaigns</code> and <code>settlements</code>.</p>
+                <p>The <code>campaigns</code> array is a <b>reverse-chronological</b> list
+                of OIDs of all settlements where the user owns a survivor (i.e.
+                the survivor's <code>email</code> attribute matches the users
+                <code>login</code> attribute.</p>
+                <p>This list can include settlements owned/created by other users:
+                the basic idea behing the <code>campaigns</code> list is that
+                you probably want to show these settlements to the user when they
+                sign in or when they choose which settlement they want to view.</p>
+                <p>The <code>campaigns</code> array <u>does not</u> include any
+                'abandoned' settlements (i.e. any settlement with a Boolean True
+                value for the <code>abandoned</code> attribute.</p>
+                <p>See
+                <a href="/#settlementAbandon"><code>/settlement/abandon/oid</code>
+                 (below)</a> for more on abandoning a settlement. </p>
+                <p>Conrastively, the <code>settlements</code> array is a
+                <b>chronologically</b> sorted list of all settlement OIDs that belong
+                 to the current user, whether abandoned or not.</p>
+                <p>This is more of an archival/historical sort of list, meant to
+                facilitate that kind of view/list/UX.</p>
             </td>
         </tr>
         <tr class="ul">
@@ -903,9 +937,9 @@
         <tr class="ul">
             <td> /settlement/add_location/&lt;settlement_id&gt; </td>
             <td> POST </td>
-            <td> <p> POS aa location <code>handle</code> to this route to add
+            <td> <p> POST a location <code>handle</code> to this route to add
             it to the settlement's Locations:</p>
-            <code>{'handle': 'bome_smith'}</code>
+            <code>{'handle': 'bone_smith'}</code>
             </td>
         </tr>
         <tr class="ul">
@@ -1000,12 +1034,40 @@
             changing the list of settlement admins, etc. </td>
         </tr>
         <tr class="ul">
-            <td> /settlement/add_settlement_note/&lt;settlement_id&gt; </td>
+            <td>
+                <a id="settlementAbandon"></a> 
+                /settlement/abandon/&lt;settlement_id&gt;
+            </td>
+            <td> POST </td>
+            <td>
+                <p>Hit this route with a POST to mark the settlement as abandoned.</p>
+                <p>Your POST does not need to contain anything (but it does need
+                to be a POST (GET requests will not abandon the settlement.</p>
+                <p>An abandoned settlement has a date/time stamp of when it was
+                abandoned as its <code>abandoned</code> attribute.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/add_admin/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td>
+                <p>POST the email address of a registered user to add them to the
+                list of settlement administrators:</p>
+                <code>{login: 'demo@kdm-manager.com'}</code>
+                <p>Disclaimers:<ul><li>This will fail gracefully if the user's
+                email is in the list (so feel free to spam it).</li><li>This will
+                fail loudly if the email address does not belong to a registered
+                user: you'll get a 400 and a nasty message back.</li></ul>
+                </p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/add_note/&lt;settlement_id&gt; </td>
             <td> POST </td>
             <td> Documentation coming soon! </td>
         </tr>
         <tr class="ul">
-            <td> /settlement/rm_settlement_note/&lt;settlement_id&gt; </td>
+            <td> /settlement/rm_note/&lt;settlement_id&gt; </td>
             <td> POST </td>
             <td> Documentation coming soon! </td>
         </tr>

@@ -703,14 +703,16 @@ app.controller('newSurvivorController', function($scope) {
 
 app.controller('playerManagementController', function($scope) {
     $scope.toggleAdmin = function(login) {
-        if ($scope.arrayContains(login, $scope.settlement_sheet.admins)) {
-            var login_index = $scope.settlement_sheet.admins.indexOf(login);
-            $scope.settlement_sheet.admins.splice(login_index,1);
-        } else { 
-            $scope.settlement_sheet.admins.push(login);
+        var login_index = $scope.settlement.sheet.admins.indexOf(login);
+        if (login_index == -1) {
+            // user is not an admin
+            $scope.settlement.sheet.admins.push(login);
+            $scope.postJSONtoAPI('settlement','add_admin',{'login': login}, false)
+        } else {
+            // user is an admin
+            $scope.settlement.sheet.admins.splice(login_index, 1);
+            $scope.postJSONtoAPI('settlement','rm_admin',{'login': login}, false)
         };
-        var params = "toggle_admin_status=" + login;
-        modifyAsset('settlement', $scope.settlement_id, params);
     };
 });
 
