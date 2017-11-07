@@ -1121,15 +1121,15 @@ class angularJS:
                             > <span class="flair_text">b</span> </font>
                         </div> <!-- note flair -->
 
-                        <div class="note_content" ng-click="showHide(n.js_id)">
+                        <div class="note_content" ng-click="showHide(n._id.$oid)">
                             {{n.note}} <span class="author" ng-if="n.author != user_login"> {{n.author}}</span>
                         </div> <!-- note content -->
 
                         <span
-                            id="{{n.js_id}}"
+                            id="{{n._id.$oid}}"
                             class="kd_alert_no_exclaim note_remove hidden"
                             ng-if="n.author == user_login || user_is_settlement_admin"
-                            ng-click="removeNote($index, n.js_id)
+                            ng-click="removeNote($index, n._id.$oid)
                         ">
                             &times;
                         </span>
@@ -1359,11 +1359,12 @@ class angularJS:
         class="modal"
         id="modalTimelineContainer"
         ng-controller="timelineController"
-        ng-if="settlement != undefined"
+        ng-if="settlement.sheet.timeline != undefined"
         ng_init="
             registerModalDiv('timelineOpenerButton','modalTimelineContainer');
             setEvents();
             initializeEventLog();
+            showHide('timelineOpenerButton')
         "
     >
 
@@ -2653,7 +2654,7 @@ class survivor:
                 <select
                     name="add_abilities_and_impairments"
                     ng-if="AIoptions != undefined"
-                    ng_model="newAI"
+                    ng_model="scratch.newAI"
                     ng_change="addAI()"
                     ng-options="ai.handle as (ai.name + ' (' + ai.type_pretty + ')'  ) for ai in AIoptions"
                 >
@@ -4399,6 +4400,7 @@ class settlement:
         <div class="showdown_type">
             <span ng-if="settlement.sheet != undefined" ng-init="initShowdownControls()"></span>
             <h3
+                class="clickable"
                 ng-click="
                     showHide('showdownOptions');
                     flipShowdownArrow();
@@ -5820,8 +5822,6 @@ def render_burger(session_object=None):
             settlement_id = session_object.session["current_settlement"]
         )
 
-    if view in ["view_survivor","view_campaign","view_settlement"]:
-        actions += '<button id="timelineOpenerButton" class="sidenav_button">Timeline</button>'
 
 
     burger_panel = Template("""\n
@@ -5846,6 +5846,12 @@ def render_burger(session_object=None):
             <h3>$settlement_name:</h3>
             $action_map
 
+            <button
+                id="timelineOpenerButton"
+                class="sidenav_button hidden"
+            >
+            Timeline
+            </button>
 
             <button
                 id="settlementNotesOpenerButton"

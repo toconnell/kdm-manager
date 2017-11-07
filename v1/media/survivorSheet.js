@@ -105,6 +105,7 @@ app.controller('abilitiesAndImpairmentsController', function($scope) {
     //  regular methods below here
     //
 
+
     $scope.rmAI = function(ai_handle, ai_index) {
 //        console.log(ai_handle + " index: " + ai_index);
         $scope.survivor.sheet.abilities_and_impairments.splice(ai_index, 1);
@@ -113,8 +114,8 @@ app.controller('abilitiesAndImpairmentsController', function($scope) {
     };
 
     $scope.addAI = function() {
-        var ai_handle = $scope.newAI;
-        if (ai_handle === null) {return false};
+        var ai_handle = $scope.scratch.newAI;
+        if (ai_handle === null || ai_handle === undefined) {return false};
         $scope.survivor.sheet.abilities_and_impairments.push(ai_handle);
         js_obj = {handle: ai_handle, type: "abilities_and_impairments"};
         $scope.postJSONtoAPI('survivor', 'add_game_asset', js_obj);

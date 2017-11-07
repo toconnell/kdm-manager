@@ -995,7 +995,6 @@ class Settlement(Models.UserAsset):
         note_dict = {
             "note": n["note"].strip(),
             "created_by": ObjectId(n["author_id"]),
-            "js_id": n["js_id"],
             "author": n["author"],
             "created_on": datetime.now(),
             "settlement": self.settlement["_id"],
@@ -1006,11 +1005,18 @@ class Settlement(Models.UserAsset):
         self.logger.info("[%s] added a settlement note to %s" % (n["author"], self))
 
 
-    def rm_settlement_note(self, n={}):
+    def rm_settlement_note(self, n_id=None):
         """ Removes a note from MDB. Expects a dict with one key. """
 
-        utils.mdb.settlement_notes.remove({"settlement": self.settlement["_id"], "js_id": n["js_id"]})
-        self.logger.info("[%s] removed a settlement note from %s" % (n["user_login"], self))
+        if n_id is None:
+            self.check_request_params(['_id'])
+            self.params['_id']
+
+        n_id = ObjectId(n_id)
+
+        n = utils.mdb.settlement_notes.remove({"settlement": self.settlement["_id"], "_id": n_id})
+        self.logger.info(n)
+        self.logger.info("%s User '%s' removed a settlement note" % (self, request.User.login))
 
 
     def add_timeline_event(self, e={}, save=True):
@@ -1184,7 +1190,7 @@ class Settlement(Models.UserAsset):
 
 
         # 6.) increment endeavors
-        if showdown_type == 'normal' and live_returns != []:
+        if showdown_type == 'normal' and live_returns != [] and aftermath == victory:
             self.update_endeavor_tokens(len(live_returns), save=False)
 
         self.save()
@@ -3417,7 +3423,7 @@ class Settlement(Models.UserAsset):
         elif action == "add_note":
             self.add_settlement_note(self.params)
         elif action == "rm_note":
-            self.rm_settlement_note(self.params)
+            self.rm_settlement_note()
 
 
         elif action == "return_survivors":

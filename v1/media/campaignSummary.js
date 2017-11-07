@@ -50,24 +50,35 @@ app.controller("manageDepartingSurvivorsController", function($scope, $rootScope
         if ($scope.scratch.showdown_arrow === true) {$scope.scratch.showdown_arrow = false; return true};
         if ($scope.scratch.showdown_arrow === false) {$scope.scratch.showdown_arrow = true; return true};
     };
-    $scope.saveCurrentQuarry = function(select_element) {
 
+    $scope.saveCurrentQuarry = function() {
+
+        // first, set the quarry
+        var q_name = $scope.settlement.sheet.current_quarry;
+        js_obj = {current_quarry: q_name}
+        $scope.postJSONtoAPI('settlement', 'set_current_quarry', js_obj, false);
+
+
+        // now try to put it on the timeline
         var timeline_event = {
-            "name": $scope.current_quarry,
+            "name": q_name,
             "ly": $scope.settlement.sheet.lantern_year,
         };
 
-        if ($scope.arrayContains($scope.current_quarry, $scope.settlement.game_assets.showdown_options)) {
+        if ($scope.settlement.game_assets.showdown_options.indexOf(q_name) != -1) {
             timeline_event.type = 'showdown_event';
-        } else if ($scope.arrayContains($scope.current_quarry, $scope.settlement.game_assets.nemesis_encounters)) {
+        } else if ($scope.settlement.game_assets.nemesis_encounters.indexOf(q_name) != -1) {
             timeline_event.type = 'nemesis_encounter';
-        } else if ($scope.arrayContains($scope.current_quarry, $scope.settlement.game_assets.special_showdown_options)) {
+        } else if ($scope.settlement.game_assets.special_showdown_options.indexOf(q_name) != -1) {
             timeline_event.type = 'special_showdown';
         };
 
-        $scope.addEvent(timeline_event["ly"],timeline_event["type"],timeline_event["name"]);
+        $scope.addEvent(
+            timeline_event["ly"],
+            timeline_event["type"],
+            timeline_event["name"]
+        );
 
-        $scope.postJSONtoAPI('settlement', 'set_current_quarry', {"current_quarry": $scope.current_quarry});
     };    
 
     $scope.returnDepartingSurvivors = function(a){

@@ -756,18 +756,14 @@ app.controller('settlementNotesController', function($scope, $rootScope) {
             "author": $scope.user_login,
             "author_id": $scope.user_id,
             "note": $scope.newNote,
-            "js_id": $scope.getID(),
             "lantern_year": $scope.settlement.sheet.lantern_year,
         };
         $scope.settlement.sheet.settlement_notes.unshift(new_note_object);
         $scope.postJSONtoAPI('settlement', 'add_note', new_note_object);
     };
-    $scope.removeNote = function (x, note_js_id) {
-        $scope.settlement.sheet.settlement_notes.splice(x, 1);
-        $scope.postJSONtoAPI('settlement', 'rm_note', {"js_id": note_js_id, "user_login": $scope.user_login})
-        sleep(500).then(() => {
-            $scope.reinitialize();
-        });
+    $scope.removeNote = function(index, n_id) {
+        $scope.settlement.sheet.settlement_notes.splice(index, 1);
+        $scope.postJSONtoAPI('settlement', 'rm_note', {_id: n_id}, false)
     };
 
     $scope.userRole = function(login) {
@@ -860,8 +856,8 @@ app.controller('timelineController', function($scope, $rootScope) {
 
     $scope.getLYObject = function(ly) {
         // returns the local scope's timeline object for ly
-        for (i = 0; i < $scope.timeline.length; i++) {
-            var timeline_year = $scope.timeline[i];
+        for (i = 0; i < $scope.settlement.sheet.timeline.length; i++) {
+            var timeline_year = $scope.settlement.sheet.timeline[i];
             if (timeline_year.year == Number(ly)) {return timeline_year};
         }
     };
@@ -876,8 +872,7 @@ app.controller('timelineController', function($scope, $rootScope) {
     };
 
     // in which we turn form input into a juicy hunk of API-safe JSON
-    $rootScope.addEvent = function(ly,event_type,event_handle) {
-
+    $rootScope.addEvent = function(ly, event_type, event_handle) {
         var event_obj = new Object();
 
         // use the event_type, if possible, to get the event dict from
@@ -891,11 +886,12 @@ app.controller('timelineController', function($scope, $rootScope) {
             ) {
             event_obj.type = event_type;
             event_obj.name = event_handle; // when is a handle not a handle?
-            // do stuff
-        } else {console.log("ERROR! Unknown event type: " + event_type)};
+        } else {
+            console.error("ERROR! Unknown event type: " + event_type);
+            return false;
+        };
 
 
-        event_obj.user_login = $scope.user_login;
         event_obj.ly = ly;
         var target_ly = $scope.getLYObject(ly);
 
