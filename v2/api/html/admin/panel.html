@@ -105,8 +105,8 @@
                         <b>Settlements created:</b> {{u.user.settlements_created}}<br/>
                         <b>Survivors created:</b> {{u.user.survivors_created}}
                         <br><br>
-                        <span ng-if="u.patron.created_on"><b>Subscriber for:</b> {{u.patron.age}}<br/></span>
-                        <span ng-if="u.patron.created_on"><b>Subscriber level:</b> {{u.patron.level}}<br/></span>
+                        <span ng-if="u.user.subscriber.created_on"><b>Subscriber for:</b> {{u.user.subscriber.age}}<br/></span>
+                        <span ng-if="u.user.subscriber.created_on"><b>Subscriber level:</b> {{u.user.subscriber.level}}<br/></span>
                         <span ng-if="u.user.preferences.beta != undefined"><b>Beta:</b> {{u.user.preferences.beta}}<br/></span>
                     </div>
                 </div>
@@ -178,9 +178,9 @@
                 <td><code>/{{r._id.url}}</code></td>
                 <td>{{r.count}}</td>
                 <td>{{r.last_24_avg | limitTo:5}}</td>
-                <td>{{r.avg_time | limitTo:5}}</td>
-                <td>{{r.min_time | limitTo:5}}</td>
-                <td>{{r.max_time | limitTo:5}}</td>
+                <td ng-class="{'warning': r.avg_time >= 2, 'error': r.avg_time >=4}">{{r.avg_time | limitTo:5}}</td>
+                <td ng-class="{'warning': r.min_time >= 2, 'error': r.avg_time >=4}">{{r.min_time | limitTo:5}}</td>
+                <td ng-class="{'warning': r.max_time >= 2, 'error': r.avg_time >=4}">{{r.max_time | limitTo:5}}</td>
             </tr>
             </table>
         </div>

@@ -14,6 +14,7 @@ import flask_jwt_extended
 import json
 import os
 from pprint import pprint
+import socket
 
 # application-specific imports
 import request_broker
@@ -265,6 +266,9 @@ def before_request():
     """ Updates the request with the 'start_time' attrib, which is used for
     performance monitoring. """
     request.start_time = datetime.now()
+    request.metering = False
+    if socket.getfqdn() != settings.get('api','prod_fqdn'):
+        request.metering = True
 
 @application.after_request
 def after_request(response):

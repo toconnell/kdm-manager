@@ -566,6 +566,12 @@
             settlement. YHBW.</p>
             </td>
         </tr>
+        <tr>
+            <td class="subsection_header" colspan="3"><b>Auxiliary ettlement 'get' routes:</b>
+            attributes such as Survival Limit, Population and Death Count are more
+            or less automatically tracked by the API, but you can use these routes
+            to modify them directly, if necessary. </td>
+        </tr>
         <tr class="ul">
             <td> /settlement/get_event_log/&lt;settlement_id&gt; </td>
             <td> GET </td>
@@ -579,6 +585,55 @@
             <td> /settlement/get_innovation_deck/&lt;settlement_id&gt; </td>
             <td> GET </td>
             <td> Retrieve the settlement's current innovation deck (as an array).</td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/get_storage/&lt;settlement_id&gt; </td>
+            <td> GET </td>
+            <td>
+                <p>Hit this route to get representations of the settlement's
+                storage.</p>
+                <p>What you get back is an array with two dictionaries, one for
+                resources and one for gear:</p>
+                <pre><code>[
+    {
+        "storage_type": "resources",
+        "total":0,
+        "name":"Resource",
+        "locations": [
+            {
+                "bgcolor":"B1FB17", 
+                "handle":"basic_resources", 
+                "name":"Basic Resources", 
+                "collection": [
+                    {
+                        "handle":"_question_marks",
+                        "name":"???",
+                        "rules":[],
+                        "consumable_keywords": ["fish","consumable","flower"],
+                        "type_pretty": "Resources",
+                        "keywords": ["organ","hide","bone","consumable"], 
+                        "desc":"You have no idea what monster bit this is. Can be used as a bone, organ, or hide!",
+                        "type":"resources", 
+                        "sub_type":"basic_resources", 
+                        "quantity":0,"flippers":false
+                    },
+                    ...
+                ],
+                ...
+            },
+    },
+], </pre></code>
+                <p>Each dictionary in the main array has an array called <code>
+                locations</code>, which is a list of dictionaries where each dict
+                is a possible location for gear or resources.</p>
+                <p>Each <code>location</code> is an array of dictionaries
+                representing places where a piece of gear or a resource can live,
+                e.g. "White Lion Resources" or "Basic Gear", etc.</p>
+                <p>Each location dictionary has an array called <code>collection
+                </code> which is a list of dictionaries where each dictionary is
+                a piece of gear or a resource. The attributes of these dictionaries
+                include the <code>desc</code>, <code>quantity</code>, etc.</p>
+            </td>
         </tr>
 
 
@@ -1059,6 +1114,18 @@
                 fail loudly if the email address does not belong to a registered
                 user: you'll get a 400 and a nasty message back.</li></ul>
                 </p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/rm_admin/&lt;settlement_id&gt; </td>
+            <td> POST </td>
+            <td>
+                <p>This is the reverse of the <code>add_admin</code> route.</p>
+                <p>Basically, you POST some JSON to the route including the email
+                of the user you want to remove from the settlement admins list:</p>
+                <code>{login: 'demo@kdm-manager.com'}</code>
+                <p>Like the <code>add_admin</code> route, this one fails gracefully
+                if you try to remove someone who isn't on the list, etc.</p>
             </td>
         </tr>
         <tr class="ul">

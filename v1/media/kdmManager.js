@@ -50,6 +50,11 @@ function showHide(e_id) {
 
 function sleep (time) {return new Promise((resolve) => setTimeout(resolve, time));}
 
+function convertMS(millis) {
+  var minutes = Math.floor(millis / 60000);
+  var seconds = ((millis % 60000) / 1000).toFixed(0);
+  return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+}
 
 
 //
@@ -195,47 +200,34 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
         );
     };
 
-
-    $scope.initialize = function(src_view, u_id, api_url, settlement_id, survivor_id) {
-
-        // every view in the legacy webapp has to call this method. Therefore,
-        // it's got lots of twists, turns, evaluations, etc. and can make a lot
-        // of API requests.
-
-        $scope.api_url = api_url;
-        $scope.settlement_id = settlement_id;
-        $scope.user_id = u_id;
-        $scope.view = src_view;
-        $scope.survivor_id = survivor_id;
-
-        // initialize misc. scope elements
-        $rootScope.departing_survivor_count = 0;
-        $rootScope.hideControls = true;
-
-        var log_level = "[" + $scope.view + "] "
-
-        // declare the view
-        console.log(log_level + "Initializing '" + $scope.view + "' view...");
-
-        // set the API endpoints
-        var user_endpoint = 'get'
-        var settlement_endpoint = 'get'
-        if ($scope.view === 'campaignSummary') {
-            settlement_endpoint = 'get_campaign';
-        } else if ($scope.view === 'dashboard') {
-            user_endpoint = 'dashboard';
+    $scope.initializeUser = function(u_id, user_endpoint, api_url){
+        // initialize
+        var start = performance.now();
+        if ($scope.user_id === undefined && u_id !== undefined) {
+            $scope.user_id = u_id;
         }
+        if (user_endpoint === undefined){
+            user_endpoint = 'get';
+        };
+        if ($scope.api_url === undefined && api_url !== undefined) {
+            $scope.api_url = api_url;
+        };
 
-        // first, hit our user_endpoint and init the user
-        $scope.getJSONfromAPI('user', user_endpoint, 'initialize (user)').then(function(payload) {
+        console.log("[USER] Initializing user " + $scope.user_id);
+
+        $scope.userPromise = $scope.getJSONfromAPI('user', user_endpoint, 'initialize (user)')
+
+        $scope.userPromise.then(function(payload) {
             $scope.user = payload.data;
             $scope.user_login = $scope.user.user.login;
+            var stop = performance.now();
+            console.warn("[USER] Initialized user " + $scope.user_login + " (" + $scope.user_id + ") in " + convertMS((stop-start)) + " seconds!");
 
             // if we're doing the dash, we've got to get settlements and fiddle
             // the UI for new users
 
-            if ($scope.view === 'dashboard') {
-                console.log(log_level + "Retrieving assets from API...");
+            if (user_endpoint === 'dashboard') {
+                console.log("[USER] Retrieving campaign assets from API...");
                 $scope.initWorld();
 
                 $scope.campaigns = [];
@@ -257,117 +249,119 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
                     // pass
                 };
             };
-            console.log(log_level + "Initialized user " + $scope.user_login + " (" + $scope.user_id + ")");
         },
             function(errorPayload) {
-                console.error(log_level + "Could not retrieve user information!");
-                console.error(log_level + errorPayload.status + " -> " + errorPayload.data);
+                console.error("[USER] Could not retrieve user information!");
+                console.error("[USER] " + errorPayload.status + " -> " + errorPayload.data);
             }
         );
 
-        // now load the settlement/survivor from the API if we're doing that
-        if ($scope.settlement_id != undefined) {
+        // now do stuff that we need the settlement to do
+        if ($scope.settlementPromise !== undefined) {
+            $scope.settlementPromise.then(function() {
 
-            $scope.getJSONfromAPI('settlement',settlement_endpoint, 'initialize (settlement)').then(
+                // determine if the user is a settlement admin
+                if ($scope.settlement.sheet.admins.indexOf($scope.user_login) == -1) {
+                    $scope.user_is_settlement_admin = false;
+                } else {
+                    $scope.user_is_settlement_admin = true;
+                    console.warn($scope.log_level + $scope.user_login + ' is a settlement admin!');
+                };
+            });
+        };
+
+    };
+
+    $scope.initializeSettlement = function(src_view, api_url, settlement_id) {
+
+        // every view in the legacy webapp has to call this method. Therefore,
+        // it's got lots of twists, turns, evaluations, etc. and can make a lot
+        // of API requests.
+
+        // intialize
+        var settlementStart = performance.now();
+        if ($scope.api_url === undefined && api_url !== undefined) {
+            $scope.api_url = api_url;
+        };
+        if ($scope.settlement_id === undefined && settlement_id !== undefined) {
+            $scope.settlement_id = settlement_id;
+        };
+        if ($scope.view === undefined && src_view !== undefined) {
+            $scope.view = src_view;
+        };
+
+        // initialize misc. scope elements
+        $rootScope.departing_survivor_count = 0;
+        $rootScope.hideControls = true;
+
+        // now do it
+        console.log("[SETTLEMENT] Initializing '" + $scope.view + "' view...");
+        if ($scope.settlement_id !== undefined) {
+
+            var settlement_endpoint = 'get'
+            if ($scope.view === 'campaignSummary') {
+                settlement_endpoint = 'get_campaign';
+            };
+
+            // save the promise to get the settlement to the $scope
+            $scope.settlementPromise = $scope.getJSONfromAPI(
+                'settlement', settlement_endpoint, 'initializeSettlement()'
+            );
+
+            // init the settlement
+            $scope.settlementPromise.then(
                 function(payload) {
                     // get the settlement; touch-up some of the arrays for UI/UX purposes
                     $scope.settlement = payload.data;
-                    $scope.settlement.game_assets.causes_of_death.push({'name': ' --- ', 'disabled': true});
-                    $scope.settlement.game_assets.causes_of_death.push({'name': '* Custom Cause of Death', 'handle': 'custom'});
-                    var cod_list = [];
-                    for (var i = 0; i < $scope.settlement.game_assets.causes_of_death.length; i++) {
-                        cod_list.push($scope.settlement.game_assets.causes_of_death[i]["name"]);
-                    };
-                    $scope.settlement_cod_list = cod_list;
-
-                    // create the settlement_sheet in scope and update asset lists
-                    $scope.settlement_sheet = $scope.settlement.sheet;
-                    $scope.initAssetLists('settlement_sheet');
-
-                    // create other in-scope stuff off of the sheet:
-                    $scope.settlement_notes = $scope.settlement_sheet.settlement_notes;
-                    $scope.timeline = $scope.settlement_sheet.timeline;
-                    $scope.current_quarry = $scope.settlement_sheet.current_quarry;
-                    $scope.setEvents();
-
-                    // eval the user
-                    if ($scope.settlement.sheet.admins.indexOf($scope.user_login) != -1) {
-                        $scope.user_is_settlement_admin = true;
-                        console.warn(log_level + $scope.user_login + ' is a settlement admin!');
-                    } else {
-                        $scope.user_is_settlement_admin = false;
-                    };
 
                     // finish initializing the settlement
-                    console.log(log_level + "Settlement '" + $scope.settlement_id + "' initialized!");
-
-                    // finally, if we're initializing a survivor sheet, do that
-                    if ($scope.view === 'survivorSheet') {
-                        console.log(log_level + 'Settlement initialized. $scope.view == survivorSheet. Initializing survivor...');
-                        $scope.initializeSurvivor($scope.survivor_id);
-                    };
-
-                    if ($scope.view === 'settlementSheet') {
-                        $scope.initLostSettlementsControls();
-                    };
-
-                    // kill the loaders and do cleanup, since we've got the data now
-                    var kill_loaders = true
-                    if ($scope.view === 'survivorSheet') {
-                        kill_loaders = false;
-                    };
-                    if (kill_loaders === true) {
-                        hideFullPageLoader();
-                        hideCornerLoader();
-                    };
                     $rootScope.hideControls = false; 
+                    $scope.postJSONtoAPI('settlement', 'set_last_accessed', {}, false, false);
+
+                    var settlementStop = performance.now();
+                    console.warn("[SETTLEMENT] Settlement " + $scope.settlement_id + " initialized in " + convertMS((settlementStop - settlementStart)) + " seconds!");
 
                 },
-                function(errorPayload) {console.log(log_level + "Error loading settlement!" + errorPayload);}
+                function(errorPayload) {console.log($scope.log_level + "Error loading settlement!" + errorPayload);}
             );
 
-            // now load the event log from the API, if we're doing the settlement
-            $scope.getJSONfromAPI('settlement','get_event_log', 'initialize (get_event_log)').then(
-                function(payload) {
-                    $scope.event_log = payload.data;
-                    console.log(log_level + $scope.event_log.length + " item event_log initialized!")
-                },
-                function(errorPayload) {console.log(log_level + "Error loading event_log!" + errorPayload);}
-            );
 
-            console.log(log_level + "Initialized settlement ID = " + $scope.settlement_id);
-            $scope.postJSONtoAPI('settlement', 'set_last_accessed', {}, false, false);
 
         };
 
-        if ($scope.view === 'dashboard') {
-//          console.log("skipping new asset load")  
-        } else {
-            assetService.getNewSettlementAssets($scope.api_url).then(
-                function(payload) {
-                    $scope.new_settlement_assets = payload.data;
-                    console.log("loaded new_settlement assets!");
-                },
-                function(errorPayload) {console.log("Error loading new settlement assets!" + errorPayload);}
-            );
-        };
-
+        // if we're viewing the Settlement Sheet or Campaign Summary, do this stuff
+        $scope.settlementPromise.then(function() {
+            if ($scope.view == 'settlementSheet') {
+                $scope.initAssetLists();
+                $scope.initLostSettlementsControls();
+                hideFullPageLoader();
+                hideCornerLoader();
+            } else if ($scope.view == 'campaignSummary') {;
+                hideFullPageLoader();
+                hideCornerLoader();
+            } else { 
+                // pass
+            };
+        });
     }
 
+
     $scope.reinitialize = function() {
-        // this is a wrapper for $scope.initialize() that is meant to be called
-        // without any arguments because, in theory, all of the values required
-        // to run it are already in $scope and can be called up from $scope in
-        // order to call $scope.initialize() again
-        console.warn("Re-initializing settlement...");
+
+        //postJSONtoAPI() sometimes calls this to refresh the view after a
+        // significant update.
+
+        console.warn("Re-initializing view...");
         showCornerLoader();
-        $scope.initialize(
-            $scope.view,
-            $scope.user_id,
-            $scope.api_url,
-            $scope.settlement_id,
-            $scope.survivor_id,
-        );
+        if ($scope.view === 'survivorSheet') {
+            $scope.initializeSurvivor();
+        } else if ($scope.view === 'settlementSheet') {
+            $scope.initializeSettlement(); 
+        } else if ($scope.view === 'campaignSummary') {
+            $scope.initializeSettlement(); 
+        } else {
+            console.error($scope.view + ' cannot be reinitialized!');
+        };
     };
 
 
@@ -375,46 +369,93 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
     $scope.initializeSurvivor = function(s_id) {
         // pulls a specific survivor down from the API and sets it as
         // $scope.survivor; also sets some other helpful $scope vars
-        // THIS SHOULD ONLY EVER BE CALLED INSIDE OF THE initialize()
-        // METHOD ABOVE. DO NOT CALL THIS IN THE CLEAR. IT WILL FAIL.
 
-        showCornerLoader();
-        console.info("Initializing Survivor " + s_id);
-        $scope.survivor_id = s_id;
+        // initialize
+        var survivor_start = performance.now();
+        if ($scope.survivor_id === undefined) {
+            $scope.survivor_id = s_id;
+        };
 
-        $scope.getJSONfromAPI('survivor','get', 'initializeSurvivor').then(
-            function(payload) {
-                $scope.survivor = payload.data;
-                $scope.survivor_sheet = payload.data.sheet;
-                console.info("Survivor Sheet initialized for survivor " + $scope.survivor_id);
-                $scope.initAssetLists('survivor_sheet');
-                hideFullPageLoader();
-                hideCornerLoader();
-            },
-            function(errorPayload) {console.log("Error loading survivor " + s_id + " " + errorPayload);}
-        );
+        // wait for the settlement promise and then go get it, girl
+        $scope.settlementPromise.then(function() {
+
+            console.info("Initializing Survivor " + s_id);
+            $scope.survivorPromise = $scope.getJSONfromAPI('survivor','get', 'initializeSurvivor()');
+
+            $scope.survivorPromise.then(
+                function(payload) {
+                    $scope.survivor = payload.data;
+                    var survivor_stop = performance.now();
+                    console.warn("[SURVIVOR] Initialized survivor " + $scope.survivor_id + " in " + convertMS((survivor_stop - survivor_start)) + " seconds!");
+                    hideFullPageLoader();
+                    hideCornerLoader();
+
+                    // now do stuff after we drop the loader
+                    $scope.initAssetLists();
+                    $scope.getJSONfromAPI('survivor','get_lineage','initializeSurvivor()').then(
+                        function(payload) {
+                            console.log("[LINEAGE] Retrieving survivor lineage data... ");
+                            $scope.lineage = payload.data;
+                            console.log('[LINEAGE] Lineage retrieved!');
+                        },
+                        function(errorPayload) {
+                            console.error("[LINEAGE] Could not retrieve survivor lineage from API!" + errorPayload);
+                        },
+                    );
+                },
+                function(errorPayload) {
+                    console.log("[SURVIVOR] Error loading survivor " + s_id + " " + errorPayload);
+                }
+            );
+        });
     };
 
 
-    $scope.setGameAssetOptions = function(game_asset, user_asset, destination, exclude_type) {
+    $scope.initializeEventLog = function() {
+        var eventLogStart = performance.now();
+        console.log('[EVENT LOG] Initializing event log...');
+        $scope.getJSONfromAPI('settlement','get_event_log', 'initializeEventLog()').then(
+            function(payload) {
+                $scope.event_log = payload.data;
+                var eventLogStop = performance.now();
+                console.warn("[EVENT LOG] Initialized event log in " + convertMS((eventLogStop - eventLogStart)) + " seconds!");
+            },
+            function(errorPayload) {
+                console.log($scope.log_level + "Error loading event_log!" + errorPayload);
+            }
+        );
+    };
+
+    $scope.setGameAssetOptions = function(game_asset, destination, exclude_type) {
         // generic method to create a set of options by comparing a baseline
         // list to a list of items to exclude from that list
         // 'game_asset' wants to be something from settlement.game_assets
         // 'user_asset' wants to be a user's list, e.g. $scope.survivor.sheet.epithets
-        // 'destination' wants to be the outpue, e.g. $scope.locationOptions
+        // 'destination' wants to be the output, e.g. $scope.locationOptions
 
+        // initialize
         console.log("Refreshing '" + game_asset + "' game asset options...");
-        var output = {}
+        if ($scope.view == 'survivorSheet') {
+            var user_asset = $scope.survivor.sheet;
+        } else if ($scope.view == 'settlementSheet') {
+            var user_asset = $scope.settlement.sheet;
+        } else {
+            console.error('I DO NOT KNOW HOW TO SET ASSETS FOR THIS VIEW!');
+            return false
+        };
+
+        // now do it!
+        var output = {};
         angular.copy($scope.settlement.game_assets[game_asset], output);
-        for (var i = 0; i < $scope[user_asset][game_asset].length; i++) {
-            var a = $scope[user_asset][game_asset][i];
+        for (var i = 0; i < user_asset[game_asset].length; i++) {
+            var a = user_asset[game_asset][i];
 
             if (output[a] != undefined) {
                 if (output[a].max != undefined) {
                     var asset_max = output[a].max;
                     var asset_count = 0;
-                    for (var j = 0; j < $scope[user_asset][game_asset].length; j++) {
-                        if ($scope[user_asset][game_asset][j] == a) {asset_count += 1};
+                    for (var j = 0; j < user_asset[game_asset].length; j++) {
+                        if (user_asset[game_asset][j] == a) {asset_count += 1};
                     };
                     if (asset_count >= asset_max) {
                         delete output[a];
@@ -425,6 +466,7 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
             };
         };
 
+        // filter anything whose 'type' matches exclude_type
         for (var b in output) {
             if (output[b].type == exclude_type) {
                 delete output[b];
@@ -441,52 +483,39 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
         console.log("Game asset '" + game_asset + "' options updated!");
     };
 
-    $scope.initAssetLists = function(view) {
-       // call this once you've got a settlement sheet in scope
-       if (view == 'survivor_sheet') {
-           console.log('Initializing Survivor Sheet asset pickers...');
-           $scope.setGameAssetOptions('abilities_and_impairments', view, "AIoptions", "curse");
 
-           $scope.setGameAssetOptions('fighting_arts', view, "FAoptions");
-           $scope.FAoptions["_random"]  = {handle: "_random", name: "* Random Fighting Art", type_pretty: "Special"};
+    $scope.initAssetLists = function() {
+        // call this once you've got a settlement sheet in scope, i.e. hitch it to
+        // the $scope.settlementPromise
+        if ($scope.view == 'survivorSheet') {
+            console.log('Initializing Survivor Sheet asset pickers...');
 
-           $scope.setGameAssetOptions('disorders', view, "dOptions");
-           $scope.dOptions["_random"]  = {handle: "_random", name: "* Random Disorder", type_pretty: "Special"};
+            $scope.setGameAssetOptions('abilities_and_impairments', "AIoptions", "curse");
 
-           $scope.setGameAssetOptions('epithets', view, "epithetOptions");
-       } else {
-           console.log('Initializing Settlement Sheet asset pickers...');
-           $scope.setGameAssetOptions('locations', view, "locationOptions");
-           $scope.setGameAssetOptions('innovations', view, "innovationOptions", "principle");
-       };
-       console.log("'" + view + "' view asset pickers initialized!")
-    };
+            $scope.setGameAssetOptions('fighting_arts', "FAoptions");
+            $scope.FAoptions["_random"]  = {handle: "_random", name: "* Random Fighting Art", type_pretty: "Special"};
 
-    $scope.reinitAssetLists = function(view) {
-        // use this to reinitialize after you've already loaded page/scope
-        console.warn("Reinitializing '" + view + "' asset pickers...");
-        if ( view === undefined ) {console.error('reinitAssetLists() "view" must be defined!'); return};
-        if ( typeof $scope[view] !== "undefined") {
-            showCornerLoader();
-            console.log("Retrieving settlement data...");
-            var res = $scope.getJSONfromAPI('settlement','get','reinitAssetLists');
-            res.then(
-                function(payload) {
-                    $scope.settlement = payload.data;
-                    $scope.initAssetLists(view);
-                    hideCornerLoader();
-                },
-                function(errorPayload) {
-                    console.error("'" + view + "' view asset picker re-init failed!!");
-                    console.error(errorPayload);
-                }
-            );
+            $scope.setGameAssetOptions('disorders', "dOptions");
+            $scope.dOptions["_random"]  = {handle: "_random", name: "* Random Disorder", type_pretty: "Special"};
+
+            $scope.setGameAssetOptions('epithets', "epithetOptions");
+
+            //  custom COD junk
+            $scope.settlement.game_assets.causes_of_death.push({'name': ' --- ', 'disabled': true});
+            $scope.settlement.game_assets.causes_of_death.push({'name': '* Custom Cause of Death', 'handle': 'custom'});
+            var cod_list = [];
+            for (var i = 0; i < $scope.settlement.game_assets.causes_of_death.length; i++) {
+                cod_list.push($scope.settlement.game_assets.causes_of_death[i]["name"]);
+            };
+            $scope.settlement_cod_list = cod_list;
         } else {
-            // if we fail, we retry until we get it...until the heat death of
-            // the universe
-            setTimeout($scope.reinitAssetLists, 500);
-        }
+            console.log('Initializing Settlement Sheet asset pickers...');
+            $scope.setGameAssetOptions('locations', "locationOptions");
+            $scope.setGameAssetOptions('innovations', "innovationOptions", "principle");
+        };
+//       console.log("'" + view + "' view asset pickers initialized!")
     };
+
 
 
     $scope.set_jwt_from_cookie = function() {
@@ -518,9 +547,9 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
     };
 
     $scope.getJSONfromAPI = function(collection, action, requester) {
-        var log_level = "[" + requester + "] "
-        console.log(log_level + "Retrieving '" + collection + "' asset '" + action + "' data from API:");
-        if ($scope.api_url === undefined){console.error(log_level + '$scope.api_url is ' + $scope.api_url + '! API retrieval cannot proceed!'); return false};
+        var r_log_level = "[" + requester + "] "
+//        console.log(r_log_level + "Retrieving '" + collection + "' asset '" + action + "' data from API:");
+        if ($scope.api_url === undefined){console.error(r_log_level + '$scope.api_url is ' + $scope.api_url + '! API retrieval cannot proceed!'); return false};
         $scope.set_jwt_from_cookie();
         var config = {"headers": {"Authorization": $scope.jwt}};
         if (collection == "settlement") {
@@ -530,13 +559,14 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
         } else if (collection == "user") {
             var url = $scope.api_url + "user/" + action + "/" + $scope.user_id;
         };
-        console.log(log_level + "getJSONfromAPI() -> " + url);
+        console.log(r_log_level + "getJSONfromAPI() -> " + url);
         return $http.get(url, config);
     };
 
     $scope.postJSONtoAPI = function(collection, action, json_obj, reinit, show_alert) {
         if (reinit === undefined) {reinit = true};
         if (show_alert === undefined) {show_alert = true};
+
         showCornerLoader();
         // figure out which asset ID to use
         if (collection == 'settlement') {
@@ -581,7 +611,7 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
 
 
 
-    // helper method that sets the scope's story and settlement events
+    // front-end helper method that sets the scope's story and settlement events
     $scope.setEvents = function() {
         var all_events = $scope.settlement.game_assets.events;
 
@@ -755,11 +785,11 @@ app.controller('settlementNotesController', function($scope, $rootScope) {
     };
 }); 
 
-app.controller('newSettlementController', function($scope, assetService) {
+app.controller('newSettlementController', function($scope, $http) {
     $scope.showLoader = true;
     $scope.initNewSettlement = function(api_url) {
-        $scope.api_url = api_url;
-        assetService.getNewSettlementAssets($scope.api_url).then(
+        promise = $http.get(api_url + 'new_settlement');
+        promise.then(
             function(payload) {
                 $scope.new_settlement_assets = payload.data;
                 $scope.showLoader = false;                
@@ -1046,15 +1076,6 @@ function updateAssetAttrib(source_input, collection, asset_id) {
     var new_value = document.getElementById(source_input.id).value;
 
     if (new_value == '') {window.alert("Blank values cannot be saved!"); return false;};
-
-    // strikethrough for p.survivor_sheet_fighting_art_elements
-    if (source_input.id == 'survivor_sheet_cannot_use_fighting_arts' ) {
-        if (source_input.checked == true) {
-            $('.survivor_sheet_fighting_art').addClass('strikethrough');
-        } else {
-            $('.survivor_sheet_fighting_art').removeClass('strikethrough');
-        };
-    };
 
     // emphasis effect for font.survival_action_emphasize
     if (source_input.id == 'cannot_spend_survival' ) {

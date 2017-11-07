@@ -130,6 +130,7 @@ app.controller("locationsController", function($scope) {
         if ($scope.newLocation === null) {return false};
         $scope.settlement.sheet.locations.push($scope.newLocation);
         $scope.postJSONtoAPI('settlement', 'add_location', {"handle": $scope.newLocation});
+        $scope.newLocation = null;
     };
     $scope.rmLocation = function(index, loc_handle) {
         $scope.settlement_sheet.locations.splice(index, 1);
@@ -184,6 +185,7 @@ app.controller('innovationsController', function($scope) {
         $scope.settlement.sheet.innovations.push($scope.newInnovation);
         var js_obj = {"handle": $scope.newInnovation};
         var out = $scope.postJSONtoAPI('settlement', 'add_innovation', js_obj);
+        $scope.newInnovation = null;
         sleep(500).then(() => {
             $scope.setInnovationDeck();
         });
@@ -208,6 +210,8 @@ app.controller('defeatedMonstersController', function($scope, $http) {
         js_obj = {'monster': $scope.dMonst}
         $scope.postJSONtoAPI('settlement', 'add_defeated_monster', js_obj);
         $scope.settlement.sheet.defeated_monsters.push($scope.dMonst);
+        $scope.dMonst = null;
+
     };
     $scope.rmDefeatedMonster = function(index, monster) {
         js_obj = {'monster': monster}

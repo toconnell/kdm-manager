@@ -7,7 +7,7 @@ app.controller ("survivorSearchController", function($scope) {
     $scope.userCanManage = function(s) {
         if ($scope.user_is_settlement_admin == true) { return true;}
         else if ($scope.user_login == s.email) { return true;}
-        else { s._id = ''; return false };
+        else { s._id = '';  return false };
         return false;
     };
 
@@ -108,19 +108,6 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
         };
     };
 
-    $scope.checkManageable = function() {
-        // this runs after our last survivor is initialized
-        if ($scope.verify_manageable) {
-            sleep(1500).then(() => {
-                if ($scope.manageable_survivors == 0) {
-                    console.error($scope.user_login + " cannot manage any survivors! ");
-                    $scope.reinitialize();
-                } else {
-                    console.log("[SURVIVORS] " + $scope.user_login + " can manage " + $scope.manageable_survivors + " survivors in the Campaign Summary view.");
-                };
-            });
-        };
-    };
 
     $scope.initSurvivorCard = function(survivor) {
         // sets survivor.meta.manageable within a given survivor. access/security

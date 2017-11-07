@@ -9,7 +9,6 @@ from flask import Response, request
 import inspect
 import json
 import random
-import socket
 import time
 
 import Models
@@ -93,11 +92,12 @@ class Settlement(Models.UserAsset):
 
 #        if request.User.get_preference("update_timeline"):
 #            self.update_timeline_with_story_events()
+        if request.metering:
+            stop = datetime.now()
+            duration = stop - request.start_time
+            self.logger.debug("%s initialize() -> in %s" % (self, duration))
 
-        # performance metering; active in dev
-        self.metering = False
-        if socket.getfqdn() != settings.get('api','prod_fqdn'):
-            self.metering = True
+
 
 
     def init_asset_collections(self):
@@ -348,12 +348,8 @@ class Settlement(Models.UserAsset):
         """ Renders the settlement, including all methods and supplements, as
         a monster JSON object. This is where all views come from."""
 
-        # performance metering: activate in dev
-        total_start = datetime.now()
-
         # do some tidiness operations first
-
-        for k in ["locations","innovations","defeated_monsters"]:
+        for k in ["locations","innovations"]:
             self.settlement[k] = sorted(self.settlement[k])
 
         # now start
@@ -386,6 +382,11 @@ class Settlement(Models.UserAsset):
             output['sheet']['population_by_sex'] = self.get_population('sex')
             output['sheet']['monster_volumes'] = self.get_monster_volumes()
             output['sheet']['lantern_research_level'] = self.get_lantern_research_level()
+
+            if request.metering:
+                stop = datetime.now()
+                duration = stop - request.start_time
+                self.logger.debug("%s serialize(%s) -> Sheet element in %s" % (self, return_type, duration))
 
         # create game_assets
         if return_type in [None, 'game_assets','campaign']:
@@ -434,9 +435,9 @@ class Settlement(Models.UserAsset):
             output['game_assets']['inspirational_statue_options'] = self.get_available_fighting_arts()
             output['game_assets']['monster_volumes_options'] = self.get_available_monster_volumes()
 
-            stop = datetime.now()
-            duration = stop - start
-            if self.metering:
+            if request.metering:
+                stop = datetime.now()
+                duration = stop - request.start_time
                 self.logger.debug("%s serialize(%s) -> Game Assets element in %s" % (self, return_type, duration))
 
         # additional top-level elements for more API "flatness"
@@ -461,16 +462,11 @@ class Settlement(Models.UserAsset):
             output['campaign'].update({'special_rules': self.get_special_rules()})
             output["user_assets"].update({'survivor_groups': self.get_survivors('groups')})
 
-            stop = datetime.now()
-            duration = stop - start
-            if self.metering:
+            if request.metering:
+                stop = datetime.now()
+                duration = stop - request.start_time
                 self.logger.debug("%s serialize(%s) -> Campaign element in %s" % (self, return_type, duration))
 
-        # finally, return a JSON string of our object
-        total_stop = datetime.now()
-        duration = total_stop - total_start
-        if self.metering:
-            self.logger.debug("%s serialize(%s) -> request done in %s" % (self, return_type, duration))
         return json.dumps(output, default=json_util.default)
 
 

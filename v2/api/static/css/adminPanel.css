@@ -65,3 +65,6 @@ button.toggle_settlement_event_log {float: right; }
 
 .bg_spinner {float: right; }
 .bg_spinner img {width: 50px; }
+
+.warning {background-color: #FFFFCD;}
+.error {background-color: #F7482E; }

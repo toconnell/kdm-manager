@@ -2,7 +2,20 @@ app.controller("survivorSheetController", function($scope) {
     // this is the root controller for the survivor sheet; it is initialized
     // at the top of the sheet, so it's like...a mini root scope, sort of.
 
-    $scope.scratch = {}
+    // call this to set the $scope up
+    $scope.initializeScope = function() {
+        $scope.scratch = {}
+        $scope.userPromise.then(
+            function(payload) {
+                if ($scope.survivor.sheet.favorite.indexOf($scope.user_login) == -1) {
+                    $scope.scratch.favoriteBox = false;
+                } else {
+                    $scope.scratch.favoriteBox = true;
+                };
+            },
+        );
+    };
+
 
     $scope.incrementAttrib = function(attrib, modifier) {
         if ($scope.survivor.sheet[attrib] + modifier < 0) {return false};
@@ -26,19 +39,6 @@ app.controller("survivorSheetController", function($scope) {
         $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj);
     };
 
-    $scope.getLineage = function() {
-        // retrieves survivor lineage info from the API and sets 
-        // $scope.lineage
-        var res = $scope.getJSONfromAPI('survivor','get_lineage');
-        res.then(
-            function(payload) {
-                console.log("Retrieving survivor lineage data... ");
-                $scope.lineage = payload.data;
-                console.log('Lineage retrieved!');
-            },
-            function(errorPayload) {console.error("Could not retrieve survivor lineage from API!" + errorPayload);}
-        );
-    };
 
     // general sheet methods
     $scope.setSurvivorName = function() {
@@ -59,14 +59,17 @@ app.controller("survivorSheetController", function($scope) {
 
     $scope.toggleFavorite = function() {
 //        console.warn('toggling favorite status.');
-        if ($scope.survivor.sheet.favorite.indexOf($scope.user_login) === -1) {
+        var user_index = $scope.survivor.sheet.favorite.indexOf($scope.user_login);
+        if (user_index === -1) {
 //            console.log($scope.user_login + " is not in Survivor favorites list");
             $scope.postJSONtoAPI('survivor','add_favorite',{'user_email': $scope.user_login}, false);
             $scope.scratch.favoriteBox.checked = true;
+            $scope.survivor.sheet.favorite.push($scope.user_login);
         } else {
 //            console.log($scope.user_login + " is in Survivor favorites list");
             $scope.postJSONtoAPI('survivor','rm_favorite',{'user_email': $scope.user_login}, false);
             $scope.scratch.favoriteBox.checked = false;
+            $scope.survivor.sheet.favorite.splice(user_index, 1);
         };
     };
 
@@ -113,7 +116,7 @@ app.controller('abilitiesAndImpairmentsController', function($scope) {
         var ai_handle = $scope.newAI;
         if (ai_handle === null) {return false};
         $scope.survivor.sheet.abilities_and_impairments.push(ai_handle);
-        js_obj = {"handle": ai_handle, "type": "abilities_and_impairments"};
+        js_obj = {handle: ai_handle, type: "abilities_and_impairments"};
         $scope.postJSONtoAPI('survivor', 'add_game_asset', js_obj);
     };
 
@@ -280,7 +283,8 @@ app.controller('fightingArtsController', function($scope) {
     $scope.rmFightingArt = function(handle, index) {
         $scope.survivor.sheet.fighting_arts.splice(index, 1);
         js_obj = {"handle": handle, "type": "fighting_arts"};
-        $scope.postJSONtoAPI('survivor', 'rm_game_asset', js_obj);
+        $scope.postJSONtoAPI('survivor', 'rm_game_asset', js_obj, false);
+        $scope.initAssetLists();
     };
     $scope.toggleLevel = function($event, fa_handle, level) {
         var level = Number(level);
@@ -337,7 +341,7 @@ app.controller('survivorSpecialAttribsController', function($scope) {
             $scope.survivor.sheet[sa_handle] = true;
         };
         js_obj = {handle: sa_handle, value: $scope.survivor.sheet[sa_handle]};
-        $scope.postJSONtoAPI('survivor','set_special_attribute',js_obj);
+        $scope.postJSONtoAPI('survivor','set_special_attribute',js_obj, false);
     }; 
 });
 

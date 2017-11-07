@@ -215,8 +215,14 @@ def record_response_time(r):
        "method": request.method,
        "time": duration.total_seconds()
     })
+
+    if request.metering:
+        request.logger = get_logger()
+        request.logger.debug('[%s] %s response in %s ' % (request.method, request.url, duration))
+
     old_record_query = {"created_on": {"$lt": (datetime.now() - timedelta(days=7))}}
     removed_records = mdb.api_response_times.remove(old_record_query)
+
 
 #
 #   stub dictionary for creating the meta element of API returns
