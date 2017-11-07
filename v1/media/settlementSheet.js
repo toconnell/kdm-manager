@@ -133,7 +133,7 @@ app.controller("locationsController", function($scope) {
         $scope.newLocation = null;
     };
     $scope.rmLocation = function(index, loc_handle) {
-        $scope.settlement_sheet.locations.splice(index, 1);
+        $scope.settlement.sheet.locations.splice(index, 1);
         $scope.postJSONtoAPI('settlement', 'rm_location', {"handle": loc_handle}); 
     };
     $scope.setLocationLevel = function(loc_name, lvl) {
@@ -154,7 +154,7 @@ app.controller('innovationsController', function($scope) {
         };
     };
     $scope.innovationInSettlement = function(innovation) {
-        if ($scope.settlement_sheet.innovations.indexOf(innovation.handle) > -1) {return true};
+        if ($scope.settlement.sheet.innovations.indexOf(innovation.handle) > -1) {return true};
         return false; 
     };
 
@@ -165,7 +165,7 @@ app.controller('innovationsController', function($scope) {
         res.then(
             function(payload) {
                 $scope.innovation_deck = payload.data;
-                if ($scope.innovation_deck.length < 1 && $scope.settlement_sheet.innovations.length > 0) {
+                if ($scope.innovation_deck.length < 1 && $scope.settlement.sheet.innovations.length > 0) {
                     if (retry === undefined) {
                         console.warn("Empty Innovation Deck! Retrying...")
                         $scope.setInnovationDeck(true);
@@ -195,7 +195,7 @@ app.controller('innovationsController', function($scope) {
         $scope.postJSONtoAPI('settlement', 'set_innovation_level', js_obj);
     };
     $scope.rmInnovation = function(index, innovation_handle) {
-        $scope.settlement_sheet.innovations.splice(index,1);
+        $scope.settlement.sheet.innovations.splice(index,1);
         var js_obj = {"handle": innovation_handle};
         $scope.postJSONtoAPI('settlement', 'rm_innovation', js_obj); 
         sleep(500).then(() => {
@@ -235,7 +235,7 @@ app.controller('quarriesController', function($scope, $http) {
         $scope.postJSONtoAPI('settlement', 'add_monster', js_obj);
     };
     $scope.removeQuarry = function(x,q_handle) {
-        $scope.settlement_sheet.quarries.splice(x,1);
+        $scope.settlement.sheet.quarries.splice(x,1);
         var monster = $scope.settlement.game_assets.monsters[q_handle];
         $scope.settlement.game_assets.quarry_options.push(monster);
 
@@ -248,7 +248,7 @@ app.controller('quarriesController', function($scope, $http) {
 app.controller('nemesisEncountersController', function($scope) {
 
     $scope.nemesisLvlChecked = function(n_handle,n_lvl) {
-        var n_lvl_array = $scope.settlement_sheet.nemesis_encounters[n_handle];
+        var n_lvl_array = $scope.settlement.sheet.nemesis_encounters[n_handle];
         if ($scope.arrayContains(Number(n_lvl), n_lvl_array)) {
             return true
         } else {
@@ -259,7 +259,7 @@ app.controller('nemesisEncountersController', function($scope) {
     $scope.toggleNemesisLevel = function(n_handle,n_lvl,e) {
 //        console.log(n_handle + " " + n_lvl);
 //        console.log(e);
-        var n_lvl_array = $scope.settlement_sheet.nemesis_encounters[n_handle];
+        var n_lvl_array = $scope.settlement.sheet.nemesis_encounters[n_handle];
 //        console.log(n_lvl_array)
         if ($scope.arrayContains(n_lvl, n_lvl_array)) {
             e.target.control.checked = false;
@@ -273,14 +273,14 @@ app.controller('nemesisEncountersController', function($scope) {
     };
 
     $scope.rmNemesis = function(index, handle) {
-        $scope.settlement_sheet.nemesis_monsters.splice(index,1);
+        $scope.settlement.sheet.nemesis_monsters.splice(index,1);
         js_obj = {'handle': handle}
         $scope.postJSONtoAPI('settlement', 'rm_monster', js_obj);
     };
     $scope.addNemesis = function() {
         if ($scope.addNemesisMonster === null) {console.error("nemesis handle is null!"); return false};
-        $scope.settlement_sheet.nemesis_monsters.push($scope.addNemesisMonster);
-        $scope.settlement_sheet.nemesis_encounters[$scope.addNemesisMonster] = [];
+        $scope.settlement.sheet.nemesis_monsters.push($scope.addNemesisMonster);
+        $scope.settlement.sheet.nemesis_encounters[$scope.addNemesisMonster] = [];
         js_obj = {'handle': $scope.addNemesisMonster};
         $scope.postJSONtoAPI('settlement', 'add_monster', js_obj);
     };

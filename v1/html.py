@@ -1081,8 +1081,12 @@ class angularJS:
     <div
         class="modal"
         id="settlementNotesContainer"
+        ng-if="user != undefined"
         ng-controller="settlementNotesController"
-        ng-init="registerModalDiv('settlementNotesOpenerButton','settlementNotesContainer');"
+        ng-init="
+            registerModalDiv('settlementNotesOpenerButton','settlementNotesContainer');
+            showHide('settlementNotesOpenerButton');
+        "
     >
 
         <div class="full_size_modal_panel campaign_summary_gradient">
@@ -1104,7 +1108,7 @@ class angularJS:
 
                     <div
                         class="settlement_note"
-                        ng-repeat="n in settlement_notes"
+                        ng-repeat="n in settlement.sheet.settlement_notes"
                     >
                         <div class="note_flair">
                             <font
@@ -1115,11 +1119,12 @@ class angularJS:
                                 ng-if="userRole(n.author) == 'player'"
                                 class="kdm_font_hit_locations"
                             > <span class="flair_text">b</span> </font>
-                        </div>
+                        </div> <!-- note flair -->
 
-                        <div class="note_content" onclick="showHide(n.js_id);window.alert(n.js_id)">
+                        <div class="note_content" ng-click="showHide(n.js_id)">
                             {{n.note}} <span class="author" ng-if="n.author != user_login"> {{n.author}}</span>
-                        </div>
+                        </div> <!-- note content -->
+
                         <span
                             id="{{n.js_id}}"
                             class="kd_alert_no_exclaim note_remove hidden"
@@ -4577,13 +4582,22 @@ class settlement:
 
     form = Template("""\n\
 
-        <script src="/media/settlementSheet.js?v=$application_version"></script>
+    <script src="/media/settlementSheet.js?v=$application_version"></script>
 
-        <div
-            id = "settlement_sheet_angularjs_controller_container"
-            ng-init="initializeSettlement('settlementSheet', '$api_url','$settlement_id')"
-            ng-controller="settlementSheetController"
+    <div
+        id = "settlement_sheet_angularjs_controller_container"
+        ng-init="initializeSettlement('settlementSheet', '$api_url','$settlement_id')"
+        ng-controller="settlementSheetController"
+    >
+
+        <!-- once we get the settlement, init the user -->
+        <span
+            class="hidden"
+            ng-if="settlement != undefined"
+            ng-init="initializeUser('$user_id')"
         >
+            Hack City!
+        </span>
 
         <span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
         <span class="nav_bar_mobile mobile_only settlement_sheet_gradient"></span>
@@ -5808,7 +5822,6 @@ def render_burger(session_object=None):
 
     if view in ["view_survivor","view_campaign","view_settlement"]:
         actions += '<button id="timelineOpenerButton" class="sidenav_button">Timeline</button>'
-        actions += '<button id="settlementNotesOpenerButton" class="sidenav_button">Notes and Players</button>'
 
 
     burger_panel = Template("""\n
@@ -5832,6 +5845,14 @@ def render_burger(session_object=None):
 
             <h3>$settlement_name:</h3>
             $action_map
+
+
+            <button
+                id="settlementNotesOpenerButton"
+                class="sidenav_button hidden"
+                >
+            Notes and Players
+            </button>
 
             <button
                 id="huntPhaseOpenerButton"

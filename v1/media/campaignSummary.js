@@ -25,13 +25,13 @@ app.controller("endeavorController", function($scope) {
 
     $scope.addToken = function(){
         $scope.postJSONtoAPI('settlement', 'update_endeavor_tokens', {"modifier": 1}, false);
-        $scope.settlement_sheet.endeavor_tokens += 1;
+        $scope.settlement.sheet.endeavor_tokens += 1;
     };
 
     $scope.rmToken = function(){
         $scope.postJSONtoAPI('settlement', 'update_endeavor_tokens', {"modifier": -1}, false);
-        $scope.settlement_sheet.endeavor_tokens -= 1;
-        if ($scope.settlement_sheet.endeavor_tokens <= 0) {$scope.settlement_sheet.endeavor_tokens = 0;};
+        $scope.settlement.sheet.endeavor_tokens -= 1;
+        if ($scope.settlement.sheet.endeavor_tokens <= 0) {$scope.settlement.sheet.endeavor_tokens = 0;};
     };
 
 });

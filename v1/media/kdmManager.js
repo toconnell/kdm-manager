@@ -259,14 +259,16 @@ app.controller('rootController', function($scope, $rootScope, assetService, $htt
         // now do stuff that we need the settlement to do
         if ($scope.settlementPromise !== undefined) {
             $scope.settlementPromise.then(function() {
-
-                // determine if the user is a settlement admin
-                if ($scope.settlement.sheet.admins.indexOf($scope.user_login) == -1) {
-                    $scope.user_is_settlement_admin = false;
-                } else {
-                    $scope.user_is_settlement_admin = true;
-                    console.warn($scope.log_level + $scope.user_login + ' is a settlement admin!');
-                };
+                $scope.userPromise.then(function() {
+                    // determine if the user is a settlement admin
+                    if ($scope.settlement.sheet.admins.indexOf($scope.user_login) == -1) {
+                        $scope.user_is_settlement_admin = false;
+//                        console.error($scope.user_login + ' is not a settlement admin.');
+                    } else {
+                        $scope.user_is_settlement_admin = true;
+//                        console.warn($scope.user_login + ' is a settlement admin!');
+                    };
+                });
             });
         };
 
@@ -748,16 +750,6 @@ app.controller('playerManagementController', function($scope) {
 
 app.controller('settlementNotesController', function($scope, $rootScope) {
 
-    $scope.getID = function () {
-        var text = "";
-        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-        for( var i=0; i < 20; i++ )
-            text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-        return text;
-    };
-
     $scope.addNote = function () {
         if (!$scope.newNote) {return;}
         var new_note_object = {
@@ -767,22 +759,25 @@ app.controller('settlementNotesController', function($scope, $rootScope) {
             "js_id": $scope.getID(),
             "lantern_year": $scope.settlement.sheet.lantern_year,
         };
-        $scope.settlement_notes.unshift(new_note_object);
+        $scope.settlement.sheet.settlement_notes.unshift(new_note_object);
         $scope.postJSONtoAPI('settlement', 'add_note', new_note_object);
     };
     $scope.removeNote = function (x, note_js_id) {
-        $scope.settlement_notes.splice(x, 1);
+        $scope.settlement.sheet.settlement_notes.splice(x, 1);
         $scope.postJSONtoAPI('settlement', 'rm_note', {"js_id": note_js_id, "user_login": $scope.user_login})
         sleep(500).then(() => {
             $scope.reinitialize();
         });
     };
+
     $scope.userRole = function(login) {
-        if ($scope.arrayContains(login, $scope.settlement_sheet.admins)) {
-            return 'settlement_admin'} else {
+        if ($scope.settlement.sheet.admins.indexOf(login) == -1) {
             return 'player';
+        } else {
+            return 'settlement_admin'
         };
     };
+
 }); 
 
 app.controller('newSettlementController', function($scope, $http) {
