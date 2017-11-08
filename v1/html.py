@@ -940,7 +940,7 @@ class angularJS:
 
             <h3>Expansions!</h3>
 
-            <div class="expansions_controls_container" >
+            <div class="expansions_controls_container" ng-init="addNewSettlementsToScope('$api_url')">
                 <p>Use the controls below to determine which expansion content is
                 enabled for this campaign. Remember to save and reload when finished!</p>
 
@@ -3470,7 +3470,7 @@ class settlement:
     <div
         id="create_new_asset_form_container"
         ng-controller="newSettlementController"
-        ng-init="initNewSettlement('$api_url')"
+        ng-init="addNewSettlementsToScope('$api_url'); hideLoader();"
     >
 
         <form action="#" method="POST">
@@ -4769,7 +4769,6 @@ class settlement:
                         ng-repeat="s_type in settlementStorage"
                     >
                         <h3>{{s_type.name}} Storage</h3>
-
                         <div
                             ng-repeat="loc in s_type.locations"
                             ng-init="loc.arrow=false"
@@ -4846,6 +4845,14 @@ class settlement:
                 <h3 ng-if="s_type.total >= 1">
                     {{s_type.name}} Storage
                 </h3>
+                <div class="storage_location_keywords_rollup">
+                    <span
+                        class="keywords_rollup_item"
+                        ng-repeat="(kw, count) in s_type.keywords"
+                    >
+                        {{kw}}: {{count}}
+                    </span>
+                </div>
                 <div
                     class="settlement_storage_location"
                     ng-repeat="loc in s_type.locations"

@@ -179,8 +179,8 @@
                 <td>{{r.count}}</td>
                 <td>{{r.last_24_avg | limitTo:5}}</td>
                 <td ng-class="{'warning': r.avg_time >= 2, 'error': r.avg_time >=4}">{{r.avg_time | limitTo:5}}</td>
-                <td ng-class="{'warning': r.min_time >= 2, 'error': r.avg_time >=4}">{{r.min_time | limitTo:5}}</td>
-                <td ng-class="{'warning': r.max_time >= 2, 'error': r.avg_time >=4}">{{r.max_time | limitTo:5}}</td>
+                <td ng-class="{'warning': r.min_time >= 2, 'error': r.min_time >=4}">{{r.min_time | limitTo:5}}</td>
+                <td ng-class="{'warning': r.max_time >= 2, 'error': r.max_time >=4}">{{r.max_time | limitTo:5}}</td>
             </tr>
             </table>
         </div>

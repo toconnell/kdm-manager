@@ -679,7 +679,7 @@ div.endeavor_controls_toggle span {font-family: 'Metrophobic'; text-align: cente
 
 /* edit storage */
 div.storage_modal {background-color: #fff; padding: 0; }
-.storage_modal_storage_type h3 {text-align: left; border-bottom: 1px solid #999; padding-left: 1%; font-size: 55pt; }
+.storage_modal_storage_type h3 {text-align: left; border-bottom: 1px solid #999; padding-left: 1%; font-size: 55pt;}
 .storage_modal_storage_location h4 {text-align: left; padding-left: 2%; }
 .storage_modal_storage_location span.arrow {font-size: 10pt; }
 .inventory_row {font-family: 'Metrophobic'; border-bottom: 1px solid #ccc; }
@@ -689,6 +689,9 @@ div.storage_modal {background-color: #fff; padding: 0; }
 .inventory_row_detail {width: 80%; font-size: 40%; margin: 0 auto; margin-bottom: 3%; }
 .flippers {padding: 3%; display: flex; flex-direction: row; }
 .flippers button {width: 40%; padding: 1%; margin: 0 auto; font-weight: bold; }
+
+.storage_location_keywords_rollup {display: flex; flex-direction: row; width: 95%; margin: 0 auto; flex-wrap: wrap;}
+.keywords_rollup_item {font-family: 'Metrophobic'; font-size: 25pt; width: auto; margin-right: 4%; }
 
 .button_spacer {height: 10%; }
 button.close_storage {position: fixed; bottom: 1%; left: 1%; right: 1%; border-radius: 25px; font-family: 'Metrophobic'; margin: 0 auto; }
@@ -1639,6 +1642,9 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .inventory_repeater_detail {font-size: 11pt;}
     .inventory_repeater_detail div.rules {font-size: 12pt;}
 
+    .storage_location_keywords_rollup {margin-top: 2%; }
+    .keywords_rollup_item {font-size: 13pt; }
+
     /* storage modal - tablet */
     .storage_modal_storage_type h3 {margin-top: 2%; margin-bottom: 2%; font-size: 25pt; }
     .storage_modal_storage_location h4 {margin-top: 2%; margin-bottom: 2%; }
@@ -2093,6 +2099,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .settlement_storage_location span.arrow {font-size: 8pt; }
     .inventory_repeater {font-size: 10pt; margin-bottom: 7px; }
     .inventory_repeater_detail {font-size: 9pt;}
+    .keywords_rollup_item {font-size: 9pt; }
 
     /* settlement storage modal - wide */
     .storage_modal_storage_type {width: 50%; margin-left: 3%; }

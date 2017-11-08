@@ -63,16 +63,7 @@ function convertMS(millis) {
 
 var app = angular.module('kdmManager', []);
 
-// factories and services for angularjs modules
 
-
-app.factory('assetService', function($http) {
-    return {
-        getNewSettlementAssets: function(root_url) {
-            return $http.get(root_url + 'new_settlement');
-        }
-    }
-});
 
 // general-use filters and other AngularJS bric-a-brack
 app.filter('trustedHTML', 
@@ -109,10 +100,22 @@ app.filter('orderObjectBy', function() {
 
 
 
-app.controller('rootController', function($scope, $rootScope, assetService, $http) {
+app.controller('rootController', function($scope, $rootScope, $http) {
 
     // initialize rootScope elements here; these are set on every view
     $rootScope.showHide = showHide;
+
+    // new settlement assets
+    $scope.addNewSettlementsToScope = function(api_url) {
+        $scope.newSettlementPromise = $http.get(api_url + 'new_settlement');
+        $scope.newSettlementPromise.then(
+            function(payload) {
+                $scope.new_settlement_assets = payload.data;
+                $scope.showLoader = false;                
+            },
+            function(errorPayload) {console.log("Error loading new settlement assets!" + errorPayload);}
+        );
+    };
 
     //
     // methods below here
@@ -778,17 +781,11 @@ app.controller('settlementNotesController', function($scope, $rootScope) {
 
 app.controller('newSettlementController', function($scope, $http) {
     $scope.showLoader = true;
-    $scope.initNewSettlement = function(api_url) {
-        promise = $http.get(api_url + 'new_settlement');
-        promise.then(
-            function(payload) {
-                $scope.new_settlement_assets = payload.data;
-                $scope.showLoader = false;                
-            },
-            function(errorPayload) {console.log("Error loading new settlement assets!" + errorPayload);}
-        );
+    $scope.hideLoader = function() {
+        $scope.newSettlementPromise.then(function() {
+            $scope.showLoader = false;
+        });
     };
-
 
 });
 

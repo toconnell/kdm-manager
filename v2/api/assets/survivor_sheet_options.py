@@ -3,6 +3,7 @@ causes_of_death = {
     "spid_00":          {"name": "Necrotoxin", "context": "showdown", "expansion": "spidicules"},
     "spid_01":          {"name":"Embalmed", "context": "showdown", "expansion": "spidicules"},
     "spid_02":          {"name":"Became a Stalk Puppet", "context": "showdown", "expansion": "spidicules"},
+    "spid_03":          {"name":"Consumed a Venom Sac", "context": "consume", "expansion": "spidicules"},
 
     "manhunter_00":     {"name": "Death Pit", "context": "story_event", "expansion": "manhunter"},
     "manhunter_01":     {"name": "Lottery", "context": "story_event", "expansion": "manhunter"},

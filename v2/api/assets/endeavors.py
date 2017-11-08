@@ -291,6 +291,11 @@ expansions = {
         'desc': 'Spend 2x resources and 2x Dark Water to increase the level of <b>Dark Water Research</b> by 1, to a maximum of 3. (Update your settlement record sheet.)',
         'cost': 1,
     },
+    'dbk_horn_ceremony': {
+        'desc': 'Archive and roll 1d10.',
+        'cost': 1,
+        'requires_innovations': ['scarification'],
+    },
     'fear_and_trembling': {
         'name': 'Fear and Trembling',
         'desc': 'Once per settlement phase, a survivor may spend <font class="kdm_font">d</font> to approach the throne and roll 1d10.',

@@ -2243,6 +2243,22 @@ class Settlement(Models.UserAsset):
         gear_total = 0
         resources_total = 0
 
+        gear_keywords = {}
+        gear_rules = {}
+        resources_keywords = {}
+        resources_rules = {}
+
+
+        def rollup_keywords(kw_dict, kw_list):
+            """ Private func to add a list of keywords to a dictionary that keeps
+            a running tally of them ."""
+
+            for kw in kw_list:
+                if kw not in kw_dict.keys():
+                    kw_dict[kw] = 1
+                else:
+                    kw_dict[kw] += 1
+
 
         # get available storage locations into a dictionary of dicts
         storage_repr = self.get_available_assets(storage)['storage']
@@ -2253,18 +2269,32 @@ class Settlement(Models.UserAsset):
             storage_repr[k]['inventory'] = []
             storage_repr[k]['digest'] = collections.OrderedDict()
             storage_repr[k]['collection'] = []
+
             S = storage.Storage(k)
             for handle in S.get_collection():
                 if S.sub_type == 'gear':
                     item_obj = gear.Gear(handle)
                 elif S.sub_type == 'resources':
                     item_obj = resources.Resource(handle)
+                else:
+                    raise utils.InvalidUsage("Unknown item type '%s'!" % S)
+
+                # now that we've got an item object, touch it up and add it to the
+                # locations 'collection' dict, updating the keywords rollup as we go
                 if self.is_compatible(item_obj):
                     item_obj.quantity = self.settlement['storage'].count(item_obj.handle)
+
                     if S.sub_type == 'gear':
                         gear_total += item_obj.quantity
+                        for i in range(item_obj.quantity):
+                            rollup_keywords(gear_keywords, item_obj.keywords)
+                            rollup_keywords(gear_rules, item_obj.rules)
                     elif S.sub_type == 'resources':
                         resources_total += item_obj.quantity
+                        for i in range(item_obj.quantity):
+                            rollup_keywords(resources_keywords, item_obj.keywords)
+                            rollup_keywords(resources_rules, item_obj.rules)
+
                     storage_repr[k]['collection'].append(item_obj.serialize(dict))
 
             # use expansion flair colors for gear locations from expansions
@@ -2294,8 +2324,23 @@ class Settlement(Models.UserAsset):
                 storage_repr[k]['digest'].append(value)
 
         #finally, package up our main dicts for export as JSON
-        gear_dict = {'storage_type': 'gear', 'name': 'Gear', 'locations': [], 'total': gear_total}
-        reso_dict = {'storage_type': 'resources', 'name': 'Resource', 'locations': [], 'total': resources_total}
+        gear_dict = {
+            'storage_type': 'gear',
+            'name': 'Gear',
+            'locations': [],
+            'total': gear_total,
+            'keywords': gear_keywords,
+            'rules': gear_rules,
+        }
+        reso_dict = {
+            'storage_type': 'resources',
+            'name': 'Resource',
+            'locations': [],
+            'total': resources_total,
+            'keywords': resources_keywords,
+            'rules': resources_rules,
+        }
+
         for k in storage_repr.keys():
             if storage_repr[k]['sub_type'] == 'gear':
                 gear_dict['locations'].append(storage_repr[k])
