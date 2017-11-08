@@ -1190,7 +1190,7 @@ class Settlement(Models.UserAsset):
 
 
         # 6.) increment endeavors
-        if showdown_type == 'normal' and live_returns != [] and aftermath == victory:
+        if showdown_type == 'normal' and live_returns != [] and aftermath == "victory":
             self.update_endeavor_tokens(len(live_returns), save=False)
 
         self.save()
