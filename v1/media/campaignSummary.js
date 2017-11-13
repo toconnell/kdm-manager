@@ -1,4 +1,15 @@
 
+// main campaignSummary controller / root / container
+app.controller ("campaignSummaryController", function($scope) {
+    $scope.getStorage = function() {
+        $scope.getJSONfromAPI('settlement','get_storage', 'getStorage').then(
+            function(payload) { $scope.settlementStorage = payload.data; },
+            function(errorPayload) {console.log("Could not retrieve settlement storage from API!" + errorPayload);}
+        );
+    };
+});
+
+
 // survivor search
 
 app.controller ("survivorSearchController", function($scope) {
@@ -100,6 +111,7 @@ app.controller("manageDepartingSurvivorsController", function($scope, $rootScope
         $scope.postJSONtoAPI('settlement','set_showdown_type',js_obj, false);
     };
 });
+
 
 
 app.controller('survivorManagementController', function($scope, $rootScope) {

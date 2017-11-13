@@ -252,6 +252,96 @@ core = {
     },
 }
 
+lingering_effects = {
+    'acid_storm_distillation': {
+        'name': 'Acid Storm Distillation',
+        'cost': 1,
+        'desc': 'roll 1d10',
+        'requires_innovations': ['cooking'],
+    },
+    'acid_storm_exercise': {
+        'name': 'Acid Storm Exercise',
+        'cost': 1,
+        'desc': 'roll 1d10',
+        'requires_innovations': ['nightmare_training'],
+    },
+    'automatic_writing': {
+        'name': 'Automatic Writing',
+        'cost': 1,
+        'desc': 'roll 1d10',
+        'requires_innovations': ['pictograph'],
+    },
+    'brave_the_maw': {
+        'name': 'Brave the Maw',
+        'cost': 1,
+    },
+    'breathe_fumes': {
+        'name': 'Breathe Fumes',
+        'cost': 1,
+    },
+    'deep_listen': {
+        'name': 'Deep Listen',
+        'cost': 1,
+        'desc': 'Spend 2 resources',
+    },
+    'duel': {
+        'name': 'Duel',
+        'cost': 2,
+    },
+    'find_fluid': {
+        'name': 'Find Fluid',
+        'cost': 1,
+    },
+    'lights_in_the_sky_01': {
+        'name': 'Lights in the Sky: Graves',
+        'cost': 1,
+        'desc': 'Once per settlement phase',
+        'requires_innovations': ['graves'],
+    },
+    'lights_in_the_sky_02': {
+        'name': 'Lights in the Sky: Face Painting',
+        'cost': 1,
+        'desc': 'Once per settlement phase',
+        'requires_innovations': ['face_painting'],
+    },
+    'lights_in_the_sky_03': {
+        'name': 'Lights in the Sky: Inner Lantern',
+        'cost': 1,
+        'desc': 'Once per settlement phase',
+        'requires_innovations': ['inner_lantern'],
+    },
+    'rename': {
+        'name': 'Rename',
+        'cost': 1,
+        'desc': 'Spend 1 organ, roll id10',
+        'requires_innovations': ['pictograph'],
+    },
+    'silk_diet': {
+        'name': 'Silk Diet',
+        'cost': 1,
+    },
+    'talk_to_legless_ball': {
+        'name': 'Talk to Legless Ball',
+        'cost': 1,
+        'requires_innovations': ['legless_ball'],
+    },
+    'treatment': {
+        'name': 'Treatment',
+        'cost': 1,
+        'requires_innovations': ['ammonia'],
+    },
+    'vapor_scar': {
+        'name': 'Vapor Scar',
+        'cost': 1,
+        'requires_innovations': ['scarification'],
+    },
+    'vapor_visions': {
+        'name': 'Vapor Visions',
+        'cost': 1,
+        'requires_innovations': ['shrine'],
+    },
+}
+
 campaigns = {
     'potskull_skull_ritual': {
         'name': "Skull Ritual",
@@ -292,6 +382,7 @@ expansions = {
         'cost': 1,
     },
     'dbk_horn_ceremony': {
+        'name': 'Horn Ceremony',
         'desc': 'Archive and roll 1d10.',
         'cost': 1,
         'requires_innovations': ['scarification'],

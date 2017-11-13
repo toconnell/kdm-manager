@@ -10,6 +10,7 @@ import json
 import jwt
 import os
 import random
+import socket
 import string
 from werkzeug.security import safe_str_cmp
 
@@ -216,6 +217,9 @@ class User(Models.UserAsset):
         # JWT needs this
         self.id = str(self.user["_id"])
 
+        # baseline/normalize
+        self.normalize()
+
         # random initialization methods
         self.set_current_settlement()
 
@@ -297,7 +301,7 @@ class User(Models.UserAsset):
             output["user"]["has_session"] = self.has_session()
             output["user"]["is_active"] = self.is_active()
             output['user']["friend_list"] = self.get_friends(list)
-            output['user']["current_session"] = utils.mdb.sessions.find_one({"_id": self.user["current_session"]})
+            output['user']["current_session"] = utils.mdb.sessions.find_one({"_id": self._id})
             output["user"]["survivors_created"] = self.get_survivors(return_type=int)
             output["user"]["survivors_owned"] = self.get_survivors(qualifier="owner", return_type=int)
             output["user"]["settlements_administered"] = self.get_settlements(qualifier="admin", return_type=int)
@@ -308,7 +312,7 @@ class User(Models.UserAsset):
 #        output["user_assets"]["survivors"] = self.get_survivors(return_type=list)
 
 
-        if return_type == 'admin_panel':
+        if return_type in ['admin_panel','create_new']:
             return output
 
         return json.dumps(output, default=json_util.default)
@@ -370,16 +374,16 @@ class User(Models.UserAsset):
             return True
 
         settlements = self.get_settlements()
-        if settlements.count() != 0:
+        if len(settlements) != 0:
             self.user["current_settlement"] = settlements[0]["_id"]
             self.logger.warn("Defaulting 'current_settlement' to %s for %s" % (settlements[0]["_id"], self))
-        elif settlements.count() == 0:
+        elif len(settlements) == 0:
             self.logger.debug("User %s does not own or administer any settlements!" % self)
             p_settlements = self.get_settlements(qualifier="player")
-            if p_settlements.count() != 0:
+            if len(p_settlements) != 0:
                 self.user["current_settlement"] = p_settlements[0]["_id"]
                 self.logger.warn("Defaulting 'current_settlement' to %s for %s" % (p_settlements[0]["_id"], self))
-            elif p_settlements.count() == 0:
+            elif len(p_settlements) == 0:
                 self.logger.warn("Unable to default a 'current_settlement' value for %s" % self)
                 self.user["current_settlement"] = None
 
@@ -644,11 +648,38 @@ class User(Models.UserAsset):
         else:
             raise Exception("'%s' is not a valid qualifier for this method!" % qualifier)
 
+
+        # change settlements to a list so we can do python post-process
+        settlements = list(settlements)
+
+	# settlement age support/freemium wall
+        # first, see if we even need to be here
+        sub_level = self.get_subscriber_level()
+        if sub_level > 1:
+            pass
+	else:
+            self.logger.info("%s Subscriber level is %s. Checking settlement asset ages..." % (self, sub_level))
+            for s in settlements:
+                asset_age = datetime.now() - s['created_on']
+                if asset_age.days > settings.get('application','free_user_settlement_age_max'):
+                    self.logger.warn("%s settlement '%s' is more than %s days old!" % (self, s['name'], settings.get('application','free_user_settlement_age_max')))
+                    msg = utils.html_file_to_template('html/auto_remove_settlement.html')
+                    msg = msg.safe_substitute(
+                        settlement_name=s['name'],
+                        settlement_age = asset_age.days,
+                        user_email = request.User.login,
+                        user_id = request.User._id,
+                    )
+                    e = utils.mailSession()
+                    e.send(subject="Settlement auto-remove! [%s]" % socket.getfqdn(), recipients=settings.get('application','email_alerts').split(','), html_msg=msg)
+                    s['removed'] = datetime.now()
+                    utils.mdb.settlements.save(s)
+                    settlements.remove(s)
+
         if return_type == int:
-            return settlements.count()
+            return len(settlements)
         elif return_type == list:
             output = [s["_id"] for s in settlements]
-            output = list(set(output))
             return output
         elif return_type == "asset_list":
             output = []
@@ -665,6 +696,12 @@ class User(Models.UserAsset):
             return output
 
         return settlements
+
+
+    def get_subscriber_level(self):
+        """ Returns the user's subscriber level as an int. """
+        p = self.get_patron_attributes()
+        return p['level']
 
 
     def get_survivors(self, qualifier=None, return_type=None):
@@ -698,6 +735,27 @@ class User(Models.UserAsset):
             return output
 
         return survivors
+
+
+    #
+    #   baseline/normalize
+    #
+
+    def normalize(self):
+        """ Force/coerce the user into compliace with our data model for users. """
+
+        self.perform_save = False
+
+        if not 'preferences' in self.user.keys():
+            self.user['preferences'] = {'preserve_sessions': False}
+            self.logger.warn("%s has no 'preferences' attrib! Normalizing..." % self)
+            self.perform_save = True
+
+
+        if self.perform_save:
+            self.save()
+
+
 
 
     #

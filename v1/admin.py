@@ -51,9 +51,9 @@ def get_response_times():
 def prune_sessions():
     """ Removes sessions older than 24 hours. """
     yesterday = datetime.now() - timedelta(days=1)
-    logger.debug("Searching for sessions older than %s to prune..." % yesterday)
+#    logger.debug("Searching for sessions older than %s to prune..." % yesterday)
     old_sessions = mdb.sessions.find({"created_on": {"$lt": yesterday}}).sort("created_on")
-    logger.debug("%s sessions found." % old_sessions.count())
+#    logger.debug("%s sessions found." % old_sessions.count())
 
     pruned_sessions = 0
     preserved_sessions = 0
@@ -61,14 +61,12 @@ def prune_sessions():
         user = mdb.users.find_one({"login": s["login"]})
         U = assets.User(user["_id"], session_object=admin_session)
         if U.is_admin():
-#            logger.debug("Preserving session for admin user '%s'" % user["login"])
             preserved_sessions += 1
-        elif U.get_preference("preserve_sessions") and s["created_on"] > thirty_days_ago:   # if it's older than 30 days, ignore the preference
-#            logger.debug("Preserving session for user '%s' because of user preference." % user["login"])
+        elif U.user['preferences'].get("preserve_sessions",False) and s["created_on"] > thirty_days_ago:   # if it's older than 30 days, ignore the preference
             preserved_sessions += 1
         else:
             s_id = s["_id"]
-            logger.debug("Pruning old session '%s' (%s)" % (s_id, s["login"]))
+#            logger.debug("Pruning old session '%s' (%s)" % (s_id, s["login"]))
             remove_session(s_id, "admin")
             pruned_sessions += 1
 
@@ -98,11 +96,11 @@ def authenticate(login, password):
     if safe_str_cmp(md5(password).hexdigest(), user["password"]):
         user["latest_sign_in"] = datetime.now()
         mdb.users.save(user)
-        logger.debug("User '%s' authenticated successfully (%s)." % (login, get_user_agent()))
+#        logger.debug("User '%s' authenticated successfully (%s)." % (login, get_user_agent()))
         prune_sessions()
         return True
     else:
-        logger.debug("User '%s' FAILED to authenticate successfully." % login)
+        logger.warn("User '%s' FAILED to authenticate successfully." % login)
         return False
 
 
@@ -337,6 +335,18 @@ def update_user_password(user_id, password):
     User.update_password(password)
 
 
+def update_user(u_id, remove_attrib=None):
+    User = assets.User(user_id=ObjectId(u_id), session_object=admin_session)
+    try:
+        del User.user[remove_attrib]
+        User.save()
+        print("\n Removed '%s' attribute from %s\n" % (remove_attrib, User))
+    except Exception as e:
+        print("\n Could not remove attribute '%s' from %s!\n" % (remove_attrib, User))
+
+    dump_document('users', User.user['_id'])
+
+
 def motd():
     """ Creates a CLI MoTD. """
     users = mdb.users.find()
@@ -554,7 +564,7 @@ def export_data(u_id):
     print("Export successful!\n -> %s" % filename)
 
 
-def import_data(data_pickle_path):
+def import_data(data_pickle_path, force=False):
     """ Takes a pickle of User and asset data and imports it into the local MDB.
     This will absolutely overwrite/clobber any documents whose _id values match
     those in the pickled data. YHBW. """
@@ -613,7 +623,11 @@ def import_data(data_pickle_path):
     mdb.sessions.remove({"login": data["user"]["login"]})
     print(" Removed session(s) belonging to incoming user.")
 
-    manual_approve = raw_input(' Reset password for %s? Type "YES" to reset: ' % data["user"]["login"])
+    if force:
+        manual_approve = "YES"
+    else:
+        manual_approve = raw_input(' Reset password for %s? Type "YES" to reset: ' % data["user"]["login"])
+
     if manual_approve == "YES":
         U = assets.User(user_id=data["user"]["_id"], session_object=admin_session)
         U.update_password("password")
@@ -676,6 +690,9 @@ if __name__ == "__main__":
 
     if options.user_id and options.user_pass:
         update_user_password(options.user_id, options.user_pass)
+
+    if options.user_id and options.remove_attrib:
+        update_user(options.user_id, remove_attrib=options.remove_attrib)
 
     if options.toggle_admin:
         toggle_admin_status(options.toggle_admin)

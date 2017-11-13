@@ -1430,18 +1430,29 @@
             <td> /survivor/set_many_attributes/&lt;survivor_id&gt; </td>
             <td> POST </td>
             <td>
-                <p>This one works similarly to <code>/survivor/set_attribute/&lt;survivor_id&gt;</code>,
-                except it can update a list of attribute key/value pairs.</p>
-                <p>The body of your POST should look like this:</p>
+                <p>This one works similarly to <code>/survivor/set_attribute/&lt;survivor_id&gt;</code>
+                or <code>/survivor/set_attribute_detail&lt;survivor_id&gt;</code>,
+                except it can update a list of attribute/value pairs and/or
+                a list of attribute/detail/value pairs.</p>
+                <p>Assuming you want to update the base values as well as the
+                details (i.e. attribute modifiers, in game parlance), the body
+                of your POST should look something like this:</p>
                 <pre><code>{
     attributes: [
         {attribute: 'Strength', value: 2},
         {attribute: 'survival', value: 5}
-    ]
+    ],
+    attribute_details: [
+        {'attribute': 'Luck', 'detail': 'tokens', 'value': 2},
+        {'attribute': 'Strength', 'detail': 'gear', 'value': -1}
+    ],
 }</code></pre>
                 <p><b>Important!</b> Since the <code>attributes</code> array will
                 be processed as a Python <code>list</code> type object, attributes
                 will be updated synchronously, in the order they are posted.</p>
+                <p><b>Important!</b> Failures in this method <u>are not atomic</u>,
+                which means that if one hash causes a failure, the whole request
+                will fail and nothing will be saved!</p>
             </td>
         </tr>
         <tr class="ul">

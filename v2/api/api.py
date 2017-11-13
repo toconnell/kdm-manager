@@ -196,7 +196,12 @@ def new_asset(asset_type):
     #   yet, obvi. Instead, initialize a user obj w/ no _id to call User.new().
     if asset_type == 'user':
         U = users.User()
-        return U.serialize()
+        output = U.serialize('create_new')
+        output["Authorization"] = {
+           'access_token': flask_jwt_extended.create_access_token(identity=U.jsonize()),
+           "_id": str(U.user["_id"]),
+        }
+        return Response(response=json.dumps(output, default=json_util.default), status=200, mimetype="application/json")
 
     request.collection = asset_type
     request.User = users.token_to_object(request)

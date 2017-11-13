@@ -1,18 +1,20 @@
 #!/usr/bin/python2.7
 
 from bson.objectid import ObjectId
-from copy import copy
+from copy import copy, deepcopy
 from datetime import datetime, timedelta
 import json
 from bson import json_util
 import inspect
 import operator
 import random
+import socket
 
 from flask import request, Response
 
 import utils
 import models
+import settings
 
 #
 #   Base classes for game assets are here. Also, special exceptions for those
@@ -596,6 +598,7 @@ class UserAsset():
         self.params = params
 
 
+
     def check_request_params(self, keys=[], verbose=True, raise_exception=True):
         """ Checks self.params for the presence of all keys specified in 'keys'
         list. Returns True if they're present and False if they're not.
@@ -640,6 +643,11 @@ class UserAsset():
 	if self.collection == "survivors":
             c_handle = self.Settlement.settlement["campaign"]
         elif self.collection == "settlements":
+            # 2017-11-13 - bug fix - missing campaign attrib
+            if not "campaign" in self.settlement.keys():
+                self.settlement["campaign"] = 'people_of_the_lantern'
+                self.logger.warn("%s is a legacy settlement! Adding missing 'campaign' attribute!" % self)
+                self.save()
             c_handle = self.settlement["campaign"]
         else:
             msg = "Objects whose collection is '%s' may not call the get_campaign() method!" % (self.collection)
@@ -664,13 +672,20 @@ class UserAsset():
     def get_serialize_meta(self):
         """ Sets the 'meta' dictionary for the object when it is serialized. """
 
-        output = copy(utils.api_meta)
+        output = deepcopy(utils.api_meta)
+
+        if output['meta'].keys() != ['webapp','api','object']:
+            stack = inspect.stack()
+            the_class = stack[1][0].f_locals["self"].__class__
+            the_method = stack[1][0].f_code.co_name
+            msg = "Models.UserAsset.get_serialize_meta() got modified 'meta' (%s) dict during call by %s.%s()!" % (output['meta'].keys(), the_class, the_method)
+            self.logger.error(msg)
+
         try:
             output["meta"]["object"]["version"] = self.object_version
         except Exception as e:
             self.logger.error("Could not create 'meta' dictionary when serializing object!")
             self.logger.exception(e)
-            self.logger.warn(utils.api_meta)
             self.logger.warn(output["meta"])
         return output
 

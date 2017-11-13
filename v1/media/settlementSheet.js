@@ -109,7 +109,8 @@ app.controller("storageController", function($scope) {
 app.controller("settlementSheetController", function($scope) {
     $scope.scratch = {} 
     $scope.setSettlementName = function() {
-        js_obj = {name: $scope.scratch.newSettlementName};
+        var newName = document.getElementById('settlementName').innerHTML;
+        js_obj = {name: newName};
         $scope.postJSONtoAPI('settlement', 'set_name', js_obj);
     };
     $scope.incrementAttrib = function(attrib, modifier) {
@@ -208,14 +209,14 @@ app.controller('innovationsController', function($scope) {
 app.controller('defeatedMonstersController', function($scope, $http) {
     $scope.addDefeatedMonster = function() {
         js_obj = {'monster': $scope.dMonst}
-        $scope.postJSONtoAPI('settlement', 'add_defeated_monster', js_obj);
+        $scope.postJSONtoAPI('settlement', 'add_defeated_monster', js_obj, false);
         $scope.settlement.sheet.defeated_monsters.push($scope.dMonst);
         $scope.dMonst = null;
 
     };
     $scope.rmDefeatedMonster = function(index, monster) {
         js_obj = {'monster': monster}
-        $scope.postJSONtoAPI('settlement', 'rm_defeated_monster', js_obj);
+        $scope.postJSONtoAPI('settlement', 'rm_defeated_monster', js_obj, false);
         $scope.settlement.sheet.defeated_monsters.splice(index,1);
     };
 });

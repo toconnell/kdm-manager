@@ -127,7 +127,7 @@ app.controller("newUserController", function($scope, $http) {
                 console.error(r);
                 $scope.loading('off');
                 var error_div = document.getElementById('new_user_error_alert');
-                error_div.innerHTML = r.message;
+                error_div.innerHTML = r;
                 $scope.showControls('new_user_error');
             }
         );

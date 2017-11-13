@@ -264,7 +264,7 @@
                     ng-if="w.value_type == 'int' || w.value_type == 'float'" 
                     ng-click="showHide(w.handle + '_tooltip')"
                 >
-                    <div class="world_key">{{w.name}}:</div>
+                    <div class="world_key">{{w.name}} ({{w.value_type}}):</div>
                     <div class="world_value">{{w.value}}</div>
                     <span id="{{w.handle}}_tooltip" class="world_tooltip">
                         <i>comment:</i> {{w.comment}}<br/>

@@ -52,6 +52,8 @@ causes_of_death = {
 
     "watcher_00":       {"name": "Purified", "context": "showdown"},
 
+    "gsk_00":           {'name': 'Diaphoresis', 'context': 'showdown'},
+
     # hunt event
     "core_statue":              {"name": "Touched the statue", "context": "hunt_event"},
     "core_stone_face":          {"name": "Devoured by a stone face", "context": "hunt_event"},
@@ -60,6 +62,7 @@ causes_of_death = {
     "core_death_wager":         {"name": "Death Wager", "context": "hunt_event"},
     "core_the_gambler":         {"name": "The Gambler", "context": "hunt_event"},
     "core_consuming_grass":     {"name": "Consuming grass", "context": "hunt_event"},
+    "core_golden_ember":        {"name": "Golden Ember", "context": "hunt_event"},
 
     # severe-injury
     "core_bled_out":            {"name": "Bled out", "context": "severe_injury"},

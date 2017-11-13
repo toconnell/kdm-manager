@@ -15,6 +15,7 @@ from bson.son import SON
 from bson import json_util
 from bson.objectid import ObjectId
 import collections
+from copy import copy
 import daemon
 from datetime import datetime, timedelta
 import json
@@ -200,7 +201,7 @@ class World:
         """ Dump world data in a few different formats."""
 
         # initialize our final dict
-        d = utils.api_meta
+        d = copy(utils.api_meta)
         d["meta"]["object"]["panel_revision"] = settings.get("application","panel_revision")
         d["world"] = collections.OrderedDict()
 

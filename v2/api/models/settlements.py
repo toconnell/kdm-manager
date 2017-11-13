@@ -103,6 +103,7 @@ class Settlement(Models.UserAsset):
     def init_asset_collections(self):
         """ Generally you want Models.UserAsset.load() to call this method. """
 
+        self.Campaigns = campaigns.Assets()
         self.Endeavors = endeavors.Assets()
         self.Events = events.Assets()
         self.Expansions = expansions.Assets()
@@ -348,12 +349,13 @@ class Settlement(Models.UserAsset):
         """ Renders the settlement, including all methods and supplements, as
         a monster JSON object. This is where all views come from."""
 
+        output = self.get_serialize_meta()
+
         # do some tidiness operations first
         for k in ["locations","innovations"]:
             self.settlement[k] = sorted(self.settlement[k])
 
         # now start
-        output = self.get_serialize_meta()
         output["meta"].update({
             'creator_email': utils.mdb.users.find_one({'_id': self.settlement["created_by"]})['login'],
             'age': utils.get_time_elapsed_since(self.settlement["created_on"], units='age'),
@@ -1284,10 +1286,11 @@ class Settlement(Models.UserAsset):
 
         if new_name is None:
             self.check_request_params(['name'])
-            new_name = self.params["name"].strip()
+            new_name = self.params["name"]
 
         if new_name == "":
             new_name = "UNKNOWN"
+        new_name = new_name.strip()
 
         old_name = self.settlement["name"]
         self.settlement["name"] = new_name
@@ -1757,7 +1760,8 @@ class Settlement(Models.UserAsset):
                 if e_dict.get('hide_if_settlement_attribute_exists', None) in self.settlement.keys():
                     eligible = False
                 for req_inno in e_dict.get('requires_innovations', []):
-                    if req_inno not in self.settlement['innovations']:
+#                    if req_inno not in self.settlement['innovations']:
+                    if req_inno not in self.get_innovations(include_principles=True):
                         eligible = False
                 if eligible:
                     eligible_endeavor_handles.append(e_handle)
@@ -1800,6 +1804,19 @@ class Settlement(Models.UserAsset):
                 s_dict['sheet']['endeavors'] = available_e
                 survivor_endeavors.append(s_dict)
         available['survivors'] = survivor_endeavors
+
+        # settlement events - crazy hacks here
+        settlement_events = []
+        current_ly = self.get_timeline_year(self.get_current_ly())
+        events = current_ly.get('settlement_event', None)
+        if events is not None:
+            for event_dict in events:
+                event_asset = self.Events.get_asset(event_dict['handle'])
+                if event_asset.get('endeavors',None) is not None:
+                    eligible_endeavor_handles = get_eligible_endeavors(event_asset['endeavors'])
+                    if len(eligible_endeavor_handles) >= 1:
+                        event_asset['endeavors'] = eligible_endeavor_handles
+                        available['settlement_events'].append(event_asset)
 
         return available
 
@@ -2389,7 +2406,7 @@ class Settlement(Models.UserAsset):
 
         if return_type == 'initialize':
             self.survivors = []
-            query = {"settlement": self.settlement["_id"]}
+            query = {"settlement": self.settlement["_id"], "removed": {"$exists": False}}
 
             # query mods
             if excluded != []:
@@ -2746,6 +2763,14 @@ class Settlement(Models.UserAsset):
         return output
 
 
+    def get_timeline_year(self, target_ly=0):
+        """ Accepts an int 'ly' and returns that LY's dictionary (as a copy). """
+
+        for ly in self.settlement['timeline']:
+            if int(ly['year']) == int(target_ly):
+                return copy(ly)
+
+
     def get_timeline_monster_event_options(self, context=None):
         """ Returns a sorted list of strings (they call it an 'array' in JS,
         because they fancy) representing the settlement's possible showdowns,
@@ -2950,11 +2975,12 @@ class Settlement(Models.UserAsset):
 
         incoming_name = self.settlement["campaign"]
 
-        C = campaigns.Assets()
+        if self.settlement['campaign'] in self.Campaigns.get_handles():
+            return True
 
         sorting_hat = {}
-        for handle in C.get_handles():
-            c_dict = C.get_asset(handle)
+        for handle in self.Campaigns.get_handles():
+            c_dict = self.Campaigns.get_asset(handle)
             sorting_hat[c_dict["name"]] = handle
 
         try:

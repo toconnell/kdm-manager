@@ -647,6 +647,7 @@ neuter = [
     "Caelan",
     "Dana",
     "Drew",
+    "Error",
     "Ghost",
     "Hayden",
     "Hunter",

@@ -21,7 +21,7 @@ gear = {
  # expansions
  'black_harvest': {'expansion': 'dung_beetle_knight', 'name': 'Black Harvest'},
  'dragon_armory': {'name': 'Dragon Armory', 'expansion': 'dragon_king'},
- 'gear_recipe': {'name': 'Gear Recipe'},
+ 'gear_recipe': {'name': 'Gear Recipe', 'expansion': 'white_box'},
  'gormchymist': {'expansion': 'gorm', 'name': 'Gormchymist'},
  'gormery': {'expansion': 'gorm', 'name': 'Gormery'},
  'green_knight_armor': {'name': 'Green Knight Armor', 'expansion': 'green_knight_armor'},

@@ -39,6 +39,10 @@ abilities_and_impairments = {
         'skip_next_hunt': True,
         'type': 'impairment'
     },
+    'burnt_nerves': {
+        'name': 'Burnt Nerves',
+        'desc': 'You are immune to <b>Bash</b>.',
+    },
     'cancerous_illness': {
         'desc': 'You cannot gain survival.',
         'name': 'Cancerous Illness',
@@ -174,6 +178,11 @@ abilities_and_impairments = {
         'epithet': 'lucernae',
         'related': ['dream_of_the_lantern', 'life_exchange'],
         'type': 'ability'
+    },
+    'mad_oracle': {
+        'desc': 'Once per showdown, as a monster draws an AI, name a card out loud. If the AI card drawn is the card you named, gain +1 evasion token.',
+        'name': 'Mad Oracle',
+        'type': 'ability',
     },
     'marrow_hunger': {
         'desc': 'When the Murder or Skull Eater settlement events are drawn, this survivor is nominated.',

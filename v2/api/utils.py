@@ -63,6 +63,13 @@ def cli_dump(key, spacer, value):
 
     print(output)
 
+
+def html_file_to_template(rel_path):
+    """ Turns an HTML file into a string.Template object. """
+    tmp_file = os.path.join(settings.get("api","cwd"), rel_path)
+    return Template(file(tmp_file, "rb").read())
+
+
 def seconds_to_hms(seconds):
     """ Converts seconds (expressed as int) to a h:m:s string. """
     m, s = divmod(seconds, 60)
@@ -475,8 +482,9 @@ def email_exception(exception):
         request.User = noUser()
 
     # finally, prepare the message template and the traceback for emailing
-    tmp_file = os.path.join(settings.get("api","cwd"), "html/exception_alert.html")
-    msg = Template(file(tmp_file, "rb").read())
+#    tmp_file = os.path.join(settings.get("api","cwd"), "html/exception_alert.html")
+#    msg = Template(file(tmp_file, "rb").read())
+    msg = html_file_to_template("html/exception_alert.html")
     tb = traceback.format_exc().replace("    ","&ensp;").replace("\n","<br/>")
 
     # do it

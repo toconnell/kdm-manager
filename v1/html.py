@@ -103,18 +103,15 @@ class ui:
 
 class dashboard:
     # flash
-    down_arrow_flash = '<img class="dashboard_down_arrow" src="%s/icons/down_arrow.png"/> ' % settings.get("application", "STATIC_URL")
     campaign_flash = '<img class="dashboard_icon" src="%s/icons/campaign.png"/> ' % settings.get("application", "STATIC_URL")
-    settlement_flash = '<img class="dashboard_icon" src="%s/icons/settlement.png"/> ' % settings.get("application", "STATIC_URL")
-    system_flash = '<img class="dashboard_icon" src="%s/icons/system.png"/> ' % settings.get("application", "STATIC_URL")
     refresh_flash = '<img class="dashboard_icon" src="%s/icons/refresh.png"/> ' % settings.get("application", "STATIC_URL")
 
 
     # AngularJS and V2 stuff
 
     # settlement administrivia; needs to be above the dashboard accordions
-    panel_button = '<form action="#" method="POST"><input type="hidden" name="change_view" value="panel"/><button class="dashboard_admin_panel_launch_button kd_blue tablet_and_desktop">Admin Panel!</button></form>\n'
-    new_settlement_button = '<form method="POST" action="#"><input type="hidden" name="change_view" value="new_settlement" /><button class="kd_blue">+ New Settlement</button></form>\n'
+#    panel_button = '<form action="#" method="POST"><input type="hidden" name="change_view" value="panel"/><button class="dashboard_admin_panel_launch_button kd_blue tablet_and_desktop">Admin Panel!</button></form>\n'
+#    new_settlement_button = '<form method="POST" action="#"><input type="hidden" name="change_view" value="new_settlement" /><button class="kd_blue">+ New Settlement</button></form>\n'
 
     # dashboard accordions
 
@@ -2830,11 +2827,18 @@ class survivor:
 
         </div> <!-- survivor_sheet_right_pane_blocks -->
 
+        <div class="permanently_delete_survivor" ng-if="user.user.preferences.show_remove_button == true">
+            <h3>Permanently Delete Survivor</h3>
+            <form action="#" method="POST" onsubmit="return confirm('Press OK to permanently delete this survivor forever.\\r\\rThis is NOT THE SAME THING as marking it dead using controls above.\\r\\rPermanently deleting the survivor prevents anyone from viewing and/or editing this record ever again!');">
+                <input type="hidden" name="remove_survivor" value="$survivor_id"/>
+                <p>Use the button below to permanently remove $name. Please note that <b>this cannot be undone</b> and that any relationships between $name and other survivors will be removed.</p>
+                <button class="kd_alert_no_exclaim red_glow permanently_delete">Permanently Delete Survivor</button>
+            </form>
+        </div>
 
-        $remove_survivor_controls
 
 
-        <!-- gotta put this here, outside of the other forms -->
+        <!-- gotta put this here, outside of the other forms HACK CITY -->
         <form
             id="avatar_change_form"
             method="POST"
@@ -3341,17 +3345,6 @@ class survivor:
     \n""")
 
 
-    survivor_sheet_rm_controls = Template("""\n
-    <hr class="mobile_and_tablet"/>
-    <div class="permanently_delete_survivor">
-        <h3>Permanently Delete Survivor</h3>
-        <form action="#" method="POST" onsubmit="return confirm('Press OK to permanently delete this survivor forever.\\r\\rThis is NOT THE SAME THING as marking it dead using controls above.\\r\\rPermanently deleting the survivor prevents anyone from viewing and/or editing this record ever again!');">
-            <input type="hidden" name="remove_survivor" value="$survivor_id"/>
-            <p>Use the button below to permanently remove $name. Please note that <b>this cannot be undone</b> and that any relationships between $name and other survivors will be removed.</p>
-            <button class="kd_alert_no_exclaim red_glow permanently_delete">Permanently Delete Survivor</button>
-        </form>
-    </div>
-    """)
     survivor_sheet_hit_box_controls = Template("""\n
 
             <!-- $hit_location [ render_hit_box_controls() ] -->
@@ -3630,6 +3623,7 @@ class settlement:
     <script src="/media/campaignSummary.js?v=$application_version"></script>
     <div
         id = "campaign_summary_angularjs_controller_container"
+        ng-controller="campaignSummaryController"
         ng-init="initializeSettlement('campaignSummary','$api_url','$settlement_id');"
     >
         <!-- once we get the settlement, init the user -->
@@ -4188,6 +4182,27 @@ class settlement:
                     </div> <!-- endeavor container -->
                 </div> <!-- storage endeavors -->
 
+                <!-- events -->
+                <div
+                    ng-repeat="item in settlement.campaign.endeavors.settlement_events"
+                >
+                    <h5><b>{{item.name}}</b>:</h5>
+                    <div
+                        ng-repeat="e_handle in item.endeavors"
+                        ng-init="e = settlement.game_assets.endeavors[e_handle]"
+                        class="campaign_summary_endeavor_container {{e.class}}"
+                    >
+                        <div class="endeavor_cost {{e.class}}">
+                            <img ng-repeat="c in range(e.cost)" src="/media/icons/endeavor_star.png" class="endeavor_cost">
+                        </div>
+                        <div class="endeavor_text">
+                            <b ng-if="e.name != undefined">{{e.name}}</b>
+                            <span ng-if="e.name != undefined && e.desc != undefined"> - </span>
+                            <span ng-bind-html="e.desc|trustedHTML"></span>
+                        </div>
+                    </div> <!-- endeavor container -->
+                </div> <!-- storage endeavors -->
+
 
             </div>
             <div class="campaign_summary_small_box settlement_fact" ng-if='settlement.survivor_bonuses.all.length >=1'>
@@ -4578,9 +4593,73 @@ class settlement:
 
     </div> <!-- survivorSearch -->
 
-</div> <!-- campaign_summary methods -->
+    <div
+        id="campaignSummaryStorageOpener"
+        class="clickable campaign_summary_storage_opener gradient_silver"
+        ng-if="settlementStorage != undefined"
+        ng-click="openNav('campaignSummaryStorageModal')"
+    >
+        &#8942;
+    </div>
 
-    \n""" % dashboard.campaign_flash)
+    <div
+        id="campaignSummaryStorageModal"
+        class="rightSideNav kd_dying_lantern"
+        ng-if="settlement != undefined && user.user.subscriber.level >= 2"
+        ng-init="getStorage()"
+        ng-click="closeNav('campaignSummaryStorageModal')"
+    >
+        <div
+            class="rightSideNavContent"
+        >
+            <div
+                class="campaign_summary_storage_type"
+                ng-repeat="s_type in settlementStorage">
+            >
+                <h3>{{s_type.name}} Storage</h3>
+                <div class="campaign_summary_storage_keywords">
+                    <span
+                        class="campaign_summary_storage_keyword"
+                        ng-repeat="(kw, count) in s_type.keywords"
+                    >
+                        {{kw}}: {{count}}
+                    </span>
+                </div>
+
+                <div
+                    class="campaign_summary_storage_location"
+                    ng-repeat="loc in s_type.locations"
+                    ng-if="loc.inventory.length >= 1"
+                >
+                    <h4>{{loc.name}}</h4>
+                    <div class="campaign_summary_storage_items">
+                        <span class="campaign_summary_storage_item" ng-repeat="i in loc.collection" ng-if="i.quantity >= 1">
+                            {{i.name}} <span ng-if="i.quantity >= 2">x {{i.quantity}}</span><br/>
+                            <div
+                                class="campaign_summary_storage_item_keywords"
+                                ng-if="i.keywords.length >= 1"
+                            >
+                                <i>{{i.keywords.join(', ')}}</i>
+                            </div>
+                            <div
+                                class="campaign_summary_storage_item_keywords"
+                                ng-if="i.rules.length >= 1"
+                            >
+                                <b>{{i.rules.join(', ')}}</b>
+                            </div>
+                        </span>
+                    </div>
+                </div> <!-- location -->
+            {{loc}}
+            </div>
+        </div> <!-- rightSideNavContent -->
+        <div class="rightSideNavCloseTip">Click or tap to close!</div>
+    </div>
+
+
+</div> <!-- campaign_summary main root controller THIS IS THE END -->
+
+\n""" % dashboard.campaign_flash)
 
     form = Template("""\n\
 
@@ -4607,17 +4686,15 @@ class settlement:
 
         <div id="asset_management_left_pane" ng-if="settlement != undefined">
 
-            <input
-                name="name"
+            <div
                 id="settlementName"
-                class="settlement_sheet_settlement_name settlement_name"
-                type="text"
-                ng-value="settlement.sheet.name"
+                contentEditable="true"
+                class="settlement_sheet_settlement_name"
                 ng-model="scratch.newSettlementName"
                 ng-placeholder="Settlement Name"
                 ng-blur="setSettlementName()"
-                onclick="this.select()"
-            />
+            />{{settlement.sheet.name}}
+            </div>
 
             <p
                 id="campaign_type"
@@ -4702,7 +4779,7 @@ class settlement:
                 </div>
                 <div class="big_number_caption">
                     <div class="help-tip">
-                        Poulation
+                        Population
                         <p> The minimum Population for <b>{{settlement.sheet.name}}</b>, based on the total number of living survivors in the settlement, is <b>{{settlement.sheet.minimum_population}}</b>.
                         </p>
                     </div>
@@ -4810,13 +4887,18 @@ class settlement:
                                         <button ng-click="setStorage(asset, -1)"> - </button>
                                     </div>
                                     <div id="{{detailId}}" class="hidden inventory_row_detail">
-                                        <div class="rules" ng-if="asset.rules.length >= 1">
-                                            &nbsp; <span ng-repeat="k in asset.rules">
+                                        &nbsp;
+                                        <div class="inventory_row_detail_keywords">
+                                            <span ng-repeat="k in asset.keywords">
+                                                <i>{{k}}{{$last ? '' : ', '}}</i>
+                                            </span>
+                                        </div>
+                                        <div class="inventory_row_detail_rules" ng-if="asset.rules.length >= 1">
+                                            <span ng-repeat="k in asset.rules">
                                                 <b>{{k}}</b>{{$last ? '' : ', '}}
                                             </span>
                                         </div>
-                                        &nbsp; <span ng-repeat="k in asset.keywords">{{k}}{{$last ? '' : ', '}}</span><br/>
-                                        <span ng-bind-html="asset.desc|trustedHTML"></span>
+                                        <span class="inventory_row_detail_desc" ng-bind-html="asset.desc|trustedHTML"></span>
                                     </div>
                                 </div>
                             </div>
@@ -4885,13 +4967,17 @@ class settlement:
                                 {{t.name}}
                                 <span ng-if="t.count > 1">x {{t.count}}</span>
                                 <div id="{{detailId}}" class="hidden inventory_repeater_detail">
-                                    <div class="rules" ng-if="t.rules.length >= 1">
+                                    <div class="inventory_row_detail_keywords">
+                                        &nbsp; <span ng-repeat="k in t.keywords">
+                                            <i>{{k}}{{$last ? '' : ', '}}</i>
+                                        </span>
+                                    </div>
+                                    <div class="inventory_row_detail_rules" ng-if="t.rules.length >= 1">
                                         &nbsp; <span ng-repeat="k in t.rules">
                                             <b>{{k}}</b>{{$last ? '' : ', '}}
                                         </span>
                                     </div>
-                                    &nbsp; <span ng-repeat="k in t.keywords">{{k}}{{$last ? '' : ', '}}</span><br/>
-                                    <span ng-bind-html="t.desc|trustedHTML"></span>
+                                    <span class="inventory_row_detail_desc" ng-bind-html="t.desc|trustedHTML"></span>
                                 </div>
                             </div> <!-- inventory repeater, click to remove -->
                         </div> <!-- container flex -->

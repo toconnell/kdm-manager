@@ -8,23 +8,42 @@ ui_prompts = {
 settlement_events = {
 
     # core 1.4
-    "core_acid_storm": {"name": "Acid Storm"},
+    "core_acid_storm": {
+        "name": "Acid Storm",
+        'endeavors': ['acid_storm_exercise','acid_storm_distillation'],
+    },
     "core_clinging_mist": {"name": "Clinging Mist"},
-    "core_cracks_in_the_ground": {"name": "Cracks in the Ground"},
+    "core_cracks_in_the_ground": {
+        "name": "Cracks in the Ground",
+        'endeavors': ['vapor_visions','vapor_scar'],
+    },
     "core_dark_dentist": {"name": "Dark Dentist"},
     "core_dark_trader": {"name": "Dark Trader"},
     "core_elder_council": {"name": "Elder Council"},
-    "core_glossolalia": {"name": "Glossolalia"},
+    "core_glossolalia": {
+        "name": "Glossolalia",
+        'endeavors': ['automatic_writing', 'deep_listen'],
+    },
     "core_haunted": {"name": "Haunted"},
-    "core_heat_wave": {"name": "Heat Wave"},
-    "core_lights_in_the_sky": {"name": "Lights in the Sky"},
+    "core_heat_wave": {
+        "name": "Heat Wave",
+        'endeavors': ['find_fluid','breathe_fumes'],
+    },
+    "core_lights_in_the_sky": {
+        "name": "Lights in the Sky",
+        'endeavors': [
+            'lights_in_the_sky_01',
+            'lights_in_the_sky_02',
+            'lights_in_the_sky_03',
+        ],
+    },
     "core_first_day": {"name": "First Day"},
     "core_hunt_reenactment": {"name": "Hunt Reenactment"},
     "core_murder": {"name": "Murder"},
-    "core_nickname": {"name": "Nickname"},
-    "core_open_maw": {"name": "Open Maw"},
-    "core_plague": {"name": "Plague"},
-    "core_rivalry": {"name": "Rivalry"},
+    "core_nickname": {"name": "Nickname", 'endeavors': ['rename'],},
+    "core_open_maw": {"name": "Open Maw", 'endeavors': ['brave_the_maw'],},
+    "core_plague": {"name": "Plague", 'endeavors': ['treatment'], },
+    "core_rivalry": {"name": "Rivalry", 'endeavors': ['duel'],},
     "core_skull_eater": {"name": "Skull Eater"},
     "core_stranger_in_the_dark": {"name": "Stranger in the Dark"},
     "core_triathalon_of_death": {"name": "Triathalon of Death"},
@@ -39,7 +58,10 @@ settlement_events = {
 
     # spidicules
     "spid_season_of_the_spiderling": {"name": "Season of the Spiderling", "expansion": "spidicules"},
-    "spid_silk_storm": {"name": "Silk Storm", "expansion": "spidicules"},
+    "spid_silk_storm": {
+        "name": "Silk Storm", "expansion": "spidicules",
+        'endeavors': ['talk_to_legless_ball', 'silk_diet'],
+    },
 
     # slenderman
     "slender_phantom": {"name": "Phantom", "expansion": "slenderman"},

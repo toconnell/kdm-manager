@@ -81,6 +81,12 @@ class User:
         user_id = ObjectId(user_id)
         self.user = mdb.users.find_one({"_id": user_id})
 
+        # 2017-11-13 - sign-in bug - https://github.com/toconnell/kdm-manager/issues/401
+        if not 'preferences' in self.user.keys():
+            self.user['preferences'] = {}
+            self.logger.warn("%s Adding 'preferences' attribute to user!" % self)
+            self.save()
+
         self.Session = session_object
         if self.Session is None:
             raise Exception("User Objects may not be initialized without a session object!")
@@ -96,6 +102,32 @@ class User:
 
         mdb.users.save(self.user)
         self.logger.info("[%s] saved changes to %s" % (self, self))
+
+
+    def update_password(self, password, password_again=False):
+        """ Leave the 'password_again' kwarg blank if you're not checking two
+        passwords to see if they match, e.g. if you're doing this from the CLI.
+        """
+
+        user_admin_log_dict = {
+            "created_on": datetime.now(),
+            "u_id": self.user["_id"],
+        }
+
+        if password_again:
+            if password != password_again:
+                err_msg = "Could not change password for '%s' (passwords did not match)!" % self.user["login"]
+                self.logger.error(err_msg)
+                user_admin_log_dict["msg"] = err_msg
+                mdb.user_admin.insert(user_admin_log_dict)
+                return False
+        self.user["password"] = md5(password).hexdigest()
+        self.logger.info("Password update for '%s' was successful!" % self.user["login"])
+        mdb.users.save(self.user)
+        user_admin_log_dict["msg"] = "Password Updated!"
+        mdb.user_admin.insert(user_admin_log_dict)
+        return True
+
 
 
     def is_admin(self):
@@ -129,16 +161,6 @@ class User:
             return str(is_settlement_admin).lower()
 
         return is_settlement_admin
-
-
-    def get_preference(self, p_key):
-        """ This is transitional code: you should REALLY be looking at the API
-        for this kind of stuff.
-
-        For now, since we still have some legacy webapp needs for this kind of
-        thing, default all unspecified preferences to False. """
-
-        return self.user["preferences"].get(p_key, False)
 
 
     def get_name_and_id(self):
@@ -857,18 +879,8 @@ class Survivor:
             if flag in self.survivor.keys():
                 flags[flag] = self.survivor[flag]
 
-        rm_controls = ""
-        if self.User.get_preference("show_remove_button"):
-            rm_controls = html.survivor.survivor_sheet_rm_controls.safe_substitute(
-                name=self.survivor["name"],
-                survivor_id=self.survivor["_id"],
-            )
-
         output = html.survivor.form.safe_substitute(
             survivor_id = self.survivor["_id"],
-
-            # controls
-            remove_survivor_controls = rm_controls,
 
             # manually generated hit boxes
             brain_damage_light_checked = flags["brain_damage_light"],

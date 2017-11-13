@@ -105,6 +105,15 @@ app.controller('rootController', function($scope, $rootScope, $http) {
     // initialize rootScope elements here; these are set on every view
     $rootScope.showHide = showHide;
 
+    $rootScope.openNav = function(e) {
+        var element = document.getElementById(e);
+        element.classList.add('openNav');
+    };
+    $rootScope.closeNav = function(e) {
+        var element = document.getElementById(e);
+        element.classList.remove('openNav');
+    };
+
     // new settlement assets
     $scope.addNewSettlementsToScope = function(api_url) {
         $scope.newSettlementPromise = $http.get(api_url + 'new_settlement');

@@ -65,6 +65,7 @@ class Survivor(Models.UserAsset):
         # initialize AssetCollections for later
         self.CursedItems = cursed_items.Assets()
         self.Disorders = disorders.Assets()
+        self.Names = names.Assets()
         self.Saviors = saviors.Assets()
         self.SpecialAttributes = survivor_special_attributes.Assets()
 
@@ -240,17 +241,20 @@ class Survivor(Models.UserAsset):
         if self.survivor['sex'] == 'F':
             sex_pronoun = 'her'
 
-        # 1.e random name
-        N = names.Assets()
-        if self.survivor["name"] == "Anonymous" and request.User.get_preference("random_names_for_unnamed_assets"):
-            self.survivor["name"] = N.get_random_survivor_name(self.survivor["sex"])
-
-        # 1.f now save, get an OID so we can start logging and
+        # 1.e now save, get an OID so we can start logging and
         #   start calling object/class methods
 
         self._id = utils.mdb.survivors.insert(self.survivor)
         self.load()
+
+        # 1.f set the name
+        s_name = self.survivor['name']
+        if s_name == "Anonymous" and request.User.get_preference("random_names_for_unnamed_assets"):
+            s_name = self.Names.get_random_survivor_name(self.survivor["sex"])
+        self.set_name(s_name, save=False)
+
         self.log_event("%s created new survivor %s" % (request.User.login, self.pretty_name()))
+
 
 
         #
@@ -444,6 +448,7 @@ class Survivor(Models.UserAsset):
 
         # start the insanity
         output = {}
+
         if include_meta:
             output = self.get_serialize_meta()
 
@@ -1448,16 +1453,22 @@ class Survivor(Models.UserAsset):
         them in the order they appear.
         """
 
-        # initialize and sanity check!
-        self.check_request_params(['attributes'])
-        updates = self.params['attributes']
+        # initialize from the request
+        attr_updates = []
+        detail_updates = []
+        if 'attributes' in self.params.keys():
+            attr_updates = self.params['attributes']
+        if 'attribute_details' in self.params.keys():
+            detail_updates = self.params['attribute_details']
 
-        if type(updates) != list:
-            raise utils.InvalidUsage("The set_many_attributes() method requires 'attributes' param to be an array/list!")
+        # type check
+        if type(attr_updates) != list or type(detail_updates) != list:
+            raise utils.InvalidUsage("The set_many_attributes() method requires 'attributes' and 'attribute_details' params to be array/list types!")
 
-        for u in updates:
+        # do attr_updates first
+        for u in attr_updates:
             if type(u) != dict:
-                raise utils.InvalidUsage("The set_many_attributes() method 'attributes' must be hashes/dicts!")
+                raise utils.InvalidUsage("The set_many_attributes() method 'attributes' must be hashes!")
             attrib = u.get('attribute', None)
             value = u.get('value', None)
 
@@ -1471,10 +1482,22 @@ class Survivor(Models.UserAsset):
 
             self.set_attribute(str(attrib), int(value), False)
 
+        # do detail updates
+        for u in detail_updates:
+            if type(u) != dict:
+                raise utils.InvalidUsage("The set_many_attributes() method 'attribute_details' must be hashes!")
+            attrib = u.get('attribute',None)
+            detail = u.get('detail',None)
+            value  = u.get('value',None)
+            for v in [attrib, detail, value]:
+                if v is None:
+                    raise utils.InvalidUsage("The '%s' attribute of %s may not be undefined!" % (v, u))
+            self.set_attribute(attrib, detail, value, False)
+
         self.save()
 
 
-    def set_attribute_detail(self, attrib=None, detail=None, value=False):
+    def set_attribute_detail(self, attrib=None, detail=None, value=False, save=True):
         """ Use to update the 'attribute_detail' dictionary for the survivor.
         If this is called without an 'attrib' value, it will assume that it is
         being called as part of a request_response() call and look for request
@@ -1604,12 +1627,14 @@ class Survivor(Models.UserAsset):
         return utils.http_200
 
 
-    def set_name(self, new_name=None):
+    def set_name(self, new_name=None, save=True):
         """ Sets the survivor's name. Logs it. """
 
         if new_name is None:
             self.check_request_params(["name"])
             new_name = self.params["name"]
+
+        new_name = new_name.strip()
 
         if new_name == self.survivor["name"]:
             self.logger.warn("%s Survivor name unchanged! Ignoring set_name() call..." % self)
@@ -1621,8 +1646,9 @@ class Survivor(Models.UserAsset):
         old_name = self.survivor["name"]
         self.survivor["name"] = new_name
 
-        self.log_event("%s renamed %s to %s" % (request.User.login, old_name, new_name))
-        self.save()
+        if save:
+            self.log_event("%s renamed %s to %s" % (request.User.login, old_name, new_name))
+            self.save()
 
 
     def set_parent(self, role=None, oid=None):
