@@ -664,6 +664,11 @@ class User(Models.UserAsset):
                 if asset_age.days > settings.get('application','free_user_settlement_age_max'):
                     self.logger.warn("%s settlement '%s' is more than %s days old!" % (self, s['name'], settings.get('application','free_user_settlement_age_max')))
                     msg = utils.html_file_to_template('html/auto_remove_settlement.html')
+
+                    # in case the admin panel hits it before the actual user
+                    if not hasattr(request, 'User'):
+                        request.User = utils.noUser()
+
                     msg = msg.safe_substitute(
                         settlement_name=s['name'],
                         settlement_age = asset_age.days,

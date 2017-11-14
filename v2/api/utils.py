@@ -198,6 +198,11 @@ def get_timeline_index_and_object(timeline,lantern_year):
 
 # API response/request helpers
 
+class noUser:
+    def __init__(self):
+        self.login="admin@kdm-manager.com"
+        self._id = "666"
+
 #
 #   performance monitoring
 #
@@ -470,13 +475,6 @@ def email_exception(exception):
     # first, log it
     logger = get_logger(log_level='DEBUG', log_name='error')
     logger.exception(exception)
-
-    # next, just in case we don't have a user (e.g. we're doing maintenance ops
-    # or something, initialize a bogus user class
-    class noUser:
-        def __init__(self):
-            self.login="admin@kdm-manager.com"
-            self._id = "666"
 
     if not hasattr(request, 'User'):
         request.User = noUser()
