@@ -561,7 +561,7 @@ class User(Models.UserAsset):
         friend_emails   = set()
 
         campaigns = self.get_settlements(qualifier="player")
-        if campaigns.count() > 0:
+        if len(campaigns) > 0:
             for s in campaigns:
                 friend_ids.add(s["created_by"])
                 c_survivors = utils.mdb.survivors.find({"settlement": s["_id"]})
@@ -658,7 +658,7 @@ class User(Models.UserAsset):
         if sub_level > 1:
             pass
 	else:
-            self.logger.info("%s Subscriber level is %s. Checking settlement asset ages..." % (self, sub_level))
+#            self.logger.debug("%s Subscriber level is %s. Checking settlement asset ages..." % (self, sub_level))
             for s in settlements:
                 asset_age = datetime.now() - s['created_on']
                 if asset_age.days > settings.get('application','free_user_settlement_age_max'):
