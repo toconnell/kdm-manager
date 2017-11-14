@@ -811,9 +811,7 @@ div.unset_principle_container {margin-bottom: 20%; margin-top: -7%; margin-left:
 
 button.permanently_delete {margin-top: -1%; margin-bottom: 5%; }
 
-.settlement_sheet_settlement_name {font-family: Silverado; font-size: 33pt; font-weight: bold; text-align: center;}
-input.settlement_name:focus, input.settlement_name:active{outline: none; box-shadow: none;}
-
+.settlement_sheet_settlement_name {font-family: Silverado; font-size: 75pt; font-weight: bold; text-align: center; margin: 2%; margin-bottom: 3%; }
 
 .campaign_summary_special_rule {display: block; font-size: 40px; margin: 0 auto; margin-bottom: 7px; font-family: 'arial'; padding: 10px; text-align: center; clear: both;}
 .campaign_summary_special_rule h3 {text-transform: uppercase; margin: 0 auto;}
@@ -1359,9 +1357,11 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     input#survivor_sheet_survivor_name {font-size: 40pt; top: 60px; right: auto; left: 1%; top: 6%; text-align: left; padding-left: 30px; min-width: 0; margin-top: 10px; }
 
+
+
         /* left and middle split the screen in tablet; right is a sort of foot */
     div#asset_management_left_pane {float: left; width: 49%; }
-    div#asset_management_middle_pane {float: right; width:49%; clear: right; margin-top: 115px; }
+    div#asset_management_middle_pane {float: right; width:49%; clear: right; }
     div#asset_management_right_pane {clear: both; }
 
     div#asset_management_left_pane select { font-size: 17pt; }
@@ -1619,7 +1619,9 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     div.campaign_summary_headline_container {position: relative; margin: 0 auto; margin-top: 80px; padding: 0; }
     h1.settlement_name { display: inline-block; margin: 0 auto; margin-left: 10px; font-size: 40pt; }
-    p.settlement_sheet_campaign_type {font-size: 28px; text-align: left; padding-left: 20%; }
+
+    .settlement_sheet_settlement_name {font-size: 40pt; margin-top: 16%; }
+    p.settlement_sheet_campaign_type {font-size: 25px; text-align: center; }
     p.campaign_summary_campaign_type {display: block; clear: both; color: #666; margin-left: 30px; margin-top: 0px;}
 
 
@@ -2163,7 +2165,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .inventory_row_item_controls {font-size: 11pt; }
     button.close_storage{top: 2%; right: 3%; bottom: auto; left: auto; width: 300px; padding: 1%; }
 
-    input.settlement_sheet_settlement_name {font-size: 30pt; width: 100%; text-align: center; margin:0; padding: 0; }
+    .settlement_sheet_settlement_name {font-size: 30pt; margin-top: 2%; }
     p.settlement_sheet_campaign_type {font-size: 15pt; margin: 0 auto; display: block; text-align: center; padding:0; width: auto; margin-bottom: 5%; }
     div#bulk_add_survivors input.settlement_sheet_bulk_add {width: 75%; margin-left: -60px; }
 

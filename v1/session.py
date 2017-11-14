@@ -644,9 +644,6 @@ class Session:
             user_id = self.User.user["_id"],
         )
 
-        if self.User.is_admin():
-            output += html.dashboard.panel_button
-
         return output
 
 

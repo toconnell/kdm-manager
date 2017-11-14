@@ -1,6 +1,10 @@
 #!/usr/bin/python
 
 items = {
+    "blue_lantern": {
+        "name": "Blue Lantern",
+        "expansion": "white_box",
+    },
     "husk_of_destiny": {
         "name": "Husk of Destiny",
         "expansion": "dragon_king",

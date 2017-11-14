@@ -110,7 +110,6 @@ class dashboard:
     # AngularJS and V2 stuff
 
     # settlement administrivia; needs to be above the dashboard accordions
-#    panel_button = '<form action="#" method="POST"><input type="hidden" name="change_view" value="panel"/><button class="dashboard_admin_panel_launch_button kd_blue tablet_and_desktop">Admin Panel!</button></form>\n'
 #    new_settlement_button = '<form method="POST" action="#"><input type="hidden" name="change_view" value="new_settlement" /><button class="kd_blue">+ New Settlement</button></form>\n'
 
     # dashboard accordions
@@ -797,24 +796,27 @@ class dashboard:
         hideFullPageLoader();
     </script>
 
+    <form
+        action="#"
+        method="POST"
+        ng-if="user.user.admin != undefined"
+    >
+        <input
+            type="hidden"
+            name="change_view"
+            value="panel"
+        />
+        <button
+        class="dashboard_admin_panel_launch_button
+        kd_blue
+        tablet_and_desktop
+        ">
+            Admin Panel!
+        </button>
+    </form>
 
     """)
 
-
-
-
-
-
-    #
-    #   DASHBOARD MOTD follows. this is the whole dashboard, basically.
-    #
-
-
-
-
-    avatar_image = Template("""\n
-    <img class="latest_fatality" src="/get_image?id=$avatar_id" alt="$name"/>
-    \n""")
 
     # misc html assets
 
@@ -838,12 +840,15 @@ class dashboard:
     \n""")
 
 
+
 class hunt:
     """ HTML hunting deck shuffler app. Not sure this will ever become a
     real feature, but it will at least be a subscriber-only beta thing. """
 
     body = Template("""
+
 <script src="/media/huntPhase.js?v=$version"></script>
+
 <div
     id="huntPhaseModal"
     class="modal-black hidden"
@@ -916,6 +921,7 @@ class hunt:
 
 
     """).safe_substitute(version = settings.get('application', 'version'))
+
 
 
 class angularJS:
@@ -5936,7 +5942,7 @@ def render_burger(session_object=None):
 
             <hr/>
 
-            <h3>$settlement_name:</h3>
+            <h3>{{settlement.sheet.name}}:</h3>
             $action_map
 
             <button

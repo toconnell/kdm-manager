@@ -356,7 +356,7 @@ class GameAsset(object):
             self.initialize_from_handle()
         elif self.name is not None:
             self.initialize_from_name()
-        elif handle is None and name is None:
+        elif self.handle is None and self.name is None:
             raise AssetInitError("Asset objects must be initialized with 'handle' or 'name' kwargs.")
         else:
             raise AssetInitError()
