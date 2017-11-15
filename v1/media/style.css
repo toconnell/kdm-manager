@@ -550,6 +550,9 @@ div.dashboard_alert_spacer {display: block; clear:both; height: 200px; }
 #motd {margin: 10px; position: absolute; bottom: 0;  }
 img.latest_fatality {width: 300px; float: right; margin: 10px; }
 
+.settlements_retrieved {margin: 0 auto; font-size: 20pt; color: #ccc; text-align: center; font-weight: normal; font-style: italic; }
+
+
 /* asset creation styles */
 div.create_user_asset_block_group {margin: 4%; margin-top: 0; }
 div.create_user_asset_block_group h2 {border: 0; padding-left: 3%; border-bottom: 2px solid #000; margin-bottom: 0; }
@@ -1130,7 +1133,7 @@ div#info_box h2 {margin-top: 0px; border: 0 none; font-weight: normal; width: 40
 div.full_page_loading_spinner {position: fixed; left: 0; right:0; top: 0; bottom: 0; background-color: #fff; background: rgba(255,255,255,0.9);  }
 img.full_page_loading_spinner {position: fixed; top: 40%; left: 40%; }
 
-div.corner_loading_spinner {position: fixed; bottom: 1px; right: 1px; display: none;}
+div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: none;}
 
 
     /* modal styles */
@@ -1335,6 +1338,9 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .dashboard_menu ol {margin: 0px; padding: 0px; padding-left: 80px; }
     button.sign_in {width: 80%; }
     button.tiny_button {font-size: 9pt; margin-top: 30px; margin-left: 50px;}
+
+    .settlements_retrieved {position: fixed; bottom: 0; width: 100%; font-size: 15pt; }
+
 
     /* asset creation styles - tablet */
     input.kd_css_checkbox + label:before, span.kd_checkbox_checked {font-size: 33px; margin-left: 4%; margin-right: 2%; }
@@ -1979,6 +1985,9 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     img.dashboard_down_arrow {margin: 0 none; margin-top: 5px; margin-right: 5px;}
     .dashboard_menu ul {padding: 0; margin: 5px; list-style-type: none; margin-left: 15px; }
     .dashboard_menu ol {margin: 0px; padding: 0px; padding-left: 30px; }
+
+
+    .settlements_retrieved {font-size: 9pt; }
 
     .panel_top_tooltip {margin-right: 2%; }
 

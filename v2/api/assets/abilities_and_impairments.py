@@ -670,7 +670,8 @@ expansion_ai = {
         'expansion': 'dragon_king',
         'max': 1,
         'name': 'Limb-maker',
-        'type': 'ability'
+        'type': 'ability',
+        'endeavors': ['limb_maker'],
     },
     "oracles_eye": {
         'constellation': {'horizontal': 'Goblin','vertical': 'Witch'},

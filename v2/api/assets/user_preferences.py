@@ -11,7 +11,7 @@ preferences_dict = {
         "desc": "Preserve Sessions?",
         "affirmative": "Keep me logged in",
         "negative": "Remove sessions after 24 hours",
-        "patron_level": 0,
+        "patron_level": 1,
     },
     "random_names_for_unnamed_assets": {
         "type": "General",

@@ -1,4 +1,106 @@
 core = {
+
+    # catarium
+    'cat_eye_circlet': {
+        'type': 'catarium',
+        'name': 'Cat Eye Circlet',
+        'keywords': ['item','jewelry','other'],
+        'desc': '<font class="kdm_font">a</font>: Reveal the next 3 monster hit locations and put them back in any order.',
+    },
+    'cat_fang_knife': {
+        'type': 'catarium',
+        'name': 'Cat Fang Knife',
+        'keywords': ['weapon','melee','dagger','bone'],
+        'speed': 3,
+        'accuracy': 6,
+        'strength': 2,
+    },
+    'cat_gut_bow': {
+        'type': 'catarium',
+        'name': 'Cat Gut Bow',
+        'keywords': ['weapon','ranged','bow','two-handed'],
+        'rules': ['Cumbersom','Range: 6'],
+        'desc': '<b>Aim:</b> When you attack, before rolling to hit, you may reduce the speed of this weapon by 1 to gain +2 accuracy for that attack.',
+        'speed': 2,
+        'accuracy': 7,
+        'strength': 3,
+    },
+    'claw_head_arrow': {
+        'attack': (1,6,6),
+        'speed': 1,
+        'accuracy': 6,
+        'strength': 6,
+        'type': 'catarium',
+        'name': 'Claw Head Arrow',
+        'keywords': ['item','ammuntion','arrow'],
+        'rules': ['Slow','Ammo - Bow'],
+        'desc': 'If you hit, monster gains -1 evasion token. Use once per showdown.',
+    },
+    'frenzy_drink': {
+        'type': 'catarium',
+        'name': 'Frenzy Drink',
+        'keywords': ['item','consumable','fragile'],
+        'desc': '<font class="kdm_font">a</font> <b>Consume:</b> Suffer <b>Frenzy</b> brain trauma. Can be used once per showdown.',
+    },
+    'king_spear': {
+        'type': 'catarium',
+        'name': 'King Spear',
+        'keywords': ['weapon','melee','spear','heavy','two-handed'],
+        'rules': ['Reach 2'],
+    },
+    'lion_beast_katar': {
+        'type': 'catarium',
+        'name': 'Lion Beast Katar',
+        'keywords': ['weapon','melee','katar'],
+        'rules': ['Deadly','Paired'],
+    },
+    'lion_headdress': {
+        'type': 'catarium',
+        'name': 'Lion Headdress',
+        'keywords': ['item','flammable'],
+        'rules': ['Accessory'],
+    },
+    'lion_skin_cloak': {
+        'type': 'catarium',
+        'name': 'Lion Skin Cloak',
+        'keywords': ['armor','fur','bone','heavy','flammable'],
+        'desc': 'Reduce damage from every hit suffered by 1, to a minimum of 1.',
+    },
+    'whisker_harp': {
+        'type': 'catarium',
+        'name': 'Whisker Harp',
+        'keywords': ['item','instrument','noisy'],
+        'desc': 'On <b>Arrival</b>, all survivors gain +1 survival.<br/><font class="kdm_font">a</font>: Strum, roll 1d10. On a result of 6+ discard 1 <b>mood</b> currently in play.',
+    },
+    'white_lion_armor_set': {'type': 'catarium', 'name': 'White Lion Armor Set'},
+    'white_lion_boots': {
+        'type': 'catarium',
+        'name': 'White Lion Boots',
+        'keywords': ['armor','set','fur','heavy'],
+    },
+    'white_lion_coat': {
+        'type': 'catarium',
+        'name': 'White Lion Coat',
+        'desc': '<b>Pounce:</b> Spend <font class="kdm_font">c</font> and <font class="kdm_font">a</font> to move 3 spaces in a straight line. Then, if you moved 3 spaces, activate a melee weapon with +1 strength.',
+    },
+    'white_lion_gauntlets': {
+        'type': 'catarium',
+        'name': 'White Lion Gauntlet',
+        'keywords': ['armor','set','fur','heavy'],
+        'desc': 'When you <b>Pounce</b>, gain +1 accuracy for your next attack this turn.',
+    },
+    'white_lion_helm': {
+        'type': 'catarium',
+        'name': 'White Lion Helm',
+        'keywords': ['armor','set','fur','heavy'],
+    },
+    'white_lion_skirt': {
+        'type': 'catarium',
+        'name': 'White Lion Skirt',
+        'keywords': ['armor','set','fur','heavy'],
+    },
+
+
     'adventure_sword': {
         'type': 'rare_gear',
         'name': 'Adventure Sword',
@@ -7,7 +109,6 @@ core = {
         'desc': "Your courage is added to this weapon's strength.",
     },
     'almanac': {'type': 'barber_surgeon', 'name': 'Almanac'},
-    'antelope_mask': {'type': 'mask_maker', 'name': 'Antelope Mask'},
     'arc_bow': {'type': 'plumery', 'name': 'Arc Bow'},
     'bandages': {
         'type': 'skinnery',
@@ -19,15 +120,10 @@ core = {
     'beast_knuckle': {'type': 'stone_circle', 'name': 'Beast Knuckle'},
     'bird_bread': {'type': 'plumery', 'name': 'Bird Bread'},
     'blood_paint': {'type': 'stone_circle', 'name': 'Blood Paint'},
-    'blood_sheath': {
-        'type': 'weapon_crafter',
-        'name': 'Blood Sheath',
-        'keywords': ['item','bone','other'],
-        'rules': ['Block 1'],
-        'desc': 'When Rainbow Katana is left of Blood Sheath, it loses <b>Frail</b> and gains <b>Sharp</b> (add 1d10 strength to each wound attempt).',
-    },
     'bloom_sphere': {'type': 'plumery', 'name': 'Bloom Sphere'},
     'blue_charm': {'type': 'stone_circle', 'name': 'Blue Charm'},
+
+    # bone smith
     'bone_axe': {
         'type': 'bone_smith',
         'name': 'Bone Axe',
@@ -84,14 +180,6 @@ core = {
         'keywords': ['weapon','melee','axe','other'],
         'rules': ['Paired', 'Sentient', 'Irreplaceable'],
     },
-    'cat_eye_circlet': {'type': 'catarium', 'name': 'Cat Eye Circlet'},
-    'cat_fang_knife': {'type': 'catarium', 'name': 'Cat Fang Knife'},
-    'cat_gut_bow': {'type': 'catarium', 'name': 'Cat Gut Bow'},
-    'claw_head_arrow': {
-        'attack': (1, 6, 6),
-        'type': 'catarium',
-        'name': 'Claw Head Arrow'
-    },
     'cloth': {
         'type': 'starting_gear',
         'name': 'Cloth',
@@ -105,7 +193,6 @@ core = {
         'rules': ['Reach 2']
     },
     'crest_crown': {'type': 'plumery', 'name': 'Crest Crown'},
-    'death_mask': {'type': 'mask_maker', 'name': 'Death Mask'},
     'dragon_slayer': {'type': 'blacksmith', 'name': 'Dragon Slayer'},
     'dried_acanthus': {
         'type': 'organ_grinder',
@@ -148,14 +235,11 @@ core = {
         'keywords': ['weapon','melee','stone'],
         'desc': 'Spend <font class="kdm_font">a</font> to sling the stone from anywhere on the board! Archive this card for 1 automatic hit that inflicts a critical wound.',
     },
-    'frenzy_drink': {'type': 'catarium', 'name': 'Frenzy Drink'},
-    'god_mask': {'type': 'mask_maker', 'name': 'God Mask'},
     'green_charm': {'type': 'stone_circle', 'name': 'Green Charm'},
     'hollow_sword': {'type': 'plumery', 'name': 'Hollow Sword'},
     'hollowpoint_arrow': {'type': 'plumery', 'name': 'Hollowpoint Arrow'},
     'hours_ring': {'type': 'plumery', 'name': 'Hours Ring'},
     'hunter_whip': {'type': 'leather_worker', 'name': 'Hunter Whip'},
-    'king_spear': {'type': 'catarium', 'name': 'King Spear'},
     'lance_of_longinus': {'type': 'stone_circle',
                        'name': 'Lance Of Longinus'},
     'lantern_armor_set': {'type': 'blacksmith', 'name': 'Lantern Armor Set'},
@@ -181,15 +265,11 @@ core = {
     'leather_cuirass': {'type': 'leather_worker', 'name': 'Leather Cuirass'},
     'leather_mask': {'type': 'leather_worker', 'name': 'Leather Mask'},
     'leather_skirt': {'type': 'leather_worker', 'name': 'Leather Skirt'},
-    'lion_beast_katar': {'type': 'catarium', 'name': 'Lion Beast Katar'},
-    'lion_headdress': {'type': 'catarium', 'name': 'Lion Headdress'},
-    'lion_skin_cloak': {'type': 'catarium', 'name': 'Lion Skin Cloak'},
     'lucky_charm': {
         'type': 'organ_grinder',
         'name': 'Lucky Charm',
         'keywords': ['item','jewelry'],
     },
-    'man_mask': {'type': 'mask_maker', 'name': 'Man Mask'},
     'monster_grease': {
         'type': 'organ_grinder',
         'name': 'Monster Grease',
@@ -227,7 +307,6 @@ core = {
     'phoenix_gauntlet': {'type': 'plumery', 'name': 'Phoenix Gauntlet'},
     'phoenix_greaves': {'type': 'plumery', 'name': 'Phoenix Greaves'},
     'phoenix_helm': {'type': 'plumery', 'name': 'Phoenix Helm'},
-    'phoenix_mask': {'type': 'mask_maker', 'name': 'Phoenix Mask'},
     'phoenix_plackart': {'type': 'plumery', 'name': 'Phoenix Plackart'},
     'portcullis_key': {'type': 'other', 'name': 'Portcullis Key'},
     'rainbow_katana': {
@@ -388,7 +467,54 @@ core = {
         'rules': ['Slow','Cursed','Cumbersome','Sentient','Irreplaceable'],
         'desc': 'Gains <b>Devastating 2</b> when fighting the Watcher.<br/>* Accuracy is 9 - Twilight Sword proficiency level.',
     },
-    'whisker_harp': {'type': 'catarium', 'name': 'Whisker Harp'},
+
+    # mask maker
+    'antelope_mask': {
+        'type': 'mask_maker',
+        'name': 'Antelope Mask',
+        'keywords': ['item','mask','bone','other'],
+        'rules': ['Unique','Irreplaceable','Accessory'],
+    },
+    'death_mask': {
+        'type': 'mask_maker',
+        'name': 'Death Mask',
+        'keywords': ['item','mask','bone','other'],
+        'rules': ['Unique','Irreplaceable','Accessory'],
+        'desc': 'If you have no affinities, gain +4 luck and suffer -4 to all severe injury rolls.',
+    },
+    'god_mask': {
+        'type': 'mask_maker',
+        'name': 'God Mask',
+        'keywords': ['item','mask','bone','other'],
+        'rules': ['Unique','Irreplaceable','Accessory'],
+    },
+    'man_mask': {
+        'type': 'mask_maker',
+        'name': 'Man Mask',
+        'keywords': ['item','mask','bone','other'],
+        'rules': ['Unique','Irreplaceable','Accessory'],
+    },
+    'phoenix_mask': {
+        'type': 'mask_maker',
+        'name': 'Phoenix Mask',
+        'keywords': ['item','mask','bone','other'],
+        'rules': ['Unique','Irreplaceable','Accessory'],
+    },
+    'white_lion_mask': {
+        'type': 'mask_maker',
+        'name': 'White Lion Mask',
+        'keywords': ['item','mask','bone','other'],
+        'rules': ['Unique','Irreplaceable','Accessory'],
+    },
+
+    # weapon crafter
+    'blood_sheath': {
+        'type': 'weapon_crafter',
+        'name': 'Blood Sheath',
+        'keywords': ['item','bone','other'],
+        'rules': ['Block 1'],
+        'desc': 'When Rainbow Katana is left of Blood Sheath, it loses <b>Frail</b> and gains <b>Sharp</b> (add 1d10 strength to each wound attempt).',
+    },
     'whistling_mace': {
         'type': 'weapon_crafter',
         'name': 'Whistling Mace',
@@ -396,13 +522,6 @@ core = {
         'desc': 'On a <b>Perfect hit</b>, reveal the next AI card. Place it on top or bottom of the AI deck.',
         'rules': ['Unwieldy'],
     },
-    'white_lion_armor_set': {'type': 'catarium', 'name': 'White Lion Armor Set'},
-    'white_lion_boots': {'type': 'catarium', 'name': 'White Lion Boots'},
-    'white_lion_coat': {'type': 'catarium', 'name': 'White Lion Coat'},
-    'white_lion_gauntlets': {'type': 'catarium', 'name': 'White Lion Gauntlets'},
-    'white_lion_helm': {'type': 'catarium', 'name': 'White Lion Helm'},
-    'white_lion_mask': {'type': 'mask_maker', 'name': 'White Lion Mask'},
-    'white_lion_skirt': {'type': 'catarium', 'name': 'White Lion Skirt'},
     'zanbato': {
         'type': 'weapon_crafter',
         'name': 'Zanbato',

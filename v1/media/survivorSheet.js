@@ -353,7 +353,8 @@ app.controller('lineageController', function($scope) {
         $scope.postJSONtoAPI('survivor','toggle_boolean', {'attribute': 'public'}, false);
     };
     $scope.setEmail = function() {
-        var res = $scope.postJSONtoAPI('survivor','set_email', {'email': $scope.newSurvivorEmail});
+        var newEmail = $scope.newSurvivorEmail.toLowerCase();
+        var res = $scope.postJSONtoAPI('survivor','set_email', {'email': newEmail});
         res.error(function(data, status, headers, config) {
             $scope.newSurvivorEmail = $scope.survivor.sheet.email;
         });

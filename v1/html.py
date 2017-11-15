@@ -106,15 +106,6 @@ class dashboard:
     campaign_flash = '<img class="dashboard_icon" src="%s/icons/campaign.png"/> ' % settings.get("application", "STATIC_URL")
     refresh_flash = '<img class="dashboard_icon" src="%s/icons/refresh.png"/> ' % settings.get("application", "STATIC_URL")
 
-
-    # AngularJS and V2 stuff
-
-    # settlement administrivia; needs to be above the dashboard accordions
-#    new_settlement_button = '<form method="POST" action="#"><input type="hidden" name="change_view" value="new_settlement" /><button class="kd_blue">+ New Settlement</button></form>\n'
-
-    # dashboard accordions
-
-
     #
     #   ANGULARJS dashboard components!
     #
@@ -315,8 +306,8 @@ class dashboard:
                         <b>{{s.sheet.name}}</b>
                         <br/><i>{{s.sheet.campaign_pretty}}</i>
                         <ul class="dashboard_settlement_list_settlement_attribs">
-                            <li ng-if="s.meta.creator_email != user_login"><i>Created by:</i> {{s.meta.creator_email}}</li>
-                            <li><i>Started:</i> {{s.meta.age}} ago</li>
+                            <li ng-if="s.meta != undefined && s.meta.creator_email != user_login"><i>Created by:</i> {{s.meta.creator_email}}</li>
+                            <li ng-if="s.meta != undefined"><i>Started:</i> {{s.meta.age}} ago</li>
                             <li><i>LY:</i> {{s.sheet.lantern_year}} &nbsp; <i>Survivors:</i> {{s.sheet.population}}</li>
                             <li ng-if="s.meta.player_email_list.length >= 2">
                                 <i>Players:</i> {{s.meta.player_email_list.join(', ')}}
@@ -397,8 +388,18 @@ class dashboard:
                         <span class="maroon_text" ng-if="s.sheet.abandoned != undefined">[ABANDONED]</span>
                         <br/><i>{{s.campaign_pretty}}</i>
                         <ul class="dashboard_settlement_list_settlement_attribs">
-                            <li><i>Created on:</i> {{s.meta.age}} ago</li>
-                            <li>{{s.sheet.expansions.length}} expansions / {{s.meta.player_email_list.length}} player(s)</li>
+                            <li ng-if="s.meta != undefined"><i>Created:</i> {{s.meta.age}} ago</li>
+                            <li>
+                                <span ng-if="s.sheet.expansions.length > 0">
+                                    {{s.sheet.expansions.length}} expansions
+                                </span>
+                                <span ng-if="s.sheet.expansions.length > 0 && s.meta != undefined">
+                                    /
+                                </span>
+                                <span ng-if="s.meta != undefined">
+                                    {{s.meta.player_email_list.length}} player(s)
+                                </span>
+                            </li>
                             <li><i>LY:</i> {{s.sheet.lantern_year}}</li>
                             <li><i>Population:</i> {{s.sheet.population}}</li>
                             <li><i>Deaths:</i> {{s.sheet.death_count}}</li>
@@ -814,6 +815,23 @@ class dashboard:
             Admin Panel!
         </button>
     </form>
+
+
+    <div
+        id="dashboardLoader"
+        class="metrophobic settlements_retrieved"
+        ng-if="scratch.settlementsRetrieved != scratch.settlementsRequired"
+    >
+        <span ng-if="user == undefined">
+            Retrieving user data...
+        </span>
+        <span ng-if="scratch.settlementsRequired != undefined">
+            Retrieving settlement {{scratch.settlementsRetrieved}} / {{scratch.settlementsRequired}}
+        </span>
+        <div class="corner_loading_spinner visible">
+            <img class="corner_loading_spinner" src="/media/loading_io.gif">
+        </div>
+    </div>
 
     """)
 
@@ -4601,7 +4619,7 @@ class settlement:
 
     <div
         id="campaignSummaryStorageOpener"
-        class="clickable campaign_summary_storage_opener gradient_silver"
+        class="clickable campaign_summary_storage_opener gradient_silver clickable"
         ng-if="settlementStorage != undefined"
         ng-click="openNav('campaignSummaryStorageModal')"
     >
@@ -4610,7 +4628,7 @@ class settlement:
 
     <div
         id="campaignSummaryStorageModal"
-        class="rightSideNav kd_dying_lantern"
+        class="rightSideNav kd_dying_lantern clickable"
         ng-if="settlement != undefined && user.user.subscriber.level >= 2"
         ng-init="getStorage()"
         ng-click="closeNav('campaignSummaryStorageModal')"

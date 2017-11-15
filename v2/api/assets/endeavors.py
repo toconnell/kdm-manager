@@ -115,6 +115,12 @@ core = {
         'cost': 1,
         'requires_innovations': ['ammonia'],
     },
+    'limb_maker': {
+        'expansion': 'dragon_king',
+        'name': 'Limb-maker',
+        'cost': 2,
+        'desc': """Once per settlement phase, spend 2 <font class="kdm_font">d</font> to carve a prosthetic limb. Remove a survivor's <b>dismembered</b> injury and add 1 bone to the settlement's storage.""",
+    },
     'mask_maker_0': {
         'desc': 'White Lion Mask. You may hunt the Great Golden Cat.',
         'cost': 1,

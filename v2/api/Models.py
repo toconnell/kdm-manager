@@ -320,6 +320,8 @@ class AssetCollection():
                 A = self.AssetClass(a_handle)
             elif a_name is not None:
                 A = self.AssetClass(name=a_name)
+            elif a_name is None and a_handle is None:
+                return Response(response=json.dumps(self.assets), status=200, mimetype="application/json")
             else:
                 return utils.http_422
         except Exception as e:

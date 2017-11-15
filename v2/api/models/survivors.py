@@ -1441,6 +1441,7 @@ class Survivor(Models.UserAsset):
         self.survivor[attrib] = value
         self.log_event("%s set %s '%s' to %s" % (request.User.login, self.pretty_name(), attrib, value))
 
+        # save is optional; do it now if we're doing it
         if save:
             self.save()
 
@@ -1492,7 +1493,7 @@ class Survivor(Models.UserAsset):
             for v in [attrib, detail, value]:
                 if v is None:
                     raise utils.InvalidUsage("The '%s' attribute of %s may not be undefined!" % (v, u))
-            self.set_attribute(attrib, detail, value, False)
+            self.set_attribute_detail(attrib, detail, value, False)
 
         self.save()
 
@@ -1531,7 +1532,10 @@ class Survivor(Models.UserAsset):
 
         self.survivor["attribute_detail"][attrib][detail] = value
         self.log_event("%s set %s '%s' detail '%s' to %s" % (request.User.login, self.pretty_name(), attrib, detail, value))
-        self.save()
+
+        # now save if we're saving
+        if save:
+            self.save()
 
 
 

@@ -101,6 +101,8 @@ app.filter('orderObjectBy', function() {
 
 
 app.controller('rootController', function($scope, $rootScope, $http) {
+    $scope.scratch = {}
+    $scope.scratch.settlementsRetrieved = 0;
 
     // initialize rootScope elements here; these are set on every view
     $rootScope.showHide = showHide;
@@ -197,13 +199,26 @@ app.controller('rootController', function($scope, $rootScope, $http) {
     };
 
 
-    $scope.getSettlement = function(s_id, dest){
+    $scope.getSettlement = function(s_dict, dest){
         // pass in a string of a settlement OID to push a settlement onto array
         // 'dest'
+
+        showCornerLoader();
         var config = {"headers": {"Authorization": $scope.jwt}};
+
+        var s_id = s_dict._id.$oid;
+        var s_json = {sheet: s_dict};
+
+        // push the bogus/partial settlement into the dest array and get its index
+        dest.push(s_json);
+        var s_index = dest.indexOf(s_json);
+
+        // now spint off a job to get the rest of the settlement info and update
         $http.get($scope.api_url + 'settlement/get_summary/' + s_id, config).then(
             function(payload) {
-                dest.push(payload.data);
+//                dest.push(payload.data);
+                dest[s_index] = payload.data;
+                $scope.scratch.settlementsRetrieved += 1;
             },
             function(errorPayload) {
                 console.error("[rootController.getSettlement()] Could not get settlement " + s_id);
@@ -242,16 +257,19 @@ app.controller('rootController', function($scope, $rootScope, $http) {
                 console.log("[USER] Retrieving campaign assets from API...");
                 $scope.initWorld();
 
+                // loading stuff ui/ux
+                $scope.scratch.settlementsRequired = $scope.user.dashboard.campaigns.length + $scope.user.dashboard.settlements.length;
+
                 $scope.campaigns = [];
                 for (var i = 0; i < $scope.user.dashboard.campaigns.length; i++) {
-                    var s_id = $scope.user.dashboard.campaigns[i].$oid;
-                    $scope.getSettlement(s_id, $scope.campaigns);
+                    var s_dict = $scope.user.dashboard.campaigns[i];
+                    $scope.getSettlement(s_dict, $scope.campaigns);
                 };
 
                 $scope.settlements = [];
                 for (var i = 0; i < $scope.user.dashboard.settlements.length; i++) {
-                    var s_id = $scope.user.dashboard.settlements[i].$oid;
-                    $scope.getSettlement(s_id, $scope.settlements);
+                    var s_dict = $scope.user.dashboard.settlements[i];
+                    $scope.getSettlement(s_dict, $scope.settlements);
                 };
 
                 if ($scope.user.dashboard.settlements.length === 0) {

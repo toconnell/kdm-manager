@@ -292,8 +292,8 @@ class User(Models.UserAsset):
         if return_type in ['dashboard']:
             output["dashboard"] = {}
 #            output["dashboard"]["friends"] = self.get_friends(return_type=list)
-            output["dashboard"]["campaigns"] = self.get_settlements(return_type=list, qualifier='player')
-            output["dashboard"]["settlements"] = self.get_settlements(return_type=list)
+            output["dashboard"]["campaigns"] = self.get_settlements(return_type='list_of_dicts', qualifier='player')
+            output["dashboard"]["settlements"] = self.get_settlements(return_type='list_of_dicts')
 
         # punch the user up if we're returning to the admin panel
         if return_type in ['admin_panel']:
@@ -652,8 +652,10 @@ class User(Models.UserAsset):
         # change settlements to a list so we can do python post-process
         settlements = list(settlements)
 
+
 	# settlement age support/freemium wall
         # first, see if we even need to be here
+        # MOVE ALL OF THIS OUT OF THIS METHOD ASAP
         sub_level = self.get_subscriber_level()
         if sub_level > 1:
             pass
@@ -672,6 +674,7 @@ class User(Models.UserAsset):
                     msg = msg.safe_substitute(
                         settlement_name=s['name'],
                         settlement_age = asset_age.days,
+                        settlement_dict = s,
                         user_email = request.User.login,
                         user_id = request.User._id,
                     )
@@ -681,11 +684,17 @@ class User(Models.UserAsset):
                     utils.mdb.settlements.save(s)
                     settlements.remove(s)
 
+        #
+        # now start handling returns
+        #
+
         if return_type == int:
             return len(settlements)
         elif return_type == list:
             output = [s["_id"] for s in settlements]
             return output
+        elif return_type == 'list_of_dicts':
+            return settlements
         elif return_type == "asset_list":
             output = []
             for s in settlements:
