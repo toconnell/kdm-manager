@@ -13,7 +13,8 @@ abilities_and_impairments = {
         'type': 'ability'
     },
     'bitter_frenzy': {
-        'desc': 'You may spend survival and use fighting arts, weapon specialization, and weapon mastery while Frenzied.',
+#        'desc': 'You may spend survival and use fighting arts, weapon specialization, and weapon mastery while Frenzied.',
+        'desc': 'Each showdown, the first time you suffer the frenzy brain trauma, gain d10 survival. You may spend survival while <b>Frenzied</b>.',
         'name': 'Bitter Frenzy',
         'type': 'ability'
     },
@@ -237,7 +238,8 @@ abilities_and_impairments = {
         'type': 'ability'
     },
     'sour_death': {
-        'desc': 'When you are knocked down, you may encourage yourself. If you do, gain +1 strength token.',
+#        'desc': 'When you are knocked down, you may encourage yourself. If you do, gain +1 strength token.',
+        'desc': "When you are knocked down, you may encourage yourself (even if you're deaf). If you do, gain +1 strength token.",
         'name': 'Sour Death',
         'type': 'ability'
     },
@@ -262,7 +264,8 @@ abilities_and_impairments = {
         'type': 'ability'
     },
     'sweet_battle': {
-        'desc': 'You may surge without spending survival. If you do, the Activation must be used to activate a weapon.',
+#        'desc': 'You may surge without spending survival. If you do, the Activation must be used to activate a weapon.',
+        'desc': 'Once per round, you may <b>surge</b> without spending survival. If you do, the Activation must be used to activate the weapon.'
         'name': 'Sweet Battle',
         'type': 'ability',
         'survival_actions': {
