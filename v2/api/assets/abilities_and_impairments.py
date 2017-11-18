@@ -291,7 +291,7 @@ abilities_and_impairments = {
 severe_injury = {
     'bleeding_kidneys': {
         'desc': 'Gain 2 bleeding tokens.',
-        'name': 'Bleeding kidneys',
+        'name': 'Bleeding Kidneys',
         'max': False,
         "bleeding_tokens": 2,
     },
@@ -308,13 +308,13 @@ severe_injury = {
         'Strength': -1,
         'desc': 'An ear-shattering crunch. Suffer -1 permanent Accuracy and -1 permanent Strength. This injury is permanent and can be recorded twice. Gain 1 bleeding token.',
         'max': 2,
-        'name': 'Broken arm',
+        'name': 'Broken Arm',
         "bleeding_tokens": 1,
     },
     'broken_hip': {
         'Movement': -1,
         'desc': 'Your hip is dislocated. You can no longer <b>dodge</b>. Suffer -1 permanent movement. This injury is permanent and can be recorded once. Gain 1 bleeding token.',
-        'name': 'Broken hip',
+        'name': 'Broken Hip',
         'survival_actions': {
             'disable': ['dodge'],
         },
@@ -324,19 +324,19 @@ severe_injury = {
         'Movement': -1,
         'desc': 'An ear-shattering crunch! Adjacent survivors suffer 1 brain damage. Suffer -1 permanent movement. This injury is permanent, and can be recorded twice. Gain 1 bleeding token.',
         'max': 2,
-        'name': 'Broken leg',
+        'name': 'Broken Leg',
         "bleeding_tokens": 1,
     },
     'broken_rib': {
         'Speed': -1,
         'desc': 'It even hurts to breathe. Suffer -1 permanent speed. This injury is permanent, and can be recorded multiple times. Gain 1 bleeding token.',
-        'name': 'Broken rib',
+        'name': 'Broken Rib',
         "max": False,
         "bleeding_tokens": 1,
     },
     'bruised_tailbone': {
         'desc': 'The base of your spine is in agony. You cannot <b>dash</b> until showdown ends. You are knocked down. Gain 1 bleeding token.',
-        'name': 'Bruised tailbone',
+        'name': 'Bruised Tailbone',
         "max": False,
         "bleeding_tokens": 1,
     },
@@ -368,18 +368,18 @@ severe_injury = {
     'destroyed_back': {
         'Movement': -2,
         'desc': 'A sharp cracking noise. Suffer -2 permanent movement. You can no longer activate any gear that has 2+ Strength. This injury is permanent and can be recorded once. Gain 1 bleeding token.',
-        'name': 'Destroyed back',
+        'name': 'Destroyed Back',
         "bleeding_tokens": 1,
     },
     'destroyed_genitals': {
         'desc': 'You cannot be nominated for the Intimacy story event. This injury is permanent and can be recorded once. Gain a random disorder. You are knocked down. Gazing upwards, you wonder at the futility of your struggle. Gain +3 insanity. Gain 1 bleeding token.',
-        'name': 'Destroyed genitals',
+        'name': 'Destroyed Genitals',
         'cannot_be_nominated_for_intimacy': True,
         "bleeding_tokens": 1,
     },
     'destroyed_tooth': {
         'desc': 'If you have 3+ courage, you boldly spit the tooth out and gain +2 insanity! Otherwise. the blow sends you sprawling and you are knocked down.',
-        'name': 'Destroyed tooth',
+        'name': 'Destroyed Tooth',
         'max': False,
     },
     'disemboweled': {
@@ -391,7 +391,7 @@ severe_injury = {
     },
     'dislocated_shoulder': {
         'desc': 'Pop! You cannot activate two-handed or <b>paired</b> weapons or use <b>block</b> until showdown ends. Gain 1 bleeding token.',
-        'name': 'Dislocated shoulder',
+        'name': 'Dislocated Shoulder',
         'max': False,
         "bleeding_tokens": 1,
     },
@@ -405,7 +405,7 @@ severe_injury = {
         'Movement': -2,
         'desc': 'Lose a leg. You suffer -2 permanent movement, and can no longer <b>dash</b>. This injury is permanent and can be recorded twice. A survivor with two <b>dismembered leg</b> severe injuries has lost both of their legs and must retire at the end of the next showdown or settlement phase. Gain 1 bleeding token.',
         'max': 2,
-        'name': 'Dismembered leg',
+        'name': 'Dismembered Leg',
         'survival_actions': {
             'disable': ['dash'],
         },
@@ -414,7 +414,7 @@ severe_injury = {
     'gaping_chest_wound': {
         'Strength': -1,
         'desc': 'Suffer -1 permanent Strength. This injury is permanent and can be recorded multiple times. Gain 1 bleeding token.',
-        'name': 'Gaping chest wound',
+        'name': 'Gaping Chest Wound',
         'max': False,
         "bleeding_tokens": 1,
     },
@@ -427,11 +427,11 @@ severe_injury = {
     'intestinal_prolapse': {
         'desc': 'Your gut is gravely injured. You can no longer equip any gear on your waist, as it is too painful to wear. This injury is permanent, and can be recorded once. Gain 1 bleeding token.',
         'disable_locations': ['Waist'],
-        'name': 'Intestinal prolapse',
+        'name': 'Intestinal Prolapse',
         "bleeding_tokens": 1,
     },
     "intracranial_hemorrhage": {
-        "name": "Intracranial hemorrhage",
+        "name": "Intracranial Hemorrhage",
         "desc": "You can no longer use or gain any survival. This injury is permanent and can be recorded once. Gain 1 bleeding token.",
         "cannot_gain_survival": True,
         "cannot_spend_survival": True,
@@ -440,19 +440,19 @@ severe_injury = {
     'ruptured_muscle': {
         'cannot_use_fighting_arts': True,
         'desc': 'A painful rip. The arm hangs limp. You can no longer activate fighting arts. This injury is permanent and can be recorded once. Gain 1 bleeding token.',
-        'name': 'Ruptured muscle',
+        'name': 'Ruptured Muscle',
         "bleeding_tokens": 1,
     },
     'ruptured_spleen': {
         'desc': 'A vicious body blow. Skip the next hunt. Gain 2 bleeding tokens.',
-        'name': 'Ruptured spleen',
+        'name': 'Ruptured Spleen',
         'skip_next_hunt': True,
         'max': False,
         "bleeding_tokens": 2,
     },
     'shattered_jaw': {
         'desc': 'You drink your meat through a straw. You can no longer <b>consume</b> or be affected by events requiring you to <b>consume</b>. You can no longer <b>encourage</b>. This injury is permanent and can be recorded once. Gain 1 bleeding token.',
-        'name': 'Shattered jaw',
+        'name': 'Shattered Jaw',
         'survival_actions': {
             'disable': ['encourage'],
         },
@@ -460,14 +460,14 @@ severe_injury = {
     },
     'slashed_back': {
         'desc': 'Making sudden movement is excruciatingly painful. You cannot <b>surge</b> until showdown ends. Gain 1 bleeding token.',
-        'name': 'Slashed back',
+        'name': 'Slashed Back',
         'type': 'severe_injury',
         'max': False,
         "bleeding_tokens": 1,
     },
     'spiral_fracture': {
         'desc': 'Your arm twists unnaturally. Gain -2 strength tokens. Skip the next hunt. Gain 1 bleeding token.',
-        'name': 'Spiral fracture',
+        'name': 'Spiral Fracture',
         'skip_next_hunt': True,
         'max': False,
         "bleeding_tokens": 1,
@@ -481,7 +481,7 @@ severe_injury = {
     },
     'torn_muscle': {
         'desc': 'Your quadriceps is ripped to shreds. You cannot <b>dash</b> until he showdown ends. Skip the next hunt. Gain 1 bleeding token.',
-        'name': 'Torn muscle',
+        'name': 'Torn Muscle',
         'skip_next_hunt': True,
         'max': False,
         "bleeding_tokens": 1,
