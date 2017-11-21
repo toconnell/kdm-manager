@@ -34,5 +34,16 @@ server {
         proxy_set_header   Host      $http_host;
         proxy_pass         http://127.0.0.1:8013;
 #        add_header Access-Control-Allow-Origin *;
-        }
+    }
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/api.thewatcher.io/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/api.thewatcher.io/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf; 
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; 
+
+#    if ($scheme != "https") {
+#        return 301 https://$host$request_uri;
+#    } 
+    
 }
