@@ -13,7 +13,7 @@
     </script>
 
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>
-    <script src="http://code.angularjs.org/1.5.3/angular-route.min.js"></script>
+    <script src="https://code.angularjs.org/1.5.3/angular-route.min.js"></script>
     <script src="/static/js/documentation.js"></script>
     <link rel="stylesheet" href="/static/css/style.css" />
  </head>
@@ -29,7 +29,7 @@
         <tr><th colspan="3">API Documentation!</th></tr>
         <tr><td colspan="3">
 
-        <p>The KDM API at <a href="http://api.thewatcher.io">http://api.thewatcher.io</a>
+        <p>The KDM API at <a href="https://api.thewatcher.io">https://api.thewatcher.io</a>
         is a RESTful API for campaign/settlement management in "Monster" by
         <a href="http://kingdomdeath.com" target="top">Kingdom Death</a>.</p>
         <p>The API is a fan-created and fan-maintained project that is not
@@ -615,6 +615,11 @@
                     <td class="small_key">get_lines_after</td>
                     <td class="type">event log OID</td>
                     <td class="value">Limit the return to event log lines created <u>after</u> an event log OID: <code>{get_lines_after: "5a0370b54af5ca4306829050"}</code></td>
+                </tr>
+                <tr>
+                    <td class="small_key">survivor_id</td>
+                    <td class="type">arbitrary survivor's OID</td>
+                    <td class="value">Limit the return to event log lines that are tagged with a survivor OID: <code>{survivor_id: "5a0123b54af1ca42945716283"}</code></td>
                 </tr>
                 </table>
             </td>            

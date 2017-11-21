@@ -438,7 +438,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
                         },
                         function(errorPayload) {
                             console.error("[LINEAGE] Could not retrieve survivor lineage from API!" + errorPayload);
-                        },
+                        }
                     );
                 },
                 function(errorPayload) {

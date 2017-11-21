@@ -103,8 +103,8 @@ class ui:
 
 class dashboard:
     # flash
-    campaign_flash = '<img class="dashboard_icon" src="%s/icons/campaign.png"/> ' % settings.get("application", "STATIC_URL")
-    refresh_flash = '<img class="dashboard_icon" src="%s/icons/refresh.png"/> ' % settings.get("application", "STATIC_URL")
+    campaign_flash = '<img class="dashboard_icon" src="/media/icons/campaign.png"/> '
+    refresh_flash = '<img class="dashboard_icon" src="/media/icons/refresh.png"/> '
 
     #
     #   ANGULARJS dashboard components!
@@ -2726,6 +2726,32 @@ class survivor:
                         <font class="kdm_font_hit_locations">a</font> <b>Died in LY{{survivor.sheet.died_in}}.</b>
                     </p>
                 </div> <!-- bio -->
+
+                <div ng-if="lineage.events.length > 0" class="survivor_sheet_event_log_container">
+                    <h4>Event Log</h4>
+                    <div
+                        id="lineageEventsToggle"
+                        class="clickable"
+                        ng-click="showHide('lineageEventsContainer'); showHide('lineageEventsToggle');"
+                    >
+                        <p>Tap or click here to review {{lineage.events.length}} events!</p>
+                    </div>
+                    <div
+                        id="lineageEventsContainer"
+                        class="clickable hidden"
+                        ng-click="showHide('lineageEventsContainer'); showHide('lineageEventsToggle');"
+                    >
+                        <p>Tap or click here to hide the event log!</p>
+                        <div
+                            class="lineage_event_repeater {{event.event_type}}"
+                            ng-repeat="event in lineage.events"
+                            ng-class-even="'zebra'"
+                            title="Date({{event.created_on.$date}});"
+                        >
+                            {{event.ly}} - {{event.event}}
+                        </div><!-- event repeater -->
+                    </div> <!-- events container -->
+                </div> <!-- events -->
 
                 <div
                     id="survivorParents"
@@ -6126,7 +6152,7 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
     <link rel="manifest" href="/manifest.json">
 
     <!-- fucking jquery's dumb ass -->
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script> 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script> 
 
     <!-- angular app -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular.min.js"></script>

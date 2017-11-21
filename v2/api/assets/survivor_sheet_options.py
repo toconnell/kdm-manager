@@ -30,6 +30,8 @@ causes_of_death = {
     "flower_knight_02": {"name": "Majestic Onslaught", "context": "showdown", "expansion": "flower_knight"},
     "flower_knight_03": {"name": "Necrotoxic Mistletoe", "context": "story_event", "expansion": "flower_knight"},
 
+    "lonely_tree_00":   {'name': 'Lonely Fruit', 'context': 'story_event', 'expansion': 'lonely_tree'},
+
     # showdown
     "w_lion_00":        {"name": "Clever ploy", "context": "showdown"},
     "w_lion_01":        {"name": "Bloody Claw", "context": "showdown"},
@@ -99,6 +101,9 @@ causes_of_death = {
 
     # endeavor
     "core_sacrificed":          {"name": "Sacrified", "context": "endeavor"},
+
+    # other
+    'core_cyclops_fly':         {'name': 'Cyclops Fly', 'context': 'consumption'},
 }
 
 the_constellations = {

@@ -866,6 +866,8 @@ div.survivor_sheet_block_group h4 {border: 0; margin-left: 4%; }
 div.survivor_sheet_block_group p {border: 0; margin-left: 4%; }
 div.lineage_block p {font-family: 'Metrophobic'; }
 .lineage_subhead {padding-left: 4%; padding-right: 4%;  }
+.survivor_sheet_event_log_container {margin-bottom: 10%; }
+.lineage_event_repeater {font-family: 'Metrophobic'; margin-left: 6%; margin-right: 6%; font-size: 30pt; padding: 2%; }
 input.survivor_owner_email {border: 0; outline: 0; display: block; margin: 0 auto; width: 95%; text-align:center; font-family: Silverado; height: auto; border-radius: 10px; padding: 2%; }
 input.survivor_owner_email:focus {background: radial-gradient(#FDEDA9, #FFFFC5); }
 
@@ -1413,6 +1415,9 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.expansion_content_line_item label {font-size: 30px; }
 
     /* survivor sheet styles - tablet */
+    .survivor_sheet_event_log_container {margin-bottom: 3%; }
+    .lineage_event_repeater {font-size: 15pt; padding: 1%; }
+
     .survivor_sheet_survivor_name {margin-top: 20%; font-size: 45pt; margin-bottom: 8%; }
     .survivor_sheet_survival_container {margin: 0; margin-left: 5%; width: 20%; }
     input#survivalBox.survivor_sheet_survival_box {font-size: 30pt; height: 80px; }
@@ -2250,6 +2255,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .incrementer, .decrementer {width: 70px; display: block; clear: both; }
 
         /* wide left pane */
+    .lineage_event_repeater {font-size: 10pt; }
     .survivor_sheet_survivor_name {margin-top: 4%; font-size: 30pt; margin-bottom: 2%; }
     div.survivor_sheet_dynamic_button_holder {margin: 0 auto; text-align: right; clear: none; width: 100%; padding: 0; height: auto; display: flex; flex-direction: row; }
     div.survivor_sheet_dynamic_button_holder button {margin: auto; width: 150px; }

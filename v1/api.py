@@ -32,7 +32,7 @@ def get_api_url(strip_http=False):
         output = settings.get("api","prod_url")
     else:
 #        logger.debug("[API] host FQDN is '%s'. Backing off to dev API settings." % (fqdn))
-        output = "http://%s:%s/" % (get_local_ip(), settings.get("api","localhost_port"))
+        output = "https://%s:%s/" % (get_local_ip(), settings.get("api","localhost_port"))
 
     if strip_http:
         return output[7:]
@@ -73,7 +73,7 @@ def check_token(Session):
         'content-type':     'application/json',
         'Authorization':    Session.session["access_token"],
     }
-    r = requests.get(req_url, headers=h)
+    r = requests.get(req_url, headers=h, verify=False)
     if r.status_code == 200:
         return True
     else:
@@ -87,7 +87,7 @@ def refresh_jwt_token(Session):
         'content-type':     'application/json',
         'Authorization':    Session.session["access_token"],
     }
-    r = requests.post(req_url, headers=h)
+    r = requests.post(req_url, headers=h, verify=False)
 
     if r.status_code == 200:
         Session.session["access_token"] = r.json()["access_token"]
@@ -126,7 +126,7 @@ def post_JSON_to_route(route=None, payload={}, headers={}, Session=None):
     if headers != {}:
         h.update(headers)
 
-    return requests.post(req_url, data=json.dumps(payload, cls=customJSONencoder), headers=h)
+    return requests.post(req_url, data=json.dumps(payload, cls=customJSONencoder), headers=h, verify=False)
 
 
 

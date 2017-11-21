@@ -19,5 +19,13 @@ server {
         add_header Access-Control-Allow-Origin *;
     }
 
+    # test SSL redirect
+    listen 443 ssl;
+    ssl_certificate /etc/letsencrypt/live/kdm-manager.com/fullchain1.pem;
+    ssl_certificate_key /etc/letsencrypt/live/kdm-manager.com/privkey1.pem;
+
+    if ($scheme != "https") {
+        return 301 https://$host$request_uri;
+    }
 
 }

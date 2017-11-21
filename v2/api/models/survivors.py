@@ -2167,6 +2167,7 @@ class Survivor(Models.UserAsset):
         # get fuck buddy survivor data from mdb
         output['intimacy_partners'] = [utils.mdb.survivors.find_one({'_id': s}) for s in output['intimacy_partners']]
 
+        output['events'] = self.Settlement.get_event_log(survivor_id=self._id)
 
         return Response(
             response=json.dumps(output, default=json_util.default),

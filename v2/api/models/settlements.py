@@ -1976,7 +1976,7 @@ class Settlement(Models.UserAsset):
         return s_expansions
 
 
-    def get_event_log(self, return_type=None, lines=None, get_lines_after=None):
+    def get_event_log(self, return_type=None, lines=None, get_lines_after=None, survivor_id=None):
         """ Returns the settlement's event log as a cursor object unless told to
         do otherwise.
         
@@ -1984,11 +1984,13 @@ class Settlement(Models.UserAsset):
         a certain time.
         """
 
-        if request:
+        if request and hasattr(self, 'params'):
             if 'lines' in self.params:
                 lines = self.params['lines']
             if 'get_lines_after' in self.params:
                 get_lines_after = self.params['get_lines_after']
+            if 'survivor_id' in self.params:
+                survivor_id = self.params['survivor_id']
 
         query = {"settlement_id": self.settlement["_id"]}
 
@@ -1996,6 +1998,9 @@ class Settlement(Models.UserAsset):
         if get_lines_after is not None:
             target_line = utils.mdb.settlement_events.find_one({'_id': ObjectId(get_lines_after)})
             query = {"created_on": {'$gt': target_line['created_on']}}
+
+        if survivor_id is not None:
+            query = {'survivor_id': ObjectId(survivor_id)}
 
         # now do the query
         event_log = utils.mdb.settlement_events.find(query).sort("created_on",-1)

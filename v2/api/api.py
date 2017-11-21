@@ -15,6 +15,7 @@ import json
 import os
 from pprint import pprint
 import socket
+import ssl
 
 # application-specific imports
 import request_broker
@@ -313,4 +314,9 @@ def return_exception(error):
 
 
 if __name__ == "__main__":
-    application.run(port=8013, host="0.0.0.0")
+    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+    context.load_cert_chain(
+        '/etc/letsencrypt/live/api.thewatcher.io/fullchain1.pem',
+        '/etc/letsencrypt/live/api.thewatcher.io/privkey1.pem',
+    )
+    application.run(port=8013, host="0.0.0.0", debug = False/True, ssl_context=context)
