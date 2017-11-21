@@ -49,7 +49,7 @@ mar_2016_expansions = {
         },
         "timeline_add": [
             {"ly": 1, "type": "story_event", "handle": "gorm_approaching_storm"},
-            {"ly": 2, "type": "settlement_event", "name": "Gorm Climate"},
+            {"ly": 2, "type": "settlement_event", "name": "Gorm Climate", 'handle': 'gorm_gorm_climate'},
         ],
     },
     "green_knight_armor": {

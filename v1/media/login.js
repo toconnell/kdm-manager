@@ -112,7 +112,7 @@ app.controller("newUserController", function($scope, $http) {
         };
         // if we're still here after validation, attempt to register:
         var data = {username: $scope.newUserEmail, password: $scope.newUserPassword};
-        console.log(data);
+//        console.log(data);
         $http({
             method: 'POST',
             url: api_url + "new/user",

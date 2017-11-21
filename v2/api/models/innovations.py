@@ -9,7 +9,7 @@ import Models
 import utils
 
 
-class Assets(object, Models.AssetCollection):
+class Assets(Models.AssetCollection):
 
     def __init__(self, *args, **kwargs):
         self.root_module = innovations

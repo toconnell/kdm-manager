@@ -160,6 +160,7 @@ app.controller('innovationsController', function($scope) {
     };
 
     $scope.setInnovationDeck = function(retry) {
+        console.time('innovationDeck()');
         $scope.innovation_deck = null;
         $scope.spinner();
         var res = $scope.getJSONfromAPI('settlement','get_innovation_deck', 'setInnovationDeck');
@@ -176,6 +177,7 @@ app.controller('innovationsController', function($scope) {
                 };
 //                console.log("Innovation Deck refreshed!");
                 $scope.spinner("hide");
+                console.timeEnd('innovationDeck()');
             },
             function(errorPayload) {console.log("Could not retrieve innovation deck from API!" + errorPayload);}
         );

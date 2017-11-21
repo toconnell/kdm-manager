@@ -11,7 +11,6 @@ gear = {
  'organ_grinder': {'bgcolor': 'B58AA5','name': 'Organ Grinder'},
  'plumery': {'bgcolor': 'FF5EAA', 'name': 'Plumery'},
  'other': {'bgcolor': 'FF00FF', 'color': 'FFF','name': 'Other'},
- 'oxidation': {'bgcolor': 'CCC', 'name': 'Oxidation'},
  'rare_gear': {'bgcolor': '9DC209', 'name': 'Rare Gear'},
  'skinnery': {'bgcolor': 'FFCBA4', 'name': 'Skinnery'},
  'starting_gear': {'bgcolor': 'CCC', 'name': 'Starting Gear'},

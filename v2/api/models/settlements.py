@@ -237,6 +237,8 @@ class Settlement(Models.UserAsset):
                 survivors.Survivor(new_asset_attribs=attribs, Settlement=self)
                 if s_dict.get("storage", None) is not None:
                     self.settlement["storage"].extend(s_dict["storage"])
+                if s_dict.get('expansion', None) is not None:
+                    self.add_expansions([s_dict['expansion']])
 
         # log settlement creation and save/exit
         self.save()
@@ -1811,12 +1813,15 @@ class Settlement(Models.UserAsset):
         events = current_ly.get('settlement_event', None)
         if events is not None:
             for event_dict in events:
-                event_asset = self.Events.get_asset(event_dict['handle'])
-                if event_asset.get('endeavors',None) is not None:
-                    eligible_endeavor_handles = get_eligible_endeavors(event_asset['endeavors'])
-                    if len(eligible_endeavor_handles) >= 1:
-                        event_asset['endeavors'] = eligible_endeavor_handles
-                        available['settlement_events'].append(event_asset)
+                if event_dict.get('handle', None) is not None:
+                    event_asset = self.Events.get_asset(event_dict['handle'])
+                    if event_asset.get('endeavors',None) is not None:
+                        eligible_endeavor_handles = get_eligible_endeavors(event_asset['endeavors'])
+                        if len(eligible_endeavor_handles) >= 1:
+                            event_asset['endeavors'] = eligible_endeavor_handles
+                            available['settlement_events'].append(event_asset)
+                else:
+                    self.logger.warn("%s Timeline event dictionary does not have a handle key! Dict was: %s" % (self, event_dict))
 
         return available
 
@@ -1971,23 +1976,39 @@ class Settlement(Models.UserAsset):
         return s_expansions
 
 
-    def get_event_log(self, return_type=None, lines=None):
+    def get_event_log(self, return_type=None, lines=None, get_lines_after=None):
         """ Returns the settlement's event log as a cursor object unless told to
-        do otherwise."""
+        do otherwise.
+        
+        Checks for a request and, if one exists, tries to search for lines after
+        a certain time.
+        """
 
-        event_log = utils.mdb.settlement_events.find(
-            {
-            "settlement_id": self.settlement["_id"]
-            }
-        ).sort("created_on",-1)
+        if request:
+            if 'lines' in self.params:
+                lines = self.params['lines']
+            if 'get_lines_after' in self.params:
+                get_lines_after = self.params['get_lines_after']
 
+        query = {"settlement_id": self.settlement["_id"]}
+
+        # modify the query, if we're doing that
+        if get_lines_after is not None:
+            target_line = utils.mdb.settlement_events.find_one({'_id': ObjectId(get_lines_after)})
+            query = {"created_on": {'$gt': target_line['created_on']}}
+
+        # now do the query
+        event_log = utils.mdb.settlement_events.find(query).sort("created_on",-1)
+
+        # limit, if we're doing that
         if lines is not None:
-            event_log = list(event_log)[-lines:]
+            event_log.limit(lines)
 
+        # process 'return_type' and wrap up
         if return_type=="JSON":
             return json.dumps(list(event_log),default=json_util.default)
 
-        return event_log
+        return list(event_log)
 
 
     def get_eligible_parents(self):

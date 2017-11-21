@@ -61,29 +61,6 @@
         </tr>
 
 
-        <tr class="ul">
-            <td> <a href="/campaign">/campaign</a> </td>
-            <td> POST </td>
-            <td>
-                <p>Accepts a "name" or "handle" parameter included in the body
-                of the request (which should be JSON) and returns a JSON
-                representation of the campaign:</p>
-                <code>{"name": "People of the Lantern"}</code>
-                <p>...gets you something like this:</p>
-                <code>{"handle": "people_of_the_lantern","milestones":
-                ["first_child", "first_death", "pop_15", "innovations_5",
-                "game_over" ], "saviors": "1.3.1", "name": "People of the Lantern",
-                "default": true, "principles": ["new_life", "death", "society",
-                "conviction"], "always_available": { "location": ["Lantern
-                Hoard"], "innovation": ["Language"]},"nemesis_monsters": [
-                "butcher", "kings_man","the_hand","watcher"],"quarries": [
-                "white_lion","screaming_antelope","phoenix", "beast_of_sorrow",
-                "great_golden_cat", "mad_steed", "golden_eyed_king"],"type":
-                "campaign_definition"}</code>
-                <p>NB: this also works with handles, e.g.:</p>
-                <code>{"handle": "people_of_the_stars"}</code>
-            </td>
-        </tr>
 
         <tr class="ul">
             <td> <a href="/login">/login</a> </td>
@@ -104,64 +81,12 @@
         </tr>
 
         <tr class="ul">
-            <td> <a href="/monster">/monster</a> </td>
-            <td> POST </td>
-            <td>
-                <p>
-                    Accepts a "name" or "handle" parameter (via JSON) and
-                    returns a JSON representation of a monster type game asset.
-                    For example, POSTing to /monster with JSON such as this:
-                </p>
-                <code>{"name": "White Lion Lvl. 1"}</code>
-                <p>...returns JSON like this: </p>
-                <code>{"comment": "Lvl. 1", "handle": "white_lion", "name":
-                "White Lion", "level": 1, "levels": 3, "sort_order": 0, "type":
-                "quarry"}
-                <p>Or, with a handle:</p>
-                <code>{"handle": "manhunter"}</code>
-                <p>...you get:</p>
-                <pre><code>{
-    "handle": "manhunter",
-    "name": "Manhunter",
-    "levels": 4,
-    "sort_order": 103,
-    "type": "nemesis",
-    "selectable": false, 
-    "misspellings": ["THE MANHUNTER", "MAN HUNTER"],
-}</code></pre>
-            </td>
-        </tr>
-        <tr class="ul">
             <td> <a href="/new_settlement">/new_settlement</a></td>
             <td> GET </td>
             <td> Returns JSON representing available options for creating a new
             settlement, including expansions, pre-fab survivors, etc. Also
             includes subtitle/description elements. Use this to make "create
             new settlement" type views. </td>
-        </tr>
-        <tr class="ul">
-            <td> <a href="/get_random_names/10">/get_random_names/&lt;count&gt;</a></td>
-            <td> GET </td>
-            <td> 
-                <p>Returns <code>count</code> random names for each possible
-                survivor sex.</p>
-                <p><b>Important!</b>This method DOES NOT accept POST-type
-                requests and <code>count</code> must be an integer!</p>
-                <p>Output looks like this:</p>
-                <pre><code>{
-    "M": [
-        "Fingal",
-        "Pelagius",
-        "Stark"
-    ],
-    "F": [
-        "Hope",
-        "Moana",
-        "Rasha"
-    ]
-}
-</code></pre>
-            </td>
         </tr>
         <tr class="ul">
             <td> <a href="/settings.json">/settings.json</a> </td>
@@ -210,6 +135,99 @@
             <p>If your post comes back with a 200, then the user's password has
             been changed to the password you posted, and you can use it to log
             them in.</p>
+        </tr>
+        <tr class="ul route_root">
+            <th colspan="3">
+                <p><b>UI/UX Helpers:</b> these routes are intended to help with
+                user experience by rapidly returning basic asset sets.</p>
+            </th>
+        </tr>
+        <tr class="ul">
+            <td> <a href="/get_random_names/10">/get_random_names/&lt;count&gt;</a></td>
+            <td> GET </td>
+            <td> 
+                <p>Returns <code>count</code> random names for each possible
+                survivor sex.</p>
+                <p><b>Important!</b>This method DOES NOT accept POST-type
+                requests and <code>count</code> must be an integer!</p>
+                <p>Output looks like this:</p>
+                <pre><code>{
+    "M": [
+        "Fingal",
+        "Pelagius",
+        "Stark"
+    ],
+    "F": [
+        "Hope",
+        "Moana",
+        "Rasha"
+    ]
+}
+</code></pre>
+            </td>
+        </tr>
+
+
+        <tr class="ul route_root">
+            <th colspan="3">
+                <p><b>Game asset lookup routes:</b> use these endpoints to get
+                information about game assets, e.g. monsters, gear, etc.</p>
+                <p>Each of these routes works essentially the same way: you can
+                POST a query to it to retireve data about a single asset if you
+                know its name or handle -OR- you can GET the route to get a list
+                of all assets.</p>
+            </th>
+        </tr>
+        <tr class="ul">
+            <td> <a href="/campaign">/campaign</a> </td>
+            <td> GET, POST </td>
+            <td>
+                <p>Accepts a "name" or "handle" parameter included in the body
+                of the request (which should be JSON) and returns a JSON
+                representation of a campaign asset:</p>
+                <code>{"name": "People of the Lantern"}</code>
+                <p>...gets you back something like this:</p>
+                <code>{"handle": "people_of_the_lantern","milestones":
+                ["first_child", "first_death", "pop_15", "innovations_5",
+                "game_over" ], "saviors": "1.3.1", "name": "People of the Lantern",
+                "default": true, "principles": ["new_life", "death", "society",
+                "conviction"], "always_available": { "location": ["Lantern
+                Hoard"], "innovation": ["Language"]},"nemesis_monsters": [
+                "butcher", "kings_man","the_hand","watcher"],"quarries": [
+                "white_lion","screaming_antelope","phoenix", "beast_of_sorrow",
+                "great_golden_cat", "mad_steed", "golden_eyed_king"],"type":
+                "campaign_definition"}</code>
+                <p>NB: this also works with handles, e.g.:</p>
+                <code>{"handle": "people_of_the_stars"}</code>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> <a href="/monster">/monster</a> </td>
+            <td> GET, POST </td>
+            <td>
+                <p>
+                    Accepts a "name" or "handle" parameter in the POST body and
+                    returns a JSON representation of a monster type game asset.
+                    For example, POSTing to /monster with JSON such as this:
+                </p>
+                <code>{"name": "White Lion Lvl. 1"}</code>
+                <p>...returns JSON like this: </p>
+                <code>{"comment": "Lvl. 1", "handle": "white_lion", "name":
+                "White Lion", "level": 1, "levels": 3, "sort_order": 0, "type":
+                "quarry"}
+                <p>Or, with a handle:</p>
+                <code>{"handle": "manhunter"}</code>
+                <p>...you get:</p>
+                <pre><code>{
+    "handle": "manhunter",
+    "name": "Manhunter",
+    "levels": 4,
+    "sort_order": 103,
+    "type": "nemesis",
+    "selectable": false, 
+    "misspellings": ["THE MANHUNTER", "MAN HUNTER"],
+}</code></pre>
+            </td>
         </tr>
     </table>
 
@@ -574,11 +592,31 @@
         </tr>
         <tr class="ul">
             <td> /settlement/get_event_log/&lt;settlement_id&gt; </td>
-            <td> GET </td>
-            <td> <p>Retrieve all settlement event log entries (in a giant hunk
-            of JSON). For higher LY settlements, this can get really huge.</p>
-            <p>Definitely consider loading this one AFTER you have rendered the
-            rest of the view. </p>
+            <td> GET, POST </td>
+            <td>
+                <p>GET this end point to retrieve all settlement event log
+                entries (in a giant hunk of JSON) in <u>reverse chronological
+                order</u>, i.e. latest first, oldest last.</p>
+                <p>For higher LY settlements this can be a really huge list of
+                log lines: if you're a front-end developer, definitely consider
+                loading this one AFTER you have rendered the rest of your 
+                view.</p>
+                <p>If you don't want all log lines, you can POST to this endpoint
+                with one of the following params to limit the scope of the
+                return:</p>
+                <table class="embedded_table">
+                <tr><th>key</th><th>value type</th><th>scope</th>
+                <tr>
+                    <td class="small_key">lines</td>
+                    <td class="type">arbitrary int</td>
+                    <td class="value">Limit the return to the last <code>lines</code>-worth of lines: <code>{lines: 10}</code>. Note that this <u>does not</u> make the query or the return time better or faster for settlements with lots of event log lines.</td>
+                </tr>
+                <tr>
+                    <td class="small_key">get_lines_after</td>
+                    <td class="type">event log OID</td>
+                    <td class="value">Limit the return to event log lines created <u>after</u> an event log OID: <code>{get_lines_after: "5a0370b54af5ca4306829050"}</code></td>
+                </tr>
+                </table>
             </td>            
         </tr>
         <tr class="ul">

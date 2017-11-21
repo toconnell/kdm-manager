@@ -64,7 +64,7 @@ def ua_decorator(render_func=None):
             user_id = self.User.user["_id"],
             settlement_id = self.Session.Settlement.settlement["_id"],
 
-        ) + html.angularJS.timeline + html.angularJS.new_survivor + html.angularJS.settlement_notes + html.angularJS.bulk_add_survivors + html.angularJS.expansions_manager
+        ) + html.angularJS.timeline + html.angularJS.new_survivor + html.angularJS.settlement_notes + html.angularJS.bulk_add_survivors + html.angularJS.expansions_manager + html.angularJS.hunt_phase
 
     return wrapper
 
@@ -913,7 +913,7 @@ class Settlement:
         return self.get_name_and_id()
 
 
-    def __init__(self, settlement_id=False, name=False, campaign=False, session_object=None, update_mins=True):
+    def __init__(self, settlement_id=False, name=False, campaign=False, session_object=None):
         """ Initialize with a settlement from mdb. """
         self.logger = get_logger()
 
@@ -926,19 +926,13 @@ class Settlement:
         except:
             self.logger.warn("Settlement %s initialized without a User object!" % settlement_id)
 
-        # if we initialize a settlement without an ID, make a new one
-        if not settlement_id:
-            settlement_id = self.new()
-        else:
-            settlement_id = ObjectId(settlement_id)
-
         # now set self.settlement
-        self.set_settlement(settlement_id, update_mins)
+        self.set_settlement(ObjectId(settlement_id))
 
         # uncomment these to log which methods are initializing 
 #        curframe = inspect.currentframe()
 #        calframe = inspect.getouterframes(curframe, 2)
-#        self.logger.debug("settlement initialized by %s" % calframe[1][3])
+#        self.logger.warn("settlement initialized by %s" % calframe[1][3])
 
 
 
@@ -955,8 +949,6 @@ class Settlement:
             self.logger.error("[%s] failed to initialize settlement _id: %s" % (self.User, s_id))
             raise Exception("Could not initialize requested settlement %s!" % s_id)
 
-#        if update_mins:
-#            self.update_mins()
 
 
     def update_mins(self):
@@ -1756,56 +1748,6 @@ class Settlement:
         self.log_event("%s removed '%s' from settlement %s." % (self.User.user["login"], game_asset_key, ac_pretty))
 
         mdb.settlements.save(self.settlement)
-
-
-    def modify(self, params):
-        """ Pulls a settlement from the mdb, updates it and saves it using a
-        cgi.FieldStorage() object.
-
-        All of the business logic lives here.
-        """
-
-        ignore_keys = [
-            "norefresh", "asset_id", "modify",
-            "add_item_quantity", "rm_item_quantity",
-            "male_survivors","female_survivors", "bulk_add_survivors",
-            "timeline_update_ly","timeline_update_event_type","timeline_update_event_handle",
-            "operation", "nemesis_levels"
-        ]
-
-        self.logger.warn('assets.Settlement.modify() is deprecated! Request params were:')
-        self.logger.warn("%s" % (params))
-
-        for p in params:
-
-            game_asset_key = None
-            if type(params[p]) != list:
-                game_asset_key = params[p].value.strip()
-
-            if p in ignore_keys:
-                pass
-            elif p == "toggle_admin_status":
-                self.toggle_admin_status(game_asset_key)
-            else:
-                self.settlement[p] = game_asset_key
-                self.logger.debug("%s set '%s' = '%s' for %s" % (self.User.user["login"], p, game_asset_key, self.get_name_and_id()))
-        #
-        #   settlement post-processing starts here!
-        #
-
-        #   auto-add milestones for principles:
-#        for principle in self.settlement["principles"]:
-#            p_dict = self.get_api_asset("game_assets", "innovations")[principle]
-#            if p_dict.get("milestone", None) is not None:
-#                if p_dict["milestone"] not in self.settlement["milestone_story_events"]:
-#                    self.settlement["milestone_story_events"].append(p_dict["milestone"])
-#                    msg = "utomatically marking milestone story event '%s' due to selection of related principle, '%s'." % (principle_dict["milestone"], principle)
-#                    self.log_event("A%s" % (msg))
-#                    self.logger.debug("[%s] a%s" % (self.User, msg))
-
-        # update mins will call self.enforce_data_model() and save
-#        self.update_mins()
-
 
 
     @ua_decorator

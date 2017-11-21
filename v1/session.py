@@ -233,12 +233,12 @@ class Session:
 
 
 
-    def set_current_settlement(self, settlement_id=None, update_mins=True):
+    def set_current_settlement(self, settlement_id=None):
         """ Tries (hard) to set the following attributes of a sesh:
 
             - self.current_settlement
             - self.session["current_settlement"]
-            - self.Settlement.
+            - self.Settlement
 
         The best way is to use the 'settlement_id' kwarg and feed an ObjectId
         object. If you haven't got one of those, this func will back off to the
@@ -281,7 +281,7 @@ class Session:
         # now, fucking finally, set self.Settlement
         if "current_settlement" in self.session.keys() and hasattr(self, "current_settlement"):
             s_id = self.session["current_settlement"]
-            self.Settlement = assets.Settlement(settlement_id=s_id, session_object=self, update_mins=update_mins)
+            self.Settlement = assets.Settlement(settlement_id=s_id, session_object=self)
         else:
             raise Exception("[%s] session could not set current settlement!" % (self.User))
 
@@ -588,20 +588,11 @@ class Session:
 
         if "modify" in self.params:
             if self.params["modify"].value == "settlement":
-                s = mdb.settlements.find_one({"_id": ObjectId(user_asset_id)})
-                self.set_current_settlement(s["_id"])
-                S = assets.Settlement(settlement_id=s["_id"], session_object=self)
-                S.modify(self.params)
-                user_action = "modified settlement %s" % self.Settlement
+                self.logger.error("%s Attempt to call modify() method from params!" % (self.Settlement))
 
             if self.params["modify"].value == "survivor":
-
-                update_mins = True
-                if "norefresh" in self.params:
-                    update_mins = False
-
                 s = mdb.survivors.find_one({"_id": ObjectId(user_asset_id)})
-                self.set_current_settlement(s["settlement"], update_mins)
+                self.set_current_settlement(s["settlement"])
                 S = assets.Survivor(survivor_id=s["_id"], session_object=self)
                 S.modify(self.params)
                 user_action = "modified survivor %s of %s" % (S, self.Settlement)
@@ -623,15 +614,16 @@ class Session:
         if user_asset is not None:
             if collection == "settlements":
                 self.set_current_settlement(user_asset["_id"])
-                S = assets.Settlement(settlement_id = user_asset["_id"], session_object=self)
+                return self.Settlement.render_html_form()
             elif collection == "survivors":
                 self.set_current_settlement(user_asset["settlement"])
-                S = assets.Survivor(survivor_id = user_asset["_id"], session_object=self)
+                S = assets.Survivor(survivor_id=user_asset['_id'], session_object=self)
+                return S.render_html_form()
             else:
-                self.logger.error("[%s] user assets from '%s' colletion don't have Sheets!" % (self.User,collection))
-            output = S.render_html_form()
+                msg = "[%s] user assets from '%s' colletion don't have Sheets!" % (self.User,collection)
+                self.logger.error(msg)
+                raise Exception(msg)
 
-        return output
 
 
     def render_dashboard(self):
@@ -679,11 +671,15 @@ class Session:
 
         elif self.current_view == "view_campaign":
             output += html.dashboard.refresh_button
-            self.set_current_settlement()
+            if not hasattr(self, "Settlement") or self.Settlement is None:
+                self.set_current_settlement()
             output += self.Settlement.render_html_summary(user_id=self.User.user["_id"])
 
         elif self.current_view == "new_settlement":
-            output += html.settlement.new
+            output += html.settlement.new.safe_substitute(
+                user_id=self.User.user['_id'],
+                api_url = api.get_api_url(),
+            )
 
         elif self.current_view == "view_settlement":
             output += html.dashboard.refresh_button

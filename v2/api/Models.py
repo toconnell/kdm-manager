@@ -46,7 +46,7 @@ class AssetLoadError(Exception):
         Exception.__init__(self, message)
 
 
-class AssetCollection():
+class AssetCollection(object):
     """ The base class for game asset objects, i.e. working with the dict assets
     in the assets/ folder.
 
@@ -307,28 +307,34 @@ class AssetCollection():
     #   no set/get/filter methods below this point!
     #
 
-    def request_response(self, req):
+    def request_response(self, a_name=None, a_handle=None):
         """ Processes a JSON request for a specific asset from the collection,
         initializes the asset (if it can) and then calls the asset's serialize()
         method to create an HTTP response. """
 
-        a_name = req.get("name", None)
-        a_handle = req.get("handle", None)
+        # first, if the request is a GET, just dump everything and bail
+        if request and request.method == "GET":
+            return Response(response=json.dumps(self.assets), status=200, mimetype="application/json")
 
-        try:
-            if a_handle is not None:
-                A = self.AssetClass(a_handle)
-            elif a_name is not None:
-                A = self.AssetClass(name=a_name)
-            elif a_name is None and a_handle is None:
-                return Response(response=json.dumps(self.assets), status=200, mimetype="application/json")
-            else:
-                return utils.http_422
-        except Exception as e:
-            self.logger.exception(e)
+        # next, if the request has JSON, check for params
+        if request and hasattr(request, 'json'):
+            a_name = request.json.get("name", None)
+            a_handle = request.json.get("handle", None)
+
+        # if there are no lookups requested, dump everything and bail
+        if a_name is None and a_handle is None:
+            return Response(response=json.dumps(self.assets), status=200, mimetype="application/json")
+
+        # finally, do lookups and create a response based on the outcome
+        if a_handle is not None:
+            A = self.get_asset(a_handle)
+        elif a_name is not None:
+            A = self.get_asset_from_name(a_name)
+
+        if A is None:
             return utils.http_404
 
-        return Response(response=A.serialize(), status=200, mimetype="application/json")
+        return Response(response=json.dumps(A), status=200, mimetype="application/json")
 
 
 
@@ -759,14 +765,22 @@ class UserAsset():
     def log_event(self, msg, event_type=None):
         """ Logs a settlement event to mdb.settlement_events. """
 
+
         d = {
             "created_on": datetime.now(),
-            "created_by": None,
             "settlement_id": self.settlement_id,
             "ly": self.get_current_ly(),
             "event": msg,
             "event_type": event_type,
         }
+
+        if self.collection == 'survivors':
+            d['survivor_id'] = self.survivor['_id']
+
+        if request:
+            if hasattr(request, 'User'):
+                d['created_by'] = request.User.user['_id']
+
         utils.mdb.settlement_events.insert(d)
         self.logger.debug("%s event: %s" % (self, msg))
 

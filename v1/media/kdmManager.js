@@ -1,4 +1,3 @@
-
 // alerts -> call these anywhere
 
 function savedAlert() {
@@ -38,7 +37,7 @@ function showHide(e_id) {
     var e = document.getElementById(e_id);
     var hide_class = "hidden";
     var visible_class = "visible";
-    if (e === null) {console.error("No element with ID value '" + e_id + "' found on the page!"); return false}
+    if (e === null) {console.error("showHide('" + e_id + "') -> No element with ID value '" + e_id + "' found on the page!"); return false}
     if (e.classList.contains(hide_class)) {
         e.classList.remove(hide_class);
         e.classList.add(visible_class);
@@ -67,7 +66,7 @@ var app = angular.module('kdmManager', []);
 
 // general-use filters and other AngularJS bric-a-brack
 app.filter('trustedHTML', 
-   function($sce) { 
+   function($sce) {
       return $sce.trustAsHtml; 
    }
 );
@@ -100,7 +99,8 @@ app.filter('orderObjectBy', function() {
 
 
 
-app.controller('rootController', function($scope, $rootScope, $http) {
+app.controller('rootController', function($scope, $rootScope, $http, $log) {
+    $scope.$log = $log;
     $scope.scratch = {}
     $scope.scratch.settlementsRetrieved = 0;
 
@@ -118,11 +118,12 @@ app.controller('rootController', function($scope, $rootScope, $http) {
 
     // new settlement assets
     $scope.addNewSettlementsToScope = function(api_url) {
+        console.time('addNewSettlementsToScope()');
         $scope.newSettlementPromise = $http.get(api_url + 'new_settlement');
         $scope.newSettlementPromise.then(
             function(payload) {
                 $scope.new_settlement_assets = payload.data;
-                $scope.showLoader = false;                
+                console.timeEnd('addNewSettlementsToScope()');         
             },
             function(errorPayload) {console.log("Error loading new settlement assets!" + errorPayload);}
         );
@@ -153,16 +154,17 @@ app.controller('rootController', function($scope, $rootScope, $http) {
 
     $scope.initWorld = function() {
 
+        console.time('initWorld()');
         setInterval( function init() {
             
             showCornerLoader();
-
             var world_url = $scope.api_url + "world";
             $http.get(world_url).then(
                 function(result) {
                     $scope.world = result.data.world;
                     hideCornerLoader();
                     console.log('[WORLD] Retrieved data successfully!')
+                    console.timeEnd('initWorld()');
                 }
             );
 
@@ -199,10 +201,11 @@ app.controller('rootController', function($scope, $rootScope, $http) {
     };
 
 
-    $scope.getSettlement = function(s_dict, dest){
+    $scope.getSettlement = function(s_dict, dest, context){
         // pass in a string of a settlement OID to push a settlement onto array
         // 'dest'
 
+        console.time('getSettlement(' + s_dict['name'] + ', ' + context + ')');
         showCornerLoader();
         var config = {"headers": {"Authorization": $scope.jwt}};
 
@@ -219,6 +222,7 @@ app.controller('rootController', function($scope, $rootScope, $http) {
 //                dest.push(payload.data);
                 dest[s_index] = payload.data;
                 $scope.scratch.settlementsRetrieved += 1;
+                console.timeEnd('getSettlement(' + s_dict['name'] + ', ' + context + ')');
             },
             function(errorPayload) {
                 console.error("[rootController.getSettlement()] Could not get settlement " + s_id);
@@ -229,7 +233,7 @@ app.controller('rootController', function($scope, $rootScope, $http) {
 
     $scope.initializeUser = function(u_id, user_endpoint, api_url){
         // initialize
-        var start = performance.now();
+        console.time('initializeUser()');
         if ($scope.user_id === undefined && u_id !== undefined) {
             $scope.user_id = u_id;
         }
@@ -242,13 +246,12 @@ app.controller('rootController', function($scope, $rootScope, $http) {
 
         console.log("[USER] Initializing user " + $scope.user_id);
 
-        $scope.userPromise = $scope.getJSONfromAPI('user', user_endpoint, 'initialize (user)')
+        $scope.userPromise = $scope.getJSONfromAPI('user', user_endpoint, 'initializeUser()')
 
         $scope.userPromise.then(function(payload) {
             $scope.user = payload.data;
             $scope.user_login = $scope.user.user.login;
-            var stop = performance.now();
-            console.warn("[USER] Initialized user " + $scope.user_login + " (" + $scope.user_id + ") in " + convertMS((stop-start)) + " seconds!");
+            console.timeEnd('initializeUser()');
 
             // if we're doing the dash, we've got to get settlements and fiddle
             // the UI for new users
@@ -263,13 +266,13 @@ app.controller('rootController', function($scope, $rootScope, $http) {
                 $scope.campaigns = [];
                 for (var i = 0; i < $scope.user.dashboard.campaigns.length; i++) {
                     var s_dict = $scope.user.dashboard.campaigns[i];
-                    $scope.getSettlement(s_dict, $scope.campaigns);
+                    $scope.getSettlement(s_dict, $scope.campaigns, 'campaign');
                 };
 
                 $scope.settlements = [];
                 for (var i = 0; i < $scope.user.dashboard.settlements.length; i++) {
                     var s_dict = $scope.user.dashboard.settlements[i];
-                    $scope.getSettlement(s_dict, $scope.settlements);
+                    $scope.getSettlement(s_dict, $scope.settlements, 'settlement');
                 };
 
                 if ($scope.user.dashboard.settlements.length === 0) {
@@ -311,7 +314,7 @@ app.controller('rootController', function($scope, $rootScope, $http) {
         // of API requests.
 
         // intialize
-        var settlementStart = performance.now();
+        console.time('initializeSettlement()');
         if ($scope.api_url === undefined && api_url !== undefined) {
             $scope.api_url = api_url;
         };
@@ -327,7 +330,7 @@ app.controller('rootController', function($scope, $rootScope, $http) {
         $rootScope.hideControls = true;
 
         // now do it
-        console.log("[SETTLEMENT] Initializing '" + $scope.view + "' view...");
+        console.log("[SETTLEMENT] Initializing " + $scope.settlement_id + " '"+ $scope.view + "' view...");
         if ($scope.settlement_id !== undefined) {
 
             var settlement_endpoint = 'get'
@@ -350,8 +353,7 @@ app.controller('rootController', function($scope, $rootScope, $http) {
                     $rootScope.hideControls = false; 
                     $scope.postJSONtoAPI('settlement', 'set_last_accessed', {}, false, false);
 
-                    var settlementStop = performance.now();
-                    console.warn("[SETTLEMENT] Settlement " + $scope.settlement_id + " initialized in " + convertMS((settlementStop - settlementStart)) + " seconds!");
+                    console.timeEnd('initializeSettlement()');
 
                 },
                 function(errorPayload) {console.log($scope.log_level + "Error loading settlement!" + errorPayload);}
@@ -402,8 +404,9 @@ app.controller('rootController', function($scope, $rootScope, $http) {
         // pulls a specific survivor down from the API and sets it as
         // $scope.survivor; also sets some other helpful $scope vars
 
+        console.time('initializeSurvivor()');
+
         // initialize
-        var survivor_start = performance.now();
         if ($scope.survivor_id === undefined) {
             $scope.survivor_id = s_id;
         };
@@ -417,18 +420,21 @@ app.controller('rootController', function($scope, $rootScope, $http) {
             $scope.survivorPromise.then(
                 function(payload) {
                     $scope.survivor = payload.data;
-                    var survivor_stop = performance.now();
-                    console.warn("[SURVIVOR] Initialized survivor " + $scope.survivor_id + " in " + convertMS((survivor_stop - survivor_start)) + " seconds!");
                     hideFullPageLoader();
                     hideCornerLoader();
+                    console.timeEnd('initializeSurvivor()');
 
                     // now do stuff after we drop the loader
                     $scope.initAssetLists();
+
+                    //lineage first
+                    console.time('$scope.lineage');
+                    console.log("[LINEAGE] Retrieving survivor lineage data... ");
                     $scope.getJSONfromAPI('survivor','get_lineage','initializeSurvivor()').then(
                         function(payload) {
-                            console.log("[LINEAGE] Retrieving survivor lineage data... ");
                             $scope.lineage = payload.data;
                             console.log('[LINEAGE] Lineage retrieved!');
+                            console.timeEnd('$scope.lineage');
                         },
                         function(errorPayload) {
                             console.error("[LINEAGE] Could not retrieve survivor lineage from API!" + errorPayload);
@@ -444,13 +450,12 @@ app.controller('rootController', function($scope, $rootScope, $http) {
 
 
     $scope.initializeEventLog = function() {
-        var eventLogStart = performance.now();
+        console.time('initializeEventLog()');
         console.log('[EVENT LOG] Initializing event log...');
         $scope.getJSONfromAPI('settlement','get_event_log', 'initializeEventLog()').then(
             function(payload) {
                 $scope.event_log = payload.data;
-                var eventLogStop = performance.now();
-                console.warn("[EVENT LOG] Initialized event log in " + convertMS((eventLogStop - eventLogStart)) + " seconds!");
+                console.timeEnd('initializeEventLog()');
             },
             function(errorPayload) {
                 console.log($scope.log_level + "Error loading event_log!" + errorPayload);
@@ -464,6 +469,8 @@ app.controller('rootController', function($scope, $rootScope, $http) {
         // 'game_asset' wants to be something from settlement.game_assets
         // 'user_asset' wants to be a user's list, e.g. $scope.survivor.sheet.epithets
         // 'destination' wants to be the output, e.g. $scope.locationOptions
+
+        console.time("setGameAssetOptions(" + game_asset + ", " + destination + ", " + exclude_type +")");
 
         // initialize
         console.log("Refreshing '" + game_asset + "' game asset options...");
@@ -513,6 +520,7 @@ app.controller('rootController', function($scope, $rootScope, $http) {
 
         $scope[destination] = output;
         console.log("Game asset '" + game_asset + "' options updated!");
+        console.timeEnd("setGameAssetOptions(" + game_asset + ", " + destination + ", " + exclude_type +")");
     };
 
 
@@ -596,6 +604,7 @@ app.controller('rootController', function($scope, $rootScope, $http) {
     };
 
     $scope.postJSONtoAPI = function(collection, action, json_obj, reinit, show_alert) {
+        console.time('postJSONtoAPI(' + collection + ', ' + action + ')');
         if (reinit === undefined) {reinit = true};
         if (show_alert === undefined) {show_alert = true};
 
@@ -624,6 +633,7 @@ app.controller('rootController', function($scope, $rootScope, $http) {
 
         res.success(function(data, status, headers, config) {
             console.warn("postJSONtoAPI() call successful!");
+            console.timeEnd('postJSONtoAPI(' + collection + ', ' + action + ')');
             sleep(1000).then(() => {
                 if (reinit === true) {$scope.reinitialize()} else {hideCornerLoader()};
                 if (show_alert === true) {savedAlert();}
@@ -645,6 +655,7 @@ app.controller('rootController', function($scope, $rootScope, $http) {
 
     // front-end helper method that sets the scope's story and settlement events
     $scope.setEvents = function() {
+        console.time('setEvents()');
         var all_events = $scope.settlement.game_assets.events;
 
         $scope.story_events = new Array();
@@ -666,6 +677,7 @@ app.controller('rootController', function($scope, $rootScope, $http) {
         $scope.settlement_events.sort(compare);
 
         console.log("Initialized " + $scope.story_events.length + " story events and " + $scope.settlement_events.length + " settlement events!");
+        console.timeEnd('setEvents()');
 
     };
 
@@ -676,26 +688,6 @@ app.controller('rootController', function($scope, $rootScope, $http) {
         var hidden_elem = document.getElementById(hidden_elem_id);
         hidden_elem.style.display = "block";
     };
-
-    // modal div and button registration!
-    // this needs to always be in scope of ng-init or else the whole website 
-    // breaks (and the baby jesus cries)!
-    $scope.registerModalDiv = function(modal_button_id, modal_div_id) {
-        var btn = document.getElementById(modal_button_id);
-        var modal = document.getElementById(modal_div_id);
-
-        if (btn == undefined) {console.error("WARN: Could not find button id " + modal_button_id); return false};
-        if (modal == undefined) {console.error("WARN: Could not find button id " + modal_button_id); return false};
-
-        btn.onclick = function(b) {
-            b.preventDefault();
-            modal.style.display = "block";
-        };
-        window.onclick = function(event) {if (event.target == modal) {modal.style.display = "none";}};
-
-        console.log( "button: " + modal_button_id + " and div: " + modal_div_id + " are linked!");
-    };
-
 
     // helpers and laziness - junk drawer functions
     $scope.isObject = function(a) {return typeof a === 'object';};

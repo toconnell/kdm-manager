@@ -64,6 +64,18 @@ def cli_dump(key, spacer, value):
     print(output)
 
 
+def decompose_name_string(name):
+    """ Accepts a name string and returns a list of possible versions of it. """
+
+    output = []
+
+    name_list = name.split(" ")
+    for i in range(len(name_list) + 1) :
+        output.append(" ".join(name_list[:i]))
+
+    return output
+
+
 def html_file_to_template(rel_path):
     """ Turns an HTML file into a string.Template object. """
     tmp_file = os.path.join(settings.get("api","cwd"), rel_path)
@@ -193,6 +205,8 @@ def get_timeline_index_and_object(timeline,lantern_year):
         return get_ly()
     else:
         return get_ly()
+
+
 
 
 

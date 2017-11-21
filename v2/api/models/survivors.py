@@ -2003,10 +2003,10 @@ class Survivor(Models.UserAsset):
             traits.append("9 Understanding (max)")
 
         # check self.survivor["expansion_attribs"] for "Reincarnated surname","Scar","Noble surname"
-        if "expansion_attribs" in self.survivor.keys():
-            for attrib in ["potstars_reincarnated_surname", "potstars_scar", "potstars_noble_surname"]:
-                if attrib in self.survivor.keys():
-                    traits.append(attrib)
+        for attrib in ["potstars_reincarnated_surname", "potstars_scar", "potstars_noble_surname"]:
+            if self.survivor.get(attrib, False):
+                a_dict = self.SpecialAttributes.get_asset(attrib)
+                traits.append(a_dict['name'])
 
         # check the actual survivor name too, you know, for the real role players
         split_name = self.survivor["name"].split(" ")
@@ -2072,7 +2072,6 @@ class Survivor(Models.UserAsset):
             return list(constellations)
 
         # if no return_type, just return the trait list
-
         return traits
 
     def get_epithets(self, return_type=None):

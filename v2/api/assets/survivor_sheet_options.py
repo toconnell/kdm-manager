@@ -174,11 +174,11 @@ survivor_special_attributes = {
         'title_tip': 'This survivor has a scar.',
     },
     'potstars_noble_surname':{
-        'name': 'Noble Surname',
+        'name': 'Noble surname',
         'title_tip': 'This survivor has a Noble surname.',
     },
     'potstars_reincarnated_surname': {
-        'name': 'Reincarnated Surname',
+        'name': 'Reincarnated surname',
         'title_tip': 'This survivor has a Reincarnated surname.',
     },
 }

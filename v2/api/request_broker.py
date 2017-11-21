@@ -5,7 +5,7 @@ from flask import request, Response
 import panel
 import utils
 
-from models import survivors, settlements, users, monsters, campaigns
+from models import survivors, settlements, users, monsters, campaigns, gear
 from Models import AssetLoadError
 
 logger = utils.get_logger(log_name="server")
@@ -88,25 +88,21 @@ def get_user_asset(collection=None, asset_id=None):
 
 def get_game_asset(collection):
     """ Simliar to get_user_asset(), except for game assets, such as monsters,
-    gear, locations, etc. """
+    gear, locations, etc.
 
-    R = badResponse()
+    This is basically for public/reference lookups ONLY, so there's not a lot
+    going on here, in terms of lookups for users and user assets, etc.
+    """
 
-    if request.json is None:
-        return utils.http_422
+    supported_endpoints = {
+        'monster': monsters,
+        'gear': gear,
+        'campaign': campaigns,
+    }
 
-    try:
-        if collection == "monster":
-            M = monsters.Assets()
-            return M.request_response(request.json)
-        elif collection == "campaign":
-            C = campaigns.Assets()
-            return C.request_response(request.json)
-        else:
-            return R
+    A = supported_endpoints[collection].Assets()
 
-    except Exception as e:
-        return R.send_bad_response(e)
+    return A.request_response()
 
 
 def new_user_asset(asset_type=None):

@@ -16,6 +16,11 @@ app.controller("survivorSheetController", function($scope) {
         );
     };
 
+    $scope.setSurvivorName = function() {
+        var newName = document.getElementById('survivorName').innerHTML;
+        js_obj = {name: newName};
+        $scope.postJSONtoAPI('survivor', 'set_name', js_obj);
+    };
 
     $scope.incrementAttrib = function(attrib, modifier) {
         if ($scope.survivor.sheet[attrib] + modifier < 0) {return false};
@@ -39,11 +44,6 @@ app.controller("survivorSheetController", function($scope) {
         $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj);
     };
 
-
-    // general sheet methods
-    $scope.setSurvivorName = function() {
-        $scope.postJSONtoAPI('survivor','set_name', {"name": $scope.survivor.sheet.name});
-    };
 
     $scope.updateSex = function() {
         var sex = $scope.survivorSex.toUpperCase();
@@ -313,12 +313,14 @@ app.controller('secondaryAttributeController', function($scope) {
 app.controller('saviorController', function($scope) {
 
     $scope.setSaviorStatus = function(color) {
-        $scope.postJSONtoAPI('survivor','set_savior_status', {'color': color})
         $('#modalSavior').fadeOut(1000);
+        $scope.postJSONtoAPI('survivor','set_savior_status', {'color': color})
+        $scope.showHide('modalSavior');
     };
     $scope.unsetSaviorStatus = function() {
-        $scope.postJSONtoAPI('survivor','set_savior_status', {'unset': true})
         $('#modalSavior').fadeOut(1000);
+        $scope.postJSONtoAPI('survivor','set_savior_status', {'unset': true})
+        $scope.showHide('modalSavior');
     };
 
 });
@@ -468,7 +470,8 @@ app.controller("controlsOfDeath", function($scope) {
         $scope.survivor.sheet.cause_of_death = undefined;
         $scope.survivor.sheet.died_in = undefined
         $scope.postJSONtoAPI('survivor', 'controls_of_death', {'dead': false});
-        $('#modalDeath').fadeOut(1000);
+//        $('#modalDeath').fadeOut(1000);
+        $scope.showHide('modalDeath');
     };
 
     $scope.submitCOD = function(cod) {
@@ -498,7 +501,8 @@ app.controller("controlsOfDeath", function($scope) {
         $scope.survivor.sheet.cause_of_death = cod_string;
         $scope.survivor.sheet.died_in = $scope.settlement.sheet.lantern_year
         $scope.postJSONtoAPI('survivor', 'controls_of_death', cod_json);
-        $('#modalDeath').fadeOut(1000);
+      //  $('#modalDeath').fadeOut(1000);
+        $scope.showHide('modalDeath');
 
     };
 

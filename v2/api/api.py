@@ -68,14 +68,32 @@ def favicon():
 #   public routes
 #
 
+# asset lookups
 @application.route("/monster", methods=["GET","POST"])
-def monster_json():
+def lookup_monster():
     return request_broker.get_game_asset("monster")
 
-@application.route("/campaign", methods=["POST"])
-def campaign_json():
+@application.route("/campaign", methods=["GET","POST"])
+def lookup_campaign():
     return request_broker.get_game_asset("campaign")
 
+@application.route("/gear", methods=["GET","POST"])
+def lookup_gear():
+    return request_broker.get_game_asset("gear")
+
+# world
+@application.route("/world")
+@utils.crossdomain(origin=['*'],headers='Content-Type')
+def world_json():
+    W = world.World()
+    D = world.WorldDaemon()
+    d = {"world_daemon": D.dump_status(dict)}
+    d.update(W.list(dict))
+    j = json.dumps(d, default=json_util.default)
+    response = Response(response=j, status=200, mimetype="application/json")
+    return response
+
+# application junk
 @application.route("/settings.json")
 def get_settings_json():
     S = settings.Settings()
@@ -90,17 +108,7 @@ def get_settings():
         mimetype="application/json",
     )
 
-@application.route("/world")
-@utils.crossdomain(origin=['*'],headers='Content-Type')
-def world_json():
-    W = world.World()
-    D = world.WorldDaemon()
-    d = {"world_daemon": D.dump_status(dict)}
-    d.update(W.list(dict))
-    j = json.dumps(d, default=json_util.default)
-    response = Response(response=j, status=200, mimetype="application/json")
-    return response
-
+# ui/ux helpers
 @application.route("/new_settlement")
 @utils.crossdomain(origin=['*'],headers='Content-Type')
 def get_new_settlement_assets():
@@ -121,15 +129,6 @@ def get_random_names(count):
         mimetype="application/json"
     )
 
-@application.route("/reset_password/<action>", methods=["POST","OPTIONS"])
-@utils.crossdomain(origin=['*'],headers='Content-Type')
-def reset_password(action):
-
-    if action == 'request_code':
-        return users.initiate_password_reset()
-    elif action == 'reset':
-        return users.reset_password()
-    return Response(response="'%s' is not a valid action for this route." % action, status=422)
 
 #
 #   /login (not to be confused with the built-in /auth route)
@@ -156,9 +155,20 @@ def get_token(check_pw=True, user_id=False):
     }
     return Response(response=json.dumps(tok), status=200, mimetype="application/json")
 
+@application.route("/reset_password/<action>", methods=["POST","OPTIONS"])
+@utils.crossdomain(origin=['*'],headers='Content-Type')
+def reset_password(action):
+
+    if action == 'request_code':
+        return users.initiate_password_reset()
+    elif action == 'reset':
+        return users.reset_password()
+    return Response(response="'%s' is not a valid action for this route." % action, status=422)
+
+
 
 #
-#   private routes
+#   private routes - past here, you've got to authenticate
 #
 
 @application.route("/authorization/<action>", methods=["POST","GET","OPTIONS"])

@@ -42,6 +42,21 @@ class Assets(Models.AssetCollection):
                 self.assets[m]["levels"] = 3
 
 
+    def get_asset_from_name(self, name=None, decompose=True):
+        """ Overwrites the base class method (in Models.py). """
+
+        base_class_result = super(Assets, self).get_asset_from_name(name)
+
+        if base_class_result is None and not decompose:
+            return base_class_result # i.e. None
+        elif base_class_result is not None:
+            return base_class_result
+        else:
+            variations = utils.decompose_name_string(name)
+            for v in variations:
+                asset_dict = super(Assets, self).get_asset_from_name(v, raise_exception_if_not_found=False)
+                if asset_dict is not None:
+                    return asset_dict
 
 
 class Monster(Models.GameAsset):
@@ -98,11 +113,9 @@ class Monster(Models.GameAsset):
 
 
 
-    def initialize_from_name(self):
+    def initialize_from_name(self, check_asset=True):
         """ Try to initialize a monster object from a string. Lots of craziness
         here to protect the users from themselves.
-
-        Note also that we're overwriting a method of Models.py with this!
         """
 
         # sanity warning
@@ -114,27 +127,24 @@ class Monster(Models.GameAsset):
             return True
 
         # first, check for an exact name match (long-shot)
-        asset_dict = self.assets.get_asset_from_name(self.name)
+        asset_dict = self.assets.get_asset_from_name(self.name, decompose=False)
         if asset_dict is not None:
             self.initialize_asset(asset_dict)
             return True
 
         # next, split to a list and try to set asset and level
         name_list = self.name.split(" ")
-
-        # accept any int in the string as the level
         for i in name_list:
             if i.isdigit():
                 setattr(self, "level", int(i))
 
         # now iterate through the list and see if we can get a name from it
-        for i in range(len((name_list))):
-            parsed_name = " ".join(name_list[:i])
-            asset_dict = self.assets.get_asset_from_name(parsed_name)
+        for variation in utils.decompose_name_string(self.name):
+            asset_dict = self.assets.get_asset_from_name(variation, decompose=False)
             if asset_dict is not None:
                 self.initialize_asset(asset_dict)
-                if len(name_list) > i and name_list[i].upper() not in ["LEVEL","LVL","L"]:
-                    setattr(self, "comment", (" ".join(name_list[i:])))
+#                if len(name_list) > i and name_list[i].upper() not in ["LEVEL","LVL","L"]:
+#                    setattr(self, "comment", (" ".join(name_list[i:])))
                 return True
 
         # finally, create a list of misspellings and try to get an asset from that

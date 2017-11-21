@@ -57,6 +57,7 @@ specials = {
 beta_challenge_scenarios = {
     "adam": {
         "name": "Adam",
+        'expansion': 'beta_challenge_scenarios',
         "attribs": {
             "name": "Adam",
             "sex": "M",
@@ -81,6 +82,7 @@ beta_challenge_scenarios = {
     },
     "anna": {
         "name": "Anna",
+        'expansion': 'beta_challenge_scenarios',
         "attribs": {
             "name": "Anna",
             "sex": "F",
@@ -105,6 +107,7 @@ beta_challenge_scenarios = {
     },
     "paul_the_survivor": {
         "name": "Paul the Survivor",
+        'expansion': 'beta_challenge_scenarios',
         "attribs": {
             "name": "Paul",
             "sex": "M",
@@ -128,15 +131,18 @@ beta_challenge_scenarios = {
     },
     "candy_and_cola":{
         "name": "Candy & Cola",
+        'expansion': 'beta_challenge_scenarios',
         "attribs": {"name": "Candy & Cola", "Movement": 6, "disorders": ["hyperactive"], "sex": "F"},
     },
     "kara_black": {
         "name": "Kara Black",
+        'expansion': 'beta_challenge_scenarios',
         "attribs": {"name": "Kara Black", "survival": 3, "Strength": 1, "fighting_arts": ["leader","tough"], "sex": "F"},
 #        "storage": ["Founding Stone", "Cloth", "Giant Stone Face"],
     },
     "messenger_of_the_first_story": {
         "name": "Messenger of the First Story",
+        'expansion': 'beta_challenge_scenarios',
         "attribs": {
             "name": "Messenger of the First Story",
             "sex": "F",
@@ -162,6 +168,7 @@ beta_challenge_scenarios = {
     },
     "messenger_of_courage":{
         "name": "Messenger of Courage",
+        'expansion': 'beta_challenge_scenarios',
         "attribs": {
             "name": "Messenger of Courage",
             "sex": "F",
@@ -192,6 +199,7 @@ beta_challenge_scenarios = {
     },
     "messenger_of_humanity":{
         "name":  "Messenger of Humanity",
+        'expansion': 'beta_challenge_scenarios',
         "attribs": {
             "name":  "Messenger of Humanity",
             "sex": "M",
@@ -213,6 +221,7 @@ beta_challenge_scenarios = {
     },
     "snow_the_savior":{
         "name": "Snow the Savior",
+        'expansion': 'beta_challenge_scenarios',
         "attribs": {
             "name": "Snow",
             "sex": "F",
