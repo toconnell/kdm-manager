@@ -265,7 +265,7 @@ abilities_and_impairments = {
     },
     'sweet_battle': {
 #        'desc': 'You may surge without spending survival. If you do, the Activation must be used to activate a weapon.',
-        'desc': 'Once per round, you may <b>surge</b> without spending survival. If you do, the Activation must be used to activate the weapon.'
+        'desc': 'Once per round, you may <b>surge</b> without spending survival. If you do, the Activation must be used to activate the weapon.',
         'name': 'Sweet Battle',
         'type': 'ability',
         'survival_actions': {
