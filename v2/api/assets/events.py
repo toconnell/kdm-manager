@@ -76,7 +76,7 @@ story_events = {
     "core_bold": {"name": "Bold", "page": 113, },
     "core_bone_witch": {"name": "Bone Witch", "page": 115, },
     "core_cooking": {"name": "Cooking", "page": 117, },
-    "core_crush_and_devour": {"name": "Crush and Devoir", "page": 119, },
+    "core_crush_and_devour": {"name": "Crush and Devour", "page": 119, },
     "core_endless_screams": {"name": "Endless Screams", "page": 121, },
     "core_game_over": {"name": "Game Over", "page": 123, },
     "core_hands_of_heat": {"name": "Hands of Heat", "page": 125},
