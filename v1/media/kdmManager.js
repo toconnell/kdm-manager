@@ -1229,5 +1229,23 @@ app.controller("sideNavController", function($scope) {
         };
         return survivors;
     };
+
+    $scope.postForm = function(action, asset_id) {
+
+        var form = document.createElement("form");
+        form.method = "POST";
+        form.action = "/";
+
+        var a_input = document.createElement("input");
+
+        a_input.name = action;
+        a_input.value =  asset_id;
+        a_input.classList.add('hidden');
+        form.appendChild(a_input);
+
+        document.body.appendChild(form);
+        form.submit();
+    };
+
 });
 

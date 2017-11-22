@@ -18,6 +18,7 @@ import collections
 from copy import copy
 import daemon
 from datetime import datetime, timedelta
+from flask import request
 import json
 from lockfile.pidlockfile import PIDLockFile
 from optparse import OptionParser
@@ -28,6 +29,7 @@ import stat
 import time
 
 # local imports
+import api
 from assets import world as world_assets
 from models import innovations as innovations_models
 from models import monsters as monster_models
@@ -149,8 +151,13 @@ class World:
 
 
     def update_asset_dict(self, asset_dict):
-        """ this is where the magic happens: a valid asset_dict goes in and a
-        fully fleshed-out asset dictionary with current data comes out. """
+        """ This is where the magic happens: a valid asset_dict goes in and a
+        fully fleshed-out asset dictionary with current data comes out.
+
+        We actually use the API's built-in test_request_context() method and set
+        bogus request params to do this, which helps us avoid tracebacks thrown
+        by UserAsset objects that test the request context.
+        """
 
         if asset_dict["handle"] not in dir(self):
             msg = "Could not refresh '%s' asset: no such world.World class method exists!" % asset_dict["handle"]
@@ -158,7 +165,10 @@ class World:
             raise Exception(msg)
 
         try:
-            exec "value = self.%s()" % asset_dict["handle"]
+            with api.application.test_request_context():
+                request.collection = None
+                request.metering = None
+                exec "value = self.%s()" % asset_dict["handle"]
         except Exception as e:
             self.logger.error("Could not update asset dictionary for '%s' world asset!" % asset_dict["handle"])
             self.logger.exception(e)
@@ -531,6 +541,10 @@ class World:
     def total_users_last_30(self):
         thirty_days_ago = datetime.now() - timedelta(days=30)
         return utils.mdb.users.find({"latest_activity": {"$gte": thirty_days_ago}}).count()
+
+    def new_users_last_30(self):
+        thirty_days_ago = datetime.now() - timedelta(days=30)
+        return utils.mdb.users.find({'created_on': {'$gte': thirty_days_ago}}).count()
 
     def new_settlements_last_30(self):
         thirty_days_ago = datetime.now() - timedelta(days=30)

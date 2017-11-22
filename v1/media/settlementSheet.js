@@ -117,7 +117,7 @@ app.controller("settlementSheetController", function($scope) {
         if ($scope.settlement.sheet[attrib] + modifier < 0) {return false};
         var js_obj = {'attribute': attrib, 'modifier': modifier};
         $scope.settlement.sheet[attrib] += Number(modifier);
-        $scope.postJSONtoAPI('settlement', 'update_attribute', js_obj);
+        $scope.postJSONtoAPI('settlement', 'update_attribute', js_obj, false);
     };
     $scope.setAttrib = function(attrib, value) {
         if (value < 0) {return false};

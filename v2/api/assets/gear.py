@@ -104,7 +104,7 @@ core = {
         'type': 'catarium',
         'name': 'Cat Gut Bow',
         'keywords': ['weapon','ranged','bow','two-handed'],
-        'rules': ['Cumbersom','Range: 6'],
+        'rules': ['Cumbersome','Range: 6'],
         'desc': '<b>Aim:</b> When you attack, before rolling to hit, you may reduce the speed of this weapon by 1 to gain +2 accuracy for that attack.',
         'speed': 2,
         'accuracy': 7,

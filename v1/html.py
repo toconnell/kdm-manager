@@ -573,13 +573,13 @@ class dashboard:
 
                 <table>
                     <tr><th colspan="2">Living survivor averages</th></tr>
-                    <tr><td>Hunt XP:</td><td>{{world.avg_hunt_xp.value}}</td></tr>
-                    <tr class="zebra"><td>Insanity:</td><td class="int_value">{{world.avg_insanity.value}}</td></tr>
-                    <tr><td>Courage:</td><td>{{world.avg_courage.value}}</td></tr>
-                    <tr class="zebra"><td>Fighting Arts:</td><td>{{world.avg_fighting_arts.value}}</td></tr>
-                    <tr><td>Understanding:</td><td>{{world.avg_understanding.value}}</td></tr>
-                    <tr class="zebra"><td>Disorders:</td><td>{{world.avg_disorders.value}}</td></tr>
-                    <tr><td>Abilities/Impairments:</td><td>{{world.avg_abilities.value}}</td></tr>
+                    <tr><td>Hunt XP</td><td>{{world.avg_hunt_xp.value}}</td></tr>
+                    <tr class="zebra"><td>Insanity</td><td class="int_value">{{world.avg_insanity.value}}</td></tr>
+                    <tr><td>Courage</td><td>{{world.avg_courage.value}}</td></tr>
+                    <tr class="zebra"><td>Fighting Arts</td><td>{{world.avg_fighting_arts.value}}</td></tr>
+                    <tr><td>Understanding</td><td>{{world.avg_understanding.value}}</td></tr>
+                    <tr class="zebra"><td>Disorders</td><td>{{world.avg_disorders.value}}</td></tr>
+                    <tr><td>Abilities/Impairments</td><td>{{world.avg_abilities.value}}</td></tr>
                 </table>
 
             </div>
@@ -659,6 +659,7 @@ class dashboard:
                 <p> <b>{{world.total_users.value}}</b> users are registered.</p>
                 <p> <b>{{world.recent_sessions.value}}</b> users have managed campaigns in the last 12 hours.</p>
                 <p> <b>{{world.total_users_last_30.value}}</b> users have managed campaigns in the last 30 days.</p>
+                <p> <b>{{world.new_users_last_30.value}}</b> new users have registered in the last 30 days.</p>
 
                 <table>
                     <tr><th colspan="2">Per user averages</th></tr>
@@ -2650,7 +2651,11 @@ class survivor:
                     >
                         {{settlement.game_assets.abilities_and_impairments[ai_handle].name}}:
                     </b>
-                    <span ng-bind-html="settlement.game_assets.abilities_and_impairments[ai_handle].desc|trustedHTML"></span>
+                    <span
+                        class="survivor_sheet_ai_desc"
+                        ng-bind-html="settlement.game_assets.abilities_and_impairments[ai_handle].desc|trustedHTML"
+                    >
+                    </span>
                 </span>
 
             </div>
@@ -6014,35 +6019,23 @@ def render_burger(session_object=None):
                 + Create Multiple Survivors
             </button>
 
-
-
-            <form
-                method="POST"
-                action=""
-                class="sidenav_form"
-                ng-if="view == 'survivorSheet' || view == 'settlementSheet'"
+            <button
+                class="sidenav_button visible"
+                ng-if="settlement != undefined && view != 'campaignSummary'"
+                onclick="closeNav(); showFullPageLoader()"
+                ng-click="postForm('view_campaign', settlement.sheet._id.$oid)"
             >
-                <input type="hidden" name="view_campaign" value="{{settlement.sheet._id.$oid}}">
-                <button
-                    class="sidenav_button"
-                    ng-if="settlement != undefined"
-                    onclick="closeNav(); showFullPageLoader()"
-                >
-                    Campaign Summary
-		</button>
-            </form>
+                Campaign Summary
+            </button>
 
-            <form
-                method="POST"
-                action=""
-                class="sidenav_form"
-                ng-if="view == 'survivorSheet' || view == 'campaignSummary'"
+            <button
+                ng-if="user_is_settlement_admin && view != 'settlementSheet'"
+                class="sidenav_button visible"
+                onclick="closeNav(); showFullPageLoader()"
+                ng-click="postForm('view_settlement', settlement.sheet._id.$oid)"
             >
-                <input type="hidden" name="view_settlement" value="{{settlement.sheet._id.$oid}}">
-                <button ng-if="user_is_settlement_admin" class="sidenav_button" onclick="closeNav(); showFullPageLoader()">
-                    Settlement Sheet
-		</button>
-            </form>
+                Settlement Sheet
+            </button>
 
             <button
                 id="modalExpansionsOpener"

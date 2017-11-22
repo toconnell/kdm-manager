@@ -75,13 +75,14 @@ app.controller("signInController", function($scope, $http) {
         $http({
             method: 'POST',
             url: api_url + "login",
-            data: data,
+            data: data
         }).then(function successCallback(response) {
                 var r = response.data;
                 console.log("Authentication successful! Initiating legacy webapp sign-in...");
                 $scope.legacySignIn($scope.signInEmail, $scope.signInPassword);
                 return
             }, function errorCallback(response) {
+                console.error("signIn('" + api_url + "') method failed!");
                 console.error(response.data);
                 $scope.loading('off');
                 if (response.status === -1) {

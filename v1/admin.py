@@ -58,15 +58,22 @@ def prune_sessions():
     pruned_sessions = 0
     preserved_sessions = 0
     for s in old_sessions:
+
+        # set some user and session details
         user = mdb.users.find_one({"login": s["login"]})
-        U = assets.User(user["_id"], session_object=admin_session)
-        if U.is_admin():
+        preserve = user['preferences'].get('preserve_sessions', False)
+        session_age = datetime.now() - s['created_on']
+
+#        logger.debug("preserve_sessions: %s; session age: %s days" % (preserve, session_age.days))
+
+        # now preserve or prune
+        if user.get('admin', False):
             preserved_sessions += 1
-        elif U.user['preferences'].get("preserve_sessions",False) and s["created_on"] > thirty_days_ago:   # if it's older than 30 days, ignore the preference
+        elif preserve and session_age.days < 30:
             preserved_sessions += 1
         else:
             s_id = s["_id"]
-#            logger.debug("Pruning old session '%s' (%s)" % (s_id, s["login"]))
+#            logger.debug("Pruning old session '%s' (%s; age: %s)." % (s_id, s["login"], session_age.days))
             remove_session(s_id, "admin")
             pruned_sessions += 1
 

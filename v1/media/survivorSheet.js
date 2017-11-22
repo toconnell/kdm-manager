@@ -13,6 +13,9 @@ app.controller("survivorSheetController", function($scope) {
                     $scope.scratch.favoriteBox = true;
                 };
             },
+            function(errorPayload) {
+                console.log("Unable to initialize Survivor Sheet scope! " + errorPayload);
+            }
         );
     };
 
@@ -258,7 +261,7 @@ app.controller("epithetController", function($scope) {
         } else {
             console.error("Epithet handle '" + $scope.new_epithet + "' has already been added!")
         };
-        $scope.reinitAssetLists('survivor_sheet');
+        $scope.initAssetLists();
     };
     $scope.rmEpithet = function (ep_index) {
         var removedEpithet = $scope.survivor.sheet.epithets[ep_index];

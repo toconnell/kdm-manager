@@ -244,12 +244,17 @@ general = {
     "settlement_popularity_contest_campaigns": {
         "max_age": 30,
         "name": "Popularity contest: campaigns",
-        "comment": "Number of settlements where each different campaign is enabled",
+        "comment": "Number of settlements where each different campaign is enabled.",
     },
     "current_hunt": {
         "max_age": 3,
         "name": "Current hunt",
         "comment": "Info on the most recent group of Departing Survivors.",
+    },
+    "new_users_last_30": {
+        "max_age": 30,
+        "name": "New users in the last 30 days",
+        "comment": "The total number of new users who have registered in the last 30 days.",
     },
 
 }

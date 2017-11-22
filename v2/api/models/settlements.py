@@ -92,7 +92,7 @@ class Settlement(Models.UserAsset):
 
 #        if request.User.get_preference("update_timeline"):
 #            self.update_timeline_with_story_events()
-        if request.metering:
+        if request and request.metering:
             stop = datetime.now()
             duration = stop - request.start_time
             self.logger.debug("%s initialize() -> in %s" % (self, duration))
@@ -2600,7 +2600,7 @@ class Settlement(Models.UserAsset):
             return True
         elif return_type == 'min':
 
-            minimum = 0
+            minimum = 1
 
             # process innovations
             for i_dict in self.list_assets("innovations"):
