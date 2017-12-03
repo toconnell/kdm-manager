@@ -10,7 +10,8 @@ abilities_and_impairments = {
     'analyze': {
         'desc': "At the start of the Survivors' turn, if you are adjacent to the monster, reveal the top AI card, then place back on top of the deck.",
         'name': 'Analyze',
-        'type': 'ability'
+        'type': 'ability',
+        'base_attribute': 'Understanding',
     },
     'bitter_frenzy': {
 #        'desc': 'You may spend survival and use fighting arts, weapon specialization, and weapon mastery while Frenzied.',
@@ -117,7 +118,8 @@ abilities_and_impairments = {
     'explore': {
         'desc': 'When you roll on an investigate table, add +2 to your roll result.',
         'name': 'Explore',
-        'type': 'ability'
+        'type': 'ability',
+        'base_attribute': 'Understanding',
     },
     'fated_battle': {
         'desc': 'At the start of a showdown with the picked monster, gain +1 speed token.',
@@ -196,6 +198,7 @@ abilities_and_impairments = {
         'name': 'Matchmaker',
         'type': 'ability',
         'endeavors': ['matchmaker_trigger_intimacy'],
+        'base_attribute': 'Courage',
     },
     'metal_maw': {
         'desc': 'Your Fist & Tooth gains <b>Sharp</b>. (Add 1d10 strength to each wound attempt using this gear. This d10 is not a wound roll, and cannot cause critical wounds.)',
@@ -224,7 +227,8 @@ abilities_and_impairments = {
     'prepared': {
         'desc': 'When rolling to determine a straggler, add your hunt experience to your roll result.',
         'name': 'Prepared',
-        'type': 'ability'
+        'type': 'ability',
+        'base_attribute': 'Courage',
     },
     'life_exchange': {
         'desc': 'In the <b>Aftermath</b>, gain 1 additional Hunt XP. You may not wear <b>other</b> gear. If you trigger the White Secret story event, you cease to exist. When you retire, you cease to exist.',
@@ -246,7 +250,8 @@ abilities_and_impairments = {
     'stalwart': {
         'desc': 'Ignore being knocked down by brain trauma and intimidation actions.',
         'name': 'Stalwart',
-        'type': 'ability'
+        'type': 'ability',
+        'base_attribute': 'Courage',
     },
     'story_of_the_forsaker': {
         'desc': 'You cannot be knocked down during a showdown with a nemesis monster.',
@@ -281,7 +286,8 @@ abilities_and_impairments = {
     'tinker': {
         'desc': 'When you are a returning survivor, gain +1 Endeavor to use this settlement phase.',
         'name': 'Tinker',
-        'type': 'ability'
+        'type': 'ability',
+        'base_attribute': 'Understanding',
     },
     'twilight_sword': {
         'desc': 'You may select <b>Twilight Sword</b> as a weapon proficiency type. This weapon may not be removed from your gear grid for any reason. When you die, archive your <b>Twilight Sword</b> card.',
@@ -373,6 +379,7 @@ severe_injury = {
         'desc': 'A sharp cracking noise. Suffer -2 permanent movement. You can no longer activate any gear that has 2+ Strength. This injury is permanent and can be recorded once. Gain 1 bleeding token.',
         'name': 'Destroyed back',
         "bleeding_tokens": 1,
+        'cannot_activate_two_plus_str_gear': True,
     },
     'destroyed_genitals': {
         'desc': 'You cannot be nominated for the Intimacy story event. This injury is permanent and can be recorded once. Gain a random disorder. You are knocked down. Gazing upwards, you wonder at the futility of your struggle. Gain +3 insanity. Gain 1 bleeding token.',
@@ -403,6 +410,7 @@ severe_injury = {
         'max': 2,
         'name': 'Dismembered Arm',
         "bleeding_tokens": 1,
+        'cannot_activate_two_handed_weapons': True,
     },
     'dismembered_leg': {
         'Movement': -2,
@@ -460,6 +468,7 @@ severe_injury = {
             'disable': ['encourage'],
         },
         "bleeding_tokens": 1,
+        'cannot_consume': True,
     },
     'slashed_back': {
         'desc': 'Making sudden movement is excruciatingly painful. You cannot <b>surge</b> until showdown ends. Gain 1 bleeding token.',
@@ -574,11 +583,11 @@ expansion_ai = {
         "name": "Rival's Scar",
         "type": "ability",
         "expansion": "spidicules",
-        "desc":"Gain +1 permanent strength and +1 permanent evasion.",
+        "desc":"Gain +1 permanent strength and -1 permanent evasion.",
         "max": 1,
         "epithet": "rivals_scar",
         "Strength": 1,
-        "Evasion": 1,
+        "Evasion": -1,
     },
 
     # flower knight

@@ -980,26 +980,33 @@ class angularJS:
     bulk_add_survivors = """\n
     <div
         id="modalBulkAdd" class="modal hidden"
-        ng-if="user_is_settlement_admin"
+        ng-if="user_is_settlement_admin && user.user.subscriber.level > 1"
         ng-init="showHide('bulkAddOpenerButton');"
+        ng-controller="addManySurvivorsController"
     >
 
       <!-- Modal content -->
         <div class="full_size_modal_panel survivor_sheet_gradient bulk_add_modal">
             <span class="closeModal" onclick="showHide('modalBulkAdd')">×</span>
 
-            <h3>Add Multiple New Survivors</h3>
-            <p>Use these controls to add multiple new survivors to {{settlement.sheet.name}}.
-            New survivors will be manageable by all players in the campaign and
-            named randomly or 'Anonymous' according to user preference.</p>
-
             <div
-                class="create_user_asset_block_group bulk_add_block_group"
+                id="bulkAddControlsContainer"
             >
-                <form method="POST" action="#" class="survivor_bulk_add_form">
-                    <input type="hidden" name="asset_id" value="{{settlement.sheet._id.$oid}}" />
-                    <input type="hidden" name="bulk_add_survivors" value="True" />
 
+                <h3>Add Multiple New Survivors</h3>
+                <p>Use these controls to add multiple new survivors to {{settlement.sheet.name}}.
+                    <span ng-if="user.user.preferences.random_names_for_unnamed_assets == true">
+                        New survivors will be manageable by all players in the campaign and
+                        will be assigned random names.
+                    </span>
+                    <span ng-if="user.user.preferences.random_names_for_unnamed_assets == false">
+                      New survivors will be manageable by all players in the campaign.
+                    </span>
+                </p>
+
+                <div
+                    class="create_user_asset_block_group bulk_add_block_group"
+                >
                     <div class="bulk_add_tumblers">
                         <div class="bulk_add_control">
 
@@ -1008,7 +1015,7 @@ class angularJS:
                             <button
                                 type="button"
                                 class="incrementer"
-                                onclick="increment('maleCountBox');"
+                                ng-click="scratch.addMaleSurvivors = scratch.addMaleSurvivors + 1"
                             >
                                 &#9652;
                             </button>
@@ -1016,14 +1023,14 @@ class angularJS:
                                 id="maleCountBox"
                                 class="big_number_square"
                                 type="number"
-                                name="male_survivors"
                                 value="0"
                                 min="0"
+                                ng-model="scratch.addMaleSurvivors"
                             />
                             <button
                                 type="button"
                                 class="decrementer"
-                                onclick="decrement('maleCountBox');"
+                                ng-click="scratch.addMaleSurvivors = scratch.addMaleSurvivors - 1"
                             >
                             &#9662;
                             </button>
@@ -1035,7 +1042,7 @@ class angularJS:
                             <button
                                 type="button"
                                 class="incrementer"
-                                onclick="increment('femaleCountBox');"
+                                ng-click="scratch.addFemaleSurvivors = scratch.addFemaleSurvivors + 1"
                             >
                                 &#9652;
                             </button>
@@ -1043,34 +1050,90 @@ class angularJS:
                                 id="femaleCountBox"
                                 class="big_number_square"
                                 type="number"
-                                name="female_survivors"
                                 value="0"
                                 min="0"
+                                ng-model="scratch.addFemaleSurvivors"
                             />
 
                             <button
                                 type="button"
                                 class="decrementer"
-                                onclick="decrement('femaleCountBox');"
+                                ng-click="scratch.addFemaleSurvivors = scratch.addFemaleSurvivors - 1"
                             >
                                 &#9662;
                             </button>
-                        </div> <!-- female timbler -->
+                        </div> <!-- bulk_add_control female -->
 
                     </div> <!-- bulk_add_tumblers -->
 
-                    <button
-                        id="bulkAddSurvivors"
-                        onclick="showHide('modalBulkAdd'); showFullPageLoader()"
-                        class="kd_blue settlement_sheet_bulk_add"
-                    >
-                        Create New Survivors
-                    </button>
+                </div>
+                <div
+                    ng-if="settlement.sheet.lantern_year > 0 && (scratch.addFemaleSurvivors > 0 || scratch.addMaleSurvivors > 0)"
+                > <!-- parents stuff -->
+                    <h3>Parents</h3>
+                    <p>Survivors without parents are not eligible for the automatic
+                    application of Innovation bonuses granted to newborn survivors!
+                    </p>
 
+                    <div class="bulk_add_block_group">
+
+                        <div class="bulk_add_parent_selectors"> <!-- parent selectors -->
+                            <select
+                                name="father"
+                                ng-model="scratch.manySurvivorsFather"
+                                ng-options="survivor._id.$oid as survivor.name for survivor in settlement.eligible_parents.male"
+                            /><option selected disabled value="" name="father">Father</option></select>
+
+                            <select
+                                name="mother"
+                                ng-model="scratch.manySurvivorsMother"
+                                ng-options="survivor._id.$oid as survivor.name for survivor in settlement.eligible_parents.female"
+                            /><option selected disabled value="" name="mother">Mother</option></select>
+                        </div> <!-- parent selectors -->
+                    </div> <!-- bulk_add_block_group -->
+
+                </div><!--parents stuff -->
+
+                <button
+                    id="bulkAddSurvivors"
+                    ng-if="scratch.addMaleSurvivors > 0 || scratch.addFemaleSurvivors > 0"
+                    onclick="showHide('bulkAddControlsContainer'); showHide('bulkAddResultsContainer')"
+                    ng-click="addManySurvivors()"
+                    class="kd_blue settlement_sheet_bulk_add"
+                >
+                    Create New Survivors
+                </button>
+
+            </div> <!-- bulkAddControlsContainer -->
+
+            <div
+                id="bulkAddResultsContainer"
+                class="bulk_add_results_container hidden"
+            >
+                <div
+                    class="bulk_add_loader_container"
+                    ng-if="scratch.showLoader == true"
+                >
+                    <img src="/media/loading_lantern.gif" />
+                    <p>Creating {{scratch.addMaleSurvivors + scratch.addFemaleSurvivors}} new survivors...</p>
+                </div>
+
+                <form
+                    action=""
+                    method="POST"
+                    class="bulk_add_new_survivor_form"
+                    ng-repeat="s in scratch.bulkAddNewSurvivors"
+                >
+                    <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}">
+                    <button
+                        class="bulk_add_new_survivor"
+                        ng-class="{kd_blue: s.sheet.sex == 'M', kd_alert_no_exclaim: s.sheet.sex == 'F'}"
+                    >
+                        <b>{{s.sheet.name}}</b> [{{s.sheet.sex}}]
+                    </button>
                 </form>
 
-
-            </div> <!-- bulk_add_survivors -->
+            </div>
 
         </div> <!-- modal content -->
     </div> <!-- modal parent -->
@@ -1118,13 +1181,13 @@ class angularJS:
                             > <span class="flair_text">b</span> </font>
                         </div> <!-- note flair -->
 
-                        <div class="note_content" ng-click="showHide(n._id.$oid)">
+                        <div class="note_content clickable" ng-click="showHide(n._id.$oid)">
                             {{n.note}} <span class="author" ng-if="n.author != user_login"> {{n.author}}</span>
                         </div> <!-- note content -->
 
                         <span
                             id="{{n._id.$oid}}"
-                            class="kd_alert_no_exclaim note_remove hidden"
+                            class="kd_alert_no_exclaim note_remove hidden clickable"
                             ng-if="n.author == user_login || user_is_settlement_admin"
                             ng-click="removeNote($index, n._id.$oid)
                         ">
@@ -1141,6 +1204,7 @@ class angularJS:
             <div
                 ng-if="user_is_settlement_admin"
                 ng-controller="playerManagementController"
+                class="player_management_controller"
             >
                 <hr/>
                 <h3>Manage Players</h3>
@@ -1185,11 +1249,15 @@ class angularJS:
                     </table>
 
                 <hr/>
-                <form action="/">
-                    <center>
-                        <button class="kd_blue" type="submit">Save Changes and Reload!</button>
-                    </center>
-                </form>
+
+                <button
+                    class="kd_blue "
+                    onClick="showFullPageLoader(); showCornerLoader();"
+                    ng-click="initializeSettlement();"
+                >
+                    Save and reload view!
+                </button>
+
             </div> <!-- ng-if div -->
         </div><!-- full size modal panel -->
 
@@ -2333,7 +2401,7 @@ class survivor:
                 class = "survivor_sheet_special_attribute_container clickable"
                 ng-repeat="s in settlement.game_assets.survivor_special_attributes"
                 ng-click="toggleSpecialAttrib(s.handle)"
-                ng-class="{active: survivor.sheet[s.handle] == true}",
+                ng-class="{active: survivor.sheet[s.handle] == true}"
                 title = "{{s.title_tip}}"
             >
                 <div
@@ -3637,8 +3705,7 @@ class settlement:
         <button
             ng-if="showLoader == false"
             class="kd_blue"
-            ng-click="showFullPageLoader()"
-            onclick="showFullPageLoader()"
+            ng-click="showHide('fullPageLoader')"
         >
                 Create {{settlementName}}
         </button>
@@ -3829,11 +3896,22 @@ class settlement:
                                 <div class="campaign_summary_survivor_tags_container">
                                     <div
                                         class="survivor_tag ai_tag {{settlement.game_assets.abilities_and_impairments[ai].type}}"
-                                        ng-repeat="ai in s.sheet.abilities_and_impairments"
+                                        ng-repeat="ai in s.sheet.abilities_and_impairments track by $index"
                                     >
                                         {{settlement.game_assets.abilities_and_impairments[ai].name}}
                                     </div>
                                 </div>
+
+                                <div class="campaign_summary_survivor_tags_container">
+                                    <div
+                                        class="survivor_tag status_tag"
+                                        ng-repeat="flag in settlement.survivor_status_flags"
+                                        ng-if="s.sheet[flag.handle] == true"
+                                    >
+                                        {{flag.name}}
+                                    </div>
+                                </div>
+
 
                                 <div
                                     ng-if="s.sheet.constellation != undefined"

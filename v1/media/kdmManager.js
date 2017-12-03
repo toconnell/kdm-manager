@@ -373,8 +373,13 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
             } else if ($scope.view == 'campaignSummary') {;
                 hideFullPageLoader();
                 hideCornerLoader();
-            } else { 
-                // pass
+            } else if ($scope.view == 'survivorSheet') {
+                if ($scope.survivorPromise != undefined) { 
+                    $scope.survivorPromise.then(function() {
+                        hideFullPageLoader();
+                        hideCornerLoader();
+                    });
+                };
             };
         });
     }
@@ -585,12 +590,12 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         $scope.jwt = false;
         return false;
     };
+    $scope.set_jwt_from_cookie();
 
     $scope.getJSONfromAPI = function(collection, action, requester) {
         var r_log_level = "[" + requester + "] "
 //        console.log(r_log_level + "Retrieving '" + collection + "' asset '" + action + "' data from API:");
         if ($scope.api_url === undefined){console.error(r_log_level + '$scope.api_url is ' + $scope.api_url + '! API retrieval cannot proceed!'); return false};
-        $scope.set_jwt_from_cookie();
         var config = {"headers": {"Authorization": $scope.jwt}};
         if (collection == "settlement") {
             var url = $scope.api_url + "settlement/" + action + "/" + $scope.settlement_id;
@@ -624,7 +629,6 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         };
 
         // get auth header
-        $scope.set_jwt_from_cookie();
         var config = {"headers": {"Authorization": $scope.jwt}};
 
         // create the URL and do the POST
@@ -782,6 +786,7 @@ app.controller('settlementNotesController', function($scope, $rootScope) {
         };
         $scope.settlement.sheet.settlement_notes.unshift(new_note_object);
         $scope.postJSONtoAPI('settlement', 'add_note', new_note_object);
+        $scope.newNote = "";
     };
     $scope.removeNote = function(index, n_id) {
         $scope.settlement.sheet.settlement_notes.splice(index, 1);
@@ -1173,26 +1178,49 @@ function compare(a,b) {
 
 // User update methods.
 
-// saves a user preference; flashes the saved alert. ho-hum
-function updateUserPreference(input_element) {
+app.controller('addManySurvivorsController', function($scope, $http) {
+    $scope.scratch = {
+        'manySurvivorsFather': undefined,
+        'manySurvivorsMother': undefined,
+        'addMaleSurvivors': 0,
+        'addFemaleSurvivors': 0,
+    };
 
-    var params = input_element.name + "=" + input_element.value;
+    $scope.addManySurvivors = function() {
+        $scope.scratch.showLoader = true;
+        var json_post = {
+            male: $scope.scratch.addMaleSurvivors,
+            female: $scope.scratch.addFemaleSurvivors,
+            father: $scope.scratch.manySurvivorsFather,
+            mother: $scope.scratch.manySurvivorsMother,
+            settlement_id: $scope.settlement.sheet._id.$oid,
+        }
+//        console.warn(json_post);
+        var config = {"headers": {"Authorization": $scope.jwt}};
+        var res = $http.post(
+            $scope.api_url + "new/survivors",
+            json_post,
+            config
+        );
 
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "/", true);
-    xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-    var params = "update_user_preferences=True&norefresh=True&" + params;
-    xhr.send(params);
+        res.success(function(data, status, headers, config) {
+            console.warn("addManySurvivors() success!");
+            $scope.scratch.bulkAddNewSurvivors = data;
+            $scope.scratch.showLoader = false;
+            $scope.reinitialize();
+        });
+        res.error(function(data, status, headers, config) {
+            console.error(data);
+        });
+    };
 
-    savedAlert();
-};
-
-
+})
 
 app.controller("sideNavController", function($scope) {
     // feed it a survivor, this returns a bool of whether it's one of
     // the user's favorites. useful in lots of different scopes, hence
     // part of the root
+
     $scope.favoriteFilter = function(s) {
         var fav = false;
         if (s.sheet.favorite == undefined) {return false;}
@@ -1248,4 +1276,7 @@ app.controller("sideNavController", function($scope) {
     };
 
 });
+
+
+
 

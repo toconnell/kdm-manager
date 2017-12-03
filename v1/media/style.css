@@ -193,6 +193,14 @@ fieldset {border: 0; text-align: left; }
 
 
 /* all breakpoints - general styles */ 
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
 fieldset {padding: 0; margin: 0 auto;}
 .survivor_sheet_survival_action {margin: 0; display: flex; margin-bottom: 3%; margin-left: 2%; }
 font.survivor_sheet_survival_action_item {padding-left: 60px; font-size: 57pt; color: #eee; cursor: pointer;}
@@ -567,9 +575,15 @@ input.new_asset_name {width: 100%; margin: 4%; font-family: Silverado; font-size
 div.new_settlement_loading {width: 100%; display: flex; flex-direction: row; justify-content: center; margin-top: 10%; }
 
 .bulk_add_modal p {font-size: 25pt; font-family: 'Metrophobic'; width: 90%; margin: 0 auto; text-align: center; margin-bottom: 5%; }
+.bulk_add_modal h3 {margin-bottom: 1%; }
 .bulk_add_tumblers {display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-around; width: 90%;  margin: 0 auto; }
 .bulk_add_control {color: #000; width: 245px; text-align: center; margin: 0; }
 .bulk_add_control {font-family: 'Metrophobic'; font-size: 30pt; }
+.bulk_add_parent_selectors {width: 90%; margin: 0 auto; justify-content: center; display: flex; flex-direction: column; }
+.bulk_add_parent_selectors select {margin-bottom: 3%; }
+.bulk_add_results_container {padding-top: 15%; }
+.bulk_add_loader_container {text-align: center; width: 90%; margin: 0 auto;}
+button.bulk_add_new_survivor {border-radius: 15px; border: 3px solid #fff; font-weight: normal; text-align: left; padding: 2%; padding-left: 4%; }
 button.settlement_sheet_bulk_add {margin-top: 10%; margin-bottom: 10%; border-radius: 25pt; border: 3px solid #fff; }
 
 div.parent_selectors {display: flex; flex-direction: column; padding-top: 1%;  }
@@ -628,6 +642,7 @@ div.survivor_controls img {background-color: #fff; margin-bottom: 2%; }
 .survivor_tag {padding: 1%; padding-left: 3%; padding-right: 3%; font-family: 'Silverado'; margin: 2%; font-size: 25pt; width: auto; }
 .fighting_arts_tag {color: #fff; background-color: #CD4438; }
 .disorders_tag {color: #fff; background-color: #461B7E; }
+.status_tag {color: #000; background: #FFEB3B; }
 .ai_tag {color: #000; background-color: #fff; }
 .ai_tag.severe_injury {color: #fff; background-color: #000; font-weight: bold; }
 .ai_tag.weapon_mastery {color: #000; background-color: #FFF380; font-weight: bold; }
@@ -1168,6 +1183,8 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     padding-bottom: 20px;
 }
 
+.modal button.kd_blue {border: 3px solid #fff; border-radius: 25px;}
+
 /* Modal Content */
 .modal-content {
     position: absolute; 
@@ -1528,6 +1545,8 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.modal-content div.bulk_add_control {width: 95px; }
     div#modalAffinity div.modal-content div.bulk_add_control button {width: 80px; height: 60px; display:inline-flex; align-content: center; justify-content: center; }
     div#modalAffinity div.modal-content div.bulk_add_control input.big_number_sqaure {margin-right: 0px; }
+    .bulk_add_results_container {margin-bottom: 10%; }
+    button.bulk_add_new_survivor {margin-top: 1%; margin-bottom: 2%; }
     div#modalAffinity div.modal-content  hr.affinity_spacer {display: none;}
     span#affinity_span {display: inline-block; width: 50px; height: 50px; color: #fff; padding: 0; font-size: 44px;}
     div.modal_affinity_controls_container {display: flex; flex-direction: row; justify-content: center; padding-bottom: 5%; }
@@ -1890,6 +1909,9 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     /* christian sidenav */
     div#mySidenav {font-size: 20pt; }
 
+    .player_management_controller {text-align: center; margin-bottom: 5%; }
+    span.note_remove {padding-top: 1%; padding-right: 2%; padding-left: 2%;  }
+
     /* help-tip pop-up/modal - wide*/
     .help-tip p { font-size: 13px; left: 10%; right: 10%; padding: 15px; }
     .help-icon {margin: 0; width: 20px; margin-top: -10px; }
@@ -2208,12 +2230,14 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.settlement_form_wide_box {display: flex; flex-direction: column-reverse; float: left; width: auto; height: 200px; margin-bottom: 10px; text-align: center; }
 
         /* Bulk Add New Survivors - wide */
-    .bulk_add_modal p {font-size: 12pt; margin-bottom: 1%; width: 35%;  margin-bottom: 3%; }
-    .bulk_add_tumblers{width: 40%; }
-    div.bulk_add_control {float: left; width: 120px; text-align: center; margin: 0; margin-bottom: 0; margin-left: 20px; font-size: 12pt; color: #666; }
-    div.bulk_add_control input[type=number] {margin-right: 15px; padding-left: 5px;}
+    .bulk_add_modal p {font-size: 12pt; margin-bottom: 1%; width: 35%;}
+    .bulk_add_tumblers{width: 40%; margin-bottom: 3%; }
+    div.bulk_add_control {text-align: center; margin: 0 auto; font-size: 11pt; color: #666; display: flex; flex-direction: column; }
+    div.bulk_add_control input[type=number] {width: 83px; }
+    .bulk_add_parent_selectors {width: 35%; }
+    .bulk_add_results_container {width: 40%; margin: 0 auto; padding-top: 5%; margin-bottom: 10%; }
     form.survivor_bulk_add_form {text-align: center; }
-    button.settlement_sheet_bulk_add {font-size: 13pt; width: 50%; }
+    button.settlement_sheet_bulk_add {font-size: 13pt; width: 30%; display: flex; justify-content: center; margin-top: 3%; }
     
 
     h1.alert {font-size: 20pt; }/* used by ABANDONED */

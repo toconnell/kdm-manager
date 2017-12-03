@@ -1,6 +1,8 @@
 #!/usr/bin/python2.7
 
 from flask import request, Response
+from bson import json_util
+import json
 
 import panel
 import utils
@@ -125,7 +127,7 @@ def new_user_asset(asset_type=None):
 
     """
 
-    logger.debug("%s is requesting a new '%s' asset!" % (request.User, asset_type))
+#    logger.debug("%s is requesting a new '%s' asset!" % (request.User, asset_type))
 
     if asset_type == "settlement":
         S = settlements.Settlement()
@@ -133,6 +135,13 @@ def new_user_asset(asset_type=None):
     elif asset_type == "survivor":
         S = survivors.Survivor()
         return S.serialize()
+    elif asset_type == "survivors":
+        output = survivors.add_many_survivors(dict(request.get_json()))
+        return Response(
+            response=json.dumps(output, default=json_util.default),
+            status=200,
+            mimetype="application/json"
+        )
     else:
         return Response(
             response="Creating '%s' user assets via request_broker() is not supported!" % asset_type,

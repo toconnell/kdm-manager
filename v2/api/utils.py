@@ -129,10 +129,10 @@ def get_time_elapsed_since(start_time, units=None, round_seconds=True):
     elif units == "years_and_days":
         for y in range(years):
            days -= 365
-           year_word = "year"
-           if years >= 2:
-               year_word = "years"
-           return "%s %s and %s days" % (years, year_word, days)
+        year_word = "year"
+        if years >= 2:
+           year_word = "years"
+        return "%s %s and %s days" % (years, year_word, days)
     elif units == "age":
         if offset == 1:
             return 'one second'
@@ -265,7 +265,7 @@ api_meta = {
             "hostname": socket.gethostname(),
             "mdb_name": settings.get("api","mdb"),
         },
-#        "admins": list(mdb.users.find({"admin": {"$exists": True}}).sort('login')),
+        "admins": list(mdb.users.find({"admin": {"$exists": True}}).sort('login')),
         "object": {},
     },
 }

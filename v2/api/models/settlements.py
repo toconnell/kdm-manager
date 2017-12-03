@@ -99,7 +99,6 @@ class Settlement(Models.UserAsset):
 
 
 
-
     def init_asset_collections(self):
         """ Generally you want Models.UserAsset.load() to call this method. """
 
@@ -347,6 +346,11 @@ class Settlement(Models.UserAsset):
             self.save()
 
 
+    def remove(self):
+        """ Not implemented yet. """
+        return utils.http_501
+
+
     def serialize(self, return_type=None):
         """ Renders the settlement, including all methods and supplements, as
         a monster JSON object. This is where all views come from."""
@@ -452,6 +456,9 @@ class Settlement(Models.UserAsset):
             output["survivor_bonuses"] = self.get_bonuses("JSON")
             output["survivor_attribute_milestones"] = self.get_survivor_attribute_milestones()
             output["eligible_parents"] = self.get_eligible_parents()
+            flags = assets.survivor_sheet_options.survivor_status_flags
+            output['survivor_status_flags'] = [{'handle': k, 'name': flags[k]['name']} for k in flags.keys()]
+
 
         # campaign summary specific
         if return_type in ['campaign']:
@@ -473,6 +480,28 @@ class Settlement(Models.UserAsset):
 
         return json.dumps(output, default=json_util.default)
 
+
+    def unremove(self, unremove_survivors=True):
+        """ Deletes the 'removed' attribute from the settlement and, if the
+        'unremove_survivors' kwarg is True, all surviors as well.
+
+        Not sure whether this should be exposed via API yet, so for now, it's
+        only available via admin.py.
+        """
+
+        if not self.settlement.get('removed', False):
+            self.logger.warn('%s Ignoring bogus request to unremove settlement...' % self)
+            return False
+
+        del self.settlement['removed']
+        self.log_event("Settlement un-removed!", event_type="sysadmin")
+        if unremove_survivors:
+            self.logger.debug("Unremoving survivors...")
+            for s in utils.mdb.survivors.find({'settlement': self.settlement['_id']}):
+                if s.get('removed',False):
+                    S = survivors.Survivor(_id=s['_id'])
+                    S.unremove()
+        self.save()
 
 
     #

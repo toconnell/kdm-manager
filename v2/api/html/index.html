@@ -404,7 +404,7 @@
                 <p>Your list has to be named <code>preferences</code> and your
                 hashes have to be key/value pairs where they key is a valid
                 preferences handle and the key is a Boolean:</p>
-                <code>{preferences: [{beta: true}]}</code>
+                <code>{preferences: [{handle: "beta", value: true}, {...}]}</code>
                 <p>Since this is mostly a sysadmin/back-of-house kind of route,
                 it fails pretty easily if you try to POST something it doesn't
                 like. The good news, is that it should fail pretty descriptively.</p>
@@ -484,6 +484,69 @@
             a successful POST to the <code>/new/survivor</code> route will return
             a serialized version (i.e. JSON) of the new survivor, complete with
             the <code>sheet</code> element, etc.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /new/survivors </td>
+            <td> POST, OPTIONS</td>
+            <td>
+                <p>Not to be confused with <code>/new/survivor</code> (above),
+                this route adds multiple new survivors, rather than just one.</p>
+                <p>The JSON you have to POST to this route is a little different
+                and more limited than what you would post to <code>/new/survivor</code>.</p>
+                <p>The following POST key/value pairs are the only ones supported
+                by this route:</p>
+                <table class="embedded_table">
+                <tr><th>key</th><th>O/R</th><th>value type</th><th>comment</th>
+                <tr>
+                    <td class="small_key">settlement_id</td>
+                    <td class="small_key"><b>R</b></td>
+                    <td class="type">settlement OID</td>
+                    <td class="value">The OID of the settlement to which the new survivors belong.</td>
+                </tr>
+                <tr>
+                    <td class="small_key">public</td>
+                    <td class="small_key">O</td>
+                    <td class="type">boolean</td>
+                    <td class="value">
+                        The value of the new survivors' <code>public</code>
+                         attribute. Defaults to <code>true</code>.
+                    </td>
+                </tr>
+                <tr>
+                    <td class="small_key">male</td>
+                    <td class="small_key">O</td>
+                    <td class="type">arbitrary int</td>
+                    <td class="value">The number of male survivors to create.</td>
+                </tr>
+                <tr>
+                    <td class="small_key">female</td>
+                    <td class="small_key">O</td>
+                    <td class="type">arbitrary int</td>
+                    <td class="value">The number of female survivors to create.</td>
+                </tr>
+                <tr>
+                    <td class="small_key">father</td>
+                    <td class="small_key">O</td>
+                    <td class="type">survivor OID</td>
+                    <td class="value">The OID of the survivor that should be the father of the new survivors.</td>
+                </tr>
+                <tr>
+                    <td class="small_key">mother</td>
+                    <td class="small_key">O</td>
+                    <td class="type">survivor OID</td>
+                    <td class="value">The OID of the survivor that should be the mother of the new survivors.</td>
+                </tr>
+                </table>
+                <p>Creating new survivors this way is very simple. This JSON, for
+                example, would create two new male survivors:</p>
+                <code>{"male": 2, "settlement_id": "5a1485164af5ca67035bea03"}</code>
+                <p>A successful POST to this route always returns a list of
+                serialized survivors (i.e. the ones that were created), so if
+                you are creating more than four or five survivors, this route is
+                a.) going to take a couple/few seconds to come back to you and b.)
+                is going to drop a pile of JSON on your head. YHBW.</p>
+                <p>NB: this route <i>does not</i> support random sex assignment.</p>
             </td>
         </tr>
 

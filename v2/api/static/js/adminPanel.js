@@ -4,10 +4,16 @@
 
 var myApp = angular.module('adminPanel', []);
 
-
 myApp.controller('globalController', function($scope, $http, $interval) {
 
     $scope.scratch = {};
+
+    $scope.now = new Date();
+    $scope.getAge = function(birthday){ //only does days for now
+        var birthday = new Date(birthday);
+        var age = $scope.now - birthday;
+        return Math.round(age / (1000 * 60 * 60 * 24));
+    };
 
     $scope.getEventLog = function(settlement) {
         for (var i=0; i < $scope.world.meta.admins.length; i++) {
@@ -64,6 +70,7 @@ myApp.controller('globalController', function($scope, $http, $interval) {
 //            console.warn('Not currently retrieving settlements. Starting retrieval...');
             $scope.getRecentSettlements();
         };
+
         $scope.showSpinner('userSpinner');
         $scope.scratch.get_user_data_failure = false;
         $http.get('admin/get/user_data').then(
@@ -88,7 +95,7 @@ myApp.controller('globalController', function($scope, $http, $interval) {
             });
 
         return init;
-        }(), 60000)
+        }(), 120000)
 
 
 

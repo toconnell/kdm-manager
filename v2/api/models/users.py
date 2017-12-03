@@ -158,7 +158,7 @@ def token_to_object(request, strict=True):
     response OR a user object. Requires the application's initialized JWT to
     work. """
     # khoa's back door - chop this whole block when he gets CORS sorted out
-    if request.method == "POST" and request.json.get('user_id', None) is not None:
+    if request.method == "POST" and request.json is not None and request.json.get('user_id', None) is not None:
         logger.warn("'user_id' key in POST body; attempting Khoa-style token-less auth...")
         try:
             user_oid = ObjectId(request.json['user_id'])
@@ -185,9 +185,13 @@ def token_to_object(request, strict=True):
 
     # now, try to decode the token and get a dict
     try:
-        decoded = jwt.decode(auth_token, secret_key, verify=strict)
-        user_dict = dict(json.loads(decoded["identity"]))
-        return User(_id=user_dict["_id"]["$oid"])
+        if strict:
+            decoded = jwt.decode(auth_token, secret_key, verify=True)
+            user_dict = dict(json.loads(decoded["identity"]))
+            return User(_id=user_dict["_id"]["$oid"])
+        else:
+            user_dict = refresh_authorization(auth_token)
+            return User(_id=user_dict["_id"])
     except jwt.DecodeError:
         logger.error("Incorrectly formatted token!")
         logger.error("Token contents: |%s|" % auth_token)
@@ -211,7 +215,7 @@ class User(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="users"
-        self.object_version=0.22
+        self.object_version=0.23
         Models.UserAsset.__init__(self,  *args, **kwargs)
 
         # JWT needs this
@@ -285,6 +289,7 @@ class User(Models.UserAsset):
         # basics; all views, generic UI/UX stuff
         output["user"]["age"] = self.get_age()
         output["user"]["settlements_created"] = utils.mdb.settlements.find({'created_by': self.user['_id']}).count()
+        output["user"]["survivors_created"] = utils.mdb.survivors.find({'created_by': self.user['_id']}).count()
         output['user']['subscriber'] = self.get_patron_attributes()
         output["preferences"] = self.get_preferences()
 
@@ -312,7 +317,7 @@ class User(Models.UserAsset):
 #        output["user_assets"]["survivors"] = self.get_survivors(return_type=list)
 
 
-        if return_type in ['admin_panel','create_new']:
+        if return_type in ['admin_panel','create_new',dict]:
             return output
 
         return json.dumps(output, default=json_util.default)
@@ -390,7 +395,7 @@ class User(Models.UserAsset):
         self.save()
 
 
-    def set_patron_attributes(self, level=0, beta=None):
+    def set_patron_attributes(self, level=None, beta=None):
         """ Updates the user's self.user['patron'] dictionary: sets the level
         (int) and the beta flag (bool)."""
 
@@ -400,7 +405,9 @@ class User(Models.UserAsset):
         if 'beta' in self.user['patron'].keys():
             del self.user['patron']['beta']
         self.user['patron']['updated_on'] = datetime.now()
-        self.user['patron']['level'] = level
+
+        if level is not None:
+            self.user['patron']['level'] = level
 
         if beta is not None:
             self.user['preferences']['beta'] = beta
@@ -426,8 +433,11 @@ class User(Models.UserAsset):
             raise utils.InvalidUsage("set_preferences() endpoint requires 'preferences' to be a list!")
 
         for pref_dict in pref_list:
-            handle = pref_dict['handle']
-            value = pref_dict['value']
+            handle = pref_dict.get('handle',None)
+            value = pref_dict.get('value',None)
+            for p in [handle, value]:
+                if p is None:
+                    raise utils.InvalidUsage("Nah, bro: individual preference hashes/dicts should follow this syntax: {handle: 'preference_handle', value: true}")
             self.user['preferences'][handle] = value
             self.logger.info("%s Set '%s' = %s'" % (request.User.login, handle, value))
 

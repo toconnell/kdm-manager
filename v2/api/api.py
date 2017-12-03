@@ -197,7 +197,7 @@ def refresh_auth(action):
 
 
 @application.route("/new/<asset_type>", methods=["POST", "OPTIONS"])
-@utils.crossdomain(origin=['*'],headers=['Content-Type','Access-Control-Allow-Origin'])
+@utils.crossdomain(origin=['*'],headers=['Authorization','Content-Type','Access-Control-Allow-Origin'])
 def new_asset(asset_type):
     """ Uses the 'Authorization' block of the header and POSTed params to create
     a new settlement. """
@@ -215,8 +215,7 @@ def new_asset(asset_type):
         return Response(response=json.dumps(output, default=json_util.default), status=200, mimetype="application/json")
 
     request.collection = asset_type
-    request.User = users.token_to_object(request)
-
+    request.User = users.token_to_object(request, strict=False)
     return request_broker.new_user_asset(asset_type)
 
 @application.route("/<collection>/<action>/<asset_id>", methods=["GET","POST","OPTIONS"])
@@ -319,4 +318,4 @@ if __name__ == "__main__":
         '/etc/letsencrypt/live/api.thewatcher.io/fullchain1.pem',
         '/etc/letsencrypt/live/api.thewatcher.io/privkey1.pem',
     )
-    application.run(port=8013, host="0.0.0.0", debug = False/True, ssl_context=context)
+    application.run(port=8013, host="0.0.0.0", debug = True, ssl_context=context)

@@ -682,7 +682,7 @@ class UserAsset():
 
         output = deepcopy(utils.api_meta)
 
-        if output['meta'].keys() != ['webapp','api','object']:
+        if output['meta'].keys() != ['webapp','admins','api','object']:
             stack = inspect.stack()
             the_class = stack[1][0].f_locals["self"].__class__
             the_method = stack[1][0].f_code.co_name

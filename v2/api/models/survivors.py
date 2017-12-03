@@ -15,8 +15,49 @@ from assets import survivor_sheet_options, survivors
 from models import abilities_and_impairments, cursed_items, disorders, endeavors, epithets, fighting_arts, names, saviors, survival_actions, survivor_special_attributes, the_constellations, weapon_proficiency
 
 
+def add_many_survivors(params):
+    """ Adds many survivors to a settlement. Returns a list of the new survivors
+    (fully serialized as dicts and ready to be schleped wherever).
+
+    At its creation, this method is ONLY called by the request broker, which
+    renders its output as an HTTP response (and returns the list of survivors as
+    JSON).
+
+    It is presently written to take a generic dict of params, however, so it is
+    at least a little bit portable. As long as whatever you're doing involves a
+    viable request object with a User and everything, this should work anywhere.
+    """
+
+    settlement_id = ObjectId(params.get('settlement_id',None))
+    male = params.get('male',0)
+    female = params.get('female',0)
+    father = params.get('father',None)
+    mother = params.get('mother',None)
+    public = params.get('public', True)
+
+    for v in [male, female]:
+        if v < 0:
+            v = 0
+
+    output = []
+    for m in range(male):
+        S = Survivor(new_asset_attribs={
+            'settlement': settlement_id, 'sex': 'M', 'father': father, 'mother': mother, 'public': public,
+        })
+        output.append(S.serialize(return_type=dict))
+    for f in range(female):
+        S = Survivor(new_asset_attribs={
+            'settlement': settlement_id, 'sex': 'F', 'father': father, 'mother': mother, 'public': public,
+        })
+        output.append(S.serialize(return_type=dict))
+    return output
+
+
+
 class Assets(Models.AssetCollection):
-    """ These are pre-made survivors, e.g. from the BCS. """
+    """ At present, the only survivor 'assets' are the pre-made survivors, e.g.
+    from the BCS. In Advanced KD:M and maybe Campaigns of Death, this might have
+    to be fleshed out a bit more. """
 
     def __init__(self, *args, **kwargs):
         self.assets = survivors.beta_challenge_scenarios
@@ -60,7 +101,7 @@ class Survivor(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="survivors"
-        self.object_version = 0.79
+        self.object_version = 0.83
 
         # initialize AssetCollections for later
         self.CursedItems = cursed_items.Assets()
@@ -73,7 +114,7 @@ class Survivor(Models.UserAsset):
         self.stats =                ['Movement','Accuracy','Strength','Evasion','Luck','Speed','bleeding_tokens']
         self.game_asset_keys =      ['disorders','epithets','fighting_arts','abilities_and_impairments']
         self.armor_locations =      ['Head', 'Body', 'Arms', 'Waist', 'Legs']
-        self.flags =                ['skip_next_hunt','cannot_use_fighting_arts','cannot_spend_survival','departing','cannot_gain_bleeding_tokens']
+        self.flags =                ['skip_next_hunt','cannot_use_fighting_arts','cannot_spend_survival','departing','cannot_gain_bleeding_tokens', 'cannot_activate_two_plus_str_gear','cannot_consume','cannot_activate_two_handed_weapons','cannot_be_nominated_for_intimacy']
         self.abs_value_attribs =    ['max_bleeding_tokens', ]
         self.min_zero_attribs =     ["hunt_xp","Courage","Understanding"]
         self.min_one_attribs =      ["Movement"]
@@ -129,11 +170,11 @@ class Survivor(Models.UserAsset):
         else:
             attribs = self.new_asset_attribs
 
-#        self.logger.debug(attribs)
+        self.logger.debug(attribs)
 
         #
         #   Can't create a survivor without initializing a settlement! do
-        #   that first, an fail bigly if you cannot
+        #   that first, and fail bigly if you cannot
         #
 
         import settlements  # baby jesus, still crying
@@ -151,7 +192,7 @@ class Survivor(Models.UserAsset):
                 "favorites_version": 1.0,
                 "fighting_arts_version": 1.0,
                 "special_attributes_version": 1.0,
-                "weapon_proficiency_type": 1.0,
+                "weapon_proficiency_type_version": 1.0,
             },
             "email":        request.User.login,
             "born_in_ly":   self.get_current_ly(),
@@ -458,6 +499,11 @@ class Survivor(Models.UserAsset):
         output["sheet"].update({"can_be_nominated_for_intimacy": self.can_be_nominated_for_intimacy()})
         output["sheet"].update({"can_gain_bleeding_tokens": self.can_gain_bleeding_tokens()})
         output["sheet"].update({"can_gain_survival": self.can_gain_survival()})
+        output["sheet"].update({"cannot_activate_weapons": self.cannot_activate_weapons()})
+        output["sheet"].update({"cannot_activate_two_handed_weapons": self.cannot_activate_two_handed_weapons()})
+        output["sheet"].update({"cannot_activate_two_plus_str_gear": self.cannot_activate_two_plus_str_gear()})
+        output["sheet"].update({"cannot_be_nominated_for_intimacy": self.cannot_be_nominated_for_intimacy()})
+        output["sheet"].update({"cannot_consume": self.cannot_consume()})
         output["sheet"].update({"cannot_spend_survival": self.cannot_spend_survival()})
         output["sheet"].update({"cannot_use_fighting_arts": self.cannot_use_fighting_arts()})
         output["sheet"].update({"skip_next_hunt": self.skip_next_hunt()})
@@ -480,6 +526,13 @@ class Survivor(Models.UserAsset):
             return output
 
         return json.dumps(output, default=json_util.default)
+
+
+    def unremove(self):
+        """ Deletes the 'removed' attribute. Saves. """
+        del self.survivor['removed']
+        self.log_event("Survivor %s un-removed!" % self, event_type="sysadmin")
+        self.save()
 
 
     #
@@ -966,7 +1019,7 @@ class Survivor(Models.UserAsset):
 
         note_oid = utils.mdb.survivor_notes.insert(note_dict)
         self.logger.debug("%s Added a note to %s" % (request.User, self))
-        return Response(response={'note_oid': note_oid}, status=200)
+        return Response(response=json.dumps({'note_oid': note_oid}, default=json_util.default), status=200)
 
 
     def rm_note(self):
@@ -1061,7 +1114,7 @@ class Survivor(Models.UserAsset):
                 self.survivor[attribute] = 9
 
         # log completion of the update 
-        self.log_event("%s set %s attribute '%s' to %s" % (request.User.login, self.pretty_name(), attribute, self.survivor[attribute]))
+        self.log_event("%s updated %s attribute '%s' to %s" % (request.User.login, self.pretty_name(), attribute, self.survivor[attribute]))
         self.save()
 
         # biz logic for weapon proficiency - POST PROCESS
@@ -1438,6 +1491,11 @@ class Survivor(Models.UserAsset):
             self.logger.exception(msg)
             raise utils.InvalidUsage(msg, status_code=400)
 
+        #   necessity check - issue 434
+        if self.survivor[attrib] == value:
+            self.logger.debug("%s No change to '%s' attrib. Ignoring..." % (self, attrib))
+            return True
+
         self.survivor[attrib] = value
         self.log_event("%s set %s '%s' to %s" % (request.User.login, self.pretty_name(), attrib, value))
 
@@ -1481,7 +1539,8 @@ class Survivor(Models.UserAsset):
             elif value is None:
                 raise utils.InvalidUsage(err_msg)
 
-            self.set_attribute(str(attrib), int(value), False)
+            if self.survivor[attrib] != value:
+                self.set_attribute(str(attrib), int(value), False)
 
         # do detail updates
         for u in detail_updates:
@@ -1493,7 +1552,8 @@ class Survivor(Models.UserAsset):
             for v in [attrib, detail, value]:
                 if v is None:
                     raise utils.InvalidUsage("The '%s' attribute of %s may not be undefined!" % (v, u))
-            self.set_attribute_detail(attrib, detail, value, False)
+            if self.survivor['attribute_detail'][attrib][detail] != value:
+                self.set_attribute_detail(attrib, detail, value, False)
 
         self.save()
 
@@ -1861,7 +1921,7 @@ class Survivor(Models.UserAsset):
         value = int(self.params["value"])
         self.survivor["survival"] = value
         self.apply_survival_limit()
-        self.logger.debug("%s set %s survival to %s" % (request.User, self, self.survivor["survival"]))
+        self.log_event("%s set %s survival to %s" % (request.User.login, self.pretty_name(), self.survivor["survival"]))
         self.save()
 
 
@@ -2310,6 +2370,8 @@ class Survivor(Models.UserAsset):
     #   evaluation / biz logic methods
     #
 
+
+
     def can_be_nominated_for_intimacy(self):
         """ Returns a bool representing whether the survivor can do the
         mommmy-daddy dance. """
@@ -2341,6 +2403,71 @@ class Survivor(Models.UserAsset):
         tokens. """
 
         if self.survivor.get('cannot_gain_bleeding_tokens', None) is None:
+            return True
+        return False
+
+
+    def cannot_activate_two_handed_weapons(self):
+        """ Returns a bool representing whether the survivor can activate +2 str
+        gear. """
+
+        if 'cannot_activate_two_handed_weapons' in self.survivor.keys():
+            return self.survivor['cannot_activate_two_handed_weapons']
+
+        for ai_dict in self.list_assets('abilities_and_impairments'):
+            if ai_dict.get('cannot_activate_two_handed_weapons', False):
+                return True
+
+        return False
+
+
+    def cannot_activate_two_plus_str_gear(self):
+        """ Returns a bool representing whether the survivor can activate +2 str
+        gear. """
+
+        if 'cannot_activate_two_plus_str_gear' in self.survivor.keys():
+            return self.survivor['cannot_activate_two_plus_str_gear']
+
+        for ai_dict in self.list_assets('abilities_and_impairments'):
+            if ai_dict.get('cannot_activate_two_plus_str_gear', False):
+                return True
+
+        return False
+
+
+    def cannot_be_nominated_for_intimacy(self):
+        """ Returns a bool for the negative way of asking this question."""
+
+        if 'cannot_be_nominated_for_intimacy' in self.survivor.keys():
+            return self.survivor['cannot_be_nominated_for_intimacy']
+
+        for ai_dict in self.list_assets('abilities_and_impairments'):
+            if ai_dict.get('cannot_be_nominated_for_intimacy', False):
+                return True
+
+        return False
+
+
+    def cannot_consume(self):
+        """ Returns a bool representing whether the survivor can activate +2 str
+        gear. """
+
+        if 'cannot_consume' in self.survivor.keys():
+            return self.survivor['cannot_consume']
+
+        for ai_dict in self.list_assets('abilities_and_impairments'):
+            if ai_dict.get('cannot_consume', False):
+                return True
+
+        return False
+
+
+    def cannot_activate_weapons(self):
+        """ Returns a bool representing whether the survivor can activate
+        weapons. As far as 1.5 and expansion content goes, there's only one
+        scenario that causes this to come back false. """
+
+        if self.survivor['abilities_and_impairments'].count('dismembered_arm') == 2:
             return True
         return False
 
@@ -2823,7 +2950,7 @@ class Survivor(Models.UserAsset):
 
         # notes
         elif action == 'add_note':
-            self.add_note()
+            return self.add_note()
         elif action == 'rm_note':
             self.rm_note()
 

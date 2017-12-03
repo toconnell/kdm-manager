@@ -558,31 +558,9 @@ class Session:
                     raise RuntimeError(msg)
 
 
-        #   bulk add
-
+        #   bulk add - deprecated 2017-11-28
         if "bulk_add_survivors" in self.params:
-
-            self.set_current_settlement(user_asset_id)
-            S = assets.Settlement(settlement_id=user_asset_id, session_object=self)
-            male = int(self.params["male_survivors"].value)
-            female = int(self.params["female_survivors"].value)
-
-            for tup in [("M", male), ("F",female)]:
-                letter, sex = tup
-                for i in range(sex):
-                    POST_params = {"settlement": self.Settlement.settlement["_id"], "sex": letter, "public": True,}
-                    response = api.post_JSON_to_route("/new/survivor", payload=POST_params, Session=self)
-                    if response.status_code == 200:
-                        pass
-                    else:
-                        msg = "An API error caused survivor creation to fail! API response was: %s - %s" % (response.status_code, response.reason)
-                        self.logger.error("[%s] new survivor creation failed!" % self.User)
-                        self.logger.error("[%s] %s" % (self.User, msg))
-                        raise RuntimeError(msg)
-
-            user_action = "added %s male and %s survivors to %s" % (male, female, self.Settlement)
-            self.change_current_view("view_campaign", user_asset_id)
-
+            raise Exception("Deprecated parameter 'bulk_add_survivors' passed to legacy webapp!")
 
         #   modify
 

@@ -32,6 +32,7 @@ input.survivor_search                       {z-index: 1200; }
 .modal                                      {z-index: 2001; }
 .modal-black                                {z-index: 2001; }
 div.full_size_modal_panel                   {z-index: 5000; }
+.corner_loading_spinner                     {z-index: 5001; }
 span.timeline_overlay_current_ly            {z-index: 10000; }
 
     /* UI and feedback indexes */

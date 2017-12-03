@@ -67,26 +67,17 @@ def get_user_data():
         {"latest_activity": {"$gte": recent_user_cutoff}}
     ).sort("latest_activity", -1)
 
-    # now enhance the user data to include a bit more info (to avoid having to
-    #   do date calc in javascripts, etc.
-#    logger.debug("Admin Panel attempting to serialize data about %s users..." % recent_users.count())
-    final_user_info = []
-    for u in recent_users:
-        try:
-            U = users.User(_id=u["_id"])
-            final_user_info.append(U.serialize('admin_panel'))
-        except Exception as e:
-            logger.error("panel.py threw an exception while attempting to enhance recent user data!")
-            logger.error("User '%s' (%s) could not be initialized and enhanced! Returning it as-is..." % (u["login"], u["_id"]))
-            logger.error("Exception was: %s" % e)
-
     active_user_count = 0
     recent_user_count = 0
-    for u in final_user_info:
-        if u['user']["is_active"] == True:
+    final_user_output = []
+    for u in recent_users:
+        if u["latest_activity"] > (datetime.now() - timedelta(minutes=settings.get('application','active_user_horizon'))):
             active_user_count += 1
+            u['is_active'] = True
         else:
             recent_user_count += 1
+            u['is_active'] = False
+        final_user_output.append(u)
 
     # create the final output dictionary
     d = {
@@ -97,7 +88,7 @@ def get_user_data():
             "recent_user_count": recent_user_count,
         },
         "user_agent_stats": ua_data,
-        "user_info": final_user_info,
+        "user_info": final_user_output,
     }
     # and return it as json
     return json.dumps(d, default=json_util.default)
