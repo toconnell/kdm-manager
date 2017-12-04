@@ -74,7 +74,7 @@
             <div class="users_container">
                 <div
                     class="user_basic_info clickable"
-                    ng-class="{'active_user': u.user.is_active, 'signed_out': u.user.latest_action=='signed out'}"
+                    ng-class="{'active_user': u.is_active, 'signed_out': u.latest_action=='signed out'}"
                     ng-repeat="u in users.user_info"
                     ng-click="showHide('user_' + u._id.$oid);"
                 >

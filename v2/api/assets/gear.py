@@ -4,7 +4,7 @@ core = {
     'bone_axe': {
         'type': 'bone_smith',
         'name': 'Bone Axe',
-        'rules': 'Savage',
+        'rules': ['Savage'],
         'keywords': ['weapon','melee','axe','bone'],
         'recipes': [
             {'locations': ['bone_smith'], 'resource_types': {'bone':1, 'organ':1} },
