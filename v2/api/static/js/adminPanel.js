@@ -20,7 +20,7 @@ myApp.controller('globalController', function($scope, $http, $interval) {
             var admin_id = $scope.world.meta.admins[i]._id.$oid;
             var admin_login = $scope.world.meta.admins[i].login;
         };
-        var url = '/settlement/get_event_log/' + settlement.sheet._id.$oid;
+        var url = '/settlement/get_event_log/' + settlement._id.$oid;
         settlement.event_log = [{event: 'Retrieving settlement Event Log as ' + admin_login + '...'}]
         $http.post(url, {user_id: admin_id}).then(function(result){
             settlement.event_log = result.data;
@@ -50,6 +50,15 @@ myApp.controller('globalController', function($scope, $http, $interval) {
 
     $scope.getRecentSettlements = function() {
 //        console.warn('[RECENT SETTLEMENTS] Getting recent settlements...');
+        $http.get('campaign').then(
+            function(result){$scope.campaign_assets = result.data;},
+            function(result){console.error('Could not retrieve campaign asset definitions!');}
+        );
+        $http.get('expansion').then(
+            function(result){$scope.expansion_assets = result.data;},
+            function(result){console.error('Could not retrieve expansion asset definitions!');}
+        );
+
         $scope.retrievingSettlements = true;
         $scope.showSpinner('recentSettlementsSpinner'); 
         $http.get('admin/get/settlement_data').then(function(result){

@@ -314,7 +314,7 @@ class AssetCollection(object):
 
         # first, if the request is a GET, just dump everything and bail
         if request and request.method == "GET":
-            return Response(response=json.dumps(self.assets), status=200, mimetype="application/json")
+            return Response(response=json.dumps(self.assets, default=json_util.default), status=200, mimetype="application/json")
 
         # next, if the request has JSON, check for params
         if request and hasattr(request, 'json'):
@@ -713,7 +713,7 @@ class UserAsset():
 
         mdb_doc = utils.mdb[self.collection].find_one({"_id": self._id})
         if mdb_doc is None:
-            raise AssetLoadError()
+            raise AssetLoadError("Asset _id '%s' could not be found in '%s'!" % (self._id, self.collection))
         return mdb_doc
 
 

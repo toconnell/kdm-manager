@@ -78,6 +78,10 @@ def lookup_monster():
 def lookup_campaign():
     return request_broker.get_game_asset("campaign")
 
+@application.route("/expansion", methods=["GET","POST"])
+def lookup_expansion():
+    return request_broker.get_game_asset("expansion")
+
 @application.route("/gear", methods=["GET","POST"])
 def lookup_gear():
     return request_broker.get_game_asset("gear")

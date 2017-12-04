@@ -48,12 +48,12 @@ def clone_many(admin_key):
 
     users = get_user_data_from_api()
     for u in users:
-        oid = u['user']['_id']['$oid']
+        oid = u['_id']['$oid']
         clone_one(settings.get('application','prod_url'), admin_key, oid, force=True)
         print("\n")
 
     for u in users:
-        print("  %s - %s " % (u['user']['_id']['$oid'], u['user']['login']))
+        print("  %s - %s " % (u['_id']['$oid'], u['login']))
     print("\n")
 
 
@@ -79,9 +79,9 @@ def get_recent():
 
     for u in get_user_data_from_api():
         active = "inactive"
-        if u['user']['is_active']:
+        if u['is_active']:
             active = "active"
-        print("  [%s] %s - %s (SL: %s)" % (active, u['user']['_id']['$oid'], u['user']['login'], u['user']['subscriber']['level']))
+        print("  [%s] %s - %s (SL: %s)" % (active, u['_id']['$oid'], u['login'], u['patron']['level']))
 
     print("\n")
 

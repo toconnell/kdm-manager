@@ -117,7 +117,7 @@
             <div
                 class="settlement"
                 ng-repeat="settlement in settlements"
-                ng-init="eventLogContainer = settlement.sheet._id.$oid + '_event_log'"
+                ng-init="eventLogContainer = settlement._id.$oid + '_event_log'"
             >
                 <button
                     class="toggle_settlement_event_log"
@@ -126,15 +126,21 @@
                 >
                     View settlement event log
                 </button>
-                <h3 class="settlement_name"><b>{{settlement.sheet.name}}</b> <i>LY:</i> {{settlement.sheet.lantern_year}} </h3>
-                {{settlement.sheet._id.$oid}}<br/><br/>
-                <i>{{settlement.sheet.campaign_pretty}}</i><br>
-                <i ng-if="settlement.sheet.expansions.length >= 1">Expansions:</i> {{settlement.sheet.expansions_pretty}}</i>
+                <h3 class="settlement_name"><b>{{settlement.name}}</b> <i>LY:</i> {{settlement.lantern_year}} </h3>
+                {{settlement._id.$oid}}<br/><br/>
+                <i>{{campaign_assets[settlement.campaign].name}}</i><br>
+                <span ng-if="settlement.expansions.length >= 1">
+                    <i>Expansions:</i>
+                    <span ng-repeat="e_handle in settlement.expansions">
+                        {{expansion_assets[e_handle].name}}{{$last ? '' : ', '}}
+                    </span>
+                </span>
                 <ul>
-                    <li><i>Creator:</i> {{settlement.meta.creator_email}}</li>                   
-                    <li><i>Created:</i> {{settlement.meta.age}} ago</li>
-                    <li><i>Players:</i> {{settlement.meta.player_email_list.join(', ')}}</li>
-                    <li><i>Survivors:</i> {{settlement.sheet.population}}/{{settlement.sheet.death_count}}</li>
+                    <li><i>Creator:</i> {{settlement.creator_email}}</li>                   
+                    <li><i>Created:</i> {{settlement.age}} ago</li>
+                    <li ng-if="settlement.admins.length > 1"><i>Admins:</i> {{settlement.admins.join(', ')}}</li>
+                    <li ng-if="settlement.players.length > 1"><i>Players:</i> {{settlement.players.join(', ')}}</li>
+                    <li><i>Survivors:</i> {{settlement.population}}/{{settlement.death_count}}</li>
                 </ul>
                 <div id="{{eventLogContainer}}" class="settlement_event_log hidden">
                     <table class="settlement_event_log">

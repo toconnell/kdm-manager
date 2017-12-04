@@ -285,7 +285,7 @@ def update_user(oid, level=None, beta=None):
 
     # initialize the user and show preferences
     U = users.User(_id=oid)
-    
+
     print("\n Working with user \x1b[1;33;40m %s \x1b[0m [%s]" % (U.user['login'], U.user['_id']))
     U_serialized = U.serialize(dict)['user']
     mini_repr = OrderedDict()
@@ -319,7 +319,7 @@ def update_user(oid, level=None, beta=None):
 def get_user_id_from_email(email):
     """ Pulls the user from the MDB (or dies trying). Returns its email. """
 
-    u = utils.mdb.users.find_one({'login': email.lower()})
+    u = utils.mdb.users.find_one({'login': email.lower().strip()})
     if u is None:
         raise Exception("Could not find user data for %s" % email)
     return u['_id']
@@ -453,7 +453,7 @@ if __name__ == "__main__":
 
     # work with user
     if options.work_with_user is not None:
-        if ObjectId.is_valid(options.work_with_user):
+        if ObjectId.is_valid(options.work_with_user) and not '@' in options.work_with_user:
             user_oid = ObjectId(options.work_with_user)
         else:
             # assume it's an email if it's not an oid

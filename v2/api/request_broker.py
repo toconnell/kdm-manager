@@ -7,7 +7,7 @@ import json
 import panel
 import utils
 
-from models import survivors, settlements, users, monsters, campaigns, gear
+from models import survivors, settlements, users, monsters, campaigns, expansions, gear
 from Models import AssetLoadError
 
 logger = utils.get_logger(log_name="server")
@@ -100,6 +100,7 @@ def get_game_asset(collection):
         'monster': monsters,
         'gear': gear,
         'campaign': campaigns,
+        'expansion': expansions,
     }
 
     A = supported_endpoints[collection].Assets()

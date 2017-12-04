@@ -22,8 +22,6 @@ def get_settlement_data():
 
     recent_cutoff = datetime.now() - timedelta(hours=settings.get("application","recent_user_horizon"))
 
-    s_info = []
-
     ids = utils.mdb.settlements.find({'last_accessed': {'$gte': recent_cutoff}}).distinct('_id')
 
     sorting_hat = {}
@@ -35,12 +33,15 @@ def get_settlement_data():
     for timestamp in sorted(sorting_hat.keys(), reverse=True):
         sorted_ids.append(sorting_hat[timestamp])
 
-    for s_id in sorted_ids:
-        S = settlements.Settlement(_id=s_id, normalize_on_init=False)
-        s_dict = copy(S.serialize('dashboard'))
-        s_info.append(s_dict)
+    recent_settlements = []
+    for s in utils.mdb.settlements.find({"_id": {"$in": sorted_ids}}):
+        s['creator_email'] = utils.mdb.users.find_one({'_id': s['created_by']})['login']
+        s['age'] = utils.get_time_elapsed_since(s['created_on'], 'age')
+        s['players'] = utils.mdb.survivors.find({"settlement": s['_id']}).distinct('email')
+        recent_settlements.append(s)
 
-    return "[" + ",".join(s_info) + "]"
+    return json.dumps(recent_settlements, default=json_util.default)
+
 
 
 def get_user_data():
