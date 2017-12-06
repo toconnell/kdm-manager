@@ -21,9 +21,9 @@
 
  <body>
 
-    <h1>{{ settings.application.app_name }}</h1>
-    <h2>{{ settings.application.title }}</h2>
-    <h3> API Version {{ settings.api.version }}</h3>
+    <h1>KD:M API</h1>
+    <h2>A RESTful API for <i>Monster</i>, by Kingdom Death</h2>
+    <h3> Version {{ settings.api.version }} documentation</h3>
 
     <table class="api_documentation">
         <tr><th colspan="3">API Documentation!</th></tr>
@@ -34,9 +34,11 @@
         <a href="http://kingdomdeath.com" target="top">Kingdom Death</a>.</p>
         <p>The API is a fan-created and fan-maintained project that is not
         supported by, affiliated with or otherwise authorized by Kingdom Death.</p>
+<!--    <p>Are you a developer interested in using the API for your Kingdom Death
+        project? <a href="">Start here!</a></p> -->
         <p>
             <a href="https://github.com/toconnell/kdm-manager" target="top">GitHub</a> |
-            <a href="https://twitter.com/thewatcherapp" target="top">Twitter</a> |
+            <a href="https://twitter.com/kdmManager" target="top">Twitter</a> |
             <a href="http://kdm-manager.blogspot.com/" target="top">Development blog</a>
         </p>
 
@@ -64,14 +66,14 @@
 
         <tr class="ul">
             <td> <a href="/login">/login</a> </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td>
                 <p>        
                     The KD:M API uses JSON Web Tokens (<a
                     href="https://jwt.io/">https://jwt.io</a>) to manage user
                     sessions and user authentication.
                 </p>
-                <p> POST to this route with JSON containing user credentials in
+                <p> <b>POST</b> to this route with JSON containing user credentials in
                 the body of the request to get a token:</p>
                 <code>Authorization: {"username": "demo@kdm-manager.com", "password": 
                 "l33th4x0r"}</code>
@@ -82,7 +84,7 @@
 
         <tr class="ul">
             <td> <a href="/new_settlement">/new_settlement</a></td>
-            <td> GET </td>
+            <td> <b>GET</b> </td>
             <td> Returns JSON representing available options for creating a new
             settlement, including expansions, pre-fab survivors, etc. Also
             includes subtitle/description elements. Use this to make "create
@@ -90,18 +92,18 @@
         </tr>
         <tr class="ul">
             <td> <a href="/settings.json">/settings.json</a> </td>
-            <td> GET</td>
+            <td> <b>GET</b></td>
             <td> Not strictly a part of the API, but sometimes useful. Hit this
             route to download an attachement of settings.cfg as JSON. </td>
         </tr>
         <tr class="ul">
             <td> <a href="/settings">/settings</a> </td>
-            <td> GET </td>
+            <td> <b>GET</b> </td>
             <td> Retrieve settings.cfg as JSON</td>
         </tr>
         <tr class="ul">
             <td> <a href="/world">/world</a> </td>
-            <td> GET </td>
+            <td> <b>GET</b> </td>
             <td> Retrieve a JSON representation of aggregate/world stats.</td>
         </tr>
 
@@ -111,12 +113,12 @@
         </tr>
         <tr class="ul">
             <td> /reset_password/request_code </td>
-            <td> GET </td>
+            <td> <b>GET</b> </td>
             <td> <p> Resetting a password is a two-part process: first, you request
             a recovery code by posting a registered user's email address to this
             route. This emails your user with a URL that they can use to reset
             their PW. <p>
-            <p> To request a recovery code, simply POST some JSON containting the
+            <p> To request a recovery code, simply <b>POST</b> some JSON containting the
             email of the user:</p>
             <code>{'username': 'demo@kdm-manager.com'}</code>
             <p>If this comes back 200, then the user has been emailed. Otherwise,
@@ -126,8 +128,8 @@
         </tr>
         <tr class="ul">
             <td> /reset_password/reset </td>
-            <td> GET </td>
-            <td> <p> Before you POST to this route, you need a recovery code.<p>
+            <td> <b>GET</b> </td>
+            <td> <p> Before you <b>POST</b> to this route, you need a recovery code.<p>
             <p>Once you have it, include it with the user's email and new password
             in the body of your request:</p>
             <code>{'username': 'demo@kdm-manager.com', 'password': 's3cr3tP4ss',
@@ -144,11 +146,11 @@
         </tr>
         <tr class="ul">
             <td> <a href="/get_random_names/10">/get_random_names/&lt;count&gt;</a></td>
-            <td> GET </td>
+            <td> <b>GET</b> </td>
             <td> 
                 <p>Returns <code>count</code> random names for each possible
                 survivor sex.</p>
-                <p><b>Important!</b>This method DOES NOT accept POST-type
+                <p><b>Important!</b>This method DOES NOT accept <b>POST</b>-type
                 requests and <code>count</code> must be an integer!</p>
                 <p>Output looks like this:</p>
                 <pre><code>{
@@ -172,17 +174,17 @@
             <th colspan="3">
                 <p><b>Game asset lookup routes:</b> use these endpoints to get
                 information about game assets, e.g. monsters, gear, etc.</p>
-                <p>Each of these routes works essentially the same way: you can
-                POST a query to it to retireve data about a single asset if you
-                know its name or handle -OR- you can GET the route to get a list
+                <p>Each of these routes works essentially the same way. You can
+                <b>POST</b> a query to one and retireve data about a single asset if you
+                know its name or handle -OR- you can <b>GET</b> the route to get a list
                 of all assets.</p>
             </th>
         </tr>
         <tr class="ul">
             <td> <a href="/campaign">/campaign</a> </td>
-            <td> GET, POST </td>
+            <td> <b>GET</b>, <b>POST</b> </td>
             <td>
-                <p>Accepts a "name" or "handle" parameter included in the body
+                <p>Accepts a <code>name</code> or <code>handle</code> parameter included in the body
                 of the request (which should be JSON) and returns a JSON
                 representation of a campaign asset:</p>
                 <code>{"name": "People of the Lantern"}</code>
@@ -197,18 +199,110 @@
                 "white_lion","screaming_antelope","phoenix", "beast_of_sorrow",
                 "great_golden_cat", "mad_steed", "golden_eyed_king"],"type":
                 "campaign_definition"}</code>
-                <p>NB: this also works with handles, e.g.:</p>
+                <p>This also works with handles, e.g.:</p>
                 <code>{"handle": "people_of_the_stars"}</code>
+                <p>Like all lookup routes, if you <b>GET</b> this endpoint,
+                the API will return the definitions of all assets.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> <a href="/gear">/gear</a> </td>
+            <td> <b>GET</b>, <b>POST</b> </td>
+            <td>
+                <p><b>POST</b> a <code>name</code> or <code>handle</code> to this endpoint
+                to do gear lookups:</p>
+                <code>{handle: "lantern_halberd"}</code>
+                <p>...gets you back a JSON representation of the asset:</p>
+                <pre><code>{
+    "handle": "lantern_halberd",
+    "name": "Lantern Halberd",
+    "rules": [
+        "Reach 2",
+        "Irreplaceable",
+        "Unique"
+    ],
+    "type_pretty": "Gear",
+    "keywords": [
+        "weapon",
+        "melee",
+        "two-handed",
+        "spear",
+        "other"
+    ],
+    "type": "gear",
+    "sub_type": "rare_gear",
+    "desc": "After attacking, if standing, you may move up to 2 spaces directly away from the monster."
+}</code></pre>
+                <p>This route also supports <code>name</code> lookups, e.g. <code>
+                {name: "Vespertine Bow"}</code>, etc.</p>
+                <p><b>GET</b> this endpoint to dump all gear.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> <a href="/expansion">/expansion</a> </td>
+            <td> <b>GET</b>, <b>POST</b> </td>
+            <td>
+                <p><b>POST</b> a <code>name</code> or <code>handle</code> to this endpoint
+                to get a particular expansion's asset definition.</p>
+                <p>For example, if you <b>POST</b> this:</p>
+                <code>{handle: "gorm"}</code>
+                <p>You'll get back a nice hunk of JSON definiting the asset:</p>
+                <pre><code>{
+    "ui": {
+        "pretty_category": "Quarry"
+    },
+    "quarries": [
+        "gorm"
+    ],
+    "name": "Gorm",
+    "always_available": {
+        "location": [
+            "Gormery",
+            "Gormchymist"
+        ],
+        "innovation": [
+            "Nigredo"
+        ]
+    },
+    "released": {
+        "$date": 1457913600000
+    },
+    "type_pretty": "Expansion",
+    "timeline_add": [
+        {
+            "handle": "gorm_approaching_storm",
+            "type": "story_event",
+            "ly": 1
+        },
+        {
+            "handle": "gorm_gorm_climate",
+            "type": "settlement_event",
+            "name": "Gorm Climate",
+            "ly": 2
+        }
+    ],
+    "handle": "gorm",
+    "type": "expansion",
+    "sub_type": "expansion",
+    "flair": {
+        "color": "EAE40A",
+        "bgcolor": "958C83"
+    }
+}</code></pre>
+                <p>This route also supports lookups via <code>name</code> values,
+                e.g. <code>{name: "Flower Knight"}</code> or similar.</p>
+                <p>If you <code><b>GET</b></code> this route, it will return the definitions
+                for all supported expansion content as a dictionary/hash.</p> 
             </td>
         </tr>
         <tr class="ul">
             <td> <a href="/monster">/monster</a> </td>
-            <td> GET, POST </td>
+            <td> <b>GET</b>, <b>POST</b> </td>
             <td>
                 <p>
-                    Accepts a "name" or "handle" parameter in the POST body and
+                    Accepts a "name" or "handle" parameter in the <b>POST</b> body and
                     returns a JSON representation of a monster type game asset.
-                    For example, POSTing to /monster with JSON such as this:
+                    For example, <b>POST</b>ing to /monster with JSON such as this:
                 </p>
                 <code>{"name": "White Lion Lvl. 1"}</code>
                 <p>...returns JSON like this: </p>
@@ -227,6 +321,8 @@
     "selectable": false, 
     "misspellings": ["THE MANHUNTER", "MAN HUNTER"],
 }</code></pre>
+                <p>Like all lookup routes, if you <b>GET</b> this endpoint,
+                the API will return the definitions of all assets.</p>
             </td>
         </tr>
     </table>
@@ -238,7 +334,7 @@
             <td colspan="3">
                 <p>Private routes require an Authorization header including a
                 JWT token.</p>
-                <p>(See the documentation above for more info on how to POST
+                <p>(See the documentation above for more info on how to <b>POST</b>
                 user credentials to the <code>/login</code> route to get a
                 token.)</p>
                 <p>Generally speaking, when you access any private route, you 
@@ -256,7 +352,7 @@
                 on checking/refreshing tokens.</p>
                 <p><b>Important!</b> In order to support the CORS pre-flight
                 checks that most browsers are going to auto-magically perform
-                before POSTing to one of these routes, <u>all private routes
+                before <b>POST</b>ing to one of these routes, <u>all private routes
                 supported by the KD:M API also support the <code>OPTIONS</code>
                 method</u>, regardless of how they are documented below.</p>
             </td>
@@ -274,17 +370,17 @@
         </tr>
         <tr class="ul">
             <td> /authorization/check</td>
-            <td> GET,POST,OPTIONS </td>
+            <td> <b>GET</b>,<b>POST</b>,OPTIONS </td>
             <td> 
-            GET or POST to this endpoint to determine if your Authorization header
+            <b>GET</b> or <b>POST</b> to this endpoint to determine if your Authorization header
             is still valid or if it has expired.
             </td>
         </tr>
         <tr class="ul">
             <td> /authorization/refresh</td>
-            <td> POST,OPTIONS</td>
+            <td> <b>POST</b>,OPTIONS</td>
             <td> 
-            <p> Use the standard 'Authorization' header and POST an empty request to
+            <p> Use the standard 'Authorization' header and <b>POST</b> an empty request to
             this route to recieve a new Auth token based on the previous one.</p>
             <p> On the back end, this route reads the incoming 'Authorization'
             header and, even if the JWT token is expired, will check the 'login'
@@ -303,18 +399,18 @@
         </tr>
         <tr class="ul">
             <td> /admin/view/panel</td>
-            <td> GET </td>
+            <td> <b>GET</b> </td>
             <td><p>API Admin panel. Uses HTTP basic auth (no cookies/no sessions)
             and requires a user have the 'admin' bit flipped on their user.</p></td>
         </tr>
         <tr class="ul">
             <td> /admin/get/user_data</td>
-            <td> GET </td>
+            <td> <b>GET</b> </td>
             <td><p>Retrieves a nice, juicy hunk of JSON re: recent users of the API.</p></td>
         </tr>
         <tr class="ul">
             <td> /admin/get/logs</td>
-            <td> GET </td>
+            <td> <b>GET</b> </td>
             <td><p>Dumps the contents of a number of system logs from the local
             filesystem where the API is running and represents them as JSON.</p></td>
         </tr>
@@ -325,7 +421,7 @@
         </tr>
         <tr class="ul">
             <td> /user/dashboard/&lt;user_id&gt; </td>
-            <td> GET, OPTIONS</td>
+            <td> <b>GET</b>, OPTIONS</td>
             <td>
                 <p>This fetches a serialized version of the user that includes the
                 <code>/world</code> output as well as a bunch of info about the
@@ -367,17 +463,17 @@
         </tr>
         <tr class="ul">
             <td> /user/get/&lt;user_id&gt; </td>
-            <td> GET, OPTIONS </td>
+            <td> <b>GET</b>, OPTIONS </td>
             <td><p>Retrieve a serialized version of the user who owns &lt;user_id&gt;,
             to include some additional usage and meta facts about that user.</p>
-            <p>Like many of the <code>GET</code> routes supported by the KD:M API,
-            this route will return user info whether you use <code>POST</code> or
+            <p>Like many of the <code><b>GET</b></code> routes supported by the KD:M API,
+            this route will return user info whether you use <code><b>POST</b></code> or
             any other supported method.</p>
             </td>
         </tr>
         <tr class="ul">
             <td> /user/set/&lt;user_id&gt; </td>
-            <td> POST, OPTIONS </td>
+            <td> <b>POST</b>, OPTIONS </td>
             <td> <p>This route supports the assignment of user-specified key/value
             attributes to the user object.</p><p>To set an attribute, include
             JSON in the body of the request that indicates the key/value to set.</p>
@@ -398,15 +494,15 @@
         </tr>
         <tr class="ul">
             <td> /user/set_preferences/&lt;user_id&gt; </td>
-            <td> POST, OPTIONS </td>
+            <td> <b>POST</b>, OPTIONS </td>
             <td>
-                <p>POST a list of hashes to this endpoint to set user preferences.</p>
+                <p><b>POST</b> a list of hashes to this endpoint to set user preferences.</p>
                 <p>Your list has to be named <code>preferences</code> and your
                 hashes have to be key/value pairs where they key is a valid
                 preferences handle and the key is a Boolean:</p>
                 <code>{preferences: [{handle: "beta", value: true}, {...}]}</code>
                 <p>Since this is mostly a sysadmin/back-of-house kind of route,
-                it fails pretty easily if you try to POST something it doesn't
+                it fails pretty easily if you try to <b>POST</b> something it doesn't
                 like. The good news, is that it should fail pretty descriptively.</p>
             </td>
         </tr>
@@ -417,14 +513,14 @@
 
         <tr class="ul route_root">
             <th colspan="3"><b>Create Assets:</b> To create new assets (user, survivor, settlement),
-            POST JSON containing appropriate params to the /new/&lt;asset_type&gt;
+            <b>POST</b> JSON containing appropriate params to the /new/&lt;asset_type&gt;
             route. Invalid or unrecognized params will be ignored!</th>
         </tr>
         <tr class="ul">
             <td> /new/user </td>
-            <td> POST, OPTIONS</td>
+            <td> <b>POST</b>, OPTIONS</td>
             <td> <p>Include the valid email address and password in the JSON body
-            of your POST to create a new user:</p>
+            of your <b>POST</b> to create a new user:</p>
             <code>{'username': 'demo@kdm-manager.com', 'password': 'tehH4x0r'}</code>
             <p> If you get a 200 back from the API, the user was created without
             issue. Otherwise, this route produces some pretty explicit feedback
@@ -435,7 +531,7 @@
         </tr>
         <tr class="ul">
             <td> /new/settlement </td>
-            <td> POST, OPTIONS </td>
+            <td> <b>POST</b>, OPTIONS </td>
             <td> <p>Use 'handle' values from the <code>/new_settlement</code>
             route (see above) as params, like this:</p>
             <code> {"campaign": "people_of_the_lantern", "expansions": ["dung_beetle_knight",
@@ -465,11 +561,11 @@
         </tr>
         <tr class="ul">
             <td> <a id="newSurvivor"></a>/new/survivor </td>
-            <td> POST, OPTIONS</td>
+            <td> <b>POST</b>, OPTIONS</td>
             <td> <p>This works differently from <code>/new/settlement</code> in
             a number of significant ways.</p>
             <p> In a nutshell, the basic idea here is that the only required key
-            in the JSON you POST to this route is an object ID for the settlement
+            in the JSON you <b>POST</b> to this route is an object ID for the settlement
             to which the survivor belongs:</p>
             <code>{'settlement': '59669ace4af5ca799c968c94'}</code>
             <p> Beyond that, you are free to supply any other attributes of the
@@ -481,20 +577,20 @@
             just initialize a new survivor with defaults and then operate on it
             using the routes below.</p>
             <p><b>Important!</b>Just like the <code>/new/settlement</code> route,
-            a successful POST to the <code>/new/survivor</code> route will return
+            a successful <b>POST</b> to the <code>/new/survivor</code> route will return
             a serialized version (i.e. JSON) of the new survivor, complete with
             the <code>sheet</code> element, etc.</p>
             </td>
         </tr>
         <tr class="ul">
             <td> /new/survivors </td>
-            <td> POST, OPTIONS</td>
+            <td> <b>POST</b>, OPTIONS</td>
             <td>
                 <p>Not to be confused with <code>/new/survivor</code> (above),
                 this route adds multiple new survivors, rather than just one.</p>
-                <p>The JSON you have to POST to this route is a little different
+                <p>The JSON you have to <b>POST</b> to this route is a little different
                 and more limited than what you would post to <code>/new/survivor</code>.</p>
-                <p>The following POST key/value pairs are the only ones supported
+                <p>The following <b>POST</b> key/value pairs are the only ones supported
                 by this route:</p>
                 <table class="embedded_table">
                 <tr><th>key</th><th>O/R</th><th>value type</th><th>comment</th>
@@ -541,7 +637,7 @@
                 <p>Creating new survivors this way is very simple. This JSON, for
                 example, would create two new male survivors:</p>
                 <code>{"male": 2, "settlement_id": "5a1485164af5ca67035bea03"}</code>
-                <p>A successful POST to this route always returns a list of
+                <p>A successful <b>POST</b> to this route always returns a list of
                 serialized survivors (i.e. the ones that were created), so if
                 you are creating more than four or five survivors, this route is
                 a.) going to take a couple/few seconds to come back to you and b.)
@@ -593,16 +689,16 @@
         </tr>
  
 
-        <!-- settlement GET -->
+        <!-- settlement <b>GET</b> -->
         <tr>
             <td class="subsection_header" colspan="3"><b>Settlement data retrieval:</b>
-            The routes in this section only support the GET method and are meant
+            The routes in this section only support the <b>GET</b> method and are meant
             to be used to retrieve certain types of Settlement data. </td>
         </tr>
 
         <tr class="ul">
             <td> /settlement/get/&lt;settlement_id&gt; </td>
-            <td> GET </td>
+            <td> <b>GET</b> </td>
             <td> <p> Retrieve a serialized version of the settlement associated
             with &lt;settlement_id&gt; (to include all related user and game
             assets, including survivors).</p>
@@ -614,21 +710,21 @@
         </tr>
         <tr class="ul">
             <td> /settlement/get_game_assets/&lt;settlement_id&gt; </td>
-            <td> GET </td>
+            <td> <b>GET</b> </td>
             <td><p>Retrieve a serialized version of just the settlement that only
             includes the settlement's <code>game_assets</code> element.
             </td>
         </tr>
         <tr class="ul">
             <td> /settlement/get_sheet/&lt;settlement_id&gt; </td>
-            <td> GET </td>
+            <td> <b>GET</b> </td>
             <td><p>Retrieve a serialized version of just the settlement that only
             includes the <code>sheet</code> element.
             </td>
         </tr>
         <tr class="ul">
             <td> /settlement/get_summary/&lt;settlement_id&gt; </td>
-            <td> GET </td>
+            <td> <b>GET</b> </td>
             <td>
                 <p>Get a nice, dashboard-friendly summary of a settlement's info.</p>
                 <p>This route is optimized for speedy returns, e.g. the kind you
@@ -637,7 +733,7 @@
         </tr>
         <tr class="ul">
             <td> /settlement/get_campaign/&lt;settlement_id&gt; </td>
-            <td> GET </td>
+            <td> <b>GET</b> </td>
             <td><p>Retrieve a serialized version of the settlement where the
             <code>user_assets</code> element includes the <code>groups</code>
             list, among other things, and is intended to be used in creating
@@ -655,16 +751,16 @@
         </tr>
         <tr class="ul">
             <td> /settlement/get_event_log/&lt;settlement_id&gt; </td>
-            <td> GET, POST </td>
+            <td> <b>GET</b>, <b>POST</b> </td>
             <td>
-                <p>GET this end point to retrieve all settlement event log
+                <p><b>GET</b> this end point to retrieve all settlement event log
                 entries (in a giant hunk of JSON) in <u>reverse chronological
                 order</u>, i.e. latest first, oldest last.</p>
                 <p>For higher LY settlements this can be a really huge list of
                 log lines: if you're a front-end developer, definitely consider
                 loading this one AFTER you have rendered the rest of your 
                 view.</p>
-                <p>If you don't want all log lines, you can POST to this endpoint
+                <p>If you don't want all log lines, you can <b>POST</b> to this endpoint
                 with one of the following params to limit the scope of the
                 return:</p>
                 <table class="embedded_table">
@@ -689,12 +785,12 @@
         </tr>
         <tr class="ul">
             <td> /settlement/get_innovation_deck/&lt;settlement_id&gt; </td>
-            <td> GET </td>
+            <td> <b>GET</b> </td>
             <td> Retrieve the settlement's current innovation deck (as an array).</td>
         </tr>
         <tr class="ul">
             <td> /settlement/get_storage/&lt;settlement_id&gt; </td>
-            <td> GET </td>
+            <td> <b>GET</b> </td>
             <td>
                 <p>Hit this route to get representations of the settlement's
                 storage.</p>
@@ -751,8 +847,8 @@
         </tr>
         <tr class="ul">
             <td> /settlement/set_name/&lt;settlement_id&gt; </td>
-            <td> POST </td>
-            <td><p>POST some JSON whose body contains the key 'name' and whatever the
+            <td> <b>POST</b> </td>
+            <td><p><b>POST</b> some JSON whose body contains the key 'name' and whatever the
             new name is going to be as that key's value to change the settlement's
             name:</p>
             <code>{'name': 'The Black Lantern'}</code>
@@ -764,8 +860,8 @@
         </tr>
         <tr class="ul">
             <td> /settlement/set_attribute/&lt;settlement_id&gt; </td>
-            <td> POST </td>
-            <td> <p>POST some basic JSON containing an 'attribute' and a 'value'
+            <td> <b>POST</b> </td>
+            <td> <p><b>POST</b> some basic JSON containing an 'attribute' and a 'value'
             key where 'attribute' is an integer settlement attrib and 'value' is
             the new value:</p>
             <code>{'attribute': 'survival_limit', 'value': 3}</code>
@@ -775,8 +871,8 @@
         </tr>
         <tr class="ul">
             <td> /settlement/update_attribute/&lt;settlement_id&gt; </td>
-            <td> POST </td>
-            <td> <p>POST some JSON containing an 'attribute' and a 'modifier'
+            <td> <b>POST</b> </td>
+            <td> <p><b>POST</b> some JSON containing an 'attribute' and a 'modifier'
             key where 'attribute' is an integer settlement attrib and 'mofier' is
             how much you want to increment it by:</p>
             <code>{'attribute': 'death_count', 'modifier': -1}</code>
@@ -786,8 +882,8 @@
         </tr>
         <tr class="ul">
             <td> /settlement/update_population/&lt;settlement_id&gt; </td>
-            <td> POST </td>
-            <td> <p>POST some JSON containing the key 'modifier' whose value is
+            <td> <b>POST</b> </td>
+            <td> <p><b>POST</b> some JSON containing the key 'modifier' whose value is
             an integer that you want to add to the settlement's population
             number.<p>
             <p>This works basically identically to the <code>update_attribute</code>
@@ -795,7 +891,7 @@
             <p>For example, this JSON would add two to the settlement's
             population number:</p>
             <code>{'modifier': 2}</code>
-            <p>POST negative numbers to decrease.</p>
+            <p><b>POST</b> negative numbers to decrease.</p>
             <p><b>Important!</b> Settlement population can never go below zero,
             so any 'modifier' values that would cause this simply cause the
             total to become zero.</p>
@@ -803,11 +899,11 @@
         </tr>
         <tr class="ul">
             <td> /settlement/update_survivors/&lt;settlement_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td>
                 <p>Use this route to update a specific group of survivors, e.g.
                 Departing survivors.</p>
-                <p>POST some JSON including the type of survivors to include,
+                <p><b>POST</b> some JSON including the type of survivors to include,
                 the attribute to modify, and the modifier:</p>
                 <code>{include: 'departing', attribute: 'Insanity', modifier: 1}</code>
                 <p><b>Important!</b> This route currently only supports the
@@ -817,18 +913,18 @@
         </tr>
         <tr class="ul">
             <td> /settlement/set_inspirational_statue/&lt;settlement_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td>
                 <p>Set the settlement's <code>inspirational_statue</code> attrib
-                by POSTing a Fighting Art handle to this route:</p>
+                by <b>POST</b>ing a Fighting Art handle to this route:</p>
                 <code>{'handle': 'leader'}</code>
                 <p>This route will actually check out the handle and barf on you
-                if you try to POST an unrecognized FA handle to it. YHBW.</p>
+                if you try to <b>POST</b> an unrecognized FA handle to it. YHBW.</p>
             </td>
         </tr>
         <tr class="ul">
             <td> /settlement/set_lantern_research_level/&lt;settlement_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td>
                 <p>Set the Settlement's Lantern Research Level with some basic
                 JSON:</p>
@@ -851,8 +947,8 @@
 
         <tr class="ul">
             <td> /settlement/add_expansions/&lt;settlement_id&gt; </td>
-            <td> POST </td>
-            <td> Add expansions to a settlement by POSTing a list of expansion
+            <td> <b>POST</b> </td>
+            <td> Add expansions to a settlement by <b>POST</b>ing a list of expansion
             handles. The body of your post should be a JSON-style list: 
             <code>{'expansions': ['beta_challenge_scenarios','dragon_king']}</code>
             <p>
@@ -864,8 +960,8 @@
         </tr>
         <tr class="ul">
             <td> /settlement/rm_expansions/&lt;settlement_id&gt; </td>
-            <td> POST </td>
-            <td> Remove expansions from a settlement by POSTing a list of
+            <td> <b>POST</b> </td>
+            <td> Remove expansions from a settlement by <b>POST</b>ing a list of
             expansion handles. The body of your post should be a JSON-style 
             list: 
             <code>{'expansions': ['manhunter','gorm','spidicules']}</code>
@@ -891,10 +987,10 @@
         </tr>
         <tr class="ul">
             <td> /settlement/set_current_quarry/&lt;settlement_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td> <p>This route sets the settlement's 'current_quarry' attribute,
             which is the monster that the settlement's Departing Survivors are
-            currently hunting.</p><p>POST some simple JSON containing a monster
+            currently hunting.</p><p><b>POST</b> some simple JSON containing a monster
             name (do not use handles for this):</p>
             <code>{'current_quarry': 'White Lion Lvl 2'}</code>
             <p>...or, the monster is unique:</p>
@@ -907,8 +1003,8 @@
         </tr>
         <tr class="ul">
             <td> /settlement/add_defeated_monster/&lt;settlement_id&gt; </td>
-            <td> POST </td>
-            <td> <p>POST a 'monster' string to this route to add it to the
+            <td> <b>POST</b> </td>
+            <td> <p><b>POST</b> a 'monster' string to this route to add it to the
             settlement's list of defeated monsters:</p>
             <code>{'monster': 'White Lion (First Story)}</code> or
             <code>{'monster': 'Flower Knight Lvl 1'}</code>
@@ -919,8 +1015,8 @@
         </tr>
         <tr class="ul">
             <td> /settlement/rm_defeated_monster/&lt;settlement_id&gt; </td>
-            <td> POST </td>
-            <td><p>POST a 'monster' string to this route to remove it from the
+            <td> <b>POST</b> </td>
+            <td><p><b>POST</b> a 'monster' string to this route to remove it from the
             settlement's list of defeated monsters, i.e. the <code>sheet.defeated_monsters</code>
             array/list: </p>
             <code>{'monster': 'Manhunter Lvl 4'}</code>
@@ -930,9 +1026,9 @@
         </tr>
         <tr class="ul">
             <td> /settlement/add_monster/&lt;settlement_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td> <P>Use this route to add quarry or nemesis type monsters to the
-            settlement. POST some JSON containing the handle of the monster to
+            settlement. <b>POST</b> some JSON containing the handle of the monster to
             add it:</p>
             <code>{'handle': 'flower_knight'}</code>
             <p>The API will determine whether the monster is a nemesis or a quarry
@@ -945,8 +1041,8 @@
         </tr>
         <tr class="ul">
             <td> /settlement/rm_monster/&lt;settlement_id&gt; </td>
-            <td> POST </td>
-            <td><p>POST some JSON containing a quarry or nemesis type monster handle
+            <td> <b>POST</b> </td>
+            <td><p><b>POST</b> some JSON containing a quarry or nemesis type monster handle
             to remove it from the settlement's list:</p>
             <code>{'handle': 'sunstalker'}</code>
             <p>The API will determine whether the monster is a quarry or a nemesis.
@@ -955,7 +1051,7 @@
         </tr>
         <tr class="ul">
             <td> /settlement/update_nemesis_levels/&lt;settlement_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td>
              <p>Use this method to update the Settlement sheet's <code>nemesis_encounters</code>
              dictionary, i.e. to indicate that a nemesis encounter has occurred.</p>
@@ -963,11 +1059,11 @@
              <code>        "nemesis_encounters": {"slenderman": [], "butcher": [1,2]}</code>
              <p>In this example, the settlement has (somehow) encountered a
              a level 1 Butcher, but has not yet encountered a Slenderman.</p>
-             <p>To update the dictionary, POST some JSON that includes the
+             <p>To update the dictionary, <b>POST</b> some JSON that includes the
              nemesis monster's handle and the levels that are complete.</p>
-             <p>POST this JSON to reset/undo/remove Butcher encounters:<p>
+             <p><b>POST</b> this JSON to reset/undo/remove Butcher encounters:<p>
              <code>{"handle": "butcher", "levels": []}</code>
-             <p>POST this JSON to record an encounter with a level 1 Manhunter:</p>
+             <p><b>POST</b> this JSON to record an encounter with a level 1 Manhunter:</p>
              <code>{"handle": "manhunter", "levels": [1]}</code>
             </td>
         </tr>
@@ -979,9 +1075,9 @@
         </tr>
         <tr class="ul">
             <td> /settlement/add_milestone/&lt;settlement_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td>
-                <p>POST a milestone handle (get it from <code>game_assets</code>
+                <p><b>POST</b> a milestone handle (get it from <code>game_assets</code>
                 to this route to add it to the settlement's list of milestones:</p>
                 <code>{handle: 'game_over'}</code><p>...or...</p>
                 <code>{handle: 'innovations_5'}
@@ -990,9 +1086,9 @@
         </tr>
         <tr class="ul">
             <td> /settlement/rm_milestone/&lt;settlement_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td>
-                <p>POST a milestone handle (get it from <code>game_assets</code>
+                <p><b>POST</b> a milestone handle (get it from <code>game_assets</code>
                 to this route to remove it from the settlement's list of
                 milestones:</p>
                 <code>{handle: 'pop_15'}</code><p>...or...</p>
@@ -1003,8 +1099,8 @@
         </tr>
         <tr class="ul">
             <td> /settlement/set_principle/&lt;settlement_id&gt; </td>
-            <td> POST </td>
-            <td> <p>POST some JSON to this route to set or unset a settlement
+            <td> <b>POST</b> </td>
+            <td> <p><b>POST</b> some JSON to this route to set or unset a settlement
             principle. Request the handle of the principle and the election you
             want to make:</p>
             <pre><code>
@@ -1015,7 +1111,7 @@
             <p>This route has a couple of unusual behaviors to note:
             <ul>
                 <li>It requires both keys (i.e. you will get a 400 back if you
-                POST any JSON that does not include both).</li>
+                <b>POST</b> any JSON that does not include both).</li>
                 <li>It will accept a Boolean for 'election', because this is how
                 you 'un-set' a principle.</li>
             </ul>
@@ -1025,7 +1121,7 @@
             <code>{'principle': 'new_life', 'election': false}</code>
             <p> <b>Important!</b> Adding principles to (or removing them from) a
             settlement automatically modifies all current survivors, in many
-            cases. Be sure to refresh any survivor info after POSTing JSON to
+            cases. Be sure to refresh any survivor info after <b>POST</b>ing JSON to
             this route!</p>
             </td>
         </tr>
@@ -1041,7 +1137,7 @@
         </tr>
         <tr class="ul">
             <td> /settlement/add_timeline_event/&lt;settlement_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td> <p>Adding a timeline event to a settlement's timeline requires a
             fairly specific bit of JSON. To add, for example, a settlement event,
             you need to post JSON that looks like this:</p>
@@ -1073,9 +1169,9 @@
         </tr>
         <tr class="ul">
             <td> /settlement/rm_timeline_event/&lt;settlement_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td> <p>Works just like the <code>add_timeline_event</code> method,
-            except in reverse. POST some JSON describing a timeline event
+            except in reverse. <b>POST</b> some JSON describing a timeline event
             that exists on the settlement's timeline to remove it:</p>
             <code>{'type': 'settlement_event', 'ly': 3, 'handle': 'core_haunted',
             'name': 'Haunted', 'user_login': 'dev@kdm-manager.com'}</code>
@@ -1097,24 +1193,24 @@
         </tr>
         <tr class="ul">
             <td> /settlement/add_location/&lt;settlement_id&gt; </td>
-            <td> POST </td>
-            <td> <p> POST a location <code>handle</code> to this route to add
+            <td> <b>POST</b> </td>
+            <td> <p> <b>POST</b> a location <code>handle</code> to this route to add
             it to the settlement's Locations:</p>
             <code>{'handle': 'bone_smith'}</code>
             </td>
         </tr>
         <tr class="ul">
             <td> /settlement/rm_location/&lt;settlement_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td> <p>This is basically the reverse of <code>add_location</code>
-            and works nearly identically. POST a JSON representation of a 
+            and works nearly identically. <b>POST</b> a JSON representation of a 
             Location handle to remove it from the settlement's list:</p>
             <code>{'handle': 'barber_surgeon'}</code>
             </td>
         </tr>
         <tr class="ul">
             <td> /settlement/set_location_level/&lt;settlement_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td> <p>For Locations that have a level (e.g. the People of the 
             Sun's 'Sacred Pool'), you may set the Location's level by posting
             the <code>handle</code> of the location and the desired level:</p>
@@ -1130,8 +1226,8 @@
         </tr>
         <tr class="ul">
             <td> /settlement/add_innovation/&lt;settlement_id&gt; </td>
-            <td> POST </td>
-            <td> <p> POST an Innovation <code>handle</code> to this route to add
+            <td> <b>POST</b> </td>
+            <td> <p> <b>POST</b> an Innovation <code>handle</code> to this route to add
             it to the settlement's Innovations:</p>
             <code>{'handle': 'hovel'}</code>
             <p>...or:</p><code>{'handle': 'mastery_club'}</code>
@@ -1139,16 +1235,16 @@
         </tr>
         <tr class="ul">
             <td> /settlement/rm_innovation/&lt;settlement_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td> <p>This is basically the reverse of <code>add_innovation</code>
-            and works nearly identically. POST a JSON representation of an 
+            and works nearly identically. <b>POST</b> a JSON representation of an 
             Innovation handle to remove it from the settlement's list:</p>
             <code>{'handle': 'mastery_club'}</code>
             </td>
         </tr>
         <tr class="ul">
             <td> /settlement/set_innovation_level/&lt;settlement_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td> <p>For Innovations that have a level (e.g. the Slenderman's 'Dark
             Water Research'), you may set the Innovation's level by posting
             the <code>handle</code> of the innovation and the level:</p>
@@ -1165,10 +1261,10 @@
         </tr>
         <tr class="ul">
             <td> /settlement/update_endeavor_tokens/&lt;settlement_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td>
             <p>Use this route to change a settlement's endeavor token count.</p>
-            <p>POST some JSON containing the number to modify by:</p>
+            <p><b>POST</b> some JSON containing the number to modify by:</p>
             <code>{"modifier": 2}</code>
             <p>The above code would add two to the settlement's current total,
             whereas the code below would decrement by one:</p>
@@ -1177,10 +1273,10 @@
         </tr>
         <tr class="ul">
             <td> /settlement/set_lost_settlements/&lt;settlement_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td>
             <p>Use this route to set a settlement's Lost Settlements total.</p>
-            <p>POST some JSON containing the new value to set it to:</p>
+            <p><b>POST</b> some JSON containing the new value to set it to:</p>
             <code>{"value": 2}</code>
             <p>The above code would set the settlement's Lost Settlements total
             to two; negative numbers will default to zero. </p>
@@ -1199,20 +1295,20 @@
                 <a id="settlementAbandon"></a> 
                 /settlement/abandon/&lt;settlement_id&gt;
             </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td>
-                <p>Hit this route with a POST to mark the settlement as abandoned.</p>
-                <p>Your POST does not need to contain anything (but it does need
-                to be a POST (GET requests will not abandon the settlement.</p>
+                <p>Hit this route with a <b>POST</b> to mark the settlement as abandoned.</p>
+                <p>Your <b>POST</b> does not need to contain anything (but it does need
+                to be a <b>POST</b> (<b>GET</b> requests will not abandon the settlement.</p>
                 <p>An abandoned settlement has a date/time stamp of when it was
                 abandoned as its <code>abandoned</code> attribute.</p>
             </td>
         </tr>
         <tr class="ul">
             <td> /settlement/add_admin/&lt;settlement_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td>
-                <p>POST the email address of a registered user to add them to the
+                <p><b>POST</b> the email address of a registered user to add them to the
                 list of settlement administrators:</p>
                 <code>{login: 'demo@kdm-manager.com'}</code>
                 <p>Disclaimers:<ul><li>This will fail gracefully if the user's
@@ -1224,10 +1320,10 @@
         </tr>
         <tr class="ul">
             <td> /settlement/rm_admin/&lt;settlement_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td>
                 <p>This is the reverse of the <code>add_admin</code> route.</p>
-                <p>Basically, you POST some JSON to the route including the email
+                <p>Basically, you <b>POST</b> some JSON to the route including the email
                 of the user you want to remove from the settlement admins list:</p>
                 <code>{login: 'demo@kdm-manager.com'}</code>
                 <p>Like the <code>add_admin</code> route, this one fails gracefully
@@ -1236,20 +1332,62 @@
         </tr>
         <tr class="ul">
             <td> /settlement/add_note/&lt;settlement_id&gt; </td>
-            <td> POST </td>
-            <td> Documentation coming soon! </td>
+            <td> <b>POST</b> </td>
+            <td>
+                <p>Since any player in a game is allowed to create settlement
+                notes, the JSON required by this endpoint must include a user's
+                OID.</p>
+                <p>This endpoint supports the following key/value pairs:</p>
+                <table class="embedded_table">
+                    <tr><th>key</th><th><b>R</b>/O</th><th>value</th></tr>
+                    <tr>
+                        <td class="small_key">author_id</td>
+                        <td class="type"><b>R</b></type>
+                        <td class="value">The creator's OID as a string.</td>
+                    </tr>
+                    <tr>
+                        <td class="small_key">note</td>
+                        <td class="type"><b>R</b></type>
+                        <td class="value">The note as a string. We accept HTML here, so if you want to display this back to your users as HTML, you can do that.</td>
+                    </tr>
+                    <tr>
+                        <td class="small_key">author</td>
+                        <td class="type">O</type>
+                        <td class="value">The creator's login, e.g. <code>demo@kdm-manager.com</code>, as a string. Best practice is to NOT include this, unless you really know what you're doing.</td>
+                    </tr>
+                    <tr>
+                        <td class="small_key">lantern_year</td>
+                        <td class="type">O</type>
+                        <td class="value">The Lantern Year the note was created. Defaults to the current LY if not specified.</td>
+                    </tr>
+                </table>
+                <p>For example, to add a new note to a settlement, your <b>POST</b>
+                body will, at a minimum, look something like this:</p>
+                <code>{author_id: "5a26eb1a4af5ca786d1ed548", note: "Nobody expects the Spanish Inquisition!"}</code>
+                <p><b>Important!</b> This route returns the OID of the
+                newly-created note:</p>
+                <code>{"note_oid": {"$oid": "5a2812d94af5ca03ef7db6c6"}}</code>
+                <p>...which can then be used to remove the note, if necessary
+                (see <code>rm_note</code> below).</p> 
+            </td>
         </tr>
         <tr class="ul">
             <td> /settlement/rm_note/&lt;settlement_id&gt; </td>
-            <td> POST </td>
-            <td> Documentation coming soon! </td>
+            <td> <b>POST</b> </td>
+            <td>
+                <p><b>POST</b> the OID of a settlement note to remove it.</p>
+                <code>{_id: "5a26eb894af5ca786d1ed558"}</code>
+                <p>As long as you get a 200 back from this one, the note has
+                been removed. If you get a non-200 status (literally anything other
+                than a 200), something went wrong. </p>
+            </td>
         </tr>
         <tr class="ul">
             <td> /settlement/set_last_accessed/&lt;settlement_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td> <p>This endpoint allows you to set the settlement's <code>last_accessed</code>
             attribute, which is used in dashboard reporting, etc. </p>
-            <p>POSTing an empty JSON payload to this will cause the settlement's <code>
+            <p><b>POST</b>ing an empty JSON payload to this will cause the settlement's <code>
             last_accessed</code> value to be set to now.</p>
             </td>
         </tr>
@@ -1267,7 +1405,7 @@
                 <p>Like settlement management routes, these routes are private, require
                 authentication and accept the <code>OPTIONS</code> requests method.</p>
 
-                <p><b>Important!</b> Any POST to any of these routes can also
+                <p><b>Important!</b> Any <b>POST</b> to any of these routes can also
                 include the optional parameter <code>{"serialize_on_response": true}
                 </code>. Including this param will get you a serialized version
                 of the survivor as part of your response.</p>
@@ -1286,7 +1424,7 @@
                 <tr><td class="key">settlement</td><td><b>R</b></td><td>OID</td><td>This must be set to a valid settlement OID at creation time and may never be changed. See <a href="#newSurvivor"><code>/new/survivor</code></a> above for more info on creating survivors.</td><td class="mono"></td></tr>
                 <tr><td class="key">public</td><td>O</td><td>bool</td><td>Defaults to Boolean false. Submitting anything that evaluates to Boolean true will be treated as such.</td><td class="mono">toggle_boolean</td></tr>
                 <tr><td class="key">name</td><td>O</td><td>str</td><td></td><td class="mono">set_name</td></tr>
-                <tr><td class="key">sex</td><td>O</td><td>str</td><td>At creation time, this can be set to 'M', 'F' or 'R' (for random). Defaults to 'R' during creation if not specified in the POST body.</td><td class="mono">set_sex</td></tr>
+                <tr><td class="key">sex</td><td>O</td><td>str</td><td>At creation time, this can be set to 'M', 'F' or 'R' (for random). Defaults to 'R' during creation if not specified in the <b>POST</b> body.</td><td class="mono">set_sex</td></tr>
                 <tr><td class="key">survival</td><td>O</td><td>int</td><td></td><td class="mono">update_survival set_survival</td></tr>
                 <tr><td class="key">hunt_xp</td><td>O</td><td>int</td><td></td></tr>
                 <tr><td class="key">Insanity</td><td>O</td><td>int</td><td></td><td class="mono">set_attribute update_attribute</td></tr>
@@ -1331,17 +1469,17 @@
         </tr>
 
         <tr>
-            <td class="subsection_header" colspan="3"><b>GET routes:</b>
+            <td class="subsection_header" colspan="3"><b><b>GET</b> routes:</b>
             retrieve various types of survivor data.</td>
         </tr>
         <tr class="ul">
             <td> /survivor/get/&lt;survivor_id&gt; </td>
-            <td> GET </td>
+            <td> <b>GET</b> </td>
             <td> Retrieve a serialized version of the survivor.</td>
         </tr>
         <tr class="ul">
             <td> /survivor/get_lineage/&lt;survivor_id&gt; </td>
-            <td> GET </td>
+            <td> <b>GET</b> </td>
             <td> <p>Retrieve a dictionary of survivor family info.</p>
             <p>This method can take a minute to return, as it does recursion,
             initializes all surviviors, living and dead, etc. It's probably
@@ -1350,7 +1488,7 @@
         </tr>
         <tr class="ul">
             <td> /survivor/get_survival_actions/&lt;survivor_id&gt; </td>
-            <td> GET </td>
+            <td> <b>GET</b> </td>
             <td> <p>Retrieve JSON representing the Survival Actions currently
             available to the survivor: </p>
             <pre><code>
@@ -1394,12 +1532,12 @@
             info, e.g. Fighting Arts, Disorders, Abilities & Impairments, etc.</p>
             <p><b>Important!</b> Most of these routes have back-end business logic
             "baked" into them, so it is <u>highly recommended</u> that you reload/re-get
-            your survivor's JSON after POSTing commands to these routes!</p>
+            your survivor's JSON after <b>POST</b>ing commands to these routes!</p>
             </td>
         </tr>
         <tr class="ul">
             <td> /survivor/add_game_asset/&lt;survivor_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td> <p>Use this route to add an asset 'handle' of whatever 'type'
             to a survivor.</p>
             <p>Requires both the 'handle' and 'type' keys:</p>
@@ -1415,21 +1553,21 @@
         </tr>
         <tr class="ul">
             <td> /survivor/rm_game_asset/&lt;survivor_id&gt; </td>
-            <td> POST </td>
-            <td> <p>The exact inverse of <code>add_game_asset</code>, POSTing to
+            <td> <b>POST</b> </td>
+            <td> <p>The exact inverse of <code>add_game_asset</code>, <b>POST</b>ing to
             this route requires both 'handle' and 'type' keys and removes a game
             asset handle from a survivor. </p>
             </td>
         </tr>
         <tr class="ul">
             <td> /survivor/set_many_game_assets/&lt;survivor_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td>
                 <p>This route allows you to add or remove multiple game assets
-                from a survivor by POSTing a list of handles/types, as if you
+                from a survivor by <b>POST</b>ing a list of handles/types, as if you
                 were doing many <code>add_game_asset</code> or <code>rm_game_asset</code>
                 operations serially.</p>
-                <p>The JSON you have to POST must include the action you want to
+                <p>The JSON you have to <b>POST</b> must include the action you want to
                 take:</p>
                 <pre><code>{
     "action": "rm",
@@ -1440,12 +1578,12 @@
 }</code></pre>
                 <p><b>Important!</b> As with <code>set_many_attributes()</code>,
                 the hashes in the <code>game_assets</code> list are pressed in
-                the order you POST them. YHBW.</p>
+                the order you <b>POST</b> them. YHBW.</p>
             </td>
         </tr>
         <tr class="ul">
             <td> /survivor/replace_game_assets/&lt;survivor_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td>
                 <p>This route accepts a list of handles and a type of game asset
                 and then evalutes the survivor's current handles of that type,
@@ -1459,14 +1597,14 @@
     ]
 }</code></pre>
                 <p>You're going to want to also include <code>{"serialize_on_response": true}</code>
-                in your POST body on this one, because your survivor is DEFINITELY
+                in your <b>POST</b> body on this one, because your survivor is DEFINITELY
                 going to come back way different than he was before you did this.</p>
             </td>
         </tr>
         <tr class="ul">
             <td> /survivor/add_cursed_item/&lt;survivor_id&gt; </td>
-            <td> POST </td>
-            <td><p>POST a cursed item 'handle' to this route to add that cursed
+            <td> <b>POST</b> </td>
+            <td><p><b>POST</b> a cursed item 'handle' to this route to add that cursed
             item to the survivor:</p>
             <code>{'handle': 'thunder_maul'}</code>
             <p><b>Important!</b> This will automatically apply any A&Is and
@@ -1475,8 +1613,8 @@
         </tr>
         <tr class="ul">
             <td> /survivor/rm_cursed_item/&lt;survivor_id&gt; </td>
-            <td> POST </td>
-            <td><p>POST a cursed item 'handle' to this route to remove that
+            <td> <b>POST</b> </td>
+            <td><p><b>POST</b> a cursed item 'handle' to this route to remove that
             cursed item from the survivor:</p>
             <code>{'handle': 'husk_of_destiny'}</code>
             <p><b>Important!</b> This will automatically apply remove any epithets
@@ -1486,14 +1624,14 @@
         </tr>
         <tr class="ul">
             <td> /survivor/set_special_attribute/&lt;survivor_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td>
                 <p>Use this route to set a survivor special attribute to a
                 Boolean value:</p>
                 <code>{'handle': 'pots_purified', 'value': false}</code>
                 <p>A couple of things to note here:
                 <ul>
-                    <li>The 'handle' will be validated and if you POST a bad/bogus
+                    <li>The 'handle' will be validated and if you <b>POST</b> a bad/bogus
                     handle, you'll get a 400 (or worse).</li>
                     <li>The 'value' must be a Boolean/truthy/falsy type value.
                     Anything else will get you a 400 (probably a 500, tbh).</li>
@@ -1506,11 +1644,15 @@
         </tr>
         <tr class="ul">
             <td> /survivor/set_weapon_proficiency_type/&lt;survivor_id&gt; </td>
-            <td> POST </td>
-            <td><p>POST some JSON containing a weapon proficiency type handle
-            (from the settlement's <code>game_assets</code> to set it as the
-            survivor's weapon type:</p>
-            <code>{'handle': 'sword'}</code>
+            <td> <b>POST</b> </td>
+            <td>
+                <p><b>POST</b> some JSON containing a weapon proficiency type handle
+                (from the settlement's <code>game_assets</code> to set it as the
+                survivor's weapon type:</p>
+                <code>{handle: 'sword'}</code>
+                <p>To unset/remove weapon proficiency type from a survivor, <b>POST</b>
+                they key <code>unset</code> to this endpoint:</p>
+                <code>{unset: true}</code>
             </td>
         </tr>
 
@@ -1521,10 +1663,10 @@
         </tr>
         <tr class="ul">
             <td> /survivor/set_attribute/&lt;survivor_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td><p>Use this route to set an arbitrary survivor attribute to an
             arbitrary value. Requires 'attribute' and 'value' keys.<p>
-            <p>POST some JSON containing the 'attrib' name and the new 'value'
+            <p><b>POST</b> some JSON containing the 'attrib' name and the new 'value'
             like so:</p>
             <code>{'attribute': 'Strength', 'value': 3}</code>
             <p>The JSON above would set the survivor's Strength to three. The
@@ -1534,7 +1676,7 @@
         </tr>
         <tr class="ul">
             <td> /survivor/set_many_attributes/&lt;survivor_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td>
                 <p>This one works similarly to <code>/survivor/set_attribute/&lt;survivor_id&gt;</code>
                 or <code>/survivor/set_attribute_detail&lt;survivor_id&gt;</code>,
@@ -1542,7 +1684,7 @@
                 a list of attribute/detail/value pairs.</p>
                 <p>Assuming you want to update the base values as well as the
                 details (i.e. attribute modifiers, in game parlance), the body
-                of your POST should look something like this:</p>
+                of your <b>POST</b> should look something like this:</p>
                 <pre><code>{
     attributes: [
         {attribute: 'Strength', value: 2},
@@ -1563,7 +1705,7 @@
         </tr>
         <tr class="ul">
             <td> /survivor/set_attribute_detail/&lt;survivor_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td> <p>All survivors have an <code>attribute_detail</code> element in
             their <code>sheet</code> JSON:</p>
             <code><pre>
@@ -1596,7 +1738,7 @@
             <p>This is used to manage attribute info that is NOT the base
             attribute value (see <code>set_attribute</code> and <code>
             update_attribute</code> for updating base values).</p>
-            <p>To update <code>attribute_detail</code> info, POST some JSON
+            <p>To update <code>attribute_detail</code> info, <b>POST</b> some JSON
             that includes an 'attribute', 'detail' and 'value':</p>
             <code>{'attribute': 'Luck', 'detail': 'tokens', 'value': 2}</code>
             <p>The sample code above would set the survivor's 'Luck' attribute
@@ -1605,7 +1747,7 @@
         </tr>
         <tr class="ul">
             <td> /survivor/update_attribute/&lt;survivor_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td> <p>Supports arbitrary survivor attribute updates. Requires JSON
             contianing an 'attribute' and a 'modifier'. Adds the value of
             'modifier' to the current value of 'attribute'.</p>
@@ -1617,7 +1759,7 @@
         </tr>
         <tr class="ul">
             <td> /survivor/update_bleeding_tokens/&lt;survivor_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td><p> Use this to add an integer to the survivor's bleeding token
             count:</p>
             <code>{'modifier': -2}</code>
@@ -1629,7 +1771,7 @@
         </tr>
         <tr class="ul">
             <td> /survivor/set_bleeding_tokens/&lt;survivor_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td><p> Use this route to set the survivor's <code>bleeding_tokens</code>
             attribute to an arbitrary integer value.</p>
             <code>{'value': 4}</code>
@@ -1642,18 +1784,18 @@
         </tr>
         <tr class="ul">
             <td> /survivor/set_name/&lt;survivor_id&gt; </td>
-            <td> POST </td>
-            <td><p>POST some JSON containing the survivor's new name like so:</p>
+            <td> <b>POST</b> </td>
+            <td><p><b>POST</b> some JSON containing the survivor's new name like so:</p>
             <code>{'name': 'Adam'}</code>
-            <p><b>Important!</b> POSTing a blank string as the value of 'name'
+            <p><b>Important!</b> <b>POST</b>ing a blank string as the value of 'name'
             will result in the survivor's name defaulting to 'Anonymous':</p>
             <code>{'name': ''}</code>
             </td>
         </tr>
         <tr class="ul">
             <td> /survivor/set_retired/&lt;survivor_id&gt; </td>
-            <td> POST </td>
-            <td><p>POST some JSON containing a Boolean value representing whether
+            <td> <b>POST</b> </td>
+            <td><p><b>POST</b> some JSON containing a Boolean value representing whether
             the survivor is retired or not:</p>
             <code>{'retired': true}</code>
             <p>The 'retired' value will be duck-typed to a Boolean, so posting
@@ -1663,8 +1805,8 @@
         </tr>
         <tr class="ul">
             <td> /survivor/set_sex/&lt;survivor_id&gt; </td>
-            <td> POST </td>
-            <td> <p>Modify the survivor's sex by POSTing a simple JSON object
+            <td> <b>POST</b> </td>
+            <td> <p>Modify the survivor's sex by <b>POST</b>ing a simple JSON object
             containing the key 'sex' and a value of either 'M' or 'F'.</p>
             <code>{'sex': 'M'}</code>
             <p><b>Important!</b> This is not the same as the survivor's
@@ -1674,7 +1816,7 @@
         </tr>
         <tr class="ul">
             <td> /survivor/set_parent/&lt;survivor_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td> <p>Update a survivor's <code>father</code> or <code>mother</code>
             attributes by posting a role (e.g. 'father' or 'mother') plus a valid
             survivor OID to this endpoint:</p>
@@ -1691,8 +1833,8 @@
         </tr>
         <tr class="ul">
             <td> /survivor/update_survival/&lt;survivor_id&gt; </td>
-            <td> POST </td>
-            <td> <p>POST a 'modifier' integer to this route to add that number
+            <td> <b>POST</b> </td>
+            <td> <p><b>POST</b> a 'modifier' integer to this route to add that number
             to the survivor's Survival: </p>
             <code>{"modifier": 2}</code>
             <p>...or:</p>
@@ -1706,8 +1848,8 @@
         </tr>
         <tr class="ul">
             <td> /survivor/set_survival/&lt;survivor_id&gt; </td>
-            <td> POST </td>
-            <td> <p>POST a 'value' integer to this route to set that integer as
+            <td> <b>POST</b> </td>
+            <td> <p><b>POST</b> a 'value' integer to this route to set that integer as
             the survivor's Survival value.: </p>
             <code>{"value": 6}</code>
             <p><b>Important!</b> The API will only allow values greater than the
@@ -1729,7 +1871,7 @@
         </tr>
         <tr class="ul">
             <td> /survivor/controls_of_death/&lt;survivor_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td> <p>This route is the all-purpose route for managing aspects of
             a survivor's death, including when it happened, how it happened and
             so on. </p>
@@ -1765,31 +1907,31 @@
             <p>This will unset other death-related attributes, e.g. 'cause_of_death',
             'died_in', etc.</p>
             <p><b>Important!</b> Since <code>dead</code> is the only required key
-            in JSON that gets POSTed to this route, there is some defaulting that goes
+            in JSON that gets <b>POST</b>ed to this route, there is some defaulting that goes
             on if the other values are undefined. Be as explicit as possible with
             this route.</p>
             </td>
         </tr>
         <tr class="ul">
             <td> /survivor/update_affinities/&lt;survivor_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td> <p>Works with the Survivor's <code>affinities</code> dictionary,
             which contains their permanent, non-token affinities and looks like
             this by default:</p>
             <code>{'red': 0, 'blue': 0, 'green': 0}</code>
-            <p>POST some JSON containing an optional 'operation' key whose value
+            <p><b>POST</b> some JSON containing an optional 'operation' key whose value
             is 'add' or 'rm' to add or subtract an affinities dictionary called
             'aff_dict' to/from the survivor.</p>
             <p><b>Important!</b> The 'operation' key is optional because the default
             behavior of this method/route is to add the incoming 'aff_dict'.</p>
             <p>For example, if you wanted to add a permanent blue affinity to the
-            survivor, you would POST this:</p>
+            survivor, you would <b>POST</b> this:</p>
             <code>{'aff_dict': {'blue': 1}}</code>
             <p>Similarly, if you wanted to add two red affinities and subtract
-            one green affinity, you would POST a JSON object like this one:</p>
+            one green affinity, you would <b>POST</b> a JSON object like this one:</p>
             <code>{'aff_dict': {'red': 2, 'green': -1}, 'operation': 'add'}</code>
             <p>If you wanted to subtract a blue and a green affinity from the
-            survivor, you could POST a JSON object like this one:</p>
+            survivor, you could <b>POST</b> a JSON object like this one:</p>
             <code>{'aff_dict': {'blue': 1, 'green': 1}, 'operation': 'rm'}</code>
             <p><b>Important!</b> The 'operation' key's value must be 'add' or
             'rm'. Anything else will get you a 400 response from this route.</p>
@@ -1797,20 +1939,35 @@
         </tr>
         <tr class="ul">
             <td> /survivor/set_affinity/&lt;survivor_id&gt; </td>
-            <td> POST </td>
-            <td> <p>POST some JSON containing the two required keys, 'color' and
+            <td> <b>POST</b> </td>
+            <td> <p><b>POST</b> some JSON containing the two required keys, 'color' and
             'value' to set a single survivor affinity to a new integer value.</p>
             <code>{'color': 'blue', 'value': -2}</code>
             <p>The 'value' key must always have an integer value.</p>
             </td>
         </tr>
         <tr class="ul">
+            <td> /survivor/set_color_scheme/&lt;survivor_id&gt; </td>
+            <td> <b>POST</b> </td>
+            <td>
+                <p>Serialized settlements have an element called <code>survivor_color_schemes</code>,
+                which is a dictionary of color schemes, including handles.</p>
+                <p>To change a survivor's color scheme, <b>POST</b> some JSON to this route
+                that includes one of those handles:</p>
+                <code>{handle: 'vibrant_lantern'}</code>
+                <p>To unset a survivor's color scheme (i.e. to remove the key/value
+                from the survivor's <code>sheet</code>, simply post the key, <code>
+                unset</code>:</p>
+                <code>{unset: true}</code>
+            </td>
+        </tr>
+        <tr class="ul">
             <td> /survivor/set_constellation/&lt;survivor_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td> <p>For survivors with Dragon Traits (i.e. PotStars), use this
             route to set their 'constellation':</p>
             <code>{'constellation': 'Witch'}</code>
-            <p>Simply POST similar JSON to overwrite/change it:</p>
+            <p>Simply <b>POST</b> similar JSON to overwrite/change it:</p>
             <code>{'constellation': 'Absolute'}</code>
             <p>This one also works to unset/remove it:</p>
             <code>{'unset': true}</code>
@@ -1837,8 +1994,8 @@
         </tr>
         <tr class="ul">
             <td> /survivor/toggle_sotf_reroll/&lt;survivor_id&gt; </td>
-            <td> POST </td>
-            <td> <p>POST a blank/empty request to this route to toggle the survivor's
+            <td> <b>POST</b> </td>
+            <td> <p><b>POST</b> a blank/empty request to this route to toggle the survivor's
             once per lifetime Survival of the Fittest reroll on or off.</p>
             <p><b>Important!</b> The actual attribute of the survivor's <code>
             sheet</code> is <i>sotf_reroll</i>:</p>
@@ -1850,7 +2007,7 @@
         </tr>
         <tr class="ul">
             <td> /survivor/toggle_boolean/&lt;survivor_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td> <p>Use this route to toggle Boolean attributes of the survivor
             data model, such as 'public'</p>
             <code>{'attribute': 'public'}</code>
@@ -1862,10 +2019,10 @@
         </tr>
         <tr class="ul">
             <td> /survivor/toggle_fighting_arts_level/&lt;survivor_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td> <p>The API supports toggling on/off individual levels for
             Survivor Fighting Arts that have levels (e.g. Silk Surgeon). Use
-            this route to toggle an individual level on or off by POSTing the
+            this route to toggle an individual level on or off by <b>POST</b>ing the
             handle and the level:</p>
             <code>{'handle': 'silk_surgeon', 'level': 2}</code>
             <p>The API does not enforce sequential leveling (i.e. a Survivor can
@@ -1875,7 +2032,7 @@
         </tr>
         <tr class="ul">
             <td> /survivor/set_status_flag/&lt;survivor_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td> <p> This route and its related route <code>toggle_status_flag</code>
             are used to work with Survivor Sheet 'flags'. The following 'flag'
             attributes can be set to a boolean value:</p>
@@ -1885,20 +2042,20 @@
                 <li>skip_next_hunt</li>
                 <li>departing</li>
             </ul>
-            <p>To set a flag (i.e. to True/true), POST some JSON to this route
+            <p>To set a flag (i.e. to True/true), <b>POST</b> some JSON to this route
             that includes the 'flag' key with the value of the flag you want to
             set:</p>
             <code>{'flag': 'cannot_spend_survival'}</code>
-            <p> To unset/remove a flag, POST the key/value, plus the key 'unset'
+            <p> To unset/remove a flag, <b>POST</b> the key/value, plus the key 'unset'
             with a value of True/true:</p>
             <code>{'flag': 'skip_next_hunt', 'unset': True}</code>
             </td>
         </tr>
         <tr class="ul">
             <td> /survivor/toggle_status_flag/&lt;survivor_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td> <p>Works nearly identically to <code>set_status_flag</code>
-            (see above), except toggles the flag on/off. POST simple JSON
+            (see above), except toggles the flag on/off. <b>POST</b> simple JSON
             containing the target 'flag' to toggle it:</p>
             <code>{'flag': 'cannot_use_fighting_arts'}</code>
             </td>
@@ -1912,8 +2069,8 @@
         </tr>
         <tr class="ul">
             <td> /survivor/add_favorite/&lt;survivor_id&gt; </td>
-            <td> POST </td>
-            <td> <p>Use this route to POST a user's email address and add the address
+            <td> <b>POST</b> </td>
+            <td> <p>Use this route to <b>POST</b> a user's email address and add the address
             to the survivor's <code>favorite</code> list, i.e. the list of users
             who have favorited the Survivor:</p>
             <code>{'user_email': 'demo@kdm-manager.com'}</code>
@@ -1923,8 +2080,8 @@
         </tr>
         <tr class="ul">
             <td> /survivor/rm_favorite/&lt;survivor_id&gt; </td>
-            <td> POST </td>
-            <td> <p>Use this route to POST a user's email address and remove the
+            <td> <b>POST</b> </td>
+            <td> <p>Use this route to <b>POST</b> a user's email address and remove the
             address from the survivor's <code>favorite</code> list, i.e. the
             list of users who have favorited the Survivor:</p>
             <code>{'user_email': 'test@kdm-manager.com'}</code>
@@ -1934,11 +2091,11 @@
         </tr>
         <tr class="ul">
             <td> /survivor/add_note/&lt;survivor_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td>
                 <p>Adds a text note to a survivor. The note is returned on the
                 serialized survivor (in <code>survivor.notes</code>).</p>
-                <p>The POST body requirements are simple:</p>
+                <p>The <b>POST</b> body requirements are simple:</p>
                 <code>{'note': 'This is my important note about Ugg-Ugg the maker
                 of the soup.'}</code>
                 <p>Unlike other routes, this one returns the OID of the note:</p> 
@@ -1947,9 +2104,9 @@
         </tr>
         <tr class="ul">
             <td> /survivor/rm_note/&lt;survivor_id&gt; </td>
-            <td> POST </td>
+            <td> <b>POST</b> </td>
             <td>
-                <p>POST an existing note OID to this route to remove it:</p>
+                <p><b>POST</b> an existing note OID to this route to remove it:</p>
                 <code>{'_id': '58703a398740d9730c7abeb2'}</code>
             </td>
         </tr>

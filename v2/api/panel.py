@@ -72,6 +72,8 @@ def get_user_data():
     recent_user_count = 0
     final_user_output = []
     for u in recent_users:
+        u['age'] = utils.get_time_elapsed_since(u['created_on'], 'age')
+        u['latest_activity_age'] = utils.get_time_elapsed_since(u['latest_activity'], 'age')
         if u["latest_activity"] > (datetime.now() - timedelta(minutes=settings.get('application','active_user_horizon'))):
             active_user_count += 1
             u['is_active'] = True

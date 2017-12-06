@@ -35,8 +35,10 @@
 
             <h2>Admin Panel</h2>
             <b>Revision:</b> {{world.meta.object.panel_revision}}<br/>
-            <b>Last Refreshed:</b> {{refreshed}} ({{seconds_since_last_refresh}} seconds ago)
+            <b>Last Refreshed:</b> {{refreshed}} ({{seconds_since_last_refresh}} seconds ago)<br/>
 
+            <br/>
+            <a href="/" target="top">API Documentation</a>
 
         </div>
 
@@ -90,13 +92,13 @@
                     >
                         <br><br/>
                         <b>Latest User Agent:</b> {{u.latest_user_agent}}<br/>
-                        <b>Latest Activity:</b> {{u.latest_activity.$date |date: 'yyyy-MM-dd @ h:mma'}}<br/>
+                        <b>Latest Activity:</b> {{u.latest_activity_age}} ago<br/>
                         <b>Latest Action:</b> {{u.latest_action}}<br/>
                         <b>Active:</b> {{u.is_active}}<br/>
                         <br>
                         <b>OID:</b> {{u._id.$oid}}<br/>
                         <b>Created On:</b> {{u.created_on.$date | date:'yyyy-MM-dd @ h:mma'}}<br/>
-                        <b>User Age:</b> {{getAge(u.created_on.$date)}} days<br/>
+                        <b>User Age:</b> {{u.age}}<br/>
                         <br><br>
                         <span ng-if="u.patron.created_on"><b>Subscriber for:</b> {{getAge(u.patron.created_on.$date)}} days<br/></span>
                         <span ng-if="u.patron.created_on"><b>Subscriber level:</b> {{u.patron.level}}<br/></span>

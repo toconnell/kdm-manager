@@ -83,6 +83,7 @@ class World:
         for asset_key in self.assets.keys():
             self.refresh_asset(asset_key, force=force)
             self.total_refreshed_assets += 1
+            time.sleep(1)
 
         self.logger.info("Refreshed %s/%s assets." % (self.total_refreshed_assets, len(self.assets.keys())))
 

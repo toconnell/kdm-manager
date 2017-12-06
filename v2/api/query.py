@@ -35,7 +35,11 @@ class queryObject(object):
 
     def run_cmd(self, A, cmd):
         """ Runs a command against A (which should be imported by now). """
-        exec "print A.%s()" % cmd
+        exec "target = A.%s" % cmd
+        if type(target) == dict:
+            print(target)
+        else:
+            print(target())
         again = raw_input('\n --> Run another command? ')
         if again in dir(A):
             self.run_cmd(A, again)

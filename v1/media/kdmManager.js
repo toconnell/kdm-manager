@@ -779,10 +779,8 @@ app.controller('settlementNotesController', function($scope, $rootScope) {
     $scope.addNote = function () {
         if (!$scope.newNote) {return;}
         var new_note_object = {
-            "author": $scope.user_login,
             "author_id": $scope.user_id,
             "note": $scope.newNote,
-            "lantern_year": $scope.settlement.sheet.lantern_year,
         };
         $scope.settlement.sheet.settlement_notes.unshift(new_note_object);
         $scope.postJSONtoAPI('settlement', 'add_note', new_note_object);

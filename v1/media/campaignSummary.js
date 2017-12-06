@@ -120,6 +120,15 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
     $scope.manageable_survivors = 0;
     $scope.verify_manageable = true;
 
+    $scope.scratch={};
+
+    // add an unset option to color schemes
+    $scope.settlementPromise.then(
+        function(payload) {
+            var remove_color = {handle: 'None', name: ' -- Unset -- '};
+            $scope.settlement.survivor_color_schemes.none = remove_color;
+        }
+    );
 
     $scope.flipArrow = function(group) {
         // flips the expand/collapse arrow arround
@@ -132,6 +141,16 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
         };
     };
 
+
+    $scope.setColorScheme = function(s){
+        $rootScope.survivor_id = s.sheet._id.$oid;
+        if (s.sheet.color_scheme == 'None') {
+            $scope.postJSONtoAPI('survivor', 'set_color_scheme', {unset: true}, false);
+        } else {
+            json_obj = {'handle': s.sheet.color_scheme};
+            $scope.postJSONtoAPI('survivor', 'set_color_scheme', json_obj, false);
+        };
+    };
 
     $scope.initSurvivorCard = function(survivor) {
         // sets survivor.meta.manageable within a given survivor. access/security

@@ -870,6 +870,28 @@ class Survivor(Models.UserAsset):
         return asset_class, asset_dict
 
 
+    def set_color_scheme(self):
+        """ Expects a request context. Sets (or unsets) the survivor's top-level
+        'color_scheme' attribute. """
+
+        # first, handle unsets
+        if 'unset' in self.params and self.survivor.get('color_scheme', None) is not None:
+            del self.survivor['color_scheme']
+            self.log_event('%s unset the color scheme for %s' % (request.User.login, self.pretty_name()))
+            self.save()
+            return True
+        elif 'unset' in self.params and self.survivor.get('color_scheme', None) is None:
+            self.logger.warn('%s Ignoring bogus request to unset color scheme...' % self)
+            return False
+
+        self.check_request_params(['handle'])
+        handle = self.params['handle']
+        self.survivor['color_scheme'] = handle
+        scheme_dict = survivor_sheet_options.survivor_color_schemes[handle]
+        self.log_event("%s set the color scheme to '%s' for %s." % (request.User.login, scheme_dict['name'], self.pretty_name()))
+        self.save()
+
+
     def set_many_game_assets(self):
         """ Much like the set_many_attributes() route/method, this one WILL ONLY
         WORK WITH A REQUEST object present.
@@ -1925,9 +1947,15 @@ class Survivor(Models.UserAsset):
         self.save()
 
 
-    def set_weapon_proficiency_type(self, handle=None, unset=False):
+    def set_weapon_proficiency_type(self, handle=None):
         """ Sets the self.survivor["weapon_proficiency_type"] string to a
         handle. """
+
+        if self.params.get('unset', None) is not None:
+            self.survivor['weapon_proficienct_type'] = None
+            self.log_event('%s unset weapon proficiency type for %s.' % (request.User.login, self.pretty_name()))
+            self.save()
+            return True
 
         if handle is None:
             self.check_request_params(["handle"])
@@ -2977,6 +3005,8 @@ class Survivor(Models.UserAsset):
 
 
         # manager-only / non-game methods
+        elif action == "set_color_scheme":
+            self.set_color_scheme()
         elif action == "toggle_sotf_reroll":
             self.toggle_sotf_reroll()
         elif action == 'set_parent':

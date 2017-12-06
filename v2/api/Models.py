@@ -1,6 +1,7 @@
 #!/usr/bin/python2.7
 
 from bson.objectid import ObjectId
+from collections import OrderedDict
 from copy import copy, deepcopy
 from datetime import datetime, timedelta
 import json
@@ -190,6 +191,15 @@ class AssetCollection(object):
 
         return sorted([self.assets[k]["name"] for k in self.get_handles()])
 
+    def get_sorted_assets(self):
+        """ Returns the asset collections 'assets' dict as an OrderedDict. """
+
+        output = OrderedDict()
+        for n in self.get_names():
+            asset_dict = self.get_asset_from_name(n)
+            output[asset_dict['handle']] = asset_dict
+        return output
+
     def get_sub_types(self):
         """ Dumps a list of all asset 'sub_type' attributes. """
 
@@ -215,7 +225,6 @@ class AssetCollection(object):
         for h in sorted(self.get_handles()):
             output.append(self.get_asset(h))
         return output
-
 
     def get_asset(self, handle=None, backoff_to_name=False, raise_exception_if_not_found=True):
         """ Return an asset dict based on a handle. Return None if the handle
@@ -323,7 +332,7 @@ class AssetCollection(object):
 
         # if there are no lookups requested, dump everything and bail
         if a_name is None and a_handle is None:
-            return Response(response=json.dumps(self.assets), status=200, mimetype="application/json")
+            return Response(response=json.dumps(self.assets, default=json_util.default), status=200, mimetype="application/json")
 
         # finally, do lookups and create a response based on the outcome
         if a_handle is not None:
@@ -334,7 +343,7 @@ class AssetCollection(object):
         if A is None:
             return utils.http_404
 
-        return Response(response=json.dumps(A), status=200, mimetype="application/json")
+        return Response(response=json.dumps(A, default=json_util.default), status=200, mimetype="application/json")
 
 
 

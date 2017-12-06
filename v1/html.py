@@ -1671,8 +1671,16 @@ class survivor:
         <span ng-if="settlement != undefined" ng-init="initializeUser('$user_id')"></span>
         <span ng-if="survivor != undefined" ng-init="initializeScope()"></span>
 
-        <span class="tablet_and_desktop nav_bar survivor_sheet_gradient"></span>
-        <span class="mobile_only nav_bar_mobile survivor_sheet_gradient"></span>
+        <span
+            class="tablet_and_desktop nav_bar survivor_sheet_gradient"
+            style='{{settlement.survivor_color_schemes[survivor.sheet.color_scheme].style_string}}'
+        >
+        </span>
+        <span
+            class="mobile_only nav_bar_mobile survivor_sheet_gradient"
+            style='{{settlement.survivor_color_schemes[survivor.sheet.color_scheme].style_string}}'
+        >
+        </span>
         <div class="top_nav_spacer">hidden</div>
 
 
@@ -3823,6 +3831,7 @@ class settlement:
                                     affinity_green: s.sheet.savior == 'green',
                                     affinity_blue: s.sheet.savior == 'blue',
                                 }"
+                                style='{{settlement.survivor_color_schemes[s.sheet.color_scheme].style_string}}'
                             >
                                 <div
                                     ng-if="s.meta.returning_survivor == true && s.sheet.dead != true"
@@ -3920,11 +3929,13 @@ class settlement:
                                     {{s.sheet.constellation}}
                                 </div>
 
+
                             </button>
 
                             <div
                                 id="{{s.sheet._id.$oid}}_modal_controls"
                                 class="hidden modal survivor_controls modal-black"
+                                style='{{settlement.survivor_color_schemes[s.sheet.color_scheme].style_string}}'
                             >
                                 <h3><b>{{s.sheet.name}}</b> [{{s.sheet.effective_sex}}]</h3>
 
@@ -4061,6 +4072,16 @@ class settlement:
                                     >
                                     </button>
                                 </form>
+
+                                <select
+                                    class="campaign_summary_survivor_modal_color_scheme_select"
+                                    ng-if="user.user.subscriber.level > 1"
+                                    ng-model="s.sheet.color_scheme"
+                                    ng-change="setColorScheme(s);"
+                                    ng-options="c.handle as c.name for c in settlement.survivor_color_schemes"
+                                >
+                                    <option disabled value="">Set Color Scheme</option>
+                                </select>
 
                                 <div
                                     ng-if="

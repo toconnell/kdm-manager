@@ -13,7 +13,7 @@ import time
 
 import Models
 import assets
-from models import survivors, campaigns, cursed_items, disorders, gear, endeavors, epithets, expansions, fighting_arts, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events, locations, causes_of_death, names, resources, storage, survivor_special_attributes, weapon_proficiency
+from models import survivors, campaigns, cursed_items, disorders, gear, endeavors, epithets, expansions, fighting_arts, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events, locations, causes_of_death, names, resources, storage, survivor_special_attributes, weapon_proficiency, survivor_color_schemes
 import settings
 import utils
 
@@ -118,6 +118,7 @@ class Settlement(Models.UserAsset):
         self.SpecialAttributes = survivor_special_attributes.Assets()
         self.SurvivalActions = survival_actions.Assets()
         self.Survivors = survivors.Assets()
+        self.SurvivorColorSchemes = survivor_color_schemes.Assets()
         self.WeaponMasteries = weapon_masteries.Assets()
 
 
@@ -453,6 +454,7 @@ class Settlement(Models.UserAsset):
             output['settlement_storage'] = self.get_settlement_storage()
 
         if return_type in [None, 'campaign']:
+            output['survivor_color_schemes'] = self.SurvivorColorSchemes.get_sorted_assets()
             output["survivor_bonuses"] = self.get_bonuses("JSON")
             output["survivor_attribute_milestones"] = self.get_survivor_attribute_milestones()
             output["eligible_parents"] = self.get_eligible_parents()
@@ -1025,17 +1027,23 @@ class Settlement(Models.UserAsset):
     def add_settlement_note(self, n={}):
         """ Adds a settlement note to MDB. Expects a dict. """
 
+        author = utils.mdb.users.find_one({'_id': ObjectId(n['author_id'])})
+
+        ly = n.get('lantern_year', self.get_current_ly())
+        author_email = n.get('author', author['login'])
+
         note_dict = {
             "note": n["note"].strip(),
-            "created_by": ObjectId(n["author_id"]),
-            "author": n["author"],
+            "created_by": author['_id'],
+            "author": author_email,
             "created_on": datetime.now(),
             "settlement": self.settlement["_id"],
-            "lantern_year": n["lantern_year"],
+            "lantern_year": ly,
         }
 
-        utils.mdb.settlement_notes.insert(note_dict)
-        self.logger.info("[%s] added a settlement note to %s" % (n["author"], self))
+        note_oid = utils.mdb.settlement_notes.insert(note_dict)
+#        self.logger.debug("[%s] added a settlement note to %s" % (author_email, self))
+        return Response(response=json.dumps({'note_oid': note_oid}, default=json_util.default), status=200)
 
 
     def rm_settlement_note(self, n_id=None):
@@ -1043,12 +1051,12 @@ class Settlement(Models.UserAsset):
 
         if n_id is None:
             self.check_request_params(['_id'])
-            self.params['_id']
+            n_id = self.params['_id']
 
         n_id = ObjectId(n_id)
 
         n = utils.mdb.settlement_notes.remove({"settlement": self.settlement["_id"], "_id": n_id})
-        self.logger.info(n)
+#        self.logger.debug(n)
         self.logger.info("%s User '%s' removed a settlement note" % (self, request.User.login))
 
 
@@ -3547,7 +3555,7 @@ class Settlement(Models.UserAsset):
         #   campaign notes controllers
         #
         elif action == "add_note":
-            self.add_settlement_note(self.params)
+            return self.add_settlement_note(self.params)
         elif action == "rm_note":
             self.rm_settlement_note()
 

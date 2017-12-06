@@ -14,7 +14,7 @@ echo "Working directory set to `pwd` "
 start_service () {
     $CMD start $SOCKET
     $CMD start $SERVICE
-    su - toconnell -c "$WORLD_DAEMON -d start"
+    su - toconnell -c "nice $WORLD_DAEMON -d start "
     sleep 2
     su - toconnell -c "$WORLD_DAEMON -d status"
 }
