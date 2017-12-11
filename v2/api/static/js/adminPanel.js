@@ -50,11 +50,11 @@ myApp.controller('globalController', function($scope, $http, $interval) {
 
     $scope.getRecentSettlements = function() {
 //        console.warn('[RECENT SETTLEMENTS] Getting recent settlements...');
-        $http.get('campaign').then(
+        $http.get('game_asset/campaign').then(
             function(result){$scope.campaign_assets = result.data;},
             function(result){console.error('Could not retrieve campaign asset definitions!');}
         );
-        $http.get('expansion').then(
+        $http.get('game_asset/expansion').then(
             function(result){$scope.expansion_assets = result.data;},
             function(result){console.error('Could not retrieve expansion asset definitions!');}
         );

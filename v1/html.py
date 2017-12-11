@@ -1776,7 +1776,7 @@ class survivor:
                 />
 
                 <label
-                    id="survivor_sheet_avatar"
+                    id="survivorAvatarMobile"
                     for="avatar_file_input"
                     ng-if="survivor.sheet.avatar != undefined"
                 >
@@ -1787,7 +1787,7 @@ class survivor:
                     />
                 </label>
                 <label
-                    id="survivor_sheet_avatar"
+                    id="survivorAvatarMobile"
                     for="avatar_file_input"
                     ng-if="survivor.sheet.avatar == undefined"
                 >
@@ -2012,7 +2012,7 @@ class survivor:
                 </div>
 
                 <label
-                    id="survivor_sheet_avatar"
+                    id="survivorAvatarDesktop"
                     for="avatar_file_input"
                     ng-if="survivor.sheet.avatar != undefined"
                 >
@@ -2020,10 +2020,10 @@ class survivor:
                         class="survivor_avatar_image desktop_only"
                         ng-src="/get_image?id={{survivor.sheet.avatar.$oid}}"
                         alt="Click to change the avatar image for {{survivor.sheet.name}}"
-                        />
+                    />
                 </label>
                 <label
-                    id="survivor_sheet_avatar"
+                    id="survivorAvatarDesktop"
                     for="avatar_file_input"
                     ng-if="survivor.sheet.avatar == undefined"
                 >
@@ -2036,13 +2036,15 @@ class survivor:
                 </label>
 
                 <input
-                    onchange='document.getElementById("avatar_change_form").submit(); showFullPageLoader();'
                     id="avatar_file_input"
+                    ng-controller='avatarController'
+                    ng-model="scratch.newAvatar"
+                    ng-blur="setAvatar()"
                     class="hidden"
                     type="file"
                     name="survivor_avatar"
                     accept="image/*"
-                    form="avatar_change_form"
+                    custom-on-change="setAvatar"
                 >
 
 
@@ -2524,8 +2526,8 @@ class survivor:
                             {{FA.name}}
                         </b>
 
-                        <p class="survivor_sheet_card_subhead">- {{FA.type_pretty}} -</p>
-                        <p class="survivor_sheet_fighting_art_color_span {{FA.type}}_gradient"> </p>
+                        <p class="survivor_sheet_card_subhead">- {{FA.sub_type_pretty}} -</p>
+                        <p class="survivor_sheet_fighting_art_color_span {{FA.sub_type}}_gradient"> </p>
                         <div
                             class="survivor_sheet_card_text"
                             ng-bind-html="FA.desc|trustedHTML"
@@ -2570,7 +2572,7 @@ class survivor:
                     ng-model="userFA.newFA"
                     ng-change="addFightingArt(); userFA.newFA = FAoptions[0]"
                     ng-blur="userFA.newFA = FAoptions[0]"
-                    ng-options="fa.handle as (fa.name + ' (' + fa.type_pretty + ')'  ) for fa in FAoptions | orderObjectBy:'handle':false"
+                    ng-options="fa.handle as (fa.name + ' (' + fa.sub_type_pretty + ')'  ) for fa in FAoptions | orderObjectBy:'handle':false"
                 >
                     <option value="" disabled selected>Add Fighting Art</option>
                 </select>
@@ -2951,19 +2953,6 @@ class survivor:
                 <button class="kd_alert_no_exclaim red_glow permanently_delete">Permanently Delete Survivor</button>
             </form>
         </div>
-
-
-
-        <!-- gotta put this here, outside of the other forms HACK CITY -->
-        <form
-            id="avatar_change_form"
-            method="POST"
-            action="#"
-            enctype="multipart/form-data"
-        >
-            <input type="hidden" name="modify" value="survivor" />
-            <input type="hidden" name="asset_id" value="$survivor_id" />
-        </form>
 
     </div> <!-- asset_management_right_pane -->
 
@@ -3904,7 +3893,7 @@ class settlement:
                                 </div>
                                 <div class="campaign_summary_survivor_tags_container">
                                     <div
-                                        class="survivor_tag ai_tag {{settlement.game_assets.abilities_and_impairments[ai].type}}"
+                                        class="survivor_tag ai_tag {{settlement.game_assets.abilities_and_impairments[ai].sub_type}}"
                                         ng-repeat="ai in s.sheet.abilities_and_impairments track by $index"
                                     >
                                         {{settlement.game_assets.abilities_and_impairments[ai].name}}
@@ -3937,6 +3926,7 @@ class settlement:
                                 class="hidden modal survivor_controls modal-black"
                                 style='{{settlement.survivor_color_schemes[s.sheet.color_scheme].style_string}}'
                             >
+                                <div class="modal_survivor_quickview_container"> <!-- container -->
                                 <h3><b>{{s.sheet.name}}</b> [{{s.sheet.effective_sex}}]</h3>
 
                                 <div class="avatar_and_stats">
@@ -4118,6 +4108,7 @@ class settlement:
                                 > Back
                                 </button>
 
+                            </div> <!-- container -->
                             </div> <!-- modal controls -->
 
 
@@ -4991,14 +4982,13 @@ class settlement:
             class="settlement_sheet_block_group settlement_storage"
             ng-controller="storageController"
         >
-            <h2 class="clickable" ng-click="showHide('editStorage')">Storage</h2>
-            <p class="clickable" ng-click="showHide('editStorage')">Gear & Resources may be stored without limit. <b>Tap or click here to edit settlement storage.</b></p>
 
             <div id="editStorage" class="hidden modal storage_modal">
-                    <div
-                        class="storage_modal_storage_type"
-                        ng-repeat="s_type in settlementStorage"
-                    >
+
+                <div
+                    class="storage_modal_storage_type"
+                    ng-repeat="s_type in settlementStorage"
+                >
                         <h3>{{s_type.name}} Storage</h3>
                         <div
                             ng-repeat="loc in s_type.locations"
@@ -5077,6 +5067,10 @@ class settlement:
             <div id="storageSpinner" class="hidden storage_loading_spinner">
                 <img src="/media/loading_io.gif"><br/>
                 Loading storage...
+            </div>
+            <div id="storageLauncher" class="visible">
+                <h2 class="clickable" ng-click="showHide('editStorage')">Storage</h2>
+                <p class="clickable" ng-click="showHide('editStorage')">Gear & Resources may be stored without limit. <b>Tap or click here to edit settlement storage.</b></p>
             </div>
             <div
                 class="settlement_storage_type_container"

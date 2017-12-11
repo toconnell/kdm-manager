@@ -62,12 +62,6 @@ app.controller('monsterVolumesController', function($scope) {
 });
 
 app.controller("storageController", function($scope) {
-    $scope.showSpinner = function(){
-        $scope.showHide('storageSpinner');
-    };
-    $scope.hideSpinner = function(){
-        $scope.showHide('storageSpinner');
-    };
     $scope.toggleFlippers = function(h) {
         // flips the expand/collapse arrow arround
         if (h.flippers === true) {
@@ -94,11 +88,16 @@ app.controller("storageController", function($scope) {
     };
 
     $scope.loadStorage = function() {
-        $scope.showSpinner();
+        $scope.showHide('storageSpinner');
+        $scope.showHide('storageLauncher'); 
         $scope.settlementStorage = undefined;
         var res = $scope.getJSONfromAPI('settlement','get_storage', 'loadStorage');
         res.then(
-            function(payload) { $scope.settlementStorage = payload.data; $scope.hideSpinner(); },
+            function(payload) {
+                $scope.settlementStorage = payload.data;
+                $scope.showHide('storageSpinner'); 
+                $scope.showHide('storageLauncher'); 
+            },
             function(errorPayload) {console.log("Could not retrieve settlement storage from API!" + errorPayload);}
         );
     };

@@ -9,7 +9,6 @@ import utils
 class Assets(Models.AssetCollection):
 
     def __init__(self, *args, **kwargs):
-        self.type="storage_location"
         self.root_module = storage
         Models.AssetCollection.__init__(self,  *args, **kwargs)
 
@@ -30,6 +29,9 @@ class Storage(Models.GameAsset):
             A = gear.Assets()
         elif self.sub_type == 'resources':
             A = resources.Assets()
+        else:
+            self.logger.error(self.asset_dict)
+            raise Exception("'%s' is not a valid 'sub_type' for storage asset: %s" % (self.sub_type, self))
         return A.get_assets_by_sub_type(self.handle)
 
 

@@ -9,6 +9,5 @@ import utils
 class Assets(Models.AssetCollection):
 
     def __init__(self, *args, **kwargs):
-        self.assets = cursed_items.items
-        self.type = "cursed_item"
+        self.root_module = cursed_items
         Models.AssetCollection.__init__(self,  *args, **kwargs)

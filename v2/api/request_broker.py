@@ -7,7 +7,7 @@ import json
 import panel
 import utils
 
-from models import survivors, settlements, users, monsters, campaigns, expansions, gear
+from models import abilities_and_impairments, survivors, settlements, users, monsters, campaigns, disorders, expansions, fighting_arts, gear, resources, storage
 from Models import AssetLoadError
 
 logger = utils.get_logger(log_name="server")
@@ -97,11 +97,19 @@ def get_game_asset(collection):
     """
 
     supported_endpoints = {
-        'monster': monsters,
-        'gear': gear,
+        'abilities_and_impairments': abilities_and_impairments,
         'campaign': campaigns,
+        'disorder': disorders,
         'expansion': expansions,
+        'fighting_art': fighting_arts,
+        'gear': gear,
+        'monster': monsters,
+        'resource': resources,
+        'storage': storage,
     }
+
+    if collection not in supported_endpoints.keys():
+        return Response(response="/game_asset/%s is not a supported game asset lookup endpoint!" % collection, status=404)
 
     A = supported_endpoints[collection].Assets()
 

@@ -14,7 +14,7 @@ from assets import monsters as monster_assets
 #   default and baseline ("standard") campaign assets
 #
 
-default_timeline = [
+_default_timeline = [
     {"year": 0, },
     {"year": 1,
         "story_event":          [{"handle": "core_returning_survivors"}],
@@ -49,7 +49,7 @@ default_timeline = [
 ]
 
 
-default_survivor_attribute_milestones = {
+_default_survivor_attribute_milestones = {
     "hunt_xp": [
         {"values": [2,6,10,15], "handle": "core_age", 'event': 'story_events'},
         {'values': [16], 'handle': 'retired', 'event': 'ui_prompts'},
@@ -70,7 +70,7 @@ default_survivor_attribute_milestones = {
 }
 
 
-milestone_story_events = {
+_milestone_story_events = {
     "first_child": {
         "sort_order": 0,
         "name": "First child is born",
@@ -121,7 +121,7 @@ milestone_story_events = {
 }
 
 
-campaign_definitions = {
+core_campaign = {
     "people_of_the_lantern": {
         "default": True,
         'saviors': True,
@@ -140,45 +140,15 @@ campaign_definitions = {
         "special_showdowns": ['kings_man'],
         "nemesis_monsters": ["butcher","kings_man","the_hand",'watcher'],
         'final_boss': 'gold_smoke_knight',
-        "survivor_attribute_milestones": default_survivor_attribute_milestones,
+        "survivor_attribute_milestones": _default_survivor_attribute_milestones,
         "quarries": monster_assets.base_game_quarries,
-        "timeline": default_timeline,
+        "timeline": _default_timeline,
         "settlement_sheet_init": {
             "quarries": ["white_lion"],
             "nemesis_monsters": ["butcher"],
             "nemesis_encounters": {'butcher': []}
         },
     },
-
-    "the_green_knight": {
-        "name": "The Green Knight",
-        'saviors': True,
-        "subtitle": "A campaign following the 'People of the Lantern' timeline that includes all content required by the Green Knight Armor expansion.",
-        "survival_actions": ["dodge","encourage","dash","surge",'endure'],
-        "always_available": {
-            "location": ["Lantern Hoard"],
-            "innovation": ["Language"],
-        },
-        "forbidden": {
-            "location": ["the_sun","throne"],
-            "innovation": ["Sun Language","Dragon Speech","Radiating Orb"],
-        },
-        "principles": ["new_life","death","society","conviction"],
-        "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
-        "nemesis_monsters": ["butcher","kings_man","the_hand","watcher"],
-        "special_showdowns": ["kings_man"],
-        'final_boss': 'gold_smoke_knight',
-        "survivor_attribute_milestones": default_survivor_attribute_milestones,
-        "quarries": monster_assets.base_game_quarries,
-        "timeline": default_timeline,
-        "settlement_sheet_init": {
-            "quarries": ["white_lion"],
-            "nemesis_monsters": ["butcher"],
-            "nemesis_encounters": {'butcher': []},
-            "expansions": ["green_knight_armor", "dung_beetle_knight","flower_knight","lion_knight","gorm"],
-        },
-    },
-
     "people_of_the_skull": {
         "name": "People of the Skull",
         'saviors': True,
@@ -208,13 +178,45 @@ campaign_definitions = {
         "nemesis_monsters": ["butcher","kings_man","the_hand"],
         "special_showdowns": ["kings_man"],
         'final_boss': 'gold_smoke_knight',
-        "survivor_attribute_milestones": default_survivor_attribute_milestones,
+        "survivor_attribute_milestones": _default_survivor_attribute_milestones,
         "quarries": monster_assets.base_game_quarries,
-        "timeline": default_timeline,
+        "timeline": _default_timeline,
         "settlement_sheet_init": {
             "quarries": ["white_lion"],
             "nemesis_monsters": ["butcher"],
             "nemesis_encounters": {'butcher': []},
+        },
+    },
+
+}
+
+expansion_campaign = {
+    "the_green_knight": {
+        "name": "The Green Knight",
+        'saviors': True,
+        "subtitle": "A campaign following the 'People of the Lantern' timeline that includes all content required by the Green Knight Armor expansion.",
+        "survival_actions": ["dodge","encourage","dash","surge",'endure'],
+        "always_available": {
+            "location": ["Lantern Hoard"],
+            "innovation": ["Language"],
+        },
+        "forbidden": {
+            "location": ["the_sun","throne"],
+            "innovation": ["Sun Language","Dragon Speech","Radiating Orb"],
+        },
+        "principles": ["new_life","death","society","conviction"],
+        "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
+        "nemesis_monsters": ["butcher","kings_man","the_hand","watcher"],
+        "special_showdowns": ["kings_man"],
+        'final_boss': 'gold_smoke_knight',
+        "survivor_attribute_milestones": _default_survivor_attribute_milestones,
+        "quarries": monster_assets.base_game_quarries,
+        "timeline": _default_timeline,
+        "settlement_sheet_init": {
+            "quarries": ["white_lion"],
+            "nemesis_monsters": ["butcher"],
+            "nemesis_encounters": {'butcher': []},
+            "expansions": ["green_knight_armor", "dung_beetle_knight","flower_knight","lion_knight","gorm"],
         },
     },
 
@@ -238,11 +240,11 @@ campaign_definitions = {
             "affinities": {"red": -2, "green": 1,},
             "Luck": 1,
         },
-        "timeline": default_timeline,
+        "timeline": _default_timeline,
         "nemesis_monsters": ["butcher","kings_man","the_hand"],
         "special_showdowns": ["kings_man"],
         'final_boss': 'gold_smoke_knight',
-        "survivor_attribute_milestones": default_survivor_attribute_milestones,
+        "survivor_attribute_milestones": _default_survivor_attribute_milestones,
         "quarries": monster_assets.base_game_quarries,
         "settlement_sheet_init": {
             "storage": ["sleeping_virus_flower"],
@@ -297,7 +299,7 @@ campaign_definitions = {
         ],
         "final_boss": "ancient_sunstalker",
         "nemesis_monsters": ["butcher","kings_man","the_hand"],
-        "survivor_attribute_milestones": default_survivor_attribute_milestones,
+        "survivor_attribute_milestones": _default_survivor_attribute_milestones,
         "quarries": monster_assets.base_game_quarries,
         "settlement_sheet_init": {
             "expansions": ["sunstalker"],

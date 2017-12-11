@@ -70,21 +70,30 @@ def favicon():
 #
 
 # asset lookups
+@application.route("/game_asset/<asset_collection>", methods=["GET","POST","OPTIONS"])
+@utils.crossdomain(origin=['*'],headers=['Authorization','Content-Type','Access-Control-Allow-Origin'])
+def lookup_asset(asset_collection):
+    """ Looks up game asset collection assets. Or, if you GET it, dumps the whole
+    asset collection object """
+    return request_broker.get_game_asset(asset_collection)
+
+# deprecation warnings: maintain until 2018-03-10
 @application.route("/monster", methods=["GET","POST"])
 def lookup_monster():
-    return request_broker.get_game_asset("monster")
+    return Response(response="This endpoint is deprecated! Use /game_asset/monster instead.", status=410)
 
 @application.route("/campaign", methods=["GET","POST"])
 def lookup_campaign():
-    return request_broker.get_game_asset("campaign")
+    return Response(response="This endpoint is deprecated! Use /game_asset/campaign instead.", status=410)
 
 @application.route("/expansion", methods=["GET","POST"])
 def lookup_expansion():
-    return request_broker.get_game_asset("expansion")
+    return Response(response="This endpoint is deprecated! Use /game_asset/expansion instead.", status=410)
 
 @application.route("/gear", methods=["GET","POST"])
 def lookup_gear():
-    return request_broker.get_game_asset("gear")
+    return Response(response="This endpoint is deprecated! Use /game_asset/gear instead.", status=410)
+
 
 # world
 @application.route("/world")

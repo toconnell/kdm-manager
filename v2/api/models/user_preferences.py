@@ -12,7 +12,6 @@ import utils
 class Assets(Models.AssetCollection):
 
     def __init__(self, *args, **kwargs):
-        self.type = 'user_preference'
         self.root_module = user_preferences
         Models.AssetCollection.__init__(self,  *args, **kwargs)
 

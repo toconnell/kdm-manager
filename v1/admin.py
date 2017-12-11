@@ -321,21 +321,6 @@ def initialize():
         mdb[collection].remove()
 
 
-def toggle_admin_status(user_id):
-    """ Makes a user an admin or, if they're already an admin, strips them of
-    the attribute. """
-    u_id = ObjectId(user_id)
-    user = mdb.users.find_one({"_id": u_id})
-    login = user["login"]
-    if "admin" in user.keys():
-        del user["admin"]
-        print("Admin permission removed from '%s'." % login)
-    else:
-        user["admin"] = datetime.now()
-        print("Admin permission added for '%s'." % login)
-    mdb.users.save(user)
-
-
 def update_user_password(user_id, password):
     u_id = ObjectId(user_id)
     User = assets.User(user_id=u_id)
@@ -679,8 +664,9 @@ if __name__ == "__main__":
     parser.add_option("--initialize", dest="initialize", help="Burn it down.", action="store_true", default=False)
     (options, args) = parser.parse_args()
 
-#    if args == []:
-#        motd()
+    if options.toggle_admin:
+        print("\n  This is no longer supported via the legacy webapp admin tools! Please use API controls.\n")
+        sys.exit(1)
 
     if options.tail_settlement:
         tail(options.tail_settlement)
@@ -700,9 +686,6 @@ if __name__ == "__main__":
 
     if options.user_id and options.remove_attrib:
         update_user(options.user_id, remove_attrib=options.remove_attrib)
-
-    if options.toggle_admin:
-        toggle_admin_status(options.toggle_admin)
 
     if options.initialize:
         print(" hostname: %s" % socket.gethostname())

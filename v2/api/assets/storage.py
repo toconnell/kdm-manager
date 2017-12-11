@@ -1,7 +1,7 @@
 gear = {
 
  # core
- 'barber_surgeon': {'bgcolor': 'E55451', 'color': 'FFF', 'name': 'Barber Surgeon',},
+ 'barber_surgeon': {'bgcolor': 'E55451', 'color': 'FFF', 'name': 'Barber Surgeon'},
  'blacksmith': {'bgcolor': '625D5D', 'color': 'FFF','name': 'Blacksmith'},
  'bone_smith': {'bgcolor': 'e3dac9', 'name': 'Bone Smith'},
  'catarium': {'bgcolor': 'BA8B02', 'consequences': [], 'name': 'Catarium'},

@@ -2,7 +2,7 @@ server {
     ### no-www redirect
     listen 80;
     server_name www.thewatcher.io;
-    rewrite  ^  http://thewatcher.io$request_uri? permanent;
+    rewrite  ^  $scheme://thewatcher.io$request_uri? permanent;
 }
 
 server {

@@ -139,6 +139,7 @@ location = {
     #
 
     "lantern_hoard": {
+        "type": "gear",
         "name": "Lantern Hoard",
         "consequences": [
             "bone_smith",
@@ -158,6 +159,7 @@ location = {
         ],
     },
     "exhausted_lantern_hoard": {
+        "type": "gear",
         "name": "Exhausted Lantern Hoard",
         "color": "9F99A5",
         "special_rules": [
@@ -177,24 +179,28 @@ location = {
     },
 
     "bone_smith": {
+        "type": "gear",
         "name": "Bone Smith",
         "color": "e3dac9",
         "consequences": ["Weapon Crafter"],
         "endeavors": ['bone_smith_build_weapon_crafter'],
     },
     "weapon_crafter": {
+        "type": "gear",
         "name": "Weapon Crafter",
         "color": "E1D4C0",
         "endeavors": ['weapon_crafter_innovate_scrap_smelting','weapon_crafter_scrap_scavenge'],
     },
 
     "skinnery": {
+        "type": "gear",
         "name": "Skinnery",
         "color": "FFCBA4",
         "consequences": ["leather_worker"],
         "endeavors": ['skinnery_build_leather_worker',],
     },
     "leather_worker": {
+        "type": "gear",
         "name": "Leather Worker",
         "color": "7F462C",
         "font_color": "FFF",
@@ -202,6 +208,7 @@ location = {
     },
 
     "organ_grinder": {
+        "type": "gear",
         "name": "Organ Grinder",
         "color": "B58AA5",
         "consequences": ["Stone Circle"],
@@ -209,6 +216,7 @@ location = {
     },
 
     "stone_circle": {
+        "type": "gear",
         "name": "Stone Circle",
         "color": "835C3B",
         "font_color": "FFF",
@@ -216,21 +224,25 @@ location = {
     },
 
     "plumery": {
+        "type": "gear",
         "name": "Plumery",
         "color": "FF5EAA",
     },
     "catarium": {
+        "type": "gear",
         "name": "Catarium",
         "color": "BA8B02",
     },
 
     "blacksmith": {
+        "type": "gear",
         "name": "Blacksmith",
         "requires": ("innovations", "Scrap Smelting"),
         "color": "625D5D",
         "font_color": "FFF",
     },
     "barber_surgeon": {
+        "type": "gear",
         "name": "Barber Surgeon",
         "requires": ("innovations", "Pottery"),
         "color": "E55451",
@@ -238,6 +250,7 @@ location = {
         'endeavors': ['barber_surgeon_trepanning'],
     },
     "mask_maker": {
+        "type": "gear",
         "name": "Mask Maker",
         "color": "FFD700",
         'settlement_buff': 'A <b>departing survivor</b> with a mask in their gear grid may lead their hunting party to a legendary monster. Rules for these monsters are found on the Legendary Monster story event.',
@@ -249,6 +262,7 @@ location = {
     # DBK
 
     "wet_resin_crafter": {
+        "type": "gear",
         "name": "Wet Resin Crafter",
         "expansion": "dung_beetle_knight",
         "color": "C9CE62",
@@ -260,6 +274,7 @@ location = {
     #
 
     "gormchymist": {
+        "type": "gear",
         "name": "Gormchymist",
         "expansion": "gorm",
         "color": "8C001A",
@@ -267,6 +282,7 @@ location = {
         "endeavors": ['gormchymist_special_innovate'],
     },
     "gormery": {
+        "type": "gear",
         "name": "Gormery",
         "expansion": "gorm",
         "color": "600313",
@@ -279,6 +295,7 @@ location = {
     #
 
     "the_sun": {
+        "type": "gear",
         "name": "The Sun",
         "expansion": "sunstalker",
         "consequences": [
@@ -308,6 +325,7 @@ location = {
     },
 
     "sacred_pool": {
+        "type": "gear",
         "name": "Sacred Pool",
         "expansion": "sunstalker",
         "levels": 3,
@@ -316,6 +334,7 @@ location = {
     },
 
     "skyreef_sanctuary": {
+        "type": "gear",
         "name": "Skyreef Sanctuary",
         "expansion": "sunstalker",
         "color": "FFF541",
@@ -328,12 +347,14 @@ location = {
     #
 
     "dragon_armory": {
+        "type": "gear",
         "name": "Dragon Armory",
         "expansion": "dragon_king",
         "color": "6A1B9A",
         "font_color": "FFF",
     },
     "throne": {
+        "type": "gear",
         "name": "Throne",
         "expansion": "dragon_king",
         "consequences": ["Bone Smith", "Skinnery", "Organ Grinder", "Catarium", "Plumery", "Mask Maker"],
@@ -344,6 +365,7 @@ location = {
     # Spidicules
 
     "silk_mill": {
+        "type": "gear",
         "name": "Silk Mill",
         "expansion": "spidicules",
         "color": "C0CA33",

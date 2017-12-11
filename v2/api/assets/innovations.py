@@ -259,7 +259,7 @@ core = {
         "principle": "death",
         "survival_limit": 1,
 #        "settlement_buff": "Whenever a survivor dies, draw one basic resource and add it to the settlement storage.",
-        "settlement_buff": "Whenever a suurvivor dies, draw 1 basic resource and add it to the settlement storage. Do not gain a resource if a survivor is lost, ceases to exist, or is exiled.",
+        "settlement_buff": "Whenever a survivor dies, draw 1 basic resource and add it to the settlement storage. Do not gain a resource if a survivor is lost, ceases to exist, or is exiled.",
     },
     "protect_the_young": {
         "name": "Protect the Young",

@@ -395,6 +395,18 @@ class User(Models.UserAsset):
         self.save()
 
 
+    def set_latest_action(self, activity_string=None, ua_string=None):
+        """ Updates the user's 'latest_activity' string and saves the user back
+        to the MDB. Supercedes the BS version of this that went on in the legacy
+        webapp (i.e. between session.py and the assets.User.mark_usage() method).
+        """
+
+        self.user['latest_action'] = activity_string
+        self.user['latest_activity'] = datetime.now()
+        self.user['latest_user_agent'] = ua_string
+        self.save()
+
+
     def set_patron_attributes(self, level=None, beta=None):
         """ Updates the user's self.user['patron'] dictionary: sets the level
         (int) and the beta flag (bool)."""
@@ -759,6 +771,7 @@ class User(Models.UserAsset):
             return output
 
         return survivors
+
 
 
     #

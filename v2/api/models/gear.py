@@ -8,7 +8,6 @@ import utils
 class Assets(Models.AssetCollection):
 
     def __init__(self, *args, **kwargs):
-        self.type = 'gear'
         self.root_module = gear
         Models.AssetCollection.__init__(self,  *args, **kwargs)
 

@@ -13,10 +13,8 @@ class Assets(Models.AssetCollection):
         release date, so when we initialize an asset dict from expansions.py, we
         manually add a "meta" style key to indicate their release date. """
 
-        self.AssetClass = Campaign
-        self.assets = campaigns.campaign_definitions
-        self.type = "campaign"
-
+        self.type_override = "campaign"
+        self.root_module = campaigns
         Models.AssetCollection.__init__(self,  *args, **kwargs)
 
 

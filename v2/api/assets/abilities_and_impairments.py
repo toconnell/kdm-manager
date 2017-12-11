@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 
-abilities_and_impairments = {
+ability = {
     'ageless': {
         'desc': 'You may hunt if you are retired. When you gain Hunt XP, you may decide not to gain it.',
         'name': 'Ageless',
@@ -141,6 +141,7 @@ abilities_and_impairments = {
     "iron_will": {
         "name": "Iron Will",
         "desc": "You cannot be knocked down. Reduce all knockback you suffer to <b>knockback 1</b>.",
+        "type": "ability",
     },
     "kings_curse": {
         'desc': 'At the Aftermath, <font class="kdm_font">g</font> <b>King\'s Curse</b>.',
@@ -728,6 +729,7 @@ expansion_ai = {
         'max': 1,
         'name': 'Twelve Fingers',
         'type': 'ability',
+        'cannot_activate_two_handed_weapons': True,
     },
     'way_of_the_rust': {
         'desc': 'Your bleeding tokens are also +1 evasion tokens.',

@@ -1,14 +1,20 @@
 #!/usr/bin/python2.7
 
+import base64
 from bson import json_util
 from bson.objectid import ObjectId
 from copy import copy
+from cStringIO import StringIO
 from datetime import datetime
 from flask import request, Response
+import gridfs
+import imghdr
 import json
+from PIL import Image
 import random
 
 import Models
+import settings
 import utils
 
 from assets import survivor_sheet_options, survivors
@@ -60,8 +66,8 @@ class Assets(Models.AssetCollection):
     to be fleshed out a bit more. """
 
     def __init__(self, *args, **kwargs):
+        self.type_override = "survivors"
         self.assets = survivors.beta_challenge_scenarios
-        self.type = "survivor"
         Models.AssetCollection.__init__(self,  *args, **kwargs)
 
     def get_specials(self, return_type=dict):
@@ -170,7 +176,7 @@ class Survivor(Models.UserAsset):
         else:
             attribs = self.new_asset_attribs
 
-        self.logger.debug(attribs)
+#        self.logger.debug(attribs.keys())
 
         #
         #   Can't create a survivor without initializing a settlement! do
@@ -282,13 +288,18 @@ class Survivor(Models.UserAsset):
         if self.survivor['sex'] == 'F':
             sex_pronoun = 'her'
 
-        # 1.e now save, get an OID so we can start logging and
+        # 1.e check for an avatar and add it BEFORE we save
+        if 'survivor_avatar' in attribs.keys():
+            self.set_avatar(attribs['survivor_avatar'], log_event=False, save=False)
+
+
+        # 2 now save, get an OID so we can start logging and
         #   start calling object/class methods
 
         self._id = utils.mdb.survivors.insert(self.survivor)
         self.load()
 
-        # 1.f set the name
+        # 2.a set the name
         s_name = self.survivor['name']
         if s_name == "Anonymous" and request.User.get_preference("random_names_for_unnamed_assets"):
             s_name = self.Names.get_random_survivor_name(self.survivor["sex"])
@@ -299,10 +310,10 @@ class Survivor(Models.UserAsset):
 
 
         #
-        #   2. parents and newborn status/operations
+        #   3. parents and newborn status/operations
         #
 
-        # 2.a check for incoming parents
+        # 3.a check for incoming parents
         parent_names = []
         for parent in ["father","mother"]:
             if parent in attribs.keys() and attribs[parent] is not None:
@@ -321,7 +332,7 @@ class Survivor(Models.UserAsset):
                         self.add_game_asset('abilities_and_impairments', ai)
 
 
-        # 2.b set newborn status; create parent_string var (for logging)
+        # 3.b set newborn status; create parent_string var (for logging)
         survivor_is_a_newborn = False
         if parent_names != []:
             survivor_is_a_newborn = True
@@ -332,22 +343,18 @@ class Survivor(Models.UserAsset):
                 genitive_appellation = "Daughter"
 
 
-        # 2.c log the birth/joining
+        # 3.c log the birth/joining
         if survivor_is_a_newborn:
             self.log_event("%s born to %s!" % (self.pretty_name(), parent_string), event_type="survivor_birth")
         else:
             self.log_event('%s joined the settlement!' % (self.pretty_name()), event_type="survivor_join")
 
-        # 2.d increment survivial if we're named
+        # 3.d increment survivial if we're named
         if self.survivor["name"] != "Anonymous" and self.survivor["survival"] == 0:
             self.log_event("Automatically added 1 survival to %s" % self.pretty_name())
             self.survivor["survival"] += 1
 
-        # 3.a avatar - LEGACY CODE BELOW
-#        if params is not None and "survivor_avatar" in params and params["survivor_avatar"].filename != "":
-#        self.update_avatar(params["survivor_avatar"]
-
-        # 3.b settlement buffs - move this to a separate function
+        # 4.a settlement buffs - move this to a separate function
         if request.User.get_preference("apply_new_survivor_buffs"):
 
             def apply_buff_list(l):
@@ -794,7 +801,7 @@ class Survivor(Models.UserAsset):
         #
 
         # special handling for certain game asset types
-        if asset_dict.get("type", None) == "weapon_mastery":
+        if asset_dict.get("sub_type", None) == "weapon_mastery":
             self.log_event("%s has become a %s master!" % (self.pretty_name(), asset_dict["weapon_name"]), event_type="survivor_mastery")
             if asset_dict.get("add_to_innovations", True):
                 self.Settlement.add_innovation(asset_dict["handle"])
@@ -868,6 +875,94 @@ class Survivor(Models.UserAsset):
 
         # exit preprocessing with a valid class name and asset dictionary
         return asset_class, asset_dict
+
+
+    def set_avatar(self, avatar=None, log_event=True, save=True):
+        """ Expects a request context. This port of a legacy app method adds an
+        incoming avatar to the GridFS and sets the self.survivor['avatar'] key
+        to the OID of the image. Also does the resizing, etc.
+
+        Avatar rules!
+            - if you're calling this directly, 'avatar' must be a base 64 encoded
+                object.
+            - otherwise, if we're reading a request, the 'survivor_avatar' must
+                be a base 64 encoded string.
+            - we're going to validate them here as well, so they better be a real
+                image by the time you call this method!
+            - avatars are going to be auto-resized by this method
+
+        """
+
+        # initialize from request, if we're doing that
+        err_msg = 'Avatars must be base 64 encoded string representations of images!'
+        if avatar is None:
+            self.check_request_params(['survivor_avatar'])
+            avatar = self.params['survivor_avatar']
+            if len(avatar) % 4:
+                self.logger.debug('padding!')
+                avatar += '=' * (4 - len(avatar) % 4)
+            try:
+                avatar = avatar.decode('base64')
+            except Exception as e:
+                self.logger.exception(e)
+                raise utils.InvalidUsage(err_msg)
+        else:
+            try:
+                avatar = avatar.decode('base64')
+            except Exception as e:
+                self.logger.exception(e)
+                raise utils.InvalidUsage(err_msg)
+
+        # now set the type. this validates that we've got an actual image encoded
+        # in the incoming string/object
+        avatar_type = imghdr.what(None, avatar)
+
+        # since we've now got what we THINK is a valid image, use PIL to start
+        # working with it; initialize, resize and save to PNG
+
+        processed_image = StringIO()
+        try:
+            im = Image.open(StringIO(avatar))
+        except Exception as e:
+            msg = "PIL could not initialize an Image object from incoming image string!"
+            self.logger.error(msg)
+            self.logger.exception(e)
+            raise utils.InvalidUsage(msg)
+
+        resize_tuple = tuple([int(n) for n in settings.get("api","avatar_size").split(",")])
+        im.thumbnail(resize_tuple, Image.ANTIALIAS)
+        im.save(processed_image, format="PNG")
+
+        # now that we're sure we've got a valid avatar to work with, spin up
+        # GridFS; remove a previous one (if necessary) and save
+
+        fs = gridfs.GridFS(utils.mdb)
+
+        # check for/remove previous
+        if 'avatar' in self.survivor.keys():
+            fs.delete(self.survivor['avatar'])
+            self.logger.debug("%s Removed an avatar image '%s' from GridFS." % (request.User.login, self.survivor['avatar']))
+
+        # save new
+        avatar_id = fs.put(
+            processed_image.getvalue(),
+            content_type=avatar_type,
+            created_by=request.User._id,
+            created_on=datetime.now(),
+        )
+
+        # update the survivor, log and save
+        self.survivor["avatar"] = ObjectId(avatar_id)
+        if log_event:
+            self.log_event(
+                '%s set a new avatar for %s.' % (request.User.login, self.pretty_name()),
+                event_type="avatar_update",
+            )
+        if save:
+            self.save()
+
+        return Response(response=json.dumps({'avatar_oid': avatar_id}, default=json_util.default), status=200)
+
 
 
     def set_color_scheme(self):
@@ -1361,7 +1456,11 @@ class Survivor(Models.UserAsset):
                 self.survivor["died_in"] = self.Settlement.get_current_ly()
 
             if 'cause_of_death' in self.params:
-                self.survivor['cause_of_death'] = str(self.params["cause_of_death"])
+                try:
+                    self.survivor['cause_of_death'] = self.params["cause_of_death"].encode('ascii','ignore')
+                except Exception as e:
+                    self.logger.exception(e)
+                    raise utils.InvalidUsage("Could not set custom type of death! Exception was: %s" % e)
             else:
                 self.survivor['cause_of_death'] = "Unspecified"
 
@@ -2058,9 +2157,12 @@ class Survivor(Models.UserAsset):
             available to the survivor. """
             e_dict = E.get_asset(e_handle)
             available = True
-            if e_dict.get('requires_returning_survivor',False):
-                if self.get_current_ly() not in self.survivor.get('returning_survivor', []):
+            if e_dict.get('requires_returning_survivor', False):
+                r_years = self.survivor.get('returning_survivor', [])
+                if self.get_current_ly() not in r_years and self.get_current_ly() - 1 not in r_years:
+#                    self.logger.warn("%s not in %s" % (self.get_current_ly(), self.survivor.get('returning_survivor', [])))
                     available = False
+            self.logger.debug("returning %s" % available)
             return available
 
 
@@ -3005,6 +3107,8 @@ class Survivor(Models.UserAsset):
 
 
         # manager-only / non-game methods
+        elif action == "set_avatar":
+            return self.set_avatar()
         elif action == "set_color_scheme":
             self.set_color_scheme()
         elif action == "toggle_sotf_reroll":

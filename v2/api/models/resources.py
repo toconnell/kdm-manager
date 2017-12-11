@@ -8,7 +8,6 @@ import utils
 class Assets(Models.AssetCollection):
 
     def __init__(self, *args, **kwargs):
-        self.type = 'resources'
         self.root_module = resources
         Models.AssetCollection.__init__(self,  *args, **kwargs)
 

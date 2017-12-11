@@ -178,10 +178,54 @@
                 <b>POST</b> a query to one and retireve data about a single asset if you
                 know its name or handle -OR- you can <b>GET</b> the route to get a list
                 of all assets.</p>
+                <p> The following lookups are currently supported by the public API:</p>
+                <ul>
+                    <li><a href="/game_asset/abilities_and_impairments">
+                        /game_asset/abilities_and_impairments</a>
+                    </li>
+                    <li><a href="/game_asset/campaign">
+                        /game_asset/campaign</a> (campaign definitions)
+                    </li>
+                    <li><a href="/game_asset/disorder">
+                        /game_asset/disorder</a>
+                    </li>
+                    <li><a href="/game_asset/expansion">
+                        /game_asset/expansion</a>
+                    </li>
+                    <li><a href="/game_asset/fighting_art">
+                        /game_asset/fighting_art</a>
+                    </li>
+                    <li><a href="/game_asset/gear">
+                        /game_asset/gear</a>
+                    </li>
+                    <li><a href="/game_asset/monster">
+                        /game_asset/monster</a>
+                    </li>
+                    <li><a href="/game_asset/resource">
+                        /game_asset/resource</a>
+                    </li>
+                    <li><a href="/game_asset/storage">
+                        /game_asset/storage</a> (settlement storage location types)
+                    </li>
+                </ul>
             </th>
         </tr>
         <tr class="ul">
             <td> <a href="/campaign">/campaign</a> </td>
+            <td> <b>GET</b>, <b>POST</b> </td>
+            <td>
+                <p>This endpoint is deprecated. Use <code>/game_asset/campaign</code> instead.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> <a href="/expansion">/expansion</a> </td>
+            <td> <b>GET</b>, <b>POST</b> </td>
+            <td>
+                <p>This endpoint is deprecated. Use <code>/game_asset/expansion</code> instead.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> <a href="/game_asset/campaign">/game_asset/campaign</a> </td>
             <td> <b>GET</b>, <b>POST</b> </td>
             <td>
                 <p>Accepts a <code>name</code> or <code>handle</code> parameter included in the body
@@ -206,40 +250,7 @@
             </td>
         </tr>
         <tr class="ul">
-            <td> <a href="/gear">/gear</a> </td>
-            <td> <b>GET</b>, <b>POST</b> </td>
-            <td>
-                <p><b>POST</b> a <code>name</code> or <code>handle</code> to this endpoint
-                to do gear lookups:</p>
-                <code>{handle: "lantern_halberd"}</code>
-                <p>...gets you back a JSON representation of the asset:</p>
-                <pre><code>{
-    "handle": "lantern_halberd",
-    "name": "Lantern Halberd",
-    "rules": [
-        "Reach 2",
-        "Irreplaceable",
-        "Unique"
-    ],
-    "type_pretty": "Gear",
-    "keywords": [
-        "weapon",
-        "melee",
-        "two-handed",
-        "spear",
-        "other"
-    ],
-    "type": "gear",
-    "sub_type": "rare_gear",
-    "desc": "After attacking, if standing, you may move up to 2 spaces directly away from the monster."
-}</code></pre>
-                <p>This route also supports <code>name</code> lookups, e.g. <code>
-                {name: "Vespertine Bow"}</code>, etc.</p>
-                <p><b>GET</b> this endpoint to dump all gear.</p>
-            </td>
-        </tr>
-        <tr class="ul">
-            <td> <a href="/expansion">/expansion</a> </td>
+            <td> <a href="/game_asset/expansion">/game_asset/expansion</a> </td>
             <td> <b>GET</b>, <b>POST</b> </td>
             <td>
                 <p><b>POST</b> a <code>name</code> or <code>handle</code> to this endpoint
@@ -291,12 +302,45 @@
 }</code></pre>
                 <p>This route also supports lookups via <code>name</code> values,
                 e.g. <code>{name: "Flower Knight"}</code> or similar.</p>
-                <p>If you <code><b>GET</b></code> this route, it will return the definitions
+                <p>If you <b>GET</b> this route, it will return the definitions
                 for all supported expansion content as a dictionary/hash.</p> 
             </td>
         </tr>
         <tr class="ul">
-            <td> <a href="/monster">/monster</a> </td>
+            <td> <a href="/game_asset/gear">/game_asset/gear</a> </td>
+            <td> <b>GET</b>, <b>POST</b> </td>
+            <td>
+                <p><b>POST</b> a <code>name</code> or <code>handle</code> to this endpoint
+                to do gear lookups:</p>
+                <code>{handle: "lantern_halberd"}</code>
+                <p>...gets you back a JSON representation of the asset:</p>
+                <pre><code>{
+    "handle": "lantern_halberd",
+    "name": "Lantern Halberd",
+    "rules": [
+        "Reach 2",
+        "Irreplaceable",
+        "Unique"
+    ],
+    "type_pretty": "Gear",
+    "keywords": [
+        "weapon",
+        "melee",
+        "two-handed",
+        "spear",
+        "other"
+    ],
+    "type": "gear",
+    "sub_type": "rare_gear",
+    "desc": "After attacking, if standing, you may move up to 2 spaces directly away from the monster."
+}</code></pre>
+                <p>This route also supports <code>name</code> lookups, e.g. <code>
+                {name: "Vespertine Bow"}</code>, etc.</p>
+                <p><b>GET</b> this endpoint to dump all gear.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> <a href="/game_asset/monster">/game_asset/monster</a> </td>
             <td> <b>GET</b>, <b>POST</b> </td>
             <td>
                 <p>
@@ -323,6 +367,20 @@
 }</code></pre>
                 <p>Like all lookup routes, if you <b>GET</b> this endpoint,
                 the API will return the definitions of all assets.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> <a href="/gear">/gear</a> </td>
+            <td> <b>GET</b>, <b>POST</b> </td>
+            <td>
+                <p>This endpoint is deprecated. Use <code>/game_asset/gear</code> instead.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> <a href="/monster">/monster</a> </td>
+            <td> <b>GET</b>, <b>POST</b> </td>
+            <td>
+                <p>This endpoint is deprecated. Use <code>/game_asset/monster</code> instead.</p>
             </td>
         </tr>
     </table>
@@ -2066,6 +2124,29 @@
             <td class="subsection_header" colspan="3"><b>Meta and admin controls:</b>
             manage survivor meta data, including adding/removing survivor notes,
             etc.</td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/set_avatar/&lt;survivor_id&gt; </td>
+            <td> <b>POST</b> </td>
+            <td> 
+                <p><b>POST</b> a base 64 encoded string to this endpoint to set a new
+                avatar for a survivor:</p>
+                <code>{survivor_avatar: "JJssaK1234bsakq8123..."}</code>
+                <p>If you're using JS to convert a file to a base 64 string,
+                consider this sample code, which may be helpful. In the sample,
+                <code>evt</code> is the browser event where the users adds the file:</p>
+                <pre><code>var reader = new FileReader();
+reader.readAsBinaryString(evt.target.files[0]);
+reader.onload = function () {
+    b64_string = btoa(reader.result);
+};</code></pre>
+                <p>...and <code>b64_string</code> is your final output, i.e. the
+                incoming file as a base 64 encoded string, that you want to <b>POST</b>
+                back to the API.</p>
+                <p><b>Important!</b> On a successful post, this route returns a
+                200 as well as some JSON containing the OID of the new avatar:</p>
+                <code>{avatar_oid: {$oid: "5a2ae8e34af5ca23a86c7247"}}</code>
+            </td>
         </tr>
         <tr class="ul">
             <td> /survivor/add_favorite/&lt;survivor_id&gt; </td>

@@ -8,8 +8,10 @@ import json
 from bson import json_util
 import inspect
 import operator
+import os
 import random
 import socket
+from user_agents import parse as ua_parse
 
 from flask import request, Response
 
@@ -61,7 +63,11 @@ class AssetCollection(object):
 
 
     def __repr__(self):
+        if not hasattr(self, 'type'):
+            self.logger.warn("AssetCollection does not have a 'type' attribute!")
+            return 'AssetCollection object (no type; %s assets)' % (len(self.assets))
         return "AssetCollection object '%s' (%s assets)" % (self.type, len(self.assets))
+
 
     def __init__(self):
         """ All Assets() models must base-class this guy to get access to the
@@ -92,21 +98,24 @@ class AssetCollection(object):
 
         self.logger = utils.get_logger()
 
+
         if hasattr(self, "root_module"):
+            self.type = os.path.splitext(self.root_module.__name__)[-1][1:]
             self.set_assets_from_root_module()
 
         # preserve 'raw' types as sub types
-        for a in self.assets.keys():
-            a_dict = self.assets[a]
-            if 'type' in a_dict.keys() and not 'sub_type' in a_dict.keys():
-                self.assets[a]['sub_type'] = self.assets[a]['type']
+#        for a in self.assets.keys():
+#            a_dict = self.assets[a]
+#            if 'type' in a_dict.keys() and not 'sub_type' in a_dict.keys():
+#                self.assets[a]['sub_type'] = self.assets[a]['type']
 
-        # type override
-        if hasattr(self, "type"):
+        # type override - be careful!
+        if hasattr(self, "type_override"):
+            self.type = self.type_override
             for a in self.assets.keys():
-                self.assets[a]["type"] = self.type
+                self.assets[a]["type"] = self.type_override
 
-        # set the default 'type_pretty' value (no caps)
+        # set the default 'type_pretty' value 
         self.set_pretty_types()
 
         for a in self.assets.keys():
@@ -131,27 +140,83 @@ class AssetCollection(object):
         a blank dict!
         """
 
+        # the 'type' of all assets is the name of their root module. Full stop.
+        # 'sub_type' is where we want to put any kind of 'type' info that we get
+        # from the asset itself.
+
         self.assets = {}
-        for k, v in self.root_module.__dict__.iteritems():
-            if isinstance(v, dict) and not k.startswith('_'):
-                for dict_key in v.keys():
-                    if v[dict_key].get("type", None) is None:
-                        v[dict_key]["type"] = k
-                    self.assets.update(v)
+
+        for module_dict, v in self.root_module.__dict__.iteritems():
+            if isinstance(v, dict) and not module_dict.startswith('_'): # get all dicts in the module
+                for dict_key in v.keys():                               # get all keys in each dict
+
+                    if 'sub_type' in v[dict_key].keys():
+                        raise Exception("%s already has a sub type!!!!" % v[dict_key])
+
+                    # do NOT modify the original/raw asset dictionary
+                    a_dict = v[dict_key].copy()
+
+                    # set sub_type from raw asset  'type', then set the base type
+                    a_dict['sub_type'] = v[dict_key].get("type", module_dict)
+                    a_dict["type"] = self.type
+
+                    # add it back to self.assets
+                    self.assets[dict_key] = a_dict
+
 
 
     def set_pretty_types(self, capitalize=True):
-        """ Iterates over self.assets; adds the "type_pretty" key to all assets. """
-        for a in self.assets.keys():
-            pretty_type = self.get_asset(a)["type"].replace("_"," ")
-            if capitalize:
-                pretty_type = pretty_type.title()
-            self.assets[a]["type_pretty"] = pretty_type
+        """ Iterates over self.assets; adds the "type_pretty" and 'sub_type_pretty'
+        to all assets in the AssetCollection.assets dict """
+
+        for h in self.assets.keys():
+            a_dict = self.get_asset(handle=h)
+
+            # flip a shit if we don't have a type
+            if a_dict.get('type', None) is None:
+                raise Exception("%s asset has no 'type' attribute! %s" % (self, a_dict))
+
+            # set the pretty types here
+            for type_attr in ['type', 'sub_type']:
+
+                type_value = a_dict.get(type_attr, None)
+
+                if type_value is None:
+                    pretty_type = None
+                else:
+                    pretty_type = type_value.replace("_"," ")
+                    if capitalize:
+                        pretty_type = pretty_type.title()
+
+                self.assets[h]["%s_pretty" % type_attr] = pretty_type
 
 
     #
     #   common get and lookup methods
     #
+
+    def get_asset(self, handle=None, backoff_to_name=False, raise_exception_if_not_found=True):
+        """ Return an asset dict based on a handle. Return None if the handle
+        cannot be retrieved. """
+
+        asset = copy(self.assets.get(handle, None))     # return a copy, so we don't modify the actual def
+
+        # implement backoff logic
+        if asset is None and backoff_to_name:
+            asset = copy(self.get_asset_from_name(handle))
+
+        # if the asset is still None, see if we want to raise an expception
+        if asset is None and raise_exception_if_not_found:
+            if not backoff_to_name:
+                msg = "The handle '%s' is not in %s and could not be retrieved! " % (handle, self.get_handles())
+                self.logger.error(msg)
+            elif backoff_to_name:
+                msg = "After backoff to name lookup, asset handle '%s' is not in %s and could not be retrieved." % (handle, self.get_names())
+                self.logger.error(msg)
+            raise utils.InvalidUsage(msg)
+
+        # finally, return the asset (or the NoneType)
+        return asset
 
     def get_assets_by_sub_type(self, sub_type=None):
         """ Returns a list of asset handles whose 'sub_type' attribute matches
@@ -166,8 +231,8 @@ class AssetCollection(object):
 
 
     def get_assets_by_type(self, asset_type=None):
-        """ Returns a list of asset handles whose 'sub_type' attribute matches
-        the 'sub_type' kwarg value."""
+        """ Returns a list of asset handles whose 'type' attribute matches
+        the 'asset_type' kwarg value."""
 
         handles = []
         for a_dict in self.get_dicts():
@@ -226,28 +291,6 @@ class AssetCollection(object):
             output.append(self.get_asset(h))
         return output
 
-    def get_asset(self, handle=None, backoff_to_name=False, raise_exception_if_not_found=True):
-        """ Return an asset dict based on a handle. Return None if the handle
-        cannot be retrieved. """
-
-        asset = copy(self.assets.get(handle, None))     # return a copy, so we don't modify the actual def
-
-        # implement backoff logic
-        if asset is None and backoff_to_name:
-            asset = copy(self.get_asset_from_name(handle))
-
-        # if the asset is still None, see if we want to raise an expception
-        if asset is None and raise_exception_if_not_found:
-            if not backoff_to_name:
-                msg = "The handle '%s' is not in %s and could not be retrieved! " % (handle, self.get_handles())
-                self.logger.error(msg)
-            elif backoff_to_name:
-                msg = "After backoff to name lookup, asset handle '%s' is not in %s and could not be retrieved." % (handle, self.get_names())
-                self.logger.error(msg)
-            raise utils.InvalidUsage(msg)
-
-        # finally, return the asset (or the NoneType)
-        return asset
 
 
     def get_asset_from_name(self, name, case_sensitive=False, raise_exception_if_not_found=True):
@@ -363,7 +406,7 @@ class GameAsset(object):
         self.handle = handle
 
     def __repr__(self):
-        return "%s object '%s' (assets.%ss['%s'])" % (self.type.title(), self.name, self.type, self.handle)
+        return "%s object '%s' (assets.%s['%s'])" % (self.type.title(), self.name, self.type, self.handle)
 
 
     def initialize(self):
@@ -394,10 +437,6 @@ class GameAsset(object):
             else:
                 exec "self.%s = %s" % (k,v)
 
-#            if k == 'expansion':
-#                exp_obj = models.expansions.Expansion(v)
-#                self.expansion_flair = exp_obj.flair
-
 
     def initialize_from_handle(self):
         """ If we've got a not-None handle, we can initiailze the asset object
@@ -408,8 +447,8 @@ class GameAsset(object):
         if " " in self.handle:
             self.logger.warn("Asset handle '%s' contains whitespaces. Handles should use underscores." % self.handle)
 
-        asset_dict = self.assets.get_asset(self.handle)
-        self.initialize_asset(asset_dict)
+        self.asset_dict = self.assets.get_asset(self.handle)
+        self.initialize_asset(self.asset_dict)
 
         if self.name is None:
             raise AssetInitError("Asset handle '%s' could not be retrieved!" % self.handle)
@@ -789,6 +828,8 @@ class UserAsset():
         if request:
             if hasattr(request, 'User'):
                 d['created_by'] = request.User.user['_id']
+                ua_string = str(ua_parse(request.user_agent.string))
+                request.User.set_latest_action(msg, ua_string)
 
         utils.mdb.settlement_events.insert(d)
         self.logger.debug("%s event: %s" % (self, msg))

@@ -1,4 +1,4 @@
-core = {
+core_disorders = {
     'aichmophobia': {
         'flavor_text': "Sharp things make you uncomfortable. It's just a matter of time before someone cuts themselves.",
         'name': 'Aichmophobia',
@@ -122,7 +122,7 @@ core = {
 
 }
 
-expansions = {
+expansion_disorders = {
 
     # gorm
     'absent_seizures': {

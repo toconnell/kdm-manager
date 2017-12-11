@@ -9,8 +9,8 @@ import utils
 class Assets(Models.AssetCollection):
 
     def __init__(self, *args, **kwargs):
-        self.assets = campaigns.milestone_story_events
-        self.type = "milestone_story_events"
+        self.type_override = "milestone_story_events"
+        self.assets = campaigns._milestone_story_events
         Models.AssetCollection.__init__(self,  *args, **kwargs)
 
 class Milestone(Models.GameAsset):

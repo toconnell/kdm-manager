@@ -2,6 +2,7 @@
 
 from bson.objectid import ObjectId
 from collections import Counter, OrderedDict
+from datetime import datetime, timedelta
 
 from optparse import OptionParser
 import os
@@ -276,7 +277,7 @@ def COD_histogram():
 #
 
 
-def update_user(oid, level=None, beta=None):
+def update_user(oid, level=None, beta=None, admin=None):
     """ Loads a user from the MDB, initializes it and calls the methods that set
     the patron level and the beta flag, etc. """
 
@@ -286,9 +287,20 @@ def update_user(oid, level=None, beta=None):
     # initialize the user and show preferences
     U = users.User(_id=oid)
 
+    # toggle admin if we're doing that
+    if admin is not None:
+        if 'admin' in U.user.keys():
+            del U.user["admin"]
+        else:
+            U.user["admin"] = datetime.now()
+        U.save()
+
+    # now show me what you got
     print("\n Working with user \x1b[1;33;40m %s \x1b[0m [%s]" % (U.user['login'], U.user['_id']))
     U_serialized = U.serialize(dict)['user']
     mini_repr = OrderedDict()
+    if 'admin' in U.user.keys():
+        mini_repr['admin'] = U.user['admin']
     for time_attr in ['created_on','latest_sign_in', 'latest_activity']:
         mini_repr[time_attr] = utils.get_time_elapsed_since(U_serialized[time_attr], 'age')
     for attr in ['settlements_created','survivors_created']:
@@ -312,8 +324,9 @@ def update_user(oid, level=None, beta=None):
         U.set_patron_attributes(level, beta)
         dump_doc_to_cli(U.user['patron'])
 
-    print(' User Preferences:')
-    dump_doc_to_cli(U.user['preferences'], gap_spaces=35)
+    if U.user['preferences'] != {}:
+        print(' User Preferences:')
+        dump_doc_to_cli(U.user['preferences'], gap_spaces=35)
 
 
 def get_user_id_from_email(email):
@@ -422,6 +435,7 @@ if __name__ == "__main__":
     parser.add_option("-U", dest="work_with_user", default=None, help="Work with a user.", metavar="demo@kdm-manager.com")
     parser.add_option("--level", dest="user_level", default=None, metavar=2, help="Use with -U to set a user's patron/subscriber level.")
     parser.add_option("--beta", dest="user_beta", default=None, metavar="True", help="Use with -U to set a user's Beta preference.")
+    parser.add_option("--admin", dest="user_admin", default=None, action="store_true", help="Use with -U to toggle a user's 'admin' status on/off.")
 
     # work with API response times
     parser.add_option("-A", dest="work_with_api_response_data", default=False, action="store_true", help="Work with API response time data.")
@@ -459,7 +473,7 @@ if __name__ == "__main__":
             # assume it's an email if it's not an oid
             user_oid = get_user_id_from_email(options.work_with_user)
 
-        update_user(user_oid, level=options.user_level, beta=options.user_beta)
+        update_user(user_oid, level=options.user_level, beta=options.user_beta, admin=options.user_admin)
 
 
     # manage API response times data

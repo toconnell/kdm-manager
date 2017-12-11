@@ -9,8 +9,8 @@ import utils
 class Assets(Models.AssetCollection):
 
     def __init__(self, *args, **kwargs):
+        self.type_override = "color_schemes"
         self.assets = survivor_sheet_options.survivor_color_schemes
-        self.type = "color_scheme"
         Models.AssetCollection.__init__(self,  *args, **kwargs)
         self.post_process()
 

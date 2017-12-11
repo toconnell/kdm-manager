@@ -347,7 +347,7 @@ app.controller('survivorSpecialAttribsController', function($scope) {
             $scope.survivor.sheet[sa_handle] = true;
         };
         js_obj = {handle: sa_handle, value: $scope.survivor.sheet[sa_handle]};
-        $scope.postJSONtoAPI('survivor','set_special_attribute',js_obj, false);
+        $scope.postJSONtoAPI('survivor','set_special_attribute',js_obj);
     }; 
 });
 
@@ -388,11 +388,50 @@ app.controller('lineageController', function($scope) {
     };
 });
 
+
+// avatars - what a shit show
+app.directive('customOnChange', function() {
+  return {
+    restrict: 'A',
+    link: function (scope, element, attrs) {
+      var onChangeFunc = scope.$eval(attrs.customOnChange);
+      element.bind('change', onChangeFunc);
+    }
+  };
+});
+app.controller("avatarController", function($scope) {
+    $scope.scratch = {newAvatar: null};
+    $scope.setAvatar = function(e) {
+        $scope.showHide('survivorAvatarMobile');
+        $scope.showHide('survivorAvatarDesktop');
+        var reader = new FileReader();
+//        reader.readAsDataURL(e.target.files[0]);
+        reader.readAsBinaryString(e.target.files[0]);
+        reader.onload = function () {
+            js_obj = {survivor_avatar: btoa(reader.result)};
+            var postChange = $scope.postJSONtoAPI('survivor','set_avatar',js_obj,false);
+            postChange.then(
+                function(payload){
+                    $scope.survivor.sheet.avatar = payload.data.avatar_oid;
+                    $scope.showHide('survivorAvatarMobile');
+                    $scope.showHide('survivorAvatarDesktop');
+                }
+            )
+        };
+        reader.onerror = function (error) {
+            console.error('Base 64 conversion error: ', error);
+        };
+    };
+});
+
+
 app.controller("survivalController", function($scope) {
+
 
     $scope.toggleStatusFlag = function() {
         $scope.postJSONtoAPI('survivor','toggle_status_flag', {'flag': 'cannot_spend_survival'});
     };
+
 
     // bound to the increment/decrement "paddles"
     $scope.updateSurvival = function (modifier) {

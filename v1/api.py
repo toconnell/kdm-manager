@@ -8,6 +8,7 @@
 
 from bson.objectid import ObjectId
 from bson import json_util
+import imghdr
 import json
 import flask
 import requests
@@ -126,13 +127,20 @@ def post_JSON_to_route(route=None, payload={}, headers={}, Session=None):
     if headers != {}:
         h.update(headers)
 
+    # scrub payload for images and encode them, if found
+    for k in payload.keys():
+        if not isinstance(payload[k], ObjectId) and payload[k] is not None:    # ignore OIDs
+            if imghdr.what(None, payload[k]) is not None:
+                payload[k] = payload[k].encode('base64')
+
     try:
         return requests.post(req_url, data=json.dumps(payload, cls=customJSONencoder), headers=h, verify=False)
     except Exception as e:
         msg = "api.post_JSON_to_Route() call failed! Exception caught while creating request object!"
-        logger.error(msg)
-        logger.exception(e)
-        raise Exception("\n".join([msg, str(payload)]))
+#        logger.error(msg)
+#        logger.exception(e)
+#        raise Exception("\n".join([msg, str(payload)]))
+        raise Exception(e)
 
 
 

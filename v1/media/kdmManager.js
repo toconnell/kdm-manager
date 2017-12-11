@@ -32,7 +32,6 @@ function hideAPIerrorModal() {
 };
 
 // public helpers
-
 function showHide(e_id) {
     var e = document.getElementById(e_id);
     var hide_class = "hidden";

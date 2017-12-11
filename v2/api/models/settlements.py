@@ -27,7 +27,7 @@ class Assets(Models.AssetCollection):
 
     def __init__(self, *args, **kwargs):
         self.assets = {}
-        self.type = "new_settlement_assets"
+        self.type_override = "new_settlement_assets"
         Models.AssetCollection.__init__(self,  *args, **kwargs)
 
 
@@ -1961,8 +1961,8 @@ class Settlement(Models.UserAsset):
 
         if return_type == "min":
             min_death_count = 0
-            for s in self.get_survivors(list):
-                if s.get("dead", False):
+            for s in self.survivors:
+                if s.is_dead():
                     min_death_count += 1
             return min_death_count
 
@@ -2357,7 +2357,7 @@ class Settlement(Models.UserAsset):
                 elif S.sub_type == 'resources':
                     item_obj = resources.Resource(handle)
                 else:
-                    raise utils.InvalidUsage("Unknown item type '%s'!" % S)
+                    raise utils.InvalidUsage("Unknown item sub_type '%s'!" % S.sub_type)
 
                 # now that we've got an item object, touch it up and add it to the
                 # locations 'collection' dict, updating the keywords rollup as we go

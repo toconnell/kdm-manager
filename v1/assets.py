@@ -104,6 +104,14 @@ class User:
         self.logger.info("[%s] saved changes to %s" % (self, self))
 
 
+    def mark_usage(self, action=None):
+        """ Updates the user's mdb object with some data. """
+        self.user["latest_action"] = action
+        self.user["latest_activity"] = datetime.now()
+        self.user["latest_user_agent"] = str(get_user_agent())
+        mdb.users.save(self.user)
+
+
     def update_password(self, password, password_again=False):
         """ Leave the 'password_again' kwarg blank if you're not checking two
         passwords to see if they match, e.g. if you're doing this from the CLI.
@@ -249,21 +257,6 @@ class User:
 
         return survivors
 
-
-
-
-    def mark_usage(self, action=None):
-        """ Updates the user's mdb object with some data. """
-        if not "activity_log" in self.user.keys():
-            self.user["activity_log"] = []
-
-        self.user["activity_log"].append((datetime.now(), action))
-        self.user["activity_log"] = self.user["activity_log"][-10:] # only save the last 10
-
-        self.user["latest_action"] = action
-        self.user["latest_activity"] = datetime.now()
-        self.user["latest_user_agent"] = str(get_user_agent())
-        mdb.users.save(self.user)
 
 
     def mark_auth(self, auth_dt=None):
@@ -577,49 +570,6 @@ class Survivor:
         self.logger.debug("[%s] %s and %s are now partners." % (self.Settlement, self, partner))
 
 
-    def update_avatar(self, file_instance):
-        """ Changes the survivor's avatar. """
-
-        # if we get a list instead of an instance, throw away items in the list
-        # that don't have a file name (because if they don't have a filename,
-        # they probably won't have a file either, know what I mean?
-        if type(file_instance) == list:
-            for i in file_instance:
-                if i.filename == "":
-                    file_instance.remove(i)
-            file_instance = file_instance[0]
-
-        if not type(file_instance) == types.InstanceType:
-
-            self.logger.error("Avatar update failed! 'survivor_avatar' must be %s instead of %s." % (types.InstanceType, type(file_instance)))
-            return None
-
-        fs = gridfs.GridFS(mdb)
-
-        if "avatar" in self.survivor.keys():
-            fs.delete(self.survivor["avatar"])
-            self.logger.debug("%s removed an avatar image (%s) from GridFS." % (self.User.user["login"], self.survivor["avatar"]))
-
-        processed_image = StringIO()
-        try:
-            im = Image.open(file_instance.file)
-        except Exception as e:
-            self.logger.error("[%s] Image file could not be opened! Traceback!" % self.User)
-            self.logger.exception(e)
-            raise
-
-        resize_tuple = tuple([int(n) for n in settings.get("application","avatar_size").split(",")])
-        im.thumbnail(resize_tuple, Image.ANTIALIAS)
-        im.save(processed_image, format="PNG")
-
-        avatar_id = fs.put(processed_image.getvalue(), content_type=file_instance.type, created_by=self.User.user["_id"], created_on=datetime.now())
-        self.survivor["avatar"] = ObjectId(avatar_id)
-
-        mdb.survivors.save(self.survivor)
-        self.logger.debug("%s updated the avatar for survivor %s." % (self.User.user["login"], self.get_name_and_id()))
-
-
-
     def get_partner(self, return_type="html_controls"):
         """ Returns the survivor's partner's Survivor object by default. Use the
         'return_type' kwarg to get different types of returns.  """
@@ -705,13 +655,9 @@ class Survivor:
             return self.survivor["returning_survivor"]
 
 
-
-
     def modify(self, params):
         """ Reads through a cgi.FieldStorage() (i.e. 'params') and modifies the
         survivor. """
-
-#        self.logger.debug("[%s] is modifying survivor %s" % (self.User, self))
 
         ignore_keys = [
             # legacy keys (soon to be deprecated)
@@ -736,8 +682,6 @@ class Survivor:
 
             if p in ignore_keys:
                 pass
-            elif p == "survivor_avatar":
-                self.update_avatar(params[p])
             elif p == "partner_id":
                 self.update_partner(game_asset_key)
             elif p.split("_")[0] == "toggle" and "norefresh" in params:
@@ -751,7 +695,7 @@ class Survivor:
             elif game_asset_key == "None":
                 self.remove_survivor_attribute(p)
             else:
-                self.logger.debug("[%s] direct Survivor Sheet update: %s -> %s (%s)" % (self.User, p, game_asset_key, self))
+                self.logger.warn("[%s] direct Survivor Sheet update: %s -> %s (%s)" % (self.User, p, game_asset_key, self))
                 self.survivor[p] = game_asset_key
 
 

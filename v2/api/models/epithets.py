@@ -9,7 +9,6 @@ import utils
 class Assets(Models.AssetCollection):
 
     def __init__(self, *args, **kwargs):
-        self.type = "epithet"
         self.root_module = epithets
         Models.AssetCollection.__init__(self,  *args, **kwargs)
 

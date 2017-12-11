@@ -26,19 +26,20 @@ class Assets(Models.AssetCollection):
 
     def __init__(self, *args, **kwargs):
 
+        self.type_override = "names"
         self.assets = {}
 
         # settlement
         for n in names.settlements:
-            self.assets[self.name_to_handle("settlement", n)] = {"name": n, "type": "settlement"}
+            self.assets[self.name_to_handle("settlement", n)] = {"name": n, "sub_type": "settlement"}
 
         # survivors
         for n in names.male:
-            self.assets[self.name_to_handle("male", n)] = {"name": n, "type": "male"}
+            self.assets[self.name_to_handle("male", n)] = {"name": n, "sub_type": "male"}
         for n in names.female:
-            self.assets[self.name_to_handle("female", n)] = {"name": n, "type": "female"}
+            self.assets[self.name_to_handle("female", n)] = {"name": n, "sub_type": "female"}
         for n in names.neuter:
-            self.assets[self.name_to_handle("neuter", n)] = {"name": n, "type": "neuter"}
+            self.assets[self.name_to_handle("neuter", n)] = {"name": n, "sub_type": "neuter"}
 
         Models.AssetCollection.__init__(self,  *args, **kwargs)
 
@@ -87,7 +88,7 @@ class Assets(Models.AssetCollection):
 
         output = []
         for a in self.assets.keys():
-            if self.assets[a]['type'] == name_type:
+            if self.assets[a]['sub_type'] == name_type:
                 output.append(self.assets[a]["name"])
         return output
 

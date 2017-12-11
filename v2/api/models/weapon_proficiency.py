@@ -9,6 +9,6 @@ import utils
 class Assets(Models.AssetCollection):
 
     def __init__(self, *args, **kwargs):
+        self.type_override = "weapon_proficiency"
         self.assets = survivor_sheet_options.weapon_proficiency
-        self.type = "weapon_proficiency"
         Models.AssetCollection.__init__(self,  *args, **kwargs)
