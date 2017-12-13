@@ -481,6 +481,14 @@ button.tiny_button {padding: 5px; font-size: 70%; margin: auto; margin-top: 40px
 
 /*  dashboard styles */
 
+.dashboard_user_collection_container {margin-bottom: 15%; }
+h4.user_collection {text-align: center; font-style: italic; }
+.dashboard_user_expansions_repeater {display: flex; flex-direction: row; margin: 5%; }
+.dashboard_user_expansions_repeater .special_attribute_checkbox {}
+.dashboard_user_expansions_repeater .special_attribute_text {width: 80%;}
+.dashboard_user_expansions_repeater .special_attribute_checkbox {transition: 0.5s;}
+.dashboard_user_expansions_repeater .special_attribute_checkbox.active {border-color: #000; background-color: #000;}
+
 .dashboard_twitter_button {position: fixed; margin: 0; bottom: 1%; right: 2%; height: 6%; width: 10%; border-radius: 100%;}
 div.dashboard_twitter_container {background-color: rgba(255,255,255,1); color: #000; font-family: "Metrophobic"; padding-top: 1%; }
 div.dashboard_twitter_container p {font-size: 13pt; }
@@ -1332,6 +1340,9 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 	div#sign_in_button {clear: both;}
 
     /*   Dashboard Styles - tablet*/
+    .dashboard_user_collection_container p {font-size: 13pt; font-family: 'Metrophobic';}
+    .dashboard_user_expansions_repeater .special_attribute_text {font-size: 20pt; }
+
     div.dashboard_welcome_modal {margin: 0 auto; }
     div.dashboard_welcome_modal p {font-size: 20pt; width: 85%; }
 
@@ -1999,6 +2010,8 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .dashboard_rollup_arrow {font-size: 9pt; }
 
     /* preferences - wide */
+    .dashboard_user_expansions_repeater .special_attribute_checkbox { width: 15px; height: 15px; }
+    .dashboard_user_expansions_repeater .special_attribute_text {font-size: 13pt; }
     .preferences_sub_block.preferences_sign_out {margin-top: auto; }
     .preferences_sub_block button {margin: 2% auto; }
     .dashboard_preferences_container p {font-size: 11pt; }

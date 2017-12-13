@@ -10,6 +10,11 @@ core = {
         'name': 'Rest',
         'cost': 1,
     },
+    'black_guard_style': {
+        'name': 'Black Guard Style',
+        'desc': 'During the settlement phase you may spend <font class="kdm_font">d</font> to train a survivor. They gain the <b>Black Guard Style</b> secret fighting art. You lose it and suffer the <b>broken arm</b> severe injury.',
+        'cost': 1,
+    },
     'bloodletting_breathing_a_vein': {
         'name': 'Breathing a Vein',
         'cost': 1,
@@ -137,6 +142,7 @@ core = {
         'name': 'Matchmaker',
         'desc': 'Spend 1 endeavor to trigger <font class="kdm_font">g</font> <b>Intimacy</b>.',
         'requires_returning_survivor': True,
+        'cost': 1,
     },
     'momento_mori_default': {
         'desc': 'Nominate a survivor that died in the last showdown and roll id10.',

@@ -30,7 +30,13 @@ promo_and_misc = {
             "color": "FFF",
             "bgcolor": "4EC6F0",
         },
-        "subtitle": "Adds promotional content (items, Abilities & Impairments, etc.) to Settlement and Survivor Sheet drop-down lists. Content includes Gen Con, Black Friday and other promos.",
+        "subtitle": "Adds miscellaneous promotional content (items, Abilities & Impairments, etc.) to Settlement and Survivor Sheet drop-down lists. Content includes Gen Con, Black Friday and other promos.",
+    },
+    "percival": {
+        "name": "Percival",
+        "ui": {"pretty_category": "Enhancement"},
+        "released": datetime(2016,8,16),
+        'basic_hunt_event': ['dead_warrior'],
     },
 }
 

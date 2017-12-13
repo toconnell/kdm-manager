@@ -150,6 +150,7 @@ class dashboard:
         initializeUser('$user_id', 'dashboard', '$api_url');
         showInitDash();
         setLatestChangeLog();
+        loadExpansionAssets();
     "
 >
 
@@ -211,6 +212,34 @@ class dashboard:
                     <p class="centered" ng-if="scratch.saved_password">Password updated! <b>Signing out...</b></p>
                 </div>
             </div> <!-- user info -->
+
+            <div ng-if="user.user.preferences.beta == true" class="dashboard_user_collection_container">
+                <h3>&beta; Collection</h3>
+                <p>Use the checkboxes below to record which
+                <i>Monster</i> expansions are in your personal collection!</p>
+
+                <h4 class="user_collection">- Expansions - </h4>
+                <div
+                    class="dashboard_user_expansions_repeater clickable"
+                    ng-repeat="(handle, expansion) in expansions"
+                    ng-click="toggleUserExpansion(handle)"
+                >
+                    <div
+                        class="special_attribute_checkbox"
+                        ng-class="{active: user.user.collection.expansions.indexOf(handle) != -1}"
+                    ></div>
+                    <div
+                        class="special_attribute_text"
+                        ng-class="{active: user.user.collection.expansions.indexOf(handle) != -1}"
+                    >
+                        {{expansion.name}}
+                        <div ng-if="expansion.desc != undefined" class="metrophobic">
+                            {{expansion.desc}}
+                        </div>
+                    </div>
+                </div><!-- expansion repeater -->
+
+            </div>
 
             <h3> Manage Preferences</h3>
             <div class="dashboard_preferences_container">
@@ -2185,7 +2214,7 @@ class survivor:
                 <div class="big_number_container right_border">
                     <button
                         class="incrementer"
-                        onclick="stepAndSave('up','headBox','survivor','$survivor_id');"
+                        ng-click="incrementAttrib('Head',1)"
                     >
                         +
                     </button>
@@ -2193,14 +2222,14 @@ class survivor:
                         id="headBox"
                         type="number"
                         class="shield"
-                        name="Head"
-                        value="$head"
+                        ng-model="survivor.sheet.Head"
+                        ng-value="survivor.sheet.Head"
+                        ng-blur="updateAttrib('Head')"
                         min="0"
-                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
                     />
                     <button
                         class="decrementer"
-                        onclick="stepAndSave('down','headBox','survivor','$survivor_id');"
+                        ng-click="incrementAttrib('Head',-1)"
                     >
                         -
                     </button>
@@ -3458,22 +3487,21 @@ class survivor:
                 <div class="big_number_container right_border">
                     <button
                         class="incrementer"
-                        onclick="stepAndSave('up','$number_input_id','survivor','$survivor_id');"
+                        ng-click="incrementAttrib('$hit_location', 1)"
                     >
                         +
                     </button>
                     <input
-                        id="$number_input_id"
                         type="number"
                         class="shield"
-                        name="$hit_location"
-                        value="$hit_location_value"
+                        ng-value="survivor.sheet['$hit_location']"
+                        ng-model="survivor.sheet['$hit_location']"
+                        ng-blur="updateAttrib('$hit_location')"
                         min="0"
-                        onchange="updateAssetAttrib(this,'survivor','$survivor_id')"
                     />
                     <button
                         class="decrementer"
-                        onclick="stepAndSave('down','$number_input_id','survivor','$survivor_id');"
+                        ng-click="incrementAttrib('$hit_location', -1)"
                     >
                         -
                     </button>

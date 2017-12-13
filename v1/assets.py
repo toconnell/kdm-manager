@@ -606,32 +606,6 @@ class Survivor:
 
 
 
-    def update_survivor_attribute(self, attrib, attrib_type, attrib_type_value):
-        """ Processes input from the angularjs attributeController app. Updates
-        a survivor's base, gear and token attribute stats. Logs. """
-
-        if not "attribute_detail" in self.survivor.keys():
-            self.survivor["attribute_detail"] = {
-                "Movement": {"gear": 0, "tokens": 0},
-                "Accuracy": {"gear": 0, "tokens": 0},
-                "Strength": {"gear": 0, "tokens": 0},
-                "Evasion": {"gear": 0, "tokens": 0},
-                "Luck": {"gear": 0, "tokens": 0},
-                "Speed": {"gear": 0, "tokens": 0},
-            }
-
-        if attrib_type == "base":
-            self.survivor[attrib] = attrib_type_value
-            self.logger.debug("[%s] set %s '%s' to %s!" % (self.User, self, attrib, attrib_type_value))
-        elif attrib_type in ["gear","tokens"]:
-            self.survivor["attribute_detail"][attrib][attrib_type] = int(attrib_type_value)
-            self.logger.debug("[%s] set %s '%s' ('%s' detail) to %s!" % (
-                self.User, self, attrib, attrib_type, attrib_type_value
-            ))
-        else:
-            self.logger.error("[%s] unknown attribute type '%s' cannot be processed!" % (self.User, attrib_type))
-
-
     def remove_survivor_attribute(self, attrib):
         """ Tries to delete an attribute from a survivor's MDB document. Fails
         gracefully if it cannot. Includes special handling for certain
@@ -690,8 +664,6 @@ class Survivor:
             elif p.split("_")[0] == "toggle" and "damage" in p.split("_"):
                 toggle_key = "_".join(p.split("_")[1:])
                 self.toggle(toggle_key, game_asset_key, toggle_type="explicit")
-            elif p in ["Insanity","Head","Arms","Body","Waist","Legs"]:
-                self.update_survivor_attribute(p, "base", game_asset_key)
             elif game_asset_key == "None":
                 self.remove_survivor_attribute(p)
             else:

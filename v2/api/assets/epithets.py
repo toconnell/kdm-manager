@@ -297,7 +297,7 @@ mar_2016_expansions = {
         'expansion': 'white_box',
         'selectable': False,
     },
-    'black_guard': {'expansion': 'white_box', 'name': "Black Guard"},
+    'black_guard': {'expansion': 'percival', 'name': "Black Guard"},
 
     # Lion God
     'necromancer': {'expansion': 'lion_god', 'name': 'Necromancer'},

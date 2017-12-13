@@ -144,11 +144,11 @@ class AssetCollection(object):
         # 'sub_type' is where we want to put any kind of 'type' info that we get
         # from the asset itself.
 
-        self.assets = {}
+        all_assets = {}
 
         for module_dict, v in self.root_module.__dict__.iteritems():
             if isinstance(v, dict) and not module_dict.startswith('_'): # get all dicts in the module
-                for dict_key in v.keys():                               # get all keys in each dict
+                for dict_key in sorted(v.keys()):                               # get all keys in each dict
 
                     if 'sub_type' in v[dict_key].keys():
                         raise Exception("%s already has a sub type!!!!" % v[dict_key])
@@ -161,8 +161,11 @@ class AssetCollection(object):
                     a_dict["type"] = self.type
 
                     # add it back to self.assets
-                    self.assets[dict_key] = a_dict
+                    all_assets[dict_key] = a_dict
 
+        self.assets = OrderedDict()
+        for k in sorted(all_assets.keys()):
+            self.assets[k] = all_assets[k]
 
 
     def set_pretty_types(self, capitalize=True):

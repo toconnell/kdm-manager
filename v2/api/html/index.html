@@ -564,6 +564,29 @@
                 like. The good news, is that it should fail pretty descriptively.</p>
             </td>
         </tr>
+        <tr>
+            <td class="subsection_header" colspan="3"><b>User Collection Management:</b>
+            The endpoints defined below are used to manage the User's IRL
+            collection of game assets, e.g. Expansions, etc.</td>
+        </tr>
+        <tr class="ul">
+            <td> /user/add_expansion_to_collection/&lt;user_id&gt; </td>
+            <td> <b>POST</b>, OPTIONS </td>
+            <td>
+                <p>You can <b>POST</b> a single expansion handle to this endpoint
+                to add it to a user's collection of expansions:</p>
+                <code>{handle: "manhunter"}</code>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /user/rm_expansion_from_collection/&lt;user_id&gt; </td>
+            <td> <b>POST</b>, OPTIONS </td>
+            <td>
+                <p><b>POST</b> some basic JSON to this endpoint to remove an
+                expansion handle from a user's collection:</p>
+                <code>{handle: "flower_knight"}</code>
+            </td>
+        </tr>
 
 
 
@@ -1477,7 +1500,7 @@
             <td class="subsection_header" colspan="3"><b>Survivor Data Model:</b><br/><br/>
                 <table class="data_model_table">
                 <tr><th>key</th><th>R/O</th><th>&nbsp; type &nbsp;</th><th width="40%">description</th><th>related endpoints</th></tr>
-                <tr><td class="key">email</td><td>O</td><td>str</td><td>Defaults to the creator's login.</td></tr>
+                <tr><td class="key">email</td><td>O</td><td>str</td><td>Defaults to the creator's login.</td><td class="mono">set_email</td></tr>
                 <tr><td class="key">born_in_ly</td><td>O</td><td>int</td><td>Defaults to current LY.</td></tr>
                 <tr><td class="key">settlement</td><td><b>R</b></td><td>OID</td><td>This must be set to a valid settlement OID at creation time and may never be changed. See <a href="#newSurvivor"><code>/new/survivor</code></a> above for more info on creating survivors.</td><td class="mono"></td></tr>
                 <tr><td class="key">public</td><td>O</td><td>bool</td><td>Defaults to Boolean false. Submitting anything that evaluates to Boolean true will be treated as such.</td><td class="mono">toggle_boolean</td></tr>
@@ -1486,11 +1509,11 @@
                 <tr><td class="key">survival</td><td>O</td><td>int</td><td></td><td class="mono">update_survival set_survival</td></tr>
                 <tr><td class="key">hunt_xp</td><td>O</td><td>int</td><td></td></tr>
                 <tr><td class="key">Insanity</td><td>O</td><td>int</td><td></td><td class="mono">set_attribute update_attribute</td></tr>
-                <tr><td class="key">Head</td><td>O</td><td>int</td><td></td></tr>
-                <tr><td class="key">Arms</td><td>O</td><td>int</td><td></td></tr>
-                <tr><td class="key">Body</td><td>O</td><td>int</td><td></td></tr>
-                <tr><td class="key">Waist</td><td>O</td><td>int</td><td></td></tr>
-                <tr><td class="key">Legs</td><td>O</td><td>int</td><td></td></tr>
+                <tr><td class="key">Head</td><td>O</td><td>int</td><td></td><td class="mono">set_attribute update_attribute</td></tr>
+                <tr><td class="key">Arms</td><td>O</td><td>int</td><td></td><td class="mono">set_attribute update_attribute</td></tr>
+                <tr><td class="key">Body</td><td>O</td><td>int</td><td></td><td class="mono">set_attribute update_attribute</td></tr>
+                <tr><td class="key">Waist</td><td>O</td><td>int</td><td></td><td class="mono">set_attribute update_attribute</td></tr>
+                <tr><td class="key">Legs</td><td>O</td><td>int</td><td></td><td class="mono">set_attribute update_attribute</td></tr>
                 <tr><td class="key">Courage</td><td>O</td><td>int</td><td></td><td class="mono">set_attribute update_attribute</td></tr>
                 <tr><td class="key">Understanding</td><td>O</td><td>int</td><td></td><td class="mono">set_attribute update_attribute</td></tr>
                 <tr><td class="key">affinities</td><td>O</td><td>dict</td><td>Rather than setting this at creation time, consider using <code>upfate_affinities</code> route after creation to set this, unless you really know what you're doing</td><td class="mono">update_affinities set_affinity</td></tr>
@@ -1512,7 +1535,7 @@
                 <tr><td class="key">favorite</td><td>O</td><td>list</td><td>list of user emails, i.e. users who have favorited the survivor</td><td class="mono">add_favorite rm_favorite</td></tr>
                 <tr><td class="key">fighting_arts</td><td>O</td><td>list</td><td>List of handles</td><td class="mono">add_game_asset rm_game_asset</td></tr>
                 <tr><td class="key">fighting_arts_levels</td><td>O</td><td>list</td><td>dictionary where each key is a Fighting Art handle whose value is an array, e.g. <code>{'silk_surgeon': [1,2]}</code></td><td class="mono">toggle_fighting_arts_level</td></tr>
-                <tr><td class="key">epithets</td><td>O</td><td>list</td><td>list of handles</td></tr>
+                <tr><td class="key">epithets</td><td>O</td><td>list</td><td>list of handles</td><td class="mono">add_game_asset rm_game_asset</td></tr>
                 </table>
 
                 <p><b>Important!</b> There are certain endpoints below that may
@@ -1971,6 +1994,39 @@
             </td>
         </tr>
         <tr class="ul">
+            <td> /survivor/set_constellation/&lt;survivor_id&gt; </td>
+            <td> <b>POST</b> </td>
+            <td> <p>For survivors with Dragon Traits (i.e. PotStars), use this
+            route to set their 'constellation':</p>
+            <code>{'constellation': 'Witch'}</code>
+            <p>Simply <b>POST</b> similar JSON to overwrite/change it:</p>
+            <code>{'constellation': 'Absolute'}</code>
+            <p>This one also works to unset/remove it:</p>
+            <code>{'unset': true}</code>
+            <p>Here is a list of accepted/supported values for 'constellation':
+            <ul>
+                <li>Absolute</li>
+                <li>Gambler</li>
+                <li>Goblin</li>
+                <li>Reaper</li>
+                <li>Rust</li>
+                <li>Sculptor</li>
+                <li>Storm</li>
+                <li>Witch</li>
+            </ul>
+            </p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/set_affinity/&lt;survivor_id&gt; </td>
+            <td> <b>POST</b> </td>
+            <td> <p><b>POST</b> some JSON containing the two required keys, 'color' and
+            'value' to set a single survivor affinity to a new integer value.</p>
+            <code>{'color': 'blue', 'value': -2}</code>
+            <p>The 'value' key must always have an integer value.</p>
+            </td>
+        </tr>
+        <tr class="ul">
             <td> /survivor/update_affinities/&lt;survivor_id&gt; </td>
             <td> <b>POST</b> </td>
             <td> <p>Works with the Survivor's <code>affinities</code> dictionary,
@@ -1996,51 +2052,19 @@
             </td>
         </tr>
         <tr class="ul">
-            <td> /survivor/set_affinity/&lt;survivor_id&gt; </td>
-            <td> <b>POST</b> </td>
-            <td> <p><b>POST</b> some JSON containing the two required keys, 'color' and
-            'value' to set a single survivor affinity to a new integer value.</p>
-            <code>{'color': 'blue', 'value': -2}</code>
-            <p>The 'value' key must always have an integer value.</p>
-            </td>
-        </tr>
-        <tr class="ul">
-            <td> /survivor/set_color_scheme/&lt;survivor_id&gt; </td>
+            <td> /survivor/set_savior_status/&lt;survivor_id&gt; </td>
             <td> <b>POST</b> </td>
             <td>
-                <p>Serialized settlements have an element called <code>survivor_color_schemes</code>,
-                which is a dictionary of color schemes, including handles.</p>
-                <p>To change a survivor's color scheme, <b>POST</b> some JSON to this route
-                that includes one of those handles:</p>
-                <code>{handle: 'vibrant_lantern'}</code>
-                <p>To unset a survivor's color scheme (i.e. to remove the key/value
-                from the survivor's <code>sheet</code>, simply post the key, <code>
-                unset</code>:</p>
+                <p><b>POST</b> some JSON to this route to make a survivor into
+                a savior:</p>
+                <code>{color: 'red'}</code>
+                <p>This adds all required A&Is, logs a settlement event, etc.</p>
+                <p>To change what type of savior you want the survivor to be,
+                <b>POST</b> a different color:</p>
+                <code>{color: 'blue'}</code>
+                <p>To remove savior status (all A&Is, etc.), <b>POST</b> the
+                <code>unset</code> key to this route thus:
                 <code>{unset: true}</code>
-            </td>
-        </tr>
-        <tr class="ul">
-            <td> /survivor/set_constellation/&lt;survivor_id&gt; </td>
-            <td> <b>POST</b> </td>
-            <td> <p>For survivors with Dragon Traits (i.e. PotStars), use this
-            route to set their 'constellation':</p>
-            <code>{'constellation': 'Witch'}</code>
-            <p>Simply <b>POST</b> similar JSON to overwrite/change it:</p>
-            <code>{'constellation': 'Absolute'}</code>
-            <p>This one also works to unset/remove it:</p>
-            <code>{'unset': true}</code>
-            <p>Here is a list of accepted/supported values for 'constellation':
-            <ul>
-                <li>Absolute</li>
-                <li>Gambler</li>
-                <li>Goblin</li>
-                <li>Reaper</li>
-                <li>Rust</li>
-                <li>Sculptor</li>
-                <li>Storm</li>
-                <li>Witch</li>
-            </ul>
-            </p>
             </td>
         </tr>
 
@@ -2049,19 +2073,6 @@
             <td class="subsection_header" colspan="3"><b>Flags and toggles:</b>
             special routes and methods for setting/unsetting 'flag' type
             aspects of the Settlement Sheet.</td>
-        </tr>
-        <tr class="ul">
-            <td> /survivor/toggle_sotf_reroll/&lt;survivor_id&gt; </td>
-            <td> <b>POST</b> </td>
-            <td> <p><b>POST</b> a blank/empty request to this route to toggle the survivor's
-            once per lifetime Survival of the Fittest reroll on or off.</p>
-            <p><b>Important!</b> The actual attribute of the survivor's <code>
-            sheet</code> is <i>sotf_reroll</i>:</p>
-            <code>{"sheet": {"sotf_reroll": true, ...}, "meta": {...}, ...}</code>
-            <p>But since it is not part of the default data model for survivors,
-            it will sometimes simply be undefined/unset, rather than a.) always
-            present and b.) always a boolean.</p>
-            </td>
         </tr>
         <tr class="ul">
             <td> /survivor/toggle_boolean/&lt;survivor_id&gt; </td>
@@ -2089,6 +2100,28 @@
             </td>
         </tr>
         <tr class="ul">
+            <td> /survivor/toggle_sotf_reroll/&lt;survivor_id&gt; </td>
+            <td> <b>POST</b> </td>
+            <td> <p><b>POST</b> a blank/empty request to this route to toggle the survivor's
+            once per lifetime Survival of the Fittest reroll on or off.</p>
+            <p><b>Important!</b> The actual attribute of the survivor's <code>
+            sheet</code> is <i>sotf_reroll</i>:</p>
+            <code>{"sheet": {"sotf_reroll": true, ...}, "meta": {...}, ...}</code>
+            <p>But since it is not part of the default data model for survivors,
+            it will sometimes simply be undefined/unset, rather than a.) always
+            present and b.) always a boolean.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/toggle_status_flag/&lt;survivor_id&gt; </td>
+            <td> <b>POST</b> </td>
+            <td> <p>Works nearly identically to <code>set_status_flag</code>
+            (see above), except toggles the flag on/off. <b>POST</b> simple JSON
+            containing the target 'flag' to toggle it:</p>
+            <code>{'flag': 'cannot_use_fighting_arts'}</code>
+            </td>
+        </tr>
+        <tr class="ul">
             <td> /survivor/set_status_flag/&lt;survivor_id&gt; </td>
             <td> <b>POST</b> </td>
             <td> <p> This route and its related route <code>toggle_status_flag</code>
@@ -2109,43 +2142,15 @@
             <code>{'flag': 'skip_next_hunt', 'unset': True}</code>
             </td>
         </tr>
-        <tr class="ul">
-            <td> /survivor/toggle_status_flag/&lt;survivor_id&gt; </td>
-            <td> <b>POST</b> </td>
-            <td> <p>Works nearly identically to <code>set_status_flag</code>
-            (see above), except toggles the flag on/off. <b>POST</b> simple JSON
-            containing the target 'flag' to toggle it:</p>
-            <code>{'flag': 'cannot_use_fighting_arts'}</code>
-            </td>
-        </tr>
 
         <!-- misc. and meta -->
         <tr>
-            <td class="subsection_header" colspan="3"><b>Meta and admin controls:</b>
-            manage survivor meta data, including adding/removing survivor notes,
-            etc.</td>
-        </tr>
-        <tr class="ul">
-            <td> /survivor/set_avatar/&lt;survivor_id&gt; </td>
-            <td> <b>POST</b> </td>
-            <td> 
-                <p><b>POST</b> a base 64 encoded string to this endpoint to set a new
-                avatar for a survivor:</p>
-                <code>{survivor_avatar: "JJssaK1234bsakq8123..."}</code>
-                <p>If you're using JS to convert a file to a base 64 string,
-                consider this sample code, which may be helpful. In the sample,
-                <code>evt</code> is the browser event where the users adds the file:</p>
-                <pre><code>var reader = new FileReader();
-reader.readAsBinaryString(evt.target.files[0]);
-reader.onload = function () {
-    b64_string = btoa(reader.result);
-};</code></pre>
-                <p>...and <code>b64_string</code> is your final output, i.e. the
-                incoming file as a base 64 encoded string, that you want to <b>POST</b>
-                back to the API.</p>
-                <p><b>Important!</b> On a successful post, this route returns a
-                200 as well as some JSON containing the OID of the new avatar:</p>
-                <code>{avatar_oid: {$oid: "5a2ae8e34af5ca23a86c7247"}}</code>
+            <td class="subsection_header" colspan="3">
+                <p><b>Meta and admin controls:</b>
+                manage survivor meta data, including adding/removing survivor
+                notes, avatars, color schemes, etc.</p>
+                <p>(Includes any attribute of the Survivor Sheet that is NOT part
+                of the in-box/paper tracking assets for the survivor.)</p>
             </td>
         </tr>
         <tr class="ul">
@@ -2189,6 +2194,63 @@ reader.onload = function () {
             <td>
                 <p><b>POST</b> an existing note OID to this route to remove it:</p>
                 <code>{'_id': '58703a398740d9730c7abeb2'}</code>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/set_avatar/&lt;survivor_id&gt; </td>
+            <td> <b>POST</b> </td>
+            <td> 
+                <p><b>POST</b> a base 64 encoded string to this endpoint to set a new
+                avatar for a survivor:</p>
+                <code>{survivor_avatar: "JJssaK1234bsakq8123..."}</code>
+                <p>If you're using JS to convert a file to a base 64 string,
+                consider this sample code, which may be helpful. In the sample,
+                <code>evt</code> is the browser event where the users adds the file:</p>
+                <pre><code>var reader = new FileReader();
+reader.readAsBinaryString(evt.target.files[0]);
+reader.onload = function () {
+    b64_string = btoa(reader.result);
+};</code></pre>
+                <p>...and <code>b64_string</code> is your final output, i.e. the
+                incoming file as a base 64 encoded string, that you want to <b>POST</b>
+                back to the API.</p>
+                <p><b>Important!</b> On a successful post, this route returns a
+                200 as well as some JSON containing the OID of the new avatar:</p>
+                <code>{avatar_oid: {$oid: "5a2ae8e34af5ca23a86c7247"}}</code>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/set_color_scheme/&lt;survivor_id&gt; </td>
+            <td> <b>POST</b> </td>
+            <td>
+                <p>Serialized settlements have an element called <code>survivor_color_schemes</code>,
+                which is a dictionary of color schemes, including handles.</p>
+                <p>To change a survivor's color scheme, <b>POST</b> some JSON to this route
+                that includes one of those handles:</p>
+                <code>{handle: 'vibrant_lantern'}</code>
+                <p>To unset a survivor's color scheme (i.e. to remove the key/value
+                from the survivor's <code>sheet</code>, simply post the key, <code>
+                unset</code>:</p>
+                <code>{unset: true}</code>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/set_email/&lt;survivor_id&gt; </td>
+            <td> <b>POST</b> </td>
+            <td>
+                <p>POST a registered user's email to this route to set the
+                survivor's email address (which is equivalent to setting the
+                survivor's "owner", but does not change the survivor's <code>
+                created_by</code> attribute.</p>
+                <p>Your JSON should look like this:</p>
+                <code>{email: 'demo@kdm-manager.com'}</code>
+                <p>In order to facilitate form validation, this route will will
+                return a <code>422</code> is the <code>email</code> you POST is
+                not associated with a registered user of the API.</p>
+                <p><b>Important!</b> If you get a 422 back, your survivor was
+                <u>not</u> updated.</p>
+                <p>If the update was successful, you get a vanilla <code>200
+                </code> back.</p>
             </td>
         </tr>
     </table>

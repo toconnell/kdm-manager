@@ -222,6 +222,9 @@ class User(Models.UserAsset):
         self.id = str(self.user["_id"])
 
         # baseline/normalize
+        self.perform_save = False
+        self.baseline()
+        self.bug_fixes()
         self.normalize()
 
         # random initialization methods
@@ -265,6 +268,7 @@ class User(Models.UserAsset):
             'login': username,
             'password': md5(password).hexdigest(),
             'preferences': {},
+            'collection': {"expansions": []},
         }
         self._id = utils.mdb.users.insert(self.user)
         self.load()
@@ -411,6 +415,8 @@ class User(Models.UserAsset):
         """ Updates the user's self.user['patron'] dictionary: sets the level
         (int) and the beta flag (bool)."""
 
+        level = int(level)
+
         if not 'patron' in self.user.keys():
             self.user['patron'] = {'created_on': datetime.now()}
 
@@ -430,8 +436,10 @@ class User(Models.UserAsset):
             self.user['patron']['desc'] = 'Survival +1'
         elif level == 2:
             self.user['patron']['desc'] = 'Survival +5'
+        else:
+            self.logger.warn("Patron level '%s' has no known description!" % level)
 
-        self.logger.info("%s Set patron level to %s; set beta access to %s." % (self, level, beta))
+        self.logger.info("%s Set patron level to %s (%s); set beta access to %s." % (self, level, self.user['patron']['desc'], beta))
         self.save()
 
 
@@ -482,6 +490,40 @@ class User(Models.UserAsset):
         self.save()
 
 
+    #
+    #   Collection Management - manage the user's asset collection
+    #
+
+    def add_expansion_to_collection(self, handle=None):
+        """ Adds an expansion handle to self.user['collection']['expansions']
+        list. Logs it. """
+
+        if handle is None:
+            self.check_request_params(['handle'])
+            handle = self.params['handle']
+
+        if handle in self.user['collection']['expansions']:
+            self.logger.warn("%s Expansion handle '%s' is already in the user's collection. Ignoring..." % (self, handle))
+            return True
+
+        self.user['collection']['expansions'].append(handle)
+        self.save()
+
+
+    def rm_expansion_from_collection(self, handle=None):
+        """ Adds an expansion handle to self.user['collection']['expansions']
+        list. Logs it. """
+
+        if handle is None:
+            self.check_request_params(['handle'])
+            handle = self.params['handle']
+
+        if handle not in self.user['collection']['expansions']:
+            self.logger.warn("%s Expansion handle '%s' is not in the user's collection. Ignoring..." % (self, handle))
+            return True
+
+        self.user['collection']['expansions'].remove(handle)
+        self.save()
 
 
     #
@@ -527,7 +569,7 @@ class User(Models.UserAsset):
         """ Returns a dictionary of patronage information. """
 
         if 'patron' not in self.user.keys():
-            return {'level': 0, 'beta': False}
+            return {'level': 0}
 
         self.user['patron'].update({'age': utils.get_time_elapsed_since(self.user['patron']['created_on'], 'age')})
         return self.user['patron']
@@ -778,10 +820,35 @@ class User(Models.UserAsset):
     #   baseline/normalize
     #
 
+    def baseline(self):
+        """ Baseline the user record to our data model. """
+
+        if not 'collection' in self.user.keys():
+            self.user['collection'] = {"expansions": [], }
+            self.logger.info("%s Baselined 'collection' key into user dict." % self)
+            self.perform_save = True
+
+
+    def bug_fixes(self):
+        """ Fix bugs! """
+
+        if self.user.get("patron",None) is not None and self.user['patron'].get('desc', None) is None:
+            self.logger.warn("%s Has no patron level description!" % self)
+            level = int(self.user['patron']['level'])
+            if level == 1:
+                self.user['patron']['desc'] = 'Survival +1'
+            elif level == 2:
+                self.user['patron']['desc'] = 'Survival +5'
+
+            if self.user['patron'].get('desc', None) is None:
+                self.logger.error("%s Could not set patron level description!" % self)
+            else:
+                self.logger.warn("%s Set patron description!" % self)
+                self.perform_save = True
+
+
     def normalize(self):
         """ Force/coerce the user into compliace with our data model for users. """
-
-        self.perform_save = False
 
         if not 'preferences' in self.user.keys():
             self.user['preferences'] = {'preserve_sessions': False}
@@ -818,6 +885,13 @@ class User(Models.UserAsset):
             self.update_password()
         elif action == 'set_preferences':
             self.set_preferences()
+
+        # collection management
+        elif action == "add_expansion_to_collection":
+            self.add_expansion_to_collection()
+        elif action == "rm_expansion_from_collection":
+            self.rm_expansion_from_collection()
+
 
         else:
             # unknown/unsupported action response

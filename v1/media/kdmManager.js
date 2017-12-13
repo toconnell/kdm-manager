@@ -1067,50 +1067,6 @@ app.controller("epithetController", function($scope) {
 });
 
 
-// generic survivor attrib update sans page refresh
-function updateAssetAttrib(source_input, collection, asset_id) {
-
-    // this is an all-purpose asset attribute updater. This is where most of our
-    // formless submission logic happens (at least the js bits of it). Remember
-    // that everything here is meant to be collection/asset agnostic!
-
-    // a little idiot-proofing for Yours Truly
-    if (typeof source_input == "string") {
-        var source_input = document.getElementById(source_input);
-    };
-
-    if (source_input.hasAttribute('id') != true) {window.alert("Trigger element has no id!")};
-
-    var attrib_key = document.getElementById(source_input.id).name;
-    var new_value = document.getElementById(source_input.id).value;
-
-    if (new_value == '') {window.alert("Blank values cannot be saved!"); return false;};
-
-    // emphasis effect for font.survival_action_emphasize
-    if (source_input.id == 'cannot_spend_survival' ) {
-        if (source_input.checked == true) {
-            var x = document.getElementsByClassName("survival_action_available");
-            var i;
-            for (i = 0; i < x.length; i++) {
-                x[i].style.removeProperty('font-weight', 'bold');
-                x[i].style.removeProperty('color', '#000');
-                x[i].classList.remove('survival_action_emphasize');
-            };
-            } else {
-            var x = document.getElementsByClassName("survival_action_available");
-            var i;
-            for (i = 0; i < x.length; i++) {
-                x[i].style.setProperty('font-weight', 'bold');
-                x[i].style.setProperty('color', '#000');
-            };
-        };
-    };
-
-    var params = attrib_key + "=" + new_value
-    modifyAsset(collection, asset_id, params);
-
-};
-
 // burger sidenav
 function openNav() {
     document.getElementById("mySidenav").style.width = '75%';
@@ -1135,13 +1091,6 @@ function hide(id) {
     e.style.display="none";
 };
 
-// inc/dec functions + step-n-save
-function stepAndSave(step_dir, target_element_id, collection, asset_id) {
-    var input = document.getElementById(target_element_id);
-    if (step_dir == "up") {input.stepUp()} else {input.stepDown()};
-    var param_string = input.name + "=" + Number(input.value);
-    modifyAsset(collection, asset_id, param_string)
-}
 function increment(elem_id) {
     var e = document.getElementById(elem_id);
     e.stepUp();

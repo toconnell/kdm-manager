@@ -1797,7 +1797,7 @@ class Survivor(Models.UserAsset):
         elif not '@' in new_email:
             msg = "'%s Survivor email '%s' does not look like an email address! Ignoring..." % (self, new_email)
             self.logger.warn(msg)
-            return Response(response=msg, status=200)
+            return Response(response=msg, status=422)
         elif utils.mdb.users.find_one({'login': new_email}) is None:
             msg = "The email address '%s' is not associated with any known user." % new_email
             self.logger.error(msg)
@@ -2167,10 +2167,11 @@ class Survivor(Models.UserAsset):
 
 
         e_handles = set()
-        for a_dict in self.list_assets('abilities_and_impairments'):
-            for e_handle in a_dict.get('endeavors', []):
-                if check_availability(e_handle):
-                    e_handles.add(e_handle)
+        for asset_family in ['abilities_and_impairments', 'fighting_arts']:
+            for a_dict in self.list_assets(asset_family):
+                for e_handle in a_dict.get('endeavors', []):
+                    if check_availability(e_handle):
+                        e_handles.add(e_handle)
         e_handles = sorted(list(e_handles))
 
         # return dictionary.
@@ -3126,7 +3127,7 @@ class Survivor(Models.UserAsset):
 
         # finish successfully
         if self.params.get('serialize_on_response', False):
-            return Response(response=self.serialize(), status=200)
+            return Response(response=self.serialize(), status=200, mimetype="application/json")
         else:
             return utils.http_200
 
