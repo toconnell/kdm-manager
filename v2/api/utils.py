@@ -175,7 +175,7 @@ def list_to_pretty_string(l, quote_char=False):
     if quote_char:
         l = [str("%s%s%s" % (quote_char,i,quote_char)) for i in l]
     else:
-        l = [str(i) for i in l]
+        l = [i.encode('ascii','ignore') for i in l]
 
     return " and ".join([", ".join(l[:-1]), l[-1]])
 
@@ -207,6 +207,22 @@ def get_timeline_index_and_object(timeline,lantern_year):
         return get_ly()
 
 
+def action_keyword(kw):
+    """ converts an action keyword 'kw' to a past-tense version of that
+    keyword and its preposition. """
+
+    if kw in ["add"]:                   # add
+        output = ("added", "to")
+    elif kw in ["rm"]:                  # remove
+        output = ("removed", "from")
+    elif kw in ["set", "update"]:       # set
+        output = ("set", "to")
+    elif kw in ["enforce"]:             # automate
+        output = ("automatically set", "to")
+    else:
+        output = (kw, "to")
+
+    return output
 
 
 

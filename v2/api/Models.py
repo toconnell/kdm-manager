@@ -349,7 +349,9 @@ class AssetCollection(object):
             return False
 
         for asset_key in self.assets.keys():
-            if reverse:
+            if self.get_asset(asset_key).get(filter_attrib, None) is None:
+                pass
+            elif reverse:
                 if self.get_asset(asset_key)[filter_attrib] not in filtered_attrib_values:
                     del self.assets[asset_key]
             else:
@@ -813,29 +815,120 @@ class UserAsset():
     #   asset update methods below
     #
 
-    def log_event(self, msg, event_type=None):
-        """ Logs a settlement event to mdb.settlement_events. """
+    def log_event(self, msg=None, event_type=None, action=None, key=None, value=None):
+        """ This is the primary user-facing logging interface, so there' s a bit
+        of a high bar for using it.
 
+        The basic idea of creating a log entry is that we're doing a bit of the
+        semantic logging (i.e. strongly typed) thing, so, depending on which
+        kwargs you use when calling this method, your final outcome/message is
+        going to vary somewhat.
+
+        That said, none of the kwargs here are mandatory, because context.
+        """
+
+        # 
+        #   baseline attributes
+        #
+
+        # determine caller method
+        curframe = inspect.currentframe()
+        calframe = inspect.getouterframes(curframe, 2)
+        method = calframe[1][3]
+
+        # figure out the action
+        if action is None:
+            action = method.split("_")[0]
+
+        # determine event type
+        if event_type is None:
+            event_type = method
+
+        # set 'created_by'
+        created_by = None
+        created_by_email = None
+        if request:
+            if hasattr(request, 'User'):
+                created_by = request.User.user['_id']
+                created_by_email = request.User.user['login']
+
+        # set 'attribute_modified'
+        attribute_modified = {
+            'key': key,
+            'value': value,
+        }
+        if attribute_modified['key'] is not None:
+            attribute_modified['key_pretty'] = key.replace("_"," ").replace("and","&").title()
 
         d = {
+            'version': 1,
             "created_on": datetime.now(),
+            'created_by': created_by,
+            'created_by_email': created_by_email,
             "settlement_id": self.settlement_id,
             "ly": self.get_current_ly(),
-            "event": msg,
-            "event_type": event_type,
+            'event_type': event_type,
+            'event': msg,
+            'modified': {'attribute': attribute_modified},
         }
 
+        # survivor, if it's a survivor
         if self.collection == 'survivors':
             d['survivor_id'] = self.survivor['_id']
 
-        if request:
-            if hasattr(request, 'User'):
-                d['created_by'] = request.User.user['_id']
-                ua_string = str(ua_parse(request.user_agent.string))
-                request.User.set_latest_action(msg, ua_string)
+        # target is the settlement, unless a survivor object calls this method
+        action_target = "settlement"
+        if 'survivor_id' in d.keys():
+            d['modified']['asset'] = {
+                'type': 'survivor',
+                '_id': d['survivor_id'],
+                'name': self.survivor['name'],
+                'sex': self.get_sex(),
+            }
+            action_target = "survivor"
+        else:
+            d['modified']['asset'] = {"type": "settlement", "name": self.settlement['name'], '_id': self.settlement_id}
 
+        # create the 'action'
+        action_word, action_preposition = utils.action_keyword(action)
+        d['action'] = {'word': action_word, 'preposition': action_preposition}
+        if key is None and value is None:
+            d['action']['repr'] = " ".join(['modified', action_target])
+        elif key is not None and value is None:
+            d['action']['repr'] = " ".join(['modified', action_target, key])
+        elif key is None and value is None:
+            d['action']['repr'] = " ".join(['modified', action_target])
+        else:
+            if action_target == "survivor":
+                d['action']['repr'] = " ".join([action_word, "'%s'" % value, action_preposition, key])
+            else:
+                d['action']['repr'] = " ".join([action_word, "'%s'" % value, action_preposition, action_target, key])
+
+        # default a message, if incoming message is none
+        if msg is None:
+            if d['modified']['asset']['type'] == 'survivor':
+                d['event'] = " ".join([
+                    d['created_by_email'],
+                    d['action']['word'],
+                    "'%s'" % d['modified']['attribute']['value'],
+                    d['action']['preposition'],
+                    "%s [%s]" % (self.survivor['name'], self.get_sex()),
+                    d['modified']['attribute']['key_pretty'],
+                ])
+            else:
+                d['event'] = " ".join([d['created_by_email'], d['action']['repr'], ])
+            d['event'] += "."
+
+        # finally, if we had a requester, now that we've settled on a message
+        # text, update the requester's latest action with it
+        if 'created_by' is not None:
+            ua_string = str(ua_parse(request.user_agent.string))
+            request.User.set_latest_action(d['event'], ua_string)
+
+        # finally, insert the event (i.e. save)
+#        self.logger.debug(d)
         utils.mdb.settlement_events.insert(d)
-        self.logger.debug("%s event: %s" % (self, msg))
+        self.logger.info("%s event: %s" % (self, d['event']))
 
 
 

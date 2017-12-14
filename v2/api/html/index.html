@@ -63,7 +63,23 @@
         </tr>
 
 
-
+        <tr class="ul route_root">
+            <th colspan="3">
+                <p><b>User creation and auth:</b> these public routes are how you
+                want to create new users and authenticate existing ones.</p>
+            </th>
+        </tr>
+        <tr class="ul">
+            <td> /new/user </td>
+            <td> <b>POST</b>, OPTIONS</td>
+            <td> <p>Include the valid email address and password in the JSON body
+            of your <b>POST</b> to create a new user:</p>
+            <code>{'username': 'demo@kdm-manager.com', 'password': 'tehH4x0r'}</code>
+            <p> If you get a 200 back from the API, the user was created without
+            issue. Otherwise, this route produces some pretty explicit feedback
+            when it returns anything other than a 200.</p>
+            </td>
+        </tr>
         <tr class="ul">
             <td> <a href="/login">/login</a> </td>
             <td> <b>POST</b> </td>
@@ -80,31 +96,6 @@
                 <p>...if your credential checks out, you get a token and the the
                 the user's ID (see below for working with users) back. Easy!</p>
             </td>
-        </tr>
-
-        <tr class="ul">
-            <td> <a href="/new_settlement">/new_settlement</a></td>
-            <td> <b>GET</b> </td>
-            <td> Returns JSON representing available options for creating a new
-            settlement, including expansions, pre-fab survivors, etc. Also
-            includes subtitle/description elements. Use this to make "create
-            new settlement" type views. </td>
-        </tr>
-        <tr class="ul">
-            <td> <a href="/settings.json">/settings.json</a> </td>
-            <td> <b>GET</b></td>
-            <td> Not strictly a part of the API, but sometimes useful. Hit this
-            route to download an attachement of settings.cfg as JSON. </td>
-        </tr>
-        <tr class="ul">
-            <td> <a href="/settings">/settings</a> </td>
-            <td> <b>GET</b> </td>
-            <td> Retrieve settings.cfg as JSON</td>
-        </tr>
-        <tr class="ul">
-            <td> <a href="/world">/world</a> </td>
-            <td> <b>GET</b> </td>
-            <td> Retrieve a JSON representation of aggregate/world stats.</td>
         </tr>
 
         <tr class="ul route_root">
@@ -138,6 +129,8 @@
             been changed to the password you posted, and you can use it to log
             them in.</p>
         </tr>
+
+
         <tr class="ul route_root">
             <th colspan="3">
                 <p><b>UI/UX Helpers:</b> these routes are intended to help with
@@ -168,6 +161,39 @@
 </code></pre>
             </td>
         </tr>
+        <tr class="ul">
+            <td> <a href="/new_settlement">/new_settlement</a></td>
+            <td> <b>GET</b> </td>
+            <td>
+                <p>This route is deprecated! Use <code>/game_asset/new_settlement
+                </code> instead.</p>
+            </td>
+        </tr>
+
+
+        <tr class="ul route_root">
+            <th colspan="3">
+                <p><b>Dashboard:</b> the public endpoints here are meant to be
+                used to create a dashboard or landing page type of view.
+            </th>
+        </tr>
+        <tr class="ul">
+            <td> <a href="/settings.json">/settings.json</a> </td>
+            <td> <b>GET</b></td>
+            <td> Not strictly a part of the API, but sometimes useful. Hit this
+            route to download an attachement of settings.cfg as JSON. </td>
+        </tr>
+        <tr class="ul">
+            <td> <a href="/settings">/settings</a> </td>
+            <td> <b>GET</b> </td>
+            <td> Retrieve settings.cfg as JSON</td>
+        </tr>
+        <tr class="ul">
+            <td> <a href="/world">/world</a> </td>
+            <td> <b>GET</b> </td>
+            <td> Retrieve a JSON representation of aggregate/world stats.</td>
+        </tr>
+
 
 
         <tr class="ul route_root">
@@ -596,19 +622,6 @@
             <th colspan="3"><b>Create Assets:</b> To create new assets (user, survivor, settlement),
             <b>POST</b> JSON containing appropriate params to the /new/&lt;asset_type&gt;
             route. Invalid or unrecognized params will be ignored!</th>
-        </tr>
-        <tr class="ul">
-            <td> /new/user </td>
-            <td> <b>POST</b>, OPTIONS</td>
-            <td> <p>Include the valid email address and password in the JSON body
-            of your <b>POST</b> to create a new user:</p>
-            <code>{'username': 'demo@kdm-manager.com', 'password': 'tehH4x0r'}</code>
-            <p> If you get a 200 back from the API, the user was created without
-            issue. Otherwise, this route produces some pretty explicit feedback
-            when it returns anything other than a 200.</p>
-            <p><b>Important!</b> This is <u>not a private route</u> and you do
-            not have to include a JWT in your header for this endpoint to work.</p>
-            </td>
         </tr>
         <tr class="ul">
             <td> /new/settlement </td>

@@ -22,51 +22,62 @@ resources = {
     "basic_resources": {
         "name": "Basic Resources",
         "color": "B1FB17",
+        "selectable": False,
     },
     "vermin_resources": {
         "name": "Vermin",
         "color": "99CC66",
+        "selectable": False,
     },
     "strange_resources": {
         "name": "Strange Resources",
         "color": "9DC209",
+        "selectable": False,
     },
     "white_lion_resources": {
         "name": "White Lion Resources",
         "color": "DCD900",
+        "selectable": False,
     },
     "screaming_antelope_resources": {
         "name": "Screaming Antelope Resources",
         "color": "DCD900",
+        "selectable": False,
     },
     "phoenix_resources": {
         "name": "Phoenix Resources",
         "color": "DCD900",
+        "selectable": False,
     },
     "spidicules_resources": {
         "name": "Spidicules Resources",
         "expansion": "spidicules",
         "color": "DCD900",
+        "selectable": False,
     },
     "gorm_resources":{
         "name": "Gorm Resources",
         "expansion": "gorm",
         "color": "DCD900",
+        "selectable": False,
     },
     "flower_knight_resources":{
         "name": "Flower Knight Resources",
         "expansion": "flower_knight",
         "color": "DCD900",
+        "selectable": False,
     },
     "dbk_resources": {
         "name": "Dung Beetle Knight Resources",
         "expansion": "dung_beetle_knight",
         "color": "DCD900",
+        "selectable": False,
     },
     "dragon_king_resources":{
         "name": "Dragon King Resources",
         "expansion": "dragon_king",
         "color": "DCD900",
+        "selectable": False,
     },
 }
 
@@ -75,59 +86,70 @@ gear = {
     "starting_gear": {
         "name": "Starting Gear",
         "color": "CCC",
+        "selectable": False,
     },
     "light_forging_gear": {
         "name": "Light-Forging",
         "expansion": "slenderman",
         "color": "570A75",
         "font-color": "fff",
+        "selectable": False,
     },
     "green_knight_armor_gear": {
         "name": "Green Knight Armor",
         "expansion": "green_knight_armor",
         "color": "42AB59",
         "font_color": "fff",
+        "selectable": False,
     },
     "manhunter_gear": {
         "name": "Manhunter Gear",
         "expansion": "manhunter",
         "color": "000",
         "font_color": "F50057",
+        "selectable": False,
     },
     "sense_memory_gear": {
         "name": "Sense Memory",
         "expansion": "flower_knight",
         "color": "145314",
         "font_color": "FFF",
+        "selectable": False,
     },
     "rare_gear": {
         "name": "Rare Gear",
         "color": "9DC209",
+        "selectable": False,
     },
     "promo": {
         "name": "Promo",
         "expansion": "white_box",
         "color": "3BB9FF",
+        "selectable": False,
     },
     "gear_recipe": {
         "name": "Gear Recipe",
         "color": "333",
         "font_color": "FFF",
+        "selectable": False,
     },
     "ivory_carver": {
         "name": "Ivory Carver",
         "color": "FFFFF0",
+        "selectable": False,
     },
     "other": {
         "name": "other",
         "font_color": "FFF",
         "color": "FF00FF",
+        "selectable": False,
     },
     "black_harvest": {
         "name": "Black Harvest",
         "expansion": "dung_beetle_knight",
         "color": "333",
         "font_color": "FFF",
+        "selectable": False,
     },
 
 }

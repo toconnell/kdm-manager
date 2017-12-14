@@ -246,7 +246,11 @@ class Settlement(Models.UserAsset):
 
     def new_settlement_special(self, special_handle):
         """ Think of these as macros. Basically, you feed this a handle, it
-        checks out the handle and then takes action based on it. """
+        checks out the handle and then takes action based on it.
+
+        This method DOES NOT look at the request for input. It...probably
+        never will (i.e. this will always be a child of the new() method.
+        """
 
         specials = self.Survivors.get_specials()
         script = copy(specials.get(special_handle, None))
@@ -402,7 +406,7 @@ class Settlement(Models.UserAsset):
             start = datetime.now()
             output.update({"game_assets": {}})
             output["game_assets"].update(self.get_available_assets(innovations))
-            output["game_assets"].update(self.get_available_assets(locations, exclude_types=["resources","gear"]))
+            output["game_assets"].update(self.get_available_assets(locations, only_include_selectable=True))
             output["game_assets"].update(self.get_available_assets(abilities_and_impairments))
             output["game_assets"].update(self.get_available_assets(weapon_specializations))
             output["game_assets"].update(self.get_available_assets(weapon_masteries))
@@ -860,11 +864,12 @@ class Settlement(Models.UserAsset):
         # now add it
         self.settlement["locations"].append(loc_handle)
 
+        # do levels
         if "levels" in loc_dict.keys():
             self.settlement["location_levels"][loc_handle] = 1
 
-        self.log_event("%s added '%s' to settlement locations." % (request.User.login, loc_dict["name"]), event_type="add_location")
-
+        # log and save
+        self.log_event(key="locations", value=loc_dict['name'])
         self.save()
 
 
@@ -888,7 +893,9 @@ class Settlement(Models.UserAsset):
 
         # now do it
         self.settlement["locations"].remove(loc_handle)
-        self.log_event("%s removed '%s' from settlement locations." % (request.User.login, loc_dict["name"]), event_type="rm_location")
+
+        # log and save
+        self.log_event(key="locations", value=loc_dict['name'])
         self.save()
 
 
@@ -947,8 +954,8 @@ class Settlement(Models.UserAsset):
         if i_dict.get("levels", None) is not None:
             self.settlement["innovation_levels"][i_handle] = 1
 
-        self.log_event("%s added '%s' to settlement innovations." % (request.User.login, i_dict["name"]), event_type="add_innovation")
-
+        # log and save
+        self.log_event(key="innovations", value=i_dict['name'])
         self.save()
 
         # now do survivor post-processing
@@ -973,8 +980,9 @@ class Settlement(Models.UserAsset):
             self.logger.warn("Ignoring attempt to remove %s to %s innovations (because it is not there)." % (I, self))
             return False
 
+        # do it, log and save
         self.settlement["innovations"].remove(I.handle)
-        self.log_event("%s removed '%s' from settlement innovations." % (request.User.login, I.name), event_type="rm_innovation")
+        self.log_event(key="innovations", value=I.name)
         self.save()
 
         # now do survivor post-processing
@@ -1728,7 +1736,7 @@ class Settlement(Models.UserAsset):
     #
 
 
-    def get_available_assets(self, asset_module=None, handles=True, exclude_types=[]):
+    def get_available_assets(self, asset_module=None, handles=True, exclude_types=[], only_include_selectable=False):
         """ Generic function to return a dict of available game assets based on
         their family. The 'asset_module' should be something such as,
         'cursed_items' or 'weapon_proficiencies', etc. that has an Assets()
@@ -1751,6 +1759,9 @@ class Settlement(Models.UserAsset):
         # remove excluded types
         if exclude_types != []:
             A.filter("type", exclude_types)
+
+        if only_include_selectable:
+            A.filter('selectable', [False])
 
         # update available
         for n in A.get_handles():

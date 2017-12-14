@@ -793,7 +793,7 @@ class Survivor(Models.UserAsset):
         # finally, if we're still here, add it and log_event() it
         self.survivor[asset_class].append(asset_dict["handle"])
         self.survivor[asset_class].sort()
-        self.log_event("%s added '%s' (%s) to %s" % (request.User.login, asset_dict["name"], asset_dict["type_pretty"], self.pretty_name()))
+        self.log_event(key=asset_class, value=asset_dict['name'])
 
 
         #
@@ -858,7 +858,7 @@ class Survivor(Models.UserAsset):
 
             # filter out 'secret' assets
             for k in available.keys():
-                if A.get_asset(k).get('type', None) == 'secret_fighting_art':
+                if A.get_asset(k).get('sub_type', None) == 'secret_fighting_art':
                     del available[k]
 
             asset_handle = random.choice(available.keys())
@@ -1114,7 +1114,7 @@ class Survivor(Models.UserAsset):
 
         # finally, if we're still here, add it and log_event() it
         self.survivor[asset_class].remove(asset_dict["handle"])
-        self.log_event("%s removed '%s' (%s) from %s" % (request.User.login, asset_dict["name"], asset_dict["type_pretty"], self.pretty_name()))
+        self.log_event(key=asset_class, value=asset_dict['name'])
 
         if save:
             self.save()
@@ -1135,7 +1135,7 @@ class Survivor(Models.UserAsset):
         }
 
         note_oid = utils.mdb.survivor_notes.insert(note_dict)
-        self.logger.debug("%s Added a note to %s" % (request.User, self))
+#        self.logger.debug("%s Added a note to %s" % (request.User, self))
         return Response(response=json.dumps({'note_oid': note_oid}, default=json_util.default), status=200)
 
 
@@ -1146,7 +1146,7 @@ class Survivor(Models.UserAsset):
         _id = ObjectId(self.params['_id'])
 
         utils.mdb.survivor_notes.remove({'_id': _id})
-        self.logger.debug("%s Removed a note from %s" % (request.User, self))
+#        self.logger.debug("%s Removed a note from %s" % (request.User, self))
 
 
     def update_affinities(self, aff_dict={}, operation="add"):
