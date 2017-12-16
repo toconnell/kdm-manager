@@ -669,7 +669,21 @@
             creation time.</p>
             <p>As a general piece of advice, it typically makes more sense to
             just initialize a new survivor with defaults and then operate on it
-            using the routes below.</p>
+            using the routes below, unless you're doing something inheritance.</p>
+            <p>For normal inheritance, simply <b>POST</b> the OID's of one or
+            more of the survivor's parents like so:</p>
+            <code>{settlement: '59669ace4af5ca799c968c94', father: '5a341e6e4af5ca16907c2dff'}</code>
+            <p>...or like so:</p>
+            <code>{settlement: '59669ace4af5ca799c968c94', father: '5a341e6e4af5ca16907c2dff', mother: '5a3419c64af5ca11240f519f'}</code>
+            <p>This will cause normal inheritance rules to be triggered when the
+            new survivor is created.</p>
+            <p>In order to trigger conditional or special inheritance, e.g. where
+            an innovation requires the user to select a single parent as the donor,
+            you <u>must</u> specify which parent is the donor using the <code>
+            primary_donor_parent</code> key and setting it to 'father' or 'mother':</p>
+            <code>{settlement: '59669ace4af5ca799c968c94', father: '5a341e6e4af5ca16907c2dff', mother: '5a3419c64af5ca11240f519f', primary_donor_parent: 'father'}</code>
+            <p>This will cause innovations such as <b>Family</b> to use the primary
+            donor parent to follow one-parent inheritance rules for that innovation.</p>
             <p><b>Important!</b>Just like the <code>/new/settlement</code> route,
             a successful <b>POST</b> to the <code>/new/survivor</code> route will return
             a serialized version (i.e. JSON) of the new survivor, complete with
@@ -1325,6 +1339,11 @@
             it to the settlement's Innovations:</p>
             <code>{'handle': 'hovel'}</code>
             <p>...or:</p><code>{'handle': 'mastery_club'}</code>
+            <p><b>Important!</b> As far as the API is concerned, Principles (e.g.
+            'Graves', 'Survival of the Fittest', etc. <u>are not innovations</u>
+            and you <u>will</u> break the website if you try to add a principle
+            as if it were an innovation.</p>
+            <p>Use <code>set_principle</code> (below) instead.</p>
             </td>
         </tr>
         <tr class="ul">
@@ -1503,8 +1522,6 @@
                 include the optional parameter <code>{"serialize_on_response": true}
                 </code>. Including this param will get you a serialized version
                 of the survivor as part of your response.</p>
-
-
 
             </th>
         </tr>

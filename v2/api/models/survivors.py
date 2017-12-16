@@ -10,6 +10,7 @@ from flask import request, Response
 import gridfs
 import imghdr
 import json
+import math
 from PIL import Image
 import random
 
@@ -107,9 +108,10 @@ class Survivor(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="survivors"
-        self.object_version = 0.83
+        self.object_version = 0.87
 
         # initialize AssetCollections for later
+        self.AbilitiesAndImpairments = abilities_and_impairments.Assets()
         self.CursedItems = cursed_items.Assets()
         self.Disorders = disorders.Assets()
         self.Names = names.Assets()
@@ -176,18 +178,19 @@ class Survivor(Models.UserAsset):
         else:
             attribs = self.new_asset_attribs
 
-#        self.logger.debug(attribs.keys())
+#        self.logger.debug(attribs)
 
         #
         #   Can't create a survivor without initializing a settlement! do
-        #   that first, and fail bigly if you cannot
+        #       that first, and fail bigly if you cannot
         #
 
         import settlements  # baby jesus, still crying
         self.Settlement = settlements.Settlement(_id=attribs["settlement"])
         self.settlement_id = self.Settlement.settlement["_id"]
 
-
+        # 0. create a record that we're going to save to MDB and use to
+        #   initialize the new survivor
         self.survivor = {
 
             # meta and housekeeping
@@ -223,10 +226,7 @@ class Survivor(Models.UserAsset):
             "affinities": {"red":0,"blue":0,"green":0},
 
             # misc
-            'inherited': {
-                'father': {'abilities_and_impairments': [], 'disorders': [], 'fighting_arts': []},
-                'mother': {'abilities_and_impairments': [], 'disorders': [], 'fighting_arts': []},
-            },
+            'inherited': {'father': {}, 'mother': {}},
             'departing': False,
             'bleeding_tokens': 0,
             'max_bleeding_tokens': 5,
@@ -263,98 +263,56 @@ class Survivor(Models.UserAsset):
 
         c_dict = self.get_campaign(dict)
 
-        # 1.a apply/overwrite attribs that go with our data model
+        # 0.a apply/overwrite attribs that go with our data model
         for a in attribs.keys():
             if a in self.survivor.keys():
                 forbidden_keys = ['settlement']
                 if a not in forbidden_keys and attribs[a] != None:
                     self.survivor[a] = attribs[a]
 
-        # 1.b for bools, keep 'em bool, e.g. in case they come in as 'checked'
+        # 0.b for bools, keep 'em bool, e.g. in case they come in as 'checked'
         for boolean in ["public"]:
             self.survivor[boolean] = bool(self.survivor[boolean])
 
-        # 1.c if sex is "R", pick a random sex
+        # 0.c if sex is "R", pick a random sex
         if self.survivor["sex"] == "R":
             self.survivor["sex"] = random.choice(["M","F"])
 
-        # 1.d sanity check new attribs; die violently if we fail here
+        # 0.d sanity check new attribs; die violently if we fail here
         if self.survivor["sex"] not in ["M","F"]:
             msg = "Invalid survivor 'sex' attrib '%s' received! Must be 'M' or 'F' and str type!" % (self.survivor["sex"])
             self.logger.exception(msg)
             raise utils.InvalidUsage(msg, status_code=400)
 
-        sex_pronoun = "his"
-        if self.survivor['sex'] == 'F':
-            sex_pronoun = 'her'
-
-        # 1.e check for an avatar and add it BEFORE we save
+        # 0.e check for an avatar and add it BEFORE we save
         if 'survivor_avatar' in attribs.keys():
             self.set_avatar(attribs['survivor_avatar'], log_event=False, save=False)
 
 
-        # 2 now save, get an OID so we can start logging and
-        #   start calling object/class methods
-
+        # 1. insert the record we've been developing and call the base class
+        #   load() method, which will initialize and let us use class methods
         self._id = utils.mdb.survivors.insert(self.survivor)
         self.load()
 
-        # 2.a set the name
+
+        # 2. set the name
         s_name = self.survivor['name']
         if s_name == "Anonymous" and request.User.get_preference("random_names_for_unnamed_assets"):
             s_name = self.Names.get_random_survivor_name(self.survivor["sex"])
         self.set_name(s_name, save=False)
 
-        self.log_event("%s created new survivor %s" % (request.User.login, self.pretty_name()))
+        self.log_event("%s created new survivor %s." % (request.User.login, self.pretty_name()))
 
 
+        # 3. parents and newborn status/operations, including inheritance
+        self.survivor_birth(attribs)
 
-        #
-        #   3. parents and newborn status/operations
-        #
-
-        # 3.a check for incoming parents
-        parent_names = []
-        for parent in ["father","mother"]:
-            if parent in attribs.keys() and attribs[parent] is not None:
-                parent_oid = ObjectId(attribs[parent])
-                parent_mdb = utils.mdb.survivors.find_one({"_id": parent_oid})
-                parent_names.append(parent_mdb["name"])
-                self.survivor[parent] = parent_oid
-
-                # check parents for inheritable A&Is
-                AI = abilities_and_impairments.Assets()
-                for ai in parent_mdb['abilities_and_impairments']:
-                    ai_asset = AI.get_asset(ai)
-                    if ai_asset.get('inheritable', False):
-                        self.survivor['inherited'][parent]['abilities_and_impairments'].append(ai)
-                        self.log_event('%s inherited %s from %s %s %s.' % (self.pretty_name(), ai_asset['name'], sex_pronoun, parent, parent_mdb['name']), event_type='survivor_inheritance')
-                        self.add_game_asset('abilities_and_impairments', ai)
-
-
-        # 3.b set newborn status; create parent_string var (for logging)
-        survivor_is_a_newborn = False
-        if parent_names != []:
-            survivor_is_a_newborn = True
-
-            genitive_appellation = "Son"
-            parent_string = ' and '.join(parent_names)
-            if self.survivor["sex"] == "F":
-                genitive_appellation = "Daughter"
-
-
-        # 3.c log the birth/joining
-        if survivor_is_a_newborn:
-            self.log_event("%s born to %s!" % (self.pretty_name(), parent_string), event_type="survivor_birth")
-        else:
-            self.log_event('%s joined the settlement!' % (self.pretty_name()), event_type="survivor_join")
-
-        # 3.d increment survivial if we're named
+        # 4. increment survivial if we're named
         if self.survivor["name"] != "Anonymous" and self.survivor["survival"] == 0:
             self.log_event("Automatically added 1 survival to %s" % self.pretty_name())
             self.survivor["survival"] += 1
 
-        # 4.a settlement buffs - move this to a separate function
+        # 5. settlement buffs - move this to a separate function
         if request.User.get_preference("apply_new_survivor_buffs"):
 
             def apply_buff_list(l):
@@ -382,7 +340,7 @@ class Survivor(Models.UserAsset):
                     if d.get("new_survivor", None) is not None:
                         buff_list.append(d["new_survivor"])
                         buff_sources.add(d["name"])
-                    if survivor_is_a_newborn:
+                    if self.newborn:
                         if d.get("newborn_survivor", None) is not None:
                             buff_list.append(d["newborn_survivor"])
                             buff_sources.add(d["name"])
@@ -390,7 +348,7 @@ class Survivor(Models.UserAsset):
             if c_dict.get('new_survivor', None) is not None:
                 buff_list.append(c_dict['new_survivor'])
                 buff_sources.add("'%s' campaign" % c_dict["name"])
-            if survivor_is_a_newborn:
+            if self.newborn:
                 if c_dict.get('newborn_survivor', None) is not None:
                     buff_list.append(c_dict['newborn_survivor'])
                     buff_sources.add("'%s' campaign" % c_dict["name"])
@@ -413,6 +371,104 @@ class Survivor(Models.UserAsset):
         self.save()
 
         return self._id
+
+
+    def survivor_birth(self, attribs = {}):
+        """ DO NOT CALL THIS METHOD OUTSIDE OF self.new() UNLESS YOU REALLY KNOW
+        WHAT YOU ARE DOING AND WHY YOU ARE DOING IT.
+
+        This is basically a carve out from the new() method. All of the
+        procedural stuff below use to happen in that sequence, but we are doing
+        it in its own method for clarity, maintainability, etc.
+        """
+
+        def process_one_parent(parent_type, parent_oid, primary_donor_parent=False):
+            """ Private method for processing ONE of a new survivor's parents.
+            Updates the survivor as well as self.parent_names, which is used
+            below.
+
+            This is the main place where we do survivor inheritance!
+            """
+
+            # initialize inheritance template - this is the full scope of what
+            #   can be inherited during survivor birth
+            self.survivor['inherited'][parent_type] = {
+                'abilities_and_impairments': [],
+                'disorders': [],
+                'fighting_arts': [],
+                'weapon_proficiency_type': None,
+                'Weapon Proficiency': 0,
+                'surname': None,
+            }
+
+            # now initialize the parent
+            parent_oid = ObjectId(parent_oid)
+            P = Survivor(_id=parent_oid, Settlement=self.Settlement)
+            self.parent_names.append(P.survivor["name"])
+            self.survivor[parent_type] = parent_oid
+
+            p_log_str = "%s (%s)" % (P.pretty_name(), parent_type)
+
+            # check the parent for inheritable A&Is
+            for ai in P.list_assets('abilities_and_impairments'):
+                if ai.get('inheritable', False):
+                    self.survivor['inherited'][parent_type]['abilities_and_impairments'].append(ai['handle'])
+                    self.add_game_asset('abilities_and_impairments', ai['handle'], log_event=False)
+                    self.log_event(action="inherit", key=p_log_str, value=ai['name'], agent="automation", event_type="inherit")
+
+            # if this parent happens to be the primary donor (for inheritance)
+            # check settlement innovations for ones with a primary_donor_parent
+            if primary_donor_parent:
+                for i_dict in self.Settlement.list_assets('innovations'):
+                    if i_dict.get('primary_donor_parent', None) is not None:
+                        for attr in i_dict['primary_donor_parent'].get('attributes', []):
+                            self.survivor[attr] = P.survivor[attr]
+                            self.survivor['inherited'][parent_type][attr] = P.survivor[attr]
+                            self.log_event(action="inherit", key=p_log_str, value=attr, agent="automation", event_type="inherit")
+                        for special in i_dict['primary_donor_parent'].get('specials', []):
+                            if special == "surname":
+                                if len(P.survivor['name'].split()) > 1:
+                                    surname = P.survivor['name'].split()[-1]
+                                    self.set_name(" ".join([self.survivor['name'], surname]), save=False)
+                                    self.survivor['inherited'][parent_type]['surname'] = surname
+                                    self.log_event(action="inherit", key=p_log_str, value="surname '%s'" % surname, agent="automation", event_type="inherit")
+                            elif special == "one_half_weapon_proficiency":
+                                self.survivor['Weapon Proficiency'] = math.floor(P.survivor['Weapon Proficiency']*0.5)
+                                self.survivor['inherited'][parent_type]['Weapon Proficiency'] = self.survivor['Weapon Proficiency']
+                                self.log_event(action="inherit", key=p_log_str, value="1/2 weapon proficiency levels", agent="automation", event_type="inherit")
+                            else:
+                                self.logger.warn("Unrecognized primary donor parent 'special' key '%s' is ignored!" % (special))
+
+
+        # 1.) process parents here and do inheritance
+        self.parent_names = []
+        for parent_type in ["father","mother"]:
+            primary_donor_parent = attribs.get('primary_donor_parent', False)
+            if primary_donor_parent == parent_type:
+                primary_donor_parent = True
+            else:
+                primary_donor_parent = False
+            if parent_type in attribs.keys() and attribs[parent_type] is not None:
+                process_one_parent(parent_type, attribs[parent_type], primary_donor_parent)
+
+        # 2.) if the survivor is a newborn, do newborn operations
+        self.newborn = False
+        if self.parent_names != []:
+            self.newborn = True
+            parent_string = ' and '.join(self.parent_names)
+
+#            genitive_appellation = "Son"
+#            if self.survivor["sex"] == "F":
+#                genitive_appellation = "Daughter"
+
+
+        # 3.d log the birth/joining
+        if self.newborn:
+            self.log_event("%s born to %s!" % (self.pretty_name(), parent_string), action="born", agent="automation")
+        else:
+            self.log_event('%s joined the settlement!' % (self.pretty_name()), event_type="survivor_join")
+
+        return True
 
 
     def normalize(self):
@@ -701,7 +757,7 @@ class Survivor(Models.UserAsset):
 
 
 
-    def add_game_asset(self, asset_class=None, asset_handle=None, apply_related=True, save=True):
+    def add_game_asset(self, asset_class=None, asset_handle=None, apply_related=True, save=True, log_event=True):
         """ Port of the legacy method of the same name.
 
         Does not apply nearly as much business logic as the legacy webapp
@@ -793,7 +849,8 @@ class Survivor(Models.UserAsset):
         # finally, if we're still here, add it and log_event() it
         self.survivor[asset_class].append(asset_dict["handle"])
         self.survivor[asset_class].sort()
-        self.log_event(key=asset_class, value=asset_dict['name'])
+        if log_event:
+            self.log_event(key=asset_class, value=asset_dict['name'])
 
 
         #

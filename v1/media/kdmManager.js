@@ -511,7 +511,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
 
         // filter anything whose 'type' matches exclude_type
         for (var b in output) {
-            if (output[b].type == exclude_type) {
+            if (output[b].sub_type == exclude_type) {
                 delete output[b];
             };
         };

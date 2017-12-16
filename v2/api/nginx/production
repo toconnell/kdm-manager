@@ -27,6 +27,7 @@ server {
     error_log   /var/log/nginx/api.thewatcher.io_error.log;
 
     large_client_header_buffers 4 32k;
+    client_max_body_size 5M;    # big-ass avatar image support
 
     ### Locations
     location / {

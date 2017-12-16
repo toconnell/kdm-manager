@@ -194,6 +194,8 @@ fieldset {border: 0; text-align: left; }
 
 /* all breakpoints - general styles */ 
 
+.no_ul {border: 0; }
+.ul {border: 0; border-bottom: 1px solid #666; }
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
     /* display: none; <- Crashes Chrome on hover */
@@ -575,9 +577,8 @@ img.latest_fatality {width: 300px; float: right; margin: 10px; }
 
 /* asset creation styles */
 div.create_user_asset_block_group {margin: 4%; margin-top: 0; }
-div.create_user_asset_block_group h2 {border: 0; padding-left: 3%; border-bottom: 2px solid #000; margin-bottom: 0; }
-div.create_user_asset_block_group h2.no_ul {border-bottom: 0; }
-div.create_user_asset_block_group p {border-bottom: 2px solid #000; margin: 0; padding: 1%; padding-bottom: 2%; font-size: 40px;}
+div.create_user_asset_block_group h2 {padding-left: 3%; margin-bottom: 0; }
+div.create_user_asset_block_group p {margin: 0; padding: 1%; padding-bottom: 2%; font-size: 40px;}
 div.create_user_asset_block_group input[type=email], div.create_user_asset_block_group input[type=text] { margin: 4% auto; width: 100%; font-weight: bold; }
 input.new_asset_name {width: 100%; margin: 4%; font-family: Silverado; font-size: 100px; font-weight: bold; border: 0; outline: none; text-align: center; }
 
@@ -1376,6 +1377,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
         /* dashboard_alert - tablet */
 
     div.dashboard_alert_spacer {height: 200px; }
+    .dashboard_rollup {padding-top: 1%; padding-bottom: 1%; }
     .dashboard_alert {font-size: 17pt; width: auto; left: 15%; right: 15%; }
 
     table.dashboard_table {width: 80%; margin-left: 20px;}
@@ -1541,7 +1543,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.survivor_sheet_secondary_attribute_caption b {font-family: Silverado; }
 
     /* survivor special attribute controls - tablet */
-    .survivor_sheet_special_attributes_container {display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+    .survivor_sheet_special_attributes_container {display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; width: 100%; border-top: 1px solid #aaa; padding-top:2%; }
     .survivor_sheet_special_attribute_container {width: 23%; margin: 1%; align-items: center; padding: 1%; }
     .special_attribute_text {font-size: 13pt; vertical-align: middle; }
     .special_attribute_checkbox {border: 5px solid #ccc; margin-right: 5%; width: 20px; height: 20px;}
@@ -2083,7 +2085,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     div.create_user_asset_block_group {display: flex; flex-direction: column; }
     div.create_user_asset_block_group input {font-size: 30pt; }
-    div.create_user_asset_block_group p {border-bottom: 1px solid #333; font-size: 12pt; margin-bottom: 2%; }
+    div.create_user_asset_block_group p {font-size: 12pt; margin-bottom: 2%; text-align: left; }
     div.create_user_asset_block_group p.new_settlement_asset {border-left:1px solid #ccc; margin-left: 5%; padding-left: 5px; font-size: 10pt; margin-bottom: 0; font-family: Metrophobic; }
     div.create_user_asset_block_group label {font-size: 14pt; width: 90%; margin-left: 2%; }
     div.create_user_asset_block_group label:hover {font-weight: normal; }
@@ -2339,7 +2341,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.survivor_sheet_secondary_attrib_container .big_number_caption {width: auto;}
 
     /* special attribs wide */
-    .survivor_sheet_special_attributes_container {}
+    .survivor_sheet_special_attributes_container {padding-top: 0; border-top: 0; }
     .survivor_sheet_special_attribute_container {width:90%; margin: 1%; align-items: center; padding: 1%; border-width: 2px; }
     .special_attribute_text {font-size: 10pt; vertical-align: middle; }
     .special_attribute_checkbox {border: 2px solid #ccc; margin-right: 2%; width: 10px; height: 10px;}

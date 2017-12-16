@@ -488,7 +488,16 @@ class Session:
                 self.set_current_settlement(user_asset_id)
 
                 POST_params = {"settlement": self.Settlement.settlement["_id"]}
-                incoming_form_params = ["name","sex","survivor_avatar","father","mother","email","public"]
+                incoming_form_params = [
+                    "name",
+                    "sex",
+                    "survivor_avatar",
+                    "father",
+                    "mother",
+                    "email",
+                    "public",
+                    "primary_donor_parent",
+                ]
                 for p in incoming_form_params:
                     if p in self.params and self.params[p].value not in ["",u""]:
                         if "string:" in self.params[p].value:

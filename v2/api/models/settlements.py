@@ -82,7 +82,7 @@ class Settlement(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="settlements"
-        self.object_version=0.77
+        self.object_version=0.81
         Models.UserAsset.__init__(self,  *args, **kwargs)
 
         self.init_asset_collections()
@@ -410,7 +410,7 @@ class Settlement(Models.UserAsset):
             output["game_assets"].update(self.get_available_assets(abilities_and_impairments))
             output["game_assets"].update(self.get_available_assets(weapon_specializations))
             output["game_assets"].update(self.get_available_assets(weapon_masteries))
-            output["game_assets"].update(self.get_available_assets(weapon_proficiency, handles=False))
+            output["game_assets"]['weapon_proficiency_types'] = self.get_available_assets(weapon_proficiency)['weapon_proficiency']
             output["game_assets"].update(self.get_available_assets(cursed_items))
             output["game_assets"].update(self.get_available_assets(survival_actions))
             output["game_assets"].update(self.get_available_assets(events))
@@ -1756,9 +1756,10 @@ class Settlement(Models.UserAsset):
 
         A = copy(asset_module.Assets())
 
-        # remove excluded types
+        # remove excluded type/sub_types
         if exclude_types != []:
             A.filter("type", exclude_types)
+            A.filter("sub_type", exclude_types)
 
         if only_include_selectable:
             A.filter('selectable', [False])
@@ -2152,20 +2153,20 @@ class Settlement(Models.UserAsset):
         #   Once we've got that baseline, we check the individual innovations
         #   we've got left to see if we keep them in the deck. 
 
-        time.sleep(1)   # hack city! makes it feel more like something is
-                        # happening; slows the users down
 
         available = dict(self.get_available_assets(innovations)["innovations"])
 
         # remove principles and innovations from expansions we don't use
         for a in available.keys():
-            if available[a].get("type", None) == "principle":
+            if available[a].get("sub_type", None) == "principle":
                 del available[a]
 
         # remove ones we've already got and make a list of consequences
         consequences = []
         for i_handle in self.settlement["innovations"]:
-            if available[i_handle].get("consequences",None) is not None:
+            if i_handle not in available.keys():
+                self.logger.error("%s Innovation handle '%s' is not a known innovation!" % (self, i_handle))
+            elif available[i_handle].get("consequences",None) is not None:
                 consequences.extend(available[i_handle]["consequences"])
             if i_handle in available.keys():
                 del available[i_handle]
@@ -3012,7 +3013,13 @@ class Settlement(Models.UserAsset):
     def bug_fixes(self):
         """ In which we burn CPU cycles to fix our mistakes. """
 
-        # 2017-10-05 legacy data bug
+        # 2017-12-16 - principles in the innovations list
+        for i in self.list_assets('innovations'):
+            if i.get('sub_type', None) == 'principle':
+                self.settlement['innovations'].remove(i['handle'])
+                self.logger.warn("%s Removed principle '%s' from innovations list!" % (self, i['name']))
+
+        # 2017-10-05 - legacy data bug
         if self.settlement.get("expansions", None) is None:
             self.settlement["expansions"] = []
             self.perform_save = True
@@ -3034,6 +3041,7 @@ class Settlement(Models.UserAsset):
                 else:
                     self.logger.error("Could not find an asset with the name '%s' for %s. Failing..." % (i, self))
                 self.perform_save = True
+
 
 
     def convert_campaign_to_handle(self):

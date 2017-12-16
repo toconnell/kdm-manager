@@ -1302,7 +1302,7 @@ class angularJS:
 
         <div class="full_size_modal_panel survivor_sheet_gradient">
 
-            <h3>Create New Survivor</h3>
+            <h2 class="no_ul centered">Create New Survivor</h2>
 
             <span class="closeModal" onclick="showHide('modalNewSurvivorContainer')">×</span>
 
@@ -1326,7 +1326,7 @@ class angularJS:
                 class="create_user_asset_block_group"
             >
 
-                <h2 class="new_asset">Survivor Sex</h2>
+                <h2 class="new_asset ul">Survivor Sex</h2>
 
                 <input
                     id="maleInput"
@@ -1361,7 +1361,7 @@ class angularJS:
 
             <div class="create_user_asset_block_group">
                 <h2 class="no_ul">Survivor Avatar Image</h2>
-                <p>Upload an image to represent this survivor (optional).</p>
+                <p class="ul">Upload an image to represent this survivor (optional).</p>
                 <br/>
                 <input type="file" class="new_survivor_avatar" name="survivor_avatar" accept="image/*">
             </div>
@@ -1376,7 +1376,7 @@ class angularJS:
                 "
             >
                 <h2 class="no_ul">Survivor Parents</h2>
-                <p class="new_asset">Survivors without parents are not eligible
+                <p class="ul">Survivors without parents are not eligible
                 for the automatic application of Innovation bonuses granted only
                 to newborn survivors!</p>
 
@@ -1392,8 +1392,49 @@ class angularJS:
                         ng-model="newSurvivorMother"
                         ng-options="survivor._id.$oid as survivor.name for survivor in settlement.eligible_parents.female"
                     /><option selected disabled value="" name="mother">Mother</option></select>
-                </div>
 
+                    <div
+                        class="family_inheritance_checkboxes"
+                        ng-if="
+                            settlement.sheet.innovations.indexOf('family') != -1 &&
+                            user.user.preferences.beta == true
+                        "
+                    >
+                        <h2 class="no_ul"> &beta; Family Innovation</h2>
+                        <p><i>A newborn survivor inherits the surname
+                        of one parent, their weapon type and half (rounded down) of
+                        their weapon proficiency levels.</i></p>
+                        <p class="ul">Select a parent (optional).</p>
+
+                        <input
+                            id="inheritFromFather"
+                            class="kd_css_checkbox kd_radio_option"
+                            type="radio"
+                            name="primary_donor_parent"
+                            value="father"
+                        >
+                        <label
+                            for="inheritFromFather"
+                        >
+                            Father
+                        </label>
+                        <input
+                            id="inheritFromMother"
+                            class="kd_css_checkbox kd_radio_option"
+                            type="radio"
+                            name="primary_donor_parent"
+                            value="mother"
+                        >
+                        <label
+                            for="inheritFromMother"
+                        >
+                            Mother
+                        </label>
+
+                        <br/>
+
+                    </div>
+                </div>
 
             </div> <!-- ancestors -->
 
@@ -1402,7 +1443,7 @@ class angularJS:
 
                 <h2 class="no_ul">Access Permissions</h2>
 
-                <p>Use the controls below to determine who is the owner of the
+                <p class="ul">Use the controls below to determine who is the owner of the
                 survivor and whether other players may edit the survivor.</p>
 
                 <input
@@ -2324,7 +2365,7 @@ class survivor:
                     <div class="big_number_caption">Weapon Proficiency</div>
                         <select
                             ng-model="survivor.sheet.weapon_proficiency_type"
-                            ng-options="w.handle as w.name for w in settlement.game_assets.weapon_proficiency"
+                            ng-options="dict.handle as dict.name for dict in settlement.game_assets.weapon_proficiency_types"
                             ng-change="setWeaponProficiencyType()"
                             ng-selected="survivor.sheet.weapon_proficiency_type"
                         >
@@ -2774,7 +2815,7 @@ class survivor:
                     ng-if="AIoptions != undefined"
                     ng_model="scratch.newAI"
                     ng_change="addAI()"
-                    ng-options="ai.handle as (ai.name + ' (' + ai.type_pretty + ')'  ) for ai in AIoptions"
+                    ng-options="ai.handle as (ai.name + ' (' + ai.sub_type_pretty + ')'  ) for ai in AIoptions"
                 >
                     <option value="" disabled selected>Add Abilities & Impairments</option>
                 </select>
@@ -2823,12 +2864,17 @@ class survivor:
                     </p>
 
                     <!-- inheritance -->
-                    <p ng-repeat="ai in survivor.sheet.inherited.father.abilities_and_impairments">
-                        <font class="kdm_font_hit_locations">a</font> Inherited <b>{{settlement.game_assets.abilities_and_impairments[ai].name}}</b> from <b>{{survivor.sheet.parents.father.name}}</b> (father).
-                    </p>
-                    <p ng-repeat="ai in survivor.sheet.inherited.mother.abilities_and_impairments">
-                        <font class="kdm_font_hit_locations">a</font> Inherited <b>{{settlement.game_assets.abilities_and_impairments[ai].name}}</b> from <b>{{survivor.sheet.parents.mother.name}}</b> (mother).
-                    </p>
+                    <div ng-repeat="parent in ['father','mother']">
+                        <p ng-repeat="ai in survivor.sheet.inherited[parent].abilities_and_impairments">
+                            <font class="kdm_font_hit_locations">a</font> Inherited <b>{{settlement.game_assets.abilities_and_impairments[ai].name}}</b> from <b>{{survivor.sheet.parents[parent].name}}</b> ({{parent}}).
+                        </p>
+                        <p ng-if="survivor.sheet.inherited[parent].weapon_proficiency_type != null" ng-init="wp = survivor.sheet.inherited[parent].weapon_proficiency_type">
+                            <font class="kdm_font_hit_locations">a</font> Inherited <b>{{settlement.game_assets.weapon_proficiency_types[wp].name}}</b> proficiency from <b>{{survivor.sheet.parents[parent].name}}</b> ({{parent}}).
+                        </p>
+                        <p ng-if="survivor.sheet.inherited[parent]['Weapon Proficiency'] > 0">
+                            <font class="kdm_font_hit_locations">a</font> Inherited {{survivor.sheet['Weapon Proficiency']}} Weapon Proficiency points <b>from <b>{{survivor.sheet.parents[parent].name}}</b> ({{parent}}).
+                        </p>
+                    </div>
 
                     <!-- returning survivor -->
                     <p ng-if="survivor.sheet.returning_survivor.length >= 1">

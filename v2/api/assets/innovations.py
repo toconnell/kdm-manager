@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 
-core = {
+innovation = {
     #
     #   Innovations including a survival action unlock
     #
@@ -92,6 +92,10 @@ core = {
         "consequences": ["clan_of_death"],
         "departure_buff": "Departing survivors gain +1 survival.",
         "settlement_buff": "Survivors nominated for intimacy may give themselves a surname if they do not have one. A newborn survivor inherits the surname of one parent, their weapon type and half (rounded down) of their weapon proficiency levels.",
+        "primary_donor_parent": {
+            "attributes": ['weapon_proficiency_type'],
+            "specials": ["surname","one_half_weapon_proficiency"],
+        },
     },
     "clan_of_death": {
         "name": "Clan of Death",
@@ -249,6 +253,7 @@ core = {
 
     "graves" : {
         "name": "Graves",
+        'type': 'principle',
         "principle": "death",
         "settlement_buff": 'All new survivors gain +1 understanding.<br/>When a survivor dies during the hunt or showdown phase, gain +2 <font class="kdm_font">d</font>.<br/>When a survivor dies during the settlement phase, gain +1 <font class="kdm_font">d</font>.',
         "survivor_buff": "All new survivors gain +1 understanding.",
@@ -256,6 +261,7 @@ core = {
     },
     "cannibalize": {
         "name": "Cannibalize",
+        'type': 'principle',
         "principle": "death",
         "survival_limit": 1,
 #        "settlement_buff": "Whenever a survivor dies, draw one basic resource and add it to the settlement storage.",
@@ -263,11 +269,13 @@ core = {
     },
     "protect_the_young": {
         "name": "Protect the Young",
+        'type': 'principle',
         "principle": "new_life",
         "settlement_buff": "When rolling on the Intimacy story event, roll twice and pick one result.",
     },
     "survival_of_the_fittest": {
         "name": "Survival of the Fittest",
+        'type': 'principle',
         "principle": "new_life",
         "survival_limit": 1,
         "settlement_buff": "When rolling on the Intimacy story event, roll twice and pick the lowest result. All current and newborn survivors gain +1 strength and evasion.<br/>Once per lifetime, a survivor may reroll a single roll result. They must keep this new result.",
@@ -277,16 +285,19 @@ core = {
     },
     "collective_toil": {
         "name": "Collective Toil",
+        'type': 'principle',
         "principle": "society",
         "settlement_buff": "At the start of the settlement phase, gain +1 Endeavor for every 10 population.",
     },
     "accept_darkness": {
         "name": "Accept Darkness",
+        'type': 'principle',
         "principle": "society",
         "survivor_buff": "Add +2 to all Brain Trauma Rolls.",
     },
     "romantic": {
         "name": "Romantic",
+        'type': 'principle',
         "principle": "conviction",
         "survival_limit": 1,
 #        "settlement_buff": "You may innovate one additional time during the settlement phase. In addition, all current and newborn survivors gain +1 understanding.",
@@ -297,6 +308,7 @@ core = {
     },
     "barbaric": {
         "name": "Barbaric",
+        'type': 'principle',
         "principle": "conviction",
         "survival_limit": 1,
         "survivor_buff": "All current and newborn survivors gain +1 permanent Strength.",
@@ -305,7 +317,7 @@ core = {
     },
 }
 
-expansions = {
+expansion = {
     "dragon_speech": {
         "name": "Dragon Speech",
         "innovation_type": "starting innovation",

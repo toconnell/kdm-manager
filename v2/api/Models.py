@@ -815,7 +815,7 @@ class UserAsset():
     #   asset update methods below
     #
 
-    def log_event(self, msg=None, event_type=None, action=None, key=None, value=None):
+    def log_event(self, msg=None, event_type=None, action=None, key=None, value=None, agent=None):
         """ This is the primary user-facing logging interface, so there' s a bit
         of a high bar for using it.
 
@@ -851,6 +851,8 @@ class UserAsset():
             if hasattr(request, 'User'):
                 created_by = request.User.user['_id']
                 created_by_email = request.User.user['login']
+                if agent is None:
+                    agent = "user"
 
         # set 'attribute_modified'
         attribute_modified = {
@@ -859,9 +861,12 @@ class UserAsset():
         }
         if attribute_modified['key'] is not None:
             attribute_modified['key_pretty'] = key.replace("_"," ").replace("and","&").title()
+        if attribute_modified['value'] is not None:
+            attribute_modified['value_pretty'] = value.replace("_"," ")
 
         d = {
-            'version': 1,
+            'version': 1.1,
+            'agent': agent,
             "created_on": datetime.now(),
             'created_by': created_by,
             'created_by_email': created_by_email,
@@ -907,14 +912,23 @@ class UserAsset():
         # default a message, if incoming message is none
         if msg is None:
             if d['modified']['asset']['type'] == 'survivor':
-                d['event'] = " ".join([
-                    d['created_by_email'],
-                    d['action']['word'],
-                    "'%s'" % d['modified']['attribute']['value'],
-                    d['action']['preposition'],
-                    "%s [%s]" % (self.survivor['name'], self.get_sex()),
-                    d['modified']['attribute']['key_pretty'],
-                ])
+                if d['agent'] == 'user':
+                    d['event'] = " ".join([
+                        d['created_by_email'],
+                        d['action']['word'],
+                        d['modified']['attribute']['value_pretty'],
+                        d['action']['preposition'],
+                        "%s [%s]" % (self.survivor['name'], self.get_sex()),
+                        d['modified']['attribute']['key_pretty'],
+                    ])
+                else:
+                    d['event'] = " ".join([
+                        "%s [%s]" % (self.survivor['name'], self.get_sex()),
+                        d['action']['word'],
+                        d['modified']['attribute']['value_pretty'],
+                        d['action']['preposition'],
+                        d['modified']['attribute']['key_pretty'],
+                    ])
             else:
                 d['event'] = " ".join([d['created_by_email'], d['action']['repr'], ])
             d['event'] += "."

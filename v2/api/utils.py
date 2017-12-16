@@ -175,7 +175,10 @@ def list_to_pretty_string(l, quote_char=False):
     if quote_char:
         l = [str("%s%s%s" % (quote_char,i,quote_char)) for i in l]
     else:
-        l = [i.encode('ascii','ignore') for i in l]
+        try:
+            l = [i.encode('ascii','ignore') for i in l]
+        except:
+            l = [str(i) for i in l]
 
     return " and ".join([", ".join(l[:-1]), l[-1]])
 
@@ -217,6 +220,10 @@ def action_keyword(kw):
         output = ("removed", "from")
     elif kw in ["set", "update"]:       # set
         output = ("set", "to")
+    elif kw in ["inherited", "inherit"]:
+        output = ("inherited", "from")
+    elif kw in ["birth", "born"]:
+        output = ("born", "to")
     elif kw in ["enforce"]:             # automate
         output = ("automatically set", "to")
     else:
@@ -326,7 +333,7 @@ class mailSession:
         if reply_to is not None:
             msg.add_header('reply-to', reply_to)
 
-        msg.attach(MIMEText(html_msg,'html'))
+        msg.attach(MIMEText(html_msg.encode('ascii','ignore'),'html'))
 
         self.server.sendmail(self.no_reply, recipients, msg.as_string())
         self.server.quit()

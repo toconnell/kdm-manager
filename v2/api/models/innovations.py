@@ -15,13 +15,6 @@ class Assets(Models.AssetCollection):
         self.root_module = innovations
         Models.AssetCollection.__init__(self,  *args, **kwargs)
 
-        # special type setting
-        for a in self.assets.keys():
-            if "principle" in self.assets[a].keys():
-                self.assets[a]["type"] = "principle"
-            else:
-                self.assets[a]["type"] = "innovation"
-
         # manual addition of weapon masteries
         for m in abilities_and_impairments.weapon_mastery.keys():
             wm = abilities_and_impairments.weapon_mastery[m]
