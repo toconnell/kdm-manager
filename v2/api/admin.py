@@ -57,7 +57,10 @@ def dump_settlement_to_cli(s_id, verbose=False):
     else:
         s_repr = OrderedDict()
         for attr in ['_id','name','campaign','expansions','created_by','created_on']:
-            s_repr[attr] = s[attr]
+            try:
+                s_repr[attr] = s[attr]
+            except:
+                s_repr[attr] = None
         dump_doc_to_cli(s_repr)
 
     if s.get('removed', False):
