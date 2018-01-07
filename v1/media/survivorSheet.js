@@ -72,18 +72,6 @@ app.controller("survivorSheetController", function($scope) {
         js_obj = {name: newName};
         $scope.postJSONtoAPI('survivor', 'set_name', js_obj);
     };
-    $scope.toggleStatusFlag = function(flag) {
-        $scope.postJSONtoAPI('survivor','toggle_status_flag', {'flag': flag}, false, true, true);
-    };
-
-    // sex is a toggle 
-    $scope.toggleSurvivorSex = function() {
-        var new_sex = 'M'
-        if ($scope.survivor.sheet.sex == 'M') {
-            new_sex = 'F';
-        };
-        $scope.postJSONtoAPI('survivor','set_sex', {'sex': new_sex}, false, true, true);
-    };
 
     $scope.updateSurvival = function() {
         var new_total = $scope.survivor.sheet.survival;
@@ -166,6 +154,23 @@ app.controller("survivorSheetController", function($scope) {
         };
     };
 
+    // abstracted survivor toggles
+    $scope.toggleStatusFlag = function(flag) {
+        $scope.postJSONtoAPI('survivor','toggle_status_flag', {'flag': flag}, false, true, true);
+    };
+    $scope.toggleBoolean = function(attrib) {
+        $scope.postJSONtoAPI('survivor','toggle_boolean', {'attribute': attrib}, false, true, true);
+    };
+
+    // sex is a toggle 
+    $scope.toggleSurvivorSex = function() {
+        var new_sex = 'M'
+        if ($scope.survivor.sheet.sex == 'M') {
+            new_sex = 'F';
+        };
+        $scope.postJSONtoAPI('survivor','set_sex', {'sex': new_sex}, false, true, true);
+    };
+
     $scope.toggleFavorite = function() {
 //        console.warn('toggling favorite status.');
         var user_index = $scope.survivor.sheet.favorite.indexOf($scope.user_login);
@@ -214,6 +219,22 @@ app.controller("survivorSheetController", function($scope) {
         };
     };
 
+    // abilities and Impairments
+    $scope.rmAI = function(ai_handle, ai_index) {
+//        console.log(ai_handle + " index: " + ai_index);
+        $scope.survivor.sheet.abilities_and_impairments.splice(ai_index, 1);
+        js_obj = {"handle": ai_handle, "type": "abilities_and_impairments"};
+        $scope.postJSONtoAPI('survivor', 'rm_game_asset', js_obj);
+    };
+
+    $scope.addAI = function() {
+        var ai_handle = $scope.scratch.newAI;
+        if (ai_handle === null || ai_handle === undefined) {return false};
+        $scope.survivor.sheet.abilities_and_impairments.push(ai_handle);
+        js_obj = {handle: ai_handle, type: "abilities_and_impairments"};
+        $scope.postJSONtoAPI('survivor', 'add_game_asset', js_obj);
+    };
+
 });
 
 app.controller('disordersController', function($scope) {
@@ -236,29 +257,6 @@ app.controller('disordersController', function($scope) {
 
 })
 
-app.controller('abilitiesAndImpairmentsController', function($scope) {
-
-    //
-    //  regular methods below here
-    //
-
-
-    $scope.rmAI = function(ai_handle, ai_index) {
-//        console.log(ai_handle + " index: " + ai_index);
-        $scope.survivor.sheet.abilities_and_impairments.splice(ai_index, 1);
-        js_obj = {"handle": ai_handle, "type": "abilities_and_impairments"};
-        $scope.postJSONtoAPI('survivor', 'rm_game_asset', js_obj);
-    };
-
-    $scope.addAI = function() {
-        var ai_handle = $scope.scratch.newAI;
-        if (ai_handle === null || ai_handle === undefined) {return false};
-        $scope.survivor.sheet.abilities_and_impairments.push(ai_handle);
-        js_obj = {handle: ai_handle, type: "abilities_and_impairments"};
-        $scope.postJSONtoAPI('survivor', 'add_game_asset', js_obj);
-    };
-
-});
 
 app.controller("affinitiesController", function($scope) {
 
@@ -370,9 +368,6 @@ app.controller("cursedItemsController", function($scope) {
 
 app.controller('fightingArtsController', function($scope) {
     $scope.userFA = {}; // if you're gonna use ng-model, you have to have a dot in there
-    $scope.toggleStatusFlag = function(flag) {
-        $scope.postJSONtoAPI('survivor','toggle_status_flag', {'flag': 'cannot_use_fighting_arts'});
-    };
     $scope.addFightingArt = function() {
         var fa_handle = $scope.userFA.newFA;
         if (fa_handle === null) {return false};
@@ -419,13 +414,6 @@ app.controller('saviorController', function($scope) {
 });
 
 
-app.controller('skipNextHuntController', function($scope) {
-    $scope.toggleStatusFlag = function() {
-        $scope.postJSONtoAPI('survivor','toggle_status_flag', {'flag': 'skip_next_hunt'});
-    };
-});
-
-
 app.controller('survivorSpecialAttribsController', function($scope) {
     // for the campaign-specific and expansion-specific bool attribs
     $scope.toggleSpecialAttrib = function(sa_handle) {
@@ -444,9 +432,6 @@ app.controller('survivorSpecialAttribsController', function($scope) {
 
 
 app.controller('lineageController', function($scope) {
-    $scope.togglePublic = function() {
-        $scope.postJSONtoAPI('survivor','toggle_boolean', {'attribute': 'public'}, false);
-    };
     $scope.setEmail = function() {
         var newEmail = $scope.newSurvivorEmail.toLowerCase();
         var res = $scope.postJSONtoAPI('survivor','set_email', {'email': newEmail});

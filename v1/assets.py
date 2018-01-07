@@ -557,54 +557,6 @@ class Survivor:
         return const
 
 
-    def update_partner(self, p_id):
-        """ Updates the survivor's 'partner_id' with the ObjectID of another
-        survivor in the settlement. Also pulls up and updates the partner's mdb
-        record during the update. """
-
-        p_id = ObjectId(p_id)
-        self.survivor["partner_id"] = p_id
-        partner = Survivor(survivor_id=p_id, session_object=self.Session)
-        partner.survivor["partner_id"] = self.survivor["_id"]
-        mdb.survivors.save(partner.survivor)
-        self.logger.debug("[%s] %s and %s are now partners." % (self.Settlement, self, partner))
-
-
-    def get_partner(self, return_type="html_controls"):
-        """ Returns the survivor's partner's Survivor object by default. Use the
-        'return_type' kwarg to get different types of returns.  """
-
-        if not "partner_id" in self.survivor.keys():
-            partner = None
-        else:
-            try:
-                partner = Survivor(survivor_id=self.survivor["partner_id"], session_object=self.Session)
-            except Exception as e:
-                self.logger.exception(e.message)
-                self.logger.error("[%s] Survivor %s partner ID not found in MDB! (%s)" % (self.Settlement, self, self.survivor["partner_id"]))
-                del self.survivor["partner_id"]
-                self.logger.info("[%s] Removed 'partner_id' attrib from %s" % (self.Settlement, self))
-                partner = None
-
-        if return_type == "html_controls":
-
-            output = html.survivor.partner_controls_top
-            if partner is None:
-                output += html.survivor.partner_controls_none
-            for s in self.Settlement.get_survivors():
-                selected = ""
-                if s["_id"] == self.survivor["_id"]:
-                    pass
-                else:
-                    if partner is not None and partner.survivor["_id"] == s["_id"]:
-                        selected = "selected"
-                    output += html.survivor.partner_controls_opt.safe_substitute(name=s["name"], value=s["_id"], selected=selected)
-            output += html.survivor.partner_controls_bot
-            return output
-
-        return partner
-
-
 
     def remove_survivor_attribute(self, attrib):
         """ Tries to delete an attribute from a survivor's MDB document. Fails
@@ -656,8 +608,6 @@ class Survivor:
 
             if p in ignore_keys:
                 pass
-            elif p == "partner_id":
-                self.update_partner(game_asset_key)
             elif p.split("_")[0] == "toggle" and "norefresh" in params:
                 toggle_key = "_".join(p.split("_")[1:])
                 self.toggle(toggle_key, game_asset_key, toggle_type="explicit")
@@ -808,10 +758,6 @@ class Survivor:
             body_hit_box = self.render_hit_box_controls("Body"),
             waist_hit_box = self.render_hit_box_controls("Waist"),
             legs_hit_box = self.render_hit_box_controls("Legs"),
-
-
-            # optional and/or campaign-specific controls and modals
-            partner_controls = self.get_partner("html_controls"),
 
         )
         return output

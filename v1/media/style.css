@@ -637,7 +637,10 @@ div.survivor_controls img {background-color: #fff; margin-bottom: 2%; }
 
 .campaign_summary_survivor_tags_container {display: flex; flex-direction: row; flex-wrap: wrap; margin: 0 auto; width: 90%; }
 .survivor_tag {padding: 1%; padding-left: 3%; padding-right: 3%; font-family: 'Silverado'; margin: 2%; font-size: 25pt; width: auto; }
-.fighting_arts_tag {color: #fff; background-color: #CD4438; }
+.
+
+    /* campaign summary tags */
+fighting_arts_tag {color: #fff; background-color: #CD4438; }
 .disorders_tag {color: #fff; background-color: #461B7E; }
 .status_tag {color: #000; background: #FFEB3B; }
 .ai_tag {color: #000; background-color: #fff; }
@@ -935,12 +938,12 @@ div#info_box h2, button#survivor_campaign_asset, button.dashboard_asset {text-al
     /* survival box - mobile */
 
 .survival_box {display: flex; flex-direction: row; flex-wrap: nowrap; padding: 0; width: 97%; }
-.survival_box_number_container {width: 25%;  }
-.survival_box_number {width: 180px; height: 180px; border: 2px solid #000; padding: 0; font-size: 75pt;  text-align: center; margin: 10%; }
+.survival_box_number_container {width: 25%;  display: flex; align-items: center; justify-content: center; }
+.survival_box_number {width: 180px; height: 180px; border: 2px solid #000; padding: 0; font-size: 75pt;  text-align: center; }
 .survival_box_title_and_lock {width: 45%; display: flex; padding: 0; flex-direction: column; justify-content: space-between; }
 .survival_box_title {font-size: 50pt; padding: 2%; padding-bottom: 10%; }
 .survival_box_lock {font-size: 25pt; padding: 2%; display: flex; flex-direction: row; align-items: flex-end; margin-bottom: 5%; }
-.survival_box_survival_actions_container {min-width: 30%; padding-top: 2%; }
+.survival_box_survival_actions_container {min-width: 30%; padding-top: 2%; padding-bottom: 2%; }
 .survival_box_survival_action_item {padding: 0; display: flex; flex-direction: row; align-items: center;} 
 .survival_box_survival_action_item .kd_sheet_ui_box {width: 17px; height: 17px; }
 .survival_box_survival_action_item .sa_name {font-size: 30pt; }
@@ -966,12 +969,72 @@ p.sotf_reroll_caption {font-size: 30px; margin: 0 auto; font-family: Metrophobic
 .add_note_starter {color: #999; }
 .survivor_sheet_survivor_notes_input {width: 95%; margin: 2%; font-size: 30pt; }
 
+    /* survivor sheet right pane (fa, disorder, ai) - mobile */
+.right_pane_title {display: flex; flex-direction: row; align-items: baseline; }
+.right_pane_title .title {font-size: 45pt; width: 31%; }
+.right_pane_title .caption,
+    .right_pane_title .lock {font-size: 25pt; }
+.right_pane_title .caption {width: 18%%; }
+.right_pane_title .lock {width: 50%; text-align: right; display: flex; align-items: center; justify-content: flex-end;}
+
+    /* generic card styles - mobile */
+.survivor_sheet_card_container {display: flex; flex-direction: column; width: 100%; margin-top: 5%; }
+.survivor_sheet_card {display: inline-block; border-radius: 20px; margin: 0 auto; margin-bottom: 6%; width: 94%; border: 1px solid #aaa; padding: 0; padding-top: 4%; padding-bottom: 4%; text-align: center; border: 0; }
+.fighting_art_gradient {background: radial-gradient(circle, #DFd733, #E4e3cC, #d0f0fc); color: #000; }
+.secret_fighting_art_gradient {background: radial-gradient(circle, #800, #a00, #c00); color: #fff; }
+.survivor_sheet_card b.card_title {display: block; margin-bottom: 5px; font-size: 1.2em; }
+.survivor_sheet_card b.card_constellation {color: #c00; }
+.secret_fighting_art b.card_constellation {color: #FFC107;}
+.card_constellation {color: #c00; }
+.survivor_sheet_card br {line-height: 160%; }
+
+p.survivor_sheet_card_subhead {margin-top: -1%; font-size: 0.75em; text-transform: lowercase; }
+.survivor_sheet_fighting_art_color_span {height: 50px; border: 0; margin: 0; margin-bottom: 5%; }
+div.survivor_sheet_card_text, .survivor_sheet_card_level_block {margin-left: 7%; margin-right: 7%; font-family: "Metrophobic"; font-size: 0.9em; }
+.survivor_sheet_card_text table {margin-top: 3%; margin-bottom: 3%; }
+.survivor_sheet_card_text table td {padding: 1%;}
+.survivor_sheet_card_text table td.roll {font-size: 0.80em; width: 13%; vertical-align: top; }
+.survivor_sheet_card_text table td.result {font-size: 0.90em; text-align: left; }
+.survivor_sheet_card_asset_list_container {margin-top: 5%; margin-bottom: 7%; }
+
+.survivor_sheet_card_level_block {color: #ccc;  display: block; text-align:left; display: flex; padding: 1%; }
+.survivor_sheet_card_level_number {background-color: #ccc; color: #fff; text-align:center; display: flex; flex: 0 0 75px; height:75px; margin-right: 2%; justify-content: center; align-items: center; border-radius: 50%;}
+.survivor_sheet_card_level_number.toggled_on {background-color: #CD4438; }
+.survivor_sheet_card_level_desc {margin: 1%; }
+.survivor_sheet_card_level_desc.toggled_on {color: #000;}
+.survivor_sheet_card_click_to_remove {text-align:center; background-color: #CD4438; color: #fff; font-size: 0.70em; padding: 2%; margin: 0; margin-top: 5%;  margin-bottom: -5%; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
+.remove_disorder {background-color: #766DAC}
+
+.settlement_sheet_card_expansion_flair {border: 0; padding: 1%; font-weight: bold; margin-top: -5%; margin-bottom: 4%; border-top-right-radius: 20px; border-top-left-radius: 20px; text-align: left; padding-left: 4%;  }
+
+    /* survivor sheet fighting arts - mobile */
+.survivor_sheet_fa_container {margin-left: 1%; margin-top: 1%; }
+.fighting_arts_selector {width: 95%; }
+
+    /* survivor sheet disorders - mobile */
+.survivor_sheet_disorders_container {margin-left: 1%; margin-top 5%; }
+.disorders_selector {width: 95%; }
+
+    /* survivor sheet ai container - mobile */
+.outer_ai_container {width: 96%; margin: 0 auto; }
+.survivor_sheet_ai_container {margin-left: 1%; margin-top: 5%; } 
+.title.ai_title {width: 55%}
+.ai_repeater {margin: 3%; }
+.ai_selector {width: 95%; margin-top: 5%; margin-bottom: 10%; }
+.survivor_sheet_ai_desc {font-family: 'Metrophobic'; font-size: 30pt; }
+
+    /* survivor admin - mobile */
+.survivor_admin_rollup {max-height: 3000px; }
+.survivor_sheet_kd_sheet_ui_box.survivor_admin {text-align: center; font-weight: bold; }
+.kd_sheet_ui_roll_down_controls.survivor_admin_controls p {font-family: Metrophobic; font-size: 35pt; }
+.survivor_sheet_public_toggle {font-size: 30pt; display: flex; align-items: center; justify-content: center; }
+.survivor_admin_controls h4 {margin-top: 0; }
 
 div.survivor_sheet_block_group h2 {border: 0; margin-left: 2%; }
 div.survivor_sheet_block_group h4 {border: 0; margin-left: 4%; }
 div.survivor_sheet_block_group p {border: 0; margin-left: 4%; }
-div.lineage_block p {font-family: 'Metrophobic'; }
-.lineage_subhead {padding-left: 4%; padding-right: 4%;  }
+div.lineage_block p {font-family: Metrophobic; font-size: 35pt; }
+.lineage_subhead {padding-left: 4%; padding-right: 4%;  font-family: Metrophobic; font-size: 30pt; }
 .survivor_sheet_event_log_container {margin-bottom: 10%; }
 .lineage_event_repeater {font-family: 'Metrophobic'; margin-left: 6%; margin-right: 6%; font-size: 30pt; padding: 2%; }
 input.survivor_owner_email {border: 0; outline: 0; display: block; margin: 0 auto; width: 95%; text-align:center; font-family: Silverado; height: auto; border-radius: 10px; padding: 2%; }
@@ -1007,42 +1070,11 @@ span.cursed_item_ability {padding-left: 1%; font-style: italic; font-size: 1.3em
 span.cursed_item_ability_desc {font-family: Metrophobic; }
 span.cursed_item_ability_desc b {font-family: Silverado;}
 
-    /* hooker-up the fighting arts and disorders*/
-.survivor_sheet_card_container {display: flex; flex-direction: column; width: 100%; margin-top: 30%; }
-.disorders_container {margin-top: 1%; }
-.survivor_sheet_card {display: inline-block; border-radius: 20px; margin: 0 auto; margin-bottom: 6%; width: 94%; border: 1px solid #aaa; padding: 0; padding-top: 4%; padding-bottom: 4%; text-align: center; border: 0; }
-.fighting_art_gradient {background: radial-gradient(circle, #DFd733, #E4e3cC, #d0f0fc); color: #000; }
-.secret_fighting_art_gradient {background: radial-gradient(circle, #800, #a00, #c00); color: #fff; }
-.survivor_sheet_card b.card_title {display: block; margin-bottom: 5px; font-size: 1.2em; }
-.survivor_sheet_card b.card_constellation {color: #c00; }
-.secret_fighting_art b.card_constellation {color: #FFC107;}
-.card_constellation {color: #c00; }
-.survivor_sheet_card br {line-height: 160%; }
-
-p.survivor_sheet_card_subhead {margin-top: -1%; font-size: 0.75em; text-transform: lowercase; }
-.survivor_sheet_fighting_art_color_span {height: 50px; border: 0; margin: 0; margin-bottom: 5%; }
-div.survivor_sheet_card_text, .survivor_sheet_card_level_block {margin-left: 7%; margin-right: 7%; font-family: "Metrophobic"; font-size: 0.9em; }
-.survivor_sheet_card_text table {margin-top: 3%; margin-bottom: 3%; }
-.survivor_sheet_card_text table td {padding: 1%;}
-.survivor_sheet_card_text table td.roll {font-size: 0.80em; width: 13%; vertical-align: top; }
-.survivor_sheet_card_text table td.result {font-size: 0.90em; text-align: left; }
-.survivor_sheet_card_asset_list_container {margin-top: 7%; margin-bottom: 7%; }
-
-.survivor_sheet_card_level_block {color: #ccc;  display: block; text-align:left; display: flex; padding: 1%; }
-.survivor_sheet_card_level_number {background-color: #ccc; color: #fff; text-align:center; display: flex; flex: 0 0 75px; height:75px; margin-right: 2%; justify-content: center; align-items: center; border-radius: 50%;}
-.survivor_sheet_card_level_number.toggled_on {background-color: #CD4438; }
-.survivor_sheet_card_level_desc {margin: 1%; }
-.survivor_sheet_card_level_desc.toggled_on {color: #000;}
-.survivor_sheet_card_click_to_remove {text-align:center; background-color: #CD4438; color: #fff; font-size: 0.70em; padding: 2%; margin: 0; margin-top: 5%;  margin-bottom: -5%; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
-.remove_disorder {background-color: #766DAC}
-
-.settlement_sheet_card_expansion_flair {border: 0; padding: 1%; font-weight: bold; margin-top: -5%; margin-bottom: 4%; border-top-right-radius: 20px; border-top-left-radius: 20px; text-align: left; padding-left: 4%;  }
 
     /* custom A&I modal*/
 form#custom_AI_modal input.custom_AI {width: 99%; margin: 1% auto; }
 div.custom_AI_preview {border: 2px solid #333; margin: 0; padding: 1%; background-color: #fff; clear: both; display: block; }
 
-.survivor_sheet_ai_desc {font-family: 'Metrophobic';}
 
 
 button.modal_opener {padding: 3px; border-right: 2px solid #aaa; border-bottom: 2px solid #333; justify-content: center; }
@@ -1474,8 +1506,8 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     #floating_refresh_button {right: 10px; padding:8px; padding-left: 30px; padding-right: 30px; }
     #floating_dashboard_button { left: 10px; padding: 10px; padding-left: 30px; padding-right: 30px; }
 
-    .survivor_sheet_ai_container {margin-left: 3%; text-indent: -2%; display: flex; }
-    .survivor_sheet_ai {font-size: 20pt; line-height: 120%; margin-right: 5%; }
+    .survivor_sheet_ai_container {display: flex; }
+    .survivor_sheet_ai {font-size: 20pt;}
     .survivor_sheet_ai_desc {font-size: 18pt; }
 
 
@@ -1611,8 +1643,30 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .survivor_sheet_survivor_notes_slug_line {font-size: 18pt; min-height: 30px; }
     .survivor_sheet_survivor_notes_input {font-size: 18pt; height: auto; }
 
+        /* survivor sheet right pane (fa, disorder, ai) - tablet */
+    .right_pane_title {}
+    .right_pane_title .title {font-size: 25pt; width: 17%; }
+    .right_pane_title .caption,
+        .right_pane_title .lock {font-size: 13pt; }
+    .right_pane_title .caption {width: 18%%; }
+    .right_pane_title .lock {width: 50%; text-align: right; display: flex; align-items: center; justify-content: flex-end;}
+
         /* fighting art controls */
     label.fighting_art_level_toggle {font-size: 24px; margin-bottom: 10px; }
+
+        /* survivor sheet ai container - tablet */ 
+    .survivor_sheet_ai_container {flex-direction: column; }
+    .title.ai_title {width: 33%; }
+
+        /* survivor sheet lineage block - tablet */
+    .lineage_container {width: 450px; float: left; }
+    div.lineage_block p, .lineage_subhead {font-size: 17pt; }
+
+        /* survivor sheet admin block - tablet */
+    .survivor_sheet_admin_block {width: 400px; float: left; margin-left: 2%; }
+    .survivor_sheet_public_toggle {font-size: 15pt; }
+    .kd_sheet_ui_roll_down_controls.survivor_admin_controls p {font-size: 17pt; }
+    .survivor_admin_controls h4 {margin-bottom: 2%; }
 
         /* cursed item controls - tablet */
     p.cursed_items_subhead {font-size: 20px; }
@@ -1728,8 +1782,8 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     p.survivor_sheet_game_asset_tip {width: 950px;}
 
-        /* fighting art/disorderstyle - tablet */
-    .survivor_sheet_card_container {display: flex; flex-direction: row; clear: right; align-items: flex-start; justify-content: flex-start; width: auto; padding: 0; margin: 0 auto; margin-top: 12%; }
+        /* fighting art/disorder style - tablet */
+    .survivor_sheet_card_container {display: flex; flex-direction: row; clear: right; align-items: flex-start; justify-content: flex-start; width: auto; padding: 0; margin: 0 auto; margin-top: 1%;   }
     .disorders_container {margin-top: 1%; }
     .survivor_sheet_card {width: 250px; margin: 1%; height: 100%; flex-grow: 1; margin: 1%; max-width: 33%;} 
     .settlement_sheet_card_expansion_flair {font-size: 20px; margin-top: -15%; padding: 1%; padding-left: 6%; }
@@ -2459,7 +2513,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     input[type=text].custom_cod_text {font-size: 12pt; margin-top: 2%; }
     div.control_error {font-size: 14pt; width: 35%; bottom: 20%; left: 33%; line-height: 12pt; }
 
-    .survivor_sheet_ai_container {}
     .survivor_sheet_ai {font-size: 12pt;}
     .survivor_sheet_ai_desc {font-size: 11pt; }
 
@@ -2567,11 +2620,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div#COD { position: relative; }
     div#COD input { width: 290px;}
 
-        /* expansion attribs - wide */
-    div.expansion_attribs_container {display: flex; flex-direction: column; justify-content: flex-start; border:0;}
-    div.expansion_attribs_container form {width: auto; margin: 0; }
-    div.expansion_attribs_container label {margin: auto; width: 100%; padding:0; font-size: 13pt; }
-
         /* fighting art controls - wide */
     p.survivor_sheet_fighting_art span.survivor_sheet_fa_level_row label.fighting_art_level_toggle {font-size: 12pt; margin-bottom: 5px; width: 97%;}
 
@@ -2647,16 +2695,21 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
         /* tags / epithets - wide */
     .survivor_sheet_epithet {font-size: 11pt; }
 
+
+
         /* survivor sheet right pane - wide */
-    div#survivor_sheet_right_pane {width: auto; display: flex; flex-direction: row; width: 1050px; }
+    div#survivor_sheet_right_pane {width: auto; display: flex; flex-direction: row; width: 1050px; margin-bottom: 1%; }
     .survivor_sheet_ai_container,
         .survivor_sheet_disorders_container,
         .survivor_sheet_fa_container {width: 33%; }
     div.survivor_sheet_right_pane_blocks_container {flex-direction: column; }
+    .right_pane_title .title {font-size: 16pt; width: 34%; }
+    .right_pane_title .caption, .right_pane_title .lock {font-size: 10pt; }
+    .right_pane_title .caption {width: 24%; }
 
         /* fighting arts and disorders - wide */
     .survivor_sheet_card_container{display: inline; }
-    .survivor_sheet_card {width: 100%; margin-top: 3%; margin-bottom: 5px; max-width: none; }
+    .survivor_sheet_card {width: 100%; margin-top: 3%; margin-bottom: 5px; max-width: none; height: auto; }
     .settlement_sheet_card_expansion_flair {margin-top: -18px; font-size: 10pt; }
     .survivor_sheet_card b.card_title {font-size: 16pt; }
     .survivor_sheet_card_subhead {font-size: 10pt; text-align: center; }
@@ -2665,12 +2718,24 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     p.survivor_sheet_card_subhead {margin-top: -3%; font-size: 10pt; }
     .survivor_sheet_card_text table td.roll {width: 10%; }
     .survivor_sheet_card_click_to_remove {margin-bottom: -15px; font-size: 8pt;}
+    .survivor_sheet_fa_container {margin-top: 0; }
+
+        /* survivor sheet ai - wide */
+    .survivor_sheet_ai_container {margin-top: 0; }
+    .title.ai_title {width: 55%; }
+    .outer_ai_container {margin-top: 2%; }
 
         /* lineage - wide*/
-    .lineage_block {width: 500px; float: left; }
+    .lineage_container {padding: 1%; width: 600px; }
+    .lineage_block {float: left; }
+    div.lineage_block p, .lineage_subhead {font-size: 11pt; }
 
         /* survivor sheet admin - wide */
-    .survivor_sheet_admin_block {width: 500px; float: left; }
+    .survivor_sheet_admin_block {width: 370px; float: left; }
+    .survivor_sheet_kd_sheet_ui_box.survivor_admin {font-size: 15pt; padding: 1%; }
+    .survivor_sheet_public_toggle,
+        .kd_sheet_ui_roll_down_controls.survivor_admin_controls p {font-size: 11pt; }
+    button.permanently_delete {margin: 0 auto; display: block; margin: 0 auto; margin-top: 5%; margin-bottom:5%; }
 
         /* survivor sheet attrib controls - wide */
     div.survivor_sheet_attrib_controls {height: 70px; right: 35%; left: 5%; }

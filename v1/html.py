@@ -1973,6 +1973,7 @@ class survivor:
         <div
             class="survivor_sheet_kd_sheet_ui_box dynamic_modal_launchers"
         >
+            <center ng-if="settlement.sheet == undefined">Waiting for campaign data...</center>
             <button
                 id="cursedItemsOpener"
                 class="hidden survivor_curse"
@@ -1983,7 +1984,7 @@ class survivor:
 
             <button
                 id="saviorControlsModal"
-                class="survivor_sheet_gradient"
+                class="survivor_sheet_gradient affinity_{{survivor.sheet.savior}}"
                 ng-if="settlement.game_assets.campaign.saviors == true"
                 ng-click="showHide('modalSavior')"
             >
@@ -2944,27 +2945,23 @@ class survivor:
             ng-init="setFAoptions()"
             ng-if="survivor.sheet.fighting_arts != undefined"
         >
-
-        <h3>Fighting Arts</h3>
-
-            <input
-                id="survivor_sheet_cannot_use_fighting_arts"
-                class="survivor_sheet_toggle"
-                name="toggle_cannot_use_fighting_arts"
-                type="checkbox"
-                ng-model='survivor.sheet.cannot_use_fighting_arts'
-                ng-change='toggleStatusFlag()'
-                ng-checked="survivor.sheet.cannot_use_fighting_arts == true"
-            />
-            <label
-                id="survivor_sheet_cannot_use_fighting_arts_label"
-                class="float_right_toggle"
-                for="survivor_sheet_cannot_use_fighting_arts"
-             >
-                Cannot use<br/>Fighting Arts
-            </label>
-
-            <p>Maximum 3.</p>
+            <div
+                class="right_pane_title"
+            >
+                <div class="title">Fighting Arts</div>
+                <div class="caption">Maximum 3.</div>
+                <div
+                    class="lock clickable"
+                    ng-click="toggleStatusFlag('cannot_use_fighting_arts')"
+                >
+                    <div
+                        class="kd_sheet_ui_box"
+                        ng-class="{checked: survivor.sheet.cannot_use_fighting_arts == true}"
+                    >
+                    </div>
+                    &#x1f512; Cannot use Fighting Arts
+                </div>
+            </div> <!-- title elements -->
 
 
             <div
@@ -3055,6 +3052,7 @@ class survivor:
                 <span class="empty_bullet" /></span>
                 <select
                     name="add_fighting_arts"
+                    class="fighting_arts_selector"
                     ng-if="FAoptions != undefined"
                     ng-model="userFA.newFA"
                     ng-change="addFightingArt(); userFA.newFA = FAoptions[0]"
@@ -3066,7 +3064,6 @@ class survivor:
                 <span ng-if="FAoptions == undefined">Refreshing options...</span>
             </div>
 
-        <hr />
 
         </div> <!-- fartingArtsController -->
 
@@ -3077,10 +3074,13 @@ class survivor:
             ng-controller="disordersController"
             ng-if="survivor.sheet != undefined"
         >
+            <div
+                class="right_pane_title"
+            >
+                <div class="title">Disorders</div>
+                <div class="caption">Maximum 3.</div>
+            </div> <!-- title elements -->
 
-            <h3>Disorders</h3>
-
-            <p class="survivor_sheet_game_asset_tip">Maximum 3.</p>
 
             <div
                 title="Click or tap to remove survivor Disorders."
@@ -3150,6 +3150,7 @@ class survivor:
                 <span class="empty_bullet" /></span>
                 <select
                     name="add_disorders"
+                    class="disorders_selector"
                     ng-if="dOptions != undefined"
                     ng-model="userD.newD"
                     ng-change="addDisorder(); userD.newD = dOptions[0]"
@@ -3161,81 +3162,77 @@ class survivor:
             </div>
         </div> <!-- disordersController -->
 
+
         <!-- ABILITIES AND IMPAIRMENTS -->
-
-        <div class="survivor_sheet_ai_container">
-        <h3>Abilities & Impairments</h3>
-
-        <div ng-controller="skipNextHuntController">
-            <input
-                id="skip_next_hunt"
-                name="toggle_skip_next_hunt"
-                type="checkbox"
-                class="survivor_sheet_toggle"
-                ng-model='survivor.sheet.skip_next_hunt'
-                ng-change='toggleStatusFlag()'
-                ng-checked="survivor.sheet.skip_next_hunt == true"
-            />
-            <label
-                class="float_right_toggle"
-                for="skip_next_hunt"
-                id="skip_next_hunt_label"
-            >
-                Skip Next<br/>
-                Hunt
-            </label>
-        </div>
-
         <div
-            title="Click or tap to remove survivor Abilities & Impairments."
-            ng-controller="abilitiesAndImpairmentsController"
+            class="survivor_sheet_ai_container"
+            ng-if="survivor.sheet != undefined"
         >
+            <div
+                class="right_pane_title"
+            >
+                <div class="title ai_title">Abilities & Impairments</div>
+                <div
+                    class="lock clickable"
+                    ng-click="toggleStatusFlag('skip_next_hunt')"
+                >
+                    <div
+                        class="kd_sheet_ui_box"
+                        ng-class="{checked: survivor.sheet.skip_next_hunt == true}"
+                    >
+                    </div>
+                    &#x1f512; skip next hunt &nbsp;
+                </div>
+            </div> <!-- title elements -->
 
             <div
-                class="survivor_sheet_ai_container"
-                ng-repeat="ai_handle in survivor.sheet.abilities_and_impairments track by $index"
+                class="outer_ai_container"
+                title="Click or tap to remove survivor Abilities & Impairments."
             >
-                <span
-                    class="survivor_sheet_ai clickable"
+
+                <div
+                    class="ai_repeater clickable"
+                    ng-repeat="ai_handle in survivor.sheet.abilities_and_impairments track by $index"
                     ng-click="rmAI(ai_handle, $index)"
-                    title="Click or tap to remove '{{settlement.game_assets.abilities_and_impairments[ai_handle].name}}'"
                 >
-                    <b
-                        ng-if="settlement.game_assets.abilities_and_impairments[ai_handle].constellation == undefined"
+                    <span
+                        class="survivor_sheet_ai"
+                        title="Click or tap to remove '{{settlement.game_assets.abilities_and_impairments[ai_handle].name}}'"
                     >
-                        {{settlement.game_assets.abilities_and_impairments[ai_handle].name}}:
-                    </b>
-                    <b
-                        ng-if="settlement.game_assets.abilities_and_impairments[ai_handle].constellation != undefined"
-                        class="card_constellation"
-                    >
-                        {{settlement.game_assets.abilities_and_impairments[ai_handle].name}}:
-                    </b>
+                        <b
+                            ng-if="settlement.game_assets.abilities_and_impairments[ai_handle].constellation == undefined"
+                        >
+                            {{settlement.game_assets.abilities_and_impairments[ai_handle].name}}:
+                        </b>
+                        <b
+                            ng-if="settlement.game_assets.abilities_and_impairments[ai_handle].constellation != undefined"
+                            class="card_constellation"
+                        >
+                            {{settlement.game_assets.abilities_and_impairments[ai_handle].name}}:
+                        </b>
+                    </span>
                     <span
                         class="survivor_sheet_ai_desc"
                         ng-bind-html="settlement.game_assets.abilities_and_impairments[ai_handle].desc|trustedHTML"
                     >
                     </span>
-                </span>
+                </div>
+            </div> <!-- ai 'card' outer container -->
 
-            </div>
+            <select
+                name="add_abilities_and_impairments"
+                class="ai_selector"
+                ng-if="AIoptions != undefined"
+                ng_model="scratch.newAI"
+                ng_change="addAI()"
+                ng-options="ai.handle as (ai.name + ' (' + ai.sub_type_pretty + ')'  ) for ai in AIoptions"
+            >
+                <option value="" disabled selected>Add Abilities & Impairments</option>
+            </select>
 
-            <div class="line_item">
-                <span class="empty_bullet" /></span>
-                <select
-                    name="add_abilities_and_impairments"
-                    ng-if="AIoptions != undefined"
-                    ng_model="scratch.newAI"
-                    ng_change="addAI()"
-                    ng-options="ai.handle as (ai.name + ' (' + ai.sub_type_pretty + ')'  ) for ai in AIoptions"
-                >
-                    <option value="" disabled selected>Add Abilities & Impairments</option>
-                </select>
-            </div>
+        </div> <!-- ai controller -->
+    </div> <!-- survivor_sheet_ai_container -->
 
-        <hr/>
-        </div>
-    </div> <!-- A&I controller -->
 
     </div> <!-- survivor sheet right pane -->
 
@@ -3243,17 +3240,32 @@ class survivor:
     <!-- lineage block starts here -->
     <div
         ng-controller="lineageController"
-        ng-if="lineage != undefined"
-        class="lineage_block"
+        class="survivor_sheet_kd_sheet_ui_box lineage_container"
     >
+        <p
+            ng-if="lineage == undefined"
+            class="lineage_subhead"
+        >
+            Waiting for lineage data...
+        </p>
 
-        <h3 title="Survivor family and relationship information is stored here">Lineage</h3>
-        <p class="lineage_subhead">Facts about the life and relationships of <b>{{survivor.sheet.name}}</b> will appear here
-        as the campaign unfolds.</p>
+        <div
+            ng-if="lineage != undefined"
+            class="right_pane_title"
+        >
+            <div class="title">Lineage</div>
 
-        <div class="survivor_sheet_block_group lineage_block">
+        </div> <!-- title elements -->
+
+        <div
+            ng-if="lineage != undefined"
+            class="survivor_sheet_block_group lineage_block"
+        >
 
             <div>
+                <p class="lineage_subhead ">
+                    Facts about the life and relationships of <b>{{survivor.sheet.name}}</b> will appear here as the campaign unfolds.
+                </p>
                 <h4>Biography</h4>
 
                 <!-- founder -->
@@ -3377,16 +3389,40 @@ class survivor:
                     </span>
                 </p>
             </div>
-
-        <hr/>
-
         </div> <!-- survivor_sheet_block_group lineage -->
     </div> <!-- lineage -->
 
-    <div class="survivor_sheet_admin_block">
-        <h3>Permissions</h3>
-        <div class="survivor_sheet_block_group">
-            <h4>Owner</h4>
+
+    <!-- ADMINISTRATION - PELIGRO! -->
+    <div class="survivor_sheet_admin_block" ng-if="survivor.sheet != undefined">
+        <div
+            class="survivor_sheet_kd_sheet_ui_box survivor_admin maroon clickable"
+            onClick="rollUp('survivorAdmin')"
+            title="Survivor administration for {{survivor.sheet.name}}. Tap or click to see options."
+            >
+                Survivor Administration
+        </div> <!-- admin opener -->
+
+        <div
+            id="survivorAdmin"
+            class="kd_sheet_ui_roll_down rolled_up survivor_admin_rollup"
+        >
+            <div class="kd_sheet_ui_roll_down_controls survivor_admin_controls">
+
+                <h4>Access</h4>
+                <div
+                    class="survivor_sheet_public_toggle clickable"
+                    ng-click="toggleBoolean('public')"
+                >
+                    <div
+                        class="kd_sheet_ui_box"
+                        ng-class="{checked: survivor.sheet.public == true}"
+                    >
+                    </div>
+                    &#x1f512; Any player may manage this survivor
+                </div>
+                <hr/>
+                <h4>Email</h4>
                 <input
                     id="survivorOwnerEmail"
                     class="survivor_owner_email"
@@ -3396,46 +3432,33 @@ class survivor:
                     placeholder="email"
                     ng-model="newSurvivorEmail"
                     ng-value="survivor.sheet.email"
-                    ng-blur="setEmail()"
+                    ng-blur="setEmail(); showHide('emailTip')"
+                    ng-click="showHide('emailTip')"
                 />
 
-            <p>Enter another registered user's email address here to make
-            them a player in this campaign.</p>
+                <div id="emailTip" class="kd_sheet_ui_row_tip hidden">
+                    Enter another registered user's email address here to make them a player in this campaign!
+                </div>
+                <hr/>
 
-            <h4>Access</h4>
-            <p>Toggle this checkbox on or off to allow any player in this
-            campaign to manage this survivor.</p>
-
-              <input
-                type="checkbox"
-                id="public"
-                class="kd_css_checkbox kd_radio_option"
-                name="toggle_public"
-                ng-model="public"
-                ng-checked="survivor.sheet.public"
-                ng-change="togglePublic()"
-              >
-              <label
-                class="public_survivor_toggle"
-                for="public"
-              >
-                Anyone May Manage this Survivor &nbsp;
-              </label>
-
-              <br/>
-        </div> <!-- survivor_sheet_block_group perms -->
-
-        <!-- permanent delete -->
-        <div class="permanently_delete_survivor" ng-if="user.user.preferences.show_remove_button == true">
-            <h3>Permanently Delete Survivor</h3>
-            <form action="#" method="POST" onsubmit="return confirm('Press OK to permanently delete this survivor forever.\\r\\rThis is NOT THE SAME THING as marking it dead using controls above.\\r\\rPermanently deleting the survivor prevents anyone from viewing and/or editing this record ever again!');">
-                <input type="hidden" name="remove_survivor" value="$survivor_id"/>
-                <p>Use the button below to permanently remove $name. Please note that <b>this cannot be undone</b> and that any relationships between $name and other survivors will be removed.</p>
-                <button class="kd_alert_no_exclaim red_glow permanently_delete">Permanently Delete Survivor</button>
-            </form>
-        </div>
-
-    </div> <!-- survivor admin block -->
+                <!-- permanent delete -->
+                <div
+                    class="permanently_delete_survivor"
+                    ng-if="user.user.preferences.show_remove_button == true"
+                >
+                    <h4>Permanently Delete Survivor</h4>
+                    <form
+                        action="#"
+                        method="POST"
+                        onsubmit="return confirm('Press OK to permanently delete this survivor forever.\\r\\rThis is NOT THE SAME THING as marking it dead using controls above.\\r\\rPermanently deleting the survivor prevents anyone from viewing and/or editing this record ever again!');">
+                            <input type="hidden" name="remove_survivor" value="$survivor_id"/>
+                            <p>Use the button below to <u>permanently remove</u> {{survivor.sheet.name}}. Please note that this is not the same as marking the survivor dead, that this <b>cannot be undone</b> and that any relationships between {{survivor.sheet.name}} and other survivors will be removed.</p>
+                        <button class="kd_alert_no_exclaim red_glow permanently_delete">Permanently Delete Survivor</button>
+                    </form>
+                </div> <!-- delete-o! delete-o! -->
+            </div> <!-- roll down controls admin -->
+        </div <!-- roll down container admin -->
+    </div> <!-- survivor admin block outermost container -->
 
     <div class="survivor_sheet_bottom_attrib_spacer">&nbsp;</div>
 
@@ -3978,46 +4001,6 @@ class survivor:
                 </div> <!-- hit_box_detail -->
                 <p><b>H</b>eavy Injury: Knocked Down</p>
             </div> <!-- survivor_hit_box -->
-
-    \n""")
-    partner_controls_top = '\n\t<p><span class="tiny_break">&nbsp;</span><h3 class="partner">Partner</h3><select name="partner_id" onchange="this.form.submit()">\n'
-    partner_controls_none = '<option selected disabled>Select a Survivor</option>'
-    partner_controls_opt = Template('<option value="$value" $selected>$name</option>')
-    partner_controls_bot = '</select><span class="tiny_break"/>&nbsp;</span></p>\n\n'
-    expansion_attrib_controls = Template("""\n
-
-    <div class="expansion_attribs_container">
-        <form method="POST" action="#edit_misc_attribs">
-        <input type="hidden" name="modify" value="survivor" />
-        <input type="hidden" name="asset_id" ng-value="survivor_id" />
-        <input type="hidden" name="expansion_attribs" value="None"/> <!-- Hacks -->
-        <input type="hidden" name="expansion_attribs" value="None"/> <!-- Hacks -->
-
-        $control_items
-
-        </form>
-    </div> <!-- expansion_attribs_container -->
-
-    <hr />
-
-    \n""")
-    expansion_attrib_item = Template("""\n
-
-    <div class="line_item">
-        <input
-            onchange="this.form.submit()"
-            type="checkbox" id="$item_id"
-            class="kd_css_checkbox kd_radio_option"
-            name="expansion_attribs"
-            value="$key"
-            $checked
-        />
-        <label
-            for="$item_id"
-        >
-            $key
-        </label>
-    </div> <!-- expansion_attrib line_item -->
 
     \n""")
 
