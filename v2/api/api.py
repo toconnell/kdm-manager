@@ -3,6 +3,7 @@
 # general imports
 from bson.objectid import ObjectId
 from bson import json_util
+from celery import Celery
 from datetime import datetime
 
 from flask import Flask, send_file, render_template, request, Response, send_from_directory, jsonify
@@ -33,6 +34,14 @@ from models import users, settlements, names
 
 # create the flask app with settings/utils info
 application = Flask(__name__)
+
+# celery/task queue
+application.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
+#application.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
+celery = Celery(application.name, broker=application.config['CELERY_BROKER_URL'])
+celery.conf.update(application.config)
+
+# fudge some private settings in
 application.config.update(
     DEBUG = settings.get("server","DEBUG"),
     TESTING = settings.get("server","DEBUG"),
@@ -233,6 +242,7 @@ def new_asset(asset_type):
 
 @application.route("/<collection>/<action>/<asset_id>", methods=["GET","POST","OPTIONS"])
 @utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization','Access-Control-Allow-Origin'])
+@celery.task
 def collection_action(collection, action, asset_id):
     """ This is our major method for retrieving and updating settlements.
 

@@ -18,6 +18,7 @@ function hideFullPageLoader()   {$('#fullPageLoader').fadeOut(1000);};
 function showCornerLoader()     {$('#cornerLoader').show();};
 function hideCornerLoader()     {$('#cornerLoader').fadeOut(1000);};
 
+
 function showAPIerrorModal(msg, request) {
     e = document.getElementById('apiErrorModal');
     e.classList.remove('hidden');
@@ -32,6 +33,15 @@ function hideAPIerrorModal() {
 };
 
 // public helpers
+function rollUp(e_id) {
+    var e = document.getElementById(e_id);
+    if (e.classList.contains('rolled_up') == true) {
+        e.classList.remove('rolled_up');
+    } else {
+        e.classList.add('rolled_up');
+    };
+};
+
 function showHide(e_id) {
     var e = document.getElementById(e_id);
     var hide_class = "hidden";
@@ -52,7 +62,8 @@ function convertMS(millis) {
   var minutes = Math.floor(millis / 60000);
   var seconds = ((millis % 60000) / 1000).toFixed(0);
   return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
-}
+};
+
 
 
 //
@@ -105,6 +116,9 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
 
     // initialize rootScope elements here; these are set on every view
     $rootScope.showHide = showHide;
+    $scope.numberToRange = function(num) {
+        return new Array(num); 
+    };
 
     $rootScope.openNav = function(e) {
         var element = document.getElementById(e);
@@ -418,7 +432,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         // wait for the settlement promise and then go get it, girl
         $scope.settlementPromise.then(function() {
 
-            console.info("Initializing Survivor " + s_id);
+            console.info("Initializing Survivor " + $scope.survivor_id);
             $scope.survivorPromise = $scope.getJSONfromAPI('survivor','get', 'initializeSurvivor()');
 
             $scope.survivorPromise.then(
@@ -607,10 +621,13 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         return $http.get(url, config);
     };
 
-    $scope.postJSONtoAPI = function(collection, action, json_obj, reinit, show_alert) {
+    $scope.postJSONtoAPI = function(collection, action, json_obj, reinit, show_alert, update_sheet) {
         console.time('postJSONtoAPI(' + collection + ', ' + action + ')');
         if (reinit === undefined) {reinit = true};
         if (show_alert === undefined) {show_alert = true};
+
+        // always serialize on response, regardless of asset type
+        json_obj.serialize_on_response = true;
 
         showCornerLoader();
         // figure out which asset ID to use
@@ -637,6 +654,10 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         res.success(function(data, status, headers, config) {
             console.warn("postJSONtoAPI() call successful!");
             console.timeEnd('postJSONtoAPI(' + collection + ', ' + action + ')');
+            if (update_sheet === true) {
+                console.warn('Updating ' + collection + ' sheet from response!');
+                $scope[collection] = data;
+            };
             sleep(1000).then(() => {
                 if (reinit === true) {$scope.reinitialize()} else {hideCornerLoader()};
                 if (show_alert === true) {savedAlert();}

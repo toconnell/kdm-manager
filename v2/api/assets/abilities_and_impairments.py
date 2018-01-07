@@ -12,6 +12,7 @@ ability = {
         'name': 'Analyze',
         'type': 'ability',
         'base_attribute': 'Understanding',
+        'excluded': ['explore','tinker'],
     },
     'bitter_frenzy': {
 #        'desc': 'You may spend survival and use fighting arts, weapon specialization, and weapon mastery while Frenzied.',
@@ -120,6 +121,7 @@ ability = {
         'name': 'Explore',
         'type': 'ability',
         'base_attribute': 'Understanding',
+        'excluded': ['analyze','tinker'],
     },
     'fated_battle': {
         'desc': 'At the start of a showdown with the picked monster, gain +1 speed token.',
@@ -200,6 +202,7 @@ ability = {
         'type': 'ability',
         'endeavors': ['matchmaker_trigger_intimacy'],
         'base_attribute': 'Courage',
+        'excluded': ['stalwart','prepared'],
     },
     'metal_maw': {
         'desc': 'Your Fist & Tooth gains <b>Sharp</b>. (Add 1d10 strength to each wound attempt using this gear. This d10 is not a wound roll, and cannot cause critical wounds.)',
@@ -230,6 +233,7 @@ ability = {
         'name': 'Prepared',
         'type': 'ability',
         'base_attribute': 'Courage',
+        'excluded': ['stalwart','matchmaker'],
     },
     'life_exchange': {
         'desc': 'In the <b>Aftermath</b>, gain 1 additional Hunt XP. You may not wear <b>other</b> gear. If you trigger the White Secret story event, you cease to exist. When you retire, you cease to exist.',
@@ -253,6 +257,7 @@ ability = {
         'name': 'Stalwart',
         'type': 'ability',
         'base_attribute': 'Courage',
+        'excluded': ['prepared','matchmaker'],
     },
     'story_of_the_forsaker': {
         'desc': 'You cannot be knocked down during a showdown with a nemesis monster.',
@@ -289,6 +294,7 @@ ability = {
         'name': 'Tinker',
         'type': 'ability',
         'base_attribute': 'Understanding',
+        'excluded': ['analyze','explore'],
     },
     'twilight_sword': {
         'desc': 'You may select <b>Twilight Sword</b> as a weapon proficiency type. This weapon may not be removed from your gear grid for any reason. When you die, archive your <b>Twilight Sword</b> card.',

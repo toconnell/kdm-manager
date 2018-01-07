@@ -7,11 +7,20 @@ app.controller("survivorSheetController", function($scope) {
         $scope.scratch = {}
         $scope.userPromise.then(
             function(payload) {
-                if ($scope.survivor.sheet.favorite.indexOf($scope.user_login) == -1) {
-                    $scope.scratch.favoriteBox = false;
-                } else {
-                    $scope.scratch.favoriteBox = true;
+                // check the favorite box (or not)
+                $scope.updateFavoriteBox();
+
+                // set the understanding AI or leave it undef
+                if ($scope.survivor.sheet.abilities_and_impairments.indexOf('analyze') != -1 ) {
+                    $scope.scratch.understandingAI = 'analyze';
+                } else if ($scope.survivor.sheet.abilities_and_impairments.indexOf('explore') != -1 ) {
+                    $scope.scratch.understandingAI = 'explore';
+                } else if ($scope.survivor.sheet.abilities_and_impairments.indexOf('tinker') != -1 ) {
+                    $scope.scratch.understandingAI = 'tinker';
                 };
+
+                // load the partner
+                $scope.loadPartnerInfo(); 
             },
             function(errorPayload) {
                 console.log("Unable to initialize Survivor Sheet scope! " + errorPayload);
@@ -19,12 +28,112 @@ app.controller("survivorSheetController", function($scope) {
         );
     };
 
+    // notes
+    $scope.addNote = function () {
+        if (!$scope.scratch.addNote) {return;}
+        $scope.postJSONtoAPI('survivor', 'add_note', {'note': $scope.scratch.addNote}, false, true, true);
+        $scope.scratch.addNote = undefined; 
+    };
+    $scope.rmNote = function (x, note_oid) {
+        if (note_oid !== undefined) {
+            $scope.postJSONtoAPI('survivor', 'rm_note', {'_id': note_oid}, false, true, true)
+        };
+    };
+
+    $scope.setPartner = function(partner_oid) {
+        $scope.survivor.sheet.partner_id = partner_oid;
+        if (partner_oid == 'UNSET') {
+            $scope.survivor.sheet.partner_id = undefined
+            var js_obj = {partner_id: 'UNSET'}
+        } else {
+            var js_obj = {partner_id: partner_oid.$oid}
+        };
+        $scope.postJSONtoAPI('survivor','set_partner', js_obj, false);
+        $scope.loadPartnerInfo(); 
+    };
+    $scope.loadPartnerInfo = function() {
+        if ($scope.survivor.sheet.partner_id !== undefined) {
+            console.log('Loading partner OID ' + JSON.stringify($scope.survivor.sheet.partner_id));
+            for (var p_index in $scope.settlement.user_assets.survivors) {
+                var partner = $scope.settlement.user_assets.survivors[p_index];
+                if (partner.sheet._id.$oid == $scope.survivor.sheet.partner_id.$oid) {
+                    $scope.partner = partner;
+                };
+            };
+        } else {
+            console.warn('Survivor has no partner.');
+            $scope.partner = undefined;
+            return true;
+        }; 
+    };
+
     $scope.setSurvivorName = function() {
         var newName = document.getElementById('survivorName').innerHTML;
         js_obj = {name: newName};
         $scope.postJSONtoAPI('survivor', 'set_name', js_obj);
     };
+    $scope.toggleStatusFlag = function(flag) {
+        $scope.postJSONtoAPI('survivor','toggle_status_flag', {'flag': flag}, false, true, true);
+    };
 
+    // sex is a toggle 
+    $scope.toggleSurvivorSex = function() {
+        var new_sex = 'M'
+        if ($scope.survivor.sheet.sex == 'M') {
+            new_sex = 'F';
+        };
+        $scope.postJSONtoAPI('survivor','set_sex', {'sex': new_sex}, false, true, true);
+    };
+
+    $scope.updateSurvival = function() {
+        var new_total = $scope.survivor.sheet.survival;
+
+        // enforce the max, if we're enforcing the max; always enforce the min
+        if  (
+                $scope.settlement.sheet.enforce_survival_limit === true && 
+                new_total > $scope.settlement.sheet.survival_limit
+            ) {
+            new_total = $scope.settlement.sheet.survival_limit;
+        } else if (new_total < 0) {
+            new_total = 0;
+        }; 
+
+        $scope.postJSONtoAPI('survivor', 'set_survival', {"value": new_total}, false, true, true);
+    };
+
+    // tags / epithets
+    $scope.$watch("epithetOptions", function() {
+        // this is our totally bogus epithet sex filter. 
+        if ($scope.epithetOptions === undefined) {return false};
+        for (var ep_key in $scope.epithetOptions) {
+            var ep = $scope.epithetOptions[ep_key];
+            if (ep.sex === undefined) {
+                } else if (ep.sex != $scope.survivor.sheet.effective_sex) {
+                delete $scope.epithetOptions[ep_key];
+            };
+        };
+    });
+    $scope.addEpithet = function () {
+        if ($scope.scratch.new_epithet === null) {return false};
+        if ($scope.scratch.new_epithet === undefined) {console.error("'" + $scope.scratch.new_epithet + "' is not a handle!"); return false};
+        if ($scope.survivor.sheet.epithets.indexOf($scope.scratch.new_epithet) == -1) {
+            $scope.survivor.sheet.epithets.push($scope.scratch.new_epithet);
+            var js_obj = {"handle": $scope.scratch.new_epithet, "type": "epithets"};
+//            console.warn(js_obj);
+            $scope.postJSONtoAPI('survivor','add_game_asset', js_obj, false);
+        } else {
+            console.error("Epithet handle '" + $scope.scratch.new_epithet + "' has already been added!")
+        };
+        $scope.initAssetLists();
+    };
+    $scope.rmEpithet = function (ep_index) {
+        var removedEpithet = $scope.survivor.sheet.epithets[ep_index];
+        $scope.survivor.sheet.epithets.splice(ep_index, 1);
+        var js_obj = {"handle": removedEpithet, "type": "epithets"};
+        $scope.postJSONtoAPI('survivor','rm_game_asset', js_obj, false);
+    };
+
+    // generic
     $scope.incrementAttrib = function(attrib, modifier) {
         if ($scope.survivor.sheet[attrib] + modifier < 0) {return false};
         var js_obj = {'attribute': attrib, 'modifier': modifier};
@@ -48,15 +157,12 @@ app.controller("survivorSheetController", function($scope) {
     };
 
 
-    $scope.updateSex = function() {
-        var sex = $scope.survivorSex.toUpperCase();
-        if (sex == '') {return false};
-        if (sex > 1) {sex = $scope.survivor.sheet.sex; };
-        if (sex != 'M' && sex != 'F') {sex = $scope.survivor.sheet.sex; };
-        if (sex != $scope.survivor.sheet.sex) {
-            $scope.postJSONtoAPI('survivor','set_sex', {'sex': sex})
+    // favorite / retired / dead
+    $scope.updateFavoriteBox = function() {
+        if ($scope.survivor.sheet.favorite.indexOf($scope.user_login) == -1) {
+            $scope.scratch.favoriteBox = false;
         } else {
-            $scope.survivorSex = sex;
+            $scope.scratch.favoriteBox = true;
         };
     };
 
@@ -65,19 +171,47 @@ app.controller("survivorSheetController", function($scope) {
         var user_index = $scope.survivor.sheet.favorite.indexOf($scope.user_login);
         if (user_index === -1) {
 //            console.log($scope.user_login + " is not in Survivor favorites list");
-            $scope.postJSONtoAPI('survivor','add_favorite',{'user_email': $scope.user_login}, false);
-            $scope.scratch.favoriteBox.checked = true;
-            $scope.survivor.sheet.favorite.push($scope.user_login);
+            $scope.postJSONtoAPI('survivor','add_favorite',{'user_email': $scope.user_login}, false, true, true);
+            $scope.scratch.favoriteBox = true;
         } else {
 //            console.log($scope.user_login + " is in Survivor favorites list");
-            $scope.postJSONtoAPI('survivor','rm_favorite',{'user_email': $scope.user_login}, false);
-            $scope.scratch.favoriteBox.checked = false;
-            $scope.survivor.sheet.favorite.splice(user_index, 1);
+            $scope.postJSONtoAPI('survivor','rm_favorite',{'user_email': $scope.user_login}, false, true, true);
+            $scope.scratch.favoriteBox = false;
         };
     };
 
     $scope.setRetired = function() {
-        $scope.postJSONtoAPI('survivor','set_retired', {'retired': $scope.survivor.sheet.retired}, false)
+        var retired = false;
+        if ($scope.survivor.sheet.retired != true) {retired = true};
+        $scope.postJSONtoAPI('survivor','set_retired', {'retired': retired}, false, true, true)
+    };
+
+    $scope.setWeaponProficiencyAttribs = function() {
+        // points
+        var js_obj = {attribute: 'Weapon Proficiency', value: $scope.survivor.sheet['Weapon Proficiency']}
+        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj, false, true, false);
+        // proficiency type
+        if ($scope.survivor.sheet.weapon_proficiency_type != null) {
+            js_obj = {'handle': $scope.survivor.sheet.weapon_proficiency_type};
+            $scope.postJSONtoAPI('survivor', 'set_weapon_proficiency_type', js_obj, false, false, true);
+        };
+        
+    };
+    $scope.updateCourage = function() {
+        var js_obj = {attribute: 'Courage', value: $scope.survivor.sheet.Courage};
+        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj, false, true, false);
+        if ($scope.scratch.courageAI !== undefined) {
+            js_obj = {handle: $scope.scratch.courageAI, type: 'abilities_and_impairments'};
+            $scope.postJSONtoAPI('survivor', 'add_game_asset', js_obj, false, false, true);
+        };
+    };
+    $scope.updateUnderstanding = function() {
+        var js_obj = {attribute: 'Understanding', value: $scope.survivor.sheet.Understanding};
+        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj, false, true, false);
+        if ($scope.scratch.understandingAI !== undefined) {
+            js_obj = {handle: $scope.scratch.understandingAI, type: 'abilities_and_impairments'};
+            $scope.postJSONtoAPI('survivor', 'add_game_asset', js_obj, false, false, true);
+        };
     };
 
 });
@@ -232,49 +366,11 @@ app.controller("cursedItemsController", function($scope) {
 });
 
 
-app.controller("epithetController", function($scope) {
-
-    $scope.$watch("epithetOptions", function() {
-        // this is our totally bogus epithet sex filter. 
-        if ($scope.epithetOptions === undefined) {return false};
-        for (var ep_key in $scope.epithetOptions) {
-            var ep = $scope.epithetOptions[ep_key];
-            if (ep.sex === undefined) {
-                } else if (ep.sex != $scope.survivor.sheet.effective_sex) {
-                delete $scope.epithetOptions[ep_key];
-            };
-        };
-    });
-
-
-    //
-    //  regular methods below here
-    //
-
-    $scope.addEpithet = function () {
-        if ($scope.new_epithet === null) {return false};
-        if ($scope.survivor.sheet.epithets.indexOf($scope.new_epithet) == -1) {
-            $scope.survivor.sheet.epithets.push($scope.new_epithet);
-            var js_obj = {"handle": $scope.new_epithet, "type": "epithets"};
-//            console.warn(js_obj);
-            $scope.postJSONtoAPI('survivor','add_game_asset', js_obj, false);
-        } else {
-            console.error("Epithet handle '" + $scope.new_epithet + "' has already been added!")
-        };
-        $scope.initAssetLists();
-    };
-    $scope.rmEpithet = function (ep_index) {
-        var removedEpithet = $scope.survivor.sheet.epithets[ep_index];
-        $scope.survivor.sheet.epithets.splice(ep_index, 1);
-        var js_obj = {"handle": removedEpithet, "type": "epithets"};
-        $scope.postJSONtoAPI('survivor','rm_game_asset', js_obj, false);
-    };
-});
 
 
 app.controller('fightingArtsController', function($scope) {
     $scope.userFA = {}; // if you're gonna use ng-model, you have to have a dot in there
-    $scope.toggleStatusFlag = function() {
+    $scope.toggleStatusFlag = function(flag) {
         $scope.postJSONtoAPI('survivor','toggle_status_flag', {'flag': 'cannot_use_fighting_arts'});
     };
     $scope.addFightingArt = function() {
@@ -306,12 +402,6 @@ app.controller('fightingArtsController', function($scope) {
 
 
 
-app.controller('secondaryAttributeController', function($scope) {
-    $scope.setWeaponProficiencyType = function() {
-        js_obj = {'handle': $scope.survivor.sheet.weapon_proficiency_type};
-        $scope.postJSONtoAPI('survivor', 'set_weapon_proficiency_type', js_obj, false);
-    };
-});
 
 app.controller('saviorController', function($scope) {
 
@@ -399,6 +489,7 @@ app.directive('customOnChange', function() {
     }
   };
 });
+
 app.controller("avatarController", function($scope) {
     $scope.scratch = {newAvatar: null};
     $scope.setAvatar = function(e) {
@@ -428,27 +519,7 @@ app.controller("avatarController", function($scope) {
 app.controller("survivalController", function($scope) {
 
 
-    $scope.toggleStatusFlag = function() {
-        $scope.postJSONtoAPI('survivor','toggle_status_flag', {'flag': 'cannot_spend_survival'});
-    };
 
-
-    // bound to the increment/decrement "paddles"
-    $scope.updateSurvival = function (modifier) {
-        new_total = $scope.survivor.sheet.survival + modifier;
-//        console.log(new_total);
-        if  (
-                $scope.settlement.sheet.enforce_survival_limit == true && 
-                new_total > $scope.settlement.sheet.survival_limit
-            ) {
-            $scope.showSLwarning();
-        } else if (new_total < 0) {
-            console.warn("Survival cannot be less than zero!");
-        } else {
-            $scope.postJSONtoAPI('survivor', 'update_survival', {"modifier": modifier}, false);
-            $scope.survivor.sheet.survival += modifier;
-        };
-    };
 
     // bound to the actual number element
     $scope.setSurvival = function () {
@@ -493,7 +564,7 @@ app.controller("survivalController", function($scope) {
 
 app.controller("sotfRerollController", function($scope) {
     $scope.sotfToggle = function() {
-        $scope.postJSONtoAPI('survivor', 'toggle_sotf_reroll', {}, false);
+        $scope.postJSONtoAPI('survivor', 'toggle_sotf_reroll', {}, false, true, true);
     };
 
 });
@@ -563,22 +634,6 @@ app.controller("controlsOfDeath", function($scope) {
 });
 
 
-app.controller("survivorNotesController", function($scope) {
-    $scope.notes = [];
-    $scope.formData = {};
-    $scope.addNote = function () {
-        if (!$scope.note) {return;}
-        $scope.survivor.notes.push({note: $scope.note});
-        $scope.postJSONtoAPI('survivor', 'add_note', {'note': $scope.note});
-    };
-
-    $scope.removeNote = function (x, note_oid) {
-        $scope.survivor.notes.splice(x, 1);
-        if (note_oid !== undefined) {
-            $scope.postJSONtoAPI('survivor', 'rm_note', {'_id': note_oid}, false)
-        };
-    };
-});
 
 
 app.controller("theConstellationsController", function($scope) {

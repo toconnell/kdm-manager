@@ -514,7 +514,7 @@ class GameAsset(object):
 
 
 
-class UserAsset():
+class UserAsset(object):
     """ The base class for all user asset objects, such as survivors, sessions,
     settlements and users. All user asset controllers in the 'models' module
     use this as their base class. """
@@ -905,9 +905,9 @@ class UserAsset():
             d['action']['repr'] = " ".join(['modified', action_target])
         else:
             if action_target == "survivor":
-                d['action']['repr'] = " ".join([action_word, "'%s'" % value, action_preposition, key])
+                d['action']['repr'] = " ".join([action_word, "'%s'" % value, action_preposition, str(key)])
             else:
-                d['action']['repr'] = " ".join([action_word, "'%s'" % value, action_preposition, action_target, key])
+                d['action']['repr'] = " ".join([action_word, "'%s'" % value, action_preposition, action_target, str(key)])
 
         # default a message, if incoming message is none
         if msg is None:

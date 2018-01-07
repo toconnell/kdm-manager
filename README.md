@@ -19,7 +19,7 @@ Both [http://kdm-manager.com] and [http://thewatcher.io] run on Ubuntu 16.04 LTS
 If your goal is to start from bare metal on a deb/ubuntu system, you will need
 to install the following packages:
 
-    ~# apt-get install git mongodb-server nginx python2.7 python-dev python-setuptools gcc python-imaging python-gridfs
+    ~# apt-get install git mongodb-server nginx python2.7 python-dev python-setuptools gcc python-imaging python-gridfs python-celery
 
 
 python dependencies (PIP should work for all of these if you've moved from `easy_install`)

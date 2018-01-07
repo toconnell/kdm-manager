@@ -184,6 +184,9 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
         if (survivor.sheet.email === $scope.user_login){
             survivor.meta.manageable = true;
         };
+        if (survivor.sheet.public === true) {
+            survivor.meta.manageable = true;
+        };
 
 //        if (survivor.meta.manageable === true) {console.warn($scope.user_login + " can manage " + survivor.sheet.name)}
         if (survivor.meta.manageable === true) {$scope.manageable_survivors += 1; $scope.verify_manageable=false};

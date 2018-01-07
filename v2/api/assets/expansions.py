@@ -85,6 +85,10 @@ mar_2016_expansions = {
         "timeline_add": [
             {"ly": 8, "type": "story_event", "handle": "dbk_rumbling_in_the_dark"},
         ],
+        "help": [
+            {"type": "storage", "tip": "The <b>Regenerating Blade</b> is Rare Gear."},
+            {"type": "storage", "tip": "<b>Calcified</b> gear is selectable from the <b>Black Harvest</b> section of the Settlement Storage controls."},
+        ],
     },
     "spidicules": {
         "name": "Spidicules",

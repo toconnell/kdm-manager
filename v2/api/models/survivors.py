@@ -117,6 +117,7 @@ class Survivor(Models.UserAsset):
         self.Names = names.Assets()
         self.Saviors = saviors.Assets()
         self.SpecialAttributes = survivor_special_attributes.Assets()
+        self.WeaponProficiency = weapon_proficiency.Assets()
 
         # data model meta data
         self.stats =                ['Movement','Accuracy','Strength','Evasion','Luck','Speed','bleeding_tokens']
@@ -152,6 +153,30 @@ class Survivor(Models.UserAsset):
 
         if self.normalize_on_init:
             self.normalize()
+
+
+    def save(self, verbose=True):
+        """ Do custom post-process for survivors and then super the base class
+        func (i.e. the UserAsset.save() method) to go the generic save. """
+
+        #
+        #   SURVIVOR POST PROCESS! - January 2018
+        #
+
+        # biz logic for weapon proficiency 
+        if self.survivor["weapon_proficiency_type"] is not None:
+            w_handle = self.survivor["weapon_proficiency_type"]
+            w_dict = self.WeaponProficiency.get_asset(w_handle)
+            if self.survivor.get('Weapon Proficiency', 0) >= 3:
+                if w_dict['specialist_ai'] not in self.survivor['abilities_and_impairments']:
+                    self.add_game_asset("abilities_and_impairments", w_dict['specialist_ai'])
+            elif self.survivor.get('Weapon Proficiency', 0) >= 8:
+                if w_dict['master_ai'] not in self.survivor['abilities_and_impairments']:
+                    self.add_game_asset("abilities_and_impairments", w_dict['master_ai'])
+
+
+        # finally, call the base class method (passing the verb flag through)
+        super(Survivor, self).save(verbose=verbose)
 
 
     def new(self):
@@ -522,12 +547,11 @@ class Survivor(Models.UserAsset):
             self.logger.debug("%s Removing deprecated attribute 'ability_customizations'." % self)
             self.perform_save = True
 
-        # enforce the partner A&I
-        if "partner_id" in self.survivor.keys():
-            if "partner" not in self.survivor["abilities_and_impairments"]:
-                self.logger.debug("Automatically adding 'Partner' A&I to %s." % self)
-                self.survivor["abilities_and_impairments"].append("partner")
-                self.perform_save = True
+        # handle orphan partners
+        if self.survivor.get('partner_id', None) is not None:
+            partner = utils.mdb.survivors.find_one({'_id': self.survivor['partner_id']})
+            if partner.get('partner_id', None) != self.survivor['_id']:
+                self.set_partner("UNSET")
 
         # add the savior key if we're dealing with a savior
         if self.is_savior() and not "savior" in self.survivor.keys():
@@ -846,6 +870,10 @@ class Survivor(Models.UserAsset):
             for related_handle in asset_dict["related"]:
                 self.add_game_asset(asset_class, related_handle, apply_related=False)
 
+        # 7.) EXCLUDED - rm any excluded
+        for excluded_handle in asset_dict.get('excluded', []):
+            self.rm_game_asset(asset_class, excluded_handle, save=False)
+
         # finally, if we're still here, add it and log_event() it
         self.survivor[asset_class].append(asset_dict["handle"])
         self.survivor[asset_class].sort()
@@ -858,7 +886,9 @@ class Survivor(Models.UserAsset):
         #
 
         # special handling for certain game asset types
-        if asset_dict.get("sub_type", None) == "weapon_mastery":
+        if asset_dict.get('type', None) == 'weapon_specialization':
+            self.log_event("%s is a %s specialist!" % (self.pretty_name(), w_dict["name"]))
+        elif asset_dict.get("type", None) == "weapon_mastery":
             self.log_event("%s has become a %s master!" % (self.pretty_name(), asset_dict["weapon_name"]), event_type="survivor_mastery")
             if asset_dict.get("add_to_innovations", True):
                 self.Settlement.add_innovation(asset_dict["handle"])
@@ -1081,6 +1111,57 @@ class Survivor(Models.UserAsset):
         self.save()
 
 
+    def set_partner(self, partner_oid=None, update_partner=True):
+        """ Request context optional. Sets (or unsets) the survivor's partner. """
+
+        if partner_oid is None:
+            self.check_request_params(['partner_id'])
+            partner_oid = self.params['partner_id']
+
+        # handle unset requests first
+        if partner_oid == 'UNSET' and 'partner_id' in self.survivor.keys():
+            # unset the partner, if we're doing that
+            if update_partner:
+                P = Survivor(_id=self.survivor['partner_id'])
+                P.set_partner(partner_oid='UNSET', update_partner=False)
+            # unset the survivor
+            del self.survivor['partner_id']
+            self.log_event("%s no longer has a partner." % self.pretty_name())
+            self.save()
+            return True
+        elif partner_oid == 'UNSET' and not 'partner_id' in self.survivor.keys():
+            self.logger.warn('%s Ignoring bogus request to unset partner...' % self)
+            return True
+
+
+        # now sanity check the incoming OID
+        if not ObjectId.is_valid(partner_oid):
+            raise utils.InvalidUsage("Partner OID '%s' does not appear to be a valid OID!" % partner_oid)
+        partner = utils.mdb.survivors.find_one({"_id": ObjectId(partner_oid)})
+        if partner is None:
+            raise utils.InvalidUsage("Partner OID '%s' does not match the OID of any known survivor!" % partner_oid)
+
+        # ok, we've got a good OID for the new partner, let's check a.) whether
+        # this is the current partner or b.) whether this is an update
+        if partner['_id'] == self.survivor.get('partner_id', None):
+            self.logger.warn("%s Ignoring bogus request to set partner (already set)." % self)
+            return True
+        elif self.survivor.get('partner_id', None) is not None and partner['_id'] != self.survivor['partner_id']:
+            if update_partner:
+                P = Survivor(_id=self.survivor['partner_id'])
+                P.set_partner(partner_oid='UNSET', update_partner=False)
+
+        # set the new partner on the current survivor
+        self.survivor['partner_id'] = ObjectId(partner_oid)
+        self.log_event('%s is partners with %s!' % (self.pretty_name(), partner['name']))
+        self.save()
+
+        # finally, if we're updating the partner, do that
+        if update_partner:
+            P = Survivor(_id=partner['_id'])
+            P.set_partner(partner_oid=self.survivor['_id'], update_partner=False)
+
+
     def replace_game_assets(self):
         """ Much like set_many_game_assets(), this route facilitates The Watcher
         UI/UX and SHOULD ONLY BE USED WITH A REQUEST OBJECT since it pulls all
@@ -1192,7 +1273,8 @@ class Survivor(Models.UserAsset):
         }
 
         note_oid = utils.mdb.survivor_notes.insert(note_dict)
-#        self.logger.debug("%s Added a note to %s" % (request.User, self))
+        self.logger.debug("%s Added a note to %s" % (request.User, self))
+
         return Response(response=json.dumps({'note_oid': note_oid}, default=json_util.default), status=200)
 
 
@@ -1291,17 +1373,6 @@ class Survivor(Models.UserAsset):
         self.log_event("%s updated %s attribute '%s' to %s" % (request.User.login, self.pretty_name(), attribute, self.survivor[attribute]))
         self.save()
 
-        # biz logic for weapon proficiency - POST PROCESS
-        if attribute == "Weapon Proficiency" and self.survivor[attribute] >= 3:
-            if self.survivor["weapon_proficiency_type"] is not None:
-                W = weapon_proficiency.Assets()
-                w_handle = self.survivor["weapon_proficiency_type"]
-                w_dict = W.get_asset(w_handle)
-                if self.survivor[attribute] == 3:
-                    self.log_event("%s is a %s specialist!" % (self.pretty_name(), w_dict["name"]))
-                    self.add_game_asset("abilities_and_impairments", "%s_specialization" % w_handle)
-                elif self.survivor[attribute] == 8:
-                    self.add_game_asset("abilities_and_impairments", "mastery_%s" % w_handle)
 
 
     def update_bleeding_tokens(self, modifier=None):
@@ -1671,7 +1742,7 @@ class Survivor(Models.UserAsset):
 
         #   necessity check - issue 434
         if self.survivor[attrib] == value:
-            self.logger.debug("%s No change to '%s' attrib. Ignoring..." % (self, attrib))
+            self.logger.debug("%s No change to '%s' attrib (%s -> %s). Ignoring..." % (self, attrib, self.survivor[attrib], value))
             return True
 
         self.survivor[attrib] = value
@@ -2108,7 +2179,7 @@ class Survivor(Models.UserAsset):
         handle. """
 
         if self.params.get('unset', None) is not None:
-            self.survivor['weapon_proficienct_type'] = None
+            self.survivor['weapon_proficiency_type'] = None
             self.log_event('%s unset weapon proficiency type for %s.' % (request.User.login, self.pretty_name()))
             self.save()
             return True
@@ -2119,6 +2190,10 @@ class Survivor(Models.UserAsset):
 
         W = weapon_proficiency.Assets()
         h_dict = W.get_asset(handle)
+
+        if self.survivor['weapon_proficiency_type'] == handle:
+            self.logger.warn("%s No change to Weapon Proficiency type. Ignoring..." % self)
+            return True
 
         self.survivor["weapon_proficiency_type"] = handle
         self.log_event("%s set weapon proficiency type to '%s' for %s" % (request.User.login, h_dict["handle"], self.pretty_name()))
@@ -3119,6 +3194,8 @@ class Survivor(Models.UserAsset):
             self.set_retired()
         elif action == "set_sex":
             self.set_sex()
+        elif action == "set_partner":
+            self.set_partner()
         elif action == "set_constellation":
             self.set_constellation()
         elif action == "set_weapon_proficiency_type":
@@ -3138,7 +3215,10 @@ class Survivor(Models.UserAsset):
 
         # notes
         elif action == 'add_note':
-            return self.add_note()
+            if 'serialize_on_response' in self.params:
+                self.add_note()
+            else:
+                return self.add_note()
         elif action == 'rm_note':
             self.rm_note()
 

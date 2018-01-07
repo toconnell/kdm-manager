@@ -276,57 +276,80 @@ def COD_histogram():
 #   one-off methods for CLI management of user subscriptions
 #
 
+class userManagementObject:
 
-def update_user(oid, level=None, beta=None, admin=None):
-    """ Loads a user from the MDB, initializes it and calls the methods that set
-    the patron level and the beta flag, etc. """
+    def __init__(self, oid=None):
+        if not ObjectId.is_valid(oid):
+            print("The user ID '%s' is not a valid Object ID." % (oid))
+            sys.exit(1)
+        self._id = ObjectId(oid)
+        self.User = users.User(_id=self._id)
+        self.login = self.User.user['login']
 
-    if not ObjectId.is_valid(oid):
-        print("The user ID '%s' is not a valid Object ID." % (oid))
+        print("\n Working with user \x1b[1;33;40m %s \x1b[0m [%s]" % (self.login, self._id))
 
-    # initialize the user and show preferences
-    U = users.User(_id=oid)
+    def dump(self):
+        """ Dump a summary of the user to the CLI. """
 
-    # toggle admin if we're doing that
-    if admin is not None:
-        if 'admin' in U.user.keys():
-            del U.user["admin"]
+        U_serialized = self.User.serialize(dict)['user']
+        mini_repr = OrderedDict()
+        if 'admin' in self.User.user.keys():
+            mini_repr['admin'] = self.User.user['admin']
+        for time_attr in ['created_on','latest_sign_in', 'latest_activity']:
+            mini_repr[time_attr] = utils.get_time_elapsed_since(U_serialized[time_attr], 'age')
+        for attr in ['settlements_created','survivors_created']:
+            mini_repr[attr] = U_serialized[attr]
+        dump_doc_to_cli(mini_repr, gap_spaces=25)
+
+        if self.User.user['preferences'] != {}:
+            print(' User Preferences:')
+            dump_doc_to_cli(self.User.user['preferences'], gap_spaces=35)
+
+    def dump_settlements(self):
+        """ Dump a CLI summary of the user's settlements. """
+        settlements = utils.mdb.settlements.find({'created_by': self._id})
+        if settlements is not None:
+            ok = raw_input(str("\n Press any key to dump %s settlements: " % settlements.count()))
+            print("\n User settlements:")
+            for s in settlements:
+                dump_settlement_to_cli(s['_id'])
+            print
+
+    def set_patron_level(self, level=0):
+        """ Set the user's patron level, dump a representation. """
+        if level is not None:
+            print(" Updated subscriber attributes:")
+            self.User.set_patron_attributes(level)
         else:
-            U.user["admin"] = datetime.now()
-        U.save()
+            print(" User subscriber status:")
+        if 'patron' in self.User.user.keys():
+            dump_doc_to_cli(self.User.user['patron'])
+        else:
+            print "\n   None\n"
 
-    # now show me what you got
-    print("\n Working with user \x1b[1;33;40m %s \x1b[0m [%s]" % (U.user['login'], U.user['_id']))
-    U_serialized = U.serialize(dict)['user']
-    mini_repr = OrderedDict()
-    if 'admin' in U.user.keys():
-        mini_repr['admin'] = U.user['admin']
-    for time_attr in ['created_on','latest_sign_in', 'latest_activity']:
-        mini_repr[time_attr] = utils.get_time_elapsed_since(U_serialized[time_attr], 'age')
-    for attr in ['settlements_created','survivors_created']:
-        mini_repr[attr] = U_serialized[attr]
-    dump_doc_to_cli(mini_repr, gap_spaces=25)
+    def toggle_admin(self):
+        """ Toggles the 'admin' attribute on/off. """
+        if 'admin' in self.User.user.keys():
+            del self.User.user["admin"]
+        else:
+            self.User.user["admin"] = datetime.now()
+        self.User.save()
+
+    def toggle_beta(self, beta):
+        """ Sets the beta preference. """
+        if type(beta) == bool:
+            pass
+        elif beta is None:
+            pass
+        elif beta[0].upper() == 'T':
+            beta = True
+        else:
+            beta = False
 
 
-    # coerce beta to a boolean
-    if type(beta) == bool:
-        pass
-    elif beta is None:
-        pass
-    elif beta[0].upper() == 'T':
-        beta = True
-    else:
-        beta = False
 
-    # set patron attributes, if we're doing that
-    if level is not None or beta is not None:
-        print(" Updated subscriber attributes:")
-        U.set_patron_attributes(level, beta)
-        dump_doc_to_cli(U.user['patron'])
 
-    if U.user['preferences'] != {}:
-        print(' User Preferences:')
-        dump_doc_to_cli(U.user['preferences'], gap_spaces=35)
+
 
 
 def get_user_id_from_email(email):
@@ -433,9 +456,9 @@ if __name__ == "__main__":
 
     # Work with Users / manage subscriptions
     parser.add_option("-U", dest="work_with_user", default=None, help="Work with a user.", metavar="demo@kdm-manager.com")
-    parser.add_option("--level", dest="user_level", default=None, metavar=2, help="Use with -U to set a user's patron/subscriber level.")
-    parser.add_option("--beta", dest="user_beta", default=None, metavar="True", help="Use with -U to set a user's Beta preference.")
     parser.add_option("--admin", dest="user_admin", default=None, action="store_true", help="Use with -U to toggle a user's 'admin' status on/off.")
+    parser.add_option("--level", dest="user_level", default=None, metavar=2, help="Use with -U to set a user's patron/subscriber level.")
+    parser.add_option("--settlements", dest="user_settlements", default=False, action="store_true", help="Dump a summary of the user's settlements.")
 
     # work with API response times
     parser.add_option("-A", dest="work_with_api_response_data", default=False, action="store_true", help="Work with API response time data.")
@@ -473,7 +496,16 @@ if __name__ == "__main__":
             # assume it's an email if it's not an oid
             user_oid = get_user_id_from_email(options.work_with_user)
 
-        update_user(user_oid, level=options.user_level, beta=options.user_beta, admin=options.user_admin)
+        UMO = userManagementObject(user_oid)
+
+        if options.user_admin:
+            UMO.toggle_admin()
+
+        UMO.dump()
+        UMO.set_patron_level(options.user_level)
+
+        if options.user_settlements:
+            UMO.dump_settlements()
 
 
     # manage API response times data

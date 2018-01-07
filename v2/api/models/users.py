@@ -292,7 +292,7 @@ class User(Models.UserAsset):
 
         # basics; all views, generic UI/UX stuff
         output["user"]["age"] = self.get_age()
-        output["user"]["settlements_created"] = utils.mdb.settlements.find({'created_by': self.user['_id']}).count()
+        output["user"]["settlements_created"] = utils.mdb.settlements.find({'created_by': self.user['_id'], 'removed': {'$exists': False}}).count()
         output["user"]["survivors_created"] = utils.mdb.survivors.find({'created_by': self.user['_id']}).count()
         output['user']['subscriber'] = self.get_patron_attributes()
         output["preferences"] = self.get_preferences()

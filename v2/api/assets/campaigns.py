@@ -55,13 +55,13 @@ _default_survivor_attribute_milestones = {
         {'values': [16], 'handle': 'retired', 'event': 'ui_prompts'},
     ],
     "Courage": [
-        {"values": [3], "handle": "core_bold", 'event': 'story_events'},
-        {"values": [9], "handle": "core_see_the_truth", 'event': 'story_events'},
+        {"values": [3], 'boxes': 1, "handle": "core_bold", 'event': 'story_events'},
+        {"values": [9], 'boxes': 2, "handle": "core_see_the_truth", 'event': 'story_events'},
         {"values": [9], "handle": "max_courage", 'event': 'ui_prompts'},
     ],
     "Understanding": [
-        {"values": [3], "handle": "core_insight", 'event': 'story_events'},
-        {"values": [9], "handle": "core_white_secret", 'event': 'story_events'},
+        {"values": [3], 'boxes': 1, "handle": "core_insight", 'event': 'story_events'},
+        {"values": [9], 'boxes': 2, "handle": "core_white_secret", 'event': 'story_events'},
         {"values": [9], "handle": "max_understanding", 'event': 'ui_prompts'},
     ],
     "Weapon Proficiency": [
@@ -368,13 +368,13 @@ expansion_campaign = {
                 {'values': [16], 'handle': 'retired', 'event': 'ui_prompts'},
             ],
             "Courage": [
-                {"values": [3], "handle": "dk_awake", 'event': 'story_events'},
-                {"values": [9], "handle": "core_see_the_truth", 'event': 'story_events'},
+                {"values": [3], 'boxes': 1, "handle": "dk_awake", 'event': 'story_events'},
+                {"values": [9], 'boxes': 2, "handle": "core_see_the_truth", 'event': 'story_events'},
                 {"values": [9], "handle": "max_courage", 'event': 'ui_prompts'},
             ],
             "Understanding": [
-                {"values": [3], "handle": "dk_awake", 'event': 'story_events'},
-                {"values": [9], "handle": "core_white_secret", 'event': 'story_events'},
+                {"values": [3], 'boxes': 1, "handle": "dk_awake", 'event': 'story_events'},
+                {"values": [9], 'boxes': 2, "handle": "core_white_secret", 'event': 'story_events'},
                 {"values": [9], "handle": "max_understanding", 'event': 'ui_prompts'},
             ],
             "Weapon Proficiency": [
