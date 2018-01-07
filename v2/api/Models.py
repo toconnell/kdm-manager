@@ -936,8 +936,9 @@ class UserAsset(object):
         # finally, if we had a requester, now that we've settled on a message
         # text, update the requester's latest action with it
         if 'created_by' is not None:
-            ua_string = str(ua_parse(request.user_agent.string))
-            request.User.set_latest_action(d['event'], ua_string)
+            if request:
+                ua_string = str(ua_parse(request.user_agent.string))
+                request.User.set_latest_action(d['event'], ua_string)
 
         # finally, insert the event (i.e. save)
 #        self.logger.debug(d)
