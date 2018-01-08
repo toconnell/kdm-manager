@@ -2294,7 +2294,7 @@ class Survivor(Models.UserAsset):
                 if self.get_current_ly() not in r_years and self.get_current_ly() - 1 not in r_years:
 #                    self.logger.warn("%s not in %s" % (self.get_current_ly(), self.survivor.get('returning_survivor', [])))
                     available = False
-            self.logger.debug("returning %s" % available)
+#            self.logger.debug("returning %s" % available)
             return available
 
 

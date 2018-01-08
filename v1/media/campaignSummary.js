@@ -8,6 +8,11 @@ app.controller ("campaignSummaryController", function($scope) {
             function(errorPayload) {console.log("Could not retrieve settlement storage from API!" + errorPayload);}
         );
     };
+
+    $scope.fadeSurvivorGroupsLoader = function() {
+        $('#waitingForSurvivors').fadeOut(1500);
+    };
+
 });
 
 

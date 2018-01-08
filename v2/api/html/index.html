@@ -1734,6 +1734,18 @@
             </td>
         </tr>
         <tr class="ul">
+            <td> /survivor/set_partner/&lt;survivor_id&gt; </td>
+            <td> <b>POST</b> </td>
+            <td>
+                <p><b>POST</b> the OID of a survivor to this end point to make
+                that survivor this survivor's partner:</p>
+                <code>{partner_id: "5a53a2154af5ca67743c6c79"}</code>
+                <p>To remove the survivor's partner, post the magic value 'UNSET'
+                as the <code>partner_id</code>:</p>
+                <code>{partner_id: "UNSET"}</code>
+            </td>
+        </tr>
+        <tr class="ul">
             <td> /survivor/set_special_attribute/&lt;survivor_id&gt; </td>
             <td> <b>POST</b> </td>
             <td>

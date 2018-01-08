@@ -40,6 +40,17 @@ app.controller("survivorSheetController", function($scope) {
         };
     };
 
+    // email
+    $scope.setEmail = function() {
+        console.warn("wtf, mate");
+        var newEmail = $scope.scratch.newSurvivorEmail.toLowerCase();
+        var res = $scope.postJSONtoAPI('survivor','set_email', {'email': newEmail});
+        res.error(function(data, status, headers, config) {
+            $scope.newSurvivorEmail = $scope.survivor.sheet.email;
+        });
+    };
+
+    // partner controls
     $scope.setPartner = function(partner_oid) {
         $scope.survivor.sheet.partner_id = partner_oid;
         if (partner_oid == 'UNSET') {
@@ -432,13 +443,6 @@ app.controller('survivorSpecialAttribsController', function($scope) {
 
 
 app.controller('lineageController', function($scope) {
-    $scope.setEmail = function() {
-        var newEmail = $scope.newSurvivorEmail.toLowerCase();
-        var res = $scope.postJSONtoAPI('survivor','set_email', {'email': newEmail});
-        res.error(function(data, status, headers, config) {
-            $scope.newSurvivorEmail = $scope.survivor.sheet.email;
-        });
-    };
     $scope.maleFilter = function(s) {
         if (s.sheet._id.$oid == $scope.survivor.sheet._id.$oid) {return false};
         if (s.sheet.sex == 'M') {return true} else {return false};
