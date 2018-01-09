@@ -2493,7 +2493,7 @@ class survivor:
                         &#x25BC;
                     </button>
                 </div>
-                <div ng-if="survivor.sheet['Weapon Proficiency'] > 2">
+                <div ng-if="survivor.sheet.hunt_xp > 1">
                     <select
                         ng-model="survivor.sheet.weapon_proficiency_type"
                         ng-options="dict.handle as dict.name for dict in settlement.game_assets.weapon_proficiency_types"
