@@ -652,7 +652,7 @@ class dashboard:
                     </tr>
                     <tr><td colspan="2"><b>{{world.latest_fatality.value.name}}</b> [{{world.latest_fatality.value.sex}}] of </td></tr>
                     <tr><td colspan="2"><i>{{world.latest_fatality.value.settlement_name}}</i></td></tr>
-                    <tr><td colspan="2"><i>Cause of Death:</i></td></tr>
+                    <tr><td colspan="2">Cause of Death:</td></tr>
                     <tr><td colspan="2">&ensp; <font class="maroon_text"><b>{{world.latest_fatality.value.cause_of_death}}</b></font></td></tr>
                     <tr ng-if="world.latest_settlement.value.epithets != null">
                         <td colspan="2">{{world.latest_fatality.value.epithets}}</td>

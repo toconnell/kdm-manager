@@ -2287,7 +2287,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     span.survivor_search_retired_survivors_warning {font-size: 11pt; margin-bottom: 2%; }
 
     b.campaign_summary_survivor_name {font-size: 27px;}
-    .campaign_summary_survivor_modal_color_scheme_select {width: 32%;  height: 45px; }
+    .campaign_summary_survivor_modal_color_scheme_select {width: 400px;  height: 45px; padding: 1px; }
 
         /* endeavors app - wide */
     div.campaign_summary_endeavor_cap {font-size: 14pt; text-align: center; border-width: 2px; border-radius: 0; margin-top: 10px; }
