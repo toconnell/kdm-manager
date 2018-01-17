@@ -165,6 +165,35 @@ app.controller("survivorSheetController", function($scope) {
         };
     };
 
+    //
+    // toggles start here!
+    //
+
+    // favorite requires special logic, since it's an append
+    $scope.toggleFavorite = function() {
+        var user_index = $scope.survivor.sheet.favorite.indexOf($scope.user_login);
+        if (user_index === -1) {
+            $scope.postJSONtoAPI('survivor','add_favorite',{'user_email': $scope.user_login}, false, true, true);
+            $scope.scratch.favoriteBox = true;
+        } else {
+            $scope.postJSONtoAPI('survivor','rm_favorite',{'user_email': $scope.user_login}, false, true, true);
+            $scope.scratch.favoriteBox = false;
+        };
+    };
+
+    // campaign-specific attribs
+    $scope.toggleSpecialAttrib = function(sa_handle) {
+        if ($scope.survivor.sheet[sa_handle] === undefined) {
+            $scope.survivor.sheet[sa_handle] = true;
+        } else if ($scope.survivor.sheet[sa_handle] === true) {
+            $scope.survivor.sheet[sa_handle] = false;
+        } else if ($scope.survivor.sheet[sa_handle] === false) {
+            $scope.survivor.sheet[sa_handle] = true;
+        };
+        js_obj = {handle: sa_handle, value: $scope.survivor.sheet[sa_handle]};
+        $scope.postJSONtoAPI('survivor','set_special_attribute',js_obj);
+    }; 
+
     // abstracted survivor toggles
     $scope.toggleStatusFlag = function(flag) {
         $scope.postJSONtoAPI('survivor','toggle_status_flag', {'flag': flag}, false, true, true);
@@ -182,19 +211,6 @@ app.controller("survivorSheetController", function($scope) {
         $scope.postJSONtoAPI('survivor','set_sex', {'sex': new_sex}, false, true, true);
     };
 
-    $scope.toggleFavorite = function() {
-//        console.warn('toggling favorite status.');
-        var user_index = $scope.survivor.sheet.favorite.indexOf($scope.user_login);
-        if (user_index === -1) {
-//            console.log($scope.user_login + " is not in Survivor favorites list");
-            $scope.postJSONtoAPI('survivor','add_favorite',{'user_email': $scope.user_login}, false, true, true);
-            $scope.scratch.favoriteBox = true;
-        } else {
-//            console.log($scope.user_login + " is in Survivor favorites list");
-            $scope.postJSONtoAPI('survivor','rm_favorite',{'user_email': $scope.user_login}, false, true, true);
-            $scope.scratch.favoriteBox = false;
-        };
-    };
 
     $scope.setRetired = function() {
         var retired = false;
@@ -284,7 +300,7 @@ app.controller("affinitiesController", function($scope) {
         $scope.survivor.sheet.affinities[color] += modifier;
         js_obj = {'red':0, 'blue':0, 'green':0};
         js_obj[color] += modifier;
-        $scope.postJSONtoAPI('survivor','update_affinities', {"aff_dict": js_obj}, false);
+        $scope.postJSONtoAPI('survivor','update_affinities', {"aff_dict": js_obj}, false, false);
     };
 
 });
@@ -424,21 +440,6 @@ app.controller('saviorController', function($scope) {
 
 });
 
-
-app.controller('survivorSpecialAttribsController', function($scope) {
-    // for the campaign-specific and expansion-specific bool attribs
-    $scope.toggleSpecialAttrib = function(sa_handle) {
-        if ($scope.survivor.sheet[sa_handle] === undefined) {
-            $scope.survivor.sheet[sa_handle] = true;
-        } else if ($scope.survivor.sheet[sa_handle] === true) {
-            $scope.survivor.sheet[sa_handle] = false;
-        } else if ($scope.survivor.sheet[sa_handle] === false) {
-            $scope.survivor.sheet[sa_handle] = true;
-        };
-        js_obj = {handle: sa_handle, value: $scope.survivor.sheet[sa_handle]};
-        $scope.postJSONtoAPI('survivor','set_special_attribute',js_obj);
-    }; 
-});
 
 
 

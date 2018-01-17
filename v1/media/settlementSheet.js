@@ -84,7 +84,7 @@ app.controller("storageController", function($scope) {
     $scope.setStorage = function(asset, modifier) {
         asset.quantity += modifier;
         js_obj = {handle: asset.handle, value: asset.quantity};
-        $scope.postJSONtoAPI('settlement','set_storage', {storage: [js_obj]}, false);
+        $scope.postJSONtoAPI('settlement','set_storage', {storage: [js_obj]}, false, false);
     };
 
     $scope.loadStorage = function() {

@@ -1178,24 +1178,34 @@ class Survivor(Models.UserAsset):
         if asset_class not in self.game_asset_keys:
             raise utils.InvalidUsage("The replace_game_assets() method cannot modify asset type '%s'. Allowed types include: %s" % (asset_class, self.game_asset_keys))
 
-        # start the riot
-        handles_to_rm = set()
-        handles_to_add = set()
+        # first, turn our two lists into dictionaries where we count the handles
+        current_dict = {h: self.survivor[asset_class].count(h) for h in self.survivor[asset_class]}
+        incoming_dict = {h: asset_handles.count(h) for h in asset_handles}
 
-        # process the current list: figure out what has to be removed
-        for h in self.survivor[asset_class]:
-            if h not in asset_handles:
-                handles_to_rm.add(h)
-        # process the incoming list: figure out what we need to add
-        for h in asset_handles:
-            if h not in self.survivor[asset_class]:
-                handles_to_add.add(h)
+        # next, compare the current dict to the incoming dict and figure out
+        # what to keep and what to rm
+
+        handles_to_rm = []
+        for h in current_dict.keys():
+            delta = current_dict[h] - incoming_dict.get(h, 0)
+            if delta > 0:
+                for i in range(delta):
+                    handles_to_rm.append(h)
+
+        handles_to_add = []
+        for h in incoming_dict.keys():
+            delta = incoming_dict[h] - current_dict.get(h, 0)
+            if delta > 0:
+                for i in range(delta):
+                    handles_to_add.append(h)
+
 
         # bail if we've got no changes
-        if handles_to_add == set() and handles_to_rm == set():
+        if handles_to_add == [] and handles_to_rm == []:
             self.logger.warn('Ignoring bogus replace_game_assets() operation: no changes to make...')
             return True
 
+        # otherwise, if we're doing changes, do them one at a time
         for h in handles_to_rm:
             self.rm_game_asset(asset_class, h, save=False)
         for h in handles_to_add:
@@ -1728,7 +1738,11 @@ class Survivor(Models.UserAsset):
         if attrib is None:
             self.check_request_params(['attribute','value'])
             attrib = self.params["attribute"]
-            value = int(self.params["value"])
+            value = self.params['value']
+            if value is None:
+                value = 0
+            else:
+                value = int(self.params["value"])
 
         # sanity check!
         if attrib not in self.survivor.keys():
@@ -1975,11 +1989,11 @@ class Survivor(Models.UserAsset):
         oid = ObjectId(oid)
 
         if role not in ['father','mother']:
-            utils.invalidUsage("Parent 'role' value must be 'father' or 'mother'!")
+            utils.InvalidUsage("Parent 'role' value must be 'father' or 'mother'!")
 
         new_parent = utils.mdb.survivors.find_one({"_id": oid})
         if new_parent is None:
-            utils.invalidUsage("Parent OID '%s' does not exist!" % oid)
+            utils.InvalidUsage("Parent OID '%s' does not exist!" % oid)
 
         if oid == self.survivor.get(role, None):
             self.logger.warn("%s %s is already %s. Ignoring request..." % (self, role, new_parent["name"]))
@@ -2162,12 +2176,19 @@ class Survivor(Models.UserAsset):
         self.save()
 
 
-    def set_survival(self, value=0):
+    def set_survival(self, value=None):
         """ Sets survivor["survival"] to 'value'. Respects settlement rules
         about whether to enforce the Survival Limit. Will not go below zero. """
 
-        self.check_request_params(["value"])
-        value = int(self.params["value"])
+        if value is None:
+            self.check_request_params(["value"])
+            value = self.params['value']
+
+        if value is None:
+            value = 0
+        else:
+            value = int(self.params["value"])
+
         self.survivor["survival"] = value
         self.apply_survival_limit()
         self.log_event("%s set %s survival to %s" % (request.User.login, self.pretty_name(), self.survivor["survival"]))

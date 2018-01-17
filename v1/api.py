@@ -137,10 +137,9 @@ def post_JSON_to_route(route=None, payload={}, headers={}, Session=None):
         return requests.post(req_url, data=json.dumps(payload, cls=customJSONencoder), headers=h, verify=False)
     except Exception as e:
         msg = "api.post_JSON_to_Route() call failed! Exception caught while creating request object!"
-#        logger.error(msg)
-#        logger.exception(e)
-#        raise Exception("\n".join([msg, str(payload)]))
-        raise Exception(e)
+        logger.exception(e)
+        raise Exception("\n".join([msg, str(payload)]))
+#        raise Exception(e)
 
 
 

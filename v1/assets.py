@@ -621,14 +621,6 @@ class Survivor:
                 self.survivor[p] = game_asset_key
 
 
-
-        # idiot-proof the hit boxes
-        for hit_tuplet in [("arms_damage_light","arms_damage_heavy"), ("body_damage_light", "body_damage_heavy"), ("legs_damage_light", "legs_damage_heavy"), ("waist_damage_light", "waist_damage_heavy")]:
-            light, heavy = hit_tuplet
-            if heavy in self.survivor.keys() and not light in self.survivor.keys():
-                self.survivor[light] = "checked"
-
-
         # this is the big save. This should be the ONLY SAVE we do during a self.modify()
         self.save()
 
@@ -691,76 +683,14 @@ class Survivor:
 
 
 
-    def render_hit_box_controls(self, hit_location=None):
-        """ Fills in the html template for hit box controls and spits out HTML
-        for the controller. Kind of kludgey, but slims down the rendering
-        process/outout ."""
-
-        if hit_location is None:
-            self.logger.error("The 'hit_location' may not be None!")
-            return None
-        elif hit_location not in self.survivor.keys():
-            self.logger.error("The '%s' hit location does not exist!" % hit_location)
-
-        dmg_l = "damage_box_"
-        if "%s_damage_light" % hit_location.lower() in self.survivor.keys():
-            dmg_l += self.survivor["%s_damage_light" % hit_location.lower()]
-        dmg_h = "damage_box_"
-        if "%s_damage_heavy" % hit_location.lower() in self.survivor.keys():
-            dmg_h += self.survivor["%s_damage_heavy" % hit_location.lower()]
-
-        return html.survivor.survivor_sheet_hit_box_controls.safe_substitute(
-            dmg_light_checked = dmg_l,
-            dmg_heavy_checked = dmg_h,
-            damage_location_light = "damage_%s_light" % hit_location.lower(),
-            damage_location_heavy = "damage_%s_heavy" % hit_location.lower(),
-            toggle_location_damage_light = "toggle_%s_damage_light" % hit_location.lower(),
-            toggle_location_damage_heavy = "toggle_%s_damage_heavy" % hit_location.lower(),
-            hit_location = hit_location,
-            survivor_id = self.survivor["_id"],
-            location_lower = hit_location.lower(),
-            number_input_id = "%sHitBoxInput" % hit_location.lower(),
-            hit_location_value = self.survivor[hit_location],
-        )
-
-
 
 
     @ua_decorator
     def render_html_form(self):
-        """ Render a Survivor Sheet for the survivor.
-
-        This is just like the render_html_form() method of the settlement
-        class: a giant tangle-fuck of UI/UX logic that creates the form for
-        modifying a survivor.
-
-        It's going on one year and this is still a total debacle. This needs to
-        be refactored in the next big clean-up push.
+        """ Render a Survivor Sheet for the survivor. MUST be wrapped in the
+        ua_decorator func to work!
         """
-
-
-        flags = {}
-        for flag in self.flags:
-            flags[flag] = ""
-            if flag in self.survivor.keys():
-                flags[flag] = self.survivor[flag]
-
-        output = html.survivor.form.safe_substitute(
-            survivor_id = self.survivor["_id"],
-
-            # manually generated hit boxes
-            brain_damage_light_checked = flags["brain_damage_light"],
-            head_damage_heavy_checked = flags["head_damage_heavy"],
-            head = self.survivor["Head"],
-
-            # procedurally generated hit boxes
-            arms_hit_box = self.render_hit_box_controls("Arms"),
-            body_hit_box = self.render_hit_box_controls("Body"),
-            waist_hit_box = self.render_hit_box_controls("Waist"),
-            legs_hit_box = self.render_hit_box_controls("Legs"),
-
-        )
-        return output
+        return html.survivor.form.safe_substitute(survivor_id = self.survivor["_id"])
 
 
 

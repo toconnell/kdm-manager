@@ -652,8 +652,8 @@ class dashboard:
                     </tr>
                     <tr><td colspan="2"><b>{{world.latest_fatality.value.name}}</b> [{{world.latest_fatality.value.sex}}] of </td></tr>
                     <tr><td colspan="2"><i>{{world.latest_fatality.value.settlement_name}}</i></td></tr>
-                    <tr><td colspan="2">Cause of Death:</i></td></tr>
-                    <tr><td colspan="2">&ensp; <font class="maroon_text"><b>{{world.latest_fatality.value.cause_of_death}}</b></td></tr>
+                    <tr><td colspan="2"><i>Cause of Death:</i></td></tr>
+                    <tr><td colspan="2">&ensp; <font class="maroon_text"><b>{{world.latest_fatality.value.cause_of_death}}</b></font></td></tr>
                     <tr ng-if="world.latest_settlement.value.epithets != null">
                         <td colspan="2">{{world.latest_fatality.value.epithets}}</td>
                     </tr>
@@ -694,7 +694,7 @@ class dashboard:
                     <tr><th colspan="2">Per user averages</th></tr>
                     <tr><td>Survivors</td><td class="int_value">{{world.avg_user_survivors.value}}</td></tr>
                     <tr class="zebra"><td>Settlements</td><td>{{world.avg_user_settlements.value}}</td></tr>
-                    <tr><td>Avatars</td><td>{{world.avg_user_avatars.value}}</tr></tr>
+                    <tr><td>Avatars</td><td>{{world.avg_user_avatars.value}}</td></tr>
                 </table>
             </div> <!-- user stats -->
 
@@ -749,7 +749,7 @@ class dashboard:
                 <ul>
                     <li>Release {{user.meta.webapp.release}} of the Manager went into production on {{latest_blog_post.published}}. <a target="top" href="{{latest_blog_post.url}}">View change log</a>.</li>
                     <li>v1.7.0, the first production release of the Manager, went live {{user.meta.webapp.age}} ago on 2015-11-29.</li>
-                    <li>For detailed release information, including complete notes and updates for each production release, please check the development blog at <a href="http://blog.kdm-manager.com" target="top"/>blog.kdm-manager.com</a>.</li>
+                    <li>For detailed release information, including complete notes and updates for each production release, please check the development blog at <a href="http://blog.kdm-manager.com" target="top">blog.kdm-manager.com</a>.</li>
                 </ul>
 
                 <hr/>
@@ -1958,14 +1958,14 @@ class survivor:
                     >
                         &#x25BC;
                     </button>
-                </div> <!-- big_number_container -->
-                <button
-                    class="kd_blue"
-                    ng-click="updateSurvival()"
-                    onClick="rollUp('survivalControl')"
-                >
-                    Save Changes
-                </button>
+                    <button
+                        class="kd_blue"
+                        ng-click="updateSurvival()"
+                        onClick="rollUp('survivalControl')"
+                    >
+                        Save Changes
+                    </button>
+                </div> <!-- number tumbler -->
             </div>
         </div> <!-- survival controls and rolls -->
 
@@ -2030,15 +2030,7 @@ class survivor:
 
         <div class="survivor_hit_box insanity_box">
 
-            <div class="big_number_container right_border">
-
-                <button
-                    class="incrementer"
-                    ng-click="incrementAttrib('Insanity',1)"
-                >
-                    +
-                </button>
-
+            <div class="big_number_container">
 
                 <input
                     id="insanityBox"
@@ -2046,19 +2038,11 @@ class survivor:
                     class="shield"
                     name="Insanity" min="0"
                     ng-model="survivor.sheet.Insanity"
-                    ng-value="survivor.sheet.Insanity"
-                    ng-blur="updateAttrib('Insanity')"
                     ng-class="{true: 'maroon_text'}[survivor.sheet.Insanity >= 3]"
+                    onClick="rollUp('insanityHitBoxControl')"
                 />
 
                 <font id="hit_box_insanity">Insanity</font>
-
-                <button
-                    class="decrementer"
-                    ng-click="incrementAttrib('Insanity',-1)"
-                >
-                    -
-                </button>
 
              </div> <!-- big_number_container -->
 
@@ -2066,74 +2050,334 @@ class survivor:
                  <input
                     id="damage_brain_light"
                     name="toggle_brain_damage_light"
-                    class="damage_box_$brain_damage_light_checked damage_box"
+                    class="damage_box"
+                    ng-class="{damage_box_checked: survivor.sheet.brain_damage_light != undefined}"
                     type="submit"
                     value=" "
                     onclick="toggleDamage('damage_brain_light','$survivor_id');"
                 />
 
-                <h2>Brain</h2>
+                <h2 onClick="rollUp('insanityHitBoxControl')">Brain</h2>
 
             </div> <!-- hit_box_detail -->
 
             <p>If your insanity is 3+, you are <b>Insane</b>.</p>
 
         </div> <!-- survivor_hit_box -->
-
-
+        <div
+            id="insanityHitBoxControl"
+            class="kd_sheet_ui_roll_down rolled_up"
+        >
+            <div class="kd_sheet_ui_roll_down_controls">
+                <div class="kd_sheet_ui_number_tumbler">
+                    <button ng-click="survivor.sheet.Insanity = survivor.sheet.Insanity + 1">
+                        &#x25B2;
+                    </button>
+                    <button ng-click="survivor.sheet.Insanity = survivor.sheet.Insanity - 1">
+                        &#x25BC;
+                    </button>
+                    <button
+                        class="kd_blue"
+                        ng-click="updateAttrib('Insanity')"
+                        onClick="rollUp('insanityHitBoxControl')"
+                    >
+                        Save Changes
+                    </button>
+                </div> <!-- number tumbler -->
+            </div>
+        </div>
 
         <!-- HEAD -->
-
         <div class="survivor_hit_box">
-            <div class="big_number_container right_border">
-                <button
-                    class="incrementer"
-                    ng-click="incrementAttrib('Head',1)"
-                >
-                    +
-                </button>
+            <div class="big_number_container">
                 <input
                     id="headBox"
-                    type="number"
-                    class="shield"
                     ng-model="survivor.sheet.Head"
-                    ng-value="survivor.sheet.Head"
-                    ng-blur="updateAttrib('Head')"
+                    onClick="rollUp('headHitBoxControl')"
+                    type="number" class="shield"
                     min="0"
                 />
-                <button
-                    class="decrementer"
-                    ng-click="incrementAttrib('Head',-1)"
-                >
-                    -
-                </button>
             </div>
             <div class="hit_box_detail">
-             <input
-                id="damage_head_heavy"
-                onclick="toggleDamage('damage_head_heavy','$survivor_id');"
-                type="submit"
-                class="damage_box_$head_damage_heavy_checked heavy_damage damage_box"
-                name="toggle_head_damage_heavy"
-                value=" "
-             />
-             <h2>Head</h2>
-            </div> <!-- hit_box_detail -->
+                 <input
+                    id="damage_head_heavy"
+                    onclick="toggleDamage('damage_head_heavy','$survivor_id');"
+                    ng-class="{damage_box_checked: survivor.sheet.head_damage_heavy != undefined}"
+                    name="toggle_head_damage_heavy"
+                    class="heavy_damage damage_box"
+                    type="submit"
+                    value=""
+                />
+
+                <h2 onClick="rollUp('headHitBoxControl')">
+                    <font class="kdm_font_hit_locations">b</font> Head
+                </h2>
+            </div>
             <p><b>H</b>eavy Injury: Knocked Down</p>
-        </div> <!-- survivor_hit_box -->
+        </div> <!-- head hit box -->
+        <div
+            id="headHitBoxControl"
+            class="kd_sheet_ui_roll_down rolled_up"
+        >
+            <div class="kd_sheet_ui_roll_down_controls">
+                <div class="kd_sheet_ui_number_tumbler">
+                    <button ng-click="survivor.sheet.Head = survivor.sheet.Head + 1">
+                        &#x25B2;
+                    </button>
+                    <button ng-click="survivor.sheet.Head = survivor.sheet.Head - 1">
+                        &#x25BC;
+                    </button>
+                    <button
+                        class="kd_blue"
+                        ng-click="updateAttrib('Head')"
+                        onClick="rollUp('headHitBoxControl')"
+                    >
+                        Save Changes
+                    </button>
+                </div> <!-- number tumbler -->
+            </div>
+        </div>
+
+        <!-- ARMS -->
+        <div class="survivor_hit_box">
+            <div class="big_number_container">
+                <input
+                    id="armsBox"
+                    ng-model="survivor.sheet.Arms"
+                    onClick="rollUp('armsHitBoxControl')"
+                    type="number" class="shield"
+                    min="0"
+                />
+            </div>
+            <div class="hit_box_detail">
+                 <input
+                    id="damage_arms_heavy"
+                    onclick="toggleDamage('damage_arms_heavy','$survivor_id');"
+                    ng-class="{damage_box_checked: survivor.sheet.arms_damage_heavy != undefined}"
+                    name="toggle_arms_damage_heavy"
+                    class="heavy_damage damage_box"
+                    type="submit"
+                    value=""
+                />
+                 <input
+                    id="damage_arms_light"
+                    onclick="toggleDamage('damage_arms_light','$survivor_id');"
+                    ng-class="{damage_box_checked: survivor.sheet.arms_damage_light != undefined}"
+                    name="toggle_arms_damage_light"
+                    class="damage_box"
+                    type="submit"
+                    value=""
+                />
+                <h2 onClick="rollUp('armsHitBoxControl')">
+                    <font class="kdm_font_hit_locations">d</font> Arms
+                </h2>
+            </div>
+            <p><b>H</b>eavy Injury: Knocked Down</p>
+        </div> <!-- arms hit box -->
+        <div
+            id="armsHitBoxControl"
+            class="kd_sheet_ui_roll_down rolled_up"
+        >
+            <div class="kd_sheet_ui_roll_down_controls">
+                <div class="kd_sheet_ui_number_tumbler">
+                    <button ng-click="survivor.sheet.Arms = survivor.sheet.Arms + 1">
+                        &#x25B2;
+                    </button>
+                    <button ng-click="survivor.sheet.Arms = survivor.sheet.Arms - 1">
+                        &#x25BC;
+                    </button>
+                    <button
+                        class="kd_blue"
+                        ng-click="updateAttrib('Arms')"
+                        onClick="rollUp('armsHitBoxControl')"
+                    >
+                        Save Changes
+                    </button>
+                </div><!-- number tumbler -->
+            </div>
+        </div>
+
+        <!-- BODY -->
+        <div class="survivor_hit_box">
+            <div class="big_number_container">
+                <input
+                    id="bodyBox"
+                    ng-model="survivor.sheet.Body"
+                    onClick="rollUp('bodyHitBoxControl')"
+                    type="number" class="shield"
+                    min="0"
+                />
+            </div>
+            <div class="hit_box_detail">
+                 <input
+                    id="damage_body_heavy"
+                    onclick="toggleDamage('damage_body_heavy','$survivor_id');"
+                    ng-class="{damage_box_checked: survivor.sheet.body_damage_heavy != undefined}"
+                    name="toggle_body_damage_heavy"
+                    class="heavy_damage damage_box"
+                    type="submit"
+                    value=""
+                />
+                 <input
+                    id="damage_body_light"
+                    onclick="toggleDamage('damage_body_light','$survivor_id');"
+                    ng-class="{damage_box_checked: survivor.sheet.body_damage_light != undefined}"
+                    name="toggle_body_damage_light"
+                    class="damage_box"
+                    type="submit"
+                    value=""
+                />
+                <h2 onClick="rollUp('bodyHitBoxControl')">
+                    <font class="kdm_font_hit_locations">c</font> Body
+                </h2>
+            </div>
+            <p><b>H</b>eavy Injury: Knocked Down</p>
+        </div> <!-- body hit box -->
+        <div
+            id="bodyHitBoxControl"
+            class="kd_sheet_ui_roll_down rolled_up"
+        >
+            <div class="kd_sheet_ui_roll_down_controls">
+                <div class="kd_sheet_ui_number_tumbler">
+                    <button ng-click="survivor.sheet.Body = survivor.sheet.Body + 1">
+                        &#x25B2;
+                    </button>
+                    <button ng-click="survivor.sheet.Body = survivor.sheet.Body - 1">
+                        &#x25BC;
+                    </button>
+                    <button
+                        class="kd_blue"
+                        ng-click="updateAttrib('Body')"
+                        onClick="rollUp('bodyHitBoxControl')"
+                    >
+                        Save Changes
+                    </button>
+                </div><!-- number tumbler -->
+            </div>
+        </div>
+
+        <!-- WAIST -->
+        <div class="survivor_hit_box">
+            <div class="big_number_container">
+                <input
+                    id="waistBox"
+                    ng-model="survivor.sheet.Waist"
+                    onClick="rollUp('waistHitBoxControl')"
+                    type="number" class="shield"
+                    min="0"
+                />
+            </div>
+            <div class="hit_box_detail">
+                 <input
+                    id="damage_waist_heavy"
+                    onclick="toggleDamage('damage_waist_heavy','$survivor_id');"
+                    ng-class="{damage_box_checked: survivor.sheet.waist_damage_heavy != undefined}"
+                    name="toggle_waist_damage_heavy"
+                    class="heavy_damage damage_box"
+                    type="submit"
+                    value=""
+                />
+                 <input
+                    id="damage_waist_light"
+                    onclick="toggleDamage('damage_waist_light','$survivor_id');"
+                    ng-class="{damage_box_checked: survivor.sheet.waist_damage_light != undefined}"
+                    name="toggle_waist_damage_light"
+                    class="damage_box"
+                    type="submit"
+                    value=""
+                />
+                <h2 onClick="rollUp('waistHitBoxControl')">
+                    <font class="kdm_font_hit_locations">e</font> Waist
+                </h2>
+            </div>
+            <p><b>H</b>eavy Injury: Knocked Down</p>
+        </div> <!-- waist hit box -->
+        <div
+            id="waistHitBoxControl"
+            class="kd_sheet_ui_roll_down rolled_up"
+        >
+            <div class="kd_sheet_ui_roll_down_controls">
+                <div class="kd_sheet_ui_number_tumbler">
+                    <button ng-click="survivor.sheet.Waist = survivor.sheet.Waist + 1">
+                        &#x25B2;
+                    </button>
+                    <button ng-click="survivor.sheet.Waist = survivor.sheet.Waist - 1">
+                        &#x25BC;
+                    </button>
+                    <button
+                        class="kd_blue"
+                        ng-click="updateAttrib('Waist')"
+                        onClick="rollUp('waistHitBoxControl')"
+                    >
+                        Save Changes
+                    </button>
+                </div><!-- number tumbler -->
+            </div>
+        </div>
+
+        <!-- LEGS -->
+        <div class="survivor_hit_box">
+            <div class="big_number_container">
+                <input
+                    id="legsBox"
+                    ng-model="survivor.sheet.Legs"
+                    onClick="rollUp('legsHitBoxControl')"
+                    type="number" class="shield"
+                    min="0"
+                />
+            </div>
+            <div class="hit_box_detail">
+                 <input
+                    id="damage_legs_heavy"
+                    onclick="toggleDamage('damage_legs_heavy','$survivor_id');"
+                    ng-class="{damage_box_checked: survivor.sheet.legs_damage_heavy != undefined}"
+                    name="toggle_legs_damage_heavy"
+                    class="heavy_damage damage_box"
+                    type="submit"
+                    value=""
+                />
+                 <input
+                    id="damage_legs_light"
+                    onclick="toggleDamage('damage_legs_light','$survivor_id');"
+                    ng-class="{damage_box_checked: survivor.sheet.legs_damage_light != undefined}"
+                    name="toggle_legs_damage_light"
+                    class="damage_box"
+                    type="submit"
+                    value=""
+                />
+                <h2 onClick="rollUp('legsHitBoxControl')">
+                    <font class="kdm_font_hit_locations">f</font> Legs
+                </h2>
+            </div>
+            <p><b>H</b>eavy Injury: Knocked Down</p>
+        </div> <!-- legs hit box -->
+        <div
+            id="legsHitBoxControl"
+            class="kd_sheet_ui_roll_down rolled_up"
+        >
+            <div class="kd_sheet_ui_roll_down_controls">
+                <div class="kd_sheet_ui_number_tumbler">
+                    <button ng-click="survivor.sheet.Legs = survivor.sheet.Legs + 1">
+                        &#x25B2;
+                    </button>
+                    <button ng-click="survivor.sheet.Legs = survivor.sheet.Legs - 1">
+                        &#x25BC;
+                    </button>
+                    <button
+                        class="kd_blue"
+                        ng-click="updateAttrib('Legs')"
+                        onClick="rollUp('legsHitBoxControl')"
+                    >
+                        Save Changes
+                    </button>
+                </div><!-- number tumbler -->
+            </div>
+        </div>
+
+    </div> <!-- asset_management_middle_pane HIT BOXES END HERE -->
 
 
-
-        $arms_hit_box
-        $body_hit_box
-        $waist_hit_box
-        $legs_hit_box
-
-    </div> <!-- asset_management_middle_pane -->
-
-
-    <!-- once per lifetime. COMING SOON -->
-
+    <!-- once per lifetime -->
     <div
         class="survivor_sheet_once_per_lifetime_container"
         ng-if="survivor.sheet != undefined"
@@ -2387,14 +2631,14 @@ class survivor:
                     >
                         &#x25BC;
                     </button>
-                </div> <!-- big_number_container -->
-                <button
-                    class="kd_blue"
-                    ng-click="updateAttrib('hunt_xp')"
-                    onClick="rollUp('huntXPControl')"
-                >
-                    Save Changes
-                </button>
+                    <button
+                        class="kd_blue"
+                        ng-click="updateAttrib('hunt_xp')"
+                        onClick="rollUp('huntXPControl')"
+                    >
+                        Save Changes
+                    </button>
+                </div> <!-- number tumbler -->
             </div>
         </div>
 
@@ -2492,8 +2736,6 @@ class survivor:
                     >
                         &#x25BC;
                     </button>
-                </div>
-                <div ng-if="survivor.sheet.hunt_xp > 1">
                     <select
                         ng-model="survivor.sheet.weapon_proficiency_type"
                         ng-options="dict.handle as dict.name for dict in settlement.game_assets.weapon_proficiency_types"
@@ -2501,14 +2743,14 @@ class survivor:
                     >
                         <option disabled value="">Type</option>
                     </select>
-                </div>
-                <button
-                    class="kd_blue"
-                    ng-click="setWeaponProficiencyAttribs()"
-                    onClick="rollUp('weaponProficiencyControl')"
-                >
-                    Save Changes
-                </button>
+                    <button
+                        class="kd_blue"
+                        ng-click="setWeaponProficiencyAttribs()"
+                        onClick="rollUp('weaponProficiencyControl')"
+                    >
+                        Save Changes
+                    </button>
+                </div><!-- number tumbler-->
             </div>
         </div>
 
@@ -2650,14 +2892,14 @@ class survivor:
                     >
                         &#x25BC;
                     </button>
-                </div> <!-- big_number_container -->
-                <button
-                    class="kd_blue"
-                    ng-click="updateCourage()"
-                    onClick="rollUp('courageControl')"
-                >
-                    Save Changes
-                </button>
+                    <button
+                        class="kd_blue"
+                        ng-click="updateCourage()"
+                        onClick="rollUp('courageControl')"
+                    >
+                        Save Changes
+                    </button>
+                </div> <!-- number tumbler -->
             </div>
         </div>
 
@@ -2799,14 +3041,14 @@ class survivor:
                     >
                         &#x25BC;
                     </button>
-                </div> <!-- big_number_container -->
-                <button
-                    class="kd_blue"
-                    ng-click="updateUnderstanding()"
-                    onClick="rollUp('understandingControl')"
-                >
-                    Save Changes
-                </button>
+                    <button
+                        class="kd_blue"
+                        ng-click="updateUnderstanding()"
+                        onClick="rollUp('understandingControl')"
+                    >
+                        Save Changes
+                    </button>
+                </div> <!-- number tumbler -->
             </div>
         </div>
 
@@ -2814,140 +3056,142 @@ class survivor:
 
     <!-- SURVIVOR SPECIAL ATTRIBUTES -->
 
+    <div
+        ng-if="settlement.game_assets.survivor_special_attributes.length >= 1"
+        class="survivor_sheet_special_attributes_container"
+    >
         <div
-            ng-controller="survivorSpecialAttribsController"
-            ng-if="settlement.game_assets.survivor_special_attributes.length >= 1"
-            class="survivor_sheet_special_attributes_container"
+            class = "survivor_sheet_special_attribute_container clickable"
+            ng-repeat="s in settlement.game_assets.survivor_special_attributes"
+            ng-click="toggleSpecialAttrib(s.handle)"
+            ng-class="{active: survivor.sheet[s.handle] == true}"
+            title = "{{s.title_tip}}"
         >
             <div
-                class = "survivor_sheet_special_attribute_container clickable"
-                ng-repeat="s in settlement.game_assets.survivor_special_attributes"
-                ng-click="toggleSpecialAttrib(s.handle)"
+                class="special_attribute_checkbox"
                 ng-class="{active: survivor.sheet[s.handle] == true}"
-                title = "{{s.title_tip}}"
-            >
-                <div
-                    class="special_attribute_checkbox"
-                    ng-class="{active: survivor.sheet[s.handle] == true}"
-                ></div>
-                <div
-                    class="special_attribute_text"
-                    ng-class="{active: survivor.sheet[s.handle] == true}"
-                >
-                    {{s.name}}
-                </div>
-            </div>
-
-
-        <!-- tags! (former dba epithets) -->
-        <div
-            class="survivor_sheet_kd_sheet_ui_box survivor_sheet_epithets"
-            ng-if="survivor != undefined"
-            title="Survivor tags (formerly 'epithets'). Click or tap to remove! Click or tap the 'New Tag' button to add tags."
-        >
-            <ul>
-                <li
-                    class="touch_me survivor_sheet_epithet"
-                    ng-repeat="e in survivor.sheet.epithets"
-                    ng-click="rmEpithet($index)"
-                    style="
-                      background-color: #{{settlement.game_assets.epithets[e].bgcolor}};
-                      color: #{{settlement.game_assets.epithets[e].color}};
-                      border-color: #{{settlement.game_assets.epithets[e].bordercolor}};
-                    "
-                >
-                    <span>{{settlement.game_assets.epithets[e].name}}</span>
-                </li>
-                <li
-                    class="touch_me survivor_sheet_epithet paper_style_toggle"
-                    onClick="rollUp('addEpithetControl')"
-                >
-                    <b> New Tag </b>
-                </li>
-            </ul>
-        </div>
-        <div
-            id="addEpithetControl"
-            class="kd_sheet_ui_roll_down rolled_up"
-        >
-            <div class="kd_sheet_ui_roll_down_controls">
-                <div class="kd_sheet_ui_row_tip clickable" onClick="rollUp('addEpithetControl')">
-                    Survivor tags (formerly 'epithets') appear in Survivor Search
-                    results. Click here to close this notification.
-                </div>
-                <div class="kd_sheet_ui_row">
-                    <select
-                        name="add_epithets"
-                        ng-model="scratch.new_epithet"
-                        ng-change="addEpithet()"
-                        ng-options="e.handle as e.name for e in epithetOptions"
-                    >
-                        <option value="" disabled selected>Add Tags</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <!-- survivor NOTES -->
-        <div
-            class="survivor_sheet_kd_sheet_ui_box survivor_sheet_survivor_notes_container"
-            title="Survivor notes for {{survivor.sheet.name}}! Click or tap to add/remove notes. Notes are included in the Survivor Search results."
-            ng-if="survivor.sheet != undefined"
-        >
-            <div class="kd_sheet_ui_row">
-                <div class="title short">Notes</div>
-            </div>
-
+            ></div>
             <div
-                class="survivor_sheet_survivor_notes_slug_line_container"
+                class="special_attribute_text"
+                ng-class="{active: survivor.sheet[s.handle] == true}"
             >
-                <ul class="survivor_sheet_survivor_notes">
+                {{s.name}}
+            </div>
+        </div>
+    </div> <!-- survivorSpecialAttribsController -->
+
+
+    <!-- survivor NOTES and EPITHETS -->
+    <div class="survivor_sheet_notes_and_epithets_container">
+
+        <div class="survivor_sheet_epithet_block">
+            <div
+                class="survivor_sheet_kd_sheet_ui_box survivor_sheet_epithets"
+                ng-if="survivor != undefined"
+                title="Survivor tags (formerly 'epithets'). Click or tap to remove! Click or tap the 'New Tag' button to add tags."
+            >
+                <ul>
                     <li
-                        class="survivor_sheet_survivor_notes_slug_line clickable"
-                        ng-repeat="x in survivor.notes"
-                        ng-click="rmNote($index, x._id.$oid)"
+                        class="touch_me survivor_sheet_epithet"
+                        ng-repeat="e in survivor.sheet.epithets"
+                        ng-click="rmEpithet($index)"
+                        style="
+                            background-color: #{{settlement.game_assets.epithets[e].bgcolor}};
+                            color: #{{settlement.game_assets.epithets[e].color}};
+                            border-color: #{{settlement.game_assets.epithets[e].bordercolor}};
+                        "
                     >
-                        {{x.note}}
+                        <span>{{settlement.game_assets.epithets[e].name}}</span>
+                    </li>
+                    <li
+                        class="touch_me survivor_sheet_epithet paper_style_toggle"
+                        onClick="rollUp('addEpithetControl')"
+                    >
+                        <b> New Tag </b>
                     </li>
                 </ul>
+            </div>
+            <div
+                id="addEpithetControl"
+                class="kd_sheet_ui_roll_down rolled_up"
+            >
+                <div class="kd_sheet_ui_roll_down_controls">
+                    <div class="kd_sheet_ui_row_tip clickable" onClick="rollUp('addEpithetControl')">
+                        Survivor tags (formerly 'epithets') appear in Survivor Search
+                        results. Click here to close these controls.
+                    </div>
+                    <div class="kd_sheet_ui_row">
+                        <select
+                            name="add_epithets"
+                            ng-model="scratch.new_epithet"
+                            ng-change="addEpithet()"
+                            ng-options="e.handle as e.name for e in epithetOptions"
+                        >
+                            <option value="" disabled selected>Add Tags</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div><!-- epithet block -->
+
+        <!-- notes -->
+        <div class="survivor_sheet_note_block">
+            <div
+                class="survivor_sheet_kd_sheet_ui_box survivor_sheet_survivor_notes_container"
+                title="Survivor notes for {{survivor.sheet.name}}! Click or tap to add/remove notes. Notes are included in the Survivor Search results."
+                ng-if="survivor.sheet != undefined"
+            >
+                <div class="kd_sheet_ui_row">
+                    <div class="title short">Notes</div>
+                </div>
 
                 <div
-                    class="survivor_sheet_survivor_notes_slug_line add_note_starter clickable"
-                    onClick="rollUp('survivorNotesControl'); document.getElementById('survivorNoteInput').focus();"
+                    class="survivor_sheet_survivor_notes_slug_line_container"
                 >
-                    <i> &ensp; Add a note...</i>
+                    <ul class="survivor_sheet_survivor_notes">
+                        <li
+                            class="survivor_sheet_survivor_notes_slug_line clickable"
+                            ng-repeat="x in survivor.notes"
+                            ng-click="rmNote($index, x._id.$oid)"
+                        >
+                            {{x.note}}
+                        </li>
+                    </ul>
+
+                    <div
+                        class="survivor_sheet_survivor_notes_slug_line add_note_starter clickable"
+                        onClick="rollUp('survivorNotesControl'); document.getElementById('survivorNoteInput').focus();"
+                    >
+                        <i> &ensp; Add a note...</i>
+                    </div>
                 </div>
-            </div>
-        </div> <!-- survivor notes opener -->
-
-        <div
-            id="survivorNotesControl"
-            class="kd_sheet_ui_roll_down rolled_up"
-        >
-            <div class="kd_sheet_ui_roll_down_controls">
-                <div class="kd_sheet_ui_row_tip">
-                    Notes will appear in Survivor Search results! Click or tap a note to remove it.
+            </div> <!-- survivor notes opener -->
+            <div
+                id="survivorNotesControl"
+                class="kd_sheet_ui_roll_down rolled_up"
+            >
+                <div class="kd_sheet_ui_roll_down_controls">
+                    <div class="kd_sheet_ui_row_tip" onClick="rollUp('survivorNotesControl')">
+                        Notes will appear in Survivor Search results! Click or tap a note to remove it. Click or tap here to close these controls.
+                    </div>
+                    <input
+                        id="survivorNoteInput"
+                        class="survivor_sheet_survivor_notes_input"
+                        ng-model="scratch.addNote"
+                        placeholder="Add a Survivor Note"
+                        onClick="this.select()"
+                    />
+                    <button
+                        class="kd_blue"
+                        ng-click="addNote()"
+                        onClick="rollUp('survivorNotesControl')"
+                    >
+                        Add Note
+                    </button>
                 </div>
-                <input
-                    id="survivorNoteInput"
-                    class="survivor_sheet_survivor_notes_input"
-                    ng-model="scratch.addNote"
-                    placeholder="Add a Survivor Note"
-                    onClick="this.select()"
-                />
-                <button
-                    class="kd_blue"
-                    ng-click="addNote()"
-                    onClick="rollUp('survivorNotesControl')"
-                >
-                    Add Note
-                </button>
-            </div>
-
-        </div><!-- survivor Notes controls -->
-
-    </div> <!-- special attributes controller -->
-
+            </div><!-- survivor Notes controls -->
+        </div><!-- note block -->
+    </div><!-- NOTES and EPITHETS -->
 
     <div id="survivor_sheet_right_pane" >
 
@@ -3714,14 +3958,14 @@ class survivor:
             <h3>The Constellations</h3>
 
             <table id="survivor_constellation_table">
-                <tr><th colspan="6">&nbsp</th></tr>
+                <tr><th colspan="6">&nbsp;</th></tr>
                 <tr>
-                    <th>&nbsp</th>
+                    <th>&nbsp;</th>
                     <th>Witch</th>
                     <th>Rust</th>
                     <th>Storm</th>
                     <th>Reaper</th>
-                    <th>&nbsp</th>
+                    <th>&nbsp;</th>
                 </tr>
                 <tr>
                     <th>Gambler</th>
@@ -3767,7 +4011,7 @@ class survivor:
                     <td ng-if="survivor.dragon_traits.active_cells.includes('D4') == false">9 Courage (max)</td>
                     <td ng-if="survivor.dragon_traits.active_cells.includes('D4') == true" class="active">9 courage (max)</td>
                 </tr>
-                <tr><th colspan="6">&nbsp</th></tr>
+                <tr><th colspan="6">&nbsp;</th></tr>
 
             </table>
             <br />
@@ -3925,7 +4169,7 @@ class survivor:
         ng-if="survivor != undefined"
     >
         <div class="modal-content survivor_sheet_gradient survivor_affinities_modal">
-            <span class="closeModal" onclick="showHide('modalAffinity')">×</span>
+            <span class="closeModal" onclick="showHide('modalAffinity'); savedAlert()">×</span>
 
             <h3>Survivor Affinities</h3>
             <p>Adjust permanent affinities for <b>{{survivor.sheet.name}}</b>. Changes are saved automatically.</p><hr/>
@@ -3975,56 +4219,6 @@ class survivor:
     \n""")
 
 
-    survivor_sheet_hit_box_controls = Template("""\n
-
-            <!-- $hit_location [ render_hit_box_controls() ] -->
-
-            <div class="survivor_hit_box">
-                <div class="big_number_container right_border">
-                    <button
-                        class="incrementer"
-                        ng-click="incrementAttrib('$hit_location', 1)"
-                    >
-                        +
-                    </button>
-                    <input
-                        type="number"
-                        class="shield"
-                        ng-value="survivor.sheet['$hit_location']"
-                        ng-model="survivor.sheet['$hit_location']"
-                        ng-blur="updateAttrib('$hit_location')"
-                        min="0"
-                    />
-                    <button
-                        class="decrementer"
-                        ng-click="incrementAttrib('$hit_location', -1)"
-                    >
-                        -
-                    </button>
-                </div>
-                <div class="hit_box_detail">
-                    <input
-                        id="$damage_location_heavy"
-                        name="$toggle_location_damage_heavy"
-                        value=" "
-                        class="$dmg_heavy_checked damage_heavy_checked heavy_damage damage_box"
-                        onclick="toggleDamage('$damage_location_heavy','$survivor_id');"
-                        type="submit"
-                    />
-                    <input
-                        id="$damage_location_light"
-                        name="$toggle_location_damage_light"
-                        onclick="toggleDamage('$damage_location_light','$survivor_id');"
-                        type="submit"
-                        class="$dmg_light_checked damage_light_checked damage_box"
-                        value=" "
-                    />
-                    <h2>$hit_location</h2>
-                </div> <!-- hit_box_detail -->
-                <p><b>H</b>eavy Injury: Knocked Down</p>
-            </div> <!-- survivor_hit_box -->
-
-    \n""")
 
 
 class settlement:
@@ -6327,10 +6521,6 @@ class meta:
     </div><!-- container -->
     </body>
     </html>
-    <script type="text/javascript">
-        // kill the spinner, just in case it hasn't been killed
-        //hideFullPageLoader();
-    </script>
     """
     saved_dialog = """\n
     <div id="saved_dialog" class="saved_dialog_frame" style="">

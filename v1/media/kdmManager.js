@@ -629,7 +629,10 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         // always serialize on response, regardless of asset type
         json_obj.serialize_on_response = true;
 
-        showCornerLoader();
+        if (show_alert === true) {
+            showCornerLoader();
+        };
+
         // figure out which asset ID to use
         if (collection == 'settlement') {
             var asset_id = $scope.settlement_id;
@@ -659,9 +662,10 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
                 $scope[collection] = data;
             };
             sleep(1000).then(() => {
-                if (reinit === true) {$scope.reinitialize()} else {hideCornerLoader()};
+                if (reinit === true) {$scope.reinitialize()};
                 if (show_alert === true) {savedAlert();}
             });
+            hideCornerLoader();
         });
         res.error(function(data, status, headers, config) {
             errorAlert();

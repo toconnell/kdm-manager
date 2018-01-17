@@ -83,9 +83,10 @@ app.controller("signInController", function($scope, $http) {
                 return
             }, function errorCallback(response) {
                 console.error("signIn('" + api_url + "') method failed!");
-                console.error(response.data);
+                console.error("Response was: " + response.data + "; status was: " + response.status);
                 $scope.loading('off');
                 if (response.status === -1) {
+                    console.error("API is unavailable or unreachable!");
                     $scope.showControls('api_unavailable');
                 } else {
                     $scope.showControls('sign_in_error');
