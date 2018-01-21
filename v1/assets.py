@@ -64,7 +64,7 @@ def ua_decorator(render_func=None):
             user_id = self.User.user["_id"],
             settlement_id = self.Session.Settlement.settlement["_id"],
 
-        ) + html.angularJS.timeline + html.angularJS.new_survivor + html.angularJS.settlement_notes + html.angularJS.bulk_add_survivors + html.angularJS.expansions_manager + html.angularJS.hunt_phase
+        ) + html.angularJS.timeline + html.angularJS.settlement_notes + html.angularJS.bulk_add_survivors + html.angularJS.expansions_manager + html.angularJS.hunt_phase
 
     return wrapper
 

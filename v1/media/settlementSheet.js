@@ -162,7 +162,7 @@ app.controller('innovationsController', function($scope) {
         console.time('innovationDeck()');
         $scope.innovation_deck = null;
         $scope.spinner();
-        var res = $scope.getJSONfromAPI('settlement','get_innovation_deck', 'setInnovationDeck');
+        var res = $scope.postJSONtoAPI('settlement','get_innovation_deck', {return_type: null});
         res.then(
             function(payload) {
                 $scope.innovation_deck = payload.data;
@@ -181,8 +181,11 @@ app.controller('innovationsController', function($scope) {
             function(errorPayload) {console.log("Could not retrieve innovation deck from API!" + errorPayload);}
         );
     };
-    $scope.addInnovation = function() {
+    $scope.addInnovation = function(handle) {
 //        console.warn("Adding innovation: " + $scope.newInnovation);
+        if (handle !== undefined) {
+            $scope.newInnovation = handle;
+        };
         if ($scope.newInnovation === null) {return false};
         $scope.settlement.sheet.innovations.push($scope.newInnovation);
         var js_obj = {"handle": $scope.newInnovation};
@@ -203,6 +206,39 @@ app.controller('innovationsController', function($scope) {
         sleep(500).then(() => {
             $scope.setInnovationDeck();
         });
+    };
+
+    $scope.createInnovationQuickPick = function(n) {
+        if (n === undefined) {
+            // figure out how many to choose
+            var n = 2;
+            if ($scope.settlement.sheet.innovations.indexOf('symposium') != -1) {
+                n = 4;
+            };
+        };
+
+        // now create a list of available handles
+        var arr = Object.keys($scope.innovation_deck);
+      
+        // adjust our number down, if we've got fewer than we want
+        if (n > arr.length) {
+            n = arr.length;
+            console.warn('adjusting innovation draw down to ' + n);
+        };
+ 
+        // and pick random ones 
+        console.warn('selecting ' + n + ' random innovations...');
+        var result = new Array(n), len = arr.length, taken = new Array(len);
+        if (n > len)
+            throw new RangeError("createInnovationQuickPick(): more elements taken than available");
+        while (n--) {
+            var x = Math.floor(Math.random() * len);
+            result[n] = arr[x in taken ? taken[x] : x];
+            taken[x] = --len;
+        }
+        
+        // inject into scope 
+        $scope.innovationQuickPickOptions = result;
     };
 });
 

@@ -1,4 +1,4 @@
-/*                                              */
+0;/*                                              */
 /*  DO NOT EDIT Z-INDEX VALUES IN THIS FILE!!!  */
 /*                                              */
 
@@ -180,6 +180,10 @@ fieldset {border: 0; text-align: left; }
 
 
 /* all breakpoints - general styles */ 
+div[contenteditable=true]:empty:before {
+    content: attr(placeholder);
+    color: #aaa; 
+}
 
 .no_ul {border: 0; }
 .ul {border: 0; border-bottom: 1px solid #666; }
@@ -587,6 +591,29 @@ hr.new_asset {margin-top: 20px; margin-bottom: 20px; }
 
 p.settlement_buff {font-family: Metrophobic; }
 
+    /* new survivor modal - mobile */
+.new_survivor_sheet_loader {display: flex; flex-direction: column; font-size: 30pt; align-items: center; padding-top: 5%; padding-bottom: 5%; width: auto; }
+
+.new_survivor_sheet {}
+.new_survivor_sheet p {font-size: 40pt; margin: 1%; font-weight: bold; }
+.new_survivor_sheet .ui_tip {font-size: 30pt; margin: 2%; background-color: #FFFFEC; color: #66411E; font-weight: normal; text-indent: 1%; }
+.new_survivor_sheet .name {font-size: 60pt; color: #000; width: 87%; margin: 0 auto; margin-top: 3%; border-bottom: 5px solid #000; padding: 2%; padding-bottom: 0; }
+.new_survivor_sheet .sex_selector {margin: 5%; text-align: right;}
+.new_survivor_sheet .border_box {border: 5px solid #000; margin: 3%; }
+.new_survivor_sheet .avatar_selector .avatar {height: 200px; margin: 2%; }
+.new_survivor_sheet .parent_selector .parent_dropdowns {display: flex; flex-direction: row; width: 100%; justify-content: space-evenly; width: 95%; margin: 0 auto; }
+.new_survivor_sheet .parent_selector .parent_dropdowns select {width: 50%; margin: 1%;}
+.new_survivor_avatar {font-size: 30pt; margin: 2%; height: auto; width: auto; } /* input */
+.family_inheritance .donor_container {display: flex; flex-direction:row; margin: 2%; justify-content: space-around; font-size: 40pt; align-items: center; margin-left: 5%; width: 60%; }
+.new_survivor_sheet .permissions .new_survivor_email {margin-left: 7%; width: 90%; }
+.new_survivor_sheet .permissions .public {font-size: 40pt; margin: 3%; margin-left: 7%; }
+
+.new_survivor_link_container .new_survivor_link {padding: 2%; display: flex; flex-direction: row; width: auto; border: 5px solid #000; margin: 3%; }
+.new_survivor_link_container .new_survivor_link .avatar {width: 20%; }
+.new_survivor_link_container .new_survivor_link .avatar img {width: 90%; display: block; }
+.new_survivor_link_container .new_survivor_link .desc {width: 80%; }
+.new_survivor_link_container .new_survivor_link .desc .email {font-family: 'Metrophobic'; font-size: 30pt; color: #666; padding-left: 2%; }
+
 /* campaign summary styles */
 
 /* big container */
@@ -594,7 +621,7 @@ p.settlement_buff {font-family: Metrophobic; }
 .campaign_summary_survivors_container p.subtitle {font-family: Metrophobic; font-size: 23pt; margin: 2%; }
 
 /* group container */
-.campaign_summary_survivors_group {margin-top: 7%; margin-bottom: 7%; }
+.campaign_summary_survivors_group {margin-top: 2%; margin-bottom: 7%; }
 .campaign_summary_survivors_group h3 {text-align: left; margin: 0; margin-left: 7%; display: block; padding:0; padding-left: 3%;  padding-right: 3%; }
 
 /* individual survivor controls */
@@ -659,7 +686,7 @@ div.avatar_and_stats table.stats_table td {text-align: center; }
 .departing_toggle {background: radial-gradient(#ED5448, #CD4438); color: #FFF}
 
 /* Campaign Summary top line items */
-div.campaign_summary_headline_container p {font-family: Metrophobic;}
+div.campaign_summary_headline_container p {font-family: Metrophobic; margin: 1%; }
 div.campaign_summary_headline_container p.campaign_summary_campaign_type {font-family: Silverado;}
 div#campaign_summary_campaign_type {color: #777; margin-top: -50px; text-align:center; }
 
@@ -757,6 +784,8 @@ button.close_storage {position: fixed; bottom: 1%; left: 1%; right: 1%; border-r
 form.settlement_sheet_add_innovations_legacy_form {display: inline;}
 div.defeated_monsters_container {border-bottom: 0.1em solid #999;}
 
+.settlement_sheet_ui_box {border: 0.2em solid #000; padding: 2%; }
+
 p.settlement_sheet_campaign_type {font-size: 45px; margin: auto; text-align: center; width: 100%; color: #666; margin-top: -3%; margin-bottom: 3%; font-style: italic; }
 
 div.settlement_sheet_nemesis_line_item {display: flex; align-items: baseline; flex-wrap:wrap; flex-direction:row; border-bottom: 0.1em solid #999; margin-bottom: 2%; }
@@ -769,6 +798,7 @@ div.settlement_sheet_principle_container {margin: 4%; }
 div.settlement_sheet_principle_name {font-weight: bold; }
 
 div.settlement_sheet_block_group {margin: 0.5%; margin-top: 10%; }
+.settlement_sheet_block_group button {margin: 0 auto; border-radius: 50px; display: block; margin-top: 7%; margin-bottom: 5%;}
 div.settlement_sheet_block_group h2 {margin: 0; font-size: 100px; border: 0; padding-left: 4%; }
 div.settlement_sheet_block_group p {margin: 0; padding-left: 4%; margin-bottom: 2%;}
 div.settlement_sheet_block_group div.line_item {margin-bottom: 4%; }
@@ -781,27 +811,33 @@ div.settlement_sheet_block_group span.rm_bullet {border-color: #900;}
 div.settlement_sheet_block_group span.item {display: inline-block; font-size: 65px; min-width: 50%;}
 div.settlement_sheet_block_group input[type=text], div.settlement_sheet_block_group select {border: 0; border-bottom: 0.1em solid #000; padding-bottom: 2px; width: 80%; font-size: 65px; font-family: Silverado; background: none;}
 div.settlement_sheet_block_group select {margin-left: 0; margin-right: 0; }
-div.settlement_sheet_block_group div.innovation_deck {border: 0.2em solid #000; margin: 1%; margin-top: 10%; margin-bottom: 10%; padding-top: 0; padding-bottom: 4%; cursor: pointer;}
-img.innovation_deck_spinner {margin: 0 auto; margin-top: 5%; margin-bottom: 5%;  }
 div.settlement_sheet_block_group img.icon {width: 73px; height: auto; }
 div.settlement_sheet_hidden_controls {border: 0.1em solid #000; padding: 2%; margin: 2%; text-align: center; margin-top: 4%; margin-bottom: 4%}
+
+/* innovation deck - mobile */
+img.innovation_deck_spinner {margin: 0 auto; margin-top: 5%; margin-bottom: 5%;  }
+ul.asset_deck {
+    list-style-type: none;
+    padding: 0; 
+    margin: 0 auto;
+    margin-left: 5%;
+    margin-bottom: 5%; 
+    width: 90%; 
+    column-count: 2;
+    -moz-column-count: 2;
+}
+li.asset_deck {background: none; margin-left: 5%; }
+.innovation_quick_pick_item {margin: 2%; border-radius: 5px; margin: 5%; }
+.innovation_quick_pick_item .innovation_name {width: 100%; padding: 1%; font-weight: bold; font-size: 40pt; text-align: center; }
+.innovation_quick_pick_item .innovation_consequences {font-size: 30pt; margin: auto; width: 80%; margin-bottom: 2%; text-align: center; font-family: 'Metrophobic'; }
+.innovation_quick_pick_item .innovation_survival_limit_bar {border-radius: 10px; background-color: #D0AB51; border: 3px solid #b9A38D; color: #fff; text-align: center; font-family: 'Metrophobic'; font-size: 30pt; width: 85%; margin: 0 auto; margin-bottom: 2%; padding: 1%;  }
+
 
 div.lantern_research_level {width: 90%; display: flex; flex-direction: row; margin: auto; margin-top: 3%; align-items: center; }
 div.lantern_reserach_level div.big_number_container {padding-left: 3%; }
 div.lantern_reserach_level .desc_text {font-family: 'Metrophobic'; font-size: 80%;  }
 
 
-div.innovation_deck h3 {margin-top: 3%; }
-ul.asset_deck {
-    list-style-type: none;
-    padding: 0; 
-    margin: 0 auto;
-    margin-left: 5%;
-    width: 90%; 
-    column-count: 2;
-    -moz-column-count: 2;
-}
-li.asset_deck {background: none; margin-left: 5%; }
 
 div.location_container {border-bottom: 0.1em solid #999; }
 span.location_lvl_select {position: absolute; right: 10%; }
@@ -864,6 +900,8 @@ div#info_box h2, button#survivor_campaign_asset, button.dashboard_asset {text-al
 /* OG sheet ui, my glib-globs! - classic UI - mobile */
 
 .survivor_sheet_kd_sheet_ui_box {margin: 0 auto; border: 2px solid #000; width: 93%; padding: 2%; clear:both; margin-bottom: 3%; padding-top: 3%; }
+.kd_sheet_ui_outer_ring_container {background-color: #fff; position: absolute; width: 100%; min-height: 100%; }
+.kd_sheet_ui_inner_ring_container {background-color: #fff; color: #000; border: 15px solid #000; margin: 0 auto; margin: 2%; }
 .kd_sheet_ui_row {display: flex; flex-direction: row; justify-content: space-between; margin-bottom: 4%; align-items: baseline; }
 .kd_sheet_ui_row.full_height_bullet {}
 .kd_sheet_ui_row .bullet_box {width: 50px; height: 50px; border-radius: 100%; background-color: #000; }
@@ -1199,7 +1237,7 @@ button#remove_item {border-radius: 3px; padding-right: 10px; padding-left: 10px;
 #floating_refresh_button, #floating_dashboard_button {position: fixed; top: 3px; height: 125px; padding: 3px; border: 2px solid; margin: 0; width: 180px; }
 
 #floating_dashboard_button { left: 3px;  }
-#floating_refresh_button {right: 3px; }
+#floating_refresh_button {right: 3px; font-size: 60pt; font-weight: bold; }
 
 .nav_bar, .nav_bar_mobile {box-shadow: 0px 10px 17px #ccc; margin-top: -9px;}
 .nav_bar_mobile, .top_nav_spacer {display: inline-block; height: 135px; }
@@ -1498,13 +1536,29 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     /* generic asset management styles: survivor&ettlement - tablet */
 
     #floating_refresh_button, #floating_dashboard_button {position: fixed; top: 1%; margin: 0 auto; height: auto; width: auto; padding: 5px; border: 2px solid; opacity: 1;}
-    #floating_refresh_button {right: 10px; padding:8px; padding-left: 30px; padding-right: 30px; }
+    #floating_refresh_button {right: 10px; padding:8px; padding-left: 30px; padding-right: 30px; font-size: 20pt; }
     #floating_dashboard_button { left: 10px; padding: 10px; padding-left: 30px; padding-right: 30px; }
 
     .survivor_sheet_ai_container {display: flex; }
     .survivor_sheet_ai {font-size: 20pt;}
     .survivor_sheet_ai_desc {font-size: 18pt; }
 
+
+        /* new survivor sheet! - tablet */
+    .kd_sheet_ui_inner_ring_container {width: 65%; margin: 0 auto; margin-top: 2%; border-width: 10px; }
+    .new_survivor_sheet p {font-size: 18pt; }
+    .new_survivor_sheet .ui_tip {font-size: 15pt; }
+    .new_survivor_sheet .border_box {border-width: 3px; }
+    .new_survivor_sheet .name {font-size: 25pt; }
+    .new_survivor_avatar {font-size: 15pt; }
+    .family_inheritance .donor_container,
+        .new_survivor_sheet .permissions .public,
+        .new_survivor_sheet .parent_selector .parent_dropdowns select,
+        .new_survivor_sheet .sex_selector {font-size: 20pt; }
+    .new_survivor_link_container .new_survivor_link div {font-size: 20pt; }
+    .new_survivor_link_container .new_survivor_link .desc .email {font-size: inherit; }
+    .new_survivor_sheet_footer_button_container {margin: 0 auto; width: 60%; }
+    .new_survivor_sheet_footer_button_container button { padding: 2%; margin-bottom: 1%; font-weight: normal; }
 
 
         /* left and middle split the screen in tablet; right is a sort of foot */
@@ -1546,7 +1600,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .survivor_sheet_event_log_container {margin-bottom: 3%; }
     .lineage_event_repeater {font-size: 15pt; padding: 1%; }
 
-    .survivor_sheet_survivor_name {margin-top: 20%; font-size: 45pt; margin-bottom: 0;}
+    .survivor_sheet_survivor_name {margin-top: 20%; font-size: 45pt; margin-bottom: 2%; }
     .survivor_sheet_survival_container {margin: 0; margin-left: 5%; width: 20%; }
     input#survivalBox.survivor_sheet_survival_box {font-size: 30pt; height: 80px; }
     .survivor_sheet_survival_limit_caption {width: 70%; float: right; margin-top: 10%; }
@@ -1902,6 +1956,12 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     /* settlement sheet styles - tablet */
 
+    /* innovation deck - tablet */
+
+    .settlement_sheet_ui_box {margin-top: 10%; border-width: 5px; }
+    .innovation_quick_pick_item .innovation_name {font-size: 19pt; }
+    .innovation_quick_pick_item .innovation_consequences {font-size: 13pt; }
+    .innovation_quick_pick_item .innovation_survival_limit_bar {font-size: 13pt; }
 
     /* storage  - tablet */
     .storage_loading_spinner {font-size: 20pt; }
@@ -2083,7 +2143,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     span.nav_bar {position: fixed; left: 0; right: 0; top:0; height: 50px; display: inline; margin: 0 auto; }
     button.change_view {margin-left: 3%; }
     #floating_refresh_button, #floating_dashboard_button {padding: 5px;}
-    #floating_refresh_button {width: 75px; top: 10px; right: 1%; height: 31px;}
+    #floating_refresh_button {width: 75px; top: 10px; right: 1%; height: 31px; font-size: 12pt; }
     img.latest_fatality {width: 100px; clear: right; margin-left: 100px; }
 
     /* christian sidenav */
@@ -2229,16 +2289,12 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     input.kd_css_checkbox + label:before {font-size: 14pt; }
     input.kd_radio_option { }
 
-    /* wide asset creation styles */
+    /* asset creation styles - wide */
 
-        /* new survivor */
-    div#modalNewSurvivorContainer form {width: 50%; }
-    div#modalNewSurvivorContainer input[type=file].new_survivor_avatar {font-size: 12pt; margin-left: 0; }
+        /* bulk add new survivors - wide */
     div.create_user_asset_block_group input[type="email"] {font-size: 12pt; }
-    button.add_new_survivor {width: auto; display:block; margin: 0 auto; padding: 1%; padding-left: 100px; padding-right: 100px;  }
 
     div#create_new_asset_form_container {width: 700px; border: 0; margin: 0 auto; padding: 10px; text-align: justify; font-size: 12pt; }
-
     div.create_user_asset_block_group {display: flex; flex-direction: column; }
     div.create_user_asset_block_group input {font-size: 30pt; }
     div.create_user_asset_block_group p {font-size: 12pt; margin-bottom: 2%; text-align: left; }
@@ -2248,6 +2304,29 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.new_settlement_campaign_container {width: auto; }
     div.new_settlement_asset {margin: 0px; padding: 0px; padding-left: 40px; }
 
+        /* new survivor sheet! - wide */
+    .new_survivor_sheet_loader {font-size: 11pt; }
+    .new_survivor_sheet_loader img {height: 100px; }
+    .kd_sheet_ui_inner_ring_container {width: 700px; margin: 0 auto; margin-top: 5px; border-width: 5px; }
+    .new_survivor_sheet p {font-size: 11pt; }
+    .new_survivor_sheet .ui_tip {font-size: 10pt; margin: 1%; }
+    .new_survivor_sheet .border_box {border-width: 2px; }
+    .new_survivor_sheet .name {font-size: 15pt; border-width: 2px; }
+    .new_survivor_avatar {font-size: 10pt; margin: 0; }
+    .family_inheritance .donor_container, .new_survivor_sheet .permissions .public {width: 40%; }
+    .family_inheritance .donor_container,
+        .new_survivor_sheet .permissions .public,
+        .new_survivor_sheet .parent_selector .parent_dropdowns select,
+        .new_survivor_link_container .new_survivor_link div,
+        .new_survivor_sheet .sex_selector {font-size: 12pt; }
+        .new_survivor_sheet .sex_selector {margin: 2%;  }
+    .new_survivor_sheet .permissions .public {padding-left: 2%; }
+    .new_survivor_sheet_footer_button_container {width: 30%; }
+    .new_survivor_sheet_footer_button_container button { display: block; margin: 0 auto; margin-top: 20px;  padding: 12px; width: 350px; }
+    button.add_new_survivor {display: block; margin: 0 auto; margin-bottom: 2%; padding: 12px; font-weight: normal; width: 350px; }
+    .new_survivor_link_container {display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+    .new_survivor_link_container .new_survivor_link {width: 280px; margin: 2%; }
+    .new_survivor_link_container .new_survivor_link .desc .email {font-size: 10pt; }
 
 
     /* wide campaign summary styles */
@@ -2465,7 +2544,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
         /* wide left pane */
     .lineage_event_repeater {font-size: 10pt; }
     .survivor_sheet_survivor_name {margin-top: 4%; font-size: 30pt; margin-bottom: 2%; }
-    div#asset_management_left_pane {width: 360px; padding-left: 10px; font-size: 15pt;}
+    div#asset_management_left_pane {width: 360px; padding-left: 10px; font-size: 15pt; padding-right: 0px; }
     div#asset_management_left_pane p.subhead_p_block {font-size: 11pt; margin: 0 auto; }
     div#asset_management_left_pane input.big_number_square {width: 50px; height: 60px; }
     div#asset_management_left_pane label.radio_principle_label {font-size: 18px}
@@ -2553,9 +2632,12 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.settlement_sheet_principle_container label {font-size: 12pt;}
     div.settlement_sheet_principle_name {font-size: 14pt; }
 
-    /* innovation deck */
+    /* innovation deck - wide */
     ul.asset_deck {font-size: 12pt; }
     ul.asset_deck li {font-size: 11pt; }
+    .innovation_quick_pick_item .innovation_name {font-size: 13pt; }
+    .innovation_quick_pick_item .innovation_consequences {font-size: 11pt; }
+    .innovation_quick_pick_item .innovation_survival_limit_bar {font-size: 11pt; }
 
         /* principles app -wide */
 

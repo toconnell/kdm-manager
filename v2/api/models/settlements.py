@@ -2154,6 +2154,9 @@ class Settlement(Models.UserAsset):
         #   we've got left to see if we keep them in the deck. 
 
 
+        if 'return_type' in self.params:
+            return_type = self.params['return_type']
+
         available = dict(self.get_available_assets(innovations)["innovations"])
 
         # remove principles and innovations from expansions we don't use
@@ -2194,15 +2197,25 @@ class Settlement(Models.UserAsset):
                     if asset in self.settlement[collection]:
                         deck_dict[i] = self.Innovations.get_asset(i)
 
-        # finally, create a new list and use the deck dict to 
+        # create a new list and use the deck dict to populate it with
+        # innovation names
         deck_list = []
         for k in deck_dict.keys():
             deck_list.append(deck_dict[k]["name"])
 
+        # update the items in dect_dict so that their individual consequences
+        # only reflect what is actually available to the settlement:
+
+        for k,v in deck_dict.iteritems():
+            for c_handle in v.get('consequences', []):
+                i_dict = self.Innovations.get_asset(c_handle)
+                if not self.is_compatible(i_dict):
+                    v['consequences'].remove(c_handle)
+
         if return_type == "JSON":
             return json.dumps(sorted(deck_list))
         else:
-            return deck_dict
+            return json.dumps(deck_dict)
 
 
     def get_lantern_research_level(self):

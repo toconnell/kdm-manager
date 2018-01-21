@@ -3,7 +3,7 @@
 from assets import user_preferences
 import Models
 import utils
-
+import settings
 
 #
 #   in which we treat ther user preferences like game assets
@@ -14,6 +14,10 @@ class Assets(Models.AssetCollection):
     def __init__(self, *args, **kwargs):
         self.root_module = user_preferences
         Models.AssetCollection.__init__(self,  *args, **kwargs)
+
+        for p_key in self.assets.keys():
+            default = settings.get('users', p_key)
+            self.assets[p_key]['default'] = default
 
 
 class Preference(Models.GameAsset):

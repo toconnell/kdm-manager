@@ -28,6 +28,7 @@ app.controller("survivorSheetController", function($scope) {
         );
     };
 
+
     // notes
     $scope.addNote = function () {
         if (!$scope.scratch.addNote) {return;}
@@ -82,6 +83,12 @@ app.controller("survivorSheetController", function($scope) {
         var newName = document.getElementById('survivorName').innerHTML;
         js_obj = {name: newName};
         $scope.postJSONtoAPI('survivor', 'set_name', js_obj);
+    };
+    $scope.randomName = function() {
+        var sex = $scope.survivor.sheet.effective_sex;
+        var nameList = $scope.randomSurvivorNames;
+        var randomName = nameList[sex][Math.floor(Math.random() * nameList[sex].length)];
+        $scope.survivor.sheet.name = randomName;
     };
 
     $scope.updateSurvival = function() {
@@ -470,32 +477,17 @@ app.controller('lineageController', function($scope) {
 
 
 // avatars - what a shit show
-app.directive('customOnChange', function() {
-  return {
-    restrict: 'A',
-    link: function (scope, element, attrs) {
-      var onChangeFunc = scope.$eval(attrs.customOnChange);
-      element.bind('change', onChangeFunc);
-    }
-  };
-});
-
 app.controller("avatarController", function($scope) {
     $scope.scratch = {newAvatar: null};
     $scope.setAvatar = function(e) {
-        $scope.showHide('survivorAvatarMobile');
-        $scope.showHide('survivorAvatarDesktop');
         var reader = new FileReader();
-//        reader.readAsDataURL(e.target.files[0]);
         reader.readAsBinaryString(e.target.files[0]);
         reader.onload = function () {
-            js_obj = {survivor_avatar: btoa(reader.result)};
+            js_obj = {avatar: btoa(reader.result)};
             var postChange = $scope.postJSONtoAPI('survivor','set_avatar',js_obj,false);
             postChange.then(
                 function(payload){
                     $scope.survivor.sheet.avatar = payload.data.avatar_oid;
-                    $scope.showHide('survivorAvatarMobile');
-                    $scope.showHide('survivorAvatarDesktop');
                 }
             )
         };

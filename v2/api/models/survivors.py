@@ -310,8 +310,8 @@ class Survivor(Models.UserAsset):
             raise utils.InvalidUsage(msg, status_code=400)
 
         # 0.e check for an avatar and add it BEFORE we save
-        if 'survivor_avatar' in attribs.keys():
-            self.set_avatar(attribs['survivor_avatar'], log_event=False, save=False)
+        if 'avatar' in attribs.keys():
+            self.set_avatar(attribs['avatar'], log_event=False, save=False)
 
 
         # 1. insert the record we've been developing and call the base class
@@ -983,8 +983,8 @@ class Survivor(Models.UserAsset):
         # initialize from request, if we're doing that
         err_msg = 'Avatars must be base 64 encoded string representations of images!'
         if avatar is None:
-            self.check_request_params(['survivor_avatar'])
-            avatar = self.params['survivor_avatar']
+            self.check_request_params(['avatar'])
+            avatar = self.params['avatar']
             if len(avatar) % 4:
                 self.logger.debug('padding!')
                 avatar += '=' * (4 - len(avatar) % 4)

@@ -1,0 +1,211 @@
+<div
+    class="modal-black hidden"
+    id="modalNewSurvivorContainer"
+    ng-controller="newSurvivorController"
+>
+
+    <div class="kd_sheet_ui_outer_ring_container">
+
+        <div
+            id="newSurvivorLinkHolder"
+            class="kd_sheet_ui_inner_ring_container new_survivor_link_container"
+            ng-if="scratch.newSurvivorSheets.length > 0"
+        >
+            <div
+                class="new_survivor_link clickable"
+                ng-repeat="sheet in scratch.newSurvivorSheets"
+                ng-click="postForm('view_survivor', sheet._id.$oid)"
+            >
+                <div class="avatar">
+                    <img
+                        ng-if="sheet.avatar == undefined"
+                        ng-src="/media/default_avatar_{{sheet.effective_sex}}.png"
+                    />
+                    <img
+                        ng-if="sheet.avatar != undefined"
+                        ng-src="/get_image?id={{sheet.avatar.$oid}}"
+                    />
+                </div>
+                <div class="desc">
+                    <b>{{sheet.name}}</b> [{{sheet.effective_sex}}]
+                    <div class="email">
+                        {{sheet.email}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div
+            id="newSurvivorCreationLoader"
+            class="kd_sheet_ui_inner_ring_container hidden"
+        >
+            <div class="new_survivor_sheet_loader">
+                <img src="/media/loading_lantern.gif">
+                Creating new survivor...
+            </div>
+        </div>
+
+        <div
+            id="newSurvivorCreationControls"
+            class="kd_sheet_ui_inner_ring_container new_survivor_sheet"
+        >
+
+            <div
+                id="newSurvivorName"
+                class="name"
+                ng-blur="setNewSurvivorName()"
+                contentEditable="true"
+                placeholder="Name"
+            /></div>
+
+            <div
+                class="sex_selector clickable"
+                ng-click="toggleSex()"
+            >
+               M <div class="kd_sheet_ui_box" ng-class="{checked: scratch.newSurvivorSex == 'M'}"></div>
+               F <div class="kd_sheet_ui_box" ng-class="{checked: scratch.newSurvivorSex == 'F'}"></div>
+               ? <div class="kd_sheet_ui_box" ng-class="{checked: scratch.newSurvivorSex == 'R'}"></div>
+            </div>
+
+            <div class="avatar_selector border_box clickable">
+                <p>Survivor Avatar:<p>
+                <input
+                    id="newSurvivorAvatarInput"
+                    type="file"
+                    class="new_survivor_avatar"
+                    accept="image/*"
+                    custom-on-change="setAvatar"
+                >
+            </div>
+
+            <div
+                class="parent_selector border_box"
+                ng-if="
+                    settlement.sheet.lantern_year >= 1 &&
+                    settlement.eligible_parents.male.length >= 1 &&
+                    settlement.eligible_parents.female.length >= 1
+                "
+            >
+                <p>Survivor Parents:</p>
+                <p class="ui_tip" ng-if="user.user.preferences.show_ui_tips">
+                    Survivors without parents are not eligible
+                    for the automatic application of Innovation bonuses granted only
+                    to newborn survivors!
+                </p>
+
+                <div class="parent_dropdowns">
+                    <select
+                        name="father"
+                        ng-model="scratch.newSurvivorFather"
+                        ng-options="survivor._id.$oid as survivor.name for survivor in settlement.eligible_parents.male"
+                    />
+                        <option selected disabled value="" name="father">Father</option>
+                    </select>
+                    <select
+                        name="mother"
+                        ng-model="scratch.newSurvivorMother"
+                        ng-options="survivor._id.$oid as survivor.name for survivor in settlement.eligible_parents.female"
+                    />
+                        <option selected disabled value="" name="mother">Mother</option>
+                    </select>
+                </div>
+                <div
+                    class="family_inheritance"
+                    ng-if="
+                        settlement.sheet.innovations.indexOf('family') != -1 &&
+                        user.user.preferences.beta == true
+                    "
+                >
+                    <p> &beta; Family Innovation:</p>
+                    <p class="ui_tip" ng-if="user.user.preferences.show_ui_tips">
+                        A newborn survivor inherits the surname
+                        of one parent, their weapon type and half (rounded down) of
+                        their weapon proficiency levels.
+                    </p>
+                    <p class="ui_tip" ng-if="user.user.preferences.show_ui_tips">
+                        Select a parent to inherit from:
+                    </p>
+
+                    <div
+                        class="donor_container clickable"
+                        ng-click="toggleDonor()"
+                    >
+                        Father <div class="kd_sheet_ui_box" ng-class="{checked: scratch.primaryDonor == 'father'}"></div>
+                        Mother <div class="kd_sheet_ui_box" ng-class="{checked: scratch.primaryDonor == 'mother'}"></div>
+                    </div>
+                </div>
+
+            </div><!-- parent_selector -->
+
+            <div
+                class="permissions border_box"
+                ng-if="user_login != undefined"
+                ng-init="scratch.newSurvivorEmail = user_login"
+            >
+
+                <p>Access Permissions</p>
+
+                <p class="ui_tip" ng-if="user.user.preferences.show_ui_tips">
+                    Enter the email address of the registered user who will be
+                    responsible for the new survivor.
+                </p>
+
+                <input
+                    type="email"
+                    class="new_survivor_email"
+                    ng-model="scratch.newSurvivorEmail"
+                    placeholder="email"
+                    onclick="this.select()"
+                >
+
+                <p class="ui_tip" ng-if="user.user.preferences.show_ui_tips">
+                    Check the box below to mark this survivor <b>Public</b>,
+                    which will allow any player in the campaign to manage
+                    this survivor.
+                </p>
+
+                <div
+                    class="public clickable"
+                    ng-click="togglePublic()"
+                >
+                    Public <div class="kd_sheet_ui_box" ng-class="{checked: scratch.newSurvivorPublic === true}"></div>
+                </div>
+
+            </div> <!-- survivor perms -->
+
+            <button
+                class="kd_blue add_new_survivor"
+                ng-if='scratch.newSurvivorEmail != null && scratch.newSurvivorEmail != ""'
+                ng-click="createNewSurvivor()"
+                onClick="showHide('newSurvivorCreationControls'); showHide('newSurvivorCreateAnotherButton')"
+            >
+                Create {{scratch.newSurvivorName}}
+            </button>
+
+        </div><!-- kd_sheet_ui_inner_ring_container new survivor sheet-->
+
+        <div class="new_survivor_sheet_footer_button_container">
+            <button
+                id="newSurvivorCreateAnotherButton"
+                class="kd_blue"
+                ng-if="scratch.newSurvivorsCreated > 0 "
+                onClick="showHide('newSurvivorCreationControls'); showHide('newSurvivorCreateAnotherButton')"
+            >
+                Create another!
+            </button>
+
+            <button
+                class="kd_alert_no_exclaim"
+                onClick="showHide('modalNewSurvivorContainer')"
+            >
+                Close
+            </button>
+    </div>
+
+
+    </div> <!-- "kd_sheet_ui_outer_ring_container" -->
+</div> <!-- modal (parent) -->
+
+
+
+

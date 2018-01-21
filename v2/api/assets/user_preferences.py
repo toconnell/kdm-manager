@@ -62,4 +62,11 @@ preferences_dict = {
         "negative": "Hide controls on Settlement and Survivor Sheets",
         "patron_level": 0,
     },
+    "show_ui_tips": {
+        "type": "General",
+        "desc": "Display in-line help and user interface tips?",
+        "affirmative": "Show UI tips",
+        "negative": "Hide UI tips",
+        "patron_level": 2,
+    },
 }

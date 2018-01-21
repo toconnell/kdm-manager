@@ -476,102 +476,54 @@ class Session:
             user_asset_id = ObjectId(self.params["asset_id"].value)
 
 
-        #   create new user assets
+        #
+        #   we support new settlement creation in the legacy webapp.
+        #
 
         if "new" in self.params:
 
-            #
-            #   new survivor creation via API call
-            #
+            params = {}
+            params["campaign"] = self.params["campaign"].value
 
-            if self.params["new"].value == "survivor":
-                self.set_current_settlement(user_asset_id)
+            # try to get a name or default to None
+            if "name" in self.params:
+                params["name"] = self.params["name"].value
+            else:
+                params["name"] = None
 
-                POST_params = {"settlement": self.Settlement.settlement["_id"]}
-                incoming_form_params = [
-                    "name",
-                    "sex",
-                    "survivor_avatar",
-                    "father",
-                    "mother",
-                    "email",
-                    "public",
-                    "primary_donor_parent",
-                ]
-                for p in incoming_form_params:
-                    if p in self.params and self.params[p].value not in ["",u""]:
-                        if "string:" in self.params[p].value:
-                            oid = self.params[p].value.split("string:")[1]
-                            POST_params[p] = oid
-                        else:
-                            POST_params[p] = self.params[p].value
-                    else:
-                        pass
-
-                response = api.post_JSON_to_route("/new/survivor", payload=POST_params, Session=self)
-                if response.status_code == 200:
-                    s_id = ObjectId(response.json()["sheet"]["_id"]["$oid"])
-                    self.change_current_view("view_survivor", asset_id=s_id)
-                    S = assets.Survivor(s_id, session_object=self)
-                    user_action = "created survivor %s in %s" % (S, self.Settlement)
+            # try to get expansions/survivors params or default to []
+            for p in ["expansions", "survivors", "specials"]:
+                if p not in self.params:
+                    params[p] = []
+                elif p in self.params and isinstance(self.params[p], cgi.MiniFieldStorage):
+                    params[p] = [self.params[p].value]
+                elif p in self.params and type(self.params[p]) == list:
+                    params[p] = [i.value for i in self.params[p]]
                 else:
-                    msg = "An API error caused survivor creation to fail! API response was: %s - %s" % (response.status_code, response.reason)
-                    self.logger.error("[%s] new survivor creation failed!" % self.User)
-                    self.logger.error("[%s] %s" % (self.User, msg))
-                    raise RuntimeError(msg)
+                    msg = "Invalid form parameter! '%s' is unknown type: '%s'" % (p, type(self.params[p]).__name__)
+                    self.logger.error("[%s] invalid param key '%s' was %s. Params: %s" % (self.User, p, type(self.params[p]), self.params))
+                    raise AttributeError(msg)
 
+            # hit the route; check the response
+            response = api.post_JSON_to_route("/new/settlement", payload=params, Session=self)
+            if response.status_code == 200:
+                s_id = ObjectId(response.json()["sheet"]["_id"]["$oid"])
+                self.set_current_settlement(s_id)
+                S = assets.Settlement(s_id, session_object=self)
+                user_action = "created settlement %s" % self.Settlement
+                self.change_current_view("view_campaign", S.settlement["_id"])
+                S.save()
+            elif response.status_code == 405:
+                self.change_current_view('dashboard')
+            else:
+                msg = "An API error caused settlement creation to fail! API response was: %s - %s" % (response.status_code, response.reason)
+                self.logger.error("[%s] new settlement creation failed!" % self.User)
+                self.logger.error("[%s] %s" % (self.User, msg))
+                raise RuntimeError(msg)
 
-            #
-            #   new settlement creation via API call
-            #
-
-            if self.params["new"].value == "settlement":
-
-                params = {}
-                params["campaign"] = self.params["campaign"].value
-
-                # try to get a name or default to None
-                if "name" in self.params:
-                    params["name"] = self.params["name"].value
-                else:
-                    params["name"] = None
-
-                # try to get expansions/survivors params or default to []
-                for p in ["expansions", "survivors", "specials"]:
-                    if p not in self.params:
-                        params[p] = []
-                    elif p in self.params and isinstance(self.params[p], cgi.MiniFieldStorage):
-                        params[p] = [self.params[p].value]
-                    elif p in self.params and type(self.params[p]) == list:
-                        params[p] = [i.value for i in self.params[p]]
-                    else:
-                        msg = "Invalid form parameter! '%s' is unknown type: '%s'" % (p, type(self.params[p]).__name__)
-                        self.logger.error("[%s] invalid param key '%s' was %s. Params: %s" % (self.User, p, type(self.params[p]), self.params))
-                        raise AttributeError(msg)
-
-                # hit the route; check the response
-                response = api.post_JSON_to_route("/new/settlement", payload=params, Session=self)
-                if response.status_code == 200:
-                    s_id = ObjectId(response.json()["sheet"]["_id"]["$oid"])
-                    self.set_current_settlement(s_id)
-                    S = assets.Settlement(s_id, session_object=self)
-                    user_action = "created settlement %s" % self.Settlement
-                    self.change_current_view("view_campaign", S.settlement["_id"])
-                    S.save()
-                elif response.status_code == 405:
-                    self.change_current_view('dashboard')
-                else:
-                    msg = "An API error caused settlement creation to fail! API response was: %s - %s" % (response.status_code, response.reason)
-                    self.logger.error("[%s] new settlement creation failed!" % self.User)
-                    self.logger.error("[%s] %s" % (self.User, msg))
-                    raise RuntimeError(msg)
-
-
-        #   bulk add - deprecated 2017-11-28
-        if "bulk_add_survivors" in self.params:
-            raise Exception("Deprecated parameter 'bulk_add_survivors' passed to legacy webapp!")
-
-        #   modify
+        #
+        #   modify - still supported in the legacy webapp, pending deprecation
+        #
 
         if "modify" in self.params:
             if self.params["modify"].value == "settlement":
@@ -657,7 +609,6 @@ class Session:
                 output += html.meta.safari_warning.safe_substitute(vers=get_user_agent().browser.version_string)
 
         elif self.current_view == "view_campaign":
-            output += html.dashboard.refresh_button
             if not hasattr(self, "Settlement") or self.Settlement is None:
                 self.set_current_settlement()
             output += self.Settlement.render_html_summary(user_id=self.User.user["_id"])
@@ -665,15 +616,12 @@ class Session:
         elif self.current_view == "new_settlement":
             output += html.settlement.new.safe_substitute(
                 user_id=self.User.user['_id'],
-                api_url = api.get_api_url(),
             )
 
         elif self.current_view == "view_settlement":
-            output += html.dashboard.refresh_button
             output += self.render_user_asset_sheet("settlements")
 
         elif self.current_view == "view_survivor":
-            output += html.dashboard.refresh_button
             output += self.render_user_asset_sheet("survivors")
 
         elif self.current_view == "panel":

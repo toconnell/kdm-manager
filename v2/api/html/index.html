@@ -684,6 +684,12 @@
             <code>{settlement: '59669ace4af5ca799c968c94', father: '5a341e6e4af5ca16907c2dff', mother: '5a3419c64af5ca11240f519f', primary_donor_parent: 'father'}</code>
             <p>This will cause innovations such as <b>Family</b> to use the primary
             donor parent to follow one-parent inheritance rules for that innovation.</p>
+            <p>As of API releases > 0.77.n, survivors can be created with an avatar.
+            Inclde the <code>avatar</code> key in the <b>POST</b> body, and let
+            that key's value be a string representation of the image that should
+            be used as the survivor's avatar.</p>
+            <p>(<a href="/#setAvatarAnchor">See <code>/survivor/set_avatar/<oid></code> route below</a> for more
+            information on how to post string representations of binary content.</p>
             <p><b>Important!</b>Just like the <code>/new/settlement</code> route,
             a successful <b>POST</b> to the <code>/new/survivor</code> route will return
             a serialized version (i.e. JSON) of the new survivor, complete with
@@ -2239,12 +2245,12 @@
             </td>
         </tr>
         <tr class="ul">
-            <td> /survivor/set_avatar/&lt;survivor_id&gt; </td>
+            <td> <a id="setAvatarAnchor">/survivor/set_avatar/&lt;survivor_id&gt;</a> </td>
             <td> <b>POST</b> </td>
             <td> 
                 <p><b>POST</b> a base 64 encoded string to this endpoint to set a new
                 avatar for a survivor:</p>
-                <code>{survivor_avatar: "JJssaK1234bsakq8123..."}</code>
+                <code>{avatar: "JJssaK1234bsakq8123..."}</code>
                 <p>If you're using JS to convert a file to a base 64 string,
                 consider this sample code, which may be helpful. In the sample,
                 <code>evt</code> is the browser event where the users adds the file:</p>

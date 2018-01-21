@@ -56,6 +56,19 @@ function showHide(e_id) {
     };
  }
 
+// burger sidenav
+function openNav() {
+    var nav = document.getElementById("mySidenav")
+    nav.style.width = '75%';
+}
+function closeNav() {
+    var nav = document.getElementById("mySidenav");
+    if (nav === null){
+    } else {
+        nav.style.width = "0"
+    };
+}
+
 function sleep (time) {return new Promise((resolve) => setTimeout(resolve, time));}
 
 function convertMS(millis) {
@@ -71,6 +84,17 @@ function convertMS(millis) {
 //
 
 var app = angular.module('kdmManager', []);
+
+//  directives for that ass
+app.directive('customOnChange', function() {
+  return {
+    restrict: 'A',
+    link: function (scope, element, attrs) {
+      var onChangeFunc = scope.$eval(attrs.customOnChange);
+      element.bind('change', onChangeFunc);
+    }
+  };
+});
 
 
 
@@ -114,6 +138,12 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
     $scope.scratch = {}
     $scope.scratch.settlementsRetrieved = 0;
 
+    $rootScope.setView = function(view) {
+        $rootScope.view = view;
+        $scope.view = view;
+//        console.warn("$rootScope.setView('" + view + "')");
+    };
+
     // initialize rootScope elements here; these are set on every view
     $rootScope.showHide = showHide;
     $scope.numberToRange = function(num) {
@@ -128,6 +158,26 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         var element = document.getElementById(e);
         element.classList.remove('openNav');
     };
+
+    // post a form to the legacy webapp (useful for buttons that you
+    // want to behave like a form
+    $scope.postForm = function(action, asset_id) {
+
+        var form = document.createElement("form");
+        form.method = "POST";
+        form.action = "/";
+
+        var a_input = document.createElement("input");
+
+        a_input.name = action;
+        a_input.value =  asset_id;
+        a_input.classList.add('hidden');
+        form.appendChild(a_input);
+
+        document.body.appendChild(form);
+        form.submit();
+    };
+
 
     // new settlement assets
     $scope.addNewSettlementsToScope = function(api_url) {
@@ -387,6 +437,10 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
                 hideFullPageLoader();
                 hideCornerLoader();
             } else if ($scope.view == 'survivorSheet') {
+                $scope.randomNamesPromise = $http.get(api_url + 'get_random_names/200');
+                $scope.randomNamesPromise.then(function(payload) {
+                    $scope.randomSurvivorNames = payload.data;
+                });
                 if ($scope.survivorPromise != undefined) { 
                     $scope.survivorPromise.then(function() {
                         hideFullPageLoader();
@@ -775,9 +829,113 @@ app.controller("updateExpansionsController", function($scope) {
     };
 });
 
-app.controller('newSurvivorController', function($scope) {
+app.controller('newSurvivorController', function($scope, $http) {
+    $scope.scratch = {}
+    $scope.scratch.newSurvivorsCreated = 0;
+    $scope.scratch.newSurvivorSheets = [];
+    $scope.scratch.newSurvivorSex = 'M';
+    $scope.scratch.primaryDonor = 'father';
+    $scope.scratch.newSurvivorPublic = false;
+    $scope.toggleSex = function() {
+        if ($scope.scratch.newSurvivorSex === 'M'){
+            $scope.scratch.newSurvivorSex = 'F';
+        } else if ($scope.scratch.newSurvivorSex === 'F') {
+            $scope.scratch.newSurvivorSex = 'R';
+        } else if ($scope.scratch.newSurvivorSex === 'R') {
+            $scope.scratch.newSurvivorSex = 'M';
+        };
+    };
+    $scope.toggleDonor = function() {
+        if ($scope.scratch.primaryDonor === 'father'){
+            $scope.scratch.primaryDonor = 'mother';
+        } else {
+            $scope.scratch.primaryDonor = 'father';
+        }; 
+    };
+    $scope.togglePublic = function() {
+        if ($scope.scratch.newSurvivorPublic === true){
+            $scope.scratch.newSurvivorPublic = false;
+        } else {
+            $scope.scratch.newSurvivorPublic = true;
+        }; 
+    };
 
-    $scope.addNewSurvivor = function(e) {
+    $scope.setAvatar = function(e) {
+        // uses the custom-on-change directive to convert the file to a str for
+        // POSTing back to the API when the user pulls the trigger
+        var reader = new FileReader();
+        reader.readAsBinaryString(e.target.files[0]);
+        reader.onload = function () {
+            $scope.scratch.newSurvivorAvatar = btoa(reader.result);
+        };
+    };
+
+    $scope.setNewSurvivorName = function() {
+        var newName = document.getElementById('newSurvivorName').innerHTML;
+        $scope.scratch.newSurvivorName = newName;
+        if (newName === "") {
+            $scope.scratch.newSurvivorName = undefined;
+        };
+    };
+
+    $scope.createNewSurvivor = function() {
+        // in which we fire some JSON at the API and attempt to make a new
+        // survivor and show it to the user
+
+        // 1.) start the clock, show the loader
+        console.time('createNewSurvivor()');
+        $scope.showHide('newSurvivorCreationLoader')
+
+        // 2.) create the POST body
+        var json_post = {
+            settlement: $scope.settlement.sheet._id.$oid,
+            name: $scope.scratch.newSurvivorName,
+            sex: $scope.scratch.newSurvivorSex,
+            avatar: $scope.scratch.newSurvivorAvatar,
+            father: $scope.scratch.newSurvivorFather,
+            mother: $scope.scratch.newSurvivorMother,
+            primary_donor_parent: $scope.scratch.primaryDonor,
+            email: $scope.scratch.newSurvivorEmail,
+            'public': $scope.scratch.newSurvivorPublic, 
+        }
+//        console.warn(json_post);
+
+        // 3.) create a promise for the post operation
+        var config = {"headers": {"Authorization": $scope.jwt}};
+        var res = $http.post(
+            $scope.api_url + "new/survivor",
+            json_post,
+            config
+        );
+
+        // 4.) process the result, closing the loader and, if successful,
+        // showing the new survivor link box, whose innerHTML we'll fiddle
+        res.then(
+            function(payload) {
+                $scope.newSurvivorData = payload.data;
+                $scope.scratch.newSurvivorsCreated += 1;
+
+                var sheet = $scope.newSurvivorData.sheet;
+                $scope.scratch.newSurvivorSheets.push(sheet);
+   
+                // clear the fields, i.e. so we don't repeat stuff
+                $scope.scratch.newSurvivorAvatar = undefined;
+
+                var newName = document.getElementById('newSurvivorName');
+                newName.innerHTML = "";
+                $scope.setNewSurvivorName();
+
+                // wrap up, close up 
+                console.timeEnd('createNewSurvivor()');
+                $scope.showHide('newSurvivorCreationLoader');
+
+
+            },
+            function(errorPayload) {
+                console.log("Failed to create new Survivor!" + errorPayload);
+                $scope.showHide('newSurvivorCreationLoader')
+            }
+        );
     };
 
 }); 
@@ -1092,18 +1250,6 @@ app.controller("epithetController", function($scope) {
 });
 
 
-// burger sidenav
-function openNav() {
-    document.getElementById("mySidenav").style.width = '75%';
-}
-function closeNav() {
-    var nav = document.getElementById("mySidenav");
-    if (nav === null){
-//        console.warn("mySidenav element does not exist!")
-    } else {
-        nav.style.width = "0"
-    };
-}
 
 // close modal windows from a span
 function closeModal(modal_div_id) {
@@ -1229,22 +1375,6 @@ app.controller("sideNavController", function($scope) {
         return survivors;
     };
 
-    $scope.postForm = function(action, asset_id) {
-
-        var form = document.createElement("form");
-        form.method = "POST";
-        form.action = "/";
-
-        var a_input = document.createElement("input");
-
-        a_input.name = action;
-        a_input.value =  asset_id;
-        a_input.classList.add('hidden');
-        form.appendChild(a_input);
-
-        document.body.appendChild(form);
-        form.submit();
-    };
 
 });
 

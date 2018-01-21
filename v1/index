@@ -44,4 +44,5 @@ if __name__ == "__main__":
     record_response_time(S.get_current_view(), stop-start)
 
     if "norefresh" not in params:
-        html.render(output, body_class=body, session_object=S)
+        ui_templates = ['nav.html', 'new_survivor.html','report_error.html']
+        html.render(output, body_class=body, session_object=S, include_templates = ui_templates)

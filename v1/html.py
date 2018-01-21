@@ -11,7 +11,7 @@ import admin
 import api
 import game_assets
 from session import Session
-from utils import load_settings, mdb, get_logger, get_latest_update_string
+from utils import load_settings, mdb, get_logger, get_latest_update_string, template_file_to_str
 
 settings = load_settings()
 logger = get_logger()
@@ -104,7 +104,6 @@ class ui:
 class dashboard:
     # flash
     campaign_flash = '<img class="dashboard_icon" src="/media/icons/campaign.png"/> '
-    refresh_flash = '<img class="dashboard_icon" src="/media/icons/refresh.png"/> '
 
     #
     #   ANGULARJS dashboard components!
@@ -117,6 +116,7 @@ class dashboard:
     class="modal dashboard_welcome_modal hidden"
     ng-class="{true: 'visible', false: 'hidden'}[user.dashboard.settlements.length == 0]"
     onclick="showHide('dashboardWelcomeModal')"
+    ng-init="setView('dashboard')"
 >
     <p>Welcome to <b>http://kdm-manager.com</b>!</p>
     <p><b>The Manager</b> is an interactive webapp intended to make it
@@ -839,18 +839,6 @@ class dashboard:
 
     # misc html assets
 
-    refresh_button = """\n
-    <form method="POST" action="/">
-        <button
-            id="floating_refresh_button"
-            class="touch_me"
-            onclick="showFullPageLoader()"
-        >
-            %s
-        </button>
-    </form>
-    """ % refresh_flash
-
     view_asset_button = Template("""\n\
     <form method="POST" action="#">
     <input type="hidden" name="view_$asset_type" value="$asset_id" />
@@ -1293,200 +1281,6 @@ class angularJS:
     </div> <!-- modal (parent) -->
     \n"""
 
-    new_survivor = """\n\
-    <div
-        class="modal hidden"
-        id="modalNewSurvivorContainer"
-        ng-controller="newSurvivorController"
-    >
-
-        <div class="full_size_modal_panel survivor_sheet_gradient">
-
-            <h2 class="no_ul centered">Create New Survivor</h2>
-
-            <span class="closeModal" onclick="showHide('modalNewSurvivorContainer')">×</span>
-
-            <form method="POST" action="#" enctype="multipart/form-data">
-            <input type="hidden" name="new" value="survivor" />
-
-            <div class="create_user_asset_block_group">
-
-            <input
-                ng-model="new_survivor_name"
-                class="new_asset_name"
-                type="text"
-                name="name"
-                placeholder="New Survivor Name"
-                autofocus
-                >
-            </div>
-
-
-            <div
-                class="create_user_asset_block_group"
-            >
-
-                <h2 class="new_asset ul">Survivor Sex</h2>
-
-                <input
-                    id="maleInput"
-                    class="kd_css_checkbox kd_radio_option"
-                    type="radio"
-                    name="sex"
-                    value="M"
-                    checked
-                >
-                <label
-                    id="survivorSexMaleElection"
-                    for="maleInput"
-                >
-                    Male
-                </label>
-
-                <input
-                    id="femaleInput"
-                    class="kd_css_checkbox kd_radio_option"
-                    type="radio"
-                    name="sex"
-                    value="F"
-                >
-                <label
-                    id="survivorSexFemaleElection"
-                    for="femaleInput"
-                >
-                    Female
-                </label>
-
-            </div>
-
-            <div class="create_user_asset_block_group">
-                <h2 class="no_ul">Survivor Avatar Image</h2>
-                <p class="ul">Upload an image to represent this survivor (optional).</p>
-                <br/>
-                <input type="file" class="new_survivor_avatar" name="survivor_avatar" accept="image/*">
-            </div>
-
-
-            <div
-                class="create_user_asset_block_group"
-                ng-if="
-                    settlement.sheet.lantern_year >= 1 &&
-                    settlement.eligible_parents.male.length >= 1 &&
-                    settlement.eligible_parents.female.length >= 1
-                "
-            >
-                <h2 class="no_ul">Survivor Parents</h2>
-                <p class="ul">Survivors without parents are not eligible
-                for the automatic application of Innovation bonuses granted only
-                to newborn survivors!</p>
-
-                <div class="parent_selectors">
-                    <select
-                        name="father"
-                        ng-model="newSurvivorFather"
-                        ng-options="survivor._id.$oid as survivor.name for survivor in settlement.eligible_parents.male"
-                    /><option selected disabled value="" name="father">Father</option></select>
-
-                    <select
-                        name="mother"
-                        ng-model="newSurvivorMother"
-                        ng-options="survivor._id.$oid as survivor.name for survivor in settlement.eligible_parents.female"
-                    /><option selected disabled value="" name="mother">Mother</option></select>
-
-                    <div
-                        class="family_inheritance_checkboxes"
-                        ng-if="
-                            settlement.sheet.innovations.indexOf('family') != -1 &&
-                            user.user.preferences.beta == true
-                        "
-                    >
-                        <h2 class="no_ul"> &beta; Family Innovation</h2>
-                        <p><i>A newborn survivor inherits the surname
-                        of one parent, their weapon type and half (rounded down) of
-                        their weapon proficiency levels.</i></p>
-                        <p class="ul">Select a parent (optional).</p>
-
-                        <input
-                            id="inheritFromFather"
-                            class="kd_css_checkbox kd_radio_option"
-                            type="radio"
-                            name="primary_donor_parent"
-                            value="father"
-                        >
-                        <label
-                            for="inheritFromFather"
-                        >
-                            Father
-                        </label>
-                        <input
-                            id="inheritFromMother"
-                            class="kd_css_checkbox kd_radio_option"
-                            type="radio"
-                            name="primary_donor_parent"
-                            value="mother"
-                        >
-                        <label
-                            for="inheritFromMother"
-                        >
-                            Mother
-                        </label>
-
-                        <br/>
-
-                    </div>
-                </div>
-
-            </div> <!-- ancestors -->
-
-
-            <div class="create_user_asset_block_group">
-
-                <h2 class="no_ul">Access Permissions</h2>
-
-                <p class="ul">Use the controls below to determine who is the owner of the
-                survivor and whether other players may edit the survivor.</p>
-
-                <input
-                    type="email"
-                    name="email"
-                    ng-placeholder="Survivor Email"
-                    ng-value="user_login"
-                    onclick="this.select()"
-                >
-
-                <input
-                    id="publicInput"
-                    type="checkbox"
-                    class="kd_css_checkbox kd_radio_option"
-                    name="public"
-                >
-                 <label
-                     id="survivorPublic"
-                     for="publicInput"
-                 >
-                     Public - anyone may manage this survivor
-                </label>
-
-            </div> <!-- survivor perms -->
-
-            <br />
-    
-            <button
-                onclick="showHide('modalNewSurvivorContainer'); showFullPageLoader()"
-                class="kd_blue add_new_survivor"
-            >
-                Add {{new_survivor_name}}
-            </button>
-
-            <br/><br/>
-
-            </form>
-
-        </div><!-- full size modal panel -->
-
-    </div> <!-- modal (parent) -->
-    \n"""
-
     timeline = """\n
 
     <div
@@ -1759,14 +1553,36 @@ class survivor:
         <div
             id="survivorName"
             contentEditable="true"
-            class="survivor_sheet_survivor_name
-            ng-placeholder="Survivor Name"
-            ng-blur="setSurvivorName()"
+            class="survivor_sheet_survivor_name"
+            onClick="rollUp('nameControl')"
+            placeholder="Name"
         >
 
             {{survivor.sheet.name}}
 
         </div>
+        <div
+            id="nameControl"
+            class="kd_sheet_ui_roll_down rolled_up"
+        >
+            <div class="kd_sheet_ui_roll_down_controls">
+                <div class="kd_sheet_ui_number_tumbler">
+                    <button
+                        ng-if="user.user.subscriber.level > 1"
+                        ng-click="randomName()"
+                    >
+                        Random Name
+                    </button>
+                    <button
+                        class="kd_blue"
+                        ng-click="setSurvivorName()"
+                        onClick="rollUp('nameControl')"
+                    >
+                        Save Changes
+                    </button>
+                </div> <!-- number tumbler -->
+            </div>
+        </div> <!-- survival controls and rolls -->
 
         <div
             ng-if="survivor.sheet != undefined"
@@ -1836,49 +1652,6 @@ class survivor:
                 </div>
             </div>
         </div> <!-- avatar and sex -->
-
-        <!-- favorite / retired / dead -->
-        <div
-            ng-if="survivor.sheet != undefined"
-            class="survivor_sheet_kd_sheet_ui_box favorite_retired_dead"
-        >
-            <div
-                class="favorite_toggle clickable"
-                ng-click="toggleFavorite()"
-            >
-                <div
-                    class="kd_sheet_ui_box"
-                    ng-class="{checked: scratch.favoriteBox == true}"
-                >
-                </div>
-                Favorite
-            </div>
-
-            <div
-                class="retired_toggle clickable"
-                ng-click="setRetired()"
-            >
-                <div
-                    class="kd_sheet_ui_box"
-                    ng-class="{checked: survivor.sheet.retired == true}"
-                >
-                </div>
-                Retired
-            </div>
-
-            <div
-                class="dead_toggle clickable"
-                ng-click="showHide('modalDeath')"
-                ng-class="{maroon_text: survivor.sheet.dead != undefined}"
-            >
-                <div
-                    class="kd_sheet_ui_box"
-                    ng-class="{maroon_box: survivor.sheet.dead != undefined}"
-                >
-                </div>
-                Dead
-            </div>
-        </div> <!-- survivor_dead_retired_container -->
 
 
         <div
@@ -1968,6 +1741,49 @@ class survivor:
                 </div> <!-- number tumbler -->
             </div>
         </div> <!-- survival controls and rolls -->
+
+        <!-- favorite / retired / dead -->
+        <div
+            ng-if="survivor.sheet != undefined"
+            class="survivor_sheet_kd_sheet_ui_box favorite_retired_dead"
+        >
+            <div
+                class="favorite_toggle clickable"
+                ng-click="toggleFavorite()"
+            >
+                <div
+                    class="kd_sheet_ui_box"
+                    ng-class="{checked: scratch.favoriteBox == true}"
+                >
+                </div>
+                Favorite
+            </div>
+
+            <div
+                class="retired_toggle clickable"
+                ng-click="setRetired()"
+            >
+                <div
+                    class="kd_sheet_ui_box"
+                    ng-class="{checked: survivor.sheet.retired == true}"
+                >
+                </div>
+                Retired
+            </div>
+
+            <div
+                class="dead_toggle clickable"
+                ng-click="showHide('modalDeath')"
+                ng-class="{maroon_text: survivor.sheet.dead != undefined}"
+            >
+                <div
+                    class="kd_sheet_ui_box"
+                    ng-class="{maroon_box: survivor.sheet.dead != undefined}"
+                >
+                </div>
+                Dead
+            </div>
+        </div> <!-- survivor_dead_retired_container -->
 
         <!-- dynamic modal launchers -->
         <div
@@ -4225,40 +4041,39 @@ class settlement:
 
     new = Template("""\n\
 
-    <span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
-    <span class="nav_bar_mobile mobile_only settlement_sheet_gradient"></span>
-    <span class="top_nav_spacer mobile_only"> hidden </span>
+<span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
+<span class="nav_bar_mobile mobile_only settlement_sheet_gradient"></span>
+<span class="top_nav_spacer mobile_only"> hidden </span>
 
-    <br />
-
-    <div
-        id="create_new_asset_form_container"
-        ng-controller="newSettlementController"
-        ng-init="
-            initializeUser('$user_id','get','$api_url');
-            addNewSettlementsToScope('$api_url');
-        "
+<div
+    id="create_new_asset_form_container"
+    ng-controller="newSettlementController"
+    ng-init="
+        setView('newSettlement');
+        initializeUser('$user_id','get','$api_url');
+        addNewSettlementsToScope('$api_url');
+    "
+>
+    <span
+        ng-if="new_settlement_assets != undefined && user != undefined"
+        ng-init="hideLoader(); showHide('fullPageLoader');"
     >
+    </span>
 
-        <span
-            ng-if="new_settlement_assets != undefined && user != undefined"
-            ng-init="hideLoader(); showHide('fullPageLoader');"
-        >
-        </span>
+    <form action="#" method="POST">
 
-        <form action="#" method="POST">
-            <div class="create_user_asset_block_group">
-                <input type="hidden" name="new" value="settlement" />
-                <input
-                    type="text"
-                    name="name"
-                    placeholder="New Settlement Name"
-                    onclick="this.select()"
-                    class="new_asset_name"
-                    ng-model = "settlementName"
-                    autofocus
-                >
-            </div>
+        <div class="create_user_asset_block_group">
+            <input type="hidden" name="new" value="settlement" />
+            <input
+                type="text"
+                name="name"
+                placeholder="New Settlement Name"
+                onclick="this.select()"
+                class="new_asset_name"
+                ng-model = "settlementName"
+                autofocus
+            />
+        </div>
 
         <div class="create_user_asset_block_group">
             <h2 class="no_ul">Campaign:</h2>
@@ -4268,27 +4083,27 @@ class settlement:
             A settlement's campaign <b>cannot be changed</b> after settlement
             creation!</p>
 
-            <div ng-if="showLoader" class="new_settlement_loading"><img src="/media/loading_io.gif"></div>
+            <div ng-if="showLoader" class="new_settlement_loading">
+                <img src="/media/loading_io.gif">
+            </div>
 
             <div
                 class="new_settlement_campaign_container"
                 ng-repeat="c in new_settlement_assets.campaigns"
             >
-            <input
-                type="radio"
-                id="{{c.handle}}"
-                class="kd_css_checkbox kd_radio_option"
-                name="campaign"
-                value="{{c.handle}}"
-                ng-checked="{{c.default}}"
-            />
-            <label for="{{c.handle}}">{{c.name}}
-                <p ng-if="c.subtitle" class="new_settlement_asset"> {{c.subtitle}}</p>
-            </label>
+                <input
+                    type="radio"
+                    id="{{c.handle}}"
+                    class="kd_css_checkbox kd_radio_option"
+                    name="campaign"
+                    value="{{c.handle}}"
+                    ng-checked="{{c.default}}"
+                />
+                <label for="{{c.handle}}">{{c.name}}
+                    <p ng-if="c.subtitle" class="new_settlement_asset"> {{c.subtitle}}</p>
+                </label>
             </div>
-
         </div>  <!-- campaigns -->
-
 
         <div class="create_user_asset_block_group">
             <h2 class="no_ul">Expansions:</h2>
@@ -4296,24 +4111,25 @@ class settlement:
             content may also be enabled (or disabled) later using the controls
             on the left-side navigation bar.</p>
 
-            <div ng-if="showLoader" class="new_settlement_loading"><img src="/media/loading_io.gif"></div>
+            <div ng-if="showLoader" class="new_settlement_loading">
+                <img src="/media/loading_io.gif">
+            </div>
 
             <div
                 class="new_settlement_expansions_container"
                 ng-repeat="e in new_settlement_assets.expansions"
             >
-            <input
-                type="checkbox"
-                id="{{e.handle}}"
-                class="kd_css_checkbox kd_radio_option"
-                name="expansions"
-                value="{{e.handle}}"
-            />
-            <label for="{{e.handle}}">{{e.name}}
-                <p ng-if="e.subtitle" class="new_settlement_asset"> {{e.subtitle}}</p>
-            </label>
+                <input
+                    type="checkbox"
+                    id="{{e.handle}}"
+                    class="kd_css_checkbox kd_radio_option"
+                    name="expansions"
+                    value="{{e.handle}}"
+                />
+                <label for="{{e.handle}}">{{e.name}}
+                    <p ng-if="e.subtitle" class="new_settlement_asset"> {{e.subtitle}}</p>
+                </label>
             </div>
-
         </div> <!-- expansions -->
 
 
@@ -4339,31 +4155,30 @@ class settlement:
                     ></p>
 
                 </label>
+            </div><!-- specials repeater -->
+        </div> <!-- specials-->
 
-            </div> <!-- specials-->
+        <div ng-if="showLoader" class="new_settlement_loading">
+            <img src="/media/loading_io.gif">
+        </div>
 
-            <div ng-if="showLoader" class="new_settlement_loading"><img src="/media/loading_io.gif"></div>
-
-            <div
-                class="new_settlement_survivors_container"
-                ng-repeat="s in new_settlement_assets.survivors"
-            >
-                <input
-                    id="{{s.handle}}"
-                    class="kd_css_checkbox kd_radio_option"
-                    type="checkbox"
-                    name="survivors"
-                    value="{{s.handle}}"
-                />
-                <label
-                    for="{{s.handle}}"
-                />
-                    {{s.name}}
-                </label>
-            </div> <!-- survivors -->
-
-
-        <br/><br/>
+        <div
+            class="new_settlement_survivors_container"
+            ng-repeat="s in new_settlement_assets.survivors"
+        >
+            <input
+                id="{{s.handle}}"
+                class="kd_css_checkbox kd_radio_option"
+                type="checkbox"
+                name="survivors"
+                value="{{s.handle}}"
+            />
+            <label
+                for="{{s.handle}}"
+            />
+                {{s.name}}
+            </label>
+        </div> <!-- survivors -->
 
         <button
             ng-if="showLoader == false"
@@ -4373,12 +4188,9 @@ class settlement:
                 Create {{settlementName}}
         </button>
 
-        <br/><br/><br/>
+    </form>
 
-        </form>
-
-    </div> <!-- create_new_asset_form_container -->
-
+</div> <!-- create_new_asset_form_container -->
     \n""")
 
 
@@ -4426,9 +4238,7 @@ class settlement:
                     {{settlement.sheet.death_count}} death<span ng-if="settlement.sheet.death_count > 1">s</span>
                 </span>
             </p>
-            <hr class="mobile_only"/>
             <p>Lantern Year: {{settlement.sheet.lantern_year}}, Survival Limit: {{settlement.sheet.survival_limit}}</p>
-            <hr class="mobile_only"/>
         </div> <!-- campaign_summary_headline_container -->
 
         <div class="campaign_summary_panels_container">
@@ -5965,19 +5775,75 @@ class settlement:
             </div>
 
             <div
-                id="innovationDeckContainerdiv"
-                class="innovation_deck"
+                id="innovationDeckContainer"
+                class="innovation_deck settlement_sheet_ui_box"
                 title="The current innovation deck for {{settlement.sheet.name}}. Tap or click to refresh!"
                 ng-if="settlement.sheet.innovations.length != 0"
                 ng-init="setInnovationDeck()"
-                ng-click="setInnovationDeck()"
             >
                 <h3> - Innovation Deck - </h3>
                 <img id="innovationDeckSpinner" class="innovation_deck_spinner" src="/media/loading_io.gif">
-                <ul class="asset_deck">
-                    <li ng-repeat="i in innovation_deck"> {{i}} </li>
+                <ul
+                    class="asset_deck clickable"
+                    ng-click="setInnovationDeck()"
+                >
+                    <li ng-repeat="(handle, dict) in innovation_deck"> {{dict['name']}} </li>
                 </ul>
-            </div>
+
+                <div
+                    class="innovation_quick_pick_container"
+                    ng-if="user.user.subscriber.level > 1"
+                >
+                    <button
+                        id="innovationQuickPickLauncher"
+                        class="kd_blue"
+                        ng-if="innovation_deck != undefined"
+                        onClick="showHide('innovationQuickPickLauncher'); showHide('innovationQuickPick')"
+                        ng-click="createInnovationQuickPick()"
+                    >
+                        Innovate!
+                    </button>
+                    <div
+                        id="innovationQuickPick"
+                        class="innovation_quick_pick hidden"
+                    >
+                        <div class="kd_sheet_ui_row_tip">
+                            Click on an innovation below to add it to settlement innovations!
+                        </div>
+                        <div
+                            class="clickable innovation_quick_pick_item card_gradient"
+                            ng-repeat="h in innovationQuickPickOptions"
+                            ng-init="i = settlement.game_assets.innovations[h]"
+                            ng-click="addInnovation(h); showHide('innovationQuickPick')"
+                        >
+                            <div class="innovation_name">{{i.name}}</div>
+                            <div class="innovation_consequences" ng-if="i.consequences.length > 0">
+                                Consequences:
+                                <span ng-repeat="c_handle in i.consequences">
+                                    {{settlement.game_assets.innovations[c_handle].name}}{{$last ? '' : ', '}}
+                                <span>
+                            </div>
+                            <div class="innovation_survival_limit_bar" ng-if="i.survival_limit != undefined">
+                                Survival Limit +{{i.survival_limit}}
+                            </div>
+                        </div>
+                        <button
+                            class="kd_blue"
+                            ng-if="innovation_deck != undefined"
+                            ng-click="createInnovationQuickPick()"
+                        >
+                            Draw again!
+                        </button>
+                        <button
+                            class="kd_alert_no_exclaim"
+                            onClick="showHide('innovationQuickPickLauncher'); showHide('innovationQuickPick')"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            
+            </div> <!-- innovationDeckContainer -->
 
 
         </div> <!-- settlement_sheet_block_group innovations-->
@@ -6517,11 +6383,6 @@ class meta:
         version = settings.get('application', 'version'),
     )
 
-    close_body = """\n
-    </div><!-- container -->
-    </body>
-    </html>
-    """
     saved_dialog = """\n
     <div id="saved_dialog" class="saved_dialog_frame" style="">
         <div class="kd_blue saved_dialog_inner">
@@ -6569,63 +6430,6 @@ class meta:
     \n""")
 
 
-    burger_top_level_button = Template("""\n
-    <form method="POST" action="/"><input type="hidden" name="change_view" value="$view"/>
-    <button class="sidenav_top_level" onclick="showFullPageLoader(); closeNav()"> $link_text </button>
-    </form>
-    \n""")
-    burger_new_settlement = '<div id="mySidenav" class="sidenav">' + burger_top_level_button.safe_substitute(link_text = "Return to Dashboard", view = "dashboard") + '</div><!-- mySidenav -->' + '<button id="floating_dashboard_button" class="gradient_silver" onclick="openNav()"> &#9776; </button>'
-    burger_change_view_button = Template("""\n
-    <form method="POST" action="/">
-    <input type="hidden" name="$target_view" value="$settlement_id" />
-    <button class="sidenav_button" onclick="showFullPageLoader(); closeNav()">$link_text</button>
-    </form>
-    \n""")
-
-    burger_export_button = Template("""\n
-    <form method="POST" action="/">
-     <input type="hidden" name="export_campaign" value="XLS"/>
-     <input type="hidden" name="asset_id" value="$settlement_id"/>
-     <button class="sidenav_button"> $link_text </button>
-    </form>
-    \n""")
-
-    burger_anchors_campaign_summary = """\n
-    <a href="#" onclick="closeNav()">Survivors</a>
-    <a href="#endeavors" onclick="closeNav()">Endeavors</a>
-    <a href="#principles" onclick="closeNav()">Principles</a>
-    <a href="#innovations" onclick="closeNav()">Innovations</a>
-    \n"""
-
-    report_error_div = """\n
-    <div
-        id="modalReportError"
-        class="modal hidden"
-    >
-        <div class="modal-content timeline_gradient">
-            <span class="closeModal" onclick="showHide('modalReportError')">×</span>
-            <div class="report_error_container">
-                <h3>Report an Issue or Error</h3>
-                <p>http://kdm-manager.com is a work in progress and is under active development!</p>
-                <p>If you identify an issue with the application, whether a typo, a presentation problem or something more disruptive, there are a number of ways to report it.</p>
-                <p>To submit an issue via email, use the form below:</p>
-                <div class="error_form">
-                    <form method="POST" action="/">
-                        <input type="hidden" name="error_report" value="from_web">
-                        <textarea class="report_error metrophobic" name="body" placeholder="Describe your issue here!"></textarea>
-                        <input
-                            type="submit"
-                            class="kd_alert_no_exclaim"
-                            value="submit"
-                            onclick="showFullPageLoader(); showHide('modalReportError')"
-                        />
-                    </form>
-                </div>
-            </div>
-        </div><!-- modal-content -->
-    </div> <!-- modalReportError -->
-
-    \n"""
     error_report_email = Template("""\n\
     Greetings!<br/><br/>&ensp;User $user_email [$user_id] has submitted an error report!<br/><br/>The report goes as follows:<hr/>$body<hr/>&ensp;...and that's it. Good luck!<br/><br/>Your friend,<br/>&ensp; meta.error_report_email
     \n""")
@@ -6646,249 +6450,9 @@ class meta:
 
 
 
-#
-#   render() funcs are the only thing that goes below here.
-#
-
-def render_burger(session_object=None):
-    """ This renders hamburger ('side nav') menu and controls based on the
-    'view' kwarg value.
-
-    Returns "" (i.e. an empty string) if the view is not dashboard
-    """
-
-    # first, handle all situations in which we don't return a burger button or
-    #   even write the menu
-    no_burger_string = "\n<!-- no burger in this view! -->\n\n"
-    if session_object is None:
-        return no_burger_string
-    elif session_object.session is None:
-        return no_burger_string
-    elif session_object.Settlement is None and session_object.session is None:
-        return no_burger_string
-    elif session_object.Settlement is None and session_object.session is not None:
-        if session_object.session["current_view"] == "new_settlement":
-            pass
-        else:
-            return no_burger_string
-    elif not hasattr(session_object.Settlement, "settlement"):
-        return no_burger_string
-    elif session_object.Settlement.settlement is None:
-        return no_burger_string
-
-    view = session_object.session["current_view"]
-
-    if view not in ["view_campaign","view_settlement","view_survivor","new_settlement"]:
-        return "\n<!-- no burger in '{{view}}' view -->\n\n"
 
 
-    # first, check if we're doing the abbreviated, settlement-less new_settlement
-    # burger and return that, if necessary
-    if view == "new_settlement":
-        return """\n
-            <!-- {{view}} burger -->
-
-            <div id="mySidenav" class="sidenav">
-
-                <form
-                    method="POST"
-                    action=""
-                >
-                    <input type="hidden" name="change_view" value="dashboard" />
-                    <button class="sidenav_top_level" onclick="showFullPageLoader(); closeNav()">
-                        Return to Dashboard
-                    </button>
-                </form>
-
-                <hr/>
-
-                <button
-                    id="reportErrorButton"
-                    onclick="closeNav(); showHide('modalReportError')"
-                >
-                    Report an Issue or Error
-                </button>
-
-                <form
-                    method="POST"
-                    action=""
-                    ng-if="user != undefined"
-                >
-                    <input type="hidden" name="remove_session" value="{{user.user.current_session.$oid}}"/>
-                    <input type="hidden" name="login" value="{{user.user.login}}"/>
-                    <button onclick="showFullPageLoader(); closeNav()">{{user.user.login}}<br/>SIGN OUT</button>
-                </form>
-
-            </div>
-
-            <button id="floating_dashboard_button" class="gradient_silver" onclick="openNav()">
-                &#9776;
-            </button>
-
-            <!-- end {{view}} burger -->
-        """
-
-    # default return, i.e. the return for all views that are NOT the new_settlement
-    # view
-    return """\n
-        <!-- {{view}} burger -->
-
-        <div id="mySidenav" class="sidenav" ng-controller="sideNavController">
-
-            <form
-                method="POST"
-                action=""
-            >
-                <input type="hidden" name="change_view" value="dashboard" />
-                <button class="sidenav_top_level" onclick="showFullPageLoader(); closeNav()">
-                    Return to Dashboard
-                </button>
-            </form>
-
-            <form
-                method="POST"
-                action=""
-                ng-if="user.user.settlements_created < 3 || user.user.subscriber.level > 0"
-            >
-                <input type="hidden" name="change_view" value="new_settlement" />
-                <button class="sidenav_top_level" onclick="showFullPageLoader(); closeNav()">
-			+ Create New Settlement
-		</button>
-            </form>
-
-            <hr/>
-
-            <h3 ng-if="settlement.sheet != undefined">{{settlement.sheet.name}}:</h3>
-            <center ng-if="settlement.sheet == undefined">
-                <img src="/media/loading_lantern.gif" />
-            </center>
-
-
-            <button
-                id="newSurvivorButton"
-                class="sidenav_button visible"
-                ng-if="settlement.sheet != undefined"
-                ng-click="showHide('modalNewSurvivorContainer')"
-                onclick="closeNav()"
-            >
-                + Create New Survivor
-            </button>
-
-            <button
-                id="bulkAddOpenerButton"
-                class="sidenav_button hidden"
-                ng-click="showHide('modalBulkAdd')"
-                onclick="closeNav()"
-            >
-                + Create Multiple Survivors
-            </button>
-
-            <button
-                class="sidenav_button visible"
-                ng-if="settlement != undefined && view != 'campaignSummary'"
-                onclick="closeNav(); showFullPageLoader()"
-                ng-click="postForm('view_campaign', settlement.sheet._id.$oid)"
-            >
-                Campaign Summary
-            </button>
-
-            <button
-                ng-if="user_is_settlement_admin && view != 'settlementSheet'"
-                class="sidenav_button visible"
-                onclick="closeNav(); showFullPageLoader()"
-                ng-click="postForm('view_settlement', settlement.sheet._id.$oid)"
-            >
-                Settlement Sheet
-            </button>
-
-            <button
-                id="modalExpansionsOpener"
-                class="sidenav_button hidden"
-                ng-click="showHide('modalExpansionsManager')"
-                onclick="closeNav()"
-            >
-                Expansion Content
-            </button>
-
-            <button
-                id="timelineOpenerButton"
-                class="sidenav_button hidden"
-                ng-click="showHide('modalTimelineContainer')"
-                onclick="closeNav()"
-            >
-                Timeline
-            </button>
-
-            <button
-                id="settlementNotesOpenerButton"
-                class="sidenav_button hidden"
-                ng-click="showHide('settlementNotesContainer')"
-                onclick="closeNav()"
-                >
-            Notes and Players
-            </button>
-
-            <button
-                id="huntPhaseOpenerButton"
-                class="sidenav_button sidenav_modal_launcher hidden"
-                ng-click="showHide('huntPhaseModal')"
-            >
-                &beta; Hunt Phase
-            </button>
-
-            <h3 ng-if="countSurvivors('departing') > 0">Departing</h3>
-            <form
-                method="POST"
-                action="/"
-                ng-repeat="s in settlement.user_assets.survivors | filter: departingFilter"
-            >
-                <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
-                <button class="sidenav_button" onclick="showFullPageLoader(); closeNav()">{{s.sheet.name}} ({{s.sheet.effective_sex}})</button>
-            </form>
-
-
-            <h3 ng-if="countSurvivors('favorite') > 0">Favorites</h3>
-            <form
-                method="POST"
-                action="/"
-                ng-repeat="s in settlement.user_assets.survivors | filter: favoriteFilter"
-            >
-                <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
-                <button class="sidenav_button" onclick="showFullPageLoader(); closeNav()">{{s.sheet.name}} ({{s.sheet.effective_sex}})</button>
-            </form>
-
-            <hr/>
-
-            <button
-                id="reportErrorButton"
-                onclick="closeNav(); showHide('modalReportError')"
-            >
-                Report an Issue or Error
-            </button>
-
-            <form
-                method="POST"
-                action=""
-                ng-if="user != undefined"
-            >
-                <input type="hidden" name="remove_session" value="{{user.user.current_session.$oid}}"/>
-                <input type="hidden" name="login" value="{{user.user.login}}"/>
-                <button onclick="showFullPageLoader(); closeNav()">{{user.user.login}}<br/>SIGN OUT</button>
-            </form>
-
-        </div> <!-- mySidenav -->
-
-        <button id="floating_dashboard_button" class="gradient_silver" onclick="openNav()">
-            &#9776;
-        </button>
-
-        <!-- end $current_view burger -->
-    """
-
-
-
-
-def render(view_html, head=[], http_headers=None, body_class=None, session_object=None):
+def render(view_html, head=[], http_headers=None, body_class=None, session_object=None, include_templates=[]):
     """ This is our basic render: feed it HTML to change what gets rendered. """
 
     output = http_headers
@@ -6901,6 +6465,11 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
         except AttributeError:
             print view_html
         sys.exit()
+
+
+    #
+    #   HEAD ELEMENT
+    #
 
     output += meta.start_head
 
@@ -6932,35 +6501,36 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
     </script>
     \n"""
 
-
+    output += "</head>"
 
     #
-    # now close the head elements and start writing the body, preparing to print
-    #   it to stdout (i.e. render it as a response
+    #   BODY ELEMENT   
     #
 
-    output += '</head>\n<body class="%s" ng-app="kdmManager" ng-controller="rootController">\n' % body_class
+    # 1. open the body
+    output += '\n<body class="%s" ng-app="kdmManager" ng-controller="rootController">\n' % body_class
 
-    output += render_burger(session_object) # burger goes before container
+    # 3. start the container
+    output += '<div id="container" onclick="closeNav()" >'
 
-    output += """\n
-    <div
-        id="container"
-        onclick="closeNav()"
-    >
-    \n"""
-
-    # experimental hunt phase
-
+    # 4. insert the incoming HTML
     output += view_html
-    output += meta.report_error_div
-    output += meta.close_body
 
-    # all html we render gets this template substitution
-    output = Template(output).safe_substitute(
-            api_url = api.get_api_url(),
-    )
+    output += '</div><!-- container -->'
 
+    # 5. add on all required templates
+    for t in include_templates:
+        output += template_file_to_str(t)
+
+    # 6. close the container and the body
+    output += '</body>\n</html>'
+
+    # 7. turn the who thing into a template and stamp the API URL in
+    output = Template(output).safe_substitute(api_url = api.get_api_url())
+
+    #
+    # print and finish
+    #
     print(output.encode('utf8'))
 
     sys.exit(0)     # this seems redundant, but it's necessary in case we want

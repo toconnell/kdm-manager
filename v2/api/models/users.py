@@ -2,6 +2,7 @@
 
 from bson import json_util
 from bson.objectid import ObjectId
+from copy import copy
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from flask import Response, request
@@ -295,10 +296,12 @@ class User(Models.UserAsset):
         output["user"]["settlements_created"] = utils.mdb.settlements.find({'created_by': self.user['_id'], 'removed': {'$exists': False}}).count()
         output["user"]["survivors_created"] = utils.mdb.survivors.find({'created_by': self.user['_id']}).count()
         output['user']['subscriber'] = self.get_patron_attributes()
-        output["preferences"] = self.get_preferences()
+
+        output['user']['preferences'] = self.get_preferences()
 
         # items common to dashboard and admin_panel
         if return_type in ['dashboard']:
+            output["preferences"] = self.get_preferences('dashboard')
             output["dashboard"] = {}
 #            output["dashboard"]["friends"] = self.get_friends(return_type=list)
             output["dashboard"]["campaigns"] = self.get_settlements(return_type='list_of_dicts', qualifier='player')
@@ -593,27 +596,34 @@ class User(Models.UserAsset):
         return self.user["preferences"][p_key]
 
 
-    def get_preferences(self):
+    def get_preferences(self, return_type=None):
         """ Not to be confused with self.get_preference(), which gets a bool for
         a single preference handle, this renders a JSON-ish return meant to be
         included in the self.serialize() call (and ultimately represented on the
         application dashboard. """
 
-        groups = set()
-        for p_dict in self.Preferences.get_dicts():
-            groups.add(p_dict['sub_type'])
-
-        output = []
-        for g_name in sorted(groups):
-            g_handle = g_name.lower().replace(" ","_")
-            g_dict = {'name': g_name, 'handle': g_handle, 'items': []}
+        if return_type == 'dashboard':
+            groups = set()
             for p_dict in self.Preferences.get_dicts():
-                if p_dict['sub_type'] == g_name:
-                    election = self.get_preference(p_dict['handle'])
-                    p_dict['value'] = election
-                    g_dict['items'].append(p_dict)
-            output.append(g_dict)
+                groups.add(p_dict['sub_type'])
 
+            output = []
+            for g_name in sorted(groups):
+                g_handle = g_name.lower().replace(" ","_")
+                g_dict = {'name': g_name, 'handle': g_handle, 'items': []}
+                for p_dict in self.Preferences.get_dicts():
+                    if p_dict['sub_type'] == g_name:
+                        election = self.get_preference(p_dict['handle'])
+                        p_dict['value'] = election
+                        g_dict['items'].append(p_dict)
+                output.append(g_dict)
+
+            return output
+
+        output = copy(self.user['preferences'])
+        for p_dict in self.Preferences.get_dicts():
+            if self.user['preferences'].get(p_dict['handle']) is None:
+                output[p_dict['handle']] = p_dict['default']
         return output
 
 
