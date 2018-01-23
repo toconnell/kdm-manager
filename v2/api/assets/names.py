@@ -106,7 +106,6 @@ settlements = [
     "The Silver Lantern",
     "The White Lantern",
     "Three Eye Rock",
-    "Tiburn",
     "Tristram",
     "Vizima",
     "Westmarch",

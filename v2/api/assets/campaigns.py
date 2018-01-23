@@ -127,13 +127,9 @@ core_campaign = {
         'saviors': True,
         "name": "People of the Lantern",
         "survival_actions": ["dodge","encourage","dash","surge",'endure'],
-        "always_available": {
-            "location": ["Lantern Hoard"],
-            "innovation": ["Language"],
-        },
         "forbidden": {
-            "location": ["The Sun","Throne"],
-            "innovation": ["Sun Language","Dragon Speech","Radiating Orb"],
+            "locations": ["the_sun","throne"],
+            "innovations": ["sun_language","dragon_speech","radiating_orb"],
         },
         "principles": ["new_life","death","society","conviction"],
         "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
@@ -202,7 +198,7 @@ expansion_campaign = {
         },
         "forbidden": {
             "location": ["the_sun","throne"],
-            "innovation": ["Sun Language","Dragon Speech","Radiating Orb"],
+            "innovation": ["sun_language","dragon_speech","radiating_orb"],
         },
         "principles": ["new_life","death","society","conviction"],
         "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
@@ -224,10 +220,6 @@ expansion_campaign = {
         "name": "The Bloom People",
         'saviors': True,
         "survival_actions": ["dodge","encourage","dash","surge",'endure'],
-        "always_available": {
-            "location": ["Lantern Hoard"],
-            "innovation": ["Language"],
-        },
         "forbidden": {
             "disorders": ["flower_addiction"],
             "quarries": ["flower_knight"],
@@ -259,13 +251,9 @@ expansion_campaign = {
         "name": "People of the Sun",
         "survivor_special_attributes": ['potsun_purified','potsun_sun_eater','potsun_child_of_the_sun'],
         "survival_actions": ["dodge","overcharge","embolden","dash"],
-        "always_available": {
-            "location": ["The Sun","Sacred Pool"],
-            "innovation": ["Sun Language", "Umbilical Bank"],
-        },
         "forbidden": {
-            "location": ["lantern_hoard","exhausted_lantern_hoard"],
-            "innovation": ["leader", "language"],
+            "locations": ["lantern_hoard","exhausted_lantern_hoard"],
+            "innovations": ["leader", "language"],
         },
         "principles": ["potsun_new_life","death","society","conviction"],
         "milestones": ["first_child","first_death","pop_15","innovations_8","nemesis_defeat","game_over"],
@@ -314,13 +302,9 @@ expansion_campaign = {
         "dragon_traits": "1.3.1",
         "survival_actions": ["dodge","encourage","dash","surge"],
         'survivor_special_attributes': ['potstars_scar','potstars_noble_surname','potstars_reincarnated_surname'],
-        "always_available": {
-            "location": ["Throne"],
-            "innovation": ["Dragon Speech","Radiating Orb"],
-        },
         "forbidden": {
-            "location": ["lantern_hoard", "dragon_armory","exhausted_lantern_hoard"],
-            "innovation": ["Language","Lantern Oven","Clan of Death","Family"],
+            "locations": ["lantern_hoard", "dragon_armory","exhausted_lantern_hoard"],
+            "innovations": ["language","lantern_oven","clan_of_death","family"],
         },
         "founder_epithet": "foundling",
         "replaced_story_events": {

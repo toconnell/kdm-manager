@@ -1716,7 +1716,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
         /* survivor sheet admin block - tablet */
     .survivor_sheet_admin_block {width: 400px; float: left; margin-left: 2%; }
     .survivor_sheet_public_toggle {font-size: 15pt; }
-    .kd_sheet_ui_roll_down_controls button {margin: 3%; }
+    .kd_sheet_ui_roll_down_controls button {margin: 3%; padding: 2%; }
     .kd_sheet_ui_roll_down_controls.survivor_admin_controls p {font-size: 17pt; }
     .survivor_admin_controls h4 {margin-bottom: 2%; }
 
@@ -1850,6 +1850,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .survivor_sheet_card_click_to_remove {font-size: 15px; margin-bottom: -50px;}
 
     /* campaign summary Styles - tablet */
+    div.campaign_summary_headline_container p {margin: 0}; 
     h3.monster_subhead {font-size: 17pt; text-align: left; padding-left: 5%; margin: 0; margin-top: 2%; }
     div.user_asset_sheet_error {font-size:20px; width: 40%; position: absolute; right: 0; top: 70px; }
     span.campaign_summary_bullet {font-size: 25px; margin: auto; margin-left: 7%; }
@@ -1952,16 +1953,29 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .campaign_summary_storage_items {display: flex; flex-direction: row; flex-wrap: wrap;  }
     .campaign_summary_storage_item {font-size: 16pt; display: inline-block; width: auto; border: 1px solid #ddd; margin: 1%; padding: 1%; min-width: 20%; }
 
-    /* settlement sheet styles - tablet */
 
-    /* innovation deck - tablet */
+
+    /* settlement sheet styles - tablet */
+   
+        /* settlement sheet kd sheet UI - tablet */
+    .settlement_sheet_kd_sheet_ui_box {padding: 0; width: 470px; }
+    .kd_sheet_ui_row.title {font-size: 22pt; }
+    .kd_sheet_ui_box_row.wrap_row .kd_sheet_ui_box {margin: 10px; }
+    .kd_sheet_ui_row.story_tip {font-size: 18pt; }
+    .kd_sheet_ui_box_row.wrap_row {margin: 0 auto; width: 85% }
+
+        /* settlement sheet - right pane - floaty boxes - tablet */
+    div#asset_management_right_pane {padding-top: 6%; display: flex; flex-direction: row; flex-wrap: wrap; }
+    div#asset_management_right_pane div.settlement_sheet_block_group {width: 470px; margin:auto; margin-bottom: 10%; margin-top: 0; }
+
+        /* innovation deck - tablet */
 
     .settlement_sheet_ui_box {margin-top: 10%; border-width: 5px; }
     .innovation_quick_pick_item .innovation_name {font-size: 19pt; }
     .innovation_quick_pick_item .innovation_consequences {font-size: 13pt; }
     .innovation_quick_pick_item .innovation_survival_limit_bar {font-size: 13pt; }
 
-    /* storage  - tablet */
+        /* settlement sheet storage  - tablet */
     .storage_loading_spinner {font-size: 20pt; }
     .storage_loading_spinner img {width: 30%; }
     .settlement_storage_type_container h3 {font-size: 20pt; text-align: left; padding-left: 7%; margin: 0; margin-top: 5%;  }
@@ -1974,7 +1988,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .storage_location_keywords_rollup {margin-top: 2%; }
     .keywords_rollup_item {font-size: 13pt; }
 
-    /* storage modal - tablet */
+        /* storage modal - tablet */
     .storage_modal_storage_type h3 {margin-top: 2%; margin-bottom: 2%; font-size: 25pt; }
     .storage_modal_storage_location h4 {margin-top: 2%; margin-bottom: 2%; }
     .inventory_row_item_controls {font-size: 15pt; padding: 1%; }
@@ -2041,12 +2055,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     button.permanently_delete {margin-top: 1%; }
 
-
-        /* settlement storage - tablet */
-
-        /* settlement sheet - right pane - floaty boxes - tablet */
-    div#asset_management_right_pane {padding-top: 6%; display: flex; flex-direction: row; flex-wrap: wrap; }
-    div#asset_management_right_pane div.settlement_sheet_block_group {width: 470px; margin:auto; margin-bottom: 10%; margin-top: 0; }
 
     .inventory_repeater_detail div.rules {font-size: 9pt;}
 
@@ -2460,7 +2468,14 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     /* wide settlement sheet styles */
 
-    /* settlement storage - wide */
+        /* settlement sheet kd sheet ui - wide */
+    .kd_sheet_ui_row.title {font-size: 17pt; }
+    .settlement_sheet_kd_sheet_ui_box {width: 340px; } 
+    .kd_sheet_ui_row.story_tip {font-size: 13pt; }
+    .kd_sheet_ui_box_row.wrap_row {width: auto; }
+    .kd_sheet_ui_box_row.wrap_row .kd_sheet_ui_box {margin: 1pt; }
+
+        /* settlement storage - wide */
     .settlement_storage_type_container h3 {font-size: 14pt; }
     .settlement_storage_location h4 {font-size: 12pt; }
     .settlement_storage_location span.arrow {font-size: 8pt; }

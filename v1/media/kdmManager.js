@@ -934,6 +934,8 @@ app.controller('newSurvivorController', function($scope, $http) {
                 console.timeEnd('createNewSurvivor()');
                 $scope.showHide('newSurvivorCreationLoader');
 
+                // re-init the view
+                $scope.reinitialize('createNewSurvivor()');
 
             },
             function(errorPayload) {

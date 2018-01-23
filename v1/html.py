@@ -4130,8 +4130,7 @@ class settlement:
                     <p ng-if="e.subtitle" class="new_settlement_asset"> {{e.subtitle}}</p>
                 </label>
             </div>
-        </div> <!-- expansions -->
-
+        </div> <!-- block_group expansions -->
 
         <div class="create_user_asset_block_group">
             <h2 class="no_ul">Survivors:</h2>
@@ -4153,10 +4152,8 @@ class settlement:
                         class="new_settlement_asset"
                         ng-bind-html="c.desc|trustedHTML"
                     ></p>
-
                 </label>
             </div><!-- specials repeater -->
-        </div> <!-- specials-->
 
         <div ng-if="showLoader" class="new_settlement_loading">
             <img src="/media/loading_io.gif">
@@ -4180,15 +4177,16 @@ class settlement:
             </label>
         </div> <!-- survivors -->
 
-        <button
-            ng-if="showLoader == false"
-            class="kd_blue"
-            ng-click="showHide('fullPageLoader')"
-        >
-                Create {{settlementName}}
-        </button>
+    </div> <!-- block_group survivors -->
 
-    </form>
+    <button
+        ng-if="showLoader == false"
+        class="kd_blue"
+        ng-click="showHide('fullPageLoader')"
+    >
+        Create {{settlementName}}
+    </button>
+</form>
 
 </div> <!-- create_new_asset_form_container -->
     \n""")
@@ -4684,7 +4682,11 @@ class settlement:
                 </div><!-- repeater -->
             </div> <!-- pulse discoveries -->
 
-            <div class="campaign_summary_small_box endeavor_box" ng-controller='availableEndeavorsController'>
+            <div
+                class="campaign_summary_small_box endeavor_box"
+                ng-controller='availableEndeavorsController'
+                ng-if="settlement.sheet.campaign.endeavors.innovations.length > 0"
+            >
                 <h4>- Available Endeavors -</h4>
 
                 <!-- campaign-specific -->
@@ -6163,7 +6165,9 @@ class settlement:
 
 
                     <!-- LOST SETTLEMENTS ANGULARJS app -->
-
+    <div
+        class="lost_settlement_controls_container"
+    >
         <div
             class="settlement_sheet_kd_sheet_ui_box clickable"
             onClick="rollUp('lostSettlementsControl')"
@@ -6337,22 +6341,28 @@ class settlement:
                 </div> <!-- number tumbler -->
             </div>
         </div>
+    </div> <!-- lost_settlement_controls_container -->
 
-        <hr class="mobile_only"/>
 
-        <div class="settlement_sheet_block_group" ng-controller="abandonSettlementController" ng-if="settlement.sheet.abandoned == undefined">
+    <hr class="mobile_only"/>
 
-            <h3>Abandon Settlement</h3>
-            <p>Mark a settlement as "Abandoned" to prevent it from showing up in your active campaigns without removing it from the system.</p>
-            <p class="maroon_text">&nbsp; <b>This cannot be undone.</b></p>
+    <div
+        class="settlement_sheet_block_group"
+        ng-controller="abandonSettlementController"
+        ng-if="settlement.sheet.abandoned == undefined"
+    >
 
-            <button
-                class="kd_alert_no_exclaim red_glow"
-                ng-click="abandonSettlement()"
-            >
-                Abandon Settlement
-            </button>
-        </div>
+        <h3>Abandon Settlement</h3>
+        <p>Mark a settlement as "Abandoned" to prevent it from showing up in your active campaigns without removing it from the system.</p>
+        <p class="maroon_text">&nbsp; <b>This cannot be undone.</b></p>
+
+        <button
+            class="kd_alert_no_exclaim red_glow"
+            ng-click="abandonSettlement()"
+        >
+            Abandon Settlement
+        </button>
+    </div> <!-- abandon controls -->
 
         <!-- remove settlement button -->
         <div

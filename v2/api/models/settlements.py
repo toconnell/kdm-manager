@@ -97,6 +97,7 @@ class Settlement(Models.UserAsset):
             duration = stop - request.start_time
             self.logger.debug("%s initialize() -> in %s" % (self, duration))
 
+        self.campaign_dict = self.get_campaign(dict)
 
 
     def init_asset_collections(self):
@@ -533,12 +534,10 @@ class Settlement(Models.UserAsset):
 
         # check to see if the campaign forbids the asset
         if "forbidden" in self.get_campaign(dict):
-            c_dict = self.get_campaign(dict)
-            for f_key in c_dict["forbidden"]:
-                if "type" in asset_dict.keys() and asset_dict["type"] == f_key:
-                    if asset_dict["handle"] in c_dict["forbidden"][f_key]:
-                        return False
-                    elif asset_dict["name"] in c_dict["forbidden"][f_key]:
+            for f_key in self.campaign_dict["forbidden"]:
+                if asset_dict.get("type", None) == f_key:
+                    if asset_dict["handle"] in self.campaign_dict["forbidden"][f_key]:
+                        self.logger.debug("forbidden: %s" % asset_dict)
                         return False
 
         return True
@@ -1946,9 +1945,8 @@ class Settlement(Models.UserAsset):
         #
 
         # campaign-specific
-        c_dict = self.get_campaign(dict)
-        if c_dict.get('endeavors', None) is not None:
-            for e_handle in c_dict['endeavors']:
+        if self.campaign_dict.get('endeavors', None) is not None:
+            for e_handle in self.campaign_dict['endeavors']:
                 available['campaign'].append(self.Endeavors.get_asset(e_handle))
 
         # innovations and locations
@@ -2886,9 +2884,8 @@ class Settlement(Models.UserAsset):
         output = []
 
         # campaign
-        c_dict = self.get_campaign(dict)
-        if c_dict.get('special_rules', None) is not None:
-            for r in c_dict['special_rules']:
+        if self.campaign_dict.get('special_rules', None) is not None:
+            for r in self.campaign_dict['special_rules']:
                 output.append(r)
 
         # expansions and locations
@@ -2927,7 +2924,6 @@ class Settlement(Models.UserAsset):
         """
 
         options = []
-        c_dict = self.get_campaign(dict)
 
         # first check our campaign and expansion assets, and get all options
         if monster_type in self.get_campaign(dict):
@@ -2956,8 +2952,8 @@ class Settlement(Models.UserAsset):
 
         # remove anything that the campaign forbids
         forbidden = []
-        if "forbidden" in c_dict.keys() and monster_type in c_dict["forbidden"].keys():
-            forbidden.extend(c_dict["forbidden"][monster_type])
+        if "forbidden" in self.campaign_dict.keys() and monster_type in self.campaign_dict["forbidden"].keys():
+            forbidden.extend(self.campaign_dict["forbidden"][monster_type])
         for m_handle in forbidden:
             if m_handle in final_set:
                 final_set.remove(m_handle)
