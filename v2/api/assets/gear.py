@@ -988,7 +988,6 @@ white_box_promo = {
         'rules': ['+1 Accuracy'],
         'desc': 'You may archive this to gain 1 <b>Broken Lantern</b> basic resource and 1 survival.',
     },
-    'xmaxe': {'expansion': 'white_box', 'type': 'promo', 'name': 'Xmaxe'},
 
     # gear recipe
     'cloth_leggings': {
@@ -1017,6 +1016,17 @@ white_box_promo = {
         'desc': 'When you are encouraged, gain +1 insanity if your settlement is <b>Barbaric</b> or gain +1 survival if your settlement is <b>Romantic</b>.',
     },
     'vagabond_armor_set': {'expansion': 'white_box', 'type': 'gear_recipe', 'name': 'Vagabond Armor Set'},
+    'xmaxe': {
+        'expansion': 'white_box',
+        'type': 'gear_recipe',
+        'name': 'Xmaxe',
+        'keywords': ['weapon', 'melee','axe','other'],
+        'rules': ['Irreplaceable'],
+        'desc': "This weapon's strength is equal to your current insanity.",
+        'recipes': [
+            {'innovations': ['sculpture','story_telling'], 'resource_types': {'bone': 2, 'leather': 2}, 'resource_handles': {'fresh_acanthus': 1},},
+        ],
+    },
 
     # ivory carver
     'white_dragon_gauntlets': {

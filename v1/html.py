@@ -4043,10 +4043,9 @@ class settlement:
 
 <span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
 <span class="nav_bar_mobile mobile_only settlement_sheet_gradient"></span>
-<span class="top_nav_spacer mobile_only"> hidden </span>
 
 <div
-    id="create_new_asset_form_container"
+    class="create_new_asset_form_container"
     ng-controller="newSettlementController"
     ng-init="
         setView('newSettlement');

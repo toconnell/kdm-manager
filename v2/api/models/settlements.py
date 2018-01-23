@@ -537,7 +537,6 @@ class Settlement(Models.UserAsset):
             for f_key in self.campaign_dict["forbidden"]:
                 if asset_dict.get("type", None) == f_key:
                     if asset_dict["handle"] in self.campaign_dict["forbidden"][f_key]:
-                        self.logger.debug("forbidden: %s" % asset_dict)
                         return False
 
         return True

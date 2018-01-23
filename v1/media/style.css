@@ -558,6 +558,7 @@ img.latest_fatality {width: 300px; float: right; margin: 10px; }
 
 
 /* asset creation styles */
+.create_new_asset_form_container {margin-top: 150px; }
 div.create_user_asset_block_group {margin: 4%; margin-top: 0; }
 div.create_user_asset_block_group h2 {padding-left: 3%; margin-bottom: 0; }
 div.create_user_asset_block_group p {margin: 0; padding: 1%; padding-bottom: 2%; font-size: 40px;}
@@ -1522,6 +1523,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
 
     /* asset creation styles - tablet */
+    .create_new_asset_form_container {margin-top: 75px; }
     input.kd_css_checkbox + label:before, span.kd_checkbox_checked {font-size: 33px; margin-left: 4%; margin-right: 2%; }
     div.create_user_asset_block_group {margin: auto; width: 70%; }
     div.create_user_asset_block_group input {font-size: 80px; }
@@ -2293,7 +2295,8 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
         /* bulk add new survivors - wide */
     div.create_user_asset_block_group input[type="email"] {font-size: 12pt; }
 
-    div#create_new_asset_form_container {width: 700px; border: 0; margin: 0 auto; padding: 10px; text-align: justify; font-size: 12pt; }
+    .create_new_asset_form_container {width: 700px; border: 0; margin: 0 auto; padding: 10px; text-align: justify; font-size: 12pt; margin-top: 50px; }
+    .create_new_asset_form_container button {width: 350px; display:block; margin: 0 auto; margin-top: 50px; margin-bottom: 50px; }
     div.create_user_asset_block_group {display: flex; flex-direction: column; }
     div.create_user_asset_block_group input {font-size: 30pt; }
     div.create_user_asset_block_group p {font-size: 12pt; margin-bottom: 2%; text-align: left; }
