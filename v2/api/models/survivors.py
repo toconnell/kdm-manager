@@ -986,7 +986,7 @@ class Survivor(Models.UserAsset):
             self.check_request_params(['avatar'])
             avatar = self.params['avatar']
             if len(avatar) % 4:
-                self.logger.debug('padding!')
+#                self.logger.debug('padding!')
                 avatar += '=' * (4 - len(avatar) % 4)
             try:
                 avatar = avatar.decode('base64')
@@ -3140,7 +3140,7 @@ class Survivor(Models.UserAsset):
                 name, handle = i
                 if name in self.survivor['expansion_attribs'].keys():
                     self.survivor[handle] = True
-                    self.logger.debug(name)
+#                    self.logger.debug(name)
             del self.survivor['expansion_attribs']
         else:
             pass

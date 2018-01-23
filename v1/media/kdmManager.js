@@ -414,7 +414,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
 
                     // finish initializing the settlement
                     $rootScope.hideControls = false; 
-                    $scope.postJSONtoAPI('settlement', 'set_last_accessed', {}, false, false);
+                    $scope.postJSONtoAPI('settlement', 'set_last_accessed', {}, false, false, false);
 
                     console.timeEnd('initializeSettlement()');
 
@@ -452,12 +452,16 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
     }
 
 
-    $scope.reinitialize = function() {
+    $scope.reinitialize = function(caller) {
 
         //postJSONtoAPI() sometimes calls this to refresh the view after a
         // significant update.
 
-        console.warn("Re-initializing view...");
+        if (caller === undefined) {
+            console.warn("Re-initializing view...");
+        } else {
+            console.warn(caller + " method wants to reinitialize the view...");
+        };
         showCornerLoader();
         if ($scope.view === 'survivorSheet') {
             $scope.initializeSurvivor();
@@ -705,25 +709,26 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         var config = {"headers": {"Authorization": $scope.jwt}};
 
         // create the URL and do the POST
-        var url = $scope.api_url + collection + "/" + action + "/" + asset_id;
+        var endpoint = collection + "/" + action + "/" + asset_id;
+        var url = $scope.api_url + endpoint;
         var res = $http.post(url, json_obj, config);
 
         res.success(function(data, status, headers, config) {
-            console.warn("postJSONtoAPI() call successful!");
+            console.warn("postJSONtoAPI(/'" + endpoint + "') call successful!");
             console.timeEnd('postJSONtoAPI(' + collection + ', ' + action + ')');
             if (update_sheet === true) {
                 console.warn('Updating ' + collection + ' sheet from response!');
                 $scope[collection] = data;
             };
             sleep(1000).then(() => {
-                if (reinit === true) {$scope.reinitialize()};
+                if (reinit === true) {$scope.reinitialize('postJSONtoAPI(/' + endpoint + ')')};
                 if (show_alert === true) {savedAlert();}
             });
             hideCornerLoader();
         });
         res.error(function(data, status, headers, config) {
             errorAlert();
-            console.error("postJSONtoAPI() call has FAILED!!!");
+            console.error("postJSONtoAPI('" + endpoint + "') call has FAILED!!!");
             console.error(data);
             showAPIerrorModal(data, config.url);
             hideCornerLoader();

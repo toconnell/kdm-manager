@@ -850,15 +850,6 @@ span.milestone_story_event {clear: left; display: block; margin-left: 10%; font-
 span.milestone_story_reference {font-size: 40px;}
 
 
-    /*lost settlement app - mobile*/
-div.lost_settlement_squares {margin-left: 4%; margin-right: 4%; margin-top: 5%; }
-span.lost_settlement {display: inline-block; border: 0.1em solid #000; width: 50px; height: 50px; }
-span.bold_check_box {border: 0.2em solid #000; width: 40px; height: 40px; }
-span.lost_settlement_checked {width: 50px; height: 50px; background-color: #000; }
-div.lost_settlements_controls {width: 100%; text-align: center; margin: 0 auto; margin-top: 5%; }
-div.lost_settlements_controls button {width: 45%; display: inline-block; margin: 0 auto;}
-
-
 div.principles_container {display: flex; flex-direction: column; align-items: baseline; }
 div.unset_principle_container {margin-bottom: 20%; margin-top: -7%; margin-left: 3.5%; }
 
@@ -899,26 +890,33 @@ div#info_box h2, button#survivor_campaign_asset, button.dashboard_asset {text-al
 
 /* OG sheet ui, my glib-globs! - classic UI - mobile */
 
-.survivor_sheet_kd_sheet_ui_box {margin: 0 auto; border: 2px solid #000; width: 93%; padding: 2%; clear:both; margin-bottom: 3%; padding-top: 3%; }
+.survivor_sheet_kd_sheet_ui_box,
+    .settlement_sheet_kd_sheet_ui_box {margin: 0 auto; border: 2px solid #000; width: 93%; padding: 2%; clear:both; margin-bottom: 3%; padding-top: 3%; }
+.settlement_sheet_kd_sheet_ui_box {border: 0; }
 .kd_sheet_ui_outer_ring_container {background-color: #fff; position: absolute; width: 100%; min-height: 100%; }
 .kd_sheet_ui_inner_ring_container {background-color: #fff; color: #000; border: 15px solid #000; margin: 0 auto; margin: 2%; }
 .kd_sheet_ui_row {display: flex; flex-direction: row; justify-content: space-between; margin-bottom: 4%; align-items: baseline; }
 .kd_sheet_ui_row.full_height_bullet {}
 .kd_sheet_ui_row .bullet_box {width: 50px; height: 50px; border-radius: 100%; background-color: #000; }
 .kd_sheet_ui_row .bullet_legend {width: 90%; }
+.kd_sheet_ui_row.story_tip {margin: 4%; justify-content: left; font-size: 40pt; display: flex; align-items: center;}
 .kd_sheet_ui_row.one_line_tip {font-size: 25pt; justify-content: left; align-items: flex-end; }
-.kd_sheet_ui_row.one_line_tip.justified {font-size: 35pt; justift-content: center;}
+.kd_sheet_ui_row.one_line_tip.justified {font-size: 35pt; justify-content: center;}
 .kd_sheet_ui_row.one_line_tip .kd_sheet_ui_box {margin-right: 1%; width: 10px; height: 10pt; }
 .kd_sheet_ui_row.one_line_tip .kd_sheet_ui_box.first {margin-left: 2%;}
 .kd_sheet_ui_row.dynamic_tip_row {justify-content: space-around; }
 .kd_sheet_ui_row.dynamic_tip_row .dynamic_tip_container {width: auto; margin-right: 1%; font-size: 30pt; }
 .kd_sheet_ui_row.dynamic_tip_row .dynamic_tip_container * {word-wrap: none; flex-shrink: 0; margin-right: 2%; }
+.kd_sheet_ui_row.dynamic_tip_row .lost_settlement_tip {width: 50%; text-align: left; }
 .kd_sheet_ui_row div {width: 49%; font-size: 30pt; display: flex; flex-direction: row; }
 .kd_sheet_ui_row .title {font-size: 42pt; }
+.kd_sheet_ui_row.title {font-size: 70pt; font-weight: bold; }
 .kd_sheet_ui_row .title.short {width: 35%; font-weight: bold; font-size: 38pt;}
-.kd_sheet_ui_row_tip {font-size: 30pt; font-family: Metrophobic; padding: 2%; background-color: #FFFFEC; color: #66411E}
+.kd_sheet_ui_row_tip {font-size: 30pt; font-family: Metrophobic; padding: 2%; background-color: #FFFFEC; color: #66411E; }
 .kd_sheet_ui_box_row {display: flex; flex-direction: row; flex-wrap: nowrap; }
 .kd_sheet_ui_box_row.long {width: 60%; }
+.kd_sheet_ui_box_row.wrap_row {flex-wrap: wrap; justify-content: space-around;}                   /* lost settlements */
+.kd_sheet_ui_box_row.wrap_row .kd_sheet_ui_box {margin: 21px; }
 .kd_sheet_ui_box_row.hunt_xp {align-items: baseline; }
 .kd_sheet_ui_box_row.hunt_xp .title {flex-shrink: 0; margin-right: 3%; }
 .kd_sheet_ui_box_row.hunt_xp .kd_sheet_ui_box {margin-right: 1%; }
@@ -2047,16 +2045,9 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
         /* settlement storage - tablet */
 
         /* settlement sheet - right pane - floaty boxes - tablet */
-    div.lost_settlements {margin: 0; padding: 0%; }
     div#asset_management_right_pane {padding-top: 6%; display: flex; flex-direction: row; flex-wrap: wrap; }
     div#asset_management_right_pane div.settlement_sheet_block_group {width: 470px; margin:auto; margin-bottom: 10%; margin-top: 0; }
 
-    div.lost_settlement_squares {margin-top: -5px; padding: 0; }
-    span.lost_settlement_box_socket {padding: 0; margin: 0; display: inline-block; height: 1px; width: 15px; margin-right: 7px; } 
-    span.lost_settlement {height: 15px; width: 15px; border-width: 2px; margin: 0; }
-    span.lost_settlement.bold_check_box {height: 12px; width: 12px; border: 4px solid #000; }
-    div.lost_settlements_controls {margin-top: -50px; padding: 0; padding-top: 0; }
-    div.lost_settlements_controls button { height: 30px; padding: 0; margin-top: 0; }
     .inventory_repeater_detail div.rules {font-size: 9pt;}
 
         /* tablet width: burger queen */
@@ -2659,9 +2650,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.settlement_sheet_nemesis_line_item {width: 100%; }
 
         /* right pane styles - wide */
-    div.lost_settlements_controls {margin-top: -10px;}
-    span.lost_settlement {height: 15px; width: 15px; border-width: 2px; margin: 0; }
-    span.lost_settlement.bold_check_box {height: 12px; width: 12px; border: 4px solid #000; }
 
     div#asset_management_right_pane {border-right: 1px solid #999; }
     div.survivor_sheet_block_group {width: 100%; }

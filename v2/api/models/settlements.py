@@ -848,55 +848,78 @@ class Settlement(Models.UserAsset):
         self.save()
 
 
-    def add_location(self):
-        "Adds a location to the settlement. """
+    def add_location(self, loc_handle=None, save=True):
+        "Adds a location to the settlement. Expects a request context"""
 
-        loc_handle = self.params["handle"]
+        if loc_handle is None:
+            self.check_request_params(['handle'])
+            loc_handle = self.params["handle"]
 
-        # first, verify that the incoming handle is legit
+        #
+        #   SANITY CHECK
+        #
+
+        # verify that the incoming handle is legit
         loc_dict = self.Locations.get_asset(loc_handle)
 
-        # next, make sure it's not a dupe
+        # make sure it's not a dupe
         if loc_handle in self.settlement["locations"]:
             self.logger.error("Ignoring request to add duplicate location handle '%s' to settlement." % loc_handle)
             return False
 
-        # now add it
+        # check whether the loc is selectable; if not, refuse it
+        if not loc_dict.get('selectable', True):
+            raise utils.InvalidUsage("Refusing to add non-selectable '%s' location to settlement!" % loc_dict['name'])
+
+
+        #
+        #   UPDATE
+        #
+
+        # append it (do not sort)
         self.settlement["locations"].append(loc_handle)
 
         # do levels
         if "levels" in loc_dict.keys():
             self.settlement["location_levels"][loc_handle] = 1
 
-        # log and save
+        # log and (optional) save
         self.log_event(key="locations", value=loc_dict['name'])
-        self.save()
+        if save:
+            self.save()
 
 
-    def rm_location(self):
+    def rm_location(self, loc_handle=None, save=True):
         """ Removes a location from the settlement. Requires a request.User
         object, i.e. should not be called unless it is part of a request.  """
 
-        # spin everything up
-        loc_handle = self.params["handle"]
+        if loc_handle is None:
+            self.check_request_params(['handle'])
+            loc_handle = self.params["handle"]
+
+        #
+        #   SANITY CHECK
+        #
+
+        # verify that the incoming handle is legit
         loc_dict = self.Locations.get_asset(loc_handle)
 
-        # first, see if it's a real handle
-        if loc_handle not in self.Locations.get_handles():
-            self.logger.error("Location asset handle '%s' does not exist!" % loc_handle)
-            return False
-
-        # now check to see if it's there to remove in the first place
+        # check to see if it's there to remove in the first place
         if loc_handle not in self.settlement["locations"]:
             self.logger.warn("Ignoring attempt to remove %s from %s locations  (because it is not there)." % (loc_handle, self))
             return False
 
+        #
+        #   UPDATE
+        #
+
         # now do it
         self.settlement["locations"].remove(loc_handle)
 
-        # log and save
+        # log and (optional) save
         self.log_event(key="locations", value=loc_dict['name'])
-        self.save()
+        if save:
+            self.save()
 
 
     def add_milestone(self, handle=None):
@@ -933,61 +956,98 @@ class Settlement(Models.UserAsset):
         self.save()
 
 
-    def add_innovation(self, i_handle=None):
-        """ Adds an innovation to the settlement. Does business logic. """
+    def add_innovation(self, i_handle=None, save=True):
+        """ Adds an innovation to the settlement. Request context optional.
+
+        NB: this method (and rm_innovations(), which basically is its inverse)
+        does NOT process current survivors.
+
+        Which, to put that another way, means that you SHOULD NOT be using this
+        method to add principle-type innovations to the settlement!
+        """
 
         if i_handle is None:
             self.check_request_params(["handle"])
             i_handle = self.params["handle"]
 
-        # first, pass/ignore if we're trying to add an innovation twice:
-        if i_handle in self.get_innovations():
-            self.logger.warn("%s Attempted to add duplicate innovation handle, '%s'" % (request.User, i_handle))
-            return False
+        #
+        #   SANITY CHECK
+        #
 
-        # now try to get the dict; bail if it's bogus
+        # verify the handle by initializing it
         i_dict = self.Innovations.get_asset(i_handle)
 
-        # finally, do it and log it
+        # pass/ignore if we're trying to add an innovation twice:
+        if i_handle in self.settlement['innovations']:
+            self.logger.warn("%s Attempt to add duplicate innovation handle, '%s'. Ignoring... " % (request.User, i_handle))
+            return False
+
+        # refuse to add principles
+        if i_dict.get('sub_type', None) == 'principle':
+            raise utils.InvalidUsage("'Principle-type innovations such as '%s' may not be added this way. Use the set_principle route instead." % (i_dict['name']))
+
+        #
+        #   UPDATE
+        #
+
+        # append (do not sort)
         self.settlement["innovations"].append(i_handle)
 
+        # levels
         if i_dict.get("levels", None) is not None:
             self.settlement["innovation_levels"][i_handle] = 1
 
-        # log and save
+        # log and (optional) save
         self.log_event(key="innovations", value=i_dict['name'])
-        self.save()
-
-        # now do survivor post-processing
-        if i_dict.get("current_survivor", None) is not None:
-            self.update_all_survivors("increment", i_dict["current_survivor"])
+        if save:
+            self.save()
 
 
-    def rm_innovation(self):
-        """ Removes an innovation from the settlement. Requires request.User
-        object, i.e. should not be called unless it is part of a request.  """
 
-        # first, try to initialize an innovations.Innovation object
-        try:
-            I = innovations.Innovation(self.params["handle"])
-        except:
-            self.logger.error("Could not initialize innovation asset from dict: %s" % self.params["handle"])
-            self.logger.error("Unable to remove '%s' from %s innovations!" % (self.params["handle"], self))
-            self.logger.error("Bad params were: %s" % self.params)
-            raise Exception
+    def rm_innovation(self, i_handle=None, save=True):
+        """ Removes an innovation from the settlement. Request context is
+        optional.
 
-        if I.handle not in self.settlement["innovations"]:
-            self.logger.warn("Ignoring attempt to remove %s to %s innovations (because it is not there)." % (I, self))
+        This method DOES NOT do anything to innovation levels, which stay saved
+        on the settlement. If the user re-adds the innovation, it automatically
+        sets the level back to one.
+
+        Otherwise, this is just a mirror of add_innovation (above), so
+        if you haven't read that doc string yet, I don't know what you're
+        waiting for. """
+
+        if i_handle is None:
+            self.check_request_params(["handle"])
+            i_handle = self.params["handle"]
+
+        #
+        #   SANITY CHECK
+        #
+
+        # verify the handle by initializing it
+        i_dict = self.Innovations.get_asset(i_handle)
+
+        # ignore bogus requests
+        if i_handle not in self.settlement["innovations"]:
+            self.logger.warn("%s Bogus attempt to remove non-existent innovation '%s'. Ignoring..." % (request.User, i_dict['name']))
             return False
 
-        # do it, log and save
-        self.settlement["innovations"].remove(I.handle)
-        self.log_event(key="innovations", value=I.name)
-        self.save()
+        # refuse to add principles
+        if i_dict.get('sub_type', None) == 'principle':
+            raise utils.InvalidUsage("'Principle-type innovations such as '%s' may not be removed this way. Use the set_principle route instead." % (i_dict['name']))
 
-        # now do survivor post-processing
-#        if i_dict.get("current_survivor", None) is not None:
-#            self.update_all_survivors("decrement", i_dict["current_survivor"])
+        #
+        #   UPDATE
+        #
+
+        # remove
+        self.settlement["innovations"].remove(i_handle)
+
+        # log and (optional) save
+        self.log_event(key="innovations", value=i_dict['name'])
+        if save:
+            self.save()
+
 
 
     def add_settlement_admin(self, user_login=None):
@@ -1394,7 +1454,7 @@ class Settlement(Models.UserAsset):
             self.settlement["principles"].remove(principle_handle)
             self.logger.debug("%s removed '%s' from %s principles" % (request.User, principle_handle, self))
             if principle_dict.get("current_survivor", None) is not None:
-                self.update_all_survivors("decrement", principle_dict["current_survivor"])
+                self.update_all_survivors("decrement", principle_dict["current_survivor"], exclude_dead=True)
 
 
         # do unset logic
@@ -1430,7 +1490,7 @@ class Settlement(Models.UserAsset):
 
         # post-processing: add 'current_survivor' effects
         if e_dict.get("current_survivor", None) is not None:
-            self.update_all_survivors("increment", e_dict["current_survivor"])
+            self.update_all_survivors("increment", e_dict["current_survivor"], exclude_dead=True)
 
 
     def set_showdown_type(self, showdown_type=None):
@@ -1466,7 +1526,7 @@ class Settlement(Models.UserAsset):
         self.save()
 
 
-    def update_all_survivors(self, operation=None, attrib_dict={}):
+    def update_all_survivors(self, operation=None, attrib_dict={}, exclude_dead=False):
         """ Performs bulk operations on all survivors. Use 'operation' kwarg to
         either 'increment' or 'decrement' all attributes in 'attrib_dict'.
 
@@ -1486,19 +1546,23 @@ class Settlement(Models.UserAsset):
             raise Exception
 
         for s in self.survivors:
-            for attribute, modifier in attrib_dict.iteritems():
-                if operation == 'increment':
-                    if attribute == 'abilities_and_impairments':
-                        for ai_handle in modifier:  # 'modifier' is a list here
-                            s.add_game_asset('abilities_and_impairments', ai_handle)
-                    else:
-                        s.update_attribute(attribute, modifier)
-                elif operation == 'decrement':
-                    if attribute == 'abilities_and_impairments':
-                        for ai_handle in modifier:  # 'modifier' is a list here
-                            s.rm_game_asset('abilities_and_impairments', ai_handle)
-                    else:
-                        s.update_attribute(attribute, -modifier)
+            if exclude_dead and s.is_dead():
+                pass
+            else:
+                for attribute, modifier in attrib_dict.iteritems():
+                    if operation == 'increment':
+                        if attribute == 'abilities_and_impairments':
+                            for ai_handle in modifier:  # 'modifier' is a list here
+                                s.add_game_asset('abilities_and_impairments', ai_handle)
+                        else:
+                            s.update_attribute(attribute, modifier)
+                    elif operation == 'decrement':
+                        if attribute == 'abilities_and_impairments':
+                            for ai_handle in modifier:  # 'modifier' is a list here
+                                s.rm_game_asset('abilities_and_impairments', ai_handle)
+                        else:
+                            s.update_attribute(attribute, -modifier)
+
 
     def update_attribute(self):
         """ Assumes a request context and looks for 'attribute' and 'modifier'
@@ -1728,6 +1792,65 @@ class Settlement(Models.UserAsset):
         self.log_event("%s set '%s' innovation level to %s." % (request.User.login, i_dict["name"], level), event_type="set_innovation_level")
 
         self.save()
+
+
+    def replace_game_assets(self):
+        """ Works just like the method of the same name in the survivor class,
+        but for settlements.
+
+        This one REQUIRES A REQUEST CONTEXT and cannot be called without one. It
+        also does not accept any arguments, because, again, it should only be
+        called when there's a POST body to parse for arguments.
+
+        Must like the Survivor version, this creates two lists: handles to add
+        and handles to remove, and then does them one by one. If it fails at any
+        point, the whole thing is a wash and we don't save any changes.
+        """
+
+        self.check_request_params(['type','handles'])
+        asset_class = self.params['type']
+        asset_handles = self.params['handles']
+
+        if asset_class not in self.settlement.keys():
+            raise utils.InvalidUsage("The settlement objects does not have an '%s' attribute!" % asset_class)
+        elif type(self.settlement[asset_class]) != list:
+            raise utils.InvalidUsage("The settlement object '%s' attribute is not a list type and cannot be updated with this method!" % asset_class)
+        elif type(asset_handles) != list:
+            raise utils.InvalidUsage("'handles' value must be a list/array type!")
+
+        # special check (transitional) for supported attribs
+        supported_attribs = ['innovations','locations']
+        if asset_class not in supported_attribs:
+            raise utils.InvalidUsage("This route currently only supports updates to the following attribute keys: %s!" % utils.list_to_pretty_string(supported_attribs, quote_char="'"))
+
+        # 0.) force incoming asset_handles to be a set
+        asset_handles = set(asset_handles)
+
+        # 1.) initialize holder sets
+        handles_to_add = [h for h in asset_handles if h not in self.settlement[asset_class]]
+        handles_to_rm = [h for h in self.settlement[asset_class] if h not in asset_handles]
+
+        # 1.a) bail if we've got no changes to make
+        if handles_to_add == [] and handles_to_rm == []:
+            self.logger.warn("%s Incoming replace_game_assets() request makes no changes! Ignoring..." % self)
+            return True
+
+        # 2.) if we're still here, iterate over the lists
+        if asset_class == 'innovations':
+            for r in handles_to_rm:
+                self.rm_innovation(r, save=False)
+            for a in handles_to_add:
+                self.add_innovation(a, save=False)
+        elif asset_class == 'locations':
+            for r in handles_to_rm:
+                self.rm_location(r, save=False)
+            for a in handles_to_add:
+                self.add_location(a, save=False)
+
+
+        self.save()
+
+
 
 
 
@@ -3532,6 +3655,9 @@ class Settlement(Models.UserAsset):
             self.rm_timeline_event(self.params)
 
         # innovations, locations, etc.
+        elif action == "replace_game_assets":
+            self.replace_game_assets()
+
         elif action == "add_location":
             self.add_location()
         elif action == "rm_location":
@@ -3603,7 +3729,14 @@ class Settlement(Models.UserAsset):
             self.logger.warn("Unsupported settlement action '%s' received!" % action)
             return utils.http_400
 
-        # finish successfully
+        # support special response types
+        if "response_method" in self.params:
+            exec "payload = self.%s()" % self.params['response_method']
+            return Response(payload, status=200, mimetype="application/json")
+        elif "serialize_on_response" in self.params:
+            return Response(self.serialize(), status=200, mimetype="application/json")
+
+        # default return
         return utils.http_200
 
 

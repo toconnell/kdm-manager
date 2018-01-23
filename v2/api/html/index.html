@@ -1092,6 +1092,44 @@
             </td>
         </tr>
 
+        
+        <tr>
+            <td class="subsection_header" colspan="3">
+                <p><b>Game Asset management:</b> use the methods below to update
+                list-/array-type attributes of the Settlement that contain game
+                asset handles, e.g. <code>locations</code>, <code>innovations</code>
+                and similar.
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/replace_game_assets/&lt;settlement_id&gt; </td>
+            <td> <b>POST</b> </td>
+            <td>
+                <p>This route accepts a list of handles and a type of game asset
+                and then evalutes the settlement's current handles of that type,
+                removing and adding as necessary in order to bring the settlement's
+                list in sync with the incoming list. </p>
+                <p>Your POST body needs to define the attribute <code>type</code>
+                you're trying to update, as well as provide a list of handles
+                that represent the settlement's current asset list:</p>
+                <pre><code>{
+    "type": "locations",
+    "handles": [
+        "lantern_hoard","bonesmith","organ_grinder"
+    ]
+}</code></pre>
+                <p>Finally, a couple of tips/warnings on this route:<ul>
+                    <li>The <code>handles</code> list/array is handled by the API
+                    as if it were a set, i.e. duplicates are silently ignored.</li>
+                    <li>If any part of the update fails (i.e. individual add
+                    or remove operations), the whole update will fail and <u>
+                    no changes to the settlement will be saved</u>.</li>
+                    <li>This route does not support Location or Innovation
+                    levels! (Use <code>set_location_level</code> or <code>
+                    set_innovation_level</code> for that.)</li>
+                </ul></p>
+            </td>
+        </tr>
 
         <!-- monster controls -->
         <tr>

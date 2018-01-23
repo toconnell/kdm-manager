@@ -5,6 +5,34 @@ function reloadSheet() {
 //    console.warn("Settlement Sheet reload form submitted...");
 };
 
+// main app controler; most things should end up here when we de-balkanize
+app.controller("settlementSheetController", function($scope) {
+    $scope.scratch = {} 
+    $scope.setSettlementName = function() {
+        var newName = document.getElementById('settlementName').innerHTML;
+        js_obj = {name: newName};
+        $scope.postJSONtoAPI('settlement', 'set_name', js_obj);
+    };
+    $scope.incrementAttrib = function(attrib, modifier) {
+        if ($scope.settlement.sheet[attrib] + modifier < 0) {return false};
+        var js_obj = {'attribute': attrib, 'modifier': modifier};
+        $scope.settlement.sheet[attrib] += Number(modifier);
+        $scope.postJSONtoAPI('settlement', 'update_attribute', js_obj, false);
+    };
+    $scope.setAttrib = function(attrib, value, reinit) {
+        if (value === undefined) {
+            value = $scope.settlement.sheet[attrib]
+        };
+        if (reinit === undefined) {
+            reinit = true;
+        }; 
+        if (value < 0) {return false};
+        var js_obj = {'attribute': attrib, 'value': value};
+        $scope.postJSONtoAPI('settlement', 'set_attribute', js_obj, reinit);
+    };
+});
+
+
 app.controller("abandonSettlementController", function($scope) {
     $scope.abandonSettlement = function() {
         showFullPageLoader();
@@ -105,26 +133,6 @@ app.controller("storageController", function($scope) {
 
 });
 
-app.controller("settlementSheetController", function($scope) {
-    $scope.scratch = {} 
-    $scope.setSettlementName = function() {
-        var newName = document.getElementById('settlementName').innerHTML;
-        js_obj = {name: newName};
-        $scope.postJSONtoAPI('settlement', 'set_name', js_obj);
-    };
-    $scope.incrementAttrib = function(attrib, modifier) {
-        if ($scope.settlement.sheet[attrib] + modifier < 0) {return false};
-        var js_obj = {'attribute': attrib, 'modifier': modifier};
-        $scope.settlement.sheet[attrib] += Number(modifier);
-        $scope.postJSONtoAPI('settlement', 'update_attribute', js_obj, false);
-    };
-    $scope.setAttrib = function(attrib, value) {
-        if (value < 0) {return false};
-        var js_obj = {'attribute': attrib, 'value': value};
-        $scope.postJSONtoAPI('settlement', 'set_attribute', js_obj);
-    };
-});
-
 app.controller("locationsController", function($scope) {
     $scope.addLocation = function() {
         if ($scope.newLocation === null) {return false};
@@ -162,7 +170,7 @@ app.controller('innovationsController', function($scope) {
         console.time('innovationDeck()');
         $scope.innovation_deck = null;
         $scope.spinner();
-        var res = $scope.postJSONtoAPI('settlement','get_innovation_deck', {return_type: null});
+        var res = $scope.postJSONtoAPI('settlement','get_innovation_deck', {return_type: null}, false, false);
         res.then(
             function(payload) {
                 $scope.innovation_deck = payload.data;
@@ -189,11 +197,14 @@ app.controller('innovationsController', function($scope) {
         if ($scope.newInnovation === null) {return false};
         $scope.settlement.sheet.innovations.push($scope.newInnovation);
         var js_obj = {"handle": $scope.newInnovation};
-        var out = $scope.postJSONtoAPI('settlement', 'add_innovation', js_obj);
+        var res = $scope.postJSONtoAPI('settlement', 'add_innovation', js_obj);
         $scope.newInnovation = null;
-        sleep(500).then(() => {
-            $scope.setInnovationDeck();
-        });
+        res.then(
+            function(payload) {
+                console.warn("innovation added. refreshing deck...")
+                $scope.setInnovationDeck();
+            }
+        );
     };    
     $scope.setInnovationLevel = function(innovation_name,lvl){
         var js_obj = {"handle": innovation_name, "level": lvl};
@@ -202,10 +213,13 @@ app.controller('innovationsController', function($scope) {
     $scope.rmInnovation = function(index, innovation_handle) {
         $scope.settlement.sheet.innovations.splice(index,1);
         var js_obj = {"handle": innovation_handle};
-        $scope.postJSONtoAPI('settlement', 'rm_innovation', js_obj); 
-        sleep(500).then(() => {
-            $scope.setInnovationDeck();
-        });
+        var res = $scope.postJSONtoAPI('settlement', 'rm_innovation', js_obj); 
+        res.then(
+            function(payload) {
+                console.warn("innovation removed. refreshing deck...")
+                $scope.setInnovationDeck();
+            }
+        );
     };
 
     $scope.createInnovationQuickPick = function(n) {
@@ -353,46 +367,5 @@ app.controller('principlesController', function($scope, $http) {
 
         $scope.postJSONtoAPI('settlement', 'set_principle', {"principle": target_principle, "election": false});
     };
-});
-
-app.controller("lostSettlementsController", function($scope,$rootScope) {
-
-    $scope.rmLostSettlement = function () {
-        var cur = Number($scope.current_val);
-        if (cur == 0) {
-//            window.alert("At minimum!");
-        }
-        else { 
-            cur--;
-            $scope.current_val = cur;
-            $scope.postJSONtoAPI('settlement', 'set_lost_settlements', {"value": cur}, false);
-            var e = document.getElementById('box_' + cur);
-            e.classList.remove('lost_settlement_checked');
-        };
-    };
-
-    $scope.addLostSettlement = function () {
-        var cur = Number($scope.current_val);
-        if (cur == 19) {
-            window.alert("At maximum!");
-        }
-        else { 
-            var e = document.getElementById('box_' + cur);
-            e.classList.remove('bold_check_box');
-            e.classList.add('lost_settlement_checked');
-            cur++;
-            $scope.current_val = cur;
-            $scope.postJSONtoAPI('settlement', 'set_lost_settlements', {"value": cur}, false);
-        };
-    };
-
-
-    // Run this on controller init: creates the controls
-    $scope.createLostSettlementControls = function() {
-
-        if ($scope.lost_settlements == undefined) {console.log("lost_settlements count not available!")};
-
-    };
-    
 });
 
