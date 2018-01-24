@@ -481,7 +481,7 @@ class Session:
         #
 
         if "new" in self.params:
-
+            self.logger.info("POST params include 'new' attribute! %s" % self.params)
             params = {}
             params["campaign"] = self.params["campaign"].value
 
