@@ -1,4 +1,4 @@
-0;/*                                              */
+/*                                              */
 /*  DO NOT EDIT Z-INDEX VALUES IN THIS FILE!!!  */
 /*                                              */
 
@@ -7,77 +7,90 @@
 
 @font-face {
     font-family: 'kdm-font-2';
-    src: url('/media/fonts/kdm-font-2.ttf') format('truetype'),
+    src: url('/media/fonts/kdm-font-2.eot?#iefix') format('embedded-opentype'),
+        url('/media/fonts/kdm-font-2.ttf') format('truetype'),
         url('/media/fonts/kdm-font-2-webfont.woff') format('woff'),
         url('/media/fonts/kdm-font-2-webfont.woff2') format('woff2');
 }
-.kdm_font_hit_locations {font-family: 'kdm-font-2'; }
+.kdm_font_2, .kdm_font_hit_locations {font-family: 'kdm-font-2'; }
 
 @font-face {
     font-family: 'kdm-font-10';
-    src: url('/media/fonts/kdm-font-10.ttf') format('truetype'),
+    src: url('/media/fonts/kdm-font-10.eot?#iefix') format('embedded-opentype'),
+        url('/media/fonts/kdm-font-10.ttf') format('truetype'),
         url('/media/fonts/kdm-font-10-webfont.woff') format('woff'),
         url('/media/fonts/kdm-font-10-webfont.woff2') format('woff2');
 }
-.kdm_font {font-family: 'kdm-font-10'; }
+.kdm_font, .kdm_font_10 {font-family: 'kdm-font-10'; }
 
 @font-face {
     font-family: 'Metrophobic';
-/*    src: url('/media/fonts/Metrophobic.woff2') format('woff2'),*/
-    src: url('/media/fonts/Metrophobic.woff') format('woff'),
+    src: url('/media/fonts/Metrophobic.eot?#iefix') format('embedded-opentype'),
+        url('/media/fonts/Metrophobic.woff') format('woff'),
         url('/media/fonts/Metrophobic.ttf') format('truetype');
 }
 .metrophobic {font-family: Metrophobic;}
 
 @font-face {
     font-family: 'Silverado';
-    src: url('/media/fonts/329BC2_0_0.eot');
-    src: url('/media/fonts/329BC2_0_0.eot?#iefix')
-        format('embedded-opentype'), url('/media/fonts/329BC2_0_0.woff2') format('woff2'),
+    src: url('/media/fonts/329BC2_0_0.eot?#iefix') format('embedded-opentype'),
         url('/media/fonts/329BC2_0_0.woff') format('woff'),
+        url('/media/fonts/329BC2_0_0.woff2') format('woff2'),
         url('/media/fonts/329BC2_0_0.ttf') format('truetype');
 }
 
+/* other font stuff - all breakpoints */
 .helvetica {font-family: Helvetica, sans-serif; height: 100%; }
 
 
-    /* UI/UX styles - all breakpoints */
-.centered {text-align: center; }
+/* UI/UX styles - all breakpoints */
 .clickable {cursor: pointer; }
-.ease {  -webkit-transition: all 0.30s ease-in-out;  -moz-transition: all 0.30s ease-in-out;  -ms-transition: all 0.30s ease-in-out;  -o-transition: all 0.30s ease-in-out;}
+.capitalize {text-transform: capitalize;}
 
-    /* color styles - all breakpoints */
+
+/* color styles - all breakpoints */
+
+    /* zebras - all breakpoints */
 .zebra {background-color: #efefef; }
 .no_zebra {background-color: #fff; }
 .storage_zebra {background-color: #ff99aa; }
-.capitalize {text-transform: capitalize;}
 
-    /* Survivor Asset Links Material Design */
-.departing_survivor_badge_color {color: #fff; background-color: #F44336;}
-.returning_survivor_badge_color {color: #fff; background-color: #795548;}
-
-
-    /* topnav gradients */
-.survivor_sheet_gradient {background: linear-gradient(to right, #E6DECC, #f7f3eb, #fefeee, #f7f3eb, #E6DECC);}
-span.survivor_sheet_gradient {border-bottom: 3px solid #D7CCC8;}
+    /* gradients - all breakpoints */
 .campaign_summary_gradient {background: linear-gradient(to right, #EFCE98, #F5E9D2, #fefeee, #F5E9D2, #EFCE98)}
-span.campaign_summary_gradient {border-bottom: 3px solid #D7CCC8;}
-span.campaign_summary_bullet {margin-left: 4%; display: block; }
 .settlement_sheet_gradient {background: linear-gradient(to right, #FFE082, #FFECB3, #FFF8E1, #FFECB3, #FFE082)}
+.survivor_sheet_gradient {background: linear-gradient(to right, #E6DECC, #f7f3eb, #fefeee, #f7f3eb, #E6DECC);}
+
+    /* kd colors - all breakpoints */
+.build_cost_detail {background-color: #0D743A;}
+.innovate_cost_detail {background-color: #0277BD;}
+
+/* top_nav top nav - mobile*/
+span.survivor_sheet_gradient {border-bottom: 3px solid #D7CCC8;}
+span.campaign_summary_gradient {border-bottom: 3px solid #D7CCC8;}
 span.settlement_sheet_gradient {border-bottom: 3px solid #FFE082;}
+
+#floating_refresh_button, #floating_dashboard_button {position: fixed; top: 3px; height: 125px; padding: 3px; border: 2px solid; margin: 0; width: 180px; }
+
+#floating_dashboard_button { left: 3px;  }
+#floating_refresh_button {right: 3px; font-size: 60pt; font-weight: bold; }
+
+.nav_bar, .nav_bar_mobile {box-shadow: 0px 10px 17px #ccc; margin-top: -9px;}
+.nav_bar_mobile, .top_nav_spacer {display: inline-block; height: 135px; }
+.nav_bar_mobile {width: 100%; position: fixed; margin-left: -8px;}
+.top_nav_spacer {margin-bottom: 2%;}
+
 
     /* KD UI emulation */
 
     /* campaign summary - KD endeavor colors */
 div.available_endeavors_build {color: #fff; border-top: 2px solid #0D743A; border-bottom: 2px solid #0D743A; background: linear-gradient(to bottom, #73C26C, #51B952); }
-.build_cost_detail {background-color: #0D743A;}
 div.available_endeavors_innovate {color: #fff; background: linear-gradient(to bottom, #4EC7F1, #40ADD0); border-top: 2px solid #0277BD; border-bottom: 2px solid #0277BD;}
-.innovate_cost_detail {background-color: #0277BD;}
 
 .dead_survivor_gradient {background: radial-gradient(#f4EEE0, #C7C3BF); }
 
     /* box toggling with html entities! */
 input.kd_css_checkbox + label:before, span.kd_checkbox_checked {font-size: 80px; padding: 0; margin:0;}
+span.campaign_summary_bullet {margin-left: 4%; display: block; }
 
 input.kd_css_checkbox + label {padding-bottom: 1%; vertical-align: top; display: flex; flex-direction: row; align-items: center; justify-content: space-around; }
 input.kd_css_checkbox + label:before {content:"\025FB"; }
@@ -496,7 +509,8 @@ div.dashboard_welcome_modal div {text-align: center; width: 80%}
 .system_preference_user_login {}
 .user_info p {font-family: 'Metrophobic';}
 .dashboard_preferences_container p {font-family: 'Metrophobic'; }
-.preferences_sub_block {border-radius: 10px; border: 1px solid #aaa; margin: 3%; }
+.preferences_sub_block {border-radius: 10px; border: 1px solid #aaa; margin: 3%; display: flex; flex-direction: column; }
+.preferences_sub_block p {margin: 0 auto; width: 90%; text-align: center; margin: 1%;  }
 .preferences_change_pw {background-color: #ffFFCC; padding-top: 1%; }
 .preferences_change_pw input {margin: 0 auto; margin-top: 2%;border: none; padding: 1%; padding-bottom: 2%; display: block; width: 90%; padding-left: 5%; }
 .preferences_change_pw button {margin-top: -1%; }
@@ -1232,16 +1246,6 @@ button#remove_item {border-radius: 3px; padding-right: 10px; padding-left: 10px;
 .unclickable {background-color: none; }
 
 
- /* nav bar styles */
-#floating_refresh_button, #floating_dashboard_button {position: fixed; top: 3px; height: 125px; padding: 3px; border: 2px solid; margin: 0; width: 180px; }
-
-#floating_dashboard_button { left: 3px;  }
-#floating_refresh_button {right: 3px; font-size: 60pt; font-weight: bold; }
-
-.nav_bar, .nav_bar_mobile {box-shadow: 0px 10px 17px #ccc; margin-top: -9px;}
-.nav_bar_mobile, .top_nav_spacer {display: inline-block; height: 135px; }
-.nav_bar_mobile {width: 100%; position: fixed; margin-left: -8px;}
-.top_nav_spacer {margin-bottom: 2%;}
 
 
 /* input styles */
@@ -1494,6 +1498,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .preferences_sub_block.preferences_sign_out {text-align: center; margin-top: -3%; padding: 0; }
     .preferences_change_pw input {height: auto; padding: 0 ; padding: 3%; padding-left: 5%; margin: 0 auto; margin-bottom: -2%; }
     .preferences_sub_block.preferences_change_pw {height: auto;  }
+    button.change_pw {}
     div.dashboard_preferences_container div.dashboard_preference_block_group h2 {font-size: 20pt; }
     .dashboard_preference_elections_container label {font-size: 13pt; }
     .dashboard_preference_elections_container input.kd_css_checkbox {margin: 0 auto;}

@@ -209,7 +209,7 @@ class dashboard:
                     >
                         Change Password
                     </button>
-                    <p class="centered" ng-if="scratch.saved_password">Password updated! <b>Signing out...</b></p>
+                    <p ng-if="scratch.saved_password">Password updated! <b>Signing out...</b></p>
                 </div>
             </div> <!-- user info -->
 
@@ -401,7 +401,7 @@ class dashboard:
                     ng-if="user.dashboard.settlements.length < 3 || user.user.subscriber.level > 0"
                 >
                     <input type="hidden" name="change_view" value="new_settlement" />
-                    <button class="kd_blue centered" onclick="showFullPageLoader()">+ Create New Settlement</button>
+                    <button class="kd_blue" onclick="showFullPageLoader()">+ Create New Settlement</button>
                 </form>
 
                 <form
@@ -4684,7 +4684,6 @@ class settlement:
             <div
                 class="campaign_summary_small_box endeavor_box"
                 ng-controller='availableEndeavorsController'
-                ng-if="settlement.sheet.campaign.endeavors.innovations.length > 0"
             >
                 <h4>- Available Endeavors -</h4>
 
