@@ -1,0 +1,40 @@
+/* DO NOT MAKE BREAKPOINT-SPECIFIC CHANGES IN THIS FILE */
+/* DO NOT MODIFY BORDER ATTRIBUTES OTHER THAN COLOR IN THIS FILE */
+
+/* zebras */
+.zebra {background-color: #efefef; }
+.no_zebra {background-color: #fff; }
+.storage_zebra {background-color: #ff99aa; }
+
+
+
+/* gradients */
+.campaign_summary_gradient {background: linear-gradient(to right, #EFCE98, #F5E9D2, #fefeee, #F5E9D2, #EFCE98)}
+.settlement_sheet_gradient {background: linear-gradient(to right, #FFE082, #FFECB3, #FFF8E1, #FFECB3, #FFE082)}
+.survivor_sheet_gradient {background: linear-gradient(to right, #E6DECC, #f7f3eb, #fefeee, #f7f3eb, #E6DECC);}
+.dead_survivor_gradient {background: radial-gradient(#f4EEE0, #C7C3BF); }
+
+    /* legacy webapp UI - not long for this world */
+.gradient_silver { border-color: #666; background: linear-gradient(-90deg, #B5BFBA, #FaFDFa); }
+.gradient_blue { background: linear-gradient(-90deg, #D9E3FF, #F3F6FF);  }
+
+
+
+/* kd colors - kd rulebook and printed content emulation */
+
+    /* buttons! */
+.kd_alert,
+    .kd_alert_no_exclaim,
+    .kd_pink {background-color: #FF0040; color: #fff;}
+
+    /* campaign summary - available endeavors*/
+.available_endeavors_build {background: linear-gradient(to bottom, #73C26C, #51B952); color: #fff; }
+.build_cost_detail {background-color: #0D743A;}
+.available_endeavors_innovate {#fff; background: linear-gradient(to bottom, #4EC7F1, #40ADD0); }
+.innovate_cost_detail {background-color: #0277BD;}
+
+    /* asset emulation */
+.kd_promo {color: #fff; background: radial-gradient(circle, #5Dd7F2, #50CAF5, #3FACCF); }
+
+
+

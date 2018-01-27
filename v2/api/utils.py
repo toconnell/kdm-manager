@@ -226,6 +226,8 @@ def action_keyword(kw):
         output = ("born", "to")
     elif kw in ["enforce"]:             # automate
         output = ("automatically set", "to")
+    elif kw in ["toggle"]:
+        output = ("toggled", "to")
     else:
         output = (kw, "to")
 

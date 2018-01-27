@@ -8,11 +8,6 @@ function reloadSheet() {
 // main app controler; most things should end up here when we de-balkanize
 app.controller("settlementSheetController", function($scope) {
     $scope.scratch = {} 
-    $scope.setSettlementName = function() {
-        var newName = document.getElementById('settlementName').innerHTML;
-        js_obj = {name: newName};
-        $scope.postJSONtoAPI('settlement', 'set_name', js_obj);
-    };
     $scope.incrementAttrib = function(attrib, modifier) {
         if ($scope.settlement.sheet[attrib] + modifier < 0) {return false};
         var js_obj = {'attribute': attrib, 'modifier': modifier};
@@ -29,6 +24,19 @@ app.controller("settlementSheetController", function($scope) {
         if (value < 0) {return false};
         var js_obj = {'attribute': attrib, 'value': value};
         $scope.postJSONtoAPI('settlement', 'set_attribute', js_obj, reinit);
+    };
+
+    // misc. operations
+    $scope.setSettlementName = function() {
+        var newName = document.getElementById('settlementName').innerHTML;
+        js_obj = {name: newName};
+        $scope.postJSONtoAPI('settlement', 'set_name', js_obj);
+    };
+
+    // one-off routes
+    $scope.setInspirationalStatue = function() {
+        js_obj = {handle: $scope.settlement.sheet.inspirational_statue};
+        $scope.postJSONtoAPI('settlement', 'set_inspirational_statue', js_obj, false)
     };
 });
 
@@ -67,12 +75,6 @@ app.controller("milestonesController", function($scope) {
 });
 
 
-app.controller("inspirationalStatueController", function($scope) {
-    $scope.setInspirationalStatue = function() {
-        js_obj = {handle: $scope.settlement.sheet.inspirational_statue};
-        $scope.postJSONtoAPI('settlement', 'set_inspirational_statue', js_obj, false)
-    };
-});
 
 app.controller('monsterVolumesController', function($scope) {
     $scope.scratch = {};
@@ -308,20 +310,16 @@ app.controller('nemesisEncountersController', function($scope) {
         };
     };
 
-    $scope.toggleNemesisLevel = function(n_handle,n_lvl,e) {
-//        console.log(n_handle + " " + n_lvl);
-//        console.log(e);
+    $scope.toggleNemesisLevel = function(n_handle,n_lvl) {
         var n_lvl_array = $scope.settlement.sheet.nemesis_encounters[n_handle];
 //        console.log(n_lvl_array)
         if ($scope.arrayContains(n_lvl, n_lvl_array)) {
-            e.target.control.checked = false;
             n_lvl_array.splice(n_lvl-1,1);
         } else { 
             n_lvl_array.push(Number(n_lvl));
-            e.target.control.checked = true;
         };
         js_obj = {"handle": n_handle, "levels": n_lvl_array};
-        $scope.postJSONtoAPI('settlement', 'update_nemesis_levels', js_obj);
+        $scope.postJSONtoAPI('settlement', 'update_nemesis_levels', js_obj, false);
     };
 
     $scope.rmNemesis = function(index, handle) {

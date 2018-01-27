@@ -24,7 +24,7 @@ import admin
 from modular_assets import survivor_attrib_controls
 import game_assets
 import html
-from models import Locations, Items, Resources, mutually_exclusive_principles 
+from models import Locations, Items, Resources, mutually_exclusive_principles
 from session import Session
 from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd, u_to_str
 import world
@@ -580,49 +580,6 @@ class Survivor:
         else:
             return self.survivor["returning_survivor"]
 
-
-    def modify(self, params):
-        """ Reads through a cgi.FieldStorage() (i.e. 'params') and modifies the
-        survivor. """
-
-        ignore_keys = [
-            # legacy keys (soon to be deprecated)
-            "form_id",
-            # misc controls that we're already done with by now
-            "norefresh", "modify", "view_game", "asset_id",
-        ]
-
-        for p in params:
-
-            game_asset_key = params[p]
-            if type(params[p]) != list and p not in ignore_keys:
-                game_asset_key = params[p].value.strip()
-                if game_asset_key == 'true':
-                    game_asset_key = True
-                elif game_asset_key == 'false':
-                    game_asset_key = False
-                else:
-                    pass
-
-#                self.logger.debug("%s -> '%s' (type=%s)" % (p, game_asset_key, type(params[p])))
-
-            if p in ignore_keys:
-                pass
-            elif p.split("_")[0] == "toggle" and "norefresh" in params:
-                toggle_key = "_".join(p.split("_")[1:])
-                self.toggle(toggle_key, game_asset_key, toggle_type="explicit")
-            elif p.split("_")[0] == "toggle" and "damage" in p.split("_"):
-                toggle_key = "_".join(p.split("_")[1:])
-                self.toggle(toggle_key, game_asset_key, toggle_type="explicit")
-            elif game_asset_key == "None":
-                self.remove_survivor_attribute(p)
-            else:
-                self.logger.warn("[%s] direct Survivor Sheet update: %s -> %s (%s)" % (self.User, p, game_asset_key, self))
-                self.survivor[p] = game_asset_key
-
-
-        # this is the big save. This should be the ONLY SAVE we do during a self.modify()
-        self.save()
 
 
     def asset_link(self, view="survivor", button_class="survivor", link_text=False, include=["hunt_xp", "insanity", "sex", "dead", "retired", "returning"], disabled=False):

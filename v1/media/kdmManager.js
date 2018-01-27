@@ -1124,53 +1124,6 @@ app.controller('timelineController', function($scope, $rootScope) {
 
 
 
-
-
-// general use and general availability methods. this is like...the junk
-// drawer of javascript methods
-
-function modifyAsset(collection, asset_id, param_string) {
-
-    // generic/global method for submitting a form to the webapp and updating a
-    // survivor. Needs an id and params, e.g. 'whatever=thing&stuff=niner'
-    // and so on. Used by various angular controlers.
-    // 
-    // this automatically handles the norefresh flag as well as the modify and
-    // asset params
-
-    var method = "POST"
-    var url = "/"
-    var params = "modify=" + collection + "&asset_id=" + asset_id + "&" + param_string + "&norefresh=True";
-
-    var xhr = new XMLHttpRequest();
-
-    xhr.onreadystatechange = function (oEvent) {  
-        if (xhr.readyState === 4) {  
-            if (xhr.status === 200) {  
-                savedAlert();
-            } else {  
-                console.error(method + " -> " + xhr.responseURL + " -> " + params);
-                console.error("Legacy app response was: " + xhr.status);
-                console.error("Error -> '" + xhr.responseText + "' <-");  
-                console.error(xhr);
-                console.error(oEvent);
-                errorAlert();
-            }  
-        }  
-    }; 
-
-//  2017-01-22 we're canceling the callback part until we can fix it for Safari
-//  and firefox and the other POS browsers whose javascript sucks the sweat off
-//  a dead donkey's balls
-    xhr.open(method, url, true);
-//    xhr.open(method, url, false);
-    xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-//    window.alert(params);
-    xhr.send(params);
-
-}
-
-
 //          angularjs controllers start here.
 
 // all angularjs apps use this, so it needs to stay generic. at a minimum,
@@ -1277,15 +1230,6 @@ function decrement(elem_id) {
     var e = document.getElementById(elem_id);
     e.stepDown();
 }
-
-// button and togglebox registration 
-// global func for damage toggles. 
-function toggleDamage(elem_id, asset_id) {
-    document.getElementById(elem_id).classList.toggle("damage_box_checked");
-    var toggle_key = document.getElementById(elem_id);
-    var params =  toggle_key.name + "=checked";
-    modifyAsset("survivor", asset_id, params);
-};
 
 
 // Used to sort arrays of objects by name. Should be a lambda or something

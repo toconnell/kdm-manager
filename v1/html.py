@@ -1844,7 +1844,7 @@ class survivor:
 
         <!-- BRAIN -->
 
-        <div class="survivor_hit_box insanity_box">
+        <div class="border_box survivor_hit_box insanity_box">
 
             <div class="big_number_container">
 
@@ -1858,23 +1858,17 @@ class survivor:
                     onClick="rollUp('insanityHitBoxControl')"
                 />
 
-                <font id="hit_box_insanity">Insanity</font>
+                Insanity
 
-             </div> <!-- big_number_container -->
+            </div> <!-- big_number_container -->
 
-             <div class="hit_box_detail">
-                 <input
-                    id="damage_brain_light"
-                    name="toggle_brain_damage_light"
-                    class="damage_box"
-                    ng-class="{damage_box_checked: survivor.sheet.brain_damage_light != undefined}"
-                    type="submit"
-                    value=" "
-                    onclick="toggleDamage('damage_brain_light','$survivor_id');"
-                />
-
-                <h2 onClick="rollUp('insanityHitBoxControl')">Brain</h2>
-
+            <div class="hit_box_detail">
+                <span onClick="rollUp('insanityHitBoxControl')">Brain</span>
+                <div
+                    class="clickable damage_box"
+                    ng-class="{checked: survivor.sheet.brain_damage_light != undefined}"
+                    ng-click="toggleDamage('brain_damage_light');"
+                 /></div>
             </div> <!-- hit_box_detail -->
 
             <p>If your insanity is 3+, you are <b>Insane</b>.</p>
@@ -1904,7 +1898,7 @@ class survivor:
         </div>
 
         <!-- HEAD -->
-        <div class="survivor_hit_box">
+        <div class="border_box survivor_hit_box">
             <div class="big_number_container">
                 <input
                     id="headBox"
@@ -1915,19 +1909,14 @@ class survivor:
                 />
             </div>
             <div class="hit_box_detail">
-                 <input
-                    id="damage_head_heavy"
-                    onclick="toggleDamage('damage_head_heavy','$survivor_id');"
-                    ng-class="{damage_box_checked: survivor.sheet.head_damage_heavy != undefined}"
-                    name="toggle_head_damage_heavy"
-                    class="heavy_damage damage_box"
-                    type="submit"
-                    value=""
-                />
-
-                <h2 onClick="rollUp('headHitBoxControl')">
+                <span onClick="rollUp('headHitBoxControl')">
                     <font class="kdm_font_hit_locations">b</font> Head
-                </h2>
+                </span>
+                <div
+                    class="clickable heavy damage_box"
+                    ng-class="{checked: survivor.sheet.head_damage_heavy != undefined}"
+                    ng-click="toggleDamage('head_damage_heavy');"
+                 /></div>
             </div>
             <p><b>H</b>eavy Injury: Knocked Down</p>
         </div> <!-- head hit box -->
@@ -1955,7 +1944,7 @@ class survivor:
         </div>
 
         <!-- ARMS -->
-        <div class="survivor_hit_box">
+        <div class="border_box survivor_hit_box">
             <div class="big_number_container">
                 <input
                     id="armsBox"
@@ -1966,27 +1955,21 @@ class survivor:
                 />
             </div>
             <div class="hit_box_detail">
-                 <input
-                    id="damage_arms_heavy"
-                    onclick="toggleDamage('damage_arms_heavy','$survivor_id');"
-                    ng-class="{damage_box_checked: survivor.sheet.arms_damage_heavy != undefined}"
-                    name="toggle_arms_damage_heavy"
-                    class="heavy_damage damage_box"
-                    type="submit"
-                    value=""
-                />
-                 <input
-                    id="damage_arms_light"
-                    onclick="toggleDamage('damage_arms_light','$survivor_id');"
-                    ng-class="{damage_box_checked: survivor.sheet.arms_damage_light != undefined}"
-                    name="toggle_arms_damage_light"
-                    class="damage_box"
-                    type="submit"
-                    value=""
-                />
-                <h2 onClick="rollUp('armsHitBoxControl')">
+                <span onClick="rollUp('armsHitBoxControl')">
                     <font class="kdm_font_hit_locations">d</font> Arms
-                </h2>
+                </span>
+                <div class="two_box_container">
+                    <div
+                        class="clickable damage_box"
+                        ng-class="{checked: survivor.sheet.arms_damage_light != undefined}"
+                        ng-click="toggleDamage('arms_damage_light');"
+                     /></div>
+                    <div
+                        class="clickable heavy damage_box"
+                        ng-class="{checked: survivor.sheet.arms_damage_heavy != undefined}"
+                        ng-click="toggleDamage('arms_damage_heavy');"
+                     /></div>
+                </div>
             </div>
             <p><b>H</b>eavy Injury: Knocked Down</p>
         </div> <!-- arms hit box -->
@@ -2014,7 +1997,7 @@ class survivor:
         </div>
 
         <!-- BODY -->
-        <div class="survivor_hit_box">
+        <div class="border_box survivor_hit_box">
             <div class="big_number_container">
                 <input
                     id="bodyBox"
@@ -2025,27 +2008,21 @@ class survivor:
                 />
             </div>
             <div class="hit_box_detail">
-                 <input
-                    id="damage_body_heavy"
-                    onclick="toggleDamage('damage_body_heavy','$survivor_id');"
-                    ng-class="{damage_box_checked: survivor.sheet.body_damage_heavy != undefined}"
-                    name="toggle_body_damage_heavy"
-                    class="heavy_damage damage_box"
-                    type="submit"
-                    value=""
-                />
-                 <input
-                    id="damage_body_light"
-                    onclick="toggleDamage('damage_body_light','$survivor_id');"
-                    ng-class="{damage_box_checked: survivor.sheet.body_damage_light != undefined}"
-                    name="toggle_body_damage_light"
-                    class="damage_box"
-                    type="submit"
-                    value=""
-                />
-                <h2 onClick="rollUp('bodyHitBoxControl')">
+                <span onClick="rollUp('bodyHitBoxControl')">
                     <font class="kdm_font_hit_locations">c</font> Body
-                </h2>
+                </span>
+                <div class="two_box_container">
+                    <div
+                        class="clickable damage_box"
+                        ng-class="{checked: survivor.sheet.body_damage_light != undefined}"
+                        ng-click="toggleDamage('body_damage_light');"
+                     /></div>
+                    <div
+                        class="clickable heavy damage_box"
+                        ng-class="{checked: survivor.sheet.body_damage_heavy != undefined}"
+                        ng-click="toggleDamage('body_damage_heavy');"
+                     /></div>
+                </div>
             </div>
             <p><b>H</b>eavy Injury: Knocked Down</p>
         </div> <!-- body hit box -->
@@ -2073,7 +2050,7 @@ class survivor:
         </div>
 
         <!-- WAIST -->
-        <div class="survivor_hit_box">
+        <div class="border_box survivor_hit_box">
             <div class="big_number_container">
                 <input
                     id="waistBox"
@@ -2084,27 +2061,21 @@ class survivor:
                 />
             </div>
             <div class="hit_box_detail">
-                 <input
-                    id="damage_waist_heavy"
-                    onclick="toggleDamage('damage_waist_heavy','$survivor_id');"
-                    ng-class="{damage_box_checked: survivor.sheet.waist_damage_heavy != undefined}"
-                    name="toggle_waist_damage_heavy"
-                    class="heavy_damage damage_box"
-                    type="submit"
-                    value=""
-                />
-                 <input
-                    id="damage_waist_light"
-                    onclick="toggleDamage('damage_waist_light','$survivor_id');"
-                    ng-class="{damage_box_checked: survivor.sheet.waist_damage_light != undefined}"
-                    name="toggle_waist_damage_light"
-                    class="damage_box"
-                    type="submit"
-                    value=""
-                />
-                <h2 onClick="rollUp('waistHitBoxControl')">
+                <span onClick="rollUp('waistHitBoxControl')">
                     <font class="kdm_font_hit_locations">e</font> Waist
-                </h2>
+                </span>
+                <div class="two_box_container">
+                    <div
+                        class="clickable damage_box"
+                        ng-class="{checked: survivor.sheet.waist_damage_light != undefined}"
+                        ng-click="toggleDamage('waist_damage_light');"
+                     /></div>
+                    <div
+                        class="clickable heavy damage_box"
+                        ng-class="{checked: survivor.sheet.waist_damage_heavy != undefined}"
+                        ng-click="toggleDamage('waist_damage_heavy');"
+                     /></div>
+                </div>
             </div>
             <p><b>H</b>eavy Injury: Knocked Down</p>
         </div> <!-- waist hit box -->
@@ -2132,7 +2103,7 @@ class survivor:
         </div>
 
         <!-- LEGS -->
-        <div class="survivor_hit_box">
+        <div class="border_box survivor_hit_box">
             <div class="big_number_container">
                 <input
                     id="legsBox"
@@ -2143,27 +2114,21 @@ class survivor:
                 />
             </div>
             <div class="hit_box_detail">
-                 <input
-                    id="damage_legs_heavy"
-                    onclick="toggleDamage('damage_legs_heavy','$survivor_id');"
-                    ng-class="{damage_box_checked: survivor.sheet.legs_damage_heavy != undefined}"
-                    name="toggle_legs_damage_heavy"
-                    class="heavy_damage damage_box"
-                    type="submit"
-                    value=""
-                />
-                 <input
-                    id="damage_legs_light"
-                    onclick="toggleDamage('damage_legs_light','$survivor_id');"
-                    ng-class="{damage_box_checked: survivor.sheet.legs_damage_light != undefined}"
-                    name="toggle_legs_damage_light"
-                    class="damage_box"
-                    type="submit"
-                    value=""
-                />
-                <h2 onClick="rollUp('legsHitBoxControl')">
+                <span onClick="rollUp('legsHitBoxControl')">
                     <font class="kdm_font_hit_locations">f</font> Legs
-                </h2>
+                </span>
+                <div class="two_box_container">
+                    <div
+                        class="clickable damage_box"
+                        ng-class="{checked: survivor.sheet.legs_damage_light != undefined}"
+                        ng-click="toggleDamage('legs_damage_light');"
+                     /></div>
+                    <div
+                        class="clickable heavy damage_box"
+                        ng-class="{checked: survivor.sheet.legs_damage_heavy != undefined}"
+                        ng-click="toggleDamage('legs_damage_heavy');"
+                     /></div>
+                </div>
             </div>
             <p><b>H</b>eavy Injury: Knocked Down</p>
         </div> <!-- legs hit box -->
@@ -4684,15 +4649,19 @@ class settlement:
             <div
                 class="campaign_summary_small_box endeavor_box"
                 ng-controller='availableEndeavorsController'
+                ng-if="settlement.campaign.endeavor_count > 0"
             >
-                <h4>- Available Endeavors -</h4>
+                <h4>- Available Endeavors ({{settlement.campaign.endeavor_count}}) -</h4>
 
-                <!-- campaign-specific -->
-                <div ng-if="settlement.campaign.endeavors.campaign.length >= 1">
-                    <h5><b>Campaign:</b></h5>
+                <!-- campaign-specific endeavors -->
+                <div
+                    ng-repeat="i in settlement.campaign.endeavors.campaign"
+                >
+                    <h5><b>{{i['name']}}</b>:</h5>
                     <div
-                        ng-repeat="e in settlement.campaign.endeavors.campaign"
-                        class="campaign_summary_endeavor_container campaign_endeavor {{e.class}}"
+                        ng-repeat="e_handle in i.endeavors"
+                        ng-init="e = settlement.game_assets.endeavors[e_handle]"
+                        class="campaign_summary_endeavor_container {{e.class}}"
                     >
                         <div class="endeavor_cost {{e.class}}">
                             <img ng-repeat="c in range(e.cost)" src="/media/icons/endeavor_star.png" class="endeavor_cost">
@@ -4702,8 +4671,13 @@ class settlement:
                             <span ng-if="e.name != undefined && e.desc != undefined"> - </span>
                             <span ng-bind-html="e.desc|trustedHTML"></span>
                         </div>
-                    </div>
-                </div>
+                        <div ng-if="e.cost_detail != undefined" class="cost_detail {{e.cost_detail_type}}_cost_detail">
+                            <div ng-repeat="i in e.cost_detail">
+                                {{i}}
+                            </div>
+                        </div>
+                    </div> <!-- endeavor container -->
+                </div> <!-- campaign-specific endeavors -->
 
                 <!-- innovations -->
                 <div
@@ -5647,7 +5621,6 @@ class settlement:
         <div
             class="settlement_sheet_block_group"
             ng-if="settlement.sheet.innovations.indexOf('sculpture') != -1"
-            ng-controller="inspirationalStatueController"
             title="Use these controls to manage your settlement's Inspirational Statue!"
         >
             <h2>Inspirational Statue</h2>
@@ -6034,121 +6007,131 @@ class settlement:
         </div> <!-- block_group for milestones -->
 
 
-        <div class="settlement_sheet_block_group" title="Click or tap an item to remove it from this list.">
-
-            <h2>Quarries</h2>
-            <p>The monsters your settlement can select to hunt.</p>
-
-            <div>
-                <div
-                    class="line_item location_container"
-                    ng-controller="quarriesController"
-                    ng-repeat="q in settlement.sheet.quarries"
-                >
-                    <div> <!-- span holder -->
-                        <span class="bullet"></span>
-                        <span
-                            class="item"
-                            ng-click="removeQuarry($index, q)"
-                        >
-                            {{settlement.game_assets.monsters[q].name}}
-                        </span>
-                    </div>
-                </div>
+    <div
+       ng-controller="quarriesController"
+       class="border_box"
+    >
+        <div
+            class="settlement_sheet_kd_sheet_ui_box"
+            title="Quarries controller for {{settlement.sheet.name}}. Tap or click to remove!"
+        >
+            <div class="kd_sheet_ui_row title">
+                 Quarries
             </div>
-
-            <div class="line_item">
-                <span class="empty_bullet" /></span>
-                <select
-                    ng-controller="quarriesController"
-                    ng-model="addQuarryMonster"
-                    ng-options="q.handle as q.name for q in settlement.game_assets.quarry_options"
-                    ng-change="addQuarry($index)"
+            <div class="kd_sheet_ui_row">
+                The monsters your settlement can select to hunt.
+            </div>
+            <div
+                class="settlement_sheet_line_item location_container"
+                ng-controller="quarriesController"
+                ng-repeat="q in settlement.sheet.quarries"
+            >
+                <span class="kd_sheet_ui_box checked"></span>
+                <span
+                    class="item"
+                    ng-click="removeQuarry($index, q)"
                 >
-                    <option selected disabled value="">Add Quarry Monster</option>
-                </select>
-            </div> <!-- line_item -->
+                    {{settlement.game_assets.monsters[q].name}}
+                </span>
+            </div>
+        </div> <!-- settlement_sheet_kd_sheet_ui_box -->
 
-        </div> <!-- settlement_Sheet_block_group quarry controls-->
+        <span class="empty_bullet" /></span>
+        <select
+            class="kd_sheet_ui_select"
+            ng-model="addQuarryMonster"
+            ng-options="q.handle as q.name for q in settlement.game_assets.quarry_options"
+            ng-change="addQuarry($index)"
+        >
+            <option selected disabled value="">Add Quarry Monster</option>
+        </select>
 
+    </div> <!-- quarriesController -->
 
                     <!-- NEMESIS MONSTERS -->
 
-
+    <div
+        class="nemesis_monsters_controls_container border_box"
+        ng-controller="nemesisEncountersController"
+    >
         <div
-            class="settlement_sheet_block_group"
-            ng-controller="nemesisEncountersController"
-            title="Click or tap an item to remove it from this list."
+            class="settlement_sheet_kd_sheet_ui_box"
+            title="Nemesis Encounters controller for {{settlement.sheet.name}}. Tap or click to edit!"
         >
-            <h2><img class="icon" src="media/icons/nemesis_encounter_event.jpg"/> Nemesis Monsters</h2>
-            <p>The available nemesis encounter monsters.</p>
-
+            <div class="kd_sheet_ui_row title">
+                <img class="icon" src="media/icons/nemesis_encounter_event.jpg"/>
+                Nemesis Monsters
+            </div>
+            <div class="kd_sheet_ui_row">
+                The available nemesis encounter monsters.
+            </div>
             <div
-                class="settlement_sheet_nemesis_line_item"
+                class="settlement_sheet_line_item settlement_sheet_nemesis_line_item"
                 ng-repeat="n in settlement.sheet.nemesis_monsters"
             >
-                <span class="bullet"></span>
-                <span class="item" ng-click="rmNemesis($index,n)">
-                    {{settlement.game_assets.monsters[n].name}}
-                </span>
-                <span class="nemesis_levels">
+                <div class="nemesis_clicker clickable" ng-click="rmNemesis($index,n)">
+                    <span class="kd_sheet_ui_box checked"></span>
+                    <span>{{settlement.game_assets.monsters[n].name}}</span>
+                </div>
+                <div class="nemesis_levels_container">
                     <div
-                        class="nemesis_level_toggle_container"
+                        class="nemesis_level_toggle clickable"
                         ng-repeat="l in range(settlement.game_assets.monsters[n].levels, 'increment')"
+                        ng-click="toggleNemesisLevel(n,l)"
                     >
-                        <input
-                            id="{{n + '_lvl_' + l}}"
-                            type="checkbox"
-                            class="kd_css_checkbox"
-                            ng-model="nemesisLvlToggleValue"
-                            ng-checked="arrayContains(l,settlement.sheet.nemesis_encounters[n])"
-                        />
-                        <label
-                            class="settlement_sheet_nemesis_lvl_label"
-                            for="{{n + '_lvl_' + l}}"
-                            id="{{n+'_lvl_'+l}}_label"
-                            ng-click="toggleNemesisLevel(n,l,$event)"
-                        >
-                            Lvl {{l}}
-                        </label>
-                    </div> <!-- nemesis_level_toggle_container -->
-                </span>
-            </div>
+                        <span
+                            class="kd_sheet_ui_box"
+                            ng-class="{checked: settlement.sheet.nemesis_encounters[n].indexOf(l) != -1}"
+                        ></span>
+                        Lvl {{l}}
+                    </div>
+                </div>
 
-            <span class="empty_bullet"></span>
-            <select
-                ng-model="addNemesisMonster"
-                ng-options="n.handle as n.name for n in settlement.game_assets.nemesis_options"
-                ng-change="addNemesis()"
-            >
-                <option selected disabled value="">Add Nemesis Monster</option>
-            </select>
+            </div><!-- nemesis repeater / line item -->
+        </div> <!-- settlement_sheet_kd_sheet_ui_box -->
 
-        </div> <!-- Nemesis block group/controller -->
-
-
-
-                    <!-- DEFEATED MONSTERS -->
-
-        <div class="settlement_sheet_block_group" ng-controller="defeatedMonstersController" title="Click or tap an item to remove it from this list.">
-        <h2>Defeated Monsters</h2>
-        <p>A list of defeated monsters and their level.</p>
-
-        <div
-            class="line_item defeated_monsters_container"
-            ng-repeat="x in settlement.sheet.defeated_monsters track by $index"
+        <span class="empty_bullet"></span>
+        <select
+            class="kd_sheet_ui_select"
+            ng-model="addNemesisMonster"
+            ng-options="n.handle as n.name for n in settlement.game_assets.nemesis_options"
+            ng-change="addNemesis()"
         >
-            <div> <!-- span holder -->
-                <span class="bullet"></span>
+            <option selected disabled value="">Add Nemesis Monster</option>
+        </select>
+    </div> <!-- nemesis_monsters_controls_container -->
+
+
+    <!-- DEFEATED MONSTERS -->
+    <div
+        class="border_box"
+        ng-controller="defeatedMonstersController" title="Click or tap an item to remove it from this list."
+    >
+        <div
+            class="settlement_sheet_kd_sheet_ui_box clickable"
+            title="Defeated Monsters controller for {{settlement.sheet.name}}. Tap or click to remove!"
+        >
+            <div class="kd_sheet_ui_row title">
+                Defeated Monsters
+            </div>
+            <div class="kd_sheet_ui_row">
+                A list of defeated monsters and their level.
+            </div>
+            <div
+                class="settlement_sheet_line_item defeated_monsters_container"
+                ng-repeat="x in settlement.sheet.defeated_monsters track by $index"
+            >
+                <span class="kd_sheet_ui_box checked"></span>
                 <span class="item" ng-click="rmDefeatedMonster($index, x)">
                     {{x}}
                 </span>
             </div>
-        </div>
+        </div><!-- settlement_sheet_kd_sheet_ui_box -->
 
         <div class="line_item">
             <span class="empty_bullet" /></span>
             <select
+                class="kd_sheet_ui_select"
                 ng-model="dMonst"
                 ng-change="addDefeatedMonster()"
                 ng-options="d as d for d in settlement.game_assets.defeated_monsters ">
@@ -6156,15 +6139,12 @@ class settlement:
                 <option selected disabled value="">Add Defeated Monster</option>
             </select>
         </div> <!-- line_item -->
-
-    </div>
-
-    <hr class="mobile_only"/>
+    </div> <!-- defeatedMonstersController -->
 
 
-                    <!-- LOST SETTLEMENTS ANGULARJS app -->
+    <!-- LOST SETTLEMENTS ANGULARJS app -->
     <div
-        class="lost_settlement_controls_container"
+        class="lost_settlement_controls_container border_box"
     >
         <div
             class="settlement_sheet_kd_sheet_ui_box clickable"
@@ -6342,8 +6322,7 @@ class settlement:
     </div> <!-- lost_settlement_controls_container -->
 
 
-    <hr class="mobile_only"/>
-
+    <!-- ABANDON -->
     <div
         class="settlement_sheet_block_group"
         ng-controller="abandonSettlementController"
@@ -6472,6 +6451,8 @@ class meta:
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
         <meta name="theme-color" content="#000000">
         <title>$title</title>
+        <link rel="stylesheet" type="text/css" href="/media/color.css?v=$version">
+        <link rel="stylesheet" type="text/css" href="/media/fonts.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/media/style.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/media/settlement_event_log.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/media/hunt_phase.css?v=$version">

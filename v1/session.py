@@ -522,19 +522,13 @@ class Session:
                 raise RuntimeError(msg)
 
         #
-        #   modify - still supported in the legacy webapp, pending deprecation
+        #   modify - not supported in the legacy webapp as of 2018-01-26
         #
 
         if "modify" in self.params:
-            if self.params["modify"].value == "settlement":
-                self.logger.error("%s Attempt to call modify() method from params!" % (self.Settlement))
-
-            if self.params["modify"].value == "survivor":
-                s = mdb.survivors.find_one({"_id": ObjectId(user_asset_id)})
-                self.set_current_settlement(s["settlement"])
-                S = assets.Survivor(survivor_id=s["_id"], session_object=self)
-                S.modify(self.params)
-                user_action = "modified survivor %s of %s" % (S, self.Settlement)
+            self.logger.error("'modify' in legacy webapp POST params!")
+            self.logger.error(self.params)
+            raise Exception('Attempt to modify user asset via legacy webapp! Incoming params: %s' % self.params)
 
         self.User.mark_usage(user_action)
 

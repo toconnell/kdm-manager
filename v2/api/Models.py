@@ -831,18 +831,27 @@ class UserAsset(object):
         #   baseline attributes
         #
 
-        # determine caller method
+        # 0.) method: determine caller method
         curframe = inspect.currentframe()
         calframe = inspect.getouterframes(curframe, 2)
         method = calframe[1][3]
 
-        # figure out the action
-        if action is None:
-            action = method.split("_")[0]
-
-        # determine event type
+        # 1.) event: determine event type if it's None
         if event_type is None:
             event_type = method
+
+        # 2.) action: figure out the action; set the special action vars
+        if action is None:
+            action = method.split("_")[0]
+        action_word, action_preposition = utils.action_keyword(action)
+
+        # 3.) key: default the key if we don't get one
+        if key is None:
+            key = " ".join(method.split("_")[1:])
+
+        # 4.) value; default the value if we don't get one
+        if value is None:
+            value = "UNKNOWN"
 
         # set 'created_by'
         created_by = None
@@ -854,11 +863,14 @@ class UserAsset(object):
                 if agent is None:
                     agent = "user"
 
+
         # set 'attribute_modified'
+
         attribute_modified = {
             'key': key,
             'value': value,
         }
+
         if attribute_modified['key'] is not None:
             attribute_modified['key_pretty'] = key.replace("_"," ").replace("and","&").title()
         if attribute_modified['value'] is not None:
@@ -895,7 +907,6 @@ class UserAsset(object):
             d['modified']['asset'] = {"type": "settlement", "name": self.settlement['name'], '_id': self.settlement_id}
 
         # create the 'action'
-        action_word, action_preposition = utils.action_keyword(action)
         d['action'] = {'word': action_word, 'preposition': action_preposition}
         if key is None and value is None:
             d['action']['repr'] = " ".join(['modified', action_target])

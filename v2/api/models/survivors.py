@@ -1475,6 +1475,42 @@ class Survivor(Models.UserAsset):
         pass
 
 
+    def toggle_damage(self):
+        """ toggles survivor damage boxes on/off. Requires a request context. """
+
+        # initialize from request
+        self.check_request_params(['location'])
+        loc = self.params['location']
+
+        #
+        #   sanity check
+        #
+
+        locations = [
+            'brain_damage_light',
+            'head_damage_heavy',
+            'arms_damage_light', 'arms_damage_heavy',
+            'body_damage_light', 'body_damage_heavy',
+            'waist_damage_light', 'waist_damage_heavy',
+            'legs_damage_light', 'legs_damage_heavy',
+        ]
+
+        if loc not in locations:
+            raise utils.InvalidUsage("The damage location '%s' cannot be toggled!" % loc)
+
+        #
+        #   update
+        #
+
+        if loc in self.survivor.keys():
+            del self.survivor[loc]
+            self.log_event(value=loc, key="OFF")
+        else:
+            self.survivor[loc] = True
+            self.log_event(value=loc, key="ON")
+        self.save()
+
+
     def toggle_fighting_arts_level(self):
         """ Toggles a fighting arts level on or off, e.g. by adding it to or
         removing it from the array for a particular FA's handle.
@@ -2983,6 +3019,7 @@ class Survivor(Models.UserAsset):
             "hunt_xp",
             "bleeding_tokens",
             "max_bleeding_tokens",
+            "Weapon Proficiency",
         ]
 
         for attrib in int_types:
@@ -3192,6 +3229,9 @@ class Survivor(Models.UserAsset):
         elif action == "replace_game_assets":
             self.replace_game_assets()
 
+        # damage!
+        elif action == 'toggle_damage':
+            self.toggle_damage()
 
         elif action == "toggle_fighting_arts_level":
             self.toggle_fighting_arts_level()

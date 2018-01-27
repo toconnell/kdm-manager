@@ -176,6 +176,11 @@ app.controller("survivorSheetController", function($scope) {
     // toggles start here!
     //
 
+    $scope.toggleDamage = function(loc) {
+        console.warn(loc);
+        $scope.postJSONtoAPI('survivor','toggle_damage',{'location': loc}, false, true, true);
+    };
+
     // favorite requires special logic, since it's an append
     $scope.toggleFavorite = function() {
         var user_index = $scope.survivor.sheet.favorite.indexOf($scope.user_login);

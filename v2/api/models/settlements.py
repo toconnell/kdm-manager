@@ -476,9 +476,13 @@ class Settlement(Models.UserAsset):
             output['campaign'].update({'most_recent_hunt': self.get_latest_defeated_monster()})
             output['campaign'].update({'latest_death': self.get_latest_survivor('dead')})
             output['campaign'].update({'latest_birth': self.get_latest_survivor('born')})
-            output['campaign'].update({'endeavors': self.get_available_endeavors()})
             output['campaign'].update({'special_rules': self.get_special_rules()})
             output["user_assets"].update({'survivor_groups': self.get_survivors('groups')})
+
+            # endeavors
+            available_endeavors, available_endeavor_count = self.get_available_endeavors()
+            output['campaign'].update({'endeavors': available_endeavors})
+            output['campaign'].update({'endeavor_count': available_endeavor_count})
 
             if request.metering:
                 stop = datetime.now()
@@ -706,7 +710,6 @@ class Settlement(Models.UserAsset):
         else:
             self.logger.error("%s Ignoring attempt to remove non-existing item '%s' from %s" % (request.User, monster_handle, target_list))
         self.log_event("%s removed '%s' from the settlement %s list." % (request.User.login, m_dict["name"], m_dict["type"]))
-        self.logger.debug(target_list)
         self.save()
 
 
@@ -1901,10 +1904,10 @@ class Settlement(Models.UserAsset):
         return {"%s" % (asset_module.__name__.split(".")[-1]): available}
 
 
-    def get_available_endeavors(self):
+    def get_available_endeavors(self, return_total=True):
         """ Returns a list of endeavor handles based on campaign, innovations,
         locations, survivors and settlement events. """
-
+        total = 0
         available = {
             'campaign': [],
             'innovations': [],
@@ -1945,8 +1948,10 @@ class Settlement(Models.UserAsset):
 
         # campaign-specific
         if self.campaign_dict.get('endeavors', None) is not None:
+            bogus_dict = {'name': self.campaign_dict['name'], 'endeavors': []}
             for e_handle in self.campaign_dict['endeavors']:
-                available['campaign'].append(self.Endeavors.get_asset(e_handle))
+                bogus_dict['endeavors'].append(e_handle)
+            available['campaign'].append(bogus_dict)
 
         # innovations and locations
         for a_list in ['innovations','locations']:
@@ -1992,6 +1997,13 @@ class Settlement(Models.UserAsset):
                 else:
                     self.logger.warn("%s Timeline event dictionary does not have a handle key! Dict was: %s" % (self, event_dict))
 
+        # return a tuple, if we're returning the total as well
+        if return_total:
+            for k in available.keys():
+                for d in available[k]:
+                    total += len(d.get('endeavors', []))
+            return available, total
+
         return available
 
 
@@ -2008,7 +2020,7 @@ class Settlement(Models.UserAsset):
 
         for fa_handle in fa_handles:
             fa_dict = self.FightingArts.get_asset(fa_handle, raise_exception_if_not_found=False)
-            if fa_dict is not None and fa_dict['type'] == 'fighting_art':
+            if fa_dict is not None and fa_dict['type'] == 'fighting_arts':
                 output.add(fa_handle)
 
         output = sorted(list(output))

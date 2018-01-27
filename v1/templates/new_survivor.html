@@ -112,11 +112,10 @@
                 <div
                     class="family_inheritance"
                     ng-if="
-                        settlement.sheet.innovations.indexOf('family') != -1 &&
-                        user.user.preferences.beta == true
+                        settlement.sheet.innovations.indexOf('family') != -1
                     "
                 >
-                    <p> &beta; Family Innovation:</p>
+                    <p> Family Innovation:</p>
                     <p class="ui_tip" ng-if="user.user.preferences.show_ui_tips">
                         A newborn survivor inherits the surname
                         of one parent, their weapon type and half (rounded down) of
