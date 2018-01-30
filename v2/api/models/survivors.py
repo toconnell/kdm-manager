@@ -1997,6 +1997,7 @@ class Survivor(Models.UserAsset):
             self.check_request_params(["name"])
             new_name = self.params["name"]
 
+        new_name = utils.html_stripper(new_name)
         new_name = new_name.strip()
 
         if new_name == self.survivor["name"]:

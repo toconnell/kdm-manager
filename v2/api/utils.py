@@ -11,6 +11,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask import Response, make_response, request, current_app
 from functools import update_wrapper
+from HTMLParser import HTMLParser
 import json
 import logging
 import os
@@ -80,6 +81,26 @@ def html_file_to_template(rel_path):
     """ Turns an HTML file into a string.Template object. """
     tmp_file = os.path.join(settings.get("api","cwd"), rel_path)
     return Template(file(tmp_file, "rb").read())
+
+
+def html_stripper(s):
+    """ Takes a string, 's', that might contain HTML and removes all
+    tags, entities, etc. """
+
+    class MLStripper(HTMLParser):
+        def __init__(self):
+            self.reset()
+            self.strict = False
+            self.convert_charrefs= True
+            self.fed = []
+        def handle_data(self, d):
+            self.fed.append(d)
+        def get_data(self):
+            return ''.join(self.fed)
+
+    S = MLStripper()
+    S.feed(s)
+    return S.get_data()
 
 
 def seconds_to_hms(seconds):

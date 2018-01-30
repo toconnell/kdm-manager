@@ -18,8 +18,6 @@ import api
 import assets
 import html
 import login
-import models
-import game_assets
 from utils import mdb, get_logger, get_user_agent, load_settings, ymd, ymdhms, mailSession
 
 settings = load_settings()
@@ -54,7 +52,6 @@ def current_view_failure(func):
 
     return wrapper
 
-
 def process_params_failure(func):
     """ Decorates the Session.process_params() method below, handling parameter
     processing errors in a way that encourages users to report. """
@@ -79,6 +76,28 @@ def process_params_failure(func):
     return wrapper
 
 
+def session_init_failure(func):
+    """ Wraps the session.__new__() method and emails failures. """
+
+    def wrapper(self=None, *args, **kwargs):
+        try:
+            return func(self, *args, **kwargs)
+        except Exception as e:
+            self.logger.exception(e)
+            tb = traceback.format_exc().replace("    ","&ensp;").replace("\n","<br/>")
+            err_msg = "Session __init__() failure!"
+            p_str = "No CGI params!"
+            if hasattr(self, 'params'):
+                p_str = str(self.params)
+            print html.meta.error_500.safe_substitute(msg=err_msg, exception=tb, params=p_str)
+            sys.exit(255)
+    return wrapper
+
+
+#
+#   Session class object!
+#
+
 class Session:
     """ The properties of a Session object are these:
 
@@ -92,7 +111,7 @@ class Session:
     def __repr__(self):
         return str(self.session["_id"])
 
-
+    @session_init_failure
     def __init__(self, params={}):
         """ Initialize a new Session object."""
         self.logger = get_logger()
@@ -102,6 +121,11 @@ class Session:
         self.session = None
         self.Settlement = None
         self.User = None
+        self.set_cookie = False
+
+        #
+        #   special session types
+        #
 
         # we're not processing params yet, but if we have a log out request, we
         #   do it here, while we're initializing a new session object.
@@ -127,35 +151,54 @@ class Session:
                 self.logger.info("Rendering Password Recovery controls for '%s'" % user["login"])
                 login.render("reset", user["login"], self.params['recovery_code'].value)
 
-        # try to retrieve a session and other session attributes from mdb using
-        #   the browser cookie
-        self.cookie = Cookie.SimpleCookie(os.environ.get("HTTP_COOKIE"))
 
+        #
+        #   normal session types
+        #
+
+        #
+        #   initialize!
+        #
+
+        # 1.) try to set the session ID from the cookie
+        self.cookie = Cookie.SimpleCookie(os.environ.get("HTTP_COOKIE"))
+        if "session" in self.cookie:
+            session_id = ObjectId(self.cookie['session'].value)
+        else:
+            session_id = None
+
+        # 2.) determine if creds are present
         creds_present = False
         if 'login' in self.params and 'password' in self.params:
             creds_present = True
 
-        def sign_in(creds=()):
+        #
+        #   do stuff!
+        #
+
+        # default sign in method; 
+        def sign_in():
             """ Private DRYness method for quickly logging in with params. """
             if 'login' in self.params and 'password' in self.params:
-                A = login.AuthObject(self.params)
-                A.authenticate_and_render_view()
+                self.AuthObject = login.AuthObject(self.params)
+                self.User, self.session = self.AuthObject.authenticate()
+                self.set_cookie=True
 
-        if self.cookie is None and creds_present:
-            sign_in()
-        elif self.cookie is not None and "session" in self.cookie.keys():
-            session_id = ObjectId(self.cookie["session"].value)
+        if session_id is not None:
             self.session = mdb.sessions.find_one({"_id": session_id})
-            if self.session is not None:
+            if self.session is None:
+                sign_in()
+            else:
                 user_object = mdb.users.find_one({"current_session": session_id})
                 self.User = assets.User(user_object["_id"], session_object=self)
-            elif self.session is None:
-                sign_in()
         elif self.cookie is not None and 'Session' not in self.cookie.keys() and creds_present:
             sign_in()
+        elif self.cookie is None and creds_present:
+            sign_in()
         else:
-            self.logger.error("Error attempting to process cookie!")
-            self.logger.error(self.cookie)
+            sign_in()
+#            self.logger.error("Error attempting to process cookie!")
+#            self.logger.error(self.cookie)
 
         if self.session is not None:
             if not api.check_token(self):
@@ -164,6 +207,7 @@ class Session:
                 if r.status_code == 401:
                     self.log_out()
                     self.session = None
+
 
 
     def save(self, verbose=True):
@@ -443,29 +487,6 @@ class Session:
             self.change_current_view("view_campaign", asset_id=S.survivor["settlement"])
 
 
-        # user and campaign exports
-        if "export_user_data" in self.params:
-            export_type = self.params["export_user_data"].value
-            if "asset_id" in self.params and self.User.is_admin():
-                user_object = assets.User(user_id=self.params["asset_id"].value, session_object=self)
-                filename = "%s_%s.kdm-manager_export.%s" % (datetime.now().strftime(ymd), user_object.user["login"], export_type.lower())
-                payload = user_object.dump_assets(dump_type=export_type)
-            else:
-                payload = self.User.dump_assets(dump_type=export_type)
-                filename = "%s_%s.kdm-manager_export.%s" % (datetime.now().strftime(ymd), self.User.user["login"], export_type.lower())
-            self.User.mark_usage("exported user data (%s)" % export_type)
-            self.logger.debug("[%s] '%s' export complete. Rendering export via HTTP..." % (self.User, export_type))
-            html.render(str(payload), http_headers="Content-Disposition: attachment; filename=%s\n" % (filename))
-        if "export_campaign" in self.params:
-            export_type = self.params["export_campaign"].value
-            C = assets.Settlement(settlement_id=ObjectId(self.params["asset_id"].value), session_object=self)
-            payload, length = C.export(export_type)
-            filename = "%s_-_%s.%s" % (datetime.now().strftime(ymd), C.settlement["name"], export_type.lower())
-            self.User.mark_usage("exported campaign data as %s" % export_type)
-            self.logger.debug("[%s] '%s' export complete. Rendering export via HTTP..." % (self.User, export_type))
-            html.render(payload, http_headers="Content-type: application/octet-stream;\r\nContent-Disposition: attachment; filename=%s\r\nContent-Title: %s\r\nContent-Length: %i\r\n" % (filename, filename, length))
-
-
         #
         #   settlement operations - everything below uses user_asset_id
         #       which is to say that all forms that submit these params use
@@ -531,7 +552,7 @@ class Session:
             raise Exception('Attempt to modify user asset via legacy webapp! Incoming params: %s' % self.params)
 
         self.User.mark_usage(user_action)
-
+        self.get_current_view()
 
 
     def render_user_asset_sheet(self, collection=None):
@@ -599,8 +620,6 @@ class Session:
             body = "dashboard"
             output += self.render_dashboard()
             output += admin.dashboard_alert()
-            if get_user_agent().browser.family == "Safari":
-                output += html.meta.safari_warning.safe_substitute(vers=get_user_agent().browser.version_string)
 
         elif self.current_view == "view_campaign":
             if not hasattr(self, "Settlement") or self.Settlement is None:
@@ -617,15 +636,6 @@ class Session:
 
         elif self.current_view == "view_survivor":
             output += self.render_user_asset_sheet("survivors")
-
-        elif self.current_view == "panel":
-            if self.User.is_admin():
-                P = admin.Panel(self.User.user["login"])
-                body = "helvetica"
-                output += P.render_html()
-            else:
-                self.logger.warn("[%s] attempted to view admin panel and is not an admin!" % self.User)
-                raise Exception("Authorization failure!")
 
         else:
             self.logger.error("[%s] requested unhandled view '%s'" % (self.User, self.current_view))

@@ -113,6 +113,7 @@ def post_JSON_to_route(route=None, payload={}, headers={}, Session=None):
             return json.JSONEncoder.default(self, o)
 
     req_url = route_to_url(route)
+    endpoint = "/".join(req_url.split("/")[3:])
 
     # construct headers
     h = {'content-type': 'application/json'}
@@ -122,7 +123,8 @@ def post_JSON_to_route(route=None, payload={}, headers={}, Session=None):
             refresh_jwt_token(Session)
         h['Authorization'] = Session.session["access_token"]
     else:
-        logger.warn("API POST to JSON did not include a Session object!")
+        if endpoint != 'login':
+            logger.warn("API POST to JSON did not include a Session object!")
 
     if headers != {}:
         h.update(headers)

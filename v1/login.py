@@ -31,9 +31,10 @@ class AuthObject:
         self.password = params["password"].value.strip()
 
 
-    def authenticate_and_render_view(self, skip_auth=False):
-        """ Uses attributes in self to attempt to authenticate a user and render
-        an HTML view for them. """
+    def authenticate(self, skip_auth=False):
+        """ Uses params set during __init__() to authenticate.
+
+        Returns a tuple containing a user object and a session dict. """
 
         auth = admin.authenticate(self.username, self.password)
 
@@ -44,22 +45,16 @@ class AuthObject:
         elif auth == True:
             s = session.Session()
             session_id = s.new(self.username, self.password)
-            new_sesh = utils.mdb.sessions.find_one({"_id": session_id})
             s.User.mark_usage("authenticated successfully")
 
             # handle preserve sessions checkbox on the sign in view
-            if "keep_me_signed_in" in self.params:
-                if "preferences" not in s.User.user:
-                    s.User.user["preferences"] = {}
-                s.User.user["preferences"]["preserve_sessions"] = True
-                utils.mdb.users.save(s.User.user)
+#            if "keep_me_signed_in" in self.params:
+#                if "preferences" not in s.User.user:
+#                    s.User.user["preferences"] = {}
+#                s.User.user["preferences"]["preserve_sessions"] = True
+#                utils.mdb.users.save(s.User.user)
 
-            output, body = s.current_view_html()
-            html.render(
-                output,
-                body_class=body,
-                head = [self.set_cookie_js(new_sesh["_id"], new_sesh["access_token"])],
-                )
+            return s.User, s.session
 
 
     def set_cookie_js(self, session_id, token):
@@ -104,9 +99,9 @@ def render(view_type=None, login=None, code=None):
         code = code,
     )
 
-    # render and exit
+    # render; don't exit (in case we're metering performance)
     print(output)
-    sys.exit()
+
 
 
 if __name__ == "__main__":

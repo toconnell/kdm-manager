@@ -9,7 +9,6 @@ import sys
 #   custom
 import admin
 import api
-import game_assets
 from session import Session
 from utils import load_settings, mdb, get_logger, get_latest_update_string, template_file_to_str
 
@@ -19,69 +18,6 @@ logger = get_logger()
 user_error_msg = Template("""
     <div id="user_error_msg" class="$err_class" onclick="hide('user_error_msg')">$err_msg</div>
     """)
-
-
-class panel:
-    headline = Template("""\n\
-    <meta http-equiv="refresh" content="60">
-
-    <form method="POST" action="">
-        <input type="hidden" name="change_view" value="dashboard"/>
-        <button id="admin_panel_floating_dashboard">Dashboard</button>
-    </form>
-
-    <div class="admin_panel_left">
-        <!-- nothing here -->
-    </div> <!-- admin_panel_left -->
-
-    <div class="admin_panel_right">
-        <h3>Administration</h3>
-        $admin_stats
-        $admins
-        $response_times
-        $world_daemon
-    </div>
-
-    <hr class="invisible"/><br/><hr/><h1>Recent User Activity</h1>
-
-    \n""")
-    panel_table_top = '<table id="panel_aux_table">\n'
-    panel_table_header = Template('\t<tr><th colspan="2">$title</th></tr>\n')
-    panel_table_row = Template('\t<tr class="$zebra"><td class="key">$key</td><td>$value</td></tr>\n')
-    panel_table_bot = '</table>\n'
-    log_line = Template("""\n\
-    <p class="$zebra">$line</p>
-    \n""")
-    user_status_summary = Template("""\n\
-    <div class="panel_block">
-        <table class="panel_recent_user">
-            <tr class="gradient_blue bold"><th colspan="3">$user_name [$u_id]</th></tr>
-            <tr><td class="key">User Created:</td><td>$user_created_on_days days ago</td><td class="m_ago">$user_created_on</td></tr>
-            <tr><td class="key">Latest Sign-in:</td><td>$latest_sign_in_mins m. ago</td><td class="m_ago">$latest_sign_in</td></tr>
-<!--            <tr><td class="key">Latest Activity:</td><td>$latest_activity_mins m. ago</td><td class="m_ago">$latest_activity</td></tr> -->
-            <tr><td class="key" colspan="3"></td></tr>
-            <tr><td class="key">Latest Activity:</td><td colspan="2" class="latest_action">$latest_activity_mins m. ago</td></tr>
-            <tr><td class="latest_action" colspan="3"> $latest_action</td></tr>
-            <tr><td class="key" colspan="3"></td></tr>
-            <tr><td class="key">Session Length:</td><td colspan="2">$session_length minutes</td></tr>
-            <tr><td class="key">User Agent:</td><td colspan="2">$ua</td></tr>
-            <tr><td class="key" colspan="3"></td></tr>
-            <tr><td class="key">Survivors:</td><td colspan="2">$survivor_count</td></tr>
-            <tr><td class="key">Settlements:</td><td colspan="2">$settlements</td></tr>
-            <tr>
-             <td class="key" colspan="3">
-                <form action="#">
-                 <input type="hidden" value="pickle" name="export_user_data"/>
-                 <input type="hidden" value="$u_id" name="asset_id"/>
-                 <br/>
-                &ensp; &ensp; &ensp; <button class="gradient_blue">Download User Data Pickle</button>
-                 <br /><br/>
-                </form>
-             </td>
-            </tr>
-        </table>
-    </div><br/>
-    \n""")
 
 
 class ui:
@@ -797,25 +733,6 @@ class dashboard:
         // kill the spinner, since we're done loading the page now.
         hideFullPageLoader();
     </script>
-
-    <form
-        action="#"
-        method="POST"
-        ng-if="user.user.admin != undefined"
-    >
-        <input
-            type="hidden"
-            name="change_view"
-            value="panel"
-        />
-        <button
-        class="dashboard_admin_panel_launch_button
-        kd_blue
-        tablet_and_desktop
-        ">
-            Admin Panel!
-        </button>
-    </form>
 
 
     <div
@@ -6425,10 +6342,6 @@ class meta:
 
     hide_full_page_loader = '<script type="text/javascript">hideFullPageLoader();</script>'
 
-    norefresh_response = Template("""Content-type: text/html\nStatus: $status\n\n
-    <html><head><title>$status - $response</title></head><body>$response</body></html>
-    """)
-
     error_500 = Template("""%s<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
     <html><head><title>%s</title></head>
     <body>
@@ -6516,23 +6429,13 @@ class meta:
     view_render_fail_email = Template("""\n
     Greetings!<br/><br/>&ensp;User $user_email [$user_id] was logged out of the webapp instance on <b>$hostname</b> due to a render failure at $error_time.<br/><br/>&ensp;The traceback from the exception was this:<hr/><code>$exception</code><hr/>&ensp;The session object was this:<hr/><code>$session_obj</code><hr/>&ensp;Good hunting!<br/><br/>Your friend,<br/>meta.view_render_fail_email()
     \n""")
-    safari_warning = Template("""\n\
-    <div class="safari_warning">
-    <p>It looks like you're using Safari $vers. Unfortunately, the current version
-    of this application uses some presentation elements that are not fully
-    supported by your browser.</p>
-    <p>If you experience disruptive presentation and/or functionality issues while
-    using the manager, <a href="https://www.google.com/chrome/browser"
-    target="top">Chrome</a> is fully supported on Windows and OSX.</p>
-    </div>
-    \n""")
 
 
 
 
 
 
-def render(view_html, head=[], http_headers=None, body_class=None, session_object=None, include_templates=[]):
+def render(view_html, head=[], http_headers=None, body_class=None, include_templates=[]):
     """ This is our basic render: feed it HTML to change what gets rendered. """
 
     output = http_headers
@@ -6598,8 +6501,10 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
 
     output += '</div><!-- container -->'
 
-    # 5. add on all required templates
-    for t in include_templates:
+    # 5. add on all required templates; start w/ the default/baseline
+    ui_templates = ['nav.html', 'new_survivor.html','report_error.html']
+    ui_templates += include_templates
+    for t in ui_templates:
         output += template_file_to_str(t)
 
     # 6. close the container and the body
@@ -6613,6 +6518,3 @@ def render(view_html, head=[], http_headers=None, body_class=None, session_objec
     #
     print(output.encode('utf8'))
 
-    sys.exit(0)     # this seems redundant, but it's necessary in case we want
-                    #   to call a render() in the middle of a load, e.g. to just
-                    #   finish whatever we're doing and show a page.

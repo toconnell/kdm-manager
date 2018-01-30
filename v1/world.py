@@ -6,7 +6,6 @@ from optparse import OptionParser
 
 import api
 import assets
-import game_assets
 import html
 import os
 import requests

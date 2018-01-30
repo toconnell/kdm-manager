@@ -22,12 +22,9 @@ import types
 import api
 import admin
 from modular_assets import survivor_attrib_controls
-import game_assets
 import html
-from models import Locations, Items, Resources, mutually_exclusive_principles
 from session import Session
 from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd, u_to_str
-import world
 
 settings = load_settings()
 
@@ -1172,83 +1169,6 @@ class Settlement:
                 self.logger.warn("[%s] attempting to set principle that is already set!" % self.User)
                 return None
 
-
-    def get_game_asset_deck(self, asset_type, return_type=None, exclude_always_available=False):
-        """ The 'asset_type' kwarg should be 'locations', 'innovations', etc.
-        and the class should be one of our classes from models, e.g.
-        'Locations', 'Innovations', etc.
-
-        What you get back is going to be a list of available options, i.e. which
-        game assets you may add to the settlement based on what they've already
-        got.
-
-        Any model in game_assets.py that has "consequences" as a key should be
-        compatible with this func.
-        """
-
-        if asset_type == "defeated_monsters":
-            Asset = DefeatedMonsters
-        else:
-            exec "Asset = %s" % asset_type.capitalize()
-
-        current_assets = self.settlement[asset_type]
-
-
-        if exclude_always_available:
-            asset_deck = set()
-        else:
-            asset_deck = Asset.get_always_available(self)
-
-        for asset_key in current_assets:
-            if asset_key in Asset.get_keys() and "consequences" in Asset.get_asset(asset_key).keys():
-                for c in Asset.get_asset(asset_key)["consequences"]:
-                    asset_deck.add(c)
-
-        # check for requirements and remove stuff if we don't have them
-        for asset_key in Asset.get_keys():
-            asset_dict = Asset.get_asset(asset_key)
-            if "requires" in asset_dict.keys():
-                requirement_type, requirement_key = asset_dict["requires"]
-                if requirement_key in self.settlement[requirement_type]:
-                    asset_deck.add(asset_key)
-
-        for asset_key in current_assets:
-            if asset_key in asset_deck:
-                asset_deck.discard(asset_key)
-
-        # if the Asset model has its own deck-building method, call that and
-        #   overwrite whatever we've got so far.
-        if hasattr(Asset, "build_asset_deck"):
-            asset_deck = Asset.build_asset_deck(self)   # pass the whole settlement obj
-
-        # set the final_list object
-        final_list = sorted(list(set(asset_deck)))
-
-        # filter expansion content that's not enabled
-        for asset_key in asset_deck:
-            if asset_key in Asset.get_keys() and "expansion" in Asset.get_asset(asset_key).keys():
-                if "expansions" in self.settlement.keys():
-                    if Asset.get_asset(asset_key)["expansion"] not in self.get_expansions("list_of_names"):
-                        final_list.remove(asset_key)
-                else:   # if we've got no expansions, don't show any expansion stuff
-                    final_list.remove(asset_key)
-
-        # filter campaign-forbidden items
-        c_dict = self.get_campaign("dict")
-        if "forbidden" in c_dict.keys():
-            for f in c_dict["forbidden"]:
-                if f in final_list:
-                    final_list.remove(f)
-
-
-        if return_type in ["list"]:
-            if final_list == []:
-                return ""
-            else:
-                output = '\n<ul class="asset_deck">%s</ul>' % "\n".join(["<li>%s</li>" % i for i in final_list])
-                return output
-
-        return final_list
 
 
 

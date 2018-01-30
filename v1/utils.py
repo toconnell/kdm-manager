@@ -62,6 +62,15 @@ forbidden_names = ["test","Test","TEST","Unknown","UNKNOWN","Anonymous","anonymo
 #  application helper functions
 #
 
+def on_production():
+    """ Returns a bool representing whether we're currently running on the
+    production host. """
+
+    if socket.gethostname() != settings.get('api','prod_fqdn'):
+        return False
+    return True
+
+
 def get_local_ip():
     """ Uses the 8.8.8.8 trick to get the localhost IP address. """
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -126,40 +135,6 @@ def stack_list(raw_list):
 
     return stacked_list
 
-
-#
-#   clean-up and maintenance methods/helpers
-#
-
-def convert_game_asset(asset_dict_name):
-    """ This is a convenience function intended to keep the typing to a minimum
-    when we port assets from the legacy app (game_assets.py) to API style asset
-    dictionaries. This basically creates a jumping-off point for migrating an
-    asset dictionary, but you can't trust it to do everything. """
-
-    if not hasattr(game_assets, asset_dict_name):
-        sys.stderr.write("\n\tThere is no '%s' dict in game_assets.py\n\tConversion aborted!\n\n" % (asset_dict_name))
-        sys.exit(255)
-
-    exec "d = game_assets.%s" % asset_dict_name
-    output_dict = {}
-
-    for k in sorted(d.keys()):
-        item = d[k]
-        handle = to_handle(k)
-        converted = {"name": k}
-        for k,v in item.iteritems():
-            converted[k] = v
-        if "expansion" in converted.keys():
-            if converted["expansion"] == "HIDDEN":
-                pass
-            else:
-                converted["expansion"] = to_handle(converted["expansion"])
-        output_dict[handle] = converted
-
-    pprint.pprint(output_dict)
-    sys.stderr.write("\n\tConverted %s assets.\n\tExiting successfully...\n\n" % (len(output_dict.keys())))
-    sys.exit(0)
 
 #
 #   sysadmin helper methods and misc.
@@ -321,6 +296,9 @@ def record_response_time(view_name=None, tdelta=None):
     if removed_records["n"] >= 1:
 #        logger.info("Found and removed %s old response time records!" % removed_records["n"])
         pass
+
+    if on_production:
+        logger.debug("Rendered '%s' view HTML in %s seconds." % (view_name, tdelta.total_seconds()))
 
 
 

@@ -5,44 +5,48 @@ import cgi, cgitb
 from datetime import datetime
 import os
 
-#   custom
+#   app modules
 import admin
 import login
 import html
 from session import Session
-from utils import load_settings, mdb, get_logger, record_response_time
+import socket
+import sys
+import utils
 
 
 if __name__ == "__main__":
 
     start = datetime.now()
 
-    settings = load_settings()
-    logger = get_logger()
+    settings = utils.load_settings()
+    logger = utils.get_logger()
+
+    # CGI application initialization
     if settings.getboolean("application","debug"):
         cgitb.enable()
-
     params = cgi.FieldStorage()
 
-    try:
-        S = Session(params)
-    except Exception as e:
-        logger.critical("Caught exception while creating session!")
-        logger.exception(e)
-        raise
-
+    # initialize a session and render some HTML
+    S = Session(params)
     if S.session is None:
+        current_view = "login"
         output = login.render()
     else:
-        S.process_params(user_action="viewing %s" % S.get_current_view())
-        if "norefresh" in params and S.session is not None:
-            print html.meta.norefresh_response.safe_substitute(response="OK",status=200)
-        else:
-            output, body = S.current_view_html()
+        S.process_params()
+        current_view = S.current_view
+        output, body = S.current_view_html()
+
+        # set the head
+        head = []
+        if S.set_cookie:
+            head.append(S.AuthObject.set_cookie_js(S.session["_id"], S.session["access_token"]))
+
+        # render!
+        html.render(output, body_class=body, head=head)
+
 
     stop = datetime.now()
-    record_response_time(S.get_current_view(), stop-start)
+    utils.record_response_time(current_view, stop-start)
 
-    if "norefresh" not in params:
-        ui_templates = ['nav.html', 'new_survivor.html','report_error.html']
-        html.render(output, body_class=body, session_object=S, include_templates = ui_templates)
+    sys.exit(0)

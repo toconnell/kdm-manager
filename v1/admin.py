@@ -19,7 +19,7 @@ import api
 import assets
 import html
 import session
-from utils import email, mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes, ymd, admin_session, thirty_days_ago, get_latest_change_log, convert_game_asset, get_latest_update_string
+from utils import email, mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes, ymd, admin_session, thirty_days_ago, get_latest_change_log, get_latest_update_string
 import world
 
 import sys
@@ -317,7 +317,7 @@ def initialize():
             gridfs.GridFS(mdb).delete(survivor["avatar"])
             avatars += 1
     print("\nRemoved %s avatars from GridFS!" % avatars)
-    for collection in ["users", "sessions", "survivors", "settlements", "the_dead", "user_admin"]:
+    for collection in ["users", "sessions", "survivors", "settlements", "the_dead", "user_admin",'response_times']:
         mdb[collection].remove()
 
 
@@ -401,139 +401,6 @@ def tail(settlement_id, interval=5, last=20):
         print("")
         sys.exit(1)
 
-
-
-    #
-    #   Admin Panel!
-    #
-
-class Panel:
-    def __init__(self, admin_login):
-        self.admin_login = admin_login
-        self.Session = session.Session()
-        self.logger = get_logger()
-        self.recent_users = self.get_recent_users()
-
-    def get_recent_users(self):
-        """ Gets users from mdb who have done stuff within our time horizon for
-        'recent' sessions and returns them. """
-        hours_ago = settings.getint("application", "session_horizon")
-        recent_cut_off = datetime.now() - timedelta(hours=hours_ago)
-        return mdb.users.find({"latest_activity": {"$gte": recent_cut_off}, "login": {"$ne": self.admin_login}}).sort("latest_activity", -1)
-
-    def get_last_n_log_lines(self, lines):
-        log_path = os.path.join(settings.get("application", "log_dir"), "index.log")
-        index_log = file(log_path, "r")
-        return index_log.readlines()[-lines:]
-
-    def render_html(self):
-        """ Renders the whole panel. """
-
-        try:
-            World = api.route_to_dict("world")
-            W = World["world"]
-            meta = World["meta"]
-        except Exception as e:
-            return "World could not be loaded! %s" % e
-
-        daemon_block = '<table class="admin_panel_right_child">'
-        daemon_block += '<tr><th colspan="2">World Daemon</th></tr>'
-        for k, v in World["world_daemon"].iteritems():
-            if type(v) == dict:
-                raw = v["$date"]
-                dt = datetime.fromtimestamp(raw/1000)
-                daemon_block += '<tr><td>%s</td><td>%s</td></tr>' %  (k,dt)
-            else:
-                daemon_block += '<tr><td>%s</td><td>%s</td></tr>' % (k,v)
-        daemon_block += "</table>"
-
-        response_block = '<table class="admin_panel_right_child">'
-        response_block += '<tr><th colspan="4">Response Times</th></tr>'
-        response_block += '<tr><td><i>View</i></td><td><i>#</i></td><td><i>Avg.</i></td><td><i>Max</i></td></tr>'
-        for r in get_response_times():
-            response_block += "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>" % (r["_id"],r["count"],r["avg_time"],r["max_time"])
-        response_block += "</table>"
-
-        admins_block = '<table class="admin_panel_right_child">'
-        admins_block += '<tr><th colspan="2">Administrators</th></tr>'
-        admins = mdb.users.find({"admin":{"$exists":True}})
-        for a in admins:
-            admins_block += '<tr><td>%s</td><td>%s</td></tr>' % (a["login"],a["_id"])
-        admins_block += '</table>'
-
-        stat_block = '<table class="admin_panel_right_child">'
-        stat_block += '<tr><th colspan="2">Environment</th></tr>'
-        stat_block += '<tr><td>Host</td><td>%s</td></tr>' % socket.getfqdn()
-        stat_block += '<tr><td>Application version</td><td>%s</td></tr>' % settings.get("application","version")
-        stat_block += '<tr><td>Release</td><td>%s</td></tr>' % get_latest_update_string()
-        stat_block += '<tr><td>API URL</td><td>%s</td></tr>' % api.get_api_url()
-        stat_block += '<tr><td>API admin panel</td><td><a href="%sadmin">%sadmin</a></td></tr>' % (api.get_api_url(), api.get_api_url())
-        stat_block += '<tr><td>API Version</td><td>%s</td></tr>' % meta["api"]["version"]
-        stat_block += '</table>'
-
-
-        output = html.panel.headline.safe_substitute(
-            response_times = response_block,
-            world_daemon = daemon_block,
-            recent_users_count = self.recent_users.count(),
-            users = W["total_users"]["value"],
-            sessions = mdb.sessions.find().count(),
-            settlements = mdb.settlements.find().count(),
-            total_survivors = W["total_survivors"]["value"],
-            live_survivors = W["live_survivors"]["value"],
-            dead_survivors = W["dead_survivors"]["value"],
-            complete_death_records = mdb.the_dead.find({"complete": {"$exists": True}}).count(),
-            latest_fatality = world.api_survivor_to_html(W["latest_fatality"]),
-            latest_settlement = world.api_settlement_to_html(W["latest_settlement"]),
-            latest_kill = world.api_monster_to_html(W["latest_kill"]),
-            current_hunt = world.api_current_hunt(W["current_hunt"]),
-            admin_stats = stat_block,
-            admins = admins_block,
-        )
-
-
-        for user in self.recent_users:
-            User = assets.User(user_id=user["_id"], session_object=self.Session)
-
-            # create settlement summaries
-            settlements = mdb.settlements.find({"created_by": User.user["_id"]}).sort("name")
-            settlement_strings = []
-            for s in settlements:
-                S = assets.Settlement(settlement_id=s["_id"], session_object=self.Session, update_mins=False)
-                settlement_strings.append(S.render_admin_panel_html())
-
-            output += html.panel.user_status_summary.safe_substitute(
-                user_name = User.user["login"],
-                u_id = User.user["_id"],
-                ua = User.user["latest_user_agent"],
-                latest_sign_in = User.user["latest_sign_in"].strftime(ymdhms),
-                latest_sign_in_mins = (datetime.now() - User.user["latest_sign_in"]).seconds // 60,
-                session_length = (User.user["latest_activity"] - User.user["latest_sign_in"]).seconds // 60,
-                latest_activity = User.user["latest_activity"].strftime(ymdhms),
-                latest_activity_mins = (datetime.now() - User.user["latest_activity"]).seconds // 60,
-                latest_action = User.user["latest_action"],
-                settlements = "<br/>".join(settlement_strings),
-                survivor_count = mdb.survivors.find({"created_by": User.user["_id"]}).count(),
-                user_created_on = User.user["created_on"].strftime(ymd),
-                user_created_on_days = (datetime.now() - User.user["created_on"]).days
-            )
-
-        output += "<hr/>"
-
-
-        log_lines = self.get_last_n_log_lines(50)
-        zebra = False
-        for l in reversed(log_lines):
-            if zebra:
-                output += html.panel.log_line.safe_substitute(line=l, zebra=zebra)
-                zebra = False
-            else:
-                output += html.panel.log_line.safe_substitute(line=l)
-                zebra = "grey"
-
-        output += html.meta.hide_full_page_loader
-
-        return output
 
 
 def dashboard_alert():
@@ -634,6 +501,7 @@ def import_data(data_pickle_path, force=False):
 if __name__ == "__main__":
     parser = OptionParser()
 
+    parser.add_option("--response_times", dest="response_times", action="store_true", help="Dump HTML render times.", default=False)
     parser.add_option("-s", dest="survivor", help="Specify a survivor to work with.", metavar="566e228654922d30c47b8704", default=False)
     parser.add_option("--survivor_attrib", dest="survivor_attrib", help="Specify a survivor attrib to modify.", metavar="attributes_and_impairments", default=False)
     parser.add_option("--add_attrib", dest="add_attrib", help="Add attrib to survivor", metavar="user-specified string", default=False)
@@ -655,7 +523,6 @@ if __name__ == "__main__":
     parser.add_option("-e", dest="export_data", help="export data to a pickle. needs a user _id", metavar="5681f9e7421aa93924b6d013", default=False)
     parser.add_option("-i", dest="import_data", help="import data from a pickle", metavar="/home/toconnell/data.pickle", default=False)
     parser.add_option("--user", dest="pretty_view_user", help="Print a pretty summary of a user", metavar="5665026954922d076285bdec", default=False)
-    parser.add_option("--convert", dest="convert_game_asset", help="Convert a dictionary from game_assets.py to API-style asset dictionary and dump the converted dict to STDOUT.", metavar="epithets", default=False)
     parser.add_option("--tail", dest="tail_settlement", help="tail -f a settlement's log", metavar="5665123bfhas90213bdhs85b123", default=False)
     parser.add_option("--user_repr", dest="user_repr", help="Dump a user's repr", metavar="5665026954922d076285bdec", default=False)
     parser.add_option("--admin", dest="toggle_admin", help="toggle admin status for a user _id", default=False)
@@ -663,6 +530,13 @@ if __name__ == "__main__":
 
     parser.add_option("--initialize", dest="initialize", help="Burn it down.", action="store_true", default=False)
     (options, args) = parser.parse_args()
+
+    if options.response_times:
+        spacer = 20
+        print "  route%s avg\t max" % (" " * (spacer - len('route') - 1))
+        for r in get_response_times():
+            print " %s%s%s\t%s" % (r['_id'], " "*(spacer-len(r['_id'])), round(r['avg_time'],2), round(r['max_time'],2))
+        print
 
     if options.toggle_admin:
         print("\n  This is no longer supported via the legacy webapp admin tools! Please use API controls.\n")
@@ -721,9 +595,6 @@ if __name__ == "__main__":
                 update_survivor("remove", s_id=options.survivor, attrib=options.survivor_attrib, attrib_value=options.remove_attrib)
         if options.remove_key:
             update_survivor("del", s_id=options.survivor, survivor_key=options.remove_key)
-
-    if options.convert_game_asset:
-        convert_game_asset(options.convert_game_asset)
 
     if options.email:
         email(recipients=options.email.split(), msg="This is a test message!\nGood!")

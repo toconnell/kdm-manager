@@ -80,9 +80,14 @@ app.controller("survivorSheetController", function($scope) {
     };
 
     $scope.setSurvivorName = function() {
-        var newName = document.getElementById('survivorName').innerHTML;
+        var nameContainer = document.getElementById('survivorName');
+        var newName = nameContainer.innerHTML;
         js_obj = {name: newName};
-        $scope.postJSONtoAPI('survivor', 'set_name', js_obj);
+        res = $scope.postJSONtoAPI('survivor', 'set_name', js_obj, false, true, true);
+        res.then(function(payload){
+            var updated_name = payload.data.sheet.name;
+            nameContainer.innerHTML = updated_name;
+        });
     };
     $scope.randomName = function() {
         var sex = $scope.survivor.sheet.effective_sex;
