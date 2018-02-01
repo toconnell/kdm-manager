@@ -34,6 +34,7 @@ function hideAPIerrorModal() {
 
 // public helpers
 function rollUp(e_id) {
+//    console.warn(e_id);
     var e = document.getElementById(e_id);
     if (e.classList.contains('rolled_up') == true) {
         e.classList.remove('rolled_up');
@@ -145,6 +146,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
     };
 
     // initialize rootScope elements here; these are set on every view
+    $rootScope.rollUp = rollUp;
     $rootScope.showHide = showHide;
     $scope.numberToRange = function(num) {
         return new Array(num); 

@@ -157,6 +157,27 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
         };
     };
 
+    $scope.setSurvivorAttribute = function(s, attrib){
+        // basic ish; doesn't reinit, but reloads from the return
+        $rootScope.survivor_id = s.sheet._id.$oid;
+        json_obj = {attribute: attrib, value: s.sheet[attrib]};
+        $scope.postJSONtoAPI('survivor', 'set_attribute', json_obj, false);
+    };
+
+    $scope.toggleDamage = function(s, loc){
+        $rootScope.survivor_id = s.sheet._id.$oid;
+        json_obj = {'location': loc};
+        var res = $scope.postJSONtoAPI('survivor', 'toggle_damage', json_obj, false);
+        res.then(
+            function(payload) {
+                var sheet = payload.data.sheet
+                s.sheet = sheet;
+            },
+            function(errorPayload){console.error('ERROR!');}
+        );
+    };
+
+
     $scope.initSurvivorCard = function(survivor) {
         // sets survivor.meta.manageable within a given survivor. access/security
         // logic is all right here, folks. Hack away!

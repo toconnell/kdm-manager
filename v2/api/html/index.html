@@ -2161,6 +2161,33 @@
             aspects of the Settlement Sheet.</td>
         </tr>
         <tr class="ul">
+            <td> /survivor/toggle_damage/&lt;survivor_id&gt; </td>
+            <td> <b>POST</b> </td>
+            <td>
+                <p><b>POST</b> a damage location handle to this route to toggle
+                it on/off for the survivor:</p>
+                <code>{location: 'arms_damage_light'}</code>
+                <p>Supported location handles:
+                <ul>
+                    <li><code>brain_damage_light</code></li>
+                    <li><code>head_damage_heavy</code></li>
+                    <li><code>arms_damage_light</code></li>
+                    <li><code>arms_damage_heavy</code></li>
+                    <li><code>body_damage_light</code></li>
+                    <li><code>body_damage_heavy</code></li>
+                    <li><code>waist_damage_light</code></li>
+                    <li><code>waist_damage_heavy</code></li>
+                    <li><code>legs_damage_light</code></li>
+                    <li><code>legs_damage_heavy</code></li>
+                </ul>
+                </p>
+                <p>Locations that are toggled 'off' will show up as <code>
+                undefined</code> in the <code>sheet</code> element: the locations
+                are toggled 'on' if they exist on the <code>sheet</code>.
+                </p>
+            </td>
+        </tr>
+        <tr class="ul">
             <td> /survivor/toggle_boolean/&lt;survivor_id&gt; </td>
             <td> <b>POST</b> </td>
             <td> <p>Use this route to toggle Boolean attributes of the survivor

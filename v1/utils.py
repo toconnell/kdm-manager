@@ -67,8 +67,8 @@ def on_production():
     production host. """
 
     if socket.gethostname() != settings.get('api','prod_fqdn'):
-        return False
-    return True
+        return True
+    return False
 
 
 def get_local_ip():

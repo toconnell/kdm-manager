@@ -411,7 +411,7 @@ class User(Models.UserAsset):
         self.user['latest_action'] = activity_string
         self.user['latest_activity'] = datetime.now()
         self.user['latest_user_agent'] = ua_string
-        self.save()
+        self.save(verbose=False)
 
 
     def set_patron_attributes(self, level=None, beta=None):

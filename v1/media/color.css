@@ -36,5 +36,12 @@
     /* asset emulation */
 .kd_promo {color: #fff; background: radial-gradient(circle, #5Dd7F2, #50CAF5, #3FACCF); }
 
+    /* attributes */
+.Movement, .mov_token {background-color: #9A6D84; color: #fff; }
+.Accuracy, .acc_token {background-color: #E8BE34; color: #000; }
+.Strength, .str_token {background-color: #D04F28; color: #fff; }
+.Evasion, .eva_token {background-color: #9FA6AE; color: #000; }
+.Luck, .luck_token {background-color: #AD9E81; color: #000; }
+.Speed, .spd_token {background-color: #8C9A65; color: #fff; }
 
 

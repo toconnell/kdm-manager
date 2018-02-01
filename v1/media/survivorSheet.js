@@ -182,7 +182,7 @@ app.controller("survivorSheetController", function($scope) {
     //
 
     $scope.toggleDamage = function(loc) {
-        console.warn(loc);
+//        console.warn(loc);
         $scope.postJSONtoAPI('survivor','toggle_damage',{'location': loc}, false, true, true);
     };
 
