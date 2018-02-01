@@ -1780,6 +1780,9 @@ class Survivor(Models.UserAsset):
             else:
                 value = int(self.params["value"])
 
+        if attrib == 'survival':
+            return self.set_survival()
+
         # sanity check!
         if attrib not in self.survivor.keys():
             msg = "%s does not have '%s' attribute!" % (self, attrib)

@@ -616,6 +616,11 @@ div.survivor_controls img {background-color: #fff; margin-bottom: 2%; }
 .quickview_attributes_container {margin: 3%; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: center; margin-top: 0; }
 .quickview_attribute_box {font-size: 20pt; border-right: 3px solid #000; margin: 0; display: flex; flex-direction: column; align-items: center; width: 17%; }
 .quickview_attribute_box.last {border: 0; }
+.quickview_attribute_tumblers_container {display: flex; flex-direction: row; }
+.quickview_attribute_tumbler {width: 33%; border: 1px solid #000; font-size: 25pt; background-color: #fff; margin: 1%; color: #000; display: flex; flex-direction: column; align-items: center; padding: 1%; }
+.quickview_attribute_tumbler button {width: 90%; margin: 1%; border-radius: 1px; }
+.quickview_attribute_tumbler input {margin: 3%; text-align: center; padding: 0; font-size: 50pt; height: 100px; width: 100px; border: 1px solid #000; }
+.quickview_attribute_tumbler_save {margin: 0 auto; width: 90%; display: block; margin-bottom: 5%; }
 .quickview_attribute_box .attribute_box_number {font-size: 50pt; width: 70%; border: 1px solid #000; margin: 20px; padding: 0; text-align: center; }
 .quickview_brain_container,
     .quickview_hitbox_container {margin: 3%; display: flex; }
@@ -647,7 +652,7 @@ div.survivor_controls img {background-color: #fff; margin-bottom: 2%; }
 .quickview_asset_list_title_bar .title {font-size: 45pt; }
 .quickview_asset_list_title_bar .subtitle {width: 20%; font-size: 20pt; }
 .quickview_asset_list_title_bar .lockbox {width: 40%; font-size: 20pt; text-align: right; }
-.quickview_asset_list {margin: 1%; }
+.quickview_asset_list {margin: 1%; transition: 1s;}
 .quickview_asset_list li {list-style: none; margin: 0; font-family: 'metrophobic'; font-size: 33pt; margin-top: 5%; }
 
 .quickview_ui_button_container {display: block; text-align: center; }
@@ -1827,6 +1832,9 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .quickview_survival_container .survival_box_lock {font-size: 12pt; }
     .quickview_attribute_box {font-size: 12pt; padding-bottom: 5px; }
     .quickview_attribute_box .attribute_box_number {font-size: 25pt; height: 50px; margin-bottom: 10px; margin-top: 10px; }
+    .quickview_attribute_tumbler {font-size: 13pt; }
+    .quickview_attribute_tumbler input {font-size: 20pt; height: 60px; width: 60px; }
+    .kd_sheet_ui_roll_down_controls button {border-radius: 1px; }
     .quickview_brain_container,
         .quickview_hitbox_container {margin-top: 2%; margin-bottom: 0; }
     .quickview_brain_container {margin-top: 2%; }
@@ -1844,6 +1852,9 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .quickview_secondary_container.hunt_xp {font-size: 20pt; }
     .secondary_attrib_box_row .weapon_proficiency_type {font-size: 12pt; }
     .quickview_asset_list_title_bar .title {font-size: 20pt; }
+    .quickview_asset_list_title_bar .subtitle {width: auto; }
+    .quickview_asset_list_title_bar .lockbox {width: 50%; }
+    .quickview_asset_list_title_bar .lockbox.skip_next_hunt {width: 40%; }
     .quickview_asset_list_title_bar .subtitle,
         .quickview_asset_list_title_bar .lockbox {font-size: 12pt; }
     .quickview_asset_list {margin: 1%; padding: 0; }
@@ -2899,8 +2910,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     border-top: 2px solid #870000; border-left: 2px solid #870000; 
     border-right: 2px solid #190A05; border-bottom: 2px solid #190A05; 
 }
-.maroon_box {background: #B71C1C; border-color: #a70a0a}
-.maroon_text {color: #B71C1C;}
 
 .kd_lantern {background-color: #F9EFCE; background: radial-gradient(#F9E6A4, #FCF3D5 ); border: 0.1em solid #EBD6AB;}
 .kd_dying_lantern {background-color: #F9EFCE; background: radial-gradient(#FDE6C4, #FCF3D5); }
@@ -2911,12 +2920,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 /* button styles */
 .kd_brown, .endeavor_brown {background-color: #997030; background: linear-gradient(#997030, #a47a41, #997030); border-color: #B6B057; color: #fff; border-right-color: #C6C057; border-bottom-color: #C6C057;}
 .kd_special_showdown {background-color: #DC2426; color: #fff; }
-
-.affinity_red {background: #CD2027; background-color: #CD2027; color: #fff;}
-.affinity_blue {background: #1C99CD; background-color: #1C99CD; color: #fff;}
-.affinity_green {background: #4CB848; background-color: #4CB848; color: #fff;}
-
-.dragon_king {color: #E8cE55; background: radial-gradient(#7270B9, #6260A9); }
 
 .disabled, .strikethrough {color: #999; background: #dedede; cursor: not-allowed; }
 

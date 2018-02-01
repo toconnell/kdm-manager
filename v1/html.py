@@ -4310,6 +4310,7 @@ class settlement:
                 weaponProficiencyBoxID = 'weaponProficiencyControl' + s.sheet._id.$oid;
                 courageBoxID = 'courageControl' + s.sheet._id.$oid;
                 understandingBoxID = 'understandingControl' + s.sheet._id.$oid;
+                attrib_list = ['Movement','Accuracy','Strength','Evasion','Luck','Speed'];
             "
         >
             <div class="columns">
@@ -4346,7 +4347,7 @@ class settlement:
                             </div>
                             <div
                                 class="survival_box_lock clickable"
-                                ng-click="toggleStatusFlag('cannot_spend_survival')"
+                                ng-click="toggleSurvivorFlag(s, 'cannot_spend_survival')"
                             >
                                 <div
                                     class="kd_sheet_ui_box"
@@ -4398,56 +4399,79 @@ class settlement:
                         </div>
                     </div>
 
-            <div class="quickview_attributes_container border_box">
-                <div class="quickview_attribute_box clickable Movement">
+            <div
+                class="quickview_attributes_container border_box"
+            >
+                <div
+                    ng-repeat="A in attrib_list"
+                    class="quickview_attribute_box clickable {{A}}"
+                    ng-class="{last: $last}"
+                    ng-click="rollUp(A + 'BoxID' + s.sheet._id.$oid)"
+                >
                     <input
                         class="attribute_box_number"
                         type="number"
-                        ng-model="s.sheet.Movement"
-                        min="1"
+                        ng-value="s.sheet[A] + s.sheet.attribute_detail[A].tokens + s.sheet.attribute_detail[A].gear"
+                        ng-class="{
+                            maroon_text: s.sheet[A] + s.sheet.attribute_detail[A].tokens + s.sheet.attribute_detail[A].gear < s.sheet[A],
+                            green_text: s.sheet[A] + s.sheet.attribute_detail[A].tokens + s.sheet.attribute_detail[A].gear > s.sheet[A],
+                        };"
                     />
-                    Movement
+                    {{A}}
                 </div>
-                <div class="quickview_attribute_box clickable Accuracy">
-                    <input
-                        class="attribute_box_number"
-                        type="number"
-                        ng-model="s.sheet.Accuracy"
-                    />
-                    Accuracy
+            </div>
+            <div
+                ng-repeat="A in attrib_list"
+                id="{{A}}BoxID{{s.sheet._id.$oid}}"
+                class="kd_sheet_ui_roll_down rolled_up"
+            >
+                <div class="kd_sheet_ui_roll_down_controls quickview_attribute_tumblers_container {{A}}">
+                    <div class="quickview_attribute_tumbler">
+                        <button ng-click="s.sheet[A] = s.sheet[A] + 1">
+                            &#x25B2;
+                        </button>
+                        <input
+                            type="number"
+                            ng-model="s.sheet[A]"
+                        />
+                        <button ng-click="s.sheet[A] = s.sheet[A] - 1">
+                            &#x25BC;
+                        </button>
+                        Base
+                    </div>
+                    <div class="quickview_attribute_tumbler">
+                        <button ng-click="s.sheet.attribute_detail[A].gear = s.sheet.attribute_detail[A].gear + 1">
+                            &#x25B2;
+                        </button>
+                        <input
+                            type="number"
+                            ng-model="s.sheet.attribute_detail[A].gear"
+                        />
+                        <button ng-click="s.sheet.attribute_detail[A].gear = s.sheet.attribute_detail[A].gear - 1">
+                            &#x25BC;
+                        </button>
+                        Gear
+                    </div>
+                    <div class="quickview_attribute_tumbler">
+                        <button ng-click="s.sheet.attribute_detail[A].tokens = s.sheet.attribute_detail[A].tokens + 1">
+                            &#x25B2;
+                        </button>
+                        <input
+                            type="number"
+                            ng-model="s.sheet.attribute_detail[A].tokens"
+                        />
+                        <button ng-click="s.sheet.attribute_detail[A].tokens = s.sheet.attribute_detail[A].tokens - 1">
+                            &#x25BC;
+                        </button>
+                        Tokens
+                    </div>
                 </div>
-                <div class="quickview_attribute_box clickable Strength">
-                    <input
-                        class="attribute_box_number"
-                        type="number"
-                        ng-model="s.sheet.Strength"
-                    />
-                    Strength
-                </div>
-                <div class="quickview_attribute_box clickable Evasion">
-                    <input
-                        class="attribute_box_number"
-                        type="number"
-                        ng-model="s.sheet.Evasion"
-                    />
-                    Evasion
-                </div>
-                <div class="quickview_attribute_box clickable Luck">
-                    <input
-                        class="attribute_box_number"
-                        type="number"
-                        ng-model="s.sheet.Luck"
-                    />
-                    Luck
-                </div>
-                <div class="quickview_attribute_box last clickable Speed">
-                    <input
-                        class="attribute_box_number"
-                        type="number"
-                        ng-model="s.sheet.Speed"
-                    />
-                    Speed
-                </div>
+                <button
+                    class="kd_blue quickview_attribute_tumbler_save"
+                    ng-click="rollUp(A + 'BoxID' + s.sheet._id.$oid); setSurvivorAttributes(s, A)"
+                >
+                    Save {{A}}
+                </button>
             </div>
 
             <div class="quickview_brain_container border_box">
@@ -4966,13 +4990,22 @@ class settlement:
                         <div class="quickview_asset_list_title_bar">
                             <div class="title">Fighting Arts</div>
                             <div class="subtitle">Maximum 3.</div>
-                            <div class="lockbox clickable">
-                                Cannot use Fighting Arts
+                            <div
+                                class="lockbox clickable"
+                                ng-click="toggleSurvivorFlag(s, 'cannot_use_fighting_arts')"
+                            >
+                                <div
+                                    class="kd_sheet_ui_box"
+                                    ng-class="{checked: s.sheet.cannot_use_fighting_arts == true}"
+                                >
+                                </div>
+                                &#x1f512; Cannot use Fighting Arts
                             </div>
                         </div>
                         <ul class="quickview_asset_list">
                             <li
                                 ng-repeat="fa in s.sheet.fighting_arts"
+                                ng-class="{true: 'faded'}[s.sheet.cannot_use_fighting_arts]"
                             >
                                 <b>{{settlement.game_assets.fighting_arts[fa].name}}:</b>
                                 <span ng-bind-html="settlement.game_assets.fighting_arts[fa].desc|trustedHTML"></span>
@@ -5008,8 +5041,16 @@ class settlement:
                     >
                         <div class="quickview_asset_list_title_bar">
                             <div class="title">Abilities & Impairments</div>
-                            <div class="lockbox clickable">
-                                Skip Next hunt
+                            <div
+                                class="lockbox clickable skip_next_hunt"
+                                ng-click="toggleSurvivorFlag(s, 'skip_next_hunt')"
+                            >
+                                <div
+                                    class="kd_sheet_ui_box"
+                                    ng-class="{checked: s.sheet.skip_next_hunt == true}"
+                                >
+                                </div>
+                                &#x1f512; Skip Next Hunt
                             </div>
                         </div>
                         <ul class="quickview_asset_list">
@@ -5089,138 +5130,8 @@ class settlement:
     </div> <!-- kd_sheet_ui_outer_ring_container-->
 </div> <!-- quick view modal -->
 
-                                <h3><b>{{s.sheet.name}}</b> [{{s.sheet.effective_sex}}]</h3>
 
-                                <div class="avatar_and_stats">
-                                    <img
-                                        ng-src="/get_image?id={{s.sheet.avatar.$oid}}"
-                                        ng-if="s.sheet.avatar != undefined"
-                                    />
-                                    <img
-                                        ng-if="s.sheet.avatar == undefined"
-                                        ng-src="/media/default_avatar_{{s.sheet.effective_sex}}.png"
-                                    />
-
-                                    <table class="stats_table">
-                                        <tr><th></th><th>Base </th><th>Gear </th><th>Tok</th></tr>
-                                        <tr>
-                                            <td class="key">MOV:</td>
-                                            <td>{{s.sheet.Movement}}</td>
-                                            <td>{{s.sheet.attribute_detail.Movement.gear}}</td>
-                                            <td>{{s.sheet.attribute_detail.Movement.tokens}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="key">ACC:</td>
-                                            <td>{{s.sheet.Accuracy}}</td>
-                                            <td>{{s.sheet.attribute_detail.Accuracy.gear}}</td>
-                                            <td>{{s.sheet.attribute_detail.Accuracy.tokens}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="key">STR:</td>
-                                            <td>{{s.sheet.Strength}}</td>
-                                            <td>{{s.sheet.attribute_detail.Strength.gear}}</td>
-                                            <td>{{s.sheet.attribute_detail.Strength.tokens}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="key">EVA:</td>
-                                            <td>{{s.sheet.Evasion}}</td>
-                                            <td>{{s.sheet.attribute_detail.Evasion.gear}}</td>
-                                            <td>{{s.sheet.attribute_detail.Evasion.tokens}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="key">LUCK:</td>
-                                            <td>{{s.sheet.Luck}}</td>
-                                            <td>{{s.sheet.attribute_detail.Luck.gear}}</td>
-                                            <td>{{s.sheet.attribute_detail.Luck.tokens}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="key">SPD:</td>
-                                            <td>{{s.sheet.Speed}}</td>
-                                            <td>{{s.sheet.attribute_detail.Speed.gear}}</td>
-                                            <td>{{s.sheet.attribute_detail.Speed.tokens}}</td>
-                                        </tr>
-                                    </table>
-                                </div> <!-- avatar and stats -->
-
-                                <div class="campaign_summary_survivor_attrib_tumblers">
-                                    <div class="tumbler">
-                                        <button
-                                            ng-click="modifySurvivorAttrib(s, 'survival', 1, settlement.sheet.survival_limit)"
-                                            ng-class="{disabled: s.sheet.survival == settlement.sheet.survival_limit}"
-                                        >
-                                            &#9652;
-                                        </button>
-                                        <div class="value">{{s.sheet.survival}}</div>
-                                        Survival
-                                        <button
-                                            ng-click="modifySurvivorAttrib(s, 'survival', -1)"
-                                            ng-class="{disabled: s.sheet.survival == 0}"
-                                        >
-                                            &#9662;
-                                        </button>
-                                    </div>
-                                    <div class="tumbler">
-                                        <button
-                                            ng-click="modifySurvivorAttrib(s, 'Insanity', 1)"
-                                        >
-                                            &#9652;
-                                        </button>
-                                        <div
-                                            class="value"
-                                            ng-class="{maroon_text: s.sheet.Insanity >= 3}"
-                                        >
-                                            {{s.sheet.Insanity}}
-                                        </div>
-                                        Insanity
-                                        <button
-                                            ng-click="modifySurvivorAttrib(s, 'Insanity', -1)"
-                                            ng-class="{disabled: s.sheet.Insanity == 0}"
-                                        >
-                                            &#9662;
-                                        </button>
-                                    </div>
-                                    <div class="tumbler">
-                                        <button
-                                            ng-click="modifySurvivorAttrib(s, 'Courage', 1, 9)"
-                                            ng-class="{disabled: s.sheet.Courage == 9}"
-                                        >
-                                            &#9652;
-                                        </button>
-                                        <div class="value">{{s.sheet.Courage}}</div>
-                                        Courage
-                                        <button
-                                            ng-click="modifySurvivorAttrib(s, 'Courage', -1)"
-                                            ng-class="{disabled: s.sheet.Courage == 0}"
-                                        >
-                                            &#9662;
-                                        </button>
-                                    </div>
-                                    <div class="tumbler">
-                                        <button
-                                            ng-click="modifySurvivorAttrib(s, 'Understanding', 1, 9)"
-                                            ng-class="{disabled: s.sheet.Understanding == 9}"
-                                        >
-                                            &#9652;
-                                        </button>
-                                        <div class="value">{{s.sheet.Understanding}}</div>
-                                        Understanding
-                                        <button
-                                            ng-click="modifySurvivorAttrib(s, 'Understanding', -1)"
-                                            ng-class="{disabled: s.sheet.Understanding == 0}"
-                                        >
-                                            &#9662;
-                                        </button>
-                                    </div>
-                                </div>
-
-
-                                <hr>
-
-
-                            </div> <!-- container -->
-                            </div> <!-- modal controls -->
-
-
+                        </div>
                         </div> <!-- survivor container -->
 
                     </div><!-- show/hide container -->

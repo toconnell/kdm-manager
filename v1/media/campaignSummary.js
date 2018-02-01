@@ -161,7 +161,14 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
         // basic ish; doesn't reinit, but reloads from the return
         $rootScope.survivor_id = s.sheet._id.$oid;
         json_obj = {attribute: attrib, value: s.sheet[attrib]};
-        $scope.postJSONtoAPI('survivor', 'set_attribute', json_obj, false);
+        var res = $scope.postJSONtoAPI('survivor', 'set_attribute', json_obj, false);
+        res.then(
+            function(payload) {
+                var sheet = payload.data.sheet
+                s.sheet = sheet;
+            },
+            function(errorPayload){console.error('ERROR!');}
+        );
     };
 
     $scope.toggleDamage = function(s, loc){
@@ -177,6 +184,30 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
         );
     };
 
+    $scope.toggleSurvivorFlag = function(s, flag){
+        $rootScope.survivor_id = s.sheet._id.$oid;
+        json_obj = {'flag': flag};
+        var res = $scope.postJSONtoAPI('survivor', 'toggle_status_flag', json_obj, false);
+        res.then(
+            function(payload) {
+                var sheet = payload.data.sheet
+                s.sheet = sheet;
+            },
+            function(errorPayload){console.error('ERROR!');}
+        );
+    };
+
+    $scope.setSurvivorAttributes = function(s, attrib){
+        $rootScope.survivor_id = s.sheet._id.$oid;
+        json_obj = {
+            attributes: [{attribute: attrib, value: s.sheet[attrib]}],
+            attribute_details: [
+                {attribute: attrib, detail: 'tokens', value: s.sheet.attribute_detail[attrib].tokens },
+                {attribute: attrib, detail: 'gear', value: s.sheet.attribute_detail[attrib].gear },
+            ],
+        };
+        var res = $scope.postJSONtoAPI('survivor', 'set_many_attributes', json_obj, false);
+    };
 
     $scope.initSurvivorCard = function(survivor) {
         // sets survivor.meta.manageable within a given survivor. access/security
