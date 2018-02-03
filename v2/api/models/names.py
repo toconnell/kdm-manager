@@ -70,6 +70,16 @@ class Assets(Models.AssetCollection):
         return {'M': sorted(list(male)), 'F': sorted(list(female))}
 
 
+    def get_random_surnames(self, count=50):
+        """ Returns 'count' random surnames. """
+
+        all_surnames = names.surname
+        random_surnames = set()
+        while len(random_surnames) < count:
+            random_surnames.add(random.choice(all_surnames))
+        return list(random_surnames)
+
+
     def name_to_handle(self, prefix, name):
         """ Flattens out 'name' and merges it with 'prefix' to make a sort of
         handle. """

@@ -1491,6 +1491,12 @@ class survivor:
                         Random Name
                     </button>
                     <button
+                        ng-if="user.user.subscriber.level > 1"
+                        ng-click="randomSurname()"
+                    >
+                        Random Surname
+                    </button>
+                    <button
                         class="kd_blue"
                         ng-click="setSurvivorName()"
                         onClick="rollUp('nameControl')"
@@ -3148,12 +3154,9 @@ class survivor:
                     class="ai_repeater clickable"
                     ng-repeat="ai_handle in survivor.sheet.abilities_and_impairments track by $index"
                     ng-click="rmAI(ai_handle, $index)"
+                    title="Click or tap to remove '{{settlement.game_assets.abilities_and_impairments[ai_handle].name}}'"
                 >
-                    <span
-                        class="survivor_sheet_ai"
-                        title="Click or tap to remove '{{settlement.game_assets.abilities_and_impairments[ai_handle].name}}'"
-                    >
-                        <b
+                    <b
                             ng-if="settlement.game_assets.abilities_and_impairments[ai_handle].constellation == undefined"
                         >
                             {{settlement.game_assets.abilities_and_impairments[ai_handle].name}}:
@@ -3164,7 +3167,6 @@ class survivor:
                         >
                             {{settlement.game_assets.abilities_and_impairments[ai_handle].name}}:
                         </b>
-                    </span>
                     <span
                         class="survivor_sheet_ai_desc"
                         ng-bind-html="settlement.game_assets.abilities_and_impairments[ai_handle].desc|trustedHTML"
@@ -4357,7 +4359,10 @@ class settlement:
                                 &#x1f512; Cannot spend survival.
                             </div>
                         </div>
-                        <div class="survival_box_survival_actions_container">
+                        <div
+                            class="survival_box_survival_actions_container"
+                            ng-click="rollUp(survivalBoxID)"
+                        >
                             <div
                                 class="survival_box_survival_action_item"
                                 ng-repeat="sa in s.survival_actions"
@@ -4802,7 +4807,7 @@ class settlement:
                     >
                         Hunt XP
                         <div
-                            class="secondary_attrib_box_row"
+                            class="secondary_attrib_box_row hunt_xp"
                             ng-init="huntXPBoxes = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]"
                         >
                             <div
@@ -4934,7 +4939,7 @@ class settlement:
                                     class="kd_blue"
                                     ng-click="setSurvivorAttribute(s, 'Courage'); rollUp(courageBoxID)"
                                 >
-                                    Save Changes
+                                    Save Courage
                                 </button>
                             </div> <!-- number tumbler -->
                         </div>
@@ -4977,7 +4982,7 @@ class settlement:
                                     class="kd_blue"
                                     ng-click="setSurvivorAttribute(s, 'Understanding'); rollUp(understandingBoxID)"
                                 >
-                                    Save Changes
+                                    Save Understanding
                                 </button>
                             </div> <!-- number tumbler -->
                         </div>
@@ -5072,7 +5077,7 @@ class settlement:
             <form action="" method="POST" class="edit_survivor_sheet">
                 <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
                 <button
-                    class="quickview_ui_button survivor_sheet_gradient"
+                    class="quickview_ui_button settlement_sheet_gradient"
                     onclick="showFullPageLoader()"
                     ng-click="showHide(s.sheet._id.$oid + '_modal_controls');"
                 >
@@ -5117,7 +5122,7 @@ class settlement:
                 >
                     Join <b>Departing</b> Survivors
                 </button>
-            </div> <!-- conditional depargint toggle -->
+            </div> <!-- conditional departing toggle -->
             <div class="back_button_holder">
                 <button
                     class="quickview_ui_button"
@@ -5655,117 +5660,6 @@ class settlement:
             <b>Back</b>
         </button>
     </div> <!-- modalDepartingSurvivors whole deal-->
-
-
-        <!-- SURVIVOR SEARCH -->
-
-    <span
-        ng-if="settlement != undefined"
-    >
-        <input
-            id="survivorSearchModalOpener"
-            class="survivor_search"
-            placeholder="Search Living Survivors"
-            ng-model="scratch.searchText"
-            ng-click="showHide('survivorSearchModalContent')"
-        </input>
-    </span>
-
-    <div
-        id="survivorSearchModalContent"
-        class="survivor_search_modal_container modal hidden"
-        ng-if="user_login != undefined && settlement != undefined"
-        onclick="showHide('survivorSearchModalContent')"
-    >
-        <div
-            class="survivor_search_modal_content survivor_sheet_gradient"
-            ng-controller = "survivorSearchController"
-        >
-            <div id="searchTextResults" class="survivor_search_results_buttons">
-                <form
-                    method="POST" action="/"
-                    ng-repeat="s in settlement.user_assets.survivors | filter:scratch.searchText "
-                >
-                    <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
-                    <button
-                        class="survivor_search_button kd_lantern"
-                        ng-class="{disabled : userCanManage(s.sheet) == false}"
-                        ng-if="s.sheet.dead == undefined && s.sheet.retired == undefined"
-                        onclick="showFullPageLoader()"
-                    >
-                      <p class="survivor_name">{{s.sheet.name}} [{{s.sheet.effective_sex}}]</p>
-                      <div class="survivor_assets">
-                        <b>Hunt XP:</b> {{s.sheet.hunt_xp}}
-                        <b>Courage:</b> {{s.sheet.Courage}}
-                        <b>Understanding:</b> {{s.sheet.Understanding }}
-                      </div>
-                      <div class="survivor_assets">
-                        <b>MOV</b> {{s.sheet.Movement}} |
-                        <b>ACC</b> {{s.sheet.Accuracy}} |
-                        <b>STR</b> {{s.sheet.Strength}} |
-                        <b>EVA</b> {{s.sheet.Evasion}} |
-                        <b>LUCK</b> {{s.sheet.Luck}} |
-                        <b>SPD</b> {{s.sheet.Speed}}
-                      </div>
-
-                      <div
-                          ng-if="s.sheet.epithets.length >= 1"
-                          class="survivor_assets"
-                      >
-                        <b>Epithets:</b> <span ng-repeat="e in s.sheet.epithets">
-                            {{settlement.game_assets.epithets[e].name}}{{$last ? '' : ', '}}
-                        </span>
-                      </div>
-                      <div
-                          ng-if="s.sheet.fighting_arts.length >= 1"
-                          class="survivor_assets"
-                      >
-                        <b>Fighting Arts:</b> <span ng-repeat="e in s.sheet.fighting_arts">
-                            {{settlement.game_assets.fighting_arts[e].name}}{{$last ? '' : ', '}}
-                        </span>
-                      </div>
-                      <div
-                          ng-if="s.sheet.disorders.length >= 1"
-                          class="survivor_assets"
-                      >
-                        <b>Disorders:</b> <span ng-repeat="e in s.sheet.disorders">
-                            {{settlement.game_assets.disorders[e].name}}{{$last ? '' : ', '}}
-                        </span>
-                      </div>
-                      <div
-                          ng-if="s.sheet.abilities_and_impairments.length >= 1"
-                          class="survivor_assets"
-                      >
-                        <b>Abilities & Impairments:</b> <span ng-repeat="e in s.sheet.abilities_and_impairments track by $index">
-                            {{settlement.game_assets.abilities_and_impairments[e].name}}{{$last ? '' : ', '}}
-                        </span>
-                      </div>
-
-                      <div ng-if="s.notes.length >= 1" class="survivor_assets"><b>Notes:</b>
-                        <span ng-repeat="n in s.notes"> {{n.note}} </span>
-                      </div>
-                      <div ng-if="s.sheet.sotf_reroll" class="survivor_assets"><b>Once per lifetime SotF re-roll:</b> used.</div>
-                    </button>
-                </form>
-            </div>
-
-        <hr/>
-
-        <span
-            class="survivor_search_retired_survivors_warning"
-        >
-            Dead and retired survivors are not included in these results!
-        </span>
-
-        <button
-            class="kd_blue close_modal"
-        >
-        Close Search Window
-        </button>
-
-        </div> <!-- survivor_search_modal_content -->
-
-    </div> <!-- survivorSearch -->
 
     <div
         id="campaignSummaryStorageOpener"
@@ -7155,7 +7049,7 @@ def render(view_html, head=[], http_headers=None, body_class=None, include_templ
     output += '</div><!-- container -->'
 
     # 5. add on all required templates; start w/ the default/baseline
-    ui_templates = ['nav.html', 'new_survivor.html','report_error.html']
+    ui_templates = ['nav.html', 'new_survivor.html','report_error.html', 'survivor_search.html']
     ui_templates += include_templates
     for t in ui_templates:
         output += template_file_to_str(t)

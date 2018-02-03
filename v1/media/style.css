@@ -1041,7 +1041,7 @@ div.survivor_sheet_card_text, .survivor_sheet_card_level_block {margin-left: 7%;
 .outer_ai_container {width: 96%; margin: 0 auto; }
 .survivor_sheet_ai_container {margin-left: 1%; margin-top: 5%; } 
 .title.ai_title {width: 55%}
-.ai_repeater {margin: 3%; }
+.ai_repeater {margin: 3%; font-size: 20pt; }
 .ai_selector {width: 95%; }
 .survivor_sheet_ai_desc {font-family: 'Metrophobic'; font-size: 30pt; }
 
@@ -2434,15 +2434,49 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .campaign_summary_survivor_tags_container {margin: 2% auto;}
     .survivor_tag {font-size: 11pt; min-width: 20%; }
 
-    /* campaign summary survivor "quick" modal */
-    div.avatar_and_stats table.stats_table th {font-size: 12pt; }
-    div.survivor_controls h3 {font-size: 30pt; }
-    div.avatar_and_stats img {width:  150px; }
-    .campaign_summary_survivor_attrib_tumblers {margin-top: 2%; margin-bottom: 2%; width: 500px; }
-    .campaign_summary_survivor_attrib_tumblers div.value {font-size: 25pt; }
-    .campaign_summary_survivor_attrib_tumblers div.tumbler {font-size: 12pt; width: 100px; }
-    .campaign_summary_survivor_attrib_tumblers div.tumbler button {font-size: 12pt; margin: 5%; }
-    .modal_manager {width: 400px; font-size: 15pt; }
+    /* campaign summary survivor "quickview" modal */
+    .kd_sheet_ui_inner_ring_container.survivor_quickview_container {width: 940px; }
+    .survivor_quickview_container hr {display: block; }
+    .border_box {border-width: 2px; }
+    .quickview_survivor_name {font-size: 13pt; border-width: 1px; }
+    .quickview_sex_box {font-size: 13pt; }
+    .quickview_survival_container .survival_box_title_and_lock .survival_box_title {margin-top: 0; padding-bottom:0;}
+    .quickview_survival_container .survival_box_lock {margin-bottom: 13px; font-size: 12pt; }
+    .quickview_survival_container .survival_box_number {height: 60px; width: 60px; font-size: 25pt; }
+    .quickview_survival_container .survival_box_lock {font-size: 10pt; }
+    .quickview_attribute_box {border-width: 1px; font-size: 9pt; }
+    .quickview_attribute_box .attribute_box_number {margin: 0 auto; font-size: 15pt; height: 40px; width: 40px; margin-top: 10px; margin-bottom: 5px; }
+    .quickview_attribute_tumbler input {font-size: 15pt; height: 45px; width: 40px; }
+    .quickview_attribute_tumbler {font-size: 9pt; }
+    .quickview_hitbox_detail .title {font-size: 14pt; }
+    .quickview_shield {font-size: 15pt; height: 45px; width: 40px; }
+    .quickview_hitbox_detail .tip {font-size: 10pt; }
+    .quickview_brain_box {border-width: 1px; padding-bottom: 9px; }
+    .quickview_hitbox_detail {height: 50px; }
+    .quickview_hitbox_detail.brain {height: auto; }
+    .quickview_brain_box {font-size: 9pt; }
+    .quickview_hitbox_boxes {width: 90px; }
+    .quickview_hitbox_boxes.brain {width: 35px; }
+    .quickview_hitbox_boxes .damage_box {height: 20px; width: 20px; border-width: 2px; }
+    .quickview_hitbox_boxes .heavy.damage_box {width: 14px; height: 14px; border-width: 5px; }
+    .quickview_secondary_container.hunt_xp {font-size: 12pt; flex-direction: row; align-items: center; margin:0; justify-content: space-between; padding-left: 12px; }
+    .quickview_secondary_container .secondary_attrib_box_row {}
+    .quickview_asset_list_title_bar .subtitle,
+        .quickview_asset_list_title_bar .lockbox {font-size: 10pt; }
+    .quickview_asset_list_title_bar .title {font-size: 14pt; }
+    .quickview_secondary_container.border_box {font-size: 12pt; }
+    .secondary_attrib_box_row.hunt_xp {width: 300px; }
+    .secondary_attrib_box_row .weapon_proficiency_type {font-size: 10pt; margin-right: 40px; width: 200px; }
+    .quickview_secondary_container.courage,
+        .quickview_secondary_container.understanding {font-size: 12pt; }
+    .secondary_attrib_box_row.courage,
+        .secondary_attrib_box_row.understanding {width: 160px; }
+    .quickview_asset_list li {font-size: 10pt; }
+    .quickview_ui_button_container {margin: 2%; }
+    .quickview_ui_button_container form.edit_survivor_sheet,
+        .quickview_ui_button_container .campaign_summary_survivor_modal_color_scheme_select,
+        .quickview_ui_button_container .departing_survivor_conditional,
+        .quickview_ui_button_container .back_button_holder {margin: 1%; height: auto; }
 
     /* campaign summary manage departing survivors modal - wide */
     p.modal_subtitle {font-size: 11pt; margin-top: -1%; margin-bottom: 1%; width: 40%; }
@@ -2777,6 +2811,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .kd_sheet_ui_box_row,
         .kd_sheet_ui_box_row.long {justify-content: flex-end; }
 
+    .ai_repeater {font-size: 13pt;}
     .kd_sheet_ui_ai_toggle_item {height: auto; padding: 2%; }
     .kd_sheet_ui_ai_toggle_item input[type="radio"] {transform: scale(1.5);}
     .kd_sheet_ui_ai_toggle_item label {font-size: 10pt; }

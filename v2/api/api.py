@@ -152,6 +152,16 @@ def get_random_names(count):
         mimetype="application/json"
     )
 
+@application.route("/get_random_surnames/<count>")
+@utils.crossdomain(origin=['*'],headers='Content-Type')
+def get_random_surnames(count):
+    N = names.Assets()
+    return Response(
+        response=json.dumps(N.get_random_surnames(int(count)), default=json_util.default),
+        status=200,
+        mimetype="application/json"
+    )
+
 
 #
 #   /login (not to be confused with the built-in /auth route)

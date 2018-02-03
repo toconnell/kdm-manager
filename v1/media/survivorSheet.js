@@ -96,6 +96,12 @@ app.controller("survivorSheetController", function($scope) {
         $scope.survivor.sheet.name = randomName;
     };
 
+    $scope.randomSurname = function() {
+        var nameList = $scope.randomSurnames;
+        var randomSurname = nameList[Math.floor(Math.random() * nameList.length)];
+        $scope.survivor.sheet.name = $scope.survivorBaseName + " " + randomSurname; 
+    };
+
     $scope.updateSurvival = function() {
         var new_total = $scope.survivor.sheet.survival;
 

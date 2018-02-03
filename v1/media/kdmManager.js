@@ -439,10 +439,18 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
                 hideFullPageLoader();
                 hideCornerLoader();
             } else if ($scope.view == 'survivorSheet') {
+                // random names
                 $scope.randomNamesPromise = $http.get(api_url + 'get_random_names/200');
                 $scope.randomNamesPromise.then(function(payload) {
                     $scope.randomSurvivorNames = payload.data;
                 });
+
+                // random surnames
+                $scope.randomSurnamesPromise = $http.get(api_url + 'get_random_surnames/50');
+                $scope.randomSurnamesPromise.then(function(payload) {
+                    $scope.randomSurnames = payload.data;
+                });
+
                 if ($scope.survivorPromise != undefined) { 
                     $scope.survivorPromise.then(function() {
                         hideFullPageLoader();
@@ -498,6 +506,8 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
             $scope.survivorPromise.then(
                 function(payload) {
                     $scope.survivor = payload.data;
+                    $scope.survivorBaseName = $scope.survivor.sheet.name;
+//                    console.warn("Base name is: " + $scope.survivorBaseName);
                     hideFullPageLoader();
                     hideCornerLoader();
                     console.timeEnd('initializeSurvivor()');
@@ -1330,6 +1340,21 @@ app.controller("sideNavController", function($scope) {
 
 
 });
+
+
+// survivor search - shows up in all views
+app.controller ("survivorSearchController", function($scope) {
+
+    // test a survivor object to see if a user can manage it
+    $scope.userCanManage = function(s) {
+        if ($scope.user_is_settlement_admin == true) { return true;}
+        else if ($scope.user_login == s.email) { return true;}
+        else { s._id = '';  return false };
+        return false;
+    };
+
+});
+
 
 
 

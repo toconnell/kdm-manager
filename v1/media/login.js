@@ -2,6 +2,16 @@ var app = angular.module('login', []);
 
 app.controller("globalController", function($scope) {
 
+    // pressing "enter" while focusing on the "password" input submits
+    // the sign in "form" (which isn't a form).
+    var pw_input = document.getElementById("signInPassword");
+    pw_input.addEventListener("keyup", function(event) {
+        event.preventDefault();
+        if (event.keyCode === 13) {
+            document.getElementById("signInButton").click();
+        }
+    });
+
     $scope.hideControls = function(element_id) {
         var controls = document.getElementById(element_id);
         controls.classList.add('hidden');
@@ -42,6 +52,7 @@ app.controller("globalController", function($scope) {
             $scope.showControls('sign_in_controls');
         };
     };
+
 
     $scope.legacySignIn = function(un, pw) {
         // signs into the legacy webapp by emulating a form POST

@@ -2017,6 +2017,9 @@ class Survivor(Models.UserAsset):
             self.log_event("%s renamed %s to %s" % (request.User.login, old_name, new_name))
             self.save()
 
+        if old_name == "Anonymous" and new_name != "Anonymous":
+            self.update_survival(1)
+
 
     def set_parent(self, role=None, oid=None):
         """ Sets the survivor's 'mother' or 'father' attribute. """
