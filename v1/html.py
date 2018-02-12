@@ -5223,7 +5223,6 @@ class settlement:
 
             <div
                 class="campaign_summary_small_box endeavor_box"
-                ng-controller='availableEndeavorsController'
                 ng-if="settlement.campaign.endeavor_count > 0"
             >
                 <h4>- Available Endeavors ({{settlement.campaign.endeavor_count}}) -</h4>
