@@ -132,6 +132,20 @@ app.filter('orderObjectBy', function() {
 });
 
 
+app.filter('filterObjectBy', function() {
+  return function(items, property, value) {
+    var filtered = [];
+    angular.forEach(items, function(item) {
+        if (item[property] === value) {
+            filtered.push(item);
+        };
+    });
+    console.warn(filtered);
+    return filtered;
+  };
+});
+
+
 
 
 app.controller('rootController', function($scope, $rootScope, $http, $log) {
@@ -146,6 +160,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
     };
 
     // initialize rootScope elements here; these are set on every view
+    $rootScope.objectKeys = Object.keys;
     $rootScope.rollUp = rollUp;
     $rootScope.showHide = showHide;
     $scope.numberToRange = function(num) {
@@ -1014,124 +1029,84 @@ app.controller('newSettlementController', function($scope, $http) {
 
 app.controller('timelineController', function($scope, $rootScope) {
 
-    // limits $scope.event_log to only lines from target_ly
-    $scope.get_event_log = function(t) {
+    $scope.setEventOptions = function() {
+        // iterates through the settlement.game_assets.events dictionary and
+        // injects some new items into $scope that, in turn, may be iterated
+        // by the HTML to create drop-down options for adding events to the TL
+        console.time('setEventOptions()');
 
-        var target_ly = Number(t);
-        local_event_log = new Array();
-
-        if ($scope.event_log == undefined) {return false};
-
-        for (i = 0; i < $scope.event_log.length; i++) {
-            if (Number($scope.event_log[i].ly) == target_ly) {
-                local_event_log.unshift($scope.event_log[i]);
+        $scope.showdownOptions = $scope.settlement.game_assets.showdown_options;
+        $scope.specialShowdownOptions = $scope.settlement.game_assets.special_showdown_options;
+        $scope.nemesisEncounterOptions = $scope.settlement.game_assets.nemesis_encounters;
+        $scope.storyEventOptions = {};
+        $scope.settlementEventOptions = {};
+        angular.forEach($scope.settlement.game_assets.events, function(item) {
+            if (item.sub_type === 'story_event') {
+                $scope.storyEventOptions[item.handle] = item;
+            } else if (item.sub_type == 'settlement_event') {
+                $scope.settlementEventOptions[item.handle] = item;
             };
+        });
+        console.timeEnd('setEventOptions()');
+    };
+
+    $scope.setCurrentLY = function(ly) {
+        $scope.postJSONtoAPI('settlement','set_current_lantern_year',{ly: ly},false);
+        $scope.settlement.sheet.lantern_year=ly;
+    };
+
+    $scope.updateLanternYear = function(ly) {
+        $scope.postJSONtoAPI('settlement','set_lantern_year',{ly:ly},false);
+    };
+
+    $scope.addEventToLY = function(ly, event_group, type, value) {
+        if (ly[event_group] === undefined) {
+            ly[event_group] = [];
         };
-
-//        console.log("added " + local_event_log.length + " items to local_event_log");
-//        console.log($scope.local_event_log);
-        return local_event_log;
-    };
-
-
-    $scope.showHideControls = function(ly) { 
-//        console.warn('hiding LY ' + ly);
-        elem_id='timelineControlsLY' + ly;
-
-        var hidden_controls = document.getElementById(elem_id);
-//        console.log(elem_id);
-//        console.log("hidden controls = " + hidden_controls);
-
-        if (hidden_controls === undefined) {
-            console.warn('Hidden element is undefined!');
-            return false
-        } else if (hidden_controls === null && $scope.user_is_settlement_admin != true) {
-            console.warn('Timeline controls are hidden! ' + $scope.user_login + ' admin status: ' + $scope.user_is_settlement_admin );
-            return false;
-        } else if (hidden_controls === null && $scope.user_is_settlement_admin == true) {
-            console.error("Div ID " + elem_id + " is null! Timeline admin controls cannot be displayed!");
-        };
-
-        if (hidden_controls.style.display == 'none') {
-            hidden_controls.style.height = 'auto';
-            hidden_controls.style.display = 'flex';
-        }
-        else if (hidden_controls.style.display == 'flex') {
-            hidden_controls.style.height = 0;
-            hidden_controls.style.display = 'none';
-        } else {console.log("UNHANDLED CONDITION! >" + hidden_controls.style.display + "<")};
-    };
-
-    $scope.showControls = function(ly) {
-        var hidden_controls = document.getElementById('timelineControlsLY' + ly);
-        hidden_controls.style.display='flex';
-        hidden_controls.style.height='auto';
-    };
-
-    $scope.setLY = function(ly) {
-        console.log("setting LY to " + ly);
-        $scope.settlement.sheet.lantern_year = ly;
-        $scope.postJSONtoAPI('settlement','set_attribute',{attribute: 'lantern_year',  value: ly});
-    };
-
-    $scope.getLYObject = function(ly) {
-        // returns the local scope's timeline object for ly
-        for (i = 0; i < $scope.settlement.sheet.timeline.length; i++) {
-            var timeline_year = $scope.settlement.sheet.timeline[i];
-            if (timeline_year.year == Number(ly)) {return timeline_year};
-        }
-    };
-
-    $scope.rmEvent = function(ly,event_obj) {
-        event_obj.user_login = $scope.user_login;
-        event_obj.ly = ly;
-        var target_ly = $scope.getLYObject(ly);
-        var target_event_index = target_ly[event_obj.type].indexOf(event_obj);
-        target_ly[event_obj.type].splice(target_event_index,1);
-        $scope.postJSONtoAPI('settlement', 'rm_timeline_event', event_obj);
-    };
-
-    // in which we turn form input into a juicy hunk of API-safe JSON
-    $rootScope.addEvent = function(ly, event_type, event_handle) {
-        var event_obj = new Object();
-
-        // use the event_type, if possible, to get the event dict from
-        // active $scope. Works for story/settlement events
-        if (event_type == 'story_event' || event_type == 'settlement_event') {
-            event_obj = ($scope.settlement.game_assets.events[event_handle]);
-        } else if (
-            event_type == 'showdown_event' ||
-            event_type == 'nemesis_encounter' ||
-            event_type == 'special_showdown'
-            ) {
-            event_obj.type = event_type;
-            event_obj.name = event_handle; // when is a handle not a handle?
+        var target_event_group = ly[event_group];
+        if (type === 'handle') {
+            target_event_group.push({handle: value});
+        } else if (type === 'name') {
+            target_event_group.push({name: value});
         } else {
-            console.error("ERROR! Unknown event type: " + event_type);
-            return false;
+            console.error("Unable to add '" + type + "' type event to Timeline.");
         };
-
-
-        event_obj.ly = ly;
-        var target_ly = $scope.getLYObject(ly);
-
-        if (!(event_obj.type in target_ly)) {
-            target_ly[event_obj.type] = new Array();
-        };
-
-        for (i = 0; i < target_ly[event_obj.type].length; i++) {
-            if (target_ly[event_obj.type][i] === event_obj) {
-                console.log("Duplicate item. Returning true...");
-                return true;
-            }
-        }
-
-        // if we're still here after that iteration above, add the event
-        target_ly[event_obj.type].push(event_obj);
-        $scope.postJSONtoAPI('settlement', 'add_timeline_event', event_obj);
-
+//        console.warn(ly);
     };
-
+    $scope.rmEventFromLY = function(event_group, event_index) {
+        event_group.splice(event_index, 1);
+    };
+    $scope.getEventRepr = function(e) {
+        if (e.name != undefined) {return e};
+        return $scope.settlement.game_assets.events[e.handle];
+    };
+    $scope.addLanternYears = function(n) {
+        var op = $scope.postJSONtoAPI('settlement','add_lantern_years',{years: n},false);
+        op.then(
+            function(payload) {$scope.reloadTimeline();},
+            function(errorPayload) {}
+        );
+    };
+    $scope.rmLanternYears = function(n) {
+        var op = $scope.postJSONtoAPI('settlement','rm_lantern_years',{years: n},false);
+        op.then(
+            function(payload) {$scope.reloadTimeline();},
+            function(errorPayload) {}
+        );
+    };
+    $scope.reloadTimeline = function() {
+        console.time('reloadTimeline()');
+        showCornerLoader();
+        var tl = $scope.getJSONfromAPI('settlement', 'get_timeline', 'reloadTimeline()');
+        tl.then(
+            function(payload) {
+                $scope.settlement.sheet.timeline = payload.data;
+                console.timeEnd('reloadTimeline()');
+                hideCornerLoader();
+            },
+            function(errorPayload) {console.log("Error reloading settlement Timeline!" + errorPayload);}
+        );
+    };
 });
 
 

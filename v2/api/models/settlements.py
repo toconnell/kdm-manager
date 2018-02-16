@@ -157,7 +157,7 @@ class Settlement(Models.UserAsset):
             "created_by": request.User._id,
             "admins": [request.User.login],
             "meta": {
-                "timeline_version":     1.1,
+                "timeline_version":     1.2,
                 "campaign_version":     1.0,
                 "monsters_version":     1.0,
                 "expansions_version":   1.0,
@@ -303,8 +303,12 @@ class Settlement(Models.UserAsset):
             self.convert_timeline_to_JSON()
             self.perform_save = True
 
-        if self.settlement["meta"]["timeline_version"] < 1.1:
+        if self.settlement["meta"]["timeline_version"] == 1.0:
             self.convert_timeline_quarry_events()
+            self.perform_save = True
+
+        if self.settlement["meta"]["timeline_version"] == 1.1:
+            self.flatten_timeline_events()
             self.perform_save = True
 
         #
@@ -573,28 +577,12 @@ class Settlement(Models.UserAsset):
 
         """
 
-        template = self.campaign.timeline
-
-        self.settlement["timeline"] = []
-        for year_dict in template:
-            new_year = {}
-            for k in year_dict.keys():
-                if k == "year":
-                    new_year[k] = year_dict[k]
-                else:
-                    new_year[k] = []
-                    for event_dict in year_dict[k]:
-                        try:
-                            if "handle" in event_dict.keys():
-                                event_dict.update(self.Events.get_asset(event_dict["handle"]))
-                        except TypeError:
-                            self.logger.error("%s failed to initialize timeline for %s" % (request.User, self))
-                            self.logger.error("%s event handle '%s' does not exist!" % (request.User, event_dict))
-                            raise
-                    new_year[k].append(event_dict)
-            self.settlement["timeline"].append(new_year)
-
-        self.logger.info("%s initialized timeline for %s!" % (request.User, self))
+        self.settlement['timeline'] = copy(self.campaign.timeline)
+        if request:
+            self.logger.warn("%s initialized timeline for %s!" % (request.User, self))
+        else:
+            self.logger.warn("%s Timeline initialized from CLI!" % self)
+            self.save()
 
 
 
@@ -653,6 +641,51 @@ class Settlement(Models.UserAsset):
 
         self.settlement["defeated_monsters"].remove(monster_string)
         self.log_event("%s removed '%s' from the settlement's defeated monsters." % (request.User.login, monster_string))
+        self.save()
+
+
+    def add_lantern_years(self, years=None):
+        """ Adds 'years' lantern years to the timeline. Works with a request
+        context. """
+
+        if years is None:
+            self.check_request_params(['years'])
+            years = self.params['years']
+        years = int(years)
+
+        last_year_in_tl = self.settlement['timeline'][-1]['year']
+        if last_year_in_tl >= 50:
+            self.logger.error("%s Attempt to add more than 50 LYs to Timeline." % (request.User))
+            raise utils.InvalidUsage("Max Lantern Years is 50!")
+
+        for y in range(years):
+            ly = last_year_in_tl + 1 + y
+            self.settlement['timeline'].append({'year': ly})
+
+        self.log_event(value="%s Lantern Years" % years)
+        self.save()
+
+
+    def rm_lantern_years(self, years=None):
+        """ Removes 'years' lantern years from the timeline. Works with a request
+        context. Will NOT remove an LY with events in it. """
+
+        if years is None:
+            self.check_request_params(['years'])
+            years = self.params['years']
+        years = int(years)
+
+        lys_removed = 0
+
+        for y in range(years):
+            if len(self.settlement['timeline'][-1]) < 2:
+                removed_year = self.settlement['timeline'].pop()
+                self.logger.warn("%s Removed Lantern Year: %s" % (request.User, removed_year))
+                lys_removed +=1
+            else:
+                self.logger.warn("Refusing to remove LY %s (which has events)." % (self.settlement['timeline'][-1]['year']))
+
+        self.log_event(value="%s Lantern Years" % lys_removed)
         self.save()
 
 
@@ -1319,6 +1352,21 @@ class Settlement(Models.UserAsset):
         self.save()
 
 
+    def set_current_ly(self, ly=None):
+        """ Sets the current Lantern Year. Supports a request context, but does
+        not require it. """
+
+        if ly is None:
+            self.check_request_params(['ly'])
+            ly = self.params['ly']
+        ly = int(ly)
+
+        self.settlement['lantern_year'] = ly
+
+        self.log_event(value=ly)
+        self.save()
+
+
     def set_inspirational_statue(self):
         """ Set the self.settlement['inspirational_statue'] to a fighting art
         handle. Assumes a request context. """
@@ -1346,6 +1394,21 @@ class Settlement(Models.UserAsset):
         # create the attrib if it doesn't exist
         self.settlement['lantern_research_level'] = level
         self.log_event("%s set the settlement Lantern Research Level to %s" % (request.User.login, level))
+        self.save()
+
+
+
+    def set_lantern_year(self):
+        """ Sets a lantern year. Requires a request context. """
+
+        self.check_request_params(['ly'])
+        new_ly = self.params['ly']
+
+        # thanks to LY zero, Lantern Years correspond to Timtline list indexes.
+        del self.settlement['timeline'][new_ly['year']]
+        self.settlement['timeline'].insert(new_ly['year'], new_ly)
+
+        self.log_event(value="Lantern Year %s" % new_ly['year'])
         self.save()
 
 
@@ -2020,7 +2083,7 @@ class Settlement(Models.UserAsset):
 
         for fa_handle in fa_handles:
             fa_dict = self.FightingArts.get_asset(fa_handle, raise_exception_if_not_found=False)
-            if fa_dict is not None and fa_dict['type'] == 'fighting_arts':
+            if fa_dict is not None and fa_dict['type'] == 'fighting_arts' and fa_dict['sub_type'] != 'secret_fighting_art':
                 output.add(fa_handle)
 
         output = sorted(list(output))
@@ -2824,6 +2887,15 @@ class Settlement(Models.UserAsset):
         return sorted(list(survivor_weapon_masteries))
 
 
+    def get_timeline(self, return_type=None):
+        """ Returns the timeline. """
+
+        TL = self.settlement['timeline']
+
+        if return_type=="JSON":
+            return json.dumps(TL, default=json_util.default)
+
+        return TL
 
 
     def get_milestones_options(self, return_type=list):
@@ -3502,7 +3574,34 @@ class Settlement(Models.UserAsset):
 
         self.settlement["timeline"] = new_timeline
         self.settlement["meta"]["timeline_version"] = 1.1
-        self.logger.debug("Migrated %s timeline to version 1.1" % (self))
+        self.logger.warn("Migrated %s timeline to version 1.1" % (self))
+
+
+    def flatten_timeline_events(self):
+        """ Takes a 1.1 timeline and un-expands detailed dictionary info."""
+
+        new_timeline = []
+        for y in self.settlement['timeline']:
+            new_year = {}
+            for event_group in y.keys():
+                if event_group != 'year':
+                    new_event_group = []
+                    for event in y[event_group]:
+                        # if we have a 'name' and not a 'handle'
+                        if event.get('name', None) is not None and event.get('handle', None) is None:
+#                            self.logger.debug("OK %s" % event)
+                            new_event_group.append(event)
+                        else:
+                            new_event_group.append({'handle': event['handle']})
+#                            self.logger.debug("UPDATED: %s" % event)
+                    new_year[event_group] = new_event_group
+                else:
+                    new_year['year'] = y['year']
+            new_timeline.append(new_year)
+
+        self.settlement["timeline"] = new_timeline
+        self.settlement["meta"]["timeline_version"] = 1.2
+        self.logger.warn("Migrated %s timeline to version 1.2" % (self))
 
 
     def enforce_minimums(self):
@@ -3610,6 +3709,8 @@ class Settlement(Models.UserAsset):
             return Response(response=self.get_event_log("JSON"), status=200, mimetype="application/json")
         elif action == "get_innovation_deck":
             return Response(response=self.get_innovation_deck("JSON"), status=200, mimetype="application/json")
+        elif action == "get_timeline":
+            return Response(response=self.get_timeline("JSON"), status=200, mimetype="application/json")
 
 
         #
@@ -3650,16 +3751,20 @@ class Settlement(Models.UserAsset):
         elif action == "set_lost_settlements":
             self.set_lost_settlements()
 
+        # timeline!
+        elif action == 'set_lantern_year':
+            self.set_lantern_year()
+        elif action == "add_lantern_years":
+            self.add_lantern_years()
+        elif action == "rm_lantern_years":
+            self.rm_lantern_years()
+        elif action == "set_current_lantern_year":
+            self.set_current_ly()
+
         # survivor methods
         elif action == 'update_survivors':
             self.update_survivors()
 
-
-        # timeline 
-        elif action == "add_timeline_event":
-            self.add_timeline_event(self.params)
-        elif action == "rm_timeline_event":
-            self.rm_timeline_event(self.params)
 
         # innovations, locations, etc.
         elif action == "replace_game_assets":

@@ -1305,52 +1305,49 @@
             carefully! </td>
         </tr>
         <tr class="ul">
+            <td> /settlement/get_timeline/&lt;settlement_id&gt; </td>
+            <td> <b>GET</b> </td>
+            <td>
+                <p>Hit this endpoint to get a JSON representation of the
+                settlement's timeline.</p>
+                <p>This is read-only and optimized for performance, so you'll
+                get a timeline MUCH faster using this route than one of the
+                routes that pulls down the whole settlement.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/add_lantern_years/&lt;settlement_id&gt; </td>
+            <td> <b>POST</b> </td>
+            <td>
+                <p><b>POST</b> a number (int) of years to add to the settlement's
+                Timeline:</p>
+                <code>{years: 5}</code>
+                <p><b>NB:</b> Timelines are capped at 50 LYs. If you try to add
+                a number of years that would take you above 50 LYs, you'll get a
+                400 back.</p>
+            </td>
+        </tr>
+        <tr class="ul">
             <td> /settlement/add_timeline_event/&lt;settlement_id&gt; </td>
             <td> <b>POST</b> </td>
-            <td> <p>Adding a timeline event to a settlement's timeline requires a
-            fairly specific bit of JSON. To add, for example, a settlement event,
-            you need to post JSON that looks like this:</p>
-            <code>{'type': 'settlement_event', 'ly': 3, 'handle': 'core_haunted',
-            'name': 'Haunted', 'user_login': 'dev@kdm-manager.com'}</code>
-            <p>Event names, types, handles, etc. can be found in the settlement's
-            <code>game_assets -> events</code> (which is a dictionary of
-            settlement and story events).</p>
-            <p>Adding showdown type events works similarly:<p>
-            <code>{'type': 'showdown_event', 'name': 'White Lion Lvl 1', 
-            'ly': 4, 'user_login': 'user@whatever.com'}</code>
-            <p>...or, for a special showdown:</p>
-            <code>{'type': 'special_showdown', 'name': 'Watcher', 'ly': 20,
-            'user_login': 'qa@kdm-manager.com'}</code>
-            <p>Here is a list of accepted event 'type' values: 
-            <ul>
-                <li><code>showdown_event</code></li>
-                <li><code>special_showdown</code></li>
-                <li><code>nemesis_encounter</code></li>
-                <li><code>settlement_event</code></li>
-                <li><code>story_event</code></li>
-            </ul>
-            <b>Important!</b> Events without handles may be added, which means
-            that you may absolutely add an event that <i>does not</i> come from
-            the settlement's <code>game_assets -> events</code>. Events with
-            neither a name nor a handle may not be added, however.
-            </p>
+            </td>
+                <p><b>This endpoint is deprecated and is no longer supported.</b></p>
             </td>
         </tr>
         <tr class="ul">
             <td> /settlement/rm_timeline_event/&lt;settlement_id&gt; </td>
             <td> <b>POST</b> </td>
-            <td> <p>Works just like the <code>add_timeline_event</code> method,
-            except in reverse. <b>POST</b> some JSON describing a timeline event
-            that exists on the settlement's timeline to remove it:</p>
-            <code>{'type': 'settlement_event', 'ly': 3, 'handle': 'core_haunted',
-            'name': 'Haunted', 'user_login': 'dev@kdm-manager.com'}</code>
-            <p>Since the <code>add_timeline_event</code> method allows for events
-            without <code>handle</code> attributes (i.e. since it will accept
-            JSON with a <code>name</code> and no <code>handle</code>), events
-            may be removed using only their name and Lantern Year (<code>'ly'
-            </code>) attribute:</p>
-            <code>{'type': 'nemesis_encounter', 'name': 'Butcher Lvl 1', 'ly': 4,
-            'user_login': 'user@whatever.com'}</code>
+            <td>
+                <p><b>This endpoint is deprecated and is no longer supported.</b></p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td> /settlement/set_current_lantern_year/&lt;settlement_id&gt; </td>
+            <td> <b>POST</b> </td>
+            <td>
+                <p>To set the settlement's current LY, <b>POST</b> an int to this
+                endpoint:</p>
+                <code>{ly: 3}</code>
             </td>
         </tr>
 

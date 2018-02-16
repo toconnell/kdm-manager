@@ -275,45 +275,22 @@ div#mySidenav button {
 .world_panel_avatar_cell {text-align: center; }
 .world_panel_avatar {width: 65%; }
 
-/* timeline styles */
-.timeline_gradient {background-color: #fff; background: radial-gradient(#fff,#fff,#fff,#fff,#fff,#FEF0CE,#FBE8C9); }
-div.full_size_modal_panel {position: absolute; top: 0.5%; left: 1%; right: 1%; border-radius: 10px; padding: 1%;  border: 0.1em solid #957753; min-height: 50%; }
-div.full_size_modal_panel span.closeModal {top: -40px; }
-
-div.timeline_ly_headline {font-size: 35px; font-weight: bold; border-bottom: 0.1em solid #000; }
-div.timeline_ly_headline span {margin-left: 5%; margin-right: 4%; }
-
-div.timeline_whole_entry_container {border-bottom: 0.05em solid #888;} 
-div.timeline_ly_container {margin: 4%; display: flex; flex-direction: row; padding-bottom: 0; margin-bottom: 0; margin-top: 2%; padding-bottom: 2%; }
-div.timeline_bullet_and_year_container, div.timeline_event_container {display: inline-block; height: 100%;}
-div.timeline_bullet_and_year_container {width: 150px; padding-top: 0; margin-top: 0; }
-div.timeline_events_container {width: 75%; }
-span.timeline_ly_number {font-family: Metrophobic; text-align: left; margin-left: 10px; }
-
-div.timeline_ly_container font.kdm_font, div.timeline_ly_container font.kdm_font_hit_locations {font-size: 0.8em; margin-right: 1%; font-weight: bold; }
-
-span.timeline_event {font-size: 58px; display: block; flex-direction: row; flex-wrap: wrap; justify-content: flex-start; align-items: center; }
-span.timeline_event img.icon {display: inline; border: 0; float: left; height: 45px; width: auto; margin-right: 2%; margin-top: 2%; }
-span.timeline_event img.special_showdown {margin-right: 5%; }
-span.timeline_event_page {font-family: Metrophobic; font-size: 0.7em; display: inline; }
-
-div.timeline_event_log_container {transition-timing-function: ease; transition: height 1s;}
-div.timeline_event_log_revealer {display: block; width: auto; width: 333px;  clear: left; text-align: left; cursor: pointer; padding: 1%; font-weight: bold; padding-left: 3%; background-color: #aaa; background: linear-gradient(to bottom, #ddd,#eee,#ddd);border: 1px solid #888; border-bottom: 0; font-size: 40px; }
-div.timeline_event_log_bottom {width: auto; background-color: #000; background: linear-gradient(to bottom, #ddd,#eee,#ddd); height: 40px;}
-.log_zebra, .log_no_zebra {font-family: Metrophobic; font-size: 0.7em; padding: 1%;}
-.log_zebra {background-color: #eee; background: linear-gradient(to bottom, #eee,#fff,#eee);border-top: 1px solid #aaa; border-bottom: 1px solid #333; color: #000; }
-.log_no_zebra {background-color: #fff;}
-
-div.timeline_hidden_controls_container {margin: 1%; padding: 1%; border-top: 1px solid #aaa; flex-direction: column; flex-wrap: wrap; margin-bottom: 10%; width: 100%; text-align: center; padding-top: 6%; }
-div.timeline_hidden_controls_container label {font-size: 50px; width: 85%; text-align: center; padding: 1%; margin: auto; margin-bottom: 0; margin-top: 7%;  }
-span.timeline_overlay_current_ly {position: fixed; right: 3%; bottom: 1%; border-radius: 100px; padding: 3%; font-size: 35px; border-color: #C2081D; }
-span.timeline_overlay_current_ly b {font-size: 50px;}
-
-select.add_timeline_event {width: 85%; margin: 0 auto; font-size: 50px; }
-div.timeline_rm_controls {cursor: pointer; }
-span.timeline_rm_event_group {width: auto; margin-top: 2%; margin-bottom: 0; }
-div.rm_timeline_event {width: 85%; margin: 2%; text-align: left; }
-label.timeline_change_ly_button {width: 100%; }
+/* timeline styles - mobile */
+.timeline_row_container.current_ly {border-color: #f00; }
+.timeline_container .timeline_top_line {width: 96%; border-bottom: 3px solid #000; display: flex; flex-direction: row; margin: 0 auto; margin-bottom: 1%; }
+.timeline_container .timeline_top_line div {margin-left: 30px; font-size: 30pt; }
+.timeline_row_container {border-bottom: 1px solid #aaa; font-size: 35pt; width: 95%; padding: 2%; margin: 0 auto; font-family: "Metrophobic"; display: flex; flex-direction: row; flex-wrap: wrap; }
+.timeline_clicker {display: inline-flex; }
+.kd_sheet_ui_box.ly_checkbox {margin: 0 auto; margin-top: 2%; }
+.ly_ly {margin: 0 auto; font-size: 30pt; display: inline-block; width: 5%; margin-top: 1%; margin-right: 15px; margin-left: 15px; }
+.ly_events {width: 740px; margin-top: 5px; }
+.timeline_event {display: inline-table; margin-right:20px; font-size: 30pt; width: 100%; }
+.timeline_event img.icon {width: 30px;  }
+.kd_sheet_ui_inner_ring_container.timeline_overlay_control {width: 87%; margin: 0 auto; margin-top: 5%;}
+.timeline_overlay_control .kd_sheet_ui_row_tip {width: 90%; margin: 0 auto;}
+.timeline_overlay_control select {display: block; width: 90%; margin: 0 auto; margin-bottom: 5%; }
+.timeline_event_rm_button {margin: 0 auto; margin-top: 3%; width: 90%; border-radius: 5px; background-color: #666; color: #fff; font-family: "Metrophobic"; padding: 2%; }
+.timeline_current_ly_controls {border-bottom: 3px solid #ccc; width: 95%; margin: 0 auto; margin-bottom: 5%; }
 
 
 /* help-tip pop-up/modal - mobile res*/
@@ -641,10 +618,11 @@ div.survivor_controls img {background-color: #fff; margin-bottom: 2%; }
 .quickview_secondary_container .secondary_box_number {font-size: 40pt; width: 100px; height: 100px; border: 1px solid #000; padding: 0; text-align: center; margin: 20px; }
 .quickview_secondary_container.hunt_xp {display: flex; flex-direction: column; justify-content: left;}
 .quickview_secondary_container .secondary_attrib_box_row {display: flex; flex-direction: row; flex-wrap: nowrap; margin: 2%; }
+.secondary_attrib_row_container {width: 100%; display: flex; justify-content: flex-end; }
 .quickview_secondary_container.courage,
-    .quickview_secondary_container.understanding {flex-direction: row; flex-wrap: nowrap; justify-content: space-between; }
+    .quickview_secondary_container.understanding { }
 .secondary_attrib_box_row.courage,
-    .secondary_attrib_box_row.understanding {width: 50%; }
+    .secondary_attrib_box_row.understanding {width: 55%; }
 .secondary_attrib_box_row .kd_sheet_ui_box {margin: auto; }
 .secondary_attrib_box_row .weapon_proficiency_type {font-size: 25pt; width: 50%; }
 .null_weapon_proficiency {width: 70%; display: block; border-bottom: 1px solid #000; margin-left: auto; margin-right: 10px; }
@@ -1069,7 +1047,6 @@ input.survivor_owner_email:focus {background: radial-gradient(#FDEDA9, #FFFFC5);
 .float_right_toggle {float: right; text-align:center; border: 0.5em solid #aaa; padding: 3%;  margin-right: 3%; }
 
     /* expansion attrib toggles */
-div.expansion_attribs_container {margin: 4%; border: 0.1em solid #aaa; }
 div.expansion_content_remove_warning {width: 90%; font-family: Metrophobic; font-size: 35px; margin: 0 auto; margin-top: 5%; margin-bottom: 5%;}
 
     /* generic toggles */
@@ -1328,6 +1305,8 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
 .modal-black button {border-radius: 25px; }
 .modal-black hr {width: 95%; }
 
+.modal_control_overlay {position: absolute; top: 0; left: 0; right: 0; overflow-y:scroll; overflow-x:hidden }
+
 /* The Close Button */
 .closeModal {
     font-family: Arial, sans-serif;
@@ -1543,19 +1522,21 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
 
     /* timeline modal all views - tablet */
-    div.timeline_ly_headline span {margin-right: 2%; font-size: 20px; }
-    div.timeline_bullet_and_year_container {width: 90px; display: inline-flex; }
-    span.timeline_ly_number {font-size: 33px; margin-top: -8px;}
-    span.timeline_event {font-size: 30px; }
-    span.timeline_event img.icon {margin: 0; height: 25px; margin-right: 10px; }
-    span.timeline_event img.special_showdown {margin-right: 23px; }
-    div.timeline_event_log_revealer {font-size: 20px; }
-    div.timeline_event_log_container {font-size: 30px; }
-    div.timeline_hidden_controls_container {width: 96%}
-    select.add_timeline_event {font-size: 25px; }
-    div.timeline_rm_controls {text-align: left; } 
-    div.rm_timeline_event {font-size: 25px; display: inline-block; width: auto; }
-    div.timeline_hidden_controls_container label.timeline_change_ly_button {font-size: 30px; }
+    .timeline_container {width: 95%; }
+    .timeline_row_container {align-items: baseline; width: 88%; break-inside: avoid; }
+    .timeline_col_container {column-count: 2; column-width: auto; column-gap: 5px;}
+    .timeline_event_type_group {display: flex; flex-direciton: row; flex-wrap: wrap; }
+    .timeline_container .timeline_top_line div {font-size: 15pt; margin-left: 15px; }
+    .timeline_event img.icon {width: 16px; }
+    .ly_checkbox {margin-right: 3px; margin-left: 3px; }
+    .ly_events {width: 345px;}
+    .ly_ly {font-size: 15pt; margin-left: 5px;  margin-right: 10px; }
+    .timeline_event {font-size: 15pt; }
+    .timeline_event_rm_button_container {display: flex; flex-direction: row; flex-wrap: wrap; }
+    .timeline_event_rm_button_group {width: 350px; margin: 0 auto; }
+    .timeline_event_rm_button {font-size: 16pt; width: 100%; }
+    .timeline_nav_buttons {display: flex; flex-direction: row; flex-wrap: wrap; margin: 5%; margin-bottom: 0; }
+    .timeline_nav_buttons button {width: 45%; margin: 0 auto; padding: 1%; font-size: 17pt; font-family: "Metrophobic"; margin-bottom: 5%; }
 
     /* expansion modal -tablet */
     div.expansion_content_line_item label {font-size: 30px; }
@@ -1792,8 +1773,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     label#cannot_use_fighting_arts_toggle {right: 20px; }
 
-    div.expansion_attribs_container {display: block; width: auto; }
-    div.expansion_attribs_container label {font-size: 25px; }
     div.expansion_content_remove_warning {font-size: 20px; margin-bottom: 3%; }
 
 

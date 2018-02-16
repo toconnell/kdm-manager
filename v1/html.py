@@ -1198,241 +1198,6 @@ class angularJS:
     </div> <!-- modal (parent) -->
     \n"""
 
-    timeline = """\n
-
-    <div
-        class="modal hidden"
-        id="modalTimelineContainer"
-        ng-controller="timelineController"
-        ng-if="settlement.sheet.timeline != undefined"
-        ng_init="
-            setEvents();
-            initializeEventLog();
-            showHide('timelineOpenerButton')
-        "
-    >
-
-        <span class="touch_me timeline_overlay_current_ly">LY: <b>{{settlement.sheet.lantern_year}}</b></span>
-
-        <div class="full_size_modal_panel timeline_gradient">
-
-            <span class="closeModal" onclick="showHide('modalTimelineContainer')">×</span>
-
-            <h3>{{ settlement.sheet.name}} Timeline</h3>
-
-            <p ng-if="user_is_settlement_admin">
-                Click or tap on any Lantern Year below to update events occuring during that year.
-            </p>
-            <p ng-if="user_is_settlement_admin == false">
-                The Timeline of story, settlement and showdown events for {{settlement.sheet.name}}. Only settlement admins may modify the timeline.
-            </p>
-
-            <div class="timeline_ly_headline">
-                <span>Year</span><span>Story & Special Events</span>
-            </div>
-
-            <div
-                ng-repeat="t in settlement.sheet.timeline"
-                ng-init="t.log_div_id = 'ly' + t.year + 'LogDivIDHandle'"
-                class="timeline_whole_entry_container"
-            >
-                <div class="timeline_ly_container" ng-click="showHideControls(t.year)">
-                    <div class="timeline_bullet_and_year_container">
-                        <span ng-if="t.year >= settlement.sheet.lantern_year" class="kd_toggle_bullet"></span>
-                        <span ng-if="t.year < settlement.sheet.lantern_year" class="kd_toggle_bullet checked_kd_toggle_bullet"></span>
-                        <span class="timeline_ly_number">{{t.year}}</span>
-                    </div>
-
-                    <div class="timeline_events_container">
-                        <span class="timeline_event" ng-repeat="e in t.settlement_event">
-                            <font class="kdm_font_hit_locations">a &nbsp;</font>
-                            {{e.name}}
-                        </span>
-                        <span class="timeline_event" ng-repeat="e in t.story_event" ng-model="story_events">
-                            <font class="kdm_font">g &nbsp;</font>
-                            <b>{{e.name}}</b>
-                            <span class="timeline_event_page" ng-if="e.page">
-                                &nbsp;(p.{{e.page}})
-                            </span>
-                        </span>
-                        <span class="timeline_event" ng-repeat="q in t.special_showdown">
-                        <span><img class="icon special_showdown" src="/media/icons/special_showdown_event.png"/></span>
-                            <font class="special_showdown_text"><b>{{q.name}}</b></font>
-                        </span>
-                        <span
-                            class="timeline_event"
-                            ng-repeat="q in t.showdown_event"
-                            ng-if = "q.name != undefined"
-                        >
-                            <font class="kdm_font">f &nbsp;</font>
-                            {{q.name}}
-                        </span>
-                        <span class="timeline_event" ng-repeat="n in t.nemesis_encounter">
-                        <span><img class="icon" src="/media/icons/nemesis_encounter_event.jpg"/></span>
-                            &nbsp; <b> {{n.name}}</b>
-                        </span>
-                    </div>
-                </div>
-
-
-                <div
-                    id="timelineControlsLY{{t.year}}"
-                    style="display: none; height: 0;"
-                    class="timeline_hidden_controls_container"
-                    ng-if="user_is_settlement_admin == true;"
-                >
-
-                    <select
-                        name="add_timeline_event"
-                        class="add_timeline_event"
-                        ng-model="newEvent"
-                        ng-options="se.handle as se.name for se in story_events"
-                        ng-change="addEvent(t.year,'story_event',newEvent)"
-                    >
-                        <option selected disabled value="">
-                            Add Story Event
-                        </option>
-                    </select>
-
-                    <br/>
-
-                    <select
-                        name="add_timeline_event"
-                        class="add_timeline_event"
-                        ng-model="newEvent"
-                        ng-options="s for s in settlement.game_assets.special_showdown_options"
-                        ng-change="addEvent(t.year,'special_showdown',newEvent)"
-                    >
-                        <option selected disabled value="">
-                            Add Special Showdown
-                        </option>
-                    </select>
-
-                    <br/>
-
-                    <select
-                        name="add_timeline_event"
-                        class="add_timeline_event"
-                        ng-model="newEvent"
-                        ng-options="s for s in settlement.game_assets.showdown_options"
-                        ng-change="addEvent(t.year,'showdown_event',newEvent)"
-                    >
-                        <option selected disabled value="">
-                            Add Showdown
-                        </option>
-                    </select>
-
-                    <br/>
-
-                    <select
-                        name="add_timeline_event"
-                        class="add_timeline_event"
-                        ng-model="newEvent"
-                        ng-options="n for n in settlement.game_assets.nemesis_encounters"
-                        ng-change="addEvent(t.year,'nemesis_encounter',newEvent)"
-                    >
-                        <option selected disabled value="">
-                            Add Nemesis Encounter
-                        </option>
-                    </select>
-
-                    <br/>
-
-                    <select
-                        name="add_settlement_event"
-                        class="add_timeline_event"
-                        ng-model="newEvent"
-                        ng-options="se.handle as se.name for se in settlement_events"
-                        ng-change="addEvent(t.year,'settlement_event',newEvent)"
-                    >
-                        <option selected disabled value="">
-                            Add Settlement Event
-                        </option>
-                   </select>
-
-                    <hr class="invisible"/>
-
-                    <div ng-repeat="event_group in t" class="timeline_rm_controls">
-                        <span ng-if="isObject(event_group)" class="timeline_rm_event_group">
-                            <div
-                                ng-click="rmEvent(t.year, e)"
-                                ng-repeat="e in event_group"
-                                class="kd_alert_no_exclaim rm_timeline_event"
-                            > <b>x</b> {{e.name}}
-                            </div>
-                        </span>
-                    </div>
-
-                    <hr class="invisible"/>
-
-                    <div class="end_current_ly" ng-if="t.year==settlement.sheet.lantern_year">
-                        <input
-                            type="checkbox"
-                            id="endLanternYear{{t.year}}"
-                            ng-model="lantern_year"
-                            ng-click="setLY(t.year + 1); showHideControls(t.year); showControls(t.year+1)"
-                        />
-                        <label
-                            class="kd_blue timeline_change_ly_button"
-                            for="endLanternYear{{t.year}}"
-                        >
-                            End Lantern Year {{t.year}}
-                        </label>
-                        <input
-                            type="checkbox"
-                            id="returnToLanternYear{{t.year - 1}}"
-                            ng-model="lantern_year"
-                            ng-change="setLY(t.year - 1); showHideControls(t.year); showControls(t.year-1)"
-                        />
-                        <label
-                            class="kd_blue timeline_change_ly_button"
-                            for="returnToLanternYear{{t.year - 1}}"
-                            ng-if="t.year >= 1"
-                        >
-                            Return to Lantern Year {{t.year - 1}}
-                        </label>
-                    </div> <!-- end_current_ly -->
-
-                </div> <!-- timelineControlsLy{{t.year}}-->
-
-                <div
-                    ng-if="t.year <= settlement.sheet.lantern_year && get_event_log(t.year).length >= 1 "
-                    ng-click="showHide(t.log_div_id)"
-                    class="timeline_event_log_revealer round_top"
-                >
-                    LY {{t.year}} Event Log &#9662;
-                </div>
-
-                <div
-                    class="timeline_event_log_container hidden"
-                    id="{{t.log_div_id}}"
-                    ng-click="showHide(t.log_div_id)"
-                >
-                    <span
-                        ng-repeat="l in get_event_log(t.year)"
-                        ng-if="l.event != undefined"
-                    >
-                        <div
-                            ng-class-odd="'log_zebra'"
-                            ng-class-even="'log_no_zebra'"
-                            ng-bind-html="l.event|trustedHTML"
-                            class="{{l.event_type}}"
-                        >
-                        </div>
-                   </span>
-
-                    <div class="timeline_event_log_bottom round_bottom" > </div>
-                    <br/>
-                </div>
-
-            </div> <!-- iterator ng-repeat t in timeline -->
-
-
-        </div><!-- full size modal  -->
-
-    </div> <!-- modal (parent) -->
-
-    \n"""
 
 
 class survivor:
@@ -2527,13 +2292,13 @@ class survivor:
                 </div>
             </div>
             <div class="kd_sheet_ui_row_tip" ng-if="survivor.sheet.abilities_and_impairments.indexOf('stalwart') != -1">
-                <b>Stalwart:</b> Can't be knocked down by brain trauma or intimidate.
+                <b>Stwalwart:</b> {{settlement.game_assets.abilities_and_impairments.stalwart.summary}}
             </div>
             <div class="kd_sheet_ui_row_tip" ng-if="survivor.sheet.abilities_and_impairments.indexOf('prepared') != -1">
-                <b>Prepared:</b> Add Hunt XP to your roll when determining a straggler.
+                <b>Prepared:</b> {{settlement.game_assets.abilities_and_impairments.prepared.summary}}
             </div>
             <div class="kd_sheet_ui_row_tip" ng-if="survivor.sheet.abilities_and_impairments.indexOf('matchmaker') != -1">
-                <b>Matchmaker:</b> Spend 1 endeavor to trigger Intimacy story event.
+                <b>Matchmaker:</b> {{settlement.game_assets.abilities_and_impairments.matchmaker.summary}}
             </div>
         </div>
         <div
@@ -2676,13 +2441,13 @@ class survivor:
                 </div>
             </div>
             <div class="kd_sheet_ui_row_tip" ng-if="survivor.sheet.abilities_and_impairments.indexOf('analyze') != -1">
-                <b>Analyze:</b> Look at the top AI card and return it to the top of the deck.
+                <b>Analyze:</b> {{settlement.game_assets.abilities_and_impairments.analyze.summary}}
             </div>
             <div class="kd_sheet_ui_row_tip" ng-if="survivor.sheet.abilities_and_impairments.indexOf('explore') != -1">
-                <b>Explore:</b> Add +2 to your <b>investigate</b> roll results.
+                <b>Explore:</b> {{settlement.game_assets.abilities_and_impairments.explore.summary}}
             </div>
             <div class="kd_sheet_ui_row_tip" ng-if="survivor.sheet.abilities_and_impairments.indexOf('tinker') != -1">
-                <b>Tinker:</b> +1 endeavor when a returning survivor.
+                <b>Tinker:</b> {{settlement.game_assets.abilities_and_impairments.tinker.summary}}
             </div>
         </div>
         <div
@@ -4870,6 +4635,24 @@ class settlement:
                             >
                             </div>
                         </div>
+                        <div
+                            class="kd_sheet_ui_row_tip"
+                            ng-repeat="ai_handle in s.sheet.abilities_and_impairments"
+                            ng-if="settlement.game_assets.weapon_specializations[ai_handle] != undefined"
+                        >
+                            <b>{{settlement.game_assets.weapon_specializations[ai_handle].name}}:</b>
+                            <span
+                                ng-bind-html="settlement.game_assets.weapon_specializations[ai_handle].desc|trustedHTML"></span>
+                        </div>
+                        <div
+                            class="kd_sheet_ui_row_tip"
+                            ng-repeat="ai_handle in s.sheet.abilities_and_impairments"
+                            ng-if="settlement.game_assets.weapon_masteries[ai_handle] != undefined"
+                        >
+                            <b>{{settlement.game_assets.weapon_masteries[ai_handle].name}}:</b>
+                            <span
+                                ng-bind-html="settlement.game_assets.weapon_masteries[ai_handle].desc|trustedHTML"></span>
+                        </div>
                     </div>
                     <div
                         id="{{weaponProficiencyBoxID}}"
@@ -4908,19 +4691,30 @@ class settlement:
                         ng-click="rollUp(courageBoxID)"
                     >
                         Courage
-                        <div
-                            class="secondary_attrib_box_row courage"
-                            ng-init="courageBoxes = [1,2,3,4,5,6,7,8,9]"
-                        >
+                        <div class="secondary_attrib_row_container">
                             <div
-                                class="kd_sheet_ui_box"
-                                ng-repeat = "b in courageBoxes"
-                                ng-class="{
-                                    checked: s.sheet.Courage >= b,
-                                    heavy: [3,9].indexOf(b) != -1,
-                                }"
+                                class="secondary_attrib_box_row courage"
+                                ng-init="courageBoxes = [1,2,3,4,5,6,7,8,9]"
                             >
+                                <div
+                                    class="kd_sheet_ui_box"
+                                    ng-repeat = "b in courageBoxes"
+                                    ng-class="{
+                                        checked: s.sheet.Courage >= b,
+                                        heavy: [3,9].indexOf(b) != -1,
+                                    }"
+                                >
+                                </div>
                             </div>
+                        </div> <!-- row_container -->
+                        <div class="kd_sheet_ui_row_tip" ng-if="s.sheet.abilities_and_impairments.indexOf('stalwart') != -1">
+                            <b>Stwalwart:</b> {{settlement.game_assets.abilities_and_impairments.stalwart.summary}}
+                        </div>
+                        <div class="kd_sheet_ui_row_tip" ng-if="s.sheet.abilities_and_impairments.indexOf('prepared') != -1">
+                            <b>Prepared:</b> {{settlement.game_assets.abilities_and_impairments.prepared.summary}}
+                        </div>
+                        <div class="kd_sheet_ui_row_tip" ng-if="s.sheet.abilities_and_impairments.indexOf('matchmaker') != -1">
+                            <b>Matchmaker:</b> {{settlement.game_assets.abilities_and_impairments.matchmaker.summary}}
                         </div>
                     </div>
                     <div
@@ -4951,19 +4745,30 @@ class settlement:
                         ng-click="rollUp(understandingBoxID)"
                     >
                         Understanding
-                        <div
-                            class="secondary_attrib_box_row understanding"
-                            ng-init="understandingBoxes = [1,2,3,4,5,6,7,8,9]"
-                        >
+                        <div class="secondary_attrib_row_container">
                             <div
-                                class="kd_sheet_ui_box"
-                                ng-repeat = "b in understandingBoxes"
-                                ng-class="{
-                                    checked: s.sheet.Understanding >= b,
-                                    heavy: [3,9].indexOf(b) != -1,
-                                }"
+                                class="secondary_attrib_box_row understanding"
+                                ng-init="understandingBoxes = [1,2,3,4,5,6,7,8,9]"
                             >
+                                <div
+                                    class="kd_sheet_ui_box"
+                                    ng-repeat = "b in understandingBoxes"
+                                    ng-class="{
+                                        checked: s.sheet.Understanding >= b,
+                                        heavy: [3,9].indexOf(b) != -1,
+                                    }"
+                                >
+                                </div>
                             </div>
+                        </div><!-- secondary_Attrib_row_container -->
+                        <div class="kd_sheet_ui_row_tip" ng-if="s.sheet.abilities_and_impairments.indexOf('analyze') != -1">
+                            <b>Analyze:</b> {{settlement.game_assets.abilities_and_impairments.analyze.summary}}
+                        </div>
+                        <div class="kd_sheet_ui_row_tip" ng-if="s.sheet.abilities_and_impairments.indexOf('explore') != -1">
+                            <b>Explore:</b> {{settlement.game_assets.abilities_and_impairments.explore.summary}}
+                        </div>
+                        <div class="kd_sheet_ui_row_tip" ng-if="s.sheet.abilities_and_impairments.indexOf('tinker') != -1">
+                            <b>Tinker:</b> {{settlement.game_assets.abilities_and_impairments.tinker.summary}}
                         </div>
                     </div>
                     <div
@@ -7048,7 +6853,7 @@ def render(view_html, head=[], http_headers=None, body_class=None, include_templ
     output += '</div><!-- container -->'
 
     # 5. add on all required templates; start w/ the default/baseline
-    ui_templates = ['nav.html', 'new_survivor.html','report_error.html', 'survivor_search.html']
+    ui_templates = ['nav.html', 'new_survivor.html','report_error.html', 'survivor_search.html', 'timeline.html']
     ui_templates += include_templates
     for t in ui_templates:
         output += template_file_to_str(t)

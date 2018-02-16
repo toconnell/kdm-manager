@@ -5,7 +5,7 @@ ui_prompts = {
     'max_weapon_proficiency': {'name': 'Max Weapon Proficiency', 'desc': 'The maximum value a survivor may have for this attribute is nine.'},
 }
 
-settlement_events = {
+settlement_event = {
 
     "core_acid_storm": {
         "name": "Acid Storm",
@@ -68,7 +68,7 @@ settlement_events = {
 
 }
 
-story_events = {
+story_event = {
 
     "core_age": {"name": "Age", "page":107,},
     "core_armored_strangers": {"name": "Armored Strangers", "page": 109, },

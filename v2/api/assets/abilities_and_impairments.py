@@ -9,6 +9,7 @@ ability = {
     },
     'analyze': {
         'desc': "At the start of the Survivors' turn, if you are adjacent to the monster, reveal the top AI card, then place back on top of the deck.",
+        'summary': "Look at the top AI card and return it to the top of the deck.",
         'name': 'Analyze',
         'type': 'ability',
         'base_attribute': 'Understanding',
@@ -118,6 +119,7 @@ ability = {
     },
     'explore': {
         'desc': 'When you roll on an investigate table, add +2 to your roll result.',
+        'summary': "Add +2 to your investigate roll results.",
         'name': 'Explore',
         'type': 'ability',
         'base_attribute': 'Understanding',
@@ -198,6 +200,7 @@ ability = {
     },
     'matchmaker': {
         'desc': 'When you are a returning survivor, once per year you may spend 1 Endeavor to trigger Intimacy (story event).',
+        'summary': "Spend 1 endeavor to trigger Intimacy story event.",
         'name': 'Matchmaker',
         'type': 'ability',
         'endeavors': ['matchmaker_trigger_intimacy'],
@@ -230,6 +233,7 @@ ability = {
     },
     'prepared': {
         'desc': 'When rolling to determine a straggler, add your hunt experience to your roll result.',
+        'summary': "Add Hunt XP to your roll when determining a straggler.",
         'name': 'Prepared',
         'type': 'ability',
         'base_attribute': 'Courage',
@@ -254,6 +258,7 @@ ability = {
     },
     'stalwart': {
         'desc': 'Ignore being knocked down by brain trauma and intimidation actions.',
+        'summary': "Can't be knocked down by brain trauma or intimidate.",
         'name': 'Stalwart',
         'type': 'ability',
         'base_attribute': 'Courage',
@@ -291,6 +296,7 @@ ability = {
     },
     'tinker': {
         'desc': 'When you are a returning survivor, gain +1 Endeavor to use this settlement phase.',
+        'summary': '+1 endeavor when a returning survivor.',
         'name': 'Tinker',
         'type': 'ability',
         'base_attribute': 'Understanding',

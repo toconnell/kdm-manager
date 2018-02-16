@@ -874,7 +874,7 @@ class UserAsset(object):
         if attribute_modified['key'] is not None:
             attribute_modified['key_pretty'] = key.replace("_"," ").replace("and","&").title()
         if attribute_modified['value'] is not None:
-            attribute_modified['value_pretty'] = value.replace("_"," ")
+            attribute_modified['value_pretty'] = str(value).replace("_"," ")
 
         d = {
             'version': 1.1,
