@@ -731,7 +731,7 @@ class User(Models.UserAsset):
         # first, see if we even need to be here
         # MOVE ALL OF THIS OUT OF THIS METHOD ASAP
         sub_level = self.get_subscriber_level()
-        if sub_level > 1:
+        if sub_level >= 1:
             pass
 	else:
 #            self.logger.debug("%s Subscriber level is %s. Checking settlement asset ages..." % (self, sub_level))
