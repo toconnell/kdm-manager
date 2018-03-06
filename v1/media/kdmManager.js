@@ -552,20 +552,6 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
     };
 
 
-    $scope.initializeEventLog = function() {
-        console.time('initializeEventLog()');
-        console.log('[EVENT LOG] Initializing event log...');
-        $scope.getJSONfromAPI('settlement','get_event_log', 'initializeEventLog()').then(
-            function(payload) {
-                $scope.event_log = payload.data;
-                console.timeEnd('initializeEventLog()');
-            },
-            function(errorPayload) {
-                console.log($scope.log_level + "Error loading event_log!" + errorPayload);
-            }
-        );
-    };
-
     $scope.setGameAssetOptions = function(game_asset, destination, exclude_type) {
         // generic method to create a set of options by comparing a baseline
         // list to a list of items to exclude from that list
@@ -1027,7 +1013,26 @@ app.controller('newSettlementController', function($scope, $http) {
 
 });
 
-app.controller('timelineController', function($scope, $rootScope) {
+
+app.controller('eventLogController', function($scope) {
+    $scope.eventLog = {}
+    $scope.getEventLogLY = function(ly) {
+        console.time('getEventLogLY(' + ly + ')');
+        console.log('[EVENT LOG] Initializing event log...');
+        $scope.postJSONtoAPI('settlement','get_event_log', {ly: ly}, false, false, false).then(
+            function(payload) {
+                $scope.eventLog[ly] = payload.data;
+                $('#eventLogLY' + ly + 'Loader').fadeOut(1000);
+                console.timeEnd('getEventLogLY(' + ly + ')');
+            },
+            function(errorPayload) {
+                console.log($scope.log_level + "Error retrieving Event Log!" + errorPayload);
+            }
+        );
+    };
+});
+
+app.controller('timelineController', function($scope) {
 
     $scope.setEventOptions = function() {
         // iterates through the settlement.game_assets.events dictionary and
@@ -1056,7 +1061,7 @@ app.controller('timelineController', function($scope, $rootScope) {
     };
 
     $scope.updateLanternYear = function(ly) {
-        $scope.postJSONtoAPI('settlement','set_lantern_year',{ly:ly},false);
+        $scope.postJSONtoAPI('settlement','replace_lantern_year',{ly:ly},false);
     };
 
     $scope.addEventToLY = function(ly, event_group, type, value) {

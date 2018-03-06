@@ -1398,20 +1398,6 @@ class Settlement(Models.UserAsset):
 
 
 
-    def set_lantern_year(self):
-        """ Sets a lantern year. Requires a request context. """
-
-        self.check_request_params(['ly'])
-        new_ly = self.params['ly']
-
-        # thanks to LY zero, Lantern Years correspond to Timtline list indexes.
-        del self.settlement['timeline'][new_ly['year']]
-        self.settlement['timeline'].insert(new_ly['year'], new_ly)
-
-        self.log_event(value="Lantern Year %s" % new_ly['year'])
-        self.save()
-
-
 
     def set_last_accessed(self, access_time=None):
         """ Set 'access_time' to a valid datetime object to set the settlement's
@@ -1858,6 +1844,12 @@ class Settlement(Models.UserAsset):
         self.save()
 
 
+
+    #
+    #   Replace Methods! These are Watcher-style methods for updating multiple
+    #   data elements at once. 
+    #
+
     def replace_game_assets(self):
         """ Works just like the method of the same name in the survivor class,
         but for settlements.
@@ -1913,6 +1905,21 @@ class Settlement(Models.UserAsset):
 
 
         self.save()
+
+
+    def replace_lantern_year(self):
+        """ Sets a lantern year. Requires a request context. """
+
+        self.check_request_params(['ly'])
+        new_ly = self.params['ly']
+
+        # thanks to LY zero, Lantern Years correspond to Timtline list indexes.
+        del self.settlement['timeline'][new_ly['year']]
+        self.settlement['timeline'].insert(new_ly['year'], new_ly)
+
+        self.log_event(value="Lantern Year %s" % new_ly['year'])
+        self.save()
+
 
 
 
@@ -2220,7 +2227,7 @@ class Settlement(Models.UserAsset):
         return s_expansions
 
 
-    def get_event_log(self, return_type=None, lines=None, get_lines_after=None, survivor_id=None):
+    def get_event_log(self, return_type=None, ly=None, lines=None, get_lines_after=None, survivor_id=None):
         """ Returns the settlement's event log as a cursor object unless told to
         do otherwise.
         
@@ -2235,13 +2242,17 @@ class Settlement(Models.UserAsset):
                 get_lines_after = self.params['get_lines_after']
             if 'survivor_id' in self.params:
                 survivor_id = self.params['survivor_id']
+            if 'ly' in self.params:
+                ly = self.params['ly']
 
         query = {"settlement_id": self.settlement["_id"]}
 
         # modify the query, if we're doing that
-        if get_lines_after is not None:
+        if get_lines_after is not None and ly is None:
             target_line = utils.mdb.settlement_events.find_one({'_id': ObjectId(get_lines_after)})
-            query = {"created_on": {'$gt': target_line['created_on']}}
+            query.update({"created_on": {'$gt': target_line['created_on']}})
+        elif ly is not None and get_lines_after is None:
+            query.update({'ly': int(ly)})
 
         if survivor_id is not None:
             query = {'survivor_id': ObjectId(survivor_id)}
@@ -2352,65 +2363,100 @@ class Settlement(Models.UserAsset):
         if 'return_type' in self.params:
             return_type = self.params['return_type']
 
+        #
+        #   1.) baseline 'available' innovations
+        #
+
         available = dict(self.get_available_assets(innovations)["innovations"])
 
-        # remove principles and innovations from expansions we don't use
+        # remove principles and ones we've already got
         for a in available.keys():
-            if available[a].get("sub_type", None) == "principle":
+            if a in self.settlement["innovations"]:
+                del available[a]
+            if self.Innovations.get_asset(a).get("sub_type", None) == "principle":
                 del available[a]
 
-        # remove ones we've already got and make a list of consequences
+
+        #
+        #   2.) now, create a list of consequences (handles) from innovations
+        #
+
+        # first, create the list and uniquify it
         consequences = []
         for i_handle in self.settlement["innovations"]:
-            if i_handle not in available.keys():
-                self.logger.error("%s Innovation handle '%s' is not a known innovation!" % (self, i_handle))
-            elif available[i_handle].get("consequences",None) is not None:
-                consequences.extend(available[i_handle]["consequences"])
-            if i_handle in available.keys():
-                del available[i_handle]
-        consequences = list(set(consequences))
+            consequence_dict = self.Innovations.get_asset(i_handle)
+            consequences.extend(consequence_dict.get("consequences", []))
+        consequences = sorted(list(set(consequences)))
+
+        # now, remove all consequences that aren't available; this upgrades the
+        #   'consequences' to 'available consequences', if you think about it
+        for c in consequences:
+            if c not in available.keys():
+                consequences.remove(c)
 
 
-        # now, we use the baseline and the consequences list to build a deck
+        # 
+        #   3.) initialize the deck from 'available consequences'
+        #
         deck_dict = {}
         for c in consequences:
             if c not in self.settlement["innovations"]:
-                if c in available.keys():
-                    del available[c]
                 asset_dict = self.Innovations.get_asset(c)
-                if self.is_compatible(asset_dict):
-                    deck_dict[c] = asset_dict
+                deck_dict[c] = asset_dict
 
 
-        # we've got a good list, but we still need to check available inno-
-        # vations for some attribs that might force them into the list.
-        for i in available:
-            available_if = available[i].get("available_if",None)
-            if available_if is not None:
-                for tup in available_if:
-                    asset,collection = tup
+        #
+        #   4.) now iterate through remaining 'available' assets and give them
+        #       a 'last chance' (i.e. see if we want them, even though they're
+        #       not consequences)
+        #
+
+        for i_handle, i_dict in available.iteritems():
+            if i_dict.get("available_if", None) is not None:
+                for tup in i_dict['available_if']:
+                    asset, collection = tup
                     if asset in self.settlement[collection]:
-                        deck_dict[i] = self.Innovations.get_asset(i)
+                        deck_dict[i] = i_dict
+                        self.logger.debug("%s Found value '%s' in settlement['%s']. Adding '%s' to innovation deck." % (self, asset, collection, innovation_dict['name']))
 
-        # create a new list and use the deck dict to populate it with
-        # innovation names
+
+        #
+        #   5.) now that we have a deck, make a sorted list version of it
+        #
         deck_list = []
-        for k in deck_dict.keys():
+        for k in sorted(deck_dict.keys()):
             deck_list.append(deck_dict[k]["name"])
+        deck_list = sorted(deck_list)
 
-        # update the items in dect_dict so that their individual consequences
-        # only reflect what is actually available to the settlement:
+        #
+        #   6.) optional dict-style return; requires 'consequences' cleanup
+        #
 
-        for k,v in deck_dict.iteritems():
-            for c_handle in v.get('consequences', []):
-                i_dict = self.Innovations.get_asset(c_handle)
-                if not self.is_compatible(i_dict):
-                    v['consequences'].remove(c_handle)
+        if return_type in ['dict', dict]:
 
-        if return_type == "JSON":
-            return json.dumps(sorted(deck_list))
-        else:
-            return json.dumps(deck_dict)
+            output = collections.OrderedDict()
+
+            sorting_hat = {}
+            for k,v in deck_dict.iteritems():
+                sorting_hat[v['name']] = k
+
+            for i_name in sorted(sorting_hat.keys()):
+                i_dict = copy(deck_dict[sorting_hat[i_name]])
+                for c_handle in i_dict.get('consequences', []):
+                    consequences_dict = self.Innovations.get_asset(c_handle)
+                    if not self.is_compatible(consequences_dict):
+                        i_dict['consequences'].remove(c_handle)
+                output[i_dict['handle']] = i_dict
+
+            return json.dumps(output)
+
+
+        #
+        #   Default return (i.e. dump the list of strings)
+        #
+
+        return json.dumps(deck_list)
+
 
 
     def get_lantern_research_level(self):
@@ -3708,7 +3754,7 @@ class Settlement(Models.UserAsset):
         elif action == "get_event_log":
             return Response(response=self.get_event_log("JSON"), status=200, mimetype="application/json")
         elif action == "get_innovation_deck":
-            return Response(response=self.get_innovation_deck("JSON"), status=200, mimetype="application/json")
+            return Response(response=self.get_innovation_deck(), status=200, mimetype="application/json")
         elif action == "get_timeline":
             return Response(response=self.get_timeline("JSON"), status=200, mimetype="application/json")
 
@@ -3752,8 +3798,8 @@ class Settlement(Models.UserAsset):
             self.set_lost_settlements()
 
         # timeline!
-        elif action == 'set_lantern_year':
-            self.set_lantern_year()
+        elif action == 'replace_lantern_year':
+            self.replace_lantern_year()
         elif action == "add_lantern_years":
             self.add_lantern_years()
         elif action == "rm_lantern_years":

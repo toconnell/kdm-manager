@@ -119,6 +119,7 @@
                                 <button
                                     class="kd_pink"
                                     ng-click="setCurrentLY(ly.year-1)"
+                                    ng-if="ly.year > 0"
                                 >
                                     Return to Lantern Year {{ly.year-1}}
                                 </button>                            
@@ -224,18 +225,19 @@
 
 
                             <!-- confirm / cancel buttons -->
-
-                            <button
-                                class="kd_blue"
-                                ng-click="updateLanternYear(ly); showHide(modalControlID)"
-                            >
-                                Save Changes to LY {{ly.year}}
-                            </button>
-                            <button
-                                ng-click="showHide(modalControlID); reloadTimeline();"
-                            >
-                                Abandon Changes to LY {{ly.year}}
-                            </button>
+                            <div class="timeline_current_ly_buttons_container">
+                                <button
+                                    class="kd_blue"
+                                    ng-click="updateLanternYear(ly); showHide(modalControlID)"
+                                >
+                                    Save Changes to LY {{ly.year}}
+                                </button>
+                                <button
+                                    ng-click="showHide(modalControlID); reloadTimeline();"
+                                >
+                                    Abandon Changes to LY {{ly.year}}
+                                </button>
+                            </div><!-- consent is sexy -->
                         </div>
                     </div>
 

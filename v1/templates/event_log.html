@@ -1,0 +1,67 @@
+<div
+    class="modal-black hidden"
+    id="eventLogContainer"
+    ng-controller="eventLogController"
+    ng-if="settlement.sheet != undefined && user.user != undefined"
+>
+
+    <div class="kd_sheet_ui_outer_ring_container">
+
+        <div
+            class="kd_sheet_ui_inner_ring_container event_log"
+            ng-init="showHide('eventLogOpenerButton')"
+        >
+            <h3>{{ settlement.sheet.name}} Event Log</h3>
+
+            <p class="kd_sheet_ui_row_tip" ng-if="user.user.preferences.show_ui_tips">
+                The settlement Event Log keeps track of all activity in the
+                campaign. Click or tap a Lantern Year below to review the events
+                for that year!
+            </p>
+
+            <div
+                ng-repeat="ly_dict in settlement.sheet.timeline"
+                ng-init="ly = ly_dict['year']; controlID = 'ly' + ly + 'controlID'"
+                class="event_log_clicker clickable"
+                ng-click="showHide(controlID); getEventLogLY(ly)"
+            >
+                <div class="kd_sheet_ui_box" ng-class="{checked: ly <= settlement.sheet.lantern_year}"></div>
+                Lantern Year {{ly}} <span class="event_count" ng-if="eventLog[ly] != undefined"> - {{eventLog[ly].length}} events</span>
+                    <div
+                        id="{{controlID}}"
+                        class="event_log_container hidden"
+                    >
+                    <p class="kd_sheet_ui_row_tip" ng-if="user.user.preferences.show_ui_tips">
+                        Click or tap again to hide these events.
+                    </p>
+                    <div
+                        class="event_log_line"
+                        ng-repeat="line in eventLog[ly] | orderBy:'$index':true"
+                        ng-class-even="'zebra'"
+                        ng-class="line.event_type"
+                    >
+                        <span ng-bind-html="line.event|trustedHTML"></span>
+                    </div>
+                    <div
+                        id="eventLogLY{{ly}}Loader"
+                        class="event_log_loader"
+                    >
+                        <img src="/media/loading_lantern.gif">
+                        Loading Event Log...
+                    </div>
+
+                </div> <!-- LY event log container -->
+            </div> <!-- LY clicker -->
+        
+            <button
+                class="event_log_closer_button"
+                ng-click="showHide('eventLogContainer')"
+            >
+                Close Event Log
+            </button>
+
+        </div><!-- inner ring container -->
+
+    </div><!-- outer ring container -->
+</div><!-- modal-black -->
+

@@ -291,7 +291,14 @@ div#mySidenav button {
 .timeline_overlay_control select {display: block; width: 90%; margin: 0 auto; margin-bottom: 5%; }
 .timeline_event_rm_button {margin: 0 auto; margin-top: 3%; width: 90%; border-radius: 5px; background-color: #666; color: #fff; font-family: "Metrophobic"; padding: 2%; }
 .timeline_current_ly_controls {border-bottom: 3px solid #ccc; width: 95%; margin: 0 auto; margin-bottom: 5%; }
+.timeline_current_ly_buttons_container button {font-family: 'Metrophobic';}
 
+/* event log styles - mobile */
+.event_log .kd_sheet_ui_row_tip {margin: 0 auto; width: 93%; margin-bottom: 3%; margin-top: 3%; }
+.event_log_clicker {border: 2px solid #000; padding: 1%; width: 93%; margin: 1%; font-family: 'Metrophobic'; margin-left: 2%; font-size: 35pt;  margin-bottom: 3%}
+.event_log_line {font-size: 30pt; margin: 0 auto; margin: 2%; }
+.event_count {color: #666; font-style: italic;  }
+.event_log_loader {display: flex; flex-direction: column; margin: 0 auto; font-size: 25pt; width: 50%; align-items: center; font-style: italic;  color: #999; }
 
 /* help-tip pop-up/modal - mobile res*/
 .help-tip p {
@@ -1537,6 +1544,14 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .timeline_event_rm_button {font-size: 16pt; width: 100%; }
     .timeline_nav_buttons {display: flex; flex-direction: row; flex-wrap: wrap; margin: 5%; margin-bottom: 0; }
     .timeline_nav_buttons button {width: 45%; margin: 0 auto; padding: 1%; font-size: 17pt; font-family: "Metrophobic"; margin-bottom: 5%; }
+    .timeline_overlay_control {min-height: 1200px; }
+    .timeline_current_ly_buttons_container {display: flex; flex-direction: row; flex-wrap: nowrap; }
+    .timeline_current_ly_buttons_container button {font-size: 15pt; margin-top: 1%; }
+
+    /* event log - tablet */
+    .event_log_clicker {font-size: 20pt; }
+    .event_log_line {font-size: 18pt; }
+    .event_log_loader {font-size: 15pt;}
 
     /* expansion modal -tablet */
     div.expansion_content_line_item label {font-size: 30px; }
@@ -2547,28 +2562,42 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
 
     /* timeline! - wide */
-    span.timeline_event img.special_showdown {margin-right: 17px;}
+    .timeline_container .timeline_top_line div {font-size: 9pt; }
+    span.timeline_event img.special_showdown {margin-right: -3px; }
     div.timeline_ly_container {cursor: pointer; }
     div.timeline_ly_headline {border-bottom: 1px solid #000;}
     div.timeline_ly_headline span {font-size: 11pt; }
-    span.timeline_ly_number {font-size: 14pt; }
-    span.timeline_event {font-size: 12pt; }
-    span.timeline_event img.icon {height: 13px; }
-    div.timeline_event_log_revealer {font-size: 10pt; width: 150px; padding: 0.1%; padding-left: 3%; }
+    .ly_ly {font-size: 10pt; }
+    .ly_events {width: 280px; }
+    span.timeline_ly_number {font-size: 14pt; width: auto; }
+    span.timeline_event {font-size: 11pt; }
+    span.timeline_event img.icon {height: 15px; width: auto; }
     select.add_timeline_event {font-size: 12pt; width: auto; height: 30px;}
     div.timeline_hidden_controls_container {flex-direction: row; padding-top: 2%; margin-bottom: 1%;}
     div.end_current_ly {display: inline-flex; flex-direction: row; flex-wrap: wrap; width: 70%; margin-top:-20px; margin-bottom: 20px; }
     div.timeline_hidden_controls_container label.timeline_change_ly_button {font-size: 13pt; padding: 0.5%; padding-left: 20px; padding-right: 20px; width: auto;  }
+    .timeline_nav_buttons button {font-size: 10pt; }
     div.timeline_rm_controls {width: 100%; padding: 0; border:0; height: auto; cursor: initial; margin-top:10px;  }
-    span.timeline_rm_event_group {width: 100%; border:0;}
+    span.timeline_rm_event_group {width: 100%; border:0; width: 250px; }
     div.rm_timeline_event {font-size: 12pt; margin: 0; padding: 1%; margin-right: 2%; cursor: pointer; }
     .log_zebra, .log_no_zebra {font-size: 10pt; padding: 0.1%; }
     span.timeline_overlay_current_ly {right: 5%; font-size: 15pt; padding: 1%; }
     span.timeline_overlay_current_ly b {font-size: 17pt; }
+    .timeline_overlay_control select {margin-bottom: 3%; }
+    .kd_sheet_ui_inner_ring_container.timeline_overlay_control {width: 50%; margin-top: 2%; min-height: 950px; }
+    .timeline_event_rm_button_container {width: 90%; margin: 0 auto; margin-bottom: 3%; margin-top: 3%; }
+    .timeline_event_rm_button_group {width: 45%; }
+    .timeline_event_rm_button {font-size: 11pt; }
+    .timeline_current_ly_buttons_container {width: 95%; margin: 0 auto; }
+    .timeline_current_ly_buttons_container button {font-size: 11pt; width: 250px; }
+    .timeline_current_ly_controls {display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: center; padding-bottom: 2%; }
+    .timeline_current_ly_controls button {width: 40%; margin: 1%; display: block; }
 
-
-
-
+    /* event log - wide */
+    .event_log_clicker {font-size: 12pt; margin-bottom: 1%; }
+    .event_log_line {font-size: 12pt; margin: 3px; }
+    .event_log_loader {font-size: 10pt; }
+    .event_log_closer_button {display: block; width: 300px; margin: 0 auto; margin-bottom: 2%; margin-top: 2%; }
 
     /* wide asset management styles */
 
