@@ -30,6 +30,15 @@ from models import monsters, users, settlements
 #   General purpose helper functions
 #
 
+def check_with_user(msg):
+    """ DRYness method to double-check something with the user. Returns a bool. """
+    proceed = raw_input(" \x1b[1;33;40m %s [N/y] \x1b[0m " % msg)
+    if len(proceed) > 0 and proceed.upper()[0] == "Y":
+        return True
+    else:
+        return False
+
+
 def dump_survivor_to_cli(s_id):
     """ Dump a simplified representation of a survivor to the CLI buffer. """
 
@@ -368,6 +377,16 @@ def get_user_id_from_email(email):
 #   work with settlement methods
 #
 
+def initialize_settlement_timeline(s_id):
+    """ Initializes a settlement's timeline. Cannot be undone. """
+
+    S = settlements.Settlement(_id=s_id)
+    if check_with_user("Initialize this settlement's timeline?"):
+        S.initialize_timeline()
+        print("\n  Timeline initialized!\n")
+    else:
+        print("\n  Aborted.\n")
+
 
 def unremove_settlement(s_id):
     """ Un-sets 'removed' on the settlement and all of its survivors.
@@ -456,6 +475,7 @@ if __name__ == "__main__":
     # work with Settlements
     parser.add_option("-S", dest="work_with_settlement", default=None, help="Work with a settlement.", metavar="5a1485164af5ca67035bea03")
     parser.add_option('--unremove', dest="unremove_settlement", default=False, help="Use with -S to un-remove a settlement and any removed survivors in that settlement.", action="store_true")
+    parser.add_option('--initialize_timeline', dest="initialize_timeline", default=False, help="Use with -S to initialize a settlement's timeline.", action="store_true")
 
     # Work with Users / manage subscriptions
     parser.add_option("-U", dest="work_with_user", default=None, help="Work with a user.", metavar="demo@kdm-manager.com")
@@ -490,6 +510,8 @@ if __name__ == "__main__":
         dump_settlement_to_cli(s_id, verbose=options.verbose)
         if options.unremove_settlement:
             unremove_settlement(s_id)
+        if options.initialize_timeline:
+            initialize_settlement_timeline(s_id)
 
     # work with user
     if options.work_with_user is not None:

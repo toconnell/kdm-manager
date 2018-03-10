@@ -172,7 +172,7 @@ app.controller('innovationsController', function($scope) {
         console.time('innovationDeck()');
         $scope.innovation_deck = null;
         $scope.spinner();
-        var res = $scope.postJSONtoAPI('settlement','get_innovation_deck', {return_type: null}, false, false);
+        var res = $scope.postJSONtoAPI('settlement','get_innovation_deck', {return_type: 'dict'}, false, false);
         res.then(
             function(payload) {
                 $scope.innovation_deck = payload.data;

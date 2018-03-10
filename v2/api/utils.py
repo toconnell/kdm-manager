@@ -520,6 +520,25 @@ def crossdomain(origin=None, methods=None, headers=None, max_age=21600, attach_t
     return decorator
 
 
+def log_event_exception_manager(log_event_call):
+    """ This is meant to decorate Models.UserAsset.log_event() calls ONLY, i.e.
+    it should not be used to decorate other methods.
+
+    The basic idea here is to capture exceptions, log them, email them and NOT
+    interrupt the request. This is really the only method where we ever want to
+    handle exceptions this way.
+    """
+
+    def wrapper(self, *args, **kwargs):
+        try:
+            return log_event_call(self, *args, **kwargs)
+        except Exception as e:
+            self.logger.exception("Unhandled exception in log_event() method! Failing gracefully...")
+            email_exception(e)
+
+    return wrapper
+
+
 
 #
 # exception auto-mailer
@@ -533,8 +552,8 @@ def email_exception(exception):
     swallowed. """
 
     # first, log it
-    logger = get_logger(log_level='DEBUG', log_name='error')
-    logger.exception(exception)
+    e_logger = get_logger(log_name='error')
+    e_logger.exception(exception)
 
     if not hasattr(request, 'User'):
         request.User = noUser()

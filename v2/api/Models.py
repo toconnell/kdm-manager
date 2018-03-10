@@ -814,7 +814,7 @@ class UserAsset(object):
     #
     #   asset update methods below
     #
-
+    @utils.log_event_exception_manager
     def log_event(self, msg=None, event_type=None, action=None, key=None, value=None, agent=None):
         """ This is the primary user-facing logging interface, so there' s a bit
         of a high bar for using it.
@@ -874,7 +874,7 @@ class UserAsset(object):
         if attribute_modified['key'] is not None:
             attribute_modified['key_pretty'] = key.replace("_"," ").replace("and","&").title()
         if attribute_modified['value'] is not None:
-            attribute_modified['value_pretty'] = value.replace("_"," ")
+            attribute_modified['value_pretty'] = str(value).replace("_"," ")
 
         d = {
             'version': 1.1,

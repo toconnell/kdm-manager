@@ -45,7 +45,6 @@ _default_timeline = [
     {"year": 28, "nemesis_encounter":   [{'name': "Nemesis Encounter: - King's Man Lvl 3"}]},
     {"year": 29,},
     {"year": 30, "nemesis_encounter":   [{'name': "Nemesis Encounter: Gold Smoke Knight"}]},
-    {"year": 31,}, {"year": 32, }, {"year": 33,}, {"year": 34,}, {"year": 35,}, {"year": 36,},
 ]
 
 
@@ -282,8 +281,6 @@ expansion_campaign = {
             {"year": 23, "nemesis_encounter":   [{"name": "Nemesis Encounter: Kings Man Level 3"}]  },
             {"year": 24, "nemesis_encounter":   [{"name": "Nemesis Encounter: The Hand Level 3"}]   },
             {"year": 25, "story_event":         [{"handle": "ss_great_devourer"}]           },
-            {"year": 26,}, {"year": 27,}, {"year": 28,}, {"year": 29,}, {"year": 30,}, {"year": 31,},
-            {"year": 32,}, {"year": 33,}, {"year": 34,}, {"year": 35,}, {"year": 36,},
         ],
         "final_boss": "ancient_sunstalker",
         "nemesis_monsters": ["butcher","kings_man","the_hand"],
@@ -343,8 +340,6 @@ expansion_campaign = {
             {"year": 23, "nemesis_encounter":   [{"name": "Nemesis Encounter - Lvl 3"}]     },
             {"year": 24, },
             {"year": 25, "nemesis_encounter":   [{"handle": "dk_death_of_the_dragon_king"}] },
-            {"year": 26, }, {"year": 27, }, {"year": 28, }, {"year": 29, }, {"year": 30, }, {"year": 31, },
-            {"year": 32, }, {"year": 33, }, {"year": 34, }, {"year": 35, }, {"year": 36, },
         ],
         "survivor_attribute_milestones": {
             "hunt_xp": [

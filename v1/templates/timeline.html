@@ -1,0 +1,274 @@
+<div
+    class="modal-black hidden"
+    id="modalTimelineContainer"
+    ng-controller="timelineController"
+    ng-if="settlement.sheet.timeline != undefined"
+    ng_init="
+        setEventOptions();
+        initializeEventLog();
+        showHide('timelineOpenerButton')
+    "
+>
+
+    <div class="kd_sheet_ui_outer_ring_container">
+
+        <div
+            class="kd_sheet_ui_inner_ring_container timeline_container"
+            ng-init="iter_order = ['settlement_event', 'story_event', 'special_showdown', 'nemesis_encounter','showdown_event']"
+        >
+            <h3>{{ settlement.sheet.name}} Timeline</h3>
+
+            <div class="timeline_top_line">
+                <div>Year</div>
+                <div>Events</div>
+            </div><!-- top_line -->
+
+            <div class="timeline_col_container">
+                <div
+                    class="timeline_row_container"
+                    ng-repeat="ly in settlement.sheet.timeline"
+                    ng-init="modalControlID = 'ly' + ly.year + 'Controls'"
+                >
+                    <span
+                        class="clickable timeline_clicker"
+                        ng-click="showHide(modalControlID);"
+                        onClick="document.getElementById('modalTimelineContainer').scrollTo(0,0);"
+                    >
+                        <div 
+                            class="kd_sheet_ui_box ly_checkbox"
+                            ng-class="{
+                                checked: settlement.sheet.lantern_year >= ly.year,
+                                current_ly: ly.year == settlement.sheet.lantern_year,
+                            }"
+                        >
+                        </div>
+                        <div
+                            class="ly_ly"
+                        > 
+                            {{ly.year}}                    
+                        </div>
+                        <div
+                             class="ly_events"
+                       >
+                            <span
+                                class="timeline_event_type_group"
+                                ng-repeat="event_type in iter_order"
+                                ng-if="ly[event_type].length > 0"
+                            >
+                                <span
+                                    class="timeline_event"
+                                    ng-repeat="event in ly[event_type]"
+                                    ng-init="eventRepr = getEventRepr(event)"
+                                    ng-class="{special_showdown: event_type == 'special_showdown'}"
+                                >
+                                    <font
+                                        class="kdm_font"
+                                        ng-if="event_type == 'story_event'"
+                                    >
+                                        g
+                                    </font>
+                                    <font
+                                        class="kdm_font"
+                                        ng-if="event_type == 'showdown_event'"
+                                    >
+                                        f
+                                    </font>
+                                    <img
+                                        class="icon settlement_event"
+                                        src="/media/icons/settlement_event.png"
+                                        ng-if="event_type == 'settlement_event'"
+                                    />
+                                    <img
+                                        class="icon special_showdown"
+                                        src="/media/icons/special_showdown_event.png"
+                                        ng-if="event_type == 'special_showdown'"
+                                     />
+                                    <img
+                                        class="icon nemesis_encounter"
+                                        src="/media/icons/nemesis_encounter_event.jpg"
+                                        ng-if="event_type == 'nemesis_encounter'"
+                                    />
+                                    &nbsp; {{eventRepr.name}} 
+                                    <span class="timeline_event_page" ng-if="eventRepr.page">
+                                        (p.{{eventRepr.page}})
+                                    </span>
+                                </span>
+                            </span>
+                        </div><!-- ly_events -->
+                    </span><!-- clicker -->
+
+                    <div
+                        id="{{modalControlID}}"
+                        class="modal_control_overlay timeline_modal hidden"
+                        ng-if="user_is_settlement_admin"
+                    >
+                        <div class="kd_sheet_ui_inner_ring_container timeline_overlay_control">
+                            <h3>Lantern Year {{ly.year}}</h3>
+
+                            <!-- current year controls -->
+                            <div
+                                class="timeline_current_ly_controls"
+                                ng-if="settlement.sheet.lantern_year == ly.year"
+                            >
+                                <button
+                                    class="kd_blue"
+                                    ng-click="setCurrentLY(ly.year+1)"
+                                >
+                                    End Lantern Year {{ly.year}}
+                                </button>
+                                <button
+                                    class="kd_pink"
+                                    ng-click="setCurrentLY(ly.year-1)"
+                                    ng-if="ly.year > 0"
+                                >
+                                    Return to Lantern Year {{ly.year-1}}
+                                </button>                            
+                            </div>
+
+                            <!-- ui tip -->
+                            <div
+                                class="kd_sheet_ui_row_tip"
+                                ng-if="user.user.preferences.show_ui_tips"
+                            >
+                                Click or tap an event below to remove it. Use the drop-down controls below to add new events!
+                            </div>
+
+                            <!-- buttons to remove events -->
+                            <div
+                                class="timeline_event_rm_button_container"
+                            >
+                                <div
+                                    class="timeline_event_rm_button_group"
+                                    ng-repeat="event_type in iter_order"
+                                    ng-if="ly[event_type].length > 0"
+                                >
+                                    <div
+                                        class="timeline_event_rm_button clickable"
+                                        ng-repeat="event in ly[event_type]"
+                                        ng-init="eventRepr = getEventRepr(event)"
+                                        ng-click="rmEventFromLY(ly[event_type], $index)"
+                                    >
+                                        x {{eventRepr.name}}
+                                    </div>
+                                </div><!-- event_type repeater-->
+                            </div><!-- event_rm container -->
+
+                            <hr/>
+
+                            <!-- drop-downs -->
+                            <select
+                                ng-model="settlementEvent"
+                                ng-options="handle as dict.name for (handle, dict) in settlementEventOptions"
+                                ng-change="
+                                    addEventToLY(ly, 'settlement_event', 'handle', settlementEvent);
+                                    settlementEvent = null;
+                                "
+                            >
+                                <option selected disabled value="">
+                                    Add Settlement Event
+                                </option>
+                            </select>
+
+                            <select
+                                ng-model="storyEvent"
+                                ng-options="handle as dict.name for (handle, dict) in storyEventOptions"
+                                ng-change="
+                                    addEventToLY(ly, 'story_event', 'handle', storyEvent);
+                                    storyEvent = null;
+                                "
+                            >
+                                <option selected disabled value="">
+                                    Add Story Event
+                                </option>
+                            </select>
+
+                            <select
+                                ng-model="specialShowdownEvent"
+                                ng-options="name for name in specialShowdownOptions"
+                                ng-change="
+                                    addEventToLY(ly, 'special_showdown', 'name', specialShowdownEvent);
+                                    specialShowdownEvent = null;
+                                "
+                            >
+                                <option selected disabled value="">
+                                    Add Special Showdown
+                                </option>
+                            </select>
+
+                            <select
+                                ng-model="nemesisEncounterEvent"
+                                ng-options="name for name in nemesisEncounterOptions"
+                                ng-change="
+                                    addEventToLY(ly, 'nemesis_encounter', 'name', nemesisEncounterEvent);
+                                    nemesisEncounterEvent = null;
+                                "
+                            >
+                                <option selected disabled value="">
+                                    Add Nemesis Encounter
+                                </option>
+                            </select>
+
+                            <select
+                                ng-model="showdownEvent"
+                                ng-options="name for name in showdownOptions"
+                                ng-change="
+                                    addEventToLY(ly, 'showdown_event', 'name', showdownEvent);
+                                    showdownEvent = null;
+                                "
+                            >
+                                <option selected disabled value="">
+                                    Add Showdown
+                                </option>
+                            </select>
+
+                            <hr/>
+
+
+                            <!-- confirm / cancel buttons -->
+                            <div class="timeline_current_ly_buttons_container">
+                                <button
+                                    class="kd_blue"
+                                    ng-click="updateLanternYear(ly); showHide(modalControlID)"
+                                >
+                                    Save Changes to LY {{ly.year}}
+                                </button>
+                                <button
+                                    ng-click="showHide(modalControlID); reloadTimeline();"
+                                >
+                                    Abandon Changes to LY {{ly.year}}
+                                </button>
+                            </div><!-- consent is sexy -->
+                        </div>
+                    </div>
+
+                </div> <!-- row container -->
+
+            </div> <!-- col container -->
+            <div class="timeline_nav_buttons">
+                <button
+                    class="kd_blue"
+                    ng-click="addLanternYears(5)"
+                    ng-if="settlement.sheet.timeline.length < 50"
+                >
+                    Add Five (5) Lantern Years
+                </button>
+                <button
+                    class="kd_pink"
+                    ng-click="rmLanternYears(5)"
+                    ng-if="objectKeys(settlement.sheet.timeline[settlement.sheet.timeline.length-1]).length <= 2"
+                >
+                    Remove Five (5) Lantern Years
+                </button>
+                <button
+                    onClick="showHide('modalTimelineContainer')"
+                >
+                    Close
+                </button>
+            </div>
+
+        </div><!-- inner ring container -->
+
+
+    </div><!-- outer ring container -->
+</div><!-- modal-black -->
+

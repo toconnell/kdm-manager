@@ -50,6 +50,8 @@
 .affinity_blue {background: #1C99CD; background-color: #1C99CD; color: #fff;}
 .affinity_green {background: #4CB848; background-color: #4CB848; color: #fff;}
 
+    /* timeline, settlement misc. */
+.special_showdown {color: #DC2426; }
 
     /* attributes */
 .Movement, .mov_token {background-color: #9A6D84; color: #fff; }

@@ -265,6 +265,17 @@ div#mySidenav button {
 .sidenav_form {margin-top: -4%; margin-bottom: -4%; }
 
 
+/* expansion content manager - mobile */
+.expansions_controls_container {display: flex; flex-direction: column; }
+.expansions_controls_container .kd_sheet_ui_row_tip {margin: 0 auto; width: 90%; }
+.expansion_category_header {padding-left: 5%; }
+.expansion_toggle_container {padding: 2%; width: 90%; margin: 0 auto; border: 4px solid #aaa; margin-bottom: 3%; color: #aaa; }
+.expansion_toggle_container .kd_sheet_ui_box {border-color: #aaa; }
+.expansion_toggle_container.enabled {color: #000; border-color: #000; }
+.expansion_toggle_container.enabled .kd_sheet_ui_box { border-color: #000; }
+.expansion_toggle_subtitle {font-family: 'Metrophobic'; font-size: 25pt; margin-left: 90px; }
+.expansion_management_form button {font-weight: bold; }
+
 /* world panel styles - mobile */
 .world_container {display: flex; flex-direction: column; }
 .world_panel_basic_box { border: 1px solid #333; margin: 1%; margin: 30px; font-family: 'metrophobic'; padding: 1%; background-color: #fff; }
@@ -275,46 +286,30 @@ div#mySidenav button {
 .world_panel_avatar_cell {text-align: center; }
 .world_panel_avatar {width: 65%; }
 
-/* timeline styles */
-.timeline_gradient {background-color: #fff; background: radial-gradient(#fff,#fff,#fff,#fff,#fff,#FEF0CE,#FBE8C9); }
-div.full_size_modal_panel {position: absolute; top: 0.5%; left: 1%; right: 1%; border-radius: 10px; padding: 1%;  border: 0.1em solid #957753; min-height: 50%; }
-div.full_size_modal_panel span.closeModal {top: -40px; }
+/* timeline styles - mobile */
+.timeline_row_container.current_ly {border-color: #f00; }
+.timeline_container .timeline_top_line {width: 96%; border-bottom: 3px solid #000; display: flex; flex-direction: row; margin: 0 auto; margin-bottom: 1%; }
+.timeline_container .timeline_top_line div {margin-left: 30px; font-size: 30pt; }
+.timeline_row_container {border-bottom: 1px solid #aaa; font-size: 35pt; width: 95%; padding: 2%; margin: 0 auto; font-family: "Metrophobic"; display: flex; flex-direction: row; flex-wrap: wrap; }
+.timeline_clicker {display: inline-flex; }
+.kd_sheet_ui_box.ly_checkbox {margin: 0 auto; margin-top: 2%; }
+.ly_ly {margin: 0 auto; font-size: 30pt; display: inline-block; width: 5%; margin-top: 1%; margin-right: 15px; margin-left: 15px; }
+.ly_events {width: 740px; margin-top: 5px; }
+.timeline_event {display: inline-table; margin-right:20px; font-size: 30pt; width: 100%; }
+.timeline_event img.icon {width: 30px;  }
+.kd_sheet_ui_inner_ring_container.timeline_overlay_control {width: 87%; margin: 0 auto; margin-top: 5%;}
+.timeline_overlay_control .kd_sheet_ui_row_tip {width: 90%; margin: 0 auto;}
+.timeline_overlay_control select {display: block; width: 90%; margin: 0 auto; margin-bottom: 5%; }
+.timeline_event_rm_button {margin: 0 auto; margin-top: 3%; width: 90%; border-radius: 5px; background-color: #666; color: #fff; font-family: "Metrophobic"; padding: 2%; }
+.timeline_current_ly_controls {border-bottom: 3px solid #ccc; width: 95%; margin: 0 auto; margin-bottom: 5%; }
+.timeline_current_ly_buttons_container button {font-family: 'Metrophobic';}
 
-div.timeline_ly_headline {font-size: 35px; font-weight: bold; border-bottom: 0.1em solid #000; }
-div.timeline_ly_headline span {margin-left: 5%; margin-right: 4%; }
-
-div.timeline_whole_entry_container {border-bottom: 0.05em solid #888;} 
-div.timeline_ly_container {margin: 4%; display: flex; flex-direction: row; padding-bottom: 0; margin-bottom: 0; margin-top: 2%; padding-bottom: 2%; }
-div.timeline_bullet_and_year_container, div.timeline_event_container {display: inline-block; height: 100%;}
-div.timeline_bullet_and_year_container {width: 150px; padding-top: 0; margin-top: 0; }
-div.timeline_events_container {width: 75%; }
-span.timeline_ly_number {font-family: Metrophobic; text-align: left; margin-left: 10px; }
-
-div.timeline_ly_container font.kdm_font, div.timeline_ly_container font.kdm_font_hit_locations {font-size: 0.8em; margin-right: 1%; font-weight: bold; }
-
-span.timeline_event {font-size: 58px; display: block; flex-direction: row; flex-wrap: wrap; justify-content: flex-start; align-items: center; }
-span.timeline_event img.icon {display: inline; border: 0; float: left; height: 45px; width: auto; margin-right: 2%; margin-top: 2%; }
-span.timeline_event img.special_showdown {margin-right: 5%; }
-span.timeline_event_page {font-family: Metrophobic; font-size: 0.7em; display: inline; }
-
-div.timeline_event_log_container {transition-timing-function: ease; transition: height 1s;}
-div.timeline_event_log_revealer {display: block; width: auto; width: 333px;  clear: left; text-align: left; cursor: pointer; padding: 1%; font-weight: bold; padding-left: 3%; background-color: #aaa; background: linear-gradient(to bottom, #ddd,#eee,#ddd);border: 1px solid #888; border-bottom: 0; font-size: 40px; }
-div.timeline_event_log_bottom {width: auto; background-color: #000; background: linear-gradient(to bottom, #ddd,#eee,#ddd); height: 40px;}
-.log_zebra, .log_no_zebra {font-family: Metrophobic; font-size: 0.7em; padding: 1%;}
-.log_zebra {background-color: #eee; background: linear-gradient(to bottom, #eee,#fff,#eee);border-top: 1px solid #aaa; border-bottom: 1px solid #333; color: #000; }
-.log_no_zebra {background-color: #fff;}
-
-div.timeline_hidden_controls_container {margin: 1%; padding: 1%; border-top: 1px solid #aaa; flex-direction: column; flex-wrap: wrap; margin-bottom: 10%; width: 100%; text-align: center; padding-top: 6%; }
-div.timeline_hidden_controls_container label {font-size: 50px; width: 85%; text-align: center; padding: 1%; margin: auto; margin-bottom: 0; margin-top: 7%;  }
-span.timeline_overlay_current_ly {position: fixed; right: 3%; bottom: 1%; border-radius: 100px; padding: 3%; font-size: 35px; border-color: #C2081D; }
-span.timeline_overlay_current_ly b {font-size: 50px;}
-
-select.add_timeline_event {width: 85%; margin: 0 auto; font-size: 50px; }
-div.timeline_rm_controls {cursor: pointer; }
-span.timeline_rm_event_group {width: auto; margin-top: 2%; margin-bottom: 0; }
-div.rm_timeline_event {width: 85%; margin: 2%; text-align: left; }
-label.timeline_change_ly_button {width: 100%; }
-
+/* event log styles - mobile */
+.event_log .kd_sheet_ui_row_tip {margin: 0 auto; width: 93%; margin-bottom: 3%; margin-top: 3%; }
+.event_log_clicker {border: 2px solid #000; padding: 1%; width: 93%; margin: 1%; font-family: 'Metrophobic'; margin-left: 2%; font-size: 35pt;  margin-bottom: 3%}
+.event_log_line {font-size: 30pt; margin: 0 auto; margin: 2%; }
+.event_count {color: #666; font-style: italic;  }
+.event_log_loader {display: flex; flex-direction: column; margin: 0 auto; font-size: 25pt; width: 50%; align-items: center; font-style: italic;  color: #999; }
 
 /* help-tip pop-up/modal - mobile res*/
 .help-tip p {
@@ -641,10 +636,11 @@ div.survivor_controls img {background-color: #fff; margin-bottom: 2%; }
 .quickview_secondary_container .secondary_box_number {font-size: 40pt; width: 100px; height: 100px; border: 1px solid #000; padding: 0; text-align: center; margin: 20px; }
 .quickview_secondary_container.hunt_xp {display: flex; flex-direction: column; justify-content: left;}
 .quickview_secondary_container .secondary_attrib_box_row {display: flex; flex-direction: row; flex-wrap: nowrap; margin: 2%; }
+.secondary_attrib_row_container {width: 100%; display: flex; justify-content: flex-end; }
 .quickview_secondary_container.courage,
-    .quickview_secondary_container.understanding {flex-direction: row; flex-wrap: nowrap; justify-content: space-between; }
+    .quickview_secondary_container.understanding { }
 .secondary_attrib_box_row.courage,
-    .secondary_attrib_box_row.understanding {width: 50%; }
+    .secondary_attrib_box_row.understanding {width: 55%; }
 .secondary_attrib_box_row .kd_sheet_ui_box {margin: auto; }
 .secondary_attrib_box_row .weapon_proficiency_type {font-size: 25pt; width: 50%; }
 .null_weapon_proficiency {width: 70%; display: block; border-bottom: 1px solid #000; margin-left: auto; margin-right: 10px; }
@@ -1068,9 +1064,6 @@ input.survivor_owner_email:focus {background: radial-gradient(#FDEDA9, #FFFFC5);
 .survivor_sheet_toggle:checked + label {font-weight: bold; color: #BB1111; border-color: #890000}
 .float_right_toggle {float: right; text-align:center; border: 0.5em solid #aaa; padding: 3%;  margin-right: 3%; }
 
-    /* expansion attrib toggles */
-div.expansion_attribs_container {margin: 4%; border: 0.1em solid #aaa; }
-div.expansion_content_remove_warning {width: 90%; font-family: Metrophobic; font-size: 35px; margin: 0 auto; margin-top: 5%; margin-bottom: 5%;}
 
     /* generic toggles */
 span.survivor_sheet_fa_level_row {text-align: left; }
@@ -1328,6 +1321,8 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
 .modal-black button {border-radius: 25px; }
 .modal-black hr {width: 95%; }
 
+.modal_control_overlay {position: absolute; top: 0; left: 0; right: 0; overflow-y:scroll; overflow-x:hidden }
+
 /* The Close Button */
 .closeModal {
     font-family: Arial, sans-serif;
@@ -1510,7 +1505,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
 
         /* new survivor sheet! - tablet */
-    .kd_sheet_ui_inner_ring_container {width: 65%; margin: 0 auto; margin-top: 2%; border-width: 10px; }
+    .kd_sheet_ui_inner_ring_container {width: 65%; margin: 0 auto; margin-top: 2%; border-width: 10px; margin-bottom: 50px; }
     .new_survivor_sheet p {font-size: 18pt; }
     .new_survivor_sheet .ui_tip {font-size: 15pt; }
     .new_survivor_sheet .border_box {border-width: 3px; }
@@ -1543,22 +1538,33 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
 
     /* timeline modal all views - tablet */
-    div.timeline_ly_headline span {margin-right: 2%; font-size: 20px; }
-    div.timeline_bullet_and_year_container {width: 90px; display: inline-flex; }
-    span.timeline_ly_number {font-size: 33px; margin-top: -8px;}
-    span.timeline_event {font-size: 30px; }
-    span.timeline_event img.icon {margin: 0; height: 25px; margin-right: 10px; }
-    span.timeline_event img.special_showdown {margin-right: 23px; }
-    div.timeline_event_log_revealer {font-size: 20px; }
-    div.timeline_event_log_container {font-size: 30px; }
-    div.timeline_hidden_controls_container {width: 96%}
-    select.add_timeline_event {font-size: 25px; }
-    div.timeline_rm_controls {text-align: left; } 
-    div.rm_timeline_event {font-size: 25px; display: inline-block; width: auto; }
-    div.timeline_hidden_controls_container label.timeline_change_ly_button {font-size: 30px; }
+    .timeline_container {width: 95%; }
+    .timeline_row_container {align-items: baseline; width: 88%; break-inside: avoid; }
+    .timeline_col_container {column-count: 2; column-width: auto; column-gap: 5px;}
+    .timeline_event_type_group {display: flex; flex-direciton: row; flex-wrap: wrap; }
+    .timeline_container .timeline_top_line div {font-size: 15pt; margin-left: 15px; }
+    .timeline_event img.icon {width: 16px; }
+    .ly_checkbox {margin-right: 3px; margin-left: 3px; }
+    .ly_events {width: 345px;}
+    .ly_ly {font-size: 15pt; margin-left: 5px;  margin-right: 10px; }
+    .timeline_event {font-size: 15pt; }
+    .timeline_event_rm_button_container {display: flex; flex-direction: row; flex-wrap: wrap; }
+    .timeline_event_rm_button_group {width: 350px; margin: 0 auto; }
+    .timeline_event_rm_button {font-size: 16pt; width: 100%; }
+    .timeline_nav_buttons {display: flex; flex-direction: row; flex-wrap: wrap; margin: 5%; margin-bottom: 0; }
+    .timeline_nav_buttons button {width: 45%; margin: 0 auto; padding: 1%; font-size: 17pt; font-family: "Metrophobic"; margin-bottom: 5%; }
+    .timeline_overlay_control {min-height: 1200px; }
+    .timeline_current_ly_buttons_container {display: flex; flex-direction: row; flex-wrap: nowrap; }
+    .timeline_current_ly_buttons_container button {font-size: 15pt; margin-top: 1%; }
+
+    /* event log - tablet */
+    .event_log_clicker {font-size: 20pt; }
+    .event_log_line {font-size: 18pt; }
+    .event_log_loader {font-size: 15pt;}
 
     /* expansion modal -tablet */
-    div.expansion_content_line_item label {font-size: 30px; }
+    .expansion_toggle_container {font-size: 20pt; }
+    .expansion_toggle_subtitle {font-size: 15pt; margin-left: 45px; }
 
     /* survivor sheet styles - tablet */
     .survivor_sheet_event_log_container {margin-bottom: 3%; }
@@ -1792,9 +1798,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     label#cannot_use_fighting_arts_toggle {right: 20px; }
 
-    div.expansion_attribs_container {display: block; width: auto; }
-    div.expansion_attribs_container label {font-size: 25px; }
-    div.expansion_content_remove_warning {font-size: 20px; margin-bottom: 3%; }
 
 
     p.survivor_sheet_game_asset_tip {width: 950px;}
@@ -2303,6 +2306,13 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     input.kd_css_checkbox + label:before {font-size: 14pt; }
     input.kd_radio_option { }
 
+
+    /* expansion modal - wide */
+    .expansion_toggle_container {font-size: 15pt; padding: 1%; margin-bottom: 1%; border-width: 2px; }
+    .expansion_toggle_subtitle {font-size: 10pt; }
+    .expansions_controls_container button {width: 75%; display: block; margin-top: 5%; margin-bottom: 5%; }
+    .expansion_management_form {width: 100%; margin-top: 3%; }
+
     /* asset creation styles - wide */
 
         /* bulk add new survivors - wide */
@@ -2346,10 +2356,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     /* wide campaign summary styles */
     div.campaign_summary_panels_container div.user_asset_sheet_error {position: absolute; left: 450px; top: 50px; width: 400px;  }
-    div.expansions_controls_container {width: 40%; display: flex; flex-direction:column; margin: 0 auto; }
-    div.expansion_content_line_item label {font-size: 15pt; width: 100%; }
-    div.expansion_content_remove_warning {font-size: 9pt; display: block; height: auto; margin-top: 90%; }
-    button.save_expansions {width: auto; padding: 1%; padding-left: 60px; padding-right: 60px; margin: 0 auto; display: block;  margin-top: 7%; margin-bottom: 10%; }
 
         /* campaign notes - wide */
     div.settlement_notes_controls {margin-top: 10px; margin-bottom: 10px; }
@@ -2429,7 +2435,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .attr {font-size: 12pt; }
     .death_x {font-size: 130px; margin-left: 10px; margin-top: -2%; ; }
     .campaign_summary_survivor_returning_flash {font-size: 10pt; margin-top: -2%; width: 104.3%; margin-left: -2%; border-top-right-radius: 5px; border-top-left-radius: 5px; }
-    .campaign_summary_survivor_constellation {font-size: 12pt; margin-bottom: -1%; width: 104.3%; margin-left: -2%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; }
+    .campaign_summary_survivor_constellation {font-size: 12pt; width: 104.3%; margin-left: -2%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; }
 
     .campaign_summary_survivor_tags_container {margin: 2% auto;}
     .survivor_tag {font-size: 11pt; min-width: 20%; }
@@ -2568,28 +2574,42 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
 
     /* timeline! - wide */
-    span.timeline_event img.special_showdown {margin-right: 17px;}
+    .timeline_container .timeline_top_line div {font-size: 9pt; }
+    span.timeline_event img.special_showdown {margin-right: -3px; }
     div.timeline_ly_container {cursor: pointer; }
     div.timeline_ly_headline {border-bottom: 1px solid #000;}
     div.timeline_ly_headline span {font-size: 11pt; }
-    span.timeline_ly_number {font-size: 14pt; }
-    span.timeline_event {font-size: 12pt; }
-    span.timeline_event img.icon {height: 13px; }
-    div.timeline_event_log_revealer {font-size: 10pt; width: 150px; padding: 0.1%; padding-left: 3%; }
+    .ly_ly {font-size: 10pt; }
+    .ly_events {width: 280px; }
+    span.timeline_ly_number {font-size: 14pt; width: auto; }
+    span.timeline_event {font-size: 11pt; }
+    span.timeline_event img.icon {height: 15px; width: auto; }
     select.add_timeline_event {font-size: 12pt; width: auto; height: 30px;}
     div.timeline_hidden_controls_container {flex-direction: row; padding-top: 2%; margin-bottom: 1%;}
     div.end_current_ly {display: inline-flex; flex-direction: row; flex-wrap: wrap; width: 70%; margin-top:-20px; margin-bottom: 20px; }
     div.timeline_hidden_controls_container label.timeline_change_ly_button {font-size: 13pt; padding: 0.5%; padding-left: 20px; padding-right: 20px; width: auto;  }
+    .timeline_nav_buttons button {font-size: 10pt; }
     div.timeline_rm_controls {width: 100%; padding: 0; border:0; height: auto; cursor: initial; margin-top:10px;  }
-    span.timeline_rm_event_group {width: 100%; border:0;}
+    span.timeline_rm_event_group {width: 100%; border:0; width: 250px; }
     div.rm_timeline_event {font-size: 12pt; margin: 0; padding: 1%; margin-right: 2%; cursor: pointer; }
     .log_zebra, .log_no_zebra {font-size: 10pt; padding: 0.1%; }
     span.timeline_overlay_current_ly {right: 5%; font-size: 15pt; padding: 1%; }
     span.timeline_overlay_current_ly b {font-size: 17pt; }
+    .timeline_overlay_control select {margin-bottom: 3%; }
+    .kd_sheet_ui_inner_ring_container.timeline_overlay_control {width: 50%; margin-top: 2%; min-height: 925px; }
+    .timeline_event_rm_button_container {width: 90%; margin: 0 auto; margin-bottom: 3%; margin-top: 3%; }
+    .timeline_event_rm_button_group {width: 45%; }
+    .timeline_event_rm_button {font-size: 11pt; }
+    .timeline_current_ly_buttons_container {width: 95%; margin: 0 auto; }
+    .timeline_current_ly_buttons_container button {font-size: 11pt; width: 250px; }
+    .timeline_current_ly_controls {display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: center; padding-bottom: 2%; }
+    .timeline_current_ly_controls button {width: 40%; margin: 1%; display: block; }
 
-
-
-
+    /* event log - wide */
+    .event_log_clicker {font-size: 12pt; margin-bottom: 1%; }
+    .event_log_line {font-size: 12pt; margin: 3px; padding: 2px; padding-left: 4px; }
+    .event_log_loader {font-size: 10pt; }
+    .event_log_closer_button {display: block; width: 300px; margin: 0 auto; margin-bottom: 2%; margin-top: 2%; }
 
     /* wide asset management styles */
 

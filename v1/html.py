@@ -848,235 +848,9 @@ class angularJS:
 
     """
 
-
-    expansions_manager = """\n
-    <div
-        id="modalExpansionsManager"
-        class="modal hidden"
-        ng-if="user_is_settlement_admin"
-        ng-controller="updateExpansionsController"
-    >
-
-      <!-- Modal content -->
-        <div class="full_size_modal_panel timeline_gradient">
-            <span class="closeModal" onclick="showHide('modalExpansionsManager')">×</span>
-
-            <h3>Expansions!</h3>
-
-            <div class="expansions_controls_container" ng-init="addNewSettlementsToScope('$api_url')">
-                <p>Use the controls below to determine which expansion content is
-                enabled for this campaign. Remember to save and reload when finished!</p>
-
-                <span
-                    ng-if="new_settlement_assets != undefined"
-                    ng-init="showHide('modalExpansionsOpener')"
-                >
-                    <!-- HACK CITY -->
-                </span>
-
-                <form method="POST" action="#">
-                    <div class="expansion_content_line_item" ng-repeat="x in new_settlement_assets.expansions">
-                        <input
-                            id="{{x.handle}}_modal_toggle"
-                            name="{{x.handle}}"
-                            type="checkbox"
-                            class="kd_css_checkbox kd_radio_option"
-                            ng-model=incomingExpansion
-                            ng-checked="settlement.sheet.expansions.indexOf(x.handle) != -1"
-                            ng-click="toggleExpansion(x.handle)"
-                            ng-disabled="settlement.game_assets.campaign.settlement_sheet_init.expansions.includes(x.handle)"
-                        >
-                        <label for="{{x.handle}}_modal_toggle">{{x.name}}</label>
-                    </div> <!-- line_item -->
-
-                    <div class="expansion_content_remove_warning">
-                    <b>Warning!</b>
-                    Disabling expansion content when it is required by the
-                    campaign or the items on the campaign's Settlement and Survivor
-                    Sheets (innovations, locations, fighting arts, etc.)
-                    can cause errors and other unexpected behavior!
-                    </div>
-
-                    <button
-                        type="submit"
-                        class="kd_blue save_expansions"
-                        onclick="closeModal('modalExpansionsManager'); showFullPageLoader()"
-                    >
-                        Save Changes and Reload
-                    </button>
-
-                </form>
-            </div> <!-- container -->
-        </div> <!-- modal content -->
-    </div> <!-- parent modal -->
-    """
-
-    bulk_add_survivors = """\n
-    <div
-        id="modalBulkAdd" class="modal hidden"
-        ng-if="user_is_settlement_admin && user.user.subscriber.level > 1"
-        ng-init="showHide('bulkAddOpenerButton');"
-        ng-controller="addManySurvivorsController"
-    >
-
-      <!-- Modal content -->
-        <div class="full_size_modal_panel survivor_sheet_gradient bulk_add_modal">
-            <span class="closeModal" onclick="showHide('modalBulkAdd')">×</span>
-
-            <div
-                id="bulkAddControlsContainer"
-            >
-
-                <h3>Add Multiple New Survivors</h3>
-                <p>Use these controls to add multiple new survivors to {{settlement.sheet.name}}.
-                    <span ng-if="user.user.preferences.random_names_for_unnamed_assets == true">
-                        New survivors will be manageable by all players in the campaign and
-                        will be assigned random names.
-                    </span>
-                    <span ng-if="user.user.preferences.random_names_for_unnamed_assets == false">
-                      New survivors will be manageable by all players in the campaign.
-                    </span>
-                </p>
-
-                <div
-                    class="create_user_asset_block_group bulk_add_block_group"
-                >
-                    <div class="bulk_add_tumblers">
-                        <div class="bulk_add_control">
-
-                            Male
-
-                            <button
-                                type="button"
-                                class="incrementer"
-                                ng-click="scratch.addMaleSurvivors = scratch.addMaleSurvivors + 1"
-                            >
-                                &#9652;
-                            </button>
-                            <input
-                                id="maleCountBox"
-                                class="big_number_square"
-                                type="number"
-                                value="0"
-                                min="0"
-                                ng-model="scratch.addMaleSurvivors"
-                            />
-                            <button
-                                type="button"
-                                class="decrementer"
-                                ng-click="scratch.addMaleSurvivors = scratch.addMaleSurvivors - 1"
-                            >
-                            &#9662;
-                            </button>
-                        </div>  <!-- bulk_add_control maleCountBox" -->
-                        <div class="bulk_add_control">
-
-                            Female
-
-                            <button
-                                type="button"
-                                class="incrementer"
-                                ng-click="scratch.addFemaleSurvivors = scratch.addFemaleSurvivors + 1"
-                            >
-                                &#9652;
-                            </button>
-                            <input
-                                id="femaleCountBox"
-                                class="big_number_square"
-                                type="number"
-                                value="0"
-                                min="0"
-                                ng-model="scratch.addFemaleSurvivors"
-                            />
-
-                            <button
-                                type="button"
-                                class="decrementer"
-                                ng-click="scratch.addFemaleSurvivors = scratch.addFemaleSurvivors - 1"
-                            >
-                                &#9662;
-                            </button>
-                        </div> <!-- bulk_add_control female -->
-
-                    </div> <!-- bulk_add_tumblers -->
-
-                </div>
-                <div
-                    ng-if="settlement.sheet.lantern_year > 0 && (scratch.addFemaleSurvivors > 0 || scratch.addMaleSurvivors > 0)"
-                > <!-- parents stuff -->
-                    <h3>Parents</h3>
-                    <p>Survivors without parents are not eligible for the automatic
-                    application of Innovation bonuses granted to newborn survivors!
-                    </p>
-
-                    <div class="bulk_add_block_group">
-
-                        <div class="bulk_add_parent_selectors"> <!-- parent selectors -->
-                            <select
-                                name="father"
-                                ng-model="scratch.manySurvivorsFather"
-                                ng-options="survivor._id.$oid as survivor.name for survivor in settlement.eligible_parents.male"
-                            /><option selected disabled value="" name="father">Father</option></select>
-
-                            <select
-                                name="mother"
-                                ng-model="scratch.manySurvivorsMother"
-                                ng-options="survivor._id.$oid as survivor.name for survivor in settlement.eligible_parents.female"
-                            /><option selected disabled value="" name="mother">Mother</option></select>
-                        </div> <!-- parent selectors -->
-                    </div> <!-- bulk_add_block_group -->
-
-                </div><!--parents stuff -->
-
-                <button
-                    id="bulkAddSurvivors"
-                    ng-if="scratch.addMaleSurvivors > 0 || scratch.addFemaleSurvivors > 0"
-                    onclick="showHide('bulkAddControlsContainer'); showHide('bulkAddResultsContainer')"
-                    ng-click="addManySurvivors()"
-                    class="kd_blue settlement_sheet_bulk_add"
-                >
-                    Create New Survivors
-                </button>
-
-            </div> <!-- bulkAddControlsContainer -->
-
-            <div
-                id="bulkAddResultsContainer"
-                class="bulk_add_results_container hidden"
-            >
-                <div
-                    class="bulk_add_loader_container"
-                    ng-if="scratch.showLoader == true"
-                >
-                    <img src="/media/loading_lantern.gif" />
-                    <p>Creating {{scratch.addMaleSurvivors + scratch.addFemaleSurvivors}} new survivors...</p>
-                </div>
-
-                <form
-                    action=""
-                    method="POST"
-                    class="bulk_add_new_survivor_form"
-                    ng-repeat="s in scratch.bulkAddNewSurvivors"
-                >
-                    <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}">
-                    <button
-                        class="bulk_add_new_survivor"
-                        ng-class="{kd_blue: s.sheet.sex == 'M', kd_alert_no_exclaim: s.sheet.sex == 'F'}"
-                    >
-                        <b>{{s.sheet.name}}</b> [{{s.sheet.sex}}]
-                    </button>
-                </form>
-
-            </div>
-
-        </div> <!-- modal content -->
-    </div> <!-- modal parent -->
-
-    \n"""
-
     settlement_notes = """\n\
     <div
-        class="modal hidden"
+        class="modal campaign_summary_gradient hidden"
         id="settlementNotesContainer"
         ng-if="settlement != undefined && user != undefined"
         ng-controller="settlementNotesController"
@@ -1103,19 +877,21 @@ class angularJS:
                     <div
                         class="settlement_note"
                         ng-repeat="n in settlement.sheet.settlement_notes"
+                        ng-init="authorRole = userRole(n.author)"
                     >
                         <div class="note_flair">
                             <font
-                                ng-if="userRole(n.author) == 'settlement_admin'"
+                                ng-if="authorRole === 'settlement_admin'"
                                 class="kdm_font_hit_locations"
                             > <span class="flair_text">a</span> </font>
                             <font
-                                ng-if="userRole(n.author) == 'player'"
+                                ng-if="authorRole === 'player'"
                                 class="kdm_font_hit_locations"
                             > <span class="flair_text">b</span> </font>
                         </div> <!-- note flair -->
 
                         <div class="note_content clickable" ng-click="showHide(n._id.$oid)">
+                            {{authorRole}}
                             {{n.note}} <span class="author" ng-if="n.author != user_login"> {{n.author}}</span>
                         </div> <!-- note content -->
 
@@ -1198,241 +974,6 @@ class angularJS:
     </div> <!-- modal (parent) -->
     \n"""
 
-    timeline = """\n
-
-    <div
-        class="modal hidden"
-        id="modalTimelineContainer"
-        ng-controller="timelineController"
-        ng-if="settlement.sheet.timeline != undefined"
-        ng_init="
-            setEvents();
-            initializeEventLog();
-            showHide('timelineOpenerButton')
-        "
-    >
-
-        <span class="touch_me timeline_overlay_current_ly">LY: <b>{{settlement.sheet.lantern_year}}</b></span>
-
-        <div class="full_size_modal_panel timeline_gradient">
-
-            <span class="closeModal" onclick="showHide('modalTimelineContainer')">×</span>
-
-            <h3>{{ settlement.sheet.name}} Timeline</h3>
-
-            <p ng-if="user_is_settlement_admin">
-                Click or tap on any Lantern Year below to update events occuring during that year.
-            </p>
-            <p ng-if="user_is_settlement_admin == false">
-                The Timeline of story, settlement and showdown events for {{settlement.sheet.name}}. Only settlement admins may modify the timeline.
-            </p>
-
-            <div class="timeline_ly_headline">
-                <span>Year</span><span>Story & Special Events</span>
-            </div>
-
-            <div
-                ng-repeat="t in settlement.sheet.timeline"
-                ng-init="t.log_div_id = 'ly' + t.year + 'LogDivIDHandle'"
-                class="timeline_whole_entry_container"
-            >
-                <div class="timeline_ly_container" ng-click="showHideControls(t.year)">
-                    <div class="timeline_bullet_and_year_container">
-                        <span ng-if="t.year >= settlement.sheet.lantern_year" class="kd_toggle_bullet"></span>
-                        <span ng-if="t.year < settlement.sheet.lantern_year" class="kd_toggle_bullet checked_kd_toggle_bullet"></span>
-                        <span class="timeline_ly_number">{{t.year}}</span>
-                    </div>
-
-                    <div class="timeline_events_container">
-                        <span class="timeline_event" ng-repeat="e in t.settlement_event">
-                            <font class="kdm_font_hit_locations">a &nbsp;</font>
-                            {{e.name}}
-                        </span>
-                        <span class="timeline_event" ng-repeat="e in t.story_event" ng-model="story_events">
-                            <font class="kdm_font">g &nbsp;</font>
-                            <b>{{e.name}}</b>
-                            <span class="timeline_event_page" ng-if="e.page">
-                                &nbsp;(p.{{e.page}})
-                            </span>
-                        </span>
-                        <span class="timeline_event" ng-repeat="q in t.special_showdown">
-                        <span><img class="icon special_showdown" src="/media/icons/special_showdown_event.png"/></span>
-                            <font class="special_showdown_text"><b>{{q.name}}</b></font>
-                        </span>
-                        <span
-                            class="timeline_event"
-                            ng-repeat="q in t.showdown_event"
-                            ng-if = "q.name != undefined"
-                        >
-                            <font class="kdm_font">f &nbsp;</font>
-                            {{q.name}}
-                        </span>
-                        <span class="timeline_event" ng-repeat="n in t.nemesis_encounter">
-                        <span><img class="icon" src="/media/icons/nemesis_encounter_event.jpg"/></span>
-                            &nbsp; <b> {{n.name}}</b>
-                        </span>
-                    </div>
-                </div>
-
-
-                <div
-                    id="timelineControlsLY{{t.year}}"
-                    style="display: none; height: 0;"
-                    class="timeline_hidden_controls_container"
-                    ng-if="user_is_settlement_admin == true;"
-                >
-
-                    <select
-                        name="add_timeline_event"
-                        class="add_timeline_event"
-                        ng-model="newEvent"
-                        ng-options="se.handle as se.name for se in story_events"
-                        ng-change="addEvent(t.year,'story_event',newEvent)"
-                    >
-                        <option selected disabled value="">
-                            Add Story Event
-                        </option>
-                    </select>
-
-                    <br/>
-
-                    <select
-                        name="add_timeline_event"
-                        class="add_timeline_event"
-                        ng-model="newEvent"
-                        ng-options="s for s in settlement.game_assets.special_showdown_options"
-                        ng-change="addEvent(t.year,'special_showdown',newEvent)"
-                    >
-                        <option selected disabled value="">
-                            Add Special Showdown
-                        </option>
-                    </select>
-
-                    <br/>
-
-                    <select
-                        name="add_timeline_event"
-                        class="add_timeline_event"
-                        ng-model="newEvent"
-                        ng-options="s for s in settlement.game_assets.showdown_options"
-                        ng-change="addEvent(t.year,'showdown_event',newEvent)"
-                    >
-                        <option selected disabled value="">
-                            Add Showdown
-                        </option>
-                    </select>
-
-                    <br/>
-
-                    <select
-                        name="add_timeline_event"
-                        class="add_timeline_event"
-                        ng-model="newEvent"
-                        ng-options="n for n in settlement.game_assets.nemesis_encounters"
-                        ng-change="addEvent(t.year,'nemesis_encounter',newEvent)"
-                    >
-                        <option selected disabled value="">
-                            Add Nemesis Encounter
-                        </option>
-                    </select>
-
-                    <br/>
-
-                    <select
-                        name="add_settlement_event"
-                        class="add_timeline_event"
-                        ng-model="newEvent"
-                        ng-options="se.handle as se.name for se in settlement_events"
-                        ng-change="addEvent(t.year,'settlement_event',newEvent)"
-                    >
-                        <option selected disabled value="">
-                            Add Settlement Event
-                        </option>
-                   </select>
-
-                    <hr class="invisible"/>
-
-                    <div ng-repeat="event_group in t" class="timeline_rm_controls">
-                        <span ng-if="isObject(event_group)" class="timeline_rm_event_group">
-                            <div
-                                ng-click="rmEvent(t.year, e)"
-                                ng-repeat="e in event_group"
-                                class="kd_alert_no_exclaim rm_timeline_event"
-                            > <b>x</b> {{e.name}}
-                            </div>
-                        </span>
-                    </div>
-
-                    <hr class="invisible"/>
-
-                    <div class="end_current_ly" ng-if="t.year==settlement.sheet.lantern_year">
-                        <input
-                            type="checkbox"
-                            id="endLanternYear{{t.year}}"
-                            ng-model="lantern_year"
-                            ng-click="setLY(t.year + 1); showHideControls(t.year); showControls(t.year+1)"
-                        />
-                        <label
-                            class="kd_blue timeline_change_ly_button"
-                            for="endLanternYear{{t.year}}"
-                        >
-                            End Lantern Year {{t.year}}
-                        </label>
-                        <input
-                            type="checkbox"
-                            id="returnToLanternYear{{t.year - 1}}"
-                            ng-model="lantern_year"
-                            ng-change="setLY(t.year - 1); showHideControls(t.year); showControls(t.year-1)"
-                        />
-                        <label
-                            class="kd_blue timeline_change_ly_button"
-                            for="returnToLanternYear{{t.year - 1}}"
-                            ng-if="t.year >= 1"
-                        >
-                            Return to Lantern Year {{t.year - 1}}
-                        </label>
-                    </div> <!-- end_current_ly -->
-
-                </div> <!-- timelineControlsLy{{t.year}}-->
-
-                <div
-                    ng-if="t.year <= settlement.sheet.lantern_year && get_event_log(t.year).length >= 1 "
-                    ng-click="showHide(t.log_div_id)"
-                    class="timeline_event_log_revealer round_top"
-                >
-                    LY {{t.year}} Event Log &#9662;
-                </div>
-
-                <div
-                    class="timeline_event_log_container hidden"
-                    id="{{t.log_div_id}}"
-                    ng-click="showHide(t.log_div_id)"
-                >
-                    <span
-                        ng-repeat="l in get_event_log(t.year)"
-                        ng-if="l.event != undefined"
-                    >
-                        <div
-                            ng-class-odd="'log_zebra'"
-                            ng-class-even="'log_no_zebra'"
-                            ng-bind-html="l.event|trustedHTML"
-                            class="{{l.event_type}}"
-                        >
-                        </div>
-                   </span>
-
-                    <div class="timeline_event_log_bottom round_bottom" > </div>
-                    <br/>
-                </div>
-
-            </div> <!-- iterator ng-repeat t in timeline -->
-
-
-        </div><!-- full size modal  -->
-
-    </div> <!-- modal (parent) -->
-
-    \n"""
 
 
 class survivor:
@@ -2527,13 +2068,13 @@ class survivor:
                 </div>
             </div>
             <div class="kd_sheet_ui_row_tip" ng-if="survivor.sheet.abilities_and_impairments.indexOf('stalwart') != -1">
-                <b>Stalwart:</b> Can't be knocked down by brain trauma or intimidate.
+                <b>Stwalwart:</b> {{settlement.game_assets.abilities_and_impairments.stalwart.summary}}
             </div>
             <div class="kd_sheet_ui_row_tip" ng-if="survivor.sheet.abilities_and_impairments.indexOf('prepared') != -1">
-                <b>Prepared:</b> Add Hunt XP to your roll when determining a straggler.
+                <b>Prepared:</b> {{settlement.game_assets.abilities_and_impairments.prepared.summary}}
             </div>
             <div class="kd_sheet_ui_row_tip" ng-if="survivor.sheet.abilities_and_impairments.indexOf('matchmaker') != -1">
-                <b>Matchmaker:</b> Spend 1 endeavor to trigger Intimacy story event.
+                <b>Matchmaker:</b> {{settlement.game_assets.abilities_and_impairments.matchmaker.summary}}
             </div>
         </div>
         <div
@@ -2676,13 +2217,13 @@ class survivor:
                 </div>
             </div>
             <div class="kd_sheet_ui_row_tip" ng-if="survivor.sheet.abilities_and_impairments.indexOf('analyze') != -1">
-                <b>Analyze:</b> Look at the top AI card and return it to the top of the deck.
+                <b>Analyze:</b> {{settlement.game_assets.abilities_and_impairments.analyze.summary}}
             </div>
             <div class="kd_sheet_ui_row_tip" ng-if="survivor.sheet.abilities_and_impairments.indexOf('explore') != -1">
-                <b>Explore:</b> Add +2 to your <b>investigate</b> roll results.
+                <b>Explore:</b> {{settlement.game_assets.abilities_and_impairments.explore.summary}}
             </div>
             <div class="kd_sheet_ui_row_tip" ng-if="survivor.sheet.abilities_and_impairments.indexOf('tinker') != -1">
-                <b>Tinker:</b> +1 endeavor when a returning survivor.
+                <b>Tinker:</b> {{settlement.game_assets.abilities_and_impairments.tinker.summary}}
             </div>
         </div>
         <div
@@ -4155,12 +3696,17 @@ class settlement:
                     ng-if="group.survivors.length >= 1 && user != undefined"
                     ng-init="
                         containerID = group.handle + '_container';
-                        group.arrow = false;
+                        initArrow(group);
                     "
                 >
                     <span ng-init="fadeSurvivorGroupsLoader()"></span>
 
-                    <h3 title="group.title_tip" ng-click="showHide(containerID); flipArrow(group)" class="clickable {{group.handle}}">
+                    <h3
+                        title="group.title_tip"
+                        ng-click="showHide(containerID); flipArrow(group)"
+                        class="clickable {{group.handle}}"
+                    >
+                        {{group.name}} ({{group.survivors.length}})
                         <span ng-if="group.arrow == true || group.arrow == undefined">
                             &#x25B2;
                         </span>
@@ -4168,10 +3714,12 @@ class settlement:
                             &#x25BC;
                         </span>
 
-                        {{group.name}} ({{group.survivors.length}})
                     </h3>
 
-                    <div id="{{containerID}}" >
+                    <div
+                        id="{{containerID}}"
+                        ng-class="{hidden: group.name == 'The Dead'}"
+                    >
 
                         <div
                             class="campaign_summary_survivor_container {{group.handle}}"
@@ -4185,9 +3733,9 @@ class settlement:
                                     disabled: s.meta.manageable == false,
                                     survivor_sheet_gradient: s.meta.manageable == true,
                                     dead_survivor_gradient: s.sheet.dead == true,
-                                    affinity_red: s.sheet.savior == 'red',
-                                    affinity_green: s.sheet.savior == 'green',
-                                    affinity_blue: s.sheet.savior == 'blue',
+                                    affinity_red: s.sheet.savior == 'red' && s.sheet.dead == undefined,
+                                    affinity_green: s.sheet.savior == 'green' && s.sheet.dead == undefined,
+                                    affinity_blue: s.sheet.savior == 'blue' && s.sheet.dead == undefined,
                                 }"
                                 style='{{settlement.survivor_color_schemes[s.sheet.color_scheme].style_string}}'
                             >
@@ -4870,6 +4418,24 @@ class settlement:
                             >
                             </div>
                         </div>
+                        <div
+                            class="kd_sheet_ui_row_tip"
+                            ng-repeat="ai_handle in s.sheet.abilities_and_impairments track by $index"
+                            ng-if="settlement.game_assets.weapon_specializations[ai_handle] != undefined"
+                        >
+                            <b>{{settlement.game_assets.weapon_specializations[ai_handle].name}}:</b>
+                            <span
+                                ng-bind-html="settlement.game_assets.weapon_specializations[ai_handle].desc|trustedHTML"></span>
+                        </div>
+                        <div
+                            class="kd_sheet_ui_row_tip"
+                            ng-repeat="ai_handle in s.sheet.abilities_and_impairments track by $index"
+                            ng-if="settlement.game_assets.weapon_masteries[ai_handle] != undefined"
+                        >
+                            <b>{{settlement.game_assets.weapon_masteries[ai_handle].name}}:</b>
+                            <span
+                                ng-bind-html="settlement.game_assets.weapon_masteries[ai_handle].desc|trustedHTML"></span>
+                        </div>
                     </div>
                     <div
                         id="{{weaponProficiencyBoxID}}"
@@ -4908,19 +4474,30 @@ class settlement:
                         ng-click="rollUp(courageBoxID)"
                     >
                         Courage
-                        <div
-                            class="secondary_attrib_box_row courage"
-                            ng-init="courageBoxes = [1,2,3,4,5,6,7,8,9]"
-                        >
+                        <div class="secondary_attrib_row_container">
                             <div
-                                class="kd_sheet_ui_box"
-                                ng-repeat = "b in courageBoxes"
-                                ng-class="{
-                                    checked: s.sheet.Courage >= b,
-                                    heavy: [3,9].indexOf(b) != -1,
-                                }"
+                                class="secondary_attrib_box_row courage"
+                                ng-init="courageBoxes = [1,2,3,4,5,6,7,8,9]"
                             >
+                                <div
+                                    class="kd_sheet_ui_box"
+                                    ng-repeat = "b in courageBoxes"
+                                    ng-class="{
+                                        checked: s.sheet.Courage >= b,
+                                        heavy: [3,9].indexOf(b) != -1,
+                                    }"
+                                >
+                                </div>
                             </div>
+                        </div> <!-- row_container -->
+                        <div class="kd_sheet_ui_row_tip" ng-if="s.sheet.abilities_and_impairments.indexOf('stalwart') != -1">
+                            <b>Stwalwart:</b> {{settlement.game_assets.abilities_and_impairments.stalwart.summary}}
+                        </div>
+                        <div class="kd_sheet_ui_row_tip" ng-if="s.sheet.abilities_and_impairments.indexOf('prepared') != -1">
+                            <b>Prepared:</b> {{settlement.game_assets.abilities_and_impairments.prepared.summary}}
+                        </div>
+                        <div class="kd_sheet_ui_row_tip" ng-if="s.sheet.abilities_and_impairments.indexOf('matchmaker') != -1">
+                            <b>Matchmaker:</b> {{settlement.game_assets.abilities_and_impairments.matchmaker.summary}}
                         </div>
                     </div>
                     <div
@@ -4951,19 +4528,30 @@ class settlement:
                         ng-click="rollUp(understandingBoxID)"
                     >
                         Understanding
-                        <div
-                            class="secondary_attrib_box_row understanding"
-                            ng-init="understandingBoxes = [1,2,3,4,5,6,7,8,9]"
-                        >
+                        <div class="secondary_attrib_row_container">
                             <div
-                                class="kd_sheet_ui_box"
-                                ng-repeat = "b in understandingBoxes"
-                                ng-class="{
-                                    checked: s.sheet.Understanding >= b,
-                                    heavy: [3,9].indexOf(b) != -1,
-                                }"
+                                class="secondary_attrib_box_row understanding"
+                                ng-init="understandingBoxes = [1,2,3,4,5,6,7,8,9]"
                             >
+                                <div
+                                    class="kd_sheet_ui_box"
+                                    ng-repeat = "b in understandingBoxes"
+                                    ng-class="{
+                                        checked: s.sheet.Understanding >= b,
+                                        heavy: [3,9].indexOf(b) != -1,
+                                    }"
+                                >
+                                </div>
                             </div>
+                        </div><!-- secondary_Attrib_row_container -->
+                        <div class="kd_sheet_ui_row_tip" ng-if="s.sheet.abilities_and_impairments.indexOf('analyze') != -1">
+                            <b>Analyze:</b> {{settlement.game_assets.abilities_and_impairments.analyze.summary}}
+                        </div>
+                        <div class="kd_sheet_ui_row_tip" ng-if="s.sheet.abilities_and_impairments.indexOf('explore') != -1">
+                            <b>Explore:</b> {{settlement.game_assets.abilities_and_impairments.explore.summary}}
+                        </div>
+                        <div class="kd_sheet_ui_row_tip" ng-if="s.sheet.abilities_and_impairments.indexOf('tinker') != -1">
+                            <b>Tinker:</b> {{settlement.game_assets.abilities_and_impairments.tinker.summary}}
                         </div>
                     </div>
                     <div
@@ -5060,7 +4648,7 @@ class settlement:
                         </div>
                         <ul class="quickview_asset_list">
                             <li
-                                ng-repeat="ai in s.sheet.abilities_and_impairments"
+                                ng-repeat="ai in s.sheet.abilities_and_impairments track by $index"
                             >
                                 <b>{{settlement.game_assets.abilities_and_impairments[ai].name}}:</b>
                                 <span ng-bind-html="settlement.game_assets.abilities_and_impairments[ai].desc|trustedHTML"></span>
@@ -6485,7 +6073,7 @@ class settlement:
                 The monsters your settlement can select to hunt.
             </div>
             <div
-                class="settlement_sheet_line_item location_container"
+                class="settlement_sheet_line_item location_container clickable"
                 ng-controller="quarriesController"
                 ng-repeat="q in settlement.sheet.quarries"
             >
@@ -7048,7 +6636,16 @@ def render(view_html, head=[], http_headers=None, body_class=None, include_templ
     output += '</div><!-- container -->'
 
     # 5. add on all required templates; start w/ the default/baseline
-    ui_templates = ['nav.html', 'new_survivor.html','report_error.html', 'survivor_search.html']
+    ui_templates = [
+        'nav.html',
+        'new_survivor.html',
+        'multiple_new_survivors.html',
+        'expansion_content_manager.html',
+        'report_error.html',
+        'survivor_search.html',
+        'timeline.html',
+        'event_log.html',
+    ]
     ui_templates += include_templates
     for t in ui_templates:
         output += template_file_to_str(t)

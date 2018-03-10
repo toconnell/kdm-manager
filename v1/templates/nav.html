@@ -36,12 +36,12 @@
         method="POST"
         action=""
         ng-if="view != 'newSettlement'"
-        ng-if="user.user.settlements_created < 3 || user.user.subscriber.level > 0"
     >
         <input type="hidden" name="change_view" value="new_settlement" />
         <button
             class="sidenav_top_level"
             onclick="showFullPageLoader(); closeNav()"
+            ng-if="user.user.settlements_created < 3 || user.user.subscriber.level > 0"
         >
             + Create New Settlement
         </button>
@@ -94,7 +94,8 @@
 
     <button
         id="modalExpansionsOpener"
-        class="sidenav_button hidden"
+        ng-if="user_is_settlement_admin && new_settlement_assets != undefined"
+        class="sidenav_button visible"
         ng-click="showHide('modalExpansionsManager')"
         onclick="closeNav()"
     >
@@ -108,6 +109,15 @@
         onclick="closeNav()"
     >
         Timeline
+    </button>
+
+    <button
+        id="eventLogOpenerButton"
+        class="sidenav_button hidden"
+        ng-click="showHide('eventLogContainer')"
+        onclick="closeNav()"
+    >
+        Event Log
     </button>
 
     <button

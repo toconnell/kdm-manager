@@ -132,6 +132,20 @@ app.filter('orderObjectBy', function() {
 });
 
 
+app.filter('filterObjectBy', function() {
+  return function(items, property, value) {
+    var filtered = [];
+    angular.forEach(items, function(item) {
+        if (item[property] === value) {
+            filtered.push(item);
+        };
+    });
+    console.warn(filtered);
+    return filtered;
+  };
+});
+
+
 
 
 app.controller('rootController', function($scope, $rootScope, $http, $log) {
@@ -146,6 +160,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
     };
 
     // initialize rootScope elements here; these are set on every view
+    $rootScope.objectKeys = Object.keys;
     $rootScope.rollUp = rollUp;
     $rootScope.showHide = showHide;
     $scope.numberToRange = function(num) {
@@ -361,10 +376,10 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
                     // determine if the user is a settlement admin
                     if ($scope.settlement.sheet.admins.indexOf($scope.user_login) == -1) {
                         $scope.user_is_settlement_admin = false;
-//                        console.error($scope.user_login + ' is not a settlement admin.');
+                        console.error($scope.user_login + ' is not a settlement admin.');
                     } else {
                         $scope.user_is_settlement_admin = true;
-//                        console.warn($scope.user_login + ' is a settlement admin!');
+                        console.warn($scope.user_login + ' is a settlement admin!');
                     };
                 });
             });
@@ -537,20 +552,6 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
     };
 
 
-    $scope.initializeEventLog = function() {
-        console.time('initializeEventLog()');
-        console.log('[EVENT LOG] Initializing event log...');
-        $scope.getJSONfromAPI('settlement','get_event_log', 'initializeEventLog()').then(
-            function(payload) {
-                $scope.event_log = payload.data;
-                console.timeEnd('initializeEventLog()');
-            },
-            function(errorPayload) {
-                console.log($scope.log_level + "Error loading event_log!" + errorPayload);
-            }
-        );
-    };
-
     $scope.setGameAssetOptions = function(game_asset, destination, exclude_type) {
         // generic method to create a set of options by comparing a baseline
         // list to a list of items to exclude from that list
@@ -695,6 +696,8 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         console.time('postJSONtoAPI(' + collection + ', ' + action + ')');
         if (reinit === undefined) {reinit = true};
         if (show_alert === undefined) {show_alert = true};
+//        console.error("show_alert: " + show_alert);
+//        console.error("update_sheet: " + update_sheet);
 
         // always serialize on response, regardless of asset type
         json_obj.serialize_on_response = true;
@@ -835,13 +838,18 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
 //  with HTML that calls these controllers
 
 app.controller("updateExpansionsController", function($scope) {
-    $scope.toggleExpansion = function(e_handle) {
-//        console.log($scope.settlement.game_assets.campaign.settlement_sheet_init.expansions.includes(e_handle));
-        var input_element = document.getElementById(e_handle + "_modal_toggle");
-        if (input_element.checked) {
-            $scope.postJSONtoAPI('settlement', 'add_expansions', {'expansions': [e_handle]});
+    $scope.scratch= {}
+    $scope.scratch['expansions_updated'] = false; 
+    $scope.toggleExpansion = function(e_handle, index) {
+        $scope.scratch['expansions_updated'] = true;
+//        console.error('updated: ' + $scope.scratch.expansions_updated);
+        if ($scope.settlement.sheet.expansions.indexOf(e_handle) === -1) {
+            $scope.settlement.sheet.expansions.push(e_handle);
+            $scope.postJSONtoAPI('settlement', 'add_expansions', {'expansions': [e_handle]}, false,true,true);
         } else {
-            $scope.postJSONtoAPI('settlement', 'rm_expansions', {'expansions': [e_handle]});
+            $scope.settlement.sheet.expansions.splice(index,1);
+            $scope.scratch['expansion_removed'] = true;
+            $scope.postJSONtoAPI('settlement', 'rm_expansions', {'expansions': [e_handle]}, false,true,true);
         };
     };
 });
@@ -981,10 +989,11 @@ app.controller('settlementNotesController', function($scope, $rootScope) {
         if (!$scope.newNote) {return;}
         var new_note_object = {
             "author_id": $scope.user_id,
+            "author": $scope.user_login,
             "note": $scope.newNote,
         };
         $scope.settlement.sheet.settlement_notes.unshift(new_note_object);
-        $scope.postJSONtoAPI('settlement', 'add_note', new_note_object);
+        $scope.postJSONtoAPI('settlement', 'add_note', new_note_object, false);
         $scope.newNote = "";
     };
     $scope.removeNote = function(index, n_id) {
@@ -1012,126 +1021,105 @@ app.controller('newSettlementController', function($scope, $http) {
 
 });
 
-app.controller('timelineController', function($scope, $rootScope) {
 
-    // limits $scope.event_log to only lines from target_ly
-    $scope.get_event_log = function(t) {
-
-        var target_ly = Number(t);
-        local_event_log = new Array();
-
-        if ($scope.event_log == undefined) {return false};
-
-        for (i = 0; i < $scope.event_log.length; i++) {
-            if (Number($scope.event_log[i].ly) == target_ly) {
-                local_event_log.unshift($scope.event_log[i]);
-            };
-        };
-
-//        console.log("added " + local_event_log.length + " items to local_event_log");
-//        console.log($scope.local_event_log);
-        return local_event_log;
-    };
-
-
-    $scope.showHideControls = function(ly) { 
-//        console.warn('hiding LY ' + ly);
-        elem_id='timelineControlsLY' + ly;
-
-        var hidden_controls = document.getElementById(elem_id);
-//        console.log(elem_id);
-//        console.log("hidden controls = " + hidden_controls);
-
-        if (hidden_controls === undefined) {
-            console.warn('Hidden element is undefined!');
-            return false
-        } else if (hidden_controls === null && $scope.user_is_settlement_admin != true) {
-            console.warn('Timeline controls are hidden! ' + $scope.user_login + ' admin status: ' + $scope.user_is_settlement_admin );
-            return false;
-        } else if (hidden_controls === null && $scope.user_is_settlement_admin == true) {
-            console.error("Div ID " + elem_id + " is null! Timeline admin controls cannot be displayed!");
-        };
-
-        if (hidden_controls.style.display == 'none') {
-            hidden_controls.style.height = 'auto';
-            hidden_controls.style.display = 'flex';
-        }
-        else if (hidden_controls.style.display == 'flex') {
-            hidden_controls.style.height = 0;
-            hidden_controls.style.display = 'none';
-        } else {console.log("UNHANDLED CONDITION! >" + hidden_controls.style.display + "<")};
-    };
-
-    $scope.showControls = function(ly) {
-        var hidden_controls = document.getElementById('timelineControlsLY' + ly);
-        hidden_controls.style.display='flex';
-        hidden_controls.style.height='auto';
-    };
-
-    $scope.setLY = function(ly) {
-        console.log("setting LY to " + ly);
-        $scope.settlement.sheet.lantern_year = ly;
-        $scope.postJSONtoAPI('settlement','set_attribute',{attribute: 'lantern_year',  value: ly});
-    };
-
-    $scope.getLYObject = function(ly) {
-        // returns the local scope's timeline object for ly
-        for (i = 0; i < $scope.settlement.sheet.timeline.length; i++) {
-            var timeline_year = $scope.settlement.sheet.timeline[i];
-            if (timeline_year.year == Number(ly)) {return timeline_year};
-        }
-    };
-
-    $scope.rmEvent = function(ly,event_obj) {
-        event_obj.user_login = $scope.user_login;
-        event_obj.ly = ly;
-        var target_ly = $scope.getLYObject(ly);
-        var target_event_index = target_ly[event_obj.type].indexOf(event_obj);
-        target_ly[event_obj.type].splice(target_event_index,1);
-        $scope.postJSONtoAPI('settlement', 'rm_timeline_event', event_obj);
-    };
-
-    // in which we turn form input into a juicy hunk of API-safe JSON
-    $rootScope.addEvent = function(ly, event_type, event_handle) {
-        var event_obj = new Object();
-
-        // use the event_type, if possible, to get the event dict from
-        // active $scope. Works for story/settlement events
-        if (event_type == 'story_event' || event_type == 'settlement_event') {
-            event_obj = ($scope.settlement.game_assets.events[event_handle]);
-        } else if (
-            event_type == 'showdown_event' ||
-            event_type == 'nemesis_encounter' ||
-            event_type == 'special_showdown'
-            ) {
-            event_obj.type = event_type;
-            event_obj.name = event_handle; // when is a handle not a handle?
-        } else {
-            console.error("ERROR! Unknown event type: " + event_type);
-            return false;
-        };
-
-
-        event_obj.ly = ly;
-        var target_ly = $scope.getLYObject(ly);
-
-        if (!(event_obj.type in target_ly)) {
-            target_ly[event_obj.type] = new Array();
-        };
-
-        for (i = 0; i < target_ly[event_obj.type].length; i++) {
-            if (target_ly[event_obj.type][i] === event_obj) {
-                console.log("Duplicate item. Returning true...");
-                return true;
+app.controller('eventLogController', function($scope) {
+    $scope.eventLog = {}
+    $scope.getEventLogLY = function(ly) {
+        console.time('getEventLogLY(' + ly + ')');
+        console.log('[EVENT LOG] Initializing event log...');
+        $scope.postJSONtoAPI('settlement','get_event_log', {ly: ly}, false, false, false).then(
+            function(payload) {
+                $scope.eventLog[ly] = payload.data;
+                $('#eventLogLY' + ly + 'Loader').fadeOut(1000);
+                console.timeEnd('getEventLogLY(' + ly + ')');
+            },
+            function(errorPayload) {
+                console.log($scope.log_level + "Error retrieving Event Log!" + errorPayload);
             }
-        }
+        );
+    };
+});
 
-        // if we're still here after that iteration above, add the event
-        target_ly[event_obj.type].push(event_obj);
-        $scope.postJSONtoAPI('settlement', 'add_timeline_event', event_obj);
+app.controller('timelineController', function($scope) {
 
+    $scope.setEventOptions = function() {
+        // iterates through the settlement.game_assets.events dictionary and
+        // injects some new items into $scope that, in turn, may be iterated
+        // by the HTML to create drop-down options for adding events to the TL
+        console.time('setEventOptions()');
+
+        $scope.showdownOptions = $scope.settlement.game_assets.showdown_options;
+        $scope.specialShowdownOptions = $scope.settlement.game_assets.special_showdown_options;
+        $scope.nemesisEncounterOptions = $scope.settlement.game_assets.nemesis_encounters;
+        $scope.storyEventOptions = {};
+        $scope.settlementEventOptions = {};
+        angular.forEach($scope.settlement.game_assets.events, function(item) {
+            if (item.sub_type === 'story_event') {
+                $scope.storyEventOptions[item.handle] = item;
+            } else if (item.sub_type == 'settlement_event') {
+                $scope.settlementEventOptions[item.handle] = item;
+            };
+        });
+        console.timeEnd('setEventOptions()');
     };
 
+    $scope.setCurrentLY = function(ly) {
+        $scope.postJSONtoAPI('settlement','set_current_lantern_year',{ly: ly},false);
+        $scope.settlement.sheet.lantern_year=ly;
+    };
+
+    $scope.updateLanternYear = function(ly) {
+        $scope.postJSONtoAPI('settlement','replace_lantern_year',{ly:ly},false);
+    };
+
+    $scope.addEventToLY = function(ly, event_group, type, value) {
+        if (ly[event_group] === undefined) {
+            ly[event_group] = [];
+        };
+        var target_event_group = ly[event_group];
+        if (type === 'handle') {
+            target_event_group.push({handle: value});
+        } else if (type === 'name') {
+            target_event_group.push({name: value});
+        } else {
+            console.error("Unable to add '" + type + "' type event to Timeline.");
+        };
+//        console.warn(ly);
+    };
+    $scope.rmEventFromLY = function(event_group, event_index) {
+        event_group.splice(event_index, 1);
+    };
+    $scope.getEventRepr = function(e) {
+        if (e.name != undefined) {return e};
+        return $scope.settlement.game_assets.events[e.handle];
+    };
+    $scope.addLanternYears = function(n) {
+        var op = $scope.postJSONtoAPI('settlement','add_lantern_years',{years: n},false);
+        op.then(
+            function(payload) {$scope.reloadTimeline();},
+            function(errorPayload) {}
+        );
+    };
+    $scope.rmLanternYears = function(n) {
+        var op = $scope.postJSONtoAPI('settlement','rm_lantern_years',{years: n},false);
+        op.then(
+            function(payload) {$scope.reloadTimeline();},
+            function(errorPayload) {}
+        );
+    };
+    $scope.reloadTimeline = function() {
+        console.time('reloadTimeline()');
+        showCornerLoader();
+        var tl = $scope.getJSONfromAPI('settlement', 'get_timeline', 'reloadTimeline()');
+        tl.then(
+            function(payload) {
+                $scope.settlement.sheet.timeline = payload.data;
+                console.timeEnd('reloadTimeline()');
+                hideCornerLoader();
+            },
+            function(errorPayload) {console.log("Error reloading settlement Timeline!" + errorPayload);}
+        );
+    };
 });
 
 
@@ -1359,3 +1347,4 @@ app.controller ("survivorSearchController", function($scope) {
 
 
 
+//        console.log($scope.settlement.game_assets.campaign.settlement_sheet_init.expansions.includes(e_handle));
