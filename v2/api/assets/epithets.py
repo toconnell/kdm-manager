@@ -134,9 +134,11 @@ mar_2016_expansions = {
     },
 
     # Gorm
+    'ancient_gorm_bait': {'expansion': 'gorm', 'name': "Ancient Gorm's Bait"},
     'braved_the_storm': {'expansion': 'gorm', 'name': 'Braved the Storm'},
     'digested': {'expansion': 'gorm', 'name': 'Digested'},
     'gorm_bait': {'expansion': 'gorm', 'name': 'Gorm Bait'},
+    'gormchymist': {'expansion': 'gorm', 'name': 'Gormchymist'},
     'living_sacrifice': {'expansion': 'gorm', 'name': 'Living Sacrifice'},
 
     # Lion Knight

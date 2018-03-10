@@ -376,10 +376,10 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
                     // determine if the user is a settlement admin
                     if ($scope.settlement.sheet.admins.indexOf($scope.user_login) == -1) {
                         $scope.user_is_settlement_admin = false;
-//                        console.error($scope.user_login + ' is not a settlement admin.');
+                        console.error($scope.user_login + ' is not a settlement admin.');
                     } else {
                         $scope.user_is_settlement_admin = true;
-//                        console.warn($scope.user_login + ' is a settlement admin!');
+                        console.warn($scope.user_login + ' is a settlement admin!');
                     };
                 });
             });
@@ -696,6 +696,8 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         console.time('postJSONtoAPI(' + collection + ', ' + action + ')');
         if (reinit === undefined) {reinit = true};
         if (show_alert === undefined) {show_alert = true};
+//        console.error("show_alert: " + show_alert);
+//        console.error("update_sheet: " + update_sheet);
 
         // always serialize on response, regardless of asset type
         json_obj.serialize_on_response = true;
@@ -836,13 +838,18 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
 //  with HTML that calls these controllers
 
 app.controller("updateExpansionsController", function($scope) {
-    $scope.toggleExpansion = function(e_handle) {
-//        console.log($scope.settlement.game_assets.campaign.settlement_sheet_init.expansions.includes(e_handle));
-        var input_element = document.getElementById(e_handle + "_modal_toggle");
-        if (input_element.checked) {
-            $scope.postJSONtoAPI('settlement', 'add_expansions', {'expansions': [e_handle]});
+    $scope.scratch= {}
+    $scope.scratch['expansions_updated'] = false; 
+    $scope.toggleExpansion = function(e_handle, index) {
+        $scope.scratch['expansions_updated'] = true;
+//        console.error('updated: ' + $scope.scratch.expansions_updated);
+        if ($scope.settlement.sheet.expansions.indexOf(e_handle) === -1) {
+            $scope.settlement.sheet.expansions.push(e_handle);
+            $scope.postJSONtoAPI('settlement', 'add_expansions', {'expansions': [e_handle]}, false,true,true);
         } else {
-            $scope.postJSONtoAPI('settlement', 'rm_expansions', {'expansions': [e_handle]});
+            $scope.settlement.sheet.expansions.splice(index,1);
+            $scope.scratch['expansion_removed'] = true;
+            $scope.postJSONtoAPI('settlement', 'rm_expansions', {'expansions': [e_handle]}, false,true,true);
         };
     };
 });
@@ -982,10 +989,11 @@ app.controller('settlementNotesController', function($scope, $rootScope) {
         if (!$scope.newNote) {return;}
         var new_note_object = {
             "author_id": $scope.user_id,
+            "author": $scope.user_login,
             "note": $scope.newNote,
         };
         $scope.settlement.sheet.settlement_notes.unshift(new_note_object);
-        $scope.postJSONtoAPI('settlement', 'add_note', new_note_object);
+        $scope.postJSONtoAPI('settlement', 'add_note', new_note_object, false);
         $scope.newNote = "";
     };
     $scope.removeNote = function(index, n_id) {
@@ -1339,3 +1347,4 @@ app.controller ("survivorSearchController", function($scope) {
 
 
 
+//        console.log($scope.settlement.game_assets.campaign.settlement_sheet_init.expansions.includes(e_handle));

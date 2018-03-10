@@ -220,7 +220,7 @@ mar_2016_expansions = {
     },
     "lonely_tree": {
         "name": "Lonely Tree",
-        "ui": {"pretty_category": "Enhancement"},
+        "ui": {"pretty_category": "Nemesis"},
         "nemesis_monsters": ["lonely_tree"],
         "special_showdowns": ["lonely_tree"],
         "flair": {
@@ -230,6 +230,7 @@ mar_2016_expansions = {
     },
     "flower_knight": {
         "name": "Flower Knight",
+        "ui": {"pretty_category": "Quarry"},
         "flair": {
             "color": "EAE40A",
             "bgcolor": "4E7D49",

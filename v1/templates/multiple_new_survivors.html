@@ -1,12 +1,12 @@
 <div
-    id="modalBulkAdd" class="modal hidden"
+    id="modalBulkAdd" class="modal survivor_sheet_gradient hidden"
     ng-if="user_is_settlement_admin && user.user.subscriber.level > 1"
     ng-init="showHide('bulkAddOpenerButton');"
     ng-controller="addManySurvivorsController"
 >
 
   <!-- Modal content -->
-    <div class="full_size_modal_panel survivor_sheet_gradient bulk_add_modal">
+    <div class="full_size_modal_panel bulk_add_modal">
         <span class="closeModal" onclick="showHide('modalBulkAdd')">×</span>
 
         <div

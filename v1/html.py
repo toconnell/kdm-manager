@@ -848,69 +848,6 @@ class angularJS:
 
     """
 
-
-    expansions_manager = """\n
-    <div
-        id="modalExpansionsManager"
-        class="modal hidden"
-        ng-if="user_is_settlement_admin"
-        ng-controller="updateExpansionsController"
-    >
-
-      <!-- Modal content -->
-        <div class="full_size_modal_panel timeline_gradient">
-            <span class="closeModal" onclick="showHide('modalExpansionsManager')">×</span>
-
-            <h3>Expansions!</h3>
-
-            <div class="expansions_controls_container" ng-init="addNewSettlementsToScope('$api_url')">
-                <p>Use the controls below to determine which expansion content is
-                enabled for this campaign. Remember to save and reload when finished!</p>
-
-                <span
-                    ng-if="new_settlement_assets != undefined"
-                    ng-init="showHide('modalExpansionsOpener')"
-                >
-                    <!-- HACK CITY -->
-                </span>
-
-                <form method="POST" action="#">
-                    <div class="expansion_content_line_item" ng-repeat="x in new_settlement_assets.expansions">
-                        <input
-                            id="{{x.handle}}_modal_toggle"
-                            name="{{x.handle}}"
-                            type="checkbox"
-                            class="kd_css_checkbox kd_radio_option"
-                            ng-model=incomingExpansion
-                            ng-checked="settlement.sheet.expansions.indexOf(x.handle) != -1"
-                            ng-click="toggleExpansion(x.handle)"
-                            ng-disabled="settlement.game_assets.campaign.settlement_sheet_init.expansions.includes(x.handle)"
-                        >
-                        <label for="{{x.handle}}_modal_toggle">{{x.name}}</label>
-                    </div> <!-- line_item -->
-
-                    <div class="expansion_content_remove_warning">
-                    <b>Warning!</b>
-                    Disabling expansion content when it is required by the
-                    campaign or the items on the campaign's Settlement and Survivor
-                    Sheets (innovations, locations, fighting arts, etc.)
-                    can cause errors and other unexpected behavior!
-                    </div>
-
-                    <button
-                        type="submit"
-                        class="kd_blue save_expansions"
-                        onclick="closeModal('modalExpansionsManager'); showFullPageLoader()"
-                    >
-                        Save Changes and Reload
-                    </button>
-
-                </form>
-            </div> <!-- container -->
-        </div> <!-- modal content -->
-    </div> <!-- parent modal -->
-    """
-
     settlement_notes = """\n\
     <div
         class="modal campaign_summary_gradient hidden"
@@ -940,19 +877,21 @@ class angularJS:
                     <div
                         class="settlement_note"
                         ng-repeat="n in settlement.sheet.settlement_notes"
+                        ng-init="authorRole = userRole(n.author)"
                     >
                         <div class="note_flair">
                             <font
-                                ng-if="userRole(n.author) == 'settlement_admin'"
+                                ng-if="authorRole === 'settlement_admin'"
                                 class="kdm_font_hit_locations"
                             > <span class="flair_text">a</span> </font>
                             <font
-                                ng-if="userRole(n.author) == 'player'"
+                                ng-if="authorRole === 'player'"
                                 class="kdm_font_hit_locations"
                             > <span class="flair_text">b</span> </font>
                         </div> <!-- note flair -->
 
                         <div class="note_content clickable" ng-click="showHide(n._id.$oid)">
+                            {{authorRole}}
                             {{n.note}} <span class="author" ng-if="n.author != user_login"> {{n.author}}</span>
                         </div> <!-- note content -->
 
@@ -3757,12 +3696,17 @@ class settlement:
                     ng-if="group.survivors.length >= 1 && user != undefined"
                     ng-init="
                         containerID = group.handle + '_container';
-                        group.arrow = false;
+                        initArrow(group);
                     "
                 >
                     <span ng-init="fadeSurvivorGroupsLoader()"></span>
 
-                    <h3 title="group.title_tip" ng-click="showHide(containerID); flipArrow(group)" class="clickable {{group.handle}}">
+                    <h3
+                        title="group.title_tip"
+                        ng-click="showHide(containerID); flipArrow(group)"
+                        class="clickable {{group.handle}}"
+                    >
+                        {{group.name}} ({{group.survivors.length}})
                         <span ng-if="group.arrow == true || group.arrow == undefined">
                             &#x25B2;
                         </span>
@@ -3770,10 +3714,12 @@ class settlement:
                             &#x25BC;
                         </span>
 
-                        {{group.name}} ({{group.survivors.length}})
                     </h3>
 
-                    <div id="{{containerID}}" >
+                    <div
+                        id="{{containerID}}"
+                        ng-class="{hidden: group.name == 'The Dead'}"
+                    >
 
                         <div
                             class="campaign_summary_survivor_container {{group.handle}}"
@@ -3787,9 +3733,9 @@ class settlement:
                                     disabled: s.meta.manageable == false,
                                     survivor_sheet_gradient: s.meta.manageable == true,
                                     dead_survivor_gradient: s.sheet.dead == true,
-                                    affinity_red: s.sheet.savior == 'red',
-                                    affinity_green: s.sheet.savior == 'green',
-                                    affinity_blue: s.sheet.savior == 'blue',
+                                    affinity_red: s.sheet.savior == 'red' && s.sheet.dead == undefined,
+                                    affinity_green: s.sheet.savior == 'green' && s.sheet.dead == undefined,
+                                    affinity_blue: s.sheet.savior == 'blue' && s.sheet.dead == undefined,
                                 }"
                                 style='{{settlement.survivor_color_schemes[s.sheet.color_scheme].style_string}}'
                             >
@@ -4474,7 +4420,7 @@ class settlement:
                         </div>
                         <div
                             class="kd_sheet_ui_row_tip"
-                            ng-repeat="ai_handle in s.sheet.abilities_and_impairments"
+                            ng-repeat="ai_handle in s.sheet.abilities_and_impairments track by $index"
                             ng-if="settlement.game_assets.weapon_specializations[ai_handle] != undefined"
                         >
                             <b>{{settlement.game_assets.weapon_specializations[ai_handle].name}}:</b>
@@ -4483,7 +4429,7 @@ class settlement:
                         </div>
                         <div
                             class="kd_sheet_ui_row_tip"
-                            ng-repeat="ai_handle in s.sheet.abilities_and_impairments"
+                            ng-repeat="ai_handle in s.sheet.abilities_and_impairments track by $index"
                             ng-if="settlement.game_assets.weapon_masteries[ai_handle] != undefined"
                         >
                             <b>{{settlement.game_assets.weapon_masteries[ai_handle].name}}:</b>
@@ -4702,7 +4648,7 @@ class settlement:
                         </div>
                         <ul class="quickview_asset_list">
                             <li
-                                ng-repeat="ai in s.sheet.abilities_and_impairments"
+                                ng-repeat="ai in s.sheet.abilities_and_impairments track by $index"
                             >
                                 <b>{{settlement.game_assets.abilities_and_impairments[ai].name}}:</b>
                                 <span ng-bind-html="settlement.game_assets.abilities_and_impairments[ai].desc|trustedHTML"></span>
@@ -6127,7 +6073,7 @@ class settlement:
                 The monsters your settlement can select to hunt.
             </div>
             <div
-                class="settlement_sheet_line_item location_container"
+                class="settlement_sheet_line_item location_container clickable"
                 ng-controller="quarriesController"
                 ng-repeat="q in settlement.sheet.quarries"
             >
@@ -6694,6 +6640,7 @@ def render(view_html, head=[], http_headers=None, body_class=None, include_templ
         'nav.html',
         'new_survivor.html',
         'multiple_new_survivors.html',
+        'expansion_content_manager.html',
         'report_error.html',
         'survivor_search.html',
         'timeline.html',

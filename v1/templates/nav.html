@@ -94,7 +94,8 @@
 
     <button
         id="modalExpansionsOpener"
-        class="sidenav_button hidden"
+        ng-if="user_is_settlement_admin && new_settlement_assets != undefined"
+        class="sidenav_button visible"
         ng-click="showHide('modalExpansionsManager')"
         onclick="closeNav()"
     >

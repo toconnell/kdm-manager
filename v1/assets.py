@@ -61,7 +61,7 @@ def ua_decorator(render_func=None):
             user_id = self.User.user["_id"],
             settlement_id = self.Session.Settlement.settlement["_id"],
 
-        ) + html.angularJS.settlement_notes + html.angularJS.expansions_manager + html.angularJS.hunt_phase
+        ) + html.angularJS.settlement_notes + html.angularJS.hunt_phase
 
     return wrapper
 

@@ -115,6 +115,15 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
         }
     );
 
+    $scope.initArrow = function(g) {
+        // sets the arrow based on the group
+        if (g.handle === 'the_dead') {
+            g.arrow = true;
+        } else {
+            g.arrow = false;
+        }; 
+    };
+
     $scope.flipArrow = function(group) {
         // flips the expand/collapse arrow arround
         if (group.arrow === true) {

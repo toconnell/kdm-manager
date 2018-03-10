@@ -265,6 +265,17 @@ div#mySidenav button {
 .sidenav_form {margin-top: -4%; margin-bottom: -4%; }
 
 
+/* expansion content manager - mobile */
+.expansions_controls_container {display: flex; flex-direction: column; }
+.expansions_controls_container .kd_sheet_ui_row_tip {margin: 0 auto; width: 90%; }
+.expansion_category_header {padding-left: 5%; }
+.expansion_toggle_container {padding: 2%; width: 90%; margin: 0 auto; border: 4px solid #aaa; margin-bottom: 3%; color: #aaa; }
+.expansion_toggle_container .kd_sheet_ui_box {border-color: #aaa; }
+.expansion_toggle_container.enabled {color: #000; border-color: #000; }
+.expansion_toggle_container.enabled .kd_sheet_ui_box { border-color: #000; }
+.expansion_toggle_subtitle {font-family: 'Metrophobic'; font-size: 25pt; margin-left: 90px; }
+.expansion_management_form button {font-weight: bold; }
+
 /* world panel styles - mobile */
 .world_container {display: flex; flex-direction: column; }
 .world_panel_basic_box { border: 1px solid #333; margin: 1%; margin: 30px; font-family: 'metrophobic'; padding: 1%; background-color: #fff; }
@@ -1053,8 +1064,6 @@ input.survivor_owner_email:focus {background: radial-gradient(#FDEDA9, #FFFFC5);
 .survivor_sheet_toggle:checked + label {font-weight: bold; color: #BB1111; border-color: #890000}
 .float_right_toggle {float: right; text-align:center; border: 0.5em solid #aaa; padding: 3%;  margin-right: 3%; }
 
-    /* expansion attrib toggles */
-div.expansion_content_remove_warning {width: 90%; font-family: Metrophobic; font-size: 35px; margin: 0 auto; margin-top: 5%; margin-bottom: 5%;}
 
     /* generic toggles */
 span.survivor_sheet_fa_level_row {text-align: left; }
@@ -1496,7 +1505,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
 
         /* new survivor sheet! - tablet */
-    .kd_sheet_ui_inner_ring_container {width: 65%; margin: 0 auto; margin-top: 2%; border-width: 10px; }
+    .kd_sheet_ui_inner_ring_container {width: 65%; margin: 0 auto; margin-top: 2%; border-width: 10px; margin-bottom: 50px; }
     .new_survivor_sheet p {font-size: 18pt; }
     .new_survivor_sheet .ui_tip {font-size: 15pt; }
     .new_survivor_sheet .border_box {border-width: 3px; }
@@ -1554,7 +1563,8 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .event_log_loader {font-size: 15pt;}
 
     /* expansion modal -tablet */
-    div.expansion_content_line_item label {font-size: 30px; }
+    .expansion_toggle_container {font-size: 20pt; }
+    .expansion_toggle_subtitle {font-size: 15pt; margin-left: 45px; }
 
     /* survivor sheet styles - tablet */
     .survivor_sheet_event_log_container {margin-bottom: 3%; }
@@ -1788,7 +1798,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     label#cannot_use_fighting_arts_toggle {right: 20px; }
 
-    div.expansion_content_remove_warning {font-size: 20px; margin-bottom: 3%; }
 
 
     p.survivor_sheet_game_asset_tip {width: 950px;}
@@ -2297,6 +2306,13 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     input.kd_css_checkbox + label:before {font-size: 14pt; }
     input.kd_radio_option { }
 
+
+    /* expansion modal - wide */
+    .expansion_toggle_container {font-size: 15pt; padding: 1%; margin-bottom: 1%; border-width: 2px; }
+    .expansion_toggle_subtitle {font-size: 10pt; }
+    .expansions_controls_container button {width: 75%; display: block; margin-top: 5%; margin-bottom: 5%; }
+    .expansion_management_form {width: 100%; margin-top: 3%; }
+
     /* asset creation styles - wide */
 
         /* bulk add new survivors - wide */
@@ -2340,10 +2356,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     /* wide campaign summary styles */
     div.campaign_summary_panels_container div.user_asset_sheet_error {position: absolute; left: 450px; top: 50px; width: 400px;  }
-    div.expansions_controls_container {width: 40%; display: flex; flex-direction:column; margin: 0 auto; }
-    div.expansion_content_line_item label {font-size: 15pt; width: 100%; }
-    div.expansion_content_remove_warning {font-size: 9pt; display: block; height: auto; margin-top: 90%; }
-    button.save_expansions {width: auto; padding: 1%; padding-left: 60px; padding-right: 60px; margin: 0 auto; display: block;  margin-top: 7%; margin-bottom: 10%; }
 
         /* campaign notes - wide */
     div.settlement_notes_controls {margin-top: 10px; margin-bottom: 10px; }
@@ -2423,7 +2435,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .attr {font-size: 12pt; }
     .death_x {font-size: 130px; margin-left: 10px; margin-top: -2%; ; }
     .campaign_summary_survivor_returning_flash {font-size: 10pt; margin-top: -2%; width: 104.3%; margin-left: -2%; border-top-right-radius: 5px; border-top-left-radius: 5px; }
-    .campaign_summary_survivor_constellation {font-size: 12pt; margin-bottom: -1%; width: 104.3%; margin-left: -2%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; }
+    .campaign_summary_survivor_constellation {font-size: 12pt; width: 104.3%; margin-left: -2%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; }
 
     .campaign_summary_survivor_tags_container {margin: 2% auto;}
     .survivor_tag {font-size: 11pt; min-width: 20%; }
@@ -2584,7 +2596,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     span.timeline_overlay_current_ly {right: 5%; font-size: 15pt; padding: 1%; }
     span.timeline_overlay_current_ly b {font-size: 17pt; }
     .timeline_overlay_control select {margin-bottom: 3%; }
-    .kd_sheet_ui_inner_ring_container.timeline_overlay_control {width: 50%; margin-top: 2%; min-height: 950px; }
+    .kd_sheet_ui_inner_ring_container.timeline_overlay_control {width: 50%; margin-top: 2%; min-height: 925px; }
     .timeline_event_rm_button_container {width: 90%; margin: 0 auto; margin-bottom: 3%; margin-top: 3%; }
     .timeline_event_rm_button_group {width: 45%; }
     .timeline_event_rm_button {font-size: 11pt; }
@@ -2595,7 +2607,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     /* event log - wide */
     .event_log_clicker {font-size: 12pt; margin-bottom: 1%; }
-    .event_log_line {font-size: 12pt; margin: 3px; }
+    .event_log_line {font-size: 12pt; margin: 3px; padding: 2px; padding-left: 4px; }
     .event_log_loader {font-size: 10pt; }
     .event_log_closer_button {display: block; width: 300px; margin: 0 auto; margin-bottom: 2%; margin-top: 2%; }
 

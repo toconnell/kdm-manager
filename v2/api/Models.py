@@ -814,7 +814,7 @@ class UserAsset(object):
     #
     #   asset update methods below
     #
-
+    @utils.log_event_exception_manager
     def log_event(self, msg=None, event_type=None, action=None, key=None, value=None, agent=None):
         """ This is the primary user-facing logging interface, so there' s a bit
         of a high bar for using it.

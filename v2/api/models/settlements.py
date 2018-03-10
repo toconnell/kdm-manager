@@ -729,20 +729,28 @@ class Settlement(Models.UserAsset):
         # sanity check the handle; load an asset dict for it
         m_dict = self.Monsters.get_asset(monster_handle)
 
-        # get the type from the asset dict
-        if m_dict["type"] == 'quarry':
-            target_list = self.settlement["quarries"]
-        elif m_dict["type"] == 'nemesis':
-            target_list = self.settlement["nemesis_monsters"]
+        # figure out what type it is or die trying
+        m_type = m_dict['type']
+        if m_type == 'quarry':
+            target_list = self.settlement['quarries']
+        elif m_type == 'nemesis':
+            target_list = self.settlement['nemesis_monsters']
+        else:
+            raise utils.InvalidUsage("%s Unable to process 'rm_monster' operation on asset: %s" % (self, m_dict))
 
-        # finally, add, log and save
+        # general handling for both types
         if monster_handle in target_list:
             target_list.remove(monster_handle)
-            if m_dict["type"] == 'nemesis':
-                del self.settlement["nemesis_encounters"][monster_handle]
+#            self.logger.debug("%s Removed '%s' handle from settlement %s monsters list." % (self, monster_handle, m_type))
         else:
-            self.logger.error("%s Ignoring attempt to remove non-existing item '%s' from %s" % (request.User, monster_handle, target_list))
-        self.log_event("%s removed '%s' from the settlement %s list." % (request.User.login, m_dict["name"], m_dict["type"]))
+            self.logger.error("%s Ignoring attempt to remove non-existing item '%s' from %s" % (self, monster_handle, m_type))
+
+        # additional handling for nemeses
+        if m_type == 'nemesis' and monster_handle in self.settlement['nemesis_encounters'].keys():
+            del self.settlement["nemesis_encounters"][monster_handle]
+#            self.logger.debug("%s Removed '%s' handle from settlement 'nemesis_encounters' dict..." % (self, monster_handle))
+
+        self.log_event(key="%s monsters" % m_type, value=m_dict['name'], event_type="rm_monster")
         self.save()
 
 

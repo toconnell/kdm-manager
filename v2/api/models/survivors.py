@@ -538,6 +538,15 @@ class Survivor(Models.UserAsset):
             self.convert_weapon_proficiency_type()
             self.perform_save = True
 
+
+        #
+        #   user asset normalization
+        #
+
+        if self.survivor['name'] != utils.html_stripper(self.survivor['name']):
+            self.survivor['name'] = utils.html_stripper(self.survivor['name'])
+            self.perform_save = True
+
         #
         #   game asset normalization - TKTK fix this up
         #
