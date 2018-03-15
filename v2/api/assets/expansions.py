@@ -54,8 +54,8 @@ mar_2016_expansions = {
             "innovation": ["Nigredo"],
         },
         "timeline_add": [
-            {"ly": 1, "type": "story_event", "handle": "gorm_approaching_storm"},
-            {"ly": 2, "type": "settlement_event", "name": "Gorm Climate", 'handle': 'gorm_gorm_climate'},
+            {"ly": 1, "handle": "gorm_approaching_storm"},
+            {"ly": 2, 'handle': 'gorm_gorm_climate'},
         ],
     },
     "green_knight_armor": {
@@ -83,7 +83,7 @@ mar_2016_expansions = {
             "innocation": ["Subterranean Agriculture"],
         },
         "timeline_add": [
-            {"ly": 8, "type": "story_event", "handle": "dbk_rumbling_in_the_dark"},
+            {"ly": 8, "handle": "dbk_rumbling_in_the_dark"},
         ],
         "help": [
             {"type": "storage", "tip": "The <b>Regenerating Blade</b> is Rare Gear."},
@@ -103,10 +103,10 @@ mar_2016_expansions = {
             "innovation": ["Legless Ball","Silk-Refining"],
         },
         "timeline_add": [
-            {"ly": 2, "type": "story_event", "handle": "spid_young_rivals"},
+            {"ly": 2, "handle": "spid_young_rivals"},
         ],
         "timeline_rm": [
-            {"ly": 2, "type": "story_event", "name": "Endless Screams"},
+            {"ly": 2, "handle": "core_endless_screams"},
         ],
     },
     "slenderman": {
@@ -122,12 +122,12 @@ mar_2016_expansions = {
             "innovation": ["Dark Water Research"],
         },
         "timeline_add": [
-            {"ly": 6, "type": "story_event", "handle": "slender_its_already_here"},
-            {"ly": 9, "type": "nemesis_encounter", "name": "Nemesis Encounter"},
+            {"ly": 6, "handle": "slender_its_already_here"},
+            {"ly": 9, "sub_type": "nemesis_encounter", "name": "Nemesis Encounter"},
         ],
         "timeline_rm": [
-            {"ly": 6, "type": "story_event", "name": "Armored Strangers"},
-            {"ly": 9, "type": "nemesis_encounter", "name": "Nemesis Encounter: King's Man"},
+            {"ly": 6, "handle": "core_armored_strangers"},
+            {"ly": 9, "sub_type": "nemesis_encounter", "name": "Nemesis Encounter: King's Man Lvl 1"},
         ],
     },
     "lion_knight": {
@@ -143,13 +143,13 @@ mar_2016_expansions = {
         },
         "special_showdowns": ["lion_knight"],
         "timeline_add": [
-            {"ly":  6, "type": "story_event", "handle": "lk_uninvited_guest"},
-            {"ly":  8, "type": "story_event", "handle": "lk_places_everyone"},
-            {"ly":  8, "type": "special_showdown", "name": "Special Showdown - Lion Knight Lvl 1"},
-            {"ly": 12, "type": "story_event", "handle": "lk_places_everyone"},
-            {"ly": 12, "type": "special_showdown", "name": "Special Showdown - Lion Knight Lvl 2"},
-            {"ly": 16, "type": "story_event", "handle": "lk_places_everyone"},
-            {"ly": 16, "type": "special_showdown", "name": "Special Showdown - Lion Knight Lvl 3"},
+            {"ly":  6, "handle": "lk_uninvited_guest"},
+            {"ly":  8, "handle": "lk_places_everyone"},
+            {"ly":  8, "sub_type": "special_showdown", "name": "Special Showdown - Lion Knight Lvl 1"},
+            {"ly": 12, "handle": "lk_places_everyone"},
+            {"ly": 12, "sub_type": "special_showdown", "name": "Special Showdown - Lion Knight Lvl 2"},
+            {"ly": 16, "handle": "lk_places_everyone"},
+            {"ly": 16, "sub_type": "special_showdown", "name": "Special Showdown - Lion Knight Lvl 3"},
         ],
     },
     "lion_god": {
@@ -164,7 +164,7 @@ mar_2016_expansions = {
             "innovation": ["The Knowledge Worm"],
         },
         "timeline_add": [
-            {"ly": 13, "type": "story_event", "handle": "lgod_silver_city"},
+            {"ly": 13, "handle": "lgod_silver_city"},
         ],
     },
     "sunstalker": {
@@ -180,7 +180,7 @@ mar_2016_expansions = {
             "innovation": ["Umbilical Bank"],
         },
         "timeline_add": [
-            {"ly": 8, "type": "story_event", "handle": "ss_promise_under_the_sun", "excluded_campaign": "people_of_the_sun"},
+            {"ly": 8, "handle": "ss_promise_under_the_sun"},
         ],
     },
     "dragon_king": {
@@ -195,7 +195,7 @@ mar_2016_expansions = {
             "location": ["Dragon Armory"],
         },
         "timeline_add": [
-            {"ly": 8, "type": "story_event", "handle": "dk_glowing_crater", "excluded_campaign": "people_of_the_stars"},
+            {"ly": 8, "handle": "dk_glowing_crater"},
         ],
     },
     "manhunter": {
@@ -211,11 +211,11 @@ mar_2016_expansions = {
             "innovation": ["War Room", "Settlement Watch", "Crimson Candy"],
         },
         "timeline_add": [
-            {"ly": 5,  "type": "story_event", "handle": "mh_hanged_man"},
-            {"ly": 5,  "type": "special_showdown", "name": "Special Showdown - Manhunter"},
-            {"ly": 10, "type": "special_showdown", "name": "Special Showdown - Manhunter"},
-            {"ly": 16, "type": "special_showdown", "name": "Special Showdown - Manhunter"},
-            {"ly": 22, "type": "special_showdown", "name": "Special Showdown - Manhunter"},
+            {"ly": 5,  "handle": "mh_hanged_man"},
+            {"ly": 5,  "sub_type": "special_showdown", "name": "Special Showdown - Manhunter"},
+            {"ly": 10, "sub_type": "special_showdown", "name": "Special Showdown - Manhunter"},
+            {"ly": 16, "sub_type": "special_showdown", "name": "Special Showdown - Manhunter"},
+            {"ly": 22, "sub_type": "special_showdown", "name": "Special Showdown - Manhunter"},
         ],
     },
     "lonely_tree": {
@@ -237,7 +237,7 @@ mar_2016_expansions = {
         },
         "quarries": ["flower_knight"],
         "timeline_add": [
-            {"ly": 5, "type": "story_event", "handle": "fk_crones_tale", "excluded_campaign": "the_bloom_people"}
+            {"ly": 5, "handle": "fk_crones_tale"}
         ],
     },
 }

@@ -1063,9 +1063,13 @@ app.controller('timelineController', function($scope) {
         console.timeEnd('setEventOptions()');
     };
 
-    $scope.setCurrentLY = function(ly) {
-        $scope.postJSONtoAPI('settlement','set_current_lantern_year',{ly: ly},false);
-        $scope.settlement.sheet.lantern_year=ly;
+    $scope.setCurrentLY = function(new_ly) {
+        if (new_ly === $scope.settlement.sheet.lantern_year) {
+            return true; 
+        } else {
+            $scope.postJSONtoAPI('settlement','set_current_lantern_year',{ly: new_ly},false);
+            $scope.settlement.sheet.lantern_year = new_ly;
+        };
     };
 
     $scope.updateLanternYear = function(ly) {

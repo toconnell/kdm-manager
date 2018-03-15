@@ -514,7 +514,21 @@ class World:
         return utils.mdb.survivors.find({"dead": {"$exists": False}}).count()
 
     def dead_survivors(self):
-        return utils.mdb.survivors.find({"dead": {"$exists": True}}).count()
+        natural_death_count = utils.mdb.survivors.find({"dead": {"$exists": True}}).count()
+
+        # include living survivors from removed/abandoned settlements
+        removed_count = 0
+        pipeline = {"$or": [
+            {"removed": {"$exists": True}},
+            {"abandoned": {"$exists": True}},
+        ]}
+        for settlement in utils.mdb.settlements.find(pipeline):
+            survivors = utils.mdb.survivors.find({"settlement": settlement["_id"]})
+            for survivor in survivors:
+                if survivor.get('dead', None) is None:
+                    removed_count += 1
+
+        return natural_death_count + removed_count
 
     # settlements
     def total_settlements(self):
@@ -534,8 +548,11 @@ class World:
             {"removed": {"$exists": True}},
             {"abandoned": {"$exists": True}},
         ]}).count()
+    def new_settlements_last_30(self):
+        thirty_days_ago = datetime.now() - timedelta(days=30)
+        return utils.mdb.settlements.find({"created_on": {"$gte": thirty_days_ago}}).count()
 
-
+    # users
     def total_users(self):
         return utils.mdb.users.find().count()
 
@@ -547,9 +564,17 @@ class World:
         thirty_days_ago = datetime.now() - timedelta(days=30)
         return utils.mdb.users.find({'created_on': {'$gte': thirty_days_ago}}).count()
 
-    def new_settlements_last_30(self):
-        thirty_days_ago = datetime.now() - timedelta(days=30)
-        return utils.mdb.settlements.find({"created_on": {"$gte": thirty_days_ago}}).count()
+    def total_subscribers(self):
+        return utils.mdb.users.find({'patron': {'$exists': True}}, {'level': {'$gte': 1}}).count()
+
+    def subscribers_by_level(self):
+        possible_values = utils.mdb.users.find({'patron': {'$exists': True}}).distinct("patron.level")
+        output = []
+        for v in sorted(possible_values):
+            d = {"level": v}
+            d['count'] = utils.mdb.users.find({'patron.level': v}).count()
+            output.append(d)
+        return output
 
     def recent_sessions(self):
         recent_session_cutoff = datetime.now() - timedelta(hours=settings.get("application", "recent_user_horizon"))

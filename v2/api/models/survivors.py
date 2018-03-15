@@ -887,7 +887,7 @@ class Survivor(Models.UserAsset):
         self.survivor[asset_class].append(asset_dict["handle"])
         self.survivor[asset_class].sort()
         if log_event:
-            self.log_event(key=asset_class, value=asset_dict['name'])
+            self.log_event(action="add", key=asset_class, value=asset_dict['name'])
 
 
         #
@@ -1271,7 +1271,7 @@ class Survivor(Models.UserAsset):
 
         # finally, if we're still here, add it and log_event() it
         self.survivor[asset_class].remove(asset_dict["handle"])
-        self.log_event(key=asset_class, value=asset_dict['name'])
+        self.log_event(action="rm", key=asset_class, value=asset_dict['name'])
 
         if save:
             self.save()

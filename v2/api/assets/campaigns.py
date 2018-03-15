@@ -222,6 +222,7 @@ expansion_campaign = {
         "forbidden": {
             "disorders": ["flower_addiction"],
             "quarries": ["flower_knight"],
+            'events': ['fk_crones_tale'],
         },
         "principles": ["new_life","death","society","conviction"],
         "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
@@ -253,6 +254,7 @@ expansion_campaign = {
         "forbidden": {
             "locations": ["lantern_hoard","exhausted_lantern_hoard"],
             "innovations": ["leader", "language"],
+            "events": ["ss_promise_under_the_sun"],
         },
         "principles": ["potsun_new_life","death","society","conviction"],
         "milestones": ["first_child","first_death","pop_15","innovations_8","nemesis_defeat","game_over"],
@@ -302,6 +304,7 @@ expansion_campaign = {
         "forbidden": {
             "locations": ["lantern_hoard", "dragon_armory","exhausted_lantern_hoard"],
             "innovations": ["language","lantern_oven","clan_of_death","family"],
+            'events': ['dk_glowing_crater'],
         },
         "founder_epithet": "foundling",
         "replaced_story_events": {

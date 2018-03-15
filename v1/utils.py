@@ -226,7 +226,7 @@ class mailSession:
         if reply_to is not None:
             msg.add_header('reply-to', reply_to)
 
-        msg.attach(MIMEText(html_msg,'html'))
+        msg.attach(MIMEText(html_msg.encode("utf-8"),'html'))
 
         self.server.sendmail(self.no_reply, recipients, msg.as_string())
         self.server.quit()
@@ -297,7 +297,7 @@ def record_response_time(view_name=None, tdelta=None):
 #        logger.info("Found and removed %s old response time records!" % removed_records["n"])
         pass
 
-    if on_production:
+    if not on_production:
         logger.debug("Rendered '%s' view HTML in %s seconds." % (view_name, tdelta.total_seconds()))
 
 

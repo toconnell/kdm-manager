@@ -256,7 +256,14 @@ general = {
         "name": "New users in the last 30 days",
         "comment": "The total number of new users who have registered in the last 30 days.",
     },
-
+    "total_subscribers": {
+        "name": "Total Subscribers",
+        "comment": "The total number of users who subscribe to the application (at any level).",
+    },
+    'subscribers_by_level': {
+        'name': 'Subscribers by Level',
+        'comment': 'A dictionary that includes subscriber counts by subscriber level.',
+    },
 }
 
 
