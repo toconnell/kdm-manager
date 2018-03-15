@@ -24,8 +24,17 @@
             <b>API Hostname:</b> {{world.meta.api.hostname}}<br/>
             <b>API Version:</b> {{world.meta.api.version}}<br/>
             <b>Last Push:</b> {{github.pushed_at}}<br/>
-            <b>Open Issues:</b> {{github.open_issues}}<br/>
-            <br/>
+            <b>Open Issues:</b> {{github.open_issues}}
+            <hr/>
+            <b>Registered Users:</b> {{world.world.total_users.value}}<br/>
+            <b>Subscribers:</b> {{world.world.total_subscribers.value}}
+            <table class="subscribers_breakdown_table">
+                <tr ng-repeat="t in world.world.subscribers_by_level.value">
+                    <td><i>Lvl. {{t.level}}:</i></td>
+                    <td>{{t.count}}</td>
+                </tr>
+            </table>
+            <hr/>
             <b>Administrators:</b>
             <ul>
                 <li ng-repeat="a in world.meta.admins">{{a.login}} - {{a._id.$oid}}</li>

@@ -29,24 +29,30 @@
                     ng-repeat="ly in settlement.sheet.timeline"
                     ng-init="modalControlID = 'ly' + ly.year + 'Controls'"
                 >
+                    <div 
+                        title="Tap or click here to set the current Lantern Year to {{ly.year}}!"
+                        class="kd_sheet_ui_box ly_checkbox clickable"
+                        ng-class="{
+                            checked: settlement.sheet.lantern_year >= ly.year,
+                            current_ly: ly.year == settlement.sheet.lantern_year,
+                        }"
+                        ng-click="setCurrentLY(ly.year)"
+                    >
+                    </div>
+                    <div
+                        title="Tap or click here to set the current Lantern Year to {{ly.year}}!"
+                        class="ly_ly clickable"
+                        ng-click="setCurrentLY(ly.year)"
+                    > 
+                        {{ly.year}}                    
+                    </div>
+
                     <span
+                        title="Tap or click here to edit Lantern Year {{ly.year}}"
                         class="clickable timeline_clicker"
                         ng-click="showHide(modalControlID);"
                         onClick="document.getElementById('modalTimelineContainer').scrollTo(0,0);"
                     >
-                        <div 
-                            class="kd_sheet_ui_box ly_checkbox"
-                            ng-class="{
-                                checked: settlement.sheet.lantern_year >= ly.year,
-                                current_ly: ly.year == settlement.sheet.lantern_year,
-                            }"
-                        >
-                        </div>
-                        <div
-                            class="ly_ly"
-                        > 
-                            {{ly.year}}                    
-                        </div>
                         <div
                              class="ly_events"
                        >
@@ -105,6 +111,20 @@
                         <div class="kd_sheet_ui_inner_ring_container timeline_overlay_control">
                             <h3>Lantern Year {{ly.year}}</h3>
 
+                            <!-- previous year controls -->
+                            <div
+                                class="timeline_current_ly_controls"
+                                ng-if="settlement.sheet.lantern_year -1 == ly.year"
+                            >
+                                <button
+                                    class="kd_pink"
+                                    ng-click="setCurrentLY(ly.year)"
+                                    ng-if="ly.year > 0"
+                                >
+                                    Return to Lantern Year {{ly.year}}
+                                </button>                            
+                            </div>
+
                             <!-- current year controls -->
                             <div
                                 class="timeline_current_ly_controls"
@@ -122,6 +142,20 @@
                                     ng-if="ly.year > 0"
                                 >
                                     Return to Lantern Year {{ly.year-1}}
+                                </button>                            
+                            </div>
+
+                            <!-- next year controls -->
+                            <div
+                                class="timeline_current_ly_controls"
+                                ng-if="settlement.sheet.lantern_year +1 == ly.year"
+                            >
+                                <button
+                                    class="kd_blue"
+                                    ng-click="setCurrentLY(ly.year)"
+                                    ng-if="ly.year > 0"
+                                >
+                                    Start Lantern Year {{ly.year}}
                                 </button>                            
                             </div>
 

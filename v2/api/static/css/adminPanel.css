@@ -11,6 +11,9 @@ table {border-collapse: collapse; width: 90%; margin: 1.5% auto;}
 td {word-wrap: break-word; word-break: break-all;}
 td.int_key {width: 10%; word-break: inherit;}
 
+.subscribers_breakdown_table {width: auto; margin: 0 0 0 10px; border-collapse: collapse;}
+.subscribers_breakdown_table td { }
+
 /*  reusable style / generic style  */
 .clickable {cursor: pointer; background-color: #ffffEF; padding: 3%; }
 .zebra {background-color: #efefef; }

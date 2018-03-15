@@ -621,7 +621,7 @@ class dashboard:
 
             <div class="world_panel_basic_box" ng-if="world != undefined">
                 <h3>User Statistics</h3>
-                <p> <b>{{world.total_users.value}}</b> users are registered.</p>
+                <p> <b>{{world.total_users.value}}</b> users are registered. <b>{{world.total_subscribers.value}}</b> users are <a href="https://thelaborinvain-2.myshopify.com/collections/http-kdm-manager-com" target="top">subscribers</a>!</p>
                 <p> <b>{{world.recent_sessions.value}}</b> users have managed campaigns in the last 12 hours.</p>
                 <p> <b>{{world.total_users_last_30.value}}</b> users have managed campaigns in the last 30 days.</p>
                 <p> <b>{{world.new_users_last_30.value}}</b> new users have registered in the last 30 days.</p>
@@ -6514,7 +6514,7 @@ class meta:
     <div id="saved_dialog" class="saved_dialog_frame" style="">
         <div class="kd_blue saved_dialog_inner">
             <span class="saved_dialog_cap">S</span>
-            Saving...
+            Saved!
         </div>
     </div>
 

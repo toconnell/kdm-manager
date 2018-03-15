@@ -292,8 +292,8 @@ div#mySidenav button {
 .timeline_container .timeline_top_line div {margin-left: 30px; font-size: 30pt; }
 .timeline_row_container {border-bottom: 1px solid #aaa; font-size: 35pt; width: 95%; padding: 2%; margin: 0 auto; font-family: "Metrophobic"; display: flex; flex-direction: row; flex-wrap: wrap; }
 .timeline_clicker {display: inline-flex; }
-.kd_sheet_ui_box.ly_checkbox {margin: 0 auto; margin-top: 2%; }
-.ly_ly {margin: 0 auto; font-size: 30pt; display: inline-block; width: 5%; margin-top: 1%; margin-right: 15px; margin-left: 15px; }
+.kd_sheet_ui_box.ly_checkbox {margin: 15px 5px 5px 5px; }
+.ly_ly {font-size: 30pt; display: inline-block; width: 60px; margin: 10px 5px auto 10px; }
 .ly_events {width: 740px; margin-top: 5px; }
 .timeline_event {display: inline-table; margin-right:20px; font-size: 30pt; width: 100%; }
 .timeline_event img.icon {width: 30px;  }
@@ -1541,12 +1541,12 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .timeline_container {width: 95%; }
     .timeline_row_container {align-items: baseline; width: 88%; break-inside: avoid; }
     .timeline_col_container {column-count: 2; column-width: auto; column-gap: 5px;}
-    .timeline_event_type_group {display: flex; flex-direciton: row; flex-wrap: wrap; }
+    .timeline_event_type_group {display: flex; flex-direction: column; }
     .timeline_container .timeline_top_line div {font-size: 15pt; margin-left: 15px; }
     .timeline_event img.icon {width: 16px; }
     .ly_checkbox {margin-right: 3px; margin-left: 3px; }
-    .ly_events {width: 345px;}
-    .ly_ly {font-size: 15pt; margin-left: 5px;  margin-right: 10px; }
+    .ly_events {width: 330px;}
+    .ly_ly {font-size: 15pt; width: 20px; margin: 12px 10px auto 5px; }
     .timeline_event {font-size: 15pt; }
     .timeline_event_rm_button_container {display: flex; flex-direction: row; flex-wrap: wrap; }
     .timeline_event_rm_button_group {width: 350px; margin: 0 auto; }
@@ -2574,12 +2574,14 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
 
     /* timeline! - wide */
+    .timeline_clicker {width: 255px; }
+    .timeline_row_container {padding-top: 0; }
     .timeline_container .timeline_top_line div {font-size: 9pt; }
     span.timeline_event img.special_showdown {margin-right: -3px; }
     div.timeline_ly_container {cursor: pointer; }
     div.timeline_ly_headline {border-bottom: 1px solid #000;}
-    div.timeline_ly_headline span {font-size: 11pt; }
-    .ly_ly {font-size: 10pt; }
+    div.timeline_ly_headline span {font-size: 11pt; width: auto; }
+    .ly_ly {font-size: 10pt; margin-right: 0; }
     .ly_events {width: 280px; }
     span.timeline_ly_number {font-size: 14pt; width: auto; }
     span.timeline_event {font-size: 11pt; }

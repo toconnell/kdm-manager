@@ -148,7 +148,7 @@ class Settlement(Models.UserAsset):
         if request.User.get_settlements(return_type=int) >= 3 and patron_attribs['level'] < 1:
             raise utils.InvalidUsage('Non-supporters may only create three settlements!', status_code=405)
 
-        self.logger.info("%s creating a new settlement..." % request.User)
+        self.logger.info("%s is creating a new settlement..." % request.User)
 #        self.logger.debug("%s new settlement params: %s" % (request.User, self.params))
 
         settlement = {
@@ -208,7 +208,7 @@ class Settlement(Models.UserAsset):
 
 
         # initialize methods
-
+        self.campaign_dict = self.get_campaign(dict)
         self.initialize_sheet()
         self.initialize_timeline()
 
@@ -821,10 +821,10 @@ class Settlement(Models.UserAsset):
 
             self.settlement["expansions"].append(e_handle)
 
-            if "timeline_add" in e_dict.keys():
-               [self.add_timeline_event(e, save=False) for e in e_dict["timeline_add"] if e["ly"] >= self.get_current_ly()]
             if "timeline_rm" in e_dict.keys():
                [self.rm_timeline_event(e, save=False) for e in e_dict["timeline_rm"] if e["ly"] >= self.get_current_ly()]
+            if "timeline_add" in e_dict.keys():
+               [self.add_timeline_event(e, save=False) for e in e_dict["timeline_add"] if e["ly"] >= self.get_current_ly()]
             if "rm_nemesis_monsters" in e_dict.keys():
                 for m in e_dict["rm_nemesis_monsters"]:
                     if m in self.settlement["nemesis_monsters"]:
@@ -1174,43 +1174,51 @@ class Settlement(Models.UserAsset):
         """ Adds a timeline event to self.settlement["timeline"]. Expects a dict
         containing the whole event's data: no lookups here. """
 
-        if e.get("excluded_campaign", None) == self.settlement["campaign"]:
-            self.logger.warn("Ignoring attempt to add event to excluded campaign: %s" % e)
+        #
+        #   Initialize and Sanity Check
+        #
+
+        # ensure that the incoming event specifies the target LY
+        t_index = e.get('ly', None)
+        if t_index is None:
+            raise utils.InvalidUsage("To add an event to the Timeline, the incoming event dict must specify a Lantern Year, e.g. {'ly': 3}")
+
+#        del e['ly'] # we don't need this any more; remove it
+
+        # if we can, "enhance" the incoming dict with additional asset info
+        if e.get('handle', None) is not None:
+            e.update(self.Events.get_asset(e['handle']))
+
+        # if we don't know the event's sub_type, we have to bail
+        if e.get('sub_type', None) is None:
+            utils.InvalidUsage("To add an event to the Timeline, the incoming event dict must specify the 'sub_type' of the event, e.g. {'sub_type': 'nemesis_encounter'}")
             return False
 
-        timeline = self.settlement["timeline"]
-        try:
-            t_index, t_object = utils.get_timeline_index_and_object(timeline, e["ly"]);
-        except Exception as excep:
-            self.logger.error("Timeline event cannot be processed: %s" % e)
-            self.logger.exception(excep)
+        # compatibility check!
+        if not self.is_compatible(e):
+            self.logger.warn("Event '%s' is not compatible with this campaign! Ignoring reuqest to add..." % e['name'])
             return False
 
-        timeline.remove(t_object)
 
+        #
+        #   Add it!
+        #
 
-        # warn about deprecated params
-        if "user_login" in e.keys():
-            self.logger.warn("add_timeline_event() -> the 'user_login' parameter is deprecated!")
+        # remove the target LY (we're going to update it and insert it back in
+        target_ly = self.settlement["timeline"][t_index]
+        self.settlement['timeline'].remove(target_ly)
 
-        # try to improve the event if we've got a handle on it
-        if "handle" in e.keys() and e["type"] in "story_event":
-            e.update(self.Events.get_asset(e["handle"]))
+        # update the target LY list to include a dict for our incomign sub_type
+        #    if it doesn't already have one
+        if target_ly.get(e['sub_type'], None) is None:
+            target_ly[e['sub_type']] = []
 
-        if not e["type"] in t_object.keys():
-            t_object[e["type"]] = []
+        target_ly[e['sub_type']].append(e)
 
-        if not e in t_object[e["type"]]:
-            t_object[e["type"]].append(e)
-        else:
-            self.logger.warn("Ignoring attempt to add duplicate event to %s timeline!" % (self))
-            return False
+        # re-insert and save if successful
+        self.settlement['timeline'].insert(t_index, target_ly)
 
-        timeline.insert(t_index,t_object)
-
-        self.settlement["timeline"] = timeline
-
-        self.log_event("%s added '%s' to Lantern Year %s" % (request.User.login, e["name"], e["ly"]))
+        self.log_event("Automatically added '%s' to Lantern Year %s" % (e["name"], t_index), event_type="sysadmin")
 
         # finish with a courtesy save
         if save:
@@ -1218,59 +1226,89 @@ class Settlement(Models.UserAsset):
 
 
     def rm_timeline_event(self, e={}, save=True):
-        """ Removes a timeline event from self.settlement["timeline"]. Expects a
-        dict containing, at a minimum, an ly and a name for the event (so we can
-        use this to remove custom events. """
+        """ This method supports the removal of an event from the settlement's
+        Timeline.
 
-        if e.get("excluded_campaign", None) == self.settlement["campaign"]:
-            self.logger.warn("Ignoring attempt to add event to excluded campaign: %s" % e)
+        At a bare minimum, the 'e' kwarg must be an event dict that includes the
+        'ly' key (which should be an int representing the target LY) and the
+        'handle' key, which will be used to determine other values.
+
+        If you want to remove an event WITHOUT using the 'handle' key, you must
+        then include the following keys (at a minimum):
+            - 'ly'
+            - 'name'
+            - 'sub_type'
+
+        Finally, this method was revised to support Timeline version 1.2, so
+        Timelines later/earlier than that may not work correctly with it.
+        """
+
+        #
+        #   Initialization and Sanity Checks!
+        #
+
+        # ensure that the incoming event specifies the target LY to remove it
+        #   from. The LY of the incoming event is also the index of the year
+        #   dict we want to with (since Timelines start with LY 0)
+        t_index = e.get('ly', None)
+        if t_index is None:
+            raise utils.InvalidUsage("To remove an event from the Timeline, the incoming event dict must specify a Lantern Year, e.g. {'ly': 3}")
+
+        # if we can, "enhance" the incoming dict with additional asset info
+        if e.get('handle', None) is not None:
+            e.update(self.Events.get_asset(e['handle']))
+
+        # if we don't know the event's sub_type, we have to bail
+        if e.get('sub_type', None) is None:
+            utils.InvalidUsage("To remove an event from the Timeline, the incoming event dict must specify the 'sub_type' of the event, e.g. {'sub_type': 'story_event'}")
             return False
 
-        timeline = self.settlement["timeline"]
-        try:
-            t_index, t_object = utils.get_timeline_index_and_object(timeline, e["ly"]);
-        except Exception as excep:
-            self.logger.debug(timeline)
-            self.logger.error("Timeline event cannot be processed: %s" % e)
-            self.logger.exception(excep)
+        # finally, get the target LY from the timeline; fail gracefully if there
+        #   are no events of our target sub_type
+        target_ly = self.settlement['timeline'][t_index]
+        if target_ly.get(e['sub_type'], None) is None:
+            self.logger.error("Lantern Year %s does not include any '%s' events! Ignoring attempt to remove..." % (t_index, e['sub_type']))
             return False
 
 
+        #
+        #   Timeline Update
+        #
+
+        # initialize a generic success toke
         success = False
 
-        timeline.remove(t_object)
+        # get the timeline and remove the target year, since we're going to
+        # update it and then re-insert it when we're done
+        timeline = self.settlement["timeline"]
+        timeline.remove(target_ly)
 
-        for i in t_object[e["type"]]:
-            if "name" in i.keys() and "name" in e.keys() and e["name"] == i["name"]:
-                t_object[e["type"]].remove(i)
+        # figure out if we're removing by name or handle
+        rm_attrib = 'handle'
+        if e.get('handle', None) is None:
+            rm_attrib = 'name'
+
+        # now iterate through all events of our target sub_type in our target LY
+        #   and kill them, if they match our handle/name
+        for e_dict in target_ly[e['sub_type']]:
+            if e_dict.get(rm_attrib, None) == e[rm_attrib]:
+                target_ly[e['sub_type']].remove(e_dict)
+                self.log_event("Automatically removed '%s' from Lantern Year %s of the settlement timeline!" % (e['name'], t_index), event_type="sysadmin")
                 success = True
-                break
-            elif "handle" in i.keys() and "handle" in e.keys() and e["handle"] == i["handle"]:
-                t_object[e["type"]].remove(i)
-                success = True
-                break
-            else:
-                self.logger.warn("Key errors encountered when comparing events %s and %s" % (e, i) )
 
-        timeline.insert(t_index, t_object)
+        # insert our updated year back into the TL and save
+        timeline.insert(t_index, target_ly)
 
+        # check our success flag and, if we were successful, save. Otherwise, we
+        #   freak the fuck out and panic (j/k: fail gracefully, but log/email
+        #   the error back to home base
         if success:
             self.settlement["timeline"] = timeline
-            self.logger.debug("Removed %s from %s timeline!" % (e, self))
-
-            try:
-                if "user_login" in e.keys():
-                    self.log_event("%s removed '%s' from Lantern Year %s" % (e["user_login"], e["name"], e["ly"]))
-                else:
-                    self.log_event("Automatically removed '%s' from Lantern Year %s" % (e["name"], e["ly"]))
-            except Exception as excep:
-                self.logger.error("Could not create settlement event log message for %s" % self)
-                self.logger.exception(excep)
+            if save:
+                self.save()
         else:
-            self.logger.error("Event could not be removed from %s timeline! %s" % (self, e))
+            utils.InvalidUsage("Event could not be removed from timeline! %s" % (e))
 
-        if save:
-            self.save()
 
 
     #
@@ -2424,8 +2462,8 @@ class Settlement(Models.UserAsset):
                 for tup in i_dict['available_if']:
                     asset, collection = tup
                     if asset in self.settlement[collection]:
-                        deck_dict[i] = i_dict
-                        self.logger.debug("%s Found value '%s' in settlement['%s']. Adding '%s' to innovation deck." % (self, asset, collection, innovation_dict['name']))
+                        deck_dict[i_handle] = i_dict
+                        self.logger.debug("%s Found value '%s' in settlement['%s']. Adding '%s' to innovation deck." % (self, asset, collection, i_dict['name']))
 
 
         #
@@ -3075,7 +3113,7 @@ class Settlement(Models.UserAsset):
         # now convert our list into a set (just in case) and then go on to
         # remove anything we've already got present in the settlement
         option_set = set(options)
-        for n in self.settlement[monster_type]:
+        for n in self.settlement.get(monster_type, []):
             if n in option_set:
                 option_set.remove(n)
 
@@ -3128,13 +3166,13 @@ class Settlement(Models.UserAsset):
 
         candidate_handles = []
         if context == "showdown_options":
-            candidate_handles.extend(self.settlement["quarries"])
+            candidate_handles.extend(self.settlement.get("quarries", []))
         elif context == "nemesis_encounters":
-            candidate_handles.extend(self.settlement["nemesis_monsters"])
+            candidate_handles.extend(self.settlement.get("nemesis_monsters", []))
             candidate_handles.append(self.campaign.final_boss)
         elif context == "defeated_monsters":
-            candidate_handles.extend(self.settlement["quarries"])
-            candidate_handles.extend(self.settlement["nemesis_monsters"])
+            candidate_handles.extend(self.settlement.get("quarries", []))
+            candidate_handles.extend(self.settlement.get("nemesis_monsters",[]))
             candidate_handles.extend(self.get_special_showdowns())
             candidate_handles.append(self.campaign.final_boss)
         elif context == "special_showdown_options":
@@ -3227,13 +3265,17 @@ class Settlement(Models.UserAsset):
             self.settlement["endeavor_tokens"] = 0
             self.perform_save = True
 
-        if not "location_levels" in self.settlement.keys():
-            self.settlement["location_levels"] = {}
-            self.perform_save = True
-        if not "innovation_levels" in self.settlement.keys():
-            self.settlement["innovation_levels"] = {}
-            self.perform_save = True
+        # data model - required lists
+        for req_list in ['nemesis_monsters','quarries']:
+            if not req_list in self.settlement.keys():
+                self.settlement[req_list] = []
+                self.perform_save = True
 
+        # data model - required dictionaries
+        for req_dict in ['nemesis_encounters','innovation_levels','location_levels']:
+            if not req_dict in self.settlement.keys():
+                self.settlement[req_dict] = {}
+                self.perform_save = True
 
         #
         #   This is where we add the 'meta' element; note that we actually
