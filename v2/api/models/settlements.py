@@ -283,7 +283,7 @@ class Settlement(Models.UserAsset):
             for event in script["timeline_events"]:
                 self.add_timeline_event(event)
 
-        self.log_event("Automatically applied '%s' parameters." % (script["name"]))
+        self.log_event("Automatically applied '%s' parameters." % (script["name"]), event_type='sysadmin')
 
 
     def normalize(self):
@@ -621,7 +621,7 @@ class Settlement(Models.UserAsset):
 
         # add it and save
         self.settlement["defeated_monsters"].append(monster_string)
-        self.log_event("%s added '%s' to the settlement's defeated monsters list!" % (request.User.login, monster_string), event_type="defeated_monster")
+        self.log_event(action="add", key="Defeated Monsters list", value=monster_string, event_type="add_defeated_monster")
         self.save()
 
 
@@ -640,7 +640,7 @@ class Settlement(Models.UserAsset):
             raise utils.InvalidUsage(msg)
 
         self.settlement["defeated_monsters"].remove(monster_string)
-        self.log_event("%s removed '%s' from the settlement's defeated monsters." % (request.User.login, monster_string))
+        self.log_event(action="rm", key="Defeated Monsters list", value=monster_string, event_type="rm_defeated_monster")
         self.save()
 
 
@@ -662,7 +662,7 @@ class Settlement(Models.UserAsset):
             ly = last_year_in_tl + 1 + y
             self.settlement['timeline'].append({'year': ly})
 
-        self.log_event(value="%s Lantern Years" % years)
+        self.log_event(action="add", key="Timeline", value="%s Lantern Years" % years)
         self.save()
 
 
@@ -685,7 +685,7 @@ class Settlement(Models.UserAsset):
             else:
                 self.logger.warn("Refusing to remove LY %s (which has events)." % (self.settlement['timeline'][-1]['year']))
 
-        self.log_event(value="%s Lantern Years" % lys_removed)
+        self.log_event(action="rm", key="Timeline", value="%s Lantern Years" % lys_removed)
         self.save()
 
 
@@ -714,7 +714,7 @@ class Settlement(Models.UserAsset):
             target_list.append(monster_handle)
             if m_dict["type"] == 'nemesis':
                 self.settlement["nemesis_encounters"][monster_handle] = []
-        self.log_event("%s added '%s' to the settlement %s list." % (request.User.login, m_dict["name"], m_dict["type"]))
+        self.log_event(action="add", key="%s monsters" % m_dict['type'], value=m_dict["name"], event_type="add_monster")
         self.save()
 
 
@@ -750,7 +750,7 @@ class Settlement(Models.UserAsset):
             del self.settlement["nemesis_encounters"][monster_handle]
 #            self.logger.debug("%s Removed '%s' handle from settlement 'nemesis_encounters' dict..." % (self, monster_handle))
 
-        self.log_event(key="%s monsters" % m_type, value=m_dict['name'], event_type="rm_monster")
+        self.log_event(action="rm", key="%s monsters" % m_dict['type'], value=m_dict["name"], event_type="rm_monster")
         self.save()
 
 
@@ -771,7 +771,7 @@ class Settlement(Models.UserAsset):
             self.settlement['monster_volumes'] = []
         self.settlement['monster_volumes'].append(vol_string)
 
-        self.log_event("%s added '%s' to settlement Monster Volumes" % (request.User.login, vol_string), event_type='add_monster_volume')
+        self.log_event(action="add", key="Monster Volumes", value=vol_string, event_type='add_monster_volume')
         self.save()
 
 
@@ -790,7 +790,7 @@ class Settlement(Models.UserAsset):
         # add the list if it's not present
         self.settlement['monster_volumes'].remove(vol_string)
 
-        self.log_event("%s removed '%s' from settlement Monster Volumes" % (request.User.login, vol_string), event_type='add_monster_volume')
+        self.log_event(action="rm", key="Monster Volumes", value=vol_string, event_type='rm_monster_volume')
         self.save()
 
 
@@ -926,7 +926,7 @@ class Settlement(Models.UserAsset):
             self.settlement["location_levels"][loc_handle] = 1
 
         # log and (optional) save
-        self.log_event(key="locations", value=loc_dict['name'])
+        self.log_event(action="add", key="locations", value=loc_dict['name'], event_type="add_location")
         if save:
             self.save()
 
@@ -959,7 +959,7 @@ class Settlement(Models.UserAsset):
         self.settlement["locations"].remove(loc_handle)
 
         # log and (optional) save
-        self.log_event(key="locations", value=loc_dict['name'])
+        self.log_event(action="rm", key="locations", value=loc_dict['name'], event_type="rm_location")
         if save:
             self.save()
 
@@ -977,7 +977,7 @@ class Settlement(Models.UserAsset):
             return True
 
         self.settlement['milestone_story_events'].append(M.handle)
-        self.log_event("%s added Milestone Story Event '%s'" % (request.User.login, M.name), event_type="milestone_story_event")
+        self.log_event(action="add", key="Milestone Story Events", value=M.name, event_type="add_milestone_story_event")
         self.save()
 
 
@@ -994,7 +994,7 @@ class Settlement(Models.UserAsset):
             return True
 
         self.settlement['milestone_story_events'].remove(M.handle)
-        self.log_event("%s removed Milestone Story Event '%s'" % (request.User.login, M.name))
+        self.log_event(action="rm", key="Milestone Story Events", value=M.name, event_type="rm_milestone_story_event")
         self.save()
 
 
@@ -1040,7 +1040,7 @@ class Settlement(Models.UserAsset):
             self.settlement["innovation_levels"][i_handle] = 1
 
         # log and (optional) save
-        self.log_event(key="innovations", value=i_dict['name'])
+        self.log_event(action="add", key="innovations", value=i_dict['name'], event_type="add_innovation")
         if save:
             self.save()
 
@@ -1086,7 +1086,7 @@ class Settlement(Models.UserAsset):
         self.settlement["innovations"].remove(i_handle)
 
         # log and (optional) save
-        self.log_event(key="innovations", value=i_dict['name'])
+        self.log_event(action="rm", key="innovations", value=i_dict['name'], event_type="rm_innovation")
         if save:
             self.save()
 
@@ -1409,7 +1409,7 @@ class Settlement(Models.UserAsset):
 
         self.settlement['lantern_year'] = ly
 
-        self.log_event(value=ly)
+        self.log_event("%s set current Lantern Year to %s" % (request.User.login, ly))
         self.save()
 
 
@@ -1963,7 +1963,7 @@ class Settlement(Models.UserAsset):
         del self.settlement['timeline'][new_ly['year']]
         self.settlement['timeline'].insert(new_ly['year'], new_ly)
 
-        self.log_event(value="Lantern Year %s" % new_ly['year'])
+        self.log_event("%s updated Timeline events for Lantern Year %s." % (request.User.login, new_ly['year']))
         self.save()
 
 
@@ -3416,7 +3416,7 @@ class Settlement(Models.UserAsset):
         for i in self.settlement["innovations"]:
             i_dict = self.Innovations.get_asset_from_name(i)
             if i_dict is None:
-                self.log_event("Unknown innovation '%s' removed from settlement!" % i)
+                self.log_event("Unknown innovation '%s' removed from settlement!" % i, event_type="sysadmin")
                 self.logger.warn("Could not migrate innovation '%s'!" % i)
             else:
                 new_innovations.append(i_dict["handle"])
@@ -3446,7 +3446,7 @@ class Settlement(Models.UserAsset):
         for loc in self.settlement["locations"]:
             loc_dict = L.get_asset_from_name(loc)
             if loc_dict is None:
-                self.log_event("Unknown location '%s' removed from settlement!" % loc)
+                self.log_event("Unknown location '%s' removed from settlement!" % loc, event_type="sysadmin")
                 self.logger.warn("Could not migrate location '%s'!" % loc)
             else:
                 new_locations.append(loc_dict["handle"])
@@ -3709,19 +3709,19 @@ class Settlement(Models.UserAsset):
         min_sl = self.get_survival_limit("min")
         if self.settlement["survival_limit"] < min_sl:
             self.settlement["survival_limit"] = min_sl
-            self.log_event("Survival Limit automatically increased to %s" % min_sl)
+            self.log_event("Survival Limit automatically increased to %s" % min_sl, event_type="sysadmin")
             self.perform_save = True
 
         min_pop = self.get_population("min")
         if self.settlement["population"] < min_pop:
             self.settlement["population"] = min_pop
-            self.log_event("Settlement Population automatically increased to %s" % min_pop)
+            self.log_event("Settlement Population automatically increased to %s" % min_pop, event_type="sysadmin")
             self.perform_save = True
 
         min_death_count = self.get_death_count("min")
         if self.settlement["death_count"] < min_death_count:
             self.settlement["death_count"] = min_death_count
-            self.log_event("Settlement Death Count automatically increased to %s" % min_death_count)
+            self.log_event("Settlement Death Count automatically increased to %s" % min_death_count, event_type="sysadmin")
             self.perform_save = True
 
 

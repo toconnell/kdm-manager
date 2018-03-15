@@ -62,7 +62,7 @@ class dashboard:
     affiliated with Kingdom Death.</p>
     <p>&nbsp; </p>
     <p>To get started, you will have to <b>create a new settlement</b>. Once your new
-    settlement is created, you will be shown a <b>campaign summary</b>, which is
+    settlement is created, you will be shown a <b>campaign summary</b>, which
     is like a dashboard for your campaign.</p>
     <p>From the <b>campaign summary</b>, you can use the controls in the upper-left
     corner to add new survivors, view your settlement's "sheet" and add/remove

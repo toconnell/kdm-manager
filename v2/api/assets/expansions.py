@@ -123,7 +123,7 @@ mar_2016_expansions = {
         },
         "timeline_add": [
             {"ly": 6, "handle": "slender_its_already_here"},
-            {"ly": 9, "type": "nemesis_encounter", "name": "Nemesis Encounter"},
+            {"ly": 9, "sub_type": "nemesis_encounter", "name": "Nemesis Encounter"},
         ],
         "timeline_rm": [
             {"ly": 6, "handle": "core_armored_strangers"},
