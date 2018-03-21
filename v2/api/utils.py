@@ -235,9 +235,10 @@ def action_keyword(kw):
     """ converts an action keyword 'kw' to a past-tense version of that
     keyword and its preposition. """
 
-    if kw in ["add"]:                   # add
+    kw = kw.lower()
+    if kw in ['add','added','adds','adding']:                   # add
         output = ("added", "to")
-    elif kw in ["rm"]:                  # remove
+    elif kw in ["rm",'removed','remove','removes','removing']:                  # remove
         output = ("removed", "from")
     elif kw in ["set", "update"]:       # set
         output = ("set", "to")
@@ -245,6 +246,10 @@ def action_keyword(kw):
         output = ("inherited", "from")
     elif kw in ["birth", "born"]:
         output = ("born", "to")
+    elif kw in ['apply','applied','applies']:
+        output = ('applied','to')
+    elif kw in ["create","created",'creating']:
+        output = ("created", None)
     elif kw in ["enforce"]:             # automate
         output = ("automatically set", "to")
     elif kw in ["toggle"]:
@@ -533,7 +538,7 @@ def log_event_exception_manager(log_event_call):
         try:
             return log_event_call(self, *args, **kwargs)
         except Exception as e:
-            self.logger.exception("Unhandled exception in log_event() method! Failing gracefully...")
+            self.logger.exception("Unhandled exception in log_event() method! args: %s, kwargs: %s" % (args, kwargs))
             email_exception(e)
 
     return wrapper

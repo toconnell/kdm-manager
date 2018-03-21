@@ -27,7 +27,7 @@ specials = {
             {"name": "cloth", "quantity": 4},
         ],
         "timeline_events": [
-            {"ly": 0, "type": "showdown_event", "name": "White Lion (First Story)"},
+            {"ly": 0, "sub_type": "showdown_event", "name": "White Lion (First Story)"},
         ],
     },
 

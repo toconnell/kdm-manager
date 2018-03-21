@@ -160,12 +160,25 @@
 
     <hr/>
 
+
+    <button
+        class="sidenav_button sidenav_modal_launcher"
+        ng-if="user.user.preferences.beta === true"
+        ng-click="showHide('helpModal')"
+        onClick="closeNav();"
+    >
+        &beta; Help!
+    </button>
+
     <button
         id="reportErrorButton"
+        class="sidenav_button sidenav_modal_launcher"
         onclick="closeNav(); showHide('modalReportError')"
     >
         Report an Issue or Error
     </button>
+
+    <hr/>
 
     <form
         method="POST"

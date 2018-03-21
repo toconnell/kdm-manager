@@ -4,6 +4,8 @@
 
 var myApp = angular.module('adminPanel', []);
 
+myApp.filter('trustedHTML', function($sce) {return $sce.trustAsHtml;});
+
 myApp.controller('globalController', function($scope, $http, $interval) {
 
     $scope.scratch = {};
@@ -27,11 +29,16 @@ myApp.controller('globalController', function($scope, $http, $interval) {
         });
     };
     $scope.showHide = function(e_id) {
-        var element = document.getElementById(e_id);
-        if (element.style.display=='block') {
-            element.style.display='none'
+        var e = document.getElementById(e_id);
+        var hide_class = "hidden";
+        var visible_class = "visible";
+        if (e === null) {console.error("showHide('" + e_id + "') -> No element with ID value '" + e_id + "' found on the page!"); return false}
+        if (e.classList.contains(hide_class)) {
+            e.classList.remove(hide_class);
+            e.classList.add(visible_class);
         } else {
-            element.style.display='block';
+            e.classList.add(hide_class);
+            e.classList.remove(visible_class)
         };
     };
 
@@ -120,3 +127,47 @@ myApp.controller('globalController', function($scope, $http, $interval) {
 
 });
 
+myApp.controller('alertsController', function($scope, $http) {
+
+    // initialize
+    $scope.newAlert = {
+        expiration: 'next_release',
+        type: 'kpi',
+        title: null,
+        body: null,
+        created_by: null,
+    }
+
+    // methods
+    $scope.getWebappAlerts = function() {
+        console.time('getWebappAlerts()');
+        $http.get('admin/get/webapp_alerts').then(
+            function(result){
+                $scope.webappAlerts = result.data;
+                console.timeEnd('getWebappAlerts()');
+            },
+            function(result){console.error('Could not retrieve webapp alerts!');}
+        );
+    };
+
+    $scope.createAlert = function() {
+        console.warn($scope.newAlert);
+        $http.post("/admin/notifications/new", $scope.newAlert).then(function(result){
+            console.warn(result);
+            $scope.getWebappAlerts();
+            $scope.newAlert.title = null;
+            $scope.newAlert.body = null;
+            $scope.newAlert.created_by = null;
+            $scope.showHide('createNewAlert');
+        });
+    };
+
+    $scope.expireAlert = function(a) {
+        $http.post("/admin/notifications/expire", a).then(function(result){
+            a.expiration = 'NOW';
+            console.warn(result);
+            $scope.getWebappAlerts();
+        });
+    };
+
+})

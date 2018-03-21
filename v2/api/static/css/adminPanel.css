@@ -16,8 +16,10 @@ td.int_key {width: 10%; word-break: inherit;}
 
 /*  reusable style / generic style  */
 .clickable {cursor: pointer; background-color: #ffffEF; padding: 3%; }
+.clickable.alert {background-color: #ffEFEF;}
 .zebra {background-color: #efefef; }
 .hidden {display: none; }
+.visible {display: inherit; }
 
 #spinner {position: fixed; bottom: 3%; right: 3%; z-index: 100;}
 
@@ -36,7 +38,7 @@ td.int_key {width: 10%; word-break: inherit;}
 .world_item {margin: 0.5%; }
 .world_item .world_key {font-weight: bold; display: inline-block; }
 .world_item .world_value {display: inline-block; }
-.world_item .world_tooltip {display: none; margin-left: 1%; }
+.world_item .world_tooltip {margin-left: 1%; }
 .world_item .world_tooltip i {color: #666; }
 
 .user_basic_info {width: auto; margin: 2%; display: inline-block; }
@@ -47,8 +49,8 @@ td.int_key {width: 10%; word-break: inherit;}
 .active_subscriber {background-color: #FFF59D; border: 3px solid #FFC107;}
 .inactive_subscriber {background-color: #FFF9C4; }
 .signed_out_subscriber {background-color: #FFFDE7; }
-.user_detail {display: none; }
-.log_detail {display: none; }
+.user_detail { }
+.log_detail { }
 .log_line {padding: 1%; }
 
 .capitalize {text-transform: capitalize;}
@@ -76,3 +78,17 @@ button.toggle_settlement_event_log {float: right; }
 
 .warning {background-color: #FFFFCD;}
 .error {background-color: #F7482E; }
+
+
+/* Alerts! */
+.webapp_alert {margin: 1%; }
+.webapp_alert_title {display: block; width: 97%; margin: 0 auto; margin-top: 1%; font-weight: bold; padding: 1%; }
+.webapp_alert_body {display: block; width: 97%; height: 100px; margin: 0 auto; margin-top: 1%; margin-bottom: 1%; padding: 1%;  }
+.create_webapp_alert {margin: 0 auto; margin: 1%; background-color: #aaa; padding: 1%; }
+.create_webapp_alert_control_block {margin: 1%; background-color: #eee; padding: 1%;  }
+.create_webapp_alert button {width: 98%; margin: 0 auto; display: block; padding: 1%; font-weight: bold; margin-bottom: 1%; }
+.red_button {background: linear-gradient(to bottom, #ff9a9a, #ff3434); border-radius: 5px; color: #fff; border: 1px solid #ff0d0d; }
+
+.alert_footer {font-size: 75%; text-align:right; margin-top: 1%; }
+.alert_controls {display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-end; }
+.alert_controls button {}

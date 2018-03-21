@@ -2,7 +2,6 @@
 
 settlements = [
     "Aitos",
-    "Alefgard",
     "Anor Londo",
     "Arcadia",
     "Arkovia",
@@ -170,6 +169,7 @@ male = [
     "Croesus",
     "Crono",
     "Cuchulain",
+    "Cyan",
     "Cyril",
     "Cyrus",
     "Damon",
@@ -709,6 +709,7 @@ female = [
     "Tamara",
     "Tamiko",
     "Tara",
+    "Terra",
     "Thalia",
     "Themis",
     "Triss",

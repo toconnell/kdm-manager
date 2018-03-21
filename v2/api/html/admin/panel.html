@@ -51,18 +51,106 @@
 
         </div>
 
+        <div class="flex_item_basic" ng-controller="alertsController" ng-init="getWebappAlerts()">
+            <h2>Alerts!</h2>
+            <hr/>
+            <div
+                class="webapp_alert"
+                ng-repeat="alert in webappAlerts"
+                title="{{alert._id.$oid}}"
+            >
+                <div
+                    class="clickable"
+                    ng-click="showHide(alert._id.$oid + '_controls')"
+                >
+                    <b>{{alert.title}}</b> <span ng-bind-html="alert.body|trustedHTML"></span><br/>
+                    <div
+                        class="alert_footer"
+                    >
+                        <b>type:</b> {{alert.sub_type}} | <b>created:</b> {{alert.created_on.$date | date:'yyyy-MM-dd @ h:mma'}} | <b>expires:</b> {{alert.expiration}}
+                    </div>
+                </div>
 
-        <div class="flex_item_basic users">
-            <h2>User Agent Info</h2>
-            <p ng-click="showHide('user_agent_popularity_contest')" class="clickable">
-                Click/tap to show/hide the User Agent popularity contest.
+                <div id="{{alert._id.$oid}}_controls" class="clickable hidden">
+                    <div
+                        class="alert_controls"
+                    >
+                        <button class="red_button" ng-click="expireAlert(alert)">Expire Now!</button>
+                    </div>
+                </div>
+            </div>
+
+            <hr/>
+            <p ng-click="showHide('createNewAlert')" class="clickable alert">
+                Click/tap to create a new webapp alert!
             </p>
-            <table id="user_agent_popularity_contest" class="hidden">
-                <tr><th>UA String</th><th>&nbsp; # &nbsp; </th></tr>
-                <tr ng-repeat="ua in users.user_agent_stats" ng-class-even="'zebra'">
-                    <td>{{ua.latest_user_agent}}:</td><td>{{ua.count}}</td>
-                </tr>
-            </table>
+            <div id="createNewAlert" class="create_webapp_alert hidden">
+
+                <div class="create_webapp_alert_control_block">
+                    <input class="webapp_alert_title" type="text" ng-model="newAlert.title" placeholder="New Webapp Alert Title!" />
+                    <textarea class="webapp_alert_body" ng-model="newAlert.body">
+                    </textarea>
+                </div>
+                <div class="create_webapp_alert_control_block">
+                    <b>Type:</b>
+                    <label>
+                        <input
+                            type="radio"
+                            name="new_alert_type"
+                            ng-model="newAlert.type"
+                            value="kpi"
+                        > 
+                        KPI
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            name="new_alert_type"
+                            ng-model="newAlert.type"
+                            value="announcement"
+                        > 
+                        Announcement
+                    </label>
+                </div>
+                <div class="create_webapp_alert_control_block">
+                    <b>Expiration:</b>
+                    <label>
+                        <input
+                            type="radio"
+                            name="new_alert_expiration"
+                            ng-model="newAlert.expiration"
+                            value="next_release"
+                        > 
+                        Next release
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            name="new_alert_expiration"
+                            ng-model="newAlert.expiration"
+                            value="manual"
+                        > 
+                        Manual
+                    </label>
+                </div>
+                <div class="create_webapp_alert_control_block">
+                    <b>Publish as:</b>
+                    <select
+                        ng-model="newAlert.created_by"
+                        ng-options="u._id.$oid as u.login for u in world.meta.admins"
+                    >
+                        <option disabled value="">Select a user</option>
+                    </select>
+                </div>
+
+                <button
+                    ng-if="newAlert.title != null && newAlert.body != null && newAlert.created_by"
+                    ng-click="createAlert()"
+                    class="red_button"
+                >
+                    CREATE NEW WEBAPP ALERT
+                </button>
+            </div>
         </div>
 
 
@@ -100,7 +188,7 @@
                         <span ng-if="u.latest_action == 'signed out'" style="font-weight: normal">(signed out)</span>
                     </h2>
                     <div
-                        class="user_detail"
+                        class="user_detail hidden"
                         id="user_{{u._id.$oid}}"
                         title="Click again to close and copy OID to clipboard."
                         ng-click="copyToClipboard(u._id.$oid);"
@@ -177,6 +265,21 @@
             </div> <!-- settlement repeater -->
         </div> <!-- flex_item_basic -->
 
+        <div class="flex_item_basic users">
+            <h2>User Agent Info</h2>
+            <p ng-click="showHide('user_agent_popularity_contest')" class="clickable">
+                Click/tap to show/hide the User Agent popularity contest.
+            </p>
+            <table id="user_agent_popularity_contest" class="hidden">
+                <tr><th>UA String</th><th>&nbsp; # &nbsp; </th></tr>
+                <tr ng-repeat="ua in users.user_agent_stats" ng-class-even="'zebra'">
+                    <td>{{ua.latest_user_agent}}:</td><td>{{ua.count}}</td>
+                </tr>
+            </table>
+        </div>
+
+
+
         <div class="flex_item_basic api">
             <h2>Response Times (last seven days)</h2>
             <table class="api_response_times">
@@ -206,7 +309,7 @@
             <p ng-click="showHide('api_log')" class="clickable">
                 View last {{settings.application.log_summary_length}} lines.
             </p>
-            <div class="log_detail" id="api_log">
+            <div class="log_detail hidden" id="api_log">
                 <div class="log_line" ng-repeat="l in logs.api track by $index" ng-class-even="'zebra'">
                     {{l}}
                 </div>
@@ -218,7 +321,7 @@
             <p ng-click="showHide('gunicorn_log')" class="clickable">
                 View last {{settings.application.log_summary_length}} lines.
             </p>
-            <div class="log_detail" id="gunicorn_log">
+            <div class="log_detail hidden" id="gunicorn_log">
                 <div class="log_line" ng-repeat="l in logs.gunicorn track by $index" ng-class-even="'zebra'">
                     {{l}}
                 </div>
@@ -230,7 +333,7 @@
             <p ng-click="showHide('server_log')" class="clickable">
                 View last {{settings.application.log_summary_length}} lines.
             </p>
-            <div class="log_detail" id="server_log">
+            <div class="log_detail hidden" id="server_log">
                 <div class="log_line" ng-repeat="l in logs.server track by $index" ng-class-even="'zebra'">
                     {{l}}
                 </div>
@@ -252,7 +355,7 @@
             <p ng-click="showHide('world_log')" class="clickable">
                 View last {{settings.application.log_summary_length}} lines.
             </p>
-            <div class="log_detail" id="world_log">
+            <div class="log_detail hidden" id="world_log">
                 <div class="log_line" ng-repeat="l in logs.world track by $index" ng-class-even="'zebra'">
                     {{l}}
                 </div>
@@ -264,7 +367,7 @@
             <p ng-click="showHide('world_daemon_log')" class="clickable">
                 View last {{settings.application.log_summary_length}} lines.
             </p>
-            <div class="log_detail" id="world_daemon_log">
+            <div class="log_detail hidden" id="world_daemon_log">
                 <div class="log_line" ng-repeat="l in logs.world_daemon track by $index" ng-class-even="'zebra'">
                     {{l}}
                 </div>
@@ -282,7 +385,7 @@
                 >
                     <div class="world_key">{{w.name}} ({{w.value_type}}):</div>
                     <div class="world_value">{{w.value}}</div>
-                    <span id="{{w.handle}}_tooltip" class="world_tooltip">
+                    <span id="{{w.handle}}_tooltip" class="world_tooltip hidden">
                         <i>comment:</i> {{w.comment}}<br/>
                         <i>handle:</i> <code>{{w.handle}}</code><br/>
                         <i>mdb OID:</i> {{w._id.$oid}}<br/>

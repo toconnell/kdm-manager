@@ -11,6 +11,7 @@ import operator
 import os
 import random
 import socket
+import unicodedata
 from user_agents import parse as ua_parse
 
 from flask import request, Response
@@ -831,10 +832,14 @@ class UserAsset(object):
         #   baseline attributes
         #
 
+        # for those who still raw-dog it; force to ASCII:
+        if msg is not None:
+            msg = msg.encode("ascii",'ignore')
+
         # 0.) method: determine caller method
         curframe = inspect.currentframe()
         calframe = inspect.getouterframes(curframe, 2)
-        method = calframe[1][3]
+        method = calframe[2][3]
 
         # 1.) event: determine event type if it's None
         if event_type is None:
@@ -848,10 +853,12 @@ class UserAsset(object):
         # 3.) key: default the key if we don't get one
         if key is None:
             key = " ".join(method.split("_")[1:])
+        key = key.encode('ascii','ignore')
 
         # 4.) value; default the value if we don't get one
         if value is None:
             value = "UNKNOWN"
+        value = value.encode('ascii','ignore')
 
         # set 'created_by'
         created_by = None
@@ -877,7 +884,7 @@ class UserAsset(object):
             attribute_modified['value_pretty'] = str(value).replace("_"," ")
 
         d = {
-            'version': 1.1,
+            'version': 1.3,
             'agent': agent,
             "created_on": datetime.now(),
             'created_by': created_by,
@@ -907,7 +914,7 @@ class UserAsset(object):
             d['modified']['asset'] = {"type": "settlement", "name": self.settlement['name'], '_id': self.settlement_id}
 
         # create the 'action'
-        d['action'] = {'word': action_word, 'preposition': action_preposition}
+        d['action'] = {'word': action_word, 'preposition': str(action_preposition)}
         if key is None and value is None:
             d['action']['repr'] = " ".join(['modified', action_target])
         elif key is not None and value is None:
@@ -915,7 +922,9 @@ class UserAsset(object):
         elif key is None and value is None:
             d['action']['repr'] = " ".join(['modified', action_target])
         else:
-            if action_target == "survivor":
+            if action_target == "survivor" and action_preposition is None:
+                d['action']['repr'] = action_word
+            elif action_target == "survivor" and action_preposition is not None:
                 d['action']['repr'] = " ".join([action_word, "'%s'" % value, action_preposition, str(key)])
             else:
                 d['action']['repr'] = " ".join([action_word, "'%s'" % value, action_preposition, action_target, str(key)])
@@ -923,7 +932,13 @@ class UserAsset(object):
         # default a message, if incoming message is none
         if msg is None:
             if d['modified']['asset']['type'] == 'survivor':
-                if d['agent'] == 'user':
+                if d['agent'] == 'user' and action_preposition is None:
+                    d['event'] = " ".join([
+                        d['created_by_email'],
+                        d['action']['word'],
+                        "%s [%s]" % (self.survivor['name'], self.get_sex()),
+                    ])
+                elif d['agent'] == 'user' and action_preposition is not None:
                     d['event'] = " ".join([
                         d['created_by_email'],
                         d['action']['word'],
@@ -942,7 +957,12 @@ class UserAsset(object):
                     ])
             else:
                 d['event'] = " ".join([d['created_by_email'], d['action']['repr'], ])
+
+        # enforce terminal punctuation on the event "sentence"
+        if d['event'][-1] not in ['.','!']:
             d['event'] += "."
+
+        d['event'] = d['event'].decode('ascii','replace').encode('utf-8','replace')
 
         # finally, if we had a requester, now that we've settled on a message
         # text, update the requester's latest action with it
@@ -952,7 +972,6 @@ class UserAsset(object):
                 request.User.set_latest_action(d['event'], ua_string)
 
         # finally, insert the event (i.e. save)
-#        self.logger.debug(d)
         utils.mdb.settlement_events.insert(d)
         self.logger.info("%s event: %s" % (self, d['event']))
 

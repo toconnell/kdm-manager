@@ -4,6 +4,7 @@ from flask import request, Response
 from bson import json_util
 import json
 
+import notifications
 import panel
 import utils
 
@@ -50,9 +51,22 @@ class badResponse():
         self.logger.exception(e)
         return utils.http_500
 
+def admin_notifications(method=None):
+    """ Creates a new admin asset. Used currently only for webapp alerts. """
+
+    A = notifications.Alert()
+    if method=="new":
+        return A.serialize()
+    elif method=="expire":
+        A.expire()
+        return A.serialize()
+    else:
+        return utils.http_501
+
+    return utils.http_501
 
 def get_admin_data(resource=None):
-    """ Retrieves admin panel data. """
+    """ Retrieves various types of admin panel data. """
 
     try:
         if resource == 'user_data':
@@ -61,6 +75,8 @@ def get_admin_data(resource=None):
             return panel.get_settlement_data()
         elif resource == 'logs':
             return panel.serialize_system_logs()
+        elif resource == 'webapp_alerts':
+            return notifications.get_webapp_alerts()
     except Exception as e:
         logger.error("Unable to return '%s' admin data!" % resource)
         logger.error(e)

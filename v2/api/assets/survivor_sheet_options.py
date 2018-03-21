@@ -104,6 +104,7 @@ causes_of_death = {
 
     # other
     'core_cyclops_fly':         {'name': 'Cyclops Fly', 'context': 'consumption'},
+    'core_ceased_to_exist':     {'name': 'Ceased to exist', 'context': 'hunt_xp'},
 }
 
 the_constellations = {

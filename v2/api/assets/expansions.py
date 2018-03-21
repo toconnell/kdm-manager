@@ -21,6 +21,9 @@ promo_and_misc = {
             "desc": "Survival Limit is not automatically enforced by the Manager when Beta Challenge Scenarios content is enabled.",
             },
         ],
+        'help': [
+            {'type': 'rules', 'tip': "The Survival Limit is not enforced on any survivor's sheet when this expansion content is enabled for a settlement!"},
+        ],
     },
     "white_box": {
         "released": datetime(2016,8,16),
@@ -31,12 +34,27 @@ promo_and_misc = {
             "bgcolor": "4EC6F0",
         },
         "subtitle": "Adds miscellaneous promotional content (items, Abilities & Impairments, etc.) to Settlement and Survivor Sheet drop-down lists. Content includes Gen Con, Black Friday and other promos.",
+        'help': [ 
+            {'type': 'poots', 'tip': 'According to <a href="http://us1.campaign-archive2.com/?u=1f4d6d8b08474b282855b8143&id=b967080e9f&e=c4a658a777" target="top">KDU #18</a>, "Promo cards are intended as light-hearted content that is created for fun and should not be taken seriously in the context of Monster. Promos are not considered official additions to the rules and players should add them at the discretion of each player group."'},
+        ],
     },
     "percival": {
         "name": "Percival",
         "ui": {"pretty_category": "Enhancement"},
-        "released": datetime(2016,8,16),
+        "released": datetime(2016,8,4),
         'basic_hunt_event': ['dead_warrior'],
+        'help': [
+            {'type': 'store', 'tip': 'Though she ships in a White Box, Percival is expansion content, <a href="https://shop.kingdomdeath.com/products/percival-1" target="top">according to the Kingdom Death store</a>. For this reason, Percival is separate from other White Box content in the Manager.'},
+        ],
+    },
+    "fade": {
+        "name": "Fade",
+        "ui": {"pretty_category": "Enhancement"},
+        "released": datetime(2016,8,4),
+        'basic_hunt_event': ['baby_and_the_sword'],
+        'help': [
+            {'type': 'store', 'tip': 'Though she ships in a White Box, Fade is expansion content, <a href="https://shop.kingdomdeath.com/products/fade-2" target="top">according to the Kingdom Death store</a>. For this reason, Fade is separate from other White Box content in the Manager.'},
+        ],
     },
 }
 
@@ -66,9 +84,13 @@ mar_2016_expansions = {
             "location": ["Green Knight Armor"],
         },
         "flair": {
-            "color": "EAE40A",
-            "bgcolor": "958C83",
+            "color": "000",
+            "bgcolor": "94C9AB",
         },
+        "help": [
+            {'type': 'storage', 'tip': 'Crafting Green Knight Armor requires resources, gear and innovations from the <b>Dung Beetle Knight</b>, <b>Flower Knight</b>, <b>Lion Knight</b> and <b>Gorm</b> expansions.'},
+            {'type': 'game_assets', 'tip': 'The recipe for <i>Fetorsaurus</i> includes a reference to the non-existent "Elixir of Life" gear. This is generally understood to mean the <b>Gorm</b> expansion\'s "Life Elixir" gear.'},
+        ],
     },
     "dung_beetle_knight": {
         "name": "Dung Beetle Knight",
@@ -86,8 +108,8 @@ mar_2016_expansions = {
             {"ly": 8, "handle": "dbk_rumbling_in_the_dark"},
         ],
         "help": [
-            {"type": "storage", "tip": "The <b>Regenerating Blade</b> is Rare Gear."},
-            {"type": "storage", "tip": "<b>Calcified</b> gear is selectable from the <b>Black Harvest</b> section of the Settlement Storage controls."},
+            {"type": "storage", "tip": "<i>Calcified</i> gear is selectable from the <b>Black Harvest</b> section of the Settlement Storage controls."},
+            {"type": "storage", "tip": 'The "Regenerating Blade" is <b>Rare Gear</b> and can be found in that section of the Settlement Storage controls.'},
         ],
     },
     "spidicules": {
@@ -227,6 +249,11 @@ mar_2016_expansions = {
             "color": "EAE40A",
             "bgcolor": "958C83",
         },
+        'help': [
+            {'type': 'game_assets', 'tip': 'AI card references to "Lonely Fruit" are generally understood to refer to the monster\'s "Nightmare Fruit" AI card.'},
+            {'type': 'game_assets', 'tip': 'References to "Festering Blood Fruit" are generally understood to refer to "Blistering Plasma Fruit".'},
+            {'type': 'game_assets', 'tip': 'The Basic Action card for the Lonely Tree refers to an action called "germinate", which is generally understood to refer to "Growth", i.e. the Lonely Tree\'s Instinct.'},
+        ],
     },
     "flower_knight": {
         "name": "Flower Knight",
