@@ -361,31 +361,41 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
                 } else {
                     // pass
                 };
-            };
+            }; //end of dashboard stuff
+
+            console.time('/admin/get/webapp_alerts');
+            $http.get($scope.api_url + 'admin/get/webapp_alerts').then(
+                function(result){
+                    $scope.webappAlerts = result.data;
+                    console.timeEnd('/admin/get/webapp_alerts');
+                },
+                function(result){console.error('Could not retrieve webapp alerts!');}
+            );
+
         },
-            function(errorPayload) {
-                console.error("[USER] Could not retrieve user information!");
-                console.error("[USER] " + errorPayload.status + " -> " + errorPayload.data);
-            }
-        );
+        function(errorPayload) {
+            console.error("[USER] Could not retrieve user information!");
+            console.error("[USER] " + errorPayload.status + " -> " + errorPayload.data);
+        }
+    );
 
-        // now do stuff that we need the settlement to do
-        if ($scope.settlementPromise !== undefined) {
-            $scope.settlementPromise.then(function() {
-                $scope.userPromise.then(function() {
-                    // determine if the user is a settlement admin
-                    if ($scope.settlement.sheet.admins.indexOf($scope.user_login) == -1) {
-                        $scope.user_is_settlement_admin = false;
-                        console.error($scope.user_login + ' is not a settlement admin.');
-                    } else {
-                        $scope.user_is_settlement_admin = true;
-                        console.warn($scope.user_login + ' is a settlement admin!');
-                    };
-                });
+    // now do stuff that we need the settlement to do
+    if ($scope.settlementPromise !== undefined) {
+        $scope.settlementPromise.then(function() {
+            $scope.userPromise.then(function() {
+                // determine if the user is a settlement admin
+                if ($scope.settlement.sheet.admins.indexOf($scope.user_login) == -1) {
+                    $scope.user_is_settlement_admin = false;
+                    console.error($scope.user_login + ' is not a settlement admin.');
+                } else {
+                    $scope.user_is_settlement_admin = true;
+                    console.warn($scope.user_login + ' is a settlement admin!');
+                };
             });
-        };
-
+        });
     };
+
+};
 
     $scope.initializeSettlement = function(src_view, api_url, settlement_id) {
 
@@ -841,6 +851,23 @@ app.controller("updateExpansionsController", function($scope) {
     $scope.scratch= {}
     $scope.scratch['expansions_updated'] = false; 
     $scope.toggleExpansion = function(e_handle, index) {
+        // figure out if its mandatory
+        var mandatoryExpansion = false;
+        if ($scope.settlement.game_assets.campaign.settlement_sheet_init.expansions.indexOf(e_handle) != -1){
+            mandatoryExpansion = true;
+        };
+
+        // bail verbosely if it is mandatory
+        if (mandatoryExpansion === true) {
+            var campaign_name = $scope.settlement.game_assets.campaign.name;
+            var e_name = $scope.settlement.game_assets.expansions[e_handle].name;
+            var err_msg = "The " + e_name + " expansion is required by the " + campaign_name + " campaign and may not be removed!";
+            console.error(err_msg);
+            window.alert(err_msg);
+            return false;
+        };
+
+        // otherwise, lock and load (or unload)
         $scope.scratch['expansions_updated'] = true;
 //        console.error('updated: ' + $scope.scratch.expansions_updated);
         if ($scope.settlement.sheet.expansions.indexOf(e_handle) === -1) {
@@ -1347,8 +1374,9 @@ app.controller ("survivorSearchController", function($scope) {
 
 });
 
-
-
+// modal help overlay -- all views
+app.controller ("helpModalController", function($scope) {
+});
 
 
 //        console.log($scope.settlement.game_assets.campaign.settlement_sheet_init.expansions.includes(e_handle));

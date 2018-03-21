@@ -38,6 +38,7 @@ from models import settlements as settlements_models
 from models import survivors as survivors_models
 from models import campaigns as campaigns_models
 from models import epithets as epithets_models
+import notifications
 import utils
 
 
@@ -902,6 +903,25 @@ class World:
             return None
 
         return {"settlement": settlement, "survivors": [h for h in hunters]}
+
+
+    # meta/admin world stuff here
+
+    def total_webapp_alerts(self):
+        query = {'expired': False, 'type': 'webapp_alert'}
+
+        # first, prune anything that needs a pruning
+        alerts = utils.mdb.notifications.find(query)
+        for a in alerts:
+            if a['expiration'] == 'next_release':
+                if a['release'] < settings.get('api','version'):
+                    self.logger.warn('Alert from version %s is lower than current release! Removing...' % (a['release']))
+                    A = notifications.Alert(_id=a['_id'])
+                    A.expire()
+
+        # now, check again
+        return utils.mdb.notifications.find(query).count()
+
 
 
 #

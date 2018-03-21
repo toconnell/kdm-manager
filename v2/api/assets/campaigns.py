@@ -213,6 +213,9 @@ expansion_campaign = {
             "nemesis_encounters": {'butcher': []},
             "expansions": ["green_knight_armor", "dung_beetle_knight","flower_knight","lion_knight","gorm"],
         },
+#        'help': [
+#            {'type': 'rules', 'tip': '',}
+#        ]
     },
 
     "the_bloom_people": {
@@ -245,6 +248,11 @@ expansion_campaign = {
             "nemesis_monsters": ["butcher"],
             "nemesis_encounters": {'butcher': []},
         },
+        'help': [
+            {'type': 'rules', 'tip': """
+When starting a new "The Bloom People" campaign, any survivors who are not created with parents, including the first generation of survivors, whether added manually or via the "First Story" macro during settlement creation, do not benefit from the campaign's intrinsic settlement bonus.<br/> &nbsp; The rule states that "All survivors are born with +1 permanent luck, +1 permanent green affinity and -2 permanent red affinities," and founding survivors are not born.""",
+            }
+        ]
     },
 
     "people_of_the_sun": {
@@ -373,6 +381,9 @@ expansion_campaign = {
             "nemesis_monsters": ["butcher","kings_man","the_hand"],
             "nemesis_encounters": {"butcher":[1], "kings_man":[1], "the_hand":[1]},
         },
+#        'help': [
+#            {'type': 'general', 'tip': 'This is a help tip.'},
+#        ],
     },
 }
 

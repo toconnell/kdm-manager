@@ -13,6 +13,7 @@
             <div
                 class="expansions_controls_container"
                 ng-init="addNewSettlementsToScope('$api_url')"
+                ng-if="settlement.sheet != undefined && settlement.game_assets != undefined"
             >
 
                 <p class="kd_sheet_ui_row_tip" ng-if="user.user.preferences.show_ui_tips">
@@ -31,12 +32,18 @@
                         class="clickable expansion_toggle_container"
                         ng-repeat="x in new_settlement_assets.expansions"
                         ng-if="x.ui.pretty_category == category"
-                        ng-class="{enabled: settlement.sheet.expansions.indexOf(x.handle) != -1}"
+                        ng-init="x.mandatory = settlement.game_assets.campaign.settlement_sheet_init.expansions.indexOf(x.handle) != -1"
+                        ng-class="{
+                            enabled: settlement.sheet.expansions.indexOf(x.handle) != -1,
+                            mandatory_expansion: x.mandatory === true,
+                        }"
                         ng-click="toggleExpansion(x.handle, settlement.sheet.expansions.indexOf(x.handle))"
                     >
                         <div
                             class="kd_sheet_ui_box"
-                            ng-class="{checked: settlement.sheet.expansions.indexOf(x.handle) != -1}"
+                            ng-class="{
+                                checked: settlement.sheet.expansions.indexOf(x.handle) != -1,
+                            }"
                         ></div>
                             {{x.name}}
                         <div
@@ -73,11 +80,10 @@
                             user.user.preferences.show_ui_tips
                         "
                     >
-                        <b>Warning!</b> Disabling expansion content when it is
-                        required by the campaign or the items on the campaign's
-                        Settlement and Survivor Sheets (innovations, locations,
-                        Fighting Arts, etc.) <b>will</b> cause errors and other
-                        unexpected/undesirable behavior!
+                        <b>Warning!</b> Unselecting expansion content after you
+                        have added that expansion's game assets (Fighting Arts, Disorders,
+                        Story Events, etc.) to your campaign <b>will</b> cause
+                        errors and other issues in the Manager.
                     </p>
 
                     <button

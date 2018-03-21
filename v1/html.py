@@ -3795,7 +3795,7 @@ class settlement:
                                 <div class="campaign_summary_survivor_tags_container">
                                     <div
                                         class="survivor_tag fighting_arts_tag"
-                                        ng-repeat="fa in s.sheet.fighting_arts"
+                                        ng-repeat="fa in s.sheet.fighting_arts track by $index"
                                     >
                                         {{settlement.game_assets.fighting_arts[fa].name}}
                                     </div>
@@ -4597,7 +4597,7 @@ class settlement:
                         </div>
                         <ul class="quickview_asset_list">
                             <li
-                                ng-repeat="fa in s.sheet.fighting_arts"
+                                ng-repeat="fa in s.sheet.fighting_arts track by $index"
                                 ng-class="{true: 'faded'}[s.sheet.cannot_use_fighting_arts]"
                             >
                                 <b>{{settlement.game_assets.fighting_arts[fa].name}}:</b>
@@ -6645,6 +6645,7 @@ def render(view_html, head=[], http_headers=None, body_class=None, include_templ
         'survivor_search.html',
         'timeline.html',
         'event_log.html',
+        'help.html',
     ]
     ui_templates += include_templates
     for t in ui_templates:

@@ -319,22 +319,21 @@ class Survivor(Models.UserAsset):
         self._id = utils.mdb.survivors.insert(self.survivor)
         self.load()
 
-
         # 2. set the name
         s_name = self.survivor['name']
         if s_name == "Anonymous" and request.User.get_preference("random_names_for_unnamed_assets"):
             s_name = self.Names.get_random_survivor_name(self.survivor["sex"])
-        self.set_name(s_name, save=False)
+        self.set_name(s_name, save=False, update_survival=False)
 
-        self.log_event("%s created new survivor %s." % (request.User.login, self.pretty_name()))
-
+        # log the creation HERE
+        self.log_event(action="create")
 
         # 3. parents and newborn status/operations, including inheritance
         self.survivor_birth(attribs)
 
         # 4. increment survivial if we're named
-        if self.survivor["name"] != "Anonymous" and self.survivor["survival"] == 0:
-            self.log_event("Automatically added 1 survival to %s" % self.pretty_name())
+        if self.survivor["name"].upper() != "ANONYMOUS" and self.survivor["survival"] == 0:
+            self.log_event("Automatically added 1 survival to %s" % self.pretty_name(), event_type='sysadmin')
             self.survivor["survival"] += 1
 
         # 5. settlement buffs - move this to a separate function
@@ -380,19 +379,18 @@ class Survivor(Models.UserAsset):
 
             if buff_list != []:
                 buff_string = utils.list_to_pretty_string(buff_sources)
-                self.log_event("Applying %s bonuses to %s" % (buff_string, self.pretty_name()))
+                self.log_event(action='apply', key=self.pretty_name(), value='%s bonuses' % buff_string)
                 apply_buff_list(buff_list)
         else:
             self.log_event("Settlement bonuses where not applied to %s due to user preference." % self.pretty_name())
 
         # Add our campaign's founder epithet if the survivor is a founder
         if self.is_founder():
-            self.logger.debug("%s is a founder. Adding founder epithet!" % self.pretty_name())
             founder_epithet = self.get_campaign(dict).get("founder_epithet", "founder")
             self.add_game_asset("epithets", founder_epithet)
 
         # log and save
-        self.logger.debug("%s created by %s (%s)" % (self, request.User, self.Settlement))
+        self.logger.info("%s created by %s (%s)" % (self, request.User, self.Settlement))
         self.save()
 
         return self._id
@@ -1292,7 +1290,7 @@ class Survivor(Models.UserAsset):
         }
 
         note_oid = utils.mdb.survivor_notes.insert(note_dict)
-        self.logger.debug("%s Added a note to %s" % (request.User, self))
+        self.log_event(action="add", key="notes", value="a note")
 
         return Response(response=json.dumps({'note_oid': note_oid}, default=json_util.default), status=200)
 
@@ -1434,7 +1432,7 @@ class Survivor(Models.UserAsset):
             self.save()
 
 
-    def update_survival(self, modifier=None):
+    def update_survival(self, modifier=None, save=True):
         """ Adds 'modifier' to survivor["survival"]. Respects settlement rules
         about whether to enforce the Survival Limit. Will not go below zero. """
 
@@ -1443,9 +1441,11 @@ class Survivor(Models.UserAsset):
             modifier = int(self.params["modifier"])
 
         self.survivor["survival"] += modifier
+        self.log_event(action="add", key="Survival", value=modifier)
+
         self.apply_survival_limit()
-        self.logger.debug("%s set %s survival to %s" % (request.User, self, self.survivor["survival"]))
-        self.save()
+        if save:
+            self.save()
 
 
 
@@ -2002,23 +2002,30 @@ class Survivor(Models.UserAsset):
         return utils.http_200
 
 
-    def set_name(self, new_name=None, save=True):
+    def set_name(self, new_name=None, update_survival=True, save=True):
         """ Sets the survivor's name. Logs it. """
 
+        #
+        #   Initialize, normalize and sanity check!
+        #
         if new_name is None:
             self.check_request_params(["name"])
             new_name = self.params["name"]
 
-        new_name = utils.html_stripper(new_name)
-        new_name = new_name.strip()
+        # normalize incoming names, which can contain HTML an prefix/suffix
+        #   white space, both of which are banned
+        new_name = utils.html_stripper(new_name).strip()
 
+        # handle blanks, i.e. set the survivor to 'Anonymous'
+        if new_name in ["", u""]:
+            new_name = "Anonymous"
+
+        # bail if we don't have a change.
         if new_name == self.survivor["name"]:
             self.logger.warn("%s Survivor name unchanged! Ignoring set_name() call..." % self)
             return True
 
-        if new_name in ["", u""]:
-            new_name = "Anonymous"
-
+        # now do it!
         old_name = self.survivor["name"]
         self.survivor["name"] = new_name
 
@@ -2026,8 +2033,8 @@ class Survivor(Models.UserAsset):
             self.log_event("%s renamed %s to %s" % (request.User.login, old_name, new_name))
             self.save()
 
-        if old_name == "Anonymous" and new_name != "Anonymous":
-            self.update_survival(1)
+        if update_survival and old_name.upper() == "ANONYMOUS" and new_name.upper() != old_name.upper():
+            self.update_survival(1, save=save)
 
 
     def set_parent(self, role=None, oid=None):

@@ -47,6 +47,7 @@ core = {
         ],
     },
     'bone_pickaxe': {
+        'affinities': {'top': 'green'},
         'type': 'bone_smith',
         'name': 'Bone Pickaxe',
         'keywords': ['item','tool','pickaxe','bone'],
@@ -59,6 +60,9 @@ core = {
                 'resource_handles': {'leather': 1},
             },
         ],
+        'speed': 1,
+        'accuracy': 8,
+        'strength': 2,
     },
     'bone_sickle': {
         'type': 'bone_smith',
@@ -533,6 +537,16 @@ core = {
         'name': 'Finger of God',
         'keywords': ['weapon','melee','spear','two-handed'],
         'rules': ['Reach 2'],
+        'speed': 2,
+        'accuracy': 5,
+        'strength': 6,
+        'affinities': {'top': 'red'},
+        'affinity_bonus': {
+            'desc': 'As long as you have 5+ survival, gain +1 accuracy and +1 strength.',
+            'requires': {
+                'complete': {'red': 1, 'blue': 1, 'green': 1},
+            },
+        },
     },
     'rainbow_katana': {
         'type': 'weapon_crafter',
@@ -912,10 +926,27 @@ white_box_promo = {
         'type': 'rare_gear',
         'name': 'Speaker Cult Knife',
     },
+
+    # fade
     'sword_of_silence': {
-        'expansion': 'white_box',
+        'expansion': 'fade',
         'type': 'rare_gear',
         'name': 'Sword of Silence',
+        'speed': 2,
+        'accuracy': 5,
+        'strength': 6,
+        'affinities': {'left': 'blue', 'top': 'red', 'right': 'green'},
+        'keywords': ['weapon','melee','sword','other'],
+        'rules': ['Sentient','Irreplaceable','Unique'],
+        'desc': 'Gains <b>Sharp</b> if you have 5+ understanding. While you settlement has this sword, ignore <font class="kdm_font">g</font> <b>White Secret</b> and <font class="kdm_font">g</font> <b>White Speaker</b>.',
+    },
+    'newborn': {
+        'expansion': 'fade',
+        'type': 'rare_gear',
+        'name': 'Newborn',
+        'keywords': ['item','heavy','fragile'],
+        'rules': ['Irreplaceable'],
+        'desc': 'While you have this, all your weapons gain <b>Slow</b>. When you return to the settlement, archive this and gain +1 population.',
     },
 
     # promo
@@ -1023,9 +1054,13 @@ white_box_promo = {
         'keywords': ['weapon', 'melee','axe','other'],
         'rules': ['Irreplaceable'],
         'desc': "This weapon's strength is equal to your current insanity.",
+        'affinities': {'top': 'red', 'left': 'red', 'right': 'green', 'bottom': 'green'},
         'recipes': [
-            {'innovations': ['sculpture','story_telling'], 'resource_types': {'bone': 2, 'leather': 2}, 'resource_handles': {'fresh_acanthus': 1},},
+            {'innovations': ['sculpture','story_telling'], 'resource_types': {'bone': 2,}, 'resource_handles': {'fresh_acanthus': 1, 'leather': 2},},
         ],
+        'speed': 2,
+        'accuracy': 5,
+        'strength': 0,
     },
 
     # ivory carver
@@ -1197,10 +1232,10 @@ manhunter = {
         'type': 'manhunter_gear',
         'name': 'Deathpact'
     },
- "hunter's_heart": {'expansion': 'manhunter',
+ "hunters_heart": {'expansion': 'manhunter',
                     'type': 'manhunter_gear',
                     'name': "Hunter's Heart"},
- "manhunter's_hat": {'expansion': 'manhunter',
+ "manhunters_hat": {'expansion': 'manhunter',
                      'type': 'manhunter_gear',
                      'name': "Manhunter's Hat"},
  'reverberating_lantern': {'expansion': 'manhunter',
@@ -1213,36 +1248,155 @@ manhunter = {
 }
 
 green_knight = {
-    'fetorsaurus': {'expansion': 'green_knight_armor',
-                 'type': 'green_knight_armor',
-                 'name': 'Fetorsaurus'
+    'fetorsaurus': {
+        'expansion': 'green_knight_armor',
+        'type': 'green_knight_armor',
+        'name': 'Fetorsaurus',
+        'keywords': ['weapon','set','melee','shield','metal'],
+        'rules': ['Block 2'],
+        'desc': 'Add <font class="inline_shield">2</font> to all hit locations.<br/>While you carry this, reduce &#9733; by 1.',
+        'recipes': [
+            {
+                'locations': ['blacksmith'],
+                'gear_handles': {'beacon_shield': 1, 'sleeping_virus_flower': 1, 'life_elixir': 1},
+                'resource_handles': {'underplate_fungus': 1,},
+            },
+        ],
+        'speed': 2,
+        'accuracy': 5,
+        'strength': 9,
+        'affinities': {
+            'left': 'blue',
+            'bottom': 'green',
+        },
     },
-    'green_boots': {'expansion': 'green_knight_armor',
-                 'type': 'green_knight_armor',
-                 'name': 'Green Boots'
+    'green_boots': {
+        'name': 'Green Boots',
+        'armor': 5,
+        'location': 'legs',
+        'expansion': 'green_knight_armor',
+        'type': 'green_knight_armor',
+        'keywords': ['armor','set','bone','heavy','metal'],
+        'desc': 'You may use the <b>Tumble</b> fighting art.',
+        'affinities': {
+            'top': 'green',
+            'left': 'green',
+        },
+        'affinity_bonus': {
+            'desc': 'You successfully tumble on 2+ instead of 6+.',
+            'requires': {'puzzle': {'green': 2}, },
+        },
+        'recipes': [
+            {
+                'innovations': ['forbidden_dance'],
+                'resource_types': {'bone': 3},
+                'resource_handles': {'iron': 1},
+                'gear_handles': {'flower_knight_badge': 1, 'calcified_greaves': 1},
+            },
+        ],
     },
-    'green_faulds': {'expansion': 'green_knight_armor',
-                  'type': 'green_knight_armor',
-                  'name': 'Green Faulds'},
- 'green_gloves': {'expansion': 'green_knight_armor',
-                  'type': 'green_knight_armor',
-                  'name': 'Green Gloves'},
- 'green_helm': {'expansion': 'green_knight_armor',
-                'type': 'green_knight_armor',
-                'name': 'Green Helm'},
-    'green_plate': {'expansion': 'green_knight_armor',
-                 'type': 'green_knight_armor',
-                 'name': 'Green Plate'
+    'green_faulds': {
+        'name': 'Green Faulds',
+        'armor': 5,
+        'location': 'waist',
+        'expansion': 'green_knight_armor',
+        'type': 'green_knight_armor',
+        'keywords': ['armor','set','metal','other'],
+        'desc': '+1 Evasion.',
+        'affinities': {'top': 'blue', 'right': 'green'},
+        'affinity_bonus': {
+            'desc': 'After drawing hit locations from an attack, you may discard 1 First Strike hit location card.',
+            'requires': {'puzzle': {'blue': 1, 'green': 1}, },
+        },
+        'recipes': [
+            {
+                'innovations': ['choreia'],
+                'resource_handles': {'lantern_bloom': 1, 'elytra': 1, 'gormite': 1, 'scell': 1},
+            },
+        ],
+    },
+    'green_gloves': {
+        'name': 'Green Gloves',
+        'armor': 5,
+        'location': 'arms',
+        'expansion': 'green_knight_armor',
+        'type': 'green_knight_armor',
+        'keywords': ['armor','set','metal'],
+        'desc': '+2 Strength.',
+        'affinities': {'right': 'red', 'bottom': 'red'},
+        'affinity_bonus': {
+            'desc': '+6 Luck when attempting to wound <b>Parry</b> hit locations.',
+            'requires': {
+                'puzzle': {'red': 2},
+            },
+        },
+        'recipes': [
+            {
+                'innovations': ['scrap_smelting','albedo'],
+                'gear_handles': {'hunters_heart': 1},
+                'resource_handles': {'iron': 1, 'jiggling_lard': 1},
+            },
+        ],
+    },
+    'green_helm': {
+        'name': 'Green Helm',
+        'armor': 5,
+        'location': 'head',
+        'expansion': 'green_knight_armor',
+        'type': 'green_knight_armor',
+        'keywords': ['armor','set','bone','metal'],
+        'affinities': {'left': 'red', 'bottom': 'green'},
+        'desc': '+1 Luck<br/>When a monster attacks you, you may elect to take a hit on the head and roll 1d10. On a 6+, ignore the hit. If adjacent, it suffers 1 wound.',
+        'recipes': [
+            {
+                'quarries': ['old_master'],
+                'resource_handles': {'scell': 1, 'beetle_horn': 1, },
+                'gear_handles': {'dbk_errant_badge': 1},
+            },
+        ],
+    },
+    'green_plate': {
+        'name': 'Green Plate',
+        'armor': 5,
+        'location': 'body',
+        'expansion': 'green_knight_armor',
+        'type': 'green_knight_armor',
+        'keywords': ['armor','set','metal','gormskin'],
+        'desc': 'At the start of the showdown, draw 3 tactics cards.',
+        'affinities': {'top': 'green', 'left': 'green', 'right': 'blue', 'bottom': 'blue'},
+        'affinity_bonus': {
+            'desc': 'When you attack, the extra weight grants leverage. Your weapon gains the <i>club</i> keyword.',
+            'requires': {
+                'puzzle': {'blue': 2, 'green': 2},
+            },
+        },
+        'recipes': [
+            {
+                'innovations': ['citrinitas'],
+                'gear_handles': {'lion_knights_left_claw': 1},
+                'resource_handles': {'iron': 2, 'leather': 3, 'scarab_shell': 1},
+            },
+        ],
     },
     'griswaldo': {
         'expansion': 'green_knight_armor',
         'type': 'green_knight_armor',
         'name': 'Griswaldo',
+        'keywords': ['weapon','set','melee','sword','finesse','bone','metal'],
+        'rules': ['Sharp','Deadly','Savage'],
+        'desc': 'When you wound, <b>Block 2</b> with Fetorsaurus for free.',
+        'speed': 3,
+        'accuracy': 4,
+        'strength': 15,
+        'affinities': {'top': 'red', 'right': 'green'},
+        'recipes': [
+            {
+                'innovations': ['rubedo'],
+                'gear_handles': {'calcified_juggernaut_blade': 1},
+                'resource_handles': {'gormite': 1, 'stomach_lining': 1, 'iron': 1},
+            },
+        ],
     },
-
-}
-
-unique_no_location = {
 }
 
 
@@ -1307,6 +1461,14 @@ slenderman = {
         'type': 'light_forging',
         'name': 'Gloom Cream',
         'keywords': ['item','consumable','balm','gloomy','stinky','other'],
+        'affinities': {'left': 'red','top':'blue', 'right':'red', 'bottom': 'blue'},
+        'affinity_bonus': {
+            'desc': 'When you <b>Depart</b>, gain -3 Hunt XP, -1 understanding. If you have no understanding, die instantly.',
+            'requires': {
+                'complete': {'blue': 2},
+                'puzzle': {'red': 2},
+            },
+        },
     },
     'gloom_hammer': {
         'expansion': 'slenderman',

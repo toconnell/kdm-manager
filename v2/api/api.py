@@ -36,10 +36,10 @@ from models import users, settlements, names
 application = Flask(__name__)
 
 # celery/task queue
-application.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
+#application.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
 #application.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
-celery = Celery(application.name, broker=application.config['CELERY_BROKER_URL'])
-celery.conf.update(application.config)
+#celery = Celery(application.name, broker=application.config['CELERY_BROKER_URL'])
+#celery.conf.update(application.config)
 
 # fudge some private settings in
 application.config.update(
@@ -252,7 +252,7 @@ def new_asset(asset_type):
 
 @application.route("/<collection>/<action>/<asset_id>", methods=["GET","POST","OPTIONS"])
 @utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization','Access-Control-Allow-Origin'])
-@celery.task
+#@celery.task
 def collection_action(collection, action, asset_id):
     """ This is our major method for retrieving and updating settlements.
 
@@ -297,8 +297,14 @@ def verify_password(username, password):
 def panel():
     return send_file("html/admin/panel.html")
 
+@application.route("/admin/notifications/<method>", methods=["POST"])
+@basicAuth.login_required
+def admin_notifications(method):
+    """ Creates a new admin type asset. """
+    return request_broker.admin_notifications(method)
 
-@application.route("/admin/get/<resource>", methods=["GET"])
+@application.route("/admin/get/<resource>", methods=["GET","OPTIONS"])
+@utils.crossdomain(origin=['*'])
 #@basicAuth.login_required
 def admin_view(resource):
     """ Retrieves admin panel resources as JSON. """

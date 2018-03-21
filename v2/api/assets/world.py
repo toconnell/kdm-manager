@@ -264,6 +264,10 @@ general = {
         'name': 'Subscribers by Level',
         'comment': 'A dictionary that includes subscriber counts by subscriber level.',
     },
+    'total_webapp_alerts': {
+        'name': 'Total Webapp Alerts',
+        'comment': 'The total number of unexpired "webapp alert" type notifications.'
+    },
 }
 
 

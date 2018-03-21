@@ -210,7 +210,7 @@ class Settlement(Models.UserAsset):
         # initialize methods
         self.campaign_dict = self.get_campaign(dict)
         self.initialize_sheet()
-        self.initialize_timeline()
+        self.initialize_timeline(save=False)
 
         # check params for additional expansions
         req_expansions = request.json.get("expansions", [])
@@ -567,7 +567,7 @@ class Settlement(Models.UserAsset):
         self.logger.info("%s initialized settlement sheet for '%s'" % (request.User, self))
 
 
-    def initialize_timeline(self):
+    def initialize_timeline(self, save=True):
         """ Meant to be called during settlement creation, this method
         completely overwrites the settlement's timeline with the timeline
         'template' from the settlement's campaign.
@@ -582,8 +582,9 @@ class Settlement(Models.UserAsset):
             self.logger.warn("%s initialized timeline for %s!" % (request.User, self))
         else:
             self.logger.warn("%s Timeline initialized from CLI!" % self)
-            self.save()
 
+        if save:
+            self.save()
 
 
     #
@@ -817,7 +818,7 @@ class Settlement(Models.UserAsset):
         #
         for e_handle in e_list:
             e_dict = self.Expansions.get_asset(e_handle)
-            self.log_event("Adding '%s' expansion content!" % e_dict["name"])
+            self.log_event(action="adding", key="expansions", value=e_dict['name'])
 
             self.settlement["expansions"].append(e_handle)
 
@@ -861,7 +862,7 @@ class Settlement(Models.UserAsset):
         #
         for e_handle in e_list:
             e_dict = self.Expansions.get_asset(e_handle)
-            self.log_event("Removing '%s' (%s) expansion content!" % (e_dict["name"], e_dict["handle"]))
+            self.log_event(action="removing", key="expansions", value=e_dict['name'])
 
             self.settlement["expansions"].remove(e_handle)
 
@@ -926,7 +927,7 @@ class Settlement(Models.UserAsset):
             self.settlement["location_levels"][loc_handle] = 1
 
         # log and (optional) save
-        self.log_event(action="add", key="locations", value=loc_dict['name'], event_type="add_location")
+        self.log_event(action="add", key="Locations", value=loc_dict['name'])
         if save:
             self.save()
 
@@ -959,7 +960,7 @@ class Settlement(Models.UserAsset):
         self.settlement["locations"].remove(loc_handle)
 
         # log and (optional) save
-        self.log_event(action="rm", key="locations", value=loc_dict['name'], event_type="rm_location")
+        self.log_event(action="rm", key="Locations", value=loc_dict['name'])
         if save:
             self.save()
 
@@ -3323,6 +3324,11 @@ class Settlement(Models.UserAsset):
 
     def bug_fixes(self):
         """ In which we burn CPU cycles to fix our mistakes. """
+
+        # 2018-03-20 - missing timeline bug
+        if self.settlement.get('timeline', None) is None:
+            self.logger.error("%s has no Timeline! Initializing Timeline..." % self)
+            self.initialize_timeline()
 
         # 2017-12-16 - principles in the innovations list
         for i in self.list_assets('innovations'):

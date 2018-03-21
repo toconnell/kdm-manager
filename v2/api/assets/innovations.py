@@ -212,7 +212,7 @@ innovation = {
     "forbidden_dance": {
         "name": "Forbidden Dance",
         "innovation_type": "music",
-        "consequences": ["petal_spiral", "choreia"],
+        "consequences": ["petal_spiral", "choreia","heart_flute"],
         "survivor_buff": "When a survivor uses the <b>Synchronized Strike</b> secret fighting art, reroll missed attack rolls once.",
         "endeavors": ['forbidden_dance_default'],
     },
