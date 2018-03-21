@@ -32,13 +32,19 @@
                         class="clickable expansion_toggle_container"
                         ng-repeat="x in new_settlement_assets.expansions"
                         ng-if="x.ui.pretty_category == category"
-                        ng-init="x.mandatory = settlement.game_assets.campaign.settlement_sheet_init.expansions.indexOf(x.handle) != -1"
                         ng-class="{
                             enabled: settlement.sheet.expansions.indexOf(x.handle) != -1,
                             mandatory_expansion: x.mandatory === true,
                         }"
+                        ng-init="x.mandatory = false"
                         ng-click="toggleExpansion(x.handle, settlement.sheet.expansions.indexOf(x.handle))"
                     >
+                        <span
+                            ng-if="settlement.game_assets.campaign.settlement_sheet_init.expansions != undefined"
+                            ng-init="
+                                x.mandatory = settlement.game_assets.campaign.settlement_sheet_init.expansions.indexOf(x.handle) != -1;
+                        "
+                        ></span>
                         <div
                             class="kd_sheet_ui_box"
                             ng-class="{

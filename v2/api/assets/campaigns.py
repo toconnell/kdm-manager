@@ -141,7 +141,7 @@ core_campaign = {
         "settlement_sheet_init": {
             "quarries": ["white_lion"],
             "nemesis_monsters": ["butcher"],
-            "nemesis_encounters": {'butcher': []}
+            "nemesis_encounters": {'butcher': []},
         },
     },
     "people_of_the_skull": {

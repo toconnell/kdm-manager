@@ -853,8 +853,10 @@ app.controller("updateExpansionsController", function($scope) {
     $scope.toggleExpansion = function(e_handle, index) {
         // figure out if its mandatory
         var mandatoryExpansion = false;
-        if ($scope.settlement.game_assets.campaign.settlement_sheet_init.expansions.indexOf(e_handle) != -1){
-            mandatoryExpansion = true;
+        if ($scope.settlement.game_assets.campaign.settlement_sheet_init.expansions != undefined) {
+            if ($scope.settlement.game_assets.campaign.settlement_sheet_init.expansions.indexOf(e_handle) != -1){
+                mandatoryExpansion = true;
+            };
         };
 
         // bail verbosely if it is mandatory
