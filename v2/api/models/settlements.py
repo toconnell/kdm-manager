@@ -3325,6 +3325,20 @@ class Settlement(Models.UserAsset):
     def bug_fixes(self):
         """ In which we burn CPU cycles to fix our mistakes. """
 
+        # 2018-03-23 - storage handles with apostrophes
+        for i in self.settlement['storage']:
+            item_index = self.settlement['storage'].index(i)
+            if i == "manhunter's_hat":
+                self.settlement['storage'].remove(i)
+                self.settlement['storage'].insert(item_index, 'manhunters_hat')
+                self.logger.warn("%s BUG FIX: changed %s to 'manhunters_hat'" % (self,i))
+                self.perform_save = True
+            elif i == "hunter's_heart":
+                self.settlement['storage'].remove(i)
+                self.settlement['storage'].insert(item_index, 'hunters_heart')
+                self.logger.warn("%s BUG FIX: changed %s to 'hunters_heart'" % (self,i))
+                self.perform_save = True
+
         # 2018-03-20 - missing timeline bug
         if self.settlement.get('timeline', None) is None:
             self.logger.error("%s has no Timeline! Initializing Timeline..." % self)
@@ -3767,7 +3781,13 @@ class Settlement(Models.UserAsset):
         """ private method that turns any storage handle into an object."""
         asset_dict = self.Gear.get_asset(handle, raise_exception_if_not_found=False)
         if asset_dict is None:
-            asset_dict = self.Resources.get_asset(handle)
+            asset_dict = self.Resources.get_asset(handle, raise_exception_if_not_found=False)
+
+            # die violently if we still can't find it
+            if asset_dict is None:
+                err = "Storage handle '%s' does not exist in Gear or Resources assets!" % handle
+                self.logger.error(err)
+                raise utils.InvalidUsage(err)
 
         if asset_dict['type'] == 'gear':
             return gear.Gear(handle)
