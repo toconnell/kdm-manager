@@ -858,7 +858,8 @@ class UserAsset(object):
         # 4.) value; default the value if we don't get one
         if value is None:
             value = "UNKNOWN"
-        value = value.encode('ascii','ignore')
+        if type(value) != int:
+            value = value.encode('ascii','ignore')
 
         # set 'created_by'
         created_by = None
