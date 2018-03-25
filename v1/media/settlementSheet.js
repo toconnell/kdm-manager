@@ -33,11 +33,17 @@ app.controller("settlementSheetController", function($scope) {
         $scope.postJSONtoAPI('settlement', 'set_name', js_obj);
     };
 
+
     // one-off routes
     $scope.setInspirationalStatue = function() {
         js_obj = {handle: $scope.settlement.sheet.inspirational_statue};
         $scope.postJSONtoAPI('settlement', 'set_inspirational_statue', js_obj, false)
     };
+
+    $scope.setLostSettlements = function() {
+        $scope.postJSONtoAPI('settlement', 'set_lost_settlements', {value: $scope.settlement.sheet.lost_settlements})
+    };
+
 });
 
 

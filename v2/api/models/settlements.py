@@ -283,7 +283,7 @@ class Settlement(Models.UserAsset):
             for event in script["timeline_events"]:
                 self.add_timeline_event(event)
 
-        self.log_event("Automatically applied '%s' parameters." % (script["name"]), event_type='sysadmin')
+        self.log_event(action="apply", key="settlement", value=script["name"], event_type='sysadmin')
 
 
     def normalize(self):
@@ -509,7 +509,7 @@ class Settlement(Models.UserAsset):
             return False
 
         del self.settlement['removed']
-        self.log_event("Settlement un-removed!", event_type="sysadmin")
+        self.log_event(action="unset", value="removed", event_type="sysadmin")
         if unremove_survivors:
             self.logger.debug("Unremoving survivors...")
             for s in utils.mdb.survivors.find({'settlement': self.settlement['_id']}):
@@ -927,7 +927,7 @@ class Settlement(Models.UserAsset):
             self.settlement["location_levels"][loc_handle] = 1
 
         # log and (optional) save
-        self.log_event(action="add", key="Locations", value=loc_dict['name'])
+        self.log_event(action="add", key="Locations", value=loc_dict['name'], event_type="add_location")
         if save:
             self.save()
 
@@ -960,7 +960,7 @@ class Settlement(Models.UserAsset):
         self.settlement["locations"].remove(loc_handle)
 
         # log and (optional) save
-        self.log_event(action="rm", key="Locations", value=loc_dict['name'])
+        self.log_event(action="rm", key="Locations", value=loc_dict['name'], event_type="rm_location")
         if save:
             self.save()
 
@@ -1110,7 +1110,7 @@ class Settlement(Models.UserAsset):
             raise utils.InvalidUsage("The email address '%s' does not belong to a registered user!" % user_login, status_code=400)
 
         self.settlement['admins'].append(user_login)
-        self.log_event("%s made %s a settlement admin!" % (request.User.login, user_login))
+        self.log_event(action="add", key="administrators", value=user_login)
         self.save()
 
 
@@ -1131,7 +1131,7 @@ class Settlement(Models.UserAsset):
             raise utils.InvalidUsage("The email address '%s' does not belong to a registered user!" % user_login, status_code=400)
 
         self.settlement['admins'].remove(user_login)
-        self.log_event("%s removed %s from the settlement admins list!" % (request.User.login, user_login))
+        self.log_event(action="rm", key="administrators", value=user_login)
         self.save()
 
 
@@ -1219,7 +1219,7 @@ class Settlement(Models.UserAsset):
         # re-insert and save if successful
         self.settlement['timeline'].insert(t_index, target_ly)
 
-        self.log_event("Automatically added '%s' to Lantern Year %s" % (e["name"], t_index), event_type="sysadmin")
+        self.log_event(action='add', key="timeline (LY %s)" % t_index, value=e["name"], event_type="sysadmin")
 
         # finish with a courtesy save
         if save:
@@ -1294,7 +1294,7 @@ class Settlement(Models.UserAsset):
         for e_dict in target_ly[e['sub_type']]:
             if e_dict.get(rm_attrib, None) == e[rm_attrib]:
                 target_ly[e['sub_type']].remove(e_dict)
-                self.log_event("Automatically removed '%s' from Lantern Year %s of the settlement timeline!" % (e['name'], t_index), event_type="sysadmin")
+                self.log_event(action='rm', key="timeline (LY %s)" % t_index, value=e["name"], event_type="sysadmin")
                 success = True
 
         # insert our updated year back into the TL and save
@@ -1395,7 +1395,7 @@ class Settlement(Models.UserAsset):
         datetime.now(). Logs it. Expects a request context. """
 
         self.settlement['abandoned'] = datetime.now()
-        self.log_event('%s abandoned the settlement!' % (request.User.login))
+        self.log_event(action='abandon', event_type='abandon_settlement')
         self.save()
 
 
@@ -1410,7 +1410,7 @@ class Settlement(Models.UserAsset):
 
         self.settlement['lantern_year'] = ly
 
-        self.log_event("%s set current Lantern Year to %s" % (request.User.login, ly))
+        self.log_event(action='set', key="current Lantern Year", value=ly)
         self.save()
 
 
@@ -1427,7 +1427,7 @@ class Settlement(Models.UserAsset):
             raise utils.InvalidUsage("Fighting Art handle '%s' is not a known asset handle!" % (fa_handle))
 
         self.settlement['inspirational_statue'] = fa_handle
-        self.log_event("%s set the settlement's Inspirational Statue to '%s'" % (request.User.login, fa_dict['name']))
+        self.log_event(action="set", key="Inspirational Statue", value=fa_dict['name'])
         self.save()
 
 
@@ -1440,9 +1440,8 @@ class Settlement(Models.UserAsset):
 
         # create the attrib if it doesn't exist
         self.settlement['lantern_research_level'] = level
-        self.log_event("%s set the settlement Lantern Research Level to %s" % (request.User.login, level))
+        self.log_event(action="set", key="Lantern Research level", value=level)
         self.save()
-
 
 
 
@@ -1477,9 +1476,9 @@ class Settlement(Models.UserAsset):
         if new_value <= 0:
             self.settlement["lost_settlements"] = 0
         else:
-            self.settlement["lost_settlements"] = new_value
+            self.settlement["lost_settlements"] = int(new_value)
 
-        self.log_event("%s set Lost Settlements count to %s" % (request.User.login, new_value))
+        self.log_event(action="set", key="Lost Settlements count", value=new_value)
         self.save()
 
 
@@ -1504,7 +1503,7 @@ class Settlement(Models.UserAsset):
         else:
             msg = "%s changed settlement name from '%s' to '%s'" % (request.User.login, old_name, new_name)
 
-        self.log_event(msg)
+        self.log_event(action="set", key="name", value=new_name)
         self.save()
 
 
@@ -1562,7 +1561,7 @@ class Settlement(Models.UserAsset):
                     remove_principle(option)
                     removed += 1
             if removed >= 1:
-                self.log_event("%s unset settlement %s principle." % (request.User.login, p_dict['name']))
+                self.log_event(action="unset", key="'%s' principle" % p_dict['name'], event_type="set_principle")
                 self.save()
             else:
                 self.logger.debug("%s Ignoring bogus 'unset princple' request." % (self))
@@ -1580,7 +1579,7 @@ class Settlement(Models.UserAsset):
 
         # finally, add the little fucker
         self.settlement["principles"].append(e_dict["handle"])
-        self.log_event("%s set settlement %s principle to %s" % (request.User.login, p_dict["name"], e_dict["name"]), event_type="set_principle")
+        self.log_event(action="set", key="'%s' principle" % p_dict['name'], value=e_dict['name'])
 
         # if we're still here, go ahead and save since we probably updated
         self.save()

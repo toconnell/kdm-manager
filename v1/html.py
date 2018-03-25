@@ -697,37 +697,58 @@ class dashboard:
         </div> <!-- dashboard_menu 'About' -->
 
         <div
-            id="dashboardTwitter"
-            class="dashboard_twitter_container modal hidden"
+            id="dashboardAlerts"
+            class="modal-black hidden dashboard_alerts"
+            ng-click="showHide('dashboardAlerts')"
         >
-            <h3>Updates!</h3>
-            <div class="dashboard_updates_container">
-                <div class="updates">
-                    <p><b>http://kdm-manager.com</b> release <b>{{user.meta.webapp.release}}</b> is currently running on version <b>{{user.meta.api.version}}</b> of <a href="http://api.thewatcher.io" target="top">the Kingdom Death API</a>, which was released on {{latest_blog_post.published}}.</p>
-                    <p>The KDM API currently supports version <b>1.5</b> of Kingdom Death: <i>Monster</i>.</p>
-                    <a target="top" href="{{latest_blog_post.url}}"><button class="kd_blue full_width_modal_button">View latest change log</button></a>
-                </div>
-                <div class="twitter_embed_container">
-                    <a
-                        class="twitter-timeline"
-                        href="https://twitter.com/kdmManager"
-                        data-tweet-limit="3"
-                    > Retrieving tweets...
-                    </a>
-                    <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
-                </div>
-            </div> <!-- dashboard_updates_container -->
-            <button class="kd_alert_no_exclaim" onclick="showHide('dashboardTwitter')">Return to the Dashboard!</button>
+            <div class="kd_sheet_ui_row_tip clickable">
+                Click or tap anywhere to return to the Dashboard!
+            </div>
+            <div
+                class="dashboard_webapp_alert_repeater {{alert.sub_type}}"
+                ng-repeat="alert in webappAlerts"
+            >
+                <b
+                    ng-class="{maroon_text: alert.sub_type=='kpi'}"
+                >
+                    {{alert.title}}
+                </b>
+                <span class="alert_date">({{alert.created_on.$date|date:'yyyy-MM-dd @ h:mma'}})</span>
+                <br/>
+                <span ng-bind-html="alert.body|trustedHTML"></span>
+            </div>
 
-        </div> <!-- dashboard_twitter -->
+            <h3>Release Info</h3>
+            <p>Release <b>{{user.meta.webapp.release}}</b> of <b>https://kdm-manager.com</b> is powered by version <b>{{user.meta.api.version}}</b> of <a href="http://api.thewatcher.io" target="top">the Kingdom Death API</a>.</p>
+            <p>This release was deployed on {{latest_blog_post.published|date:'yyyy-MM-dd'}}.</p>
+            <p>Click <a target="top" href="{{latest_blog_post.url}}">here to view complete release notes</a> on the Manager's development blog.</p>
+
+
+        <hr/>
+        <a href="https://twitter.com/KdmManager" target="top">
+            <div
+                class="social_link_container"
+            >
+                <img src="/media/icons/Twitter_Social_Icon_Circle_Color.png" class="social_icon" />
+                For more updates and news, follow the Manager on Twitter!
+            </div>
+        </a>
+
+
+        </div> <!-- dashboard_Alerts -->
 
         <button
-            id="dashboardTwitterButton"
-            class="dashboard_twitter_button kd_promo"
-            ng-click="showHide('dashboardTwitter')"
+            id="dashboardAlertsOpener"
+            class="dashboard_alerts_opener"
+            ng-click="showHide('dashboardAlerts')"
+            ng-class="{
+                kd_blue: activeKPI === undefined,
+                kd_pink: activeKPI === true,
+            }"
         > !
         </button>
-        </div> <!-- dashboardControlElement -->
+
+    </div> <!-- dashboardControlElement -->
 
     <script type="text/javascript">
         // kill the spinner, since we're done loading the page now.
@@ -2823,7 +2844,7 @@ class survivor:
                         class="lineage_event_repeater {{event.event_type}}"
                         ng-repeat="event in lineage.events"
                         ng-class-even="'zebra'"
-                        title="Date({{event.created_on.$date}});"
+                        title="Date({{event.created_on.$date|date:'yyyy-MM-dd @ h:mma'}});"
                     >
                         {{event.ly}} - {{event.event}}
                     </div><!-- event repeater -->
@@ -6362,7 +6383,7 @@ class settlement:
                     </button>
                     <button
                         class="kd_blue"
-                        ng-click="setAttrib('lost_settlements',undefined,false)"
+                        ng-click="setLostSettlements()"
                         onClick="rollUp('lostSettlementsControl')"
                     >
                         Save Changes

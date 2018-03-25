@@ -854,6 +854,8 @@ class UserAsset(object):
         if key is None:
             key = " ".join(method.split("_")[1:])
         key = key.encode('ascii','ignore')
+        if key == "settlement":
+            key = ""
 
         # 4.) value; default the value if we don't get one
         if value is None:
@@ -916,15 +918,19 @@ class UserAsset(object):
 
         # create the 'action'
         d['action'] = {'word': action_word, 'preposition': str(action_preposition)}
+
+        # now write the repr, which is like...the simplified sentence of the event
         if key is None and value is None:
             d['action']['repr'] = " ".join(['modified', action_target])
         elif key is not None and value is None:
             d['action']['repr'] = " ".join(['modified', action_target, key])
-        elif key is None and value is None:
-            d['action']['repr'] = " ".join(['modified', action_target])
         else:
-            if action_target == "survivor" and action_preposition is None:
+            if action_preposition is None:
                 d['action']['repr'] = action_word
+            elif action_word in ['set']:
+                d['action']['repr'] = " ".join([action_word, action_target, key, action_preposition, str(value)])
+            elif action_word in ['unset']:
+                d['action']['repr'] = " ".join([action_word, action_target, key])
             elif action_target == "survivor" and action_preposition is not None:
                 d['action']['repr'] = " ".join([action_word, "'%s'" % value, action_preposition, str(key)])
             else:
@@ -932,6 +938,8 @@ class UserAsset(object):
 
         # default a message, if incoming message is none
         if msg is None:
+
+            # create messages for survivor updates
             if d['modified']['asset']['type'] == 'survivor':
                 if d['agent'] == 'user' and action_preposition is None:
                     d['event'] = " ".join([
@@ -956,14 +964,27 @@ class UserAsset(object):
                         d['action']['preposition'],
                         d['modified']['attribute']['key_pretty'],
                     ])
+            # create messages for settlements
+            elif d['modified']['asset']['type'] == 'settlement':
+                if d['agent'] == 'user' and action_preposition is None:
+                    d['event'] = " ".join([
+                        d['created_by_email'],
+                        d['action']['word'],
+                        self.settlement['name'],
+                    ])
+                else:
+                    d['event'] = " ".join([str(d['created_by_email']), str(d['action']['repr']), ])
             else:
-                d['event'] = " ".join([d['created_by_email'], d['action']['repr'], ])
+                d['event'] = 'Updated %s' % self
+#            elif agent == "automation":
+#                d['event'] = d['action']['repr']
 
         # enforce terminal punctuation on the event "sentence"
         if d['event'][-1] not in ['.','!']:
+            d['event'] = d['event'].strip()
             d['event'] += "."
 
-        d['event'] = d['event'].decode('ascii','replace').encode('utf-8','replace')
+#        d['event'] = d['event'].decode('ascii','replace').encode('utf-8','replace')
 
         # finally, if we had a requester, now that we've settled on a message
         # text, update the requester's latest action with it

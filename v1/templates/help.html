@@ -49,7 +49,7 @@
                     class="help_modal_tip_repeater"
                 >
                     <div class="kd_sheet_ui_box checked"></div>
-                    <b>What is the difference between 'New' and 'Newborn' survivors?</b>
+                    <b>What is the difference between "New" and "Newborn" survivors?</b>
                     The Manager distinguishes between "new" and "newborn" survivors: survivors created without parents are considered "new", while survivors created <i>with</i> parents are considered "newborn."<br/> &nbsp; Bonuses and effects that apply to "newborn" survivors will be automatically applied to them at "birth" (i.e. creation), but those bonuses will <i>not</i> be applied at creation time to survivors who are merely "new".
                 </div>
                 <div
@@ -81,8 +81,7 @@
 
             <p 
                 class="kd_sheet_ui_row_tip" 
-                ng-if="user.user.preferences.show_ui_tips"
-                ng-if="settlement.sheet.expansions.length >= 1"
+                ng-if="user.user.preferences.show_ui_tips && settlement.sheet.expansions.length >= 1"
             >
                 The help topics below are updated automatically to reflect the campaign,
                 expansions and other options enabled for <b>{{settlement.sheet.name}}</b>.
