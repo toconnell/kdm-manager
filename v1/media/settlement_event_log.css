@@ -12,3 +12,4 @@
 .set_retired {background: #C5C6CB; }
 .set_principle {background-color: #A67526; color: #fff;}
 .set_principle:before {content: "g"; margin-left: 0.5%; font-family: "kdm-font-10"}
+.abandon_settlement {background-color: #fff; color: #EE0000; font-weight: bold; }

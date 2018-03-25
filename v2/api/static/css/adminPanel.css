@@ -1,10 +1,14 @@
-html {font-family: Arial, sans-serif;}
 body {background-color: #ddd;}
 a {color: #B57E2F}
 a:hover {color: #D57E2F;}
 a:active {color: #D57E2F;}
 a:visited {color: #B57E2F}
 code {background-color: #eee; font-size: 1.1em; }
+
+/* CSS reset */
+h1 {font-size: 80px; }
+html {font-family: Arial, sans-serif; font-size: 30px; }
+
 
 /* generic table style */
 table {border-collapse: collapse; width: 90%; margin: 1.5% auto;}
@@ -21,11 +25,16 @@ td.int_key {width: 10%; word-break: inherit;}
 .hidden {display: none; }
 .visible {display: inherit; }
 
-#spinner {position: fixed; bottom: 3%; right: 3%; z-index: 100;}
+
+
+/* basic containers - mobile */
 
 .container { display: flex; position: absolute; top: 1%; left: 1%; right: 1%; background-color: #eee; padding: 0.5%; flex-wrap: wrap; }
-.flex_item_basic {background-color: #fff; padding: 1%; margin: 1%; flex-grow: 1; width: 30%; }
+.flex_item_basic {background-color: #fff; padding: 1%; margin: 1%; width: 100%; }
 .flex_item_basic h1, .flex_item_basic h2 {margin: 0; }
+
+#spinner {position: fixed; bottom: 3%; right: 3%; z-index: 100;}
+
 
 .users_container {display: flex; flex-direction: column; }
 
@@ -92,3 +101,15 @@ button.toggle_settlement_event_log {float: right; }
 .alert_footer {font-size: 75%; text-align:right; margin-top: 1%; }
 .alert_controls {display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-end; }
 .alert_controls button {}
+
+
+/* wide resoltuion*/
+@media only screen and (min-width: 1050px) and (orientation: landscape) {
+
+    /* CSS reset */
+    h1 {font-size: 32px; }
+    html {font-size: 12pt; }
+
+    .flex_item_basic {flex-grow: 1; width: 30%; }
+
+}

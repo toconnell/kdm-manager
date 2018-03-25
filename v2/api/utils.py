@@ -240,20 +240,26 @@ def action_keyword(kw):
         output = ("added", "to")
     elif kw in ["rm",'removed','remove','removes','removing']:                  # remove
         output = ("removed", "from")
-    elif kw in ["set", "update"]:       # set
+    elif kw in ["set", "update"]:
         output = ("set", "to")
+    elif kw in ["unset",]:
+        output = ("unset", "from")
     elif kw in ["inherited", "inherit"]:
         output = ("inherited", "from")
     elif kw in ["birth", "born"]:
         output = ("born", "to")
     elif kw in ['apply','applied','applies']:
         output = ('applied','to')
-    elif kw in ["create","created",'creating']:
-        output = ("created", None)
     elif kw in ["enforce"]:             # automate
         output = ("automatically set", "to")
     elif kw in ["toggle"]:
         output = ("toggled", "to")
+
+    # 'magic' translations; these return a preposition of None
+    elif kw in ["create","created",'creating']:
+        output = ("created", None)
+    elif kw in ["abandon",'abandoned']:
+        output = ("abandoned", None)
     else:
         output = (kw, "to")
 

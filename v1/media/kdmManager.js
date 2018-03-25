@@ -368,6 +368,10 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
                 function(result){
                     $scope.webappAlerts = result.data;
                     console.timeEnd('/admin/get/webapp_alerts');
+                    var arrayLength = $scope.webappAlerts.length;
+                    for (var i = 0; i < arrayLength; i++) {
+                        if ($scope.webappAlerts[i].sub_type=='kpi') {$scope.activeKPI = true};
+                    };
                 },
                 function(result){console.error('Could not retrieve webapp alerts!');}
             );

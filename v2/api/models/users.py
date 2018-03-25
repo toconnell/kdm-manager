@@ -737,7 +737,8 @@ class User(Models.UserAsset):
 #            self.logger.debug("%s Subscriber level is %s. Checking settlement asset ages..." % (self, sub_level))
             for s in settlements:
                 asset_age = datetime.now() - s['created_on']
-                if asset_age.days > settings.get('application','free_user_settlement_age_max'):
+                older_than_cutoff = asset_age.days > settings.get('application','free_user_settlement_age_max')
+                if older_than_cutoff and self.user['_id'] == s['created_by']:
                     self.logger.warn("%s settlement '%s' is more than %s days old!" % (self, s['name'], settings.get('application','free_user_settlement_age_max')))
                     msg = utils.html_file_to_template('html/auto_remove_settlement.html')
 
