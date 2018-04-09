@@ -1040,6 +1040,10 @@ class Settlement(Models.UserAsset):
         if i_dict.get("levels", None) is not None:
             self.settlement["innovation_levels"][i_handle] = 1
 
+        # check for 'current_survivor' attrib
+        if i_dict.get('current_survivor', None) is not None:
+            self.update_all_survivors('increment', i_dict['current_survivor'], exclude_dead=True)
+
         # log and (optional) save
         self.log_event(action="add", key="innovations", value=i_dict['name'], event_type="add_innovation")
         if save:
@@ -1085,6 +1089,10 @@ class Settlement(Models.UserAsset):
 
         # remove
         self.settlement["innovations"].remove(i_handle)
+
+        # check for 'current_survivor' attrib
+        if i_dict.get('current_survivor', None) is not None:
+            self.update_all_survivors('decrement', i_dict['current_survivor'], exclude_dead=True)
 
         # log and (optional) save
         self.log_event(action="rm", key="innovations", value=i_dict['name'], event_type="rm_innovation")
@@ -1631,6 +1639,7 @@ class Settlement(Models.UserAsset):
         {
             'Strength': 1,
             'Courage': 1,
+            'abilities_and_impairments': ['sword_specialization', 'ageless'],
         }
 
         The 'increment' or 'decrement' values call the corresponding methods
@@ -2366,6 +2375,35 @@ class Settlement(Models.UserAsset):
         creator/founder. """
 
         return utils.mdb.users.find_one({"_id": self.settlement["created_by"]})
+
+
+    def get_gear_lookup(self, organize_by="sub_type"):
+        """ This is a sort of...meta-method that renders the settlement's Gear
+        options as JSON. """
+
+        # initialize 
+        all_gear = copy(self.Gear.assets)
+
+        # set compatible gear list
+        compatible_gear = []
+        for k in all_gear.keys():
+            if self.is_compatible(all_gear[k]):
+                compatible_gear.append(all_gear[k])
+
+        output = {}
+        for handle in all_gear.keys():
+            gear_dict = all_gear[handle]
+            if self.is_compatible(gear_dict):
+                org_key = gear_dict[organize_by]
+                if org_key not in output.keys():
+                    output[org_key] = []
+                output[org_key].append(gear_dict)
+
+#        final = collections.OrderedDict()
+#        for k in sorted(output.keys()):
+#            final[k] = output[k]
+
+        return json.dumps(compatible_gear, default=json_util.default)
 
 
     def get_innovations(self, return_type=None, include_principles=False):
@@ -3828,6 +3866,8 @@ class Settlement(Models.UserAsset):
             return Response(response=self.get_settlement_storage(), status=200, mimetype="application/json")
         elif action == "get_event_log":
             return Response(response=self.get_event_log("JSON"), status=200, mimetype="application/json")
+        elif action == "gear_lookup":
+            return Response(response=self.get_gear_lookup(), status=200, mimetype="application/json")
         elif action == "get_innovation_deck":
             return Response(response=self.get_innovation_deck(), status=200, mimetype="application/json")
         elif action == "get_timeline":
@@ -3953,6 +3993,8 @@ class Settlement(Models.UserAsset):
 
         elif action == "return_survivors":
             self.return_survivors()
+
+
 
         #
         #   finally, the catch-all/exception-catcher

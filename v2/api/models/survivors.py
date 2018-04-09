@@ -170,7 +170,7 @@ class Survivor(Models.UserAsset):
             if self.survivor.get('Weapon Proficiency', 0) >= 3:
                 if w_dict['specialist_ai'] not in self.survivor['abilities_and_impairments']:
                     self.add_game_asset("abilities_and_impairments", w_dict['specialist_ai'])
-            elif self.survivor.get('Weapon Proficiency', 0) >= 8:
+            if self.survivor.get('Weapon Proficiency', 0) >= 8:
                 if w_dict['master_ai'] not in self.survivor['abilities_and_impairments']:
                     self.add_game_asset("abilities_and_impairments", w_dict['master_ai'])
 
@@ -895,7 +895,7 @@ class Survivor(Models.UserAsset):
         # special handling for certain game asset types
         if asset_dict.get('type', None) == 'weapon_specialization':
             self.log_event("%s is a %s specialist!" % (self.pretty_name(), w_dict["name"]))
-        elif asset_dict.get("type", None) == "weapon_mastery":
+        elif asset_dict.get("sub_type", None) == "weapon_mastery":
             self.log_event("%s has become a %s master!" % (self.pretty_name(), asset_dict["weapon_name"]), event_type="survivor_mastery")
             if asset_dict.get("add_to_innovations", True):
                 self.Settlement.add_innovation(asset_dict["handle"])

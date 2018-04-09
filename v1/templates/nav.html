@@ -130,9 +130,19 @@
     </button>
 
     <button
+        id="gearLookupOpenerButton"
+        class="sidenav_button sidenav_modal_launcher hidden"
+        ng-click="showHide('gearLookupModal')"
+        onclick="closeNav()"
+    >
+        &beta; Gear Lookup Tool
+    </button>
+
+    <button
         id="huntPhaseOpenerButton"
         class="sidenav_button sidenav_modal_launcher hidden"
         ng-click="showHide('huntPhaseModal')"
+        onclick="closeNav()"
     >
         &beta; Hunt Phase
     </button>

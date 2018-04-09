@@ -1,0 +1,359 @@
+<div
+    id="departingSurvivorsModalContent"
+    class="hidden modal-black departing_survivors_modal_container"
+    ng-controller="manageDepartingSurvivorsController"
+    ng-if="view == 'campaignSummary'"
+>
+    <h3 class="ng_fade" ng-if="settlement.sheet.showdown_type == undefined">Manage Departing Survivors</h3>
+    <p
+        class="ng_fade kd_sheet_ui_row_tip"
+        ng-if="user.user.preferences.show_ui_tips && settlement.sheet.showdown_type == undefined"
+    >
+        To manage departing survivors, first set the showdown type, then set
+        the monster for the showdown!
+    </p>
+
+
+    <!-- 
+
+        0.) set the showdown_type attrib on the settlement 
+
+    -->
+
+    <div
+        class="showdown_type showdown_controls_box_outline"
+    >
+
+        <span ng-if="settlement.sheet != undefined" ng-init="initShowdownControls()"></span>
+
+        <h3
+            class="clickable"
+            ng-click="toggleControlState('showdown_type_control_state');"
+        >
+            Set Showdown Type
+            <span class="showdown_arrow" ng-if="scratch.showdown_type_control_state == 'hidden'">
+                &#x25BC;
+            </span>
+            <span class="showdown_arrow" ng-if="scratch.showdown_type_control_state == 'visible'">
+                &#x25B2;
+            </span>
+        </h3>
+
+        <div
+            id="showdownOptions"
+            class="showdown_controls_button_box showdown_type_options ng_fade"
+            ng-class="scratch.showdown_type_control_state"
+        >
+            <p
+                class="kd_sheet_ui_row_tip"
+                ng-if="user.user.preferences.show_ui_tips"
+            >
+                Use the buttons below to select the type of showdown.
+            </p>
+
+            <div
+                ng-repeat="option in scratch.showdown_type_options"
+                class="showdown_controls_button_box_option_repeater clickable"
+                ng-click="setShowdownType(option.value);"
+            >
+                <div
+                   class="kd_sheet_ui_box"
+                   ng-class="{checked: settlement.sheet.showdown_type == option.value}"
+                ></div>
+                {{option.name}}
+            </div> <!-- showdown type option repeater -->
+
+            <div
+                class="showdown_controls_button_box_option_repeater clickable"
+                ng-click="settlement.sheet.showdown_type = undefined"
+            >
+                <div
+                   class="kd_sheet_ui_box"
+                   ng-class="{checked: settlement.sheet.showdown_type == undefined}"
+                ></div>
+                <i>Unset</i>
+            </div> <!-- unset showdown type -->
+
+        </div>
+    </div> <!-- showdown type box -->
+
+
+    <!--
+
+        1.) set the current_quarry for the settlement 
+
+    -->
+
+    <div
+        class="ng_fade showdown_current_quarry showdown_controls_box_outline"
+        ng-if="settlement.sheet.showdown_type != undefined"
+    >
+        <h3
+            class="clickable"
+            ng-click="toggleControlState('showdown_current_quarry_control_state');"
+        >
+            Set Monster
+            <span class="showdown_arrow" ng-if="scratch.showdown_current_quarry_control_state == 'hidden'">
+                &#x25BC;
+            </span>
+            <span class="showdown_arrow" ng-if="scratch.showdown_current_quarry_control_state == 'visible'">
+                &#x25B2;
+            </span>
+        </h3>
+
+        <div
+            class="showdown_controls_box_interior"
+            ng-class="scratch.showdown_current_quarry_control_state"
+        >
+            <p class="kd_sheet_ui_row_tip">
+                Use the controls below to select the monster for the upcoming
+                Showdown.
+            </p>
+
+            <select
+                id="set_departing_survivors_current_quarry"
+                class="showdown_controls_current_quarry_select"
+                ng-model="settlement.sheet.current_quarry"
+                ng-change="
+                    saveCurrentQuarry();
+                    showHide('addCurrentQuarryToTimeline', 'show');
+                "
+                ng-options="d for d in settlement.game_assets.defeated_monsters"
+            >
+                <option disabled selected value="">Choose Monster</option>
+            </select>
+
+            <button
+                id="addCurrentQuarryToTimeline"
+                class="hidden"
+                ng-class="{
+                    kd_red: settlement.sheet.showdown_type == 'special',
+                    kd_blue: settlement.sheet.showdown_type == 'normal',
+                    kd_pink: settlement.sheet.showdown_type == 'nemesis'
+                }"
+                ng-click="
+                    addCurrentQuarryToTimeline();
+                "
+            >
+                Add {{settlement.sheet.current_quarry}} to Lantern Year {{settlement.sheet.lantern_year}} Timeline
+            </button>
+
+        </div><!-- current_quarry controls -->
+    </div> <!-- current quarry stuff -->
+
+
+    <!--
+
+        2.) operate on departing survivors
+
+    -->
+ 
+
+    <div
+        class="ng_fade departing_survivors_controls_container showdown_controls_box_outline"
+        ng-if="settlement.sheet.current_quarry != undefined && settlement.sheet.showdown_type != undefined"
+    >
+
+        <h3
+            class="ng_fade clickable"
+            ng-click="toggleControlState('showdown_manage_departing_survivors_control_state');"
+        >
+            Manage Departing Survivors
+            <span class="showdown_arrow" ng-if="scratch.showdown_manage_departing_survivors_control_state == 'hidden'">
+                &#x25BC;
+            </span>
+            <span class="showdown_arrow" ng-if="scratch.showdown_manage_departing_survivors_control_state == 'visible'">
+                &#x25B2;
+            </span>
+        </h3>
+
+        <p 
+            class="kd_sheet_ui_row_tip"
+            ng-if="user.user.preferences.show_ui_tips"
+            ng-class="scratch.showdown_manage_departing_survivors_control_state"
+        >
+            Use the controls below to modify all <i>living</i> survivors in
+            the <b>Departing Survivors</b> group.
+        </p>
+
+        <div
+            class="ng_fade"
+            ng-if="hideControls==true"
+        >
+            <img src="/media/loading_lantern.gif" />
+            Applying update to departing survivors...
+        </div>
+
+        <div
+            class="ng_fade_in showdown_manage_departing_survivors_controls"
+            ng-class="scratch.showdown_manage_departing_survivors_control_state"
+            ng-if="hideControls==false"
+        >
+
+
+            <div class="departing_survivors_control" ng-if="settlement.sheet.showdown_type != undefined">
+                <div class="label_div">Survival</div>
+                <div class="button_div">
+                    <button
+                        ng-click="updateDepartingSurvivors('survival', +1)"
+                    > +1
+                    </button>
+                    <button
+                        ng-click="updateDepartingSurvivors('survival', -1)"
+                    > -1
+                    </button>
+                </div> <!-- button div -->
+            </div> <!-- departing_survivors_control Survival -->
+
+            <div class="departing_survivors_control">
+                <div class="label_div">Insanity</div>
+                <div class="button_div">
+                    <button
+                        ng-click="updateDepartingSurvivors('Insanity', +1)"
+                    > +1
+                    </button>
+                    <button
+                        ng-click="updateDepartingSurvivors('Insanity', -1)"
+                    > -1
+                    </button>
+                </div> <!-- button div -->
+            </div> <!-- departing_survivors_control Insanity -->
+
+        <div class="departing_survivors_control">
+            <div class="label_div">Courage</div>
+            <div class="button_div" ng-if="hideControls==false">
+                <button
+                    ng-click="updateDepartingSurvivors('Courage', +1)"
+                > +1
+                </button>
+                <button
+                    ng-click="updateDepartingSurvivors('Courage', -1)"
+                > -1
+                </button>
+            </div> <!-- button div -->
+        </div> <!-- departing_survivors_control Insanity -->
+
+        <div class="departing_survivors_control">
+            <div class="label_div">Understanding</div>
+            <div class="button_div" ng-if="hideControls==false">
+                <button
+                    ng-click="updateDepartingSurvivors('Understanding', +1)"
+                > +1
+                </button>
+                <button
+                    ng-click="updateDepartingSurvivors('Understanding', -1)"
+                > -1
+                </button>
+            </div> <!-- button div -->
+        </div> <!-- departing_survivors_control Understanding -->
+
+        <div class="departing_survivors_control">
+            <div class="label_div">Hunt XP</div>
+            <div class="button_div" ng-if="hideControls==false">
+                <button
+                    ng-click="updateDepartingSurvivors('hunt_xp', +1)"
+                > +1
+                </button>
+                <button
+                    ng-click="updateDepartingSurvivors('hunt_xp', -1)"
+                > -1
+                </button>
+            </div> <!-- button div -->
+        </div> <!-- departing_survivors_control Understanding -->
+
+            <div class="departing_survivors_control">
+                <div class="label_div">Brain Event Damage</div>
+                <div class="button_div" ng-if="hideControls==false">
+                    <button
+                        ng-click="updateDepartingSurvivors('brain_event_damage', 1)"
+                        class="maroon_text"
+                    > 1
+                    </button>
+                </div> <!-- button div -->
+            </div> <!-- departing_survivors_control brain event damage -->
+
+        </div> <!-- manage departing survivors controls -->
+
+    </div> <!-- manage departing survivors control outline box thinger -->
+
+    <div
+        ng-if="settlement.sheet.showdown_type != undefined && settlement.sheet.current_quarry != undefined"
+        class="ng_fade showdown_controls_box_outline"
+    >
+
+        <h3
+            class="clickable"
+            ng-click="toggleControlState('showdown_return_departing_survivors_control_state');"
+        >
+            Return Survivors from Showdown
+            <span ng-if="scratch.showdown_return_departing_survivors_control_state == 'hidden'">
+                &#x25BC;
+            </span>
+            <span ng-if="scratch.showdown_return_departing_survivors_control_state == 'visible'">
+                &#x25B2;
+            </span>
+        </h3>
+
+        <div
+            class="showdown_return_departing_survivors_controls"
+            ng-class="scratch.showdown_return_departing_survivors_control_state"
+        >
+            <p class="modal_subtitle" ng-if="settlement.sheet.showdown_type == 'normal'">
+                Use the buttons below to return <b>Departing</b> Survivors to
+                <b>{{settlement.sheet.name}}</b>. This automatically marks living
+                survivors as <b>Returning Survivors</b> and removes armor points,
+                attribute modifiers and damage. Settlement <b>Endeavor Tokens</b>
+                will also be automatically udpated.<br/>
+            </p>
+
+            <h3 ng-if="settlement.sheet.showdown_type == 'special'">Heal Survivors</h3>
+            <p class="modal_subtitle" ng-if="settlement.sheet.showdown_type == 'special'">
+                Use the buttons below to heal <b>Departing</b> Survivors and
+                remove them from the <b>Departing Survivors</b> group. Healing
+                survivors automatically removes armor points, attribute
+                modifiers and damage.<br/>
+            </p>
+
+            <div
+                class="showdown_controls_button_box_option_repeater clickable"
+                ng-click="toggleIncrementLY()"
+            >
+                <div
+                    class="kd_sheet_ui_box"
+                    ng-class="{checked: scratch.increment_ly_on_return == true}"
+                ></div>
+                End LY {{settlement.sheet.lantern_year}} on return
+            </div>
+
+            <button
+                class="kd_blue departing_survivors_mgmt"
+                ng-click="returnDepartingSurvivors('victory')"
+                onclick="showHide('departingSurvivorsModalContent')"
+            >
+                Victorious!
+            </button>
+            <button
+                class="kd_alert_no_exclaim departing_survivors_mgmt"
+                ng-click="returnDepartingSurvivors('defeat')"
+                onclick="showHide('departingSurvivorsModalContent')"
+            >
+                Defeated...
+            </button>
+
+
+        </div> <!-- return control options -->
+
+    </div> <!-- end of the return controls whole thing -->
+
+
+    <button
+        class="departing_survivors_mgmt"
+        onclick="showHide('departingSurvivorsModalContent')"
+    >
+        <b>Back</b>
+    </button>
+
+</div> <!-- modalDepartingSurvivors whole deal-->
+
+
+

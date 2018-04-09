@@ -5065,209 +5065,25 @@ class settlement:
 </div> <!-- campaign_summary_panels_container -->
 
 
+<!-- launcher button for managing departing survivors! -->
 
-    <!--
-
-        This is 'the fold'. The only content below here should be heavy-
-        lift JS applications, modals, etc. That don't need to load or be
-        visible right away on page load.
-
-    -->
-
-
-    <button
-        id="departingSurvivorsModalOpener"
-        class="manage_departing_survivors kd_brown"
-        ng-if="departing_survivor_count > 0"
-        onclick="showHide('departingSurvivorsModalContent')"
-    >
-        Manage {{departing_survivor_count}} <b>Departing</b> Survivors
-    </button>
-
-    <div
-        id="departingSurvivorsModalContent"
-        class="hidden modal modal-black"
-        ng-controller="manageDepartingSurvivorsController"
-    >
-        <h3>Manage Departing Survivors</h3>
-        <p class="modal_subtitle">Use the controls below to modify all <i>living</i>
-        survivors in the <b>Departing Survivors</b> group. </p>
-
-        <div class="departing_survivors_control">
-            <div class="label_div">Survival</div>
-            <div class="button_div" ng-if="hideControls==false">
-                <button
-                    ng-click="updateDepartingSurvivors('survival', +1)"
-                > +1
-                </button>
-                <button
-                    ng-click="updateDepartingSurvivors('survival', -1)"
-                > -1
-                </button>
-            </div> <!-- button div -->
-        </div> <!-- departing_survivors_control Survival -->
-
-        <div class="departing_survivors_control">
-            <div class="label_div">Insanity</div>
-            <div class="button_div" ng-if="hideControls==false">
-                <button
-                    ng-click="updateDepartingSurvivors('Insanity', +1)"
-                > +1
-                </button>
-                <button
-                    ng-click="updateDepartingSurvivors('Insanity', -1)"
-                > -1
-                </button>
-            </div> <!-- button div -->
-        </div> <!-- departing_survivors_control Insanity -->
-
-        <div class="departing_survivors_control">
-            <div class="label_div">Courage</div>
-            <div class="button_div" ng-if="hideControls==false">
-                <button
-                    ng-click="updateDepartingSurvivors('Courage', +1)"
-                > +1
-                </button>
-                <button
-                    ng-click="updateDepartingSurvivors('Courage', -1)"
-                > -1
-                </button>
-            </div> <!-- button div -->
-        </div> <!-- departing_survivors_control Insanity -->
-
-        <div class="departing_survivors_control">
-            <div class="label_div">Understanding</div>
-            <div class="button_div" ng-if="hideControls==false">
-                <button
-                    ng-click="updateDepartingSurvivors('Understanding', +1)"
-                > +1
-                </button>
-                <button
-                    ng-click="updateDepartingSurvivors('Understanding', -1)"
-                > -1
-                </button>
-            </div> <!-- button div -->
-        </div> <!-- departing_survivors_control Understanding -->
-
-        <div class="departing_survivors_control">
-            <div class="label_div">Hunt XP</div>
-            <div class="button_div" ng-if="hideControls==false">
-                <button
-                    ng-click="updateDepartingSurvivors('hunt_xp', +1)"
-                > +1
-                </button>
-                <button
-                    ng-click="updateDepartingSurvivors('hunt_xp', -1)"
-                > -1
-                </button>
-            </div> <!-- button div -->
-        </div> <!-- departing_survivors_control Understanding -->
-
-        <div class="departing_survivors_control">
-            <div class="label_div">Brain Event Damage</div>
-            <div class="button_div" ng-if="hideControls==false">
-                <button
-                    ng-click="updateDepartingSurvivors('brain_event_damage', 1)"
-                    class="maroon_text"
-                > 1
-                </button>
-            </div> <!-- button div -->
-        </div> <!-- departing_survivors_control brain event damage -->
+<button
+    class="manage_departing_survivors kd_red"
+    ng-if="departing_survivor_count > 0"
+    onclick="showHide('departingSurvivorsModalContent')"
+>
+    Manage {{departing_survivor_count}} <b>Departing</b> Survivors
+</button>
 
 
-        <h3>Monster</h3>
-        <p class="modal_subtitle">Use the controls below to select the monster
-        facing the survivors in the upcoming Showdown. </p>
 
-        <div class="current_hunt_container">
-            <select
-                id="set_departing_survivors_current_quarry"
-                class="hunting_party_current_quarry"
-                ng-model="settlement.sheet.current_quarry"
-                ng-change="saveCurrentQuarry()"
-                ng-options="d for d in settlement.game_assets.defeated_monsters"
-            >
-                <option disabled selected value="">Choose Monster</option>
-            </select>
-        </div>
+<!--
 
-        <div class="showdown_type">
-            <span ng-if="settlement.sheet != undefined" ng-init="initShowdownControls()"></span>
-            <h3
-                class="clickable"
-                ng-click="
-                    showHide('showdownOptions');
-                    flipShowdownArrow();
-                "
-            >
-                Showdown
-                <span class="showdown_arrow" ng-if="scratch.showdown_arrow == true">
-                    &#x25BC;
-                </span>
-                <span class="showdown_arrow" ng-if="scratch.showdown_arrow == false">
-                    &#x25B2;
-                </span>
-            </h3>
-            <p class="modal_subtitle">Use the buttons below to select the type of
-            showdown.</p>
-            <div id="showdownOptions" class="options" ng-class="{hidden: settlement.sheet.showdown_type != undefined}">
-                <button
-                    class="departing_survivors_mgmt kd_brown"
-                    ng-click="setShowdownType('normal'); showHide('showdownOptions')"
-                >
-                    <b>Showdown</b>
-		</button>
-                <button
-                    class="departing_survivors_mgmt kd_special_showdown"
-                    ng-click="setShowdownType('special'); showHide('showdownOptions')"
-                >
-                    <b>Special Showdown</b>
-                </button>
-            </div>
-        </div>
+    This is 'the fold'. The only content below here should be heavy-
+    lift JS applications, modals, etc. That don't need to load or be
+    visible right away on page load.
 
-        <div ng-if="settlement.sheet.showdown_type != undefined">
-            <h3 ng-if="settlement.sheet.showdown_type == 'normal'">Return Survivors from Showdown</h3>
-            <p class="modal_subtitle" ng-if="settlement.sheet.showdown_type == 'normal'">
-                Use the buttons below to return <b>Departing</b> Survivors to
-                <b>{{settlement.sheet.name}}</b>. This automatically marks living
-                survivors as <b>Returning Survivors</b> and removes armor points,
-                attribute modifiers and damage. Settlement <b>Endeavor Tokens</b>
-                will also be automatically udpated.<br/>
-            </p>
-            <h3 ng-if="settlement.sheet.showdown_type == 'special'">Heal Survivors</h3>
-            <p class="modal_subtitle" ng-if="settlement.sheet.showdown_type == 'special'">
-                Use the buttons below to heal <b>Departing</b> Survivors and
-                remove them from the <b>Departing Survivors</b> group. Healing
-                survivors automatically removes armor points, attribute
-                modifiers and damage.<br/>
-            </p>
-
-            <button
-                class="kd_blue departing_survivors_mgmt"
-                ng-click="returnDepartingSurvivors('victory')"
-                onclick="showHide('departingSurvivorsModalContent')"
-            >
-                Victorious!
-            </button>
-            <button
-                class="kd_alert_no_exclaim departing_survivors_mgmt"
-                ng-click="returnDepartingSurvivors('defeat')"
-                onclick="showHide('departingSurvivorsModalContent')"
-            >
-                Defeated...
-            </button>
-        </div>
-
-        <hr>
-
-        <button
-            class="departing_survivors_mgmt"
-            onclick="showHide('departingSurvivorsModalContent')"
-        >
-            <b>Back</b>
-        </button>
-    </div> <!-- modalDepartingSurvivors whole deal-->
+-->
 
     <div
         id="campaignSummaryStorageOpener"
@@ -6620,6 +6436,7 @@ def render(view_html, head=[], http_headers=None, body_class=None, include_templ
 
     <!-- angular app -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular-animate.js"></script>
 
     <script src="/media/kdmManager.js?v=%s"></script>
     \n""" % settings.get("application", "version")
@@ -6667,6 +6484,8 @@ def render(view_html, head=[], http_headers=None, body_class=None, include_templ
         'timeline.html',
         'event_log.html',
         'help.html',
+        'gear_lookup.html',
+        'manage_departing_survivors.html',
     ]
     ui_templates += include_templates
     for t in ui_templates:

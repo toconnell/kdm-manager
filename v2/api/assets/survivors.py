@@ -13,7 +13,7 @@ specials = {
     "create_first_story_survivors": {
         "name": "First Story",
         "title": 'Four "First Story" Survivors',
-        "desc": 'Two male and two female survivors will be randomly generated and automatically added to the <i>Departing Survivors</i> group. Starting gear will be added to Settlement Storage.',
+        "desc": 'Two male and two female survivors will be randomly generated and automatically added to the <i>Departing Survivors</i> group. Starting gear is added to Settlement Storage.',
         "current_quarry": "White Lion (First Story)",
         'showdown_type': 'normal',
         "random_survivors": [

@@ -945,7 +945,7 @@ weapon_specializations = {
     },
     "grand_weapon_specialization": {
         "name": "Specialization - Grand Weapon",
-        "desc": "When attacking with a grand weapon, gain <i>+1 accuracy</i>.",
+        "desc": "When attacking with a grand weapon, gain <i>+1 accuracy</i>.<br/>When attacking with a Grand Weapon during your act, if you critically wound, the monster is knocked down.",
     },
     "whip_specialization": {
         "name": "Specialization - Whip",

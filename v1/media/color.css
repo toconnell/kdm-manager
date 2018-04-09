@@ -35,6 +35,10 @@
     .kd_alert_no_exclaim,
     .kd_pink {background-color: #FF0040; color: #fff;}
 
+/* kd brown, endeavors */
+.kd_brown,
+    .endeavor_brown {background-color: #997030; background: linear-gradient(#997030, #a47a41, #997030); border-color: #B6B057; color: #fff; border-right-color: #C6C057; border-bottom-color: #C6C057;}
+
     /* campaign summary - available endeavors*/
 .available_endeavors_build {background: linear-gradient(to bottom, #73C26C, #51B952); color: #fff; }
 .build_cost_detail {background-color: #0D743A;}
@@ -47,11 +51,17 @@
 
     /* affinities and saviors */
 .affinity_red {background: #CD2027; background-color: #CD2027; color: #fff;}
+.affinity_red_text {color: #CD2027;}
 .affinity_blue {background: #1C99CD; background-color: #1C99CD; color: #fff;}
+.affinity_blue_text {color: #1C99CD;}
 .affinity_green {background: #4CB848; background-color: #4CB848; color: #fff;}
+.affinity_green_text {color: #4CB848;}
 
-    /* timeline, settlement misc. */
+    /* special showdown (i.e. kd red) effects */
 .special_showdown {color: #DC2426; }
+.special_showdown_button,
+    .kd_special_showdown,
+    .kd_red {color: #fff; background-color: #DC2426; background: radial-gradient(#ED3537, DC2426); }
 
     /* attributes */
 .Movement, .mov_token {background-color: #9A6D84; color: #fff; }
