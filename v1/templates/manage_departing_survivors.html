@@ -4,15 +4,6 @@
     ng-controller="manageDepartingSurvivorsController"
     ng-if="view == 'campaignSummary'"
 >
-    <h3 class="ng_fade" ng-if="settlement.sheet.showdown_type == undefined">Manage Departing Survivors</h3>
-    <p
-        class="ng_fade kd_sheet_ui_row_tip"
-        ng-if="user.user.preferences.show_ui_tips && settlement.sheet.showdown_type == undefined"
-    >
-        To manage departing survivors, first set the showdown type, then set
-        the monster for the showdown!
-    </p>
-
 
     <!-- 
 
@@ -44,13 +35,6 @@
             class="showdown_controls_button_box showdown_type_options ng_fade"
             ng-class="scratch.showdown_type_control_state"
         >
-            <p
-                class="kd_sheet_ui_row_tip"
-                ng-if="user.user.preferences.show_ui_tips"
-            >
-                Use the buttons below to select the type of showdown.
-            </p>
-
             <div
                 ng-repeat="option in scratch.showdown_type_options"
                 class="showdown_controls_button_box_option_repeater clickable"
@@ -102,21 +86,16 @@
         </h3>
 
         <div
-            class="showdown_controls_box_interior"
+            class="showdown_controls_button_box"
             ng-class="scratch.showdown_current_quarry_control_state"
         >
-            <p class="kd_sheet_ui_row_tip">
-                Use the controls below to select the monster for the upcoming
-                Showdown.
-            </p>
-
             <select
                 id="set_departing_survivors_current_quarry"
                 class="showdown_controls_current_quarry_select"
                 ng-model="settlement.sheet.current_quarry"
                 ng-change="
                     saveCurrentQuarry();
-                    showHide('addCurrentQuarryToTimeline', 'show');
+                    showHide('addCurrentQuarryToTimeline', 'show')
                 "
                 ng-options="d for d in settlement.game_assets.defeated_monsters"
             >
@@ -172,12 +151,12 @@
             ng-if="user.user.preferences.show_ui_tips"
             ng-class="scratch.showdown_manage_departing_survivors_control_state"
         >
-            Use the controls below to modify all <i>living</i> survivors in
+            Use the controls below to modify all <b>living</b> survivors in
             the <b>Departing Survivors</b> group.
         </p>
 
         <div
-            class="ng_fade"
+            class="ng_fade applying_update_spinner"
             ng-if="hideControls==true"
         >
             <img src="/media/loading_lantern.gif" />
@@ -285,11 +264,14 @@
             class="clickable"
             ng-click="toggleControlState('showdown_return_departing_survivors_control_state');"
         >
-            Return Survivors from Showdown
-            <span ng-if="scratch.showdown_return_departing_survivors_control_state == 'hidden'">
+            <span ng-if="settlement.sheet.showdown_type != 'special'">Return</span>
+            <span ng-if="settlement.sheet.showdown_type == 'special'">Heal</span>
+            Departing Survivors
+
+            <span class="showdown_arrow" ng-if="scratch.showdown_return_departing_survivors_control_state == 'hidden'">
                 &#x25BC;
             </span>
-            <span ng-if="scratch.showdown_return_departing_survivors_control_state == 'visible'">
+            <span class="showdown_arrow" ng-if="scratch.showdown_return_departing_survivors_control_state == 'visible'">
                 &#x25B2;
             </span>
         </h3>
@@ -298,31 +280,69 @@
             class="showdown_return_departing_survivors_controls"
             ng-class="scratch.showdown_return_departing_survivors_control_state"
         >
-            <p class="modal_subtitle" ng-if="settlement.sheet.showdown_type == 'normal'">
-                Use the buttons below to return <b>Departing</b> Survivors to
-                <b>{{settlement.sheet.name}}</b>. This automatically marks living
-                survivors as <b>Returning Survivors</b> and removes armor points,
-                attribute modifiers and damage. Settlement <b>Endeavor Tokens</b>
-                will also be automatically udpated.<br/>
-            </p>
 
-            <h3 ng-if="settlement.sheet.showdown_type == 'special'">Heal Survivors</h3>
-            <p class="modal_subtitle" ng-if="settlement.sheet.showdown_type == 'special'">
-                Use the buttons below to heal <b>Departing</b> Survivors and
-                remove them from the <b>Departing Survivors</b> group. Healing
-                survivors automatically removes armor points, attribute
-                modifiers and damage.<br/>
-            </p>
+            <!-- help text for normal showdowns -->
+            <div ng-if="settlement.sheet.showdown_type != 'special'" class="return_departing_survivors">
+                <p>
+                    Use the buttons below to return <b>Departing</b> Survivors to
+                    <b>{{settlement.sheet.name}}</b>. If you do, the Manager will
+                    automatically perform all of the following actions:
+                </p>
+                <ul class="kd_boxes">
+                    <li>Mark living survivors as <b>Returning Survivors</b>.</li>
+                    <li>Remove armor points from all survivors.</li>
+                    <li>Remove attribute modifiers (tokens/gear) and damage from
+                        all survivors.</li>
+                    <li>Automatically update Settlement <b>Endeavor Tokens</b>,
+                        adding one for each living survivor returned.
+                    </li>
+                </ul>
+                <p>
+                    You may also check the box below to automatically increment
+                    the Lantern Year when returning departing survivors:
+                </p>
 
+            </div>
             <div
-                class="showdown_controls_button_box_option_repeater clickable"
+                class="showdown_controls_button_box_option_repeater end_current_ly_box clickable"
+                ng-class="{
+                    button_shadow: scratch.increment_ly_on_return != true,
+                    kd_lantern: scratch.increment_ly_on_return == true 
+                }"
                 ng-click="toggleIncrementLY()"
+                ng-if="settlement.sheet.showdown_type != 'special'"
             >
                 <div
                     class="kd_sheet_ui_box"
                     ng-class="{checked: scratch.increment_ly_on_return == true}"
                 ></div>
-                End LY {{settlement.sheet.lantern_year}} on return
+                End Lantern Year {{settlement.sheet.lantern_year}} on return
+            </div>
+            <!-- normal/nemesis return stuff -->
+
+            <!-- special showdown explanation -->
+            <div ng-if="settlement.sheet.showdown_type == 'special'" class="return_departing_survivors">
+                <p>
+                    Use the buttons below to heal <b>Departing</b> Survivors and
+                    remove them from the <b>Departing Survivors</b> group.
+                </p>
+                <p>
+                    Healing survivors automatically removes armor points,
+                    attribute modifiers (tokens/gear) and damage.
+                </p>
+            </div>
+
+
+            <!-- return options -->
+            <div 
+                class="return_departing_survivors"
+                ng-if="settlement.sheet.current_quarry != undefined"
+            >
+                <p>
+                    If you click or tap "Victorious!" when returning survivors,
+                    <b>{{settlement.sheet.current_quarry}}</b> will be automatically
+                    added to the settlement's Defeated Monsters list.
+                </p>
             </div>
 
             <button
@@ -347,7 +367,7 @@
 
 
     <button
-        class="departing_survivors_mgmt"
+        class="departing_survivors_mgmt close_button"
         onclick="showHide('departingSurvivorsModalContent')"
     >
         <b>Back</b>

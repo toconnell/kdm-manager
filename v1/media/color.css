@@ -35,19 +35,25 @@
     .kd_alert_no_exclaim,
     .kd_pink {background-color: #FF0040; color: #fff;}
 
-/* kd brown, endeavors */
-.kd_brown,
-    .endeavor_brown {background-color: #997030; background: linear-gradient(#997030, #a47a41, #997030); border-color: #B6B057; color: #fff; border-right-color: #C6C057; border-bottom-color: #C6C057;}
 
-    /* campaign summary - available endeavors*/
+/* campaign summary - available endeavors*/
 .available_endeavors_build {background: linear-gradient(to bottom, #73C26C, #51B952); color: #fff; }
 .build_cost_detail {background-color: #0D743A;}
 .available_endeavors_innovate {#fff; background: linear-gradient(to bottom, #4EC7F1, #40ADD0); }
 .innovate_cost_detail {background-color: #0277BD;}
 
-    /* asset emulation */
+/* asset emulation - fun stuff */
 .kd_promo {color: #fff; background: radial-gradient(circle, #5Dd7F2, #50CAF5, #3FACCF); }
 .dragon_king {color: #E8cE55; background: radial-gradient(#7270B9, #6260A9); }
+
+    /* lanterns */
+.kd_lantern {background-color: #F9EFCE; background: radial-gradient(#F9E6A4, #FCF3D5 ); border-color: #EBD6AB;}
+.vibrant_lantern {background-color: #DED6B3; background: radial-gradient(#DED6B3, #E7CE32); }
+.dying_lantern {background-color: #F9EFCE; background: radial-gradient(#FDE6C4, #FCF3D5); }
+
+    /* kd brown, endeavors */
+.kd_brown,
+    .endeavor_brown {background-color: #997030; background: linear-gradient(#997030, #a47a41, #997030); border-color: #B6B057; color: #fff; border-right-color: #C6C057; border-bottom-color: #C6C057;}
 
     /* affinities and saviors */
 .affinity_red {background: #CD2027; background-color: #CD2027; color: #fff;}

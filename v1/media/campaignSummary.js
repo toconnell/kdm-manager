@@ -100,7 +100,7 @@ app.controller("manageDepartingSurvivorsController", function($scope, $rootScope
         $scope.settlement.sheet.showdown_type = s;
         var js_obj = {showdown_type: s};
         $scope.postJSONtoAPI('settlement','set_showdown_type',js_obj, false, true);
-        $scope.toggleControlState('showdown_type_control_state');
+//        $scope.toggleControlState('showdown_type_control_state');
     };
 
     $scope.saveCurrentQuarry = function() {

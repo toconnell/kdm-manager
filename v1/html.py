@@ -5068,7 +5068,7 @@ class settlement:
 <!-- launcher button for managing departing survivors! -->
 
 <button
-    class="manage_departing_survivors kd_red"
+    class="manage_departing_survivors kd_red button_shadow"
     ng-if="departing_survivor_count > 0"
     onclick="showHide('departingSurvivorsModalContent')"
 >
