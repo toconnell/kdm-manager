@@ -4,7 +4,7 @@ app.controller ("campaignSummaryController", function($scope) {
     $scope.getStorage = function() {
         console.time('getStorage()');
         $scope.getJSONfromAPI('settlement','get_storage', 'getStorage').then(
-            function(payload) { $scope.settlementStorage = payload.data; console.imeEnd('getStorage()');},
+            function(payload) { $scope.settlementStorage = payload.data; console.timeEnd('getStorage()');},
             function(errorPayload) {console.log("Could not retrieve settlement storage from API!" + errorPayload);}
         );
     };

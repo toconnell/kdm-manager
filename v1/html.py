@@ -265,7 +265,7 @@ class dashboard:
                 >
                     <input type="hidden" name="view_campaign" value="{{s.sheet._id.$oid}}" />
                     <button
-                        class="kd_dying_lantern dashboard_settlement_list_settlement_button"
+                        class="dying_lantern dashboard_settlement_list_settlement_button"
                         onclick="showFullPageLoader(); this.form.submit()"
                     >
                         <b>{{s.sheet.name}}</b>
@@ -346,7 +346,7 @@ class dashboard:
                 >
                     <input type="hidden" name="view_settlement" value="{{s.sheet._id.$oid}}" />
                     <button
-                        class="kd_dying_lantern dashboard_settlement_list_settlement_button"
+                        class="dying_lantern dashboard_settlement_list_settlement_button"
                         onclick="showFullPageLoader(); this.form.submit()"
                     >
                         <b>{{s.sheet.name}}</b>
@@ -5096,7 +5096,7 @@ class settlement:
 
     <div
         id="campaignSummaryStorageModal"
-        class="rightSideNav kd_dying_lantern clickable"
+        class="rightSideNav dying_lantern clickable"
         ng-if="settlement != undefined && user.user.subscriber.level >= 2"
         ng-init="getStorage()"
         ng-click="closeNav('campaignSummaryStorageModal')"
