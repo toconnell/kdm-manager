@@ -43,7 +43,7 @@ function rollUp(e_id) {
     };
 };
 
-function showHide(e_id) {
+function showHide(e_id, force) {
     var e = document.getElementById(e_id);
     var hide_class = "hidden";
     var visible_class = "visible";
@@ -54,6 +54,17 @@ function showHide(e_id) {
     } else {
         e.classList.add(hide_class);
         e.classList.remove(visible_class)
+    };
+
+    // handle the 'force' param
+    if (force === 'show') {
+        e.classList.remove(hide_class);
+        e.classList.add(visible_class);
+        return true;
+    } else if (force === 'hide') {
+        e.classList.remove(visible_class);
+        e.classList.add(hide_class);
+        return true;
     };
  }
 
@@ -84,7 +95,7 @@ function convertMS(millis) {
 //      The angular application starts here!
 //
 
-var app = angular.module('kdmManager', []);
+var app = angular.module('kdmManager', ['ngAnimate']);
 
 //  directives for that ass
 app.directive('customOnChange', function() {
@@ -251,33 +262,6 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
             return init;
             }(), 180000)
 
-    };
-
-    $scope.initLostSettlementsControls = function() {
-        $scope.lost_settlements = $scope.settlement.sheet.lost_settlements;
-        $scope.current_val = $scope.lost_settlements
-        $scope.lost = [];
-
-        // build the first elements in the control array
-        for (var i = 0; i < $scope.current_val; i++) {
-           $scope.lost.push({'class': 'lost_settlement_checked', 'id_num': i})
-        };
-
-        // now, based on what we've got, build the rest of the array
-        do {
-            if ($scope.lost.length == 4)
-                {$scope.lost.push({'class': 'bold_check_box', 'id_num':4})}
-            else if ($scope.lost.length == 9)
-                {$scope.lost.push({'class': 'bold_check_box', 'id_num':9})}
-            else if ($scope.lost.length == 14)
-                {$scope.lost.push({'class': 'bold_check_box', 'id_num':14})}
-            else if ($scope.lost.length == 18)
-                {$scope.lost.push({'class': 'bold_check_box', 'id_num':18})}
-            else
-                {$scope.lost.push({'id_num':$scope.lost.length})};
-        } while ($scope.lost.length < 19) ;
-
-        console.log("lost_settlements control array initialized!");
     };
 
 
@@ -461,7 +445,6 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         $scope.settlementPromise.then(function() {
             if ($scope.view == 'settlementSheet') {
                 $scope.initAssetLists();
-                $scope.initLostSettlementsControls();
                 hideFullPageLoader();
                 hideCornerLoader();
             } else if ($scope.view == 'campaignSummary') {;
@@ -565,6 +548,33 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         });
     };
 
+    //  root-level timeline helper methods
+
+    $scope.getTimelineLY = function(target_ly) {
+        // generic get method: returns a dict repr of a timeline LY
+        // (or however you would say that in javascript)
+
+        var target_ly_repr = null;
+        for (var i = 0; i < $scope.settlement.sheet.timeline.length; i++) {
+            var lantern_year = $scope.settlement.sheet.timeline[i]
+            if (lantern_year.year === target_ly) {
+                target_ly_repr = lantern_year;
+            };
+        };
+        return target_ly_repr;
+    };
+
+    $scope.setCurrentLY = function(new_ly) {
+        if (new_ly === $scope.settlement.sheet.lantern_year) {
+            return true; 
+        } else {
+            $scope.postJSONtoAPI('settlement','set_current_lantern_year',{ly: new_ly},false);
+            $scope.settlement.sheet.lantern_year = new_ly;
+        };
+    };
+
+
+    // game asset init and set stuff
 
     $scope.setGameAssetOptions = function(game_asset, destination, exclude_type) {
         // generic method to create a set of options by comparing a baseline
@@ -1096,14 +1106,6 @@ app.controller('timelineController', function($scope) {
         console.timeEnd('setEventOptions()');
     };
 
-    $scope.setCurrentLY = function(new_ly) {
-        if (new_ly === $scope.settlement.sheet.lantern_year) {
-            return true; 
-        } else {
-            $scope.postJSONtoAPI('settlement','set_current_lantern_year',{ly: new_ly},false);
-            $scope.settlement.sheet.lantern_year = new_ly;
-        };
-    };
 
     $scope.updateLanternYear = function(ly) {
         $scope.postJSONtoAPI('settlement','replace_lantern_year',{ly:ly},false);
@@ -1382,6 +1384,23 @@ app.controller ("survivorSearchController", function($scope) {
 
 // modal help overlay -- all views
 app.controller ("helpModalController", function($scope) {
+    //
+});
+
+app.controller ("gearLookupController", function($scope) {
+    $scope.loadGearLookup = function() {
+        console.time('loadGearLookup()')
+        var promise = $scope.getJSONfromAPI('settlement', 'gear_lookup', 'loadGearLookup()');
+        promise.then(
+            function(payload) {
+                $scope.gearLookup = payload.data;
+                console.timeEnd('loadGearLookup()');
+                hideCornerLoader();
+            },
+            function(errorPayload) {console.log("Error loading settlement Gear lookup!" + errorPayload);}
+        );
+
+    };
 });
 
 

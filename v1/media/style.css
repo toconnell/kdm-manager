@@ -7,6 +7,13 @@
 .clickable {cursor: pointer; }
 .capitalize {text-transform: capitalize;}
 
+/* angularjs animations */
+.ng_fade.ng-enter,
+    .ng_fade_in.ng-enter {transition: 1s linear all; opacity:0;}
+.ng_fade.ng-enter.ng-enter-active,
+    .ng_fade_in.ng-enter-active { opacity:1;}
+.ng_fade.ng-leave {transition: 1s linear all;  opacity:1;}
+.ng_fade.ng-leave.ng-leave-active {opacity:0;}
 
 /* top_nav top nav - mobile*/
 span.survivor_sheet_gradient {border-bottom: 3px solid #D7CCC8;}
@@ -23,7 +30,17 @@ span.settlement_sheet_gradient {border-bottom: 3px solid #FFE082;}
 .top_nav_spacer {margin-bottom: 2%;}
 
 
+
+
 /* KD UI emulation */
+
+ul.lanterns {list-style-type: none;}
+ul.lanterns li:before {content: "a "; font-family: 'kdm-font-2'}
+ul.lanterns li {text-align: left; }
+
+ul.kd_boxes {list-style-type: none; margin-top: 1.5%; }
+ul.kd_boxes li:before {content: "h "; font-family: 'kdm-font-2'; font-size: 1.5em; vertical-align: bottom; }
+ul.kd_boxes li {text-align: left; }
 
 .available_endeavors_build {border-top: 2px solid #0D743A; border-bottom: 2px solid #0D743A;}
 .available_endeavors_innovate {border-top: 2px solid #0277BD; border-bottom: 2px solid #0277BD;}
@@ -65,9 +82,6 @@ div.settlement_sheet_principle_name {font-size: 60px; }
 .disorder_flavor_text {font-style: italic; margin-top: 7%; margin-bottom: 7%}
 .innovation_gradient {border-top: 0.1em solid #333; background: linear-gradient(to bottom, #9E939B,#888,#9e939b); border-bottom: 0.1em solid #333; color: #fff; }
 
-/* The departing survivors management button */
-button#departingSurvivorsModalOpener {position: fixed; bottom: 20px; width: 90%; left: 1%; }
-.manage_departing_survivors {border-radius: 25px; border: 7px solid #fff; transition: 2s; font-family: 'Metrophobic';}
 
 
 /* kd color buttons! - mobile */
@@ -80,7 +94,9 @@ input[type=text].custom_cod_text {width: 95%; }
 
     /* KD color emulation */
 
-.red_glow {box-shadow: 0 0 0.4em rgba(255, 0, 100, 1.5);}
+.button_shadow {box-shadow: 0px 0 1em #888888; transition: 1s;}
+.red_glow {box-shadow: 0 0 1em #CD2027; transition: 1s;}
+.blue_glow {box-shadow: 0 0 1em #1C99CD; transition: 1s;}
 .white {color: #fff; }
 .special_showdown_text {color: #DC2426; }
 .green_text {color: #2E7D32;}
@@ -318,6 +334,72 @@ div#mySidenav button {
 .webapp_alert_detail_bar .type_stamp {font-size: 25pt; }
 .webapp_alert_detail_bar .date_stamp {font-size: 25pt; font-style: italic; }
 
+/* gear lookup - mobile */
+input[type="radio"].gear_lookup_attrib_toggle {display: inherit;}
+.gear_lookup_search_box {display: block; margin: 0 auto; width: 95%; border:0; text-align: center; margin-bottom: 6%; }
+.gear_lookup_card_repeater {width: 90%; margin: 0 auto; margin-bottom: 2%; }
+.gear_lookup_card_repeater .gear_card_container {margin: 0 auto; margin-bottom: 1%; background: radial-gradient(#fff, #fff, #f8f8f8, #fffff9);}
+.gear_card_recipe {background-color: #ffFFcc; }
+
+/* gear cards - mobile */
+.gear_card_container {border: 1px solid #000; border-radius: 25px; width: 650px; min-height: 650px; }
+.gear_card_affinity_outer {background-color: rgba(250,250,250,0); margin: 0 auto; }
+.gear_card_affinity_inner {background-color: rgba(250,250,250,0); border: 3px solid #fff; margin: 0 auto; }
+
+.gear_card_affinity_outer.top_affinity,
+    .gear_card_affinity_outer.bottom_affinity {width: 15%; height: 50px; }
+.gear_card_affinity_inner.top_affinity,
+    .gear_card_affinity_inner.bottom_affinity {width: 85%; height: 85%; border-bottom-left-radius: 1%; border-bottom-right-radius: 1%; }
+
+.gear_card_affinity_outer.left_affinity,
+    .gear_card_affinity_outer.right_affinity {width: 100%; height: 18%; }
+.gear_card_affinity_inner.left_affinity,
+    .gear_card_affinity_inner.right_affinity {width: 85%; height: 85%; border-top-left-radius: 1%; border-bottom-left-radius: 1%; }
+
+.gear_card_affinity_outer.top_affinity {border-bottom-left-radius: 1%; border-bottom-right-radius: 1%; }
+.gear_card_affinity_inner.top_affinity {border-top: 0; }
+
+.gear_card_affinity_outer.left_affinity {border-top-right-radius: 1%; border-bottom-right-radius: 1%; }
+.gear_card_affinity_inner.left_affinity {border-left: 0; margin-top: 10%; margin-right: 10%;}
+
+.gear_card_affinity_outer.right_affinity {border-top-left-radius: 1%; border-bottom-left-radius: 1%; }
+.gear_card_affinity_inner.right_affinity {border-right: 0; margin-left: 10%; margin-top: 10%; }
+
+.gear_card_affinity_outer.bottom_affinity {border-top-left-radius: 1%; border-top-right-radius: 1%; display: flex;}
+.gear_card_affinity_inner.bottom_affinity {border-bottom: 0; margin-top: 5%; }
+
+.gear_card_detail_region {display: flex; min-height: 549px;}
+.gear_card_detail_region_text {display: flex; flex-direction: column; flex-wrap: nowrap; width: 100%;}
+.gear_card_detail_region_top {display: flex; flex-direction: row; flex-wrap: nowrap; width: 100%; }
+.gear_card_detail_region_bottom {width: 100%; display: flex; flex-direction: column; height: 100%; justify-content: flex-end; }
+.gear_card_affinity_col {width: 55px; display: flex; flex-direction: column; justify-content: center; }
+.gear_card_combat_stat_col {width: 45%; display: flex; margin-left: -3%; height: 100%; }
+.gear_card_combat_stat_col_negative_spacer {width: 45%; }
+.gear_card_combat_stat_shield {border-bottom-left-radius: 100%; border-bottom-right-radius: 100%; background-color:#000; color: #fff; font-size: 60px; width: 90px; text-align: center; display: inline-block; margin-right: 4px; height: 110px; }
+.gear_card_combat_stat_activation {border-radius: 25px; background-color: #777; color: #fff; padding: 4%; font-size: 45px; display: flex; flex-direction: column; flex-wrap: nowrap; text-align: center; margin-left: 15%;  }
+.gear_card_combat_stat_activation hr {margin-top: 1px; margin-bottom: 1px; background-color: #000; height: 3px; bordeR: 0; }
+.gear_card_combat_stat_activation_icon {color: #000; font-family: 'kdm-font-10';}
+.gear_card_combat_stat_activation_detail {background-color: #333; border-radius: 20px; margin: 0 auto; width: 100%; font-size: 45px; border: 0; }
+.gear_card_combat_stat_activation_detail hr {background-color: #777; height: 3px; border: 0; }
+.gear_card_location_glyph {font-size: 40px; color: #000; font-family: 'kdm-font-2'}
+.gear_card_detail_top_info {width: 100%;}
+.gear_card_detail_top_info .title {font-size: 50px; font-weight: bold; text-align: center; }
+.gear_card_detail_top_info .keywords {font-size: 30px; font-family: 'Metrophobic'; font-style: italic; text-align: center; margin-left: -10%; margin-right: -10%; }
+.gear_card_add_affinity {width: 120px; height: 120px; border-radius: 1%; margin: 2%; margin: 0 auto; }
+.gear_card_add_affinity_interior {width: 80%; height: 80%; margin: 0 auto; border: 5px solid #fff; border-radius: 1%; margin-top: 7%; }
+.gear_card_detail_bottom_rules {font-weight: bold; text-align: center; font-size: 35px; font-family: 'Metrophobic'; }
+.gear_card_detail_bottom_desc {font-size:30px; font-family: 'Metrophobic'; text-align: center; margin-left: -5%; margin-right: -5%; margin-bottom: 2%}
+.gear_card_detail_bottom_affinity_bonus {border-radius: 25px; width: 100%; border: 3px solid #fff; background-color: #dad7d8; font-family: 'Metrophobic'; font-size: 35px; display: flex; margin-bottom: 1%; height: auto; max-height: 60%; }
+.gear_card_detail_bottom_affinity_bonus_requires {background-color: #fff; padding: 1%; display: flex; align-items: center; padding-left: 10px; padding-right: 10px; min-width: 15%; flex-wrap: wrap; flex-direction: row; }
+.puzzle_piece_repeater {font-family: 'kdm-font-2'; font-size: 40px; margin: 0 auto; }
+.affinity_bonus_text {padding: 2%; font-size: 30px; }
+
+/* paired arrows - mobile */
+.gear_card_affinity_outer.left_affinity.affinity_paired_left,
+    .gear_card_affinity_outer.right_affinity.affinity_paired_right {width:0; height:0; border-top: 40px solid transparent; border-bottom: 40px solid transparent; }
+.gear_card_affinity_outer.left_affinity.affinity_paired_left {border-right: 40px solid #222;}
+.gear_card_affinity_outer.right_affinity.affinity_paired_right {border-left: 40px solid #222;}
+
 /* event log styles - mobile */
 .event_log .kd_sheet_ui_row_tip {margin: 0 auto; width: 93%; margin-bottom: 3%; margin-top: 3%; }
 .event_log_clicker {border: 2px solid #000; padding: 1%; width: 93%; margin: 1%; font-family: 'Metrophobic'; margin-left: 2%; font-size: 35pt;  margin-bottom: 3%}
@@ -433,7 +515,7 @@ h4.user_collection {text-align: center; font-style: italic; }
 
 div.dashboard_welcome_modal {color: #fff; background: rgba(0,0,0,0.95); padding:0; padding-top: 3%; }
 div.dashboard_welcome_modal p {width: 90%; }
-div.dashboard_welcome_modal p, div.dashboard_welcome_modal div {margin: 0 auto; font-size: 30%; font-family: "Metrophobic"; }
+div.dashboard_welcome_modal p, div.dashboard_welcome_modal div {margin: 0 auto; font-family: "Metrophobic"; }
 div.dashboard_welcome_modal div {text-align: center; width: 80%}
 
 
@@ -684,16 +766,36 @@ div.campaign_summary_headline_container p.campaign_summary_campaign_type {font-f
 div#campaign_summary_campaign_type {color: #777; margin-top: -50px; text-align:center; }
 
 /* Campaign Summary Departing survivor management */
-p.modal_subtitle {font-size: 13px; margin-top: -3%; margin-left: 7%; margin-right: 7%; margin-bottom: 2%; font-family: 'Metrophobic'; text-align: center; }
 
-.departing_survivors_control {background-color: #000; width: 80%; margin: 0 auto; display: flex; flex-direction: row; justify-content: space-between; width: 70%; border-bottom: 1px solid #333; border-top: 1px solid #333;  }
-.departing_survivors_control div.label_div {font-size: 37pt; padding: 3%; }
-.departing_survivors_control div.button_div {display: flex; flex-direction: row; align-items: center; width: 40%; justify-content: space-around; }
-.departing_survivors_control div.button_div button {border-radius: 50%; width: 100px; height: 100px; background: radial-gradient(#fff, #fff, #fff, #ddd, #666, #333); border: 3px solid #666; margin: 3%; font-family: 'Metrophobic'; font-size: 30pt; }
+.manage_departing_survivors {position: fixed; bottom: 0; border-radius: 100px; border: 7px solid #fff; transition: 1s; left: 0; right: 0; }
+
+.modal-black.departing_survivors_modal_container {background-color: #fff; color: #000; font-size: 50px; }
+.departing_survivors_modal_container h3 {color: #000; margin: 2%; font-size: 1.2em; }
+
+.showdown_controls_box_outline {width: 95%; margin: 0 auto; border: 10px solid #000; margin-top: 2%; }
+.showdown_controls_button_box { }
+.showdown_controls_button_box .kd_sheet_ui_row_tip {width: 95%; margin: 0 auto; font-size: 0.3em; }
+.showdown_controls_button_box button {border-radius: 100px; border: 10px solid #fff; font-size: 1em; padding: 1%; }
+.showdown_controls_button_box_option_repeater {width: 80%; padding-left: 5%; margin: 5% auto;  font-size: 0.8em}
+.showdown_arrow {font-size: 0.5em; }
+
+.showdown_controls_current_quarry_select {display: block; margin: 5% auto; font-size: 1em; }
+.showdown_manage_departing_survivors_controls {margin-top: 3%; margin-bottom: 3%; }
+
+.return_departing_survivors {font-family: 'Metrophobic'; font-size: 0.4em; width: 95%; text-align: justify; }
+
+.departing_survivors_control {background-color: #fff; width: 95%; margin: 0 auto; display: flex; flex-direction: row; justify-content: space-between; border-top: 5px solid #eee;  }
+.departing_survivors_control div.label_div {font-size: 1em; padding: 3%; }
+.departing_survivors_control div.button_div {display: flex; flex-direction: row; align-items: center; width: 50%; justify-content: space-around; }
+.departing_survivors_control div.button_div button {border-radius: 50%; width: 120px; height: 120px; background: radial-gradient(#000, #000, #000, #333, #666, #ddd); border: 3px solid #666; margin: 3%; font-family: 'Metrophobic'; font-size: 30pt; color: #fff;}
 
 .current_hunt_container {width: 80%; margin: 0 auto; display: flex; flex-direction: column; padding-left: 7%; padding-right: 7%; }
-.showdown_arrow {font-size: 8pt; }
-.departing_survivors_mgmt {border: 3px solid #fff;  border-right: 3px solid #eee; border-bottom: 3px solid #ddd; font-family: 'Metrophobic'; }
+.departing_survivors_mgmt {border: 3px solid #fff;  font-family: 'Metrophobic'; padding: 3%; }
+
+.applying_update_spinner  {display: flex; flex-direction: column; flex-wrap: nowrap; width: 50%; font-size: 0.8em; margin: 0 auto; align-items: center; margin: 2% auto; }
+.applying_update_spinner img {width: 300px; }
+
+.end_current_ly_box {padding-top: 2%; padding-bottom: 2%; border-radius: 100px;  }
 
 
 /* no survivors error */
@@ -900,7 +1002,7 @@ div#info_box h2, button#survivor_campaign_asset, button.dashboard_asset {text-al
 .kd_sheet_ui_row.title {font-size: 70pt; font-weight: bold; display:block; }
 .kd_sheet_ui_row.title img {width: 65px; }
 .kd_sheet_ui_row .title.short {width: 35%; font-weight: bold; font-size: 38pt;}
-.kd_sheet_ui_row_tip {font-size: 30pt; font-family: Metrophobic; padding: 2%; background-color: #FFFFEC; color: #66411E; }
+.kd_sheet_ui_row_tip {font-size: 15px; font-family: Metrophobic; padding: 2%; background-color: #FFFFEC; color: #66411E; margin: 0 auto; width: 95%; }
 .kd_sheet_ui_box_row {display: flex; flex-direction: row; flex-wrap: nowrap; }
 .kd_sheet_ui_box_row.long {width: 60%; }
 .kd_sheet_ui_box_row.wrap_row {flex-wrap: wrap; justify-content: space-around;}                   /* lost settlements */
@@ -1330,8 +1432,7 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     width: 100%; /* Full width */
     height: auto;
 }
-.modal-black button {border-radius: 25px; }
-.modal-black hr {width: 95%; }
+.modal-black button {border-radius: 100px; }
 
 .modal_control_overlay {position: absolute; top: 0; left: 0; right: 0; overflow-y:scroll; overflow-x:hidden }
 
@@ -1389,6 +1490,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     h3 {font-size: 23pt;}
     h4 {font-size: 20pt; margin-left: 10px; }
     select {font-size: 18pt; }
+    div {font-size: 20pt; }
 
     /* KD styles - tablet */
     div.kd_toggle_container {font-size: 23px;}
@@ -1398,7 +1500,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .kd_alert {padding: 2%; }
 
     /* general styles - tablet */
-
+    ul.kd_boxes li:before {font-size: 1.2em; }
 
     div.corner_loading_spinner {left: 1px; right: auto; }
     .sidenav_form {margin-top: -5%; margin-bottom: -5%; }
@@ -1579,6 +1681,34 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .help_modal_tip_repeater.kpi {font-size: 17pt; }
     .webapp_alert_detail_bar .type_stamp,
         .webapp_alert_detail_bar .date_stamp {font-size: 15pt; }
+
+    /* gear lookup - tablet */
+    .kd_sheet_ui_inner_ring_container.gear_lookup_container {width: 95%; }
+    .gear_lookup_search_box {padding: 1%; height: auto; }
+    .gear_repeater_container {display: flex; flex-direction: row; flex-wrap: wrap; }
+    .gear_lookup_card_repeater {width: auto; }
+    .gear_card_affinity_outer.top_affinity,
+        .gear_card_affinity_outer.bottom_affinity {height: 25px; }
+    .gear_card_affinity_inner {border-width: 1px; }
+    .gear_card_affinity_col {width: 25px; }
+    .gear_card_container {width: 350px; min-height: auto;}
+    .gear_card_detail_top_info .title {font-size: 33px; }
+    .gear_card_detail_top_info .keywords {font-size: 18px; }
+    .gear_card_detail_bottom_rules {font-size: 20px; margin-left: -5%; margin-right: -5%; }
+    .gear_card_detail_bottom_desc {font-size: 18px; }
+    .puzzle_piece_repeater {font-size: 20px; }
+    .affinity_bonus_text {font-size: 18px; }
+    .gear_card_combat_stat_activation {font-size: 20px; }
+    .gear_card_combat_stat_activation_detail {font-size: 18px; padding-top: 5%; padding-bottom: 5%;}
+    .gear_card_combat_stat_shield {font-size: 30px; width: 40px; height: 60px; padding-top: 5%; }
+    .gear_card_location_glyph {font-size: 25px; }
+    .gear_card_detail_region {min-height: 300px; }
+    .gear_card_affinity_outer.left_affinity.affinity_paired_left,
+        .gear_card_affinity_outer.right_affinity.affinity_paired_right {border-top: 15px solid transparent; border-bottom: 15px solid transparent; }
+    .gear_card_affinity_outer.right_affinity.affinity_paired_right {border-left: 15px solid #333; margin-right: 15%;}
+    .gear_card_affinity_outer.left_affinity.affinity_paired_left {border-right: 15px solid #333; margin-left: 15%;}
+    .gear_card_add_affinity {width: 60px; height: 60px; }
+    .gear_card_add_affinity_interior {border-width: 2px; }
 
     /* event log - tablet */
     .event_log_clicker {font-size: 20pt; }
@@ -1845,7 +1975,15 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.user_asset_sheet_error {font-size:20px; width: 40%; position: absolute; right: 0; top: 70px; }
     span.campaign_summary_bullet {font-size: 25px; margin: auto; margin-left: 7%; }
 
-    
+    /* departing survivors mgmt - tablet */
+    .showdown_controls_box_outline {width: 65%; border-width: 5px; }
+    .departing_survivors_modal_container h3 {font-size: 1em; }
+    .departing_survivors_control {width: 95%; }
+    .departing_survivors_control div.button_div button {padding:0; width: 65px; height: 65px; font-size: 18pt; }
+    .departing_survivors_mgmt {display: block; padding: 2%; margin: 5% auto; }
+    .departing_survivors_mgmt.close_button {width: 60%; }
+    .applying_update_spinner img {width: 150px; }
+
         /* quickview - tablet */
     .kd_sheet_ui_inner_ring_container.survivor_quickview_container {width: 95%; }
     .survivor_quickview_container hr {margin: 1%;}
@@ -1973,13 +2111,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     p.modal_subtitle {font-size: 13pt; width: 60%; margin: 0 auto; margin-top: -3%; }
 
     /* departing survivors management - tablet */
-    button#departingSurvivorsModalOpener {position: absolute; top: 120px; right: 7px; left: auto; bottom: auto; padding: 20px; width: 360px; }
-    .manage_departing_survivors {border-radius: 15px; }
-    .departing_survivors_control {width: 60%; }
-    .departing_survivors_control div.label_div {font-size: 25pt; }
-    .departing_survivors_control div.button_div button {padding:0; width: 65px; height: 65px; font-size: 18pt; }
-    .current_hunt_container {width: 60%; }
-    .departing_survivors_mgmt {margin: 0; padding: 1%; width: 50%; display: block; margin: 0 auto; margin-top: 3%; }
 
 
     /* campaign summary special rules - tablet */
@@ -2142,7 +2273,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     h1 {font-size: 20pt; }
     h2 {font-size: 17pt; }
     h3 {font-size: 15pt; }
-    h4, label, li {font-size: 14pt; }
+    h4, label, li {font-size: 16px; }
     table, p {font-size: 11pt; margin: 0 auto; text-align: left; padding: 5px; }
     button {font-size: 11pt; margin: 0 auto; padding: 3px; }
     hr {border: 1px solid #ddd; margin: 3%; height: 0; padding: 0 none; }
@@ -2436,10 +2567,18 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.campaign_summary_survivors .clickable {margin-top: 30px; }
     button.add_survivor_to_party {font-size: 18pt; width: 35px; height: 35px; padding: 0; }
     button#survivor_campaign_asset {width: 400px; }
-    button#departingSurvivorsModalOpener {position: absolute; bottom: auto; top: 140px; left: 610px; right: auto; margin: 0 auto; width: 300px; padding: 10px;  }
-    .manage_departing_survivors {border-radius: 7px; }
 
-    /* campaign summary survivors */
+    /* manage departing survivors - wide */
+    .manage_departing_survivors {width: 300px; right: auto; left: 575px; top: 110px; padding: 1%; border-width: 2px; bottom: auto; position: absolute; } 
+    .modal-black.departing_survivors_modal_container {font-size: 30px;}
+    .showdown_controls_box_outline {width: 450px; border-width: 3px; }
+    .departing_survivors_control {width: 95%; border-width: 1px; }
+    .showdown_type_options {width: 90%; }
+    .departing_survivors_control div.button_div button {width: 45px; height: 45px; font-size: 1em; }
+    .departing_survivors_mgmt.close_button {width: 400px; padding: 1%; }
+    .return_departing_survivors {display: block; margin: 0 auto; }
+
+    /* campaign summary survivors - wide */
     .campaign_summary_survivors_group h3 {margin-bottom: 3%; }
     .campaign_summary_survivors_container h2 {font-size: 22pt; }
     .campaign_summary_survivors_container p.subtitle {font-size: 10pt; text-align: center; }
@@ -2504,14 +2643,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
         .quickview_ui_button_container .back_button_holder {margin: 1%; height: auto; }
     .quickview_brain_container.border_box {margin-bottom: 1%; }
 
-    /* campaign summary manage departing survivors modal - wide */
-    p.modal_subtitle {font-size: 11pt; margin-top: -1%; margin-bottom: 1%; width: 40%; }
-    .departing_survivors_control {width: 30%; }
-    .departing_survivors_control div.label_div {font-size: 12pt; }
-    .departing_survivors_control div.button_div button {font-size: 12pt; width: 40px; height: 40px; }
-    .current_hunt_container {width: 35%; margin-bottom: 5%; }
-    .departing_survivors_mgmt {width: 40%; }
-    .showdown_type div.options {display: flex; flex-direction: row; flex-wrap: nowrap; margin: 0 auto; width: 50%; }
 
     /* campaign summary right panel - wide */
     div.campaign_summary_special_rule {font-size: 11pt;}
@@ -2635,6 +2766,28 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .help_modal_tip_repeater {font-size: 11pt; }
     .help_container .kd_sheet_ui_row_tip {font-size: 10pt; }
     .help_modal_tip_repeater .kd_sheet_ui_box {width: 9px; height: 9px; }
+
+    /* gear lookup - wide */
+    .gear_card_container {width: 270px; min-height: auto;}
+    .gear_card_affinity_outer.top_affinity,
+        .gear_card_affinity_outer.bottom_affinity {height: 20px;}
+    .gear_card_detail_top_info .title {font-size: 14pt; }
+    .gear_card_detail_top_info .keywords {font-size: 9pt; }
+    .gear_card_detail_region {min-height: 230px; }
+    .gear_card_combat_stat_shield {font-size: 14pt; width: 30px; height: 33px; }
+    .gear_card_location_glyph {font-size: 20px; }
+    .gear_card_combat_stat_activation {font-size: 12pt; }
+    .gear_card_combat_stat_activation hr {display: inherit; height: 1px; }
+    .gear_card_combat_stat_activation_detail hr {display: inherit; height: 1px; }
+    .gear_card_combat_stat_activation_detail {font-size: 12pt; }
+    .gear_card_detail_bottom_rules {font-size: 11pt; }
+    .gear_card_detail_bottom_desc {font-size: 10pt;}
+    .gear_card_detail_bottom_desc hr {display: inherit;}
+    .gear_card_add_affinity {width: 40px; height: 40px; }
+    .gear_card_detail_bottom_affinity_bonus {border-radius: 10px;}
+    .puzzle_piece_repeater {font-size: 15px;}
+    .affinity_bonus_text {font-size: 9pt; }
+    .kd_sheet_ui_inner_ring_container.gear_lookup_container button {display: block;  margin: 0 auto; width: 60%; margin-bottom: 2%; }
 
     /* event log - wide */
     .event_log_clicker {font-size: 12pt; margin-bottom: 1%; }
@@ -2997,16 +3150,10 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     border-right: 2px solid #190A05; border-bottom: 2px solid #190A05; 
 }
 
-.kd_lantern {background-color: #F9EFCE; background: radial-gradient(#F9E6A4, #FCF3D5 ); border: 0.1em solid #EBD6AB;}
-.kd_dying_lantern {background-color: #F9EFCE; background: radial-gradient(#FDE6C4, #FCF3D5); }
-.kd_blue {background-color: #50CAF5; background: linear-gradient(to bottom, #60DAF5, #40AFD3); border-bottom: 0.1em solid #8D8E90; color: #fff; font-family: Arial, sans-serif; font-weight: bold; }
+.kd_blue {background-color: #50CAF5; background: linear-gradient(to bottom, #60DAF5, #40AFD3); color: #fff; font-family: Arial, sans-serif; font-weight: bold; }
 .kd_blue_font {color: #50AAF5; font-weight: bold; }
 .kd_pink_font {color: #FF0040; font-weight: bold; }
 
 /* button styles */
-.kd_brown, .endeavor_brown {background-color: #997030; background: linear-gradient(#997030, #a47a41, #997030); border-color: #B6B057; color: #fff; border-right-color: #C6C057; border-bottom-color: #C6C057;}
-.kd_special_showdown {background-color: #DC2426; color: #fff; }
-
 .disabled, .strikethrough {color: #999; background: #dedede; cursor: not-allowed; }
-
 

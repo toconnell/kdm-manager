@@ -4,7 +4,7 @@ app.controller ("campaignSummaryController", function($scope) {
     $scope.getStorage = function() {
         console.time('getStorage()');
         $scope.getJSONfromAPI('settlement','get_storage', 'getStorage').then(
-            function(payload) { $scope.settlementStorage = payload.data; console.timeEnd('getStorage()');},
+            function(payload) { $scope.settlementStorage = payload.data; console.imeEnd('getStorage()');},
             function(errorPayload) {console.log("Could not retrieve settlement storage from API!" + errorPayload);}
         );
     };
@@ -35,51 +35,120 @@ app.controller("endeavorController", function($scope) {
 
 
 app.controller("manageDepartingSurvivorsController", function($scope, $rootScope) {
-    $scope.scratch = {}; 
-    $scope.initShowdownControls = function(){
-        if ($scope.settlement.sheet.showdown_type != undefined) {
-            $scope.scratch.showdown_arrow=true
+    $scope.scratch = {
+        increment_ly_on_return: false,
+        showdown_type_options: [
+            {'name': 'Showdown', 'value': 'normal'},
+            {'name': 'Nemesis Encounter', 'value': 'nemesis'},
+            {'name': 'Special Showdown', 'value': 'special'},
+        ],
+    }; 
+
+
+    // methods for showing/hiding control blocks
+
+    $scope.toggleControlState = function(c) {
+        // toggles a control state; c should be a string
+        if ($scope.scratch[c] === 'visible') {
+            $scope.scratch[c] = 'hidden';
         } else {
-            $scope.scratch.showdown_arrow = false; 
+            $scope.scratch[c] = 'visible';
         };
     };
-    $scope.flipShowdownArrow = function(){
-        if ($scope.scratch.showdown_arrow === true) {$scope.scratch.showdown_arrow = false; return true};
-        if ($scope.scratch.showdown_arrow === false) {$scope.scratch.showdown_arrow = true; return true};
+
+    $scope.initShowdownControls = function(){
+        // this is kind of low-rent, but we've got exact conditions we want to
+        // evaluate for showing/hiding our various controls. All of our controls
+        // have a 'state' in scratch (which this sets); states are modified by
+        // toggleControlState() above, rather than 'showHide()', which isn't
+        // complex enough for our UX design here.
+        if ($scope.settlement.sheet.showdown_type != undefined) {
+            $scope.scratch.showdown_type_control_state = 'hidden';
+        } else {
+            $scope.scratch.showdown_type_control_state = 'visible';
+        };
+
+        if ($scope.settlement.sheet.showdown_type != undefined && $scope.settlement.sheet.current_quarry != undefined) {
+            $scope.scratch.showdown_current_quarry_control_state = 'hidden';
+        } else {
+            $scope.scratch.showdown_current_quarry_control_state = 'visible';
+        };
+
+        if ($scope.settlement.sheet.showdown_type != undefined && $scope.settlement.sheet.current_quarry != undefined) {
+            $scope.scratch.showdown_manage_departing_survivors_control_state = 'visible';
+        } else {
+            $scope.scratch.showdown_manage_departing_survivors_control_state = 'hidden';
+        };
+
+        // always hide this one
+        $scope.scratch.showdown_return_departing_survivors_control_state = 'hidden';
+    };
+
+
+    // misc. helper
+    $scope.toggleIncrementLY = function() {
+        if ($scope.scratch.increment_ly_on_return === false) {
+            $scope.scratch.increment_ly_on_return = true;
+        } else {
+            $scope.scratch.increment_ly_on_return = false;
+        };
+    };
+
+    // methods for updating the SETTLEMENT from the modal controls
+
+    $scope.setShowdownType = function(s){
+        $scope.settlement.sheet.showdown_type = s;
+        var js_obj = {showdown_type: s};
+        $scope.postJSONtoAPI('settlement','set_showdown_type',js_obj, false, true);
+//        $scope.toggleControlState('showdown_type_control_state');
     };
 
     $scope.saveCurrentQuarry = function() {
-
-        // first, set the quarry
         var q_name = $scope.settlement.sheet.current_quarry;
         js_obj = {current_quarry: q_name}
         $scope.postJSONtoAPI('settlement', 'set_current_quarry', js_obj, false);
-
-
-        // now try to put it on the timeline
-        var timeline_event = {
-            "name": q_name,
-            "ly": $scope.settlement.sheet.lantern_year,
-        };
-
-        if ($scope.settlement.game_assets.showdown_options.indexOf(q_name) != -1) {
-            timeline_event.type = 'showdown_event';
-        } else if ($scope.settlement.game_assets.nemesis_encounters.indexOf(q_name) != -1) {
-            timeline_event.type = 'nemesis_encounter';
-        } else if ($scope.settlement.game_assets.special_showdown_options.indexOf(q_name) != -1) {
-            timeline_event.type = 'special_showdown';
-        };
-
-        $scope.addEvent(
-            timeline_event["ly"],
-            timeline_event["type"],
-            timeline_event["name"]
-        );
-
     };    
+
+    $scope.addCurrentQuarryToTimeline = function() {
+        // replaces a TL year to include info on the current quarry
+
+        // initialize
+        var ly = $scope.settlement.sheet.lantern_year;
+        var q = $scope.settlement.sheet.current_quarry;
+        var s = $scope.settlement.sheet.showdown_type;
+        var event_type = 'showdown_event';
+        if (s === 'special') {
+            event_type = 'special_showdown';
+        } else if (s === 'nemesis') {
+            event_type = 'nemesis_encounter';
+        };
+
+        // sanity check
+        if (q === undefined) {console.error('Quarry not specified! Gotta die...'); return false;};
+
+        // construct an updated LY
+        target_ly = $scope.getTimelineLY(ly);
+        if (target_ly === null) {
+            console.error("Could not retrieve Timeline LY " + ly + "! Gotta die...");
+            return false;
+        };
+
+        if (target_ly[event_type] === undefined) {
+            target_ly[event_type] = [{name: q}]
+        } else {
+            target_ly[event_type].push({name: q})
+        };
+
+        $scope.postJSONtoAPI('settlement','replace_lantern_year', {'ly': target_ly}, false );
+
+        showHide('addCurrentQuarryToTimeline');
+    };
 
     $scope.returnDepartingSurvivors = function(a){
         showFullPageLoader();
+        if ($scope.scratch.increment_ly_on_return === true) {
+            $scope.setCurrentLY($scope.settlement.sheet.lantern_year + 1);
+        };
         $scope.postJSONtoAPI('settlement', 'return_survivors', {aftermath: a});
     };
 
@@ -91,11 +160,6 @@ app.controller("manageDepartingSurvivorsController", function($scope, $rootScope
         });
     };
 
-    $scope.setShowdownType = function(s){
-        $scope.settlement.sheet.showdown_type = s;
-        var js_obj = {showdown_type: s};
-        $scope.postJSONtoAPI('settlement','set_showdown_type',js_obj, false);
-    };
 });
 
 
