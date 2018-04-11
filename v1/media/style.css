@@ -38,7 +38,7 @@ ul.lanterns {list-style-type: none;}
 ul.lanterns li:before {content: "a "; font-family: 'kdm-font-2'}
 ul.lanterns li {text-align: left; }
 
-ul.kd_boxes {list-style-type: none;}
+ul.kd_boxes {list-style-type: none; margin-top: 1.5%; }
 ul.kd_boxes li:before {content: "h "; font-family: 'kdm-font-2'; font-size: 1.5em; vertical-align: bottom; }
 ul.kd_boxes li {text-align: left; }
 
