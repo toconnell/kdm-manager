@@ -1375,6 +1375,7 @@ class Settlement(Models.UserAsset):
                 
         if live_returns != []:
             returners = utils.list_to_pretty_string(live_returns)
+            msg = "Departing Survivors returend to the settlement in %s." % (aftermath)
             if showdown_type == 'normal':
                 msg = "%s returned to the settlement in %s." % (returners, aftermath)
             elif showdown_type == 'special':
