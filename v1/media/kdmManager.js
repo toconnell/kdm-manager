@@ -646,10 +646,10 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
             $scope.setGameAssetOptions('abilities_and_impairments', "AIoptions", "curse");
 
             $scope.setGameAssetOptions('fighting_arts', "FAoptions");
-            $scope.FAoptions["_random"]  = {handle: "_random", name: "* Random Fighting Art", type_pretty: "Special"};
+            $scope.FAoptions["_random"]  = {handle: "_random", name: "* Random Fighting Art", sub_type_pretty: "Special"};
 
             $scope.setGameAssetOptions('disorders', "dOptions");
-            $scope.dOptions["_random"]  = {handle: "_random", name: "* Random Disorder", type_pretty: "Special"};
+            $scope.dOptions["_random"]  = {handle: "_random", name: "* Random Disorder", sub_type_pretty: "Special"};
 
             $scope.setGameAssetOptions('epithets', "epithetOptions");
 

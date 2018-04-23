@@ -5520,7 +5520,7 @@ class settlement:
                 <select
                     ng-model="settlement.sheet.inspirational_statue"
                     ng-options="
-                        fa_handle as settlement.game_assets.fighting_arts[fa_handle].name for fa_handle in settlement.game_assets.inspirational_statue_options
+                        fa_dict.handle as fa_dict.name disable when fa_dict.select_disabled for fa_dict in settlement.game_assets.inspirational_statue_options
                     "
                     ng-change="setInspirationalStatue()"
                     ng-selected="settlement.sheet.inspirational_statue"

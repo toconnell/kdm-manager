@@ -109,12 +109,12 @@ class Settlement(Models.UserAsset):
         self.Expansions = expansions.Assets()
         self.FightingArts = fighting_arts.Assets()
         self.Gear = gear.Assets()
+        self.Resources = resources.Assets()
         self.Innovations = innovations.Assets()
         self.Locations = locations.Assets()
         self.Milestones = milestone_story_events.Assets()
         self.Monsters = monsters.Assets()
         self.Names = names.Assets()
-        self.Resources = resources.Assets()
 #        self.Storage = storage.Assets()
         self.SpecialAttributes = survivor_special_attributes.Assets()
         self.SurvivalActions = survival_actions.Assets()
@@ -411,6 +411,8 @@ class Settlement(Models.UserAsset):
             start = datetime.now()
             output.update({"game_assets": {}})
             output["game_assets"].update(self.get_available_assets(innovations))
+            output["game_assets"].update(self.get_available_assets(gear))
+            output["game_assets"].update(self.get_available_assets(resources))
             output["game_assets"].update(self.get_available_assets(locations, only_include_selectable=True))
             output["game_assets"].update(self.get_available_assets(abilities_and_impairments))
             output["game_assets"].update(self.get_available_assets(weapon_specializations))
@@ -450,7 +452,7 @@ class Settlement(Models.UserAsset):
             # misc helpers for front-end
             output['game_assets']['survivor_special_attributes'] = self.get_survivor_special_attributes()
             output["game_assets"]["survival_actions"] = self.get_survival_actions("JSON")
-            output['game_assets']['inspirational_statue_options'] = self.get_available_fighting_arts()
+            output['game_assets']['inspirational_statue_options'] = self.get_available_fighting_arts(exclude_dead_survivors=False, return_type='JSON')
             output['game_assets']['monster_volumes_options'] = self.get_available_monster_volumes()
 
             if request.metering:
@@ -1372,19 +1374,19 @@ class Settlement(Models.UserAsset):
         for s in returned:
             if not s.is_dead():
                 live_returns.append(s.survivor['name'])
-                
+
+        msg = "Departing Survivors returend to the settlement in %s." % (aftermath)
         if live_returns != []:
             returners = utils.list_to_pretty_string(live_returns)
-            msg = "Departing Survivors returend to the settlement in %s." % (aftermath)
-            if showdown_type == 'normal':
-                msg = "%s returned to the settlement in %s." % (returners, aftermath)
-            elif showdown_type == 'special':
+            if showdown_type == 'special':
                 msg = "%s healed %s." % (request.User.login, returners)
+            else:
+                msg = "%s returned to the settlement in %s." % (returners, aftermath)
         else:
-            if showdown_type == 'normal':
-                msg = "No survivors returned to the settlement."
-            elif showdown_type == 'special':
+            if showdown_type == 'special':
                 msg = 'No survivors were healed after the Special Showdown.'
+            else:
+                msg = "No survivors returned to the settlement."
         self.log_event(msg, event_type="survivors_return_%s" % aftermath)
 
 
@@ -2133,24 +2135,46 @@ class Settlement(Models.UserAsset):
         return available
 
 
-    def get_available_fighting_arts(self):
+    def get_available_fighting_arts(self, exclude_dead_survivors=True, return_type=False):
         """ Returns a uniqified list of farting art handles based on LIVING
         survivors. """
 
-        output = set()
-
-        fa_handles = set()
+        # 1.) create a set for live survivors and a set for dead survivors
+        dead_survivors = set()
+        live_survivors = set()
         for s in self.survivors:
-            if not s.is_dead():
-                fa_handles = fa_handles.union(s.survivor['fighting_arts'])
+            if s.is_dead():
+                dead_survivors = dead_survivors.union(s.survivor['fighting_arts'])
+            else:
+                live_survivors = live_survivors.union(s.survivor['fighting_arts'])
 
+        # 2.) if we're NOT excluding dead survivors, the final set is the union
+        #   of both sets above; otherwise, its just the living survivors' set
+        if not exclude_dead_survivors:
+            fa_handles = dead_survivors.union(live_survivors)
+        else:
+            fa_handles = live_survivors
+
+        # 3.) now, initialize our master set and remove the SFA's
         for fa_handle in fa_handles:
             fa_dict = self.FightingArts.get_asset(fa_handle, raise_exception_if_not_found=False)
-            if fa_dict is not None and fa_dict['type'] == 'fighting_arts' and fa_dict['sub_type'] != 'secret_fighting_art':
-                output.add(fa_handle)
+            if fa_dict.get('sub_type', None) == 'secret_fighting_art':
+                fa_handles.remove
 
-        output = sorted(list(output))
-        return output
+        # 4.) now create the output based on requested 'return_type'
+        if return_type in [False, list]:
+            return sorted(list(fa_handles))
+        elif return_type == "JSON":
+            output = []
+            for fa_handle in sorted(fa_handles):
+                fa_dict = self.FightingArts.get_asset(fa_handle, raise_exception_if_not_found=False)
+                if fa_handle in dead_survivors and fa_handle not in live_survivors:
+                    fa_dict['select_disabled'] = True
+                output.append(fa_dict)
+            return output
+
+        # raise an exception for un-handled return type
+        raise utils.InvalidUsage('get_available_fighting_arts() does not support %s returns!' % return_type)
 
 
     def get_available_monster_volumes(self):
@@ -2380,7 +2404,7 @@ class Settlement(Models.UserAsset):
 
     def get_gear_lookup(self, organize_by="sub_type"):
         """ This is a sort of...meta-method that renders the settlement's Gear
-        options as JSON. """
+        and resource options as JSON. """
 
         # initialize 
         all_gear = copy(self.Gear.assets)
@@ -3375,6 +3399,11 @@ class Settlement(Models.UserAsset):
                 self.settlement['storage'].remove(i)
                 self.settlement['storage'].insert(item_index, 'hunters_heart')
                 self.logger.warn("%s BUG FIX: changed %s to 'hunters_heart'" % (self,i))
+                self.perform_save = True
+            elif i == "jack_o'_lantern":
+                self.settlement['storage'].remove(i)
+                self.settlement['storage'].insert(item_index, 'jack_o_lantern')
+                self.logger.warn("%s BUG FIX: changed %s to 'jack_o_lantern'" % (self,i))
                 self.perform_save = True
 
         # 2018-03-20 - missing timeline bug

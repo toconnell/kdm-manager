@@ -705,6 +705,9 @@ core = {
         'name': 'Dried Acanthus',
         'keywords': ['item','herb','consumable'],
         'desc': 'When you <b>depart</b>, gain +2 survival. When you suffer a severe injury, ignore it and archive this card instead.',
+        'recipes': [
+            {'locations': ['organ_grinder'], 'resource_handles': {'fresh_acanthus':1} },
+        ],
     },
     'fecal_salve': {
         'type': 'organ_grinder',
@@ -712,6 +715,9 @@ core = {
         'keywords': ['item','balm','stinky'],
         'desc': 'When you <b>depart</b>, gain +1 survival<br/><font class="kdm_font">a</font>: You are not a <b>threat</b> until you attack. If you have the <b>priority target</b> token, remove it.',
         'affinities': {'left': 'blue'},
+        'recipes': [
+            {'locations': ['organ_grinder'], 'resource_types': {'organ':1} },
+        ],
     },
     'lucky_charm': {
         'type': 'organ_grinder',
@@ -722,6 +728,9 @@ core = {
             'desc': '+1 luck',
             'requires': {'complete': {'blue': 2}},
         },
+        'recipes': [
+            {'locations': ['organ_grinder'], 'resource_types': {'organ':1} },
+        ],
     },
     'monster_grease': {
         'type': 'organ_grinder',
@@ -733,6 +742,9 @@ core = {
             'desc': '+1 evasion',
             'requires': {'complete': {'green': 3}},
         },
+        'recipes': [
+            {'locations': ['organ_grinder'], 'resource_types': {'organ':1} },
+        ],
     },
     'monster_tooth_necklace': {
         'type': 'organ_grinder',
@@ -744,6 +756,9 @@ core = {
             'desc': '+1 strength',
             'requires': {'complete': {'red': 2}},
         },
+        'recipes': [
+            {'locations': ['organ_grinder'], 'resource_types': {'scrap':1, 'bone': 1}, 'misc': 'Heat'},
+        ],
     },
     'stone_noses': {
         'type': 'organ_grinder',
@@ -1079,6 +1094,9 @@ core = {
         'name': 'Rawhide Boots',
         'keywords': ['armor','set','rawhide'],
         'desc': 'When you <b>depart</b>, gain +1 survival',
+        'recipes': [
+            {'locations': ['skinnery'], 'resource_types': {'hide':1} },
+        ],
     },
     'rawhide_drum': {
         'type': 'skinnery',
@@ -1095,6 +1113,9 @@ core = {
         'affinities': {'left': 'red'},
         'desc': 'When you <b>depart</b>, gain +1 survival',
         'keywords': ['armor','set','rawhide'],
+        'recipes': [
+            {'locations': ['skinnery'], 'resource_types': {'hide':1} },
+        ],
     },
     'rawhide_headband': {
         'type': 'skinnery',
@@ -1107,6 +1128,9 @@ core = {
             'desc': '<font class="kdm_font">a</font>: reveal the top 2 <font class="kdm_font_10">b</font>. Place them back on top of the deck in any order.',
             'requires': {'puzzle': {'blue': 1}, },
         },
+        'recipes': [
+            {'locations': ['skinnery'], 'resource_types': {'hide':1} },
+        ],
     },
     'rawhide_pants': {
         'type': 'skinnery',
@@ -1114,6 +1138,9 @@ core = {
         'armor': 1,
         'location': 'legs',
         'keywords': ['armor','set','rawhide',],
+        'recipes': [
+            {'locations': ['skinnery'], 'resource_types': {'hide':1} },
+        ],
     },
     'rawhide_vest': {
         'type': 'skinnery',
@@ -1126,6 +1153,9 @@ core = {
             'desc': '+1 Evasion',
             'requires': {'puzzle': {'red': 1, 'blue': 1}, },
         },
+        'recipes': [
+            {'locations': ['skinnery'], 'resource_types': {'hide':1} },
+        ],
     },
     'rawhide_whip': {
         'type': 'skinnery',
@@ -1178,7 +1208,7 @@ core = {
         'type': 'stone_circle',
         'name': 'Blue Charm',
         'keywords': ['item', 'jewelry', 'fragile'],
-        'add_affinity': 'blue',
+        'add_affinity': ['blue'],
         'affinity_bonus': {
             'desc': '<b>Unshakeable:</b> When you draw a <b>Trap</b>, roll 1d10. On a 6+, discard the <b>Trap</b> and reshuffle the deck.',
             'requires': {'complete': {'blue': 5}},
@@ -1200,7 +1230,7 @@ core = {
         'type': 'stone_circle',
         'name': 'Green Charm',
         'keywords': ['item', 'jewelry', 'fragile'],
-        'add_affinity': 'green',
+        'add_affinity': ['green'],
         'affinity_bonus': {
             'desc': '<b>Undeathable:</b> If you would die, roll 1d10. On a 6+, you inexplicably survive.',
             'requires': {'complete': {'green': 5}},
@@ -1220,7 +1250,7 @@ core = {
         'type': 'stone_circle',
         'name': 'Red Charm',
         'keywords': ['item', 'jewelry', 'fragile'],
-        'add_affinity': 'red',
+        'add_affinity': ['red'],
         'affinity_bonus': {
             'desc': '<b>Unstoppable:</b> When you attempt to wound, instead roll 1d10. On a 1-5 fail. On 6-10, wound.',
             'requires': {'complete': {'red': 5}},
@@ -1508,7 +1538,14 @@ gorm = {
     'acid_tooth_dagger': {
         'expansion': 'gorm',
         'type': 'gormery',
-        'name': 'Acid Tooth Dagger'
+        'name': 'Acid Tooth Dagger',
+        'keywords': ['weapon','melee','dagger','bone'],
+        'affinities': {'top': 'red', 'bottom': 'red'},
+        'speed': 2,
+        'accuracy': 7,
+        'strength': 2,
+        'rules': ['Paired'],
+        'desc': 'On a <b>Perfect hit</b>, a wound attempt in your attack automatically succeeds.',
     },
     'armor_spikes': {
         'expansion': 'gorm',
@@ -1537,13 +1574,46 @@ gorm = {
  'gorment_sleeves': {'expansion': 'gorm',
                      'type': 'gormery',
                      'name': 'Gorment Sleeves'},
- 'gorment_suit': {'expansion': 'gorm',
-                  'type': 'gormery',
-                  'name': 'Gorment Suit'},
- 'gorn': {'expansion': 'gorm', 'type': 'gormery', 'name': 'Gorn'},
- 'greater_gaxe': {'expansion': 'gorm',
-                  'type': 'gormery',
-                  'name': 'Greater Gaxe'},
+    'gorment_suit': {
+        'expansion': 'gorm',
+        'type': 'gormery',
+        'name': 'Gorment Suit',
+        'keywords': ['armor','set','gormskin','heavy'],
+        'location': 'body',
+        'aux_location': 'waist',
+        'armor': 2,
+        'affinities': {'left': 'green'},
+        'affinity_bonus': {
+            'desc': '<b>Guard:</b> At the end of your attack, if you are standing and have a shield in your gear grid, spend 1 survival to move 3 spaces directly away from the monster and <b>Block 1</b> for free.',
+            'requires': {
+                'puzzle': {'green': 1},
+                'complete': {'blue': 1, 'red': 1},
+            },
+        },
+    },
+    'gorn': {
+        'expansion': 'gorm',
+        'type': 'gormery',
+        'name': 'Gorn',
+        'keywords': ['item','instrument','gormskin'],
+        'affinities': {'bottom': 'blue'},
+        'desc': '<font class="kdm_font">a</font>: All non-deaf knocked down survivors stand and gain +<font class="inline_shield">1</font> to all hit locations.<br/>Use once per showdown.',
+    },
+    'greater_gaxe': {
+        'expansion': 'gorm',
+        'type': 'gormery',
+        'name': 'Greater Gaxe',
+        'keywords': ['weapon','melee','axe','two-handed','heavy'],
+        'speed': 2,
+        'accuracy': 6,
+        'strength': 4,
+        'rules': ['Deadly','Reach 2'],
+        'affinities': {'left':'red'},
+        'affinity_bonus': {
+            'desc': 'On a <b>Perfect hit</b>, the edge sharpens. Gain +4 strength for the rest of the attack.',
+            'requires': {'complete': {'green': 1,'red': 1}},
+        },
+    },
     'healing_potion': {
        'type': 'gormchymist',
        'name': 'Healing Potion',
@@ -1652,22 +1722,36 @@ spidicules = {
  'silk_wraps': {'expansion': 'spidicules',
                 'type': 'silk_mill',
                 'name': 'Silk Wraps'},
- 'throwing_knife': {'expansion': 'spidicules',
-                    'type': 'silk_mill',
-                    'name': 'Throwing Knife'},
+    'throwing_knife': {
+        'expansion': 'spidicules',
+        'type': 'silk_mill',
+        'name': 'Throwing Knife',
+    },
     'the_weaver': {
-        'desc': 'When you wound a monster, add <font class="inline_shield">1</font> to a random hit location.',
         'expansion': 'spidicules',
         'type': 'rare_gear',
         'name': 'The Weaver',
         'keywords': ['weapon', 'melee', 'sword', 'amber'],
+        'speed': 3,
+        'accuracy': 6,
+        'strength': 2,
+        'affinities': {'top':'red','left': 'red'},
+        'rules': ['Unique'],
+        'desc': 'When you wound a monster, add <font class="inline_shield">1</font> to a random hit location.',
     },
 }
 
 lion_god = {
-    'ancient_lion_claws': {'expansion': 'lion_god',
-                        'type': 'rare_gear',
-                        'name': 'Ancient Lion Claws'
+    'ancient_lion_claws': {
+        'expansion': 'lion_god',
+        'type': 'rare_gear',
+        'name': 'Ancient Lion Claws',
+        'keywords': ['item','fur','heavy'],
+        'armor': 2,
+        'location': 'arms',
+        'affinities': {'top': 'red', 'right': 'red'},
+        'rules': ['Unique','Accessory','-1 evasion'],
+        'desc': '+2 strength while attacking with daggers or katars. You may move up to 2 additional spaces when you <b>pounce</b>.',
     },
     'bone_witch_mehndi': {'expansion': 'lion_god',
                        'type': 'rare_gear',
@@ -1680,7 +1764,11 @@ lion_god = {
     'death_mehndi': {
         'expansion': 'lion_god',
         'type': 'rare_gear',
-        'name': 'Death Mehndi'
+        'name': 'Death Mehndi',
+        'keywords': ['item','soluble','symbol','other'],
+        'rules': ['Cursed'],
+        'desc': 'On a <b>Perfect hit</b>, gain 1d10 insanity. -4 to all brain trauma rolls.',
+        'add_affinity': ['blue','green','red'],
     },
  'glyph_of_solitude': {'expansion': 'lion_god',
                        'type': 'rare_gear',
@@ -1702,31 +1790,61 @@ lion_god = {
 }
 
 sunstalker = {
- 'apostle_crown': {'expansion': 'sunstalker',
-                   'type': 'sacred_pool',
-                   'name': 'Apostle Crown'},
- 'cycloid_scale_armor': {'expansion': 'sunstalker',
-                         'type': 'skyreef_sanctuary',
-                         'name': 'Cycloid Scale Armor'},
- 'cycloid_scale_hood': {'expansion': 'sunstalker',
-                        'type': 'skyreef_sanctuary',
-                        'name': 'Cycloid Scale Hood'},
- 'cycloid_scale_jacket': {'expansion': 'sunstalker',
+    'apostle_crown': {
+        'expansion': 'sunstalker',
+        'type': 'sacred_pool',
+        'name': 'Apostle Crown',
+        'armor': 3,
+        'location': 'head',
+        'keywords': ['item','jewelry','other'],
+        'rules': ['Unique','Accessory'],
+        'affinities': {'bottom': 'blue','right':'red'},
+        'desc': 'At the start of your act, if you have any +1 strength tokens, reveal the next 4 monster hit locations and put them back in any order.',
+    },
+    'cycloid_scale_armor': {
+        'expansion': 'sunstalker',
+        'type': 'skyreef_sanctuary',
+        'name': 'Cycloid Scale Armor',
+        'desc': 'Add <font class="inline_shield">1</font> to all hit locations.<br/><b>Prismatic:</b> Your complete affinities and incomplete affinity halves count as all colors.',
+    },
+    'cycloid_scale_hood': {
+        'expansion': 'sunstalker',
+        'type': 'skyreef_sanctuary',
+        'name': 'Cycloid Scale Hood',
+        'location': 'head',
+        'armor': 2,
+        'keywords': ['armor','set','scale'],
+        'affinities': {'bottom': 'blue'},
+        'desc': """Whenever you spend <font class="kdm_font">c</font>, the scales' colors shift. Gain +1 evasion until your next act.""",
+    },
+    'cycloid_scale_jacket': {'expansion': 'sunstalker',
                           'type': 'skyreef_sanctuary',
                           'name': 'Cycloid Scale Jacket'},
- 'cycloid_scale_shoes': {'expansion': 'sunstalker',
+    'cycloid_scale_shoes': {'expansion': 'sunstalker',
                          'type': 'skyreef_sanctuary',
                          'name': 'Cycloid Scale Shoes'},
- 'cycloid_scale_skirt': {'expansion': 'sunstalker',
+    'cycloid_scale_skirt': {'expansion': 'sunstalker',
                          'type': 'skyreef_sanctuary',
                          'name': 'Cycloid Scale Skirt'},
- 'cycloid_scale_sleeves': {'expansion': 'sunstalker',
+    'cycloid_scale_sleeves': {'expansion': 'sunstalker',
                            'type': 'skyreef_sanctuary',
                            'name': 'Cycloid Scale Sleeves'},
     'denticle_axe': {
         'expansion': 'sunstalker',
         'type': 'skyreef_sanctuary',
-        'name': 'Denticle axe'
+        'name': 'Denticle axe',
+        'speed': 2,
+        'accuracy': 6,
+        'strength': 5,
+        'keywords': ['weapon','melee','axe','scale'],
+        'affinities': {'right': 'red', 'bottom': 'blue'},
+        'affinity_bonus': {
+            'desc': 'When attacking from the blind spot, the attack gains +2 strength and the first successful wound attempt gains <b>devastating 1</b>.',
+            'requires': {
+                'puzzle': {'blue':1},
+                'complete': {'blue': 1,'red': 1},
+            },
+        },
     },
     'eye_patch': {
         'expansion': 'sunstalker',
@@ -1734,10 +1852,17 @@ sunstalker = {
         'name': 'Eye Patch',
         'keywords': ['item','leather'],
         'desc': 'While you wear this, you are <b>blind</b> in one eye (-1 accuracy), if you are already <b>blind</b>, gain +2 strength for being a badass instead.',
+        'affinities': {'top': 'green', 'bottom': 'red'},
     },
- "gods_string": {'expansion': 'sunstalker',
-                  'type': 'rare_gear',
-                  'name': "God's String"},
+    "gods_string": {
+        'expansion': 'sunstalker',
+        'type': 'rare_gear',
+        'name': "God's String",
+        'keywords': ['item','other'],
+        'rules': ['Unique'],
+        'desc': "When a bow is below God's string, it gains <b>sharp</b>, and its range is increased by 1.",
+        'affinities': {'bottom': 'paired',},
+    },
  'ink_blood_bow': {'expansion': 'sunstalker',
                    'type': 'skyreef_sanctuary',
                    'name': 'Ink Blood Bow'},
@@ -1759,9 +1884,14 @@ sunstalker = {
  'sky_harpoon': {'expansion': 'sunstalker',
                  'type': 'skyreef_sanctuary',
                  'name': 'Sky Harpoon'},
- 'sun_lure_and_hook': {'expansion': 'sunstalker',
-                       'type': 'skyreef_sanctuary',
-                       'name': 'Sun Lure and Hook'},
+    'sun_lure_and_hook': {
+        'expansion': 'sunstalker',
+        'type': 'skyreef_sanctuary',
+        'name': 'Sun Lure and Hook',
+        'keywords': ['item','tool'],
+        'affinities': {'bottom': 'blue'},
+        'desc': 'When you <b>depart</b>, gain +1 survival. After Hunt Phase setup, place the <b>Sky Fishing</b> event on any space.',
+    },
  'sun_vestments': {'expansion': 'sunstalker',
                    'type': 'sacred_pool',
                    'name': 'Sun Vestments'},
@@ -1790,6 +1920,9 @@ white_box_promo = {
         'expansion': 'white_box',
         'type': 'rare_gear',
         'name': 'Bloodskin',
+        'keywords': ['item','consumable','other'],
+        'affinities': {'top': 'green','bottom': 'green'},
+        'desc': 'When you <b>depart</b>, you fill the bloodskin and gain 2 bleeding tokens. At the start of each of each of your acts, remove 1 bleeding token.',
     },
     'blue_lantern': {
         'expansion': 'white_box',
@@ -1805,12 +1938,25 @@ white_box_promo = {
         'name': 'Dormant Twilight Cloak',
         'keywords': ['item','heavy','order','other'],
         'rules': ['Unique','Irreplaceable','Accessory'],
-        'desc': 'Ignore sentient on all gear. You cannot depart with this if you have 3+ understanding. ',
+        'desc': 'Ignore sentient on all gear. You cannot depart with this if you have 3+ understanding.',
+        'affinities': {'top': 'blue'},
+        'location': 'head',
+        'armor': 3,
     },
     'speaker_cult_knife': {
         'expansion': 'white_box',
         'type': 'rare_gear',
         'name': 'Speaker Cult Knife',
+        'keywords': ['weapon','melee','steel','dagger','fist & tooth'],
+        'speed': 3,
+        'accuracy': 6,
+        'strength': 4,
+        'rules': ['Deadly','Sharp'],
+        'affinities': {'top': 'red', 'bottom': 'red'},
+        'affinity_bonus': {
+            'desc': 'While <b>insane</b>, and not wearing armor or accessories, gain +2 evasion, +2 strength.',
+            'requires': {'puzzle': {'red': 2}},
+        },
     },
 
     # fade
@@ -1837,12 +1983,12 @@ white_box_promo = {
 
     # promo
     'black_friday_lantern': {
-        'attributes': {'evasion': 1},
-        'desc': 'On <b>arrival</b> (at the start of the showdown), you may archive this and ambush the monster. limit, once per campaign.',
+        'desc': 'On <b>Arrival</b> (at the start of the showdown), you may archive this and ambush the monster. limit, once per campaign.',
         'expansion': 'white_box',
         'type': 'promo',
         'name': 'Black Friday Lantern',
-        'keywords': ['item', 'lantern', 'other']
+        'keywords': ['item', 'lantern', 'other'],
+        'rules': ['+1 Evasion'],
     },
     'belt_of_gender_swap': {
         'expansion': 'white_box',
@@ -1851,21 +1997,39 @@ white_box_promo = {
         'keywords': ['item','jewelry','other'],
         'rules': ['Cursed'],
         'desc': 'While in your gear grid, change to the opposite sex.',
+        'affinities': {'right': 'green', 'bottom': 'green'},
     },
     'blood_plasma_gun': {
         'expansion': 'white_box',
         'type': 'promo',
-        'name': 'Blood Plasma Gun'
+        'name': 'Blood Plasma Gun',
+        'speed': 'X',
+        'accuracy': '4',
+        'strength': 'Z',
+        'keywords': ['weapon','ranged','gun','other'],
+        'rules': ['Range: X<sup>3</sup>', 'Unique'],
+        'desc': 'When you activate this, gain 1 bleeding token. X = your bleeding tokens. Z = X + X + X + X + X',
     },
     'blood_plasma_katana': {
         'expansion': 'white_box',
         'type': 'promo',
         'name': 'Blood Plasma Katana',
+        'keywords': ['weapon','melee','katana','other'],
+        'speed': 9,
+        'accuracy': 6,
+        'strength': 9,
+        'rules': ['Unique','Sharp','Devastating X'],
+        'desc': 'When you activate this, gain 1 bleeding token. X = your bleeding tokens minus 2.',
     },
     'detective_cap': {
         'expansion': 'white_box',
         'type': 'promo',
         'name': 'Detective Cap',
+        'armor':2,
+        'location': 'head',
+        'keywords': ['armor','accessory','other'],
+        'affinities': {'left': 'red', 'top': 'blue', 'right': 'red', 'bottom': 'blue'},
+        'desc': 'You must <b>investigate</b> if a choice to investigate arises. When you would roll to investigate, pick any result. If you are a returning survivor, you leave your hardboiled life behind and retired.',
     },
     'dying_lantern': {
         'expansion': 'white_box',
@@ -1875,9 +2039,15 @@ white_box_promo = {
         'rules': ['+1 Evasion'],
         'desc': 'You may archive this to gain 1 <b>Skull</b> basic resource and +3 insanity.',
     },
-    'nightmare_breast_pump': {'expansion': 'white_box',
-                           'type': 'promo',
-                           'name': 'Nightmare Breast Pump'},
+    'nightmare_breast_pump': {
+        'expansion': 'white_box',
+        'type': 'promo',
+        'name': 'Nightmare Breast Pump',
+        'affinities': {'top': 'blue'},
+        'keywords': ['item','noisy','fragile','other'],
+        'rules': ['Sentient','Irreplaceable','Femable Only'],
+        'desc': "The pump mimics a baby's cries, stimulating your milk glands. As a returning survivor, gain +1 to your intimacy rolls this settlement phase.",
+    },
     'prismatic_lantern': {
         'expansion': 'white_box',
         'type': 'promo',
@@ -1886,9 +2056,18 @@ white_box_promo = {
         'rules': ['+1 Movement', 'Unique', 'Irreplaceable'],
         'desc': 'During the showdown, you may archive this and gain 1 permanent affinity of any color.',
     },
- 'twilight_revolver': {'expansion': 'white_box',
-                       'type': 'promo',
-                       'name': 'Twilight Revolver'},
+    'twilight_revolver': {
+        'expansion': 'white_box',
+        'type': 'promo',
+        'name': 'Twilight Revolver',
+        'speed': 1,
+        'accuracy': 6,
+        'strength': 10,
+        'keywords': ['weapon','ranged','metal','finesse','other'],
+        'affinities': {'left': 'red', 'right': 'blue'},
+        'rules': ['Cursed', 'Sentient', 'Range 8'],
+        'desc': '<font class="kdm_font">c</font> <font class="kdm_font">a</font> and 1 survival: Make an attack using this weapon. This attack has <b>Range 3</b> and gains -2 Accuracy, +5 speed. Ignore <font class="kdm_font_10">e</font> <b>WOUND</b> for this attack. Limit, once per showdown.',
+    },
     'twilight_thong': {
         'expansion': 'white_box',
         'type': 'promo',
@@ -1896,6 +2075,9 @@ white_box_promo = {
         'keywords': ['armor','set','rawhide','other'],
         'rules': ['Outfit'],
         'desc': 'Its fabric responds to you; stress causes INTENSE constriction. Do not suffer brain traumas (ignore this if you have destroyed genitals).',
+        'location': 'waist',
+        'armor': 0,
+
     },
     'vibrant_lantern': {
         'expansion': 'white_box',
@@ -1911,19 +2093,55 @@ white_box_promo = {
         'expansion': 'white_box',
         'type': 'gear_recipe',
         'name': 'Cloth Leggings',
+        'keywords': ['item','cloth'],
+        'armor': 1,
+        'location': 'legs',
+        'rules': ['Accessory'],
+        'desc': 'When you suffer the <b>Bleeding</b> or <b>Bloody thighs</b> severe injuries, only gain 1 bleeding token.',
+        'affinities': {'bottom': 'green'},
+        'recipes': [
+            {
+                'resource_types': {'hide': 1},
+                'gear_handles': {'cloth': 1},
+                'innovations': ['ammonia'],
+            },
+        ],
     },
     'hard_breastplate': {
         'expansion': 'white_box',
         'type': 'gear_recipe',
         'name': 'Hard Breastplate',
+        'keywords': ['armor','leather','heavy'],
+        'armor': 3,
+        'location': 'body',
+        'rules': ['Outfit'],
+        'affinities': {'top': 'red','bottom': 'blue'},
+        'affinity_bonus': {
+            'desc': "Ignore the first severe injury you suffer each showdown.",
+            'requires': {'complete': {'blue': 1, 'green': 1}},
+        },
+        'recipes': [
+            {
+                'resource_types': {'bone': 2},
+                'resource_handles': {'leather': 1},
+                'innovations': ['lantern_oven'],
+            },
+        ],
     },
-    "jack_o'_lantern": {
+    "jack_o_lantern": {
         'expansion': 'white_box',
         'type': 'gear_recipe',
         'name': "Jack O' Lantern",
         'keywords': ['item','consumable','lantern','other'],
         'rules': ['Irreplaceable'],
         'desc': 'During the showdown, if you are, <b>insane</b>, when a survivor dies, gain +10 survival.',
+        'recipes': [
+            {
+                'resource_types': {'scrap': 1, 'organ': 1},
+                'resource_handles': {'skull': 1},
+                'innovations': ['memento_mori'],
+            },
+        ],
     },
     'tabard': {'expansion': 'white_box',
         'type': 'gear_recipe',
@@ -1931,6 +2149,12 @@ white_box_promo = {
         'keywords': ['item','cloth'],
         'rules': ['Accessory'],
         'desc': 'When you are encouraged, gain +1 insanity if your settlement is <b>Barbaric</b> or gain +1 survival if your settlement is <b>Romantic</b>.',
+        'affinities': {'left': 'blue'},
+        'location': 'body',
+        'armor':1,
+        'recipes': [
+            {'innovations': ['paint'], 'resource_types': {'organ': 1}, 'gear_handles': {'cloth': 1}, },
+        ],
     },
     'vagabond_armor_set': {'expansion': 'white_box', 'type': 'gear_recipe', 'name': 'Vagabond Armor Set'},
     'xmaxe': {
@@ -1942,7 +2166,11 @@ white_box_promo = {
         'desc': "This weapon's strength is equal to your current insanity.",
         'affinities': {'top': 'red', 'left': 'red', 'right': 'green', 'bottom': 'green'},
         'recipes': [
-            {'innovations': ['sculpture','story_telling'], 'resource_types': {'bone': 2,}, 'resource_handles': {'fresh_acanthus': 1, 'leather': 2},},
+            {
+                'innovations': ['sculpture','storytelling'],
+                'resource_types': {'bone': 2,},
+                'resource_handles': {'fresh_acanthus': 1, 'leather': 2},
+            },
         ],
         'speed': 2,
         'accuracy': 5,
@@ -1953,7 +2181,17 @@ white_box_promo = {
     'white_dragon_gauntlets': {
         'expansion': 'white_box',
         'type': 'ivory_carver',
-        'name': 'White Dragon Gauntlets'
+        'name': 'White Dragon Gauntlets',
+        'armor': 12,
+        'keywords': ['armor','set','ivory','metal','heavy'],
+        'affinities': {'left': 'red'},
+        'affinity_bonus': {
+            'desc': 'When you <b>Sideswipe</b>, gain +1 accuracy and +5 strength for your attack next this turn',
+            'requires': {
+                'puzzle': {'red': 1},
+                'complete': {'red': 2},
+            },
+        },
     },
 
 }
@@ -2035,9 +2273,18 @@ dragon_king = {
  'red_power_core': {'expansion': 'dragon_king',
                     'type': 'dragon_armory',
                     'name': 'Red Power Core'},
- 'regal_edge': {'expansion': 'dragon_king',
-                'type': 'rare_gear',
-                'name': 'Regal Edge'},
+    'regal_edge': {
+        'expansion': 'dragon_king',
+        'type': 'rare_gear',
+        'name': 'Regal Edge',
+        'keywords': ['weapon','melee','sword','metal'],
+        'affinities': {'top': 'green', 'left': 'red'},
+        'rules': ['Sharp'],
+        'speed': 1,
+        'accuracy': 5,
+        'strength': 2,
+        'desc': 'Gain +1 speed and +4 strength when attacking with this weapon if you have a <b>Constellation</b>.',
+    },
  'shielded_quiver': {'expansion': 'dragon_king',
                      'type': 'dragon_armory',
                      'name': 'Shielded Quiver'},
@@ -2235,10 +2482,10 @@ green_knight = {
         'type': 'green_knight_armor',
         'keywords': ['armor','set','bone','metal'],
         'affinities': {'left': 'red', 'bottom': 'green'},
-        'desc': '+1 Luck<br/>When a monster attacks you, you may elect to take a hit on the head and roll 1d10. On a 6+, ignore the hit. If adjacent, it suffers 1 wound.',
+        'desc': '+1 Luck.<br/>When a monster attacks you, you may elect to take a hit on the head and roll 1d10. On a 6+, ignore the hit. If adjacent, it suffers 1 wound.',
         'recipes': [
             {
-                'quarries': ['old_master'],
+                'misc': "Old Master on the settlement's Quarry List.",
                 'resource_handles': {'scell': 1, 'beetle_horn': 1, },
                 'gear_handles': {'dbk_errant_badge': 1},
             },
@@ -2280,6 +2527,7 @@ green_knight = {
         'affinities': {'top': 'red', 'right': 'green'},
         'recipes': [
             {
+                'misc': 'Survivor with <b>True Blade</b>.',
                 'innovations': ['rubedo'],
                 'gear_handles': {'calcified_juggernaut_blade': 1},
                 'resource_handles': {'gormite': 1, 'stomach_lining': 1, 'iron': 1},

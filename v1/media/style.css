@@ -339,7 +339,9 @@ input[type="radio"].gear_lookup_attrib_toggle {display: inherit;}
 .gear_lookup_search_box {display: block; margin: 0 auto; width: 95%; border:0; text-align: center; margin-bottom: 6%; }
 .gear_lookup_card_repeater {width: 90%; margin: 0 auto; margin-bottom: 2%; }
 .gear_lookup_card_repeater .gear_card_container {margin: 0 auto; margin-bottom: 1%; background: radial-gradient(#fff, #fff, #f8f8f8, #fffff9);}
-.gear_card_recipe {background-color: #ffFFcc; }
+.gear_card_recipe {background-color: #ffFFcc; font-family: 'Metrophobic'; font-size: 0.7em; padding: 1%; margin: 2%; border-radius: 0.5em; border: 1px solid #F3E067; }
+.gear_card_recipe * {font-size: inherit; }
+.gear_card_recipe_title {color: #8E7E1F; padding-left: 3%; background-color: #f3E067; margin: 0 auto; margin-top: -1%; margin-left: -1%; margin-right: -1%; margin-bottom: 1%; border-top-left-radius: 0.3em; border-top-right-radius: 0.3em; }
 
 /* gear cards - mobile */
 .gear_card_container {border: 1px solid #000; border-radius: 25px; width: 650px; min-height: 650px; }
@@ -384,13 +386,14 @@ input[type="radio"].gear_lookup_attrib_toggle {display: inherit;}
 .gear_card_location_glyph {font-size: 40px; color: #000; font-family: 'kdm-font-2'}
 .gear_card_detail_top_info {width: 100%;}
 .gear_card_detail_top_info .title {font-size: 50px; font-weight: bold; text-align: center; }
-.gear_card_detail_top_info .keywords {font-size: 30px; font-family: 'Metrophobic'; font-style: italic; text-align: center; margin-left: -10%; margin-right: -10%; }
+.gear_card_detail_top_info .keywords {font-size: 30px; font-family: 'Metrophobic'; font-style: italic; text-align: center; margin-left: -9%; margin-right: -9%; }
+.gear_card_add_affinity_container {display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: center; width: auto; margin-bottom: 2%; }
 .gear_card_add_affinity {width: 120px; height: 120px; border-radius: 1%; margin: 2%; margin: 0 auto; }
 .gear_card_add_affinity_interior {width: 80%; height: 80%; margin: 0 auto; border: 5px solid #fff; border-radius: 1%; margin-top: 7%; }
 .gear_card_detail_bottom_rules {font-weight: bold; text-align: center; font-size: 35px; font-family: 'Metrophobic'; }
 .gear_card_detail_bottom_desc {font-size:30px; font-family: 'Metrophobic'; text-align: center; margin-left: -5%; margin-right: -5%; margin-bottom: 2%}
 .gear_card_detail_bottom_affinity_bonus {border-radius: 25px; width: 100%; border: 3px solid #fff; background-color: #dad7d8; font-family: 'Metrophobic'; font-size: 35px; display: flex; margin-bottom: 1%; height: auto; max-height: 60%; }
-.gear_card_detail_bottom_affinity_bonus_requires {background-color: #fff; padding: 1%; display: flex; align-items: center; padding-left: 10px; padding-right: 10px; min-width: 15%; flex-wrap: wrap; flex-direction: row; }
+.gear_card_detail_bottom_affinity_bonus_requires {background-color: #fff; padding: 1%; display: flex; align-items: center; padding-left: 10px; padding-right: 10px; min-width: 10%; flex-wrap: wrap; flex-direction: row; }
 .puzzle_piece_repeater {font-family: 'kdm-font-2'; font-size: 40px; margin: 0 auto; }
 .affinity_bonus_text {padding: 2%; font-size: 30px; }
 
@@ -399,6 +402,9 @@ input[type="radio"].gear_lookup_attrib_toggle {display: inherit;}
     .gear_card_affinity_outer.right_affinity.affinity_paired_right {width:0; height:0; border-top: 40px solid transparent; border-bottom: 40px solid transparent; }
 .gear_card_affinity_outer.left_affinity.affinity_paired_left {border-right: 40px solid #222;}
 .gear_card_affinity_outer.right_affinity.affinity_paired_right {border-left: 40px solid #222;}
+
+.gear_card_affinity_outer.bottom_affinity.affinity_paired_bottom {width: 0; height: 0; border-left: 40px solid transparent; border-right: 40px solid transparent; }
+.gear_card_affinity_outer.bottom_affinity.affinity_paired_bottom {border-top: 40px solid #222;}
 
 /* event log styles - mobile */
 .event_log .kd_sheet_ui_row_tip {margin: 0 auto; width: 93%; margin-bottom: 3%; margin-top: 3%; }
@@ -1707,8 +1713,11 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
         .gear_card_affinity_outer.right_affinity.affinity_paired_right {border-top: 15px solid transparent; border-bottom: 15px solid transparent; }
     .gear_card_affinity_outer.right_affinity.affinity_paired_right {border-left: 15px solid #333; margin-right: 15%;}
     .gear_card_affinity_outer.left_affinity.affinity_paired_left {border-right: 15px solid #333; margin-left: 15%;}
+    .gear_card_affinity_outer.bottom_affinity.affinity_paired_bottom {border-left: 15px solid transparent; border-right: 15px solid transparent; }
+    .gear_card_affinity_outer.bottom_affinity.affinity_paired_bottom {border-top: 15px solid #333; margin-bottom: 2%; }
     .gear_card_add_affinity {width: 60px; height: 60px; }
     .gear_card_add_affinity_interior {border-width: 2px; }
+    .gear_card_recipe {width: 330px; }
 
     /* event log - tablet */
     .event_log_clicker {font-size: 20pt; }
@@ -2725,7 +2734,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
 
     /* timeline! - wide */
-    .timeline_clicker {width: 255px; }
+    .timeline_clicker {width: 255px; min-height: 20px; }
     .timeline_row_container {padding-top: 0; }
     .timeline_container .timeline_top_line div {font-size: 9pt; }
     span.timeline_event img.special_showdown {margin-right: -3px; }
@@ -2784,7 +2793,10 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .gear_card_detail_bottom_desc {font-size: 10pt;}
     .gear_card_detail_bottom_desc hr {display: inherit;}
     .gear_card_add_affinity {width: 40px; height: 40px; }
+    .gear_card_add_affinity_interior {margin-top: 5%; }
     .gear_card_detail_bottom_affinity_bonus {border-radius: 10px;}
+    .gear_card_recipe {width: 255px; }
+    .gear_card_recipe_title {margin-top: -3px; margin-left: -3px; margin-right: -3px;  }
     .puzzle_piece_repeater {font-size: 15px;}
     .affinity_bonus_text {font-size: 9pt; }
     .kd_sheet_ui_inner_ring_container.gear_lookup_container button {display: block;  margin: 0 auto; width: 60%; margin-bottom: 2%; }

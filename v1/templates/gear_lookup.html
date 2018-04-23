@@ -1,7 +1,7 @@
 <div
     class="modal-black hidden"
     id="gearLookupModal"
-    ng-if="user.user != undefined && settlement.sheet != undefined"
+    ng-if="user.user != undefined && settlement.sheet != undefined && user.user.preferences.beta == true"
     ng-controller="gearLookupController"
     ng-init="loadGearLookup(); showHide('gearLookupOpenerButton')"
 >
@@ -139,7 +139,9 @@
                                         <span ng-if="gear.aux_location == 'body'">c</span>
                                     </span>
                                     <span class="gear_card_location_glyph" ng-if="gear.location == 'arms'">d</span>
-                                    <span class="gear_card_location_glyph" ng-if="gear.location == 'body'">c</span>
+                                    <span class="gear_card_location_glyph" ng-if="gear.location == 'body'">c
+                                        <span ng-if="gear.aux_location == 'waist'">e</span>
+                                    </span>
                                     <span class="gear_card_location_glyph" ng-if="gear.location == 'waist'">e</span>
                                     <span class="gear_card_location_glyph" ng-if="gear.location == 'legs'">f</span>
                                 </div>
@@ -169,19 +171,29 @@
                             <div
                                 class="gear_card_detail_region_bottom"
                             >
-                                <div
-                                    class="gear_card_add_affinity"
-                                    ng-if="gear.add_affinity != undefined"
-                                    ng-class="{
-                                        affinity_red: gear.add_affinity == 'red',
-                                        affinity_blue: gear.add_affinity == 'blue',
-                                        affinity_green: gear.add_affinity == 'green',
-                                    }"
-                                >
-                                    <div class="gear_card_add_affinity_interior"></div>
+                                <!-- additional affinities added by this gear -->
+                                <div class="gear_card_add_affinity_container">
+                                    <div
+                                        class="gear_card_add_affinity"
+                                        ng-repeat="add_affinity in gear.add_affinity"
+                                        ng-class="{
+                                            affinity_red: add_affinity == 'red',
+                                            affinity_blue: add_affinity == 'blue',
+                                            affinity_green: add_affinity == 'green',
+                                        }"
+                                    >
+                                        <div class="gear_card_add_affinity_interior"></div>
+                                    </div>
                                 </div>
+
                                 <div class="gear_card_detail_bottom_rules">
-                                    <span ng-repeat="rule in gear.rules">{{rule}}{{$last ? '' : ', '}}</span>
+                                    <span
+                                        ng-repeat="rule in gear.rules"
+                                    >
+                                        <span
+                                            ng-bind-html="rule|trustedHTML"
+                                        ></span>{{$last ? '' : ', '}}
+                                    </span>
                                 </div>
                                 <div class="gear_card_detail_bottom_desc" ng-bind-html="gear.desc|trustedHTML">
                                 </div>
@@ -268,11 +280,12 @@
                             affinity_red: gear.affinities.bottom == 'red',
                             affinity_blue: gear.affinities.bottom == 'blue',
                             affinity_green: gear.affinities.bottom == 'green',
+                            affinity_paired_bottom: gear.affinities.bottom == 'paired',
                         }"
                     >
                         <div
                             class="gear_card_affinity_inner bottom_affinity"
-                            ng-if="gear.affinities.bottom != undefined"
+                            ng-if="gear.affinities.bottom != undefined && gear.affinities.bottom != 'paired'"
                             ng-class="{
                                 affinity_red: gear.affinities.bottom == 'red',
                                 affinity_blue: gear.affinities.bottom == 'blue',
@@ -282,14 +295,33 @@
                         </div>
                     </div>
                 </div>
-<!--
+
                 <div
                     class="gear_card_recipe"
                     ng-repeat="recipe in gear.recipes"
                 >
-                    {{recipe}}
+                    <div class="gear_card_recipe_title"> <b>{{gear.name}}</b> recipe No. {{$index + 1}}</div>
+                    <b>Cost:</b>
+                    <span ng-repeat="(handle, quantity) in recipe.resource_handles">{{quantity}}x {{settlement.game_assets.resources[handle].name}}{{$last ? '' : ', '}}</span><span ng-if="recipe.resource_handles != undefined && recipe.resource_types != undefined">, </span><span ng-repeat="(handle, quantity) in recipe.resource_types" class="capitalize">{{quantity}}x {{handle}}{{$last ? '' : ', '}}</span><span ng-if="recipe.resource_handles != undefined && recipe.gear_handles != undefined">, </span><span ng-if="recipe.resource_handles == undefined && recipe.resource_types != undefined && recipe.gear_handles != undefined">, </span><span ng-repeat="(handle, quantity) in recipe.gear_handles">{{quantity}}x {{settlement.game_assets.gear[handle].name}}{{$last ? '' : ', '}}</span>.
+
+                    <div ng-if="recipe.locations != undefined">
+                        <b>Location requirements:</b>
+                        <span ng-repeat="handle in recipe.locations">
+                            {{settlement.game_assets.locations[handle].name}}{{$last ? '.' : ', '}}
+                        </span>
+                    </div>
+                    <div ng-if="recipe.innovations != undefined">
+                        <b>Innovation requirements:</b>
+                        <span ng-repeat="handle in recipe.innovations">
+                            {{settlement.game_assets.innovations[handle].name}}{{$last ? '.' : ', '}}
+                        </span>
+                    </div>
+                    <div ng-if="recipe.misc != undefined">
+                        <b>Requirements:</b> <span ng-bind-html="recipe.misc|trustedHTML"></span>
+                    </div>
+                    
                 </div>
--->
+
             </div>
             </div><!-- gear repeater container -->
 
