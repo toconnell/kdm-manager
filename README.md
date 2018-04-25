@@ -1,7 +1,7 @@
 # [https://kdm-manager.com](https://kdm-manager.com)
-* Webapp: AngularJS (1.5.4)
-* Webserver: Gunicorn (http://gunicorn.org/)
-* API: Flask (http://flask.pocoo.org/)
+* Webapp: [AngularJS](https://angularjs.org/) (1.5.4)
+* Webserver: [Gunicorn](http://gunicorn.org/)
+* API: [Flask](http://flask.pocoo.org/)
 
 ## Introduction 
 [https://kdm-manager.com](https://kdm-manager.com) or, as it is generally called, the Manager, is an Interactive campaign manager for *Monster* by [Kingdom Death](https://kingdomdeath.com).
@@ -10,13 +10,8 @@ Neither the [https://kdm-manager.com](https://kdm-manager.com) service nor any o
 
 The Manager (including the API at [https://thewatcher.io](https://thewatcher.io)) is not affiliated or acknowledged in any way, shape or form by Kingdom Death. Both the Manager and the API are independent, fan-maintained projects.
 
-For more information, please refer to the project's development blog.
+For more information, please refer to [the project's development blog](http://kdm-manager.blogspot.com/p/credits-and-acknowledgements.html).
 
-## Author
-
-* Timothy O'Connell [toconnell@tyrannybelle.com](mailto:toconnell@tyrannybelle.com) <br />
-  Designer, full-stack developer and maintainer. <br />
-  http://toconnell.info
 
 
 #   INSTALLATION and INITIAL SETUP
@@ -104,4 +99,11 @@ release notes for every production release of the manager and the KDM API.
 The KDM API has built-in documentation. The production release of that documentation
 will always be available at [api.thewatcher.io](http://api.thewatcher.io)
 
+## Contact the Author
+
+The Manager and the API are, for now, maintained by a single individual. For more information, including how to get involved in the project, please contact:
+
+* Timothy O'Connell [toconnell@tyrannybelle.com](mailto:toconnell@tyrannybelle.com) <br />
+  Designer, full-stack developer and maintainer. <br />
+  http://toconnell.info
 
