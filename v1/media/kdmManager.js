@@ -207,22 +207,6 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
     };
 
 
-    // new settlement assets
-    $scope.addNewSettlementsToScope = function(api_url) {
-        console.time('addNewSettlementsToScope()');
-        $scope.newSettlementPromise = $http.get(api_url + 'new_settlement');
-        $scope.newSettlementPromise.then(
-            function(payload) {
-                $scope.new_settlement_assets = payload.data;
-                console.timeEnd('addNewSettlementsToScope()');         
-            },
-            function(errorPayload) {console.log("Error loading new settlement assets!" + errorPayload);}
-        );
-    };
-
-    //
-    // methods below here
-    //
 
     $scope.legacySignOut = function(session_oid) {;
         console.warn("Attempting legacy sign-out...");
@@ -242,6 +226,11 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         document.body.appendChild(form);
         form.submit();
     }
+
+
+    //
+    // various methods below here
+    //
 
     $scope.initWorld = function() {
 
@@ -264,6 +253,22 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
 
     };
 
+
+    $scope.getNewSettlementAssets = function() {
+        // sets $scope.new_settlement_assets
+        console.time('getNewSettlementAssets()')
+        $http.get($scope.api_url + 'new_settlement').then(
+            function(payload) {
+                hideFullPageLoader();
+                $scope.new_settlement_assets = payload.data;
+                $scope.showLoader = false;
+                console.timeEnd('getNewSettlementAssets()');
+            },
+            function(errorPayload) {
+                console.log("Error loading new settlement assets!" + errorPayload);
+            }
+        );
+    };
 
     $scope.getSettlement = function(s_dict, dest, context){
         // pass in a string of a settlement OID to push a settlement onto array
@@ -646,10 +651,10 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
             $scope.setGameAssetOptions('abilities_and_impairments', "AIoptions", "curse");
 
             $scope.setGameAssetOptions('fighting_arts', "FAoptions");
-            $scope.FAoptions["_random"]  = {handle: "_random", name: "* Random Fighting Art", sub_type_pretty: "Special"};
+            $scope.FAoptions["_random"]  = {handle: "_random", selector_text: "* Random Fighting Art", sub_type_pretty: "Special"};
 
             $scope.setGameAssetOptions('disorders', "dOptions");
-            $scope.dOptions["_random"]  = {handle: "_random", name: "* Random Disorder", sub_type_pretty: "Special"};
+            $scope.dOptions["_random"]  = {handle: "_random", selector_text: "* Random Disorder", sub_type_pretty: "Special"};
 
             $scope.setGameAssetOptions('epithets', "epithetOptions");
 
@@ -1054,15 +1059,14 @@ app.controller('settlementNotesController', function($scope, $rootScope) {
 
 }); 
 
-app.controller('newSettlementController', function($scope, $http) {
-    $scope.showLoader = true;
-    $scope.hideLoader = function() {
-        $scope.newSettlementPromise.then(function() {
-            $scope.showLoader = false;
-        });
-    };
-
-});
+//app.controller('newSettlementController', function($scope, $http) {
+//    $scope.showLoader = true;
+//    $scope.hideLoader = function() {
+//        $scope.newSettlementPromise.then(function() {
+//            $scope.showLoader = false;
+//        });
+//    };
+//});
 
 
 app.controller('eventLogController', function($scope) {
@@ -1369,39 +1373,4 @@ app.controller("sideNavController", function($scope) {
 });
 
 
-// survivor search - shows up in all views
-app.controller ("survivorSearchController", function($scope) {
 
-    // test a survivor object to see if a user can manage it
-    $scope.userCanManage = function(s) {
-        if ($scope.user_is_settlement_admin == true) { return true;}
-        else if ($scope.user_login == s.email) { return true;}
-        else { s._id = '';  return false };
-        return false;
-    };
-
-});
-
-// modal help overlay -- all views
-app.controller ("helpModalController", function($scope) {
-    //
-});
-
-app.controller ("gearLookupController", function($scope) {
-    $scope.loadGearLookup = function() {
-        console.time('loadGearLookup()')
-        var promise = $scope.getJSONfromAPI('settlement', 'gear_lookup', 'loadGearLookup()');
-        promise.then(
-            function(payload) {
-                $scope.gearLookup = payload.data;
-                console.timeEnd('loadGearLookup()');
-                hideCornerLoader();
-            },
-            function(errorPayload) {console.log("Error loading settlement Gear lookup!" + errorPayload);}
-        );
-
-    };
-});
-
-
-//        console.log($scope.settlement.game_assets.campaign.settlement_sheet_init.expansions.includes(e_handle));

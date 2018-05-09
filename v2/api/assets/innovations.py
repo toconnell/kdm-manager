@@ -40,6 +40,7 @@ innovation = {
         "consequences": ["pottery"],
 #        "survival_limit": 1,
 #        "departure_buff": "Departing survivors gain +2 survival when they depart for a Nemesis Encounter.",
+        "departing_survival_bonus": {"nemesis": 2,},
         "endeavors": ['sculpture_0', 'sculpture_1'],
     },
     "pottery": {
@@ -73,7 +74,9 @@ innovation = {
         "innovation_type": "home",
         "consequences": ["partnership","family","bed","shadow_dancing","bloodline","settlement_watch"],
         "departure_buff": "Departing survivors gain +1 survival.",
+        "departing_survival_bonus": {"general": 1},
         "survival_limit": 1,
+        'desc': 'The settlement accepts this nightmarish landscape as their home.<br/><b>Departing survivors</b> gain +1 survival.',
     },
     "partnership": {
         "name": "Partnership",
@@ -88,6 +91,10 @@ innovation = {
     },
     "family": {
         "name": "Family",
+        "desc": '<b>Departing survivors</b> gain +1 survival.<br/>Survivors nominated for <b>Intimacy</b> may give themselves a surname if they do not have one.<br/>A newborn survivor inherits the surname of one parent, their weapon type and half (rounded down) of their weapon proficiency levels.',
+        "departing_survival_bonus": {
+            "general": 1,
+        },
         "innovation_type": "home",
         "consequences": ["clan_of_death"],
         "departure_buff": "Departing survivors gain +1 survival.",
@@ -168,6 +175,8 @@ innovation = {
     "ammonia": {
         "name": "Ammonia",
         "innovation_type": "science",
+        'desc': 'A pungent, bilious substance ideal for crafting leather and treating wounds.<br/><b>Departing survivors</b> gain +1 survival.',
+        "departing_survival_bonus": {"general": 1,},
         "consequences": ["bloodletting","lantern_oven"],
         "departure_buff": "Departing survivors gain +1 survival.",
     },
@@ -179,6 +188,8 @@ innovation = {
     "lantern_oven": {
         "name": "Lantern Oven",
         "innovation_type": "science",
+        'desc': 'By agitating lanterns, a source of <b>Heat</b> becomes available to the settlement.<br/><b>Departing survivors</b> gain +1 survival.',
+        "departing_survival_bonus": {"general": 1,},
         "consequences": ["cooking", "scrap_smelting"],
         "departure_buff": "Departing Survivors gain +1 survival.",
     },
@@ -242,8 +253,10 @@ innovation = {
     "guidepost": {
         "name": "Guidepost",
         "innovation_type": "other",
+        "departing_survival_bonus": {"general": 1,},
         "departure_buff": "Departing survivors gain +1 survival.",
-        'endeavors': ['guidepost_default']
+        'endeavors': ['guidepost_default'],
+        'desc': 'The soft glow of its light fills the survivors with a sense of security. <b>Departing survivors</b> gain +1 survival.<br/><font class="kdm_font_10">d</font>: The survivor attempts to pull the weapon free from the ground. Roll 1d10 and add their strength. If the result is 12+, gain the <b>Lantern Halberd</b> rare gear and lose this innovation (Archive this card).',
     },
 
 
@@ -378,6 +391,8 @@ expansion = {
         "innovation_type": "other",
         "expansion": "lion_god",
         "settlement_buff": 'At the start of each settlement phase, add 1 scrap to settlement storage.<br/><b>Departing Survivors</b> gain +3 survival and +3 insanity. If any of those survivors have 10+ insanity, <font class="kdm_font">g</font> <b>A Gracious Host</b>.',
+        "desc": 'At the start of each settlement phase, add 1 scrap to settlement storage.<br/><b>Departing Survivors</b> gain +3 survival and +3 insanity. If any of those survivors have 10+ insanity, <font class="kdm_font">g</font> <b>A Gracious Host</b>.',
+        'departing_survival_bonus': {'general': 3},
     },
 
     # Sunstalker - NB: sun_language and hands_of_the_sun handles are below!
@@ -395,6 +410,8 @@ expansion = {
         "innovation_type": "faith",
         "endeavors": ['sauna_shrine_tribute'],
         "departure_buff": "When survivors <b>depart</b> for a Nemesis Encounter or Special Showdown, they gain +10 survival.",
+        "desc": "When survivors <b>depart</b> for a Nemesis Encounter or Special Showdown, they gain +10 survival.",
+        'departing_survival_bonus': {'nemesis': 10, 'special': 10,}
     },
 
     "umbilical_bank": {
@@ -482,6 +499,8 @@ expansion = {
             ("Manhunter Lvl 1","defeated_monsters"),
             ("Manhunter Lvl 2","defeated_monsters"),
         ],
+        "desc": "<b>Departing Survivors</b> gain +2 survival when they depart for a Nemesis Encounter or a Special Showdown.",
+        'departing_survival_bonus': {'nemesis': 2, 'special': 2},
     },
     "war_room": {
         "name": "War Room",
@@ -569,6 +588,8 @@ expansion = {
         "settlement_buff": "<b>Departing Survivors</b> and newborn survivors gain +1 survival.<br/><b>Departing survivors</b> with a constellation gain +1 survival.",
         "consequences": ["cooking","scrap_smelting"],
         "newborn_survivor": {"survival": 1},
+        "desc": "<b>Departing Survivors</b> and newborn survivors gain +1 survival.<br/><b>Departing survivors</b> with a constellation gain +1 survival.",
+        'departing_survival_bonus': {'all': 1,},
     },
 }
 

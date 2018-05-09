@@ -16,6 +16,7 @@ import pprint
 from pymongo import MongoClient
 import socket
 import smtplib
+from string import Template
 import sys
 import time
 from urllib import urlopen
@@ -89,15 +90,6 @@ def u_to_str(data):
         return type(data)(map(u_to_str, data))
     else:
         return data
-
-
-def template_file_to_str(template_file_name):
-    """ Takes template file name (not a path) as input, finds it,
-    turns it into a string, and spits it out. """
-
-    rel_path = os.path.join('templates', template_file_name)
-    raw = file(rel_path, 'rb').read()
-    return raw
 
 
 def to_handle(s):

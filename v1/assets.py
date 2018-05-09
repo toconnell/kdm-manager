@@ -29,44 +29,6 @@ from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_
 settings = load_settings()
 
 
-def ua_decorator(render_func=None):
-    """ Decorate User Asset render methods with this guy to get some additional
-    template variables and header/footer HTML. The 'render_func' kwarg must be
-    a User Asset HTML-rendering method.
-
-    We do a few things here:
-
-        - take the output of the render method (as a string), turn it back
-        into a template and then plug in some additional variables from the
-        self.User object, etc.
-        - tack on some additional HTML to the literal bottom of the second
-        rendering pass (i.e. the one that happens in the previous bullet)
-
-    """
-
-    if render_func is None:
-        raise Exception("This decorator must wrap a User Asset HTML rendering method!")
-
-    def wrapper(self, *args, **kwargs):
-
-        view_html = Template(render_func(self, *args, **kwargs))
-
-        return view_html.safe_substitute(
-
-            application_version = settings.get("application", "version"),
-
-            # angularjs appRoot and other app stuff
-            MEDIA_URL = settings.get("application", "STATIC_URL"),
-            user_login = self.User.user["login"],
-            user_id = self.User.user["_id"],
-            settlement_id = self.Session.Settlement.settlement["_id"],
-
-        ) + html.angularJS.settlement_notes + html.angularJS.hunt_phase
-
-    return wrapper
-
-
-
 class User:
 
     def __init__(self, user_id, session_object=None):
@@ -636,15 +598,10 @@ class Survivor:
         return output
 
 
-
-
-
-    @ua_decorator
     def render_html_form(self):
-        """ Render a Survivor Sheet for the survivor. MUST be wrapped in the
-        ua_decorator func to work!
-        """
+        """ Render a Survivor Sheet for the survivor."""
         return html.survivor.form.safe_substitute(survivor_id = self.survivor["_id"])
+
 
 
 
@@ -1099,24 +1056,11 @@ class Settlement:
 
 
 
-    @ua_decorator
-    def render_html_summary(self, user_id=False):
-        """ Prints the campaign summary view HTML. Does template subs to
-        initialize the AngularJS application. """
-
-        return html.settlement.summary.safe_substitute()
-
-
-    @ua_decorator
     def render_html_form(self):
         """ Render settlement.form from html.py. Do a few substitutions during
         the render (i.e. things that aren't yet managed by the angularjs app.
-
-        Remember that this passes through @ua_decorator, so it gets some more
         substitutions done up there. """
-
-        return html.settlement.form.safe_substitute( )
-
+        return html.settlement.form
 
 
     def render_admin_panel_html(self):
@@ -1163,8 +1107,6 @@ class Settlement:
             'asset_management':         the "Campaign Summary" link that floats
                                         over the create new asset forms,
                                         survior and settlement sheets, etc.
-            'dashboard_campaign_list':  gradient_violet links with a summary of
-                                        campaign facts.
 
         Anything else will get you the default, gradient_yellow link with the
         settlement flash and the name.
@@ -1183,20 +1125,6 @@ class Settlement:
             link_text = html.dashboard.campaign_flash
             desktop_text = "%s Campaign Summary" % self.settlement["name"]
             asset_type = "campaign"
-        elif context == "dashboard_campaign_list":
-            players = self.get_players()
-            if len(players) > 1:
-                players = "<br/>Players: %s" % (", ".join(players))
-            else:
-                players = ""
-            return html.settlement.dashboard_campaign_asset.safe_substitute(
-                asset_id=self.settlement["_id"],
-                name=self.settlement["name"],
-                campaign=game_assets.campaign_look_up[self.get_campaign()],
-                ly=self.get_ly(),
-                pop=self.settlement["population"],
-                players_block=players,
-            )
         else:
             button_class = "kd_dying_lantern dashboard_settlement_list_settlement_button"
             link_text = "<b class='dashboard_settlement_list_settlement_name'>%s</b>" % self.settlement["name"]

@@ -62,6 +62,9 @@ app.controller("manageDepartingSurvivorsController", function($scope, $rootScope
         // have a 'state' in scratch (which this sets); states are modified by
         // toggleControlState() above, rather than 'showHide()', which isn't
         // complex enough for our UX design here.
+
+        $scope.scratch.survival_bonus_control_state = 'hidden';
+
         if ($scope.settlement.sheet.showdown_type != undefined) {
             $scope.scratch.showdown_type_control_state = 'hidden';
         } else {
@@ -101,6 +104,7 @@ app.controller("manageDepartingSurvivorsController", function($scope, $rootScope
         var js_obj = {showdown_type: s};
         $scope.postJSONtoAPI('settlement','set_showdown_type',js_obj, false, true);
 //        $scope.toggleControlState('showdown_type_control_state');
+        $scope.calculateDepartingSurvivorBonus();
     };
 
     $scope.saveCurrentQuarry = function() {
@@ -158,6 +162,34 @@ app.controller("manageDepartingSurvivorsController", function($scope, $rootScope
         $scope.postJSONtoAPI('settlement', 'update_survivors', {
             include: 'departing', attribute: attrib, 'modifier': mod,
         });
+    };
+
+    $scope.calculateDepartingSurvivorBonus = function(){
+        // calculates the total survival bonus for departing survivors
+        var showdown_type = $scope.settlement.sheet.showdown_type;
+//        console.warn("Calculating bonuses for '" + showdown_type + "' showdown...");
+        $scope.scratch.departing_survival_bonus = 0;
+
+        for (var i = 0; i < $scope.settlement.sheet.innovations.length; i++) {
+            var i_handle = $scope.settlement.sheet.innovations[i];
+            i_dict = $scope.settlement.game_assets.innovations[i_handle];
+
+            if (i_dict.hasOwnProperty('departing_survival_bonus') === true) {
+//                console.warn(i_dict);
+                var base = i_dict.departing_survival_bonus["general"];
+
+                if (base !== undefined) {
+                    $scope.scratch.departing_survival_bonus += base;
+                };
+
+                if (i_dict.departing_survival_bonus[showdown_type] !== undefined) {
+                    var bonus = i_dict.departing_survival_bonus[showdown_type];
+                    $scope.scratch.departing_survival_bonus += bonus;
+                };
+            };
+
+        };
+//        console.warn($scope.scratch.departing_survival_bonus);
     };
 
 });

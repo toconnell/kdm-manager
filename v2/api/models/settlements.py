@@ -537,8 +537,17 @@ class Settlement(Models.UserAsset):
             if self.campaign.handle in asset_dict["excluded_campaigns"]:
                 return False
 
+
         # check to see if the asset belongs to an expansion
         if "expansion" in asset_dict.keys():
+
+            # special handling for KD Collection pseudo expansion
+            if asset_dict['type'] in ['fighting_arts','disorders'] and asset_dict['sub_type'] != 'secret_fighting_art':
+                if 'kd_collection_fighting_arts_and_disorders' in self.settlement['expansions']:
+                    if asset_dict['expansion'] in request.User.user['collection']['expansions']:
+                        return True
+
+            # normal test
             if asset_dict["expansion"] not in self.get_expansions():
                 return False
 

@@ -102,7 +102,7 @@ will always be available at [api.thewatcher.io](http://api.thewatcher.io)
 
 The Manager and the API are, for now, maintained by a single individual. For more information, including how to get involved in the project, please contact:
 
-* Timothy O'Connell [toconnell@tyrannybelle.com](mailto:toconnell@tyrannybelle.com) <br />
+* Timothy O'Connell [toconnell@toconnell.info](mailto:toconnell@toconnell.info) <br />
   Designer, full-stack developer and maintainer. <br />
   http://toconnell.info
 

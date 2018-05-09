@@ -1,7 +1,9 @@
+<script src="/js/gearLookup.js?v=$application_version"></script>
+
 <div
     class="modal-black hidden"
     id="gearLookupModal"
-    ng-if="user.user != undefined && settlement.sheet != undefined && user.user.preferences.beta == true"
+    ng-if="settlement.sheet != undefined && user.user.preferences.beta == true"
     ng-controller="gearLookupController"
     ng-init="loadGearLookup(); showHide('gearLookupOpenerButton')"
 >
@@ -51,7 +53,7 @@
             </button>
 -->
 
-            <div class="gear_repeater_container">
+            <div class="gear_repeater_container" ng-click="showHide('gearLookupModal'); searchText={}">
             <div
                 class="gear_lookup_card_repeater"
                 ng-repeat="gear in gearLookup | filter:searchText:strict"

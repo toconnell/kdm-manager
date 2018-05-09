@@ -2,11 +2,11 @@
     class="modal-black hidden"
     id="modalTimelineContainer"
     ng-controller="timelineController"
-    ng-if="settlement.sheet.timeline != undefined"
+    ng-if="settlement.sheet.timeline != undefined && user != undefined"
     ng_init="
         setEventOptions();
         initializeEventLog();
-        showHide('timelineOpenerButton')
+        showHide('timelineOpenerButton');
     "
 >
 

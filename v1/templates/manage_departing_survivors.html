@@ -61,6 +61,56 @@
         </div>
     </div> <!-- showdown type box -->
 
+    <div
+        class="survival_bonus showdown_controls_box_outline"
+        ng-if="
+            settlement.sheet.showdown_type != undefined &&
+            user.user.preferences.beta == true
+        "
+    >
+
+        <h3
+            class="clickable"
+            ng-click="toggleControlState('survival_bonus_control_state');"
+        >
+            &beta; Survival Bonuses
+            <span class="showdown_arrow" ng-if="scratch.survival_bonus_control_state == 'hidden'">
+                &#x25BC;
+            </span>
+            <span class="showdown_arrow" ng-if="scratch.survival_bonus_control_state == 'visible'">
+                &#x25B2;
+            </span>
+        </h3>
+
+        <div
+            id="survivalBonuses"
+            class="showdown_controls_button_box showdown_type_options ng_fade"
+            ng-class="scratch.survival_bonus_control_state"
+            ng-init="calculateDepartingSurvivorBonus()"
+        >
+            <div
+                class="departing_survivor_survival_bonus_repeater showdown_controls_button_box_option_repeater"
+                ng-repeat="innovation in settlement.sheet.innovations"
+                ng-init="i_dict = settlement.game_assets.innovations[innovation]"
+            >
+                <span
+                    class="departing_survivors_innovation_desc"
+                    ng-if="i_dict.hasOwnProperty('departing_survival_bonus')"
+                >
+
+                    <div class="kd_sheet_ui_box checked"></div>
+                    <b class="innovation_name"> {{i_dict.name}}</b><br/>
+                    <span class="metrophobic" ng-bind-html="i_dict.desc|trustedHTML"></span>
+                </span>
+            </div>
+            <div
+                class="showdown_controls_button_box_option_repeater"
+            >
+                <b>Total bonus:</b> <span class="metrophobic">+{{scratch.departing_survival_bonus}} survival</span>
+            </div>
+        </div>
+    </div> <!-- Departing survival bonuses -->
+
 
     <!--
 

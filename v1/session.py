@@ -10,6 +10,7 @@ import os
 import random
 import socket
 import string
+from string import Template
 import sys
 import traceback
 
@@ -496,61 +497,6 @@ class Session:
         if "asset_id" in self.params:
             user_asset_id = ObjectId(self.params["asset_id"].value)
 
-
-        #
-        #   we support new settlement creation in the legacy webapp.
-        #
-
-        if "new" in self.params:
-            self.logger.info("POST params include 'new' attribute! %s" % self.params)
-            params = {}
-            params["campaign"] = self.params["campaign"].value
-
-            # try to get a name or default to None
-            if "name" in self.params:
-                params["name"] = self.params["name"].value
-            else:
-                params["name"] = None
-
-            # try to get expansions/survivors params or default to []
-            for p in ["expansions", "survivors", "specials"]:
-                if p not in self.params:
-                    params[p] = []
-                elif p in self.params and isinstance(self.params[p], cgi.MiniFieldStorage):
-                    params[p] = [self.params[p].value]
-                elif p in self.params and type(self.params[p]) == list:
-                    params[p] = [i.value for i in self.params[p]]
-                else:
-                    msg = "Invalid form parameter! '%s' is unknown type: '%s'" % (p, type(self.params[p]).__name__)
-                    self.logger.error("[%s] invalid param key '%s' was %s. Params: %s" % (self.User, p, type(self.params[p]), self.params))
-                    raise AttributeError(msg)
-
-            # hit the route; check the response
-            response = api.post_JSON_to_route("/new/settlement", payload=params, Session=self)
-            if response.status_code == 200:
-                s_id = ObjectId(response.json()["sheet"]["_id"]["$oid"])
-                self.set_current_settlement(s_id)
-                S = assets.Settlement(s_id, session_object=self)
-                user_action = "created settlement %s" % self.Settlement
-                self.change_current_view("view_campaign", S.settlement["_id"])
-                S.save()
-            elif response.status_code == 405:
-                self.change_current_view('dashboard')
-            else:
-                msg = "An API error caused settlement creation to fail! API response was: %s - %s" % (response.status_code, response.reason)
-                self.logger.error("[%s] new settlement creation failed!" % self.User)
-                self.logger.error("[%s] %s" % (self.User, msg))
-                raise RuntimeError(msg)
-
-        #
-        #   modify - not supported in the legacy webapp as of 2018-01-26
-        #
-
-        if "modify" in self.params:
-            self.logger.error("'modify' in legacy webapp POST params!")
-            self.logger.error(self.params)
-            raise Exception('Attempt to modify user asset via legacy webapp! Incoming params: %s' % self.params)
-
         self.User.mark_usage(user_action)
         self.get_current_view()
 
@@ -580,27 +526,19 @@ class Session:
 
 
 
-    def render_dashboard(self):
-        """ Renders the user's dashboard. Leans heavily on the AngularJS app
-        calling on the API for data, etc."""
-
-        output = html.dashboard.angular_app.safe_substitute(
-            application_version = settings.get("application","version"),
-            api_url = api.get_api_url(),
-            user_id = self.User.user["_id"],
-        )
-
-        return output
-
 
     @current_view_failure
-    def current_view_html(self):
+    def current_view_html(self, body=None):
         """ This func uses session's 'current_view' attribute to render the html
         for that view.
 
-        In a best case, we want this function to initialize a class (e.g. a
-        Settlement or a Survivor or a User, etc.) and then use one of the render
-        methods of that class to get html and return it.
+        A view's HTML does NOT include header/footer type elements. Rather, it
+        involes a container element that contains all the user controls, and
+        then, outside of/beneath the container element, all of the 'modal'
+        UI stuff that a user might need in a view.
+
+        In this method then, we use the current view to figure out what to
+        put in the container and what to append to the container.
 
         The whole thing is decorated in a function that captures failures and
         asks users to report them (and kills their session, logging them out, so
@@ -608,28 +546,27 @@ class Session:
         error, etc.
         """
 
-        output = html.meta.saved_dialog
-        output += html.meta.corner_loader
-        self.get_current_view() # sets self.current_view
+        # set the current view and settlement, if possible
+        self.get_current_view()
+        if not hasattr(self, "Settlement") or self.Settlement is None:
+            self.set_current_settlement()
 
-        body = None
+        include_ui_templates = True
 
-        output += html.meta.full_page_loader
+        # start the container
+        output = html.meta.start_container
 
+        # now get us some HTML
         if self.current_view == "dashboard":
             body = "dashboard"
-            output += self.render_dashboard()
-            output += admin.dashboard_alert()
-
-        elif self.current_view == "view_campaign":
-            if not hasattr(self, "Settlement") or self.Settlement is None:
-                self.set_current_settlement()
-            output += self.Settlement.render_html_summary(user_id=self.User.user["_id"])
+            include_ui_templates = False
+            output += html.get_template('dashboard')
 
         elif self.current_view == "new_settlement":
-            output += html.settlement.new.safe_substitute(
-                user_id=self.User.user['_id'],
-            )
+            output += html.get_template('new_settlement.html')
+
+        elif self.current_view == "view_campaign":
+            output += html.get_template('campaign_summary')
 
         elif self.current_view == "view_settlement":
             output += self.render_user_asset_sheet("settlements")
@@ -641,6 +578,22 @@ class Session:
             self.logger.error("[%s] requested unhandled view '%s'" % (self.User, self.current_view))
             raise Exception("Unknown View!")
 
+        # now close the container
+        output += html.meta.close_container
+
+        # add UI templates
+        if include_ui_templates:
+            for t in settings.get('application','ui_templates').split(','):
+                output += html.get_template(t.strip())
+
+        # finally, do a single, monster variable substitution pass:
+        output = Template(output).safe_substitute(
+            api_url = api.get_api_url(),
+            application_version = settings.get("application","version"),
+            user_id=self.User.user['_id'],
+            user_login = self.User.user["login"],
+            settlement_id = self.session['current_settlement'],
+        )
 
         return output, body
 

@@ -403,15 +403,6 @@ def tail(settlement_id, interval=5, last=20):
 
 
 
-def dashboard_alert():
-    """ Renders a fixed element on the dashboard if we're alerting the users
-    about something. """
-
-    if settings.get("application", "dashboard_alert") == "None":
-        return ""
-    else:
-        return html.meta.dashboard_alert.safe_substitute(msg=settings.get("application", "dashboard_alert"))
-
 
 def export_data(u_id):
     """ Writes a pickle of the user and his assets. """

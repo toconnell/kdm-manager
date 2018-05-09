@@ -1,0 +1,773 @@
+<script src="/media/dashboard.js?v=$application_version"></script>
+
+<div
+    id="dashboardWelcomeModal"
+    class="modal dashboard_welcome_modal hidden"
+    ng-class="{true: 'visible', false: 'hidden'}[user.dashboard.settlements.length == 0]"
+    onclick="showHide('dashboardWelcomeModal')"
+    ng-init="setView('dashboard')"
+>
+    <p>Welcome to <b>http://kdm-manager.com</b>!</p>
+    <p><b>The Manager</b> is an interactive webapp intended to make it
+    easier to manage and share your Kingdom Death: <i>Monster</i> campaigns.</p>
+    <p>&nbsp; </p>
+    <p>This application is fan-maintained and <b>is not</b> supported by or
+    affiliated with Kingdom Death.</p>
+    <p>&nbsp; </p>
+    <p>To get started, you will have to <b>create a new settlement</b>. Once your new
+    settlement is created, you will be shown a <b>campaign summary</b>, which
+    is like a dashboard for your campaign.</p>
+    <p>From the <b>campaign summary</b>, you can use the controls in the upper-left
+    corner to add new survivors, view your settlement's "sheet" and add/remove
+    expansion content.</p>
+    <p>In order to add other players to your campaign, all you have to do is
+    navigate to an individual survivor's "sheet" and change that survivor's email
+    address to the email address of another registered user of this site.</p>
+    <p>Changes to settlement and survivor sheets are always saved
+    automatically.</p>
+    <p>&nbsp; </p>
+    <p>Finally, this application is <u>under active development</u> and problems <b>will</b>
+    occur! Please use the controls within the app to report errors/issues.</p>
+    <p>&nbsp; </p>
+    <div class="kd_alert_no_exclaim">Click or tap anywhere to get started!</div>
+</div>
+
+<div
+    id="dashboardControlElement"
+    ng-controller="dashboardController"
+    ng-init="
+        initializeUser('$user_id', 'dashboard', '$api_url');
+        showInitDash();
+        setLatestChangeLog();
+        loadExpansionAssets();
+    "
+>
+
+    <img class="dashboard_bg" src="/media/tree_logo_shadow.png"> <!-- DASHBOARD LOGO ART -->
+
+    <div class="dashboard_menu">
+        <h2
+            class="clickable system_primary dashboard_rollup"
+            ng-click="showHide('system_div'); toggleArrow('user_preference_arrow');"
+            ng-init="scratch.user_preference_arrow = false"
+        >
+            <span>
+                <img class="dashboard_icon" src="/media/icons/system.png"/>
+                System
+            </span>
+            <span class="dashboard_rollup_arrow" ng-if="scratch.user_preference_arrow == true">
+                &#x25B2;
+            </span>
+            <span class="dashboard_rollup_arrow" ng-if="scratch.user_preference_arrow == false">
+                &#x25BC;
+            </span>
+        </h2>
+
+        <div id="system_div" class="dashboard_accordion system_secondary hidden">
+
+            <h3 class="system_preference_user_login"> {{user.user.login }} </h3>
+            <div class="preferences_sub_block preferences_sign_out">
+                <form method="POST" action="/">
+                    <input type="hidden" name="remove_session" value="{{user.user.current_session.$oid}}"/>
+                    <input type="hidden" name="login" value="{{user.user.login}}"/>
+                    <button>SIGN OUT</button>
+                </form>
+            </div>
+            <div class="dashboard_preferences_container user_info">
+                <p>Registered user for {{user.user.age}}.</p>
+                <p ng-if="user.user.subscriber.level < 1">
+                    <a href="https://thelaborinvain-2.myshopify.com/" target="top">
+                        Support the Manager! Buy a lifetime subscription for $1!
+                    </a>
+                </p>
+                <p ng-if="user.user.subscriber.level > 0">Subscription level: <b>{{user.user.subscriber.desc}}.</b>
+                <p ng-if="user.user.subscriber.level > 0">Subscriber for <b>{{user.user.subscriber.age}}.</b>
+                <p ng-if="user.user.subscriber.beta == true" class="maroon_text">
+                    Beta warning!
+                </p>
+                <div class="preferences_sub_block preferences_change_pw">
+                <p><b>Change Password!</b></p>
+                    <input
+                        type="password"
+                        ng-model="scratch.password"
+                        placeholder="new password"
+                        ng-focus="scratch.saved_password = undefined"/><br/>
+                    <input type="password" ng-model="scratch.password_again" placeholder="new password (again)"><br/>
+                    <button
+                        ng-click="updatePassword()"
+                        class="kd_alert_no_exclaim change_pw"
+                        ng-if="scratch.password != undefined && scratch.password == scratch.password_again"
+                    >
+                        Change Password
+                    </button>
+                    <p ng-if="scratch.saved_password">Password updated! <b>Signing out...</b></p>
+                </div>
+
+            <h3> Manage Preferences</h3>
+            <div class="dashboard_preferences_container">
+                <p>Use the controls below to update application-wide preferences.
+                These settings will affect all of your settlements and survivors!</p>
+
+                <div class="dashboard_preference_block_group" ng-repeat="group in user.preferences">
+                    <h2>{{group.name}}</h2>
+
+                    <div
+                        class="dashboard_preference"
+                        ng-repeat="pref in group.items"
+                        ng-if="user.user.subscriber.level >= pref.patron_level"
+                    >
+                        <p class="dashboard_preference_description" ng-bind-html="pref.desc|trustedHTML"></p>
+                        <div class="dashboard_preference_elections_container">
+                            <input
+                                id="{{pref.handle}}_affirmative"
+                                class="kd_css_checkbox kd_radio_option"
+                                style="display: none"
+                                type="radio"
+                                ng-checked="pref.value == true"
+                                ng-click="setPref(pref,true)"
+                            />
+                            <label for="{{pref.handle}}_affirmative">
+                                {{pref.affirmative}}
+                            </label>
+
+                            <input
+                                id="{{pref.handle}}_negative"
+                                class="kd_css_checkbox kd_radio_option"
+                                style="display: none"
+                                type="radio"
+                                ng-checked="pref.value == false"
+                                ng-click="setPref(pref,false)"
+                            />
+                            <label for="{{pref.handle}}_negative">
+                                {{pref.negative}}
+                            </label>
+                        </div> <!-- dashboar_preference_elections_container -->
+                    </div><!-- dashboard_preference -->
+                </div><!-- dashboard_preference_block_group -->
+            </div> <!-- dashboard_preferences -->
+        </div> <!-- system_div -->
+    </div> <!-- preferencesContainerElement -->
+
+
+    <!-- collections -->
+    <div class="dashboard_menu" ng-if="user.user.preferences.beta">
+        <h2
+            class="clickable dashboard_rollup collection collection_gradient"
+            ng-click="showHide('collectionDiv'); toggleArrow('campaigns_arrow')"
+            ng-init="scratch.collection_arrow = false"
+        >
+            <span>
+                <font class="kdm_font_hit_locations dashboard_kdm_font">a</font>
+                KD Collection &beta;
+            </span>
+            <span class="dashboard_rollup_arrow" ng-if="scratch.collection_arrow == true">
+                &#x25B2;
+            </span>
+            <span class="dashboard_rollup_arrow" ng-if="scratch.collection_arrow == false">
+                &#x25BC;
+            </span>
+        </h2>
+
+        <div
+            id="collectionDiv"
+            class="
+                dashboard_accordion
+                dashboard_user_collection_container
+                collection_gradient
+                hidden
+            "
+        >
+            <p>Use the checkboxes below to record which <i>Monster</i>
+            expansions are in your personal KD collection!</p>
+            <div ng-repeat="category in ['Quarry','Nemesis','Enhancement']">
+                <h3 class="collection_category_header">{{category}}</h3>
+                <div
+                    class="dashboard_user_expansions_repeater clickable"
+                    ng-repeat="(handle, expansion) in expansions"
+                    ng-click="toggleUserExpansion(handle)"
+                    ng-if="expansion.ui.pretty_category === category"
+                >
+                    <div
+                        class="special_attribute_checkbox"
+                        ng-class="{active: user.user.collection.expansions.indexOf(handle) != -1}"
+                    ></div>
+                    <div
+                        class="special_attribute_text"
+                        ng-class="{active: user.user.collection.expansions.indexOf(handle) != -1}"
+                    >
+                        {{expansion.name}}
+                        <div ng-if="expansion.desc != undefined" class="metrophobic">
+                            {{expansion.desc}}
+                        </div>
+                    </div>
+                </div><!-- expansion repeater -->
+            </div><!-- category repeater -->
+        </div><!-- collection div/accordion -->
+    </div><!-- dashboard_menu -->
+
+
+    <!-- campaigns -->
+    <div class="dashboard_menu">
+        <h2
+            class="clickable campaign_summary_gradient dashboard_rollup"
+            ng-click="showHide('campaign_div'); toggleArrow('campaigns_arrow')"
+            ng-init="scratch.campaigns_arrow = true"
+        >
+            <span>
+                <img class="dashboard_icon" src="/media/icons/campaign.png"/>
+                Campaigns
+            </span>
+            <span class="dashboard_rollup_arrow" ng-if="scratch.campaigns_arrow == true">
+                &#x25B2;
+            </span>
+            <span class="dashboard_rollup_arrow" ng-if="scratch.campaigns_arrow == false">
+                &#x25BC;
+            </span>
+        </h2>
+
+        <div
+            id="campaign_div"
+            class="dashboard_accordion campaign_summary_gradient"
+        >
+            <p class="panel_top_tooltip">Games you are currently playing.</p>
+            <p
+                class="panel_top_tooltip"
+                ng-if="user.user.subscriber.level < 1"
+            > Campaigns created by non-subscribers are automatically removed after six months.
+                <a href="https://thelaborinvain-2.myshopify.com/" target="top">
+                    Purchase a lifetime subscription to the Manager</a>
+                to store your campaigns permanently!
+            </p> <!-- subscribers alert -->
+
+            <div class="dashboard_button_list">
+
+                <form
+                    ng-repeat="s in campaigns | orderBy: '-'"
+                    ng-if="s.sheet.abandoned == undefined"
+                    method="POST"
+                >
+                    <input type="hidden" name="view_campaign" value="{{s.sheet._id.$oid}}" />
+                    <button
+                        class="dying_lantern dashboard_settlement_list_settlement_button"
+                        onclick="showFullPageLoader(); this.form.submit()"
+                    >
+                        <b>{{s.sheet.name}}</b>
+                        <br/><i>{{s.sheet.campaign_pretty}}</i>
+                        <ul class="dashboard_settlement_list_settlement_attribs">
+                            <li ng-if="s.meta != undefined && s.meta.creator_email != user_login"><i>Created by:</i>{{s.meta.creator_email}}</li>
+                            <li ng-if="s.meta != undefined"><i>Started:</i> {{s.meta.age}} ago</li>
+                            <li><i>LY:</i> {{s.sheet.lantern_year}} &nbsp; <i>Survivors:</i> {{s.sheet.population}}</li>
+                            <li ng-if="s.meta.player_email_list.length >= 2">
+                                <i>Players:</i> {{s.meta.player_email_list.join(', ')}}
+                            </li>
+                        </ul>
+                    </button>
+                </form>
+
+                <div
+                    id="dashboardCampaignsLoader"
+                    class="dashboard_settlement_loader"
+                    ng-if="campaigns.length < user.dashboard.campaigns.length"
+                >
+                    <img
+                        src="/media/loading_lantern.gif"
+                        alt="Retrieving settlements..."
+                    /> Retrieving campaigns...
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <div
+        id="all_settlements_panel"
+        class="dashboard_menu all_settlements_panel"
+    >
+        <h2
+            class="clickable settlement_sheet_gradient dashboard_rollup"
+            ng-click="showHide('all_settlements_div'); toggleArrow('settlements_arrow')"
+            ng-init="scratch.settlements_arrow = false"
+        >
+            <span>
+               <img class="dashboard_icon" src="/media/icons/settlement.png"/>
+                Settlements
+            </span>
+            <span class="dashboard_rollup_arrow" ng-if="scratch.settlements_arrow == true">
+                &#x25B2;
+            </span>
+            <span class="dashboard_rollup_arrow" ng-if="scratch.settlements_arrow == false">
+                &#x25BC;
+            </span>
+        </h2>
+
+        <div
+            id="all_settlements_div"
+            class="dashboard_accordion settlement_sheet_gradient hidden"
+        >
+            <p class="panel_top_tooltip">Manage settlements you have created.</p>
+            <p
+                class="panel_top_tooltip"
+                ng-if="user.user.subscriber.level < 1"
+            > Non-subscriber users may create up to three settlements:
+                <a href="https://thelaborinvain-2.myshopify.com/" target="top">
+                    purchase a lifetime subscription to the Manager</a>
+                to create an unlimited number of settlements!
+            </p> <!-- subscribers alert -->
+
+            <div class="dashboard_button_list">
+                <form
+                    method="POST"
+                    action=""
+                    ng-if="user.dashboard.settlements.length < 3 || user.user.subscriber.level > 0"
+                >
+                    <input type="hidden" name="change_view" value="new_settlement" />
+                    <button class="kd_blue" onclick="showFullPageLoader()">+ Create New Settlement</button>
+                </form>
+
+                <form
+                    ng-repeat="s in settlements"
+                    method="POST"
+                >
+                    <input type="hidden" name="view_settlement" value="{{s.sheet._id.$oid}}" />
+                    <button
+                        class="dying_lantern dashboard_settlement_list_settlement_button"
+                        onclick="showFullPageLoader(); this.form.submit()"
+                    >
+                        <b>{{s.sheet.name}}</b>
+                        <span class="maroon_text" ng-if="s.sheet.abandoned != undefined">[ABANDONED]</span>
+                        <br/><i>{{s.campaign_pretty}}</i>
+                        <ul class="dashboard_settlement_list_settlement_attribs">
+                            <li ng-if="s.meta != undefined"><i>Created:</i> {{s.meta.age}} ago</li>
+                            <li>
+                                <span ng-if="s.sheet.expansions.length > 0">
+                                    {{s.sheet.expansions.length}} expansions
+                                </span>
+                                <span ng-if="s.sheet.expansions.length > 0 && s.meta != undefined">
+                                    /
+                                </span>
+                                <span ng-if="s.meta != undefined">
+                                    {{s.meta.player_email_list.length}} player(s)
+                                </span>
+                            </li>
+                            <li><i>LY:</i> {{s.sheet.lantern_year}}</li>
+                            <li><i>Population:</i> {{s.sheet.population}}</li>
+                            <li><i>Deaths:</i> {{s.sheet.death_count}}</li>
+                            <li ng-if="s.meta.player_email_list.length >= 2"><i>Admins:</i> {{s.sheet.admins.join(',')}}</li>
+                            <li ng-if="s.meta.player_email_list.length >= 2"><i>Players:</i> {{s.meta.player_email_list.join(', ')}}</li>
+                        </ul>
+                    </button>
+                </form>
+
+                <div
+                    id="dashboardSettlementsLoader"
+                    class="dashboard_settlement_loader"
+                    ng-if="settlements.length < user.dashboard.settlements.length"
+                >
+                    <img
+                        src="/media/loading_lantern.gif"
+                        alt="Retrieving settlements..."
+                    /> Retrieving settlements...
+                </div>
+
+
+            </div> <!-- dashboard_button_list -->
+
+        </div> <!-- all_settlements_div -->
+    </div> <!-- all_settlements_panel -->
+
+    <div
+        id="world_container"
+        class="dashboard_menu world_panel"
+    >
+
+        <h2
+            class="clickable world_primary dashboard_rollup"
+            ng-click="showHide('world_detail_div'); toggleArrow('world_arrow')"
+            ng-init="scratch.world_arrow = false"
+        >
+            <span>
+                <font class="kdm_font_hit_locations dashboard_kdm_font white">g</font>
+                <font class="white">World</font>
+            </span>
+            <span class="white dashboard_rollup_arrow" ng-if="scratch.world_arrow == true">
+                &#x25B2;
+            </span>
+            <span class="white dashboard_rollup_arrow" ng-if="scratch.world_arrow == false">
+                &#x25BC;
+            </span>
+        </h2>
+
+        <div id="world_detail_div" class="dashboard_accordion world_secondary hidden world_container">
+
+            <center ng-if="world == undefined">
+                <br/>
+                <img src="/media/loading_lantern.gif"><br/>
+                <span class="white">Retrieving World data...</span>
+                <br/>
+            </center>
+
+            <div class="world_panel_basic_box" ng-if="world != undefined">
+                <p>
+                    <font class="green_text"> <b>{{world.active_settlements.value}} </b></font> Settlements are holding fast.
+                    <font class="maroon_text"><b> {{world.abandoned_or_removed_settlements.value}} </b></font> have been abandoned.
+                </p>
+                <p>
+                    <font class="green_text"> <b>{{world.live_survivors.value}}</b> </font> Survivors are alive and fighting.
+                    <font class="maroon_text"><b>{{world.dead_survivors.value}}</b></font> have perished.</p>
+            </div>
+
+            <div class="world_panel_basic_box" ng-if="world != undefined">
+                <h3>Settlement Statistics</h3>
+
+                <p>
+                    {{world.total_multiplayer_settlements.name}}:
+                    <b>{{world.total_multiplayer_settlements.value}}</b>
+                </p>
+                <p>
+                    {{world.new_settlements_last_30.name}}:
+                    <b>{{world.new_settlements_last_30.value}}</b>
+                </p>
+
+                <table>
+                    <tr><th colspan="2">{{world.top_settlement_names.name}}</th></tr>
+                    <tr ng-repeat="row in world.top_settlement_names.value" ng-class-even="'zebra'">
+                        <td>{{row.name}}</td><td class="int_value">{{row.count}}</td>
+                    </tr>
+                </table>
+
+                <table>
+                    <tr><th colspan="2">Active Campaigns</th></tr>
+                    <tr ng-repeat="(name,count) in world.settlement_popularity_contest_campaigns.value" ng-class-even="'zebra'">
+                        <td>{{name}}</td> <td class="int_value">{{count}}</td>
+                    </tr>
+                </table>
+
+                <table>
+                    <tr><th colspan="2">Campaigns w/ Expansion Content</th></tr>
+                    <tr ng-repeat="e in world.settlement_popularity_contest_expansions.value" ng-class-even="'zebra'">
+                        <td>{{e.name}}</td> <td class="int_value">{{e.count}}</td>
+                    </tr>
+                </table>
+
+                <table>
+                    <tr><th colspan="2">Settlement Averages</th></tr>
+                    <tr><td>Lantern Year </td><td class="int_value">{{world.avg_ly.value}}</td></tr>
+                    <tr class="zebra"><td>Innovation Count </td><td>{{world.avg_innovations.value}}</td></tr>
+                    <tr><td>Expansions</td><td> {{world.avg_expansions.value}}</td></tr>
+                    <tr class="zebra"><td>Defeated Monsters</td><td> {{world.avg_defeated_monsters.value}}</td></tr>
+                    <tr><td>Items in Storage</td> <td>{{world.avg_storage.value}}</td></tr>
+                    <tr class="zebra"><td>Milestone Story Events</td><td> {{world.avg_milestones.value}}</td></tr>
+                    <tr><td>Lost Settlements </td><td>{{world.avg_lost_settlements.value}}</td></tr>
+                </table>
+
+                <table><tr><th>Principle selection rates</th></tr></table>
+                <div ng-repeat="(principle, selections) in world.principle_selection_rates.value">
+                    <table>
+                        <tr><th colspan="2" class="principle">{{principle}}</th></tr>
+                        <tr ng-repeat="option in selections.options" ng-class-even="'zebra'">
+                            <td>{{option}}</td>
+                            <td class="int_value">{{selections[option].percentage}}%</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <table>
+                    <tr><th colspan="2">Top Innovations</th></tr>
+                    <tr ng-repeat="row in world.top_innovations.value" ng-class-even="'zebra'">
+                        <td>{{row.name}}</td><td class="int_value">{{row.count}}</td>
+                    </tr>
+                </table>
+
+                <table>
+                    <tr><th>Survival Limit stats</th></tr>
+                    <tr><td>Average Survival Limit:</td><td class="int_value">{{world.avg_survival_limit.value}}</td></tr>
+                    <tr class="zebra"><td>Max Survival Limit:</td><td>{{world.max_survival_limit.value}}</td></tr>
+                </table>
+
+
+            </div>
+
+            <div class="world_panel_basic_box" ng-if="world != undefined">
+                <h3>Latest Settlement</h3>
+                <table>
+                    <tr><td colspan="2"><b>{{world.latest_settlement.value.name}}</b></td></tr>
+                    <tr><td colspan="2"><i>{{world.latest_settlement.value.campaign}}</i></td></tr>
+                    <tr ng-if="world.latest_settlement.value.expansions != null">
+                        <td colspan="2">{{world.latest_settlement.value.expansions}}</td>
+                    </tr>
+                    <tr><td>Created</td><td>{{world.latest_settlement.value.age}} ago</td></tr>
+                    <tr class="zebra"><td>Players</td><td>{{world.latest_settlement.value.player_count}}</td></tr>
+                    <tr><td>Population</td><td>{{world.latest_settlement.value.population}}</td></tr>
+                    <tr class="zebra"><td>Death count</td><td>{{world.latest_settlement.value.death_count}}</td></tr>
+                </table>
+
+            </div>
+
+            <div class="world_panel_basic_box" ng-if="world != undefined">
+                <h3>Survivor Statistics</h3>
+
+                <table>
+                    <tr><th>Population and death stats</th></tr>
+                    <tr><td>Average Population</td><td class="int_value">{{world.avg_pop.value}}</td></tr>
+                    <tr class="zebra"><td>Max Population</td><td>{{world.max_pop.value}}</td></tr>
+                    <tr><td>Average Death count</td><td> {{world.avg_death_count.value}}</td></tr>
+                    <tr class="zebra"><td>Max Death Count</td> <td>{{world.max_death_count.value}}</td></tr>
+                </table>
+
+                <table>
+                    <tr><th colspan="2">Top Survivor names</th></tr>
+                    <tr ng-repeat="row in world.top_survivor_names.value" ng-class-even="'zebra'">
+                        <td>{{row.name}}</td> <td class="int_value">{{row.count}}</td>
+                    </tr>
+                </table>
+
+                <table>
+                    <tr><th colspan="2">Top Causes of Death</th></tr>
+                    <tr ng-repeat="row in world.top_causes_of_death.value" ng-class-even="'zebra'">
+                        <td>{{row.cause_of_death}}</td> <td class="int_value">{{row.count}}</td>
+                    </tr>
+                </table>
+
+                <table>
+                    <tr><th colspan="2">Living survivor averages</th></tr>
+                    <tr><td>Hunt XP</td><td>{{world.avg_hunt_xp.value}}</td></tr>
+                    <tr class="zebra"><td>Insanity</td><td class="int_value">{{world.avg_insanity.value}}</td></tr>
+                    <tr><td>Courage</td><td>{{world.avg_courage.value}}</td></tr>
+                    <tr class="zebra"><td>Fighting Arts</td><td>{{world.avg_fighting_arts.value}}</td></tr>
+                    <tr><td>Understanding</td><td>{{world.avg_understanding.value}}</td></tr>
+                    <tr class="zebra"><td>Disorders</td><td>{{world.avg_disorders.value}}</td></tr>
+                    <tr><td>Abilities/Impairments</td><td>{{world.avg_abilities.value}}</td></tr>
+                </table>
+
+            </div>
+
+            <div class="world_panel_basic_box" ng-if="world != undefined">
+                <h3>Latest Survivor</h3>
+                <table>
+                    <tr ng-if="world.latest_survivor.value.avatar != undefined">
+                        <td colspan="2" class="world_panel_avatar_cell">
+                            <img
+                                class="world_panel_avatar"
+                                ng-src="/get_image?id={{world.latest_survivor.value.avatar.$oid}}"
+                                title="{{world.latest_survivor.value.name}}"
+                            />
+                    </tr>
+                    <tr><td colspan="2"><b>{{world.latest_survivor.value.name}}</b> [{{world.latest_survivor.value.sex}}] of </td></tr>
+                    <tr><td colspan="2"><i>{{world.latest_survivor.value.settlement_name}}</i></td></tr>
+                    <tr ng-if="world.latest_settlement.value.epithets != null">
+                        <td colspan="2">{{world.latest_survivor.value.epithets}}</td>
+                    </tr>
+                    <tr><td>Created</td><td>{{world.latest_survivor.value.age}} ago</td></tr>
+                    <tr class="zebra"><td>Joined in LY</td><td>{{world.latest_survivor.value.born_in_ly}}</td></tr>
+                    <tr><td>Hunt XP</td><td>{{world.latest_survivor.value.hunt_xp}}</td></tr>
+                    <tr class="zebra"><td>Insanity</td><td>{{world.latest_survivor.value.Insanity}}</td></tr>
+                    <tr><td>Courage</td><td>{{world.latest_survivor.value.Understanding}}</td></tr>
+                    <tr class="zebra"><td>Understanding</td><td>{{world.latest_survivor.value.Insanity}}</td></tr>
+                </table>
+
+            </div>
+
+            <div class="world_panel_basic_box" ng-if="world != undefined">
+                <h3>Latest Fatality</h3>
+                <table>
+                    <tr ng-if="world.latest_fatality.value.avatar != undefined">
+                        <td colspan="2" class="world_panel_avatar_cell">
+                            <img
+                                class="world_panel_avatar"
+                                ng-src="/get_image?id={{world.latest_fatality.value.avatar.$oid}}"
+                                title="{{world.latest_fatality.value.name}}"
+                            />
+                    </tr>
+                    <tr><td colspan="2"><b>{{world.latest_fatality.value.name}}</b> [{{world.latest_fatality.value.sex}}] of </td></tr>
+                    <tr><td colspan="2"><i>{{world.latest_fatality.value.settlement_name}}</i></td></tr>
+                    <tr><td colspan="2">Cause of Death:</td></tr>
+                    <tr><td colspan="2">&ensp; <font class="maroon_text"><b>{{world.latest_fatality.value.cause_of_death}}</b></font></td></tr>
+                    <tr ng-if="world.latest_settlement.value.epithets != null">
+                        <td colspan="2">{{world.latest_fatality.value.epithets}}</td>
+                    </tr>
+                    <tr><td>Created</td><td>{{world.latest_fatality.value.age}} ago</td></tr>
+                    <tr class="zebra"><td>Died in LY</td><td>{{world.latest_fatality.value.died_in}}</td></tr>
+                    <tr><td>Hunt XP</td><td>{{world.latest_fatality.value.hunt_xp}}</td></tr>
+                    <tr class="zebra"><td>Insanity</td><td>{{world.latest_fatality.value.Insanity}}</td></tr>
+                    <tr><td>Courage</td><td>{{world.latest_fatality.value.Understanding}}</td></tr>
+                    <tr class="zebra"><td>Understanding</td><td>{{world.latest_fatality.value.Insanity}}</td></tr>
+                </table>
+
+            </div> <!-- latest fatality -->
+
+            <div class="world_panel_basic_box" ng-if="world != undefined">
+                <h3>Latest Kill</h3>
+                <p><b>{{world.latest_kill.value.raw_name}}</b></p>
+                <p>Defeated by the survivors of <b>{{world.latest_kill.value.settlement_name}}</b> on {{world.latest_kill.value.killed_date}} at {{world.latest_kill.value.killed_time}}.</p>
+            </div>
+
+            <div class="world_panel_basic_box" ng-if="world != undefined">
+                <h3>{{world.killboard.name}}</h3>
+                <table ng-repeat="(type,board) in world.killboard.value">
+                    <tr><th class="principle capitalize" colspan="2">{{type}}</th></tr>
+                    <tr ng-repeat="row in board" ng-class-even="'zebra'">
+                        <td>{{row.name}}</td> <td class="int_value">{{row.count}}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="world_panel_basic_box" ng-if="world != undefined">
+                <h3>User Statistics</h3>
+                <p> <b>{{world.total_users.value}}</b> users are registered. <b>{{world.total_subscribers.value}}</b> users are <a href="https://thelaborinvain-2.myshopify.com/collections/http-kdm-manager-com" target="top">subscribers</a>!</p>
+                <p> <b>{{world.recent_sessions.value}}</b> users have managed campaigns in the last 12 hours.</p>
+                <p> <b>{{world.total_users_last_30.value}}</b> users have managed campaigns in the last 30 days.</p>
+                <p> <b>{{world.new_users_last_30.value}}</b> new users have registered in the last 30 days.</p>
+
+                <table>
+                    <tr><th colspan="2">Per user averages</th></tr>
+                    <tr><td>Survivors</td><td class="int_value">{{world.avg_user_survivors.value}}</td></tr>
+                    <tr class="zebra"><td>Settlements</td><td>{{world.avg_user_settlements.value}}</td></tr>
+                    <tr><td>Avatars</td><td>{{world.avg_user_avatars.value}}</td></tr>
+                </table>
+            </div> <!-- user stats -->
+
+        </div> <!-- world_detail_div -->
+
+    </div> <!-- dashboard_menu 'World'-->
+
+        <div
+            class="dashboard_menu"
+        >
+            <h2
+                class="clickable about_primary dashboard_rollup"
+                ng-click="showHide('about_div'); toggleArrow('about_arrow')"
+                ng-init="scratch.about_arrow=false"
+            >
+                <span>
+                    <font class="kdm_font dashboard_kdm_font">g</font>
+                    About
+                </span>
+                <span class="dashboard_rollup_arrow" ng-if="scratch.about_arrow == true">
+                    &#x25B2;
+                </span>
+                <span class="dashboard_rollup_arrow" ng-if="scratch.about_arrow == false">
+                    &#x25BC;
+                </span>
+            </h2>
+
+            <div
+                id="about_div"
+                class="dashboard_accordion about_secondary hidden"
+            >
+
+                <p class="title">
+                    <b>KD:M Manager! Production release {{user.meta.webapp.release}} (<a href="http://api.thewatcher.io">KDM API</a> release version {{user.meta.api.version}}).
+                    </b>
+                </p>
+
+                <hr/>
+                    <p>Source code <a href="https://github.com/toconnell/kdm-manager" target="top">available on GitHub</a>!</p>
+                <hr/>
+                <p>About:</p>
+                <ul>
+                    <li>This application, which is called <i>kdm-manager.com</i>, or simply, <i>the Manager</i>, is an interactive campaign management tool for use with <i><a href="https://shop.kingdomdeath.com" target="top">Monster</a></i>, by <a href="http://kingdomdeath.com" target="top">Kingdom Death</a>.
+                    </li>
+                </ul>
+
+                <p>Important Information:</p>
+                <ul>
+                    <li><b>This application is not developed, maintained, authorized or in any other way supported by or affiliated with <a href="http://kingdomdeath.com" target="top">Kingdom Death</a>.</b></li>
+                    <li>This application is currently under active development and is running in debug mode!<li>
+                    <li>Among other things, this means not only that <i>errors can and will occur</i>, but also that<i>features may be added or removed without notice</i> and <i>presentation elements are subject to change</i>.</li>
+                    <li>Users' email addresses and other information are used only for the purposes of developing and maintaining this application and are never shared, published or distributed.</li>
+                </ul>
+
+                <p>Release Information:</p>
+                <ul>
+                    <li>Release {{user.meta.webapp.release}} of the Manager went into production on {{latest_blog_post.published}}. <a target="top" href="{{latest_blog_post.url}}">View change log</a>.</li>
+                    <li>v1.7.0, the first production release of the Manager, went live {{user.meta.webapp.age}} ago on 2015-11-29.</li>
+                    <li>For detailed release information, including complete notes and updates for each production release, please check the development blog at <a href="http://blog.kdm-manager.com" target="top">blog.kdm-manager.com</a>.</li>
+                </ul>
+
+                <hr/>
+
+                <p>Thanks for using the Manager!</p>
+
+            </div> <!-- about_div -->
+
+        </div> <!-- dashboard_menu 'About' -->
+
+        <div
+            id="dashboardAlerts"
+            class="modal-black hidden dashboard_alerts"
+            ng-click="showHide('dashboardAlerts')"
+        >
+            <div class="kd_sheet_ui_row_tip clickable">
+                Click or tap anywhere to return to the Dashboard!
+            </div>
+            <div
+                class="dashboard_webapp_alert_repeater {{alert.sub_type}}"
+                ng-repeat="alert in webappAlerts"
+            >
+                <b
+                    ng-class="{maroon_text: alert.sub_type=='kpi'}"
+                >
+                    {{alert.title}}
+                </b>
+                <span class="alert_date">({{alert.created_on.$date|date:'yyyy-MM-dd @ h:mma'}})</span>
+                <br/>
+                <span ng-bind-html="alert.body|trustedHTML"></span>
+            </div>
+
+            <h3>Release Info</h3>
+            <p>Release <b>{{user.meta.webapp.release}}</b> of <b>https://kdm-manager.com</b> is powered by version <b>{{user.meta.api.version}}</b> of <a href="http://api.thewatcher.io" target="top">the Kingdom Death API</a>.</p>
+            <p>This release was deployed on {{latest_blog_post.published|date:'yyyy-MM-dd'}}.</p>
+            <p>Click <a target="top" href="{{latest_blog_post.url}}">here to view complete release notes</a> on the Manager's development blog.</p>
+
+
+        <hr/>
+        <a href="https://twitter.com/KdmManager" target="top">
+            <div
+                class="social_link_container"
+            >
+                <img src="/media/icons/Twitter_Social_Icon_Circle_Color.png" class="social_icon" />
+                For more updates and news, follow the Manager on Twitter!
+            </div>
+        </a>
+
+
+        </div> <!-- dashboard_Alerts -->
+
+        <button
+            id="dashboardAlertsOpener"
+            class="dashboard_alerts_opener"
+            ng-click="showHide('dashboardAlerts')"
+            ng-class="{
+                kd_blue: activeKPI === undefined,
+                kd_pink: activeKPI === true,
+            }"
+        > !
+        </button>
+
+    </div> <!-- dashboardControlElement -->
+
+<div
+    id="dashboardLoader"
+    class="metrophobic settlements_retrieved"
+    ng-if="scratch.settlementsRetrieved != scratch.settlementsRequired"
+>
+    <span ng-if="user == undefined">
+        Retrieving user data...
+    </span>
+    <span ng-if="scratch.settlementsRequired != undefined">
+        Retrieving settlement {{scratch.settlementsRetrieved}} / {{scratch.settlementsRequired}}
+    </span>
+    <div class="corner_loading_spinner visible">
+        <img class="corner_loading_spinner" src="/media/loading_io.gif">
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    // Hack City!
+    // kill the spinner, since we're done loading the page now.
+    hideFullPageLoader();
+</script>
+
+

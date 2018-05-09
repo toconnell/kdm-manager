@@ -270,3 +270,17 @@ mar_2016_expansions = {
         ],
     },
 }
+
+
+collection = {
+    "kd_collection_fighting_arts_and_disorders": {
+        "released": datetime(2018,5,01),
+        "name": "Fighting Arts & Disorders",
+        "ui": {"pretty_category": "KD Collection"},
+        "flair": {
+            "color": "FFF",
+            "bgcolor": "000",
+        },
+        "subtitle": "Enable this to include the Fighting Arts and Disorders from ALL of the expansions in your KD Collection in this campaign.",
+    },
+}

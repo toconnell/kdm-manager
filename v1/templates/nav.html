@@ -2,7 +2,7 @@
     id="floating_dashboard_button"
     class="gradient_silver" 
     onclick="openNav()"
-    ng-if="view != 'dashboard'"
+    ng-if="view != 'dashboard' && user != undefined"
 >
     &#9776;
 </button>
@@ -10,7 +10,7 @@
 <form
     method="POST" 
     action="/"
-    ng-if="view != 'newSettlement' && view != 'dashboard'"
+    ng-if="view != 'newSettlement' && view != 'dashboard' && user != undefined"
 >
     <button
         id="floating_refresh_button"
@@ -21,7 +21,14 @@
     </button>
 </form>
 
-<div id="mySidenav" class="sidenav" ng-controller="sideNavController">
+<!-- christian sidenav -->
+<div
+    id="mySidenav"
+    class="sidenav"
+    ng-controller="sideNavController"
+    ng-if="user != undefined"
+    ng-init="getNewSettlementAssets()"
+>
     <form
         method="POST"
         action=""

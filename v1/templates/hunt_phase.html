@@ -1,0 +1,73 @@
+<script src="/media/huntPhase.js?v=$application_version"></script>
+
+<div
+    id="huntPhaseModal"
+    class="modal-black hidden"
+    ng-if="user.user.preferences.beta == true"
+    ng-controller = "huntPhaseRootController"
+    ng-init="showHide('huntPhaseOpenerButton')"
+>
+    <h3 class="hunt_phase">[BETA] Basic Hunt Event simulator!</h3>
+    <p class="hunt_phase_subtitle">
+        Use the controls below to simulate drawing cards from the Basic Hunt Event deck!
+    </p>
+    <div class="hunt_phase_container">
+        <div
+            class="option_container controls"
+        >
+            <button
+                class="kd_brown"
+                ng-click="shuffleDeck()"
+            >
+                Shuffle the deck!
+            </button>
+            <button
+                class="kd_brown draw_one"
+                ng-click="draw()"
+                ng-if="deck.length > 0"
+            >
+                <b>Draw One!</b><br/> <span class="metrophobic">{{deck.length}} remaining</span>
+            </button>
+        </div>
+        <div class="option_container drawn_cards" ng-if="deck.length > 0 || drawn.length > 1">
+            <div class="card_container">
+                <span
+                    class="card survivor_sheet_gradient"
+                    ng-repeat="card in drawn track by $index"
+                >
+                    <p class="card_title">{{$index + 1}}. {{card.name}}</p>
+                    <p class="card_subtitle"> - {{card.subtitle}} - </p>
+                    <p
+                        class="card_desc"
+                        ng-bind-html="card.desc|trustedHTML"
+                    ></p>
+                    <div class="die_roll" ng-if="card.roll_die">
+                        {{card.die_roll}}
+                    </div>
+                </span>
+            </div>
+        </div>
+
+        <h3 class="hunt_phase">Optional Basic Hunt Event cards</h3>
+        <p class="hunt_phase_subtitle">Tap or click a card to include it in your deck. Don't forget to re-shuffle afterwards!</p>
+
+        <div class="option_container expansion_cards">
+
+            <button
+                class="expansion_card"
+                ng-repeat="card in cards"
+                ng-if="card.optional == true"
+                ng-click="includeCard(card)"
+                ng-class="{true: 'kd_blue', }[card.included]"
+            >
+                {{card.name}}
+            </button>
+
+        </div>
+
+        <button class="kd_alert_no_exclaim" ng-click="showHide('huntPhaseModal')">Back</button>
+
+    </div> <!-- container -->
+</div>
+
+

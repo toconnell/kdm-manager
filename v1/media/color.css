@@ -9,6 +9,7 @@
 
 
 /* gradients */
+.collection_gradient {background: linear-gradient(to right, #F5E2B9, #FAF6DB, #F5E2B9);}
 .campaign_summary_gradient {background: linear-gradient(to right, #EFCE98, #F5E9D2, #fefeee, #F5E9D2, #EFCE98)}
 .settlement_sheet_gradient {background: linear-gradient(to right, #FFE082, #FFECB3, #FFF8E1, #FFECB3, #FFE082)}
 .survivor_sheet_gradient {background: linear-gradient(to right, #E6DECC, #f7f3eb, #fefeee, #f7f3eb, #E6DECC);}

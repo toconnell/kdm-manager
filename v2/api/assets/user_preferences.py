@@ -1,7 +1,7 @@
 preferences_dict = {
     "beta": {
         "type": "General",
-        "desc": "Enable beta features of the Manager?",
+        "desc": "Enable Beta (&beta;) features of the Manager?",
         "affirmative": "Enable",
         "negative": "Disable",
         "patron_level": 2,

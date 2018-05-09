@@ -1,0 +1,171 @@
+<span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
+<span class="nav_bar_mobile mobile_only settlement_sheet_gradient"></span>
+
+<script src="/js/newSettlement.js?v=$application_version"></script>
+
+<div
+    class="kd_sheet_ui_outer_ring_container new_settlement_form"
+    ng-controller="newSettlementController"
+    ng-init="
+        setView('newSettlement');
+        initializeUser('$user_id','get','$api_url');
+    "
+>
+
+    <!-- settlement name -->
+    <div class="kd_sheet_ui_inner_ring_container new_settlement_form">
+        <div
+            id="newSettlementName"
+            class="settlement_name"
+            ng-blur="setNewSettlementName()"
+            contentEditable="true"
+            placeholder="New Settlement Name"
+            autofocus
+        ></div>
+    </div>
+
+    <!-- campaign -->
+    <div class="kd_sheet_ui_inner_ring_container new_settlement_form">
+        <h3>Campaign</h3>
+        <p class="kd_sheet_ui_row_tip" ng-if="user.user.preferences.show_ui_tips">
+            Choosing an expansion campaign automatically enables expansion
+            content required by that campaign and modifies the settlement timeline,
+            milestones, principles, rules and Survivor Sheets.
+        </p>
+        <p class="kd_sheet_ui_row_tip" ng-if="user.user.preferences.show_ui_tips">
+            A settlement's campaign <b>cannot be changed</b> after settlement
+            creation!
+        </p>
+
+        <div ng-if="new_settlement_assets === undefined" class="new_settlement_loading">
+            <img src="/media/loading_io.gif">
+        </div>
+        <div
+            class="new_settlement_asset_clicker clickable"
+            ng-repeat="c in new_settlement_assets.campaigns"
+            ng-click="newSettlement.campaign = c.handle"
+            ng-class="{active: newSettlement.campaign === c.handle}"
+        >
+            <div
+                class="kd_sheet_ui_box"
+                ng-class="{checked: newSettlement.campaign === c.handle}"
+            ></div>
+            {{c.name}}
+            <p ng-if="c.subtitle" class="new_settlement_asset_desc">{{c.subtitle}}</p>            
+        </div>
+    </div>  <!-- campaign -->
+
+
+    <!-- Expansions -->
+    <div class="kd_sheet_ui_inner_ring_container new_settlement_form">
+        <h3>Expansions</h3>
+        <p class="kd_sheet_ui_row_tip" ng-if="user.user.preferences.show_ui_tips">
+            Enable expansion content by toggling items below. Expansion
+            content may also be enabled (or disabled) later using the controls
+            on the left-side navigation bar.
+        </p>
+
+        <div ng-if="new_settlement_assets === undefined" class="new_settlement_loading">
+            <img src="/media/loading_io.gif">
+        </div>
+
+        <div ng-if="user.user.preferences.beta" class="ng_fade">
+            <h4>KD Collection (&beta;)</h4>
+            <div
+                class="new_settlement_asset_clicker clickable"
+                ng-class="{active: newSettlement.expansions.indexOf(expansion.handle) != -1}"
+                ng-repeat="expansion in new_settlement_assets.expansions"
+                ng-if="expansion.ui.pretty_category === 'KD Collection'"
+                ng-click="toggleAttrib('expansions',expansion.handle)"
+            >
+                <div
+                    class="kd_sheet_ui_box"
+                    ng-class="{checked: newSettlement.expansions.indexOf(expansion.handle) != -1}"
+                ></div>
+                <span ng-bind-html="expansion.name|trustedHTML"></span>
+                <p ng-if="expansion.subtitle" class="new_settlement_asset_desc"> {{expansion.subtitle}}</p>
+            </div>
+        </div>
+
+        <div ng-repeat="category in ['Quarry','Nemesis','Enhancement']">
+            <h4>{{category}}</h4>
+            <div
+                class="new_settlement_asset_clicker clickable"
+                ng-class="{active: newSettlement.expansions.indexOf(expansion.handle) != -1}"
+                ng-repeat="expansion in new_settlement_assets.expansions"
+                ng-if="expansion.ui.pretty_category === category"
+                ng-click="toggleAttrib('expansions',expansion.handle)"
+            >
+                <div
+                    class="kd_sheet_ui_box"
+                    ng-class="{checked: newSettlement.expansions.indexOf(expansion.handle) != -1}"
+                ></div>
+                <span ng-bind-html="expansion.name|trustedHTML"></span>
+                <p ng-if="expansion.subtitle" class="new_settlement_asset_desc"> {{expansion.subtitle}}</p>
+            </div>
+        </div>
+    </div> <!-- expansions -->
+
+
+    <!-- specials + pre-fab survivors -->
+    <div class="kd_sheet_ui_inner_ring_container new_settlement_form">
+        <h3>Survivors</h3>
+        <p class="kd_sheet_ui_row_tip" ng-if="user.user.preferences.show_ui_tips">
+            By default, new settlements are created with no survivors. Toggle options below to create the settlement with pre-made survivors.
+        </p>
+
+        <div ng-if="new_settlement_assets === undefined" class="new_settlement_loading">
+            <img src="/media/loading_io.gif">
+        </div>
+
+        <!-- specials -->
+        <div
+            class="new_settlement_asset_clicker clickable"
+            ng-class="{active: newSettlement.specials.indexOf(special.handle) != -1}"
+            ng-repeat="special in new_settlement_assets.specials"
+            ng-click="toggleAttrib('specials',special.handle)"
+        >
+            <div
+                class="kd_sheet_ui_box"
+                ng-class="{checked: newSettlement.specials.indexOf(special.handle) != -1}"
+            ></div>
+            {{special.name}}
+            <p ng-bind-html="special.desc|trustedHTML" class="new_settlement_asset_desc"></p>
+        </div>
+
+        <!-- survivors -->
+        <div
+            class="new_settlement_asset_clicker clickable"
+            ng-class="{active: newSettlement.survivors.indexOf(survivor.handle) != -1}"
+            ng-repeat="survivor in new_settlement_assets.survivors"
+            ng-click="toggleAttrib('survivors',survivor.handle)"
+        >
+            <div
+                class="kd_sheet_ui_box"
+                ng-class="{checked: newSettlement.survivors.indexOf(survivor.handle) != -1}"
+            ></div>
+            {{survivor.name}}
+        </div>
+
+    </div> <!-- specials and pre-fab survivors -->
+
+
+    <!-- submitter -->
+    <button
+        id="createNewSettlementButton"
+        class="ng_fade kd_blue"
+        ng-if="new_settlement_assets !== undefined"
+        ng-click="createSettlement();"
+    >   
+        Create {{newSettlement.name}}
+    </button>
+    <button
+        id="createNewSettlementButtonLoader"
+        class="hidden"
+        disabled
+    >
+        Creating settlement...
+    </button>
+
+
+</div> <!-- create_new_asset_form_container -->

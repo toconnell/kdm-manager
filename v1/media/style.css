@@ -71,8 +71,26 @@ div.kd_toggle_container {margin:4%; cursor: pointer; margin-bottom: 7%; border-b
 div.kd_toggle_container:hover {font-weight: normal; background-color: #FFeeee;}
 
 div.settlement_sheet_principle_name {font-size: 60px; }
-.kd_radio_option_label {font-size: 60px; color: #000;}
 
+    /* diamonds! */
+.shape-section {
+  padding: 20px 0;
+}
+.diamond {
+  background: #000;
+  text-align: center;
+  transform:rotate(45deg);
+  height: 100px;
+  width: 100px;
+}
+.diamond_inner {
+  color: #fff;
+  display: table-cell;
+  transform: rotate(-45deg);
+  vertical-align: middle;
+  height: 100px;
+  width:100px;
+}
 
 .touch_me {background-color: #f7f3eb; border: 0.2em solid #E6DECC; cursor: pointer; }
 .paper_style_toggle {margin: 0 auto; width: auto; background: none; border: 0.3em solid #000; font-weight: bold; cursor: pointer;}
@@ -128,9 +146,7 @@ button {font-family: Arial, sans-serif; }
 fieldset {border: 0; text-align: left; }
 
 
-.tiny_break {display: block; height: 10px; }
 .clear_left {clear: left;}
-.margin_auto {margin: 0 auto;}
 .location_level {width: 80px; display: inline; margin: 0 auto; clear: none; }
 
 
@@ -138,10 +154,10 @@ fieldset {border: 0; text-align: left; }
 /* all breakpoints - general styles */ 
 div[contenteditable=true]:empty:before {
     content: attr(placeholder);
-    color: #aaa; 
+    color: #aaa;
+    font-weight: normal; 
 }
 
-.no_ul {border: 0; }
 .ul {border: 0; border-bottom: 1px solid #666; }
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
@@ -499,7 +515,6 @@ button.tiny_button {padding: 5px; font-size: 70%; margin: auto; margin-top: 40px
 
 /*  dashboard styles */
 
-.dashboard_user_collection_container {margin-bottom: 15%; }
 h4.user_collection {text-align: center; font-style: italic; }
 .dashboard_user_expansions_repeater {display: flex; flex-direction: row; margin: 5%; }
 .dashboard_user_expansions_repeater .special_attribute_checkbox {}
@@ -574,17 +589,21 @@ ul.dashboard_settlement_list_settlement_attribs { margin-top: 0; margin-bottom:0
 
     /* dashboard rollups/accordions */
 
-.dashboard_rollup {width: 95%; padding-left: 20px; margin: 0 auto; margin-bottom: 5%; border: 0; border-top-right-radius: 25px; }
+.dashboard_rollup {width: 95%; padding-left: 20px; margin: 0 auto; margin-bottom: 5%; border: 0; border-top-right-radius: 25px; display: flex; flex-direction:row; flex-wrap: nowrap; align-items: center; justify-content: space-between; }
 .dashboard_accordion {width: 96%; padding: 5px; margin: 0 auto; margin-bottom: 5%; margin-top: -5.2%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; padding: 5px 6px 30px 6px; transition: display 0.4s; }
 .dashboard_menu ul {list-style-type: none;}
 .dashboard_menu ol {padding-left: 120px; }
 
+.dashboard_rollup.collection {}
+.dashboard_user_collection_container {}
+.dashboard_user_collection_container p {font-family: 'Metrophobic'; font-size: 0.8em; }
+.collection_category_header {font-size: 1.1em; text-align: center; }
+.collection_category_header::before,
+    .collection_category_header::after {content: ' - '}
 
-.COD_down_arrow, .dashboard_down_arrow, .dashboard_icon {height: 50px; width: 50px;}
+.dashboard_down_arrow, .dashboard_icon {height: 50px; width: 50px;}
 .dashboard_down_arrow, .COD_down_Arrow {float: right;}
 .dashboard_down_arrow {margin-right: 20px; margin-top: 20px; }
-.COD_down_arrow {float: right; margin-right: 80px; margin-top: -50px; }
-#motd {margin: 10px; position: absolute; bottom: 0;  }
 img.latest_fatality {width: 300px; float: right; margin: 10px; }
 
 .settlements_retrieved {margin: 0 auto; font-size: 20pt; color: #ccc; text-align: center; font-weight: normal; font-style: italic; }
@@ -592,10 +611,6 @@ img.latest_fatality {width: 300px; float: right; margin: 10px; }
 
 /* asset creation styles */
 .create_new_asset_form_container {margin-top: 150px; }
-div.create_user_asset_block_group {margin: 4%; margin-top: 0; }
-div.create_user_asset_block_group h2 {padding-left: 3%; margin-bottom: 0; }
-div.create_user_asset_block_group p {margin: 0; padding: 1%; padding-bottom: 2%; font-size: 40px;}
-div.create_user_asset_block_group input[type=email], div.create_user_asset_block_group input[type=text] { margin: 4% auto; width: 100%; font-weight: bold; }
 input.new_asset_name {width: 100%; margin: 4%; font-family: Silverado; font-size: 100px; font-weight: bold; border: 0; outline: none; text-align: center; }
 
 div.new_settlement_loading {width: 100%; display: flex; flex-direction: row; justify-content: center; margin-top: 10%; }
@@ -767,9 +782,17 @@ button.quickview_ui_button {width: 800px; border-radius: 25px; display: block; w
 .departing_toggle {background: radial-gradient(#ED5448, #CD4438); color: #FFF}
 
 /* Campaign Summary top line items */
-div.campaign_summary_headline_container p {font-family: Metrophobic; margin: 1%; }
-div.campaign_summary_headline_container p.campaign_summary_campaign_type {font-family: Silverado;}
-div#campaign_summary_campaign_type {color: #777; margin-top: -50px; text-align:center; }
+div.campaign_summary_headline_container p {font-family: Metrophobic; margin: 1%; margin-top: 1%; }
+.campaign_summary_headline_container h1 {margin-bottom: 1%; margin-top: 1%; }
+div.campaign_summary_headline_container p.campaign_summary_campaign_type {font-family: Silverado; font-size: 0.8em; color: #666; text-align: center; font-style: italic; }
+
+.campaign_summary_headline_blocks_container {margin: 0 auto; width: 95%; display: flex; justify-content: center;  margin-top: 5%; margin-bottom: 2%;  }
+.headline_block {width: 25%; display: flex; flex-direction: column; align-items: center;  border-left: 1px solid #ccc; border-right: 1px solid #ccc; }
+.headline_block_caption {color: #333; font-size: 0.6em; }
+.headline_block_subtitle {width: 90%; display: flex; justify-content: space-evenly; margin: 5%;}
+.headline_pop_by_sex {font-family: 'Metrophobic';  font-size: 0.8em; }
+
+.campaign_summary_no_survivors_error {margin: 3%; font-size: 0.7em; margin-top: 10%; }
 
 /* Campaign Summary Departing survivor management */
 
@@ -795,17 +818,15 @@ div#campaign_summary_campaign_type {color: #777; margin-top: -50px; text-align:c
 .departing_survivors_control div.button_div {display: flex; flex-direction: row; align-items: center; width: 50%; justify-content: space-around; }
 .departing_survivors_control div.button_div button {border-radius: 50%; width: 120px; height: 120px; background: radial-gradient(#000, #000, #000, #333, #666, #ddd); border: 3px solid #666; margin: 3%; font-family: 'Metrophobic'; font-size: 30pt; color: #fff;}
 
-.current_hunt_container {width: 80%; margin: 0 auto; display: flex; flex-direction: column; padding-left: 7%; padding-right: 7%; }
 .departing_survivors_mgmt {border: 3px solid #fff;  font-family: 'Metrophobic'; padding: 3%; }
+.departing_survivors_innovation_desc b.innovation_name {font-size: 1.2em; }
+.departing_survivors_innovation_desc span {font-size: 0.5em; }
 
 .applying_update_spinner  {display: flex; flex-direction: column; flex-wrap: nowrap; width: 50%; font-size: 0.8em; margin: 0 auto; align-items: center; margin: 2% auto; }
 .applying_update_spinner img {width: 300px; }
 
 .end_current_ly_box {padding-top: 2%; padding-bottom: 2%; border-radius: 100px;  }
 
-
-/* no survivors error */
-div.user_asset_sheet_error {margin: 5%; font-size: 35px; }
 
 
 
@@ -992,9 +1013,7 @@ div#info_box h2, button#survivor_campaign_asset, button.dashboard_asset {text-al
 .kd_sheet_ui_outer_ring_container {background-color: #fff; position: absolute; width: 100%; min-height: 100%; }
 .kd_sheet_ui_inner_ring_container {background-color: #fff; color: #000; border: 15px solid #000; margin: 0 auto; margin: 2%; }
 .kd_sheet_ui_row {display: flex; flex-direction: row; justify-content: space-between; margin-bottom: 4%; align-items: baseline; }
-.kd_sheet_ui_row.full_height_bullet {}
 .kd_sheet_ui_row .bullet_box {width: 50px; height: 50px; border-radius: 100%; background-color: #000; }
-.kd_sheet_ui_row .bullet_legend {width: 90%; }
 .kd_sheet_ui_row.story_tip {margin: 4%; justify-content: left; font-size: 40pt; display: flex; align-items: center;}
 .kd_sheet_ui_row.one_line_tip {font-size: 25pt; justify-content: left; align-items: flex-end; }
 .kd_sheet_ui_row.one_line_tip .kd_sheet_ui_box {margin-right: 1%; width: 10px; height: 10pt; }
@@ -1040,6 +1059,16 @@ div#info_box h2, button#survivor_campaign_asset, button.dashboard_asset {text-al
 
 .survivor_sheet_survivor_name {font-family: Silverado; font-size: 75pt; font-weight: bold; text-align: center; margin: 2%; margin-bottom: 3%;  }
 
+    /* create new settlement form - mobile */
+.kd_sheet_ui_outer_ring_container.new_settlement_form {margin-top: 15%; }
+.kd_sheet_ui_inner_ring_container.new_settlement_form {padding: 1%; padding-top: 0; }
+.kd_sheet_ui_inner_ring_container.new_settlement_form .kd_sheet_ui_row_tip {font-size: 0.7em; margin-bottom: 1%; }
+.new_settlement_form .settlement_name {font-size: 2em; margin: 0 auto; margin-top: 2%; margin-bottom: 1%; width: 95%; border: 0; text-align: center;  font-weight: bold;}
+.new_settlement_asset_clicker {margin: 5%; color: #777;}
+.new_settlement_asset_clicker.active {color: #000; }
+.new_settlement_asset_desc {font-family: 'Metrophobic'; font-size: 0.7em; margin-top: 0; }
+.new_settlement_form h4 {margin-left: 3%; }
+.new_settlement_form button {border-radius: 50px; }
 
     /* sex - mobile */
 .survivor_sheet_kd_sheet_ui_box.survivor_sex_box {border: 0; text-align: right; display: flex; flex-direction: row; margin: 0 auto; padding: 0; }
@@ -1178,7 +1207,6 @@ div.lineage_block p {font-family: Metrophobic; font-size: 35pt; }
 input.survivor_owner_email {border: 0; outline: 0; display: block; margin: 0 auto; width: 95%; text-align:center; font-family: Silverado; height: auto; border-radius: 10px; padding: 2%; }
 input.survivor_owner_email:focus {background: radial-gradient(#FDEDA9, #FFFFC5); }
 
-.survivor_is_dead {border-color: #660000; background-color: #aa0000; background: radial-gradient(#880000, #cc0000); color: #fff; font-weight: bold; text-transform: uppercase; }
 
 .survivor_sheet_toggle {font-weight: normal; border-color:#aaa; color: #aaa; }
 .survivor_sheet_toggle:checked + label {font-weight: bold; color: #BB1111; border-color: #890000}
@@ -1282,8 +1310,6 @@ div.modal_affinity_control_unit {display: flex; flex-direction: row; align-items
 /* clear: none styles*/
 #damage_box, .floating_label, form, label#skip_next_hunt, div#info_box {clear: none;}
 
-/* clear: right styles*/
-.clear_right {clear: right;}
 
 /* float: right styles */
 #damage_box, label#skip_next_hunt, .floating_label {float: right; }
@@ -1297,7 +1323,6 @@ p, .left_margin {margin-left: 20px; }
 /* generic UI/UX facilitation styles */
 .False, .hidden {display: none !important; }
 .visible {display: inherit !important; }
-.strikethrough {text-decoration: line-through; }
 .faded {opacity: 0.3; transition: 4s; }
 
 
@@ -1505,6 +1530,11 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .kd_alert:before {font-size: 40px; font-size: 5vw; margin-left: 2%; }
     .kd_alert {padding: 2%; }
 
+    /* diamonds! */
+    .shape-section {padding: 20px 0;}
+    .diamond {height: 50px; width: 50px;}
+    .diamond_inner {height: 50px;width:50px;}
+
     /* general styles - tablet */
     ul.kd_boxes li:before {font-size: 1.2em; }
 
@@ -1569,6 +1599,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     button.dashboard_settlement_name b.dashboard_settlement_name {font-size: 35px;}
 
         /* preferences - tablet */
+    .dashboard_rollup {height: 40px; }
     .dashboard_rollup_arrow {font-size: 15pt; margin-right: 4%; margin-top: 2%; }
     .dashboard_preferences_container p {font-size: 13pt; }
     .preferences_sub_block {border: none; }
@@ -1602,14 +1633,9 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
 
     /* asset creation styles - tablet */
+    .kd_sheet_ui_outer_ring_container.new_settlement_form {margin-top: 10%;}
     .create_new_asset_form_container {margin-top: 75px; }
     input.kd_css_checkbox + label:before, span.kd_checkbox_checked {font-size: 33px; margin-left: 4%; margin-right: 2%; }
-    div.create_user_asset_block_group {margin: auto; width: 70%; }
-    div.create_user_asset_block_group input {font-size: 80px; }
-    div.create_user_asset_block_group input[type="file"] {font-size: 30px; }
-    div.create_user_asset_block_group input[type="email"] {font-size: 30px; }
-    div.create_user_asset_block_group p {font-size: 25px;  }
-    div.create_user_asset_block_group label {font-size: 35px;  }
     
 
     /* generic asset management styles: survivor&ettlement - tablet */
@@ -1979,9 +2005,10 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .survivor_sheet_card_click_to_remove {font-size: 15px; margin-bottom: -50px;}
 
     /* campaign summary Styles - tablet */
-    div.campaign_summary_headline_container p {margin: 0}; 
+    div.campaign_summary_headline_container p.campaign_summary_campaign_type {text-align: left; padding-left: 2%; margin-top: 0; }
+    .campaign_summary_headline_blocks_container {width: 500px; margin-left: 0; margin-top: 1%; }
+    .headline_block {border: 0; }
     h3.monster_subhead {font-size: 17pt; text-align: left; padding-left: 5%; margin: 0; margin-top: 2%; }
-    div.user_asset_sheet_error {font-size:20px; width: 40%; position: absolute; right: 0; top: 70px; }
     span.campaign_summary_bullet {font-size: 25px; margin: auto; margin-left: 7%; }
 
     /* departing survivors mgmt - tablet */
@@ -1991,6 +2018,8 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .departing_survivors_control div.button_div button {padding:0; width: 65px; height: 65px; font-size: 18pt; }
     .departing_survivors_mgmt {display: block; padding: 2%; margin: 5% auto; }
     .departing_survivors_mgmt.close_button {width: 60%; }
+    .departing_survivors_innovation_desc b.innovation_name {font-size: 1.4em; }
+    .departing_survivors_innovation_desc span {font-size: 1em; }
     .applying_update_spinner img {width: 150px; }
 
         /* quickview - tablet */
@@ -2085,11 +2114,11 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     .settlement_sheet_settlement_name {font-size: 40pt; margin-top: 16%; }
     p.settlement_sheet_campaign_type {font-size: 25px; text-align: center; }
-    p.campaign_summary_campaign_type {display: block; clear: both; color: #666; margin-left: 30px; margin-top: 0;}
 
 
     /* campaign summary panel arrangement - tablet */
-    .campaign_summary_panels_container {width: 100%; padding: 0 px; padding-bottom: 5%; margin: 0 auto;}
+    .campaign_summary_panels_container {width: 100%; padding: 0 px; padding-bottom: 5%; margin: 0 auto; display: flex; flex-direction:row; flex-wrap: nowrap; }
+    .campaign_summary_left_panel {width: 500px; padding-bottom: 100px; }
     .campaign_summary_survivors_container,
         .campaign_summary_facts_box {padding: 0; margin: 0 auto; vertical-align: top; display: inline-block; }
     .campaign_summary_survivors_container {width: 505px; padding-top: 0; min-height: 800px; }
@@ -2103,7 +2132,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .campaign_summary_survivor div.epithets {font-size: 14pt; }
     .attr {font-size: 17pt; }
     .avatar_and_summary div.avatar img {width: 80%; }
-    .death_x {font-size: 180px; margin-top: -3%; margin-left: 10px; }
+    .death_x {font-size: 180px; margin-top: -3%; margin-left: 10px; margin-bottom: 12%; }
     .campaign_summary_survivor_returning_flash {margin-top: -4.1%; margin-left: -1.2%; width: auto; margin-right: -1.4%; font-size: 14pt; }
     .campaign_summary_survivor_constellation {margin-bottom: -4%; font-size: 14pt; }
 
@@ -2219,7 +2248,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.big_number_container input#survivalLimitBox, div.big_number_container input#populationBox, div.big_number_container input#deathCountBox {width: 65px; height:  70px; }
     form.survivor_bulk_add_form {width: 100%; }
     .bulk_add_modal p {font-size: 15pt; width: 70%; margin-bottom: 2%; }
-    .bulk_add_block_group {width: 100%; }
     .bulk_add_tumblers {width: auto}
     button.settlement_sheet_bulk_add {font-size: 18pt; padding: 1%; }
 
@@ -2276,8 +2304,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .tablet_and_desktop {display: inline-block; }
     .mobile_only {display: none;}
     .mobile_and_tablet {display: none;}
-    .left_margin, .right_margin {height: auto;}
-    .left_border, .right_border {height: auto;}
     li {text-align: left; }
     h1 {font-size: 20pt; }
     h2 {font-size: 17pt; }
@@ -2445,7 +2471,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.dashboard_accordion li {margin-right: 20px; }
     div.dashboard_button_list {margin-top: 1%; }
     div.dashboard_button_list img.dashboard_down_arrow {height: 10px; width: 10px; }
-    #motd {margin: 10px; position: absolute; bottom: 0;  }
     img.dashboard_down_arrow, img.dashboard_icon {height: 15px; width: 15px;}
     .dashboard_down_arrow, .COD_down_Arrow {float: right; margin: 0 auto; }
     img.dashboard_down_arrow {margin: 0 none; margin-top: 5px; margin-right: 5px;}
@@ -2474,17 +2499,16 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     /* asset creation styles - wide */
 
+    .kd_sheet_ui_outer_ring_container.new_settlement_form {margin-top: 60px; }
+    .kd_sheet_ui_inner_ring_container.new_settlement_form .kd_sheet_ui_row_tip {font-size: 0.8em;}
+    .kd_sheet_ui_inner_ring_container.new_settlement_form {width: 600px;}
+    .new_settlement_asset_clicker {margin: 3%; font-size: 1.2em; }
+    .new_settlement_form button {margin: 5% auto; display: block;  width: 50%; padding: 1%; font-size: 1.2em;}
+
         /* bulk add new survivors - wide */
-    div.create_user_asset_block_group input[type="email"] {font-size: 12pt; }
 
     .create_new_asset_form_container {width: 700px; border: 0; margin: 0 auto; padding: 10px; text-align: justify; font-size: 12pt; margin-top: 50px; }
     .create_new_asset_form_container button {width: 350px; display:block; margin: 0 auto; margin-top: 50px; margin-bottom: 50px; }
-    div.create_user_asset_block_group {display: flex; flex-direction: column; }
-    div.create_user_asset_block_group input {font-size: 30pt; }
-    div.create_user_asset_block_group p {font-size: 12pt; margin-bottom: 2%; text-align: left; }
-    div.create_user_asset_block_group p.new_settlement_asset {border-left:1px solid #ccc; margin-left: 5%; padding-left: 5px; font-size: 10pt; margin-bottom: 0; font-family: Metrophobic; }
-    div.create_user_asset_block_group label {font-size: 14pt; width: 90%; margin-left: 2%; }
-    div.create_user_asset_block_group label:hover {font-weight: normal; }
     div.new_settlement_campaign_container {width: auto; }
     div.new_settlement_asset {margin: 0; padding: 0; padding-left: 40px; }
 
@@ -2514,7 +2538,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
 
     /* wide campaign summary styles */
-    div.campaign_summary_panels_container div.user_asset_sheet_error {position: absolute; left: 450px; top: 50px; width: 400px;  }
 
         /* campaign notes - wide */
     div.settlement_notes_controls {margin-top: 10px; margin-bottom: 10px; }
@@ -2578,7 +2601,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     button#survivor_campaign_asset {width: 400px; }
 
     /* manage departing survivors - wide */
-    .manage_departing_survivors {width: 300px; right: auto; left: 575px; top: 110px; padding: 1%; border-width: 2px; bottom: auto; position: absolute; } 
+    .manage_departing_survivors {width: 350px; right: auto; left: 575px; top: 90px; padding: 1%; border-width: 2px; bottom: auto; position: absolute; } 
     .modal-black.departing_survivors_modal_container {font-size: 30px;}
     .showdown_controls_box_outline {width: 450px; border-width: 3px; }
     .departing_survivors_control {width: 95%; border-width: 1px; }
@@ -2588,6 +2611,8 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .return_departing_survivors {display: block; margin: 0 auto; }
 
     /* campaign summary survivors - wide */
+    .headline_block_caption {font-size: 1em; }
+    .headline_block_subtitle {font-size: 1em; }
     .campaign_summary_survivors_group h3 {margin-bottom: 3%; }
     .campaign_summary_survivors_container h2 {font-size: 22pt; }
     .campaign_summary_survivors_container p.subtitle {font-size: 10pt; text-align: center; }
@@ -2656,7 +2681,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     /* campaign summary right panel - wide */
     div.campaign_summary_special_rule {font-size: 11pt;}
     div.campaign_summary_special_rule h3 {font-size: 13pt;}
-    div.campaign_summary_facts_box {width: 450px; margin-top: auto;}
+    div.campaign_summary_facts_box {width: 450px; }
     div.campaign_summary_facts_box h4 {color: #000; width: 428px; margin: 0 auto; margin-left: -5px; margin-top: -5px; padding: 0; padding-top: 7px; padding-left: 20px;  padding-bottom: 5px; border-bottom: 1px solid #999;}
     div.campaign_summary_facts_box ul {margin: 0 auto; margin-top: 5px; margin-bottom: 10px; } 
     div.campaign_summary_small_box { width: auto; border: 0; padding: 5px; margin-bottom: 10px; }
@@ -2892,7 +2917,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.settlement_sheet_block_group p {padding-bottom: 0; }
     div.settlement_sheet_block_group div.line_item {font-size: 12pt; margin-top: 3%; }
     div.settlement_sheet_block_group h2 {font-size: 17pt }
-    div.settlement_sheet_block_group div.user_asset_sheet_error {font-size: 9pt; }
 
     div.settlement_sheet_block_group span.item,
         div.settlement_sheet_block_group select, 
@@ -3164,7 +3188,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
 .kd_blue {background-color: #50CAF5; background: linear-gradient(to bottom, #60DAF5, #40AFD3); color: #fff; font-family: Arial, sans-serif; font-weight: bold; }
 .kd_blue_font {color: #50AAF5; font-weight: bold; }
-.kd_pink_font {color: #FF0040; font-weight: bold; }
 
 /* button styles */
 .disabled, .strikethrough {color: #999; background: #dedede; cursor: not-allowed; }
