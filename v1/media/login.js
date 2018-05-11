@@ -132,7 +132,7 @@ app.controller("newUserController", function($scope, $http) {
             data: data,
         }).then(function successCallback(response) {
                 var r = response.data;
-                console.log(r);
+//                console.log(r);
                 $scope.legacySignIn($scope.newUserEmail, $scope.newUserPassword);
                 return
             }, function errorCallback(response) {

@@ -299,7 +299,7 @@ div#mySidenav button {
 
 /* expansion content manager - mobile */
 .expansions_controls_container {display: flex; flex-direction: column; }
-.expansions_controls_container .kd_sheet_ui_row_tip {margin: 0 auto; width: 90%; }
+.expansions_controls_container .kd_sheet_ui_row_tip {margin: 0 auto; width: 90%; margin-bottom: 1%; }
 .expansion_category_header {padding-left: 5%; }
 .expansion_toggle_container {padding: 2%; width: 90%; margin: 0 auto; border: 4px solid #aaa; margin-bottom: 3%; color: #aaa; }
 .expansion_toggle_container .kd_sheet_ui_box {border-color: #aaa; }
@@ -664,6 +664,7 @@ p.settlement_buff {font-family: Metrophobic; }
 .new_survivor_link_container .new_survivor_link .desc .email {font-family: 'Metrophobic'; font-size: 30pt; color: #666; padding-left: 2%; }
 
 /* campaign summary styles */
+.campaign_summary_panels_container {padding-bottom: 200px; }
 
 /* big container */
 .campaign_summary_survivors_container h2 {font-size: 60pt; border: 0; text-align: center; margin-bottom: 1%; }
@@ -840,7 +841,6 @@ div.campaign_summary_headline_container p.campaign_summary_campaign_type {font-f
 .campaign_summary_small_box h5 {font-weight: normal; margin: 0; padding:0; font-size: 75px; padding-left: 15px; margin-top: 20px; }
 .campaign_summary_small_box p {font-family: Arial, sans-serif; font-weight: normal; }
 .campaign_summary_small_box p i {font-family: Silverado; font-size: 1.2em;}
-.campaign_summary_bottom_spacer {height: 300px; }
 
 .campaign_summary_endeavor_container {margin-top: 0; margin-bottom: 2%; border-radius: 5px; background-color: #997030; color: #fff; display: flex; flex-direction: row; width: 98%; }
 div.endeavor_cost {border-top-left-radius: 5px; border-bottom-left-radius: 5px; background-color: #D0AB51; margin: 0 auto; width: auto; padding: 2%; display: flex; align-items: center; border: 0; }
@@ -1027,7 +1027,7 @@ div#info_box h2, button#survivor_campaign_asset, button.dashboard_asset {text-al
 .kd_sheet_ui_row.title {font-size: 70pt; font-weight: bold; display:block; }
 .kd_sheet_ui_row.title img {width: 65px; }
 .kd_sheet_ui_row .title.short {width: 35%; font-weight: bold; font-size: 38pt;}
-.kd_sheet_ui_row_tip {font-size: 15px; font-family: Metrophobic; padding: 2%; background-color: #FFFFEC; color: #66411E; margin: 0 auto; width: 95%; }
+.kd_sheet_ui_row_tip {font-size: 0.7em; font-family: Metrophobic; padding: 2%; background-color: #FFFFEC; color: #66411E; margin: 0 auto; width: 95%; }
 .kd_sheet_ui_box_row {display: flex; flex-direction: row; flex-wrap: nowrap; }
 .kd_sheet_ui_box_row.long {width: 60%; }
 .kd_sheet_ui_box_row.wrap_row {flex-wrap: wrap; justify-content: space-around;}                   /* lost settlements */
@@ -2117,7 +2117,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
 
     /* campaign summary panel arrangement - tablet */
-    .campaign_summary_panels_container {width: 100%; padding: 0 px; padding-bottom: 5%; margin: 0 auto; display: flex; flex-direction:row; flex-wrap: nowrap; }
+    .campaign_summary_panels_container {width: 100%; padding: 0 px; padding-bottom: 150px; margin: 0 auto; display: flex; flex-direction:row; flex-wrap: nowrap; }
     .campaign_summary_left_panel {width: 500px; padding-bottom: 100px; }
     .campaign_summary_survivors_container,
         .campaign_summary_facts_box {padding: 0; margin: 0 auto; vertical-align: top; display: inline-block; }
@@ -2591,7 +2591,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
 
         /* major panel divs - wide style */
-    div.campaign_summary_panels_container {width: 1000px; float: left; }
+    div.campaign_summary_panels_container {width: 1000px; float: left; padding-bottom: 0;}
 
         /* left panel */
     div.campaign_summary_survivors {width: 510px; float: left;  margin-right: 10px; }

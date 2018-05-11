@@ -52,7 +52,6 @@ app.controller('newSettlementController', function($scope, $http) {
         // change the view
 
         console.time('createSettlement()');
-//        console.warn($scope.newSettlement);
 
         // do UI stuff
         showFullPageLoader();
@@ -67,8 +66,6 @@ app.controller('newSettlementController', function($scope, $http) {
         var creationPromise = $http.post(url, $scope.newSettlement, config); 
 
         creationPromise.success(function(data, status, headers, config) {
-            console.warn('New settlement created!');
-            console.warn(data);
             var newSettlementId = data.sheet._id.$oid;
             $scope.postForm('view_campaign', newSettlementId);
             console.timeEnd('createSettlement()');

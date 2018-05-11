@@ -221,6 +221,9 @@ mar_2016_expansions = {
         "timeline_add": [
             {"ly": 8, "handle": "dk_glowing_crater"},
         ],
+        'help': [
+            {'type': 'game_assets', 'tip': 'The "Destiny Husk" referenced on p.5 of the rules is understood to refer to the <b>Husk of Destiny</b> Rare Gear.'},
+        ],
     },
     "manhunter": {
         "name": "Manhunter",

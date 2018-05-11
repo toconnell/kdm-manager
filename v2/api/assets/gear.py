@@ -2197,22 +2197,47 @@ white_box_promo = {
 }
 
 dragon_king = {
-    'blast_shield': {'expansion': 'dragon_king',
-                  'type': 'dragon_armory',
-                  'name': 'Blast Shield'
+    'blast_shield': {
+        'expansion': 'dragon_king',
+        'type': 'dragon_armory',
+        'name': 'Blast Shield',
+        'speed': 1,
+        'accuracy': 7,
+        'strength': 4,
+        'keywords': ['weapon','melee','shield','metal'],
+        'rules': ['Block 1'],
+        'desc': 'Add <font class="inline_shield">1</font> to all hit locations.<br/><b>Block 1</b>. The first time you block a hit each showdown, gain the priority target token.',
     },
-    'blast_sword': {'expansion': 'dragon_king',
-                 'type': 'dragon_armory',
-                 'name': 'Blast Sword'
+    'blast_sword': {
+        'expansion': 'dragon_king',
+        'type': 'dragon_armory',
+        'name': 'Blast Sword',
+        'speed': 2,
+        'accuracy': 6,
+        'strength': 4,
+        'keywords': ['weapon','melee','sword','bone'],
+        'rules': ['Block 1'],
+        'desc': 'When you spend <font class="kdm_font">a</font> to block with this weapon, gain +1 survival.',
+        'affinities': {'bottom': 'red'},
     },
-    'blue_power_core': {'expansion': 'dragon_king',
-                     'type': 'dragon_armory',
-                     'name': 'Blue Power Core'
+    'blue_power_core': {
+        'expansion': 'dragon_king',
+        'type': 'dragon_armory',
+        'name': 'Blue Power Core',
+        'keywords': ['item','jewelry'],
+        'desc': 'All nuclear gear cards in your gear grid gain <b>Deadly 2</b>.',
     },
     'celestial_spear': {
         'expansion': 'dragon_king',
         'type': 'rare_gear',
         'name': 'Celestial Spear',
+        'affinities': {'top': 'blue'},
+        'speed': 2,
+        'accuracy': 5,
+        'strength': 4,
+        'keywords': ['weapon','melee','spear','metal'],
+        'rules': ['Reach 2'],
+        'desc': 'Gain +5 strength when attacking with this weapon if you have a <b>constellation</b>.',
     },
     'dragon_armor_set': {
         'expansion': 'dragon_king',
@@ -2243,7 +2268,9 @@ dragon_king = {
     'dragon_vestments': {
         'expansion': 'dragon_king',
         'type': 'rare_gear',
-        'name': 'Dragon Vestments'
+        'name': 'Dragon Vestments',
+        'keywords': ['item','silk','other'],
+        'desc': 'Add <font class="inline_shield">1</font> to all hit locations.<br/>When you gain a random fighting art, select a Dragon Trait one instead.',
     },
     'dragonskull_helm': {
         'expansion': 'dragon_king',
@@ -2258,7 +2285,10 @@ dragon_king = {
     'husk_of_destiny': {
         'expansion': 'dragon_king',
         'type': 'rare_gear',
-        'name': 'Husk of Destiny'
+        'name': 'Husk of Destiny',
+        'desc': 'Your destiny is fulfilled. You are always <b>Insane</b>.',
+        'keywords': ['item','other'],
+        'rules': ['Cursed'],
     },
     'nuclear_knife': {
         'expansion': 'dragon_king',
@@ -2270,9 +2300,13 @@ dragon_king = {
         'type': 'dragon_armory',
         'name': 'Nuclear Scythe'
     },
- 'red_power_core': {'expansion': 'dragon_king',
-                    'type': 'dragon_armory',
-                    'name': 'Red Power Core'},
+    'red_power_core': {
+        'expansion': 'dragon_king',
+        'type': 'dragon_armory',
+        'name': 'Red Power Core',
+        'keywords': ['item','jewelry'],
+        'desc': 'All nuclear gear cards in your gear grid gain <b>Sharp</b>.',
+    },
     'regal_edge': {
         'expansion': 'dragon_king',
         'type': 'rare_gear',
@@ -2285,12 +2319,25 @@ dragon_king = {
         'strength': 2,
         'desc': 'Gain +1 speed and +4 strength when attacking with this weapon if you have a <b>Constellation</b>.',
     },
- 'shielded_quiver': {'expansion': 'dragon_king',
-                     'type': 'dragon_armory',
-                     'name': 'Shielded Quiver'},
- 'talon_knife': {'expansion': 'dragon_king',
-                 'type': 'dragon_armory',
-                 'name': 'Talon Knife'},
+    'shielded_quiver': {
+        'expansion': 'dragon_king',
+        'type': 'dragon_armory',
+        'name': 'Shielded Quiver',
+        'keywords': ['item','leater'],
+        'desc': 'You may activate and gain the benefits of each arrow gear in your grid one additional time each showdown.',
+    },
+    'talon_knife': {
+        'expansion': 'dragon_king',
+        'type': 'dragon_armory',
+        'name': 'Talon Knife',
+        'keywords': ['weapon','melee','katar','bone'],
+        'speed': 2,
+        'accuracy': 6,
+        'strength': 4,
+        'affinities': {'top': 'blue','left': 'blue'},
+        'rules': ['Paired'],
+        'desc': 'If all of your attack rolls hit, gain <b>Savage</b> and <b>Deadly</b> until the end of your attack.',
+    },
 }
 
 dbk = {

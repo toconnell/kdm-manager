@@ -297,8 +297,9 @@ class Session:
         if self.session is None:
             self.logger.error("[%s] 'session' attribute is None! Cannot set current settlement!" % (self.User))
             return None
-        elif self.get_current_view() in ["dashboard","panel"]:
-            self.logger.warn("[%s] session tried to set a 'current_settlement' and doesn't need one! Current view: '%s'. Returning None..." % (self.User, self.get_current_view()))
+        elif self.get_current_view() in ["dashboard","panel",'new_settlement']:
+#            self.logger.warn("[%s] session tried to set a 'current_settlement' and doesn't need one! Current view: '%s'. Returning None..." % (self.User, self.get_current_view()))
+            self.session['current_settlement'] = None
             return None
 
         # next, if we're doing this manually, i.e. forcing a new current
@@ -328,7 +329,7 @@ class Session:
             s_id = self.session["current_settlement"]
             self.Settlement = assets.Settlement(settlement_id=s_id, session_object=self)
         else:
-            raise Exception("[%s] session could not set current settlement!" % (self.User))
+            raise Exception("[%s] session (view: %s) could not set current settlement!" % (self.User, self.get_current_view()))
 
 
         user_current_settlement = self.User.user.get("current_settlement", None)

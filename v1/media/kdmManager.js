@@ -1260,11 +1260,6 @@ function closeModal(modal_div_id) {
     modal.style.display = "none";
 }
 
-function hide(id) {
-    var e = document.getElementById(id);
-    e.style.display="none";
-};
-
 function increment(elem_id) {
     var e = document.getElementById(elem_id);
     e.stepUp();
