@@ -1513,7 +1513,7 @@ class Settlement(Models.UserAsset):
 
         if new_name == "":
             new_name = "UNKNOWN"
-        new_name = new_name.strip()
+        new_name = utils.html_stripper(new_name.strip())
 
         old_name = self.settlement["name"]
         self.settlement["name"] = new_name
