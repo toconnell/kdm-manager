@@ -293,12 +293,17 @@ class Session:
         initializing self.Settlement (which requires an API asset, obvi).
         """
 
-        # first, if our mdb session document is None, don't do this at all
+        #
+        #   init / sanity checks
+        #
+
+        # first, if our self.session dict is None, don't do this at all
         if self.session is None:
-            self.logger.error("[%s] 'session' attribute is None! Cannot set current settlement!" % (self.User))
+            self.logger.warn("[%s] 'session' attribute is None! Cannot set current settlement!" % (self.User))
             return None
         elif self.get_current_view() in ["dashboard","panel",'new_settlement']:
-#            self.logger.warn("[%s] session tried to set a 'current_settlement' and doesn't need one! Current view: '%s'. Returning None..." % (self.User, self.get_current_view()))
+            msg = "[%s] '%s' view doesn't need a 'current_settlement' attr!" % (self.User, self.get_current_view())
+#            self.logger.warn(msg)
             self.session['current_settlement'] = None
             return None
 
@@ -307,38 +312,35 @@ class Session:
         if settlement_id is not None:
             self.session["current_settlement"] = settlement_id
 
-        # now, if we've got a 'current_settlement' key, normalize it to ObjectId
-        #   to prevent funny business. back off to the session object attrib and
-        #   the session["current_asset"] (in that order).
-        if "current_settlement" in self.session.keys():
-            self.session["current_settlement"] = ObjectId(self.session["current_settlement"])
-        elif hasattr(self, "current_settlement"):
-            self.session["current_settlement"] = ObjectId(self.current_settlement)
-        elif "current_asset" in self.session.keys() and "current_settlement" not in self.session.keys():
-            self.session["current_settlement"] = ObjectId(self.session["current_asset"])
-            self.logger.warn("[%s] set 'current_settlement' from 'current_asset' key!")
-        else:
-            self.logger.critical("[%s] unable to set 'current_settlement' for session!" % (self.User))
 
-        # now do the attrib if we've managed to get a settlement object set
-        if "current_settlement" in self.session.keys():
+        #
+        #   synchronize the current_settlement across all objects in play
+        #
+
+        # here we check the session dictionary or the session attributes and
+        # make sure that they're both set and synchronized
+
+        #   1.) set the self attrib from the dict key/value
+        if self.session.get('current_settlement', None) is not None:
             self.current_settlement = self.session["current_settlement"]
+        #   2.) or set the dict key/value from the self attrib
+        elif hasattr(self, "current_settlement") and self.current_settlement is not None:
+            self.session["current_settlement"] = self.current_settlement
 
-        # now, fucking finally, set self.Settlement
-        if "current_settlement" in self.session.keys() and hasattr(self, "current_settlement"):
-            s_id = self.session["current_settlement"]
-            self.Settlement = assets.Settlement(settlement_id=s_id, session_object=self)
-        else:
-            raise Exception("[%s] session (view: %s) could not set current settlement!" % (self.User, self.get_current_view()))
+        #   3.) finally, validate the sync.
+        if self.session.get('current_settlement', None) is None or not hasattr(self, 'current_settlement'):
+            err_msg = "[%s] unable to set 'current_settlement' attrib for session!" % (self.User)
+            raise Exception(err_msg)
 
-
-        user_current_settlement = self.User.user.get("current_settlement", None)
-        if user_current_settlement != self.session["current_settlement"]:
+        # next, check the user. Make sure they're synchronized as well
+        if self.User.user.get('current_settlement', None) != self.current_settlement:
             self.logger.info("[%s] changing current settlement to %s" % (self.User, self.session["current_settlement"]))
             self.User.user["current_settlement"] = self.session["current_settlement"]
             self.User.save()
 
-        mdb.sessions.save(self.session)
+        # next, set self.Settlement (finally) and save
+        self.Settlement = assets.Settlement(settlement_id=self.current_settlement, session_object=self)
+        self.save()
 
 
     def change_current_view(self, target_view, asset_id=False):
@@ -359,11 +361,11 @@ class Session:
         if asset_id:
             asset = ObjectId(asset_id)
             self.session["current_asset"] = asset
-            if target_view == "view_campaign":
+            if target_view in ["view_campaign",'view_settlement']:
                 self.session["current_settlement"] = asset
                 self.set_current_settlement(settlement_id = asset)
 
-        mdb.sessions.save(self.session)
+        self.save()
         self.session = mdb.sessions.find_one(self.session["_id"])
 
         return "changed view to '%s'" % target_view
@@ -373,20 +375,26 @@ class Session:
         """ Changes the current view to a view of a user asset. Returns a
         string meant to be logged as a user action. """
 
-        a = self.params[view].value
+        try:
+            a = ObjectId(self.params[view].value)
+        except Exception as e:
+            self.logger.error("CGI param '%s' must be a valid Object ID!" % view)
+            raise Exception('Invalid CGI parameter! %s' % e)
 
         if view == "view_survivor":
-            asset = mdb.survivors.find_one({"_id": ObjectId(a)})
+            asset = mdb.survivors.find_one({"_id": a})
             asset_sum = "%s [%s]" % (asset["name"], asset["sex"])
         elif view in ["view_campaign", "view_settlement"]:
-            asset = mdb.settlements.find_one({"_id": ObjectId(a)})
+            asset = mdb.settlements.find_one({"_id": a})
             asset_sum = "%s" % (asset["name"])
         else:
             self.logger.error("[%s] view could not be changed to asset '%s'" % (self.User,a))
 
         self.change_current_view(view, asset_id=a)
 
-        return "changed view to '%s' | %s | %s" % (view, a, asset_sum)
+        msg = "changed view to '%s' | %s | %s" % (view, a, asset_sum)
+        self.logger.debug(msg)
+        return msg
 
 
 

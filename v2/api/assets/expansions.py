@@ -277,6 +277,7 @@ mar_2016_expansions = {
 
 collection = {
     "kd_collection_fighting_arts_and_disorders": {
+        "type": 'pseudo',
         "released": datetime(2018,5,01),
         "name": "Fighting Arts & Disorders",
         "ui": {"pretty_category": "KD Collection"},
@@ -284,6 +285,17 @@ collection = {
             "color": "FFF",
             "bgcolor": "000",
         },
-        "subtitle": "Enable this to include the Fighting Arts and Disorders from ALL of the expansions in your KD Collection in this campaign.",
+        "subtitle": "Enable this to include the Fighting Arts and Disorders from the expansions in your KD Collection in this campaign.",
+    },
+    "kd_collection_settlement_events": {
+        "type": 'pseudo',
+        "released": datetime(2018,5,15),
+        "name": "Settlement Events",
+        "ui": {"pretty_category": "KD Collection"},
+        "flair": {
+            "color": "FFF",
+            "bgcolor": "000",
+        },
+        "subtitle": "Enable this to include the Settlement Events from the expansions in your KD Collection in this campaign.",
     },
 }

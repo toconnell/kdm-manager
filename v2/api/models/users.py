@@ -111,6 +111,9 @@ def initiate_password_reset():
             status=400
         )
 
+    # normalize emails issue #501
+    user_login = user_login.strip().lower()
+
     # next, validate the user
     user = utils.mdb.users.find_one({"login": user_login})
     if user is None:

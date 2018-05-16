@@ -835,17 +835,20 @@ class World:
         contest dict re: expansions stored on settlement objects. """
 
         popularity_contest = {}
+        reverse_lookup = {}
 
         expansions_assets = expansions_models.Assets()
+
         for e in expansions_assets.get_handles():
             e_dict = expansions_assets.get_asset(e)
             e_name_count = utils.mdb.settlements.find({"expansions": {"$in": [e_dict["name"]]}}).count()
             e_handle_count = utils.mdb.settlements.find({"expansions": {"$in": [e]}}).count()
             popularity_contest[e_dict["name"]] = e_name_count
             popularity_contest[e_dict["name"]] += e_handle_count
+            reverse_lookup[e_dict['name']] = e_dict
 
         sorted_keys = sorted(popularity_contest, key=lambda x: popularity_contest[x], reverse=1)
-        return [{'name': k, 'count': popularity_contest[k]} for k in sorted_keys]
+        return [{'name': k, 'count': popularity_contest[k], 'sub_type': reverse_lookup[k]['sub_type']} for k in sorted_keys]
 
     def settlement_popularity_contest_campaigns(self):
         """ Uses the assets in assets/campaigns.py to return a popularity

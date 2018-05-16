@@ -445,7 +445,11 @@
 
                 <table>
                     <tr><th colspan="2">Campaigns w/ Expansion Content</th></tr>
-                    <tr ng-repeat="e in world.settlement_popularity_contest_expansions.value" ng-class-even="'zebra'">
+                    <tr
+                        ng-repeat="e in world.settlement_popularity_contest_expansions.value"
+                        ng-class-even="'zebra'"
+                        ng-if="e.sub_type !== 'pseudo'" 
+                    >
                         <td>{{e.name}}</td> <td class="int_value">{{e.count}}</td>
                     </tr>
                 </table>
@@ -668,13 +672,14 @@
                 <ul>
                     <li>This application, which is called <i>kdm-manager.com</i>, or simply, <i>the Manager</i>, is an interactive campaign management tool for use with <i><a href="https://shop.kingdomdeath.com" target="top">Monster</a></i>, by <a href="http://kingdomdeath.com" target="top">Kingdom Death</a>.
                     </li>
+                    <li><i>The Manager</i> is published, provisioned and supported by <a href="https://thelaborinvain.com" target="top">The Labor in Vain</a>.
                 </ul>
 
                 <p>Important Information:</p>
                 <ul>
                     <li><b>This application is not developed, maintained, authorized or in any other way supported by or affiliated with <a href="http://kingdomdeath.com" target="top">Kingdom Death</a>.</b></li>
                     <li>This application is currently under active development and is running in debug mode!<li>
-                    <li>Among other things, this means not only that <i>errors can and will occur</i>, but also that<i>features may be added or removed without notice</i> and <i>presentation elements are subject to change</i>.</li>
+                    <li>Among other things, this means not only that <i>errors can and will occur</i>, but also that <i>features may be added or removed without notice</i> and <i>presentation elements are subject to change</i>.</li>
                     <li>Users' email addresses and other information are used only for the purposes of developing and maintaining this application and are never shared, published or distributed.</li>
                 </ul>
 

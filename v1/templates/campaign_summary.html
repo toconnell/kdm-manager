@@ -1522,7 +1522,7 @@
     <div
         id="campaignSummaryStorageOpener"
         class="ng_fade clickable campaign_summary_storage_opener gradient_silver clickable"
-        ng-if="settlementStorage != undefined"
+        ng-if="settlementStorage != undefined && settlement.sheet.storage.length > 0 "
         ng-click="openNav('campaignSummaryStorageModal')"
     >
         &#8942;

@@ -192,7 +192,7 @@
                             <!-- drop-downs -->
                             <select
                                 ng-model="settlementEvent"
-                                ng-options="handle as dict.name for (handle, dict) in settlementEventOptions"
+                                ng-options="handle as dict.selector_text for (handle, dict) in settlementEventOptions"
                                 ng-change="
                                     addEventToLY(ly, 'settlement_event', 'handle', settlementEvent);
                                     settlementEvent = null;

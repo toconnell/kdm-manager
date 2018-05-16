@@ -117,7 +117,7 @@ class AssetCollection(object):
                 self.assets[a]["type"] = self.type_override
 
         # set the default 'type_pretty' value 
-        self.set_pretty_types()
+        self.set_ui_attribs()
 
         for a in self.assets.keys():
             self.assets[a]["handle"] = a
@@ -169,18 +169,24 @@ class AssetCollection(object):
             self.assets[k] = all_assets[k]
 
 
-    def set_pretty_types(self, capitalize=True):
+    def set_ui_attribs(self, capitalize=True):
         """ Iterates over self.assets; adds the "type_pretty" and 'sub_type_pretty'
         to all assets in the AssetCollection.assets dict """
 
         for h in self.assets.keys():
-            a_dict = self.get_asset(handle=h)
 
-            # flip a shit if we don't have a type
+            #
+            #   init
+            #
+
+            a_dict = self.get_asset(handle=h)
             if a_dict.get('type', None) is None:
                 raise Exception("%s asset has no 'type' attribute! %s" % (self, a_dict))
 
-            # set the pretty types here
+            #
+            #   pretty types/sub_types
+            #
+
             for type_attr in ['type', 'sub_type']:
 
                 type_value = a_dict.get(type_attr, None)
@@ -193,6 +199,24 @@ class AssetCollection(object):
                         pretty_type = pretty_type.title()
 
                 self.assets[h]["%s_pretty" % type_attr] = pretty_type
+
+
+            #
+            #   selector text
+            #
+
+            selector_text = a_dict.get('name','')
+            parenthetical = []
+            if a_dict.get('expansion', None) is not None:
+                parenthetical.append(a_dict['expansion'].replace("_"," ").title())
+
+            if parenthetical != []:
+                selector_text += " ("
+                selector_text += ", ".join(parenthetical)
+                selector_text += ")"
+
+            self.assets[h]['selector_text'] = selector_text
+
 
 
     #

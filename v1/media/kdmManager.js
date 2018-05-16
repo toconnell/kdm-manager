@@ -234,10 +234,11 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
 
     $scope.initWorld = function() {
 
-        console.time('initWorld()');
         setInterval( function init() {
-            
+
+            console.time('initWorld()');          
             showCornerLoader();
+
             var world_url = $scope.api_url + "world";
             $http.get(world_url).then(
                 function(result) {

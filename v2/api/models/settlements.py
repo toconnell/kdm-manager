@@ -541,9 +541,19 @@ class Settlement(Models.UserAsset):
         # check to see if the asset belongs to an expansion
         if "expansion" in asset_dict.keys():
 
-            # special handling for KD Collection pseudo expansion
+            #
+            # special handling for KD Collection pseudo expansions
+            #
+
+            # farts/disorders pseudo
             if asset_dict['type'] in ['fighting_arts','disorders'] and asset_dict['sub_type'] != 'secret_fighting_art':
                 if 'kd_collection_fighting_arts_and_disorders' in self.settlement['expansions']:
+                    if asset_dict['expansion'] in request.User.user['collection']['expansions']:
+                        return True
+
+            # se pseudo
+            if asset_dict.get('sub_type', None) == 'settlement_event':
+                if 'kd_collection_settlement_events' in self.settlement['expansions']:
                     if asset_dict['expansion'] in request.User.user['collection']['expansions']:
                         return True
 

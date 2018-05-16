@@ -11,7 +11,7 @@ class Assets(Models.AssetCollection):
         self.root_module = abilities_and_impairments
         Models.AssetCollection.__init__(self,  *args, **kwargs)
 
-        self.set_pretty_types()
+#        self.set_pretty_types()
         self.set_default_max_numbers()
 
 
