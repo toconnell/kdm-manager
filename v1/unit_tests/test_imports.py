@@ -5,9 +5,8 @@ import os
 import unittest
 
 class testModuleImports(unittest.TestCase):
-    """ Tests here are all written against the main 'style.css' file in the
-    project. Beyond basic linting on the fly, we do some more...complex/project-
-    specific tests here. """
+    """ Here's where we test our Python imports for mistakes/problems and
+    missing (or deprecated) files. """
 
     def setUp(self):
         all_files = glob.glob("*")
@@ -22,6 +21,7 @@ class testModuleImports(unittest.TestCase):
         deprecated_modules = [
             "game_assets",
             "models",
+            "world",
         ]
 
         for path in self.application_files:

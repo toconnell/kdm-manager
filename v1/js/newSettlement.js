@@ -3,7 +3,7 @@ app.controller('newSettlementController', function($scope, $http) {
     // this controller is basically a parody/travesty of an old-time HTML
     // form. we initialize a dict in $scope, the HTML elements on the view
     // update it by calling methods in this controller and we submit it
-    // using the form-spoofer in kdmManager.js rootScope.
+    // using the form-spoofer in main app rootScope.
 
 
     //

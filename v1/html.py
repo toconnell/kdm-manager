@@ -16,17 +16,13 @@ from utils import load_settings, mdb, get_logger, get_latest_update_string
 settings = load_settings()
 logger = get_logger()
 
-user_error_msg = Template("""
-    <div id="user_error_msg" class="$err_class" onclick="hide('user_error_msg')">$err_msg</div>
-    """)
-
 
 
 class survivor:
 
     form = Template("""\n\
 
-<script src="/media/survivorSheet.js?v=$application_version"></script>
+<script src="/js/survivorSheet.js?v=$application_version"></script>
 
 <div
     id = "survivor_sheet_angularjs_controller_container"
@@ -2016,7 +2012,7 @@ class survivor:
 
     <div class="survivor_sheet_bottom_attrib_spacer">&nbsp;</div>
 
-</div><!-- end of the survivorSheet.js survivorSheetController scope -->
+</div><!-- end of the survivorSheetController scope -->
 
 
     <!--            THIS IS THE FOLD! Only Modal content below!     -->
@@ -2512,7 +2508,7 @@ class settlement:
 
     form = """\n\
 
-    <script src="/media/settlementSheet.js?v=$application_version"></script>
+    <script src="/js/settlementSheet.js?v=$application_version"></script>
 
     <div
         id = "settlement_sheet_angularjs_controller_container"
@@ -3814,9 +3810,10 @@ def render(view_html, head=[], http_headers=None, body_class=None):
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular-animate.js"></script>
 
-    <script src="/media/kdmManager.js?v=%s"></script>
-    \n""" % settings.get("application", "version")
+    <script src="/js/kdmManager.js?v=%s"></script>
+    \n""" % (settings.get('application', 'version'))
 
+    # arbitrary head insertions
     for element in head:
         output += element
 

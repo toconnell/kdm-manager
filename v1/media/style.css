@@ -146,7 +146,6 @@ button {font-family: Arial, sans-serif; }
 fieldset {border: 0; text-align: left; }
 
 
-.clear_left {clear: left;}
 .location_level {width: 80px; display: inline; margin: 0 auto; clear: none; }
 
 
@@ -446,8 +445,6 @@ input[type="radio"].gear_lookup_attrib_toggle {display: inherit;}
     left: 5%;
     right: 5%;
 }
-.help-icon {content: "?"; display: inline-block; width: 60px; border-radius: 100%; text-align: center;  padding: 1%; position: absolute; right: 5%; }
-.help-icon::after {content: "a"; font-family: 'kdm-font-2'; font-size: 1em; }
 
 /* player management */
 
@@ -509,7 +506,6 @@ input.sign_in, button.sign_in {border-right: 1px solid #666; font-weight: normal
 label.sign_in, input.sign_in[type=checkbox] {position: relative; display:block;   }
 label.sign_in {font-size: 50px; }
 
-#user_error_msg {position: absolute; bottom: 3%; left: 2%; right: 2%; border: 0; padding: 3%; text-align: center; }
 button.tiny_button {padding: 5px; font-size: 70%; margin: auto; margin-top: 40px; float: left; width: auto; padding: 10px; margin-left: 30px;  }
 
 
@@ -602,7 +598,7 @@ ul.dashboard_settlement_list_settlement_attribs { margin-top: 0; margin-bottom:0
     .collection_category_header::after {content: ' - '}
 
 .dashboard_down_arrow, .dashboard_icon {height: 50px; width: 50px;}
-.dashboard_down_arrow, .COD_down_Arrow {float: right;}
+.dashboard_down_arrow {float: right;}
 .dashboard_down_arrow {margin-right: 20px; margin-top: 20px; }
 img.latest_fatality {width: 300px; float: right; margin: 10px; }
 
@@ -1081,8 +1077,6 @@ div#info_box h2, button#survivor_campaign_asset, button.dashboard_asset {text-al
 .dynamic_modal_launchers {display: flex; flex-direction: row; justify-content: space-between; flex-wrap: wrap; }
 .dynamic_modal_launchers button {padding: 2%; font-family: Silverado; font-size: 30pt; justify-content: center; border-radius: 5px; margin: 0 auto; width: 45%; }
 
-.avatar_spinner {float: right; width: 450px; padding-top: 5%; }
-.avatar_spinner img {width: 180px; }
 
     /* fav / dead / retired - mobile */
 .favorite_retired_dead {display: flex; flex-direction: row; }
@@ -1706,6 +1700,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .kd_sheet_ui_inner_ring_container.help_container {width: 90%; }
     .help_container p {font-size: 17pt; }
     .help_container h4 {margin-top: auto; }
+    .help_container h4.help_spacer {margin-top: 7%; }
     .help_container .kd_sheet_ui_row_tip {margin: 0 auto; width: 92%; font-size: 17pt; }
     .help_col_container {column-count: 2; column-width: auto; column-gap: 5px; margin: 1%; }
     .help_modal_tip_repeater {font-size: 17pt; break-inside: avoid;}
@@ -1963,15 +1958,11 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
         /* help-tip pop-up/modal - tablet*/
     .help-tip p { font-size: 20px;}
-    .help-icon { margin-top: -60px; }
 
         /* player management - tablet */
     table.player_management {width: 95%; margin-bottom: 5%;}
     table.player_management th, table.player_management td {padding: 10px; }
     input[type=checkbox].player_management_admin {zoom: 2; height: auto;}
-
-    .survivor_sheet_survivor_sex {margin: 3%; }
-    .survivor_sheet_survivor_sex font.legend {font-size: 30px; }
 
     label#survivorAvatarMobile {margin: 0 auto; margin-bottom: 30px; margin-right: -45px; position: relative; }
     div#survivor_survival_box_container {margin: 0; height: auto; padding-bottom: 5%; width: auto; float: left; clear: right; }
@@ -2360,7 +2351,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 
     /* help-tip pop-up/modal - wide*/
     .help-tip p { font-size: 13px; left: 10%; right: 10%; padding: 15px; }
-    .help-icon {margin: 0; width: 20px; margin-top: -10px; }
 
     /* modal overlay - wide */
     .modal { padding-top: 60px; }
@@ -2398,7 +2388,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 	input.sign_in, button.sign_in {width: 90%; font-size: 13pt; height: auto; margin: 0 auto; margin-bottom: 10px; }
     input[type="checkbox"].sign_in {height: 30px; width: 30px; }
 	button.sign_in {font-weight: bold; font-size: 20px;}
-    #user_error_msg {bottom: 1%; padding: 1%; }
 
     /*  dashboard styles - wide */
     div.dashboard_welcome_modal {margin: 0 auto; padding-top: 5%;  }
@@ -2472,7 +2461,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.dashboard_button_list {margin-top: 1%; }
     div.dashboard_button_list img.dashboard_down_arrow {height: 10px; width: 10px; }
     img.dashboard_down_arrow, img.dashboard_icon {height: 15px; width: 15px;}
-    .dashboard_down_arrow, .COD_down_Arrow {float: right; margin: 0 auto; }
+    .dashboard_down_arrow {float: right; margin: 0 auto; }
     img.dashboard_down_arrow {margin: 0 none; margin-top: 5px; margin-right: 5px;}
     .dashboard_menu ul {padding: 0; margin: 5px; list-style-type: none; margin-left: 15px; }
     .dashboard_menu ol {margin: 0; padding: 0; padding-left: 30px; }
@@ -3190,5 +3179,5 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
 .kd_blue_font {color: #50AAF5; font-weight: bold; }
 
 /* button styles */
-.disabled, .strikethrough {color: #999; background: #dedede; cursor: not-allowed; }
+.disabled {color: #999; background: #dedede; cursor: not-allowed; }
 

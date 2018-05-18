@@ -9,7 +9,6 @@ button#remove_item                          {z-index: 10; }
 h3.clickable                                {z-index: 10; }
 .dashboard_accordion                        {z-index: 10; }
 .dashboard_down_arrow                       {z-index: 20; }
-.COD_down_arrow                             {z-index: 20; }
 .death_x                                    {z-index: 20; }
 input[type=text], input[type=password]      {z-index: 50; }
 div.survivor_sheet_attrib_controls_modal    {z-index: 50; }

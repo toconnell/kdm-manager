@@ -55,9 +55,41 @@
                     class="help_modal_tip_repeater"
                 >
                     <div class="kd_sheet_ui_box checked"></div>
+                    <b>How do I report a bug or a problem with the Manager?</b>
+                    There are two ways to report issues.<br/>&nbsp;
+                    Open the navigation menu, click or tap "Report an Issue or Error" and fill out a short report. This emails the maintainers of the Manager directly and includes information about you and your settlements that makes issues easier to research.<br/>&nbsp;
+                    If you use GitHub, feel free to open issues in <a href="https://github.com/toconnell/kdm-manager/issues" target="top">the Manager's public repository</a>.
+                </div>
+
+
+                <h4 class="help_spacer">Settlements</h4>
+
+                <div
+                    class="help_modal_tip_repeater"
+                >
+                    <div class="kd_sheet_ui_box checked"></div>
                     <b>Why does my Timeline include Lantern Year 0?</b>
                     All settlement timelines begin with Lantern Year 0. The <a href="http://tools.kingdomdeath.com/faq/" target="top"> offical FAQ</a> confirms that the Prologue takes place during "Lantern Year 0. When the Timeline is updated in the first Settlement Phase it becomes Lantern Year 1."
                 </div>
+                <div
+                    class="help_modal_tip_repeater"
+                >
+                    <div class="kd_sheet_ui_box checked"></div>
+                    <b>I accidentally selected a principle. How do I remove it?</b>
+                    On the Settlement Sheet, just beneath the checkboxes for selecting principles, there is a bold, maroon-colored checkbox next to the words "Unset Principle". Click the maroon checkbox and select the principle you with to remove. The Manager remove the principle and undo any modifications that its selection may have made to your survivors.
+                </div>
+                <div
+                    class="help_modal_tip_repeater"
+                    ng-if="user.user.subscriber.level < 1"
+                >
+                    <div class="kd_sheet_ui_box checked"></div>
+                    <b>My settlement disappeared!</b>
+                    Settlements created by users who do not subscribe to the Manager are removed after they reach 180 days of age (the settlements, not the users). If you believe that your settlement was removed in error, please use the "Report an Issue or Error" controls on the left-side menu to ask for help.
+                </div>
+
+
+                <h4 class="help_spacer">Survivors</h4>
+
                 <div
                     class="help_modal_tip_repeater"
                 >
@@ -71,23 +103,6 @@
                     <div class="kd_sheet_ui_box checked"></div>
                     <b>How do I create survivors with parents?</b>
                     Advance the Timeline to Lantern Year 1 or later. Survivors added to the settlement in LY 0 may not have parents. Such survivors are considered "new" and are not subject to "newborn" benefits inherent to campaign or expansion content.
-                </div>
-                <div
-                    class="help_modal_tip_repeater"
-                    ng-if="user.user.subscriber.level < 1"
-                >
-                    <div class="kd_sheet_ui_box checked"></div>
-                    <b>My settlement disappeared!</b>
-                    Settlements created by users who do not subscribe to the Manager are removed after they reach 180 days of age (the settlements, not the users). If your settlement was removed, please use the "Report an Issue or Error" controls to ask for help.
-                </div>
-                <div
-                    class="help_modal_tip_repeater"
-                >
-                    <div class="kd_sheet_ui_box checked"></div>
-                    <b>How do I report a bug or a problem with the Manager?</b>
-                    There are two ways to report issues.<br/>&nbsp;
-                    Open the navigation menu, click or tap "Report an Issue or Error" and fill out a short report. This emails the maintainers of the Manager directly and includes information about you and your settlements that makes issues easier to research.<br/>&nbsp;
-                    If you use GitHub, feel free to open issues in <a href="https://github.com/toconnell/kdm-manager/issues" target="top">the Manager's public repository</a>.
                 </div>
 
             </div> <!-- help_col_container -->
