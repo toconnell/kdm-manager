@@ -2474,7 +2474,16 @@ class Settlement(Models.UserAsset):
     def get_innovation_deck(self, return_type=False):
         """ Uses the settlement's current innovations to create an Innovation
         Deck, which, since it's a pure game asset, is returned as a list of
-        names, rather than as an object or as handles, etc."""
+        names, rather than as an object or as handles, etc.
+
+        Unlike other methods, this one accepts a 'debug' kwarg. This was intro-
+        duced to help resolve issue #503, which was occurring in production and
+        not in test.
+        """
+
+        debug = self.params.get('debug', False)
+        if debug:
+            self.logger.debug("%s get_innovation_deck() debug enabled!" % self)
 
         #
         #   This is a port of the legacy method, but this method combines every-
@@ -2504,6 +2513,8 @@ class Settlement(Models.UserAsset):
             if self.Innovations.get_asset(a).get("sub_type", None) == "principle":
                 del available[a]
 
+        if debug:
+            self.logger.debug("%s available innovations: %s" % (self, available.keys()))
 
         #
         #   2.) now, create a list of consequences (handles) from innovations
@@ -2516,12 +2527,17 @@ class Settlement(Models.UserAsset):
             consequences.extend(consequence_dict.get("consequences", []))
         consequences = sorted(list(set(consequences)))
 
+        if debug:
+            self.logger.debug("%s ALL consequences: %s" % (self, consequences))
+
         # now, remove all consequences that aren't available; this upgrades the
         #   'consequences' to 'available consequences', if you think about it
         for c in consequences:
             if c not in available.keys():
                 consequences.remove(c)
 
+        if debug:
+            self.logger.debug("%s AVAILABLE consequences: %s" % (self, consequences))
 
         # 
         #   3.) initialize the deck from 'available consequences'
@@ -2532,6 +2548,8 @@ class Settlement(Models.UserAsset):
                 asset_dict = self.Innovations.get_asset(c)
                 deck_dict[c] = asset_dict
 
+        if debug:
+            self.logger.debug("%s AVAILABLE consequences NOT already added: %s" % (self, deck_dict.keys()))
 
         #
         #   4.) now iterate through remaining 'available' assets and give them
