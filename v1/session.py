@@ -510,32 +510,6 @@ class Session:
         self.get_current_view()
 
 
-    def render_user_asset_sheet(self, collection=None):
-        """ Uses session attributes to render the sheet for the user asset
-        currently set to be session["current_asset"].
-
-
-        Only works for Survivor Sheets and Settlement Sheets so far. """
-
-        output = "ERROR!"
-
-        user_asset = mdb[collection].find_one({"_id": self.session["current_asset"]})
-        if user_asset is not None:
-            if collection == "settlements":
-                self.set_current_settlement(user_asset["_id"])
-                return self.Settlement.render_html_form()
-            elif collection == "survivors":
-                self.set_current_settlement(user_asset["settlement"])
-                S = assets.Survivor(survivor_id=user_asset['_id'], session_object=self)
-                return S.render_html_form()
-            else:
-                msg = "[%s] user assets from '%s' colletion don't have Sheets!" % (self.User,collection)
-                self.logger.error(msg)
-                raise Exception(msg)
-
-
-
-
     @current_view_failure
     def current_view_html(self, body=None):
         """ This func uses session's 'current_view' attribute to render the html
@@ -578,10 +552,10 @@ class Session:
             output += html.get_template('campaign_summary')
 
         elif self.current_view == "view_settlement":
-            output += self.render_user_asset_sheet("settlements")
+            output += html.get_template('settlement_sheet')
 
         elif self.current_view == "view_survivor":
-            output += self.render_user_asset_sheet("survivors")
+            output += html.get_template('survivor_sheet')
 
         else:
             self.logger.error("[%s] requested unhandled view '%s'" % (self.User, self.current_view))
@@ -602,6 +576,7 @@ class Session:
             user_id=self.User.user['_id'],
             user_login = self.User.user["login"],
             settlement_id = self.session['current_settlement'],
+            survivor_id = self.session.get('current_asset', None),
         )
 
         return output, body

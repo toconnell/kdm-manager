@@ -1790,6 +1790,20 @@
             <td> Retrieve a serialized version of the survivor.</td>
         </tr>
         <tr class="ul">
+            <td> <a id="getAvatarAnchor">/avatar/get/&lt;avatar_oid&gt;</a> </td>
+            <td> <b>GET</b> </td>
+            <td>
+                <p>This route does one thing: it <b>GET</b>s survivor avatars
+                based on their OID and 'serves' them like a webserver would
+                serve them from a filesystem.</p>
+                <p>The route won't take a <b>POST</b>, it won't take params,
+                etc. If successful, it will return 200 with an <code>image/png</code>
+                mimetype of your avatar.</p>
+                <p>Formulate your URL thus:</p>
+                <code>https://api.thewatcher.io/avatar/get/5b080f754af5ca68d266b9d5</code>
+            </td>
+        </tr>
+        <tr class="ul">
             <td> /survivor/get_lineage/&lt;survivor_id&gt; </td>
             <td> <b>GET</b> </td>
             <td> <p>Retrieve a dictionary of survivor family info.</p>

@@ -6,6 +6,26 @@ import glob
 import os
 import unittest
 
+# a list of CSS selectors that are composed dynamically during view
+#   interpolation and are excluded from our vestigial selector test
+css_selector_ignore = [
+    'mov_token',
+    'acc_token',
+    'eva_token',
+    'luck_token',
+    'spd_token',
+    'str_token',
+    'ng-enter',
+    'ng-enter-active',
+    'ng-leave',
+    'ng-leave-active',
+    'severe_injury',
+    'weapon_mastery',
+    'fighting_art_gradient',
+    'secret_fighting_art_gradient'
+]
+
+
 class testStyleCSS(unittest.TestCase):
     """ Tests here are all written against the main 'style.css' file in the
     project. Beyond basic linting on the fly, we do some more...complex/project-
@@ -18,18 +38,18 @@ class testStyleCSS(unittest.TestCase):
         self.css_files = aux.get_CSS_files()
         self.html_files = aux.get_HTML_templates()
 
-    def test_all_files_exist(self):
+    def test_css_files_exist(self):
         """ - Check for existance of required CSS files """
         for path in self.css_files:
             self.assertTrue(os.path.isfile(path))
 
-    def test_classes(self):
+    def test_css_classes(self):
         """ - Check for vestigial CSS class selectors
 
         Iterates through HTML files in the project and determines whether
         class selectors in the main CSS are used in at least one file. """
 
-        print('comparing %s CSS files with %s HTML template files!' % (len(self.css_files), len(self.html_files)))
+        print('\n- comparing %s CSS files with %s HTML template files!' % (len(self.css_files), len(self.html_files)))
 
         # find classes (this code is ugly, but at least it doesn't use regexes,
         # right? Could be way worse.
@@ -53,6 +73,8 @@ class testStyleCSS(unittest.TestCase):
         # loop through classes and, for each, loop through our template files
         for c in classes:
             class_used = False
+            if c in css_selector_ignore:
+                class_used = True
             for f in self.html_files:
                 if c in open(f).read():
                     class_used = True

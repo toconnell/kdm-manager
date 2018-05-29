@@ -54,10 +54,10 @@
         </button>
     </form>
 
-    <hr/>
+    <hr ng-if="view != 'newSettlement'"/>
 
     <h3 ng-if="settlement.sheet != undefined">{{settlement.sheet.name}}:</h3>
-    <center ng-if="settlement.sheet == undefined">
+    <center ng-if="settlement.sheet == undefined && view != 'newSettlement'">
         <img src="/media/loading_lantern.gif" />
     </center>
 

@@ -13,6 +13,15 @@ app.controller ("campaignSummaryController", function($scope) {
         $('#waitingForSurvivors').fadeOut(1500);
     };
 
+    $scope.isVisible = function(element_id) {
+        // weird little method that tests whether an HTML element has the
+        // 'visible' class in its classList
+        e = document.getElementById(element_id);
+        if (e === null) {console.error("element ID '" + element_id + "' not found in document!"); return false}
+        if (e.classList.contains('visible')) {return true};
+        return false;
+    };
+
 });
 
 

@@ -23,7 +23,7 @@
                     />
                     <img
                         ng-if="sheet.avatar != undefined"
-                        ng-src="/get_image?id={{sheet.avatar.$oid}}"
+                        ng-src="{{api_url}}avatar/get/{{sheet.avatar.$oid}}"
                     />
                 </div>
                 <div class="desc">

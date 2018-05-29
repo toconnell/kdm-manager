@@ -19,6 +19,7 @@ import socket
 import ssl
 
 # application-specific imports
+import gridfs_files
 import request_broker
 import settings
 import world
@@ -86,22 +87,6 @@ def lookup_asset(asset_collection):
     asset collection object """
     return request_broker.get_game_asset(asset_collection)
 
-# deprecation warnings: maintain until 2018-03-10
-@application.route("/monster", methods=["GET","POST"])
-def lookup_monster():
-    return Response(response="This endpoint is deprecated! Use /game_asset/monster instead.", status=410)
-
-@application.route("/campaign", methods=["GET","POST"])
-def lookup_campaign():
-    return Response(response="This endpoint is deprecated! Use /game_asset/campaign instead.", status=410)
-
-@application.route("/expansion", methods=["GET","POST"])
-def lookup_expansion():
-    return Response(response="This endpoint is deprecated! Use /game_asset/expansion instead.", status=410)
-
-@application.route("/gear", methods=["GET","POST"])
-def lookup_gear():
-    return Response(response="This endpoint is deprecated! Use /game_asset/gear instead.", status=410)
 
 
 # world
@@ -252,7 +237,6 @@ def new_asset(asset_type):
 
 @application.route("/<collection>/<action>/<asset_id>", methods=["GET","POST","OPTIONS"])
 @utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization','Access-Control-Allow-Origin'])
-#@celery.task
 def collection_action(collection, action, asset_id):
     """ This is our major method for retrieving and updating settlements.
 
@@ -274,7 +258,12 @@ def collection_action(collection, action, asset_id):
     return asset_object.request_response(action)
 
 
-
+@application.route("/avatar/get/<image_oid>", methods=["GET"])
+@utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization','Access-Control-Allow-Origin'])
+def serve_image(image_oid):
+    """ Retrieves a survivor avatar from the GridFS system; apes a filesystem."""
+    I = gridfs_files.image(image_oid)
+    return I.render_response()
 
 #                      
 #      ADMIN PANEL     

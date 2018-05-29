@@ -150,7 +150,7 @@
 
 
     <!-- collections -->
-    <div class="dashboard_menu" ng-if="user.user.preferences.beta">
+    <div class="ng_fade dashboard_menu">
         <h2
             class="clickable dashboard_rollup collection collection_gradient"
             ng-click="showHide('collectionDiv'); toggleArrow('campaigns_arrow')"
@@ -158,7 +158,7 @@
         >
             <span>
                 <font class="kdm_font_hit_locations dashboard_kdm_font">a</font>
-                KD Collection &beta;
+                KD Collection
             </span>
             <span class="dashboard_rollup_arrow" ng-if="scratch.collection_arrow == true">
                 &#x25B2;
@@ -177,9 +177,16 @@
                 hidden
             "
         >
-            <p>Use the checkboxes below to record which <i>Monster</i>
+            <p class="panel_top_tooltip">Use the checkboxes below to record which <i>Monster</i>
             expansions are in your personal KD collection!</p>
-            <div ng-repeat="category in ['Quarry','Nemesis','Enhancement']">
+            <p class="panel_top_tooltip">You can then use your Collection to add
+            Fighting Arts, Disorders and Settlement Events from your expansions
+            to your campaigns without adding monsters, gear, locations, etc.</p>
+
+            <div
+                class="dashboard_user_collection_repeater"
+                ng-repeat="category in ['Quarry','Nemesis','Enhancement']"
+            >
                 <h3 class="collection_category_header">{{category}}</h3>
                 <div
                     class="dashboard_user_expansions_repeater clickable"
@@ -315,15 +322,17 @@
                 to create an unlimited number of settlements!
             </p> <!-- subscribers alert -->
 
+            <!-- create new settlement --> 
+            <form
+                method="POST"
+                action=""
+                ng-if="user.dashboard.settlements.length < 3 || user.user.subscriber.level > 0"
+            >
+                <input type="hidden" name="change_view" value="new_settlement" />
+                <button class="kd_blue dashboard_create_new_settlement" onclick="showFullPageLoader()">+ Create New Settlement</button>
+            </form>
+
             <div class="dashboard_button_list">
-                <form
-                    method="POST"
-                    action=""
-                    ng-if="user.dashboard.settlements.length < 3 || user.user.subscriber.level > 0"
-                >
-                    <input type="hidden" name="change_view" value="new_settlement" />
-                    <button class="kd_blue" onclick="showFullPageLoader()">+ Create New Settlement</button>
-                </form>
 
                 <form
                     ng-repeat="s in settlements"
@@ -553,7 +562,7 @@
                         <td colspan="2" class="world_panel_avatar_cell">
                             <img
                                 class="world_panel_avatar"
-                                ng-src="/get_image?id={{world.latest_survivor.value.avatar.$oid}}"
+                                ng-src="{{api_url}}avatar/get/{{world.latest_survivor.value.avatar.$oid}}"
                                 title="{{world.latest_survivor.value.name}}"
                             />
                     </tr>
@@ -579,7 +588,7 @@
                         <td colspan="2" class="world_panel_avatar_cell">
                             <img
                                 class="world_panel_avatar"
-                                ng-src="/get_image?id={{world.latest_fatality.value.avatar.$oid}}"
+                                ng-src="{{api_url}}avatar/get/{{world.latest_fatality.value.avatar.$oid}}"
                                 title="{{world.latest_fatality.value.name}}"
                             />
                     </tr>

@@ -19,7 +19,6 @@
 
     /* legacy webapp UI - not long for this world */
 .gradient_silver { border-color: #666; background: linear-gradient(-90deg, #B5BFBA, #FaFDFa); }
-.gradient_blue { background: linear-gradient(-90deg, #D9E3FF, #F3F6FF);  }
 
 
 /* manager UI - not KD emulation, just UI/UX enhancements that we do */

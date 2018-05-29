@@ -21,7 +21,6 @@ import types
 
 import api
 import admin
-from modular_assets import survivor_attrib_controls
 import html
 from session import Session
 from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd, u_to_str
@@ -248,34 +247,11 @@ class Survivor:
 
         self.suppress_event_logging = suppress_event_logging
         self.update_mins = update_mins
-        self.damage_locations = [
-            "brain_damage_light",
-            "head_damage_heavy",
-            "arms_damage_light",
-            "arms_damage_heavy",
-            "body_damage_light",
-            "body_damage_heavy",
-            "waist_damage_light",
-            "waist_damage_heavy",
-            "legs_damage_light",
-            "legs_damage_heavy",
-        ]
-        self.flag_attribs = [
-            "cannot_spend_survival",
-            "cannot_use_fighting_arts",
-            "skip_next_hunt",
-            "dead",
-            "retired",
-            "favorite",
-            "public",
-        ]
-        self.flags = self.damage_locations + self.flag_attribs
 
 
         #
         #   Now start initializing and setting object attribs
         #
-
         self.survivor = None
         if survivor_id is not None:
             self.survivor = mdb.survivors.find_one({"_id": ObjectId(survivor_id)})
@@ -286,11 +262,7 @@ class Survivor:
 
         # make a new survivor if we haven't retrieved one
         if self.survivor is None:
-            survivor_id = self.new(params)
-
-
-        if self.Settlement is not None:
-            self.normalize()
+            raise Exception('Survivor OID not found!')
 
 
     #
@@ -312,7 +284,7 @@ class Survivor:
         self.User = session_object.User
         if self.User is None or not self.User:
             self.logger.error("Survivor objects should not be initialized without a User object!")
-            self.logger.critical("Initializing without a User obejct...")
+            self.logger.critical("Initializing without a User object...")
 
         self.Settlement = session_object.Settlement
         if self.Settlement is None or not self.Settlement:
@@ -329,69 +301,6 @@ class Survivor:
             self.logger.debug("[%s] saved changes to %s" % (self.User, self))
 
 
-    def normalize(self):
-        """ Run this when a Survivor object is initialized: it will enforce
-        the data model and apply settlements defaults to the survivor. """
-
-        # 2016-11 RANDOM_FIGHTING_ART bug
-        if "RANDOM_FIGHTING_ART" in self.survivor["fighting_arts"]:
-            self.survivor["fighting_arts"].remove("RANDOM_FIGHTING_ART")
-
-        # see if we need to retire this guy, based on recent updates
-        if int(self.survivor["hunt_xp"]) >= 16 and not "retired" in self.survivor.keys():
-            self.retire()
-
-
-        # if the survivor is legacy data model, he doesn't have a born_in_ly
-        #   attrib, so we have to get him one:
-        if not "born_in_ly" in self.survivor.keys():
-            self.logger.warn("%s has no 'born_in_ly' value!" % self)
-            if "father" not in self.survivor.keys() and "mother" not in self.survivor.keys():
-                self.logger.warn("Defaulting birth year to 1 for %s" % self)
-                self.survivor["born_in_ly"] = 1
-            parent_birth_years = [self.Settlement.get_ly() - 1]
-            for p in ["father","mother"]:
-                if p in self.survivor.keys():
-                    P = Survivor(survivor_id=self.survivor[p], session_object=self.Session)
-                    if not "born_in_ly" in P.survivor.keys():
-                        self.logger.warn("%s has no 'born_in_ly' value!" % P.get_name_and_id())
-                    else:
-                        self.logger.debug("%s %s was born in LY %s" % (p.capitalize(), P, P.survivor["born_in_ly"]))
-                        parent_birth_years.append(P.survivor["born_in_ly"])
-            self.logger.debug("Highest parent birth year is %s for %s: (%s parents)" % (max(parent_birth_years), self, (len(parent_birth_years) - 1)))
-            self.survivor["born_in_ly"] = max(parent_birth_years) + 1
-            self.logger.warn("Defaulting birth year to %s for %s" % (self.survivor["born_in_ly"], self))
-
-        # if "father" or "mother" keys aren't Object ID's, we need to normalize them:
-        for p in ["father","mother"]:
-            if p in self.survivor.keys() and type(self.survivor[p]) == unicode:
-                self.logger.warn("Normalizing unicode '%s' value to bson ObjectID for %s" % (p, self.get_name_and_id()))
-                self.survivor[p] = ObjectId(self.survivor[p])
-
-        # delete bogus attribs
-        for a in ["view_game"]:
-            if a in self.survivor.keys():
-                del self.survivor[a]
-                self.logger.debug("Automatically removed bogus key '%s' from %s." % (a, self.get_name_and_id()))
-
-        self.save(quiet=True)
-
-
-
-    def remove(self):
-        """ Marks the survivor 'removed' with a datetime.now(). """
-
-        self.logger.info("[%s] removing survivor %s" % (self.User, self))
-        self.survivor["removed"] = datetime.now()
-        self.save()
-
-        self.Settlement.increment_population(-1)
-
-        self.Settlement.log_event("%s has <b>permanently removed</b> %s from the settlement!" % (self.User.user["login"], self))
-        self.logger.warn("[%s] marked %s as removed!" % (self.User, self))
-
-
-
     def get_name_and_id(self, include_id=True, include_sex=False):
         """ Laziness function to return a string of the Survivor's name, _id and
         sex values (i.e. so we can write DRYer log entries, etc.). """
@@ -402,205 +311,6 @@ class Survivor:
         if include_id:
             output.append("(%s)" % self.survivor["_id"])
         return " ".join(output)
-
-
-    def is_founder(self):
-        """ Returns True or False, erring on the side of False. We only want to
-        return True when we're sure the survivor was a founder. """
-
-        if not "born_in_ly" in self.survivor.keys():
-            return False
-
-        if "father" in self.survivor.keys() or "mother" in self.survivor.keys():
-            return False
-
-        if self.survivor["born_in_ly"] == 0:
-            return True
-        elif "founder" in self.survivor["epithets"]:
-            return True
-        else:
-            return False
-
-
-    def retire(self):
-        """ Retires the survivor. Saves them afterwards, since this can be done
-        pretty much anywhere.  This is the only way a survivor should ever be
-        retired: if you're doing it somewhere else, fucking stop it."""
-
-        self.survivor["retired"] = "checked"
-        self.survivor["retired_in"] = self.Settlement.settlement["lantern_year"]
-        self.logger.debug("[%s] just retired %s" % (self.User, self))
-        self.Settlement.log_event("%s has retired." % self)
-        mdb.survivors.save(self.survivor)
-
-
-    def get_returning_survivor_status(self, return_type=None):
-        """ Returns a bool of whether the survivor is currently a Returning
-        Survivor. Use different return_type values for prettiness. """
-
-        cur_ly = self.Settlement.get_ly()
-
-        departing = False
-        if cur_ly in self.get_returning_survivor_years():
-            departing = True
-
-        returning = False
-        if cur_ly - 1 in self.get_returning_survivor_years():
-            returning = True
-
-        if return_type == "html_badge":
-            if not returning and not departing:
-                return ""
-
-            if returning:
-                r_tup = ("R%s" % (cur_ly-1), "returning_survivor_badge_color", "Returning survivor in LY %s" % (cur_ly - 1))
-            if departing:
-                r_tup = ("R%s" % (cur_ly), "departing_survivor_badge_color", "Returning survivor in LY %s" % cur_ly)
-
-            letter, color, title = r_tup
-            return html.survivor.returning_survivor_badge.safe_substitute(
-                flag_letter = letter,
-                color_class = color,
-                div_title = title,
-            )
-
-        return returning
-
-
-    def toggle(self, toggle_key, toggle_value, toggle_type="implicit"):
-        """ Toggles an attribute on or off. The 'toggle_value' arg is either
-        going to be a MiniFieldStorage list (from cgi.FieldStorage) or its going
-        to be a single value, e.g. a string.
-
-        If it's a list, assume we're toggling something on; if it's a single
-        value, assume we're toggling it off.
-
-        Review the hidden form inputs to see more about how this works.
-        """
-
-        # handle explicit toggles (i.e. input[type=submit] here)
-        if "damage" in toggle_key.split("_"):
-            toggle_type="explicit"
-
-
-        if toggle_type == "explicit":
-            if toggle_key not in self.survivor.keys():
-                self.survivor[toggle_key] = "checked"
-                self.logger.debug("%s toggled '%s' ON for survivor %s." % (self.User.user["login"], toggle_key, self.get_name_and_id()))
-                if toggle_key == "retired":
-                    self.retire()
-                return True
-            elif toggle_key in self.survivor.keys():
-                del self.survivor[toggle_key]
-                self.logger.debug("[%s] toggled '%s' OFF for survivor %s." % (self.User, toggle_key, self))
-                return True
-
-        mdb.survivors.save(self.survivor)
-
-
-
-    def get_constellation(self, return_type=None):
-        """ Returns the survivor's constellation. Non if they haven't got one.
-        Use the 'html_badge' return type for asset links. """
-
-        const = None
-        if "constellation" in self.survivor.keys():
-            const = self.survivor["constellation"]
-
-        if return_type == "html_badge":
-            if const:
-                return html.survivor.survivor_constellation_badge.safe_substitute(value=const)
-            else:
-                return ""
-
-        return const
-
-
-
-    def remove_survivor_attribute(self, attrib):
-        """ Tries to delete an attribute from a survivor's MDB document. Fails
-        gracefully if it cannot. Includes special handling for certain
-        attributes. """
-
-        try:
-            del self.survivor[attrib]
-            self.logger.debug("[%s] removed '%s' key from %s" % (self.User, attrib, self))
-        except:
-            self.logger.error("[%s] attempted to remove '%s' key from %s, but that key does not exist!" % self.User, attrib, self)
-
-
-
-    def get_returning_survivor_years(self):
-        """ Returns a list of integers representing the lantern years during
-        which a survivor is considered to be a Returning Survivor. """
-
-        if not "returning_survivor" in self.survivor.keys():
-            return []
-        else:
-            return self.survivor["returning_survivor"]
-
-
-
-    def asset_link(self, view="survivor", button_class="survivor", link_text=False, include=["hunt_xp", "insanity", "sex", "dead", "retired", "returning"], disabled=False):
-        """ Returns an asset link (i.e. html form with button) for the
-        survivor. """
-
-        if not link_text:
-            link_text = '<b>%s</b>' % self.survivor["name"]
-            if "sex" in include:
-                link_text += " [%s]" % self.get_api_asset("effective_sex")
-
-        if disabled:
-            link_text += "<br />%s" % self.survivor["email"]
-
-        if include != []:
-            attribs = []
-
-
-            if "dead" in include:
-                if "dead" in self.survivor.keys():
-                    button_class = "grey"
-                    attribs.append("Dead")
-
-            if "retired" in include:
-                if "retired" in self.survivor.keys():
-                    button_class = "warn"
-                    attribs.append("Retired")
-
-            if "settlement_name" in include:
-                attribs.append(self.Settlement.settlement["name"])
-
-            if "hunt_xp" in include:
-                attribs.append("XP: %s" % self.survivor["hunt_xp"])
-
-            if "insanity" in include:
-                attribs.append("Insanity: %s" % self.survivor["Insanity"])
-
-            if attribs != []:
-                suffix = "<br /> "
-                suffix += ", ".join(attribs)
-                suffix += ""
-                link_text += suffix
-
-        if disabled:
-            disabled = "disabled"
-            button_class= "unclickable"
-
-        output = html.dashboard.view_asset_button.safe_substitute(
-            button_class = button_class,
-            asset_type = view,
-            asset_id = self.survivor["_id"],
-            asset_name = link_text,
-            disabled = disabled,
-            desktop_text = "",
-        )
-
-        return output
-
-
-    def render_html_form(self):
-        """ Render a Survivor Sheet for the survivor."""
-        return html.survivor.form.safe_substitute(survivor_id = self.survivor["_id"])
 
 
 
@@ -714,21 +424,6 @@ class Settlement:
     #
     #   Settlement management and administration methods below
     #
-
-
-    def remove(self):
-        """ Marks the settlement and the survivors as "removed", which prevents
-        them from showing up on the dashboard. """
-
-        self.logger.warn("[%s] is removing settlement %s " % (self.User, self))
-        for survivor in self.get_survivors():
-            S = Survivor(survivor_id=survivor["_id"], session_object=self.Session)
-            S.remove()
-        self.settlement["removed"] = datetime.now()
-        self.log_event("%s removed the settlement!" % (self.User.user["login"]))
-        self.logger.warn("[%s] Finished marking %s as 'removed'." % (self.User, self))
-        self.save()
-
 
     def log_event(self, msg, event_type=None):
         """ Logs a settlement event to mdb.settlement_events. """

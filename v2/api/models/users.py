@@ -465,7 +465,7 @@ class User(Models.UserAsset):
                 if p is None:
                     raise utils.InvalidUsage("Nah, bro: individual preference hashes/dicts should follow this syntax: {handle: 'preference_handle', value: true}")
             self.user['preferences'][handle] = value
-            self.logger.info("%s Set '%s' = %s'" % (request.User.login, handle, value))
+#            self.logger.info("%s Set '%s' = %s'" % (request.User.login, handle, value))
 
         self.save()
 

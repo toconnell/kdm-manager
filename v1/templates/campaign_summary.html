@@ -188,7 +188,7 @@
                                         <img
                                             class="campaign_summary_avatar"
                                             ng-if="s.sheet.avatar != undefined"
-                                            ng-src="/get_image?id={{s.sheet.avatar.$oid}}"
+                                            ng-src="{{api_url}}avatar/get/{{s.sheet.avatar.$oid}}"
                                         />
                                         <img
                                             class="campaign_summary_avatar"
@@ -272,20 +272,25 @@
                             </button> <!-- end of the clickable survivor button -->
 
 
-                            <!-- survivor modal starts here -->
+                            <!-- 
+
+                                survivor modal starts here! this is the whole
+                                mini-form/quickview thing
+
+                            -->
 
                             <div
-                                id="{{s.sheet._id.$oid}}_modal_controls"
+                                ng-init="s_modal_id = s.sheet._id.$oid + '_modal_controls'"
+                                id="{{s_modal_id}}"
                                 class="hidden modal survivor_controls modal-black"
                             >
-
                                 <div
                                     class="kd_sheet_ui_outer_ring_container"
                                     style='{{settlement.survivor_color_schemes[s.sheet.color_scheme].style_string}}'
                                 >
-
                                     <div
-                                        class="kd_sheet_ui_inner_ring_container survivor_quickview_container"
+                                        class="ng_fade kd_sheet_ui_inner_ring_container survivor_quickview_container"
+                                        ng-if="isVisible(s_modal_id)"
                                         ng-init="
                                             survivalBoxID = 'survivalControl' + s.sheet._id.$oid;
                                             brainBoxID = 'brainControl' + s.sheet._id.$oid;
@@ -301,13 +306,12 @@
                                             attrib_list = ['Movement','Accuracy','Strength','Evasion','Luck','Speed'];
                                         "
                                     >
-
                                         <div class="columns">
 
                                             <div class="left_column">
 
                                                 <div class="quickview_survivor_name">
-                                                    {{s.sheet.name}}
+                                                    <font class="quickview_survivor_name">{{s.sheet.name}}</font>
                                                     <div class="quickview_sex_box">
                                                         M <div class="kd_sheet_ui_box" ng-class="{checked: s.sheet.effective_sex == 'M'}"></div>
                                                         F <div class="kd_sheet_ui_box" ng-class="{checked: s.sheet.effective_sex == 'F'}"></div>

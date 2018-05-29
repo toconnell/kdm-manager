@@ -728,6 +728,7 @@ female = [
     "Stormy",
     "Suki",
     "Summer",
+    "Susanna",
     "Sybil",
     "Tamara",
     "Tamiko",

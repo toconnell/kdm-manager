@@ -22,6 +22,7 @@ class testModuleImports(unittest.TestCase):
             "game_assets",
             "models",
             "world",
+            "modular_assets",
         ]
 
         for path in self.application_files:

@@ -42,13 +42,21 @@ app.controller("survivorSheetController", function($scope) {
     };
 
     // email
+    $scope.resetEmail = function() {
+        console.warn('Reverting email address!');
+        $scope.scratch.newSurvivorEmail = $scope.survivor.sheet.email;
+    };
+
     $scope.setEmail = function() {
-        console.warn("wtf, mate");
-        var newEmail = $scope.scratch.newSurvivorEmail.toLowerCase();
+
+        // init
+        var newEmail = $scope.scratch.newSurvivorEmail;
+        if (newEmail === undefined) {$scope.resetEmail(); return false;}
+        newEmail.toLowerCase();
+
+        // now do it; only handle the failure case
         var res = $scope.postJSONtoAPI('survivor','set_email', {'email': newEmail});
-        res.error(function(data, status, headers, config) {
-            $scope.newSurvivorEmail = $scope.survivor.sheet.email;
-        });
+        res.error(function(data, status, headers, config) {$scope.resetEmail()});
     };
 
     // partner controls
