@@ -831,7 +831,7 @@ div.campaign_summary_headline_container p.campaign_summary_campaign_type {font-f
 .campaign_summary_small_box p i {font-family: Silverado; font-size: 1.2em;}
 
 .campaign_summary_endeavor_container {margin-top: 0; margin-bottom: 2%; border-radius: 5px; background-color: #997030; color: #fff; display: flex; flex-direction: row; width: 98%; }
-div.endeavor_cost {border-top-left-radius: 5px; border-bottom-left-radius: 5px; background-color: #D0AB51; margin: 0 auto; width: auto; padding: 2%; display: flex; align-items: center; border: 0; }
+div.endeavor_cost {border-top-left-radius: 5px; border-bottom-left-radius: 5px; background-color: #D0AB51; margin: 0 auto; padding: 2%; display: flex; align-items: center; border: 0; flex-direction: row; min-width: 1em; width: auto; }
 img.endeavor_cost {width: 50px; }
 div.endeavor_text {font-family: 'Metrophobic'; padding: 2%; font-size: 35pt; width: 100%; vertical-align: middle; }
 div.campaign_endeavor {margin-top: 2%; }
@@ -2534,7 +2534,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
         /* endeavors app - wide */
     div.campaign_summary_endeavor_cap {font-size: 14pt; text-align: center; border-width: 2px; border-radius: 0; margin-top: 10px; }
     div.campaign_summary_endeavor_container {}
-    div.endeavor_cost {min-width: 10px; }
+    div.endeavor_cost {}
     div.campaign_summary_endeavor_controller div.tokens {font-size: 63px; text-align: center; }
     div.campaign_summary_endeavor_controller div.controls {padding: 0; display: flex; flex-direction: row; height: 60px; padding-top: 10px; margin-top: -10px; }
     div.campaign_summary_endeavor_controller div.controls button {width: 45%; height: 20px; padding:0; margin: 0 auto; margin-bottom: 10px; cursor: pointer; }

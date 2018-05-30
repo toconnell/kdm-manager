@@ -2506,15 +2506,23 @@ class Settlement(Models.UserAsset):
 
         available = dict(self.get_available_assets(innovations)["innovations"])
 
+        if debug:
+            self.logger.debug("%s available innovations: %s" % (self, available.keys()))
+
         # remove principles and ones we've already got
         for a in available.keys():
             if a in self.settlement["innovations"]:
                 del available[a]
+                if debug:
+                    self.logger.debug("%s already has '%s' innovation!" % (self, a))
             if self.Innovations.get_asset(a).get("sub_type", None) == "principle":
                 del available[a]
+                if debug:
+                    self.logger.debug("%s removing '%s' principle from available innovations..." % (self, a))
 
         if debug:
-            self.logger.debug("%s available innovations: %s" % (self, available.keys()))
+            self.logger.debug("%s available innovations AFTER removing principles and assets in the settlement's list: %s" % (self, available.keys()))
+
 
         #
         #   2.) now, create a list of consequences (handles) from innovations
@@ -2525,6 +2533,8 @@ class Settlement(Models.UserAsset):
         for i_handle in self.settlement["innovations"]:
             consequence_dict = self.Innovations.get_asset(i_handle)
             consequences.extend(consequence_dict.get("consequences", []))
+            if debug:
+                self.logger.debug("%s adding '%s' consequences: %s" % (self, i_handle, consequence_dict.get('consequences', [])))
         consequences = sorted(list(set(consequences)))
 
         if debug:
