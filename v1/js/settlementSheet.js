@@ -54,6 +54,15 @@ app.controller("abandonSettlementController", function($scope) {
     };
 });
 
+app.controller("removeSettlementController", function($scope) {
+    $scope.removeSettlement = function() {
+        if ($scope.scratch.confirmRemove === 'DELETE') {
+            showFullPageLoader();
+            $scope.postJSONtoAPI('settlement','remove',{},false,false,false)
+        };
+    };
+});
+
 app.controller("lanternResearchController", function($scope) {
     $scope.setLanternResearch = function() {
         js_obj = {value: $scope.settlement.sheet.lantern_research_level};

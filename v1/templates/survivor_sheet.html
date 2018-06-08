@@ -1927,142 +1927,188 @@
     </div> <!-- lineage -->
 
 
-    <!-- ADMINISTRATION - PELIGRO! -->
-    <div class="survivor_sheet_admin_block" ng-if="survivor.sheet != undefined">
-        <div
-            class="survivor_sheet_kd_sheet_ui_box survivor_admin maroon clickable"
-            onClick="rollUp('survivorAdmin')"
-            title="Survivor administration for {{survivor.sheet.name}}. Tap or click to see options."
-            >
-                Survivor Administration
-        </div> <!-- admin opener -->
-
-        <div
-            id="survivorAdmin"
-            class="kd_sheet_ui_roll_down rolled_up survivor_admin_rollup"
-        >
-            <div class="kd_sheet_ui_roll_down_controls survivor_admin_controls">
-
-                <h4>Access</h4>
-                <div
-                    class="survivor_sheet_public_toggle clickable"
-                    ng-click="toggleBoolean('public')"
-                >
-                    <div
-                        class="kd_sheet_ui_box"
-                        ng-class="{checked: survivor.sheet.public == true}"
-                    >
-                    </div>
-                    &#x1f512; Any player may manage this survivor
-                </div>
-                <hr/>
-                <h4>Email</h4>
-                <input
-                    id="survivorOwnerEmail"
-                    class="survivor_owner_email"
-                    onclick="this.select()"
-                    type="email"
-                    name="email"
-                    placeholder="email"
-                    ng-model="scratch.newSurvivorEmail"
-                    ng-value="survivor.sheet.email"
-                    ng-blur="setEmail(); showHide('emailTip')"
-                    ng-focus="showHide('emailTip')"
-                />
-                <div id="emailTip" class="kd_sheet_ui_row_tip hidden">
-                    Enter another registered user's email address here to make them a player in this campaign!
-                </div>
-                <hr/>
-
-                <!-- permanent delete -->
-                <div
-                    class="permanently_delete_survivor"
-                    ng-if="user.user.preferences.show_remove_button == true"
-                >
-                    <h4>Permanently Delete Survivor</h4>
-                    <form
-                        action="#"
-                        method="POST"
-                        onsubmit="return confirm('Press OK to permanently delete this survivor forever.\\r\\rThis is NOT THE SAME THING as marking them Dead using controls above.\\r\\rPermanently deleting the survivor prevents anyone from viewing and/or editing this record ever again!');">
-                            <input type="hidden" name="remove_survivor" value="$survivor_id"/>
-                            <p>Use the button below to <u>permanently remove</u> {{survivor.sheet.name}}. Please note that this is not the same as marking the survivor dead, that this <b>cannot be undone</b> and that any relationships between {{survivor.sheet.name}} and other survivors will be removed.</p>
-                        <button class="kd_alert_no_exclaim red_glow permanently_delete">Permanently Delete Survivor</button>
-                    </form>
-                </div> <!-- delete-o! delete-o! -->
-                <div
-                    class="kd_sheet_ui_row_tip"
-                    ng-if="user.user.preferences.show_remove_button != true"
-                >
-                    <p>By default, controls for deleting survivors are hidden! If you came here to delete <b>{{survivor.sheet.name}}</b>, use the navigation controls in the upper left to return to the Dashboard, click on "System" and enable the preference that shows the remove button and come back.</p>
-                    <p><b>Important!</b> Removing a surivor is permanent, <u>cannot be undone</u> and is not the same thing as marking the survivor dead using the controls above.</p>
-                </div>
-            </div> <!-- roll down controls admin -->
-        </div <!-- roll down container admin -->
-    </div> <!-- survivor admin block outermost container -->
-
-    <div class="survivor_sheet_bottom_attrib_spacer">&nbsp;</div>
-
-</div><!-- end of the survivorSheetController scope -->
-
-
-
-<!--            THIS IS THE FOLD! Only Modal content below!     -->
-<!--            Everything past here needs its own controller!  -->
-
-
-    <!-- CURSED ITEMS CONTROLS -->
+<!-- ADMINISTRATION - PELIGRO! -->
+<div
+    class="survivor_sheet_admin_block"
+    ng-if="survivor.sheet != undefined"
+>
     <div
-        id="cursedItems" class="modal hidden"
-        ng-controller="cursedItemsController"
-        ng-if="settlement != undefined"
-        ng-init="showHide('cursedItemsOpener');"
+        class="survivor_sheet_kd_sheet_ui_box survivor_admin maroon clickable"
+        onClick="rollUp('survivorAdmin')"
+        title="Survivor administration for {{survivor.sheet.name}}. Tap or click to see options."
     >
-        <div class="modal-content survivor_sheet_gradient">
-            <span class="closeModal" onclick="showHide('cursedItems')">×</span>
+        Survivor Administration
+    </div> <!-- admin opener -->
 
-            <h3>Cursed Items</h3>
-            <p>Use the controls below to add cursed items to a Survivor. Cursed
-            gear cannot be removed from the Survivor's gear grid. Archive the gear
-            when the survivor dies.</p>
+    <div
+        id="survivorAdmin"
+        class="kd_sheet_ui_roll_down rolled_up survivor_admin_rollup"
+    >
+        <div class="kd_sheet_ui_roll_down_controls survivor_admin_controls">
 
-            <div class="cursed_items_flex_container">
+            <h4>Access</h4>
+            <div
+                class="survivor_sheet_public_toggle clickable"
+                ng-click="toggleBoolean('public')"
+            >
+                <div
+                    class="kd_sheet_ui_box"
+                    ng-class="{checked: survivor.sheet.public == true}"
+                >
+                </div>
+                &#x1f512; Any player may manage this survivor
+            </div>
+            <hr/>
 
-                <div class="cursed_item_toggle" ng-repeat="c in settlement.game_assets.cursed_items">
-                    <input
-                        id="{{c.handle}}"
-                        class="cursed_item_toggle"
-                        type="checkbox"
-                        ng-model="cursedItemHandle"
-                        ng-change="toggleCursedItem(c.handle)"
-                        ng-checked="survivor.sheet.cursed_items.indexOf(c.handle) != -1"
-                    />
-                    <label
-                        class="cursed_item_toggle"
-                        for="{{c.handle}}"
-                     >
-                        <span class="cursed_item_name">{{c.name}}</span>
+            <!-- survivor email -->
+            <h4>Email</h4>
+            <input
+                id="survivorOwnerEmail"
+                class="survivor_owner_email"
+                onclick="this.select()"
+                type="email"
+                name="email"
+                placeholder="email"
+                ng-model="scratch.newSurvivorEmail"
+                ng-value="survivor.sheet.email"
+                ng-blur="setEmail(); showHide('emailTip')"
+                ng-focus="showHide('emailTip')"
+            />
+            <div id="emailTip" class="kd_sheet_ui_row_tip hidden">
+                Enter another registered user's email address here to make them a player in this campaign!
+            </div>
 
-                        <div class="cursed_item_ability_block" ng-repeat="a in c.abilities_and_impairments">
-                            <span
-                                ng-if="settlement.game_assets.abilities_and_impairments[a] != undefined"
-                                class="cursed_item_ability"
-                            >
-                                {{settlement.game_assets.abilities_and_impairments[a].name}} -
-                            </span>
-                            <span
-                                class="cursed_item_ability_desc"
-                                ng-if="settlement.game_assets.abilities_and_impairments[a] != undefined"
-                                ng-bind-html="settlement.game_assets.abilities_and_impairments[a].desc|trustedHTML"
-                            >
-                            </span>
+            <hr ng-if="user.user.preferences.show_remove_button"/>
+            <!-- permanent delete -->
+            <div
+                class="permanently_delete_survivor"
+                ng-if="user.user.preferences.show_remove_button == true"
+            >
+                <h4>Permanently Delete Survivor</h4>
+                <div
+                    ng-if="user.user.preferences.show_remove_button"
+                    class="metrophobic"
+                >
+                    <p>Use the button below to permanently delete <b>{{survivor.sheet.name}}</b>.</p>
+                    <p class="maroon_text">&nbsp; <b>This cannot be undone.</b></p>
 
-                        </div>
-                    </label>
+                    <button
+                        class="kd_alert_no_exclaim red_glow permanently_delete"
+                        ng-click="showHide('removeSurvivorConfirmation')"
+                    >
+                        Delete Survivor
+                    </button>
+                </div>
 
-                </div><!-- cursed_item_toggle -->
-            </div> <!-- cursed_items_flex_container-->
-        </div> <!-- modal-content -->
-    </div> <!-- modal -->
+                <div
+                    id="removeSurvivorConfirmation"
+                    class="modal-black hidden"
+                    ng-controller="removeSurvivorController"
+                >
+                    <div class="rm_asset_confirm_container kd_red">
+                        <h3>DELETE SURVIVOR</h3>
+                        <p>This cannot be undone! A deleted survivor can never be recovered.</p>
+                        <p>Deleting a survivor is not the same thing as using the controls above to mark the survivor as "Dead". Survivors should be deleted when they are created in error, etc.</p>
+                        <p>If you still want to permanently delete <b>{{survivor.sheet.name}}</b>, type "DELETE" (without the quotes) in the box below and then click the "DELETE" button that appears to permanently delete this survivor forever.</p>
+                        <input type="text" class="confirm_remove" ng-model="scratch.confirmRemove" placeholder="DELETE"/>
+                        <button
+                            class="kd_alert_no_exclaim ng_fade"
+                            ng-if="scratch.confirmRemove === 'DELETE'"
+                            onClick="showFullPageLoader()"
+                            ng-click="
+                                showHide('removeSurvivorConfirmation');
+                                removeSurvivor();
+                                postForm('view_campaign',settlement.sheet._id.$oid);
+                            "
+                        >
+                            Delete Survivor
+                        </button>
+                        <button
+                            class="ng_fade"
+                            ng-if="scratch.confirmRemove !== 'DELETE'"
+                            ng-click="showHide('removeSurvivorConfirmation')"
+                        >
+                            Close
+                        </button>
+                    </div><!-- rm_asset_confirm_container -->
+                </div><!-- removeSurvivorConfirmation -->
+
+            </div> <!-- permanently_delete_survivor -->
+
+        </div> <!-- end of admin controls (this ends their container) -->
+    </div> <!-- survivorAdmin kd_sheet_ui_roll_down (this ends the admin hider) -->
+</div> <!-- survivor_sheet_admin_block (ends the admin contoller section) -->
+
+
+
+<div class="survivor_sheet_bottom_attrib_spacer">&nbsp;</div>
+
+
+
+
+<!--
+    
+    THIS IS THE FOLD! Only Modal content below!
+    Everything past here needs its own controller, etc.
+
+-->
+
+
+
+<!-- CURSED ITEMS CONTROLS -->
+<div
+    id="cursedItems" class="modal hidden"
+    ng-controller="cursedItemsController"
+    ng-if="settlement != undefined"
+    ng-init="showHide('cursedItemsOpener');"
+>
+    <div class="modal-content survivor_sheet_gradient">
+        <span class="closeModal" onclick="showHide('cursedItems')">×</span>
+
+        <h3>Cursed Items</h3>
+        <p>Use the controls below to add cursed items to a Survivor. Cursed
+        gear cannot be removed from the Survivor's gear grid. Archive the gear
+        when the survivor dies.</p>
+
+        <div class="cursed_items_flex_container">
+
+            <div class="cursed_item_toggle" ng-repeat="c in settlement.game_assets.cursed_items">
+                <input
+                    id="{{c.handle}}"
+                    class="cursed_item_toggle"
+                    type="checkbox"
+                    ng-model="cursedItemHandle"
+                    ng-change="toggleCursedItem(c.handle)"
+                    ng-checked="survivor.sheet.cursed_items.indexOf(c.handle) != -1"
+                />
+                <label
+                    class="cursed_item_toggle"
+                    for="{{c.handle}}"
+                 >
+                    <span class="cursed_item_name">{{c.name}}</span>
+
+                    <div class="cursed_item_ability_block" ng-repeat="a in c.abilities_and_impairments">
+                        <span
+                            ng-if="settlement.game_assets.abilities_and_impairments[a] != undefined"
+                            class="cursed_item_ability"
+                        >
+                            {{settlement.game_assets.abilities_and_impairments[a].name}} -
+                        </span>
+                        <span
+                            class="cursed_item_ability_desc"
+                            ng-if="settlement.game_assets.abilities_and_impairments[a] != undefined"
+                            ng-bind-html="settlement.game_assets.abilities_and_impairments[a].desc|trustedHTML"
+                        >
+                        </span>
+
+                    </div>
+                </label>
+
+            </div><!-- cursed_item_toggle -->
+        </div> <!-- cursed_items_flex_container-->
+    </div> <!-- modal-content -->
+</div> <!-- modal -->
+
 
     <!-- SURVIVOR ATTRIBUTE CONTROLS -->
 
@@ -2355,130 +2401,138 @@
         </div> <!-- modal-content -->
 
     </div> <!-- modalSavior -->
-    <div
-        id="modalDeath" class="modal hidden"
-        ng-if="survivor != undefined"
-        ng-controller="controlsOfDeath"
-    >
-        <div class="modal-content survivor_sheet_gradient">
-            <span class="closeModal" onclick="showHide('modalDeath')">×</span>
-            <h3>Controls of Death!</h3>
-            <select
-                class="survivor_sheet_cod_picker"
-                ng-model="survivor.sheet.cause_of_death"
-                ng-options="c.name as c.name disable when c.disabled for c in settlement.game_assets.causes_of_death"
-                ng-change="processSelectCOD()"
-                ng-selected='survivor.sheet.cause_of_death'
-            >
-                <option disabled value="">Choose Cause of Death</option>
-            </select>
 
-            <p id="addCustomCOD" style="display: none">
-                <input
-                    type="text"
-                    class="custom_cod_text"
-                    placeholder="Enter custom Cause of Death"
-                    name="enter_cause_of_death"
-                    ng-value="survivor.sheet.cause_of_death"
-                    ng-model="customCOD"
-                />
-            </p>
 
-            <p
-                id="addCustomCOD"
-                ng-if="
-                    survivor.sheet.cause_of_death != undefined &&
-                    settlement_cod_list.indexOf(survivor.sheet.cause_of_death) == -1
-                "
+<!-- controls of death -->
+<div
+    id="modalDeath" class="modal hidden"
+    ng-if="survivor != undefined"
+    ng-controller="controlsOfDeath"
+>
+    <div class="modal-content survivor_sheet_gradient">
+        <span class="closeModal" onclick="showHide('modalDeath')">×</span>
+        <h3>Controls of Death!</h3>
+        <select
+            class="survivor_sheet_cod_picker"
+            ng-model="survivor.sheet.cause_of_death"
+            ng-options="c.name as c.name disable when c.disabled for c in settlement.game_assets.causes_of_death"
+            ng-change="processSelectCOD()"
+            ng-selected='survivor.sheet.cause_of_death'
+        >
+            <option disabled value="">Choose Cause of Death</option>
+        </select>
+
+        <p id="addCustomCOD" style="display: none">
+            <input
+                type="text"
+                class="custom_cod_text"
+                placeholder="Enter custom Cause of Death"
+                name="enter_cause_of_death"
+                ng-value="survivor.sheet.cause_of_death"
+                ng-model="customCOD"
+            />
+        </p>
+
+        <p
+            id="addCustomCOD"
+            ng-if="
+                survivor.sheet.cause_of_death != undefined &&
+                settlement_cod_list.indexOf(survivor.sheet.cause_of_death) == -1
+            "
+        >
+            <input
+                type="text"
+                class="custom_cod_text"
+                placeholder="Enter custom Cause of Death"
+                name="enter_cause_of_death"
+                ng-value="survivor.sheet.cause_of_death"
+                ng-model="customCOD"
+            />
+        </p>
+
+        <div
+            id="CODwarning"
+            class="kd_alert control_error"
+            style="display: none"
+        >
+            Please select or enter a Cause of Death!
+        </div>
+
+        <button
+            class="kd_alert_no_exclaim red_glow"
+            ng-click="submitCOD(customCOD)"
+        >
+            Die
+        </button>
+        <div ng-if="survivor.sheet.dead == true">
+            <hr/>
+            <button
+                class="kd_blue"
+                ng-click="resurrect()"
             >
-                <input
-                    type="text"
-                    class="custom_cod_text"
-                    placeholder="Enter custom Cause of Death"
-                    name="enter_cause_of_death"
-                    ng-value="survivor.sheet.cause_of_death"
-                    ng-model="customCOD"
-                />
-            </p>
+                Resurrect {{survivor.sheet.name}}
+            </button>
+        </div>
+
+    </div> <!-- modal-content -->
+</div> <!-- modalDeath -->
+
+
+
+<!-- Modal affinities controller -->
+<div
+    id="modalAffinity" class="modal hidden"
+    ng-controller = "affinitiesController"
+    ng-if="survivor != undefined"
+>
+    <div class="modal-content survivor_sheet_gradient survivor_affinities_modal">
+        <span class="closeModal" onclick="showHide('modalAffinity'); savedAlert()">×</span>
+
+        <h3>Survivor Affinities</h3>
+        <p>Adjust permanent affinities for <b>{{survivor.sheet.name}}</b>. Changes are saved automatically.</p><hr/>
+
+        <div class="modal_affinity_controls_container">
 
             <div
-                id="CODwarning"
-                class="kd_alert control_error"
-                style="display: none"
+                ng-repeat="a in ['red','green','blue']"
+                class="modal_affinity_control_unit"
             >
-                Please select or enter a Cause of Death!
-            </div>
+                <div class="bulk_add_control affinity_type" title="{{a}} affinity controls">
+                    <button
+                        type="button"
+                        class="incrementer"
+                        ng-click="incrementAffinity(a, 1)"
+                    >
+                        +
+                    </button>
+                    <input
+                        id="{{a}}CountBox"
+                        class="big_number_square"
+                        type="number"
+                        name="{{a}}_affinities"
+                        ng-value="survivor.sheet.affinities[a]"
+                        ng-model = 'affValue'
+                        ng-change = "updateAffinity(this)"
+                    />
+                    <button
+                        type="button"
+                        class="decrementer"
+                        ng-click="incrementAffinity(a, -1)"
+                    >
+                        -
+                    </button>
+                </div>
 
-            <button
-                class="kd_alert_no_exclaim red_glow"
-                ng-click="submitCOD(customCOD)"
-            >
-                Die
-            </button>
-            <div ng-if="survivor.sheet.dead == true">
-                <hr/>
-                <button
-                    class="kd_blue"
-                    ng-click="resurrect()"
-                >
-                    Resurrect {{survivor.sheet.name}}
-                </button>
-            </div>
+                <div class="affinity_block affinity_{{a}}">&nbsp;</div>
 
-        </div> <!-- modal-content -->
-    </div> <!-- modalDeath -->
+                <hr class="affinity_spacer"/>
 
-
-    <div
-        id="modalAffinity" class="modal hidden"
-        ng-controller = "affinitiesController"
-        ng-if="survivor != undefined"
-    >
-        <div class="modal-content survivor_sheet_gradient survivor_affinities_modal">
-            <span class="closeModal" onclick="showHide('modalAffinity'); savedAlert()">×</span>
-
-            <h3>Survivor Affinities</h3>
-            <p>Adjust permanent affinities for <b>{{survivor.sheet.name}}</b>. Changes are saved automatically.</p><hr/>
-
-            <div class="modal_affinity_controls_container">
-
-                <div
-                    ng-repeat="a in ['red','green','blue']"
-                    class="modal_affinity_control_unit"
-                >
-                    <div class="bulk_add_control affinity_type" title="{{a}} affinity controls">
-                        <button
-                            type="button"
-                            class="incrementer"
-                            ng-click="incrementAffinity(a, 1)"
-                        >
-                            +
-                        </button>
-                        <input
-                            id="{{a}}CountBox"
-                            class="big_number_square"
-                            type="number"
-                            name="{{a}}_affinities"
-                            ng-value="survivor.sheet.affinities[a]"
-                            ng-model = 'affValue'
-                            ng-change = "updateAffinity(this)"
-                        />
-                        <button
-                            type="button"
-                            class="decrementer"
-                            ng-click="incrementAffinity(a, -1)"
-                        >
-                            -
-                        </button>
-                    </div>
-
-                    <div class="affinity_block affinity_{{a}}">&nbsp;</div>
-
-                    <hr class="affinity_spacer"/>
-
-                </div> <!-- modal_affinity_control_unit REPEATS/ng-repeat-->
-            </div> <!-- modal_affinity_controls_container -->
-        </div> <!-- modal-content -->
-    </div> <!-- modalAffinity -->
+            </div> <!-- modal_affinity_control_unit REPEATS/ng-repeat-->
+        </div> <!-- modal_affinity_controls_container -->
+    </div> <!-- modal-content -->
+</div> <!-- modalAffinity -->
 
 
+
+<!-- this has to close everything, including the fold -->
+</div><!-- end of the survivorSheetController scope -->

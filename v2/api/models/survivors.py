@@ -179,6 +179,12 @@ class Survivor(Models.UserAsset):
         super(Survivor, self).save(verbose=verbose)
 
 
+    def remove(self):
+        self.survivor['removed'] = datetime.now()
+        self.log_event('%s marked the survivor as removed!' % request.User.user['login'])
+        self.save()
+
+
     def new(self):
         """ Creates a new survivor.
 
@@ -3337,6 +3343,10 @@ class Survivor(Models.UserAsset):
             self.toggle_sotf_reroll()
         elif action == 'set_parent':
             self.set_parent()
+
+        # delete-o! delete-o!
+        elif action == 'remove':
+            self.remove()
 
 
         else:

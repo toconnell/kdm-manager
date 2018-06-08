@@ -640,6 +640,12 @@ app.controller("controlsOfDeath", function($scope) {
 });
 
 
+app.controller("removeSurvivorController", function($scope) {
+    $scope.removeSurvivor = function() {
+        $scope.postJSONtoAPI('survivor', 'remove', {}, false,false,false);
+    };
+
+});
 
 
 app.controller("theConstellationsController", function($scope) {

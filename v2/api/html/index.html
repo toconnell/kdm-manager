@@ -1605,20 +1605,6 @@
             changing the list of settlement admins, etc. </td>
         </tr>
         <tr class="ul">
-            <td>
-                <a id="settlementAbandon"></a> 
-                /settlement/abandon/&lt;settlement_id&gt;
-            </td>
-            <td> <b>POST</b> </td>
-            <td>
-                <p>Hit this route with a <b>POST</b> to mark the settlement as abandoned.</p>
-                <p>Your <b>POST</b> does not need to contain anything (but it does need
-                to be a <b>POST</b> (<b>GET</b> requests will not abandon the settlement.</p>
-                <p>An abandoned settlement has a date/time stamp of when it was
-                abandoned as its <code>abandoned</code> attribute.</p>
-            </td>
-        </tr>
-        <tr class="ul">
             <td> /settlement/add_admin/&lt;settlement_id&gt; </td>
             <td> <b>POST</b> </td>
             <td>
@@ -1705,6 +1691,37 @@
             last_accessed</code> value to be set to now.</p>
             </td>
         </tr>
+        <tr class="ul">
+            <td>
+                <a id="settlementAbandon"></a> 
+                /settlement/abandon/&lt;settlement_id&gt;
+            </td>
+            <td> <b>POST</b> </td>
+            <td>
+                <p>Hit this route with a <b>POST</b> to mark the settlement as abandoned.</p>
+                <p>Your <b>POST</b> does not need to contain anything (but it does need
+                to be a <b>POST</b> (<b>GET</b> requests will not abandon the settlement.</p>
+                <p>An abandoned settlement has a date/time stamp of when it was
+                abandoned as its <code>abandoned</code> attribute.</p>
+            </td>
+        </tr>
+        <tr class="ul">
+            <td>
+                <a id="settlementRemove"></a> 
+                /settlement/remove/&lt;settlement_id&gt;
+            </td>
+            <td> <b>POST</b> </td>
+            <td>
+                <p><b>POST</b> (not <b>GET</b>) to this route to mark the
+                settlement as removed.</p>
+                <p>Once marked as removed, settlements are queued up by the API
+                for removal from the database: the next time the maintenance
+                process runs, it will check the timestap of the mark as removed
+                event and purge the settlement (and all survivors) from the
+                database.</p>
+                <p><b>This cannot be undone.</b></p>
+            </td>
+        </tr>
 
 
 
@@ -1788,6 +1805,15 @@
             <td> /survivor/get/&lt;survivor_id&gt; </td>
             <td> <b>GET</b> </td>
             <td> Retrieve a serialized version of the survivor.</td>
+        </tr>
+        <tr class="ul">
+            <td> /survivor/remove/&lt;survivor_id&gt; </td>
+            <td> <b>POST</b> </td>
+            <td> 
+                <p>Marks a survivor as "removed", which queues them up for trash
+                collection (i.e. final deletion from the database).</p>
+                <p><b>Removed survivors cannot be restored or recovered.</b></p>
+            </td>
         </tr>
         <tr class="ul">
             <td> <a id="getAvatarAnchor">/avatar/get/&lt;avatar_oid&gt;</a> </td>

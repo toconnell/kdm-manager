@@ -1053,64 +1053,76 @@
     </div> <!-- lost_settlement_controls_container -->
 
 
-    <!-- ABANDON -->
-    <div
-        class="settlement_sheet_block_group"
-        ng-controller="abandonSettlementController"
-        ng-if="settlement.sheet.abandoned == undefined"
-    >
-
-        <h3>Abandon Settlement</h3>
-        <p>Mark a settlement as "Abandoned" to prevent it from showing up in your active campaigns without removing it from the system.</p>
-        <p class="maroon_text">&nbsp; <b>This cannot be undone.</b></p>
-
-        <button
-            class="kd_alert_no_exclaim red_glow"
-            ng-click="abandonSettlement()"
+        <!-- ABANDON -->
+        <div
+            class="settlement_sheet_block_group"
+            ng-controller="abandonSettlementController"
+            ng-if="settlement.sheet.abandoned == undefined"
         >
-            Abandon Settlement
-        </button>
-    </div> <!-- abandon controls -->
 
-        <!-- remove settlement button -->
+            <h3>Abandon Settlement</h3>
+            <p class="metrophobic">Use the button below to mark <b>{{settlement.sheet.name}}</b> as "Abandoned" to prevent it from showing up on your KDM-Manager dashboard. Abandoning a settlement <i>does not</i> remove it from the system.</p>
+            <p class="maroon_text metrophobic">&nbsp; <b>This cannot be undone.</b></p>
+
+            <button
+                class="kd_alert_no_exclaim red_glow"
+                ng-click="abandonSettlement()"
+            >
+                Abandon Settlement
+            </button>
+        </div> <!-- abandon controls -->
+
+        <!-- REMOVE -->
         <div
             ng-if="user.user.preferences.show_remove_button == true"
             class="settlement_sheet_block_group"
         >
-            <h3>Permanently Remove Settlement</h3>
-            <form
-                action="#"
-                method="POST"
-                onsubmit="return confirm('Press OK to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever. \\r\\rPlease note that this CANNOT BE UNDONE and is not the same as marking a settlement Abandoned.\\r\\rPlease consider abandoning old settlements rather than removing them, as this allows data about the settlement to be used in general kdm-manager stats.\\r\\r');"
+            <h3>Delete Settlement</h3>
+            <p class="metrophobic">
+                Use the button below to permanently delete <b>{{settlement.sheet.name}}</b>.
+            </p>
+            <p class="maroon_text metrophobic">&nbsp; <b>This will permanently delete all survivors associated with this settlement.</b></p>
+            <p class="maroon_text metrophobic">&nbsp; <b>This cannot be undone.</b></p>
+            <button
+                class="kd_alert_no_exclaim red_glow permanently_delete"
+                ng-click="showHide('removeSettlementConfirmation')"
             >
-                <input type="hidden" name="remove_settlement" ng-value="settlement.sheet._id.$oid"/>
-                <p>
-                    Use the button below to permanently delete <b>{{settlement.sheet.name}}</b>.
-                    Please note that <b>this cannot be undone</b> and that this will
-                    also permanently remove all survivors associated with this
-                    settlement.
-                </p>
-                <button class="kd_alert_no_exclaim red_glow permanently_delete">
-                    Permanently Delete Settlement
+                Delete Settlement
+            </button>
+        </div>
+        <div
+            id="removeSettlementConfirmation"
+            class="modal-black hidden"
+            ng-controller="removeSettlementController"
+        >
+            <div class="rm_asset_confirm_container kd_red">
+                <h3>DELETE SETTLEMENT</h3>
+                <p>This CANNOT BE UNDONE and is not the same as marking a settlement "abandoned".</p>
+                <p>Please consider abandoning old settlements rather than deleting them. This allows data about the settlement to be used in general https://kdm-manager.com stats that all users see on their dashboards.</p>
+                <p>If you still want to permanently delete <b>{{settlement.sheet.name}}</b>, type "DELETE" (without the quotes) in the box below and then click the "DELETE" button that appears to permanently delete this settlement AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever.</p>
+                <input type="text" class="confirm_remove" ng-model="scratch.confirmRemove" placeholder="DELETE"/>
+                <button
+                    class="kd_alert_no_exclaim ng_fade"
+                    ng-if="scratch.confirmRemove === 'DELETE'"
+                    onClick="showFullPageLoader()"
+                    ng-click="
+                        showHide('removeSettlementConfirmation');
+                        removeSettlement();
+                        postForm('change_view','dashboard');
+                    "
+                >
+                    Delete Settlement
                 </button>
-            </form>
+                <button 
+                    class="ng_fade"
+                    ng-if="scratch.confirmRemove !== 'DELETE'"
+                    ng-click="showHide('removeSettlementConfirmation')"
+                >
+                    Close
+                </button>
+            </div><!-- rm_settlement_confirm_container -->
         </div>
 
-
     </div> <!-- right pane -->
-
-
-    <!--
-
-        This is the fold! Anything below here is below the fold!
-        This should only be modals, heavy angularjs stuff, etc. that is
-        still within the settlementSheetApp, but that doesn't need to
-        load right away.
-
-    -->
-
-    <form id="settlementSheetReload" method="POST" action="/"><button class="hidden" />SUBMIT</button></form>
-
-
-
 </div> <!-- settlementSheetApp -->
+    

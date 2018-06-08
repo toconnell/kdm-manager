@@ -474,27 +474,13 @@ class Session:
             if p in self.params:
                 user_action = self.change_current_view_to_asset(p)
 
-        # these are our two asset removal methods: this is as DRY as I think we
-        #   can get with this stuff, since both require unique handling
+        # remove settlement; deprecated 2018-06-08
         if "remove_settlement" in self.params:
-            s_id = ObjectId(self.params["remove_settlement"].value)
-            self.set_current_settlement(s_id)
-            S = assets.Settlement(settlement_id=s_id, session_object=self)
-            S.remove()
-            user_action = "removed settlement %s" % S
-            self.change_current_view("dashboard")
+            self.logger.error("Removing settlements is no longer supported by the legacy webapp!")
 
+        # remove survivor; deprecated 2018-06-08
         if "remove_survivor" in self.params:
-            # we actually have to get the survivor from the MDB to set the
-            # current settlement before we can initialize the survivor and
-            # use its remove() method.
-            s_id = ObjectId(self.params["remove_survivor"].value)
-            s_doc = mdb.survivors.find_one({"_id": s_id})
-            self.set_current_settlement(s_doc["settlement"])
-            S = assets.Survivor(survivor_id=s_id, session_object=self)
-            S.remove()
-            user_action = "removed survivor %s from %s" % (S, S.Settlement)
-            self.change_current_view("view_campaign", asset_id=S.survivor["settlement"])
+            self.logger.error("Removing survivors is no longer supported by the legacy webapp!")
 
 
         #

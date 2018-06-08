@@ -67,7 +67,7 @@
 .special_showdown {color: #DC2426; }
 .special_showdown_button,
     .kd_special_showdown,
-    .kd_red {color: #fff; background-color: #DC2426; background: radial-gradient(#ED3537, DC2426); }
+    .kd_red {color: #fff; background-color: #DC2426; background: radial-gradient(#ED3537, #DC2426); }
 
     /* attributes */
 .Movement, .mov_token {background-color: #9A6D84; color: #fff; }

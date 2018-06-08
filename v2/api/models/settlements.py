@@ -357,8 +357,10 @@ class Settlement(Models.UserAsset):
 
 
     def remove(self):
-        """ Not implemented yet. """
-        return utils.http_501
+        """ Marks the settlement as removed. """
+        self.settlement['removed'] = datetime.now()
+        self.log_event('%s marked the settlement as removed!' % request.User.user['login'])
+        self.save()
 
 
     def serialize(self, return_type=None):
@@ -4048,6 +4050,8 @@ class Settlement(Models.UserAsset):
 
         elif action == 'abandon':
             self.set_abandoned()
+        elif action == 'remove':
+            self.remove()
 
 
         #
