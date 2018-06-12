@@ -2530,23 +2530,28 @@ class Settlement(Models.UserAsset):
         #   2.) now, create a list of consequences (handles) from innovations
         #
 
-        # first, create the list and uniquify it
-        consequences = []
+        # consequences are a set until we need to sort them!
+        consequences = set()
         for i_handle in self.settlement["innovations"]:
-            consequence_dict = self.Innovations.get_asset(i_handle)
-            consequences.extend(consequence_dict.get("consequences", []))
+            cur_asset = self.Innovations.get_asset(i_handle)
+            cur_asset_consequences = cur_asset.get("consequences", [])
             if debug:
-                self.logger.debug("%s adding '%s' consequences: %s" % (self, i_handle, consequence_dict.get('consequences', [])))
-        consequences = sorted(list(set(consequences)))
+                self.logger.debug("%s adding '%s' consequences: %s" % (self, i_handle, cur_asset_consequences))
+            consequences = consequences.union(cur_asset_consequences)
 
+        # now change from set to list and sort
+        consequences = sorted(list(consequences))
         if debug:
             self.logger.debug("%s ALL consequences: %s" % (self, consequences))
+
 
         # now, remove all consequences that aren't available; this upgrades the
         #   'consequences' to 'available consequences', if you think about it
         for c in consequences:
             if c not in available.keys():
                 consequences.remove(c)
+                if debug:
+                    self.logger.debug("%s removing UNAVAILABLE consequence: '%s'" % (self, c))
 
         if debug:
             self.logger.debug("%s AVAILABLE consequences: %s" % (self, consequences))
