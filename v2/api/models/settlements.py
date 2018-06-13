@@ -2553,9 +2553,14 @@ class Settlement(Models.UserAsset):
                 if debug:
                     self.logger.debug("%s removing UNAVAILABLE consequence: '%s'" % (self, c))
 
+        # if we're debugging, list our current consequences and check the list
+        # for any unavailable consequences that the previous iteration might
+        # have mysteriously spared
         if debug:
             self.logger.debug("%s consequences after removing all UNAVAILABLE consequences: %s" % (self, consequences))
-
+            for c in consequences:
+                if c not in available.keys():
+                    self.logger.error("%s consequences list includes UNAVAILABLE consequence '%s'" % (self, c))
 
         # 
         #   3.) initialize the deck dict using 'available consequences' (see
