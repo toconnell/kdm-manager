@@ -2568,7 +2568,7 @@ class Settlement(Models.UserAsset):
         #
         deck_dict = {}
         for c in consequences:
-            if c not in self.settlement["innovations"]:
+            if c not in self.settlement["innovations"] and c in available.keys():
                 asset_dict = self.Innovations.get_asset(c)
                 deck_dict[c] = asset_dict
 
