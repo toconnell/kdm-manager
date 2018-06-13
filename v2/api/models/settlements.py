@@ -2554,10 +2554,12 @@ class Settlement(Models.UserAsset):
                     self.logger.debug("%s removing UNAVAILABLE consequence: '%s'" % (self, c))
 
         if debug:
-            self.logger.debug("%s AVAILABLE consequences: %s" % (self, consequences))
+            self.logger.debug("%s consequences after removing all UNAVAILABLE consequences: %s" % (self, consequences))
+
 
         # 
-        #   3.) initialize the deck from 'available consequences'
+        #   3.) initialize the deck dict using 'available consequences' (see
+        #       above); now we have a proper deck to work with
         #
         deck_dict = {}
         for c in consequences:
@@ -2566,7 +2568,7 @@ class Settlement(Models.UserAsset):
                 deck_dict[c] = asset_dict
 
         if debug:
-            self.logger.debug("%s AVAILABLE consequences NOT already added: %s" % (self, deck_dict.keys()))
+            self.logger.debug("%s deck dict initialized based on AVAILABLE consequences: %s" % (self, deck_dict.keys()))
 
         #
         #   4.) now iterate through remaining 'available' assets and give them
@@ -2581,6 +2583,14 @@ class Settlement(Models.UserAsset):
                     if asset in self.settlement[collection]:
                         deck_dict[i_handle] = i_dict
                         self.logger.debug("%s Found value '%s' in settlement['%s']. Adding '%s' to innovation deck." % (self, asset, collection, i_dict['name']))
+
+        #
+        #   sanity/QA check on the way out
+        #
+
+        for c in deck_dict.keys():
+            if c not in available.keys():
+                self.logger.error("%s Unavailable consequence '%s' present in innovation deck!" % (self, c))
 
 
         #
