@@ -3,7 +3,7 @@
 from bson import json_util
 from bson.objectid import ObjectId
 import collections
-from copy import copy
+from copy import copy, deepcopy
 from datetime import datetime, timedelta
 from flask import Response, request
 import inspect
@@ -530,6 +530,7 @@ class Settlement(Models.UserAsset):
     def is_compatible(self, asset_dict={}):
         """Evaluates an asset's dictionary to determine it is compatible for
         use with this settlement. Always returns a bool (no matter what). """
+
 
         if type(asset_dict) != dict:
             asset_dict = asset_dict.__dict__
@@ -2619,7 +2620,7 @@ class Settlement(Models.UserAsset):
                 sorting_hat[v['name']] = k
 
             for i_name in sorted(sorting_hat.keys()):
-                i_dict = copy(deck_dict[sorting_hat[i_name]])
+                i_dict = deepcopy(deck_dict[sorting_hat[i_name]])
                 for c_handle in i_dict.get('consequences', []):
                     consequences_dict = self.Innovations.get_asset(c_handle)
                     if not self.is_compatible(consequences_dict):

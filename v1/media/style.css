@@ -343,6 +343,7 @@ div#mySidenav button:hover {background-color: #fff; background: linear-gradient(
 .help_modal_tip_repeater {margin: 2%; margin-left: 3%; font-family: 'Metrophobic'; font-size: 30pt; }
 .help_modal_tip_repeater .kd_sheet_ui_box {margin-left: 1%; margin-right: 1%; width: 20px; height: 20px; }
 .help_modal_tip_repeater.kpi {background-color: #ffefef; padding: 2%; text-align: justify; font-size: 30pt; }
+.help_modal_expansion_tips_container {break-inside: avoid;}
 .webapp_alert_detail_bar {display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; padding: 1%; padding-right: 2%;  }
 .webapp_alert_detail_bar .type_stamp {font-size: 25pt; }
 .webapp_alert_detail_bar .date_stamp {font-size: 25pt; font-style: italic; }
