@@ -162,21 +162,37 @@ class Survivor(Models.UserAsset):
         #
         #   SURVIVOR POST PROCESS! - January 2018
         #
+        post_process_routes = [
+            'set_attribute',
+            'set_weapon_proficiency_type'
+        ]
+        if hasattr(request, 'action') and request.action in post_process_routes:
+            self.post_process()
 
-        # biz logic for weapon proficiency 
-        if self.survivor["weapon_proficiency_type"] is not None:
+        # finally, call the base class method (passing the verb flag through)
+        super(Survivor, self).save(verbose=verbose)
+
+
+    def post_process(self):
+        """ Certain routes require a post-processing past to apply rules, biz
+        logic, etc. """
+
+        self.logger.debug("%s saving during '%s' action! Starting post-process..." % (self, request.action))
+
+        # biz logic for weapon proficiency
+        w_handle = self.survivor.get("weapon_proficiency_type", None)
+        if w_handle is not None:
             w_handle = self.survivor["weapon_proficiency_type"]
             w_dict = self.WeaponProficiency.get_asset(w_handle)
             if self.survivor.get('Weapon Proficiency', 0) >= 3:
                 if w_dict['specialist_ai'] not in self.survivor['abilities_and_impairments']:
-                    self.add_game_asset("abilities_and_impairments", w_dict['specialist_ai'])
+                    self.logger.warn("%s Weapon specialization reached, but A&I not present! Adding A&I..." % (self))
+                    self.add_game_asset("abilities_and_impairments", w_dict['specialist_ai'], save=False)
             if self.survivor.get('Weapon Proficiency', 0) >= 8:
                 if w_dict['master_ai'] not in self.survivor['abilities_and_impairments']:
-                    self.add_game_asset("abilities_and_impairments", w_dict['master_ai'])
+                    self.logger.warn("%s Weapon mastery reached, but A&I not present! Adding A&I..." % (self))
+                    self.add_game_asset("abilities_and_impairments", w_dict['master_ai'], save=False)
 
-
-        # finally, call the base class method (passing the verb flag through)
-        super(Survivor, self).save(verbose=verbose)
 
 
     def remove(self):
@@ -839,11 +855,12 @@ class Survivor(Models.UserAsset):
         That's it! Have fun!
         """
 
-        #   method preprocessing first
-
+        #initialize
         asset_class, asset_dict = self.asset_operation_preprocess(asset_class, asset_handle)
 
+
         # 1.) MAX - check the asset's 'max' attribute:
+        # assets WITHOUT a 'max' DO NOT HAVE A MAX
         if asset_dict.get("max", None) is not None:
             if self.survivor[asset_class].count(asset_dict["handle"]) >= asset_dict["max"]:
                 self.logger.warn("%s max for '%s' (%s) has already been reached! Ignoring..." % (self, asset_dict["handle"], asset_class))
@@ -871,7 +888,7 @@ class Survivor(Models.UserAsset):
 
         # 4.) EPITHETS - check for 'epithet' key
         if asset_dict.get("epithet", None) is not None:
-            self.add_game_asset("epithets", asset_dict["epithet"])
+            self.add_game_asset("epithets", asset_dict["epithet"], save=save)
 
         # 5.) AFFINITIES - some assets add permanent affinities
         if asset_dict.get('affinities', None) is not None:
@@ -881,7 +898,7 @@ class Survivor(Models.UserAsset):
         if apply_related and asset_dict.get("related", None) is not None:
             self.logger.info("Automatically applying %s related asset handles to %s" % (len(asset_dict["related"]), self))
             for related_handle in asset_dict["related"]:
-                self.add_game_asset(asset_class, related_handle, apply_related=False)
+                self.add_game_asset(asset_class, related_handle, apply_related=False, save=save)
 
         # 7.) EXCLUDED - rm any excluded
         for excluded_handle in asset_dict.get('excluded', []):
@@ -894,15 +911,15 @@ class Survivor(Models.UserAsset):
             self.log_event(action="add", key=asset_class, value=asset_dict['name'])
 
 
-        #
-        #   post-processing/special handling starts here
-        #
+        # special handling for weapon mastery
+        if asset_dict.get("sub_type", None) == "weapon_mastery":
 
-        # special handling for certain game asset types
-        if asset_dict.get('type', None) == 'weapon_specialization':
-            self.log_event("%s is a %s specialist!" % (self.pretty_name(), w_dict["name"]))
-        elif asset_dict.get("sub_type", None) == "weapon_mastery":
-            self.log_event("%s has become a %s master!" % (self.pretty_name(), asset_dict["weapon_name"]), event_type="survivor_mastery")
+            self.log_event("%s has mastered the %s!" % (
+                self.pretty_name(),
+                asset_dict["weapon_name"]),
+                event_type="survivor_mastery"
+            )
+
             if asset_dict.get("add_to_innovations", True):
                 self.Settlement.add_innovation(asset_dict["handle"])
 
@@ -2278,7 +2295,7 @@ class Survivor(Models.UserAsset):
         h_dict = W.get_asset(handle)
 
         if self.survivor['weapon_proficiency_type'] == handle:
-            self.logger.warn("%s No change to Weapon Proficiency type. Ignoring..." % self)
+            self.logger.debug("%s No change to Weapon Proficiency type. Ignoring..." % self)
             return True
 
         self.survivor["weapon_proficiency_type"] = handle
@@ -3224,7 +3241,6 @@ class Survivor(Models.UserAsset):
         assets.Survivor.modify() method. """
 
         self.get_request_params()
-
 
         # get methods first
         if action == "get":

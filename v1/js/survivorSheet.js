@@ -159,20 +159,6 @@ app.controller("survivorSheetController", function($scope) {
     };
 
     // generic
-    $scope.incrementAttrib = function(attrib, modifier) {
-        if ($scope.survivor.sheet[attrib] + modifier < 0) {return false};
-        var js_obj = {'attribute': attrib, 'modifier': modifier};
-        $scope.survivor.sheet[attrib] += modifier;
-        if (attrib === 'Weapon Proficiency' && $scope.survivor.sheet[attrib] === 3) {
-            showFullPageLoader();
-            $scope.postJSONtoAPI('survivor', 'update_attribute', js_obj);
-        } else if (attrib === 'Weapon Proficiency' && $scope.survivor.sheet[attrib] === 8) {
-            showFullPageLoader();
-            $scope.postJSONtoAPI('survivor', 'update_attribute', js_obj);
-        } else {
-            $scope.postJSONtoAPI('survivor', 'update_attribute', js_obj, false);
-        };
-    };
     $scope.updateAttrib = function(attrib) {
         var value = $scope.survivor.sheet[attrib];
         if (value === null) {value = 0};

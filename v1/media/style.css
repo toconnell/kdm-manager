@@ -1393,6 +1393,8 @@ div#info_box h2 {margin-top: 0; border: 0 none; font-weight: normal; width: 40%;
 .api_error_modal_msg {margin: 0 auto; padding: 3%; width: 90%; }
 .api_error_debug {font-size: 50%; }
 
+.api_error_output {font-family: monospace; background-color: #DDD; padding: 1%; font-size: 0.8em; white-space: pre-wrap; word-wrap: break-word;}
+
 div.full_page_loading_spinner {position: fixed; left: 0; right:0; top: 0; bottom: 0; background-color: #fff; background: rgba(255,255,255,0.9);  }
 img.full_page_loading_spinner {position: fixed; top: 40%; left: 40%; }
 

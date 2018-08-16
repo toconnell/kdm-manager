@@ -1008,8 +1008,19 @@ app.controller('newSurvivorController', function($scope, $http) {
 
             },
             function(errorPayload) {
-                console.log("Failed to create new Survivor!" + errorPayload);
-                $scope.showHide('newSurvivorCreationLoader')
+                console.timeEnd('createNewSurvivor()');
+                $scope.showHide('newSurvivorCreationLoader');
+
+                errorAlert();
+
+                showHide('newSurvivorCreationFailure');
+                var userSafeError = "status: " + errorPayload.status + "<br/>data: " + errorPayload.data + "<br/>JSON: " + JSON.stringify(errorPayload.config.data);
+                document.getElementById("newSurvivorCreationFailureMessage").innerHTML = userSafeError;
+
+                console.error("Failed to create new Survivor!");
+                console.error(errorPayload);
+
+                showHide('newSurvivorCreationControls')
             }
         );
     };

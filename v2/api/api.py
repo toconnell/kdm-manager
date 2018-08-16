@@ -176,7 +176,7 @@ def get_token(check_pw=True, user_id=False):
 @application.route("/reset_password/<action>", methods=["POST","OPTIONS"])
 @utils.crossdomain(origin=['*'],headers='Content-Type')
 def reset_password(action):
-
+    setattr(request, 'action', action)
     if action == 'request_code':
         return users.initiate_password_reset()
     elif action == 'reset':
@@ -192,6 +192,8 @@ def reset_password(action):
 @application.route("/authorization/<action>", methods=["POST","GET","OPTIONS"])
 @utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization','Access-Control-Allow-Origin'])
 def refresh_auth(action):
+
+    setattr(request, 'action', action)
 
     if not "Authorization" in request.headers:
         return utils.http_401
@@ -218,6 +220,8 @@ def refresh_auth(action):
 def new_asset(asset_type):
     """ Uses the 'Authorization' block of the header and POSTed params to create
     a new settlement. """
+
+    setattr(request, 'action', 'new')
 
     # first, check to see if this is a request to make a new user. If it is, we
     #   don't need to try to pull the user from the token b/c it doesn't exist
@@ -249,7 +253,7 @@ def collection_action(collection, action, asset_id):
 
     # update the request object
     request.collection = collection
-    request.action = action
+    setattr(request, 'action', action)
     request.User = users.token_to_object(request, strict=False)     # temporarily non-strict
 
     asset_object = request_broker.get_user_asset(collection, asset_id)

@@ -462,6 +462,11 @@ expansion = {
         "innovation_type": "music",
         "expansion": "flower_knight",
         "endeavors": ['petal_spiral_trace_petals'],
+        "available_if": [
+            ("Flower Knight Lvl 1","defeated_monsters"),
+            ("Flower Knight Lvl 2","defeated_monsters"),
+            ("Flower Knight Lvl 3","defeated_monsters"),
+        ],
     },
 
     # Lion Knight
@@ -552,6 +557,7 @@ expansion = {
         "expansion": "slenderman",
         "levels": 3,
         "endeavors": ['dark_water_research_0', 'dark_water_research_1'],
+        "departure_buff": "Departing survivors gain +2 insanity.",
     },
 
     # Dragon King

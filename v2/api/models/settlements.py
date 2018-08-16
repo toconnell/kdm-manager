@@ -1064,12 +1064,14 @@ class Settlement(Models.UserAsset):
         if i_dict.get("levels", None) is not None:
             self.settlement["innovation_levels"][i_handle] = 1
 
+        # log here, before checking for 'current_survivor' attrib
+        self.log_event(action="add", key="innovations", value=i_dict['name'], event_type="add_innovation")
+
         # check for 'current_survivor' attrib
         if i_dict.get('current_survivor', None) is not None:
             self.update_all_survivors('increment', i_dict['current_survivor'], exclude_dead=True)
 
-        # log and (optional) save
-        self.log_event(action="add", key="innovations", value=i_dict['name'], event_type="add_innovation")
+        # (optional) save
         if save:
             self.save()
 
