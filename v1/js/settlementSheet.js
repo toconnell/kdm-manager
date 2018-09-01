@@ -89,6 +89,25 @@ app.controller("milestonesController", function($scope) {
     };  
 });
 
+app.controller("strainMilestonesController", function($scope) {
+    $scope.strainMilestonesPresent = function() {
+        var count = 0;
+        var sm = $scope.settlement.game_assets.strain_milestones;
+        for(var prop in sm) {
+            if(sm.hasOwnProperty(prop))
+                ++count;
+        }
+        console.info(count + " Strain Milestones present in campaign game assets!");
+        if (count > 0) {return true};
+        return false;
+    };
+
+    $scope.toggleStrainMilestone = function(handle) {
+        $scope.postJSONtoAPI('settlement', 'toggle_strain_milestone', {handle: handle}, false, true, true);
+    };
+
+});
+
 
 
 app.controller('monsterVolumesController', function($scope) {

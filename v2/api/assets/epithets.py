@@ -99,6 +99,10 @@ mar_2016_expansions = {
     },
     'tyrant': {'expansion': 'dragon_king', 'name': 'Tyrant'},
 
+    # Echoes of DEath
+    'ethereal': {'expansion': 'echoes_of_death', 'name': "Ethereal"},
+    'giants_blood': {'expansion': 'echoes_of_death', 'name': "Giant's Blood"},
+
     # Dung Beetle Knight
     'beetle_brain': {'expansion': 'dung_beetle_knight', 'name': 'Beetle-brain'},
     'beetle_kin': {'expansion': 'dung_beetle_knight', 'name': 'Beetle-kin'},

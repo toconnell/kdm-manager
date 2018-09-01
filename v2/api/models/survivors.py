@@ -978,6 +978,12 @@ class Survivor(Models.UserAsset):
                 if A.get_asset(k).get('sub_type', None) == 'secret_fighting_art':
                     del available[k]
 
+            # filter out 'strain' fighting arts that we haven't unlocked
+            for k in available.keys():
+                if A.get_asset(k).get('strain_milestone', None) != None:
+                    if A.get_asset(k)['strain_milestone'] not in self.Settlement.settlement['strain_milestones']:
+                        del available[k]
+
             asset_handle = random.choice(available.keys())
             self.logger.info("%s selected '%s' asset handle at random." % (self, asset_handle))
 

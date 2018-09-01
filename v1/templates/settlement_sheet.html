@@ -639,7 +639,10 @@
 
 
 
-    <div id="asset_management_right_pane" ng-if="settlement != undefined">
+    <div
+        id="asset_management_right_pane"
+        ng-if="settlement != undefined"
+    >
 
         <a id="edit_principles" class="mobile_only"></a>
 
@@ -707,8 +710,6 @@
 
                        <!-- MILESTONES -->
 
-        <a id="edit_milestones" class="mobile_only"/></a>
-
         <div class="settlement_sheet_block_group" ng-controller="milestonesController">
             <h2>Milestone Story Events</h2>
             <p>Trigger these story events when milestone condition is met.</p>
@@ -736,6 +737,82 @@
             </div> <!-- milestone div -->
 
         </div> <!-- block_group for milestones -->
+
+
+                    <!-- STRAIN MILESTONES -->
+        <span
+            class="hidden"
+            ng-if="settlement != undefined"
+            ng-controller="strainMilestonesController"
+            ng-init="scratch.show_strain_milestone_controls = strainMilestonesPresent()"
+        >HACK CITY!!!</span>
+
+        <div
+            class="border_box"
+            ng-controller="strainMilestonesController"
+            ng-if="scratch.show_strain_milestone_controls"
+        >
+            <div
+                class="settlement_sheet_kd_sheet_ui_box"
+                title="Strain Milestones controller for {{settlement.sheet.name}}. Tap or click to toggle!"
+            >
+                <div class="kd_sheet_ui_row title">
+                     Strain Milestones
+                </div>
+                <div class="kd_sheet_ui_row">
+                    During the Check Milestones step of the Settlement Phase, check the Milestone Strain cards first.
+                </div>
+
+                <div
+                    class="strain_milestone_toggle_box clickable"
+                    ng-repeat="m in settlement.game_assets.strain_milestones"
+                    ng-click="toggleStrainMilestone(m.handle)"
+                    ng-class="{active: settlement.sheet.strain_milestones.includes(m.handle)}"
+                >
+                    <span
+                        class="kd_sheet_ui_box"
+                        ng-class="{
+                            checked: settlement.sheet.strain_milestones.indexOf(m.handle) != -1
+                        }"
+                    ></span>
+
+                    <b>{{m.name}}</b> 
+                    <div
+                        class="strain_milestone_condition"
+                        ng-bind-html="m.milestone_condition|trustedHTML">
+                    </div>
+
+                    <div
+                        class="strain_milestone_fighting_arts"
+                    >
+                        <span
+                            ng-repeat="fa in settlement.game_assets.strain_milestones[m.handle].fighting_arts"
+                            ng-class="{
+                                faded: settlement.sheet.strain_milestones.indexOf(m.handle) == -1,
+                                unlocked_strain_fa: settlement.sheet.strain_milestones.indexOf(m.handle) != -1
+                            }"
+                        >
+                            <span
+                                ng-if="settlement.sheet.strain_milestones.indexOf(m.handle) == -1"
+                            >
+                                &#x1F512;
+                            </span>
+                            <span
+                                ng-if="settlement.sheet.strain_milestones.indexOf(m.handle) != -1"
+                            >
+                                &#x1F513; 
+                            </span>
+                            <b>{{settlement.game_assets.fighting_arts[fa].name}}</b> fighting art
+                        </span>
+                    </div>
+
+                </div> <!-- milestone div -->
+
+            </div> <!-- settlement_sheet_kd_sheet_ui_box -->
+
+        </div> <!-- border_box for milestones -->
+
+        <!-- /end strain -->
 
 
     <div

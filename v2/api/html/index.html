@@ -1596,6 +1596,17 @@
             to two; negative numbers will default to zero. </p>
             </td>
         </tr>
+        <tr class="ul">
+            <td> /settlement/toggle_strain_milestone/&lt;settlement_id&gt; </td>
+            <td> <b>POST</b> </td>
+            <td>
+                <p>You may <b>POST</b> some JSON containing the key <code>handle</code>
+                and the value of a strain milestone handle to toggle that strain
+                milestone on or off for the settlement:</p>
+                <code>{"handle": "ethereal_culture_strain"}</code>
+                <p>The API will fail if unknown <code>handle</code> values are <b>POST</b>ed.</p>
+            </td>
+        </tr>
 
 
         <!-- meta updates, e.g. logs, notes, etc. -->

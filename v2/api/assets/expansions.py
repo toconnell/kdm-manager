@@ -2,6 +2,7 @@
 
 from datetime import datetime
 
+
 promo_and_misc = {
     "beta_challenge_scenarios": {
         "released": datetime(2016,2,1),
@@ -55,6 +56,19 @@ promo_and_misc = {
         'basic_hunt_event': ['baby_and_the_sword'],
         'help': [
             {'type': 'store', 'tip': 'Though she ships in a White Box, Fade is expansion content, <a href="https://shop.kingdomdeath.com/products/fade-2" target="top">according to the Kingdom Death store</a>. For this reason, Fade is separate from other White Box content in the Manager.'},
+        ],
+    },
+    "echoes_of_death": {
+        "released": datetime(2018,7,1), # Gencon 2018
+        "name": "Echoes of Death",
+        "ui": {"pretty_category": "Enhancement"},
+        "flair": {
+            "color": "333",
+            "bgcolor": "fafafa",
+        },
+        'strain_milestones': ['giants_strain','ethereal_culture_strain','trepanning_strain','opportunist_strain'],
+        'help': [
+            {'type': 'ui', 'tip': "Strain Fighting Arts are <i>always</i> available in the Survivor Sheet drop-down, even if they have not yet been unlocked using Settlement Sheet controls.<br/> &nbsp; Selecting the '* Random Fighting Art' option from the drop-down will pick a random Fighting Art from a list that <i>does not</i> include Strain Fighting Arts that have not yet been unlocked on the Settlement Sheet."},
         ],
     },
 }

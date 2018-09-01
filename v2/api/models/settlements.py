@@ -13,7 +13,7 @@ import time
 
 import Models
 import assets
-from models import survivors, campaigns, cursed_items, disorders, gear, endeavors, epithets, expansions, fighting_arts, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events, locations, causes_of_death, names, resources, storage, survivor_special_attributes, weapon_proficiency, survivor_color_schemes
+from models import survivors, campaigns, cursed_items, disorders, gear, endeavors, epithets, expansions, fighting_arts, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events, locations, causes_of_death, names, resources, storage, survivor_special_attributes, weapon_proficiency, survivor_color_schemes, strain_milestones
 import settings
 import utils
 
@@ -121,6 +121,7 @@ class Settlement(Models.UserAsset):
         self.Survivors = survivors.Assets()
         self.SurvivorColorSchemes = survivor_color_schemes.Assets()
         self.WeaponMasteries = weapon_masteries.Assets()
+        self.StrainMilestones = strain_milestones.Assets()
 
 
     def new(self):
@@ -184,6 +185,7 @@ class Settlement(Models.UserAsset):
             "principles":               [],
             "storage":                  [],
             "custom_epithets":          [],
+            "strain_milestones":        [],
         }
 
 
@@ -429,6 +431,7 @@ class Settlement(Models.UserAsset):
             output["game_assets"].update(self.get_available_assets(fighting_arts))
             output["game_assets"].update(self.get_available_assets(disorders))
             output['game_assets'].update(self.get_available_assets(endeavors))
+            output['game_assets'].update(self.get_available_assets(strain_milestones))
 
             # options (i.e. decks)
             output["game_assets"]["pulse_discoveries"] = self.get_pulse_discoveries()
@@ -2004,6 +2007,31 @@ class Settlement(Models.UserAsset):
 
 
 
+    def toggle_strain_milestone(self):
+        """ toggles a strain milestone on or off, i.e. adds/rms it from the list. """
+
+        # get the handle or die
+        self.check_request_params(['handle'])
+        handle = self.params['handle']
+
+        # find the asset or die
+        strain_milestone_asset = self.StrainMilestones.get_asset(handle)
+        if strain_milestone_asset is None:
+            raise utils.InvalidUsage("'%s' is not a valid Strain Milestone handle!" % handle)
+
+        # now do the toggle
+        action = 'add'
+        if handle not in self.settlement['strain_milestones']:
+            self.settlement['strain_milestones'].append(handle)
+        else:
+            self.settlement['strain_milestones'].remove(handle)
+            action = 'rm'
+
+        self.logger.debug(self.settlement['strain_milestones'])
+        self.log_event(action=action, key="Strain Milestones", value=strain_milestone_asset['name'])
+        self.save()
+
+
 
 
 
@@ -3401,7 +3429,7 @@ class Settlement(Models.UserAsset):
             self.perform_save = True
 
         # data model - required lists
-        for req_list in ['nemesis_monsters','quarries']:
+        for req_list in ['nemesis_monsters','quarries','strain_milestones']:
             if not req_list in self.settlement.keys():
                 self.settlement[req_list] = []
                 self.perform_save = True
@@ -4070,6 +4098,9 @@ class Settlement(Models.UserAsset):
         elif action == 'set_lantern_research_level':
             self.set_lantern_research_level()
 
+
+        elif action == 'toggle_strain_milestone':
+            self.toggle_strain_milestone()
 
         elif action == 'abandon':
             self.set_abandoned()

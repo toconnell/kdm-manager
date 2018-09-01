@@ -130,6 +130,35 @@ fighting_art = {
     },
 
 
+    # echoes of death
+    'backstabber': {
+        'name': 'Backstabber',
+        'expansion': 'echoes_of_death',
+        'strain_milestone': 'opportunists_strain',
+        'desc': "On a <b>Perfect Hit</b> with a dagger, your first wound attempt in that attack gains <b>Devastating 1</b>.<br/>When you attack a monster with a dagger from its blind spot, if you have the <b>Hoarder</b> or <b>Secretive</b> disorder, increase the range of your <b>Perfect hits<b> by 1.",
+    },
+    'ethereal_pact': {
+        'name': 'Ethereal Pact',
+        'expansion': 'echoes_of_death',
+        'strain_milestone': 'ethereal_culture_strain',
+        'desc': """Add +3 to your brain trauma rolls.<br/>When you suffer the <b>Impossible!</b> brain trauma, the fungus in your head connects to the dreaming. <font class="kdm_font">g</font> <b>Birth of a Savior</b> and choose a dream. (If you've already reached Age 2, you cannot gain your dream's secret fighting art.)<br/>If you are a Savior, this Fighting Art has no effect.""",
+        'epithet': 'ethereal',
+    },
+    'giants_blood': {
+        'name': "Giant's Blood",
+        'expansion': 'echoes_of_death',
+        'strain_milestone': 'giants_strain',
+        'desc': 'You overproduce growth hormones! When you gain this fighting art, gain +1 strength, -1 evasion permanently.<br>You may <b>consume</b> skulls. If you do, gain the <b>Marrow Hunger</b> impairment.',
+        'epithet': 'giants_blood',
+    },
+    'infinite_lives': {
+        'name': 'Invinite Lives',
+        'expansion': 'echoes_of_death',
+        'strain_milestone': 'trepanning_strain',
+        'desc': """You can't create new memories.<br/>You cannot gain new fighting arts or disorders. When you would gain one, instead gain a new lifetime! Give yourself a new name and a once per lifetime reroll. (Gain +1 survival for naming. Gain the reroll regardless of principle. Only 1 once per lifetime reroll at a time.)""",
+    },
+
+
     # flower knight
     'otherworldly_luck': {
         'desc': 'During the Hunt and Settlement phase, whenever you roll on a table, you may add +1 to the roll result. This may not exceed the highest possible result of that table.<br/>(This includes Hunt Events, Story Events, Endeavors, Settlement Events, etc.)',

@@ -945,6 +945,14 @@ span.location_lvl_select {position: absolute; right: 10%; }
 div.line_item span.location_lvl_select select.location_level {display: inline-block; border: 0;  width: auto;}
 
     /* settlement sheet general controls - mobile */
+
+
+    /* strain system */
+.strain_milestone_toggle_box {border-radius: 0.15em; padding: 0.5%; margin-bottom: 3%; transition: 1s; }
+.strain_milestone_toggle_box.active {transition: 1s;}
+.strain_milestone_condition {font-size: 0.8em; margin: 1%; font-family: "Metrophobic"; }
+.strain_milestone_fighting_arts {font-size: 0.7em; padding-left: 1%; font-family: "Metrophobic"; transition: 1s;}
+.unlocked_strain_fa {padding-left: 5%; transition: 2s;}
 .settlement_sheet_line_item {margin-top: 5%; margin-bottom: 2%; font-size: 45pt; border-bottom: 0.1em solid #999; }
 
     /* nemesis controls - mobile */
@@ -1310,7 +1318,7 @@ p, .left_margin {margin-left: 20px; }
 /* generic UI/UX facilitation styles */
 .hidden {display: none;}
 .visible {display: inherit !important; }
-.faded {opacity: 0.3; transition: 4s; }
+.faded {opacity: 0.3; transition: 3s; }
 
 
 /* button styles */
@@ -2216,7 +2224,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
         /* principles app - tablet */
     div.settlement_sheet_principle_container label {font-size: 23px; margin: 0; width: 400px; justify-content: flex-start; }
     div.settlement_sheet_principle_name {font-size: 25px; margin: auto; width: 400px; text-align: left; }
-    div.unset_principle_container {margin:0; margin-left: 4%; margin-top: -15%; }
+    div.unset_principle_container {margin:0; margin-left: 4%; }
 
     input.settlement_name {font-size: 70px; width: 800px; text-align: left; margin: 0; margin-left: 25px; padding-top: 90px;}
     h1.alert {font-size: 35pt; }/* used by ABANDONED */

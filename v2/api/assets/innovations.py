@@ -232,7 +232,7 @@ innovation = {
         "innovation_type": "music",
         "consequences": ["saga"],
 #        "survivor_buff": "All non-deaf survivors add +1 to their roll results on the Overwhelming Darkness story event.",
-        "survivor_buff": "The survivors life their voices into the darkness. On <b>arrival</b>, each non-deaf survivor may remove 1 negative attribute token.<br/>During the <b>Overwhelming Darkness</b> story event, each non-deaf survivor may select the Path fo the Brave.",
+        "survivor_buff": "The survivors lift their voices into the darkness. On <b>arrival</b>, each non-deaf survivor may remove 1 negative attribute token.<br/>During the <b>Overwhelming Darkness</b> story event, each non-deaf survivor may select the Path of the Brave.",
     },
     "saga": {
         "name": "Saga",

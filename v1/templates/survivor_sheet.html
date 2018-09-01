@@ -1547,7 +1547,9 @@
                             {{FA.name}}
                         </b>
 
-                        <p class="survivor_sheet_card_subhead">- {{FA.sub_type_pretty}} -</p>
+                        <p class="survivor_sheet_card_subhead">
+                            - {{FA.sub_type_pretty}}<span ng-if="FA.strain_milestone != undefined">, strain</span> -
+                        </p>
                         <p class="survivor_sheet_fighting_art_color_span {{FA.sub_type}}_gradient"> </p>
                         <div
                             class="survivor_sheet_card_text"
