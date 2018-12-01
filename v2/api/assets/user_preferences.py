@@ -6,6 +6,14 @@ preferences_dict = {
         "negative": "Disable",
         "patron_level": 2,
     },
+    "night_mode": {
+        "type": "General",
+        "desc": "<b>&beta;</b> UI Color Theme:",
+        "affirmative": "Dead Guardian (high contrast)",
+        "negative": "Glowing Center (default)",
+        "patron_level": 666,
+        'beta': True,
+    },
     "preserve_sessions": {
         "type": "General",
         "desc": "Preserve Sessions?",
@@ -58,8 +66,8 @@ preferences_dict = {
     "show_remove_button": {
         "type": "General",
         "desc": "Show controls for removing Settlements and Survivors?",
-        "affirmative": "Show controls on Settlement and Survivor Sheets",
-        "negative": "Hide controls on Settlement and Survivor Sheets",
+        "affirmative": "Show the Delete button",
+        "negative": "Hide the Delete button",
         "patron_level": 0,
     },
     "show_ui_tips": {

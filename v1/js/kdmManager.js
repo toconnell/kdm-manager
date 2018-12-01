@@ -524,6 +524,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
             $scope.survivorPromise.then(
                 function(payload) {
                     $scope.survivor = payload.data;
+//                    console.warn($scope.survivor);
                     $scope.survivorBaseName = $scope.survivor.sheet.name;
 //                    console.warn("Base name is: " + $scope.survivorBaseName);
                     hideFullPageLoader();

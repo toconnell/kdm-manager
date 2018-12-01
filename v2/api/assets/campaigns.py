@@ -143,6 +143,9 @@ core_campaign = {
             "nemesis_monsters": ["butcher"],
             "nemesis_encounters": {'butcher': []},
         },
+        'help': [
+            {'type': 'timeline', 'tip': "While you may always add the <b>Gold Smoke Knight</b> to your settlement's timeline, you must add the <b>Watcher</b> to your settlement's Nemesis Monsters list before you may add an encounter with it to your timeline."},
+        ],
     },
     "people_of_the_skull": {
         "name": "People of the Skull",
@@ -170,7 +173,7 @@ core_campaign = {
         "endeavors": ['potskull_skull_ritual'],
         "principles": ["new_life","death","society","conviction"],
         "milestones": ["first_child","first_death","pop_15","innovations_5","game_over"],
-        "nemesis_monsters": ["butcher","kings_man","the_hand"],
+        "nemesis_monsters": ["butcher","kings_man","the_hand","watcher"],
         "special_showdowns": ["kings_man",'the_hand'],
         'final_boss': 'gold_smoke_knight',
         "survivor_attribute_milestones": _default_survivor_attribute_milestones,

@@ -70,6 +70,12 @@ ability = {
         'inheritable': True,
         'max': 1,
     },
+    'dead_inside': {
+        'name': 'Dead Inside',
+        'desc': 'You cannot gain survival.',
+        'type': 'impairment',
+        "cannot_gain_survival": True,
+    },
     'dormenatus': {
 #        'desc': 'When you <b>depart</b>, gain +1 to every hit location for each <font class="affinity_green"> &nbsp; green &nbsp;</font> affinity you have.',
         'desc': """When you suffer damage, you may declare 'Dormenatus X' in a loud, booming voice. If you do, gain <font class="inline_shield">x</font> to each hit location. X cannot be more than your total green affinities. After the damage is resolved, gain +X hunt XP.<br/>When you trigger Age 2, gain the <b>Grace of Dormenatus</b> secret fighting art.""",

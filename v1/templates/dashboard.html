@@ -52,8 +52,7 @@
             ng-init="scratch.user_preference_arrow = false"
         >
             <span>
-                <img class="dashboard_icon" src="/media/icons/system.png"/>
-                System
+                &#9881;  System
             </span>
             <span class="dashboard_rollup_arrow" ng-if="scratch.user_preference_arrow == true">
                 &#x25B2;
@@ -65,43 +64,47 @@
 
         <div id="system_div" class="dashboard_accordion system_secondary hidden">
 
-            <h3 class="system_preference_user_login"> {{user.user.login }} </h3>
-            <div class="preferences_sub_block preferences_sign_out">
-                <form method="POST" action="/">
-                    <input type="hidden" name="remove_session" value="{{user.user.current_session.$oid}}"/>
-                    <input type="hidden" name="login" value="{{user.user.login}}"/>
-                    <button>SIGN OUT</button>
-                </form>
-            </div>
-            <div class="dashboard_preferences_container user_info">
-                <p>Registered user for {{user.user.age}}.</p>
-                <p ng-if="user.user.subscriber.level < 1">
-                    <a href="https://thelaborinvain-2.myshopify.com/" target="top">
-                        Support the Manager! Buy a lifetime subscription for $1!
-                    </a>
-                </p>
-                <p ng-if="user.user.subscriber.level > 0">Subscription level: <b>{{user.user.subscriber.desc}}.</b>
-                <p ng-if="user.user.subscriber.level > 0">Subscriber for <b>{{user.user.subscriber.age}}.</b>
-                <p ng-if="user.user.subscriber.beta == true" class="maroon_text">
-                    Beta warning!
-                </p>
-                <div class="preferences_sub_block preferences_change_pw">
-                <p><b>Change Password!</b></p>
-                    <input
-                        type="password"
-                        ng-model="scratch.password"
-                        placeholder="new password"
-                        ng-focus="scratch.saved_password = undefined"/><br/>
-                    <input type="password" ng-model="scratch.password_again" placeholder="new password (again)"><br/>
-                    <button
-                        ng-click="updatePassword()"
-                        class="kd_alert_no_exclaim change_pw"
-                        ng-if="scratch.password != undefined && scratch.password == scratch.password_again"
-                    >
-                        Change Password
-                    </button>
-                    <p ng-if="scratch.saved_password">Password updated! <b>Signing out...</b></p>
+            <div class="dashboard_preference_block_container">
+                <h3 class="system_preference_user_login"> {{user.user.login }} </h3>
+                <div class="preferences_sub_block preferences_sign_out">
+                    <form method="POST" action="/">
+                        <input type="hidden" name="remove_session" value="{{user.user.current_session.$oid}}"/>
+                        <input type="hidden" name="login" value="{{user.user.login}}"/>
+                        <button>SIGN OUT</button>
+                    </form>
                 </div>
+                <div class="dashboard_preferences_container user_info">
+                    <p>Registered user for {{user.user.age}}.</p>
+                    <p ng-if="user.user.subscriber.level < 1">
+                        <a href="https://thelaborinvain-2.myshopify.com/" target="top">
+                            Support the Manager! Buy a lifetime subscription for $1!
+                        </a>
+                    </p>
+                    <p ng-if="user.user.subscriber.level > 0">Subscription level: <b>{{user.user.subscriber.desc}}.</b>
+                    <p ng-if="user.user.subscriber.level > 0">Subscriber for <b>{{user.user.subscriber.age}}.</b>
+                    <p ng-if="user.user.preferences.beta === true" class="maroon_text">
+                        <b>Beta features of the Manager have been enabled!</b> 
+                    </p>
+
+                    <div class="preferences_sub_block preferences_change_pw">
+                        <p><b>Change Password!</b></p>
+                        <input
+                            type="password"
+                            ng-model="scratch.password"
+                            placeholder="new password"
+                            ng-focus="scratch.saved_password = undefined"/><br/>
+                        <input type="password" ng-model="scratch.password_again" placeholder="new password (again)"><br/>
+                        <button
+                            ng-click="updatePassword()"
+                            class="kd_alert_no_exclaim change_pw"
+                            ng-if="scratch.password != undefined && scratch.password == scratch.password_again"
+                        >
+                            Change Password
+                        </button>
+                        <p ng-if="scratch.saved_password">Password updated! <b>Signing out...</b></p>
+                    </div> <!-- preferences_sub_block preferences_change_pw -->
+                </div> <!-- dashboard_preferences_container user_info -->
+            </div> <!-- dashboard_preferences_block_container -->
 
             <h3> Manage Preferences</h3>
             <div class="dashboard_preferences_container">
@@ -112,12 +115,16 @@
                     <h2>{{group.name}}</h2>
 
                     <div
-                        class="dashboard_preference"
+                        class="ng_fade dashboard_preference"
                         ng-repeat="pref in group.items"
-                        ng-if="user.user.subscriber.level >= pref.patron_level"
+                        ng-if="user.user.subscriber.level >= pref.patron_level ||
+                            pref.beta == user.user.preferences.beta
+                        "
                     >
                         <p class="dashboard_preference_description" ng-bind-html="pref.desc|trustedHTML"></p>
-                        <div class="dashboard_preference_elections_container">
+                        <div 
+                            class="dashboard_preference_elections_container"
+                        >
                             <input
                                 id="{{pref.handle}}_affirmative"
                                 class="kd_css_checkbox kd_radio_option"
@@ -221,8 +228,7 @@
             ng-init="scratch.campaigns_arrow = true"
         >
             <span>
-                <img class="dashboard_icon" src="/media/icons/campaign.png"/>
-                Campaigns
+                &#9873; Campaigns
             </span>
             <span class="dashboard_rollup_arrow" ng-if="scratch.campaigns_arrow == true">
                 &#x25B2;
@@ -245,6 +251,10 @@
                     Purchase a lifetime subscription to the Manager</a>
                 to store your campaigns permanently!
             </p> <!-- subscribers alert -->
+
+            <p ng-if="user.user.subscriber.level < 1 && user.user.settlements_created === 3" class="maroon_text">
+                <b>Non-subscriber settlement limit reached!</b>
+            </p>
 
             <div class="dashboard_button_list">
 
@@ -297,8 +307,7 @@
             ng-init="scratch.settlements_arrow = false"
         >
             <span>
-               <img class="dashboard_icon" src="/media/icons/settlement.png"/>
-                Settlements
+                &#9874; Settlements
             </span>
             <span class="dashboard_rollup_arrow" ng-if="scratch.settlements_arrow == true">
                 &#x25B2;
@@ -321,6 +330,15 @@
                     purchase a lifetime subscription to the Manager</a>
                 to create an unlimited number of settlements!
             </p> <!-- subscribers alert -->
+
+            <!-- warning for free users re: settlement max -->
+            <p ng-if="user.user.subscriber.level < 1 && user.user.settlements_created === 3">
+                To create additional settlements, use the link above to become a subscriber to the Manager. Alternately, you may wish to remove one of your existing settlements. To do this, click on "System" above and enable the controls for removing settlements. Then, use the "Remove" button on the Settlement Sheet to remove one of your existing settlements.
+            </p>
+            <p ng-if="user.user.subscriber.level < 1 && user.user.settlements_created === 3">
+                <b>Important!</b> Abandoned settlements are not considered to have been <i>removed</i> and count towards your total number of settlements!
+            </p>
+
 
             <!-- create new settlement --> 
             <form

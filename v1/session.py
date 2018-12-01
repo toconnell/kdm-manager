@@ -532,15 +532,19 @@ class Session:
             output += html.get_template('dashboard')
 
         elif self.current_view == "new_settlement":
+            body = 'create_new_settlement'
             output += html.get_template('new_settlement.html')
 
         elif self.current_view == "view_campaign":
+            body = 'view_campaign_summary'
             output += html.get_template('campaign_summary')
 
         elif self.current_view == "view_settlement":
+            body = 'view_settlement_sheet'
             output += html.get_template('settlement_sheet')
 
         elif self.current_view == "view_survivor":
+            body = 'view_survivor_sheet'
             output += html.get_template('survivor_sheet')
 
         else:

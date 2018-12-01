@@ -299,7 +299,7 @@ collection = {
             "color": "FFF",
             "bgcolor": "000",
         },
-        "subtitle": "Enable this to include the Fighting Arts and Disorders from the expansions in your KD Collection in this campaign.",
+        "subtitle": "Check this box to include the Fighting Arts and Disorders from the expansions in your KD Collection in this campaign.",
     },
     "kd_collection_settlement_events": {
         "type": 'pseudo',
@@ -310,6 +310,6 @@ collection = {
             "color": "FFF",
             "bgcolor": "000",
         },
-        "subtitle": "Enable this to include the Settlement Events from the expansions in your KD Collection in this campaign.",
+        "subtitle": "Check this box to include the Settlement Events from the expansions in your KD Collection in this campaign.",
     },
 }

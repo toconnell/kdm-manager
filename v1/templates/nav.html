@@ -14,7 +14,7 @@
 >
     <button
         id="floating_refresh_button"
-        class="touch_me"
+        class="touch_me floating_top_nav_button"
         onclick="showFullPageLoader()"
     >
         &#8634;
@@ -149,6 +149,7 @@
         id="huntPhaseOpenerButton"
         class="sidenav_button sidenav_modal_launcher hidden"
         ng-click="showHide('huntPhaseModal')"
+        ng-if="view != 'newSettlement'"
         onclick="closeNav()"
     >
         &beta; Hunt Phase

@@ -238,6 +238,8 @@ def action_keyword(kw):
     kw = kw.lower()
     if kw in ['add','added','adds','adding']:                   # add
         output = ("added", "to")
+    elif kw in ['dec','decrease','subtract','subtracts','decreases']:                   # add
+        output = ("subtracted", "from")
     elif kw in ["rm",'removed','remove','removes','removing']:                  # remove
         output = ("removed", "from")
     elif kw in ["set", "update"]:

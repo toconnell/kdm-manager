@@ -1469,12 +1469,14 @@ class Survivor(Models.UserAsset):
             self.check_request_params(["modifier"])
             modifier = int(self.params["modifier"])
 
-        self.survivor["survival"] += modifier
-        self.log_event(action="add", key="Survival", value=modifier)
+        return self.set_survival(value = self.survivor['survival'] + modifier, save=save)
 
-        self.apply_survival_limit()
-        if save:
-            self.save()
+#        self.survivor["survival"] = new_survival
+#        self.log_event(action="add", key="Survival", value=modifier)
+
+#        self.apply_survival_limit()
+#        if save:
+#            self.save()
 
 
 
@@ -2264,7 +2266,7 @@ class Survivor(Models.UserAsset):
         self.save()
 
 
-    def set_survival(self, value=None):
+    def set_survival(self, value=None, save=True):
         """ Sets survivor["survival"] to 'value'. Respects settlement rules
         about whether to enforce the Survival Limit. Will not go below zero. """
 
@@ -2274,13 +2276,43 @@ class Survivor(Models.UserAsset):
 
         if value is None:
             value = 0
-        else:
-            value = int(self.params["value"])
+        value = int(value)
 
+        # bail if no change
+        if value == self.survivor['survival']:
+            return True
+
+        # analyze the change; enforce certain attributes
+        orig_survival = copy(self.survivor['survival'])
+
+        operation = 'set'
+        if value > orig_survival:
+            operation = 'add'
+        elif value < orig_survival:
+            operation = 'decrease'
+
+        if operation == 'add' and not self.can_gain_survival():
+            self.log_event("%s cannot gain survival! Ignoring attempt to increase it..." % self.survivor['name'])
+            return False
+
+        # make the change; call apply_survival_limit()
         self.survivor["survival"] = value
         self.apply_survival_limit()
-        self.log_event("%s set %s survival to %s" % (request.User.login, self.pretty_name(), self.survivor["survival"]))
-        self.save()
+
+        # finally, if check to see if any change actually occured:
+        if self.survivor["survival"] == orig_survival:
+            return True
+
+        # log it
+        if operation == 'add':
+            self.log_event(action='add', key="Survival", value=self.survivor['survival'] - orig_survival)
+        elif operation == 'decrease':
+            self.log_event(action='dec', key="Survival", value=orig_survival - self.survivor['survival'])
+        else:
+            self.log_event(action='set', key="Survival", value=self.survivor['survival'])
+
+        if save:
+            self.save()
 
 
     def set_weapon_proficiency_type(self, handle=None):

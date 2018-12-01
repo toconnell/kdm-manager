@@ -49,7 +49,7 @@ class meta:
         <h2>Traceback:</h2>
         $exception\n""" % (basic_http_header, settings.get("application","title"), datetime.now()))
 
-    start_head = Template("""<!DOCTYPE html>\n<html>
+    start_head = Template("""<!DOCTYPE html>\n<html ng-app="kdmManager" ng-controller="rootController">
     <head>
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
         <meta name="theme-color" content="#000000">
@@ -61,6 +61,7 @@ class meta:
         <link rel="stylesheet" type="text/css" href="/media/hunt_phase.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/media/help-tip.css">
         <link rel="stylesheet" type="text/css" href="/media/z-index.css?v=$version">
+        <link ng-if="user.user === undefined || user.user.preferences.night_mode === true" rel="stylesheet" type="text/css" href="/media/night_mode.css?v=$version">
     """).safe_substitute(
         title = settings.get("application","title"),
         version = settings.get('application', 'version'),
@@ -208,7 +209,7 @@ def render(view_html, head=[], http_headers=None, body_class=None):
     #
 
     # 1. open the body
-    output += '\n<body class="%s" ng-app="kdmManager" ng-controller="rootController">\n' % body_class
+    output += '\n<body class="%s">\n' % body_class
 
     # 2. append generic body HTML -> all views except login
     output += meta.saved_dialog

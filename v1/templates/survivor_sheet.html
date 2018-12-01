@@ -222,6 +222,7 @@
                 </div>
                 <div class="kd_sheet_ui_number_tumbler">
                     <button
+                        ng-disabled="survivor.sheet.can_gain_survival === false"
                         ng-click="
                             survivor.sheet.survival = survivor.sheet.survival + 1
                         "

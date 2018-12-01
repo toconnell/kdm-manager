@@ -384,7 +384,10 @@
                                                         </div>
 
                                                         <div class="kd_sheet_ui_number_tumbler">
-                                                            <button ng-click="s.sheet.survival = s.sheet.survival + 1">
+                                                            <button 
+                                                                ng-disabled="s.sheet.can_gain_survival === false"
+                                                                ng-click="s.sheet.survival = s.sheet.survival + 1"
+                                                            >
                                                                 &#x25B2;
                                                             </button>
                                                             <button ng-click="s.sheet.survival = s.sheet.survival - 1">

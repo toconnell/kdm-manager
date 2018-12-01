@@ -386,6 +386,7 @@ core = {
     'forsaker':                             {'name': 'Forsaker'},
     'founder': {
         'name': 'Founder',
+        'color': '333',
         'bgcolor': 'FFC107',
         'bordercolor': 'FFC107',
     },

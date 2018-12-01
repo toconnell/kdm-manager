@@ -302,9 +302,15 @@
                     class="gear_card_recipe"
                     ng-repeat="recipe in gear.recipes"
                 >
-                    <div class="gear_card_recipe_title"> <b>{{gear.name}}</b> recipe No. {{$index + 1}}</div>
-                    <b>Cost:</b>
-                    <span ng-repeat="(handle, quantity) in recipe.resource_handles">{{quantity}}x {{settlement.game_assets.resources[handle].name}}{{$last ? '' : ', '}}</span><span ng-if="recipe.resource_handles != undefined && recipe.resource_types != undefined">, </span><span ng-repeat="(handle, quantity) in recipe.resource_types" class="capitalize">{{quantity}}x {{handle}}{{$last ? '' : ', '}}</span><span ng-if="recipe.resource_handles != undefined && recipe.gear_handles != undefined">, </span><span ng-if="recipe.resource_handles == undefined && recipe.resource_types != undefined && recipe.gear_handles != undefined">, </span><span ng-repeat="(handle, quantity) in recipe.gear_handles">{{quantity}}x {{settlement.game_assets.gear[handle].name}}{{$last ? '' : ', '}}</span>.
+                    <div class="gear_card_recipe_title">
+                        <b>{{gear.name}}</b> recipe No. {{$index + 1}}
+                    </div>
+
+                    <div ng-if="recipe.prefix_text != undefined">
+                        <span ng-bind-html="recipe.prefix_text|trustedHTML"></span>
+                    </div>
+
+                    <span ng-repeat="(handle, quantity) in recipe.resource_handles">{{quantity}}x {{settlement.game_assets.resources[handle].name}}{{$last ? '' : ', '}}</span><span ng-if="recipe.resource_handles != undefined && recipe.resource_types != undefined">, </span><span ng-repeat="(handle, quantity) in recipe.resource_types" class="capitalize">{{quantity}}x {{handle}}{{$last ? '' : ', '}}</span><span ng-if="recipe.resource_handles != undefined && recipe.gear_handles != undefined">, </span><span ng-if="recipe.resource_handles == undefined && recipe.resource_types != undefined && recipe.gear_handles != undefined">, </span><span ng-repeat="(handle, quantity) in recipe.gear_handles">{{quantity}}x {{settlement.game_assets.gear[handle].name}}{{$last ? '' : ', '}}</span><span ng-if="recipe.resource_handles !== undefined || recipe.resource_types !== undefined || recipe.gear_handles !== undefined">.</span>
 
                     <div ng-if="recipe.locations != undefined">
                         <b>Location requirements:</b>
@@ -318,13 +324,16 @@
                             {{settlement.game_assets.innovations[handle].name}}{{$last ? '.' : ', '}}
                         </span>
                     </div>
+
                     <div ng-if="recipe.misc != undefined">
                         <b>Requirements:</b> <span ng-bind-html="recipe.misc|trustedHTML"></span>
                     </div>
-                    
-                </div>
 
-            </div>
+                    <div ng-if="recipe.suffix_text != undefined">
+                        <span ng-bind-html="recipe.suffix_text|trustedHTML"></span>
+                    </div>
+                </div>
+                </div>
             </div><!-- gear repeater container -->
 
             <button ng-click="showHide('gearLookupModal')">
