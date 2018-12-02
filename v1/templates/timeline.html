@@ -28,6 +28,9 @@
                     class="timeline_row_container"
                     ng-repeat="ly in settlement.sheet.timeline"
                     ng-init="modalControlID = 'ly' + ly.year + 'Controls'"
+                    ng-class="{
+                        current_ly_container_row: ly.year == settlement.sheet.lantern_year,
+                    }"
                 >
                     <div 
                         title="Tap or click here to set the current Lantern Year to {{ly.year}}!"

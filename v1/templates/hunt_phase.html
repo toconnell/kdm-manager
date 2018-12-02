@@ -3,7 +3,7 @@
 <div
     id="huntPhaseModal"
     class="modal-black hidden"
-    ng-if="user.user.preferences.beta == true"
+    ng-if="user.user.preferences.beta == true && view != 'newSettlement'"
     ng-controller = "huntPhaseRootController"
     ng-init="showHide('huntPhaseOpenerButton')"
 >

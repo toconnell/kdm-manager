@@ -33,8 +33,12 @@
     /* buttons! */
 .kd_alert,
     .kd_alert_no_exclaim,
-    .kd_pink {background-color: #FF0040; color: #fff;}
+    .kd_pink {background-color: #FF0040; color: #ffffdd;}
 
+
+/* timeline */
+
+.current_ly_container_row {background: radial-gradient(#fff,#ffff00);}
 
 /* campaign summary - available endeavors*/
 .available_endeavors_build {background: linear-gradient(to bottom, #73C26C, #51B952); color: #fff; }

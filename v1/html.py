@@ -61,7 +61,7 @@ class meta:
         <link rel="stylesheet" type="text/css" href="/media/hunt_phase.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/media/help-tip.css">
         <link rel="stylesheet" type="text/css" href="/media/z-index.css?v=$version">
-        <link ng-if="user.user === undefined || user.user.preferences.night_mode === true" rel="stylesheet" type="text/css" href="/media/night_mode.css?v=$version">
+        <link ng-if="user.user !== undefined && user.user.preferences.night_mode === true" rel="stylesheet" type="text/css" href="/media/night_mode.css?v=$version">
     """).safe_substitute(
         title = settings.get("application","title"),
         version = settings.get('application', 'version'),
