@@ -170,9 +170,6 @@ def render(view_html, head=[], http_headers=None, body_class=None):
     output += meta.start_head
 
     output += """\n\
-    <!-- android mobile desktop/app stuff -->
-    <link rel="manifest" href="/manifest.json">
-
     <!-- fucking jquery's dumb ass -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script> 
 
