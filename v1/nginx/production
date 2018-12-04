@@ -10,6 +10,11 @@ server {
     listen 80;
     server_name blog.kdm-manager.com;
     return  301 http://kdm-manager.blogspot.com;
+
+    listen 443 ssl; 
+    if ($scheme != "https") {
+        return 301 https://kdm-manager.blogspot.com;
+    }
 }
 
 server {
