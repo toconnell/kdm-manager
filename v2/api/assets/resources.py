@@ -66,70 +66,95 @@ core_resources = {
 
     # strange resources
     'black_lichen': {
-        'desc': 'Malleable, pungent and attractive.<br/>You may <b>consume</b> this. If you do, your lips turn grey, your hair whitens, and you become infertile. Gain +1 courage, +1 understanding and suffer the <b>destroyed genitals</b> severe waist injury.',
+        'desc': 'Malleable, pungent and attractive.<br/>You may <b class="special-rule">consume</b> this. If you do, your lips turn grey, your hair whitens, and you become infertile. Gain +1 courage, +1 understanding and suffer the <b class="severe-injury waist">destroyed genitals</b> severe waist injury.',
         'keywords': ['bone','organ','hide','consumable','other'],
         'type': 'strange_resources',
         'name': 'Black Lichen',
+        'copies': 1,
+        'flavor_text': 'Malleable, pungent and attractive.',
+        'rules_text': 'You may <b class="special-rule">consume</b> this. If you do, your lips turn grey, your hair whitens, and you become infertile. Gain +1 courage, +1 understanding and suffer the <b class="severe-injury waist">destroyed genitals</b> severe waist injury.'
     },
     'cocoon_membrane': {
         'desc': 'Thin copper hairs permeate this jellylike substance.<br/>Lanterns are repelled by the copper hairs, their light bending to avoid them.',
         'keywords': ['organ', 'other'],
         'type': 'strange_resources',
         'name': 'Cocoon Membrane',
+        'copies': 1,
+        'flavor_text': 'Thin copper hairs permeate this jellylike substance.',
+        'rules_text': 'Lanterns are repelled by the copper hairs, their light bending to avoid them.'
     },
     'elder_cat_teeth': {
         'type': 'strange_resources',
         'name': 'Elder Cat Teeth',
         'keywords': ['bone'],
         'desc': 'As sharp as they are strange.',
+        'copies': 1,
+        'flavor_text': 'As sharp as they are strange.'
     },
     'fresh_acanthus': {
         'type': 'strange_resources',
         'name': 'Fresh Acanthus',
         'keywords': ['herb'],
         'desc': 'Archive this to fully heal 1 hit location, including injury levels and armor points.',
+        'copies': 4,
+        'rules_text': 'Archive this to fully heal 1 hit location, including injury levels and armor points.'
     },
     'iron': {
         'type': 'strange_resources',
         'name': 'Iron',
         'keywords': ['scrap'],
         'desc': 'Harder than bone.',
+        'copies': 8,
+        'flavor_text': 'Harder than bone.'
     },
     'lantern_tube': {
-        'desc': "A fleshy, muscle-lined tube.<br/>When you gain this, roll 1d10. On a 6+ you find something stuck inside! Add <b>1 Broken Lantern</b> basic resource to the settlement's storage.",
+        'desc': 'A fleshy, muscle-lined tube.<br/>When you gain this, roll 1d10. On a 6+ you find something stuck inside! Add 1 <b class="resource basic-resource">Broken Lantern</b> basic resource to the settlement\'s storage.',
         'type': 'strange_resources',
         'name': 'Lantern Tube',
-        'keywords': ['organ', 'scrap']
+        'keywords': ['organ', 'scrap'],
+        'copies': 1,
+        'flavor_text': 'A fleshy, muscle-lined tube.',
+        'rules_text': 'When you gain this, roll 1d10. On a 6+ you find something stuck inside! Add 1 <b class="resource basic-resource">Broken Lantern</b> basic resource to the settlement\'s storage.'
     },
     'leather': {
         'type': 'strange_resources',
         'name': 'Leather',
         'keywords': ['hide'],
         'desc': 'Never goes out of style.',
+        'copies': 4,
+        'flavor_text': 'Never goes out of style.'
     },
     'legendary_horns': {
         'type': 'strange_resources',
         'name': 'Legendary Horns',
         'keywords': ['bone', 'scrap'],
         'desc': 'Holding them fills you with power.',
+        'copies': 1,
+        'flavor_text': 'Holding them fills you with power.'
     },
     'perfect_crucible': {
         'type': 'strange_resources',
         'name': 'Perfect Crucible',
         'keywords': ['iron'],
         'desc': 'When you craft with Perfect Crucible, an ancient bacteria is released into the air. Suffer -1d10 population and archive this card.',
+        'copies': 1,
+        'rules_text': 'When you craft with Perfect Crucible, an ancient bacteria is released into the air. Suffer -1d10 population and archive this card.'
     },
     'phoenix_crest': {
         'type': 'strange_resources',
         'name': 'Phoenix Crest',
         'keywords': ['organ'],
         'desc': 'Firm and supple.',
+        'copies': 1,
+        'flavor_text': 'Firm and supple.'
     },
     'second_heart': {
         'type': 'strange_resources',
         'name': 'Second Heart',
         'keywords': ['organ', 'bone'],
         'desc': 'It still tries to bite you.',
+        'copies': 1,
+        'flavor_text': 'Firm and supple.'
     },
 
     # screaming antelope
