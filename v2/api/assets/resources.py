@@ -428,38 +428,53 @@ vermin = {
     'crab_spider': {
         'type': 'vermin',
         'name': 'Crab Spider',
-        'desc': '<b>Consume:</b> Archive this and gain +3 survival.',
+        'desc': '<b class="special-rule">Consume:</b> Archive this and gain +3 survival.',
         'keywords': ['hide','vermin','consumable'],
+        'copies': 3,
+        'rules_text': '<b class="special-rule">Consume:</b> Archive this and gain +3 survival.',
     },
     'cyclops_fly': {
         'type': 'vermin',
         'name': 'Cyclops Fly',
-        'desc': '<b>Consume:</b> Archive this and roll 1d10.',
+        'desc': '<b class="special-rule">Consume:</b> Archive this and roll 1d10.<br/><table class="roll-table"><tr class="zebra"><td class="roll">1-3</td><td class="result">The fly\'s eye explodes, releasing acids that melt your insides. You die.</td></tr><tr><td class="roll">4-5</td><td class="result">Slight citrus flavor. No effect.</td></tr><tr class="zebra"><td class="roll">6+</td><td class="result">Gain +1 permanent accuracy.</td></tr></table>',
         'keywords': ['vermin','consumable'],
+        'copies': 1,
+        'rules_text': '<b class="special-rule">Consume:</b> Archive this and roll 1d10.',
+        'rules_table': '<table class="roll-table"><tr class="zebra"><td class="roll">1-3</td><td class="result">The fly\'s eye explodes, releasing acids that melt your insides. You die.</td></tr><tr><td class="roll">4-5</td><td class="result">Slight citrus flavor. No effect.</td></tr><tr class="zebra"><td class="roll">6+</td><td class="result">Gain +1 permanent accuracy.</td></tr></table>'
     },
     'hissing_cockroach': {
         'type': 'vermin',
         'name': 'Hissing Cockroach',
         'keywords': ['vermin','consumable'],
-        'desc': '<b>Consume:</b> Archive this to lose all survival and gain 2d10 insanity.<br/>If you are insane, you must consume this.',
+        'desc': '<b class="special-rule">Consume:</b> Archive this to lose all survival and gain 2d10 insanity.<br/>If you are insane, you must consume this.',
+        'copies': 1,
+        'rules_text': '<b class="special-rule">Consume:</b> Archive this to lose all survival and gain 2d10 insanity.<br/>If you are insane, you must consume this.',
     },
     'lonely_ant': {
         'type': 'vermin',
         'name': 'Lonely Ant',
         'keywords': ['vermin','consumable'],
-        'desc': '<b>Consume:</b> Archive this to swap your insanity and survival values.',
+        'desc': '<b class="special-rule">Consume:</b> Archive this to swap your insanity and survival values.',
+        'copies': 1,
+        'rules_text': '<b class="special-rule">Consume:</b> Archive this to swap your insanity and survival values.',
     },
     'nightmare_tick': {
         'type': 'vermin',
         'name': 'Nightmare Tick',
         'keywords': ['vermin','consumable'],
-        'desc': '<b>Consume:</b> Archive this and roll 1d10.',
+        'desc': '<b class="special-rule">Consume:</b> Archive this and roll 1d10.<br/><table class="roll-table"><tr class="zebra"><td class="roll">1-3</td><td class="result">The tick grabs the roof of your mouth and sucks all your blood. You die.</td></tr><tr><td class="roll">4-5</td><td class="result">Tastes like iron. No effect.</td></tr><tr class="zebra"><td class="roll">6+</td><td class="result">Gain +1 permanent evasion.</td></tr></table>',
+        'copies': 1,
+        'rules_text': '<b class="special-rule">Consume:</b> Archive this and roll 1d10.',
+        'rules_table': '<table class="roll-table"><tr class="zebra"><td class="roll">1-3</td><td class="result">The tick grabs the roof of your mouth and sucks all your blood. You die.</td></tr><tr><td class="roll">4-5</td><td class="result">Tastes like iron. No effect.</td></tr><tr class="zebra"><td class="roll">6+</td><td class="result">Gain +1 permanent evasion.</td></tr></table>'
     },
     'sword_beetle': {
         'type': 'vermin',
         'name': 'Sword Beetle',
-        'desc': '<b>Consume:</b> Archive this and roll 1d10.',
+        'desc': '<b class="special-rule">Consume:</b> Archive this and roll 1d10.<br/><table class="roll-table"><tr class="zebra"><td class="roll">1-3</td><td class="result">The beetle burrows into your brain. You die instantly.</td></tr><tr><td class="roll">4-5</td><td class="result">Tough and disgusting. No effect.</td></tr><tr class="zebra"><td class="roll">6+</td><td class="result">Gain +1 permanent strength.</td></tr></table>',
         'keywords': ['vermin','consumable'],
+        'copies': 1,
+        'rules_text': '<b class="special-rule">Consume:</b> Archive this and roll 1d10.',
+        'rules_table': '<table class="roll-table"><tr class="zebra"><td class="roll">1-3</td><td class="result">The beetle burrows into your brain. You die instantly.</td></tr><tr><td class="roll">4-5</td><td class="result">Tough and disgusting. No effect.</td></tr><tr class="zebra"><td class="roll">6+</td><td class="result">Gain +1 permanent strength.</td></tr></table>'
     },
 }
 
