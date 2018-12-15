@@ -66,7 +66,7 @@ core_resources = {
 
     # strange resources
     'black_lichen': {
-        'desc': 'Malleable, pungent and attractive.<br/>You may <b class="special-rule">consume</b> this. If you do, your lips turn grey, your hair whitens, and you become infertile. Gain +1 courage, +1 understanding and suffer the <b class="severe-injury waist">destroyed genitals</b> severe waist injury.',
+        'desc': '<i class="flavor-text">Malleable, pungent and attractive.</i><br/>You may <b class="special-rule">consume</b> this. If you do, your lips turn grey, your hair whitens, and you become infertile. Gain +1 courage, +1 understanding and suffer the <b class="severe-injury waist">destroyed genitals</b> severe waist injury.',
         'keywords': ['bone','organ','hide','consumable','other'],
         'type': 'strange_resources',
         'name': 'Black Lichen',
@@ -75,19 +75,18 @@ core_resources = {
         'rules_text': 'You may <b class="special-rule">consume</b> this. If you do, your lips turn grey, your hair whitens, and you become infertile. Gain +1 courage, +1 understanding and suffer the <b class="severe-injury waist">destroyed genitals</b> severe waist injury.'
     },
     'cocoon_membrane': {
-        'desc': 'Thin copper hairs permeate this jellylike substance.<br/>Lanterns are repelled by the copper hairs, their light bending to avoid them.',
+        'desc': '<i class="flavor-text">Thin copper hairs permeate this jellylike substance. <br/>Lanterns are repelled by the copper hairs, their light bending to avoid them.</i>',
         'keywords': ['organ', 'other'],
         'type': 'strange_resources',
         'name': 'Cocoon Membrane',
         'copies': 1,
-        'flavor_text': 'Thin copper hairs permeate this jellylike substance.',
-        'rules_text': 'Lanterns are repelled by the copper hairs, their light bending to avoid them.'
+        'flavor_text': 'Thin copper hairs permeate this jellylike substance. <br/>Lanterns are repelled by the copper hairs, their light bending to avoid them.',
     },
     'elder_cat_teeth': {
         'type': 'strange_resources',
         'name': 'Elder Cat Teeth',
         'keywords': ['bone'],
-        'desc': 'As sharp as they are strange.',
+        'desc': '<i class="flavor-text">As sharp as they are strange.</i>',
         'copies': 1,
         'flavor_text': 'As sharp as they are strange.'
     },
@@ -103,12 +102,12 @@ core_resources = {
         'type': 'strange_resources',
         'name': 'Iron',
         'keywords': ['scrap'],
-        'desc': 'Harder than bone.',
+        'desc': '<i class="flavor-text">Harder than bone.</i>',
         'copies': 8,
         'flavor_text': 'Harder than bone.'
     },
     'lantern_tube': {
-        'desc': 'A fleshy, muscle-lined tube.<br/>When you gain this, roll 1d10. On a 6+ you find something stuck inside! Add 1 <b class="resource basic-resource">Broken Lantern</b> basic resource to the settlement\'s storage.',
+        'desc': '<i class="flavor-text">A fleshy, muscle-lined tube.</i> <br/>When you gain this, roll 1d10. On a 6+ you find something stuck inside! Add 1 <b class="resource basic-resource">Broken Lantern</b> basic resource to the settlement\'s storage.',
         'type': 'strange_resources',
         'name': 'Lantern Tube',
         'keywords': ['organ', 'scrap'],
@@ -120,7 +119,7 @@ core_resources = {
         'type': 'strange_resources',
         'name': 'Leather',
         'keywords': ['hide'],
-        'desc': 'Never goes out of style.',
+        'desc': '<i class="flavor-text">Never goes out of style.</i>',
         'copies': 4,
         'flavor_text': 'Never goes out of style.'
     },
@@ -128,7 +127,7 @@ core_resources = {
         'type': 'strange_resources',
         'name': 'Legendary Horns',
         'keywords': ['bone', 'scrap'],
-        'desc': 'Holding them fills you with power.',
+        'desc': '<i class="flavor-text">Holding them fills you with power.</i>',
         'copies': 1,
         'flavor_text': 'Holding them fills you with power.'
     },
@@ -144,7 +143,7 @@ core_resources = {
         'type': 'strange_resources',
         'name': 'Phoenix Crest',
         'keywords': ['organ'],
-        'desc': 'Firm and supple.',
+        'desc': '<i class="flavor-text">Firm and supple.</i>',
         'copies': 1,
         'flavor_text': 'Firm and supple.'
     },
@@ -152,9 +151,9 @@ core_resources = {
         'type': 'strange_resources',
         'name': 'Second Heart',
         'keywords': ['organ', 'bone'],
-        'desc': 'It still tries to bite you.',
+        'desc': '<i class="flavor-text">It still tries to bite you.</i>',
         'copies': 1,
-        'flavor_text': 'Firm and supple.'
+        'flavor_text': 'It still tries to bite you.'
     },
 
     # screaming antelope
