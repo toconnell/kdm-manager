@@ -6,44 +6,62 @@ core_resources = {
         'name': '???',
         'keywords': ['organ', 'hide', 'bone','consumable'],
         'desc': 'You have no idea what monster bit this is. Can be used as a bone, organ, or hide!',
+        'copies': 2,
+        'rules_text': 'You have no idea what monster bit this is. Can be used as a bone, organ, or hide!'
     },
     'broken_lantern': {
         'type': 'basic_resources',
         'name': 'Broken Lantern',
         'keywords': ['scrap'],
-        'desc': '<i>Remains of an extinguished lantern.</i>',
+        'desc': '<i class="flavor-text">Remains of an extinguished lantern.</i>',
+        'copies': 2,
+        'flavor_text': 'Remains of an extinguished lantern.'
     },
     'love_juice': {
        'type': 'basic_resources',
        'name': 'Love Juice',
-       'keywords': ['organ','consumable']
+       'keywords': ['organ','consumable'],
+       'desc': 'During the settlement phase, you may archive this to <b class="story-event"><font class="kdm_font">g</font> intimacy</b>. Nominated survivors must be able to <b class="special-rule">consume</b>',
+       'copies': 2,
+       'rules_text': 'During the settlement phase, you may archive this to <b class="story-event"><font class="kdm_font">g</font> intimacy</b>. Nominated survivors must be able to <b class="special-rule">consume</b>'
     },
     'monster_bone': {
         'type': 'basic_resources',
         'name': 'Monster Bone',
-        'keywords': ['bone']
+        'keywords': ['bone'],
+        'desc': '<i class="flavor-text">A bone suitable for crafting</i>',
+        'copies': 4,
+        'flavor_text': 'A bone suitable for crafting'
     },
     'monster_hide': {
         'type': 'basic_resources',
         'name': 'Monster Hide',
         'keywords': ['hide'],
-        'desc': '<i>The skin of a beast.</i>',
+        'desc': '<i class="flavor-text">The skin of a beast.</i>',
+        'copies': 7,
+        'flavor_text': 'The skin of a beast.'
     },
     'monster_organ': {
         'type': 'basic_resources',
         'name': 'Monster Organ',
-        'keywords': ['organ']
-    },
-    'scrap': {
-        'type': 'basic_resources',
-        'name': 'Scrap',
-        'keywords': ['scrap']
+        'keywords': ['organ'],
+        'desc': 'If you <b class="special-rule">consume</b> this, archive this card. Roll 1d10. On a result of 6+, you contract a parasite. Archive all <b class="keyword">consumable</b> gear in your gear grid now.'
+        'copies': 3,
+        'rules_text': 'If you <b class="special-rule">consume</b> this, archive this card. Roll 1d10. On a result of 6+, you contract a parasite. Archive all <b class="keyword">consumable</b> gear in your gear grid now.'
     },
     'skull': {
         'type': 'basic_resources',
         'name': 'Skull',
         'keywords': ['bone'],
         'desc': 'When you gain this, a survivor of your choice gains +1 insanity.',
+        'copies': 1,
+        'rules_text': 'When you gain this, a survivor of your choice gains +1 insanity.'
+    },
+    'scrap': {
+        'type': 'basic_resources',
+        'name': 'Scrap',
+        'keywords': ['scrap'],
+        'copies': 0
     },
 
     # strange resources
