@@ -972,30 +972,50 @@ expansions = {
         'type': 'strange_resources',
         'name': 'Blistering Plasma Fruit',
         'keywords': ['organ','consumable'],
+        'desc': 'You may <b class="special-rule">consume</b> and archive this to gain the following ability: <br/><b class="ability">Nightmare Blood:</b> Whenever you gain a bleeding token, add <font class="kdm_font_2 inline_shield">1</font> to all hit locations.',
+        'copies': 1,
+        'rules_text': 'You may <b class="special-rule">consume</b> and archive this to gain the following ability: <br/><b class="ability">Nightmare Blood:</b> Whenever you gain a bleeding token, add <font class="kdm_font_2 inline_shield">1</font> to all hit locations.',
+        #'abilities': ['nightmare_blood'] TODO: should this ability be called out for easy reference / lookup?
     },
     'drifting_dream_fruit': {
         'expansion': 'lonely_tree',
         'type': 'strange_resources',
         'name': 'Drifting Dream Fruit',
         'keywords': ['consumable'],
+        'desc': 'You may <b class="special-rule">consume</b> and archive this to select a Dream on the <b class="story-event">Birth of a Savior</b> story event and gain all associated abilities.',
+        'copies': 1,
+        'rules_text': 'You may <b class="special-rule">consume</b> and archive this to select a Dream on the <b class="story-event">Birth of a Savior</b> story event and gain all associated abilities.',
+        #'story_events': ['birth_of_a_savior'] TODO: should this story event be called out for easy reference / lookup?
     },
     'jagged_marrow_fruit': {
         'expansion': 'lonely_tree',
         'type': 'strange_resources',
         'name': 'Jagged Marrow Fruit',
-        'keywords': ['bone', 'scrap','consumable']
+        'keywords': ['bone', 'scrap','consumable'],
+        'desc': 'You may <b class="special-rule">consume</b> and archive this to gain the following ability: <br /><b class="ability">Nightmare Spurs:</b> Once per showdown, you may spend all your survival (at least 1) to lose all your +1 strength tokens and gain that many +1luck tokens.',
+        'copies': 1,
+        'rules_text': 'You may <b class="special-rule">consume</b> and archive this to gain the following ability: <br /><b class="ability">Nightmare Spurs:</b> Once per showdown, you may spend all your survival (at least 1) to lose all your +1 strength tokens and gain that many +1luck tokens.',
+        #'abilities': ['nightmare_spurs'] TODO: should this ability be called out for easy reference / lookup?
     },
     'lonely_fruit': {
         'expansion': 'lonely_tree',
         'type': 'strange_resources',
         'name': 'Lonely Fruit',
         'keywords': ['consumable'],
+        'desc': 'During the settlement phase, you may <b class="special-rule">consume</b> and archive this to <b class="story-event"><font class="kdm_font_expansions">a</font><font class="kdm_font">g</font> Lonely Lady</b>.',
+        'copies': 1,
+        'rules_text': 'During the settlement phase, you may <b class="special-rule">consume</b> and archive this to <b class="story-event"><font class="kdm_font_expansions">a</font> <font class="kdm_font">g</font> Lonely Lady</b>.',
+        #'story_events': ['lonely_lady'] TODO: should this story event be called out for easy reference / lookup -- does it need to specify expansion?
     },
     'porous_flesh_fruit': {
         'expansion': 'lonely_tree',
         'type': 'strange_resources',
         'name': 'Porous Flesh Fruit',
         'keywords': ['hide','consumable'],
+        'desc': 'You may <b class="special-rule">consume</b> and archive this to gain the following ability: <br/><b class="ability">Nightmare Membrane: </b> You may spend <font class="kdm_font">a</font> <font class="kdm_font">c</font> to exchange any 1 of your tokens for a +1 strength token.',
+        'copies': 1,
+        'rules_text': 'You may <b class="special-rule">consume</b> and archive this to gain the following ability: <br/><b class="ability">Nightmare Membrane: </b> You may spend <font class="kdm_font">a</font> <font class="kdm_font">c</font> to exchange any 1 of your tokens for a +1 strength token.',
+        #'abilities': ['nightmare_membrane'] TODO: should this ability be called out for easy reference / lookup?
     },
 
 
