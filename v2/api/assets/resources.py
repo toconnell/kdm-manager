@@ -1154,7 +1154,7 @@ expansions = {
         'type': 'strange_resources',
         'name': 'Red Vial',
         'keywords': ['consumable'],
-        'desc': 'You may <b>consume</b> and archive this to remove 2 bleeding tokens and gain +1 survival.',
+        'desc': 'You may <b class="special-rule">consume</b> and archive this to remove 2 bleeding tokens and gain +1 survival.',
         'copies': 4,
         'rules_text': 'You may <b class="special-rule">consume</b> and archive this to remove 2 bleeding tokens and gain +1 survival.',
     },
@@ -1165,13 +1165,18 @@ expansions = {
         'type': 'strange_resources',
         'name': 'Crystal Sword Mold',
         'keywords': ['scrap','iron'],
+        'desc': '<i class="flavor-text">This strange crystal refracts light, concentrating it within a natural, sword-shaped chamber.</i>',
+        'copies': 1,
+        'flavor_text': 'This strange crystal refracts light, concentrating it within a natural, sword-shaped chamber.'
     },
     'dark_water': {
         'expansion': 'slenderman',
         'type': 'strange_resources',
         'name': 'Dark Water',
         'keywords': ['other','consumable'],
-        'desc': "You may <b>consume</b> and archive this to remove all your disorders, then gain a random disorder.",
+        'desc': 'You may <b class="special-rule">consume</b> and archive this to remove all your disorders, then gain a random disorder.',
+        'copies': 5,
+        'rules_text': 'You may <b class="special-rule">consume</b> and archive this to remove all your disorders, then gain a random disorder.',
     },
 
     # flower knight
