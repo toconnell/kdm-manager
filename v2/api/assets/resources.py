@@ -1145,14 +1145,18 @@ expansions = {
         'type': 'strange_resources',
         'name': 'Crimson Vial',
         'keywords': ['iron', 'consumable'],
-        'desc': 'You may <b>consume</b> and archive this to remove all bleeding tokens and any severe injury of your choice.',
+        'desc': 'You may <b class="special-rule">consume</b> and archive this to remove all bleeding tokens and any severe injury of your choice.',
+        'copies': 1,
+        'rules_text': 'You may <b class="special-rule">consume</b> and archive this to remove all bleeding tokens and any severe injury of your choice.',
     },
     'red_vial': {
         'expansion': 'manhunter',
         'type': 'strange_resources',
         'name': 'Red Vial',
-        'desc': 'You may <b>consume</b> and archive this to remove 2 bleeding tokens and gain +1 survival.',
         'keywords': ['consumable'],
+        'desc': 'You may <b>consume</b> and archive this to remove 2 bleeding tokens and gain +1 survival.',
+        'copies': 4,
+        'rules_text': 'You may <b class="special-rule">consume</b> and archive this to remove 2 bleeding tokens and gain +1 survival.',
     },
 
     # slenderman
