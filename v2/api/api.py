@@ -79,6 +79,14 @@ def favicon():
 #   public routes
 #
 
+# stat the API
+@application.route("/stat")
+@utils.crossdomain(origin=['*'], headers=['Access-Control-Allow-Origin'])
+def stat_api():
+    """ Returns a dict of API information. """
+    d = utils.api_meta
+    return Response(response=json.dumps(d, default=json_util.default), status=200, mimetype="application/json")
+
 # asset lookups
 @application.route("/game_asset/<asset_collection>", methods=["GET","POST","OPTIONS"])
 @utils.crossdomain(origin=['*'],headers=['Authorization','Content-Type','Access-Control-Allow-Origin'])

@@ -60,7 +60,7 @@ innovation = {
         "innovation_type": "art",
         "consequences": ["memento_mori"],
 #        "survivor_buff": 'At the start of a standing survivor\'s act, they may trigger the <font class=kdm_font>g</font> <b>Run Away</b> story event. Limit, once per act.',
-        "survivor_buff": "At the start of a standing survivor's act, they may decide to skip their act and <font class=kdm_font>g</font> <b>Run Away</b>.<br/>After a hunt is resolved, a survivor may decide it's time to go home and <font class=kdm_font>g</font> <b>Run Away</b>.",
+        "survivor_buff": """At the start of a standing survivor's act, they may decide to skip their act and <font class="kdm_font">g</font> <b>Run Away</b>.<br/>After a hunt is resolved, a survivor may decide it's time to go home and <font class="kdm_font">g</font> <b>Run Away</b>.""",
     },
     "memento_mori": {
         "name": "Momento Mori",
