@@ -321,6 +321,7 @@ api_meta = {
         },
         "api": {
             "version": settings.get("api","version"),
+            "age": get_time_elapsed_since(datetime.strptime('2016-10-13', '%Y-%m-%d'), units='age'),
             "hostname": socket.gethostname(),
             "mdb_name": settings.get("api","mdb"),
         },

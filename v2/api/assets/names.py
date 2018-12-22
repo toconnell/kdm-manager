@@ -445,6 +445,7 @@ male = [
     "William",
     "Wilfred",
     "Wulfric",
+    "Xarosan",
     "Xavier",
     "Xerxes",
     "Yang",

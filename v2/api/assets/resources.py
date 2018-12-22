@@ -45,7 +45,7 @@ core_resources = {
         'type': 'basic_resources',
         'name': 'Monster Organ',
         'keywords': ['organ'],
-        'desc': 'If you <b class="special-rule">consume</b> this, archive this card. Roll 1d10. On a result of 6+, you contract a parasite. Archive all <b class="keyword">consumable</b> gear in your gear grid now.'
+        'desc': 'If you <b class="special-rule">consume</b> this, archive this card. Roll 1d10. On a result of 6+, you contract a parasite. Archive all <b class="keyword">consumable</b> gear in your gear grid now.',
         'copies': 3,
         'rules_text': 'If you <b class="special-rule">consume</b> this, archive this card. Roll 1d10. On a result of 6+, you contract a parasite. Archive all <b class="keyword">consumable</b> gear in your gear grid now.'
     },
