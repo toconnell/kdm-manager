@@ -634,14 +634,18 @@ expansions = {
         'type': 'strange_resources',
         'name': 'Silken Nervous System',
         'keywords': ['organ'],
-        'desc': '<i>Separates into tiny golden threads.</i>',
+        'desc': '<i class="flavor-text">Separates into tiny golden threads.</i>',
+        'copies': 1,
+        'flavor_text': 'Separates into tiny golden threads.'
     },
     'web_silk': {
         'expansion': 'spidicules',
         'type': 'strange_resources',
         'name': 'Web Silk',
         'keywords': ['silk'],
-        'desc': '<i>Impossible to tear.</i>',
+        'desc': '<i class="flavor-text">Impossible to tear.</i>',
+        'copies': 6,
+        'flavor_text': 'Impossible to tear.'
     },
 
     # spidicules resources
@@ -650,35 +654,45 @@ expansions = {
         'type': 'spidicules_resources',
         'name': 'Arachnid Heart',
         'keywords': ['organ'],
-        'desc': '<i>Cold to the touch, even when freshly removed.</i>',
+        'desc': '<i class="flavor-text">Cold to the touch, even when freshly removed.</i>',
+        'copies': 1,
+        'flavor_text': 'Cold to the touch, even when freshly removed.',
     },
     'chitin': {
         'expansion': 'spidicules',
         'type': 'spidicules_resources',
         'name': 'Chitin',
         'keywords': ['hide'],
-        'desc': '<i>A flaky, bitter-smelling husk.</i>',
+        'desc': '<i class="flavor-text">A flaky, bitter-smelling husk.</i>',
+        'copies': 1,
+        'flavor_text': 'A flaky, bitter-smelling husk.',
     },
     'exoskeleton': {
         'expansion': 'spidicules',
         'type': 'spidicules_resources',
         'name': 'Exoskeleton',
         'keywords': ['hide'],
-        'desc': '<i>Malleable, interlocking plates.</i>',
+        'desc': '<i class="flavor-text">Malleable, interlocking plates.</i>',
+        'copies': 1,
+        'flavor_text': 'Malleable, interlocking plates.',
     },
     'eyeballs': {
         'expansion': 'spidicules',
         'type': 'spidicules_resources',
         'name': 'Eyeballs',
         'keywords': ['organ'],
-        'desc': '<i>Each points in a different direction.</i>',
+        'desc': '<i class="flavor-text">Each points in a different direction.</i>',
+        'copies': 1,
+        'flavor_text': 'Each points in a different direction.',
     },
     'large_appendage': {
         'expansion': 'spidicules',
         'type': 'spidicules_resources',
         'name': 'Large Appendage',
         'keywords': ['bone'],
-        'desc': '<i>Could come in handy.</i>',
+        'desc': '<i class="flavor-text">Could come in handy.</i>',
+        'copies': 2,
+        'flavor_text': '<i>Could come in handy.</i>',
     },
     'serrated_fangs': {
         'endeavors': ['serrated_fangs_razor_pushups'],
@@ -686,48 +700,85 @@ expansions = {
         'type': 'spidicules_resources',
         'name': 'Serrated Fangs',
         'keywords': ['bone'],
+        'copies': 1,
+        'desc': '<div class="kdm-table endevour-table"><div class="table-requirement">Requires <b class="fighting-art">Nightmare Training</b></div><div class="table-header"><div class="table-cost"><font class="kdm_font">d</font></div><h3 class="table-title"><b class="table-name">Razor Push-ups</b> - roll 1d10</div></div><table class="roll-table"><tr class="zebra"><td class="roll">1-3</td><td class="result">Gain a random disorder</td></tr><tr><td class="roll">4+</td><td class="result">Gain +1 permanent strength. The fangs are crushed; archive this card.</td></tr></table></div>',
+        'rules_table': '<div class="kdm-table endevour-table"><div class="table-requirement">Requires <b class="fighting-art">Nightmare Training</b></div><div class="table-header"><div class="table-cost"><font class="kdm_font">d</font></div><h3 class="table-title"><b class="table-name">Razor Push-ups</b> - roll 1d10</div></div><table class="roll-table"><tr class="zebra"><td class="roll">1-3</td><td class="result">Gain a random disorder</td></tr><tr><td class="roll">4+</td><td class="result">Gain +1 permanent strength. The fangs are crushed; archive this card.</td></tr></table></div>',
+        'table': {
+            'type': 'endeavor_table'
+            'requirements': ['nightmare_training'], #TODO: should we call out the fighting art type? 
+            'cost': '1 Endevour',
+            'title': 'Razor Push-ups'
+            'dice': '1d10',
+            'rolls': [
+                {
+                    'roll': '1 - 3',
+                    'roll_low': 1, #TODO: maybe?
+                    'roll_high': 3, #TODO: maybe?
+                    'effect': 'Gain a random disorder.'
+                },
+                {
+                    'roll': '4+',
+                    'roll_low': 4, #TODO: maybe?
+                    'roll_high': 9999, #TODO: maybe?
+                    'effect': 'Gain a random disorder.'
+                },
+            ]
+        }
     },
     'small_appendages': {
         'expansion': 'spidicules',
         'type': 'spidicules_resources',
         'name': 'Small Appendages',
         'keywords': ['hide'],
-        'desc': '<i>The inner hands look surprisingly human.</i>',
+        'desc': '<i class="flavor-text">The inner hands look surprisingly human.</i>',
+        'copies': 2,
+        'flavor_text': '<i>The inner hands look surprisingly human.</i>',
     },
     'spinnerets': {
         'expansion': 'spidicules',
         'type': 'spidicules_resources',
         'name': 'Spinnerets',
         'keywords': ['organ', 'scrap'],
-        'desc': '<i>More complex than any device.</i>',
+        'desc': '<i class="flavor-text">More complex than any device.</i>',
+        'copies': 1,
+        'flavor_text': 'More complex than any device.'
     },
     'stomach': {
         'expansion': 'spidicules',
         'type': 'spidicules_resources',
         'name': 'Stomach',
-        'keywords': ['organ'],
-        'desc': '<b>Consume:</b> Archive this card to gain +1 Hunt XP.',
+        'keywords': ['organ'], #KDM_ERROR: doesn't have consumable keyword on card.
+        'desc': '<b class="special-rule">Consume:</b> Archive this card to gain +1 Hunt XP.',
+        'copies': 1,
+        'rules_text': '<b class="special-rule">Consume:</b> Archive this card to gain +1 Hunt XP.'
     },
     'thick_web_silk': {
         'expansion': 'spidicules',
         'type': 'spidicules_resources',
         'name': 'Thick Web Silk',
         'keywords': ['silk','hide'],
-        'desc': '<i>Impossible to pierce.</i>',
+        'desc': '<i class="flavor-text">Impossible to pierce.</i>',
+        'copies': 1,
+        'desc': 'Impossible to pierce.',
     },
     'unlaid_eggs': {
         'expansion': 'spidicules',
         'type': 'spidicules_resources',
         'name': 'Unlaid Eggs',
         'keywords': ['organ','consumable'],
-        'desc': 'During the settlement phase, you may <b>consume</b> and archive these delicious little eggs to gain 10 survival.',
+        'desc': 'During the settlement phase, you may <b class="special-rule">consume</b> and archive these delicious little eggs to gain 10 survival.',
+        'copies': 1,
+        'rules_text': 'During the settlement phase, you may <b class="special-rule">consume</b> and archive these delicious little eggs to gain 10 survival.',
     },
     'venom_sac': {
         'expansion': 'spidicules',
         'type': 'spidicules_resources',
         'name': 'Venom Sac',
         'keywords': ['organ', 'consumable'],
-        'desc': '<b>Consume:</b> Archive this card and roll 1d10. On a 1-5, you die instantly. On a 6+, gain the <b>Death Touch</b> Secret Fighting Art.',
+        'desc': '<b class="special-rule">Consume:</b> Archive this card and roll 1d10. On a 1-5, you die instantly. On a 6+, gain the <b class="fighting-art secret-fighting-art">Death Touch</b> Secret Fighting Art.',
+        'copies': 1,
+        'rules_text': '<b class="special-rule">Consume:</b> Archive this card and roll 1d10. On a 1-5, you die instantly. On a 6+, gain the <b class="fighting-art secret-fighting-art">Death Touch</b> Secret Fighting Art.',
+        #'fighting_arts': ['death_touch'] TODO: secret_fighting_arts?
     },
 
 
