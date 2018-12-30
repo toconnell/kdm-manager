@@ -1228,36 +1228,56 @@ expansions = {
         'flavor_text': 'Blood drips from it at a constant rate.',
     },
 
-    # lion_god
+    # lion_god #TODO expansion icon
     'canopic_jar': {
         'expansion': 'lion_god',
         'type': 'strange_resources',
         'name': 'Canopic Jar',
         'keywords': ['organ', 'scrap'],
+        'copies': 1,
+        'desc': 'When you gain this, remove 2 bleeding tokens. <br />During the settlement phase, you may archive this to <b class="story-event"><font class="kdm_font">g</font> Death Reading</b>',
+        'rules_text': 'When you gain this, remove 2 bleeding tokens. <br />During the settlement phase, you may archive this to <b class="story-event"><font class="kdm_font">g</font> Death Reading</b>',
+        #'story_events': ['lonely_lady'] TODO: should this story event be called out for easy reference / lookup -- does it need to specify expansion?
     },
     'old_blue_box': {
         'expansion': 'lion_god',
         'type': 'strange_resources',
         'name': 'Old Blue Box',
         'keywords': ['scrap'],
+        'copies': 1,
+        'desc': 'During the settlement phase, you may archive this to <b class="story-event"><font class="kdm_font">g</font> Death Reading</b>',
+        'rules_text': 'During the settlement phase, you may archive this to <b class="story-event"><font class="kdm_font">g</font> Death Reading</b>',
+        #'story_events': ['lonely_lady'] TODO: should this story event be called out for easy reference / lookup -- does it need to specify expansion?
     },
     'sarcophagus': {
         'expansion': 'lion_god',
         'type': 'strange_resources',
         'name': 'Sarcophagus',
-        'keywords': ['iron']
+        'keywords': ['iron'],
+        'copies': 1,
+        'desc': '-2 movement while you have this. <br />During the settlement phase, you may archive this to <b class="story-event"><font class="kdm_font">g</font> Death Reading</b>',
+        'rules_text': '-2 movement while you have this. <br />During the settlement phase, you may archive this to <b class="story-event"><font class="kdm_font">g</font> Death Reading</b>',
+        #'story_events': ['lonely_lady'] TODO: should this story event be called out for easy reference / lookup -- does it need to specify expansion?
     },
     'silver_urn': {
         'expansion': 'lion_god',
         'type': 'strange_resources',
         'name': 'Silver urn',
         'keywords': ['bone', 'scrap'],
+        'copies': 1,
+        'desc': 'During the settlement phase, you may archive this to <b class="story-event"><font class="kdm_font">g</font> Death Reading</b>',
+        'rules_text': 'During the settlement phase, you may archive this to <b class="story-event"><font class="kdm_font">g</font> Death Reading</b>',
+        #'story_events': ['lonely_lady'] TODO: should this story event be called out for easy reference / lookup -- does it need to specify expansion?
     },
     'triptych': {
         'expansion': 'lion_god',
         'type': 'strange_resources',
         'name': 'Triptych',
         'keywords': ['hide', 'scrap'],
+        'copies': 1,
+        'desc': 'When you gain this, gain +3 insanity. <br />During the settlement phase, you may archive this to <b class="story-event"><font class="kdm_font">g</font> Death Reading</b>',
+        'rules_text': 'When you gain this, gain +3 insanity. <br />During the settlement phase, you may archive this to <b class="story-event"><font class="kdm_font">g</font> Death Reading</b>',
+        #'story_events': ['lonely_lady'] TODO: should this story event be called out for easy reference / lookup -- does it need to specify expansion?
     },
 
 
