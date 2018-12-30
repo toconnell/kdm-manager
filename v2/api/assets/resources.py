@@ -788,58 +788,102 @@ expansions = {
         'type': 'strange_resources',
         'name': 'Preserved Caustic Dung',
         'keywords': ['organ','consumable','dung'],
-        'desc': 'The live cultures in this exotic mixture of matured dung have been preserved within a delicate, airtight jelly casing.',
+        'desc': '<i class="flavor-text">The live cultures in this exotic mixture of matured dung have been preserved within a delicate, airtight jelly casing.</i>',
+        'copies': 4,
+        'flavor_text': 'The live cultures in this exotic mixture of matured dung have been preserved within a delicate, airtight jelly casing.',
     },
     'scell': {
         'expansion': 'dung_beetle_knight',
         'type': 'strange_resources',
         'name': 'Scell',
         'keywords': ['organ','consumable'],
-        'desc': "As the monster ages, this sticky and corrosive material builds between the thin layers of its scarab shells. It breaks down fecal product, preventing the knight's joints from locking up.<br/>During <b>Black Harvest</b>, a Restorer can make excellent use of a Scell, using it to nearly perfect the final step of the calcification process.",
+        #TODO: black harvest?
+        'desc': '<i class="flavor-text">As the monster ages, this sticky and corrosive material builds between the thin layers of its scarab shells. It breaks down fecal product, preventing the knight\'s joints from locking up.</i><br/>During <b class="">Black Harvest</b>, a Restorer can make excellent use of a Scell, using it to nearly perfect the final step of the calcification process.',
+        'copies': 1
+        'flavor_text': 'As the monster ages, this sticky and corrosive material builds between the thin layers of its scarab shells. It breaks down fecal product, preventing the knight\'s joints from locking up.',
+        'rules_text': 'During <b class="">Black Harvest</b>, a Restorer can make excellent use of a Scell, using it to nearly perfect the final step of the calcification process.',
     },
 
     # dung_beetle_knight resources 
-
     'beetle_horn': {
         'expansion': 'dung_beetle_knight',
         'type': 'dung_beetle_knight_resources',
         'name': 'Beetle Horn',
         'keywords': ['bone'],
         'endeavors': ['dbk_horn_ceremony'],
+        'desc': '<div class="kdm-table endevour-table"> <div class="table-requirement"> Requires <b class="innovation">Scarification</b> </div><div class="table-header"> <div class="table-cost"> <font class="kdm_font">d</font> </div><h3 class="table-title"> <b class="table-name">Horn Ceremony</b> - Archive and roll 1d10 </div></div><table class="roll-table"> <tr class="zebra"> <td class="roll">1-4</td><td class="result">Your brain is punctured and you die.</td></tr><tr> <td class="roll">5+</td><td class="result">Brain Stimulation. Gain the benefits of <b class="story-event">Age 1</b> and <b class="story-event">Age 2</b> without gaining Hunt XP. Brain stimulation ignores the "once a lifetime" rule on the <b class="story-event">Age</b> story event.</td></tr></table></div>',
+        'copies': 1,
+        'rules_table': '<div class="kdm-table endevour-table"> <div class="table-requirement"> Requires <b class="innovation">Scarification</b> </div><div class="table-header"> <div class="table-cost"> <font class="kdm_font">d</font> </div><h3 class="table-title"> <b class="table-name">Horn Ceremony</b> - Archive and roll 1d10 </div></div><table class="roll-table"> <tr class="zebra"> <td class="roll">1-4</td><td class="result">Your brain is punctured and you die.</td></tr><tr> <td class="roll">5+</td><td class="result">Brain Stimulation. Gain the benefits of <b class="story-event">Age 1</b> and <b class="story-event">Age 2</b> without gaining Hunt XP. Brain stimulation ignores the "once a lifetime" rule on the <b class="story-event">Age</b> story event.</td></tr></table></div>',
+        'table': {
+            'type': 'endeavor_table'
+            'requirements': ['scarification'], #TODO: should we call out the type? 
+            'cost': '1 Endevour',
+            'title': 'Horn Ceremony'
+            'dice': '1d10',
+            'rolls': [
+                {
+                    'roll': '1 - 4',
+                    'roll_low': 1, #TODO: maybe?
+                    'roll_high': 4, #TODO: maybe?
+                    'effect': 'Your brain is punctured and you die.'
+                },
+                {
+                    'roll': '4+',
+                    'roll_low': 4, #TODO: maybe?
+                    'roll_high': 9999, #TODO: maybe?
+                    'effect': 'Brain Stimulation. Gain the benefits of <b class="story-event">Age 1</b> and <b class="story-event">Age 2</b> without gaining Hunt XP. Brain stimulation ignores the "once a lifetime" rule on the <b class="story-event">Age</b> story event.'
+                },
+            ]
+        }
     },
     'century_fingernails': {
         'expansion': 'dung_beetle_knight',
         'type': 'dung_beetle_knight_resources',
         'name': 'Century Fingernails',
         'keywords': ['bone'],
-        'desc': 'These nails are never clipped. Instead, they are folded and hammered hundreds of times into an impossibly fine edge.',
+        'desc': '<i class="flavor-text">These nails are never clipped. Instead, they are folded and hammered hundreds of times into an impossibly fine edge.</i>',
+        'copies': 2,
+        'flavor_text': 'These nails are never clipped. Instead, they are folded and hammered hundreds of times into an impossibly fine edge.',
     },
     'century_shell': {
         'expansion': 'dung_beetle_knight',
         'type': 'dung_beetle_knight_resources',
         'name': 'Century Shell',
         'keywords': ['hide', 'iron'],
-        'desc': 'This ancient and mineral-rich armor plate is covered with razor wind scratches.<br/>You may spend this as if it were a <b>Scarab Shell</b> resources.',
+        'desc': 'This ancient and mineral-rich armor plate is covered with razor wind scratches. <br/>You may spend this as if it were a <b class="resource">Scarab Shell</b> resources.',
+        'copies': 1,
+        'rules_text': 'This ancient and mineral-rich armor plate is covered with razor wind scratches. <br/>You may spend this as if it were a <b class="resource">Scarab Shell</b> resources.',
     },
     'compound_eye': {
         'expansion': 'dung_beetle_knight',
         'type': 'dung_beetle_knight_resources',
         'name': 'Compound Eye',
         'keywords': ['organ','consumable'],
-        'desc': 'A cluster of differently colored eyes, each filled with a creamy, tangy syrup. If you have 3+ courage, you may <b>consume</b> and archive this to gain +3d10 insanity.',
+        #TODO: this is pretty opionated, but The card has it all inline as rules text, but it's pretty clear the first part is meant to be flavor text.
+        'desc': '<i class="flavor-text">A cluster of differently colored eyes, each filled with a creamy, tangy syrup.</i> <br />If you have 3+ courage, you may <b class="special-rule">consume</b> and archive this to gain +3d10 insanity.',
+        'copies': 1,
+        'flavor_text': 'If you have 3+ courage, you may <b class="special-rule">consume</b> and archive this to gain +3d10 insanity.',
+        'rules_text': 'A cluster of differently colored eyes, each filled with a creamy, tangy syrup.',
     },
     'elytra': {
         'expansion': 'dung_beetle_knight',
         'type': 'dung_beetle_knight_resources',
         'name': 'Elytra',
         'keywords': ['bone', 'hide', 'organ'],
-        'desc': 'The ribbed underside of these large shells makes an ideal surface to grind weapons. A survivor may archive this to give all of their attacks in the next showdown <b>Sharp</b>.',
+        #TODO: this is pretty opionated, but The card has it all inline as rules text, but it's pretty clear the first part is meant to be flavor text.
+        #TODO: sharp?
+        'desc': '<i class="flavor-text">The ribbed underside of these large shells makes an ideal surface to grind weapons.</i> <br />A survivor may archive this to give all of their attacks in the next showdown <b class="">Sharp</b>.',
+        'copies': 1,
+        'flavor_text': 'The ribbed underside of these large shells makes an ideal surface to grind weapons.',
+        'rules_text': 'A survivor may archive this to give all of their attacks in the next showdown <b class="">Sharp</b>.',
     },
     'scarab_shell': {
         'expansion': 'dung_beetle_knight',
         'type': 'dung_beetle_knight_resources',
         'name': 'Scarab Shell',
         'keywords': ['hide'],
+        'desc': '<i class="flavor-text">Cool and oily to the touch. Lantern light reveals a brilliant band of color dancing on its surface.</i>',
+        'copies': 3,
         'desc': 'Cool and oily to the touch. Lantern light reveals a brilliant band of color dancing on its surface.',
     },
     'scarab_wing': {
@@ -847,14 +891,18 @@ expansions = {
         'type': 'dung_beetle_knight_resources',
         'name': 'Scarab Wing',
         'keywords': ['organ'],
-        'desc': 'When soaked in water, these vein-filled wings gain some elasticity.',
+        'desc': '<i class="flavor-text">When soaked in water, these vein-filled wings gain some elasticity.</i>',
+        'copies': 1,
+        'flavor_text': 'When soaked in water, these vein-filled wings gain some elasticity.',
     },
     'underplate_fungus': {
         'expansion': 'dung_beetle_knight',
         'type': 'dung_beetle_knight_resources',
         'name': 'Underplate Fungus',
         'keywords': ['herb', 'hide', 'consumable'],
-        'desc': "A corkscrew-shaped fungus that grows in the empty channels between the Dung Beetle Knight's armor plating.",
+        'desc': '<i class="flavor-text">A corkscrew-shaped fungus that grows in the empty channels between the Dung Beetle Knight\'s armor plating.',
+        'copies': 1,
+        'desc': 'A corkscrew-shaped fungus that grows in the empty channels between the Dung Beetle Knight\'s armor plating.',
     },
 
 
