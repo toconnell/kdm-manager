@@ -13,6 +13,7 @@ import os
 import random
 import socket
 import string
+import urlparse
 from werkzeug.security import safe_str_cmp, generate_password_hash, check_password_hash
 
 import Models
@@ -128,11 +129,12 @@ def initiate_password_reset():
     is very...self-contained. """
 
     # first, validate the post
-    user_login = request.get_json().get('username', None)
+    incoming_json = request.get_json()
+    user_login = incoming_json.get('username', None)
     if user_login is None:
         return Response(
-            response="A valid user email address must be included in password reset requests!",
-            status=400
+            response = "A valid user email address must be included in password reset requests!",
+            status = 400
         )
 
     # normalize emails issue #501
@@ -142,19 +144,29 @@ def initiate_password_reset():
     user = utils.mdb.users.find_one({"login": user_login})
     if user is None:
         return Response(
-            response="'%s' is not a registered email address." % user_login,
-            status=404
+            response = "'%s' is not a registered email address." % user_login,
+            status = 404
         )
 
     # if the user looks good, set the code
     U = User(_id=user["_id"])
     user_code = U.set_recovery_code()
 
+    # support for applications with their own URLs
+    incoming_app_url = incoming_json.get('app_url', None)
+    if incoming_app_url is not None:
+        application_url = incoming_app_url
+        parsed = urlparse.urlsplit(incoming_app_url)
+        netloc = parsed.scheme + "://" + parsed.netloc
+    else:
+        netloc = utils.get_application_url()
+        application_url = utils.get_application_url()
+
     # finally, send the email to the user
     try:
         tmp_file = os.path.join(settings.get("api","cwd"), "html/password_recovery.html")
         msg = string.Template(file(tmp_file, "rb").read())
-        msg = msg.safe_substitute(login=user_login, recovery_code=user_code, app_url=utils.get_application_url())
+        msg = msg.safe_substitute(login=user_login, recovery_code=user_code, app_url=application_url, netloc=netloc)
         e = utils.mailSession()
         e.send(recipients=[user_login], html_msg=msg)
     except Exception as e:

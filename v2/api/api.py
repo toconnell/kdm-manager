@@ -181,8 +181,9 @@ def get_token(check_pw=True, user_id=False):
     }
     return Response(response=json.dumps(tok), status=200, mimetype="application/json")
 
+
 @application.route("/reset_password/<action>", methods=["POST","OPTIONS"])
-@crossdomain(origin=['*'], headers='Content-Type')
+@crossdomain(origin=['*'])
 def reset_password(action):
     setattr(request, 'action', action)
     if action == 'request_code':

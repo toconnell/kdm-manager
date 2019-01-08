@@ -115,13 +115,42 @@
             <p>If this comes back 200, then the user has been emailed. Otherwise,
             if you get a non-200 response, it'll have specific reasons why it did
             not work.</p>
+            <p>Additionally, if you want to handle the password reset in your own
+            app (the default app is https://kdm-manager.com), which you probably do,
+            just include the <code>app_url</code> attribute in your post:</p>
+            <code>{'username': 'demo@kdm-manager.com', 'app_url': 'https://my-badass-kdm-app.com'}</code>
+            <p>Assuming that the user email is legint, <b>POST</b>ing this value
+            will cause the email that the user receives to include your URL:</p>
+            <code><pre>
+Hello demo@kdm-manager.com!
+
+ You are receiving this message because https://my-badass-kdm-app.com recieved
+a password reset request for your user, demo@kdm-manager.com.
+
+ If you did not initiate a password reset request, please ignore this email
+and continue to use your existing/current credentials: they will not be
+altered in any way!
+
+ If you made this request and would like to reset your password, please sign
+into https://my-badass-kdm-app.com using this link:
+
+ https://my-badass-kdm-app.com?recover_password=True&recovery_code=MC9AU4I4NFYKJ3TWPLWVPHX29N2U08
+            </pre></code>
+            <p>From here, you would parse the user's request to your (badass) app,
+            get their email address and the password they want to use, 
+            and then use the <code>/reset_password/reset</code> endpoint (below)
+            to finish the job.</p>
+            <p><b>PROTIP:</b> the recovery URL that the API generates for the email
+            starts at the question mark, so you can put in whatever endpoint you
+            need on your own app, e.g. "https://my-badass-kdm-app/reset_password"
+            or similar. Just be careful not to use a trailing slash!</p>
             </td>
         </tr>
         <tr class="ul">
             <td> /reset_password/reset </td>
             <td> <b>GET</b> </td>
             <td> <p> Before you <b>POST</b> to this route, you need a recovery code.<p>
-            <p>Once you have it, include it with the user's email and new password
+            <p>Once you have it, include it with the user's email and <b>new</b> password
             in the body of your request:</p>
             <code>{'username': 'demo@kdm-manager.com', 'password': 's3cr3tP4ss',
             'recovery_code': '9FH3BKSNFI37FB476ZHABNDOWHEUSYAB234'}</code>
