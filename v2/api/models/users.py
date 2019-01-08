@@ -13,7 +13,7 @@ import os
 import random
 import socket
 import string
-from werkzeug.security import safe_str_cmp
+from werkzeug.security import safe_str_cmp, generate_password_hash, check_password_hash
 
 import Models
 from settlements import Settlement
@@ -32,18 +32,42 @@ secret_key = settings.get("api","secret_key","private")
 #   JWT helper methods here!
 #
 
-def authenticate(username, password):
-    """ Returns None unless a.) there's a real user for 'username' and b.) the
-    MD5 hash of the user's password matches the hash of 'password', in which
-    case we return a user document from the MDB. """
+def authenticate(username=None, password=None):
+    """ Refactored in December 2018 to use Miguel Grinberg's basic method.
 
+    As of the refactor, this supports (legacy) MD5 look-ups: we try them first,
+    and, if they fail, then we try to use the Werkzeug helper methods above.
+
+    The 'username' and 'password' kwargs should be non-hashed/plaintext.
+
+    Returns None if the 'username' is bogus or the 'password' check fails.
+    """
+
+    # return None immediately if either input is None
     if username is None or password is None:
         return None
 
+    # initialize U as None, i.e. our default/failure return
+    U = None
+
+    # grab the user's MDB document, but DO NOT initialize the User:
     user = utils.mdb.users.find_one({"login": username})
-    if user is not None and safe_str_cmp(user["password"], md5(password).hexdigest()):
-        U = User(_id=user["_id"])
-        return U
+
+    # if we have a user dict, do our comparisons and set U to be an
+    #   initialized User object if they succeed:
+    if user is not None:
+        if safe_str_cmp(user["password"], md5(password).hexdigest()):
+            U = User(_id=user["_id"])
+        elif check_password_hash(user['password'], password):
+            U = User(_id=user["_id"])
+
+    # timestamp this authentication
+    if U is not None:
+        U.set_latest_authentication()
+
+    return U
+
+
 
 def check_authorization(token):
     """ Tries to decode 'token'. Returns an HTTP 200 if it works, returns a 401
@@ -219,7 +243,7 @@ class User(Models.UserAsset):
 
     def __init__(self, *args, **kwargs):
         self.collection="users"
-        self.object_version=0.23
+        self.object_version=0.24
         Models.UserAsset.__init__(self,  *args, **kwargs)
 
         # JWT needs this
@@ -270,9 +294,11 @@ class User(Models.UserAsset):
         self.user = {
             'created_on': datetime.now(),
             'login': username,
-            'password': md5(password).hexdigest(),
+#            'password': md5(password).hexdigest(),
+            'password': generate_password_hash(password),
             'preferences': {},
             'collection': {"expansions": []},
+            'notifications': {},
         }
         self._id = utils.mdb.users.insert(self.user)
         self.load()
@@ -296,6 +322,7 @@ class User(Models.UserAsset):
 
         # basics; all views, generic UI/UX stuff
         output["user"]["age"] = self.get_age()
+        output['user']['gravatar_hash'] = md5(self.user['login']).hexdigest()
         output["user"]["settlements_created"] = utils.mdb.settlements.find({'created_by': self.user['_id'], 'removed': {'$exists': False}}).count()
         output["user"]["survivors_created"] = utils.mdb.survivors.find({'created_by': self.user['_id']}).count()
         output['user']['subscriber'] = self.get_patron_attributes()
@@ -306,7 +333,7 @@ class User(Models.UserAsset):
         if return_type in ['dashboard']:
             output["preferences"] = self.get_preferences('dashboard')
             output["dashboard"] = {}
-#            output["dashboard"]["friends"] = self.get_friends(return_type=list)
+            output["dashboard"]["friends"] = self.get_friends(return_type=list)
             output["dashboard"]["campaigns"] = self.get_settlements(return_type='list_of_dicts', qualifier='player')
             output["dashboard"]["settlements"] = self.get_settlements(return_type='list_of_dicts')
 
@@ -405,7 +432,7 @@ class User(Models.UserAsset):
         self.save()
 
 
-    def set_latest_action(self, activity_string=None, ua_string=None):
+    def set_latest_action(self, activity_string=None, ua_string=None, save=True):
         """ Updates the user's 'latest_activity' string and saves the user back
         to the MDB. Supercedes the BS version of this that went on in the legacy
         webapp (i.e. between session.py and the assets.User.mark_usage() method).
@@ -414,7 +441,19 @@ class User(Models.UserAsset):
         self.user['latest_action'] = activity_string
         self.user['latest_activity'] = datetime.now()
         self.user['latest_user_agent'] = ua_string
-        self.save(verbose=False)
+        if save:
+            self.save(verbose=False)
+
+
+    def set_latest_authentication(self, timestamp=None, save=True):
+        """ Sets the self.user['latest_authentication'] value to the datetime
+        object passed in the 'timestamp' kwarg. If 'timestamp' is none, defaults
+        to datetime.now(). """
+
+        self.user['latest_authentication'] = datetime.now()
+        if save:
+            self.save(verbose=False)
+
 
 
     def set_patron_attributes(self, level=None, beta=None):
@@ -491,8 +530,8 @@ class User(Models.UserAsset):
         if new_password is None:
             raise Exception("New password cannot be None type!")
 
-        self.user['password'] = md5(new_password).hexdigest()
-        self.logger.warn("%s Changed password!" % self)
+        self.user['password'] = generate_password_hash(new_password)
+        self.logger.info("%s Changed password!" % self)
         self.save()
 
 
@@ -840,6 +879,11 @@ class User(Models.UserAsset):
         if not 'collection' in self.user.keys():
             self.user['collection'] = {"expansions": [], }
             self.logger.info("%s Baselined 'collection' key into user dict." % self)
+            self.perform_save = True
+
+        if not 'notifications' in self.user.keys():
+            self.user['notifications'] = {}
+            self.logger.info("%s Baselined 'notifications' key into user dict." % self)
             self.perform_save = True
 
 

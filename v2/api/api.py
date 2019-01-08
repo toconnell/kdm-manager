@@ -27,7 +27,7 @@ import utils
 
 # models
 from models import users, settlements, names
-
+from utils.route_decorators import crossdomain
 
 # general logging
 #utils.basic_logging()
@@ -80,8 +80,8 @@ def favicon():
 #
 
 # stat the API
-@application.route("/stat")
-@utils.crossdomain(origin=['*'], headers=['Access-Control-Allow-Origin'])
+@application.route("/stat", methods=["GET","POST","OPTIONS"])
+@crossdomain(origin=['*'])
 def stat_api():
     """ Returns a dict of API information. """
     d = utils.api_meta
@@ -89,7 +89,7 @@ def stat_api():
 
 # asset lookups
 @application.route("/game_asset/<asset_collection>", methods=["GET","POST","OPTIONS"])
-@utils.crossdomain(origin=['*'],headers=['Authorization','Content-Type','Access-Control-Allow-Origin'])
+@crossdomain(origin=['*'])
 def lookup_asset(asset_collection):
     """ Looks up game asset collection assets. Or, if you GET it, dumps the whole
     asset collection object """
@@ -99,7 +99,7 @@ def lookup_asset(asset_collection):
 
 # world
 @application.route("/world")
-@utils.crossdomain(origin=['*'],headers='Content-Type')
+@crossdomain(origin=['*'], headers='Content-Type')
 def world_json():
     W = world.World()
     D = world.WorldDaemon()
@@ -126,7 +126,7 @@ def get_settings():
 
 # ui/ux helpers
 @application.route("/new_settlement")
-@utils.crossdomain(origin=['*'],headers='Content-Type')
+@crossdomain(origin=['*'], headers='Content-Type')
 def get_new_settlement_assets():
     S = settlements.Assets()
     return Response(
@@ -136,7 +136,7 @@ def get_new_settlement_assets():
     )
 
 @application.route("/get_random_names/<count>")
-@utils.crossdomain(origin=['*'],headers='Content-Type')
+@crossdomain(origin=['*'], headers='Content-Type')
 def get_random_names(count):
     N = names.Assets()
     return Response(
@@ -146,7 +146,7 @@ def get_random_names(count):
     )
 
 @application.route("/get_random_surnames/<count>")
-@utils.crossdomain(origin=['*'],headers='Content-Type')
+@crossdomain(origin=['*'], headers='Content-Type')
 def get_random_surnames(count):
     N = names.Assets()
     return Response(
@@ -160,7 +160,7 @@ def get_random_surnames(count):
 #   /login (not to be confused with the built-in /auth route)
 #
 @application.route("/login", methods=["POST","OPTIONS"])
-@utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization','Access-Control-Allow-Origin'])
+@crossdomain(origin=['*'])
 def get_token(check_pw=True, user_id=False):
     """ Tries to get credentials from the request headers. Fails verbosely."""
 
@@ -182,7 +182,7 @@ def get_token(check_pw=True, user_id=False):
     return Response(response=json.dumps(tok), status=200, mimetype="application/json")
 
 @application.route("/reset_password/<action>", methods=["POST","OPTIONS"])
-@utils.crossdomain(origin=['*'],headers='Content-Type')
+@crossdomain(origin=['*'], headers='Content-Type')
 def reset_password(action):
     setattr(request, 'action', action)
     if action == 'request_code':
@@ -198,7 +198,7 @@ def reset_password(action):
 #
 
 @application.route("/authorization/<action>", methods=["POST","GET","OPTIONS"])
-@utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization','Access-Control-Allow-Origin'])
+@crossdomain(origin=['*'])
 def refresh_auth(action):
 
     setattr(request, 'action', action)
@@ -224,7 +224,7 @@ def refresh_auth(action):
 
 
 @application.route("/new/<asset_type>", methods=["POST", "OPTIONS"])
-@utils.crossdomain(origin=['*'],headers=['Authorization','Content-Type','Access-Control-Allow-Origin'])
+@crossdomain(origin=['*'])
 def new_asset(asset_type):
     """ Uses the 'Authorization' block of the header and POSTed params to create
     a new settlement. """
@@ -248,7 +248,7 @@ def new_asset(asset_type):
     return request_broker.new_user_asset(asset_type)
 
 @application.route("/<collection>/<action>/<asset_id>", methods=["GET","POST","OPTIONS"])
-@utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization','Access-Control-Allow-Origin'])
+@crossdomain(origin=['*'])
 def collection_action(collection, action, asset_id):
     """ This is our major method for retrieving and updating settlements.
 
@@ -271,7 +271,7 @@ def collection_action(collection, action, asset_id):
 
 
 @application.route("/avatar/get/<image_oid>", methods=["GET"])
-@utils.crossdomain(origin=['*'],headers=['Content-Type','Authorization','Access-Control-Allow-Origin'])
+@crossdomain(origin=['*'])
 def serve_image(image_oid):
     """ Retrieves a survivor avatar from the GridFS system; apes a filesystem."""
     I = gridfs_files.image(image_oid)
@@ -305,7 +305,7 @@ def admin_notifications(method):
     return request_broker.admin_notifications(method)
 
 @application.route("/admin/get/<resource>", methods=["GET","OPTIONS"])
-@utils.crossdomain(origin=['*'])
+@crossdomain(origin=['*'])
 #@basicAuth.login_required
 def admin_view(resource):
     """ Retrieves admin panel resources as JSON. """
@@ -322,6 +322,13 @@ def before_request():
     performance monitoring. """
     request.start_time = datetime.now()
     request.metering = False
+
+    # get the API key from the incoming request
+    try:
+        request.api_key = request.headers['API-Key']
+    except:
+        request.api_key = None
+
     if socket.getfqdn() != settings.get('api','prod_fqdn'):
         request.metering = True
 
@@ -339,14 +346,14 @@ def after_request(response):
 #   special/bogus/meta routes
 #
 @application.errorhandler(Exception)
-@utils.crossdomain(origin=['*'])
+@crossdomain(origin=['*'])
 def general_exception(exception):
     utils.email_exception(exception)
     return Response(response=exception.message, status=500)
 
 
 @application.errorhandler(utils.InvalidUsage)
-@utils.crossdomain(origin=['*'])
+@crossdomain(origin=['*'])
 def return_exception(error):
     return Response(response=error.message, status=error.status_code)
 

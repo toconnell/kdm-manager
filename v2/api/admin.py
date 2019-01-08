@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 
 from optparse import OptionParser
 import os
+from pprint import pprint
 import sys
 import time
 
@@ -307,8 +308,11 @@ class userManagementObject:
         mini_repr = OrderedDict()
         if 'admin' in self.User.user.keys():
             mini_repr['admin'] = self.User.user['admin']
-        for time_attr in ['created_on','latest_sign_in', 'latest_activity']:
-            mini_repr[time_attr] = utils.get_time_elapsed_since(U_serialized[time_attr], 'age')
+        for time_attr in ['created_on','latest_sign_in', 'latest_activity','latest_authentication']:
+            try:
+                mini_repr[time_attr] = utils.get_time_elapsed_since(U_serialized[time_attr], 'age')
+            except KeyError:
+                mini_repr[time_attr] = None
         for attr in ['settlements_created','survivors_created']:
             mini_repr[attr] = U_serialized[attr]
         dump_doc_to_cli(mini_repr, gap_spaces=25)
@@ -431,6 +435,13 @@ def remove_api_response_data():
     removed = utils.mdb.api_response_times.remove()
     print("\n  Removed %s API response time records." % removed)
 
+def dump_api_response_data():
+    """ Dumps records created by the api.py methods that track usage. """
+    all_records = utils.mdb.api_response_times.find()
+    print("\n Found %s API response records.\n" % all_records.count())
+    for r in all_records:
+        pprint(r)
+
 
 
 #
@@ -486,6 +497,7 @@ if __name__ == "__main__":
     # work with API response times
     parser.add_option("-A", dest="work_with_api_response_data", default=False, action="store_true", help="Work with API response time data.")
     parser.add_option("--reset_api_response_data", dest="reset_api_response_data", action="store_true", default=False, help="Use with -A to remove ALL DOCUMENTS from the mdb.api_response_times collection.")
+    parser.add_option("--dump", dest="dump_api_response_data", action="store_true", default=False, help="Use with -A to print the mdb.api_response_times collection.")
 
     # Killboard
     parser.add_option("-K", dest="killboard", action="store_true", default=False, help="Clean up the Killboard.")
@@ -536,6 +548,8 @@ if __name__ == "__main__":
     # manage API response times data
     if options.work_with_api_response_data and options.reset_api_response_data:
         remove_api_response_data()
+    if options.work_with_api_response_data and options.dump_api_response_data:
+        dump_api_response_data()
 
     # killboard admin
     if options.killboard:

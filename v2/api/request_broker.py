@@ -8,7 +8,7 @@ import notifications
 import panel
 import utils
 
-from models import abilities_and_impairments, survivors, settlements, users, monsters, campaigns, disorders, expansions, fighting_arts, gear, resources, storage
+from models import abilities_and_impairments, survivors, settlements, users, monsters, campaigns, disorders, expansions, fighting_arts, gear, resources, storage, rules, keywords
 from Models import AssetLoadError
 
 logger = utils.get_logger(log_name="server")
@@ -122,6 +122,8 @@ def get_game_asset(collection):
         'monster': monsters,
         'resource': resources,
         'storage': storage,
+        'rules': rules,
+        'keywords': keywords,
     }
 
     if collection not in supported_endpoints.keys():

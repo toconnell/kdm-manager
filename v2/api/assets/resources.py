@@ -704,10 +704,10 @@ expansions = {
         'desc': '<div class="kdm-table endevour-table"><div class="table-requirement">Requires <b class="fighting-art">Nightmare Training</b></div><div class="table-header"><div class="table-cost"><font class="kdm_font">d</font></div><h3 class="table-title"><b class="table-name">Razor Push-ups</b> - roll 1d10</div></div><table class="roll-table"><tr class="zebra"><td class="roll">1-3</td><td class="result">Gain a random disorder</td></tr><tr><td class="roll">4+</td><td class="result">Gain +1 permanent strength. The fangs are crushed; archive this card.</td></tr></table></div>',
         'rules_table': '<div class="kdm-table endevour-table"><div class="table-requirement">Requires <b class="fighting-art">Nightmare Training</b></div><div class="table-header"><div class="table-cost"><font class="kdm_font">d</font></div><h3 class="table-title"><b class="table-name">Razor Push-ups</b> - roll 1d10</div></div><table class="roll-table"><tr class="zebra"><td class="roll">1-3</td><td class="result">Gain a random disorder</td></tr><tr><td class="roll">4+</td><td class="result">Gain +1 permanent strength. The fangs are crushed; archive this card.</td></tr></table></div>',
         'table': {
-            'type': 'endeavor_table'
+            'type': 'endeavor_table',
             'requirements': ['nightmare_training'], #TODO: should we call out the fighting art type? 
             'cost': '1 Endevour',
-            'title': 'Razor Push-ups'
+            'title': 'Razor Push-ups',
             'dice': '1d10',
             'rolls': [
                 {
@@ -799,7 +799,7 @@ expansions = {
         'keywords': ['organ','consumable'],
         #TODO: black harvest?
         'desc': '<i class="flavor-text">As the monster ages, this sticky and corrosive material builds between the thin layers of its scarab shells. It breaks down fecal product, preventing the knight\'s joints from locking up.</i><br/>During <b class="">Black Harvest</b>, a Restorer can make excellent use of a Scell, using it to nearly perfect the final step of the calcification process.',
-        'copies': 1
+        'copies': 1,
         'flavor_text': 'As the monster ages, this sticky and corrosive material builds between the thin layers of its scarab shells. It breaks down fecal product, preventing the knight\'s joints from locking up.',
         'rules_text': 'During <b class="">Black Harvest</b>, a Restorer can make excellent use of a Scell, using it to nearly perfect the final step of the calcification process.',
     },
@@ -815,10 +815,10 @@ expansions = {
         'copies': 1,
         'rules_table': '<div class="kdm-table endevour-table"> <div class="table-requirement"> Requires <b class="innovation">Scarification</b> </div><div class="table-header"> <div class="table-cost"> <font class="kdm_font">d</font> </div><h3 class="table-title"> <b class="table-name">Horn Ceremony</b> - Archive and roll 1d10 </div></div><table class="roll-table"> <tr class="zebra"> <td class="roll">1-4</td><td class="result">Your brain is punctured and you die.</td></tr><tr> <td class="roll">5+</td><td class="result">Brain Stimulation. Gain the benefits of <b class="story-event">Age 1</b> and <b class="story-event">Age 2</b> without gaining Hunt XP. Brain stimulation ignores the "once a lifetime" rule on the <b class="story-event">Age</b> story event.</td></tr></table></div>',
         'table': {
-            'type': 'endeavor_table'
+            'type': 'endeavor_table',
             'requirements': ['scarification'], #TODO: should we call out the type? 
             'cost': '1 Endevour',
-            'title': 'Horn Ceremony'
+            'title': 'Horn Ceremony',
             'dice': '1d10',
             'rolls': [
                 {
@@ -1088,7 +1088,7 @@ expansions = {
         'name': 'Sunshark Blubber',
         'keywords': ['organ'],
         'desc': '<i class="flavor-text">When inflated with air, this blubber gently floats.</i>',
-        'copies': 1
+        'copies': 1,
         'flavor_text': 'When inflated with air, this blubber gently floats.',
     },
     'sunshark_bone': {
@@ -1388,7 +1388,7 @@ expansions = {
         'rules': ['Perishable'],
         'desc': '<b class="special-rule">Perishable.</b> <br/>You may <b class="special-rule">consume</b> and archive this during the settlement phase to gain +3 <font class="kdm_font">d</font>, skip the next hunt, and gain the <b class="disorder">Flower Addiction</b> disorder.',
         'copies': 1,
-        'rules_text': 'desc': 'You may <b class="special-rule">consume</b> and archive this during the settlement phase to gain +3 <font class="kdm_font">d</font>, skip the next hunt, and gain the <b class="disorder">Flower Addiction</b> disorder.',
+        'rules_text': 'You may <b class="special-rule">consume</b> and archive this during the settlement phase to gain +3 <font class="kdm_font">d</font>, skip the next hunt, and gain the <b class="disorder">Flower Addiction</b> disorder.',
     },
     'osseous_bloom': {
         'expansion': 'flower_knight',

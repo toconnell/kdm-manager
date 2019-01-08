@@ -320,6 +320,27 @@ class AssetCollection(object):
         return output
 
 
+    def get_keywords(self):
+        """ Dumps a uniquified list of rules for all assets in the dict. """
+
+        kw = set()
+        for h in self.assets.keys():
+            A = self.assets[h]
+            if 'keywords' in A.keys():
+                kw |= set(A['keywords'])
+        return sorted(list(kw))
+
+
+    def get_rules(self):
+        """ Dumps a uniquified list of rules for all assets in the dict. """
+
+        rules = set()
+        for h in self.assets.keys():
+            A = self.assets[h]
+            if 'rules' in A.keys():
+                rules |= set(A['rules'])
+        return sorted(list(rules))
+
 
     def get_asset_from_name(self, name, case_sensitive=False, raise_exception_if_not_found=True):
         """ Tries to return an asset dict by looking up "name" attributes within
@@ -839,7 +860,7 @@ class UserAsset(object):
     #
     #   asset update methods below
     #
-    @utils.log_event_exception_manager
+    @models.log_event_exception_manager
     def log_event(self, msg=None, event_type=None, action=None, key=None, value=None, agent=None):
         """ This is the primary user-facing logging interface, so there' s a bit
         of a high bar for using it.
