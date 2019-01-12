@@ -1,0 +1,59 @@
+server {
+    ### no-www redirect
+    listen 80;
+    server_name www.thewatcher.io;
+    rewrite  ^  http://thewatcher.io$request_uri? permanent;
+}
+
+server {
+    listen 80;
+    server_name thewatcher.io;
+
+    access_log  /var/log/nginx/thewatcher.io_access.log;
+    error_log   /var/log/nginx/thewatcher.io_error.log;
+
+    location / {
+        root   /home/toconnell/kdm-manager/v2/teaser;
+        index  index.html index.htm;
+    }
+}
+
+server {
+    listen  80;
+    server_name  api.thewatcher.io;
+
+    ### Logging
+    access_log  /var/log/nginx/api.thewatcher.io_access.log;
+    error_log   /var/log/nginx/api.thewatcher.io_error.log;
+
+    large_client_header_buffers 4 32k;
+    client_max_body_size 5M;    # big-ass avatar image support
+
+    ### Locations
+    location / {
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   Host      $http_host;
+        proxy_pass         http://127.0.0.1:8013;
+#        add_header Access-Control-Allow-Origin *;
+    }
+
+    location /static {
+        autoindex   on;
+        root        /home/toconnell/kdm-manager/v2/api.thewatcher.io/api/;
+    }
+
+    location /favicon.ico {
+        alias       /home/toconnell/kdm-manager/v2/api.thewatcher.io/api/static/media/images/the_watcher.png;
+    }
+
+    listen 443 ssl;
+    ssl_certificate /etc/letsencrypt/live/api.thewatcher.io/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/api.thewatcher.io/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf; 
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; 
+
+    if ($scheme != "https") {
+        return 301 https://$host$request_uri;
+    } 
+    
+}
