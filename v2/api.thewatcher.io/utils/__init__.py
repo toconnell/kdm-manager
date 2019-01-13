@@ -1,5 +1,7 @@
 #!/usr/bin/python2.7
 
+
+
 # general imports
 from bson import json_util
 from bson.objectid import ObjectId
@@ -9,7 +11,8 @@ import email
 from email.header import Header as email_Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from flask import Response, make_response, request
+from flask import Response, make_response, request, send_file
+import gridfs
 from HTMLParser import HTMLParser
 import json
 import logging
@@ -18,12 +21,13 @@ from pymongo import MongoClient
 import smtplib
 import socket
 from string import Template
+from StringIO import StringIO
 import sys
 import time
 import traceback
 
 # project-specific imports
-from api import settings
+import settings
 
 
 # random, one-off helpers in the main namespace
@@ -40,12 +44,40 @@ thirty_days_ago = datetime.now() - timedelta(days=30)
 http_200 = Response(response="OK!", status=200)
 http_400 = Response(response="Bad Request!", status=400)
 http_401 = Response(response="Authorization required", status=401)
+http_402 = Response(response="This is a subscribers-only endpoint!", status=402)
 http_404 = Response(response="Resource not found", status=404)
-http_405 = Response(response="Method not allowed", status=405)
+http_405 = Response(response="Method not allowed (did you mean to POST?)", status=405)
 http_422 = Response(response="Missing argument, parameter or value", status=422)
 http_500 = Response(response="Server explosion! The server erupts in a shower of gore, killing your request instantly. All other servers are so disturbed that they lose 1 survival.", status=500)
 http_501 = Response(response="Not implemented in this release", status=501)
 
+
+#
+#   GridFS Image object definition
+#
+
+class GridfsImage(object):
+    """ Initialize this with a string of an mdb Object ID, and use
+    the render_response() method to create an http response of the
+    image. Fuck a file system: props to the immortal rschulz. """
+
+    def __init__(self, img_id):
+        try:
+            img_oid = ObjectId(img_id)
+        except:
+            err_msg = 'Image OIDs must be 12-byte input or 24-character hex!'
+            raise InvalidUsage(err_msg, status_code=400)
+        try:
+            self.img = gridfs.GridFS(mdb).get(img_oid)
+        except gridfs.errors.NoFile:
+            self.img = None
+
+    def render_response(self):
+        """ Renders an http response. """
+        if self.img is None:
+            return Response(response="Image not found!", status=404)
+        image_file = StringIO(self.img.read())
+        return send_file(image_file, mimetype="image/png")
 
 
 
@@ -567,3 +599,6 @@ class InvalidUsage(Exception):
        rv = dict(self.payload or ())
        rv['message'] = self.message
        return Response(rv['message'], self.status_code)
+#!/usr/bin/env python
+
+

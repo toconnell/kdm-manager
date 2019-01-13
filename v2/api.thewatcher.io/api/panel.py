@@ -7,7 +7,6 @@ from copy import copy
 from datetime import datetime, timedelta
 import json
 import os
-import settings
 import sys
 
 # project
@@ -20,7 +19,7 @@ def get_settlement_data():
     """ Returns JSON about recently updated settlements. Also serializes those
     settlements and gets their event_log. """
 
-    recent_cutoff = datetime.now() - timedelta(hours=settings.get("application","recent_user_horizon"))
+    recent_cutoff = datetime.now() - timedelta(hours=utils.settings.get("application","recent_user_horizon"))
 
     ids = utils.mdb.settlements.find({'last_accessed': {'$gte': recent_cutoff}}).distinct('_id')
 
@@ -63,7 +62,7 @@ def get_user_data():
 
 
     # next, get active/recent users
-    recent_user_cutoff = datetime.now() - timedelta(hours=settings.get("application","recent_user_horizon"))
+    recent_user_cutoff = datetime.now() - timedelta(hours=utils.settings.get("application","recent_user_horizon"))
     recent_users = utils.mdb.users.find(
         {"latest_activity": {"$gte": recent_user_cutoff}}
     ).sort("latest_activity", -1)
@@ -74,7 +73,7 @@ def get_user_data():
     for u in recent_users:
         u['age'] = utils.get_time_elapsed_since(u['created_on'], 'age')
         u['latest_activity_age'] = utils.get_time_elapsed_since(u['latest_activity'], 'age')
-        if u["latest_activity"] > (datetime.now() - timedelta(minutes=settings.get('application','active_user_horizon'))):
+        if u["latest_activity"] > (datetime.now() - timedelta(minutes=utils.settings.get('application','active_user_horizon'))):
             active_user_count += 1
             u['is_active'] = True
         else:
@@ -85,9 +84,9 @@ def get_user_data():
     # create the final output dictionary
     d = {
         "meta": {
-            "active_user_horizon": settings.get("application","active_user_horizon"),
+            "active_user_horizon": utils.settings.get("application","active_user_horizon"),
             "active_user_count": active_user_count,
-            "recent_user_horizon": settings.get("application","recent_user_horizon"),
+            "recent_user_horizon": utils.settings.get("application","recent_user_horizon"),
             "recent_user_count": recent_user_count,
         },
         "user_agent_stats": ua_data,
@@ -102,14 +101,14 @@ def serialize_system_logs():
 
     d = {}
 
-    log_root = settings.get("application","log_root_dir")
+    log_root = utils.settings.get("application","log_root_dir")
 
     for l in ["world","api","server","world_daemon","gunicorn"]:
         log_file_name = os.path.join(log_root, "%s.log" % l)
         if os.path.isfile(log_file_name):
             fh = file(log_file_name, "r")
             log_lines = fh.readlines()
-            log_limit = settings.get("application","log_summary_length")
+            log_limit = utils.settings.get("application","log_summary_length")
             d[l] = [line for line in reversed(log_lines[-log_limit:])]
         else:
             d[l] = ["'%s' does not exist!" % log_file_name]

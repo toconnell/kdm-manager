@@ -1054,7 +1054,7 @@ class WorldDaemon(object):
 
     @retry(
         tries=6,delay=2,jitter=1,
-        logger=utils.get_logger(api.settings.get("world","log_level")),
+        logger=utils.get_logger(utils.settings.get("world","log_level")),
     )
     def start(self):
         """ Starts the daemon. """

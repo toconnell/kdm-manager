@@ -9,28 +9,24 @@ from optparse import OptionParser
 import os
 import sys
 
+import api
+
 class Settings:
 
     def __init__(self, settings_type=None):
         """ Initialize a Settings object as public or private. """
 
-        if settings_type == "private":
-            filename = "settings_private.cfg"
+        if settings_type == 'private':
+            c_path = os.path.join(api.application.root_path, "..", "settings_private.cfg")
         else:
-            filename = "settings.cfg"
-
-        # always using the settings.cfg file that lives in the same dir
-        # as this script: lots of modules can call settings.py, and we need
-        # to guarantee that they can find the file
-        dirname = os.path.dirname(inspect.getfile(inspect.currentframe()))
-        settings_abs_path = os.path.join(dirname, filename)
+            c_path = os.path.join(api.application.root_path, "..", "settings.cfg")
 
         # fail if the dir with settings.py does not have a settings.cfg
-        if not os.path.isfile(settings_abs_path):
+        if not os.path.isfile(c_path):
             raise OSError("%s: Settings file '%s' does not exist!" % (sys.argv[0], settings_abs_path))
 
         self.config = SafeConfigParser()
-        self.config.file_path = settings_abs_path
+        self.config.file_path = c_path
         self.config.readfp(open(self.config.file_path))
         self.config.settings_type = settings_type
 

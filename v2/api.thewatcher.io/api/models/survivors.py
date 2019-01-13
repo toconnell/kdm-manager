@@ -14,7 +14,7 @@ import math
 from PIL import Image
 import random
 
-from api import Models, settings
+from api import Models
 from api.assets import survivor_sheet_options, survivors
 from api.models import abilities_and_impairments, cursed_items, disorders, endeavors, epithets, fighting_arts, names, saviors, survival_actions, survivor_special_attributes, the_constellations, weapon_proficiency
 import utils
@@ -1050,7 +1050,7 @@ class Survivor(Models.UserAsset):
             self.logger.exception(e)
             raise utils.InvalidUsage(msg)
 
-        resize_tuple = tuple([int(n) for n in settings.get("api","avatar_size").split(",")])
+        resize_tuple = tuple([int(n) for n in utils.settings.get("api","avatar_size").split(",")])
         im.thumbnail(resize_tuple, Image.ANTIALIAS)
         im.save(processed_image, format="PNG")
 

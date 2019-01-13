@@ -11,7 +11,7 @@ import json
 import random
 import time
 
-from api import assets, Models, settings
+from api import assets, Models
 from api.models import survivors, campaigns, cursed_items, disorders, gear, endeavors, epithets, expansions, fighting_arts, weapon_specializations, weapon_masteries, causes_of_death, innovations, survival_actions, events, abilities_and_impairments, monsters, milestone_story_events, locations, causes_of_death, names, resources, storage, survivor_special_attributes, weapon_proficiency, survivor_color_schemes, strain_milestones
 import utils
 

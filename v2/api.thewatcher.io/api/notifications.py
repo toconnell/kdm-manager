@@ -7,7 +7,6 @@ from flask import request, Response
 import json
 
 from models import users
-import settings
 import utils
 
 
@@ -51,7 +50,7 @@ class Alert:
         self.alert['created_on'] = datetime.now()
         self.alert['created_by'] = ObjectId(self.alert['created_by'])
         self.alert['expired'] = False
-        self.alert['release'] = settings.get('api','version')
+        self.alert['release'] = utils.settings.get('api','version')
         self.alert['remote_ip'] = request.remote_addr
 
         # finally, save it and return it

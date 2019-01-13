@@ -133,6 +133,7 @@ dashboard = {
     "settings_json": {
 	"name": "/settings.json",
 	"desc": """\
+<p><b>DEPRECATED: 2019-01-13.</b> This route is going away! Consider using <code>/stat</code> instead</p>
 <p> Not strictly a part of the API, but sometimes useful. Hit this route to
  download an attachement of the API's <code>settings.cfg</code> as JSON.</p>
 	""",
@@ -140,6 +141,7 @@ dashboard = {
     "settings": {
 	"name": "/settings",
 	"desc": """\
+<p><b>DEPRECATED: 2019-01-13.</b> This route is going away! Consider using <code>/stat</code> instead</p>
 <p>Retrieve the API's <code>settings.cfg</code> file as JSON.</p>
 	""",
     },

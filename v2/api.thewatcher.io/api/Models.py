@@ -18,7 +18,6 @@ from flask import request, Response
 
 import utils
 import models
-import settings
 
 #
 #   Base classes for game assets are here. Also, special exceptions for those

@@ -13,7 +13,6 @@ import functools
 
 import flask
 
-from api import settings
 
 
 def crossdomain(origin=None, methods=None, headers=None, max_age=21600,
@@ -66,7 +65,7 @@ def crossdomain(origin=None, methods=None, headers=None, max_age=21600,
             if headers is not None:
                 resp.headers['Access-Control-Allow-Headers'] = headers
             elif headers is None:
-                default_headers = settings.get('api','default_headers')
+                default_headers = utils.settings.get('api','default_headers')
                 resp.headers['Access-Control-Allow-Headers'] = default_headers
 
             return resp

@@ -16,7 +16,7 @@ import string
 import urlparse
 from werkzeug.security import safe_str_cmp, generate_password_hash, check_password_hash
 
-from api import Models, settings
+from api import Models
 import utils
 
 from settlements import Settlement
@@ -26,7 +26,7 @@ import user_preferences
 
 # laaaaaazy
 logger = utils.get_logger()
-secret_key = settings.get("api","secret_key","private")
+secret_key = utils.settings.get("api","secret_key","private")
 
 
 #
@@ -167,7 +167,7 @@ def initiate_password_reset():
 
     # finally, send the email to the user
     try:
-        tmp_file = os.path.join(settings.get("api","cwd"), "html/password_recovery.html")
+        tmp_file = os.path.join(utils.settings.get("api","cwd"), "html/password_recovery.html")
         msg = string.Template(file(tmp_file, "rb").read())
         msg = msg.safe_substitute(login=user_login, recovery_code=user_code, app_url=application_url, netloc=netloc)
         e = utils.mailSession()
@@ -607,7 +607,7 @@ class User(Models.UserAsset):
             return False
 
         minutes_since_latest = self.get_latest_activity('minutes')
-        active_horizon = settings.get("application","active_user_horizon")
+        active_horizon = utils.settings.get("application","active_user_horizon")
         if minutes_since_latest <= active_horizon:
             return True
 
@@ -640,9 +640,9 @@ class User(Models.UserAsset):
         'preference' key and returns its value (which is a bool).
 
         If the key is NOT present on the user's MDB document, return the default
-        value from settings.cfg. """
+        value from utils.settings.cfg. """
 
-        default_value = settings.get("users", p_key)
+        default_value = utils.settings.get("users", p_key)
 
         if "preferences" not in self.user.keys():
             return default_value
@@ -794,9 +794,9 @@ class User(Models.UserAsset):
 #            self.logger.debug("%s Subscriber level is %s. Checking settlement asset ages..." % (self, sub_level))
             for s in settlements:
                 asset_age = datetime.now() - s['created_on']
-                older_than_cutoff = asset_age.days > settings.get('application','free_user_settlement_age_max')
+                older_than_cutoff = asset_age.days > utils.settings.get('application','free_user_settlement_age_max')
                 if older_than_cutoff and self.user['_id'] == s['created_by']:
-                    self.logger.warn("%s settlement '%s' is more than %s days old!" % (self, s['name'], settings.get('application','free_user_settlement_age_max')))
+                    self.logger.warn("%s settlement '%s' is more than %s days old!" % (self, s['name'], utils.settings.get('application','free_user_settlement_age_max')))
                     msg = utils.html_file_to_template('html/auto_remove_settlement.html')
 
                     # in case the admin panel hits it before the actual user
@@ -811,7 +811,7 @@ class User(Models.UserAsset):
                         user_id = request.User._id,
                     )
                     e = utils.mailSession()
-                    e.send(subject="Settlement auto-remove! [%s]" % socket.getfqdn(), recipients=settings.get('application','email_alerts').split(','), html_msg=msg)
+                    e.send(subject="Settlement auto-remove! [%s]" % socket.getfqdn(), recipients=utils.settings.get('application','email_alerts').split(','), html_msg=msg)
                     s['removed'] = datetime.now()
                     utils.mdb.settlements.save(s)
                     settlements.remove(s)
