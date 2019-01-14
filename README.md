@@ -18,7 +18,7 @@ For more information, please refer to [the 'About' section of the project's deve
 ## Licensing and permission
 The MIT license (LICENSE.md) covers application and API code in this repository, but it does not and cannot cover the game assets (in the `/v2/api.thewatcher.io/api/assets` folder), which are the sole property of Kingdom Death.
 
-The "Silverado MediumCondensed" font is licensed through Myfonts.com ([see license](https://www.myfonts.com/viewlicense.php?lid=1630)) for exclusive use by [The Labor in Vain](https://www.myfonts.com/viewlicense.php?lid=1630) and may not be used elsewhere or by any other party or individual.
+The "Silverado MediumCondensed" font is licensed through Myfonts.com under the terms of the ([Web Font Pay Once](https://www.myfonts.com/viewlicense.php?lid=1630) license) for use by [The Labor in Vain](https://www.myfonts.com/viewlicense.php?lid=1630).
 
 
 #   INSTALLATION and INITIAL SETUP

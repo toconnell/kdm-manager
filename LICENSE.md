@@ -23,7 +23,4 @@ SOFTWARE.
 Game assets contained within this software are the sole property of Kingdom
 Death and may not be reproduced or transmitted.
 
-The "Silverado MediumCondensed" font is licensed through Myfonts.com
-([see license](https://www.myfonts.com/viewlicense.php?lid=1630)) for use by
-[The Labor in Vain](https://www.myfonts.com/viewlicense.php?lid=1630) and may
-not be used elsewhere or by any other party or individual.
+The "Silverado MediumCondensed" font is licensed through Myfonts.com under the terms of the ([Web Font Pay Once](https://www.myfonts.com/viewlicense.php?lid=1630) license) for use by [The Labor in Vain](https://www.myfonts.com/viewlicense.php?lid=1630).
