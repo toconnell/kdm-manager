@@ -6,12 +6,19 @@
 ## Introduction 
 [https://kdm-manager.com](https://kdm-manager.com) or, as it is generally called, the Manager, is an Interactive campaign manager for *Monster* by [Kingdom Death](https://kingdomdeath.com).
 
-**Neither the [https://kdm-manager.com](https://kdm-manager.com) service nor any of the software utilized by that service (including the API at [https://thewatcher.io](https://thewatcher.io) are developed, authorized in any other way supported by or affiliated with Kingdom Death or Adam Poots Games, LLC.**
+This repository currently contains the code for both the web application and the API that is used to create and update user-created settlement and survivors records as well as other game information.
 
-Both the Manager and the API are totally independent, fan-maintained projects.
+## Important!
+Both the Manager and the API are developed by [The Labor in Vain](https://thelaborinvain.com), which has no affiliation with Kingdom Death.
+
+**Neither the [https://kdm-manager.com](https://kdm-manager.com) service nor any of the software utilized by that service (including the API deployed at [https://thewatcher.io](https://thewatcher.io) are developed, authorized, supported by or affiliated with Kingdom Death or Adam Poots Games, LLC.**
 
 For more information, please refer to [the 'About' section of the project's development blog](http://kdm-manager.blogspot.com/p/credits-and-acknowledgements.html).
 
+## Licensing and permission
+The MIT license (LICENSE.md) covers application and API code in this repository, but it does not and cannot cover the game assets (in the `/v2/api.thewatcher.io/api/assets` folder), which are the sole property of Kingdom Death.
+
+The "Silverado MediumCondensed" font is licensed through Myfonts.com ([see license](https://www.myfonts.com/viewlicense.php?lid=1630)) for exclusive use by [The Labor in Vain](https://www.myfonts.com/viewlicense.php?lid=1630) and may not be used elsewhere or by any other party or individual.
 
 
 #   INSTALLATION and INITIAL SETUP
