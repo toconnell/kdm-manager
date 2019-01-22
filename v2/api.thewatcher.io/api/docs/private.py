@@ -390,7 +390,13 @@ requested lines to come back from the API:
 <tr>
     <td>ly</td>
     <td>arbitrary int</td>
-    <td class="text">Limit the return to event log lines created <u>during</u> an arbitrary Lantern Year, e.g. <code>{ly: 9}</code>.<br/> Note:<ul><li>This will always return <i>something</i> and you'll get an empty list back for Lantern Years with no events.</li><li>This param triggers a performance-optimized query and will return faster than a general call to the endpoint with no params.</li></ul>
+    <td class="text">
+        Limit the return to event log lines created <u>during</u> an arbitrary Lantern Year, e.g. <code>{ly: 9}</code>.<br/>
+        Note:
+        <ul class="embedded">
+            <li>This will always return <i>something</i> and you'll get an empty list back for Lantern Years with no events.</li>
+            <li>This param triggers a performance-optimized query and will return faster than a general call to the endpoint with no params.</li>
+        </ul>
 </tr>
 <tr>
     <td>get_lines_after</td>
@@ -459,11 +465,49 @@ include the <code>desc</code>, <code>quantity</code>, etc. of an individual
 game asset (piece of gear or resource or whatever).</p>
         """,
     },
+    "settlement_abandon_settlement_id": {
+        "name": "/settlement/abandon/&lt;settlement_id&gt;",
+        "methods": ["POST", "OPTIONS"],
+        "desc": """\
+<p>Hit this route with a <b>POST</b> to mark the settlement as abandoned.</p>
+<p>Your <b>POST</b> does not need to contain anything (but it does need
+to be a <b>POST</b> (<b>GET</b> requests will not abandon the settlement.</p>
+<p>An abandoned settlement has a date/time stamp of when it was
+abandoned as its <code>abandoned</code> attribute and you can use this in your
+UI to separate it out from active settlements.</p>
+        """,
+    },
+    "settlement_remove_settlement_id": {
+        "name": "/settlement/remove/&lt;settlement_id&gt;",
+        "methods": ["POST", "OPTIONS"],
+        "desc": """\
+<p><b>POST</b> (not <b>GET</b>) to this route to mark the settlement as
+removed.</p>
+<p>Once marked as removed, settlements are queued up by the API for removal
+from the database: the next time the maintenance process runs, it will check
+the timestap of the mark as removed event and purge the settlement
+(and all survivors) from the database.</p>
+<p><b>This cannot be undone.</b></p>
+        """,
+    },
+
+
 
 
 	#
 	#	settlement SET attributes
 	#
+
+    "settlement_set_last_accessed_settlement_id": {
+        "name": "/settlement/set_last_accessed/&lt;settlement_id&gt;",
+        "subsection": "settlement_set_attribute",
+        "desc": """\
+<p>This endpoint allows you to set the settlement's <code>last_accessed</code>
+attribute, which is used in dashboard reporting, etc. </p>
+<p><b>POST</b>ing an empty JSON payload to this will cause the settlement's
+<code>last_accessed</code> value to be set to now.</p>
+        """,
+    },
 
     "settlement_set_name_settlement_id": {
         "name": "/settlement/set_name/&lt;settlement_id&gt;",
@@ -503,7 +547,7 @@ if you try to <b>POST</b> an unrecognized FA handle to it. YHBW.</p>
 	""",
     },
     "settlement_set_lantern_research_level_settlement_id": {
-        "name": "/settlement/set_lantern_Research_level/&lt;settlement_id&gt;",
+        "name": "/settlement/set_lantern_research_level/&lt;settlement_id&gt;",
         "subsection": "settlement_set_attribute",
         "desc": """\
 <p>Set the Settlement's Lantern Research Level with some basic
@@ -861,6 +905,260 @@ the <code>handle</code> of the location and the desired level:</p>
 	#	innovation controls
 	#
 
-
+    "settlement_get_innovation_deck_settlement_id": {
+        "name": "/settlement/get_innovation_deck/&lt;settlement_id&gt;",
+        "subsection": "settlement_manage_innovations",
+        "desc": """\
+<p>Retrieve the settlement's current innovation deck as an array of asset names
+by default.</p>
+<p>Alternately, you can <b>POST</b> the parameter
+<code>return_type: "dict"</code> to this endpoint to get a hash of innovations
+(representing the settlement's Innovation Deck) back from this endpoint.</p>
+<p>In the hash, innovation assets are sorted by their name (i.e. <i>not</i>
+ by their handle):<p>
+<pre><code>{
+    "albedo": {
+        "handle": "albedo",
+        "name": "Albedo",
+        "consequences": [
+            "citrinitas"
+        ],
+        "endeavors": [
+            "gorm_albedo"
+        ],
+        "expansion": "gorm",
+        "type_pretty": "Innovations",
+        "sub_type_pretty": "Expansion",
+        "type": "innovations",
+        "sub_type": "expansion",
+        "innovation_type": "science"
+    },
+    "bed": {
+        "handle": "bed",
+        "name": "Bed",
+        "type": "innovations",
+        "endeavors": [
+            "bed_rest"
+        ],
+        "type_pretty": "Innovations",
+        "sub_type_pretty": "Innovation",
+        "survival_limit": 1,
+        "sub_type": "innovation",
+        "innovation_type": "home"
+    },
+    ...
+    "symposium": {
+        "handle": "symposium",
+        "name": "Symposium",
+        "consequences": [
+            "nightmare_training",
+            "storytelling"
+        ],
+        "type": "innovations",
+        "settlement_buff": "When a survivor innovates, draw an additional 2 Innovation Cards to choose from.",
+        "type_pretty": "Innovations",
+        "sub_type_pretty": "Innovation",
+        "survival_limit": 1,
+        "sub_type": "innovation",
+        "innovation_type": "education"
+    }
 }
+</code></pre>
+	""",
+    },
+    "settlement_add_innovation_settlement_id": {
+        "name": "/settlement/add_innovation/&lt;settlement_id&gt;",
+        "subsection": "settlement_manage_innovations",
+        "desc": """\
+ <p> <b>POST</b> an Innovation <code>handle</code> to this route to add
+it to the settlement's Innovations:</p>
+<code>{'handle': 'hovel'}</code>
+<p>...or:</p><code>{'handle': 'mastery_club'}</code>
+<p><b>Important!</b> As far as the API is concerned, Principles (e.g.
+'Graves', 'Survival of the Fittest', etc. <u>are not innovations</u>
+and you <u>will</u> break the website if you try to add a principle
+as if it were an innovation.</p>
+<p>Use <code>set_principle</code> (below) instead.</p>
+	""",
+    },
+    "settlement_rm_innovation_settlement_id": {
+        "name": "/settlement/rm_innovation/&lt;settlement_id&gt;",
+        "subsection": "settlement_manage_innovations",
+        "desc": """\
+<p>This is basically the reverse of <code>add_innovation</code>
+and works nearly identically. <b>POST</b> a JSON representation of an
+Innovation handle to remove it from the settlement's list:</p>
+<code>{'handle': 'mastery_club'}</code>
+	""",
+    },
+    "settlement_set_innovation_level_settlement_id": {
+        "name": "/settlement/set_innovation_level/&lt;settlement_id&gt;",
+        "subsection": "settlement_manage_innovations",
+        "desc": """\
+<p>For Innovations that have a level (e.g. the Slenderman's 'Dark
+Water Research'), you may set the Innovation's level by posting
+the <code>handle</code> of the innovation and the level:</p>
+<code>{'handle': 'dark_water_research', 'level': 2}</code>
+	""",
+    },
 
+
+	#
+	#	timeline!
+	#
+
+    "settlement_get_timeline_settlement_id": {
+        "name": "/settlement/get_timeline/&lt;settlement_id&gt;",
+        "subsection": "settlement_manage_timeline",
+        "methods": ['GET'],
+        "desc": """\
+<p>Hit this endpoint to get a JSON representation of the
+settlement's timeline.</p>
+<p>This is read-only and optimized for performance, so you'll
+get a timeline MUCH faster using this route than one of the
+routes that pulls down the whole settlement.</p>
+	""",
+    },
+    "settlement_add_lantern_years_settlement_id": {
+        "name": "/settlement/add_lantern_years/&lt;settlement_id&gt;",
+        "subsection": "settlement_manage_timeline",
+        "desc": """\
+<p><b>POST</b> a number (int) of years to add to the settlement's
+Timeline:</p>
+<code>{years: 5}</code>
+<p><b>NB:</b> Timelines are capped at 50 LYs. If you try to add
+a number of years that would take you above 50 LYs, you'll get a
+400 back.</p>
+	""",
+    },
+    "settlement_replace_lantern_year_settlement_id": {
+        "name": "/settlement/replace_lantern_year/&lt;settlement_id&gt;",
+        "subsection": "settlement_manage_timeline",
+        "desc": """\
+<p>This is the preferred route for adding or removing events
+from a Lantern year. It basically requires <b>POST</b>ing an
+entire Lantern Year to the API, so be sure to understand the
+<a href="#timelineDataModel">timeline data model</a> before
+attempting to use this one.</p>
+<p>Since a Lantern year is a hash of hashes, replacing one is
+as simple as <b>POST</b>ing that hash to this route. To "blank
+out" or remove all events from an LY, for example, you would
+simply send a <b>POST</b> body like this:</p>
+<code>{ly: {year: 5}}</code>
+<p>Similarly, to add events to that LY, you could <b>POST</b>
+something like this:</p>
+<code>{ly: {year: 5, settlement_event: [{handle: 'core_open_maw', handle: 'core_clinging_mist'}]}</code>
+<p>Finally, as the name suggests, this is an overwrite/replace
+type method, and it does not do any "checks" or comparisons
+between the data in the API and your incoming LY.</p>
+<p>The best practice here, from a design standpoint, is to pull
+down the settlement's timeline (e.g. using <code>get_timeline</code>
+(above), let the user modify an individual LY as necessary, and
+then to <b>POST</b> their modified LY back, in its entirety, to
+this endpoint.</p>
+	""",
+    },
+    "settlement_set_current_lantern_year_settlement_id": {
+        "name": "/settlement/set_current_lantern_year/&lt;settlement_id&gt;",
+        "subsection": "settlement_manage_timeline",
+        "desc": """\
+<p>To set the settlement's current LY, <b>POST</b> an int to this
+endpoint:</p>
+<code>{ly: 3}</code>
+	""",
+    },
+
+
+	#
+	#	settlement admins
+	#
+
+    "settlement_add_admin_settlement_id": {
+        "name": "/settlement/add_admin/&lt;settlement_id&gt;",
+        "subsection": "settlement_admin_permissions",
+	"methods": ["POST","OPTIONS"],
+        "desc": """\
+<p><b>POST</b> the email address of a registered user to add them to the
+list of settlement administrators:</p>
+<code>{login: 'demo@kdm-manager.com'}</code>
+<p>Disclaimers:<ul><li>This will fail gracefully if the user's
+email is in the list (so feel free to spam it).</li><li>This will
+fail loudly if the email address does not belong to a registered
+user: you'll get a 400 and a nasty message back.</li></ul>
+</p>
+	""",
+    },
+    "settlement_rm_admin_settlement_id": {
+        "name": "/settlement/rm_admin/&lt;settlement_id&gt;",
+        "subsection": "settlement_admin_permissions",
+	"methods": ["POST","OPTIONS"],
+        "desc": """\
+<p>This is the reverse of the <code>add_admin</code> route.</p>
+<p>Basically, you <b>POST</b> some JSON to the route including the email
+of the user you want to remove from the settlement admins list:</p>
+<code>{login: 'demo@kdm-manager.com'}</code>
+<p>Like the <code>add_admin</code> route, this one fails gracefully
+if you try to remove someone who isn't on the list, etc.</p>
+	""",
+    },
+
+
+	#
+	#	settlement notes
+	#
+
+    "settlement_add_note_settlement_id": {
+        "name": "/settlement/add_note/&lt;settlement_id&gt;",
+        "subsection": "settlement_notes_management",
+	"methods": ["POST","OPTIONS"],
+        "desc": """\
+<p>Since any player in a game is allowed to create settlement
+notes, the JSON required by this endpoint must include a user's
+OID.</p>
+<p>This endpoint supports the following key/value pairs:</p>
+<table class="embedded_table">
+    <tr><th>key</th><th><b>R</b>/O</th><th>value</th></tr>
+    <tr>
+        <td class="small_key">author_id</td>
+        <td class="type"><b>R</b></type>
+        <td class="value">The creator's OID as a string.</td>
+    </tr>
+    <tr>
+        <td class="small_key">note</td>
+        <td class="type"><b>R</b></type>
+        <td class="value">The note as a string. We accept HTML here, so if you want to display this back to your users as HTML, you can do that.</td>
+    </tr>
+    <tr>
+        <td class="small_key">author</td>
+        <td class="type">O</type>
+        <td class="value">The creator's login, e.g. <code>demo@kdm-manager.com</code>, as a string. Best practice is to NOT include this, unless you really know what you're doing.</td>
+    </tr>
+    <tr>
+        <td class="small_key">lantern_year</td>
+        <td class="type">O</type>
+        <td class="value">The Lantern Year the note was created. Defaults to the current LY if not specified.</td>
+    </tr>
+</table>
+<p>For example, to add a new note to a settlement, your <b>POST</b>
+body will, at a minimum, look something like this:</p>
+<code>{author_id: "5a26eb1a4af5ca786d1ed548", note: "Nobody expects the Spanish Inquisition!"}</code>
+<p><b>Important!</b> This route returns the OID of the
+newly-created note:</p>
+<code>{"note_oid": {"$oid": "5a2812d94af5ca03ef7db6c6"}}</code>
+<p>...which can then be used to remove the note, if necessary
+(see <code>rm_note</code> below).</p>
+	""",
+    },
+    "settlement_rm_note_settlement_id": {
+        "name": "/settlement/rm_note/&lt;settlement_id&gt;",
+        "subsection": "settlement_notes_management",
+	"methods": ["POST","OPTIONS"],
+        "desc": """\
+<p><b>POST</b> the OID of a settlement note to remove it.</p>
+<code>{_id: "5a26eb894af5ca786d1ed558"}</code>
+<p>As long as you get a 200 back from this one, the note has
+been removed. If you get a non-200 status (literally anything other
+than a 200), something went wrong. </p>
+	""",
+    },
+}

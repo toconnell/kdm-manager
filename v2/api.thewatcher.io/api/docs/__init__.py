@@ -9,7 +9,7 @@ from collections import OrderedDict
 
 import api
 import public, private, sections
-
+import utils
 
 class DocumentationObject:
 
@@ -21,7 +21,7 @@ class DocumentationObject:
         """ Sets self.items dictionary. """
 
         # set default API methods from settings
-        defaults = api.settings.get('api','default_methods').split(",")
+        defaults = utils.settings.get('api','default_methods').split(",")
         self.default_api_methods = [i.strip() for i in defaults]
 
         self.docs = {}
@@ -60,6 +60,15 @@ class DocumentationObject:
     def dump_sections(self):
         """ Dumps self.sections. """
         return self.sections
+
+
+    def get_documented_endpoints(self):
+        """ Returns a set (unique list) of currently documented endpoints. """
+
+        output = set()
+        for doc_handle, doc in self.docs.items():
+            output.add(doc['name'])
+        return sorted(list(output))
 
 
     def get_sections(self, render_as=list, item_type=None):

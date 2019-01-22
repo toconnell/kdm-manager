@@ -11,6 +11,8 @@ import email
 from email.header import Header as email_Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import functools
+import flask
 from flask import Response, make_response, request, send_file
 import gridfs
 from HTMLParser import HTMLParser
@@ -27,6 +29,7 @@ import time
 import traceback
 
 # project-specific imports
+import api
 import settings
 
 
@@ -80,6 +83,77 @@ class GridfsImage(object):
         return send_file(image_file, mimetype="image/png")
 
 
+#
+#   crossdomain decorator for requests
+#
+
+def crossdomain(origin=None, methods=None, headers=None, max_age=21600,
+                attach_to_all=True, automatic_options=True):
+
+    """ This decorates routes and adds allowed headers, etc. to them. """
+
+    if methods is not None:
+        methods = ', '.join(sorted(x.upper() for x in methods))
+    if headers is not None and not isinstance(headers, basestring):
+        headers = ', '.join(x.upper() for x in headers)
+    if not isinstance(origin, basestring):
+        origin = ', '.join(origin)
+    if isinstance(max_age, timedelta):
+        max_age = max_age.total_seconds()
+
+
+    def get_methods():
+
+        """ Call this to process the methods kwarg; defaults to the
+        flask.current_app allowed headers if methods kwarg is None."""
+
+        if methods is not None:
+            return methods
+
+        options_resp = flask.current_app.make_default_options_response()
+        return options_resp.headers['allow']
+
+
+    def decorator(func):
+
+        """ This method decorates the incoming method, which should be a
+        route from Flask. """
+
+        def wrapped_function(*args, **kwargs):
+
+            """ Generic wrapper for the incoming func. """
+
+            if automatic_options and flask.request.method == 'OPTIONS':
+                resp = flask.current_app.make_default_options_response()
+            else:
+                resp = flask.make_response(func(*args, **kwargs))
+            if not attach_to_all and flask.request.method != 'OPTIONS':
+                return resp
+
+            resp.headers['Access-Control-Allow-Origin'] = origin
+            resp.headers['Access-Control-Allow-Methods'] = get_methods()
+            resp.headers['Access-Control-Max-Age'] = str(max_age)
+
+            if headers is not None:
+                resp.headers['Access-Control-Allow-Headers'] = headers
+            elif headers is None:
+                default_headers = settings.get('api','default_headers')
+                resp.headers['Access-Control-Allow-Headers'] = default_headers
+
+            return resp
+
+        func.provide_automatic_options = False
+        return functools.update_wrapper(wrapped_function, func)
+
+
+    #
+    #   Finally, return the decorator.
+    #
+
+    return decorator
+
+
+
 
 # laziness and DRYness methods
 
@@ -109,8 +183,15 @@ def decompose_name_string(name):
 
 
 def html_file_to_template(rel_path):
-    """ Turns an HTML file into a string.Template object. """
-    tmp_file = os.path.join(settings.get("api","cwd"), rel_path)
+    """ Turns an HTML file into a string.Template object.
+
+    Important! The files have to live in application.root_path/html/
+    """
+    tmp_file = os.path.join(
+        api.application.root_path,
+        "html",
+        rel_path
+    )
     return Template(file(tmp_file, "rb").read())
 
 
@@ -543,9 +624,7 @@ def email_exception(exception):
         request.User = noUser()
 
     # finally, prepare the message template and the traceback for emailing
-#    tmp_file = os.path.join(settings.get("api","cwd"), "html/exception_alert.html")
-#    msg = Template(file(tmp_file, "rb").read())
-    msg = html_file_to_template("html/exception_alert.html")
+    msg = html_file_to_template("exception_alert.html")
     tb = traceback.format_exc().replace("    ","&ensp;").replace("\n","<br/>")
 
     # do it

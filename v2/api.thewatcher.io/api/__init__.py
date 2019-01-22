@@ -7,6 +7,9 @@
 
 """
 
+from datetime import datetime
+import socket
+
 import flask
 import flask_jwt_extended
 
@@ -14,7 +17,6 @@ import flask_jwt_extended
 application = flask.Flask(__name__)
 
 import utils
-from utils.route_decorators import crossdomain
 
 #
 #   do ALL application.config management here!
@@ -45,53 +47,53 @@ application.basicAuth = HTTPBasicAuth()
 def before_request():
     """ Updates the request with the 'start_time' attrib, which is used for
     performance monitoring. """
-    request.start_time = datetime.now()
-    request.metering = False
+    flask.request.start_time = datetime.now()
+    flask.request.metering = False
 
     # get the API key from the incoming request
     try:
-        request.api_key = request.headers['API-Key']
+        flask.request.api_key = request.headers['API-Key']
     except:
-        request.api_key = None
+        flask.request.api_key = None
 
     if socket.getfqdn() != utils.settings.get('api','prod_fqdn'):
-        request.metering = True
+        flask.request.metering = True
 
 
 @application.after_request
 def after_request(response):
     """ Logs the response times of all requests for metering purposes. """
-    request.stop_time = datetime.now()
-    utils.record_response_time(request)
+    flask.request.stop_time = datetime.now()
+    utils.record_response_time(flask.request)
     if response.status == 500:
         application.logger.error("fail")
     return response
 
 
 @application.errorhandler(Exception)
-@crossdomain(origin=['*'])
+@utils.crossdomain(origin=['*'])
 def general_exception(exception):
     """ This is how we do automatic email alerts on an API failure. """
     utils.email_exception(exception)
-    return Response(response=exception.message, status=500)
+    return flask.Response(response=exception.message, status=500)
 
 
 @application.errorhandler(utils.InvalidUsage)
-@crossdomain(origin=['*'])
+@utils.crossdomain(origin=['*'])
 def return_exception(error):
     """ This is how we fail an exception up (i.e. back) to the requester. """
-    return Response(response=error.message, status=error.status_code)
+    return flask.Response(response=error.message, status=error.status_code)
 
 
 @application.basicAuth.verify_password
 def verify_password(username, password):
     """ cf. the methods in routes.py that use the @basicAuth decorator. This is
     what happens when those routes try to verify their user. """
-    request.User = users.authenticate(username, password)
-    if request.User is None:
+    flask.request.User = users.authenticate(username, password)
+    if flask.request.User is None:
         return False
-    elif request.User.user.get("admin", None) is None:
-        msg = "Non-admin user %s attempted to access the admin panel!" % request.User.user["login"]
+    elif flask.request.User.user.get("admin", None) is None:
+        msg = "Non-admin user %s attempted to access the admin panel!" % flask.request.User.user["login"]
         application.logger.warn(msg)
         return False
     return True

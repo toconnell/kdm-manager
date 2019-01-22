@@ -198,6 +198,8 @@ to get a particular expansion's asset definition.</p>
     "ui": {
         "pretty_category": "Quarry"
     },
+    'maximum_intro_ly': 1,
+    'late_intro_event': 'gorm_approaching_storm',
     "quarries": [
         "gorm"
     ],

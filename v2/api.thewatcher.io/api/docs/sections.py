@@ -173,11 +173,11 @@ using names instead of handles is not recommended.</p>
         """,
     },
     "settlement_set_attribute": {
-        "name": "Set attribtue",
+        "name": "Attribtue set",
         "desc": """Use the routes below to set a settlement's individual attributes, e.g. Name, Survival Limit, etc. to a specific value. <p>Attributes such as Survival Limit, Population and Death Count are more or less automatically managed by the API, but you may use the routes in this section to set them directly. Be advised that the API calculates "base" values for a number of numerical attributes and will typically set attributes to that base if you attempt to set them to a lower value.</p>""",
     },
     "settlement_update_attribute": {
-        "name": "Update attributes",
+        "name": "Attribute update",
         "desc": """Use the routes here to update and/or toggle individual settlement attributes. <p>Updating is different from setting, in that the update-type routes will add the value you <b>POST</b> to the current value, rather than just overwriting the value in the way a set-type route would.</p>""",
     },
     "settlement_component_gets": {
@@ -202,6 +202,78 @@ using names instead of handles is not recommended.</p>
     },
     "settlement_manage_locations": {
         "name": "Locations",
-        "desc": """Routes for setting and unsetting princples and milestones.""",
+        "desc": """Routes for adding, removing and working with settlement locations.""",
+    },
+    "settlement_manage_innovations": {
+        "name": "Innovations",
+        "desc": """Routes for adding, removing and working with settlement innovations.""",
+    },
+    "settlement_manage_timeline": {
+        "name": "Timeline",
+        "desc": """<a id="timelineDataModel"></a> use these routes to manage the
+settlement's timeline.
+<p> Make sure you you are familiar with the data model for the timeline
+(documented in the paragraphs below) before using these routes.</p>
+<p>At the highest level, every settlement's <code>sheet.timeline</code>
+element is a list of hashes, where each hash represents an individual
+lantern year.</p>
+<p>Within each Lantern Year, the keys's values are lists of events, except
+for the <code>year</code> key, which is special because it is the only
+key in the Lantern Year hash whose value is an integer, instead of a list.</p>
+<p>The other keys in the hash, the ones whose values are lists of events,
+have to be one of the following:
+<ul class="embedded">
+    <li><code>settlement_event</code></li>
+    <li><code>story_event</code></li>
+    <li><code>special_showdown</code></li>
+    <li><code>nemesis_encounter</code></li>
+    <li><code>showdown_event</code></li>
+</ul>
+Individual events are themselves hashes. In the 1.2 revision of the
+timeline data model, individual event hashes have a single key/value
+pair: they either have a <code>handle</code> key, whose value is an
+event handle (e.g. from the settlement JSON's <code>game_assets.events
+</code> element) or a a <code>name</code> key, whose value is an
+arbitrary string.</p>
+<p>In generic terms, here is how a settlement's <code>
+sheet.timeline</code> JSON is structured:</p>
+                    <pre><code>
+[
+    {
+        year: 0,
+        showdown_event: [{name: 'name'}],
+        story_event: [{handle: 'handle'}]
+    },
+    {year: 1, special_showdown: [{name: 'name'}], settlement_event: [{handle: 'handle'}]}
+    {year: 2, }
+    {year: 3, nemesis_encounter: [{name: 'name'}, {name: 'name'}], story_event: [{name: 'name'}, {handle: 'handle'}]}
+    ...
+]</code></pre>
+<p><b>Important!</b> Individual Lantern Year hashes need not
+contain any event list hashes, but they <u>absolutely must contain a
+hash with the <code>year</code> key/value pair.</u></p>
+<p>Any attempt to <b>POST</b> a Lantern Year without this 'magic'
+key/value pair, e.g. using the <code>replace_lantern_year</code>
+route below, will cause the API to throw an error.</p>
+<p>Also, for now, the API does not enforce any normalization or business logic
+for the timeline and individual event lists may contain as many
+event hashes as necessary.</p>
+<p>Finally, the API should <b>always</b> render the list of Lantern
+Year hashes (i.e. <code>sheet.timeline</code> in "chronological"
+order. If you get them back out of order, open a ticket.</p>
+        """,
+    },
+    "settlement_admin_permissions": {
+        "name": "Settlement administrators",
+        "desc": """Each settlement has at least one administrator who serves as
+        the primary owner/admin maintainer of the settlement. Each settlement
+        can have as many administrators as necessary. Use these endpoints to
+        add and remove admins from the lsit of settlement admins.""",
+    },
+    "settlement_notes_management": {
+        "name": "Settlement notes",
+        "desc": """Much like survivors, settlements can have notes appended to
+        (or removed from them). These are stored with a creation timestamp for
+        easy representation in chronological or reverse chron order. """,
     },
 }

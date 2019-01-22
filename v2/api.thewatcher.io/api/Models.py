@@ -98,7 +98,6 @@ class AssetCollection(object):
 
         self.logger = utils.get_logger()
 
-
         if hasattr(self, "root_module"):
             self.type = os.path.splitext(self.root_module.__name__)[-1][1:]
             self.set_assets_from_root_module()

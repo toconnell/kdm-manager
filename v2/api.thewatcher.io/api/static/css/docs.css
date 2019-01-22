@@ -100,3 +100,6 @@ ul ul ul ul ul {margin-left: 1.3em; list-style-type: none;}
 .nav_tree_endpoint {font-family: monospace; font-size:1.5em; font-style: normal; margin-left: -0.5em;}
 .nav_tree_section {margin-top: 0.5em;}
 .nav_tree_subsection {border-left: 1px solid #666; padding-left: 0.5em; }
+
+
+ul.embedded {font-size: 0.7em; }

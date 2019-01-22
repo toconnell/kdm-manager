@@ -44,7 +44,7 @@ class Assets(Models.AssetCollection):
 
         for mod in [campaigns, expansions, survivors]:
 
-            mod_string = "%s" % str(mod.__name__).split(".")[1]
+            mod_string = "%s" % str(mod.__name__).split(".")[2]
             output[mod_string] = []
 
             CA = mod.Assets()
@@ -820,20 +820,30 @@ class Settlement(Models.UserAsset):
         self.save()
 
 
-    def add_expansions(self, e_list=[]):
+    def add_expansions(self, e_list=[], save=True):
         """ Takes a list of expansion handles and then adds them to the
         settlement, applying Timeline updates, etc. as required by the expansion
-        asset definitions. """
+        asset definitions.
 
+        While processing individual expansion handles, we determine (based on
+        the output of self.get_current_ly() and the attribs of the handle),
+        whether we want to do the normal, new settlement style add or whether
+        we want to do the "late" addition, i.e. because we're at or after the
+        LY that the content wants to be added.
+        """
+
+        # create a list of expansions to add
         if e_list == []:
             self.check_request_params(['expansions'])
             e_list = self.params['expansions']
 
         # prune the list to reduce risk of downstream cock-ups
         for e_handle in e_list:
+            # 1.) filter bogus handles
             if e_handle not in self.Expansions.get_handles():
                 e_list.remove(e_handle)
                 self.logger.warn("Unknown expansion handle '%s' is being ignored!" % (e_handle))
+            # 2.) filter redundant handles
             if e_handle in self.settlement["expansions"]:
                 e_list.remove(e_handle)
                 self.logger.warn("Expansion handle '%s' is already in %s" % (e_handle, self))
@@ -842,25 +852,75 @@ class Settlement(Models.UserAsset):
         #   here is where we process the expansion dictionary
         #
         for e_handle in e_list:
+
+            #
+            #   private post-process methods; procedural code below
+            #
+
+            def normal_add():
+                """ This is the normal (new settlement) process for adding an
+                expansion to a settlement. """
+
+                if "timeline_rm" in e_dict.keys():
+                    [
+                        self.rm_timeline_event(e, save=False)
+                        for e
+                        in e_dict["timeline_rm"]
+                        if e["ly"] >= self.get_current_ly()
+                    ]
+
+                if "timeline_add" in e_dict.keys():
+                    [
+                        self.add_timeline_event(e, save=False)
+                        for e
+                        in e_dict["timeline_add"]
+                        if e["ly"] >= self.get_current_ly()
+                    ]
+
+                if "rm_nemesis_monsters" in e_dict.keys():
+                    for m in e_dict["rm_nemesis_monsters"]:
+                        if m in self.settlement["nemesis_monsters"]:
+                            self.settlement["nemesis_monsters"].remove(m)
+                            self.log_event(
+                                action="rm",
+                                key="nemesis_monsters",
+                                value=m
+                            )
+
+            def late_add():
+                """ This is the method for adding expansion content to a a
+                settlement whose current LY is >= the expansion's
+                "maximum_intro_ly" value, if present. """
+
+                self.add_timeline_event(
+                    {
+                        'handle': e_dict['late_intro_event'],
+                        'ly': self.get_current_ly() + 1,
+                    },
+                    save = False
+                )
+
+
+            #
+            #   procedural code starts
+            #
+
+            # grab the dict
             e_dict = self.Expansions.get_asset(e_handle)
+
+            # add the handle (or else fail is_compatible(check)
+            self.settlement["expansions"].append(e_handle)
             self.log_event(action="adding", key="expansions", value=e_dict['name'])
 
-            self.settlement["expansions"].append(e_handle)
+            # decide which post-process method to use
+            if self.get_current_ly() >= e_dict.get('maximum_intro_ly', 666):
+                late_add()
+            else:
+                normal_add()
 
-            if "timeline_rm" in e_dict.keys():
-               [self.rm_timeline_event(e, save=False) for e in e_dict["timeline_rm"] if e["ly"] >= self.get_current_ly()]
-            if "timeline_add" in e_dict.keys():
-               [self.add_timeline_event(e, save=False) for e in e_dict["timeline_add"] if e["ly"] >= self.get_current_ly()]
-            if "rm_nemesis_monsters" in e_dict.keys():
-                for m in e_dict["rm_nemesis_monsters"]:
-                    if m in self.settlement["nemesis_monsters"]:
-                        self.settlement["nemesis_monsters"].remove(m)
-                        self.logger.info("Removed '%s' from %s nemesis monsters." % (m, self))
-
-            self.logger.info("Added '%s' expansion to %s" % (e_dict["name"], self))
-
-        self.logger.info("Successfully added %s expansions to %s" % (len(e_list), self))
-        self.save()
+        self.logger.debug("Successfully added %s expansions to %s" % (len(e_list), self))
+        if save:
+            self.save()
 
 
     def rm_expansions(self, e_list=[]):
