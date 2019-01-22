@@ -6,7 +6,7 @@
 ## Introduction 
 [https://kdm-manager.com](https://kdm-manager.com) or, as it is generally called, the Manager, is an Interactive campaign manager for *Monster* by [Kingdom Death](https://kingdomdeath.com).
 
-This repository currently contains the code for both the web application and the API that is used to create and update user-created settlement and survivors records as well as other game information.
+This repository currently contains the code for both the web application and the API that is used to access game data as well as to create and update settlement and survivor records.
 
 ## Important!
 Both the Manager and the API are developed by [The Labor in Vain](https://thelaborinvain.com), which has no affiliation with Kingdom Death.
