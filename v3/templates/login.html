@@ -29,6 +29,7 @@
     </script>
 
     <link rel="stylesheet" href="/media/login.css?v=$version" />
+    <link rel="stylesheet" href="/media/color.css?v=$version" />
 
  </head>
 
@@ -39,8 +40,17 @@
 
     <h1 class="clickable" ng-click="showSignInControls()">$prod_url</h1>
     <h2 class="clickable" ng-click="showSignInControls()">$title</h2>
+    <br/>
+    <h2 class="special_showdown">
+        This is a development/test environment!
+    </h2>
+    <br/>
+    <h2 class="special_showdown">
+        USER DATA IS SUBJECT TO REMOVAL WITHOUT WARNING!
+    </h2>
     
-    <h3 class="version_tag">$released</h3>
+<!--    <h3 class="version_tag">$released</h3> -->
+    <h3 class="version_tag special_showdown">DEVELOPMENT ENVIRONMENT</h3>
 
     <noscript>
         <p><b>JavaScript is disabled!</b></p>

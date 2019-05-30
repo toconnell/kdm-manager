@@ -10,7 +10,6 @@ from bson.objectid import ObjectId
 from bson import json_util
 import imghdr
 import json
-import flask
 import requests
 from retry import retry
 import socket

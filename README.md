@@ -4,86 +4,47 @@
 * API: [Flask](http://flask.pocoo.org/)
 
 ## Introduction 
-[https://kdm-manager.com](https://kdm-manager.com) or, as it is generally called, the Manager, is an Interactive campaign manager for *Monster* by [Kingdom Death](https://kingdomdeath.com).
+[https://kdm-manager.com](https://kdm-manager.com) or, as it is generally
+called, the Manager, is an Interactive campaign manager for *Monster* by
+[Kingdom Death](https://kingdomdeath.com).
 
-This repository currently contains the code for both the web application and the API that is used to access game data as well as to create and update settlement and survivor records.
+This repository currently contains the code for the legacy, CGI version of the
+web application which does not do much when deployed without the KDM API.
+The KDM API lives here:
+[https://github.com/theLaborInVain/kdm-manager-api](https://github.com/theLaborInVain/kdm-manager-api)
+
+**Important!** This application and repository are maintained for legacy purposes
+only and will be deprecated soon! See the contact information below if you have
+additional questions about this application, the API, or the future of the
+[https://kdm-manager.com](https://kdm-manager.com) service.
+
 
 ## Important!
-Both the Manager and the API are developed by [The Labor in Vain](https://thelaborinvain.com), which has no affiliation with Kingdom Death.
+Both the Manager and the API are developed by [The Labor in Vain](https://thelaborinvain.com),
+which has no affiliation with Kingdom Death.
 
-**Neither the [https://kdm-manager.com](https://kdm-manager.com) service nor any of the software utilized by that service (including the API deployed at [https://thewatcher.io](https://thewatcher.io) are developed, authorized, supported by or affiliated with Kingdom Death or Adam Poots Games, LLC.**
+**Neither the [https://kdm-manager.com](https://kdm-manager.com) service nor any
+of the software utilized by that service (including the API deployed at
+[https://api.kdm-manager.com](https://api.kdm-manager.com) are developed,
+authorized, supported by or affiliated with Kingdom Death or Adam Poots Games,
+LLC.**
 
-For more information, please refer to [the 'About' section of the project's development blog](http://kdm-manager.blogspot.com/p/credits-and-acknowledgements.html).
+For more information, please refer to
+[the 'About' section of the project's development blog](http://kdm-manager.blogspot.com/p/credits-and-acknowledgements.html).
 
 ## Licensing and permission
-The MIT license (LICENSE.md) covers application and API code in this repository, but it does not and cannot cover the game assets (in the `/v2/api.thewatcher.io/api/assets` folder), which are the sole property of Kingdom Death.
+The MIT license (LICENSE.md) covers application and API code in this repository,
+but it does not and cannot cover the game assets (in the `/v2/api.thewatcher.io/api/assets`
+folder), which are the sole property of Kingdom Death.
 
-The "Silverado MediumCondensed" font is licensed through Myfonts.com under the terms of the ([Web Font Pay Once](https://www.myfonts.com/viewlicense.php?lid=1630) license) for use by [The Labor in Vain](https://www.myfonts.com/viewlicense.php?lid=1630).
+The "Silverado MediumCondensed" font is licensed through Myfonts.com under the
+terms of the ([Web Font Pay Once](https://www.myfonts.com/viewlicense.php?lid=1630)
+license) for use by [The Labor in Vain](https://www.myfonts.com/viewlicense.php?lid=1630).
 
 
 #   INSTALLATION and INITIAL SETUP
-Follow this guide to install and configure the Manager and the KDM API on a
-Debian system. 
 
-For the time-being, the Manager and the API are tightly coupled and it is highly recommended to install and develop for both simultaneously.
-
-Both [https://kdm-manager.com](https://kdm-manager.com) and [https://thewatcher.io](https://thewatcher.io) run on **Ubuntu 16.04 LTS**.
-
-
-## 1.) Install Dependencies 
-
-If your goal is to start from bare metal on a deb/ubuntu system, you will need
-to install the following packages:
-
-    ~# apt-get install git mongodb-server nginx python2.7 python-dev python-setuptools gcc python-imaging python-gridfs
-
-
-python dependencies (PIP should work for all of these if you've moved from `easy_install`)
-
-    ~# easy_install python-dateutil python-daemon=2.1.1 psutil lockfile pymongo pydns validate-email user-agents xlwt requests flask flask_jwt flask-jwt-extended retry gunicorn
-
-**Important!** If you have installed the normal `jwt` package (e.g. via `easy_install`
-or `pip`) and experience issues running the Manager, please open an issue in GitHub.
-
-As the non-root user who is going to run the Manager's processes, do this:
-
-    ~# exit
-    ~$ cd
-    ~$ git clone https://github.com/toconnell/kdm-manager.git 
-
-Now that you've got all of the prerequisites in place, you are ready to run the
-`install.sh` script in the project root directory.
-
-
-## 2.) Install the Manager and the API
-
-First, review the `install.sh` script in the root of the kdm-manager folder and
-set the parameters according to the instructions provided.
-
-Then, as root, run the script:
-
-	root@mona:/home/toconnell/kdm-manager# ./install.sh
-
-Assuming that you chose the *dev* install type, the Manager is now the default 
-server and if you point your browser at it, you should be good to go.
-
-If you chose the *prod* install type, your `NGINX` sites-enabled directory has a
-symlink to the `v1/nginx/production` config and has been reloaded to include it.
-
-
-## Administration
-
-The `install.sh` script installs two *systemd* services, `kdm-manager` (i.e. the
-CGI server/webapp) and `api.thewatcher.service`, which must both be running for
-the Manager to work properly.
-
-The API, however, does not require the `kdm-manager` service, and you may choose
-to stop/disable it using regular `systemctl` syntax:
-
-    # systemctl stop kdm-manager
-    # systemctl disable kdm-manager
-
-Both services will start when the system starts, unless disabled.
+There is no automatic installer for this version of the Manager!
 
 
 # Additional Resources
@@ -107,9 +68,9 @@ will always be available at [api.thewatcher.io](http://api.thewatcher.io)
 
 ## Contact the Author
 
-The Manager and the API are, for now, maintained by a single individual. For more information, including how to get involved in the project, please contact:
+For more information, including how to get involved in the project, please contact:
 
-* Timothy O'Connell [toconnell@toconnell.info](mailto:toconnell@toconnell.info) <br />
+* Timothy O'Connell [toconnell@thelaborinvain.com](mailto:toconnell@thelaborinvain.com) <br />
   Designer, full-stack developer and maintainer. <br />
-  http://toconnell.info
+  https://thelaborinvain.com
 

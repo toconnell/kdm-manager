@@ -7,3 +7,7 @@ Use supervisorctl to start, stop, reload, etc. the CGI app:
 # supervisorctl start kdm-manager
 
 
+Dependencies:
+
+# apt-get install build-essential python-dev
+# pip install python-dateutil pymongo user-agents werkzeug requests retry flask_jwt

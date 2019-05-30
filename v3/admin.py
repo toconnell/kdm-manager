@@ -12,7 +12,6 @@ import cPickle as pickle
 import pymongo
 import socket
 import time
-from validate_email import validate_email
 from werkzeug.security import safe_str_cmp, check_password_hash
 
 import api

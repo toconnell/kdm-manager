@@ -8,7 +8,6 @@ from cStringIO import StringIO
 from datetime import datetime, timedelta
 import gridfs
 from hashlib import md5
-from PIL import Image
 import inspect
 import json
 import operator
