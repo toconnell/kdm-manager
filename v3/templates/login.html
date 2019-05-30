@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+
+ <head>
+
+
+    <title>$prod_url - $title</title>
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="theme-color" content="#000000">
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-71038485-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular.min.js"></script>
+    <script src="/js/login.js?v=$version"></script>
+
+    <script type="text/javascript">
+        <!-- begin hiding
+        document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/;';
+        document.cookie = 'jwt_token=; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/';
+        // end hiding -->
+    </script>
+
+    <link rel="stylesheet" href="/media/login.css?v=$version" />
+
+ </head>
+
+
+ <body ng-app="login" ng-controller="globalController">
+
+  <div class="container">
+
+    <h1 class="clickable" ng-click="showSignInControls()">$prod_url</h1>
+    <h2 class="clickable" ng-click="showSignInControls()">$title</h2>
+    
+    <h3 class="version_tag">$released</h3>
+
+    <noscript>
+        <p><b>JavaScript is disabled!</b></p>
+        <p>This utility leans heavily on JavaScript for its user experience.</p>
+        <p>Please enable JavaScript to continue.</p>
+    </noscript>
+
+    <div id="loading_spinner" class="user_inputs hidden">
+        <img class="spinner" src="/media/loading_lantern.gif">
+    </div>
+
+    <div id="sign_in_error" class="modal hidden">
+        <div class="modal_message">
+            <p>Authentication failure!</p>
+            <p>Please try again.</p>
+            <p>&nbsp;</p>
+            <button class="submit kd_alert" ng-click="hideControls('sign_in_error')">OK</button>
+        </div>
+    </div>
+
+    <div id="api_unavailable" class="modal hidden">
+        <div class="modal_message">
+            <p>https://KDM-Manager.com is currently down for maintenance!</p>
+            <p>Visit <a href="https://downtime.kdm-manager.com" target="top">
+            the Manager's Downtime site</a> for more information about outages,
+            downtime and maintenance.</p>
+            <p>&nbsp;</p>
+            <p>Please try again later.</p>
+            <p>&nbsp;</p>
+            <button class="submit kd_alert" ng-click="hideControls('api_unavailable')">OK</button>
+        </div>
+    </div>
+
+
+    <div id="sign_in_controls" class="user_inputs" ng-controller="signInController">
+        <input id="signInEmail" type="email" placeholder="Email" class="email" ng-model="signInEmail" autofocus/>
+        <input id="signInPassword" type="password" placeholder="Password" class="password" ng-model="signInPassword" />
+        <button id="signInButton" class="submit kd_promo" ng-click="signIn('$api_url')">Sign In</button>
+    </div>
+
+    <!-- newUser HTML controls -->
+    <div id="new_user_controls" class="user_inputs hidden" ng-controller="newUserController">
+        <input id="newUserEmail" type="email" placeholder="New user email" class="email" ng-model="newUserEmail" autofocus/>
+        <input type="password" placeholder="Password" class="password" ng-model="newUserPassword"/>
+        <input type="password" placeholder="Password (again)" class="password" ng-model="newUserPasswordAgain"/>
+        <button class="submit kd_promo" ng-click="register('$api_url')">Register</button>
+    </div>
+    <div id="pw_match_error" class="modal hidden">
+        <div class="modal_message">
+            <p>Passwords must match!</p>
+            <p>Please try again.</p>
+            <p>&nbsp;</p>
+            <button class="submit kd_alert" ng-click="hideControls('pw_match_error')">OK</button>
+        </div>
+    </div>
+    <div id="new_user_error" class="modal hidden">
+        <div id="new_user_error_alert" class="api_alert kd_alert"></div>
+        <div class="modal_message">
+            <p>An error occurred while attempting to create a new user!</p>
+            <p>Please make sure you have entered a valid email address as well as two matching passwords and try again.</p>
+            <p>&nbsp;</p>
+            <button class="submit kd_alert" ng-click="hideControls('new_user_error'); showNewUserControls();">OK</button>
+        </div>
+    </div>
+
+
+    <div id="help_controls" class="modal hidden" ng-controller="helpController">
+        <div class="modal_message">
+            <p class="disclaimer">Forgot your password? Enter your email address below and click "Reset Password" to recieve an email with instructions on how to reset it:</p>
+            <input id="resetPasswordEmail" type="email" placeholder="Email" class="email" ng-model="resetPasswordEmail" />
+            <button class="submit kd_alert" ng-click="resetPassword('$api_url')"> Reset Password </button>
+            <p>&nbsp;</p>
+            <p>Important Information:</p>
+            <p class="disclaimer"><b>http://kdm-manager.com</b> is an interactive campaign management tool for use with <i><a href="https://shop.kingdomdeath.com/products/kingdom-death-monster-1-5" target="top">Monster</a></i>, by <a href="http://kingdomdeath.com" target="top">Kingdom Death</a>.</p>
+            <p class="disclaimer">The <b>http://kdm-manager.com</b> service, including <a href="http://api.thewatcher.io" target="top">the KD:M API</a>, is developed, maintained and edited by <a href="http://toconnell.info">Timothy O'Connell</a>. The service is published, supported and provisioned by <a href="http://thelaborinvain.com">The Labor in Vain.</a></p>
+            <p class="disclaimer">Neither the <b>http://kdm-manager.com</b> service nor any of the software utilized by the service are developed, maintained, authorized or in any other way supported by or affiliated with <a href="http://kingdomdeath.com" target="top">Kingdom Death</a> or Adam Poots Games, LLC.</p>
+            <p class="disclaimer">More information available on <a href="http://kdm-manager.blogspot.com/" target="top">the development blog</a>.</p>
+            <p>&nbsp;</p>
+            <button class="submit kd_promo" ng-click="hideControls('help_controls'); showSignInControls()">Close</button>
+        </div>
+    </div>
+    <div id="help_success" class="modal hidden">
+        <div class="modal_message">
+            <p>Success!</p>
+            <p id="successMessage"></p>
+            <p>Thanks for using the Manager!</p>
+            <p>&nbsp;</p>
+            <button
+                class="submit kd_promo"
+                ng-click="hideControls('help_success'); showControls('help_controls')"
+            >
+                OK
+            </button>
+        </div>
+    </div>
+    <div id="help_error" class="modal hidden">
+        <div id="help_error_alert" class="api_alert kd_alert"></div>
+        <div class="modal_message">
+            <p>&nbsp;</p>
+            <button
+                class="submit kd_alert"
+                ng-click="hideControls('help_error'); showControls('help_controls')"
+            >
+                OK
+            </button>
+        </div>
+    </div>
+
+    <button class="sign_up clickable" ng-click="showNewUserControls()">
+        Not registered? <b>Sign Up</b>.
+    </button>
+
+    <button class="help clickable" ng-click="showHelpControls()">
+        Help!
+    </button>
+
+  </div> <!-- container -->
+ </body>
+</html>

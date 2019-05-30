@@ -1,0 +1,84 @@
+/* DO NOT MAKE BREAKPOINT-SPECIFIC CHANGES IN THIS FILE */
+/* DO NOT MODIFY BORDER ATTRIBUTES OTHER THAN COLOR IN THIS FILE */
+
+/* zebras */
+.zebra {background-color: #efefef; }
+.no_zebra {background-color: #fff; }
+.storage_zebra {background-color: #ff99aa; }
+
+
+
+/* gradients */
+.collection_gradient {background: linear-gradient(to right, #F5E2B9, #FAF6DB, #F5E2B9);}
+.campaign_summary_gradient {background: linear-gradient(to right, #EFCE98, #F5E9D2, #fefeee, #F5E9D2, #EFCE98)}
+.settlement_sheet_gradient {background: linear-gradient(to right, #FFE082, #FFECB3, #FFF8E1, #FFECB3, #FFE082); border-bottom-color: #FFE082; }
+.survivor_sheet_gradient {background: linear-gradient(to right, #E6DECC, #f7f3eb, #fefeee, #f7f3eb, #E6DECC); border-bottom-color: #D7CCC8; }
+.dead_survivor_gradient {background: radial-gradient(#f4EEE0, #C7C3BF); }
+
+
+
+    /* legacy webapp UI - not long for this world */
+.gradient_silver { border-color: #666; background: linear-gradient(-90deg, #B5BFBA, #FaFDFa); }
+
+
+/* manager UI - not KD emulation, just UI/UX enhancements that we do */
+.green_text {coilor: #1CB71C;}
+.maroon_text {color: #B71C1C;}
+.maroon_box {background: #B71C1C; border-color: #a70a0a}
+
+
+/* kd colors - kd rulebook and printed content emulation */
+/*  these should always go last, since they're overrides, etc.*/
+
+    /* buttons! */
+.kd_alert,
+    .kd_alert_no_exclaim,
+    .kd_pink {background-color: #FF0040; color: #ffffdd;}
+
+
+/* timeline */
+
+.current_ly_container_row {background: radial-gradient(#fff,#ffffee);}
+
+/* campaign summary - available endeavors*/
+.available_endeavors_build {background: linear-gradient(to bottom, #73C26C, #51B952); color: #fff; }
+.build_cost_detail {background-color: #0D743A;}
+.available_endeavors_innovate {#fff; background: linear-gradient(to bottom, #4EC7F1, #40ADD0); }
+.innovate_cost_detail {background-color: #0277BD;}
+
+/* asset emulation - fun stuff */
+.kd_promo {color: #fff; background: radial-gradient(circle, #5Dd7F2, #50CAF5, #3FACCF); }
+.dragon_king {color: #E8cE55; background: radial-gradient(#7270B9, #6260A9); }
+
+    /* lanterns */
+.kd_lantern {background-color: #F9EFCE; background: radial-gradient(#F9E6A4, #FCF3D5 ); border-color: #EBD6AB;}
+.vibrant_lantern {background-color: #DED6B3; background: radial-gradient(#DED6B3, #E7CE32); }
+.dying_lantern {background-color: #F9EFCE; background: radial-gradient(#FDE6C4, #FCF3D5); }
+
+    /* kd brown, endeavors */
+.kd_brown,
+    .endeavor_brown {background-color: #997030; background: linear-gradient(#997030, #a47a41, #997030); border-color: #B6B057; color: #fff; border-right-color: #C6C057; border-bottom-color: #C6C057;}
+
+    /* affinities and saviors */
+.affinity_red {background: #CD2027; background-color: #CD2027; color: #fff;}
+.affinity_red_text {color: #CD2027;}
+.affinity_blue {background: #1C99CD; background-color: #1C99CD; color: #fff;}
+.affinity_blue_text {color: #1C99CD;}
+.affinity_green {background: #4CB848; background-color: #4CB848; color: #fff;}
+.affinity_green_text {color: #4CB848;}
+
+    /* special showdown (i.e. kd red) effects */
+.special_showdown {color: #DC2426; }
+.special_showdown_button,
+    .kd_special_showdown,
+    .kd_red {color: #fff; background-color: #DC2426; background: radial-gradient(#ED3537, #DC2426); }
+
+    /* attributes */
+.Movement, .mov_token {background-color: #9A6D84; color: #fff; }
+.Accuracy, .acc_token {background-color: #E8BE34; color: #000; }
+.Strength, .str_token {background-color: #D04F28; color: #fff; }
+.Evasion, .eva_token {background-color: #9FA6AE; color: #000; }
+.Luck, .luck_token {background-color: #AD9E81; color: #000; }
+.Speed, .spd_token {background-color: #8C9A65; color: #fff; }
+
+

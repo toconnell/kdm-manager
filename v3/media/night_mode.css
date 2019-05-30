@@ -1,0 +1,162 @@
+/*                                              */
+/*            N I G H T  M O D E !!!            */
+/*                                              */
+
+
+/* mobile and general NIGHT MODE styles ; CSS reset */ 
+
+a {color: #F9486B; }
+a:visited {color: #E9385B; }
+
+h1, h2, h3, h4 {color: #fff; }
+html {color: #fff; }
+body.dashboard {background: linear-gradient(to right, #000, #041624); }
+body.create_new_settlement {background: #000; }
+body.view_campaign_summary,
+    body.view_survivor_sheet,
+    body.view_settlement_sheet {background: radial-gradient(#111, #000);}
+button {background: #999; }
+hr {border-color: #333; }
+select {color: #ddd; background: #333; border-color: #666;}
+select:focus {border-color: #ff9900;}
+select:hover {border-color: #ff9900; color: #FF9900; }
+
+/* nav bar */
+.nav_bar {box-shadow: None; }
+span.settlement_sheet_gradient {border-color: #243b55;}    /* bottom bar */
+.floating_top_nav_button {background: radial-gradient(#fff,#aaa); }
+
+.expansion_toggle_container.enabled {color: #6ABED8; border-color: #6ABED8;}
+
+
+/* right side nav bar - storage summary */
+.rightSideNavContent {background: linear-gradient(to right, #000, #111, #000);}
+.campaign_summary_storage_keywords {background: #000; }
+
+/* modals and modal effects */
+.modal-black.departing_survivors_modal_container {background-color: #000; }
+
+/* dashboard - mobile */
+
+.about_primary {color: inherit; background: linear-gradient(to right, #212121, #343434, #404040, #343434, #212121);}
+.about_secondary {background: linear-gradient(to right, #212121, #343434, #404040, #343434, #212121);}
+.system_primary {background: linear-gradient(to right, #000, #111, #000); }
+.system_secondary {background: linear-gradient(to right, #000, #111, #000); }
+
+.dashboard_preference_block_container {border-color: #700; background: #111;}
+.dashboard_preference_block_group h2 {border-bottom: none;}
+.preferences_change_pw {background: inherit; color #fff; border: 1px solid #333; }
+.dashboard_preference {border-color: #700; background: #111;}
+
+.dashboard_user_collection_repeater {background: linear-gradient(to right, #000, #111, #000);}
+
+
+/* gradients */
+
+.collection_gradient {background: linear-gradient(to right, #0f0c29, #201b53, #0f0c29); }
+.survivor_sheet_gradient { background: linear-gradient(to right, #06121a, #16222a, #06121a); border-color: #222; color: #fff; }
+.settlement_sheet_gradient {background: linear-gradient(to right, #141e30, #243b55, #141e30); color: #fff; }
+.campaign_summary_gradient {background: linear-gradient(to right, #0f2027, #102a33, #203a43, #102a33, #0f2027);}
+
+/* KD effects */
+
+input.kd_css_checkbox:checked + label {color: #6ABED8;}
+.kd_sheet_ui_box {border-color: #fff; }
+.kd_sheet_ui_box.checked {background: #6ABED8; border-color: #6ABED8}
+.kd_sheet_ui_select {color: #eee; border-color: #aaa; }
+.kd_sheet_ui_row_tip {background: #586073; color: #FFFF00; } /* tool tip */
+.survivor_sheet_kd_sheet_ui_box {border-color: #ddd; }
+.kd_sheet_ui_roll_down_controls {border-color: #aaa; }
+.kd_sheet_ui_roll_down_controls button {border-color: #ddd; }
+.gear_lookup_card_repeater {color: #000; }
+.gear_card_recipe {color: #000; }
+
+
+.dying_lantern {background: linear-gradient(to right, #040021, #07003d, #040021); color: #fff; border-color: #333; } /* the settlement panels on the dash */
+
+
+
+
+
+/* misc. UI - trashpile */
+
+.zebra {background: #111; }
+.no_zebra {background: #444;}
+.flippers button {background: radial-gradient(#ea6700,#FA9700); color: #fff;}
+
+.special_attribute_text.active {font-weight: normal; color: #E9385B}
+.dashboard_user_expansions_repeater .special_attribute_checkbox.active {border-color: #E9385B; background: #E9385B;}
+div[contenteditable=true]:empty:before {color: #555} /* placeholder text before editing */
+div.full_page_loading_spinner {background: rgba(0,0,0,0.9)} /* spec the div here becuase the button uses it too */
+
+.damage_box {border-color: #fff; }
+.damage_box.checked {border-color: #6ABED8; background: #6ABED8; }
+
+
+/* survivor search */
+input.survivor_search {background: radial-gradient(#222,#000); color: #ffcc00; border-color: #666;}
+input.survivor_search:focus {border-color: #ccaa00; }
+
+/* create new settlement */
+
+.kd_sheet_ui_outer_ring_container {background: #000;}
+.kd_sheet_ui_inner_ring_container {background: #111; border-color: #333; color: #fff;  }
+.new_settlement_asset_clicker {color: #eee; }
+.new_settlement_asset_clicker.active {color: #6ABED8;}
+
+/*  campaign summary */
+
+.campaign_summary_storage_opener {color: #000;}
+div.campaign_summary_facts_box h4 {color: #eee; }
+.departing_survivors_modal_container h3 {color: #fff; }
+.headline_block_caption {color: #eee; }
+.diamond {background: #bbb; }
+.diamond_inner {color: #000; }
+font.quickview_survivor_name {color: #fff; }
+div.quickview_survivor_name {border-bottom-color: #fff; }
+.null_weapon_proficiency {border-bottom-color: #fff; }
+.border_box {border-color: #ddd; }
+.showdown_controls_box_outline {border-color: #aaa; }
+.showdown_controls_button_box_option_repeater {color: #eee; }
+.departing_survivors_control {background: #111; color: #fff; }
+
+
+/* survivor sheet */
+
+.survival_box_number {background: #000; color: #fff; }
+.shield, .big_number_square {background: #000; color: #fff;}
+.survivor_sheet_epithet {color: #000; }
+.paper_style_toggle {color: #eee; border-color: #ddd; }
+.survivor_avatar_image {filter: invert(1); }
+.survivor_sheet_survivor_notes_slug_line {border-color: #aaa; }
+
+/* settlement sheet */
+.bullet {background-color: #fff; }
+.bullet, .empty_bullet {border-color: #fff; }
+div.settlement_sheet_block_group select {color: #ddd; }
+.inventory_repeater {color: #000; }
+div.settlement_sheet_block_group select {border-color: #aaa; }
+div.storage_modal {background: #000; }
+
+.inventory_row_item_controls {color: #ffCC00; }
+
+/* tablet breakpoint for NIGHT MODE styles */
+
+@media only screen and (min-width: 700px) and (max-resolution: 3dppx) {
+
+}
+
+
+/* desktop breakpoint for NIGHT MODE styles */
+
+@media only screen and (min-width: 1050px) and (orientation: landscape) {
+
+    /* dashboard */
+    h2.clickable {border-color: #000; }
+    div.dashboard_accordion {border-color: #000; }
+}
+
+
+/* last chance NIGHT MODE styles below! */
+
+

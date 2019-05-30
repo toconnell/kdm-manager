@@ -1,0 +1,210 @@
+<button
+    id="floating_dashboard_button"
+    class="gradient_silver" 
+    onclick="openNav()"
+    ng-if="view != 'dashboard' && user != undefined"
+>
+    &#9776;
+</button>
+
+<form
+    method="POST" 
+    action="/"
+    ng-if="view != 'newSettlement' && view != 'dashboard' && user != undefined"
+>
+    <button
+        id="floating_refresh_button"
+        class="touch_me floating_top_nav_button"
+        onclick="showFullPageLoader()"
+    >
+        &#8634;
+    </button>
+</form>
+
+<!-- christian sidenav -->
+<div
+    id="mySidenav"
+    class="sidenav"
+    ng-controller="sideNavController"
+    ng-if="user != undefined"
+    ng-init="getNewSettlementAssets()"
+>
+    <form
+        method="POST"
+        action=""
+    >
+        <input type="hidden" name="change_view" value="dashboard" />
+        <button class="sidenav_top_level" onclick="showFullPageLoader(); closeNav()">
+            Return to Dashboard
+        </button>
+    </form>
+
+    <form
+        method="POST"
+        action=""
+        ng-if="view != 'newSettlement'"
+    >
+        <input type="hidden" name="change_view" value="new_settlement" />
+        <button
+            class="sidenav_top_level"
+            onclick="showFullPageLoader(); closeNav()"
+            ng-if="user.user.settlements_created < 3 || user.user.subscriber.level > 0"
+        >
+            + Create New Settlement
+        </button>
+    </form>
+
+    <hr ng-if="view != 'newSettlement'"/>
+
+    <h3 ng-if="settlement.sheet != undefined">{{settlement.sheet.name}}:</h3>
+    <center ng-if="settlement.sheet == undefined && view != 'newSettlement'">
+        <img src="/media/loading_lantern.gif" />
+    </center>
+
+
+    <button
+        id="newSurvivorButton"
+        class="sidenav_button visible"
+        ng-if="settlement.sheet != undefined"
+        ng-click="showHide('modalNewSurvivorContainer')"
+        onclick="closeNav()"
+    >
+        + Create New Survivor
+    </button>
+
+    <button
+        id="bulkAddOpenerButton"
+        class="sidenav_button hidden"
+        ng-click="showHide('modalBulkAdd')"
+        onclick="closeNav()"
+    >
+        + Create Multiple Survivors
+    </button>
+
+    <button
+        class="sidenav_button visible"
+        ng-if="settlement != undefined && view != 'campaignSummary'"
+        onclick="closeNav(); showFullPageLoader()"
+        ng-click="postForm('view_campaign', settlement.sheet._id.$oid)"
+    >
+        Campaign Summary
+    </button>
+
+    <button
+        ng-if="user_is_settlement_admin && view != 'settlementSheet'"
+        class="sidenav_button visible"
+        onclick="closeNav(); showFullPageLoader()"
+        ng-click="postForm('view_settlement', settlement.sheet._id.$oid)"
+    >
+        Settlement Sheet
+    </button>
+
+    <button
+        id="modalExpansionsOpener"
+        ng-if="user_is_settlement_admin && new_settlement_assets != undefined"
+        class="sidenav_button visible"
+        ng-click="showHide('modalExpansionsManager')"
+        onclick="closeNav()"
+    >
+        Expansion Content
+    </button>
+
+    <button
+        id="timelineOpenerButton"
+        class="sidenav_button hidden"
+        ng-click="showHide('modalTimelineContainer')"
+        onclick="closeNav()"
+    >
+        Timeline
+    </button>
+
+    <button
+        id="eventLogOpenerButton"
+        class="sidenav_button hidden"
+        ng-click="showHide('eventLogContainer')"
+        onclick="closeNav()"
+    >
+        Event Log
+    </button>
+
+    <button
+        id="settlementNotesOpenerButton"
+        class="sidenav_button hidden"
+        ng-click="showHide('settlementNotesContainer')"
+        onclick="closeNav()"
+        >
+    Notes and Players
+    </button>
+
+    <button
+        id="gearLookupOpenerButton"
+        class="sidenav_button sidenav_modal_launcher hidden"
+        ng-click="showHide('gearLookupModal')"
+        onclick="closeNav()"
+    >
+        &beta; Gear Lookup Tool
+    </button>
+
+    <button
+        id="huntPhaseOpenerButton"
+        class="sidenav_button sidenav_modal_launcher hidden"
+        ng-click="showHide('huntPhaseModal')"
+        onclick="closeNav()"
+    >
+        &beta; Hunt Phase
+    </button>
+
+    <h3 ng-if="countSurvivors('departing') > 0">Departing</h3>
+    <form
+        method="POST"
+        action="/"
+        ng-repeat="s in settlement.user_assets.survivors | filter: departingFilter"
+    >
+        <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
+        <button class="sidenav_button" onclick="showFullPageLoader(); closeNav()">{{s.sheet.name}} ({{s.sheet.effective_sex}})</button>
+    </form>
+
+
+    <h3 ng-if="countSurvivors('favorite') > 0">Favorites</h3>
+    <form
+        method="POST"
+        action="/"
+        ng-repeat="s in settlement.user_assets.survivors | filter: favoriteFilter"
+    >
+        <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
+        <button class="sidenav_button" onclick="showFullPageLoader(); closeNav()">{{s.sheet.name}} ({{s.sheet.effective_sex}})</button>
+    </form>
+
+    <hr/>
+
+
+    <button
+        class="sidenav_button sidenav_modal_launcher"
+        ng-click="showHide('helpModal')"
+        onClick="closeNav();"
+    >
+        Help!
+    </button>
+
+    <button
+        id="reportErrorButton"
+        class="sidenav_button sidenav_modal_launcher"
+        onclick="closeNav(); showHide('modalReportError')"
+    >
+        Report an Issue or Error
+    </button>
+
+    <hr/>
+
+    <form
+        method="POST"
+        action=""
+        ng-if="user != undefined"
+    >
+        <input type="hidden" name="remove_session" value="{{user.user.current_session.$oid}}"/>
+        <input type="hidden" name="login" value="{{user.user.login}}"/>
+        <button onclick="showFullPageLoader(); closeNav()">{{user.user.login}}<br/>SIGN OUT</button>
+    </form>
+
+</div>
+

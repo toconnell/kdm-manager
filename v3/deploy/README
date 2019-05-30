@@ -1,0 +1,9 @@
+
+       README!
+
+
+Use supervisorctl to start, stop, reload, etc. the CGI app:
+
+# supervisorctl start kdm-manager
+
+

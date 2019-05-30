@@ -1,0 +1,348 @@
+<script src="/js/gearLookup.js?v=$application_version"></script>
+
+<div
+    class="modal-black hidden"
+    id="gearLookupModal"
+    ng-if="settlement.sheet != undefined && user.user.preferences.beta == true"
+    ng-controller="gearLookupController"
+    ng-init="loadGearLookup(); showHide('gearLookupOpenerButton')"
+>
+
+    <div class="kd_sheet_ui_outer_ring_container">
+
+        <div
+            class="kd_sheet_ui_inner_ring_container gear_lookup_container"
+        >
+
+            <h3>Gear Search!</h3>
+
+            <input
+                id="simpleGearSearch"
+                class="gear_lookup_search_box"
+                ng-model="searchText.$"
+                placeholder="Click or tap here to search"
+                ng-click="searchText = {}"
+            />
+            <div
+                id="advancedGearSearch"
+                class="hidden"
+            >
+                <input
+                    class="gear_lookup_search_box"
+                    ng-model="searchText.sub_type_pretty"
+                    placeholder="Search by location"
+                ng-click="searchText = {}"
+                />
+                <input
+                    class="gear_lookup_search_box"
+                    ng-model="searchText.keywords"
+                    placeholder="Search by keywords"
+                ng-click="searchText = {}"
+                />
+                <input
+                    class="gear_lookup_search_box"
+                    ng-model="searchText.rules"
+                    placeholder="Search by rules"
+                ng-click="searchText = {}"
+                />
+            </div>
+
+<!--
+            <button class="kd_blue" ng-click="showHide('simpleGearSearch'); showHide('advancedGearSearch')">
+                Show/hide Advanced Search Tools
+            </button>
+-->
+
+            <div class="gear_repeater_container" ng-click="showHide('gearLookupModal'); searchText={}">
+            <div
+                class="gear_lookup_card_repeater"
+                ng-repeat="gear in gearLookup | filter:searchText:strict"
+            >
+                <div
+                    class="gear_card_container"
+                >
+                    <div
+                        class="gear_card_affinity_outer top_affinity"
+                        ng-class="{
+                            affinity_red: gear.affinities.top == 'red',
+                            affinity_blue: gear.affinities.top == 'blue',
+                            affinity_green: gear.affinities.top == 'green',
+                        }"
+                    >
+                        <div
+                            class="gear_card_affinity_inner top_affinity"
+                            ng-if="gear.affinities.top != undefined"
+                            ng-class="{
+                                affinity_red: gear.affinities.top == 'red',
+                                affinity_blue: gear.affinities.top == 'blue',
+                                affinity_green: gear.affinities.top == 'green',
+                            }"
+                        >
+                        </div>
+                    </div>
+
+                    <div
+                        class="gear_card_detail_region"
+                    >
+                        <div
+                            class="gear_card_affinity_col"
+                        >
+                            <div
+                                class="gear_card_affinity_outer left_affinity"
+                                ng-class="{
+                                    affinity_red: gear.affinities.left == 'red',
+                                    affinity_blue: gear.affinities.left == 'blue',
+                                    affinity_green: gear.affinities.left == 'green',
+                                    affinity_paired_left: gear.affinities.left == 'paired',
+                                }"
+                            >
+                                <div
+                                    class="gear_card_affinity_inner left_affinity"
+                                    ng-if="gear.affinities.left != undefined && gear.affinities.left != 'paired'"
+                                    ng-class="{
+                                        affinity_red: gear.affinities.left == 'red',
+                                        affinity_blue: gear.affinities.left == 'blue',
+                                        affinity_green: gear.affinities.left == 'green',
+                                    }"
+                                >
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="gear_card_detail_region_text">
+                            <div class="gear_card_detail_region_top">
+                                <div
+                                    class="gear_card_combat_stat_col"
+                                    ng-if="gear.armor != undefined || gear.speed != undefined"
+                                >
+                                    <div
+                                        class="gear_card_combat_stat_activation"
+                                        ng-if="gear.speed != undefined"
+                                    >
+                                        <span class="gear_card_combat_stat_activation_icon">a</span>
+                                        <hr/>
+                                        {{gear.speed}}
+                                        <div
+                                            class="gear_card_combat_stat_activation_detail"
+                                        >
+                                            {{gear.accuracy}}
+                                            <hr/>
+                                            {{gear.strength}}
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="gear_card_combat_stat_shield"
+                                        ng-if="gear.armor != undefined"
+                                    >
+                                        {{gear.armor}}
+                                    </div>
+                                    <span class="gear_card_location_glyph" ng-if="gear.location == 'head'">
+                                        b
+                                        <span ng-if="gear.aux_location == 'body'">c</span>
+                                    </span>
+                                    <span class="gear_card_location_glyph" ng-if="gear.location == 'arms'">d</span>
+                                    <span class="gear_card_location_glyph" ng-if="gear.location == 'body'">c
+                                        <span ng-if="gear.aux_location == 'waist'">e</span>
+                                    </span>
+                                    <span class="gear_card_location_glyph" ng-if="gear.location == 'waist'">e</span>
+                                    <span class="gear_card_location_glyph" ng-if="gear.location == 'legs'">f</span>
+                                </div>
+
+                                <div
+                                    class="gear_card_detail_top_info"
+                                >
+                                    <div 
+                                        class="title"
+                                    >
+                                        {{gear.name}}
+                                    </div>
+                                    <div 
+                                        class="keywords"
+                                    >
+                                        <span ng-repeat="keyword in gear.keywords">{{keyword}}{{$last ? '' : ', '}}</span>
+                                    </div>
+                                </div>
+    
+                                <div 
+                                    class="gear_card_combat_stat_col_negative_spacer"
+                                    ng-if="gear.armor != undefined || gear.speed != undefined"
+                                >
+                                </div>
+                            </div> <!-- detail_region_top -->
+
+                            <div
+                                class="gear_card_detail_region_bottom"
+                            >
+                                <!-- additional affinities added by this gear -->
+                                <div class="gear_card_add_affinity_container">
+                                    <div
+                                        class="gear_card_add_affinity"
+                                        ng-repeat="add_affinity in gear.add_affinity"
+                                        ng-class="{
+                                            affinity_red: add_affinity == 'red',
+                                            affinity_blue: add_affinity == 'blue',
+                                            affinity_green: add_affinity == 'green',
+                                        }"
+                                    >
+                                        <div class="gear_card_add_affinity_interior"></div>
+                                    </div>
+                                </div>
+
+                                <div class="gear_card_detail_bottom_rules">
+                                    <span
+                                        ng-repeat="rule in gear.rules"
+                                    >
+                                        <span
+                                            ng-bind-html="rule|trustedHTML"
+                                        ></span>{{$last ? '' : ', '}}
+                                    </span>
+                                </div>
+                                <div class="gear_card_detail_bottom_desc" ng-bind-html="gear.desc|trustedHTML">
+                                </div>
+                                <div class="gear_card_detail_bottom_affinity_bonus" ng-if="gear.affinity_bonus != undefined">
+                                    <div
+                                        class="gear_card_detail_bottom_affinity_bonus_requires"
+                                    >
+                                        <div
+                                            class="puzzle_piece_repeater affinity_blue_text"
+                                            ng-repeat="piece in range(gear.affinity_bonus.requires.puzzle.blue)"
+                                        >
+                                            g
+                                        </div>
+                                        <div
+                                            class="puzzle_piece_repeater affinity_red_text"
+                                            ng-repeat="piece in range(gear.affinity_bonus.requires.puzzle.red)"
+                                        >
+                                            g
+                                        </div>
+                                        <div
+                                            class="puzzle_piece_repeater affinity_green_text"
+                                            ng-repeat="piece in range(gear.affinity_bonus.requires.puzzle.green)"
+                                        >
+                                            g
+                                        </div>
+                                        <div
+                                            class="puzzle_piece_repeater affinity_blue_text"
+                                            ng-repeat="piece in range(gear.affinity_bonus.requires.complete.blue)"
+                                        >
+                                            h
+                                        </div>
+                                        <div
+                                            class="puzzle_piece_repeater affinity_red_text"
+                                            ng-repeat="piece in range(gear.affinity_bonus.requires.complete.red)"
+                                        >
+                                            h
+                                        </div>
+                                        <div
+                                            class="puzzle_piece_repeater affinity_green_text"
+                                            ng-repeat="piece in range(gear.affinity_bonus.requires.complete.green)"
+                                        >
+                                            h
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="affinity_bonus_text"
+                                        ng-bind-html="gear.affinity_bonus.desc|trustedHTML"
+                                    ></div>
+                                </div>
+                                
+                            </div><!-- detail region_bottom -->
+                        </div><!-- detail_Region_Text -->
+
+                        <div
+                            class="gear_card_affinity_col"
+                        >
+                            <div
+                                class="gear_card_affinity_outer right_affinity"
+                                ng-class="{
+                                    affinity_red: gear.affinities.right == 'red',
+                                    affinity_blue: gear.affinities.right == 'blue',
+                                    affinity_green: gear.affinities.right == 'green',
+                                    affinity_paired_right: gear.affinities.right == 'paired',
+                                }"
+                            >
+                                <div
+                                    class="gear_card_affinity_inner right_affinity"
+                                    ng-if="gear.affinities.right != undefined && gear.affinities.right != 'paired'"
+                                    ng-class="{
+                                        affinity_red: gear.affinities.right == 'red',
+                                        affinity_blue: gear.affinities.right == 'blue',
+                                        affinity_green: gear.affinities.right == 'green',
+                                    }"
+                                >
+                                </div>
+                            </div>
+                        </div>
+
+                    </div> <!-- detail region -->
+
+                    <div
+                        class="gear_card_affinity_outer bottom_affinity"
+                        ng-class="{
+                            affinity_red: gear.affinities.bottom == 'red',
+                            affinity_blue: gear.affinities.bottom == 'blue',
+                            affinity_green: gear.affinities.bottom == 'green',
+                            affinity_paired_bottom: gear.affinities.bottom == 'paired',
+                        }"
+                    >
+                        <div
+                            class="gear_card_affinity_inner bottom_affinity"
+                            ng-if="gear.affinities.bottom != undefined && gear.affinities.bottom != 'paired'"
+                            ng-class="{
+                                affinity_red: gear.affinities.bottom == 'red',
+                                affinity_blue: gear.affinities.bottom == 'blue',
+                                affinity_green: gear.affinities.bottom == 'green',
+                            }"
+                        >
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="gear_card_recipe"
+                    ng-repeat="recipe in gear.recipes"
+                >
+                    <div class="gear_card_recipe_title">
+                        <b>{{gear.name}}</b> recipe No. {{$index + 1}}
+                    </div>
+
+                    <div ng-if="recipe.prefix_text != undefined">
+                        <span ng-bind-html="recipe.prefix_text|trustedHTML"></span>
+                    </div>
+
+                    <span ng-repeat="(handle, quantity) in recipe.resource_handles">{{quantity}}x {{settlement.game_assets.resources[handle].name}}{{$last ? '' : ', '}}</span><span ng-if="recipe.resource_handles != undefined && recipe.resource_types != undefined">, </span><span ng-repeat="(handle, quantity) in recipe.resource_types" class="capitalize">{{quantity}}x {{handle}}{{$last ? '' : ', '}}</span><span ng-if="recipe.resource_handles != undefined && recipe.gear_handles != undefined">, </span><span ng-if="recipe.resource_handles == undefined && recipe.resource_types != undefined && recipe.gear_handles != undefined">, </span><span ng-repeat="(handle, quantity) in recipe.gear_handles">{{quantity}}x {{settlement.game_assets.gear[handle].name}}{{$last ? '' : ', '}}</span><span ng-if="recipe.resource_handles !== undefined || recipe.resource_types !== undefined || recipe.gear_handles !== undefined">.</span>
+
+                    <div ng-if="recipe.locations != undefined">
+                        <b>Location requirements:</b>
+                        <span ng-repeat="handle in recipe.locations">
+                            <span ng-if="(handle | getType) == 'string'">{{settlement.game_assets.locations[handle].name}}</span><span ng-if="(handle | getType) == 'object'">{{settlement.game_assets.locations[handle.handle].name}} (Level {{handle.level}})</span>{{$last ? '.' : ', '}}
+                        </span>
+                    </div>
+                    <div ng-if="recipe.innovations != undefined">
+                        <b>Innovation requirements:</b>
+                        <span ng-repeat="handle in recipe.innovations">
+                            {{settlement.game_assets.innovations[handle].name}}{{$last ? '.' : ', '}}
+                        </span>
+                    </div>
+
+                    <div ng-if="recipe.misc != undefined">
+                        <b>Requirements:</b> <span ng-bind-html="recipe.misc|trustedHTML"></span>
+                    </div>
+
+                    <div ng-if="recipe.suffix_text != undefined">
+                        <span ng-bind-html="recipe.suffix_text|trustedHTML"></span>
+                    </div>
+                </div>
+                </div>
+            </div><!-- gear repeater container -->
+
+            <button ng-click="showHide('gearLookupModal')">
+                Close
+            </button>
+
+        </div><!-- inner ring container -->
+
+
+    </div><!-- outer ring container -->
+</div><!-- modal-black -->
+

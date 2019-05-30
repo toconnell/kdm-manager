@@ -1,0 +1,28 @@
+/**
+ * @license
+ * MyFonts Webfont Build ID 3316674, 2016-12-04T12:14:30-0500
+ * 
+ * The fonts listed in this notice are subject to the End User License
+ * Agreement(s) entered into by the website owner. All other parties are 
+ * explicitly restricted from using the Licensed Webfonts(s).
+ * 
+ * You may obtain a valid license at the URLs below.
+ * 
+ * Webfont: SilveradoRR-MediumCondensed by Red Rooster Collection
+ * URL: http://www.myfonts.com/fonts/redrooster/silverado-rr/medium-condensed/
+ * Copyright: Copyright (c) 2000, Red Rooster Typefoundry. All rights reserved. Data Copyright (c) 1999 dtpTypes Limited.
+ * Licensed pageviews: 10,000
+ * 
+ * 
+ * License: http://www.myfonts.com/viewlicense?type=web&buildid=3316674
+ * 
+ * © 2016 MyFonts Inc
+*/
+
+
+/* @import must be at top of file, otherwise CSS will not work */
+@import url("//hello.myfonts.net/count/329bc2");
+
+  
+@font-face {font-family: 'SilveradoRR-MediumCondensed';src: url('webfonts/329BC2_0_0.eot');src: url('webfonts/329BC2_0_0.eot?#iefix') format('embedded-opentype'),url('webfonts/329BC2_0_0.woff2') format('woff2'),url('webfonts/329BC2_0_0.woff') format('woff'),url('webfonts/329BC2_0_0.ttf') format('truetype');}
+ 
