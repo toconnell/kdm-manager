@@ -38,7 +38,7 @@
     ng-init="
         initializeUser('$user_id', 'dashboard', '$api_url');
         showInitDash();
-        setLatestChangeLog();
+        setLatestChangeLog('$blog_api_key');
         loadExpansionAssets();
     "
 >
@@ -773,7 +773,7 @@
 
             <h3>Release Info</h3>
             <p>Release <b>{{user.meta.webapp.release}}</b> of <b>https://kdm-manager.com</b> is powered by version <b>{{user.meta.api.version}}</b> of <a href="https://api.kdm-manager.com" target="top">the Kingdom Death API</a>.</p>
-            <p>This release of the MAnager was deployed on {{latest_blog_post.published|date:'yyyy-MM-dd'}}.</p>
+            <p>This release of the Manager was deployed on {{latest_blog_post.published|date:'yyyy-MM-dd'}}.</p>
             <p>Click <a target="top" href="{{latest_blog_post.url}}">here to view complete release notes</a> on the Manager's development blog.</p>
 
 

@@ -22,7 +22,7 @@ import login
 from utils import mdb, get_logger, get_user_agent, load_settings, ymd, ymdhms, mailSession
 
 settings = load_settings()
-
+settings_private = load_settings('private')
 
 #
 #   decorators for Session() methods to help users report exceptions
@@ -577,6 +577,7 @@ class Session:
             user_login = self.User.user["login"],
             settlement_id = self.session['current_settlement'],
             survivor_id = self.session.get('current_asset', None),
+            blog_api_key = settings_private.get('api', 'blog_api_key'),
         )
 
         return output, body

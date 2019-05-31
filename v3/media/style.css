@@ -347,6 +347,7 @@ div#mySidenav button:hover {background-color: #fff; background: linear-gradient(
 
 /* gear lookup - mobile */
 input[type="radio"].gear_lookup_attrib_toggle {display: inherit;}
+.gear_lookup_loading {width: 100%; text-align: center; margin-bottom: 3vh; transition: 1s; }
 .gear_lookup_search_box {display: block; margin: 0 auto; width: 95%; border:0; text-align: center; margin-bottom: 6%; }
 .gear_lookup_card_repeater {width: 90%; margin: 0 auto; margin-bottom: 2%; }
 .gear_lookup_card_repeater .gear_card_container {margin: 0 auto; margin-bottom: 1%; background: radial-gradient(#fff, #fff, #f8f8f8, #fffff9);}
@@ -389,7 +390,7 @@ input[type="radio"].gear_lookup_attrib_toggle {display: inherit;}
 .gear_card_combat_stat_col {width: 45%; display: flex; margin-left: -3%; height: 100%; }
 .gear_card_combat_stat_col_negative_spacer {width: 45%; }
 .gear_card_combat_stat_shield {border-bottom-left-radius: 100%; border-bottom-right-radius: 100%; background-color:#000; color: #fff; font-size: 60px; width: 90px; text-align: center; display: inline-block; margin-right: 4px; height: 110px; }
-.gear_card_combat_stat_activation {border-radius: 25px; background-color: #777; color: #fff; padding: 4%; font-size: 45px; display: flex; flex-direction: column; flex-wrap: nowrap; text-align: center; margin-left: 15%;  }
+.gear_card_combat_stat_activation {border-radius: 25px; background-color: #777; color: #fff; padding: 4%; font-size: 45px; display: flex; flex-direction: column; flex-wrap: nowrap; text-align: center; margin-left: 15%;  height: 135%;}
 .gear_card_combat_stat_activation hr {margin-top: 1px; margin-bottom: 1px; background-color: #000; height: 3px; bordeR: 0; }
 .gear_card_combat_stat_activation_icon {color: #000; font-family: 'kdm-font-10';}
 .gear_card_combat_stat_activation_detail {background-color: #333; border-radius: 20px; margin: 0 auto; width: 100%; font-size: 45px; border: 0; }
@@ -402,11 +403,21 @@ input[type="radio"].gear_lookup_attrib_toggle {display: inherit;}
 .gear_card_add_affinity {width: 120px; height: 120px; border-radius: 1%; margin: 2%; margin: 0 auto; }
 .gear_card_add_affinity_interior {width: 80%; height: 80%; margin: 0 auto; border: 5px solid #fff; border-radius: 1%; margin-top: 7%; }
 .gear_card_detail_bottom_rules {font-weight: bold; text-align: center; font-size: 35px; font-family: 'Metrophobic'; }
-.gear_card_detail_bottom_desc {font-size:30px; font-family: 'Metrophobic'; text-align: center; margin-left: -5%; margin-right: -5%; margin-bottom: 2%}
+.gear_card_detail_bottom_desc {font-size:30px; font-family: 'Metrophobic'; text-align: center; margin-bottom: 2%}
+
 .gear_card_detail_bottom_affinity_bonus {border-radius: 25px; width: 100%; border: 3px solid #fff; background-color: #dad7d8; font-family: 'Metrophobic'; font-size: 35px; display: flex; margin-bottom: 1%; height: auto; max-height: 60%; }
-.gear_card_detail_bottom_affinity_bonus_requires {background-color: #fff; padding: 1%; display: flex; align-items: center; padding-left: 10px; padding-right: 10px; min-width: 10%; flex-wrap: wrap; flex-direction: row; }
-.puzzle_piece_repeater {font-family: 'kdm-font-2'; font-size: 40px; margin: 0 auto; }
-.affinity_bonus_text {padding: 2%; font-size: 30px; }
+.gear_card_detail_bottom_affinity_bonus_requires {
+    background-color: #fff;
+    padding: 2%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20%;  
+}
+.affinity_bonus_grid {display: flex; flex-wrap: wrap; flex-direction: row; justify-content: center;  }
+.affinity_bonus_grid>* {flex: -1 1 150px; }
+.puzzle_piece_repeater {font-family: 'kdm-font-2'; font-size: 40px; margin: 0; padding:0; }
+.affinity_bonus_text {padding: 2%; font-size: 30px; width: 80%; }
 
 /* paired arrows - mobile */
 .gear_card_affinity_outer.left_affinity.affinity_paired_left,
@@ -1723,7 +1734,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .gear_card_detail_bottom_desc {font-size: 18px; }
     .puzzle_piece_repeater {font-size: 20px; }
     .affinity_bonus_text {font-size: 18px; }
-    .gear_card_combat_stat_activation {font-size: 20px; }
+    .gear_card_combat_stat_activation {font-size: 20px; height: 115%;}
     .gear_card_combat_stat_activation_detail {font-size: 18px; padding-top: 5%; padding-bottom: 5%;}
     .gear_card_combat_stat_shield {font-size: 30px; width: 40px; height: 60px; padding-top: 5%; }
     .gear_card_location_glyph {font-size: 25px; }
@@ -2807,7 +2818,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .gear_card_detail_region {min-height: 230px; }
     .gear_card_combat_stat_shield {font-size: 14pt; width: 30px; height: 33px; }
     .gear_card_location_glyph {font-size: 20px; }
-    .gear_card_combat_stat_activation {font-size: 12pt; }
+    .gear_card_combat_stat_activation {font-size: 12pt; height: 130%; }
     .gear_card_combat_stat_activation hr {display: inherit; height: 1px; }
     .gear_card_combat_stat_activation_detail hr {display: inherit; height: 1px; }
     .gear_card_combat_stat_activation_detail {font-size: 12pt; }

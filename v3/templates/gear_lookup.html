@@ -3,7 +3,11 @@
 <div
     class="modal-black hidden"
     id="gearLookupModal"
-    ng-if="settlement.sheet != undefined && user.user.preferences.beta == true"
+    ng-if="
+        settlement.sheet != undefined &&
+        scratch.gearLookupOpenerButtonLoaded && 
+        user.user.subscriber.level > 1
+    "
     ng-controller="gearLookupController"
     ng-init="loadGearLookup(); showHide('gearLookupOpenerButton')"
 >
@@ -23,6 +27,15 @@
                 placeholder="Click or tap here to search"
                 ng-click="searchText = {}"
             />
+
+            <div
+                ng-if="gearLookup === undefined"
+                class="gear_lookup_loading ng_fade"
+                title="Loading Gear cards..."
+            >
+                <img src="/media/loading_io.gif"/>
+            </div>
+
             <div
                 id="advancedGearSearch"
                 class="hidden"
@@ -203,42 +216,44 @@
                                     <div
                                         class="gear_card_detail_bottom_affinity_bonus_requires"
                                     >
-                                        <div
-                                            class="puzzle_piece_repeater affinity_blue_text"
-                                            ng-repeat="piece in range(gear.affinity_bonus.requires.puzzle.blue)"
-                                        >
-                                            g
-                                        </div>
-                                        <div
-                                            class="puzzle_piece_repeater affinity_red_text"
-                                            ng-repeat="piece in range(gear.affinity_bonus.requires.puzzle.red)"
-                                        >
-                                            g
-                                        </div>
-                                        <div
-                                            class="puzzle_piece_repeater affinity_green_text"
-                                            ng-repeat="piece in range(gear.affinity_bonus.requires.puzzle.green)"
-                                        >
-                                            g
-                                        </div>
-                                        <div
-                                            class="puzzle_piece_repeater affinity_blue_text"
-                                            ng-repeat="piece in range(gear.affinity_bonus.requires.complete.blue)"
-                                        >
-                                            h
-                                        </div>
-                                        <div
-                                            class="puzzle_piece_repeater affinity_red_text"
-                                            ng-repeat="piece in range(gear.affinity_bonus.requires.complete.red)"
-                                        >
-                                            h
-                                        </div>
-                                        <div
-                                            class="puzzle_piece_repeater affinity_green_text"
-                                            ng-repeat="piece in range(gear.affinity_bonus.requires.complete.green)"
-                                        >
-                                            h
-                                        </div>
+                                        <div class="affinity_bonus_grid">
+                                            <div
+                                                class="puzzle_piece_repeater affinity_blue_text"
+                                                ng-repeat="piece in range(gear.affinity_bonus.requires.puzzle.blue)"
+                                            >
+                                                g
+                                            </div>
+                                            <div
+                                                class="puzzle_piece_repeater affinity_red_text"
+                                                ng-repeat="piece in range(gear.affinity_bonus.requires.puzzle.red)"
+                                            >
+                                                g
+                                            </div>
+                                            <div
+                                                class="puzzle_piece_repeater affinity_green_text"
+                                                ng-repeat="piece in range(gear.affinity_bonus.requires.puzzle.green)"
+                                            >
+                                                g
+                                            </div>
+                                            <div
+                                                class="puzzle_piece_repeater affinity_blue_text"
+                                                ng-repeat="piece in range(gear.affinity_bonus.requires.complete.blue)"
+                                            >
+                                                h
+                                            </div>
+                                            <div
+                                                class="puzzle_piece_repeater affinity_red_text"
+                                                ng-repeat="piece in range(gear.affinity_bonus.requires.complete.red)"
+                                            >
+                                                h
+                                            </div>
+                                            <div
+                                                class="puzzle_piece_repeater affinity_green_text"
+                                                ng-repeat="piece in range(gear.affinity_bonus.requires.complete.green)"
+                                            >
+                                                h
+                                            </div>
+                                        </div> <!-- affinity_bonus_grid -->
                                     </div>
                                     <div
                                         class="affinity_bonus_text"

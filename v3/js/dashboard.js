@@ -42,10 +42,10 @@ app.controller("dashboardController", function($scope, $http) {
         };
     };
 
-    $scope.setLatestChangeLog = function() {
+    $scope.setLatestChangeLog = function(api_key) {
         console.log("[ABOUT] Retrieving latest blog post...");
         showCornerLoader();
-        var url = 'https://www.googleapis.com/blogger/v3/blogs/3322385743551419703/posts?key=AIzaSyBAms6po9Dc82iTeRzDXMYI-bw81ufIu-0'
+        var url = 'https://www.googleapis.com/blogger/v3/blogs/3322385743551419703/posts?key=' + api_key
         var res = $http.get(url);
         res.then(
             function(payload) {

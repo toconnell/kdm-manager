@@ -133,7 +133,7 @@
         ng-click="showHide('settlementNotesContainer')"
         onclick="closeNav()"
         >
-    Notes and Players
+        Notes and Players
     </button>
 
     <button
@@ -141,10 +141,12 @@
         class="sidenav_button sidenav_modal_launcher hidden"
         ng-click="showHide('gearLookupModal')"
         onclick="closeNav()"
+        ng-init="scratch.gearLookupOpenerButtonLoaded = true"
     >
-        &beta; Gear Lookup Tool
+        Gear Card Lookup
     </button>
 
+<!--
     <button
         id="huntPhaseOpenerButton"
         class="sidenav_button sidenav_modal_launcher hidden"
@@ -153,6 +155,7 @@
     >
         &beta; Hunt Phase
     </button>
+-->
 
     <h3 ng-if="countSurvivors('departing') > 0">Departing</h3>
     <form
