@@ -77,7 +77,7 @@
                     <p>Registered user for {{user.user.age}}.</p>
                     <p ng-if="user.user.subscriber.level < 1">
                         <a href="https://thelaborinvain-2.myshopify.com/" target="top">
-                            Support the Manager! Buy a lifetime subscription for $1!
+                            Support the Manager! Buy a subscription!
                         </a>
                     </p>
                     <p ng-if="user.user.subscriber.level > 0">Subscription level: <b>{{user.user.subscriber.desc}}.</b>
@@ -696,7 +696,7 @@
 
                 <p class="title">
                     <b>
-                    KD:M Manager! Production release {{user.meta.webapp.release}}
+                    KD:M Manager! Production release $application_version 
                     (<a href="https://api.kdm-manager.com">KDM API</a> release version
                     {{user.meta.api.version}}).
                     </b>
@@ -736,7 +736,7 @@
 
                 <p>Release Information:</p>
                 <ul>
-                    <li>Release {{user.meta.webapp.release}} of the Manager went into production on {{latest_blog_post.published}}. <a target="top" href="{{latest_blog_post.url}}">View change log</a>.</li>
+                    <li>Release $application_version of the Manager went into production on {{latest_blog_post.published}}. <a target="top" href="{{latest_blog_post.url}}">View change log</a>.</li>
                     <li>v1.7.0, the first production release of the Manager, went live {{user.meta.webapp.age}} ago on 2015-11-29.</li>
                     <li>For detailed release information, including complete notes and updates for each production release, please check the development blog at <a href="http://blog.kdm-manager.com" target="top">blog.kdm-manager.com</a>.</li>
                 </ul>
