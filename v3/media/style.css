@@ -2629,7 +2629,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .avatar_and_summary div.avatar {text-align: left; width: 30%; }
     .avatar_and_summary div.avatar img {width: 90px; border-radius: 3px; }
     .attr {font-size: 12pt; }
-    .death_x {font-size: 130px; margin-left: 10px; margin-top: -2%; ; }
+    .death_x {font-size: 130px; margin-left: 10px; margin-top: -3.2%; ; }
     .campaign_summary_survivor_returning_flash {font-size: 10pt; margin-top: -2%; width: 104.3%; margin-left: -2%; border-top-right-radius: 5px; border-top-left-radius: 5px; }
     .campaign_summary_survivor_constellation {font-size: 12pt; width: 104.3%; margin-left: -2%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; }
 

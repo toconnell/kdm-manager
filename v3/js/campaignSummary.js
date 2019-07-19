@@ -159,10 +159,11 @@ app.controller("manageDepartingSurvivorsController", function($scope, $rootScope
 
     $scope.returnDepartingSurvivors = function(a){
         showFullPageLoader();
-        if ($scope.scratch.increment_ly_on_return === true) {
-            $scope.setCurrentLY($scope.settlement.sheet.lantern_year + 1);
-        };
-        $scope.postJSONtoAPI('settlement', 'return_survivors', {aftermath: a});
+        $scope.postJSONtoAPI('settlement', 'return_survivors', {
+            aftermath: a,
+            increment_ly: $scope.scratch.increment_ly_on_return,
+            }
+        );
     };
 
     $scope.updateDepartingSurvivors = function(attrib, mod){
