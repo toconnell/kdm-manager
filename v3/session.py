@@ -573,6 +573,9 @@ class Session:
         output = Template(output).safe_substitute(
             api_url = api.get_api_url(),
             application_version = settings.get("application","version"),
+            application_age_rough_years = (
+                datetime.now() - datetime(2015, 11, 10)
+            ).days / 365,
             user_id=self.User.user['_id'],
             user_login = self.User.user["login"],
             settlement_id = self.session['current_settlement'],

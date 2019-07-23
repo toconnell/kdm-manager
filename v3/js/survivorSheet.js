@@ -246,20 +246,52 @@ app.controller("survivorSheetController", function($scope) {
         };
         
     };
+
+	// Updates courage; can also set the related A&I after the promise returns
     $scope.updateCourage = function() {
         var js_obj = {attribute: 'Courage', value: $scope.survivor.sheet.Courage};
-        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj, false, true, false);
+        // ('survivor', 'set_attribute', js_obj, reinit=false, show_alert=true, update_sheet=false,)
+        var couragePromise = $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj, false, true, false);
         if ($scope.scratch.courageAI !== undefined) {
-            js_obj = {handle: $scope.scratch.courageAI, type: 'abilities_and_impairments'};
-            $scope.postJSONtoAPI('survivor', 'add_game_asset', js_obj, false, false, true);
+            couragePromise.then(
+				function(payload){
+					console.warn("Attribute updated! Setting A&I!");
+		            js_obj = {
+						handle: $scope.scratch.courageAI,
+						type: 'abilities_and_impairments'
+					};
+    	        	$scope.postJSONtoAPI(
+						'survivor', 'add_game_asset', js_obj, false, false, true
+					);
+				},
+				function(errorPayload){
+					console.error('Failed to update Courage!' + errorPayload);
+				}
+			);
         };
     };
+	// Updates understanding; mirrors the method above for understanding
     $scope.updateUnderstanding = function() {
         var js_obj = {attribute: 'Understanding', value: $scope.survivor.sheet.Understanding};
-        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj, false, true, false);
+        var understandingPromise = $scope.postJSONtoAPI(
+			'survivor', 'set_attribute', js_obj, false, true, false
+		);
         if ($scope.scratch.understandingAI !== undefined) {
-            js_obj = {handle: $scope.scratch.understandingAI, type: 'abilities_and_impairments'};
-            $scope.postJSONtoAPI('survivor', 'add_game_asset', js_obj, false, false, true);
+			understandingPromise.then(
+				function(payload){
+					console.warn("Attribute updated! Setting A&I!");
+		            js_obj = {
+						handle: $scope.scratch.understandingAI,
+						type: 'abilities_and_impairments'
+					};
+    		        $scope.postJSONtoAPI(
+						'survivor', 'add_game_asset', js_obj, false, false, true
+					);
+				},
+				function(errorPayload){
+					console.error('Failed to update Understanding!' + errorPayload);
+				}
+			);
         };
     };
 

@@ -728,17 +728,34 @@
 
                 <p>Important Information:</p>
                 <ul>
-                    <li><b>This application is not developed, maintained, authorized or in any other way supported by or affiliated with <a href="http://kingdomdeath.com" target="top">Kingdom Death</a>.</b></li>
-                    <li>This application is currently under active development and is running in debug mode!<li>
-                    <li>Among other things, this means not only that <i>errors can and will occur</i>, but also that <i>features may be added or removed without notice</i> and <i>presentation elements are subject to change</i>.</li>
-                    <li>Users' email addresses and other information are used only for the purposes of developing and maintaining this application and are never shared, published or distributed.</li>
+                    <li><b>This application is not developed, maintained,
+                    authorized or in any other way supported by or affiliated
+                    with <a href="http://kingdomdeath.com" target="top">
+                    Kingdom Death</a>.</b></li>
+                    </li>
+                    <li>Users' email addresses and other information are used
+                    only for the purposes of developing and maintaining this
+                    application and are never shared, published or distributed.
+                    </li>
                 </ul>
 
                 <p>Release Information:</p>
                 <ul>
-                    <li>Release $application_version of the Manager went into production on {{latest_blog_post.published}}. <a target="top" href="{{latest_blog_post.url}}">View change log</a>.</li>
-                    <li>v1.7.0, the first production release of the Manager, went live {{user.meta.webapp.age}} ago on 2015-11-29.</li>
-                    <li>For detailed release information, including complete notes and updates for each production release, please check the development blog at <a href="http://blog.kdm-manager.com" target="top">blog.kdm-manager.com</a>.</li>
+                    <li>Release $application_version of the Manager went into
+                    production on {{latest_blog_post.published}}.
+                    <a target="top" href="{{latest_blog_post.url}}">
+                    View change log</a>.
+                    </li>
+                    <li>Release 1.7.0, the first production release of the
+                    Manager, went live over $application_age_rough_years years
+                    ago on 2015-11-29!
+                    </li>
+                    <li>For detailed release information, including complete
+                    notes and updates for each production release, please
+                    check the development blog at
+                    <a href="http://blog.kdm-manager.com" target="top">
+                    blog.kdm-manager.com</a>.
+                    </li>
                 </ul>
 
                 <hr/>
@@ -772,9 +789,18 @@
             </div>
 
             <h3>Release Info</h3>
-            <p>Release <b>{{user.meta.webapp.release}}</b> of <b>https://kdm-manager.com</b> is powered by version <b>{{user.meta.api.version}}</b> of <a href="https://api.kdm-manager.com" target="top">the Kingdom Death API</a>.</p>
-            <p>This release of the Manager was deployed on {{latest_blog_post.published|date:'yyyy-MM-dd'}}.</p>
-            <p>Click <a target="top" href="{{latest_blog_post.url}}">here to view complete release notes</a> on the Manager's development blog.</p>
+            <p>Release <b>{{user.meta.webapp.release}}</b> of
+            <b>https://kdm-manager.com</b> is powered by version
+            <b>{{user.meta.api.version}}</b> of
+            <a href="https://api.kdm-manager.com" target="top">
+            the Kingdom Death API</a>.
+            </p>
+            <p>This release of the Manager was deployed on
+            {{latest_blog_post.published|date:'yyyy-MM-dd'}}.</p>
+            <p>Click <a target="top" href="{{latest_blog_post.url}}">
+            here to view complete release notes</a> on the Manager's
+            development blog.
+            </p>
 
 
         <hr/>
