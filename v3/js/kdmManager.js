@@ -25,7 +25,11 @@ function showAPIerrorModal(msg, request) {
     r = document.getElementById('apiErrorModalMsgRequest');
     r.innerHTML = request;
     m = document.getElementById('apiErrorModalMsg');
-    m.innerHTML = msg;
+    if (msg === null) {
+        m.innerHTML = 'API response is NULL. Possible preflight/CORS error!'
+    } else {
+        m.innerHTML = msg;
+    };
 };
 function hideAPIerrorModal() {
     e = document.getElementById('apiErrorModal');
@@ -757,7 +761,12 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         };
 
         // get auth header
-        var config = {"headers": {"Authorization": $scope.jwt}};
+        var config = {
+            "headers": {
+                "Authorization": $scope.jwt,
+                "API-Key": $scope.api_key,
+            }
+        };
 
         // create the URL and do the POST
         var endpoint = collection + "/" + action + "/" + asset_id;

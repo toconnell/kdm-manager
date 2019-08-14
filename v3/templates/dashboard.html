@@ -248,7 +248,7 @@
                 ng-if="user.user.subscriber.level < 1"
             > Campaigns created by non-subscribers are automatically removed after six months.
                 <a href="https://thelaborinvain-2.myshopify.com/" target="top">
-                    Purchase a lifetime subscription to the Manager</a>
+                    Purchase a subscription to the Manager</a>
                 to store your campaigns permanently!
             </p> <!-- subscribers alert -->
 
@@ -325,15 +325,21 @@
             <p
                 class="panel_top_tooltip"
                 ng-if="user.user.subscriber.level < 1"
-            > Non-subscriber users may create up to three settlements:
+            >
+                Non-subscriber users may create up to three settlements:
                 <a href="https://thelaborinvain-2.myshopify.com/" target="top">
-                    purchase a lifetime subscription to the Manager</a>
+                purchase a subscription to the Manager</a> for as little as $3 US
                 to create an unlimited number of settlements!
             </p> <!-- subscribers alert -->
 
             <!-- warning for free users re: settlement max -->
             <p ng-if="user.user.subscriber.level < 1 && user.user.settlements_created === 3">
-                To create additional settlements, use the link above to become a subscriber to the Manager. Alternately, you may wish to remove one of your existing settlements. To do this, click on "System" above and enable the controls for removing settlements. Then, use the "Remove" button on the Settlement Sheet to remove one of your existing settlements.
+                To create additional settlements, use the link above to become 
+                a subscriber to the Manager. Alternately, you may wish to remove
+                one of your existing settlements. To do this, click on "System"
+                above and enable the controls for removing settlements. Then,
+                use the "Remove" button on the Settlement Sheet to remove one
+                of your existing settlements.
             </p>
             <p ng-if="user.user.subscriber.level < 1 && user.user.settlements_created === 3">
                 <b>Important!</b> Abandoned settlements are not considered to have been <i>removed</i> and count towards your total number of settlements!

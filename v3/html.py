@@ -87,7 +87,7 @@ class meta:
     <div
         id="apiErrorModal"
         class="api_error_modal hidden ease clickable"
-        onclick="hideAPIerrorModal()">
+        onclick="hideAPIerrorModal()"
     >
         <p class="api_error_debug">User login: {{user_login}}</p>
         <p class="api_error_debug">Settlement OID: {{settlement.sheet._id.$oid}}</p>

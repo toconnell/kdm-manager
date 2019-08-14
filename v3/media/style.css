@@ -1407,7 +1407,7 @@ div#info_box h2 {margin-top: 0; border: 0 none; font-weight: normal; width: 40%;
 .error_dialog_cap, .saved_dialog_cap {background-color: #fff; font-family: Silverado; margin: 0; margin-top: -2.5%; margin-left: -2.5%; border-top-left-radius: inherit; border-bottom-left-radius: inherit; color: #00BEED; height: 101%; padding: 2.5%; padding-left: 10%; padding-right: 8%; float: left; }
 .error_dialog_cap {color: #ff3333; }
 
-.api_error_modal {position: fixed; top: 0%; bottom: 0%; left: 0%; right: 0%; background: rgba(0,0,0,0.92); color: #fff; padding-top: 30%}
+.api_error_modal {position: fixed; top: 0%; bottom: 0%; left: 0%; right: 0%; background: rgba(0,0,0,0.92); color: #fff; padding-top: 30%; font-family: 'Metrophobic'; }
 .api_error_modal_msg {margin: 0 auto; padding: 3%; width: 90%; }
 .api_error_debug {font-size: 50%; }
 
