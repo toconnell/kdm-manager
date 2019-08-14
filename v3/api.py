@@ -71,7 +71,7 @@ def check_token(Session):
     req_url = route_to_url("/authorization/check")
     h = {
         'content-type':     'application/json',
-        'API_Key':          settings_private.get('api', 'key'),
+        'API-Key':          settings_private.get('api', 'key'),
         'Authorization':    Session.session["access_token"],
     }
     r = requests.get(req_url, headers=h, verify=False)
@@ -86,7 +86,7 @@ def refresh_jwt_token(Session):
     req_url = route_to_url("/authorization/refresh")
     h = {
         'content-type':     'application/json',
-        'API_Key':          settings_private.get('api', 'key'),
+        'API-Key':          settings_private.get('api', 'key'),
         'Authorization':    Session.session["access_token"],
     }
     r = requests.post(req_url, headers=h, verify=False)
