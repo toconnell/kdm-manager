@@ -138,7 +138,9 @@
                                         <div
                                             class="gear_card_combat_stat_activation_detail"
                                         >
-                                            {{gear.accuracy}}
+                                            <span class="gear_card_accuracy_detail">
+                                                {{gear.accuracy}}
+                                            </span>
                                             <hr/>
                                             {{gear.strength}}
                                         </div>
@@ -337,6 +339,13 @@
                         <b>Innovation requirements:</b>
                         <span ng-repeat="handle in recipe.innovations">
                             {{settlement.game_assets.innovations[handle].name}}{{$last ? '.' : ', '}}
+                        </span>
+                    </div>
+
+                    <div ng-if="recipe.endeavors != undefined">
+                        <b>Endeavors required:</b> 
+                        <span ng-repeat="handle in recipe.endeavors">
+                            {{settlement.game_assets.endeavors[handle].name}}{{$last ? '.' : ', '}}
                         </span>
                     </div>
 

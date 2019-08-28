@@ -69,7 +69,16 @@
             <img src="/media/loading_io.gif">
         </div>
 
-        <div ng-repeat="category in ['KD Collection', 'Quarry','Nemesis','Enhancement']" class="ng_fade">
+        <div 
+            ng-repeat="category in [
+                'KD Collection',
+                'Quarry',
+                'Nemesis',
+                'White Box',
+                'Enhancement'
+            ]" 
+            class="ng_fade"
+        >
             <h4>{{category}}</h4>
             <div
                 class="new_settlement_asset_clicker clickable"

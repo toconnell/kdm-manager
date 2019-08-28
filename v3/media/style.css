@@ -393,8 +393,10 @@ input[type="radio"].gear_lookup_attrib_toggle {display: inherit;}
 .gear_card_combat_stat_activation {border-radius: 25px; background-color: #777; color: #fff; padding: 4%; font-size: 45px; display: flex; flex-direction: column; flex-wrap: nowrap; text-align: center; margin-left: 15%;  height: 135%;}
 .gear_card_combat_stat_activation hr {margin-top: 1px; margin-bottom: 1px; background-color: #000; height: 3px; bordeR: 0; }
 .gear_card_combat_stat_activation_icon {color: #000; font-family: 'kdm-font-10';}
-.gear_card_combat_stat_activation_detail {background-color: #333; border-radius: 20px; margin: 0 auto; width: 100%; font-size: 45px; border: 0; }
+.gear_card_combat_stat_activation_detail {background-color: #333; border-radius: 20px; margin: 0 auto; width: 100%; font-size: 45px; border: 0; width: 1.3em; overflow: visible; }
 .gear_card_combat_stat_activation_detail hr {background-color: #777; height: 3px; border: 0; }
+.gear_card_accuracy_detail {display: flex; justify-content: center;  width: 2em; }
+.gear_card_accuracy_detail::after {content: "+"; text-shadow: -1px -1px 0 #333, 1px -1px 0 #333, -1px 1px 0 #333, 1px 1px 0 #333; font-size: 1.1em; line-height: 1; }
 .gear_card_location_glyph {font-size: 40px; color: #000; font-family: 'kdm-font-2'}
 .gear_card_detail_top_info {width: 100%;}
 .gear_card_detail_top_info .title {font-size: 50px; font-weight: bold; text-align: center; }
@@ -1158,8 +1160,6 @@ p.sotf_reroll_caption {font-size: 30px; margin: 0 auto; font-family: Metrophobic
     /* generic card styles - mobile */
 .survivor_sheet_card_container {display: flex; flex-direction: column; width: 100; margin-top: 3%; }
 .survivor_sheet_card {display: inline-block; border-radius: 20px; margin: 0 auto; margin-bottom: 6%; width: 94%; border: 1px solid #aaa; padding: 0; padding-top: 4%; padding-bottom: 4%; text-align: center; border: 0; }
-.fighting_art_gradient {background: radial-gradient(circle, #DFd733, #E4e3cC, #d0f0fc); color: #000; }
-.secret_fighting_art_gradient {background: radial-gradient(circle, #800, #a00, #c00); color: #fff; }
 .survivor_sheet_card b.card_title {display: block; margin-bottom: 5px; font-size: 1.2em; }
 .survivor_sheet_card b.card_constellation {color: #c00; }
 .secret_fighting_art b.card_constellation {color: #FFC107;}
@@ -2818,7 +2818,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .gear_card_detail_region {min-height: 230px; }
     .gear_card_combat_stat_shield {font-size: 14pt; width: 30px; height: 33px; }
     .gear_card_location_glyph {font-size: 20px; }
-    .gear_card_combat_stat_activation {font-size: 12pt; height: 130%; }
+    .gear_card_combat_stat_activation {font-size: 12pt; height: 95%; }
     .gear_card_combat_stat_activation hr {display: inherit; height: 1px; }
     .gear_card_combat_stat_activation_detail hr {display: inherit; height: 1px; }
     .gear_card_combat_stat_activation_detail {font-size: 12pt; }
