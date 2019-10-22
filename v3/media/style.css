@@ -39,6 +39,8 @@ ul.kd_boxes {list-style-type: none; margin-top: 1.5%; }
 ul.kd_boxes li:before {content: "h "; font-family: 'kdm-font-2'; font-size: 1.5em; vertical-align: bottom; }
 ul.kd_boxes li {text-align: left; }
 
+.strain_block {display: inline-block; border: 0.1em solid; width: 3vw; height: 1.5vh; margin-bottom: -0.3vh; }
+
 .available_endeavors_build {border-top: 2px solid #0D743A; border-bottom: 2px solid #0D743A;}
 .available_endeavors_innovate {border-top: 2px solid #0277BD; border-bottom: 2px solid #0277BD;}
 .border_box {border: 3px solid #000; margin-top: 2%; }
@@ -351,9 +353,34 @@ input[type="radio"].gear_lookup_attrib_toggle {display: inherit;}
 .gear_lookup_search_box {display: block; margin: 0 auto; width: 95%; border:0; text-align: center; margin-bottom: 6%; }
 .gear_lookup_card_repeater {width: 90%; margin: 0 auto; margin-bottom: 2%; }
 .gear_lookup_card_repeater .gear_card_container {margin: 0 auto; margin-bottom: 1%; background: radial-gradient(#fff, #fff, #f8f8f8, #fffff9);}
-.gear_card_recipe {background-color: #ffFFcc; font-family: 'Metrophobic'; font-size: 0.7em; padding: 1%; margin: 2%; border-radius: 0.5em; border: 1px solid #F3E067; }
+.gear_card_recipe {
+    font-family: 'Metrophobic';
+    font-size: 0.7em; padding: 1%; margin: 2%;
+    border-radius: 0.5em;
+    border: 1px solid; 
+}
 .gear_card_recipe * {font-size: inherit; }
 .gear_card_recipe_title {color: #8E7E1F; padding-left: 3%; background-color: #f3E067; margin: 0 auto; margin-top: -1%; margin-left: -1%; margin-right: -1%; margin-bottom: 1%; border-top-left-radius: 0.3em; border-top-right-radius: 0.3em; }
+
+.pattern_recipe_crafting_process_container {
+    background: #fff; width: 97%; margin: 0 auto; padding: 0;
+    border-radius: 0.5em; border: 1px solid; display: flex;
+    flex-direction: column; flex-wrap: nowrap; 
+    margin-top: 1%;
+    margin-bottom: 1%;
+    overflow: hidden; 
+}
+.pattern_recipe_crafting_process_item {
+    width: 100%; padding: 2%; font-size: 0.8em; 
+    box-sizing: border-box;
+    border-bottom: 1px solid;
+}
+.pattern_recipe_crafting_process_item:first-child {
+    font-weight: bold;
+}
+.pattern_recipe_crafting_process_item:last-child {
+    border-bottom: none; 
+}
 
 /* gear cards - mobile */
 .gear_card_container {border: 1px solid #000; border-radius: 25px; width: 650px; min-height: 650px; }
@@ -1163,6 +1190,10 @@ p.sotf_reroll_caption {font-size: 30px; margin: 0 auto; font-family: Metrophobic
 .survivor_sheet_card b.card_title {display: block; margin-bottom: 5px; font-size: 1.2em; }
 .survivor_sheet_card b.card_constellation {color: #c00; }
 .secret_fighting_art b.card_constellation {color: #FFC107;}
+.fighting_art_card_strain_threshold_container {width: 100%; display: flex; flex-direction: column; flex-wrap: nowrap; margin-bottom: -5%; margin-top: 6%; font-family: 'Metrophobic'; padding: 3%; box-sizing: border-box;}
+.fighting_art_card_strain_threshold_blocks_container {width: 100%; text-align: center; margin-top: -7.5%; margin-bottom: 0; }
+.fighting_art_card_strain_threshold_blocks_container span {margin-right: 1.5vw; }
+.fighting_art_card_strain_threshold_desc {text-align: center; font-size: 0.7em; width: 100%; }
 .card_constellation {color: #c00; }
 .survivor_sheet_card br {line-height: 160%; }
 
@@ -1541,6 +1572,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .diamond_inner {height: 50px;width:50px;}
 
     /* general styles - tablet */
+    .strain_block {width: 1.5vw; height: 1.1vh; margin-bottom:-0.1vh}
     ul.kd_boxes li:before {font-size: 1.2em; }
 
     div.corner_loading_spinner {left: 1px; right: auto; }
@@ -2005,6 +2037,10 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .disorders_selector, 
         .fighting_arts_selector {margin-top: 2%;}
 
+    .fighting_art_card_strain_threshold_desc {font-size: 0.5em }
+    .fighting_art_card_strain_threshold_blocks_container {margin-top: -9.5%; }
+    .fighting_art_card_strain_threshold_blocks_container span {margin-right: 1vw; }
+
     /* campaign summary Styles - tablet */
     div.campaign_summary_headline_container p.campaign_summary_campaign_type {text-align: left; padding-left: 2%; margin-top: 0; }
     .campaign_summary_headline_blocks_container {width: 500px; margin-left: 0; margin-top: 1%; }
@@ -2330,6 +2366,8 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     label {clear: both; margin: 0 auto; float: left; }
     label.sex_button {margin-bottom: 10px; }
     label#female_sex_button {margin-bottom: -15px;}
+
+    .strain_block {margin-bottom: -2px; width: 10px;  height: 10px; border-width: 2px; }
 
     .kd_css_checkbox {}
     .kd_css_checkbox:checked + label {}
@@ -3113,6 +3151,10 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .survivor_sheet_card_text table td.roll {width: 10%; }
     .survivor_sheet_card_click_to_remove {margin-bottom: -15px; font-size: 8pt;}
     .survivor_sheet_fa_container {margin-top: 0; }
+
+    .fighting_art_card_strain_threshold_blocks_container {margin-top: -6.5%; margin-bottom: 1%; }
+    .fighting_art_card_strain_threshold_blocks_container span {margin-right: 7px; }
+    .fighting_art_card_strain_threshold_desc {font-size: 0.8em }
 
         /* survivor sheet ai - wide */
     .survivor_sheet_ai_container {margin-top: 0; }

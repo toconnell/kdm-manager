@@ -73,6 +73,7 @@
             >
                 <div
                     class="gear_card_container"
+                    title="{{gear.name}} ({{ gear.sub_type }})"
                 >
                     <div
                         class="gear_card_affinity_outer top_affinity"
@@ -347,6 +348,22 @@
                         <span ng-repeat="handle in recipe.endeavors">
                             {{settlement.game_assets.endeavors[handle].name}}{{$last ? '.' : ', '}}
                         </span>
+                    </div>
+
+                    <div
+                        ng-if="recipe.crafting_process !== undefined"
+                        class="pattern_recipe_crafting_process_container"
+                        title="Describes how this gear is crafted. Bolded terms are essential to the process, they must be found in your settlement. These can be resources, innovations, or survivors with specific characteristics. They are required but not consumed, used, or spent."
+                    >
+                        <div class="pattern_recipe_crafting_process_item">
+                            Crafting Process
+                        </div>
+                        <div
+                            ng-repeat="item in recipe.crafting_process"
+                            ng-bind-html="item|trustedHTML"
+                            class="pattern_recipe_crafting_process_item"
+                        >
+                        </div>
                     </div>
 
                     <div ng-if="recipe.misc != undefined">

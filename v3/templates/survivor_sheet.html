@@ -1590,6 +1590,33 @@
                                 <span class="survivor_sheet_card_level_desc" ng-bind-html="desc|trustedHTML"></span>
                             </div>
                         </div> <!-- levels -->
+
+                        <!-- Strain Treshold - 10th Anniversary White Speaker, etc. -->
+
+                        <div
+                            ng-if="FA.strain_threshold !== undefined"
+                            class="fighting_art_card_strain_threshold_container"
+                            ng-class="{
+                                'kd_promo': FA.strain_threshold.final === undefined,
+                                'kd_pink': FA.strain_threshold.final,
+                            }"
+                        >
+                            <div
+                                class="fighting_art_card_strain_threshold_blocks_container"
+                            >
+                                <span
+                                    ng-repeat="block in range(FA.strain_threshold.blocks)"
+                                    class="strain_block"
+                                >
+                                </span>
+                            </div>
+                            <div
+                                class="fighting_art_card_strain_threshold_desc"
+                                ng-bind-html="FA.strain_threshold.desc|trustedHTML"
+                            >
+                            </div>
+                        </div>
+
                         <div class="survivor_sheet_card_click_to_remove">Tap or click to <b>remove</b>.</div>
                     </span>
                 </div>

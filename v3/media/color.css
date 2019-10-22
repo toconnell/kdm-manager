@@ -6,7 +6,8 @@
 .no_zebra {background-color: #fff; }
 .storage_zebra {background-color: #ff99aa; }
 
-
+/*  paper UI blocks */
+.strain_block {border-color: #5Dd7F2; background: #fff; }
 
 /* gradients */
 .collection_gradient {background: linear-gradient(to right, #F5E2B9, #FAF6DB, #F5E2B9);}
@@ -51,6 +52,12 @@
 /* asset emulation - fun stuff */
 .kd_promo {color: #fff; background: radial-gradient(circle, #5Dd7F2, #50CAF5, #3FACCF); }
 .dragon_king {color: #E8cE55; background: radial-gradient(#7270B9, #6260A9); }
+
+/* gear cards */
+.gear_card_recipe {border-color: #F3E067; background: #ffFFcc; }
+.pattern_recipe_crafting_process_container {border-color: #ddd;}
+.pattern_recipe_crafting_process_item {border-color: #aaa;}
+.pattern_recipe_crafting_process_item:first-child {background: #4E4B42; color: #fff;}
 
     /* lanterns */
 .kd_lantern {background-color: #F9EFCE; background: radial-gradient(#F9E6A4, #FCF3D5 ); border-color: #EBD6AB;}
