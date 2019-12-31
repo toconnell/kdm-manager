@@ -51,7 +51,10 @@ function showHide(e_id, force) {
     var e = document.getElementById(e_id);
     var hide_class = "hidden";
     var visible_class = "visible";
-    if (e === null) {console.error("showHide('" + e_id + "') -> No element with ID value '" + e_id + "' found on the page!"); return false}
+    if (e === null) {
+        console.error("showHide('" + e_id + "') -> No element with ID value '" + e_id + "' found on the page!");
+        return false
+    }
     if (e.classList.contains(hide_class)) {
         e.classList.remove(hide_class);
         e.classList.add(visible_class);
@@ -71,19 +74,6 @@ function showHide(e_id, force) {
         return true;
     };
  }
-
-// burger sidenav
-function openNav() {
-    var nav = document.getElementById("mySidenav")
-    nav.style.width = '75%';
-}
-function closeNav() {
-    var nav = document.getElementById("mySidenav");
-    if (nav === null){
-    } else {
-        nav.style.width = "0"
-    };
-}
 
 function sleep (time) {return new Promise((resolve) => setTimeout(resolve, time));}
 
@@ -183,9 +173,29 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
     $rootScope.objectKeys = Object.keys;
     $rootScope.rollUp = rollUp;
     $rootScope.showHide = showHide;
+
+    
+    $rootScope.ngVisible = {}
+    $rootScope.ngShowHide = function(elementId) {
+        // supersedes showHide(), which is deprecated
+        // toggles an element in and out of $rootScope.ngVisible, which is
+        //  an arry of UI elements that are true or false
+
+        if ($rootScope.ngVisible[elementId] === true) {
+            $rootScope.ngVisible[elementId] = false;
+        } else {
+            $rootScope.ngVisible[elementId] = true;
+        };
+
+    };
+
     $scope.numberToRange = function(num) {
         return new Array(num); 
     };
+
+    //
+    //  overlay navigation controls
+    //
 
     $rootScope.openNav = function(e) {
         var element = document.getElementById(e);
@@ -194,6 +204,27 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
     $rootScope.closeNav = function(e) {
         var element = document.getElementById(e);
         element.classList.remove('openNav');
+    };
+
+    $rootScope.openLeftSideNav = function() {
+        // opens the main, left-side navigation pane
+        $scope.scratch.left_side_nav_open = true;
+        var left_element = document.getElementById('leftSideNav');
+        var right_element = document.getElementById('leftSideNavUnderlay');
+        var elements = [left_element, right_element]
+        for (index = 0; index < elements.length; index++) { 
+            elements[index].classList.add('open');
+        } 
+    };
+    $rootScope.closeLeftSideNav = function() {
+        // opens the main, left-side navigation pane
+        $scope.scratch.left_side_nav_open = false;
+        var left_element = document.getElementById('leftSideNav');
+        var right_element = document.getElementById('leftSideNavUnderlay');
+        var elements = [left_element, right_element]
+        for (index = 0; index < elements.length; index++) { 
+            elements[index].classList.remove('open');
+        } 
     };
 
     // post a form to the legacy webapp (useful for buttons that you

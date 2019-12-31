@@ -1,7 +1,10 @@
+<!-- top nav - DEPRECATED -->
+<div id="topNavBar" class="campaign_summary_gradient"></div>
+
 <script src="/js/campaignSummary.js?v=$application_version"></script>
 
 <div
-    id = "campaign_summary_angularjs_controller_container"
+    id="campaignSummaryContainer"
     ng-controller="campaignSummaryController"
     ng-init="initializeSettlement('campaignSummary','$api_url','$settlement_id');"
 >
@@ -13,18 +16,13 @@
         ng-init="initializeUser('$user_id')"
     ></span>
 
-    <!-- spacer -->
-    <span class="tablet_and_desktop nav_bar campaign_summary_gradient"></span>
-    <span class="nav_bar_mobile mobile_only campaign_summary_gradient"></span>
-    <span class="top_nav_spacer mobile_only"> hidden </span>
-
 
     <!-- name and headline -->
     <div class="campaign_summary_headline_container" ng-if="settlement != undefined">
 
-        <h1 class="settlement_name">{{settlement.sheet.name}}</h1>
+        <h1 id="campaignSummarySettlementName">{{settlement.sheet.name}}</h1>
 
-        <p class="campaign_summary_campaign_type">
+        <p class="campaignSummaryCampaignType">
             {{settlement.game_assets.campaign.name}}
         </p>
 
@@ -111,7 +109,12 @@
             >
 
                 <h2>- Survivors - </h2>
-                <p class="subtitle">Tap or click a survivor for management options.</p>
+	            <div
+	                class="ng_fade kd_sheet_ui_row_tip"
+                	ng-if="user.user.preferences.show_ui_tips"
+	            >
+                	<p>Tap or click a survivor for management options.</p>
+    	        </div>
 
                 <center
                     id="waitingForSurvivors" class=""
@@ -404,7 +407,10 @@
                                                             </button>
                                                             <button
                                                                 class="kd_blue"
-                                                                ng-click="setSurvivorAttribute(s, 'survival'); rollUp(survivalBoxID)"
+                                                                ng-click="
+                                                                    setSurvivorAttribute(s, 'survival');
+                                                                    rollUp(survivalBoxID)
+                                                                "
                                                             >
                                                                 Save Changes
                                                             </button>
@@ -1120,33 +1126,40 @@
             </div><!-- columns -->
 
         <div class="quickview_ui_button_container">
-            <form action="" method="POST" class="edit_survivor_sheet">
-                <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
-                <button
-                    class="quickview_ui_button settlement_sheet_gradient"
-                    onclick="showFullPageLoader()"
-                    ng-click="showHide(s.sheet._id.$oid + '_modal_controls');"
+        <!-- there are various controls here, so they're all wrapped in a div, 
+        so that we can control how much space they take up w/o writing a bunch 
+        of super-specific selectors. -->
+
+            <div>
+                <form action="" method="POST" class="edit_survivor_sheet">
+                    <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
+                    <button
+                        class="quickview_ui_button settlement_sheet_gradient"
+                        onclick="showFullPageLoader()"
+                        ng-click="showHide(s.sheet._id.$oid + '_modal_controls');"
+                    >
+                        Edit <b>Survivor Sheet</b>
+                    </button>
+                </form>
+            </div>
+
+            <div>
+                <select
+                    class="campaign_summary_survivor_modal_color_scheme_select"
+                    ng-if="user.user.subscriber.level > 1"
+                    ng-model="s.sheet.color_scheme"
+                    ng-change="setColorScheme(s);"
+                    ng-options="c.handle as c.name for c in settlement.survivor_color_schemes"
                 >
-                    Edit <b>Survivor Sheet</b>
-                
-                </button>
-            </form>
-            <select
-                class="campaign_summary_survivor_modal_color_scheme_select"
-                ng-if="user.user.subscriber.level > 1"
-                ng-model="s.sheet.color_scheme"
-                ng-change="setColorScheme(s);"
-                ng-options="c.handle as c.name for c in settlement.survivor_color_schemes"
-            >
-                <option disabled value="">Set Color Scheme</option>
-            </select>
+                    <option disabled value="">Set Color Scheme</option>
+                </select>
+            </div>
             <div
                 ng-if="
                     group.handle == 'available' ||
                     group.handle == 'favorite' ||
                     group.handle == 'departing'
                 "
-                class="departing_survivor_conditional"
             >
                 <button
                    ng-if="s.sheet.departing == true"
@@ -1169,7 +1182,7 @@
                     Join <b>Departing</b> Survivors
                 </button>
             </div> <!-- conditional departing toggle -->
-            <div class="back_button_holder">
+            <div>
                 <button
                     class="quickview_ui_button"
                     ng-click="showHide(s.sheet._id.$oid + '_modal_controls')"
@@ -1193,17 +1206,9 @@
     </div> <!--campaign_summary_left_panel -->
 
 
+    <!-- campaign summary RIGHT panel BEGINS -->
 
-<!--
-
-    Right Side Campaign Summary app-let
-        - special rules
-        - endeavors
-        - monster/innovation/location lists
-
--->
-
-    <div class="campaign_summary_facts_box" ng-if="settlement != undefined">
+    <div class="campaign_summary_right_panel" ng-if="settlement != undefined">
 
         <div
             ng-repeat="r in settlement.campaign.special_rules"
@@ -1247,11 +1252,14 @@
                             ng-click="addToken()"
                             class="endeavor_controls_toggle settlement_sheet_block_group clickable"
                         >
-                            <h4>- Endeavor Tokens -</h4>
-                            <span>Click or tap here to manage Endeavor Tokens.</span>
+                            <h3>- Endeavor Tokens -</h3>
+	                        <div
+            	                class="ng_fade kd_sheet_ui_row_tip"
+                            	ng-if="user.user.preferences.show_ui_tips"
+            	            >
+                                <p>Click or tap here to manage Endeavor Tokens.</p>
+                	        </div>
                         </div>
-
-                        <div class="endeavor_controls_clear_div"></div>
 
                     </div>
 
@@ -1284,13 +1292,13 @@
                 class="campaign_summary_small_box endeavor_box"
                 ng-if="settlement.campaign.endeavor_count > 0"
             >
-                <h4>- Available Endeavors ({{settlement.campaign.endeavor_count}}) -</h4>
+                <h3>- Available Endeavors ({{settlement.campaign.endeavor_count}}) -</h3>
 
                 <!-- campaign-specific endeavors -->
                 <div
                     ng-repeat="i in settlement.campaign.endeavors.campaign"
                 >
-                    <h5><b>{{i['name']}}</b>:</h5>
+                    <h5 class="endeavor_location"><b>{{i['name']}}</b>:</h5>
                     <div
                         ng-repeat="e_handle in i.endeavors"
                         ng-init="e = settlement.game_assets.endeavors[e_handle]"
@@ -1316,7 +1324,7 @@
                 <div
                     ng-repeat="i in settlement.campaign.endeavors.innovations"
                 >
-                    <h5><b>{{settlement.game_assets.innovations[i['handle']].name}}</b> ({{settlement.game_assets.innovations[i['handle']].innovation_type}}):</h5>
+                    <h5 class="endeavor_location"><b>{{settlement.game_assets.innovations[i['handle']].name}}</b> ({{settlement.game_assets.innovations[i['handle']].innovation_type}}):</h5>
                     <div
                         ng-repeat="e_handle in i.endeavors"
                         ng-init="e = settlement.game_assets.endeavors[e_handle]"
@@ -1342,7 +1350,7 @@
                 <div
                     ng-repeat="l in settlement.campaign.endeavors.locations"
                 >
-                    <h5><b>{{settlement.game_assets.locations[l['handle']].name}}</b>:</h5>
+                    <h5 class="endeavor_location"><b>{{settlement.game_assets.locations[l['handle']].name}}</b>:</h5>
                     <div
                         ng-repeat="e_handle in l.endeavors"
                         ng-init="e = settlement.game_assets.endeavors[e_handle]"
@@ -1368,7 +1376,7 @@
                 <div
                     ng-repeat="s in settlement.campaign.endeavors.survivors"
                 >
-                    <h5><b>{{s.sheet.name}} [{{s.sheet.effective_sex}}]</b>:</h5>
+                    <h5 class="endeavor_location"><b>{{s.sheet.name}} [{{s.sheet.effective_sex}}]</b>:</h5>
                     <div
                         ng-repeat="e_handle in s.sheet.endeavors"
                         ng-init="e = settlement.game_assets.endeavors[e_handle]"
@@ -1394,7 +1402,7 @@
                 <div
                     ng-repeat="item in settlement.campaign.endeavors.storage"
                 >
-                    <h5><b>{{item.name}} ({{item.type}})</b>:</h5>
+                    <h5 class="endeavor_location"><b>{{item.name}} ({{item.type}})</b>:</h5>
                     <div
                         ng-repeat="e_handle in item.endeavors"
                         ng-init="e = settlement.game_assets.endeavors[e_handle]"
@@ -1415,7 +1423,7 @@
                 <div
                     ng-repeat="item in settlement.campaign.endeavors.settlement_events"
                 >
-                    <h5><b>{{item.name}}</b>:</h5>
+                    <h5 class="endeavor_location"><b>{{item.name}}</b>:</h5>
                     <div
                         ng-repeat="e_handle in item.endeavors"
                         ng-init="e = settlement.game_assets.endeavors[e_handle]"

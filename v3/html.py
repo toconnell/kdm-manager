@@ -55,12 +55,17 @@ class meta:
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
         <meta name="theme-color" content="#000000">
         <title>$title</title>
-        <link rel="stylesheet" type="text/css" href="/media/fonts.css?v=$version">
+
         <link rel="stylesheet" type="text/css" href="/media/style.css?v=$version">
+
+        <link rel="stylesheet" type="text/css" href="/css/_base.css?v=$version">
+        <link rel="stylesheet" type="text/css" href="/css/tablet.css?v=$version">
+        <link rel="stylesheet" type="text/css" href="/css/laptop.css?v=$version">
+        <link rel="stylesheet" type="text/css" href="/css/desktop.css?v=$version">
+
+        <link rel="stylesheet" type="text/css" href="/media/fonts.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/media/color.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/media/settlement_event_log.css?v=$version">
-        <link rel="stylesheet" type="text/css" href="/media/hunt_phase.css?v=$version">
-        <link rel="stylesheet" type="text/css" href="/media/help-tip.css">
         <link rel="stylesheet" type="text/css" href="/media/z-index.css?v=$version">
         <link ng-if="user.user !== undefined && user.user.preferences.night_mode === true" rel="stylesheet" type="text/css" href="/media/night_mode.css?v=$version">
     """).safe_substitute(
@@ -115,7 +120,7 @@ class meta:
     </div>
     \n""")
 
-    start_container = '\n<div id="container" onclick="closeNav()" >'
+    start_container = '\n<div id="container" >'
     close_container = '\n</div><!-- container -->'
 
 

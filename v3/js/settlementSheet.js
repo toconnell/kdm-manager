@@ -8,6 +8,22 @@ function reloadSheet() {
 // main app controler; most things should end up here when we de-balkanize
 app.controller("settlementSheetController", function($scope) {
     $scope.scratch = {} 
+
+    // tabs!
+    $scope.settlementSheetTabsObject = {
+        activeTab: 0,
+        tabs: [
+            {
+                id: 0,
+                name: 'Sheet',
+            },
+            {
+                id: 1,
+                name: 'Storage',
+            },
+        ],
+    };
+
     $scope.incrementAttrib = function(attrib, modifier) {
         if ($scope.settlement.sheet[attrib] + modifier < 0) {return false};
         var js_obj = {'attribute': attrib, 'modifier': modifier};
@@ -43,6 +59,11 @@ app.controller("settlementSheetController", function($scope) {
     $scope.setLostSettlements = function() {
         $scope.postJSONtoAPI('settlement', 'set_lost_settlements', {value: $scope.settlement.sheet.lost_settlements})
     };
+
+});
+
+app.controller("settlementSheetTabsController", function($scope) {
+    // the tabs object
 
 });
 
@@ -126,6 +147,7 @@ app.controller('monsterVolumesController', function($scope) {
 });
 
 app.controller("storageController", function($scope) {
+
     $scope.toggleFlippers = function(h) {
         // flips the expand/collapse arrow arround
         if (h.flippers === true) {
@@ -134,6 +156,7 @@ app.controller("storageController", function($scope) {
             h.flippers = true;
         };
     };
+
     $scope.flipArrow = function(h) {
         // flips the expand/collapse arrow arround
         if (h.arrow === true) {
@@ -148,23 +171,58 @@ app.controller("storageController", function($scope) {
     $scope.setStorage = function(asset, modifier) {
         asset.quantity += modifier;
         js_obj = {handle: asset.handle, value: asset.quantity};
-        $scope.postJSONtoAPI('settlement','set_storage', {storage: [js_obj]}, false, false);
+        $scope.postJSONtoAPI('settlement','set_storage', {storage: [js_obj]}, true, false);
     };
 
-    $scope.loadStorage = function() {
-        $scope.showHide('storageSpinner');
-        $scope.showHide('storageLauncher'); 
-        $scope.settlementStorage = undefined;
-        var res = $scope.getJSONfromAPI('settlement','get_storage', 'loadStorage');
+    $scope.refreshRollups = function(storage_repr) {
+        var res = $scope.getJSONfromAPI('settlement','get_storage_rollups', 'updateRollups');
         res.then(
             function(payload) {
-                $scope.settlementStorage = payload.data;
-                $scope.showHide('storageSpinner'); 
-                $scope.showHide('storageLauncher'); 
+                for (i=0; i < $scope.settlementStorage.length; i++) {
+                    var storage_repr = $scope.settlementStorage[i];
+                    var update_dict = payload.data[storage_repr.storage_type];
+                    for (const key in update_dict) {
+                        let value = update_dict[key];
+                        if (update_dict.hasOwnProperty(key)) {
+                            storage_repr[key] = update_dict[key];
+                        };
+                    };
+                };
             },
-            function(errorPayload) {console.log("Could not retrieve settlement storage from API!" + errorPayload);}
+                function(errorPayload) {
+                console.error("Failed to reload storage rollups! " + errorPayload);
+            }
         );
+
+    }
+
+    $scope.loadStorage = function(reload) {
+        // load settlement storage!
+        
+        // remove and reload if if requested
+        if (reload === true) {
+            $scope.settlementStorage = undefined;
+        };
+
+        // load it here
+        if ($scope.settlementStorage === undefined){
+            console.warn($scope.settlementStorage + ' is undefined!');
+            var res = $scope.getJSONfromAPI('settlement','get_storage', 'loadStorage');
+            res.then(
+                function(payload) {
+                    $scope.settlementStorage = payload.data;
+                    $scope.refreshRollups();
+                },
+                function(errorPayload) {
+                    console.error("Could not retrieve settlement storage from API!" + errorPayload);
+                }
+            );
+        };
     };
+
+    //
+    // load on init!
+    //
     $scope.loadStorage();
 
 });

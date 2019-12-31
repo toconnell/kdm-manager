@@ -14,6 +14,9 @@ from string import Template
 import sys
 import traceback
 
+# third party
+import pymongo
+
 import admin
 import api
 import assets
@@ -196,7 +199,11 @@ class Session:
                 self.set_cookie=True
 
         if session_id is not None:
-            self.session = mdb.sessions.find_one({"_id": session_id})
+            try:
+                self.session = mdb.sessions.find_one({"_id": session_id})
+            except pymongo.errors.ServerSelectionTimeoutError:
+                self.logger.error('The database is unavailable!')
+                self.session = None
             if self.session is None:
                 sign_in()
             else:

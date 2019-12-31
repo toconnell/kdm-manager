@@ -55,7 +55,11 @@ noscript {margin: 0 auto; margin-top: 3%; display: block; background-color: #CC0
 
 /* tablet style */
 
-@media only screen and (min-width: 700px) and (max-resolution: 3dppx) {
+
+@media only screen
+  and (min-device-width: 768px)
+  and (max-device-width: 1024px)
+  and (-webkit-min-device-pixel-ratio: 1) {
 
     h1 {font-size: 300%; }
     h2 {font-size: 100%; }

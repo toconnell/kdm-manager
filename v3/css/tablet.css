@@ -1,0 +1,173 @@
+/*                                                        */
+/*  DO NOT EDIT Z-INDEX VALUES OR COLORS IN THIS FILE!!!  */
+/*                                                        */
+
+/*  2020 tablet breakpoint!     */
+@media only screen
+  and (min-device-width: 768px)
+  and (max-device-width: 1024px)
+  and (-webkit-min-device-pixel-ratio: 1) {
+
+    /*  CSS RESET   */
+    html {
+        font-size: 1.5vh;
+    }
+
+    /*  top nav DEPRECATED  */
+    div#topNavBar {
+        height: 6vh;
+    }
+
+
+    /* major UI */
+    p {
+        margin: 0 auto;
+        margin-left: 10px;
+        margin-bottom: 3px;
+    }
+
+    div#container {margin-top: 6vh;}
+
+    /*  kd_sheet_ui styles - tablet */
+    .kd_sheet_ui_row_tip p {
+        font-size: 1.5vh; 
+    }
+    .kd_sheet_ui_row.title {
+        font-size: 2.5vh; 
+    }
+
+
+
+    /*
+
+        CAMPAIGN SUMMARY - tablet
+
+    */
+    #campaignSummarySettlementName {font-size: 8vw; }
+    #campaignSummaryCampaignType {margin: 0; }
+    .campaign_summary_headline_container {
+        position: relative;
+        margin: 0 auto;
+        padding: 0;
+    }
+
+    /*  the panels/columns  */
+    .campaign_summary_panels_container {
+        display: flex;
+    }
+    .campaign_summary_left_panel {width: 52%;}
+    .campaign_summary_right_panel {width: 48%; }
+
+    /*  stuff in the panels */
+
+        /* diamonds! */
+    .shape-section {padding: 20px 0;}
+    .diamond {height: 50px; width: 50px;}
+    .diamond_inner {height: 50px; width:50px; }
+    .headline_block_caption {
+        text-align: center;
+        padding: 0;
+        margin: 0;
+    }
+
+    .diamond_inner,         /*  keep these in sync! */
+        .headline_block_caption,
+        .headline_pop_by_sex {font-size: 1.5vh; }
+
+    .campaign_summary_survivors_container {min-height: 50vh; }
+    .campaign_summary_survivors_container h2 {
+        margin: 1%;
+        font-size: 4vw; 
+    }
+
+    /*  left panel - tablet */
+
+        /*  survivor quickview  */
+    .quickview_attribute_box {
+        font-size: 1vh;
+        padding-bottom: 2%;
+    }
+    .secondary_attrib_box_row .weapon_proficiency_type {font-size: 1.5vh; }
+    .quickview_asset_list_title_bar .title {font-size: 2.5vh; }
+    .quickview_asset_list_title_bar .subtitle,
+        .quickview_asset_list_title_bar .lockbox {font-size: 1.3vh; }
+    .quickview_ui_button_container {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-evenly;
+        margin-bottom: 3%;
+    }
+    .quickview_ui_button_container div {
+        width: 50%;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center; 
+    }
+
+    /*  right panel - tablet    */
+    .endeavor_box h3 {
+        font-size: 4vw;
+    }
+    .campaign_summary_small_box.settlement_fact h4 { font-size: 4vw; }
+    /*  campaign summary deafeated monsters - tablet */
+    .monster_subhead {
+        font-size: 2vh;
+        text-align: left;
+        padding-left: 5%;
+        margin: 0;
+        margin-top: 2%;
+    }
+
+    /*  campaign pulse discoveries  */
+    .campaign_summary_right_panel h4.pulse_discoveries {margin-bottom: 3%; }
+
+    /*
+
+        SETTLEMENT SHEET - tablet
+
+    */
+
+    /*  settlement sheet tabs - tablet   */
+    .settlement_sheet_tab {
+        margin-top: 5vh;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    /*  settlement sheet  - tablet */
+    .settlement_sheet_settlement_name {
+        font-size: 5vh;
+    }
+    .settlement_sheet_tumbler_number {
+        height: 7vh;
+        width: 7vh; 
+    }
+    .settlement_sheet_tumbler_number div {
+        font-size: 5vh; 
+    }
+    .settlement_sheet_tumbler_name {
+        font-size: 1.5vh; 
+    }
+    .settlement_sheet_tumbler_control_title {
+        font-size: 2.5vh;
+        margin: 3%; 
+    }
+    .settlement_sheet_tumbler_control_raft button {
+        font-size: 3vh; 
+    }
+
+    /*  settlement sheet storage - tablet  */
+    .storage_location_keywords_rollup {margin-top: 2%; }
+    .keywords_rollup_item {font-size: 2vh; }
+
+
+    /*  settlement sheet - quarry, nemesis, etc. boxes */
+    .settlement_sheet_line_item {font-size: 3vw;}
+
+    /*  settlement sheet - strain milestones - tablet */
+    .strain_milestone_toggle_box {width: 94%; }
+
+}
+

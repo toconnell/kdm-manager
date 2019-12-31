@@ -1,9 +1,38 @@
-    <script src="/js/settlementSheet.js?v=$application_version"></script>
+<!-- top nav - DEPRECATED -->
+<div id="topNavBar" class="settlement_sheet_gradient"></div>
 
+<script src="/js/settlementSheet.js?v=$application_version"></script>
+
+<div id="settlementSheetApp" ng-controller="settlementSheetController">
+
+    <!-- tabs -->
     <div
-        id = "settlement_sheet_angularjs_controller_container"
+        id="settlementSheetTabContainer"
+        ng-if="settlement.sheet !== undefined"
+    >
+
+        <div
+            ng-repeat="tab in settlementSheetTabsObject.tabs"
+            id="{{'settlementSheetTabButton-' + tab.id}}"
+            class="settlement_sheet_tab_button"
+            ng-class="{
+                'active': settlementSheetTabsObject.activeTab === tab.id,
+            }"
+            ng-click="
+                settlementSheetTabsObject.activeTab = tab.id;
+            "
+        >
+            {{tab.name}}
+        </div>
+
+    </div>
+
+    <!-- 'Sheet' tab starts here -->
+    <div
+        id="settlementSheetSheetTab"
+        class="settlement_sheet_tab"
+        ng-show='settlementSheetTabsObject.activeTab === 0'
         ng-init="initializeSettlement('settlementSheet', '$api_url','$settlement_id')"
-        ng-controller="settlementSheetController"
     >
 
         <!-- once we get the settlement, init the user -->
@@ -15,9 +44,6 @@
             Hack City!
         </span>
 
-        <span class="tablet_and_desktop nav_bar settlement_sheet_gradient"></span>
-        <span class="nav_bar_mobile mobile_only settlement_sheet_gradient"></span>
-        <div class="top_nav_spacer"> hidden </div>
 
         <div id="asset_management_left_pane" ng-if="settlement != undefined">
 
@@ -28,7 +54,8 @@
                 ng-model="scratch.newSettlementName"
                 ng-placeholder="Settlement Name"
                 ng-blur="setSettlementName()"
-            />{{settlement.sheet.name}}
+            />
+                {{settlement.sheet.name}}
             </div>
 
             <p
@@ -40,308 +67,237 @@
             </p>
 
 
-        <h1 ng-if="settlement.sheet.abandoned"class="alert">ABANDONED</h1>
+            <h1 ng-if="settlement.sheet.abandoned"class="alert">ABANDONED</h1>
 
-        <div class="settlement_sheet_tumblers_container">
-            <div class="settlement_form_wide_box">
-                <div class="big_number_container left_margin">
-                    <button
-                        class="incrementer"
-                        ng-click="incrementAttrib('survival_limit',1)"
-                    >
-                        &#9652;
-                    </button>
-                    <input
-                        id="survivalLimitBox"
-                        class="big_number_square"
-                        type="number"
-                        name="survival_limit"
-                        ng-value="settlement.sheet.survival_limit"
-                        ng-model="settlement.sheet.survival_limit"
-                        ng-blur="setAttrib('survival_limit', settlement.sheet.survival_limit)"
-                        min="{{settlement.sheet.minimum_survival_limit}}"
-                    />
-                    <button
-                        class="decrementer"
-                        ng-click="incrementAttrib('survival_limit',-1)"
-                    >
-                        &#9662;
-                    </button>
-                </div>
 
-                <div class="big_number_caption">
-                    <div class="help-tip">
+
+            <!-- settlement sheet tumblers start here -->
+			<div
+				id="settlementTumblerScold"
+				class="ng_fade kd_sheet_ui_row_tip"
+				ng-click="showHide('settlementTumblerScold')"
+			    ng-if="
+					user.user.preferences.show_ui_tips &&
+					objectKeys(ngVisible).length > 0
+				"
+			>
+				<p> The Manager tracks the settlement's Survival Limit,
+				Population and Death Count automatically. Please use the manual
+				controls below with care!</p>
+				<p>(Tap or click to dismiss.)</p>
+			</div>
+
+            <div
+				class="settlement_sheet_tumblers_container"
+			>
+
+                <div
+                    class="settlement_sheet_tumbler"
+                    ng-repeat="attrib in [
+                        'survival_limit', 'population', 'death_count'
+                    ]"
+                >
+
+                    <div
+                        class="settlement_sheet_tumbler_click_on"
+                        ng-click="ngShowHide(attrib + 'Controls')"
+                    >
+
+                        <div
+                            class="settlement_sheet_tumbler_number"
+                            ng-class="{'active': ngVisible[attrib + 'Controls']}"
+                        >
+                            <div>{{settlement.sheet[attrib]}}</div>
+                        </div>
+
+                        <div
+                            class="settlement_sheet_tumbler_name"
+                            ng-if="!ngVisible[attrib + 'Controls']"
+                        >
+                            {{attrib.replace("_", " ")}}
+                        </div>
+                        <div
+                            class="settlement_sheet_tumbler_name"
+                            ng-if="ngVisible[attrib + 'Controls']"
+                        >
+                            &#9662;
+                        </div>
+
+                    </div> <!-- tumbler_click_on -->
+    
+                </div> <!-- settlement_sheet tumbler SURVIVAL -->
+
+            </div> <!-- TUMBLERs END; tumbler controls begin! -->
+
+            <div class="settlement_sheet_tumbler_controls_container">
+
+                <div
+                    id="survival_limitControls"
+                    ng-if="ngVisible['survival_limitControls']"
+                    class="ng_fade settlement_sheet_tumbler_controls"
+                >
+
+                    <div class="settlement_sheet_tumbler_control_title">
                         Survival Limit
-                        <p> The minimum Survival Limit for <b>{{settlement.sheet.name}}</b>, based on settlement innovations and principles, is <b>{{settlement.sheet.minimum_survival_limit}}</b>.
+                    </div>
+
+                    <div class="settlement_sheet_tumbler_control_raft">
+                        <button
+                            ng-click="incrementAttrib('survival_limit', 1)"
+                        >
+                           &#9652;
+                        </button>
+
+                        <button
+                            ng-click="incrementAttrib('survival_limit', -1)"
+                            ng-disabled= "
+                                settlement.sheet.survival_limit === settlement.sheet.minimum_survival_limit
+                            "
+                        >
+                            &#9662;
+                        </button>
+                    </div> <!-- control raft -->
+
+                    <div class="settlement_sheet_tumbler_tip">
+
+                        <p>
+                            The minimum Survival Limit for <b>{{settlement.sheet.name}}</b>,
+                            based on settlement innovations and principles, is 
+                            <b>{{settlement.sheet.minimum_survival_limit}}</b>.
                             <span ng-if="settlement.sheet.enforce_survival_limit == true">
-                                The settlement Survival Limit of <b>{{settlement.sheet.survival_limit}}</b> is enforced on the Survivor Sheet.
+                                The settlement Survival <i>Limit</i> of
+                                <b>{{settlement.sheet.survival_limit}}</b> is
+                                automatically enforced on the Survivor Sheet!
                             </span>
                             <span ng-if="settlement.sheet.enforce_survival_limit == false">
-                                Due to expansion or campaign rules, the settlement Survival Limit of <b>{{settlement.sheet.survival_limit}}</b> is <u>not</u> enforced on the Survivor Sheet!
+                                Due to expansion or campaign rules, the settlement
+                                Survival Limit of <b>{{settlement.sheet.survival_limit}}</b>
+                                is <u>not</u> enforced on the Survivor Sheet!
                             </span>
                         </p>
+
+                    </div> <!-- tip -->
+
+                    <div
+                        class="settlement_sheet_tumbler_close_button_container"
+                        ng-click="ngShowHide('survival_limitControls')"
+                    >
+                        <button class="kd_blue">Save and Close</button>
                     </div>
-                </div>
 
-            </div><!-- settlement_form_wide_box -->
+                </div> <!-- survivalControls -->
 
-            <br class="mobile_only"/>
-            <hr class="mobile_only"/>
 
-            <div class="settlement_form_wide_box">
-                <div class="big_number_container left_margin">
-                    <button
-                        class="incrementer"
-                        ng-click="incrementAttrib('population',1)"
-                    >
-                        &#9652;
-                    </button>
-                    <input
-                        id="populationBox"
-                        class="big_number_square"
-                        type="number" name="population"
-                        ng-value="settlement.sheet.population"
-                        ng-model="settlement.sheet.population"
-                        ng-blur="setAttrib('population', settlement.sheet.population)"
-                        min="{{Number(settlement.sheet.minimum_population)}}"
-                    />
-                    <button
-                        class="decrementer"
-                        ng-click="incrementAttrib('population',-1)"
-                    >
-                        &#9662;
-                    </button>
-                </div>
-                <div class="big_number_caption">
-                    <div class="help-tip">
+                <div
+                    id="populationControls"
+                    ng-if="ngVisible['populationControls']"
+                    class="ng_fade settlement_sheet_tumbler_controls"
+                >
+
+                    <div class="settlement_sheet_tumbler_control_title">
                         Population
-                        <p> The minimum Population for <b>{{settlement.sheet.name}}</b>, based on the total number of living survivors in the settlement, is <b>{{settlement.sheet.minimum_population}}</b>.
-                        </p>
                     </div>
-                </div>
-            </div> <!-- settlement_form_wide_box -->
 
-            <br class="mobile_only"/>
-            <hr class="mobile_only"/>
+                    <div class="settlement_sheet_tumbler_control_raft">
 
-            <div class="settlement_form_wide_box">
-                <div class="big_number_container left_margin">
-                    <button
-                        class="decrementer"
-                        ng-click="incrementAttrib('death_count',1)"
+                        <button
+                            ng-click="incrementAttrib('population', 1)"
+                        >
+                            &#9652;
+                        </button>
+                        <button
+                            ng-click="incrementAttrib('population', -1)"
+                            ng-disabled= "
+                                settlement.sheet.population === settlement.sheet.minimum_population
+                            "
+                        >
+                            &#9662;
+                        </button>
+
+                    </div> <!-- control raft -->
+
+                    <div class="settlement_sheet_tumbler_tip">
+
+                        <p>
+                            The minimum Population for <b>{{settlement.sheet.name}}</b>,
+                            based on the total number of living survivors in the
+                            settlement, is <b>{{settlement.sheet.minimum_population}}</b>.
+                        </p>
+
+                    </div> <!-- tip -->
+
+                    <div
+                        class="settlement_sheet_tumbler_close_button_container"
+                        ng-click="ngShowHide('populationControls')"
                     >
-                        &#9652;
-                    </button>
-                    <input
-                        id="deathCountBox"
-                        class="big_number_square"
-                        type="number"
-                        name="death_count"
-                        ng-value="settlement.sheet.death_count"
-                        ng-model="settlement.sheet.death_count"
-                        ng-blur="setAttrib('death_count', settlement.sheet.death_count)"
-                        min="{{Number(settlement.sheet.minimum_death_count)}}"
-                    />
-                    <button
-                        class="decrementer"
-                        ng-click="incrementAttrib('death_count',-1)"
-                    >
-                        &#9662;
-                    </button>
-                </div>
-                <div class="big_number_caption">
-                    <div class="help-tip">
+                        <button class="kd_blue">Save and Close</button>
+                    </div>
+
+                </div> <!-- POPULATION controls END -->
+
+
+                <div
+                    id="death_countControls"
+                    ng-if="ngVisible['death_countControls']"
+                    class="ng_fade settlement_sheet_tumbler_controls"
+                >
+
+                    <div class="settlement_sheet_tumbler_control_title">
                         Death Count
-                        <p> The minimum Death Count for <b>{{settlement.sheet.name}}</b>, based on the total number of dead survivors in the settlement, is <b>{{settlement.sheet.minimum_death_count}}</b>.
-                        </p>
                     </div>
-                </div>
-            </div> <!-- settlement_form_wide_box -->
-        </div> <!-- settlement_sheet_tumblers_container -->
 
+                    <div class="settlement_sheet_tumbler_control_raft">
 
-        <hr class="invisible">
-
-
-
-            <!-- STORAGE CONTROLS START HERE -->
-
-
-
-        <div
-            class="settlement_sheet_block_group settlement_storage"
-            ng-controller="storageController"
-        >
-
-            <div id="editStorage" class="hidden modal storage_modal">
-
-                <div
-                    class="storage_modal_storage_type"
-                    ng-repeat="s_type in settlementStorage"
-                >
-                        <h3>{{s_type.name}} Storage</h3>
-                        <div
-                            ng-repeat="loc in s_type.locations"
-                            ng-init="loc.arrow=false"
-                            class="storage_modal_storage_location"
+                        <button
+                            ng-click="incrementAttrib('death_count',1)"
                         >
-                            <h4
-                                class="clickable"
-                                ng-click="showHide(loc.handle + '_container'); flipArrow(loc)"
-                            >
-                                {{loc.name}} <span class="metrophobic"></span>
-                                <span ng-if="loc.arrow == false" class="arrow">
-                                    &#x25BC;
-                                </span>
-                                <span ng-if="loc.arrow == true" class="arrow">
-                                    &#x25B2;
-                                </span>
-                            </h4>
-                            <div class="hidden" id="{{loc.handle}}_container"> <!-- show hide -->
-                                <div
-                                    class="inventory_row" ng-repeat="asset in loc.collection"
-                                    ng-init="detailId = asset.handle + '_detail'; asset.flippers=false"
-                                    ng-class-even="'no_zebra'"
-                                    ng-class-odd="'zebra'"
-                                    ng-class="{inventory_row_item_last:$last}"
-                                >
-                                    <div
-                                        class="inventory_row_item_controls clickable"
-                                        ng-click="showHide(detailId); toggleFlippers(asset)"
-                                    >
-                                        <span class="name">
-                                            {{asset.name}}
-                                        </span>
-                                        <span class="quantity">
-                                            {{asset.quantity}}
-                                        </span>
-                                    </div> <!-- controls -->
-                                    <div class="flippers" ng-if="asset.flippers">
-                                        <button ng-click="setStorage(asset, 1)"> + </button>
-                                        <button ng-click="setStorage(asset, -1)"> - </button>
-                                    </div>
-                                    <div id="{{detailId}}" class="hidden inventory_row_detail">
-                                        &nbsp;
-                                        <div class="inventory_row_detail_keywords">
-                                            <span ng-repeat="k in asset.keywords">
-                                                <i>{{k}}{{$last ? '' : ', '}}</i>
-                                            </span>
-                                        </div>
-                                        <div class="inventory_row_detail_rules" ng-if="asset.rules.length >= 1">
-                                            <span ng-repeat="k in asset.rules track by $index">
-                                                <b>{{k}}</b>{{$last ? '' : ', '}}
-                                            </span>
-                                        </div>
-                                        <span
-                                            ng-if="asset.desc != undefined"
-                                            class="inventory_row_detail_desc"
-                                            ng-bind-html="asset.desc|trustedHTML">
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div> <!-- storage_location -->
-
-                    </div> <!-- storage_type -->
-
-                <div class="button_spacer"></div>
-                <button
-                    class="kd_blue close_storage"
-                    ng-click="showHide('editStorage'); loadStorage();"
-                >
-                    Save Changes and Return
-                </button>
-            </div> <!-- storage_modal container -->
-
-            <div id="storageSpinner" class="hidden storage_loading_spinner">
-                <img src="/media/loading_io.gif"><br/>
-                Loading storage...
-            </div>
-            <div id="storageLauncher" class="visible">
-                <h2 class="clickable" ng-click="showHide('editStorage')">Storage</h2>
-                <p class="clickable" ng-click="showHide('editStorage')">Gear & Resources may be stored without limit. <b>Tap or click here to edit settlement storage.</b></p>
-            </div>
-            <div
-                class="settlement_storage_type_container"
-                ng-repeat="s_type in settlementStorage"
-            >
-                <h3 ng-if="s_type.total >= 1">
-                    {{s_type.name}} Storage
-                </h3>
-                <div class="storage_location_keywords_rollup">
-                    <span
-                        class="keywords_rollup_item"
-                        ng-repeat="(kw, count) in s_type.keywords"
-                    >
-                        {{kw}}: {{count}}
-                    </span>
-                </div>
-                <div
-                    class="settlement_storage_location"
-                    ng-repeat="loc in s_type.locations"
-                    ng-if="loc.inventory.length >= 1"
-                    ng-init="loc.arrow = false"
-                >
-                    <h4
-                        class="clickable"
-                        ng-click="showHide(loc.handle + '_digest_container'); flipArrow(loc)"
-                    >
-                        {{loc.name}} ({{loc.inventory.length}})
-                        <span ng-if="loc.arrow == false" class="arrow">
-                            &#x25BC;
-                        </span>
-                        <span ng-if="loc.arrow == true" class="arrow">
-                            &#x25B2;
-                        </span>
-                    </h4>
-                    <div class="hidden" id="{{loc.handle}}_digest_container"> <!-- show hide -->
-                        <div
-                            class="settlement_storage_inventory_container"
+                            &#9652;
+                        </button>
+                        <button
+                            ng-click="incrementAttrib('death_count',-1)"
+                            ng-disabled= "
+                                settlement.sheet.death_count === settlement.sheet.minimum_death_count
+                            "
                         >
-                            <div
-                                class="inventory_repeater clickable"
-                                ng-repeat="t in loc.digest"
-                                ng-init="detailId = t.handle + '_digest_detail'"
-                                style="background-color: #{{loc.bgcolor}}; color: #{{loc.color}}"
-                                ng-click="showHide(detailId)"
-                            >
-                                {{t.name}}
-                                <span ng-if="t.count > 1">x {{t.count}}</span>
-                                <div id="{{detailId}}" class="hidden inventory_repeater_detail">
-                                    <div class="inventory_row_detail_keywords">
-                                        &nbsp; <span ng-repeat="k in t.keywords">
-                                            <i>{{k}}{{$last ? '' : ', '}}</i>
-                                        </span>
-                                    </div>
-                                    <div class="inventory_row_detail_rules" ng-if="t.rules.length >= 1">
-                                        &nbsp; <span ng-repeat="k in t.rules track by $index">
-                                            <b>{{k}}</b>{{$last ? '' : ', '}}
-                                        </span>
-                                    </div>
-                                    <span
-                                        class="inventory_row_detail_desc"
-                                        ng-if="asset.desc != undefined"
-                                        ng-bind-html="t.desc|trustedHTML"
-                                    >
-                                    </span>
-                                </div>
-                            </div> <!-- inventory repeater, click to remove -->
-                        </div> <!-- container flex -->
-                    </div> <!-- showhide -->
-                </div><!-- storage location container-->
-            </div> <!-- storage type container, e.g. gear/resources-->
+                            &#9662;
+                        </button>
+
+                    </div> <!-- control raft -->
+
+                    <div class="settlement_sheet_tumbler_tip">
+
+                        <p>
+                            The minimum Death Count for <b>{{settlement.sheet.name}}</b>,
+                            based on the total number of dead survivors in the
+                            settlement, is <b>{{settlement.sheet.minimum_death_count}}</b>.
+                        </p>
+
+                    </div> <!-- tip -->
+
+                    <div
+                        class="settlement_sheet_tumbler_close_button_container"
+                        ng-click="ngShowHide('death_countControls')"
+                    >
+                        <button class="kd_blue">Save and Close</button>
+                    </div>
+
+                </div> <!-- DEATH COUNT controls -->
+
+            </div> <!-- settlement_sheet_tumbler_controls_container -->
+
+
+        </div> <!-- asset_management_left_pane -->
 
 
 
-        </div> <!-- settlement_sheet_block_group for storage -->
+
+
+        <!-- MIDDLE PANE STARTS HERE -->
 
 
 
-    </div> <!-- asset_management_left_pane -->
 
-
-    <div id="asset_management_middle_pane" ng-if="settlement != undefined">
+        <div id="asset_management_middle_pane" ng-if="settlement != undefined">
 
 
                     <!-- LOCATIONS - ANGULARJS CONTROLS -->
@@ -478,7 +434,7 @@
 
             <div
                 id="innovationDeckContainer"
-                class="innovation_deck settlement_sheet_ui_box"
+                class="innovation_deck kd_sheet_ui_border_box"
                 title="The current innovation deck for {{settlement.sheet.name}}. Tap or click to refresh!"
                 ng-if="settlement.sheet.innovations.length != 0"
                 ng-init="setInnovationDeck()"
@@ -746,7 +702,7 @@
         >HACK CITY!!!</span>
 
         <div
-            class="border_box"
+            class="kd_sheet_ui_border_box"
             ng-controller="strainMilestonesController"
             ng-if="scratch.show_strain_milestone_controls"
         >
@@ -816,14 +772,14 @@
 
             </div> <!-- settlement_sheet_kd_sheet_ui_box -->
 
-        </div> <!-- border_box for milestones -->
+        </div> <!-- kd_sheet_ui_border_box for milestones -->
 
         <!-- /end strain -->
 
 
     <div
        ng-controller="quarriesController"
-       class="border_box"
+       class="kd_sheet_ui_border_box"
     >
         <div
             class="settlement_sheet_kd_sheet_ui_box"
@@ -865,7 +821,7 @@
                     <!-- NEMESIS MONSTERS -->
 
     <div
-        class="nemesis_monsters_controls_container border_box"
+        class="nemesis_monsters_controls_container kd_sheet_ui_border_box"
         ng-controller="nemesisEncountersController"
     >
         <div
@@ -918,7 +874,7 @@
 
     <!-- DEFEATED MONSTERS -->
     <div
-        class="border_box"
+        class="kd_sheet_ui_border_box"
         ng-controller="defeatedMonstersController" title="Click or tap an item to remove it from this list."
     >
         <div
@@ -958,7 +914,7 @@
 
     <!-- LOST SETTLEMENTS ANGULARJS app -->
     <div
-        class="lost_settlement_controls_container border_box"
+        class="lost_settlement_controls_container kd_sheet_ui_border_box"
     >
         <div
             class="settlement_sheet_kd_sheet_ui_box clickable"
@@ -1207,5 +1163,175 @@
         </div>
 
     </div> <!-- right pane -->
+
+    </div> <!-- settlement sheet Sheet tab -->
+
+
+
+    <!-- settlement sheet Storage tab -->
+
+    <div
+        id="settlementSheetStorageTab"
+        class="settlement_sheet_tab"
+        ng-if="settlement !== undefined && user !== undefined"
+        ng-show="settlementSheetTabsObject.activeTab === 1"
+        ng-controller="storageController"
+    >
+    
+        <div
+            id="settlementSheetStorageSpinner"
+            ng-if="settlementStorage === undefined"
+        >
+            <img src="/media/loading_io.gif">
+        </div>
+
+        <div id="editStorage">
+
+            <div
+                class="storage_type_repeater"
+                ng-repeat="s_type in settlementStorage"
+            >
+                <h3 class="storage_type_title">
+                    {{s_type.name}}<span ng-if="s_type.name==='Resource'">s</span>
+                    <span
+                        class="parenthetical_count"
+                        ng-if="s_type.total"
+                    >
+                        ({{s_type.total}})
+                    </span>
+                </h3>
+
+                <div
+                    class="storage_location_keywords_rollup"
+                    ng-click="refreshRollups()"
+                >
+                    <span
+                        class="storage_location_keywords_rollup_item"
+                        ng-if="s_type.keywords === undefined"
+                        ng-click="s_type.keywords = 'loading'"
+                    >
+                        Tap or click here to recalculate keyword counts!
+                    </span>
+                    <span
+                        class="storage_location_keywords_rollup_item"
+                        ng-if="s_type.keywords === 'loading'"
+                    >
+                        Recalculating...
+                    </span>
+                    <span
+                        class="storage_location_keywords_rollup_item"
+                        ng-if="s_type.keywords !== undefined && s_type.keywords !== 'loading'"
+                        ng-repeat="(kw, count) in s_type.keywords"
+                    >
+                      {{kw}}: {{count}}
+                    </span>
+                </div>
+
+                <div
+                    ng-repeat="loc in s_type.locations"
+                    ng-init="loc.arrow=false"
+                    class="storage_modal_storage_location"
+                >
+
+                    <!-- inventory section clickers -->
+                    <h4
+                        class="clickable"
+                        ng-click="
+                            showHide(loc.handle + '_container');
+                            flipArrow(loc);
+                        "
+                    >
+                        {{loc.name}}
+                        <span class="parenthetical_count">
+                            ({{loc.inventory.length}})
+                        </span>
+                        <span ng-if="loc.arrow == false" class="arrow">
+                            &#x25BC;
+                        </span>
+                        <span ng-if="loc.arrow == true" class="arrow">
+                            &#x25B2;
+                        </span>
+                    </h4>
+
+
+                    <div class="hidden" id="{{loc.handle}}_container"> <!-- show hide -->
+                        <div
+                            class="inventory_row"
+                            ng-repeat="asset in loc.collection"
+                            ng-init="
+                                detailId = asset.handle + '_detail';
+                                asset.flippers=false
+                            "
+                            ng-class-even="'no_zebra'"
+                            ng-class-odd="'zebra'"
+                            ng-class="{inventory_row_item_last:$last}"
+                        >
+                            <div
+                                class="inventory_row_item_controls clickable"
+                                ng-click="
+                                    showHide(detailId);
+                                    toggleFlippers(asset);
+                                "
+                            >
+                                <span class="name">
+                                    {{asset.name}}
+                                </span>
+                                <span class="quantity">
+                                    {{asset.quantity}}
+                                </span>
+                            </div> <!-- controls -->
+
+                            <div
+                                class="flippers"
+                                ng-if="asset.flippers"
+                                ng-click="
+                                    s_type.total = undefined;
+                                    s_type.keywords = undefined;
+                                "
+                            >
+                                <button
+                                    ng-click="
+                                        setStorage(asset, 1);
+                                        loc.inventory.push(asset.handle);
+                                    "
+                                > + </button>
+                                <button
+                                    ng-disabled="asset.quantity === 0"
+                                    ng-click="
+                                        setStorage(asset, -1);
+                                        loc.inventory.splice(loc.inventory.indexOf(asset.handle), 1);
+                                    "
+                                > - </button>
+                            </div>
+
+                            <div id="{{detailId}}" class="hidden inventory_row_detail">
+                                   &nbsp;
+                                   <div class="inventory_row_detail_keywords">
+                                       <span ng-repeat="k in asset.keywords">
+                                           <i>{{k}}{{$last ? '' : ', '}}</i>
+                                       </span>
+                                   </div>
+                                   <div class="inventory_row_detail_rules" ng-if="asset.rules.length >= 1">
+                                       <span ng-repeat="k in asset.rules track by $index">
+                                           <b>{{k}}</b>{{$last ? '' : ', '}}
+                                       </span>
+                                   </div>
+                                   <span
+                                       ng-if="asset.desc != undefined"
+                                       class="inventory_row_detail_desc"
+                                       ng-bind-html="asset.desc|trustedHTML">
+                                   </span>
+                               </div>
+                           </div>
+                       </div>
+
+                   </div> <!-- storage_location -->
+
+               </div> <!-- storage_type -->
+
+       </div> <!-- storage_modal container -->
+
+    </div> <!-- settlement sheet Storage tab ENDS here -->
+
 </div> <!-- settlementSheetApp -->
     

@@ -1,0 +1,507 @@
+/*                                                        */
+/*  DO NOT EDIT Z-INDEX VALUES OR COLORS IN THIS FILE!!!  */
+/*                                                        */
+
+/*  top nav - DEPRECATED 2019-12-17 */
+div#topNavBar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 8vh;
+    margin-top: -1px; /* seriously? the fuck? */
+}
+
+
+/*  CSS RESET */
+
+html {min-height: 100%; height: auto; overflow: auto; font-size: 4vw;}
+body {
+    font-family: 'Ruda';
+    margin: 0 auto;
+}
+button,
+    input,
+    select {font-size: inherit; }    /*  inherit from html element style above;
+                                        ALL BREAK POINTS! */
+
+/* hide number tumblers ; we never want these   */
+input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {opacity: 0;}
+
+h3 {font-size: 3vh; }
+
+
+/*  major UI stuff; sfx; consistency,etc.    */
+
+.hidden {display: none;}
+.faded {opacity: 0.3; transition: 3s; }
+
+div#container {
+    width: 100%;
+    height: 100%;
+    margin-top: 8vh;
+    margin-bottom: 11vh;
+    overflow: hidden;       /*  scrollbar dead man switch */
+}
+
+/*  modal and modal-black   */
+.modal-black button {border-radius: 2em; }
+
+/*  KD Kickstarter UI   */
+
+.kd_kickstarter_button {
+    border-radius: 2em;
+    text-align: center;
+    padding: 3%;
+    border: 0.2em solid;
+    display: block; 
+    margin: 0 auto; 
+    margin-top: 3%;
+    margin-bottom: 3%;
+}
+
+/*  KD Worksheet UI */
+
+.kd_sheet_ui_border_box {
+    border: 0.3vh solid;
+    margin: 3%;
+}
+.kd_sheet_ui_row.title {
+    font-size: 5vh;
+    display: block;
+}
+.kd_sheet_ui_row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 3%; 
+}
+.kd_sheet_ui_row_tip {
+    padding: 1%;
+    margin: 0 auto;
+    width: 95%;
+    font-family: 'Ruda';
+} 
+
+
+
+/*
+
+    DASHBOARD
+
+*/
+body.dashboard {margin-top: -5vh; }
+
+    /*  dashboard_rollup styles (the clickers on the dash) */
+.dashboard_rollup {
+    font-family: 'Silverado';
+    width: 95%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction:row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 2%;
+    padding-bottom: 1%; 
+    margin: 0 auto; 
+    margin-bottom: 5%;
+    border: 0;
+    border-top-right-radius: 2em;
+}
+.dashboard_rollup_arrow {
+    font-size: 2vh;
+    margin-right: 5%;
+    margin-top: 2%;
+}
+.dashboard_accordion {
+    width: 95%;
+    box-sizing: border-box;
+    padding: 5px;
+    margin: 0 auto;
+    margin-bottom: 5%;
+    margin-top: -5.2%;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    transition: display 0.4s;
+}
+#dashboardCreateNewSettlement {margin-bottom: 6%;}
+div.dashboard_button_list button {
+    width: 80%;
+    text-align: left;
+    padding-left: 3%;
+}
+.dashboard_settlement_list_settlement_button {
+    border-radius: 10px;
+    border-left: 1px solid #aaa;
+    border-top: 2px solid #aaa;
+    border-right: 1px solid #555;
+    border-bottom: 1px solid #222;
+    margin-top: 3%;
+} 
+.dashboard_settlement_list_settlement_name {
+    font-size: 1.5em;
+    font-family: 'Silverado';
+}
+
+/*  survivor search */
+input.survivor_search {
+
+    position: fixed;
+    top: 1.5%;
+    left: 20%;
+    bottom: auto;
+    padding:1%;
+    width: 565px;
+    height: auto;
+    min-width: auto;
+    text-align: center;
+}
+
+/*
+
+    CAMPAIGN SUMMARY
+
+*/
+
+#campaignSummaryContainer {
+}
+#campaignSummarySettlementName {
+    margin: 1%; 
+    font-family: 'Silverado';
+    font-size: 10vw;
+    margin-bottom: 0; 
+}
+.campaignSummaryCampaignType {
+    font-style: italic;
+    font-family: 'Silverado';
+    text-align: center;
+    margin-top: 0; 
+}
+
+/*  headline and diamonds   */
+.campaign_summary_headline_blocks_container {
+    margin: 0 auto;
+    width: 95%;
+    display: flex;
+    justify-content: center;
+    margin-top: 5%;
+    margin-bottom: 2%;
+}
+.headline_block_caption {font-size: 3vw; }
+
+/*  campaign summary and fact box styles    */
+.campaign_summary_small_box.settlement_fact h4 {
+    font-size: 7vw; 
+    text-align: center; 
+    margin: 1%;
+}
+
+/* group container */
+.campaign_summary_survivors_container h2 {
+    font-size: 8vw;
+    font-family: 'Silverado';
+    border: 0;
+    text-align: center;
+    margin-bottom: 1%;
+}
+.campaign_summary_survivors_group {
+    margin-top: 2%;
+    margin-bottom: 7%;
+}
+.campaign_summary_survivors_group h3 {
+    text-align: left;
+    margin: 0;
+    margin-left: 7%;
+    display: block;
+    padding:0;
+    padding-left: 3%;
+    padding-right: 3%;
+    font-family: 'Silverado';
+}
+
+.campaign_summary_endeavor_container {
+    width: 98%;
+    margin: 0 auto;
+    margin-bottom: 2%;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: row;
+}
+.campaign_endeavor {margin-top: 2%; }
+.endeavor_location {
+    font-weight: normal;
+    margin: 0;
+    padding:0;
+    font-size: 5vw;
+    margin-top: 3%;
+}
+.endeavor_text {
+    padding: 2%;
+    width: 100%;
+    vertical-align: middle;
+}
+
+/*  settlement facts */
+.campaign_summary_small_box.settlement_fact {
+    width: 95%;
+    margin: 0 auto;
+    border: 0.1em solid;
+    padding: 3%;
+    margin-top: 5%;
+    border-radius: 0.3em;
+    box-sizing: border-box; 
+}
+.campaign_summary_bullet {  /*  these are spans */
+    display: block;
+    margin: 2%;  
+}
+
+/*  survivor quickview  */
+
+.quickview_survivor_name {
+    font-size: 1.3em;
+    font-family: 'Silverado';
+}
+.quickview_survival_container .survival_box_title_and_lock .survival_box_title {
+    margin-top: 10%;
+    font-family: 'Silverado';
+}
+.quickview_hitbox_detail .title {
+    font-family: 'Silverado';
+    display: flex;
+    align-items: center;
+}
+.quickview_asset_list_title_bar .title {
+    font-size: 6vw;
+    font-family: 'Silverado';
+}
+.quickview_asset_list_title_bar .subtitle {
+    font-size: 3vw;
+    width: 20%;
+} 
+.quickview_asset_list_title_bar .lockbox {
+    font-size: 3vw; 
+    width: 40%;
+    text-align: right;
+}     
+.quickview_secondary_container {
+    margin: 3%;
+    font-family: 'Silverado';
+    display: flex;
+    flex-direction: column;
+}
+.secondary_attrib_box_row .weapon_proficiency_type {
+    font-family: 'Ruda';
+    font-size: 4vw;
+    width: 50%;
+}
+.quickview_ui_button {
+    display: block;
+    margin: 0 auto;
+    margin-top: 5%;
+    margin-bottom: 5%;
+    border: 2px solid;
+} 
+.campaign_summary_survivor_modal_color_scheme_select {
+    border-radius: 2em; 
+    width: 90%;
+    box-sizing: border-box;
+    margin-bottom: 0;
+    height: 4.5vh;
+}
+
+/*  departing survivors - base/mobile   */
+.showdown_controls_button_box_option_repeater {
+    width: 80%;
+    padding-left: 5%;
+    margin: 5% auto;
+} 
+.return_departing_survivors {
+    text-align: justify;
+} 
+
+
+/*
+
+    SETTLEMENT SHEET
+
+*/
+
+#settlementSheetApp {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap; 
+}
+
+.settlement_sheet_tab {
+    display: flex;
+    flex-direction: column; 
+    overflow-x: hidden;
+    position: absolute;
+}
+
+#settlementSheetTabContainer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 9vh;
+    background: #fff;
+    font-family: 'Silverado';
+    border-top: 0.3vw solid;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start; 
+}
+
+.settlement_sheet_tab_button {
+    font-size: 2.5vh;
+    margin: 1vw;
+    padding: 1em;
+    transition: 1s;
+    cursor: pointer;
+    text-align: center;
+    vertical-align: middle;
+}
+
+
+/*  settlement sheet left panel */
+.settlement_sheet_settlement_name {
+    font-family: Silverado;
+    font-size: 7vh;
+    font-weight: bold;
+    text-align: center;
+    margin: 3%;
+}
+
+
+/*  storage - mobile    */
+.storage_type_repeater {
+    margin: 3%; 
+    border: 0.3vw solid;
+    padding: 2%; 
+}
+
+h3.storage_type_title {
+    text-align: left;
+    font-size: 3vh;
+    margin: 0;
+    padding: 0; 
+}
+
+.storage_location_keywords_rollup {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 0;
+}
+
+.storage_location_keywords_rollup_item {
+    font-family: 'Metrophobic';
+    font-size: 2vh;
+    width: auto;
+    display: flex;
+    margin-right: 3vw; 
+}
+
+
+/*  SETTLEMENT SHEET left panel - mobile */
+
+/*  settlement numbers tumblers - mobile */
+
+.settlement_sheet_tumblers_container {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    margin-top: 3%;  
+}
+.settlement_sheet_tumbler {
+    width: 33%;
+}
+.settlement_sheet_tumbler_click_on {
+    cursor: pointer;
+    margin: auto; 
+}
+.settlement_sheet_tumbler_number {
+    transition: 1s; 
+    border: 0.3vw solid;
+    font-family: 'Metrophobic';
+    text-align: center;
+    vertical-align: middle;
+    height: 12vh;
+    width: 12vh;
+    margin: 0 auto; 
+}
+.settlement_sheet_tumbler_number div {
+    font-weight: bold; 
+    display: inline-block;
+    font-size: 9vh; 
+}
+.settlement_sheet_tumbler_name {
+    font-size: 2.5vh;
+    font-family: Silverado;
+    margin: 0 auto; 
+    text-align: center;
+    text-transform: capitalize;  
+}
+.settlement_sheet_tumbler_controls {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    border: 0.3vw solid;
+    margin: 3%; 
+}
+.settlement_sheet_tumbler_control_title {
+    text-align: center;
+    font-size: 4vh;
+    margin-top: 2vh;
+    margin-bottom: 1vh; 
+    font-family: 'Silverado';
+}
+.settlement_sheet_tumbler_control_raft {
+    width: 100%;
+    display: flex;
+    justify-content: center;  
+}
+.settlement_sheet_tumbler_control_raft button {
+    width: 45%;
+    font-size: 5vh;
+    padding: 0; 
+}
+.settlement_sheet_tumbler_tip p {
+    margin: 3%; 
+}
+
+
+
+/*  SETTLEMENT SHEET right panel - mobile */
+
+/*  strain system */
+.strain_milestone_toggle_box {
+    border-radius: 0.15em;
+    padding: 1%;
+    margin-bottom: 3%;
+    transition: 1s;
+    box-sizing: border-box;
+    width: 100%;
+}
+.strain_milestone_toggle_box.active {transition: 1s;}
+.settlement_sheet_line_item {
+    margin-top: 5%;
+    margin-bottom: 2%;
+    font-size: 4vw;
+    border-bottom: 0.1em solid;
+}
+.strain_milestone_condition {
+    font-size: 0.8em;
+    margin: 1%;
+    font-family: "Metrophobic"; 
+}
+
+.strain_milestone_fighting_arts {
+    font-size: 2vw;
+    font-family: "Metrophobic";
+    transition: 1s;
+}
+.unlocked_strain_fa {transition: 2s;}

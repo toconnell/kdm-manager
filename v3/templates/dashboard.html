@@ -273,7 +273,7 @@
                         class="dying_lantern dashboard_settlement_list_settlement_button"
                         onclick="showFullPageLoader(); this.form.submit()"
                     >
-                        <b>{{s.sheet.name}}</b>
+                        <b class="dashboard_settlement_list_settlement_name">{{s.sheet.name}}</b>
                         <br/><i>{{s.sheet.campaign_pretty}}</i>
                         <ul class="dashboard_settlement_list_settlement_attribs">
                             <li ng-if="s.meta != undefined && s.meta.creator_email != user_login"><i>Created by:</i>{{s.meta.creator_email}}</li>
@@ -355,10 +355,19 @@
             <form
                 method="POST"
                 action=""
-                ng-if="user.dashboard.settlements.length < 3 || user.user.subscriber.level > 0"
+                ng-if="
+                    user.dashboard.settlements.length < 3 ||
+                    user.user.subscriber.level > 0
+                "
             >
                 <input type="hidden" name="change_view" value="new_settlement" />
-                <button class="kd_blue dashboard_create_new_settlement" onclick="showFullPageLoader()">+ Create New Settlement</button>
+                <button
+                    id="dashboardCreateNewSettlement"
+                    class="kd_kickstarter_button kd_blue"
+                    onclick="showFullPageLoader()"
+                >
+                    + Create New Settlement
+                </button>
             </form>
 
             <div class="dashboard_button_list">
@@ -372,7 +381,7 @@
                         class="dying_lantern dashboard_settlement_list_settlement_button"
                         onclick="showFullPageLoader(); this.form.submit()"
                     >
-                        <b>{{s.sheet.name}}</b>
+                        <b class="dashboard_settlement_list_settlement_name">{{s.sheet.name}}</b>
                         <span class="maroon_text" ng-if="s.sheet.abandoned != undefined">[ABANDONED]</span>
                         <br/><i>{{s.campaign_pretty}}</i>
                         <ul class="dashboard_settlement_list_settlement_attribs">
@@ -752,8 +761,8 @@
 
                 <p>Release Information:</p>
                 <ul>
-                    <li>Release $application_version of the Manager went into
-                    production on {{latest_blog_post.published}}.
+                    <li>Release <b>$application_version</b> of the Manager went into
+                    production on {{latest_blog_post.published|date:'EEEE, yyyy-MM-dd'}}.
                     <a target="top" href="{{latest_blog_post.url}}">
                     View change log</a>.
                     </li>
@@ -776,67 +785,6 @@
             </div> <!-- about_div -->
 
         </div> <!-- dashboard_menu 'About' -->
-
-        <div
-            id="dashboardAlerts"
-            class="modal-black hidden dashboard_alerts"
-            ng-click="showHide('dashboardAlerts')"
-        >
-            <div class="kd_sheet_ui_row_tip clickable">
-                Click or tap anywhere to return to the Dashboard!
-            </div>
-            <div
-                class="dashboard_webapp_alert_repeater {{alert.sub_type}}"
-                ng-repeat="alert in webappAlerts"
-            >
-                <b
-                    ng-class="{maroon_text: alert.sub_type=='kpi'}"
-                >
-                    {{alert.title}}
-                </b>
-                <span class="alert_date">({{alert.created_on.$date|date:'yyyy-MM-dd @ h:mma'}})</span>
-                <br/>
-                <span ng-bind-html="alert.body|trustedHTML"></span>
-            </div>
-
-            <h3>Release Info</h3>
-            <p>Release <b>{{user.meta.webapp.release}}</b> of
-            <b>https://kdm-manager.com</b> is powered by version
-            <b>{{user.meta.api.version}}</b> of
-            <a href="https://api.kdm-manager.com" target="top">
-            the Kingdom Death API</a>.
-            </p>
-            <p>This release of the Manager was deployed on
-            {{latest_blog_post.published|date:'yyyy-MM-dd'}}.</p>
-            <p>Click <a target="top" href="{{latest_blog_post.url}}">
-            here to view complete release notes</a> on the Manager's
-            development blog.
-            </p>
-
-
-        <hr/>
-        <a href="https://twitter.com/KdmManager" target="top">
-            <div
-                class="social_link_container"
-            >
-                <img src="/media/icons/Twitter_Social_Icon_Circle_Color.png" class="social_icon" />
-                For more updates and news, follow the Manager on Twitter!
-            </div>
-        </a>
-
-
-        </div> <!-- dashboard_Alerts -->
-
-        <button
-            id="dashboardAlertsOpener"
-            class="dashboard_alerts_opener"
-            ng-click="showHide('dashboardAlerts')"
-            ng-class="{
-                kd_blue: activeKPI === undefined,
-                kd_pink: activeKPI === true,
-            }"
-        > !
-        </button>
 
     </div> <!-- dashboardControlElement -->
 

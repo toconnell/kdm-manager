@@ -13,17 +13,18 @@ input[type=text], input[type=password]      {z-index: 50; }
 div.survivor_sheet_attrib_controls_modal    {z-index: 50; }
 button.manage_departing_survivors           {z-index: 50; } /* must be above death_x */
 div.full_page_loading_spinner               {z-index: 99; }
+div#settlementSheetTabContainer             {z-index: 100; }
 
-    /* top nav_bar indexes */
-.nav_bar, .nav_bar_mobile                   {z-index: 100; }
+    /* top nav_bar indexes - DEPRECATED */
+#topNavBar                                  {z-index: 100; }
 #floating_refresh_button,
-#floating_dashboard_button                  {z-index: 101; }
-
-.help-tip p                                 {z-index: 105}
+    #floating_dashboard_button              {z-index: 101; }
 
     /* modal indexes */
 div.survivor_search_modal_container         {z-index: 1199;}
 input.survivor_search                       {z-index: 1200; }
+#leftSideNavUnderlay                        {z-index: 1999; }
+#leftSideNav                                {z-index: 2000; }
 .sidenav                                    {z-index: 2000; }
 .rightSideNav                               {z-index: 2000; }
 .modal                                      {z-index: 2001; }

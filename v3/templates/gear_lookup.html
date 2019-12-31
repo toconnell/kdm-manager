@@ -328,6 +328,12 @@
                         <span ng-bind-html="recipe.prefix_text|trustedHTML"></span>
                     </div>
 
+                    <span
+                        ng-if="recipe.undefined_ingredient"
+                        ng-bind-html="recipe.undefined_ingredient|trustedHTML"
+                    >
+                    </span>
+
                     <span ng-repeat="(handle, quantity) in recipe.resource_handles">{{quantity}}x {{settlement.game_assets.resources[handle].name}}{{$last ? '' : ', '}}</span><span ng-if="recipe.resource_handles != undefined && recipe.resource_types != undefined">, </span><span ng-repeat="(handle, quantity) in recipe.resource_types" class="capitalize">{{quantity}}x {{handle}}{{$last ? '' : ', '}}</span><span ng-if="recipe.resource_handles != undefined && recipe.gear_handles != undefined">, </span><span ng-if="recipe.resource_handles == undefined && recipe.resource_types != undefined && recipe.gear_handles != undefined">, </span><span ng-repeat="(handle, quantity) in recipe.gear_handles">{{quantity}}x {{settlement.game_assets.gear[handle].name}}{{$last ? '' : ', '}}</span><span ng-if="recipe.resource_handles !== undefined || recipe.resource_types !== undefined || recipe.gear_handles !== undefined">.</span>
 
                     <div ng-if="recipe.locations != undefined">
