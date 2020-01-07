@@ -40,12 +40,6 @@
 
 
 
-/*  DO NOT MODIFY ANYTHING OTHER THAN THE FONT-FAMILY ATTRIBUTE HERE */
-.kd_alert,
-    .kd_alert_no_exclaim,
-    .kd_pink {font-family: 'Metrophobic'; }
-
-
 /* KD icon emulation */
 .kdm_se_card {
     background-image: url('/media/icons/settlement_event.png');

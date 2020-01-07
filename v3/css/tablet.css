@@ -12,7 +12,8 @@
     html {
         font-size: 1.5vh;
     }
-
+    h2 {font-size: 3vh;}
+    h3 {font-size: 2vh;}
     /*  top nav DEPRECATED  */
     div#topNavBar {
         height: 6vh;
@@ -28,15 +29,33 @@
 
     div#container {margin-top: 6vh;}
 
+    #leftSideNav button {font-size: 2vh; }
+    #leftSideNav.open {width: 50%;}
+    #leftSideNavUnderlay.open {width: 50%}
+
     /*  kd_sheet_ui styles - tablet */
+    .kd_sheet_ui_inner_ring_container {
+        width: 65%;
+        margin-top: 3%;
+    }
     .kd_sheet_ui_row_tip p {
         font-size: 1.5vh; 
     }
     .kd_sheet_ui_row.title {
-        font-size: 2.5vh; 
+        font-size: 2.2vh; 
     }
 
+    /*  kd_kickstarter styles   */
+    .kd_kickstarter_button {padding: 2%; }
 
+
+    /*
+
+        NEW SETTLEMENT - tablet
+
+    */
+    .new_settlement_asset_clicker {margin: 5%; font-size: 2vh; }
+    #createNewSettlementButton {width: 70%; }
 
     /*
 
@@ -44,7 +63,6 @@
 
     */
     #campaignSummarySettlementName {font-size: 8vw; }
-    #campaignSummaryCampaignType {margin: 0; }
     .campaign_summary_headline_container {
         position: relative;
         margin: 0 auto;
@@ -76,17 +94,21 @@
 
     .campaign_summary_survivors_container {min-height: 50vh; }
     .campaign_summary_survivors_container h2 {
+        font-size: 3vh;
         margin: 1%;
-        font-size: 4vw; 
     }
 
     /*  left panel - tablet */
 
         /*  survivor quickview  */
+    #survivorQuickviewLeftColumn {
+        border: 0; 
+    }
     .quickview_attribute_box {
         font-size: 1vh;
         padding-bottom: 2%;
     }
+    .quickview_secondary_container {font-size: 2.5vh;}
     .secondary_attrib_box_row .weapon_proficiency_type {font-size: 1.5vh; }
     .quickview_asset_list_title_bar .title {font-size: 2.5vh; }
     .quickview_asset_list_title_bar .subtitle,
@@ -131,12 +153,29 @@
 
     /*  settlement sheet tabs - tablet   */
     .settlement_sheet_tab {
-        margin-top: 5vh;
         flex-direction: row;
         flex-wrap: wrap;
     }
 
     /*  settlement sheet  - tablet */
+    #settlementSheetLeftColumn,
+        #settlementSheetMiddleColumn {width: 50%;}
+    #settlementSheetMiddleColumn {margin-top: 10%; }    /*long settlement names*/
+    #settlementSheetRightColumn {
+        width: 100%; 
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-around;
+    }
+
+    #settlementSheetRightColumn .kd_sheet_ui_border_box {
+        margin: initial;
+        margin-top: 0;
+        margin-bottom: 1%;  
+        width: 49%;
+    }
+
     .settlement_sheet_settlement_name {
         font-size: 5vh;
     }
@@ -158,16 +197,29 @@
         font-size: 3vh; 
     }
 
+
     /*  settlement sheet storage - tablet  */
     .storage_location_keywords_rollup {margin-top: 2%; }
     .keywords_rollup_item {font-size: 2vh; }
 
+    .principle_option label {font-size: 2vh;}
 
     /*  settlement sheet - quarry, nemesis, etc. boxes */
-    .settlement_sheet_line_item {font-size: 3vw;}
+    .settlement_sheet_line_item {font-size: 2vh;}
 
     /*  settlement sheet - strain milestones - tablet */
     .strain_milestone_toggle_box {width: 94%; }
 
+    /* settlement sheet ADMIN tab - tablet */
+    #settlementSheetAdminTab {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-evenly;
+        margin-top: 1%;  
+    }
+    #settlementSheetAdminTab .kd_sheet_ui_border_box {
+        margin: inherit;
+        width: 48%;
+    };
 }
 

@@ -267,15 +267,22 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
     };
 
     $scope.toggleDamage = function(s, loc){
+        // first, do it on the page, for responsiveness
+        if (s.sheet[loc] !== undefined) {
+            s.sheet[loc] = undefined;
+        } else {
+            s.sheet[loc] = 'true';
+        };
+
+        // now, record it in the API
         $rootScope.survivor_id = s.sheet._id.$oid;
         json_obj = {'location': loc};
-        var res = $scope.postJSONtoAPI('survivor', 'toggle_damage', json_obj, false);
+        var res = $scope.postJSONtoAPI('survivor', 'toggle_damage', json_obj, false, true, false);
         res.then(
             function(payload) {
-                var sheet = payload.data.sheet
-                s.sheet = sheet;
+                console.info(s.sheet.name + ' ' + loc + ' -> ' + s.sheet[loc]);
             },
-            function(errorPayload){console.error('ERROR!');}
+            function(errorPayload){console.error('Could not toggle hit location!'); }
         );
     };
 

@@ -7,7 +7,9 @@ function reloadSheet() {
 
 // main app controler; most things should end up here when we de-balkanize
 app.controller("settlementSheetController", function($scope) {
-    $scope.scratch = {} 
+    $scope.scratch = {
+        showSettlementTumblerScold: false,
+    } 
 
     // tabs!
     $scope.settlementSheetTabsObject = {
@@ -21,6 +23,10 @@ app.controller("settlementSheetController", function($scope) {
                 id: 1,
                 name: 'Storage',
             },
+            {
+                id: 6,
+                name: 'Admin',
+            },
         ],
     };
 
@@ -30,6 +36,7 @@ app.controller("settlementSheetController", function($scope) {
         $scope.settlement.sheet[attrib] += Number(modifier);
         $scope.postJSONtoAPI('settlement', 'update_attribute', js_obj, false);
     };
+
     $scope.setAttrib = function(attrib, value, reinit) {
         if (value === undefined) {
             value = $scope.settlement.sheet[attrib]
@@ -84,16 +91,6 @@ app.controller("removeSettlementController", function($scope) {
     };
 });
 
-app.controller("lanternResearchController", function($scope) {
-    $scope.setLanternResearch = function() {
-        js_obj = {value: $scope.settlement.sheet.lantern_research_level};
-        $scope.postJSONtoAPI('settlement', 'set_lantern_research_level', js_obj, false);
-    };
-    $scope.incrementLanternResearch = function(modifier) {
-        $scope.settlement.sheet.lantern_research_level += modifier;
-        $scope.setLanternResearch();
-    };
-});
 
 
 app.controller("milestonesController", function($scope) {
@@ -171,7 +168,7 @@ app.controller("storageController", function($scope) {
     $scope.setStorage = function(asset, modifier) {
         asset.quantity += modifier;
         js_obj = {handle: asset.handle, value: asset.quantity};
-        $scope.postJSONtoAPI('settlement','set_storage', {storage: [js_obj]}, true, false);
+        $scope.postJSONtoAPI('settlement','set_storage', {storage: [js_obj]}, false, false, false);
     };
 
     $scope.refreshRollups = function(storage_repr) {
@@ -206,7 +203,7 @@ app.controller("storageController", function($scope) {
 
         // load it here
         if ($scope.settlementStorage === undefined){
-            console.warn($scope.settlementStorage + ' is undefined!');
+            console.warn('$scope.settlementStorage is ' + $scope.settlementStorage);
             var res = $scope.getJSONfromAPI('settlement','get_storage', 'loadStorage');
             res.then(
                 function(payload) {

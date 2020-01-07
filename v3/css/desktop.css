@@ -5,6 +5,8 @@
 @media only screen and (min-width: 1050px) and (orientation: landscape) {
 
     html {font-size: 12pt;}
+    h3 {font-size: 15pt; }
+    h4 {font-size: 14pt; font-weight: normal; }
 
     /*  top nav - DEPRECATED */
     div#topNavBar {height: 6vh}
@@ -14,9 +16,17 @@
 
     /*
 
-        NAVIGATION and modal UI - desktop
+        modals, navs and UI - desktop
 
     */
+    div#leftSideNav.open {width: 35%;}
+    div#leftSideNavUnderlay.open {width: 65%}
+    .left_side_underlay_footer_container {
+        text-align: right;
+        padding-right: 5%;
+    }
+
+    #leftSideNav button {margin: 0 auto; }
 
     /* report an error */
     div.report_error_container p {
@@ -39,19 +49,106 @@
         font-size: 2vh;
     }
 
+    /*  kd_sheet_ui styles - desktop */
+    .kd_sheet_ui_inner_ring_container {
+        width: 40%;
+        margin: 0 auto;
+        margin-top: 3%;
+    }
+
+    /*  kd_kickstarter UI styles - desktop */
+    .kd_kickstarter_button {
+        margin-top: 5%;
+        margin-bottom: 5%;
+        padding: 1%;
+    }
+
+
+    /*
+
+        DASHBOARD - desktop
+
+    */
+    #dashboardControlElement {margin-left: 3%; }
+    #dashboardCreateNewSettlement {margin-bottom: 3%; }
+
+    /*
+
+        NEW SETTLEMENT - desktop
+
+    */
+    #createNewSettlementButton {width: 40%; }
+
 
     /*
 
         CAMPAIGN SUMMARY - desktop
 
     */
-
+    #campaignSummarySettlementName {
+        font-size: 5vh;
+        margin: 0; 
+    }
+    #campaignSummarySettlementName,
+        #campaignSummaryCampaignType {
+        text-align: left;
+        padding-left: 3%;
+        padding-top: 0;  
+    }
     .campaign_summary_panels_container {display: flex;}
     .campaign_summary_left_panel,
         .campaign_summary_right_panel {
         width: 50%;
     }
 
-    .campaign_summary_small_box.settlement_fact span {font-size: 2vw;}
+    .diamond {height: 4vw; width: 4vw; }
+    .headline_block_caption {font-size: 12pt; }
+    .campaign_summary_small_box.settlement_fact h4 {font-size: 17pt;}
+    #manageDepartingSurvivors {
+        width: 475px;
+        position: absolute;
+        left: 588px;
+        top: 2vh;
+        right: auto;
+        bottom: auto;
+    }
 
+    .campaign_summary_survivors_container h2 {font-size: 3vw; }
+    .death_x {
+        font-size: 130px;
+        margin-left: 1vw;
+        margin-top: -2vh;
+    }
+
+    /*  survivor quickview   */
+    .kd_sheet_ui_inner_ring_container.survivor_quickview_container {
+        width: 65%; 
+    }
+    .survivor_quickview_container .columns {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap; 
+    }
+    .survivor_quickview_container .left_column,
+        .survivor_quickview_container .right_column {
+        margin: 1% auto;
+        width: 50%; 
+    }
+    .quickview_brain_container, .quickview_hitbox_container {
+        margin: 0 auto; 
+    }
+    .quickview_secondary_container.courage,
+        .quickview_secondary_container.understanding {
+        font-size: 12pt;
+    }
+    .secondary_attrib_box_row .weapon_proficiency_type {
+        font-size: 10pt; 
+    }
+    .quickview_asset_list_title_bar .title {
+        font-size: 14pt; 
+    }
+    .quickview_asset_list_title_bar .subtitle,
+        .quickview_asset_list_title_bar .lockbox {
+        font-size: 10pt; 
+    }
 }

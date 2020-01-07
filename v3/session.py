@@ -1,3 +1,12 @@
+"""
+
+    Welcome to the oldest, dankest, most-badly-in-need-of-a-refactor part of the
+    legacy webapp. This is where we have the pachinko-machine logic for handling
+    active user sessions. Tread very carefully: code here is brittle af.
+
+"""
+
+
 #!/usr/bin/env python
 
 from bson.objectid import ObjectId
@@ -405,7 +414,8 @@ class Session:
             asset = mdb.settlements.find_one({"_id": a})
             asset_sum = "%s" % (asset["name"])
         else:
-            self.logger.error("[%s] view could not be changed to asset '%s'" % (self.User,a))
+            err = "[%s] view could not be changed to asset '%s'"
+            self.logger.error(err % (self.User,a))
 
         self.change_current_view(view, asset_id=a)
 
@@ -491,14 +501,6 @@ class Session:
             if p in self.params:
                 user_action = self.change_current_view_to_asset(p)
 
-        # remove settlement; deprecated 2018-06-08
-        if "remove_settlement" in self.params:
-            self.logger.error("Removing settlements is no longer supported by the legacy webapp!")
-
-        # remove survivor; deprecated 2018-06-08
-        if "remove_survivor" in self.params:
-            self.logger.error("Removing survivors is no longer supported by the legacy webapp!")
-
 
         #
         #   settlement operations - everything below uses user_asset_id
@@ -550,6 +552,7 @@ class Session:
 
         elif self.current_view == "new_settlement":
             body = 'create_new_settlement'
+            include_ui_templates = ['nav']
             output += html.get_template('new_settlement.html')
 
         elif self.current_view == "view_campaign":
@@ -565,7 +568,8 @@ class Session:
             output += html.get_template('survivor_sheet')
 
         else:
-            self.logger.error("[%s] requested unhandled view '%s'" % (self.User, self.current_view))
+            err = "[%s] requested unhandled view '%s'"
+            self.logger.error(err % (self.User, self.current_view))
             raise Exception("Unknown View!")
 
         # now close the container
@@ -573,7 +577,13 @@ class Session:
 
         # add UI templates
         if include_ui_templates:
-            for t in settings.get('application','ui_templates').split(','):
+
+            # allow arbitrary lists of templates to include
+            template_list = settings.get('application', 'ui_templates').split(',')
+            if isinstance(include_ui_templates, list):
+                template_list = include_ui_templates
+
+            for t in template_list:
                 output += html.get_template(t.strip())
 
         # finally, do a single, monster variable substitution pass:

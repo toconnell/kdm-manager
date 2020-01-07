@@ -64,13 +64,17 @@
 
         <div id="system_div" class="dashboard_accordion system_secondary hidden">
 
-            <div class="dashboard_preference_block_container">
-                <h3 class="system_preference_user_login"> {{user.user.login }} </h3>
+            <div id="systemPanelUserLoginContainer">
+                <h3 id="systemPanelUserLogin"> {{user.user.login }} </h3>
                 <div class="preferences_sub_block preferences_sign_out">
                     <form method="POST" action="/">
                         <input type="hidden" name="remove_session" value="{{user.user.current_session.$oid}}"/>
                         <input type="hidden" name="login" value="{{user.user.login}}"/>
-                        <button>SIGN OUT</button>
+                        <button
+                            class="kd_kickstarter_button"
+                        >
+                            SIGN OUT
+                        </button>
                     </form>
                 </div>
                 <div class="dashboard_preferences_container user_info">
@@ -96,7 +100,7 @@
                         <input type="password" ng-model="scratch.password_again" placeholder="new password (again)"><br/>
                         <button
                             ng-click="updatePassword()"
-                            class="kd_alert_no_exclaim change_pw"
+                            class="kd_kickstarter_button kd_pink"
                             ng-if="scratch.password != undefined && scratch.password == scratch.password_again"
                         >
                             Change Password

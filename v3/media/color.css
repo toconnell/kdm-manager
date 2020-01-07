@@ -8,8 +8,12 @@
 
 /*  KD paper UI blocks, boxes and so on*/
 .strain_block {border-color: #5Dd7F2; background: #fff; }
+input.kd_radio_option + label {color: #666; }   /*system preferences*/
+.kd_sheet_ui_outer_ring_container {background-color: #fff; }
+.kd_sheet_ui_inner_ring_container {background-color: #fff; color: #000; border-color: #000; }
 .kd_sheet_ui_border_box {border-color: #666; }
 .kd_sheet_ui_row_tip {background-color: #FFFFEC; color: #66411E; }
+
 
 /*  KD Kickstarter UI   */
 .kd_kickstarter_button {border-color: #fff; box-shadow: 0 0 0.5em 0 #aaa}
@@ -24,7 +28,7 @@ body.dashboard {background: linear-gradient(to right, #fff, #eee); }
 
     /*  DEPRECATED  gradients */
 .campaign_summary_gradient {background: linear-gradient(to right, #EFCE98, #F5E9D2, #fefeee, #F5E9D2, #EFCE98)}
-.settlement_sheet_gradient {background: linear-gradient(to right, #FFE082, #FFECB3, #FFF8E1, #FFECB3, #FFE082); border-bottom-color: #FFE082; }
+.settlement_sheet_gradient {background: linear-gradient(to right, #FFE082, #FFECB3, #FFF8E1, #FFECB3, #FFE082); }
 .survivor_sheet_gradient {background: linear-gradient(to right, #E6DECC, #f7f3eb, #fefeee, #f7f3eb, #E6DECC); border-bottom-color: #D7CCC8; }
 .gradient_silver { border-color: #666; background: linear-gradient(-90deg, #B5BFBA, #FaFDFa); }
 
@@ -102,7 +106,8 @@ body.dashboard {background: linear-gradient(to right, #fff, #eee); }
 div#topNavBar {box-shadow: 0 10px 17px #ccc;}
 
 /*  left side nav   */
-div#leftSideNav {color: #fff; background: #000; }
+div#leftSideNav,
+    div#leftSideNav button {color: #fff; background: #000; }
 div#leftSideNavUnderlay {background: rgba(0,0,0,0.8); color: #fff; }
 .left_side_underlay_footer_container {color: #777; }
 
@@ -113,6 +118,13 @@ div#leftSideNavUnderlay {background: rgba(0,0,0,0.8); color: #fff; }
 textarea.report_error {outline: 1px solid #eee; }
 textarea.report_error:focus {box-shadow: none; }
 
+/*                      
+
+    NEW SETTLEMENT
+
+*/
+.new_settlement_asset_clicker {color: #777;}
+.new_settlement_asset_clicker.active {color: #000; }
 
 /*                      
 
@@ -126,7 +138,6 @@ textarea.report_error:focus {box-shadow: none; }
 .campaign_summary_small_box.settlement_fact {border-color: #666;}
 .monster_subhead {color: #666; }
 .quickview_survivor_name {color: #444; }
-.quickview_ui_button {border-color: #fff; }
 
 /* campaign summary - available endeavors*/
 .available_endeavors_build {background: linear-gradient(to bottom, #73C26C, #51B952); color: #fff; }
@@ -152,6 +163,7 @@ textarea.report_error:focus {box-shadow: none; }
 
 /* settlement sheet tumblers */
 .settlement_sheet_tumbler {color: #666; }
+.settlement_sheet_tumbler_controls {background: radial-gradient(#fefef0, #fefefe);}
 .settlement_sheet_tumbler_number {border-color: #bbb; color: #555; }
 .settlement_sheet_tumbler_number.active {border-color: #000; color: #000; }
 

@@ -62,7 +62,7 @@
 
 
     <hr ng-if="view != 'newSettlement'"/>
-    <h3 ng-if="settlement.sheet != undefined">{{settlement.sheet.name}}:</h3>
+    <h3 ng-if="settlement.sheet != undefined">{{settlement.sheet.name}}</h3>
     <center ng-if="settlement.sheet == undefined && view != 'newSettlement'">
         <img src="/media/loading_lantern.gif" />
     </center>
@@ -173,7 +173,7 @@
     </button>
 
     <!-- list departing survivors, formerly known as the survivor quick menu -->
-    <h3 ng-if="countSurvivors('departing') > 0">Departing</h3>
+    <h3 ng-if="countSurvivors('departing') > 0">Departing Survivors</h3>
     <form
         method="POST"
         action="/"
@@ -236,6 +236,7 @@
         <input type="hidden" name="remove_session" value="{{user.user.current_session.$oid}}"/>
         <input type="hidden" name="login" value="{{user.user.login}}"/>
         <button
+            id="leftSideNavUserSignOut"
             onclick="showFullPageLoader()"
             ng-click="closeLeftSideNav()"
         >

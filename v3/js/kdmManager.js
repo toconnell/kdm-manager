@@ -38,13 +38,8 @@ function hideAPIerrorModal() {
 
 // public helpers
 function rollUp(e_id) {
-//    console.warn(e_id);
-    var e = document.getElementById(e_id);
-    if (e.classList.contains('rolled_up') == true) {
-        e.classList.remove('rolled_up');
-    } else {
-        e.classList.add('rolled_up');
-    };
+    console.error('rollUp() is no longer public JS!');
+    console.error('Use the $rootScope.rollUp() instead!');
 };
 
 function showHide(e_id, force) {
@@ -171,7 +166,27 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
 
     // initialize rootScope elements here; these are set on every view
     $rootScope.objectKeys = Object.keys;
-    $rootScope.rollUp = rollUp;
+
+    // rollUp controls; now TOTALLY angular (no doc-scope JS)
+    $rootScope.ngRolledUp = {};
+    $rootScope.rollUp = function(e_id) {
+    //    console.warn(e_id);
+        var e = document.getElementById(e_id);
+        if (e === null) {
+            console.error("roll-up element '" + e_id + "' does not exist!");
+            return;
+        };
+
+        if (e.classList.contains('rolled_up') == true) {
+            e.classList.remove('rolled_up');
+            $rootScope.ngRolledUp[e_id] = false;
+        } else {
+            e.classList.add('rolled_up');
+            $rootScope.ngRolledUp[e_id] = true;
+        };
+    };
+
+    // backwards compatibility helpers...DEPRECATED THO
     $rootScope.showHide = showHide;
 
     
