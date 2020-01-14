@@ -4,7 +4,7 @@
     class="modal-black hidden"
     id="gearLookupModal"
     ng-if="
-        settlement.sheet != undefined &&
+        settlement.sheet !== undefined &&
         scratch.gearLookupOpenerButtonLoaded && 
         user.user.subscriber.level > 1
     "
@@ -72,7 +72,7 @@
                 ng-repeat="gear in gearLookup | filter:searchText:strict"
             >
                 <div
-                    class="gear_card_container"
+                    class="gear_card_container gear_card_gradient"
                     title="{{gear.name}} ({{ gear.sub_type }})"
                 >
                     <div

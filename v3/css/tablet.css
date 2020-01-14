@@ -14,6 +14,10 @@
     }
     h2 {font-size: 3vh;}
     h3 {font-size: 2vh;}
+    ul {margin: 0 auto; }
+    li {margin: 0 auto; } 
+
+
     /*  top nav DEPRECATED  */
     div#topNavBar {
         height: 6vh;
@@ -34,20 +38,34 @@
     #leftSideNavUnderlay.open {width: 50%}
 
     /*  kd_sheet_ui styles - tablet */
-    .kd_sheet_ui_inner_ring_container {
-        width: 65%;
-        margin-top: 3%;
+    .kd_sheet_ui_row_tip {font-size: 1.5vh}
+    .kd_sheet_ui_row.title {font-size: 2.2vh;}
+    .kd_sheet_ui_box {
+        height: 2vw;
+        width: 2vw;
+        border-width: 0.2vw;
     }
-    .kd_sheet_ui_row_tip p {
-        font-size: 1.5vh; 
-    }
-    .kd_sheet_ui_row.title {
-        font-size: 2.2vh; 
-    }
+    .kd_sheet_ui_box.heavy {border-width: 0.4vw;}
 
     /*  kd_kickstarter styles   */
     .kd_kickstarter_button {padding: 2%; }
+    .kd_kickstarter_select {height: 3.5vh;}
 
+    /*
+
+        TIMELINE - tablet
+
+    */
+    .timeline_event_rm_button {width: auto;}
+    .timeline_event img.icon {width: 2vw;}
+
+    /*
+
+        SURVIVOR SEARCH - tablet
+
+    */
+
+    .survivor_search_survivor_assets {font-size: inherit;}
 
     /*
 
@@ -101,6 +119,7 @@
     /*  left panel - tablet */
 
         /*  survivor quickview  */
+    .death_x {font-size: 150px; margin-top: -1vh; }
     #survivorQuickviewLeftColumn {
         border: 0; 
     }
@@ -113,6 +132,7 @@
     .quickview_asset_list_title_bar .title {font-size: 2.5vh; }
     .quickview_asset_list_title_bar .subtitle,
         .quickview_asset_list_title_bar .lockbox {font-size: 1.3vh; }
+    .quickview_survival_container .survival_box_lock {font-size: 0.6em; margin-bottom: 2vh; }
     .quickview_ui_button_container {
         display: flex;
         flex-direction: row;
@@ -127,6 +147,8 @@
         flex-direction: column;
         justify-content: center; 
     }
+    .quickview_hitbox_detail .tip {font-size: initial;}
+    .campaign_summary_survivor_modal_color_scheme_select {height: 4vh;}
 
     /*  right panel - tablet    */
     .endeavor_box h3 {

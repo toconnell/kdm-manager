@@ -1,6 +1,6 @@
 <div
-    class="modal-black hidden"
     id="modalTimelineContainer"
+    class="modal-black hidden"
     ng-controller="timelineController"
     ng-if="settlement.sheet.timeline != undefined && user != undefined"
     ng_init="
@@ -13,9 +13,17 @@
     <div class="kd_sheet_ui_outer_ring_container">
 
         <div
+            id="timelineContainer"
             class="kd_sheet_ui_inner_ring_container timeline_container"
-            ng-init="iter_order = ['settlement_event', 'story_event', 'special_showdown', 'nemesis_encounter','showdown_event']"
+            ng-init="iter_order = [
+                'settlement_event',
+                'story_event',
+                'special_showdown',
+                'nemesis_encounter',
+                'showdown_event'
+            ]"
         >
+
             <h3>{{ settlement.sheet.name}} Timeline</h3>
 
             <div class="timeline_top_line">
@@ -82,11 +90,10 @@
                                     >
                                         f
                                     </font>
-                                    <img
-                                        class="icon settlement_event"
-                                        src="/media/icons/settlement_event.png"
+                                    <span
+                                        class="kdm_se_card"
                                         ng-if="event_type == 'settlement_event'"
-                                    />
+                                    >SE</span>
                                     <img
                                         class="icon special_showdown"
                                         src="/media/icons/special_showdown_event.png"
@@ -112,15 +119,16 @@
                         ng-if="user_is_settlement_admin"
                     >
                         <div class="kd_sheet_ui_inner_ring_container timeline_overlay_control">
+
                             <h3>Lantern Year {{ly.year}}</h3>
 
                             <!-- previous year controls -->
                             <div
-                                class="timeline_current_ly_controls"
+                                class="kd_kickstarter_button_raft"
                                 ng-if="settlement.sheet.lantern_year -1 == ly.year"
                             >
                                 <button
-                                    class="kd_pink"
+                                    class="kd_kickstarter_button kd_pink"
                                     ng-click="setCurrentLY(ly.year)"
                                     ng-if="ly.year > 0"
                                 >
@@ -130,17 +138,17 @@
 
                             <!-- current year controls -->
                             <div
-                                class="timeline_current_ly_controls"
+                                class="kd_kickstarter_button_raft"
                                 ng-if="settlement.sheet.lantern_year == ly.year"
                             >
                                 <button
-                                    class="kd_blue"
+                                    class="kd_kickstarter_button kd_blue"
                                     ng-click="setCurrentLY(ly.year+1)"
                                 >
                                     End Lantern Year {{ly.year}}
                                 </button>
                                 <button
-                                    class="kd_pink"
+                                    class="kd_kickstarter_button kd_pink"
                                     ng-click="setCurrentLY(ly.year-1)"
                                     ng-if="ly.year > 0"
                                 >
@@ -150,11 +158,11 @@
 
                             <!-- next year controls -->
                             <div
-                                class="timeline_current_ly_controls"
+                                class="kd_kickstarter_button_raft"
                                 ng-if="settlement.sheet.lantern_year +1 == ly.year"
                             >
                                 <button
-                                    class="kd_blue"
+                                    class="kd_kickstarter_button kd_blue"
                                     ng-click="setCurrentLY(ly.year)"
                                     ng-if="ly.year > 0"
                                 >
@@ -171,8 +179,11 @@
                             </div>
 
                             <!-- buttons to remove events -->
+                            <h4>Events</h4>
+
                             <div
                                 class="timeline_event_rm_button_container"
+                                title="Tap or click to remove!"
                             >
                                 <div
                                     class="timeline_event_rm_button_group"
@@ -182,18 +193,33 @@
                                     <div
                                         class="timeline_event_rm_button clickable"
                                         ng-repeat="event in ly[event_type]"
-                                        ng-init="eventRepr = getEventRepr(event)"
-                                        ng-click="rmEventFromLY(ly[event_type], $index)"
+                                        ng-init="
+                                            eventRepr = getEventRepr(event);
+                                        "
+                                        ng-click="ngToggleAttrib(eventRepr, 'armed')"
+                                        title="{{eventRepr.name}}. Tap or click to remove!"
                                     >
-                                        x {{eventRepr.name}}
+                                        <div
+                                            class="timeline_event_rm_x"
+                                            ng-if="eventRepr.armed === true"
+                                            ng-click="rmEventFromLY(ly[event_type], $index)"
+                                        >
+                                            &#x274C;
+                                        </div>
+                                        <div
+                                            class="timeline_event_name"
+                                        >
+                                            {{eventRepr.name}}
+                                        </div>
                                     </div>
                                 </div><!-- event_type repeater-->
                             </div><!-- event_rm container -->
 
-                            <hr/>
 
                             <!-- drop-downs -->
+                            <div class="kd_kickstarter_button_raft timeline_event_add_button_container">
                             <select
+                                class="kd_kickstarter_select"
                                 ng-model="settlementEvent"
                                 ng-options="handle as dict.selector_text for (handle, dict) in settlementEventOptions"
                                 ng-change="
@@ -207,6 +233,7 @@
                             </select>
 
                             <select
+                                class="kd_kickstarter_select"
                                 ng-model="storyEvent"
                                 ng-options="handle as dict.name for (handle, dict) in storyEventOptions"
                                 ng-change="
@@ -220,6 +247,7 @@
                             </select>
 
                             <select
+                                class="kd_kickstarter_select"
                                 ng-model="specialShowdownEvent"
                                 ng-options="name for name in specialShowdownOptions"
                                 ng-change="
@@ -233,6 +261,7 @@
                             </select>
 
                             <select
+                                class="kd_kickstarter_select"
                                 ng-model="nemesisEncounterEvent"
                                 ng-options="name for name in nemesisEncounterOptions"
                                 ng-change="
@@ -246,6 +275,7 @@
                             </select>
 
                             <select
+                                class="kd_kickstarter_select"
                                 ng-model="showdownEvent"
                                 ng-options="name for name in showdownOptions"
                                 ng-change="
@@ -258,19 +288,22 @@
                                 </option>
                             </select>
 
-                            <hr/>
-
+                            </div>
 
                             <!-- confirm / cancel buttons -->
-                            <div class="timeline_current_ly_buttons_container">
+                            <div class="kd_kickstarter_button_raft">
                                 <button
-                                    class="kd_blue"
+                                    class="kd_kickstarter_button kd_blue"
                                     ng-click="updateLanternYear(ly); showHide(modalControlID)"
                                 >
                                     Save Changes to LY {{ly.year}}
                                 </button>
                                 <button
-                                    ng-click="showHide(modalControlID); reloadTimeline();"
+                                    class="kd_kickstarter_button"
+                                    ng-click="
+                                        showHide(modalControlID);
+                                        reloadTimeline();
+                                    "
                                 >
                                     Abandon Changes to LY {{ly.year}}
                                 </button>
@@ -281,25 +314,21 @@
                 </div> <!-- row container -->
 
             </div> <!-- col container -->
-            <div class="timeline_nav_buttons">
+
+            <div class="kd_kickstarter_button_raft">
                 <button
-                    class="kd_blue"
+                    class="kd_kickstarter_button kd_blue"
                     ng-click="addLanternYears(5)"
                     ng-if="settlement.sheet.timeline.length < 50"
                 >
                     Add Five (5) Lantern Years
                 </button>
                 <button
-                    class="kd_pink"
+                    class="kd_kickstarter_button kd_pink"
                     ng-click="rmLanternYears(5)"
                     ng-if="objectKeys(settlement.sheet.timeline[settlement.sheet.timeline.length-1]).length <= 2"
                 >
                     Remove Five (5) Lantern Years
-                </button>
-                <button
-                    onClick="showHide('modalTimelineContainer')"
-                >
-                    Close
                 </button>
             </div>
 
@@ -307,5 +336,13 @@
 
 
     </div><!-- outer ring container -->
+
+    <button
+        class="kd_kickstarter_button floating_close_modal_button"
+        ng-click="showHide('modalTimelineContainer')"
+    >
+        Close
+    </button>
+
 </div><!-- modal-black -->
 

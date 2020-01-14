@@ -46,9 +46,20 @@ div#container {
 
 /*  KD Kickstarter UI   */
 
-.kd_kickstarter_button {
+.kd_kickstarter_button_raft {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 5%;
+    margin-bottom: 0;
+}
+.kd_kickstarter_button_raft button {
+    margin-bottom: 7%; 
+}
+
+.kd_kickstarter_button,
+    .kd_kickstarter_select {
     border-radius: 2em;
-    text-align: center;
     padding: 3%;
     border: 0.2em solid;
     display: block; 
@@ -58,6 +69,11 @@ div#container {
     box-sizing: border-box;
     width: 90%;
     transition: 1s;  
+}
+.kd_kickstarter_select {
+    padding: 0;
+    padding-left: 3%; 
+    height: 6vh;
 }
 
 /*  KD Worksheet UI */
@@ -107,6 +123,18 @@ div#container {
     align-items: center;
     margin-top: 1%; 
 }
+.kd_sheet_ui_box {      /* the one and only checkbox style! */
+    border: 0.5vw solid;
+    width: 4vw;
+    height: 4vw;
+    display: inline-block;
+    margin-right: 4%;
+    transition: 1s;
+    box-sizing: border-box;
+}
+.kd_sheet_ui_box.heavy {
+    border-width: 1vw;
+}    
 
 .survivor_sheet_kd_sheet_ui_box,
     .settlement_sheet_kd_sheet_ui_box {
@@ -117,6 +145,24 @@ div#container {
     padding-top: 3%;
     box-sizing: border-box;
 }
+
+
+.card_gradient {
+    border: 2px solid;
+}
+
+/*  modal - re-usable modal elements */
+
+.floating_close_modal_button {  /* use with .kd_kickstarter_button */
+    position: fixed;
+    top: auto;
+    bottom: 0%;
+    left: 0%;
+    right: 0%;
+    width: 90%;
+    padding: 3%;
+}
+
 
 /*
 
@@ -209,20 +255,54 @@ div.dashboard_button_list button {
     font-family: 'Silverado';
 }
 
-/*  survivor search */
-input.survivor_search {
+/*
 
-    position: fixed;
-    top: 1.5%;
-    left: 20%;
-    bottom: auto;
-    padding:1%;
-    width: 565px;
-    height: auto;
-    min-width: auto;
-    text-align: center;
+
+    TIMELINE
+
+*/
+#timelineContainer {
+    margin-bottom: 12vh; 
 }
-
+.timeline_overlay_control {
+    box-sizing: border-box;
+    width: 90%;
+    margin: 0 auto;
+    margin-top: 7%;
+}
+.timeline_overlay_control h4 {
+    padding-left: 3%; 
+}
+.timeline_overlay_control select {
+    display: block;
+    width: 90%;
+    margin: 0 auto;
+    margin-bottom: 7%;
+}
+.timeline_event_rm_button {
+    margin: 3% auto;
+    width: 85%;
+    border-radius: 5px;
+    padding: 2%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    align-items: center; 
+}
+.timeline_event_rm_x {
+    font-size: 0.9em;
+    margin-right: 1%; 
+}
+.timeline_event_name {
+    min-width: 90%;
+}
+.timeline_event_add_button_container {
+    border-top: 1px solid;
+    border-bottom: 1px solid;
+    padding-top: 7%; 
+    margin-top: 7%; 
+}
 
 /*
 
@@ -256,6 +336,96 @@ input.survivor_search {
     text-align: center;
 }
 
+
+/*
+
+    SURVIVOR SEARCH app
+
+*/
+#survivorSearchModalOpener {
+    position: fixed;
+    top: 1.5%;
+    left: 20%;
+    bottom: auto;
+    padding:1%;
+    width: 565px;
+    height: auto;
+    min-width: auto;
+    text-align: center;
+}
+.survivor_search_modal_content {
+    position: absolute;
+    top: 0;
+    left: 5%;
+    right: 5%;
+    margin-bottom: 10vh; 
+    border-bottom-right-radius: 1em;
+    border-bottom-left-radius: 1em;
+    border: 0.1em solid;
+    border-top: 0;
+    display: flex;
+    flex-direction: column;
+    padding-top: 6vh;  
+}
+.survivor_search_button {
+    cursor: pointer;
+    margin: 3%;
+}
+.survivor_search_button_inner {
+    margin: 0.5em;
+    border: 0.5em solid;
+    padding: 0.5em;
+}
+.survivor_search_survivor_name_container {
+    border-bottom: 0.1em solid;
+    display: flex;
+    align-items: flex-end;
+}
+.survivor_search_survivor_name {
+    width: 70%;
+    font-family: 'Silverado';
+    font-size: 3vh;
+}
+.survivor_search_survivor_sex {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 30%;
+    margin-bottom: 1%; 
+}
+.survivor_search_survivor_sex .kd_sheet_ui_box {
+    height: 1.5vh;
+    width: 1.5vh;
+}
+.survivor_search_survivor_assets {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline; 
+    margin-top: 2%;
+    margin-bottom: 2%;
+    font-size: 0.8em;
+    text-indent: -1vw;
+    margin-left: 1vw; 
+}
+.survivor_search_attrib_container {
+    display: flex;
+    flex-direction: column;
+    width: 15%;
+    align-items: center;
+}
+.survivor_search_attrib_container span {
+    padding-top: 1%;
+    font-size: 3vh; 
+}
+.survivor_search_asset_list {
+}
+.survivor_search_results_warning {
+    margin: 3%;
+    padding: 1%; 
+    text-align: justify;
+    font-style: Italic;
+    border-top: 1px solid;
+}
 
 /*
 
@@ -371,6 +541,22 @@ div.campaign_summary_endeavor_controller div.controls button {
     width: 100%;
     vertical-align: middle;
 }
+.endeavor_cost {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 2%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    border: 0;
+}
+.endeavor_cost span {
+    margin-right: 5%;
+}
+.endeavor_cost span:last-child {
+    margin-right: auto;
+}
 
 /*  settlement facts */
 .campaign_summary_small_box.settlement_fact {
@@ -401,10 +587,17 @@ div.campaign_summary_endeavor_controller div.controls button {
     margin-top: 10%;
     font-family: 'Silverado';
 }
+.quickview_survival_container .survival_box_lock {
+    font-size: 0.5em;
+    margin-bottom: 3vh;
+}
 .quickview_hitbox_detail .title {
     font-family: 'Silverado';
     display: flex;
     align-items: center;
+}
+.quickview_hitbox_detail .tip {
+    font-size: 0.5em;
 }
 .quickview_asset_list_title_bar .title {
     font-size: 6vw;
@@ -422,7 +615,6 @@ div.campaign_summary_endeavor_controller div.controls button {
 .quickview_secondary_container {
     margin: 3%;
     font-family: 'Silverado';
-    font-size: 3vh;
     display: flex;
     flex-direction: column;
 }
@@ -439,15 +631,11 @@ div.campaign_summary_endeavor_controller div.controls button {
     margin-top: 5%;
     margin-bottom: 5%;
 } 
-.campaign_summary_survivor_modal_color_scheme_select {
-    border-radius: 2em; 
-    width: 90%;
-    box-sizing: border-box;
-    margin-bottom: 0;
-    height: 4.5vh;
-}
 
 /*  departing survivors - base/mobile   */
+.modal-black.departing_survivors_modal_container {
+    padding-bottom: 11vh; 
+}
 .showdown_controls_button_box_option_repeater {
     width: 80%;
     padding-left: 5%;
@@ -455,7 +643,10 @@ div.campaign_summary_endeavor_controller div.controls button {
 } 
 .return_departing_survivors {
     text-align: justify;
-} 
+}
+.return_departing_survivors p {
+    margin: 3%; 
+}
 
 #manageDepartingSurvivors {
     position: fixed;

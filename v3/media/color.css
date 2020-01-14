@@ -13,12 +13,20 @@ input.kd_radio_option + label {color: #666; }   /*system preferences*/
 .kd_sheet_ui_inner_ring_container {background-color: #fff; color: #000; border-color: #000; }
 .kd_sheet_ui_border_box {border-color: #666; }
 .kd_sheet_ui_row_tip {background-color: #FFFFEC; color: #66411E; }
-
+.kd_sheet_ui_box {border-color: #000; }
+.kd_sheet_ui_box.checked,
+    .kd_sheet_ui_box.dotted {background-color: #000;}  
 
 /*  KD Kickstarter UI   */
-.kd_kickstarter_button {border-color: #fff; box-shadow: 0 0 0.5em 0 #aaa}
+.kd_kickstarter_button,
+    .kd_kickstarter_select {border-color: #fff; box-shadow: 0 0 0.5em 0 #aaa}
 
 /* gradients */
+.gear_card_gradient {background: radial-gradient(#fff, #fff, #f8f8f8, #fffff9); }
+.card_gradient {
+    background: radial-gradient(circle, #EEDEBE, #F3EBD4, #F9F2EF);
+    border-color: #E6DECC;
+}
 .collection_gradient {background: linear-gradient(to right, #F5E2B9, #FAF6DB, #F5E2B9);}
 .dead_survivor_gradient {background: radial-gradient(#f4EEE0, #C7C3BF); }
 .fighting_art_gradient {background: radial-gradient(circle, #DFd733, #E4e3cC, #d0f0fc); color: #000; }
@@ -29,7 +37,7 @@ body.dashboard {background: linear-gradient(to right, #fff, #eee); }
     /*  DEPRECATED  gradients */
 .campaign_summary_gradient {background: linear-gradient(to right, #EFCE98, #F5E9D2, #fefeee, #F5E9D2, #EFCE98)}
 .settlement_sheet_gradient {background: linear-gradient(to right, #FFE082, #FFECB3, #FFF8E1, #FFECB3, #FFE082); }
-.survivor_sheet_gradient {background: linear-gradient(to right, #E6DECC, #f7f3eb, #fefeee, #f7f3eb, #E6DECC); border-bottom-color: #D7CCC8; }
+.survivor_sheet_gradient {background: linear-gradient(to right, #E6DECC, #f7f3eb, #fefeee, #f7f3eb, #E6DECC); }
 .gradient_silver { border-color: #666; background: linear-gradient(-90deg, #B5BFBA, #FaFDFa); }
 
 
@@ -52,6 +60,7 @@ body.dashboard {background: linear-gradient(to right, #fff, #eee); }
 /* timeline */
 
 .current_ly_container_row {background: radial-gradient(#fff,#ffffee);}
+.timeline_event_rm_button {background-color: #666; color: #fff; }
 
 /* asset emulation - fun stuff */
 .kd_promo {color: #fff; background: radial-gradient(circle, #5Dd7F2, #50CAF5, #3FACCF); }
@@ -118,6 +127,13 @@ div#leftSideNavUnderlay {background: rgba(0,0,0,0.8); color: #fff; }
 textarea.report_error {outline: 1px solid #eee; }
 textarea.report_error:focus {box-shadow: none; }
 
+
+/*                      
+
+    SEARCH
+
+*/
+
 /*                      
 
     NEW SETTLEMENT
@@ -140,11 +156,11 @@ textarea.report_error:focus {box-shadow: none; }
 .quickview_survivor_name {color: #444; }
 
 /* campaign summary - available endeavors*/
+.endeavor_cost {background: #D0AB51;}
 .available_endeavors_build {background: linear-gradient(to bottom, #73C26C, #51B952); color: #fff; }
 .build_cost_detail {background-color: #0D743A;}
 .available_endeavors_innovate {background: linear-gradient(to bottom, #4EC7F1, #40ADD0); }
 .innovate_cost_detail {background-color: #0277BD;}
-
 
 
 /*                      

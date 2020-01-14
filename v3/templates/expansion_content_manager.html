@@ -76,6 +76,7 @@
 
                 <!-- regular close; no mods -->
                 <button
+                    class="kd_kickstarter_button"
                     ng-if="scratch.expansions_updated === false"
                     onClick="showHide('modalExpansionsManager')"
                 >
@@ -104,7 +105,7 @@
                     </p>
 
                     <button
-                        class="save_expansions"
+                        class="kd_kickstarter_button"
                         onclick="showHide('modalExpansionsManager'); showFullPageLoader()"
                         ng-if="scratch.expansions_updated"
                         ng-class="{

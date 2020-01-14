@@ -22,7 +22,8 @@ div#settlementSheetTabContainer             {z-index: 100; }
 
     /* modal indexes */
 div.survivor_search_modal_container         {z-index: 1199;}
-input.survivor_search                       {z-index: 1200; }
+#survivorSearchModalOpener,
+    #survivorSearchModalCloser              {z-index: 1200; }
 #leftSideNavUnderlay                        {z-index: 1999; }
 #leftSideNav                                {z-index: 2000; }
 .sidenav                                    {z-index: 2000; }

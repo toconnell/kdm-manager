@@ -31,6 +31,7 @@ function showAPIerrorModal(msg, request) {
         m.innerHTML = msg;
     };
 };
+
 function hideAPIerrorModal() {
     e = document.getElementById('apiErrorModal');
     e.classList.add('hidden');
@@ -188,18 +189,33 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
 
     // backwards compatibility helpers...DEPRECATED THO
     $rootScope.showHide = showHide;
+    $rootScope.showFullPageLoader = showFullPageLoader;
 
-    
+    $rootScope.ngToggleAttrib = function(obj, attr) {
+        // toggles a generic attrib on an object, 'obj'
+        if (obj[attr] === true) {
+            obj[attr] = false;
+        } else {
+            obj[attr] = true;
+        };
+    };
+
     $rootScope.ngVisible = {}
+    $rootScope.ngShow = function(elementId) {
+        $rootScope.ngVisible[elementId] = true;
+    }
+    $rootScope.ngHide = function(elementId) {
+        $rootScope.ngVisible[elementId] = false;
+    }
     $rootScope.ngShowHide = function(elementId) {
         // supersedes showHide(), which is deprecated
         // toggles an element in and out of $rootScope.ngVisible, which is
         //  an arry of UI elements that are true or false
 
         if ($rootScope.ngVisible[elementId] === true) {
-            $rootScope.ngVisible[elementId] = false;
+            $rootScope.ngHide(elementId);
         } else {
-            $rootScope.ngVisible[elementId] = true;
+            $rootScope.ngShow(elementId);
         };
 
     };
@@ -207,6 +223,18 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
     $scope.numberToRange = function(num) {
         return new Array(num); 
     };
+
+
+    $rootScope.toTitle = function(str) {
+		str = str.replace(/_/g, ' ');
+		str = str.replace(/ and /g, ' & ');
+		str = str.toLowerCase().split(' ');
+		for (var i = 0; i < str.length; i++) {
+			str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1);
+		}
+		return str.join(' ');
+    };
+
 
     //
     //  overlay navigation controls
@@ -440,6 +468,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
                     $scope.user_is_settlement_admin = true;
                     console.warn($scope.user_login + ' is a settlement admin!');
                 };
+                console.info('Subscriber level: ' + $scope.user.user.subscriber.level);
             });
         });
     };

@@ -141,7 +141,7 @@
         >
             <select
                 id="set_departing_survivors_current_quarry"
-                class="showdown_controls_current_quarry_select"
+                class="kd_kickstarter_select"
                 ng-model="settlement.sheet.current_quarry"
                 ng-change="
                     saveCurrentQuarry();
@@ -154,7 +154,7 @@
 
             <button
                 id="addCurrentQuarryToTimeline"
-                class="hidden"
+                class="kd_kickstarter_button hidden"
                 ng-class="{
                     kd_red: settlement.sheet.showdown_type == 'special',
                     kd_blue: settlement.sheet.showdown_type == 'normal',
@@ -396,14 +396,14 @@
             </div>
 
             <button
-                class="kd_blue departing_survivors_mgmt"
+                class="kd_kickstarter_button kd_blue"
                 ng-click="returnDepartingSurvivors('victory')"
                 onclick="showHide('departingSurvivorsModalContent')"
             >
                 Victorious!
             </button>
             <button
-                class="kd_alert_no_exclaim departing_survivors_mgmt"
+                class="kd_kickstarter_button kd_pink"
                 ng-click="returnDepartingSurvivors('defeat')"
                 onclick="showHide('departingSurvivorsModalContent')"
             >
@@ -413,15 +413,16 @@
 
         </div> <!-- return control options -->
 
+    <button
+        class="floating_close_modal_button kd_kickstarter_button"
+        onclick="showHide('departingSurvivorsModalContent')"
+    >
+        Close
+    </button>
+
     </div> <!-- end of the return controls whole thing -->
 
 
-    <button
-        class="departing_survivors_mgmt close_button"
-        onclick="showHide('departingSurvivorsModalContent')"
-    >
-        <b>Back</b>
-    </button>
 
 </div> <!-- modalDepartingSurvivors whole deal-->
 

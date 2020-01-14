@@ -70,7 +70,6 @@ div.settlement_sheet_principle_name {font-size: 60px; }
 .touch_me {background-color: #f7f3eb; border: 0.2em solid #E6DECC; cursor: pointer; }
 .paper_style_toggle {margin: 0 auto; width: auto; background: none; border: 0.3em solid #000; font-weight: bold; cursor: pointer;}
 .paper_style_toggle:hover {border-color: #880000; color: #aa0000;}
-.card_gradient {background: radial-gradient(circle, #EEDEBE, #F3EBD4, #F9F2EF);  border: 2px solid #E6DECC;}
 .disorder_card_gradient {background: radial-gradient(circle, #111,#333,#666); color: #fff; border: 2px solid #000;}
 .disorder_flavor_text {font-style: italic; margin-top: 7%; margin-bottom: 7%}
 .innovation_gradient {border-top: 0.1em solid #333; background: linear-gradient(to bottom, #9E939B,#888,#9e939b); border-bottom: 0.1em solid #333; color: #fff; }
@@ -148,8 +147,6 @@ font.inline_shield {background-color: #000; color: #fff; padding-left: 0.3em; pa
 label#survivorAvatarMobile {display: block; position: relative; float: right; }
 
 
-/* general mobile styles - CSS reset */
-p {padding: 10px;}
 
 /* input styles */
 input[type=number] {-moz-appearance:textfield;}
@@ -190,10 +187,6 @@ ul {margin-left: 30px; }
     margin: 0; 
     margin-left: 2%;
     background-color: #fff;
-}
-.rightSideNavContent h3 {
-    margin-top: -2%;
-    margin-bottom: 1%;  
 }
 .rightSideNavContent h4 {
     margin-top: 1%; 
@@ -305,19 +298,13 @@ div#leftSideNav {
 .timeline_row_container.current_ly {border-color: #f00; }
 .timeline_container .timeline_top_line {width: 96%; border-bottom: 3px solid #000; display: flex; flex-direction: row; margin: 0 auto; margin-bottom: 1%; }
 .timeline_container .timeline_top_line div {margin-left: 30px; font-size: 30pt; }
-.timeline_row_container {border-bottom: 1px solid #aaa; font-size: 35pt; width: 95%; padding: 2%; margin: 0 auto; font-family: "Metrophobic"; display: flex; flex-direction: row; flex-wrap: wrap; }
+.timeline_row_container {border-bottom: 1px solid #aaa; width: 95%; padding: 2%; margin: 0 auto; display: flex; flex-direction: row; flex-wrap: wrap; }
 .timeline_clicker {display: inline-flex; }
 .kd_sheet_ui_box.ly_checkbox {margin: 15px 5px 5px 5px; }
 .ly_ly {font-size: 30pt; display: inline-block; width: 60px; margin: 10px 5px auto 10px; }
 .ly_events {width: 740px; margin-top: 5px; }
 .timeline_event {display: inline-table; margin-right:20px; font-size: 30pt; width: 100%; }
-.timeline_event img.icon {width: 30px;  }
-.kd_sheet_ui_inner_ring_container.timeline_overlay_control {width: 87%; margin: 0 auto; margin-top: 5%;}
-.timeline_overlay_control .kd_sheet_ui_row_tip {width: 90%; margin: 0 auto;}
-.timeline_overlay_control select {display: block; width: 90%; margin: 0 auto; margin-bottom: 5%; }
-.timeline_event_rm_button {margin: 0 auto; margin-top: 3%; width: 90%; border-radius: 5px; background-color: #666; color: #fff; font-family: "Metrophobic"; padding: 2%; }
 .timeline_current_ly_controls {border-bottom: 3px solid #ccc; width: 95%; margin: 0 auto; margin-bottom: 5%; }
-.timeline_current_ly_buttons_container button {font-family: 'Metrophobic';}
 
 /* nav bar help tips - mobile */
 .help_container p {font-size: 30pt; font-family: 'metrophobic'; }
@@ -336,7 +323,10 @@ input[type="radio"].gear_lookup_attrib_toggle {display: inherit;}
 .gear_lookup_loading {width: 100%; text-align: center; margin-bottom: 3vh; transition: 1s; }
 .gear_lookup_search_box {display: block; margin: 0 auto; width: 95%; border:0; text-align: center; margin-bottom: 6%; }
 .gear_lookup_card_repeater {width: 90%; margin: 0 auto; margin-bottom: 2%; }
-.gear_lookup_card_repeater .gear_card_container {margin: 0 auto; margin-bottom: 1%; background: radial-gradient(#fff, #fff, #f8f8f8, #fffff9);}
+.gear_lookup_card_repeater .gear_card_container {
+    margin: 0 auto;
+    margin-bottom: 1%;
+}
 .gear_card_recipe {
     font-family: 'Metrophobic';
     font-size: 0.7em; padding: 1%; margin: 2%;
@@ -723,7 +713,6 @@ div.quickview_survivor_name {border-bottom: 3px solid #000; display: flex; flex-
 .quickview_sex_box {width: 330px; display: flex; flex-direction: row; justify-content: space-around; align-items: center; }
 .quickview_survival_container {margin: 3%; display: flex; }
 .quickview_survival_container .survival_box_number {width: 150px; height: 150px; }
-.quickview_survival_container .survival_box_lock {font-size: 20pt; margin-bottom: 40px; }
 .quickview_attributes_container {margin: 3%; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: center; margin-top: 0; }
 .quickview_attribute_box {font-size: 20pt; border-right: 3px solid #000; margin: 0; display: flex; flex-direction: column; align-items: center; width: 17%; padding-bottom: 2%; }
 .quickview_attribute_box.last {border: 0; }
@@ -741,7 +730,6 @@ div.quickview_survivor_name {border-bottom: 3px solid #000; display: flex; flex-
 .quickview_shield {padding: 0; text-align: center; font-size: 40pt; border: 1px solid; width: 70%; height: 120px; border-bottom-right-radius: 100px; border-bottom-left-radius: 100px; margin-top: 20px; }
 .quickview_hitbox_detail {width: 35%; font-size: 40pt; margin: 20px; margin-left: 0; padding: 0; display: flex; flex-direction: column; height: 135px; justify-content: space-between; }
 .quickview_hitbox_detail.brain {margin: 20px; width: 45%; height: 155px; }
-.quickview_hitbox_detail .tip {font-size: 20pt; }
 .quickview_hitbox_boxes {display: flex; flex-direction: row; justify-content: flex-end; width: 45%; margin-top: 20px;}
 .quickview_hitbox_boxes.brain {width: 30%; }
 .quickview_hitbox_boxes .damage_box {width: 85px; height: 85px; margin-left: auto; }
@@ -782,10 +770,7 @@ div.quickview_survivor_name {border-bottom: 3px solid #000; display: flex; flex-
 .departing_survivors_modal_container h3 {color: #000; margin: 2%; font-size: 1.2em; }
 
 .showdown_controls_box_outline {width: 95%; margin: 0 auto; border: 10px solid #000; margin-top: 2%; }
-.showdown_controls_button_box { }
 .showdown_controls_button_box .kd_sheet_ui_row_tip {width: 95%; margin: 0 auto; font-size: 0.3em; }
-.showdown_controls_button_box button {border-radius: 100px; border: 10px solid #fff; font-size: 1em; padding: 1%; }
-.showdown_arrow {font-size: 0.5em; }
 
 .showdown_controls_current_quarry_select {display: block; margin: 5% auto; font-size: 1em; }
 .showdown_manage_departing_survivors_controls {margin-top: 3%; margin-bottom: 3%; }
@@ -817,8 +802,6 @@ div.quickview_survivor_name {border-bottom: 3px solid #000; display: flex; flex-
 .campaign_summary_small_box p {font-family: Arial, sans-serif; font-weight: normal; }
 .campaign_summary_small_box p i {font-family: Silverado; font-size: 1.2em;}
 
-div.endeavor_cost {border-top-left-radius: 5px; border-bottom-left-radius: 5px; background-color: #D0AB51; margin: 0 auto; padding: 2%; display: flex; align-items: center; border: 0; flex-direction: row; min-width: 1em; width: auto; }
-img.endeavor_cost {width: 50px; }
 div.cost_detail {font-size: 0.8em; color: #fff; width: 30%; margin: 2%; border-radius: 10px; padding: 2%; }
 div.cost_detail div {padding-left: 10%; }
 
@@ -838,7 +821,7 @@ div.endeavor_controls_toggle span {text-align: center; font-size: 30pt; }
 
 .pulse_discovery {width: 98%; margin: 0 auto; display: flex; flex-direction: row; align-items: center; }
 .pd_level_container {width: 300px; }
-.pd_level {border-radius: 100%; background-color: #fff; color: #000; margin: 0 auto; padding: 0; text-align: center; width: 70px; height: 70px; }
+.pd_level {border-radius: 100%; background-color: #fff; color: #000; margin: 0 auto; padding: 0; text-align: center; width: 70px; height: 70px; display: flex; justify-content: center; align-items: center; }
 .pd_text {padding: 6%; font-size: 80%; width: 100%; padding-left: 0; }
 
 /* settlement sheet styles */
@@ -989,10 +972,6 @@ div#info_box h2, button#survivor_campaign_asset, button.dashboard_asset {text-al
 .kd_sheet_ui_box_row.hunt_xp .title {flex-shrink: 0; margin-right: 3%; }
 .kd_sheet_ui_box_row.hunt_xp .kd_sheet_ui_box {margin-right: 1%; }
 .kd_sheet_ui_dynamic_underline {width: 100%; border-bottom: 1px solid #000; margin-left: 3%; margin-right: 3%; }
-.kd_sheet_ui_box {border: 5px solid #000; width: 30px; height: 30px; display: inline-block; margin-right: 4%; transition: 1s; }
-.kd_sheet_ui_box.heavy {border-width: 10px; width: 20px; height: 20px; }
-.kd_sheet_ui_box.checked {background-color: #000; }
-.kd_sheet_ui_box.dotted {background-color: #000;}
 .kd_sheet_ui_box.dotted .dot {position: absolute; color: #fff; font-size: 130pt; margin-left: -2.1%; margin-top: -14.5%}
 .kd_sheet_ui_roll_down {transition: 1s; height: auto; max-height: 1500px; overflow: hidden; }
 .kd_sheet_ui_roll_down.rolled_up {max-height: 0; }
@@ -1407,16 +1386,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
 .closeModal:hover,.closeModal:focus {color: #ff1144;text-decoration: none;cursor: pointer;}
 
 
-    /* survivor search Modal - mobile/default */
-div.survivor_search_modal_content {position: absolute; top: 0; left: 5%; right: 5%; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; border: 0.1em solid #777; border-top: 0; }
-div.survivor_search_results_buttons {margin-top: 18%; display: flex; flex-direction: column; }
-div.survivor_search_results_buttons p.survivor_name {font-size: 40px; padding:0; text-align: left; margin: auto; padding-left: 2%; }
-div.survivor_search_results_buttons div.survivor_assets {padding-left: 1%; width: auto; margin: auto; text-align: left; font-family: Arial, sans-serif; font-size: 35px; }
-div.survivor_search_results_buttons div.survivor_assets b {font-family: Silverado; }
-button.survivor_search_button {margin-top: 0; font-family: Metrophobic; }
-button.survivor_search_button p.survivor_name {margin-top: 0; font-family: Silverado;}
-span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; font-size: 35px; text-align: center; display: block; }
-
 
 
 
@@ -1436,9 +1405,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
   and (max-device-width: 1024px)
   and (-webkit-min-device-pixel-ratio: 1) {
 
-    /* CSS 'reset' */
-    li {margin: 0 auto; margin-bottom: 5px; font-size: 17pt; }
-    ul {margin: 0 auto; margin-left: 10px; }
 
     /* KD styles - tablet */
     div.kd_toggle_container {font-size: 23px;}
@@ -1589,7 +1555,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .timeline_col_container {column-count: 2; column-width: auto; column-gap: 5px;}
     .timeline_event_type_group {display: flex; flex-direction: column; }
     .timeline_container .timeline_top_line div {font-size: 15pt; margin-left: 15px; }
-    .timeline_event img.icon {width: 16px; }
     .ly_checkbox {margin-right: 3px; margin-left: 3px; }
     .ly_events {width: 330px;}
     .ly_ly {font-size: 15pt; width: 20px; margin: 12px 10px auto 5px; }
@@ -1597,11 +1562,7 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .timeline_event_rm_button_container {display: flex; flex-direction: row; flex-wrap: wrap; }
     .timeline_event_rm_button_group {width: 350px; margin: 0 auto; }
     .timeline_event_rm_button {font-size: 16pt; width: 100%; }
-    .timeline_nav_buttons {display: flex; flex-direction: row; flex-wrap: wrap; margin: 5%; margin-bottom: 0; }
-    .timeline_nav_buttons button {width: 45%; margin: 0 auto; padding: 1%; font-size: 17pt; font-family: "Metrophobic"; margin-bottom: 5%; }
     .timeline_overlay_control {min-height: 1200px; }
-    .timeline_current_ly_buttons_container {display: flex; flex-direction: row; flex-wrap: nowrap; }
-    .timeline_current_ly_buttons_container button {font-size: 15pt; margin-top: 1%; }
 
     /* modal help - tablet */
     .kd_sheet_ui_inner_ring_container.help_container {width: 90%; }
@@ -1694,7 +1655,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .survival_box_number {width: 90px; height: 90px; border-width: 1px; font-size: 35pt; }
     .survival_box_title {font-size: 20pt; }
     .survival_box_lock {font-size: 12pt; }
-    .survival_box_survival_action_item .kd_sheet_ui_box {width: 10px; height: 10px; }
     .survival_box_survival_action_item .sa_name {font-size: 15pt; }
 
         /* dynamic modal launchers */
@@ -1732,7 +1692,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .kd_sheet_ui_row.one_line_tip {font-size: 12pt; justify-content: center; }
     .kd_sheet_ui_row.one_line_tip .kd_sheet_ui_box {width: 6px; height: 6px; }
     .kd_sheet_ui_box {width: 15px; height: 15px; border-width: 2px; }
-    .kd_sheet_ui_box.heavy {width: 9px; height: 9px; border-width: 5px; }
     .kd_sheet_ui_box.dotted .dot {font-size: 85pt; margin-top: -9.6%; margin-left: -1.5%;  }
 
     .kd_sheet_ui_row {font-size: 17pt; }
@@ -2419,7 +2378,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     img.campaign_summary_endeavor_star {width: 100px;  height: 100px; margin: 3px; }
 
     /* pulse discoveries - wide */
-    div.campaign_summary_facts_box h4.pulse_discoveries {margin-bottom: 3%; }
     .pd_level_container {width: 75px; }
     .pd_text {font-size: 10pt; }
     .pd_level {width: 20px; height: 20px; font-size: 10pt; }
@@ -2449,7 +2407,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     .showdown_type_options {width: 90%; }
     .departing_survivors_control div.button_div button {width: 45px; height: 45px; font-size: 1em; }
     .departing_survivors_mgmt.close_button {width: 400px; padding: 1%; }
-    .return_departing_survivors {display: block; margin: 0 auto; }
 
     /* campaign summary survivors - wide */
     .headline_block_subtitle {font-size: 1em; }
@@ -2610,7 +2567,6 @@ span.survivor_search_retired_survivors_warning {color: #999; font-style:italic; 
     div.timeline_hidden_controls_container {flex-direction: row; padding-top: 2%; margin-bottom: 1%;}
     div.end_current_ly {display: inline-flex; flex-direction: row; flex-wrap: wrap; width: 70%; margin-top:-20px; margin-bottom: 20px; }
     div.timeline_hidden_controls_container label.timeline_change_ly_button {font-size: 13pt; padding: 0.5%; padding-left: 20px; padding-right: 20px; width: auto;  }
-    .timeline_nav_buttons button {font-size: 10pt; }
     div.timeline_rm_controls {width: 100%; padding: 0; border:0; height: auto; cursor: initial; margin-top:10px;  }
     span.timeline_rm_event_group {width: 100%; border:0; width: 250px; }
     div.rm_timeline_event {font-size: 12pt; margin: 0; padding: 1%; margin-right: 2%; cursor: pointer; }

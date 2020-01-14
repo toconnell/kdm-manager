@@ -3,7 +3,11 @@
 
 <script src="/js/settlementSheet.js?v=$application_version"></script>
 
-<div id="settlementSheetApp" ng-controller="settlementSheetController">
+<div
+    id="settlementSheetApp"
+    ng-controller="settlementSheetController"
+    ng-init="initializeSettlement('settlementSheet', '$api_url','$settlement_id')"
+>
 
     <!-- tabs -->
     <div
@@ -32,7 +36,6 @@
         id="settlementSheetSheetTab"
         class="settlement_sheet_tab"
         ng-show='settlementSheetTabsObject.activeTab === 0'
-        ng-init="initializeSettlement('settlementSheet', '$api_url','$settlement_id')"
     >
 
         <!-- once we get the settlement, init the user -->
