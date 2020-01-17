@@ -30,6 +30,8 @@ app.controller("settlementSheetController", function($scope) {
         ],
     };
 
+
+
     $scope.incrementAttrib = function(attrib, modifier) {
         if ($scope.settlement.sheet[attrib] + modifier < 0) {return false};
         var js_obj = {'attribute': attrib, 'modifier': modifier};
@@ -430,7 +432,21 @@ app.controller('nemesisEncountersController', function($scope) {
 
 });
 
+
 app.controller('principlesController', function($scope, $http) {
+
+    $scope.scratch = {}
+
+    // returns a bool representing whether the principle is set
+    $scope.principleIsSet = function(p_obj) {
+        for (i=0; i < p_obj.option_handles.length; i++) {
+            var p_option_handle = p_obj.option_handles[i];
+            var p_option = p_obj.options[p_option_handle];
+            if (p_option.checked) {return true};
+        };
+        return false;
+    };
+
     $scope.get_principle_group = function (target_principle) {
         var p_options = $scope.settlement.game_assets.principles_options;
         for (i=0; i < p_options.length; i++) {
@@ -439,10 +455,16 @@ app.controller('principlesController', function($scope, $http) {
     };
 
     $scope.set = function(principle, election) {
+        $scope.settlement.sheet.principles = undefined;
         $scope.postJSONtoAPI('settlement', 'set_principle', {"principle": principle, "election": election});
     };
-    $scope.unset_principle = function () {
-        target_principle = $scope.unset;
+
+    $scope.unsetPrinciple = function () {
+
+        target_principle = $scope.scratch.unset; // this is a handle
+        console.warn("Principle handle '" + target_principle + "' will be unset...");
+
+        $scope.settlement.sheet.principles = undefined;
 
         var p_options = $scope.settlement.game_assets.principles_options;
         for (i=0; i < p_options.length; i++) {
@@ -456,7 +478,11 @@ app.controller('principlesController', function($scope, $http) {
             };
         };
 
-        $scope.postJSONtoAPI('settlement', 'set_principle', {"principle": target_principle, "election": false});
+        $scope.postJSONtoAPI(
+            'settlement',
+            'set_principle',
+            {"principle": target_principle, "election": false}
+        );
     };
 });
 

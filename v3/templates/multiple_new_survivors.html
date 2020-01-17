@@ -25,14 +25,14 @@
             </p>
 
             <div>
-                <div class="bulk_add_tumblers">
-                    <div class="bulk_add_control">
+                <div class="kd_kickstarter_tumblers_raft">
+                    <div class="kd_kickstarter_tumbler_container bulk_add">
 
                         Male
 
                         <button
                             type="button"
-                            class="incrementer"
+                            class="kd_kickstarter_button"
                             ng-click="scratch.addMaleSurvivors = scratch.addMaleSurvivors + 1"
                         >
                             &#9652;
@@ -47,19 +47,19 @@
                         />
                         <button
                             type="button"
-                            class="decrementer"
+                            class="kd_kickstarter_button"
                             ng-click="scratch.addMaleSurvivors = scratch.addMaleSurvivors - 1"
                         >
                         &#9662;
                         </button>
                     </div>  <!-- bulk_add_control maleCountBox" -->
-                    <div class="bulk_add_control">
+                    <div class="kd_kickstarter_tumbler_container bulk_add">
 
                         Female
 
                         <button
                             type="button"
-                            class="incrementer"
+                            class="kd_kickstarter_button"
                             ng-click="scratch.addFemaleSurvivors = scratch.addFemaleSurvivors + 1"
                         >
                             &#9652;
@@ -75,7 +75,7 @@
 
                         <button
                             type="button"
-                            class="decrementer"
+                            class="kd_kickstarter_button"
                             ng-click="scratch.addFemaleSurvivors = scratch.addFemaleSurvivors - 1"
                         >
                             &#9662;
@@ -118,7 +118,7 @@
                 ng-if="scratch.addMaleSurvivors > 0 || scratch.addFemaleSurvivors > 0"
                 onclick="showHide('bulkAddControlsContainer'); showHide('bulkAddResultsContainer')"
                 ng-click="addManySurvivors()"
-                class="kd_blue settlement_sheet_bulk_add"
+                class="kd_kickstarter_button kd_blue"
             >
                 Create New Survivors
             </button>
@@ -134,7 +134,10 @@
                 ng-if="scratch.showLoader == true"
             >
                 <img src="/media/loading_lantern.gif" />
-                <p>Creating {{scratch.addMaleSurvivors + scratch.addFemaleSurvivors}} new survivors...</p>
+                <p>
+                    Creating {{scratch.addMaleSurvivors + scratch.addFemaleSurvivors}} new survivors...
+                </p>
+
             </div>
 
             <form
@@ -145,8 +148,8 @@
             >
                 <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}">
                 <button
-                    class="bulk_add_new_survivor"
-                    ng-class="{kd_blue: s.sheet.sex == 'M', kd_alert_no_exclaim: s.sheet.sex == 'F'}"
+                    class="kd_kickstarter_button"
+                    ng-class="{kd_blue: s.sheet.sex == 'M', kd_pink: s.sheet.sex == 'F'}"
                 >
                     <b>{{s.sheet.name}}</b> [{{s.sheet.sex}}]
                 </button>

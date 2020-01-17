@@ -183,7 +183,7 @@
                                     Returning Survivor
                                 </div>
 
-                                <div class="avatar_and_summary">
+                                <div class="campaign_summary_survivor_avatar_and_summary">
                                     <div class="avatar">
                                         <span
                                             class="death_x special_showdown"
@@ -1297,52 +1297,52 @@
         </div>  <!-- campaign_summary_small_box endeavor_box -->
 
 
-
+        <!-- settlement bonuses repeater -->
         <div
-            class="campaign_summary_small_box settlement_fact"
-            ng-if='settlement.survivor_bonuses.all.length >=1'
+            ng-repeat="(location, lookup) in {
+                'principles': 'innovations',
+                'innovations': 'innovations',
+                'locations': 'locations',
+            }"
+            ng-init="uiID = location + 'ShowBonuses'"
+            ng-click="ngShowHide(uiID)"
+            title="Tap or click to see descriptions!"
         >
-
-            <h4>- Settlement Bonuses -</h4>
-            <span
-                class="kd_checkbox_checked campaign_summary_bullet"
-                ng-repeat="p in settlement.survivor_bonuses.all"
+            <div
+                class="campaign_summary_small_box settlement_fact"
+                ng-if="settlement.sheet[location].length >= 1"
             >
-                <b> {{p.name}}:</b>
-                <span ng-bind-html="p.desc|trustedHTML"></span>
-            </span>
-        </div>
 
-        <div class="campaign_summary_small_box settlement_fact" ng-if="settlement.sheet.principles.length >= 1">
-            <h4>- Principles -</h4>
-            <span
-                class="kd_checkbox_checked campaign_summary_bullet"
-                ng-repeat="p in settlement.sheet.principles"
-            >
-                {{settlement.game_assets.innovations[p].name}}
-            </span>
+                <h4>- {{location}} -</h4>
 
-        </div>
+                <div
+                    ng-repeat="p in settlement.sheet[location]"
+                >
 
-        <div class="campaign_summary_small_box settlement_fact" ng-if="settlement.sheet.innovations.length >= 1">
-            <h4>- Innovations -</h4>
-            <span
-                class="kd_checkbox_checked campaign_summary_bullet"
-                ng-repeat="i in settlement.sheet.innovations"
-            >
-                {{settlement.game_assets.innovations[i].name}}
-            </span>
-        </div>
+                    <span
+                        class="kd_checkbox_checked campaign_summary_bullet"
+                        ng-init="object = settlement.game_assets[lookup][p]"
+                    >
+                        {{object.name}}
+                    </span>
+    
+                    <div
+                        class="campaign_summary_settlement_bonus_desc"
+                        ng-bind-html="object.desc|trustedHTML"
+                        ng-if="
+                            object.desc !== undefined &&
+                            ngVisible[uiID]
+                        "
+                    ></div>
 
-        <div class="campaign_summary_small_box settlement_fact" ng-if="settlement.sheet.locations.length >= 1">
-            <h4>- Locations -</h4>
-            <span
-                class="kd_checkbox_checked campaign_summary_bullet"
-                ng-repeat="l in settlement.sheet.locations"
-            >
-                {{settlement.game_assets.locations[l].name}}
-            </span>
-        </div>
+                </div>
+
+            </div>
+
+        </div> <!-- repeater -->
+
+
+        <!-- monsters summary box -->
 
         <div class="campaign_summary_small_box settlement_fact">
             <h4>- Monsters -</h4>

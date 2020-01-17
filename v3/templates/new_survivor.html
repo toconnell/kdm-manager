@@ -186,7 +186,7 @@
             </div> <!-- survivor perms -->
 
             <button
-                class="kd_blue add_new_survivor"
+                class="kd_kickstarter_button kd_blue"
                 ng-if='scratch.newSurvivorEmail != null && scratch.newSurvivorEmail != ""'
                 ng-click="createNewSurvivor()"
                 onClick="showHide('newSurvivorCreationControls'); showHide('newSurvivorCreateAnotherButton')"
@@ -199,14 +199,15 @@
         <div class="new_survivor_sheet_footer_button_container">
             <button
                 id="newSurvivorCreateAnotherButton"
-                class="kd_blue"
-                ng-if="scratch.newSurvivorsCreated > 0 "
+                class="kd_kickstarter_button kd_blue"
+                ng-if="scratch.newSurvivorsCreated > 0"
                 onClick="showHide('newSurvivorCreationControls'); showHide('newSurvivorCreateAnotherButton')"
             >
                 Create another!
             </button>
 
             <button
+                class="kd_kickstarter_button"
                 onClick="showHide('modalNewSurvivorContainer')"
             >
                 Close

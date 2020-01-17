@@ -25,12 +25,6 @@
 
 
     /* major UI */
-    p {
-        margin: 0 auto;
-        margin-left: 10px;
-        margin-bottom: 3px;
-    }
-
     div#container {margin-top: 6vh;}
 
     #leftSideNav button {font-size: 2vh; }
@@ -191,6 +185,10 @@
         justify-content: space-around;
     }
 
+    .principle_option {margin-bottom: 3%; }
+    .principle_option.editor {margin: 0; }
+    .settlement_sheet_principle_repeater.editor {margin-top: 3%; margin-bottom: 0; }
+
     #settlementSheetRightColumn .kd_sheet_ui_border_box {
         margin: initial;
         margin-top: 0;
@@ -224,7 +222,6 @@
     .storage_location_keywords_rollup {margin-top: 2%; }
     .keywords_rollup_item {font-size: 2vh; }
 
-    .principle_option label {font-size: 2vh;}
 
     /*  settlement sheet - quarry, nemesis, etc. boxes */
     .settlement_sheet_line_item {font-size: 2vh;}

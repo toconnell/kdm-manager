@@ -148,6 +148,8 @@ textarea.report_error:focus {box-shadow: none; }
 
 */
 
+.campaign_summary_survivor_returning_flash {background-color: #CD4438; color: #fff}
+
 .campaign_summary_campaign_type {color: #666; }
 .headline_block_caption {color: #333; }
 .campaign_summary_endeavor_container {background-color: #997030; color: #fff;}
@@ -162,6 +164,8 @@ textarea.report_error:focus {box-shadow: none; }
 .available_endeavors_innovate {background: linear-gradient(to bottom, #4EC7F1, #40ADD0); }
 .innovate_cost_detail {background-color: #0277BD;}
 
+/* campaign summary fact boxes */
+.campaign_summary_settlement_bonus_desc {color: #666; }
 
 /*                      
 
@@ -184,3 +188,6 @@ textarea.report_error:focus {box-shadow: none; }
 .settlement_sheet_tumbler_number.active {border-color: #000; color: #000; }
 
 .settlement_sheet_line_item {border-color: #999;}
+
+.settlement_sheet_principle_name.not_set {color: #999; }
+.principle_option_desc {color: #666; }

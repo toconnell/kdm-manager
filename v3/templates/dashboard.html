@@ -48,8 +48,12 @@
     <div class="dashboard_menu">
         <h2
             class="clickable system_primary dashboard_rollup"
-            ng-click="showHide('system_div'); toggleArrow('user_preference_arrow');"
+            ng-click="
+                rollUp('dashboardSystemDiv');
+                toggleArrow('user_preference_arrow');
+            "
             ng-init="scratch.user_preference_arrow = false"
+            ng-class="{'open': ngRolledUp['dashboardSystemDiv'] === false}"
         >
             <span>
                 &#9881;  System
@@ -62,7 +66,10 @@
             </span>
         </h2>
 
-        <div id="system_div" class="dashboard_accordion system_secondary hidden">
+        <div
+            id="dashboardSystemDiv"
+            class="dashboard_accordion system_secondary rolled_up"
+        >
 
             <div id="systemPanelUserLoginContainer">
                 <h3 id="systemPanelUserLogin"> {{user.user.login }} </h3>
@@ -164,8 +171,12 @@
     <div class="ng_fade dashboard_menu">
         <h2
             class="clickable dashboard_rollup collection collection_gradient"
-            ng-click="showHide('collectionDiv'); toggleArrow('campaigns_arrow')"
+            ng-click="
+                rollUp('collectionDiv');
+                toggleArrow('campaigns_arrow')
+            "
             ng-init="scratch.collection_arrow = false"
+            ng-class="{'open': ngRolledUp['collectionDiv'] === false}"
         >
             <span>
                 <font class="kdm_font_hit_locations dashboard_kdm_font">a</font>
@@ -185,7 +196,7 @@
                 dashboard_accordion
                 dashboard_user_collection_container
                 collection_gradient
-                hidden
+                rolled_up
             "
         >
             <p class="panel_top_tooltip">Use the checkboxes below to record which <i>Monster</i>
@@ -233,8 +244,15 @@
     <div class="dashboard_menu">
         <h2
             class="clickable campaign_summary_gradient dashboard_rollup"
-            ng-click="showHide('campaign_div'); toggleArrow('campaigns_arrow')"
-            ng-init="scratch.campaigns_arrow = true"
+            ng-click="
+                rollUp('campaignsDiv');
+                toggleArrow('campaigns_arrow')
+            "
+            ng-init="
+                scratch.campaigns_arrow = true;
+                ngRolledUp['campaignsDiv'] = false;
+            "
+            ng-class="{'open': ngRolledUp['campaignsDiv'] === false}"
         >
             <span>
                 &#9873; Campaigns
@@ -248,7 +266,7 @@
         </h2>
 
         <div
-            id="campaign_div"
+            id="campaignsDiv"
             class="dashboard_accordion campaign_summary_gradient"
         >
             <p class="panel_top_tooltip">Games you are currently playing.</p>
@@ -312,8 +330,12 @@
     >
         <h2
             class="clickable settlement_sheet_gradient dashboard_rollup"
-            ng-click="showHide('all_settlements_div'); toggleArrow('settlements_arrow')"
+            ng-click="
+                rollUp('settlementsDiv');
+                toggleArrow('settlements_arrow')
+            "
             ng-init="scratch.settlements_arrow = false"
+            ng-class="{'open': ngRolledUp['settlementsDiv'] === false}"
         >
             <span>
                 &#9874; Settlements
@@ -327,10 +349,10 @@
         </h2>
 
         <div
-            id="all_settlements_div"
-            class="dashboard_accordion settlement_sheet_gradient hidden"
+            id="settlementsDiv"
+            class="dashboard_accordion settlement_sheet_gradient rolled_up"
         >
-            <p class="panel_top_tooltip">Manage settlements you have created.</p>
+            <p class="panel_top_tooltip"settlementsettlements you have created.</p>
             <p
                 class="panel_top_tooltip"
                 ng-if="user.user.subscriber.level < 1"
@@ -434,8 +456,12 @@
 
         <h2
             class="clickable world_primary dashboard_rollup"
-            ng-click="showHide('world_detail_div'); toggleArrow('world_arrow')"
+            ng-click="
+                rollUp('worldDiv');
+                toggleArrow('world_arrow')
+            "
             ng-init="scratch.world_arrow = false"
+            ng-class="{'open': ngRolledUp['worldDiv'] === false}"
         >
             <span>
                 <font class="kdm_font_hit_locations dashboard_kdm_font white">g</font>
@@ -449,7 +475,15 @@
             </span>
         </h2>
 
-        <div id="world_detail_div" class="dashboard_accordion world_secondary hidden world_container">
+        <div
+            id="worldDiv"
+            class="
+                dashboard_accordion
+                world_secondary
+                world_container
+                rolled_up
+            "
+        >
 
             <center ng-if="world == undefined">
                 <br/>
@@ -691,8 +725,12 @@
         >
             <h2
                 class="clickable about_primary dashboard_rollup"
-                ng-click="showHide('about_div'); toggleArrow('about_arrow')"
+                ng-click="
+                    rollUp('aboutDiv');
+                    toggleArrow('about_arrow')
+                "
                 ng-init="scratch.about_arrow=false"
+                ng-class="{'open': ngRolledUp['aboutDiv'] === false}"
             >
                 <span>
                     <font class="kdm_font dashboard_kdm_font">g</font>
@@ -707,8 +745,8 @@
             </h2>
 
             <div
-                id="about_div"
-                class="dashboard_accordion about_secondary hidden"
+                id="aboutDiv"
+                class="dashboard_accordion about_secondary rolled_up"
             >
                 <a href="https://thelaborinvain.com" target="top">
                     <img

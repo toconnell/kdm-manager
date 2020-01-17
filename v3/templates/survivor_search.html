@@ -25,6 +25,7 @@
     ng-click="ngShowHide('survivorSearchModalContent')"
     ng-controller = "survivorSearchController"
 >
+
     <div
         class="survivor_search_modal_content survivor_sheet_gradient"
     >
@@ -80,7 +81,7 @@
                 </div>
 
                 <div
-                    ng-repeat="attr in ['epithets', 'fighting_arts', 'disorders', 'abilities_and_impairments']"
+                    ng-repeat="attr in ['tags', 'fighting_arts', 'disorders', 'abilities_and_impairments']"
                     ng-if="s.sheet[attr].length >= 1"
                     class="survivor_search_survivor_assets"
                 >
