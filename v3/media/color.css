@@ -54,8 +54,11 @@ body.dashboard {background: linear-gradient(to right, #fff, #eee); }
 .kd_alert,
     .kd_alert_no_exclaim,
     .kd_pink {background-color: #FF0040; color: #ffffdd;}
-
-
+.kd_rulebook_alert {
+    background: #F45494;
+    color: #ffffdd;
+}
+.kd_rulebook_alert_punctuation {color: #F99BC0;}
 
 /* timeline */
 
@@ -123,6 +126,11 @@ div#leftSideNavUnderlay {background: rgba(0,0,0,0.8); color: #fff; }
 /*  modal and modal-black   */
 .modal-black.departing_survivors_modal_container {background-color: #fff; color: #000;} 
 
+div.dashboard_welcome_modal {
+    color: #fff;
+    background: rgba(0,0,0,0.95);
+}
+
 /* report an error */
 textarea.report_error {outline: 1px solid #eee; }
 textarea.report_error:focus {box-shadow: none; }
@@ -156,6 +164,10 @@ textarea.report_error:focus {box-shadow: none; }
 .campaign_summary_small_box.settlement_fact {border-color: #666;}
 .monster_subhead {color: #666; }
 .quickview_survivor_name {color: #444; }
+.vertical_tumbler_container {
+    background: #fff;
+    color: #000; 
+}
 
 /* campaign summary - available endeavors*/
 .endeavor_cost {background: #D0AB51;}
@@ -191,3 +203,11 @@ textarea.report_error:focus {box-shadow: none; }
 
 .settlement_sheet_principle_name.not_set {color: #999; }
 .principle_option_desc {color: #666; }
+
+
+/*                      
+
+    SURVIVOR SHEET    
+
+*/
+.insane {color: #DC2426; border-color: #DC2426; }

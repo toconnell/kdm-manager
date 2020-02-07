@@ -82,11 +82,15 @@
 
             <!-- no survivors pink error warning box -->
             <div
+                id="campaignSummaryNoSurvivorsError"
                 ng-if="settlement.user_assets.survivors.length == 0"
-                class="kd_alert campaign_summary_no_survivors_error"
+                class="kd_rulebook_alert"
             >
-                <b>{{settlement.sheet.name}}</b> does not have any survivors!
-                Use the navigation menu controls in the upper left to add new survivors.
+                <div class="kd_rulebook_alert_punctuation">!</div>
+                <div class="kd_rulebook_alert_content">
+                    <b>{{settlement.sheet.name}}</b> does not have any survivors!
+                    Use the navigation menu controls in the upper left to add new survivors.
+                </div>
             </div>
 
 
@@ -402,6 +406,7 @@
                                                                 &#x25B2;
                                                             </button>
                                                             <button
+                                                                ng-disabled="s.sheet.survival < 1"
                                                                 class="kd_kickstarter_button"
                                                                 ng-click="s.sheet.survival = s.sheet.survival - 1"
                                                             >
@@ -448,9 +453,15 @@
                                                     id="{{A}}BoxID{{s.sheet._id.$oid}}"
                                                     class="kd_sheet_ui_roll_down rolled_up"
                                                 >
-                                                    <div class="kd_sheet_ui_roll_down_controls quickview_attribute_tumblers_container {{A}}">
+                                                    <div
+                                                        class="
+                                                            kd_sheet_ui_roll_down_controls
+                                                            quickview_attribute_tumblers_container {{A}}
+                                                        "
+                                                    >
 
-                                                        <div class="quickview_attribute_tumbler">
+                                                        <div class="vertical_tumbler_container">
+                                                            Base
                                                             <button ng-click="s.sheet[A] = s.sheet[A] + 1">
                                                                 &#x25B2;
                                                             </button>
@@ -458,21 +469,25 @@
                                                             <button ng-click="s.sheet[A] = s.sheet[A] - 1">
                                                                 &#x25BC;
                                                             </button>
-                                                            Base
                                                         </div>
 
-                                                        <div class="quickview_attribute_tumbler">
-                                                            <button ng-click="s.sheet.attribute_detail[A].gear = s.sheet.attribute_detail[A].gear + 1">
+                                                        <div class="vertical_tumbler_container">
+                                                            Gear
+                                                            <button
+                                                                ng-click="
+                                                                    s.sheet.attribute_detail[A].gear = s.sheet.attribute_detail[A].gear + 1
+                                                                "
+                                                            >
                                                                 &#x25B2;
                                                             </button>
                                                             <input type="number" ng-model="s.sheet.attribute_detail[A].gear" />
                                                             <button ng-click="s.sheet.attribute_detail[A].gear = s.sheet.attribute_detail[A].gear - 1">
                                                                 &#x25BC;
                                                             </button>
-                                                            Gear
                                                         </div>
 
-                                                        <div class="quickview_attribute_tumbler">
+                                                        <div class="vertical_tumbler_container">
+                                                            Tokens
                                                             <button ng-click="s.sheet.attribute_detail[A].tokens = s.sheet.attribute_detail[A].tokens + 1">
                                                                 &#x25B2;
                                                             </button>
@@ -480,7 +495,6 @@
                                                             <button ng-click="s.sheet.attribute_detail[A].tokens = s.sheet.attribute_detail[A].tokens - 1">
                                                                 &#x25BC;
                                                             </button>
-                                                            Tokens
                                                         </div>
                                                     </div>
 
@@ -502,24 +516,27 @@
 
                                                 -->
 
-                                                <div class="quickview_brain_container border_box">
+                                                <div
+                                                    class="hitbox_container brain"
+                                                    ng-class="{'insane': s.sheet.Insanity >= 3}"
+                                                >
 
                                                     <div
-                                                        class="quickview_brain_box clickable"
+                                                        class="hitbox_shield_container brain clickable"
                                                         ng-click="rollUp(brainBoxID)"
                                                     >
                                                         <input
-                                                            class="quickview_shield"
+                                                            class="hitbox_shield brain"
                                                             type="number"
                                                             ng-model="s.sheet.Insanity"
-                                                            ng-class="{maroon_text: s.sheet.Insanity >= 3}"
                                                             min="0"
+                                                            ng-class="{'insane': s.sheet.Insanity >= 3}"
                                                         />
                                                         Insanity
                                                     </div>
 
                                                     <div
-                                                        class="quickview_hitbox_detail brain clickable"
+                                                        class="hitbox_detail brain clickable"
                                                         ng-click="rollUp(brainBoxID)"
                                                     >
                                                         <div class="title">Brain</div>
@@ -531,10 +548,12 @@
                                                         </div>
                                                     </div>
 
-                                                    <div class="quickview_hitbox_boxes brain">
+                                                    <div class="hitbox_boxes_container brain">
                                                         <div
                                                             class="clickable damage_box"
-                                                            ng-class="{checked: s.sheet.brain_damage_light != undefined}"
+                                                            ng-class="{
+                                                                'checked': s.sheet.brain_damage_light != undefined,
+                                                            }"
                                                             ng-click="toggleDamage(s, 'brain_damage_light');"
                                                          /></div>
                                                     </div>
@@ -587,14 +606,14 @@
             >
 
                 <div 
-                    class="quickview_hitbox_container"
+                    class="hitbox_container"
                 >
                     <div
-                        class="quickview_armor_box clickable"
+                        class="hitbox_shield_container clickable"
                         ng-click="rollUp(ctrlBoxID)"
                     >
                         <input
-                            class="quickview_shield"
+                            class="hitbox_shield"
                             type="number"
                             min="0"
                             ng-model="s.sheet[location.name]"
@@ -602,7 +621,7 @@
                     </div>
 
                     <div
-                        class="quickview_hitbox_detail"
+                        class="hitbox_detail"
                         ng-click="rollUp(ctrlBoxID)"
                     >
                         <div class="title">
@@ -616,12 +635,12 @@
                         </div>
                     </div>
 
-                    <div class="quickview_hitbox_boxes">
+                    <div class="hitbox_boxes_container">
                         <div
                             ng-repeat="dmgType in location.dmg"
                             ng-init="toggleName = location.name.toLowerCase() + '_damage_' + dmgType"
                             ng-class="
-                                {checked: s.sheet[toggleName] != undefined}
+                                {checked: s.sheet[toggleName] !== undefined}
                            "
                             ng-click="toggleDamage(s, toggleName);"
                             class="clickable {{dmgType}} damage_box"
@@ -1344,7 +1363,10 @@
 
         <!-- monsters summary box -->
 
-        <div class="campaign_summary_small_box settlement_fact">
+        <div
+            class="campaign_summary_small_box settlement_fact"
+            ng-if="settlement.sheet.lantern_year > 0"
+        >
             <h4>- Monsters -</h4>
 
             <h3 class="monster_subhead" ng-if="settlement.sheet.monster_volumes.length >= 1">

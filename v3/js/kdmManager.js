@@ -188,6 +188,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
     };
 
     // backwards compatibility helpers...DEPRECATED THO
+    $rootScope.savedAlert = savedAlert;
     $rootScope.showHide = showHide;
     $rootScope.showFullPageLoader = showFullPageLoader;
 
@@ -428,8 +429,8 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
                 };
 
                 if ($scope.user.dashboard.settlements.length === 0) {
-                    showHide('campaign_div');   // this will hide it, because it's visible on-load
-                    showHide('all_settlements_div');
+                    $scope.rollUp('campaignsDiv');   // this will hide it, because it's visible on-load
+                    $scope.rollUp('settlementsDiv');
                 } else {
                     // pass
                 };
@@ -493,6 +494,14 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
             $scope.view = src_view;
         };
 
+        // if we still have no settlement ID in scope, die
+        if ($scope.settlement_id === undefined) {
+            console.error('$scope.api_url = ' + $scope.api_url);
+            console.error('$scope.settlement_id = ' + $scope.settlement_id);
+            console.error('$scope.survivor_id = ' + $scope.survivor_id);
+            throw 'No settlement ID in scope! Cannot initialize settlement...';
+        };
+
         // initialize misc. scope elements
         $rootScope.departing_survivor_count = 0;
         $rootScope.hideControls = true;
@@ -526,8 +535,6 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
                 },
                 function(errorPayload) {console.log($scope.log_level + "Error loading settlement!" + errorPayload);}
             );
-
-
 
         };
 

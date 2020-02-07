@@ -41,6 +41,10 @@
     }
     .kd_sheet_ui_box.heavy {border-width: 0.4vw;}
 
+    /*  kd_rulebook_ui styles */
+    .kd_rulebook_alert {border-radius: 3vw; }
+    .kd_rulebook_alert_punctuation {font-size: 7vw;}
+
     /*  kd_kickstarter styles   */
     .kd_kickstarter_button {padding: 2%; }
     .kd_kickstarter_select {height: 3.5vh;}

@@ -44,6 +44,28 @@ div#container {
     overflow: hidden;       /*  scrollbar dead man switch */
 }
 
+/*  general UI  */
+
+.vertical_tumbler_container {   /* quickview attributes, survivor sheet affinity, etc. */
+    display: flex;
+    flex-direction: column;
+    align-items: center;  
+}
+.vertical_tumbler_container button {
+    width: 100%;
+    padding: 5%;
+}
+.vertical_tumbler_container input {
+    font-size: 3em;
+    height: 10vh;
+    width: 10vh;
+    margin: 1% auto;
+    box-sizing: border-box;
+    text-align: center;
+    border: none;
+    pointer-events: none;  
+}
+
 
 /*  KD Kickstarter UI   */
 
@@ -102,6 +124,8 @@ div#container {
     align-items: center;
 }
 .kd_sheet_ui_inner_ring_container {
+    display: flex;
+    flex-direction: column;
     border: 0.5em solid;
     margin: 3% auto;
     box-sizing: border-box;
@@ -109,7 +133,7 @@ div#container {
 }
 .kd_sheet_ui_inner_ring_container:last-child,
     .kd_sheet_ui_inner_ring_container:only-child {
-    margin-bottom: 11vh; 
+    margin-bottom: 11vh;
 }
 .kd_sheet_ui_inner_ring_container p {
     margin: 3%; 
@@ -171,8 +195,7 @@ div#container {
     margin: 0 auto;
     margin-bottom: 3%;
     width: 98%;
-    padding: 2%;
-    padding-top: 3%;
+    padding: 3%;
     box-sizing: border-box;
 }
 
@@ -181,7 +204,33 @@ div#container {
     border: 2px solid;
 }
 
+/*  kd rulebook UI  */
+.kd_rulebook_alert {
+    margin: 5% auto;
+    width: 90%;
+    border-radius: 5vw;
+    padding: 1%;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    padding-right: 10%;
+    box-sizing: border-box; 
+}
+.kd_rulebook_alert_punctuation {
+    padding-left: 3%; 
+    padding-right: 3%; 
+    font-size: 15vw;
+    font-weight: bold;
+    width: 10%; 
+}
+.kd_rulebook_alert_content {text-align: justify; }
+
 /*  modal - re-usable modal elements */
+
+.dashboard_welcome_modal {
+    padding-top: 1%;
+}
+
 
 .floating_close_modal_button {  /* use with .kd_kickstarter_button */
     position: fixed;
@@ -270,6 +319,9 @@ body.dashboard {margin-top: -5vh; }
     transition: 0.5s; 
     overflow: hidden;
     max-height: 100000px
+}
+.dashboard_accordion.rolled_down {
+    padding-bottom: 3%;
 }
 #systemPanelUserLogin {padding-top: 5%; font-family: 'Silverado';}
 .dashboard_user_expansions_repeater {
@@ -495,7 +547,7 @@ div.dashboard_button_list button {
 #campaignSummaryContainer {
 }
 #campaignSummarySettlementName {
-    margin: 1%; 
+    margin: 3%; 
     font-family: 'Silverado';
     font-size: 10vw;
     margin-bottom: 0; 
@@ -695,22 +747,6 @@ div.campaign_summary_endeavor_controller div.controls button {
     font-size: 1.3em;
     font-family: 'Silverado';
 }
-.quickview_survival_container .survival_box_title_and_lock .survival_box_title {
-    margin-top: 10%;
-    font-family: 'Silverado';
-}
-.quickview_survival_container .survival_box_lock {
-    font-size: 0.5em;
-    margin-bottom: 3vh;
-}
-.quickview_hitbox_detail .title {
-    font-family: 'Silverado';
-    display: flex;
-    align-items: center;
-}
-.quickview_hitbox_detail .tip {
-    font-size: 0.5em;
-}
 .quickview_asset_list_title_bar .title {
     font-size: 6vw;
     font-family: 'Silverado';
@@ -743,6 +779,16 @@ div.campaign_summary_endeavor_controller div.controls button {
     margin-top: 5%;
     margin-bottom: 5%;
 } 
+.quickview_attribute_tumblers_container { /* base, gear, tokens tumblers */
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly; 
+}
+.quickview_attribute_tumblers_container .vertical_tumbler_container {
+    width: 33%;
+    border: 1px solid;
+    margin: 1%; 
+}
 
 /*  departing survivors - base/mobile   */
 .modal-black.departing_survivors_modal_container {
@@ -1038,3 +1084,114 @@ h3.storage_type_title {
     display: flex;
     flex-direction: column;
 }
+
+
+/*
+
+    SURVIVOR SHEET
+
+*/
+
+#settlementSheetSurvivalContainer {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+/*  survival box elements; shared with campaign summary quickview */
+.survival_box_title {
+    font-size: 2em; 
+}
+.survival_box_title_and_lock .survival_box_title {
+    margin-top: 10%;
+    font-family: 'Silverado';
+}
+.survival_box_lock {
+    font-size: 0.5em;
+    padding: 2%;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    margin-bottom: 10%;
+}
+
+/*  affinity    */
+.survivor_sheet_affinity_controls_container {
+    width: 90%;
+    margin: 0 auto; 
+}
+.survivor_sheet_affinity_controls_repeater {
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 5%; 
+}
+.survivor_sheet_affinity_controls_repeater .vertical_tumbler_container {
+    width: 30%; 
+}
+.affinity_block {
+    width: 45%; 
+}
+
+/* hit location; shared with campaign summary quickview */
+.hitbox_container {
+    margin: 3%;
+    height: 10vh; 
+    display: flex;
+}
+.hitbox_container.brain {border: 3px solid;}
+.hitbox_shield_container.brain {border-right: 3px solid;}
+.hitbox_shield_container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    border: none; 
+    width: 20%;
+    align-items: center;
+    font-size: 0.7em;
+}
+.hitbox_shield {
+    padding: 0;
+    text-align: center;
+    font-size: 1.7em;
+    border: 1px solid;
+    width: 60%;
+    height: 70%;
+    border-bottom-right-radius: 5vh;
+    border-bottom-left-radius: 5vh;
+}
+.hitbox_shield.brain {
+    width: 40%;
+    height: 50%; 
+}
+.hitbox_detail {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin: 3%;
+    margin-left: 1%; 
+    width: 35%;
+    font-size: larger;  
+}
+.hitbox_detail.brain {
+    margin-left: 3%; 
+}
+.hitbox_detail .title {
+    font-family: 'Silverado';
+    display: flex;
+    align-items: center;
+}
+.hitbox_detail .tip {
+    font-size: 0.5em;
+    white-space: nowrap;
+}
+.hitbox_boxes_container {
+    margin-left: auto;
+    margin-top: 3%;  
+    margin-right: 3%; 
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 35%; 
+}
+.hitbox_boxes_container div:only-child {margin-left: auto; }
+.hitbox_boxes_container .damage_box {width: 85px; height: 85px; }
+.hitbox_boxes_container .heavy.damage_box {width: 75px; height: 75px; }

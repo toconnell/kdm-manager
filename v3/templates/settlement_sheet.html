@@ -89,9 +89,42 @@
 				<p>(Tap or click to dismiss.)</p>
 			</div>
 
+			<div
+				id="lanternYearScold"
+				class="ng_fade kd_sheet_ui_row_tip"
+				ng-click="scratch.showLanternYearScold = false"
+			    ng-if="scratch.showLanternYearScold"
+			>   
+                <p>Please click on the menu button in the upper left corner
+                and use the <b>Timeline</b> controls to update the Lantern Year.</p>
+				<p>(Tap or click to dismiss.)</p>
+			</div>
+
             <div
 				class="settlement_sheet_tumblers_container"
 			>
+
+                <div
+                    class="settlement_sheet_tumbler"
+                >
+                    <div
+                        class="settlement_sheet_tumbler_click_on"
+                        ng-click="scratch.showLanternYearScold = true"
+                    >
+                        <div
+                            class="settlement_sheet_tumbler_number"
+                        >
+                            <div>
+                                {{settlement.sheet.lantern_year}}
+                            </div>
+                        </div>
+                        <div
+                            class="settlement_sheet_tumbler_name"
+                        >
+                            Lantern Year
+                        </div>
+                    </div> <!-- tumbler_click_on -->
+                </div> <!-- one-off tumbler -->
 
                 <div
                     class="settlement_sheet_tumbler"

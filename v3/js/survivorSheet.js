@@ -2,9 +2,15 @@ app.controller("survivorSheetController", function($scope) {
     // this is the root controller for the survivor sheet; it is initialized
     // at the top of the sheet, so it's like...a mini root scope, sort of.
 
+    $scope.scratch = {}
+
+    $scope.init = function() {
+    }
+
+    $scope.init();
+
     // call this to set the $scope up
     $scope.initializeScope = function() {
-        $scope.scratch = {}
         $scope.userPromise.then(
             function(payload) {
                 // check the favorite box (or not)
@@ -87,30 +93,11 @@ app.controller("survivorSheetController", function($scope) {
         }; 
     };
 
-    $scope.setSurvivorName = function() {
-        var nameContainer = document.getElementById('survivorName');
-        var newName = nameContainer.innerHTML;
-        js_obj = {name: newName};
-        res = $scope.postJSONtoAPI('survivor', 'set_name', js_obj, false, true, true);
-        res.then(function(payload){
-            var updated_name = payload.data.sheet.name;
-            nameContainer.innerHTML = updated_name;
-        });
-    };
-    $scope.randomName = function() {
-        var sex = $scope.survivor.sheet.effective_sex;
-        var nameList = $scope.randomSurvivorNames;
-        var randomName = nameList[sex][Math.floor(Math.random() * nameList[sex].length)];
-        $scope.survivor.sheet.name = randomName;
-    };
-
-    $scope.randomSurname = function() {
-        var nameList = $scope.randomSurnames;
-        var randomSurname = nameList[Math.floor(Math.random() * nameList.length)];
-        $scope.survivor.sheet.name = $scope.survivorBaseName + " " + randomSurname; 
-    };
 
     $scope.updateSurvival = function() {
+        // this is a fancier version of what happens in the quickview
+        // ultimately, it does a POST and updates the on-page $scope
+
         var new_total = $scope.survivor.sheet.survival;
 
         // enforce the max, if we're enforcing the max; always enforce the min
@@ -311,6 +298,91 @@ app.controller("survivorSheetController", function($scope) {
         $scope.postJSONtoAPI('survivor', 'add_game_asset', js_obj);
     };
 
+});
+
+
+app.controller('survivorNameController', function($scope) {
+    // survivor name is an applet now. deal with it.
+
+    $scope.scratch = {
+        originalName: $scope.survivor.sheet.name,
+    }
+
+    $scope.setSurvivorName = function() {
+        var nameContainer = document.getElementById('survivorName');
+        var newName = nameContainer.innerHTML;
+        js_obj = {name: newName};
+        res = $scope.postJSONtoAPI('survivor', 'set_name', js_obj, false, true, true);
+        res.then(function(payload){
+            var updated_name = payload.data.sheet.name;
+            $scope.scratch.originalName = updated_name;
+        });
+    };
+
+
+    $scope.getName = function() {
+        // returns an array representing the name
+        var nameObject = Object;
+
+        var nameContainer = document.getElementById('survivorName');
+        $scope.survivor.sheet.name = nameContainer.innerHTML.trim();
+
+        var nameList = $scope.survivor.sheet.name.split(' ');
+        for(var i = nameList.length - 1; i >= 0; i--) {
+            if(nameList[i] === undefined) {
+                nameList.splice(i, 1);
+            } else if (nameList[i] === null) {
+                nameList.splice(i, 1);
+            }
+        }
+        
+        // first name
+        nameObject.first = nameList[0];
+
+        // middle name
+        nameObject.middle = undefined;
+        if (nameList.length > 2) {
+            nameObject.middle = nameList.slice(1, nameList.length - 1).join(' ')
+        };
+
+        // last name
+        nameObject.last = undefined;
+        if (nameList.length > 1) {
+            nameObject.last = nameList[nameList.length - 1]
+        };
+
+//        console.warn('got name: ');
+//        console.warn('`-  first: ' + nameObject.first);
+//        console.warn('`- middle: ' + nameObject.middle);
+//        console.warn('`-   last: ' + nameObject.last);
+        return nameObject;
+
+    };
+
+    $scope.renderName = function(nameObject) {
+        var nameList = [];
+        nameList.push(nameObject.first);
+        nameList.push(nameObject.middle);
+        nameList.push(nameObject.last);
+        $scope.survivor.sheet.name = nameList.join(" ")
+    };
+
+    $scope.randomName = function() {
+        var nameObject = $scope.getName();
+        var sex = $scope.survivor.sheet.effective_sex;
+        var nameList = $scope.randomSurvivorNames;
+        var randomName = nameList[sex][Math.floor(Math.random() * nameList[sex].length)];
+        nameObject.first = randomName;
+        $scope.renderName(nameObject);
+    };
+
+    $scope.randomSurname = function() {
+        var nameObject = $scope.getName();
+        var nameList = $scope.randomSurnames;
+        var randomSurname = nameList[Math.floor(Math.random() * nameList.length)];
+        nameObject.last = randomSurname;
+        $scope.renderName(nameObject);
+    };
 });
 
 app.controller('disordersController', function($scope) {
@@ -537,52 +609,6 @@ app.controller("avatarController", function($scope) {
             console.error('Base 64 conversion error: ', error);
         };
     };
-});
-
-
-app.controller("survivalController", function($scope) {
-
-
-
-
-    // bound to the actual number element
-    $scope.setSurvival = function () {
-        if ($scope.survival_input_value === null) {return false};
-        if ($scope.survival_input_value === undefined) {$scope.survival_input_value = $scope.survivor.survival};
-//        console.warn($scope.survival_input_value);
-        new_value = $scope.survival_input_value;
-        if  (
-                $scope.settlement.sheet.enforce_survival_limit == true && 
-                new_value > $scope.settlement.sheet.survival_limit
-            ) {
-            $scope.showSLwarning();
-            $scope.survival_input_value = $scope.settlement.sheet.survival_limit;
-        } else if (new_value < 0) {
-            console.warn("Survival cannot be less than zero!");
-            $scope.survival_input_value = 0;
-        } else {
-            $scope.postJSONtoAPI('survivor', 'set_survival', {"value": new_value}, false);
-            $scope.survival_input_value = new_value;
-        };
-        
-    };
-
-    $scope.showSLwarning = function () {
-        $('#SLwarning').show();
-        $('#SLwarning').fadeOut(4500);
-    };
-
-    $scope.setSurvivalActions = function() {
-        var res = $scope.getJSONfromAPI('survivor','get_survival_actions');
-        res.then(
-            function(payload) {
-                console.log("Refreshing Survival Actions for survivor " + $scope.survivor_id);
-                $scope.survivor.survival_actions = payload.data;
-            },
-            function(errorPayload) {console.log("Could not retrieve Survival Actions from API!" + errorPayload);}
-        );
-    };
-
 });
 
 

@@ -201,14 +201,19 @@
                 id="newSurvivorCreateAnotherButton"
                 class="kd_kickstarter_button kd_blue"
                 ng-if="scratch.newSurvivorsCreated > 0"
-                onClick="showHide('newSurvivorCreationControls'); showHide('newSurvivorCreateAnotherButton')"
+                ng-click="
+                    showHide('newSurvivorCreationControls');
+                    showHide('newSurvivorCreateAnotherButton')
+                "
             >
                 Create another!
             </button>
 
             <button
                 class="kd_kickstarter_button"
-                onClick="showHide('modalNewSurvivorContainer')"
+                ng-click="
+                    showHide('modalNewSurvivorContainer')
+                "
             >
                 Close
             </button>
