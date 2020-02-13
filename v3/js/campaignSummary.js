@@ -299,18 +299,6 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
         );
     };
 
-    $scope.setSurvivorAttributes = function(s, attrib){
-        $rootScope.survivor_id = s.sheet._id.$oid;
-        json_obj = {
-            attributes: [{attribute: attrib, value: s.sheet[attrib]}],
-            attribute_details: [
-                {attribute: attrib, detail: 'tokens', value: s.sheet.attribute_detail[attrib].tokens },
-                {attribute: attrib, detail: 'gear', value: s.sheet.attribute_detail[attrib].gear },
-            ],
-        };
-        var res = $scope.postJSONtoAPI('survivor', 'set_many_attributes', json_obj, false);
-    };
-
     $scope.initSurvivorCard = function(survivor) {
         // sets survivor.meta.manageable within a given survivor. access/security
         // logic is all right here, folks. Hack away!

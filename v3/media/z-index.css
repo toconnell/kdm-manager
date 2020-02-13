@@ -13,7 +13,7 @@ input[type=text], input[type=password]      {z-index: 50; }
 div.survivor_sheet_attrib_controls_modal    {z-index: 50; }
 button.manage_departing_survivors           {z-index: 50; } /* must be above death_x */
 div.full_page_loading_spinner               {z-index: 99; }
-div#settlementSheetTabContainer             {z-index: 100; }
+div#viewTabContainer                        {z-index: 100; }
 
     /* top nav_bar indexes - DEPRECATED */
 #topNavBar                                  {z-index: 100; }

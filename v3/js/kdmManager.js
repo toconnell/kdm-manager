@@ -956,6 +956,21 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
     };
 
 
+    // this is used by survivor sheet and campaign summary views!
+    $scope.setSurvivorPrimaryAttributes = function(s, attrib){
+		// pass in a survivor object and the name of a primary attribute (Movement, etc.)
+		// to update it. Should work from anywhere
+        $rootScope.survivor_id = s.sheet._id.$oid;
+        json_obj = {
+            attributes: [{attribute: attrib, value: s.sheet[attrib]}],
+            attribute_details: [
+                {attribute: attrib, detail: 'tokens', value: s.sheet.attribute_detail[attrib].tokens },
+                {attribute: attrib, detail: 'gear', value: s.sheet.attribute_detail[attrib].gear },
+            ],
+        };
+        var res = $scope.postJSONtoAPI('survivor', 'set_many_attributes', json_obj, false);
+    };
+
 });
 
 

@@ -4,10 +4,28 @@ app.controller("survivorSheetController", function($scope) {
 
     $scope.scratch = {}
 
-    $scope.init = function() {
-    }
-
-    $scope.init();
+    // tabs!
+    $scope.survivorViewTabsObject = {
+        activeTab: 0,
+        tabs: [
+            {
+                id: 0,
+                name: 'Sheet',
+            },
+            {
+                id: 1,
+                name: 'Notes',
+            },
+            {
+                id: 2,
+                name: 'Logs',
+            },
+            {
+                id: 6,
+                name: 'Admin',
+            },
+        ],
+    };
 
     // call this to set the $scope up
     $scope.initializeScope = function() {
@@ -93,6 +111,10 @@ app.controller("survivorSheetController", function($scope) {
         }; 
     };
 
+    $scope.sotfToggle = function() {
+        // one-off method to toggle the SotF re-roll
+        $scope.postJSONtoAPI('survivor', 'toggle_sotf_reroll', {}, false, true, true);
+    };
 
     $scope.updateSurvival = function() {
         // this is a fancier version of what happens in the quickview
@@ -225,11 +247,18 @@ app.controller("survivorSheetController", function($scope) {
     $scope.setWeaponProficiencyAttribs = function() {
         // points
         var js_obj = {attribute: 'Weapon Proficiency', value: $scope.survivor.sheet['Weapon Proficiency']}
-        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj, false, true, false);
+        var attrPromise = $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj, false, true, false);
         // proficiency type
         if ($scope.survivor.sheet.weapon_proficiency_type != null) {
-            js_obj = {'handle': $scope.survivor.sheet.weapon_proficiency_type};
-            $scope.postJSONtoAPI('survivor', 'set_weapon_proficiency_type', js_obj, false, false, true);
+            attrPromise.then(
+                function(payload) {
+                    js_obj = {'handle': $scope.survivor.sheet.weapon_proficiency_type};
+                    $scope.postJSONtoAPI('survivor', 'set_weapon_proficiency_type', js_obj, false, false, false);
+                },
+                function(errorPayload) {
+                    console.error('Could not set weapon proficiency type!');
+                }
+            );
         };
         
     };
@@ -427,77 +456,6 @@ app.controller("affinitiesController", function($scope) {
 });
 
 
-app.controller("attributeController", function($scope) {
-
-    $scope.attributeTokens = [
-        {
-            "longName": "Movement",
-            "shortName": "MOV",
-            "buttonClass": "mov_token",
-        },
-        {
-            "longName": "Accuracy",
-            "shortName": "ACC",
-            "buttonClass": "acc_token",
-        },
-        {
-            "longName": "Strength",
-            "shortName": "STR",
-            "buttonClass": "str_token",
-        },
-        {
-            "longName": "Evasion",
-            "shortName": "EVA",
-            "buttonClass": "eva_token",
-        },
-        {
-            "longName": "Luck",
-            "shortName": "LUCK",
-            "buttonClass": "luck_token",
-        },
-        {
-            "longName": "Speed",
-            "shortName": "SPD",
-            "buttonClass": "spd_token",
-        },
-    ];
-
-    $scope.setBase = function(stat) {
-        // bind the paddles to this
-        if ($scope.survivor.sheet[stat] === null) {$scope.survivor.sheet[stat] = 0};
-        var js_obj = {'attribute': stat, 'value': $scope.survivor.sheet[stat]};
-        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj);
-    };
-
-    $scope.setDetail = function(stat, detail) {
-        if ($scope.survivor.sheet.attribute_detail[stat][detail] === null) {
-            $scope.survivor.sheet.attribute_detail[stat][detail] = 0;
-        };
-        var new_value = $scope.survivor.sheet.attribute_detail[stat][detail];
-        var js_obj = {
-            'attribute': stat,
-            'detail': detail,
-            'value': new_value,
-        };
-        $scope.postJSONtoAPI('survivor', 'set_attribute_detail', js_obj);
-    };
-
-    $scope.incrementBase = function(stat, modifier) {
-        // bind the paddles to this
-        $scope.survivor.sheet[stat] += modifier;
-        var js_obj = {'attribute': stat, 'value': $scope.survivor.sheet[stat]};
-        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj, false);
-    };
-
-    $scope.incrementDetail = function(stat, detail, modifier) {
-        $scope.survivor.sheet.attribute_detail[stat][detail] += modifier;
-        var js_obj = {'attribute': stat, 'detail': detail, 'value': $scope.survivor.sheet.attribute_detail[stat][detail]};
-        $scope.postJSONtoAPI('survivor', 'set_attribute_detail', js_obj, false);
-    };
-
-});
-
-
 app.controller("cursedItemsController", function($scope) {
 
     $scope.toggleCursedItem = function(handle) {
@@ -611,13 +569,6 @@ app.controller("avatarController", function($scope) {
     };
 });
 
-
-app.controller("sotfRerollController", function($scope) {
-    $scope.sotfToggle = function() {
-        $scope.postJSONtoAPI('survivor', 'toggle_sotf_reroll', {}, false, true, true);
-    };
-
-});
 
 
 app.controller("controlsOfDeath", function($scope) {

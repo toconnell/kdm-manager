@@ -11,14 +11,14 @@
 
     <!-- tabs -->
     <div
-        id="settlementSheetTabContainer"
+        id="viewTabContainer"
         ng-if="settlement.sheet !== undefined"
     >
 
         <div
             ng-repeat="tab in settlementSheetTabsObject.tabs"
             id="{{'settlementSheetTabButton-' + tab.id}}"
-            class="settlement_sheet_tab_button"
+            class="view_tab_button"
             ng-class="{
                 'active': settlementSheetTabsObject.activeTab === tab.id,
             }"
@@ -34,7 +34,7 @@
     <!-- 'Sheet' tab starts here -->
     <div
         id="settlementSheetSheetTab"
-        class="settlement_sheet_tab"
+        class="view_tab"
         ng-show='settlementSheetTabsObject.activeTab === 0'
     >
 
@@ -1246,7 +1246,7 @@
 
     <div
         id="settlementSheetStorageTab"
-        class="settlement_sheet_tab"
+        class="view_tab"
         ng-if="settlement !== undefined && user !== undefined"
         ng-show="settlementSheetTabsObject.activeTab === 1"
         ng-controller="storageController"
@@ -1413,7 +1413,7 @@
 
     <div
         id="settlementSheetAdminTab"
-        class="settlement_sheet_tab"
+        class="view_tab"
         ng-show='settlementSheetTabsObject.activeTab === 6'
     >
 

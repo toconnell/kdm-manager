@@ -16,6 +16,7 @@ input.kd_radio_option + label {color: #666; }   /*system preferences*/
 .kd_sheet_ui_box {border-color: #000; }
 .kd_sheet_ui_box.checked,
     .kd_sheet_ui_box.dotted {background-color: #000;}  
+.kd_sheet_ui_box.dotted:before {color: #fff; background: #fff; }
 
 /*  KD Kickstarter UI   */
 .kd_kickstarter_button,
@@ -86,11 +87,14 @@ body.dashboard {background: linear-gradient(to right, #fff, #eee); }
     .endeavor_brown {background-color: #997030; background: linear-gradient(#997030, #a47a41, #997030); border-color: #B6B057; color: #fff; border-right-color: #C6C057; border-bottom-color: #C6C057;}
 
     /* affinities and saviors */
-.affinity_red {background: #CD2027; background-color: #CD2027; color: #fff;}
+.kd_sheet_ui_box.affinity_red,
+    .affinity_red {background: #CD2027; background-color: #CD2027; border-color: #CD2027; color: #fff;}
 .affinity_red_text {color: #CD2027;}
-.affinity_blue {background: #1C99CD; background-color: #1C99CD; color: #fff;}
+.kd_sheet_ui_box.affinity_blue,
+    .affinity_blue {background: #1C99CD; background-color: #1C99CD; border-color: #1C99CD; color: #fff;}
 .affinity_blue_text {color: #1C99CD;}
-.affinity_green {background: #4CB848; background-color: #4CB848; color: #fff;}
+.kd_sheet_ui_box.affinity_green,
+    .affinity_green {background: #4CB848; background-color: #4CB848; border-color: #4CB848; color: #fff;}
 .affinity_green_text {color: #4CB848;}
 
     /* special showdown (i.e. kd red) effects */
@@ -100,6 +104,7 @@ body.dashboard {background: linear-gradient(to right, #fff, #eee); }
     .kd_red {color: #fff; background-color: #DC2426; background: radial-gradient(#ED3537, #DC2426); }
 
     /* attributes */
+.attribute_box { border-color: #000; }
 .Movement, .mov_token {background-color: #9A6D84; color: #fff; }
 .Accuracy, .acc_token {background-color: #E8BE34; color: #000; }
 .Strength, .str_token {background-color: #D04F28; color: #fff; }
@@ -187,9 +192,9 @@ textarea.report_error:focus {box-shadow: none; }
 
 /* settlement sheet tabs */
 
-#settlementSheetTabContainer {border-color: #000; box-shadow: 0 -7px 17px #ccc;}
-.settlement_sheet_tab_button {color: #ccc; }
-.settlement_sheet_tab_button.active {color: #000; }
+#viewTabContainer {border-color: #000; box-shadow: 0 -7px 17px #ccc;}
+.view_tab_button {color: #ccc; }
+.view_tab_button.active {color: #000; background: linear-gradient(to top, #fff 95%, rgba(255,255,255,0))}
 
 /*  settlement storage */
 
@@ -211,3 +216,4 @@ textarea.report_error:focus {box-shadow: none; }
 
 */
 .insane {color: #DC2426; border-color: #DC2426; }
+.survivor_sheet_tag.add_tag { background: #efefef;}

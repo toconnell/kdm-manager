@@ -242,6 +242,25 @@
                                                 {{s.sheet['Weapon Proficiency']}}
                                             </div>
                                         </div> <!-- attr_holder -->
+
+                                        <div class="campaign_summary_survivor_affinities_container">
+                                            <div
+                                                class="kd_sheet_ui_box affinity_red"
+                                                ng-repeat="cube in range(s.sheet.affinities.red)"
+                                            >
+                                            </div>
+                                            <div
+                                                class="kd_sheet_ui_box affinity_green"
+                                                ng-repeat="cube in range(s.sheet.affinities.green)"
+                                            >
+                                            </div>
+                                            <div
+                                                class="kd_sheet_ui_box affinity_blue"
+                                                ng-repeat="cube in range(s.sheet.affinities.blue)"
+                                            >
+                                            </div>
+                                        </div>
+                                        
                                     </div> <!-- summary -->
 
                                 </div> <!-- avatar_and_summary -->
@@ -327,8 +346,10 @@
                                                 <div class="quickview_survivor_name">
                                                     <font class="quickview_survivor_name">{{s.sheet.name}}</font>
                                                     <div class="quickview_sex_box">
-                                                        M <div class="kd_sheet_ui_box" ng-class="{checked: s.sheet.effective_sex == 'M'}"></div>
-                                                        F <div class="kd_sheet_ui_box" ng-class="{checked: s.sheet.effective_sex == 'F'}"></div>
+                                                        <div>M</div>
+                                                        <div class="kd_sheet_ui_box" ng-class="{checked: s.sheet.effective_sex == 'M'}"></div>
+                                                        <div>F</div>
+                                                        <div class="kd_sheet_ui_box" ng-class="{checked: s.sheet.effective_sex == 'F'}"></div>
                                                     </div>
                                                 </div> <!-- name and sex -->
 
@@ -363,7 +384,9 @@
                                                                 class="kd_sheet_ui_box"
                                                                 ng-class="{checked: s.sheet.cannot_spend_survival == true}"
                                                             ></div>
-                                                            &#x1f512; Cannot spend survival.
+                                                            <div>
+                                                                &#x1f512; Cannot spend survival.
+                                                            </div>
                                                         </div>
                                                     </div>
 
@@ -426,11 +449,11 @@
                                                 </div><!-- survival box -->
 
                                                 <div
-                                                    class="quickview_attributes_container border_box"
+                                                    class="attributes_container border_box"
                                                 >
                                                     <div
                                                         ng-repeat="A in attrib_list"
-                                                        class="quickview_attribute_box clickable {{A}}"
+                                                        class="attribute_box clickable {{A}}"
                                                         ng-class="{last: $last}"
                                                         ng-click="rollUp(A + 'BoxID' + s.sheet._id.$oid)"
                                                     >
@@ -502,7 +525,7 @@
                                                         class="kd_kickstarter_button kd_blue"
                                                         ng-click="
                                                             rollUp(A + 'BoxID' + s.sheet._id.$oid);
-                                                            setSurvivorAttributes(s, A)
+                                                            setSurvivorPrimaryAttributes(s, A)
                                                         "
                                                     >
                                                         Save {{A}}
@@ -956,7 +979,7 @@
                     <div
                         class="quickview_secondary_container fighting_arts"
                     >
-                        <div class="quickview_asset_list_title_bar">
+                        <div class="secondary_attribute_title_bar">
                             <div class="title">Fighting Arts</div>
                             <div class="subtitle">Maximum 3.</div>
                             <div
@@ -988,7 +1011,7 @@
                     <div
                         class="quickview_secondary_container disorders"
                     >
-                        <div class="quickview_asset_list_title_bar">
+                        <div class="secondary_attribute_title_bar">
                             <div class="title">Disorders</div>
                             <div class="subtitle">Maximum 3.</div>
                         </div>
@@ -1008,7 +1031,7 @@
                     <div
                         class="quickview_secondary_container fighting_arts"
                     >
-                        <div class="quickview_asset_list_title_bar">
+                        <div class="secondary_attribute_title_bar">
                             <div class="title">Abilities & Impairments</div>
                             <div
                                 class="lockbox clickable skip_next_hunt"
