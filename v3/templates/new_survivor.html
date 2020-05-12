@@ -1,7 +1,9 @@
 <div
-    class="modal-black hidden"
+    class="modal-black"
     id="modalNewSurvivorContainer"
+    ng-if="ngVisible['modalNewSurvivorContainer']"
     ng-controller="newSurvivorController"
+    ng-init="ngVisible['newSurvivorCreationControls'] = true"
 >
 
     <div class="kd_sheet_ui_outer_ring_container">
@@ -37,7 +39,8 @@
 
         <div
             id="newSurvivorCreationLoader"
-            class="kd_sheet_ui_inner_ring_container hidden"
+            class="kd_sheet_ui_inner_ring_container"
+            ng-if="ngVisible['newSurvivorCreationLoader']"
         >
             <div class="new_survivor_sheet_loader">
                 <img src="/media/loading_lantern.gif">
@@ -58,10 +61,15 @@
             </p>
         </div>
 
+
         <div
-            id="newSurvivorCreationControls"
+            ng-if="ngVisible['newSurvivorCreationControls']"
             class="kd_sheet_ui_inner_ring_container new_survivor_sheet"
         >
+
+        <!--
+            NAME
+        -->
 
             <div
                 id="newSurvivorName"
@@ -71,8 +79,11 @@
                 placeholder="Name"
             /></div>
 
+        <!--
+            SEX
+        -->
             <div
-                class="sex_selector clickable"
+                class="clickable kd_sheet_ui_row_toggle_box right_align"
                 ng-click="toggleSex()"
             >
                M <div class="kd_sheet_ui_box" ng-class="{checked: scratch.newSurvivorSex == 'M'}"></div>
@@ -80,8 +91,13 @@
                ? <div class="kd_sheet_ui_box" ng-class="{checked: scratch.newSurvivorSex == 'R'}"></div>
             </div>
 
+        <!--
+            AVATAR
+        -->
             <div class="avatar_selector border_box clickable">
-                <p>Survivor Avatar:<p>
+
+                <h3 class="new_survivor_sheet">Survivor Avatar</h3>
+
                 <input
                     id="newSurvivorAvatarInput"
                     type="file"
@@ -91,6 +107,9 @@
                 >
             </div>
 
+        <!--
+            PARENTS
+        -->
             <div
                 class="parent_selector border_box"
                 ng-if="
@@ -99,11 +118,16 @@
                     settlement.eligible_parents.female.length >= 1
                 "
             >
-                <p>Survivor Parents:</p>
-                <p class="ui_tip" ng-if="user.user.preferences.show_ui_tips">
-                    Survivors without parents are not eligible
-                    for the automatic application of Innovation bonuses granted only
-                    to newborn survivors!
+
+                <h3 class="new_survivor_sheet">Survivor Parents</h3>
+
+                <p
+                    class="kd_sheet_ui_row_tip"
+                    ng-if="user.user.preferences.show_ui_tips"
+                >
+                    The Manager <b>will not</b> automatically apply bonuses
+                    meant for "newborn" survivors if a survivor does not have
+                    parents!
                 </p>
 
                 <div class="parent_dropdowns">
@@ -122,32 +146,52 @@
                         <option selected disabled value="" name="mother">Mother</option>
                     </select>
                 </div>
+
                 <div
                     class="family_inheritance"
                     ng-if="
                         settlement.sheet.innovations.indexOf('family') != -1
                     "
                 >
-                    <p> Family Innovation:</p>
-                    <p class="ui_tip" ng-if="user.user.preferences.show_ui_tips">
-                        A newborn survivor inherits the surname
-                        of one parent, their weapon type and half (rounded down) of
-                        their weapon proficiency levels.
+
+                    <p
+                        class="kd_sheet_ui_row_tip"
+                        ng-if="user.user.preferences.show_ui_tips"
+                    >
+                        A newborn survivor inherits the surname of one parent,
+                        their weapon type and half (rounded down) of their
+                        weapon proficiency levels.
                     </p>
-                    <p class="ui_tip" ng-if="user.user.preferences.show_ui_tips">
+
+                    <p
+                        class="kd_sheet_ui_row_tip"
+                        ng-if="user.user.preferences.show_ui_tips"
+                    >
                         Select a parent to inherit from:
                     </p>
 
                     <div
-                        class="donor_container clickable"
+                        class="clickable kd_sheet_ui_row_toggle_box"
                         ng-click="toggleDonor()"
                     >
-                        Father <div class="kd_sheet_ui_box" ng-class="{checked: scratch.primaryDonor == 'father'}"></div>
-                        Mother <div class="kd_sheet_ui_box" ng-class="{checked: scratch.primaryDonor == 'mother'}"></div>
+                        <div class="donor_clicker">
+                            Father
+                            <div class="kd_sheet_ui_box" ng-class="{checked: scratch.primaryDonor == 'father'}"></div>
+                        </div>
+                        <div class="donor_clicker">
+                            Mother
+                            <div class="kd_sheet_ui_box" ng-class="{checked: scratch.primaryDonor == 'mother'}"></div>
+                         </div>
                     </div>
+
                 </div>
 
             </div><!-- parent_selector -->
+
+
+        <!--
+            ACCESS
+        -->
 
             <div
                 class="permissions border_box"
@@ -155,9 +199,9 @@
                 ng-init="scratch.newSurvivorEmail = user_login"
             >
 
-                <p>Access Permissions</p>
+                <h3 class="new_survivor_sheet">Access Permissions</h3>
 
-                <p class="ui_tip" ng-if="user.user.preferences.show_ui_tips">
+                <p class="kd_sheet_ui_row_tip" ng-if="user.user.preferences.show_ui_tips">
                     Enter the email address of the registered user who will be
                     responsible for the new survivor.
                 </p>
@@ -170,17 +214,24 @@
                     onclick="this.select()"
                 >
 
-                <p class="ui_tip" ng-if="user.user.preferences.show_ui_tips">
+                <p class="kd_sheet_ui_row_tip" ng-if="user.user.preferences.show_ui_tips">
                     Check the box below to mark this survivor <b>Public</b>,
                     which will allow any player in the campaign to manage
                     this survivor.
                 </p>
 
                 <div
-                    class="public clickable"
-                    ng-click="togglePublic()"
+                    class="public clickable kd_sheet_ui_row_toggle_box"
+                    ng-click="ngToggleAttrib(scratch, 'newSurvivorPublic')"
                 >
-                    Public <div class="kd_sheet_ui_box" ng-class="{checked: scratch.newSurvivorPublic === true}"></div>
+                    <div
+                        class="kd_sheet_ui_box"
+                        ng-class="{checked: scratch.newSurvivorPublic === true}"
+                    >
+                    </div>
+
+                    Public
+
                 </div>
 
             </div> <!-- survivor perms -->
@@ -188,13 +239,17 @@
             <button
                 class="kd_kickstarter_button kd_blue"
                 ng-if='scratch.newSurvivorEmail != null && scratch.newSurvivorEmail != ""'
-                ng-click="createNewSurvivor()"
-                onClick="showHide('newSurvivorCreationControls'); showHide('newSurvivorCreateAnotherButton')"
+                ng-click="
+                    createNewSurvivor();
+                    ngShowHide('newSurvivorCreationControls');
+                    ngShowHide('newSurvivorCreateAnotherButton');
+                "
             >
                 Create {{scratch.newSurvivorName}}
             </button>
 
         </div><!-- kd_sheet_ui_inner_ring_container new survivor sheet-->
+
 
         <div class="new_survivor_sheet_footer_button_container">
             <button
@@ -202,8 +257,8 @@
                 class="kd_kickstarter_button kd_blue"
                 ng-if="scratch.newSurvivorsCreated > 0"
                 ng-click="
-                    showHide('newSurvivorCreationControls');
-                    showHide('newSurvivorCreateAnotherButton')
+                    ngShowHide('newSurvivorCreationControls');
+                    ngShowHide('newSurvivorCreateAnotherButton')
                 "
             >
                 Create another!
@@ -212,7 +267,8 @@
             <button
                 class="kd_kickstarter_button"
                 ng-click="
-                    showHide('modalNewSurvivorContainer')
+                    ngHide('newSurvivorCreationControls');
+                    ngHide('modalNewSurvivorContainer')
                 "
             >
                 Close

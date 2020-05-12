@@ -370,7 +370,8 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         var s_index = dest.indexOf(s_json);
 
         // now spint off a job to get the rest of the settlement info and update
-        $http.get($scope.api_url + 'settlement/get_summary/' + s_id, config).then(
+        var settlement_url = $scope.api_url + 'settlement/get_summary/' + s_id; 
+        $http.get(settlement_url, config).then(
             function(payload) {
 //                dest.push(payload.data);
                 dest[s_index] = payload.data;
@@ -380,6 +381,8 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
             function(errorPayload) {
                 console.error("[rootController.getSettlement()] Could not get settlement " + s_id);
                 console.error(errorPayload);
+                var err_msg = 'Could not load settlement ' + s_id + '!<hr/>' + errorPayload.data + '<hr/>Please report this error!';
+                showAPIerrorModal(err_msg, settlement_url);
             }
         );
     };
@@ -457,6 +460,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         }
     );
 
+
     // now do stuff that we need the settlement to do
     if ($scope.settlementPromise !== undefined) {
         $scope.settlementPromise.then(function() {
@@ -475,6 +479,21 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
     };
 
 };
+
+    // once $scope.user is set, use this to load friends, if not loaded already
+    $scope.loadUserFriends = function(){
+        console.time('loadUserFriends()');
+        $scope.getJSONfromAPI('user', 'get_friends', 'survivor_sheet').then(
+            function(payload) {
+                $scope.user.friends = payload.data;
+                console.timeEnd('loadUserFriends()');
+            },
+            function(errorPayload) {
+                console.error("Could not retrieve friends list!");
+                console.error(errorPayload);
+            }
+       );
+    };
 
     $scope.initializeSettlement = function(src_view, api_url, settlement_id) {
 
@@ -533,7 +552,13 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
                     console.timeEnd('initializeSettlement()');
 
                 },
-                function(errorPayload) {console.log($scope.log_level + "Error loading settlement!" + errorPayload);}
+                function(errorPayload) {
+                    console.error($scope.log_level + "Error loading settlement!" + errorPayload);
+                    var err_msg = "An API error prevented this campaign from being retrieved:<hr/>";
+                    var err_msg = err_msg + errorPayload.data;
+                    var err_msg = err_msg + '<hr/>This error is NOT recoverable! Please report it!'
+                    showAPIerrorModal(err_msg, $scope.settlementPromise.$$state.value.config.url);
+                }
             );
 
         };
@@ -1038,13 +1063,6 @@ app.controller('newSurvivorController', function($scope, $http) {
             $scope.scratch.primaryDonor = 'father';
         }; 
     };
-    $scope.togglePublic = function() {
-        if ($scope.scratch.newSurvivorPublic === true){
-            $scope.scratch.newSurvivorPublic = false;
-        } else {
-            $scope.scratch.newSurvivorPublic = true;
-        }; 
-    };
 
     $scope.setAvatar = function(e) {
         // uses the custom-on-change directive to convert the file to a str for
@@ -1070,7 +1088,7 @@ app.controller('newSurvivorController', function($scope, $http) {
 
         // 1.) start the clock, show the loader
         console.time('createNewSurvivor()');
-        $scope.showHide('newSurvivorCreationLoader')
+        $scope.ngShow('newSurvivorCreationLoader')
 
         // 2.) create the POST body
         var json_post = {
@@ -1106,14 +1124,11 @@ app.controller('newSurvivorController', function($scope, $http) {
    
                 // clear the fields, i.e. so we don't repeat stuff
                 $scope.scratch.newSurvivorAvatar = undefined;
-
-                var newName = document.getElementById('newSurvivorName');
-                newName.innerHTML = "";
-                $scope.setNewSurvivorName();
+                $scope.scratch.newSurvivorName = undefined;
 
                 // wrap up, close up 
                 console.timeEnd('createNewSurvivor()');
-                $scope.showHide('newSurvivorCreationLoader');
+                $scope.ngHide('newSurvivorCreationLoader');
 
                 // re-init the view
                 $scope.reinitialize('createNewSurvivor()');
@@ -1121,18 +1136,18 @@ app.controller('newSurvivorController', function($scope, $http) {
             },
             function(errorPayload) {
                 console.timeEnd('createNewSurvivor()');
-                $scope.showHide('newSurvivorCreationLoader');
+                $scope.ngHide('newSurvivorCreationLoader');
 
                 errorAlert();
 
-                showHide('newSurvivorCreationFailure');
+                $scope.ngShowHide('newSurvivorCreationFailure');
                 var userSafeError = "status: " + errorPayload.status + "<br/>data: " + errorPayload.data + "<br/>JSON: " + JSON.stringify(errorPayload.config.data);
                 document.getElementById("newSurvivorCreationFailureMessage").innerHTML = userSafeError;
 
                 console.error("Failed to create new Survivor!");
                 console.error(errorPayload);
 
-                showHide('newSurvivorCreationControls')
+                $scope.ngShowHide('newSurvivorCreationControls')
             }
         );
     };

@@ -235,7 +235,7 @@
                 ng-click="rollUp('survivalControl')"
             />
                 <input
-                    class="survival_box_number"
+                    class="survivor_sheet survival_box_number"
                     type="number"
                     ng-model="survivor.sheet.survival"
                     min="0"
@@ -468,7 +468,7 @@
 
     <!-- MIDDLE ASSET MANAGEMENT PANE STARTS HERE -->
 
-    <div id="asset_management_middle_pane" ng-if="survivor != undefined">
+    <div id="survivorSheetMiddlePane" ng-if="survivor != undefined">
 
         <!-- BRAIN -->
 
@@ -482,7 +482,7 @@
                 <input
                     id="insanityBox"
                     type="number"
-                    class="hitbox_shield brain"
+                    class="survivor_sheet_hitbox hitbox_shield brain"
                     name="Insanity" min="0"
                     ng-model="survivor.sheet.Insanity"
                     ng-click="rollUp('insanityHitBoxControl')"
@@ -568,7 +568,7 @@
                     ng-click="rollUp(ctrlBoxID)"
                 >
                     <input
-                        class="hitbox_shield"
+                        class="survivor_sheet_hitbox hitbox_shield"
                         type="number"
                         min="0"
                         ng-model="survivor.sheet[location.name]"
@@ -1157,7 +1157,7 @@
 
 
 
-    <div id="survivor_sheet_right_pane" >
+    <div id="survivorSheetRightPane" >
 
         <!-- FARTING ARTS -->
         <div
@@ -1525,6 +1525,7 @@
             </div> <!-- ai 'card' outer container -->
 
             <select
+                id="survivorSheetAISelector"
                 name="add_abilities_and_impairments"
                 class="kd_kickstarter_select"
                 ng-if="AIoptions != undefined"
@@ -1579,7 +1580,7 @@
         <!-- favorite / retired / dead -->
         <div
             ng-if="survivor.sheet != undefined"
-            class="survivor_sheet_kd_sheet_ui_box favorite_retired_dead border"
+            class="survivor_sheet_kd_sheet_ui_box border top_most favorite_retired_dead"
         >
             <div
                 class="frd_toggle clickable"
@@ -1669,10 +1670,10 @@
             </div>
 
             <div
-                class="ng_fade survivor_sheet_tag gear_card_gradient"
+                class="ng_fade survivor_sheet_tag"
                 ng-if="survivor.sheet.epithets.length === 0"
             >
-                No tags!
+                Tap/click to add tags:
             </div>
 
             <select
@@ -1689,73 +1690,116 @@
         </div> <!-- tags end here! -->
 
 
-        <h3>Notes</h3>
-        <!-- notes -->
+        <!-- 
+            notes 
+        -->
+
         <div
-            class="survivor_sheet_kd_sheet_ui_box survivor_sheet_survivor_notes_container"
-            title="Survivor notes for {{survivor.sheet.name}}! Click or tap
-            to add/remove notes. Notes are included in the Survivor Search
-            results."
+            id="survivorSheetNotesContainer"
+            class="survivor_sheet_kd_sheet_ui_box"
         >
+
+            <h3>Notes</h3>
+
+                <div
+                class="survivor_sheet_survivor_notes_container"
+                title="Survivor notes for {{survivor.sheet.name}}! Click or tap
+                to add/remove notes. Notes are included in the Survivor Search
+                results."
+            >
+
+                <div
+                    class="survivor_sheet_survivor_notes_slug_line_container"
+                >
+                    <div
+                        class="survivor_sheet_survivor_notes_slug_line ng_fade"
+                        ng-repeat="x in survivor.notes"
+                    >
+    					<div
+	    					class="survivor_sheet_rm_note_clicker kd_pink ng_fade clickable"
+                            ng-click="rmNote($index, x._id.$oid)"
+                			ng-if="ngVisible['survivorNote' + x._id.$oid]"
+				    		id="survivorNote{{ x._id.$oid}}"
+    					>
+	    					x
+		    			</div>
+
+			    		<div
+				    		class="survivor_sheet_note_text clickable"
+					    	ng-click="ngShowHide('survivorNote' + x._id.$oid)"
+						    ng-class="{
+    							'active': ngVisible['survivorNote' + x._id.$oid],
+	    					}"
+		    			>
+    	                    {{x.note}}
+	    				</div>
+
+                    </div><!-- slug_line -->
+
+                    <div
+                        class="survivor_sheet_survivor_notes_slug_line clickable"
+                        ng-click="ngShow('settlementSheetNotesEditorModal')"
+                    >
+	    				<div class="survivor_sheet_note_text">
+	                       + Add a note... 
+    					</div>
+                    </div>
+
+                </div>
+
+            </div> <!-- survivor notes opener -->
 
             <div
-                class="survivor_sheet_survivor_notes_slug_line_container"
+                id="settlementSheetNotesEditorModal"
+                ng-if="ngVisible['settlementSheetNotesEditorModal']"
+                class="modal-black"
             >
-                <ul class="survivor_sheet_survivor_notes">
-                    <li
-                        class="survivor_sheet_survivor_notes_slug_line clickable"
-                        ng-repeat="x in survivor.notes"
-                        ng-click="rmNote($index, x._id.$oid)"
-                    >
-                        {{x.note}}
-                    </li>
-                </ul>
+                <div class="kd_sheet_ui_outer_ring_container">
 
-                <div
-                    class="survivor_sheet_survivor_notes_slug_line add_note_starter clickable"
-                    onClick="rollUp('survivorNotesControl'); document.getElementById('survivorNoteInput').focus()"
+    				<div
+	    				class="kd_sheet_ui_inner_ring_container"
+		    		>
+    					<h3>Add a note!</h3>
 
-                >
-                    <i> &ensp; Add a note...</i>
-                </div>
-            </div>
-        </div> <!-- survivor notes opener -->
-        <div
-            id="survivorNotesControl"
-            class="kd_sheet_ui_roll_down rolled_up"
-        >
-            <div class="kd_sheet_ui_roll_down_controls">
-                <div
-                    class="kd_sheet_ui_row_tip"
-                    ng-click="rollUp('survivorNotesControl')"
-                >
-                    Notes will appear in Survivor Search results! Click or tap a note to remove it. Click or taphere to close these controls.
-                </div>
-                <input
-                    id="survivorNoteInput"
-                    class="survivor_sheet_survivor_notes_input"
-                    ng-model="scratch.addNote"
-                    placeholder="Add a Survivor Note"
-                    onClick="this.select()"
-                />
-                <button
-                    class="kd_blue"
-                    ng-click="addNote()"
-                    ng-click="
-                        rollUp('survivorNotesControl')
-                    "
-                >
-                    Add Note
-                </button>
-            </div>
-        </div><!-- survivor Notes controls -->
+    	                <textarea
+    	                    id="survivorNoteInput"
+        	                class="survivor_sheet_survivor_notes_input"
+                	        placeholder="Add notes here! Notes appear in Survivor Search..."
+            	            ng-model="scratch.addNote"
+    	                >
+    					</textarea>
+
+    					<button
+	    					class="kd_kickstarter_button kd_blue"
+		    				ng-click="
+    							addNote();
+    							ngHide('settlementSheetNotesEditorModal')
+    						"
+    					>
+    						Save
+	    				</button>
+
+    					<button
+	    					class="kd_kickstarter_button"
+		    				ng-click="ngHide('settlementSheetNotesEditorModal')"
+			    		>
+    						Close
+	    				</button>
+		    		</div><!-- notes modal inner -->
+
+    			</div>
+    		</div><!-- settlementSheetNotesEditorModal -->
+
+        </div><!-- notes! -->
+
 
         <div
+            id="survivorSheetBiographyContainer"
             ng-controller="lineageController"
-            class="survivor_sheet_kd_sheet_ui_box lineage_container"
+            class="survivor_sheet_kd_sheet_ui_box"
         >
 
-            <h3>Biography</h3>
+            <h3>Survivor Biography</h3>
 
             <!-- founder -->
             <p ng-if="survivor.sheet.founder == true">
@@ -1809,13 +1853,12 @@
 
             <div
                 id="survivorParents"
-                class="survivor_sheet_parents_container"
                 ng-if="survivor.sheet.founder == false"
             >
                 <h4>Parents</h4>
 
                 <select
-                    class="survivor_sheet_father_picker"
+                    class="kd_kickstarter_select"
                     ng-model="survivor.sheet.father.$oid"
                     ng-selected="survivor.sheet.father"
                     ng-options="s.sheet._id.$oid as s.sheet.name for s in settlement.user_assets.survivors | filter:maleFilter"
@@ -1825,7 +1868,7 @@
                 </select>
 
                 <select
-                    class="survivor_sheet_mother_picker"
+                    class="kd_kickstarter_select"
                     ng-model="survivor.sheet.mother.$oid"
                     ng-selected="survivor.sheet.mother"
                     ng-options="s.sheet._id.$oid as s.sheet.name for s in settlement.user_assets.survivors | filter:femaleFilter"
@@ -1872,25 +1915,40 @@
     </div> <!-- lineage -->
 
 
-    </div>
+</div>
 
-    <!-- 
 
-        'Notes' tab starts here 
 
-    -->
+<!-- 
+
+    'Logs' tab starts here 
+
+-->
+
+<div
+    id="survivorViewLogsTab"
+    class="view_tab"
+    ng-show='survivorViewTabsObject.activeTab === 2'
+>
 
     <div
-        id="survivorViewLogsTab"
-        class="view_tab"
-        ng-show='survivorViewTabsObject.activeTab === 2'
+        class="survivor_sheet_kd_sheet_ui_box top_most"
     >
-
-
 
         <h3>Event Log</h3>
 
-        <div class="survivor_sheet_event_log_container">
+        <div
+            class="ng_fade fullTabSpinner"
+            ng-if="lineage.events === undefined"
+        >
+            <img src="/media/loading_io.gif">
+            <p>Retrieving Event Log...</p>
+        </div>
+
+        <div
+            class="survivor_sheet_event_log_container"
+            ng-if="lineage.events !== undefined"
+        >
             <div
                 class="lineage_event_repeater {{event.event_type}}"
                 ng-repeat="event in lineage.events"
@@ -1901,25 +1959,30 @@
             </div><!-- event repeater -->
         </div> <!-- events -->
 
+    </div><!-- container -->
 
-    </div> <!-- logs tab ends -->
+</div> <!-- logs tab ends -->
 
 
 
+<!-- 
 
-    <!-- 
-    
-        'Admin' tab starts here 
-    
-    -->
+    'Admin' tab starts here 
+
+-->
+
+<div
+    id="survivorViewAdminTab"
+    class="view_tab"
+    ng-show='survivorViewTabsObject.activeTab === 6'
+>
 
     <div
-        id="survivorViewAdminTab"
-        class="view_tab"
-        ng-show='survivorViewTabsObject.activeTab === 6'
+        class="survivor_sheet_kd_sheet_ui_box border top_most"
     >
 
-        <h4>Access</h4>
+        <h3>Multiplayer</h3>
+
         <div
             class="survivor_sheet_public_toggle clickable"
             ng-click="toggleBoolean('public')"
@@ -1933,7 +1996,17 @@
         </div>
 
         <!-- survivor email -->
-        <h4>Email</h4>
+        <div
+            id="emailTip"
+            class="kd_sheet_ui_row_tip"
+            ng-if="
+                user.user.preferences.show_ui_tips
+            "
+        >
+            Enter another registered user's email address here to make them
+            a player in this campaign!
+        </div>
+
         <input
             id="survivorOwnerEmail"
             class="survivor_owner_email"
@@ -1943,31 +2016,73 @@
             placeholder="email"
             ng-model="scratch.newSurvivorEmail"
             ng-value="survivor.sheet.email"
-            ng-blur="setEmail(); showHide('emailTip')"
-            ng-focus="showHide('emailTip')"
+            ng-blur="setEmail()"
+            ng-click="ngShow('survivorChangeEmailButton')"
         />
 
-        <div id="emailTip" class="kd_sheet_ui_row_tip hidden">
-            Enter another registered user's email address here to make them a player in this campaign!
+        <button
+            class="kd_kickstarter_button kd_blue"
+            ng-if="ngVisible['survivorChangeEmailButton']"
+            ng-click="
+                ngHide('survivorChangeEmailButton');
+                savedAlert();
+            "
+        >
+            Save
+        </button>
+
+        <div
+            ng-if="
+                user.user.subscriber.level > 1 &&
+                user !== undefined &&
+                lineage !== undefined
+            "
+            ng-init="loadUserFriends()"
+        >
+            <div
+                id="emailTip"
+                class="kd_sheet_ui_row_tip"
+                ng-if="
+                    user.user.preferences.show_ui_tips &&
+                    user.friends.length > 0
+                "
+            >
+                Tap/click on a friend below to make them the owner of this
+                survivor record!
+            </div>
+
+            <button
+                class="survivor_sheet_friend_repeater clickable kd_kickstarter_button kd_blue"
+                ng-repeat="friend in user.friends track by $index"
+                ng-click="
+                    scratch.newSurvivorEmail = friend.login;
+                    setEmail();
+                "
+            >
+                {{ friend.login }}
+            </button>
+
         </div>
 
+    </div>
 
-        <!-- permanent delete; this is going to Settlement SOON -->
+    <!-- permanent delete; this is going to Settlement SOON -->
+    <div
+        class="survivor_sheet_kd_sheet_ui_box border"
+        ng-if="user.user.preferences.show_remove_button == true"
+    >
+
+        <h3>Permanently Delete Survivor</h3>
+
         <div
-            class="permanently_delete_survivor"
-            ng-if="user.user.preferences.show_remove_button == true"
+            ng-if="user.user.preferences.show_remove_button"
         >
-            <h4>Permanently Delete Survivor</h4>
-
-            <div
-                ng-if="user.user.preferences.show_remove_button"
-            >
-                <p>
-                    Use the button below to permanently delete  <b>{{survivor.sheet.name}}</b>.
-                </p>
-                <p class="maroon_text">
-                    <b>This cannot be undone.</b>
-                </p>
+            <p>
+                Use the button below to permanently delete <b>{{survivor.sheet.name}}</b>.
+            </p>
+            <p class="maroon_text">
+                <b>This cannot be undone.</b>
+            </p>
 
             <button
                 class="kd_kickstarter_button kd_pink red_glow permanently_delete"
@@ -1975,60 +2090,14 @@
             >
                 Delete Survivor
             </button>
-            </div>
 
-            <div
-                id="removeSurvivorConfirmation"
-                class="modal-black hidden"
-                ng-controller="removeSurvivorController"
-            >
-                <div class="rm_asset_confirm_container kd_red">
-                    <h3>DELETE SURVIVOR</h3>
-                    <p>
-                        This cannot be undone! A deleted survivor can never be recovered.
-                    </p>
-                    <p>
-                        Deleting a survivor is not the same thing as using the controls above to mark the survivor as "Dead". Survivors should be deleted when they are created in error, etc.
-                    </p>
-                    <p>
-                        If you still want to permanently delete <b>{{survivor.sheet.name}}</b>, type "DELETE" (without the quotes) in the box below and then click the "DELETE" button that appears to permanently delete this survivor forever.
-                    </p>
-                
-                    <input
-                        type="text"
-                        class="confirm_remove"
-                        ng-model="scratch.confirmRemove"
-                        placeholder="DELETE"
-                    />
+        </div>
 
-                    <button
-                        class="kd_kickstarter_button kd_pink red_glow ng_fade"
-                        ng-if="scratch.confirmRemove === 'DELETE'"
-                        onClick="showFullPageLoader()"
-                        ng-click="
-                            showHide('removeSurvivorConfirmation');
-                            removeSurvivor();
-                            postForm('view_campaign',settlement.sheet._id.$oid);
-                        "
-                    >
-                        Delete Survivor
-                    </button>
+    </div><!-- survivor permanent removal controls end here -->
 
-                    <button
-                        class="kd_kickstarter_button ng_fade"
-                        ng-if="scratch.confirmRemove !== 'DELETE'"
-                        ng-click="showHide('removeSurvivorConfirmation')"
-                    >
-                        Close
-                    </button>
+</div><!-- ADMIN TAB ENDS. survivorSheetController continues... -->
 
-                </div><!-- rm_asset_confirm_container -->
 
-            </div><!-- removeSurvivorConfirmation -->
-
-        </div><!-- survivor permanent removal controls end here -->
-
-    </div><!-- ADMIN TAB ENDS. survivorSheetController continues... -->
 
 <!--
     
@@ -2036,6 +2105,62 @@
     Everything past here needs its own controller, etc.
 
 -->
+
+<div
+    id="removeSurvivorConfirmation"
+    class="modal-black hidden"
+    ng-controller="removeSurvivorController"
+>
+    <div class="rm_asset_confirm_container kd_red">
+
+        <h3>DELETE SURVIVOR</h3>
+
+        <p>
+            This cannot be undone! A deleted survivor can <b>never</b> be recovered.
+        </p>
+        <p>
+            Deleting a survivor is not the same thing as using the controls
+            above to mark the survivor as "Dead". Survivors should be deleted
+            when they are created in error, etc.
+        </p>
+        <p>
+            If you still want to permanently delete <b>{{survivor.sheet.name}}</b>,
+            type "DELETE" (without the quotes) in the box below and then click the
+            "DELETE" button that appears to permanently delete this survivor forever.
+        </p>
+    
+        <input
+            type="text"
+            class="confirm_remove"
+            ng-model="scratch.confirmRemove"
+            placeholder="DELETE"
+        />
+
+        <button
+            class="kd_kickstarter_button kd_pink red_glow ng_fade"
+            ng-if="scratch.confirmRemove === 'DELETE'"
+            onClick="showFullPageLoader()"
+            ng-click="
+                showHide('removeSurvivorConfirmation');
+                removeSurvivor();
+                postForm('view_campaign',settlement.sheet._id.$oid);
+            "
+        >
+            Delete Survivor
+        </button>
+
+        <button
+            class="kd_kickstarter_button ng_fade"
+            ng-if="scratch.confirmRemove !== 'DELETE'"
+            ng-click="showHide('removeSurvivorConfirmation')"
+        >
+            Close
+        </button>
+
+    </div><!-- rm_asset_confirm_container -->
+
+</div><!-- removeSurvivorConfirmation -->
+
 
 <div
     id="partnerSelect"

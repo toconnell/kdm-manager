@@ -422,17 +422,24 @@
             <h2>Milestone Story Events</h2>
             <p>Trigger these story events when milestone condition is met.</p>
 
-            <div ng-repeat="m in settlement.game_assets.milestones_options" class="milestone_content_container">
-                <input
-                    id="{{m.handle}}"
-                    class="kd_css_checkbox kd_radio_option"
-                    type="checkbox"
-                    ng-click="toggleMilestone(m.handle)"
-                    ng-checked="settlement.sheet.milestone_story_events.indexOf(m.handle) != -1"
-                />
-                <label
-                    for="{{m.handle}}"
-                    class="settlement_sheet_milestone_container"
+            <div
+                ng-repeat="m in settlement.game_assets.milestones_options"
+                class="settlement_sheet_milestone_content_container"
+                ng-click="toggleMilestone(m.handle)"
+            >
+                <div
+                    class="settlement_sheet_milestone_checkbox_container"
+                >
+                    <div
+                        class="kd_sheet_ui_box"
+                        ng-class="{
+                            'checked': settlement.sheet.milestone_story_events.indexOf(m.handle) != -1
+                        }"
+                    >
+                    </div>
+                </div>
+                <div
+                    class="settlement_sheet_milestone_details"
                 >
                     {{m.name}}
                     <span class="milestone_story_event">
@@ -441,7 +448,7 @@
                             (p.{{settlement.game_assets.events[m.story_event_handle].page}})
                         </span>
                     </span>
-                </label>
+                </div>
             </div> <!-- milestone div -->
 
         </div> <!-- block_group for milestones -->
@@ -541,32 +548,29 @@
                     <div
                         class="principle_option editor"
                         ng-repeat="o in p.options"
+                        ng-click="set(p.handle, o)"
                     >
-                        <input
-                            type="radio"
-                            class="kd_css_checkbox kd_radio"
-                            id="{{o.input_id}}"
-                            name="{{p.form_handle}}"
-                            value="{{o.name}}"
-                            ng-checked="o.checked"
-                            ng-disabled="o.checked"
-                            ng-click="set(p.handle, o.handle)"
+                        <div
+                            class="principle_option_title"
                         >
-
-                        <label
-                            id="{{o.input_id}}Label"
-                            for="{{o.input_id}}"
-                        >
-
-                            {{ o.name }}
-
                             <div
-                                class="principle_option_desc"
-                                ng-bind-html="o.desc|trustedHTML"
+                                class="kd_sheet_ui_box"
+                                ng-class="{
+                                    'checked': o.checked,
+                                }"
                             >
                             </div>
+                            <div class="principle_option_name">
+                                {{ o.name }}
+                            </div>
+                        </div>
 
-                        </label>
+                        <div
+                            class="principle_option_desc"
+                            ng-bind-html="o.desc|trustedHTML"
+                        >
+                        </div>
+
 
                     </div> <!-- individual principle option repeater-->
 
@@ -586,6 +590,7 @@
                     >
                         <span class="empty_bullet rm_bullet"></span>
                         <select
+                            class="kd_sheet_ui_select"
                             ng-model="scratch.unset"
                             ng-change="unsetPrinciple();"
                             ng-options="p.handle as p.name for p in settlement.game_assets.principles_options"
@@ -1029,7 +1034,13 @@
             title="Nemesis Encounters controller for {{settlement.sheet.name}}. Tap or click to edit!"
         >
             <div class="kd_sheet_ui_row title">
-                <img class="icon" src="media/icons/nemesis_encounter_event.jpg"/>
+                <img
+                    class="icon"
+                    src="media/icons/nemesis_encounter_event.jpg"
+                    ng-class="{
+                        'invert_image': user.user.preferences.night_mode === true,
+                    }"
+                />
                 Nemesis Monsters
             </div>
             <div class="kd_sheet_ui_row">
@@ -1129,14 +1140,15 @@
                 Lost Settlements
             </div>
 
-            <div class="kd_sheet_ui_box_row wrap_row">
+            <div class="kd_sheet_ui_box_row">
                 <span
                     class="kd_sheet_ui_box"
                     ng-repeat="
-                        lostCount in [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
+                        lostCount in [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
                     "
                     ng-class="{
-                        checked: settlement.sheet.lost_settlements > lostCount
+                        'checked': settlement.sheet.lost_settlements > lostCount,
+                        'heavy': [4,9,14,18].indexOf(lostCount) !== -1,
                     }"
                 ></span>
             </div>

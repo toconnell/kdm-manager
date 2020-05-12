@@ -1,7 +1,7 @@
 .survivor_curse {background-color: #FFD740; background: #FFD740; }
 .survivor_death {background-color: #F50057; background: #F50057; color: #fff}
 .survivor_death:before {content: "f"; margin-left: 0.5%; font-family: "kdm-font-10"}
-.survivor_birth {background-color: #B2FF59; background: linear-gradient(#B2FF59, #d2fF59, #B2FF59)}
+.survivor_birth {background-color: #B2FF59; background: linear-gradient(#B2FF59, #d2fF59, #B2FF59); color: #000; }
 .survivor_join {background-color: #EEFF41; background: #EEFF41; }
 .defeated_monster {color: #fff; background-color: #997030; background: #997030; }
 .new_settlement {background-color: #1C7FC2; background: linear-gradient(to bottom, #1C7FC2, #137ABF); color: #fff; }

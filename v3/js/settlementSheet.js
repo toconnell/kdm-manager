@@ -170,7 +170,7 @@ app.controller("storageController", function($scope) {
     $scope.setStorage = function(asset, modifier) {
         asset.quantity += modifier;
         js_obj = {handle: asset.handle, value: asset.quantity};
-        $scope.postJSONtoAPI('settlement','set_storage', {storage: [js_obj]}, false, false, false);
+        $scope.postJSONtoAPI('settlement','set_storage', {storage: [js_obj]}, false, true, false);
     };
 
     $scope.refreshRollups = function(storage_repr) {
@@ -454,9 +454,17 @@ app.controller('principlesController', function($scope, $http) {
         };
     };
 
-    $scope.set = function(principle, election) {
+    $scope.set = function(principle, optionObj) {
+        if (optionObj.checked) {
+            console.warn("Principle option '" + optionObj.handle + "' is already set!");
+            return false;
+        };
         $scope.settlement.sheet.principles = undefined;
-        $scope.postJSONtoAPI('settlement', 'set_principle', {"principle": principle, "election": election});
+        $scope.postJSONtoAPI('settlement', 'set_principle', {
+            "principle": principle,
+            "election": optionObj.handle,
+            }
+        );
     };
 
     $scope.unsetPrinciple = function () {

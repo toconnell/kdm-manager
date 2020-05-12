@@ -43,6 +43,7 @@ body.dashboard {background: linear-gradient(to right, #fff, #eee); }
 
 
 /* manager UI - not KD emulation, just UI/UX enhancements that we do */
+.white_text {color: #fff; }
 .green_text {coilor: #1CB71C;}
 .maroon_text {color: #B71C1C;}
 .maroon_box {background: #B71C1C; border-color: #a70a0a}
@@ -113,6 +114,14 @@ body.dashboard {background: linear-gradient(to right, #fff, #eee); }
 .Speed, .spd_token {background-color: #8C9A65; color: #fff; }
 
 
+/*  DASHBOARD   */
+
+div.dashboard_welcome_modal {
+    color: #fff;
+    background: rgba(0,0,0,0.95);
+}
+.world_panel_basic_box { border-color: #333; background: #fff; }
+
 /*                      
 
     NAVIGATION and modal menus
@@ -131,10 +140,6 @@ div#leftSideNavUnderlay {background: rgba(0,0,0,0.8); color: #fff; }
 /*  modal and modal-black   */
 .modal-black.departing_survivors_modal_container {background-color: #fff; color: #000;} 
 
-div.dashboard_welcome_modal {
-    color: #fff;
-    background: rgba(0,0,0,0.95);
-}
 
 /* report an error */
 textarea.report_error {outline: 1px solid #eee; }
@@ -146,6 +151,14 @@ textarea.report_error:focus {box-shadow: none; }
     SEARCH
 
 */
+
+
+/*                      
+
+    NEW SURVIVOR SHEET
+
+*/
+.new_survivor_sheet .name {color: #000; }
 
 /*                      
 
@@ -192,7 +205,7 @@ textarea.report_error:focus {box-shadow: none; }
 
 /* settlement sheet tabs */
 
-#viewTabContainer {border-color: #000; box-shadow: 0 -7px 17px #ccc;}
+#viewTabContainer {border-color: #000; box-shadow: 0 -7px 17px #ccc; background: #fff; }
 .view_tab_button {color: #ccc; }
 .view_tab_button.active {color: #000; background: linear-gradient(to top, #fff 95%, rgba(255,255,255,0))}
 

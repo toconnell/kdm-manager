@@ -94,8 +94,18 @@ class meta:
         class="api_error_modal hidden ease clickable"
         onclick="hideAPIerrorModal()"
     >
-        <p class="api_error_debug">User login: {{user_login}}</p>
-        <p class="api_error_debug">Settlement OID: {{settlement.sheet._id.$oid}}</p>
+        <p
+            ng-if="user_login !== undefined"
+            class="api_error_debug"
+        >
+            User login: {{user_login}}
+        </p>
+        <p
+            class="api_error_debug"
+            ng-if="settlement.sheet !== undefined"
+        >
+            Settlement OID: {{settlement.sheet._id.$oid}}
+        </p>
         <p id="apiErrorModalMsgRequest" class="api_error_debug"></p>
         <p id="apiErrorModalMsg" class="kd_alert_no_exclaim api_error_modal_msg"></p>
         <p>Tap or click anywhere to continue...</p>

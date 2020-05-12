@@ -23,6 +23,7 @@ select:hover {border-color: #ff9900; color: #FF9900; }
 
 /* nav bar */
 .nav_bar {box-shadow: None; }
+div#topNavBar {box-shadow: 0 10px 17px #06121a;}
 span.settlement_sheet_gradient {border-color: #243b55;}    /* bottom bar */
 .floating_top_nav_button {background: radial-gradient(#fff,#aaa); }
 
@@ -36,7 +37,7 @@ span.settlement_sheet_gradient {border-color: #243b55;}    /* bottom bar */
 /* modals and modal effects */
 .modal-black.departing_survivors_modal_container {background-color: #000; }
 
-/* dashboard - mobile */
+/* dashboard */
 
 .about_primary {color: inherit; background: linear-gradient(to right, #212121, #343434, #404040, #343434, #212121);}
 .about_secondary {background: linear-gradient(to right, #212121, #343434, #404040, #343434, #212121);}
@@ -49,6 +50,12 @@ span.settlement_sheet_gradient {border-color: #243b55;}    /* bottom bar */
 .dashboard_preference {border-color: #700; background: #111;}
 
 .dashboard_user_collection_repeater {background: linear-gradient(to right, #000, #111, #000);}
+.dashboard_expansion_name.active {color: #E9385B; }
+
+.world_panel_basic_box,
+.world_secondary h3 {
+    border-color: #700;
+}
 
 
 /* gradients */
@@ -60,13 +67,11 @@ span.settlement_sheet_gradient {border-color: #243b55;}    /* bottom bar */
 
 /* KD effects */
 
-input.kd_css_checkbox:checked + label {color: #6ABED8;}
 .kd_sheet_ui_box {border-color: #fff; }
 .kd_sheet_ui_box.checked {background: #6ABED8; border-color: #6ABED8}
 .kd_sheet_ui_select {color: #eee; border-color: #aaa; }
 .kd_sheet_ui_row_tip {background: #586073; color: #FFFF00; } /* tool tip */
 .survivor_sheet_kd_sheet_ui_box {border-color: #ddd; }
-.kd_sheet_ui_roll_down_controls {border-color: #aaa; }
 .kd_sheet_ui_roll_down_controls button {border-color: #ddd; }
 .gear_lookup_card_repeater {color: #000; }
 .gear_card_recipe {color: #000; }
@@ -121,6 +126,20 @@ div.quickview_survivor_name {border-bottom-color: #fff; }
 .departing_survivors_control {background: #111; color: #fff; }
 
 
+/*  sheet UI tabs */
+.view_tab_button.active {
+    font-weight: bold; 
+    color: #6ABED8; 
+    margin-top: auto;
+    padding: 1em;
+    background: #333; 
+}
+#viewTabContainer {
+    background: #333;
+    box-shadow: 0 -7px 17px #333;
+    border-color: #333; 
+}
+
 /* survivor sheet */
 
 .shield, .big_number_square {background: #000; color: #fff;}
@@ -128,10 +147,12 @@ div.quickview_survivor_name {border-bottom-color: #fff; }
 .paper_style_toggle {color: #eee; border-color: #ddd; }
 .survivor_avatar_image {filter: invert(1); }
 .survivor_sheet_survivor_notes_slug_line {border-color: #aaa; }
+.survivor_sheet_tag.add_tag {background: #E9385B; color: #fff ;}
 
 /* settlement sheet */
 .bullet {background-color: #fff; }
 .bullet, .empty_bullet {border-color: #fff; }
+.settlement_sheet_tumbler_number div {color: #6ABED8;}
 div.settlement_sheet_block_group select {color: #ddd; }
 .inventory_repeater {color: #000; }
 div.settlement_sheet_block_group select {border-color: #aaa; }

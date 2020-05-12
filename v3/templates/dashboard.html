@@ -10,7 +10,7 @@
     ng-class="{true: 'visible', false: 'hidden'}[user.dashboard.settlements.length == 0]"
     ng-click="showHide('dashboardWelcomeModal')"
 >
-    <p>Welcome to <b>http://kdm-manager.com</b>, the original online campaign
+    <p>Welcome to <b>https://kdm-manager.com</b>, the original online campaign
     manager for Kingdom Death: <i>Monster</i>!</p>
     <p><b>The Manager</b> is an interactive webapp intended to make it
     easier to manage and share your Kingdom Death: <i>Monster</i> campaigns.</p>
@@ -52,18 +52,16 @@
             class="clickable system_primary dashboard_rollup"
             ng-click="
                 rollUp('dashboardSystemDiv');
-                toggleArrow('user_preference_arrow');
             "
-            ng-init="scratch.user_preference_arrow = false"
             ng-class="{'open': ngRolledUp['dashboardSystemDiv'] === false}"
         >
             <span>
                 &#9881;  System
             </span>
-            <span class="dashboard_rollup_arrow" ng-if="scratch.user_preference_arrow == true">
-                &#x25B2;
-            </span>
-            <span class="dashboard_rollup_arrow" ng-if="scratch.user_preference_arrow == false">
+            <span
+                class="dashboard_rollup_arrow"
+                ng-class="{'open': ngRolledUp['dashboardSystemDiv'] === false}"
+            >
                 &#x25BC;
             </span>
         </h2>
@@ -148,29 +146,26 @@
                         <div 
                             class="dashboard_preference_elections_container"
                         >
-                            <input
-                                id="{{pref.handle}}_affirmative"
-                                class="kd_css_checkbox kd_radio_option"
-                                style="display: none"
-                                type="radio"
-                                ng-checked="pref.value == true"
-                                ng-click="setPref(pref,true)"
-                            />
-                            <label for="{{pref.handle}}_affirmative">
-                                {{pref.affirmative}}
-                            </label>
 
-                            <input
-                                id="{{pref.handle}}_negative"
-                                class="kd_css_checkbox kd_radio_option"
-                                style="display: none"
-                                type="radio"
-                                ng-checked="pref.value == false"
-                                ng-click="setPref(pref,false)"
-                            />
-                            <label for="{{pref.handle}}_negative">
-                                {{pref.negative}}
-                            </label>
+                            <div
+                                class="dashboard_preference_election_item"
+                                ng-repeat="option in [
+                                    ['affirmative', true],
+                                    ['negative', false]
+                                ]"
+                                ng-click="setPref(pref, option[1])"
+                            >
+                                <div
+                                    class="kd_sheet_ui_box"
+                                    ng-class="{
+                                        'checked': pref.value === option[1]}
+                                    "
+                                ></div>
+                                <div>
+                                    {{ pref[option[0]] }}
+                                </div>
+                            </div>
+
                         </div> <!-- dashboar_preference_elections_container -->
                     </div><!-- dashboard_preference -->
                 </div><!-- dashboard_preference_block_group -->
@@ -185,19 +180,17 @@
             class="clickable dashboard_rollup collection collection_gradient"
             ng-click="
                 rollUp('collectionDiv');
-                toggleArrow('campaigns_arrow')
             "
-            ng-init="scratch.collection_arrow = false"
             ng-class="{'open': ngRolledUp['collectionDiv'] === false}"
         >
             <span>
                 <font class="kdm_font_hit_locations dashboard_kdm_font">a</font>
                 KD Collection
             </span>
-            <span class="dashboard_rollup_arrow" ng-if="scratch.collection_arrow == true">
-                &#x25B2;
-            </span>
-            <span class="dashboard_rollup_arrow" ng-if="scratch.collection_arrow == false">
+            <span
+                class="dashboard_rollup_arrow"
+                ng-class="{'open': ngRolledUp['collectionDiv'] === false}"
+            >
                 &#x25BC;
             </span>
         </h2>
@@ -239,13 +232,16 @@
                         ng-class="{active: user.user.collection.expansions.indexOf(handle) != -1}"
                     ></div>
                     <div
-                        class="special_attribute_text"
+                        class="dashboard_expansion_name"
                         ng-class="{active: user.user.collection.expansions.indexOf(handle) != -1}"
                     >
                         {{expansion.name}}
-                        <div ng-if="expansion.desc != undefined" class="metrophobic">
-                            {{expansion.desc}}
-                        </div>
+                    </div>
+                    <div
+                        class="dashboard_expansion_subtitle"
+                        ng-if="expansion.subtitle !== undefined"
+                        ng-bind-html="expansion.subtitle|trustedHTML"
+                    >
                     </div>
                 </div><!-- expansion repeater -->
             </div><!-- category repeater -->
@@ -259,10 +255,8 @@
             class="clickable campaign_summary_gradient dashboard_rollup"
             ng-click="
                 rollUp('campaignsDiv');
-                toggleArrow('campaigns_arrow')
             "
             ng-init="
-                scratch.campaigns_arrow = true;
                 ngRolledUp['campaignsDiv'] = false;
             "
             ng-class="{'open': ngRolledUp['campaignsDiv'] === false}"
@@ -270,10 +264,10 @@
             <span>
                 &#9873; Campaigns
             </span>
-            <span class="dashboard_rollup_arrow" ng-if="scratch.campaigns_arrow == true">
-                &#x25B2;
-            </span>
-            <span class="dashboard_rollup_arrow" ng-if="scratch.campaigns_arrow == false">
+            <span
+                class="dashboard_rollup_arrow"
+                ng-class="{'open': ngRolledUp['campaignsDiv'] === false}"
+            >
                 &#x25BC;
             </span>
         </h2>
@@ -344,20 +338,16 @@
     >
         <h2
             class="clickable settlement_sheet_gradient dashboard_rollup"
-            ng-click="
-                rollUp('settlementsDiv');
-                toggleArrow('settlements_arrow')
-            "
-            ng-init="scratch.settlements_arrow = false"
+            ng-click="rollUp('settlementsDiv');"
             ng-class="{'open': ngRolledUp['settlementsDiv'] === false}"
         >
             <span>
                 &#9874; Settlements
             </span>
-            <span class="dashboard_rollup_arrow" ng-if="scratch.settlements_arrow == true">
-                &#x25B2;
-            </span>
-            <span class="dashboard_rollup_arrow" ng-if="scratch.settlements_arrow == false">
+            <span
+                class="dashboard_rollup_arrow"
+                ng-class="{'open': ngRolledUp['settlementsDiv'] === false}"
+            >
                 &#x25BC;
             </span>
         </h2>
@@ -471,21 +461,17 @@
 
         <h2
             class="clickable world_primary dashboard_rollup"
-            ng-click="
-                rollUp('worldDiv');
-                toggleArrow('world_arrow')
-            "
-            ng-init="scratch.world_arrow = false"
+            ng-click="rollUp('worldDiv');"
             ng-class="{'open': ngRolledUp['worldDiv'] === false}"
         >
             <span>
-                <font class="kdm_font_hit_locations dashboard_kdm_font white">g</font>
-                <font class="white">World</font>
+                <font class="kdm_font_hit_locations dashboard_kdm_font white_text">g</font>
+                <font class="white_text">World</font>
             </span>
-            <span class="white dashboard_rollup_arrow" ng-if="scratch.world_arrow == true">
-                &#x25B2;
-            </span>
-            <span class="white dashboard_rollup_arrow" ng-if="scratch.world_arrow == false">
+            <span
+                class="dashboard_rollup_arrow white_text"
+                ng-class="{'open': ngRolledUp['worldDiv'] === false}"
+            >
                 &#x25BC;
             </span>
         </h2>
@@ -741,21 +727,17 @@
         >
             <h2
                 class="clickable about_primary dashboard_rollup"
-                ng-click="
-                    rollUp('aboutDiv');
-                    toggleArrow('about_arrow')
-                "
-                ng-init="scratch.about_arrow=false"
+                ng-click="rollUp('aboutDiv');"
                 ng-class="{'open': ngRolledUp['aboutDiv'] === false}"
             >
                 <span>
                     <font class="kdm_font dashboard_kdm_font">g</font>
                     About
                 </span>
-                <span class="dashboard_rollup_arrow" ng-if="scratch.about_arrow == true">
-                    &#x25B2;
-                </span>
-                <span class="dashboard_rollup_arrow" ng-if="scratch.about_arrow == false">
+                <span
+                    class="dashboard_rollup_arrow"
+                    ng-class="{'open': ngRolledUp['aboutDiv'] === false}"
+                >
                     &#x25BC;
                 </span>
             </h2>
@@ -769,6 +751,9 @@
                         src="/media/the_labor_in_vain_logo-01.png"
                         class="tlv_about_logo"
                         title="https://kdm-manager.com is developed by The Labor in Vain!"
+                        ng-class="{
+                            'invert_image': user.user.preferences.night_mode === true,
+                        }"
                     />
                 </a>
 

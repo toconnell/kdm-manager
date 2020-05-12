@@ -870,14 +870,26 @@
                                 </div>
                             </div>
                         </div> <!-- row_container -->
-                        <div class="kd_sheet_ui_row_tip" ng-if="s.sheet.abilities_and_impairments.indexOf('stalwart') != -1">
-                            <b>Stwalwart:</b> {{settlement.game_assets.abilities_and_impairments.stalwart.summary}}
+                        <div
+                            class="kd_sheet_ui_row_tip"
+                            ng-if="s.sheet.abilities_and_impairments.indexOf('stalwart') != -1"
+                        >
+                            <b>Stalwart:</b>
+                            {{settlement.game_assets.abilities_and_impairments.stalwart.summary}}
                         </div>
-                        <div class="kd_sheet_ui_row_tip" ng-if="s.sheet.abilities_and_impairments.indexOf('prepared') != -1">
-                            <b>Prepared:</b> {{settlement.game_assets.abilities_and_impairments.prepared.summary}}
+                        <div
+                            class="kd_sheet_ui_row_tip"
+                            ng-if="s.sheet.abilities_and_impairments.indexOf('prepared') != -1"
+                        >
+                            <b>Prepared:</b>
+                            {{settlement.game_assets.abilities_and_impairments.prepared.summary}}
                         </div>
-                        <div class="kd_sheet_ui_row_tip" ng-if="s.sheet.abilities_and_impairments.indexOf('matchmaker') != -1">
-                            <b>Matchmaker:</b> {{settlement.game_assets.abilities_and_impairments.matchmaker.summary}}
+                        <div
+                            class="kd_sheet_ui_row_tip"
+                            ng-if="s.sheet.abilities_and_impairments.indexOf('matchmaker') != -1"
+                        >
+                            <b>Matchmaker:</b>
+                            {{settlement.game_assets.abilities_and_impairments.matchmaker.summary}}
                         </div>
                     </div>
                     <div
@@ -1209,7 +1221,10 @@
                         />
                     </div>
 
-                    <div ng-if="user_is_settlement_admin" class="controls">
+                    <div
+                        ng-if="user_is_settlement_admin"
+                        class="settlement_sheet_tumbler_control_raft"
+                    >
                         <button ng-click="rmToken()" > &#9662; </button>
                         <button ng-click="addToken()" > &#9652; </button>
                     </div>

@@ -22,6 +22,7 @@ button,
     input,
     select {font-size: inherit; }    /*  inherit from html element style above;
                                         ALL BREAK POINTS! */
+select {-webkit-appearance: none; }
 
 /* hide number tumblers ; we never want these   */
 input[type="number"]::-webkit-outer-spin-button,
@@ -35,6 +36,7 @@ p {margin: 3%; }
 .hidden {display: none !important;}
 .faded {opacity: 0.3; transition: 3s; }
 .rolled_up {max-height: 0 !important;}
+.invert_image {filter: invert();}
 
 div#container {
     width: 100%;
@@ -65,6 +67,8 @@ div#container {
     border: none;
     pointer-events: none;  
 }
+
+.api_error_debug {word-break: break-word;}
 
 /*
 
@@ -200,6 +204,22 @@ div#container {
     align-items: center;
     margin-bottom: 3%; 
 }
+.kd_sheet_ui_row_toggle_box {   /* contains text and a checkbox */
+    display: flex;
+    align-items: center;
+    margin: 3%;
+    padding: 1%; 
+}
+.kd_sheet_ui_row_toggle_box.right_align {
+    justify-content: flex-end; 
+}
+.kd_sheet_ui_row_toggle_box .kd_sheet_ui_box:last-child {
+    margin-right: 3%;
+}
+.kd_sheet_ui_row_toggle_box * {
+    margin-left: 1%;
+    margin-right: 1%; 
+}
 .kd_sheet_ui_row.title {
     font-size: 4vh;
     display: block;
@@ -208,11 +228,13 @@ div#container {
     justify-content: flex-start; 
 }
 .kd_sheet_ui_box_row {
-    display: flex;
-    flex-wrap: nowrap;
+/*    margin-left: 5%; */
+}
+.kd_sheet_ui_box_row.hunt_xp .kd_sheet_ui_box {
+    margin-right: 1.5%; 
 }
 .kd_sheet_ui_box_row.long {
-    width: 55%;
+    width: 60%;
     margin-left: auto; 
 }
 .kd_sheet_ui_box_row.hunt_xp {
@@ -221,8 +243,11 @@ div#container {
 }
 .kd_sheet_ui_box_row.hunt_xp .hunt_xp_box_container {
     white-space: nowrap; 
-    width: 100%;
-    margin-right: 3%; 
+    width: 95%;
+    display: flex;
+    justify-content: space-between;
+    margin: 0 auto;  
+    margin-top: 1%; 
 }
 .kd_sheet_ui_row.wrap_tips {
     display: flex;
@@ -305,16 +330,22 @@ div#container {
 
 .survivor_sheet_kd_sheet_ui_box,
     .settlement_sheet_kd_sheet_ui_box {
+    border: 0;
     margin: 0 auto;
     margin-bottom: 3%;
     width: 98%;
-    padding: 3%;
+    padding: 2%;
     box-sizing: border-box;
+    height: fit-content; 
 }
 .survivor_sheet_kd_sheet_ui_box.border,
     .settlement_sheet_kd_sheet_ui_box.border {
     border: 3px solid;
     transition: 1s;  
+}
+.survivor_sheet_kd_sheet_ui_box.border.top_most,
+    .settlement_sheet_kd_sheet_ui_box.border.top_most {
+    margin-top: 3%; 
 }
 .survivor_sheet_kd_sheet_ui_box.border.rolled_down,
     .settlement_sheet_kd_sheet_ui_box.border.rolled_down {
@@ -424,6 +455,10 @@ body.dashboard {margin-top: -5vh; }
     font-size: 2vh;
     margin-right: 5%;
     margin-top: 2%;
+    transition: 1s;
+}
+.dashboard_rollup_arrow.open {
+    transform: rotate(180deg); 
 }
 .dashboard_accordion {
     width: 95%;
@@ -445,9 +480,20 @@ body.dashboard {margin-top: -5vh; }
 #systemPanelUserLogin {padding-top: 5%; font-family: 'Silverado';}
 .dashboard_user_expansions_repeater {
     display: flex;
-    flex-direction: row;
+    flex-wrap: wrap;
     margin: 5%;
     align-items: center; 
+}
+.dashboard_expansion_name {
+    width: 80%; 
+}
+.dashboard_expansion_name.active {
+    font-weight: bold;
+}
+.dashboard_expansion_subtitle {
+    width: 95%;
+    margin: 0 auto; 
+    margin-top: 5%;
 }
 #dashboardCreateNewSettlement {margin-bottom: 6%;}
 div.dashboard_button_list button {
@@ -468,6 +514,33 @@ div.dashboard_button_list button {
     font-size: 1.5em;
     font-family: 'Silverado';
 }
+.dashboard_preference_elections_container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 85%;
+    box-sizing: border-box;
+    margin: 0 auto;  
+}
+.dashboard_preference_election_item {
+    display: flex;
+    padding-top: 5%;
+    padding-bottom: 5%;
+    margin-bottom: 3%;
+}
+.world_container {
+    display: flex;
+    flex-direction: column;
+}
+.world_panel_basic_box {
+    border: 1px solid;
+    margin: 3%;
+    padding: 1%;
+}
+.world_panel_basic_box h3 {
+    font-family: 'Silverado';
+}
+
 
 /*
 
@@ -475,15 +548,45 @@ div.dashboard_button_list button {
 
 */
 
-    .kd_kickstarter_tumbler_container.bulk_add {
-        flex-basis: 40%;
-    }
-    .new_survivor_sheet_footer_button_container {
-        width: 100%; 
-    }
-    .new_survivor_sheet_footer_button_container button {
-        margin-bottom: 10%; 
-    }
+.kd_kickstarter_tumbler_container.bulk_add {
+    flex-basis: 40%;
+}
+.new_survivor_sheet .name {
+    font-family: 'Silverado'; 
+    font-size: 2em;
+    width: 90%;
+    margin: 0 auto;
+    margin-top: 3%;
+    border-bottom: 5px solid;
+    padding: 2%;
+    padding-bottom: 0;
+}
+h3.new_survivor_sheet {
+    font-size: 1.2em; 
+    padding-left: 3%; 
+    text-align: left;
+}
+.new_survivor_sheet .permissions .new_survivor_email {
+    margin-left: 7%;
+    width: 90%;
+    border: 0;
+    font-size: 1.5em; 
+ }
+.new_survivor_sheet .permissions .public {
+    margin-left: 7%;
+}   
+.donor_clicker {
+    width: 40%;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+.new_survivor_sheet_footer_button_container {
+    width: 100%; 
+}
+.new_survivor_sheet_footer_button_container button {
+    margin-bottom: 10%; 
+}
 
 /*
 
@@ -623,6 +726,9 @@ div.dashboard_button_list button {
     width: 30%;
     margin-bottom: 1%; 
 }
+.survivor_search_survivor_sex * {
+    margin-right: 3%; 
+}
 .survivor_search_survivor_sex .kd_sheet_ui_box {
     height: 1.5vh;
     width: 1.5vh;
@@ -674,6 +780,7 @@ div.dashboard_button_list button {
 #campaignSummaryCampaignType {
     font-style: italic;
     font-family: 'Silverado';
+    font-size: 1.4em;
     text-align: center;
     margin-top: 0; 
 }
@@ -819,6 +926,16 @@ div.campaign_summary_endeavor_controller div.controls button {
     display: flex;
     flex-direction: row;
 }
+.campaign_summary_endeavor_controller div.tokens {
+    display: flex;
+    flex-wrap: wrap;
+    padding-left: 1%;
+    padding-top: 5%;
+    justify-content: flex-start;
+    width: 100%;
+    margin: 0 auto;
+    margin-bottom: 3%; 
+}
 .campaign_endeavor {margin-top: 2%; }
 .endeavor_location {
     font-weight: normal;
@@ -841,6 +958,7 @@ div.campaign_summary_endeavor_controller div.controls button {
     align-items: center;
     justify-content: space-evenly;
     border: 0;
+    min-width: 4%; 
 }
 .endeavor_cost span {
     margin-right: 5%;
@@ -930,6 +1048,9 @@ div.campaign_summary_endeavor_controller div.controls button {
     border: 1px solid;
     margin: 1%; 
 }
+.quickview_asset_list li {
+    list-style: none;
+}    
 
 /*  departing survivors - base/mobile   */
 .modal-black.departing_survivors_modal_container {
@@ -982,7 +1103,6 @@ div.campaign_summary_endeavor_controller div.controls button {
     left: 0;
     right: 0;
     height: 9vh;
-    background: #fff;
     font-family: 'Silverado';
     border-top: 0.3vw solid;
     display: flex;
@@ -1023,6 +1143,19 @@ div.campaign_summary_endeavor_controller div.controls button {
     width: 90%; 
 }
 
+.settlement_sheet_milestone_content_container {
+    display: flex;
+    border-bottom: 0.1em solid;
+    justify-content: space-evenly;
+    margin-top: 5%;  
+}
+.settlement_sheet_milestone_checkbox_container {
+}
+.settlement_sheet_milestone_details {
+    width: 75%;
+    box-sizing:border-box;
+    margin-bottom: 3%; 
+}
 
 /*  storage - mobile    */
 #editStorage {
@@ -1167,14 +1300,18 @@ h3.storage_type_title {
     font-weight: bold;
     width: 100%;
     font-size: 1.2em; 
+    margin-bottom: 5%; 
 }
 .principle_option {
     width: 100%;
     margin: 3%;
     margin-top: 0;  
 }
-.principle_option label {
-    margin: 3%; 
+.principle_option_title {
+    display: flex;
+}
+.principle_option_name {
+    width: 75%; 
 }
 .principle_option_desc {
     font-weight: normal;
@@ -1240,7 +1377,23 @@ h3.storage_type_title {
     flex-wrap: nowrap;
 }
 
+#survivorName {
+    font-family: 'Silverado';
+    font-size: 2em;
+    font-weight: bold;
+    text-align: center;
+    margin: 3%;
+}
+
 /*  survival box elements; shared with campaign summary quickview */
+.survival_box_number {
+    border: 2px solid;
+    padding: 0;
+    text-align: center;
+    height: 10vh;
+    width: 10vh;
+    font-size: 3em; 
+} 
 .survival_box_title {
     font-size: 2em; 
 }
@@ -1411,29 +1564,38 @@ h3.storage_type_title {
 .ai_repeater {
     margin: 3%;
 }
-
+#survivorSheetAISelector {
+    margin-top: 8%; 
+}
 
     /* note tab starts here! */
 .favorite_retired_dead {
-    margin-top: 3%; 
     display: flex;
 }
 .favorite_retired_dead .frd_toggle {
     text-align: center; 
     width: 33%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.frd_toggle .kd_sheet_ui_box {
+    margin-right: 3%;
 }
 
 .survivor_sheet_kd_sheet_ui_box.tags_container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-start;   
+    justify-content: flex-start;
+    height: fit-content;  
 }
 .survivor_sheet_tag {
     margin: 3%;
     padding: 2%;
     cursor: pointer;
     display: flex;
-    align-items: center;  
+    align-items: center;
+    max-height: 10%;  
 }
 .survivor_sheet_tag.add_tag {
     border-radius: 100%;
@@ -1443,5 +1605,74 @@ h3.storage_type_title {
     text-align-last:center;
     font-size: 4vh; 
     padding: 0;
-    padding-left: 1%;
+    max-height: none; 
+}
+.survivor_sheet_survivor_notes_slug_line_container {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    margin-bottom: 5%;
+}
+.survivor_sheet_survivor_notes_slug_line {
+    display: flex;
+    flex-wrap:nowrap;
+    min-height: 5vh;
+    margin: 3%; 
+    border-bottom: 1px solid;
+}
+.survivor_sheet_survivor_notes_slug_line.clickable {
+    font-style: italic; 
+}
+.survivor_sheet_rm_note_clicker {
+    width: 25%; 
+    border-radius: 1vw;
+    margin: 1%; 
+    margin-right: 3%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 10vw; 
+}
+.survivor_sheet_note_text {
+    width: 100%; 
+}
+.survivor_sheet_note_text.active {
+    width: 75%
+}
+.survivor_sheet_survivor_notes_input {
+    background: inherit;
+    color: inherit; 
+    min-height: 25vh; 
+    margin: 5%; 
+    font-family: 'Silverado';
+    font-size: 1.5em;
+    padding: 1%;
+    border: 0;
+}
+
+/*  survivor sheet admin tab */
+.survivor_sheet_public_toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 7%; 
+}  
+input.survivor_owner_email {
+    border: 0;
+    outline: 0;
+    display: block;
+    margin: 3% auto;
+    width: 93%;
+    font-family: Silverado;
+    height: auto; border-radius: 10px;
+    padding: 2%;
+    font-size: 1.5em;
+    text-align: center; 
+}
+input.survivor_owner_email:focus {
+    background: radial-gradient(#FDEDA9, #FFFFC5);
+}
+input.survivor_owner_email:invalid {
+    background: radial-gradient(#FDcDc9, #FFcFC5);
 }
