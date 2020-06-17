@@ -1626,8 +1626,9 @@
         >
             <button
                 id="cursedItemsOpener"
-                class="hidden survivor_curse"
-                ng-click="showHide('cursedItems')"
+                class="survivor_curse"
+                ng-click="ngShow('cursedItemsController')"
+                ng-if="survivor.sheet !== undefined"
             >
                 Cursed Items ({{survivor.sheet.cursed_items.length}})
             </button>
@@ -1738,7 +1739,9 @@
 
                     <div
                         class="survivor_sheet_survivor_notes_slug_line clickable"
-                        ng-click="ngShow('settlementSheetNotesEditorModal')"
+                        ng-click="
+                            ngShow('settlementSheetNotesEditorModal');
+                        "
                     >
 	    				<div class="survivor_sheet_note_text">
 	                       + Add a note... 
@@ -1752,6 +1755,7 @@
             <div
                 id="settlementSheetNotesEditorModal"
                 ng-if="ngVisible['settlementSheetNotesEditorModal']"
+                ng-init="ngSetFocus('survivorNoteInput');"
                 class="modal-black"
             >
                 <div class="kd_sheet_ui_outer_ring_container">
@@ -2207,57 +2211,63 @@
 
 <!-- CURSED ITEMS CONTROLS -->
 <div
-    id="cursedItems" class="modal hidden"
-    ng-controller="cursedItemsController"
-    ng-if="settlement != undefined"
-    ng-init="showHide('cursedItemsOpener');"
+    id="cursedItemsController"
+    class="modal"
+    ng-if="ngVisible['cursedItemsController']"
 >
     <div class="modal-content survivor_sheet_gradient">
-        <span class="closeModal" onclick="showHide('cursedItems')">×</span>
+        <span class="closeModal" ng-click="ngHide('cursedItemsController')">×</span>
 
         <h3>Cursed Items</h3>
+
         <p>Use the controls below to add cursed items to a Survivor. Cursed
         gear cannot be removed from the Survivor's gear grid. Archive the gear
         when the survivor dies.</p>
 
         <div class="cursed_items_flex_container">
 
-            <div class="cursed_item_toggle" ng-repeat="c in settlement.game_assets.cursed_items">
-                <input
-                    id="{{c.handle}}"
-                    class="cursed_item_toggle"
-                    type="checkbox"
-                    ng-model="cursedItemHandle"
-                    ng-change="toggleCursedItem(c.handle)"
-                    ng-checked="survivor.sheet.cursed_items.indexOf(c.handle) != -1"
-                />
-                <label
-                    class="cursed_item_toggle"
-                    for="{{c.handle}}"
-                 >
-                    <span class="cursed_item_name">{{c.name}}</span>
+            <div
+                class="cursed_item_toggle"
+                ng-repeat="c in settlement.game_assets.cursed_items"
+                ng-click="toggleCursedItem(c.handle)"
+                ng-class="{
+                    'active': survivor.sheet.cursed_items.indexOf(c.handle) != -1
+                }"
+            >
+                <span class="cursed_item_name">{{c.name}}</span>
 
-                    <div class="cursed_item_ability_block" ng-repeat="a in c.abilities_and_impairments">
-                        <span
-                            ng-if="settlement.game_assets.abilities_and_impairments[a] != undefined"
-                            class="cursed_item_ability"
-                        >
-                            {{settlement.game_assets.abilities_and_impairments[a].name}} -
-                        </span>
-                        <span
-                            class="cursed_item_ability_desc"
-                            ng-if="settlement.game_assets.abilities_and_impairments[a] != undefined"
-                            ng-bind-html="settlement.game_assets.abilities_and_impairments[a].desc|trustedHTML"
-                        >
-                        </span>
+                <div
+                    class="cursed_item_ability_block"
+                    ng-repeat="a in c.abilities_and_impairments"
+                >
+                    <span
+                        ng-if="settlement.game_assets.abilities_and_impairments[a] != undefined"
+                        class="cursed_item_ability"
+                    >
+                        {{settlement.game_assets.abilities_and_impairments[a].name}} -
+                    </span>
+                    <span
+                        class="cursed_item_ability_desc"
+                        ng-if="settlement.game_assets.abilities_and_impairments[a] != undefined"
+                        ng-bind-html="settlement.game_assets.abilities_and_impairments[a].desc|trustedHTML"
+                    >
+                    </span>
 
-                    </div>
-                </label>
+                </div>
 
             </div><!-- cursed_item_toggle -->
         </div> <!-- cursed_items_flex_container-->
+
+        <button
+            class="kd_kickstarter_button"
+            ng-click="ngHide('cursedItemsController')"
+        >
+            Close
+        </button>
+
     </div> <!-- modal-content -->
-</div> <!-- modal -->
+
+</div> <!-- cursed items modal -->
 
 
     <!-- THE CONSTELLATIONS -->

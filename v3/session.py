@@ -552,7 +552,7 @@ class Session:
 
         elif self.current_view == "new_settlement":
             body = 'create_new_settlement'
-            include_ui_templates = ['nav']
+            include_ui_templates = ['nav', 'help', 'report_error']
             output += html.get_template('new_settlement.html')
 
         elif self.current_view == "view_campaign":

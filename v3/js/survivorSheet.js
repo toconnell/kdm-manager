@@ -195,6 +195,18 @@ app.controller("survivorSheetController", function($scope) {
         $scope.postJSONtoAPI('survivor','toggle_damage',{'location': loc}, false, true, true);
     };
 
+    $scope.toggleCursedItem = function(handle) {
+    //        console.log(handle);
+        var itemIndex = $scope.survivor.sheet.cursed_items.indexOf(handle);
+        if (itemIndex === -1) {
+            $scope.survivor.sheet.cursed_items.push(handle);
+            $scope.postJSONtoAPI('survivor','add_cursed_item', {'handle': handle}, true, true, true);
+        } else {
+            $scope.survivor.sheet.cursed_items.splice(itemIndex, 1);
+            $scope.postJSONtoAPI('survivor','rm_cursed_item', {'handle': handle}, true, true, true);
+        };
+    };
+
     // favorite requires special logic, since it's an append
     $scope.toggleFavorite = function() {
         var user_index = $scope.survivor.sheet.favorite.indexOf($scope.user_login);
@@ -456,18 +468,7 @@ app.controller("affinitiesController", function($scope) {
 });
 
 
-app.controller("cursedItemsController", function($scope) {
 
-    $scope.toggleCursedItem = function(handle) {
-//        console.log(handle);
-        if ($scope.survivor.sheet.cursed_items.indexOf(handle) == -1) {
-            $scope.postJSONtoAPI('survivor','add_cursed_item', {'handle': handle});
-        } else {
-            $scope.postJSONtoAPI('survivor','rm_cursed_item', {'handle': handle});
-        };
-    };
-
-});
 
 
 

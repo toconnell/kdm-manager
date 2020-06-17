@@ -13,7 +13,10 @@
 >
 
     <!-- settlement name -->
-    <div class="kd_sheet_ui_inner_ring_container new_settlement_form">
+    <div
+        id="newSettlementSettlementName"
+        class="kd_sheet_ui_inner_ring_container new_settlement_form"
+    >
         <div
             id="newSettlementName"
             class="settlement_name"
@@ -40,19 +43,22 @@
         <div ng-if="new_settlement_assets === undefined" class="new_settlement_loading">
             <img src="/media/loading_io.gif">
         </div>
-        <div
-            class="new_settlement_asset_clicker clickable"
-            ng-repeat="c in new_settlement_assets.campaigns"
-            ng-click="newSettlement.campaign = c.handle"
-            ng-class="{active: newSettlement.campaign === c.handle}"
-        >
+        <div class="new_settlement_asset_clicker_container">
             <div
-                class="kd_sheet_ui_box"
-                ng-class="{checked: newSettlement.campaign === c.handle}"
-            ></div>
-            {{c.name}}
-            <p ng-if="c.subtitle" class="new_settlement_asset_desc">{{c.subtitle}}</p>            
-        </div>
+                class="new_settlement_asset_clicker clickable"
+                ng-repeat="c in new_settlement_assets.campaigns"
+                ng-click="newSettlement.campaign = c.handle"
+                ng-class="{active: newSettlement.campaign === c.handle}"
+            >
+                <div
+                    class="kd_sheet_ui_box"
+                    ng-class="{checked: newSettlement.campaign === c.handle}"
+                ></div>
+                {{c.name}}
+                <p ng-if="c.subtitle" class="new_settlement_asset_desc">{{c.subtitle}}</p>
+                <div ng-if="c.subtitle === undefined"></div>
+            </div>
+        </div><!-- new_settlement_asset_clicker_container -->
     </div>  <!-- campaign -->
 
 
@@ -77,7 +83,7 @@
                 'White Box',
                 'Enhancement'
             ]" 
-            class="ng_fade"
+            class="ng_fade new_settlement_asset_clicker_container"
         >
             <h4>{{category}}</h4>
             <div
@@ -118,33 +124,38 @@
             <img src="/media/loading_io.gif">
         </div>
 
-        <!-- specials -->
         <div
-            class="new_settlement_asset_clicker clickable"
-            ng-class="{active: newSettlement.specials.indexOf(special.handle) != -1}"
-            ng-repeat="special in new_settlement_assets.specials"
-            ng-click="toggleAttrib('specials',special.handle)"
+            class="ng_fade new_settlement_asset_clicker_container"
         >
+            <!-- specials -->
             <div
-                class="kd_sheet_ui_box"
-                ng-class="{checked: newSettlement.specials.indexOf(special.handle) != -1}"
-            ></div>
-            {{special.name}}
-            <p ng-bind-html="special.desc|trustedHTML" class="new_settlement_asset_desc"></p>
-        </div>
+                class="new_settlement_asset_clicker clickable"
+                ng-class="{active: newSettlement.specials.indexOf(special.handle) != -1}"
+                ng-repeat="special in new_settlement_assets.specials"
+                ng-click="toggleAttrib('specials',special.handle)"
+            >
+                <div
+                    class="kd_sheet_ui_box"
+                    ng-class="{checked: newSettlement.specials.indexOf(special.handle) != -1}"
+                ></div>
+                {{special.name}}
+                <p ng-bind-html="special.desc|trustedHTML" class="new_settlement_asset_desc"></p>
+            </div>
 
-        <!-- survivors -->
-        <div
-            class="new_settlement_asset_clicker clickable"
-            ng-class="{active: newSettlement.survivors.indexOf(survivor.handle) != -1}"
-            ng-repeat="survivor in new_settlement_assets.survivors"
-            ng-click="toggleAttrib('survivors',survivor.handle)"
-        >
+            <!-- survivors -->
             <div
-                class="kd_sheet_ui_box"
-                ng-class="{checked: newSettlement.survivors.indexOf(survivor.handle) != -1}"
-            ></div>
-            {{survivor.name}}
+                class="new_settlement_asset_clicker clickable"
+                ng-class="{active: newSettlement.survivors.indexOf(survivor.handle) != -1}"
+                ng-repeat="survivor in new_settlement_assets.survivors"
+                ng-click="toggleAttrib('survivors',survivor.handle)"
+            >
+                <div
+                    class="kd_sheet_ui_box"
+                    ng-class="{checked: newSettlement.survivors.indexOf(survivor.handle) != -1}"
+                ></div>
+                {{survivor.name}}
+                <div></div>
+            </div>
         </div>
 
     </div> <!-- specials and pre-fab survivors -->

@@ -545,11 +545,11 @@
                                                 >
 
                                                     <div
-                                                        class="hitbox_shield_container brain clickable"
+                                                        class="hitbox_shield_container brain"
                                                         ng-click="rollUp(brainBoxID)"
                                                     >
                                                         <input
-                                                            class="hitbox_shield brain"
+                                                            class="hitbox_shield brain clickable"
                                                             type="number"
                                                             ng-model="s.sheet.Insanity"
                                                             min="0"
@@ -632,11 +632,11 @@
                     class="hitbox_container"
                 >
                     <div
-                        class="hitbox_shield_container clickable"
+                        class="hitbox_shield_container"
                         ng-click="rollUp(ctrlBoxID)"
                     >
                         <input
-                            class="hitbox_shield"
+                            class="hitbox_shield clickable"
                             type="number"
                             min="0"
                             ng-model="s.sheet[location.name]"
@@ -769,81 +769,90 @@
 
             <!-- weapon prof -->
             <div
-                        class="quickview_secondary_container weapon_proficiency clickable border_box"
-                        ng-click="rollUp(weaponProficiencyBoxID)"
-                    >
-                        Weapon Proficiency
-                        <div
-                            class="secondary_attrib_box_row"
-                            ng-init="wpBoxes = [1,2,3,4,5,6,7,8]"
-                        >
-                            <div class="weapon_proficiency_type">
-                                <b>Type</b>:
-                                <span class="null_weapon_proficiency" ng-if="s.sheet.weapon_proficiency_type == undefined"></span>
-                                <span ng-if="s.sheet.weapon_proficiency_type != undefined">
-                                    {{settlement.game_assets.weapon_proficiency_types[s.sheet.weapon_proficiency_type].name}}
-                                </span>
-                            </div>
-                            <div
-                                class="kd_sheet_ui_box"
-                                ng-repeat = "b in wpBoxes"
-                                ng-class="{
-                                    checked: s.sheet['Weapon Proficiency'] >= b,
-                                    heavy: [3,8].indexOf(b) != -1,
-                                }"
-                            >
-                            </div>
-                        </div>
-                        <div
-                            class="kd_sheet_ui_row_tip"
-                            ng-repeat="ai_handle in s.sheet.abilities_and_impairments track by $index"
-                            ng-if="settlement.game_assets.weapon_specializations[ai_handle] != undefined"
-                        >
-                            <b>{{settlement.game_assets.weapon_specializations[ai_handle].name}}:</b>
-                            <span
-                                ng-bind-html="settlement.game_assets.weapon_specializations[ai_handle].desc|trustedHTML"></span>
-                        </div>
-                    </div>
-                    <div
-                        id="{{weaponProficiencyBoxID}}"
-                        class="kd_sheet_ui_roll_down rolled_up"
-                    >
-                        <div class="kd_sheet_ui_roll_down_controls">
+                class="quickview_secondary_container weapon_proficiency clickable border_box"
+                ng-click="rollUp(weaponProficiencyBoxID)"
+            >
 
-                            <div
-                                class="kd_sheet_ui_row_tip"
-                                ng-if="
-                                    s.sheet.weapon_proficiency_type == undefined &&
-                                    user.user.preferences.show_ui_tips
-                                "
-                            >
-                                Use the controls on the <b>Survivor Sheet</b>
-                                to set the Weapon Proficiency type 
-                                for {{s.sheet.name}}.
-                            </div>
+                 Weapon Proficiency
 
-                            <div class="kd_sheet_ui_number_tumbler">
-                                <button
-                                    class="kd_kickstarter_button"
-                                    ng-click="s.sheet['Weapon Proficiency'] = s.sheet['Weapon Proficiency'] + 1"
-                                >
-                                    &#x25B2;
-                                </button>
-                                <button
-                                    class="kd_kickstarter_button"
-                                    ng-click="s.sheet['Weapon Proficiency'] = s.sheet['Weapon Proficiency'] - 1"
-                                >
-                                    &#x25BC;
-                                </button>
-                                <button
-                                    class="kd_kickstarter_button kd_blue"
-                                    ng-click="setSurvivorAttribute(s, 'Weapon Proficiency'); rollUp(weaponProficiencyBoxID)"
-                                >
-                                    Save Changes
-                                </button>
-                            </div> <!-- number tumbler -->
-                        </div>
-                    </div>
+                 <div
+                     class="secondary_attrib_box_row weapon_proficiency"
+                 >
+
+                     <div class="weapon_proficiency_type">
+                         <b>Type</b>:
+                         <span
+                            class="null_weapon_proficiency"
+                            ng-if="s.sheet.weapon_proficiency_type == undefined"
+                         ></span>
+                         <span ng-if="s.sheet.weapon_proficiency_type != undefined">
+                             {{settlement.game_assets.weapon_proficiency_types[s.sheet.weapon_proficiency_type].name}}
+                         </span>
+                     </div>
+
+                     <div class="weapon_proficiency_boxes">
+                         <div
+                             class="kd_sheet_ui_box"
+                             ng-repeat = "b in [1,2,3,4,5,6,7,8]"
+                             ng-class="{
+                                 checked: s.sheet['Weapon Proficiency'] >= b,
+                                 heavy: [3,8].indexOf(b) != -1,
+                             }"
+                         >
+                         </div>
+                     </div>
+
+                 </div>
+                 <div
+                     class="kd_sheet_ui_row_tip"
+                     ng-repeat="ai_handle in s.sheet.abilities_and_impairments track by $index"
+                     ng-if="settlement.game_assets.weapon_specializations[ai_handle] != undefined"
+                 >
+                     <b>{{settlement.game_assets.weapon_specializations[ai_handle].name}}:</b>
+                     <span
+                         ng-bind-html="settlement.game_assets.weapon_specializations[ai_handle].desc|trustedHTML"></span>
+                 </div>
+             </div>
+             <div
+                 id="{{weaponProficiencyBoxID}}"
+                 class="kd_sheet_ui_roll_down rolled_up"
+             >
+                 <div class="kd_sheet_ui_roll_down_controls">
+
+                     <div
+                         class="kd_sheet_ui_row_tip"
+                         ng-if="
+                             s.sheet.weapon_proficiency_type == undefined &&
+                             user.user.preferences.show_ui_tips
+                         "
+                     >
+                         Use the controls on the <b>Survivor Sheet</b>
+                         to set the Weapon Proficiency type 
+                         for {{s.sheet.name}}.
+                     </div>
+
+                     <div class="kd_sheet_ui_number_tumbler">
+                         <button
+                             class="kd_kickstarter_button"
+                             ng-click="s.sheet['Weapon Proficiency'] = s.sheet['Weapon Proficiency'] + 1"
+                         >
+                             &#x25B2;
+                         </button>
+                         <button
+                             class="kd_kickstarter_button"
+                             ng-click="s.sheet['Weapon Proficiency'] = s.sheet['Weapon Proficiency'] - 1"
+                         >
+                             &#x25BC;
+                         </button>
+                         <button
+                             class="kd_kickstarter_button kd_blue"
+                             ng-click="setSurvivorAttribute(s, 'Weapon Proficiency'); rollUp(weaponProficiencyBoxID)"
+                         >
+                             Save Changes
+                         </button>
+                     </div> <!-- number tumbler -->
+                 </div>
+             </div>
 
 
         <hr/>
@@ -1263,6 +1272,29 @@
 
             <h3>- Available Endeavors ({{settlement.campaign.endeavor_count}}) -</h3>
 
+            <!--
+
+                some weird shit goes into keeping this DRY. At the outermost
+                layer, we iterate over endeavor types ('endeavorType'); those
+                keys are also keys in the settlement.campaign.endeavors dict.
+
+                The values in that dict are lists of handles, which we then
+                iterate, expanding them into endeavor dictionaries as we go.
+
+                As we're expanding each dict, we have h5's for each
+                possible type (i.e. the first thing we're iterating) that we
+                show if the endeavor is that type.
+
+                Our "fuck you, Poots" exception here is when we're doing the
+                'survivors' type endeavors, where the 'endeavor' dict we would
+                expand is actually a survivor dict, so we can tell the user
+                which survivor has the ability to trigger the endeavor.
+
+                See app.models.settlements.py (the get_available_endeavors() 
+                method, specifically) int he API for more.
+
+            -->
+
             <!-- generic endeavor type repeater -->
             <div
                 class="campaign_summary_endeavor_container_repeater"
@@ -1325,7 +1357,6 @@
                         ng-init="e = settlement.game_assets.endeavors[e_handle]"
                         class="campaign_summary_endeavor_container {{e.class}}"
                     >
-
                         <div class="endeavor_cost {{e.class}} kdm_font_10">
                             <span ng-repeat="c in range(e.cost)">d</span>
                         </div>

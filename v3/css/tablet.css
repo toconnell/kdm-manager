@@ -118,7 +118,11 @@
 
         /*  survivor quickview  */
     .survival_box_number,
-        .attribute_box .attribute_box_number {font-size: 4vw; }
+        .attribute_box .attribute_box_number {
+        margin: 1vh; 
+        font-size: 4vw;
+        min-height: auto; 
+    }
     .death_x {font-size: 150px; margin-top: -1vh; }
     #survivorQuickviewLeftColumn {
         border: 0; 
@@ -215,6 +219,10 @@
     .settlement_sheet_settlement_name {
         font-size: 5vh;
     }
+    .vertical_tumbler_container input {
+        height: 6vh;
+        width: 6vh;
+    }
     .settlement_sheet_tumbler_number {
         height: 7vh;
         width: 7vh; 
@@ -308,6 +316,7 @@
     .survivor_sheet_card {
         margin: unset; 
     }
+    .fighting_art_card_strain_threshold_blocks_container {margin-top: -8%; }
 
     #survivorViewAdminTab {
         display: flex;
@@ -322,11 +331,44 @@
     #survivorViewNotesTab #survivorSheetBiographyContainer {
         width: 98%; 
     }
+
+    .cursed_items_flex_container {
+        flex-direction: row;
+        flex-wrap: wrap;  
+    }
+    .cursed_item_toggle {
+        width: 40%;
+    }
+    .survivor_sheet_survivor_notes_slug_line {
+        min-height: unset;
+    }
+    .survivor_sheet_rm_note_clicker {
+        width: 15%; 
+        font-size: 5vw;
+    }
+
     .survivor_sheet_public_toggle {
         font-size: 0.8em; 
     }
+
+    .survivor_sheet_tag {
+        max-height: 2vh;
+    }
+
     button.permanently_delete {
         margin: 5%; 
+    }
+
+
+    /*  help.html   */
+    .help_container {
+        margin-bottom: 15%; 
+    }
+    .help_col_container {
+        column-count: 2;
+        column-width: auto;
+        column-gap: 1%;
+        margin: 1%;
     }
 
 }

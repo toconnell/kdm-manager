@@ -5,6 +5,7 @@
 @media only screen and (min-width: 1050px) and (orientation: landscape) {
 
     html {font-size: 12pt;}
+    h2 {font-size: 17pt; }
     h3 {font-size: 15pt; }
     h4 {font-size: 14pt; font-weight: normal; }
 
@@ -50,10 +51,21 @@
     }
 
     /*  kd_sheet_ui styles - desktop */
+    .kd_sheet_ui_box {
+        border-width: 0.1em;
+        width: 1em;
+        height: 1em;
+    }
+    .kd_sheet_ui_box.heavy {
+        border-width: 3px; 
+    }
     .kd_sheet_ui_inner_ring_container {
         width: 40%;
         margin: 0 auto;
         margin-top: 3%;
+    }
+    .kd_sheet_ui_inner_ring_container p {
+        margin: 1%; 
     }
 
     /*  kd_kickstarter UI styles - desktop */
@@ -61,6 +73,9 @@
         margin-top: 5%;
         margin-bottom: 5%;
         padding: 1%;
+    }
+    .kd_kickstarter_select {
+        height: 3vh; 
     }
 
 
@@ -72,13 +87,65 @@
     #dashboardControlElement {margin-left: 3%; }
     #dashboardCreateNewSettlement {margin-bottom: 3%; }
 
+    .dashboard_rollup,
+        .dashboard_accordion {
+        width: 560px;
+        margin-left: 1%;
+        margin-bottom: 3%;
+        border-left: 1px solid;
+        border-right: 1px solid; 
+    }
+    .dashboard_rollup {
+        border-top: 1px solid;
+        border-bottom: 1px solid;
+    }
+    .dashboard_rollup.open {
+        margin-bottom: 5%;
+    }
+    .dashboard_accordion.rolled_down {
+        margin-bottom: 1%;
+        border-bottom: 1px solid; 
+    }
+
+    .dashboard_preference_election_item {
+        margin-bottom: 1%;
+        padding: 1%
+    }
+
     /*
 
         NEW SETTLEMENT - desktop
 
     */
     #createNewSettlementButton {width: 40%; }
+    .kd_sheet_ui_outer_ring_container.new_settlement_form {
+        flex-direction: column;
+        max-width: 1200px; 
+        align-items: end;
+        flex-wrap: wrap;
+        margin-left: 3%;
+    }
 
+    .new_settlement_form .settlement_name {
+        font-size: 1.5em; 
+    }
+    .new_settlement_form h4 {
+        width: 100%; 
+    }
+    .kd_sheet_ui_inner_ring_container.new_settlement_form {
+        width: 98%
+    }
+    .new_settlement_asset_clicker_container {
+        display: flex;
+        flex-wrap: wrap;
+        margin-left: 3%;
+        margin-bottom: 3%; 
+    }
+    .new_settlement_asset_clicker {
+        margin: 1%; 
+        width: 45%;
+        box-sizing: border-box;
+    }
 
     /*
 
@@ -120,9 +187,10 @@
         margin-top: -2vh;
     }
 
-    /*  survivor quickview   */
+    /*  survivor quickview - desktop    */
     .kd_sheet_ui_inner_ring_container.survivor_quickview_container {
-        width: 65%; 
+        width: 75%; 
+        max-width: 1000px; 
     }
     .survivor_quickview_container .columns {
         display: flex;
@@ -134,21 +202,135 @@
         margin: 1% auto;
         width: 50%; 
     }
+    #survivorQuickviewLeftColumn {
+        border: none; 
+    }
+    .hitbox_container {
+        height: 6vh; 
+    }
     .quickview_brain_container, .quickview_hitbox_container {
         margin: 0 auto; 
     }
-    .quickview_secondary_container.courage,
-        .quickview_secondary_container.understanding {
-        font-size: 12pt;
+    .attribute_box .attribute_box_number {
+        font-size: 20pt;
+        min-height: 50px; 
+        margin: 1vh; 
     }
+    .vertical_tumbler_container input {
+        width: 5vh;
+        height: 5vh; 
+    }
+    .hitbox_boxes_container {
+        width: 25%; 
+    }
+    .hitbox_container.brain {
+        height: 8vh;
+    }
+    .hitbox_boxes_container .damage_box {
+        width: 35px;
+        height: 35px; 
+    }
+    .hitbox_boxes_container .heavy.damage_box {
+        width: 25px;
+        height: 25px; 
+    }
+    .hitbox_shield {
+        width: 35%;
+    }
+    .hitbox_shield.brain {
+        width: 40%;
+    }
+    .secondary_attrib_box_row.hunt_xp {width: 70%; }
     .secondary_attrib_box_row .weapon_proficiency_type {
+        width: 100%; 
+        font-size: 10pt;
+    }
+    .secondary_attrib_box_row.courage,
+        .secondary_attrib_box_row.understanding {
+        font-size: 12pt; 
+    }
+    .weapon_proficiency_type {
         font-size: 10pt; 
     }
-    .quickview_asset_list_title_bar .title {
+    .weapon_proficiency_boxes {
+        width: 75%;        
+    }
+    .secondary_attribute_title_bar .title,
+        .quickview_asset_list_title_bar .title {
         font-size: 14pt; 
     }
     .quickview_asset_list_title_bar .subtitle,
-        .quickview_asset_list_title_bar .lockbox {
+        .secondary_attribute_title_bar .subtitle, 
+        .quickview_asset_list_title_bar .lockbox, 
+        .secondary_attribute_title_bar .lockbox {
         font-size: 10pt; 
     }
+    .quickview_asset_list {
+        padding-left: 1%; 
+    }
+    .quickview_ui_button_container {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-evenly;
+        margin: 3%;
+    }
+    .quickview_ui_button_container div {
+        width: 50%;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    /*  help.html   */
+
+    .kd_sheet_ui_inner_ring_container.help_container {
+        width: 98%;
+        margin-bottom: 10%;  
+    }
+
+    .help_container {
+        margin-bottom: 15%;
+    }
+    .help_col_container {
+        column-count: 3;
+        column-width: auto;
+        column-gap: 1%;
+        margin: 1%;
+    } 
+    .help_section_campaign_title {
+        margin-top: 0; 
+    }
+
+    /*  survivor_search.html - desktop */
+    #survivorSearchModalOpener {
+        top: 0.5%;
+        width: 55%;  
+    }
+    .survivor_search_modal_content {
+        left: 16%;
+        right: 16%;
+        top: 0;
+        margin-bottom: 15%; 
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    .survivor_search_button {
+        width: 48%;
+        margin: 1%; 
+    }
+    .survivor_search_attrib_container {
+        text-indent: initial;
+    }
+
+
+    /*  settlement_sheet.html - desktop */
+
+    .settlement_sheet_tumbler_control_raft button {
+        font-size: 3vh;
+    }
+
 }
+
+

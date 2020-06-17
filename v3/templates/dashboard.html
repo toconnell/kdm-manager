@@ -148,7 +148,7 @@
                         >
 
                             <div
-                                class="dashboard_preference_election_item"
+                                class="dashboard_preference_election_item clickable"
                                 ng-repeat="option in [
                                     ['affirmative', true],
                                     ['negative', false]
@@ -745,6 +745,7 @@
             <div
                 id="aboutDiv"
                 class="dashboard_accordion about_secondary rolled_up"
+                ng-class="{'rolled_down': ngRolledUp['aboutDiv'] === false}"
             >
                 <a href="https://thelaborinvain.com" target="top">
                     <img

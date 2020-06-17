@@ -43,7 +43,7 @@ span.settlement_sheet_gradient {border-color: #243b55;}    /* bottom bar */
 .about_secondary {background: linear-gradient(to right, #212121, #343434, #404040, #343434, #212121);}
 .system_primary {background: linear-gradient(to right, #000, #111, #000); }
 .system_secondary {background: linear-gradient(to right, #000, #111, #000); }
-
+.dashboard_accordion.rolled_down {border-color: #000; }
 .dashboard_preference_block_container {border-color: #700; background: #111;}
 .dashboard_preference_block_group h2 {border-bottom: none;}
 .preferences_change_pw {background: inherit; color #fff; border: 1px solid #333; }

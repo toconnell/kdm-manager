@@ -221,6 +221,17 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
 
     };
 
+    $scope.ngSetFocus = function(e) {
+        // sets focus on a specific element
+        var element = document.getElementById(e);
+        console.info("Setting focus to '" + e + "'");
+        if (element === null) {
+            console.error('Element is null! Cannot set focus...');
+        } else {
+            element.focus();
+        };
+    };
+
     $scope.numberToRange = function(num) {
         return new Array(num); 
     };
@@ -840,11 +851,12 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
     };
 
     $scope.postJSONtoAPI = function(collection, action, json_obj, reinit, show_alert, update_sheet) {
+        // reinit defaults to true;
+        // show_alert defaults to true;
+        // update_sheet defaults to false;
         console.time('postJSONtoAPI(' + collection + ', ' + action + ')');
         if (reinit === undefined) {reinit = true};
         if (show_alert === undefined) {show_alert = true};
-//        console.error("show_alert: " + show_alert);
-//        console.error("update_sheet: " + update_sheet);
 
         // always serialize on response, regardless of asset type
         json_obj.serialize_on_response = true;

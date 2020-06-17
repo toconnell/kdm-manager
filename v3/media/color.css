@@ -1,6 +1,7 @@
 /* DO NOT MAKE BREAKPOINT-SPECIFIC CHANGES IN THIS FILE */
 /* DO NOT MODIFY BORDER ATTRIBUTES OTHER THAN COLOR IN THIS FILE */
 
+
 /* zebras */
 .zebra {background-color: #efefef; }
 .no_zebra {background-color: #fff; }
@@ -120,6 +121,7 @@ div.dashboard_welcome_modal {
     color: #fff;
     background: rgba(0,0,0,0.95);
 }
+.dashboard_preference_block_group h2 {border-color: #bbb;}
 .world_panel_basic_box { border-color: #333; background: #fff; }
 
 /*                      
@@ -230,3 +232,12 @@ textarea.report_error:focus {box-shadow: none; }
 */
 .insane {color: #DC2426; border-color: #DC2426; }
 .survivor_sheet_tag.add_tag { background: #efefef;}
+.cursed_item_toggle {
+    color: #666; 
+    border-color: #aaa;
+}
+.cursed_item_toggle.active {
+    color: #B60200;
+    border-color: #BF2548;
+    background-color: #F5F1f8;
+}

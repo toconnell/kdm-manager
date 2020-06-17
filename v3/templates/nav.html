@@ -220,8 +220,10 @@
     <button
         id="reportErrorButton"
         class="sidenav_button sidenav_modal_launcher"
-        onclick="showHide('modalReportError')"
-        ng-click="closeLeftSideNav()"
+        ng-click="
+            showHide('modalReportError');
+            closeLeftSideNav()
+        "
     >
         Report an Issue or Error
     </button>
@@ -254,7 +256,7 @@
 >
     <div
         ng-if="scratch.left_side_nav_open"
-        class="left_side_underlay_button close ng_fade"
+        class="left_side_underlay_button close clickable ng_fade"
         title="Close left side navigation!"
     >
         &#x274C;

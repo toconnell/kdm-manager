@@ -16,7 +16,10 @@
             <div
                 class="new_survivor_link clickable"
                 ng-repeat="sheet in scratch.newSurvivorSheets"
-                ng-click="postForm('view_survivor', sheet._id.$oid)"
+                ng-click="
+                    showFullPageLoader();
+                    postForm('view_survivor', sheet._id.$oid)
+                "
             >
                 <div class="avatar">
                     <img

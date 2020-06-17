@@ -36,7 +36,8 @@ div.full_size_modal_panel                   {z-index: 5000; }
 span.timeline_overlay_current_ly            {z-index: 10000; }
 
     /* UI and feedback indexes */
-.api_error_modal, .control_error                              {z-index: 9999998;}
+#fullPageLoader                             {z-index: 9999997;}
+.api_error_modal, .control_error            {z-index: 9999998;}
 #error_dialog, #saved_dialog                {z-index: 9999999;} /* platinum ticket */
 
 

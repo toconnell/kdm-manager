@@ -33,6 +33,16 @@ p {margin: 3%; }
 
 /*  major UI stuff; sfx; consistency,etc.    */
 
+.clickable {
+    cursor: pointer;
+    transition: 0.25s;
+    outline: none; 
+}
+button:active,
+    .clickable:active {
+    transform:translate(0.15vh, 0.15vh);
+}
+
 .hidden {display: none !important;}
 .faded {opacity: 0.3; transition: 3s; }
 .rolled_up {max-height: 0 !important;}
@@ -45,6 +55,7 @@ div#container {
     margin-bottom: 11vh;
     overflow: hidden;       /*  scrollbar dead man switch */
 }
+
 
 /*  general UI  */
 
@@ -195,7 +206,6 @@ div#container {
     .kd_sheet_ui_row.tooltip {  /* these are tooltips */
     padding: 1%;
     margin: 0 auto;
-    width: 95%;
 } 
 .kd_sheet_ui_row {
     display: flex;
@@ -477,6 +487,12 @@ body.dashboard {margin-top: -5vh; }
 .dashboard_accordion.rolled_down {
     padding-bottom: 3%;
 }
+.dashboard_preference_block_group h2 {
+    border: none;
+    border-bottom: 1px solid;
+    padding-left: 5%; 
+}    
+
 #systemPanelUserLogin {padding-top: 5%; font-family: 'Silverado';}
 .dashboard_user_expansions_repeater {
     display: flex;
@@ -650,7 +666,11 @@ h3.new_survivor_sheet {
     border: 0;
     text-align: center;
     font-weight: bold;
+    outline: none;
+    padding: 1%;
+    padding-top: 0;
 }
+.new_settlement_form h4 {margin-left: 3%; }
 .new_settlement_asset_clicker {margin: 7%;}
 #createNewSettlementButton {margin-top: 6%; margin-bottom: 6%;}
 
@@ -701,7 +721,6 @@ h3.new_survivor_sheet {
     padding-top: 6vh;  
 }
 .survivor_search_button {
-    cursor: pointer;
     margin: 3%;
 }
 .survivor_search_button_inner {
@@ -761,6 +780,7 @@ h3.new_survivor_sheet {
     text-align: justify;
     font-style: Italic;
     border-top: 1px solid;
+    width: 100%; 
 }
 
 /*
@@ -783,6 +803,10 @@ h3.new_survivor_sheet {
     font-size: 1.4em;
     text-align: center;
     margin-top: 0; 
+}
+
+.dead_guardian_ul {
+    text-align: left; 
 }
 
 /*  headline and diamonds   */
@@ -911,6 +935,14 @@ h3.new_survivor_sheet {
     margin-bottom: 1%; 
     width: 90%;
 }
+.survivor_tag {
+    padding: 1%;
+    font-family: 'Silverado';
+    margin: 2%;
+    width: auto;
+    display: flex;
+    justify-content: center;
+}
 div.campaign_summary_endeavor_controller div.controls button {
     margin: auto;
     height: 5vh;
@@ -1029,6 +1061,10 @@ div.campaign_summary_endeavor_controller div.controls button {
     font-family: 'Ruda';
     font-size: 4vw;
     width: 50%;
+}
+.weapon_proficiency_boxes {
+    width: 50%;
+    display: flex; 
 }
 .quickview_ui_button_container {
     margin-top: 10%; 
@@ -1386,6 +1422,12 @@ h3.storage_type_title {
 }
 
 /*  survival box elements; shared with campaign summary quickview */
+.survival_box_survival_action_item {
+    padding: 1px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+} 
 .survival_box_number {
     border: 2px solid;
     padding: 0;
@@ -1457,6 +1499,7 @@ h3.storage_type_title {
 .attribute_box .attribute_box_number {
     font-size: 7vw;
     width: 70%;
+    min-height: 5vh;
     border: 1px solid;
     margin: 2vw;
     padding: 0;
@@ -1487,6 +1530,7 @@ h3.storage_type_title {
     font-size: 0.7em;
 }
 .hitbox_shield {
+    outline: none; 
     padding: 0;
     text-align: center;
     font-size: 1.7em;
@@ -1497,8 +1541,8 @@ h3.storage_type_title {
     border-bottom-left-radius: 5vh;
 }
 .hitbox_shield.brain {
-    width: 40%;
-    height: 50%; 
+    width: 50%;
+    height: 55%; 
 }
 .hitbox_detail {
     display: flex;
@@ -1578,6 +1622,7 @@ h3.storage_type_title {
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: 3px; 
 }
 .frd_toggle .kd_sheet_ui_box {
     margin-right: 3%;
@@ -1651,6 +1696,29 @@ h3.storage_type_title {
     border: 0;
 }
 
+    /* cursed items!? */
+.cursed_items_flex_container {
+    display: flex;
+    justify-content: center; 
+    flex-direction: column; 
+    padding: 0;
+}
+.cursed_item_toggle {
+    box-sizing: border-box;
+    border: 1vw solid;
+    margin: 3%;
+    border-radius: 2vw;
+    padding: 1%; 
+    transition: 1s;
+    height: fit-content; 
+}
+.cursed_item_name {
+    font-weight: bold;
+}
+.cursed_item_ability_desc b {
+    font-family: 'Silverado';
+}
+
 /*  survivor sheet admin tab */
 .survivor_sheet_public_toggle {
     display: flex;
@@ -1675,4 +1743,23 @@ input.survivor_owner_email:focus {
 }
 input.survivor_owner_email:invalid {
     background: radial-gradient(#FDcDc9, #FFcFC5);
+}
+
+
+
+/*      report_error.html   */
+.report_error_container p {
+    text-align: justify;
+}
+
+/*      help.html   */
+.help_container {
+    margin-bottom: 20%; 
+}
+.help_section {
+    break-inside: avoid; 
+}
+.help_modal_tip_repeater b:after {
+    content: '\A';
+    display: table;
 }
