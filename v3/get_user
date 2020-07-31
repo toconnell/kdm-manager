@@ -52,8 +52,17 @@ if __name__ == "__main__":
         export_type = params["export_type"].value
 
 	# autobots: roll out!
-    user_object = assets.User(user_id=u_id, session_object={"login": "ADMINISTRATOR", "_id": 0})
-    filename = "%s_%s.kdm-manager_export.%s" % (datetime.now().strftime(ymd), user_object.user["login"], export_type.lower())
+    user_object = assets.User(
+        user_id=u_id,
+        session_object={"login": "ADMINISTRATOR", "_id": 0}
+    )
+
+    filename = "%s_%s.kdm-manager_export.%s" % (
+        datetime.now().strftime(ymd),
+        user_object.user["login"],
+        export_type.lower()
+    )
+
     payload = user_object.dump_assets(dump_type=export_type)
     headers = html.meta.basic_file_header % filename
     html.render(str(payload), http_headers = headers)

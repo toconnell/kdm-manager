@@ -146,6 +146,7 @@ class User:
             "user": self.user,
             "settlements": list(mdb.settlements.find({"created_by": self.user["_id"]})),
             "settlement_events": list(mdb.settlement_events.find({"created_by": self.user["_id"]})),
+            "survivor_notes": list(mdb.settlement_events.find({"created_by": self.user["_id"]})),
             "survivors": [],
             "avatars": [],
         }

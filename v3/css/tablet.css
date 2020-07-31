@@ -31,6 +31,20 @@
     #leftSideNav.open {width: 50%;}
     #leftSideNavUnderlay.open {width: 50%}
 
+
+    /*  tabs - tablet   */
+    .view_tab {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    .tab_nav_warning_arrow {
+        width: 10vh;
+        height: 10vh;
+        font-size: 10vh;
+        top: 75%; 
+    }
+
+
     /*  kd_sheet_ui styles - tablet */
     .kd_sheet_ui_row_tip {font-size: 1.5vh}
     .kd_sheet_ui_row.title {font-size: 2.2vh;}
@@ -187,11 +201,6 @@
 
     */
 
-    /*  settlement sheet tabs - tablet   */
-    .view_tab {
-        flex-direction: row;
-        flex-wrap: wrap;
-    }
 
     /*  settlement sheet  - tablet */
     #settlementSheetLeftColumn,
@@ -224,12 +233,8 @@
         width: 6vh;
     }
     .settlement_sheet_tumbler_number {
-        height: 7vh;
-        width: 7vh; 
-    }
-    .settlement_sheet_tumbler_number div {
-        font-size: 5vh; 
-    }
+        font-size: 5vh;
+    } 
     .settlement_sheet_tumbler_name {
         font-size: 1.5vh; 
     }

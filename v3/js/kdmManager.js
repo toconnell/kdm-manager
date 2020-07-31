@@ -19,23 +19,7 @@ function showCornerLoader()     {$('#cornerLoader').show();};
 function hideCornerLoader()     {$('#cornerLoader').fadeOut(1000);};
 
 
-function showAPIerrorModal(msg, request) {
-    e = document.getElementById('apiErrorModal');
-    e.classList.remove('hidden');
-    r = document.getElementById('apiErrorModalMsgRequest');
-    r.innerHTML = request;
-    m = document.getElementById('apiErrorModalMsg');
-    if (msg === null) {
-        m.innerHTML = 'API response is NULL. Possible preflight/CORS error!'
-    } else {
-        m.innerHTML = msg;
-    };
-};
 
-function hideAPIerrorModal() {
-    e = document.getElementById('apiErrorModal');
-    e.classList.add('hidden');
-};
 
 // public helpers
 function rollUp(e_id) {
@@ -154,7 +138,23 @@ app.filter('filterObjectBy', function() {
 });
 
 
-app.controller('rootController', function($scope, $rootScope, $http, $log) {
+app.controller('rootController', function($scope, $rootScope, $http, $log, $timeout) {
+    // debugger
+    document.addEventListener ("keydown", function (zEvent) {
+        if (zEvent.ctrlKey  &&  zEvent.altKey  &&  zEvent.key === "d") {  // case sensitive
+            var e = document.getElementById('ngDebugWindow')
+            if ($rootScope.NGDEBUG === true) {
+                e.classList.add('hidden')
+                console.warn('Debug mode disabled!')
+                $rootScope.NGDEBUG = undefined;
+            } else {
+                e.classList.remove('hidden')
+                console.warn('Debug mode enabled!')
+                $rootScope.NGDEBUG = true;
+            };
+        };
+    } );
+
     $scope.$log = $log;
     $scope.scratch = {}
     $scope.scratch.settlementsRetrieved = 0;
@@ -168,15 +168,29 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
     // initialize rootScope elements here; these are set on every view
     $rootScope.objectKeys = Object.keys;
 
+    // ngFlash ; show an element for an amount of ms
+    $rootScope.ngFlash = function(elementId, duration) {
+        if (duration === undefined) {
+            duration = 3000;
+        }
+
+        $scope.ngShow(elementId)
+        $timeout(function() {$scope.ngHide(elementId)}, duration);
+        
+    };
+
     // rollUp controls; now TOTALLY angular (no doc-scope JS)
     $rootScope.ngRolledUp = {};
-    $rootScope.rollUp = function(e_id) {
-    //    console.warn(e_id);
+    $rootScope.getRollDownContainer = function(e_id) {
         var e = document.getElementById(e_id);
         if (e === null) {
             console.error("roll-up element '" + e_id + "' does not exist!");
             return;
         };
+        return e
+    };
+    $rootScope.rollUp = function(e_id) {
+        var e = $rootScope.getRollDownContainer(e_id);
 
         if (e.classList.contains('rolled_up') == true) {
             e.classList.remove('rolled_up');
@@ -185,6 +199,55 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
             e.classList.add('rolled_up');
             $rootScope.ngRolledUp[e_id] = true;
         };
+    };
+    $rootScope.rollDown = function(e_id) {
+        // forces an element into the down position
+        var e = $rootScope.getRollDownContainer(e_id);
+        e.classList.remove('rolled_up');
+        $rootScope.ngRolledUp[e_id] = false;
+    }
+
+    // tab helpers
+    $rootScope.tabsObject = {   // set object defaults
+        previousTab: 0,
+        activeTab: 0,
+    };
+
+    $rootScope.changeTab = function(destination) {
+        // figures out if we're going up (right) or down (left) in tab order
+        // and briefly displays an element with an arrow, indicating that
+        // we're moving in that direction
+
+        // set defaults
+        if ($scope.tabsObject.previousTab === undefined) {
+            console.error(
+                '$scope.tabsObject.previousTab is not set! Defaulting to zero...'
+            );
+            $scope.tabsObject.previousTab = 0;
+        }
+
+        if (destination === undefined) {
+            destination = 666;
+        }
+
+        // now determine direction
+        var direction = 'right';
+        if (destination < $scope.tabsObject.previousTab) {
+            direction = 'left';
+        } else if (destination === $scope.tabsObject.previousTab) {
+            direction = null;
+        };
+
+        if (direction === 'right') {
+            $scope.ngFlash('tabNavArrowRight', 300);
+        } else if (direction === 'left') {
+            $scope.ngFlash('tabNavArrowLeft', 300);
+        } else {
+            $scope.ngFlash('tabNavArrowNull', 300);
+        };
+
+        // now, leave a var in scope so we know
+        $scope.tabsObject.previousTab = destination;
     };
 
     // backwards compatibility helpers...DEPRECATED THO
@@ -201,13 +264,31 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         };
     };
 
+    // ngVisible, ngShow, ngHide, ngShowHide
     $rootScope.ngVisible = {}
+
     $rootScope.ngShow = function(elementId) {
         $rootScope.ngVisible[elementId] = true;
-    }
+
+        // for legacy compatibility: wait until the $digest finishes, then
+        // get the element (it won't be present until the $digest is updated
+        // after the ngVisible change above); 
+        $timeout(
+            function() {
+                e = document.getElementById(elementId)
+                if (e === null) {
+                    console.warn("ngShow() Cannot find element '" + elementId + "'");
+                } else {
+                    e.classList.remove('hidden');
+                };
+           }
+        );
+    };
+
     $rootScope.ngHide = function(elementId) {
         $rootScope.ngVisible[elementId] = false;
     }
+
     $rootScope.ngShowHide = function(elementId) {
         // supersedes showHide(), which is deprecated
         // toggles an element in and out of $rootScope.ngVisible, which is
@@ -220,6 +301,19 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         };
 
     };
+
+	$rootScope.showAPIerrorModal = function(msg, request) {
+		$rootScope.ngShow('apiErrorModal');
+
+		if ($rootScope.ngVisible['apiErrorModal']) {
+		    r = document.getElementById('apiErrorModalMsgRequest');
+		    $rootScope.apiErrorModalMsgRequest = request;
+		    if (msg === null) {
+		        msg = 'API response is NULL. Possible preflight/CORS error!'
+		    };
+		    $rootScope.apiErrorModalMsg = msg;
+		};
+	};
 
     $scope.ngSetFocus = function(e) {
         // sets focus on a specific element
@@ -241,10 +335,29 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
 		str = str.replace(/_/g, ' ');
 		str = str.replace(/ and /g, ' & ');
 		str = str.toLowerCase().split(' ');
+
+        // turn it into a list to iterate it
 		for (var i = 0; i < str.length; i++) {
 			str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1);
 		}
-		return str.join(' ');
+
+        // turn it back into a string now
+		var norm_str = str.join(' ');
+
+        // post processing/vanity stuff
+        norm_str = norm_str.replace(/Xp/g, 'XP');
+        return norm_str;
+    };
+
+
+    //
+    //  init session vars
+    //
+    $rootScope.setSessionVars = function(user_login, current_session) {
+        // call this at the top of all 'root' templates
+        $rootScope.user_login = user_login;
+        $rootScope.current_session = current_session;
+        console.info('Session vars set!')
     };
 
 
@@ -282,6 +395,11 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         } 
     };
 
+
+    //
+    // form emulation!
+    //
+
     // post a form to the legacy webapp (useful for buttons that you
     // want to behave like a form
     $scope.postForm = function(action, asset_id) {
@@ -301,6 +419,31 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         form.submit();
     };
 
+    // signs the user out of the legacy webapp; call this anywhere instead of
+    // making an actual HTML form in the templates, which is super lame
+    $scope.signOut = function() {
+
+        console.warn('Signing out...');
+
+        var form = document.createElement("form");
+        form.method = "POST";
+        form.action = "/";
+
+        var a_input = document.createElement("input");
+        a_input.name = 'remove_session';
+        a_input.value =  $scope.current_session;
+        a_input.classList.add('hidden');
+        form.appendChild(a_input);
+
+        var b_input = document.createElement("input");
+        b_input.name = 'login';
+        b_input.value =  $scope.user_login;
+        b_input.classList.add('hidden');
+        form.appendChild(a_input);
+
+        document.body.appendChild(form);
+        form.submit();
+    };
 
 
     $scope.legacySignOut = function(session_oid) {;
@@ -393,7 +536,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
                 console.error("[rootController.getSettlement()] Could not get settlement " + s_id);
                 console.error(errorPayload);
                 var err_msg = 'Could not load settlement ' + s_id + '!<hr/>' + errorPayload.data + '<hr/>Please report this error!';
-                showAPIerrorModal(err_msg, settlement_url);
+                $scope.showAPIerrorModal(err_msg, settlement_url);
             }
         );
     };
@@ -468,7 +611,10 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         function(errorPayload) {
             console.error("[USER] Could not retrieve user information!");
             console.error("[USER] " + errorPayload.status + " -> " + errorPayload.data);
-        }
+            var err_msg = "User info could not be retrieved!";
+            $scope.showAPIerrorModal(err_msg);
+
+		}
     );
 
 
@@ -565,10 +711,10 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
                 },
                 function(errorPayload) {
                     console.error($scope.log_level + "Error loading settlement!" + errorPayload);
-                    var err_msg = "An API error prevented this campaign from being retrieved:<hr/>";
-                    var err_msg = err_msg + errorPayload.data;
-                    var err_msg = err_msg + '<hr/>This error is NOT recoverable! Please report it!'
-                    showAPIerrorModal(err_msg, $scope.settlementPromise.$$state.value.config.url);
+                    var err_msg = "An unrecoverable API error prevented this campaign from being retrieved!";
+                    $scope.showAPIerrorModal(err_msg, $scope.settlementPromise.$$state.value.config.url);
+
+                    // now sign them out
                 }
             );
 
@@ -909,7 +1055,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
             errorAlert();
             console.error("postJSONtoAPI('" + endpoint + "') call has FAILED!!!");
             console.error(data);
-            showAPIerrorModal(data, config.url);
+            $scope.showAPIerrorModal(data, config.url);
             hideCornerLoader();
         });
 

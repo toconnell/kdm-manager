@@ -3,21 +3,6 @@
 /*                                              */
 
 
-/* UI/UX styles - all breakpoints */
-.clickable {cursor: pointer; }
-.capitalize {text-transform: capitalize;}
-.parenthetical_count {font-family: 'Metrophobic'; }
-
-/* angularjs animations */
-.ng_fade.ng-enter,
-    .ng_fade_in.ng-enter {transition: 1s linear all; opacity:0;}
-.ng_fade.ng-enter.ng-enter-active,
-    .ng_fade_in.ng-enter-active { opacity:1;}
-.ng_fade.ng-leave {transition: 1s linear all;  opacity:1;}
-.ng_fade.ng-leave.ng-leave-active {opacity:0;}
-
-
-
 
 #floating_refresh_button, #floating_dashboard_button {position: fixed; top: 3px; height: 125px; padding: 3px; border: 2px solid; margin: 0; width: 180px; }
 
@@ -614,7 +599,6 @@ p.settlement_buff {font-family: Metrophobic; }
 .new_survivor_link_container .new_survivor_link .avatar {width: 20%; }
 .new_survivor_link_container .new_survivor_link .avatar img {width: 90%; display: block; }
 .new_survivor_link_container .new_survivor_link .desc {width: 80%; }
-.new_survivor_link_container .new_survivor_link .desc .email {font-family: 'Metrophobic'; font-size: 30pt; color: #666; padding-left: 2%; }
 
 /* campaign summary styles */
 
@@ -681,7 +665,6 @@ div.quickview_survivor_name {border-bottom: 3px solid #000; display: flex; justi
 .headline_block_subtitle {width: 90%; display: flex; justify-content: space-evenly; margin: 5%;}
 
 /* Campaign Summary Departing survivor management */
-.departing_survivors_modal_container h3 {color: #000; margin: 2%; font-size: 1.2em; }
 
 .showdown_controls_box_outline {width: 95%; margin: 0 auto; border: 10px solid #000; margin-top: 2%; }
 .showdown_controls_button_box .kd_sheet_ui_row_tip {width: 95%; margin: 0 auto; font-size: 0.3em; }
@@ -699,8 +682,6 @@ div.quickview_survivor_name {border-bottom: 3px solid #000; display: flex; justi
 .departing_survivors_innovation_desc b.innovation_name {font-size: 1.2em; }
 .departing_survivors_innovation_desc span {font-size: 0.5em; }
 
-.applying_update_spinner  {display: flex; flex-direction: column; flex-wrap: nowrap; width: 50%; font-size: 0.8em; margin: 0 auto; align-items: center; margin: 2% auto; }
-.applying_update_spinner img {width: 300px; }
 
 .end_current_ly_box {padding-top: 2%; padding-bottom: 2%; border-radius: 100px;  }
 
@@ -767,7 +748,16 @@ form.settlement_sheet_add_innovations_legacy_form {display: inline;}
 
 .settlement_sheet_ui_box {border: 0.2em solid #000; padding: 2%; }
 
-p.settlement_sheet_campaign_type {font-size: 45px; margin: auto; text-align: center; width: 100%; color: #666; margin-top: -3%; margin-bottom: 3%; font-style: italic; }
+.settlement_sheet_campaign_type {
+    font-size: 45px;
+    margin: auto;
+    text-align: center;
+    width: 100%;
+    color: #666;
+    margin-top: -3%;
+    margin-bottom: 3%;
+    font-style: italic;
+}
 
 div.settlement_sheet_block_group h2 {margin: 0; border: 0; padding-left: 4%; }
 div.settlement_sheet_block_group p {margin: 0; padding-left: 4%; margin-bottom: 2%;}
@@ -1141,7 +1131,8 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
 .modal {
 /*    display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
-    padding-top: 170px; /* Location of the box */
+    padding-top: 10vh; /* Location of the box */
+    padding-bottom: 2vh;
     left: 0;
     top: 0;
     right: 0;
@@ -1151,7 +1142,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     overflow: auto; /* Enable scroll if needed */
     background-color: rgb(0,0,0); /* Fallback color */
     background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-    padding-bottom: 20px;
 }
 
 
@@ -1715,7 +1705,7 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
 
     h1.settlement_name { display: inline-block; margin: 0 auto; margin-left: 10px; font-size: 40pt; }
 
-    p.settlement_sheet_campaign_type {font-size: 25px; text-align: center; }
+    .settlement_sheet_campaign_type {font-size: 25px; text-align: center; }
 
 
     /* campaign summary panel arrangement - tablet */
@@ -1926,7 +1916,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     .help-tip p { font-size: 13px; left: 10%; right: 10%; padding: 15px; }
 
     /* modal overlay - wide */
-    .modal { padding-top: 60px; }
     .modal-black {padding-top: 0; background: rgba(0,0,0,0.96); }
     .modal-black hr {display: none; }
     button#modalStorageButton {margin-left: 17px; }
@@ -2055,8 +2044,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     .new_survivor_sheet_footer_button_container button { display: block; margin: 0 auto; margin-top: 20px;  padding: 12px; width: 350px; }
     button.add_new_survivor {display: block; margin: 0 auto; margin-bottom: 2%; padding: 12px; font-weight: normal; width: 350px; }
     .new_survivor_link_container {display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; }
-    .new_survivor_link_container .new_survivor_link {width: 280px; margin: 2%; }
-    .new_survivor_link_container .new_survivor_link .desc .email {font-size: 10pt; }
 
 
     /* wide campaign summary styles */
@@ -2120,9 +2107,7 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
 
     /* manage departing survivors - wide */
     .modal-black.departing_survivors_modal_container {font-size: 30px;}
-    .showdown_controls_box_outline {width: 450px; border-width: 3px; }
     .departing_survivors_control {width: 95%; border-width: 1px; }
-    .showdown_type_options {width: 90%; }
     .departing_survivors_control div.button_div button {width: 45px; height: 45px; font-size: 1em; }
     .departing_survivors_mgmt.close_button {width: 400px; padding: 1%; }
 
@@ -2233,8 +2218,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     .inventory_row_item_controls {font-size: 11pt; }
     button.close_storage{top: 2%; right: 3%; bottom: auto; left: auto; width: 300px; padding: 1%; }
 
-    .settlement_sheet_settlement_name {font-size: 30pt; margin-top: 2%; }
-    p.settlement_sheet_campaign_type {font-size: 15pt; margin: 0 auto; display: block; text-align: center; padding:0; width: auto; margin-bottom: 5%; }
 
 
     div.settlement_form_wide_box {display: flex; flex-direction: column-reverse; float: left; width: auto; height: 200px; margin-bottom: 10px; text-align: center; }
@@ -2399,7 +2382,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     div.settlement_sheet_block_group {padding-bottom: 0; }
     div.settlement_sheet_block_group p {padding-bottom: 0; }
     div.settlement_sheet_block_group div.line_item {font-size: 12pt; margin-top: 3%; }
-    div.settlement_sheet_block_group h2 {font-size: 17pt }
 
     div.settlement_sheet_block_group span.item,
         div.settlement_sheet_block_group select, 

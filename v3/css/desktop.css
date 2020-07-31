@@ -13,7 +13,22 @@
     div#topNavBar {height: 6vh}
 
     /*  major UI elements   */
-    div#container {width: 1100px; } /*  max app width on desktop    */
+    div#container {
+        width: 1100px; /*  max app width on desktop    */
+    }
+
+    /*  tabs - tablet   */
+    .view_tab {
+        flex-direction: row;
+        flex-wrap: wrap;
+        max-width: 1100px; 
+    }
+    .tab_nav_warning_arrow {
+        width: 10vh;
+        height: 10vh;
+        font-size: 10vh;
+        top: 75%;
+    }
 
     /*
 
@@ -78,6 +93,33 @@
         height: 3vh; 
     }
 
+
+    /*  kd rulebook */
+    .kd_rulebook_alert_punctuation {
+        font-size: 40pt;
+    }
+
+
+    /*
+            NGDEBUGGER! we only style this at desktop res
+    */
+
+    #ngDebugWindow {
+        position: fixed;
+        right: 1%;
+        bottom: 1%;
+        height: 25%;
+        width: 25%; 
+        height: 50%;
+        background: #ddd;
+        border: 2px solid;
+        padding: 1%;
+        opacity: 80%;
+        overflow-y: scroll;
+    }
+    #ngDebugWindow table {
+        width: 100%; 
+    }
 
     /*
 
@@ -171,6 +213,8 @@
     .diamond {height: 4vw; width: 4vw; }
     .headline_block_caption {font-size: 12pt; }
     .campaign_summary_small_box.settlement_fact h4 {font-size: 17pt;}
+
+    /*  manage departing survivors | campaign summary | wide */
     #manageDepartingSurvivors {
         width: 475px;
         position: absolute;
@@ -178,6 +222,10 @@
         top: 2vh;
         right: auto;
         bottom: auto;
+    }
+    .showdown_controls_box_outline {
+        max-width: 1000px;
+        border-width: 3px; 
     }
 
     .campaign_summary_survivors_container h2 {font-size: 3vw; }
@@ -306,7 +354,8 @@
     /*  survivor_search.html - desktop */
     #survivorSearchModalOpener {
         top: 0.5%;
-        width: 55%;  
+        width: 55%;
+        max-height: 1.5vh;  
     }
     .survivor_search_modal_content {
         left: 16%;
@@ -327,10 +376,53 @@
 
     /*  settlement_sheet.html - desktop */
 
+    #settlementSheetLeftColumn,
+        #settlementSheetMiddleColumn {width: 50%;}
+    #settlementSheetRightColumn {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-around;
+    }
+
+
+    /*  settlement_sheet.html - left column - desktop */
+
+    .settlement_sheet_settlement_name {
+        font-size: 34pt;
+        margin-top: 0;  
+    }
+    .settlement_sheet_campaign_type {
+        font-size: 13pt;
+        margin-bottom: 5%;  
+    }
+    .settlement_sheet_tumbler_number {
+        font-size: 24pt;
+        width: 25%; 
+    }
+    .settlement_sheet_tumbler_name {
+        font-size: 11pt; 
+    }
+    .settlement_sheet_tumbler_control_title {
+        font-size: 20pt; 
+        margin-top: auto; 
+    }
     .settlement_sheet_tumbler_control_raft button {
-        font-size: 3vh;
+        font-size: inherit; 
+    }
+
+    div.settlement_sheet_block_group h2 {
+        font-size: 15pt;  
+    }
+    div.settlement_sheet_block_group p {
+        font-size: 10pt; 
+    }
+    .settlement_sheet_milestone_content_container {
+        margin: 1%; 
+    }
+    .settlement_sheet_milestone_details {
+        margin-bottom: 0; 
     }
 
 }
-
-

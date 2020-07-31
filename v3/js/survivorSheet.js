@@ -5,27 +5,24 @@ app.controller("survivorSheetController", function($scope) {
     $scope.scratch = {}
 
     // tabs!
-    $scope.survivorViewTabsObject = {
-        activeTab: 0,
-        tabs: [
-            {
-                id: 0,
-                name: 'Sheet',
-            },
-            {
-                id: 1,
-                name: 'Notes',
-            },
-            {
-                id: 2,
-                name: 'Logs',
-            },
-            {
-                id: 6,
-                name: 'Admin',
-            },
-        ],
-    };
+    $scope.tabsObject.tabs = [
+        {
+            id: 0,
+            name: 'Sheet',
+        },
+        {
+            id: 1,
+            name: 'Notes',
+        },
+        {
+            id: 2,
+            name: 'Logs',
+        },
+        {
+            id: 6,
+            name: 'Admin',
+        },
+    ]
 
     // call this to set the $scope up
     $scope.initializeScope = function() {

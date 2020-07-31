@@ -1,7 +1,11 @@
 <!-- top nav - DEPRECATED -->
 <div id="topNavBar" class="campaign_summary_gradient"></div>
 
-<script src="/js/campaignSummary.js?v=$application_version"></script>
+<script
+    src="/js/campaignSummary.js?v=$application_version"
+    ng-init="setSessionVars('$user_login','$current_session')"
+>
+</script>
 
 <div
     id="campaignSummaryContainer"
@@ -134,29 +138,39 @@
                     ng-if="group.survivors.length >= 1 && user != undefined"
                     ng-init="
                         containerID = group.handle + '_container';
-                        initArrow(group);
                     "
                 >
                     <span ng-init="fadeSurvivorGroupsLoader()"></span>
 
                     <h3
                         title="group.title_tip"
-                        ng-click="showHide(containerID); flipArrow(group)"
+                        ng-click="rollUp(containerID)"
                         class="clickable {{group.handle}}"
                     >
                         {{group.name}} ({{group.survivors.length}})
-                        <span ng-if="group.arrow == true || group.arrow == undefined">
-                            &#x25B2;
-                        </span>
-                        <span ng-if="group.arrow == false">
-                            &#x25BC;
-                        </span>
+			            <span
+			                class="roll_content_arrow"
+			                ng-class="{'open': ngRolledUp[containerID] === false}"
+			            >
+							&#x25BC;
+						</span>
                     </h3>
+
 
                     <div
                         id="{{containerID}}"
-                        ng-class="{hidden: group.name == 'The Dead'}"
+                        class="roll_down_container"
                     >
+
+                        <!-- control starting state -->
+                        <span
+                            ng-if="containerID !== undefined"
+    		    			ng-init="rollDown(containerID)"
+                        ></span>
+                        <span
+                            ng-if="containerID === 'the_dead_container'"
+    		    			ng-init="rollUp('the_dead_container')"
+                        ></span>
 
                         <div
                             class="campaign_summary_survivor_container {{group.handle}}"
@@ -190,8 +204,11 @@
                                 <div class="campaign_summary_survivor_avatar_and_summary">
                                     <div class="avatar">
                                         <span
-                                            class="death_x special_showdown"
-                                            ng-if="s.sheet.dead == true"
+                                            class="ng_fade death_x special_showdown"
+                                            ng-if="
+												s.sheet.dead === true &&
+												ngRolledUp[containerID] === false
+											"
                                         >
                                             X
                                         </span>
@@ -1387,6 +1404,7 @@
 
         <!-- settlement bonuses repeater -->
         <div
+            class="clickable"
             ng-repeat="(location, lookup) in {
                 'principles': 'innovations',
                 'innovations': 'innovations',
@@ -1487,7 +1505,7 @@
     id="manageDepartingSurvivors"
     class="ng_fade kd_kickstarter_button kd_red"
     ng-if="departing_survivor_count > 0"
-    onclick="showHide('departingSurvivorsModalContent')"
+    ng-click="showHide('departingSurvivorsModalContent')"
 >
     Manage {{departing_survivor_count}} <b>Departing</b> Survivors
 </button>

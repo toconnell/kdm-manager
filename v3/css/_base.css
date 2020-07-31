@@ -20,9 +20,14 @@ body {
 }
 button,
     input,
-    select {font-size: inherit; }    /*  inherit from html element style above;
-                                        ALL BREAK POINTS! */
+    select {
+        outline: none; 
+        font-size: inherit;
+    }    /*  inherit from html element style above;
+             ALL BREAK POINTS! */
+
 select {-webkit-appearance: none; }
+
 
 /* hide number tumblers ; we never want these   */
 input[type="number"]::-webkit-outer-spin-button,
@@ -31,13 +36,15 @@ input[type="number"]::-webkit-outer-spin-button,
 h3 {font-size: 3vh; }
 p {margin: 3%; }
 
-/*  major UI stuff; sfx; consistency,etc.    */
 
+/*  major UI stuff; sfx; consistency,etc.    */
+.capitalize {text-transform: capitalize;}
 .clickable {
     cursor: pointer;
     transition: 0.25s;
     outline: none; 
 }
+
 button:active,
     .clickable:active {
     transform:translate(0.15vh, 0.15vh);
@@ -45,7 +52,44 @@ button:active,
 
 .hidden {display: none !important;}
 .faded {opacity: 0.3; transition: 3s; }
+
+
+/* angularjs animations */
+.ng_fade.ng-enter,
+    .ng_fade_in.ng-enter {transition: 1s linear all; opacity:0;}
+.ng_fade.ng-enter.ng-enter-active,
+    .ng_fade_in.ng-enter-active { opacity:1;}
+.ng_fadeout.ng-leave,
+    .ng_fade.ng-leave {transition: 1s linear all;  opacity:1;}
+.ng_fadeout.ng-leave.ng-leave-active,
+    .ng_fade.ng-leave.ng-leave-active {opacity:0;}
+
+
+/*  generic roll-down stuff */
+.roll_down_container {
+    overflow: hidden;
+    max-height: 100vh;
+    transition: 0.5s; 
+}
 .rolled_up {max-height: 0 !important;}
+.rolled_down {
+    border-bottom: 0;
+    margin-bottom: 0;  
+    padding-bottom: 3%;
+}
+.roll_content_arrow {
+    display: inline-block; 
+    font-size: 2vh;
+    margin-right: 5%;
+    margin-top: 2%;
+    transition: 1s;
+}
+.roll_content_arrow.open {
+    transform: rotate(180deg); 
+}
+
+
+/*  image and typography fuckery   */
 .invert_image {filter: invert();}
 
 div#container {
@@ -69,6 +113,7 @@ div#container {
     padding: 5%;
 }
 .vertical_tumbler_container input {
+    background: none; 
     font-size: 3em;
     height: 10vh;
     width: 10vh;
@@ -357,11 +402,6 @@ div#container {
     .settlement_sheet_kd_sheet_ui_box.border.top_most {
     margin-top: 3%; 
 }
-.survivor_sheet_kd_sheet_ui_box.border.rolled_down,
-    .settlement_sheet_kd_sheet_ui_box.border.rolled_down {
-    border-bottom: 0;
-    margin-bottom: 0;  
-}
 
 
 /*  kd rulebook UI  */
@@ -461,15 +501,6 @@ body.dashboard {margin-top: -5vh; }
     border-bottom-right-radius: 0;
     transition: 0.3s;
 }
-.dashboard_rollup_arrow {
-    font-size: 2vh;
-    margin-right: 5%;
-    margin-top: 2%;
-    transition: 1s;
-}
-.dashboard_rollup_arrow.open {
-    transform: rotate(180deg); 
-}
 .dashboard_accordion {
     width: 95%;
     box-sizing: border-box;
@@ -479,13 +510,6 @@ body.dashboard {margin-top: -5vh; }
     margin-top: -5.2%;
     border-bottom-right-radius: 5px;
     border-bottom-left-radius: 5px;
-    /* roll effect! */
-    transition: 0.5s; 
-    overflow: hidden;
-    max-height: 100000px
-}
-.dashboard_accordion.rolled_down {
-    padding-bottom: 3%;
 }
 .dashboard_preference_block_group h2 {
     border: none;
@@ -567,8 +591,9 @@ div.dashboard_button_list button {
 .kd_kickstarter_tumbler_container.bulk_add {
     flex-basis: 40%;
 }
-.new_survivor_sheet .name {
+#newSurvivorName {
     font-family: 'Silverado'; 
+    outline: none; 
     font-size: 2em;
     width: 90%;
     margin: 0 auto;
@@ -603,6 +628,9 @@ h3.new_survivor_sheet {
 .new_survivor_sheet_footer_button_container button {
     margin-bottom: 10%; 
 }
+.new_survivor_link_container .new_survivor_link .desc .email {
+    padding-left: 2%;
+} 
 
 /*
 
@@ -882,19 +910,19 @@ h3.new_survivor_sheet {
     margin: 0 auto;
 }
 .campaign_summary_survivor {
-    border-radius: 2vw;
+    border-radius: 1vw;
     margin: 2%;
     transition: 2s;
     transition-timing-function: ease;
     padding: 0;
 }
 .campaign_summary_survivor_returning_flash {
-    border-top-left-radius: 2vw;
-    border-top-right-radius: 2vw;
+    border-top-left-radius: 1vw;
+    border-top-right-radius: 1vw;
 }
 .campaign_summary_survivor_constellation {
-    border-bottom-left-radius: 2vw;
-    border-bottom-right-radius: 2vw;
+    border-bottom-left-radius: 1vw;
+    border-bottom-right-radius: 1vw;
     margin-top: 5%;
     font-family: 'Silverado';
     font-size: 1em;
@@ -1092,10 +1120,17 @@ div.campaign_summary_endeavor_controller div.controls button {
 .modal-black.departing_survivors_modal_container {
     padding-bottom: 11vh; 
 }
+.showdown_controls_button_box {
+    overflow: hidden;
+    transition: 1s;  
+}
 .showdown_controls_button_box_option_repeater {
     width: 80%;
     padding-left: 5%;
     margin: 5% auto;
+}
+.showdown_controls_button_box_option_repeater.unset {
+    font-style: italic;
 } 
 .return_departing_survivors {
     text-align: justify;
@@ -1111,6 +1146,22 @@ div.campaign_summary_endeavor_controller div.controls button {
     right: 0;
 }
 
+.applying_update_spinner  {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0; 
+    font-size: 0.8em;
+    align-items: center;
+    text-align: center;
+    margin: 2% auto;
+    position: fixed;
+    padding-top: 50%; 
+}
+.applying_update_spinner img {width: 300px; margin-bottom: 43%: }
 
 /*
 
@@ -1133,6 +1184,21 @@ div.campaign_summary_endeavor_controller div.controls button {
     width: 100%;  
 }
 
+.tab_nav_warning_arrow {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: translate(-50%, -50%);
+    width: 20vh;
+    height: 20vh;
+    font-size: 20vh;
+    border: 0.3vw solid;
+    border-radius: 1vw;
+}
+
 #viewTabContainer {
     position: fixed;
     bottom: 0;
@@ -1152,10 +1218,6 @@ div.campaign_summary_endeavor_controller div.controls button {
     transition: 1s;
     cursor: pointer;
     text-align: center;
-}
-.view_tab_button.active {
-    margin-top: -1%;
-    padding-top: 6%;
 }
 
 .settlement_sheet_block_group {
@@ -1186,6 +1248,8 @@ div.campaign_summary_endeavor_controller div.controls button {
     margin-top: 5%;  
 }
 .settlement_sheet_milestone_checkbox_container {
+    display: flex;
+    align-items: center; 
 }
 .settlement_sheet_milestone_details {
     width: 75%;
@@ -1252,17 +1316,16 @@ h3.storage_type_title {
 .settlement_sheet_tumbler_number {
     transition: 1s; 
     border: 0.3vw solid;
-    font-family: 'Metrophobic';
-    text-align: center;
-    vertical-align: middle;
-    height: 12vh;
-    width: 12vh;
-    margin: 0 auto; 
+    margin: 0 auto;
+    font-size: 9vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 60%;  
 }
 .settlement_sheet_tumbler_number div {
     font-weight: bold; 
     display: inline-block;
-    font-size: 9vh; 
 }
 .settlement_sheet_tumbler_name {
     font-size: 2.5vh;

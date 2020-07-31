@@ -1,6 +1,9 @@
 <script
     src="/js/dashboard.js?v=$application_version"
-    ng-init="setView('dashboard')"
+    ng-init="
+        setView('dashboard');
+        setSessionVars('$user_login','$current_session');
+    "
 >
 </script>
 
@@ -59,7 +62,7 @@
                 &#9881;  System
             </span>
             <span
-                class="dashboard_rollup_arrow"
+                class="roll_content_arrow"
                 ng-class="{'open': ngRolledUp['dashboardSystemDiv'] === false}"
             >
                 &#x25BC;
@@ -68,22 +71,19 @@
 
         <div
             id="dashboardSystemDiv"
-            class="dashboard_accordion system_secondary rolled_up"
+            class="roll_down_container dashboard_accordion system_secondary rolled_up"
             ng-class="{'rolled_down': ngRolledUp['dashboardSystemDiv'] === false}"
         >
 
             <div id="systemPanelUserLoginContainer">
-                <h3 id="systemPanelUserLogin"> {{user.user.login }} </h3>
+                <h3 id="systemPanelUserLogin"> {{user_login }} </h3>
                 <div class="preferences_sub_block preferences_sign_out">
-                    <form method="POST" action="/">
-                        <input type="hidden" name="remove_session" value="{{user.user.current_session.$oid}}"/>
-                        <input type="hidden" name="login" value="{{user.user.login}}"/>
-                        <button
-                            class="kd_kickstarter_button"
-                        >
-                            SIGN OUT
-                        </button>
-                    </form>
+                    <button
+                        class="kd_kickstarter_button"
+                        ng-click="signOut()"
+                    >
+                        SIGN OUT
+                    </button>
                 </div>
                 <div class="dashboard_preferences_container user_info">
                     <p>Registered user for {{user.user.age}}.</p>
@@ -188,7 +188,7 @@
                 KD Collection
             </span>
             <span
-                class="dashboard_rollup_arrow"
+                class="roll_content_arrow"
                 ng-class="{'open': ngRolledUp['collectionDiv'] === false}"
             >
                 &#x25BC;
@@ -198,6 +198,7 @@
         <div
             id="collectionDiv"
             class="
+                roll_down_container
                 dashboard_accordion
                 dashboard_user_collection_container
                 collection_gradient
@@ -265,7 +266,7 @@
                 &#9873; Campaigns
             </span>
             <span
-                class="dashboard_rollup_arrow"
+                class="roll_content_arrow"
                 ng-class="{'open': ngRolledUp['campaignsDiv'] === false}"
             >
                 &#x25BC;
@@ -274,7 +275,7 @@
 
         <div
             id="campaignsDiv"
-            class="dashboard_accordion campaign_summary_gradient"
+            class="roll_down_container dashboard_accordion campaign_summary_gradient"
             ng-class="{'rolled_down': ngRolledUp['campaignsDiv'] === false}"
         >
             <p class="panel_top_tooltip">Games you are currently playing.</p>
@@ -345,7 +346,7 @@
                 &#9874; Settlements
             </span>
             <span
-                class="dashboard_rollup_arrow"
+                class="roll_content_arrow"
                 ng-class="{'open': ngRolledUp['settlementsDiv'] === false}"
             >
                 &#x25BC;
@@ -354,7 +355,7 @@
 
         <div
             id="settlementsDiv"
-            class="dashboard_accordion settlement_sheet_gradient rolled_up"
+            class="roll_down_container dashboard_accordion settlement_sheet_gradient rolled_up"
             ng-class="{'rolled_down': ngRolledUp['settlementsDiv'] === false}"
         >
             <p class="panel_top_tooltip"settlementsettlements you have created.</p>
@@ -469,7 +470,7 @@
                 <font class="white_text">World</font>
             </span>
             <span
-                class="dashboard_rollup_arrow white_text"
+                class="roll_content_arrow white_text"
                 ng-class="{'open': ngRolledUp['worldDiv'] === false}"
             >
                 &#x25BC;
@@ -479,6 +480,7 @@
         <div
             id="worldDiv"
             class="
+                roll_down_container
                 dashboard_accordion
                 world_secondary
                 world_container
@@ -735,7 +737,7 @@
                     About
                 </span>
                 <span
-                    class="dashboard_rollup_arrow"
+                    class="roll_content_arrow"
                     ng-class="{'open': ngRolledUp['aboutDiv'] === false}"
                 >
                     &#x25BC;
@@ -744,7 +746,7 @@
 
             <div
                 id="aboutDiv"
-                class="dashboard_accordion about_secondary rolled_up"
+                class="roll_down_container dashboard_accordion about_secondary rolled_up"
                 ng-class="{'rolled_down': ngRolledUp['aboutDiv'] === false}"
             >
                 <a href="https://thelaborinvain.com" target="top">

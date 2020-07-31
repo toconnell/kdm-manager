@@ -89,10 +89,10 @@ class meta:
         </div>
     </div>
 
+    <!-- the API error modal! -->
     <div
         id="apiErrorModal"
-        class="api_error_modal hidden ease clickable"
-        onclick="hideAPIerrorModal()"
+        class="api_error_modal hidden"
     >
         <p
             ng-if="user_login !== undefined"
@@ -106,10 +106,81 @@ class meta:
         >
             Settlement OID: {{settlement.sheet._id.$oid}}
         </p>
-        <p id="apiErrorModalMsgRequest" class="api_error_debug"></p>
-        <p id="apiErrorModalMsg" class="kd_alert_no_exclaim api_error_modal_msg"></p>
-        <p>Tap or click anywhere to continue...</p>
+        <p
+            id="apiErrorModalMsgRequest"
+            class="api_error_debug"
+            ng-bind-html="apiErrorModalMsgRequest|trustedHTML"
+        >
+        </p>
+        <p id="apiErrorModalMsg" class="kd_alert_no_exclaim api_error_modal_msg">
+            {{apiErrorModalMsg}}
+        </p>
+        <button
+            ng-click="signOut()"
+            class="kd_kickstarter_button kd_pink"
+        >
+            SIGN OUT
+        </button>
     </div>
+
+    <!-- debugger -->
+    <div
+        id="ngDebugWindow"
+        class="hidden"
+    >
+        user: {{user_login}}<br/>
+        session: {{current_session}}<hr/>
+        ngRolledUp:
+        <table>
+            <tr ng-repeat="(element, status) in ngRolledUp">
+                <td>{{element}}</td>
+                <td
+                    class="clickable"
+                    ng-click="rollUp(element)"
+                >
+                    {{status}}
+                </td>
+            </tr>
+        </table>
+        <hr/>
+        ngVisible:
+        <table>
+            <tr ng-repeat="(element, status) in ngVisible">
+                <td>{{element}}</td>
+                <td
+                    class="clickable"
+                    ng-click="ngShowHide(element)"
+                >
+                    {{status}}
+                </td>
+            </tr>
+        </table>
+        <hr/>
+    </div>
+    \n"""
+
+    tab_ui_helpers = """\n
+        <div
+            id="tabNavArrowRight"
+            class="ng_fadeout hidden tab_nav_warning_arrow"
+            ng-if="ngVisible['tabNavArrowRight']"
+        >
+            &#8250;
+        </div>
+        <div
+            id="tabNavArrowLeft"
+            class="ng_fadeout hidden tab_nav_warning_arrow"
+            ng-if="ngVisible['tabNavArrowLeft']"
+        >
+            &#8249;
+        </div>
+        <div
+            id="tabNavArrowNull"
+            class="ng_fadeout hidden tab_nav_warning_arrow"
+            ng-if="ngVisible['tabNavArrowNull']"
+        >
+            &#x02A2F;
+        </div>
     \n"""
 
     full_page_loader = """\n
@@ -227,6 +298,7 @@ def render(view_html, head=[], http_headers=None, body_class=None):
 
     # 2. append generic body HTML -> all views except login
     output += meta.saved_dialog
+    output += meta.tab_ui_helpers
     output += meta.corner_loader
     output += meta.full_page_loader
 

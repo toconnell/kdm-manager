@@ -7,6 +7,7 @@
     &#9776;
 </button>
 
+
 <form
     method="POST" 
     action="/"
@@ -21,7 +22,7 @@
     </button>
 </form>
 
-<!-- christian sidenav -->
+
 <div
     id="leftSideNav"
     ng-controller="sideNavController"
@@ -230,22 +231,17 @@
 
     <hr/>
 
-    <form
-        method="POST"
-        action=""
-        ng-if="user != undefined"
+    <button
+        id="leftSideNavUserSignOut"
+        onclick="showFullPageLoader()"
+        ng-click="
+            closeLeftSideNav();
+            signOut();
+        "
     >
-        <input type="hidden" name="remove_session" value="{{user.user.current_session.$oid}}"/>
-        <input type="hidden" name="login" value="{{user.user.login}}"/>
-        <button
-            id="leftSideNavUserSignOut"
-            onclick="showFullPageLoader()"
-            ng-click="closeLeftSideNav()"
-        >
-            {{user.user.login}}<br/>
-            SIGN OUT
-        </button>
-    </form>
+        {{user.user.login}}<br/>
+        SIGN OUT
+    </button>
 
 </div> <!-- #leftSideNav -->
     

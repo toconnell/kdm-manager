@@ -140,6 +140,10 @@ div.quickview_survivor_name {border-bottom-color: #fff; }
     border-color: #333; 
 }
 
+.tab_nav_warning_arrow {
+    background: #000; 
+}
+
 /* survivor sheet */
 
 .shield, .big_number_square {background: #000; color: #fff;}

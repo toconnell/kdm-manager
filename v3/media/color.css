@@ -36,6 +36,10 @@ input.kd_radio_option + label {color: #666; }   /*system preferences*/
 .strain_gradient {background: radial-gradient(circle, #000, #333); color: #fff; }
 body.dashboard {background: linear-gradient(to right, #fff, #eee); }
 
+.hover_highlight:hover {
+    background: radial-gradient(#fefef0, #fefefe);
+}
+
     /*  DEPRECATED  gradients */
 .campaign_summary_gradient {background: linear-gradient(to right, #EFCE98, #F5E9D2, #fefeee, #F5E9D2, #EFCE98)}
 .settlement_sheet_gradient {background: linear-gradient(to right, #FFE082, #FFECB3, #FFF8E1, #FFECB3, #FFE082); }
@@ -141,7 +145,7 @@ div#leftSideNavUnderlay {background: rgba(0,0,0,0.8); color: #fff; }
 
 /*  modal and modal-black   */
 .modal-black.departing_survivors_modal_container {background-color: #fff; color: #000;} 
-
+.applying_update_spinner {background: #fff; }
 
 /* report an error */
 textarea.report_error {outline: 1px solid #eee; }
@@ -161,6 +165,7 @@ textarea.report_error:focus {box-shadow: none; }
 
 */
 .new_survivor_sheet .name {color: #000; }
+.new_survivor_link_container .new_survivor_link .desc .email {color: #666;}
 
 /*                      
 
@@ -210,6 +215,12 @@ textarea.report_error:focus {box-shadow: none; }
 #viewTabContainer {border-color: #000; box-shadow: 0 -7px 17px #ccc; background: #fff; }
 .view_tab_button {color: #ccc; }
 .view_tab_button.active {color: #000; background: linear-gradient(to top, #fff 95%, rgba(255,255,255,0))}
+.tab_nav_warning_arrow {
+    background: #fff;
+    color: #666;
+    border-color: #666;
+    box-shadow: 0 0 0.5em 0 #aaa;
+}
 
 /*  settlement storage */
 

@@ -25,6 +25,7 @@ import traceback
 
 # third party
 import pymongo
+import requests
 
 import admin
 import api
@@ -228,7 +229,15 @@ class Session:
 #            self.logger.error(self.cookie)
 
         if self.session is not None:
-            if not api.check_token(self):
+
+            token_check = False
+            try:
+                token_check = api.check_token(self)
+            except requests.ConnectionError:
+                self.log_out()
+                self.session = None
+
+            if not token_check:
 #                self.logger.debug("JWT Token expired! Attempting to refresh...")
                 r = api.refresh_jwt_token(self)
                 if r.status_code == 401:
@@ -598,6 +607,7 @@ class Session:
             settlement_id = self.session['current_settlement'],
             survivor_id = self.session.get('current_asset', None),
             blog_api_key = settings_private.get('api', 'blog_api_key'),
+            current_session = self.session.get('_id', None),
         )
 
         return output, body

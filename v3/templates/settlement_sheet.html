@@ -1,7 +1,10 @@
 <!-- top nav - DEPRECATED -->
 <div id="topNavBar" class="settlement_sheet_gradient"></div>
 
-<script src="/js/settlementSheet.js?v=$application_version"></script>
+<script
+    src="/js/settlementSheet.js?v=$application_version"
+    ng-init="setSessionVars('$user_login','$current_session');"
+></script>
 
 <div
     id="settlementSheetApp"
@@ -13,17 +16,19 @@
     <div
         id="viewTabContainer"
         ng-if="settlement.sheet !== undefined"
+        ng-init="scratch.previousTab = 0"
     >
 
         <div
-            ng-repeat="tab in settlementSheetTabsObject.tabs"
+            ng-repeat="tab in tabsObject.tabs"
             id="{{'settlementSheetTabButton-' + tab.id}}"
             class="view_tab_button"
             ng-class="{
-                'active': settlementSheetTabsObject.activeTab === tab.id,
+                'active': tabsObject.activeTab === tab.id,
             }"
             ng-click="
-                settlementSheetTabsObject.activeTab = tab.id;
+                tabsObject.activeTab = tab.id;
+                changeTab(tab.id);
             "
         >
             {{tab.name}}
@@ -35,7 +40,7 @@
     <div
         id="settlementSheetSheetTab"
         class="view_tab"
-        ng-show='settlementSheetTabsObject.activeTab === 0'
+        ng-show='tabsObject.activeTab === 0'
     >
 
         <!-- once we get the settlement, init the user -->
@@ -114,9 +119,7 @@
                         <div
                             class="settlement_sheet_tumbler_number"
                         >
-                            <div>
                                 {{settlement.sheet.lantern_year}}
-                            </div>
                         </div>
                         <div
                             class="settlement_sheet_tumbler_name"
@@ -147,7 +150,7 @@
                                 'active': ngRolledUp[attrib + 'Controls'] === false,
                             }"
                         >
-                            <div>{{settlement.sheet[attrib]}}</div>
+                            {{settlement.sheet[attrib]}}
                         </div>
 
                         <div
@@ -185,9 +188,7 @@
                                 'active': ngRolledUp['lanternResearchControls'] === false,
                             }"
                         >
-                            <div>
                                 {{settlement.sheet.lantern_research_level}}
-                            </div>
                         </div>
                         <div
                             class="settlement_sheet_tumbler_name"
@@ -424,7 +425,7 @@
 
             <div
                 ng-repeat="m in settlement.game_assets.milestones_options"
-                class="settlement_sheet_milestone_content_container"
+                class="clickable hover_highlight settlement_sheet_milestone_content_container"
                 ng-click="toggleMilestone(m.handle)"
             >
                 <div
@@ -456,7 +457,7 @@
         <!-- PRINCIPLES -->
 
         <div
-            class="settlement_sheet_block_group"
+            class="clickable hover_highlight settlement_sheet_block_group"
             ng-controller="principlesController"
             ng-click="ngShow('settlementSheetPrinciplesEditorModal')"
             title="Tap or click to edit the settlement's principles!"
@@ -1260,7 +1261,7 @@
         id="settlementSheetStorageTab"
         class="view_tab"
         ng-if="settlement !== undefined && user !== undefined"
-        ng-show="settlementSheetTabsObject.activeTab === 1"
+        ng-show="tabsObject.activeTab === 1"
         ng-controller="storageController"
     >
     
@@ -1281,7 +1282,6 @@
                 <h3 class="storage_type_title">
                     {{s_type.name}}<span ng-if="s_type.name==='Resource'">s</span>
                     <span
-                        class="parenthetical_count"
                         ng-if="s_type.total"
                     >
                         ({{s_type.total}})
@@ -1329,7 +1329,7 @@
                         "
                     >
                         {{loc.name}}
-                        <span class="parenthetical_count">
+                        <span>
                             ({{loc.inventory.length}})
                         </span>
                         <span ng-if="loc.arrow == false" class="arrow">
@@ -1426,7 +1426,7 @@
     <div
         id="settlementSheetAdminTab"
         class="view_tab"
-        ng-show='settlementSheetTabsObject.activeTab === 6'
+        ng-show='tabsObject.activeTab === 6'
     >
 
         <!-- ABANDON -->

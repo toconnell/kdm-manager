@@ -9,6 +9,7 @@
 <script
 	src="/js/survivorSheet.js?v=$application_version"
     ng-init="
+        setSessionVars('$user_login','$current_session');
         initializeSettlement('survivorSheet', '$api_url','$settlement_id');
         initializeSurvivor('$survivor_id');
 	"

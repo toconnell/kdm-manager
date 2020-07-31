@@ -12,23 +12,20 @@ app.controller("settlementSheetController", function($scope) {
     } 
 
     // tabs!
-    $scope.settlementSheetTabsObject = {
-        activeTab: 0,
-        tabs: [
-            {
-                id: 0,
-                name: 'Sheet',
-            },
-            {
-                id: 1,
-                name: 'Storage',
-            },
-            {
-                id: 6,
-                name: 'Admin',
-            },
-        ],
-    };
+    $scope.tabsObject.tabs = [
+        {
+            id: 0,
+            name: 'Sheet',
+        },
+        {
+            id: 1,
+            name: 'Storage',
+        },
+        {
+            id: 6,
+            name: 'Admin',
+        },
+    ],
 
 
 

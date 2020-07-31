@@ -65,37 +65,6 @@ app.controller("manageDepartingSurvivorsController", function($scope, $rootScope
         };
     };
 
-    $scope.initShowdownControls = function(){
-        // this is kind of low-rent, but we've got exact conditions we want to
-        // evaluate for showing/hiding our various controls. All of our controls
-        // have a 'state' in scratch (which this sets); states are modified by
-        // toggleControlState() above, rather than 'showHide()', which isn't
-        // complex enough for our UX design here.
-
-        $scope.scratch.survival_bonus_control_state = 'hidden';
-
-        if ($scope.settlement.sheet.showdown_type != undefined) {
-            $scope.scratch.showdown_type_control_state = 'hidden';
-        } else {
-            $scope.scratch.showdown_type_control_state = 'visible';
-        };
-
-        if ($scope.settlement.sheet.showdown_type != undefined && $scope.settlement.sheet.current_quarry != undefined) {
-            $scope.scratch.showdown_current_quarry_control_state = 'hidden';
-        } else {
-            $scope.scratch.showdown_current_quarry_control_state = 'visible';
-        };
-
-        if ($scope.settlement.sheet.showdown_type != undefined && $scope.settlement.sheet.current_quarry != undefined) {
-            $scope.scratch.showdown_manage_departing_survivors_control_state = 'visible';
-        } else {
-            $scope.scratch.showdown_manage_departing_survivors_control_state = 'hidden';
-        };
-
-        // always hide this one
-        $scope.scratch.showdown_return_departing_survivors_control_state = 'hidden';
-    };
-
 
     // misc. helper
     $scope.toggleIncrementLY = function() {
@@ -167,11 +136,21 @@ app.controller("manageDepartingSurvivorsController", function($scope, $rootScope
     };
 
     $scope.updateDepartingSurvivors = function(attrib, mod){
-        showFullPageLoader();
-        $rootScope.hideControls = true;
-        $scope.postJSONtoAPI('settlement', 'update_survivors', {
+//        showFullPageLoader();
+        $rootScope.departing_survivor_count = 0; // hide the button on the main CS view
+        $scope.scratch.hideDepartingSurvivorsControls = true;
+        var res = $scope.postJSONtoAPI('settlement', 'update_survivors', {
             include: 'departing', attribute: attrib, 'modifier': mod,
         });
+        res.then(
+            function(payload) {
+				$scope.scratch.hideDepartingSurvivorsControls = false;
+            },
+            function(errorPayload){
+				console.error('Failed to update Departing Survivors!');
+				console.error(errorPayload);
+			}
+        );
     };
 
     $scope.calculateDepartingSurvivorBonus = function(){
