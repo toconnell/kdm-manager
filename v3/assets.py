@@ -94,39 +94,39 @@ class User:
         return True
 
 
-
-    def is_admin(self):
-        """ Returns True if the user is an application admin. This only returns
-        python bools because it should only be used for internal application
-        logic and so on.
-
-        Check out the is_settlement_admin() method if you're
-        working in user-space."""
-
-        if "admin" in self.user.keys() and type(self.user["admin"]) == datetime:
-            return True
-        else:
-            return False
-
-
-    def is_settlement_admin(self, return_type=None):
-        """ Checks self.Session.Settlement.settlement admins to see if the user
-        is a settlement admin. Returns a python bool by default, but can also
-        return JS-friendly 'truthy/falsy' strings if required. """
-
-        is_settlement_admin = False
-
-        if self.user["_id"] == self.Session.Settlement.settlement["created_by"]:
-            is_settlement_admin = True
-        elif "admins" in self.Session.Settlement.settlement.keys():
-            if self.user["login"] in self.Session.Settlement.settlement["admins"]:
-                is_settlement_admin = True
-
-        if return_type == "truthy":
-            return str(is_settlement_admin).lower()
-
-        return is_settlement_admin
-
+# removed in V4
+#    def is_admin(self):
+#        """ Returns True if the user is an application admin. This only returns
+#        python bools because it should only be used for internal application
+#        logic and so on.
+#
+#        Check out the is_settlement_admin() method if you're
+#        working in user-space."""
+#
+#        if "admin" in self.user.keys() and type(self.user["admin"]) == datetime:
+#            return True
+#        else:
+#            return False
+#
+#
+#    def is_settlement_admin(self, return_type=None):
+#        """ Checks self.Session.Settlement.settlement admins to see if the user
+#        is a settlement admin. Returns a python bool by default, but can also
+#        return JS-friendly 'truthy/falsy' strings if required. """
+#
+#        is_settlement_admin = False
+#
+#        if self.user["_id"] == self.Session.Settlement.settlement["created_by"]:
+#            is_settlement_admin = True
+#        elif "admins" in self.Session.Settlement.settlement.keys():
+#            if self.user["login"] in self.Session.Settlement.settlement["admins"]:
+#                is_settlement_admin = True
+#
+#        if return_type == "truthy":
+#            return str(is_settlement_admin).lower()
+#
+#        return is_settlement_admin
+#
 
     def get_name_and_id(self):
         """ Returns a string of the user login and _id value. """
@@ -722,73 +722,74 @@ class Settlement:
         return player_set
 
 
-    def get_admins(self):
-        """ Creates an admins list if one doesn't exist; adds the settlement
-        creator to it if it's new; returns the list. """
+# REMOVE FOR V4
 
-        if not "admins" in self.settlement.keys():
-            self.settlement["admins"] = []
-
-        creator = mdb.users.find_one({"_id": self.settlement["created_by"]})
-        if creator is not None and self.settlement["admins"] == []:
-            self.settlement["admins"].append(creator["login"])
-
-        return self.settlement["admins"]
-
-
-    def toggle_admin_status(self, login):
-        """ Adds or removes a login from self.settlement["admins"], depending
-        on whether it's already there or not. """
-
-        if login in self.settlement["admins"]:
-            self.settlement["admins"].remove(login)
-            msg = "removed %s from" % login
-        else:
-            self.settlement["admins"].append(login)
-            msg = "added %s to" % login
-
-        self.logger.debug("[%s] %s %s admins." % (self.User, msg, self))
+#    def get_admins(self):
+#        """ Creates an admins list if one doesn't exist; adds the settlement
+#        creator to it if it's new; returns the list. """
+#
+#        if not "admins" in self.settlement.keys():
+#            self.settlement["admins"] = []
+#
+#        creator = mdb.users.find_one({"_id": self.settlement["created_by"]})
+#        if creator is not None and self.settlement["admins"] == []:
+#            self.settlement["admins"].append(creator["login"])
+#
+#        return self.settlement["admins"]
 
 
+#    def toggle_admin_status(self, login):
+#        """ Adds or removes a login from self.settlement["admins"], depending
+#        on whether it's already there or not. """
+#
+#        if login in self.settlement["admins"]:
+#            self.settlement["admins"].remove(login)
+#            msg = "removed %s from" % login
+#        else:
+#            self.settlement["admins"].append(login)
+#            msg = "added %s to" % login
+#
+#        self.logger.debug("[%s] %s %s admins." % (self.User, msg, self))
 
-    def render_html_form(self):
-        """ Render settlement.form from html.py. Do a few substitutions during
-        the render (i.e. things that aren't yet managed by the angularjs app.
-        substitutions done up there. """
-        return html.settlement.form
+
+#    def render_html_form(self):
+#        """ Render settlement.form from html.py. Do a few substitutions during
+#        the render (i.e. things that aren't yet managed by the angularjs app.
+#        substitutions done up there. """
+#        return html.settlement.form
 
 
-    def render_admin_panel_html(self):
-        """ Renders a settlement as admin panel style HTML. This honestly
-        probably belongs under a master render method for this class but...
-        dang, you know? These render methods are monsters. I really gotta
-        abstract further in one of these major refactor revisions..."""
-
-        # write the top line
-        output = "\n\n<b>%s</b> LY:%s (%s) - %s/%s<br/>\n" % (
-            self.settlement["name"],
-            self.settlement["lantern_year"],
-            self.settlement["created_on"].strftime(ymd),
-            self.settlement["population"],
-            self.settlement["death_count"],
-            )
-
-        # write the removal info, if any exists
-        removal_string = ""
-        for removal_key in ["abandoned", "removed"]:
-            if removal_key in self.settlement.keys():
-                removal_string += '<font class="alert">%s</font> ' % removal_key.upper()
-        if removal_string != "":
-            removal_string = "&ensp; %s <br/>\n" % removal_string
-        output += removal_string
-
-        # now do the rest
-        output += "&ensp;<i>%s</i><br/>\n" % self.get_campaign()
-        output += "&ensp;Players: %s<br/>\n" % ", ".join(self.get_players())
-        output += "&ensp;Expansions: %s\n" % ", ".join(self.get_expansions())
-
-        return output
-
+#    def render_admin_panel_html(self):
+#        """ Renders a settlement as admin panel style HTML. This honestly
+#        probably belongs under a master render method for this class but...
+#        dang, you know? These render methods are monsters. I really gotta
+#        abstract further in one of these major refactor revisions..."""
+#
+#        # write the top line
+#        output = "\n\n<b>%s</b> LY:%s (%s) - %s/%s<br/>\n" % (
+#            self.settlement["name"],
+#            self.settlement["lantern_year"],
+#            self.settlement["created_on"].strftime(ymd),
+#            self.settlement["population"],
+#            self.settlement["death_count"],
+#            )
+#
+#        # write the removal info, if any exists
+#        removal_string = ""
+#        for removal_key in ["abandoned", "removed"]:
+#            if removal_key in self.settlement.keys():
+#                removal_string += '<font class="alert">%s</font> ' % removal_key.upper()
+#        if removal_string != "":
+#            removal_string = "&ensp; %s <br/>\n" % removal_string
+#        output += removal_string
+#
+#        # now do the rest
+#        output += "&ensp;<i>%s</i><br/>\n" % self.get_campaign()
+#        output += "&ensp;Players: %s<br/>\n" % ", ".join(self.get_players())
+#        output += "&ensp;Expansions: %s\n" % ", ".join(self.get_expansions())
+#
+#        return output
+#
 
     def asset_link(self, context=None, update_mins=False):
         """ Returns an asset link (i.e. html form with button) for the

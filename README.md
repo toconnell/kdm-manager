@@ -1,14 +1,3 @@
-**As of August 1st, 2019 this project is no longer under active development.**
-
-Please see the following GitHubs for active projects:
-* [The KDM API](https://github.com/theLaborInVain/kdm-manager-api) - the all-purpose, public API for managing Kingdom Death: Monster records.
-* [Advanced KDM Manager](https://github.com/theLaborInVain/Advanced-KDM-Manager) - the next generation of the *KDM Manager* project.
-
-Finally, this application and repository are maintained for break/fix purposes
-only and will be deprecated soon! See the contact information below if you have
-additional questions about this application, the API, or the future of the
-[https://kdm-manager.com](https://kdm-manager.com) service.
-
 # [https://kdm-manager.com](https://kdm-manager.com)
 * Webapp: [AngularJS](https://angularjs.org/) (1.5.4)
 * Webserver: [NGINX](https://www.nginx.com/) + [Gunicorn](http://gunicorn.org/)
@@ -47,6 +36,11 @@ The "Silverado MediumCondensed" font is licensed through Myfonts.com under the
 terms of the ([Web Font Pay Once](https://www.myfonts.com/viewlicense.php?lid=1630)
 license) for use by [The Labor in Vain](https://www.myfonts.com/viewlicense.php?lid=1630).
 
+## Related projects
+Please see the following GitHubs for related projects:
+* [The KDM API](https://github.com/theLaborInVain/kdm-manager-api) - the all-purpose, public API for managing Kingdom Death: Monster records.
+* [Advanced KDM Manager](https://github.com/theLaborInVain/Advanced-KDM-Manager) - the next generation of the *KDM Manager* project.
+
 ## Contact the Author
 
 For more information, including how to get involved in the project, please contact:
@@ -54,4 +48,3 @@ For more information, including how to get involved in the project, please conta
 * Timothy O'Connell [toconnell@thelaborinvain.com](mailto:toconnell@thelaborinvain.com) <br />
   Designer, full-stack developer and maintainer. <br />
   https://thelaborinvain.com
-

@@ -360,7 +360,7 @@
 
                                             <div id="survivorQuickviewLeftColumn" class="left_column">
 
-                                                <div class="quickview_survivor_name">
+                                                <div class="font_medium quickview_survivor_name">
                                                     <font class="quickview_survivor_name">{{s.sheet.name}}</font>
                                                     <div class="quickview_sex_box">
                                                         <div>M</div>
@@ -388,7 +388,7 @@
 
                                                     <div class="survival_box_title_and_lock">
                                                         <div
-                                                            class="survival_box_title clickable"
+                                                            class="clickable font_large survival_box_title"
                                                             ng-click="rollUp(survivalBoxID)"
                                                         >
                                                             Survival
@@ -401,7 +401,7 @@
                                                                 class="kd_sheet_ui_box"
                                                                 ng-class="{checked: s.sheet.cannot_spend_survival == true}"
                                                             ></div>
-                                                            <div>
+                                                            <div class="font_small">
                                                                 &#x1f512; Cannot spend survival.
                                                             </div>
                                                         </div>
@@ -419,7 +419,7 @@
                                                                 class="kd_sheet_ui_box"
                                                                 ng-class="{checked: sa.available == true}"
                                                             ></div>
-                                                            <span class="sa_name">{{sa.name}}</span>
+                                                            <span class="font_medium sa_name">{{sa.name}}</span>
                                                         </div>
                                                     </div>
                                                 </div> <!-- quickview_survival_container -->
@@ -581,7 +581,7 @@
                                                     >
                                                         <div class="title">Brain</div>
                                                         <div
-                                                            class="tip"
+                                                            class="font_small tip"
                                                             ng-class="{maroon_text: s.sheet.Insanity >= 3}"
                                                         >
                                                             If your insanity is 3+, you are <b>insane</b>.
@@ -670,7 +670,7 @@
                             </font> 
                             {{location.name}}
                         </div>
-                        <div class="tip">
+                        <div class="font_small tip">
                             Heavy Injury: Knocked Down.
                         </div>
                     </div>
@@ -1402,7 +1402,7 @@
         </div>  <!-- campaign_summary_small_box endeavor_box -->
 
 
-        <!-- settlement bonuses repeater -->
+        <!-- principles, innovations, locations boxes -->
         <div
             class="clickable"
             ng-repeat="(location, lookup) in {
@@ -1430,6 +1430,13 @@
                         ng-init="object = settlement.game_assets[lookup][p]"
                     >
                         {{object.name}}
+                        <span
+                            ng-if="object.levels !== undefined"
+                            ng-init="lookup_dict = location.slice(0, -1) + '_levels'"
+                        >
+                            (Lvl.
+                                {{settlement.sheet[lookup_dict][p]}})
+                        </span>
                     </span>
     
                     <div

@@ -28,6 +28,7 @@ function rollUp(e_id) {
 };
 
 function showHide(e_id, force) {
+    console.error('The public showHide() method is deprecated and removed in version 4!');
     var e = document.getElementById(e_id);
     var hide_class = "hidden";
     var visible_class = "visible";
@@ -139,6 +140,18 @@ app.filter('filterObjectBy', function() {
 
 
 app.controller('rootController', function($scope, $rootScope, $http, $log, $timeout) {
+    // root controller keyboard capture! 
+	document.onkeydown= function(key){ reactKey(key); }
+	function reactKey(evt) {
+		// 37 == left ; 39 == right
+		//console.warn('keypress: ' + evt.keyCode);
+		if(evt.keyCode === 37) {
+  	    	$rootScope.changeTab('previous');
+	    } else if (evt.keyCode === 39) {
+			$rootScope.changeTab('next');
+		};
+	}
+
     // debugger
     document.addEventListener ("keydown", function (zEvent) {
         if (zEvent.ctrlKey  &&  zEvent.altKey  &&  zEvent.key === "d") {  // case sensitive
@@ -211,8 +224,21 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
     $rootScope.tabsObject = {   // set object defaults
         previousTab: 0,
         activeTab: 0,
+		minTab: 0,
     };
 
+	$rootScope.getPrevNextTab = function() {
+        var output = {}
+		for (var i = 0; i < $scope.tabsObject.tabs.length; i++) {
+		    var tab = $scope.tabsObject.tabs[i];
+		    if ($scope.tabsObject.activeTab === tab.id) {
+                output.previous = $scope.tabsObject.tabs[i - 1]
+				output.current = tab;
+                output.next = $scope.tabsObject.tabs[i + 1]
+			}
+		};
+		return output
+	};
     $rootScope.changeTab = function(destination) {
         // figures out if we're going up (right) or down (left) in tab order
         // and briefly displays an element with an arrow, indicating that
@@ -226,9 +252,32 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
             $scope.tabsObject.previousTab = 0;
         }
 
-        if (destination === undefined) {
+        var p = $rootScope.getPrevNextTab()
+
+//        console.warn("raw destination ='" + destination + "'");
+        if (destination === 'previous') {
+            if (p.previous === undefined) {
+                destination = $scope.tabsObject.activeTab
+            } else {
+                destination = p.previous.id;
+            };
+		} else if (destination === 'next') {
+            if (p.next === undefined) {
+                destination = $scope.tabsObject.activeTab
+            } else {
+                destination = p.next.id;
+            };
+		} else if (destination === undefined) {
             destination = 666;
         }
+
+		// sanity check destination
+		if (destination < $scope.tabsObject.minTab) {
+			destination = $scope.tabsObject.minTab
+		};
+
+//		console.warn('Changing active tab to tab #' + destination);
+		$scope.tabsObject.activeTab = destination;
 
         // now determine direction
         var direction = 'right';
@@ -300,6 +349,14 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
             $rootScope.ngShow(elementId);
         };
 
+    };
+
+    $rootScope.dumpJSONtoTab = function(json_to_dump) {
+        var output = JSON.stringify(json_to_dump, null, 2);
+        var x = window.open();
+        x.document.open();
+        x.document.write('<html><body><pre>' + output + '</pre></body></html>');
+        x.document.close();
     };
 
 	$rootScope.showAPIerrorModal = function(msg, request) {
@@ -934,8 +991,6 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
             $scope.setGameAssetOptions('epithets', "epithetOptions");
 
             //  custom COD junk
-            $scope.settlement.game_assets.causes_of_death.push({'name': ' --- ', 'disabled': true});
-            $scope.settlement.game_assets.causes_of_death.push({'name': '* Custom Cause of Death', 'handle': 'custom'});
             var cod_list = [];
             for (var i = 0; i < $scope.settlement.game_assets.causes_of_death.length; i++) {
                 cod_list.push($scope.settlement.game_assets.causes_of_death[i]["name"]);
@@ -1093,13 +1148,6 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
 
     };
 
-
-    // shows the custom COD block on the Controls of Death
-    $scope.showCustomCOD = function() {
-        var hidden_elem_id = "addCustomCOD";
-        var hidden_elem = document.getElementById(hidden_elem_id);
-        hidden_elem.style.display = "block";
-    };
 
     // helpers and laziness - junk drawer functions
     $scope.isObject = function(a) {return typeof a === 'object';};

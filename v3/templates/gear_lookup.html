@@ -60,21 +60,27 @@
                 />
             </div>
 
-<!--
-            <button class="kd_blue" ng-click="showHide('simpleGearSearch'); showHide('advancedGearSearch')">
-                Show/hide Advanced Search Tools
-            </button>
--->
+            <div 
+                class="gear_repeater_container"
+                ng-click="showHide('gearLookupModal'); searchText={}"
+            >
 
-            <div class="gear_repeater_container" ng-click="showHide('gearLookupModal'); searchText={}">
+            <!--
+
+                gear card repeater starts here
+
+            -->
+
             <div
                 class="gear_lookup_card_repeater"
                 ng-repeat="gear in gearLookup | filter:searchText:strict"
             >
                 <div
                     class="gear_card_container gear_card_gradient"
-                    title="{{gear.name}} ({{ gear.sub_type }})"
+                    title="{{gear.name}} ({{ gear.sub_type_pretty }})"
                 >
+
+                    <!-- top affinity -->
                     <div
                         class="gear_card_affinity_outer top_affinity"
                         ng-class="{
@@ -133,9 +139,12 @@
                                         class="gear_card_combat_stat_activation"
                                         ng-if="gear.speed != undefined"
                                     >
-                                        <span class="gear_card_combat_stat_activation_icon">a</span>
-                                        <hr/>
+                                        <div class="gear_card_combat_stat_activation_icon">
+                                            a
+                                        </div>
+
                                         {{gear.speed}}
+
                                         <div
                                             class="gear_card_combat_stat_activation_detail"
                                         >
@@ -385,7 +394,7 @@
 
             <button
                 class="kd_kickstarter_button"
-                ng-click="showHide('gearLookupModal')"
+                ng-click="showHide('gearLookupModal'); searchText = {}"
             >
                 Close
             </button>

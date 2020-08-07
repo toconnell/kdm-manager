@@ -62,11 +62,11 @@ class meta:
         <link rel="stylesheet" type="text/css" href="/css/tablet.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/css/laptop.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/css/desktop.css?v=$version">
+        <link rel="stylesheet" type="text/css" href="/css/z-index.css?v=$version">
 
         <link rel="stylesheet" type="text/css" href="/media/fonts.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/media/color.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/media/settlement_event_log.css?v=$version">
-        <link rel="stylesheet" type="text/css" href="/media/z-index.css?v=$version">
         <link ng-if="user.user !== undefined && user.user.preferences.night_mode === true" rel="stylesheet" type="text/css" href="/media/night_mode.css?v=$version">
     """).safe_substitute(
         title = settings.get("application","title"),
@@ -129,7 +129,48 @@ class meta:
         class="hidden"
     >
         user: {{user_login}}<br/>
-        session: {{current_session}}<hr/>
+        session: {{current_session}}
+
+        <hr/>
+
+        <ul>
+            <li
+                ng-if="settlement === undefined"
+            >
+                <i>waiting for settlement...</i>
+            </li>
+
+            <li
+                ng-if="settlement !== undefined"
+            >
+                <a
+                    href=""
+                    ng-click="dumpJSONtoTab(settlement)"
+                >
+                    settlement JSON
+                </a>
+            </li>
+
+            <li
+                ng-if="survivor !== undefined && lineage.events === undefined"
+            >
+                <i>waiting for survivior events...</i>
+            </li>
+
+            <li
+                ng-if="lineage.events !== undefined"
+            >
+                <a
+                    href=""
+                    ng-click="dumpJSONtoTab(lineage.events)"
+                >
+                    survivor events JSON
+                </a>
+            </li>
+        </ul>
+
+        <hr/>
+
         ngRolledUp:
         <table>
             <tr ng-repeat="(element, status) in ngRolledUp">
@@ -201,7 +242,7 @@ class meta:
     </div>
     \n""")
 
-    start_container = '\n<div id="container" >'
+    start_container = '\n<div id="container">'
     close_container = '\n</div><!-- container -->'
 
 

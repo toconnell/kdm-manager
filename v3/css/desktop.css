@@ -9,11 +9,16 @@
     h3 {font-size: 15pt; }
     h4 {font-size: 14pt; font-weight: normal; }
 
+    /*  abstract fonts - new in version 4 */
+    .font_small     {font-size: 10pt;}
+    .font_medium    {font-size: 12pt;}
+    .font_large     {font-size: 15pt;}
+
     /*  top nav - DEPRECATED */
-    div#topNavBar {height: 6vh}
+    #topNavBar {height: 6vh}
 
     /*  major UI elements   */
-    div#container {
+    #container {
         width: 1100px; /*  max app width on desktop    */
     }
 
@@ -28,41 +33,6 @@
         height: 10vh;
         font-size: 10vh;
         top: 75%;
-    }
-
-    /*
-
-        modals, navs and UI - desktop
-
-    */
-    div#leftSideNav.open {width: 35%;}
-    div#leftSideNavUnderlay.open {width: 65%}
-    .left_side_underlay_footer_container {
-        text-align: right;
-        padding-right: 5%;
-    }
-
-    #leftSideNav button {margin: 0 auto; }
-
-    /* report an error */
-    div.report_error_container p {
-        width: 90%;
-        margin: 0 auto;
-        font-size: 2vh;
-    }
-    textarea.report_error {
-        width: 90%;
-        margin: 0 auto;
-        min-height: 30vh;
-        font-size: 2vh;
-    }
-    div.error_form {
-        margin: 0 auto;
-    }
-    div.error_form input[type=submit] {
-        width: auto;
-        margin-right: 5%;
-        font-size: 2vh;
     }
 
     /*  kd_sheet_ui styles - desktop */
@@ -82,6 +52,13 @@
     .kd_sheet_ui_inner_ring_container p {
         margin: 1%; 
     }
+    .kd_sheet_ui_row.title {
+        font-size: 15pt; 
+    }
+    .kd_sheet_ui_row.title .icon {
+        height: 15px;
+        width: auto;  
+    }
 
     /*  kd_kickstarter UI styles - desktop */
     .kd_kickstarter_button {
@@ -93,11 +70,52 @@
         height: 3vh; 
     }
 
-
     /*  kd rulebook */
     .kd_rulebook_alert_punctuation {
         font-size: 40pt;
     }
+
+    /*  loading and spinner stuff   */
+    .inline_spinner_container img {
+        width: 5vw; 
+    }
+
+    /*
+
+        modals, navs and UI - desktop
+
+    */
+    #leftSideNav.open {width: 35%;}
+    #leftSideNavUnderlay.open {width: 65%}
+    .left_side_underlay_footer_container {
+        text-align: right;
+        padding-right: 5%;
+    }
+
+    #leftSideNav button {margin: 0 auto; }
+
+
+    /* report an error */
+    .report_error_container p {
+        width: 90%;
+        margin: 0 auto;
+        font-size: 2vh;
+    }
+    .report_error {
+        width: 90%;
+        margin: 0 auto;
+        min-height: 30vh;
+        font-size: 2vh;
+    }
+    div.error_form {
+        margin: 0 auto;
+    }
+    div.error_form input[type=submit] {
+        width: auto;
+        margin-right: 5%;
+        font-size: 2vh;
+    }
+
 
 
     /*
@@ -108,7 +126,6 @@
         position: fixed;
         right: 1%;
         bottom: 1%;
-        height: 25%;
         width: 25%; 
         height: 50%;
         background: #ddd;
@@ -119,6 +136,12 @@
     }
     #ngDebugWindow table {
         width: 100%; 
+    }
+    #ngDebugWindow ul {
+        margin-left: 0;
+    }
+    #ngDebugWindow li {
+        margin-top: 3%; 
     }
 
     /*
@@ -152,6 +175,52 @@
     .dashboard_preference_election_item {
         margin-bottom: 1%;
         padding: 1%
+    }
+
+
+    /*  gear_lookup.html - desktop */
+
+    .kd_sheet_ui_inner_ring_container.gear_lookup_container {
+        width: 98%; 
+    }
+    .gear_repeater_container {
+        display: flex;
+        flex-wrap: wrap; 
+    }
+    .gear_lookup_card_repeater {
+        width: auto; 
+    }
+    .gear_card_combat_stat_activation {
+        font-size: 12pt;
+        height: 95%;
+        margin-left: 0;
+    }
+    .gear_card_affinity_inner {
+        border: 1px solid; 
+    }
+    .gear_card_combat_stat_shield {
+        font-size: 20pt; 
+        width: 2.5vw;
+        height: 4vh;  
+    }
+
+    .gear_card_affinity_outer.right_affinity.affinity_paired_right,
+        .gear_card_affinity_outer.left_affinity.affinity_paired_left, 
+        .gear_card_affinity_outer.bottom_affinity.affinity_paired_bottom {
+        border-width: 20px; 
+    }
+    .gear_card_affinity_outer.right_affinity.affinity_paired_right {
+        margin-left: -5px; 
+    }
+    .gear_card_affinity_outer.left_affinity.affinity_paired_left {
+        margin-left: 5px; 
+    }
+    .gear_card_affinity_outer.bottom_affinity.affinity_paired_bottom {
+        margin-bottom: 5px; 
+    }
+
+    .gear_card_add_affinity_interior {
+        border-width: 1px; 
     }
 
     /*
@@ -194,6 +263,9 @@
         CAMPAIGN SUMMARY - desktop
 
     */
+    #campaignSummaryContainer {
+        max-width: 1100px; 
+    }
     #campaignSummarySettlementName {
         font-size: 5vh;
         margin: 0; 
@@ -397,9 +469,16 @@
         font-size: 13pt;
         margin-bottom: 5%;  
     }
+    .settlement_sheet_tumbler_controls_container {
+        margin-top: -2vh;
+        margin-bottom: -2vh;
+    }
+    .settlement_sheet_tumbler {
+        width: 20%; 
+    }
     .settlement_sheet_tumbler_number {
         font-size: 24pt;
-        width: 25%; 
+        width: 50%; 
     }
     .settlement_sheet_tumbler_name {
         font-size: 11pt; 
@@ -418,11 +497,162 @@
     div.settlement_sheet_block_group p {
         font-size: 10pt; 
     }
+    .settlement_sheet_block_group .line_item {
+        margin-bottom: auto;
+    }
+    .settlement_sheet_line_item {
+        font-size: inherit; 
+    }
+    .location_lvl_select {
+        right: 3%; 
+    }
     .settlement_sheet_milestone_content_container {
         margin: 1%; 
     }
     .settlement_sheet_milestone_details {
         margin-bottom: 0; 
     }
+
+
+    /*  settlement_sheet.html - right col - desktop */
+
+    #settlementSheetRightColumn .kd_sheet_ui_border_box {
+        width: 48%;
+        margin: 1%; 
+    }
+
+    .settlement_sheet_kd_sheet_ui_box {
+        width: auto; 
+    }
+
+    /*  settlement_sheet.html storage tab - desktop */
+    .storage_type_title {
+        font-size: 15pt; 
+    }
+    .storage_location_keywords_rollup_item {
+        font-size: 11pt; 
+    }
+    .inventory_row_item_controls {
+        padding: 5px; 
+    }
+    .flippers {
+        padding: 1%;
+        justify-content: flex-end; 
+    }
+    .flippers button {
+        margin-left: 1%;
+        margin-right: 1%;
+        width: 5%; 
+    }
+    .inventory_row_detail {
+        margin-top: -5%; 
+    }
+
+    /*  settlement_sheet.html admin tab - desktop   */
+    #settlementSheetAdminTab {
+        flex-direction: row; 
+    }
+    #settlementSheetAdminTab .kd_sheet_ui_border_box {
+        width: 48%; 
+        margin: 1%; 
+    }
+
+
+    /*  survivor_sheet.html - desktop */
+
+    #survivorSheetLeftColumn,
+        #survivorSheetMiddleColumn {
+        padding: 1%; 
+        width: 50%;
+    }
+
+    .survivor_avatar_image {
+        height: 250px;
+        width: auto; 
+    }
+    #settlementSheetSurvivalContainer {
+        padding: 0; 
+    }
+    .survivor_sheet.survival_box_number {
+        height: 60px;
+        font-size: 20pt; 
+        width: 60px;
+    }
+    .survival_box_title_and_lock {
+        width: 60%; 
+    }
+    .survivor_sheet_hit_location_repeater {
+        border-bottom: 1px solid; 
+    }
+    .custom_cod_text {
+        padding: 1%; 
+    }
+    .survivor_sheet_special_attribute_container {
+        margin: 1%;
+        padding: 1%; 
+    }
+    .survivor_sheet_card_container {
+        flex-direction: row; 
+    }
+    .survivor_sheet_card {
+        width: 32%;
+        margin: unset; 
+    }
+
+    #survivorViewAdminTab {
+        display: flex;
+        flex-wrap: wrap; 
+    }
+
+    #survivorViewLogsTab {}
+    .lineage_event_repeater {
+        padding: 0.5%; 
+    }
+
+    #survivorViewAdminTab .survivor_sheet_kd_sheet_ui_box {
+        width: 48%; 
+    }
+    #survivorViewAdminTab .survivor_sheet_kd_sheet_ui_box.top_most {
+        margin-top: 0; 
+    }
+
+/*
+
+        Everything else - desktop
+
+/*
+
+    /*  event_log.html - desktop  */
+    .kd_sheet_ui_inner_ring_container.event_log {
+        width: 98%; 
+    }
+    .event_log_clicker {
+        margin-bottom: 1%;
+        margin-top: 0;
+    }
+    .event_log .kd_sheet_ui_row_tip {
+        margin: 1%; 
+    }
+
+
+    /* expansion_content_manager.html - desktop */
+    .kd_sheet_ui_inner_ring_container.expansion_content_manager {
+        width: 75%; 
+    }
+
+    .expansion_toggle_subtitle {
+        font-size: 10pt; 
+    }
+
+    /*  timeline.html   */
+    .kd_sheet_ui_inner_ring_container.timeline_container {
+        width: 98%; 
+    }
+    .timeline_col_container {
+        column-count: 2;
+        column-gap: 5px;
+        column-width: auto;
+    }
+
 
 }

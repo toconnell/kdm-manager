@@ -125,7 +125,15 @@ button {color: #fff; background-color: inherit; box-shadow: none; border: 0; out
 .kd_alert {background-color: #FF0040; color: #fff; }
 
 .user_inputs {min-height: min-content; }
-.modal {z-index: 10; background-color: #000; position: absolute; top: 0; bottom: 0; left: 0; right: 0; min-height: min-content;}
+.modal {
+    background-color: #000;
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 10;
+}
 
 input {
   -webkit-transition: all 0.30s ease-in-out;

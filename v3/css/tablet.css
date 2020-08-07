@@ -18,14 +18,19 @@
     li {margin: 0 auto; } 
 
 
+    /*  abstract fonts - new in version 4 */
+    .font_small {font-size: 0.9vh;}
+    .font_medium {font-size: 1.5vh;}
+    .font_large {font-size: 2vh; }
+
     /*  top nav DEPRECATED  */
-    div#topNavBar {
+    #topNavBar {
         height: 6vh;
     }
 
 
     /* major UI */
-    div#container {margin-top: 6vh;}
+    #container {margin-top: 6vh;}
 
     #leftSideNav button {font-size: 2vh; }
     #leftSideNav.open {width: 50%;}
@@ -65,11 +70,16 @@
 
     /*
 
-        TIMELINE - tablet
+        timeline.html - tablet
 
     */
+    .timeline_col_container {
+        column-count: 2;
+        column-width: auto;
+        column-gap: 5px;
+    }
     .timeline_event_rm_button {width: auto;}
-    .timeline_event img.icon {width: 2vw;}
+    .timeline_event .icon {width: 2vw;}
 
     /*
 
@@ -86,6 +96,12 @@
     */
     .new_settlement_asset_clicker {margin: 5%; font-size: 2vh; }
     #createNewSettlementButton {width: 70%; }
+
+
+    /*  gear_lookup.html - tablet */
+    .gear_card_combat_stat_shield {
+        width: 5vw;
+    }
 
     /*
 
@@ -145,7 +161,6 @@
         font-size: 1vh;
         padding-bottom: 2%;
     }
-    font.quickview_survivor_name {font-size: larger; }
     .secondary_attrib_box_row .weapon_proficiency_type {font-size: 1.5vh; }
     .quickview_asset_list_title_bar .title {font-size: 2.5vh; }
     .quickview_asset_list_title_bar .subtitle,
@@ -166,7 +181,6 @@
         justify-content: center; 
     }
     .quickview_hitbox_detail .tip {font-size: initial;}
-    .hitbox_detail .tip {font-size: 0.7em; }
     .hitbox_container {height: 8vh; }
     .hitbox_boxes_container .damage_box {width: 40px; height: 40px; }
     .hitbox_boxes_container .heavy.damage_box {width: 30px; height: 30px; }
@@ -193,7 +207,7 @@
     }
 
     /*  campaign pulse discoveries  */
-    .campaign_summary_right_panel h4.pulse_discoveries {margin-bottom: 3%; }
+    .campaign_summary_right_panel .pulse_discoveries {margin-bottom: 3%; }
 
     /*
 
@@ -254,6 +268,7 @@
 
     /*  settlement sheet - quarry, nemesis, etc. boxes */
     .settlement_sheet_line_item {font-size: 2vh;}
+    .location_lvl_select {width: 10%; }
 
     /*  settlement sheet - strain milestones - tablet */
     .strain_milestone_toggle_box {width: 94%; }
@@ -275,14 +290,14 @@
     /*  SURVIVOR SHEET - tablet */
     /*                          */
 
-    #survivorSheetLeftPane,
-        #survivorSheetMiddlePane {
+    #survivorSheetLeftColumn,
+        #survivorSheetMiddleColumn {
         width: 49%;
         box-sizing: border-box;
         margin-top: 3%;
     }
 
-    #survivorSheetRightPane {
+    #survivorSheetRightColumn {
         width: 100%;
         margin: 0 auto;  
     }
@@ -360,7 +375,7 @@
         max-height: 2vh;
     }
 
-    button.permanently_delete {
+    .permanently_delete {
         margin: 5%; 
     }
 

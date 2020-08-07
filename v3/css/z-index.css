@@ -1,24 +1,26 @@
                     /*  these are non-responsive! */
 
-h3.inventory_tag                            {z-index: -100; }
-img.dashboard_bg                            {z-index: -10; }
-img.sign_in                                 {z-index: -10; }
-input#survivor_sheet_survivor_name          {z-index: 1;}
-div#container                               {z-index: 0; }
-button#remove_item                          {z-index: 10; }
-h3.clickable                                {z-index: 10; }
-.dashboard_accordion                        {z-index: 10; }
-.death_x                                    {z-index: 20; }
-input[type=text], input[type=password]      {z-index: 50; }
-div.survivor_sheet_attrib_controls_modal    {z-index: 50; }
-button.manage_departing_survivors           {z-index: 50; } /* must be above death_x */
-div.full_page_loading_spinner               {z-index: 99; }
-div#viewTabContainer                        {z-index: 100; }
+h3.inventory_tag                                {z-index: -100; }
+img.dashboard_bg                                {z-index: -10; }
+img.sign_in                                     {z-index: -10; }
+input#survivor_sheet_survivor_name              {z-index: 1;}
+div#container                                   {z-index: 0; }
+.gear_card_combat_stat_activation_icon::before  {z-index: -1;}
+.gear_card_combat_stat_activation_icon          {z-index: 10;}
+button#remove_item                              {z-index: 10; }
+h3.clickable                                    {z-index: 10; }
+.dashboard_accordion                            {z-index: 10; }
+.death_x                                        {z-index: 20; }
+input[type=text], input[type=password]          {z-index: 50; }
+div.survivor_sheet_attrib_controls_modal        {z-index: 50; }
+button.manage_departing_survivors               {z-index: 50; } /* must be above death_x */
+div.full_page_loading_spinner                   {z-index: 99; }
+div#viewTabContainer                            {z-index: 100; }
 
     /* top nav_bar indexes - DEPRECATED */
-#topNavBar                                  {z-index: 100; }
+#topNavBar                                      {z-index: 100; }
 #floating_refresh_button,
-    #floating_dashboard_button              {z-index: 101; }
+    #floating_dashboard_button                  {z-index: 101; }
 
     /* modal indexes */
 div.survivor_search_modal_container         {z-index: 1199;}

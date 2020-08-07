@@ -3,7 +3,7 @@
 /*                                                        */
 
 /*  top nav - DEPRECATED 2019-12-17 */
-div#topNavBar {
+#topNavBar {
     position: fixed;
     top: 0; left: 0; right: 0;
     height: 8vh;
@@ -36,6 +36,11 @@ input[type="number"]::-webkit-outer-spin-button,
 h3 {font-size: 3vh; }
 p {margin: 3%; }
 
+/*  abstract fonts - new in version 4  */
+.font_small {font-size: 1.3vh; }
+.font_medium {font-size: 2vh; }
+.font_large {font-size: 3vh; }
+
 
 /*  major UI stuff; sfx; consistency,etc.    */
 .capitalize {text-transform: capitalize;}
@@ -52,7 +57,7 @@ button:active,
 
 .hidden {display: none !important;}
 .faded {opacity: 0.3; transition: 3s; }
-
+.centered {text-align: center; }
 
 /* angularjs animations */
 .ng_fade.ng-enter,
@@ -68,14 +73,14 @@ button:active,
 /*  generic roll-down stuff */
 .roll_down_container {
     overflow: hidden;
-    max-height: 100vh;
+    max-height: 1000vh;
     transition: 0.5s; 
 }
 .rolled_up {max-height: 0 !important;}
 .rolled_down {
-    border-bottom: 0;
-    margin-bottom: 0;  
-    padding-bottom: 3%;
+    border-bottom: 0 !important;
+    margin-bottom: 0 !important;  
+    padding-bottom: 3% !important;
 }
 .roll_content_arrow {
     display: inline-block; 
@@ -92,7 +97,7 @@ button:active,
 /*  image and typography fuckery   */
 .invert_image {filter: invert();}
 
-div#container {
+#container {
     width: 100%;
     height: 100%;
     margin-top: 8vh;
@@ -126,12 +131,27 @@ div#container {
 
 .api_error_debug {word-break: break-word;}
 
+
+    /*  loading and spinner stuff   */
+
+.inline_spinner_container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    font-family: 'Silverado';
+}
+.inline_spinner_container img {
+    width: 20vw;
+    height: auto; 
+}
+
+
 /*
 
     CARDS - all cards, including gear cards
+    gear_lookup.html
 
 */
-
 
 .card_gradient {
     border: 2px solid;
@@ -156,15 +176,59 @@ div#container {
 .survivor_sheet_card_content {      /*  initialized asset within repeater */
     width: 100%; 
 }
-.survivor_sheet_card b.card_title {
+.survivor_sheet_card .card_title {
     display: block;
     margin-bottom: 1%;
 }
 .survivor_sheet_card_subhead {
     margin-top: 0;
-    font-size: 0.75em;
     text-transform: lowercase;
 } 
+
+
+/*  gear_lookup.html    */
+
+    /*  card 'border' regions */
+.gear_card_affinity_outer.top_affinity,
+    .gear_card_affinity_outer.bottom_affinity {
+    width: 15%;
+    height: 1.3rem;
+}
+.gear_card_affinity_col {
+    width: 1.3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+    /*  weapon/item cards */
+.gear_card_combat_stat_activation_icon {
+    font-family: 'kdm-font-10';
+    border-bottom: 1px solid; 
+}
+.gear_card_combat_stat_activation_icon::before {
+    content: 'a';
+    font-size: 0.8em; 
+    border-radius:100%;
+    position: absolute;
+    margin: 0.1em; 
+}
+
+    /*  armor cards */
+.gear_card_combat_stat_shield {
+    font-family: 'Silverado';
+    border-bottom-left-radius: 100%;
+    border-bottom-right-radius: 100%;
+    background-color:#000;
+    color: #fff;
+    font-size: 3vh;
+    width: 50%;
+    text-align: center;
+    display: inline-block;
+    margin-right: 4px;
+    height: 5vh;
+    line-height: 150%;
+}
 
 /*  KD Kickstarter UI   */
 
@@ -476,7 +540,7 @@ div#container {
     DASHBOARD
 
 */
-body.dashboard {margin-top: -5vh; }
+.dashboard {margin-top: -5vh; }
 
     /*  dashboard_rollup styles (the clickers on the dash) */
 .dashboard_rollup {
@@ -536,7 +600,7 @@ body.dashboard {margin-top: -5vh; }
     margin-top: 5%;
 }
 #dashboardCreateNewSettlement {margin-bottom: 6%;}
-div.dashboard_button_list button {
+.dashboard_button_list button {
     width: 80%;
     text-align: left;
     padding: 3%;
@@ -633,10 +697,16 @@ h3.new_survivor_sheet {
 } 
 
 /*
+    EXPANSION CONTENT
+*/
 
+.expansion_toggle_subtitle {
+    margin-left: 5%; 
+    margin-right: 5%; 
+}
 
-    TIMELINE
-
+/*
+    timeline.html 
 */
 #timelineContainer {
     margin-bottom: 12vh; 
@@ -709,7 +779,7 @@ h3.new_survivor_sheet {
 
 */
 
-.fullTabSpinner {
+.full_tab_spinner {
     position: fixed;
     top: 25%;
     left: 0;
@@ -971,7 +1041,7 @@ h3.new_survivor_sheet {
     display: flex;
     justify-content: center;
 }
-div.campaign_summary_endeavor_controller div.controls button {
+.campaign_summary_endeavor_controller .controls button {
     margin: auto;
     height: 5vh;
     margin-left:2%;
@@ -986,7 +1056,7 @@ div.campaign_summary_endeavor_controller div.controls button {
     display: flex;
     flex-direction: row;
 }
-.campaign_summary_endeavor_controller div.tokens {
+.campaign_summary_endeavor_controller .tokens {
     display: flex;
     flex-wrap: wrap;
     padding-left: 1%;
@@ -1161,7 +1231,10 @@ div.campaign_summary_endeavor_controller div.controls button {
     position: fixed;
     padding-top: 50%; 
 }
-.applying_update_spinner img {width: 300px; margin-bottom: 43%: }
+.applying_update_spinner img {
+    width: 300px;
+    margin-bottom: 43%;
+}
 
 /*
 
@@ -1226,6 +1299,15 @@ div.campaign_summary_endeavor_controller div.controls button {
     padding-bottom: 3%;
     box-sizing: border-box;
 }
+.settlement_sheet_block_group p {   /* this is the sub headline p */
+    margin: 0;
+    margin-bottom: 5%;
+    padding-left: 4%;
+}
+
+.settlement_sheet_block_group .line_item {
+    margin-bottom: 4%;
+}
 
 /*  settlement sheet left panel */
 .settlement_sheet_settlement_name {
@@ -1267,7 +1349,7 @@ div.campaign_summary_endeavor_controller div.controls button {
     padding: 2%;
 }
 
-h3.storage_type_title {
+.storage_type_title {
     text-align: left;
     font-size: 3vh;
     margin: 0;
@@ -1445,15 +1527,23 @@ h3.storage_type_title {
     font-size: 4vw;
     border-bottom: 0.1em solid;
 }
+.location_lvl_select {
+    position: absolute;
+    right: 5%;
+    width: 15%;
+    font-family: 'Silverado';
+}
+.line_item .location_lvl_select .location_level {
+    display: inline-block;
+    border: 0;
+    width: auto;
+}
 .strain_milestone_condition {
     font-size: 0.8em;
     margin: 1%;
-    font-family: "Metrophobic"; 
 }
 
 .strain_milestone_fighting_arts {
-    font-size: 2vw;
-    font-family: "Metrophobic";
     transition: 1s;
 }
 .unlocked_strain_fa {transition: 2s;}
@@ -1470,7 +1560,10 @@ h3.storage_type_title {
     SURVIVOR SHEET
 
 */
-
+#survivorSheetLeftColumn,
+    #survivorSheetMiddleColumn {
+    box-sizing: border-box; 
+}
 #settlementSheetSurvivalContainer {
     display: flex;
     flex-wrap: nowrap;
@@ -1499,20 +1592,16 @@ h3.storage_type_title {
     width: 10vh;
     font-size: 3em; 
 } 
-.survival_box_title {
-    font-size: 2em; 
-}
 .survival_box_title_and_lock .survival_box_title {
-    margin-top: 10%;
+    margin-top: 5%;
     font-family: 'Silverado';
 }
 .survival_box_lock {
-    font-size: 0.5em;
     padding: 2%;
     display: flex;
     flex-direction: row;
     align-items: flex-end;
-    margin-bottom: 10%;
+    margin-bottom: 5%;
 }
 
 /*  affinity    */
@@ -1575,10 +1664,9 @@ h3.storage_type_title {
     height: 10vh; 
     display: flex;
 }
-.hitbox_container.brain {border: 3px solid;}
-.hitbox_container.survivor_sheet_brain {
+.hitbox_container.brain {
     border: 3px solid;
-    width: 98%;
+    width: 95%;
     box-sizing: border-box;
     margin: 0 auto; 
 }
@@ -1625,7 +1713,6 @@ h3.storage_type_title {
     align-items: center;
 }
 .hitbox_detail .tip {
-    font-size: 0.5em;
     white-space: nowrap;
 }
 .hitbox_boxes_container {
@@ -1655,7 +1742,48 @@ h3.storage_type_title {
     margin-right: 2%;
 }
 
+    /*  survivor_sheet.html - controls of death */
+.custom_cod_text {
+    border: 0.2rem solid;
+    border-radius: 5vw; 
+    box-sizing: border-box;
+    margin: 3%;
+    padding: 3%;
+    text-align: center;
+    width: 90%;
+}
+
+    /*  survivor_sheet.html - special attributes / campaign-specific */
+.survivor_sheet_special_attributes_container {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto; 
+}
+.survivor_sheet_special_attribute_container {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    border: 0.2rem solid;
+    margin: 3%;
+    padding: 3%;
+    transition: 2s;
+    width: inherit; 
+}
+.special_attribute_checkbox {
+    border: 0.2rem solid;
+    height: 1rem;
+    margin-right: 3%;
+    transition: 2s;
+    width: 1rem;
+}
+.special_attribute_text.active {
+    font-weight: bold;
+}
+
 /* survivor sheet a&i container */
+.survivor_sheet_secondary_attribs_container {
+    margin: 0 auto; 
+}
 .survivor_sheet_secondary_attrib_container {
     margin-bottom: 15%; 
 }
@@ -1789,6 +1917,9 @@ h3.storage_type_title {
     justify-content: center;
     margin: 7%; 
 }  
+.survivor_sheet_public_toggle .kd_sheet_ui_box {
+    margin-right: 3%; 
+}
 input.survivor_owner_email {
     border: 0;
     outline: 0;
@@ -1810,10 +1941,24 @@ input.survivor_owner_email:invalid {
 
 
 
-/*      report_error.html   */
-.report_error_container p {
-    text-align: justify;
+
+/*  event_log.html  */
+.event_log_clicker {
+    border: 2px solid;
+    padding: 1%;
+    margin: 1%;
+    margin-left: 2%;
+    margin-bottom: 3%;
+    width: 93%;
 }
+.event_log_clicker_title {
+    display: flex;
+    align-items: center; 
+}
+.event_log_clicker_title_name {
+    min-width: 80%
+}
+
 
 /*      help.html   */
 .help_container {
@@ -1825,4 +1970,10 @@ input.survivor_owner_email:invalid {
 .help_modal_tip_repeater b:after {
     content: '\A';
     display: table;
+}
+
+
+/*      report_error.html   */
+.report_error_container p {
+    text-align: justify;
 }

@@ -569,11 +569,53 @@ app.controller("avatarController", function($scope) {
 
 
 
-app.controller("controlsOfDeath", function($scope) {
+app.controller("controlsOfDeathController", function($scope) {
+    $scope.customCODdict = {
+        'name': '* Custom Cause of Death',
+        'handle': 'custom'
+    };
 
-    $scope.showCODwarning = function (){
-        $('#CODwarning').show();
-        $('#CODwarning').fadeOut(4500);
+    $scope.initCODlist = function() {
+        // checks the game_Assets.causes_of_death and pushes the 'custom' option
+        // on to it, if it's not on there already
+
+        console.info('Initializing Cause of Death list...');
+
+        var cod_list = $scope.settlement.game_assets.causes_of_death;
+        if (cod_list[cod_list.length - 1].name === $scope.customCODdict.name) {
+            console.info('Custom COD option already added to list...');
+        } else {
+            cod_list.push({'name': ' --- ', 'disabled': true})
+            cod_list.push($scope.customCODdict)
+        };
+
+        // next, if the survivor has a COD that's not in the list, add it
+        // for display purposes, so the selector isn't blank
+
+        var has_custom_cod = true;
+        if ($scope.survivor.sheet.cause_of_death !== undefined) {
+            for (var i = 0; i < cod_list.length; i++) {
+                var cod_dict = cod_list[i];
+                if (cod_dict.name === $scope.survivor.sheet.cause_of_death) {
+                    has_custom_cod = false;
+                };
+                //Do something
+            }
+        } else {
+            has_custom_cod = false;
+        };
+
+        if (has_custom_cod) {
+            console.warn('Survivor has custom cause of death! Updating options list...');
+            cod_list.unshift({
+                'name': $scope.survivor.sheet.cause_of_death,
+                'handle': '__custom__'
+                }
+            );
+        } else {
+            console.info("Survivor cause of death '" + $scope.survivor.sheet.cause_of_death + "' is not custom...")
+        };
+
     };
 
     $scope.resurrect = function() {
@@ -582,8 +624,6 @@ app.controller("controlsOfDeath", function($scope) {
         $scope.survivor.sheet.cause_of_death = undefined;
         $scope.survivor.sheet.died_in = undefined
         $scope.postJSONtoAPI('survivor', 'controls_of_death', {'dead': false});
-//        $('#modalDeath').fadeOut(1000);
-        $scope.showHide('modalDeath');
     };
 
     $scope.submitCOD = function(cod) {
@@ -595,8 +635,8 @@ app.controller("controlsOfDeath", function($scope) {
         } else if (typeof cod === 'object') {
             var cod_string = cod.name;
         } else if (cod === undefined) {
-            console.warn("COD is undefined! Showing warning div...")
-            $scope.showCODwarning();
+            console.error("COD is undefined! Showing warning div...")
+            $scope.ngShow('customCODwarning');
             return false;
         } else {
             console.warn("Invalid COD type! Type was: " + typeof cod)
@@ -611,20 +651,28 @@ app.controller("controlsOfDeath", function($scope) {
         };
         $scope.survivor.sheet.dead = true;
         $scope.survivor.sheet.cause_of_death = cod_string;
-        $scope.survivor.sheet.died_in = $scope.settlement.sheet.lantern_year
-        $scope.postJSONtoAPI('survivor', 'controls_of_death', cod_json);
-      //  $('#modalDeath').fadeOut(1000);
-        $scope.showHide('modalDeath');
-
+        console.info('Set survivor COD to ' + $scope.survivor.sheet.cause_of_death);
+        $scope.survivor.sheet.died_in = $scope.settlement.sheet.lantern_year;
+        var res = $scope.postJSONtoAPI('survivor', 'controls_of_death', cod_json, false, true, false);
+        res.then(
+            function(payload) {
+                console.info('Survivor cause of death updated successfully!');
+                console.info("Cause of death: '" + $scope.survivor.sheet.cause_of_death + "'.")
+                $scope.initCODlist();
+            },
+            function(errorPayload) {
+                console.error('Failed to update survivor cause of death!')
+            }
+        );
     };
 
     $scope.processSelectCOD = function() {
         // if the user uses the select drop-down, we do this to see what
         // to do next, e.g. whether to show the custom box
         $scope.survivorCOD = $scope.survivor.sheet.cause_of_death;
-        if ($scope.survivorCOD == '* Custom Cause of Death') {
+        if ($scope.survivorCOD == $scope.customCODdict.name) {
             delete $scope.survivor.sheet.cause_of_death;
-            $scope.showCustomCOD();
+            $scope.ngShow('customCODinput');
         } else {
             $scope.submitCOD($scope.survivorCOD);
         };

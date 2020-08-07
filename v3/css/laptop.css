@@ -6,10 +6,18 @@
   and (-webkit-min-device-pixel-ratio: 1) {
 
     /* modals - laptop */
-    .modal-black button {min-height: 35px; }
+    .modal-black button {
+        min-height: 35px;
+    }
 
     /* campaign summary - survivor controls - laptop */
-    .modal_manager {width: 460px; }
-    .campaign_summary_survivor_modal_color_scheme_select {margin-bottom: 0; width: 460px; height: 45px; }
+    .modal_manager {
+        width: 460px;
+    }
+    .campaign_summary_survivor_modal_color_scheme_select {
+        height: 45px;
+        margin-bottom: 0;
+        width: 460px;
+    }
 }
 

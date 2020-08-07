@@ -16,20 +16,14 @@
     <div
         id="viewTabContainer"
         ng-if="settlement.sheet !== undefined"
-        ng-init="scratch.previousTab = 0"
     >
 
         <div
             ng-repeat="tab in tabsObject.tabs"
             id="{{'settlementSheetTabButton-' + tab.id}}"
             class="view_tab_button"
-            ng-class="{
-                'active': tabsObject.activeTab === tab.id,
-            }"
-            ng-click="
-                tabsObject.activeTab = tab.id;
-                changeTab(tab.id);
-            "
+            ng-class="{'active': tabsObject.activeTab === tab.id}"
+            ng-click="changeTab(tab.id);"
         >
             {{tab.name}}
         </div>
@@ -616,23 +610,7 @@
             </div> <!-- sheet ui outer ring -->
         </div><!-- principles editor-->
 
-    </div> <!-- asset_management_left_pane/left column -->
-
-
-
-
-
-        <!-- MIDDLE PANE STARTS HERE -->
-
-
-
-
-        <div id="settlementSheetMiddleColumn" ng-if="settlement != undefined">
-
-
-                    <!-- LOCATIONS - ANGULARJS CONTROLS -->
-
-
+        <!-- inspirational statue -->
         <div
             class="settlement_sheet_block_group"
             ng-if="settlement.sheet.innovations.indexOf('sculpture') != -1"
@@ -655,9 +633,60 @@
                     <option disabled value="">Select a Fighting Art</option>
                 </select>
             </div> <!-- line_item -->
+        </div>
+
+        <!-- monster volumes -->
+        <div
+            class="settlement_sheet_block_group"
+            ng-controller="monsterVolumesController"
+            ng-if="settlement.sheet.innovations.indexOf('records') != -1"
+            title="Click or tap on an item to remove it from this list."
+        >
+
+            <h2>Monster Volumes</h2>
+            <p>There can be up to 3 volumes for each monster.</p>
+
+            <div
+                class="line_item location_container"
+                ng-repeat="v in settlement.sheet.monster_volumes"
+            >
+                <span class="bullet"></span>
+                <span
+                    class="item"
+                    ng-click="rmMonsterVolume($index, v)"
+                >
+                    {{v}}
+                </span>
+            </div> <!-- line_item -->
+
+            <div class="line_item">
+                <span class="empty_bullet"></span>
+                <select
+                    ng-model="scratch.monster_volume"
+                    ng-options="m_string for m_string in settlement.game_assets.monster_volumes_options"
+                    ng-change="addMonsterVolume()"
+                >
+                    <option disabled value="">Add a Monster Volume</option>
+                </select>
+            </div> <!-- line_item -->
 
         </div>
 
+
+    </div> <!-- asset_management_left_pane/left column -->
+
+
+
+
+
+        <!-- MIDDLE PANE STARTS HERE -->
+
+    <div id="settlementSheetMiddleColumn" ng-if="settlement != undefined">
+
+                    <!-- LOCATIONS -->
+
+
+        <!-- locations -->
         <div
             class="settlement_sheet_block_group"
             ng-controller="locationsController"
@@ -666,20 +695,29 @@
 
             <h2>Settlement Locations</h2>
             <p>Locations in your settlement.</p>
-            <hr class="invisible"/> <!-- TK this is pretty low rent -->
+
             <div
                 class="line_item location_container"
                 ng-repeat="loc in settlement.sheet.locations"
-                ng-init="locationLevel = settlement.sheet.location_levels[loc]"
+                ng-init="
+                    l_dict = settlement.game_assets.locations[loc]
+                "
             >
+
                 <span class="bullet"></span>
+
                 <span
-                    class="item"
+                    class="clickable hover_highlight_red item"
                     ng-click="rmLocation($index, loc)"
                 >
-                    {{settlement.game_assets.locations[loc].name}}
+                    {{l_dict.name}}
                 </span>
-                <span ng-if="settlement.sheet.location_levels[loc] != undefined" class="location_lvl_select">
+
+                <span
+                    ng-if="l_dict.levels !== undefined"
+                    ng-init="locationLevel = (settlement.sheet.location_levels[loc]) || 1"
+                    class="location_lvl_select"
+                >
                     <select
                         class="location_level"
                         ng-model="locationLevel"
@@ -691,7 +729,6 @@
                 </span> <!-- optional levels controls -->
 
             </div> <!-- line_item location_container: list/rm locations -->
-
 
             <div class="line_item">
                 <span class="empty_bullet" /></span>
@@ -710,7 +747,7 @@
 
 
 
-                    <!-- INNOVATIONS - ANGULARJS CONTROLS -->
+                    <!-- INNOVATIONS -->
 
         <a id="edit_innovations" class="mobile_only"/></a>
 
@@ -724,21 +761,26 @@
             <h2>Innovations</h2>
             <p>The settlement's innovations (including weapon masteries).</p>
 
-            <hr class="invisible"/> <!-- TK why is this still here? need to fix -->
-
             <div
                 class="line_item location_container"
                 ng-repeat="i in settlement.sheet.innovations"
-                ng-init="innovationLevel = settlement.sheet.innovation_levels[i]"
+                ng-init="
+                    i_dict = settlement.game_assets.innovations[i]
+                "
             >
                 <span class="bullet"></span>
                 <span
+                    class="clickable"
                     class="item"
                     ng-click="rmInnovation($index,i)"
                 >
-                    {{settlement.game_assets.innovations[i].name}}
+                    {{i_dict.name}}
                 </span>
-                <span ng-if="settlement.sheet.innovation_levels[i] != undefined" class="location_lvl_select">
+                <span
+                    ng-if="i_dict.levels !== undefined"
+                    ng-init="innovationLevel = (settlement.sheet.innovation_levels[i]) || 1"
+                    class="location_lvl_select"
+                >
                     <select
                         class="location_level"
                         ng-model="innovationLevel"
@@ -770,7 +812,18 @@
                 ng-init="setInnovationDeck()"
             >
                 <h3> - Innovation Deck - </h3>
-                <img id="innovationDeckSpinner" class="innovation_deck_spinner" src="/media/loading_io.gif">
+
+                <div
+                    id="innovationDeckSpinner"
+                    class="ng_fade inline_spinner_container"
+                    ng-if="ngVisible['innovationDeckSpinner']"
+                >
+                    <img
+                        src="/media/loading_io.gif"
+                    />
+                    <p>Refreshing Innovation Deck...</p>
+                </div>
+
                 <ul
                     class="asset_deck clickable"
                     ng-click="setInnovationDeck()"
@@ -841,43 +894,6 @@
 
 
 
-        <!-- monster volumes -->
-        <div
-            class="settlement_sheet_block_group"
-            ng-controller="monsterVolumesController"
-            ng-if="settlement.sheet.innovations.indexOf('records') != -1"
-            title="Click or tap on an item to remove it from this list."
-        >
-
-            <h2>Monster Volumes</h2>
-            <p>There can be up to 3 volumes for each monster.</p>
-
-            <div
-                class="line_item location_container"
-                ng-repeat="v in settlement.sheet.monster_volumes"
-            >
-                <span class="bullet"></span>
-                <span
-                    class="item"
-                    ng-click="rmMonsterVolume($index, v)"
-                >
-                    {{v}}
-                </span>
-            </div> <!-- line_item -->
-
-            <div class="line_item">
-                <span class="empty_bullet"></span>
-                <select
-                    ng-model="scratch.monster_volume"
-                    ng-options="m_string for m_string in settlement.game_assets.monster_volumes_options"
-                    ng-change="addMonsterVolume()"
-                >
-                    <option disabled value="">Add a Monster Volume</option>
-                </select>
-            </div> <!-- line_item -->
-
-        </div>
-
 
     </div> <!-- asset_management_left_pane -->
 
@@ -924,7 +940,7 @@
                 </div>
 
                 <div
-                    class="strain_milestone_toggle_box clickable"
+                    class="strain_milestone_toggle_box hover_highlight clickable"
                     ng-repeat="m in settlement.game_assets.strain_milestones"
                     ng-click="toggleStrainMilestone(m.handle)"
                     ng-class="{active: settlement.sheet.strain_milestones.includes(m.handle)}"
@@ -1002,6 +1018,7 @@
                 ng-controller="quarriesController"
                 ng-repeat="q in settlement.sheet.quarries"
             >
+                <span class="hidden">{{a}}</span>
                 <span class="kd_sheet_ui_box checked"></span>
                 <span
                     class="item"
@@ -1262,11 +1279,11 @@
         class="view_tab"
         ng-if="settlement !== undefined && user !== undefined"
         ng-show="tabsObject.activeTab === 1"
-        ng-controller="storageController"
+        ng-controller="settlementSheetStorageTabController"
     >
     
         <div
-            class="ng_fade fullTabSpinner"
+            class="ng_fade full_tab_spinner"
             ng-if="settlementStorage === undefined"
         >
             <img src="/media/loading_io.gif">
@@ -1351,7 +1368,10 @@
                             "
                             ng-class-even="'no_zebra'"
                             ng-class-odd="'zebra'"
-                            ng-class="{inventory_row_item_last:$last}"
+                            ng-class="{
+                                'zebra_pop': asset.quantity > 0,
+                                inventory_row_item_last:$last
+                            }"
                         >
                             <div
                                 class="inventory_row_item_controls clickable"
@@ -1427,12 +1447,12 @@
         id="settlementSheetAdminTab"
         class="view_tab"
         ng-show='tabsObject.activeTab === 6'
+        ng-controller='settlementSheetAdminTabController'
     >
 
         <!-- ABANDON -->
         <div
             class="kd_sheet_ui_border_box"
-            ng-controller="abandonSettlementController"
             ng-if="settlement.sheet.abandoned === undefined"
         >
 
@@ -1446,7 +1466,7 @@
                 Abandoning a settlement <i>does not</i> remove it from the
                 system and you will still be able to access and modify it.
             </p>
-            <p class="maroon_text">
+            <p class="kd_red_text">
                 &nbsp; <b>This cannot be undone.</b>
             </p>
 
@@ -1464,7 +1484,7 @@
             class="kd_sheet_ui_border_box"
             ng-if="user.user.preferences.show_remove_button == true"
         >
-            <h3 class="special_showdown">
+            <h3 class="kd_red_text">
                 Delete Settlement
             </h3>
             <p>
@@ -1475,7 +1495,7 @@
                 This will <b>permanently delete all survivors</b> associated
                 with this settlement.
             </p>
-            <p class="maroon_text">
+            <p class="kd_red_text">
                 &nbsp; 
                 <b>This cannot be undone.</b>
             </p>
@@ -1490,7 +1510,6 @@
         <div
             id="removeSettlementConfirmation"
             class="modal-black hidden"
-            ng-controller="removeSettlementController"
         >
             <div class="rm_asset_confirm_container kd_red">
 
