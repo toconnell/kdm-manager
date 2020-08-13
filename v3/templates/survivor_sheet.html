@@ -278,11 +278,11 @@
                     ng-repeat="sa in survivor.survival_actions"
                 >
                     <div
-                        class="kd_sheet_ui_box"
+                        class="kd_sheet_ui_box small"
                         ng-class="{checked: sa.available == true}"
                     >
                     </div>
-                    <span class="font_medium sa_name">{{sa.name}}</span>
+                    <span class="font_small sa_name">{{sa.name}}</span>
                     <p>{{sa.title_tip}}</p>
                 </div>
             </div>
@@ -291,7 +291,7 @@
 
         <!-- SOTF opl -->
         <div
-            class="survivor_sheet_kd_sheet_ui_box border clickable"
+            class="clickable survivor_sheet_kd_sheet_ui_box border"
             ng-if="
                 settlement != undefined &&
                 settlement.sheet.principles.indexOf('survival_of_the_fittest') != -1
@@ -304,17 +304,27 @@
             >
                 <div
                     class="kd_sheet_ui_box"
-                    ng-class="{kd_red_box: survivor.sheet.sotf_reroll === true}"
+                    ng-class="{
+                        'kd_red_box': survivor.sheet.sotf_reroll === true
+                    }"
                 >
                 </div>
+
                 <div
-                    ng-class="{kd_red_text: survivor.sheet.sotf_reroll === true}"
+                    class="font_medium"
+                    ng-class="{
+                        'kd_red_text': survivor.sheet.sotf_reroll === true
+                    }"
                 >
                     Once per lifetime reroll
                 </div>
             </div>
-            <div class="kd_sheet_ui_box_row" ng-if="survivor.sheet.sotf_reroll != true">
-                <p class="sotf_reroll_caption">
+
+            <div
+                class="font_small kd_sheet_ui_box_row sotf_caption"
+                ng-if="survivor.sheet.sotf_reroll != true"
+            >
+                <p class="font_small">
                     <b>Survival of the fittest:</b> Once per lifetime, a survivor may
                     reroll a single roll result. They must keep this result.</b>
                 </p>
@@ -396,7 +406,9 @@
 							survivor.sheet.attribute_detail[A].gear > survivor.sheet[A],
 	                };"
 	            />
-	            {{A}}
+                <span class="font_small">
+    	            {{A}}
+                </span>
 	        </div> <!-- attributes repeater -->
 	    </div> <!-- attributes container -->
 
@@ -471,7 +483,7 @@
 			ng-class="{'insane': survivor.sheet.Insanity >= 3}"
 		>
 
-            <div class="hitbox_shield_container brain">
+            <div class="font_large hitbox_shield_container brain">
 
                 <input
                     id="insanityBox"
@@ -484,7 +496,9 @@
 					ng-class="{'insane': survivor.sheet.Insanity >= 3}"
                 />
 
-                Insanity
+                <span class="font_small">
+                    Insanity
+                </span>
 
             </div>
 
@@ -506,6 +520,7 @@
                     class="clickable damage_box"
                     ng-class="{
                         'checked': survivor.sheet.brain_damage_light !== undefined,
+                        'kd_red_box': survivor.sheet.brain_damage_light && survivor.sheet.Insanity >= 3,
                     }"
                     ng-click="toggleDamage('brain_damage_light');"
                  /></div>
@@ -517,7 +532,10 @@
            id="insanityHitBoxControl"
            class="kd_sheet_ui_roll_down rolled_up"
         >
-           <div class="kd_sheet_ui_roll_down_controls integrated">
+            <div
+                class="kd_sheet_ui_roll_down_controls integrated"
+		        ng-class="{'insane': survivor.sheet.Insanity >= 3}"
+            >
                <div class="kd_sheet_ui_number_tumbler">
                    <button
                        class="kd_kickstarter_button"
@@ -543,7 +561,7 @@
         
         <!-- HIT LOCATIONS -->
         <div
-            class="survivor_sheet_hit_location_repeater"
+            class="hit_location_repeater"
             ng-repeat="location in [
                 {name: 'Head', glyph: 'b', dmg: ['heavy']},
                 {name: 'Arms', glyph: 'd', dmg: ['light', 'heavy']},
@@ -557,7 +575,7 @@
                 class="hitbox_container"
             >
                 <div
-                    class="hitbox_shield_container clickable"
+                    class="font_large hitbox_shield_container clickable"
                     ng-click="rollUp(ctrlBoxID)"
                 >
                     <input
@@ -579,7 +597,7 @@
                         {{location.name}}
                     </div>
                     <div class="font_small tip">
-                        Heavy Injury: Knocked Down.
+                        &#9632; Heavy Injury: Knocked Down.
                     </div>
                 </div>
 
@@ -591,7 +609,7 @@
                             {checked: survivor.sheet[toggleName] !== undefined}
                        "
                         ng-click="toggleDamage(toggleName);"
-                        class="clickable {{dmgType}} damage_box"
+                        class="clickable damage_box {{dmgType}}"
                      />
                      </div>
                 </div>
@@ -643,7 +661,7 @@
         <!-- favorite / retired / dead -->
         <div
             ng-if="survivor.sheet !== undefined"
-            class="survivor_sheet_kd_sheet_ui_box border top_most favorite_retired_dead"
+            class="survivor_sheet_kd_sheet_ui_box border favorite_retired_dead"
             ng-class="{
                 'rolled_down': ngRolledUp['controlsOfDeath'] === false,
             }"
@@ -652,11 +670,13 @@
                 class="frd_toggle clickable"
                 ng-click="toggleFavorite()"
             >
-                <div
-                    class="kd_sheet_ui_box"
-                    ng-class="{checked: scratch.favoriteBox == true}"
+                <span
+                    class="ng_fade favorite_star"
+                    ng-class="{
+                        'checked': scratch.favoriteBox === true,
+                    }"
                 >
-                </div>
+                </span>
                 Favorite
             </div>
 
@@ -1306,10 +1326,10 @@
             ng-if="survivor.sheet.fighting_arts != undefined"
         >
             <div class="secondary_attribute_title_bar">
-                <div class="title">Fighting Arts</div>
-                <div class="subtitle">Maximum 3.</div>
+                <div class="font_large title">Fighting Arts</div>
+                <div class="font_small subtitle">Maximum 3.</div>
                 <div
-                    class="lockbox clickable"
+                    class="font_small lockbox clickable"
                     ng-click="toggleStatusFlag('cannot_use_fighting_arts')"
                 >
                     <div
@@ -1317,7 +1337,9 @@
                         ng-class="{checked: survivor.sheet.cannot_use_fighting_arts == true}"
                     >
                     </div>
-                    &#x1f512; Cannot use Fighting Arts
+                    <span>
+                        &nbsp; &#x1f512; Cannot use Fighting Arts
+                    </span>
                 </div>
             </div> <!-- title elements -->
 
@@ -1362,14 +1384,14 @@
                         </div>
 
                             <!-- regular title -->
-                        <b
+                        <span
                             class="font_large card_title"
                             ng-class="{
                                 'card_constellation': FA.constellation !== undefined,
                             }"
                         >
                             {{FA.name}}
-                        </b>
+                        </span>
 
                             <!-- subhead -->
                         <p
@@ -1387,10 +1409,11 @@
 
                         <p class="survivor_sheet_fighting_art_color_span {{FA.sub_type}}_gradient"> </p>
                         <div
-                            class="survivor_sheet_card_text"
+                            class="font_medium survivor_sheet_card_text"
                             ng-bind-html="FA.desc|trustedHTML"
                         >
                         </div>
+
                         <div
                             ng-repeat="(level, desc) in FA.levels track by $index"
                             ng-if="desc != ''"
@@ -1480,9 +1503,9 @@
             ng-if="survivor.sheet != undefined"
         >
             <div class="secondary_attribute_title_bar">
-                <div class="title">Disorders</div>
-                <div class="subtitle">Maximum 3.</div>
-                <div class="lockbox"><!-- empty --></div>
+                <div class="font_large title">Disorders</div>
+                <div class="font_small subtitle">Maximum 3.</div>
+                <div class="font_small lockbox"><!-- empty --></div>
             </div> <!-- title elements -->
 
 
@@ -1525,14 +1548,14 @@
                         </div>
 
                         <!-- regular title -->
-                        <b
+                        <span
                             class="font_large card_title"
                             ng-class="{
                                 'card_constellation': D.constellation !== undefined,
                             }"
                         >
                             {{D.name}}
-                        </b>
+                        </span>
 
                         <div
                             class="font_medium survivor_sheet_card_text disorder_flavor_text"
@@ -1574,9 +1597,9 @@
 
             <div>
                 <div class="secondary_attribute_title_bar">
-                    <div class="title">Abilities & Impairments</div>
+                    <div class="font_large title">Abilities & Impairments</div>
                     <div
-                        class="lockbox"
+                        class="font_small lockbox"
                         ng-click="toggleStatusFlag('skip_next_hunt')"
                     >
                         <div
@@ -1584,7 +1607,9 @@
                             ng-class="{checked: survivor.sheet.skip_next_hunt == true}"
                         >
                         </div>
-                        &#x1f512; skip next hunt
+                        <span>
+                            &nbsp; &#x1f512; Skip next hunt
+                        </span>
                     </div>
                 </div>
             </div> <!-- title elements -->
@@ -1733,7 +1758,7 @@
 
         <!-- dynamic modal launchers -->
         <div
-            class="survivor_sheet_kd_sheet_ui_box border dynamic_modal_launchers"
+            class="survivor_sheet_kd_sheet_ui_box border top_most dynamic_modal_launchers"
         >
             <button
                 id="cursedItemsOpener"

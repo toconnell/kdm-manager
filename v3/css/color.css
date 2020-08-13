@@ -45,7 +45,7 @@
 .kd_sheet_ui_box {border-color: #000; }
 .kd_sheet_ui_box.checked,
     .kd_sheet_ui_box.dotted {background-color: #000;}  
-.kd_sheet_ui_box.dotted:before {color: #fff; background: #fff; }
+.kd_sheet_ui_box.dotted:before {background: #fff; }
 
 /*  KD Kickstarter UI   */
 .kd_kickstarter_button,
@@ -91,6 +91,7 @@
 .kd_alert,
     .kd_alert_no_exclaim,
     .kd_pink {background-color: #FF0040; color: #ffffdd;}
+.kd_pink_text {color: #ff00f0;}
 .kd_rulebook_alert {
     background: #F45494;
     color: #ffffdd;

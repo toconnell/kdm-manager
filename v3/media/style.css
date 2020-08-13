@@ -1,5 +1,5 @@
 /*                                              */
-/*  DO NOT EDIT Z-INDEX VALUES IN THIS FILE!!!  */
+/*  DEPRECATED STYLES - do not add styles here! */
 /*                                              */
 
 
@@ -119,10 +119,6 @@ label#survivorAvatarMobile {display: block; position: relative; float: right; }
 
 
 /* input styles */
-input[type=number] {-moz-appearance:textfield;}
-/*
-input[type=text], input[type=password] {border: 0; border-right: 1px solid #666; border-bottom: 1px solid #666;}
-*/
 input[type=text], textarea, input[type=password], input[type=button] { outline: none;}
 input[type=text]:focus, textarea:focus, input[type=password]:focus, button:focus {  box-shadow: 0 0 6px rgba(1, 3, 12, 1); }
 
@@ -702,8 +698,6 @@ div.survivor_controls img {background-color: #fff; margin-bottom: 2%; }
 
 /* survivor modals */
 .survivor_quickview_container .kd_sheet_ui_roll_down_controls {width: 85%; }
-div.quickview_survivor_name {border-bottom: 3px solid #000; display: flex; justify-content: space-between; align-items: flex-end; margin: 3%; }
-.quickview_survival_container {margin: 3%; display: flex; }
 .quickview_secondary_container .secondary_attrib_box_row {display: flex; flex-direction: row; flex-wrap: nowrap; margin: 2%; }
 .secondary_attrib_row_container {width: 100%; display: flex; justify-content: flex-end; }
 .quickview_secondary_container.courage,
@@ -939,23 +933,12 @@ div#info_box h2, button#survivor_campaign_asset, button.dashboard_asset {text-al
     /* sex - mobile */
 .survivor_sheet_kd_sheet_ui_box.survivor_sex_box {border: 0; text-align: center; display: flex; flex-direction: row; margin: 0 auto; padding: 0; }
 .survivor_sex_toggle {width: 50%; }
-.survivor_sheet_avatar_container {
-    display: contents; 
-    width: 50%;
-}
-.survivor_sheet_avatar_container label { margin: 0 auto;  }
-.survivor_avatar_image {width: 100%; height: auto; font-size: 1%; }
 
     /* avatar / dynamic modals - mobile */
 .dynamic_modal_launchers {display: flex; flex-direction: row; justify-content: space-between; flex-wrap: wrap; }
 .dynamic_modal_launchers button {padding: 2%; font-family: Silverado; font-size: 30pt; justify-content: center; border-radius: 5px; margin: 0 auto; width: 45%; }
 
 
-    /* survival box - mobile */
-
-.survival_box_number_container {width: 25%;  display: flex; align-items: center; justify-content: center; }
-.survival_box_title_and_lock {width: 45%; display: flex; padding: 0; flex-direction: column; justify-content: space-between; }
-.survival_box_survival_actions_container {min-width: 30%; padding-top: 2%; padding-bottom: 2%; }
 
     /* affinities opener - mobile */
 .affinities_opener {display: flex; flex-direction: row; }
@@ -966,14 +949,8 @@ div#info_box h2, button#survivor_campaign_asset, button.dashboard_asset {text-al
 .survivor_hit_box p {margin: 1%; padding: 0; font-size: 40px; position: absolute; bottom: 0; right: 1%; }
 .hit_box_detail {display: flex; flex-direction: row; flex-wrap: nowrap; padding-left: 3%; padding-right: 3%; justify-content: space-between;}
 .hit_box_detail span {font-size: 50pt; }
-.damage_box {height: 120px; width: 120px; border: 5px solid #000; transition: 0.5s;}
-.heavy.damage_box {height: 110px; width: 110px; border-width: 10px; }
 .damage_box.checked {background-color: #000; }
 .hit_box_detail .two_box_container {display: flex; flex-direction: row; justify-content: space-between; width: 50%; }
-
-
-    /* once per life time - mobile */
-.kd_sheet_ui_box_row.sotf_option {font-size: 35pt; flex-direction: row; display: flex; align-items: center; margin-left: 3%;  }
 
 
     /* generic card styles - mobile */
@@ -986,7 +963,7 @@ div#info_box h2, button#survivor_campaign_asset, button.dashboard_asset {text-al
 .card_constellation {color: #c00; }
 .survivor_sheet_card br {line-height: 160%; }
 
-.survivor_sheet_fighting_art_color_span {height: 50px; border: 0; margin: 0; margin-bottom: 5%; }
+.survivor_sheet_fighting_art_color_span {height: 4vh; border: 0; margin: 0; margin-bottom: 5%; }
 div.survivor_sheet_card_text, .survivor_sheet_card_level_block {margin-left: 7%; margin-right: 7%; }
 .survivor_sheet_card_text table {margin-top: 3%; margin-bottom: 3%; }
 .survivor_sheet_card_text table td {padding: 1%;}
@@ -1531,7 +1508,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
 
         /* partner misc. - tablet */
     .survivor_sheet_partner_opener {font-size: 18pt; }
-    .survivor_sheet_partner_controls {width: 472px; float: right; }
     .survivor_sheet_partner p {font-size: 15pt; }
     .survivor_sheet_partner img {}
     .partner_selector * {font-size: 18pt; }
@@ -1672,7 +1648,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
         padding-left: 6%;
     }
     .survivor_sheet_fighting_art_color_span {height: 10px; }
-    div.survivor_sheet_card_text, div.survivor_sheet_card_level_block {font-size: 15pt; }
     .survivor_sheet_card_text table td.roll {width: 16%; }
     .survivor_sheet_card_level_number {height: 30px; flex: 0 0 30px;}
     .survivor_sheet_card_click_to_remove {margin-bottom: -50px;}
@@ -1702,14 +1677,8 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     .survivor_quickview_container .columns {display: flex; flex-direction: row; flex-wrap: nowrap; }
     .survivor_quickview_container .left_column,
         .survivor_quickview_container .right_column {width: 50%; margin-left: 1%; margin-right: 1%; }
-    .quickview_survival_container .survival_box_number {width: 80px; height: 80px; }
-    .quickview_sex_box {font-size: 18pt; width: 150px; }
-    .quickview_survival_container .survival_box_lock {font-size: 12pt; }
     .quickview_attribute_box .attribute_box_number {font-size: 25pt; height: 50px; margin-bottom: 10px; margin-top: 10px; }
     .quickview_attribute_tumbler input {font-size: 20pt; height: 60px; width: 60px; }
-    .quickview_brain_container,
-        .quickview_hitbox_container {margin-top: 2%; margin-bottom: 0; }
-    .quickview_brain_container {margin-top: 2%; }
     .quickview_brain_box,
         .quickview_armor_box {font-size: 13pt; width: 90px; }
     .quickview_shield {font-size: 25pt; height: 70px; margin-top: 10px; }
@@ -2186,9 +2155,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
 
     /* campaign summary survivor "quickview" modal - wide */
     .quickview_survival_container .survival_box_title_and_lock .survival_box_title {margin-top: 0; padding-bottom:0;}
-    .quickview_survival_container .survival_box_lock {margin-bottom: 13px; font-size: 12pt; }
-    .quickview_survival_container .survival_box_number {height: 60px; width: 60px; font-size: 25pt; }
-    .quickview_survival_container .survival_box_lock {font-size: 10pt; }
     .quickview_attribute_box {border-width: 1px; font-size: 9pt; }
     .quickview_attribute_box .attribute_box_number {margin: 0 auto; font-size: 15pt; height: 40px; width: 40px; margin-top: 10px; margin-bottom: 5px; }
     .quickview_attribute_tumbler input {font-size: 15pt; height: 45px; width: 40px; }
@@ -2205,12 +2171,10 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     .quickview_hitbox_boxes .damage_box {height: 20px; width: 20px; border-width: 2px; }
     .quickview_hitbox_boxes .heavy.damage_box {width: 14px; height: 14px; border-width: 5px; }
     .quickview_secondary_container.hunt_xp {font-size: 12pt; flex-direction: row; align-items: center; margin:0; justify-content: space-between; padding-left: 12px; }
-    .quickview_ui_button_container {margin: 2%; }
     .quickview_ui_button_container form.edit_survivor_sheet,
         .quickview_ui_button_container .campaign_summary_survivor_modal_color_scheme_select,
         .quickview_ui_button_container .departing_survivor_conditional,
         .quickview_ui_button_container .back_button_holder {margin: 1%; height: auto; }
-    .quickview_brain_container.border_box {margin-bottom: 1%; }
 
 
     /* campaign summary right panel - wide */
@@ -2506,19 +2470,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
         /* fighting art controls - wide */
     p.survivor_sheet_fighting_art span.survivor_sheet_fa_level_row label.fighting_art_level_toggle {font-size: 12pt; margin-bottom: 5px; width: 97%;}
 
-
-        /* survivor sex - wide */
-    .survivor_sex_toggle {font-size: 12pt; }
-
-        /* survival box - wide */
-    .survival_box_title {font-size: 17pt; }
-    .survival_box_lock {font-size: 9pt; }
-    .survival_box_number {width: 60px; height: 60px; font-size: 25pt; }
-    .survival_box_survival_action_item .sa_name {font-size: 10pt; }
-
-        /* dynamic modal laynchers - wide */
-    .dynamic_modal_launchers button {font-size: 12pt; }
-
         /* affinity launcher */
     .affinity_span {font-size: 18pt; margin-left: 11%; margin-right: 11%;  }
 
@@ -2527,7 +2478,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
 
         /* partner misc. - wide */
     .survivor_sheet_partner_opener {font-size: 12pt; margin-bottom:0; }
-    .survivor_sheet_partner_controls {width: 340px; float: left; margin-top: 5px; }
     .survivor_sheet_partner {font-size: 10pt; margin-bottom: 0; }
     .survivor_sheet_partner p {font-size: 10pt; }
     .partner_select_modal button {width: 39%; margin: 0 auto; font-weight: bold; padding: 1%; font-family: Metrophobic; display: block; margin-top: 2%;  }
@@ -2591,9 +2541,7 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     .survivor_sheet_card {width: 100%; margin-top: 3%; margin-bottom: 5px; max-width: none; height: auto; }
     .settlement_sheet_card_expansion_flair {margin-top: -18px; }
     .survivor_sheet_fighting_art_color_span {margin-top: 5%; }
-    div.survivor_sheet_card_text, div.survivor_sheet_card_level_block {font-size: 11pt; }
     .survivor_sheet_card_text table td.roll {width: 10%; }
-    .survivor_sheet_card_click_to_remove {margin-bottom: -15px;}
     .survivor_sheet_fa_container {margin-top: 0; }
 
     .fighting_art_card_strain_threshold_blocks_container {margin-top: -6.5%; margin-bottom: 1%; }

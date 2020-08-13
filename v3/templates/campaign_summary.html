@@ -287,7 +287,9 @@
                                         class="survivor_tag fighting_arts_tag"
                                         ng-repeat="fa in s.sheet.fighting_arts track by $index"
                                     >
-                                        {{settlement.game_assets.fighting_arts[fa].name}}
+                                        <span>
+                                            {{settlement.game_assets.fighting_arts[fa].name}}
+                                        </span>
                                     </div>
                                 </div>
                                 <div class="campaign_summary_survivor_tags_container">
@@ -295,7 +297,9 @@
                                         class="survivor_tag disorders_tag"
                                         ng-repeat="d in s.sheet.disorders"
                                     >
-                                        {{settlement.game_assets.disorders[d].name}}
+                                        <span>
+                                            {{settlement.game_assets.disorders[d].name}}
+                                        </span>
                                     </div>
                                 </div>
                                 <div class="campaign_summary_survivor_tags_container">
@@ -303,7 +307,9 @@
                                         class="survivor_tag ai_tag {{settlement.game_assets.abilities_and_impairments[ai].sub_type}}"
                                         ng-repeat="ai in s.sheet.abilities_and_impairments track by $index"
                                     >
-                                        {{settlement.game_assets.abilities_and_impairments[ai].name}}
+                                        <span>
+                                            {{settlement.game_assets.abilities_and_impairments[ai].name}}
+                                        </span>
                                     </div>
                                 </div>
 
@@ -313,7 +319,9 @@
                                         ng-repeat="flag in settlement.survivor_status_flags"
                                         ng-if="s.sheet[flag.handle] == true"
                                     >
-                                        {{flag.name}}
+                                        <span>
+                                            {{flag.name}}
+                                        </span>
                                     </div>
                                 </div>
 
@@ -358,11 +366,13 @@
                                     >
                                         <div class="columns">
 
-                                            <div id="survivorQuickviewLeftColumn" class="left_column">
+                                            <div id="survivorQuickviewLeftColumn">
 
-                                                <div class="font_medium quickview_survivor_name">
-                                                    <font class="quickview_survivor_name">{{s.sheet.name}}</font>
-                                                    <div class="quickview_sex_box">
+                                                <div class="quickview_survivor_name_and_sex_bar">
+                                                    <span class="font_large quickview_name_box">
+                                                        {{s.sheet.name}}
+                                                    </span>
+                                                    <div class="font_small quickview_sex_box">
                                                         <div>M</div>
                                                         <div class="kd_sheet_ui_box" ng-class="{checked: s.sheet.effective_sex == 'M'}"></div>
                                                         <div>F</div>
@@ -416,10 +426,10 @@
                                                             ng-repeat="sa in s.survival_actions"
                                                         >
                                                             <div
-                                                                class="kd_sheet_ui_box"
+                                                                class="kd_sheet_ui_box small"
                                                                 ng-class="{checked: sa.available == true}"
                                                             ></div>
-                                                            <span class="font_medium sa_name">{{sa.name}}</span>
+                                                            <span class="font_small sa_name">{{sa.name}}</span>
                                                         </div>
                                                     </div>
                                                 </div> <!-- quickview_survival_container -->
@@ -483,7 +493,9 @@
                                                                 green_text: s.sheet[A] + s.sheet.attribute_detail[A].tokens + s.sheet.attribute_detail[A].gear > s.sheet[A],
                                                             };"
                                                         />
-                                                        {{A}}
+                                                        <span class="font_small">
+                                                            {{A}}
+                                                        </span>
                                                     </div> <!-- attributes repeater -->
                                                 </div> <!-- attributes container -->
 
@@ -557,12 +569,16 @@
                                                 -->
 
                                                 <div
-                                                    class="hitbox_container brain"
+                                                    class="hitbox_container brain quickview_brain_container"
                                                     ng-class="{'insane': s.sheet.Insanity >= 3}"
                                                 >
 
                                                     <div
-                                                        class="hitbox_shield_container brain"
+                                                        class="
+                                                            font_large
+                                                            hitbox_shield_container
+                                                            brain
+                                                        "
                                                         ng-click="rollUp(brainBoxID)"
                                                     >
                                                         <input
@@ -572,7 +588,11 @@
                                                             min="0"
                                                             ng-class="{'insane': s.sheet.Insanity >= 3}"
                                                         />
-                                                        Insanity
+                                                        <span
+                                                            class="font_small"
+                                                        >
+                                                            Insanity
+                                                        </span>
                                                     </div>
 
                                                     <div
@@ -593,6 +613,7 @@
                                                             class="clickable damage_box"
                                                             ng-class="{
                                                                 'checked': s.sheet.brain_damage_light != undefined,
+                                                                'kd_red_box': s.sheet.brain_damage_light && s.sheet.Insanity >= 3,
                                                             }"
                                                             ng-click="toggleDamage(s, 'brain_damage_light');"
                                                          /></div>
@@ -601,7 +622,7 @@
 
                                                 <div
                                                     id="{{brainBoxID}}"
-                                                    class="kd_sheet_ui_roll_down rolled_up"
+                                                    class="kd_sheet_ui_roll_down brain rolled_up"
                                                 >
                                                     <div class="kd_sheet_ui_roll_down_controls">
                                                         <div class="kd_sheet_ui_number_tumbler">
@@ -630,7 +651,7 @@
 
             <!-- hit location repeater! -->
             <div
-                class="survivor_quickview_hit_location_repeater"
+                class="hit_location_repeater"
                 ng-if="s.sheet._id.$oid !== undefined"
                 ng-repeat="location in [
                     {name: 'Head', glyph: 'b', dmg: ['heavy']},
@@ -649,7 +670,7 @@
                     class="hitbox_container"
                 >
                     <div
-                        class="hitbox_shield_container"
+                        class="font_large hitbox_shield_container"
                         ng-click="rollUp(ctrlBoxID)"
                     >
                         <input
@@ -671,7 +692,7 @@
                             {{location.name}}
                         </div>
                         <div class="font_small tip">
-                            Heavy Injury: Knocked Down.
+                            <div class="kd_sheet_ui_box small checked"></div> Heavy Injury: Knocked Down.
                         </div>
                     </div>
 
@@ -683,12 +704,12 @@
                                 {checked: s.sheet[toggleName] !== undefined}
                            "
                             ng-click="toggleDamage(s, toggleName);"
-                            class="clickable {{dmgType}} damage_box"
+                            class="clickable damage_box {{dmgType}}"
                          />
                          </div> 
                     </div>
 
-                </div> <!-- quickview_hitbox_container -->
+                </div> <!-- hitbox_container -->
 
                 <div
                     id="{{ctrlBoxID}}"
@@ -1018,10 +1039,10 @@
                         class="quickview_secondary_container fighting_arts"
                     >
                         <div class="secondary_attribute_title_bar">
-                            <div class="title">Fighting Arts</div>
-                            <div class="subtitle">Maximum 3.</div>
+                            <div class="font_large title">Fighting Arts</div>
+                            <div class="font_small subtitle">Maximum 3.</div>
                             <div
-                                class="lockbox clickable"
+                                class="font_small lockbox clickable"
                                 ng-click="toggleSurvivorFlag(s, 'cannot_use_fighting_arts')"
                             >
                                 <div
@@ -1029,7 +1050,9 @@
                                     ng-class="{checked: s.sheet.cannot_use_fighting_arts == true}"
                                 >
                                 </div>
-                                &#x1f512; Cannot use Fighting Arts
+                                <span>
+                                    &nbsp; &#x1f512; Cannot use Fighting Arts
+                                </span>
                             </div>
                         </div>
                         <ul class="quickview_asset_list">
@@ -1050,8 +1073,8 @@
                         class="quickview_secondary_container disorders"
                     >
                         <div class="secondary_attribute_title_bar">
-                            <div class="title">Disorders</div>
-                            <div class="subtitle">Maximum 3.</div>
+                            <div class="font_large title">Disorders</div>
+                            <div class="font_small subtitle">Maximum 3.</div>
                         </div>
                         <ul class="quickview_asset_list">
                             <li
@@ -1070,9 +1093,9 @@
                         class="quickview_secondary_container fighting_arts"
                     >
                         <div class="secondary_attribute_title_bar">
-                            <div class="title">Abilities & Impairments</div>
+                            <div class="font_large title">Abilities & Impairments</div>
                             <div
-                                class="lockbox clickable skip_next_hunt"
+                                class="font_small lockbox clickable skip_next_hunt"
                                 ng-click="toggleSurvivorFlag(s, 'skip_next_hunt')"
                             >
                                 <div
@@ -1080,7 +1103,9 @@
                                     ng-class="{checked: s.sheet.skip_next_hunt == true}"
                                 >
                                 </div>
-                                &#x1f512; Skip Next Hunt
+                                <span>
+                                    &nbsp; &#x1f512; Skip Next Hunt
+                                </span>
                             </div>
                         </div>
                         <ul class="quickview_asset_list">

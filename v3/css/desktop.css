@@ -10,7 +10,7 @@
     h4 {font-size: 14pt; font-weight: normal; }
 
     /*  abstract fonts - new in version 4 */
-    .font_small     {font-size: 10pt;}
+    .font_small     {font-size: 9pt;}
     .font_medium    {font-size: 12pt;}
     .font_large     {font-size: 15pt;}
 
@@ -37,12 +37,16 @@
 
     /*  kd_sheet_ui styles - desktop */
     .kd_sheet_ui_box {
-        border-width: 0.1em;
-        width: 1em;
-        height: 1em;
+        border-width: 1px; 
+        width: 1rem;
+        height: 1rem;
     }
     .kd_sheet_ui_box.heavy {
         border-width: 3px; 
+    }
+    .kd_sheet_ui_box.small {
+        width: 0.5rem;
+        height: 0.5rem; 
     }
     .kd_sheet_ui_inner_ring_container {
         width: 40%;
@@ -324,12 +328,7 @@
     }
     #survivorQuickviewLeftColumn {
         border: none; 
-    }
-    .hitbox_container {
-        height: 6vh; 
-    }
-    .quickview_brain_container, .quickview_hitbox_container {
-        margin: 0 auto; 
+        width: 50%; 
     }
     .attribute_box .attribute_box_number {
         font-size: 20pt;
@@ -340,22 +339,19 @@
         width: 5vh;
         height: 5vh; 
     }
+    .hit_location_repeater {
+        margin: 0 auto; 
+        width: 95%; 
+    }
     .hitbox_boxes_container {
         width: 25%; 
     }
-    .hitbox_container.brain {
-        height: 8vh;
-    }
-    .hitbox_boxes_container .damage_box {
-        width: 35px;
-        height: 35px; 
-    }
-    .hitbox_boxes_container .heavy.damage_box {
-        width: 25px;
-        height: 25px; 
+    .hitbox_container {
+        margin-bottom: 1%;
+        margin-top: 1%;
     }
     .hitbox_shield {
-        width: 35%;
+        width: 45%;
     }
     .hitbox_shield.brain {
         width: 40%;
@@ -570,19 +566,12 @@
         height: 250px;
         width: auto; 
     }
-    #settlementSheetSurvivalContainer {
-        padding: 0; 
-    }
-    .survivor_sheet.survival_box_number {
-        height: 60px;
-        font-size: 20pt; 
-        width: 60px;
+    .survival_box_number {
+
     }
     .survival_box_title_and_lock {
+        padding: 0; 
         width: 60%; 
-    }
-    .survivor_sheet_hit_location_repeater {
-        border-bottom: 1px solid; 
     }
     .custom_cod_text {
         padding: 1%; 
@@ -591,12 +580,20 @@
         margin: 1%;
         padding: 1%; 
     }
+    .survivor_sheet_secondary_attrib_container {
+        margin-bottom: 0; 
+    }
     .survivor_sheet_card_container {
-        flex-direction: row; 
+        flex-direction: row;
+        align-items: baseline;  
     }
     .survivor_sheet_card {
         width: 32%;
-        margin: unset; 
+        padding-bottom: 1%; 
+    }
+
+    .survivor_sheet_partner img {
+        max-width: 5%;
     }
 
     #survivorViewAdminTab {

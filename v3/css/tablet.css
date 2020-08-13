@@ -19,7 +19,7 @@
 
 
     /*  abstract fonts - new in version 4 */
-    .font_small {font-size: 0.9vh;}
+    .font_small {font-size: 1vh;}
     .font_medium {font-size: 1.5vh;}
     .font_large {font-size: 2vh; }
 
@@ -32,7 +32,6 @@
     /* major UI */
     #container {margin-top: 6vh;}
 
-    #leftSideNav button {font-size: 2vh; }
     #leftSideNav.open {width: 50%;}
     #leftSideNavUnderlay.open {width: 50%}
 
@@ -59,6 +58,10 @@
         border-width: 0.2vw;
     }
     .kd_sheet_ui_box.heavy {border-width: 0.4vw;}
+    .kd_sheet_ui_box.small {
+        height: 1vw;
+        width: 1vw; 
+    }
 
     /*  kd_rulebook_ui styles */
     .kd_rulebook_alert {border-radius: 3vw; }
@@ -147,15 +150,18 @@
     /*  left panel - tablet */
 
         /*  survivor quickview  */
-    .survival_box_number,
-        .attribute_box .attribute_box_number {
-        margin: 1vh; 
+    .survival_box_number {
+        font-size: 5vw;
+    }
+    .attribute_box .attribute_box_number {
         font-size: 4vw;
-        min-height: auto; 
+        margin: 1vw;
+        min-height: 3vh;  
     }
     .death_x {font-size: 150px; margin-top: -1vh; }
     #survivorQuickviewLeftColumn {
         border: 0; 
+        width: 50%; 
     }
     .quickview_attribute_box {
         font-size: 1vh;
@@ -165,13 +171,13 @@
     .quickview_asset_list_title_bar .title {font-size: 2.5vh; }
     .quickview_asset_list_title_bar .subtitle,
         .quickview_asset_list_title_bar .lockbox {font-size: 1.3vh; }
-    .quickview_survival_container .survival_box_lock {font-size: 0.6em; margin-bottom: 2vh; }
     .quickview_ui_button_container {
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
         justify-content: space-evenly;
-        margin-bottom: 3%;
+        margin-bottom: 1%;
+        padding-top: 1%; 
     }
     .quickview_ui_button_container div {
         width: 50%;
@@ -181,14 +187,22 @@
         justify-content: center; 
     }
     .quickview_hitbox_detail .tip {font-size: initial;}
-    .hitbox_container {height: 8vh; }
-    .hitbox_boxes_container .damage_box {width: 40px; height: 40px; }
-    .hitbox_boxes_container .heavy.damage_box {width: 30px; height: 30px; }
+    .hitbox_container {
+        height: 8vh;
+    }
+    .hitbox_boxes_container {
+        width: 30%; 
+    }
+    .hitbox_boxes_container .damage_box:before,
+        .hitbox_boxes_container .heavy.damage_box:before {
+    }
     .hitbox_shield {height: 50%; }
-    .hitbox_shield.brain {width: 55%; height: 40%; }
-    .secondary_attribute_title_bar .title {font-size: 1.5em; }
-    .secondary_attribute_title_bar .subtitle {font-size: 0.8em; }
-    .secondary_attribute_title_bar .lockbox {font-size: 0.6em; }
+    .hitbox_shield.brain {
+        width: 55%;
+    }
+    .secondary_attribute_title_bar .title {}
+    .secondary_attribute_title_bar .subtitle {}
+    .secondary_attribute_title_bar .lockbox {}
 
     .campaign_summary_survivor_modal_color_scheme_select {height: 4vh;}
 
@@ -307,11 +321,6 @@
         width: 10vh; 
     }
 
-    .survivor_sheet.survival_box_number {
-        font-size: 3em;
-        width: 6vh;
-        height: 6vh;
-    }
     .survivor_sheet_hitbox.hitbox_shield.brain {
         height: 4vh; 
     }
@@ -320,23 +329,17 @@
         height: 4vh; 
     }
 
-    .survivor_sheet_secondary_attrib_container .secondary_attribute_title_bar .lockbox {
-        font-size: unset;
-        width: 33%;
-        align-content: flex-start; 
-    }
-    .survivor_sheet_secondary_attrib_container .secondary_attribute_title_bar .lockbox .kd_sheet_ui_box {
-        margin-right: 3%;
-    }
-
     .survivor_sheet_card_container {
         flex-direction: row;
         justify-content: space-evenly; 
     }
-    .survivor_sheet_card {
-        margin: unset; 
+    .fighting_art_card_strain_threshold_blocks_container {
+        margin-top: -8%;
     }
-    .fighting_art_card_strain_threshold_blocks_container {margin-top: -8%; }
+
+    .survivor_sheet_partner img {
+        max-width: 10%; 
+    }
 
     #survivorViewAdminTab {
         display: flex;

@@ -1,21 +1,19 @@
                     /*  these are non-responsive! */
 
-h3.inventory_tag                                {z-index: -100; }
-img.dashboard_bg                                {z-index: -10; }
-img.sign_in                                     {z-index: -10; }
-input#survivor_sheet_survivor_name              {z-index: 1;}
-div#container                                   {z-index: 0; }
+.inventory_tag                                  {z-index: -100; }
+.dashboard_bg                                   {z-index: -10; }
+.sign_in                                        {z-index: -10; }
+#container                                      {z-index: 0; }
 .gear_card_combat_stat_activation_icon::before  {z-index: -1;}
 .gear_card_combat_stat_activation_icon          {z-index: 10;}
-button#remove_item                              {z-index: 10; }
-h3.clickable                                    {z-index: 10; }
+.clickable                                      {z-index: 10; }
 .dashboard_accordion                            {z-index: 10; }
 .death_x                                        {z-index: 20; }
 input[type=text], input[type=password]          {z-index: 50; }
-div.survivor_sheet_attrib_controls_modal        {z-index: 50; }
-button.manage_departing_survivors               {z-index: 50; } /* must be above death_x */
-div.full_page_loading_spinner                   {z-index: 99; }
-div#viewTabContainer                            {z-index: 100; }
+.survivor_sheet_attrib_controls_modal        {z-index: 50; }
+.manage_departing_survivors               {z-index: 50; } /* must be above death_x */
+.full_page_loading_spinner                   {z-index: 99; }
+#viewTabContainer                            {z-index: 100; }
 
     /* top nav_bar indexes - DEPRECATED */
 #topNavBar                                      {z-index: 100; }
@@ -23,7 +21,7 @@ div#viewTabContainer                            {z-index: 100; }
     #floating_dashboard_button                  {z-index: 101; }
 
     /* modal indexes */
-div.survivor_search_modal_container         {z-index: 1199;}
+.survivor_search_modal_container            {z-index: 1199;}
 #survivorSearchModalOpener,
     #survivorSearchModalCloser              {z-index: 1200; }
 #leftSideNavUnderlay                        {z-index: 1999; }
@@ -33,9 +31,9 @@ div.survivor_search_modal_container         {z-index: 1199;}
 .modal                                      {z-index: 2001; }
 .modal-black                                {z-index: 2001; }
 .modal_control_overlay                      {z-index: 2002; }
-div.full_size_modal_panel                   {z-index: 5000; }
+.full_size_modal_panel                   {z-index: 5000; }
 .corner_loading_spinner                     {z-index: 5001; }
-span.timeline_overlay_current_ly            {z-index: 10000; }
+.timeline_overlay_current_ly            {z-index: 10000; }
 
     /* UI and feedback indexes */
 #fullPageLoader                             {z-index: 9999996;}

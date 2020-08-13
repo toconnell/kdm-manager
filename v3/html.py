@@ -62,10 +62,10 @@ class meta:
         <link rel="stylesheet" type="text/css" href="/css/tablet.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/css/laptop.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/css/desktop.css?v=$version">
+        <link rel="stylesheet" type="text/css" href="/css/color.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/css/z-index.css?v=$version">
 
         <link rel="stylesheet" type="text/css" href="/media/fonts.css?v=$version">
-        <link rel="stylesheet" type="text/css" href="/media/color.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/media/settlement_event_log.css?v=$version">
         <link ng-if="user.user !== undefined && user.user.preferences.night_mode === true" rel="stylesheet" type="text/css" href="/media/night_mode.css?v=$version">
     """).safe_substitute(
