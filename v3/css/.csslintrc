@@ -17,8 +17,6 @@
         "important",
         "known-properties",
         "non-link-hover",
-        "order-alphabetical",
-        "outline-none",
         "qualified-headings",
         "regex-selectors",
         "rules-count",

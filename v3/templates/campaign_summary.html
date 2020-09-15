@@ -389,6 +389,7 @@
                                                         ng-click="rollUp(survivalBoxID)"
                                                     >
                                                         <input
+                                                            disabled
                                                             class="survival_box_number"
                                                             type="number"
                                                             ng-model="s.sheet.survival"
@@ -485,6 +486,7 @@
                                                         ng-click="rollUp(A + 'BoxID' + s.sheet._id.$oid)"
                                                     >
                                                         <input
+                                                            disabled
                                                             class="attribute_box_number"
                                                             type="number"
                                                             ng-value="s.sheet[A] + s.sheet.attribute_detail[A].tokens + s.sheet.attribute_detail[A].gear"
@@ -582,6 +584,7 @@
                                                         ng-click="rollUp(brainBoxID)"
                                                     >
                                                         <input
+                                                            disabled
                                                             class="hitbox_shield brain clickable"
                                                             type="number"
                                                             ng-model="s.sheet.Insanity"
@@ -674,6 +677,7 @@
                         ng-click="rollUp(ctrlBoxID)"
                     >
                         <input
+                            disabled
                             class="hitbox_shield clickable"
                             type="number"
                             min="0"
@@ -1537,7 +1541,7 @@
     id="manageDepartingSurvivors"
     class="ng_fade kd_kickstarter_button kd_red"
     ng-if="departing_survivor_count > 0"
-    ng-click="showHide('departingSurvivorsModalContent')"
+    ng-click="ngShow('departingSurvivorsModalContent')"
 >
     Manage {{departing_survivor_count}} <b>Departing</b> Survivors
 </button>

@@ -51,16 +51,88 @@ app.controller("survivorSheetController", function($scope) {
 
 
     // notes
-    $scope.addNote = function () {
-        if (!$scope.scratch.addNote) {return;}
-        $scope.postJSONtoAPI('survivor', 'add_note', {'note': $scope.scratch.addNote}, false, true, true);
-        $scope.scratch.addNote = undefined; 
-    };
-    $scope.rmNote = function (x, note_oid) {
-        if (note_oid !== undefined) {
-            $scope.postJSONtoAPI('survivor', 'rm_note', {'_id': note_oid}, false, true, true)
+
+    $scope.setNewSurvivorNoteBody = function(blank) {
+        // gets the note content from the editable div.
+        var noteContainer = document.getElementById('survivorNoteNewNoteInput');
+        if (blank) {
+            noteContainer.innerHTML = ''; 
+        } else {
+            var newNote = noteContainer.innerHTML;
+            $scope.scratch.newSurvivorNote.note = newNote;
         };
+    }
+
+    $scope.initNewSurvivorNote = function() {
+        // blanks out and resets the controls;
+        console.warn('Initializing new survivor note controls...');
+        $scope.setNewSurvivorNoteBody(true);
+        $scope.scratch.newNoteHasFocus = false;
+
     };
+
+    $scope.addNewSurvivorNote = function() {
+
+        if ($scope.scratch.newSurvivorNote.note === '') {
+            console.warn('New survivor note is blank: Ignoring attempt to add...');
+            return false;
+        };
+
+        var addNotePromise = $scope.postJSONtoAPI(
+            'survivor',
+            'add_note',
+            {'note': $scope.scratch.newSurvivorNote},
+            false,
+            true,
+            true
+        );
+        addNotePromise.then(
+            function(payload) {
+                console.info('Added survivor note!');
+                $scope.ngHide('survivorNoteControls');
+                $scope.initNewSurvivorNote();
+            },
+            function(errorPayload) {
+                console.error('Failed to add survivor note!');
+            }
+        );
+
+    }
+
+    $scope.updateSurvivorNote = function(note, index) {
+        // updates a note based on the value of note.update_operation
+
+        if (note.update_operation === 'Update' || note.update_operation === undefined) {
+
+            // get the latest/greatest body if we're doing an update
+            var noteContainer = document.getElementById('survivorNoteBodyId' + note._id.$oid);
+            note.note = noteContainer.innerHTML;
+
+            $scope.postJSONtoAPI(
+                'survivor',
+                'update_note',
+                {'note': note},
+                false, true, false
+            );
+
+        } else if (note.update_operation === 'Delete') {
+            // handle deletes; needs a special carve-out
+            $scope.postJSONtoAPI(
+                'survivor',
+                'rm_note',
+                {'_id': note._id.$oid}, false, true, false
+            );
+            note.deleted = true;
+        } else {
+            // throw a warning if it's anything else
+            console.error("'" + note.update_operation + "' is not a valid survivor note operation!");
+            console.warn('Ignoring unknown/unhandled survivor note operation...');
+        }
+
+        note.update_operation = undefined; //sets it back to the three dots
+
+    };
+
 
     // email
     $scope.resetEmail = function() {
@@ -272,10 +344,42 @@ app.controller("survivorSheetController", function($scope) {
         
     };
 
+    // set the scratch.whateverAI variables. Call this whenever we have a change
+    $scope.setAttributeAI = function(attribute) {
+
+		console.info('Setting scratch.' + attribute + 'AI...');
+		var handles = null
+		if (attribute === 'courage'){
+			handles = ['stalwart', 'prepared', 'matchmaker']
+		} else if (attribute === 'understanding'){
+			handles = ['analyze', 'explore', 'tinker']
+		};
+
+		if (handles === null) {
+			console.error("'" + attribute + "' is not a known attribute! Cannot set scratch AI...");
+			return false
+		};
+
+		var scratch_key = attribute + 'AI'
+		$scope.scratch[scratch_key] = null;
+
+        for (var i = 0; i < handles.length; i++) {
+            var handle = handles[i];
+            if ($scope.survivor.sheet.abilities_and_impairments.indexOf(handle) !== -1) {
+                $scope.scratch[scratch_key] = handle;
+            };
+        };
+		if ($scope.scratch[scratch_key] === undefined || $scope.scratch[scratch_key] === null) {
+			console.warn('Could not set scratch.' + scratch_key + '...');
+            $scope.scratch[scratch_key] = undefined;
+		} else {
+			console.info('Set scratch.' + scratch_key + " to '" + $scope.scratch[scratch_key] + "'!");
+		};
+    };
+
 	// Updates courage; can also set the related A&I after the promise returns
     $scope.updateCourage = function() {
         var js_obj = {attribute: 'Courage', value: $scope.survivor.sheet.Courage};
-        // ('survivor', 'set_attribute', js_obj, reinit=false, show_alert=true, update_sheet=false,)
         var couragePromise = $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj, false, true, false);
         if ($scope.scratch.courageAI !== undefined) {
             couragePromise.then(
@@ -507,12 +611,12 @@ app.controller('saviorController', function($scope) {
     $scope.setSaviorStatus = function(color) {
         $('#modalSavior').fadeOut(1000);
         $scope.postJSONtoAPI('survivor','set_savior_status', {'color': color})
-        $scope.showHide('modalSavior');
+        $scope.ngHide('modalSavior');
     };
     $scope.unsetSaviorStatus = function() {
         $('#modalSavior').fadeOut(1000);
         $scope.postJSONtoAPI('survivor','set_savior_status', {'unset': true})
-        $scope.showHide('modalSavior');
+        $scope.ngHide('modalSavior');
     };
 
 });
@@ -599,7 +703,6 @@ app.controller("controlsOfDeathController", function($scope) {
                 if (cod_dict.name === $scope.survivor.sheet.cause_of_death) {
                     has_custom_cod = false;
                 };
-                //Do something
             }
         } else {
             has_custom_cod = false;

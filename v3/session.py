@@ -551,7 +551,7 @@ class Session:
         include_ui_templates = True
 
         # start the container
-        output = html.meta.start_container
+        output = html.meta.start_container % getattr(self, 'current_view', None)
 
         # now get us some HTML
         if self.current_view == "dashboard":

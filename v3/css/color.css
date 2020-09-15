@@ -6,6 +6,10 @@
 /*      General UI/UX       */
 /*                          */
 
+input:active {  /* this is our on-click effect color */
+    border-color: #FF0040; 
+}
+
 /* zebras */
 .zebra {background-color: #efefef; }
 .no_zebra {background-color: #fff; }
@@ -46,6 +50,7 @@
 .kd_sheet_ui_box.checked,
     .kd_sheet_ui_box.dotted {background-color: #000;}  
 .kd_sheet_ui_box.dotted:before {background: #fff; }
+.kd_sheet_ui_ai_toggle_container {border-color: #666;}
 
 /*  KD Kickstarter UI   */
 .kd_kickstarter_button,
@@ -154,6 +159,7 @@
 
     /* attributes */
 .attribute_box { border-color: #000; }
+.attribute_box_number {background: #fff; color: #000; }
 .Movement, .mov_token {background-color: #9A6D84; color: #fff; }
 .Accuracy, .acc_token {background-color: #E8BE34; color: #000; }
 .Strength, .str_token {background-color: #D04F28; color: #fff; }
@@ -298,4 +304,16 @@ textarea.report_error:focus {box-shadow: none; }
 .special_attribute_checkbox.active {
     background-color: #DC2426;
     border-color: #DC2426;
+}
+.survivor_sheet_note_pushpin {
+    color: #666;
+}
+.survivor_sheet_note_pushpin.active {
+    color: #000;
+}
+.survivor_sheet_note_debugger {
+    background: #eee;
+}
+.survivor_owner_email {
+    border-color: #aaa; 
 }

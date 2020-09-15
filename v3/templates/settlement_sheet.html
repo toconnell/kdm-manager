@@ -1007,7 +1007,7 @@
             class="settlement_sheet_kd_sheet_ui_box"
             title="Quarries controller for {{settlement.sheet.name}}. Tap or click to remove!"
         >
-            <div class="kd_sheet_ui_row title">
+            <div class="kd_sheet_ui_row title font_large">
                  Quarries
             </div>
             <div class="kd_sheet_ui_row">
@@ -1051,7 +1051,7 @@
             class="settlement_sheet_kd_sheet_ui_box"
             title="Nemesis Encounters controller for {{settlement.sheet.name}}. Tap or click to edit!"
         >
-            <div class="kd_sheet_ui_row title">
+            <div class="font_large kd_sheet_ui_row title">
                 <img
                     class="icon"
                     src="media/icons/nemesis_encounter_event.jpg"
@@ -1107,17 +1107,17 @@
         ng-controller="defeatedMonstersController" title="Click or tap an item to remove it from this list."
     >
         <div
-            class="settlement_sheet_kd_sheet_ui_box clickable"
+            class="settlement_sheet_kd_sheet_ui_box"
             title="Defeated Monsters controller for {{settlement.sheet.name}}. Tap or click to remove!"
         >
-            <div class="kd_sheet_ui_row title">
+            <div class="font_large kd_sheet_ui_row title">
                 Defeated Monsters
             </div>
             <div class="kd_sheet_ui_row">
                 A list of defeated monsters and their level.
             </div>
             <div
-                class="settlement_sheet_line_item defeated_monsters_container"
+                class="clickable settlement_sheet_line_item defeated_monsters_container"
                 ng-repeat="x in settlement.sheet.defeated_monsters track by $index"
             >
                 <span class="kd_sheet_ui_box checked"></span>
@@ -1154,11 +1154,11 @@
             "
         >
 
-            <div class="kd_sheet_ui_row title">
+            <div class="font_large kd_sheet_ui_row title">
                 Lost Settlements
             </div>
 
-            <div class="kd_sheet_ui_box_row">
+            <div class="kd_sheet_ui_box_row wrap">
                 <span
                     class="kd_sheet_ui_box"
                     ng-repeat="
@@ -1175,100 +1175,98 @@
 
             <div class="kd_sheet_ui_row story_tip">
                 <font class="kdm_font">g</font>
-                <b> Game Over</b><span>, p. {{settlement.game_assets.events['core_game_over'].page}}</span>
+                <b> Game Over</b>
+                <span class="font_small">
+                    (p. {{settlement.game_assets.events['core_game_over'].page}})
+                </span>
             </div>
 
-            <div class="kd_sheet_ui_row dynamic_tip_row">
-                <div class="lost_settlement_tip">
-                    <span
-                        class="kd_sheet_ui_box heavy"
-                        ng-class="{checked: settlement.sheet.lost_settlements > 4}"
-                    ></span>
-                    Left Overs
-                </div>
-                <div class="lost_settlement_tip">
-                    <span
-                        class="kd_sheet_ui_box heavy"
-                        ng-class="{checked: settlement.sheet.lost_settlements > 9}"
-                    ></span>
-                    <span
-                        class="kd_sheet_ui_box heavy"
-                        ng-class="{checked: settlement.sheet.lost_settlements > 9}"
-                    ></span>
-                    Those Before Us
-                </div>
-            </div> <!-- dynamic_tip_row -->
-            <div class="kd_sheet_ui_row dynamic_tip_row">
-                <div class="lost_settlement_tip">
-                    <span
-                        class="kd_sheet_ui_box heavy"
-                        ng-class="{checked: settlement.sheet.lost_settlements > 14}"
-                    ></span>
-                    <span
-                        class="kd_sheet_ui_box heavy"
-                        ng-class="{checked: settlement.sheet.lost_settlements > 14}"
-                    ></span>
-                    <span
-                        class="kd_sheet_ui_box heavy"
-                        ng-class="{checked: settlement.sheet.lost_settlements > 14}"
-                    ></span>
-                    Ocular Parasites
-                </div>
-                <div class="lost_settlement_tip">
-                    <span
-                        class="kd_sheet_ui_box heavy"
-                        ng-class="{checked: settlement.sheet.lost_settlements > 19}"
-                    ></span>
-                    <span
-                        class="kd_sheet_ui_box heavy"
-                        ng-class="{checked: settlement.sheet.lost_settlements > 19}"
-                    ></span>
-                    <span
-                        class="kd_sheet_ui_box heavy"
-                        ng-class="{checked: settlement.sheet.lost_settlements > 19}"
-                    ></span>
-                    <span
-                        class="kd_sheet_ui_box heavy"
-                        ng-class="{checked: settlement.sheet.lost_settlements > 19}"
-                    ></span>
-                    Rainy Season
-                </div>
-            </div><!-- dynamic_tip_row -->
         </div> <!-- settlement_sheet_kd_sheet_ui_box -->
 
         <div
             id="lostSettlementsControl"
             class="kd_sheet_ui_roll_down rolled_up"
         >
-            <div class="kd_sheet_ui_number_tumbler">
-                <button
-                    class="kd_kickstarter_button"
-                    ng-click="settlement.sheet.lost_settlements = settlement.sheet.lost_settlements + 1"
-                >
-                    &#x25B2;
-                </button>
-                <button
-                    class="kd_kickstarter_button"
-                    ng-click="settlement.sheet.lost_settlements = settlement.sheet.lost_settlements - 1"
-                >
-                    &#x25BC;
-                </button>
-                <button
-                    class="kd_kickstarter_button kd_blue"
-                    ng-click="
-                        setLostSettlements();
-                        rollUp('lostSettlementsControl');
-                    "
-                >
-                    Save Changes
-                </button>
-            </div> <!-- number tumbler -->
-        </div>
+            <div
+                class="kd_sheet_ui_roll_down_controls embedded"
+                ng-if="ngRolledUp['lostSettlementsControl'] === false"
+            >
+                <div class="kd_sheet_ui_row dynamic_tip wrap">
+                    <div class="font_small dynamic_tip_container">
+                        <div
+                            class="kd_sheet_ui_box small"
+                            ng-class="{checked: settlement.sheet.lost_settlements > 4}"
+                        ></div>
+                        <span>
+                            Left Overs
+                        </span>
+                    </div>
+                    <div class="font_small dynamic_tip_container">
+                        <div
+                            ng-repeat="box in [0,1]"
+                            class="kd_sheet_ui_box small"
+                            ng-class="{checked: settlement.sheet.lost_settlements > 9}"
+                        ></div>
+                        <span>
+                            Those Before Us
+                        </span>
+                    </div>
+                    <div class="font_small dynamic_tip_container">
+                        <div
+                            ng-repeat="box in [0,1,2]"
+                            class="kd_sheet_ui_box small"
+                            ng-class="{checked: settlement.sheet.lost_settlements > 14}"
+                        ></div>
+                        <span>
+                            Ocular Parasites
+                        </span>
+                    </div>
+                    <div class="font_small dynamic_tip_container">
+                        <div
+                            ng-repeat="box in [0,1,2,3]"
+                            class="kd_sheet_ui_box small"
+                            ng-class="{checked: settlement.sheet.lost_settlements > 19}"
+                        ></div>
+                        <span>
+                            Rainy Season
+                        </span>
+                    </div>
+                </div><!-- kd_sheet_ui_row.dynamic_tip.wrap -->
+
+                <div class="kd_sheet_ui_number_tumbler">
+                    <button
+                        class="kd_kickstarter_button"
+                        ng-click="settlement.sheet.lost_settlements = settlement.sheet.lost_settlements + 1"
+                    >
+                        &#x25B2;
+                    </button>
+                    <button
+                        class="kd_kickstarter_button"
+                        ng-click="settlement.sheet.lost_settlements = settlement.sheet.lost_settlements - 1"
+                    >
+                        &#x25BC;
+                    </button>
+                    <button
+                        class="kd_kickstarter_button kd_blue"
+                        ng-click="
+                            setLostSettlements();
+                            rollUp('lostSettlementsControl');
+                        "
+                    >
+                        Save Changes
+                    </button>
+                </div> <!-- number tumbler -->
+
+            </div> <!-- kd_sheet_ui_roll_down_controls.integrated -->
+
+        </div> <!-- kd_sheet_ui_roll_down -->
+
     </div> <!-- lost_settlement_controls_container -->
+
 
     </div> <!-- right pane -->
 
-    </div> <!-- settlement sheet Sheet tab -->
+</div> <!-- settlement sheet Sheet tab -->
 
 
 

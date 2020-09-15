@@ -2,7 +2,9 @@
     id="departingSurvivorsModalContent"
     class="hidden modal-black departing_survivors_modal_container"
     ng-controller="manageDepartingSurvivorsController"
-    ng-if="view == 'campaignSummary'"
+    ng-if="
+        view === 'campaignSummary' && ngVisible['departingSurvivorsModalContent']
+    "
 >
 
     <!-- 
@@ -412,18 +414,13 @@
 
         </div> <!-- return control options -->
 
+    </div> <!-- end of the return controls -->
+
     <button
         class="floating_close_modal_button kd_kickstarter_button"
-        onclick="showHide('departingSurvivorsModalContent')"
+        ng-click="ngHide('departingSurvivorsModalContent')"
     >
         Close
     </button>
 
-    </div> <!-- end of the return controls whole thing -->
-
-
-
 </div> <!-- modalDepartingSurvivors whole deal-->
-
-
-

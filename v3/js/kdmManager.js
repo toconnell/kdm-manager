@@ -75,8 +75,6 @@ angular.module('getTypeFilter', []).filter('getType', function() {
   };
 });
 
-
-
 var app = angular.module('kdmManager', ['ngAnimate','getTypeFilter']);
 
 //  directives for that ass
@@ -372,7 +370,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
 		};
 	};
 
-    $scope.ngSetFocus = function(e) {
+    $scope.ngSetFocus = function(e, clear) {
         // sets focus on a specific element
         var element = document.getElementById(e);
         console.info("Setting focus to '" + e + "'");
@@ -380,6 +378,14 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
             console.error('Element is null! Cannot set focus...');
         } else {
             element.focus();
+        };
+
+        var element_type = element.nodeName.toLowerCase();
+        if (element_type === 'div' && clear === true) {
+            console.warn("Clearing '" + e + " 'div...")
+            element.innerHTML = '';
+        } else if (element_type !== 'div' && clear === true) {
+            console.error("Unable to clear '" + element_type + "' type element...");
         };
     };
 

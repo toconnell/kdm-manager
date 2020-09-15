@@ -242,7 +242,7 @@ class meta:
     </div>
     \n""")
 
-    start_container = '\n<div id="container">'
+    start_container = '\n<div id="container" class="%s_container">'
     close_container = '\n</div><!-- container -->'
 
 
@@ -305,6 +305,7 @@ def render(view_html, head=[], http_headers=None, body_class=None):
     <!-- angular app -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular-animate.js"></script>
+
 
     <!-- private app -->
     <script src="/js/kdmManager.js?v=%s"></script>

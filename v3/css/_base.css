@@ -31,6 +31,13 @@ button,
         font-size: inherit;
     }    /*  inherit from html element style above;
              ALL BREAK POINTS! */
+input,
+    input:active,
+    input:focus,
+    textarea {
+    box-shadow: none;
+    outline: none;
+}
 
 select {-webkit-appearance: none; }
 
@@ -169,11 +176,24 @@ button:active,
     flex-direction: column;
     margin-top: 3%;
 }
+.survivor_sheet_card_expansion_flair {
+    border: 0;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    font-family: 'Silverado';
+    margin-bottom: 4%;
+    margin-top: -5%;
+    padding: 1%;
+    padding-left: 4%;
+    text-align: left;
+}
 .survivor_sheet_card {              /*  is the repeater */
     border: 0;
     border-radius: 2vw;
+    height: 100%; 
     margin: 0 auto;
-    margin-bottom: 6%;
+    margin-bottom: 5%;
+    margin-top: 3%; 
     padding: 0;
     padding-top: 4%;
     padding-bottom: 4%;
@@ -316,8 +336,9 @@ button:active,
 }
 .kd_sheet_ui_border_box {
     border: 0.3vh solid;
-    margin: 3%;
     box-sizing: border-box; 
+    height: fit-content; 
+    margin: 3%;
 }
 .kd_sheet_ui_row_tip,
     .kd_sheet_ui_row.tooltip {  /* these are tooltips */
@@ -330,6 +351,17 @@ button:active,
     justify-content: space-between;
     align-items: center;
     margin-bottom: 3%; 
+}
+.kd_sheet_ui_row.story_tip {
+    display: inline-block;
+    margin: 5%;
+    margin-top: 0;
+    margin-bottom: 0; 
+    vertical-align: middle; 
+}
+.kd_sheet_ui_row.title {     /* for rows with a title in them */
+    font-family: 'Silverado';
+    display: block;
 }
 .kd_sheet_ui_row_toggle_box {   /* contains text and a checkbox */
     display: flex;
@@ -347,15 +379,8 @@ button:active,
     margin-left: 1%;
     margin-right: 1%; 
 }
-.kd_sheet_ui_row.title {
-    font-size: 4vh;
-    display: block;
-}
-.kd_sheet_ui_row.title_and_value {  /* e.g. Weapon Prof on survivor sheet */
-    justify-content: flex-start; 
-}
-.kd_sheet_ui_box_row {
-/*    margin-left: 5%; */
+.kd_sheet_ui_box_row.wrap {
+    margin-left: 5%; 
 }
 .kd_sheet_ui_box_row.hunt_xp .kd_sheet_ui_box {
     margin-right: 1.5%; 
@@ -363,6 +388,7 @@ button:active,
 .kd_sheet_ui_box_row.long {
     display: flex;
     margin-left: auto;
+    margin-right: -5%; 
     width: 60%;
 }
 .kd_sheet_ui_box_row.hunt_xp {
@@ -370,39 +396,84 @@ button:active,
     justify-content: space-between;
 }
 .kd_sheet_ui_box_row.hunt_xp .hunt_xp_box_container {
-    white-space: nowrap; 
-    width: 95%;
     display: flex;
     justify-content: space-between;
     margin: 0 auto;  
     margin-top: 1%; 
-}
-.kd_sheet_ui_row.wrap_tips {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-}
-.kd_sheet_ui_row.wrap_tips div {
-    white-space: nowrap;
-    margin: 3%;
-    vertical-align: middle; 
+    white-space: nowrap; 
+    width: 95%;
 }
 .kd_sheet_ui_row.dynamic_tip {
     align-items: baseline;
+    flex-wrap: nowrap; 
     margin: 0;
     margin-top: 3%;
 }
 .dynamic_tip_container {
+    align-items: center;
+    display: flex;
     flex-grow: 1;
+    flex-wrap: nowrap;
+    justify-content: center; 
+}
+.dynamic_tip_container * {
+    margin-right: 3%; 
+}
+.dynamic_tip_container .kd_sheet_ui_box:last-child {
+    margin: 3%; 
+}
+.kd_sheet_ui_row.dynamic_tip.wrap {
+    flex-wrap: wrap;       
+    justify-content: center;  
+}
+.kd_sheet_ui_row.dynamic_tip.wrap .dynamic_tip_container {
+    flex-grow: 0; 
+    justify-content: flex-start;
+    margin: 2%; 
+    min-width: 45%;
+}
+.kd_sheet_ui_ai_toggle_tip_row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 3%;
+}
+.kd_sheet_ui_ai_toggle_container {
+    border-top: solid;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    margin-bottom: 3%;  
+    margin-left: -2%;
+    margin-top: 2%;
+    padding-top: 2%; 
+    width: 104%;
 }
 .kd_sheet_ui_ai_toggle_item {
-    display: flex;
     align-items: center;
-    justify-content: space-between; 
+    display: flex;
+    justify-content: space-between;
+    margin: 0 auto;
+    margin-top: 2%;  
+    width: 75%;
+}
+.kd_sheet_ui_ai_toggle_item input[type="radio"] {
+    display: block;
+    margin-top: -5%;
+    transform: scale(4);
+}
+.kd_sheet_ui_ai_toggle_item input[type="radio"]:checked+label{
+    color: #000
 }
 .kd_sheet_ui_ai_toggle_item label {
+    border-bottom: 0.01rem solid;
     width: 90%; 
 }
+.kd_sheet_ui_ai_toggle_item label.last {
+    border: none;
+}
+
+
     /* rolldown roll_down roll-down */
 .kd_sheet_ui_roll_down {
     transition: 1s;
@@ -417,6 +488,10 @@ button:active,
     margin: 0 auto;
     margin-bottom: 5%;
     box-sizing: border-box;
+}
+.kd_sheet_ui_roll_down_controls.embedded {
+    border: 0;
+    transition: 1s;
 }
 .kd_sheet_ui_roll_down_controls.integrated {
     border-top: 0;
@@ -451,6 +526,10 @@ button:active,
     width:0.4rem;
     height:0.4rem;
     border-radius:100%;
+}
+.kd_sheet_ui_box.small.dotted:before {
+    width: 0.35rem;
+    height: 0.35rem;
 }
 .kd_sheet_ui_box.heavy {
     border-width: 1vw;
@@ -553,11 +632,13 @@ button:active,
     DASHBOARD
 
 */
-.dashboard {margin-top: -5vh; }
-.dashboard_top_level_container {
-    margin-top: -5%; 
+#container.dashboard_container {
+    margin-top: 0;
 }
+
+
     /*  dashboard_rollup styles (the clickers on the dash) */
+
 .dashboard_rollup {
     align-items: center; 
     border: 0;
@@ -593,7 +674,6 @@ button:active,
 }
 .dashboard_preference_block_group h2 {
     border: none;
-    border-bottom: 1px solid;
     padding-left: 5%; 
 }    
 
@@ -1724,27 +1804,27 @@ h3.new_survivor_sheet {
     border: 0;
 }
 .attribute_box .attribute_box_number {
-    font-size: 7vw;
-    width: 70%;
-    min-height: 5vh;
     border: 1px solid;
+    font-size: 7vw;
     margin: 2vw;
+    min-height: 5vh;
     padding: 0;
     text-align: center;
+    width: 70%;
 }  
 
 /* hit location; shared with campaign summary quickview */
 .hitbox_container {
-    margin: 3%;
     height: 5rem; 
     display: flex;
+    margin: 3%;
 }
 .hitbox_container.brain {
     border: solid;
-    width: 98%;
     box-sizing: border-box;
-    margin: 0 auto;
     height: 5rem;  
+    margin: 0 auto;
+    width: 98%;
 }
 .hitbox_container.brain.quickview_brain_container {
     width: 94%; 
@@ -1753,7 +1833,7 @@ h3.new_survivor_sheet {
     border-bottom: 0.01rem solid;
 }
 .hit_location_repeater:last-child { /*   the last one doesn't need it */
-        border: none;
+    border: none;
 }
 .hitbox_shield_container.brain {
     border-right: solid;
@@ -1765,43 +1845,42 @@ h3.new_survivor_sheet {
     margin-top: 3%; 
 }
 .hitbox_shield_container {
+    align-items: center;
+    border: none; 
     display: flex;
     flex-direction: column;
     justify-content: center; 
-    border: none; 
     width: 20%;
-    align-items: center;
 }
 .hitbox_shield {
-    outline: none; 
+    border: 0.1rem solid;
+    border-bottom-left-radius: 5vh;
+    border-bottom-right-radius: 5vh;
+    height: 70%;
     padding: 0;
     text-align: center;
-    border: 0.1rem solid;
     width: 60%;
-    height: 70%;
-    border-bottom-right-radius: 5vh;
-    border-bottom-left-radius: 5vh;
 }
 .hitbox_shield.brain {
-    width: 50%;
     height: 55%; 
+    width: 50%;
 }
 .hitbox_detail {
     display: flex;
     flex-direction: column;
+    font-size: larger;  
     justify-content: space-between;
     margin: 3%;
     margin-left: 1%; 
     width: 35%;
-    font-size: larger;  
 }
 .hitbox_detail.brain {
     margin-left: 3%; 
 }
 .hitbox_detail .title {
-    font-family: 'Silverado';
-    display: flex;
     align-items: center;
+    display: flex;
+    font-family: 'Silverado';
 }
 .hitbox_detail .tip {
     white-space: nowrap;
@@ -1818,44 +1897,46 @@ h3.new_survivor_sheet {
 .hitbox_boxes_container.brain {
     margin-right: 5%; 
 }
-.hitbox_boxes_container div:only-child {margin-left: auto; }
+.hitbox_boxes_container div:only-child {
+    margin-left: auto;
+}
 .damage_box {
-    height: 120px;
-    width: 120px;
     border: 0.1rem solid;
     box-sizing: border-box;
+    height: 120px;
     transition: 0.5s;
+    width: 120px;
 }
 .heavy.damage_box {
     border-width: 0.3rem;
 }
 .damage_box.checked {background-color: #000; }
 .hitbox_boxes_container .damage_box {
-    width: 2rem;
     height: 2rem;
+    width: 2rem;
 }
 .hitbox_boxes_container .damage_box:before {
     font-size: 0.7rem;
-    position: absolute;
-    margin-top: 2rem; 
     margin-left: 0.5rem;  
+    margin-top: 2rem; 
+    position: absolute;
 }
 .hitbox_boxes_container .damage_box.light:before {
+    content: 'L' / "Light Injury";
     padding-left: 0.2rem; 
     padding-top: 0.2rem; 
-    content: 'L' / "Light Injury";
 }
 .hitbox_boxes_container .damage_box.heavy:before {
     content: 'H' / "Heavy Injury"; 
 }
 .survivor_sheet_partner {
-    padding: 2%;
     display: flex;
+    padding: 2%;
 }
 .survivor_sheet_partner p {
-    text-align: justify;
     margin: 0;
     padding: 0;
+    text-align: justify;
 }
 .survivor_sheet_partner img {
     margin-right: 2%;
@@ -1882,9 +1963,9 @@ h3.new_survivor_sheet {
 }
 .survivor_sheet_special_attribute_container {
     align-items: center;
+    border: 0.2rem solid;
     display: flex;
     flex-direction: row;
-    border: 0.2rem solid;
     margin: 3%;
     padding: 3%;
     transition: 2s;
@@ -1913,10 +1994,12 @@ h3.new_survivor_sheet {
     width: 95%;  
 }
 .outer_ai_container {
-    width: 96%;
     margin: 0 auto;
+    width: 96%;
 }
-.title.ai_title {width: 55%}
+.title.ai_title {
+    width: 55%;
+}
 .ai_repeater {
     margin: 3%;
 }
@@ -1924,56 +2007,144 @@ h3.new_survivor_sheet {
     margin-top: 8%; 
 }
 
-    /* note tab starts here! */
-.favorite_retired_dead {
+/*  survivor_sheet.html - 'extra' attributes: fav, savior, dead, etc. */
+/*      the 'ui_tiles_box' styles collect frd, savior, cursed, etc. */
+.ui_tiles_box {
     display: flex;
 }
-.favorite_retired_dead .frd_toggle {
-    text-align: center; 
-    width: 33%;
-    display: flex;
+.ui_tiles_box .clickable {
     align-items: center;
-    justify-content: center;
     border-radius: 3px; 
+    display: flex;
+    flex-grow: 1;
+    justify-content: center;
+    text-align: center; 
 }
-.frd_toggle .kd_sheet_ui_box {
+.ui_tiles_box .clickable .kd_sheet_ui_box {
     margin-right: 3%;
 }
 .favorite_star:before {
-    margin-right: 2%;
+    content: "\2606"; 
     font-size: 1.5em;
     line-height: 1;
+    margin-right: 2%;
     transition: 0.5s;
-    content: "\2606"; 
 }
 .favorite_star.checked:before {
     content: "\2605";
 }
 
+.survivor_sheet_campaign_attributes_container {
+}
+
+    /* note tab starts here! */
+
+.survivor_sheet_notes_container {
+    display: flex;
+    flex-direction: column; 
+}
+.survivor_sheet_new_note_clicker {
+    margin: 3%; 
+}
+.survivor_sheet_new_note_container {
+    margin: 3%; 
+}
+.survivor_sheet_new_note_title_bar {
+    display: flex;
+    flex-wrap: nowrap;     
+}
+.survivor_sheet_new_note_input {
+    border: none;
+    box-sizing: border-box;
+    margin-bottom: 3%; 
+    width: 85%;
+}
+.survivor_sheet_new_note_input:focus {
+    outline: none;
+}
+.survivor_sheet_note_pushpin {
+    opacity: 0.5;
+    text-align: center;
+    vertical-align: middle;
+    width: 15%; 
+}
+.survivor_sheet_note_pushpin.active {
+    opacity: 1;
+}
+.survivor_sheet_note_repeater_container {
+    display: flex;
+    flex-direction: column;
+}
+.survivor_sheet_note_repeater {
+    border: 1px solid;
+    border-radius: 1vw;
+    margin: 2%;
+    overflow: hidden;
+    padding-bottom: 0; 
+}
+.survivor_sheet_note_body {
+    margin: 2%; 
+}
+.survivor_sheet_note_body:focus {
+    outline: none;
+}
+.survivor_sheet_note_body.pinned:before {
+    content: "\01F4CC\00a0";
+}
+.survivor_sheet_note_debugger {
+    font-size: 0.5rem;
+    padding: 1%;
+    word-break: break-all; 
+}
+.survivor_sheet_note_meta_data_bar {
+    text-align: right;
+    padding: 1%;
+    padding-right: 3%; 
+}
+.survivor_sheet_note_tools_bar {
+    display: flex;
+    padding: 1%;  
+}
+.survivor_sheet_note_select {
+    border: none;
+    text-align-last:center; 
+}
+.survivor_sheet_note_more_options {
+    margin-top: -1%;
+}
+.survivor_sheet_note_tools_bar div {
+    border-radius: 1vw;
+    padding: 1%;
+    text-align: center;
+    width: 33%;  
+}
+
 .survivor_sheet_kd_sheet_ui_box.tags_container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-start;
     height: fit-content;  
+    justify-content: flex-start;
 }
 .survivor_sheet_tag {
-    margin: 3%;
-    padding: 2%;
+    align-items: center;
     cursor: pointer;
     display: flex;
-    align-items: center;
+    margin: 3%;
     max-height: 10%;  
+    padding: 2%;
 }
 .survivor_sheet_tag.add_tag {
-    border-radius: 100%;
-    width: 10vw;
-    height: 10vw;
     border: 1px solid;
-    text-align-last:center;
+    border-radius: 100%;
     font-size: 4vh; 
-    padding: 0;
+    height: 10vw;
     max-height: none; 
+    padding: 0;
+    text-align-last:center;
+    width: 10vw;
 }
+
+/* vvv DELETE ALL OF THIS vvvv */
 .survivor_sheet_survivor_notes_slug_line_container {
     display: flex;
     flex-direction: column;
@@ -1981,25 +2152,25 @@ h3.new_survivor_sheet {
     margin-bottom: 5%;
 }
 .survivor_sheet_survivor_notes_slug_line {
+    border-bottom: 1px solid;
     display: flex;
     flex-wrap:nowrap;
-    min-height: 5vh;
     margin: 3%; 
-    border-bottom: 1px solid;
+    min-height: 5vh;
 }
 .survivor_sheet_survivor_notes_slug_line.clickable {
     font-style: italic; 
 }
 .survivor_sheet_rm_note_clicker {
-    width: 25%; 
+    align-items: center;
     border-radius: 1vw;
+    display: flex;
+    font-size: 10vw; 
+    font-weight: bold;
+    justify-content: center;
     margin: 1%; 
     margin-right: 3%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    font-size: 10vw; 
+    width: 25%; 
 }
 .survivor_sheet_note_text {
     width: 100%; 
@@ -2009,30 +2180,31 @@ h3.new_survivor_sheet {
 }
 .survivor_sheet_survivor_notes_input {
     background: inherit;
+    border: 0;
     color: inherit; 
-    min-height: 25vh; 
-    margin: 5%; 
     font-family: 'Silverado';
     font-size: 1.5em;
+    margin: 5%; 
+    min-height: 25vh; 
     padding: 1%;
-    border: 0;
 }
+/* ^^^ DELETE ALL OF THIS ^ */
 
     /* cursed items!? */
 .cursed_items_flex_container {
     display: flex;
-    justify-content: center; 
     flex-direction: column; 
+    justify-content: center; 
     padding: 0;
 }
 .cursed_item_toggle {
-    box-sizing: border-box;
     border: 1vw solid;
-    margin: 3%;
     border-radius: 2vw;
+    box-sizing: border-box;
+    height: fit-content; 
+    margin: 3%;
     padding: 1%; 
     transition: 1s;
-    height: fit-content; 
 }
 .cursed_item_name {
     font-weight: bold;
@@ -2043,8 +2215,8 @@ h3.new_survivor_sheet {
 
 /*  survivor sheet admin tab */
 .survivor_sheet_public_toggle {
-    display: flex;
     align-items: center;
+    display: flex;
     justify-content: center;
     margin: 7%; 
 }  
@@ -2052,16 +2224,15 @@ h3.new_survivor_sheet {
     margin-right: 3%; 
 }
 input.survivor_owner_email {
-    border: 0;
-    outline: 0;
+    border-radius: 10px;
     display: block;
-    margin: 3% auto;
-    width: 93%;
     font-family: Silverado;
-    height: auto; border-radius: 10px;
-    padding: 2%;
     font-size: 1.5em;
+    height: auto;
+    margin: 3% auto;
+    padding: 2%;
     text-align: center; 
+    width: 93%;
 }
 input.survivor_owner_email:focus {
     background: radial-gradient(#FDEDA9, #FFFFC5);
@@ -2076,15 +2247,15 @@ input.survivor_owner_email:invalid {
 /*  event_log.html  */
 .event_log_clicker {
     border: 2px solid;
-    padding: 1%;
     margin: 1%;
-    margin-left: 2%;
     margin-bottom: 3%;
+    margin-left: 2%;
+    padding: 1%;
     width: 93%;
 }
 .event_log_clicker_title {
-    display: flex;
     align-items: center; 
+    display: flex;
 }
 .event_log_clicker_title_name {
     min-width: 80%
