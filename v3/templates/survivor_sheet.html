@@ -290,48 +290,6 @@
 
         </div> <!-- survival controller ends here for JS! -->
 
-        <!-- SOTF opl -->
-        <div
-            class="clickable survivor_sheet_kd_sheet_ui_box border"
-            ng-if="
-                settlement != undefined &&
-                settlement.sheet.principles.indexOf('survival_of_the_fittest') != -1
-            "
-            ng-click="sotfToggle()"
-            ng-class="{kd_red_border: survivor.sheet.sotf_reroll === true}"
-        >
-            <div
-                class="kd_sheet_ui_box_row sotf_option"
-            >
-                <div
-                    class="kd_sheet_ui_box"
-                    ng-class="{
-                        'kd_red_box': survivor.sheet.sotf_reroll === true
-                    }"
-                >
-                </div>
-
-                <div
-                    class="font_medium"
-                    ng-class="{
-                        'kd_red_text': survivor.sheet.sotf_reroll === true
-                    }"
-                >
-                    Once per lifetime reroll
-                </div>
-            </div>
-
-            <div
-                class="font_small kd_sheet_ui_box_row sotf_caption"
-                ng-if="survivor.sheet.sotf_reroll != true"
-            >
-                <p class="font_small">
-                    <b>Survival of the fittest:</b> Once per lifetime, a survivor may
-                    reroll a single roll result. They must keep this result.</b>
-                </p>
-            </div>
-        </div> <!-- sotf reroll -->
-
         <div
             id="survivalControl"
             class="kd_sheet_ui_roll_down rolled_up"
@@ -374,7 +332,48 @@
                 </div> <!-- number tumbler -->
             </div>
         </div> <!-- survival controls and rolls -->
+        
+        <!-- SOTF opl -->
+        <div
+            class="clickable survivor_sheet_kd_sheet_ui_box border"
+            ng-if="
+                settlement != undefined &&
+                settlement.sheet.principles.indexOf('survival_of_the_fittest') != -1
+            "
+            ng-click="sotfToggle()"
+            ng-class="{kd_red_border: survivor.sheet.sotf_reroll === true}"
+        >
+            <div
+                class="kd_sheet_ui_box_row sotf_option"
+            >
+                <div
+                    class="kd_sheet_ui_box"
+                    ng-class="{
+                        'kd_red_box': survivor.sheet.sotf_reroll === true
+                    }"
+                >
+                </div>
 
+                <div
+                    class="font_medium"
+                    ng-class="{
+                        'kd_red_text': survivor.sheet.sotf_reroll === true
+                    }"
+                >
+                    Once per lifetime reroll
+                </div>
+            </div>
+
+            <div
+                class="font_small kd_sheet_ui_box_row sotf_caption"
+                ng-if="survivor.sheet.sotf_reroll != true"
+            >
+                <p class="font_small">
+                    <b>Survival of the fittest:</b> Once per lifetime, a survivor may
+                    reroll a single roll result. They must keep this result.</b>
+                </p>
+            </div>
+        </div> <!-- sotf reroll -->
 
         <!-- ATTRIBUTES -->
 
@@ -1904,6 +1903,7 @@
 
                         <div
                             ng-if="scratch.newNoteHasFocus"
+                            class="kd_kickstarter_button_raft"
                         >
                             <button
                                 class="ng_fade kd_kickstarter_button kd_blue"

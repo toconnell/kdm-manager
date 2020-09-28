@@ -19,24 +19,34 @@
         ng-if="settlement != undefined"
         ng-init="initializeUser('$user_id')"
     ></span>
-
-
-    <!-- name and headline -->
-    <div class="campaign_summary_headline_container" ng-if="settlement != undefined">
-
-        <h1 id="campaignSummarySettlementName">{{settlement.sheet.name}}</h1>
-
-        <p id="campaignSummaryCampaignType">
-            {{settlement.game_assets.campaign.name}}
-        </p>
-
-    </div> <!-- campaign_summary_headline_container -->
-
-
+  
     <!-- now start the left/right panels -->
     <div class="campaign_summary_panels_container">
 
         <div class="campaign_summary_left_panel"> <!--left panel container -->
+
+            <div>
+                <h1
+                id="campaignSummarySettlementName"
+                class="settlement_name"
+                >
+                    {{settlement.sheet.name}}
+                </h1>
+
+                <p
+                    id="campaignSummaryCampaignType"
+                    class="campaign_type"
+                >
+                    {{settlement.game_assets.campaign.name}}
+                </p>
+
+                <h1
+                    ng-if="settlement.sheet.abandoned"
+                    class="settlement_abandoned_stamp"
+                >       
+                    ABANDONED
+                </h1>
+            </div>
 
             <div class="campaign_summary_headline_blocks_container" ng-if="settlement.sheet != undefined">
                 <div class="headline_block">
@@ -1211,6 +1221,13 @@
     <!-- campaign summary RIGHT panel BEGINS -->
 
     <div class="campaign_summary_right_panel" ng-if="settlement != undefined">
+
+        <div
+            ng-if="departing_survivor_count > 0"
+            class="ng_fade manage_departing_survivors_blocker"
+        >
+
+        </div>
 
         <div
             ng-repeat="r in settlement.campaign.special_rules"

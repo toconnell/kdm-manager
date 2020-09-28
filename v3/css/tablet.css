@@ -126,19 +126,14 @@
         CAMPAIGN SUMMARY - tablet
 
     */
-    #campaignSummarySettlementName {font-size: 8vw; }
-    .campaign_summary_headline_container {
-        margin: 0 auto;
-        padding: 0;
-        position: relative;
-    }
+  
 
     /*  the panels/columns  */
     .campaign_summary_panels_container {
         display: flex;
     }
     .campaign_summary_left_panel {width: 52%;}
-    .campaign_summary_right_panel {width: 48%; }
+    .campaign_summary_right_panel {width: 48%; margin-top: 3%; }
 
     /*  stuff in the panels */
 
@@ -245,7 +240,7 @@
     /*  settlement sheet  - tablet */
     #settlementSheetLeftColumn,
         #settlementSheetMiddleColumn {width: 50%;}
-    #settlementSheetMiddleColumn {margin-top: 10%; }    /*long settlement names*/
+        
     #settlementSheetRightColumn {
         display: flex;
         flex-direction: row;

@@ -1,14 +1,23 @@
 /* DO NOT MAKE BREAKPOINT-SPECIFIC CHANGES IN THIS FILE */
 /* DO NOT MODIFY BORDER ATTRIBUTES OTHER THAN COLOR IN THIS FILE */
 
+:root {
+    --color_kd-affinity-blue: #1C99CD;
+    --color_kd-affinity-green: #4CB848;
+    --color_kd-affinity-red:  #CD2027;
+    --color_kd-kickstarter-grey: #666;
+    --color_kd-rulebook-pink: #ff00f0;
+    --color_kd-special-showdown: #DC2426;  
+}
 
 /*                          */
 /*      General UI/UX       */
 /*                          */
 
 input:active {  /* this is our on-click effect color */
-    border-color: #FF0040; 
+    border-color: var(--color_kd-special-showdown);
 }
+
 
 /* zebras */
 .zebra {background-color: #efefef; }
@@ -37,7 +46,7 @@ input:active {  /* this is our on-click effect color */
 
 /*  loading and spinner stuff   */
 .inline_spinner_container {
-    font-color: #666; 
+    color: #666; 
 }
 
 /*  KD paper UI blocks, boxes and so on*/
@@ -85,7 +94,7 @@ input:active {  /* this is our on-click effect color */
 
 /* manager UI - not KD emulation, just UI/UX enhancements that we do */
 .white_text {color: #fff; }
-.green_text {coilor: #1CB71C;}
+.green_text {color: #1CB71C;}
 .maroon_text {color: #B71C1C;}
 
 
@@ -258,6 +267,13 @@ textarea.report_error:focus {box-shadow: none; }
     SETTLEMENT SHEET    
 
 */
+
+.campaign_type {
+    color: var(--color_kd-kickstarter-grey);
+}
+.settlement_abandoned_stamp {
+    color: var(--color_kd-special-showdown);
+}
 
 /* settlement sheet tumblers */
 .settlement_sheet_tumbler {color: #666; }

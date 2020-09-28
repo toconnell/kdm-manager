@@ -52,24 +52,29 @@
             <div
                 id="settlementName"
                 contentEditable="true"
-                class="settlement_sheet_settlement_name"
+                class="settlement_name"
                 ng-model="scratch.newSettlementName"
                 ng-placeholder="Settlement Name"
                 ng-blur="setSettlementName()"
+                title="Tap or click to edit settlement name!"
             />
                 {{settlement.sheet.name}}
             </div>
 
             <p
                 id="campaign_type"
-                class="settlement_sheet_campaign_type"
+                class="campaign_type"
                 title="Campaign type may not be changed after a settlement is created!"
             >
                 {{settlement.game_assets.campaign.name}}
             </p>
 
-
-            <h1 ng-if="settlement.sheet.abandoned"class="alert">ABANDONED</h1>
+            <h1
+                ng-if="settlement.sheet.abandoned"
+                class="settlement_abandoned_stamp"
+            >
+                ABANDONED
+            </h1>
 
 
             <!-- settlement sheet tumblers start here -->
