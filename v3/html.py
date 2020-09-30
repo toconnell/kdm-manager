@@ -55,13 +55,18 @@ class meta:
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
         <meta name="theme-color" content="#000000">
         <title>$title</title>
-        <link rel="stylesheet" type="text/css" href="/media/fonts.css?v=$version">
+
         <link rel="stylesheet" type="text/css" href="/media/style.css?v=$version">
-        <link rel="stylesheet" type="text/css" href="/media/color.css?v=$version">
+
+        <link rel="stylesheet" type="text/css" href="/css/_base.css?v=$version">
+        <link rel="stylesheet" type="text/css" href="/css/tablet.css?v=$version">
+        <link rel="stylesheet" type="text/css" href="/css/laptop.css?v=$version">
+        <link rel="stylesheet" type="text/css" href="/css/desktop.css?v=$version">
+        <link rel="stylesheet" type="text/css" href="/css/color.css?v=$version">
+        <link rel="stylesheet" type="text/css" href="/css/z-index.css?v=$version">
+
+        <link rel="stylesheet" type="text/css" href="/media/fonts.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/media/settlement_event_log.css?v=$version">
-        <link rel="stylesheet" type="text/css" href="/media/hunt_phase.css?v=$version">
-        <link rel="stylesheet" type="text/css" href="/media/help-tip.css">
-        <link rel="stylesheet" type="text/css" href="/media/z-index.css?v=$version">
         <link ng-if="user.user !== undefined && user.user.preferences.night_mode === true" rel="stylesheet" type="text/css" href="/media/night_mode.css?v=$version">
     """).safe_substitute(
         title = settings.get("application","title"),
@@ -84,17 +89,139 @@ class meta:
         </div>
     </div>
 
+    <!-- the API error modal! -->
     <div
         id="apiErrorModal"
-        class="api_error_modal hidden ease clickable"
-        onclick="hideAPIerrorModal()"
+        class="api_error_modal hidden"
     >
-        <p class="api_error_debug">User login: {{user_login}}</p>
-        <p class="api_error_debug">Settlement OID: {{settlement.sheet._id.$oid}}</p>
-        <p id="apiErrorModalMsgRequest" class="api_error_debug"></p>
-        <p id="apiErrorModalMsg" class="kd_alert_no_exclaim api_error_modal_msg"></p>
-        <p>Tap or click anywhere to continue...</p>
+        <p
+            ng-if="user_login !== undefined"
+            class="api_error_debug"
+        >
+            User login: {{user_login}}
+        </p>
+        <p
+            class="api_error_debug"
+            ng-if="settlement.sheet !== undefined"
+        >
+            Settlement OID: {{settlement.sheet._id.$oid}}
+        </p>
+        <p
+            id="apiErrorModalMsgRequest"
+            class="api_error_debug"
+            ng-bind-html="apiErrorModalMsgRequest|trustedHTML"
+        >
+        </p>
+        <p id="apiErrorModalMsg" class="kd_alert_no_exclaim api_error_modal_msg">
+            {{apiErrorModalMsg}}
+        </p>
+        <button
+            ng-click="signOut()"
+            class="kd_kickstarter_button kd_pink"
+        >
+            SIGN OUT
+        </button>
     </div>
+
+    <!-- debugger -->
+    <div
+        id="ngDebugWindow"
+        class="hidden"
+    >
+        user: {{user_login}}<br/>
+        session: {{current_session}}
+
+        <hr/>
+
+        <ul>
+            <li
+                ng-if="settlement === undefined"
+            >
+                <i>waiting for settlement...</i>
+            </li>
+
+            <li
+                ng-if="settlement !== undefined"
+            >
+                <a
+                    href=""
+                    ng-click="dumpJSONtoTab(settlement)"
+                >
+                    settlement JSON
+                </a>
+            </li>
+
+            <li
+                ng-if="survivor !== undefined && lineage.events === undefined"
+            >
+                <i>waiting for survivior events...</i>
+            </li>
+
+            <li
+                ng-if="lineage.events !== undefined"
+            >
+                <a
+                    href=""
+                    ng-click="dumpJSONtoTab(lineage.events)"
+                >
+                    survivor events JSON
+                </a>
+            </li>
+        </ul>
+
+        <hr/>
+
+        ngRolledUp:
+        <table>
+            <tr ng-repeat="(element, status) in ngRolledUp">
+                <td>{{element}}</td>
+                <td
+                    class="clickable"
+                    ng-click="rollUp(element)"
+                >
+                    {{status}}
+                </td>
+            </tr>
+        </table>
+        <hr/>
+        ngVisible:
+        <table>
+            <tr ng-repeat="(element, status) in ngVisible">
+                <td>{{element}}</td>
+                <td
+                    class="clickable"
+                    ng-click="ngShowHide(element)"
+                >
+                    {{status}}
+                </td>
+            </tr>
+        </table>
+        <hr/>
+    </div>
+    \n"""
+
+    tab_ui_helpers = """\n
+        <div
+            id="tabNavArrowRight"
+            class="ng_fadeout hidden tab_nav_warning_arrow"
+            ng-if="ngVisible['tabNavArrowRight']"
+        >
+            &#8250;
+        </div>
+        <div
+            id="tabNavArrowLeft"
+            class="ng_fadeout hidden tab_nav_warning_arrow"
+            ng-if="ngVisible['tabNavArrowLeft']"
+        >
+            &#8249;
+        </div>
+        <div
+            id="tabNavArrowNull"
+            class="ng_fadeout hidden tab_nav_warning_arrow"
+            ng-if="ngVisible['tabNavArrowNull']"
+        >
+            &#x02A2F;
+        </div>
     \n"""
 
     full_page_loader = """\n
@@ -115,7 +242,7 @@ class meta:
     </div>
     \n""")
 
-    start_container = '\n<div id="container" onclick="closeNav()" >'
+    start_container = '\n<div id="container" class="%s_container">'
     close_container = '\n</div><!-- container -->'
 
 
@@ -179,6 +306,7 @@ def render(view_html, head=[], http_headers=None, body_class=None):
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular-animate.js"></script>
 
+
     <!-- private app -->
     <script src="/js/kdmManager.js?v=%s"></script>
 
@@ -212,6 +340,7 @@ def render(view_html, head=[], http_headers=None, body_class=None):
 
     # 2. append generic body HTML -> all views except login
     output += meta.saved_dialog
+    output += meta.tab_ui_helpers
     output += meta.corner_loader
     output += meta.full_page_loader
 

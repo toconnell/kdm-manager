@@ -1,11 +1,12 @@
 <button
     id="floating_dashboard_button"
-    class="gradient_silver" 
-    onclick="openNav()"
+    class="gradient_silver"
+    ng-click="openLeftSideNav()"
     ng-if="view != 'dashboard' && user != undefined"
 >
     &#9776;
 </button>
+
 
 <form
     method="POST" 
@@ -21,24 +22,29 @@
     </button>
 </form>
 
-<!-- christian sidenav -->
+
 <div
-    id="mySidenav"
-    class="sidenav"
+    id="leftSideNav"
     ng-controller="sideNavController"
     ng-if="user != undefined"
     ng-init="getNewSettlementAssets()"
 >
+    <!-- return to dash; throw this view away -->
     <form
         method="POST"
         action=""
     >
         <input type="hidden" name="change_view" value="dashboard" />
-        <button class="sidenav_top_level" onclick="showFullPageLoader(); closeNav()">
+        <button
+            class="sidenav_top_level"
+            onclick="showFullPageLoader()"
+            ng-click="closeLeftSideNav()"
+        >
             Return to Dashboard
         </button>
     </form>
 
+    <!-- new settlement creation; has its own view -->
     <form
         method="POST"
         action=""
@@ -47,16 +53,17 @@
         <input type="hidden" name="change_view" value="new_settlement" />
         <button
             class="sidenav_top_level"
-            onclick="showFullPageLoader(); closeNav()"
+            onclick="showFullPageLoader()"
+            ng-click="closeLeftSideNav()"
             ng-if="user.user.settlements_created < 3 || user.user.subscriber.level > 0"
         >
             + Create New Settlement
         </button>
     </form>
 
-    <hr ng-if="view != 'newSettlement'"/>
 
-    <h3 ng-if="settlement.sheet != undefined">{{settlement.sheet.name}}:</h3>
+    <hr ng-if="view != 'newSettlement'"/>
+    <h3 ng-if="settlement.sheet != undefined">{{settlement.sheet.name}}</h3>
     <center ng-if="settlement.sheet == undefined && view != 'newSettlement'">
         <img src="/media/loading_lantern.gif" />
     </center>
@@ -66,8 +73,10 @@
         id="newSurvivorButton"
         class="sidenav_button visible"
         ng-if="settlement.sheet != undefined"
-        ng-click="showHide('modalNewSurvivorContainer')"
-        onclick="closeNav()"
+        ng-click="
+            ngShow('modalNewSurvivorContainer');
+            closeLeftSideNav();
+        "
     >
         + Create New Survivor
     </button>
@@ -75,8 +84,10 @@
     <button
         id="bulkAddOpenerButton"
         class="sidenav_button hidden"
-        ng-click="showHide('modalBulkAdd')"
-        onclick="closeNav()"
+        ng-click="
+            showHide('modalBulkAdd');
+            closeLeftSideNav();
+        "
     >
         + Create Multiple Survivors
     </button>
@@ -84,8 +95,11 @@
     <button
         class="sidenav_button visible"
         ng-if="settlement != undefined && view != 'campaignSummary'"
-        onclick="closeNav(); showFullPageLoader()"
-        ng-click="postForm('view_campaign', settlement.sheet._id.$oid)"
+        onclick="showFullPageLoader()"
+        ng-click="
+            closeLeftSideNav();
+            postForm('view_campaign', settlement.sheet._id.$oid)
+        "
     >
         Campaign Summary
     </button>
@@ -93,8 +107,11 @@
     <button
         ng-if="user_is_settlement_admin && view != 'settlementSheet'"
         class="sidenav_button visible"
-        onclick="closeNav(); showFullPageLoader()"
-        ng-click="postForm('view_settlement', settlement.sheet._id.$oid)"
+        onclick="showFullPageLoader()"
+        ng-click="
+            closeLeftSideNav();
+            postForm('view_settlement', settlement.sheet._id.$oid);
+        "
     >
         Settlement Sheet
     </button>
@@ -103,8 +120,10 @@
         id="modalExpansionsOpener"
         ng-if="user_is_settlement_admin && new_settlement_assets != undefined"
         class="sidenav_button visible"
-        ng-click="showHide('modalExpansionsManager')"
-        onclick="closeNav()"
+        ng-click="
+            showHide('modalExpansionsManager');
+            closeLeftSideNav();
+        "
     >
         Expansion Content
     </button>
@@ -112,8 +131,10 @@
     <button
         id="timelineOpenerButton"
         class="sidenav_button hidden"
-        ng-click="showHide('modalTimelineContainer')"
-        onclick="closeNav()"
+        ng-click="
+            showHide('modalTimelineContainer');
+            closeLeftSideNav();
+        "
     >
         Timeline
     </button>
@@ -121,8 +142,10 @@
     <button
         id="eventLogOpenerButton"
         class="sidenav_button hidden"
-        ng-click="showHide('eventLogContainer')"
-        onclick="closeNav()"
+        ng-click="
+            showHide('eventLogContainer');
+            closeLeftSideNav();
+        "
     >
         Event Log
     </button>
@@ -130,8 +153,10 @@
     <button
         id="settlementNotesOpenerButton"
         class="sidenav_button hidden"
-        ng-click="showHide('settlementNotesContainer')"
-        onclick="closeNav()"
+        ng-click="
+            showHide('settlementNotesContainer');
+            closeLeftSideNav();
+        "
         >
         Notes and Players
     </button>
@@ -139,35 +164,33 @@
     <button
         id="gearLookupOpenerButton"
         class="sidenav_button sidenav_modal_launcher hidden"
-        ng-click="showHide('gearLookupModal')"
-        onclick="closeNav()"
-        ng-init="scratch.gearLookupOpenerButtonLoaded = true"
+        ng-click="
+            showHide('gearLookupModal');
+            closeLeftSideNav();
+        "
+        ng-init="scratch.gearLookupOpenerButtonLoaded = true;"
     >
         Gear Card Lookup
     </button>
 
-<!--
-    <button
-        id="huntPhaseOpenerButton"
-        class="sidenav_button sidenav_modal_launcher hidden"
-        ng-click="showHide('huntPhaseModal')"
-        onclick="closeNav()"
-    >
-        &beta; Hunt Phase
-    </button>
--->
-
-    <h3 ng-if="countSurvivors('departing') > 0">Departing</h3>
+    <!-- list departing survivors, formerly known as the survivor quick menu -->
+    <h3 ng-if="countSurvivors('departing') > 0">Departing Survivors</h3>
     <form
         method="POST"
         action="/"
         ng-repeat="s in settlement.user_assets.survivors | filter: departingFilter"
     >
         <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
-        <button class="sidenav_button" onclick="showFullPageLoader(); closeNav()">{{s.sheet.name}} ({{s.sheet.effective_sex}})</button>
+        <button
+            class="sidenav_button"
+            ng-click="closeLeftSideNav()"
+            onclick="showFullPageLoader();"
+        >
+            {{s.sheet.name}} ({{s.sheet.effective_sex}})
+        </button>
     </form>
 
-
+    <!-- list FAVORITE survivors, not the quick menu-->
     <h3 ng-if="countSurvivors('favorite') > 0">Favorites</h3>
     <form
         method="POST"
@@ -175,16 +198,22 @@
         ng-repeat="s in settlement.user_assets.survivors | filter: favoriteFilter"
     >
         <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
-        <button class="sidenav_button" onclick="showFullPageLoader(); closeNav()">{{s.sheet.name}} ({{s.sheet.effective_sex}})</button>
+        <button
+            class="sidenav_button"
+            ng-click="closeLeftSideNav()"
+            onclick="showFullPageLoader();"
+        >
+            {{s.sheet.name}} ({{s.sheet.effective_sex}})
+        </button>
     </form>
+
 
     <hr/>
 
 
     <button
         class="sidenav_button sidenav_modal_launcher"
-        ng-click="showHide('helpModal')"
-        onClick="closeNav();"
+        ng-click="showHide('helpModal'); closeLeftSideNav()"
     >
         Help!
     </button>
@@ -192,22 +221,47 @@
     <button
         id="reportErrorButton"
         class="sidenav_button sidenav_modal_launcher"
-        onclick="closeNav(); showHide('modalReportError')"
+        ng-click="
+            showHide('modalReportError');
+            closeLeftSideNav()
+        "
     >
         Report an Issue or Error
     </button>
 
     <hr/>
 
-    <form
-        method="POST"
-        action=""
-        ng-if="user != undefined"
+    <button
+        id="leftSideNavUserSignOut"
+        onclick="showFullPageLoader()"
+        ng-click="
+            closeLeftSideNav();
+            signOut();
+        "
     >
-        <input type="hidden" name="remove_session" value="{{user.user.current_session.$oid}}"/>
-        <input type="hidden" name="login" value="{{user.user.login}}"/>
-        <button onclick="showFullPageLoader(); closeNav()">{{user.user.login}}<br/>SIGN OUT</button>
-    </form>
+        {{user.user.login}}<br/>
+        SIGN OUT
+    </button>
 
-</div>
+</div> <!-- #leftSideNav -->
+    
+<!-- #leftSideNavUnderlay underlay starts here -->
+<div
+    id="leftSideNavUnderlay"
+    ng-click="closeLeftSideNav()"
+>
+    <div
+        ng-if="scratch.left_side_nav_open"
+        class="left_side_underlay_button close clickable ng_fade"
+        title="Close left side navigation!"
+    >
+        &#x274C;
+    </div>
+    <div
+        class="left_side_underlay_footer_container"
+    >   <div class="underlay_footer_element">KDM-M</div>
+        <div class="underlay_footer_element">v$application_version</div>
+    </div>
+
+</div> <!-- left_Side_nav_inactive_area -->
 

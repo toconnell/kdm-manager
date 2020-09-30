@@ -2,9 +2,30 @@ app.controller("survivorSheetController", function($scope) {
     // this is the root controller for the survivor sheet; it is initialized
     // at the top of the sheet, so it's like...a mini root scope, sort of.
 
+    $scope.scratch = {}
+
+    // tabs!
+    $scope.tabsObject.tabs = [
+        {
+            id: 0,
+            name: 'Sheet',
+        },
+        {
+            id: 1,
+            name: 'Notes',
+        },
+        {
+            id: 2,
+            name: 'Logs',
+        },
+        {
+            id: 6,
+            name: 'Admin',
+        },
+    ]
+
     // call this to set the $scope up
     $scope.initializeScope = function() {
-        $scope.scratch = {}
         $scope.userPromise.then(
             function(payload) {
                 // check the favorite box (or not)
@@ -30,16 +51,88 @@ app.controller("survivorSheetController", function($scope) {
 
 
     // notes
-    $scope.addNote = function () {
-        if (!$scope.scratch.addNote) {return;}
-        $scope.postJSONtoAPI('survivor', 'add_note', {'note': $scope.scratch.addNote}, false, true, true);
-        $scope.scratch.addNote = undefined; 
-    };
-    $scope.rmNote = function (x, note_oid) {
-        if (note_oid !== undefined) {
-            $scope.postJSONtoAPI('survivor', 'rm_note', {'_id': note_oid}, false, true, true)
+
+    $scope.setNewSurvivorNoteBody = function(blank) {
+        // gets the note content from the editable div.
+        var noteContainer = document.getElementById('survivorNoteNewNoteInput');
+        if (blank) {
+            noteContainer.innerHTML = ''; 
+        } else {
+            var newNote = noteContainer.innerHTML;
+            $scope.scratch.newSurvivorNote.note = newNote;
         };
+    }
+
+    $scope.initNewSurvivorNote = function() {
+        // blanks out and resets the controls;
+        console.warn('Initializing new survivor note controls...');
+        $scope.setNewSurvivorNoteBody(true);
+        $scope.scratch.newNoteHasFocus = false;
+
     };
+
+    $scope.addNewSurvivorNote = function() {
+
+        if ($scope.scratch.newSurvivorNote.note === '') {
+            console.warn('New survivor note is blank: Ignoring attempt to add...');
+            return false;
+        };
+
+        var addNotePromise = $scope.postJSONtoAPI(
+            'survivor',
+            'add_note',
+            {'note': $scope.scratch.newSurvivorNote},
+            false,
+            true,
+            true
+        );
+        addNotePromise.then(
+            function(payload) {
+                console.info('Added survivor note!');
+                $scope.ngHide('survivorNoteControls');
+                $scope.initNewSurvivorNote();
+            },
+            function(errorPayload) {
+                console.error('Failed to add survivor note!');
+            }
+        );
+
+    }
+
+    $scope.updateSurvivorNote = function(note, index) {
+        // updates a note based on the value of note.update_operation
+
+        if (note.update_operation === 'Update' || note.update_operation === undefined) {
+
+            // get the latest/greatest body if we're doing an update
+            var noteContainer = document.getElementById('survivorNoteBodyId' + note._id.$oid);
+            note.note = noteContainer.innerHTML;
+
+            $scope.postJSONtoAPI(
+                'survivor',
+                'update_note',
+                {'note': note},
+                false, true, false
+            );
+
+        } else if (note.update_operation === 'Delete') {
+            // handle deletes; needs a special carve-out
+            $scope.postJSONtoAPI(
+                'survivor',
+                'rm_note',
+                {'_id': note._id.$oid}, false, true, false
+            );
+            note.deleted = true;
+        } else {
+            // throw a warning if it's anything else
+            console.error("'" + note.update_operation + "' is not a valid survivor note operation!");
+            console.warn('Ignoring unknown/unhandled survivor note operation...');
+        }
+
+        note.update_operation = undefined; //sets it back to the three dots
+
+    };
+
 
     // email
     $scope.resetEmail = function() {
@@ -87,30 +180,15 @@ app.controller("survivorSheetController", function($scope) {
         }; 
     };
 
-    $scope.setSurvivorName = function() {
-        var nameContainer = document.getElementById('survivorName');
-        var newName = nameContainer.innerHTML;
-        js_obj = {name: newName};
-        res = $scope.postJSONtoAPI('survivor', 'set_name', js_obj, false, true, true);
-        res.then(function(payload){
-            var updated_name = payload.data.sheet.name;
-            nameContainer.innerHTML = updated_name;
-        });
-    };
-    $scope.randomName = function() {
-        var sex = $scope.survivor.sheet.effective_sex;
-        var nameList = $scope.randomSurvivorNames;
-        var randomName = nameList[sex][Math.floor(Math.random() * nameList[sex].length)];
-        $scope.survivor.sheet.name = randomName;
-    };
-
-    $scope.randomSurname = function() {
-        var nameList = $scope.randomSurnames;
-        var randomSurname = nameList[Math.floor(Math.random() * nameList.length)];
-        $scope.survivor.sheet.name = $scope.survivorBaseName + " " + randomSurname; 
+    $scope.sotfToggle = function() {
+        // one-off method to toggle the SotF re-roll
+        $scope.postJSONtoAPI('survivor', 'toggle_sotf_reroll', {}, false, true, true);
     };
 
     $scope.updateSurvival = function() {
+        // this is a fancier version of what happens in the quickview
+        // ultimately, it does a POST and updates the on-page $scope
+
         var new_total = $scope.survivor.sheet.survival;
 
         // enforce the max, if we're enforcing the max; always enforce the min
@@ -186,6 +264,18 @@ app.controller("survivorSheetController", function($scope) {
         $scope.postJSONtoAPI('survivor','toggle_damage',{'location': loc}, false, true, true);
     };
 
+    $scope.toggleCursedItem = function(handle) {
+    //        console.log(handle);
+        var itemIndex = $scope.survivor.sheet.cursed_items.indexOf(handle);
+        if (itemIndex === -1) {
+            $scope.survivor.sheet.cursed_items.push(handle);
+            $scope.postJSONtoAPI('survivor','add_cursed_item', {'handle': handle}, true, true, true);
+        } else {
+            $scope.survivor.sheet.cursed_items.splice(itemIndex, 1);
+            $scope.postJSONtoAPI('survivor','rm_cursed_item', {'handle': handle}, true, true, true);
+        };
+    };
+
     // favorite requires special logic, since it's an append
     $scope.toggleFavorite = function() {
         var user_index = $scope.survivor.sheet.favorite.indexOf($scope.user_login);
@@ -238,19 +328,58 @@ app.controller("survivorSheetController", function($scope) {
     $scope.setWeaponProficiencyAttribs = function() {
         // points
         var js_obj = {attribute: 'Weapon Proficiency', value: $scope.survivor.sheet['Weapon Proficiency']}
-        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj, false, true, false);
+        var attrPromise = $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj, false, true, false);
         // proficiency type
         if ($scope.survivor.sheet.weapon_proficiency_type != null) {
-            js_obj = {'handle': $scope.survivor.sheet.weapon_proficiency_type};
-            $scope.postJSONtoAPI('survivor', 'set_weapon_proficiency_type', js_obj, false, false, true);
+            attrPromise.then(
+                function(payload) {
+                    js_obj = {'handle': $scope.survivor.sheet.weapon_proficiency_type};
+                    $scope.postJSONtoAPI('survivor', 'set_weapon_proficiency_type', js_obj, false, false, false);
+                },
+                function(errorPayload) {
+                    console.error('Could not set weapon proficiency type!');
+                }
+            );
         };
         
+    };
+
+    // set the scratch.whateverAI variables. Call this whenever we have a change
+    $scope.setAttributeAI = function(attribute) {
+
+		console.info('Setting scratch.' + attribute + 'AI...');
+		var handles = null
+		if (attribute === 'courage'){
+			handles = ['stalwart', 'prepared', 'matchmaker']
+		} else if (attribute === 'understanding'){
+			handles = ['analyze', 'explore', 'tinker']
+		};
+
+		if (handles === null) {
+			console.error("'" + attribute + "' is not a known attribute! Cannot set scratch AI...");
+			return false
+		};
+
+		var scratch_key = attribute + 'AI'
+		$scope.scratch[scratch_key] = null;
+
+        for (var i = 0; i < handles.length; i++) {
+            var handle = handles[i];
+            if ($scope.survivor.sheet.abilities_and_impairments.indexOf(handle) !== -1) {
+                $scope.scratch[scratch_key] = handle;
+            };
+        };
+		if ($scope.scratch[scratch_key] === undefined || $scope.scratch[scratch_key] === null) {
+			console.warn('Could not set scratch.' + scratch_key + '...');
+            $scope.scratch[scratch_key] = undefined;
+		} else {
+			console.info('Set scratch.' + scratch_key + " to '" + $scope.scratch[scratch_key] + "'!");
+		};
     };
 
 	// Updates courage; can also set the related A&I after the promise returns
     $scope.updateCourage = function() {
         var js_obj = {attribute: 'Courage', value: $scope.survivor.sheet.Courage};
-        // ('survivor', 'set_attribute', js_obj, reinit=false, show_alert=true, update_sheet=false,)
         var couragePromise = $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj, false, true, false);
         if ($scope.scratch.courageAI !== undefined) {
             couragePromise.then(
@@ -313,6 +442,91 @@ app.controller("survivorSheetController", function($scope) {
 
 });
 
+
+app.controller('survivorNameController', function($scope) {
+    // survivor name is an applet now. deal with it.
+
+    $scope.scratch = {
+        originalName: $scope.survivor.sheet.name,
+    }
+
+    $scope.setSurvivorName = function() {
+        var nameContainer = document.getElementById('survivorName');
+        var newName = nameContainer.innerHTML;
+        js_obj = {name: newName};
+        res = $scope.postJSONtoAPI('survivor', 'set_name', js_obj, false, true, true);
+        res.then(function(payload){
+            var updated_name = payload.data.sheet.name;
+            $scope.scratch.originalName = updated_name;
+        });
+    };
+
+
+    $scope.getName = function() {
+        // returns an array representing the name
+        var nameObject = Object;
+
+        var nameContainer = document.getElementById('survivorName');
+        $scope.survivor.sheet.name = nameContainer.innerHTML.trim();
+
+        var nameList = $scope.survivor.sheet.name.split(' ');
+        for(var i = nameList.length - 1; i >= 0; i--) {
+            if(nameList[i] === undefined) {
+                nameList.splice(i, 1);
+            } else if (nameList[i] === null) {
+                nameList.splice(i, 1);
+            }
+        }
+        
+        // first name
+        nameObject.first = nameList[0];
+
+        // middle name
+        nameObject.middle = undefined;
+        if (nameList.length > 2) {
+            nameObject.middle = nameList.slice(1, nameList.length - 1).join(' ')
+        };
+
+        // last name
+        nameObject.last = undefined;
+        if (nameList.length > 1) {
+            nameObject.last = nameList[nameList.length - 1]
+        };
+
+//        console.warn('got name: ');
+//        console.warn('`-  first: ' + nameObject.first);
+//        console.warn('`- middle: ' + nameObject.middle);
+//        console.warn('`-   last: ' + nameObject.last);
+        return nameObject;
+
+    };
+
+    $scope.renderName = function(nameObject) {
+        var nameList = [];
+        nameList.push(nameObject.first);
+        nameList.push(nameObject.middle);
+        nameList.push(nameObject.last);
+        $scope.survivor.sheet.name = nameList.join(" ")
+    };
+
+    $scope.randomName = function() {
+        var nameObject = $scope.getName();
+        var sex = $scope.survivor.sheet.effective_sex;
+        var nameList = $scope.randomSurvivorNames;
+        var randomName = nameList[sex][Math.floor(Math.random() * nameList[sex].length)];
+        nameObject.first = randomName;
+        $scope.renderName(nameObject);
+    };
+
+    $scope.randomSurname = function() {
+        var nameObject = $scope.getName();
+        var nameList = $scope.randomSurnames;
+        var randomSurname = nameList[Math.floor(Math.random() * nameList.length)];
+        nameObject.last = randomSurname;
+        $scope.renderName(nameObject);
+    };
+});
+
 app.controller('disordersController', function($scope) {
 
     $scope.userD = {} 
@@ -355,89 +569,7 @@ app.controller("affinitiesController", function($scope) {
 });
 
 
-app.controller("attributeController", function($scope) {
 
-    $scope.attributeTokens = [
-        {
-            "longName": "Movement",
-            "shortName": "MOV",
-            "buttonClass": "mov_token",
-        },
-        {
-            "longName": "Accuracy",
-            "shortName": "ACC",
-            "buttonClass": "acc_token",
-        },
-        {
-            "longName": "Strength",
-            "shortName": "STR",
-            "buttonClass": "str_token",
-        },
-        {
-            "longName": "Evasion",
-            "shortName": "EVA",
-            "buttonClass": "eva_token",
-        },
-        {
-            "longName": "Luck",
-            "shortName": "LUCK",
-            "buttonClass": "luck_token",
-        },
-        {
-            "longName": "Speed",
-            "shortName": "SPD",
-            "buttonClass": "spd_token",
-        },
-    ];
-
-    $scope.setBase = function(stat) {
-        // bind the paddles to this
-        if ($scope.survivor.sheet[stat] === null) {$scope.survivor.sheet[stat] = 0};
-        var js_obj = {'attribute': stat, 'value': $scope.survivor.sheet[stat]};
-        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj);
-    };
-
-    $scope.setDetail = function(stat, detail) {
-        if ($scope.survivor.sheet.attribute_detail[stat][detail] === null) {
-            $scope.survivor.sheet.attribute_detail[stat][detail] = 0;
-        };
-        var new_value = $scope.survivor.sheet.attribute_detail[stat][detail];
-        var js_obj = {
-            'attribute': stat,
-            'detail': detail,
-            'value': new_value,
-        };
-        $scope.postJSONtoAPI('survivor', 'set_attribute_detail', js_obj);
-    };
-
-    $scope.incrementBase = function(stat, modifier) {
-        // bind the paddles to this
-        $scope.survivor.sheet[stat] += modifier;
-        var js_obj = {'attribute': stat, 'value': $scope.survivor.sheet[stat]};
-        $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj, false);
-    };
-
-    $scope.incrementDetail = function(stat, detail, modifier) {
-        $scope.survivor.sheet.attribute_detail[stat][detail] += modifier;
-        var js_obj = {'attribute': stat, 'detail': detail, 'value': $scope.survivor.sheet.attribute_detail[stat][detail]};
-        $scope.postJSONtoAPI('survivor', 'set_attribute_detail', js_obj, false);
-    };
-
-});
-
-
-app.controller("cursedItemsController", function($scope) {
-
-    $scope.toggleCursedItem = function(handle) {
-//        console.log(handle);
-        if ($scope.survivor.sheet.cursed_items.indexOf(handle) == -1) {
-            $scope.postJSONtoAPI('survivor','add_cursed_item', {'handle': handle});
-        } else {
-            $scope.postJSONtoAPI('survivor','rm_cursed_item', {'handle': handle});
-        };
-    };
-
-});
 
 
 
@@ -479,12 +611,12 @@ app.controller('saviorController', function($scope) {
     $scope.setSaviorStatus = function(color) {
         $('#modalSavior').fadeOut(1000);
         $scope.postJSONtoAPI('survivor','set_savior_status', {'color': color})
-        $scope.showHide('modalSavior');
+        $scope.ngHide('modalSavior');
     };
     $scope.unsetSaviorStatus = function() {
         $('#modalSavior').fadeOut(1000);
         $scope.postJSONtoAPI('survivor','set_savior_status', {'unset': true})
-        $scope.showHide('modalSavior');
+        $scope.ngHide('modalSavior');
     };
 
 });
@@ -540,65 +672,53 @@ app.controller("avatarController", function($scope) {
 });
 
 
-app.controller("survivalController", function($scope) {
 
+app.controller("controlsOfDeathController", function($scope) {
+    $scope.customCODdict = {
+        'name': '* Custom Cause of Death',
+        'handle': 'custom'
+    };
 
+    $scope.initCODlist = function() {
+        // checks the game_Assets.causes_of_death and pushes the 'custom' option
+        // on to it, if it's not on there already
 
+        console.info('Initializing Cause of Death list...');
 
-    // bound to the actual number element
-    $scope.setSurvival = function () {
-        if ($scope.survival_input_value === null) {return false};
-        if ($scope.survival_input_value === undefined) {$scope.survival_input_value = $scope.survivor.survival};
-//        console.warn($scope.survival_input_value);
-        new_value = $scope.survival_input_value;
-        if  (
-                $scope.settlement.sheet.enforce_survival_limit == true && 
-                new_value > $scope.settlement.sheet.survival_limit
-            ) {
-            $scope.showSLwarning();
-            $scope.survival_input_value = $scope.settlement.sheet.survival_limit;
-        } else if (new_value < 0) {
-            console.warn("Survival cannot be less than zero!");
-            $scope.survival_input_value = 0;
+        var cod_list = $scope.settlement.game_assets.causes_of_death;
+        if (cod_list[cod_list.length - 1].name === $scope.customCODdict.name) {
+            console.info('Custom COD option already added to list...');
         } else {
-            $scope.postJSONtoAPI('survivor', 'set_survival', {"value": new_value}, false);
-            $scope.survival_input_value = new_value;
+            cod_list.push({'name': ' --- ', 'disabled': true})
+            cod_list.push($scope.customCODdict)
         };
-        
-    };
 
-    $scope.showSLwarning = function () {
-        $('#SLwarning').show();
-        $('#SLwarning').fadeOut(4500);
-    };
+        // next, if the survivor has a COD that's not in the list, add it
+        // for display purposes, so the selector isn't blank
 
-    $scope.setSurvivalActions = function() {
-        var res = $scope.getJSONfromAPI('survivor','get_survival_actions');
-        res.then(
-            function(payload) {
-                console.log("Refreshing Survival Actions for survivor " + $scope.survivor_id);
-                $scope.survivor.survival_actions = payload.data;
-            },
-            function(errorPayload) {console.log("Could not retrieve Survival Actions from API!" + errorPayload);}
-        );
-    };
+        var has_custom_cod = true;
+        if ($scope.survivor.sheet.cause_of_death !== undefined) {
+            for (var i = 0; i < cod_list.length; i++) {
+                var cod_dict = cod_list[i];
+                if (cod_dict.name === $scope.survivor.sheet.cause_of_death) {
+                    has_custom_cod = false;
+                };
+            }
+        } else {
+            has_custom_cod = false;
+        };
 
-});
+        if (has_custom_cod) {
+            console.warn('Survivor has custom cause of death! Updating options list...');
+            cod_list.unshift({
+                'name': $scope.survivor.sheet.cause_of_death,
+                'handle': '__custom__'
+                }
+            );
+        } else {
+            console.info("Survivor cause of death '" + $scope.survivor.sheet.cause_of_death + "' is not custom...")
+        };
 
-
-app.controller("sotfRerollController", function($scope) {
-    $scope.sotfToggle = function() {
-        $scope.postJSONtoAPI('survivor', 'toggle_sotf_reroll', {}, false, true, true);
-    };
-
-});
-
-
-app.controller("controlsOfDeath", function($scope) {
-
-    $scope.showCODwarning = function (){
-        $('#CODwarning').show();
-        $('#CODwarning').fadeOut(4500);
     };
 
     $scope.resurrect = function() {
@@ -607,8 +727,6 @@ app.controller("controlsOfDeath", function($scope) {
         $scope.survivor.sheet.cause_of_death = undefined;
         $scope.survivor.sheet.died_in = undefined
         $scope.postJSONtoAPI('survivor', 'controls_of_death', {'dead': false});
-//        $('#modalDeath').fadeOut(1000);
-        $scope.showHide('modalDeath');
     };
 
     $scope.submitCOD = function(cod) {
@@ -620,8 +738,8 @@ app.controller("controlsOfDeath", function($scope) {
         } else if (typeof cod === 'object') {
             var cod_string = cod.name;
         } else if (cod === undefined) {
-            console.warn("COD is undefined! Showing warning div...")
-            $scope.showCODwarning();
+            console.error("COD is undefined! Showing warning div...")
+            $scope.ngShow('customCODwarning');
             return false;
         } else {
             console.warn("Invalid COD type! Type was: " + typeof cod)
@@ -636,20 +754,28 @@ app.controller("controlsOfDeath", function($scope) {
         };
         $scope.survivor.sheet.dead = true;
         $scope.survivor.sheet.cause_of_death = cod_string;
-        $scope.survivor.sheet.died_in = $scope.settlement.sheet.lantern_year
-        $scope.postJSONtoAPI('survivor', 'controls_of_death', cod_json);
-      //  $('#modalDeath').fadeOut(1000);
-        $scope.showHide('modalDeath');
-
+        console.info('Set survivor COD to ' + $scope.survivor.sheet.cause_of_death);
+        $scope.survivor.sheet.died_in = $scope.settlement.sheet.lantern_year;
+        var res = $scope.postJSONtoAPI('survivor', 'controls_of_death', cod_json, false, true, false);
+        res.then(
+            function(payload) {
+                console.info('Survivor cause of death updated successfully!');
+                console.info("Cause of death: '" + $scope.survivor.sheet.cause_of_death + "'.")
+                $scope.initCODlist();
+            },
+            function(errorPayload) {
+                console.error('Failed to update survivor cause of death!')
+            }
+        );
     };
 
     $scope.processSelectCOD = function() {
         // if the user uses the select drop-down, we do this to see what
         // to do next, e.g. whether to show the custom box
         $scope.survivorCOD = $scope.survivor.sheet.cause_of_death;
-        if ($scope.survivorCOD == '* Custom Cause of Death') {
+        if ($scope.survivorCOD == $scope.customCODdict.name) {
             delete $scope.survivor.sheet.cause_of_death;
-            $scope.showCustomCOD();
+            $scope.ngShow('customCODinput');
         } else {
             $scope.submitCOD($scope.survivorCOD);
         };

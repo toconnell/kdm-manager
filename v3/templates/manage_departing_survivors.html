@@ -2,7 +2,9 @@
     id="departingSurvivorsModalContent"
     class="hidden modal-black departing_survivors_modal_container"
     ng-controller="manageDepartingSurvivorsController"
-    ng-if="view == 'campaignSummary'"
+    ng-if="
+        view === 'campaignSummary' && ngVisible['departingSurvivorsModalContent']
+    "
 >
 
     <!-- 
@@ -15,25 +17,29 @@
         class="showdown_type showdown_controls_box_outline"
     >
 
-        <span ng-if="settlement.sheet != undefined" ng-init="initShowdownControls()"></span>
+        <!-- set the state -->
+        <span
+            ng-if="settlement.sheet.showdown_type !== undefined"
+            ng-init="rollUp('showdownOptions')"
+        ></span>
 
         <h3
             class="clickable"
-            ng-click="toggleControlState('showdown_type_control_state');"
+            ng-click="rollUp('showdownOptions')"
         >
             Set Showdown Type
-            <span class="showdown_arrow" ng-if="scratch.showdown_type_control_state == 'hidden'">
+            <span
+                class="roll_content_arrow"
+                ng-class="{'open': ngRolledUp['showdownOptions'] === false}"
+            >
                 &#x25BC;
-            </span>
-            <span class="showdown_arrow" ng-if="scratch.showdown_type_control_state == 'visible'">
-                &#x25B2;
             </span>
         </h3>
 
         <div
             id="showdownOptions"
-            class="showdown_controls_button_box showdown_type_options ng_fade"
-            ng-class="scratch.showdown_type_control_state"
+            class="roll_down_container"
+            ng-class="{'rolled_down': ngRolledUp['showdownOptions'] === false}"
         >
             <div
                 ng-repeat="option in scratch.showdown_type_options"
@@ -48,18 +54,27 @@
             </div> <!-- showdown type option repeater -->
 
             <div
-                class="showdown_controls_button_box_option_repeater clickable"
+                class="showdown_controls_button_box_option_repeater unset clickable"
                 ng-click="settlement.sheet.showdown_type = undefined"
             >
                 <div
                    class="kd_sheet_ui_box"
                    ng-class="{checked: settlement.sheet.showdown_type == undefined}"
-                ></div>
-                <i>Unset</i>
+                >
+                </div>
+                Unset
             </div> <!-- unset showdown type -->
 
         </div>
+
     </div> <!-- showdown type box -->
+
+
+    <!--
+
+        1.) survival bonuses
+
+    -->
 
     <div
         class="survival_bonus showdown_controls_box_outline"
@@ -67,25 +82,25 @@
             settlement.sheet.showdown_type != undefined &&
             user.user.preferences.beta == true
         "
+        ng-init="rollUp('survivalBonuses')"
     >
 
         <h3
             class="clickable"
-            ng-click="toggleControlState('survival_bonus_control_state');"
+            ng-click="rollUp('survivalBonuses')"
         >
             &beta; Survival Bonuses
-            <span class="showdown_arrow" ng-if="scratch.survival_bonus_control_state == 'hidden'">
+            <span
+                class="roll_content_arrow"
+                ng-class="{'open': ngRolledUp['survivalBonuses'] === false}"
+            >
                 &#x25BC;
-            </span>
-            <span class="showdown_arrow" ng-if="scratch.survival_bonus_control_state == 'visible'">
-                &#x25B2;
             </span>
         </h3>
 
         <div
             id="survivalBonuses"
-            class="showdown_controls_button_box showdown_type_options ng_fade"
-            ng-class="scratch.survival_bonus_control_state"
+            class="roll_down_container"
             ng-init="calculateDepartingSurvivorBonus()"
         >
             <div
@@ -114,38 +129,48 @@
 
     <!--
 
-        1.) set the current_quarry for the settlement 
+        2.) set the current_quarry for the settlement 
 
     -->
 
     <div
         class="ng_fade showdown_current_quarry showdown_controls_box_outline"
-        ng-if="settlement.sheet.showdown_type != undefined"
+        ng-if="settlement.sheet.showdown_type !== undefined"
     >
+        <!-- set the state -->
+        <span
+            ng-if="
+                settlement.sheet.current_quarry !== undefined &&
+                !ngVisible['addCurrentQuarryToTimeline']
+            "
+            ng-init="rollUp('showdownCurrentQuarrySelector')"
+        ></span>
+
         <h3
             class="clickable"
-            ng-click="toggleControlState('showdown_current_quarry_control_state');"
+            ng-click="rollUp('showdownCurrentQuarrySelector')"
         >
             Set Monster
-            <span class="showdown_arrow" ng-if="scratch.showdown_current_quarry_control_state == 'hidden'">
+            <span
+                class="roll_content_arrow"
+                ng-class="{'open': ngRolledUp['showdownCurrentQuarrySelector'] === false}"
+            >
                 &#x25BC;
-            </span>
-            <span class="showdown_arrow" ng-if="scratch.showdown_current_quarry_control_state == 'visible'">
-                &#x25B2;
             </span>
         </h3>
 
         <div
-            class="showdown_controls_button_box"
-            ng-class="scratch.showdown_current_quarry_control_state"
+            id="showdownCurrentQuarrySelector"
+            class="roll_down_container"
         >
             <select
                 id="set_departing_survivors_current_quarry"
-                class="showdown_controls_current_quarry_select"
+                class="kd_kickstarter_select"
+                ng-init="ngHide('addCurrentQuarryToTimeline')"
                 ng-model="settlement.sheet.current_quarry"
                 ng-change="
                     saveCurrentQuarry();
-                    showHide('addCurrentQuarryToTimeline', 'show')
+                    ngShowHide('addCurrentQuarryToTimeline')
                 "
                 ng-options="d for d in settlement.game_assets.defeated_monsters"
             >
@@ -154,7 +179,8 @@
 
             <button
                 id="addCurrentQuarryToTimeline"
-                class="hidden"
+                ng-if="ngVisible['addCurrentQuarryToTimeline']"
+                class="kd_kickstarter_button"
                 ng-class="{
                     kd_red: settlement.sheet.showdown_type == 'special',
                     kd_blue: settlement.sheet.showdown_type == 'normal',
@@ -173,162 +199,137 @@
 
     <!--
 
-        2.) operate on departing survivors
+        4.) operate on departing survivors
 
     -->
  
 
     <div
-        class="ng_fade departing_survivors_controls_container showdown_controls_box_outline"
-        ng-if="settlement.sheet.current_quarry != undefined && settlement.sheet.showdown_type != undefined"
+        class="
+            ng_fade
+            departing_survivors_controls_container
+            showdown_controls_box_outline
+        "
+        ng-if="
+            settlement.sheet.current_quarry !== undefined &&
+            settlement.sheet.showdown_type !== undefined
+        "
     >
 
+        <!-- set the state; this one always starts out closed -->
+        <span
+            ng-init="rollUp('updateDepartingSurvivors')"
+        ></span>
+
         <h3
-            class="ng_fade clickable"
-            ng-click="toggleControlState('showdown_manage_departing_survivors_control_state');"
+            class="clickable"
+            ng-click="rollUp('updateDepartingSurvivors')"
         >
             Manage Departing Survivors
-            <span class="showdown_arrow" ng-if="scratch.showdown_manage_departing_survivors_control_state == 'hidden'">
+            <span
+                class="roll_content_arrow"
+                ng-class="{'open': ngRolledUp['updateDepartingSurvivors'] === false}"
+            >
                 &#x25BC;
-            </span>
-            <span class="showdown_arrow" ng-if="scratch.showdown_manage_departing_survivors_control_state == 'visible'">
-                &#x25B2;
             </span>
         </h3>
 
-        <p 
-            class="kd_sheet_ui_row_tip"
-            ng-if="user.user.preferences.show_ui_tips"
-            ng-class="scratch.showdown_manage_departing_survivors_control_state"
-        >
-            Use the controls below to modify all <b>living</b> survivors in
-            the <b>Departing Survivors</b> group.
-        </p>
-
         <div
-            class="ng_fade applying_update_spinner"
-            ng-if="hideControls==true"
-        >
-            <img src="/media/loading_lantern.gif" />
-            Applying update to departing survivors...
-        </div>
-
-        <div
-            class="ng_fade_in showdown_manage_departing_survivors_controls"
-            ng-class="scratch.showdown_manage_departing_survivors_control_state"
-            ng-if="hideControls==false"
+            id="updateDepartingSurvivors"
+            class="roll_down_container"
+            ng-init="scratch.hideDepartingSurvivorsControls = false"
         >
 
+            <p 
+                class="kd_sheet_ui_row_tip"
+                ng-if="user.user.preferences.show_ui_tips"
+            >
+                Use the controls below to modify all <b>living</b> survivors in
+                the <b>Departing Survivors</b> group.
+            </p>
 
-            <div class="departing_survivors_control" ng-if="settlement.sheet.showdown_type != undefined">
-                <div class="label_div">Survival</div>
-                <div class="button_div">
-                    <button
-                        ng-click="updateDepartingSurvivors('survival', +1)"
-                    > +1
-                    </button>
-                    <button
-                        ng-click="updateDepartingSurvivors('survival', -1)"
-                    > -1
-                    </button>
-                </div> <!-- button div -->
-            </div> <!-- departing_survivors_control Survival -->
+            <div
+                class="ng_fade applying_update_spinner"
+                ng-if="scratch.hideDepartingSurvivorsControls"
+            >
+                <img src="/media/loading_lantern.gif" />
+                Applying update to departing survivors...
+            </div>
 
-            <div class="departing_survivors_control">
-                <div class="label_div">Insanity</div>
-                <div class="button_div">
-                    <button
-                        ng-click="updateDepartingSurvivors('Insanity', +1)"
-                    > +1
-                    </button>
-                    <button
-                        ng-click="updateDepartingSurvivors('Insanity', -1)"
-                    > -1
-                    </button>
-                </div> <!-- button div -->
-            </div> <!-- departing_survivors_control Insanity -->
+            <div
+                class="showdown_manage_departing_survivors_controls"
+            >
 
-        <div class="departing_survivors_control">
-            <div class="label_div">Courage</div>
-            <div class="button_div" ng-if="hideControls==false">
-                <button
-                    ng-click="updateDepartingSurvivors('Courage', +1)"
-                > +1
-                </button>
-                <button
-                    ng-click="updateDepartingSurvivors('Courage', -1)"
-                > -1
-                </button>
-            </div> <!-- button div -->
-        </div> <!-- departing_survivors_control Insanity -->
+                <div
+                    class="departing_survivors_control"
+                    ng-repeat="attr in ['survival', 'Insanity', 'Courage', 'Understanding', 'hunt_xp']"
+                >
+                    <div class="label_div">{{toTitle(attr)}}</div>
+                    <div
+                        class="ng_fade button_div"
+                    >
+                        <button
+                            ng-click="updateDepartingSurvivors(attr, +1)"
+                        > +1
+                        </button>
+                        <button
+                            ng-click="updateDepartingSurvivors(attr, -1)"
+                        > -1
+                        </button>
+                    </div> <!-- button div -->
+                </div> <!-- departing_survivors_control Survival -->
 
-        <div class="departing_survivors_control">
-            <div class="label_div">Understanding</div>
-            <div class="button_div" ng-if="hideControls==false">
-                <button
-                    ng-click="updateDepartingSurvivors('Understanding', +1)"
-                > +1
-                </button>
-                <button
-                    ng-click="updateDepartingSurvivors('Understanding', -1)"
-                > -1
-                </button>
-            </div> <!-- button div -->
-        </div> <!-- departing_survivors_control Understanding -->
+                <div class="departing_survivors_control">
+                    <div class="label_div">Brain Event Damage</div>
+                    <div class="ng_fade button_div">
+                        <button
+                            ng-click="updateDepartingSurvivors('brain_event_damage', 1)"
+                            class="maroon_text"
+                        > 1
+                        </button>
+                    </div> <!-- button div -->
+                </div> <!-- departing_survivors_control brain event damage -->
 
-        <div class="departing_survivors_control">
-            <div class="label_div">Hunt XP</div>
-            <div class="button_div" ng-if="hideControls==false">
-                <button
-                    ng-click="updateDepartingSurvivors('hunt_xp', +1)"
-                > +1
-                </button>
-                <button
-                    ng-click="updateDepartingSurvivors('hunt_xp', -1)"
-                > -1
-                </button>
-            </div> <!-- button div -->
-        </div> <!-- departing_survivors_control Understanding -->
+            </div> <!-- manage departing survivors controls -->
 
-            <div class="departing_survivors_control">
-                <div class="label_div">Brain Event Damage</div>
-                <div class="button_div" ng-if="hideControls==false">
-                    <button
-                        ng-click="updateDepartingSurvivors('brain_event_damage', 1)"
-                        class="maroon_text"
-                    > 1
-                    </button>
-                </div> <!-- button div -->
-            </div> <!-- departing_survivors_control brain event damage -->
-
-        </div> <!-- manage departing survivors controls -->
+        </div><!-- roll down container -->
 
     </div> <!-- manage departing survivors control outline box thinger -->
 
+    <!--
+
+        5.) Return Departing Survivors
+
+    -->
+
     <div
-        ng-if="settlement.sheet.showdown_type != undefined && settlement.sheet.current_quarry != undefined"
+        ng-if="
+            settlement.sheet.showdown_type != undefined &&
+            settlement.sheet.current_quarry != undefined
+        "
         class="ng_fade showdown_controls_box_outline"
+        ng-init="rollUp('returnHealDepartingSurvivors')"
     >
 
         <h3
             class="clickable"
-            ng-click="toggleControlState('showdown_return_departing_survivors_control_state');"
+            ng-click="rollUp('returnHealDepartingSurvivors')"
         >
             <span ng-if="settlement.sheet.showdown_type != 'special'">Return</span>
             <span ng-if="settlement.sheet.showdown_type == 'special'">Heal</span>
             Departing Survivors
-
-            <span class="showdown_arrow" ng-if="scratch.showdown_return_departing_survivors_control_state == 'hidden'">
+            <span
+                class="roll_content_arrow"
+                ng-class="{'open': ngRolledUp['returnHealDepartingSurvivors'] === false}"
+            >
                 &#x25BC;
             </span>
-            <span class="showdown_arrow" ng-if="scratch.showdown_return_departing_survivors_control_state == 'visible'">
-                &#x25B2;
-            </span>
+
         </h3>
 
         <div
-            class="showdown_return_departing_survivors_controls"
-            ng-class="scratch.showdown_return_departing_survivors_control_state"
+            id="returnHealDepartingSurvivors"
+            class="roll_down_container"
         >
 
             <!-- help text for normal showdowns -->
@@ -396,14 +397,14 @@
             </div>
 
             <button
-                class="kd_blue departing_survivors_mgmt"
+                class="kd_kickstarter_button kd_blue"
                 ng-click="returnDepartingSurvivors('victory')"
                 onclick="showHide('departingSurvivorsModalContent')"
             >
                 Victorious!
             </button>
             <button
-                class="kd_alert_no_exclaim departing_survivors_mgmt"
+                class="kd_kickstarter_button kd_pink"
                 ng-click="returnDepartingSurvivors('defeat')"
                 onclick="showHide('departingSurvivorsModalContent')"
             >
@@ -413,17 +414,13 @@
 
         </div> <!-- return control options -->
 
-    </div> <!-- end of the return controls whole thing -->
-
+    </div> <!-- end of the return controls -->
 
     <button
-        class="departing_survivors_mgmt close_button"
-        onclick="showHide('departingSurvivorsModalContent')"
+        class="floating_close_modal_button kd_kickstarter_button"
+        ng-click="ngHide('departingSurvivorsModalContent')"
     >
-        <b>Back</b>
+        Close
     </button>
 
 </div> <!-- modalDepartingSurvivors whole deal-->
-
-
-

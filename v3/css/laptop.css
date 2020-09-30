@@ -1,0 +1,23 @@
+/* this is a weird breakpoint. Should we even support this? 2019-12-28 */
+
+@media screen
+  and (min-device-width: 1200px)
+  and (max-device-width: 1600px)
+  and (-webkit-min-device-pixel-ratio: 1) {
+
+    /* modals - laptop */
+    .modal-black button {
+        min-height: 35px;
+    }
+
+    /* campaign summary - survivor controls - laptop */
+    .modal_manager {
+        width: 460px;
+    }
+    .campaign_summary_survivor_modal_color_scheme_select {
+        height: 45px;
+        margin-bottom: 0;
+        width: 460px;
+    }
+}
+

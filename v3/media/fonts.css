@@ -1,3 +1,5 @@
+@import url(//fonts.googleapis.com/css?family=Ruda);
+
 @font-face {
     font-family: 'kdm-font-2';
     src: url('/media/fonts/kdm-font-2.eot?#iefix') format('embedded-opentype'),
@@ -26,6 +28,7 @@
 
 @font-face {
     font-family: 'Silverado';
+    font-size: larger;
     src: url('/media/fonts/329BC2_0_0.eot?#iefix') format('embedded-opentype'),
         url('/media/fonts/329BC2_0_0.woff') format('woff'),
         url('/media/fonts/329BC2_0_0.woff2') format('woff2'),
@@ -35,12 +38,6 @@
 /* other font declaration/alias stuff - all breakpoints */
 .helvetica {font-family: Helvetica, sans-serif; height: 100%; }
 
-
-
-/*  DO NOT MODIFY ANYTHING OTHER THAN THE FONT-FAMILY ATTRIBUTE HERE */
-.kd_alert,
-    .kd_alert_no_exclaim,
-    .kd_pink {font-family: 'Metrophobic'; }
 
 
 /* KD icon emulation */

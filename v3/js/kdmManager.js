@@ -19,39 +19,23 @@ function showCornerLoader()     {$('#cornerLoader').show();};
 function hideCornerLoader()     {$('#cornerLoader').fadeOut(1000);};
 
 
-function showAPIerrorModal(msg, request) {
-    e = document.getElementById('apiErrorModal');
-    e.classList.remove('hidden');
-    r = document.getElementById('apiErrorModalMsgRequest');
-    r.innerHTML = request;
-    m = document.getElementById('apiErrorModalMsg');
-    if (msg === null) {
-        m.innerHTML = 'API response is NULL. Possible preflight/CORS error!'
-    } else {
-        m.innerHTML = msg;
-    };
-};
-function hideAPIerrorModal() {
-    e = document.getElementById('apiErrorModal');
-    e.classList.add('hidden');
-};
+
 
 // public helpers
 function rollUp(e_id) {
-//    console.warn(e_id);
-    var e = document.getElementById(e_id);
-    if (e.classList.contains('rolled_up') == true) {
-        e.classList.remove('rolled_up');
-    } else {
-        e.classList.add('rolled_up');
-    };
+    console.error('rollUp() is no longer public JS!');
+    console.error('Use the $rootScope.rollUp() instead!');
 };
 
 function showHide(e_id, force) {
+    console.error('The public showHide() method is deprecated and removed in version 4!');
     var e = document.getElementById(e_id);
     var hide_class = "hidden";
     var visible_class = "visible";
-    if (e === null) {console.error("showHide('" + e_id + "') -> No element with ID value '" + e_id + "' found on the page!"); return false}
+    if (e === null) {
+        console.error("showHide('" + e_id + "') -> No element with ID value '" + e_id + "' found on the page!");
+        return false
+    }
     if (e.classList.contains(hide_class)) {
         e.classList.remove(hide_class);
         e.classList.add(visible_class);
@@ -72,19 +56,6 @@ function showHide(e_id, force) {
     };
  }
 
-// burger sidenav
-function openNav() {
-    var nav = document.getElementById("mySidenav")
-    nav.style.width = '75%';
-}
-function closeNav() {
-    var nav = document.getElementById("mySidenav");
-    if (nav === null){
-    } else {
-        nav.style.width = "0"
-    };
-}
-
 function sleep (time) {return new Promise((resolve) => setTimeout(resolve, time));}
 
 function convertMS(millis) {
@@ -103,8 +74,6 @@ angular.module('getTypeFilter', []).filter('getType', function() {
     return typeof obj
   };
 });
-
-
 
 var app = angular.module('kdmManager', ['ngAnimate','getTypeFilter']);
 
@@ -168,7 +137,35 @@ app.filter('filterObjectBy', function() {
 });
 
 
-app.controller('rootController', function($scope, $rootScope, $http, $log) {
+app.controller('rootController', function($scope, $rootScope, $http, $log, $timeout) {
+    // root controller keyboard capture! 
+	document.onkeydown= function(key){ reactKey(key); }
+	function reactKey(evt) {
+		// 37 == left ; 39 == right
+		//console.warn('keypress: ' + evt.keyCode);
+		if(evt.keyCode === 37) {
+  	    	$rootScope.changeTab('previous');
+	    } else if (evt.keyCode === 39) {
+			$rootScope.changeTab('next');
+		};
+	}
+
+    // debugger
+    document.addEventListener ("keydown", function (zEvent) {
+        if (zEvent.ctrlKey  &&  zEvent.altKey  &&  zEvent.key === "d") {  // case sensitive
+            var e = document.getElementById('ngDebugWindow')
+            if ($rootScope.NGDEBUG === true) {
+                e.classList.add('hidden')
+                console.warn('Debug mode disabled!')
+                $rootScope.NGDEBUG = undefined;
+            } else {
+                e.classList.remove('hidden')
+                console.warn('Debug mode enabled!')
+                $rootScope.NGDEBUG = true;
+            };
+        };
+    } );
+
     $scope.$log = $log;
     $scope.scratch = {}
     $scope.scratch.settlementsRetrieved = 0;
@@ -181,11 +178,255 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
 
     // initialize rootScope elements here; these are set on every view
     $rootScope.objectKeys = Object.keys;
-    $rootScope.rollUp = rollUp;
+
+    // ngFlash ; show an element for an amount of ms
+    $rootScope.ngFlash = function(elementId, duration) {
+        if (duration === undefined) {
+            duration = 3000;
+        }
+
+        $scope.ngShow(elementId)
+        $timeout(function() {$scope.ngHide(elementId)}, duration);
+        
+    };
+
+    // rollUp controls; now TOTALLY angular (no doc-scope JS)
+    $rootScope.ngRolledUp = {};
+    $rootScope.getRollDownContainer = function(e_id) {
+        var e = document.getElementById(e_id);
+        if (e === null) {
+            console.error("roll-up element '" + e_id + "' does not exist!");
+            return;
+        };
+        return e
+    };
+    $rootScope.rollUp = function(e_id) {
+        var e = $rootScope.getRollDownContainer(e_id);
+
+        if (e.classList.contains('rolled_up') == true) {
+            e.classList.remove('rolled_up');
+            $rootScope.ngRolledUp[e_id] = false;
+        } else {
+            e.classList.add('rolled_up');
+            $rootScope.ngRolledUp[e_id] = true;
+        };
+    };
+    $rootScope.rollDown = function(e_id) {
+        // forces an element into the down position
+        var e = $rootScope.getRollDownContainer(e_id);
+        e.classList.remove('rolled_up');
+        $rootScope.ngRolledUp[e_id] = false;
+    }
+
+    // tab helpers
+    $rootScope.tabsObject = {   // set object defaults
+        previousTab: 0,
+        activeTab: 0,
+		minTab: 0,
+    };
+
+	$rootScope.getPrevNextTab = function() {
+        var output = {}
+		for (var i = 0; i < $scope.tabsObject.tabs.length; i++) {
+		    var tab = $scope.tabsObject.tabs[i];
+		    if ($scope.tabsObject.activeTab === tab.id) {
+                output.previous = $scope.tabsObject.tabs[i - 1]
+				output.current = tab;
+                output.next = $scope.tabsObject.tabs[i + 1]
+			}
+		};
+		return output
+	};
+    $rootScope.changeTab = function(destination) {
+        // figures out if we're going up (right) or down (left) in tab order
+        // and briefly displays an element with an arrow, indicating that
+        // we're moving in that direction
+
+        // set defaults
+        if ($scope.tabsObject.previousTab === undefined) {
+            console.error(
+                '$scope.tabsObject.previousTab is not set! Defaulting to zero...'
+            );
+            $scope.tabsObject.previousTab = 0;
+        }
+
+        var p = $rootScope.getPrevNextTab()
+
+//        console.warn("raw destination ='" + destination + "'");
+        if (destination === 'previous') {
+            if (p.previous === undefined) {
+                destination = $scope.tabsObject.activeTab
+            } else {
+                destination = p.previous.id;
+            };
+		} else if (destination === 'next') {
+            if (p.next === undefined) {
+                destination = $scope.tabsObject.activeTab
+            } else {
+                destination = p.next.id;
+            };
+		} else if (destination === undefined) {
+            destination = 666;
+        }
+
+		// sanity check destination
+		if (destination < $scope.tabsObject.minTab) {
+			destination = $scope.tabsObject.minTab
+		};
+
+//		console.warn('Changing active tab to tab #' + destination);
+		$scope.tabsObject.activeTab = destination;
+
+        // now determine direction
+        var direction = 'right';
+        if (destination < $scope.tabsObject.previousTab) {
+            direction = 'left';
+        } else if (destination === $scope.tabsObject.previousTab) {
+            direction = null;
+        };
+
+        if (direction === 'right') {
+            $scope.ngFlash('tabNavArrowRight', 300);
+        } else if (direction === 'left') {
+            $scope.ngFlash('tabNavArrowLeft', 300);
+        } else {
+            $scope.ngFlash('tabNavArrowNull', 300);
+        };
+
+        // now, leave a var in scope so we know
+        $scope.tabsObject.previousTab = destination;
+    };
+
+    // backwards compatibility helpers...DEPRECATED THO
+    $rootScope.savedAlert = savedAlert;
     $rootScope.showHide = showHide;
+    $rootScope.showFullPageLoader = showFullPageLoader;
+
+    $rootScope.ngToggleAttrib = function(obj, attr) {
+        // toggles a generic attrib on an object, 'obj'
+        if (obj[attr] === true) {
+            obj[attr] = false;
+        } else {
+            obj[attr] = true;
+        };
+    };
+
+    // ngVisible, ngShow, ngHide, ngShowHide
+    $rootScope.ngVisible = {}
+
+    $rootScope.ngShow = function(elementId) {
+        $rootScope.ngVisible[elementId] = true;
+
+        // for legacy compatibility: wait until the $digest finishes, then
+        // get the element (it won't be present until the $digest is updated
+        // after the ngVisible change above); 
+        $timeout(
+            function() {
+                e = document.getElementById(elementId)
+                if (e === null) {
+                    console.warn("ngShow() Cannot find element '" + elementId + "'");
+                } else {
+                    e.classList.remove('hidden');
+                };
+           }
+        );
+    };
+
+    $rootScope.ngHide = function(elementId) {
+        $rootScope.ngVisible[elementId] = false;
+    }
+
+    $rootScope.ngShowHide = function(elementId) {
+        // supersedes showHide(), which is deprecated
+        // toggles an element in and out of $rootScope.ngVisible, which is
+        //  an arry of UI elements that are true or false
+
+        if ($rootScope.ngVisible[elementId] === true) {
+            $rootScope.ngHide(elementId);
+        } else {
+            $rootScope.ngShow(elementId);
+        };
+
+    };
+
+    $rootScope.dumpJSONtoTab = function(json_to_dump) {
+        var output = JSON.stringify(json_to_dump, null, 2);
+        var x = window.open();
+        x.document.open();
+        x.document.write('<html><body><pre>' + output + '</pre></body></html>');
+        x.document.close();
+    };
+
+	$rootScope.showAPIerrorModal = function(msg, request) {
+		$rootScope.ngShow('apiErrorModal');
+
+		if ($rootScope.ngVisible['apiErrorModal']) {
+		    r = document.getElementById('apiErrorModalMsgRequest');
+		    $rootScope.apiErrorModalMsgRequest = request;
+		    if (msg === null) {
+		        msg = 'API response is NULL. Possible preflight/CORS error!'
+		    };
+		    $rootScope.apiErrorModalMsg = msg;
+		};
+	};
+
+    $scope.ngSetFocus = function(e, clear) {
+        // sets focus on a specific element
+        var element = document.getElementById(e);
+        console.info("Setting focus to '" + e + "'");
+        if (element === null) {
+            console.error('Element is null! Cannot set focus...');
+        } else {
+            element.focus();
+        };
+
+        var element_type = element.nodeName.toLowerCase();
+        if (element_type === 'div' && clear === true) {
+            console.warn("Clearing '" + e + " 'div...")
+            element.innerHTML = '';
+        } else if (element_type !== 'div' && clear === true) {
+            console.error("Unable to clear '" + element_type + "' type element...");
+        };
+    };
+
     $scope.numberToRange = function(num) {
         return new Array(num); 
     };
+
+
+    $rootScope.toTitle = function(str) {
+		str = str.replace(/_/g, ' ');
+		str = str.replace(/ and /g, ' & ');
+		str = str.toLowerCase().split(' ');
+
+        // turn it into a list to iterate it
+		for (var i = 0; i < str.length; i++) {
+			str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1);
+		}
+
+        // turn it back into a string now
+		var norm_str = str.join(' ');
+
+        // post processing/vanity stuff
+        norm_str = norm_str.replace(/Xp/g, 'XP');
+        return norm_str;
+    };
+
+
+    //
+    //  init session vars
+    //
+    $rootScope.setSessionVars = function(user_login, current_session) {
+        // call this at the top of all 'root' templates
+        $rootScope.user_login = user_login;
+        $rootScope.current_session = current_session;
+        console.info('Session vars set!')
+    };
+
+
+    //
+    //  overlay navigation controls
+    //
 
     $rootScope.openNav = function(e) {
         var element = document.getElementById(e);
@@ -195,6 +436,32 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         var element = document.getElementById(e);
         element.classList.remove('openNav');
     };
+
+    $rootScope.openLeftSideNav = function() {
+        // opens the main, left-side navigation pane
+        $scope.scratch.left_side_nav_open = true;
+        var left_element = document.getElementById('leftSideNav');
+        var right_element = document.getElementById('leftSideNavUnderlay');
+        var elements = [left_element, right_element]
+        for (index = 0; index < elements.length; index++) { 
+            elements[index].classList.add('open');
+        } 
+    };
+    $rootScope.closeLeftSideNav = function() {
+        // opens the main, left-side navigation pane
+        $scope.scratch.left_side_nav_open = false;
+        var left_element = document.getElementById('leftSideNav');
+        var right_element = document.getElementById('leftSideNavUnderlay');
+        var elements = [left_element, right_element]
+        for (index = 0; index < elements.length; index++) { 
+            elements[index].classList.remove('open');
+        } 
+    };
+
+
+    //
+    // form emulation!
+    //
 
     // post a form to the legacy webapp (useful for buttons that you
     // want to behave like a form
@@ -215,6 +482,31 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         form.submit();
     };
 
+    // signs the user out of the legacy webapp; call this anywhere instead of
+    // making an actual HTML form in the templates, which is super lame
+    $scope.signOut = function() {
+
+        console.warn('Signing out...');
+
+        var form = document.createElement("form");
+        form.method = "POST";
+        form.action = "/";
+
+        var a_input = document.createElement("input");
+        a_input.name = 'remove_session';
+        a_input.value =  $scope.current_session;
+        a_input.classList.add('hidden');
+        form.appendChild(a_input);
+
+        var b_input = document.createElement("input");
+        b_input.name = 'login';
+        b_input.value =  $scope.user_login;
+        b_input.classList.add('hidden');
+        form.appendChild(a_input);
+
+        document.body.appendChild(form);
+        form.submit();
+    };
 
 
     $scope.legacySignOut = function(session_oid) {;
@@ -295,7 +587,8 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         var s_index = dest.indexOf(s_json);
 
         // now spint off a job to get the rest of the settlement info and update
-        $http.get($scope.api_url + 'settlement/get_summary/' + s_id, config).then(
+        var settlement_url = $scope.api_url + 'settlement/get_summary/' + s_id; 
+        $http.get(settlement_url, config).then(
             function(payload) {
 //                dest.push(payload.data);
                 dest[s_index] = payload.data;
@@ -305,6 +598,8 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
             function(errorPayload) {
                 console.error("[rootController.getSettlement()] Could not get settlement " + s_id);
                 console.error(errorPayload);
+                var err_msg = 'Could not load settlement ' + s_id + '!<hr/>' + errorPayload.data + '<hr/>Please report this error!';
+                $scope.showAPIerrorModal(err_msg, settlement_url);
             }
         );
     };
@@ -354,8 +649,8 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
                 };
 
                 if ($scope.user.dashboard.settlements.length === 0) {
-                    showHide('campaign_div');   // this will hide it, because it's visible on-load
-                    showHide('all_settlements_div');
+                    $scope.rollUp('campaignsDiv');   // this will hide it, because it's visible on-load
+                    $scope.rollUp('settlementsDiv');
                 } else {
                     // pass
                 };
@@ -379,8 +674,12 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         function(errorPayload) {
             console.error("[USER] Could not retrieve user information!");
             console.error("[USER] " + errorPayload.status + " -> " + errorPayload.data);
-        }
+            var err_msg = "User info could not be retrieved!";
+            $scope.showAPIerrorModal(err_msg);
+
+		}
     );
+
 
     // now do stuff that we need the settlement to do
     if ($scope.settlementPromise !== undefined) {
@@ -394,11 +693,27 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
                     $scope.user_is_settlement_admin = true;
                     console.warn($scope.user_login + ' is a settlement admin!');
                 };
+                console.info('Subscriber level: ' + $scope.user.user.subscriber.level);
             });
         });
     };
 
 };
+
+    // once $scope.user is set, use this to load friends, if not loaded already
+    $scope.loadUserFriends = function(){
+        console.time('loadUserFriends()');
+        $scope.getJSONfromAPI('user', 'get_friends', 'survivor_sheet').then(
+            function(payload) {
+                $scope.user.friends = payload.data;
+                console.timeEnd('loadUserFriends()');
+            },
+            function(errorPayload) {
+                console.error("Could not retrieve friends list!");
+                console.error(errorPayload);
+            }
+       );
+    };
 
     $scope.initializeSettlement = function(src_view, api_url, settlement_id) {
 
@@ -416,6 +731,14 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         };
         if ($scope.view === undefined && src_view !== undefined) {
             $scope.view = src_view;
+        };
+
+        // if we still have no settlement ID in scope, die
+        if ($scope.settlement_id === undefined) {
+            console.error('$scope.api_url = ' + $scope.api_url);
+            console.error('$scope.settlement_id = ' + $scope.settlement_id);
+            console.error('$scope.survivor_id = ' + $scope.survivor_id);
+            throw 'No settlement ID in scope! Cannot initialize settlement...';
         };
 
         // initialize misc. scope elements
@@ -449,10 +772,14 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
                     console.timeEnd('initializeSettlement()');
 
                 },
-                function(errorPayload) {console.log($scope.log_level + "Error loading settlement!" + errorPayload);}
+                function(errorPayload) {
+                    console.error($scope.log_level + "Error loading settlement!" + errorPayload);
+                    var err_msg = "An unrecoverable API error prevented this campaign from being retrieved!";
+                    $scope.showAPIerrorModal(err_msg, $scope.settlementPromise.$$state.value.config.url);
+
+                    // now sign them out
+                }
             );
-
-
 
         };
 
@@ -670,8 +997,6 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
             $scope.setGameAssetOptions('epithets', "epithetOptions");
 
             //  custom COD junk
-            $scope.settlement.game_assets.causes_of_death.push({'name': ' --- ', 'disabled': true});
-            $scope.settlement.game_assets.causes_of_death.push({'name': '* Custom Cause of Death', 'handle': 'custom'});
             var cod_list = [];
             for (var i = 0; i < $scope.settlement.game_assets.causes_of_death.length; i++) {
                 cod_list.push($scope.settlement.game_assets.causes_of_death[i]["name"]);
@@ -733,11 +1058,12 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
     };
 
     $scope.postJSONtoAPI = function(collection, action, json_obj, reinit, show_alert, update_sheet) {
+        // reinit defaults to true;
+        // show_alert defaults to true;
+        // update_sheet defaults to false;
         console.time('postJSONtoAPI(' + collection + ', ' + action + ')');
         if (reinit === undefined) {reinit = true};
         if (show_alert === undefined) {show_alert = true};
-//        console.error("show_alert: " + show_alert);
-//        console.error("update_sheet: " + update_sheet);
 
         // always serialize on response, regardless of asset type
         json_obj.serialize_on_response = true;
@@ -790,7 +1116,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
             errorAlert();
             console.error("postJSONtoAPI('" + endpoint + "') call has FAILED!!!");
             console.error(data);
-            showAPIerrorModal(data, config.url);
+            $scope.showAPIerrorModal(data, config.url);
             hideCornerLoader();
         });
 
@@ -829,13 +1155,6 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
     };
 
 
-    // shows the custom COD block on the Controls of Death
-    $scope.showCustomCOD = function() {
-        var hidden_elem_id = "addCustomCOD";
-        var hidden_elem = document.getElementById(hidden_elem_id);
-        hidden_elem.style.display = "block";
-    };
-
     // helpers and laziness - junk drawer functions
     $scope.isObject = function(a) {return typeof a === 'object';};
 
@@ -873,6 +1192,21 @@ app.controller('rootController', function($scope, $rootScope, $http, $log) {
         return false; 
     };
 
+
+    // this is used by survivor sheet and campaign summary views!
+    $scope.setSurvivorPrimaryAttributes = function(s, attrib){
+		// pass in a survivor object and the name of a primary attribute (Movement, etc.)
+		// to update it. Should work from anywhere
+        $rootScope.survivor_id = s.sheet._id.$oid;
+        json_obj = {
+            attributes: [{attribute: attrib, value: s.sheet[attrib]}],
+            attribute_details: [
+                {attribute: attrib, detail: 'tokens', value: s.sheet.attribute_detail[attrib].tokens },
+                {attribute: attrib, detail: 'gear', value: s.sheet.attribute_detail[attrib].gear },
+            ],
+        };
+        var res = $scope.postJSONtoAPI('survivor', 'set_many_attributes', json_obj, false);
+    };
 
 });
 
@@ -941,13 +1275,6 @@ app.controller('newSurvivorController', function($scope, $http) {
             $scope.scratch.primaryDonor = 'father';
         }; 
     };
-    $scope.togglePublic = function() {
-        if ($scope.scratch.newSurvivorPublic === true){
-            $scope.scratch.newSurvivorPublic = false;
-        } else {
-            $scope.scratch.newSurvivorPublic = true;
-        }; 
-    };
 
     $scope.setAvatar = function(e) {
         // uses the custom-on-change directive to convert the file to a str for
@@ -973,7 +1300,7 @@ app.controller('newSurvivorController', function($scope, $http) {
 
         // 1.) start the clock, show the loader
         console.time('createNewSurvivor()');
-        $scope.showHide('newSurvivorCreationLoader')
+        $scope.ngShow('newSurvivorCreationLoader')
 
         // 2.) create the POST body
         var json_post = {
@@ -1009,14 +1336,11 @@ app.controller('newSurvivorController', function($scope, $http) {
    
                 // clear the fields, i.e. so we don't repeat stuff
                 $scope.scratch.newSurvivorAvatar = undefined;
-
-                var newName = document.getElementById('newSurvivorName');
-                newName.innerHTML = "";
-                $scope.setNewSurvivorName();
+                $scope.scratch.newSurvivorName = undefined;
 
                 // wrap up, close up 
                 console.timeEnd('createNewSurvivor()');
-                $scope.showHide('newSurvivorCreationLoader');
+                $scope.ngHide('newSurvivorCreationLoader');
 
                 // re-init the view
                 $scope.reinitialize('createNewSurvivor()');
@@ -1024,18 +1348,18 @@ app.controller('newSurvivorController', function($scope, $http) {
             },
             function(errorPayload) {
                 console.timeEnd('createNewSurvivor()');
-                $scope.showHide('newSurvivorCreationLoader');
+                $scope.ngHide('newSurvivorCreationLoader');
 
                 errorAlert();
 
-                showHide('newSurvivorCreationFailure');
+                $scope.ngShowHide('newSurvivorCreationFailure');
                 var userSafeError = "status: " + errorPayload.status + "<br/>data: " + errorPayload.data + "<br/>JSON: " + JSON.stringify(errorPayload.config.data);
                 document.getElementById("newSurvivorCreationFailureMessage").innerHTML = userSafeError;
 
                 console.error("Failed to create new Survivor!");
                 console.error(errorPayload);
 
-                showHide('newSurvivorCreationControls')
+                $scope.ngShowHide('newSurvivorCreationControls')
             }
         );
     };

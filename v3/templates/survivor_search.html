@@ -3,104 +3,138 @@
 <!-- this is the input that works like a button to show the modal -->
 <input
     id="survivorSearchModalOpener"
-    class="survivor_search"
     placeholder="Search Living Survivors"
+    ng-controller = "survivorSearchController"
     ng-if="settlement != undefined"
     ng-model="scratch.searchText"
-    ng-click="showHide('survivorSearchModalContent')"
+    ng-click="
+        ngShow('survivorSearchModalContent');
+    "
+    class="clickable"
 />
+
 
 <!-- Search UI modal -->
 <div
     id="survivorSearchModalContent"
-    class="survivor_search_modal_container modal hidden"
-    ng-if="user_login != undefined && settlement != undefined"
-    onclick="showHide('survivorSearchModalContent')"
+    class="survivor_search_modal_container modal"
+    ng-if="
+        ngVisible['survivorSearchModalContent'] &&
+        user_login !== undefined &&
+        settlement !== undefined
+    "
+    ng-click="ngShowHide('survivorSearchModalContent')"
+    ng-controller = "survivorSearchController"
 >
+
     <div
         class="survivor_search_modal_content survivor_sheet_gradient"
-        ng-controller = "survivorSearchController"
     >
-        <div id="searchTextResults" class="survivor_search_results_buttons">
-            <form
-                method="POST" action="/"
-                ng-repeat="s in settlement.user_assets.survivors | filter:scratch.searchText "
-            >
-                <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
-                <button
-                    class="survivor_search_button kd_lantern"
-                    ng-class="{disabled : userCanManage(s.sheet) == false}"
-                    ng-if="s.sheet.dead == undefined && s.sheet.retired == undefined"
-                    onclick="showFullPageLoader()"
+        <div
+            ng-repeat="
+                s in settlement.user_assets.survivors | filter:scratch.searchText
+            "
+            ng-if="
+                s.sheet.dead === undefined &&
+                s.sheet.retired === undefined
+            "
+            ng-class="{disabled : userCanManage(s.sheet) === false}"
+            ng-click="
+                postForm('view_survivor', s.sheet._id.$oid);
+                showFullPageLoader();
+            "
+            class="survivor_search_button gear_card_gradient clickable"
+        >
+
+            <div class="survivor_search_button_inner">
+
+                <div class="survivor_search_survivor_name_container">
+                    <div class="survivor_search_survivor_name">
+                        {{s.sheet.name}}
+                    </div>
+                    <div class="survivor_search_survivor_sex">
+                        <div>M</div> <div class="kd_sheet_ui_box" ng-class="{checked: s.sheet.effective_sex == 'M'}"></div>
+                        <div>F</div> <div class="kd_sheet_ui_box" ng-class="{checked: s.sheet.effective_sex == 'F'}"></div>
+                    </div>
+                </div>
+
+                <div class="survivor_search_survivor_assets">
+                    <div><b>Hunt XP:</b> {{s.sheet.hunt_xp}}</div>
+                    <div><b>Courage:</b> {{s.sheet.Courage}}</div>
+                    <div><b>Understanding:</b> {{s.sheet.Understanding }}</div>
+                </div>
+                
+                <div class="survivor_search_survivor_assets">
+                    <div
+                        ng-repeat="attr in [
+                        {short: 'MOV', long: 'Movement'},
+                        {short: 'ACC', long: 'Accuracy'},
+                        {short: 'STR', long: 'Strength'},
+                        {short: 'EVA', long: 'Evasion'},
+                        {short: 'LUCK', long: 'Luck'},
+                        {short: 'SPD', long: 'Speed'},
+                    ]"
+                        class="survivor_search_attrib_container {{attr.long}}"
+                    >
+                        <span>{{s.sheet[attr.long]}}</span>
+                        <b>{{attr.short}}</b>
+                    </div>
+                </div>
+
+                <div
+                    ng-repeat="attr in ['tags', 'fighting_arts', 'disorders', 'abilities_and_impairments']"
+                    ng-if="s.sheet[attr].length >= 1"
+                    class="survivor_search_survivor_assets"
                 >
-                  <p class="survivor_name">{{s.sheet.name}} [{{s.sheet.effective_sex}}]</p>
-                  <div class="survivor_assets">
-                    <b>Hunt XP:</b> {{s.sheet.hunt_xp}}
-                    <b>Courage:</b> {{s.sheet.Courage}}
-                    <b>Understanding:</b> {{s.sheet.Understanding }}
-                  </div>
-                  <div class="survivor_assets">
-                    <b>MOV</b> {{s.sheet.Movement}} |
-                    <b>ACC</b> {{s.sheet.Accuracy}} |
-                    <b>STR</b> {{s.sheet.Strength}} |
-                    <b>EVA</b> {{s.sheet.Evasion}} |
-                    <b>LUCK</b> {{s.sheet.Luck}} |
-                    <b>SPD</b> {{s.sheet.Speed}}
-                  </div>
-                  <div
-                      ng-if="s.sheet.epithets.length >= 1"
-                      class="survivor_assets"
-                  >
-                    <b>Tags:</b> <span ng-repeat="e in s.sheet.epithets">
-                        {{settlement.game_assets.epithets[e].name}}{{$last ? '' : ', '}}
-                    </span>
-                  </div>
-                  <div
-                      ng-if="s.sheet.fighting_arts.length >= 1"
-                      class="survivor_assets"
-                  >
-                    <b>Fighting Arts:</b> <span ng-repeat="e in s.sheet.fighting_arts">
-                        {{settlement.game_assets.fighting_arts[e].name}}{{$last ? '' : ', '}}
-                    </span>
-                  </div>
-                  <div
-                      ng-if="s.sheet.disorders.length >= 1"
-                      class="survivor_assets"
-                  >
-                    <b>Disorders:</b> <span ng-repeat="e in s.sheet.disorders">
-                        {{settlement.game_assets.disorders[e].name}}{{$last ? '' : ', '}}
-                    </span>
-                  </div>
-                  <div
-                      ng-if="s.sheet.abilities_and_impairments.length >= 1"
-                      class="survivor_assets"
-                  >
-                    <b>Abilities & Impairments:</b> <span ng-repeat="e in s.sheet.abilities_and_impairments track by $index">
-                        {{settlement.game_assets.abilities_and_impairments[e].name}}{{$last ? '' : ', '}}
-                    </span>
-                  </div>
+                    <div>
+                        <b>{{toTitle(attr)}}:</b> <span ng-repeat="a in s.sheet[attr]">
+                            {{settlement.game_assets[attr][a].name}}{{$last ? '' : ', '}}
+                        </span>
+                    </div>
+                </div>
 
-                  <div ng-if="s.notes.length >= 1" class="survivor_assets"><b>Notes:</b>
-                    <span ng-repeat="n in s.notes"> {{n.note}} </span>
-                  </div>
-                  <div ng-if="s.sheet.sotf_reroll" class="survivor_assets"><b>Once per lifetime SotF re-roll:</b> used.</div>
-                </button>
-            </form>
+                <div
+                    ng-if="s.notes.length >= 1"
+                    class="survivor_search_survivor_assets"
+                >
+                    <div>
+                        <b>Notes:</b>
+                        <span ng-repeat="n in s.notes">
+                            {{n.note}}
+                        </span>
+                    </div>
+                </div>
+
+                <div
+                    ng-if="s.sheet.sotf_reroll"
+                    class="survivor_search_survivor_assets"
+                >
+                    <div>
+                        <b>Once per lifetime SotF re-roll:</b> used.
+                    </div>
+                </div>
+
+            </div><!-- survivor_search_button_inner -->
+
+        </div><!-- survivor_search_button repeater -->
+
+        <div
+            class="survivor_search_results_warning"
+        >
+            Dead and retired survivors are not included in these results!
         </div>
-    <hr/>
-
-    <span
-        class="survivor_search_retired_survivors_warning"
-    >
-        Dead and retired survivors are not included in these results!
-    </span>
-
-    <button
-        class="kd_blue close_modal"
-    >
-    Close Search Window
-    </button>
 
     </div> <!-- survivor_search_modal_content -->
+
+    <button
+        class="kd_kickstarter_button floating_close_modal_button"
+        ng-if="ngVisible['survivorSearchModalContent']"
+        ng-click="
+            ngHide('survivorSearchModalContent'); 
+            scratch.searchText = null;
+        "
+    />
+        Close
+    </button>
 
 </div> <!-- survivorSearch -->

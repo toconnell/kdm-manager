@@ -171,6 +171,7 @@ app.controller("resetPasswordController", function($scope, $http) {
             'username': un,
             'password': $scope.newPassword,
             'recovery_code': r_code,
+            'app_url': 'https://kdm-manager.com', 
         }
         $http({
             method: 'POST',
@@ -203,13 +204,14 @@ app.controller("helpController", function($scope, $http) {
                 $scope.loading('off');
                 var r = response.data;
                 var success_p = document.getElementById('successMessage');
-                success_p.innerHTML = 'Am email containing further instructions has been sent to <b>' + $scope.resetPasswordEmail + '</b>.';
+                success_p.innerHTML = 'An email containing further instructions has been sent to <b>' + $scope.resetPasswordEmail + '</b>.';
                 $scope.showControls('help_success');
                 return
             }, function errorCallback(response) {
                 $scope.loading('off');
                 var r = response;
                 console.error(r);
+                console.error(r.status);
                 var error_div = document.getElementById('help_error_alert');
                 error_div.innerHTML = r.data;
                 $scope.showControls('help_error');

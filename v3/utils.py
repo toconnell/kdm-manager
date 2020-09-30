@@ -175,7 +175,10 @@ def get_logger(log_level="INFO", log_name=False):
         logger_fh = logging.FileHandler(log_path)
 
         #   set the formatter and add it via addHandler()
-        formatter =  logging.Formatter('[%(asctime)s] %(levelname)s:\t%(message)s',"%Y-%m-%d %H:%M:%S")
+        formatter =  logging.Formatter(
+            '[%(asctime)s] %(levelname)s:\t%(message)s',
+            "%Y-%m-%d %H:%M:%S"
+        )
         logger_fh.setFormatter(formatter)
         logger.addHandler(logger_fh)
 
@@ -263,17 +266,23 @@ def get_latest_change_log():
 
 def get_latest_update_string():
     """ Returns a summary string about the latest update. """
+    output_string = "Version %s released on %s, %s."
+
     posts = get_latest_posts()
     if "items" in posts.keys():
         try:
             for post in posts["items"]:
                 if "labels" in post.keys() and "Change Logs" in post["labels"]:
                     d = dateutil_parse(post["published"])
-                    return "Version %s released on %s, %s." % (settings.get("application","version"), d.strftime("%A"), d.strftime(ymd))
+                    return output_string % (
+                        settings.get("application","version"),
+                        d.strftime("%A"), d.strftime(ymd)
+                    )
         except Exception as e:
             return e
-    else:
-        return None
+
+    return "Version %s" % settings.get('application', 'version')
+
 
 #
 #   instrumentation
@@ -286,16 +295,24 @@ def record_response_time(view_name=None, tdelta=None):
     if not settings.getboolean("application","record_response_times"):
         return True
 
-    mdb.response_times.insert({"created_on": datetime.now(),"view":view_name,"time":tdelta.total_seconds()})
+    mdb.response_times.insert({
+        "created_on": datetime.now(),
+        "view":view_name,
+        "time":tdelta.total_seconds()
+    })
 
     old_record_query = {"created_on": {"$lt": seven_days_ago}}
     removed_records = mdb.response_times.remove(old_record_query)
     if removed_records["n"] >= 1:
-#        logger.info("Found and removed %s old response time records!" % removed_records["n"])
         pass
 
     if not on_production:
-        logger.debug("Rendered '%s' view HTML in %s seconds." % (view_name, tdelta.total_seconds()))
+        logger.debug(
+            "Rendered '%s' view HTML in %s seconds." % (
+                view_name,
+                tdelta.total_seconds()
+            )
+        )
 
 
 

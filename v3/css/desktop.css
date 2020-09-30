@@ -1,0 +1,689 @@
+/*                                                        */
+/*  DO NOT EDIT Z-INDEX VALUES OR COLORS IN THIS FILE!!!  */
+/*                                                        */
+
+@media only screen and (min-width: 1050px) and (orientation: landscape) {
+
+    html {font-size: 12pt;}
+    h2 {font-size: 17pt; }
+    h3 {font-size: 15pt; }
+    h4 {font-size: 14pt; font-weight: normal; }
+
+    /*  abstract fonts - new in version 4 */
+    .font_small     {font-size: 9pt;}
+    .font_medium    {font-size: 12pt;}
+    .font_large     {font-size: 15pt;}
+
+    /*  top nav - DEPRECATED */
+    #topNavBar {height: 6vh}
+
+    /*  major UI elements   */
+    #container {
+        width: 1100px; /*  max app width on desktop    */
+    }
+
+    /*  tabs - tablet   */
+    .view_tab {
+        flex-direction: row;
+        flex-wrap: wrap;
+        max-width: 1100px; 
+    }
+    .tab_nav_warning_arrow {
+        font-size: 10vh;
+        height: 10vh;
+        top: 75%;
+        width: 10vh;
+    }
+
+    /*  kd_sheet_ui styles - desktop */
+    .kd_sheet_ui_box {
+        border-width: 1px; 
+        height: 1rem;
+        width: 1rem;
+    }
+    .kd_sheet_ui_box.dotted:before {    /* the little dot */
+        margin-left: 0.2%;
+        margin-top: 0.2%;
+    }
+    .kd_sheet_ui_box.heavy {
+        border-width: 3px; 
+    }
+    .kd_sheet_ui_box.small {
+        height: 0.5rem; 
+        width: 0.5rem;
+    }
+    .kd_sheet_ui_box.small.dotted:before {
+        height: 0.2rem;
+        margin-left: 0.1%;
+        margin-top: 0.1%; 
+        width: 0.2rem;
+    }
+    .kd_sheet_ui_inner_ring_container {
+        margin: 0 auto;
+        margin-top: 3%;
+        width: 40%;
+    }
+    .kd_sheet_ui_inner_ring_container p {
+        margin: 1%; 
+    }
+    .kd_sheet_ui_row.title {
+        font-size: 15pt; 
+    }
+    .kd_sheet_ui_row.title .icon {
+        height: 15px;
+        width: auto;  
+    }
+
+    /*  kd_sheet_ui row styles */
+    .kd_sheet_ui_roll_down_controls .kd_sheet_ui_row.dynamic_tip {
+        margin-bottom: 0; 
+    }
+    .kd_sheet_ui_row.dynamic_tip.wrap .dynamic_tip_container {
+        margin: 1%;
+        min-width: 35%; 
+    }
+
+    /*  kd_kickstarter UI styles - desktop */
+    .kd_kickstarter_button {
+        margin-bottom: 5%;
+        margin-top: 5%;
+        padding: 1%;
+    }
+    .kd_kickstarter_select {
+        height: 3vh; 
+    }
+
+    /*  kd rulebook */
+    .kd_rulebook_alert_punctuation {
+        font-size: 40pt;
+    }
+
+    /*  loading and spinner stuff   */
+    .inline_spinner_container img {
+        width: 5vw; 
+    }
+
+    /*
+
+        modals, navs and UI - desktop
+
+    */
+    #leftSideNav.open {width: 35%;}
+    #leftSideNavUnderlay.open {width: 65%}
+    .left_side_underlay_footer_container {
+        padding-right: 5%;
+        text-align: right;
+    }
+
+    #leftSideNav button {margin: 0 auto; }
+
+
+    /* report an error */
+    .report_error_container p {
+        margin: 0 auto;
+        width: 90%;
+    }
+    .report_error {
+        margin: 0 auto;
+        min-height: 30vh;
+        width: 90%;
+    }
+    div.error_form {
+        margin: 0 auto;
+    }
+    div.error_form input[type=submit] {
+        margin-right: 5%;
+        width: auto;
+    }
+
+
+
+    /*
+            NGDEBUGGER! we only style this at desktop res
+    */
+
+    #ngDebugWindow {
+        background: #ddd;
+        border: 2px solid;
+        bottom: 1%;
+        height: 50%;
+        opacity: 80%;
+        overflow-y: scroll;
+        padding: 1%;
+        position: fixed;
+        right: 1%;
+        width: 25%; 
+    }
+    #ngDebugWindow table {
+        width: 100%; 
+    }
+    #ngDebugWindow ul {
+        margin-left: 0;
+    }
+    #ngDebugWindow li {
+        margin-top: 3%; 
+    }
+
+    /*
+
+        DASHBOARD - desktop
+
+    */
+    #dashboardControlElement {margin-left: 3%; }
+    #dashboardCreateNewSettlement {margin-bottom: 3%; }
+
+    .dashboard_rollup {
+        margin-top: 3%; 
+    }
+    .dashboard_rollup,
+        .dashboard_accordion {
+        margin-bottom: 3%;
+        margin-left: 1%;
+        width: 560px;
+    }
+    .dashboard_rollup.open {
+        margin-bottom: 5%;
+    }
+
+    .dashboard_preference_election_item {
+        margin-bottom: 1%;
+        padding: 1%
+    }
+
+
+    /*  gear_lookup.html - desktop */
+
+    .kd_sheet_ui_inner_ring_container.gear_lookup_container {
+        width: 98%; 
+    }
+    .gear_repeater_container {
+        display: flex;
+        flex-wrap: wrap; 
+    }
+    .gear_lookup_card_repeater {
+        width: auto; 
+    }
+    .gear_card_combat_stat_activation {
+        font-size: 12pt;
+        height: 95%;
+        margin-left: 0;
+    }
+    .gear_card_affinity_inner {
+        border: 1px solid; 
+    }
+    .gear_card_combat_stat_shield {
+        font-size: 20pt; 
+        height: 4vh;  
+        width: 2.5vw;
+    }
+
+    .gear_card_affinity_outer.right_affinity.affinity_paired_right,
+        .gear_card_affinity_outer.left_affinity.affinity_paired_left, 
+        .gear_card_affinity_outer.bottom_affinity.affinity_paired_bottom {
+        border-width: 20px; 
+    }
+    .gear_card_affinity_outer.right_affinity.affinity_paired_right {
+        margin-left: -5px; 
+    }
+    .gear_card_affinity_outer.left_affinity.affinity_paired_left {
+        margin-left: 5px; 
+    }
+    .gear_card_affinity_outer.bottom_affinity.affinity_paired_bottom {
+        margin-bottom: 5px; 
+    }
+
+    .gear_card_add_affinity_interior {
+        border-width: 1px; 
+    }
+
+    /*
+
+        NEW SETTLEMENT - desktop
+
+    */
+    #createNewSettlementButton {width: 40%; }
+    .kd_sheet_ui_outer_ring_container.new_settlement_form {
+        align-items: end;
+        flex-direction: column;
+        flex-wrap: wrap;
+        margin-left: 3%;
+        max-width: 1200px; 
+    }
+
+    .new_settlement_form .settlement_name {
+        font-size: 1.5em; 
+    }
+    .new_settlement_form h4 {
+        width: 100%; 
+    }
+    .kd_sheet_ui_inner_ring_container.new_settlement_form {
+        width: 98%
+    }
+    .new_settlement_asset_clicker_container {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 3%; 
+        margin-left: 3%;
+    }
+    .new_settlement_asset_clicker {
+        box-sizing: border-box;
+        margin: 1%; 
+        width: 45%;
+    }
+
+    /*
+
+        CAMPAIGN SUMMARY - desktop
+
+    */
+    #campaignSummaryContainer {
+        max-width: 1100px; 
+    }
+    
+    .settlement_name,
+        .campaign_type {
+        padding-left: 3%;
+        padding-top: 0;  
+    }
+    
+    .campaign_summary_panels_container {display: flex;}
+    .campaign_summary_left_panel,
+        .campaign_summary_right_panel {
+        width: 50%;
+    }
+    .campaign_summary_right_panel {
+        margin-top: 5%; 
+    }
+
+    .diamond {height: 4vw; width: 4vw; }
+    .headline_block_caption {font-size: 12pt; }
+    .campaign_summary_small_box.settlement_fact h4 {font-size: 17pt;}
+
+    /*  manage departing survivors | campaign summary | wide */
+    .manage_departing_survivors_blocker{
+        height: 3vh;
+    }
+    #manageDepartingSurvivors {
+        bottom: auto;
+        left: 588px;
+        position: absolute;
+        right: auto;
+        top: 2vh;
+        width: 475px;
+    }
+    .showdown_controls_box_outline {
+        border-width: 3px; 
+        max-width: 1000px;
+    }
+
+    .campaign_summary_survivors_container h2 {font-size: 3vw; }
+    .death_x {
+        font-size: 130px;
+        margin-left: 1vw;
+        margin-top: -2vh;
+    }
+
+    /*  survivor quickview - desktop    */
+    .kd_sheet_ui_inner_ring_container.survivor_quickview_container {
+        max-width: 1000px; 
+        width: 75%; 
+    }
+    .survivor_quickview_container .columns {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap; 
+    }
+    .survivor_quickview_container .left_column,
+        .survivor_quickview_container .right_column {
+        margin: 1% auto;
+        width: 50%; 
+    }
+    #survivorQuickviewLeftColumn {
+        border: none; 
+        width: 50%; 
+    }
+    .attribute_box .attribute_box_number {
+        font-size: 20pt;
+        margin: 1vh; 
+        min-height: 50px; 
+    }
+    .vertical_tumbler_container input {
+        height: 5vh; 
+        width: 5vh;
+    }
+    .hit_location_repeater {
+        margin: 0 auto; 
+        width: 95%; 
+    }
+    .hitbox_boxes_container {
+        width: 25%; 
+    }
+    .hitbox_container {
+        margin-bottom: 1%;
+        margin-top: 1%;
+    }
+    .hitbox_shield {
+        width: 45%;
+    }
+    .hitbox_shield.brain {
+        width: 40%;
+    }
+    .secondary_attrib_box_row.hunt_xp {width: 70%; }
+    .secondary_attrib_box_row .weapon_proficiency_type {
+        font-size: 10pt;
+        width: 100%; 
+    }
+    .secondary_attrib_box_row.courage,
+        .secondary_attrib_box_row.understanding {
+        font-size: 12pt; 
+    }
+    .weapon_proficiency_type {
+        font-size: 10pt; 
+    }
+    .weapon_proficiency_boxes {
+        width: 75%;        
+    }
+    .secondary_attribute_title_bar .title,
+        .quickview_asset_list_title_bar .title {
+        font-size: 14pt; 
+    }
+    .quickview_asset_list_title_bar .subtitle,
+        .secondary_attribute_title_bar .subtitle, 
+        .quickview_asset_list_title_bar .lockbox, 
+        .secondary_attribute_title_bar .lockbox {
+        font-size: 10pt; 
+    }
+    .quickview_asset_list {
+        padding-left: 1%; 
+    }
+    .quickview_ui_button_container {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-evenly;
+        margin: 3%;
+    }
+    .quickview_ui_button_container div {
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 50%;
+    }
+
+    /*  help.html   */
+
+    .kd_sheet_ui_inner_ring_container.help_container {
+        margin-bottom: 10%;  
+        width: 98%;
+    }
+
+    .help_container {
+        margin-bottom: 15%;
+    }
+    .help_col_container {
+        column-count: 3;
+        column-gap: 1%;
+        column-width: auto;
+        margin: 1%;
+    } 
+    .help_section_campaign_title {
+        margin-top: 0; 
+    }
+
+    /*  survivor_search.html - desktop */
+    #survivorSearchModalOpener {
+        max-height: 1.5vh;  
+        top: 0.5%;
+        width: 55%;
+    }
+    .survivor_search_modal_content {
+        flex-direction: row;
+        flex-wrap: wrap;
+        left: 16%;
+        margin-bottom: 15%; 
+        right: 16%;
+        top: 0;
+    }
+    .survivor_search_button {
+        margin: 1%; 
+        width: 48%;
+    }
+    .survivor_search_attrib_container {
+        text-indent: initial;
+    }
+
+
+    /*  settlement_sheet.html - desktop */
+
+    #settlementSheetLeftColumn,
+        #settlementSheetMiddleColumn {
+    width: 50%;
+    }
+    #settlementSheetRightColumn {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        width: 100%;
+
+    }
+
+
+    /*  settlement_sheet.html - left column - desktop */
+
+    .settlement_sheet_settlement_name {
+        font-size: 34pt;
+        margin-top: 0;  
+    }
+    .settlement_sheet_campaign_type {
+        font-size: 13pt;
+        margin-bottom: 5%;  
+    }
+    .settlement_sheet_tumbler_controls_container {
+        margin-bottom: -2vh;
+        margin-top: -2vh;
+    }
+    .settlement_sheet_tumbler {
+        width: 20%; 
+    }
+    .settlement_sheet_tumbler_number {
+        font-size: 24pt;
+        width: 50%; 
+    }
+    .settlement_sheet_tumbler_name {
+        font-size: 11pt; 
+    }
+    .settlement_sheet_tumbler_control_title {
+        font-size: 20pt; 
+        margin-top: auto; 
+    }
+    .settlement_sheet_tumbler_control_raft button {
+        font-size: inherit; 
+    }
+
+    div.settlement_sheet_block_group h2 {
+        font-size: 15pt;  
+    }
+    div.settlement_sheet_block_group p {
+        font-size: 10pt; 
+    }
+    .settlement_sheet_block_group .line_item {
+        margin-bottom: auto;
+    }
+    .settlement_sheet_line_item {
+        font-size: inherit; 
+    }
+    .location_lvl_select {
+        right: 3%; 
+    }
+    .settlement_sheet_milestone_content_container {
+        margin: 1%; 
+    }
+    .settlement_sheet_milestone_details {
+        margin-bottom: 0; 
+    }
+
+
+    /*  settlement_sheet.html - right col - desktop */
+
+    #settlementSheetRightColumn .kd_sheet_ui_border_box {
+        margin: 1%; 
+        width: 48%;
+    }
+
+    .settlement_sheet_kd_sheet_ui_box {
+        width: auto; 
+    }
+
+    /*  settlement_sheet.html storage tab - desktop */
+    .storage_type_title {
+        font-size: 15pt; 
+    }
+    .storage_location_keywords_rollup_item {
+        font-size: 11pt; 
+    }
+    .inventory_row_item_controls {
+        padding: 5px; 
+    }
+    .flippers {
+        justify-content: flex-end; 
+        padding: 1%;
+    }
+    .flippers button {
+        margin-left: 1%;
+        margin-right: 1%;
+        width: 5%; 
+    }
+    .inventory_row_detail {
+        margin-top: -5%; 
+    }
+
+    /*  settlement_sheet.html notes tab - desktop */
+    .survivor_sheet_tag.add_tag {
+        height: 5vw;
+        width: 5vw;
+    }
+
+    /*  settlement_sheet.html admin tab - desktop   */
+    #settlementSheetAdminTab {
+        flex-direction: row; 
+    }
+    #settlementSheetAdminTab .kd_sheet_ui_border_box {
+        margin: 1%; 
+        width: 48%; 
+    }
+
+
+    /*  survivor_sheet.html - desktop */
+
+    #survivorSheetLeftColumn,
+        #survivorSheetMiddleColumn {
+        padding: 1%; 
+        width: 50%;
+    }
+    #survivorSheetRightColumn {
+        width: 100%; 
+    }
+
+    .survivor_avatar_image {
+        height: 250px;
+        width: auto; 
+    }
+    .survival_box_title_and_lock {
+        padding: 0; 
+        width: 60%; 
+    }
+    .custom_cod_text {
+        padding: 1%; 
+    }
+    .kd_sheet_ui_ai_toggle_item {
+        margin-top: 0;
+        padding: 1%; 
+    }
+    .kd_sheet_ui_ai_toggle_item input[type="radio"] {
+        transform: unset;
+    }
+
+    .survivor_sheet_special_attribute_container {
+        margin: 1%;
+        padding: 1%; 
+    }
+    .survivor_sheet_secondary_attrib_container {
+        margin-bottom: 0; 
+    }
+    .survivor_sheet_card_container {
+        flex-direction: row;
+    }
+    .survivor_sheet_card {
+        padding-bottom: 1%;
+        padding-top: 2%; 
+        width: 32%;
+    }
+    .survivor_sheet_card_expansion_flair {
+        height: 1.5rem;
+        margin-top: -1.5rem;
+    }
+
+    .survivor_sheet_partner img {
+        max-width: 5%;
+    }
+
+    #survivorViewAdminTab {
+        display: flex;
+        flex-wrap: wrap; 
+    }
+
+    #survivorViewLogsTab {}
+    .lineage_event_repeater {
+        padding: 0.5%; 
+    }
+
+    #survivorViewAdminTab .survivor_sheet_kd_sheet_ui_box,
+        #survivorViewNotesTab .survivor_sheet_kd_sheet_ui_box
+        {
+        width: 48%; 
+    }
+    #survivorViewAdminTab .survivor_sheet_kd_sheet_ui_box.top_most {
+        margin-top: 0; 
+    }
+
+/*
+
+        Everything else - desktop
+
+/*
+
+    /*  event_log.html - desktop  */
+    .kd_sheet_ui_inner_ring_container.event_log {
+        width: 98%; 
+    }
+    .event_log_clicker {
+        margin-bottom: 1%;
+        margin-top: 0;
+    }
+    .event_log .kd_sheet_ui_row_tip {
+        margin: 1%; 
+    }
+
+
+    /* expansion_content_manager.html - desktop */
+    .kd_sheet_ui_inner_ring_container.expansion_content_manager {
+        width: 75%; 
+    }
+
+    .expansion_toggle_subtitle {
+        font-size: 10pt; 
+    }
+
+    /*  timeline.html   */
+    .kd_sheet_ui_inner_ring_container.timeline_container {
+        width: 98%; 
+    }
+    .timeline_col_container {
+        column-count: 2;
+        column-gap: 5px;
+        column-width: auto;
+    }
+
+}

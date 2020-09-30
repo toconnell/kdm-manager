@@ -1,7 +1,14 @@
-<script src="/js/campaignSummary.js?v=$application_version"></script>
+<!-- top nav - DEPRECATED -->
+<div id="topNavBar" class="campaign_summary_gradient"></div>
+
+<script
+    src="/js/campaignSummary.js?v=$application_version"
+    ng-init="setSessionVars('$user_login','$current_session')"
+>
+</script>
 
 <div
-    id = "campaign_summary_angularjs_controller_container"
+    id="campaignSummaryContainer"
     ng-controller="campaignSummaryController"
     ng-init="initializeSettlement('campaignSummary','$api_url','$settlement_id');"
 >
@@ -12,29 +19,34 @@
         ng-if="settlement != undefined"
         ng-init="initializeUser('$user_id')"
     ></span>
-
-    <!-- spacer -->
-    <span class="tablet_and_desktop nav_bar campaign_summary_gradient"></span>
-    <span class="nav_bar_mobile mobile_only campaign_summary_gradient"></span>
-    <span class="top_nav_spacer mobile_only"> hidden </span>
-
-
-    <!-- name and headline -->
-    <div class="campaign_summary_headline_container" ng-if="settlement != undefined">
-
-        <h1 class="settlement_name">{{settlement.sheet.name}}</h1>
-
-        <p class="campaign_summary_campaign_type">
-            {{settlement.game_assets.campaign.name}}
-        </p>
-
-    </div> <!-- campaign_summary_headline_container -->
-
-
+  
     <!-- now start the left/right panels -->
     <div class="campaign_summary_panels_container">
 
         <div class="campaign_summary_left_panel"> <!--left panel container -->
+
+            <div>
+                <h1
+                id="campaignSummarySettlementName"
+                class="settlement_name"
+                >
+                    {{settlement.sheet.name}}
+                </h1>
+
+                <p
+                    id="campaignSummaryCampaignType"
+                    class="campaign_type"
+                >
+                    {{settlement.game_assets.campaign.name}}
+                </p>
+
+                <h1
+                    ng-if="settlement.sheet.abandoned"
+                    class="settlement_abandoned_stamp"
+                >       
+                    ABANDONED
+                </h1>
+            </div>
 
             <div class="campaign_summary_headline_blocks_container" ng-if="settlement.sheet != undefined">
                 <div class="headline_block">
@@ -84,11 +96,15 @@
 
             <!-- no survivors pink error warning box -->
             <div
+                id="campaignSummaryNoSurvivorsError"
                 ng-if="settlement.user_assets.survivors.length == 0"
-                class="kd_alert campaign_summary_no_survivors_error"
+                class="kd_rulebook_alert"
             >
-                <b>{{settlement.sheet.name}}</b> does not have any survivors!
-                Use the navigation menu controls in the upper left to add new survivors.
+                <div class="kd_rulebook_alert_punctuation">!</div>
+                <div class="kd_rulebook_alert_content">
+                    <b>{{settlement.sheet.name}}</b> does not have any survivors!
+                    Use the navigation menu controls in the upper left to add new survivors.
+                </div>
             </div>
 
 
@@ -111,7 +127,12 @@
             >
 
                 <h2>- Survivors - </h2>
-                <p class="subtitle">Tap or click a survivor for management options.</p>
+	            <div
+	                class="ng_fade kd_sheet_ui_row_tip"
+                	ng-if="user.user.preferences.show_ui_tips"
+	            >
+                	<p>Tap or click a survivor for management options.</p>
+    	        </div>
 
                 <center
                     id="waitingForSurvivors" class=""
@@ -127,29 +148,39 @@
                     ng-if="group.survivors.length >= 1 && user != undefined"
                     ng-init="
                         containerID = group.handle + '_container';
-                        initArrow(group);
                     "
                 >
                     <span ng-init="fadeSurvivorGroupsLoader()"></span>
 
                     <h3
                         title="group.title_tip"
-                        ng-click="showHide(containerID); flipArrow(group)"
+                        ng-click="rollUp(containerID)"
                         class="clickable {{group.handle}}"
                     >
                         {{group.name}} ({{group.survivors.length}})
-                        <span ng-if="group.arrow == true || group.arrow == undefined">
-                            &#x25B2;
-                        </span>
-                        <span ng-if="group.arrow == false">
-                            &#x25BC;
-                        </span>
+			            <span
+			                class="roll_content_arrow"
+			                ng-class="{'open': ngRolledUp[containerID] === false}"
+			            >
+							&#x25BC;
+						</span>
                     </h3>
+
 
                     <div
                         id="{{containerID}}"
-                        ng-class="{hidden: group.name == 'The Dead'}"
+                        class="roll_down_container"
                     >
+
+                        <!-- control starting state -->
+                        <span
+                            ng-if="containerID !== undefined"
+    		    			ng-init="rollDown(containerID)"
+                        ></span>
+                        <span
+                            ng-if="containerID === 'the_dead_container'"
+    		    			ng-init="rollUp('the_dead_container')"
+                        ></span>
 
                         <div
                             class="campaign_summary_survivor_container {{group.handle}}"
@@ -180,9 +211,15 @@
                                     Returning Survivor
                                 </div>
 
-                                <div class="avatar_and_summary">
+                                <div class="campaign_summary_survivor_avatar_and_summary">
                                     <div class="avatar">
-                                        <span class="death_x" ng-if="s.sheet.dead == true">
+                                        <span
+                                            class="ng_fade death_x special_showdown"
+                                            ng-if="
+												s.sheet.dead === true &&
+												ngRolledUp[containerID] === false
+											"
+                                        >
                                             X
                                         </span>
                                         <img
@@ -232,6 +269,25 @@
                                                 {{s.sheet['Weapon Proficiency']}}
                                             </div>
                                         </div> <!-- attr_holder -->
+
+                                        <div class="campaign_summary_survivor_affinities_container">
+                                            <div
+                                                class="kd_sheet_ui_box affinity_red"
+                                                ng-repeat="cube in range(s.sheet.affinities.red)"
+                                            >
+                                            </div>
+                                            <div
+                                                class="kd_sheet_ui_box affinity_green"
+                                                ng-repeat="cube in range(s.sheet.affinities.green)"
+                                            >
+                                            </div>
+                                            <div
+                                                class="kd_sheet_ui_box affinity_blue"
+                                                ng-repeat="cube in range(s.sheet.affinities.blue)"
+                                            >
+                                            </div>
+                                        </div>
+                                        
                                     </div> <!-- summary -->
 
                                 </div> <!-- avatar_and_summary -->
@@ -241,7 +297,9 @@
                                         class="survivor_tag fighting_arts_tag"
                                         ng-repeat="fa in s.sheet.fighting_arts track by $index"
                                     >
-                                        {{settlement.game_assets.fighting_arts[fa].name}}
+                                        <span>
+                                            {{settlement.game_assets.fighting_arts[fa].name}}
+                                        </span>
                                     </div>
                                 </div>
                                 <div class="campaign_summary_survivor_tags_container">
@@ -249,7 +307,9 @@
                                         class="survivor_tag disorders_tag"
                                         ng-repeat="d in s.sheet.disorders"
                                     >
-                                        {{settlement.game_assets.disorders[d].name}}
+                                        <span>
+                                            {{settlement.game_assets.disorders[d].name}}
+                                        </span>
                                     </div>
                                 </div>
                                 <div class="campaign_summary_survivor_tags_container">
@@ -257,7 +317,9 @@
                                         class="survivor_tag ai_tag {{settlement.game_assets.abilities_and_impairments[ai].sub_type}}"
                                         ng-repeat="ai in s.sheet.abilities_and_impairments track by $index"
                                     >
-                                        {{settlement.game_assets.abilities_and_impairments[ai].name}}
+                                        <span>
+                                            {{settlement.game_assets.abilities_and_impairments[ai].name}}
+                                        </span>
                                     </div>
                                 </div>
 
@@ -267,7 +329,9 @@
                                         ng-repeat="flag in settlement.survivor_status_flags"
                                         ng-if="s.sheet[flag.handle] == true"
                                     >
-                                        {{flag.name}}
+                                        <span>
+                                            {{flag.name}}
+                                        </span>
                                     </div>
                                 </div>
 
@@ -303,11 +367,6 @@
                                         ng-init="
                                             survivalBoxID = 'survivalControl' + s.sheet._id.$oid;
                                             brainBoxID = 'brainControl' + s.sheet._id.$oid;
-                                            headBoxID = 'headControl' + s.sheet._id.$oid;
-                                            armsBoxID = 'armsControl' + s.sheet._id.$oid;
-                                            bodyBoxID = 'bodyControl' + s.sheet._id.$oid;
-                                            waistBoxID = 'waistControl' + s.sheet._id.$oid;
-                                            legsBoxID = 'legsControl' + s.sheet._id.$oid;
                                             huntXPBoxID = 'huntXPControl' + s.sheet._id.$oid;
                                             weaponProficiencyBoxID = 'weaponProficiencyControl' + s.sheet._id.$oid;
                                             courageBoxID = 'courageControl' + s.sheet._id.$oid;
@@ -317,13 +376,17 @@
                                     >
                                         <div class="columns">
 
-                                            <div class="left_column">
+                                            <div id="survivorQuickviewLeftColumn">
 
-                                                <div class="quickview_survivor_name">
-                                                    <font class="quickview_survivor_name">{{s.sheet.name}}</font>
-                                                    <div class="quickview_sex_box">
-                                                        M <div class="kd_sheet_ui_box" ng-class="{checked: s.sheet.effective_sex == 'M'}"></div>
-                                                        F <div class="kd_sheet_ui_box" ng-class="{checked: s.sheet.effective_sex == 'F'}"></div>
+                                                <div class="quickview_survivor_name_and_sex_bar">
+                                                    <span class="font_large quickview_name_box">
+                                                        {{s.sheet.name}}
+                                                    </span>
+                                                    <div class="font_small quickview_sex_box">
+                                                        <div>M</div>
+                                                        <div class="kd_sheet_ui_box" ng-class="{checked: s.sheet.effective_sex == 'M'}"></div>
+                                                        <div>F</div>
+                                                        <div class="kd_sheet_ui_box" ng-class="{checked: s.sheet.effective_sex == 'F'}"></div>
                                                     </div>
                                                 </div> <!-- name and sex -->
 
@@ -336,6 +399,7 @@
                                                         ng-click="rollUp(survivalBoxID)"
                                                     >
                                                         <input
+                                                            disabled
                                                             class="survival_box_number"
                                                             type="number"
                                                             ng-model="s.sheet.survival"
@@ -345,7 +409,7 @@
 
                                                     <div class="survival_box_title_and_lock">
                                                         <div
-                                                            class="survival_box_title clickable"
+                                                            class="clickable font_large survival_box_title"
                                                             ng-click="rollUp(survivalBoxID)"
                                                         >
                                                             Survival
@@ -358,7 +422,9 @@
                                                                 class="kd_sheet_ui_box"
                                                                 ng-class="{checked: s.sheet.cannot_spend_survival == true}"
                                                             ></div>
-                                                            &#x1f512; Cannot spend survival.
+                                                            <div class="font_small">
+                                                                &#x1f512; Cannot spend survival.
+                                                            </div>
                                                         </div>
                                                     </div>
 
@@ -371,10 +437,10 @@
                                                             ng-repeat="sa in s.survival_actions"
                                                         >
                                                             <div
-                                                                class="kd_sheet_ui_box"
+                                                                class="kd_sheet_ui_box small"
                                                                 ng-class="{checked: sa.available == true}"
                                                             ></div>
-                                                            <span class="sa_name">{{sa.name}}</span>
+                                                            <span class="font_small sa_name">{{sa.name}}</span>
                                                         </div>
                                                     </div>
                                                 </div> <!-- quickview_survival_container -->
@@ -393,18 +459,26 @@
                                                         </div>
 
                                                         <div class="kd_sheet_ui_number_tumbler">
-                                                            <button 
+                                                            <button
+                                                                class="kd_kickstarter_button"
                                                                 ng-disabled="s.sheet.can_gain_survival === false"
                                                                 ng-click="s.sheet.survival = s.sheet.survival + 1"
                                                             >
                                                                 &#x25B2;
                                                             </button>
-                                                            <button ng-click="s.sheet.survival = s.sheet.survival - 1">
+                                                            <button
+                                                                ng-disabled="s.sheet.survival < 1"
+                                                                class="kd_kickstarter_button"
+                                                                ng-click="s.sheet.survival = s.sheet.survival - 1"
+                                                            >
                                                                 &#x25BC;
                                                             </button>
                                                             <button
-                                                                class="kd_blue"
-                                                                ng-click="setSurvivorAttribute(s, 'survival'); rollUp(survivalBoxID)"
+                                                                class="kd_kickstarter_button kd_blue"
+                                                                ng-click="
+                                                                    setSurvivorAttribute(s, 'survival');
+                                                                    rollUp(survivalBoxID)
+                                                                "
                                                             >
                                                                 Save Changes
                                                             </button>
@@ -413,15 +487,16 @@
                                                 </div><!-- survival box -->
 
                                                 <div
-                                                    class="quickview_attributes_container border_box"
+                                                    class="attributes_container border_box"
                                                 >
                                                     <div
                                                         ng-repeat="A in attrib_list"
-                                                        class="quickview_attribute_box clickable {{A}}"
+                                                        class="attribute_box clickable {{A}}"
                                                         ng-class="{last: $last}"
                                                         ng-click="rollUp(A + 'BoxID' + s.sheet._id.$oid)"
                                                     >
                                                         <input
+                                                            disabled
                                                             class="attribute_box_number"
                                                             type="number"
                                                             ng-value="s.sheet[A] + s.sheet.attribute_detail[A].tokens + s.sheet.attribute_detail[A].gear"
@@ -430,7 +505,9 @@
                                                                 green_text: s.sheet[A] + s.sheet.attribute_detail[A].tokens + s.sheet.attribute_detail[A].gear > s.sheet[A],
                                                             };"
                                                         />
-                                                        {{A}}
+                                                        <span class="font_small">
+                                                            {{A}}
+                                                        </span>
                                                     </div> <!-- attributes repeater -->
                                                 </div> <!-- attributes container -->
 
@@ -440,9 +517,15 @@
                                                     id="{{A}}BoxID{{s.sheet._id.$oid}}"
                                                     class="kd_sheet_ui_roll_down rolled_up"
                                                 >
-                                                    <div class="kd_sheet_ui_roll_down_controls quickview_attribute_tumblers_container {{A}}">
+                                                    <div
+                                                        class="
+                                                            kd_sheet_ui_roll_down_controls
+                                                            quickview_attribute_tumblers_container {{A}}
+                                                        "
+                                                    >
 
-                                                        <div class="quickview_attribute_tumbler">
+                                                        <div class="vertical_tumbler_container">
+                                                            Base
                                                             <button ng-click="s.sheet[A] = s.sheet[A] + 1">
                                                                 &#x25B2;
                                                             </button>
@@ -450,21 +533,25 @@
                                                             <button ng-click="s.sheet[A] = s.sheet[A] - 1">
                                                                 &#x25BC;
                                                             </button>
-                                                            Base
                                                         </div>
 
-                                                        <div class="quickview_attribute_tumbler">
-                                                            <button ng-click="s.sheet.attribute_detail[A].gear = s.sheet.attribute_detail[A].gear + 1">
+                                                        <div class="vertical_tumbler_container">
+                                                            Gear
+                                                            <button
+                                                                ng-click="
+                                                                    s.sheet.attribute_detail[A].gear = s.sheet.attribute_detail[A].gear + 1
+                                                                "
+                                                            >
                                                                 &#x25B2;
                                                             </button>
                                                             <input type="number" ng-model="s.sheet.attribute_detail[A].gear" />
                                                             <button ng-click="s.sheet.attribute_detail[A].gear = s.sheet.attribute_detail[A].gear - 1">
                                                                 &#x25BC;
                                                             </button>
-                                                            Gear
                                                         </div>
 
-                                                        <div class="quickview_attribute_tumbler">
+                                                        <div class="vertical_tumbler_container">
+                                                            Tokens
                                                             <button ng-click="s.sheet.attribute_detail[A].tokens = s.sheet.attribute_detail[A].tokens + 1">
                                                                 &#x25B2;
                                                             </button>
@@ -472,13 +559,15 @@
                                                             <button ng-click="s.sheet.attribute_detail[A].tokens = s.sheet.attribute_detail[A].tokens - 1">
                                                                 &#x25BC;
                                                             </button>
-                                                            Tokens
                                                         </div>
                                                     </div>
 
                                                     <button
-                                                        class="kd_blue quickview_attribute_tumbler_save"
-                                                        ng-click="rollUp(A + 'BoxID' + s.sheet._id.$oid); setSurvivorAttributes(s, A)"
+                                                        class="kd_kickstarter_button kd_blue"
+                                                        ng-click="
+                                                            rollUp(A + 'BoxID' + s.sheet._id.$oid);
+                                                            setSurvivorPrimaryAttributes(s, A)
+                                                        "
                                                     >
                                                         Save {{A}}
                                                     </button>
@@ -491,39 +580,54 @@
 
                                                 -->
 
-                                                <div class="quickview_brain_container border_box">
+                                                <div
+                                                    class="hitbox_container brain quickview_brain_container"
+                                                    ng-class="{'insane': s.sheet.Insanity >= 3}"
+                                                >
 
                                                     <div
-                                                        class="quickview_brain_box clickable"
+                                                        class="
+                                                            font_large
+                                                            hitbox_shield_container
+                                                            brain
+                                                        "
                                                         ng-click="rollUp(brainBoxID)"
                                                     >
                                                         <input
-                                                            class="quickview_shield"
+                                                            disabled
+                                                            class="hitbox_shield brain clickable"
                                                             type="number"
                                                             ng-model="s.sheet.Insanity"
-                                                            ng-class="{maroon_text: s.sheet.Insanity >= 3}"
                                                             min="0"
+                                                            ng-class="{'insane': s.sheet.Insanity >= 3}"
                                                         />
-                                                        Insanity
+                                                        <span
+                                                            class="font_small"
+                                                        >
+                                                            Insanity
+                                                        </span>
                                                     </div>
 
                                                     <div
-                                                        class="quickview_hitbox_detail brain clickable"
+                                                        class="hitbox_detail brain clickable"
                                                         ng-click="rollUp(brainBoxID)"
                                                     >
                                                         <div class="title">Brain</div>
                                                         <div
-                                                            class="tip"
+                                                            class="font_small tip"
                                                             ng-class="{maroon_text: s.sheet.Insanity >= 3}"
                                                         >
                                                             If your insanity is 3+, you are <b>insane</b>.
                                                         </div>
                                                     </div>
 
-                                                    <div class="quickview_hitbox_boxes brain">
+                                                    <div class="hitbox_boxes_container brain">
                                                         <div
                                                             class="clickable damage_box"
-                                                            ng-class="{checked: s.sheet.brain_damage_light != undefined}"
+                                                            ng-class="{
+                                                                'checked': s.sheet.brain_damage_light != undefined,
+                                                                'kd_red_box': s.sheet.brain_damage_light && s.sheet.Insanity >= 3,
+                                                            }"
                                                             ng-click="toggleDamage(s, 'brain_damage_light');"
                                                          /></div>
                                                     </div>
@@ -531,18 +635,24 @@
 
                                                 <div
                                                     id="{{brainBoxID}}"
-                                                    class="kd_sheet_ui_roll_down rolled_up"
+                                                    class="kd_sheet_ui_roll_down brain rolled_up"
                                                 >
                                                     <div class="kd_sheet_ui_roll_down_controls">
                                                         <div class="kd_sheet_ui_number_tumbler">
-                                                            <button ng-click="s.sheet.Insanity = s.sheet.Insanity + 1">
+                                                            <button
+                                                                class="kd_kickstarter_button"
+                                                                ng-click="s.sheet.Insanity = s.sheet.Insanity + 1"
+                                                            >
                                                                 &#x25B2;
                                                             </button>
-                                                            <button ng-click="s.sheet.Insanity = s.sheet.Insanity - 1">
+                                                            <button
+                                                                class="kd_kickstarter_button"
+                                                                ng-click="s.sheet.Insanity = s.sheet.Insanity - 1"
+                                                            >
                                                                 &#x25BC;
                                                             </button>
                                                             <button
-                                                                class="kd_blue"
+                                                                class="kd_kickstarter_button kd_blue"
                                                                 ng-click="setSurvivorAttribute(s, 'Insanity'); rollUp(brainBoxID)"
                                                             >
                                                                 Save Changes
@@ -551,380 +661,253 @@
                                                     </div>
                                                 </div>
 
-            <!-- head -->
-            <div class="quickview_hitbox_container">
-                <div
-                    class="quickview_armor_box clickable"
-                    ng-click="rollUp(headBoxID)"
-                >
-                    <input
-                        class="quickview_shield"
-                        type="number"
-                        min="0"
-                        ng-model="s.sheet.Head"
-                    />
-                </div>
-                <div
-                    class="quickview_hitbox_detail"
-                    ng-click="rollUp(headBoxID)"
-                >
-                    <div class="title">
-                        <font class="kdm_font_hit_locations">b</font> Head
-                    </div>
-                    <div class="tip">
-                        Heavy Injury: Knocked Down.
-                    </div>
-                </div>
-                <div class="quickview_hitbox_boxes">
-                    <div
-                        class="clickable heavy damage_box"
-                        ng-class="{checked: s.sheet.head_damage_heavy != undefined}"
-                        ng-click="toggleDamage(s, 'head_damage_heavy');"
-                     /></div>
-                </div>
-            </div>
+
+            <!-- hit location repeater! -->
             <div
-                id="{{headBoxID}}"
+                class="hit_location_repeater"
+                ng-if="s.sheet._id.$oid !== undefined"
+                ng-repeat="location in [
+                    {name: 'Head', glyph: 'b', dmg: ['heavy']},
+                    {name: 'Arms', glyph: 'd', dmg: ['light', 'heavy']},
+                    {name: 'Body', glyph: 'c', dmg: ['light', 'heavy']},
+                    {name: 'Waist', glyph: 'e', dmg: ['light', 'heavy']},
+                    {name: 'Legs', glyph: 'f', dmg: ['light', 'heavy']},
+                ]"
+                ng-init="
+                    sheetOID = s.sheet._id.$oid;
+                    ctrlBoxID = location.name.toLowerCase() + 'Box' + sheetOID;
+                "
+            >
+
+                <div 
+                    class="hitbox_container"
+                >
+                    <div
+                        class="font_large hitbox_shield_container"
+                        ng-click="rollUp(ctrlBoxID)"
+                    >
+                        <input
+                            disabled
+                            class="hitbox_shield clickable"
+                            type="number"
+                            min="0"
+                            ng-model="s.sheet[location.name]"
+                        />
+                    </div>
+
+                    <div
+                        class="hitbox_detail"
+                        ng-click="rollUp(ctrlBoxID)"
+                    >
+                        <div class="title">
+                            <font class="kdm_font_hit_locations">
+                                {{location.glyph}}
+                            </font> 
+                            {{location.name}}
+                        </div>
+                        <div class="font_small tip">
+                            <div class="kd_sheet_ui_box small checked"></div> Heavy Injury: Knocked Down.
+                        </div>
+                    </div>
+
+                    <div class="hitbox_boxes_container">
+                        <div
+                            ng-repeat="dmgType in location.dmg"
+                            ng-init="toggleName = location.name.toLowerCase() + '_damage_' + dmgType"
+                            ng-class="
+                                {checked: s.sheet[toggleName] !== undefined}
+                           "
+                            ng-click="toggleDamage(s, toggleName);"
+                            class="clickable damage_box {{dmgType}}"
+                         />
+                         </div> 
+                    </div>
+
+                </div> <!-- hitbox_container -->
+
+                <div
+                    id="{{ctrlBoxID}}"
+                    class="kd_sheet_ui_roll_down rolled_up"
+                >
+                    <div class="kd_sheet_ui_roll_down_controls">
+                        <div class="kd_sheet_ui_number_tumbler">
+                            <button
+                                class="kd_kickstarter_button"
+                                ng-click="s.sheet[location.name] = s.sheet[location.name] + 1"
+                            >
+                                &#x25B2;
+                            </button>
+                            <button
+                                class="kd_kickstarter_button"
+                                ng-click="s.sheet[location.name] = s.sheet[location.name] - 1"
+                            >
+                                &#x25BC;
+                            </button>
+                            <button
+                                class="kd_kickstarter_button kd_blue"
+                                ng-click="
+                                    setSurvivorAttribute(s, location.name);
+                                    rollUp(ctrlBoxID)
+                                "
+                            >
+                                Save Changes
+                            </button>
+                        </div> <!-- number tumbler -->
+                    </div><!-- roll_down_controls -->
+                </div><!-- roll_down container + loc box ID -->
+            </div> <!-- quickview location repeater -->
+
+        </div><!-- left_column -->
+
+
+    <!-- survivor quickview column split! -->
+
+
+        <div class="right_column">
+
+            <!-- hunt xp-->
+            <div
+                class="quickview_secondary_container hunt_xp clickable"
+                ng-click="rollUp(huntXPBoxID)"
+            >
+                Hunt XP
+                <div
+                    class="secondary_attrib_box_row hunt_xp"
+                    ng-init="huntXPBoxes = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]"
+                >
+                    <div
+                        class="kd_sheet_ui_box"
+                        ng-repeat = "b in huntXPBoxes"
+                        ng-class="{
+                            checked: s.sheet.hunt_xp >= b,
+                            heavy: [2,6,10,15,16].indexOf(b) != -1,
+                        }"
+                    >
+                    </div>
+                </div>
+            </div> <!-- Hunt XP -->
+            <div
+                id="{{huntXPBoxID}}"
                 class="kd_sheet_ui_roll_down rolled_up"
             >
                 <div class="kd_sheet_ui_roll_down_controls">
                     <div class="kd_sheet_ui_number_tumbler">
-                        <button ng-click="s.sheet.Head = s.sheet.Head + 1">
+                        <button
+                            class="kd_kickstarter_button"
+                            ng-click="s.sheet.hunt_xp = s.sheet.hunt_xp + 1"
+                        >
                             &#x25B2;
                         </button>
-                        <button ng-click="s.sheet.Head = s.sheet.Head - 1">
+                        <button
+                            class="kd_kickstarter_button"
+                            ng-click="s.sheet.hunt_xp = s.sheet.hunt_xp - 1"
+                        >
                             &#x25BC;
                         </button>
                         <button
-                            class="kd_blue"
-                            ng-click="setSurvivorAttribute(s, 'Head'); rollUp(headBoxID)"
+                            class="kd_kickstarter_button kd_blue"
+                            ng-click="
+                                setSurvivorAttribute(s, 'hunt_xp');
+                                rollUp(huntXPBoxID)
+                            "
                         >
                             Save Changes
                         </button>
                     </div> <!-- number tumbler -->
                 </div>
             </div>
+
             <hr/>
 
-            <!-- arms -->
-            <div class="quickview_hitbox_container">
-                <div
-                    class="quickview_armor_box clickable"
-                    ng-click="rollUp(armsBoxID)"
-                >
-                    <input
-                        class="quickview_shield" type="number" min="0" ng-model="s.sheet.Arms"
-                    />
-                </div>
-                <div
-                    class="quickview_hitbox_detail"
-                    ng-click="rollUp(armsBoxID)"
-                >
-                    <div class="title">
-                        <font class="kdm_font_hit_locations">d</font> Arms
-                    </div>
-                    <div class="tip">Heavy Injury: Knocked Down.</div>
-                </div>
-                <div class="quickview_hitbox_boxes">
-                    <div
-                        class="clickable damage_box"
-                        ng-class="{checked: s.sheet.arms_damage_light != undefined}"
-                        ng-click="toggleDamage(s, 'arms_damage_light');"
-                     /></div>
-                    <div
-                        class="clickable heavy damage_box"
-                        ng-class="{checked: s.sheet.arms_damage_heavy != undefined}"
-                        ng-click="toggleDamage(s, 'arms_damage_heavy');"
-                     /></div>
-                </div>
-            </div>
+            <!-- weapon prof -->
             <div
-                id="{{armsBoxID}}"
-                class="kd_sheet_ui_roll_down rolled_up"
+                class="quickview_secondary_container weapon_proficiency clickable border_box"
+                ng-click="rollUp(weaponProficiencyBoxID)"
             >
-                <div class="kd_sheet_ui_roll_down_controls">
-                    <div class="kd_sheet_ui_number_tumbler">
-                        <button ng-click="s.sheet.Arms = s.sheet.Arms + 1">&#x25B2;</button>
-                        <button ng-click="s.sheet.Arms = s.sheet.Arms - 1">&#x25BC;</button>
-                        <button
-                            class="kd_blue"
-                            ng-click="setSurvivorAttribute(s, 'Arms'); rollUp(armsBoxID)"
-                        >
-                            Save Changes
-                        </button>
-                    </div> <!-- number tumbler -->
-                </div>
-            </div>
-            <hr/>
 
-            <!-- body -->
-            <div class="quickview_hitbox_container">
-                <div
-                    class="quickview_armor_box clickable"
-                    ng-click="rollUp(bodyBoxID)"
-                >
-                    <input
-                        class="quickview_shield" type="number" min="0" ng-model="s.sheet.Body"
-                    />
-                </div>
-                <div
-                    class="quickview_hitbox_detail"
-                    ng-click="rollUp(bodyBoxID)"
-                >
-                    <div class="title">
-                        <font class="kdm_font_hit_locations">c</font> Body
-                    </div>
-                    <div class="tip">Heavy Injury: Knocked Down.</div>
-                </div>
-                <div class="quickview_hitbox_boxes">
-                    <div
-                        class="clickable damage_box"
-                        ng-class="{checked: s.sheet.body_damage_light != undefined}"
-                        ng-click="toggleDamage(s, 'body_damage_light');"
-                     /></div>
-                    <div
-                        class="clickable heavy damage_box"
-                        ng-class="{checked: s.sheet.body_damage_heavy != undefined}"
-                        ng-click="toggleDamage(s, 'body_damage_heavy');"
-                     /></div>
-                </div>
-            </div>
-            <div
-                id="{{bodyBoxID}}"
-                class="kd_sheet_ui_roll_down rolled_up"
-            >
-                <div class="kd_sheet_ui_roll_down_controls">
-                    <div class="kd_sheet_ui_number_tumbler">
-                        <button ng-click="s.sheet.Body = s.sheet.Body + 1">&#x25B2;</button>
-                        <button ng-click="s.sheet.Body = s.sheet.Body - 1">&#x25BC;</button>
-                        <button
-                            class="kd_blue"
-                            ng-click="setSurvivorAttribute(s, 'Body'); rollUp(bodyBoxID)"
-                        >
-                            Save Changes
-                        </button>
-                    </div> <!-- number tumbler -->
-                </div>
-            </div>
-            <hr/>
+                 Weapon Proficiency
 
-            <!-- waist -->
-            <div class="quickview_hitbox_container">
-                <div
-                    class="quickview_armor_box clickable"
-                    ng-click="rollUp(waistBoxID)"
-                >
-                    <input
-                        class="quickview_shield" type="number" min="0" ng-model="s.sheet.Waist"
-                    />
-                </div>
-                <div
-                    class="quickview_hitbox_detail"
-                    ng-click="rollUp(waistBoxID)"
-                >
-                    <div class="title">
-                        <font class="kdm_font_hit_locations">e</font> Waist
-                    </div>
-                    <div class="tip">Heavy Injury: Knocked Down.</div>
-                </div>
-                <div class="quickview_hitbox_boxes">
-                    <div
-                        class="clickable damage_box"
-                        ng-class="{checked: s.sheet.waist_damage_light != undefined}"
-                        ng-click="toggleDamage(s, 'waist_damage_light');"
-                     /></div>
-                    <div
-                        class="clickable heavy damage_box"
-                        ng-class="{checked: s.sheet.waist_damage_heavy != undefined}"
-                        ng-click="toggleDamage(s, 'waist_damage_heavy');"
-                     /></div>
-                </div>
-            </div>
-            <div
-                id="{{waistBoxID}}"
-                class="kd_sheet_ui_roll_down rolled_up"
-            >
-                <div class="kd_sheet_ui_roll_down_controls">
-                    <div class="kd_sheet_ui_number_tumbler">
-                        <button ng-click="s.sheet.Waist = s.sheet.Waist + 1">&#x25B2;</button>
-                        <button ng-click="s.sheet.Waist = s.sheet.Waist - 1">&#x25BC;</button>
-                        <button
-                            class="kd_blue"
-                            ng-click="setSurvivorAttribute(s, 'Waist'); rollUp(waistBoxID)"
-                        >
-                            Save Changes
-                        </button>
-                    </div> <!-- number tumbler -->
-                </div>
-            </div>
-            <hr/>
+                 <div
+                     class="secondary_attrib_box_row weapon_proficiency"
+                 >
 
-            <!-- legs -->
-            <div class="quickview_hitbox_container">
-                <div
-                    class="quickview_armor_box clickable"
-                    ng-click="rollUp(legsBoxID)"
-                >
-                    <input
-                        class="quickview_shield" type="number" min="0" ng-model="s.sheet.Legs"
-                    />
-                </div>
-                <div
-                    class="quickview_hitbox_detail"
-                    ng-click="rollUp(legsBoxID)"
-                >
-                    <div class="title">
-                        <font class="kdm_font_hit_locations">f</font> Legs
-                    </div>
-                    <div class="tip">Heavy Injury: Knocked Down.</div>
-                </div>
-                <div class="quickview_hitbox_boxes">
-                    <div
-                        class="clickable damage_box"
-                        ng-class="{checked: s.sheet.legs_damage_light != undefined}"
-                        ng-click="toggleDamage(s, 'legs_damage_light');"
-                     /></div>
-                    <div
-                        class="clickable heavy damage_box"
-                        ng-class="{checked: s.sheet.legs_damage_heavy != undefined}"
-                        ng-click="toggleDamage(s, 'legs_damage_heavy');"
-                     /></div>
-                </div>
-            </div>
-                    <div
-                        id="{{legsBoxID}}"
-                        class="kd_sheet_ui_roll_down rolled_up"
-                    >
-                        <div class="kd_sheet_ui_roll_down_controls">
-                            <div class="kd_sheet_ui_number_tumbler">
-                                <button ng-click="s.sheet.Legs = s.sheet.Legs + 1">&#x25B2;</button>
-                                <button ng-click="s.sheet.Legs = s.sheet.Legs - 1">&#x25BC;</button>
-                                <button
-                                    class="kd_blue"
-                                    ng-click="setSurvivorAttribute(s, 'Legs'); rollUp(legsBoxID)"
-                                >
-                                    Save Changes
-                                </button>
-                            </div> <!-- number tumbler -->
-                        </div>
-                    </div>
-                    <hr/>
+                     <div class="weapon_proficiency_type">
+                         <b>Type</b>:
+                         <span
+                            class="null_weapon_proficiency"
+                            ng-if="s.sheet.weapon_proficiency_type == undefined"
+                         ></span>
+                         <span ng-if="s.sheet.weapon_proficiency_type != undefined">
+                             {{settlement.game_assets.weapon_proficiency_types[s.sheet.weapon_proficiency_type].name}}
+                         </span>
+                     </div>
 
-                </div><!-- left_column -->
+                     <div class="weapon_proficiency_boxes">
+                         <div
+                             class="kd_sheet_ui_box"
+                             ng-repeat = "b in [1,2,3,4,5,6,7,8]"
+                             ng-class="{
+                                 checked: s.sheet['Weapon Proficiency'] >= b,
+                                 heavy: [3,8].indexOf(b) != -1,
+                             }"
+                         >
+                         </div>
+                     </div>
 
-                <div class="right_column">
+                 </div>
+                 <div
+                     class="kd_sheet_ui_row_tip"
+                     ng-repeat="ai_handle in s.sheet.abilities_and_impairments track by $index"
+                     ng-if="settlement.game_assets.weapon_specializations[ai_handle] != undefined"
+                 >
+                     <b>{{settlement.game_assets.weapon_specializations[ai_handle].name}}:</b>
+                     <span
+                         ng-bind-html="settlement.game_assets.weapon_specializations[ai_handle].desc|trustedHTML"></span>
+                 </div>
+             </div>
+             <div
+                 id="{{weaponProficiencyBoxID}}"
+                 class="kd_sheet_ui_roll_down rolled_up"
+             >
+                 <div class="kd_sheet_ui_roll_down_controls">
 
-                    <!-- hunt xp-->
-                    <div
-                        class="quickview_secondary_container hunt_xp clickable"
-                        ng-click="rollUp(huntXPBoxID)"
-                    >
-                        Hunt XP
-                        <div
-                            class="secondary_attrib_box_row hunt_xp"
-                            ng-init="huntXPBoxes = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]"
-                        >
-                            <div
-                                class="kd_sheet_ui_box"
-                                ng-repeat = "b in huntXPBoxes"
-                                ng-class="{
-                                    checked: s.sheet.hunt_xp >= b,
-                                    heavy: [2,6,10,15,16].indexOf(b) != -1,
-                                }"
-                            >
-                            </div>
-                        </div>
-                    </div> <!-- Hunt XP -->
-                    <div
-                        id="{{huntXPBoxID}}"
-                        class="kd_sheet_ui_roll_down rolled_up"
-                    >
-                        <div class="kd_sheet_ui_roll_down_controls">
-                            <div class="kd_sheet_ui_number_tumbler">
-                                <button ng-click="s.sheet.hunt_xp = s.sheet.hunt_xp + 1">
-                                    &#x25B2;
-                                </button>
-                                <button ng-click="s.sheet.hunt_xp = s.sheet.hunt_xp - 1">
-                                    &#x25BC;
-                                </button>
-                                <button
-                                    class="kd_blue"
-                                    ng-click="setSurvivorAttribute(s, 'hunt_xp'); rollUp(huntXPBoxID)"
-                                >
-                                    Save Changes
-                                </button>
-                            </div> <!-- number tumbler -->
-                        </div>
-                    </div>
+                     <div
+                         class="kd_sheet_ui_row_tip"
+                         ng-if="
+                             s.sheet.weapon_proficiency_type == undefined &&
+                             user.user.preferences.show_ui_tips
+                         "
+                     >
+                         Use the controls on the <b>Survivor Sheet</b>
+                         to set the Weapon Proficiency type 
+                         for {{s.sheet.name}}.
+                     </div>
 
-                    <!-- weapon prof -->
-                    <div
-                        class="quickview_secondary_container weapon_proficiency clickable border_box"
-                        ng-click="rollUp(weaponProficiencyBoxID)"
-                    >
-                        Weapon Proficiency
-                        <div
-                            class="secondary_attrib_box_row"
-                            ng-init="wpBoxes = [1,2,3,4,5,6,7,8]"
-                        >
-                            <div class="weapon_proficiency_type">
-                                <b>Type</b>:
-                                <span class="null_weapon_proficiency" ng-if="s.sheet.weapon_proficiency_type == undefined"></span>
-                                <span ng-if="s.sheet.weapon_proficiency_type != undefined">
-                                    {{settlement.game_assets.weapon_proficiency_types[s.sheet.weapon_proficiency_type].name}}
-                                </span>
-                            </div>
-                            <div
-                                class="kd_sheet_ui_box"
-                                ng-repeat = "b in wpBoxes"
-                                ng-class="{
-                                    checked: s.sheet['Weapon Proficiency'] >= b,
-                                    heavy: [3,8].indexOf(b) != -1,
-                                }"
-                            >
-                            </div>
-                        </div>
-                        <div
-                            class="kd_sheet_ui_row_tip"
-                            ng-repeat="ai_handle in s.sheet.abilities_and_impairments track by $index"
-                            ng-if="settlement.game_assets.weapon_specializations[ai_handle] != undefined"
-                        >
-                            <b>{{settlement.game_assets.weapon_specializations[ai_handle].name}}:</b>
-                            <span
-                                ng-bind-html="settlement.game_assets.weapon_specializations[ai_handle].desc|trustedHTML"></span>
-                        </div>
-                    </div>
-                    <div
-                        id="{{weaponProficiencyBoxID}}"
-                        class="kd_sheet_ui_roll_down rolled_up"
-                    >
-                        <div class="kd_sheet_ui_roll_down_controls">
-                            <div
-                                class="kd_sheet_ui_row_tip"
-                                ng-if="
-                                    s.sheet.weapon_proficiency_type == undefined &&
-                                    user.user.preferences.show_ui_tips
-                                "
-                            >
-                                Use the controls on the <b>Survivor Sheet</b> to set the Weapon Proficiency type for{{s.sheet.name}}.
-                            </div>
-                            <div class="kd_sheet_ui_number_tumbler">
-                                <button ng-click="s.sheet['Weapon Proficiency'] = s.sheet['Weapon Proficiency'] + 1">
-                                    &#x25B2;
-                                </button>
-                                <button ng-click="s.sheet['Weapon Proficiency'] = s.sheet['Weapon Proficiency'] - 1">
-                                    &#x25BC;
-                                </button>
-                                <button
-                                    class="kd_blue"
-                                    ng-click="setSurvivorAttribute(s, 'Weapon Proficiency'); rollUp(weaponProficiencyBoxID)"
-                                >
-                                    Save Changes
-                                </button>
-                            </div> <!-- number tumbler -->
-                        </div>
-                    </div>
+                     <div class="kd_sheet_ui_number_tumbler">
+                         <button
+                             class="kd_kickstarter_button"
+                             ng-click="s.sheet['Weapon Proficiency'] = s.sheet['Weapon Proficiency'] + 1"
+                         >
+                             &#x25B2;
+                         </button>
+                         <button
+                             class="kd_kickstarter_button"
+                             ng-click="s.sheet['Weapon Proficiency'] = s.sheet['Weapon Proficiency'] - 1"
+                         >
+                             &#x25BC;
+                         </button>
+                         <button
+                             class="kd_kickstarter_button kd_blue"
+                             ng-click="setSurvivorAttribute(s, 'Weapon Proficiency'); rollUp(weaponProficiencyBoxID)"
+                         >
+                             Save Changes
+                         </button>
+                     </div> <!-- number tumbler -->
+                 </div>
+             </div>
 
+
+        <hr/>
 
                     <!-- Courage -->
                     <div
@@ -948,14 +931,26 @@
                                 </div>
                             </div>
                         </div> <!-- row_container -->
-                        <div class="kd_sheet_ui_row_tip" ng-if="s.sheet.abilities_and_impairments.indexOf('stalwart') != -1">
-                            <b>Stwalwart:</b> {{settlement.game_assets.abilities_and_impairments.stalwart.summary}}
+                        <div
+                            class="kd_sheet_ui_row_tip"
+                            ng-if="s.sheet.abilities_and_impairments.indexOf('stalwart') != -1"
+                        >
+                            <b>Stalwart:</b>
+                            {{settlement.game_assets.abilities_and_impairments.stalwart.summary}}
                         </div>
-                        <div class="kd_sheet_ui_row_tip" ng-if="s.sheet.abilities_and_impairments.indexOf('prepared') != -1">
-                            <b>Prepared:</b> {{settlement.game_assets.abilities_and_impairments.prepared.summary}}
+                        <div
+                            class="kd_sheet_ui_row_tip"
+                            ng-if="s.sheet.abilities_and_impairments.indexOf('prepared') != -1"
+                        >
+                            <b>Prepared:</b>
+                            {{settlement.game_assets.abilities_and_impairments.prepared.summary}}
                         </div>
-                        <div class="kd_sheet_ui_row_tip" ng-if="s.sheet.abilities_and_impairments.indexOf('matchmaker') != -1">
-                            <b>Matchmaker:</b> {{settlement.game_assets.abilities_and_impairments.matchmaker.summary}}
+                        <div
+                            class="kd_sheet_ui_row_tip"
+                            ng-if="s.sheet.abilities_and_impairments.indexOf('matchmaker') != -1"
+                        >
+                            <b>Matchmaker:</b>
+                            {{settlement.game_assets.abilities_and_impairments.matchmaker.summary}}
                         </div>
                     </div>
                     <div
@@ -964,21 +959,32 @@
                     >
                         <div class="kd_sheet_ui_roll_down_controls">
                             <div class="kd_sheet_ui_number_tumbler">
-                                <button ng-click="s.sheet.Courage = s.sheet.Courage + 1">
+                                <button
+                                    class="kd_kickstarter_button"
+                                    ng-click="s.sheet.Courage = s.sheet.Courage + 1"
+                                >
                                     &#x25B2;
                                 </button>
-                                <button ng-click="s.sheet.Courage = s.sheet.Courage - 1">
+                                <button
+                                    class="kd_kickstarter_button"
+                                    ng-click="s.sheet.Courage = s.sheet.Courage - 1"
+                                >
                                     &#x25BC;
                                 </button>
                                 <button
-                                    class="kd_blue"
-                                    ng-click="setSurvivorAttribute(s, 'Courage'); rollUp(courageBoxID)"
+                                    class="kd_kickstarter_button kd_blue"
+                                    ng-click="
+                                        setSurvivorAttribute(s, 'Courage');
+                                        rollUp(courageBoxID)
+                                    "
                                 >
                                     Save Courage
                                 </button>
                             </div> <!-- number tumbler -->
                         </div>
                     </div>
+
+        <hr/>
 
                     <!-- Understanding -->
                     <div
@@ -1018,14 +1024,20 @@
                     >
                         <div class="kd_sheet_ui_roll_down_controls">
                             <div class="kd_sheet_ui_number_tumbler">
-                                <button ng-click="s.sheet.Understanding = s.sheet.Understanding + 1">
+                                <button
+                                    class="kd_kickstarter_button"
+                                    ng-click="s.sheet.Understanding = s.sheet.Understanding + 1"
+                                >
                                     &#x25B2;
                                 </button>
-                                <button ng-click="s.sheet.Understanding = s.sheet.Understanding - 1">
+                                <button
+                                    class="kd_kickstarter_button"
+                                    ng-click="s.sheet.Understanding = s.sheet.Understanding - 1"
+                                >
                                     &#x25BC;
                                 </button>
                                 <button
-                                    class="kd_blue"
+                                    class="kd_kickstarter_button kd_blue"
                                     ng-click="setSurvivorAttribute(s, 'Understanding'); rollUp(understandingBoxID)"
                                 >
                                     Save Understanding
@@ -1034,15 +1046,17 @@
                         </div>
                     </div>
 
+        <hr/>
+
                     <!-- Fighting Arts -->
                     <div
                         class="quickview_secondary_container fighting_arts"
                     >
-                        <div class="quickview_asset_list_title_bar">
-                            <div class="title">Fighting Arts</div>
-                            <div class="subtitle">Maximum 3.</div>
+                        <div class="secondary_attribute_title_bar">
+                            <div class="font_large title">Fighting Arts</div>
+                            <div class="font_small subtitle">Maximum 3.</div>
                             <div
-                                class="lockbox clickable"
+                                class="font_small lockbox clickable"
                                 ng-click="toggleSurvivorFlag(s, 'cannot_use_fighting_arts')"
                             >
                                 <div
@@ -1050,7 +1064,9 @@
                                     ng-class="{checked: s.sheet.cannot_use_fighting_arts == true}"
                                 >
                                 </div>
-                                &#x1f512; Cannot use Fighting Arts
+                                <span>
+                                    &nbsp; &#x1f512; Cannot use Fighting Arts
+                                </span>
                             </div>
                         </div>
                         <ul class="quickview_asset_list">
@@ -1070,9 +1086,9 @@
                     <div
                         class="quickview_secondary_container disorders"
                     >
-                        <div class="quickview_asset_list_title_bar">
-                            <div class="title">Disorders</div>
-                            <div class="subtitle">Maximum 3.</div>
+                        <div class="secondary_attribute_title_bar">
+                            <div class="font_large title">Disorders</div>
+                            <div class="font_small subtitle">Maximum 3.</div>
                         </div>
                         <ul class="quickview_asset_list">
                             <li
@@ -1090,10 +1106,10 @@
                     <div
                         class="quickview_secondary_container fighting_arts"
                     >
-                        <div class="quickview_asset_list_title_bar">
-                            <div class="title">Abilities & Impairments</div>
+                        <div class="secondary_attribute_title_bar">
+                            <div class="font_large title">Abilities & Impairments</div>
                             <div
-                                class="lockbox clickable skip_next_hunt"
+                                class="font_small lockbox clickable skip_next_hunt"
                                 ng-click="toggleSurvivorFlag(s, 'skip_next_hunt')"
                             >
                                 <div
@@ -1101,7 +1117,9 @@
                                     ng-class="{checked: s.sheet.skip_next_hunt == true}"
                                 >
                                 </div>
-                                &#x1f512; Skip Next Hunt
+                                <span>
+                                    &nbsp; &#x1f512; Skip Next Hunt
+                                </span>
                             </div>
                         </div>
                         <ul class="quickview_asset_list">
@@ -1120,33 +1138,40 @@
             </div><!-- columns -->
 
         <div class="quickview_ui_button_container">
-            <form action="" method="POST" class="edit_survivor_sheet">
-                <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
-                <button
-                    class="quickview_ui_button settlement_sheet_gradient"
-                    onclick="showFullPageLoader()"
-                    ng-click="showHide(s.sheet._id.$oid + '_modal_controls');"
+        <!-- there are various controls here, so they're all wrapped in a div, 
+        so that we can control how much space they take up w/o writing a bunch 
+        of super-specific selectors. -->
+
+            <div>
+                <form action="" method="POST" class="edit_survivor_sheet">
+                    <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
+                    <button
+                        class="quickview_ui_button kd_kickstarter_button settlement_sheet_gradient"
+                        onclick="showFullPageLoader()"
+                        ng-click="showHide(s.sheet._id.$oid + '_modal_controls');"
+                    >
+                        Edit <b>Survivor Sheet</b>
+                    </button>
+                </form>
+            </div>
+
+            <div>
+                <select
+                    class="kd_kickstarter_select"
+                    ng-if="user.user.subscriber.level > 1"
+                    ng-model="s.sheet.color_scheme"
+                    ng-change="setColorScheme(s);"
+                    ng-options="c.handle as c.name for c in settlement.survivor_color_schemes"
                 >
-                    Edit <b>Survivor Sheet</b>
-                
-                </button>
-            </form>
-            <select
-                class="campaign_summary_survivor_modal_color_scheme_select"
-                ng-if="user.user.subscriber.level > 1"
-                ng-model="s.sheet.color_scheme"
-                ng-change="setColorScheme(s);"
-                ng-options="c.handle as c.name for c in settlement.survivor_color_schemes"
-            >
-                <option disabled value="">Set Color Scheme</option>
-            </select>
+                    <option disabled value="">Set Color Scheme</option>
+                </select>
+            </div>
             <div
                 ng-if="
                     group.handle == 'available' ||
                     group.handle == 'favorite' ||
                     group.handle == 'departing'
                 "
-                class="departing_survivor_conditional"
             >
                 <button
                    ng-if="s.sheet.departing == true"
@@ -1154,7 +1179,7 @@
                        toggleDepartingStatus(s);
                        showHide(s.sheet._id.$oid + '_modal_controls');
                    "
-                   class="quickview_ui_button departing_toggle"
+                   class="quickview_ui_button kd_kickstarter_button kd_red"
                 >
                     Leave <b>Departing</b> Survivors
                 </button>
@@ -1164,14 +1189,14 @@
                         toggleDepartingStatus(s);
                         showHide(s.sheet._id.$oid + '_modal_controls');
                     "
-                    class="quickview_ui_button departing_toggle"
+                    class="quickview_ui_button kd_kickstarter_button kd_red"
                 >
                     Join <b>Departing</b> Survivors
                 </button>
             </div> <!-- conditional departing toggle -->
-            <div class="back_button_holder">
+            <div>
                 <button
-                    class="quickview_ui_button"
+                    class="quickview_ui_button kd_kickstarter_button"
                     ng-click="showHide(s.sheet._id.$oid + '_modal_controls')"
                 >
                     Back
@@ -1193,17 +1218,16 @@
     </div> <!--campaign_summary_left_panel -->
 
 
+    <!-- campaign summary RIGHT panel BEGINS -->
 
-<!--
+    <div class="campaign_summary_right_panel" ng-if="settlement != undefined">
 
-    Right Side Campaign Summary app-let
-        - special rules
-        - endeavors
-        - monster/innovation/location lists
+        <div
+            ng-if="departing_survivor_count > 0"
+            class="ng_fade manage_departing_survivors_blocker"
+        >
 
--->
-
-    <div class="campaign_summary_facts_box" ng-if="settlement != undefined">
+        </div>
 
         <div
             ng-repeat="r in settlement.campaign.special_rules"
@@ -1213,6 +1237,37 @@
             <h3>{{r.name}}</h3>
             <span ng-bind-html="r.desc|trustedHTML"></span>
         </div>
+
+
+        <!--
+
+            pulse discoveries!
+
+        -->
+
+        <div
+            class="campaign_summary_small_box"
+            ng-if="settlement.sheet.lantern_research_level >= 1"
+        >
+            <h3>- Pulse Discoveries -</h3>
+            <div
+                class="pulse_discovery"
+                ng-repeat="d in settlement.game_assets.pulse_discoveries"
+                ng-if="settlement.sheet.lantern_research_level >= d.level"
+                style="background-color: {{d.bgcolor}}"
+            >
+                <div class="pd_level_container">
+                    <div class="pd_level">{{d.level}}</div>
+                </div>
+                <div class="pd_text">
+                    <b>{{d.name}}</b>
+                    <span ng-if="d.subtitle != undefined"> - {{d.subtitle}}</span>
+                    <br/>
+                    {{d.desc}}
+                </div>
+            </div><!-- repeater -->
+        </div> <!-- pulse discoveries -->
+
 
         <div
             ng-if="
@@ -1228,287 +1283,271 @@
                 ng-controller="endeavorController"
             >
 
-                <span ng-if="settlement.sheet.endeavor_tokens >= 1">
+                <div ng-if="settlement.sheet.endeavor_tokens >= 1">
+
                     <div class="tokens">
                         <img
-                                    ng-repeat="e in range(settlement.sheet.endeavor_tokens)"
-                                    class="campaign_summary_endeavor_star"
-                                    src="/media/icons/endeavor_star.png"
-                                >
-                            </div>
-                            <div ng-if="user_is_settlement_admin" class="controls">
-                                <button ng-click="rmToken()" > &#9662; </button>
-                                <button ng-click="addToken()" > &#9652; </button>
-                            </div>
-                        </span>
+                            ng-repeat="e in range(settlement.sheet.endeavor_tokens)"
+                            class="campaign_summary_endeavor_star"
+                            src="/media/icons/endeavor_star.png"
+                        />
+                    </div>
+
+                    <div
+                        ng-if="user_is_settlement_admin"
+                        class="settlement_sheet_tumbler_control_raft"
+                    >
+                        <button ng-click="rmToken()" > &#9662; </button>
+                        <button ng-click="addToken()" > &#9652; </button>
+                    </div>
+
+                </div>
+
+                <div
+                    ng-if="settlement.sheet.endeavor_tokens <= 0"
+                    ng-click="addToken()"
+                    class="endeavor_controls_toggle settlement_sheet_block_group clickable"
+                >
+                    <h3>- Endeavor Tokens -</h3>
+                    <div
+     	                class="ng_fade kd_sheet_ui_row_tip"
+                     	ng-if="user.user.preferences.show_ui_tips"
+     	            >
+                        <p>Click or tap here to manage Endeavor Tokens.</p>
+                    </div>
+                </div>
+
+            </div> <!-- endeavor controller applet! -->
+
+        </div> <!-- show_endeavor_controls campaign_summary_small_box -->
+
+
+        <!--
+
+            Settlement endeavor bars!   This is a repeater with custom headers
+
+        -->
+
+        <div
+            class="campaign_summary_small_box endeavor_box"
+            ng-if="settlement.campaign.endeavor_count > 0"
+        >
+
+            <h3>- Available Endeavors ({{settlement.campaign.endeavor_count}}) -</h3>
+
+            <!--
+
+                some weird shit goes into keeping this DRY. At the outermost
+                layer, we iterate over endeavor types ('endeavorType'); those
+                keys are also keys in the settlement.campaign.endeavors dict.
+
+                The values in that dict are lists of handles, which we then
+                iterate, expanding them into endeavor dictionaries as we go.
+
+                As we're expanding each dict, we have h5's for each
+                possible type (i.e. the first thing we're iterating) that we
+                show if the endeavor is that type.
+
+                Our "fuck you, Poots" exception here is when we're doing the
+                'survivors' type endeavors, where the 'endeavor' dict we would
+                expand is actually a survivor dict, so we can tell the user
+                which survivor has the ability to trigger the endeavor.
+
+                See app.models.settlements.py (the get_available_endeavors() 
+                method, specifically) int he API for more.
+
+            -->
+
+            <!-- generic endeavor type repeater -->
+            <div
+                class="campaign_summary_endeavor_container_repeater"
+                ng-repeat="endeavorType in [
+                    'campaign',
+                    'innovations',
+                    'locations',
+                    'survivors',
+                    'storage',
+                    'settlement_events'
+                ]"
+            >
+                <div
+                    class="campaign_summary_endeavor_location_repeater"
+                    ng-repeat="i in settlement.campaign.endeavors[endeavorType]"
+                >
+
+                    <h5
+                        class="endeavor_location"
+                        ng-if="
+                            endeavorType === 'campaign' ||
+                            endeavorType === 'settlementEvents'
+                        "
+                    >
+                        <b>{{i['name']}}</b>:
+                    </h5>
+
+                    <h5
+                        class="endeavor_location"
+                        ng-if="endeavorType === 'innovations'"
+                    >
+                        <b>{{settlement.game_assets.innovations[i['handle']].name}}</b>
+                        ({{settlement.game_assets.innovations[i['handle']].innovation_type}}):
+                    </h5>
+
+                    <h5
+                        class="endeavor_location"
+                        ng-if="endeavorType === 'locations'"
+                    >
+                        <b>{{settlement.game_assets[endeavorType][i['handle']].name}}</b>:
+                    </h5>
+
+                    <h5
+                        class="endeavor_location"
+                        ng-if="endeavorType === 'survivors'"
+                    >
+                        <b>{{i.sheet.name}} [{{i.sheet.effective_sex}}]</b>:
+                    </h5>
+
+                    <h5
+                        class="endeavor_location"
+                        ng-if="endeavorType === 'storage'"
+                    >
+                        <b>{{i.name}} ({{i.type}})</b>:
+                    </h5>
+
+                    <!-- actual endeavor bar starts here -->
+                    <div
+                        ng-repeat="e_handle in i.endeavors"
+                        ng-init="e = settlement.game_assets.endeavors[e_handle]"
+                        class="campaign_summary_endeavor_container {{e.class}}"
+                    >
+                        <div class="endeavor_cost {{e.class}} kdm_font_10">
+                            <span ng-repeat="c in range(e.cost)">d</span>
+                        </div>
+
+                        <div class="endeavor_text">
+                            <b ng-if="e.name != undefined">{{e.name}}</b>
+                            <span ng-if="e.name != undefined && e.desc != undefined"> - </span>
+                            <span ng-bind-html="e.desc|trustedHTML"></span>
+                        </div>
 
                         <div
-                            ng-if="settlement.sheet.endeavor_tokens <= 0"
-                            ng-click="addToken()"
-                            class="endeavor_controls_toggle settlement_sheet_block_group clickable"
+                            ng-if="e.cost_detail != undefined"
+                            class="cost_detail {{e.cost_detail_type}}_cost_detail"
                         >
-                            <h4>- Endeavor Tokens -</h4>
-                            <span>Click or tap here to manage Endeavor Tokens.</span>
+                            <div ng-repeat="i in e.cost_detail">
+                                {{i}}
+                            </div>
                         </div>
 
-                        <div class="endeavor_controls_clear_div"></div>
+                    </div> <!-- endeavor bar -->
 
-                    </div>
+                </div> <!--  endeavor location/source repeater -->
 
-                </div> <!-- show_endeavor_controls -->
+            </div><!-- endeavor_bar_repeater -->
 
+        </div>  <!-- campaign_summary_small_box endeavor_box -->
+
+
+        <!-- principles, innovations, locations boxes -->
+        <div
+            class="clickable"
+            ng-repeat="(location, lookup) in {
+                'principles': 'innovations',
+                'innovations': 'innovations',
+                'locations': 'locations',
+            }"
+            ng-init="uiID = location + 'ShowBonuses'"
+            ng-click="ngShowHide(uiID)"
+            title="Tap or click to see descriptions!"
+        >
             <div
-                class="campaign_summary_small_box"
-                ng-if="settlement.sheet.lantern_research_level >= 1"
+                class="campaign_summary_small_box settlement_fact"
+                ng-if="settlement.sheet[location].length >= 1"
             >
-                <h4 class="pulse_discoveries">- Pulse Discoveries -</h4>
-                <div
-                    class="pulse_discovery"
-                    ng-repeat="d in settlement.game_assets.pulse_discoveries"
-                    ng-if="settlement.sheet.lantern_research_level >= d.level"
-                    style="background-color: {{d.bgcolor}}"
-                >
-                    <div class="pd_level_container">
-                        <div class="pd_level">{{d.level}}</div>
-                    </div>
-                    <div class="pd_text">
-                        <b>{{d.name}}</b>
-                        <span ng-if="d.subtitle != undefined"> - {{d.subtitle}}</span>
-                        <br/>
-                        {{d.desc}}
-                    </div>
-                </div><!-- repeater -->
-            </div> <!-- pulse discoveries -->
 
-            <div
-                class="campaign_summary_small_box endeavor_box"
-                ng-if="settlement.campaign.endeavor_count > 0"
+                <h4>- {{location}} -</h4>
+
+                <div
+                    ng-repeat="p in settlement.sheet[location]"
+                >
+
+                    <span
+                        class="kd_checkbox_checked campaign_summary_bullet"
+                        ng-init="object = settlement.game_assets[lookup][p]"
+                    >
+                        {{object.name}}
+                        <span
+                            ng-if="object.levels !== undefined"
+                            ng-init="lookup_dict = location.slice(0, -1) + '_levels'"
+                        >
+                            (Lvl.
+                                {{settlement.sheet[lookup_dict][p]}})
+                        </span>
+                    </span>
+    
+                    <div
+                        class="campaign_summary_settlement_bonus_desc"
+                        ng-bind-html="object.desc|trustedHTML"
+                        ng-if="
+                            object.desc !== undefined &&
+                            ngVisible[uiID]
+                        "
+                    ></div>
+
+                </div>
+
+            </div>
+
+        </div> <!-- repeater -->
+
+
+        <!-- monsters summary box -->
+
+        <div
+            class="campaign_summary_small_box settlement_fact"
+            ng-if="settlement.sheet.lantern_year > 0"
+        >
+            <h4>- Monsters -</h4>
+
+            <h3 class="monster_subhead" ng-if="settlement.sheet.monster_volumes.length >= 1">
+                Monster Volumes
+            </h3>
+            <span
+                class="kd_checkbox_checked campaign_summary_bullet"
+                ng-repeat='v in settlement.sheet.monster_volumes'
             >
-                <h4>- Available Endeavors ({{settlement.campaign.endeavor_count}}) -</h4>
+                {{v}}
+            </span>
 
-                <!-- campaign-specific endeavors -->
-                <div
-                    ng-repeat="i in settlement.campaign.endeavors.campaign"
-                >
-                    <h5><b>{{i['name']}}</b>:</h5>
-                    <div
-                        ng-repeat="e_handle in i.endeavors"
-                        ng-init="e = settlement.game_assets.endeavors[e_handle]"
-                        class="campaign_summary_endeavor_container {{e.class}}"
-                    >
-                        <div class="endeavor_cost {{e.class}}">
-                            <img ng-repeat="c in range(e.cost)" src="/media/icons/endeavor_star.png" class="endeavor_cost">
-                        </div>
-                        <div class="endeavor_text">
-                            <b ng-if="e.name != undefined">{{e.name}}</b>
-                            <span ng-if="e.name != undefined && e.desc != undefined"> - </span>
-                            <span ng-bind-html="e.desc|trustedHTML"></span>
-                        </div>
-                        <div ng-if="e.cost_detail != undefined" class="cost_detail {{e.cost_detail_type}}_cost_detail">
-                            <div ng-repeat="i in e.cost_detail">
-                                {{i}}
-                            </div>
-                        </div>
-                    </div> <!-- endeavor container -->
-                </div> <!-- campaign-specific endeavors -->
+            <h3 class="monster_subhead" ng-if="settlement.sheet.defeated_monsters.length >=1">
+                Defeated Monsters
+            </h3>
+            <span
+                class="kd_checkbox_checked campaign_summary_bullet"
+                ng-repeat="d in settlement.sheet.defeated_monsters track by $index"
+            >
+                {{d}}
+            </span>
 
-                <!-- innovations -->
-                <div
-                    ng-repeat="i in settlement.campaign.endeavors.innovations"
-                >
-                    <h5><b>{{settlement.game_assets.innovations[i['handle']].name}}</b> ({{settlement.game_assets.innovations[i['handle']].innovation_type}}):</h5>
-                    <div
-                        ng-repeat="e_handle in i.endeavors"
-                        ng-init="e = settlement.game_assets.endeavors[e_handle]"
-                        class="campaign_summary_endeavor_container {{e.class}}"
-                    >
-                        <div class="endeavor_cost {{e.class}}">
-                            <img ng-repeat="c in range(e.cost)" src="/media/icons/endeavor_star.png" class="endeavor_cost">
-                        </div>
-                        <div class="endeavor_text">
-                            <b ng-if="e.name != undefined">{{e.name}}</b>
-                            <span ng-if="e.name != undefined && e.desc != undefined"> - </span>
-                            <span ng-bind-html="e.desc|trustedHTML"></span>
-                        </div>
-                        <div ng-if="e.cost_detail != undefined" class="cost_detail {{e.cost_detail_type}}_cost_detail">
-                            <div ng-repeat="i in e.cost_detail">
-                                {{i}}
-                            </div>
-                        </div>
-                    </div> <!-- endeavor container -->
-                </div> <!-- innovations endeavors -->
+            <h3 class="monster_subhead">Quarries </h3>
+            <span
+                class="kd_checkbox_checked campaign_summary_bullet"
+                ng-repeat="n in settlement.sheet.quarries"
+            >
+                {{ settlement.game_assets.monsters[n].name }}
+            </span>
 
-                <!-- locations -->
-                <div
-                    ng-repeat="l in settlement.campaign.endeavors.locations"
-                >
-                    <h5><b>{{settlement.game_assets.locations[l['handle']].name}}</b>:</h5>
-                    <div
-                        ng-repeat="e_handle in l.endeavors"
-                        ng-init="e = settlement.game_assets.endeavors[e_handle]"
-                        class="campaign_summary_endeavor_container {{e.class}}"
-                    >
-                        <div class="endeavor_cost {{e.class}}">
-                            <img ng-repeat="c in range(e.cost)" src="/media/icons/endeavor_star.png" class="endeavor_cost">
-                        </div>
-                        <div class="endeavor_text">
-                            <b ng-if="e.name != undefined">{{e.name}}</b>
-                            <span ng-if="e.name != undefined && e.desc != undefined"> - </span>
-                            <span ng-bind-html="e.desc|trustedHTML"></span>
-                        </div>
-                        <div ng-if="e.cost_detail != undefined" class="cost_detail {{e.cost_detail_type}}_cost_detail">
-                            <div ng-repeat="i in e.cost_detail">
-                                {{i}}
-                            </div>
-                        </div>
-                    </div> <!-- endeavor container -->
-                </div> <!-- locations endeavors -->
+            <h3 class="monster_subhead">Nemesis Monsters</h3>
+            <span
+                class="kd_checkbox_checked campaign_summary_bullet"
+                ng-repeat="n in settlement.sheet.nemesis_monsters"
+            >
+                {{ settlement.game_assets.monsters[n].name }}
+            </span>
 
-                <!-- survivors -->
-                <div
-                    ng-repeat="s in settlement.campaign.endeavors.survivors"
-                >
-                    <h5><b>{{s.sheet.name}} [{{s.sheet.effective_sex}}]</b>:</h5>
-                    <div
-                        ng-repeat="e_handle in s.sheet.endeavors"
-                        ng-init="e = settlement.game_assets.endeavors[e_handle]"
-                        class="campaign_summary_endeavor_container {{e.class}}"
-                    >
-                        <div class="endeavor_cost {{e.class}}">
-                            <img ng-repeat="c in range(e.cost)" src="/media/icons/endeavor_star.png" class="endeavor_cost">
-                        </div>
-                        <div class="endeavor_text">
-                            <b ng-if="e.name != undefined">{{e.name}}</b>
-                            <span ng-if="e.name != undefined && e.desc != undefined"> - </span>
-                            <span ng-bind-html="e.desc|trustedHTML"></span>
-                        </div>
-                        <div ng-if="e.cost_detail != undefined" class="cost_detail {{e.cost_detail_type}}_cost_detail">
-                            <div ng-repeat="i in e.cost_detail">
-                                {{i}}
-                            </div>
-                        </div>
-                    </div> <!-- endeavor container -->
-                </div><!-- survivor repeater -->
+        </div> <!-- monsters box-->
 
-                <!-- storage -->
-                <div
-                    ng-repeat="item in settlement.campaign.endeavors.storage"
-                >
-                    <h5><b>{{item.name}} ({{item.type}})</b>:</h5>
-                    <div
-                        ng-repeat="e_handle in item.endeavors"
-                        ng-init="e = settlement.game_assets.endeavors[e_handle]"
-                        class="campaign_summary_endeavor_container {{e.class}}"
-                    >
-                        <div class="endeavor_cost {{e.class}}">
-                            <img ng-repeat="c in range(e.cost)" src="/media/icons/endeavor_star.png" class="endeavor_cost">
-                        </div>
-                        <div class="endeavor_text">
-                            <b ng-if="e.name != undefined">{{e.name}}</b>
-                            <span ng-if="e.name != undefined && e.desc != undefined"> - </span>
-                            <span ng-bind-html="e.desc|trustedHTML"></span>
-                        </div>
-                    </div> <!-- endeavor container -->
-                </div> <!-- storage endeavors -->
-
-                <!-- events -->
-                <div
-                    ng-repeat="item in settlement.campaign.endeavors.settlement_events"
-                >
-                    <h5><b>{{item.name}}</b>:</h5>
-                    <div
-                        ng-repeat="e_handle in item.endeavors"
-                        ng-init="e = settlement.game_assets.endeavors[e_handle]"
-                        class="campaign_summary_endeavor_container {{e.class}}"
-                    >
-                        <div class="endeavor_cost {{e.class}}">
-                            <img ng-repeat="c in range(e.cost)" src="/media/icons/endeavor_star.png" class="endeavor_cost">
-                        </div>
-                        <div class="endeavor_text">
-                            <b ng-if="e.name != undefined">{{e.name}}</b>
-                            <span ng-if="e.name != undefined && e.desc != undefined"> - </span>
-                            <span ng-bind-html="e.desc|trustedHTML"></span>
-                        </div>
-                    </div> <!-- endeavor container -->
-                </div> <!-- storage endeavors -->
-
-
-            </div>
-            <div class="campaign_summary_small_box settlement_fact" ng-if='settlement.survivor_bonuses.all.length >=1'>
-                <h4>- Settlement Bonuses -</h4>
-                <span
-                    class="kd_checkbox_checked campaign_summary_bullet"
-                    ng-repeat="p in settlement.survivor_bonuses.all"
-                >
-                    <b> {{p.name}}:</b>
-                    <span ng-bind-html="p.desc|trustedHTML"></span>
-                </span>
-            </div>
-            <div class="campaign_summary_small_box settlement_fact" ng-if="settlement.sheet.principles.length >= 1">
-                <h4>- Principles -</h4>
-                <span
-                    class="kd_checkbox_checked campaign_summary_bullet"
-                    ng-repeat="p in settlement.sheet.principles"
-                >
-                    {{settlement.game_assets.innovations[p].name}}
-                </span>
-
-            </div>
-            <div class="campaign_summary_small_box settlement_fact" ng-if="settlement.sheet.innovations.length >= 1">
-                <h4>- Innovations -</h4>
-                <span
-                    class="kd_checkbox_checked campaign_summary_bullet"
-                    ng-repeat="i in settlement.sheet.innovations"
-                >
-                    {{settlement.game_assets.innovations[i].name}}
-                </span>
-            </div>
-
-            <div class="campaign_summary_small_box settlement_fact" ng-if="settlement.sheet.locations.length >= 1">
-                <h4>- Locations -</h4>
-                <span
-                    class="kd_checkbox_checked campaign_summary_bullet"
-                    ng-repeat="l in settlement.sheet.locations"
-                >
-                    {{settlement.game_assets.locations[l].name}}
-                </span>
-            </div>
-
-            <div class="campaign_summary_small_box settlement_fact">
-                <h4>- Monsters -</h4>
-
-                <h3 class="monster_subhead" ng-if="settlement.sheet.monster_volumes.length >= 1">
-                    Monster Volumes
-                </h3>
-                <span
-                    class="kd_checkbox_checked campaign_summary_bullet"
-                    ng-repeat='v in settlement.sheet.monster_volumes'
-                >
-                    {{v}}
-                </span>
-
-                <h3 class="monster_subhead" ng-if="settlement.sheet.defeated_monsters.length >=1">
-                    Defeated Monsters
-                </h3>
-                <span
-                    class="kd_checkbox_checked campaign_summary_bullet"
-                    ng-repeat="d in settlement.sheet.defeated_monsters track by $index"
-                >
-                    {{d}}
-                </span>
-
-                <h3 class="monster_subhead">Quarries </h3>
-                <span class="kd_checkbox_checked campaign_summary_bullet" ng-repeat="n in settlement.sheet.quarries">
-                    {{ settlement.game_assets.monsters[n].name }}
-                </span>
-
-                <h3 class="monster_subhead">Nemesis Monsters</h3>
-                <span class="kd_checkbox_checked campaign_summary_bullet" ng-repeat="n in settlement.sheet.nemesis_monsters">
-                    {{ settlement.game_assets.monsters[n].name }}
-                </span>
-
-            </div>
-        </div> <!-- campaign_summary_facts_box -->
+    </div> <!-- campaign summary RIGHT PANEL ENDS HERE -->
 
 </div> <!-- campaign_summary_panels_container -->
 
@@ -1516,9 +1555,10 @@
 <!-- launcher button for managing departing survivors! -->
 
 <button
-    class="ng_fade manage_departing_survivors kd_red button_shadow"
+    id="manageDepartingSurvivors"
+    class="ng_fade kd_kickstarter_button kd_red"
     ng-if="departing_survivor_count > 0"
-    onclick="showHide('departingSurvivorsModalContent')"
+    ng-click="ngShow('departingSurvivorsModalContent')"
 >
     Manage {{departing_survivor_count}} <b>Departing</b> Survivors
 </button>

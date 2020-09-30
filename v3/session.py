@@ -1,3 +1,12 @@
+"""
+
+    Welcome to the oldest, dankest, most-badly-in-need-of-a-refactor part of the
+    legacy webapp. This is where we have the pachinko-machine logic for handling
+    active user sessions. Tread very carefully: code here is brittle af.
+
+"""
+
+
 #!/usr/bin/env python
 
 from bson.objectid import ObjectId
@@ -13,6 +22,10 @@ import string
 from string import Template
 import sys
 import traceback
+
+# third party
+import pymongo
+import requests
 
 import admin
 import api
@@ -196,7 +209,11 @@ class Session:
                 self.set_cookie=True
 
         if session_id is not None:
-            self.session = mdb.sessions.find_one({"_id": session_id})
+            try:
+                self.session = mdb.sessions.find_one({"_id": session_id})
+            except pymongo.errors.ServerSelectionTimeoutError:
+                self.logger.error('The database is unavailable!')
+                self.session = None
             if self.session is None:
                 sign_in()
             else:
@@ -212,7 +229,15 @@ class Session:
 #            self.logger.error(self.cookie)
 
         if self.session is not None:
-            if not api.check_token(self):
+
+            token_check = False
+            try:
+                token_check = api.check_token(self)
+            except requests.ConnectionError:
+                self.log_out()
+                self.session = None
+
+            if not token_check:
 #                self.logger.debug("JWT Token expired! Attempting to refresh...")
                 r = api.refresh_jwt_token(self)
                 if r.status_code == 401:
@@ -398,7 +423,8 @@ class Session:
             asset = mdb.settlements.find_one({"_id": a})
             asset_sum = "%s" % (asset["name"])
         else:
-            self.logger.error("[%s] view could not be changed to asset '%s'" % (self.User,a))
+            err = "[%s] view could not be changed to asset '%s'"
+            self.logger.error(err % (self.User,a))
 
         self.change_current_view(view, asset_id=a)
 
@@ -484,14 +510,6 @@ class Session:
             if p in self.params:
                 user_action = self.change_current_view_to_asset(p)
 
-        # remove settlement; deprecated 2018-06-08
-        if "remove_settlement" in self.params:
-            self.logger.error("Removing settlements is no longer supported by the legacy webapp!")
-
-        # remove survivor; deprecated 2018-06-08
-        if "remove_survivor" in self.params:
-            self.logger.error("Removing survivors is no longer supported by the legacy webapp!")
-
 
         #
         #   settlement operations - everything below uses user_asset_id
@@ -533,7 +551,7 @@ class Session:
         include_ui_templates = True
 
         # start the container
-        output = html.meta.start_container
+        output = html.meta.start_container % getattr(self, 'current_view', None)
 
         # now get us some HTML
         if self.current_view == "dashboard":
@@ -543,6 +561,7 @@ class Session:
 
         elif self.current_view == "new_settlement":
             body = 'create_new_settlement'
+            include_ui_templates = ['nav', 'help', 'report_error']
             output += html.get_template('new_settlement.html')
 
         elif self.current_view == "view_campaign":
@@ -558,7 +577,8 @@ class Session:
             output += html.get_template('survivor_sheet')
 
         else:
-            self.logger.error("[%s] requested unhandled view '%s'" % (self.User, self.current_view))
+            err = "[%s] requested unhandled view '%s'"
+            self.logger.error(err % (self.User, self.current_view))
             raise Exception("Unknown View!")
 
         # now close the container
@@ -566,7 +586,13 @@ class Session:
 
         # add UI templates
         if include_ui_templates:
-            for t in settings.get('application','ui_templates').split(','):
+
+            # allow arbitrary lists of templates to include
+            template_list = settings.get('application', 'ui_templates').split(',')
+            if isinstance(include_ui_templates, list):
+                template_list = include_ui_templates
+
+            for t in template_list:
                 output += html.get_template(t.strip())
 
         # finally, do a single, monster variable substitution pass:
@@ -581,6 +607,7 @@ class Session:
             settlement_id = self.session['current_settlement'],
             survivor_id = self.session.get('current_asset', None),
             blog_api_key = settings_private.get('api', 'blog_api_key'),
+            current_session = self.session.get('_id', None),
         )
 
         return output, body

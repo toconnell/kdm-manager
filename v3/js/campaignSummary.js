@@ -65,37 +65,6 @@ app.controller("manageDepartingSurvivorsController", function($scope, $rootScope
         };
     };
 
-    $scope.initShowdownControls = function(){
-        // this is kind of low-rent, but we've got exact conditions we want to
-        // evaluate for showing/hiding our various controls. All of our controls
-        // have a 'state' in scratch (which this sets); states are modified by
-        // toggleControlState() above, rather than 'showHide()', which isn't
-        // complex enough for our UX design here.
-
-        $scope.scratch.survival_bonus_control_state = 'hidden';
-
-        if ($scope.settlement.sheet.showdown_type != undefined) {
-            $scope.scratch.showdown_type_control_state = 'hidden';
-        } else {
-            $scope.scratch.showdown_type_control_state = 'visible';
-        };
-
-        if ($scope.settlement.sheet.showdown_type != undefined && $scope.settlement.sheet.current_quarry != undefined) {
-            $scope.scratch.showdown_current_quarry_control_state = 'hidden';
-        } else {
-            $scope.scratch.showdown_current_quarry_control_state = 'visible';
-        };
-
-        if ($scope.settlement.sheet.showdown_type != undefined && $scope.settlement.sheet.current_quarry != undefined) {
-            $scope.scratch.showdown_manage_departing_survivors_control_state = 'visible';
-        } else {
-            $scope.scratch.showdown_manage_departing_survivors_control_state = 'hidden';
-        };
-
-        // always hide this one
-        $scope.scratch.showdown_return_departing_survivors_control_state = 'hidden';
-    };
-
 
     // misc. helper
     $scope.toggleIncrementLY = function() {
@@ -167,11 +136,21 @@ app.controller("manageDepartingSurvivorsController", function($scope, $rootScope
     };
 
     $scope.updateDepartingSurvivors = function(attrib, mod){
-        showFullPageLoader();
-        $rootScope.hideControls = true;
-        $scope.postJSONtoAPI('settlement', 'update_survivors', {
+//        showFullPageLoader();
+        $rootScope.departing_survivor_count = 0; // hide the button on the main CS view
+        $scope.scratch.hideDepartingSurvivorsControls = true;
+        var res = $scope.postJSONtoAPI('settlement', 'update_survivors', {
             include: 'departing', attribute: attrib, 'modifier': mod,
         });
+        res.then(
+            function(payload) {
+				$scope.scratch.hideDepartingSurvivorsControls = false;
+            },
+            function(errorPayload){
+				console.error('Failed to update Departing Survivors!');
+				console.error(errorPayload);
+			}
+        );
     };
 
     $scope.calculateDepartingSurvivorBonus = function(){
@@ -267,15 +246,22 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
     };
 
     $scope.toggleDamage = function(s, loc){
+        // first, do it on the page, for responsiveness
+        if (s.sheet[loc] !== undefined) {
+            s.sheet[loc] = undefined;
+        } else {
+            s.sheet[loc] = 'true';
+        };
+
+        // now, record it in the API
         $rootScope.survivor_id = s.sheet._id.$oid;
         json_obj = {'location': loc};
-        var res = $scope.postJSONtoAPI('survivor', 'toggle_damage', json_obj, false);
+        var res = $scope.postJSONtoAPI('survivor', 'toggle_damage', json_obj, false, true, false);
         res.then(
             function(payload) {
-                var sheet = payload.data.sheet
-                s.sheet = sheet;
+                console.info(s.sheet.name + ' ' + loc + ' -> ' + s.sheet[loc]);
             },
-            function(errorPayload){console.error('ERROR!');}
+            function(errorPayload){console.error('Could not toggle hit location!'); }
         );
     };
 
@@ -290,18 +276,6 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
             },
             function(errorPayload){console.error('ERROR!');}
         );
-    };
-
-    $scope.setSurvivorAttributes = function(s, attrib){
-        $rootScope.survivor_id = s.sheet._id.$oid;
-        json_obj = {
-            attributes: [{attribute: attrib, value: s.sheet[attrib]}],
-            attribute_details: [
-                {attribute: attrib, detail: 'tokens', value: s.sheet.attribute_detail[attrib].tokens },
-                {attribute: attrib, detail: 'gear', value: s.sheet.attribute_detail[attrib].gear },
-            ],
-        };
-        var res = $scope.postJSONtoAPI('survivor', 'set_many_attributes', json_obj, false);
     };
 
     $scope.initSurvivorCard = function(survivor) {

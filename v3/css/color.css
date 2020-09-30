@@ -1,0 +1,335 @@
+/* DO NOT MAKE BREAKPOINT-SPECIFIC CHANGES IN THIS FILE */
+/* DO NOT MODIFY BORDER ATTRIBUTES OTHER THAN COLOR IN THIS FILE */
+
+:root {
+    --color_kd-affinity-blue: #1C99CD;
+    --color_kd-affinity-green: #4CB848;
+    --color_kd-affinity-red:  #CD2027;
+    --color_kd-kickstarter-grey: #666;
+    --color_kd-rulebook-pink: #ff00f0;
+    --color_kd-special-showdown: #DC2426;  
+}
+
+/*                          */
+/*      General UI/UX       */
+/*                          */
+
+input:active {  /* this is our on-click effect color */
+    border-color: var(--color_kd-special-showdown);
+}
+
+
+/* zebras */
+.zebra {background-color: #efefef; }
+.no_zebra {background-color: #fff; }
+.storage_zebra {background-color: #ff99aa; }
+.zebra_pop {background: radial-gradient(#fff,#ffffee);}
+
+/* tabs - */
+
+#viewTabContainer { /*  the bar that contains the buttons */
+    background: #fff;
+    border-color: #000;
+    box-shadow: 0 -7px 17px #ccc;
+}
+.view_tab_button {color: #ccc; }
+.view_tab_button.active {
+    color: #000;
+    background: linear-gradient(to top, #fff 95%, rgba(255,255,255,0))
+}
+.tab_nav_warning_arrow {
+    background: #fff;
+    color: #666;
+    border-color: #666;
+    box-shadow: 0 0 0.5em 0 #aaa;
+}
+
+/*  loading and spinner stuff   */
+.inline_spinner_container {
+    color: #666; 
+}
+
+/*  KD paper UI blocks, boxes and so on*/
+.strain_block {border-color: #5Dd7F2; background: #fff; }
+.kd_sheet_ui_outer_ring_container {background-color: #fff; }
+.kd_sheet_ui_inner_ring_container {background-color: #fff; color: #000; border-color: #000; }
+.kd_sheet_ui_border_box {border-color: #666; }
+.kd_sheet_ui_row_tip {background-color: #FFFFEC; color: #66411E; }
+.kd_sheet_ui_box {border-color: #000; }
+.kd_sheet_ui_box.checked,
+    .kd_sheet_ui_box.dotted {background-color: #000;}  
+.kd_sheet_ui_box.dotted:before {background: #fff; }
+.kd_sheet_ui_ai_toggle_container {border-color: #666;}
+
+/*  KD Kickstarter UI   */
+.kd_kickstarter_button,
+    .kd_kickstarter_select {border-color: #fff; box-shadow: 0 0 0.5em 0 #aaa}
+
+/* gradients */
+.gear_card_gradient {background: radial-gradient(#fff, #fff, #f8f8f8, #fffff9); }
+.card_gradient {
+    background: radial-gradient(circle, #EEDEBE, #F3EBD4, #F9F2EF);
+    border-color: #E6DECC;
+}
+.collection_gradient {background: linear-gradient(to right, #F5E2B9, #FAF6DB, #F5E2B9);}
+.dead_survivor_gradient {background: radial-gradient(#f4EEE0, #C7C3BF); }
+.fighting_art_gradient {background: radial-gradient(circle, #DFd733, #E4e3cC, #d0f0fc); color: #000; }
+.secret_fighting_art_gradient {background: radial-gradient(circle, #800, #a00, #c00); color: #fff; }
+.strain_gradient {background: radial-gradient(circle, #000, #333); color: #fff; }
+.dashboard {background: linear-gradient(to right, #fff, #eee); }
+
+.hover_highlight:hover {
+    background: radial-gradient(#fefef0, #fefefe);
+}
+.hover_highlight_red:hover {
+    background: radial-gradient(#ffefef, #fefefe);
+}
+
+    /*  DEPRECATED  gradients */
+.campaign_summary_gradient {background: linear-gradient(to right, #EFCE98, #F5E9D2, #fefeee, #F5E9D2, #EFCE98)}
+.settlement_sheet_gradient {background: linear-gradient(to right, #FFE082, #FFECB3, #FFF8E1, #FFECB3, #FFE082); }
+.survivor_sheet_gradient {background: linear-gradient(to right, #E6DECC, #f7f3eb, #fefeee, #f7f3eb, #E6DECC); }
+.gradient_silver { border-color: #666; background: linear-gradient(-90deg, #B5BFBA, #FaFDFa); }
+
+
+/* manager UI - not KD emulation, just UI/UX enhancements that we do */
+.white_text {color: #fff; }
+.green_text {color: #1CB71C;}
+.maroon_text {color: #B71C1C;}
+
+
+/* kd colors - kd rulebook and printed content emulation */
+/*  these should always go last, since they're overrides, etc.*/
+
+    /* buttons! */
+.kd_alert,
+    .kd_alert_no_exclaim,
+    .kd_pink {background-color: #FF0040; color: #ffffdd;}
+.kd_pink_text {color: #ff00f0;}
+.kd_rulebook_alert {
+    background: #F45494;
+    color: #ffffdd;
+}
+.kd_rulebook_alert_punctuation {color: #F99BC0;}
+
+/* timeline.html */
+.timeline_row_container.current_ly {border-color: #f00; }
+.current_ly_container_row {background: radial-gradient(#fff,#ffffee);}
+.timeline_event_rm_button {background-color: #666; color: #fff; }
+
+/* asset emulation - fun stuff */
+.kd_promo {color: #fff; background: radial-gradient(circle, #5Dd7F2, #50CAF5, #3FACCF); }
+.dragon_king {color: #E8cE55; background: radial-gradient(#7270B9, #6260A9); }
+
+/* gear cards */
+.gear_card_container .gear_card_affinity_inner {border-color: #fff; }
+.gear_card_gradient {background: radial-gradient(#fff, #fff, #f8f8f8, #fffff9);}
+.gear_card_recipe {border-color: #F3E067; background: #ffFFcc; }
+.gear_card_combat_stat_activation_icon {color: #000; }
+.gear_card_combat_stat_activation_icon::before {color: #fff; background: #fff;}
+.pattern_recipe_crafting_process_container {border-color: #ddd;}
+.pattern_recipe_crafting_process_item {border-color: #aaa;}
+.pattern_recipe_crafting_process_item:first-child {background: #4E4B42; color: #fff;}
+
+    /* lanterns */
+.kd_lantern {background-color: #F9EFCE; background: radial-gradient(#F9E6A4, #FCF3D5 ); border-color: #EBD6AB;}
+.vibrant_lantern {background-color: #DED6B3; background: radial-gradient(#DED6B3, #E7CE32); }
+.dying_lantern {background-color: #F9EFCE; background: radial-gradient(#FDE6C4, #FCF3D5); }
+
+    /* kd brown, endeavors */
+.kd_brown,
+    .endeavor_brown {background-color: #997030; background: linear-gradient(#997030, #a47a41, #997030); border-color: #B6B057; color: #fff; border-right-color: #C6C057; border-bottom-color: #C6C057;}
+
+    /* affinities and saviors */
+.kd_sheet_ui_box.affinity_red,
+    .affinity_red {background: #CD2027; background-color: #CD2027; border-color: #CD2027; color: #fff;}
+.affinity_red_text {color: #CD2027;}
+.kd_sheet_ui_box.affinity_blue,
+    .affinity_blue {background: #1C99CD; background-color: #1C99CD; border-color: #1C99CD; color: #fff;}
+.affinity_blue_text {color: #1C99CD;}
+.kd_sheet_ui_box.affinity_green,
+    .affinity_green {background: #4CB848; background-color: #4CB848; border-color: #4CB848; color: #fff;}
+.affinity_green_text {color: #4CB848;}
+
+    /* special showdown (i.e. kd red) effects */
+.kd_red_box {
+    background: #DC2426 !important; 
+    background-color: #DC2426;
+    border-color: #DC2426 !important;
+}
+.kd_red_border {
+    border-color: #DC2426 !important;
+}
+.special_showdown,
+    .kd_red_text {color: #DC2426; }
+.special_showdown_button,
+    .kd_special_showdown,
+    .kd_red {color: #fff; background-color: #DC2426; background: radial-gradient(#ED3537, #DC2426); }
+
+    /* attributes */
+.attribute_box { border-color: #000; }
+.attribute_box_number {background: #fff; color: #000; }
+.Movement, .mov_token {background-color: #9A6D84; color: #fff; }
+.Accuracy, .acc_token {background-color: #E8BE34; color: #000; }
+.Strength, .str_token {background-color: #D04F28; color: #fff; }
+.Evasion, .eva_token {background-color: #9FA6AE; color: #000; }
+.Luck, .luck_token {background-color: #AD9E81; color: #000; }
+.Speed, .spd_token {background-color: #8C9A65; color: #fff; }
+
+
+/*  DASHBOARD   */
+
+.dashboard_welcome_modal {
+    color: #fff;
+    background: rgba(0,0,0,0.95);
+}
+.dashboard_preference_block_group h2 {border-color: #bbb;}
+.world_panel_basic_box { border-color: #333; background: #fff; }
+
+/*                      
+
+    NAVIGATION and modal menus
+
+*/
+
+/*  top nav */
+#topNavBar {box-shadow: 0 10px 17px #ccc;}
+
+/*  left side nav   */
+#leftSideNav,
+    #leftSideNav button {color: #fff; background: #000; }
+#leftSideNavUnderlay {background: rgba(0,0,0,0.8); color: #fff; }
+.left_side_underlay_footer_container {color: #777; }
+
+/*  modal and modal-black   */
+.modal-black.departing_survivors_modal_container {background-color: #fff; color: #000;} 
+.applying_update_spinner {background: #fff; }
+
+/* report an error */
+textarea.report_error {outline: 1px solid #eee; }
+textarea.report_error:focus {box-shadow: none; }
+
+
+/*                      
+
+    SEARCH
+
+*/
+
+
+/*                      
+
+    NEW SURVIVOR SHEET
+
+*/
+.new_survivor_sheet .name {color: #000; }
+.new_survivor_link_container .new_survivor_link .desc .email {color: #666;}
+
+/*                      
+
+    NEW SETTLEMENT
+
+*/
+.new_settlement_asset_clicker {color: #777;}
+.new_settlement_asset_clicker.active {color: #000; }
+
+/*                      
+
+    CAMPAIGN SUMMARY 
+
+*/
+
+.campaign_summary_survivor_returning_flash {background-color: #CD4438; color: #fff}
+
+.campaign_summary_campaign_type {color: #666; }
+.headline_block_caption {color: #333; }
+.campaign_summary_endeavor_container {background-color: #997030; color: #fff;}
+.campaign_summary_small_box.settlement_fact {border-color: #666;}
+.monster_subhead {color: #666; }
+.quickview_survivor_name {color: #444; }
+.vertical_tumbler_container {
+    background: #fff;
+    color: #000; 
+}
+
+/* campaign summary - available endeavors*/
+.endeavor_cost {background: #D0AB51;}
+.available_endeavors_build {background: linear-gradient(to bottom, #73C26C, #51B952); color: #fff; }
+.build_cost_detail {background-color: #0D743A;}
+.available_endeavors_innovate {background: linear-gradient(to bottom, #4EC7F1, #40ADD0); }
+.innovate_cost_detail {background-color: #0277BD;}
+
+/* campaign summary fact boxes */
+.campaign_summary_settlement_bonus_desc {color: #666; }
+
+/*                      
+
+    SETTLEMENT SHEET    
+
+*/
+
+.campaign_type {
+    color: var(--color_kd-kickstarter-grey);
+}
+.settlement_abandoned_stamp {
+    color: var(--color_kd-special-showdown);
+}
+
+/* settlement sheet tumblers */
+.settlement_sheet_tumbler {color: #666; }
+.settlement_sheet_tumbler_controls {background: radial-gradient(#fefef0, #fefefe);}
+.settlement_sheet_tumbler_number {border-color: #bbb; color: #555; }
+.settlement_sheet_tumbler_number.active {border-color: #000; color: #000; }
+
+.settlement_sheet_line_item {border-color: #999;}
+.line_item .location_lvl_select .location_level {background: rgba(255,255,255,0)}
+
+.settlement_sheet_principle_name.not_set {color: #999; }
+.principle_option_desc {color: #666; }
+
+/* settlement sheet block groups */
+
+
+/*                      
+
+    SURVIVOR SHEET    
+
+*/
+.insane {color: #DC2426; border-color: #DC2426; }
+.survivor_sheet_tag.add_tag { background: #efefef;}
+.cursed_item_toggle {
+    color: #666; 
+    border-color: #aaa;
+}
+.cursed_item_toggle.active {
+    color: #B60200;
+    border-color: #BF2548;
+    background-color: #F5F1f8;
+}
+.survivor_sheet_special_attribute_container {
+    color: #ccc;
+    border-color: #ccc;
+}
+.survivor_sheet_special_attribute_container.active {
+    border-color: #DC2426;
+    color: #DC2426;
+}
+.special_attribute_checkbox {
+    border-color: #ccc;
+}
+.special_attribute_checkbox.active {
+    background-color: #DC2426;
+    border-color: #DC2426;
+}
+.survivor_sheet_note_pushpin {
+    color: #666;
+}
+.survivor_sheet_note_pushpin.active {
+    color: #000;
+}
+.survivor_sheet_note_debugger {
+    background: #eee;
+}
+.survivor_owner_email {
+    border-color: #aaa; 
+}

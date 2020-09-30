@@ -19,12 +19,6 @@ app.controller("dashboardController", function($scope, $http) {
         );
     };
 
-    $scope.toggleArrow = function(arrow){
-        if ($scope.scratch[arrow] == true) {$scope.scratch[arrow] = false}
-        else if ($scope.scratch[arrow] == false) {$scope.scratch[arrow] = true}
-        else if ($scope.scratch[arrow] == undefined) {$scope.scratch[arrow] = true};
-    };
-
     $scope.toggleUserExpansion = function(handle){
         handle_index = $scope.user.user.collection.expansions.indexOf(handle);
         if (handle_index == -1) {
