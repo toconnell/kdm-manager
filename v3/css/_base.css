@@ -177,9 +177,11 @@ button:active,
     margin-top: 3%;
 }
 .survivor_sheet_card_expansion_flair {
+    align-items: center;
     border: 0;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
+    display: flex;
     font-family: 'Silverado';
     margin-bottom: 4%;
     margin-top: -5%;
@@ -295,6 +297,7 @@ button:active,
     margin: 0 auto; 
     margin-top: 3%;
     margin-bottom: 3%;
+    min-height: 4vh;
     box-sizing: border-box;
     width: 90%;
     transition: 1s;  
@@ -886,6 +889,31 @@ h3.new_survivor_sheet {
 
 /*
 
+    Re-usable settlement view styles; sheet and campaign summary
+
+*/
+.settlement_name {
+    font-family: 'Silverado';
+    font-size: 3rem;
+    font-weight: bold;
+    text-align: center;
+    margin: 3%;
+}
+.campaign_type {
+    font-style: italic;
+    margin-bottom: 5%;
+    margin-top: -3%;
+    text-align: center;
+}
+.settlement_abandoned_stamp {
+    font-family: 'Silverado';
+    letter-spacing: 1vw;
+    text-align: center;
+    transform: rotatez(-1deg);
+}
+
+/*
+
     SURVIVOR SEARCH app
 
 */
@@ -966,8 +994,7 @@ h3.new_survivor_sheet {
     padding-top: 1%;
     font-size: 3vh; 
 }
-.survivor_search_asset_list {
-}
+
 .survivor_search_results_warning {
     margin: 3%;
     padding: 1%; 
@@ -983,21 +1010,6 @@ h3.new_survivor_sheet {
 
 */
 
-#campaignSummaryContainer {
-}
-#campaignSummarySettlementName {
-    margin: 3%; 
-    font-family: 'Silverado';
-    font-size: 10vw;
-    margin-bottom: 0; 
-}
-#campaignSummaryCampaignType {
-    font-style: italic;
-    font-family: 'Silverado';
-    font-size: 1.4em;
-    text-align: center;
-    margin-top: 0; 
-}
 
 .dead_guardian_ul {
     text-align: left; 
@@ -1254,8 +1266,7 @@ h3.new_survivor_sheet {
     min-width: 30%;
     margin-right: 2%;  
 }
-.secondary_attribute_title_bar .subtitle {
-} 
+
 .secondary_attribute_title_bar .lockbox {
     align-items: center; 
     display: flex;
@@ -1266,8 +1277,7 @@ h3.new_survivor_sheet {
 .lockbox .kd_sheet_ui_box {
     margin: auto;  
 }
-.lockbox span {
-}
+
 .quickview_secondary_container {
     margin: 3%;
     display: flex;
@@ -1427,13 +1437,6 @@ h3.new_survivor_sheet {
 }
 
 /*  settlement sheet left panel */
-.settlement_sheet_settlement_name {
-    font-family: Silverado;
-    font-size: 7vh;
-    font-weight: bold;
-    text-align: center;
-    margin: 3%;
-}
 
 #settlementSheetMilestonesContainer .milestone_content_container {
     margin: 1% auto; 
@@ -1496,6 +1499,7 @@ h3.new_survivor_sheet {
 
 /*  SETTLEMENT SHEET left panel - mobile */
 
+
 /*  settlement numbers tumblers - mobile */
 
 .settlement_sheet_tumblers_container {
@@ -1539,8 +1543,6 @@ h3.new_survivor_sheet {
     flex-wrap: nowrap;
     margin: 3%;
     border-radius: 1em;  
-}
-.settlement_sheet_tumbler_controls_container {
 }
 .settlement_sheet_tumbler_control_title {
     text-align: center;
@@ -2034,8 +2036,7 @@ h3.new_survivor_sheet {
     content: "\2605";
 }
 
-.survivor_sheet_campaign_attributes_container {
-}
+
 
     /* note tab starts here! */
 
