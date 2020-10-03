@@ -85,6 +85,12 @@
 
     /*
 
+        dashboard.html - tablet
+
+    */
+
+    /*
+
         timeline.html - tablet
 
     */
@@ -101,7 +107,9 @@
         SURVIVOR SEARCH - tablet
 
     */
-
+    #survivorSearchModalOpener {
+        height: 4vh;
+    }
     .survivor_search_survivor_assets {font-size: inherit;}
 
     /*
@@ -388,6 +396,10 @@
     .cursed_item_toggle {
         width: 40%;
     }
+    .survivor_sheet_tag.add_tag {
+        height: 7vh;
+        width: 7vh;
+    }
     .survivor_sheet_survivor_notes_slug_line {
         min-height: unset;
     }
@@ -398,10 +410,6 @@
 
     .survivor_sheet_public_toggle {
         font-size: 0.8em; 
-    }
-
-    .survivor_sheet_tag {
-        max-height: 2vh;
     }
 
     .permanently_delete {

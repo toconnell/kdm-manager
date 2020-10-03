@@ -167,7 +167,12 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
     } );
 
     $scope.$log = $log;
-    $scope.scratch = {}
+
+    // we probably have $scope.scratch by now, but initialize just in case
+    if ($scope.scratch === undefined ) {
+        $scope.scratch = {};
+    };
+
     $scope.scratch.settlementsRetrieved = 0;
 
     $rootScope.setView = function(view) {
@@ -1217,7 +1222,9 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
 //  with HTML that calls these controllers
 
 app.controller("updateExpansionsController", function($scope) {
-    $scope.scratch= {}
+    if ($scope.scratch === undefined) {
+        $scope.scratch= {}
+    };
     $scope.scratch['expansions_updated'] = false; 
     $scope.toggleExpansion = function(e_handle, index) {
         // figure out if its mandatory
@@ -1253,7 +1260,9 @@ app.controller("updateExpansionsController", function($scope) {
 });
 
 app.controller('newSurvivorController', function($scope, $http) {
-    $scope.scratch = {}
+    if ($scope.scratch === undefined) {
+        $scope.scratch = {}
+    };
     $scope.scratch.newSurvivorsCreated = 0;
     $scope.scratch.newSurvivorSheets = [];
     $scope.scratch.newSurvivorSex = 'M';

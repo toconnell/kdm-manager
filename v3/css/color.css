@@ -6,7 +6,10 @@
     --color_kd-affinity-green: #4CB848;
     --color_kd-affinity-red:  #CD2027;
     --color_kd-kickstarter-grey: #666;
-    --color_kd-rulebook-pink: #ff00f0;
+    --color_kd-rulebook-blue: #72BCEA;
+    --color_kd-rulebook-pink: #FD559D;
+    --color_kd-rulebook-blue-gradient: radial-gradient(#8ED7FB, #72BCEA);
+    --color_kd-rulebook-pink-gradient: radial-gradient(#ED5395, #FD559D);
     --color_kd-special-showdown: #DC2426;  
 }
 
@@ -101,11 +104,19 @@ input:active {  /* this is our on-click effect color */
 /* kd colors - kd rulebook and printed content emulation */
 /*  these should always go last, since they're overrides, etc.*/
 
+.kd_blue_border {border-color: var(--color_kd-rulebook-blue);}
+.kd_pink_border {border-color: var(--color_kd-rulebook-pink);}
+.kd_red_border {border-color: var(--color_kd-special-showdown);}
+
     /* buttons! */
 .kd_alert,
     .kd_alert_no_exclaim,
-    .kd_pink {background-color: #FF0040; color: #ffffdd;}
-.kd_pink_text {color: #ff00f0;}
+    .kd_pink {
+    background: var(--color_kd-rulebook-pink-gradient);
+    background-color: var(--color_kd-rulebook-pink);
+    color: #ffffdd;
+}
+.kd_pink_text {color: var(--color_kd-rulebook-pink);}
 .kd_rulebook_alert {
     background: #F45494;
     color: #ffffdd;
@@ -155,9 +166,6 @@ input:active {  /* this is our on-click effect color */
 .kd_red_box {
     background: #DC2426 !important; 
     background-color: #DC2426;
-    border-color: #DC2426 !important;
-}
-.kd_red_border {
     border-color: #DC2426 !important;
 }
 .special_showdown,
