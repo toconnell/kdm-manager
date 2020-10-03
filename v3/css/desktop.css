@@ -190,6 +190,9 @@
         padding: 1%
     }
 
+    #dashboardAlertsViewer .kd_sheet_ui_inner_ring_container {
+        width: 60%; 
+    }
 
     /*  gear_lookup.html - desktop */
 
@@ -433,9 +436,7 @@
 
     /*  survivor_search.html - desktop */
     #survivorSearchModalOpener {
-        max-height: 1.5vh;  
-        top: 0.5%;
-        width: 55%;
+        height: 4vh;
     }
     .survivor_search_modal_content {
         flex-direction: row;
@@ -562,6 +563,8 @@
     /*  settlement_sheet.html notes tab - desktop */
     .survivor_sheet_tag.add_tag {
         height: 5vw;
+        max-height: 66px;
+        max-width: 66px;
         width: 5vw;
     }
 

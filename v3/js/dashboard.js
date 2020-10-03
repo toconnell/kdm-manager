@@ -1,8 +1,42 @@
 
 app.controller("dashboardController", function($scope, $http) {
-    $scope.scratch = {};
+    // as usual, only initialize it if we need it
+    if ($scope.scratch === undefined) {
+        $scope.scratch = {};
+    };
 
-    // load expansion data on init
+    //
+    // API notifications; get
+    //
+
+    // getNotifications
+    $scope.getNotifications = function() {
+        console.info('[NOTIFICATIONS] Checking for notifications...');
+        var notificationPromise = $http.get($scope.api_url + "get/notifications");
+        notificationPromise.then(
+            function(payload) {
+                $scope.scratch.notifications = payload.data;
+                console.info("[NOTIFICATIONS] " + $scope.scratch.notifications.length + " alerts retrieved.")
+            },
+            function(payload) {
+                console.error("[NOTIFICATIONS] API notifications could not be loaded!")
+            }
+        );
+    }
+
+    // parseNotifications; sets some variables in scratch for UI/UX stuff
+    $scope.parseNotifications = function() {
+        $scope.scratch.kpi_notifications = 0;
+        var notifications = $scope.scratch.notifications;
+        for (var i = 0; i < notifications.length; i++) {
+            var note = notifications[i];
+            if (note.sub_type === 'kpi') {
+                $scope.scratch.kpi_notifications++;
+            }
+        }
+    }
+
+    // load expansion data
     $scope.loadExpansionAssets = function() {
         $scope.userPromise.then(
             function(payload){

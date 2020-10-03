@@ -640,7 +640,7 @@ button:active,
 }
 
 
-    /*  dashboard_rollup styles (the clickers on the dash) */
+/*  dashboard_rollup styles (the clickers on the dash) */
 
 .dashboard_rollup {
     align-items: center; 
@@ -744,6 +744,47 @@ button:active,
     font-family: 'Silverado';
 }
 
+#dashboardAlertsViewer .kd_sheet_ui_inner_ring_container {
+    padding-bottom: 1rem;
+}
+.dashboard_alerts_clicker {
+    align-items: center;
+    border: solid 0.25rem;
+    border-radius: 100%;
+    bottom: 2vw;
+    display: flex;
+    height:  12vh;
+    justify-content: center;
+    position: fixed;
+    right: 2vw;
+    width: 12vh;
+}
+.dashboard_alerts_container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    margin: 0 auto;
+    width: 100%; 
+}
+.dashboard_alerts_alert_repeater {
+    border-radius: 1vw;
+    margin: 1rem auto;
+    margin-left: 2rem;
+    margin-right: 2rem;
+    margin-bottom: 0; 
+    width: 95%;
+}
+.dashboard_alerts_alert_repeater .kd_sheet_ui_box {
+    margin-right: 0.25rem;
+}
+.dashboard_alerts_alert_footer {
+    border-top: 1px solid;
+    margin-top: 3%;
+    padding-right: 1%;
+    padding-top: 1%;
+    text-align: right;
+    width: 90%;
+}
 
 /*
 
@@ -918,29 +959,27 @@ h3.new_survivor_sheet {
 
 */
 #survivorSearchModalOpener {
-    position: fixed;
-    top: 1.5%;
+    height: 6vh;
+    box-sizing: border-box;
     left: 20%;
-    bottom: auto;
-    padding:1%;
-    width: 565px;
-    height: auto;
-    min-width: auto;
+    position: fixed;
     text-align: center;
+    top: 1%;
+    width: calc(100% - 40%);
 }
 .survivor_search_modal_content {
-    position: absolute;
-    top: 0;
-    left: 5%;
-    right: 5%;
-    margin-bottom: 10vh; 
-    border-bottom-right-radius: 1em;
-    border-bottom-left-radius: 1em;
     border: 0.1em solid;
+    border-bottom-left-radius: 1em;
+    border-bottom-right-radius: 1em;
     border-top: 0;
     display: flex;
     flex-direction: column;
-    padding-top: 6vh;  
+    left: 5%;
+    margin-bottom: 10vh; 
+    padding-top: 7vh;  
+    position: absolute;
+    right: 5%;
+    top: 0;
 }
 .survivor_search_button {
     margin: 3%;
@@ -996,12 +1035,14 @@ h3.new_survivor_sheet {
 }
 
 .survivor_search_results_warning {
-    margin: 3%;
-    padding: 1%; 
-    text-align: justify;
-    font-style: Italic;
     border-top: 1px solid;
-    width: 100%; 
+    box-sizing: border-box;
+    font-style: Italic;
+    margin: 3% auto;
+    margin-bottom: 0;
+    padding: 1%; 
+    text-align: center;
+    width: 95%;
 }
 
 /*
@@ -2131,18 +2172,18 @@ h3.new_survivor_sheet {
     cursor: pointer;
     display: flex;
     margin: 3%;
-    max-height: 10%;  
+    max-height: 1rem;
     padding: 2%;
 }
 .survivor_sheet_tag.add_tag {
     border: 1px solid;
     border-radius: 100%;
     font-size: 4vh; 
-    height: 10vw;
+    height: 10vh;
     max-height: none; 
     padding: 0;
     text-align-last:center;
-    width: 10vw;
+    width: 10vh;
 }
 
 /* vvv DELETE ALL OF THIS vvvv */

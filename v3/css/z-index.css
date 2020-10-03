@@ -5,6 +5,7 @@
 .sign_in                                        {z-index: -10; }
 #container                                      {z-index: 0; }
 .gear_card_combat_stat_activation_icon::before  {z-index: -1;}
+button                                          {z-index: 10;}
 .gear_card_combat_stat_activation_icon          {z-index: 10;}
 .clickable                                      {z-index: 10; }
 .dashboard_accordion                            {z-index: 10; }
@@ -21,17 +22,17 @@ input[type=text], input[type=password]          {z-index: 50; }
     #floating_dashboard_button                  {z-index: 101; }
 
     /* modal indexes */
-.survivor_search_modal_container            {z-index: 1199;}
+#survivorSearchModalContent.survivor_search_modal_container            {z-index: 1199;}
 #survivorSearchModalOpener,
-    #survivorSearchModalCloser              {z-index: 1200; }
-#leftSideNavUnderlay                        {z-index: 1999; }
-#leftSideNav                                {z-index: 2000; }
-.sidenav                                    {z-index: 2000; }
-.rightSideNav                               {z-index: 2000; }
-.modal                                      {z-index: 2001; }
-.modal-black                                {z-index: 2001; }
-.modal_control_overlay                      {z-index: 2002; }
-.full_size_modal_panel                   {z-index: 5000; }
+    #survivorSearchModalCloser              {z-index: 2002; }
+#leftSideNavUnderlay                        {z-index: 2999; }
+#leftSideNav                                {z-index: 3000; }
+.sidenav                                    {z-index: 3000; }
+.rightSideNav                               {z-index: 3000; }
+.full_size_modal_panel                      {z-index: 5000; }
+.modal                                      {z-index: 3005; }
+.modal-black                                {z-index: 3005; }
+.modal_control_overlay                      {z-index: 3006; }
 .corner_loading_spinner                     {z-index: 5001; }
 .timeline_overlay_current_ly            {z-index: 10000; }
 
