@@ -362,12 +362,15 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
         x.document.close();
     };
 
-	$rootScope.showAPIerrorModal = function(msg, request) {
+	$rootScope.showAPIerrorModal = function(msg, request, isFatal) {
+
+
 		$rootScope.ngShow('apiErrorModal');
 
 		if ($rootScope.ngVisible['apiErrorModal']) {
 		    r = document.getElementById('apiErrorModalMsgRequest');
 		    $rootScope.apiErrorModalMsgRequest = request;
+            $rootScope.apiErrorModalMsgIsFatal = isFatal;
 		    if (msg === null) {
 		        msg = 'API response is NULL. Possible preflight/CORS error!'
 		    };
@@ -533,6 +536,14 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
         form.submit();
     }
 
+    //
+    //  browsing and navigation helpers
+    //
+    $scope.loadURL = function(destination) {
+       // allows us to use ng-click to re-direct to URLs
+        window.location = destination;
+    };
+
 
     //
     // various methods below here
@@ -604,7 +615,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
                 console.error("[rootController.getSettlement()] Could not get settlement " + s_id);
                 console.error(errorPayload);
                 var err_msg = 'Could not load settlement ' + s_id + '!<hr/>' + errorPayload.data + '<hr/>Please report this error!';
-                $scope.showAPIerrorModal(err_msg, settlement_url);
+                $scope.showAPIerrorModal(err_msg, settlement_url, true);
             }
         );
     };
@@ -780,9 +791,11 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
                 function(errorPayload) {
                     console.error($scope.log_level + "Error loading settlement!" + errorPayload);
                     var err_msg = "An unrecoverable API error prevented this campaign from being retrieved!";
-                    $scope.showAPIerrorModal(err_msg, $scope.settlementPromise.$$state.value.config.url);
-
-                    // now sign them out
+                    $scope.showAPIerrorModal(
+                        err_msg,
+                        $scope.settlementPromise.$$state.value.config.url,
+                        true
+                    );
                 }
             );
 

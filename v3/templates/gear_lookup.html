@@ -5,11 +5,11 @@
     id="gearLookupModal"
     ng-if="
         settlement.sheet !== undefined &&
-        scratch.gearLookupOpenerButtonLoaded && 
-        user.user.subscriber.level > 1
+        user.user.subscriber.level > 1 &&
+        ngVisible['gearLookupModal']
     "
     ng-controller="gearLookupController"
-    ng-init="loadGearLookup(); showHide('gearLookupOpenerButton')"
+    ng-init="loadGearLookup();"
 >
 
     <div class="kd_sheet_ui_outer_ring_container">
@@ -62,7 +62,6 @@
 
             <div 
                 class="gear_repeater_container"
-                ng-click="showHide('gearLookupModal'); searchText={}"
             >
 
             <!--
@@ -393,8 +392,11 @@
             </div><!-- gear repeater container -->
 
             <button
-                class="kd_kickstarter_button"
-                ng-click="showHide('gearLookupModal'); searchText = {}"
+                class="kd_kickstarter_button floating_close_modal_button"
+                ng-click="
+                    ngHide('gearLookupModal');
+                    searchText = {}
+                "
             >
                 Close
             </button>

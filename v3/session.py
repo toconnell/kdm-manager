@@ -579,7 +579,7 @@ class Session:
         else:
             err = "[%s] requested unhandled view '%s'"
             self.logger.error(err % (self.User, self.current_view))
-            raise Exception("Unknown View!")
+            raise Exception("Unknown view requested! '%s'" % self.current_view)
 
         # now close the container
         output += html.meta.close_container

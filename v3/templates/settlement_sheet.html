@@ -1,5 +1,17 @@
 <!-- top nav - DEPRECATED -->
-<div id="topNavBar" class="settlement_sheet_gradient"></div>
+<div id="topNavBar" class="settlement_sheet_gradient">
+    <button
+        id="floating_refresh_button"
+        class="clickable kd_yellow font_large"
+        ng-if="settlement.sheet !== undefined"
+        ng-click="
+            showFullPageLoader();
+            initializeSettlement('settlementSheet', '$api_url','$settlement_id')
+        "
+    >
+        &#8634;
+    </button>
+</div>
 
 <script
     src="/js/settlementSheet.js?v=$application_version"
@@ -1058,7 +1070,7 @@
         >
             <div class="font_large kd_sheet_ui_row title">
                 <img
-                    class="icon"
+                    class="kd_icon"
                     src="media/icons/nemesis_encounter_event.jpg"
                     ng-class="{
                         'invert_image': user.user.preferences.night_mode === true,

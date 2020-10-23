@@ -4,7 +4,8 @@
 
 @media only screen and (min-width: 1050px) and (orientation: landscape) {
 
-    html {font-size: 12pt;}
+    html {font-size: 12pt; height: 100%; }
+    body {height: 100%; }
     h2 {font-size: 17pt; }
     h3 {font-size: 15pt; }
     h4 {font-size: 14pt; font-weight: normal; }
@@ -192,6 +193,12 @@
 
     #dashboardAlertsViewer .kd_sheet_ui_inner_ring_container {
         width: 60%; 
+    }
+
+    .dashboard_welcome_modal p,
+        .dashboard_welcome_modal button {
+        margin: 2rem auto; 
+        width: 50%;
     }
 
     /*  gear_lookup.html - desktop */

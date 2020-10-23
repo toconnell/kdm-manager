@@ -8,21 +8,6 @@
   and (max-device-width: 1024px)
   and (-webkit-min-device-pixel-ratio: 1) {
 
-    /*  CSS RESET   */
-    html {
-        font-size: 1.5vh;
-    }
-    h2 {font-size: 3vh;}
-    h3 {font-size: 2vh;}
-    ul {margin: 0 auto; }
-    li {margin: 0 auto; } 
-
-
-    /*  abstract fonts - new in version 4 */
-    .font_small {font-size: 1vh;}
-    .font_medium {font-size: 1.5vh;}
-    .font_large {font-size: 2vh; }
-
     /*  top nav DEPRECATED  */
     #topNavBar {
         height: 6vh;

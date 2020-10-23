@@ -52,8 +52,11 @@ class meta:
 
     start_head = Template("""<!DOCTYPE html>\n<html ng-app="kdmManager" ng-controller="rootController" ng-init="api_key='$api_key'">
     <head>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
         <meta name="theme-color" content="#000000">
+
         <title>$title</title>
 
         <link rel="stylesheet" type="text/css" href="/media/style.css?v=$version">
@@ -115,6 +118,13 @@ class meta:
         <p id="apiErrorModalMsg" class="kd_alert_no_exclaim api_error_modal_msg">
             {{apiErrorModalMsg}}
         </p>
+        <button
+            ng-if="!apiErrorModalMsgIsFatal"
+            onClick="location.reload()"
+            class="kd_kickstarter_button"
+        >
+            Reload and continue?
+        </button>
         <button
             ng-click="signOut()"
             class="kd_kickstarter_button kd_pink"

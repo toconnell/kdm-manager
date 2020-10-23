@@ -9,13 +9,35 @@
     height: 8vh;
     margin-top: -1px; /* seriously? the fuck? */
 }
+#floating_refresh_button,
+    #floating_dashboard_button {
+    border: 0.1rem solid;
+    border-radius: 100%; 
+    box-shadow: var(--box-shadow-default);
+    height: 3rem;
+    margin: 0;
+    position: fixed;
+    top: 0.3rem;
+    width: 3rem;
+}
+#floating_dashboard_button {
+    left: 0.3rem; 
+}
+#floating_refresh_button {
+    right: 0.3rem; 
+}
 
+:root {
+    --font-tiny: 0.3rem;
+    --font-small: 0.6rem;
+    --font-medium: 1rem;
+    --font-large: 1.5rem;
+}
 
 /*  CSS RESET */
 
 html {
     border-width: 0.1rem;
-    font-size: 40px;
     height: auto;
     min-height: 100%;
     overflow: auto; 
@@ -49,13 +71,6 @@ input[type="number"]::-webkit-outer-spin-button,
 h3 {font-size: 3vh; }
 p {margin: 3%; }
 
-/*  abstract fonts - new in version 4  */
-.font_tiny {font-size: 0.3rem; }
-.font_small {font-size: 0.6rem; }
-.font_medium {font-size: 1rem; }
-.font_large {font-size: 1.5rem; }
-
-
 /*  major UI stuff; sfx; consistency,etc.    */
 .capitalize {text-transform: capitalize;}
 .clickable {
@@ -83,6 +98,13 @@ button:active,
 .ng_fadeout.ng-leave.ng-leave-active,
     .ng_fade.ng-leave.ng-leave-active {opacity:0;}
 
+/* pure CSS animations */
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% {transform: translate3d(4px, 0, 0); }
+}
 
 /*  generic roll-down stuff */
 .roll_down_container {
@@ -310,6 +332,8 @@ button:active,
 }
 
 /*  KD Worksheet UI */
+.kd_icon {width: 1rem; }    /* crossed swords, etc. */
+
 .kd_sheet_ui_outer_ring_container {
     position: absolute;
     width: 100%;
@@ -476,6 +500,17 @@ button:active,
     border: none;
 }
 
+.kd_title {
+    font-family: 'Silverado';
+    text-transform: uppercase;
+    font-weight: normal;
+}
+.kd_title:before {
+    content: "- ";
+}
+.kd_title:after {
+    content: " -";
+}
 
     /* rolldown roll_down roll-down */
 .kd_sheet_ui_roll_down {
@@ -512,13 +547,15 @@ button:active,
     margin-top: 1%; 
 }
 .kd_sheet_ui_box {      /* the one and only checkbox style! */
-    border: 0.5vw solid;
-    width: 3.5vw;
-    height: 3.5vw;
+    box-sizing: border-box;
+    border: 0.1rem solid;
+    height: 0.8rem;
     display: inline-block;
     margin-right: 4%;
+    min-height: 0.8rem;
+    min-width: 0.8rem;
     transition: 1s;
-    box-sizing: border-box;
+    width: 0.8rem;
 }
 .kd_sheet_ui_box:last-child{
     margin-right: auto;
@@ -535,11 +572,11 @@ button:active,
     height: 0.35rem;
 }
 .kd_sheet_ui_box.heavy {
-    border-width: 1vw;
+    border-width: 0.2rem;
 }    
 .kd_sheet_ui_box.small {
-    width: 2.5vw;
-    height: 2.5vw; 
+    width: 0.35rem;
+    height: 0.35rem; 
 }
 
 .survivor_sheet_kd_sheet_ui_box,
@@ -586,10 +623,6 @@ button:active,
 
 /*  modal - re-usable modal elements */
 
-.dashboard_welcome_modal {
-    padding-top: 1%;
-}
-
 
 .floating_close_modal_button {  /* use with .kd_kickstarter_button */
     position: fixed;
@@ -604,10 +637,20 @@ button:active,
 
 /*
 
-    SIDE NAV - base/mobile
-
+    SIDE NAV - base/mobile (nav.html)
 */
+
+#leftSideNav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-x: hidden;
+    transition: 0.3s;
+}
 #leftSideNav::-webkit-scrollbar { width: 0 !important }
+
 #leftSideNav.open {width: 75%; }
 #leftSideNavUnderlay.open {width: 25%; }
 #leftSideNav H3 {
@@ -617,18 +660,35 @@ button:active,
 }
 #leftSideNav button {
     border: 0;
-    transition: 0.3s;
-    display: block;
     box-sizing: border-box; 
-    width: 100%;
+    display: block;
     text-align: left;
     padding: 4%;
     margin: 3%;
     margin-left: 0;  
+    transition: 0.3s;
+    width: 100%;
 }
-#leftSideNav #leftSideNavUserSignOut {text-align: center; }
-#leftSideNav .sidenav_top_level {text-align: right; }
+#leftSideNav button:hover {
+    padding-left:15%;
+    padding-right: 1%;
+}
+#leftSideNav button.disabled:hover {
+    animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+    backface-visibility: hidden;
+    padding: 4%;
+    perspective: 1000px;    
+    transform: translate3d(0, 0, 0);
+}
 
+#leftSideNav #leftSideNavUserSignOut {text-align: center; }
+#leftSideNav .sidenav_top_level {
+    text-align: right;
+}
+#leftSideNav .sidenav_top_level:hover {
+    padding-left: 1%;
+    padding-right: 10%; 
+}
 
 /*
 
@@ -679,8 +739,13 @@ button:active,
     border: none;
     padding-left: 5%; 
 }    
-
-#systemPanelUserLogin {padding-top: 5%; font-family: 'Silverado';}
+.dashboard_kdm_font {
+    vertical-align: middle;
+}
+#systemPanelUserLogin {
+    font-family: 'Silverado';
+    padding-top: 5%;
+}
 .dashboard_user_expansions_repeater {
     display: flex;
     flex-wrap: wrap;
@@ -845,11 +910,34 @@ h3.new_survivor_sheet {
     margin-right: 5%; 
 }
 
+
 /*
     timeline.html 
 */
 #timelineContainer {
     margin-bottom: 12vh; 
+}
+.timeline_row_container {
+    align-items: baseline;
+    border-bottom: 1px solid #aaa;
+    box-sizing: border-box; 
+    break-inside: avoid;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    margin: 0 auto;
+    padding: 2%;
+    width: 95%; 
+}
+.kd_sheet_ui_box.ly_checkbox {
+    margin: 1rem auto;
+    margin-top: 0;  
+}
+.ly_ly {
+    display: flex;
+    min-width: 2rem;
+    justify-content: center;
+    align-items: center;
 }
 .timeline_overlay_control {
     box-sizing: border-box;

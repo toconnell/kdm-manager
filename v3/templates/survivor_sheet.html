@@ -4,6 +4,18 @@
     class="survivor_sheet_gradient"
     style='{{settlement.survivor_color_schemes[survivor.sheet.color_scheme].style_string}}'
 >
+    <button
+        id="floating_refresh_button"
+        class="clickable kd_yellow font_large"
+        ng-if="settlement.sheet !== undefined"
+        ng-click="
+            showFullPageLoader();
+        	initializeSettlement('survivorSheet', '$api_url','$settlement_id');
+	        initializeSurvivor('$survivor_id');
+        "
+    >
+        &#8634;
+    </button>
 </div>
 
 <script
@@ -221,7 +233,7 @@
             title="Permanent affinity bonuses for {{survivor.sheet.name}}. Click or tap to edit!"
         >
             <div
-                class="affinity_{{a}} affinity_span"
+                class="font_large affinity_{{a}} affinity_span"
                 ng-repeat="a in ['red','green','blue']"
             >
                 {{survivor.sheet.affinities[a]}}
@@ -2222,7 +2234,7 @@
             ng-if="lineage.events !== undefined"
         >
             <div
-                class="font_small lineage_event_repeater {{event.event_type}}"
+                class="lineage_event_repeater {{event.event_type}}"
                 ng-repeat="event in lineage.events"
                 ng-class-even="'zebra'"
                 title="Date({{event.created_on.$date|date:'yyyy-MM-dd @ h:mma'}});"
