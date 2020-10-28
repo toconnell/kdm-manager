@@ -1,8 +1,7 @@
 <!doctype html>
-<html>
+<html lang="en">
 
  <head>
-
 
     <title>$prod_url - $title</title>
 
@@ -40,7 +39,6 @@
 
     <h1 class="clickable" ng-click="showSignInControls()">$prod_url</h1>
     <h2 class="clickable" ng-click="showSignInControls()">$title</h2>
-    <br/>
     
     <h3 class="version_tag">$released</h3>
 
@@ -116,12 +114,38 @@
             <button class="submit kd_alert" ng-click="resetPassword('$api_url')"> Reset Password </button>
             <p>&nbsp;</p>
             <p>Important Information:</p>
-            <p class="disclaimer"><b>http://kdm-manager.com</b> is an interactive campaign management tool for use with <i><a href="https://shop.kingdomdeath.com/products/kingdom-death-monster-1-5" target="top">Monster</a></i>, by <a href="http://kingdomdeath.com" target="top">Kingdom Death</a>.</p>
-            <p class="disclaimer">The <b>http://kdm-manager.com</b> service, including <a href="http://api.thewatcher.io" target="top">the KD:M API</a>, is developed, maintained and edited by <a href="http://toconnell.info">Timothy O'Connell</a>. The service is published, supported and provisioned by <a href="http://thelaborinvain.com">The Labor in Vain.</a></p>
-            <p class="disclaimer">Neither the <b>http://kdm-manager.com</b> service nor any of the software utilized by the service are developed, maintained, authorized or in any other way supported by or affiliated with <a href="http://kingdomdeath.com" target="top">Kingdom Death</a> or Adam Poots Games, LLC.</p>
-            <p class="disclaimer">More information available on <a href="http://kdm-manager.blogspot.com/" target="top">the development blog</a>.</p>
+            <p class="disclaimer"><b>https://kdm-manager.com</b> is an interactive campaign management tool for use with <i><a href="https://shop.kingdomdeath.com/products/kingdom-death-monster-1-5" target="top">Monster</a></i>, by <a href="https://kingdomdeath.com" target="top">Kingdom Death</a>.</p>
+            <p class="disclaimer">
+                The <b>https://kdm-manager.com</b> service, including
+                <a href="http://api.kdm-manager.com" target="top">
+                    the KD:M API</a>,
+                is developed, published and provisioned by 
+                <a href="https://thelaborinvain.com">The Labor in Vain.</a>
+            </p>
+            <p class="disclaimer">
+                Neither the <b>https://kdm-manager.com</b> service nor any of
+                the software utilized by the service are developed,
+                maintained, authorized or in any other way supported by or
+                affiliated with <a href="http://kingdomdeath.com" target="top">
+                    Kingdom Death</a> or Adam Poots Games, LLC.
+            </p>
+            <p class="disclaimer">
+                More information is available on
+                <a href="https://blog.kdm-manager.com" target="top">
+                    the development blog</a>.
+            </p>
+            
             <p>&nbsp;</p>
-            <button class="submit kd_promo" ng-click="hideControls('help_controls'); showSignInControls()">Close</button>
+
+            <button
+                class="submit kd_promo"
+                ng-click="
+                    hideControls('help_controls');
+                    showSignInControls()"
+            >
+                Close
+            </button>
+
         </div>
     </div>
     <div id="help_success" class="modal hidden">

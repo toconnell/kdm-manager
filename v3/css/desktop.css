@@ -4,23 +4,16 @@
 
 @media only screen and (min-width: 1050px) and (orientation: landscape) {
 
-    html {font-size: 12pt; height: 100%; }
-    body {height: 100%; }
-    h2 {font-size: 17pt; }
-    h3 {font-size: 15pt; }
-    h4 {font-size: 14pt; font-weight: normal; }
-
-    /*  abstract fonts - new in version 4 */
-    .font_small     {font-size: 9pt;}
-    .font_medium    {font-size: 12pt;}
-    .font_large     {font-size: 15pt;}
-
     /*  top nav - DEPRECATED */
     #topNavBar {height: 6vh}
 
     /*  major UI elements   */
     #container {
         width: 1100px; /*  max app width on desktop    */
+    }
+
+    .capsule_alert {
+        width: 25vw; 
     }
 
     /*  tabs - tablet   */
@@ -119,50 +112,17 @@
     #leftSideNav button {margin: 0 auto; }
 
 
-    /* report an error */
-    .report_error_container p {
-        margin: 0 auto;
-        width: 90%;
-    }
-    .report_error {
-        margin: 0 auto;
-        min-height: 30vh;
-        width: 90%;
-    }
-    div.error_form {
-        margin: 0 auto;
-    }
-    div.error_form input[type=submit] {
-        margin-right: 5%;
-        width: auto;
-    }
-
 
 
     /*
-            NGDEBUGGER! we only style this at desktop res
+            NGDEBUGGER!
     */
 
     #ngDebugWindow {
-        background: #ddd;
-        border: 2px solid;
-        bottom: 1%;
+        border: 0.1rem solid;
         height: 50%;
-        opacity: 80%;
-        overflow-y: scroll;
         padding: 1%;
-        position: fixed;
-        right: 1%;
         width: 25%; 
-    }
-    #ngDebugWindow table {
-        width: 100%; 
-    }
-    #ngDebugWindow ul {
-        margin-left: 0;
-    }
-    #ngDebugWindow li {
-        margin-top: 3%; 
     }
 
     /*
@@ -510,15 +470,6 @@
         font-size: inherit; 
     }
 
-    div.settlement_sheet_block_group h2 {
-        font-size: 15pt;  
-    }
-    div.settlement_sheet_block_group p {
-        font-size: 10pt; 
-    }
-    .settlement_sheet_block_group .line_item {
-        margin-bottom: auto;
-    }
     .settlement_sheet_line_item {
         font-size: inherit; 
     }
@@ -615,6 +566,11 @@
         transform: unset;
     }
 
+    /*  affinity    */
+    .modal-content.survivor_affinities_modal {
+        width: 25%;
+    }
+
     .survivor_sheet_special_attribute_container {
         margin: 1%;
         padding: 1%; 
@@ -686,7 +642,12 @@
         font-size: 10pt; 
     }
 
-    /*  timeline.html   */
+    /*  report_error.html - desktop */
+    .modal-content.report_error {
+        width: 50%;
+    }
+
+    /*  timeline.html - desktop  */
     .kd_sheet_ui_inner_ring_container.timeline_container {
         width: 98%; 
     }
@@ -695,5 +656,4 @@
         column-gap: 5px;
         column-width: auto;
     }
-
 }

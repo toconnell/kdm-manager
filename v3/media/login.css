@@ -1,5 +1,8 @@
+/*          */
+/*  fonts   */
+/*          */
 
-/* fonts */
+@import url(//fonts.googleapis.com/css?family=Ruda);
 
 @font-face {
     font-family: 'Metrophobic';
@@ -20,15 +23,43 @@
 .helvetica {font-family: Helvetica, sans-serif; height: 100%; }
 
 
+/*              */
+/*  CSS reset   */
+/*              */
+
+html, body {
+    color: #fff;
+    font-family: 'Ruda';
+    height: 100%; 
+    margin: 0;
+    padding: 0;
+}
+h1 {font-family: 'Silverado';}
+
+a {color: inherit; margin: 0 auto; text-decoration: none; font-weight: bold; }
+button {color: #fff; background-color: inherit; box-shadow: none; border: 0; outline: none; }
 
 
 
 /* mobile style */
 
-.container {display: flex; flex-direction: column; background: radial-gradient(circle, #333, #000); background-repeat: no-repeat; background-attachment: fixed; height: 100%; min-height: min-content; }
+.container {
+    background: radial-gradient(circle, #333, #000);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: min-content;
+}
 
 h1 {margin: 0 auto; margin-top: 15%; font-size: 500%; }
-h2 {margin: 0 auto; font-size: 170%; } 
+h2 {
+    font-size: 170%;
+    margin: 1rem auto;
+    width: 90%;
+    text-align: center;  
+} 
 h3 {position: absolute; right: 3%; }        /* version tag */
 
 button {font-size:  150%; }
@@ -53,12 +84,26 @@ button.submit {width: 100%;}
 
 noscript {margin: 0 auto; margin-top: 3%; display: block; background-color: #CC0000; border: 0.2em solid #fff; color: #fff; text-align: center; padding: 1%; }
 
-/* tablet style */
 
+/*  hide bottom buttons if keyboard is displayed */
 
 @media only screen
-  and (min-device-width: 768px)
-  and (max-device-width: 1024px)
+    and (max-device-height: 400px)
+    {
+
+    html {height: auto; }
+    button.sign_up,
+        button.help {
+        display: none;
+    }
+
+}
+
+/* tablet style */
+
+@media only screen
+  and (min-device-width: 768px),
+  and (max-device-width: 1024px),
   and (-webkit-min-device-pixel-ratio: 1) {
 
     h1 {font-size: 300%; }
@@ -113,11 +158,6 @@ noscript {margin: 0 auto; margin-top: 3%; display: block; background-color: #CC0
 
 /* general style - all breakpoints - last chance overwrites */
 
-html, body {padding: 0; margin: 0; height: 100%; font-family: 'Metrophobic'; color: #fff; }
-h1 {font-family: 'Silverado';}
-
-a {color: inherit; margin: 0 auto; text-decoration: none; font-weight: bold; }
-button {color: #fff; background-color: inherit; box-shadow: none; border: 0; outline: none; }
 
 .clickable {cursor: pointer; }
 .hidden {display: none;}

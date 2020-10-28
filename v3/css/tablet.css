@@ -207,13 +207,9 @@
     .campaign_summary_survivor_modal_color_scheme_select {height: 4vh;}
 
     /*  right panel - tablet    */
-    .endeavor_box h3 {
-        font-size: 4vw;
-    }
-    .campaign_summary_small_box.settlement_fact h4 { font-size: 4vw; }
+
     /*  campaign summary deafeated monsters - tablet */
     .monster_subhead {
-        font-size: 2vh;
         margin: 0;
         margin-top: 2%;
         padding-left: 5%;
@@ -284,7 +280,6 @@
 
 
     /*  settlement sheet - quarry, nemesis, etc. boxes */
-    .settlement_sheet_line_item {font-size: 2vh;}
     .location_lvl_select {width: 10%; }
 
     /*  settlement sheet - strain milestones - tablet */
@@ -319,6 +314,10 @@
         width: 100%;
     }
 
+    /*  affinities  */
+    .modal-content.survivor_affinities_modal {
+        width: 50%;
+    }
     .affinity_block {
         height: 10vh;
         width: 10vh; 
@@ -413,4 +412,8 @@
         margin: 1%;
     }
 
+    /*  report_error.html   */
+    .modal-content.report_error {
+        width: 75%; 
+    }
 }

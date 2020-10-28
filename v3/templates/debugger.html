@@ -1,0 +1,99 @@
+<div
+    id="ngDebugWindow"
+    class="hidden"
+>
+    user: {{user_login}}<br/>
+    session: {{current_session}}
+
+    <hr/>
+
+    <ul>
+        <li
+            ng-if="settlement === undefined"
+        >
+            <i>waiting for settlement...</i>
+        </li>
+
+        <li
+            ng-if="settlement !== undefined"
+        >
+            <a
+                href=""
+                ng-click="dumpJSONtoTab(settlement)"
+            >
+                settlement JSON
+            </a>
+        </li>
+
+        <li
+            ng-if="survivor !== undefined && lineage.events === undefined"
+        >
+            <i>waiting for survivior events...</i>
+        </li>
+
+        <li
+            ng-if="lineage.events !== undefined"
+        >
+            <a
+                href=""
+                ng-click="dumpJSONtoTab(lineage.events)"
+            >
+                survivor events JSON
+            </a>
+        </li>
+    </ul>
+
+    <hr/>
+    ngRolledUp:
+    <table>
+        <tr ng-repeat="(element, status) in ngRolledUp">
+            <td>{{element}}</td>
+            <td
+                class="clickable"
+                ng-click="rollUp(element)"
+            >
+                {{status}}
+            </td>
+        </tr>
+    </table>
+    <hr/>
+    ngVisible:
+    <table>
+        <tr ng-repeat="(element, status) in ngVisible">
+            <td>{{element}}</td>
+            <td
+                class="clickable"
+                ng-click="ngShowHide(element)"
+            >
+                {{status}}
+            </td>
+        </tr>
+    </table>
+    <hr/>
+    <button
+        ng-click="showFullPageLoader();"
+    >
+        showFullPageLoader()
+    </button>
+    <button
+        ng-click="hideFullPageLoader();"
+    >
+        hideFullPageLoader()
+    </button>
+    <button
+        ng-if="!ngVisible['savedAlert']"
+        ng-click="savedAlert(true);"
+    >
+        Show "Saved" alert
+    <button
+        ng-if="ngVisible['savedAlert']"
+        ng-click="ngHide('savedAlert', true);"
+    >
+        Hide "Saved" alert
+    </button>
+    <button
+        ng-click="savedAlert();"
+    >
+        Flash "Saved" alert
+    </button>
+</div>

@@ -138,9 +138,13 @@
                                         class="gear_card_combat_stat_activation"
                                         ng-if="gear.speed != undefined"
                                     >
-                                        <div class="gear_card_combat_stat_activation_icon">
+                                        <div
+                                            class="gear_card_combat_stat_activation_icon"
+                                        >
                                             a
                                         </div>
+
+                                        <hr class="three_dee" />
 
                                         {{gear.speed}}
 
@@ -154,36 +158,47 @@
                                             {{gear.strength}}
                                         </div>
                                     </div>
+
+                                    <!-- armor -->
                                     <div
                                         class="gear_card_combat_stat_shield"
                                         ng-if="gear.armor != undefined"
                                     >
                                         {{gear.armor}}
                                     </div>
-                                    <span class="gear_card_location_glyph" ng-if="gear.location == 'head'">
-                                        b
+                                    <span
+                                        class="gear_card_location_glyph"
+                                        ng-repeat="
+                                            (armorLocation, glyph) in {
+                                                'head': 'b',
+                                                'body': 'c',
+                                                'arms': 'd',
+                                                'waist': 'e',
+                                                'legs': 'f'
+                                            }
+                                        "
+                                        ng-if="gear.location === armorLocation"
+                                    >
+                                        {{ glyph }}
                                         <span ng-if="gear.aux_location == 'body'">c</span>
-                                    </span>
-                                    <span class="gear_card_location_glyph" ng-if="gear.location == 'arms'">d</span>
-                                    <span class="gear_card_location_glyph" ng-if="gear.location == 'body'">c
                                         <span ng-if="gear.aux_location == 'waist'">e</span>
                                     </span>
-                                    <span class="gear_card_location_glyph" ng-if="gear.location == 'waist'">e</span>
-                                    <span class="gear_card_location_glyph" ng-if="gear.location == 'legs'">f</span>
                                 </div>
 
                                 <div
                                     class="gear_card_detail_top_info"
                                 >
                                     <div 
-                                        class="title"
+                                        class="font_large title"
                                     >
                                         {{gear.name}}
                                     </div>
                                     <div 
                                         class="keywords"
                                     >
-                                        <span ng-repeat="keyword in gear.keywords">{{keyword}}{{$last ? '' : ', '}}</span>
+                                        <span ng-repeat="keyword in gear.keywords">
+                                            {{keyword}}{{$last ? '' : ', '}}
+                                        </span>
                                     </div>
                                 </div>
     
@@ -325,7 +340,7 @@
                 </div>
 
                 <div
-                    class="gear_card_recipe"
+                    class="font_small gear_card_recipe"
                     ng-repeat="recipe in gear.recipes"
                 >
                     <div class="gear_card_recipe_title">

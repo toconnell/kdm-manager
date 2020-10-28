@@ -17,7 +17,13 @@ ul.kd_boxes {list-style-type: none; margin-top: 1.5%; }
 ul.kd_boxes li:before {content: "h "; font-family: 'kdm-font-2'; font-size: 1.5em; vertical-align: bottom; }
 ul.kd_boxes li {text-align: left; }
 
-.strain_block {display: inline-block; border: 0.1em solid; width: 3vw; height: 1.5vh; margin-bottom: -0.3vh; }
+.strain_block {
+    border: 0.1em solid;
+    display: inline-block;
+    height: 1rem;
+    margin-bottom: -0.3vh;
+    width: 1rem;
+}
 
 .available_endeavors_build {border-top: 2px solid #0D743A; border-bottom: 2px solid #0D743A;}
 .available_endeavors_innovate {border-top: 2px solid #0277BD; border-bottom: 2px solid #0277BD;}
@@ -103,12 +109,6 @@ div[contenteditable=true]:empty:before {
 }
 
 .ul {border: 0; border-bottom: 1px solid #666; }
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-    /* display: none; <- Crashes Chrome on hover */
-    -webkit-appearance: none;
-    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
-}
 
 fieldset {padding: 0; margin: 0 auto;}
 
@@ -272,24 +272,51 @@ pre { white-space: pre-wrap; }
 
 /* gear lookup - mobile */
 input[type="radio"].gear_lookup_attrib_toggle {display: inherit;}
-.gear_lookup_loading {width: 100%; text-align: center; margin-bottom: 3vh; transition: 1s; }
-.gear_lookup_search_box {display: block; margin: 0 auto; width: 95%; border:0; text-align: center; margin-bottom: 6%; }
-.gear_lookup_card_repeater {width: 90%; margin: 0 auto; margin-bottom: 2%; }
+.gear_lookup_loading {
+    margin-bottom: 3vh;
+    text-align: center;
+    transition: 1s;
+    width: 100%;
+}
+.gear_lookup_search_box {
+    border:0;
+    display: block;
+    margin: 0 auto;
+    margin-bottom: 6%;
+    text-align: center;
+    width: 95%;
+}
+.gear_lookup_card_repeater {
+    margin: 0 auto;
+    margin-bottom: 2%;
+    width: 90%;
+}
 .gear_lookup_card_repeater .gear_card_container {
     margin: 0 auto;
     margin-bottom: 1%;
 }
 .gear_card_recipe {
-    font-family: 'Metrophobic';
-    font-size: 0.7em; padding: 1%; margin: 2%;
+    padding: 1%; margin: 2%;
     border-radius: 0.5em;
     border: 1px solid; 
 }
-.gear_card_recipe * {font-size: inherit; }
-.gear_card_recipe_title {color: #8E7E1F; padding-left: 3%; background-color: #f3E067; margin: 0 auto; margin-top: -1%; margin-left: -1%; margin-right: -1%; margin-bottom: 1%; border-top-left-radius: 0.3em; border-top-right-radius: 0.3em; }
+.gear_card_recipe * {
+    font-size: inherit;
+}
+.gear_card_recipe_title {
+    background-color: #f3E067;
+    color: #8E7E1F;
+    padding-left: 3%;
+    margin: -1% -1% 1% -1% auto;
+    border-top-left-radius: 0.3em;
+    border-top-right-radius: 0.3em;
+}
 
 .pattern_recipe_crafting_process_container {
-    background: #fff; width: 97%; margin: 0 auto; padding: 0;
+    background: #fff;
+    width: 97%;
+    margin: 0 auto;
+    padding: 0;
     border-radius: 0.5em; border: 1px solid; display: flex;
     flex-direction: column; flex-wrap: nowrap; 
     margin-top: 1%;
@@ -309,118 +336,67 @@ input[type="radio"].gear_lookup_attrib_toggle {display: inherit;}
 }
 
 /* gear cards - mobile */
-.gear_card_container {border: 1px solid #000; border-radius: 25px; width: 650px; min-height: 650px; }
-.gear_card_affinity_outer {background-color: rgba(250,250,250,0); margin: 0 auto; }
-.gear_card_affinity_inner {background-color: rgba(250,250,250,0); border: 3px solid #fff; margin: 0 auto; }
 
-.gear_card_affinity_inner.top_affinity,
-    .gear_card_affinity_inner.bottom_affinity {
-        width: 85%;
-        height: 85%;
-        border-bottom-left-radius: 1%;
-        border-bottom-right-radius: 1%;
+.gear_card_detail_region_text {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    width: 100%;
 }
-
-.gear_card_affinity_outer.left_affinity,
-    .gear_card_affinity_outer.right_affinity {
-        width: 100%;
-        height: 18%;
-}
-.gear_card_affinity_inner.left_affinity,
-    .gear_card_affinity_inner.right_affinity {width: 85%; height: 85%; border-top-left-radius: 1%; border-bottom-left-radius: 1%; }
-
-.gear_card_affinity_outer.top_affinity {border-bottom-left-radius: 1%; border-bottom-right-radius: 1%; }
-.gear_card_affinity_inner.top_affinity {border-top: 0; }
-
-.gear_card_affinity_outer.left_affinity {border-top-right-radius: 1%; border-bottom-right-radius: 1%; }
-.gear_card_affinity_inner.left_affinity {border-left: 0; margin-top: 10%; margin-right: 10%;}
-
-.gear_card_affinity_outer.right_affinity {border-top-left-radius: 1%; border-bottom-left-radius: 1%; }
-.gear_card_affinity_inner.right_affinity {border-right: 0; margin-left: 10%; margin-top: 10%; }
-
-.gear_card_affinity_outer.bottom_affinity {border-top-left-radius: 1%; border-top-right-radius: 1%; display: flex;}
-.gear_card_affinity_inner.bottom_affinity {border-bottom: 0; margin-top: 5%; }
-
-.gear_card_detail_region {display: flex; min-height: 549px;}
-.gear_card_detail_region_text {display: flex; flex-direction: column; flex-wrap: nowrap; width: 100%;}
 .gear_card_detail_region_top {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     width: 100%;
 }
-.gear_card_detail_region_bottom {width: 100%; display: flex; flex-direction: column; height: 100%; justify-content: flex-end; }
-.gear_card_combat_stat_col {
-    width: 45%;
-    display: flex;
-    margin-left: -3%;
-    height: 100%;
-}
-.gear_card_combat_stat_col_negative_spacer {
-    width: 45%;
-    height: 10%;
-}
-.gear_card_combat_stat_activation {
-    border-radius: 25px;
-    background-color: #777;
-    color: #fff;
-    padding: 4%;
-    padding-bottom: 5%; 
-    font-size: 45px;
+.gear_card_detail_region_bottom {
+    width: 100%;
     display: flex;
     flex-direction: column;
-    flex-wrap: nowrap; text-align: center;
-    margin-left: 15%;
-    height: 95%; 
+    height: 100%;
+    justify-content:
+    flex-end;
 }
-.gear_card_combat_stat_activation hr {margin-top: 1px; margin-bottom: 1px; background-color: #000; height: 3px; border: 0; }
-.gear_card_combat_stat_activation_detail {background-color: #333; border-radius: 20px; margin: 0 auto; width: 100%; font-size: 45px; border: 0; width: 1em; overflow: visible; }
-.gear_card_combat_stat_activation_detail hr {background-color: #777; height: 3px; border: 0; }
-.gear_card_accuracy_detail {
-    display: flex;
-    justify-content: center;
-    align-items: baseline;
-    width: 140%; 
-}
-.gear_card_accuracy_detail::after {
-    content: "+";
-    text-shadow: -1px -1px 0 #333, 1px -1px 0 #333, -1px 1px 0 #333, 1px 1px 0 #333;
-    font-size: 0.7em;
-    line-height: 1.5;
-}
-.gear_card_location_glyph {font-size: 40px; color: #000; font-family: 'kdm-font-2'}
-.gear_card_detail_top_info {
-    width: 100%;
-    height: 50%;
-    overflow: visible;
-     
+.gear_card_combat_stat_col_negative_spacer {
+    height: 10%;
+    width: 45%;
 }
 .gear_card_detail_top_info .title {
-    font-size: 3vh;
     font-weight: bold;
     text-align: center;
     font-family: 'Silverado';
     white-space: nowrap; 
 }
 .gear_card_detail_top_info .keywords {
-    font-size: 30px;
     font-style: italic;
     text-align: center;
     margin-left: -9%;
     margin-right: -9%;
     height: 0; 
 }
-.gear_card_add_affinity_container {display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: center; width: auto; margin-bottom: 2%; }
+.gear_card_add_affinity_container {
+    display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: center; width: auto; margin-bottom: 2%; }
 .gear_card_add_affinity {width: 120px; height: 120px; border-radius: 1%; margin: 2%; margin: 0 auto; }
 .gear_card_add_affinity_interior {width: 80%; height: 80%; margin: 0 auto; border: 5px solid #fff; border-radius: 1%; margin-top: 7%; }
-.gear_card_detail_bottom_rules {font-weight: bold; text-align: center; font-size: 35px; font-family: 'Metrophobic'; }
+.gear_card_detail_bottom_rules {
+    font-weight: bold;
+    text-align: center;
+}
 .gear_card_detail_bottom_desc {
-    font-size:30px;
     text-align: center;
     margin-bottom: 2%
 }
 
-.gear_card_detail_bottom_affinity_bonus {border-radius: 25px; width: 100%; border: 3px solid #fff; background-color: #dad7d8; font-family: 'Metrophobic'; font-size: 35px; display: flex; margin-bottom: 1%; height: auto; max-height: 65%; }
+.gear_card_detail_bottom_affinity_bonus {
+    background-color: #dad7d8;
+    border: 3px solid #fff;
+    border-radius: 3vw;
+    display: flex;
+    height: auto;
+    margin-bottom: 1%;
+    max-height: 65%;
+    width: 100%;
+}
 .gear_card_detail_bottom_affinity_bonus_requires {
     background-color: #fff;
     padding: 2%;
@@ -431,17 +407,39 @@ input[type="radio"].gear_lookup_attrib_toggle {display: inherit;}
 }
 .affinity_bonus_grid {display: flex; flex-wrap: wrap; flex-direction: row; justify-content: center;  }
 .affinity_bonus_grid>* {flex: -1 1 150px; }
-.puzzle_piece_repeater {font-family: 'kdm-font-2'; font-size: 40px; margin: 0; padding:0; }
-.affinity_bonus_text {padding: 2%; font-size: 30px; width: 80%; }
+.puzzle_piece_repeater {
+    font-family: 'kdm-font-2';
+    margin: 0;
+    padding:0;
+}
+.affinity_bonus_text {
+    padding: 2%; 
+    width: 80%;
+}
 
 /* paired arrows - mobile */
 .gear_card_affinity_outer.left_affinity.affinity_paired_left,
-    .gear_card_affinity_outer.right_affinity.affinity_paired_right {width:0; height:0; border-top: 40px solid transparent; border-bottom: 40px solid transparent; }
-.gear_card_affinity_outer.left_affinity.affinity_paired_left {border-right: 40px solid #222;}
-.gear_card_affinity_outer.right_affinity.affinity_paired_right {border-left: 40px solid #222;}
-
-.gear_card_affinity_outer.bottom_affinity.affinity_paired_bottom {width: 0; height: 0; border-left: 40px solid transparent; border-right: 40px solid transparent; }
-.gear_card_affinity_outer.bottom_affinity.affinity_paired_bottom {border-top: 40px solid #222;}
+    .gear_card_affinity_outer.right_affinity.affinity_paired_right {
+    border-bottom: 1rem solid transparent;
+    border-top: 1rem solid transparent;
+    height:0;
+    width:0;
+    padding-bottom: 0;
+    padding-top: 0;
+}
+.gear_card_affinity_outer.left_affinity.affinity_paired_left {
+    border-right: 1rem solid;
+}
+.gear_card_affinity_outer.right_affinity.affinity_paired_right {
+    border-left: 1rem solid;
+}
+.gear_card_affinity_outer.bottom_affinity.affinity_paired_bottom {
+    width: 0;
+    height: 0;
+    border-left: 1rem solid transparent;
+    border-right: 1rem solid transparent;
+    border-top: 1rem solid;
+}
 
 /* event log styles - mobile */
 .event_log .kd_sheet_ui_row_tip {margin: 0 auto; width: 93%; margin-bottom: 3%; margin-top: 3%; }
@@ -494,17 +492,6 @@ div.settlement_notes_controls {margin: 0; width: 100%; height: auto; padding-bot
 
 input.add_settlement_note {display: inline-block; width: 80%; margin: auto; }
 button.add_settlement_note {display: inline-block; width: auto; padding-left: 3%; padding-right: 3%; margin: auto;}
-
-
-/* error reporting styles */
-div.report_error_container {width: 90%; margin: 0 auto; }
-div.error_form {
-    margin: 0 auto; text-align: center; padding: 0; padding-top: 1rem;}
-
-textarea.report_error {
-    margin: 0 auto;
-    height: 300px;
-    width: 100%; padding: 1%; border: 0; }
 
 
 
@@ -626,7 +613,14 @@ hr.new_asset {margin-top: 20px; margin-bottom: 20px; }
 p.settlement_buff {font-family: Metrophobic; }
 
     /* new survivor modal - mobile */
-.new_survivor_sheet_loader {display: flex; flex-direction: column; font-size: 30pt; align-items: center; padding-top: 5%; padding-bottom: 5%; width: auto; }
+.new_survivor_sheet_loader {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 5%;
+    padding-top: 5%;
+    width: auto;
+}
 
 .new_survivor_sheet .border_box {margin: 3%; }
 .new_survivor_sheet .avatar_selector .avatar {height: 200px; margin: 2%; }
@@ -643,7 +637,7 @@ p.settlement_buff {font-family: Metrophobic; }
 }
 
 .new_survivor_link_container .new_survivor_link {padding: 2%; display: flex; flex-direction: row; width: auto; border: 5px solid #000; margin: 3%; }
-.new_survivor_link_container .new_survivor_link .avatar {width: 20%; }
+.new_survivor_link_container .new_survivor_link .avatar {width: 10vw; }
 .new_survivor_link_container .new_survivor_link .avatar img {width: 90%; display: block; }
 .new_survivor_link_container .new_survivor_link .desc {width: 80%; }
 
@@ -719,7 +713,14 @@ div.survivor_controls img {background-color: #fff; margin-bottom: 2%; }
 .departing_survivors_control {background-color: #fff; width: 95%; margin: 0 auto; display: flex; flex-direction: row; justify-content: space-between; border-top: 5px solid #eee;  }
 .departing_survivors_control div.label_div {font-size: 1em; padding: 3%; }
 .departing_survivors_control div.button_div {display: flex; flex-direction: row; align-items: center; width: 50%; justify-content: space-around; }
-.departing_survivors_control div.button_div button {border-radius: 50%; width: 120px; height: 120px; background: radial-gradient(#000, #000, #000, #333, #666, #ddd); border: 3px solid #666; margin: 3%; font-size: 30pt; color: #fff;}
+.departing_survivors_control div.button_div button {
+    border-radius: 50%;
+    width: 3rem;
+    height: 3rem; 
+    background: radial-gradient(#000, #000, #000, #333, #666, #ddd);
+    border: 3px solid #666; margin: 3%; 
+    color: #fff;
+}
 
 .departing_survivors_mgmt {border: 3px solid #fff; padding: 3%; }
 .departing_survivors_innovation_desc b.innovation_name {font-size: 1.2em; }
@@ -818,9 +819,15 @@ ul.asset_deck {
 }
 li.asset_deck {background: none; margin-left: 5%; }
 .innovation_quick_pick_item {margin: 2%; border-radius: 5px; margin: 5%; }
-.innovation_quick_pick_item .innovation_name {width: 100%; padding: 1%; font-weight: bold; font-size: 40pt; text-align: center; }
-.innovation_quick_pick_item .innovation_consequences {font-size: 30pt; margin: auto; width: 80%; margin-bottom: 2%; text-align: center;  }
-.innovation_quick_pick_item .innovation_survival_limit_bar {border-radius: 10px; background-color: #D0AB51; border: 3px solid #b9A38D; color: #fff; text-align: center; font-size: 30pt; width: 85%; margin: 0 auto; margin-bottom: 2%; padding: 1%;  }
+.innovation_quick_pick_item .innovation_name {width: 100%; padding: 1%; font-weight: bold; text-align: center; }
+.innovation_quick_pick_item .innovation_consequences {
+    margin: auto;
+    width: 80%; margin-bottom: 2%; text-align: center;
+}
+.innovation_quick_pick_item .innovation_survival_limit_bar {
+    border-radius: 10px;
+    background-color: #D0AB51;
+    border: 3px solid #b9A38D; color: #fff; text-align: center; width: 85%; margin: 0 auto; margin-bottom: 2%; padding: 1%;  }
 
 
 div.lantern_research_level {width: 90%; display: flex; flex-direction: row; margin: auto; margin-top: 3%; align-items: center; }
@@ -859,8 +866,20 @@ button.permanently_delete {margin-bottom: 5%; }
 input.confirm_remove {margin: 0 auto; border: 0.2em solid #fff; display: block; text-align: center; background: radial-gradient(#fff,#fff,#eee)}
 
 
-.campaign_summary_special_rule {display: block; font-size: 40px; margin: 0 auto; margin-bottom: 7px; font-family: 'arial'; padding: 10px; text-align: center; clear: both;}
-.campaign_summary_special_rule h3 {text-transform: uppercase; margin: 0 auto;}
+.campaign_summary_special_rule {
+    display: block;
+    font-family: 'Arial';
+    margin: 0 auto;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    text-align: center;
+    width: 90%; 
+}
+.campaign_summary_special_rule h3 {
+    margin: 0 auto;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+}
 
 h3.inventory_tag {float: right; clear: none; position: absolute;  margin-top: -40px; right: 56px; opacity: 0.3; padding: 10px; }
 h3.clickable {padding: 1%; }
@@ -1042,7 +1061,12 @@ input.survivor_sheet_attrib_controls_number {width: 125px; height: 125px; border
 
 
 button#constellationModalOpener {width: 40%; margin-top: -1250px; float: left; }
-table#survivor_constellation_table {width: 95%; border-radius: 25px; background-color: #E1F5FE; margin: 0 auto; font-size: 18pt; }
+table#survivor_constellation_table {
+    border-radius: 25px;
+    background-color: #E1F5FE;
+    margin: 0 auto;
+    width: 95%;
+}
 table#survivor_constellation_table th {font-weight: bold; vertical-align: middle; text-align: center; padding: 5px; }
 table#survivor_constellation_table td {padding: 5px; background-color: #FDFFFF; text-align: center; vertical-align: center; }
 table#survivor_constellation_table td.active {background-color: #FFF9C4; font-weight: bold; transition: 1s;}
@@ -1066,9 +1090,6 @@ div.survivor_constellation_badge {font-size: 23pt; position: absolute; right: 8%
 .partner_selector {width: 90%; border-radius: 5px; margin: 0 auto; color: black; padding: 2%; display: flex; flex-direction: row; margin-top: 2%; }
 .partner_selector * {margin: 1%; font-size: 30pt; }
 .partner_select_avatar {width: 15%; height: 15%; }
-
-/* affinity controls ; mobile width */
-.survivor_affinities_modal p {font-size: 25pt; font-family: 'Metrophobic'; text-align: center; }
 
 
 
@@ -1149,8 +1170,6 @@ div#info_box h2 {margin-top: 0; border: 0 none; font-weight: normal; width: 40%;
 
 .api_error_output {font-family: monospace; background-color: #DDD; padding: 1%; font-size: 0.8em; white-space: pre-wrap; word-wrap: break-word;}
 
-div.full_page_loading_spinner {position: fixed; left: 0; right:0; top: 0; bottom: 0; background-color: #fff; background: rgba(255,255,255,0.9);  }
-img.full_page_loading_spinner {position: fixed; top: 40%; left: 40%; }
 
 div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: none;}
 
@@ -1181,7 +1200,7 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     left: 5%; right: 5%; 
     background-color: #fefefe;
     margin: auto;
-    margin-bottom: 30%; 
+    margin-bottom: 30%;
     padding: 20px;
     padding-bottom: 10%; 
     border: 2px solid #3E2723;
@@ -1206,23 +1225,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
 }
 
 .modal_control_overlay {position: absolute; top: 0; left: 0; right: 0; overflow-y:scroll; overflow-x:hidden }
-
-/* The Close Button */
-.closeModal {
-    bottom: auto;  
-    color: #977;
-    display: block;
-    font-family: Arial, sans-serif;
-    font-size: var(--font-large);
-    font-weight: bold;
-    margin: 0 auto;
-    padding: 0;
-    position: absolute; 
-    right: 20px;
-    left: auto;
-}
-
-.closeModal:hover,.closeModal:focus {color: #ff1144;text-decoration: none;cursor: pointer;}
 
 
 
@@ -1270,8 +1272,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     .nav_bar, .top_nav_spacer {height: 75px; }
     .top_nav_spacer {margin-bottom: 0%; }
 
-    /* modal overlay - tablet */
-    .closeModal {font-size: 100px; top: -10px; }
 
     /* sign-in styles */
     body.sign_in {background: radial-gradient(#fff, #ccc); }
@@ -1352,7 +1352,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
         .new_survivor_sheet .permissions .public,
         .new_survivor_sheet .parent_selector .parent_dropdowns select,
         .new_survivor_sheet .sex_selector {font-size: 20pt; }
-    .new_survivor_link_container .new_survivor_link div {font-size: 20pt; }
     .new_survivor_link_container .new_survivor_link .desc .email {font-size: inherit; }
     .new_survivor_sheet_footer_button_container {margin: 0 auto; width: 60%; }
     .new_survivor_sheet_footer_button_container button { padding: 2%; margin-bottom: 1%; font-weight: normal; }
@@ -1430,12 +1429,10 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     .event_log_loader {font-size: 15pt;}
 
     /* expansion modal -tablet */
-    .expansion_toggle_container {font-size: 20pt; }
-    .expansion_toggle_subtitle {font-size: 15pt; margin-left: 45px; }
 
     /* survivor sheet styles - tablet */
     .survivor_sheet_event_log_container {margin-bottom: 3%; }
-    .lineage_event_repeater {font-size: 15pt; padding: 1%; }
+    .lineage_event_repeater {padding: 1%; }
 
     .survivor_sheet_survival_container {margin: 0; margin-left: 5%; width: 20%; }
     .survivor_sheet_survival_limit_caption {width: 70%; float: right; margin-top: 10%; }
@@ -1547,9 +1544,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     button#constellationModalOpener {width: auto; padding-right: 20px; padding-left:20px; margin-top: -686px; float: left; font-size: 17px;}
 
 
-        /* affinity - tablet */
-    .survivor_affinities_modal p {font-size: 18pt; }
-
 
         /* modal-content - tablet */
     div.modal-content div.bulk_add_control {width: 95px; }
@@ -1560,7 +1554,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     span#affinity_span {display: inline-block; width: 50px; height: 50px; color: #fff; padding: 0; font-size: 44px;}
 
 
-    div.full_size_modal_panel span.closeModal {top: -10px; }
 
 
         /* campaign notes - tablet */
@@ -1659,13 +1652,9 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
 
     b.campaign_summary_survivor_name {font-size: 35px;}
 
-    .campaign_summary_small_box h4 {font-size: 30px; margin-bottom: 0; }
-    .campaign_summary_small_box h5 {font-size: 25px; }
-    .campaign_summary_small_box p.endeavor {font-size: 14pt; }
+    .campaign_summary_small_box h4 {margin-bottom: 0; }
     .campaign_summary_small_box.settlement_fact {border: 0; padding: 0; width: 95%; margin-left: 0; margin-top: 10%; }
     img.endeavor_cost {width: 25px; }
-    div.endeavor_text {font-size: 15pt;}
-    div.cost_detail {font-size: 11pt;}
     
 
         /* endeavors app - tablet */
@@ -1699,21 +1688,20 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     /* campaign summary modal survivor controls - tablet */
     div.avatar_and_stats img {width: 200px; }
     .campaign_summary_survivor_attrib_tumblers {justify-content: center; }
-    .campaign_summary_survivor_attrib_tumblers div.tumbler {font-size: 16pt; width: 150px;}
+    .campaign_summary_survivor_attrib_tumblers div.tumbler {width: 150px;}
     .modal_manager {width: 600px;}
-    p.modal_subtitle {font-size: 13pt; width: 60%; margin: 0 auto; margin-top: -3%; }
+    p.modal_subtitle {width: 60%; margin: 0 auto; margin-top: -3%; }
 
     /* departing survivors management - tablet */
 
 
     /* campaign summary special rules - tablet */
-    div.campaign_summary_special_rule {font-size: 16pt;}
-    div.campaign_summary_special_rule h3 {font-size: 20pt;}
 
-    .campaign_summary_storage_opener {top: 8%; width: 30px; font-size: 40pt; } 
-    .campaign_summary_storage_keyword {font-size: 13pt; }
+    .campaign_summary_storage_opener {top: 8%; } 
     .campaign_summary_storage_items {display: flex; flex-direction: row; flex-wrap: wrap;  }
-    .campaign_summary_storage_item {font-size: 16pt; display: inline-block; width: auto; border: 1px solid #ddd; margin: 1%; padding: 1%; min-width: 20%; }
+    .campaign_summary_storage_item {
+        display: inline-block;
+        width: auto; border: 1px solid #ddd; margin: 1%; padding: 1%; min-width: 20%; }
 
 
 
@@ -1721,14 +1709,10 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
    
         /* settlement sheet kd sheet UI - tablet */
     .settlement_sheet_kd_sheet_ui_box hr {width: 80%; }
-    .kd_sheet_ui_row.title {font-size: 22pt; }
     .kd_sheet_ui_box_row.wrap_row .kd_sheet_ui_box {margin: 8px; }
     .kd_sheet_ui_box_row.wrap_row {margin: 0 auto; width: 85% }
 
-    .kd_sheet_ui_select {font-size: 17pt; }
-    .settlement_sheet_line_item {font-size: 15pt; width: 90%; }
-    .settlement_sheet_line_item div {font-size: 15pt; }
-    .kd_sheet_ui_row.title img {width: 20px; }
+    .settlement_sheet_line_item {width: 90%; }
     .bullet, .empty_bullet {height: 14px; width: 14px; }
 
 
@@ -1809,15 +1793,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
 
 
 
-        /* tablet width: report error */
-    div.report_error_container p {font-size: 15pt; }
-    div.error_form {margin-bottom: 10%; }
-    div.error_form {width: 95%; margin: 0 auto; text-align: center; padding: 0; padding-bottom: 50px; padding-top: 10px;  }
-    textarea.report_error {width: 90%; margin: 0 auto; height: 200px;  font-size: 18pt; }
-    div.error_form input[type=submit] {width: auto; height: auto; margin-right: 20%; display: block; float: initial; }
-
-}
-
 
 /* Desktop Resolution Starts here! */
 
@@ -1886,8 +1861,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     .modal-black hr {display: none; }
     button#modalStorageButton {margin-left: 17px; }
 
-    div.full_size_modal_panel span.closeModal {top: -10px; }
-    .closeModal {top: -10px; font-size: 60px; right: 10px; }
     .modal-content {width: 60%; font-size: 12pt; text-align: center; padding-bottom: 3%;}
     .modal-content h3 {margin-bottom: 3%; font-size: 25px;}
     .modal-content hr {margin-top: 2%; margin-bottom: 2%;}
@@ -2310,8 +2283,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
 
     .survivor_sheet_ai {font-size: 12pt;}
     .survivor_sheet_ai_desc {font-size: 11pt; }
-
-    .survivor_affinities_modal p {font-size: 12pt; }
 
 
     li.survivor_sheet_survivor_note {font-size: 12pt; }

@@ -317,7 +317,7 @@
                                 <div class="campaign_summary_survivor_tags_container">
                                     <div
                                         class="survivor_tag disorders_tag"
-                                        ng-repeat="d in s.sheet.disorders"
+                                        ng-repeat="d in s.sheet.disorders track by $index"
                                     >
                                         <span>
                                             {{settlement.game_assets.disorders[d].name}}
@@ -1388,7 +1388,7 @@
                 >
 
                     <h5
-                        class="endeavor_location"
+                        class="font_large endeavor_location"
                         ng-if="
                             endeavorType === 'campaign' ||
                             endeavorType === 'settlementEvents'
@@ -1477,7 +1477,7 @@
                 ng-if="settlement.sheet[location].length >= 1"
             >
 
-                <h4>- {{location}} -</h4>
+                <h3 class="kd_title">{{location}}</h3>
 
                 <div
                     ng-repeat="p in settlement.sheet[location]"
@@ -1519,11 +1519,11 @@
             class="campaign_summary_small_box settlement_fact"
             ng-if="settlement.sheet.lantern_year > 0"
         >
-            <h4>- Monsters -</h4>
+            <h3 class="kd_title">Monsters</h3>
 
-            <h3 class="monster_subhead" ng-if="settlement.sheet.monster_volumes.length >= 1">
+            <h4 class="monster_subhead" ng-if="settlement.sheet.monster_volumes.length >= 1">
                 Monster Volumes
-            </h3>
+            </h4>
             <span
                 class="kd_checkbox_checked campaign_summary_bullet"
                 ng-repeat='v in settlement.sheet.monster_volumes'
@@ -1531,9 +1531,9 @@
                 {{v}}
             </span>
 
-            <h3 class="monster_subhead" ng-if="settlement.sheet.defeated_monsters.length >=1">
+            <h4 class="monster_subhead" ng-if="settlement.sheet.defeated_monsters.length >=1">
                 Defeated Monsters
-            </h3>
+            </h4>
             <span
                 class="kd_checkbox_checked campaign_summary_bullet"
                 ng-repeat="d in settlement.sheet.defeated_monsters track by $index"
@@ -1541,7 +1541,7 @@
                 {{d}}
             </span>
 
-            <h3 class="monster_subhead">Quarries </h3>
+            <h4 class="monster_subhead">Quarries </h4>
             <span
                 class="kd_checkbox_checked campaign_summary_bullet"
                 ng-repeat="n in settlement.sheet.quarries"
@@ -1549,7 +1549,7 @@
                 {{ settlement.game_assets.monsters[n].name }}
             </span>
 
-            <h3 class="monster_subhead">Nemesis Monsters</h3>
+            <h4 class="monster_subhead">Nemesis Monsters</h4>
             <span
                 class="kd_checkbox_checked campaign_summary_bullet"
                 ng-repeat="n in settlement.sheet.nemesis_monsters"

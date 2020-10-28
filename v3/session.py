@@ -556,7 +556,7 @@ class Session:
         # now get us some HTML
         if self.current_view == "dashboard":
             body = "dashboard"
-            include_ui_templates = False
+            include_ui_templates = ['debugger']
             output += html.get_template('dashboard')
 
         elif self.current_view == "new_settlement":

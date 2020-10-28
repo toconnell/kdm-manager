@@ -57,7 +57,7 @@ class meta:
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
         <meta name="theme-color" content="#000000">
 
-        <title>$title</title>
+        <title>KDM-Manager: $title</title>
 
         <link rel="stylesheet" type="text/css" href="/media/style.css?v=$version">
 
@@ -78,10 +78,14 @@ class meta:
     )
 
     saved_dialog = """\n
-    <div id="saved_dialog" class="saved_dialog_frame" style="">
-        <div class="kd_blue saved_dialog_inner">
-            <span class="saved_dialog_cap">S</span>
-            Saved!
+    <div
+        id="savedAlert"
+        class="ng_fadeout capsule_alert capsule_outer hidden"
+        ng-if="ngVisible['savedAlert']"
+    >
+        <div class="capsule_inner">
+            <div class="short font_large kd_blue_text">S</div>
+            <div class="long kd_blue">Saved!</div>
         </div>
     </div>
 
@@ -132,82 +136,6 @@ class meta:
             SIGN OUT
         </button>
     </div>
-
-    <!-- debugger -->
-    <div
-        id="ngDebugWindow"
-        class="hidden"
-    >
-        user: {{user_login}}<br/>
-        session: {{current_session}}
-
-        <hr/>
-
-        <ul>
-            <li
-                ng-if="settlement === undefined"
-            >
-                <i>waiting for settlement...</i>
-            </li>
-
-            <li
-                ng-if="settlement !== undefined"
-            >
-                <a
-                    href=""
-                    ng-click="dumpJSONtoTab(settlement)"
-                >
-                    settlement JSON
-                </a>
-            </li>
-
-            <li
-                ng-if="survivor !== undefined && lineage.events === undefined"
-            >
-                <i>waiting for survivior events...</i>
-            </li>
-
-            <li
-                ng-if="lineage.events !== undefined"
-            >
-                <a
-                    href=""
-                    ng-click="dumpJSONtoTab(lineage.events)"
-                >
-                    survivor events JSON
-                </a>
-            </li>
-        </ul>
-
-        <hr/>
-
-        ngRolledUp:
-        <table>
-            <tr ng-repeat="(element, status) in ngRolledUp">
-                <td>{{element}}</td>
-                <td
-                    class="clickable"
-                    ng-click="rollUp(element)"
-                >
-                    {{status}}
-                </td>
-            </tr>
-        </table>
-        <hr/>
-        ngVisible:
-        <table>
-            <tr ng-repeat="(element, status) in ngVisible">
-                <td>{{element}}</td>
-                <td
-                    class="clickable"
-                    ng-click="ngShowHide(element)"
-                >
-                    {{status}}
-                </td>
-            </tr>
-        </table>
-        <hr/>
-    </div>
     \n"""
 
     tab_ui_helpers = """\n
@@ -235,8 +163,14 @@ class meta:
     \n"""
 
     full_page_loader = """\n
-    <div id="fullPageLoader" class="full_page_loading_spinner">
-        <img class="full_page_loading_spinner" src="/media/loading_io.gif">
+    <div
+        id="fullPageLoader"
+        class="full_page_modal_blocker"
+    >
+        <img
+            class="full_page_loading_spinner"
+            src="/media/loading_io.gif"
+        />
     </div>
     \n"""
     corner_loader = """\n

@@ -66,6 +66,7 @@
 
 
         <div
+            id="newSurvivorCreationControls"
             ng-if="ngVisible['newSurvivorCreationControls']"
             class="kd_sheet_ui_inner_ring_container new_survivor_sheet"
         >
@@ -241,11 +242,14 @@
 
             <button
                 class="kd_kickstarter_button kd_blue"
-                ng-if='scratch.newSurvivorEmail != null && scratch.newSurvivorEmail != ""'
+                ng-if='
+                    scratch.newSurvivorEmail != null &&
+                    scratch.newSurvivorEmail != ""
+                '
                 ng-click="
                     createNewSurvivor();
-                    ngShowHide('newSurvivorCreationControls');
-                    ngShowHide('newSurvivorCreateAnotherButton');
+                    ngHide('newSurvivorCreationControls');
+                    ngShow('newSurvivorCreateAnotherButton');
                 "
             >
                 Create {{scratch.newSurvivorName}}
@@ -258,10 +262,12 @@
             <button
                 id="newSurvivorCreateAnotherButton"
                 class="kd_kickstarter_button kd_blue"
-                ng-if="scratch.newSurvivorsCreated > 0"
+                ng-if="
+                    scratch.newSurvivorsCreated > 0
+                "
                 ng-click="
-                    ngShowHide('newSurvivorCreationControls');
-                    ngShowHide('newSurvivorCreateAnotherButton')
+                    ngShow('newSurvivorCreationControls');
+                    ngHide('newSurvivorCreateAnotherButton')
                 "
             >
                 Create another!
@@ -270,7 +276,6 @@
             <button
                 class="kd_kickstarter_button"
                 ng-click="
-                    ngHide('newSurvivorCreationControls');
                     ngHide('modalNewSurvivorContainer')
                 "
             >

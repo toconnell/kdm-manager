@@ -6,6 +6,8 @@
     --color-kd-affinity-blue: #1C99CD;
     --color-kd-affinity-green: #4CB848;
     --color-kd-affinity-red:  #CD2027;
+    --color-kd-blue: #50CAF5;
+    --color-kd-blue-gradient: linear-gradient(to bottom, #60DAF5, #40AFD3);
     --color-kd-kickstarter-grey: #666;
     --color-kd-rulebook-blue: #72BCEA;
     --color-kd-rulebook-pink: #FD559D;
@@ -40,6 +42,16 @@ input:active {  /* this is our on-click effect color */
 .no_zebra {background-color: #fff; }
 .storage_zebra {background-color: #ff99aa; }
 .zebra_pop {background: radial-gradient(#fff,#ffffee);}
+
+
+/*  general UI and UX   */
+#savedAlert {
+    background: #ccc;
+    background-color: rgba(0,0,0,0.1);
+}
+.capsule_inner .short {
+    background: #fff;
+}
 
 /* tabs - */
 
@@ -138,6 +150,15 @@ input:active {  /* this is our on-click effect color */
     background-color: var(--color-kd-rulebook-pink);
     color: #ffffdd;
 }
+.kd_blue {
+    background-color: var(--color-kd-blue);
+    background: var(--color-kd-blue-gradient);
+    color: #fff;
+}
+.kd_blue_font,
+    .kd_blue_text {
+    color: var(--color-kd-blue);
+}
 .kd_pink_text {color: var(--color-kd-rulebook-pink);}
 .kd_rulebook_alert {
     background: #F45494;
@@ -160,11 +181,46 @@ input:active {  /* this is our on-click effect color */
 .dragon_king {color: #E8cE55; background: radial-gradient(#7270B9, #6260A9); }
 
 /* gear cards */
-.gear_card_container .gear_card_affinity_inner {border-color: #fff; }
+.gear_card_container .gear_card_affinity_inner {
+    border-color: #fff;
+}
 .gear_card_gradient {background: radial-gradient(#fff, #fff, #f8f8f8, #fffff9);}
+.gear_card_combat_stat_activation {
+    background-color: #777;
+    color: #fff;
+}
+.gear_card_combat_stat_activation_icon {
+    color: #000;
+}
+.gear_card_combat_stat_activation_icon::before {
+    background: #fff;
+    color: #fff;
+}
+.gear_card_combat_stat_activation_detail {
+    background-color: #333;
+}
+.gear_card_combat_stat_activation_detail hr {
+    background-color: #777;
+}
+
+.gear_card_affinity_outer {
+    background-color: rgba(250,250,250,0);
+}
+.gear_card_affinity_inner {
+    background-color: rgba(250,250,250,0);
+    border-color: #fff;
+}
+
+.gear_card_combat_stat_shield {
+    background: #222;
+    background-color: #222;
+    color: #fff;
+}
+.gear_card_location_glyph {
+    color: #222;
+}
+
 .gear_card_recipe {border-color: #F3E067; background: #ffFFcc; }
-.gear_card_combat_stat_activation_icon {color: #000; }
-.gear_card_combat_stat_activation_icon::before {color: #fff; background: #fff;}
 .pattern_recipe_crafting_process_container {border-color: #ddd;}
 .pattern_recipe_crafting_process_item {border-color: #aaa;}
 .pattern_recipe_crafting_process_item:first-child {background: #4E4B42; color: #fff;}
@@ -251,10 +307,6 @@ input:active {  /* this is our on-click effect color */
 /*  modal and modal-black   */
 .modal-black.departing_survivors_modal_container {background-color: #fff; color: #000;} 
 .applying_update_spinner {background: #fff; }
-
-/* report an error */
-textarea.report_error {outline: 1px solid #eee; }
-textarea.report_error:focus {box-shadow: none; }
 
 
 /*                      
@@ -379,4 +431,10 @@ textarea.report_error:focus {box-shadow: none; }
 }
 .survivor_owner_email {
     border-color: #aaa; 
+}
+
+
+/*  NGDEBUGGER  */
+#ngDebugWindow {
+    background: #ddd; 
 }
