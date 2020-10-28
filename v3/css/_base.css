@@ -295,7 +295,7 @@ button:active,
 /*  gear_lookup.html    */
 .gear_card_container {
     border: 0.1rem solid;
-    border-radius: 3vw;
+    border-radius: 1rem;
     min-height: fit-content;
 }
 
@@ -329,12 +329,12 @@ button:active,
 
     /*  top & bottom    */
     .gear_card_affinity_outer.top_affinity {
-        border-radius: 0 0 0.7vw 0.7vw;
+        border-radius: 0 0 0.3vw 0.3vw;
         margin-top: -0.1rem;
         padding: 0 0.25rem 0.25rem 0.25rem;
     }
     .gear_card_affinity_outer.bottom_affinity {
-        border-radius: 0.7vw 0.7vw 0 0;
+        border-radius: 0.3vw 0.3vw 0 0;
         margin-bottom: -0.1rem;
         padding: 0.25rem 0.25rem 0 0.25rem;
     }
@@ -352,12 +352,12 @@ button:active,
             height: 3rem;
     }
     .gear_card_affinity_outer.left_affinity {
-        border-radius: 0 0.1rem 0.1rem 0;
+        border-radius: 0 0.3vw 0.3vw 0;
         margin-left: -0.1rem;
         padding: 0.25rem 0.25rem 0.25rem 0;
      }
     .gear_card_affinity_outer.right_affinity {
-        border-radius: 0.1rem 0 0 0.1rem;
+        border-radius: 0.3vw 0 0 0.3vw;
         margin-right: -0.1rem;
         padding: 0.25rem 0 0.25rem 0.25rem;
      }
@@ -458,7 +458,7 @@ button:active,
     border-bottom-left-radius: 100%;
     border-bottom-right-radius: 100%;
     height: 3rem;
-    font-size: 4vh;
+    font-size: 2rem;
     width: 50%;
     text-align: center;
     display: inline-block;
@@ -1479,7 +1479,7 @@ h3.new_survivor_sheet {
     width: auto;
 }
 .survivor_tag span {
-    padding: 1vw; 
+    padding: 0.5rem; 
 }
 .campaign_summary_endeavor_controller .controls button {
     margin: auto;

@@ -89,7 +89,7 @@ app.controller("survivorSheetController", function($scope) {
         addNotePromise.then(
             function(payload) {
                 console.info('Added survivor note!');
-                $scope.ngHide('survivorNoteControls');
+//                $scope.ngHide('survivorNoteControls');
                 $scope.initNewSurvivorNote();
             },
             function(errorPayload) {

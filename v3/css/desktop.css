@@ -171,20 +171,14 @@
         flex-wrap: wrap; 
     }
     .gear_lookup_card_repeater {
-        width: auto; 
+        width: 20rem; 
     }
     .gear_card_combat_stat_activation {
-        font-size: 12pt;
         height: 95%;
         margin-left: 0;
     }
     .gear_card_affinity_inner {
         border: 1px solid; 
-    }
-    .gear_card_combat_stat_shield {
-        font-size: 20pt; 
-        height: 4vh;  
-        width: 2.5vw;
     }
 
     .gear_card_affinity_outer.right_affinity.affinity_paired_right,
@@ -286,7 +280,6 @@
         max-width: 1000px;
     }
 
-    .campaign_summary_survivors_container h2 {font-size: 3vw; }
     .death_x {
         font-size: 130px;
         margin-left: 1vw;

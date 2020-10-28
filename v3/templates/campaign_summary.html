@@ -372,9 +372,11 @@
                                 <div
                                     class="kd_sheet_ui_outer_ring_container"
                                     style='{{settlement.survivor_color_schemes[s.sheet.color_scheme].style_string}}'
+                                    ng-click="ngHide(s_modal_id)"
                                 >
                                     <div
                                         class="ng_fade kd_sheet_ui_inner_ring_container survivor_quickview_container"
+                                        ng-click="$event.stopPropagation()"
                                         ng-if="isVisible(s_modal_id)"
                                         ng-init="
                                             survivalBoxID = 'survivalControl' + s.sheet._id.$oid;
