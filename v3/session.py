@@ -556,7 +556,7 @@ class Session:
         # now get us some HTML
         if self.current_view == "dashboard":
             body = "dashboard"
-            include_ui_templates = False
+            include_ui_templates = ['debugger']
             output += html.get_template('dashboard')
 
         elif self.current_view == "new_settlement":
@@ -579,7 +579,7 @@ class Session:
         else:
             err = "[%s] requested unhandled view '%s'"
             self.logger.error(err % (self.User, self.current_view))
-            raise Exception("Unknown View!")
+            raise Exception("Unknown view requested! '%s'" % self.current_view)
 
         # now close the container
         output += html.meta.close_container

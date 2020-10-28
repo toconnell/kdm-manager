@@ -4,6 +4,18 @@
     class="survivor_sheet_gradient"
     style='{{settlement.survivor_color_schemes[survivor.sheet.color_scheme].style_string}}'
 >
+    <button
+        id="floating_refresh_button"
+        class="clickable kd_yellow font_large"
+        ng-if="settlement.sheet !== undefined"
+        ng-click="
+            showFullPageLoader();
+        	initializeSettlement('survivorSheet', '$api_url','$settlement_id');
+	        initializeSurvivor('$survivor_id');
+        "
+    >
+        &#8634;
+    </button>
 </div>
 
 <script
@@ -215,13 +227,17 @@
 
         <!-- affinities opener -->
         <div
-            ng-if="survivor.sheet != undefined"
-            class="survivor_sheet_kd_sheet_ui_box affinities_opener clickable"
+            ng-if="survivor.sheet !== undefined"
+            class="
+                clickable
+                survivor_sheet_kd_sheet_ui_box
+                affinities_opener
+            "
             ng-click="showHide('modalAffinity')"
             title="Permanent affinity bonuses for {{survivor.sheet.name}}. Click or tap to edit!"
         >
             <div
-                class="affinity_{{a}} affinity_span"
+                class="font_large affinity_{{a}} affinity_span"
                 ng-repeat="a in ['red','green','blue']"
             >
                 {{survivor.sheet.affinities[a]}}
@@ -583,6 +599,7 @@
                     ng-click="rollUp(ctrlBoxID)"
                 >
                     <input
+                    ng-click="rollUp(ctrlBoxID)"
                         disabled
                         class="survivor_sheet_hitbox hitbox_shield"
                         type="number"
@@ -592,7 +609,7 @@
                 </div>
 
                 <div
-                    class="hitbox_detail"
+                    class="clickable hitbox_detail"
                     ng-click="rollUp(ctrlBoxID)"
                 >
                     <div class="title">
@@ -1139,7 +1156,10 @@
 
                 <div
                     class="ng_fade kd_sheet_ui_ai_toggle_container"
-                    ng-if="survivor.sheet.Courage > 2"
+                    ng-if="
+                        settlement.game_assets.campaign.courage_ai_radio_raft !== false &&
+                        survivor.sheet.Courage > 2
+                    "
                     ng-init="setAttributeAI('courage')"
                 >
 
@@ -1290,7 +1310,10 @@
 
                 <div
                     class="ng_fade kd_sheet_ui_ai_toggle_container"
-                    ng-if="survivor.sheet.Understanding > 2"
+                    ng-if="
+                        settlement.game_assets.campaign.understanding_ai_radio_raft !== false &&
+                        survivor.sheet.Understanding > 2
+                    "
                     ng-init="setAttributeAI('understanding')"
                 >
                     <div
@@ -2222,7 +2245,7 @@
             ng-if="lineage.events !== undefined"
         >
             <div
-                class="font_small lineage_event_repeater {{event.event_type}}"
+                class="lineage_event_repeater {{event.event_type}}"
                 ng-repeat="event in lineage.events"
                 ng-class-even="'zebra'"
                 title="Date({{event.created_on.$date|date:'yyyy-MM-dd @ h:mma'}});"
@@ -2382,10 +2405,14 @@
     id="removeSurvivorConfirmation"
     class="modal-black hidden"
     ng-controller="removeSurvivorController"
+    ng-click="ngHide('removeSurvivorConfirmation')"
 >
-    <div class="rm_asset_confirm_container kd_red">
+    <div
+        class="rm_asset_confirm_container kd_red"
+        ng-click="$event.stopPropagation()"
+    >
 
-        <h3>DELETE SURVIVOR</h3>
+        <h3 class="kd_title">DELETE SURVIVOR</h3>
 
         <p>
             This cannot be undone! A deleted survivor can <b>never</b> be recovered.
@@ -2538,104 +2565,118 @@
 </div> <!-- cursed items modal -->
 
 
-    <!-- THE CONSTELLATIONS -->
+<!-- THE CONSTELLATIONS - DEPRECATED in V4!!!! -->
+<div
+    id="theConstellations"
+    class="modal hidden"
+    ng-controller='theConstellationsController'
+    ng-click="ngHide('theConstellations')"
+>
     <div
-        id="theConstellations"
-        class="modal hidden"
-        ng-controller='theConstellationsController'
+        class="modal-content gear_card_gradient"
+        ng-click="$event.stopPropagation()"
     >
-        <div class="modal-content survivor_sheet_gradient">
 
-            <span class="closeModal" onclick="showHide('theConstellations')">×</span>
+        <div
+            class="clickable corner_close_modal"
+            ng-click="ngHide('theConstellations')"
+        >
+        </div>
 
-            <h3>The Constellations</h3>
 
-            <table id="survivor_constellation_table">
-                <tr><th colspan="6">&nbsp;</th></tr>
-                <tr>
-                    <th>&nbsp;</th>
-                    <th>Witch</th>
-                    <th>Rust</th>
-                    <th>Storm</th>
-                    <th>Reaper</th>
-                    <th>&nbsp;</th>
-                </tr>
-                <tr>
-                    <th>Gambler</th>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('A1') == false">9 Understanding (max)</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('A1') == true" class="active">9 Understanding (max)</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('B1') == false">Destined disorder</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('B1') == true" class="active">Destined disorder</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('C1') == false">Fated Blow fighting art</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('C1') == true" class="active">Fated Blow fighting art</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('D1') == false">Pristine ability</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('D1') == true" class="active">Pristine ability</td>
-                </tr>
-                <tr>
-                    <th>Absolute</th>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('A2') == false">Reincarnated Surname</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('A2') == true" class="active">Reincarnated Surname</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('B2') == false">Frozen Star secret fighting art</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('B2') == true" class="active">Frozen Star secret fighting art</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('C2') == false">Iridescent Hide ability</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('C2') == true" class="active">Iridescent Hide ability</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('D2') == false">Champion's Rite fighting art</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('D2') == true" class="active">Champion's Rite fighting art</td>
-                </tr>
-                <tr>
-                    <th>Sculptor</th>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('A3') == false">Scar</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('A3') == true" class="active">Scar</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('B3') == false">Noble surname</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('B3') == true" class="active">Noble surname</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('C3') == false">Weapon Mastery</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('C3') == true" class="active">Weapon Mastery</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('D3') == false">+1 Accuracy attribute</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('D3') == true" class="active">+1 Accuracy attribute</td>
-                </tr>
-                <tr>
-                    <th>Goblin</th>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('A4') == false">Oracle's Eye ability</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('A4') == true" class="active">Oracle's Eye ability</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('B4') == false">Unbreakable fighting art</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('B4') == true" class="active">Unbreakable fighting art</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('C4') == false">3+ Strength attribute</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('C4') == true" class="active">3+ Strength attribute</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('D4') == false">9 Courage (max)</td>
-                    <td ng-if="survivor.dragon_traits.active_cells.includes('D4') == true" class="active">9 courage (max)</td>
-                </tr>
-                <tr><th colspan="6">&nbsp;</th></tr>
+        <h3 class="kd_title">The Constellations</h3>
 
-            </table>
-            <br />
+        <table id="survivor_constellation_table">
+            <tr><th colspan="6">&nbsp;</th></tr>
+            <tr>
+                <th>&nbsp;</th>
+                <th>Witch</th>
+                <th>Rust</th>
+                <th>Storm</th>
+                <th>Reaper</th>
+                <th>&nbsp;</th>
+            </tr>
+            <tr>
+                <th>Gambler</th>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('A1') == false">9 Understanding (max)</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('A1') == true" class="active">9 Understanding (max)</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('B1') == false">Destined disorder</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('B1') == true" class="active">Destined disorder</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('C1') == false">Fated Blow fighting art</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('C1') == true" class="active">Fated Blow fighting art</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('D1') == false">Pristine ability</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('D1') == true" class="active">Pristine ability</td>
+            </tr>
+            <tr>
+                <th>Absolute</th>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('A2') == false">Reincarnated Surname</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('A2') == true" class="active">Reincarnated Surname</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('B2') == false">Frozen Star secret fighting art</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('B2') == true" class="active">Frozen Star secret fighting art</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('C2') == false">Iridescent Hide ability</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('C2') == true" class="active">Iridescent Hide ability</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('D2') == false">Champion's Rite fighting art</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('D2') == true" class="active">Champion's Rite fighting art</td>
+            </tr>
+            <tr>
+                <th>Sculptor</th>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('A3') == false">Scar</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('A3') == true" class="active">Scar</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('B3') == false">Noble surname</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('B3') == true" class="active">Noble surname</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('C3') == false">Weapon Mastery</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('C3') == true" class="active">Weapon Mastery</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('D3') == false">+1 Accuracy attribute</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('D3') == true" class="active">+1 Accuracy attribute</td>
+            </tr>
+            <tr>
+                <th>Goblin</th>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('A4') == false">Oracle's Eye ability</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('A4') == true" class="active">Oracle's Eye ability</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('B4') == false">Unbreakable fighting art</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('B4') == true" class="active">Unbreakable fighting art</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('C4') == false">3+ Strength attribute</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('C4') == true" class="active">3+ Strength attribute</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('D4') == false">9 Courage (max)</td>
+                <td ng-if="survivor.dragon_traits.active_cells.includes('D4') == true" class="active">9 courage (max)</td>
+            </tr>
+            <tr><th colspan="6">&nbsp;</th></tr>
 
-            <div id="survivor_constellation_control_container">
+        </table>
+        <br />
 
-                <select
-                    class="kd_kickstarter_select"
-                    ng-if="survivor.dragon_traits.available_constellations.length >= 1"
-                    ng-model="survivor.sheet.constellation"
-                    ng-options="c for c in survivor.dragon_traits.available_constellations"
-                    ng-change="setConstellation(survivor.sheet.constellation)"
-                    ng-selected="survivor.sheet.constellation"
-                >
-                    <option disabled value="">Choose a Constellation</option>
-                </select>
+        <div id="survivor_constellation_control_container">
 
-                <button
-                    class="kd_kickstarter_button"
-                    ng-if="survivor.sheet.constellation != undefined"
-                    ng-click="unsetConstellation()"
-                >
-                    Unset Constellation
-                </button>
-            </div>
+            <select
+                class="kd_kickstarter_select"
+                ng-if="survivor.dragon_traits.available_constellations.length >= 1"
+                ng-model="survivor.sheet.constellation"
+                ng-options="c for c in survivor.dragon_traits.available_constellations"
+                ng-change="setConstellation(survivor.sheet.constellation)"
+                ng-selected="survivor.sheet.constellation"
+            >
+                <option disabled value="">Choose a Constellation</option>
+            </select>
 
-            <br/><br/>
+            <button
+                class="kd_kickstarter_button"
+                ng-if="survivor.sheet.constellation != undefined"
+                ng-click="unsetConstellation()"
+            >
+                Unset Constellation
+            </button>
+        </div>
 
-        </div> <!-- modal-content -->
+        <button
+            class="kd_kickstarter_button"
+            ng-click="ngHide('theConstellations')"
+        >
+            Close
+        </button>
 
-    </div> <!-- dragonTraitsModal ng-controller -->
+    </div> <!-- modal-content -->
+
+</div> <!-- dragonTraitsModal ng-controller -->
     <!-- SAVIOR CONTROLS -->
 
 
@@ -2698,18 +2739,27 @@
     id="modalAffinity"
     class="modal hidden"
     ng-controller = "affinitiesController"
-    ng-if="survivor != undefined"
+    ng-if="survivor !== undefined"
+    ng-click="
+        ngHide('modalAffinity');
+        savedAlert()
+    "
 >
-    <div class="modal-content survivor_sheet_gradient survivor_affinities_modal">
+    <div
+        class="modal-content survivor_affinities_modal gear_card_gradient"
+        ng-click="$event.stopPropagation()"
+    >
 
-        <span
-            class="closeModal"
-            ng-click="showHide('modalAffinity'); savedAlert()"
+        <div
+            class="clickable corner_close_modal"
+            ng-click="
+                ngHide('modalAffinity');
+                savedAlert()
+            "
         >
-            ×
-        </span>
+        </div>
 
-        <h3>Survivor Affinities</h3>
+        <h3 class="kd_title">Survivor Affinities</h3>
 
         <p>
             Adjust permanent affinities for <b>{{survivor.sheet.name}}</b>.

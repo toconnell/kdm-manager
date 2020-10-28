@@ -1,27 +1,34 @@
 <div
     id="modalReportError"
     class="modal hidden"
+    ng-click="ngHide('modalReportError')"
 >
-    <div class="modal-content gear_card_gradient">
+    <div
+        class="modal-content report_error gear_card_gradient"
+        ng-click="$event.stopPropagation()"
+    >
 
-        <span
-            class="closeModal"
-            onclick="showHide('modalReportError')"
+        <div
+            class="clickable corner_close_modal"
+            ng-click="ngHide('modalReportError')"
         >
-            ×
-        </span>
+        </div>
 
         <div class="report_error_container">
-            <h3>Report an Issue or Error</h3>
+            <h3 class="kd_title">Report a Problem</h3>
             <p>https://kdm-manager.com is a work in progress and is under
             active development!</p>
             <p>If you identify an issue with the application, whether a typo,
             a presentation problem or something more disruptive, reporting it
             here helps all other users!</p>
-            <div class="error_form">
-                <form method="POST" action="/">
+            <div class="report_error_form_container">
+                <form method="POST" action="/" class="report_error_form">
                     <input type="hidden" name="error_report" value="from_web">
-                    <textarea class="report_error metrophobic" name="body" placeholder="Describe your issue here!"></textarea>
+                    <textarea
+                        class="font_medium"
+                        name="body"
+                        placeholder="Describe your issue here!"
+                    ></textarea>
                     <input
                         type="submit"
                         class="kd_kickstarter_button kd_pink"
@@ -31,6 +38,12 @@
                             showHide('modalReportError')
                         "
                     />
+                    <button
+                        class="kd_kickstarter_button"
+                        ng-click="showHide('modalReportError')"
+                    >
+                        Close
+                    </button>
                 </form>
             </div>
         </div>

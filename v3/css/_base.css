@@ -9,14 +9,35 @@
     height: 8vh;
     margin-top: -1px; /* seriously? the fuck? */
 }
+#floating_refresh_button,
+    #floating_dashboard_button {
+    border: 0.1rem solid;
+    border-radius: 100%; 
+    box-shadow: var(--box-shadow-default);
+    height: 3rem;
+    margin: 0;
+    position: fixed;
+    top: 0.3rem;
+    width: 3rem;
+}
+#floating_dashboard_button {
+    left: 0.3rem; 
+}
+#floating_refresh_button {
+    right: 0.3rem; 
+}
 
+:root {
+    --font-tiny: 0.3rem;
+    --font-small: 0.6rem;
+    --font-medium: 1rem;
+    --font-large: 1.5rem;
+}
 
 /*  CSS RESET */
 
 html {
     border-width: 0.1rem;
-    font-size: 40px;
-    height: auto;
     min-height: 100%;
     overflow: auto; 
 }
@@ -38,7 +59,12 @@ input,
     box-shadow: none;
     outline: none;
 }
-
+input[type=number] {-moz-appearance:textfield;}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
 select {-webkit-appearance: none; }
 
 
@@ -46,15 +72,7 @@ select {-webkit-appearance: none; }
 input[type="number"]::-webkit-outer-spin-button,
     input[type="number"]::-webkit-inner-spin-button {opacity: 0;}
 
-h3 {font-size: 3vh; }
 p {margin: 3%; }
-
-/*  abstract fonts - new in version 4  */
-.font_tiny {font-size: 0.3rem; }
-.font_small {font-size: 0.6rem; }
-.font_medium {font-size: 1rem; }
-.font_large {font-size: 1.5rem; }
-
 
 /*  major UI stuff; sfx; consistency,etc.    */
 .capitalize {text-transform: capitalize;}
@@ -83,6 +101,13 @@ button:active,
 .ng_fadeout.ng-leave.ng-leave-active,
     .ng_fade.ng-leave.ng-leave-active {opacity:0;}
 
+/* pure CSS animations */
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% {transform: translate3d(4px, 0, 0); }
+}
 
 /*  generic roll-down stuff */
 .roll_down_container {
@@ -146,8 +171,59 @@ button:active,
 .api_error_debug {word-break: break-word;}
 
 
-    /*  loading and spinner stuff   */
+    /*  saved, loading and spinner stuff   */
 
+.capsule_alert {
+    left: 50%;
+    max-width: 75%;
+    position: fixed;
+    top: 25%;
+    transform: translate(-50%, -50%);
+    width: 50vw;  
+}
+.capsule_outer {
+    border: 0;
+    border-radius: 10vw;
+    box-sizing: border-box;
+    padding: 1rem;
+}
+.capsule_inner {
+    border: 0;
+    border-radius: inherit;
+    display: flex;
+}
+.capsule_inner .short,
+    .capsule_inner .long {
+    align-items: center; 
+    display: flex;
+    padding: 0.25rem 1rem 0.25rem 1rem;
+}
+.capsule_inner .short {
+    border-radius: 10vw 0 0 10vw;
+    font-family: 'Silverado';
+}
+.capsule_inner .long {
+    border-radius: 0 10vw 10vw 0;
+    display: flex;
+    justify-content: center; 
+    width: 100%;
+}
+
+.full_page_modal_blocker {
+    bottom: 0;
+    background-color: #fff;
+    background: rgba(255,255,255,0.9);  /* out of alpha order */
+    left: 0;
+    position: fixed;
+    right:0;
+    top: 0;
+}
+.full_page_loading_spinner {
+    left: 50%;
+    position: fixed;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
 .inline_spinner_container {
     display: flex;
     flex-direction: column;
@@ -217,24 +293,143 @@ button:active,
 
 
 /*  gear_lookup.html    */
+.gear_card_container {
+    border: 0.1rem solid;
+    border-radius: 3vw;
+    min-height: fit-content;
+}
 
     /*  card 'border' regions */
-.gear_card_affinity_outer.top_affinity,
-    .gear_card_affinity_outer.bottom_affinity {
-    width: 15%;
-    height: 1.3rem;
-}
-.gear_card_affinity_col {
-    width: 1.3rem;
-    display: flex;
+
+.gear_card_affinity_col {                           /*  'column' margins for    */
+    display: flex;                                  /*  gear cards              */
     flex-direction: column;
     justify-content: center;
+    overflow: visible; 
+    width: min-content;                            
+}
+.gear_card_affinity_outer.top_affinity,             /*  top and bottom 'row'    */
+    .gear_card_affinity_outer.bottom_affinity {     /*  margins for gear cards  */
+    height: 1.4rem;
+    width: 3rem;        
+}
+
+.gear_card_affinity_outer {
+    margin: 0 auto;
+}
+.gear_card_affinity_inner {
+    border: 0.1rem solid;
+    border-radius: inherit;
+    border-width: 0.15rem;
+    box-sizing: border-box;
+    height: 100%;
+    margin: 0 auto;
+    width: 100%;
+}
+
+    /*  top & bottom    */
+    .gear_card_affinity_outer.top_affinity {
+        border-radius: 0 0 0.7vw 0.7vw;
+        margin-top: -0.1rem;
+        padding: 0 0.25rem 0.25rem 0.25rem;
+    }
+    .gear_card_affinity_outer.bottom_affinity {
+        border-radius: 0.7vw 0.7vw 0 0;
+        margin-bottom: -0.1rem;
+        padding: 0.25rem 0.25rem 0 0.25rem;
+    }
+    .gear_card_affinity_inner.top_affinity {
+        border-top: 0;
+    }
+    .gear_card_affinity_inner.bottom_affinity {
+        border-bottom: 0; 
+    }
+
+    /*  left & right    */
+    .gear_card_affinity_outer.left_affinity,
+        .gear_card_affinity_outer.right_affinity {
+            width: 1.4rem;
+            height: 3rem;
+    }
+    .gear_card_affinity_outer.left_affinity {
+        border-radius: 0 0.1rem 0.1rem 0;
+        margin-left: -0.1rem;
+        padding: 0.25rem 0.25rem 0.25rem 0;
+     }
+    .gear_card_affinity_outer.right_affinity {
+        border-radius: 0.1rem 0 0 0.1rem;
+        margin-right: -0.1rem;
+        padding: 0.25rem 0 0.25rem 0.25rem;
+     }
+    .gear_card_affinity_inner.left_affinity {
+        border-left: 0;
+    }
+    .gear_card_affinity_inner.right_affinity {
+        border-right: 0;
+    }
+
+
+.gear_card_detail_region:before { /* forces 1:1 aspect ratio */
+    content: "";
+    float: left;
+    padding-top: 88%;
+}
+.gear_card_detail_region {
+    display: flex;
+    position: relative;
+    width: 100%;
 }
 
     /*  weapon/item cards */
+.gear_card_detail_top_info {
+    font-size: 0.75rem;
+    height: 50%;
+    overflow: visible;
+    width: 100%;
+}
+.gear_card_combat_stat_col {
+    font-family: 'Arial';
+    font-weight: bold;
+    display: flex;
+    height: 100%;
+    margin-left: -3%;
+    width: 45%;
+}
+.gear_card_combat_stat_activation {
+    border-radius: 5vw;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap; text-align: center;
+    font-size: 1.25rem;
+    height: 95%;
+    margin-left: 15%;
+    padding: 4%;
+    padding-bottom: 5%;
+    width: 1.5rem;
+}
+.gear_card_combat_stat_col hr.three_dee {
+    background: #000;
+    border: 0;
+    border-bottom: 1px solid #bbb;
+    box-sizing: border-box;
+    height: 0.15rem;
+    margin: 0.25rem 0 0.25rem -10%;;
+    width: 120%; 
+}
+.gear_card_combat_stat_activation_detail {
+    border: 0;
+    border-radius: inherit;
+    margin: 0 auto;
+    width: 100%;
+    overflow: visible;
+}
+.gear_card_combat_stat_activation_detail hr {
+    border: 0;
+    height: 0.1rem;
+    margin: 0 0 0.25rem 0;
+}
 .gear_card_combat_stat_activation_icon {
     font-family: 'kdm-font-10';
-    border-bottom: 1px solid; 
 }
 .gear_card_combat_stat_activation_icon::before {
     content: 'a';
@@ -243,22 +438,39 @@ button:active,
     position: absolute;
     margin: 0.1em; 
 }
+.gear_card_accuracy_detail {
+    align-items: baseline;
+    display: flex;
+    justify-content: center;
+    width: 150%;
+}
+.gear_card_accuracy_detail::after {
+    content: "+";
+    text-shadow: -1px -1px 0 #333, 1px -1px 0 #333, -1px 1px 0 #333, 1px 1px 0 #333;
+    line-height: 1.5;
+    margin-bottom: -1rem;
+}
+
 
     /*  armor cards */
 .gear_card_combat_stat_shield {
     font-family: 'Silverado';
     border-bottom-left-radius: 100%;
     border-bottom-right-radius: 100%;
-    background-color:#000;
-    color: #fff;
-    font-size: 3vh;
+    height: 3rem;
+    font-size: 4vh;
     width: 50%;
     text-align: center;
     display: inline-block;
-    margin-right: 4px;
-    height: 5vh;
+    margin-right: 0.25rem;
     line-height: 150%;
 }
+.gear_card_location_glyph {
+    font-size: 1.25rem;
+    font-family: 'kdm-font-2';
+}
+
+
 
 /*  KD Kickstarter UI   */
 
@@ -310,6 +522,8 @@ button:active,
 }
 
 /*  KD Worksheet UI */
+.kd_icon {width: 1rem; }    /* crossed swords, etc. */
+
 .kd_sheet_ui_outer_ring_container {
     position: absolute;
     width: 100%;
@@ -476,6 +690,17 @@ button:active,
     border: none;
 }
 
+.kd_title {
+    font-family: 'Silverado';
+    text-transform: uppercase;
+    font-weight: normal;
+}
+.kd_title:before {
+    content: "- ";
+}
+.kd_title:after {
+    content: " -";
+}
 
     /* rolldown roll_down roll-down */
 .kd_sheet_ui_roll_down {
@@ -512,13 +737,15 @@ button:active,
     margin-top: 1%; 
 }
 .kd_sheet_ui_box {      /* the one and only checkbox style! */
-    border: 0.5vw solid;
-    width: 3.5vw;
-    height: 3.5vw;
+    box-sizing: border-box;
+    border: 0.1rem solid;
+    height: 0.8rem;
     display: inline-block;
     margin-right: 4%;
+    min-height: 0.8rem;
+    min-width: 0.8rem;
     transition: 1s;
-    box-sizing: border-box;
+    width: 0.8rem;
 }
 .kd_sheet_ui_box:last-child{
     margin-right: auto;
@@ -535,11 +762,11 @@ button:active,
     height: 0.35rem;
 }
 .kd_sheet_ui_box.heavy {
-    border-width: 1vw;
+    border-width: 0.2rem;
 }    
 .kd_sheet_ui_box.small {
-    width: 2.5vw;
-    height: 2.5vw; 
+    width: 0.35rem;
+    height: 0.35rem; 
 }
 
 .survivor_sheet_kd_sheet_ui_box,
@@ -584,13 +811,19 @@ button:active,
 }
 .kd_rulebook_alert_content {text-align: justify; }
 
-/*  modal - re-usable modal elements */
-
-.dashboard_welcome_modal {
-    padding-top: 1%;
+/*                                      */
+/*  modal - re-usable modal elements    */
+/*                                      */
+.corner_close_modal:before {    /*  large red X */
+    content: "\274C";
 }
-
-
+.corner_close_modal {   /*  supersedes 'closeModal' class   */
+    bottom: auto;
+    font-size: var(--font-large);
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+}
 .floating_close_modal_button {  /* use with .kd_kickstarter_button */
     position: fixed;
     top: auto;
@@ -604,10 +837,20 @@ button:active,
 
 /*
 
-    SIDE NAV - base/mobile
-
+    SIDE NAV - base/mobile (nav.html)
 */
+
+#leftSideNav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-x: hidden;
+    transition: 0.3s;
+}
 #leftSideNav::-webkit-scrollbar { width: 0 !important }
+
 #leftSideNav.open {width: 75%; }
 #leftSideNavUnderlay.open {width: 25%; }
 #leftSideNav H3 {
@@ -617,18 +860,35 @@ button:active,
 }
 #leftSideNav button {
     border: 0;
-    transition: 0.3s;
-    display: block;
     box-sizing: border-box; 
-    width: 100%;
+    display: block;
     text-align: left;
     padding: 4%;
     margin: 3%;
     margin-left: 0;  
+    transition: 0.3s;
+    width: 100%;
 }
-#leftSideNav #leftSideNavUserSignOut {text-align: center; }
-#leftSideNav .sidenav_top_level {text-align: right; }
+#leftSideNav button:hover {
+    padding-left:15%;
+    padding-right: 1%;
+}
+#leftSideNav button.disabled:hover {
+    animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+    backface-visibility: hidden;
+    padding: 4%;
+    perspective: 1000px;    
+    transform: translate3d(0, 0, 0);
+}
 
+#leftSideNav #leftSideNavUserSignOut {text-align: center; }
+#leftSideNav .sidenav_top_level {
+    text-align: right;
+}
+#leftSideNav .sidenav_top_level:hover {
+    padding-left: 1%;
+    padding-right: 10%; 
+}
 
 /*
 
@@ -641,7 +901,9 @@ button:active,
 
 
 /*  dashboard_rollup styles (the clickers on the dash) */
-
+.dashboard_welcome_modal {
+    padding-top: 0; 
+}
 .dashboard_rollup {
     align-items: center; 
     border: 0;
@@ -679,8 +941,13 @@ button:active,
     border: none;
     padding-left: 5%; 
 }    
-
-#systemPanelUserLogin {padding-top: 5%; font-family: 'Silverado';}
+.dashboard_kdm_font {
+    vertical-align: middle;
+}
+#systemPanelUserLogin {
+    font-family: 'Silverado';
+    padding-top: 5%;
+}
 .dashboard_user_expansions_repeater {
     display: flex;
     flex-wrap: wrap;
@@ -845,11 +1112,34 @@ h3.new_survivor_sheet {
     margin-right: 5%; 
 }
 
+
 /*
     timeline.html 
 */
 #timelineContainer {
     margin-bottom: 12vh; 
+}
+.timeline_row_container {
+    align-items: baseline;
+    border-bottom: 1px solid #aaa;
+    box-sizing: border-box; 
+    break-inside: avoid;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    margin: 0 auto;
+    padding: 2%;
+    width: 95%; 
+}
+.kd_sheet_ui_box.ly_checkbox {
+    margin: 1rem auto;
+    margin-top: 0;  
+}
+.ly_ly {
+    display: flex;
+    min-width: 2rem;
+    justify-content: center;
+    align-items: center;
 }
 .timeline_overlay_control {
     box-sizing: border-box;
@@ -982,6 +1272,7 @@ h3.new_survivor_sheet {
     top: 0;
 }
 .survivor_search_button {
+    height: fit-content;
     margin: 3%;
 }
 .survivor_search_button_inner {
@@ -1084,24 +1375,20 @@ h3.new_survivor_sheet {
     margin-top: 5%;
     margin-bottom: 2%;
 }
-.headline_block_caption {font-size: 3vw; }
 
 /*  campaign summary and fact box styles    */
 .campaign_summary_small_box.settlement_fact h4 {
-    font-size: 7vw; 
     text-align: center; 
     margin: 1%;
     text-transform: capitalize
 }
 .campaign_summary_settlement_bonus_desc {
-    font-size: 0.9em;
     margin: 3%;
     text-align: justify;
 }
 
 /* group container */
 .campaign_summary_survivors_container h2 {
-    font-size: 8vw;
     font-family: 'Silverado';
     border: 0;
     text-align: center;
@@ -1224,7 +1511,6 @@ h3.new_survivor_sheet {
     font-weight: normal;
     margin: 0;
     padding:0;
-    font-size: 5vw;
     margin-top: 3%;
 }
 .endeavor_text {
@@ -1420,8 +1706,6 @@ h3.new_survivor_sheet {
     display: flex;
     flex-direction: column; 
     overflow-x: hidden;
-    position: absolute;
-    margin-bottom: 10vh;
     width: 100%;  
 }
 
@@ -1684,7 +1968,6 @@ h3.new_survivor_sheet {
 .settlement_sheet_line_item {
     margin-top: 5%;
     margin-bottom: 2%;
-    font-size: 4vw;
     border-bottom: 0.1em solid;
 }
 .location_lvl_select {
@@ -1707,6 +1990,14 @@ h3.new_survivor_sheet {
     transition: 1s;
 }
 .unlocked_strain_fa {transition: 2s;}
+
+.innovation_consequences_repeater:after {
+    content: ", ";
+    margin-left: -1%;
+}
+.innovation_consequences_repeater:last-child:after {
+    content: "";
+}
 
 /* settlement sheet ADMIN tab */
 #settlementSheetAdminTab {
@@ -1795,7 +2086,8 @@ h3.new_survivor_sheet {
 /*  affinity    */
 .survivor_sheet_affinity_controls_container {
     width: 90%;
-    margin: 0 auto; 
+    margin: 0 auto;
+    margin-top: 2rem;  
 }
 .survivor_sheet_affinity_controls_repeater {
     display: flex;
@@ -2283,7 +2575,23 @@ input.survivor_owner_email:invalid {
     background: radial-gradient(#FDcDc9, #FFcFC5);
 }
 
-
+/*  debugger.html   */
+#ngDebugWindow {
+    bottom: 1%; 
+    opacity: 90%;
+    overflow-y: scroll;
+    position: fixed;
+    right: 1%; 
+}
+#ngDebugWindow table {
+    width: 100%;
+}
+#ngDebugWindow ul {
+    margin-left: 0;
+}
+#ngDebugWindow li {
+    margin-top: 3%;
+}
 
 
 /*  event_log.html  */
@@ -2318,6 +2626,34 @@ input.survivor_owner_email:invalid {
 
 
 /*      report_error.html   */
+.report_error_container {
+    margin: 0 auto;
+    width: 90%;
+}
 .report_error_container p {
     text-align: justify;
+    margin-bottom: 1rem;
+}
+.report_error_form_container {
+    margin: 0 auto;
+    padding: 0;
+    padding-top: 1rem;
+    text-align: center;
+}
+.report_error_form {
+    align-items: center; 
+    display: flex;
+    flex-direction: column;
+}
+.report_error_form input,
+    .report_error_form button {
+    margin-top: 2rem; 
+    width: 90%;
+}
+.report_error_form textarea {
+    border: 0;
+    margin: 1rem auto;
+    min-height: 10rem;
+    padding: 1% 2% 1% 2%;
+    width: 100%; 
 }

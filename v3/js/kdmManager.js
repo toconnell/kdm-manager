@@ -1,10 +1,5 @@
 // alerts -> call these anywhere
 
-function savedAlert() {
-    $('#saved_dialog').fadeIn(500);
-    $('#saved_dialog').show();
-    $('#saved_dialog').fadeOut(1800);
-};
 function errorAlert() {
     $('#error_dialog').fadeIn(500);
     $('#error_dialog').show();
@@ -189,9 +184,8 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
         if (duration === undefined) {
             duration = 3000;
         }
-
         $scope.ngShow(elementId)
-        $timeout(function() {$scope.ngHide(elementId)}, duration);
+        $timeout(function() {$scope.ngHide(elementId, true)}, duration);
         
     };
 
@@ -303,7 +297,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
     };
 
     // backwards compatibility helpers...DEPRECATED THO
-    $rootScope.savedAlert = savedAlert;
+
     $rootScope.showHide = showHide;
     $rootScope.showFullPageLoader = showFullPageLoader;
 
@@ -337,7 +331,17 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
         );
     };
 
-    $rootScope.ngHide = function(elementId) {
+    $rootScope.ngHide = function(elementId, lazy) {
+        if (lazy) {
+//            console.warn("Lazy ngHide for '" + elementId + "'")
+        } else {
+            try {
+                e = document.getElementById(elementId);
+                e.classList.add('hidden');
+            } catch(err) {
+                console.error(err);
+            }
+        }
         $rootScope.ngVisible[elementId] = false;
     }
 
@@ -362,12 +366,24 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
         x.document.close();
     };
 
-	$rootScope.showAPIerrorModal = function(msg, request) {
+    $rootScope.savedAlert = function(hold) {
+        // formerly jQuery. set 'flash' to false to make it stay up
+        if (hold) {
+            $scope.ngShow('savedAlert');
+        } else {
+            $scope.ngFlash('savedAlert', 500);
+        };
+    };
+
+	$rootScope.showAPIerrorModal = function(msg, request, isFatal) {
+
+
 		$rootScope.ngShow('apiErrorModal');
 
 		if ($rootScope.ngVisible['apiErrorModal']) {
 		    r = document.getElementById('apiErrorModalMsgRequest');
 		    $rootScope.apiErrorModalMsgRequest = request;
+            $rootScope.apiErrorModalMsgIsFatal = isFatal;
 		    if (msg === null) {
 		        msg = 'API response is NULL. Possible preflight/CORS error!'
 		    };
@@ -533,6 +549,14 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
         form.submit();
     }
 
+    //
+    //  browsing and navigation helpers
+    //
+    $scope.loadURL = function(destination) {
+       // allows us to use ng-click to re-direct to URLs
+        window.location = destination;
+    };
+
 
     //
     // various methods below here
@@ -604,7 +628,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
                 console.error("[rootController.getSettlement()] Could not get settlement " + s_id);
                 console.error(errorPayload);
                 var err_msg = 'Could not load settlement ' + s_id + '!<hr/>' + errorPayload.data + '<hr/>Please report this error!';
-                $scope.showAPIerrorModal(err_msg, settlement_url);
+                $scope.showAPIerrorModal(err_msg, settlement_url, true);
             }
         );
     };
@@ -780,9 +804,11 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
                 function(errorPayload) {
                     console.error($scope.log_level + "Error loading settlement!" + errorPayload);
                     var err_msg = "An unrecoverable API error prevented this campaign from being retrieved!";
-                    $scope.showAPIerrorModal(err_msg, $scope.settlementPromise.$$state.value.config.url);
-
-                    // now sign them out
+                    $scope.showAPIerrorModal(
+                        err_msg,
+                        $scope.settlementPromise.$$state.value.config.url,
+                        true
+                    );
                 }
             );
 
@@ -1113,7 +1139,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
             };
             sleep(1000).then(() => {
                 if (reinit === true) {$scope.reinitialize('postJSONtoAPI(/' + endpoint + ')')};
-                if (show_alert === true) {savedAlert();}
+                if (show_alert === true) {$scope.savedAlert();}
             });
             hideCornerLoader();
         });
@@ -1551,7 +1577,7 @@ app.controller("survivorNotesController", function($scope) {
         http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
         var params = "add_survivor_note=" + $scope.note + "&modify=survivor&asset_id=" + asset_id
         http.send(params);
-        savedAlert();
+        $scope.savedAlert();
 
     };
 
@@ -1566,7 +1592,7 @@ app.controller("survivorNotesController", function($scope) {
         var params = "rm_survivor_note=" + rmNote + "&modify=survivor&asset_id=" + asset_id
         http.send(params);
 
-        savedAlert();
+        $scope.savedAlert();
 
     };
 });
@@ -1592,7 +1618,7 @@ app.controller("epithetController", function($scope) {
         var params = "add_epithet=" + add_name + "&modify=survivor&asset_id=" + asset_id
         http.send(params);
 
-        savedAlert();
+        $scope.savedAlert();
 
     }
     $scope.removeItem = function (x, asset_id) {
@@ -1607,7 +1633,7 @@ app.controller("epithetController", function($scope) {
         var params = "remove_epithet=" + rm_name + "&modify=survivor&asset_id=" + asset_id;
         http.send(params);
 
-        savedAlert();
+        $scope.savedAlert();
 
     }
 });

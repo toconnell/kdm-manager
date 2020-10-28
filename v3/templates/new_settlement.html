@@ -55,7 +55,11 @@
                     ng-class="{checked: newSettlement.campaign === c.handle}"
                 ></div>
                 {{c.name}}
-                <p ng-if="c.subtitle" class="new_settlement_asset_desc">{{c.subtitle}}</p>
+                <p
+                    ng-if="c.subtitle"
+                    class="new_settlement_asset_desc"
+                    ng-bind-html="c.subtitle|trustedHTML"
+                ></p>
                 <div ng-if="c.subtitle === undefined"></div>
             </div>
         </div><!-- new_settlement_asset_clicker_container -->

@@ -1,5 +1,17 @@
 <!-- top nav - DEPRECATED -->
-<div id="topNavBar" class="settlement_sheet_gradient"></div>
+<div id="topNavBar" class="settlement_sheet_gradient">
+    <button
+        id="floating_refresh_button"
+        class="clickable kd_yellow font_large"
+        ng-if="settlement.sheet !== undefined"
+        ng-click="
+            showFullPageLoader();
+            initializeSettlement('settlementSheet', '$api_url','$settlement_id')
+        "
+    >
+        &#8634;
+    </button>
+</div>
 
 <script
     src="/js/settlementSheet.js?v=$application_version"
@@ -816,7 +828,7 @@
                 ng-if="settlement.sheet.innovations.length != 0"
                 ng-init="setInnovationDeck()"
             >
-                <h3> - Innovation Deck - </h3>
+                <h3 class="kd_title">Innovation Deck</h3>
 
                 <div
                     id="innovationDeckSpinner"
@@ -868,11 +880,18 @@
                             <div class="innovation_name">{{i.name}}</div>
                             <div class="innovation_consequences" ng-if="i.consequences.length > 0">
                                 Consequences:
-                                <span ng-repeat="c_handle in i.consequences">
-                                    {{settlement.game_assets.innovations[c_handle].name}}{{$last ? '' : ', '}}
+                                <span
+                                    class="innovation_consequences_repeater"
+                                    ng-repeat="c_handle in i.consequences track by $index"
+                                    ng-if="settlement.game_assets.innovations[c_handle]"
+                                >
+                                    {{settlement.game_assets.innovations[c_handle].name}}
                                 <span>
                             </div>
-                            <div class="innovation_survival_limit_bar" ng-if="i.survival_limit != undefined">
+                            <div
+                                class="innovation_survival_limit_bar"
+                                ng-if="i.survival_limit != undefined"
+                            >
                                 Survival Limit +{{i.survival_limit}}
                             </div>
                         </div>
@@ -1058,7 +1077,7 @@
         >
             <div class="font_large kd_sheet_ui_row title">
                 <img
-                    class="icon"
+                    class="kd_icon"
                     src="media/icons/nemesis_encounter_event.jpg"
                     ng-class="{
                         'invert_image': user.user.preferences.night_mode === true,

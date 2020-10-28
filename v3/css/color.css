@@ -2,23 +2,38 @@
 /* DO NOT MODIFY BORDER ATTRIBUTES OTHER THAN COLOR IN THIS FILE */
 
 :root {
-    --color_kd-affinity-blue: #1C99CD;
-    --color_kd-affinity-green: #4CB848;
-    --color_kd-affinity-red:  #CD2027;
-    --color_kd-kickstarter-grey: #666;
-    --color_kd-rulebook-blue: #72BCEA;
-    --color_kd-rulebook-pink: #FD559D;
-    --color_kd-rulebook-blue-gradient: radial-gradient(#8ED7FB, #72BCEA);
-    --color_kd-rulebook-pink-gradient: radial-gradient(#ED5395, #FD559D);
-    --color_kd-special-showdown: #DC2426;  
+    --box-shadow-default: 0 0 0.5em 0 #aaa;
+    --color-kd-affinity-blue: #1C99CD;
+    --color-kd-affinity-green: #4CB848;
+    --color-kd-affinity-red:  #CD2027;
+    --color-kd-blue: #50CAF5;
+    --color-kd-blue-gradient: linear-gradient(to bottom, #60DAF5, #40AFD3);
+    --color-kd-kickstarter-grey: #666;
+    --color-kd-rulebook-blue: #72BCEA;
+    --color-kd-rulebook-pink: #FD559D;
+    --color-kd-rulebook-blue-gradient: radial-gradient(#8ED7FB, #72BCEA);
+    --color-kd-rulebook-pink-gradient: radial-gradient(#ED5395, #FD559D);
+    --color-kd-special-showdown: #DC2426;  
+    --color-kd-yellow: #EEC051;
+    --color-kd-yellow-gradient: radial-gradient(#FFC051, #EEC051);
 }
 
 /*                          */
 /*      General UI/UX       */
 /*                          */
 
+a {
+    color: var(--color-kd-blue);
+    font-weight: bold;
+    text-decoration: none;
+    transition: 1s;
+}
+a:hover {color: var(--color-kd-pink); }
+a:active {color: var(--color-kd-special-showdown); }
+a:visited {color: var(--color-kd-yellow); }
+
 input:active {  /* this is our on-click effect color */
-    border-color: var(--color_kd-special-showdown);
+    border-color: var(--color-kd-special-showdown);
 }
 
 
@@ -27,6 +42,16 @@ input:active {  /* this is our on-click effect color */
 .no_zebra {background-color: #fff; }
 .storage_zebra {background-color: #ff99aa; }
 .zebra_pop {background: radial-gradient(#fff,#ffffee);}
+
+
+/*  general UI and UX   */
+#savedAlert {
+    background: #ccc;
+    background-color: rgba(0,0,0,0.1);
+}
+.capsule_inner .short {
+    background: #fff;
+}
 
 /* tabs - */
 
@@ -54,6 +79,15 @@ input:active {  /* this is our on-click effect color */
 
 /*  KD paper UI blocks, boxes and so on*/
 .strain_block {border-color: #5Dd7F2; background: #fff; }
+
+.bullet {
+    background: #000;
+    background-color: #000;
+}
+.rm_bullet {
+    border-color: var(--color-kd-special-showdown);
+}
+
 .kd_sheet_ui_outer_ring_container {background-color: #fff; }
 .kd_sheet_ui_inner_ring_container {background-color: #fff; color: #000; border-color: #000; }
 .kd_sheet_ui_border_box {border-color: #666; }
@@ -104,24 +138,38 @@ input:active {  /* this is our on-click effect color */
 /* kd colors - kd rulebook and printed content emulation */
 /*  these should always go last, since they're overrides, etc.*/
 
-.kd_blue_border {border-color: var(--color_kd-rulebook-blue);}
-.kd_pink_border {border-color: var(--color_kd-rulebook-pink);}
-.kd_red_border {border-color: var(--color_kd-special-showdown);}
+.kd_blue_border {border-color: var(--color-kd-rulebook-blue);}
+.kd_pink_border {border-color: var(--color-kd-rulebook-pink);}
+.kd_red_border {border-color: var(--color-kd-special-showdown);}
 
     /* buttons! */
 .kd_alert,
     .kd_alert_no_exclaim,
     .kd_pink {
-    background: var(--color_kd-rulebook-pink-gradient);
-    background-color: var(--color_kd-rulebook-pink);
+    background: var(--color-kd-rulebook-pink-gradient);
+    background-color: var(--color-kd-rulebook-pink);
     color: #ffffdd;
 }
-.kd_pink_text {color: var(--color_kd-rulebook-pink);}
+.kd_blue {
+    background-color: var(--color-kd-blue);
+    background: var(--color-kd-blue-gradient);
+    color: #fff;
+}
+.kd_blue_font,
+    .kd_blue_text {
+    color: var(--color-kd-blue);
+}
+.kd_pink_text {color: var(--color-kd-rulebook-pink);}
 .kd_rulebook_alert {
     background: #F45494;
     color: #ffffdd;
 }
 .kd_rulebook_alert_punctuation {color: #F99BC0;}
+.kd_yellow {
+    background-color: var(--color-kd-yellow);
+    background: var(--color-kd-yellow-gradient);
+    color: #fff;
+}
 
 /* timeline.html */
 .timeline_row_container.current_ly {border-color: #f00; }
@@ -133,11 +181,46 @@ input:active {  /* this is our on-click effect color */
 .dragon_king {color: #E8cE55; background: radial-gradient(#7270B9, #6260A9); }
 
 /* gear cards */
-.gear_card_container .gear_card_affinity_inner {border-color: #fff; }
+.gear_card_container .gear_card_affinity_inner {
+    border-color: #fff;
+}
 .gear_card_gradient {background: radial-gradient(#fff, #fff, #f8f8f8, #fffff9);}
+.gear_card_combat_stat_activation {
+    background-color: #777;
+    color: #fff;
+}
+.gear_card_combat_stat_activation_icon {
+    color: #000;
+}
+.gear_card_combat_stat_activation_icon::before {
+    background: #fff;
+    color: #fff;
+}
+.gear_card_combat_stat_activation_detail {
+    background-color: #333;
+}
+.gear_card_combat_stat_activation_detail hr {
+    background-color: #777;
+}
+
+.gear_card_affinity_outer {
+    background-color: rgba(250,250,250,0);
+}
+.gear_card_affinity_inner {
+    background-color: rgba(250,250,250,0);
+    border-color: #fff;
+}
+
+.gear_card_combat_stat_shield {
+    background: #222;
+    background-color: #222;
+    color: #fff;
+}
+.gear_card_location_glyph {
+    color: #222;
+}
+
 .gear_card_recipe {border-color: #F3E067; background: #ffFFcc; }
-.gear_card_combat_stat_activation_icon {color: #000; }
-.gear_card_combat_stat_activation_icon::before {color: #fff; background: #fff;}
 .pattern_recipe_crafting_process_container {border-color: #ddd;}
 .pattern_recipe_crafting_process_item {border-color: #aaa;}
 .pattern_recipe_crafting_process_item:first-child {background: #4E4B42; color: #fff;}
@@ -205,17 +288,25 @@ input:active {  /* this is our on-click effect color */
 
 /*  left side nav   */
 #leftSideNav,
-    #leftSideNav button {color: #fff; background: #000; }
+    #leftSideNav button {
+    background: #000;
+    color: #fff;
+}
+#leftSideNav button:hover {
+    background-color: #fff;
+    background: linear-gradient(to right, #000, #fff,#fff,#fff,#fff);
+    color: #000;
+}
+#leftSideNav button.disabled {
+    background: #000;
+    color: #666;
+}
 #leftSideNavUnderlay {background: rgba(0,0,0,0.8); color: #fff; }
 .left_side_underlay_footer_container {color: #777; }
 
 /*  modal and modal-black   */
 .modal-black.departing_survivors_modal_container {background-color: #fff; color: #000;} 
 .applying_update_spinner {background: #fff; }
-
-/* report an error */
-textarea.report_error {outline: 1px solid #eee; }
-textarea.report_error:focus {box-shadow: none; }
 
 
 /*                      
@@ -277,10 +368,10 @@ textarea.report_error:focus {box-shadow: none; }
 */
 
 .campaign_type {
-    color: var(--color_kd-kickstarter-grey);
+    color: var(--color-kd-kickstarter-grey);
 }
 .settlement_abandoned_stamp {
-    color: var(--color_kd-special-showdown);
+    color: var(--color-kd-special-showdown);
 }
 
 /* settlement sheet tumblers */
@@ -340,4 +431,10 @@ textarea.report_error:focus {box-shadow: none; }
 }
 .survivor_owner_email {
     border-color: #aaa; 
+}
+
+
+/*  NGDEBUGGER  */
+#ngDebugWindow {
+    background: #ddd; 
 }

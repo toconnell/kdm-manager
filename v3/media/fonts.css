@@ -49,5 +49,10 @@
     background-position: center; 
 }
 
+/*  abstract fonts - new in version 4  */
+.font_tiny {font-size: var(--font-tiny); }
+.font_small {font-size: var(--font-small); }
+.font_medium {font-size: var(--font-medium); }
+.font_large {font-size: var(--font-large); }
 
 
