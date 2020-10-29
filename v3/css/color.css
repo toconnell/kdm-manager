@@ -9,6 +9,7 @@
     --color-kd-blue: #50CAF5;
     --color-kd-blue-gradient: linear-gradient(to bottom, #60DAF5, #40AFD3);
     --color-kd-kickstarter-grey: #666;
+    --color-kd-purple: #8E3E95;
     --color-kd-rulebook-blue: #72BCEA;
     --color-kd-rulebook-pink: #FD559D;
     --color-kd-rulebook-blue-gradient: radial-gradient(#8ED7FB, #72BCEA);
@@ -16,6 +17,7 @@
     --color-kd-special-showdown: #DC2426;  
     --color-kd-yellow: #EEC051;
     --color-kd-yellow-gradient: radial-gradient(#FFC051, #EEC051);
+    --color-modal-blackout: rgba(0,0,0,0.9); 
 }
 
 /*                          */
@@ -48,6 +50,9 @@ input:active {  /* this is our on-click effect color */
 #savedAlert {
     background: #ccc;
     background-color: rgba(0,0,0,0.1);
+}
+.capsule_inner {
+    border-color: #fff;
 }
 .capsule_inner .short {
     background: #fff;
@@ -349,6 +354,14 @@ input:active {  /* this is our on-click effect color */
 .vertical_tumbler_container {
     background: #fff;
     color: #000; 
+}
+
+/*  campaign summary - right side storage summary */
+.campaign_summary_storage_item {
+    border-color: #ccc;
+}
+.right_side_nav_close_tip {
+    color: #aaa;
 }
 
 /* campaign summary - available endeavors*/

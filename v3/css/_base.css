@@ -9,12 +9,16 @@
     height: 8vh;
     margin-top: -1px; /* seriously? the fuck? */
 }
-#floating_refresh_button,
+.circular_button,
     #floating_dashboard_button {
+    align-items: center; 
     border: 0.1rem solid;
     border-radius: 100%; 
     box-shadow: var(--box-shadow-default);
+    display: flex;
     height: 3rem;
+    line-height: 0; 
+    justify-content: center;
     margin: 0;
     position: fixed;
     top: 0.3rem;
@@ -23,7 +27,7 @@
 #floating_dashboard_button {
     left: 0.3rem; 
 }
-#floating_refresh_button {
+#floatingRefreshButton {
     right: 0.3rem; 
 }
 
@@ -188,7 +192,7 @@ button:active,
     padding: 1rem;
 }
 .capsule_inner {
-    border: 0;
+    border: 0.2rem solid;
     border-radius: inherit;
     display: flex;
 }
@@ -677,7 +681,6 @@ button:active,
 .kd_sheet_ui_ai_toggle_item input[type="radio"] {
     display: block;
     margin-top: -5%;
-    transform: scale(4);
 }
 .kd_sheet_ui_ai_toggle_item input[type="radio"]:checked+label{
     color: #000
@@ -1387,6 +1390,48 @@ h3.new_survivor_sheet {
     text-align: justify;
 }
 
+/*  campaign summary storage */
+.campaign_summary_storage_opener {
+    border: 0.2rem solid;
+    border-bottom-left-radius: 1rem;
+    border-top-left-radius: 1rem;
+    height: auto;
+    padding: 0.5rem;
+    position: fixed;
+    right: 0;
+    text-align: center;
+    top: 5rem;
+}
+.campaign_summary_storage_item {
+    border-bottom: 1px solid;
+    border-radius: 5px; 
+    display: block;
+    padding-left: 2%;
+    width: 100%;
+}
+.campaign_summary_storage_keyword {
+    margin-right: 5%;
+}
+.campaign_summary_storage_item_keywords {
+    padding-left: 2%; 
+}
+.campaign_summary_storage_keywords {
+    background-color: #FFFFEE;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content:flex-end; 
+    text-align: right;
+}
+.right_side_nav_close_tip {
+    margin: 0 auto;
+    margin-top: 5%;
+    margin-bottom: 5%;
+    text-align: center;
+    width: 80%;
+}
+
+
 /* group container */
 .campaign_summary_survivors_container h2 {
     font-family: 'Silverado';
@@ -1499,24 +1544,27 @@ h3.new_survivor_sheet {
 .campaign_summary_endeavor_controller .tokens {
     display: flex;
     flex-wrap: wrap;
-    padding-left: 1%;
-    padding-top: 5%;
-    justify-content: flex-start;
-    width: 100%;
+    justify-content: center;
     margin: 0 auto;
     margin-bottom: 3%; 
+    padding-left: 1%;
+    padding-top: 5%;
+    width: 100%;
 }
-.campaign_endeavor {margin-top: 2%; }
+.campaign_endeavor {
+    margin-top: 2%;
+}
 .endeavor_location {
     font-weight: normal;
-    margin: 0;
-    padding:0;
+    margin: 0.25rem;
+    margin-left: 0.5rem;
+    padding: 0;
     margin-top: 3%;
 }
 .endeavor_text {
     padding: 2%;
-    width: 100%;
     vertical-align: middle;
+    width: 100%;
 }
 .endeavor_cost {
     border-top-left-radius: 5px;

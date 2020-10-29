@@ -1,10 +1,3 @@
-// alerts -> call these anywhere
-
-function errorAlert() {
-    $('#error_dialog').fadeIn(500);
-    $('#error_dialog').show();
-    $('#error_dialog').fadeOut(5000);
-};
 
 // loaders -> call these anywhere
 
@@ -366,12 +359,27 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
         x.document.close();
     };
 
+    // legacy support alert flashers
+    $rootScope.errorAlert = function(hold) {
+        $rootScope.flashCapsuleAlert('Error', hold);
+    }
     $rootScope.savedAlert = function(hold) {
-        // formerly jQuery. set 'flash' to false to make it stay up
+        $rootScope.flashCapsuleAlert('Saved', hold);
+    }
+
+    $rootScope.flashCapsuleAlert = function(alertType, hold) {
+        $rootScope.ngCapsuleAlert = {};
+        $rootScope.ngCapsuleAlert.letter = alertType.substring(0,1);
+        $rootScope.ngCapsuleAlert.text = alertType;
+        $rootScope.ngCapsuleAlert.style = 'kd_blue';
+        if (alertType === 'Error') {
+            $rootScope.ngCapsuleAlert.style = 'kd_pink';
+        }
+
         if (hold) {
-            $scope.ngShow('savedAlert');
+            $scope.ngShow('capsuleAlertFlasher');
         } else {
-            $scope.ngFlash('savedAlert', 500);
+            $scope.ngFlash('capsuleAlertFlasher', 500);
         };
     };
 

@@ -95,7 +95,7 @@
                                         ng-if="event_type == 'settlement_event'"
                                     >SE</span>
                                     <img
-                                        class="icon special_showdown"
+                                        class="kd_icon special_showdown"
                                         src="/media/icons/special_showdown_event.png"
                                         ng-if="event_type == 'special_showdown'"
                                      />
@@ -117,8 +117,15 @@
                         id="{{modalControlID}}"
                         class="modal_control_overlay timeline_modal hidden"
                         ng-if="user_is_settlement_admin"
+                        ng-click="
+                            showHide(modalControlID);
+                            reloadTimeline();
+                        "
                     >
-                        <div class="kd_sheet_ui_inner_ring_container timeline_overlay_control">
+                        <div
+                            class="kd_sheet_ui_inner_ring_container timeline_overlay_control"
+                            ng-click="$event.stopPropagation()"
+                        >
 
                             <h3>Lantern Year {{ly.year}}</h3>
 

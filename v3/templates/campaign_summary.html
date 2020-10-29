@@ -1,8 +1,8 @@
 <!-- top nav - DEPRECATED -->
 <div id="topNavBar" class="campaign_summary_gradient">
     <button
-        id="floating_refresh_button"
-        class="clickable kd_yellow font_large"
+        id="floatingRefreshButton"
+        class="clickable kd_yellow font_large circular_button"
         ng-if="settlement.sheet !== undefined"
         ng-click="
             showFullPageLoader();
@@ -1347,7 +1347,7 @@
             ng-if="settlement.campaign.endeavor_count > 0"
         >
 
-            <h3>- Available Endeavors ({{settlement.campaign.endeavor_count}}) -</h3>
+            <h3 class="kd_title">Available Endeavors ({{settlement.campaign.endeavor_count}})</h3>
 
             <!--
 
@@ -1358,7 +1358,7 @@
                 The values in that dict are lists of handles, which we then
                 iterate, expanding them into endeavor dictionaries as we go.
 
-                As we're expanding each dict, we have h5's for each
+                As we're expanding each dict, we have h4's for each
                 possible type (i.e. the first thing we're iterating) that we
                 show if the endeavor is that type.
 
@@ -1389,7 +1389,7 @@
                     ng-repeat="i in settlement.campaign.endeavors[endeavorType]"
                 >
 
-                    <h5
+                    <h4
                         class="font_large endeavor_location"
                         ng-if="
                             endeavorType === 'campaign' ||
@@ -1397,36 +1397,36 @@
                         "
                     >
                         <b>{{i['name']}}</b>:
-                    </h5>
+                    </h4>
 
-                    <h5
+                    <h4
                         class="endeavor_location"
                         ng-if="endeavorType === 'innovations'"
                     >
                         <b>{{settlement.game_assets.innovations[i['handle']].name}}</b>
                         ({{settlement.game_assets.innovations[i['handle']].innovation_type}}):
-                    </h5>
+                    </45>
 
-                    <h5
+                    <h4
                         class="endeavor_location"
                         ng-if="endeavorType === 'locations'"
                     >
                         <b>{{settlement.game_assets[endeavorType][i['handle']].name}}</b>:
-                    </h5>
+                    </h4>
 
-                    <h5
+                    <h4
                         class="endeavor_location"
                         ng-if="endeavorType === 'survivors'"
                     >
                         <b>{{i.sheet.name}} [{{i.sheet.effective_sex}}]</b>:
-                    </h5>
+                    </45>
 
-                    <h5
+                    <h4
                         class="endeavor_location"
                         ng-if="endeavorType === 'storage'"
                     >
                         <b>{{i.name}} ({{i.type}})</b>:
-                    </h5>
+                    </h4>
 
                     <!-- actual endeavor bar starts here -->
                     <div
@@ -1589,19 +1589,22 @@
 
 -->
 
-    <div
-        id="campaignSummaryStorageOpener"
-        class="ng_fade clickable campaign_summary_storage_opener gradient_silver clickable"
-        ng-if="settlementStorage != undefined && settlement.sheet.storage.length > 0 "
-        ng-click="openNav('campaignSummaryStorageModal')"
-    >
-        &#8942;
-    </div>
+<div
+    id="campaignSummaryStorageOpener"
+    class="ng_fade clickable font_large campaign_summary_storage_opener gradient_silver"
+    ng-if="settlementStorage != undefined && settlement.sheet.storage.length > 0 "
+    ng-click="openNav('campaignSummaryStorageModal')"
+>
+    &#8942;
+</div>
 
     <div
         id="campaignSummaryStorageModal"
         class="rightSideNav dying_lantern clickable"
-        ng-if="settlement != undefined && user.user.subscriber.level >= 2"
+        ng-if="
+            settlement !== undefined &&
+            user.user.subscriber.level >= 2
+        "
         ng-init="getStorage()"
         ng-click="closeNav('campaignSummaryStorageModal')"
     >
@@ -1612,7 +1615,7 @@
                 class="campaign_summary_storage_type"
                 ng-repeat="s_type in settlementStorage">
             
-                <h3>{{s_type.name}} Storage</h3>
+                <h3 class="kd_title">{{s_type.name}} Storage</h3>
                 <div class="campaign_summary_storage_keywords">
                     <span
                         class="campaign_summary_storage_keyword"
@@ -1629,8 +1632,18 @@
                 >
                     <h4>{{loc.name}}</h4>
                     <div class="campaign_summary_storage_items">
-                        <span class="campaign_summary_storage_item" ng-repeat="i in loc.collection" ng-if="i.quantity >= 1">
-                            {{i.name}} <span ng-if="i.quantity >= 2">x {{i.quantity}}</span><br/>
+                        <span
+                            class="campaign_summary_storage_item"
+                            ng-repeat="i in loc.collection"
+                            ng-if="i.quantity >= 1"
+                        >
+                            {{i.name}}
+                            <span
+                                ng-if="i.quantity >= 2"
+                            >
+                                x {{i.quantity}}
+                            </span>
+                            <br/>
                             <div
                                 class="campaign_summary_storage_item_keywords"
                                 ng-if="i.keywords.length >= 1"
@@ -1646,11 +1659,13 @@
                         </span>
                     </div>
                 </div> <!-- location -->
-            {{loc}}
+
+                {{loc}}
+
             </div>
         </div> <!-- rightSideNavContent -->
 
-        <div class="rightSideNavCloseTip">Click or tap to close!</div>
+        <div class="right_side_nav_close_tip">Click or tap to close!</div>
 
     </div>
 

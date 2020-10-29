@@ -219,6 +219,22 @@
     /*  campaign pulse discoveries  */
     .campaign_summary_right_panel .pulse_discoveries {margin-bottom: 3%; }
 
+    /*  campaign right side nav - tablet */
+    .campaign_summary_storage_opener {
+        align-items: center; 
+        border: 0.1rem solid; 
+        border-radius: 100%; 
+        box-shadow: var(--default-box-shadow);
+        display: flex;
+        height: 3rem;
+        justify-content: center; 
+        line-height: 0;
+        padding: 0;
+        top: 0.3rem;
+        right: 5rem;
+        width: 3rem; 
+    }
+
     /*
 
         SETTLEMENT SHEET - tablet
@@ -333,9 +349,6 @@
 
     .kd_sheet_ui_ai_toggle_item {
         margin-top: 0; 
-    }
-    .kd_sheet_ui_ai_toggle_item input[type="radio"] {
-        transform: scale(2);
     }
 
     .survivor_sheet_card_container {

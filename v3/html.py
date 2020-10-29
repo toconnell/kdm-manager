@@ -78,21 +78,23 @@ class meta:
     )
 
     saved_dialog = """\n
+    <!-- capsule alert flasher -->
     <div
-        id="savedAlert"
+        id="capsuleAlertFlasher"
         class="ng_fadeout capsule_alert capsule_outer hidden"
-        ng-if="ngVisible['savedAlert']"
+        ng-if="ngVisible['capsuleAlertFlasher']"
     >
         <div class="capsule_inner">
-            <div class="short font_large kd_blue_text">S</div>
-            <div class="long kd_blue">Saved!</div>
-        </div>
-    </div>
-
-    <div id="error_dialog" class="saved_dialog_frame" style="">
-        <div class="kd_alert_no_exclaim saved_dialog_inner">
-            <span class="error_dialog_cap">E</span>
-            <b>An Error Occurred!</b>
+            <div
+                class="short font_large {{ngCapsuleAlert.style}}_text"
+            >
+                {{ngCapsuleAlert.letter}}
+            </div>
+            <div
+                class="long {{ngCapsuleAlert.style}}"
+            >
+                {{ngCapsuleAlert.text}}
+            </div>
         </div>
     </div>
 

@@ -1,3 +1,4 @@
+<!-- BEGIN ngDebugWindow -->
 <div
     id="ngDebugWindow"
     class="hidden"
@@ -44,32 +45,24 @@
     </ul>
 
     <hr/>
-    ngRolledUp:
-    <table>
-        <tr ng-repeat="(element, status) in ngRolledUp">
-            <td>{{element}}</td>
-            <td
-                class="clickable"
-                ng-click="rollUp(element)"
-            >
-                {{status}}
-            </td>
-        </tr>
-    </table>
-    <hr/>
-    ngVisible:
-    <table>
-        <tr ng-repeat="(element, status) in ngVisible">
-            <td>{{element}}</td>
-            <td
-                class="clickable"
-                ng-click="ngShowHide(element)"
-            >
-                {{status}}
-            </td>
-        </tr>
-    </table>
-    <hr/>
+    <div
+        ng-if="settlement"
+        ng-repeat="(objectName, objectLoc) in {
+            'ngRolledUp': ngRolledUp,
+            'ngVisible': ngVisible,
+            'ngCapsuleAlert': ngCapsuleAlert
+        }"
+    >
+        {{ objectName }}:
+        <table>
+            <tr ng-repeat="(key, value) in objectLoc">
+                <td>{{key}}</td>
+                <td>{{value}}</td>
+            </tr>
+        </table>
+        <hr/>
+    </div>
+
     <button
         ng-click="showFullPageLoader();"
     >
@@ -80,20 +73,26 @@
     >
         hideFullPageLoader()
     </button>
-    <button
-        ng-if="!ngVisible['savedAlert']"
-        ng-click="savedAlert(true);"
+    <div
+        ng-repeat="alertType in ['Saved', 'Error']"
     >
-        Show "Saved" alert
+        <button
+            ng-if="!ngVisible['capsuleAlertFlasher']"
+            ng-click="flashCapsuleAlert(alertType, true);"
+        >
+            Show "{{alertType}}" alert
+        <button
+            ng-click="flashCapsuleAlert(alertType)"
+        >
+            Flash "{{alertType}}" alert
+        </button>
+    </div>
     <button
-        ng-if="ngVisible['savedAlert']"
-        ng-click="ngHide('savedAlert', true);"
+        ng-if="ngVisible['capsuleAlertFlasher']"
+        ng-click="ngHide('capsuleAlertFlasher', true);"
     >
-        Hide "Saved" alert
+        Hide capsule flasher
     </button>
-    <button
-        ng-click="savedAlert();"
-    >
-        Flash "Saved" alert
-    </button>
+
 </div>
+<!-- END ngDebugWindow -->

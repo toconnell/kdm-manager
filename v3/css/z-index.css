@@ -20,6 +20,7 @@ input[type=text], input[type=password]          {z-index: 50; }
 #topNavBar                                      {z-index: 100; }
 #floating_refresh_button,
     #floating_dashboard_button                  {z-index: 101; }
+.campaign_summary_storage_opener                {z-index: 102}
 
     /* modal indexes */
 #survivorSearchModalContent.survivor_search_modal_container            {z-index: 1199;}
