@@ -9,6 +9,7 @@
     --color-kd-blue: #50CAF5;
     --color-kd-blue-gradient: linear-gradient(to bottom, #60DAF5, #40AFD3);
     --color-kd-kickstarter-grey: #666;
+    --color-kd-pale-grey: #aaa;
     --color-kd-purple: #8E3E95;
     --color-kd-rulebook-blue: #72BCEA;
     --color-kd-rulebook-pink: #FD559D;
@@ -17,6 +18,7 @@
     --color-kd-special-showdown: #DC2426;  
     --color-kd-yellow: #EEC051;
     --color-kd-yellow-gradient: radial-gradient(#FFC051, #EEC051);
+    --color-kd-zebra: #eee;
     --color-modal-blackout: rgba(0,0,0,0.9); 
 }
 
@@ -176,6 +178,37 @@ input:active {  /* this is our on-click effect color */
     color: #fff;
 }
 
+/*                                          */
+/*      expansion_content_manager.html      */
+/*                                          */
+
+.expansion_toggle_repeater {
+    color: var(--color-kd-pale-grey);
+    border-color: var(--color-kd-pale-grey);
+}
+.expansion_toggle_repeater.enabled {
+    color: #000;
+    border-color: #000;
+}
+.expansion_toggle_repeater.enabled.mandatory_expansion {
+    border-color: var(--color-kd-special-showdown);
+    color: var(--color-kd-special-showdown);
+}
+.expansion_toggle_repeater .kd_sheet_ui_box {
+    border-color: var(--color-kd-pale-grey); 
+}
+.expansion_toggle_repeater.enabled .kd_sheet_ui_box {
+    border-color: #000;
+}
+.expansion_toggle_repeater.enabled.mandatory_expansion .kd_sheet_ui_box {
+    border-color: var(--color-kd-special-showdown);
+}
+.expansion_toggle_repeater.enabled.mandatory_expansion .kd_sheet_ui_box.checked {
+    background: var(--color-kd-special-showdown);
+    background-color: var(--color-kd-special-showdown);
+}
+
+
 /* timeline.html */
 .timeline_row_container.current_ly {border-color: #f00; }
 .current_ly_container_row {background: radial-gradient(#fff,#ffffee);}
@@ -208,6 +241,11 @@ input:active {  /* this is our on-click effect color */
     background-color: #777;
 }
 
+.gear_card_combat_stat_col hr.three_dee {
+    background: #000;
+    border-color: #bbb;
+}
+
 .gear_card_affinity_outer {
     background-color: rgba(250,250,250,0);
 }
@@ -223,6 +261,12 @@ input:active {  /* this is our on-click effect color */
 }
 .gear_card_location_glyph {
     color: #222;
+}
+
+.gear_card_combat_stat_footnote,
+    .gear_card_footnote_character {
+    background: #000;
+    color: #fff;
 }
 
 .gear_card_recipe {border-color: #F3E067; background: #ffFFcc; }
@@ -385,6 +429,13 @@ input:active {  /* this is our on-click effect color */
 }
 .settlement_abandoned_stamp {
     color: var(--color-kd-special-showdown);
+}
+.survivor_sheet_the_constellations_title_bar {
+    background: var(--color-kd-zebra);
+}
+.survivor_sheet_potstars_the_constellations_table td.active {
+    color: var(--color-kd-special-showdown);
+    font-weight: bold;
 }
 
 /* settlement sheet tumblers */

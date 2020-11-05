@@ -1,95 +1,109 @@
 <div
-    id="modalBulkAdd" class="modal survivor_sheet_gradient hidden"
+    id="modalBulkAdd"
+    class="modal hidden"
     ng-if="user_is_settlement_admin && user.user.subscriber.level > 1"
-    ng-init="showHide('bulkAddOpenerButton');"
+    ng-init="ngShow('bulkAddOpenerButton');"
     ng-controller="addManySurvivorsController"
+    ng-click="ngHide('modalBulkAdd')"
 >
 
   <!-- Modal content -->
-    <div class="full_size_modal_panel bulk_add_modal">
-        <span class="closeModal" onclick="showHide('modalBulkAdd')">×</span>
+    <div
+        class="modal-content bulk_add_modal gear_card_gradient"
+        ng-click="$event.stopPropagation()"
+    >
+
+        <div
+           class="clickable corner_close_modal"
+           ng-click="ngHide('modalBulkAdd')"
+        >
+        </div>
 
         <div
             id="bulkAddControlsContainer"
+            class="add_multiple_survivors_container"
         >
 
-            <h3>Add Multiple New Survivors</h3>
-            <p>Use these controls to add multiple new survivors to {{settlement.sheet.name}}.
-                <span ng-if="user.user.preferences.random_names_for_unnamed_assets == true">
-                    New survivors will be manageable by all players in the campaign and
-                    will be assigned random names.
-                </span>
-                <span ng-if="user.user.preferences.random_names_for_unnamed_assets == false">
-                  New survivors will be manageable by all players in the campaign.
-                </span>
+            <h3 class="kd_title">New Survivors</h3>
+
+            <p>
+                Add multiple new survivors to {{settlement.sheet.name}}.
             </p>
 
-            <div>
-                <div class="kd_kickstarter_tumblers_raft">
-                    <div class="kd_kickstarter_tumbler_container bulk_add">
+            <p ng-if="user.user.preferences.random_names_for_unnamed_assets === true">
+                New survivors will be manageable by all players in the campaign and
+                will be assigned random names.
+            </p>
 
-                        Male
+            <p ng-if="user.user.preferences.random_names_for_unnamed_assets === false">
+                New survivors will be manageable by all players in the campaign.
+            </p>
 
-                        <button
-                            type="button"
-                            class="kd_kickstarter_button"
-                            ng-click="scratch.addMaleSurvivors = scratch.addMaleSurvivors + 1"
-                        >
-                            &#9652;
-                        </button>
-                        <input
-                            id="maleCountBox"
-                            class="big_number_square"
-                            type="number"
-                            value="0"
-                            min="0"
-                            ng-model="scratch.addMaleSurvivors"
-                        />
-                        <button
-                            type="button"
-                            class="kd_kickstarter_button"
-                            ng-click="scratch.addMaleSurvivors = scratch.addMaleSurvivors - 1"
-                        >
+            <div class="kd_kickstarter_tumblers_raft modal_bulk_add">
+
+                <div class="kd_kickstarter_tumbler_container bulk_add">
+
+                    Male
+
+                    <button
+                        type="button"
+                        class="kd_kickstarter_button"
+                        ng-click="scratch.addMaleSurvivors = scratch.addMaleSurvivors + 1"
+                    >
+                        &#9652;
+                    </button>
+                    <input
+                        id="maleCountBox"
+                        class="big_number_square font_large"
+                        type="number"
+                        value="0"
+                        min="0"
+                        ng-model="scratch.addMaleSurvivors"
+                    />
+                    <button
+                        type="button"
+                        class="kd_kickstarter_button"
+                        ng-click="scratch.addMaleSurvivors = scratch.addMaleSurvivors - 1"
+                    >
+                    &#9662;
+                    </button>
+                </div>  <!-- bulk_add_control maleCountBox" -->
+                <div class="kd_kickstarter_tumbler_container bulk_add">
+
+                    Female
+
+                    <button
+                        type="button"
+                        class="kd_kickstarter_button"
+                        ng-click="scratch.addFemaleSurvivors = scratch.addFemaleSurvivors + 1"
+                    >
+                        &#9652;
+                    </button>
+                    <input
+                        id="femaleCountBox"
+                        class="big_number_square"
+                        type="number"
+                        value="0"
+                        min="0"
+                        ng-model="scratch.addFemaleSurvivors"
+                    />
+
+                    <button
+                        type="button"
+                        class="kd_kickstarter_button"
+                        ng-click="scratch.addFemaleSurvivors = scratch.addFemaleSurvivors - 1"
+                    >
                         &#9662;
-                        </button>
-                    </div>  <!-- bulk_add_control maleCountBox" -->
-                    <div class="kd_kickstarter_tumbler_container bulk_add">
+                    </button>
+                </div> <!-- bulk_add_control female -->
 
-                        Female
+            </div> <!-- bulk_add_tumblers -->
 
-                        <button
-                            type="button"
-                            class="kd_kickstarter_button"
-                            ng-click="scratch.addFemaleSurvivors = scratch.addFemaleSurvivors + 1"
-                        >
-                            &#9652;
-                        </button>
-                        <input
-                            id="femaleCountBox"
-                            class="big_number_square"
-                            type="number"
-                            value="0"
-                            min="0"
-                            ng-model="scratch.addFemaleSurvivors"
-                        />
-
-                        <button
-                            type="button"
-                            class="kd_kickstarter_button"
-                            ng-click="scratch.addFemaleSurvivors = scratch.addFemaleSurvivors - 1"
-                        >
-                            &#9662;
-                        </button>
-                    </div> <!-- bulk_add_control female -->
-
-                </div> <!-- bulk_add_tumblers -->
-
-            </div>
 
             <div
                 ng-if="settlement.sheet.lantern_year > 0 && (scratch.addFemaleSurvivors > 0 || scratch.addMaleSurvivors > 0)"
             > <!-- parents stuff -->
-                <h3>Parents</h3>
+                <h3 class="kd_title">Parents</h3>
                 <p>Survivors without parents are not eligible for the automatic
                 application of Innovation bonuses granted to newborn survivors!
                 </p>
@@ -99,12 +113,14 @@
                     <div class="bulk_add_parent_selectors"> <!-- parent selectors -->
                         <select
                             name="father"
+                            class="kd_kickstarter_select"
                             ng-model="scratch.manySurvivorsFather"
                             ng-options="survivor._id.$oid as survivor.name for survivor in settlement.eligible_parents.male"
                         /><option selected disabled value="" name="father">Father</option></select>
 
                         <select
                             name="mother"
+                            class="kd_kickstarter_select"
                             ng-model="scratch.manySurvivorsMother"
                             ng-options="survivor._id.$oid as survivor.name for survivor in settlement.eligible_parents.female"
                         /><option selected disabled value="" name="mother">Mother</option></select>
@@ -116,8 +132,11 @@
             <button
                 id="bulkAddSurvivors"
                 ng-if="scratch.addMaleSurvivors > 0 || scratch.addFemaleSurvivors > 0"
-                onclick="showHide('bulkAddControlsContainer'); showHide('bulkAddResultsContainer')"
-                ng-click="addManySurvivors()"
+                ng-click="
+                    addManySurvivors();
+                    ngShowHide('bulkAddResultsContainer');
+                    showHide('bulkAddControlsContainer');
+                "
                 class="kd_kickstarter_button kd_blue"
             >
                 Create New Survivors
@@ -148,7 +167,7 @@
             >
                 <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}">
                 <button
-                    class="kd_kickstarter_button"
+                    class="ng_fade kd_kickstarter_button"
                     ng-class="{kd_blue: s.sheet.sex == 'M', kd_pink: s.sheet.sex == 'F'}"
                 >
                     <b>{{s.sheet.name}}</b> [{{s.sheet.sex}}]

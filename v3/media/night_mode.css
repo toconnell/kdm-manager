@@ -27,7 +27,7 @@ div#topNavBar {box-shadow: 0 10px 17px #06121a;}
 span.settlement_sheet_gradient {border-color: #243b55;}    /* bottom bar */
 .floating_top_nav_button {background: radial-gradient(#fff,#aaa); }
 
-.expansion_toggle_container.enabled {color: #6ABED8; border-color: #6ABED8;}
+.expansion_toggle_repeater.enabled {color: #6ABED8; border-color: #6ABED8;}
 
 
 /* right side nav bar - storage summary */

@@ -49,7 +49,10 @@
     "
 >
 
-    <img class="dashboard_bg" src="/media/tree_logo_shadow.png"> <!-- DASHBOARD LOGO ART -->
+    <img
+        class="dashboard_bg_art"
+        src="/media/tree_logo_shadow.png"
+    /> <!-- DASHBOARD LOGO ART -->
 
     <div class="dashboard_menu">
         <h2
@@ -891,12 +894,14 @@
     id="dashboardAlertsViewer"
     class="modal-black hidden"
     ng-if="ngVisible['dashboardAlertsViewer']"
+    ng-click="ngHide('dashboardAlertsViewer')"
 >
     <div
         class="kd_sheet_ui_outer_ring_container"
     >
         <div
             class="kd_sheet_ui_inner_ring_container"
+            ng-click="$event.stopPropagation()"
         >
             <h3 class="kd_title">Notifications</h3>
 

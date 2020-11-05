@@ -32,7 +32,7 @@
 }
 
 :root {
-    --font-tiny: 0.3rem;
+    --font-tiny: 0.4rem;
     --font-small: 0.6rem;
     --font-medium: 1rem;
     --font-large: 1.5rem;
@@ -300,6 +300,7 @@ button:active,
 .gear_card_container {
     border: 0.1rem solid;
     border-radius: 1rem;
+    margin: 0 auto; 
     min-height: fit-content;
 }
 
@@ -393,32 +394,43 @@ button:active,
 }
 .gear_card_combat_stat_col {
     font-family: 'Arial';
+    font-size: 1.25rem;
     font-weight: bold;
     display: flex;
+    flex-direction: column; 
     height: 100%;
     margin-left: -3%;
     width: 45%;
 }
-.gear_card_combat_stat_activation {
-    border-radius: 5vw;
+.gear_card_combat_stat_activation,
+    .gear_card_combat_stat_footnote {
     display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap; text-align: center;
-    font-size: 1.25rem;
-    height: 95%;
+    flex-wrap: nowrap;
     margin-left: 15%;
     padding: 4%;
-    padding-bottom: 5%;
     width: 1.5rem;
 }
+.gear_card_combat_stat_activation {
+    border-radius: 5vw;
+    flex-direction: column;
+    padding-bottom: 5%;
+    text-align: center;
+}
+.gear_card_combat_stat_footnote {
+    align-items: flex-end;
+    border-radius: 10vw;
+    justify-content: center; 
+    height: 4rem;
+    margin-top: -2.25rem;
+    padding-bottom: 0.5rem;
+}
 .gear_card_combat_stat_col hr.three_dee {
-    background: #000;
     border: 0;
-    border-bottom: 1px solid #bbb;
+    border-bottom: 1px solid;
     box-sizing: border-box;
     height: 0.15rem;
     margin: 0.25rem 0 0.25rem -10%;;
-    width: 120%; 
+    width: 1.75rem; 
 }
 .gear_card_combat_stat_activation_detail {
     border: 0;
@@ -474,6 +486,35 @@ button:active,
     font-family: 'kdm-font-2';
 }
 
+/*  gear card footnote   */
+
+.gear_card_footnote {
+    border: 0.2rem solid;
+    border-radius: 1rem;
+    display: flex;
+    justify-content: space-evenly;
+    margin: 3% auto;
+    width: 85%;
+}
+.gear_card_footnote_character {
+    align-items: flex-end;
+    border-radius: 0 0 10vw 10vw;
+    display: flex;
+    font-family: 'Arial';
+    font-size: 1.25rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+    padding: 4%;
+    width: 1rem;
+}
+.gear_card_footnote_description {
+    box-sizing: border-box;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+    width: 65%;
+}
+
+/*  gear card recipes   */
 
 
 /*  KD Kickstarter UI   */
@@ -792,6 +833,36 @@ button:active,
     margin-top: 3%; 
 }
 
+/*  POTSTARS    */
+.survivor_sheet_the_constellations_title_bar {
+    font-weight: bold;
+    margin: -2%;
+    padding-bottom: 0.5rem;
+    padding-top: 0.5rem;
+    text-align: center;  
+}
+.survivor_sheet_potstars_the_constellations_container {
+    margin: 0 auto;
+    margin-top: 3%; 
+    padding: 0;
+}
+.survivor_sheet_potstars_the_constellations_table {
+    border-collapse: collapse;
+    width: 100%; 
+}
+.survivor_sheet_potstars_the_constellations_table th {
+    padding: 0.25rem;
+    padding-right: 0.5rem;
+    text-align: left; 
+}
+.survivor_sheet_potstars_the_constellations_table tr.underline th,
+    .survivor_sheet_potstars_the_constellations_table tr.underline td {
+    border-bottom: 0.1rem solid var(--color-kd-pale-grey);
+}
+.survivor_sheet_potstars_the_constellations_table td {
+    transition: 1s;
+}
+
 
 /*  kd rulebook UI  */
 .kd_rulebook_alert {
@@ -902,6 +973,9 @@ button:active,
     margin-top: 0;
 }
 
+.dashboard_bg_art {
+    display: none;
+}
 
 /*  dashboard_rollup styles (the clickers on the dash) */
 .dashboard_welcome_modal {
@@ -1107,12 +1181,18 @@ h3.new_survivor_sheet {
 } 
 
 /*
-    EXPANSION CONTENT
+    EXPANSION CONTENT expansion_content_manager.html
 */
-
-.expansion_toggle_subtitle {
-    margin-left: 5%; 
-    margin-right: 5%; 
+.expansions_controls_container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+}
+.expansion_toggle_repeater {
+    border: var(--border-worksheet);
+    box-sizing: border-box;
+    margin: 0 auto;
+    margin-bottom: 3%;
 }
 
 
@@ -1354,6 +1434,9 @@ h3.new_survivor_sheet {
     /* diamonds! */
 .shape-section {
   padding: 20px 0;
+}
+.headline_block_caption {
+    text-align: center;
 }
 .diamond {
   background: #000;

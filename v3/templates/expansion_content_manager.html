@@ -39,37 +39,52 @@
 
                     <h4 class="expansion_category_header">{{category}}</h4>
 
-                    <div
-                        class="clickable expansion_toggle_container"
-                        ng-repeat="x in new_settlement_assets.expansions"
-                        ng-if="x.ui.pretty_category == category"
-                        ng-class="{
-                            enabled: settlement.sheet.expansions.indexOf(x.handle) != -1,
-                            mandatory_expansion: x.mandatory === true,
-                        }"
-                        ng-init="x.mandatory = false"
-                        ng-click="toggleExpansion(x.handle, settlement.sheet.expansions.indexOf(x.handle))"
-                    >
-                        <span
-                            ng-if="settlement.game_assets.campaign.settlement_sheet_init.expansions != undefined"
-                            ng-init="
-                                x.mandatory = settlement.game_assets.campaign.settlement_sheet_init.expansions.indexOf(x.handle) != -1;
-                        "
-                        ></span>
+                    <div class="expansion_toggle_container">
                         <div
-                            class="kd_sheet_ui_box"
-                            ng-class="{
-                                checked: settlement.sheet.expansions.indexOf(x.handle) != -1,
+                            class="clickable kd worksheet_block expansion_toggle_repeater"
+                            ng-repeat="x in new_settlement_assets.expansions"
+                            ng-if="x.ui.pretty_category == category"
+                                ng-class="{
+                                enabled: settlement.sheet.expansions.indexOf(x.handle) != -1,
+                                mandatory_expansion: x.mandatory === true,
                             }"
-                        ></div>
-                            {{x.name}}
-                        <div
-                            class="expansion_toggle_subtitle"
-                            ng-if="x.subtitle != undefined"
-                            ng-bind-html="x.subtitle|trustedHTML"
+                            ng-init="x.mandatory = false"
+                            ng-click="toggleExpansion(x.handle, settlement.sheet.expansions.indexOf(x.handle))"
                         >
-                        </div>
+                            <span
+                                class="hidden"
+                                ng-if="settlement.game_assets.campaign.settlement_sheet_init.expansions != undefined"
+                                ng-init="
+                                    x.mandatory = settlement.game_assets.campaign.settlement_sheet_init.expansions.indexOf(x.handle) != -1;
+                            "
+                            >
+                                HACK CITY!!!
+                            </span>
 
+                            <div
+                                class="kd worksheet_row"
+                            >
+                                <div
+                                    class="kd checkbox"
+                                    ng-class="{
+                                        checked: settlement.sheet.expansions.indexOf(x.handle) != -1,
+                                    }"
+                                ></div>
+                                <div
+                                    class="kd checkbox_desc"
+                                    ng-bind-html="x.name|trustedHTML"
+                                >
+                                </div>
+                            </div><!-- worksheet_row -->
+                            
+                            <div
+                                class="kd worksheet_row caption"
+                                ng-if="x.subtitle != undefined"
+                                ng-bind-html="x.subtitle|trustedHTML"
+                            >
+                            </div>
+
+                        </div><!-- toggle_repeater -->
                     </div> <!-- toggle container -->
 
                 </div><!-- category -->

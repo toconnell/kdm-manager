@@ -133,6 +133,13 @@
     #dashboardControlElement {margin-left: 3%; }
     #dashboardCreateNewSettlement {margin-bottom: 3%; }
 
+    .dashboard_bg_art {
+        bottom: 20vh;
+        display: block;
+        position: fixed;
+        right: 0;
+    }
+
     .dashboard_rollup {
         margin-top: 3%; 
     }
@@ -173,10 +180,6 @@
     .gear_lookup_card_repeater {
         width: 20rem; 
     }
-    .gear_card_combat_stat_activation {
-        height: 95%;
-        margin-left: 0;
-    }
     .gear_card_affinity_inner {
         border: 1px solid; 
     }
@@ -198,6 +201,10 @@
 
     .gear_card_add_affinity_interior {
         border-width: 1px; 
+    }
+
+    .gear_card_footnote {
+        width: 95%; 
     }
 
     /*
@@ -627,11 +634,21 @@
 
     /* expansion_content_manager.html - desktop */
     .kd_sheet_ui_inner_ring_container.expansion_content_manager {
+        max-width: 900px;
         width: 75%; 
     }
+    /*  expansion_content_manager.html  */
+    .expansion_toggle_container {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .expansion_toggle_repeater {
+        width: 45%;
+    }
 
-    .expansion_toggle_subtitle {
-        font-size: 10pt; 
+    /*  multiple_new_survivors.html */
+    .modal-content.bulk_add_modal {
+        width: 50%; 
     }
 
     /*  report_error.html - desktop */

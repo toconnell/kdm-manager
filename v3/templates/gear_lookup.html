@@ -130,6 +130,8 @@
 
                         <div class="gear_card_detail_region_text">
                             <div class="gear_card_detail_region_top">
+
+
                                 <div
                                     class="gear_card_combat_stat_col"
                                     ng-if="gear.armor != undefined || gear.speed != undefined"
@@ -157,6 +159,13 @@
                                             <hr/>
                                             {{gear.strength}}
                                         </div>
+                                    </div>
+
+                                    <div
+                                        class="gear_card_combat_stat_footnote"
+                                        ng-if="gear.footnote"
+                                    >
+                                        {{gear.footnote.char}}
                                     </div>
 
                                     <!-- armor -->
@@ -338,6 +347,30 @@
                         </div>
                     </div>
                 </div>
+
+                <div
+                    class="gear_card_footnote"
+                    ng-if="gear.footnote"
+                >
+
+                    <div
+                        class="gear_card_footnote_character"
+                    >
+                        {{gear.footnote.char}}
+                    </div>
+
+                    <div
+                        class="gear_card_footnote_description"
+                        ng-bind-html="gear.footnote.desc|trustedHTML"
+                    >
+                    </div>
+
+                </div>
+
+
+            <!--
+                    RECIPES BEGIN HERE
+            -->
 
                 <div
                     class="font_small gear_card_recipe"

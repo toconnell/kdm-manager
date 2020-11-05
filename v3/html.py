@@ -68,6 +68,8 @@ class meta:
         <link rel="stylesheet" type="text/css" href="/css/color.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/css/z-index.css?v=$version">
 
+        <link rel="stylesheet" type="text/css" href="$api_url/kingdomDeath.css?v=$version">
+
         <link rel="stylesheet" type="text/css" href="/media/fonts.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/media/settlement_event_log.css?v=$version">
         <link ng-if="user.user !== undefined && user.user.preferences.night_mode === true" rel="stylesheet" type="text/css" href="/media/night_mode.css?v=$version">
@@ -75,6 +77,7 @@ class meta:
         title = settings.get("application","title"),
         version = settings.get('application', 'version'),
         api_key = private_settings.get('api','key'),
+        api_url = api.get_api_url(trailing_slash=False),
     )
 
     saved_dialog = """\n

@@ -73,6 +73,12 @@
         dashboard.html - tablet
 
     */
+    .dashboard_bg_art {
+        bottom: 20vh;
+        display: block;
+        position: fixed;
+        right: -5vw; 
+    }
 
     /*
 
@@ -110,6 +116,12 @@
 
 
     /*  gear_lookup.html - tablet */
+    .gear_lookup_card_repeater {
+        width: 50%; /* of the 100% width */
+    }
+    .gear_card_container {
+        width: 90%; /* of the 50% 'column' */
+    }
     .gear_card_combat_stat_shield {
         width: 5vw;
     }
@@ -413,6 +425,14 @@
         margin: 5%; 
     }
 
+    /*  expansion_content_manager.html  */
+    .expansion_toggle_container {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .expansion_toggle_repeater {
+        width: 45%;
+    }
 
     /*  help.html   */
     .help_container {

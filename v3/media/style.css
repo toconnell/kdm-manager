@@ -217,16 +217,8 @@ pre { white-space: pre-wrap; }
 
 
 /* expansion content manager - mobile */
-.expansions_controls_container {display: flex; flex-direction: column; }
 .expansions_controls_container .kd_sheet_ui_row_tip {margin: 0 auto; width: 90%; margin-bottom: 1%; }
 .expansion_category_header {padding-left: 5%; }
-.expansion_toggle_container {padding: 2%; width: 90%; margin: 0 auto; border: 4px solid #aaa; margin-bottom: 3%; color: #aaa; }
-.expansion_toggle_container .kd_sheet_ui_box {border-color: #aaa; }
-.expansion_toggle_container.enabled {color: #000; border-color: #000; }
-.expansion_toggle_container.enabled.mandatory_expansion {color: #DC2426; border-color: #DC2426; }
-.expansion_toggle_container.enabled.mandatory_expansion .kd_sheet_ui_box {border-color: #DC2426; }
-.expansion_toggle_container.enabled.mandatory_expansion .kd_sheet_ui_box.checked {background-color: #DC2426; }
-.expansion_toggle_container.enabled .kd_sheet_ui_box { border-color: #000; }
 .expansion_management_form button {font-weight: bold; }
 
 /* world panel styles - mobile */
@@ -284,10 +276,6 @@ input[type="radio"].gear_lookup_attrib_toggle {display: inherit;}
     margin: 0 auto;
     margin-bottom: 2%;
     width: 90%;
-}
-.gear_lookup_card_repeater .gear_card_container {
-    margin: 0 auto;
-    margin-bottom: 1%;
 }
 .gear_card_recipe {
     padding: 1%; margin: 2%;
@@ -384,7 +372,7 @@ input[type="radio"].gear_lookup_attrib_toggle {display: inherit;}
 .gear_card_detail_bottom_affinity_bonus {
     background-color: #dad7d8;
     border: 3px solid #fff;
-    border-radius: 3vw;
+    border-radius: 1rem;
     display: flex;
     height: auto;
     margin-bottom: 1%;
@@ -556,7 +544,6 @@ table.dashboard_table td {padding: 5px; }
 table.dashboard_table td.value {width: 100px; text-align: right;}
 
 div.dashboard_button_list {margin-top: -3%; padding-left: 5%;}
-.dashboard_bg {display: none; }
 
 
 ul.dashboard_settlement_list_settlement_attribs { margin-top: 0; margin-bottom:0; margin-left: 2%; padding-left:0;}
@@ -585,8 +572,6 @@ input.new_asset_name {width: 100%; margin: 4%; font-family: Silverado; font-size
 
 div.new_settlement_loading {width: 100%; display: flex; flex-direction: row; justify-content: center; margin-top: 10%; }
 
-.bulk_add_modal p {font-size: 25pt; font-family: 'Metrophobic'; width: 90%; margin: 0 auto; text-align: center; margin-bottom: 5%; }
-.bulk_add_modal h3 {margin-bottom: 1%; }
 .bulk_add_parent_selectors {width: 90%; margin: 0 auto; justify-content: center; display: flex; flex-direction: column; }
 .bulk_add_parent_selectors select {margin-bottom: 3%; }
 .bulk_add_results_container {padding-top: 15%; }
@@ -1058,25 +1043,18 @@ input.survivor_sheet_attrib_controls_number {width: 125px; height: 125px; border
     /* end attrib controls */
 
 
-button#constellationModalOpener {width: 40%; margin-top: -1250px; float: left; }
-table#survivor_constellation_table {
-    border-radius: 25px;
-    background-color: #E1F5FE;
-    margin: 0 auto;
-    width: 95%;
-}
-table#survivor_constellation_table th {font-weight: bold; vertical-align: middle; text-align: center; padding: 5px; }
-table#survivor_constellation_table td {padding: 5px; background-color: #FDFFFF; text-align: center; vertical-align: center; }
-table#survivor_constellation_table td.active {background-color: #FFF9C4; font-weight: bold; transition: 1s;}
-
-
 div.returning_survivor_badge {font-size: 0.8em; position: absolute; margin: -3px; margin-top: -20px; border-bottom-right-radius: 25px; width: auto; height: 3%; padding: 0; padding-left: 2px; padding-right: 1%;}
 div.survivor_constellation_badge {font-size: 23pt; position: absolute; right: 8%; background-color: #4A148C; margin: 0; margin-left: 30px; margin-top: -20px; border-bottom-right-radius: 25px; border-bottom-left-radius: 25px; width: auto; height: auto; color: #fff; padding: 0; padding-left: 2%; padding-right: 2%; padding-bottom: 3px;}
 
 
 
 /* hit boxes; mobile width*/
-.big_number_square { border: 3px solid #666; width: 190px; height: 200px; margin-left: 5%; display: inline-block; margin-right: 20px; }
+.big_number_square {
+    border: 0.2rem solid;
+    display: inline-block;
+    height: 100%;
+    width: 100%;
+}
 .big_number_caption { font-size: 75px; padding-top: 30px; color: #777;  }
 
 /* secondary attrib controls - mobile */
@@ -1143,8 +1121,6 @@ div#info_box h2 {margin-top: 0; border: 0 none; font-weight: normal; width: 40%;
 
 #damage_box, div#shield_box {padding: 20px;}
 .shield {border-radius: 0 0 100px 100px; width: 150px; height: 175px; clear: both; display: block; margin: 0; }
-.big_number_square,
-    .shield {font-size: 100px; }
 
 
 
@@ -1204,6 +1180,7 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     border: 2px solid #3E2723;
     border-radius: 5px; 
 }
+.modal-content p {text-align: center; }
 
 .modal-black {
     transition: 1s; 
@@ -1325,10 +1302,8 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     div.dashboard_preferences_container div.dashboard_preference_block_group h2 {font-size: 20pt; }
     .dashboard_preference_elections_container label {font-size: 13pt; }
 
-
-
-    table.dashboard_table {width: 80%; margin-left: 20px;}
-	img.dashboard_bg {position: fixed; right: -50px; top: 200px; display: block; }
+    table.dashboard_table {
+        width: 80%; margin-left: 20px;}
     div.dashboard_menu {width: 600px; float:left; display: block; margin: 0 auto; clear: left; }
     img.dashboard_icon {height: 30px; width: 30px; }
     .dashboard_kdm_font {font-size: 1em;}
@@ -1404,10 +1379,8 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     .kd_sheet_ui_inner_ring_container.gear_lookup_container {width: 95%; }
     .gear_lookup_search_box {padding: 1%; height: auto; }
     .gear_repeater_container {display: flex; flex-direction: row; flex-wrap: wrap; }
-    .gear_lookup_card_repeater {width: auto; }
     .gear_card_affinity_inner {border-width: 1px; }
     .gear_card_affinity_col {width: 25px; }
-    .gear_card_container {width: 350px; min-height: auto;}
     .gear_card_detail_bottom_rules {margin-left: -5%; margin-right: -5%; }
     .gear_card_combat_stat_activation_detail {padding-top: 5%; padding-bottom: 5%;}
     .gear_card_detail_region {min-height: 300px; }
@@ -1419,7 +1392,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     .gear_card_affinity_outer.bottom_affinity.affinity_paired_bottom {border-top: 15px solid #333; margin-bottom: 2%; }
     .gear_card_add_affinity {width: 60px; height: 60px; }
     .gear_card_add_affinity_interior {border-width: 2px; }
-    .gear_card_recipe {width: 330px; }
 
 
     /* expansion modal -tablet */
@@ -1535,7 +1507,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     div#survivor_survival_actions_container {margin: 0 auto; float: left; width: 400px; clear: right;}
     button#modalDeathButton {font-size: 24px; }
 
-    button#constellationModalOpener {width: auto; padding-right: 20px; padding-left:20px; margin-top: -686px; float: left; font-size: 17px;}
 
 
 
@@ -1675,7 +1646,7 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
 
     .campaign_summary_survivor_avatar_and_summary div.avatar img {width: 80%; }
     .death_x {font-size: 180px; margin-top: -3%; margin-left: 10px; margin-bottom: 12%; }
-    .campaign_summary_survivor_constellation {margin-bottom: -4%; font-size: 14pt; }
+    .campaign_summary_survivor_constellation {margin-bottom: -4%; }
 
     .survivor_tag {width: auto; }
 
@@ -1761,7 +1732,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
         /* bulk add - tablet */
     div.big_number_container input#survivalLimitBox, div.big_number_container input#populationBox, div.big_number_container input#deathCountBox {width: 65px; height:  70px; }
     form.survivor_bulk_add_form {width: 100%; }
-    .bulk_add_modal p {font-size: 15pt; width: 70%; margin-bottom: 2%; }
     .bulk_add_tumblers {width: auto}
     button.settlement_sheet_bulk_add {font-size: 18pt; padding: 1%; }
 
@@ -1859,7 +1829,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     .modal-content h3 {margin-bottom: 3%; font-size: 25px;}
     .modal-content hr {margin-top: 2%; margin-bottom: 2%;}
     .modal-content button {width: 80%; padding: 7px; margin: 3%; }
-    .modal p {text-align: center; }
 
     div#modalAffinity div.modal-content div.bulk_add_control button {width: 150px; height: auto;}
 
@@ -1897,23 +1866,16 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
 
     .dashboard_settlement_loader {font-size: 13pt; }
     .dashboard_settlement_loader img {width: 25%; height: auto; }
-    ul.dashboard_settlement_list_settlement_attribs li {font-size: 10pt; }
 
 
-    b.dashboard_settlement_list_settlement_name {font-size: 25px;}
 
     table.dashboard_table {width: 60%; margin-left: 0; margin-top: -16px; }
-	img.dashboard_bg {position: fixed; right: 50px; top: 50px; display: block; }
-    .dashboard_kdm_font {font-size: 12pt; }
 
-    button.dashboard_settlement_name b.dashboard_settlement_name {font-size: 22px;}
     button.dashboard_admin_panel_launch_button {position: fixed; top: 2%; right: 10%;}
 
-    .dashboard_rollup_arrow {font-size: 9pt; }
 
     /* dashboard styles, collection, preferences, etc. - wide */
     .dashboard_user_expansions_repeater .special_attribute_checkbox { width: 15px; height: 15px; }
-    .dashboard_user_expansions_repeater .special_attribute_text {font-size: 13pt; }
     .preferences_sub_block.preferences_sign_out {margin-top: auto; }
     .preferences_sub_block button {margin: 2% auto; width: 350px; }
     .dashboard_preferences_container p {font-size: 11pt; }
@@ -1938,8 +1900,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     span.kd_toggle_bullet {font-size: 12pt; width: 10px; height: 10px; }
 
 
-    /* expansion modal - wide */
-    .expansion_toggle_container {font-size: 15pt; padding: 1%; margin-bottom: 1%; border-width: 2px; }
     .expansions_controls_container button {width: 75%; display: block; margin-top: 3%; margin-bottom: 5%; padding: 2%; }
     .expansion_management_form {width: 100%; margin-top: 3%; }
 
@@ -2018,7 +1978,7 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     
 
     div.returning_survivor_badge {margin: -3px; border-bottom-right-radius: 25px; width: 1.5%; height: 2%; padding: 0; padding-left: 2px; }
-    div.survivor_constellation_badge {font-size: 9pt; left: 330px; margin: 0; margin-top: -3px; }
+    div.survivor_constellation_badge {left: 330px; margin: 0; margin-top: -3px; }
 
 
 
@@ -2052,7 +2012,7 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     .campaign_summary_survivor_avatar_and_summary div.avatar img {width: 90px; border-radius: 3px; }
     .attr {font-size: 12pt; }
     .campaign_summary_survivor_returning_flash {font-size: 10pt; margin-top: -2%; width: 104.3%; margin-left: -2%; border-top-right-radius: 5px; border-top-left-radius: 5px; }
-    .campaign_summary_survivor_constellation {font-size: 12pt; width: 104.3%; margin-left: -2%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; }
+    .campaign_summary_survivor_constellation {width: 104.3%; margin-left: -2%; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; }
 
     .campaign_summary_survivor_tags_container {margin: 2% auto;}
     .survivor_tag {font-size: 11pt; min-width: 20%; }
@@ -2143,7 +2103,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     div.settlement_form_wide_box {display: flex; flex-direction: column-reverse; float: left; width: auto; height: 200px; margin-bottom: 10px; text-align: center; }
 
         /* Bulk Add New Survivors - wide */
-    .bulk_add_modal p {font-size: 12pt; margin-bottom: 1%; width: 35%;}
     .bulk_add_tumblers {width: 40%; margin-bottom: 3%; }
     div.bulk_add_control {text-align: center; margin: 0 auto; font-size: 11pt; color: #666; display: flex; flex-direction: column; }
     div.bulk_add_control input[type=number] {width: 83px; }
@@ -2343,10 +2302,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     div.custom_AI_preview {font-size: 14pt; text-align: left; }
     label#cannot_spend_survival {margin-top: -190px; margin-right: 50px; }
     button#modalDeathButton {font-size: 17px; }
-    button#constellationModalOpener {width: 40%; margin-top: 25%; margin-bottom: 10px;  float: left; }
-    div#modalConstellation table#survivor_constellation_table {font-size: 13pt; width: 70%;}
-    div#modalConstellation table#survivor_constellation_table td {font-size: 12pt; height: 75px; }
-    div#modalConstellation div#survivor_constellation_control_container {margin: 0 auto; width: 30%; text-align: center;}
 
     .shield, .big_number_square {font-size: 17pt; height: 55px; width: 45px; padding: 0; border: 1px solid #666; margin: 5px; clear: both; padding-left: 5px; padding-right: 5px; }
 
