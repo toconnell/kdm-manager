@@ -5,13 +5,6 @@
 @import url(//fonts.googleapis.com/css?family=Ruda);
 
 @font-face {
-    font-family: 'Metrophobic';
-    src: url('/media/fonts/Metrophobic.woff') format('woff'),
-        url('/media/fonts/Metrophobic.ttf') format('truetype');
-}
-.metrophobic {font-family: Metrophobic;}
-
-@font-face {
     font-family: 'Silverado';
     src: url('/media/fonts/329BC2_0_0.eot');
     src: url('/media/fonts/329BC2_0_0.eot?#iefix')
@@ -34,9 +27,15 @@ html, body {
     margin: 0;
     padding: 0;
 }
+
 h1 {font-family: 'Silverado';}
 
-a {color: inherit; margin: 0 auto; text-decoration: none; font-weight: bold; }
+a {
+    color: inherit;
+    margin: 0 auto;
+    text-decoration: none;
+    font-weight: bold;
+}
 button {color: #fff; background-color: inherit; box-shadow: none; border: 0; outline: none; }
 
 
@@ -53,32 +52,59 @@ button {color: #fff; background-color: inherit; box-shadow: none; border: 0; out
     min-height: min-content;
 }
 
-h1 {margin: 0 auto; margin-top: 15%; font-size: 500%; }
+h1 {margin: 0 auto; margin-top: 15%;}
 h2 {
-    font-size: 170%;
+    font-size: 1rem;
+    font-weight: normal;
     margin: 1rem auto;
+    margin-top: 0; 
     width: 90%;
     text-align: center;  
 } 
-h3 {position: absolute; right: 3%; }        /* version tag */
+h3 {    /*  version tag */
+    font-size: 0.6rem;
+    position: absolute;
+    right: 3%;
+}
 
-button {font-size:  150%; }
 button.sign_up {position: fixed; bottom: 2%; left: 3%; }
 button.help {position: fixed; bottom: 2%; right: 3%; }
 
 .user_inputs {margin: 0 auto; margin-top: 25%; width: 80%; padding: 0; text-align: center; margin-bottom: 25%; }
 
-input {height: 15%; background-color: #000; color: #fff; padding-left: 5%; font-family: 'Silverado'; width: 95%; margin: 0 auto; margin-bottom: 5%; }
-input, button.submit {border-radius: 25px; height: 130px; border-radius: 50px; border: 0; font-size: 330%; }
+input {
+    background-color: #000;
+    color: #fff;
+    font-family: 'Silverado';
+    padding-left: 5%;
+    margin: 0 auto;
+    margin-bottom: 5%;
+    width: 95%;
+}
+input,
+    button.submit {
+    border: 0;
+    border-radius: 10vw;
+    padding: 3%;
+}
 
 button.submit {width: 100%;}
 
-.spinner {height: 300px; border: 0; }
+.spinner {
+    border: 0;
+}
+.tiny_loader img {
+    height: 1rem;
+}
 
 .modal {flex-direction: column; display:flex; align-items: center; justify-content: flex-end; }
-.modal p {font-size: 300%;  }
-.modal p.disclaimer {font-size: 200%; text-align: left; }
-.modal_message {width: 90%; text-align: center;  margin-bottom: 3%; }
+.modal p.disclaimer {text-align: left; }
+.modal_message {
+    text-align: center;
+    margin: 0 auto;
+    margin-bottom: 3%;
+    width: 90%;
+}
 .api_alert {position: absolute; top: 3%; left: 3%; right: 3%; font-size: 250%; padding: 2%; }
 
 
@@ -106,23 +132,14 @@ noscript {margin: 0 auto; margin-top: 3%; display: block; background-color: #CC0
   and (max-device-width: 1024px),
   and (-webkit-min-device-pixel-ratio: 1) {
 
-    h1 {font-size: 300%; }
-    h2 {font-size: 100%; }
-    h3 {font-size: 90%; }
 
-    button {font-size: 120%;}
-
-    input, button.submit {height: 75px; font-size: 150%; width: 55%; }
+    input, button.submit {width: 55%; }
     button.submit {width: 60%; }
 
     .user_inputs {margin-bottom: auto; }
 
-    .modal p {margin: 0 auto; width: 70%; font-size: 150%; }
-    .modal p.disclaimer {font-size: 100%; font-size: 150%; margin-bottom: 3%; }
-
-    .api_alert {font-size: 200%; }
-    .spinnner {height: 200px; }
-
+    .modal p {margin: 0 auto; width: 70%; }
+    .modal p.disclaimer {margin-bottom: 3%; }
 
 }
 
@@ -130,24 +147,18 @@ noscript {margin: 0 auto; margin-top: 3%; display: block; background-color: #CC0
 
 @media only screen and (min-width: 1050px) and (orientation: landscape) {
 
-
-    h1 {font-size: 200%; margin-top: 150px; }
-    h2 {font-size: 70%; }
-    h3 {font-size: 70%; }
-
-    button {font-size: 100%; }
-
-    input, button.submit {height: 40px; font-size: 100%; width: 35%; margin-bottom: 25px; }
+    input,
+        button.submit {
+        width: 35%;
+    }
     button.submit {width: 40%; margin: 0 auto;}
 
-    .spinner {height: auto; width: 125px; margin: 0 auto; }
+    .spinner {height: auto; margin: 0 auto; }
 
     .user_inputs {display: flex; flex-direction: column; max-width: 800px; margin-top: 200px; }
 
-    .api_alert {font-size: 100%; }
     .modal {justify-content: center; }
-    .modal p {font-size: 100%; margin-bottom: 4%; }
-    .modal p.disclaimer {font-size: 100%; }
+    .modal p {margin-bottom: 4%; }
 
     .modal_message {width: 50%; display: flex; flex-direction: column; }
     .modal_message input {width: 60%; }

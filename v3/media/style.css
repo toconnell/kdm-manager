@@ -555,6 +555,7 @@ ul.dashboard_settlement_list_settlement_attribs { margin-top: 0; margin-bottom:0
     /* dashboard rollups/accordions */
 
 .dashboard_menu ul {list-style-type: none;}
+.dashboard_menu li {margin-right: 2rem; }
 .dashboard_menu ol {padding-left: 120px; }
 
 .collection_category_header {font-size: 1.1em; text-align: center; }

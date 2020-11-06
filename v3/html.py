@@ -11,7 +11,7 @@ import sys
 import admin
 import api
 from session import Session
-from utils import load_settings, get_logger, get_latest_update_string
+from utils import load_settings, get_logger
 
 settings = load_settings()
 private_settings = load_settings('private')

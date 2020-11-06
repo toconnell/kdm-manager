@@ -264,26 +264,6 @@ def get_latest_change_log():
             'selfLink': None,
         }
 
-def get_latest_update_string():
-    """ Returns a summary string about the latest update. """
-    output_string = "Version %s released on %s, %s."
-
-    posts = get_latest_posts()
-    if "items" in posts.keys():
-        try:
-            for post in posts["items"]:
-                if "labels" in post.keys() and "Change Logs" in post["labels"]:
-                    d = dateutil_parse(post["published"])
-                    return output_string % (
-                        settings.get("application","version"),
-                        d.strftime("%A"), d.strftime(ymd)
-                    )
-        except Exception as e:
-            return e
-
-    return "Version %s" % settings.get('application', 'version')
-
-
 #
 #   instrumentation
 #

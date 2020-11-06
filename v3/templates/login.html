@@ -6,6 +6,7 @@
     <title>$prod_url - $title</title>
 
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#000000">
 
     <script>
@@ -33,14 +34,39 @@
  </head>
 
 
- <body ng-app="login" ng-controller="globalController">
+ <body
+    ng-app="login"
+    ng-controller="globalController"
+    ng-init="init('$api_url')"
+ >
 
   <div class="container">
 
-    <h1 class="clickable" ng-click="showSignInControls()">$prod_url</h1>
+    <h1 class="clickable" ng-click="showSignInControls()">https://KDM-Manager.com</h1>
     <h2 class="clickable" ng-click="showSignInControls()">$title</h2>
-    
-    <h3 class="version_tag">$released</h3>
+    <h3
+        class="version_tag"
+        ng-class="{
+            'kd_red_text': latestRelease && latestRelease.versionString !== '$version',
+        }"
+    >
+        v.$version
+        <span
+            class="tiny_loader"
+            ng-if="
+                apiStat !== undefined && apiStat !== false &&
+                latestRelease === undefined
+            "
+            ng-init="setLatestRelease()"
+        >
+            <img src="/media/loading_io.gif"/>
+        </span>
+        <span
+            ng-if="latestRelease.versionString === '$version'"
+        >
+            released on {{latestRelease.published_on.$date|date:'EEEE, yyyy-MM-dd'}}.
+        </span>
+    </h3>
 
     <noscript>
         <p><b>JavaScript is disabled!</b></p>
@@ -52,6 +78,32 @@
         <img class="spinner" src="/media/loading_lantern.gif">
     </div>
 
+    <div
+        id="apiLoading"
+        class="user_inputs"
+        ng-if="apiStat === undefined"
+    >
+        <img class="spinner" src="/media/loading_lantern.gif">
+        <center>Contacting the KDM API...</center>
+    </div>
+
+    <div
+        id="apiFailed"
+        class="user_inputs"
+        ng-if="apiStat === false"
+    >
+        <div class="modal_message">
+            <p>https://KDM-Manager.com is currently down for maintenance!</p>
+            <p>Visit <a href="https://downtime.kdm-manager.com" target="top">
+            the Manager's Downtime site</a> for more information about outages,
+            downtime and maintenance.</p>
+
+            <p>&nbsp;</p>
+            <p>Please try again later.</p>
+            <p>&nbsp;</p>
+        </div>
+    </div>
+
     <div id="sign_in_error" class="modal hidden">
         <div class="modal_message">
             <p>Authentication failure!</p>
@@ -61,28 +113,74 @@
         </div>
     </div>
 
-    <div id="api_unavailable" class="modal hidden">
+    <div
+        id="api_unavailable"
+        class="modal hidden"
+    >
+
         <div class="modal_message">
             <p>https://KDM-Manager.com is currently down for maintenance!</p>
             <p>Visit <a href="https://downtime.kdm-manager.com" target="top">
             the Manager's Downtime site</a> for more information about outages,
             downtime and maintenance.</p>
+
             <p>&nbsp;</p>
             <p>Please try again later.</p>
             <p>&nbsp;</p>
-            <button class="submit kd_alert" ng-click="hideControls('api_unavailable')">OK</button>
+
+            <button
+                class="submit kd_alert"
+                ng-click="hideControls('api_unavailable')"
+            >
+                OK
+            </button>
+
         </div>
     </div>
 
 
-    <div id="sign_in_controls" class="user_inputs" ng-controller="signInController">
-        <input id="signInEmail" type="email" placeholder="Email" class="email" ng-model="signInEmail" autofocus/>
-        <input id="signInPassword" type="password" placeholder="Password" class="password" ng-model="signInPassword" />
-        <button id="signInButton" class="submit kd_promo" ng-click="signIn('$api_url')">Sign In</button>
+    <div
+        id="sign_in_controls"
+        class="user_inputs"
+        ng-if="apiStat"
+        ng-init="initSignIn()"
+    >
+
+        <input
+            id="signInEmail"
+            type="email"
+            placeholder="Email"
+            class="email"
+            ng-model="signInEmail"
+            autofocus
+            validate
+        />
+
+        <input
+            id="signInPassword"
+            type="password"
+            placeholder="Password"
+            class="password"
+            ng-model="signInPassword"
+        />
+
+        <button
+            id="signInButton"
+            class="submit kd_promo"
+            ng-click="signIn(signInEmail, signInPassword)"
+            ng-disabled="!signInEmail"
+        >
+            Sign In
+        </button>
+
     </div>
 
     <!-- newUser HTML controls -->
-    <div id="new_user_controls" class="user_inputs hidden" ng-controller="newUserController">
+    <div
+        id="new_user_controls"
+        class="user_inputs hidden"
+        ng-controller="newUserController"
+    >
         <input id="newUserEmail" type="email" placeholder="New user email" class="email" ng-model="newUserEmail" autofocus/>
         <input type="password" placeholder="Password" class="password" ng-model="newUserPassword"/>
         <input type="password" placeholder="Password (again)" class="password" ng-model="newUserPasswordAgain"/>
@@ -107,24 +205,43 @@
     </div>
 
 
-    <div id="help_controls" class="modal hidden" ng-controller="helpController">
+    <div
+        id="help_controls"
+        class="modal hidden"
+        ng-controller="helpController"
+    >
+
         <div class="modal_message">
-            <p class="disclaimer">Forgot your password? Enter your email address below and click "Reset Password" to recieve an email with instructions on how to reset it:</p>
-            <input id="resetPasswordEmail" type="email" placeholder="Email" class="email" ng-model="resetPasswordEmail" />
-            <button class="submit kd_alert" ng-click="resetPassword('$api_url')"> Reset Password </button>
-            <p>&nbsp;</p>
-            <p>Important Information:</p>
-            <p class="disclaimer"><b>https://kdm-manager.com</b> is an interactive campaign management tool for use with <i><a href="https://shop.kingdomdeath.com/products/kingdom-death-monster-1-5" target="top">Monster</a></i>, by <a href="https://kingdomdeath.com" target="top">Kingdom Death</a>.</p>
+
+            <div
+                ng-if="apiStat !== undefined && apiStat !== false"
+            >
+                <p class="disclaimer">Forgot your password? Enter your email address below and click "Reset Password" to recieve an email with instructions on how to reset it:</p>
+                <input id="resetPasswordEmail" type="email" placeholder="Email" class="email" ng-model="resetPasswordEmail" />
+                <button class="submit kd_alert" ng-click="resetPassword('$api_url')"> Reset Password </button>
+            </div>
+
+            <h4>Important Information:</h4>
+
             <p class="disclaimer">
-                The <b>https://kdm-manager.com</b> service, including
+                <b>$prod_url</b>
+                <span ng-if="latestRelease.versionString">
+                    (v.{{latestRelease.versionString}})
+                </span>
+                is an interactive campaign management tool
+                for use with <i><a href="https://shop.kingdomdeath.com/products/kingdom-death-monster-1-5" target="top">Monster</a></i>,
+                by <a href="https://kingdomdeath.com" target="top">Kingdom Death</a>.
+            </p>
+
+            <p class="disclaimer">
+                The <b>$prod_url</b> service uses the
                 <a href="http://api.kdm-manager.com" target="top">
-                    the KD:M API</a>,
-                is developed, published and provisioned by 
+                    the KD:M API</a><span ng-if="apiStat.meta.api.version"> (v.{{apiStat.meta.api.version}})</span>,
+                    which is developed, published and provisioned by 
                 <a href="https://thelaborinvain.com">The Labor in Vain.</a>
             </p>
             <p class="disclaimer">
-                Neither the <b>https://kdm-manager.com</b> service nor any of
-                the software utilized by the service are developed,
+                The <b>$prod_url</b> service is not
                 maintained, authorized or in any other way supported by or
                 affiliated with <a href="http://kingdomdeath.com" target="top">
                     Kingdom Death</a> or Adam Poots Games, LLC.
@@ -176,7 +293,11 @@
         </div>
     </div>
 
-    <button class="sign_up clickable" ng-click="showNewUserControls()">
+    <button
+        class="sign_up clickable"
+        ng-click="showNewUserControls()"
+        ng-if="apiStat !== undefined && apiStat !== false"
+    >
         Not registered? <b>Sign Up</b>.
     </button>
 

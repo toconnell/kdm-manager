@@ -1,25 +1,29 @@
 var app = angular.module('login', []);
 
-app.controller("globalController", function($scope) {
+app.controller("globalController", function($scope, $http) {
 
-    // pressing "enter" while focusing on the "password" input submits
-    // the sign in "form" (which isn't a form).
-    var pw_input = document.getElementById("signInPassword");
-    pw_input.addEventListener("keyup", function(event) {
-        event.preventDefault();
-        if (event.keyCode === 13) {
-            document.getElementById("signInButton").click();
-        }
-    });
 
-    $scope.hideControls = function(element_id) {
-        var controls = document.getElementById(element_id);
-        controls.classList.add('hidden');
+    $scope.getElement = function(elementId) {
+        var element = document.getElementById(elementId);
+        if (element === null) {
+            console.error("Could not find HTML element '" + elementId + "'");
+            return false
+        } 
+        return element
     };
 
-    $scope.showControls = function(element_id) {
-        var controls = document.getElementById(element_id);
-        controls.classList.remove('hidden');
+    $scope.hideControls = function(elementId) {
+        var controls = $scope.getElement(elementId);
+        if (controls) {
+            controls.classList.add('hidden');
+        };
+    };
+
+    $scope.showControls = function(elementId) {
+        var controls = $scope.getElement(elementId);
+        if (controls) {
+            controls.classList.remove('hidden');
+        };
     };
 
     $scope.showSignInControls = function() {
@@ -77,23 +81,22 @@ app.controller("globalController", function($scope) {
         form.submit();
 
     };
-});
 
-app.controller("signInController", function($scope, $http) {
-    $scope.signIn = function(api_url) {
+    $scope.signIn = function(signInEmail, signInPassword) {
+        // authenticates via the API and then hands off to the legacy app to
+        // authenticate there.
         $scope.loading();
-        var data = {username: $scope.signInEmail, password: $scope.signInPassword};
+        var data = {username: signInEmail, password: signInPassword};
         $http({
             method: 'POST',
-            url: api_url + "login",
+            url: $scope.apiURL + "login",
             data: data
         }).then(function successCallback(response) {
                 var r = response.data;
                 console.log("Authentication successful! Initiating legacy webapp sign-in...");
-                $scope.legacySignIn($scope.signInEmail, $scope.signInPassword);
-                return
+                $scope.legacySignIn(signInEmail, signInPassword);
             }, function errorCallback(response) {
-                console.error("signIn('" + api_url + "') method failed!");
+                console.error("signIn() method failed!");
                 console.error("Response was: " + response.data + "; status was: " + response.status);
                 $scope.loading('off');
                 if (response.status === -1) {
@@ -102,10 +105,78 @@ app.controller("signInController", function($scope, $http) {
                 } else {
                     $scope.showControls('sign_in_error');
                 };
-            });
-        };
+            }
+        );
+    };
+
+    $scope.setLatestRelease = function() {
+        // sets $scope.latestRelease
+        var reqURL = $scope.apiURL + 'releases/latest';
+        console.time(reqURL);
+        $http({
+            method:'POST',
+            url: reqURL,
+            data: {'platform': 'kdm-manager.com'},
+        }).then(
+            function successCallback(response) {
+                $scope.latestRelease = response.data;
+                $scope.latestRelease.versionString =
+                    $scope.latestRelease.version.major + "." +
+                    $scope.latestRelease.version.minor + "." +
+                    $scope.latestRelease.version.patch;
+                console.info('Latest published release is: ' +
+                    $scope.latestRelease.versionString
+                );
+                console.timeEnd(reqURL);
+            }, function errorCallback(response) {
+                console.error('Could not retrieve release info!');
+                console.error(response);
+                console.timeEnd(reqURL);
+            }
+        );
+    };
+
+    $scope.initSignIn = function() {
+        // pressing "enter" while focusing on the "password" input submits
+        // the sign in "form" (which isn't a form).
+        console.info('Initializing signInPassword element...');
+        var pw_input = document.getElementById("signInPassword");
+        pw_input.addEventListener("keyup", function(event) {
+            event.preventDefault();
+            if (event.keyCode === 13) {
+                document.getElementById("signInButton").click();
+            }
+        });
+    };
+
+    $scope.init = function(apiURL) {
+        console.info('Initializing globalController...');
+        $scope.apiURL = apiURL;
+
+        var statURL = $scope.apiURL + 'stat';
+        console.time(statURL);
+        $http({
+            method:'GET',
+            url: statURL,
+        }).then(
+            function successCallback(response) {
+                $scope.apiStat = response.data;
+                console.info(
+                    'Connected to KDM API v' + $scope.apiStat.meta.api.version
+                );
+                console.timeEnd(statURL);
+            }, function errorCallback(response) {
+                $scope.apiStat = false;
+                console.error('Could not stat API!');
+                console.error(response);
+                console.timeEnd(statURL);
+            }
+        );
+
+    };
 
 });
+
 
 app.controller("newUserController", function($scope, $http) {
     $scope.register = function(api_url) {

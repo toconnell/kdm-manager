@@ -1,4 +1,3 @@
-
 app.controller("dashboardController", function($scope, $http) {
     // as usual, only initialize it if we need it
     if ($scope.scratch === undefined) {
@@ -69,34 +68,6 @@ app.controller("dashboardController", function($scope, $http) {
             $scope.postJSONtoAPI('user', 'rm_expansion_from_collection', {handle: handle}, false);
         };
     };
-
-    $scope.setLatestChangeLog = function(api_key) {
-        console.log("[ABOUT] Retrieving latest blog post...");
-        showCornerLoader();
-        var url = 'https://www.googleapis.com/blogger/v3/blogs/3322385743551419703/posts?key=' + api_key
-        var res = $http.get(url);
-        res.then(
-            function(payload) {
-                $scope.posts = payload.data.items;
-
-                getLatest = function() {
-                    for (var i = 0; i < $scope.posts.length; i++) {
-                        if ($scope.posts[i].labels.indexOf('Change Logs') === 0) {
-                            return $scope.posts[i];
-                        };
-                    };
-                };
-                $scope.latest_blog_post = getLatest();
-                console.log('[ABOUT] Retrieved latest dev blog post successfully!')
-                hideCornerLoader();
-            },
-            function(errorPayload) {
-                console.error("[ABOUT] Could not retrieve development blog posts!");
-                console.error(errorPayload);
-            }
-        );
-    };
-
 
     $scope.updatePassword = function(){
         if ($scope.scratch.password == $scope.scratch.password_again) {

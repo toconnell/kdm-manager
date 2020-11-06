@@ -44,7 +44,7 @@
     ng-init="
         initializeUser('$user_id', 'dashboard', '$api_url');
         showInitDash();
-        setLatestChangeLog('$blog_api_key');
+        setLatestRelease();
         loadExpansionAssets();
     "
 >
@@ -810,14 +810,15 @@
                     </li>
                 </ul>
 
-                <p>Release Information:</p>
+                <p>$application_version release information:</p>
                 <ul>
-                    <li>Release <b>$application_version</b> of the Manager went into
-                    production on {{latest_blog_post.published|date:'EEEE, yyyy-MM-dd'}}.
-                    <a target="top" href="{{latest_blog_post.url}}">
+                    <li>Version {{latestRelease.versionString}} of the Manager
+                    was published on
+                    {{latestRelease.published_on.$date|date:'EEEE, yyyy-MM-dd'}}.
+                    <a target="top" href="{{api_url + 'blog/release/' + latestRelease._id.$oid}}">
                     View change log</a>.
                     </li>
-                    <li>Release 1.7.0, the first production release of the
+                    <li>Version 1.7.0, the first production release of the
                     Manager, went live over $application_age_rough_years years
                     ago on 2015-11-29!
                     </li>

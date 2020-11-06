@@ -90,7 +90,6 @@ def render(view_type=None, login=None, code=None):
         title = settings.get('application', 'title'),
         api_url = api.get_api_url(),
         prod_url = settings.get('application', 'tld'),
-        released = utils.get_latest_update_string(),
         login = login,
         code = code,
     )

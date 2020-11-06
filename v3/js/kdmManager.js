@@ -443,13 +443,34 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
 
 
     //
-    //  init session vars
+    //  set session and scope attributes
     //
     $rootScope.setSessionVars = function(user_login, current_session) {
         // call this at the top of all 'root' templates
         $rootScope.user_login = user_login;
         $rootScope.current_session = current_session;
         console.info('Session vars set!')
+    };
+
+    $rootScope.setLatestRelease = function() {
+        var reqURL = $scope.api_url + 'releases/latest';
+        console.time(reqURL);
+
+        var res = $http.post(reqURL, {'platform': 'kdm-manager.com'});
+        res.then(
+            function(payload) {
+                $rootScope.latestRelease = payload.data;
+                $rootScope.latestRelease.versionString =
+                    $scope.latestRelease.version.major + "." +
+                    $scope.latestRelease.version.minor + "." +
+                    $scope.latestRelease.version.patch;
+                console.timeEnd(reqURL);
+            },
+            function(errorPayload) {
+                console.error("Could not retrieve latest release info!");
+                console.error(errorPayload);
+            }
+        );
     };
 
 

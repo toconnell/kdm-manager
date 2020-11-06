@@ -18,7 +18,7 @@ import api
 import assets
 import html
 import session
-from utils import email, mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes, ymd, admin_session, thirty_days_ago, get_latest_change_log, get_latest_update_string
+from utils import email, mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes, ymd, admin_session, thirty_days_ago, get_latest_change_log
 
 import sys
 reload(sys)
