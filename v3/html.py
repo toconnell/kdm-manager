@@ -1,5 +1,10 @@
-# coding=utf-8
-#!/usr/bin/env python
+"""
+
+    This module goes away in v4, since we're moving to Jinja2 with the
+    Flask-based login/auth scheme.
+
+"""
+
 
 #   standard
 from datetime import datetime, timedelta

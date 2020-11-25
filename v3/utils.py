@@ -9,6 +9,7 @@ import email
 from email.header import Header as email_Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import inspect
 import json
 import logging
 import os
@@ -40,7 +41,6 @@ def load_settings(settings_type=None):
     config.readfp(open(filename))
     config.file_path = os.path.abspath(filename)
     return config
-
 
 #
 #   General purpose helpers and references
@@ -294,6 +294,32 @@ def record_response_time(view_name=None, tdelta=None):
             )
         )
 
+
+#
+#   DEPRECATION decorator - transitional to v4
+#
+
+def deprecated(method):
+    """ Decorate legacy webapp methods with this to log a warning whenever
+    that legacy method is called. """
+
+    logger = get_logger()
+
+    def wrapped(*args, **kwargs):
+        """ Logs the deprecated method and its caller. """
+
+        warning = "DEPRECATION WARNING! The %s() method is deprecated!"
+        logger.warn(warning % method.__name__)
+
+        curframe = inspect.currentframe()
+        calframe = inspect.getouterframes(curframe, 2)
+        logger.warn(
+            "%s() called by %s()" % (method.__name__, calframe[1][3])
+        )
+
+        return method(*args, **kwargs)
+
+    return wrapped
 
 
 if __name__ == "__main__":

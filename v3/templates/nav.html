@@ -61,7 +61,7 @@
     <button
         id="newSurvivorButton"
         class="visible"
-        ng-if="settlement.sheet != undefined"
+        ng-if="settlement.sheet !== undefined"
         ng-click="
             ngShow('modalNewSurvivorContainer');
             closeLeftSideNav();
@@ -72,11 +72,14 @@
 
     <button
         id="bulkAddOpenerButton"
-        class="hidden"
+        ng-if="settlement.sheet !== undefined"
         ng-click="
             showHide('modalBulkAdd');
             closeLeftSideNav();
         "
+        ng-disabled="user.user.subscriber.level < 2"
+        ng-class="{'disabled': user.user.subscriber.level < 2}"
+        title="Create Multiple Survivors (Subscribers only!)"
     >
         + Create Multiple Survivors
     </button>
@@ -152,6 +155,7 @@
 
     <button
         id="gearLookupOpenerButton"
+        ng-if="view !== 'newSettlement'"
         ng-click="
             ngShowHide('gearLookupModal');
             closeLeftSideNav();
@@ -163,8 +167,14 @@
         Gear Card Lookup
     </button>
 
+
     <!-- list departing survivors, formerly known as the survivor quick menu -->
-    <h3 ng-if="countSurvivors('departing') > 0">Departing Survivors</h3>
+    <h3
+        ng-if="countSurvivors('departing') > 0"
+    >
+        Departing Survivors
+    </h3>
+
     <form
         method="POST"
         action="/"

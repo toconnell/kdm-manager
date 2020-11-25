@@ -1,8 +1,10 @@
 <div
     id="modalBulkAdd"
     class="modal hidden"
-    ng-if="user_is_settlement_admin && user.user.subscriber.level > 1"
-    ng-init="ngShow('bulkAddOpenerButton');"
+    ng-if="
+        user_is_settlement_admin &&
+        user.user.subscriber.level > 1
+    "
     ng-controller="addManySurvivorsController"
     ng-click="ngHide('modalBulkAdd')"
 >

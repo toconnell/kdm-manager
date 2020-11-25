@@ -230,15 +230,7 @@ pre { white-space: pre-wrap; }
 
 /* timeline styles - mobile */
 .timeline_container .timeline_top_line {width: 96%; border-bottom: 3px solid #000; display: flex; flex-direction: row; margin: 0 auto; margin-bottom: 1%; }
-.timeline_container .timeline_top_line div {
-    margin-left: 30px;
-}
-.timeline_clicker {display: inline-flex; }
-.ly_events {
-    margin-top: 5px;
-    width: 740px;
-}
-.timeline_event {display: inline-table; margin-right:20px; width: 100%; }
+
 .timeline_current_ly_controls {
     border-bottom: 3px solid #ccc;
     margin: 0 auto;
@@ -285,13 +277,17 @@ input[type="radio"].gear_lookup_attrib_toggle {display: inherit;}
 .gear_card_recipe * {
     font-size: inherit;
 }
+.gear_card_recipe span:nth-child(2) {
+    margin-left: 3%; 
+}
 .gear_card_recipe_title {
     background-color: #f3E067;
     color: #8E7E1F;
+    padding: 0.2rem;
     padding-left: 3%;
-    margin: -1% -1% 1% -1% auto;
-    border-top-left-radius: 0.3em;
-    border-top-right-radius: 0.3em;
+    margin: -0.3rem -0.3rem 0.3rem -0.3rem;
+    border-top-left-radius: 0.5em;
+    border-top-right-radius: 0.5em;
 }
 
 .pattern_recipe_crafting_process_container {
@@ -1202,7 +1198,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
 
 .modal_control_overlay {
     background: var(--color-modal-blackout);
-    bottom: 0;
     left: 0;
     overflow-y:scroll;
     overflow-x:hidden;
@@ -1354,14 +1349,9 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     .timeline_container {width: 95%; }
     .timeline_row_container {align-items: baseline; width: 88%; break-inside: avoid; }
     .timeline_event_type_group {display: flex; flex-direction: column; }
-    .timeline_container .timeline_top_line div {font-size: 15pt; margin-left: 15px; }
-    .ly_checkbox {margin-right: 3px; margin-left: 3px; }
-    .ly_events {width: 330px;}
-    .ly_ly {font-size: 15pt; width: 20px; margin: 12px 10px auto 5px; }
-    .timeline_event {font-size: 15pt; }
     .timeline_event_rm_button_container {display: flex; flex-direction: row; flex-wrap: wrap; }
     .timeline_event_rm_button_group {width: 350px; margin: 0 auto; }
-    .timeline_event_rm_button {font-size: 16pt; width: 100%; }
+    .timeline_event_rm_button {width: 100%; }
     .timeline_overlay_control {min-height: 1200px; }
 
     /* modal help - tablet */
@@ -1384,7 +1374,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     .gear_card_affinity_col {width: 25px; }
     .gear_card_detail_bottom_rules {margin-left: -5%; margin-right: -5%; }
     .gear_card_combat_stat_activation_detail {padding-top: 5%; padding-bottom: 5%;}
-    .gear_card_detail_region {min-height: 300px; }
     .gear_card_affinity_outer.left_affinity.affinity_paired_left,
         .gear_card_affinity_outer.right_affinity.affinity_paired_right {border-top: 15px solid transparent; border-bottom: 15px solid transparent; }
     .gear_card_affinity_outer.right_affinity.affinity_paired_right {border-left: 15px solid #333; margin-right: 15%;}
@@ -2126,7 +2115,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     div.timeline_ly_container {cursor: pointer; }
     div.timeline_ly_headline {border-bottom: 1px solid #000;}
     div.timeline_ly_headline span {font-size: 11pt; width: auto; }
-    .ly_ly {font-size: 10pt; margin-right: 0; }
     .ly_events {width: 280px; }
     span.timeline_ly_number {font-size: 14pt; width: auto; }
     span.timeline_event {font-size: 11pt; }

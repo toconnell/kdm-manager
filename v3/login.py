@@ -1,4 +1,10 @@
-#!/usr/bin/env python
+"""
+
+    This module is deprecated in v4. It will go away compelte when we move to
+    Flask for the session/cookie handling.
+
+"""
+
 
 #   standard
 import Cookie
@@ -39,8 +45,8 @@ class AuthObject:
         auth = admin.authenticate(self.username, self.password)
 
         if auth == False:
-            msg = "Failed to authenticate user '%s' and render HTML view!" % (self.username)
-            self.logger.error(msg)
+            msg = "Failed to authenticate user '%s' and render HTML view!"
+            self.logger.error(msg % self.username)
             raise Exception(msg)
         elif auth == True:
             s = session.Session()
@@ -49,7 +55,9 @@ class AuthObject:
             return s.User, s.session
 
         self.logger.error('Unable to authenticate user: %s' % self.username)
-        self.logger.error('admin.authenticate() returned non-Boolean: %s' % auth)
+        self.logger.error(
+            'admin.authenticate() returned non-Boolean: %s' % auth
+        )
 
 
     def set_cookie_js(self, session_id, token):
@@ -57,15 +65,16 @@ class AuthObject:
         head will set the cookie to have the session_id given as the first/only
         argument to this function.
 
-        Note that the cookie will not appear to have the correct session ID until
-        the NEXT page load after the one where the cookie is set.    """
+        Note that the cookie will not appear to have the correct session ID
+        until the NEXT page load after the one where the cookie is set."""
 
         expiration = datetime.now() + timedelta(days=30)
         cookie = Cookie.SimpleCookie()
         cookie["session"] = session_id
-        cookie["session"]["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
+        cookie["session"]["expires"] = expiration.strftime(
+            "%a, %d-%b-%Y %H:%M:%S PST"
+        )
         cookie["jwt_token"] = token
-#        self.logger.warn(cookie.js_output())
         return cookie.js_output()
 
 
@@ -96,8 +105,3 @@ def render(view_type=None, login=None, code=None):
     logger = utils.get_logger()
     # render; don't exit (in case we're metering performance)
     print(output)
-
-
-
-if __name__ == "__main__":
-    print("This is a module. Do not execute it.")

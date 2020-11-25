@@ -293,7 +293,10 @@
                 to store your campaigns permanently!
             </p> <!-- subscribers alert -->
 
-            <p ng-if="user.user.subscriber.level < 1 && user.user.settlements_created === 3" class="maroon_text">
+            <p
+                ng-if="user.user.subscriber.level < 1 && user.user.settlements_created === 3"
+                class="kd_red_text"
+            >
                 <b>Non-subscriber settlement limit reached!</b>
             </p>
 
@@ -765,21 +768,6 @@
                     />
                 </a>
 
-                <p class="title">
-                    <b>
-                    KD:M Manager! Production release $application_version 
-                    (<a href="https://api.kdm-manager.com">KDM API</a> release version
-                    {{user.meta.api.version}}).
-                    </b>
-                </p>
-
-                <hr/>
-
-                <p>
-                    Source code <a href="https://github.com/toconnell/kdm-manager" target="top">available on GitHub</a>!
-                </p>
-
-                <hr/>
 
                 <p>About:</p>
 
@@ -829,6 +817,12 @@
                     blog.kdm-manager.com</a>.
                     </li>
                 </ul>
+
+                <hr/>
+
+                <p>
+                    Source code <a href="https://github.com/toconnell/kdm-manager" target="top">available on GitHub</a>!
+                </p>
 
                 <hr/>
 

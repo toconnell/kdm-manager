@@ -1,4 +1,10 @@
-#!/usr/bin/env python
+"""
+
+    Totally deprecated in v4. This goes away completely when we 86 login.py
+    and the rest of the legacy webapp's login/authentication scaffolding.
+
+"""
+
 
 from bson.objectid import ObjectId
 from bson.son import SON
@@ -18,7 +24,21 @@ import api
 import assets
 import html
 import session
-from utils import email, mdb, get_logger, get_user_agent, load_settings, ymdhms, hms, days_hours_minutes, ymd, admin_session, thirty_days_ago, get_latest_change_log
+import utils
+from utils import (
+    email,
+    mdb,
+    get_logger,
+    get_user_agent,
+    load_settings,
+    ymdhms,
+    hms,
+    days_hours_minutes,
+    ymd,
+    admin_session,
+    thirty_days_ago,
+    get_latest_change_log
+)
 
 import sys
 reload(sys)
@@ -32,6 +52,7 @@ settings = load_settings()
 #   Maintenance and administrative functions
 #
 
+@utils.deprecated
 def get_response_times():
     """ Hits the MDB with an aggregate query re: response times. """
     return mdb.response_times.aggregate([
@@ -109,7 +130,6 @@ def authenticate(login, password):
     if authenticated:
         user["latest_sign_in"] = datetime.now()
         mdb.users.save(user)
-#        logger.debug("User '%s' authenticated successfully (%s)." % (login, get_user_agent()))
         prune_sessions()
     else:
         logger.warn("User '%s' FAILED to authenticate successfully." % login)
@@ -133,6 +153,7 @@ def remove_session(session_id, login):
 
 
 
+@utils.deprecated
 def ls_documents(collection, sort_on="created_on"):
     """ Dumps a list- or ls-style rendering of a collection's contents. """
 
@@ -172,17 +193,8 @@ def ls_documents(collection, sort_on="created_on"):
         print output
 
 
-def rm_collection(collection):
-    """ Drops an entire collection from mdb. Serious business. """
 
-    mdb[collection].remove()
-
-
-def random_doc(collection):
-    return dir(mdb[collection])
-#    return mdb[collection].random_one()
-
-
+@utils.deprecated
 def dump_document(collection, doc_id):
     """ Prints an object to stdout in a semi-pretty way, e.g. for review or
     analysis, etc. """
@@ -196,220 +208,7 @@ def dump_document(collection, doc_id):
     print("")
 
 
-def update_survivor(operation, s_id=None, attrib=False, attrib_value=False, survivor_key=False):
-    """ """
-    print("Searching for survivor _id '%s'..." % s_id)
-    survivor = mdb.survivors.find_one({"_id": ObjectId(s_id)})
-    if survivor is None:
-        print("Could not retrieve survivor! Exiting...\n")
-        return None
-
-    print("\n\tSurvivor found!\n")
-    dump_document("survivors", survivor["_id"])
-
-    # attribute updates
-
-    if operation in ["add","remove"]:
-        print(" Target attrib is '%s'" % attrib)
-        print(" survivor['%s'] -> %s" % (attrib, survivor[attrib]))
-        print(" Tarvet value is '%s'" % attrib_value)
-
-    if operation == "add":
-        survivor[attrib] = attrib_value
-        print(" survivor['%s'] = %s" % (attrib, attrib_value))
-
-    if operation == "remove":
-        if attrib_value not in survivor[attrib]:
-            print(" Target value '%s' not in attribute! Exiting...\n" % attrib_value)
-            return None
-        else:
-            manual_approve = raw_input("\n    Remove '%s' from %s?\n\tType YES to proceed: " % (attrib_value, survivor[attrib]))
-            if manual_approve == "YES":
-                survivor[attrib].remove(attrib_value)
-                mdb.survivors.save(survivor)
-            else:
-                print("    Aborting...\n")
-                return False
-
-
-    # key updates
-
-    if operation == "del":
-        if survivor_key not in survivor.keys():
-            print("Key '%s' not found!\n" % survivor_key)
-            return None
-        else:
-            del(survivor[survivor_key])
-            print("Key '%s' deleted!\n" % survivor_key)
-            mdb.survivors.save(survivor)
-
-
-    print("\n  Survivor updated successfully!\n")
-
-
-def remove_document(collection, doc_id):
-    """ Removes a single document (by _id) from the specified collection."""
-
-    doc_id = ObjectId(doc_id)
-    if collection == "settlements":
-        settlement = mdb.settlements.find_one({"_id": doc_id})
-        survivors = mdb.survivors.find({"settlement": doc_id})
-        death_count = 0
-        for s in survivors:
-            mdb.survivors.remove({"_id": s["_id"]})
-            death_count += 1
-        logger.info("[ADMIN] Removed %s survivors." % death_count)
-    mdb[collection].remove({"_id": doc_id})
-    logger.info("[ADMIN] Removed '%s' from mdb.%s" % (doc_id, collection))
-
-
-def pretty_view_user(u_id):
-    """ Prints a pretty summary of the user and his assets to STDOUT. """
-
-    User = assets.User(u_id, session_object=admin_session)
-
-    if User.user is None:
-        print("Could not retrieve user info from mdb.")
-        return None
-
-    print("\n\tUser Summary!\n\n _id: %s\n login: %s\n created: %s\n" % (User.user["_id"], User.user["login"], User.user["created_on"]))
-    for u_key in sorted(User.user.keys()):
-        if u_key not in ["_id", "login", "created_on", "activity_log"]:
-            print(" %s: %s" % (u_key, User.user[u_key]))
-    print("")
-
-
-    def asset_repr(a, type=False):
-        if type == "settlement":
-            return " %s - %s - LY: %s (%s/%s)" % (a["_id"], a["name"], a["lantern_year"], a["population"], a["death_count"])
-        if type == "survivor":
-            return " %s - %s [%s] %s" % (a["_id"], a["name"], a["sex"], a["email"])
-
-    if User.settlements == []:
-        print(" No settlements.\n")
-    else:
-        print("\t%s settlements:\n" % len(User.settlements))
-        for settlement in User.settlements:
-            print asset_repr(settlement, "settlement")
-            settlement_survivors = mdb.survivors.find({"settlement": settlement["_id"]})
-            if settlement_survivors.count() > 0:
-                for survivor in settlement_survivors:
-                    print("  %s" % asset_repr(survivor, "survivor"))
-            else:
-                print("  -> No survivors in mdb.")
-            print("")
-
-    if User.get_survivors() is None:
-        print(" No survivors.\n")
-    else:
-        print("\t%s survivors:\n" % len(User.get_survivors()))
-        for survivor in User.get_survivors():
-            print asset_repr(survivor, "survivor")
-    print("")
-
-    if "activity_log" in User.user.keys():
-        print(" Last 10 Actions:")
-        for entry in User.user["activity_log"]:
-            dt, action = entry
-            print("   %s | %s" % (dt.strftime(ymdhms), action))
-    print("")
-
-
-def initialize():
-    """ Completely initializes the application. Scorched earth. """
-    avatars = 0
-    for survivor in mdb.survivors.find():
-        if "avatar" in survivor.keys():
-            gridfs.GridFS(mdb).delete(survivor["avatar"])
-            avatars += 1
-    print("\nRemoved %s avatars from GridFS!" % avatars)
-    for collection in ["users", "sessions", "survivors", "settlements", "the_dead", "user_admin",'response_times']:
-        mdb[collection].remove()
-
-
-def update_user_password(user_id, password):
-    u_id = ObjectId(user_id)
-    User = assets.User(user_id=u_id)
-    User.update_password(password)
-
-
-def update_user(u_id, remove_attrib=None):
-    User = assets.User(user_id=ObjectId(u_id), session_object=admin_session)
-    try:
-        del User.user[remove_attrib]
-        User.save()
-        print("\n Removed '%s' attribute from %s\n" % (remove_attrib, User))
-    except Exception as e:
-        print("\n Could not remove attribute '%s' from %s!\n" % (remove_attrib, User))
-
-    dump_document('users', User.user['_id'])
-
-
-def motd():
-    """ Creates a CLI MoTD. """
-    users = mdb.users.find()
-    sessions = mdb.sessions.find()
-    settlements = mdb.settlements.find()
-    survivors = mdb.survivors.find()
-
-    print("\n %s users (%s sessions)\n %s settlements\n %s survivors" % (users.count(), sessions.count(), settlements.count(), survivors.count()))
-
-    recent_user_agents = {}
-    for u in users:
-        if "latest_user_agent" in u.keys():
-            ua = u["latest_user_agent"].split("/")[1]
-        else:
-            ua = "UNKNOWN"
-        if ua not in recent_user_agents.keys():
-            recent_user_agents[ua] = 1
-        else:
-            recent_user_agents[ua] += 1
-    print("\n Recent user OS round-up (top 5):")
-    sorted_ua_dict = sorted(recent_user_agents.items(), key=operator.itemgetter(1), reverse=True)
-    for ua in sorted_ua_dict[:6]:
-        ua_string, ua_count = ua
-        if ua_string != "UNKNOWN":
-            print("   %s --> %s" % (ua_string, ua_count))
-    print("")
-
-
-def play_summary():
-    """ Summarizes play sessions. """
-
-    print("\n\t\tRecent Activity:\n")
-    users = mdb.users.find({"latest_sign_in": {"$exists": True}, "latest_activity": {"$exists": True}}).sort("latest_activity", -1)
-    for u in users[:5]:
-        output = " "
-        output += "%s - %s (%s):\n " % (u["login"], u["_id"], u["latest_user_agent"])
-        duration = u["latest_activity"] - u["latest_sign_in"]
-        dur_minutes = duration // 60
-        output += "    %s - %s (%s)\n" % (u["latest_sign_in"].strftime(ymdhms), u["latest_activity"].strftime(ymdhms), dur_minutes)
-        output += "     Latest Action: '%s' (%s minutes ago)\n" % (u["latest_action"], (datetime.now() - u["latest_activity"]).seconds // 60)
-        print(output)
-
-
-def tail(settlement_id, interval=5, last=20):
-    settlement = mdb.settlements.find_one({"_id": ObjectId(settlement_id)})
-    if settlement is None:
-        print("\n\tSettlement '%s' does not exist. Exiting...\n" % settlement_id)
-        sys.exit(255)
-
-    try:
-        while True:
-            print(chr(27) + "[2J")
-            log_lines = mdb.settlement_events.find({"settlement_id": settlement["_id"]}).sort("created_on",-1).limit(last)
-            for l in reversed(list(log_lines)):
-                creator = mdb.users.find_one({"_id": l["created_by"]})
-                print "  [%s] %s (LY:%s) - %s" % (l["created_on"].strftime(ymdhms), creator["login"], l["ly"], l["event"])
-            print("\nTailing settlement '%s' (%s)..." % (settlement["name"], settlement["_id"]))
-            time.sleep(interval)
-    except KeyboardInterrupt:
-        print("")
-        sys.exit(1)
-
-
-
-
+@utils.deprecated
 def export_data(u_id):
     """ Writes a pickle of the user and his assets. """
     U = assets.User(user_id=u_id, session_object=admin_session)
@@ -420,6 +219,7 @@ def export_data(u_id):
     print("Export successful!\n -> %s" % filename)
 
 
+@utils.deprecated
 def import_data(data_pickle_path, force=False):
     """ Takes a pickle of User and asset data and imports it into the local MDB.
     This will absolutely overwrite/clobber any documents whose _id values match
@@ -492,113 +292,3 @@ def import_data(data_pickle_path, force=False):
         print(" Password has NOT been reset.")
 
     print(" Import complete!")
-
-
-
-if __name__ == "__main__":
-    parser = OptionParser()
-
-    parser.add_option("--response_times", dest="response_times", action="store_true", help="Dump HTML render times.", default=False)
-    parser.add_option("-s", dest="survivor", help="Specify a survivor to work with.", metavar="566e228654922d30c47b8704", default=False)
-    parser.add_option("--survivor_attrib", dest="survivor_attrib", help="Specify a survivor attrib to modify.", metavar="attributes_and_impairments", default=False)
-    parser.add_option("--add_attrib", dest="add_attrib", help="Add attrib to survivor", metavar="user-specified string", default=False)
-    parser.add_option("--remove_attrib", dest="remove_attrib", help="Remove attrib from survivor", metavar="<b>Cancer:</b> No description.", default=False)
-    parser.add_option("--remove_key", dest="remove_key", help="Remove key from survivor record", metavar="born_in_ly", default=False)
-
-    parser.add_option("-l", dest="list_documents", help="List documents in a collection", metavar="survivors", default=False)
-    parser.add_option("-c", dest="collection", help="Specify a collection to work with", metavar="settlements", default=False)
-    parser.add_option("-v", dest="view_document", help="View/dump a document to stdout (requires -c)", metavar="565a1829421aa96b33d1c8bb", default=False)
-    parser.add_option("--RANDOM", dest="random_doc", help="Choose a random record from 'collection'", metavar="settlements", default=False, action="store_true")
-    parser.add_option("-r", dest="remove_document", help="Remove a single document (requires -c)", metavar="29433d1c8b56581ab21aa96b", default=False)
-    parser.add_option("-R", dest="drop_collection", help="Drop all docs in a collection.", metavar="users", default=False)
-
-    parser.add_option("--play_summary", dest="play_summary", help="Summarize play sessions for users.", action="store_true", default=False)
-
-    parser.add_option("-u", dest="user_id", help="Specify a user to work with.", default=False)
-    parser.add_option("-p", dest="user_pass", help="Update a user's password (requires -u).", default=False)
-
-    parser.add_option("-e", dest="export_data", help="export data to a pickle. needs a user _id", metavar="5681f9e7421aa93924b6d013", default=False)
-    parser.add_option("-i", dest="import_data", help="import data from a pickle", metavar="/home/toconnell/data.pickle", default=False)
-    parser.add_option("--user", dest="pretty_view_user", help="Print a pretty summary of a user", metavar="5665026954922d076285bdec", default=False)
-    parser.add_option("--tail", dest="tail_settlement", help="tail -f a settlement's log", metavar="5665123bfhas90213bdhs85b123", default=False)
-    parser.add_option("--user_repr", dest="user_repr", help="Dump a user's repr", metavar="5665026954922d076285bdec", default=False)
-    parser.add_option("--admin", dest="toggle_admin", help="toggle admin status for a user _id", default=False)
-    parser.add_option("--email", dest="email", help="Send a test email to an address", metavar="toconnell@tyrannybelle.com", default=False)
-
-    parser.add_option("--initialize", dest="initialize", help="Burn it down.", action="store_true", default=False)
-    (options, args) = parser.parse_args()
-
-    if options.response_times:
-        spacer = 20
-        print "  route%s avg\t max" % (" " * (spacer - len('route') - 1))
-        for r in get_response_times():
-            print " %s%s%s\t%s" % (r['_id'], " "*(spacer-len(r['_id'])), round(r['avg_time'],2), round(r['max_time'],2))
-        print
-
-    if options.toggle_admin:
-        print("\n  This is no longer supported via the legacy webapp admin tools! Please use API controls.\n")
-        sys.exit(1)
-
-    if options.tail_settlement:
-        tail(options.tail_settlement)
-
-    if options.export_data:
-        export_data(options.export_data)
-
-    if options.import_data:
-        import_data(options.import_data)
-
-    if options.user_repr:
-        User = assets.User(user_id=options.user_repr, session_object=admin_session)
-        print User.dump_assets()
-
-    if options.user_id and options.user_pass:
-        update_user_password(options.user_id, options.user_pass)
-
-    if options.user_id and options.remove_attrib:
-        update_user(options.user_id, remove_attrib=options.remove_attrib)
-
-    if options.initialize:
-        print(" hostname: %s" % socket.gethostname())
-        if socket.gethostname() not in ["paula.local", "mona"]:
-            print("This isn't the dev machine!")
-            sys.exit(1)
-        manual_approve = raw_input('Initialize the project and remove all data? Type "YES" to proceed: ')
-        if manual_approve == "YES":
-            initialize()
-            print("Project initialized! ALL DATA REMOVED!!\nExiting...\n")
-        else:
-            print('Exiting...')
-
-    if options.list_documents:
-        ls_documents(options.list_documents)
-    if options.drop_collection:
-        rm_collection(options.drop_collection)
-
-    if options.collection:
-        if options.view_document:
-            dump_document(options.collection, options.view_document)
-        if options.remove_document:
-            remove_document(options.collection, options.remove_document)
-        if options.random_doc:
-            print random_doc(options.collection)
-
-    if options.pretty_view_user:
-        pretty_view_user(options.pretty_view_user)
-
-    if options.survivor:
-        if options.survivor_attrib:
-            if options.add_attrib:
-                update_survivor("add", s_id=options.survivor, attrib=options.survivor_attrib, attrib_value=options.add_attrib)
-            if options.remove_attrib:
-                update_survivor("remove", s_id=options.survivor, attrib=options.survivor_attrib, attrib_value=options.remove_attrib)
-        if options.remove_key:
-            update_survivor("del", s_id=options.survivor, survivor_key=options.remove_key)
-
-    if options.email:
-        email(recipients=options.email.split(), msg="This is a test message!\nGood!")
-        print("Test email sent!")
-
-    if options.play_summary:
-        motd()
-        play_summary()

@@ -41,7 +41,8 @@ input[type=text], input[type=password]          {z-index: 50; }
     /* UI and feedback indexes */
 #fullPageLoader                             {z-index: 9999996;}
 .api_error_modal, .control_error            {z-index: 9999997;}
-#error_dialog,
+.capsule_alert,
+    #error_dialog,
     #savedAlert,
     .tab_nav_warning_arrow                  {z-index: 9999998;}
 #ngDebugWindow                              {z-index: 9999999;} /* platinum ticket! */

@@ -36,6 +36,7 @@
     --font-small: 0.6rem;
     --font-medium: 1rem;
     --font-large: 1.5rem;
+    --box-shadow-material-design: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
 }
 
 /*  CSS RESET */
@@ -194,12 +195,14 @@ button:active,
 .capsule_inner {
     border: 0.2rem solid;
     border-radius: inherit;
+    box-shadow: var(--box-shadow-material-design);
     display: flex;
 }
 .capsule_inner .short,
     .capsule_inner .long {
     align-items: center; 
     display: flex;
+    margin: -1px;   /*  HACK CITY   */
     padding: 0.25rem 1rem 0.25rem 1rem;
 }
 .capsule_inner .short {
@@ -397,7 +400,6 @@ button:active,
     font-size: 1.25rem;
     font-weight: bold;
     display: flex;
-    flex-direction: column; 
     height: 100%;
     margin-left: -3%;
     width: 45%;
@@ -1202,8 +1204,11 @@ h3.new_survivor_sheet {
 #timelineContainer {
     margin-bottom: 12vh; 
 }
+.timeline_container .timeline_top_line div {
+    margin-left: 1.7rem;
+}
 .timeline_row_container {
-    align-items: baseline;
+    align-items: flex-start;
     border-bottom: 1px solid #aaa;
     box-sizing: border-box; 
     break-inside: avoid;
@@ -1214,16 +1219,29 @@ h3.new_survivor_sheet {
     padding: 2%;
     width: 95%; 
 }
-.kd_sheet_ui_box.ly_checkbox {
-    margin: 1rem auto;
-    margin-top: 0;  
-}
-.ly_ly {
-    display: flex;
-    min-width: 2rem;
-    justify-content: center;
+.timeline_row_container_ly {
     align-items: center;
+    display: flex;
+    justify-content: center;
+    min-width: 3rem;
 }
+.timeline_row_container_clicker {
+    display: flex;
+    min-height: 1rem;
+    min-width: 80%; 
+}
+
+.timeline_event {
+    align-items: baseline;
+    display: flex;
+}
+.timeline_event * {
+    margin-left: 0.5rem;
+}
+.timeline_event *:first-child {
+    margin-left: 0;
+}
+
 .timeline_overlay_control {
     box-sizing: border-box;
     width: 90%;

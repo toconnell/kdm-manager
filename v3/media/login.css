@@ -36,7 +36,15 @@ a {
     text-decoration: none;
     font-weight: bold;
 }
-button {color: #fff; background-color: inherit; box-shadow: none; border: 0; outline: none; }
+
+button {
+    background-color: inherit;
+    border: 0;
+    box-shadow: none;
+    color: #fff;
+    cursor: pointer;
+    outline: none;
+}
 
 
 

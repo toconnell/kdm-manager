@@ -144,7 +144,13 @@ class Session:
         # we're not processing params yet, but if we have a log out request, we
         #   do it here, while we're initializing a new session object.
         if "remove_session" in self.params:
-            user = mdb.users.find_one({"current_session": ObjectId(self.params["remove_session"].value)})
+            user = mdb.users.find_one(
+                {
+                    "current_session": ObjectId(
+                        self.params["remove_session"].value
+                    )
+                }
+            )
 
             if user is not None:
                 self.User = assets.User(user_id=user["_id"], session_object={"_id": 0})
@@ -281,7 +287,10 @@ class Session:
             "created_on": datetime.now(),
             "created_by": user["_id"],
             "current_view": "dashboard",
-            "user_agent": {"is_mobile": get_user_agent().is_mobile, "browser": get_user_agent().browser },
+            "user_agent": {
+                "is_mobile": get_user_agent().is_mobile,
+                "browser": get_user_agent().browser
+            },
             "access_token": token,
         }
 
@@ -364,17 +373,25 @@ class Session:
 
         #   3.) finally, validate the sync.
         if self.session.get('current_settlement', None) is None or not hasattr(self, 'current_settlement'):
-            err_msg = "[%s] unable to set 'current_settlement' attrib for session!" % (self.User)
-            raise Exception(err_msg)
+            err = "[%s] unable to set 'current_settlement' attrib for session!"
+            raise Exception(err % self.User)
 
         # next, check the user. Make sure they're synchronized as well
         if self.User.user.get('current_settlement', None) != self.current_settlement:
-            self.logger.info("[%s] changing current settlement to %s" % (self.User, self.session["current_settlement"]))
+            self.logger.info(
+                "[%s] changing current settlement to %s" % (
+                    self.User, self.session["current_settlement"]
+                )
+            )
             self.User.user["current_settlement"] = self.session["current_settlement"]
             self.User.save()
 
         # next, set self.Settlement (finally) and save
-        self.Settlement = assets.Settlement(settlement_id=self.current_settlement, session_object=self)
+#        self.Settlement = assets.Settlement(
+#            settlement_id=self.current_settlement,
+#            session_object=self
+#        )
+
         self.save()
 
 
@@ -413,7 +430,8 @@ class Session:
         try:
             a = ObjectId(self.params[view].value)
         except Exception as e:
-            self.logger.error("CGI param '%s' must be a valid Object ID!" % view)
+            err = "CGI param '%s' must be a valid Object ID!" % view
+            self.logger.error(err)
             raise Exception('Invalid CGI parameter! %s' % e)
 
         if view == "view_survivor":
@@ -463,7 +481,9 @@ class Session:
         admins = settings.get("application","admin_email").split(",")
 
 
-        session_as_html = "<br/>".join(["&ensp; %s -> %s" % (k,v) for k,v in self.session.iteritems()])
+        session_as_html = "<br/>".join(
+            ["&ensp; %s -> %s" % (k,v) for k,v in self.session.iteritems()]
+        )
 
         M = mailSession()
         email_msg = html.meta.view_render_fail_email.safe_substitute(
@@ -478,7 +498,6 @@ class Session:
             recipients=admins,
             html_msg=email_msg,
             subject="KDM-Manager Render Failure! [%s]" % socket.gethostname(),
-#            reply_to=self.User.user["login"],
         )
         self.logger.warn("[%s] Current view render failure email sent!" % self.User)
 
@@ -606,11 +625,7 @@ class Session:
             user_login = self.User.user["login"],
             settlement_id = self.session['current_settlement'],
             survivor_id = self.session.get('current_asset', None),
-            blog_api_key = settings_private.get('api', 'blog_api_key'),
             current_session = self.session.get('_id', None),
         )
 
         return output, body
-
-
-

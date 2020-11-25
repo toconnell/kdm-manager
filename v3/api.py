@@ -1,4 +1,14 @@
-#!/usr/bin/python2.7
+"""
+
+    This module (in its entirety) is deprecated in version 4!
+
+    Transitional to the Flask app, the idea here is to start using deprecation
+    warnings and, ultimately, killing off individual methods here until we
+    get down to the bare minimum required for authentication.
+
+    Then retire the whole thing.
+
+"""
 
 
 #
@@ -95,11 +105,15 @@ def refresh_jwt_token(Session):
 
     if r.status_code == 200:
         Session.session["access_token"] = r.json()["access_token"]
-#        Session.logger.info("[%s] Refreshed JWT auth token!" % (Session.User))
-#        Session.save()
         Session.save(verbose=False)
     else:
-        logger.error("[%s] JWT refresh response was %s - %s" % (Session.User, r.status_code, r.reason))
+        logger.error(
+            "[%s] JWT refresh response was %s - %s" % (
+                Session.User,
+                r.status_code,
+                r.reason
+            )
+        )
 
     return r
 
@@ -108,6 +122,9 @@ def refresh_jwt_token(Session):
 def post_JSON_to_route(route=None, payload={}, headers={}, Session=None):
     """ Blast some JSON at an API route. Return the response object. No fancy
     crap in this one, so you better know what you're doing here. """
+
+    warn = "DEPRECATION WARNING! api.post_JSON_to_route() is deprecated!"
+    logger.warn(warn)
 
     class customJSONencoder(json.JSONEncoder):
         def default(self, o):
@@ -139,12 +156,19 @@ def post_JSON_to_route(route=None, payload={}, headers={}, Session=None):
                 payload[k] = payload[k].encode('base64')
 
     try:
-        return requests.post(req_url, data=json.dumps(payload, cls=customJSONencoder), headers=h, verify=False)
+        return requests.post(
+            req_url,
+            data=json.dumps(payload, cls=customJSONencoder),
+            headers=h,
+            verify=False
+        )
     except Exception as e:
-        msg = "api.post_JSON_to_Route() call failed! Exception caught while creating request object!"
+        msg = (
+            "api.post_JSON_to_Route() call failed! Exception caught "
+            "while creating request object!"
+        )
         logger.exception(e)
         raise Exception("\n".join([msg, str(payload)]))
-#        raise Exception(e)
 
 
 
@@ -152,6 +176,9 @@ def post_JSON_to_route(route=None, payload={}, headers={}, Session=None):
 def route_to_dict(route, params={}, return_as=dict, Session=None):
     """ Retrieves data from a route. Returns a dict by default, which means that
     a 404 will come back as a {}. """
+
+    warn = "DEPRECATION WARNING! api.post_JSON_to_route() is deprecated!"
+    logger.warn(warn)
 
     req_url = route_to_url(route)
 
@@ -183,7 +210,14 @@ def route_to_dict(route, params={}, return_as=dict, Session=None):
     if r.status_code == 200:
         return r.json()
     else:
-        logger.error("%s - '%s' responded: %s - %s" % (r.request.method, r.url, r.status_code, r.reason))
+        logger.error(
+            "%s - '%s' responded: %s - %s" % (
+                r.request.method,
+                r.url,
+                r.status_code,
+                r.reason
+            )
+        )
         raise Exception("API Failure!")
         return {}
 

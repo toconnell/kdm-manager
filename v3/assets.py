@@ -1,4 +1,12 @@
-#!/usr/bin/env python
+"""
+
+    The Settlement and Survivor class definitions in this module are deprecated
+    in v4.
+
+    The User class/object def will persist and be the basis for its successor
+    method in the Flask app.
+
+"""
 
 from bson.objectid import ObjectId
 from bson import json_util
@@ -21,8 +29,21 @@ import types
 import api
 import admin
 import html
+import utils
 from session import Session
-from utils import mdb, get_logger, load_settings, get_user_agent, ymdhms, stack_list, to_handle, thirty_days_ago, recent_session_cutoff, ymd, u_to_str
+from utils import (
+    mdb,
+    get_logger,
+    load_settings,
+    get_user_agent,
+    ymdhms,
+    stack_list,
+    to_handle,
+    thirty_days_ago,
+    recent_session_cutoff,
+    ymd,
+    u_to_str
+)
 
 settings = load_settings()
 
@@ -93,40 +114,6 @@ class User:
         mdb.user_admin.insert(user_admin_log_dict)
         return True
 
-
-# removed in V4
-#    def is_admin(self):
-#        """ Returns True if the user is an application admin. This only returns
-#        python bools because it should only be used for internal application
-#        logic and so on.
-#
-#        Check out the is_settlement_admin() method if you're
-#        working in user-space."""
-#
-#        if "admin" in self.user.keys() and type(self.user["admin"]) == datetime:
-#            return True
-#        else:
-#            return False
-#
-#
-#    def is_settlement_admin(self, return_type=None):
-#        """ Checks self.Session.Settlement.settlement admins to see if the user
-#        is a settlement admin. Returns a python bool by default, but can also
-#        return JS-friendly 'truthy/falsy' strings if required. """
-#
-#        is_settlement_admin = False
-#
-#        if self.user["_id"] == self.Session.Settlement.settlement["created_by"]:
-#            is_settlement_admin = True
-#        elif "admins" in self.Session.Settlement.settlement.keys():
-#            if self.user["login"] in self.Session.Settlement.settlement["admins"]:
-#                is_settlement_admin = True
-#
-#        if return_type == "truthy":
-#            return str(is_settlement_admin).lower()
-#
-#        return is_settlement_admin
-#
 
     def get_name_and_id(self):
         """ Returns a string of the user login and _id value. """
@@ -239,9 +226,9 @@ class Survivor:
 
 
     def __init__(self, survivor_id=None, params=None, session_object=None, suppress_event_logging=False, update_mins=True):
-        """ Initialize this with a cgi.FieldStorage() as the 'params' kwarg
-        to create a new survivor. Otherwise, use a mdb survivor _id value
-        to initalize with survivor data from mongo. """
+        """ This class definition is maintained for legacy purposes. It is fully
+        deprecated in v4, since the webapp should not be managing user assets
+        such as survivors. """
 
         self.logger = get_logger()
 
@@ -269,7 +256,7 @@ class Survivor:
     #   Survivor meta and manager-only methods below
     #
 
-
+    @utils.deprecated
     def set_objects_from_session(self, session_object=None):
         """ Tries (hard) to set the current self.Session, .User and .Settlement.
         Makes a ton of noise if it can't. """
@@ -294,11 +281,12 @@ class Survivor:
                 self.logger.warn("[%s] initializing survivor object without a Settlement..." % (self.User))
 
 
+    @utils.deprecated
     def save(self, quiet=False):
         """ Saves a survivor's self.survivor to the mdb. Logs it. """
+
         mdb.survivors.save(self.survivor)
-        if not quiet:
-            self.logger.debug("[%s] saved changes to %s" % (self.User, self))
+        self.logger.info("[%s] saved changes to %s" % (self.User, self))
 
 
     def get_name_and_id(self, include_id=True, include_sex=False):
@@ -342,17 +330,12 @@ class Settlement:
         # now set self.settlement
         self.set_settlement(ObjectId(settlement_id))
 
-        # uncomment these to log which methods are initializing 
-#        curframe = inspect.currentframe()
-#        calframe = inspect.getouterframes(curframe, 2)
-#        self.logger.warn("settlement initialized by %s" % calframe[1][3])
-
-
 
     #
     #   Settlement meta and manager-only methods below
     #
 
+    @utils.deprecated
     def set_settlement(self, s_id, update_mins=False):
         """ Sets self.settlement. """
 
@@ -363,7 +346,7 @@ class Settlement:
             raise Exception("Could not initialize requested settlement %s!" % s_id)
 
 
-
+    @utils.deprecated
     def update_mins(self):
         """ check 'population' and 'death_count' minimums and update the
         settlement's attribs if necessary.
@@ -374,11 +357,6 @@ class Settlement:
         This one should be called FREQUENTLY, as it enforces the data model and
         sanitizes the settlement object's settlement dict.
         """
-
-        # uncomment these to log which methods are calling update_mins()
-#        curframe = inspect.currentframe()
-#        calframe = inspect.getouterframes(curframe, 2)
-#        self.logger.debug("update_mins() called by %s" % calframe[1][3])
 
         for min_key in ["population", "death_count", "survival_limit"]:
             min_val = self.get_min(min_key)
@@ -416,15 +394,16 @@ class Settlement:
 
     def save(self, quiet=False):
         """ Saves the settlement. Logs it. """
+
         mdb.settlements.save(self.settlement)
-        if not quiet:
-            self.logger.debug("[%s] saved changes to %s" % (self.User, self))
+        self.logger.info("[%s] saved changes to %s" % (self.User, self))
 
 
     #
     #   Settlement management and administration methods below
     #
 
+    @utils.deprecated
     def log_event(self, msg, event_type=None):
         """ Logs a settlement event to mdb.settlement_events. """
 
@@ -446,57 +425,7 @@ class Settlement:
     #   Settlement reference, retrieval and look-up methods below
     #
 
-
-    def get_event(self, event_name=None):
-        """ Searches through the settlement's API asset for an event matching
-        'event_name'. Returns an empty dict if no event exists. """
-
-        all_events = self.get_api_asset("game_assets","events")
-
-        lookup_dict = {}
-        for h in all_events.keys():
-            lookup_dict[all_events[h]["name"]] = h
-
-        if event_name not in lookup_dict.keys():
-            self.logger.warn("[%s] event name '%s' not found in API event asset list!" % (self.User, event_name))
-            return {}
-
-        event_handle = lookup_dict[event_name]
-        return all_events[event_handle]
-
-
-    def get_story_event(self, event=None):
-        """ Accepts certain 'event' values and spits out a string of HTML
-        reflecting page numbers, etc.. """
-
-        c_dict = self.get_campaign("dict")
-        if "replaced_story_events" in c_dict.keys():
-            if event in c_dict["replaced_story_events"]:
-                event = c_dict["replaced_story_events"][event]
-
-        if event == "Bold":
-            v = 3
-        elif event == "Insight":
-            v = 3
-        elif event == "Awake":
-            v = 3
-        else:
-            return None
-
-        p = self.get_event(event).get("page",None)
-
-        if p == None:
-            self.logger.warn("[%s] the 'page' attrib of event '%s' could not be retrieved!" % (self.User, event))
-
-        output = html.survivor.stat_story_event_stub.safe_substitute(
-            event=event,
-            page=p,
-            attrib_value=v,
-        )
-
-        return output
-
-
+    @utils.deprecated
     def get_expansions(self, return_type=None):
         """ Returns expansions as a list. """
 
@@ -517,11 +446,6 @@ class Settlement:
             else:
                 return ", ".join(expansions)
         elif return_type == "list_of_names":
-#            expansions_dict = self.get_api_asset("game_assets","expansions")
-#            output_list = []
-#            for e in expansions:
-#                output_list.append(expansions_dict[e]["name"])
-#            return output_list
             self.logger.error('Calling get_expansions(return_type="list_of_names") is deprecated!')
             return expansions
 
@@ -531,16 +455,6 @@ class Settlement:
     def get_ly(self):
         """ Returns self.settlement["lantern_year"] as an int. """
         return int(self.settlement["lantern_year"])
-
-
-    def increment_population(self, amount):
-        """ Modifies settlement population. Saves the settlement to MDB. """
-        current_pop = int(self.settlement["population"])
-        new_pop = current_pop + amount
-        self.log_event("Settlement population automatically adjusted by %s" % amount)
-        self.settlement["population"] = current_pop
-        mdb.settlements.save(self.settlement)
-        self.logger.info("[%s] auto-incremented settlement %s population by %s" % (self.User, self, amount))
 
 
     def get_name_and_id(self):
@@ -575,6 +489,7 @@ class Settlement:
             return raw_value
 
 
+    @utils.deprecated
     def get_survivors(self, return_type=False, user_id=None, exclude=[], exclude_dead=False):
         """ Returns the settlement's survivors. Leave 'return_type' unspecified
         if you want a mongo cursor object back. """
@@ -722,75 +637,7 @@ class Settlement:
         return player_set
 
 
-# REMOVE FOR V4
-
-#    def get_admins(self):
-#        """ Creates an admins list if one doesn't exist; adds the settlement
-#        creator to it if it's new; returns the list. """
-#
-#        if not "admins" in self.settlement.keys():
-#            self.settlement["admins"] = []
-#
-#        creator = mdb.users.find_one({"_id": self.settlement["created_by"]})
-#        if creator is not None and self.settlement["admins"] == []:
-#            self.settlement["admins"].append(creator["login"])
-#
-#        return self.settlement["admins"]
-
-
-#    def toggle_admin_status(self, login):
-#        """ Adds or removes a login from self.settlement["admins"], depending
-#        on whether it's already there or not. """
-#
-#        if login in self.settlement["admins"]:
-#            self.settlement["admins"].remove(login)
-#            msg = "removed %s from" % login
-#        else:
-#            self.settlement["admins"].append(login)
-#            msg = "added %s to" % login
-#
-#        self.logger.debug("[%s] %s %s admins." % (self.User, msg, self))
-
-
-#    def render_html_form(self):
-#        """ Render settlement.form from html.py. Do a few substitutions during
-#        the render (i.e. things that aren't yet managed by the angularjs app.
-#        substitutions done up there. """
-#        return html.settlement.form
-
-
-#    def render_admin_panel_html(self):
-#        """ Renders a settlement as admin panel style HTML. This honestly
-#        probably belongs under a master render method for this class but...
-#        dang, you know? These render methods are monsters. I really gotta
-#        abstract further in one of these major refactor revisions..."""
-#
-#        # write the top line
-#        output = "\n\n<b>%s</b> LY:%s (%s) - %s/%s<br/>\n" % (
-#            self.settlement["name"],
-#            self.settlement["lantern_year"],
-#            self.settlement["created_on"].strftime(ymd),
-#            self.settlement["population"],
-#            self.settlement["death_count"],
-#            )
-#
-#        # write the removal info, if any exists
-#        removal_string = ""
-#        for removal_key in ["abandoned", "removed"]:
-#            if removal_key in self.settlement.keys():
-#                removal_string += '<font class="alert">%s</font> ' % removal_key.upper()
-#        if removal_string != "":
-#            removal_string = "&ensp; %s <br/>\n" % removal_string
-#        output += removal_string
-#
-#        # now do the rest
-#        output += "&ensp;<i>%s</i><br/>\n" % self.get_campaign()
-#        output += "&ensp;Players: %s<br/>\n" % ", ".join(self.get_players())
-#        output += "&ensp;Expansions: %s\n" % ", ".join(self.get_expansions())
-#
-#        return output
-#
-
+    @utils.deprecated
     def asset_link(self, context=None, update_mins=False):
         """ Returns an asset link (i.e. html form with button) for the
         settlement.
@@ -807,9 +654,6 @@ class Settlement:
         Anything else will get you the default, gradient_yellow link with the
         settlement flash and the name.
         """
-
-#        if update_mins:
-#            self.update_mins()  # update settlement mins before we create any text
 
         if context == "campaign_summary":
             button_class = "campaign_summary_gradient"
@@ -845,8 +689,3 @@ class Settlement:
             asset_name = link_text,
             desktop_text = desktop_text,
         )
-
-
-
-
-
