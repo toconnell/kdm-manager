@@ -1,12 +1,8 @@
 <div
-    id="modalTimelineContainer"
-    class="modal-black hidden"
+    ng-if="settlement.sheet !== undefined"
     ng-controller="timelineController"
-    ng-if="settlement.sheet.timeline != undefined && user != undefined"
-    ng_init="
+    ng-init="
         setEventOptions();
-        initializeEventLog();
-        showHide('timelineOpenerButton');
         iter_order = [
             'settlement_event',
             'story_event',
@@ -14,6 +10,16 @@
             'nemesis_encounter',
             'showdown_event'
         ];
+    "
+>
+
+<div
+    id="modalTimelineContainer"
+    class="modal-black hidden"
+    ng-if="settlement.sheet.timeline !== undefined && user !== undefined"
+    ng_init="
+        initializeEventLog();
+        showHide('timelineOpenerButton');
     "
 >
 
@@ -178,13 +184,6 @@
     "
     ng-init="
         modalControlID = 'ly' + ly.year + 'Controls';
-        iter_order = [
-            'settlement_event',
-            'story_event',
-            'special_showdown',
-            'nemesis_encounter',
-            'showdown_event'
-        ];
     "
 >
     <div
@@ -383,4 +382,6 @@
         </div>
 
     </div>
+</div>
+
 </div>

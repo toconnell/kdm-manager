@@ -1172,7 +1172,7 @@
             <div>
                 <select
                     class="kd_kickstarter_select"
-                    ng-if="user.user.subscriber.level > 1"
+                    ng-disabled="user.user.subscriber.level < 1"
                     ng-model="s.sheet.color_scheme"
                     ng-change="setColorScheme(s);"
                     ng-options="c.handle as c.name for c in settlement.survivor_color_schemes"
