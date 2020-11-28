@@ -1,11 +1,21 @@
 *.log
 *.pyc
+*.pem
 *.pid
 *.swp
 settings_private.cfg
 .warehouse
 init
 api.thewatcher.service
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
 #ide stuff
 .idea

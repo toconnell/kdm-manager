@@ -1,0 +1,109 @@
+{% extends "_base.html" %}
+
+{% block head %}
+
+    <script src="/static/js/login.js?v={{VERSION}}"></script>
+    <link rel="stylesheet" href="/static/css/login.css?v={{VERSION}}" />
+
+{% endblock%}
+
+{% block body %}
+
+    <div ng-controller="loginController" class="container">
+
+    <h1 class="clickable" ng-click="loadURL('/')">{{APP_NAME}}</h1>
+    <h2 class="clickable" ng-click="loadURL('/')">{{APP_TAG}}</h2>
+
+    <h3
+        class="version_tag"
+        ng-class="{
+            'kd_red_text':
+                latestRelease && latestRelease.versionString !== '{{VERSION}}',
+        }"
+    >
+
+        v.{{VERSION}}
+
+        <span
+            class="tiny_loader"
+            ng-if="
+                apiStat !== undefined && apiStat !== false &&
+                latestRelease === undefined
+            "
+            ng-init="setLatestRelease()"
+        >
+
+            <img src="/static/media/loading_io.gif"/>
+
+        </span>
+
+        <span
+            ng-if="latestRelease.versionString === '{{VERSION}}'"
+        >
+            released on {a latestRelease.published_on.$date|date:'EEEE, yyyy-MM-dd' a}.
+        </span>
+
+    </h3>
+
+    <noscript>
+        <p><b>JavaScript is disabled!</b></p>
+        <p>This utility depends on JavaScript for its user experience.</p>
+        <p>Please enable JavaScript to continue.</p>
+    </noscript>
+
+    <div
+        id="apiLoading"
+        class="user_inputs"
+        ng-if="apiStat === undefined"
+    >
+        <img class="spinner" src="/static/media/loading_lantern.gif">
+        <center>Contacting the KDM API...</center>
+    </div>
+
+    <div
+        id="apiFailed"
+        class="user_inputs"
+        ng-if="apiStat === false"
+    >
+        <div class="modal_message">
+            <p>https://KDM-Manager.com is currently down for maintenance!</p>
+            <p>Visit <a href="https://downtime.kdm-manager.com" target="top">
+            the Manager's Downtime site</a> for more information about outages,
+            downtime and maintenance.</p>
+
+            <p>&nbsp;</p>
+            <p>Please try again later.</p>
+            <p>&nbsp;</p>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div id="loginFlashContainer" class="rule alert">
+                {% for message in messages %}
+                    <div>{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}
+
+    {% endblock %}
+
+    <a 
+        href="/register"
+        ng-if="apiStat !== undefined && apiStat !== false"
+    >
+        Not registered? <b>Sign Up</b>.
+    </a>
+
+    <a 
+        href="/help"
+    >
+        Help!
+    </a>
+
+  </div> <!-- container -->
+
+{% endblock %}

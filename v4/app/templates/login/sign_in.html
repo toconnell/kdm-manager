@@ -1,0 +1,49 @@
+{% extends "login/index.html" %}
+
+{% block content %}
+
+    <form
+        id="signInControls"
+        ng-if="apiStat"
+        action=""
+        method="post"
+        novalidate
+    >
+
+        {{ form.hidden_tag() }}
+
+        <p>
+            {{ form.username(autofocus='autofocus', placeholder='email') }}
+            {% for error in form.username.errors %}
+                <div class="login_field_error">[{{ error }}]</div>
+            {% endfor %}
+        </p>
+    
+        <p>
+            {{ form.password(placeholder='password') }}
+            {% for error in form.password.errors %}
+                <div class="login_field_error">[{{ error }}]</div>
+            {% endfor %}
+        </p>
+
+        <p class="login_remember_me">
+            {{ form.remember_me() }}
+            {{ form.remember_me.label(class_='kd') }}
+        </p>
+
+        <p>
+            {{ form.submit(class_='kd') }}
+        </p>
+
+    </form>
+
+    <div id="sign_in_error" class="modal">
+        <div class="modal_message">
+            <p>Authentication failure!</p>
+            <p>Please try again.</p>
+            <p>&nbsp;</p>
+            <button class="submit kd_alert" ng-click="hideControls('sign_in_error')">OK</button>
+        </div>
+    </div>
+
+{% endblock %}

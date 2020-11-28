@@ -1508,6 +1508,7 @@ app.controller('timelineController', function($scope) {
         // iterates through the settlement.game_assets.events dictionary and
         // injects some new items into $scope that, in turn, may be iterated
         // by the HTML to create drop-down options for adding events to the TL
+
         console.time('setEventOptions()');
 
         $scope.showdownOptions = $scope.settlement.game_assets.showdown_options;
