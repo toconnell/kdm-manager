@@ -1,6 +1,0 @@
-[Unit]
-Description=theWatcher.io API Service daemon
-Requires=api.thewatcher.socket
-After=network.target
-
-[Service]
