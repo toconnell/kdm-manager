@@ -14,6 +14,9 @@ import sys
 
 class Config(object):
 
+    with open('.api_key', 'r') as file:
+        API_KEY = file.read().strip().replace('\n','')
+
     APP_NAME = "KDM-Manager"
     APP_TAG = "The original online campaign manager for Kingdom Death: Monster."
     SESSION_COOKIE_NAME = 'kdm-manager_session'

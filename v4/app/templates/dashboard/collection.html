@@ -1,0 +1,74 @@
+<!-- collections -->
+<div class="ng_fade dashboard_menu">
+    <h2
+        class="clickable dashboard_rollup collection collection_gradient"
+        ng-click="
+            rollUp('collectionDiv');
+        "
+        ng-class="{'open': ngRolledUp['collectionDiv'] === false}"
+    >
+        <span>
+            <font class="kdm_font_hit_locations dashboard_kdm_font">a</font>
+            KD Collection
+        </span>
+        <span
+            class="roll_content_arrow"
+            ng-class="{'open': ngRolledUp['collectionDiv'] === false}"
+        >
+            &#x25BC;
+        </span>
+    </h2>
+
+    <div
+        id="collectionDiv"
+        class="
+            roll_down_container
+            dashboard_accordion
+            dashboard_user_collection_container
+            collection_gradient
+            rolled_up
+        "
+        ng-class="{'rolled_down': ngRolledUp['collectionDiv'] === false}"
+    >
+        <p class="panel_top_tooltip">Use the checkboxes below to record which <i>Monster</i>
+        expansions are in your personal KD collection!</p>
+        <p class="panel_top_tooltip">You can then use your Collection to add
+        Fighting Arts, Disorders and Settlement Events from your expansions
+        to your campaigns without adding monsters, gear, locations, etc.</p>
+
+        <div
+            class="dashboard_user_collection_repeater"
+            ng-repeat="category in [
+                'Quarry',
+                'Nemesis',
+                'White Box',
+                'Enhancement'
+            ]"
+        >
+            <h3 class="collection_category_header">{a category a}</h3>
+            <div
+                class="dashboard_user_expansions_repeater clickable"
+                ng-repeat="(handle, expansion) in expansions"
+                ng-click="toggleUserExpansion(handle)"
+                ng-if="expansion.ui.pretty_category === category"
+            >
+                <div
+                    class="special_attribute_checkbox"
+                    ng-class="{active: user.user.collection.expansions.indexOf(handle) != -1}"
+                ></div>
+                <div
+                    class="dashboard_expansion_name"
+                    ng-class="{active: user.user.collection.expansions.indexOf(handle) != -1}"
+                >
+                    {a expansion.name a}
+                </div>
+                <div
+                    class="dashboard_expansion_subtitle"
+                    ng-if="expansion.subtitle !== undefined"
+                    ng-bind-html="expansion.subtitle|trustedHTML"
+                >
+                </div>
+            </div><!-- expansion repeater -->
+        </div><!-- category repeater -->
+    </div><!-- collection div/accordion -->
+</div><!-- dashboard_menu -->

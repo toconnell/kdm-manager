@@ -1,0 +1,91 @@
+{% extends '_base.html' %}
+{% set VIEW = 'dashboard' %}
+
+{% block head %}
+
+    <script src="/static/js/dashboard.js?v={{VERSION}}">
+    </script>
+
+{% endblock %}
+
+{% block body %}
+
+    <div
+        id="dashboardWelcomeModal"
+        class="ng_fade modal dashboard_welcome_modal hidden"
+        ng-class="{true: 'visible', false: 'hidden'}[{{current_user.settlements_created}} == 0]"
+        ng-click="showHide('dashboardWelcomeModal')"
+    >   
+        <p>Welcome to <b>https://kdm-manager.com</b>, the original online campaign
+        manager for Kingdom Death: <i>Monster</i>!</p>
+        <p><b>The Manager</b> is an interactive webapp intended to make it
+        easier to manage and share your Kingdom Death: <i>Monster</i> campaigns.</p>
+        <p>This application is fan-maintained and <b>is not</b> supported by or
+        affiliated with Kingdom Death.</p>
+        <p>To get started, you will have to <b>create a new settlement</b>. Once your new
+        settlement is created, you will be shown a <b>campaign summary</b>, which
+        is like a dashboard for your campaign.</p>
+        <p>From the <b>campaign summary</b>, you can use the controls in the upper-left
+        corner to add new survivors, view your settlement's "sheet" and add/remove
+        expansion content.</p>
+        <p>In order to add other players to your campaign, all you have to do is
+        navigate to an individual survivor's "sheet" and change that survivor's email
+        address to the email address of another registered user of this site.</p>
+        <p>Changes to settlement and survivor sheets are always saved
+        automatically, unless otherwise indicated (e.g. by a "Save" button).</p>
+        <p>Finally, this application is <u>under active development</u> and problems <b>will</b>
+        occur! Please use the controls within the app to report errors/issues.</p>
+        <button class="kd_kickstarter_button kd_pink">
+            Click or tap anywhere to get started!
+        </button>
+    </div>
+
+    <div
+        id="dashboardControlElement"
+        class="dashboard_top_level_container"
+        ng-controller="dashboardController"
+        ng-init="
+            initializeUser('$user_id', 'dashboard', '$api_url');
+            showInitDash();
+            setLatestRelease();
+            loadExpansionAssets();
+        "
+    >
+
+        <img
+            class="dashboard_bg_art"
+            src="/media/tree_logo_shadow.png"
+        /> <!-- DASHBOARD LOGO ART -->
+    
+
+        {%  include 'dashboard/system.html' %}
+        {%  include 'dashboard/collection.html' %}
+        {%  include 'dashboard/campaigns.html' %}
+            {%  include 'dashboard/settlements.html' %}
+        {%  include 'dashboard/world.html' %}
+        {%  include 'dashboard/about.html' %}
+        {%  include 'dashboard/alerts.html' %}
+
+    <div
+        id="dashboardLoader"
+        class="metrophobic settlements_retrieved"
+        ng-if="scratch.settlementsRetrieved != scratch.settlementsRequired"
+    >
+        <span ng-if="user == undefined">
+            Retrieving user data...
+        </span>
+        <span ng-if="scratch.settlementsRequired != undefined">
+            Retrieving settlement {a scratch.settlementsRetrieved a} / {a scratch.settlementsRequired a}
+        </span>
+        <div class="corner_loading_spinner visible">
+            <img class="corner_loading_spinner" src="/media/loading_io.gif">
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // Hack City!
+        // kill the spinner, since we're done loading the page now.
+        hideFullPageLoader();
+    </script>
+
+{% endblock %}

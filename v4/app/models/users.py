@@ -5,6 +5,8 @@
 
 """
 
+# standard library
+import json
 
 # second party imports
 from bson.objectid import ObjectId
@@ -37,10 +39,56 @@ class User(flask_login.UserMixin):
         # set kwargs to self.whatever
         vars(self).update(kwargs)
 
+        self.load()
+
+
+    def new(self):
+        """ Creates a new user via API call. Always returns TWO things:
+            - a boolean of whether the job was successful
+            - the server's response
+        """
+
+        endpoint = app.config['API']['url'] + 'new/user'
+        response = requests.post(
+            endpoint,
+            verify = app.config['API']['verify_ssl'],
+            json= {
+                'username': self.username,
+                'password': self.password
+            }
+        )
+
+        if response.status_code != 200:
+            return False, response.text
+        else:
+            return True, response.text
+
+
+    def load(self):
+        """ Assumes an authenticated user! Make sure you log into flask
+        (see self.login_to_flask) before calling this.
+
+        Goes to the API, gets the user JSON from there, and uses it to
+        enrich our 'current_user' object, so we have access to more user
+        data in the templates, etc. """
+
+        self.refresh_token()
+
+        endpoint = app.config['API']['url'] + 'user/get/' + self._id
+        response = requests.get(
+            endpoint,
+            verify = app.config['API']['verify_ssl'],
+            headers = {'Authorization': self.token},
+        )
+
+        user_attribs = utils.convert_json_dict(response.json()['user'])
+        for attrib in user_attribs.keys():
+            if attrib not in ['_id', 'password']:
+                setattr(self, attrib, user_attribs[attrib])
+
 
     def login_to_api(self):
-        """
-        Part one of our two-part login deal.
+        """ Part one of our two-part login deal.
 
         This first part hits the /login endpoint of the API and sets the
         self._id and self.token attribute, which is currently a JWT token.
@@ -57,10 +105,8 @@ class User(flask_login.UserMixin):
             }
         )
 
-        # if the response is bad, return false and the response
-        if response.status_code != 200:
-            return False, response
-        else:
+        # if the response is good, return True
+        if response.status_code == 200:
             user = response.json()
             self._id = ObjectId(user['_id'])
             self.token = user['access_token']
@@ -85,8 +131,30 @@ class User(flask_login.UserMixin):
         # create a response, inject the token into the cookie and return
         redirect = flask.redirect(next_page)
         response = app.make_response(redirect)
-        response.set_cookie('kdm-manager_token', user.token)
+        response.set_cookie('kdm-manager_token', self.token)
         return response
+
+
+    def refresh_token(self):
+        """ Contacts the API to refresh the token. Updates the user
+        as well as the all-important flask-login cookie. """
+
+        self.token = flask.request.cookies.get('kdm-manager_token')
+
+        # set the API endpoint and post the Authorization header to it
+        endpoint = app.config['API']['url'] + 'authorization/refresh'
+        response = requests.post(
+            endpoint,
+            verify = app.config['API']['verify_ssl'],
+            headers = {'Authorization': self.token},
+        )
+
+        if response.status_code == 200:
+            self.token = response.json()['access_token']
+            return True
+
+        self.logger.error("[%s] Failed to refresh token!" % self)
+        return False
 
 
     def reset_password(self, new_password=None, recovery_code=None):

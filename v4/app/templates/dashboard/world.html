@@ -1,0 +1,268 @@
+<div
+    id="world_container"
+    class="dashboard_menu world_panel"
+>
+
+    <h2
+        class="clickable world_primary dashboard_rollup"
+        ng-click="rollUp('worldDiv');"
+        ng-class="{'open': ngRolledUp['worldDiv'] === false}"
+    >
+        <span>
+            <font class="kdm_font_hit_locations dashboard_kdm_font white_text">g</font>
+            <font class="white_text">World</font>
+        </span>
+        <span
+            class="roll_content_arrow white_text"
+            ng-class="{'open': ngRolledUp['worldDiv'] === false}"
+        >
+            &#x25BC;
+        </span>
+    </h2>
+
+    <div
+        id="worldDiv"
+        class="
+            roll_down_container
+            dashboard_accordion
+            world_secondary
+            world_container
+            rolled_up
+        "
+        ng-class="{'rolled_down': ngRolledUp['worldDiv'] === false}"
+    >
+
+        <center ng-if="world == undefined">
+            <br/>
+            <img src="/media/loading_lantern.gif"><br/>
+            <span class="white">Retrieving World data...</span>
+            <br/>
+        </center>
+
+        <div class="world_panel_basic_box" ng-if="world != undefined">
+            <p>
+                <font class="green_text"> <b>{a world.active_settlements.value a} </b></font> Settlements are holding fast.
+                <font class="maroon_text"><b> {a world.abandoned_or_removed_settlements.value a} </b></font> have been abandoned.
+            </p>
+            <p>
+                <font class="green_text"> <b>{a world.live_survivors.value a}</b> </font> Survivors are alive and fighting.
+                <font class="maroon_text"><b>{a world.dead_survivors.value a}</b></font> have perished.</p>
+        </div>
+
+        <div class="world_panel_basic_box" ng-if="world != undefined">
+            <h3>Settlement Statistics</h3>
+
+            <p>
+                {a world.total_multiplayer_settlements.name a}:
+                <b>{a world.total_multiplayer_settlements.value a}</b>
+            </p>
+            <p>
+                {a world.new_settlements_last_30.name a}:
+                <b>{a world.new_settlements_last_30.value a}</b>
+            </p>
+
+            <table>
+                <tr><th colspan="2">{a world.top_settlement_names.name a}</th></tr>
+                <tr ng-repeat="row in world.top_settlement_names.value" ng-class-even="'zebra'">
+                    <td>{a row.name a}</td><td class="int_value">{a row.count a}</td>
+                </tr>
+            </table>
+
+            <table>
+                <tr><th colspan="2">Active Campaigns</th></tr>
+                <tr ng-repeat="(name,count) in world.settlement_popularity_contest_campaigns.value" ng-class-even="'zebra'">
+                    <td>{a name a}</td> <td class="int_value">{a count a}</td>
+                </tr>
+            </table>
+
+            <table>
+                <tr><th colspan="2">Campaigns w/ Expansion Content</th></tr>
+                <tr
+                    ng-repeat="e in world.settlement_popularity_contest_expansions.value"
+                    ng-class-even="'zebra'"
+                    ng-if="e.sub_type !== 'pseudo'" 
+                >
+                    <td>{a e.name a}</td> <td class="int_value">{a e.count a}</td>
+                </tr>
+            </table>
+
+            <table>
+                <tr><th colspan="2">Settlement Averages</th></tr>
+                <tr><td>Lantern Year </td><td class="int_value">{a world.avg_ly.value a}</td></tr>
+                <tr class="zebra"><td>Innovation Count </td><td>{a world.avg_innovations.value a}</td></tr>
+                <tr><td>Expansions</td><td> {a world.avg_expansions.value a}</td></tr>
+                <tr class="zebra"><td>Defeated Monsters</td><td> {a world.avg_defeated_monsters.value a}</td></tr>
+                <tr><td>Items in Storage</td> <td>{a world.avg_storage.value a}</td></tr>
+                <tr class="zebra"><td>Milestone Story Events</td><td> {a world.avg_milestones.value a}</td></tr>
+                <tr><td>Lost Settlements </td><td>{a world.avg_lost_settlements.value a}</td></tr>
+            </table>
+
+            <table><tr><th>Principle selection rates</th></tr></table>
+            <div ng-repeat="(principle, selections) in world.principle_selection_rates.value">
+                <table>
+                    <tr><th colspan="2" class="principle">{a principle a}</th></tr>
+                    <tr ng-repeat="option in selections.options" ng-class-even="'zebra'">
+                        <td>{a option a}</td>
+                        <td class="int_value">{a selections[option].percentage a}%</td>
+                    </tr>
+                </table>
+            </div>
+
+            <table>
+                <tr><th colspan="2">Top Innovations</th></tr>
+                <tr ng-repeat="row in world.top_innovations.value" ng-class-even="'zebra'">
+                    <td>{a row.name a}</td><td class="int_value">{a row.count a}</td>
+                </tr>
+            </table>
+
+            <table>
+                <tr><th>Survival Limit stats</th></tr>
+                <tr><td>Average Survival Limit:</td><td class="int_value">{a world.avg_survival_limit.value a}</td></tr>
+                <tr class="zebra"><td>Max Survival Limit:</td><td>{a world.max_survival_limit.value a}</td></tr>
+            </table>
+
+
+        </div>
+
+        <div class="world_panel_basic_box" ng-if="world != undefined">
+            <h3>Latest Settlement</h3>
+            <table>
+                <tr><td colspan="2"><b>{a world.latest_settlement.value.name a}</b></td></tr>
+                <tr><td colspan="2"><i>{a world.latest_settlement.value.campaign a}</i></td></tr>
+                <tr ng-if="world.latest_settlement.value.expansions != null">
+                    <td colspan="2">{a world.latest_settlement.value.expansions a}</td>
+                </tr>
+                <tr><td>Created</td><td>{a world.latest_settlement.value.age a} ago</td></tr>
+                <tr class="zebra"><td>Players</td><td>{a world.latest_settlement.value.player_count a}</td></tr>
+                <tr><td>Population</td><td>{a world.latest_settlement.value.population a}</td></tr>
+                <tr class="zebra"><td>Death count</td><td>{a world.latest_settlement.value.death_count a}</td></tr>
+            </table>
+
+        </div>
+
+        <div class="world_panel_basic_box" ng-if="world != undefined">
+            <h3>Survivor Statistics</h3>
+
+            <table>
+                <tr><th>Population and death stats</th></tr>
+                <tr><td>Average Population</td><td class="int_value">{a world.avg_pop.value a}</td></tr>
+                <tr class="zebra"><td>Max Population</td><td>{a world.max_pop.value a}</td></tr>
+                <tr><td>Average Death count</td><td> {a world.avg_death_count.value a}</td></tr>
+                <tr class="zebra"><td>Max Death Count</td> <td>{a world.max_death_count.value a}</td></tr>
+            </table>
+
+            <table>
+                <tr><th colspan="2">Top Survivor names</th></tr>
+                <tr ng-repeat="row in world.top_survivor_names.value" ng-class-even="'zebra'">
+                    <td>{a row.name a}</td> <td class="int_value">{a row.count a}</td>
+                </tr>
+            </table>
+
+            <table>
+                <tr><th colspan="2">Top Causes of Death</th></tr>
+                <tr ng-repeat="row in world.top_causes_of_death.value" ng-class-even="'zebra'">
+                    <td>{a row.cause_of_death a}</td> <td class="int_value">{a row.count a}</td>
+                </tr>
+            </table>
+
+            <table>
+                <tr><th colspan="2">Living survivor averages</th></tr>
+                <tr><td>Hunt XP</td><td>{a world.avg_hunt_xp.value a}</td></tr>
+                <tr class="zebra"><td>Insanity</td><td class="int_value">{a world.avg_insanity.value a}</td></tr>
+                <tr><td>Courage</td><td>{a world.avg_courage.value a}</td></tr>
+                <tr class="zebra"><td>Fighting Arts</td><td>{a world.avg_fighting_arts.value a}</td></tr>
+                <tr><td>Understanding</td><td>{a world.avg_understanding.value a}</td></tr>
+                <tr class="zebra"><td>Disorders</td><td>{a world.avg_disorders.value a}</td></tr>
+                <tr><td>Abilities/Impairments</td><td>{a world.avg_abilities.value a}</td></tr>
+            </table>
+
+        </div>
+
+        <div class="world_panel_basic_box" ng-if="world != undefined">
+            <h3>Latest Survivor</h3>
+            <table>
+                <tr ng-if="world.latest_survivor.value.avatar != undefined">
+                    <td colspan="2" class="world_panel_avatar_cell">
+                        <img
+                            class="world_panel_avatar"
+                            ng-src="{a api_url a}avatar/get/{a world.latest_survivor.value.avatar.$oid a}"
+                            title="{a world.latest_survivor.value.name a}"
+                        />
+                </tr>
+                <tr><td colspan="2"><b>{a world.latest_survivor.value.name a}</b> [{a world.latest_survivor.value.sex a}] of </td></tr>
+                <tr><td colspan="2"><i>{a world.latest_survivor.value.settlement_name a}</i></td></tr>
+                <tr ng-if="world.latest_settlement.value.epithets != null">
+                    <td colspan="2">{a world.latest_survivor.value.epithets a}</td>
+                </tr>
+                <tr><td>Created</td><td>{a world.latest_survivor.value.age a} ago</td></tr>
+                <tr class="zebra"><td>Joined in LY</td><td>{a world.latest_survivor.value.born_in_ly a}</td></tr>
+                <tr><td>Hunt XP</td><td>{a world.latest_survivor.value.hunt_xp a}</td></tr>
+                <tr class="zebra"><td>Insanity</td><td>{a world.latest_survivor.value.Insanity a}</td></tr>
+                <tr><td>Courage</td><td>{a world.latest_survivor.value.Understanding a}</td></tr>
+                <tr class="zebra"><td>Understanding</td><td>{a world.latest_survivor.value.Insanity a}</td></tr>
+            </table>
+
+        </div>
+
+        <div class="world_panel_basic_box" ng-if="world != undefined">
+            <h3>Latest Fatality</h3>
+            <table>
+                <tr ng-if="world.latest_fatality.value.avatar != undefined">
+                    <td colspan="2" class="world_panel_avatar_cell">
+                        <img
+                            class="world_panel_avatar"
+                            ng-src="{a api_url a}avatar/get/{a world.latest_fatality.value.avatar.$oid a}"
+                            title="{a world.latest_fatality.value.name a}"
+                        />
+                </tr>
+                <tr><td colspan="2"><b>{a world.latest_fatality.value.name a}</b> [{a world.latest_fatality.value.sex a}] of </td></tr>
+                <tr><td colspan="2"><i>{a world.latest_fatality.value.settlement_name a}</i></td></tr>
+                <tr><td colspan="2">Cause of Death:</td></tr>
+                <tr><td colspan="2">&ensp; <font class="maroon_text"><b>{a world.latest_fatality.value.cause_of_death a}</b></font></td></tr>
+                <tr ng-if="world.latest_settlement.value.epithets != null">
+                    <td colspan="2">{a world.latest_fatality.value.epithets a}</td>
+                </tr>
+                <tr><td>Created</td><td>{a world.latest_fatality.value.age a} ago</td></tr>
+                <tr class="zebra"><td>Died in LY</td><td>{a world.latest_fatality.value.died_in a}</td></tr>
+                <tr><td>Hunt XP</td><td>{a world.latest_fatality.value.hunt_xp a}</td></tr>
+                <tr class="zebra"><td>Insanity</td><td>{a world.latest_fatality.value.Insanity a}</td></tr>
+                <tr><td>Courage</td><td>{a world.latest_fatality.value.Understanding a}</td></tr>
+                <tr class="zebra"><td>Understanding</td><td>{a world.latest_fatality.value.Insanity a}</td></tr>
+            </table>
+
+        </div> <!-- latest fatality -->
+
+        <div class="world_panel_basic_box" ng-if="world != undefined">
+            <h3>Latest Kill</h3>
+            <p><b>{a world.latest_kill.value.raw_name a}</b></p>
+            <p>Defeated by the survivors of <b>{a world.latest_kill.value.settlement_name a}</b> on {a world.latest_kill.value.killed_date a} at {a world.latest_kill.value.killed_time a}.</p>
+        </div>
+
+        <div class="world_panel_basic_box" ng-if="world != undefined">
+            <h3>{a world.killboard.name a}</h3>
+            <table ng-repeat="(type,board) in world.killboard.value">
+                <tr><th class="principle capitalize" colspan="2">{a type a}</th></tr>
+                <tr ng-repeat="row in board" ng-class-even="'zebra'">
+                    <td>{a row.name a}</td> <td class="int_value">{a row.count a}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="world_panel_basic_box" ng-if="world != undefined">
+            <h3>User Statistics</h3>
+            <p> <b>{a world.total_users.value a}</b> users are registered. <b>{a world.total_subscribers.value a}</b> users are <a href="https://thelaborinvain-2.myshopify.com/collections/http-kdm-manager-com" target="top">subscribers</a>!</p>
+            <p> <b>{a world.recent_sessions.value a}</b> users have managed campaigns in the last 12 hours.</p>
+            <p> <b>{a world.total_users_last_30.value a}</b> users have managed campaigns in the last 30 days.</p>
+            <p> <b>{a world.new_users_last_30.value a}</b> new users have registered in the last 30 days.</p>
+
+            <table>
+                <tr><th colspan="2">Per user averages</th></tr>
+                <tr><td>Survivors</td><td class="int_value">{a world.avg_user_survivors.value a}</td></tr>
+                <tr class="zebra"><td>Settlements</td><td>{a world.avg_user_settlements.value a}</td></tr>
+                <tr><td>Avatars</td><td>{a world.avg_user_avatars.value a}</td></tr>
+            </table>
+        </div> <!-- user stats -->
+
+    </div> <!-- world_detail_div -->
+
+</div> <!-- dashboard_menu 'World'-->

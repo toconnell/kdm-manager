@@ -1567,6 +1567,7 @@ h3.new_survivor_sheet {
     transition: 2s;
     transition-timing-function: ease;
     padding: 0;
+    width: 100%; 
 }
 .campaign_summary_survivor_returning_flash {
     border-top-left-radius: 1vw;

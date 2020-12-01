@@ -16,32 +16,57 @@ from wtforms import (
 )
 
 
+#
+#   re-usable constants for forms
+#
+
+USERNAME = StringField(
+    'Email',
+        validators = [
+            validators.DataRequired(),
+            validators.Email(),
+            validators.Optional(strip_whitespace=True)
+        ]
+    )
+PASSWORD = PasswordField(
+    'Password',
+    validators = [validators.DataRequired()]
+)
+REMEMBER = BooleanField('Remember Me')
+
+
 class LoginForm(flask_wtf.FlaskForm):
     """ Super basic; used to authenticate into the app. """
-    username = StringField('Email', validators=[
-        validators.DataRequired(),
-        validators.Email(),
-        validators.Optional(strip_whitespace=True),
-    ])
-    password = PasswordField('Password', validators=[validators.DataRequired()])
-    remember_me = BooleanField('Remember Me')
+    username = USERNAME
+    password = PASSWORD
+    remember_me = REMEMBER
     submit = SubmitField('Sign in')
 
 
-class ResetForm(flask_wtf.FlaskForm):
-    """ Similar to the new user registration form; requires PW twice, etc. """
+class RegisterForm(flask_wtf.FlaskForm):
+    """ Similar to LoginForm, but with a password confimration. """
 
-    username = StringField('Email', validators=[
-        validators.DataRequired(),
-        validators.Email(),
-        validators.Optional(strip_whitespace=True)
-    ])
+    username = USERNAME
 
-    password = PasswordField('New Password', [
+    password = PasswordField('Password', [
         validators.DataRequired(),
         validators.EqualTo('confirm', message='Passwords must match!')
     ])
-    confirm = PasswordField('Password Again')
+    confirm = PasswordField('Password (again)')
 
-    remember_me = BooleanField('Remember Me')
+    submit = SubmitField('Register')
+
+
+class ResetForm(flask_wtf.FlaskForm):
+    """ Asks for the password twice, but otherwise is the same as the regular
+    sign-in form. """
+
+    username = USERNAME
+
+    password = PasswordField('New password', [
+        validators.DataRequired(),
+        validators.EqualTo('confirm', message='Passwords must match!')
+    ])
+    confirm = PasswordField('New password again')
+
     submit = SubmitField('Reset password')

@@ -32,7 +32,7 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
             function successCallback(response) {
                 $rootScope.apiStat = response.data;
                 console.info(
-                    'KDM API v' + $rootScope.apiStat.meta.api.version
+                    'KDM API v' + $rootScope.apiStat.meta.api.version + ' @ ' + $rootScope.apiURL
                 );
                 console.timeEnd(statURL);
             }, function errorCallback(response) {

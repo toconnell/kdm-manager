@@ -6,9 +6,13 @@
 """
 
 # standard lib
+from datetime import datetime
 import logging
 import os
 import sys
+
+# second party
+from bson.objectid import ObjectId
 
 # application imports
 from app import app
@@ -16,6 +20,20 @@ from app import app
 # CONSTANTS
 YMD = "%Y-%m-%d"
 YMDHMS = "%Y-%m-%d %H:%M:%S"
+
+
+def convert_json_dict(ng_dict):
+    """ Converts a dictionary with JSON keys into a normal dict. """
+
+    logger = get_logger()
+    for key, value in ng_dict.items():
+        if isinstance(value, dict):
+            if value.get('$oid', None) is not None:
+                ng_dict[key] = ObjectId(value['$oid'])
+            elif value.get('$date', None) is not None:
+                ng_dict[key] = datetime.fromtimestamp(value['$date'] / 1000.0)
+
+    return ng_dict
 
 
 def get_logger(log_level=None, log_name=None):

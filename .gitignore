@@ -19,3 +19,5 @@ venv.bak/
 
 #ide stuff
 .idea
+
+.api_key

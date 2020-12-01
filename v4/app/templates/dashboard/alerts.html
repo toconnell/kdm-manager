@@ -1,0 +1,97 @@
+<span
+    ng-init="
+        getNotifications();
+        scratch.notifications = [];
+    "
+>
+</span>
+
+<div
+    title="{a scratch.notifications.length a} new alert(s)!"
+    ng-init="parseNotifications()"
+    ng-if="
+        user.user.preferences.show_dashboard_alerts &&
+        scratch.notifications.length > 0
+    "
+    class="ng_fade font_large clickable dashboard_alerts_clicker"
+    ng-class="{
+        'kd_blue': scratch.kpi_notifications < 1,
+        'kd_pink': scratch.kpi_notifications > 0,
+    }"
+    ng-click="ngShow('dashboardAlertsViewer')"
+>
+    {a scratch.notifications.length a}
+</div>
+
+
+<!--
+
+    the alerts viewer modal starts here
+
+-->
+
+<div
+    id="dashboardAlertsViewer"
+    class="modal-black hidden"
+    ng-if="ngVisible['dashboardAlertsViewer']"
+    ng-click="ngHide('dashboardAlertsViewer')"
+>
+    <div
+        class="kd_sheet_ui_outer_ring_container"
+    >
+        <div
+            class="kd_sheet_ui_inner_ring_container"
+            ng-click="$event.stopPropagation()"
+        >
+            <h3 class="kd_title">Notifications</h3>
+
+            <div
+                class="dashboard_alerts_container"
+                ng-repeat="alert_type in ['kpi', 'announcement']"
+            >
+                <div
+                    class="font_medium dashboard_alerts_alert_repeater"
+                    ng-if="alert.sub_type === alert_type"
+                    ng-repeat="alert in scratch.notifications"
+                >
+                    <div
+                        class="kd_sheet_ui_box checked"
+                        ng-click="ngShowHide('alertID' + alert._id.$oid)"
+                        ng-class="{
+                            'kd_red_box': alert.sub_type === 'kpi',
+                        }"
+                    >
+                    </div>
+                    <b
+                        ng-click="ngShowHide('alertID' + alert._id.$oid)"
+                        ng-class="{
+                            'kd_red_text': alert.sub_type === 'kpi',
+                        }"
+                    >
+                        {a alert.created_on.$date|date:'yyyy-MM-dd' a}: {a alert.title a}
+                    </b>
+                    <p
+                        ng-bind-html="alert.body|trustedHTML"
+                    ></p>
+                    <div
+                        ng-if="ngVisible['alertID' + alert._id.$oid]"
+                        class="dashboard_alerts_alert_footer"
+                    >
+                        <span class="font_small">
+                            API v{a alert.release a} | 
+                            created: {a alert.created_on.$date|date:'EEEE, yyyy-MM-dd HH:mm' a} |
+                        </font>
+                    </div>
+                </div>
+            </div><!-- alerts_container repeater -->
+        </div><!-- inner_ring -->
+    </div><!-- outer_ring -->
+
+    <button
+        class="clickable kd_kickstarter_button floating_close_modal_button"
+        ng-click="ngHide('dashboardAlertsViewer')"
+    >
+        Close
+    </button>
+</div>
+<!-- dashboard alerts -->

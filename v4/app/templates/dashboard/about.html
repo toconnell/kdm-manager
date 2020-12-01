@@ -1,0 +1,99 @@
+<div
+    class="dashboard_menu"
+>
+    <h2
+        class="clickable about_primary dashboard_rollup"
+        ng-click="rollUp('aboutDiv');"
+        ng-class="{'open': ngRolledUp['aboutDiv'] === false}"
+    >
+        <span>
+            <font class="kdm_font dashboard_kdm_font">g</font>
+            About
+        </span>
+        <span
+            class="roll_content_arrow"
+            ng-class="{'open': ngRolledUp['aboutDiv'] === false}"
+        >
+            &#x25BC;
+        </span>
+    </h2>
+
+    <div
+        id="aboutDiv"
+        class="roll_down_container dashboard_accordion about_secondary rolled_up"
+        ng-class="{'rolled_down': ngRolledUp['aboutDiv'] === false}"
+    >
+        <a href="https://thelaborinvain.com" target="top">
+            <img
+                src="/media/the_labor_in_vain_logo-01.png"
+                class="tlv_about_logo"
+                title="https://kdm-manager.com is developed by The Labor in Vain!"
+                ng-class="{
+                    'invert_image': user.user.preferences.night_mode === true,
+                }"
+            />
+        </a>
+
+
+        <p>About:</p>
+
+        <ul>
+            <li>
+                This application, which is called <i>kdm-manager.com</i>,
+                or simply, <i>the Manager</i>, is an interactive campaign
+                management tool for use with <i>
+                <a href="https://shop.kingdomdeath.com" target="top">Monster</a></i>,
+                by <a href="https://kingdomdeath.com" target="top">Kingdom Death</a>.
+            </li>
+            <li>
+                <i>The Manager</i> is published, provisioned and supported
+                by <a href="https://thelaborinvain.com" target="top">The Labor in Vain</a>.
+            </li>
+        </ul>
+
+        <p>Important Information:</p>
+        <ul>
+            <li><b>This application is not developed, maintained,
+            authorized or in any other way supported by or affiliated
+            with <a href="https://kingdomdeath.com" target="top">
+            Kingdom Death</a>.</b></li>
+            </li>
+            <li>Users' email addresses and other information are used
+            only for the purposes of developing and maintaining this
+            application and are never shared, published or distributed.
+            </li>
+        </ul>
+
+        <p>$application_version release information:</p>
+        <ul>
+            <li>Version {a latestRelease.versionString a} of the Manager
+            was published on
+            {a latestRelease.published_on.$date|date:'EEEE, yyyy-MM-dd' a}.
+            <a target="top" href="{a api_url + 'blog/release/' + latestRelease._id.$oid a}">
+            View change log</a>.
+            </li>
+            <li>Version 1.7.0, the first production release of the
+            Manager, went live over $application_age_rough_years years
+            ago on 2015-11-29!
+            </li>
+            <li>For detailed release information, including complete
+            notes and updates for each production release, please
+            check the development blog at
+            <a href="http://blog.kdm-manager.com" target="top">
+            blog.kdm-manager.com</a>.
+            </li>
+        </ul>
+
+        <hr/>
+
+        <p>
+            Source code <a href="https://github.com/toconnell/kdm-manager" target="top">available on GitHub</a>!
+        </p>
+
+        <hr/>
+
+        <p>Thanks for using the Manager!</p>
+
+    </div> <!-- about_div -->
+
+</div> <!-- dashboard_menu 'About' -->

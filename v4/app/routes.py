@@ -15,7 +15,7 @@ import flask_login
 
 # kdm-manager imports
 from app import app, utils
-from app.forms import LoginForm, ResetForm
+from app.forms import LoginForm, RegisterForm, ResetForm
 from app.models import users
 
 
@@ -81,9 +81,34 @@ def logout():
     return response
 
 
-#
-#   REGISTER TK
-#
+@app.route('/register', methods=['GET','POST'])
+def register():
+    """ Processes the form for registering a new user with the API. """
+
+    register_form = RegisterForm()
+
+    if flask.request.method == 'POST' and register_form.validate():
+        user = users.User(
+            username=register_form.username.data,
+            password=register_form.password.data
+        )
+        success, api_response = user.new()
+        if success:
+            flask.flash('New user registration successful! Please sign in...')
+            return flask.redirect(flask.url_for('login'))
+        else:
+            flask.flash(api_response)
+
+    # if we tried and failed validation, default in the email we tried
+    if register_form.username.data is not None:
+        register_form.default_login = register_form.username.data
+
+    return flask.render_template(
+        'login/register.html',
+        form = register_form,
+        **app.config
+    )
+
 
 @app.route('/reset_password/<login>/<recovery_code>', methods=['GET','POST'])
 def reset_password(login, recovery_code):
@@ -123,6 +148,21 @@ def help():
         **app.config
     )
 
+
+
+#
+#   views!  (at least, that's what we used to call them)
+#
+
+
+
+@flask_login.login_required
+@app.route('/dashboard', methods=['GET','POST'])
+def dashboard():
+    return flask.render_template(
+        'dashboard/index.html',
+        **app.config
+    )
 
 
 #
