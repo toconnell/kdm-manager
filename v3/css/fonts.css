@@ -1,5 +1,3 @@
-@import url(//fonts.googleapis.com/css?family=Ruda);
-
 @font-face {
     font-family: 'kdm-font-2';
     src: url('/media/fonts/kdm-font-2.eot?#iefix') format('embedded-opentype'),
@@ -35,11 +33,6 @@
         url('/media/fonts/329BC2_0_0.ttf') format('truetype');
 }
 
-/* other font declaration/alias stuff - all breakpoints */
-.helvetica {font-family: Helvetica, sans-serif; height: 100%; }
-
-
-
 /* KD icon emulation */
 .kdm_se_card {
     background-image: url('/media/icons/settlement_event.png');
@@ -48,11 +41,3 @@
     background-repeat: no-repeat; 
     background-position: center; 
 }
-
-/*  abstract fonts - new in version 4  */
-.font_tiny {font-size: var(--font-tiny); }
-.font_small {font-size: var(--font-small); }
-.font_medium {font-size: var(--font-medium); }
-.font_large {font-size: var(--font-large); }
-
-

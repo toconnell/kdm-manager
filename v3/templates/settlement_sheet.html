@@ -1471,6 +1471,40 @@
         ng-show='tabsObject.activeTab === 6'
         ng-controller='settlementSheetAdminTabController'
     >
+        <div
+            class="kd_sheet_ui_border_box no_border"
+            ng-if="settlement.sheet.abandoned === undefined"
+        >
+            <h3>Version</h3>
+            <p>
+                Change the version of <i>Monster</i> game assets and rules that
+                are used by this settlement.
+            </p>
+            <p
+                ng-if="
+                    user.user.preferences.show_ui_tips
+                "
+            >
+                Changing this <b>will not</b> alter settlement or survivor data!
+            </p>
+            <select
+                class="kd_kickstarter_select"
+                ng-disabled="
+                    user.user.subscriber.level < 2
+                    && user.user.preferences.beta !== true
+                "
+                ng-model="settlement.sheet.version"
+                ng-options="
+                    version.handle as version.version + ' - ' + version.released_summary for version in settlement.game_assets.versions
+                "
+                ng-change="setVersion()"
+                ng-selected="settlement.sheet.version"
+            >
+            </select>
+            <center>
+                {{settlement.game_assets.versions[settlement.sheet.version].desc}}
+            </center>
+        </div> <!-- set version -->
 
         <!-- ABANDON -->
         <div

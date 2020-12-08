@@ -2,8 +2,6 @@
 /*  fonts   */
 /*          */
 
-@import url(//fonts.googleapis.com/css?family=Ruda);
-
 @font-face {
     font-family: 'Silverado';
     src: url('/media/fonts/329BC2_0_0.eot');
@@ -12,8 +10,6 @@
         url('/media/fonts/329BC2_0_0.woff') format('woff'),
         url('/media/fonts/329BC2_0_0.ttf') format('truetype');
 }
-
-.helvetica {font-family: Helvetica, sans-serif; height: 100%; }
 
 
 /*              */
@@ -28,13 +24,11 @@ html, body {
     padding: 0;
 }
 
-h1 {font-family: 'Silverado';}
-
 a {
     color: inherit;
+    font-weight: bold;
     margin: 0 auto;
     text-decoration: none;
-    font-weight: bold;
 }
 
 button {
@@ -43,31 +37,19 @@ button {
     box-shadow: none;
     color: #fff;
     cursor: pointer;
-    outline: none;
 }
-
-
-
-/* mobile style */
-
-.container {
-    background: radial-gradient(circle, #333, #000);
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    min-height: min-content;
+h1 {
+    font-family: 'Silverado';
+    margin: 0 auto;
+    margin-top: 15%;
 }
-
-h1 {margin: 0 auto; margin-top: 15%;}
 h2 {
     font-size: 1rem;
     font-weight: normal;
     margin: 1rem auto;
     margin-top: 0; 
-    width: 90%;
     text-align: center;  
+    width: 90%;
 } 
 h3 {    /*  version tag */
     font-size: 0.6rem;
@@ -75,18 +57,48 @@ h3 {    /*  version tag */
     right: 3%;
 }
 
-button.sign_up {position: fixed; bottom: 2%; left: 3%; }
-button.help {position: fixed; bottom: 2%; right: 3%; }
 
-.user_inputs {margin: 0 auto; margin-top: 25%; width: 80%; padding: 0; text-align: center; margin-bottom: 25%; }
+
+
+/* mobile style */
+
+.container {
+    background: radial-gradient(circle, #333, #000);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: min-content;
+}
+
+
+button.sign_up {
+    bottom: 2%;
+    left: 3%;
+    position: fixed;
+}
+button.help {
+    bottom: 2%;
+    position: fixed;
+    right: 3%;
+}
+
+.user_inputs {
+    margin: 0 auto;
+    margin-bottom: 25%;
+    margin-top: 25%;
+    padding: 0;
+    text-align: center;
+    width: 80%;
+}
 
 input {
     background-color: #000;
+    box-sizing: border-box; 
     color: #fff;
     font-family: 'Silverado';
-    padding-left: 5%;
     margin: 0 auto;
     margin-bottom: 5%;
+    padding-left: 5%;
     width: 95%;
 }
 input,
@@ -96,8 +108,9 @@ input,
     padding: 3%;
 }
 
-button.submit {width: 100%;}
-
+button.submit {
+    width: 100%;
+}
 .spinner {
     border: 0;
 }
@@ -105,18 +118,41 @@ button.submit {width: 100%;}
     height: 1rem;
 }
 
-.modal {flex-direction: column; display:flex; align-items: center; justify-content: flex-end; }
-.modal p.disclaimer {text-align: left; }
+.modal {
+    align-items: center;
+    display:flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+.modal p.disclaimer {
+    text-align: left;
+}
 .modal_message {
-    text-align: center;
     margin: 0 auto;
     margin-bottom: 3%;
+    text-align: center;
     width: 90%;
 }
-.api_alert {position: absolute; top: 3%; left: 3%; right: 3%; font-size: 250%; padding: 2%; }
+.api_alert {
+    font-size: 250%;
+    left: 3%;
+    padding: 2%;
+    position: absolute;
+    right: 3%;
+    top: 3%;
+}
 
 
-noscript {margin: 0 auto; margin-top: 3%; display: block; background-color: #CC0000; border: 0.2em solid #fff; color: #fff; text-align: center; padding: 1%; }
+noscript {
+    background-color: #CC0000;
+    border: 0.2em solid #fff;
+    color: #fff;
+    display: block;
+    margin: 0 auto;
+    margin-top: 3%;
+    padding: 1%;
+    text-align: center;
+}
 
 
 /*  hide bottom buttons if keyboard is displayed */
@@ -136,10 +172,9 @@ noscript {margin: 0 auto; margin-top: 3%; display: block; background-color: #CC0
 /* tablet style */
 
 @media only screen
-  and (min-device-width: 768px),
-  and (max-device-width: 1024px),
+  and (min-device-width: 768px)
+  and (max-device-width: 1024px)
   and (-webkit-min-device-pixel-ratio: 1) {
-
 
     input, button.submit {width: 55%; }
     button.submit {width: 60%; }
@@ -148,8 +183,8 @@ noscript {margin: 0 auto; margin-top: 3%; display: block; background-color: #CC0
 
     .modal p {margin: 0 auto; width: 70%; }
     .modal p.disclaimer {margin-bottom: 3%; }
-
 }
+
 
 /* wide style */
 
@@ -159,16 +194,32 @@ noscript {margin: 0 auto; margin-top: 3%; display: block; background-color: #CC0
         button.submit {
         width: 35%;
     }
-    button.submit {width: 40%; margin: 0 auto;}
 
-    .spinner {height: auto; margin: 0 auto; }
+    button.submit {
+        margin: 0 auto;
+        width: 40%;
+    }
 
-    .user_inputs {display: flex; flex-direction: column; max-width: 800px; margin-top: 200px; }
+    .spinner {
+        height: auto;
+        margin: 0 auto;
+    }
+
+    .user_inputs {
+        display: flex;
+        flex-direction: column;
+        margin-top: 200px;
+        max-width: 800px;
+     }
 
     .modal {justify-content: center; }
     .modal p {margin-bottom: 4%; }
 
-    .modal_message {width: 50%; display: flex; flex-direction: column; }
+    .modal_message {
+        display: flex;
+        flex-direction: column;
+        width: 50%;
+     }
     .modal_message input {width: 60%; }
     .modal_message button {width: 65%; }
 }
@@ -177,11 +228,16 @@ noscript {margin: 0 auto; margin-top: 3%; display: block; background-color: #CC0
 
 /* general style - all breakpoints - last chance overwrites */
 
+.hidden {display: none; } 
 
-.clickable {cursor: pointer; }
-.hidden {display: none;}
-.kd_promo {color: #fff; background: radial-gradient(circle, #5Dd7F2, #50CAF5, #3FACCF); }
-.kd_alert {background-color: #FF0040; color: #fff; }
+.kd_promo {
+    background: radial-gradient(circle, #5Dd7F2, #50CAF5, #3FACCF);
+    color: #fff;
+}
+.kd_alert {
+    background-color: #FF0040;
+    color: #fff;
+}
 
 .user_inputs {min-height: min-content; }
 .modal {
@@ -195,16 +251,17 @@ noscript {margin: 0 auto; margin-top: 3%; display: block; background-color: #CC0
 }
 
 input {
-  -webkit-transition: all 0.30s ease-in-out;
+  border: 1px solid #000;
   -moz-transition: all 0.30s ease-in-out;
   -ms-transition: all 0.30s ease-in-out;
   -o-transition: all 0.30s ease-in-out;
-  outline: none;
-  border: 1px solid #000;
+  -webkit-transition: all 0.30s ease-in-out;
 }
  
 input:focus {
-  box-shadow: 0 0 20px rgba(255, 238, 81, 1);
-  border: 1px solid rgba(255, 238, 81, 1);
+    border: 1px solid #ffed52;
+    border: 1px solid rgba(255, 238, 81, 1);
+    box-shadow: 0 0 20px rgba(255, 238, 81, 1);
+    outline: none;
 }
 

@@ -12,6 +12,7 @@
 # second party imports
 import flask
 import flask_login
+import requests
 
 # kdm-manager imports
 from app import app, utils
@@ -21,6 +22,8 @@ from app.models import users
 
 #   front matter
 app.logger = utils.get_logger()
+
+
 
 
 #
@@ -33,6 +36,7 @@ def login():
     """ Formerly the stand-alone AngularJS login app; now a part of the unified
     Flask application. """
 
+#    flask.abort(500, 'This is the error!')
     # 1.) check to see if we're resetting a PW and redirect if so
     if flask.request.args.get('recover_password', None) is not None:
         return flask.redirect(
@@ -70,15 +74,15 @@ def login():
     )
 
 
-@flask_login.login_required
 @app.route('/logout')
+@flask_login.login_required
 def logout():
     """ Kills the flask_login 'session' and returns the user to the login. """
     flask_login.logout_user()
-    redirect = flask.redirect(flask.url_for('login'))
-    response = app.make_response(redirect)
-    response.set_cookie('kdm-manager_token', 'None')
-    return response
+    return flask.redirect(flask.url_for('login'))
+
+
+
 
 
 @app.route('/register', methods=['GET','POST'])
@@ -149,20 +153,52 @@ def help():
     )
 
 
+@app.route('/about')
+def about():
+    """ This is currently just a flat page, but we might do some GDPR cookie
+    complaiance stuff here eventually, so it's its own endpoint. """
+    return flask.render_template(
+        'login/about.html',
+        **app.config
+    )
+
+
+
 
 #
 #   views!  (at least, that's what we used to call them)
 #
 
-
-
-@flask_login.login_required
 @app.route('/dashboard', methods=['GET','POST'])
+@flask_login.login_required
 def dashboard():
     return flask.render_template(
         'dashboard/index.html',
         **app.config
     )
+
+
+
+#
+#   error handling
+#
+@app.errorhandler(500)
+def server_explosion(error_msg):
+    """ We sometimes throw a flask.abort(500). """
+    return flask.render_template(
+        'server_explosion.html',
+        error=error_msg,
+        request=flask.request,
+        **app.config
+    ), 500
+
+
+@app.errorhandler(utils.Logout)
+def force_logout(error_msg):
+    """ When the Flask error handler catches a utils.Logout, we need to log
+    the user out immediately. """
+    #flask.flash(error_msg)
+    return flask.redirect(flask.url_for('login'))
 
 
 #
@@ -172,7 +208,7 @@ def dashboard():
 @app.route('/favicon.ico')
 def favicon():
     """ Returns the favicon when working in dev. """
-    return flask.send_from_directory('static/images', 'favicon.png')
+    return flask.send_file('static/media/favicon.ico')
 
 @app.route('/static/<sub_dir>/<path:path>')
 def route_to_static(path, sub_dir):

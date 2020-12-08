@@ -9,7 +9,7 @@
     >
         <span>
             &#9881;  System
-            <span class="font_medium metrophobic">(v{{VERSION}})</span>
+            <span class="font_medium">(v{{VERSION}})</span>
         </span>
         <span
             class="roll_content_arrow"
@@ -30,12 +30,14 @@
             <h3 id="systemPanelUserLogin"> {{current_user.login}} </h3>
 
             <div class="preferences_sub_block preferences_sign_out">
+
                 <button
                     class="kd_kickstarter_button"
-                    ng-click="signOut()"
+                    ng-click="loadURL('/logout')"
                 >
                     SIGN OUT
                 </button>
+
             </div>
 
             <div class="dashboard_preferences_container user_info">
@@ -51,11 +53,11 @@
                 </p>
 
                 <p ng-if="{{current_user.subscriber.level}} > 0">
-                    Subscription level: <b>{a user.user.subscriber.desc a}.</b>
+                    Subscription level: <b>{{ current_user.subscriber.desc }}.</b>
                 </p>
 
                 <p ng-if="{{current_user.subscriber.level}} > 0">
-                    Subscriber for <b>{a user.user.subscriber.age a}.</b>
+                    Subscriber for <b>{{ current_user.subscriber.age }}.</b>
                 </p>
 
                 <p ng-if="{{current_user.preferences.beta}} === true" class="maroon_text">
@@ -63,13 +65,23 @@
                 </p>
 
                 <div class="preferences_sub_block preferences_change_pw">
-                    <p><b>Change Password!</b></p>
+                    <p>
+                        <b>Change Password!</b>
+                    </p>
+
                     <input
+                        class="kd capsule"
                         type="password"
                         ng-model="scratch.password"
                         placeholder="new password"
-                        ng-focus="scratch.saved_password = undefined"/><br/>
-                    <input type="password" ng-model="scratch.password_again" placeholder="new password (again)"><br/>
+                        ng-focus="scratch.saved_password = undefined"
+                    />
+                    <input
+                        class="kd capsule"
+                        type="password"
+                        ng-model="scratch.password_again"
+                        placeholder="new password (again)"
+                    />
                     <button
                         ng-click="updatePassword()"
                         class="kd_kickstarter_button kd_pink"
@@ -77,9 +89,17 @@
                     >
                         Change Password
                     </button>
-                    <p ng-if="scratch.saved_password">Password updated! <b>Signing out...</b></p>
+                    <p
+                        ng-if="scratch.saved_password"
+                    >
+                        Password updated!
+                        <b>Signing out...</b>
+                    </p>
+
                 </div> <!-- preferences_sub_block preferences_change_pw -->
+
             </div> <!-- dashboard_preferences_container user_info -->
+
         </div> <!-- dashboard_preferences_block_container -->
 
         <h3> Manage Preferences</h3>

@@ -8,6 +8,7 @@
 """
 
 # standard library
+from datetime import datetime
 import os
 import socket
 import sys
@@ -17,8 +18,9 @@ class Config(object):
     with open('.api_key', 'r') as file:
         API_KEY = file.read().strip().replace('\n','')
 
+    APP_AGE = int((datetime.now() - datetime(2015, 11, 10)).days / 365)
     APP_NAME = "KDM-Manager"
-    APP_TAG = "The original online campaign manager for Kingdom Death: Monster."
+    APP_TAG = "The original online campaign manager for Kingdom Death: Monster!"
     SESSION_COOKIE_NAME = 'kdm-manager_session'
     DEBUG = True
     DEVELOPMENT = {
@@ -32,7 +34,7 @@ class Config(object):
         'app_fqdn': 'advanced-kdm-manager.c.kdm-manager.internal'
     }
     SECRET_KEY = os.environ.get('SECRET_KEY') or str(sys.path)
-    VERSION = "4.0.000"
+    VERSION = "4.0.2"
 
 
     def __init__(self):

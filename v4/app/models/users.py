@@ -22,7 +22,8 @@ from app import app, login, utils
 @login.user_loader
 def load_user(_id):
     """ Used by flask_login when intializing the app. """
-    return User(_id=_id)
+    if utils.api_preflight():
+        return User(_id=_id)
 
 
 class User(flask_login.UserMixin):
@@ -39,7 +40,12 @@ class User(flask_login.UserMixin):
         # set kwargs to self.whatever
         vars(self).update(kwargs)
 
-        self.load()
+        if hasattr(self, '_id'):
+            self.load()
+
+
+    def __repr__(self):
+        return "[%s (%s)]" % (getattr(self, 'login', 'user'), self._id)
 
 
     def new(self):
@@ -80,6 +86,13 @@ class User(flask_login.UserMixin):
             verify = app.config['API']['verify_ssl'],
             headers = {'Authorization': self.token},
         )
+
+        if response.status_code != 200:
+            self.logger.error('[%s] %s' % (
+                response.status_code, response.reason)
+            )
+            err = "Could not retrieve user %s from KDM API @ %s"
+            raise utils.Logout(err % (self._id, app.config['API']['url']))
 
         user_attribs = utils.convert_json_dict(response.json()['user'])
         for attrib in user_attribs.keys():
@@ -141,6 +154,12 @@ class User(flask_login.UserMixin):
 
         self.token = flask.request.cookies.get('kdm-manager_token')
 
+        if self.token is None or self.token == 'None':
+            err = 'Could not retrieve JWT from cookies!'
+            self.logger.error(err)
+            self.logger.error(flask.request.cookies)
+            flask.abort(500, err)
+
         # set the API endpoint and post the Authorization header to it
         endpoint = app.config['API']['url'] + 'authorization/refresh'
         response = requests.post(
@@ -153,8 +172,6 @@ class User(flask_login.UserMixin):
             self.token = response.json()['access_token']
             return True
 
-        self.logger.error("[%s] Failed to refresh token!" % self)
-        return False
 
 
     def reset_password(self, new_password=None, recovery_code=None):

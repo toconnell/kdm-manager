@@ -644,7 +644,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
         dest.push(s_json);
         var s_index = dest.indexOf(s_json);
 
-        // now spint off a job to get the rest of the settlement info and update
+        // now spin off a job to get the rest of the settlement info and update
         var settlement_url = $scope.api_url + 'settlement/get_summary/' + s_id; 
         $http.get(settlement_url, config).then(
             function(payload) {
@@ -1142,7 +1142,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
             var asset_id = $scope.user_id;
         } else {
             console.error("Collection '" + collection + "' is not supported by postJSONtoAPI method!");  
-            errorAlert();
+            $scope.errorAlert();
             return false;
         };
 
@@ -1173,7 +1173,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
             hideCornerLoader();
         });
         res.error(function(data, status, headers, config) {
-            errorAlert();
+            $scope.errorAlert();
             console.error("postJSONtoAPI('" + endpoint + "') call has FAILED!!!");
             console.error(data);
             $scope.showAPIerrorModal(data, config.url);
@@ -1414,7 +1414,7 @@ app.controller('newSurvivorController', function($scope, $http) {
                 console.timeEnd('createNewSurvivor()');
                 $scope.ngHide('newSurvivorCreationLoader');
 
-                errorAlert();
+                $scope.errorAlert();
 
                 $scope.ngShowHide('newSurvivorCreationFailure');
                 var userSafeError = "status: " + errorPayload.status + "<br/>data: " + errorPayload.data + "<br/>JSON: " + JSON.stringify(errorPayload.config.data);

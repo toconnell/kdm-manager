@@ -6,6 +6,11 @@ echo -e "\nVirtual Envrionment:"
 SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
 start_venv() {
+
+    pushd $SCRIPTPATH > /dev/null
+    LAUNCHTIME=`date +%F' '%T`
+    echo -e "[$LAUNCHTIME] Starting web server..." >> logs/kdm-manager.log
+
     source $SCRIPTPATH/venv/bin/activate
 
     export FLASK_ENV=$1

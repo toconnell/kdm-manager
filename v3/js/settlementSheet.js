@@ -487,4 +487,8 @@ app.controller("settlementSheetAdminTabController", function($scope) {
         };
     };
 
+    $scope.setVersion = function() {
+        $scope.postJSONtoAPI('settlement', 'set_version', {version: $scope.settlement.sheet.version})
+    }
+
 });

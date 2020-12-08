@@ -64,6 +64,8 @@ class meta:
 
         <title>KDM-Manager: $title</title>
 
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ruda&display=swap" />
+
         <link rel="stylesheet" type="text/css" href="/media/style.css?v=$version">
 
         <link rel="stylesheet" type="text/css" href="/css/_base.css?v=$version">
@@ -75,7 +77,7 @@ class meta:
 
         <link rel="stylesheet" type="text/css" href="$api_url/kingdomDeath.css?v=$version">
 
-        <link rel="stylesheet" type="text/css" href="/media/fonts.css?v=$version">
+        <link rel="stylesheet" type="text/css" href="/css/fonts.css?v=$version">
         <link rel="stylesheet" type="text/css" href="/media/settlement_event_log.css?v=$version">
         <link ng-if="user.user !== undefined && user.user.preferences.night_mode === true" rel="stylesheet" type="text/css" href="/media/night_mode.css?v=$version">
     """).safe_substitute(
@@ -259,7 +261,6 @@ def render(view_html, head=[], http_headers=None, body_class=None):
     <!-- angular app -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular-animate.js"></script>
-
 
     <!-- private app -->
     <script src="/js/kdmManager.js?v=%s"></script>

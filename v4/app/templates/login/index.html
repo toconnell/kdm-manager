@@ -10,13 +10,18 @@
 
     <body class="login">
 
-        <div ng-controller="loginController" class="login_container">
+        <div ng-controller="loginController" class="container">
 
-            <h1 class="clickable" ng-click="loadURL('/')">{{APP_NAME}}</h1>
-            <h2 class="clickable" ng-click="loadURL('/')">{{APP_TAG}}</h2>
+            <h1 class="clickable login_splash" ng-click="loadURL('/')">
+                {{APP_NAME}}
+            </h1>
+
+            <h2 class="clickable login_splash" ng-click="loadURL('/')">
+                Online campaign manager
+            </h2>
 
             <h3
-                class="version_tag"
+                class="login_version_tag font_small"
                 ng-class="{
                     'kd_red_text':
                         latestRelease && latestRelease.versionString !== '{{VERSION}}',
@@ -54,69 +59,82 @@
 
         <div
             id="apiLoading"
-            class="user_inputs"
+            class="login_lantern_loader"
             ng-if="apiStat === undefined"
         >
             <img class="spinner" src="/static/media/loading_lantern.gif">
-            <center>Contacting the KDM API...</center>
+            <center>Contacting the KD:M API...</center>
         </div>
 
         <div
-            id="apiFailed"
-            class="user_inputs"
-            ng-if="apiStat === false"
+            id="lanternLoading"
+            class="login_lantern_loader hidden"
         >
-            <div class="modal_message">
-                <p>https://KDM-Manager.com is currently down for maintenance!</p>
-                <p>Visit <a href="https://downtime.kdm-manager.com" target="top">
-                the Manager's Downtime site</a> for more information about outages,
-                downtime and maintenance.</p>
-
-                <p>&nbsp;</p>
-                <p>Please try again later.</p>
-                <p>&nbsp;</p>
-            </div>
+            <img class="spinner" src="/static/media/loading_lantern.gif">
+            <center>...loading...</center>
         </div>
 
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div id="loginFlashContainer" class="rule alert">
-                    {% for message in messages %}
-                        <div>{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
+        <div
+            class="login_downtime_warning"
+            ng-if="apiStat === false"
+        >
+            <p>
+                ...is currently down for maintenance!
+            </p>
+            <p>
+                Visit <a href="https://downtime.kdm-manager.com" target="top">
+                the Manager's Downtime site</a> for more information about outages,
+                downtime and maintenance.
+            </p>
+            <p>Please try again later.</p>
+        </div>
+
 
 
         {% block content %}
         {% endblock %}
 
 
-        {% if active_page != 'register' %}
-            <div
-                class="login_index_register_button"
-            >
-                <a 
-                    href="/register"
-                    ng-if="apiStat !== undefined && apiStat !== false"
-                >
-                    Not registered? <b>Sign Up</b>.
-                </a>
-            </div>
-        {% endif %}
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div id="loginFlashContainer" class="kd_red_text">
+                    {% for message in messages %}
+                        {{ message }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
 
-        {% if active_page != 'help' %}
-            <div
-                class="login_index_help_button"
-            >
-                <a 
-                    href="/help"
-                >
-                    Help!
-                </a>    
-            </div>
-        {% endif %}
+
+        <div
+            class="login_footer_container"
+        >
+            {% if active_page != 'signin' %}
+                <a href="/">
+                    Sign in
+                </a>
+            {% endif %}
+            {% if active_page != 'register' %}
+                <div>
+                    <a 
+                        href="/register"
+                        ng-if="apiStat !== undefined && apiStat !== false"
+                    >
+                        Not registered? <b>Sign Up</b>.
+                    </a>
+                </div>
+            {% endif %}
+
+            {% if active_page != 'help' %}
+                <div>
+                    <a 
+                        href="/help"
+                    >
+                        Help!
+                    </a>    
+                </div>
+            {% endif %}
+        </div>
 
       </div> <!-- container -->
 

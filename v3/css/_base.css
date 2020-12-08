@@ -79,6 +79,14 @@ input[type="number"]::-webkit-outer-spin-button,
 
 p {margin: 3%; }
 
+
+/*  abstract fonts - new in version 4  */
+.font_tiny {font-size: var(--font-tiny); }
+.font_small {font-size: var(--font-small); }
+.font_medium {font-size: var(--font-medium); }
+.font_large {font-size: var(--font-large); }
+
+
 /*  major UI stuff; sfx; consistency,etc.    */
 .capitalize {text-transform: capitalize;}
 .clickable {
@@ -177,7 +185,10 @@ button:active,
 
 
     /*  saved, loading and spinner stuff   */
-
+.tiny_loader,
+    .tiny_loader img {
+    height: 1rem;
+}
 .capsule_alert {
     left: 50%;
     max-width: 75%;
@@ -298,6 +309,83 @@ button:active,
     text-transform: lowercase;
 } 
 
+/*  login.html  */
+
+body.login {
+    background: var(--color-kd-black-gradient);
+    background-color: #000;
+    color: #fff;
+}
+body.login div.container {
+    align-items: center; 
+    display: flex;
+    flex-direction: column;
+    min-height: 100%; 
+}
+.login_splash {
+    font-weight: normal;
+    margin: 0; 
+    text-align: center; 
+    text-transform: uppercase;
+}
+h1.login_splash {
+    margin-top: 6rem;
+}
+h2.login_splash {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    margin-top: 0.5rem;
+}
+.login_subhead {
+    font-weight: normal;
+    text-align: center; 
+    width: 75%;
+}
+.login_version_tag {
+    position: absolute;
+    right: 3%;
+}
+.login_lantern_loader img {
+    margin: 1rem; 
+}
+.login_downtime_warning {
+    margin: 1rem 0 5rem 0;
+    width: 75%; 
+}
+.login_field_error {
+    margin: -1rem 0 0 0;
+    text-align: center;
+}
+.login_inputs_container {
+    margin-top: 3rem;
+    width: 75%;  
+}
+.login_inputs_container input[type="submit"] {
+    margin: 2rem auto auto auto; 
+    width: -webkit-fill-available; 
+}
+.login_inputs_container input[type="email"],
+.login_inputs_container input[type="text"],
+    .login_inputs_container input[type="password"] {
+    background-color: #000;
+    border: 0; 
+    font-family: 'Silverado';
+    font-size: var(--font-large);
+    margin: 0 0 1rem 0;
+    padding-left: 1rem; 
+    text-align: left;
+}
+.login_about_p {
+    text-align: left;
+    width: 90%; 
+}
+.login_footer_container {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    margin: 7rem auto 1rem auto; 
+    width: 90%;
+}
 
 /*  gear_lookup.html    */
 .gear_card_container {
@@ -604,6 +692,9 @@ button:active,
     height: fit-content; 
     margin: 3%;
 }
+.kd_sheet_ui_border_box.no_border {
+    border: none;
+}
 .kd_sheet_ui_row_tip,
     .kd_sheet_ui_row.tooltip {  /* these are tooltips */
     padding: 1%;
@@ -866,27 +957,6 @@ button:active,
 }
 
 
-/*  kd rulebook UI  */
-.kd_rulebook_alert {
-    margin: 5% auto;
-    width: 90%;
-    border-radius: 5vw;
-    padding: 1%;
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
-    padding-right: 10%;
-    box-sizing: border-box; 
-}
-.kd_rulebook_alert_punctuation {
-    padding-left: 3%; 
-    padding-right: 3%; 
-    font-size: 15vw;
-    font-weight: bold;
-    width: 10%; 
-}
-.kd_rulebook_alert_content {text-align: justify; }
-
 /*                                      */
 /*  modal - re-usable modal elements    */
 /*                                      */
@@ -908,6 +978,17 @@ button:active,
     right: 0%;
     width: 90%;
     padding: 3%;
+}
+
+.modal_control_overlay {    /*  used by the timeline */
+    background: var(--color-modal-blackout);
+    bottom: 0; 
+    left: 0;
+    overflow-y:scroll;
+    overflow-x:hidden;
+    position: fixed;
+    right: 0;
+    top: 0;
 }
 
 
@@ -977,6 +1058,13 @@ button:active,
 
 .dashboard_bg_art {
     display: none;
+}
+.tlv_about_logo {
+    display: block;
+    margin: 0 auto;
+    margin-bottom: 2vh;
+    margin-top: 3vh;
+    width: 70%;
 }
 
 /*  dashboard_rollup styles (the clickers on the dash) */
@@ -1059,9 +1147,10 @@ button:active,
     margin: 3%;
     margin-right: 0; 
 } 
-.dashboard_settlement_list_settlement_name {
+.dashboard_settlement_launch_button_settlement_name {
     font-size: 1.5em;
     font-family: 'Silverado';
+    font-weight: bold; 
 }
 .dashboard_preference_elections_container {
     display: flex;
@@ -2627,52 +2716,6 @@ h3.new_survivor_sheet {
     text-align-last:center;
     width: 10vh;
 }
-
-/* vvv DELETE ALL OF THIS vvvv */
-.survivor_sheet_survivor_notes_slug_line_container {
-    display: flex;
-    flex-direction: column;
-    margin: 0 auto;
-    margin-bottom: 5%;
-}
-.survivor_sheet_survivor_notes_slug_line {
-    border-bottom: 1px solid;
-    display: flex;
-    flex-wrap:nowrap;
-    margin: 3%; 
-    min-height: 5vh;
-}
-.survivor_sheet_survivor_notes_slug_line.clickable {
-    font-style: italic; 
-}
-.survivor_sheet_rm_note_clicker {
-    align-items: center;
-    border-radius: 1vw;
-    display: flex;
-    font-size: 10vw; 
-    font-weight: bold;
-    justify-content: center;
-    margin: 1%; 
-    margin-right: 3%;
-    width: 25%; 
-}
-.survivor_sheet_note_text {
-    width: 100%; 
-}
-.survivor_sheet_note_text.active {
-    width: 75%
-}
-.survivor_sheet_survivor_notes_input {
-    background: inherit;
-    border: 0;
-    color: inherit; 
-    font-family: 'Silverado';
-    font-size: 1.5em;
-    margin: 5%; 
-    min-height: 25vh; 
-    padding: 1%;
-}
-/* ^^^ DELETE ALL OF THIS ^ */
 
     /* cursed items!? */
 .cursed_items_flex_container {

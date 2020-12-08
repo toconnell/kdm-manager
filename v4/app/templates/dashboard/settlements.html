@@ -1,32 +1,43 @@
+<!-- settlements -->
 <div
     id="all_settlements_panel"
     class="dashboard_menu all_settlements_panel"
 >
+
     <h2
         class="clickable settlement_sheet_gradient dashboard_rollup"
         ng-click="rollUp('settlementsDiv');"
         ng-class="{'open': ngRolledUp['settlementsDiv'] === false}"
     >
+
         <span>
             &#9874; Settlements
         </span>
+
         <span
             class="roll_content_arrow"
             ng-class="{'open': ngRolledUp['settlementsDiv'] === false}"
         >
             &#x25BC;
         </span>
+
     </h2>
 
     <div
         id="settlementsDiv"
         class="roll_down_container dashboard_accordion settlement_sheet_gradient rolled_up"
-        ng-class="{'rolled_down': ngRolledUp['settlementsDiv'] === false}"
+        ng-class="
+            {'rolled_down': ngRolledUp['settlementsDiv'] === false}
+        "
     >
-        <p class="panel_top_tooltip"settlementsettlements you have created.</p>
+
+        <p class="panel_top_tooltip">
+            Settlements you have created.
+        </p>
+
         <p
             class="panel_top_tooltip"
-            ng-if="user.user.subscriber.level < 1"
+            ng-if="{{current_user.subscriber.level}} < 1"
         >
             Non-subscriber users may create up to three settlements:
             <a href="https://thelaborinvain-2.myshopify.com/" target="top">
@@ -35,7 +46,12 @@
         </p> <!-- subscribers alert -->
 
         <!-- warning for free users re: settlement max -->
-        <p ng-if="user.user.subscriber.level < 1 && user.user.settlements_created === 3">
+        <p
+            ng-if="
+                {{current_user.subscriber.level}} < 1 &&
+                {{current_user.settlements_created}} === 3
+            "
+        >
             To create additional settlements, use the link above to become 
             a subscriber to the Manager. Alternately, you may wish to remove
             one of your existing settlements. To do this, click on "System"
@@ -43,8 +59,16 @@
             use the "Remove" button on the Settlement Sheet to remove one
             of your existing settlements.
         </p>
-        <p ng-if="user.user.subscriber.level < 1 && user.user.settlements_created === 3">
-            <b>Important!</b> Abandoned settlements are not considered to have been <i>removed</i> and count towards your total number of settlements!
+
+        <p
+            ng-if="
+                {{current_user.subscriber.level}} < 1 &&
+                {{current_user.settlements_created}} === 3
+            "
+        >
+            <b>Important!</b> Abandoned settlements are not considered to have
+            been <i>removed</i> and count towards your total number of
+            settlements!
         </p>
 
 
@@ -53,8 +77,8 @@
             method="POST"
             action=""
             ng-if="
-                user.dashboard.settlements.length < 3 ||
-                user.user.subscriber.level > 0
+                {{current_user.settlements_created}} < 3 ||
+                {{current_user.subscriber.level}} > 0
             "
         >
             <input type="hidden" name="change_view" value="new_settlement" />
@@ -67,55 +91,27 @@
             </button>
         </form>
 
-        <div class="dashboard_button_list">
-
-            <form
-                ng-repeat="s in settlements"
-                method="POST"
-            >
-                <input type="hidden" name="view_settlement" value="{a s.sheet._id.$oid a}" />
-                <button
-                    class="dying_lantern dashboard_settlement_list_settlement_button"
-                    onclick="showFullPageLoader(); this.form.submit()"
-                >
-                    <b class="dashboard_settlement_list_settlement_name">{a s.sheet.name a}</b>
-                    <span class="maroon_text" ng-if="s.sheet.abandoned != undefined">[ABANDONED]</span>
-                    <br/><i>{a s.campaign_pretty a}</i>
-                    <ul class="dashboard_settlement_list_settlement_attribs">
-                        <li ng-if="s.meta != undefined"><i>Created:</i> {a s.meta.age a} ago</li>
-                        <li>
-                            <span ng-if="s.sheet.expansions.length > 0">
-                                {a s.sheet.expansions.length a} expansions
-                            </span>
-                            <span ng-if="s.sheet.expansions.length > 0 && s.meta != undefined">
-                                /
-                            </span>
-                            <span ng-if="s.meta != undefined">
-                                {a s.meta.player_email_list.length a} player(s)
-                            </span>
-                        </li>
-                        <li><i>LY:</i> {a s.sheet.lantern_year a}</li>
-                        <li><i>Population:</i> {a s.sheet.population a}</li>
-                        <li><i>Deaths:</i> {a s.sheet.death_count a}</li>
-                        <li ng-if="s.meta.player_email_list.length >= 2"><i>Admins:</i> {a s.sheet.admins.join(',') a}</li>
-                        <li ng-if="s.meta.player_email_list.length >= 2"><i>Players:</i> {a s.meta.player_email_list.join(', ') a}</li>
-                    </ul>
-                </button>
-            </form>
-
+        <div
+            class="dashboard_button_list"
+            ng-if="dashboard.user.campaigns !== undefined"
+        >
             <div
-                id="dashboardSettlementsLoader"
-                class="dashboard_settlement_loader"
-                ng-if="settlements.length < user.dashboard.settlements.length"
+                ng-repeat="s in dashboard.user.campaigns | orderBy: '-'"
+                ng-if="s.abandoned === undefined"
+                ng-click="
+                    showFullPageLoader();
+                    loadURL('/settlement/' + s._id.$oid);
+                "
+                class="dying_lantern dashboard_settlement_list_settlement_button"
             >
-                <img
-                    src="/media/loading_lantern.gif"
-                    alt="Retrieving settlements..."
-                /> Retrieving settlements...
-            </div>
 
+                {%  set settlement_button_type = 'settlement' %}
+                {%  include 'dashboard/settlement_launch_button.html' %}
+
+            </div>
 
         </div> <!-- dashboard_button_list -->
 
     </div> <!-- all_settlements_div -->
+
 </div> <!-- all_settlements_panel -->

@@ -139,6 +139,7 @@
         position: fixed;
         right: 0;
     }
+    .tlv_about_logo {width: 40%; }
 
     .dashboard_rollup {
         margin-top: 3%; 

@@ -1,0 +1,85 @@
+<!-- this 'stub' goes inside of the repeater div -->
+
+<span
+    class = "hidden"
+    ng-if="dashboard.settlements[s._id.$oid] !== undefined"
+    ng-init="
+        initializedSettlement = dashboard.settlements[s._id.$oid];
+        s.sheet = initializedSettlement.sheet;
+        s.meta = initializedSettlement.meta;
+        s.loadError = initializedSettlement.error;
+    "
+>
+    HACK CITY
+</span>
+
+<div
+    class="dashboard_settlement_launch_button_settlement_name"
+>
+    {a s.name a}
+</div>
+
+<div
+    class="dashboard_settlement_launch_button_campaign_name"
+>
+    <i ng-if="s.sheet === undefined" >
+        {a toTitle(s.campaign) a}
+    </i>
+
+    <i ng-if="s.sheet !== undefined">
+        {a s.sheet.campaign_pretty a}
+    </i>
+</div>
+
+<div
+    class="dashboard_settlement_launch_button_error_container"
+    ng-if="s.loadError !== undefined"
+    title="{a s.loadError a}"
+>
+    <div class="kd_red_text">
+        <b>Error!</b>
+    </div>
+    <div>
+        This settlement exists, but attempting to retrieve additional
+        information about it from the API resulted in an error.
+    </div>
+    <div>
+        You may attempt to launch the settlement in spite of this, but please
+        report any errors using the Manager's navigation bar.
+    </div>
+</div>
+
+<div
+    ng-if="s.loadError === undefined"
+>
+    <span
+        class="maroon_text"
+        ng-if="s.abandoned !== undefined"
+    >
+        [ABANDONED]
+    </span>
+
+    <ul class="dashboard_settlement_list_settlement_attribs">
+        <li ng-if="s.sheet.expansions.length > 0">
+            {a s.sheet.expansions.length a} expansions
+        </li>
+        <li ng-if="s.meta != undefined && s.meta.creator_email != user_login">
+            <i>Created by:</i>{a s.meta.creator_email a}
+        </li>
+        <li ng-if="s.meta.age !== undefined">
+            <i>Started:</i> {a s.meta.age a} ago
+        </li>
+        <li>
+        <i>LY:</i> {a s.lantern_year a} &nbsp;
+        <i>Survivors:</i> {a s.population a}
+    </li>
+    <li ng-if="s.meta.player_email_list.length >= 2">
+        <i>Players:</i> {a s.meta.player_email_list.join(', ') a}
+    </li>
+
+    {% if settlement_button_type == 'settlement' %}
+
+    {% endif %}
+
+</ul>
+

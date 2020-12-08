@@ -1,0 +1,62 @@
+{% extends "login/index.html" %}
+{% set active_page = 'about' %} 
+
+{% block content %}
+
+    <p class="login_about_p">
+        <b>{{APP_NAME}}</b>
+        <span ng-if="latestRelease.versionString">
+            (v.{a latestRelease.versionString a})
+        </span>
+        is an interactive campaign management tool
+        for use with <i><a href="https://shop.kingdomdeath.com" target="top">
+        Monster</a></i>, by
+        <a href="https://kingdomdeath.com" target="top">Kingdom Death</a>,
+
+        and is powered by 
+        <a href="http://api.kdm-manager.com" target="top">
+            the KD:M API</a><span ng-if="apiStat.meta.api.version">
+            (v.{a apiStat.meta.api.version a})</span>.
+    </p>
+
+    <p class="login_about_p">
+        Both {{APP_NAME}} and the KD:M API are developed, published and
+        provisioned by
+        <a href="https://thelaborinvain.com">The Labor in Vain.</a>
+    </p>
+
+    <p class="login_about_p">
+        More information about this software, including complete release
+		notes, is available on
+        <a href="https://blog.kdm-manager.com" target="top">
+            the development blog</a>.
+    </p>
+
+	<h3>Important!</h3>
+    <p class="login_about_p">
+        The <b>{{APP_NAME}}</b> service is not
+        maintained, authorized or in any other way supported by or
+        affiliated with <a href="http://kingdomdeath.com" target="top">
+        Kingdom Death</a> or Adam Poots Games, LLC.
+    </p>
+
+    <h3>{a apiStat.meta.info.license.type a}</h3>
+    <p class="login_about_p" ng-if="apiStat">
+        &copy; {a apiStat.meta.info.copyright a}
+    </p>
+    <p
+        class="login_about_p"
+        ng-if="apiStat"
+    >
+        View the complete software license for {{APP_NAME}}
+        <a href="{a apiStat.meta.info.license.url a}" target="top">
+        on Github</a>, where complete source code for this software may
+        be obtained.
+    </p>
+    <p
+        class="login_about_p"
+        ng-bind-html="apiStat.meta.info.license.disclaimer"
+    >
+    </p>
+
+{% endblock %}

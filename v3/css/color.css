@@ -317,6 +317,14 @@ input:active {  /* this is our on-click effect color */
 .Speed, .spd_token {background-color: #8C9A65; color: #fff; }
 
 
+/*
+        login.html
+*/
+.login_field_error {
+    color: var(--color-kd-red);
+}
+
+
 /*  DASHBOARD   */
 
 .dashboard_welcome_modal {

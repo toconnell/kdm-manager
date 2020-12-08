@@ -110,13 +110,14 @@
             <div
                 id="campaignSummaryNoSurvivorsError"
                 ng-if="settlement.user_assets.survivors.length == 0"
-                class="kd_rulebook_alert"
+                class="kd pink rulebook_warning"
             >
-                <div class="kd_rulebook_alert_punctuation">!</div>
-                <div class="kd_rulebook_alert_content">
-                    <b>{{settlement.sheet.name}}</b> does not have any survivors!
-                    Use the navigation menu controls in the upper left to add new survivors.
-                </div>
+                <span>
+                    <b>{{settlement.sheet.name}}</b> does not have any
+                    survivors!
+                    Use the navigation menu controls in the upper left to add
+                    new survivors.
+                </span>
             </div>
 
 

@@ -7,12 +7,14 @@
 
 # standard lib
 from datetime import datetime
+import functools
 import logging
 import os
 import sys
 
 # second party
 from bson.objectid import ObjectId
+import requests
 
 # application imports
 from app import app
@@ -75,3 +77,32 @@ def get_logger(log_level=None, log_name=None):
         logger.addHandler(logger_fh)
 
     return logger
+
+
+#
+#   misc.
+#
+
+def api_preflight():
+    """ Pings the API; returns true if it's alive. """
+    endpoint = app.config['API']['url'] + 'stat'
+    try:
+        requests.get(
+            endpoint,
+            verify = app.config['API']['verify_ssl']
+        )
+    except requests.exceptions.ConnectionError as e:
+        return False
+    return True
+
+
+#
+#   Custom exceptions
+#
+
+class Logout(Exception):
+
+    def __init__(self, message=None, status_code=500):
+        self.logger = get_logger(log_name='errors')
+        self.logger.error(message)
+        self.logger.warn('Forcing logout...')

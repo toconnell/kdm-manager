@@ -3,67 +3,76 @@
 
 {% block content %}
 
-    <div
-        id="help_controls"
-        ng-controller="loginController"
-        ng-init="resetPasswordRequest = {};"
+    <!-- default message -->
+    <p
+        id="requestPasswordResetDefaultMessage"
+        class="login_subhead"
+        ng-if="apiStat"
     >
-        <div
-            id="requestPasswordResetContainer"
-            ng-if="apiStat !== undefined && apiStat !== false"
+        Enter your email address below to recieve an email with instructions on
+        how to recover your account:
+    </p>
+
+    <!-- failure -->
+    <p 
+        id="requestPasswordResetErrorMessage"
+        class="login_subhead hidden"
+    >
+        The email address <b>{a resetPasswordRequest.badEmail a}</b>
+        does not appear to be a registered email address.
+    </p>
+
+    <!-- success -->
+    <p
+        class="login_subhead"
+        ng-if="resetPasswordRequest.successful === true"
+    >
+        Success!
+    </p>
+    <p
+        class="login_subhead"
+        ng-if="resetPasswordRequest.successful === true"
+    >
+        An email containing further instructions has been sent to
+        <b>{a resetPasswordRequest.email a}</b>.
+    </p>
+    <p
+        class="login_subhead"
+        ng-if="resetPasswordRequest.successful === true"
+    >
+        Please allow a few minutes for it to arrive and be sure to check
+        your junk/spam folder!
+    </p>
+    <p
+        class="login_subhead"
+        ng-if="resetPasswordRequest.successful === true"
+    >
+         Thanks for using the Manager!
+    </p>
+
+    <!-- request controls -->
+    <div
+        id="requestPasswordResetContainer"
+        class="login_inputs_container"
+        ng-if="apiStat !== undefined && apiStat !== false"
+    >
+
+        <input
+            type="email"
+            placeholder="Email"
+            class="kd capsule full_width"
+            ng-model="resetPasswordRequest.email"
+        />
+
+        <button
+            class="kd capsule full_width pink font_large"
+            ng-click="requestPasswordReset()"
+            ng-disabled="!resetPasswordRequest.email"
         >
-            <p id="requestPasswordResetDefaultMessage">
-                Forgot your password? Enter your email address below and
-                click "Reset Password" to recieve an email with instructions on
-                how to reset it:
-            </p>
+            Reset Password
+        </button>
 
-            <div id="requestPasswordResetErrorMessage" class="hidden">
 
-                <p>
-                    The email address <b>{a resetPasswordRequest.badEmail a}</b>
-                    does not appear to be a registered email address.
-                </p>
-                <p>
-                    Please try again.
-                </p>
-
-            </div>
-
-            <input
-                type="email"
-                placeholder="Email"
-                class="email"
-                ng-model="resetPasswordRequest.email"
-            />
-
-            <button
-                class="kd_kickstarter_button kd_pink"
-                ng-click="requestPasswordReset()"
-                ng-disabled="!resetPasswordRequest.email"
-            >
-                Reset Password
-            </button>
-
-        </div>
-
-        <div
-            id="requestPasswordResetSuccessMessage"
-            class="hidden"
-        >
-            <p>Success!</p>
-            <p>
-                An email containing further instructions has been sent to
-                <b>{a resetPasswordRequest.email a}</b>.
-            </p>
-            <p>
-                Please allow a few minutes for it to arrive and be sure to check
-                your junk/spam folder!
-            </p>
-            <p>
-                Thanks for using the Manager!
-            </p>
-        </div>
 
         <div
             id="requestPasswordResetSpinner"
@@ -72,42 +81,14 @@
             <img src="/static/media/loading_lantern.gif" />
         </div>
 
-        <h4>Important Information:</h4>
+    </div><!-- login_inputs_container -->
 
-        <p class="disclaimer">
-            <b>{{APP_NAME}}</b>
-            <span ng-if="latestRelease.versionString">
-                (v.{a latestRelease.versionString a})
-            </span>
-            is an interactive campaign management tool
-            for use with <i><a href="https://shop.kingdomdeath.com" target="top">
-            Monster</a></i>, by
-            <a href="https://kingdomdeath.com" target="top">Kingdom Death</a>.
-        </p>
 
-        <p class="disclaimer">
-            The <b>{{APP_NAME}}</b> service uses the
-            <a href="http://api.kdm-manager.com" target="top">
-                the KD:M API</a><span ng-if="apiStat.meta.api.version"> 
-                (v.{a apiStat.meta.api.version a})</span>,
-                which is developed, published and provisioned by 
-            <a href="https://thelaborinvain.com">The Labor in Vain.</a>
-        </p>
-
-        <p class="disclaimer">
-            The <b>{{APP_NAME}}</b> service is not
-            maintained, authorized or in any other way supported by or
-            affiliated with <a href="http://kingdomdeath.com" target="top">
-                Kingdom Death</a> or Adam Poots Games, LLC.
-        </p>
-        <p class="disclaimer">
-            More information is available on
-            <a href="https://blog.kdm-manager.com" target="top">
-                the development blog</a>.
-        </p>
-        
-        <p>&nbsp;</p>
-
-    </div>
+    <p class="login_subhead" ng-if="resetPasswordRequest.successful !== true">
+        For more information about this application, including information about
+        privacy, usage and intellectual property,
+        <a href="/about">
+            please click here</a>.
+    </p>
 
 {% endblock %}

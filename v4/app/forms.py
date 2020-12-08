@@ -53,6 +53,7 @@ class RegisterForm(flask_wtf.FlaskForm):
         validators.EqualTo('confirm', message='Passwords must match!')
     ])
     confirm = PasswordField('Password (again)')
+    remember_me = REMEMBER
 
     submit = SubmitField('Register')
 
@@ -68,5 +69,6 @@ class ResetForm(flask_wtf.FlaskForm):
         validators.EqualTo('confirm', message='Passwords must match!')
     ])
     confirm = PasswordField('New password again')
+    remember_me = REMEMBER
 
     submit = SubmitField('Reset password')

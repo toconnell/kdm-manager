@@ -1,5 +1,6 @@
 <!-- campaigns -->
 <div class="dashboard_menu">
+
     <h2
         class="clickable campaign_summary_gradient dashboard_rollup"
         ng-click="
@@ -10,15 +11,18 @@
         "
         ng-class="{'open': ngRolledUp['campaignsDiv'] === false}"
     >
+
         <span>
             &#9873; Campaigns
         </span>
+
         <span
             class="roll_content_arrow"
             ng-class="{'open': ngRolledUp['campaignsDiv'] === false}"
         >
             &#x25BC;
         </span>
+
     </h2>
 
     <div
@@ -26,60 +30,56 @@
         class="roll_down_container dashboard_accordion campaign_summary_gradient"
         ng-class="{'rolled_down': ngRolledUp['campaignsDiv'] === false}"
     >
-        <p class="panel_top_tooltip">Games you are currently playing.</p>
-        <p
-            class="panel_top_tooltip"
-            ng-if="user.user.subscriber.level < 1"
-        > Campaigns created by non-subscribers are automatically removed after six months.
-            <a href="https://thelaborinvain-2.myshopify.com/" target="top">
-                Purchase a subscription to the Manager</a>
-            to store your campaigns permanently!
-        </p> <!-- subscribers alert -->
+
+        <p class="panel_top_tooltip">
+            Games you are currently playing.
+        </p>
 
         <p
-            ng-if="user.user.subscriber.level < 1 && user.user.settlements_created === 3"
+            class="panel_top_tooltip"
+            ng-if="{{current_user.subscriber.level}} < 1"
+        >
+            Campaigns created by non-subscribers are automatically removed
+            automatically after six months.
+            <a
+                href="https://thelaborinvain-2.myshopify.com/"
+                target="top"
+            >
+                Purchase a subscription to the Manager</a>
+                to store your campaigns permanently!
+        </p>
+
+        <p
+            ng-if="
+                {{current_user.subscriber.level}} < 1 &&
+                {{current_user.settlements_created}} === 3
+            "
             class="kd_red_text"
         >
             <b>Non-subscriber settlement limit reached!</b>
         </p>
 
-        <div class="dashboard_button_list">
-
-            <form
-                ng-repeat="s in campaigns | orderBy: '-'"
-                ng-if="s.sheet.abandoned == undefined"
-                method="POST"
-            >
-                <input type="hidden" name="view_campaign" value="{a s.sheet._id.$oid a}" />
-                <button
-                    class="dying_lantern dashboard_settlement_list_settlement_button"
-                    onclick="showFullPageLoader(); this.form.submit()"
-                >
-                    <b class="dashboard_settlement_list_settlement_name">{a s.sheet.name a}</b>
-                    <br/><i>{a s.sheet.campaign_pretty a}</i>
-                    <ul class="dashboard_settlement_list_settlement_attribs">
-                        <li ng-if="s.meta != undefined && s.meta.creator_email != user_login"><i>Created by:</i>{a s.meta.creator_email a}</li>
-                        <li ng-if="s.meta != undefined"><i>Started:</i> {a s.meta.age a} ago</li>
-                        <li><i>LY:</i> {a s.sheet.lantern_year a} &nbsp; <i>Survivors:</i> {a s.sheet.population a}</li>
-                        <li ng-if="s.meta.player_email_list.length >= 2">
-                            <i>Players:</i> {a s.meta.player_email_list.join(', ') a}
-                        </li>
-                    </ul>
-                </button>
-            </form>
+        <div
+            class="dashboard_button_list"
+            ng-if="dashboard.user.campaigns !== undefined"
+        >
 
             <div
-                id="dashboardCampaignsLoader"
-                class="dashboard_settlement_loader"
-                ng-if="campaigns.length < user.dashboard.campaigns.length"
+                ng-repeat="s in dashboard.user.campaigns | orderBy: '-'"
+                ng-if="s.abandoned === undefined"
+                ng-click="
+                    showFullPageLoader();
+                    loadURL('/campaign_summary/' + s._id.$oid);
+                "
+                class="dying_lantern dashboard_settlement_list_settlement_button"
             >
-                <img
-                    src="/media/loading_lantern.gif"
-                    alt="Retrieving settlements..."
-                /> Retrieving campaigns...
+                {%  set settlement_button_type = 'campaign' %}
+                {%  include 'dashboard/settlement_launch_button.html' %}
+    
             </div>
 
+        </div><!-- dashboard_button_list -->
 
-        </div>
-    </div>
-</div>
+    </div><!-- campaignsDiv -->
+
+</div><!-- .dashboard_menu -->

@@ -1,9 +1,15 @@
 {% extends "login/index.html" %}
+{%  set active_page='signin' %}
 
 {% block content %}
 
+    <h3 class="font_medium login_subhead" ng-if="apiStat">
+        {{APP_TAG}}
+    </h3>
+
     <form
         id="signInControls"
+        class="login_inputs_container"
         ng-if="apiStat"
         action=""
         method="post"
@@ -13,26 +19,32 @@
         {{ form.hidden_tag() }}
 
         <p>
-            {{ form.username(autofocus='autofocus', placeholder='email') }}
+            {{
+                form.username(
+                    class_='kd capsule full_width',
+                    autofocus='autofocus',
+                    placeholder='email'
+                )
+            }}
             {% for error in form.username.errors %}
-                <div class="login_field_error">[{{ error }}]</div>
+                <div class="login_field_error">{{ error }}</div>
             {% endfor %}
         </p>
     
         <p>
-            {{ form.password(placeholder='password') }}
+            {{ form.password(class_='kd capsule full_width', placeholder='password') }}
             {% for error in form.password.errors %}
-                <div class="login_field_error">[{{ error }}]</div>
+                <div class="login_field_error">{{ error }}</div>
             {% endfor %}
         </p>
 
         <p class="login_remember_me">
             {{ form.remember_me() }}
-            {{ form.remember_me.label(class_='kd') }}
+            {{ form.remember_me.label() }}
         </p>
 
         <p>
-            {{ form.submit(class_='kd') }}
+            {{ form.submit(class_='kd capsule full_width blue font_large') }}
         </p>
 
     </form>

@@ -242,11 +242,10 @@ pre { white-space: pre-wrap; }
 .help_container h4 {margin-left: 2%; margin-bottom: 1%; }
 .help_modal_tip_repeater {margin: 2%; margin-left: 3%; }
 .help_modal_tip_repeater .kd_sheet_ui_box {margin-left: 1%; margin-right: 1%; }
-.help_modal_tip_repeater.kpi {background-color: #ffefef; padding: 2%; text-align: justify; font-size: 30pt; }
+.help_modal_tip_repeater.kpi {background-color: #ffefef; padding: 2%; text-align: justify; }
 .help_modal_expansion_tips_container {break-inside: avoid;}
 .webapp_alert_detail_bar {display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; padding: 1%; padding-right: 2%;  }
-.webapp_alert_detail_bar .type_stamp {font-size: 25pt; }
-.webapp_alert_detail_bar .date_stamp {font-size: 25pt; font-style: italic; }
+.webapp_alert_detail_bar .date_stamp { font-style: italic; }
 
 /* gear lookup - mobile */
 input[type="radio"].gear_lookup_attrib_toggle {display: inherit;}
@@ -498,7 +497,6 @@ button.tiny_button {padding: 5px; font-size: 70%; margin: auto; margin-top: 40px
 
 
 /*  dashboard styles */
-.tlv_about_logo {width: 70%; display: block; margin: 0 auto; margin-top: 3vh; margin-bottom: 2vh; }
 
 .dashboard_user_collection_repeater {margin: 5%; border-radius: 0.1em; background: rgba(255,255,255,0.5); padding-bottom: 2%; border: 0.2em solid #aaa;}
 h4.user_collection {text-align: center; font-style: italic; }
@@ -1158,7 +1156,7 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     width: 100%; /* Full width */
     height: auto; 
     overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: #000; /* Fallback color */
     background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
 
@@ -1195,17 +1193,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     width: 100%; /* Full width */
     height: auto;
 }
-
-.modal_control_overlay {
-    background: var(--color-modal-blackout);
-    left: 0;
-    overflow-y:scroll;
-    overflow-x:hidden;
-    position: absolute;
-    right: 0;
-    top: 0;
-}
-
 
 
 
@@ -1842,9 +1829,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
 	button.sign_in {font-weight: bold; font-size: 20px;}
 
     /*  dashboard styles - wide */
-
-    .tlv_about_logo {width: 40%; }
-
 
         /* dashboard alerts - wide */
     .dashboard_alerts_opener {width: 50px; height: 50px; }

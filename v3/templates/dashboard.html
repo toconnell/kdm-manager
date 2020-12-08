@@ -312,7 +312,7 @@
                         class="dying_lantern dashboard_settlement_list_settlement_button"
                         onclick="showFullPageLoader(); this.form.submit()"
                     >
-                        <b class="dashboard_settlement_list_settlement_name">{{s.sheet.name}}</b>
+                        <b class="dashboard_settlement_launch_button_settlement_name">{{s.sheet.name}}</b>
                         <br/><i>{{s.sheet.campaign_pretty}}</i>
                         <ul class="dashboard_settlement_list_settlement_attribs">
                             <li ng-if="s.meta != undefined && s.meta.creator_email != user_login"><i>Created by:</i>{{s.meta.creator_email}}</li>
@@ -366,7 +366,11 @@
             class="roll_down_container dashboard_accordion settlement_sheet_gradient rolled_up"
             ng-class="{'rolled_down': ngRolledUp['settlementsDiv'] === false}"
         >
-            <p class="panel_top_tooltip"settlementsettlements you have created.</p>
+
+            <p class="panel_top_tooltip">
+                Settlements you have created.
+            </p>
+
             <p
                 class="panel_top_tooltip"
                 ng-if="user.user.subscriber.level < 1"
@@ -421,7 +425,7 @@
                         class="dying_lantern dashboard_settlement_list_settlement_button"
                         onclick="showFullPageLoader(); this.form.submit()"
                     >
-                        <b class="dashboard_settlement_list_settlement_name">{{s.sheet.name}}</b>
+                        <b class="dashboard_settlement_launch_button_settlement_name">{{s.sheet.name}}</b>
                         <span class="maroon_text" ng-if="s.sheet.abandoned != undefined">[ABANDONED]</span>
                         <br/><i>{{s.campaign_pretty}}</i>
                         <ul class="dashboard_settlement_list_settlement_attribs">
