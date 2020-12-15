@@ -233,7 +233,7 @@
                 survivor_sheet_kd_sheet_ui_box
                 affinities_opener
             "
-            ng-click="showHide('modalAffinity')"
+            ng-click="ngShow('modalAffinity')"
             title="Permanent affinity bonuses for {{survivor.sheet.name}}. Click or tap to edit!"
         >
             <div
@@ -1628,7 +1628,7 @@
                             - fighting art, strain -
                         </p>
 
-                        <p class="survivor_sheet_fighting_art_color_span {{FA.sub_type}}_gradient"> </p>
+                        <p class="survivor_sheet_card_color_span {{FA.sub_type}}_gradient"> </p>
                         <div
                             class="font_medium survivor_sheet_card_text"
                             ng-bind-html="FA.desc|trustedHTML"
@@ -1688,18 +1688,22 @@
                             </div>
                         </div>
 
-                        <div
-                            class="font_small survivor_sheet_card_click_to_remove"
-                        >
-                            Tap or click to <b>remove</b>.
-                        </div>
-
                     </div>
 
-                </div><!-- card content -->
+                    <div
+                        class="kd font_small survivor_sheet_card_click_to_remove"
+                    >
+                        Tap or click to <b>remove</b>.
+                    </div>
+
+                </div><!-- survivor_sheet_Card, i.e. the repeater -->
 
             </div> <!-- survivor_sheet_card_container -->
-            <div class="ng_fade survivor_sheet_card_asset_list_container" ng-if="survivor.sheet.fighting_arts.length <= 2">
+
+            <div
+                class="ng_fade survivor_sheet_card_asset_list_container"
+                ng-if="survivor.sheet.fighting_arts.length <= 2"
+            >
                 <select
                     name="add_fighting_arts"
                     class="kd_kickstarter_select"
@@ -1789,15 +1793,22 @@
                         >
                         </div>
 
-                        <div class="font_small survivor_sheet_card_click_to_remove remove_disorder">
-                            Tap or click to <b>remove</b>.
-                        </div>
-
                     </div> <!-- card_content -->
+
+                    <div
+                        class="kd font_small survivor_sheet_card_click_to_remove disorder"
+                    >
+                        Tap or click to <b>remove</b>.
+                    </div>
+
                 </div> <!-- disorder ng-repeat -->
+
             </div> <!-- disorders survivor_sheet_card_container -->
 
-            <div class="ng_fade survivor_sheet_card_asset_list_container" ng-if="survivor.sheet.disorders.length <= 2">
+            <div
+                class="ng_fade survivor_sheet_card_asset_list_container"
+                ng-if="survivor.sheet.disorders.length <= 2"
+            >
                 <select
                     name="add_disorders"
                     class="kd_kickstarter_select"

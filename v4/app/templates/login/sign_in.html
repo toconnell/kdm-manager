@@ -19,6 +19,7 @@
         {{ form.hidden_tag() }}
 
         <p>
+            {{ form.username.label(class_='font_small login_label') }}
             {{
                 form.username(
                     class_='kd capsule full_width',
@@ -32,6 +33,7 @@
         </p>
     
         <p>
+            {{ form.password.label(class_='font_small login_label') }}
             {{ form.password(class_='kd capsule full_width', placeholder='password') }}
             {% for error in form.password.errors %}
                 <div class="login_field_error">{{ error }}</div>

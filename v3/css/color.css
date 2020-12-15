@@ -218,6 +218,15 @@ input:active {  /* this is our on-click effect color */
 .kd_promo {color: #fff; background: radial-gradient(circle, #5Dd7F2, #50CAF5, #3FACCF); }
 .dragon_king {color: #E8cE55; background: radial-gradient(#7270B9, #6260A9); }
 
+/* bridge sized cards */
+.survivor_sheet_card_click_to_remove {
+    background-color: var(--color-kd-fighting-art-red);
+    color: #fff;
+}
+.survivor_sheet_card_click_to_remove.disorder {
+    background-color: var(--color-kd-disorder-purple);
+}
+
 /* gear cards */
 .gear_card_container .gear_card_affinity_inner {
     border-color: #fff;

@@ -49,7 +49,7 @@
             <div class="survivor_search_button_inner">
 
                 <div class="survivor_search_survivor_name_container">
-                    <div class="survivor_search_survivor_name">
+                    <div class="font_large survivor_search_survivor_name">
                         {{s.sheet.name}}
                     </div>
                     <div class="survivor_search_survivor_sex">
@@ -98,7 +98,7 @@
                     class="survivor_search_survivor_assets"
                 >
                     <div>
-                        <b>Notes:</b>
+                        <b>{{s.notes.length}} Notes:</b>
                         <span ng-repeat="n in s.notes">
                             {{n.note}}
                         </span>

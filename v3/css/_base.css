@@ -273,28 +273,42 @@ button:active,
 .survivor_sheet_card_expansion_flair {
     align-items: center;
     border: 0;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
+    border-top-left-radius: 2vw;
+    border-top-right-radius: 2vw;
     display: flex;
     font-family: 'Silverado';
-    margin-bottom: 4%;
-    margin-top: -5%;
-    padding: 1%;
-    padding-left: 4%;
+    margin-bottom: 1rem;
+    margin-top: -1rem;
+    padding: 0.5rem;
+    padding-left: 1.5rem;
     text-align: left;
 }
 .survivor_sheet_card {              /*  is the repeater */
     border: 0;
     border-radius: 2vw;
+    box-shadow: var(--box-shadow-default);
     height: 100%; 
     margin: 0 auto;
     margin-bottom: 5%;
     margin-top: 3%; 
     padding: 0;
-    padding-top: 4%;
-    padding-bottom: 4%;
+    padding-top: 1rem;
     text-align: center;
     width: 95%;
+}
+.survivor_sheet_card br {
+    content: "";
+    display: block;
+    height: 1vh; 
+}
+.survivor_sheet_card_text,
+    .survivor_sheet_card_level_block {
+    margin: 1rem; 
+}
+.survivor_sheet_card_color_span {
+    height: 1.5rem;
+    border: 0;
+    margin: 0 0 1rem 0;
 }
 .survivor_sheet_card_content {      /*  initialized asset within repeater */
     width: 100%; 
@@ -308,6 +322,14 @@ button:active,
     margin-top: 0;
     text-transform: lowercase;
 } 
+.survivor_sheet_card_click_to_remove {
+    text-align:center;
+    padding: 0.6rem;
+    margin: 0;
+    margin-top: 1rem;
+    border-bottom-left-radius: 2vw;
+    border-bottom-right-radius: 2vw;
+}
 
 /*  login.html  */
 
@@ -335,6 +357,10 @@ h2.login_splash {
     font-size: 0.9rem;
     margin-bottom: 1rem;
     margin-top: 0.5rem;
+}
+.login_label {
+    margin: -1rem auto auto 1.5rem;
+    position: absolute; 
 }
 .login_subhead {
     font-weight: normal;
@@ -380,14 +406,38 @@ h2.login_splash {
     width: 90%; 
 }
 .login_footer_container {
+    bottom: 0;
     display: flex;
     flex-wrap: nowrap;
     justify-content: space-between;
-    margin: 7rem auto 1rem auto; 
+    margin: 7rem 1rem 1rem 1rem; 
+    position: absolute;
     width: 90%;
 }
 
 /*  gear_lookup.html    */
+input[type="radio"].gear_lookup_attrib_toggle {
+    display: inherit;
+}
+.gear_lookup_loading {
+    margin-bottom: 3vh;
+    text-align: center;
+    transition: 1s;
+    width: 100%;
+}
+.gear_lookup_search_box {
+    border:0;
+    display: block;
+    margin: 0 auto;
+    margin-bottom: 6%;
+    text-align: center;
+    width: 95%;
+}
+.gear_lookup_card_repeater {
+    margin: 0 auto;
+    margin-bottom: 2%;
+    width: 90%;
+}
 .gear_card_container {
     border: 0.1rem solid;
     border-radius: 1rem;
@@ -605,6 +655,53 @@ h2.login_splash {
 }
 
 /*  gear card recipes   */
+
+.gear_card_recipe {
+    border: 1px solid;
+    border-radius: 0.5em;
+    box-sizing: border-box;
+    margin: 3% auto 5% auto;
+    padding: 1%;
+}
+.gear_card_recipe span:nth-child(2) {
+    margin-left: 3%;
+}
+.gear_card_recipe_title {
+    background-color: #f3E067;
+    color: #8E7E1F;
+    padding: 0.2rem;
+    padding-left: 3%;
+    margin: -0.3rem -0.3rem 0.3rem -0.3rem;
+    border-top-left-radius: 0.5em;
+    border-top-right-radius: 0.5em;
+}
+
+.pattern_recipe_crafting_process_container {
+    background: #fff;
+    border: 1px solid;
+    border-radius: 0.5em;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    margin: 0 auto;
+    margin-top: 1%;
+    margin-bottom: 1%;
+    overflow: hidden;
+    padding: 0;
+    width: 97%;
+}
+.pattern_recipe_crafting_process_item {
+    border-bottom: 1px solid;
+    box-sizing: border-box;
+    padding: 2%;
+    width: 100%;
+}
+.pattern_recipe_crafting_process_item:first-child {
+    font-weight: bold;
+}
+.pattern_recipe_crafting_process_item:last-child {
+    border-bottom: none;
+}
 
 
 /*  KD Kickstarter UI   */
@@ -895,15 +992,15 @@ h2.login_splash {
     border-radius:100%;
 }
 .kd_sheet_ui_box.small.dotted:before {
-    width: 0.35rem;
-    height: 0.35rem;
+    width: 0.29rem;
+    height: 0.29rem;
 }
 .kd_sheet_ui_box.heavy {
     border-width: 0.2rem;
 }    
 .kd_sheet_ui_box.small {
-    width: 0.35rem;
-    height: 0.35rem; 
+    width: 0.29rem;
+    height: 0.29rem; 
 }
 
 .survivor_sheet_kd_sheet_ui_box,
@@ -1454,12 +1551,10 @@ h3.new_survivor_sheet {
     border-top: 0;
     display: flex;
     flex-direction: column;
-    left: 5%;
-    margin-bottom: 10vh; 
-    padding-top: 7vh;  
-    position: absolute;
-    right: 5%;
-    top: 0;
+    justify-content: space-evenly;
+    margin: -10vh auto 5rem auto;
+    padding-top: 4rem;
+    width: 95%; 
 }
 .survivor_search_button {
     height: fit-content;
@@ -1478,7 +1573,6 @@ h3.new_survivor_sheet {
 .survivor_search_survivor_name {
     width: 70%;
     font-family: 'Silverado';
-    font-size: 3vh;
 }
 .survivor_search_survivor_sex {
     display: flex;
@@ -1584,6 +1678,7 @@ h3.new_survivor_sheet {
 .campaign_summary_storage_opener {
     border: 0.2rem solid;
     border-bottom-left-radius: 1rem;
+    border-right: none; 
     border-top-left-radius: 1rem;
     height: auto;
     padding: 0.5rem;
@@ -1683,6 +1778,28 @@ h3.new_survivor_sheet {
     flex-wrap: nowrap;
     margin-top: 3%; 
 }
+.campaign_summary_survivor_avatar_and_summary div.avatar {
+    margin: 1vh 0 0 3%;
+    width: 30%;
+}
+.campaign_summary_survivor_avatar_and_summary div.avatar img {
+    border: 0;
+    max-height: 15vh;
+}
+.campaign_summary_survivor_avatar_and_summary div.summary {
+    width: 70%;
+}
+.campaign_summary_survivor_avatar_and_summary div.summary div {
+    margin-left: 3%;
+    padding-right: 5%;
+}
+.campaign_summary_survivor_avatar_and_summary div.summary div.COD {
+    margin-bottom: 3%;
+    white-space: inherit;
+}
+.campaign_summary_avatar {
+    position: relative;
+}
 .campaign_summary_survivor_affinities_container {
     display: flex;
     flex-wrap: wrap; 
@@ -1692,10 +1809,9 @@ h3.new_survivor_sheet {
     margin: 1%; 
 }
 .death_x {
-    font-size: 450px;
+    font-size: 10rem;
     position: absolute;
-    margin: 0;
-    margin-top: -4vh;
+    margin: -2rem 0 0 0;
 }
 .campaign_summary_survivor_tags_container {
     display: flex;
@@ -2221,7 +2337,6 @@ h3.new_survivor_sheet {
     width: auto;
 }
 .strain_milestone_condition {
-    font-size: 0.8em;
     margin: 1%;
 }
 

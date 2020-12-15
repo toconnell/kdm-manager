@@ -166,21 +166,11 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
     $rootScope.setView = function(view) {
         $rootScope.view = view;
         $scope.view = view;
-//        console.warn("$rootScope.setView('" + view + "')");
     };
 
     // initialize rootScope elements here; these are set on every view
     $rootScope.objectKeys = Object.keys;
 
-    // ngFlash ; show an element for an amount of ms
-    $rootScope.ngFlash = function(elementId, duration) {
-        if (duration === undefined) {
-            duration = 3000;
-        }
-        $scope.ngShow(elementId)
-        $timeout(function() {$scope.ngHide(elementId, true)}, duration);
-        
-    };
 
     // rollUp controls; now TOTALLY angular (no doc-scope JS)
     $rootScope.ngRolledUp = {};
@@ -304,37 +294,49 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
     };
 
     // ngVisible, ngShow, ngHide, ngShowHide
+
     $rootScope.ngVisible = {}
 
-    $rootScope.ngShow = function(elementId) {
-        $rootScope.ngVisible[elementId] = true;
+    $rootScope.ngGetElement = function(elementId) {
+        // get an element from the page or die screaming about it
+        var err_slug = "ngGetElement(): ID '" + elementId;
+        try {
+            var element = document.getElementById(elementId);
+        } catch(err) {
+            console.error(err);
+            throw err_slug + "' not found!";
+        };
+        if (element === null || element === undefined) {
+            throw err_slug + "' is " + element + "!";
+        };
+        return element;
+    };
 
+    $rootScope.ngShow = function(elementId) {
         // for legacy compatibility: wait until the $digest finishes, then
         // get the element (it won't be present until the $digest is updated
         // after the ngVisible change above); 
-        $timeout(
+        var eWatch = $scope.$watch(
             function() {
-                e = document.getElementById(elementId)
-                if (e === null) {
-                    console.warn("ngShow() Cannot find element '" + elementId + "'");
-                } else {
-                    e.classList.remove('hidden');
-                };
-           }
-        );
+                $rootScope.ngVisible[elementId] = true;
+                return document.getElementById(elementId)
+            },
+            function(newValue, oldValue, scope) {
+                if (oldValue !== newValue) {
+                    newValue.classList.remove('hidden');
+                    eWatch(); // unbind it
+                }
+            }
+        )
     };
 
     $rootScope.ngHide = function(elementId, lazy) {
         if (lazy) {
-//            console.warn("Lazy ngHide for '" + elementId + "'")
+            console.warn("Lazy ngHide for '" + elementId + "'")
         } else {
-            try {
-                e = document.getElementById(elementId);
-                e.classList.add('hidden');
-            } catch(err) {
-                console.error(err);
-            }
-        }
+            var element = $rootScope.ngGetElement(elementId);
+            element.classList.add('hidden');
+        };
         $rootScope.ngVisible[elementId] = false;
     }
 
@@ -349,6 +351,36 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
             $rootScope.ngShow(elementId);
         };
 
+    };
+
+    $rootScope.ngFlash = function(elementId, duration) {
+        // shows an element; sleeps for 'duration'; takes the element out of
+        // ngVisible list. 
+        // works a bit like ngShow(), but uses $timeout to sleep for 'duration'
+        // before updating the ngVisible dict
+        if (duration === undefined) {
+            duration = 3000;
+        };
+
+        var eVisibleWatch = $scope.$watch(
+            function() {
+                $rootScope.ngVisible[elementId] = true;
+                return document.getElementById(elementId)
+            },
+            function(newValue, oldValue, scope) {
+                if (oldValue !== newValue) {
+                    newValue.classList.remove('hidden');
+                    $timeout(
+                        function() {
+                            $rootScope.ngVisible[elementId] = false;
+                            eVisibleWatch(); // unbind it
+                        },
+                        duration
+                    );
+                }
+            }
+        );
+        
     };
 
     $rootScope.dumpJSONtoTab = function(json_to_dump) {
@@ -368,10 +400,13 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
     }
 
     $rootScope.flashCapsuleAlert = function(alertType, hold) {
+        // we're going to show it, so add it to visible
+
         $rootScope.ngCapsuleAlert = {};
         $rootScope.ngCapsuleAlert.letter = alertType.substring(0,1);
         $rootScope.ngCapsuleAlert.text = alertType;
         $rootScope.ngCapsuleAlert.style = 'kd_blue';
+
         if (alertType === 'Error') {
             $rootScope.ngCapsuleAlert.style = 'kd_pink';
         }
@@ -1166,9 +1201,11 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
                 console.warn('Updating ' + collection + ' sheet from response!');
                 $scope[collection] = data;
             };
+            if (show_alert === true) {$rootScope.savedAlert()};
             sleep(1000).then(() => {
-                if (reinit === true) {$scope.reinitialize('postJSONtoAPI(/' + endpoint + ')')};
-                if (show_alert === true) {$scope.savedAlert();}
+                if (reinit === true) {
+                    $scope.reinitialize('postJSONtoAPI(/' + endpoint + ')')
+                };
             });
             hideCornerLoader();
         });
@@ -1589,43 +1626,6 @@ app.controller('timelineController', function($scope) {
 // an angularjs scope needs to know the following. survivor stuff is NOT handled
 // here because angularjs apps that deal with survivors are necessarily
 // specialized
-
-app.controller("survivorNotesController", function($scope) {
-    $scope.notes = [];
-    $scope.formData = {};
-    $scope.addNote = function (asset_id) {
-        $scope.errortext = "";
-        if (!$scope.note) {return;}
-        if ($scope.notes.indexOf($scope.note) == -1) {
-            $scope.notes.splice(0, 0, $scope.note);
-//            $scope.notes.push($scope.note);
-        } else {
-            $scope.errortext = "The epithet has already been added!";
-        };
-        var http = new XMLHttpRequest();
-        http.open("POST", "/", true);
-        http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-        var params = "add_survivor_note=" + $scope.note + "&modify=survivor&asset_id=" + asset_id
-        http.send(params);
-        $scope.savedAlert();
-
-    };
-
-    $scope.removeNote = function (x, asset_id) {
-        $scope.errortext = "";
-        var rmNote = $scope.notes[x];
-        $scope.notes.splice(x, 1);
-
-        var http = new XMLHttpRequest();
-        http.open("POST", "/", true);
-        http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-        var params = "rm_survivor_note=" + rmNote + "&modify=survivor&asset_id=" + asset_id
-        http.send(params);
-
-        $scope.savedAlert();
-
-    };
-});
 
 app.controller("epithetController", function($scope) {
     $scope.epithets = [];

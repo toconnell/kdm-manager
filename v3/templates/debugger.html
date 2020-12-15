@@ -27,6 +27,17 @@
         </li>
 
         <li
+            ng-if="survivor !== undefined"
+        >
+            <a
+                href=""
+                ng-click="dumpJSONtoTab(survivor)"
+            >
+                survivor JSON
+            </a>
+        </li>
+
+        <li
             ng-if="survivor !== undefined && lineage.events === undefined"
         >
             <i>waiting for survivior events...</i>

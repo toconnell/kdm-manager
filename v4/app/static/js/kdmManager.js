@@ -116,39 +116,53 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
 
     $rootScope.ngVisible = {}
 
+    $rootScope.ngGetElement = function(elementId) {
+        // get an element from the page or die screaming about it
+        var err_slug = "ngGetElement(): ID '" + elementId;
+        try {
+            var element = document.getElementById(elementId);
+        } catch(err) {
+            console.error(err);
+            throw err_slug + "' not found!";
+        };
+        if (element === null || element === undefined) {
+            throw err_slug + "' is " + element + "!";
+        };
+        return element;
+    };
+
     $rootScope.ngShow = function(elementId) {
-
-        $rootScope.ngVisible[elementId] = true;
-
         // for legacy compatibility: wait until the $digest finishes, then
         // get the element (it won't be present until the $digest is updated
         // after the ngVisible change above);
-
-        $timeout(
+        var eWatch = $scope.$watch(
             function() {
-                try {
-                    var e = document.getElementById(elementId);
-                    e.classList.remove('hidden');
-                } catch(err) {
-                    console.error(err);
-                };
-           }
-        );
+                $rootScope.ngVisible[elementId] = true;
+                return document.getElementById(elementId)
+            },
+            function(newValue, oldValue, scope) {
+                if (oldValue !== newValue) {
+                    newValue.classList.remove('hidden');
+                    eWatch(); // unbind it
+                }
+            }
+        )
     };
 
-    $rootScope.ngHide = function(elementId) {
-        try {
-            var e = document.getElementById(elementId);
-            e.classList.add('hidden');
-        } catch(err) {
-            console.error(err);
+    $rootScope.ngHide = function(elementId, lazy) {
+        if (lazy) {
+            console.warn("Lazy ngHide for '" + elementId + "'")
+        } else {
+            var element = $rootScope.ngGetElement(elementId);
+            element.classList.add('hidden');
         };
         $rootScope.ngVisible[elementId] = false;
     }
 
     $rootScope.ngShowHide = function(elementId) {
-        // calls ngShow or ngHide against an element based on whether it is
-		// 	currently a member of ngVisible
+        // supersedes showHide(), which is deprecated
+        // toggles an element in and out of $rootScope.ngVisible, which is
+        //  an arry of UI elements that are true or false
 
         if ($rootScope.ngVisible[elementId] === true) {
             $rootScope.ngHide(elementId);
@@ -158,7 +172,39 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
 
     };
 
+    $rootScope.ngFlash = function(elementId, duration) {
+        // shows an element; sleeps for 'duration'; takes the element out of
+        // ngVisible list.
+        // works a bit like ngShow(), but uses $timeout to sleep for 'duration'
+        // before updating the ngVisible dict
+        if (duration === undefined) {
+            duration = 3000;
+        };
+
+        var eVisibleWatch = $scope.$watch(
+            function() {
+                $rootScope.ngVisible[elementId] = true;
+                return document.getElementById(elementId)
+            },
+            function(newValue, oldValue, scope) {
+                if (oldValue !== newValue) {
+                    newValue.classList.remove('hidden');
+                    $timeout(
+                        function() {
+                            $rootScope.ngVisible[elementId] = false;
+                            eVisibleWatch(); // unbind it
+                        },
+                        duration
+                    );
+                }
+            }
+        );
+
+    };
+
+	//
     // roll up/down starts here
+	//
 
     $rootScope.ngRolledUp = {};
     $rootScope.getRollDownContainer = function(e_id) {

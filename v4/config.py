@@ -19,6 +19,11 @@ class Config(object):
         API_KEY = file.read().strip().replace('\n','')
 
     APP_AGE = int((datetime.now() - datetime(2015, 11, 10)).days / 365)
+    APP_DESC = (
+        "KDM-Manager is a free, online campaign manager application for "
+        "Kingdom Death: Monster that uses interactive forms and "
+        "automates repetitive record-keeping tasks. "
+    )
     APP_NAME = "KDM-Manager"
     APP_TAG = "The original online campaign manager for Kingdom Death: Monster!"
     SESSION_COOKIE_NAME = 'kdm-manager_session'
@@ -34,7 +39,7 @@ class Config(object):
         'app_fqdn': 'advanced-kdm-manager.c.kdm-manager.internal'
     }
     SECRET_KEY = os.environ.get('SECRET_KEY') or str(sys.path)
-    VERSION = "4.0.2"
+    VERSION = "4.0.0"
 
 
     def __init__(self):

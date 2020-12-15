@@ -6,6 +6,16 @@
 
     /*  top nav - DEPRECATED */
     #topNavBar {height: 6vh}
+    .circular_button,
+        #floating_dashboard_button {
+        top: 0.6rem;
+    }
+    #floating_dashboard_button {
+        left: 0.6rem;
+    }
+    #floatingRefreshButton {
+        right: 0.6rem;
+    }
 
     /*  major UI elements   */
     #container {
@@ -172,7 +182,9 @@
     /*  gear_lookup.html - desktop */
 
     .kd_sheet_ui_inner_ring_container.gear_lookup_container {
-        width: 98%; 
+        max-width: 1000px;
+        min-width: 70vw; 
+        width: auto;
     }
     .gear_repeater_container {
         display: flex;
@@ -271,6 +283,10 @@
     .headline_block_caption {font-size: 12pt; }
     .campaign_summary_small_box.settlement_fact h4 {font-size: 17pt;}
 
+    .campaign_summary_survivor_avatar_and_summary div.avatar img {
+        max-height: 10vh;
+    }
+
     /*  manage departing survivors | campaign summary | wide */
     .manage_departing_survivors_blocker{
         height: 3vh;
@@ -288,11 +304,6 @@
         max-width: 1000px;
     }
 
-    .death_x {
-        font-size: 130px;
-        margin-left: 1vw;
-        margin-top: -2vh;
-    }
 
     /*  survivor quickview - desktop    */
     .kd_sheet_ui_inner_ring_container.survivor_quickview_container {
@@ -416,7 +427,7 @@
     }
     .survivor_search_button {
         margin: 1%; 
-        width: 48%;
+        width: 30%;
     }
     .survivor_search_attrib_container {
         text-indent: initial;
@@ -582,13 +593,7 @@
         flex-direction: row;
     }
     .survivor_sheet_card {
-        padding-bottom: 1%;
-        padding-top: 2%; 
         width: 32%;
-    }
-    .survivor_sheet_card_expansion_flair {
-        height: 1.5rem;
-        margin-top: -1.5rem;
     }
 
     .survivor_sheet_partner img {
@@ -659,7 +664,8 @@
 
     /*  timeline.html - desktop  */
     .kd_sheet_ui_inner_ring_container.timeline_container {
-        width: 98%; 
+        max-width: 1200px;
+        min-width: 75vw; 
     }
     .timeline_col_container {
         column-count: 2;

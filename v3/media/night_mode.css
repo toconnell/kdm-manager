@@ -150,7 +150,6 @@ div.quickview_survivor_name {border-bottom-color: #fff; }
 .survivor_sheet_epithet {color: #000; }
 .paper_style_toggle {color: #eee; border-color: #ddd; }
 .survivor_avatar_image {filter: invert(1); }
-.survivor_sheet_survivor_notes_slug_line {border-color: #aaa; }
 .survivor_sheet_tag.add_tag {background: #E9385B; color: #fff ;}
 
 /* settlement sheet */

@@ -4,7 +4,12 @@
     class="kd"
     ng-app="kdmManager"
     ng-controller="rootScopeController"
-    ng-init="init('{{API['url']}}', '{{API_KEY}}')"
+    ng-init="
+        init(
+            '{{API['url']}}',
+            '{{API_KEY}}'
+        )
+    "
 >
 
     <head>
@@ -12,6 +17,7 @@
         <title>{{APP_NAME}} - {{APP_TAG}}</title>
 
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <meta name="Description" content="{{APP_DESC}}">
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="theme-color" content="#000000">
 
@@ -26,8 +32,8 @@
         </script>
 
         <!-- angular imports -->
-        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-animate.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-animate.min.js"></script>
 
         <link href="https://fonts.googleapis.com/css?family=Ruda&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">

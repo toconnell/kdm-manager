@@ -20,6 +20,16 @@
     #leftSideNav.open {width: 50%;}
     #leftSideNavUnderlay.open {width: 50%}
 
+    .circular_button,
+        #floating_dashboard_button {
+        top: 0.4rem;
+    } 
+    #floating_dashboard_button {
+        left: 0.4rem;
+    }
+    #floatingRefreshButton {
+        right: 0.4rem;
+    }
 
     /*  tabs - tablet   */
     .view_tab {
@@ -125,6 +135,9 @@
     .gear_card_combat_stat_shield {
         width: 5vw;
     }
+    .gear_card_recipe {
+        width: 90%; 
+    }
 
     /*
 
@@ -173,7 +186,6 @@
         margin: 1vw;
         min-height: 3vh;  
     }
-    .death_x {font-size: 150px; margin-top: -1vh; }
     #survivorQuickviewLeftColumn {
         border: 0; 
         width: 50%; 
@@ -367,13 +379,8 @@
         flex-direction: row;
         justify-content: space-evenly; 
     }
-    .survivor_sheet_card_expansion_flair {
-        margin-top: -13%;
-        padding: 1%;
-        padding-left: 6%;
-    }
     .survivor_sheet_card {
-        max-width: 33%; 
+        max-width: 32%; 
     }
 
     .fighting_art_card_strain_threshold_blocks_container {
@@ -408,9 +415,6 @@
     .survivor_sheet_tag.add_tag {
         height: 7vh;
         width: 7vh;
-    }
-    .survivor_sheet_survivor_notes_slug_line {
-        min-height: unset;
     }
     .survivor_sheet_rm_note_clicker {
         font-size: 5vw;
