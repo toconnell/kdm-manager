@@ -278,6 +278,9 @@
     .campaign_summary_right_panel {
         margin-top: 5%; 
     }
+    .pd_arrow .glyph {
+        margin-top: -2.5rem;
+    }
 
     .diamond {height: 4vw; width: 4vw; }
     .headline_block_caption {font-size: 12pt; }

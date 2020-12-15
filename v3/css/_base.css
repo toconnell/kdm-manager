@@ -1674,6 +1674,54 @@ h3.new_survivor_sheet {
     text-align: justify;
 }
 
+/*  Pulse Discoveries / pd_ styles  */
+.pulse_discovery {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	margin: 0 auto;
+	width: 98%;
+}
+.pulse_discovery:first-child {
+    border-top-left-radius: 1vw;
+    border-top-right-radius: 1vw;
+}
+.pulse_discovery:last-child {
+    border-bottom-left-radius: 1vw;
+    border-bottom-right-radius: 1vw;
+}
+.pd_level_container {
+    padding-top: 6%;
+    width: 25%;
+}
+.pd_level {
+    align-items: center;
+    border-radius: 100%;
+    display: flex;
+    height: 2rem;
+    justify-content: center;
+    margin: 0 auto;
+    padding: 0;
+    text-align: center;
+    width: 2rem;
+}
+.pd_text {
+	box-sizing: border-box;
+	padding: 6%;
+	padding-left: 0;
+	width: 75%;
+}
+.pd_arrow {
+	display: flex;
+	justify-content: center; 
+	height: 1px; 
+	width: 25%;
+}
+.pd_arrow .glyph {
+	font-size: 4rem; 
+	margin-top: -3rem;
+}
+
 /*  campaign summary storage */
 .campaign_summary_storage_opener {
     border: 0.2rem solid;

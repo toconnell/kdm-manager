@@ -653,12 +653,6 @@ div.endeavor_controls_clear_div {clear: both; height: 50px;}
 div.endeavor_controls_toggle span {text-align: center; font-size: 30pt; }
 
 
-/* pulse discoveries */
-
-.pulse_discovery {width: 98%; margin: 0 auto; display: flex; flex-direction: row; align-items: center; }
-.pd_level_container {width: 300px; }
-.pd_level {border-radius: 100%; background-color: #fff; color: #000; margin: 0 auto; padding: 0; text-align: center; width: 70px; height: 70px; display: flex; justify-content: center; align-items: center; }
-.pd_text {padding: 6%; font-size: 80%; width: 100%; padding-left: 0; }
 
 /* settlement sheet styles */
 
@@ -1187,14 +1181,19 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     .preferences_sub_block.preferences_change_pw {height: auto;  }
     
     .system_preference_user_login {margin-top: 0; }
-    div.dashboard_preferences_container div.dashboard_preference_block_group h2 {font-size: 20pt; }
-    .dashboard_preference_elections_container label {font-size: 13pt; }
 
     table.dashboard_table {
-        width: 80%; margin-left: 20px;}
-    div.dashboard_menu {width: 600px; float:left; display: block; margin: 0 auto; clear: left; }
+        margin-left: 20px;
+        width: 80%;
+    }
+    div.dashboard_menu {
+        clear: left;
+        display: block;
+        float:left;
+        margin: 0 auto;
+        width: 600px;
+    }
     img.dashboard_icon {height: 30px; width: 30px; }
-    .dashboard_kdm_font {font-size: 1em;}
     div.dashboard_button_list button {padding: 10px 0 10px 10px;}
     .dashboard_menu ol {margin: 0; padding: 0; padding-left: 80px; }
     button.sign_in {width: 80%; }
@@ -1248,15 +1247,11 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
 
     /* modal help - tablet */
     .kd_sheet_ui_inner_ring_container.help_container {width: 90%; }
-    .help_container p {font-size: 17pt; }
     .help_container h4 {margin-top: auto; }
     .help_container h4.help_spacer {margin-top: 7%; }
-    .help_container .kd_sheet_ui_row_tip {margin: 0 auto; width: 92%; font-size: 17pt; }
-    .help_modal_tip_repeater {font-size: 17pt; break-inside: avoid;}
+    .help_container .kd_sheet_ui_row_tip {margin: 0 auto; width: 92%; }
+    .help_modal_tip_repeater {break-inside: avoid;}
     .help_modal_tip_repeater .kd_sheet_ui_box {width: 12px; height: 12px; }
-    .help_modal_tip_repeater.kpi {font-size: 17pt; }
-    .webapp_alert_detail_bar .type_stamp,
-        .webapp_alert_detail_bar .date_stamp {font-size: 15pt; }
 
     /* gear lookup - tablet */
     .kd_sheet_ui_inner_ring_container.gear_lookup_container {width: 95%; }
@@ -1508,11 +1503,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     div.campaign_summary_endeavor_controller div.controls button {width: 90%; height: 40px; padding:0; margin: 0 auto; margin-left: 7%; margin-bottom: 7%; }
     div.endeavor_controls_clear_div {clear: both; height: 1px;}
 
-    /* pulse discoveries - tablet */
-    .pd_level_container {width: 150px; }
-    .pd_text {font-size: 15pt; }
-    .pd_level {width: 40px; height: 40px; font-size: 20pt; }
-     
 
     /* campaign summary panel arrangement - tablet */
     .campaign_summary_survivors_container,
@@ -1841,12 +1831,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     div.endeavor_controls_clear_div {clear: both; height: 20px;}
     img.campaign_summary_endeavor_star {width: 100px;  height: 100px; margin: 3px; }
 
-    /* pulse discoveries - wide */
-    .pd_level_container {width: 75px; }
-    .pd_text {font-size: 10pt; }
-    .pd_level {width: 20px; height: 20px; font-size: 10pt; }
-
-        
     
 
     div.returning_survivor_badge {margin: -3px; border-bottom-right-radius: 25px; width: 1.5%; height: 2%; padding: 0; padding-left: 2px; }

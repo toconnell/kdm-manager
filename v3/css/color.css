@@ -417,6 +417,11 @@ input:active {  /* this is our on-click effect color */
     color: #000; 
 }
 
+/*  pulse discoveries */
+.pd_level {
+    background: #F5FBFF;
+}
+
 /*  campaign summary - right side storage summary */
 .campaign_summary_storage_item {
     border-color: #ccc;
