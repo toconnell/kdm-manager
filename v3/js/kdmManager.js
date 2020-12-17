@@ -319,10 +319,10 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
         var eWatch = $scope.$watch(
             function() {
                 $rootScope.ngVisible[elementId] = true;
-                return document.getElementById(elementId)
+                return document.getElementById(elementId);
             },
             function(newValue, oldValue, scope) {
-                if (oldValue !== newValue) {
+                if (oldValue !== newValue || newValue !== null) {
                     newValue.classList.remove('hidden');
                     eWatch(); // unbind it
                 }
