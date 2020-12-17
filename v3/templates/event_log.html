@@ -13,7 +13,10 @@
         >
             <h3>{{ settlement.sheet.name}} Event Log</h3>
 
-            <p class="kd_sheet_ui_row_tip" ng-if="user.user.preferences.show_ui_tips">
+            <p
+                class="kd_sheet_ui_row_tip"
+                ng-if="user.user.preferences.show_ui_tips"
+            >
                 The settlement Event Log keeps track of all activity in the
                 campaign. Click or tap a Lantern Year below to review the events
                 for that year!
@@ -23,7 +26,10 @@
                 ng-repeat="ly_dict in settlement.sheet.timeline"
                 ng-init="ly = ly_dict['year']; controlID = 'ly' + ly + 'controlID'"
                 class="event_log_clicker clickable"
-                ng-click="showHide(controlID); getEventLogLY(ly)"
+                ng-click="
+                    ngShowHide(controlID);
+                    getEventLogLY(ly)
+                "
             >
                 <div
                     class="event_log_clicker_title"
@@ -36,23 +42,32 @@
                     <div
                         class="event_log_clicker_title_name"
                     >
+
                         Lantern Year {{ly}}
+
                         <span
                             class="event_count"
                             ng-if="eventLog[ly] !== undefined"
                         >
                             - {{eventLog[ly].length}} events
                         </span>
-                     </div>
+
+                     </div> <!-- event_log_clicker_title_name -->
+
                 </div> <!-- event_log_clicker_title -->
 
-                    <div
-                        id="{{controlID}}"
-                        class="event_log_container hidden"
+                <div
+                    id="{{controlID}}"
+                    class="event_log_container hidden"
+                >
+
+                    <p
+                        class="kd_sheet_ui_row_tip"
+                        ng-if="user.user.preferences.show_ui_tips"
                     >
-                    <p class="kd_sheet_ui_row_tip" ng-if="user.user.preferences.show_ui_tips">
                         Click or tap again to hide these events.
                     </p>
+
                     <div
                         class="event_log_line"
                         ng-repeat="line in eventLog[ly] | orderBy:'$index':true"
@@ -61,27 +76,27 @@
                     >
                         <span ng-bind-html="line.event|trustedHTML"></span>
                     </div>
+
                     <div
                         id="eventLogLY{{ly}}Loader"
-                        class="event_log_loader"
+                        class="font_small event_log_loader"
                     >
                         <img src="/media/loading_lantern.gif">
                         Loading Event Log...
                     </div>
 
                 </div> <!-- LY event log container -->
+
             </div> <!-- LY clicker -->
         
             <button
                 id="timelineCloseButton"
                 class="kd_kickstarter_button floating_close_modal_button"
-                ng-click="showHide('eventLogContainer')"
+                ng-click="ngHide('eventLogContainer')"
             >
                 Close Event Log
             </button>
 
         </div><!-- inner ring container -->
-
     </div><!-- outer ring container -->
 </div><!-- modal-black -->
-

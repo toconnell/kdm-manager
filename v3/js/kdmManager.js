@@ -368,7 +368,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
                 return document.getElementById(elementId)
             },
             function(newValue, oldValue, scope) {
-                if (oldValue !== newValue) {
+                if (oldValue !== newValue || newValue !== null) {
                     newValue.classList.remove('hidden');
                     $timeout(
                         function() {

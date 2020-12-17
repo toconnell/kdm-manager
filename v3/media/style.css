@@ -2039,8 +2039,11 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     .kd_sheet_ui_inner_ring_container.gear_lookup_container button {display: block;  margin: 0 auto; width: 60%; margin-bottom: 2%; }
 
     /* event log - wide */
-    .event_log_line {font-size: 12pt; margin: 3px; padding: 2px; padding-left: 4px; }
-    .event_log_loader {font-size: 10pt; }
+    .event_log_line {
+        margin: 3px;
+        padding: 2px;
+        padding-left: 4px;
+    }
     .event_log_closer_button {display: block; width: 300px; margin: 0 auto; margin-bottom: 2%; margin-top: 2%; }
 
     /* wide asset management styles */

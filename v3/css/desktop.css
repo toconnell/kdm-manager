@@ -65,7 +65,9 @@
     .kd_sheet_ui_inner_ring_container {
         margin: 0 auto;
         margin-top: 3%;
-        width: 40%;
+        max-width: 1000px;
+        min-width: 40vw;
+        width: auto;
     }
     .kd_sheet_ui_inner_ring_container p {
         margin: 1%; 
@@ -180,11 +182,8 @@
     }
 
     /*  gear_lookup.html - desktop */
-
-    .kd_sheet_ui_inner_ring_container.gear_lookup_container {
-        max-width: 1000px;
-        min-width: 70vw; 
-        width: auto;
+    .gear_lookup_container {
+        max-width: 1400px; 
     }
     .gear_repeater_container {
         display: flex;
@@ -309,10 +308,6 @@
 
 
     /*  survivor quickview - desktop    */
-    .kd_sheet_ui_inner_ring_container.survivor_quickview_container {
-        max-width: 1000px; 
-        width: 75%; 
-    }
     .survivor_quickview_container .columns {
         display: flex;
         flex-direction: row;
@@ -398,13 +393,9 @@
 
     /*  help.html   */
 
-    .kd_sheet_ui_inner_ring_container.help_container {
-        margin-bottom: 10%;  
-        width: 98%;
-    }
-
     .help_container {
         margin-bottom: 15%;
+        max-width: 1300px; 
     }
     .help_col_container {
         column-count: 3;
@@ -629,9 +620,6 @@
 /*
 
     /*  event_log.html - desktop  */
-    .kd_sheet_ui_inner_ring_container.event_log {
-        width: 98%; 
-    }
     .event_log_clicker {
         margin-bottom: 1%;
         margin-top: 0;
@@ -642,11 +630,6 @@
 
 
     /* expansion_content_manager.html - desktop */
-    .kd_sheet_ui_inner_ring_container.expansion_content_manager {
-        max-width: 900px;
-        width: 75%; 
-    }
-    /*  expansion_content_manager.html  */
     .expansion_toggle_container {
         display: flex;
         flex-wrap: wrap;
@@ -666,13 +649,13 @@
     }
 
     /*  timeline.html - desktop  */
-    .kd_sheet_ui_inner_ring_container.timeline_container {
-        max-width: 1200px;
-        min-width: 75vw; 
-    }
     .timeline_col_container {
         column-count: 2;
         column-gap: 5px;
         column-width: auto;
     }
+    .timeline_overlay_control select {
+        width: 40%; 
+    }
+
 }

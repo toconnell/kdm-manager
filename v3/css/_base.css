@@ -273,8 +273,8 @@ button:active,
 .survivor_sheet_card_expansion_flair {
     align-items: center;
     border: 0;
-    border-top-left-radius: 2vw;
-    border-top-right-radius: 2vw;
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
     display: flex;
     font-family: 'Silverado';
     margin-bottom: 1rem;
@@ -285,7 +285,7 @@ button:active,
 }
 .survivor_sheet_card {              /*  is the repeater */
     border: 0;
-    border-radius: 2vw;
+    border-radius: 0.75rem;
     box-shadow: var(--box-shadow-default);
     height: 100%; 
     margin: 0 auto;
@@ -327,8 +327,8 @@ button:active,
     padding: 0.6rem;
     margin: 0;
     margin-top: 1rem;
-    border-bottom-left-radius: 2vw;
-    border-bottom-right-radius: 2vw;
+    border-bottom-left-radius: 0.75rem;
+    border-bottom-right-radius: 0.75rem;
 }
 
 /*  login.html  */
@@ -1388,7 +1388,7 @@ h3.new_survivor_sheet {
     timeline.html 
 */
 #timelineContainer {
-    margin-bottom: 12vh; 
+    margin-bottom: 10rem; 
 }
 .timeline_container .timeline_top_line div {
     margin-left: 1.7rem;
@@ -2889,7 +2889,7 @@ h3.new_survivor_sheet {
 }
 .cursed_item_toggle {
     border: 1vw solid;
-    border-radius: 2vw;
+    border-radius: 0.75rem;
     box-sizing: border-box;
     height: fit-content; 
     margin: 3%;
