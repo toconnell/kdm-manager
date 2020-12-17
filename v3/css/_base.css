@@ -538,6 +538,7 @@ input[type="radio"].gear_lookup_attrib_toggle {
     font-size: 1.25rem;
     font-weight: bold;
     display: flex;
+    flex-wrap: wrap; 
     height: 100%;
     margin-left: -3%;
     width: 45%;
@@ -643,7 +644,7 @@ input[type="radio"].gear_lookup_attrib_toggle {
     font-family: 'Arial';
     font-size: 1.25rem;
     justify-content: center;
-    margin-bottom: 1rem;
+    margin: -1px 0 1rem 0;
     padding: 4%;
     width: 1rem;
 }
@@ -774,7 +775,7 @@ input[type="radio"].gear_lookup_attrib_toggle {
 }
 .kd_sheet_ui_inner_ring_container:last-child,
     .kd_sheet_ui_inner_ring_container:only-child {
-    margin-bottom: 11vh;
+    margin-bottom: 10rem;
 }
 .kd_sheet_ui_inner_ring_container p {
     margin: 3%; 

@@ -63,8 +63,6 @@
         width: 0.2rem;
     }
     .kd_sheet_ui_inner_ring_container {
-        margin: 0 auto;
-        margin-top: 3%;
         max-width: 1000px;
         min-width: 40vw;
         width: auto;
