@@ -75,14 +75,11 @@ def login():
 
 
 @app.route('/logout')
-@flask_login.login_required
+#@flask_login.login_required
 def logout():
     """ Kills the flask_login 'session' and returns the user to the login. """
     flask_login.logout_user()
     return flask.redirect(flask.url_for('login'))
-
-
-
 
 
 @app.route('/register', methods=['GET','POST'])
@@ -172,8 +169,10 @@ def about():
 @app.route('/dashboard', methods=['GET','POST'])
 @flask_login.login_required
 def dashboard():
+    prefs = users.Preferences()
     return flask.render_template(
         'dashboard/index.html',
+        PREFERENCES = prefs.dump(),
         **app.config
     )
 
@@ -198,7 +197,7 @@ def force_logout(error_msg):
     """ When the Flask error handler catches a utils.Logout, we need to log
     the user out immediately. """
     #flask.flash(error_msg)
-    return flask.redirect(flask.url_for('login'))
+    return flask.redirect(flask.url_for('logout'))
 
 
 #

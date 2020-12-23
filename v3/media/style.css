@@ -1,5 +1,7 @@
 /*                                              */
 /*  DEPRECATED STYLES - do not add styles here! */
+/*      Literally everything here is            */
+/*          completely deprecated!              */
 /*                                              */
 
 
@@ -216,12 +218,6 @@ pre { white-space: pre-wrap; }
 .expansion_category_header {padding-left: 5%; }
 .expansion_management_form button {font-weight: bold; }
 
-/* world panel styles - mobile */
-.world_panel_basic_box table {border-collapse: collapse; width: 90%; margin: 0 auto; margin-top: 3.5%; margin-bottom: 2.5%;  }
-.world_panel_basic_box table td.int_value {width: 10%; }
-.world_panel_basic_box table th.principle {font-style: italic; margin: 0 auto; margin-left: 4%; font-weight: normal; display: initial;  }
-.world_panel_avatar_cell {text-align: center; }
-.world_panel_avatar {width: 65%; }
 
 /* timeline styles - mobile */
 .timeline_container .timeline_top_line {width: 96%; border-bottom: 3px solid #000; display: flex; flex-direction: row; margin: 0 auto; margin-bottom: 1%; }
@@ -429,18 +425,14 @@ button.tiny_button {padding: 5px; font-size: 70%; margin: auto; margin-top: 40px
 
 /*  dashboard styles */
 
-.dashboard_user_collection_repeater {margin: 5%; border-radius: 0.1em; background: rgba(255,255,255,0.5); padding-bottom: 2%; border: 0.2em solid #aaa;}
-h4.user_collection {text-align: center; font-style: italic; }
 .dashboard_user_expansions_repeater .special_attribute_checkbox {transition: 0.5s;}
-.dashboard_user_expansions_repeater .special_attribute_checkbox.active {border-color: #000; background-color: #000;}
 
 .dashboard_alerts_opener {position: fixed; margin: 0; bottom: 1%; right: 2%; border-radius: 100%; font-weight: bold; height: 100px; width: 100px; }
 .modal-black.dashboard_alerts {background-color: #fff; color: #000; }
-.dashboard_alerts p {font-family: 'Metrophobic'; font-size: 20pt; }
 .dashboard_alerts h3 {margin-bottom: 0; }
-.dashboard_alerts .kd_sheet_ui_row_tip {font-size: 10pt; text-align: center; }
-.dashboard_webapp_alert_repeater {font-family: 'Metrophobic'; font-size: 20pt; padding: 1%; margin: 1%; background-color: #fafafa;}
-.alert_date {color: #888; font-size: 10pt; }
+.dashboard_alerts .kd_sheet_ui_row_tip {text-align: center; }
+.dashboard_webapp_alert_repeater {padding: 1%; margin: 1%; background-color: #fafafa;}
+.alert_date {color: #888;}
 .dashboard_webapp_alert_repeater.kpi {border-left: 20px solid #DC2623; background-color: #fffafa;}
 
 

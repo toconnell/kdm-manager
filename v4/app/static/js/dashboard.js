@@ -1,5 +1,7 @@
 app.controller("dashboardController", function($scope, $rootScope, $http) {
 
+    $scope.scratch = {};
+
     $scope.initializeDashboard = function(user_oid) {
         // this places an object called 'dashboard' in the main namespace;
         // this was formerly user.dashboard in the v3 app and works nearly
@@ -122,5 +124,98 @@ app.controller("dashboardController", function($scope, $rootScope, $http) {
         };
 
     };
+
+    // preferences management; hybrid of angular and jinja2
+    $scope.setUserPreferences = function(prefsJSON) {
+        // use Jinja2 to inject details from current_user into $scope
+        $scope.scratch.userPreferences = prefsJSON;
+    };
+
+    $scope.setPref = function(prefHandle, newValue) {
+        // change a preference setting
+
+        var originalValue = $scope.scratch.userPreferences[prefHandle];
+
+        // first, change it in the browser
+        $scope.scratch.userPreferences[prefHandle] = newValue;
+
+        // then, if it's a change, let the API know
+        if (originalValue !== newValue) {
+            js_obj = {
+                preferences: [
+                    {handle: prefHandle, value: newValue}
+                ]
+            };
+            $scope.postJSONtoAPI('user', 'set_preferences', js_obj, false);
+        };
+    };
+
+
+    //
+    //  collection panel
+    //
+
+    // collection management; hybrid of angular and jinja2
+    $scope.setUserCollection = function(collectionJSON) {
+        // use Jinja2 to inject details from current_user into $scope
+        $scope.scratch.userCollection = collectionJSON;
+    };
+
+    $scope.toggleUserExpansion = function(expansionHandle) {
+        // toggles an expansion handle in or out of the user's list of expansions
+
+        var handleIndex = $scope.scratch.userCollection.expansions.indexOf(expansionHandle);
+
+        // toggle in the browser and the API at the same time:
+        if (handleIndex === -1) {
+            $scope.scratch.userCollection.expansions.push(expansionHandle);
+            $scope.postJSONtoAPI(
+                'user',
+                'add_expansion_to_collection',
+                {handle: expansionHandle},
+                false
+            );
+        } else {
+            $scope.scratch.userCollection.expansions.splice(handleIndex, 1);
+            $scope.postJSONtoAPI(
+                'user',
+                'rm_expansion_from_collection',
+                {handle: expansionHandle},
+                false
+            );
+        };
+
+        // now do that same operation in the API:
+        if (handleIndex === -1) {
+            $scope.scratch.userCollection.expansions.push(expansionHandle);
+        } else {
+            $scope.scratch.userCollection.splice(handleIndex, 1);
+        };
+    };
+
+
+    //
+    //  world
+    //
+    $scope.setWorld = function(force) {
+        // sets $rootScope.world from the API
+
+		$scope.world = undefined;
+
+        var reqUrl = $rootScope.APIURL + 'world';
+        console.time(reqUrl);
+
+        $http.get(reqUrl).then(
+            function successCallback(response) {
+                $scope.world = response.data.world;
+                console.timeEnd(reqUrl);
+            },
+            function errorCallback(response) {
+                console.error("Could not retrieve world info!");
+                console.error(response);
+                console.timeEnd(reqUrl);
+            }
+        );
+	};
 
 });

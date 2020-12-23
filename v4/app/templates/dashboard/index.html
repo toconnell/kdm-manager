@@ -13,63 +13,7 @@
     ng-if="apiStat"
 >
 
-    <span
-        class="hidden"
-        ng-if="{{current_user.settlements_created}} === 0"
-        ng-init="ngShow('dashboardWelcomeModal')"
-    >
-    </span>
-    <div
-        id="dashboardWelcomeModal"
-        class="ng_fade modal dashboard_welcome_modal hidden"
-        ng-if="ngVisible['dashboardWelcomeModal']"
-        ng-click="ngHide('dashboardWelcomeModal')"
-    >   
-        <p>
-            Welcome to <b>{{APP_NAME}}</b>, {{APP_TAG}}
-        </p>
-        <p>
-            <b>The Manager</b> is an interactive webapp intended to make it
-            easier to manage and share your Kingdom Death: <i>Monster</i>
-            campaigns.
-        </p>
-        <p>
-            This application is fan-maintained and <b>is not</b> supported by or
-            affiliated with Kingdom Death.
-        </p>
-        <p>
-            To get started, you will have to <b>create a new settlement</b>.
-            Once your new settlement is created, you will be shown a
-            <b>campaign summary</b>, which is like a dashboard for your
-            campaign.
-        </p>
-        <p>
-            From the <b>campaign summary</b>, you can use the controls in the
-            upper-left corner to add new survivors, view your settlement's
-            "sheet" and add/remove expansion content.
-        </p>
-        <p>
-            In order to add other players to your campaign, all you have to do
-            is navigate to an individual survivor's "sheet" and change that
-            survivor's email address to the email address of another registered
-            user of this site.
-        </p>
-        <p>
-            Changes to settlement and survivor sheets are always saved
-            automatically, unless otherwise indicated (e.g. by a "Save" button).
-        </p>
-        <p>
-            Finally, {{APP_NAME}} is <u>under active development</u> and
-            problems <b>will</b> occur! Please use the controls within the app
-            to report errors/issues.
-        </p>
-
-        <button class="kd_kickstarter_button kd_pink">
-            Click or tap anywhere to get started!
-        </button>
-
-    </div>
-
+    {% include 'dashboard/welcome.html' %}
 
     <div
         id="dashboardControlElement"
@@ -79,29 +23,12 @@
             initializeDashboard('{{current_user._id}}');
         "
     >
-        <!-- show a loader graphic/warning while we retrieve settlements -->
-        <div
-            id="dashboardLoader"
-            class="settlements_retrieved"
-            ng-if="
-                dashboard.settlementsRetrieved !==
-                dashboard.settlementsRequired
-            "
-        >
-            <div ng-if="dashboard.settlementsRequired !== undefined">
-                Retrieving settlement {a dashboard.settlementsRetrieved a} /
-                {a dashboard.settlementsRequired a}
-            </div>
-            <div class="corner_loading_spinner">
-                <img class="corner_loading_spinner" src="/static/media/loading_io.gif">
-            </div>
-        </div>
 
         <img
             class="dashboard_bg_art"
             src="/static/media/tree_logo_shadow.png"
-        /> <!-- DASHBOARD LOGO ART -->
-    
+        />
+
 
         {%  include 'dashboard/system.html' %}
         {%  include 'dashboard/collection.html' %}
@@ -110,6 +37,33 @@
         {%  include 'dashboard/world.html' %}
         {%  include 'dashboard/about.html' %}
         {%  include 'dashboard/alerts.html' %}
+
+
+        <!-- show a loader graphic/warning while we retrieve settlements -->
+        <div
+            id="dashboardSettlementsRetrieved"
+            class="ng_fadeout capsule_alert capsule_outer"
+            ng-if="
+                dashboard.settlementsRetrieved !==
+                dashboard.settlementsRequired
+            "
+        >
+            <div class="kd yellow capsule_inner">
+
+                <div class="short font_medium">
+                    <font class="kdm_font_hit_locations">a</font>
+                </div>
+
+                <div class="long font_small">
+                    Retrieving settlement {a dashboard.settlementsRetrieved a} /
+                    {a dashboard.settlementsRequired a}
+                </div>
+
+            </div><!-- capsule_inner -->
+
+        </div><!-- capsule_outer -->
+
+    </div> <!-- dashboardControlElement -->
 
 </body>
 

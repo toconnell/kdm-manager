@@ -4,8 +4,10 @@
 >
 
     <h2
-        class="clickable world_primary dashboard_rollup"
-        ng-click="rollUp('worldDiv');"
+        class="clickable dashboard_rollup kd black"
+        ng-click="
+            rollUp('worldDiv');
+        "
         ng-class="{'open': ngRolledUp['worldDiv'] === false}"
     >
         <span>
@@ -25,31 +27,52 @@
         class="
             roll_down_container
             dashboard_accordion
-            world_secondary
             world_container
             rolled_up
+            kd
+            black
         "
         ng-class="{'rolled_down': ngRolledUp['worldDiv'] === false}"
     >
 
-        <center ng-if="world === undefined">
-            <br/>
-            <img src="/static//media/loading_lantern.gif"><br/>
-            <span class="white">Retrieving World data...</span>
-            <br/>
-        </center>
-
-        <div class="world_panel_basic_box" ng-if="world != undefined">
-            <p>
-                <font class="green_text"> <b>{a world.active_settlements.value a} </b></font> Settlements are holding fast.
-                <font class="maroon_text"><b> {a world.abandoned_or_removed_settlements.value a} </b></font> have been abandoned.
-            </p>
-            <p>
-                <font class="green_text"> <b>{a world.live_survivors.value a}</b> </font> Survivors are alive and fighting.
-                <font class="maroon_text"><b>{a world.dead_survivors.value a}</b></font> have perished.</p>
+        <div
+            class="inline_spinner_container"
+            ng-if="
+                world === undefined && ngRolledUp['worldDiv'] === false
+            "
+            ng-init="setWorld()"
+        >
+            <img src="/static/media/loading_lantern.gif">
+            Retrieving World data...
         </div>
 
-        <div class="world_panel_basic_box" ng-if="world != undefined">
+        <div class="world_panel_basic_box" ng-if="world">
+
+            <p>
+                <font class="green_text">
+                    <b>{a world.active_settlements.value a} </b>
+                </font>
+                Settlements are holding fast.
+                <font class="maroon_text"><b>
+                    {a world.abandoned_or_removed_settlements.value a}
+                </b></font>
+                have been abandoned.
+            </p>
+
+            <p>
+                <font class="green_text"> <b>
+                    {a world.live_survivors.value a}
+                </b> </font>
+                Survivors are alive and fighting.
+                <font class="maroon_text"><b>
+                    {a world.dead_survivors.value a}
+                </b></font>
+                have perished.
+            </p>
+
+        </div> <!-- basic box -->
+
+        <div class="world_panel_basic_box" ng-if="world">
             <h3>Settlement Statistics</h3>
 
             <p>
@@ -70,7 +93,10 @@
 
             <table>
                 <tr><th colspan="2">Active Campaigns</th></tr>
-                <tr ng-repeat="(name,count) in world.settlement_popularity_contest_campaigns.value" ng-class-even="'zebra'">
+                <tr
+                    ng-repeat="(name,count) in world.settlement_popularity_contest_campaigns.value"
+                    ng-class-even="'zebra'"
+                >
                     <td>{a name a}</td> <td class="int_value">{a count a}</td>
                 </tr>
             </table>
@@ -117,14 +143,19 @@
 
             <table>
                 <tr><th>Survival Limit stats</th></tr>
-                <tr><td>Average Survival Limit:</td><td class="int_value">{a world.avg_survival_limit.value a}</td></tr>
-                <tr class="zebra"><td>Max Survival Limit:</td><td>{a world.max_survival_limit.value a}</td></tr>
+                <tr>
+                    <td>Average Survival Limit:</td>
+                    <td class="int_value">{a world.avg_survival_limit.value a}</td>
+                </tr>
+                <tr class="zebra">
+                    <td>Max Survival Limit:</td>
+                    <td>{a world.max_survival_limit.value a}</td>
+                </tr>
             </table>
-
 
         </div>
 
-        <div class="world_panel_basic_box" ng-if="world != undefined">
+        <div class="world_panel_basic_box" ng-if="world">
             <h3>Latest Settlement</h3>
             <table>
                 <tr><td colspan="2"><b>{a world.latest_settlement.value.name a}</b></td></tr>

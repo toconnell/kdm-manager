@@ -1,0 +1,57 @@
+<span
+    class="hidden"
+    ng-if="{{current_user.settlements_created}} === 0"
+    ng-init="ngShow('dashboardWelcomeModal')"
+>
+</span>
+
+<div
+    id="dashboardWelcomeModal"
+    class="ng_fade modal dashboard_welcome_modal hidden"
+    ng-if="ngVisible['dashboardWelcomeModal']"
+    ng-click="ngHide('dashboardWelcomeModal')"
+>
+    <p>
+        Welcome to <b>{{APP_NAME}}</b>, {{APP_TAG}}
+    </p>
+    <p>
+        <b>The Manager</b> is an interactive webapp intended to make it
+        easier to manage and share your Kingdom Death: <i>Monster</i>
+        campaigns.
+    </p>
+    <p>
+        This application is fan-maintained and <b>is not</b> supported by or
+        affiliated with Kingdom Death.
+    </p>
+    <p>
+        To get started, you will have to <b>create a new settlement</b>.
+        Once your new settlement is created, you will be shown a
+        <b>campaign summary</b>, which is like a dashboard for your
+        campaign.
+    </p>
+    <p>
+        From the <b>campaign summary</b>, you can use the controls in the
+        upper-left corner to add new survivors, view your settlement's
+        "sheet" and add/remove expansion content.
+    </p>
+    <p>
+        In order to add other players to your campaign, all you have to do
+        is navigate to an individual survivor's "sheet" and change that
+        survivor's email address to the email address of another registered
+        user of this site.
+    </p>
+    <p>
+        Changes to settlement and survivor sheets are always saved
+        automatically, unless otherwise indicated (e.g. by a "Save" button).
+    </p>
+    <p>
+        Finally, {{APP_NAME}} is <u>under active development</u> and
+        problems <b>will</b> occur! Please use the controls within the app
+        to report errors/issues.
+    </p>
+
+    <button class="kd_kickstarter_button kd_pink">
+        Click or tap anywhere to get started!
+    </button>
+
+</div>

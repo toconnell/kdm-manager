@@ -14,6 +14,7 @@ import sys
 
 # second party
 from bson.objectid import ObjectId
+import flask
 import requests
 
 # application imports
@@ -106,3 +107,4 @@ class Logout(Exception):
         self.logger = get_logger(log_name='errors')
         self.logger.error(message)
         self.logger.warn('Forcing logout...')
+        # app.errorhandler (in routes.py) takes it from here...

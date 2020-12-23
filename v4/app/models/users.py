@@ -28,7 +28,6 @@ def load_user(_id):
 
 class User(flask_login.UserMixin):
 
-
     def __init__(self, *args, **kwargs):
         """ Initializing a user requires a username and password. Upon init,
         the self.login() method is called, which sets self.token and the rest
@@ -39,6 +38,10 @@ class User(flask_login.UserMixin):
 
         # set kwargs to self.whatever
         vars(self).update(kwargs)
+
+        # go no further if we're logging the user out
+        if flask.request.endpoint == 'logout':
+            return None # __init__ needs to return None, not boolean
 
         if hasattr(self, '_id'):
             self.load()
@@ -84,7 +87,10 @@ class User(flask_login.UserMixin):
         response = requests.get(
             endpoint,
             verify = app.config['API']['verify_ssl'],
-            headers = {'Authorization': self.token},
+            headers = {
+                'Authorization': self.token,
+                'API-Key': app.config['API_KEY']
+            },
         )
 
         if response.status_code != 200:
@@ -165,13 +171,19 @@ class User(flask_login.UserMixin):
         response = requests.post(
             endpoint,
             verify = app.config['API']['verify_ssl'],
-            headers = {'Authorization': self.token},
+            headers = {
+                'Authorization': self.token,
+                'API-Key': app.config['API_KEY']
+            },
         )
 
         if response.status_code == 200:
             self.token = response.json()['access_token']
             return True
-
+        else:
+            self.logger.error('%s Could not refresh token!' % self)
+            self.logger.error('%s - %s' % (response.status_code, respons.text))
+            raise utils.Logout('Could not refresh JWT!')
 
 
     def reset_password(self, new_password=None, recovery_code=None):
@@ -216,3 +228,160 @@ class User(flask_login.UserMixin):
         if user_id is not None and user_token is not None:
             return True
         return False
+
+
+
+class Preferences:
+    """ Preferences for the webapp are an object: this makes them easier to work
+    with in routes.py, etc. since we can sweep more of the business logic under
+    the rug of methods here, etc. """
+
+    DEFAULTS = {
+        'default': True,
+        'subscriber_level': 0,
+        'type': 'general',
+    }
+
+    OPTIONS = {
+        "beta": {
+            "desc": "Enable Beta (&beta;) features of the Manager?",
+            "affirmative": "Enable",
+            "negative": "Disable",
+            "subscriber_level": 2,
+            'default': False,
+        },
+
+        # new assets
+        "random_names_for_unnamed_assets": {
+            "type": "general",
+            "desc": (
+                "Let the Manager choose random names for Settlements/Survivors "
+                "without names?"
+            ),
+            "affirmative": "Choose randomly",
+            "negative": "Use 'Unknown' and 'Anonymous'",
+        },
+
+        # new survivors
+        "apply_new_survivor_buffs": {
+            "type": "new_survivor_creation",
+            "desc": (
+                "Automatically apply settlement bonuses to new, newborn and "
+                "current survivors where appropriate?"
+            ),
+            "affirmative": "Automatically apply",
+            "negative": "Do not apply",
+        },
+        "apply_weapon_specialization": {
+            "type": "new_survivor_creation",
+            "desc": (
+                "Automatically add weapon specialization ability to living "
+                "survivors if settlement Innovations list includes that weapon "
+                "mastery?"
+            ),
+            "affirmative": "Add",
+            "negative": "Do Not Add",
+        },
+
+        # interface - campaign summary
+        "show_endeavor_token_controls": {
+            "type": "campaign_summary",
+            "desc": "Show Endeavor Token controls on Campaign Summary view?",
+            "affirmative": "Show controls",
+            "negative": "Hide controls",
+        },
+
+        # interface - survivor sheet
+        "show_epithet_controls": {
+            "type": "survivor_sheet",
+            "desc": "Use survivor epithets (tags)?",
+            "affirmative": "Show controls on Survivor Sheets",
+            "negative": "Hide controls and tags on Survivor Sheets",
+        },
+
+        # interface
+        "night_mode": {
+            "type": "ui",
+            "affirmative": "Dead Guardian (high contrast)",
+            "negative": "Glowing Center (default)",
+            "subscriber_level": 2,
+            'default': False,
+        },
+        "show_remove_button": {
+            "type": "ui",
+            "desc": "Show controls for removing Settlements and Survivors?",
+            "affirmative": "Show the Delete button",
+            "negative": "Hide the Delete button",
+            'default': False,
+        },
+        "show_ui_tips": {
+            "type": "ui",
+            "desc": "Display in-line help and user interface tips?",
+            "affirmative": "Show UI tips",
+            "negative": "Hide UI tips",
+            "subscriber_level": 2,
+        },
+        "show_dashboard_alerts": {
+            "type": "ui",
+            "desc": "Display webapp alerts on the Dashboard?",
+            "affirmative": "Show alerts",
+            "negative": "Hide alerts",
+            "subscriber_level": 2,
+        },
+    }
+
+    TYPES = {
+        'general': {
+            'name': 'General',
+            'sort': 0,
+        },
+        'ui': {
+            'name': 'Interface',
+            'sort': 1,
+        },
+        'campaign_summary': {
+            'name': 'Interface - Campaign Summary',
+            'sort': 2,
+        },
+        'survivor_sheet': {
+            'name': 'Interface - Survivor Sheet',
+            'sort': 3,
+        },
+        'new_survivor_creation': {
+            'name': 'New Survivor Creation',
+            'sort': 4,
+        },
+    }
+
+
+
+    def __init__(self):
+        self.logger = utils.get_logger()
+        pass
+
+
+    def dump(self, return_type=None):
+        """ Returns a representation of the prefrences object. Returns as JSON
+        by default; set 'return_type' to a type (e.g. dict) to get that type
+        back instead. """
+
+        # apply defaults
+        for option, option_dict in self.OPTIONS.items():
+            option_dict['handle'] = option
+            for key, value in self.DEFAULTS.items():
+                if option_dict.get(key, None) is None:
+                    option_dict[key] = value
+
+        # add options to types
+        for type_handle, type_dict in self.TYPES.items():
+            type_dict['options'] = []
+            for option, option_dict in self.OPTIONS.items():
+                if option_dict['type'] == type_handle:
+                    type_dict['options'].append(self.OPTIONS[option])
+
+        # finally, create a list of groups
+        output = []
+        for type_handle in self.TYPES.keys():
+            output.append(self.TYPES[type_handle])
+
+        return output

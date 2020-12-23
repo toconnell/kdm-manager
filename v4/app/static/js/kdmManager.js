@@ -15,10 +15,11 @@ app.filter(
 
 app.controller('rootScopeController', function($scope, $rootScope, $http, $timeout) {
 
-    $scope.init = function(apiUrl, apiKey) {
+    $scope.init = function(apiUrl, apiKey, requestEndpoint) {
 
         $rootScope.APIURL = apiUrl;
         $rootScope.APIKEY = apiKey;
+        $rootScope.VIEW = requestEndpoint;
 
 		// this is the main init() call for the WHOLE APPLICATION, so we go a
 		// bunch of critical stuff here, in terms of setting variables in the
@@ -55,11 +56,21 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
                 console.error('Could not stat API!');
                 console.error(response);
                 console.timeEnd(statURL);
+
+                // finally, if we can't stat the API on a non-login/-logout type
+                // of view, then we shit-can the whole thing and log the user
+                // out: this protects us from trying to load a view when the API
+                // is gone for whatever reason
+                if ($rootScope.VIEW != 'login' || $rootScope.VIEW != 'logout') {
+                    console.error('Logging out...')
+                    $rootScope.loadUrl("/")
+                };
+
             }
         );
     };
 
-    $scope.setJwtFromCookie = function() {
+    $rootScope.setJwtFromCookie = function() {
 		// injects the JWT into the root scope
         var cname = "kdm-manager_token";
         var name = cname + "=";
@@ -71,7 +82,7 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
                 c = c.substring(1);
             }
             if (c.indexOf('kdm-manager_token=') == 0) {
-                $scope.sessionOID = c.substring('kdm-manager_token='.length, c.length);
+                $rootScope.sessionOID = c.substring('kdm-manager_token='.length, c.length);
             };
             if (c.indexOf(name) == 0) {
                 $rootScope.JWT = c.substring(name.length, c.length);
@@ -237,7 +248,7 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
     //
     //  browsing and navigation helpers
     //
-    $scope.loadURL = function(destination) {
+    $rootScope.loadURL = function(destination) {
        // allows us to use ng-click to re-direct to URLs
         window.location = destination;
     };
@@ -246,17 +257,47 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
     //
     //  User asset retrival methods! These are GET-type methods only
     //
+    $rootScope.setExpansionAssets = function(force) {
+		// sets $rootScope.expansionAssets from the API
+
+		// first, just end and return if it's already set and we're not
+		// using 'force' to demand a reload/reset
+		if ($rootScope.expansionAssets !== undefined && force !== true) {
+			console.warn('Expansion content already loaded!');
+			return true
+		};
+        
+		// now do it
+		var reqUrl = $rootScope.APIURL + 'game_asset/expansions';
+		console.time(reqUrl);
+		$http.get(reqUrl).then(
+            function successCallback(response) {
+                $rootScope.expansionAssets = response.data;
+                console.timeEnd(reqUrl);
+            },
+            function errorCallback(response) {
+                console.error("Could not retrieve expansions!");
+                console.error(response);
+                console.timeEnd(reqUrl);
+            }
+        );
+    };
 
 
     //
     // misc. API methods below
     //
 
-    $scope.setLatestRelease = function() {
-        // sets $scope.latestRelease; present in the upper-most scope since
+    $scope.setLatestRelease = function(force) {
+        // sets $rootScope.latestRelease; present in the upper-most scope since
         // various views might call for it (for whatever dumbass reasons)
 
-        var reqURL = $scope.APIURL + 'releases/latest';
+		if ($rootScope.latestRelease !== undefined && force !== true) {
+			console.warn('Latest release already set!');
+			return true
+		};
+
+        var reqURL = $rootScope.APIURL + 'releases/latest';
         console.time(reqURL);
 
         $http({
@@ -265,14 +306,14 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
             data: {'platform': 'kdm-manager.com'},
         }).then(
             function successCallback(response) {
-                $scope.latestRelease = response.data;
-                $scope.latestRelease.versionString =
-                    $scope.latestRelease.version.major + "." +
-                    $scope.latestRelease.version.minor + "." +
-                    $scope.latestRelease.version.patch;
+                $rootScope.latestRelease = response.data;
+                $rootScope.latestRelease.versionString =
+                    $rootScope.latestRelease.version.major + "." +
+                    $rootScope.latestRelease.version.minor + "." +
+                    $rootScope.latestRelease.version.patch;
                 console.timeEnd(reqURL);
                 console.info('Latest published release is: ' +
-                    $scope.latestRelease.versionString
+                    $rootScope.latestRelease.versionString
                 );
             }, function errorCallback(response) {
                 console.error('Could not retrieve release info!');

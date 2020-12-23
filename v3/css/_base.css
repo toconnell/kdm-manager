@@ -49,6 +49,7 @@ html {
 body {
     font-family: 'Ruda';
     margin: 0 auto;
+    padding-bottom: 5rem;
 }
 button,
     input,
@@ -192,10 +193,11 @@ button:active,
 .capsule_alert {
     left: 50%;
     max-width: 75%;
+    min-width: 50%;  
     position: fixed;
     top: 25%;
     transform: translate(-50%, -50%);
-    width: 50vw;  
+    width: 100%; 
 }
 .capsule_outer {
     border: 0;
@@ -243,14 +245,15 @@ button:active,
     transform: translate(-50%, -50%);
 }
 .inline_spinner_container {
+    align-items: center; 
     display: flex;
     flex-direction: column;
-    align-items: center; 
     font-family: 'Silverado';
+    margin: 1rem auto 1rem auto;
 }
 .inline_spinner_container img {
-    width: 20vw;
     height: auto; 
+    width: 20vw;
 }
 
 
@@ -375,7 +378,7 @@ h2.login_splash {
     margin: 1rem; 
 }
 .login_downtime_warning {
-    margin: 1rem 0 5rem 0;
+    margin: 1rem 0 1rem 0;
     width: 75%; 
 }
 .login_field_error {
@@ -406,12 +409,10 @@ h2.login_splash {
     width: 90%; 
 }
 .login_footer_container {
-    bottom: 0;
     display: flex;
     flex-wrap: nowrap;
     justify-content: space-between;
-    margin: 7rem 1rem 1rem 1rem; 
-    position: absolute;
+    margin: 2rem 1rem 1rem 1rem; 
     width: 90%;
 }
 
@@ -1165,6 +1166,11 @@ input[type="radio"].gear_lookup_attrib_toggle {
     width: 70%;
 }
 
+#dashboardSettlementsRetrieved {
+    bottom: 0;
+    top: Auto;
+}
+
 /*  dashboard_rollup styles (the clickers on the dash) */
 .dashboard_welcome_modal {
     padding-top: 0; 
@@ -1212,6 +1218,12 @@ input[type="radio"].gear_lookup_attrib_toggle {
 #systemPanelUserLogin {
     font-family: 'Silverado';
     padding-top: 5%;
+}
+.dashboard_user_collection_repeater {
+    border: 0.1rem solid;
+    border-radius: 0.1rem;
+    margin: 5%;
+    padding-bottom: 2%;
 }
 .dashboard_user_expansions_repeater {
     display: flex;
@@ -1264,18 +1276,8 @@ input[type="radio"].gear_lookup_attrib_toggle {
     padding-bottom: 5%;
     margin-bottom: 3%;
 }
-.world_container {
-    display: flex;
-    flex-direction: column;
-}
-.world_panel_basic_box {
-    border: 1px solid;
-    margin: 3%;
-    padding: 1%;
-}
-.world_panel_basic_box h3 {
-    font-family: 'Silverado';
-}
+
+
 
 #dashboardAlertsViewer .kd_sheet_ui_inner_ring_container {
     padding-bottom: 1rem;
@@ -1318,6 +1320,44 @@ input[type="radio"].gear_lookup_attrib_toggle {
     text-align: right;
     width: 90%;
 }
+
+/*  dashboard   -  world  */
+
+.world_container {
+    display: flex;
+    flex-direction: column;
+}
+.world_panel_basic_box {
+    border: 1px solid;
+    margin: 3%;
+    padding: 1%;
+}
+.world_panel_basic_box h3 {
+    font-family: 'Silverado';
+}
+.world_panel_basic_box table {
+    border-collapse: collapse;
+    margin: 3% auto 3% auto;
+    width: 90%;
+}
+.world_panel_basic_box table td.int_value {
+    width: 10%;
+}
+.world_panel_basic_box table th.principle {
+    display: initial;
+    font-style: italic;
+    font-weight: normal;
+    margin: 0 auto;
+    margin-left: 4%;
+}
+.world_panel_avatar_cell {
+    text-align: center;
+}
+.world_panel_avatar {
+    width: 65%;
+}
+
+
 
 /*
 

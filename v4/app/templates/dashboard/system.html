@@ -1,7 +1,7 @@
 <div class="dashboard_menu">
 
     <h2
-        class="clickable system_primary dashboard_rollup"
+        class="clickable dashboard_rollup kd silver"
         ng-click="
             rollUp('dashboardSystemDiv');
         "
@@ -21,7 +21,7 @@
 
     <div
         id="dashboardSystemDiv"
-        class="roll_down_container dashboard_accordion system_secondary rolled_up"
+        class="roll_down_container dashboard_accordion rolled_up kd silver"
         ng-class="{'rolled_down': ngRolledUp['dashboardSystemDiv'] === false}"
     >
 
@@ -100,59 +100,79 @@
 
             </div> <!-- dashboard_preferences_container user_info -->
 
-        </div> <!-- dashboard_preferences_block_container -->
+        </div> <!-- systemPabnelUserLoginContainer -->
+
 
         <h3> Manage Preferences</h3>
-        <div class="dashboard_preferences_container">
-            <p>Use the controls below to update application-wide preferences.
-            These settings will affect all of your settlements and survivors!</p>
 
+        <div
+            class="dashboard_preferences_container"
+            ng-init='setUserPreferences({{current_user.preferences|tojson}})'
+        >
+
+            <p>
+                Use the controls below to update application-wide preferences.
+                These settings will affect all of your settlements and
+                survivors!
+            </p>
+
+            {% for group in PREFERENCES %}
             <div
                 class="dashboard_preference_block_group"
-                ng-repeat="group in user.preferences"
-                ng-init="group.visibleElements = 0"
             >
-                <h2
-                    ng-if="group.visibleElements > 0"
-                >
-                    {a group.name a}
-                </h2>
 
+                <h2>{{ group.name }}</h2>
+
+                {% for pref in group.options %}
                 <div
                     class="ng_fade dashboard_preference"
-                    ng-repeat="pref in group.items"
-                    ng-if="user.user.subscriber.level >= pref.patron_level ||
-                        pref.beta == user.user.preferences.beta
+                    ng-disabled="
+                        {{current_user.subscriber.level}} < {{pref.subscriber_level}}
                     "
-                    ng-init="group.visibleElements = group.visibleElements + 1"
                 >
-                    <p class="dashboard_preference_description" ng-bind-html="pref.desc|trustedHTML"></p>
-                    <div 
-                        class="dashboard_preference_elections_container"
-                    >
+                    <p class="dashboard_preference_description">
+                        {{ pref.desc|safe }}
+                    </p>
+
+                    <div class="dashboard_preference_elections_container">
 
                         <div
                             class="dashboard_preference_election_item clickable"
-                            ng-repeat="option in [
-                                ['affirmative', true],
-                                ['negative', false]
-                            ]"
-                            ng-click="setPref(pref, option[1])"
+                            ng-repeat="
+                                choice in [
+                                    ['affirmative', true], ['negative', false]
+                                ]
+                            "
+                            ng-click="setPref(
+                                '{{pref.handle}}', choice[1]
+                            )"
                         >
+
                             <div
                                 class="kd_sheet_ui_box"
                                 ng-class="{
-                                    'checked': pref.value === option[1]}
-                                "
-                            ></div>
-                            <div>
-                                {a  pref[option[0]]  a}
+                                    'checked': scratch.userPreferences.{{pref.handle}} === choice[1],
+                                }"
+                            >
                             </div>
+
+                            <div ng-if="choice[0] === 'affirmative'">
+                                {{ pref['affirmative'] }}
+                            </div>
+                            <div ng-if="choice[0] === 'negative'">
+                                {{ pref['negative'] }}
+                            </div>
+
                         </div>
 
-                    </div> <!-- dashboar_preference_elections_container -->
+                    </div> <!-- dashboard_preference_elections_container -->
+
                 </div><!-- dashboard_preference -->
+                {% endfor %} <!-- pref in group -->
+
             </div><!-- dashboard_preference_block_group -->
+            {% endfor %} <!-- group in PREFERENCES-->
+
         </div> <!-- dashboard_preferences -->
     </div> <!-- system_div -->
 </div> <!-- preferencesContainerElement -->
