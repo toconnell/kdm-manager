@@ -8,7 +8,6 @@
     #topNavBar {height: 6vh}
     .circular_button,
         #floating_dashboard_button {
-        top: 0.6rem;
     }
     #floating_dashboard_button {
         left: 0.6rem;
@@ -25,6 +24,15 @@
     .capsule_alert {
         width: 25vw; 
     }
+
+
+    /*  reusable UI and modal   desktop */
+    .modal-content {
+        margin-top: -25%;
+        max-width: 700px; 
+        width: 50%;
+    }
+
 
     /*  tabs - tablet   */
     .view_tab {
@@ -570,10 +578,6 @@
     }
 
     /*  affinity    */
-    .modal-content.survivor_affinities_modal {
-        width: 25%;
-    }
-
     .survivor_sheet_special_attribute_container {
         margin: 1%;
         padding: 1%; 
@@ -641,10 +645,6 @@
         width: 50%; 
     }
 
-    /*  report_error.html - desktop */
-    .modal-content.report_error {
-        width: 50%;
-    }
 
     /*  timeline.html - desktop  */
     .timeline_col_container {

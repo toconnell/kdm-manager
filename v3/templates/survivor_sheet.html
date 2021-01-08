@@ -1380,6 +1380,102 @@
         </div> <!-- understanding control -->
 
 
+        <!-- Echoes of Death 3 - Sword Oath -->
+        <div
+            class="ng_fade survivor_sheet_kd_sheet_ui_box border clickable"
+            ng-if="survivor.sheet.fighting_arts.indexOf('sword_oath') !== -1"
+            ng-class="{
+                'rolled_down': ngRolledUp['swordOathControl'] === false,
+            }"
+            ng-click="rollUp('swordOathControl')"
+            title="Sword Oath controller for {{survivor.sheet.name}}. Tap or click to edit!"
+        >
+
+            <div class="kd worksheet_row">
+	    		<div>
+	            	Sword Oath
+                </div>
+
+                <div
+                    class="subtitle"
+                    ng-if="survivor.sheet.sword_oath.sword"
+                >
+                    : <b>
+                        {{settlement.game_assets.gear[survivor.sheet.sword_oath.sword].name}}
+                    </b>
+                    ({{survivor.sheet.sword_oath.wounds}})
+                </div>
+			</div>
+
+            <div
+				class="kd worksheet_row checkbox_container"
+				ng-if="survivor.sheet.sword_oath.wounds > 0"
+			>
+                <div
+                    ng-repeat="block in range(survivor.sheet.sword_oath.wounds)"
+                    ng-class="{
+                        'red': block >= 17,
+                    }"
+                    class="kd checkbox checked"
+                >
+                </div>
+            </div>
+		</div>
+		<!-- survivor_sheet_kd_sheet_ui_box -->
+
+		<div
+  	        id="swordOathControl"
+            ng-controller="swordOathController"
+       	    class="kd_sheet_ui_roll_down rolled_up"
+        >
+
+            <div class="kd_sheet_ui_roll_down_controls integrated">
+
+                <div class="kd_sheet_ui_number_tumbler">
+
+                    <select
+                        class="kd_kickstarter_select"
+						ng-change="survivor.sheet.sword_oath.wounds = 0"
+                        ng-model="survivor.sheet.sword_oath.sword"
+                        ng-options='gear.handle as gear.name for gear in settlement.game_assets.gear| hasKeyword: "sword"'
+                    >
+                        <option value="" disabled selected>
+                            Select Sword
+                        </option>
+                    </select>
+
+   	                <button
+       	                class="kd_kickstarter_button"
+                    	ng-if="survivor.sheet.sword_oath.sword"
+            	        ng-click="
+               	            survivor.sheet.sword_oath.wounds = survivor.sheet.sword_oath.wounds + 1
+                   	    "
+                    >
+   	                    &#x25B2;
+       	            </button>
+           	        <button
+               	        class="ng_fade kd_kickstarter_button"
+	                    ng-if="survivor.sheet.sword_oath.sword"
+                   	    ng-click="
+                            survivor.sheet.sword_oath.wounds = survivor.sheet.sword_oath.wounds - 1
+   	                    "
+       	            >
+           	            &#x25BC;
+               	    </button>
+                    <button
+   	                    class="ng_fade kd_kickstarter_button kd_blue"
+       	                ng-click="
+           	                setSwordOath(survivor);
+               	            rollUp('swordOathControl')
+                   	    "
+                    >
+   	                    Save & Close
+       	            </button>
+           	    </div> <!-- number tumbler -->
+            </div><!-- roll down integrated -->
+	    </div>
+    	<!-- Echoes of Death 3 - Sword Oath -->
+
 
     </div> <!-- survivor_sheet_secondary_attribs_container -->
 
@@ -2519,14 +2615,20 @@
 
 <div
     id="removeSurvivorConfirmation"
-    class="modal-black hidden"
+    class="modal hidden"
     ng-controller="removeSurvivorController"
     ng-click="ngHide('removeSurvivorConfirmation')"
 >
     <div
-        class="rm_asset_confirm_container kd_red"
+        class="modal-content warning kd_red"
         ng-click="$event.stopPropagation()"
     >
+
+        <div
+            class="clickable corner_close_modal"
+            ng-click="ngHide('removeSurvivorConfirmation')"
+        >
+        </div>
 
         <h3 class="kd_title">DELETE SURVIVOR</h3>
 
@@ -2620,61 +2722,82 @@
 
 </div> <!-- partner modal selection menu / partnerSelect -->
 
+
 <!-- CURSED ITEMS CONTROLS -->
 <div
     id="cursedItemsController"
-    class="modal"
+    class="modal hidden"
     ng-if="ngVisible['cursedItemsController']"
+    ng-click="ngHide('cursedItemsController')"
 >
-    <div class="modal-content survivor_sheet_gradient">
-        <span class="closeModal" ng-click="ngHide('cursedItemsController')">×</span>
+    <div
+		class="modal-content survivor_affinities_modal gear_card_gradient"
+		ng-click="$event.stopPropagation()"
+	>
 
-        <h3>Cursed Items</h3>
-
-        <p>Use the controls below to add cursed items to a Survivor. Cursed
-        gear cannot be removed from the Survivor's gear grid. Archive the gear
-        when the survivor dies.</p>
-
-        <div class="cursed_items_flex_container">
-
-            <div
-                class="cursed_item_toggle"
-                ng-repeat="c in settlement.game_assets.cursed_items"
-                ng-click="toggleCursedItem(c.handle)"
-                ng-class="{
-                    'active': survivor.sheet.cursed_items.indexOf(c.handle) != -1
-                }"
-            >
-                <span class="cursed_item_name">{{c.name}}</span>
-
-                <div
-                    class="cursed_item_ability_block"
-                    ng-repeat="a in c.abilities_and_impairments"
-                >
-                    <span
-                        ng-if="settlement.game_assets.abilities_and_impairments[a] != undefined"
-                        class="cursed_item_ability"
-                    >
-                        {{settlement.game_assets.abilities_and_impairments[a].name}} -
-                    </span>
-                    <span
-                        class="cursed_item_ability_desc"
-                        ng-if="settlement.game_assets.abilities_and_impairments[a] != undefined"
-                        ng-bind-html="settlement.game_assets.abilities_and_impairments[a].desc|trustedHTML"
-                    >
-                    </span>
-
-                </div>
-
-            </div><!-- cursed_item_toggle -->
-        </div> <!-- cursed_items_flex_container-->
-
-        <button
-            class="kd_kickstarter_button"
+        <div
+            class="clickable corner_close_modal"
             ng-click="ngHide('cursedItemsController')"
         >
-            Close
-        </button>
+        </div>
+
+        <h3 class="kd title">Cursed Items</h3>
+
+        <p>
+			Cursed gear cannot be removed from the Survivor's gear grid.
+			Archive the gear when the survivor dies.
+		</p>
+
+        <div class="kd worksheet_block">
+
+			<div
+                ng-repeat="c in settlement.game_assets.cursed_items"
+                ng-click="toggleCursedItem(c.handle)"
+    	        class="clickable"
+			>
+
+	            <div
+    	            class="kd worksheet_row"
+        	    >
+                    <div
+                        class="kd checkbox"
+                        ng-class="{
+                    		'checked': survivor.sheet.cursed_items.indexOf(c.handle) !== -1,
+                        }"
+                    >
+                    </div>
+					<div
+						class="kd checkbox_desc"
+						ng-bind-html="c.name|trustedHTML"
+					>
+					</div>
+				</div> <!-- worksheet row -->
+			
+
+                <div
+                    ng-repeat="a in c.abilities_and_impairments"
+    	            class="ng_fade font_small kd worksheet_row"
+                    ng-if="survivor.sheet.cursed_items.indexOf(c.handle) !== -1"
+                >
+                    <div>
+                        <span
+                            ng-if="settlement.game_assets.abilities_and_impairments[a] != undefined"
+                            class="cursed_item_ability"
+                        >
+                            {{settlement.game_assets.abilities_and_impairments[a].name}} -
+                        </span>
+                        <span
+                            class="cursed_item_ability_desc"
+                            ng-if="settlement.game_assets.abilities_and_impairments[a] != undefined"
+                            ng-bind-html="settlement.game_assets.abilities_and_impairments[a].desc|trustedHTML"
+                        >
+                        </span>
+                    </div>
+                </div><!-- worksheet row-->
+
+			</div><!-- repeater/clicker -->
+
+        </div> <!-- worksheet_block -->
 
     </div> <!-- modal-content -->
 

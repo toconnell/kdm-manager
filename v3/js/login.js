@@ -264,9 +264,10 @@ app.controller("resetPasswordController", function($scope, $http) {
 });
 
 app.controller("helpController", function($scope, $http) {
+    $scope.resetRequest = {};
     $scope.resetPassword = function(api_url) {
         $scope.loading();
-        data = {'username': $scope.resetPasswordEmail};
+        data = {'username': $scope.resetRequest.resetPasswordEmail};
         $http({
             method: 'POST',
             url: api_url + "reset_password/request_code",
@@ -275,7 +276,7 @@ app.controller("helpController", function($scope, $http) {
                 $scope.loading('off');
                 var r = response.data;
                 var success_p = document.getElementById('successMessage');
-                success_p.innerHTML = 'An email containing further instructions has been sent to <b>' + $scope.resetPasswordEmail + '</b>.';
+                success_p.innerHTML = 'An email containing further instructions has been sent to <b>' + $scope.resetRequest.resetPasswordEmail + '</b>.';
                 $scope.showControls('help_success');
                 return
             }, function errorCallback(response) {

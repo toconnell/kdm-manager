@@ -245,6 +245,7 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
         );
     };
 
+
     $scope.toggleDamage = function(s, loc){
         // first, do it on the page, for responsiveness
         if (s.sheet[loc] !== undefined) {

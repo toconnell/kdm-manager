@@ -21,7 +21,7 @@
     justify-content: center;
     margin: 0;
     position: fixed;
-    top: 0.3rem;
+    top: 0.75vh;
     width: 3rem;
 }
 #floating_dashboard_button {
@@ -36,6 +36,8 @@
     --font-small: 0.6rem;
     --font-medium: 1rem;
     --font-large: 1.5rem;
+    --border-radius-card: 1rem;
+    --border-radius-sheet: 0.5rem;
     --box-shadow-material-design: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
 }
 
@@ -325,6 +327,37 @@ button:active,
     margin-top: 0;
     text-transform: lowercase;
 } 
+.fighting_art_card_strain_threshold_container {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    margin-bottom: -5%;
+    margin-top: 6%;
+    padding: 3%;
+    width: 100%;
+}
+.fighting_art_card_strain_threshold_blocks_container {
+    margin-bottom: 0;
+    margin-top: -6.5%;
+    text-align: center;
+    width: 100%;
+}
+.fighting_art_card_strain_threshold_blocks_container span {
+    margin-right: 1.5vw;
+}
+.fighting_art_card_strain_threshold_desc {
+    font-size: 0.7em;
+    text-align: center;
+    width: 100%;
+}
+.strain_block {
+    border: 0.1em solid;
+    display: inline-block;
+    height: 1rem;
+    margin-bottom: -0.3vh;
+    width: 1rem;
+}
 .survivor_sheet_card_click_to_remove {
     text-align:center;
     padding: 0.6rem;
@@ -1059,15 +1092,59 @@ input[type="radio"].gear_lookup_attrib_toggle {
 /*                                      */
 /*  modal - re-usable modal elements    */
 /*                                      */
+
+.modal {
+    align-items: center; 
+    bottom: 0;
+    display: flex;
+    height: auto;
+    left: 0;
+    overflow: auto; 
+    position: fixed;
+    justify-content: center; 
+    right: 0;
+    top: 0;
+}
+.modal-black {
+    align-items: center;
+    bottom: 0;
+    height: auto;
+    flex-direction: column;
+    left: 0;
+    overflow: scroll;
+    padding-top: 0;
+    position: fixed;
+    right: 0;
+    top: 0;
+    transition: 1s;
+    width: 100%;
+}
+.modal-content {
+    border: 0.1rem solid;
+    border-radius: var(--border-radius-sheet);
+    bottom: auto;
+    box-shadow: var(--box-shadow-material-design);
+    box-sizing: border-box;
+    margin: 1rem;
+    height: min-content;
+    padding: 1rem;
+    padding-bottom: 2rem;
+}
+.modal-content.warning {
+    border: 0.3rem solid;
+    min-height: 75%;
+}
+.modal-content p {text-align: center; }
+
+
 .corner_close_modal:before {    /*  large red X */
     content: "\274C";
 }
 .corner_close_modal {   /*  supersedes 'closeModal' class   */
     bottom: auto;
+    float: right;
     font-size: var(--font-large);
-    position: absolute;
-    right: 1rem;
-    top: 1rem;
+    height: 0; 
 }
 .floating_close_modal_button {  /* use with .kd_kickstarter_button */
     position: fixed;
@@ -1673,12 +1750,27 @@ h3.new_survivor_sheet {
 }
 
 /*  headline and diamonds   */
-    /* diamonds! */
-.shape-section {
-  padding: 20px 0;
+.headline_block {
+    align-items: center;
+    border-left: 1px solid;
+    border-right: 1px solid;
+    display: flex;
+    flex-direction: column;
+    width: 25%;
 }
 .headline_block_caption {
     text-align: center;
+}
+.headline_block_subtitle {
+    display: flex;
+    justify-content: space-evenly;
+    margin: 5%;
+    width: 90%;
+}
+
+    /* diamonds! */
+.shape-section {
+  padding: 20px 0;
 }
 .diamond {
   background: #000;
@@ -2001,6 +2093,10 @@ h3.new_survivor_sheet {
     border-bottom: 1px solid;
 }
 
+.survivor_quickview_container .kd_sheet_ui_roll_down_controls {
+    width: 85%;
+}
+
 .quickview_survivor_name_and_sex_bar {
     align-items: flex-end;
     border-bottom: solid;
@@ -2062,6 +2158,12 @@ h3.new_survivor_sheet {
     width: 50%;
     display: flex; 
 }
+.null_weapon_proficiency {  /*  the blank underline thing */
+    border-bottom: 1px solid;
+    display: block;
+    margin: 0 0.5rem 0 auto;
+    width: 70%;
+}
 .quickview_ui_button_container {
     border-top: solid; 
     text-align: center;
@@ -2080,8 +2182,12 @@ h3.new_survivor_sheet {
     border: 1px solid;
     margin: 1%; 
 }
+.quickview_asset_list {
+    padding: 0 0 0 1rem;
+}
 .quickview_asset_list li {
     list-style: none;
+    margin: 0.5rem 0 0 0;
 }    
 
 /*  departing survivors - base/mobile   */
@@ -2537,9 +2643,6 @@ h3.new_survivor_sheet {
     justify-content: space-evenly;
     margin-top: 5%; 
 }
-.survivor_sheet_affinity_controls_repeater .vertical_tumbler_container {
-    width: 30%; 
-}
 .affinity_block {
     width: 45%; 
 }
@@ -2786,7 +2889,7 @@ h3.new_survivor_sheet {
 }
 
 /*  survivor_sheet.html - 'extra' attributes: fav, savior, dead, etc. */
-/*      the 'ui_tiles_box' styles collect frd, savior, cursed, etc. */
+/*      the 'ui_tiles_box' styles collect frd, savior, etc. */
 .ui_tiles_box {
     display: flex;
 }
@@ -2921,28 +3024,6 @@ h3.new_survivor_sheet {
     width: 10vh;
 }
 
-    /* cursed items!? */
-.cursed_items_flex_container {
-    display: flex;
-    flex-direction: column; 
-    justify-content: center; 
-    padding: 0;
-}
-.cursed_item_toggle {
-    border: 1vw solid;
-    border-radius: 0.75rem;
-    box-sizing: border-box;
-    height: fit-content; 
-    margin: 3%;
-    padding: 1%; 
-    transition: 1s;
-}
-.cursed_item_name {
-    font-weight: bold;
-}
-.cursed_item_ability_desc b {
-    font-family: 'Silverado';
-}
 
 /*  survivor sheet admin tab */
 .survivor_sheet_public_toggle {

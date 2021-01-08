@@ -333,21 +333,37 @@
         >
 
             <!-- help text for normal showdowns -->
-            <div ng-if="settlement.sheet.showdown_type != 'special'" class="return_departing_survivors">
+            <div
+                ng-if="settlement.sheet.showdown_type != 'special'"
+                class="return_departing_survivors"
+                ng-init="warnings = [
+                    'Mark living survivors as <b>Returning Survivors</b>.',
+                    'Remove armor points from all survivors.',
+                    'Remove attribute modifiers (tokens/gear) and damage from all survivors.',
+                    'Automatically update Settlement <b>Endeavor Tokens</b>, adding one for each living survivor returned.'
+                ]"
+            >
+
                 <p>
                     Use the buttons below to return <b>Departing Survivors</b> to
                     <b>{{settlement.sheet.name}}</b>. If you do, the Manager will
                     automatically perform all of the following actions:
                 </p>
-                <ul class="kd_boxes">
-                    <li>Mark living survivors as <b>Returning Survivors</b>.</li>
-                    <li>Remove armor points from all survivors.</li>
-                    <li>Remove attribute modifiers (tokens/gear) and damage from
-                        all survivors.</li>
-                    <li>Automatically update Settlement <b>Endeavor Tokens</b>,
-                        adding one for each living survivor returned.
-                    </li>
-                </ul>
+
+                <div class="survivor_sheet_kd_sheet_ui_box"><!-- contains repeater -->
+                    <div
+                        class="kd worksheet_row"
+                        ng-repeat="warning in warnings"
+                    >
+                        <div class="kd checkbox checked"></div>
+                        <div
+                            class="kd checkbox_desc"
+                            ng-bind-html="warning|trustedHTML"
+                        >
+                        </div>
+                    </div>
+                </div><!-- contains repeater -->
+
                 <p>
                     You may also check the box below to automatically increment
                     the Lantern Year when returning departing survivors:
@@ -363,6 +379,7 @@
                 ng-click="toggleIncrementLY()"
                 ng-if="settlement.sheet.showdown_type != 'special'"
             >
+                
                 <div
                     class="kd_sheet_ui_box"
                     ng-class="{checked: scratch.increment_ly_on_return == true}"

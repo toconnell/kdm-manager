@@ -78,6 +78,14 @@
     .kd_kickstarter_button {padding: 2%; }
     .kd_kickstarter_select {height: 3.5vh;}
 
+
+    /*  reusable UI and modal   - tablet */
+    .modal-content {
+        margin-top: -15%;
+        width: 70%; 
+    }
+
+
     /*
 
         dashboard.html - tablet
@@ -355,9 +363,6 @@
     }
 
     /*  affinities  */
-    .modal-content.survivor_affinities_modal {
-        width: 50%;
-    }
     .affinity_block {
         height: 10vh;
         width: 10vh; 
@@ -449,8 +454,4 @@
         margin: 1%;
     }
 
-    /*  report_error.html   */
-    .modal-content.report_error {
-        width: 75%; 
-    }
 }

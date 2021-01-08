@@ -17,6 +17,8 @@ function rollUp(e_id) {
 
 function showHide(e_id, force) {
     console.error('The public showHide() method is deprecated and removed in version 4!');
+    console.error("showHide('" + e_id + "') will lose support in March 2021!");
+
     var e = document.getElementById(e_id);
     var hide_class = "hidden";
     var visible_class = "visible";
@@ -110,17 +112,15 @@ app.filter('orderObjectBy', function() {
   };
 });
 
-
-app.filter('filterObjectBy', function() {
-  return function(items, property, value) {
+app.filter('hasKeyword', function() {
+  return function(assets, keyword) {
     var filtered = [];
-    angular.forEach(items, function(item) {
-        if (item[property] === value) {
-            filtered.push(item);
+    angular.forEach(assets, function(asset) {
+        if (asset.keywords.indexOf(keyword) !== -1) {
+            filtered.push(asset);
         };
     });
-    console.warn(filtered);
-    return filtered;
+	return filtered;
   };
 });
 
@@ -1538,6 +1538,38 @@ app.controller('eventLogController', function($scope) {
         );
     };
 });
+
+
+app.controller('swordOathController', function($scope, $rootScope) {
+	// we have one of these in the campaign summary and the survivor sheet, so
+	// so they share a controller in neutral turf
+
+    $scope.setSwordOath = function(s) {
+        // uses the survivor sheet to POST to the API
+        var sword = s.sheet.sword_oath.sword;
+        var wounds = s.sheet.sword_oath.wounds;
+        var dict = {
+            'sword': sword,
+            'wounds': wounds
+        }
+
+        // hack city!
+        $rootScope.survivor_id = s.sheet._id.$oid;
+        var res = $scope.postJSONtoAPI('survivor', 'set_sword_oath', dict, false);
+        console.time('setSwordOath')
+        res.then(
+            function(payload) {
+                console.timeEnd('setSwordOath')
+            },
+            function(errorPayload){
+                console.error('Could not set Sword Oath!');
+                console.error(errorPayload);
+                console.timeEnd('setSwordOath')
+            }
+        );
+    };
+});
+
 
 app.controller('timelineController', function($scope) {
 

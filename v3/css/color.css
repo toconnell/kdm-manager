@@ -19,7 +19,7 @@
     --color-kd-yellow: #EEC051;
     --color-kd-yellow-gradient: radial-gradient(#FFC051, #EEC051);
     --color-kd-zebra: #eee;
-    --color-modal-blackout: rgba(0,0,0,0.9); 
+    --color-modal-blackout: rgba(0,0,0,0.7); 
 }
 
 /*                          */
@@ -60,6 +60,16 @@ input:active {  /* this is our on-click effect color */
     background: #fff;
 }
 
+/*  modal and modal-black   */
+.modal, .modal-black {
+    background: #000;
+    background: var(--color-modal-blackout);
+}
+.modal-content {
+    background: #fefefe;
+}
+.modal-black.departing_survivors_modal_container {background-color: #fff; color: #000;} 
+
 /* tabs - */
 
 #viewTabContainer { /*  the bar that contains the buttons */
@@ -95,7 +105,10 @@ input:active {  /* this is our on-click effect color */
     border-color: var(--color-kd-special-showdown);
 }
 
-.kd_sheet_ui_outer_ring_container {background-color: #fff; }
+.kd_sheet_ui_outer_ring_container {
+    background-color: #fff;
+    color: #000;
+}
 .kd_sheet_ui_inner_ring_container {background-color: #fff; color: #000; border-color: #000; }
 .kd_sheet_ui_border_box {border-color: #666; }
 .kd_sheet_ui_row_tip {background-color: #FFFFEC; color: #66411E; }
@@ -382,8 +395,6 @@ input:active {  /* this is our on-click effect color */
 #leftSideNavUnderlay {background: rgba(0,0,0,0.8); color: #fff; }
 .left_side_underlay_footer_container {color: #777; }
 
-/*  modal and modal-black   */
-.modal-black.departing_survivors_modal_container {background-color: #fff; color: #000;} 
 .applying_update_spinner {background: #fff; }
 
 
@@ -419,7 +430,10 @@ input:active {  /* this is our on-click effect color */
 .campaign_summary_survivor_returning_flash {background-color: #CD4438; color: #fff}
 
 .campaign_summary_campaign_type {color: #666; }
-.headline_block_caption {color: #333; }
+.headline_block_caption {
+    border-color: #ccc;
+    color: #333;
+}
 .campaign_summary_endeavor_container {background-color: #997030; color: #fff;}
 .campaign_summary_small_box.settlement_fact {border-color: #666;}
 .monster_subhead {color: #666; }

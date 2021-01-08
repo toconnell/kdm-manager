@@ -23,7 +23,11 @@
             a presentation problem or something more disruptive, reporting it
             here helps all other users!</p>
             <div class="report_error_form_container">
-                <form method="POST" action="/" class="report_error_form">
+                <form
+                    method="POST"
+                    action="/"
+                    class="report_error_form"
+                >
                     <input type="hidden" name="error_report" value="from_web">
                     <textarea
                         class="font_medium"
@@ -34,20 +38,9 @@
                         type="submit"
                         class="kd_kickstarter_button kd_pink"
                         value="submit"
-                        ng-click="
-                            showFullPageLoader();
-                            showHide('modalReportError')
-                        "
+                        onClick="showFullPageLoader()"
                     />
                 </form>
-
-                <button
-                    class="kd_kickstarter_button"
-                    ng-click="ngHide('modalReportError')"
-                >
-                     Close
-               </button>
-
             </div>
         </div>
     </div><!-- modal-content -->
