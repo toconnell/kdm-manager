@@ -1670,9 +1670,16 @@ h3.new_survivor_sheet {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
-    margin: -10vh auto 5rem auto;
-    padding-top: 4rem;
+    margin: auto;
+    padding: 10vh 0 0 0; 
+    position: absolute;
+    top: 0;
     width: 95%; 
+}
+.survivor_search_modal_content:after {
+    bottom: -10vh; 
+    content: "\00a0"; /*    white space; element needs content to work */
+    position: absolute;
 }
 .survivor_search_button {
     height: fit-content;
@@ -1706,6 +1713,10 @@ h3.new_survivor_sheet {
     height: 1.5vh;
     width: 1.5vh;
 }
+.survivor_search_survivor_sex .kd_sheet_ui_box:last-child {
+    margin-right: 0; 
+}
+
 .survivor_search_survivor_assets {
     display: flex;
     justify-content: space-between;
@@ -1717,14 +1728,14 @@ h3.new_survivor_sheet {
     margin-left: 1vw; 
 }
 .survivor_search_attrib_container {
+    align-items: center;
     display: flex;
     flex-direction: column;
+    text-indent: initial;
     width: 15%;
-    align-items: center;
 }
 .survivor_search_attrib_container span {
     padding-top: 1%;
-    font-size: 3vh; 
 }
 
 .survivor_search_results_warning {

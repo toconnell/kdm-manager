@@ -1115,15 +1115,7 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
 
 
         /* new survivor sheet! - tablet */
-    .new_survivor_sheet p {font-size: 18pt; }
-    .new_survivor_sheet .ui_tip {font-size: 15pt; }
     .new_survivor_sheet .border_box {border-width: 3px; }
-    .new_survivor_sheet .name {font-size: 25pt; }
-    .new_survivor_avatar {font-size: 15pt; }
-    .family_inheritance .donor_container,
-        .new_survivor_sheet .permissions .public,
-        .new_survivor_sheet .parent_selector .parent_dropdowns select,
-        .new_survivor_sheet .sex_selector {font-size: 20pt; }
     .new_survivor_link_container .new_survivor_link .desc .email {font-size: inherit; }
     .new_survivor_sheet_footer_button_container {margin: 0 auto; width: 60%; }
     .new_survivor_sheet_footer_button_container button { padding: 2%; margin-bottom: 1%; font-weight: normal; }
@@ -1132,7 +1124,7 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
         /* left and middle split the screen in tablet; right is a sort of foot */
 
 
-    .shield, .big_number_square {width: 65px; height: 80px; text-align: center; font-size: 25pt; padding: 0; }
+    .shield, .big_number_square {width: 65px; height: 80px; text-align: center; padding: 0; }
 
     .big_number_container {width: 130px; padding-right: 5px; height: auto; min-height: auto; text-align: center; }
     .big_number_container .big_number_container {width: 80px; padding: 0; height: 50px }
@@ -1380,16 +1372,6 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
     .quickview_asset_list {margin: 1%; padding: 0; }
 
 
-        /* survivor search Modal - tablet */
-    input.survivor_search {top: 1%;}
-    div.survivor_search_results_buttons {margin: 0 auto; }
-    div.survivor_search_results_buttons button {margin-top: 3px; }
-    div.survivor_search_results_buttons p.survivor_name {font-size: 35px; }
-    div.survivor_search_results_buttons div.survivor_assets {font-size: 26px; }
-    div.survivor_search_results_buttons div.survivor_assets b {font-family: Silverado; font-size: 25px; }
-    span.survivor_search_retired_survivors_warning {font-size: 25px;}
-
-    b.campaign_summary_survivor_name {font-size: 35px;}
 
     .campaign_summary_small_box h4 {margin-bottom: 0; }
     .campaign_summary_small_box.settlement_fact {border: 0; padding: 0; width: 95%; margin-left: 0; margin-top: 10%; }

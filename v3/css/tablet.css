@@ -113,13 +113,20 @@
 
     /*
 
-        SURVIVOR SEARCH - tablet
+        SURVIVOR SEARCH survivor_search.html - tablet
 
     */
     #survivorSearchModalOpener {
         height: 4vh;
     }
-    .survivor_search_survivor_assets {font-size: inherit;}
+    .survivor_search_modal_content {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    .survivor_search_button {
+        margin: 1%;
+        width: 48%;
+    }
 
     /*
 
