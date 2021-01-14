@@ -367,6 +367,11 @@ button:active,
     border-bottom-right-radius: 0.75rem;
 }
 
+
+    /*  gear grid   */
+
+
+
 /*  login.html  */
 
 body.login {
@@ -378,6 +383,8 @@ body.login div.container {
     align-items: center; 
     display: flex;
     flex-direction: column;
+    margin: 0 auto; 
+    max-width: 1300px;
     min-height: 100%; 
 }
 .login_splash {
@@ -1094,7 +1101,7 @@ input[type="radio"].gear_lookup_attrib_toggle {
 /*                                      */
 
 .modal {
-    align-items: center; 
+    align-items: flex-start; 
     bottom: 0;
     display: flex;
     height: auto;
@@ -1106,10 +1113,8 @@ input[type="radio"].gear_lookup_attrib_toggle {
     top: 0;
 }
 .modal-black {
-    align-items: center;
     bottom: 0;
     height: auto;
-    flex-direction: column;
     left: 0;
     overflow: scroll;
     padding-top: 0;
@@ -1125,16 +1130,17 @@ input[type="radio"].gear_lookup_attrib_toggle {
     bottom: auto;
     box-shadow: var(--box-shadow-material-design);
     box-sizing: border-box;
-    margin: 1rem;
+    margin: 1rem auto;
+    max-width: 95%; 
     height: min-content;
     padding: 1rem;
     padding-bottom: 2rem;
 }
+.modal-content p {text-align: center; }
 .modal-content.warning {
     border: 0.3rem solid;
     min-height: 75%;
 }
-.modal-content p {text-align: center; }
 
 
 .corner_close_modal:before {    /*  large red X */
@@ -1147,13 +1153,14 @@ input[type="radio"].gear_lookup_attrib_toggle {
     height: 0; 
 }
 .floating_close_modal_button {  /* use with .kd_kickstarter_button */
-    position: fixed;
-    top: auto;
     bottom: 0%;
     left: 0%;
-    right: 0%;
-    width: 90%;
     padding: 3%;
+    position: fixed;
+    max-width: 500px; 
+    right: 0%;
+    top: auto;
+    width: 90%;
 }
 
 .modal_control_overlay {    /*  used by the timeline */
@@ -1243,15 +1250,18 @@ input[type="radio"].gear_lookup_attrib_toggle {
     width: 70%;
 }
 
+.dashboard_welcome_modal {
+}
+.dashboard_welcome_modal p {
+    text-align: justify; 
+}
+
 #dashboardSettlementsRetrieved {
     bottom: 0;
     top: Auto;
 }
 
 /*  dashboard_rollup styles (the clickers on the dash) */
-.dashboard_welcome_modal {
-    padding-top: 0; 
-}
 .dashboard_rollup {
     align-items: center; 
     border: 0;
@@ -1292,9 +1302,13 @@ input[type="radio"].gear_lookup_attrib_toggle {
 .dashboard_kdm_font {
     vertical-align: middle;
 }
-#systemPanelUserLogin {
-    font-family: 'Silverado';
-    padding-top: 5%;
+.system_panel_card {
+    border-radius: var(--border-radius-sheet);
+    box-shadow: var(--box-shadow-default);
+    box-sizing: border-box; 
+    margin: 3% auto 3% auto;
+    padding: 0.5rem 1rem 1rem 1rem; 
+    width: 90%;
 }
 .dashboard_user_collection_repeater {
     border: 0.1rem solid;
@@ -1319,25 +1333,29 @@ input[type="radio"].gear_lookup_attrib_toggle {
     margin: 0 auto; 
     margin-top: 5%;
 }
-#dashboardCreateNewSettlement {margin-bottom: 6%;}
+#dashboardCreateNewSettlement {
+    margin: 1rem auto 2rem auto;
+}
 .dashboard_button_list button {
     width: 80%;
     text-align: left;
     padding: 3%;
 }
 .dashboard_settlement_list_settlement_button {
-    border-radius: 10px;
-    border-left: 1px solid #aaa;
-    border-top: 2px solid #aaa;
-    border-right: 1px solid #555;
-    border-bottom: 1px solid #222;
+    border: 0; 
+    border-radius: var(--border-radius-sheet);
+    box-shadow: var(--box-shadow-default);
     margin: 3%;
-    margin-right: 0; 
+    padding: 0.25rem 1rem 0.25rem 1rem;
 } 
 .dashboard_settlement_launch_button_settlement_name {
-    font-size: 1.5em;
     font-family: 'Silverado';
     font-weight: bold; 
+}
+.dashboard_settlement_list_settlement_attribs {
+    list-style-type: none; 
+    margin: 0.25rem;
+    padding: 0.25rem;
 }
 .dashboard_preference_elections_container {
     display: flex;
@@ -1646,6 +1664,24 @@ h3.new_survivor_sheet {
     letter-spacing: 1vw;
     text-align: center;
     transform: rotatez(-1deg);
+}
+
+
+/*  blood drop / bleeding token */
+
+.bleeding_token_container {
+    align-items: center;
+    display: flex;
+    justify-content: space-evenly;
+    width: 100%; 
+}
+.bleeding_token {
+    border: 0.2rem solid black;
+    border-radius: 80% 0 55% 50% / 55% 0 80% 50%;
+    height: 2.5rem;
+    transform: rotate(-45deg);
+    transition: 0.5s;
+    width: 2.5rem;
 }
 
 /*
@@ -2161,19 +2197,20 @@ h3.new_survivor_sheet {
     display: flex;
     flex-direction: column;
 }
-.secondary_attrib_box_row .weapon_proficiency_type {
-    font-size: 4vw;
+.weapon_proficiency_type {
+    align-items: center; 
+    display: flex;
     width: 50%;
+}
+.null_weapon_proficiency {  /*  the blank underline thing */
+    border-bottom: 0.1rem solid;
+    display: block;
+    margin: 0 1rem 0 0.5rem;
+    width: 100%;
 }
 .weapon_proficiency_boxes {
     width: 50%;
     display: flex; 
-}
-.null_weapon_proficiency {  /*  the blank underline thing */
-    border-bottom: 1px solid;
-    display: block;
-    margin: 0 0.5rem 0 auto;
-    width: 70%;
 }
 .quickview_ui_button_container {
     border-top: solid; 
@@ -2655,7 +2692,8 @@ h3.new_survivor_sheet {
     margin-top: 5%; 
 }
 .affinity_block {
-    width: 45%; 
+    height: 7rem;
+    width: 7rem; 
 }
 
 /*  sotf toggle box */

@@ -61,9 +61,11 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
                 // of view, then we shit-can the whole thing and log the user
                 // out: this protects us from trying to load a view when the API
                 // is gone for whatever reason
-                if ($rootScope.VIEW != 'login' || $rootScope.VIEW != 'logout') {
-                    console.error('Logging out...')
-                    $rootScope.loadUrl("/")
+                if ($rootScope.VIEW === 'login' || $rootScope.VIEW == 'logout') {
+                    console.warn('Not attempting automatic log-out...');
+                } else {
+                    console.error('Logging out...');
+                    $rootScope.loadURL("/logout");
                 };
 
             }

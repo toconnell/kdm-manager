@@ -1290,7 +1290,37 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
     };
 
 
-    // this is used by survivor sheet and campaign summary views!
+    //
+    // methods used by survivor sheet and campaign summary views!
+    //
+
+    $scope.setBleedingTokens = function(s) {
+        // uses the survivor sheet to POST to the API
+        if (!s.sheet.bleeding_tokens) {
+            console.warn('Setting Bleeding tokens to 0...')
+            s.sheet.bleeding_tokens = 0;
+        };
+
+        $rootScope.survivor_id = s.sheet._id.$oid;
+        var res = $scope.postJSONtoAPI(
+            'survivor',
+            'set_bleeding_tokens',
+            {value: s.sheet.bleeding_tokens},
+            false
+        );
+        console.time('setBleedingTokens')
+        res.then(
+            function(payload) {
+                console.timeEnd('setBleedingTokens')
+            },
+            function(errorPayload){
+                console.error('Could not set Bleeding Tokens!');
+                console.error(errorPayload);
+                console.timeEnd('setBleedingTokens')
+            }
+        );
+    };
+
     $scope.setSurvivorPrimaryAttributes = function(s, attrib){
 		// pass in a survivor object and the name of a primary attribute (Movement, etc.)
 		// to update it. Should work from anywhere
@@ -1303,6 +1333,31 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
             ],
         };
         var res = $scope.postJSONtoAPI('survivor', 'set_many_attributes', json_obj, false);
+    };
+
+    $scope.setSwordOath = function(s) {
+        // uses the survivor sheet to POST to the API
+        var sword = s.sheet.sword_oath.sword;
+        var wounds = s.sheet.sword_oath.wounds;
+        var dict = {
+            'sword': sword,
+            'wounds': wounds
+        }
+
+        // hack city!
+        $rootScope.survivor_id = s.sheet._id.$oid;
+        var res = $scope.postJSONtoAPI('survivor', 'set_sword_oath', dict, false);
+        console.time('setSwordOath')
+        res.then(
+            function(payload) {
+                console.timeEnd('setSwordOath')
+            },
+            function(errorPayload){
+                console.error('Could not set Sword Oath!');
+                console.error(errorPayload);
+                console.timeEnd('setSwordOath')
+            }
+        );
     };
 
 });
@@ -1539,36 +1594,6 @@ app.controller('eventLogController', function($scope) {
     };
 });
 
-
-app.controller('swordOathController', function($scope, $rootScope) {
-	// we have one of these in the campaign summary and the survivor sheet, so
-	// so they share a controller in neutral turf
-
-    $scope.setSwordOath = function(s) {
-        // uses the survivor sheet to POST to the API
-        var sword = s.sheet.sword_oath.sword;
-        var wounds = s.sheet.sword_oath.wounds;
-        var dict = {
-            'sword': sword,
-            'wounds': wounds
-        }
-
-        // hack city!
-        $rootScope.survivor_id = s.sheet._id.$oid;
-        var res = $scope.postJSONtoAPI('survivor', 'set_sword_oath', dict, false);
-        console.time('setSwordOath')
-        res.then(
-            function(payload) {
-                console.timeEnd('setSwordOath')
-            },
-            function(errorPayload){
-                console.error('Could not set Sword Oath!');
-                console.error(errorPayload);
-                console.timeEnd('setSwordOath')
-            }
-        );
-    };
-});
 
 
 app.controller('timelineController', function($scope) {

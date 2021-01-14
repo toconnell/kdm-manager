@@ -9,10 +9,13 @@
 
 <div
     id="dashboardWelcomeModal"
-    class="ng_fade modal dashboard_welcome_modal hidden"
+    class="ng_fade modal hidden"
     ng-class="{true: 'visible', false: 'hidden'}[user.dashboard.settlements.length == 0]"
     ng-click="showHide('dashboardWelcomeModal')"
 >
+    <div
+        class="modal-content dashboard_welcome_modal"
+    >
     <p>Welcome to <b>https://kdm-manager.com</b>, the original online campaign
     manager for Kingdom Death: <i>Monster</i>!</p>
     <p><b>The Manager</b> is an interactive webapp intended to make it
@@ -32,9 +35,14 @@
     automatically, unless otherwise indicated (e.g. by a "Save" button).</p>
     <p>Finally, this application is <u>under active development</u> and problems <b>will</b>
     occur! Please use the controls within the app to report errors/issues.</p>
-    <button class="kd_kickstarter_button kd_pink">
-        Click or tap anywhere to get started!
-    </button>
+
+    <center>
+        <div class="kd pink rulebook_warning">
+            Click or tap anywhere to get started!
+        </div>
+    </center>
+
+    </div>
 </div>
 
 <div
@@ -56,7 +64,7 @@
 
     <div class="dashboard_menu">
         <h2
-            class="clickable system_primary dashboard_rollup"
+            class="clickable system_primary dashboard_rollup kd silver"
             ng-click="
                 rollUp('dashboardSystemDiv');
             "
@@ -76,7 +84,7 @@
 
         <div
             id="dashboardSystemDiv"
-            class="roll_down_container dashboard_accordion system_secondary rolled_up"
+            class="roll_down_container dashboard_accordion system_secondary rolled_up kd silver"
             ng-class="{'rolled_down': ngRolledUp['dashboardSystemDiv'] === false}"
         >
 
@@ -312,7 +320,7 @@
                         class="dying_lantern dashboard_settlement_list_settlement_button"
                         onclick="showFullPageLoader(); this.form.submit()"
                     >
-                        <b class="dashboard_settlement_launch_button_settlement_name">{{s.sheet.name}}</b>
+                        <b class="font_large dashboard_settlement_launch_button_settlement_name">{{s.sheet.name}}</b>
                         <br/><i>{{s.sheet.campaign_pretty}}</i>
                         <ul class="dashboard_settlement_list_settlement_attribs">
                             <li ng-if="s.meta != undefined && s.meta.creator_email != user_login"><i>Created by:</i>{{s.meta.creator_email}}</li>
@@ -425,7 +433,7 @@
                         class="dying_lantern dashboard_settlement_list_settlement_button"
                         onclick="showFullPageLoader(); this.form.submit()"
                     >
-                        <b class="dashboard_settlement_launch_button_settlement_name">{{s.sheet.name}}</b>
+                        <b class="font_large dashboard_settlement_launch_button_settlement_name">{{s.sheet.name}}</b>
                         <span class="maroon_text" ng-if="s.sheet.abandoned != undefined">[ABANDONED]</span>
                         <br/><i>{{s.campaign_pretty}}</i>
                         <ul class="dashboard_settlement_list_settlement_attribs">

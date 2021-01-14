@@ -44,13 +44,13 @@
         </li>
 
         <li
-            ng-if="lineage.events !== undefined"
+            ng-if="lineage !== undefined"
         >
             <a
                 href=""
-                ng-click="dumpJSONtoTab(lineage.events)"
+                ng-click="dumpJSONtoTab(lineage)"
             >
-                survivor events JSON
+                get_lineage JSON
             </a>
         </li>
     </ul>

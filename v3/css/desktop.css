@@ -28,7 +28,6 @@
 
     /*  reusable UI and modal   desktop */
     .modal-content {
-        margin-top: -25%;
         max-width: 700px; 
         width: 50%;
     }
@@ -189,7 +188,8 @@
 
     /*  gear_lookup.html - desktop */
     .gear_lookup_container {
-        max-width: 1400px; 
+        max-width: 1400px;
+        min-width: 65%;  
     }
     .gear_repeater_container {
         display: flex;
@@ -355,16 +355,9 @@
         width: 40%;
     }
     .secondary_attrib_box_row.hunt_xp {width: 70%; }
-    .secondary_attrib_box_row .weapon_proficiency_type {
-        font-size: 10pt;
-        width: 100%; 
-    }
     .secondary_attrib_box_row.courage,
         .secondary_attrib_box_row.understanding {
         font-size: 12pt; 
-    }
-    .weapon_proficiency_type {
-        font-size: 10pt; 
     }
     .weapon_proficiency_boxes {
         width: 75%;        
@@ -420,10 +413,6 @@
     .survivor_search_modal_content {
         flex-direction: row;
         flex-wrap: wrap;
-        left: 16%;
-        margin-bottom: 15%; 
-        right: 16%;
-        top: 0;
     }
     .survivor_search_button {
         margin: 1%; 

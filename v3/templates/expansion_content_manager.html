@@ -91,9 +91,9 @@
 
                 <!-- regular close; no mods -->
                 <button
-                    class="kd_kickstarter_button"
+                    class="kd_kickstarter_button floating_close_modal_button"
                     ng-if="scratch.expansions_updated === false"
-                    onClick="showHide('modalExpansionsManager')"
+                    ng-click="ngHide('modalExpansionsManager')"
                 >
                     Close
                 </button>
@@ -120,8 +120,11 @@
                     </p>
 
                     <button
-                        class="kd_kickstarter_button"
-                        onclick="showHide('modalExpansionsManager'); showFullPageLoader()"
+                        class="kd_kickstarter_button floating_close_modal_button"
+                        ng-click="
+                            ngHide('modalExpansionsManager');
+                            showFullPageLoader()
+                        "
                         ng-if="scratch.expansions_updated"
                         ng-class="{
                             kd_blue: scratch.expansion_removed === undefined,

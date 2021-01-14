@@ -106,9 +106,9 @@ app.controller("dashboardController", function($scope, $rootScope, $http) {
     //  system panel
     //
 
-    $scope.updatePassword = function(){
+    $scope.updatePassword = function() {
 		// updates a user's password and logs them out;
-        if ($scope.scratch.password == $scope.scratch.password_again) {
+        if ($scope.scratch.password === $scope.scratch.password_again) {
             $scope.postJSONtoAPI(
 				'user',
 				'update_password',
@@ -128,7 +128,9 @@ app.controller("dashboardController", function($scope, $rootScope, $http) {
     // preferences management; hybrid of angular and jinja2
     $scope.setUserPreferences = function(prefsJSON) {
         // use Jinja2 to inject details from current_user into $scope
-        $scope.scratch.userPreferences = prefsJSON;
+        var True = true;
+        var False = false;
+        $scope.scratch.userPreferences = eval(prefsJSON);
     };
 
     $scope.setPref = function(prefHandle, newValue) {

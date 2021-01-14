@@ -79,12 +79,6 @@
     .kd_kickstarter_select {height: 3.5vh;}
 
 
-    /*  reusable UI and modal   - tablet */
-    .modal-content {
-        margin-top: -15%;
-        width: 70%; 
-    }
-
 
     /*
 
@@ -209,7 +203,6 @@
         font-size: 1vh;
         padding-bottom: 2%;
     }
-    .secondary_attrib_box_row .weapon_proficiency_type {font-size: 1.5vh; }
     .quickview_asset_list_title_bar .title {font-size: 2.5vh; }
     .quickview_asset_list_title_bar .subtitle,
         .quickview_asset_list_title_bar .lockbox {font-size: 1.3vh; }

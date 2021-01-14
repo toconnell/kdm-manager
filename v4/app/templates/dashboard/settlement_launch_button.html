@@ -14,7 +14,7 @@
 </span>
 
 <div
-    class="dashboard_settlement_launch_button_settlement_name"
+    class="font_large dashboard_settlement_launch_button_settlement_name"
 >
     {a s.name a}
 </div>
@@ -36,17 +36,19 @@
     ng-if="s.loadError !== undefined"
     title="{a s.loadError a}"
 >
-    <div class="kd_red_text">
-        <b>Error!</b>
-    </div>
-    <div>
-        This settlement exists, but attempting to retrieve additional
-        information about it from the API resulted in an error.
-    </div>
-    <div>
-        You may attempt to launch the settlement in spite of this, but please
-        report any errors using the Manager's navigation bar.
-    </div>
+    <ul class="dashboard_settlement_list_settlement_attribs">
+        <li>
+            <b class="kd_red_text">Error!</b>
+        </li>
+        <li>
+            This settlement exists, but attempting to retrieve additional
+            information about it from the API resulted in an error.
+        </li>
+        <li>
+            You may attempt to launch the settlement in spite of this, but please
+            report any errors using the Manager's navigation bar.
+        </li>
+    </ul>
 </div>
 
 <div
@@ -64,7 +66,7 @@
             {a s.sheet.expansions.length a} expansions
         </li>
         <li ng-if="s.meta != undefined && s.meta.creator_email != user_login">
-            <i>Created by:</i>{a s.meta.creator_email a}
+            <i>Created by:</i> {a s.meta.creator_email a}
         </li>
         <li ng-if="s.meta.age !== undefined">
             <i>Started:</i> {a s.meta.age a} ago

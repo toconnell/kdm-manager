@@ -300,13 +300,6 @@ class Preferences:
         },
 
         # interface
-        "night_mode": {
-            "type": "ui",
-            "affirmative": "Dead Guardian (high contrast)",
-            "negative": "Glowing Center (default)",
-            "subscriber_level": 2,
-            'default': False,
-        },
         "show_remove_button": {
             "type": "ui",
             "desc": "Show controls for removing Settlements and Survivors?",
@@ -332,7 +325,7 @@ class Preferences:
 
     TYPES = {
         'general': {
-            'name': 'General',
+            'name': 'General Preferences',
             'sort': 0,
         },
         'ui': {
@@ -340,11 +333,11 @@ class Preferences:
             'sort': 1,
         },
         'campaign_summary': {
-            'name': 'Interface - Campaign Summary',
+            'name': 'Campaign Summary',
             'sort': 2,
         },
         'survivor_sheet': {
-            'name': 'Interface - Survivor Sheet',
+            'name': 'Survivor Sheet',
             'sort': 3,
         },
         'new_survivor_creation': {

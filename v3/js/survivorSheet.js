@@ -12,10 +12,15 @@ app.controller("survivorSheetController", function($scope) {
         },
         {
             id: 1,
-            name: 'Notes',
+            name: 'Gear Grid',
+            debug: true,
         },
         {
             id: 2,
+            name: 'Notes',
+        },
+        {
+            id: 3,
             name: 'Logs',
         },
         {
@@ -133,6 +138,21 @@ app.controller("survivorSheetController", function($scope) {
 
     };
 
+    // gear grid
+    $scope.setGearGrid = function() {
+        if ($scope.survivor.sheet.gear_grid === undefined) {
+            console.warn('Ignoring attempt to save blank/undef gear grid...');
+            return true;
+        };
+        // sets the gear grid
+        $scope.postJSONtoAPI(
+            'survivor',
+            'set_gear_grid',
+            {'gear_grid': $scope.survivor.sheet.gear_grid},
+            false, true, false
+        );
+    };
+
 
     // email
     $scope.resetEmail = function() {
@@ -164,6 +184,7 @@ app.controller("survivorSheetController", function($scope) {
         $scope.postJSONtoAPI('survivor','set_partner', js_obj, false);
         $scope.loadPartnerInfo(); 
     };
+
     $scope.loadPartnerInfo = function() {
         if ($scope.survivor.sheet.partner_id !== undefined) {
             console.log('Loading partner OID ' + JSON.stringify($scope.survivor.sheet.partner_id));
@@ -216,6 +237,7 @@ app.controller("survivorSheetController", function($scope) {
             };
         };
     });
+
     $scope.addEpithet = function () {
         if ($scope.scratch.new_epithet === null) {return false};
         if ($scope.scratch.new_epithet === undefined) {console.error("'" + $scope.scratch.new_epithet + "' is not a handle!"); return false};
@@ -229,6 +251,7 @@ app.controller("survivorSheetController", function($scope) {
         };
         $scope.initAssetLists();
     };
+
     $scope.rmEpithet = function (ep_index) {
         var removedEpithet = $scope.survivor.sheet.epithets[ep_index];
         $scope.survivor.sheet.epithets.splice(ep_index, 1);

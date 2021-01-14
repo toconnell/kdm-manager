@@ -60,6 +60,13 @@ input:active {  /* this is our on-click effect color */
     background: #fff;
 }
 
+.bleeding_token.active {
+    border-color: #fff;
+    box-shadow: var(--box-shadow-default);
+    background: var(--color-kd-special-showdown);
+    background: var(--color-kd-bleeding-token);
+}
+
 /*  modal and modal-black   */
 .modal, .modal-black {
     background: #000;
@@ -67,6 +74,10 @@ input:active {  /* this is our on-click effect color */
 }
 .modal-content {
     background: #fefefe;
+}
+.modal-black.dashboard_alerts {
+    background-color: #fff;
+    color: #000;
 }
 .modal-black.departing_survivors_modal_container {background-color: #fff; color: #000;} 
 
@@ -349,10 +360,6 @@ input:active {  /* this is our on-click effect color */
 
 /*  DASHBOARD   */
 
-.dashboard_welcome_modal {
-    color: #fff;
-    background: rgba(0,0,0,0.95);
-}
 .dashboard_preference_block_group h2 {border-color: #bbb;}
 .dashboard_user_collection_repeater {
     background: rgba(255,255,255,0.6);

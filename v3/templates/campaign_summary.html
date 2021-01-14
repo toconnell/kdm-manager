@@ -381,6 +381,7 @@
                                         ng-if="isVisible(s_modal_id)"
                                         ng-init="
                                             survivalBoxID = 'survivalControl' + s.sheet._id.$oid;
+                                            bleedBoxID = 'bleedControl' + s.sheet._id.$oid;
                                             brainBoxID = 'brainControl' + s.sheet._id.$oid;
                                             huntXPBoxID = 'huntXPControl' + s.sheet._id.$oid;
                                             weaponProficiencyBoxID = 'weaponProficiencyControl' + s.sheet._id.$oid;
@@ -676,6 +677,65 @@
                                                     </div>
                                                 </div>
 
+            <!-- bleeding_tokens -->
+            <div
+                class="hitbox_container"
+                title="Bleeding Tokens"
+            >
+                <div
+                    class="bleeding_token_container"
+					ng-click="rollUp(bleedBoxID)"
+                >
+					<div
+                    	ng-repeat="token_value in [1,2,3,4,5]"
+						class="kd bleeding_token"
+						ng-class="{
+							'active': token_value <= s.sheet.bleeding_tokens,
+						}"
+					>
+					</div>
+					<div
+						ng-if="s.sheet.bleeding_tokens >= token_value"
+                    	ng-repeat="token_value in [6,7]"
+						class="ng_fade kd bleeding_token active"
+					>
+					</div>
+                </div>
+			</div>
+            <div
+                id="{{bleedBoxID}}"
+                class="kd_sheet_ui_roll_down rolled_up"
+            >
+                <div class="kd_sheet_ui_roll_down_controls">
+                    <div class="kd_sheet_ui_number_tumbler">
+                        <button
+							ng-disabled="s.sheet.bleeding_tokens === 7"
+                            class="kd_kickstarter_button"
+                            ng-click="s.sheet.bleeding_tokens = s.sheet.bleeding_tokens + 1"
+                        >
+                            &#x25B2;
+                        </button>
+                        <button
+							ng-disabled="s.sheet.bleeding_tokens === 0"
+                            class="kd_kickstarter_button"
+                            ng-click="s.sheet.bleeding_tokens = s.sheet.bleeding_tokens - 1"
+                        >
+                            &#x25BC;
+                        </button>
+                        <button
+                            class="kd_kickstarter_button kd_blue"
+                            ng-click="
+                                setBleedingTokens(s);
+                                rollUp(bleedBoxID)
+                            "
+                        >
+                            Save Bleeding Tokens
+                        </button>
+                    </div> <!-- number tumbler -->
+                </div><!-- roll_down_controls -->
+            </div><!-- roll_down container + loc box ID -->
+            <!-- bleeding tokens -->
+
 
             <!-- hit location repeater! -->
             <div
@@ -848,12 +908,15 @@
                  >
 
                      <div class="weapon_proficiency_type">
-                         <b>Type</b>:
-                         <span
+                         <b class="font_small">Type:&nbsp;</b>
+                         <div
                             class="null_weapon_proficiency"
                             ng-if="s.sheet.weapon_proficiency_type == undefined"
-                         ></span>
-                         <span ng-if="s.sheet.weapon_proficiency_type != undefined">
+                         ></div>
+
+                         <span
+                            ng-if="s.sheet.weapon_proficiency_type != undefined"
+                         >
                              {{settlement.game_assets.weapon_proficiency_types[s.sheet.weapon_proficiency_type].name}}
                          </span>
                      </div>
@@ -1071,7 +1134,6 @@
 
             <!-- SWORD OATH - Echoes of Death 3-->
             <div
-                ng-controller="swordOathController"
                 ng-if="s.sheet.fighting_arts.indexOf('sword_oath') !== -1"
                 ng-init="swordOathControls = s._id.$oid + 'SwordOathControls'"
                 class="quickview_secondary_container"
@@ -1127,8 +1189,9 @@
                                 &#x25B2;
                             </button>
                             <button
-                                ng-if="s.sheet.sword_oath.sword"
                                 class="ng_fade kd_kickstarter_button"
+                                ng-if="s.sheet.sword_oath.sword"
+                                ng-disabled="s.sheet.sword_oath.wounds === 0"
                                 ng-click="s.sheet.sword_oath.wounds = s.sheet.sword_oath.wounds - 1"
                             >
                                 &#x25BC;

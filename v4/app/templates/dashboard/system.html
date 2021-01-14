@@ -25,154 +25,221 @@
         ng-class="{'rolled_down': ngRolledUp['dashboardSystemDiv'] === false}"
     >
 
-        <div id="systemPanelUserLoginContainer">
+        <p class="font_small">
+            &emsp; KDM API v{a apiStat.meta.api.version a} by
+            {a apiStat.meta.info.copyright a}
+        </p>
 
-            <h3 id="systemPanelUserLogin"> {{current_user.login}} </h3>
+        <div class="system_panel_card gear_card_gradient">
 
-            <div class="preferences_sub_block preferences_sign_out">
-
-                <button
-                    class="kd_kickstarter_button"
-                    ng-click="loadURL('/logout')"
+            <h3 class="kd title">User Info</h3>
+            <div class="kd worksheet_row">
+                <div class="kd checkbox checked"></div>
+                <div class="kd checkbox_desc">
+                    <i>{{current_user.login}}</i>
+                </div>
+            </div>
+            <div class="kd worksheet_row">
+                <div
+                    class="kd checkbox"
+                    ng-class="{
+                        'checked': '{{current_user.verified_email}}' === true,
+                    }"
                 >
-                    SIGN OUT
-                </button>
-
+                </div>
+                <div class="kd checkbox_desc">
+                    Verified email
+                </div>
+            </div>
+            <div class="kd worksheet_row">
+                <div class="kd checkbox checked"></div>
+                <div class="kd checkbox_desc">
+                    Registered user for {{current_user.age}}
+                </div>
+            </div>
+            <div class="kd worksheet_row">
+                <div
+                    class="kd checkbox"
+                    ng-class="{
+                        'checked': {{current_user.subscriber.level}} > 0,
+                    }"
+                >
+                </div>
+                <div
+                    class="kd checkbox_title"
+                >
+                    <span
+                        ng-if="{{ current_user.subscriber.level }} > 0"
+                    >
+                        <b>{{ current_user.subscriber.desc }}</b>
+                    </span>
+                    <span
+                        ng-if="{{ current_user.subscriber.level }} === 0"
+                    >
+                        Non-subscriber / free user
+                    </span>
+                </div>
+            </div>
+            <div class="kd worksheet_row">
+                <div
+                    class="kd checkbox"
+                    ng-class="{
+                        'checked': {{current_user.subscriber.level}} > 0,
+                    }"
+                >
+                </div>
+                <div class="kd checkbox_desc">
+                    <span
+                        ng-if="{{ current_user.subscriber.level }} > 0"
+                    >
+                        Subscriber for {{ current_user.subscriber.age }}
+                    </span>
+                    <span
+                        class="disabled"
+                        ng-if="{{ current_user.subscriber.level }} === 0"
+                    >
+                        Subscriber for 0 days
+                    </span>
+                </div>
             </div>
 
-            <div class="dashboard_preferences_container user_info">
-                <p>Registered user for {{current_user.age}}.</p>
-
-                <p ng-if="{{current_user.subscriber.level}} < 1">
-                    <a
-                        href="https://thelaborinvain-2.myshopify.com/"
-                        target="top"
-                    >
-                        Support the Manager! Buy a subscription!
-                    </a>
-                </p>
-
-                <p ng-if="{{current_user.subscriber.level}} > 0">
-                    Subscription level: <b>{{ current_user.subscriber.desc }}.</b>
-                </p>
-
-                <p ng-if="{{current_user.subscriber.level}} > 0">
-                    Subscriber for <b>{{ current_user.subscriber.age }}.</b>
-                </p>
-
-                <p ng-if="{{current_user.preferences.beta}} === true" class="maroon_text">
-                    <b>Beta features of the Manager have been enabled!</b> 
-                </p>
-
-                <div class="preferences_sub_block preferences_change_pw">
-                    <p>
-                        <b>Change Password!</b>
-                    </p>
-
-                    <input
-                        class="kd capsule"
-                        type="password"
-                        ng-model="scratch.password"
-                        placeholder="new password"
-                        ng-focus="scratch.saved_password = undefined"
-                    />
-                    <input
-                        class="kd capsule"
-                        type="password"
-                        ng-model="scratch.password_again"
-                        placeholder="new password (again)"
-                    />
-                    <button
-                        ng-click="updatePassword()"
-                        class="kd_kickstarter_button kd_pink"
-                        ng-if="scratch.password != undefined && scratch.password == scratch.password_again"
-                    >
-                        Change Password
-                    </button>
-                    <p
-                        ng-if="scratch.saved_password"
-                    >
-                        Password updated!
-                        <b>Signing out...</b>
-                    </p>
-
-                </div> <!-- preferences_sub_block preferences_change_pw -->
-
-            </div> <!-- dashboard_preferences_container user_info -->
-
-        </div> <!-- systemPabnelUserLoginContainer -->
-
-
-        <h3> Manage Preferences</h3>
-
-        <div
-            class="dashboard_preferences_container"
-            ng-init='setUserPreferences({{current_user.preferences|tojson}})'
-        >
-
-            <p>
-                Use the controls below to update application-wide preferences.
-                These settings will affect all of your settlements and
-                survivors!
-            </p>
-
-            {% for group in PREFERENCES %}
-            <div
-                class="dashboard_preference_block_group"
+            <button
+                class="kd capsule full_width pink"
+                ng-if="{{current_user.subscriber.level}} < 1"
+                ng-click="loadURL('https://thelaborinvain-2.myshopify.com/')"
             >
+                Buy a subscription!
+            </button>
 
-                <h2>{{ group.name }}</h2>
+            <button
+                class="kd capsule full_width"
+                ng-click="loadURL('/logout')"
+            >
+                SIGN OUT
+            </button>
 
-                {% for pref in group.options %}
-                <div
-                    class="ng_fade dashboard_preference"
-                    ng-disabled="
-                        {{current_user.subscriber.level}} < {{pref.subscriber_level}}
+        </div>
+
+
+        <div class="system_panel_card gear_card_gradient">
+
+            <h3 class="kd title">Change Password</h3>
+
+                <p>
+                    The Manager does not enforce any length or complexity
+                    requirements for passwords, so please use good judgement!
+                </p>
+
+                <input
+                    class="kd capsule full_width"
+                    type="password"
+                    ng-model="scratch.password"
+                    placeholder="new password"
+                    ng-focus="scratch.saved_password = undefined"
+                />
+                <input
+                    class="kd capsule full_width"
+                    type="password"
+                    ng-model="scratch.password_again"
+                    placeholder="new password (again)"
+                />
+                <button
+                    ng-click="updatePassword()"
+                    class="ng_fade kd capsule full_width pink"
+                    ng-if="
+                        scratch.password !== undefined &&
+                        scratch.password == scratch.password_again
                     "
                 >
-                    <p class="dashboard_preference_description">
-                        {{ pref.desc|safe }}
-                    </p>
+                    Change Password
+                </button>
 
-                    <div class="dashboard_preference_elections_container">
+                <div
+                    class="kd capsule pink"
+                    ng-if="scratch.saved_password"
+                >
+                    Password updated!
+                    <b>Signing out...</b>
+                </div>
 
-                        <div
-                            class="dashboard_preference_election_item clickable"
-                            ng-repeat="
-                                choice in [
-                                    ['affirmative', true], ['negative', false]
-                                ]
-                            "
-                            ng-click="setPref(
-                                '{{pref.handle}}', choice[1]
-                            )"
+        </div> <!-- system_panel_card (change pw) -->
+
+        <!-- hack city!!! -->
+        <span
+            class="hidden font_small"
+            ng-init='setUserPreferences("({{current_user.preferences}})")'
+        >
+            |prefs|{a scratch.userPreferences a}|prefs|
+        </span>
+
+        {% for group in PREFERENCES %}
+
+            <div class="system_panel_card gear_card_gradient">
+
+                <h3 class="kd title">{{ group.name }}</h3>
+
+                {% for pref in group.options %}
+
+                    <div
+                        class="ng_fade dashboard_preference"
+                        ng-disabled="
+                            {{current_user.subscriber.level}} < {{pref.subscriber_level}}
+                        "
+                    >
+                        <p
+                            class="dashboard_preference_description"
                         >
+                            {{ pref.desc|safe }}
+                        </p>
+
+                        <div class="dashboard_preference_elections_container">
 
                             <div
-                                class="kd_sheet_ui_box"
-                                ng-class="{
-                                    'checked': scratch.userPreferences.{{pref.handle}} === choice[1],
-                                }"
+                                class="kd worksheet_row clickable"
+                                ng-repeat="
+                                    choice in [
+                                        ['affirmative', true],
+                                        ['negative', false]
+                                    ]
+                                "
+                                ng-click="setPref(
+                                    '{{pref.handle}}', choice[1]
+                                )"
                             >
+
+                                <div
+                                    class="kd checkbox"
+                                    ng-class="{
+                                        'checked': scratch.userPreferences['{{pref.handle}}'] === choice[1],
+                                    }"
+                                >
+                                </div>
+
+                                <div
+                                    class="kd checkbox_desc"
+                                    ng-if="choice[0] === 'affirmative'"
+                                >
+                                    {{ pref['affirmative'] }}
+                                </div>
+
+                                <div
+                                    class="kd checkbox_desc"
+                                    ng-if="choice[0] === 'negative'"
+                                >
+                                    {{ pref['negative'] }}
+                                </div>
+
                             </div>
 
-                            <div ng-if="choice[0] === 'affirmative'">
-                                {{ pref['affirmative'] }}
-                            </div>
-                            <div ng-if="choice[0] === 'negative'">
-                                {{ pref['negative'] }}
-                            </div>
+                        </div> <!-- dashboard_preference_elections_container -->
 
-                        </div>
+                    </div><!-- dashboard_preference -->
 
-                    </div> <!-- dashboard_preference_elections_container -->
-
-                </div><!-- dashboard_preference -->
                 {% endfor %} <!-- pref in group -->
 
             </div><!-- dashboard_preference_block_group -->
-            {% endfor %} <!-- group in PREFERENCES-->
 
-        </div> <!-- dashboard_preferences -->
-    </div> <!-- system_div -->
-</div> <!-- preferencesContainerElement -->
+        {% endfor %} <!-- group in PREFERENCES-->
+
+    </div> <!-- dashboardSystemDiv -->
+</div> <!-- dashboard_menu -->

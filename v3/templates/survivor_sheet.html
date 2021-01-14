@@ -51,6 +51,7 @@
             class="view_tab_button"
             ng-class="{'active': tabsObject.activeTab === tab.id}"
             ng-click="changeTab(tab.id);"
+            ng-if="tab.debug !== true || NGDEBUG"
         >
             {{tab.name}}
         </div>
@@ -557,28 +558,93 @@
 		        ng-class="{'insane': survivor.sheet.Insanity >= 3}"
             >
                <div class="kd_sheet_ui_number_tumbler">
-                   <button
-                       class="kd_kickstarter_button"
-                       ng-click="survivor.sheet.Insanity = survivor.sheet.Insanity + 1"
-                   >
-                       &#x25B2;
-                   </button>
-                   <button
-                       class="kd_kickstarter_button"
-                       ng-click="survivor.sheet.Insanity = survivor.sheet.Insanity - 1"
-                   >
-                       &#x25BC;
-                   </button>
-                   <button
-                       class="kd_kickstarter_button kd_blue"
-                       ng-click="updateAttrib('Insanity'); rollUp('insanityHitBoxControl')"
-                   >
-                       Save & Close
-                   </button>
+                    <button
+                        class="kd_kickstarter_button"
+                        ng-click="survivor.sheet.Insanity = survivor.sheet.Insanity + 1"
+                    >
+                        &#x25B2;
+                    </button>
+                    <button
+                        class="kd_kickstarter_button"
+                        ng-click="survivor.sheet.Insanity = survivor.sheet.Insanity - 1"
+                    >
+                        &#x25BC;
+                    </button>
+					<button
+                        class="kd_kickstarter_button kd_blue"
+                    	ng-click="
+							updateAttrib('Insanity');
+							rollUp('insanityHitBoxControl')
+						"
+                    >
+						Save & Close
+                    </button>
                </div> <!-- number tumbler -->
            </div>
         </div>
-        
+
+
+		<!-- bleeding tokens! -->
+        <div
+            class="hitbox_container"
+            title="Bleeding Tokens"
+        >
+            <div
+                class="bleeding_token_container"
+                ng-click="rollUp('bleedingTokensControls')"
+            >
+                <div
+                    ng-repeat="token_value in [1,2,3,4,5]"
+                    class="kd bleeding_token"
+                    ng-class="{
+                        'active': token_value <= survivor.sheet.bleeding_tokens,
+                    }"
+                >
+                </div>
+                <div
+                    ng-if="survivor.sheet.bleeding_tokens >= token_value"
+                    ng-repeat="token_value in [6,7]"
+                    class="ng_fade kd bleeding_token active"
+                >
+                </div>
+            </div>
+        </div>
+        <div
+            id='bleedingTokensControls'
+            class="kd_sheet_ui_roll_down rolled_up"
+        >
+            <div class="kd_sheet_ui_roll_down_controls">
+                <div class="kd_sheet_ui_number_tumbler">
+                    <button
+                        ng-disabled="survivor.sheet.bleeding_tokens === 7"
+                        class="kd_kickstarter_button"
+                        ng-click="survivor.sheet.bleeding_tokens = survivor.sheet.bleeding_tokens + 1"
+                    >
+                        &#x25B2;
+                    </button>
+                    <button
+                        ng-disabled="s.sheet.bleeding_tokens === 0"
+                        class="kd_kickstarter_button"
+                        ng-click="survivor.sheet.bleeding_tokens = survivor.sheet.bleeding_tokens - 1"
+                    >
+                        &#x25BC;
+                    </button>
+                    <button
+                        class="kd_kickstarter_button kd_blue"
+                        ng-click="
+                            setBleedingTokens(survivor);
+                            rollUp('bleedingTokensControls')
+                        "
+                    >
+                        Save Bleeding Tokens
+                    </button>
+                </div> <!-- number tumbler -->
+            </div><!-- roll_down_controls -->
+        </div><!-- roll_down container + loc box ID -->
+        <!-- bleeding tokens -->
+
+
+
         <!-- HIT LOCATIONS -->
         <div
             class="hit_location_repeater"
@@ -1006,7 +1072,7 @@
                 ng-if="survivor.sheet.weapon_proficiency_type !== null"
             >
                 <div>
-                    <b>Type:</b> {{settlement.game_assets.weapon_proficiency_types[survivor.sheet.weapon_proficiency_type].name}}
+                    <b>Type:&nbsp;</b> {{settlement.game_assets.weapon_proficiency_types[survivor.sheet.weapon_proficiency_type].name}}
                 </div>
             </div>
         </div> <!-- survivor_sheet_kd_sheet_ui_box -->
@@ -1425,7 +1491,6 @@
 
 		<div
   	        id="swordOathControl"
-            ng-controller="swordOathController"
        	    class="kd_sheet_ui_roll_down rolled_up"
         >
 
@@ -1455,6 +1520,7 @@
        	            </button>
            	        <button
                	        class="ng_fade kd_kickstarter_button"
+                        ng-disabled="survivor.sheet.sword_oath.wounds === 0"
 	                    ng-if="survivor.sheet.sword_oath.sword"
                    	    ng-click="
                             survivor.sheet.sword_oath.wounds = survivor.sheet.sword_oath.wounds - 1
@@ -2070,6 +2136,80 @@
 
 </div> <!-- end of the survivor sheet! -->
 
+<!-- 
+
+    GEAR GRID starts here!
+
+-->
+
+<div
+    id="survivorGearGridTab"
+    class="view_tab"
+    ng-show='tabsObject.activeTab === 1'
+>
+
+    <div
+        class="survivor_sheet_gear_grid_container"
+		ng-init="scratch.showGearGrid = true"
+    >
+
+    <table>
+        <tr
+            ng-repeat="row in ['top','middle','bottom']"
+            title="{{row}} row"
+        >
+            <td
+                ng-repeat="col in ['left','middle','right']"
+            >
+				<center>{{row}}_{{col}}</center>
+
+                <div class="gear_card_container gear_card_gradient">
+					<center
+						ng-if="survivor.sheet.gear_grid[row + '_' + col]"
+					>
+						{{settlement.game_assets.gear[survivor.sheet.gear_grid[row + '_' + col]].name}}
+						<hr/>
+						<font class="font_small">
+							{{settlement.game_assets.gear[survivor.sheet.gear_grid[row + '_' + col]].sub_type_pretty}}
+						</font>
+					</center>
+					<div
+						ng-if="!survivor.sheet.gear_grid[row + '_' + col]"
+					>
+						<center>None</center>
+					</div>
+                </div>
+
+                <select
+                    class="kd_kickstarter_select"
+                    ng-model="survivor.sheet.gear_grid[row + '_' + col]"
+                    ng-options='gear.handle as gear.name for gear in settlement.game_assets.gear'
+                >
+                    <option value="" disabled selected>
+                        Select Gear
+                    </option>
+                </select>
+            </td>
+        </tr>
+    </table>
+
+	<button
+		class="kd capsule"
+		ng-click="survivor.sheet.gear_grid = {}"
+	>
+		Reset / Clear
+	</button>
+
+	<button
+		class="kd capsule blue"
+		ng-click="setGearGrid()"
+	>
+		Save Changes
+	</button>
+
+    </div><!-- gear grid container -->
+
+</div> <!-- gear grid  tab ends -->
 
     <!-- 
 
@@ -2080,7 +2220,7 @@
     <div
         id="survivorViewNotesTab"
         class="view_tab"
-        ng-show='tabsObject.activeTab === 1'
+        ng-show='tabsObject.activeTab === 2'
     >
 
         <!-- 
@@ -2439,7 +2579,7 @@
 <div
     id="survivorViewLogsTab"
     class="view_tab"
-    ng-show='tabsObject.activeTab === 2'
+    ng-show='tabsObject.activeTab === 3'
 >
 
     <div
@@ -2816,37 +2956,42 @@
     id="modalSavior"
     class="modal hidden"
     ng-if="ngVisible['modalSavior']"
+    ng-click="ngHide('modalSavior')"
 >
-    <div class="modal-content survivor_sheet_gradient">
+
+    <div class="modal-content" ng-click="$event.stopPropagation">
+
         <span
-            class="closeModal"
+            class="corner_close_modal"
             ng-click="ngHide('modalSavior')"
-        >
-            ×
-        </span>
+        ></span>
 
-        <h3>Savior</h3>
+        <h3 class="kd title">Savior</h3>
 
-        <button
-            class="kd_kickstarter_button affinity_red"
+        <p>
+            Use these controls to make <b>{{ survivor.sheet.name }}</b> into a 
+            Savior: this will add all Abilities & Impairments, increase
+            the survivor's natural affinities and tag them.
+        </p>
+
+        <div
+            class="kd capsule full_width affinity_red clickable"
             ng-click="setSaviorStatus('red')"
         >
             Dream of the Beast
-        </button>
-        <button
-            class="kd_kickstarter_button affinity_green"
+        </div>
+        <div
+            class="kd capsule full_width affinity_green clickable"
             ng-click="setSaviorStatus('green')"
         >
             Dream of the Crown
-        </button>
-        <button
-            class="kd_kickstarter_button affinity_blue"
+        </div>
+        <div
+            class="kd capsule full_width affinity_blue clickable"
             ng-click="setSaviorStatus('blue')"
         >
             Dream of the Lantern
-        </button>
-
-        <br/>
+        </div>
 
         <button
             class="kd_kickstarter_button"
