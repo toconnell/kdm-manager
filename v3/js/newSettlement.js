@@ -14,7 +14,7 @@ app.controller('newSettlementController', function($scope, $http) {
         // the 'sheet' for the new settlement
         name: null,
         campaign: 'people_of_the_lantern', 
-        specials: [],
+        macros: [],
         expansions: [],
         survivors: [],
     };
@@ -35,7 +35,7 @@ app.controller('newSettlementController', function($scope, $http) {
     };
 
     $scope.toggleAttrib = function(type, handle) {
-        // elements such as 'specials' and 'expansions' are lists; this is a
+        // elements such as 'macros' and 'expansions' are lists; this is a
         // generic method for 'toggling' an item on or off of those lists
         var index = $scope.newSettlement[type].indexOf(handle);
         if (index == -1) {

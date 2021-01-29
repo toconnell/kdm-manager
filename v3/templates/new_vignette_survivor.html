@@ -1,0 +1,184 @@
+<div
+    class="hidden modal"
+    id="modalNewVignetteSurvivorContainer"
+    ng-if="ngVisible['modalNewVignetteSurvivorContainer']"
+	ng-click="ngHide('modalNewVignetteSurvivorContainer')"
+>
+
+	<!-- hack city!!! -->
+	<span
+		class="hidden"
+		ng-if="!vignetteSurvivors"
+		ng-init="loadVignetteSurvivors()"
+	>
+	</span>
+
+    <div class="modal-content" ng-click="$event.stopPropagation()">
+
+	    <div
+    	    class="clickable corner_close_modal"
+            ng-click="ngHide('modalNewVignetteSurvivorContainer')"
+        >
+        </div>
+
+		<h3 class="kd title">New Vignette Survivor</h3>
+
+		<p>
+			Vignette Survivors may only be added to the campaign if the
+			expansion to which they belong has also been added first!
+		</p>
+
+        <div
+            ng-repeat="expansionHandle in vignetteExpansions"
+        >
+    		<div
+    			ng-repeat="vSurv in vignetteSurvivors|orderObjectBy:'name'"
+                ng-if="vSurv.expansion === expansionHandle"
+                ng-init="survivorButtonId = vSurv.handle + 'ButtonId'"
+                class="kd vignette_survivor_card_container"
+                ng-class="{
+                    'yellow': ngVisible[survivorButtonId] === true,
+                }"
+	    	>
+
+                <div
+    	    		class="clickable kd vignette_survivor_card"
+                    ng-click="ngShowHide(survivorButtonId)"
+                >
+
+                    <div
+                        class="ly"
+                        ng-if="vSurv.ly"
+                    >
+                        &#8987; {{ vSurv.ly }}
+                    </div>
+
+                    <div
+                        class="title_bar"
+                    >
+                        <div class="name font_large silverado">
+                            {{ vSurv.attribs.name }}
+                            <div class="subtitle font_medium">
+                                {{ vSurv.subtitle }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="avatar_bar"
+                    >
+                        <div
+                            class="survival_actions"
+                        >
+    						<div
+	    						class="survival_action"
+		    					ng-repeat="action in vSurv.attribs.fixed_survival_actions"
+			    			>
+				    			<div class="kd checkbox tiny checked"></div>
+					    		<div class="capitalize">{{action}}</div>
+    						</div>
+	    					
+                        </div>
+                        <div
+                            class="avatar"
+                        >
+    	                    <img
+        	                    class="survivor_avatar_image"
+            	                ng-src="/media/default_avatar_{{vSurv.attribs.sex}}.png"
+                        	/>
+                        </div>
+                        <div
+                            class="hit_locations"
+                        >
+                            <div class="hit_location insanity">
+                                Insanity
+		    					<div
+			    					class="kd inline_shield tiny"
+				    			>
+					    			<span ng-if="vSurv.attribs.Insanity">
+	 	                               {{ vSurv.attribs.Insanity }}
+							    	</span>
+								    <span ng-if="!vSurv.attribs.Insanity">
+    	 	                           0
+	    							</span>
+		    					</div>
+                            </div>
+				    		<div
+    							ng-repeat="loc in [
+	    			                {name: 'Head', glyph: 'b'},
+		    		                {name: 'Arms', glyph: 'd'},
+			    	                {name: 'Body', glyph: 'c'},
+				                    {name: 'Waist', glyph: 'e'},
+				                    {name: 'Legs', glyph: 'f'},
+						    	]"
+    							class="hit_location"
+	    					>
+		    					<font class="kdm_font_2">{{ loc.glyph }}</font>
+			    				<div
+				    				class="kd inline_shield tiny"
+					    		>
+						    		<span ng-if="vSurv.attribs[loc.name]">
+	 	                               {{ vSurv.attribs[loc.name] }}
+								    </span>
+    								<span ng-if="!vSurv.attribs[loc.name]">
+	     	                           0
+		    						</span>
+			    				</div>
+				    		</div><!-- glyph repeater -->
+                        </div>
+                    </div>
+
+                    <div
+                        class="kd attributes_table"
+                    >
+                        <div
+                            class="large_cell"
+                        >
+                            <div class="title">Survival</div>
+                            <font ng-if="vSurv.attribs.survival">
+                                {{vSurv.attribs.survival}}
+                            </font>
+                            <font ng-if="!vSurv.attribs.survival">
+                                0
+                            </font>
+                        </div>
+                        <div
+                            class="cell"
+                            ng-repeat="attrib in [
+                                'Movement',
+                                'Accuracy',
+                                'Strength',
+                                'Evasion',
+                                'Luck',
+                                'Speed',
+                                'Courage',
+                                'Understanding'
+                             ]"
+                        >
+                            <div class="title">{{ attrib.substring(0,3) }}</div>
+                            <span ng-if="vSurv.attribs[attrib]">
+                                {{vSurv.attribs[attrib]}}
+                            </span>
+                            <span ng-if="!vSurv.attribs[attrib]">
+                                0
+                            </span>
+                        </div>
+                    </div> <!-- attributes table -->
+
+                </div> <!-- vignette survivor card -->
+
+                <button
+                    id="{{survivorButtonId}}"
+                    class="kd capsule full_width blue"
+                    ng-if="ngVisible[survivorButtonId] === true"
+                >
+                        Add to settlement
+                </button>
+
+    		</div> <!-- ng-repeat for survivors -->
+    
+        </div> <!-- vignetteExpansions repeater -->
+
+    </div> <!-- modal-container -->
+
+</div> <!-- modal -->

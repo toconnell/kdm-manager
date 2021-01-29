@@ -268,6 +268,20 @@ app.controller("survivorSheetController", function($scope) {
         $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj);
     };
 
+    $scope.setAffinities = function() {
+        // dead simple POST back to the API
+        $scope.postJSONtoAPI(
+            'survivor',
+            'set_affinities',
+            {
+                red: $scope.survivor.sheet.affinities['red'],
+                blue: $scope.survivor.sheet.affinities['blue'],
+                green: $scope.survivor.sheet.affinities['green'],
+            },
+            false,
+            false
+        );
+    };
 
     // favorite / retired / dead
     $scope.updateFavoriteBox = function() {
@@ -326,8 +340,27 @@ app.controller("survivorSheetController", function($scope) {
 
     // abstracted survivor toggles
     $scope.toggleStatusFlag = function(flag) {
-        $scope.postJSONtoAPI('survivor','toggle_status_flag', {'flag': flag}, false, true, true);
+        // sets or unsets one of our flags
+        var js_obj = {'flag': flag};
+
+        if ($scope.survivor.sheet[flag]) {
+            $scope.survivor.sheet[flag] = undefined;
+            js_obj.unset = true;
+        } else {
+            $scope.survivor.sheet[flag] = true;
+        };
+
+        $scope.postJSONtoAPI(
+            'survivor',
+            'set_status_flag',
+            js_obj,
+            false,
+            true,
+            false
+        );
     };
+
+
     $scope.toggleBoolean = function(attrib) {
         $scope.postJSONtoAPI('survivor','toggle_boolean', {'attribute': attrib}, false, true, true);
     };
@@ -571,25 +604,7 @@ app.controller('disordersController', function($scope) {
 })
 
 
-app.controller("affinitiesController", function($scope) {
 
-    $scope.updateAffinity = function(element) {
-        var color = element.a;
-        var value = element.affValue;
-//        console.log(color + "==" + value);
-        $scope.survivor.sheet.affinities[color] = value;
-        if (value === null) {return false};
-        $scope.postJSONtoAPI('survivor','set_affinity', {'color': color, 'value': value}, false)
-    };
-
-    $scope.incrementAffinity = function(color, modifier) {
-        $scope.survivor.sheet.affinities[color] += modifier;
-        js_obj = {'red':0, 'blue':0, 'green':0};
-        js_obj[color] += modifier;
-        $scope.postJSONtoAPI('survivor','update_affinities', {"aff_dict": js_obj}, false, false);
-    };
-
-});
 
 
 

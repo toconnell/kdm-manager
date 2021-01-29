@@ -85,6 +85,22 @@
     </button>
 
     <button
+        id="vignetteSurvivorButton"
+        ng-if="
+            settlement.sheet !== undefined &&
+            user.user.preferences.beta === true
+        "
+        ng-click="
+            ngShow('modalNewVignetteSurvivorContainer');
+            closeLeftSideNav();
+        "
+        ng-disabled="user.user.subscriber.level < 2"
+        ng-class="{'disabled': user.user.subscriber.level < 2}"
+    >
+        + Vignette Survivor (&beta;)
+    </button>
+
+    <button
         class="visible"
         ng-if="settlement != undefined && view != 'campaignSummary'"
         onclick="showFullPageLoader()"

@@ -112,9 +112,11 @@
     </div> <!-- expansions -->
 
 
-    <!-- specials + pre-fab survivors -->
+    <!-- macros + pre-fab survivors -->
     <div class="kd_sheet_ui_inner_ring_container new_settlement_form">
+
         <h3>Survivors</h3>
+
         <p
             class="kd_sheet_ui_row_tip"
             ng-if="user.user.preferences.show_ui_tips"
@@ -131,19 +133,22 @@
         <div
             class="ng_fade new_settlement_asset_clicker_container"
         >
-            <!-- specials -->
+            <!-- macros -->
             <div
                 class="new_settlement_asset_clicker clickable"
-                ng-class="{active: newSettlement.specials.indexOf(special.handle) != -1}"
-                ng-repeat="special in new_settlement_assets.specials"
-                ng-click="toggleAttrib('specials',special.handle)"
+                ng-class="
+                    {active: newSettlement.macros.indexOf(macro.handle) != -1}
+                "
+                ng-repeat="macro in new_settlement_assets.macros"
+                ng-if="macro.new_settlement"
+                ng-click="toggleAttrib('macros',macro.handle)"
             >
                 <div
                     class="kd_sheet_ui_box"
-                    ng-class="{checked: newSettlement.specials.indexOf(special.handle) != -1}"
+                    ng-class="{checked: newSettlement.macros.indexOf(macro.handle) !== -1}"
                 ></div>
-                {{special.name}}
-                <p ng-bind-html="special.desc|trustedHTML" class="new_settlement_asset_desc"></p>
+                {{macro.name}}
+                <p ng-bind-html="macro.desc|trustedHTML" class="new_settlement_asset_desc"></p>
             </div>
 
             <!-- survivors -->
@@ -162,7 +167,7 @@
             </div>
         </div>
 
-    </div> <!-- specials and pre-fab survivors -->
+    </div> <!-- macros and pre-fab survivors -->
 
 
     <!-- submitter -->

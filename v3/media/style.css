@@ -2177,6 +2177,3 @@ div.corner_loading_spinner {position: fixed; bottom: 1px; left: 1px; display: no
 .kd_blue {background-color: #50CAF5; background: linear-gradient(to bottom, #60DAF5, #40AFD3); color: #fff; font-family: Arial, sans-serif; font-weight: bold; }
 .kd_blue_font {color: #50AAF5; font-weight: bold; }
 
-/* button styles */
-.disabled {color: #999; background: #dedede; cursor: not-allowed; }
-

@@ -31,6 +31,10 @@
         max-width: 700px; 
         width: 50%;
     }
+    .modal-content .kd.worksheet_block {
+        margin: 2rem auto; 
+        width: 90%; 
+    }
 
 
     /*  tabs - tablet   */
@@ -38,6 +42,9 @@
         flex-direction: row;
         flex-wrap: wrap;
         max-width: 1100px; 
+    }
+    .view_tab .worksheet_block {
+        width: 45%;
     }
     .tab_nav_warning_arrow {
         font-size: 10vh;
@@ -76,9 +83,6 @@
     }
     .kd_sheet_ui_inner_ring_container p {
         margin: 1%; 
-    }
-    .kd_sheet_ui_row.title {
-        font-size: 15pt; 
     }
     .kd_sheet_ui_row.title .icon {
         height: 15px;
@@ -627,7 +631,8 @@
     }
 
     /*  multiple_new_survivors.html */
-    .modal-content.bulk_add_modal {
+    .modal-content.bulk_add_modal,
+        .modal-content.settlement_sheet_macro {
         width: 50%; 
     }
 

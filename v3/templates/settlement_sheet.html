@@ -1356,6 +1356,7 @@
                 <div
                     ng-repeat="loc in s_type.locations"
                     ng-init="loc.arrow=false"
+                    ng-if="loc.collection.length > 0"
                     class="storage_modal_storage_location"
                 >
 
@@ -1470,12 +1471,18 @@
         class="view_tab"
         ng-show='tabsObject.activeTab === 6'
         ng-controller='settlementSheetAdminTabController'
+        ng-init="
+            loadSettlementMacros();
+        "
     >
         <div
-            class="kd_sheet_ui_border_box no_border"
-            ng-if="settlement.sheet.abandoned === undefined"
+            class="kd worksheet_block"
         >
-            <h3>Version</h3>
+
+            <div class="kd worksheet_block_title">
+                Version
+            </div>
+
             <p>
                 Change the version of <i>Monster</i> game assets and rules that
                 are used by this settlement.
@@ -1501,56 +1508,171 @@
                 ng-selected="settlement.sheet.version"
             >
             </select>
-            <center
-                ng-if="scratch.versionChanged !== true"
-            >
-                {{settlement.game_assets.versions[settlement.sheet.version].desc}}
-            </center>
-            <center
-                ng-if="scratch.versionChanged"
-                class="kd_red_text"
-            >
-                <b>Version updated!</b><br/> Please reload the settlement sheet.
-            </center>
+
         </div> <!-- set version -->
+
+
+        <!-- MACROS -->
+        <div
+            class="kd worksheet_block"
+            ng-if="settlementMacros"
+            ng-class="{
+                'disabled': user.user.subscriber.level === 0,
+                'disabled': !user.user.preferences.beta,
+            }"
+            ng-disabled="user.user.subscriber.level < 2"
+        >
+
+            <div class="kd worksheet_block_title">
+                Macros (&beta;)
+            </div>
+
+            <p>
+                Settlement sheet macros allow you to perform complex settlement
+                updates automatically! Tap or click a macro below to review the
+                operations it performs.
+            </p>
+
+            <div
+                ng-repeat="macro in settlementMacros"
+                ng-init="macroControlsId = macro.handle + 'ControlsDiv'"
+            >
+                <button 
+                    class="clickable kd capsule yellow full_width"
+                    ng-click="ngShow(macroControlsId)"
+                >
+                    {{macro.name}}
+                </button>
+
+                <div
+                    id="{{macroControlsId}}"
+                    class="hidden modal"
+                    ng-click="ngHide(macroControlsId)"
+                >
+
+                    <div
+                        class="modal-content settlement_sheet_macro"
+                        ng-click="$event.stopPropagation()"
+                    >
+
+                        <div
+                            class="clickable corner_close_modal"
+                            ng-click="ngHide(macroControlsId)"
+                        >
+                        </div>
+
+                        <h3 class="kd title">{{macro.name}}</h3>
+
+                        <p ng-bind-html="macro.desc|trustedHTML"></p>
+
+                        <div
+                            class="kd worksheet_block"
+                        >
+                            <div
+                                ng-repeat="item in macro.summary"
+                                class="kd worksheet_row"
+                            >
+                                <div class="kd checkbox checked"></div>
+                                <div
+                                    class="kd checkbox_desc"
+                                    ng-bind-html="item|trustedHTML"
+                                >
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="kd rulebook_warning pink"
+                            ng-if="macro.new_settlement"
+                        >
+                            This macro was intended to be applied to new
+                            settlements at creation time! Apply this macro
+                            at your own risk...
+                        </div>
+
+                        <div class="modal_content_button_raft">
+                            <button
+                                class="kd capsule full_width blue"
+                                ng-click="
+                                    ngHide(macroControlsId);
+                                    applyMacro(macro.handle);
+                                "
+                            >
+                                Apply macro
+                            </button>
+                            <button
+                                class="kd capsule full_width "
+                                ng-click="ngHide(macroControlsId)"
+                            >
+                                Close
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div> <!-- MACROS -->
+
 
         <!-- ABANDON -->
         <div
-            class="kd_sheet_ui_border_box"
-            ng-if="settlement.sheet.abandoned === undefined"
+            class="kd worksheet_block"
         >
 
-            <h3>Abandon Settlement</h3>
-            <p>
+            <div class="kd worksheet_block_title">
+                Abandon Settlement
+            </div>
+
+            <p
+                ng-if="settlement.sheet.abandoned !== undefined"
+            >
+                Use the button below to remove the 'abandoned' status from
+                <b>{{settlement.sheet.name}}</b>; this will cause it to appear
+                on your dashboard and function normally again.
+            </p>
+            <p
+                ng-if="settlement.sheet.abandoned === undefined"
+            >
                 Use the button below to mark <b>{{settlement.sheet.name}}</b>
                 as "Abandoned" and prevent it from showing up on your
                 KDM-Manager dashboard.
             </p>
-            <p>
+            <p
+                ng-if="settlement.sheet.abandoned === undefined"
+            >
                 Abandoning a settlement <i>does not</i> remove it from the
                 system and you will still be able to access and modify it.
             </p>
-            <p class="kd_red_text">
-                &nbsp; <b>This cannot be undone.</b>
-            </p>
 
             <button
-                class="kd_kickstarter_button kd_pink red_glow"
+                class="kd capsule full_width pink"
                 ng-click="abandonSettlement()"
+                ng-if="settlement.sheet.abandoned === undefined"
             >
                 Abandon Settlement
+            </button>
+
+            <button
+                class="kd capsule full_width pink"
+                ng-click="abandonSettlement('UNSET')"
+                ng-if="settlement.sheet.abandoned !== undefined"
+            >
+                Un-abandon Settlement
             </button>
 
         </div> <!-- abandon controls -->
 
         <!-- REMOVE -->
         <div
-            class="kd_sheet_ui_border_box"
+            class="kd worksheet_block"
             ng-if="user.user.preferences.show_remove_button == true"
         >
-            <h3 class="kd_red_text">
+            <div class="kd worksheet_block_title kd_red_text">
                 Delete Settlement
-            </h3>
+            </div>
+
             <p>
                 Use the button below to permanently delete
                 <b>{{settlement.sheet.name}}</b>.
@@ -1574,8 +1696,12 @@
         <div
             id="removeSettlementConfirmation"
             class="modal-black hidden"
+            ng-click="ngHide('removeSettlementConfirmation')"
         >
-            <div class="rm_asset_confirm_container kd_red">
+            <div
+                class="modal-content rm_asset_confirm_container kd_red"
+                ng-click="$event.stopPropagation()"
+            >
 
                 <h3>DELETE SETTLEMENT</h3>
 
@@ -1619,7 +1745,7 @@
                 <button 
                     class="ng_fade kd_kickstarter_button"
                     ng-if="scratch.confirmRemove !== 'DELETE'"
-                    ng-click="showHide('removeSettlementConfirmation')"
+                    ng-click="ngHide('removeSettlementConfirmation')"
                 >
                     Close
                 </button>

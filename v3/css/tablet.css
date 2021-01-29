@@ -31,10 +31,18 @@
         right: 0.4rem;
     }
 
+    .modal-content .kd.worksheet_block {
+        margin: 2rem auto; 
+        width: 90%;
+    }
+
     /*  tabs - tablet   */
     .view_tab {
         flex-direction: row;
         flex-wrap: wrap;
+    }
+    .view_tab .worksheet_block {
+        width: 45%; 
     }
     .tab_nav_warning_arrow {
         font-size: 10vh;
@@ -45,8 +53,6 @@
 
 
     /*  kd_sheet_ui styles - tablet */
-    .kd_sheet_ui_row_tip {font-size: 1.5vh}
-    .kd_sheet_ui_row.title {font-size: 2.2vh;}
     .kd_sheet_ui_box {
         border-width: 0.2vw;
         height: 2vw;

@@ -1147,6 +1147,8 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
             var url = $scope.api_url + "survivor/" + action + "/" + $scope.survivor_id;
         } else if (collection == "user") {
             var url = $scope.api_url + "user/" + action + "/" + $scope.user_id;
+        } else if (collection == "game_assets") {
+            var url = $scope.api_url + 'game_assets/' + action;
         };
         console.log(r_log_level + "getJSONfromAPI() -> " + url);
         return $http.get(url, config);
@@ -1356,6 +1358,31 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
                 console.error('Could not set Sword Oath!');
                 console.error(errorPayload);
                 console.timeEnd('setSwordOath')
+            }
+        );
+    };
+
+    $scope.loadVignetteSurvivors = function() {
+        // retrieves available vignette survivors from the API; sets them to
+        // $scope.vignetteSurvivors and also sets the $scope.vignetteExpansions
+        // element, which can help with display
+
+        var promise = $scope.getJSONfromAPI(
+            'game_assets',
+            'survivors',
+            'loadVignetteSurvivors()'
+        );
+        promise.then(
+            function(payload) {
+                $scope.vignetteExpansions = new Set();
+                for (const [handle, dict] of Object.entries(payload.data)) {
+                    $scope.vignetteExpansions.add(dict.expansion);
+                };
+                $scope.vignetteExpansions = Array.from($scope.vignetteExpansions);
+                $scope.vignetteSurvivors = payload.data;
+            },
+            function(errorPayload) {
+                console.log("Error retrieving vignette survivors!");
             }
         );
     };

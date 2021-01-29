@@ -27,6 +27,25 @@ app.controller("settlementSheetController", function($scope) {
         },
     ],
 
+    $scope.loadSettlementMacros = function() {
+        // sets $scope.settlementMacros based on values from the API
+
+        var res = $scope.getJSONfromAPI(
+			'game_assets', 'macros', 'loadSettlementMacros'
+		);
+
+        res.then(
+            function(payload) {
+				$scope.settlementMacros = payload.data;
+            },
+                function(errorPayload) {
+                console.error("Failed to retrieve and set macros!");
+				console.error(errorPayload);
+            }
+        );
+
+    }
+
     // generic settlement operations; prefer these to specific in V4
     $scope.incrementAttrib = function(attrib, modifier) {
         if ($scope.settlement.sheet[attrib] + modifier < 0) {return false};
@@ -451,7 +470,6 @@ app.controller("settlementSheetStorageTabController", function($scope) {
 
         // load it here
         if ($scope.settlementStorage === undefined) {
-//            console.warn('$scope.settlementStorage is ' + $scope.settlementStorage);
             var res = $scope.getJSONfromAPI('settlement','get_storage', 'loadStorage');
             res.then(
                 function(payload) {
@@ -475,9 +493,34 @@ app.controller("settlementSheetStorageTabController", function($scope) {
 
 app.controller("settlementSheetAdminTabController", function($scope) {
     // controller for the admin tab; new in V4 2020-08
-    $scope.abandonSettlement = function() {
+
+    $scope.applyMacro = function(macroHandle) {
         showFullPageLoader();
-        $scope.postJSONtoAPI('settlement','abandon',{})
+        $scope.postJSONtoAPI(
+            'settlement',
+            'apply_macro',
+            {handle: macroHandle},
+            true,
+            true,
+            true
+        );
+    };
+
+    $scope.abandonSettlement = function(action) {
+        showFullPageLoader();
+
+        var json_obj = {attribute: 'abandoned', value: true}
+        if (action === 'UNSET') {
+            json_obj.value = action
+        };
+        $scope.postJSONtoAPI(
+            'settlement',
+            'set_attribute',
+            json_obj,
+            true,
+            true,
+            true
+        );
     };
 
     $scope.removeSettlement = function() {
@@ -490,10 +533,14 @@ app.controller("settlementSheetAdminTabController", function($scope) {
     $scope.setVersion = function() {
         // sets the version and a $scope.scratch variable that confirms the
         // change, e.g. so we can tell the user to refresh/reload
+        showFullPageLoader();
         $scope.postJSONtoAPI(
             'settlement',
             'set_version',
-            {version: $scope.settlement.sheet.version}
+            {version: $scope.settlement.sheet.version},
+            true,
+            true,
+            true
         );
         $scope.scratch.versionChanged = true;
     }

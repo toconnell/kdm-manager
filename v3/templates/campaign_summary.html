@@ -248,6 +248,18 @@
                                     </div>
 
                                     <div class="summary">
+
+                                        <div
+                                            class="campaign_summary_survivor_button_bleeding_tokens_container"
+                                            ng-if="s.sheet.bleeding_tokens > 0"
+                                        >
+                                            <span
+                                                ng-repeat="token in range(s.sheet.bleeding_tokens)"
+                                            >
+                                                &#129656;
+                                            </span>
+                                        </div>
+
                                         <div
                                             class="font_large name"
                                             ng-class="{maroon_text: s.sheet.dead == true}"
@@ -260,6 +272,8 @@
                                                 {{settlement.game_assets.epithets[e].name}}{{$last ? '' : ', '}}
                                             </span>
                                         </div>
+
+
                                         <div class="attr_holder">
                                             <div class="attr maroon_text" ng-if="s.sheet.dead == true">
                                                 <b>Died in Lantern Year {{s.sheet.died_in}} </b>
@@ -683,7 +697,7 @@
                 title="Bleeding Tokens"
             >
                 <div
-                    class="bleeding_token_container"
+                    class="clickable bleeding_token_container"
 					ng-click="rollUp(bleedBoxID)"
                 >
 					<div

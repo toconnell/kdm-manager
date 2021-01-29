@@ -281,7 +281,9 @@
                 >
                     <div
                         class="kd_sheet_ui_box"
-                        ng-class="{checked: survivor.sheet.cannot_spend_survival == true}"
+                        ng-class="{
+                            'checked': survivor.sheet.cannot_spend_survival,
+                        }"
                     >
                     </div>
                     <div class="font_small">
@@ -590,7 +592,7 @@
             title="Bleeding Tokens"
         >
             <div
-                class="bleeding_token_container"
+                class="clickable bleeding_token_container"
                 ng-click="rollUp('bleedingTokensControls')"
             >
                 <div
@@ -1717,7 +1719,9 @@
                 >
                     <div
                         class="kd_sheet_ui_box"
-                        ng-class="{checked: survivor.sheet.cannot_use_fighting_arts == true}"
+                        ng-class="
+                            {checked: survivor.sheet.cannot_use_fighting_arts
+                        }"
                     >
                     </div>
                     <span>
@@ -1993,12 +1997,14 @@
                 <div class="secondary_attribute_title_bar">
                     <div class="font_large title">Abilities & Impairments</div>
                     <div
-                        class="font_small lockbox"
+                        class="clickable font_small lockbox"
                         ng-click="toggleStatusFlag('skip_next_hunt')"
                     >
                         <div
                             class="kd_sheet_ui_box"
-                            ng-class="{checked: survivor.sheet.skip_next_hunt == true}"
+                            ng-class="{
+                                'checked': survivor.sheet.skip_next_hunt
+                            }"
                         >
                         </div>
                         <span>
@@ -3014,7 +3020,6 @@
 <div
     id="modalAffinity"
     class="modal hidden"
-    ng-controller = "affinitiesController"
     ng-if="survivor !== undefined"
     ng-click="
         ngHide('modalAffinity');
@@ -3029,6 +3034,7 @@
         <div
             class="clickable corner_close_modal"
             ng-click="
+                setAffinities();
                 ngHide('modalAffinity');
                 savedAlert()
             "
@@ -3045,39 +3051,51 @@
         <div class="survivor_sheet_affinity_controls_container">
 
             <div
-                ng-repeat="a in ['red','green','blue']"
+                ng-repeat="color in ['red','green','blue']"
                 class="survivor_sheet_affinity_controls_repeater"
             >
                 <div
                     class="vertical_tumbler_container"
-                    title="{{a}} affinity controls"
+                    title="{{ color }} affinity controls"
                 >
                     <button
-                        ng-click="incrementAffinity(a, 1)"
+                        ng-click="survivor.sheet.affinities[color] = survivor.sheet.affinities[color] + 1"
                     >
                         &#x25B2;
                     </button>
                     <input
-                        id="{{a}}CountBox"
+                        id="{{color}}CountBox"
+                        name="{{color}}_affinities"
                         type="number"
-                        name="{{a}}_affinities"
-                        ng-value="survivor.sheet.affinities[a]"
-                        ng-model = 'affValue'
-                        ng-change = "updateAffinity(this)"
+                        disabled
+                        ng-value="survivor.sheet.affinities[color]"
                     />
                     <button
-                        ng-disabled="survivor.sheet.affinities[a] < 1"
-                        ng-click="incrementAffinity(a, -1)"
+                        ng-disabled="survivor.sheet.affinities[color] < 1"
+                        ng-click="survivor.sheet.affinities[color] = survivor.sheet.affinities[color] - 1"
                     >
                         &#x25BC;
                     </button>
                 </div>
 
-                <div class="affinity_block affinity_{{a}}">&nbsp;</div>
+                <div class="affinity_block affinity_{{color}}">&nbsp;</div>
 
-            </div> <!-- modal_affinity_control_unit REPEATS/ng-repeat-->
+            </div> <!-- survivor_sheet_affinity_controls_repeater -->
 
-        </div> <!-- modal_affinity_controls_container -->
+        </div> <!-- survivor_sheet_affinity_controls_container -->
+
+        <button
+            class="clickable kd capsule blue"
+            ng-click="
+                setAffinities();
+                ngHide('modalAffinity');
+                savedAlert()
+            "
+        >
+            Save and Close
+        </button>
+
+
     </div> <!-- modal-content -->
 </div> <!-- modalAffinity -->
 

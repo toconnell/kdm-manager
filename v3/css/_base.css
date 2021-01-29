@@ -103,9 +103,14 @@ button:active,
     transform:translate(0.15vh, 0.15vh);
 }
 
+.centered {text-align: center; }
+.disabled {
+    cursor: not-allowed;
+    pointer-events: none;
+}
 .hidden {display: none !important;}
 .faded {opacity: 0.3; transition: 3s; }
-.centered {text-align: center; }
+
 
 /* angularjs animations */
 .ng_fade.ng-enter,
@@ -367,6 +372,13 @@ button:active,
     border-bottom-right-radius: 0.75rem;
 }
 
+
+.vignette_survivor_card_container {
+    border-radius: var(--border-radius-sheet);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: 1s;
+}
 
     /*  gear grid   */
 
@@ -1142,6 +1154,10 @@ input[type="radio"].gear_lookup_attrib_toggle {
     min-height: 75%;
 }
 
+.modal_content_button_raft {
+    margin: 3% auto 3% auto;
+    text-align: center;
+}
 
 .corner_close_modal:before {    /*  large red X */
     content: "\274C";
@@ -2028,6 +2044,11 @@ h3.new_survivor_sheet {
 .campaign_summary_avatar {
     position: relative;
 }
+.campaign_summary_survivor_button_bleeding_tokens_container {
+    display: flex;
+    flex-direction: column; 
+    float: right;
+}
 .campaign_summary_survivor_affinities_container {
     display: flex;
     flex-wrap: wrap; 
@@ -2683,8 +2704,7 @@ h3.new_survivor_sheet {
 /*  affinity    */
 .survivor_sheet_affinity_controls_container {
     width: 90%;
-    margin: 0 auto;
-    margin-top: 2rem;  
+    margin: 2rem auto 3rem auto;
 }
 .survivor_sheet_affinity_controls_repeater {
     display: flex;

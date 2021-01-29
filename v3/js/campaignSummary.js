@@ -267,9 +267,18 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
     };
 
     $scope.toggleSurvivorFlag = function(s, flag){
-        $rootScope.survivor_id = s.sheet._id.$oid;
+        // mirrors survivorSheet.js toggleStatusFlag
         json_obj = {'flag': flag};
-        var res = $scope.postJSONtoAPI('survivor', 'toggle_status_flag', json_obj, false);
+
+        if (s.sheet[flag]) {
+            s.sheet[flag] = undefined;
+            json_obj.unset = true;
+        } else {
+            s.sheet[flag] = true;
+        };
+
+        $rootScope.survivor_id = s.sheet._id.$oid;
+        var res = $scope.postJSONtoAPI('survivor', 'set_status_flag', json_obj, false);
         res.then(
             function(payload) {
                 var sheet = payload.data.sheet
