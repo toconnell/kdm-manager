@@ -632,8 +632,10 @@
 
     /*  multiple_new_survivors.html */
     .modal-content.bulk_add_modal,
+        .modal-content.new_vignette_survivors,
         .modal-content.settlement_sheet_macro {
-        width: 50%; 
+        max-width: 1200px;
+        min-width: 50%;  
     }
 
 

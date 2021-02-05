@@ -1382,7 +1382,29 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
                 $scope.vignetteSurvivors = payload.data;
             },
             function(errorPayload) {
-                console.log("Error retrieving vignette survivors!");
+                console.error("Error retrieving vignette survivors!");
+            }
+        );
+    };
+
+
+    $scope.addVignetteSurvivor = function(survivorHandle) {
+        // POSTs a handle to the API's add_survivor endpoint
+        showFullPageLoader();
+        var promise = $scope.postJSONtoAPI(
+            'settlement',
+            'add_survivor',
+            {handle: survivorHandle},
+            true,
+            true,
+            true
+        );
+        promise.then(
+            function(payload) {
+                console.info('Added Vignette survivor!')
+            },
+            function(errorPayload) {
+                console.error("Failed to add Vignette Survivor!");
             }
         );
     };

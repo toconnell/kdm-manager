@@ -1643,7 +1643,8 @@
                 ng-if="settlement.sheet.abandoned === undefined"
             >
                 Abandoning a settlement <i>does not</i> remove it from the
-                system and you will still be able to access and modify it.
+                system. Abandoned settlements <i>may</i> be accessed and
+                updated normally.
             </p>
 
             <button
@@ -1686,7 +1687,7 @@
                 <b>This cannot be undone.</b>
             </p>
             <button
-                class="kd_kickstarter_button kd_pink red_glow"
+                class="kd capsule full_width pink"
                 ng-click="showHide('removeSettlementConfirmation')"
             >
                 Delete Settlement

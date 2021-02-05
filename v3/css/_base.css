@@ -373,6 +373,12 @@ button:active,
 }
 
 
+.vignette_survivor_expansion_container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; 
+    margin: 0 -1rem 0 -1rem;
+}
 .vignette_survivor_card_container {
     border-radius: var(--border-radius-sheet);
     padding: 1rem;

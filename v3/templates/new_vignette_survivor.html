@@ -13,7 +13,10 @@
 	>
 	</span>
 
-    <div class="modal-content" ng-click="$event.stopPropagation()">
+    <div
+        class="modal-content new_vignette_survivors"
+        ng-click="$event.stopPropagation()"
+    >
 
 	    <div
     	    class="clickable corner_close_modal"
@@ -24,11 +27,13 @@
 		<h3 class="kd title">New Vignette Survivor</h3>
 
 		<p>
-			Vignette Survivors may only be added to the campaign if the
-			expansion to which they belong has also been added first!
+            Adding a Vignette Survivor from an expansion that is not currently
+            included in the Settlement's Expansion content will add that
+            expansion automatically!
 		</p>
 
         <div
+            class="vignette_survivor_expansion_container"
             ng-repeat="expansionHandle in vignetteExpansions"
         >
     		<div
@@ -159,8 +164,21 @@
                             <span ng-if="vSurv.attribs[attrib]">
                                 {{vSurv.attribs[attrib]}}
                             </span>
-                            <span ng-if="!vSurv.attribs[attrib]">
+                            <span
+                                ng-if="
+                                    !vSurv.attribs[attrib] &&
+                                    attrib !== 'Movement'
+                                "
+                            >
                                 0
+                            </span>
+                            <span
+                                ng-if="
+                                    !vSurv.attribs[attrib] &&
+                                    attrib === 'Movement'
+                                "
+                            >
+                                5
                             </span>
                         </div>
                     </div> <!-- attributes table -->
@@ -171,6 +189,10 @@
                     id="{{survivorButtonId}}"
                     class="kd capsule full_width blue"
                     ng-if="ngVisible[survivorButtonId] === true"
+                    ng-click="
+                        ngHide(survivorButtonId);
+                        addVignetteSurvivor(vSurv.handle);
+                    "
                 >
                         Add to settlement
                 </button>
@@ -178,6 +200,13 @@
     		</div> <!-- ng-repeat for survivors -->
     
         </div> <!-- vignetteExpansions repeater -->
+
+        <button
+            class="kd capsule full_width"
+            ng-click="ngHide('modalNewVignetteSurvivorContainer')"
+        >
+            Close
+        </button>
 
     </div> <!-- modal-container -->
 
