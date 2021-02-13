@@ -1,0 +1,46 @@
+<!--
+		START loaders
+-->
+
+<div
+    ng-if="ngVisible['cornerSpinner']"
+    id="cornerSpinner"
+    class="hidden ng_fade corner_loading_spinner"
+>
+    <img src="/static/media/loading_io.gif">
+</div>
+
+<div
+    ng-if="ngVisible['fullPageLoader']"
+    id="fullPageLoader"
+    class="hidden full_page_modal_blocker"
+>
+    <img src="/static/media/loading_io.gif" />
+</div>
+
+<!-- 
+    END loaders
+-->
+
+
+<!--
+	START alerts
+-->
+<div
+    id="capsuleAlertFlasher"
+    class="hidden ng_fadeout kd capsule_alert capsule_outer"
+    ng-if="ngVisible['capsuleAlertFlasher']"
+>
+    <div class="capsule_inner">
+        <div
+            class="kd short font_large {a ngCapsuleAlert.style a}_text"
+        >
+            {a ngCapsuleAlert.letter a}
+        </div>
+        <div
+            class="kd long {a ngCapsuleAlert.style a}"
+        >
+            {a ngCapsuleAlert.text a}
+        </div>
+    </div>
+</div>

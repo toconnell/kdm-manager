@@ -1,0 +1,213 @@
+{% extends '_base.html' %}
+{%  set VIEW = 'new_settlement' %}
+
+{% block head %}
+
+<!--    <script src="/js/newSettlement.js?v={{VERSION}}"></script> -->
+
+{% endblock %}
+
+
+{% block body %}
+
+<body
+    ng-if="apiStat"
+    ng-init="setKingdomDeath(); setSettlementMacros();"
+>
+
+    <div
+        class="full_page_loading_spinner"
+        ng-if="!kingdomDeath"
+    >
+        <img src="/static/media/loading_io.gif"/>
+        <center>Loading...</center>
+    </div>
+
+    <div
+        class="kd worksheet new_settlement_form"
+        ng-if="kingdomDeath"
+        ng-init="newSettlement = {'expansions': [], 'macros': []}"
+    >
+
+        <!-- settlement name -->
+        <div
+            id="newSettlementSettlementName"
+            class="kd worksheet_block"
+        >
+            <div
+                id="newSettlementName"
+                class="settlement_name"
+                ng-blur="setNewSettlementName()"
+                contentEditable="true"
+                placeholder="New Settlement Name"
+                autofocus
+            ></div>
+        </div>
+
+
+        <!-- campaign -->
+        <div class="kd worksheet_block new_settlement_form">
+            <h3 class="kd title">Campaign</h3>
+
+            <p ng-if="user.user.preferences.show_ui_tips">
+                Choosing an expansion campaign automatically enables expansion
+                content required by that campaign and modifies the settlement timeline,
+                milestones, principles, rules and Survivor Sheets.
+            </p>
+            <p ng-if="user.user.preferences.show_ui_tips">
+                A settlement's campaign <b>cannot be changed</b> after settlement
+                creation!
+            </p>
+
+            <div
+                class="clickable"
+                ng-repeat="(handle, c) in kingdomDeath.campaigns"
+            >
+
+                <!-- HACK CITY !!! -->
+                <span
+                    class="hidden"
+                    ng-if="c.default"
+                    ng-init="newSettlement.campaign = c.handle"
+                >
+                </span>
+
+                <div
+                    class="kd worksheet_row"
+                    ng-click="newSettlement.campaign = c.handle"
+                    ng-class="{active: newSettlement.campaign === c.handle}"
+                >
+
+                    <div
+                        class="kd checkbox"
+                        ng-class="{checked: newSettlement.campaign === c.handle}"
+                    ></div>
+                    <div
+                        class="kd checkbox_desc"
+                    >
+                        {a c.name a}
+                    </div>
+
+                </div>
+
+                <div class="kd worksheet_row">
+                    <div
+                        ng-if="c.subtitle"
+                        class="font_small"
+                        ng-bind-html="c.subtitle|trustedHTML"
+                    ></div>
+                </div>
+
+            </div><!-- anonymous repeater -->
+
+        </div>  <!-- campaign worksheet_block -->
+
+
+        <!-- Expansions -->
+        <div class="kd worksheet_block new_settlement_form">
+
+            <h3 class="kd title">Expansions</h3>
+
+            <p class="kd_sheet_ui_row_tip" ng-if="user.user.preferences.show_ui_tips">
+                Enable expansion content by toggling items below. Expansion
+                content may also be enabled (or disabled) later using the controls
+                on the left-side navigation bar.
+            </p>
+
+            <div 
+                ng-repeat="category in [
+                    'KD Collection',
+                    'Quarry',
+                    'Nemesis',
+                    'White Box',
+                    'Enhancement'
+                ]" 
+                class="ng_fade new_settlement_asset_clicker_container"
+            >
+                <h4>{a category a}</h4>
+                <div
+                    ng-repeat="expansion in kingdomDeath.expansions"
+                    class="clickable"
+                    ng-if="expansion.ui.pretty_category === category"
+                    ng-click="toggleArrayItem(newSettlement.expansions, expansion.handle)"
+                >
+                    <div class="kd worksheet_row">
+                        <div
+                            class="kd checkbox"
+                            ng-class="{'checked': newSettlement.expansions.indexOf(expansion.handle) !== -1}"
+                        ></div>
+                        <div
+                            class="kd checkbox_desc"
+                            ng-bind-html="expansion.name|trustedHTML"
+                        >
+                        </div>
+                    </div>
+                    <div class="kd worksheet_row">
+                        <div
+                            ng-if="expansion.subtitle"
+                            class="font_small"
+                            ng-bind-html="expansion.subtitle|trustedHTML"
+                        > </div>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- expansions -->
+
+
+        <!-- macros -->
+        <div class="kd worksheet_block new_settlement_form" ng-if="settlementMacros">
+
+            <h3 class="kd title">Survivors</h3>
+    
+            <p
+                ng-if="user.user.preferences.show_ui_tips"
+            >
+                By default, new settlements are created without survivors.
+                Toggle options below to create the new settlement with pre-made
+                survivors.
+            </p>
+
+            <div
+                class="clickable"
+                ng-repeat="macro in settlementMacros"
+                ng-if="macro.new_settlement"
+                ng-click="toggleArrayItem(newSettlement.macros, macro.handle)"
+            >
+                <div
+                    class="kd worksheet_row"
+                >
+                    <div
+                        class="kd checkbox"
+                        ng-class="{'checked': newSettlement.macros.indexOf(macro.handle) !== -1}"
+                    ></div>
+                    <div class="kd checkbox_desc">
+                        {a macro.name a}
+                    </div>
+                </div>
+                <div class="kd worksheet_row">
+                    <div
+                        ng-bind-html="macro.desc|trustedHTML"
+                        class="font_small"
+                    ></div>
+                </div>
+            </div>
+
+        </div> <!-- macros -->
+
+
+        <!-- submitter -->
+        <button
+            id="createNewSettlementButton"
+            class="kd capsule full_width blue"
+            ng-click="
+                createSettlement();
+            "
+        >   
+            Create {a newSettlement.name a}
+        </button>
+
+    </div> <!-- create_new_asset_form_container -->
+
+</body>
+
+{% endblock %}

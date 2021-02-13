@@ -1,0 +1,105 @@
+<div
+    id="v4NavContainer"
+    class="kd black"
+    ng-init="
+        ngNavController = { };
+        navDirectories = [
+            {
+                'id':  'navCampaignSummaryDir',
+                'title': 'Campaign Summary',
+                'font': 'kdm_font_10',
+                'icon': '&#9873;',
+                'requiresSettlement': true,
+            },
+            {
+                'id':  'navSettlementSheetDir',
+                'title': 'Settlement Sheet',
+                'font': 'kdm_font_10',
+                'icon': '&#9874;',
+                'requiresSettlement': true,
+            },
+            {
+                'id':  'navCampaignSummaryDir',
+                'title': 'Survivors',
+                'font': 'kdm_font_2',
+                'icon': 'b',
+                'requiresSettlement': true,
+            },
+            {
+                'id':  'navControlsDir',
+                'title': 'Controls',
+                'icon': '&#8942;',
+            },
+        ];
+    "
+>
+
+    <div class="v4_nav_dir clickable" ng-click="loadURL('/dashboard')">
+        &#8962;
+    </div>
+    <div
+        ng-repeat="dir in navDirectories"
+        class="v4_nav_dir clickable {a dir.font a}"
+        title="{a dir.title a}"
+        ng-class="{
+            'disabled': dir.requiresSettlement && !settlement,
+        }"
+        ng-click="
+            ngNavController.active = dir.id;
+        "
+    >
+        <div
+            class="v4_nav_dir_closer"
+            ng-if="ngNavController.active === dir.id"
+            ng-click="
+                ngNavController.active = undefined;
+                $event.stopPropagation();
+            "
+        >
+        </div>
+        {a dir.icon a}
+    </div>
+
+</div><!-- footerNavContainer -->
+
+
+<!--
+
+    directories follow!
+
+-->
+
+<div
+    id="navControlsDir"
+    ng-class="{'active': ngNavController.active === 'navControlsDir'}"
+    class="v4_nav_directory"
+>
+
+    <div
+        class="v4_nav_folder clickable"
+        ng-click="loadURL('logout')"
+    >
+        <div>&#10060;</div>
+        <div class="font_small">Sign Out</div>
+    </div>
+
+    <div
+        class="v4_nav_folder clickable"
+    >
+        <div>?</div>
+        <div class="font_small">Help</div>
+    </div>
+    <div
+        class="v4_nav_folder clickable"
+    >
+        <div>?</div>
+        <div class="font_small">Help</div>
+    </div>
+    <div
+        class="v4_nav_folder clickable"
+    >
+        <div>?</div>
+        <div class="font_small">Help</div>
+    </div>
+
+</div>

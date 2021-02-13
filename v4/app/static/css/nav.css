@@ -1,0 +1,86 @@
+/*
+
+    the v4 nav bar is styled here. NOTHING ELSE is styled here.
+
+*/
+#v4NavContainer {
+    bottom: 0;
+    display: flex;
+    justify-content: space-around;
+    left: 0; 
+    position: fixed;
+    width: 100%;
+}
+
+.v4_nav_dir {
+    align-items: center; 
+    display: flex;
+    font-size: var(--font-large);
+    padding: 1rem 2rem 1rem 2rem; 
+}
+.v4_nav_dir.active {
+    background: var(--color-kd-death-grey);
+}
+.v4_nav_dir.disabled {
+    color: var(--color-kd-death-grey);
+    cursor: not-allowed;
+}
+
+.v4_nav_dir_closer {
+    height: 100%;
+    position: absolute;
+    transform: translate(-2rem, 0);
+    width: 100%;
+}
+
+    /*  directory / folder level    */
+
+.v4_nav_directory {
+    background: var(--color-kd-death-grey);
+    bottom: 4rem;
+    color: #fff; 
+    display: flex;
+    flex-wrap: wrap; 
+    justify-content: space-around;
+    left: 0;
+    max-height: 0;
+    overflow: hidden;  
+    position: fixed;
+    transition: 0.5s;
+    width: 100%;
+}
+.v4_nav_directory.active {
+    max-height: 100vh; 
+}
+.v4_nav_folder {
+    align-items: center;
+    border: 1px solid var(--color-kd-grey);  
+    display: flex;
+    flex-direction: column; 
+    height: 5rem;
+    font-size: var(--font-large);
+    justify-content: center; 
+    margin: 0.5rem;
+    width: 5rem; 
+}
+
+
+            /*  TABLET  */
+
+@media only screen
+  and (min-device-width: 768px)
+  and (max-device-width: 1024px)
+  and (-webkit-min-device-pixel-ratio: 1) {
+
+
+
+}
+
+            /*  DESKTOP  */
+
+@media only screen
+    and (min-width: 1050px)
+    and (orientation: landscape) {
+
+
+}

@@ -1,0 +1,77 @@
+<!-- BEGIN ngDebugWindow -->
+<div
+    id="ngDebugWindow"
+    class="hidden"
+>
+
+    <div>user: {{current_user.login}}</div>
+    <div>endpoint: {{request.endpoint}}</div>
+
+    <hr/>
+
+    <div>APIURL: {a APIURL a}</div>
+    <div>VIEW: {a VIEW a} </div>
+
+    <hr/>
+
+    <div
+        ng-repeat="(objectName, objectLoc) in {
+            'ngRolledUp': ngRolledUp,
+            'ngVisible': ngVisible,
+            'ngCapsuleAlert': ngCapsuleAlert,
+            'ngNavController': ngNavController,
+        }"
+    >
+        {a objectName a}:
+        <table>
+            <tr ng-repeat="(key, value) in objectLoc">
+                <td>{a key a}</td>
+                <td>{a value a}</td>
+            </tr>
+        </table>
+        <hr/>
+    </div>
+
+
+    <div>
+        <input
+            type="text"
+            placeholder="alert tester"
+            ng-model="alertType"
+        />
+        <button
+            ng-if="!ngVisible['capsuleAlertFlasher'] && alertType"
+            ng-click="flashCapsuleAlert(alertType, true);"
+        >
+            Show "{a alertType a}" alert
+        <button
+            ng-if="alertType"
+            ng-click="flashCapsuleAlert(alertType)"
+        >
+            Flash "{a alertType a}" alert
+        </button>
+    </div>
+
+    <button
+        ng-if="ngVisible['capsuleAlertFlasher']"
+        ng-click="ngHide('capsuleAlertFlasher', true);"
+    >
+        Hide capsule flasher
+    </button>
+
+    <div>
+        <button
+            ng-click="showFullPageLoader();"
+        >
+            showFullPageLoader()
+        </button>
+
+        <button
+            ng-click="hideFullPageLoader();"
+        >
+            hideFullPageLoader()
+        </button>
+    </div>
+
+</div>
+<!-- END ngDebugWindow -->
