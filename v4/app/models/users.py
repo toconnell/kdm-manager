@@ -182,7 +182,7 @@ class User(flask_login.UserMixin):
             return True
         else:
             self.logger.error('%s Could not refresh token!' % self)
-            self.logger.error('%s - %s' % (response.status_code, respons.text))
+            self.logger.error('%s - %s' % (response.status_code, response.text))
             raise utils.Logout('Could not refresh JWT!')
 
 

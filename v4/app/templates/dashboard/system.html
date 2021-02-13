@@ -7,9 +7,11 @@
         "
         ng-class="{'open': ngRolledUp['dashboardSystemDiv'] === false}"
     >
-        <span>
-            &#9881;  System
-            <span class="font_medium">(v{{VERSION}})</span>
+        <span class="roll_icon_holder">
+            &#9881;
+        </span>
+        <span class="roll_content_title">
+            System
         </span>
         <span
             class="roll_content_arrow"
@@ -25,12 +27,7 @@
         ng-class="{'rolled_down': ngRolledUp['dashboardSystemDiv'] === false}"
     >
 
-        <p class="font_small">
-            &emsp; KDM API v{a apiStat.meta.api.version a} by
-            {a apiStat.meta.info.copyright a}
-        </p>
-
-        <div class="system_panel_card gear_card_gradient">
+        <div class="dashboard_panel_card gear_card_gradient">
 
             <h3 class="kd title">User Info</h3>
             <div class="kd worksheet_row">
@@ -43,7 +40,7 @@
                 <div
                     class="kd checkbox"
                     ng-class="{
-                        'checked': '{{current_user.verified_email}}' === true,
+                        'checked': '{{current_user.verified_email}}' === 'True',
                     }"
                 >
                 </div>
@@ -120,8 +117,17 @@
 
         </div>
 
+        <div
+            class="dashboard_panel_card gear_card_gradient"
+            ng-if="'{{current_user.verified_email}}' !== true"
+        >
+            <h3 class="kd title">Verify Email Address</h3>
 
-        <div class="system_panel_card gear_card_gradient">
+            <p>Coming soon!</p>
+
+        </div>
+
+        <div class="dashboard_panel_card gear_card_gradient">
 
             <h3 class="kd title">Change Password</h3>
 
@@ -131,6 +137,7 @@
                 </p>
 
                 <input
+                    ng-if="!scratch.saved_password"
                     class="kd capsule full_width"
                     type="password"
                     ng-model="scratch.password"
@@ -138,6 +145,7 @@
                     ng-focus="scratch.saved_password = undefined"
                 />
                 <input
+                    ng-if="!scratch.saved_password"
                     class="kd capsule full_width"
                     type="password"
                     ng-model="scratch.password_again"
@@ -154,15 +162,7 @@
                     Change Password
                 </button>
 
-                <div
-                    class="kd capsule pink"
-                    ng-if="scratch.saved_password"
-                >
-                    Password updated!
-                    <b>Signing out...</b>
-                </div>
-
-        </div> <!-- system_panel_card (change pw) -->
+        </div> <!-- dashboard_panel_card (change pw) -->
 
         <!-- hack city!!! -->
         <span
@@ -174,7 +174,7 @@
 
         {% for group in PREFERENCES %}
 
-            <div class="system_panel_card gear_card_gradient">
+            <div class="dashboard_panel_card gear_card_gradient">
 
                 <h3 class="kd title">{{ group.name }}</h3>
 
@@ -242,4 +242,5 @@
         {% endfor %} <!-- group in PREFERENCES-->
 
     </div> <!-- dashboardSystemDiv -->
+
 </div> <!-- dashboard_menu -->

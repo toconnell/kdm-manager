@@ -12,8 +12,12 @@
         ng-class="{'open': ngRolledUp['campaignsDiv'] === false}"
     >
 
-        <span>
-            &#9873; Campaigns
+        <span class="roll_icon_holder">
+            &#9873;
+        </span>
+
+        <span class="roll_content_title">
+            Campaigns
         </span>
 
         <span
@@ -75,7 +79,6 @@
             >
                 {%  set settlement_button_type = 'campaign' %}
                 {%  include 'dashboard/settlement_launch_button.html' %}
-    
             </div>
 
         </div><!-- dashboard_button_list -->

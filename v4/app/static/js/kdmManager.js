@@ -15,11 +15,14 @@ app.filter(
 
 app.controller('rootScopeController', function($scope, $rootScope, $http, $timeout) {
 
-    $scope.init = function(apiUrl, apiKey, requestEndpoint) {
+    // primary init starts here; auth/token methods follow
+
+    $scope.init = function(apiUrl, apiKey, requestEndpoint, user) {
 
         $rootScope.APIURL = apiUrl;
         $rootScope.APIKEY = apiKey;
         $rootScope.VIEW = requestEndpoint;
+		$rootScope.USER = user;
 
 		// this is the main init() call for the WHOLE APPLICATION, so we go a
 		// bunch of critical stuff here, in terms of setting variables in the
@@ -65,6 +68,7 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
                     console.warn('Not attempting automatic log-out...');
                 } else {
                     console.error('Logging out...');
+                    $scope.flashCapsuleAlert('Exit', true);
                     $rootScope.loadURL("/logout");
                 };
 
@@ -100,6 +104,11 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
 
 
     //
+    //  API methods and methods related to refreshing the view start here
+    //
+
+
+    //
     //  UI/UX reusable JS section starts here
     //
 
@@ -122,6 +131,29 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
         norm_str = norm_str.replace(/Of/g, 'of');
         norm_str = norm_str.replace(/ The/g, ' the');
         return norm_str;
+    };
+
+
+	// alerts and pop-ups
+    $rootScope.flashCapsuleAlert = function(alertType, hold) {
+        // we're going to show it, so add it to visible
+
+        $rootScope.ngCapsuleAlert = {};
+        $rootScope.ngCapsuleAlert.letter = alertType.substring(0,1);
+        $rootScope.ngCapsuleAlert.text = alertType;
+        $rootScope.ngCapsuleAlert.style = 'blue';
+
+        if (alertType === 'Error') {
+            $rootScope.ngCapsuleAlert.style = 'pink';
+        } else if (alertType === 'Exit') {
+            $rootScope.ngCapsuleAlert.style = 'black';
+        };
+
+        if (hold) {
+            $scope.ngShow('capsuleAlertFlasher');
+        } else {
+            $scope.ngFlash('capsuleAlertFlasher', 700);
+        };
     };
 
 
@@ -163,8 +195,11 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
     };
 
     $rootScope.ngHide = function(elementId, lazy) {
+        // if lazy is boolean, we ignore the HTML and just force the element
+        // to undef
         if (lazy) {
-            console.warn("Lazy ngHide for '" + elementId + "'")
+//            console.warn("Lazy ngHide for '" + elementId + "'");
+            $rootScope.ngVisible[elementId] = undefined;
         } else {
             var element = $rootScope.ngGetElement(elementId);
             element.classList.add('hidden');
@@ -194,7 +229,15 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
             duration = 3000;
         };
 
-        var eVisibleWatch = $scope.$watch(
+        // create a dictionary for flash watchers -OR- return if we're already
+        // flashing/watching this element...
+        if ($scope.eVisibleWatch === undefined) {
+            $scope.eVisibleWatch = {}
+        } else if ($scope.eVisibleWatch[elementId]) {
+            return true;
+        };
+
+        $scope.eVisibleWatch[elementId] = $scope.$watch(
             function() {
                 $rootScope.ngVisible[elementId] = true;
                 return document.getElementById(elementId)
@@ -205,7 +248,8 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
                     $timeout(
                         function() {
                             $rootScope.ngVisible[elementId] = false;
-                            eVisibleWatch(); // unbind it
+                            $scope.eVisibleWatch[elementId](); // unbind it
+                            delete $scope.eVisibleWatch[elementId];
                         },
                         duration
                     );
@@ -286,11 +330,143 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
     };
 
 
+	// angular debugger
+    document.addEventListener ("keydown", function (zEvent) {
+        if (zEvent.ctrlKey  &&  zEvent.altKey  &&  zEvent.key === "d") {  // case sensitive
+            var e = document.getElementById('ngDebugWindow')
+            if ($rootScope.NGDEBUG === true) {
+                e.classList.add('hidden')
+                console.warn('Debug mode disabled!')
+                $rootScope.NGDEBUG = undefined;
+            } else {
+                e.classList.remove('hidden')
+                console.warn('Debug mode enabled!')
+                $rootScope.NGDEBUG = true;
+            };
+        };
+    } );
+
+
+
     //
-    // misc. API methods below
+    //  API methods below - this is where the magic happens
     //
 
-    $scope.setLatestRelease = function(force) {
+    $rootScope.postJSONtoAPI = function(
+			collection, action, objectOid,
+			jsonObj = {},
+			reinit = true,
+			showAlert = true,
+			updateSheet = false,
+		) 
+		{
+		// welcome to the new version of postJSONtoAPI()!
+		// This workhorse method has been broken into components and refactored
+		// for readability. It behaves differently to the original/legacy
+		// implementation, so proceed with caution!
+
+		// first, if we're doing on-screen alerts, show the small loader
+	    if (showAlert) {
+            $scope.ngFlash('cornerSpinner', 500);
+        };
+
+		// sanity checks
+		const requiredArgs = [collection, action, jsonObj]
+		requiredArgs.forEach(function (arg, index) {
+			if (arg === undefined) {
+				throw 'postJSONtoAPI() -> Required variable is undefined!';
+			};
+		});
+
+		// echo the call back to the log
+		if ($scope.NGDEBUG) {
+			var methodDesc = $scope.argsToString([
+				collection, action, objectOid, jsonObj, reinit, showAlert, updateSheet
+			])
+    	    console.info('postJSONtoAPI' + methodDesc);
+		};
+
+        // always serialize on response, regardless of asset type
+        jsonObj.serialize_on_response = true;
+
+        // get auth header
+        var config = {
+            "headers": {
+                "Authorization": $rootScope.JWT,
+                "API-Key": $rootScope.APIKEY,
+            }
+        };
+
+        // create the URL and do the POST
+        var endpoint = collection + "/" + action + "/" + objectOid;
+        var url = $rootScope.APIURL + endpoint;
+
+		console.time(endpoint);
+        var promise = $http.post(url, jsonObj, config);
+
+		promise.then(
+			function successCallback(response) {
+				if (showAlert) { $rootScope.flashCapsuleAlert('Saved') };
+				console.timeEnd(endpoint);
+			},
+			function errorCallback(response) {
+				console.timeEnd(endpoint);
+			}	
+		);
+
+		return promise;
+
+	}; // end of postJSONtoAPI()!
+
+
+    // set methods
+
+    $rootScope.setKingdomDeath = function() {
+        // gets all of Kingdom Death from the API; hangs it on 
+        // $rootScope.kingdomDeath
+
+        var reqURL = $rootScope.APIURL + 'kingdom_death';
+        console.time(reqURL);
+        
+        $http({
+            method:'GET',
+            url: reqURL,
+        }).then(
+            function successCallback(response) {
+                $rootScope.kingdomDeath = response.data;
+                console.timeEnd(reqURL);
+            }, function errorCallback(response) {
+                console.error('Could not set $rootScope.kingdomDeath!');
+                console.error(response);
+                console.timeEnd(reqURL);
+            }
+        );
+    };
+
+    $rootScope.setSettlementMacros = function() {
+        // gets all of Kingdom Death from the API; hangs it on 
+        // $rootScope.kingdomDeath
+
+        var reqURL = $rootScope.APIURL + 'game_asset/macros';
+        console.time(reqURL);
+        
+        $http({
+            method:'GET',
+            url: reqURL,
+        }).then(
+            function successCallback(response) {
+                $rootScope.settlementMacros = response.data;
+                console.timeEnd(reqURL);
+            }, function errorCallback(response) {
+                console.error('Could not set $rootScope.settlementMacros!');
+                console.error(response);
+                console.timeEnd(reqURL);
+            }
+        );
+    };
+
+
+    $rootScope.setLatestRelease = function(force) {
         // sets $rootScope.latestRelease; present in the upper-most scope since
         // various views might call for it (for whatever dumbass reasons)
 
@@ -323,6 +499,37 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
                 console.timeEnd(reqURL);
             }
         );
+    };
+
+
+
+	//
+	//	utilities / junk
+	//
+
+	$rootScope.argsToString = function(argList) {
+		// takes a list of arguments, turns their values into a str
+		var output = '(';
+		argList.forEach(function (arg, index) {
+			output += "'" + arg + "'";
+			if (index !== argList.length -1) {
+				output += ', ';
+			};
+		});
+        output += ')';
+		return output;
+	};
+
+    $rootScope.toggleArrayItem = function(list, item) {
+        // pushes 'item' onto 'list' if not present; splices it out if
+        // present
+
+        var index = list.indexOf(item);
+        if (index === -1) {
+            list.push(item);
+        } else {
+            list.splice(index, 1);
+        };
     };
 
 });

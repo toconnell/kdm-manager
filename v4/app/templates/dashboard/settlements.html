@@ -10,8 +10,12 @@
         ng-class="{'open': ngRolledUp['settlementsDiv'] === false}"
     >
 
-        <span>
-            &#9874; Settlements
+        <span class="roll_icon_holder">
+            &#9874;
+        </span>
+
+        <span class="roll_content_title">
+            Settlements
         </span>
 
         <span
@@ -63,7 +67,7 @@
         <p
             ng-if="
                 {{current_user.subscriber.level}} < 1 &&
-                {{current_user.settlements_created}} === 3
+                {{current_user.settlements_created}} >= 3
             "
         >
             <b>Important!</b> Abandoned settlements are not considered to have
@@ -73,23 +77,17 @@
 
 
         <!-- create new settlement --> 
-        <form
-            method="POST"
-            action=""
+        <button
+            class="kd capsule full_width blue"
+            onclick="showFullPageLoader()"
             ng-if="
                 {{current_user.settlements_created}} < 3 ||
                 {{current_user.subscriber.level}} > 0
             "
+            ng-click="loadURL('/new')"
         >
-            <input type="hidden" name="change_view" value="new_settlement" />
-            <button
-                id="dashboardCreateNewSettlement"
-                class="kd_kickstarter_button kd_blue"
-                onclick="showFullPageLoader()"
-            >
-                + Create New Settlement
-            </button>
-        </form>
+            + Create New Settlement
+        </button>
 
         <div
             class="dashboard_button_list"

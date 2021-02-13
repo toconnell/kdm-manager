@@ -9,6 +9,7 @@ button                                          {z-index: 10;}
 .gear_card_combat_stat_activation               {z-index: 1;}
 .gear_card_combat_stat_activation_icon          {z-index: 10;}
 .clickable                                      {z-index: 10; }
+.dashboard_rollup:after                         {z-index: -1;}
 .dashboard_accordion                            {z-index: 10; }
 .death_x                                        {z-index: 20; }
 input[type=text], input[type=password]          {z-index: 50; }

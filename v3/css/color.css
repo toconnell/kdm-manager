@@ -134,7 +134,10 @@ input:active {  /* this is our on-click effect color */
     .kd_kickstarter_select {border-color: #fff; box-shadow: 0 0 0.5em 0 #aaa}
 
 /* gradients */
-.gear_card_gradient {background: radial-gradient(#fff, #fff, #f8f8f8, #fffff9); }
+.gear_card_gradient {
+    background: radial-gradient(#fff, #fff, #f8f8f8, #fffff9);
+    color: #111;
+}
 .card_gradient {
     background: radial-gradient(circle, #EEDEBE, #F3EBD4, #F9F2EF);
     border-color: #E6DECC;
@@ -368,6 +371,10 @@ input:active {  /* this is our on-click effect color */
 .dashboard_user_expansions_repeater .special_attribute_checkbox.active {
     background-color: #000;
     border-color: #000;
+}
+.roll_icon_holder {
+    color: #333; 
+    background: #fff;
 }
 .world_panel_basic_box {
     background: #fff;

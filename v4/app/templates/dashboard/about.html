@@ -1,14 +1,16 @@
-<div
-    class="dashboard_menu"
->
+<div class="dashboard_menu">
+
     <h2
-        class="clickable about_primary dashboard_rollup"
+        class="clickable dashboard_rollup gear_card_gradient"
         ng-click="rollUp('aboutDiv');"
         ng-class="{'open': ngRolledUp['aboutDiv'] === false}"
     >
-        <span>
-            <font class="kdm_font dashboard_kdm_font">g</font>
+        <span class="roll_icon_holder kdm_font dashboard_kdm_font">
+            g
+        </span>
+        <span class="roll_content_title">
             About
+            <span class="font_medium ruda">(v{{VERSION}})</span>
         </span>
         <span
             class="roll_content_arrow"
@@ -20,7 +22,7 @@
 
     <div
         id="aboutDiv"
-        class="roll_down_container dashboard_accordion about_secondary rolled_up"
+        class="roll_down_container dashboard_accordion rolled_up gear_card_gradient"
         ng-class="{'rolled_down': ngRolledUp['aboutDiv'] === false}"
     >
         <span
@@ -30,93 +32,121 @@
         >
         </span>
 
-        <a href="https://thelaborinvain.com" target="top">
-            <img
-                src="/static/media/the_labor_in_vain_logo-01.png"
-                class="tlv_about_logo"
-                title="
-                    https://kdm-manager.com is developed by The Labor in Vain!
-                "
-                ng-class="{
-                    'invert_image': user.user.preferences.night_mode === true,
-                }"
-            />
-        </a>
-
-
-        <p>About:</p>
-
-        <ul>
-            <li>
-                This application, which is called <i>{{APP_NAME}}</i>,
-                or simply, <i>the Manager</i>, is an interactive campaign
-                management tool for use with <i>
-                <a href="https://shop.kingdomdeath.com" target="top">Monster</a></i>,
-                by <a href="https://kingdomdeath.com" target="top">Kingdom Death</a>.
-            </li>
-            <li>
-                <i>{{APP_NAME}}</i> is published, provisioned and supported
-                by <a href="https://thelaborinvain.com" target="top">The Labor in Vain</a>.
-            </li>
-        </ul>
-
-        <p>Important Information:</p>
-        <ul>
-            <li><b>This application is not developed, maintained,
-            authorized or in any other way supported by or affiliated
-            with <a href="https://kingdomdeath.com" target="top">
-            Kingdom Death</a>.</b></li>
-            </li>
-            <li>
-                Users' email addresses and other information are used
-                only for the purposes of developing and maintaining this
-                application and are never shared, published or distributed.
-            </li>
-        </ul>
-
-        <p>{{VERSION}} release information:</p>
-        <ul>
-            <li ng-if="latestRelease">
-                The most recently published version of <i>{{APP_NAME}}</i>,
-                {a latestRelease.versionString a}, was published on
-                {a latestRelease.published_on.$date|date:'EEEE, yyyy-MM-dd' a}.
-            </li>
-            <li ng-if="latestRelease">
-                Complete release notes for version 
-                {a latestRelease.versionString a} can be found in it's 
-                <a 
-                    target="top"
-                    href="{a api_url + 'blog/release/' + latestRelease._id.$oid a}"
-                >
-                    change log</a>.
-            </li>
-            <li>
-                Version 1.7.0, the first production release of the
-                Manager, went live over {{APP_AGE}} years
-                ago on 2015-11-29!
-            </li>
-            <li>
-                For additional detailed release information, including complete
-                notes and updates for each production release, please
-                check the development blog at
-                <a href="http://blog.kdm-manager.com" target="top">
-                    blog.kdm-manager.com
-                </a>.
-            </li>
-        </ul>
-
-        <hr/>
-
-        <p>
-            Source code <a href="https://github.com/toconnell/kdm-manager" target="top">
-                available on GitHub
-            </a>!
+        <p class="font_small">
+            &emsp; KDM API v{a apiStat.meta.api.version a} by
+            {a apiStat.meta.info.copyright a}
         </p>
 
-        <hr/>
+        <div
+            class="dashboard_panel_card"
+        >
+            <a href="https://thelaborinvain.com" target="top">
+                <img
+                    src="/static/media/the_labor_in_vain_logo-01.png"
+                    class="tlv_about_logo"
+                    title="
+                        https://kdm-manager.com is developed by The Labor in Vain!
+                    "
+                    ng-class="{
+                        'invert_image': user.user.preferences.night_mode === true,
+                    }"
+                />
+            </a>
 
-        <p>Thanks for using the Manager!</p>
+                <p>
+                    This application, which is called <i>{{APP_NAME}}</i>,
+                    or simply, <i>the Manager</i>, is an interactive campaign
+                    management tool for use with <i>
+                    <a href="https://shop.kingdomdeath.com" target="top">Monster</a></i>,
+                    by <a href="https://kingdomdeath.com" target="top">Kingdom Death</a>.
+                </p>
+                <p>
+                    <i>{{APP_NAME}}</i> is published, provisioned and supported
+                    by <a href="https://thelaborinvain.com" target="top">The Labor in Vain</a>.
+                </p>
+        </div> <!-- panel card -->
 
-    </div> <!-- about_div -->
+        <div
+            class="kd worksheet_block"
+        >
+            <h3 class="kd title">Important</h3>
+
+            <div class="kd worksheet_row">
+                <div class="kd checkbox checked"></div>
+                <div class="kd checkbox_desc">
+                    <b>This application is not developed, maintained,
+                    authorized or in any other way supported by or affiliated
+                    with <a href="https://kingdomdeath.com" target="top">
+                    Kingdom Death</a>.</b></li>
+                </div>
+            </div>
+
+            <div class="kd worksheet_row">
+                <div class="kd checkbox checked"></div>
+                <div class="kd checkbox_desc">
+                    Users' email addresses and other information are used
+                    only for the purposes of developing and maintaining this
+                    application and are never shared, published or distributed.
+                </div>
+            </div>
+        </div> <!-- worksheet_block -->
+
+        <div
+            class="kd worksheet_block"
+        >
+
+            <h3 class="kd title">KDM-Manager Version {{VERSION}}</h3>
+
+            <div class="kd worksheet_row" ng-if="latestRelease">
+                <div class="kd checkbox checked"></div>
+                <div class="kd checkbox_desc">
+                    The most recently published version of <i>{{APP_NAME}}</i>,
+                    {a latestRelease.versionString a}, was published on
+                    {a latestRelease.published_on.$date|date:'EEEE, yyyy-MM-dd' a}.
+                </div>
+            </div>
+
+            <div class="kd worksheet_row" ng-if="latestRelease">
+                <div class="kd checkbox checked"></div>
+                <div class="kd checkbox_desc">
+                    Complete release notes for version 
+                    {a latestRelease.versionString a} can be found in it's 
+                    <a 
+                        target="top"
+                        href="{a api_url + 'blog/release/' + latestRelease._id.$oid a}"
+                    >
+                        change log</a>.
+                 </div>
+            </div>
+
+            <div class="kd worksheet_row">
+                <div class="kd checkbox checked"></div>
+                <div class="kd checkbox_desc">
+                    Version 1.7.0, the first production release of the
+                    Manager, went live over {{APP_AGE}} years
+                    ago on 2015-11-29!
+                </div>
+            </div>
+            <div class="kd worksheet_row">
+                <div class="kd checkbox checked"></div>
+                <div class="kd checkbox_desc">
+                    Source code <a href="https://github.com/toconnell/kdm-manager" target="top">
+                    available on GitHub</a>!
+                </div>
+            </div>
+            <div class="kd worksheet_row">
+                <div class="kd checkbox checked"></div>
+                <div class="kd checkbox_desc">
+                    For additional detailed release information, including complete
+                    notes and updates for each production release, please
+                    check the development blog at
+                    <a href="http://blog.kdm-manager.com" target="top">
+                        blog.kdm-manager.com</a>.
+                </div>
+            </div>
+        </div> <!-- worksheet_block -->
+
+
+    </div> <!-- aboutDiv -->
 
 </div> <!-- dashboard_menu 'About' -->

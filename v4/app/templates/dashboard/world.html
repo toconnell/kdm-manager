@@ -10,10 +10,14 @@
         "
         ng-class="{'open': ngRolledUp['worldDiv'] === false}"
     >
-        <span>
-            <font class="kdm_font_hit_locations dashboard_kdm_font white_text">g</font>
-            <font class="white_text">World</font>
+        <span class="roll_icon_holder kdm_font_hit_locations dashboard_kdm_font">
+            g
         </span>
+
+        <span class="roll_content_title">
+            World
+        </span>
+
         <span
             class="roll_content_arrow white_text"
             ng-class="{'open': ngRolledUp['worldDiv'] === false}"
@@ -27,7 +31,6 @@
         class="
             roll_down_container
             dashboard_accordion
-            world_container
             rolled_up
             kd
             black
@@ -46,7 +49,7 @@
             Retrieving World data...
         </div>
 
-        <div class="world_panel_basic_box" ng-if="world">
+        <div class="dashboard_panel_card gear_card_gradient" ng-if="world">
 
             <p>
                 <font class="green_text">
@@ -70,10 +73,12 @@
                 have perished.
             </p>
 
-        </div> <!-- basic box -->
+        </div> <!-- dashboard_panel_card -->
 
-        <div class="world_panel_basic_box" ng-if="world">
-            <h3>Settlement Statistics</h3>
+
+        <div class="dashboard_panel_card gear_card_gradient" ng-if="world">
+
+            <h3 class="kd title">Settlements</h3>
 
             <p>
                 {a world.total_multiplayer_settlements.name a}:
@@ -152,11 +157,13 @@
                     <td>{a world.max_survival_limit.value a}</td>
                 </tr>
             </table>
+        </div> <!-- dashboard_panel_card -->
 
-        </div>
 
-        <div class="world_panel_basic_box" ng-if="world">
-            <h3>Latest Settlement</h3>
+        <div class="dashboard_panel_card gear_card_gradient" ng-if="world">
+
+            <h3 class="kd title">Latest Settlement</h3>
+
             <table>
                 <tr><td colspan="2"><b>{a world.latest_settlement.value.name a}</b></td></tr>
                 <tr><td colspan="2"><i>{a world.latest_settlement.value.campaign a}</i></td></tr>
@@ -169,10 +176,11 @@
                 <tr class="zebra"><td>Death count</td><td>{a world.latest_settlement.value.death_count a}</td></tr>
             </table>
 
-        </div>
+        </div> <!-- dashboard_panel_card -->
 
-        <div class="world_panel_basic_box" ng-if="world != undefined">
-            <h3>Survivor Statistics</h3>
+        <div class="dashboard_panel_card gear_card_gradient" ng-if="world">
+
+            <h3 class="kd title">Survivors</h3>
 
             <table>
                 <tr><th>Population and death stats</th></tr>
@@ -209,8 +217,10 @@
 
         </div>
 
-        <div class="world_panel_basic_box" ng-if="world != undefined">
-            <h3>Latest Survivor</h3>
+        <div class="dashboard_panel_card gear_card_gradient" ng-if="world">
+
+            <h3 class="kd title">Latest Survivor</h3>
+
             <table>
                 <tr ng-if="world.latest_survivor.value.avatar != undefined">
                     <td colspan="2" class="world_panel_avatar_cell">
@@ -235,8 +245,10 @@
 
         </div>
 
-        <div class="world_panel_basic_box" ng-if="world != undefined">
-            <h3>Latest Fatality</h3>
+        <div class="dashboard_panel_card gear_card_gradient" ng-if="world">
+
+            <h3 class="kd title">Latest Fatality</h3>
+            
             <table>
                 <tr ng-if="world.latest_fatality.value.avatar != undefined">
                     <td colspan="2" class="world_panel_avatar_cell">
@@ -263,14 +275,8 @@
 
         </div> <!-- latest fatality -->
 
-        <div class="world_panel_basic_box" ng-if="world != undefined">
-            <h3>Latest Kill</h3>
-            <p><b>{a world.latest_kill.value.raw_name a}</b></p>
-            <p>Defeated by the survivors of <b>{a world.latest_kill.value.settlement_name a}</b> on {a world.latest_kill.value.killed_date a} at {a world.latest_kill.value.killed_time a}.</p>
-        </div>
-
-        <div class="world_panel_basic_box" ng-if="world != undefined">
-            <h3>{a world.killboard.name a}</h3>
+        <div class="dashboard_panel_card gear_card_gradient" ng-if="world">
+            <h3 class="kd title">{a world.killboard.name a}</h3>
             <table ng-repeat="(type,board) in world.killboard.value">
                 <tr><th class="principle capitalize" colspan="2">{a type a}</th></tr>
                 <tr ng-repeat="row in board" ng-class-even="'zebra'">
@@ -279,8 +285,15 @@
             </table>
         </div>
 
-        <div class="world_panel_basic_box" ng-if="world != undefined">
-            <h3>User Statistics</h3>
+        <div class="dashboard_panel_card gear_card_gradient" ng-if="world">
+            <h3 class="kd title">Latest Kill</h3>
+            <p><b>{a world.latest_kill.value.raw_name a}</b></p>
+            <p>Defeated by the survivors of <b>{a world.latest_kill.value.settlement_name a}</b> on {a world.latest_kill.value.killed_date a} at {a world.latest_kill.value.killed_time a}.</p>
+        </div>
+
+
+        <div class="dashboard_panel_card gear_card_gradient" ng-if="world">
+            <h3 class="kd title">Users</h3>
             <p> <b>{a world.total_users.value a}</b> users are registered. <b>{a world.total_subscribers.value a}</b> users are <a href="https://thelaborinvain-2.myshopify.com/collections/http-kdm-manager-com" target="top">subscribers</a>!</p>
             <p> <b>{a world.recent_sessions.value a}</b> users have managed campaigns in the last 12 hours.</p>
             <p> <b>{a world.total_users_last_30.value a}</b> users have managed campaigns in the last 30 days.</p>

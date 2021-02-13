@@ -8,7 +8,8 @@
         init(
             '{{API['url']}}',
             '{{API_KEY}}',
-            '{{request.endpoint}}'
+            '{{request.endpoint}}',
+            '{{current_user._id}}'
         )
     "
 >
@@ -43,6 +44,7 @@
         <link rel="stylesheet" type="text/css" href="/static/css/tablet.css?v={{VERSION}}">
         <link rel="stylesheet" type="text/css" href="/static/css/laptop.css?v={{VERSION}}">
         <link rel="stylesheet" type="text/css" href="/static/css/desktop.css?v={{VERSION}}">
+        <link rel="stylesheet" type="text/css" href="/static/css/nav.css?v={{VERSION}}">
         <link rel="stylesheet" type="text/css" href="/static/css/color.css?v={{VERSION}}">
         <link rel="stylesheet" type="text/css" href="/static/css/z-index.css?v={{VERSION}}">
 
@@ -59,5 +61,15 @@
     <!-- view-specific body content -->
     {% block body %}
     {% endblock %}
+
+    <!-- additional templates; technically OUTSIDE of the body, but the browser
+    should pull them up into the bottom-most bit of the body -->
+    {% include 'ui.html' %}
+    {% include 'debugger.html' %}
+
+    <!-- nav -->
+    {% if VIEW in ['new_settlement'] %}
+        {% include 'nav.html' %}
+    {% endif %}
 
 </html>

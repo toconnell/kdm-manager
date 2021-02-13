@@ -110,14 +110,14 @@ app.controller("dashboardController", function($scope, $rootScope, $http) {
 		// updates a user's password and logs them out;
         if ($scope.scratch.password === $scope.scratch.password_again) {
             $scope.postJSONtoAPI(
-				'user',
-				'update_password',
+                'user', 'update_password', $rootScope.USER,
 				{password: $scope.scratch.password},
 				false
 			);
             $scope.scratch.saved_password = true;
             $scope.scratch.password = undefined;
             $scope.scratch.password_again = undefined;
+            $scope.flashCapsuleAlert('Exit', true);
             $scope.loadURL('/logout');
         } else {
             console.error('pw match fail');
@@ -132,6 +132,7 @@ app.controller("dashboardController", function($scope, $rootScope, $http) {
         var False = false;
         $scope.scratch.userPreferences = eval(prefsJSON);
     };
+
 
     $scope.setPref = function(prefHandle, newValue) {
         // change a preference setting
@@ -148,7 +149,11 @@ app.controller("dashboardController", function($scope, $rootScope, $http) {
                     {handle: prefHandle, value: newValue}
                 ]
             };
-            $scope.postJSONtoAPI('user', 'set_preferences', js_obj, false);
+            $scope.postJSONtoAPI(
+                'user', 'set_preferences', $rootScope.USER,
+                js_obj,
+                false
+            );
         };
     };
 
@@ -172,16 +177,14 @@ app.controller("dashboardController", function($scope, $rootScope, $http) {
         if (handleIndex === -1) {
             $scope.scratch.userCollection.expansions.push(expansionHandle);
             $scope.postJSONtoAPI(
-                'user',
-                'add_expansion_to_collection',
+                'user', 'add_expansion_to_collection', $rootScope.USER,
                 {handle: expansionHandle},
                 false
             );
         } else {
             $scope.scratch.userCollection.expansions.splice(handleIndex, 1);
             $scope.postJSONtoAPI(
-                'user',
-                'rm_expansion_from_collection',
+                'user', 'rm_expansion_from_collection', $rootScope.USER,
                 {handle: expansionHandle},
                 false
             );

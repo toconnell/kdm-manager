@@ -166,13 +166,22 @@ def about():
 #   views!  (at least, that's what we used to call them)
 #
 
-@app.route('/dashboard', methods=['GET','POST'])
+@app.route('/dashboard')
 @flask_login.login_required
 def dashboard():
     prefs = users.Preferences()
     return flask.render_template(
         'dashboard/index.html',
         PREFERENCES = prefs.dump(),
+        **app.config
+    )
+
+@app.route('/new')
+@flask_login.login_required
+def new_settlement():
+    prefs = users.Preferences()
+    return flask.render_template(
+        'new_settlement.html',
         **app.config
     )
 

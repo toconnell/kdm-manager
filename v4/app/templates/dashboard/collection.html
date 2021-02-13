@@ -9,16 +9,24 @@
         ng-click="rollUp('collectionDiv');"
         ng-class="{'open': ngRolledUp['collectionDiv'] === false}"
     >
-        <span>
-            <font class="kdm_font_hit_locations dashboard_kdm_font">a</font>
+
+        <span class="roll_icon_holder kdm_font_hit_locations dashboard_kdm_font">
+            a
+        </span>
+
+        </span>
+
+        <span class="roll_content_title">
             KD Collection
         </span>
+
         <span
             class="roll_content_arrow"
             ng-class="{'open': ngRolledUp['collectionDiv'] === false}"
         >
             &#x25BC;
         </span>
+
     </h2>
 
     <div
@@ -61,29 +69,37 @@
             ]"
         >
             <h3 class="kd title">{a category a}</h3>
+
             <div
                 class="dashboard_user_expansions_repeater clickable"
                 ng-repeat="(handle, expansion) in expansionAssets"
                 ng-click="toggleUserExpansion(handle)"
                 ng-if="expansion.ui.pretty_category === category"
             >
+
                 <div
                     class="special_attribute_checkbox"
                     ng-class="{active: scratch.userCollection.expansions.indexOf(handle) != -1}"
                 ></div>
+
                 <div
                     class="dashboard_expansion_name"
                     ng-class="{active: scratch.userCollection.expansions.indexOf(handle) != -1}"
                 >
                     {a expansion.name a}
                 </div>
+
                 <div
                     class="font_small dashboard_expansion_subtitle"
                     ng-if="expansion.subtitle !== undefined"
                     ng-bind-html="expansion.subtitle|trustedHTML"
                 >
                 </div>
+
             </div><!-- expansion repeater -->
+
         </div><!-- category repeater -->
+
     </div><!-- collection div/accordion -->
+
 </div><!-- dashboard_menu -->
